@@ -1,4 +1,4 @@
-/* Slopographic (Maison de Slop) UI: routing, the live counter and the
+/* Slopographic UI: routing, the live counter and the
  * Authenticator. The home film lives in scenes.js; text engine in slop.js.
  */
 (() => {
@@ -104,7 +104,7 @@
     }
     html += escapeHTML(text.slice(pos));
     $('#annotated').innerHTML = html;
-    lastVerdict = `Authenticated by Maison de Slop: my text is ${r.score}% slop. ${r.tier.emoji} ${r.tier.name}. ${genuine ? 'Genuine slop.' : 'A human counterfeit.'} slopographic.com`;
+    lastVerdict = `Authenticated by Slopographic: my text is ${r.score}% slop. ${r.tier.emoji} ${r.tier.name}. ${genuine ? 'Genuine slop.' : 'A human counterfeit.'} slopographic.com`;
   }
 
   let detectTimer = 0;
