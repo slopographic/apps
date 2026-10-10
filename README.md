@@ -28,22 +28,22 @@ Everything runs in the browser. There's no backend, no API keys and no build ste
 
 | File | What it does |
 |---|---|
-| `docs/index.html` | Page shell |
-| `docs/style.css` | Styles |
-| `docs/slop.js` | Content engine: seeded generators for each genre, the slop intensifier, and the detector rules. No DOM; also runs in Node. |
-| `docs/app.js` | UI: feed, infinite scroll, canvas image painters, meme-card export, detector, routing (`#p=<post-id>`, `#detector`) |
-| `docs/CNAME` | Custom domain for GitHub Pages |
+| `index.html` | Page shell |
+| `style.css` | Styles |
+| `slop.js` | Content engine: seeded generators for each genre, the slop intensifier, and the detector rules. No DOM; also runs in Node. |
+| `app.js` | UI: feed, infinite scroll, canvas image painters, meme-card export, detector, routing (`#p=<post-id>`, `#detector`) |
+| `CNAME` | Custom domain for GitHub Pages |
 
 Run it locally:
 
 ```sh
-npx http-server docs -p 8080   # or: python3 -m http.server -d docs 8080
+npx http-server . -p 8080   # or: python3 -m http.server 8080
 ```
 
 ## Deploy (GitHub Pages)
 
-1. **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch `main`, folder `/docs` → Save.**
-2. **Custom domain:** `slopographic.com` (already in `docs/CNAME`). Tick **Enforce HTTPS** once the certificate is issued.
+1. **Settings → Pages → Build and deployment → Source: Deploy from a branch → pick the branch, folder `/ (root)` → Save.**
+2. **Custom domain:** `slopographic.com` (already in `CNAME`). Tick **Enforce HTTPS** once the certificate is issued.
 3. **DNS** at your registrar:
 
    | Type | Name | Value |
@@ -57,4 +57,4 @@ npx http-server docs -p 8080   # or: python3 -m http.server -d docs 8080
 
 4. Optional but recommended: verify the domain under **Organization settings → Pages → Verified domains** so nobody else can claim it.
 
-Since it's all static files, Netlify, Cloudflare Pages or Vercel also work. Set the publish directory to `docs` and leave the build command empty.
+Since it's all static files, Netlify, Cloudflare Pages or Vercel also work. Set the publish directory to the repo root and leave the build command empty.
