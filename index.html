@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Slopographic — Maison de Slop</title>
-  <meta name="description" content="Maison de Slop. Artisanal AI slop, machine-made in limited infinite editions. You will like ze slop.">
+  <meta name="description" content="Maison de Slop. A motion film, a slime tank, Slop Paint, holographic Slop Shots and ze Authenticator. You will like ze slop.">
   <meta name="theme-color" content="#0a0a0a">
   <meta name="color-scheme" content="dark">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
   <meta property="og:title" content="Slopographic — Maison de Slop">
-  <meta property="og:description" content="Slop so nice. You need ze slop. An infinite collection of haute AI slop, plus the Authenticator.">
+  <meta property="og:description" content="Slop so nice. You need ze slop. A motion film, Slop Paint, ze Slop Tank, holographic Slop Shots and ze Authenticator.">
   <meta property="og:url" content="https://slopographic.com/">
   <meta property="og:image" content="https://slopographic.com/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
@@ -29,7 +29,6 @@
     </a>
     <nav class="tabs" aria-label="Sections">
       <button class="tab" data-view="home" aria-current="page">Ze Slop</button>
-      <button class="tab" data-view="feed">Collection</button>
       <button class="tab" data-view="detector">Authenticator</button>
     </nav>
     <div class="counter" title="Slop served, approximately">
@@ -47,13 +46,18 @@
   <main>
     <section id="view-home" class="view home" hidden>
 
+      <button class="autoplay" type="button" aria-pressed="true" hidden>
+        <span class="ap-dot" aria-hidden="true"></span><span class="ap-label">Playing ze film</span><span class="ap-hint">· scroll to take over</span>
+      </button>
+
       <!-- 1 · The stretch -->
       <section class="scene s-stretch" data-scene="stretch" aria-label="Sloooop">
         <div class="stage">
           <p class="s1-kicker">Maison de Slop presents</p>
           <h1 class="slooop" aria-label="Slooooop"><span class="lt">S</span><span class="lt">L</span><span class="obox"></span><span class="lt">P</span></h1>
           <p class="s1-sub" aria-label="U will like ze slop and be happy"><span>U</span> <span>will</span> <span>like</span> <span class="z">ze</span> <span class="z">slop</span> <span>and</span> <span>be</span> <span>happy</span></p>
-          <p class="scroll-hint">Scroll to sloooop <span aria-hidden="true">↓</span></p>
+          <canvas class="hero-goo" aria-hidden="true"></canvas>
+          <p class="massage">Massage ze slop <span aria-hidden="true">✋</span></p>
         </div>
       </section>
 
@@ -88,11 +92,11 @@
       </section>
 
       <!-- 4 · The collection, as a gallery -->
-      <section class="scene s-gallery" data-scene="gallery" aria-label="Ze Collection">
+      <section class="scene s-gallery" data-scene="gallery" aria-label="Ze Rooms">
         <div class="stage">
           <div class="g-head">
-            <p class="kicker"><span>Maison de Slop</span><span>Autumn/Winter ∞</span></p>
-            <h2>Ze <em>Collection</em></h2>
+            <p class="kicker"><span>Ze Maison</span><span>Five rooms of slop</span></p>
+            <h2>Ze <em>Rooms</em></h2>
           </div>
           <div class="g-track"></div>
           <div class="g-progress" aria-hidden="true"><i></i></div>
@@ -103,7 +107,7 @@
       <section class="scene s-manifesto" data-scene="manifesto" aria-label="Manifesto">
         <div class="stage">
           <p class="kicker"><span>Ze Manifesto</span></p>
-          <p class="manifesto">We believe every feed deserves more slop. Slop so nice, you need ze slop. Machine-made, hand-ignored, served infinitely. You will like ze slop, and you will be happy.</p>
+          <p class="manifesto">We believe every screen deserves more slop. Slop so nice, you need ze slop. Machine-made, hand-ignored, served infinitely. You will like ze slop, and you will be happy.</p>
         </div>
       </section>
 
@@ -125,32 +129,12 @@
         <div class="stage">
           <h2 class="finale-word" aria-label="Luv ze slop"></h2>
           <div class="finale-cta">
-            <a class="btn dark" href="#feed">Enter ze collection</a>
-            <a class="btn dark ghosted" href="#detector">Authenticator</a>
+            <a class="btn dark" href="cards/">Open a slop pack</a>
+            <a class="btn dark ghosted" href="paint/">Slop Paint</a>
+            <a class="btn dark ghosted" href="fluid/">Ze Slop Tank</a>
           </div>
         </div>
       </section>
-    </section>
-
-    <section id="view-feed" class="view" hidden>
-      <div class="hero small">
-        <p class="kicker"><span>Maison de Slop</span><span>Collection Nº ∞</span></p>
-        <h1 class="page-title">Ze <em>Collection</em></h1>
-        <p class="lede">Artisanal AI content, machine-made in limited infinite editions. Every piece is one of none.</p>
-      </div>
-
-      <div class="controls" id="collection">
-        <div class="chips" id="chips" role="group" aria-label="Filter by collection"></div>
-        <div class="level" role="radiogroup" aria-label="Slop level">
-          <button role="radio" data-level="1">Prêt-à-Slop</button>
-          <button role="radio" data-level="2">Industrial</button>
-          <button role="radio" data-level="3">Haute Slop</button>
-        </div>
-      </div>
-
-      <div id="pinned"></div>
-      <div id="feed" class="feed" aria-live="polite"></div>
-      <div id="sentinel" class="sentinel"><span class="spinner" aria-hidden="true"></span> Ze next piece is being prepared</div>
     </section>
 
     <section id="view-detector" class="view" hidden>

@@ -1,5 +1,5 @@
 /* Slopographic motion layer (site-wide): slime cursor, scroll-reactive
- * ticker, feed card reveals, the Authenticator's stamp slam and the footer
+ * ticker, the Authenticator's stamp slam and the footer
  * slime fill. The home page film lives in scenes.js.
  * Everything here is decoration: the site works without it, and it all
  * switches off for people who prefer reduced motion.
@@ -22,7 +22,7 @@
     document.body.append(cv);
     const cx = cv.getContext('2d');
     const size = () => {
-      const d = Math.min(devicePixelRatio || 1, 2);
+      const d = 1; // a soft blob doesn't need retina pixels
       cv.width = innerWidth * d;
       cv.height = innerHeight * d;
       cx.setTransform(d, 0, 0, d, 0, 0);
@@ -99,35 +99,6 @@
       requestAnimationFrame(loop);
     })();
   }
-
-  // ------------------------------------------------------- card reveals
-
-  const revealer = new IntersectionObserver((entries) => {
-    for (const e of entries) {
-      if (!e.isIntersecting) continue;
-      const el = e.target;
-      revealer.unobserve(el);
-      el.classList.add('reveal');
-      requestAnimationFrame(() => el.classList.remove('pre'));
-      el.addEventListener('transitionend', () => el.classList.remove('reveal'), { once: true });
-    }
-  }, { rootMargin: '0px 0px -8% 0px' });
-
-  const watch = (node) => {
-    if (!(node instanceof HTMLElement) || !node.classList.contains('post') || node.classList.contains('pinned')) return;
-    if (node.classList.contains('jelly')) {
-      node.addEventListener('animationend', () => node.classList.remove('jelly'), { once: true });
-      return;
-    }
-    // Cards already on screen just rise in; the rest wait for the scroll.
-    node.classList.add('pre');
-    revealer.observe(node);
-  };
-  new MutationObserver((muts) => muts.forEach((m) => m.addedNodes.forEach(watch))).observe($('#feed'), { childList: true });
-  new MutationObserver((muts) => muts.forEach((m) => m.addedNodes.forEach((n) => {
-    if (n instanceof HTMLElement && n.classList.contains('jelly')) n.addEventListener('animationend', () => n.classList.remove('jelly'), { once: true });
-  }))).observe($('#pinned'), { childList: true });
-  $$('#feed .post').forEach(watch);
 
   // -------------------------------------------------- authenticator
 
