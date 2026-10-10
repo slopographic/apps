@@ -1,5 +1,6 @@
-/* Slopographic motion layer: intro, SLOOOOP stretch, drips, slime cursor,
- * scroll-reactive ticker, reveals and the Authenticator's stamp slam.
+/* Slopographic motion layer (site-wide): slime cursor, scroll-reactive
+ * ticker, feed card reveals, the Authenticator's stamp slam and the footer
+ * slime fill. The home page film lives in scenes.js.
  * Everything here is decoration: the site works without it, and it all
  * switches off for people who prefer reduced motion.
  */
@@ -11,162 +12,6 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const finePointer = matchMedia('(pointer: fine)').matches;
-  const store = (() => {
-    try { return window.sessionStorage; } catch { return null; }
-  })();
-
-  // --------------------------------------------------------------- wordmark
-
-  const mark = $('.wordmark');
-  const wrap = $('.wordmark-wrap');
-
-  function splitWordmark() {
-    const text = mark.textContent;
-    mark.textContent = '';
-    [...text].forEach((c, i) => {
-      const s = document.createElement('span');
-      s.className = 'ch';
-      s.style.setProperty('--i', i);
-      s.textContent = c;
-      mark.append(s);
-    });
-    mark.classList.add('split');
-    mark.setAttribute('aria-label', text);
-  }
-  splitWordmark();
-
-  // Letters squish when you touch them.
-  mark.addEventListener('pointerover', (e) => {
-    const ch = e.target.closest('.ch');
-    if (!ch || ch.classList.contains('wobble')) return;
-    ch.classList.add('wobble');
-    ch.addEventListener('animationend', function done(ev) {
-      if (ev.animationName !== 'jelly') return;
-      ch.classList.remove('wobble');
-      ch.removeEventListener('animationend', done);
-    });
-  });
-
-  // SLOPO… → SLOOOOOOOPO… with an elastic snap back.
-  let stretching = false;
-  function sloooop() {
-    if (stretching) return;
-    const o = mark.querySelectorAll('.ch')[2];
-    if (!o) return;
-    stretching = true;
-    const oW = o.getBoundingClientRect().width;
-    const full = mark.getBoundingClientRect().width;
-    const extra = 6;
-    // Extra O's sit on top of each other and fan out as the slot widens.
-    o.classList.add('o-stretch');
-    o.style.setProperty('--ow', oW + 'px');
-    o.style.setProperty('--n', extra);
-    o.textContent = '';
-    for (let k = 0; k <= extra; k++) {
-      const c = document.createElement('span');
-      c.className = 'oc';
-      c.style.setProperty('--k', k);
-      c.textContent = 'O';
-      o.append(c);
-    }
-    o.style.width = oW + 'px';
-    // Springy stretch out, a beat of hold, then a clean snap back (no undershoot,
-    // which would squeeze the O thinner than normal).
-    const timing = { duration: 1500, easing: 'linear' };
-    const offsets = [0, 0.38, 0.58, 1];
-    const eases = ['cubic-bezier(0.25, 1.35, 0.35, 1)', 'linear', 'cubic-bezier(0.65, 0, 0.25, 1)', 'linear'];
-    const s = full / (full + oW * extra);
-    const keyW = [oW, oW * (extra + 1), oW * (extra + 1), oW].map((w, i) => ({ width: w + 'px', offset: offsets[i], easing: eases[i] }));
-    const keyS = [1, s, s, 1].map((v, i) => ({ transform: `scaleX(${v})`, offset: offsets[i], easing: eases[i] }));
-    o.animate(keyW, timing);
-    mark.animate(keyS, timing).finished.then(() => {
-      o.classList.remove('o-stretch');
-      o.style.width = '';
-      o.textContent = 'O';
-      stretching = false;
-    });
-    for (let k = 0; k < 4; k++) setTimeout(spawnDrop, 300 + k * 120);
-  }
-  mark.addEventListener('click', sloooop);
-  mark.addEventListener('mouseenter', () => finePointer && sloooop());
-
-  // Every so often a drop of slime falls off one of the drips.
-  function spawnDrop() {
-    if (document.hidden) return;
-    const drips = $$('.drip', wrap);
-    const d = drips[Math.floor(Math.random() * drips.length)];
-    if (!d) return;
-    const drop = document.createElement('i');
-    drop.className = 'drop';
-    const r = d.getBoundingClientRect();
-    const g = wrap.getBoundingClientRect();
-    drop.style.left = r.left - g.left + r.width / 2 + 'px';
-    drop.style.top = r.bottom - g.top - 6 + 'px';
-    drop.style.setProperty('--t', 1.3 + Math.random() * 0.9 + 's');
-    drop.style.setProperty('--dist', 40 + Math.random() * 40 + 'vh');
-    wrap.append(drop);
-    drop.addEventListener('animationend', () => drop.remove());
-  }
-  setInterval(spawnDrop, 1100);
-
-  // ------------------------------------------------------------- tagline
-
-  const ze = $('.tagline em');
-  if (ze) {
-    const t = ze.textContent;
-    ze.textContent = '';
-    [...t].forEach((c, i) => {
-      const s = document.createElement('span');
-      s.className = 'wl';
-      s.style.setProperty('--i', i);
-      s.textContent = c === ' ' ? ' ' : c;
-      ze.append(s);
-    });
-  }
-
-  // ---------------------------------------------------------------- intro
-
-  function playIntro() {
-    const seen = store && store.getItem('slop-intro');
-    if (seen) {
-      mark.classList.add('enter');
-      return;
-    }
-    if (store) store.setItem('slop-intro', '1');
-    document.documentElement.classList.add('intro-open');
-    const intro = document.createElement('div');
-    intro.className = 'intro';
-    intro.innerHTML = `
-      <div class="intro-word">SL<span class="oo">O</span>P</div>
-      <div class="intro-sub">Maison de Slop · You will like ze slop · Tap to skip</div>
-      <svg class="intro-goo" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 0H1200V18C1160 18 1150 70 1120 70S1090 20 1040 20 980 104 940 104 900 24 840 24 790 56 760 56 720 14 650 14 600 90 560 90 520 22 460 22 410 64 380 64 340 16 280 16 230 110 190 110 150 26 100 26 60 50 40 50 20 18 0 18Z"/>
-      </svg>`;
-    document.body.append(intro);
-    const word = $('.intro-word', intro);
-    const oo = $('.oo', intro);
-    let n = 1;
-    let done = false;
-    const grow = setInterval(() => {
-      if (n >= 11) return clearInterval(grow);
-      oo.textContent = 'O'.repeat(++n);
-      const over = word.scrollWidth / (window.innerWidth * 0.92);
-      word.style.transform = `translate(-50%, -50%) scale(${over > 1 ? 1 / over : 1})`;
-    }, 85);
-    const finish = () => {
-      if (done) return;
-      done = true;
-      clearInterval(grow);
-      intro.classList.add('out');
-      document.documentElement.classList.remove('intro-open');
-      mark.classList.add('enter');
-      setTimeout(() => intro.remove(), 900);
-    };
-    intro.addEventListener('click', finish);
-    setTimeout(finish, 1700);
-  }
-  if ($('#view-feed').hidden) mark.classList.add('enter');
-  else playIntro();
 
   // --------------------------------------------------------- slime cursor
 
@@ -238,8 +83,8 @@
 
   // ------------------------------------------------- scroll-driven ticker
 
-  const tickerAnim = $('.ticker-track') && $('.ticker-track').getAnimations()[0];
-  if (tickerAnim) {
+  const track = $('.ticker-track');
+  if (track) {
     let lastY = scrollY, vel = 0;
     addEventListener('scroll', () => {
       vel += (scrollY - lastY) * 0.06;
@@ -248,21 +93,11 @@
     (function loop() {
       vel *= 0.9;
       const v = Math.max(-8, Math.min(8, vel));
-      tickerAnim.playbackRate = 1 + Math.abs(v) * (v < 0 ? -1.4 : 1);
+      // Re-read each frame: hiding the ticker (on the home film) recreates its animation.
+      const anim = track.getAnimations()[0];
+      if (anim) anim.playbackRate = 1 + Math.abs(v) * (v < 0 ? -1.4 : 1);
       requestAnimationFrame(loop);
     })();
-  }
-
-  // ------------------------------------------------- gallery parallax
-
-  const art = $('#hero-art');
-  if (art && finePointer) {
-    addEventListener('pointermove', (e) => {
-      const nx = e.clientX / innerWidth - 0.5;
-      const ny = e.clientY / innerHeight - 0.5;
-      art.style.setProperty('--px', nx * -22 + 'px');
-      art.style.setProperty('--py', ny * -16 + 'px');
-    }, { passive: true });
   }
 
   // ------------------------------------------------------- card reveals

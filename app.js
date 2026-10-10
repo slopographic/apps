@@ -551,43 +551,10 @@
   bump(0);
   setInterval(() => bump(Math.floor(Math.random() * 7)), 180);
 
-  // ----------------------------------------------------------- hero art
+  // ------------------------------------------------- shared with scenes
 
   const randSeed = () => (Math.random() * 2 ** 31) >>> 0;
-  const PIECES = [
-    { genre: 'facebook', title: 'Untitled (Amen?)', medium: 'Emoji on canvas' },
-    { genre: 'youtube', title: 'Day 365 (Shocking)', medium: 'Clickbait, mixed' },
-    { genre: 'quote', title: 'Vibe & Tribe', medium: 'Sunset on algorithm' },
-  ];
-
-  function renderPiece(fig, spec, seed) {
-    const post = S.generate(spec.genre, seed, 1);
-    fig.textContent = '';
-    const img = el('img');
-    img.src = imageURL(post);
-    img.alt = `${spec.title}, a generated ${spec.medium.toLowerCase()} piece`;
-    const cap = el('figcaption');
-    const name = el('span');
-    name.append(el('b', '', spec.title), document.createTextNode(', 2026'));
-    cap.append(name, el('span', '', pieceNo(post)));
-    fig.append(img, cap);
-  }
-
-  function renderHeroArt() {
-    const art = $('#hero-art');
-    art.textContent = '';
-    PIECES.forEach((spec, i) => {
-      const fig = el('figure', 'piece');
-      fig.title = 'Click for another piece';
-      // The first piece is always the house classic: Shrimp Christ.
-      renderPiece(fig, spec, i === 0 ? 200 : randSeed());
-      fig.addEventListener('click', () => {
-        renderPiece(fig, spec, randSeed());
-        bump(1);
-      });
-      art.append(fig);
-    });
-  }
+  window.SlopUI = { imageURL, pieceNo, randSeed, served: () => served };
 
   // ------------------------------------------------------------- feed
 
@@ -744,9 +711,15 @@
 
   // ------------------------------------------------------------ routing
 
+  let currentView = '';
   function showView(name) {
+    if (currentView && currentView !== name) window.scrollTo(0, 0);
+    currentView = name;
+    $('#view-home').hidden = name !== 'home';
     $('#view-feed').hidden = name !== 'feed';
     $('#view-detector').hidden = name !== 'detector';
+    document.body.dataset.view = name;
+    document.dispatchEvent(new CustomEvent('slop:view', { detail: name }));
     fitWordmarks();
     document.querySelectorAll('.tab').forEach((t) => {
       if (t.dataset.view === name) t.setAttribute('aria-current', 'page');
@@ -758,7 +731,7 @@
     t.addEventListener('click', (e) => {
       e.preventDefault();
       const v = t.dataset.view;
-      history.replaceState(null, '', v === 'detector' ? '#detector' : location.pathname + location.search);
+      history.replaceState(null, '', v === 'home' ? location.pathname + location.search : '#' + v);
       showView(v);
       window.scrollTo({ top: 0 });
       if (v === 'detector') input.focus({ preventScroll: true });
@@ -773,8 +746,12 @@
       showView('detector');
       return;
     }
-    showView('feed');
     const m = /^p=(.+)$/.exec(hash);
+    if (hash !== 'feed' && !m) {
+      showView('home');
+      return;
+    }
+    showView('feed');
     const parsed = m && S.parseId(decodeURIComponent(m[1]));
     if (parsed) {
       pinned.append(el('p', 'pin-label', 'Someone sent you a piece from ze collection'));
@@ -825,8 +802,8 @@
     // Paint images after the web fonts arrive so their text uses them.
     imgCache.clear();
     fitWordmarks();
-    renderHeroArt();
     route();
     resetFeed();
+    document.dispatchEvent(new Event('slop:ready'));
   });
 })();
