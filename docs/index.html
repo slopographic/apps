@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slopographic — Fresh AI Slop, Served Infinitely</title>
+  <meta name="description" content="An infinite feed of artisanal AI slop: LinkedIn gurus, Shrimp Jesus, SEO blogspam, Amazon listings and more. Plus a Slop Detector to check any text.">
+  <meta name="theme-color" content="#0b0912">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://slopographic.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slopographic">
+  <meta property="og:title" content="Slopographic — Fresh AI Slop, Served Infinitely">
+  <meta property="og:description" content="Doomscroll an endless feed of AI slop, make it sloppier, save it as a meme. Then run anything through the Slop Detector.">
+  <meta property="og:url" content="https://slopographic.com/">
+  <meta property="og:image" content="https://slopographic.com/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="#" data-view="feed" aria-label="Slopographic home">
+      <span class="logo-mark" aria-hidden="true">🍲</span><span class="logo-text">slopographic</span>
+    </a>
+    <nav class="tabs" aria-label="Sections">
+      <button class="tab" data-view="feed" aria-current="page">Feed</button>
+      <button class="tab" data-view="detector"><span class="tab-long">Slop </span>Detector</button>
+    </nav>
+    <div class="counter" title="Slop served (approximately, vibes-based)">
+      <span class="pulse" aria-hidden="true"></span><span id="counter">0</span><span class="counter-label"> slops served</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="view-feed" class="view">
+      <div class="hero">
+        <p class="eyebrow">✨ Powered by 100% organic slop™</p>
+        <h1>Fresh AI slop.<br><span class="grad">Served infinitely.</span></h1>
+        <p class="lede">Hand-crafted by no one. Artisanal content for the dead internet. Scroll responsibly.</p>
+      </div>
+
+      <div class="controls">
+        <div class="chips" id="chips" role="group" aria-label="Filter by slop type"></div>
+        <div class="level" role="radiogroup" aria-label="Slop level">
+          <span class="level-label">Slop level</span>
+          <button role="radio" data-level="1">🥄 Mild</button>
+          <button role="radio" data-level="2">🏭 Industrial</button>
+          <button role="radio" data-level="3">☢️ Maximum</button>
+        </div>
+      </div>
+
+      <div id="pinned"></div>
+      <div id="feed" class="feed" aria-live="polite"></div>
+      <div id="sentinel" class="sentinel"><span class="spinner" aria-hidden="true"></span> Generating more slop…</div>
+    </section>
+
+    <section id="view-detector" class="view" hidden>
+      <div class="hero small">
+        <p class="eyebrow">🔍 Forensic slopology</p>
+        <h1>Slop <span class="grad">Detector</span></h1>
+        <p class="lede">Paste any text. We’ll tell you how much of it is slop, and exactly where it delved.</p>
+      </div>
+      <div class="detector">
+        <label for="detect-input" class="sr">Text to analyze</label>
+        <textarea id="detect-input" placeholder="Paste a LinkedIn post, a cover letter, your boss’s email, your own soul…" spellcheck="false"></textarea>
+        <div class="detect-actions">
+          <button class="btn" id="sample-slop">🎲 Paste sample slop</button>
+          <button class="btn" id="sample-human">🧑‍🌾 Paste human text</button>
+          <button class="btn ghost" id="clear">Clear</button>
+        </div>
+        <div id="result" class="result" hidden>
+          <div class="gauge">
+            <div class="gauge-num"><span id="score">0</span><small>%</small></div>
+            <div class="gauge-info">
+              <div class="tier"><span id="tier-emoji"></span> <span id="tier-name"></span></div>
+              <p id="tier-blurb"></p>
+              <div class="bar" aria-hidden="true"><div id="bar-fill"></div></div>
+            </div>
+          </div>
+          <div class="tells">
+            <h3>Tells detected</h3>
+            <ul id="tells"></ul>
+          </div>
+          <div class="highlighted">
+            <h3>Annotated text</h3>
+            <div id="annotated"></div>
+          </div>
+          <div class="detect-actions">
+            <button class="btn" id="copy-verdict">📋 Copy verdict</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><strong>slopographic.com</strong>: no AIs were harmed in the making of this slop. Several were mildly inconvenienced.</p>
+    <p class="fine">Everything here is generated in your browser from templates. Any resemblance to real posts is, sadly, inevitable.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="slop.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
