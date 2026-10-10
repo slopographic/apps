@@ -1,10 +1,10 @@
-# 🍲 Slopographic
+# Slopographic — Maison de Slop
 
-**Fresh AI slop. Served infinitely.** Live at [slopographic.com](https://slopographic.com).
+**Slop so nice. You need ze slop.** Live at [slopographic.com](https://slopographic.com).
 
-A meme site about AI slop. It has two halves:
+A fake luxury fashion house for AI slop: black, bone and one acid "slop green", a chrome wordmark with goo drips, a gallery of featured "pieces", and a scrolling house ticker. It has two halves:
 
-- **The Slop Feed**: an endless doomscroll of generated AI slop across nine genres:
+- **The Collection**: an endless doomscroll of generated AI slop across nine genres:
   - 💼 LinkedIn gurus
   - 🙏 Facebook "miracles" (Shrimp Jesus, made-of-bread elephants, 104th birthdays nobody wished)
   - 📈 SEO blogspam
@@ -15,12 +15,12 @@ A meme site about AI slop. It has two halves:
   - 🤖 "Certainly! 😊" chatbot replies
   - 🌅 misattributed inspo quotes
 
-  Filter by genre, set the slop level (Mild / Industrial / Maximum), and on any post:
-  - **🔥 Sloppier** regenerates it with more slop, up to level 5
-  - **📋 Copy** copies the text
-  - **🖼️ Meme** saves it as a PNG card for posting
-  - **🔗 Share** copies a permalink that reproduces that exact post
-- **The Slop Detector**: paste any text to get a slop score, a verdict (from *Artisanal Human Prose* to *Industrial-Grade Slop*), a tally of tells, and the text annotated wherever it delved.
+  Filter by collection, set the slop level (Prêt-à-Slop / Industrial / Haute Slop), and on any post:
+  - **Sloppier ↑** regenerates it with more slop, up to level 5
+  - **Copy** copies the text
+  - **Save** downloads it as a branded PNG card for posting
+  - **Share** copies a permalink that reproduces that exact post
+- **The Authenticator**: paste any text and ze Maison issues a certificate of authenticity: slop score, verdict (from *Artisanal Human Prose* to *Industrial-Grade Slop*), a "Genuine Slop" or "Counterfeit · Human Made" stamp, a tally of tells, and the text annotated wherever it delved.
 
 Everything runs in the browser. There's no backend, no API keys and no build step, and the "AI images" are painted on a canvas with emoji.
 

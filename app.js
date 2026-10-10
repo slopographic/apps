@@ -1,5 +1,5 @@
-/* Slopographic UI: the infinite slop feed, canvas-painted "AI images",
- * meme-card export and the Slop Detector. Content comes from slop.js.
+/* Slopographic (Maison de Slop) UI: the infinite collection, canvas-painted
+ * "AI images", meme-card export and the Authenticator. Content comes from slop.js.
  */
 (() => {
   'use strict';
@@ -7,8 +7,10 @@
   const S = window.Slop;
   const $ = (sel) => document.querySelector(sel);
   const EMOJI = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"';
-  const SANS = `Inter, system-ui, sans-serif, ${EMOJI}`;
-  const DISPLAY = `"Bricolage Grotesque", Inter, sans-serif, ${EMOJI}`;
+  const SANS = `"Inter Tight", Inter, system-ui, sans-serif, ${EMOJI}`;
+  const DISPLAY = `Archivo, "Inter Tight", sans-serif, ${EMOJI}`;
+  const SERIF = `"Instrument Serif", Georgia, serif, ${EMOJI}`;
+  const MONO = `"JetBrains Mono", ui-monospace, monospace, ${EMOJI}`;
   const ASPECT = { miracle: 1, product: 1, quote: 1, thumb: 9 / 16 };
 
   // ------------------------------------------------------------ painters
@@ -232,12 +234,12 @@
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    let size = W * 0.075;
-    ctx.font = `800 ${size}px ${DISPLAY}`;
+    let size = W * 0.088;
+    ctx.font = `italic 400 ${size}px ${SERIF}`;
     let lines = wrap(ctx, `“${im.text}”`, W * 0.8);
     while (lines.length > 5) {
       size *= 0.9;
-      ctx.font = `800 ${size}px ${DISPLAY}`;
+      ctx.font = `italic 400 ${size}px ${SERIF}`;
       lines = wrap(ctx, `“${im.text}”`, W * 0.8);
     }
     const lh = size * 1.12;
@@ -278,7 +280,8 @@
 
   // ----------------------------------------------------------- post cards
 
-  const avatarBg = (hue) => `linear-gradient(135deg, hsl(${hue} 85% 62%), hsl(${(hue + 70) % 360} 80% 48%))`;
+  const LEVEL_NAMES = ['', 'Prêt-à-Slop', 'Industrial', 'Industrial+', 'Haute Slop', 'Haute Couture'];
+  const pieceNo = (post) => 'Nº ' + String((post.seed % 9999) + 1).padStart(4, '0');
 
   function el(tag, cls, text) {
     const e = document.createElement(tag);
@@ -291,18 +294,19 @@
     const card = el('article', 'post' + (pinned ? ' pinned' : ''));
     card.dataset.id = post.id;
 
+    const strip = el('div', 'strip');
+    strip.append(el('span', 'no', pieceNo(post)), el('span', '', post.genreLabel));
+    if (post.level > 1) strip.append(el('span', 'lvl', LEVEL_NAMES[post.level]));
+    card.append(strip);
+
     const head = el('header', 'post-head');
     const av = el('div', 'avatar', post.author.avatar);
-    av.style.background = avatarBg(post.hue);
     av.setAttribute('aria-hidden', 'true');
     const who = el('div', 'who');
     who.append(el('strong', '', post.author.name));
     if (post.author.sub) who.append(el('span', '', post.author.sub));
     if (post.meta) who.append(el('span', '', post.meta));
-    const badges = el('div');
-    badges.append(el('span', 'badge', `${post.genreEmoji} ${post.genreLabel}`));
-    if (post.level > 1) badges.append(el('span', 'badge lvl', `🔥 Lv ${post.level}`));
-    head.append(av, who, badges);
+    head.append(av, who);
     card.append(head);
 
     if (post.title) card.append(el('h3', 'post-title', post.title));
@@ -344,22 +348,21 @@
     }
 
     const actions = el('div', 'actions');
-    const sloppier = el('button', 'act sloppier', post.level >= S.MAX_LEVEL ? '☢️ Max slop' : '🔥 Sloppier');
+    const sloppier = el('button', 'act sloppier', post.level >= S.MAX_LEVEL ? 'Max slop' : 'Sloppier ↑');
     sloppier.disabled = post.level >= S.MAX_LEVEL;
-    sloppier.title = 'Regenerate this post with more slop';
+    sloppier.title = 'Regenerate this piece with more slop';
     sloppier.addEventListener('click', () => {
       const next = S.generate(post.genre, post.seed, post.level + 1);
-      const fresh = renderPost(next, pinned);
-      card.replaceWith(fresh);
+      card.replaceWith(renderPost(next, pinned));
       if (pinned) history.replaceState(null, '', '#p=' + next.id);
       bump(1);
     });
-    const copy = el('button', 'act', '📋 Copy');
-    copy.addEventListener('click', () => copyText(S.plainText(post) + '\n\n— via slopographic.com', 'Copied. Go forth and pollute. 🫡'));
-    const meme = el('button', 'act', '🖼️ Meme');
-    meme.title = 'Save this post as an image';
+    const copy = el('button', 'act', 'Copy');
+    copy.addEventListener('click', () => copyText(S.plainText(post) + '\n\n— via slopographic.com', 'Copied. Go forth and pollute.'));
+    const meme = el('button', 'act', 'Save');
+    meme.title = 'Save this piece as an image';
     meme.addEventListener('click', () => saveMeme(post));
-    const share = el('button', 'act', '🔗 Share');
+    const share = el('button', 'act', 'Share');
     share.addEventListener('click', () => sharePost(post));
     actions.append(sloppier, copy, meme, share);
     card.append(actions);
@@ -368,20 +371,11 @@
 
   // -------------------------------------------------------- meme export
 
-  function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
+  const C = { ink: '#0a0a0a', card: '#121212', bone: '#f1ede4', dim: 'rgba(241,237,228,0.6)', faint: 'rgba(241,237,228,0.38)', line: 'rgba(241,237,228,0.14)', slop: '#d4ff3a' };
 
   // Lays out the card; when `draw` is false it only measures the height.
   function cardPass(ctx, post, imgCanvas, draw, H = 0) {
-    const M = 24, CW = 600 - M * 2, P = 24, TW = CW - P * 2;
-    let y = M + P;
+    const M = 28, CW = 600 - M * 2, P = 22, TW = CW - P * 2;
     const text = (str, x, yy, font, color, align = 'left') => {
       if (!draw) return;
       ctx.font = font;
@@ -390,81 +384,98 @@
       ctx.textBaseline = 'alphabetic';
       ctx.fillText(str, x, yy);
     };
+    const rule = (yy) => {
+      if (!draw) return;
+      ctx.fillStyle = C.line;
+      ctx.fillRect(M, yy, CW, 1);
+    };
 
     if (draw) {
-      const bg = ctx.createLinearGradient(0, 0, 600, 600);
-      bg.addColorStop(0, '#2a1650');
-      bg.addColorStop(1, '#0b0912');
-      ctx.fillStyle = bg;
+      ctx.fillStyle = C.ink;
       ctx.fillRect(0, 0, 600, H);
-      ctx.fillStyle = '#15121f';
-      roundRect(ctx, M, M, CW, H - M - 50, 18);
-      ctx.fill();
-      ctx.save();
-      roundRect(ctx, M + P, y, 48, 48, 24);
-      const g = ctx.createLinearGradient(M + P, y, M + P + 48, y + 48);
-      g.addColorStop(0, `hsl(${post.hue} 85% 62%)`);
-      g.addColorStop(1, `hsl(${(post.hue + 70) % 360} 80% 48%)`);
-      ctx.fillStyle = g;
-      ctx.fill();
-      ctx.restore();
-      drawEmoji(ctx, post.author.avatar, M + P + 24, y + 26, 24);
+      ctx.fillStyle = C.card;
+      ctx.fillRect(M, M + 30, CW, H - M * 2 - 30 - 34);
+      ctx.strokeStyle = C.line;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(M + 0.5, M + 30.5, CW - 1, H - M * 2 - 31 - 34);
     }
-    const nx = M + P + 60, nw = TW - 60;
-    text(post.author.name, nx, y + 18, `700 17px ${SANS}`, '#f4f0ff');
-    ctx.font = `400 12.5px ${SANS}`;
-    let sy = y + 36;
+    // House header above the card.
+    if ('fontStretch' in ctx) ctx.fontStretch = 'extra-condensed';
+    text('SLOPOGRAPHIC', M, M + 15, `900 24px ${DISPLAY}`, C.bone);
+    if ('fontStretch' in ctx) ctx.fontStretch = 'normal';
+    text('MAISON DE SLOP', 600 - M, M + 12, `400 9px ${MONO}`, C.faint, 'right');
+
+    let y = M + 30;
+    text(`${pieceNo(post)}   ${post.genreLabel.toUpperCase()}`, M + P, y + 20, `600 9.5px ${MONO}`, C.dim);
+    if (post.level > 1) text(LEVEL_NAMES[post.level].toUpperCase(), M + CW - P, y + 20, `600 9.5px ${MONO}`, C.slop, 'right');
+    y += 32;
+    rule(y);
+    y += 16;
+
+    if (draw) {
+      ctx.beginPath();
+      ctx.arc(M + P + 22, y + 22, 22, 0, Math.PI * 2);
+      ctx.fillStyle = '#1c1c1c';
+      ctx.fill();
+      ctx.strokeStyle = C.line;
+      ctx.stroke();
+      drawEmoji(ctx, post.author.avatar, M + P + 22, y + 24, 22);
+    }
+    const nx = M + P + 56, nw = TW - 56;
+    text(post.author.name, nx, y + 17, `600 16px ${SANS}`, C.bone);
+    ctx.font = `400 12px ${SANS}`;
+    let sy = y + 34;
     for (const l of wrap(ctx, [post.author.sub, post.meta].filter(Boolean).join(' · '), nw).slice(0, 3)) {
-      text(l, nx, sy, `400 12.5px ${SANS}`, '#a49dbd');
+      text(l, nx, sy, `400 12px ${SANS}`, C.faint);
       sy += 16;
     }
-    y = Math.max(y + 56, sy) + 8;
+    y = Math.max(y + 50, sy) + 8;
 
     if (post.title) {
-      ctx.font = `800 22px ${DISPLAY}`;
+      ctx.font = `400 26px ${SERIF}`;
       for (const l of wrap(ctx, post.title, TW)) {
-        y += 26;
-        text(l, M + P, y, `800 22px ${DISPLAY}`, '#f4f0ff');
+        y += 28;
+        text(l, M + P, y, `400 26px ${SERIF}`, C.bone);
       }
       y += 8;
     }
 
-    let budget = post.image ? 16 : 34;
+    let budget = post.image ? 14 : 32;
     for (const raw of post.body.split('\n')) {
       if (budget <= 0) break;
       if (!raw.trim()) { y += 10; continue; }
       const h4 = raw.startsWith('## ');
-      const font = h4 ? `800 17px ${DISPLAY}` : `400 15.5px ${SANS}`;
+      const font = h4 ? `italic 400 20px ${SERIF}` : `400 15px ${SANS}`;
       ctx.font = font;
       for (const l of wrap(ctx, h4 ? raw.slice(3) : raw, TW)) {
         if (budget-- <= 0) {
           y += 22;
-          text('…see more', M + P, y, `600 15px ${SANS}`, '#a49dbd');
+          text('…SEE MORE', M + P, y, `600 10.5px ${MONO}`, C.slop);
           break;
         }
-        y += h4 ? 26 : 22;
-        text(l, M + P, y, font, '#f4f0ff');
+        y += h4 ? 26 : 21;
+        text(l, M + P, y, font, C.bone);
       }
     }
-    y += 14;
+    y += 16;
 
     if (imgCanvas) {
-      const ih = CW * ASPECT[post.image.kind];
-      if (draw) ctx.drawImage(imgCanvas, M, y, CW, ih);
-      y += ih + 6;
+      const iw = TW, ih = iw * ASPECT[post.image.kind];
+      if (draw) ctx.drawImage(imgCanvas, M + P, y, iw, ih);
+      y += ih + 4;
     }
 
-    ctx.font = `400 13px ${SANS}`;
+    ctx.font = `400 12px ${SANS}`;
     for (const l of wrap(ctx, post.stats, TW)) {
       y += 20;
-      text(l, M + P, y, `400 13px ${SANS}`, '#a49dbd');
+      text(l, M + P, y, `400 12px ${SANS}`, C.faint);
     }
     y += P;
 
-    const footY = y + 24;
-    text('🍲 slopographic.com', M + 4, footY, `700 14px ${SANS}`, '#f4f0ff');
-    text(`${post.genreEmoji} ${post.genreLabel}${post.level > 1 ? ` · slop level ${post.level}` : ''}`, 600 - M - 4, footY, `500 13px ${SANS}`, '#a49dbd', 'right');
-    return footY + 18;
+    const footY = y + 30;
+    text('YOU WILL LIKE ZE SLOP', M, footY, `600 9.5px ${MONO}`, C.slop);
+    text('SLOPOGRAPHIC.COM', 600 - M, footY, `600 9.5px ${MONO}`, C.dim, 'right');
+    return footY + M - 6;
   }
 
   function saveMeme(post) {
@@ -472,8 +483,8 @@
     let imgCanvas = null;
     if (post.image) {
       imgCanvas = document.createElement('canvas');
-      imgCanvas.width = 552 * scale;
-      imgCanvas.height = Math.round(552 * scale * ASPECT[post.image.kind]);
+      imgCanvas.width = 500 * scale;
+      imgCanvas.height = Math.round(500 * scale * ASPECT[post.image.kind]);
       paint(imgCanvas.getContext('2d'), imgCanvas.width, imgCanvas.height, post);
     }
     const c = document.createElement('canvas');
@@ -487,12 +498,12 @@
     c.toBlob((blob) => {
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `slop-${post.id}.png`;
+      a.download = `slopographic-${post.id}.png`;
       document.body.append(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-      toast('Meme saved. Post it everywhere. 🖼️');
+      toast('Saved. Post it everywhere.');
     }, 'image/png');
   }
 
@@ -520,11 +531,11 @@
     const url = `${location.origin}${location.pathname}#p=${post.id}`;
     if (navigator.share && matchMedia('(pointer: coarse)').matches) {
       try {
-        await navigator.share({ title: 'Fresh slop from Slopographic', text: post.title || post.body.split('\n')[0], url });
+        await navigator.share({ title: 'Slopographic — you will like ze slop', text: post.title || post.body.split('\n')[0], url });
         return;
       } catch { /* cancelled: fall back to copying */ }
     }
-    copyText(url, 'Link copied. Spread the slop. 🔗');
+    copyText(url, 'Link copied. Spread ze slop.');
   }
 
   // ------------------------------------------------------------ counter
@@ -538,6 +549,44 @@
   bump(0);
   setInterval(() => bump(Math.floor(Math.random() * 7)), 180);
 
+  // ----------------------------------------------------------- hero art
+
+  const randSeed = () => (Math.random() * 2 ** 31) >>> 0;
+  const PIECES = [
+    { genre: 'facebook', title: 'Untitled (Amen?)', medium: 'Emoji on canvas' },
+    { genre: 'youtube', title: 'Day 365 (Shocking)', medium: 'Clickbait, mixed' },
+    { genre: 'quote', title: 'Vibe & Tribe', medium: 'Sunset on algorithm' },
+  ];
+
+  function renderPiece(fig, spec, seed) {
+    const post = S.generate(spec.genre, seed, 1);
+    fig.textContent = '';
+    const img = el('img');
+    img.src = imageURL(post);
+    img.alt = `${spec.title}, a generated ${spec.medium.toLowerCase()} piece`;
+    const cap = el('figcaption');
+    const name = el('span');
+    name.append(el('b', '', spec.title), document.createTextNode(', 2026'));
+    cap.append(name, el('span', '', pieceNo(post)));
+    fig.append(img, cap);
+  }
+
+  function renderHeroArt() {
+    const art = $('#hero-art');
+    art.textContent = '';
+    PIECES.forEach((spec, i) => {
+      const fig = el('figure', 'piece');
+      fig.title = 'Click for another piece';
+      // The first piece is always the house classic: Shrimp Christ.
+      renderPiece(fig, spec, i === 0 ? 200 : randSeed());
+      fig.addEventListener('click', () => {
+        renderPiece(fig, spec, randSeed());
+        bump(1);
+      });
+      art.append(fig);
+    });
+  }
+
   // ------------------------------------------------------------- feed
 
   const feedState = { genres: new Set(S.GENRES.map((g) => g.key)), level: 1 };
@@ -549,9 +598,9 @@
     let genre = keys[Math.floor(Math.random() * keys.length)];
     if (keys.length > 1 && genre === lastGenre) genre = keys[(keys.indexOf(genre) + 1) % keys.length];
     lastGenre = genre;
-    // Mild = 1, Industrial = 2-3, Maximum = 4-5
+    // Prêt-à-Slop = 1, Industrial = 2-3, Haute = 4-5
     const lv = feedState.level === 1 ? 1 : feedState.level === 2 ? 2 + (Math.random() < 0.5 ? 1 : 0) : 4 + (Math.random() < 0.5 ? 1 : 0);
-    return S.generate(genre, (Math.random() * 2 ** 31) >>> 0, lv);
+    return S.generate(genre, randSeed(), lv);
   }
 
   function loadMore(n = 5) {
@@ -567,11 +616,11 @@
   }
 
   const chips = $('#chips');
-  const allChip = el('button', 'chip', '✨ All slop');
+  const allChip = el('button', 'chip', 'Everything');
   allChip.dataset.genre = '*';
   chips.append(allChip);
   for (const g of S.GENRES) {
-    const c = el('button', 'chip', `${g.emoji} ${g.label}`);
+    const c = el('button', 'chip', g.label);
     c.dataset.genre = g.key;
     chips.append(c);
   }
@@ -604,7 +653,7 @@
       feedState.level = +b.dataset.level;
       syncChips();
       resetFeed();
-      toast(['', 'Mild slop. Practically organic. 🥄', 'Industrial slop engaged. 🏭', '☢️ MAXIMUM SLOP. You were warned.'][feedState.level]);
+      toast(['', 'Prêt-à-Slop. Everyday slop, beautifully made.', 'Industrial slop. Mass-produced, with feeling.', 'Haute Slop. You will like ze slop.'][feedState.level]);
     }),
   );
 
@@ -612,7 +661,7 @@
     if (entries.some((e) => e.isIntersecting) && !$('#view-feed').hidden) loadMore(5);
   }, { rootMargin: '1200px 0px' }).observe($('#sentinel'));
 
-  // ---------------------------------------------------------- detector
+  // ------------------------------------------------------ authenticator
 
   const input = $('#detect-input');
   const HUMAN = [
@@ -622,6 +671,7 @@
     'I planted tomatoes too early again. Every year I tell myself to wait until May, and every year I don’t. Two of them made it. The rest are a lesson I will absolutely ignore next spring.',
   ];
   let humanIdx = 0;
+  let lastVerdict = '';
 
   const escapeHTML = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -634,22 +684,25 @@
     }
     const r = S.analyze(text);
     box.hidden = false;
+    $('#serial').textContent = 'Nº SLP-' + S.hashString(text).toString(36).toUpperCase().padStart(7, '0');
+    $('#cert-date').textContent = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     $('#score').textContent = r.score;
     $('#tier-emoji').textContent = r.tier.emoji;
     $('#tier-name').textContent = r.tier.name;
     $('#tier-blurb').textContent = r.tier.blurb;
-    const fill = $('#bar-fill');
-    fill.style.width = Math.max(2, r.score) + '%';
-    fill.style.backgroundSize = `${(100 / Math.max(2, r.score)) * 100}% 100%`;
+    $('#bar-fill').style.width = Math.max(1, r.score) + '%';
+    const genuine = r.score >= 55;
+    const stamp = $('#stamp');
+    stamp.className = 'stamp ' + (genuine ? 'genuine' : 'fake');
+    stamp.textContent = genuine ? 'Genuine Slop' : r.score >= 30 ? 'Partial Slop' : 'Counterfeit · Human Made';
 
     const tells = $('#tells');
     tells.textContent = '';
     const entries = Object.entries(r.tally).sort((a, b) => b[1] - a[1]);
-    if (!entries.length) tells.append(el('li', 'none', 'No tells found. Suspiciously human. 🧐'));
+    if (!entries.length) tells.append(el('li', 'none', 'No tells found. Suspiciously human.'));
     for (const [label, n] of entries) {
       const li = el('li');
-      const b = el('b', '', `×${n}`);
-      li.append(b, document.createTextNode(' ' + label));
+      li.append(el('b', '', `×${n}`), document.createTextNode(' ' + label));
       tells.append(li);
     }
 
@@ -662,9 +715,8 @@
     }
     html += escapeHTML(text.slice(pos));
     $('#annotated').innerHTML = html;
-    lastVerdict = `My text scored ${r.score}% slop on slopographic.com: ${r.tier.emoji} ${r.tier.name}. ${r.tier.blurb}`;
+    lastVerdict = `Authenticated by Maison de Slop: my text is ${r.score}% slop. ${r.tier.emoji} ${r.tier.name}. ${genuine ? 'Genuine slop.' : 'A human counterfeit.'} slopographic.com`;
   }
-  let lastVerdict = '';
 
   let detectTimer = 0;
   input.addEventListener('input', () => {
@@ -673,7 +725,7 @@
   });
   $('#sample-slop').addEventListener('click', () => {
     const g = S.GENRES[Math.floor(Math.random() * S.GENRES.length)].key;
-    input.value = S.plainText(S.generate(g, (Math.random() * 2 ** 31) >>> 0, Math.random() < 0.5 ? 1 : 2));
+    input.value = S.plainText(S.generate(g, randSeed(), Math.random() < 0.5 ? 1 : 2));
     runDetector();
   });
   $('#sample-human').addEventListener('click', () => {
@@ -685,13 +737,14 @@
     runDetector();
     input.focus();
   });
-  $('#copy-verdict').addEventListener('click', () => copyText(lastVerdict, 'Verdict copied. 📋'));
+  $('#copy-verdict').addEventListener('click', () => copyText(lastVerdict, 'Verdict copied.'));
 
   // ------------------------------------------------------------ routing
 
   function showView(name) {
     $('#view-feed').hidden = name !== 'feed';
     $('#view-detector').hidden = name !== 'detector';
+    fitWordmarks();
     document.querySelectorAll('.tab').forEach((t) => {
       if (t.dataset.view === name) t.setAttribute('aria-current', 'page');
       else t.removeAttribute('aria-current');
@@ -721,14 +774,32 @@
     const m = /^p=(.+)$/.exec(hash);
     const parsed = m && S.parseId(decodeURIComponent(m[1]));
     if (parsed) {
-      pinned.append(el('p', 'pin-label', '🔗 Someone sent you this slop:'));
+      pinned.append(el('p', 'pin-label', 'Someone sent you a piece from ze collection'));
       pinned.append(renderPost(S.generate(parsed.genre, parsed.seed, parsed.level), true));
+      requestAnimationFrame(() => $('#collection').scrollIntoView({ behavior: 'auto' }));
     }
   }
   window.addEventListener('hashchange', route);
 
-  const setTopOffset = () => document.documentElement.style.setProperty('--top', $('.topbar').offsetHeight + 'px');
-  window.addEventListener('resize', setTopOffset);
+  const setTopOffset = () => document.documentElement.style.setProperty('--top', $('.nav').offsetHeight + 'px');
+
+  // Scale the giant wordmarks so they exactly fill their row.
+  function fitWordmarks() {
+    document.querySelectorAll('.wordmark, .footer-mark').forEach((w) => {
+      if (!w.offsetParent) return;
+      w.style.fontSize = '100px';
+      const range = document.createRange();
+      range.selectNodeContents(w);
+      const textW = range.getBoundingClientRect().width;
+      const cs = getComputedStyle(w);
+      const avail = w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      if (textW) w.style.fontSize = Math.min(320, (100 * avail) / textW) * 0.99 + 'px';
+    });
+  }
+  window.addEventListener('resize', () => {
+    setTopOffset();
+    fitWordmarks();
+  });
 
   // --------------------------------------------------------------- boot
 
@@ -737,13 +808,21 @@
   route();
   const fontsReady = document.fonts && document.fonts.load
     ? Promise.race([
-        Promise.all([document.fonts.load(`800 40px "Bricolage Grotesque"`), document.fonts.load('400 16px Inter'), document.fonts.load('700 16px Inter')]),
+        Promise.all([
+          document.fonts.load('900 40px Archivo'),
+          document.fonts.load('italic 400 40px "Instrument Serif"'),
+          document.fonts.load('400 40px "Instrument Serif"'),
+          document.fonts.load('400 16px "Inter Tight"'),
+          document.fonts.load('600 12px "JetBrains Mono"'),
+        ]),
         new Promise((r) => setTimeout(r, 1500)),
       ]).catch(() => {})
     : Promise.resolve();
   fontsReady.then(() => {
-    // Re-render a pinned post so its image picks up the web fonts.
+    // Paint images after the web fonts arrive so their text uses them.
     imgCache.clear();
+    fitWordmarks();
+    renderHeroArt();
     route();
     resetFeed();
   });
