@@ -370,10 +370,9 @@ main { overflow: hidden; }
 .post {
   background: var(--ink-2);
   border: 1px solid var(--line);
-  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
-.post.pinned { border-color: var(--slop); box-shadow: 0 0 0 1px var(--slop), 0 20px 60px rgba(212, 255, 58, 0.12); }
+.post.pinned { animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; border-color: var(--slop); box-shadow: 0 0 0 1px var(--slop), 0 20px 60px rgba(212, 255, 58, 0.12); }
 
 .strip {
   display: flex;
@@ -616,6 +615,185 @@ mark { background: var(--slop); color: var(--ink); padding: 0 2px; cursor: help;
   .stamp { position: absolute; right: -6px; top: 6px; width: 96px; height: 96px; font-size: 13px; }
   .detector { padding: 0 16px 50px; }
 }
+
+/* ================================================================ motion */
+
+/* Intro: "SLOP" stretches into "SLOOOOOOP", then the slime curtain lifts. */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--slop);
+  color: var(--ink);
+  cursor: pointer;
+}
+.intro-word {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--cond);
+  font-stretch: 62%;
+  font-weight: 900;
+  font-size: 24vw;
+  line-height: 0.8;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform-origin: center;
+}
+.intro-word .oo { display: inline-block; }
+.intro-sub {
+  position: absolute;
+  bottom: 28px;
+  left: 0; right: 0;
+  padding: 0 16px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.intro-goo { position: absolute; left: 0; right: 0; top: 100%; height: 120px; width: 100%; }
+.intro-goo path { fill: var(--slop); }
+.intro.out { transition: transform 0.85s cubic-bezier(0.7, 0, 0.2, 1); transform: translateY(calc(-100% - 130px)); }
+html.intro-open { overflow: hidden; }
+
+/* Wordmark letters, each with its own chrome + a travelling shine. */
+.wordmark.split { background: none; }
+.wordmark .ch {
+  display: inline-block;
+  vertical-align: top;
+  background:
+    linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.95) 50%, transparent 62%) no-repeat,
+    var(--chrome);
+  background-size: 300% 100%, 100% 100%;
+  background-position: 160% 0, 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 70ms);
+  transform-origin: 50% 100%;
+}
+@keyframes shine {
+  0%, 55% { background-position: 160% 0, 0 0; }
+  85%, 100% { background-position: -60% 0, 0 0; }
+}
+.wordmark.enter .ch { animation: letter-in 0.9s cubic-bezier(0.2, 1.4, 0.3, 1) both, shine 6s ease-in-out infinite; animation-delay: calc(var(--i) * 55ms), calc(var(--i) * 70ms + 1s); }
+@keyframes letter-in {
+  0% { transform: translateY(70%) scaleY(1.8) scaleX(0.6); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+.wordmark .ch.wobble { animation: jelly 0.7s cubic-bezier(0.3, 1.6, 0.4, 1), shine 6s ease-in-out infinite; }
+@keyframes jelly {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(1.25, 0.72); }
+  45% { transform: scale(0.85, 1.18); }
+  65% { transform: scale(1.06, 0.95); }
+  100% { transform: scale(1, 1); }
+}
+.wordmark .o-stretch { position: relative; background: none; white-space: nowrap; }
+.wordmark .o-stretch .oc {
+  display: inline-block;
+  background: var(--chrome);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.wordmark .o-stretch .oc + .oc { position: absolute; top: 0; left: calc((100% - var(--ow)) * var(--k) / var(--n)); }
+.wordmark { cursor: pointer; transform-origin: 0 50%; }
+
+/* Drops of slime falling off the drips. */
+.drop {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  width: clamp(10px, 1.6vw, 22px);
+  margin-left: calc(clamp(10px, 1.6vw, 22px) / -2);
+  aspect-ratio: 1 / 1.25;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 35% 35%, #fbffe6, var(--slop) 45%, var(--slop-deep));
+  animation: fall var(--t, 1.6s) cubic-bezier(0.55, 0, 0.9, 0.5) forwards;
+}
+@keyframes fall {
+  0% { transform: translateY(0) scale(0.4); }
+  15% { transform: translateY(10px) scale(1); }
+  100% { transform: translateY(var(--dist, 60vh)) scale(0.8); opacity: 0; }
+}
+
+/* Slime cursor (a canvas drawn by motion.js). */
+.slime { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 150; }
+.splat {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: var(--slop);
+  pointer-events: none;
+  z-index: 149;
+  animation: splat 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes splat {
+  to { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
+/* Wobbly "ze slop." */
+.tagline em .wl { display: inline-block; animation: wave 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.18s); transform-origin: 50% 100%; }
+@keyframes wave {
+  0%, 100% { transform: translateY(0) skewX(0) scaleY(1); }
+  30% { transform: translateY(-0.08em) skewX(-6deg) scaleY(1.06); }
+  60% { transform: translateY(0.03em) skewX(4deg) scaleY(0.96); }
+}
+
+/* Floating gallery pieces + pointer parallax. */
+.hero-art { transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); transform: translate(var(--px, 0), var(--py, 0)); }
+.piece { animation: bob 6s ease-in-out infinite; }
+.piece:nth-child(2) { animation-duration: 7s; animation-delay: -2s; }
+.piece:nth-child(3) { animation-duration: 5.5s; animation-delay: -4s; }
+@keyframes bob { 50% { translate: 0 -12px; } }
+
+/* Feed cards slide in as they enter the viewport. */
+.post.pre { opacity: 0; transform: translateY(40px) rotate(0.8deg) scale(0.98); }
+.post.reveal { transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 1.2, 0.3, 1); }
+.post.jelly { animation: card-jelly 0.75s cubic-bezier(0.3, 1.5, 0.4, 1); }
+@keyframes card-jelly {
+  0% { transform: scale(1, 1); }
+  20% { transform: scale(1.04, 0.95); box-shadow: 0 0 0 2px var(--slop); }
+  45% { transform: scale(0.98, 1.03); }
+  70% { transform: scale(1.01, 0.99); }
+  100% { transform: scale(1, 1); }
+}
+
+/* Authenticator: the stamp slams, the certificate takes the hit. */
+.stamp.slam { animation: slam 0.55s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
+@keyframes slam {
+  0% { transform: rotate(-38deg) scale(3); opacity: 0; filter: blur(4px); }
+  55% { transform: rotate(-12deg) scale(0.92); opacity: 1; filter: none; }
+  100% { transform: rotate(-14deg) scale(1); opacity: 1; }
+}
+.cert.thud { animation: thud 0.45s ease-out 0.28s; }
+@keyframes thud {
+  0%, 100% { transform: none; }
+  20% { transform: translate(-3px, 2px) rotate(-0.4deg); }
+  40% { transform: translate(3px, -1px) rotate(0.3deg); }
+  60% { transform: translate(-2px, 1px); }
+  80% { transform: translate(1px, 0); }
+}
+
+/* Footer wordmark fills with slime when it scrolls into view. */
+.footer-mark {
+  background: linear-gradient(to top, var(--slop) 50%, transparent 50%);
+  background-size: 100% 200%;
+  background-position: 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: background-position 1.6s cubic-bezier(0.6, 0, 0.2, 1);
+}
+.footer-mark.filled { background-position: 0 100%; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

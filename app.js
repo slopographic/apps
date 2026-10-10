@@ -353,7 +353,9 @@
     sloppier.title = 'Regenerate this piece with more slop';
     sloppier.addEventListener('click', () => {
       const next = S.generate(post.genre, post.seed, post.level + 1);
-      card.replaceWith(renderPost(next, pinned));
+      const fresh = renderPost(next, pinned);
+      fresh.classList.add('jelly');
+      card.replaceWith(fresh);
       if (pinned) history.replaceState(null, '', '#p=' + next.id);
       bump(1);
     });
@@ -695,6 +697,7 @@
     const stamp = $('#stamp');
     stamp.className = 'stamp ' + (genuine ? 'genuine' : 'fake');
     stamp.textContent = genuine ? 'Genuine Slop' : r.score >= 30 ? 'Partial Slop' : 'Counterfeit · Human Made';
+    document.dispatchEvent(new CustomEvent('slop:verdict', { detail: { score: r.score, stamp: stamp.textContent } }));
 
     const tells = $('#tells');
     tells.textContent = '';

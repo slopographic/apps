@@ -32,6 +32,7 @@ Everything runs in the browser. There's no backend, no API keys and no build ste
 | `style.css` | Styles |
 | `slop.js` | Content engine: seeded generators for each genre, the slop intensifier, and the detector rules. No DOM; also runs in Node. |
 | `app.js` | UI: feed, infinite scroll, canvas image painters, meme-card export, detector, routing (`#p=<post-id>`, `#detector`) |
+| `motion.js` | Motion layer: SLOOOOP intro, wordmark stretch and jelly letters, falling slime drops, slime cursor, scroll-driven ticker, card reveals, stamp slam, footer slime fill. Switches off under `prefers-reduced-motion`. |
 | `CNAME` | Custom domain for GitHub Pages |
 
 Run it locally:
