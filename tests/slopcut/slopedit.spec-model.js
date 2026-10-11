@@ -16,7 +16,7 @@
       await ST.boot('app');
       expect(ST.win.document.title).toContain('SlopCut');
       expect(ST.SE.doc.tracks.length).toBe(4);
-      expect(ST.win.document.querySelectorAll('.menu-b').length).toBe(6);
+      expect(ST.win.document.querySelectorAll('.menu-b').length).toBe(7);
       expect(ST.SE.cmd.list.length).toBeGreaterThan(60);
       expect(ST.SE.cmd.get('edit.split').keys).toEqual(['S']);
       expect(ST.SE.cmd.get('tr.cross').title).toBe('Add transition: Cross dissolve');
