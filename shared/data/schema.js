@@ -148,7 +148,7 @@
     }
     if (name === 'orders') {
       if (prev.status !== next.status && !ORDER_NEXT[prev.status].includes(next.status)) return `an order cannot go from ${prev.status} to ${next.status}`;
-      if (prev.status !== 'open' && !same(['customerId', 'date', 'number', 'currency', 'lines', 'notes'])) return 'a closed order cannot be changed';
+      if (!['draft', 'open'].includes(prev.status) && !same(['customerId', 'date', 'number', 'currency', 'lines', 'notes'])) return 'a closed order cannot be changed';
     }
     if (name === 'numbering' && next.next < prev.next) return 'a numbering sequence can only move forward';
     return null;

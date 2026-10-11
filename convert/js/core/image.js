@@ -100,15 +100,41 @@ export async function convertImage(blob, { kind, to, width, height, quality = 0.
   }
 }
 
+/** EXIF orientation of a JPEG (1 when upright or absent). Reads only the APP1 Exif IFD0 tag 0x0112. */
+export function jpegOrientation(bytes) {
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (bytes.length < 4 || dv.getUint16(0) !== 0xffd8) return 1;
+  let p = 2;
+  while (p + 4 <= bytes.length) {
+    if (bytes[p] !== 0xff) return 1;
+    const marker = bytes[p + 1], len = dv.getUint16(p + 2);
+    if (marker === 0xe1 && bytes.length > p + 10 && String.fromCharCode(...bytes.subarray(p + 4, p + 8)) === 'Exif') {
+      const t = p + 10;                       // TIFF header
+      const le = dv.getUint16(t) === 0x4949;
+      const ifd = t + dv.getUint32(t + 4, le);
+      const n = dv.getUint16(ifd, le);
+      for (let i = 0; i < n; i++) {
+        const e = ifd + 2 + i * 12;
+        if (dv.getUint16(e, le) === 0x0112) return dv.getUint16(e + 8, le);
+      }
+      return 1;
+    }
+    if (marker === 0xda) return 1;            // start of scan: no more headers
+    p += 2 + len;
+  }
+  return 1;
+}
+
 /**
- * Bytes for embedding in a PDF. JPEG passes through unchanged; anything else is flattened onto
- * white and written as an opaque PNG (transparency cannot be shown on a page of paper).
- * Returns { bytes, mime: 'image/jpeg' | 'image/png', width, height }.
+ * Bytes for embedding in a PDF. Upright JPEG passes through unchanged. A JPEG with an EXIF rotation is
+ * drawn upright and re-encoded at high quality. Anything else is flattened onto white as an opaque PNG
+ * (transparency cannot be shown on paper). Returns { bytes, mime, width, height }.
  */
 export async function imageForPdf(blob, kind) {
-  if (kind === 'jpg') {
+  const jpegBytes = kind === 'jpg' ? new Uint8Array(await blob.arrayBuffer()) : null;
+  if (jpegBytes && jpegOrientation(jpegBytes) === 1) {
     const bmp = await createImageBitmap(blob);
-    const r = { bytes: new Uint8Array(await blob.arrayBuffer()), mime: 'image/jpeg', width: bmp.width, height: bmp.height };
+    const r = { bytes: jpegBytes, mime: 'image/jpeg', width: bmp.width, height: bmp.height };
     bmp.close();
     return r;
   }
@@ -119,9 +145,10 @@ export async function imageForPdf(blob, kind) {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, src.w, src.h);
     ctx.drawImage(src.source, 0, 0, src.w, src.h);
-    const png = await canvasToBlob(canvas, 'image/png');
+    const isJpeg = !!jpegBytes;
+    const out = await canvasToBlob(canvas, isJpeg ? 'image/jpeg' : 'image/png', 0.92);
     canvas.width = canvas.height = 0;
-    return { bytes: new Uint8Array(await png.arrayBuffer()), mime: 'image/png', width: src.w, height: src.h };
+    return { bytes: new Uint8Array(await out.arrayBuffer()), mime: isJpeg ? 'image/jpeg' : 'image/png', width: src.w, height: src.h };
   } finally {
     src.close();
   }
