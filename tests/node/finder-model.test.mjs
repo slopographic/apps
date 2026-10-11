@@ -1,0 +1,118 @@
+// The finder's pure logic (shared/finder/model.js): search, facets with counts, sorting, state and chips.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+
+const M = createRequire(import.meta.url)('../../shared/finder/model.js');
+
+const fields = [
+  { key: 'name', get: (x) => x.name },
+  { key: 'tagline', get: (x) => x.tagline },
+  { key: 'keywords', get: (x) => x.keywords || [] },
+];
+const spec = {
+  fields,
+  facets: [
+    { key: 'section', label: 'Section', values: (x) => x.sections },
+    { key: 'status', label: 'Status', values: (x) => [x.status] },
+  ],
+  columns: [
+    { key: 'name', get: (x) => x.name },
+    { key: 'size', get: (x) => x.size },
+    { key: 'open', sortable: false, get: () => '' },
+  ],
+};
+const items = [
+  { name: 'Slop Invoices', tagline: 'Gapless invoices.', keywords: ['billing'], sections: ['Business'], status: 'building', size: 3 },
+  { name: 'PDF', tagline: 'Organise PDFs.', keywords: ['merge'], sections: ['Documents'], status: 'live', size: 10 },
+  { name: 'Café Notes', tagline: 'Notebooks.', keywords: ['résumé'], sections: ['Documents', 'Business'], status: 'live', size: 1 },
+  { name: 'Slop Isolate', tagline: 'Remove backgrounds.', keywords: ['cut-out'], sections: ['Creative'], status: 'live', size: 7 },
+];
+const names = (list) => list.map((x) => x.name);
+
+test('search matches name, tagline and keywords, case and accent blind', () => {
+  assert.deepEqual(names(M.filter(items, { ...M.defaultState(spec), q: 'pdf' }, spec)), ['PDF']);
+  assert.deepEqual(names(M.filter(items, { ...M.defaultState(spec), q: 'BILLING' }, spec)), ['Slop Invoices']);
+  assert.deepEqual(names(M.filter(items, { ...M.defaultState(spec), q: 'cafe' }, spec)), ['Café Notes']);
+  assert.deepEqual(names(M.filter(items, { ...M.defaultState(spec), q: 'resume' }, spec)), ['Café Notes']);
+  assert.deepEqual(names(M.filter(items, { ...M.defaultState(spec), q: 'cut-out' }, spec)), ['Slop Isolate']);
+});
+
+test('every word of the query must match somewhere, and a blank query matches all', () => {
+  assert.equal(M.filter(items, { ...M.defaultState(spec), q: 'remove backgrounds' }, spec).length, 1);
+  assert.equal(M.filter(items, { ...M.defaultState(spec), q: 'remove invoices' }, spec).length, 0);
+  assert.equal(M.filter(items, { ...M.defaultState(spec), q: '   ' }, spec).length, items.length);
+});
+
+test('facet values inside one facet combine with OR, facets combine with AND', () => {
+  let st = M.defaultState(spec);
+  st = M.toggleFacet(st, 'section', 'Documents');
+  st = M.toggleFacet(st, 'section', 'Creative');
+  assert.deepEqual(names(M.filter(items, st, spec)), ['PDF', 'Café Notes', 'Slop Isolate']);
+  st = M.toggleFacet(st, 'status', 'building');
+  assert.deepEqual(names(M.filter(items, st, spec)), []);
+  st = M.toggleFacet(st, 'status', 'building');
+  st = M.toggleFacet(st, 'status', 'live');
+  assert.deepEqual(names(M.filter(items, st, spec)), ['PDF', 'Café Notes', 'Slop Isolate']);
+});
+
+test('facet counts respect the search and the other facets, but not the facet they belong to', () => {
+  let st = M.defaultState(spec);
+  st = M.toggleFacet(st, 'status', 'live');
+  const counts = M.facetCounts(items, st, spec);
+  const section = Object.fromEntries(counts.section.map((c) => [c.value, c.count]));
+  assert.deepEqual(section, { Business: 1, Creative: 1, Documents: 2 });
+  const status = Object.fromEntries(counts.status.map((c) => [c.value, c.count]));
+  assert.deepEqual(status, { building: 1, live: 3 }, 'status counts ignore the status selection itself');
+  assert.equal(counts.status.find((c) => c.value === 'live').selected, true);
+  st = { ...st, q: 'pdf' };
+  assert.equal(Object.fromEntries(M.facetCounts(items, st, spec).section.map((c) => [c.value, c.count])).Documents, 1);
+});
+
+test('sorting by a column is stable, both directions, and missing values go last', () => {
+  assert.deepEqual(names(M.sortItems(items, spec.columns, { key: 'name', dir: 'asc' })), ['Café Notes', 'PDF', 'Slop Invoices', 'Slop Isolate']);
+  assert.deepEqual(names(M.sortItems(items, spec.columns, { key: 'size', dir: 'desc' })), ['PDF', 'Slop Isolate', 'Slop Invoices', 'Café Notes']);
+  assert.deepEqual(names(M.sortItems(items, spec.columns, { key: 'open', dir: 'asc' })), names(items), 'an empty column keeps the given order');
+  assert.deepEqual(names(M.sortItems(items, spec.columns, null)), names(items));
+  const withGaps = [{ name: 'b', size: null }, { name: 'a', size: 2 }, { name: 'c', size: 1 }];
+  assert.deepEqual(names(M.sortItems(withGaps, spec.columns, { key: 'size', dir: 'asc' })), ['c', 'a', 'b']);
+});
+
+test('nextSort: a new column starts ascending, the same column flips', () => {
+  assert.deepEqual(M.nextSort(null, 'name'), { key: 'name', dir: 'asc' });
+  assert.deepEqual(M.nextSort({ key: 'name', dir: 'asc' }, 'name'), { key: 'name', dir: 'desc' });
+  assert.deepEqual(M.nextSort({ key: 'name', dir: 'desc' }, 'size'), { key: 'size', dir: 'asc' });
+});
+
+test('normalizeState keeps only known views, columns and facets, and reads facets as lists', () => {
+  const st = M.normalizeState({ q: 'pdf', view: 'table', sort: { key: 'name', dir: 'desc' }, facets: { section: 'Documents', status: ['live', 'live'] } }, spec);
+  assert.equal(st.q, 'pdf');
+  assert.equal(st.view, 'table');
+  assert.deepEqual(st.sort, { key: 'name', dir: 'desc' });
+  assert.deepEqual(st.facets, { section: ['Documents'], status: ['live'] });
+  const bad = M.normalizeState({ view: 'grid', sort: { key: 'nope' } }, spec);
+  assert.equal(bad.view, 'cards');
+  assert.equal(bad.sort, null);
+  assert.deepEqual(M.normalizeState(null, spec), M.defaultState(spec));
+});
+
+test('isFiltered and clearFilters keep the view and sort', () => {
+  let st = { ...M.defaultState(spec), view: 'list', sort: { key: 'name', dir: 'asc' } };
+  assert.equal(M.isFiltered(st), false);
+  st = M.toggleFacet({ ...st, q: 'x' }, 'section', 'Business');
+  assert.equal(M.isFiltered(st), true);
+  const cleared = M.clearFilters(st);
+  assert.equal(M.isFiltered(cleared), false);
+  assert.equal(cleared.view, 'list');
+  assert.deepEqual(cleared.sort, { key: 'name', dir: 'asc' });
+});
+
+test('chips list the search and each facet value, and removing one drops only that one', () => {
+  let st = M.toggleFacet(M.toggleFacet({ ...M.defaultState(spec), q: ' pdf ' }, 'section', 'Documents'), 'section', 'Business');
+  const list = M.chips(st, spec);
+  assert.deepEqual(list.map((c) => c.label), ['Search: "pdf"', 'Section: Documents', 'Section: Business']);
+  st = M.removeFacet(st, 'section', 'Documents');
+  assert.deepEqual(st.facets, { section: ['Business'] });
+  st = M.removeFacet(st, 'section', null);
+  assert.deepEqual(st.facets, {});
+});

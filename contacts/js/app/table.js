@@ -68,7 +68,7 @@
     S.anchor = id;
     S.setSel([id]);
   }
-  /** A checkbox change: the row joins or leaves the selection (Shift takes the range). */
+  /** A checkbox click: the row joins or leaves the selection (Shift takes the range from the anchor). */
   function tick(id, on, e) {
     const next = new Set(S.sel);
     const ids = e.shiftKey && S.anchor ? rangeIds(S.anchor, id) : [id];
@@ -93,8 +93,10 @@
     input.focus();
     input.select();
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); finish(false); }
-      else if (e.key === 'Enter' && !(col.multi && e.shiftKey)) { e.preventDefault(); finish(true); }
+      if (e.key !== 'Escape' && !(e.key === 'Enter' && !(col.multi && e.shiftKey))) return;
+      e.preventDefault();
+      e.stopPropagation(); // the table's own Enter (which opens a cell) must not see this key
+      finish(e.key !== 'Escape');
     });
     input.addEventListener('blur', () => finish(true));
   }
@@ -126,8 +128,9 @@
       }
       const box = e.target.closest('input[type="checkbox"]');
       if (box) {
-        if (box.id === 'tblAll') S.setSel(box.checked ? shown().map((c) => c.id) : []);
-        else tick(box.closest('tr').dataset.id, box.checked, e);
+        // The state decides: a checkbox click toggles the row (or every shown row) against the selection.
+        if (box.id === 'tblAll') { const all = shown(); S.setSel(all.every((c) => S.sel.has(c.id)) ? [] : all.map((c) => c.id)); }
+        else { const id = box.closest('tr').dataset.id; tick(id, !S.sel.has(id), e); }
         return;
       }
       const td = e.target.closest('td[data-col]');
@@ -137,6 +140,7 @@
       clickRow(tr.dataset.id, e);
     });
     tbl.addEventListener('keydown', (e) => {
+      if (e.target.closest && e.target.closest('input, textarea')) return; // keys inside an editor are handled there
       const td = e.target.closest && e.target.closest('td[data-col]');
       if (e.key === 'Enter' && td && !editing && editable(td)) { e.preventDefault(); startEdit(td); }
     });

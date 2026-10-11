@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SlopFinder · the reusable finder</title>
+  <link rel="stylesheet" href="../../shared/finder/finder.css">
+  <style>body { margin: 0; background: #111; color: #eee; font: 14px system-ui; } #host { width: 760px; }</style>
+</head>
+<body>
+  <div id="host"></div>
+  <script src="../harness.js"></script>
+  <script src="../../shared/urlstate/urlstate.js"></script>
+  <script src="../../shared/finder/model.js"></script>
+  <script src="../../shared/finder/finder.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, run } = SlopTest;
+  const ITEMS = [
+    { id: 'pdf', name: 'PDF', tag: 'Organise PDFs.', feats: ['Merge and split'], kind: 'Documents', types: ['PDF'], live: true, size: 10 },
+    { id: 'inv', name: 'Invoices', tag: 'Gapless invoices.', feats: ['Payments'], kind: 'Business', types: ['No upload'], live: false, size: 3 },
+    { id: 'iso', name: 'Slop Isolate', tag: 'Remove backgrounds.', feats: ['Cut-out'], kind: 'Creative', types: ['Images'], live: true, size: 7 },
+    { id: 'cafe', name: 'Café Notes', tag: 'Notebooks and résumés.', feats: [], kind: 'Documents', types: ['Text'], live: true, size: 1 },
+  ];
+  const SPEC = {
+    fields: [
+      { key: 'name', label: 'Name', get: (a) => a.name },
+      { key: 'tag', label: 'Description', get: (a) => a.tag },
+      { key: 'feats', label: 'Features', get: (a) => a.feats },
+    ],
+    facets: [
+      { key: 'kind', label: 'Section', values: (a) => [a.kind] },
+      { key: 'types', label: 'File types', values: (a) => a.types },
+      { key: 'status', label: 'Status', values: (a) => [a.live ? 'Ready' : 'In development'] },
+    ],
+    columns: [
+      { key: 'name', label: 'App', get: (a) => a.name },
+      { key: 'kind', label: 'Section', get: (a) => a.kind },
+      { key: 'open', label: 'Open', sortable: false, get: () => '', render: (a) => { const x = document.createElement('a'); x.href = '#' + a.id; x.textContent = 'Open'; return x; } },
+    ],
+    row: (a) => { const d = document.createElement('div'); d.className = 'sf-row'; d.dataset.id = a.id; d.innerHTML = `<b>${a.name}</b><span>${a.kind}</span><span>${a.tag}</span>`; return d; },
+    card: (a) => { const d = document.createElement('div'); d.className = 'app-card'; d.dataset.id = a.id; d.textContent = a.name; return d; },
+    searchKeys: ['name', 'tag', 'feats'],
+  };
+  const host = () => document.getElementById('host');
+  const mountIt = (extra = {}) => { host().replaceChildren(); return SlopFinder.mount(host(), { ...SPEC, items: ITEMS, noun: 'apps', ...extra }); };
+  const $ = (s) => host().querySelector(s);
+  const $$ = (s) => [...host().querySelectorAll(s)];
+  const typeIn = (text) => { const i = $('.sf-input'); i.value = text; i.dispatchEvent(new Event('input', { bubbles: true })); };
+  const shownIds = () => $$('.sf-cards > [data-id]').map((c) => c.dataset.id);
+
+  describe('finder: search', () => {
+    it('matches as you type, ignoring case and accents, and every word must match', () => {
+      const f = mountIt();
+      expect(shownIds()).toEqual(['pdf', 'inv', 'iso', 'cafe']);
+      typeIn('CAFE');
+      expect(shownIds()).toEqual(['cafe']);
+      typeIn('cafe resumes');
+      expect(shownIds()).toEqual(['cafe']);
+      typeIn('cafe invoices');
+      expect(shownIds()).toEqual([]);
+      expect($('.sf-empty').hidden).toBe(false);
+      f.destroy();
+    });
+    it('searches the fields listed in searchKeys, and nothing else', () => {
+      const f = mountIt({ searchKeys: ['name'] });
+      typeIn('gapless');
+      expect(shownIds()).toEqual([]);
+      typeIn('isolate');
+      expect(shownIds()).toEqual(['iso']);
+      f.destroy();
+    });
+  });
+
+  describe('finder: facets and chips', () => {
+    it('a facet narrows the list, shows counts, and its value becomes a removable chip', () => {
+      const f = mountIt();
+      const docs = $$('.sf-opt').find((b) => b.textContent.startsWith('Documents'));
+      expect(docs.textContent.trim()).toBe('Documents 2');
+      docs.click();
+      expect(shownIds()).toEqual(['pdf', 'cafe']);
+      expect($$('.sf-chip').length).toBe(1);
+      expect($('.sf-chip').textContent).toContain('Section: Documents');
+      expect(f.getFilter().facets).toEqual({ kind: ['Documents'] });
+      $('.sf-chip').click();
+      expect(shownIds()).toEqual(['pdf', 'inv', 'iso', 'cafe']);
+      expect($('.sf-chips').hidden).toBe(true);
+      f.destroy();
+    });
+    it('values inside one facet combine with OR, facets combine with AND', () => {
+      const f = mountIt();
+      $$('.sf-opt').find((b) => b.textContent.startsWith('Documents')).click();
+      $$('.sf-opt').find((b) => b.textContent.startsWith('Business')).click();
+      expect(shownIds()).toEqual(['pdf', 'inv', 'cafe']);
+      $$('.sf-opt').find((b) => b.textContent.startsWith('Ready')).click();
+      expect(shownIds()).toEqual(['pdf', 'cafe']);
+      const images = $$('.sf-opt').find((b) => b.textContent.startsWith('Images'));
+      expect(images.disabled).toBe(true);
+      expect($$('.sf-chip').length).toBe(3);
+      f.destroy();
+    });
+    it('Clear empties the search and facets, and the empty state has its own Clear button', () => {
+      const f = mountIt();
+      typeIn('zzz');
+      const clear = $('.sf-empty .sf-btn');
+      expect(clear.textContent).toBe('Clear filters');
+      clear.click();
+      expect(shownIds().length).toBe(4);
+      expect($('.sf-input').value).toBe('');
+      expect(f.getFilter().q).toBe('');
+      f.destroy();
+    });
+  });
+
+  describe('finder: views and table', () => {
+    it('the list view shows every matching item, and the table view its columns', () => {
+      const f = mountIt();
+      $('.sf-view[data-view="list"]').click();
+      expect($$('.sf-row').length).toBe(4);
+      expect($('.sf-view[data-view="list"]').getAttribute('aria-pressed')).toBe('true');
+      typeIn('pdf');
+      expect($$('.sf-row').map((r) => r.dataset.id)).toEqual(['pdf']);
+      $('.sf-view[data-view="table"]').click();
+      expect($$('.sf-table th').map((th) => th.textContent.trim())).toEqual(['App', 'Section', 'Open']);
+      expect($$('.sf-table tbody tr').length).toBe(1);
+      f.destroy();
+    });
+    it('the table sorts by a column: ascending, then descending, and shows aria-sort', () => {
+      const f = mountIt({ columns: SPEC.columns });
+      $('.sf-view[data-view="table"]').click();
+      const names = () => $$('.sf-table tbody tr td:first-child').map((td) => td.textContent);
+      expect(names()).toEqual(['PDF', 'Invoices', 'Slop Isolate', 'Café Notes']);
+      $$('.sf-sort').find((b) => b.textContent.startsWith('App')).click();
+      expect(names()).toEqual(['Café Notes', 'Invoices', 'PDF', 'Slop Isolate']);
+      expect($$('.sf-table th')[0].getAttribute('aria-sort')).toBe('ascending');
+      $$('.sf-sort').find((b) => b.textContent.startsWith('App')).click();
+      expect(names()).toEqual(['Slop Isolate', 'PDF', 'Invoices', 'Café Notes']);
+      expect($$('.sf-table th')[0].getAttribute('aria-sort')).toBe('descending');
+      expect(f.getFilter().sort).toEqual({ key: 'name', dir: 'desc' });
+      f.destroy();
+    });
+    it('a column with sortable: false has no sort button', () => {
+      const f = mountIt({ columns: SPEC.columns });
+      $('.sf-view[data-view="table"]').click();
+      expect($$('.sf-table th')[2].querySelector('button')).toBe(null);
+      f.destroy();
+    });
+  });
+
+  describe('finder: API and events', () => {
+    it('onChange gets the shown items and the filter; setItems and clear work; destroy empties the host', () => {
+      let last = null;
+      const f = mountIt({ onChange: (list, st) => { last = { ids: list.map((a) => a.id), st }; } });
+      expect(last.ids.length).toBe(4);
+      typeIn('pdf');
+      expect(last.ids).toEqual(['pdf']);
+      expect(last.st.q).toBe('pdf');
+      f.setItems(ITEMS.slice(0, 2));
+      expect(last.ids).toEqual(['pdf']);
+      f.clear();
+      expect(last.ids).toEqual(['pdf', 'inv']);
+      f.destroy();
+      expect(host().children.length).toBe(0);
+    });
+    it('the filter is kept in the URL under the prefix, and read back on mount', async () => {
+      const f = mountIt({ urlPrefix: 'ftest' });
+      typeIn('notes');
+      expect(location.search).toContain('ftest.q=notes');
+      $('.sf-view[data-view="list"]').click();
+      expect(location.search).toContain('ftest.view=list');
+      f.destroy();
+      const g = mountIt({ urlPrefix: 'ftest' });
+      expect($('.sf-input').value).toBe('notes');
+      expect(g.getFilter().view).toBe('list');
+      g.clear();
+      $('.sf-view[data-view="cards"]').click();
+      expect(location.search).not.toContain('ftest.');
+      g.destroy();
+    });
+    it('the focus call focuses the search box', () => {
+      const f = mountIt({ suggest: { max: 5, href: (a) => '#' + a.id, label: (a) => a.name, hint: (a) => a.kind } });
+      f.focus();
+      expect(document.activeElement).toBe($('.sf-input'));
+      typeIn('pd');
+      expect($$('.sf-suggest li').length).toBe(1);
+      expect($('.sf-suggest a').getAttribute('href')).toBe('#pdf');
+      f.destroy();
+    });
+  });
+
+  run();
+  </script>
+</body>
+</html>
