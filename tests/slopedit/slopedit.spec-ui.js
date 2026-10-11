@@ -46,6 +46,21 @@
       key(win, 'Escape'); closeDialogs(win);
       await waitFor(() => !win.SlopUI.openDialogs);
     });
+    it('follows SlopCmd rebinding in shortcuts and menus', async () => {
+      const win = ST.win, C = win.SlopCmd;
+      if (!C) return;
+      const SE = ST.SE;
+      C.setKeys('edit.split', ['Shift+X']);
+      await new Promise((r) => setTimeout(r, 10));
+      const n = SE.doc.clips.length;
+      SE.player.seek(0.5);
+      key(win, 's');
+      expect(SE.doc.clips.length).toBe(n);
+      key(win, 'X', { shiftKey: true });
+      expect(SE.doc.clips.length).toBe(n + 1);
+      expect(SE.cmd.item('edit.split').key).toContain('X');
+      C.resetKeys();
+    });
     it('edits a clip in the inspector', async () => {
       const SE = ST.SE, doc = ST.win.document;
       SE.app.select([SE.doc.clips[0].id]);

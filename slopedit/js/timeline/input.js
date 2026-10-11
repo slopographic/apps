@@ -158,6 +158,7 @@
   }
   function move(e) {
     if (pointers.has(e.pointerId)) pointers.set(e.pointerId, local(e));
+    if (e.pointerType === 'mouse' && !drag) TL.EDGE = 7;
     const pt = local(e);
     if (drag && drag.kind === 'pinch' && pointers.size === 2) {
       const [a, b] = [...pointers.values()];

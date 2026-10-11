@@ -39,14 +39,14 @@ No SharedArrayBuffer, no ffmpeg.wasm (GitHub Pages cannot send COOP/COEP headers
    built-in dispatcher/palette used only if SlopCmd is missing.
 
 ## Tests
-`node tests/run.mjs slopedit` → `tests/slopedit/slopedit.test.html` (36 tests, ~45 s, all green). App runs in
+`node tests/run.mjs slopedit` → `tests/slopedit/slopedit.test.html` (37 tests, ~40 s, all green). App runs in
 iframes (1280×760 and 390×844); `slopedit.helpers.js` exposes `window.ST`. Specs: model (split/trim/ripple/move/
 overwrite/snap/links/undo/timecode), render (compositor pixels for layers, crop, rotation, fades, every transition,
 GPU vs CPU grade, titles; live preview), media (import + waveform, synthetic video encoded in the page with
 VideoEncoder, demux + frame-exact decode incl. backwards seek, MP4 export re-demuxed for frame count/duration/audio,
 WebM, cancel, GIF, project round trip, autosave across reload), ui (S/Delete/Ctrl+Z/M/arrows/Home/L/K via keydown,
 menus, palette, keymap, inspector, sample project, phone tabs/no overflow, `?drive=` launch, offline build boots,
-no script errors). Encoder tests skip themselves if VideoEncoder is missing.
+SlopCmd rebinding, no script errors). Encoder tests skip themselves if VideoEncoder is missing.
 Note: Playwright's Chromium has no H.264/AAC, so tests exercise VP9/Opus in MP4; real Chrome/Edge/Safari pick H.264.
 
 ## Known limitations / next steps
