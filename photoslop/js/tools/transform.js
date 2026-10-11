@@ -12,7 +12,7 @@ function startTransform() {
   if (L.locked) { toast('That layer is locked'); return; }
   if (!L.visible) { toast('Show the layer first'); return; }
   if (TE.el) endTypeEdit();
-  if (L.text) L = rasterizeText(L, true);
+  if (L.text || L.shape) L = rasterizeText(L, true);
   let float, rest = null, b;
   if (D.sel) {
     const sel = selInLayer(L);

@@ -96,17 +96,16 @@ defTool({ id: 'shape', name: 'Shape Tool', key: 'U', icon: ICON('M3 3h10v10H3zM1
       g.beginPath(); g.moveTo(s.a.x, s.a.y); g.lineTo(b.x, b.y); g.lineCap = 'round'; g.lineWidth = o.strokeW; g.strokeStyle = C.fg; g.stroke();
       return;
     }
-    const r = rectFrom(s.a, s.b, s.e.shiftKey, s.e.altKey);
-    shapePath(g, o.kind, r, o);
-    if (o.fill) { g.fillStyle = C.fg; g.fill(); }
-    if (o.stroke || !o.fill) { g.lineJoin = 'round'; g.lineWidth = o.strokeW; g.strokeStyle = o.fill ? C.bg : C.fg; g.stroke(); }
+    drawShape(g, Object.assign({}, o, { r: rectFrom(s.a, s.b, s.e.shiftKey, s.e.altKey), fg: C.fg, bg: C.bg }));
   },
   up() {
     const s = this.s; this.s = null; live = null;
     if (!s || Math.hypot(s.b.x - s.a.x, s.b.y - s.a.y) < 2) { dirty(true); return; }
-    const c = mkCanvas(D.w, D.h); this.paint(cx(c), s);
+    const kind = T.shape.kind, rec = SHAPE_RADIUS_KINDS.includes(kind) ? shapeRecord(T.shape, rectFrom(s.a, s.b, s.e.shiftKey, s.e.altKey)) : null;
+    const c = rec ? renderShapeLayer(rec) : mkCanvas(D.w, D.h);
+    if (!rec) this.paint(cx(c), s);
     const names = { rect: 'Rectangle', rounded: 'Rounded Rectangle', ellipse: 'Ellipse', polygon: 'Polygon', star: 'Star', line: 'Line', heart: 'Heart' };
-    addLayer({ name: nextName(names[T.shape.kind] || 'Shape'), canvas: c }, names[T.shape.kind] || 'Shape');
+    addLayer({ name: nextName(names[kind] || 'Shape'), canvas: c, shape: rec }, names[kind] || 'Shape');
   },
   cancel() { this.s = null; live = null; },
 });

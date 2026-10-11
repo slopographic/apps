@@ -166,8 +166,7 @@ function rectFrom(a, b, square, centre) {
 }
 function shapePath(g, kind, r, o = {}) {
   g.beginPath();
-  if (kind === 'rect') g.rect(r.x, r.y, r.w, r.h);
-  else if (kind === 'rounded') { const rad = Math.min(o.radius || 0, r.w / 2, r.h / 2); if (g.roundRect) g.roundRect(r.x, r.y, r.w, r.h, rad); else g.rect(r.x, r.y, r.w, r.h); }
+  if (kind === 'rect' || kind === 'rounded') SlopShapes.canvasPath(g, { x: r.x, y: r.y, w: r.w, h: r.h, radius: o.radius || 0 });
   else if (kind === 'ellipse') g.ellipse(r.x + r.w / 2, r.y + r.h / 2, Math.max(0.1, r.w / 2), Math.max(0.1, r.h / 2), 0, 0, Math.PI * 2);
   else if (kind === 'polygon' || kind === 'star') {
     const n = Math.max(3, o.sides || 5), cxp = r.x + r.w / 2, cyp = r.y + r.h / 2, pts = kind === 'star' ? n * 2 : n;
