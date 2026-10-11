@@ -47,7 +47,8 @@
   /**
    * registerKind(kind, app, schema, apply, opts): schema = { fields, strict = true }; apply(data, ctx) runs after the
    * file has validated (it may return a promise, and throw to roll back). opts: { read(), label, description }; read gives
-   * the current data so the Export dialog can offer the kind. Throws on a bad or duplicate registration.
+   * the current data so the Export dialog can offer the kind. opts.check(data) → [{ path, message }] adds rules the schema
+   * cannot express; it runs only after the shape passed. Throws on a bad or duplicate registration.
    */
   function registerKind(kind, app, schema, apply, opts = {}) {
     if (typeof kind !== 'string' || !KIND_RX.test(kind)) throw new Error(`registerKind: bad kind name "${kind}"`);
@@ -62,6 +63,7 @@
       kind, app, schema: spec, apply,
       read: typeof opts.read === 'function' ? opts.read : null,
       label: opts.label || kind, description: opts.description || '',
+      check: typeof opts.check === 'function' ? opts.check : null,
     });
   }
 

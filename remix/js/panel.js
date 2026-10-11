@@ -106,7 +106,7 @@
     $('rm-fx').addEventListener('change', (e) => { RM.setEffect({ kind: e.target.value }); P.effectControls(); P.changed(); say('Effect: ' + FX.name(RM.state.effect.kind) + '.'); });
     $('rm-fxchange').addEventListener('change', (e) => { RM.setEffect({ change: e.target.value }); P.changed(); say('Effect changes: ' + e.target.options[e.target.selectedIndex].text + '.'); });
     $('rm-fxint').addEventListener('input', (e) => { RM.setEffect({ intensity: +e.target.value / 100 }); P.effectControls(); P.changed(false); });
-    $('rm-fxint').addEventListener('change', () => { P.changed(); });
+    $('rm-fxint').addEventListener('change', (e) => { RM.setEffect({ intensity: +e.target.value / 100 }); P.effectControls(); P.changed(); });
     $('rm-fxreset').addEventListener('click', () => { RM.setEffect(FX.DEFAULT); P.effectControls(); P.changed(); say('Effect layer reset.'); });
     $('rm-resetall').addEventListener('click', () => { RM.resetAll(); P.sync(); if (RM.renderPlan) RM.renderPlan(); say('Reset all: the plan is back to its defaults. The clips are kept.'); });
     P.effectControls();
