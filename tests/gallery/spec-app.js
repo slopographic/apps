@@ -135,4 +135,62 @@
       expect(D.querySelector('.sortmode:not([hidden])')).toBe(null);
     });
   });
+
+  describe('Sort mode quick tag field', () => {
+    const key = (el, k) => el.dispatchEvent(new W.KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+    async function deckWithTwo(a, b) {
+      await boot();
+      await G.importer.run([{ file: await T.jpegFile(a, 90, 60, { colour: '#135' }), name: a }, { file: await T.jpegFile(b, 90, 60, { colour: '#246' }), name: b }]);
+      const ids = G.library.list().map((m) => m.id);
+      G.sortmode.open(ids);
+      const deck = await waitFor(() => D.querySelector('.sortmode:not([hidden])'), { timeout: 3000 });
+      return { ids, deck, field: deck.querySelector('.s-quick'), input: deck.querySelector('.s-quick input') };
+    }
+    it('Enter opens the tag field under the photo, and a second Enter with text adds the tag and moves on', async () => {
+      const { ids, deck, field, input } = await deckWithTwo('t1.jpg', 't2.jpg');
+      expect(field.hidden).toBe(true);
+      key(deck, 'Enter');
+      expect(field.hidden).toBe(false);
+      expect(D.activeElement).toBe(input);
+      expect(input.value).toBe('');
+      input.value = 'Sunset, beach ';
+      key(input, 'Enter');
+      await waitFor(() => G.library.photo(ids[0]).tags.includes('beach'), { timeout: 3000 });
+      expect(G.library.photo(ids[0]).tags).toEqual(['sunset', 'beach']);
+      expect(G.sortmode.state().pos).toBe(1);
+      expect(field.hidden).toBe(true);
+      expect(G.sortmode.state().open).toBe(true);
+    });
+    it('a typed letter or number opens the field with that character already in it', async () => {
+      const { ids, deck, field, input } = await deckWithTwo('k1.jpg', 'k2.jpg');
+      const evt = new W.KeyboardEvent('keydown', { key: 'k', bubbles: true, cancelable: true });
+      deck.dispatchEvent(evt);
+      expect(evt.defaultPrevented).toBe(true);
+      expect(field.hidden).toBe(false);
+      expect(input.value).toBe('k');
+      expect(D.activeElement).toBe(input);
+      expect(G.sortmode.state().pos).toBe(0);
+      expect(G.library.photo(ids[0]).tags).toEqual([]);
+      // Keys typed in the field are not sort shortcuts: arrows and digits stay in the field.
+      key(input, 'ArrowDown');
+      key(input, 'ArrowRight');
+      expect(G.sortmode.state().pos).toBe(0);
+      expect(G.library.photo(ids[0]).liked).toBe(null);
+      input.value = 'k7';
+      key(input, 'Enter');
+      await waitFor(() => G.library.photo(ids[0]).tags.includes('k7'), { timeout: 3000 });
+      expect(G.sortmode.state().pos).toBe(1);
+    });
+    it('Escape closes the field without tagging and keeps the current photo', async () => {
+      const { ids, deck, field, input } = await deckWithTwo('e1.jpg', 'e2.jpg');
+      key(deck, 'Enter');
+      input.value = 'nope';
+      key(input, 'Escape');
+      expect(field.hidden).toBe(true);
+      expect(G.sortmode.state().open).toBe(true);
+      expect(G.sortmode.state().pos).toBe(0);
+      expect(G.library.photo(ids[0]).tags).toEqual([]);
+      expect(D.activeElement).toBe(deck);
+    });
+  });
 })();

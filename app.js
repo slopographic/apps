@@ -23,12 +23,33 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
   }
 
+  // The homepage owns window.SlopUI (randSeed only), so the shared dialog kit is loaded beside it.
+  let kitP = null;
+  function dialogKit() {
+    if (!kitP) kitP = (async () => {
+      const prev = window.SlopUI;
+      window.SlopUI = undefined;
+      try {
+        if (!document.querySelector('link[href*="slopui.css"]')) {
+          const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'shared/slopui.css'; document.head.append(l);
+        }
+        await new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'shared/slopui.js'; s.onload = res; s.onerror = rej; document.head.append(s); });
+        return window.SlopUI;
+      } finally { window.SlopUI = prev; }
+    })();
+    return kitP;
+  }
+
   async function copyText(text, msg) {
     try {
       await navigator.clipboard.writeText(text);
       toast(msg);
     } catch {
-      window.prompt('Copy this:', text);
+      const ui = await dialogKit();
+      const field = ui.el('input', { class: 'sui-input', type: 'text', readonly: true, value: text, 'aria-label': 'Text to copy' });
+      ui.dialog({ title: 'Copy this', body: ui.el('div', null, field), buttons: [{ label: 'Done', primary: true }],
+        onClose: () => {} });
+      field.addEventListener('focus', () => field.select());
     }
   }
 

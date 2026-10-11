@@ -1,17 +1,18 @@
 /* Slop Gallery: full-screen viewer, Sort mode (swipe deck) and the duplicates dialog. */
 .viewer, .sortmode { position: fixed; inset: 0; z-index: 1000; background: #000; color: #f2f0ea; display: flex; flex-direction: column; outline: none; }
 .viewer[hidden], .sortmode[hidden] { display: none; }
-.v-top, .s-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 10px; background: rgba(0, 0, 0, .7); font-size: 12px; }
-.v-top .v-btn, .s-top .v-btn { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .15); color: #f2f0ea; }
+.v-top, .v-foot, .s-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 10px; background: rgba(0, 0, 0, .7); font-size: 12px; }
+.v-top .v-btn, .v-foot .v-btn, .s-top .v-btn { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .15); color: #f2f0ea; }
 .v-btn.danger { color: #ff9bb0; }
 .v-btn[aria-pressed="true"] { border-color: var(--accent, #d4ff3a); color: var(--accent, #d4ff3a); }
 .v-spacer { flex: 1; }
 .v-count, .s-count { font-family: ui-monospace, Menlo, monospace; color: #bdb9b0; }
 .v-sel { background: rgba(255, 255, 255, .08); color: #f2f0ea; border: 1px solid rgba(255, 255, 255, .15); border-radius: 6px; padding: 5px; }
 .v-stage, .s-stage { flex: 1; min-height: 0; position: relative; display: flex; }
-.v-pic, .s-pic { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; overflow: auto; }
-.v-pic img, .s-pic img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
-.v-pic.actual img { max-width: none; max-height: none; }
+.v-pic, .s-pic { flex: 1; min-width: 0; min-height: 0; display: flex; overflow: hidden; }
+.s-pic img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.v-pic > .spv { flex: 1 1 auto; min-width: 0; min-height: 0; --spv-fg: #f2f0ea; --spv-line: rgba(255, 255, 255, .15); }
+.v-foot { flex-wrap: wrap; justify-content: center; gap: 6px; padding: 8px 10px; background: rgba(0, 0, 0, .7); font-size: 12px; }
 .v-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 44px; height: 64px; border: 0; border-radius: 8px; background: rgba(255, 255, 255, .1); color: #fff; font-size: 30px; cursor: pointer; }
 .v-nav.prev { left: 8px; } .v-nav.next { right: 8px; }
 .v-nav:hover { background: rgba(255, 255, 255, .2); }
@@ -23,6 +24,9 @@
 
 .s-hint { font-size: 12px; color: #bdb9b0; }
 .s-bar { display: flex; gap: 10px; justify-content: center; padding: 10px; }
+.s-quick { padding: 8px 12px 0; background: rgba(0, 0, 0, .7); }
+.s-quick[hidden] { display: none; }
+.s-quick input { display: block; width: 100%; box-sizing: border-box; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .3); color: #f2f0ea; border-radius: 6px; padding: 8px 10px; font: inherit; }
 .s-big { flex: 1; max-width: 220px; padding: 12px; border-radius: 10px; border: 2px solid transparent; font-weight: 700; font-size: 15px; cursor: pointer; color: #111; }
 .s-big.like { background: #6fe39a; }
 .s-big.dislike { background: #ff6f8a; }

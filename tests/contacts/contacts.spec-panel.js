@@ -10,9 +10,9 @@
     await CT.clearDrafts();
     const fr = document.getElementById('app');
     fr.src = 'about:blank';
-    await sleep(60);
+    await waitFor(() => fr.contentWindow && fr.contentWindow.location.href === 'about:blank', { timeout: 5000 });
     fr.src = '../../contacts/index.html';
-    await waitFor(() => fr.contentWindow && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
+    await waitFor(() => fr.contentWindow && fr.contentWindow.location.pathname.endsWith('/contacts/index.html') && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
     const win = fr.contentWindow;
     win.SlopContacts.state.setList(list);
     await sleep(20);
