@@ -1,6 +1,6 @@
 /* Slopographic shell: the OS layer. Every app page loads it with one line:
- *   <script src="../shell/shell.js"></script>          (pages in a folder)
- *   <script src="shell/shell.js"></script>             (the homepage)
+ *   a script tag pointing at ../shell/shell.js          (pages in a folder)
+ *   a script tag pointing at shell/shell.js             (the homepage)
  * It loads what it needs in order (brand, registry, SlopUI, then shell/*.js and shell.css, skipping what
  * is already on the page), adds the Apps and Notifications buttons to the page header, and binds Ctrl+Space.
  * Options on the tag: data-no-header (no buttons), data-brand-src (see brand/brand.js).

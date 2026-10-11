@@ -40,7 +40,7 @@
       const tab = doc().querySelector('#tabs .tab:not(.tab-add)');
       expect(shown(tab)).toBe(true);
       expect(tab.textContent).toBe('Sheet1');
-      expect(shown(doc().getElementById('status'))).toBe(true);
+      expect(shown(doc().querySelector('.bottombar'))).toBe(true);
     });
     it('shows the sidebar with Sheets, Templates (From template, My templates) and Functions', () => {
       expect(shown(doc().getElementById('side'))).toBe(true);
