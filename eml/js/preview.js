@@ -89,7 +89,7 @@
       slot.append(el('pre', 'em-plain em-prev-pre', text));
       if (cut) slot.append(note('Showing the first ' + size(TEXT_MAX) + ' of ' + size(a.bytes.length) + '. Save the file to see all of it.'));
     } else if (kind === 'sheet') {
-      if (typeof window.SlopSheets.preview !== 'function') { slot.append(note(NOTE_SHEET)); return; }
+      if (!window.SlopSheets || typeof window.SlopSheets.preview !== 'function') { slot.append(note(NOTE_SHEET)); return; }
       const box = el('div', 'em-prev-sheet');
       slot.append(box);
       Promise.resolve()
@@ -109,7 +109,8 @@
     const urls = [];
     const slot = el('div', 'em-prev-body');
     const meta = el('p', 'em-prev-meta', [a.name, a.type || 'no type', size(a.size)].join(' · '));
-    const body = el('div', 'em-prev', meta, slot);
+    const body = el('div', 'em-prev');
+    body.append(meta, slot);
     fill(slot, a, kind, urls);
 
     const save = () => {
@@ -119,20 +120,34 @@
     };
     /* A click inside a sandboxed frame moves focus into it, and its keys (Escape, Tab) never reach this page. So when the
      * window loses focus to the frame, focus goes back to the Close button, where Escape and Tab work again. */
-    let box = null;
+    let box = null, busy = false;
+    const unlisten = () => {
+      window.removeEventListener('blur', onBlur);
+      document.removeEventListener('focusin', onFocusIn, true);
+    };
+    /** Moves focus to the Close button of this dialog. Re-entry (the focus it causes) is ignored. */
+    const toClose = () => {
+      const c = box && box.querySelector('.sui-primary');
+      if (!c || busy) return;
+      busy = true;
+      try { c.focus({ preventScroll: true }); } finally { busy = false; }
+    };
     const onBlur = () => setTimeout(() => {
+      if (!box || !box.isConnected) { unlisten(); return; }
       const f = document.activeElement;
-      if (box && f && f.tagName === 'IFRAME' && box.contains(f)) { const c = box.querySelector('.sui-primary'); if (c) c.focus({ preventScroll: true }); }
+      if (f && f.tagName === 'IFRAME' && box.contains(f)) toClose();
     }, 0);
-    const onFocusIn = (e) => { if (box && !box.contains(e.target)) { const c = box.querySelector('.sui-primary'); if (c) c.focus({ preventScroll: true }); } };
+    const onFocusIn = (e) => {
+      if (!box || !box.isConnected) { unlisten(); return; } // the dialog was removed without its close
+      if (!box.contains(e.target)) toClose();
+    };
     const d = ui.dialog({
       title: a.name,
       cls: 'em-prev-dlg',
       body: body,
       buttons: [{ label: 'Save', act: save }, { label: 'Close', primary: true }],
       onClose: () => {
-        window.removeEventListener('blur', onBlur);
-        document.removeEventListener('focusin', onFocusIn, true);
+        unlisten();
         urls.forEach((u) => URL.revokeObjectURL(u));
       },
     });
