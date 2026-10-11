@@ -17,8 +17,10 @@
   }
   var auto = window.SlopSession.autosave(APP, 'view', viewNow, { delay: 300 });
   var touch = function () { if (ready) auto.touch(); };
-  ['pointerup', 'click', 'keyup'].forEach(function (t) { document.addEventListener(t, touch, true); });
-  document.addEventListener('wheel', touch, { capture: true, passive: true });
+  // Window capture, registered before the navigation engine attaches (in boot): the engine stops the wheel, Space-pan and
+  // pinch events it takes, so a listener further down would never see them.
+  ['pointerup', 'click', 'keyup'].forEach(function (t) { window.addEventListener(t, touch, true); });
+  window.addEventListener('wheel', touch, { capture: true, passive: true });
 
   /** Boot: bring back the saved session (when autosave is on), then the view. */
   A.restoreView = async function () {

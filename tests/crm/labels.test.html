@@ -21,6 +21,7 @@
   const S = () => win().SlopData;
   const customerNamed = async (name) => (await S().store.list('customers')).value.find((c) => c.name === name);
   const dlg = () => [...doc().querySelectorAll('.sui-dlg')].pop();   // the topmost dialog
+  const titled = (t) => () => [...doc().querySelectorAll('.sui-dlg')].find((d) => d.querySelector('.sui-title').textContent === t);
   const dlgButton = (label) => [...dlg().querySelectorAll('.sui-btn')].find((b) => b.textContent === label);
   const sideItem = (text) => [...doc().querySelectorAll('#cSide .side-item')].find((b) => b.textContent.includes(text));
   const row = (name) => doc().querySelector(`#cRows .row[data-name="${name}"]`);
@@ -56,7 +57,7 @@
       row('Ben Lab').querySelector('.row-check').click();
       await waitFor(() => !$('cBulk').hidden, { timeout: 4000 });
       [...doc().querySelectorAll('#cBulk button')].find((b) => b.textContent === 'Add to group…').click();
-      await waitFor(() => dlg(), { timeout: 4000 });
+      await waitFor(titled('Add to group'), { timeout: 4000 });
       dlg().querySelector('select').value = (await S().store.list('customerGroups')).value[0].id;
       dlgButton('Add').click();
       await waitFor(async () => ((await customerNamed('Ben Lab')).groupIds || []).length === 1, { timeout: 8000 });
@@ -71,10 +72,11 @@
     it('bulk "Remove from group" takes them out again', async () => {
       sideItem('Trade').click();   // clears the group filter first if it is on
       await waitFor(() => doc().querySelectorAll('#cRows .row').length === 3, { timeout: 8000 });
+      [...doc().querySelectorAll('#cBulk button')].find((b) => b.textContent === 'Clear selection')?.click();
       row('Ada Lab').querySelector('.row-check').click();
       await waitFor(() => !$('cBulk').hidden, { timeout: 4000 });
       [...doc().querySelectorAll('#cBulk button')].find((b) => b.textContent === 'Remove from group…').click();
-      await waitFor(() => dlg(), { timeout: 4000 });
+      await waitFor(titled('Remove from group'), { timeout: 4000 });
       dlgButton('Remove').click();
       await waitFor(async () => ((await customerNamed('Ada Lab')).groupIds || []).length === 0, { timeout: 8000 });
       [...doc().querySelectorAll('#cBulk button')].find((b) => b.textContent === 'Clear selection').click();

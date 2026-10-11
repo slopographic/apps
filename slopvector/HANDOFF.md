@@ -82,3 +82,23 @@ These were asked for together with the PhotoSlop layer work; none of the Vector 
 - SVG export writes a rounded rect as `<path>` with circular arcs from `SlopShapes.svgPath`. A zero-radius rect stays `<rect>`. The object stays `type: 'rect'`.
 - Limits: direct-select anchors and hit testing (`G.rectSubs`) still use the single `rx`, the largest corner, so they only approximate per-corner shapes. SVG import reads one `rx` only.
 - Tests: `tests/slopvector/corners.test.html`. Node geometry tests: `tests/node/shapes-rounded.test.mjs`.
+
+## Clipping masks (`js/core/clipmask.js`, `js/tools/clipmask.js`)
+
+- **Model:** a clipping mask is a group with `clip: true`. Its last child (the top of the stack) is the clip shape; the
+  children before it are the clipped objects. Z-order is array order (index 0 is the bottom), so the shape sits above what it
+  clips. The shape is not drawn; the group draws its content only inside the shape. It is saved in the document like any group.
+- **Make (Object ▸ Clipping Mask ▸ Make Clipping Mask, Ctrl/Cmd+7):** the topmost selected object is the shape.
+  With several selected objects in one stack, the selected ones below it are clipped; with one selected, every sibling
+  below it in that stack is clipped. The group takes the place of the lowest member. Nothing below the shape: a toast.
+  One undo step. Release (Ctrl/Cmd+Alt+7): each selected clipping mask becomes its objects again, shape on top.
+- **Geometry:** the group's bounds, selection box and hit testing use the clip shape's area (`docSubs`, `objBBox`
+  and `hitObj` in `core/objects.js` and `core/hittest.js`). A click counts on the content only inside the shape.
+- **SVG export** (`core/svgout.js`): a `<clipPath id="sv-clip-<groupid>">` in `<defs>` holds the shape (paint dropped, images
+  become rects because `<image>` is not allowed in a clipPath), and the content sits in `<g clip-path="url(#…)">`, so the
+  file stays editable. The group's transform and opacity stay on the outer `<g>`. Live canvas and PNG export use the same markup.
+- **PDF** (`io/pdf.js`): the content is written between `q` and `Q` after the shape's path and `W n`.
+- **Limits:** SVG import ignores `<clipPath>`, so an SVG with clip paths opens with the content unclipped. Nested clip
+  groups work. The clip shape is not drawn and cannot be edited in place: release, edit, then make the mask again.
+- **Tests:** `tests/node/slopvector-clip.test.mjs` (plan, apply, release, SVG and PDF strings) and
+  `tests/slopvector/clip.test.html` (make, the picture before and after, hit testing, undo/redo and release, save, no-op, PDF).
