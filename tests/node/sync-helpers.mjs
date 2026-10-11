@@ -53,9 +53,15 @@ export async function makeEnv({ url = 'https://apps.example.com/pdf/?x=1#top', f
   for (const f of FILES) vm.runInContext(await readFile(path.join(SYNC, f), 'utf8'), ctx, { filename: f });
   const mem = memBackend();
   ctx.SlopSyncTokens.setBackend(mem);
-  ctx.SlopData = {
-    exportAll: async () => new Blob(['{"docs":[1]}'], { type: 'application/json' }),
-    importAll: async (b) => { imported.push(b); }
+  // A stand-in for shared/backup/central.js: plan() records what it was given (what a restore reads),
+  // apply() writes nothing.
+  ctx.SlopCentral = {
+    exportEverything: async () => {
+      const blob = new Blob(['{"docs":[1]}'], { type: 'application/json' });
+      return { name: 'slopographic-backup-test.slop-backup.json', blob, size: blob.size };
+    },
+    plan: async (input) => { imported.push(input); return { ok: true, errors: [], rows: [], excluded: [], envelope: {} }; },
+    apply: async () => ({ ok: true, applied: [], skipped: [], errors: [], rolledBack: false })
   };
   return { ctx, S: ctx.SlopSync, calls, imported, location, mem };
 }
