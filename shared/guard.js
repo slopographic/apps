@@ -52,7 +52,7 @@
   /** Show the dialog. Resolves with 'export' | 'reload' | 'cancel' (after the dialog closes). */
   function show() {
     if (showing) return showing;
-    showing = (async () => {
+    const run = (async () => {
       let B, UI;
       try { B = await backup(); UI = await B.kit(); } catch (e) {
         // The backup kit did not load: ask with the plain SlopUI dialog instead of a browser prompt.
@@ -83,6 +83,8 @@
         d.box.dataset.guard = '1';
       });
     })();
+    // Clear the flag however the dialog ends (the fallback path never reached onClose before).
+    showing = run.finally(() => { showing = null; });
     return showing;
   }
   addEventListener('keydown', (e) => {
