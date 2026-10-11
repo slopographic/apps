@@ -115,7 +115,7 @@ function buildLayersPanel() {
       eye.addEventListener('click', (e) => { e.stopPropagation(); if (e.altKey) { const solo = D.layers.every((l) => l === L || !l.visible); D.layers = D.layers.map((l) => Object.assign({}, l, { visible: solo ? true : l.id === L.id })); commit('Show/Hide'); } else setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer'); });
       const th = h('span', { class: 'lp-thumb' + (L.id === D.activeId && !UI.editMask ? ' target' : ''), title: 'Edit layer pixels' }, cachedThumb(L, false));
       th.addEventListener('click', () => { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); });
-      th.addEventListener('dblclick', (e) => { e.stopPropagation(); if (L.text) editTypeLayer(L); else dlgLayerProps(); });
+      th.addEventListener('dblclick', (e) => { e.stopPropagation(); if (L.text) editTypeLayer(L); else openLayerStyle(L.id); });
       const row = h('li', { class: 'layer' + (L.id === D.activeId ? ' active' : ''), role: 'option', 'aria-selected': String(L.id === D.activeId), draggable: 'true', 'data-id': L.id }, eye, th);
       if (L.mask) {
         const mt = h('span', { class: 'lp-thumb mask' + (L.id === D.activeId && UI.editMask ? ' target' : '') + (L.mask.enabled === false ? ' off' : ''), title: 'Edit layer mask (Shift-click to disable)' }, cachedThumb(L, true));
@@ -131,6 +131,8 @@ function buildLayersPanel() {
       if (L.clip) row.append(h('span', { class: 'lp-meta lp-clip', title: 'Clipped to the layer below. Alt-click to release' }, '↳ clipped'));
       if (L.locked) row.append(h('span', { class: 'lp-lock', title: 'Locked', html: '<svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z"/></svg>' }));
       if (L.blend !== 'normal' || L.opacity < 1) row.append(h('span', { class: 'lp-meta' }, (L.blend !== 'normal' ? BLENDS.find((b) => b[0] === L.blend)[1] : '') + (L.opacity < 1 ? ` ${Math.round(L.opacity * 100)}%` : '')));
+      // Double-click on the row (not the name, which renames, or the thumbnail) opens the Layer Style dialog, or edits a type layer.
+      row.addEventListener('dblclick', (e) => { if (L.text) editTypeLayer(L); else openLayerStyle(L.id); });
       row.addEventListener('click', (e) => { if (e.altKey) { toggleClippingAt(L.id); return; } if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); } });
       ctxTarget(row, L.text ? 'text' : 'layer', () => (L.text ? textItems(L) : layerItems(L)));
       row.addEventListener('dragstart', (e) => { dragId = L.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(L.id)); row.classList.add('dragging'); });

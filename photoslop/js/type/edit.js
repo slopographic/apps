@@ -88,8 +88,8 @@ function teApply(patch) {
 }
 function layoutTypeEdit() {
   if (!TE.el) return;
-  const t = TE.t, el = TE.el, s = toScreen(t.x, t.y);
-  Object.assign(el.style, { left: s.x + 'px', top: s.y + 'px', textAlign: t.align, lineHeight: (t.leading || 120) / 100, minWidth: t.size * V.zoom * 0.6 + 'px' });
+  const t = TE.t, el = TE.el, u = toScreen(t.x, t.y), s = hostPt(u.x, u.y); // the box turns with the view (view-rot.js)
+  Object.assign(el.style, { left: s.x + 'px', top: s.y + 'px', textAlign: t.align, lineHeight: (t.leading || 120) / 100, minWidth: t.size * V.zoom * 0.6 + 'px', transformOrigin: '0 0', transform: V.rot ? `rotate(${V.rot}deg)` : '' });
 }
 async function endTypeEdit(cancel) {
   if (!TE.el) return;

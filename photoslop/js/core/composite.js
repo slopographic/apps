@@ -71,7 +71,7 @@ function compositeInto(g, opts = {}) {
     const bs = base ? clipBaseCopy(L) : null; // before layerSurface(L), which may reuse the scratch canvas
     let s = fxSurface(L, layerSurface(L));
     if (bs) s = clipWith(s, bs);
-    g.globalAlpha = L.opacity;
+    g.globalAlpha = layerAlpha(L);
     g.globalCompositeOperation = BLEND_OP[L.blend] || 'source-over';
     g.drawImage(s.canvas, 0, 0, s.w, s.h, s.x, s.y, s.w, s.h);
   }

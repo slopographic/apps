@@ -17,10 +17,10 @@ function fxRow(L, e, i) {
   const eye = h('button', { type: 'button', class: 'lp-eye fx-eye' + (on ? ' on' : ''), title: on ? 'Hide effect' : 'Show effect', 'aria-label': (on ? 'Hide ' : 'Show ') + label, html: FX_EYE_SVG });
   eye.addEventListener('click', (ev) => { ev.stopPropagation(); setFxProps(L.id, e.id, { on: !on }, on ? 'Hide Effect' : 'Show Effect'); });
   const edit = h('button', { type: 'button', class: 'lp-btn fx-edit', title: 'Edit effect', 'aria-label': 'Edit ' + label, html: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>' });
-  edit.addEventListener('click', (ev) => { ev.stopPropagation(); openFxDialog(L.id, e.id); });
+  edit.addEventListener('click', (ev) => { ev.stopPropagation(); editFxEntry(L.id, e.id); });
   const row = h('li', { class: 'fx' + (on ? '' : ' off'), role: 'option', tabindex: '0', draggable: 'true', 'data-layer': String(L.id), 'data-fx': String(e.id), 'aria-label': `${i + 1}. ${label}`, title: 'Double-click or Enter to edit · Alt+Up/Down to move · Delete to remove' },
     eye, h('span', { class: 'fx-n' }, String(i + 1)), h('span', { class: 'fx-name' }, label), edit);
-  row.addEventListener('dblclick', (ev) => { ev.stopPropagation(); openFxDialog(L.id, e.id); });
+  row.addEventListener('dblclick', (ev) => { ev.stopPropagation(); editFxEntry(L.id, e.id); });
   row.addEventListener('click', () => { if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); } });
   ctxTarget(row, 'fx', () => fxItems(L, e));
   row.addEventListener('dragstart', (ev) => { fxDrag = { layer: L.id, id: e.id }; ev.stopPropagation(); ev.dataTransfer.effectAllowed = 'move'; ev.dataTransfer.setData('text/plain', label); row.classList.add('dragging'); });
@@ -48,7 +48,7 @@ function fxRow(L, e, i) {
 function fxItems(L, e) {
   const on = e.on !== false, idx = () => fxIndex(L.id, e.id), n = () => fxOf(L.id).length;
   return [
-    { label: 'Edit effect…', act: () => openFxDialog(L.id, e.id) },
+    { label: 'Edit effect…', act: () => editFxEntry(L.id, e.id) },
     { label: on ? 'Hide Effect' : 'Show Effect', act: () => setFxProps(L.id, e.id, { on: !on }, on ? 'Hide Effect' : 'Show Effect') },
     '-',
     { label: 'Move Up', act: () => moveFx(L.id, idx(), idx() - 1), en: () => idx() > 0 },
@@ -66,7 +66,7 @@ function fxKey(ev) {
   if (i < 0) return;
   const id = L.fx[i].id;
   let done = true;
-  if (ev.key === 'Enter' && !ev.altKey && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey) openFxDialog(L.id, id);
+  if (ev.key === 'Enter' && !ev.altKey && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey) editFxEntry(L.id, id);
   else if (ev.key === 'Delete') removeFx(L.id, id);
   else if (ev.altKey && ev.key === 'ArrowUp') moveFx(L.id, i, i - 1);
   else if (ev.altKey && ev.key === 'ArrowDown') moveFx(L.id, i, i + 1);

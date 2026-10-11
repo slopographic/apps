@@ -7,14 +7,16 @@ function buildStatus() {
   const sb = $('#status');
   const zoom = h('input', { class: 'sb-zoom', type: 'text', 'aria-label': 'Zoom percent', spellcheck: 'false' });
   const size = h('span', { class: 'sb-size' }), pos = h('span', { class: 'sb-pos' }), col = h('span', { class: 'sb-col' }), chip = h('i', { class: 'sb-chip' });
+  const rot = h('span', { class: 'sb-rot', title: 'View rotation (not saved in the file)' });
   const saved = h('span', { id: 'sbSaved', class: 'sb-saved' }, 'Local only');
-  sb.append(zoom, size, pos, h('span', { class: 'sb-colwrap' }, chip, col), h('span', { class: 'sb-fill' }), saved);
+  sb.append(zoom, size, pos, h('span', { class: 'sb-colwrap' }, chip, col), rot, h('span', { class: 'sb-fill' }), saved);
   const fmtZ = () => (V.zoom * 100 < 10 ? (V.zoom * 100).toFixed(1) : Math.round(V.zoom * 100)) + '%';
   zoom.addEventListener('change', () => { const v = parseFloat(zoom.value); if (v > 0) setZoom(v / 100); zoom.blur(); });
   zoom.addEventListener('keydown', (e) => { if (e.key === 'Enter') zoom.dispatchEvent(new Event('change')); e.stopPropagation(); });
   const sync = () => {
     if (document.activeElement !== zoom) zoom.value = fmtZ();
     size.textContent = `${D.w} × ${D.h} px · ${D.layers.length} layer${D.layers.length === 1 ? '' : 's'}`;
+    rot.textContent = V.rot ? `∠ ${Math.round(V.rot)}°` : '';
   };
   let colT = 0;
   listeners.add((w) => {
@@ -57,6 +59,7 @@ async function boot() {
   buildPanels();
   buildStatus();
   wireMobile();
+  $('#viewport').before(buildViewBar()); // the viewport toolbar (view rotation), above the canvas
   $('#themeToggle').addEventListener('click', () => setTheme(theme() === 'pro' ? 'light' : theme() === 'light' ? 'paint' : 'pro'));
   $('#exportBtn').addEventListener('click', () => dlgExport());
   selectTool(TOOL[store.get('tool', 'brush')] ? store.get('tool', 'brush') : 'brush');

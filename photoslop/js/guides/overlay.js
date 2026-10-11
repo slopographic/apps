@@ -55,7 +55,7 @@ function drawTopOverlays(g) {
     if (s.y != null) { const y = Math.round(V.oy + s.y * V.zoom) + 0.5; g.moveTo(0, y); g.lineTo(V.W, y); }
     g.stroke(); g.restore();
   }
-  if (GUIDE_PREFS.rulers) drawRulers(g);
+  if (rulersShown()) drawRulers(g);
 }
 function rulerStep(z) {
   const target = 64 / z; // a labelled tick about every 64 screen px

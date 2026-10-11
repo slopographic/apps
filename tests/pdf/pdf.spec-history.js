@@ -145,6 +145,19 @@
       expect(await PT.U.idb.get('edits/' + f1.fp)).toBeFalsy();
     }, { timeout: 60000 });
 
+    it('applying redactions drops the saved log, so a reopened file never loses its redactions', async () => {
+      PT.reset();
+      const E = PT.E, bytes = await PT.makePdf([{ text: 'secret' }]);
+      const f1 = await PT.open(bytes, 'redact-log.pdf');
+      PT.A.rotate([E.state.pages[0].id], 90);
+      await PT.U.sleep(900);
+      expect((await PT.U.idb.get('edits/' + f1.fp)) != null).toBe(true);
+      E.commit('Mark for redaction', (st) => { st.pages[0].annots.push({ id: 'rm1', type: 'redact', rot: 0, cx: 60, cy: 60, w: 120, h: 40 }); });
+      await E.applyRedactions({ dpi: 100 });
+      await PT.U.sleep(900);
+      expect(await PT.U.idb.get('edits/' + f1.fp)).toBeFalsy();
+    }, { timeout: 60000 });
+
     it('a blocked store does not break editing', async () => {
       PT.reset();
       const E = PT.E, U = PT.U, bytes = await PT.makePdf([{ text: 'delta' }]);

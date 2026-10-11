@@ -28,7 +28,7 @@ function boxCorners(b) {
   const a = toScreen(b.x, b.y), z = toScreen(b.x + b.w, b.y + b.h);
   return [{ x: a.x, y: a.y }, { x: z.x, y: a.y }, { x: z.x, y: z.y }, { x: a.x, y: z.y }];
 }
-function pointerScreen(e) { const r = V.el.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+function pointerScreen(e) { return viewLocal(e); } // unrotated view space, like toScreen
 /** Screen points of the handles and the knob, for the viewport and the tests: eight handles, then the knob. */
 function idleBoxPoints() {
   const b = boxTarget(); if (!b || !boxShown()) return [];

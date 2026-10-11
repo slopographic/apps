@@ -185,3 +185,19 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
 - `pdf.spec-nav.js`: Ctrl+wheel zooms about the pointer (eased, the document point stays under the pointer), the plain
   wheel is left to the viewer, Shift+wheel scrolls sideways, 10% and 800% limits, Ctrl/⌘ 0 fits the width, and the zoom
   comes back after a reload.
+
+## Undo/redo, saved edits and text highlight
+- **History** (`js/core/history.js`): every change is one `E.commit(label, fn, coalesce)`. It records the difference
+  between the document before and after (page objects by id, page order, meta/stamps/forms) as a command with
+  `do()` and `undo()`. Cap 300. `H.useStack(key)` swaps the stacks, so a tab adapter can give each tab its own history.
+  No-op commits make no step.
+- **Saved edits** (`js/io/edit-log.js`): each logged file's applied commands go to IndexedDB (`U.idb`, key
+  `edits/<sha256 of the original bytes>`), restricted to that file's pages. The original bytes are never stored.
+  File ids are `f<first 16 hex of the fingerprint>` and page ids `<fileId>.<index>`, so a reopened file lines up.
+  Opening a file with a saved log asks Replay or Discard (`L.offer`, called at the end of `A.addFiles`).
+  Not logged: sample, image-made PDFs, restored autosave files, the Redacted file, and a second copy of a file in one
+  session. Apply redactions drops the file's log (its pages cannot be replayed).
+- **Text highlight** (`js/editor/texthl.js`): tool `texthl` (key U). Lines and per-glyph boxes come from pdf.js
+  `getTextContent`; the annotation keeps its quads in `pts` (four per line) and exports as filled multiply quads.
+- Tests: `tests/pdf/pdf.spec-history.js`. Fixtures carry a unique creation date (pdf-lib dates have one-second
+  resolution, and identical files would share a saved log).
