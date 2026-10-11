@@ -209,6 +209,7 @@ export function release(t, cancel = false) {
 
 /** One simulation step. */
 export function step(dt, t) {
+  if (M.mode !== (globalThis.__lm || '')) { console.error('TRACE mode', globalThis.__lm, '->', M.mode, Math.round(M.x), Math.round(M.y)); globalThis.__lm = M.mode; }
   if (reduced()) { M.squash = 0; M.sqv = 0; }
   else if (M.mode !== 'hop' && M.mode !== 'glide') {
     M.sqv += (-340 * M.squash - 11 * M.sqv) * dt;               // wobbly jelly spring
