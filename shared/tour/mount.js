@@ -1,4 +1,4 @@
-/* SlopTour mount: the one script an app page loads (<script src="…/shared/tour/mount.js" data-app="photoslop">).
+/* SlopTour mount: the one script an app page loads (a script tag for …/shared/tour/mount.js with data-app="photoslop").
  * It adds a Tour button to the header, registers "Start tour: <name>" in the command palette and opens the
  * tour when the URL has ?tour=1 (the homepage links use that). The engine loads only when a tour starts.
  * On the homepage (data-home="1") it adds a Tours menu that links to each app's tour. Classic script. */
