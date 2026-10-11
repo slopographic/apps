@@ -23,7 +23,7 @@
       W.SlopFaces.setBackend(stub());
       expect(W.SlopFaces.enabled()).toBe(false);
       expect(W.SlopFaces.status()).toBe('off');
-      rec = await H.put(await DT.png('#d4ff3a', 40, 30), { name: 'first.png', from: 'clean' });
+      rec = await H.get(await H.put(await DT.png('#d4ff3a', 40, 30), { name: 'first.png', from: 'clean' }));
       await DR.refresh(); DR.render();
     });
 

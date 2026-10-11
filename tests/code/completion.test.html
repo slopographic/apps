@@ -10,8 +10,9 @@
   const { describe, it, expect } = SlopTest;
   const { frame, close, text, H, view, doc, textOf, typeText, key, tabNames, waitFor, sleep } = CT;
   let w;
-  const labels = () => [...w.document.querySelectorAll('.cd-editor .cm-tooltip-autocomplete .cm-completionLabel')].map((e) => e.textContent);
-  const popup = () => w.document.querySelector('.cd-editor .cm-tooltip-autocomplete');
+  // CodeMirror puts its tooltips in the document body, not inside the editor element.
+  const labels = () => [...w.document.querySelectorAll('.cm-tooltip-autocomplete .cm-completionLabel')].map((e) => e.textContent);
+  const popup = () => w.document.querySelector('.cm-tooltip-autocomplete');
   /** Open a new Drive file of this name and content in the app, and move to its end. */
   async function open(name, body = '') {
     const id = await H().put(text(body, 'text/plain'), { name, from: 'test' });
@@ -75,7 +76,7 @@
     });
 
     it('CSS properties complete in a .css file', async () => {
-      await open('style.css', 'a {\n  \n}\n');
+      await open('style.css', 'a {\n  ');
       await typeText(w, 'backgr');
       expect(await complete()).toContain('background-color');
       key(w, 'Escape');

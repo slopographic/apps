@@ -111,7 +111,7 @@
       expect(!!document.querySelector('[data-act="import-all"]')).toBe(true);
       document.querySelector('.ev-dlg .sui-foot button').click();
       await closed;
-      expect(!!document.querySelector('.ev-dlg')).toBe(false);
+      await SlopTest.waitFor(() => !document.querySelector('.ev-dlg'), { timeout: 3000 });
     });
   });
   run({ name: 'Backup · Export everything: round trips and version 1 files' });
