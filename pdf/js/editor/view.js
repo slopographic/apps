@@ -83,6 +83,7 @@
     var z = Ed.zoom, g = E.geom(p), R = E.rotation(p), vs = E.viewSize(p);
     S.pageEl.style.width = (vs.w * z) + 'px'; S.pageEl.style.height = (vs.h * z) + 'px';
     S.layer.style.width = (g.W * z) + 'px'; S.layer.style.height = (g.H * z) + 'px';
+    S.pageEl.style.left = ''; S.pageEl.style.top = ''; // back to centred; setRaw re-applies its offset
     S.layer.style.transform = V.layerTransform(R, g.W, g.H, z);
     S.pageEl.dataset.tool = Ed.tool;
     S.pageEl.classList.toggle('is-redacted', !!p.redacted);
@@ -136,10 +137,14 @@
   /** Zoom now to z, keeping the page point under client (ax, ay) in place. */
   function setRaw(z, ax, ay) {
     var old = Ed.zoom, r = S.pageEl.getBoundingClientRect(), cxp = (ax - r.left) / old, cyp = (ay - r.top) / old;
-    Ed.zoomMode = 'num'; Ed.zoom = U.clamp(z, ZMIN, ZMAX); Ed.layout();
+    Ed.zoomMode = 'num'; Ed.zoom = U.clamp(z, ZMIN, ZMAX); Ed.layout(); // the layout centres the page again
     var r2 = S.pageEl.getBoundingClientRect();
     S.viewer.scrollLeft += (r2.left + cxp * Ed.zoom) - ax;
     S.viewer.scrollTop += (r2.top + cyp * Ed.zoom) - ay;
+    // A page smaller than the viewer cannot scroll, so what is left of the move is an offset on the page itself.
+    var r3 = S.pageEl.getBoundingClientRect();
+    S.pageEl.style.left = ((ax - cxp * Ed.zoom) - r3.left) + 'px';
+    S.pageEl.style.top = ((ay - cyp * Ed.zoom) - r3.top) + 'px';
   }
   function frame(now) {
     easeRaf = 0;
