@@ -42,6 +42,7 @@
     if (saved) { try { SV.loadDoc(saved.doc, { fit: true }); S.fileName = saved.fileName || null; recovered = true; } catch (e) { recovered = false; } }
     if (!recovered) SV.loadDoc(SV.sampleDoc(), { fit: true });
     SV.resetHistory();
+    SV.restoreView(recovered);
     SV.hub.init();
     if (recovered && !/[?&]drive=/.test(location.search)) { S.savedIdx = -1; setTimeout(function () { UI.toast('Recovered document “' + S.doc.name + '” from your last session'); }, 300); }
     setTheme(UI.st.currentTheme);
