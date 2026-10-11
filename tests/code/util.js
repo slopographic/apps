@@ -35,7 +35,9 @@ window.CT = (function () {
   /** A keydown on the focused element. */
   function key(w, k, { ctrl = false, shift = false, alt = false } = {}) {
     const target = w.document.activeElement || w.document.body;
-    target.dispatchEvent(new w.KeyboardEvent('keydown', { key: k, ctrlKey: ctrl, metaKey: false, shiftKey: shift, altKey: alt, bubbles: true, cancelable: true }));
+    // SlopCmd matches letters and digits by e.code (as a real keyboard reports it), so set both.
+    const code = /^[a-z]$/i.test(k) ? 'Key' + k.toUpperCase() : /^\d$/.test(k) ? 'Digit' + k : k === ' ' ? 'Space' : k;
+    target.dispatchEvent(new w.KeyboardEvent('keydown', { key: k, code, ctrlKey: ctrl, metaKey: false, shiftKey: shift, altKey: alt, bubbles: true, cancelable: true }));
   }
   const rec = (id) => H().get(id);
   const tabNames = (w) => [...w.document.querySelectorAll('.cd-tab-name')].map((b) => b.textContent.replace('•', '').trim());
