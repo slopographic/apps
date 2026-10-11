@@ -13,11 +13,16 @@ Classic scripts, no DOM except the lane widget, no fetch, no storage. Each file 
 | `templates.js` | `SlopVideo.templates` | The named templates (Single, Split horizontal, Split vertical, Picture-in-picture, Grid 2×2, Grid 3×3, Three-up, Vertical reel) in `list`; `get(id)` also resolves any grid id; `grid()`, `region()`, `slotCount()`, `label()`, `tiles()`. |
 | `layout.js` | `SlopVideo.layout` | `fit(frame, media, region)`: the transform that letterboxes a picture into a region. `trackOf(slot)`. |
 | `segments.js` | `SlopVideo.segments` | Layout switches over time: `clean`, `norm(list, total)`, `at(segs, t)`, `add`, `move`, `remove`, `maxSlots`. All pure. |
+| `orient.js` | `SlopVideo.orient` | Clip orientation (`of`, `classify`, `mixed`); grids that suit the clips (`prefer`); cell order (`assign`); `resolve(fill, mixed)` (auto is cover, or blur when mixed). |
+| `timing.js` | `SlopVideo.timing` | Per-slot timing inside a cut (`apply`: same, stagger, random length; video through or random point) and `holds` (each clip holds until the next clip in its slot). |
+| `locks.js` | `SlopVideo.locks` | Locked slots: `toggle`, `toggleCut`, `has`, and `apply(plan, locks, media)` puts locked clips back into a new plan. |
+| `audio.js` | `SlopVideo.audio` | The reel's audio choice (`choose`): off, original, or music (a bin video's sound by seed, or a picked file). |
 | `random-edit.js` | `SlopVideo.random` | `plan(opts, media)` (pure), `norm`, `usable`, `switches`, `regionFor(plan, item)`. |
 | `lane-view.js` | `SlopVideo.laneView` | The Layout lane widget: `mount(host, {label, onCommit, onSeek})` returns `update({duration, switches, layouts, playhead})`. |
 | `lane.css` | | Styles for the lane (uses `--sui-*` tokens when present). |
 
-Load order matters only in that `presets.js` precedes `templates.js` and `segments.js` precedes `random-edit.js`.
+Load order matters: `presets.js` precedes `templates.js`; `segments.js`, `timing.js`, `locks.js`, `audio.js` and `orient.js` precede
+`random-edit.js` (it reads them at load). SlopCut, Remix and the video-core test load the same list.
 
 ## Layout notation
 
@@ -41,14 +46,22 @@ a beat never crosses a switch, so every cut uses the slots of the layout active 
 ## The plan
 
 `random.plan(opts, media)` returns `null` when nothing is usable, otherwise `{ seed, seedHex, target, pace, aspect, size,
-tpl, switches, layouts, segments, slots, cuts, total, clips, used }`. `cuts` is a list of beats; a beat is a list of
-`{ media, slot, start, dur, in }`.
+tpl, switches, layouts, segments, slots, cuts, total, clips, used, fill, mixed, timing, locks, audio }`. `cuts` is a list of
+beats; a beat is a list of `{ media, slot, start, dur, in, hold, fill? }`: the slot's clip starts at `start`, plays `dur`
+(a video from `in`, frozen when it runs out), and is shown until `hold` (the next clip in that slot).
+
+- Orientation: sized clips (`w`, `h`) steer the grid choice (`orient.prefer`, for random switches and the random grid) and the
+  order of clips in cells (`orient.assign`). Without sizes the plan is as before.
+- Timing (`timing`, `min`, `max`, `stagger`, `video`): drawn from the plan's rng, so the seed still decides.
+- Locks (`locks`): applied after the cuts are drawn; the other cuts keep the seed's picks.
+- Audio (`audio: { mode, track }`): `plan.audio` is the choice (`audio.choose`), seeded.
 
 - Layout source, in order: `opts.segments` (manual switches), else `opts.switches` (random switch points drawn from
   `opts.layouts`, lengths from the pace: fast 2–4 s, medium 4–8 s, slow 6–12 s, never the same layout twice in a row when
   avoidable), else `opts.tpl` over the whole length. `tpl: 'random'` draws one grid from `layouts` with the seed.
 - `size` (optional `{w, h}`) is the sequence size; without it the app uses `aspect`.
 - Same seed, options and media (sorted by name, so import order does not matter) give the same plan.
+- `fill` (`auto`, `cover`, `fit`, `stretch`, `blur`) is how a cell draws its clip; `orient.resolve` gives the mode actually used.
 - No clip repeats within a beat, and none repeats until every clip is used (when there are enough).
 
 ## Tests

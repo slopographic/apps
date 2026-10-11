@@ -100,6 +100,19 @@
       ev('drop', dt, cut);
       expect(RM().state.plan.cuts[0].find((x) => x.slot === 0).media).toBe(item.id);
     });
+    it('a locked cut keeps its clips through Reshuffle, and the lock button shows the lock', async () => {
+      await ready();
+      if (RM().state.items.length < 4) await addStills(6);
+      $('rm-random').checked = false;
+      $('rm-target').value = '10';
+      $('rm-remix').click();
+      const before = JSON.stringify(RM().state.plan.cuts[0].map((x) => [x.slot, x.media]));
+      doc().querySelector('#rm-cuts .rm-lockbtn').click();
+      expect(doc().querySelector('#rm-cuts li').classList.contains('locked')).toBe(true);
+      $('rm-reshuffle').click();
+      expect(JSON.stringify(RM().state.plan.cuts[0].map((x) => [x.slot, x.media]))).toBe(before);
+      expect(RM().state.locks.length > 0).toBe(true);
+    });
     it('Export records the plan at the preset size and returns a file', async () => {
       await ready();
       if (RM().state.items.length < 4) await addStills(6);
