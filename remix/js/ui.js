@@ -73,6 +73,7 @@
     RM.lane.update({ duration: plan ? plan.total : st.target, switches: st.lane, layouts: RM.layoutChoices(), playhead: st.playhead });
     RM.preview.setPlan();
     RM.preview.seek(Math.min(st.playhead, plan ? plan.total : 0));
+    slotsCut = -2; renderSlots();
   }
   function readControls() {
     const st = RM.state;
