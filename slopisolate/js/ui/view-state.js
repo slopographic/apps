@@ -2,7 +2,7 @@
  * through SlopSession (IndexedDB 'slop-session'); nothing is uploaded. Saved per item: the file (blob), the model,
  * the look, the brush edits and, once processed, the matte itself (the refined base mask for images; the per-frame
  * masks for videos). Coming back puts the same images, masks and edits on screen without running the model again.
- * Items that were still queued are queued again. The active item, tool, view and split are kept too.
+ * Only finished images are saved: unfinished ones are not kept and never restarted. The active item, tool, view and split are kept too.
  * Clear saved work: the toolbar button removes the saved session and the queue. Exposes CO.viewState. */
 (function () {
   'use strict';
@@ -11,7 +11,8 @@
   let ready = false; // nothing is saved until the saved session has been put back
 
   const isImg = (it) => it.kind !== 'video' && it.file instanceof Blob;
-  const kept = () => S.items.filter((it) => it.file instanceof Blob);
+  // Only finished work is kept: a queued or failed image is not saved, so coming back never starts a model run.
+  const kept = () => S.items.filter((it) => it.file instanceof Blob && it.status === 'done');
   const copyLook = (it) => ({ s: it.s, bg: Object.assign({}, it.bg, { image: null }), shadow: it.shadow, crop: it.crop });
   const u8 = (a) => (a ? new Uint8ClampedArray(a) : null);
 
@@ -20,8 +21,7 @@
     return {
       v: 2,
       items: list.map((it) => {
-        const done = it.status === 'done';
-        const rec = { kind: it.kind || 'image', name: it.name, file: it.file, model: it.model, look: copyLook(it), edit: it.edit ? u8(it.edit) : null, done };
+        const rec = { kind: it.kind || 'image', name: it.name, file: it.file, model: it.model, look: copyLook(it), edit: it.edit ? u8(it.edit) : null, done: true };
         if (done && rec.kind === 'image') Object.assign(rec, { base: it.base ? u8(it.base) : null, w: it.w, h: it.h });
         if (done && rec.kind === 'video' && it.vid && it.vid.res) rec.res = { masks: it.vid.res.masks.map((m) => u8(m)), mw: it.vid.res.mw, mh: it.vid.res.mh };
         return rec;
@@ -54,11 +54,6 @@
     }
     return it;
   }
-  /** Items that were still queued (no result) are simply queued again. */
-  function restoreQueued(list) {
-    const files = list.map((src) => new File([src.file], src.name || 'image', { type: src.file.type }));
-    return CO.process.add(files) || [];
-  }
 
   CO.viewState = {
     /** Boot: put back the images (with their masks and edits), the one on screen and the tool, view and split. */
@@ -69,11 +64,11 @@
         if (VIEWS.includes(p.view)) S.setView(p.view);
         if (typeof p.split === 'number' && p.split >= 0 && p.split <= 1) S.split = p.split;
         const list = Array.isArray(p.items) ? p.items.filter((it) => it && it.file instanceof Blob) : [];
+        // Only finished items come back (their masks are kept). Nothing else is queued, so no model runs on return.
         const byItem = new Map();
         for (const src of list) {
-          if (!src.done) { const [it] = restoreQueued([src]); if (it && src.edit) it.edit = u8(src.edit); byItem.set(src, it || null); continue; }
-          const it = src.kind === 'video' ? await restoreVideo(src) : restoreImage(src);
-          byItem.set(src, it);
+          if (!src.done) continue;
+          byItem.set(src, src.kind === 'video' ? await restoreVideo(src) : restoreImage(src));
         }
         const act = byItem.get(list[p.active]) || byItem.get(list[0]);
         if (act) { S.activeId = act.id; CO.emit('list', S.items); CO.emit('activeItem', act); if (act.status === 'done' && act.kind !== 'video') CO.process.select(act); }

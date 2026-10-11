@@ -38,6 +38,7 @@
     <section id="tool" aria-label="Converter">
       <div class="cv-tool" data-convert-root data-preset="url-encode" data-from="txt,csv,json,md,html"></div>
     </section>
+    <section class="cv-pv-wrap" aria-label="Live preview" data-convert-preview></section>
     <section class="cv-explain">
       <h2>How it works</h2>
       <p>The text is encoded with encodeURIComponent, so spaces, slashes and ampersands are all escaped. Keep URL punctuation if you are encoding a whole address.</p>
@@ -85,5 +86,6 @@
     </section>
   </main>
   <script type="module" src="../../convert/js/ui/mount.js"></script>
+  <script type="module" src="../../convert/js/preview/mount.js"></script>
 </body>
 </html>

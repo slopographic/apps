@@ -38,6 +38,7 @@
     <section id="tool" aria-label="Converter">
       <div class="cv-tool" data-convert-root data-preset="csv-to-json" data-from="csv"></div>
     </section>
+    <section class="cv-pv-wrap" aria-label="Live preview" data-convert-preview></section>
     <section class="cv-explain">
       <h2>How it works</h2>
       <p>The CSV is parsed by RFC 4180 rules, so quoted cells can hold commas, quotes and line breaks. Each row becomes an object.</p>
@@ -86,5 +87,6 @@
     </section>
   </main>
   <script type="module" src="../../convert/js/ui/mount.js"></script>
+  <script type="module" src="../../convert/js/preview/mount.js"></script>
 </body>
 </html>

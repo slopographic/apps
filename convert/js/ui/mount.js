@@ -14,5 +14,5 @@ for (const root of document.querySelectorAll('[data-convert-root]')) {
     defaults: root.dataset.defaults ? JSON.parse(root.dataset.defaults) : {},
     note: root.dataset.note || '',
   } : null;
-  new ConvertTool(root, preset);
+  root.convertTool = new ConvertTool(root, preset);
 }

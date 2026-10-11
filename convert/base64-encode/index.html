@@ -38,6 +38,7 @@
     <section id="tool" aria-label="Converter">
       <div class="cv-tool" data-convert-root data-preset="base64-encode"></div>
     </section>
+    <section class="cv-pv-wrap" aria-label="Live preview" data-convert-preview></section>
     <section class="cv-explain">
       <h2>How it works</h2>
       <p>The file is read as bytes and written as Base64 text in a .txt file. Choose one line, or 76 characters per line for MIME mail.</p>
@@ -85,5 +86,6 @@
     </section>
   </main>
   <script type="module" src="../../convert/js/ui/mount.js"></script>
+  <script type="module" src="../../convert/js/preview/mount.js"></script>
 </body>
 </html>

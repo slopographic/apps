@@ -1,7 +1,7 @@
 /* The converter controller: the file list, target picker (only conversions valid for the files),
  * options, batch run, and results with one download per file or a zip of all of them. */
 import { conversionsFor } from '../core/catalog.js';
-import { KIND_LABEL, detectKind } from '../core/detect.js';
+import { KIND_LABEL, TEXT_KINDS, detectKind } from '../core/detect.js';
 import { writeZip } from '../io/zip.js';
 import { readHead, fmtSize, uniqueName, saveBlob } from '../io/files.js';
 import { h } from './dom.js';
@@ -15,6 +15,7 @@ export class ConvertTool {
   /** preset: null for the hub, or { conv, from, defaults, note } for a converter page. */
   constructor(root, preset = null) {
     this.preset = preset;
+    this.root = root;
     this.items = [];
     this.outputs = [];
     this.busy = false;
@@ -29,6 +30,8 @@ export class ConvertTool {
     ui.drop.addEventListener('drop', (e) => { e.preventDefault(); ui.drop.classList.remove('cv-over'); this.addFiles(e.dataTransfer.files); });
     ui.input.addEventListener('change', () => { this.addFiles(ui.input.files); ui.input.value = ''; });
     ui.target.addEventListener('change', () => this.showOptions());
+    ui.opts.addEventListener('input', () => this.emit());
+    ui.opts.addEventListener('change', () => this.emit());
     ui.form.addEventListener('submit', (e) => { e.preventDefault(); this.run(); });
     ui.clear.addEventListener('click', () => this.clear());
     ui.zip.addEventListener('click', () => this.zipAll());
@@ -43,6 +46,7 @@ export class ConvertTool {
   async addFiles(list) {
     const files = Array.from(list || []);
     if (!files.length) return;
+    this.items = this.items.filter((i) => !i.pasted);
     this.setStatus(`Reading ${files.length} file${files.length === 1 ? '' : 's'}…`);
     for (const file of files) {
       const kind = detectKind(file.name, file.type, await readHead(file));
@@ -51,6 +55,38 @@ export class ConvertTool {
     this.setStatus('');
     this.render();
   }
+
+  /** Typed or pasted text is the input as one item named pasted.<kind>. Empty text removes it. */
+  setText(text) {
+    this.items = this.items.filter((i) => !i.pasted);
+    if (text !== '') {
+      const first = this.preset && this.preset.from ? this.preset.from[0] : 'txt';
+      const kind = TEXT_KINDS.includes(first) ? first : 'txt';
+      const name = `pasted.${kind}`;
+      const file = new File([text], name, { type: 'text/plain' });
+      this.items.unshift({ id: ++seq, file, name, size: file.size, kind, error: '', pasted: true });
+    }
+    this.render();
+  }
+
+  /** Swap: the output text of a reversible conversion becomes the input, and the page switches to the reverse. */
+  swapText(text, conv) {
+    this.items = [];
+    this.clearOutputs();
+    if (this.preset) this.preset = { ...this.preset, conv: conv.id, from: conv.from };
+    this.render();
+    this.setText(text);
+    this.ui.target.value = conv.id;
+    this.showOptions();
+  }
+
+  /** What the preview needs: the chosen conversion, the convertible items and the option values. */
+  previewState() {
+    const conv = this.current();
+    return { conv, items: this.active(), opts: conv ? readOptions(this.ui.opts, conv.options) : {} };
+  }
+
+  emit() { this.root.dispatchEvent(new CustomEvent('cv:change')); }
 
   remove(id) {
     this.items = this.items.filter((i) => i.id !== id);
@@ -128,6 +164,7 @@ export class ConvertTool {
     const conv = this.current();
     const defaults = this.preset && this.preset.defaults ? this.preset.defaults : {};
     renderOptions(this.ui.opts, conv ? conv.options : [], defaults);
+    this.emit();
   }
 
   setStatus(text) { this.ui.status.textContent = text; }
