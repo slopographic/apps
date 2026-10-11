@@ -50,7 +50,7 @@
     A('press', 'app', 'Slop Press', 'press/', 'InDesign, rebuilt for the browser.', {
       accepts: ['image/*', 'application/pdf', 'text/plain'],
       features: ['Master pages & threaded text frames', 'Paragraph & character styles', 'Print-ready PDF export', 'Offline .html'],
-      shot: 'assets/shots/press.jpg', icon: 'layout', status: 'building' }),
+      shot: 'assets/shots/press.jpg', icon: 'layout', status: 'beta' }),
     A('slopedit', 'app', 'SlopEdit', 'slopedit/', 'A video editor that never uploads your footage.', {
       accepts: ['video/*', 'audio/*', 'image/*'],
       features: ['Multi-track timeline', 'Trim, split, transitions & titles', 'Hardware MP4 export (WebCodecs)', 'Offline .html'],
