@@ -41,7 +41,15 @@
     return el('div', { class: 'acts' }, ...openIn,
       r.isFolder ? b('Open', () => DR.open(r), 'primary') : b('Quick look', () => DR.quickLook(r)),
       b(r.isFolder ? 'Download .zip' : 'Download', () => DR.download([r])), b(r.starred ? 'Unstar' : 'Star', () => DR.setStar([r], !r.starred)),
-      DR.isCleanable(r) ? b('Remove metadata…', () => DR.openInClean(r)) : null);
+      DR.isCleanable(r) ? b('Remove metadata…', () => DR.openInClean(r)) : null,
+      DR.isFaceable(r) ? b('Find faces', () => DR.findFaces([r])) : null);
+  }
+  /** The face count row for a picture, when face detection is on: the stored count, or "Not checked yet". */
+  function faceRow(r, facts) {
+    if (!DR.isFaceable(r) || !window.SlopFaces || !window.SlopFaces.enabled()) return;
+    const cell = el('dd', { class: 'faces-n' }, 'Not checked yet');
+    facts.append(el('dt', null, 'Faces'), cell);
+    DR.facesOf(r).then((row) => { if (row) cell.textContent = DR.faceText(row.faces.length); });
   }
   function single(r) {
     const head = el('div', { class: 'info-h' }, DR.badge(r, 'badge sm'), el('h2', { title: r.name }, r.name));
@@ -57,6 +65,7 @@
     const facts = rows([['Kind', DR.kindLabel(r)], ['Type', r.type], ['Size', `${DR.fmtSize(r.size)} (${(r.size || 0).toLocaleString()} bytes)`], ['Made by', DR.appName(r.from)],
       ['Location', loc], ['Added', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], ['Opened', r.opened ? DR.fmtFull(r.opened) : 'Never'], r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null]);
     if (['image', 'video', 'pdf'].includes(DR.kindOf(r))) facts.append(el('dt', null, DR.kindOf(r) === 'pdf' ? 'Pages' : 'Dimensions'), dd);
+    faceRow(r, facts);
     return [head, DR.previewOf(r), actions(r), facts, tagBox(r)];
   }
   /** A file's tags: a chip per tag with a remove button, and a box that adds more (Enter or a comma). */
