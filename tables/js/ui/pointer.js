@@ -5,6 +5,7 @@ import { S, redraw } from './state.js';
 import { els, metrics, HEAD_W, HEAD_H } from './grid.js';
 import { beginStep, commitStep } from './history.js';
 import { startEdit, commitEdit } from './editor.js';
+import { isFormula, pointClick, guardFocus } from './point.js';
 import { clampR, clampC } from './nav.js';
 import { MAX_ROWS, MAX_COLS } from '../engine/refs.js';
 
@@ -14,6 +15,7 @@ let drag = null;
 export function init() {
   const g = els().grid;
   g.addEventListener('pointerdown', down);
+  g.addEventListener('mousedown', guardFocus);
   g.addEventListener('pointermove', hover);
   addEventListener('pointermove', move);
   addEventListener('pointerup', up);
@@ -47,6 +49,7 @@ function down(e) {
   const { x, y } = local(e), hit = locate(x, y), m = metrics();
   const vp = els().vp;
   if (x - HEAD_W >= vp.clientWidth || y - HEAD_H >= vp.clientHeight) return;   // the scrollbars belong to the browser
+  if (isFormula() && hit.kind === 'cell') { e.preventDefault(); pointClick(hit.r, hit.c); return; }
   if (S.edit && !commitEdit()) return;
   e.preventDefault();
   els().grid.focus({ preventScroll: true });
