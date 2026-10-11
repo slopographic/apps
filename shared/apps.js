@@ -24,6 +24,10 @@
       accepts: ['image/*', 'text/csv'],
       features: ['Barcodes & QR, GS1', 'Data merge from CSV & Excel', 'Zebra ZPL export & import', 'Sheets & thermal rolls'],
       shot: 'assets/shots/label.jpg', icon: 'tag', status: 'beta' }),
+    A('cutout', 'app', 'Slop Cutout', 'cutout/', 'Remove backgrounds with AI that runs on your device.', {
+      accepts: ['image/*'],
+      features: ['One-click AI background removal', 'Refine brush & soft edges', 'Replace with colour, blur or image', 'Batch, no uploads, no watermarks'],
+      shot: 'assets/shots/cutout.jpg', icon: 'brush', status: 'building' }),
     A('press', 'app', 'Slop Press', 'press/', 'InDesign, rebuilt for the browser.', {
       accepts: ['image/*', 'application/pdf', 'text/plain'],
       features: ['Master pages & threaded text frames', 'Paragraph & character styles', 'Print-ready PDF export', 'Offline .html'],
