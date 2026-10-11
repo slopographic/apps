@@ -6,7 +6,7 @@
   'use strict';
   var defaults = {
     ga4MeasurementId: 'G-HW6FWQVFK3', // Empty: the gtag script never loads. Loads only after the visitor opts in.
-    adsensePublisherId: '', // e.g. 'ca-pub-0000000000000000'. Empty: the AdSense script never loads.
+    adsensePublisherId: 'ca-pub-9263973145335219', // Empty: the AdSense script never loads. Loads only after the visitor opts in to ads.
     patreonUrl: '',         // e.g. 'https://www.patreon.com/yourname'. Empty: the donate link is hidden.
     policyVersion: 2        // Consent policy version. A change makes every stored record outdated (2 adds the 'rates' category).
   };
