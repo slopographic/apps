@@ -2,6 +2,19 @@
 'use strict';
 
 const FONT_OPTS = Object.entries(FONTS).map(([k, f]) => [k, f.name]);
+/** Makes a family known to the label renderers: CSS from the shared picker, PDF falls back to the Sans base-14 faces. */
+function ensureFont(name) {
+  if (!name || FONTS[name]) return;
+  FONTS[name] = { name, css: SlopFonts.stack(name), pdf: FONTS.sans.pdf, asc: FONTS.sans.asc, desc: FONTS.sans.desc };
+  SlopFonts.bundledIndex().then(() => { FONTS[name].css = SlopFonts.stack(name); });
+}
+/** Family select: the four standard faces, bundled and downloaded families, and Get more. */
+function familySelect(o, key, label, flag) {
+  const s = mk('select', { class: 'inp' });
+  ensureFont(o[key]);
+  const pick = SlopFonts.attach(s, { value: o[key], legacy: FONT_OPTS, onPick: (f) => { ensureFont(f); setProp(key, f, label, flag); } });
+  return mk('span', { class: 'font-pick' }, s, pick.button);
+}
 function symOptions() {
   const g1 = SYMBOLOGIES.filter((s) => s.kind === '1d'), g2 = SYMBOLOGIES.filter((s) => s.kind === '2d');
   return [{ group: 'Linear (1D)', items: g1.map((s) => [s.id, s.name]) }, { group: '2D', items: g2.map((s) => [s.id, s.name]) }];
@@ -21,7 +34,7 @@ function textSections(o) {
   const out = [contentField(o, { multi: true, placeholder: 'Type text, or insert {Fields}' })];
   if (o.type === 'para') out.push(mk('p', { class: 'hint' }, 'Use **bold** and _italic_ inside paragraphs.'));
   out.push(fSec('Font',
-    fRow('Family', fSel(FONT_OPTS, o.font, (v) => setProp('font', v, 'Font', true))),
+    fRow('Family', familySelect(o, 'font', 'Font', true)),
     fRow('Size (pt)', fNum(o.size, (v) => setProp('size', v, 'Font size'), { min: 1, max: 999, step: 0.5 })),
     mk('div', { class: 'btnrow' }, fChk('Bold', o.bold, (v) => setProp('bold', v, 'Bold')), fChk('Italic', o.italic, (v) => setProp('italic', v, 'Italic')), fChk('White (on black)', o.color === 'white', (v) => setProp('color', v ? 'white' : 'black', 'Text colour'))),
     fRow('Align', fSeg([['left', 'Left'], ['center', 'Centre'], ['right', 'Right']], o.align, (v) => setProp('align', v, 'Align text'))),
@@ -55,7 +68,7 @@ function barcodeSections(o, it) {
   const opts = [];
   if (lin) {
     opts.push(fRow('Text', fSeg([['below', 'Below'], ['above', 'Above'], ['none', 'None']], o.hr, (v) => setProp('hr', v, 'Human readable', true))));
-    if (o.hr !== 'none') opts.push(fRow('Text size (pt)', fNum(o.hrSize, (v) => setProp('hrSize', v, 'Text size'), { min: 3, max: 72, step: 0.5 })), fRow('Text font', fSel(FONT_OPTS, o.hrFont || 'mono', (v) => setProp('hrFont', v, 'Text font'))));
+    if (o.hr !== 'none') opts.push(fRow('Text size (pt)', fNum(o.hrSize, (v) => setProp('hrSize', v, 'Text size'), { min: 3, max: 72, step: 0.5 })), fRow('Text font', familySelect(Object.assign({}, o, { hrFont: o.hrFont || 'mono' }), 'hrFont', 'Text font', false)));
   }
   const chk = { ean13: 1, ean8: 1, upca: 1, upce: 1, itf14: 1, 'gs1-128': 1, gs1qrcode: 1, gs1datamatrix: 1 }[o.symbology];
   if (chk) opts.push(fRow('Check digit', fSeg([['auto', 'Add / verify'], ['none', 'Verify only']], o.check === 'none' ? 'none' : 'auto', (v) => setProp('check', v, 'Check digit'))));
