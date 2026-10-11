@@ -36,7 +36,7 @@
     });
     it('shows the formula bar, the sheet tabs and the status bar', () => {
       expect(shown(doc().getElementById('fx'))).toBe(true);
-      expect(doc().getElementById('namebox').value).toBe('B2');
+      expect(doc().getElementById('namebox').value).toBe('C4'); // Enter after C3 moves down
       const tab = doc().querySelector('#tabs .tab:not(.tab-add)');
       expect(shown(tab)).toBe(true);
       expect(tab.textContent).toBe('Sheet1');
