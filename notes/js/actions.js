@@ -1,8 +1,8 @@
 /* Slop Notes actions: every change the screen, the menus and the commands make. Each one changes S, saves through the
  * store and asks the views to redraw. Nothing here touches the DOM except the focus after a new note. */
 import * as store from './store.js';
-import { S, curNote, visibleNotes } from './state.js';
-import { download } from './export.js';
+import { S, byId, curNote, visibleNotes } from './state.js';
+import { download, notebookZip, fileBase } from './export.js';
 
 let redraw = () => {};
 export const setRedraw = (fn) => { redraw = fn; };
@@ -132,10 +132,22 @@ export async function remove(item) {
   toast('Moved to Trash');
 }
 
+/** Exports one note (md, html, txt, doc) or opens its print view (pdf). */
 export function exportNote(n, format) {
   if (!n) return;
   const name = download(n, format);
-  toast('Exported ' + name);
+  toast(name ? 'Exported ' + name : 'Print view opened: choose Save as PDF');
+}
+
+/** Exports a whole notebook as a zip of its notes (md or html), in their folders. */
+export async function exportNotebook(id, format) {
+  const nb = byId(S.notebooks, id);
+  if (!nb) return;
+  const notes = S.notes.filter((n) => n.notebook === id);
+  const blob = await notebookZip(notes, S.folders.filter((f) => f.notebook === id), format);
+  const name = fileBase(nb.title) + ' (' + (format === 'html' ? 'HTML' : 'Markdown') + ').zip';
+  SlopUI.download(blob, name);
+  toast('Exported ' + notes.length + ' note' + (notes.length === 1 ? '' : 's') + ' to ' + name);
 }
 
 /** The next (+1) or previous (-1) note in the list. */
