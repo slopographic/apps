@@ -1,5 +1,4 @@
-/* QR SLOP: SlopCmd commands. Registers the actions of the single code and the batch view, and the Commands button.
- * Classic script; exposes window.QRCommands. */
+/* QR SLOP: SlopCmd commands. Drive, the buffer, the code's downloads and the tabs. Classic script; exposes window.QRCommands. */
 (function () {
   'use strict';
   if (window.QRCommands) return;
@@ -8,12 +7,16 @@
 
   function commandList() {
     const C = (id, title, group, extra = {}) => Object.assign({ id: 'qr.' + id, title, group, keys: [], run: () => {} }, extra);
+    const tabs = [['templates', 'Templates'], ['content', 'Content'], ['design', 'Design'], ['logo', 'Logo'], ['raw', 'Raw text'], ['batch', 'Batch']];
     return [
+      C('save', 'Save to Slop Drive', 'Drive', { keywords: ['store', 'drive', 'settings', 'png'], when: ready, run: () => A().saveDrive() }),
+      C('open', 'Open from Slop Drive', 'Drive', { keywords: ['load', 'restore', 'edit again'], run: () => A().openDrive() }),
+      C('buffer', 'Copy to buffer', 'Code', { keywords: ['clipboard', 'paste', 'drag', 'share'], when: ready, run: () => A().toBuffer() }),
       C('copy', 'Copy encoded text', 'Code', { keywords: ['clipboard', 'payload', 'text'], when: ready, run: () => A().copyText() }),
       C('svg', 'Download as SVG', 'Code', { keywords: ['vector', 'save'], when: ready, run: () => A().downloadSvg() }),
       C('png', 'Download as PNG', 'Code', { keywords: ['picture', 'image', 'save', 'transparent'], when: ready, run: () => A().downloadPng() }),
-      C('single', 'Show a single code', 'View', { keywords: ['form', 'one'], run: () => A().setMode('single') }),
-      C('batch', 'Show the batch grid', 'View', { keywords: ['many', 'lines', 'list'], run: () => A().setMode('batch') }),
+      C('pdf', 'Download print page (PDF)', 'Code', { keywords: ['print', 'pdf', 'page'], when: ready, run: () => A().downloadPdf() }),
+      ...tabs.map(([k, name]) => C('tab-' + k, 'Show ' + name, 'View', { keywords: ['tab', 'panel', 'show'], run: () => A().setTab(k) })),
     ];
   }
 

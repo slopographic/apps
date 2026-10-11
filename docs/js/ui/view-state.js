@@ -1,6 +1,7 @@
 /* Slop Docs — ui/view-state: coming back to Slop Docs reopens the document you left, a Slop Drive document or the
  * untitled one, with its caret, zoom and scroll position. Unsaved text comes back from the IndexedDB draft (ui/files.js);
- * the place is kept in SlopSession. Classic script, loaded before ui/main.js. Exposes SlopDocs.restorePlace. */
+ * the place is kept in SlopSession. The open tabs and their text come back from the tab strip (ui/tabs.js).
+ * Classic script, loaded before ui/main.js. Exposes SlopDocs.restorePlace. */
 (function () {
   'use strict';
   const S = window.SlopDocs, APP = 'docs';
@@ -25,9 +26,16 @@
     if (place) applyPlace(place);
     return !!place;
   };
-  function validPoint(pt) { return !!pt && Number.isInteger(pt.b) && pt.b >= 0 && pt.b < S.doc.blocks.length && Number.isInteger(pt.o) && pt.o >= 0; }
+  /** A caret point that exists in the open document (its paragraph is long enough). */
+  function validPoint(pt) {
+    if (!pt || !Number.isInteger(pt.b) || pt.b < 0 || pt.b >= S.doc.blocks.length || !Number.isInteger(pt.o) || pt.o < 0) return false;
+    const b = S.doc.blocks[pt.b];
+    return !b || b.type !== 'p' || pt.o <= window.SlopDocEngine.M.paraText(b).length;
+  }
   function applyPlace(p) {
-    if (S.doc && p.sel && validPoint(p.sel.a) && validPoint(p.sel.f)) S.select(p.sel.a, p.sel.f);
+    // The caret belongs to the document it was saved with: a place from another document is not applied.
+    const sameDoc = (p.id || null) === ((S.file && S.file.id) || null);
+    if (S.doc && sameDoc && p.sel && validPoint(p.sel.a) && validPoint(p.sel.f)) S.select(p.sel.a, p.sel.f);
     // On a phone the page is fitted to the screen width at boot (ui/main.js fitZoom); a zoom saved on a desktop would overflow it.
     if (p.zoom > 0 && p.zoom <= 4 && window.innerWidth >= 700) {
       S.zoom = p.zoom;

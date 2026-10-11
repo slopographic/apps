@@ -1,5 +1,5 @@
-/* QR SLOP: batch view. Each non-empty line of the textarea becomes one QR code, drawn with the output options of the single
- * view. Every code has its own SVG and PNG download. At most 100 lines are drawn. Classic script; exposes window.QRBatch. */
+/* QR SLOP: the Batch tab (a secondary tab). Each non-empty line becomes one code, drawn with the current design and logo.
+ * Every card has its own SVG and PNG download. At most 100 lines are drawn. Classic script; exposes window.QRBatch. */
 (function () {
   'use strict';
   if (window.QRBatch) return;
@@ -29,13 +29,13 @@
     const art = E('div', { class: 'qr-card-art' });
     let svg = null;
     try { svg = app.svgFor(text); art.innerHTML = svg; } catch (e) { art.textContent = e.message; art.classList.add('qr-card-bad'); }
-    const base = 'batch-' + n;
+    const name = 'batch-' + n;
     return E('figure', { class: 'qr-card' },
       art,
       E('figcaption', { class: 'qr-card-cap', title: text }, text),
       E('div', { class: 'qr-card-btns' },
-        E('button', { type: 'button', class: 'sui-btn', disabled: !svg, onclick: () => app.saveSvg(svg, base) }, 'SVG'),
-        E('button', { type: 'button', class: 'sui-btn', disabled: !svg, onclick: () => app.savePng(svg, base) }, 'PNG')));
+        E('button', { type: 'button', class: 'sui-btn', disabled: !svg, onclick: () => app.saveSvg(svg, name) }, 'SVG'),
+        E('button', { type: 'button', class: 'sui-btn', disabled: !svg, onclick: () => app.savePng(svg, name) }, 'PNG')));
   }
 
   function draw() {
@@ -44,8 +44,8 @@
     grid.replaceChildren(...items.map((t, i) => card(t, i + 1)));
   }
 
-  /** Called when the output options change: the cards are drawn again, with the same texts. */
-  function refresh() { draw(); }
+  /** Shown again when the tab opens, so the cards follow the current design. */
+  function refresh() { if (items.length) draw(); }
 
   function init() {
     $('qr-batch-go').addEventListener('click', make);

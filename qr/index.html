@@ -70,14 +70,32 @@
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="../shared/appbar/appbar.css">
   <link rel="stylesheet" href="css/qr.css">
   <script src="../shared/apps.js"></script>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/buffer/formats.js"></script>
+  <script src="../shared/buffer/store.js"></script>
+  <script src="../shared/buffer/clipboard.js"></script>
+  <script src="../shared/buffer/buffer.js"></script>
   <script src="../shared/commands/commands.js"></script>
+  <script src="../shared/app-icons.js"></script>
+  <script src="../shared/appbar/appbar.js"></script>
   <script src="../vendor/bwip-js/bwip-js-min.js"></script>
   <script src="js/payload.js"></script>
+  <script src="js/parse.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/matrix.js"></script>
   <script src="js/render.js"></script>
+  <script src="js/logo.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/preview.js"></script>
   <script src="js/forms.js"></script>
+  <script src="js/panel-content.js"></script>
+  <script src="js/panel-design.js"></script>
   <script src="js/app.js"></script>
   <script src="js/batch.js"></script>
   <script src="js/commands.js"></script>
@@ -85,52 +103,75 @@
 </head>
 <body>
   <div class="qr-app">
-    <header class="qr-top">
-      <div class="qr-brand"><span class="qr-logo" aria-hidden="true"></span><h1>QR SLOP</h1></div>
-      <div class="qr-tools">
-        <button type="button" class="sui-btn" id="qr-cmd" aria-label="Commands (search every command)">Commands</button>
-      </div>
-    </header>
+    <div class="qr-bar" id="qr-bar"></div>
 
-    <div class="qr-bar" role="toolbar" aria-label="View and output">
-      <div class="qr-modes">
-        <button type="button" class="sui-btn" id="qr-mode-single" aria-pressed="true">Single code</button>
-        <button type="button" class="sui-btn" id="qr-mode-batch" aria-pressed="false">Batch</button>
-      </div>
-      <div class="qr-opts" id="qr-opts" aria-label="Output options"></div>
-    </div>
+    <div class="qr-work">
+      <section class="qr-left" aria-label="Edit the code">
+        <div class="qr-tabs" role="tablist" aria-label="Edit sections" id="qr-tabs">
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-templates" aria-controls="qr-panel-templates" aria-selected="false" tabindex="-1"></button>
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-content" aria-controls="qr-panel-content" aria-selected="true" tabindex="0"></button>
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-design" aria-controls="qr-panel-design" aria-selected="false" tabindex="-1"></button>
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-logo" aria-controls="qr-panel-logo" aria-selected="false" tabindex="-1"></button>
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-raw" aria-controls="qr-panel-raw" aria-selected="false" tabindex="-1"></button>
+          <button type="button" role="tab" class="qr-tab qr-tab-batch" id="qr-tab-batch" aria-controls="qr-panel-batch" aria-selected="false" tabindex="-1"></button>
+        </div>
 
-    <main class="qr-single" id="qr-single">
-      <section class="qr-panel" aria-label="Content">
-        <div id="qr-typehost"></div>
-        <div class="qr-form" id="qr-form"></div>
+        <div class="qr-panel" role="tabpanel" id="qr-panel-templates" aria-labelledby="qr-tab-templates" hidden>
+          <p class="qr-note">Pick a template to fill in its fields. Each one uses a standard card or a public link format. Replace the placeholders.</p>
+          <div class="qr-tpls" id="qr-templates"></div>
+        </div>
+
+        <div class="qr-panel" role="tabpanel" id="qr-panel-content" aria-labelledby="qr-tab-content">
+          <label class="sui-field"><span class="sui-label">Name (used for file names and the print page)</span>
+            <input class="sui-input" id="qr-name" type="text" maxlength="80" placeholder="Front door" autocomplete="off"></label>
+          <div class="qr-kinds" id="qr-kinds" role="group" aria-label="Kind of code"></div>
+          <div class="qr-form" id="qr-form"></div>
+        </div>
+
+        <div class="qr-panel" role="tabpanel" id="qr-panel-design" aria-labelledby="qr-tab-design" hidden>
+          <div id="qr-design"></div>
+        </div>
+
+        <div class="qr-panel" role="tabpanel" id="qr-panel-logo" aria-labelledby="qr-tab-logo" hidden>
+          <div id="qr-logo"></div>
+        </div>
+
+        <div class="qr-panel" role="tabpanel" id="qr-panel-raw" aria-labelledby="qr-tab-raw" hidden>
+          <label class="qr-label" for="qr-raw">Encoded text</label>
+          <textarea class="sui-input qr-raw" id="qr-raw" rows="8" spellcheck="false" aria-describedby="qr-raw-note"></textarea>
+          <p class="qr-note" id="qr-raw-note"></p>
+          <div class="qr-row">
+            <button type="button" class="sui-btn" id="qr-raw-reset">Use the form again</button>
+            <button type="button" class="sui-btn" id="qr-copy" disabled>Copy text</button>
+          </div>
+        </div>
+
+        <div class="qr-panel" role="tabpanel" id="qr-panel-batch" aria-labelledby="qr-tab-batch" hidden>
+          <label class="qr-label" for="qr-batch-in">One text per line</label>
+          <textarea class="sui-input qr-batch-in" id="qr-batch-in" rows="6" spellcheck="false" placeholder="https://example.com&#10;Ticket 0001&#10;Ticket 0002"></textarea>
+          <div class="qr-row">
+            <button type="button" class="sui-btn sui-primary" id="qr-batch-go">Make codes</button>
+            <span class="qr-note" id="qr-batch-note" role="status" aria-live="polite"></span>
+          </div>
+          <div class="qr-grid" id="qr-grid"></div>
+        </div>
+      </section>
+
+      <section class="qr-right" aria-label="Live preview and download">
+        <div class="qr-stage" id="qr-stage">
+          <img class="qr-img" id="qr-img" alt="QR code preview" hidden>
+          <p class="qr-off" id="qr-off">Fill in the form, or pick a template. The code appears here as you type.</p>
+        </div>
+        <p class="qr-meta" id="qr-meta" aria-live="polite"></p>
         <p class="qr-err" id="qr-err" role="alert"></p>
-        <div class="qr-payload">
-          <span class="qr-label">Encoded text</span>
-          <pre class="qr-pre" id="qr-payload" aria-live="polite"></pre>
-          <button type="button" class="sui-btn" id="qr-copy" disabled>Copy text</button>
+        <div class="qr-exports" role="group" aria-label="Download">
+          <button type="button" class="sui-btn" id="qr-dl-svg" disabled>SVG</button>
+          <button type="button" class="sui-btn sui-primary" id="qr-dl-png" disabled>PNG</button>
+          <button type="button" class="sui-btn" id="qr-dl-pdf" disabled>Print page (PDF)</button>
         </div>
+        <p class="qr-note qr-hint">Drag the picture into another app, or use Copy to buffer in the header. Save to Slop Drive keeps the settings, so Open from Slop Drive can edit the code again.</p>
       </section>
-      <section class="qr-panel qr-out" aria-label="Preview and download">
-        <div class="qr-preview" id="qr-preview"></div>
-        <div class="qr-actions">
-          <button type="button" class="sui-btn sui-primary" id="qr-svg" disabled>Download SVG</button>
-          <button type="button" class="sui-btn" id="qr-png" disabled>Download PNG</button>
-        </div>
-      </section>
-    </main>
-
-    <main class="qr-batch" id="qr-batch" hidden>
-      <section class="qr-panel" aria-label="Batch input">
-        <label class="qr-label" for="qr-batch-in">One text per line</label>
-        <textarea class="sui-input qr-batch-in" id="qr-batch-in" rows="6" spellcheck="false" placeholder="https://example.com&#10;Ticket 0001&#10;Ticket 0002"></textarea>
-        <div class="qr-actions">
-          <button type="button" class="sui-btn sui-primary" id="qr-batch-go">Make codes</button>
-          <span class="qr-note" id="qr-batch-note" role="status" aria-live="polite"></span>
-        </div>
-      </section>
-      <div class="qr-grid" id="qr-grid"></div>
-    </main>
+    </div>
   </div>
   <script src="../shared/tour/mount.js" data-app="qr"></script>
 </body>

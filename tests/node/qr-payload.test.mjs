@@ -130,3 +130,9 @@ test('the byte limit is checked with UTF-8 lengths, and an unknown type is refus
   assert.equal(text('text', { text: 'x'.repeat(P.MAX_BYTES) }).length, P.MAX_BYTES);
   assert.equal(error('crypto', {}), 'Choose a kind of code.');
 });
+
+test('vCard: a job title is written as TITLE after the organisation, and is escaped like the rest', () => {
+  const v = text('vcard', { first: 'Ada', last: 'Lovelace', org: 'Analytical Engines', title: 'Countess; Analyst' });
+  assert.ok(v.includes('\nORG:Analytical Engines\nTITLE:Countess\\; Analyst\n'), v);
+  assert.equal(text('vcard', { first: 'Ada', org: 'X' }).includes('TITLE'), false, 'no title line when there is none');
+});

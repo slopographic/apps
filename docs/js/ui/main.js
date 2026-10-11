@@ -42,12 +42,13 @@
     try { if (window.SlopHub) SlopHub.register('docs'); } catch (e) { console.warn('Slop Docs: hub register failed', e); }
     wireChrome();
     fitZoom();
-    // The open tabs come back first (ui/tabs.js and shared/doctabs/session.js); a blank tab opens when none were stored.
+    // The launch is read before the tabs come back: showing a tab rewrites the URL (its ?drive= id), which would drop it.
+    let launch = null;
+    try { launch = window.SlopHub ? await SlopHub.consumeLaunch() : null; } catch (e) { console.warn('Slop Docs: launch failed', e); }
+    // The open tabs come back (ui/tabs.js and shared/doctabs/session.js); a blank tab opens when none were stored.
     const session = S.session = S.mountTabs();
     try { await session.restore(); } catch (e) { console.warn('Slop Docs: restore failed', e); }
     if (!S.tabsApi().current()) S.newDoc();
-    let launch = null;
-    try { launch = window.SlopHub ? await SlopHub.consumeLaunch() : null; } catch (e) { console.warn('Slop Docs: launch failed', e); }
     if (launch) {
       // A launch from Slop Drive opens its document in a new tab, and an untouched blank tab it replaces is closed.
       const blank = S.isPristine(S.tabsApi().current()) ? S.tabsApi().current() : null;

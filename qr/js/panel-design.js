@@ -11,7 +11,7 @@
   function drawDesign(host, st, change) {
     const fg = E('input', { type: 'color', value: st.fg, 'aria-label': 'Module colour' });
     const fg2 = E('input', { type: 'color', value: st.fg2, 'aria-label': 'Gradient end colour', disabled: !st.gradient });
-    const grad = UI().check('Gradient from the module colour to the second colour', st.gradient);
+    const grad = UI().check('Use a gradient', st.gradient);
     const shape = UI().select([['square', 'Square modules'], ['round', 'Rounded modules']], st.shape);
     const bg = E('input', { type: 'color', value: st.bg, 'aria-label': 'Background colour', disabled: !!st.transparent });
     const tr = UI().check('Transparent background', st.transparent);

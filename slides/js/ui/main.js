@@ -1,5 +1,5 @@
 /* Slop Slides: boot. Loads the fonts, wires each view to the app state, registers with Slop Drive, then opens what the
-   page was launched with (?drive=<id>), else the autosaved draft, else a blank deck. The "ready" class on <body> is
+   page was launched with (?drive=<id>) in a new tab. The open tabs come back first (ui/tabs.js). The "ready" class on <body> is
    what the tests wait for. */
 (function () {
   'use strict';

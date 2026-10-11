@@ -104,7 +104,6 @@ describe('typing', () => {
   });
   it('moves the caret with the arrow keys and extends the selection with Shift', async () => {
     const W = await open('../../docs/');
-    expect(JSON.stringify([text(W), localStorage.getItem('slop.doctabs.docs.v1')])).toBe('DBG');
     typeText(W, 'abcdef');
     press(W, 'ArrowLeft'); press(W, 'ArrowLeft');
     expect(W.SlopDocs.sel.f.o).toBe(4);

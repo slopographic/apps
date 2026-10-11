@@ -7,7 +7,7 @@
   const CSS_PAPER = { A4: 'A4', Letter: 'letter', A5: 'A5', Legal: 'legal' };
   const MARGIN_MM = { normal: 15, narrow: 6, none: 0 };
   const HEADER_MM = 14; // the header block at the top of every page
-  const CLEAR_MM = 17; // header plus a 3 mm gap: the body starts below this on every page
+  const CLEAR_MM = 17; // header (14 mm) plus a 3 mm gap: the body starts this far below the top of the content area, on every page
   const CSP = "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; img-src data: blob:; style-src 'unsafe-inline' data: blob:; font-src data: blob:\">";
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -16,11 +16,10 @@
   const marginMm = (o) => (Object.prototype.hasOwnProperty.call(MARGIN_MM, o.margin) ? MARGIN_MM[o.margin] : MARGIN_MM.normal);
   /** Page size in mm for the options: [width, height], swapped for landscape. */
   function sizeMm(o) { const [w, h] = PAPERS[o.paper] || PAPERS.A4; return o.orientation === 'landscape' ? [h, w] : [w, h]; }
-  /** Space between the page margin and the body on pages with a header, so the header never covers the body. */
-  const gapMm = (m) => Math.max(0, CLEAR_MM - m);
 
   const SHEET_CSS = `html,body{margin:0;background:#fff;color:#111}
-.h2p-hdr{position:fixed;top:0;left:0;right:0;z-index:1;height:${HEADER_MM}mm;box-sizing:border-box;padding:1.5mm var(--h2p-m,15mm);display:flex;align-items:center;justify-content:space-between;gap:4mm;background:#fff;color:#111;font:8pt/1.3 Arial,Helvetica,sans-serif}
+.h2p-area{position:relative;transform:translateZ(0);overflow:hidden}
+.h2p-hdr{position:fixed;top:0;left:0;right:0;z-index:1;height:${HEADER_MM}mm;box-sizing:border-box;padding:1.5mm 0;display:flex;align-items:center;justify-content:space-between;gap:4mm;background:#fff;color:#111;font:8pt/1.3 Arial,Helvetica,sans-serif}
 .h2p-text{min-width:0;flex:1}
 .h2p-name,.h2p-meta{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .h2p-name{font-weight:700;font-size:9.5pt}
@@ -28,7 +27,7 @@
 .h2p-qr svg{display:block;width:100%;height:100%}
 .h2p-table{width:100%;border-collapse:collapse;border:0}
 .h2p-table td{padding:0;border:0;vertical-align:top}
-.h2p-has-hdr .h2p-gap{height:var(--h2p-gap,17mm)}
+.h2p-has-hdr .h2p-gap{height:${CLEAR_MM}mm}
 .h2p-content{overflow-wrap:anywhere}
 .h2p-bg-on{print-color-adjust:exact;-webkit-print-color-adjust:exact}
 .h2p-bg-off{print-color-adjust:economy;-webkit-print-color-adjust:economy}
@@ -43,10 +42,9 @@
 
   /** The sheet: the header (when on) and the body in a table whose head repeats on every page. */
   function sheetHtml(o, src) {
-    const m = marginMm(o);
     const cls = ['h2p-sheet', o.background ? 'h2p-bg-on' : 'h2p-bg-off', o.scale === '100' ? 'h2p-100' : 'h2p-fit', o.header ? 'h2p-has-hdr' : ''].filter(Boolean).join(' ');
     const hdr = o.header ? headerHtml(o) : '';
-    return `<div class="${cls}" style="--h2p-m:${m}mm;--h2p-gap:${gapMm(m)}mm">${hdr}<table class="h2p-table"><thead><tr><td><div class="h2p-gap"></div></td></tr></thead><tbody><tr><td><div class="h2p-content">${src.body}</div></td></tr></tbody></table></div>`;
+    return `<div class="${cls}">${hdr}<table class="h2p-table"><thead><tr><td><div class="h2p-gap"></div></td></tr></thead><tbody><tr><td><div class="h2p-content">${src.body}</div></td></tr></tbody></table></div>`;
   }
 
   /** The markup for the print dialog: a fragment with its own styles and the page margin (!important beats the dialog's rule). */
@@ -56,17 +54,19 @@
 
   /** A full document for the built-in print path: the same markup as the dialog. */
   function printDocument(o, src, title) {
-    return `<!doctype html><html lang="en"><head><meta charset="utf-8">${CSP}<title>${esc(title)}</title></head><body>${printHtml(o, src)}</body></html>`;
+    const size = `@page{size:${CSS_PAPER[o.paper] || 'A4'} ${o.orientation === 'landscape' ? 'landscape' : 'portrait'}}`; // the dialog sets its own size; this is the built-in path's
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8">${CSP}<title>${esc(title)}</title><style>${size}</style></head><body>${printHtml(o, src)}</body></html>`;
   }
 
   /** The preview: one paper-sized page in an isolated frame (no scripts, nothing loaded from the network). */
   function previewDoc(o, src) {
     const [w, h] = sizeMm(o), m = marginMm(o);
-    const page = `html,body{overflow:hidden}.h2p-page{box-sizing:border-box;width:${w}mm;height:${h}mm;padding:${m}mm;overflow:hidden;background:#fff}`;
-    return `<!doctype html><html lang="en"><head><meta charset="utf-8">${CSP}<title>Preview</title><style>${SHEET_CSS}${page}</style></head><body><div class="h2p-page">${src.styles}${sheetHtml(o, src)}</div></body></html>`;
+    // The header is fixed inside the margin-inset area (.h2p-area), as Chromium lays it out when printing.
+    const page = `html,body{overflow:hidden}.h2p-page{box-sizing:border-box;width:${w}mm;height:${h}mm;overflow:hidden;background:#fff}.h2p-area{margin:${m}mm;width:${w - 2 * m}mm;height:${h - 2 * m}mm}`;
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8">${CSP}<title>Preview</title><style>${SHEET_CSS}${page}</style></head><body><div class="h2p-page"><div class="h2p-area">${src.styles}${sheetHtml(o, src)}</div></div></body></html>`;
   }
 
   window.H2P = Object.assign(window.H2P || {}, {
-    sheet: { PAPERS, MARGIN_MM, HEADER_MM, sizeMm, marginMm, gapMm, isoDate, esc, headerHtml, sheetHtml, printHtml, printDocument, previewDoc },
+    sheet: { PAPERS, MARGIN_MM, HEADER_MM, CLEAR_MM, sizeMm, marginMm, isoDate, esc, headerHtml, sheetHtml, printHtml, printDocument, previewDoc },
   });
 })();

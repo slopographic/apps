@@ -23,6 +23,7 @@
     pane.scrollTop = keep;
     document.title = (S.section === 'folder' && !S.cwd ? '' : DR.placeName() + ' — ') + 'Slop Drive — Slopographic';
     DR.renderSelbar(); DR.renderStatus(); DR.renderInfo(); meter();
+    DR.syncUrl();
   };
   DR.onSelect = () => { DR.onSelectColumns(); };
   DR.viewKeys = (e) => DR.columnKeys(e);
@@ -51,9 +52,11 @@
     window.SlopHub.on('drive:change', outside);
     try { await DR.timed('Loading Slop Drive', () => DR.refresh(), { onRetry: () => DR.render() }); } catch (e) { window.SlopUI.alert('Slop Drive is unavailable', 'This browser blocked storage for this site (private mode or a storage setting). ' + e.message); }
     try { await DR.restoreView(); } catch (e) { /* no saved place: start at the root */ }
+    // A link's place (drv.* in the URL) wins over the saved place; its file opens in Quick look once Drive is drawn.
+    const linkFile = DR.urlHasPlace() ? DR.placeFromUrl().file : null;
     S.ready = true;
-    try { history.replaceState({ section: S.section, cwd: S.cwd }, ''); } catch (e) { /* sandboxed */ }
     DR.render();
+    if (linkFile) DR.openFileById(linkFile);
     DR.folderRefresh().then(() => DR.renderFolder()).catch((e) => console.warn('Slop Drive: folder state', e));
     DR.refreshProviders().catch((e) => console.warn('Slop Drive: places', e));
     DR.restoreScroll();

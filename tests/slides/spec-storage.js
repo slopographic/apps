@@ -98,14 +98,10 @@
       ST.close(a);
     }, { timeout: 30000 });
 
-    it('an unsaved edit is kept as a draft and restored on the next visit', async () => {
+    it('an unsaved edit is kept in its tab and restored on the next visit', async () => {
       const w = await ST.open('../../slides/');
-      await w.SS.draft.clear();
       w.SS.ops.addShape('ellipse');
-      await sleep(1400);
-      const draft = await w.SS.draft.load();
-      expect(draft).toBeTruthy();
-      expect(draft.deck.slides[0].objects.some((o) => o.shape === 'ellipse')).toBe(true);
+      await w.SS.tabs.flush();
       ST.close(w);
       const b = await ST.open('../../slides/');
       expect(b.SS.app.slide().objects.some((o) => o.shape === 'ellipse')).toBe(true);
@@ -113,15 +109,16 @@
       ST.close(b);
     }, { timeout: 30000 });
 
-    it('a saved file leaves no draft behind', async () => {
+    it('a saved file is not left unsaved in its tab', async () => {
       const w = await ST.open('../../slides/');
       const id = await w.SlopHub.put(new w.Blob([], { type: MIME }), { name: 'Clean.sslide' });
       ST.close(w);
       const a = await ST.open('../../slides/?drive=' + id);
       a.SS.ops.addShape('rect');
       await a.SS.files.save(false);
-      await sleep(1200);
-      expect(await a.SS.draft.load()).toBe(null);
+      await a.SS.tabs.flush();
+      expect(a.SS.tabs.api().tabs().find((t) => t.active).dirty).toBe(false);
+      expect(a.SS.app.dirty).toBe(false);
       ST.close(a);
     }, { timeout: 30000 });
 
