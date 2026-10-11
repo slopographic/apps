@@ -71,7 +71,7 @@ async function openPrintDialog() {
     zpl: () => run(async () => { downloadBytes(buildZPL(d, J.scenes, { keys: J.keys }), fileBase() + '.zpl', 'text/plain'); done('Saved ZPL'); }),
     epl: () => run(async () => { downloadBytes(buildEPL(d, J.scenes), fileBase() + '.epl', 'application/octet-stream'); done('Saved EPL2'); }),
     tspl: () => run(async () => { downloadBytes(buildTSPL(d, J.scenes), fileBase() + '.tspl', 'application/octet-stream'); done('Saved TSPL'); }),
-    png: () => run(async () => { const c = renderLabelCanvas(d, J.scenes[0], Math.max(300, d.dpi)); c.toBlob((b) => SlopUI.download(b, fileBase() + '.png'), 'image/png'); }),
+    png: () => run(async () => { const c = renderLabelCanvas(d, J.scenes[0], Math.max(300, d.dpi)); c.toBlob((b) => SlopUI.download(b, fileBase() + '.png'), 'image/png'); SlopSupport.afterExport('label'); }),
     zplView: () => run(async () => zplPreviewDialog(buildZPL(d, J.scenes.slice(0, 50), { keys: J.keys.slice(0, 50) }), d.dpi)),
   };
   const body = mk('div', { class: 'pd' },

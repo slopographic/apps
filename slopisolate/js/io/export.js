@@ -52,6 +52,7 @@
       const { blob, ext } = await encodeItem(it);
       const name = U.baseName(it.name) + '-cutout.' + ext;
       if (window.SlopUI) SlopUI.download(blob, name);
+      SlopSupport.afterExport('slopisolate');
       toast('Saved ' + name + ' · ' + U.fmtBytes(blob.size));
     } catch (e) {
       console.error(e);
@@ -82,6 +83,7 @@
       busy(true, 'Zipping…', 1);
       const zip = await CO.zip(entries);
       if (window.SlopUI) SlopUI.download(zip, 'slop-cutouts.zip');
+      SlopSupport.afterExport('slopisolate');
       toast(`Saved ${entries.length} cutout${entries.length === 1 ? '' : 's'} to a zip` + (failed ? ` (${failed} failed)` : ''));
     } catch (e) {
       console.error(e);

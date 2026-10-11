@@ -73,10 +73,11 @@
     const names = uniqueNames(done);
     const zip = await window.SlopZip.zip(done.map((it, i) => ({ name: names[i], data: it.out.blob })));
     window.SlopUI.download(zip, `slop-resize-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.zip`);
+    SlopSupport.afterExport('resize');
   }
 
   function download(it) {
-    if (it.out) window.SlopUI.download(it.out.blob, it.outName);
+    if (it.out) { window.SlopUI.download(it.out.blob, it.outName); SlopSupport.afterExport('resize'); }
   }
 
   async function saveTo(items) {
@@ -90,9 +91,18 @@
     if (n) toast(`Saved ${plural(n, 'result', 'results')} to the Slop Resize folder in Slop Drive`);
   }
 
+  /** Sends a row to Slop Upscale: the result when it is done, else the original. Opens Upscale in a new tab. */
+  async function sendToUpscale(it) {
+    if (!window.SlopHub) { toast('Slop Drive is not available on this page'); return; }
+    const done = it.status === 'done' && it.out;
+    try { await window.SlopHub.sendTo('upscale', done ? it.out.blob : it.file, done && it.outName ? it.outName : it.name); }
+    catch (e) { toast('Could not send to Slop Upscale: ' + e.message); }
+  }
+
   const actions = {
     download,
     save: (it) => saveTo([it]),
+    upscale: sendToUpscale,
     remove: (it) => NS.queue.remove(it.id),
   };
 

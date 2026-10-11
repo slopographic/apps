@@ -181,6 +181,7 @@
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
     toast(`Downloaded ${name}`);
+    SlopSupport.afterExport('docs');
   };
   /** "Send to…" menu rows for the other Slopographic apps. */
   S.sendItems = function () {

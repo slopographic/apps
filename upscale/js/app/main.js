@@ -36,7 +36,7 @@
       const rows = g.SlopLibraryStore ? await g.SlopLibraryStore.listPacks() : [];
       S.installed = rows.some((r) => r.id === QUALITY_ID);
     } catch (e) { S.installed = false; }
-    $('up-quality-label').textContent = S.installed ? 'Quality (Real-ESRGAN, installed)' : 'Quality (Real-ESRGAN, not installed)';
+    $('up-model').querySelector('option[value="quality"]').textContent = S.installed ? 'Quality (Real-ESRGAN, installed)' : 'Quality (Real-ESRGAN, not installed)';
     updateNote();
   }
 

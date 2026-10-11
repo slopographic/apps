@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="upscale" data-src="shared/theme/theme.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Upscale — Slopographic</title>
+  <meta name="description" content="Slop Upscale: enlarge pictures 2× or 4× and short videos, with AI that runs on your device. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="canonical" href="https://slopographic.com/upscale/">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="css/upscale.css">
+</head>
+<body>
+  <header class="up-top">
+    <div class="up-brand"><span class="up-logo" aria-hidden="true"></span><h1>Slop Upscale</h1><span class="up-tag-line">Bigger pictures and short videos. Nothing uploaded.</span></div>
+    <div class="up-tools" role="toolbar" aria-label="Picture">
+      <button type="button" class="sui-btn" id="up-open">Open…</button>
+      <button type="button" class="sui-btn" id="up-drive">From Slop Drive…</button>
+      <button type="button" class="sui-btn sui-primary" id="up-run" disabled title="Upscale (Ctrl+Enter)">Upscale</button>
+      <button type="button" class="sui-btn" id="up-cancel" disabled title="Stop now (Esc)">Cancel</button>
+      <button type="button" class="sui-btn" id="up-download" disabled>Download</button>
+      <button type="button" class="sui-btn" id="up-save" disabled title="Save to the Slop Upscale folder in Slop Drive">Save to Slop Drive</button>
+      <button type="button" class="sui-btn" id="up-clear" disabled>Clear</button>
+    </div>
+  </header>
+  <div class="up-status-line" id="up-info" aria-live="polite"></div>
+  <main class="up-main">
+    <section class="up-left" id="up-stage-wrap" aria-label="Picture">
+      <section class="up-empty" id="up-empty" aria-label="Open a picture or video">
+        <div class="up-drop-card">
+          <h2>Drop a picture or a short video here</h2>
+          <p>JPEG, PNG, WebP and AVIF pictures, and MP4, WebM or MOV video up to 15 seconds. Everything runs in this browser. Nothing is uploaded.</p>
+          <p class="up-fine">Choose 2× or 4×. Fast is bundled. Quality (Real-ESRGAN) is an optional 67 MB download from Get more. Without a model, Lanczos resampling is used and the page says so.</p>
+          <button type="button" class="sui-btn sui-primary" id="up-open-empty">Open…</button>
+        </div>
+      </section>
+      <div class="up-stage" id="up-stage" hidden></div>
+      <progress class="up-bar" id="up-bar" max="1" value="0" hidden></progress>
+      <p class="up-status" id="up-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <aside class="up-panel" aria-label="Upscale settings">
+      <h2 class="up-h">Size</h2>
+      <div class="up-seg" role="group" aria-label="Scale">
+        <button type="button" class="sui-btn" id="up-scale-2" aria-pressed="true">2×</button>
+        <button type="button" class="sui-btn" id="up-scale-4" aria-pressed="false">4×</button>
+      </div>
+
+      <h2 class="up-h">Model</h2>
+      <label class="up-field">Model
+        <select id="up-model">
+          <option value="fast">Fast (FSRCNN, bundled)</option>
+          <option value="quality">Quality (Real-ESRGAN, not installed)</option>
+          <option value="lanczos">Lanczos only (no AI)</option>
+        </select>
+      </label>
+      <p class="up-note" id="up-model-note"></p>
+      <button type="button" class="sui-btn" id="up-get-more">Get more…</button>
+
+      <h2 class="up-h">Output</h2>
+      <label class="up-field">Format
+        <select id="up-format">
+          <option value="png">PNG (lossless)</option>
+          <option value="jpeg">JPEG</option>
+          <option value="webp">WebP</option>
+        </select>
+      </label>
+      <div class="up-field" id="up-quality-wrap" hidden>
+        <label for="up-quality">Quality <span id="up-quality-val">92</span></label>
+        <input type="range" id="up-quality" min="50" max="100" value="92">
+      </div>
+      <div class="up-field" id="up-fps-wrap" hidden>
+        <label for="up-fps">Video frame rate</label>
+        <select id="up-fps"><option value="24">24 fps</option><option value="30">30 fps</option></select>
+        <p class="up-note">Video keeps pictures only (no sound). Frames are upscaled one by one, so a clip takes a while.</p>
+      </div>
+      <p class="up-fine">Results are copies. Save them to Slop Drive, in the Slop Upscale folder. Keys: Ctrl+Enter upscale, Esc cancel.</p>
+    </aside>
+  </main>
+
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/guard.js" defer></script>
+  <script src="../vendor/mp4-muxer/mp4-muxer.js"></script>
+  <script src="../vendor/webm-muxer/webm-muxer.js"></script>
+  <script src="js/core/tiling.js"></script>
+  <script src="js/core/lanczos.js"></script>
+  <script src="js/core/models.js"></script>
+  <script src="js/engine/engine.js"></script>
+  <script src="js/engine/pipeline.js"></script>
+  <script src="js/app/io.js"></script>
+  <script src="js/app/slider.js"></script>
+  <script src="js/app/drive.js"></script>
+  <script src="js/video/run.js"></script>
+  <script src="js/app/main.js"></script>
+  <script src="../shell/shell.js"></script>
+</body>
+</html>

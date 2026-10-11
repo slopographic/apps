@@ -38,7 +38,10 @@
         const nb = [x > 0 ? p - 1 : -1, x < w - 1 ? p + 1 : -1, y > 0 ? p - w : -1, y < h - 1 ? p + w : -1];
         for (const q of nb) if (q >= 0 && !seen[q] && prob[q] > thr) { seen[q] = 1; stack.push(q); }
       }
-      if (cnt >= 12) out.push({ x0, y0, x1, y1, score: sum / cnt });
+      if (cnt < 12) continue;
+      // DB unclip: the map marks the core of each glyph band, so grow the box by area × 1.6 / perimeter.
+      const bw = x1 - x0 + 1, bh = y1 - y0 + 1, d = Math.round((bw * bh * 1.6) / (2 * (bw + bh)));
+      out.push({ x0: Math.max(0, x0 - d), y0: Math.max(0, y0 - d), x1: Math.min(w - 1, x1 + d), y1: Math.min(h - 1, y1 + d), score: sum / cnt });
     }
     return out;
   }

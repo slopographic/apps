@@ -1,7 +1,7 @@
 /* Slop Resize: the queue list. One row per file: a thumbnail, the name, the size before and after (pixels and file
  * size), the progress bar, the status, and the row's actions. Built with SlopUI.el, so file names are never parsed as HTML.
  * Classic script; exposes window.SlopResize.list.
- *   render(box, items, act)   act = { download(item), save(item), remove(item) }
+ *   render(box, items, act)   act = { download(item), save(item), upscale(item), remove(item) }
  *   summary(items)            "3 files · 12.4 MB → 2.1 MB · 2 done" for the status line */
 (function (g) {
   'use strict';
@@ -32,6 +32,9 @@
     if (it.status === 'done') {
       acts.push(el('button', { type: 'button', class: 'sui-btn', onclick: () => act.download(it) }, 'Download'));
       if (!it.drive) acts.push(el('button', { type: 'button', class: 'sui-btn', onclick: () => act.save(it) }, 'Save to Drive'));
+    }
+    if (act.upscale && it.file && it.status !== 'working' && it.status !== 'loading') {
+      acts.push(el('button', { type: 'button', class: 'sui-btn', onclick: () => act.upscale(it) }, 'Upscale…'));
     }
     if (it.status !== 'working' && it.status !== 'loading') {
       acts.push(el('button', { type: 'button', class: 'sui-btn rs-x', 'aria-label': `Remove ${it.name} from the list`, onclick: () => act.remove(it) }, '×'));
