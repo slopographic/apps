@@ -3,7 +3,7 @@
  * waits. DR.thumb(r) → a Promise of an object URL (never rejects; null for folders). The kinds: core/thumb-make.js. */
 'use strict';
 (function (DR) {
-  const VER = 2; // bump when a generator changes, so every stored thumbnail is made again
+  const VER = 3; // bump when a generator changes, so every stored thumbnail is made again
   const memo = new Map(), urls = new Map(), info = new Map(), logged = new Set();
   const stamp = (r) => r.modified || r.time || 0;
   const keyOf = (r) => r.id + ':' + stamp(r);
