@@ -101,7 +101,7 @@
       showTemplates();
       SE.act.applyTemplate('title-two');
       await waitFor(() => doc.querySelector('.tp-slot[data-slot="0"]'));
-      drop(doc.querySelector('.tp-slot[data-slot="0"]'), 'application/x-slopedit-fx', JSON.stringify({ kind: 'title', preset: { str: 'Hello', size: 80, anim: 'fade' } }));
+      drop(doc.querySelector('.tp-slot[data-slot="0"]'), 'application/x-slopedit-fx', JSON.stringify({ kind: 'title', preset: { text: { str: 'Hello', size: 80, anim: 'fade' }, y: 0, x: 0 } }));
       const id = SE.doc.layout.slots[0], c = ST.M.clip(SE.doc, id);
       expect(c.kind).toBe('title');
       expect(c.text.str).toBe('Hello');

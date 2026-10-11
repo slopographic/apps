@@ -100,6 +100,16 @@
       <p id="defaults-note" class="settings-note" role="status" aria-live="polite"></p>
     </section>
 
+    <section aria-labelledby="folder-title">
+      <h2 id="folder-title">Local folder</h2>
+      <p>Keep a copy of your Slopographic settings in a folder on this computer. It is the same folder Slop Drive uses, so you can connect it in either place. Files are written only into that folder, and nothing is sent anywhere.</p>
+      <div id="folder-box" class="folder-box"></div>
+      <div id="folder-ask" class="folder-ask" hidden></div>
+      <div id="folder-preview" class="folder-ask" hidden></div>
+      <p id="folder-note" class="settings-note" role="status" aria-live="polite"></p>
+      <p class="settings-note"><a href="../drive/">Open Slop Drive</a> to see the files in this folder.</p>
+    </section>
+
     <section aria-labelledby="rates-title">
       <h2 id="rates-title" data-i18n="settings.exchange_rates">Exchange rates</h2>
       <p>Rates are entered by you, or downloaded on purpose from the European Central Bank. Nothing is downloaded unless you turn this on and press the button, or tick "Update on open".</p>
@@ -179,6 +189,12 @@
   <script src="../shared/data/ledger.js"></script>
   <script src="../shared/data/fx.js"></script>
   <script src="../shared/data/rates-ecb.js"></script>
+  <script src="../shared/config/schema.js"></script>
+  <script src="../shared/config/validate.js"></script>
+  <script src="../shared/config/io.js"></script>
+  <script src="../shared/config/kinds.js"></script>
+  <script src="../shared/config/folder.js"></script>
+  <script src="../shared/sync/providers/local.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/faces/copy.js"></script>
   <script src="../shared/profile/app-options.js"></script>
@@ -187,6 +203,7 @@
   <script src="settings.js"></script>
   <script src="defaults.js"></script>
   <script src="rates.js"></script>
+  <script src="folder.js"></script>
   <script src="app-settings.js"></script>
   <script src="../shell/shell.js"></script>
 </body>

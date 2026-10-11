@@ -53,6 +53,7 @@
     S.ready = true;
     try { history.replaceState({ section: S.section, cwd: S.cwd }, ''); } catch (e) { /* sandboxed */ }
     DR.render();
+    DR.folderRefresh().then(() => DR.renderFolder()).catch((e) => console.warn('Slop Drive: folder state', e));
     DR.restoreScroll();
     const launch = await window.SlopHub.consumeLaunch().catch(() => null);
     if (launch && S.files.has(launch.id)) DR.reveal(S.files.get(launch.id));
