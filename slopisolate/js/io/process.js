@@ -32,6 +32,7 @@
       it.modelUsed = r.model; it.timings = r.timings; it.progress = null;
       if (r.jobId) SlopCutout.release(r.jobId);
       S.setStatus(it, 'done');
+      if (CO.drive && CO.drive.ready()) CO.drive.saveImage(it, r);
       if (!P.active && S.activeId === it.id) P.select(it);
     } catch (e) {
       S.setStatus(it, 'error', { error: e.message || String(e), progress: null });
@@ -48,12 +49,15 @@
   }
 
   /** Add files to the queue and start segmenting. */
-  P.add = function (files) {
+  P.add = function (files, opts = {}) {
     const items = [];
     for (const f of files) {
+      if (CO.video && CO.video.isVideo(f)) { CO.video.addItem(f, opts); continue; }
       if (!U.isImage(f)) continue;
       const it = S.createItem(f);
       it.url = URL.createObjectURL(f);
+      if (opts.driveId) it.driveOriginId = opts.driveId;
+      if (opts.origin) it.origin = opts.origin;
       S.items.push(it);
       items.push(it);
       queue.push(it);

@@ -29,6 +29,7 @@
         c.kind === 'audio' && c.keys ? { label: 'Clear volume keyframes', act: () => SE.change('Clear keyframes', (p) => { M.clip(p, c.id).keys = null; }) } : null,
         '-',
         c.link ? { label: 'Unlink audio/video', act: () => SE.change('Unlink', (p) => E.unlink(p, [c.id])) } : A.sel.size > 1 ? { label: 'Link selected', act: () => SE.change('Link', (p) => E.link(p, A.selectedIds())) } : null,
+        c.kind === 'video' && c.media ? { label: 'Remove background (send to Isolate)', act: () => SE.cutout.send(c) } : null,
         c.media ? { label: 'Reveal in bin', act: () => { SE.bin.show('media'); setTimeout(() => { const el = document.querySelector('.bi[data-id="' + c.media + '"]'); if (el) { el.scrollIntoView({ block: 'nearest' }); el.focus(); } }, 50); } } : null,
         it('clip.reset')
       ], x, y);

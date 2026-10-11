@@ -72,7 +72,7 @@ function setTheme(t) { document.documentElement.dataset.theme = t; store.set('th
 const TOOL_KEYS = {};
 for (const t of TOOLS) (TOOL_KEYS[t.key] = TOOL_KEYS[t.key] || []).push(t.id);
 function onKeyDown(e) {
-  if (SlopUI.openDialogs || isTyping(e.target)) return;
+  if (SlopUI.openDialogs || isTyping(e.target) || inMenu(e)) return;
   if (CMD_ON) { const c = comboOf(e); if (c === 'Ctrl+V' || c === 'Shift+Ctrl+V') armPasteCatcher(); return; } // SlopCmd handles the rest
   if (e.code === 'Space' && !e.repeat) { V.space = true; V.el.classList.add('space'); e.preventDefault(); return; }
   const combo = comboOf(e);

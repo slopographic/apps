@@ -87,3 +87,24 @@
 /* right-button brush resize readout (ui/pointer.js) */
 .brush-readout { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 5; padding: 3px 8px; border-radius: 6px; font: 600 12px/1.2 system-ui, sans-serif; background: rgba(20, 20, 20, .86); color: #fff; white-space: nowrap; }
 .brush-readout[hidden] { display: none; }
+
+/* video player on the stage (js/video/player.js) */
+.stage[data-kind="video"] > .view, .stage[data-kind="video"] > .split, .stage[data-kind="video"] > .brush-cursor { display: none; }
+.vplayer { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; padding: 16px; box-sizing: border-box; background: var(--stage-bg, #111); }
+.vplayer[hidden] { display: none; }
+.vp-screen { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;
+  background-color: #2a2a2a; background-image: linear-gradient(45deg, #3a3a3a 25%, transparent 25%), linear-gradient(-45deg, #3a3a3a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a3a3a 75%), linear-gradient(-45deg, transparent 75%, #3a3a3a 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0; }
+.vp-canvas { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.vp-controls, .vp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.vp-scrub { flex: 1 1 200px; }
+.vp-time { font: 500 12px ui-monospace, monospace; min-width: 110px; }
+.vp-bgl { display: inline-flex; align-items: center; gap: 6px; }
+.vp-msg { margin: 0; font-size: 12px; opacity: .8; min-height: 1em; }
+.vp-msg:empty { display: none; }
+/* bulk selection (js/ui/bulk.js) */
+.q-item.sel { outline: 2px solid var(--accent-line, #2b6cff); outline-offset: 2px; }
+.bulkbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; margin: 0 0 8px; border-radius: 10px; background: var(--panel, #1c1c1c); }
+.bulkbar[hidden] { display: none; }
+.bulk-n { margin-right: 6px; }
+.btn.danger { color: #ff6b6b; }
+.btn.ghost { background: transparent; }

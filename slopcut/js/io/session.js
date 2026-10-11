@@ -53,6 +53,7 @@
     const rec = await SlopHub.consumeLaunch();
     if (!rec) return false;
     if (SE.reel && SE.reel.isManifest(rec)) return SE.reel.launch(rec); // a reel from Slop Gallery (io/reel.js)
+    if (rec.meta && rec.meta.matteId) { await SE.cutout.receive({ id: rec.id, matteId: rec.meta.matteId, clipId: rec.meta.clipId || null, name: rec.name }); return true; } // a matte pair from SlopIsolate
     const f = new File([rec.blob], rec.name, { type: rec.type });
     if (/\.slopedit$/i.test(rec.name || '')) await SE.project.openFile(f, rec.id);
     else await SE.app.importFiles([f], { from: 'drive' });

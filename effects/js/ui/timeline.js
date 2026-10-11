@@ -64,7 +64,7 @@
         'data-t': t,
       });
       refs.forEach((r) => keyEls.set(`${r.layer}|${r.prop}|${r.t.toFixed(6)}`, el));
-      ns.timelineKeys.bind(el, refs, { S, act, pps: () => pps(), labelW: () => view.labelW });
+      ns.timelineKeys.bind(el, refs, { S, act, pps: () => pps(), moveDiamonds });
       return el;
     }
 
@@ -147,7 +147,7 @@
 
     /** Re-renders the whole timeline. Skipped while a drag is running (it moves the diamonds itself). */
     function render() {
-      if (S.live) return;
+      if (S.isDragging()) return;
       const p = pps(), dur = S.doc.comp.duration, width = Math.ceil(dur * p) + 40;
       keyEls.clear();
       const grid = h('div', { class: 'fx-tl-grid', style: `width:${view.labelW + width}px` });
@@ -181,7 +181,7 @@
     S.on((what) => {
       if (what === 'time') placePlayhead();
       else if (what === 'doc' || what === 'sel' || what === 'view') {
-        if (S.live) { placePlayhead(); return; }
+        if (S.isDragging()) { placePlayhead(); return; }
         render();
       }
     });

@@ -5,7 +5,7 @@
   'use strict';
   const CO = window.CO, U = CO.util;
   const S = CO.state = {
-    items: [], activeId: null,
+    items: [], activeId: null, sel: new Set(), anchor: null, // sel: bulk selection (ids), anchor: the last plain or ctrl click
     tool: 'pan', view: 'result', split: 0.5,
     brush: Object.assign({ size: 48, hardness: 0.6 }, U.store.get('brush', {})),
     model: U.store.get('model', 'fast'),

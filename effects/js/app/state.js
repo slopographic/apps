@@ -12,7 +12,7 @@
     const S = {
       doc,
       hist: ns.history.create(),
-      live: null,          // the document before a live drag started
+      drag: null,          // the document before a live drag started (null when not dragging)
       lastLabel: '',
       sel: { layer: null, keys: [], fx: null },
       playhead: 0,
@@ -33,7 +33,7 @@
 
     /** One edit: fn(doc) returns the new document (the same object means no change, so no undo step). */
     function edit(label, fn) {
-      if (S.live) throw new Error('an edit cannot run during a drag');
+      if (S.drag) throw new Error('an edit cannot run during a drag');
       const before = S.doc;
       const next = fn(before);
       if (next === before) return false;
@@ -45,40 +45,43 @@
       return true;
     }
 
-    /** Moves the document during a drag without an undo step. */
+    /**
+     * Moves the document during a drag without an undo step. fn receives the document as it was when the drag began (not
+     * the last move), so each call can say where things are relative to the start.
+     */
     function live(fn) {
-      if (!S.live) S.live = S.doc;
-      S.doc = fn(S.doc);
+      if (!S.drag) S.drag = S.doc;
+      S.doc = fn(S.drag);
       tidy();
       emit('doc');
     }
 
     /** Ends a drag: it becomes one undo step if anything moved. */
     function commitLive(label) {
-      if (!S.live) return;
-      const before = S.live;
-      S.live = null;
+      if (!S.drag) return;
+      const before = S.drag;
+      S.drag = null;
       if (S.doc !== before) { S.hist = ns.history.push(S.hist, before); S.lastLabel = label; }
       emit('doc');
     }
 
     /** Drops a drag and puts the document back. */
     function cancelLive() {
-      if (!S.live) return;
-      S.doc = S.live;
-      S.live = null;
+      if (!S.drag) return;
+      S.doc = S.drag;
+      S.drag = null;
       emit('doc');
     }
 
     function undo() {
-      if (S.live) return false;
+      if (S.drag) return false;
       const r = ns.history.undo(S.hist, S.doc);
       if (!r) return false;
       S.hist = r.h; S.doc = r.doc; tidy(); emit('doc');
       return true;
     }
     function redo() {
-      if (S.live) return false;
+      if (S.drag) return false;
       const r = ns.history.redo(S.hist, S.doc);
       if (!r) return false;
       S.hist = r.h; S.doc = r.doc; tidy(); emit('doc');
@@ -87,7 +90,7 @@
 
     /** Replaces the whole document (open a project, import a config). One undo step. */
     function replace(next, label) {
-      if (S.live) S.live = null;
+      if (S.drag) S.drag = null;
       S.hist = ns.history.push(S.hist, S.doc);
       S.doc = next;
       S.lastLabel = label;
@@ -117,8 +120,9 @@
     Object.assign(S, { edit, live, commitLive, cancelLive, undo, redo, replace, seek, select, setRange, setLoop, setFile, tidy });
     S.on = (fn) => { listeners.push(fn); return () => { const i = listeners.indexOf(fn); if (i >= 0) listeners.splice(i, 1); }; };
     S.emit = emit;
-    S.canUndo = () => !S.live && S.hist.past.length > 0;
-    S.canRedo = () => !S.live && S.hist.future.length > 0;
+    S.isDragging = () => !!S.drag;
+    S.canUndo = () => !S.drag && S.hist.past.length > 0;
+    S.canRedo = () => !S.drag && S.hist.future.length > 0;
     return S;
   }
 
