@@ -13,7 +13,7 @@
       "files": [
         {
           "name": "model.onnx",
-          "url": "https://raw.githubusercontent.com/slopographic/apps/main/vendor/models/upscale/realesrgan-x4plus/model.onnx",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/main/models/upscale/realesrgan-x4plus.onnx",
           "size": 67051618,
           "sha256": "8213c3a2f08808d375d2b1aeeb52847fb53a38aea9df15835eabb203dbcbc52c"
         }
@@ -30,7 +30,7 @@
       "files": [
         {
           "name": "depth-anything-v2-small.onnx",
-          "url": "https://raw.githubusercontent.com/slopographic/apps/main/vendor/models/depth/depth-anything-v2-small.onnx",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/main/models/depth/depth-anything-v2-small.onnx",
           "size": 27258801,
           "sha256": "fcf51f1b230362b28690bb9d1809bf0431f29cad20534e3f589bd7285547f20d"
         }
