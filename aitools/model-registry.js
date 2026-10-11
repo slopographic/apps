@@ -17,7 +17,9 @@
     'BSD-3-Clause': 'BSD 3-Clause License',
   };
   /** Hosts a remote file may be served from: Hugging Face and its storage hosts. Checked on the final URL after redirects. */
-  const HOSTS = ['huggingface.co', 'cdn-lfs.huggingface.co', 'cdn-lfs.hf.co', 'us.aws.cdn.hf.co', 'eu.aws.cdn.hf.co', 'cas-bridge.xethub.hf.co'];
+  // Hugging Face serves a download from several storage hosts (cdn-lfs-us-1.hf.co, us.aws.cdn.hf.co, transfer.xethub.hf.co …),
+  // and the set changes over time. So the rule is the domain family: huggingface.co, or any subdomain of hf.co or xethub.hf.co.
+  const HOST_ROOTS = ['huggingface.co', 'hf.co', 'xethub.hf.co'];
   const HF = 'https://huggingface.co/';
   const SHA = /^[0-9a-f]{64}$/;
 
@@ -96,9 +98,13 @@
     return out;
   }
 
-  /** True when url is https and its host is one of HOSTS. */
+  /** True when url is https and its host is HOST_ROOTS itself or a subdomain of one (never a look-alike such as hf.co.evil.com). */
   function allowedUrl(url) {
-    try { const u = new URL(url); return u.protocol === 'https:' && HOSTS.includes(u.hostname); } catch (e) { return false; }
+    try {
+      const u = new URL(url);
+      if (u.protocol !== 'https:') return false;
+      return HOST_ROOTS.some((root) => u.hostname === root || u.hostname.endsWith('.' + root));
+    } catch (e) { return false; }
   }
 
   /** Human size: 4.5 MB, 980 KB. */
@@ -108,5 +114,5 @@
     return `${(n / (1024 * 1024)).toFixed(n < 10 * 1024 * 1024 ? 1 : 0)} MB`;
   }
 
-  return { MODELS, TOOLS, LICENCES, HOSTS, byId, remoteFiles, downloadBytes, problems, allowedUrl, formatSize };
+  return { MODELS, TOOLS, LICENCES, HOST_ROOTS, byId, remoteFiles, downloadBytes, problems, allowedUrl, formatSize };
 });

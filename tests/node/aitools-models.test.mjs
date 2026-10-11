@@ -34,6 +34,10 @@ test('remote files come only from https on allowed hosts; bundled files stay in 
   }
   assert.equal(R.allowedUrl('http://huggingface.co/x.onnx'), false);
   assert.equal(R.allowedUrl('https://example.com/x.onnx'), false);
+  assert.equal(R.allowedUrl('https://transfer.xethub.hf.co/x.onnx'), true);
+  assert.equal(R.allowedUrl('https://cdn-lfs-us-1.hf.co/x.onnx'), true);
+  assert.equal(R.allowedUrl('https://huggingface.co.evil.com/x.onnx'), false);
+  assert.equal(R.allowedUrl('https://evilhf.co/x.onnx'), false);
 });
 
 test('every tool points at models that exist, and the denoise tool needs none', () => {
