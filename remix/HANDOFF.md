@@ -128,6 +128,25 @@ reel loader (`slopcut/js/io/reel.js`) runs `SE.random.plan` with those options, 
 Limits: SlopCut reads durations from its own import, so a clip whose length differs there can change the plan; manual cell
 replacements are not in the manifest (SlopCut replays the plan from the options), and SlopCut does not play the music, does not draw the keyframes or the effect layer.
 
+## Auto remix, the Remix button, Randomise (js/auto.js, js/fab.js, js/randomise.js)
+
+- Auto remix: SlopDrop's `done` (ui.js) calls `RM.auto.batchDone`, which makes the batch's clips pending
+  (`state.pending`). After a short wait a banner ("Remixing N clips…", with Cancel) runs one remix with the current
+  settings. Any plan (`RM.onPlan` hooks, run after `RM.remix`) clears the pending list, so remixed clips never trigger again.
+  Cancel leaves them pending. The switch is `RM.auto.setEnabled` (localStorage `slop.remix.prefs`, read and written in a
+  try/catch; memory when storage is blocked), in the Settings dialog (header button, the palette command "Remix settings",
+  or a long press on the floating button).
+- Floating Remix button (`#rm-fab`, bottom right): pulses (CSS keyframe on its ring) while clips are pending or no plan
+  exists; it stops after a plan. A click remixes. Reduced motion: a steady ring, no animation. Phone width: a smaller button
+  and bottom padding so the page's end scrolls clear of it.
+- Randomise: a seed (the one typed into Seed since the last plan, else a new one) drives every random choice: the order
+  (the plan), Random length within Min and Max (timing "random"), each photo's Enter and Exit, and the effect layer (one of
+  the five effects, a random change). The same seed and clips give the same result. Undo puts back the previous plan,
+  seed and options (one step).
+- The seed is in the URL as `rm.seed` (SlopUrlState, `shared/urlstate`) on each plan; a link with it fills the Seed field.
+  Remix repeats the seed shown, as before.
+- Styles in `css/remix-auto.css` use `--sl-*` tokens mapped to the page's `--rm-*` colours.
+
 ## Tests
 
 `node tests/run.mjs remix` runs `tests/node/remix-orient.test.mjs` (orientation, grid choice, cell order, fill),
@@ -137,6 +156,9 @@ drop onto a cut, scrubbing paints a frame and Play carries on, export records a 
 (adding a key at the playhead shows in the row, and Reset slot keys removes it) and `tests/remix/remix-drop.test.html` (the drop
 zone, the drag label over the window, a dropped picture shows a progress row and then the clip in the bin, a refused file is named
 in the toast). The accept and refuse rules are `tests/node/drop-rules.test.mjs`.
+`tests/remix/remix-auto.test.html` (a finished upload batch is remixed once, the banner, Cancel, the switch),
+`tests/remix/remix-fab.test.html` (the button pulses only while a remix is pending, and the reduced-motion ring) and
+`tests/remix/remix-randomise.test.html` (the same seed gives the same order, the seed in the URL, the limits, Undo).
 `node tests/run.mjs video` runs `tests/node/video-keys.test.mjs` (interpolation through SlopMotion, each ease, the hold at both
 ends, the key edits, the Animate in presets) and `tests/node/video-effects.test.mjs` (the seeded choice of effects, Random by
 cut or by reel, the same seed gives the same effects, effects never change the cuts).
