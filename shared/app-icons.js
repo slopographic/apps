@@ -66,6 +66,7 @@
     calendar: '<rect x="7" y="10" width="34" height="31" rx="3"/><path d="M7 19h34M16 6v8M32 6v8M15 26h3M22 26h3M29 26h3M15 33h3M22 33h3"/>',
     todo: '<rect x="9" y="8" width="30" height="34" rx="3"/><path d="M15 21l3 3 5-6M15 33l3 3 5-6M27 21h6M27 33h6"/>',
     reminders: '<path d="M13 34V22a11 11 0 0 1 22 0v12l3 4H10z"/><path d="M20 42h8"/><circle cx="24" cy="8" r="2"/>',
+    sheetview: '<rect x="6" y="6" width="22" height="22" rx="2"/><path d="M6 14h22M6 22h22M14 6v22M22 6v22"/><circle cx="33" cy="33" r="6"/><path d="M37.5 37.5 41 41"/>',
     img3d: '<rect x="8" y="8" width="32" height="32" rx="3"/><path d="M8 32l10-10 6 6 6-8 10 12"/><circle cx="32" cy="16" r="3"/>',
   });
 })();

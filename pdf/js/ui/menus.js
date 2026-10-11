@@ -92,7 +92,8 @@
     SlopUI.dialog({ title: 'About Slop PDF', body: h('div', null,
       h('p', { class: 'sui-p' }, 'Slop PDF is a free PDF editor that runs entirely in your browser. Your files are never uploaded: they are read, edited and written on this device.'),
       h('p', { class: 'sui-p' }, 'Built on pdf.js (Mozilla, Apache-2.0) for rendering and pdf-lib (MIT) for writing. Page content is copied as-is, so text and vector graphics stay sharp; only the optional lossy compression turns pages into pictures.'),
-      h('p', { class: 'sui-p' }, 'Autosave keeps your session in this browser’s IndexedDB so a refresh doesn’t lose work. Turn it off in File ▸ Autosave.')), buttons: [{ label: 'Nice', primary: true }] });
+      h('p', { class: 'sui-p' }, 'Autosave keeps your session in this browser’s IndexedDB so a refresh doesn’t lose work. Turn it off in File ▸ Autosave.'),
+      h('p', { class: 'sui-p' }, 'Edits are kept on this device, and Save or Export writes a new PDF.')), buttons: [{ label: 'Nice', primary: true }] });
   }
 
   /* ------------------------------------------------------------ themes */

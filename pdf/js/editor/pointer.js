@@ -33,6 +33,7 @@
     e.preventDefault();
     S.pageEl.setPointerCapture(e.pointerId);
     var c = S.ctx(), d = Ed.defaults[t] || {}, pt = S.pagePt(e), vp = S.viewPt(e);
+    if (t === 'texthl') { S.texthlDown(e, p, pt); return; }
     if (t === 'text') {
       var a = Object.assign({ type: 'text', text: '', rot: c.R, cx: 0, cy: 0, w: 10, h: 10 }, Ed.defaults.text);
       a.id = U.uid('a');
@@ -60,6 +61,7 @@
   }
   S.onMove = function (e) {
     if (!S.act) return;
+    if (S.act.kind === 'texthl') { S.texthlMove(e); return; }
     var c = S.ctx();
     if (S.act.kind === 'draw') {
       var pt = S.pagePt(e), last = S.draft.pts[S.draft.pts.length - 1];
@@ -79,6 +81,7 @@
     S.pageEl.removeEventListener('pointermove', S.onMove);
     S.pageEl.removeEventListener('pointerup', S.onUp);
     S.pageEl.removeEventListener('pointercancel', S.onUp);
+    if (S.act && S.act.kind === 'texthl') { S.texthlUp(); return; }
     if (!S.act || !S.draft) { S.act = null; S.draft = null; return; }
     var a = S.draft, kind = S.act.kind; S.draft = null; S.act = null;
     var c = S.ctx();

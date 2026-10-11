@@ -17,9 +17,20 @@
   function fmt(v) { return String(U.round(v, 3)); }
   var hatchSeq = 0;
 
+  /** Text highlight: one filled quad per text line (pts hold four points per line). */
+  V.texthlNode = function (a) {
+    var g = U.s('g', { 'data-aid': a.id, class: 'an an-texthl' }), op = 'opacity' in a ? a.opacity : 1;
+    for (var k = 0; k + 3 < a.pts.length; k += 4) {
+      var q = a.pts.slice(k, k + 4).map(function (p) { return fmt(p[0]) + ',' + fmt(p[1]); }).join(' ');
+      g.appendChild(U.s('polygon', { points: q, fill: a.color || '#ffe14d', 'fill-opacity': op, style: 'mix-blend-mode:multiply' }));
+    }
+    return g;
+  };
+
   /** One annotation → SVG element in unrotated page space (points). */
   V.annotNode = function (a) {
     var g, op = 'opacity' in a ? a.opacity : 1;
+    if (a.type === 'texthl') return a.pts && a.pts.length ? V.texthlNode(a) : null;
     if (!E.isBox(a)) {
       if (!a.pts || !a.pts.length) return null;
       g = U.s('g', { 'data-aid': a.id, class: 'an an-' + a.type });

@@ -20,6 +20,15 @@
     var blend = (a.type === 'hlbox' || a.type === 'marker') ? L.BlendMode.Multiply : undefined;
     if (!E.isBox(a)) {
       if (!a.pts || !a.pts.length) return;
+      if (a.type === 'texthl') {
+        // one filled quad per text line, multiplied onto the page like the other highlights
+        for (var q = 0; q + 3 < a.pts.length; q += 4) {
+          var qd = '';
+          for (var j = 0; j < 4; j++) qd += (j ? 'L' : 'M') + U.round(a.pts[q + j][0], 2) + ' ' + U.round(a.pts[q + j][1], 2) + ' ';
+          page.drawSvgPath(qd + 'Z', { x: g.x0, y: g.y0 + g.H, color: rgb(a.color || '#ffe14d'), opacity: op, borderWidth: 0, blendMode: L.BlendMode.Multiply });
+        }
+        return;
+      }
       var d = '';
       if (a.type === 'pen' || a.type === 'marker') {
         a.pts.forEach(function (pt, k) { d += (k ? 'L' : 'M') + U.round(pt[0], 2) + ' ' + U.round(pt[1], 2) + ' '; });
