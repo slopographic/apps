@@ -122,6 +122,7 @@ function draw() {
   drawGuidesLayer(g);
   // Selection
   if (D.sel && !(live && live.hideSel)) drawAnts(g);
+  if (UI.editMask) drawMaskOverlay(g);
   const t = currentTool();
   if (t.overlay) { g.save(); t.overlay(g); g.restore(); }
   drawIdleBox(g);

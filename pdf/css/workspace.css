@@ -80,7 +80,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .marquee { position: absolute; border: 1px solid var(--accent-line); background: var(--accent-soft); pointer-events: none; z-index: 6; }
 
 /* ---------------------------------------------------------------- page view */
-.viewer { touch-action: none; cursor: default; }
+.viewer { touch-action: none; cursor: default; overflow-anchor: none; } /* the zoom keeps the pointer's point in place itself */
 .viewer.panning { cursor: grabbing; }
 .pv-pad { display: grid; place-items: center; min-width: 100%; min-height: 100%; width: max-content; height: max-content; padding: 24px; }
 .pv-page { position: relative; background: #fff; box-shadow: var(--sheet-shadow); }

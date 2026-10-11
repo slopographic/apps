@@ -57,6 +57,7 @@
     for (const k of A.KEYS) if (c.anim[k] && !c.anim[k].length) delete c.anim[k];
     if (!A.has(c)) c.anim = null;
   }
+  A.tidy = tidy;
   const clampT = (c, t) => Math.round(Math.min(Math.max(0, t), c.dur) * 1000) / 1000;
 
   /** Adds (or replaces the value of) a key at clip time t. Returns its index. Keys stay sorted. */

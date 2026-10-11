@@ -88,7 +88,7 @@
   function enter(from) {
     var s = slideAt(P.n);
     stopMotion();
-    plan = P.animsOn ? SS.anim.plan(s) : null;
+    plan = P.animsOn ? SS.anim.plan(s, { w: A.deck.size.w, h: A.deck.size.h }) : null;
     next = 0; time = 0;
     V.fit(A.deck);
     var tr = SS.anim.transitionOf(s);

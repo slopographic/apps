@@ -4,6 +4,13 @@
 /* ---------- menus ---------- */
 const filterMenu = (group) => FILTERS.filter((f) => f.menu === group || (f.sep === group)).map((f) => (f.sep ? '-' : { label: f.name, key: f.key, act: () => (f.menu === 'style' ? addStyleEffect(f.id) : runFilter(f.id)), need: 'layer' }));
 function filterSub(name) { return { label: name, sub: filterMenu(name) }; }
+/* Add layer mask: the same options in the Layer ▸ Mask menu, the layer right-click menu and the Layers panel button. */
+const hasMask = () => !!activeLayer() && !!activeLayer().mask;
+const maskAddItems = () => [
+  { label: 'Reveal All', act: () => addMask('reveal'), en: () => !!activeLayer() && !hasMask() },
+  { label: 'Hide All', act: () => addMask('hide'), en: () => !!activeLayer() && !hasMask() },
+  { label: 'From Selection', act: () => addMask('sel'), en: () => !!activeLayer() && !hasMask() && !!D.sel },
+];
 const MENUS = [
   ['File', [
     { label: 'New…', key: 'Ctrl+N', alt: ['Alt+Ctrl+N'], act: () => dlgNew() },
@@ -92,15 +99,12 @@ const MENUS = [
     ] },
     { label: 'Layer Style', sub: filterMenu('style') },
     '-',
-    { label: 'Layer Mask', sub: [
-      { label: 'Reveal All', act: () => addMask('reveal'), en: () => activeLayer() && !activeLayer().mask },
-      { label: 'Hide All', act: () => addMask('hide'), en: () => activeLayer() && !activeLayer().mask },
-      { label: 'Reveal Selection', act: () => addMask('sel'), en: () => activeLayer() && !activeLayer().mask && !!D.sel },
-      '-',
-      { label: 'Disable / Enable Mask', act: () => { const L = activeLayer(); setLayerProps(L.id, { mask: Object.assign({}, L.mask, { enabled: L.mask.enabled === false }) }, 'Toggle Mask'); }, en: () => activeLayer() && !!activeLayer().mask },
-      { label: 'Invert Mask', act: () => invertMask(activeLayer().id), en: () => activeLayer() && !!activeLayer().mask },
-      { label: 'Apply Mask', act: () => applyMask(), en: () => activeLayer() && !!activeLayer().mask },
-      { label: 'Delete Mask', act: () => { const L = activeLayer(); UI.editMask = false; setLayerProps(L.id, { mask: null }, 'Delete Mask'); }, en: () => activeLayer() && !!activeLayer().mask },
+    { label: 'Mask', sub: [
+      { label: 'Add', sub: maskAddItems() },
+      { label: 'Delete', act: () => { const L = activeLayer(); UI.editMask = false; setLayerProps(L.id, { mask: null }, 'Delete Mask'); }, en: () => hasMask() },
+      { label: 'Invert', act: () => invertMask(activeLayer().id), en: () => hasMask() },
+      { label: 'Apply', act: () => applyMask(), en: () => hasMask() },
+      { label: 'Disable', dyn: () => (hasMask() && activeLayer().mask.enabled === false ? 'Enable' : 'Disable'), act: () => { const L = activeLayer(); setLayerProps(L.id, { mask: Object.assign({}, L.mask, { enabled: L.mask.enabled === false }) }, 'Toggle Mask'); }, en: () => hasMask() },
     ] },
     { label: 'Create Clipping Mask', key: 'Alt+Ctrl+G', dyn: () => (activeLayer() && activeLayer().clip ? 'Release Clipping Mask' : 'Create Clipping Mask'), act: () => { const L = activeLayer(); setClipping(L.id, !L.clip); }, need: 'layer' },
     { label: 'Edit Text', act: () => editTypeLayer(), en: () => activeLayer() && !!activeLayer().text },

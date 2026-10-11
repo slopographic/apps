@@ -95,7 +95,7 @@ function buildLayersPanel() {
   const foot = h('div', { class: 'lp-foot' },
     btn('Lock / unlock layer', 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z', () => { const L = activeLayer(); setLayerProps(L.id, { locked: !L.locked }, L.locked ? 'Unlock Layer' : 'Lock Layer'); }),
     fx,
-    btn('Add layer mask', 'M3 5h18v14H3zM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z', () => { if (activeLayer().mask) { UI.editMask = !UI.editMask; emit('doc'); } else addMask(D.sel ? 'sel' : 'reveal'); }),
+    btn('Add layer mask', 'M3 5h18v14H3zM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z', (e) => { if (hasMask()) { UI.editMask = !UI.editMask; emit('doc'); return; } const r = e.currentTarget.getBoundingClientRect(); showContextMenu(maskAddItems(), r.left, r.top); }),
     btn('Merge down', 'M12 4v12M7 11l5 5 5-5M5 20h14', () => mergeDown()),
     btn('Duplicate layer', 'M8 8h12v12H8zM4 16V4h12', () => duplicateLayer()),
     btn('New layer', 'M4 4h16v16H4zM12 8v8M8 12h8', () => addLayer()),
@@ -162,15 +162,14 @@ function renameInline(el, L) {
   inp.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') finish(true); if (e.key === 'Escape') finish(false); });
   inp.addEventListener('blur', () => finish(true));
 }
+/** Adds a mask to the active layer: kind is reveal, hide, or sel (from the selection). One undo step. */
 function addMask(kind) {
+  if (kind === 'sel' && !D.sel) { toast('Make a selection first'); return; }
   const L = coverDoc(activeLayer());
-  const m = mkCanvas(D.w, D.h), g = cx(m);
-  if (kind === 'reveal') { g.fillStyle = '#000'; g.fillRect(0, 0, D.w, D.h); }
-  else if (kind === 'sel') g.drawImage(D.sel.mask, 0, 0);
-  const mask = { canvas: m, x: 0, y: 0, def: kind !== 'reveal', enabled: true };
-  setLayerProps(L.id, { mask }, 'Add Layer Mask');
-  UI.editMask = true; emit('doc');
-  if (kind === 'sel') { D.sel = null; commit('Deselect'); }
+  patchLayer(L.id, { mask: SlopMask.make(D.w, D.h, kind, kind === 'sel' ? D.sel.mask : null) });
+  if (kind === 'sel') D.sel = null;
+  UI.editMask = true;
+  commit('Add Layer Mask');
 }
 function applyMask() {
   const L = activeLayer(); const b = bakedLayer(L);

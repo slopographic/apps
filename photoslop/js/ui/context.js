@@ -17,7 +17,7 @@ function M(group, label, over) {
 function suiItems(items) {
   const rows = items.filter(Boolean).map((it) => {
     if (it === '-') return '-';
-    if (it.sub) return { label: it.label, sub: suiItems(it.sub) };
+    if (it.sub) return { label: it.label, sub: suiItems(it.sub), disabled: !menuEnabled(it) };
     return { label: it.dyn ? it.dyn() : it.label, key: menuKey(it), disabled: !menuEnabled(it), check: !!(it.check && it.check()), act: it.act };
   });
   // no separator at either end or doubled up
@@ -90,7 +90,7 @@ function activateLayer(L) { if (D.activeId !== L.id) { D.activeId = L.id; UI.edi
 function layerItems(L) {
   activateLayer(L);
   return [M('Edit', 'Free Transform'), '-', M('Layer', 'Layer Properties…'), M('Layer', 'Duplicate Layer'), M('Layer', 'Delete Layer'), '-',
-    { label: 'Select Pixels', act: () => selectLayerPixels(L) }, M('Layer', 'Layer Mask'), M('Layer', 'Layer Style'), { label: L.clip ? 'Release Clipping Mask' : 'Create Clipping Mask', act: () => setClipping(L.id, !L.clip) }, '-',
+    { label: 'Select Pixels', act: () => selectLayerPixels(L) }, (hasMask() ? M('Layer', 'Mask') : { label: 'Add layer mask', sub: maskAddItems() }), M('Layer', 'Layer Style'), { label: 'Apply Effect Preset…', act: () => fxPresetPick(L.id) }, { label: 'Save Effects as Preset…', act: () => fxPresetSaveDialog(L.id), en: () => !!(L.fx && L.fx.length) },{ label: L.clip ? 'Release Clipping Mask' : 'Create Clipping Mask', act: () => setClipping(L.id, !L.clip) }, '-',
     M('Layer', 'Rotate and Flip'), '-',
     M('Layer', 'Lock / Unlock Layer'), { label: L.visible ? 'Hide Layer' : 'Show Layer', act: () => setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer') }, '-',
     M('Layer', 'Merge Down'), M('Layer', 'Merge Visible'), M('Layer', 'Flatten Image')];

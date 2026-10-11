@@ -157,7 +157,7 @@ test('motion conversions: Slides px, Cut px keys, Remix poses', () => {
   assert.equal(r.props.translateX[0].t, 1, 'starts at the given time');
   assert.equal(r.end, 2, 'duration stretches by timeScale');
   const up = SP.motion.toSlides(SP.get('slide-up').params, {});
-  assert.equal(Math.round(up.props.translateY[0].value), 40, 'slide-up is 40 px on a 720 px frame');
+  assert.equal(Math.round(up.props.translateY[0].value), 40, 'slide-up is 40 px on the default 960 x 540 slide');
 
   const tl = MO.timeline.create({ duration: 0 });
   const tl2 = SP.motion.applyToTimeline(tl, SP.get('fade-in').params, 'slide-1#a', { at: 0, timeScale: 1 });
