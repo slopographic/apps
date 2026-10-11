@@ -23,6 +23,7 @@
     it('comes back to the same view and product search after leaving for Slop Drive', async () => {
       await new Promise((res) => { const q = indexedDB.deleteDatabase('slop-session'); q.onsuccess = q.onerror = q.onblocked = () => res(); });
       let W = await open('../../inventory/index.html');
+      await waitFor(() => W.SlopInv.state.view, { timeout: 10000 }); // boot has restored its place (autosave starts only then)
       W.SlopInv.app.show('reports');
       const search = W.document.getElementById('pSearch');
       search.value = 'widget';
