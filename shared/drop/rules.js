@@ -41,7 +41,7 @@
   };
   /** At drag time only the MIME type is known (no names): false when the type is known and not taken. */
   R.maybeOk = function (type, rules) {
-    return !R.knownType(type) || R.typeOk(type, rules);
+    return !!rules.any || !R.knownType(type) || R.typeOk(type, rules);
   };
   /** The value for an <input accept>: the MIME patterns and the extensions. */
   R.acceptAttr = function (rules) {

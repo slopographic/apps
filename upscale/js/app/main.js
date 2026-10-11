@@ -98,8 +98,8 @@
     showBefore();
     setStatus('Choose 2× or 4×, then Upscale.');
     updateInfo();
-    return true;
     updateButtons();
+    return true;
   }
 
   function showBefore() {

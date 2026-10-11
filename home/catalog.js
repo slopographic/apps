@@ -130,6 +130,98 @@
     list.append(...APPS.filter(pick).map(kind === 'app' || GROUPS.includes(kind) ? appCard : tile));
   }
 
+  /* ---------- app carousel: the top of the homepage, one slide per app ---------- */
+  // Names the carousel leads with, in this order; every other registry entry follows in registry order.
+  // "Slop Image to 3D" is not in shared/apps.js yet, so it is skipped until it is registered.
+  const CAROUSEL_TOP = ['PhotoSlop', 'SlopCut', 'SlopIsolate', 'SlopVector', 'Reel Remix', 'Slop Image to 3D', 'Slop Upscale', 'Slop Resize', 'Slop Docs', 'Slop Orders', 'Slop Invoices', 'Slop CRM', 'Slop Calendar', 'Slop Drive'];
+  // Folders that have a guided tour. Keep in step with TOURS in shared/tour/mount.js.
+  const TOUR_DIRS = new Set(['photoslop', 'slopvector', 'slopcut', 'remix', 'slopisolate', 'drive', 'orders', 'invoices', 'crm', 'calendar', 'todo', 'notes', 'paste', 'resize', 'upscale', 'aitools', '3d', 'img3d', 'effects', 'docs', 'slides', 'tables', 'label', 'gallery', 'hex', 'code']);
+  const CAROUSEL_MS = 7000;
+  const svgEl = (inner, cls) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 48 48'); s.setAttribute('class', cls); s.setAttribute('aria-hidden', 'true'); s.innerHTML = inner; return s; };
+  const carouselApps = () => {
+    const byName = new Map(APPS.map((a) => [a.name, a]));
+    const top = CAROUSEL_TOP.map((n) => byName.get(n)).filter(Boolean);
+    const placed = new Set(top.map((a) => a.id));
+    return top.concat(APPS.filter((a) => !placed.has(a.id)));
+  };
+  function slide(a, i, n) {
+    const glyph = window.SLOP_ICONS && window.SLOP_ICONS[a.id];
+    const hash = a.path.startsWith('#');
+    const feats = (a.features || []).slice(0, 3);
+    const tour = TOUR_DIRS.has(a.path.replace(/\/$/, ''));
+    return el('div', { class: 'car-slide', role: 'group', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${n}: ${a.name}`, 'data-id': a.id },
+      el('div', { class: 'car-main' },
+        el('div', { class: 'car-head' },
+          glyph ? svgEl(window.SLOP_ICON_BADGE ? window.SLOP_ICON_BADGE(glyph) : glyph, 'car-icon') : null,
+          el('h3', null, a.name), badge(a, true)),
+        el('p', { class: 'car-tag' }, a.tagline)),
+      feats.length ? el('ul', { class: 'car-feats' }, ...feats.map((f) => el('li', null, f))) : null,
+      el('div', { class: 'car-actions' },
+        el('a', { class: 'btn primary', href: a.path, ...(hash ? { 'data-view': a.path.slice(1) } : {}) }, 'Open', el('span', { class: 'sr' }, ' ' + a.name)),
+        tour ? el('a', { class: 'btn', href: a.path + '?tour=1' }, 'Tour', el('span', { class: 'sr' }, ' ' + a.name + ' tour')) : null));
+  }
+  /** The carousel: slides, previous and next, dots, a pause control, a live region, swipe and arrow keys. */
+  function carousel(list) {
+    const n = list.length;
+    const reduced = () => mq('(prefers-reduced-motion: reduce)');
+    const region = el('section', { class: 'carousel', role: 'region', 'aria-roledescription': 'carousel', 'aria-label': 'Featured apps' });
+    const track = el('div', { class: 'car-track', id: 'car-track' }, ...list.map((a, i) => slide(a, i, n)));
+    const slides = [...track.children];
+    const live = el('p', { class: 'sr', 'aria-live': 'off' });
+    const count = el('span', { class: 'car-count', 'aria-hidden': 'true' });
+    const button = (cls, label, text, fn) => { const b = el('button', { type: 'button', class: cls, 'aria-label': label, 'aria-controls': 'car-track' }, text); b.addEventListener('click', fn); return b; };
+    const dots = list.map((a, i) => button('car-dot', `Show ${a.name}`, '', () => user(() => show(i))));
+    const prev = button('btn car-btn car-prev', 'Previous app', '‹', () => user(() => show(cur - 1)));
+    const next = button('btn car-btn car-next', 'Next app', '›', () => user(() => show(cur + 1)));
+    const pause = button('btn ghost car-pause', 'Pause the slides', 'Pause', () => { stopped = true; schedule(); });
+    const viewport = el('div', { class: 'car-viewport' }, track);
+    region.append(viewport,
+      el('div', { class: 'car-bar' }, prev, el('div', { class: 'car-dots', role: 'group', 'aria-label': 'Choose a slide' }, ...dots), next, count, pause), live);
+    let cur = 0, timer = 0, stopped = false, hover = false, focus = false;
+    const playing = () => !stopped && !hover && !focus && !reduced();
+    function show(i) {
+      cur = (i + n) % n;
+      slides.forEach((s, k) => { s.classList.toggle('is-current', k === cur); s.toggleAttribute('inert', k !== cur); });
+      dots.forEach((d, k) => { d.classList.toggle('is-current', k === cur); if (k === cur) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
+      track.style.transform = `translateX(${-cur * 100}%)`;
+      count.textContent = `${cur + 1} / ${n}`;
+      live.textContent = `Slide ${cur + 1} of ${n}: ${list[cur].name}`;
+      schedule();
+    }
+    /** Auto-advance runs only while the person is not on the carousel, has not used a control, and motion is allowed. */
+    function schedule() {
+      clearTimeout(timer);
+      const run = playing();
+      live.setAttribute('aria-live', run ? 'off' : 'polite');
+      pause.hidden = stopped || reduced();
+      if (run) timer = setTimeout(() => show(cur + 1), CAROUSEL_MS);
+    }
+    /** A control, dot, arrow key or swipe: the person is in charge now, so auto-advance stops for good. */
+    function user(fn) { stopped = true; fn(); }
+    region.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); user(() => show(cur + (e.key === 'ArrowRight' ? 1 : -1))); }
+    });
+    region.addEventListener('pointerenter', () => { hover = true; schedule(); });
+    region.addEventListener('pointerleave', () => { hover = false; schedule(); });
+    region.addEventListener('focusin', () => { focus = true; schedule(); });
+    region.addEventListener('focusout', (e) => { focus = region.contains(e.relatedTarget); schedule(); });
+    let sx = null, sy = 0;
+    viewport.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') { sx = e.clientX; sy = e.clientY; } });
+    viewport.addEventListener('pointerup', (e) => {
+      if (sx == null) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      sx = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) user(() => show(cur + (dx < 0 ? 1 : -1)));
+    });
+    viewport.addEventListener('pointercancel', () => { sx = null; });
+    const rm = matchMedia('(prefers-reduced-motion: reduce)');
+    if (rm.addEventListener) rm.addEventListener('change', schedule);
+    show(0);
+    return region;
+  }
+  const carouselMount = document.getElementById('app-carousel');
+  if (carouselMount && APPS.length) carouselMount.append(carousel(carouselApps()));
+
   /* ---------- status board ---------- */
   const board = document.getElementById('status-board');
   if (board) {

@@ -28,8 +28,10 @@
     it('plans a meeting with London, shows the windows, and adds one to Calendar as a meeting', async () => {
       await until(() => W().SlopData && W().SlopData.store && $('#tab-meet'), 'the page and the store');
       $('#tab-meet').click();
+      $('#st-meet-date').value = '2026-10-12';          // a Monday, inside the working days of the default week
+      $('#st-meet-date').dispatchEvent(new Event('input', { bubbles: true }));
       // Only London in the meeting, so the windows are simple to check.
-      for (const x of $$('#st-meet-zones button')) x.click();
+      while ($('#st-meet-zones button')) $('#st-meet-zones button').click();   // each removal redraws the list
       $('#st-meet-add').value = 'Europe/London';
       $('#st-meet-add-btn').click();
       const btn = await until(() => $$('#st-meet-out button').find((b) => b.textContent === 'Add to Calendar'), 'a meeting window');

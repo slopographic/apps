@@ -30,10 +30,10 @@ function runScript(src, sandbox) {
 }
 
 const files = (await readdir(TOURS)).filter((f) => f.endsWith('.js')).sort();
-const core = await readFile(path.join(ROOT, 'shared', 'tour', 'core.js'), 'utf8');
-const validator = runScript(core, { window: {}, console, localStorage: undefined }).window.SlopTour.logic;
-// core.js sets window.SlopTour; the sandbox's window is the sandbox itself, so read it back from there:
-const logic = runScript(core, { console, localStorage: undefined, window: {} }).SlopTour?.logic || validator;
+const coreBox = { console };
+coreBox.window = coreBox;
+runScript(await readFile(path.join(ROOT, 'shared', 'tour', 'core.js'), 'utf8'), coreBox);
+const logic = coreBox.SlopTour.logic;
 
 const tours = [];
 for (const f of files) {
@@ -50,8 +50,8 @@ test('there is one tour file per app page and each defines exactly one tour', ()
 
 test('every tour file is valid: 4 to 8 steps with the required fields and allowed actions and checks', () => {
   for (const { file, app, tours: [tour] } of tours) {
-    const problems = logic.problems(tour);
-    assert.deepEqual(problems, [], file + ' has problems: ' + problems.join('; '));
+    const problems = [...logic.problems(tour)];
+    assert.equal(problems.length, 0, file + ' has problems: ' + problems.join('; '));
     assert.equal(tour.app, app, file + ': app must match the file name');
     assert.ok(tour.steps.length >= MIN_STEPS && tour.steps.length <= MAX_STEPS, file + ' has ' + tour.steps.length + ' steps');
     for (const s of tour.steps) {

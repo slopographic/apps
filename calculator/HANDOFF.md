@@ -17,6 +17,9 @@ history, and "save to Slop Drive". Browser only, no build, no network calls. Reg
 - `js/calc.js`: `calc(text, { today, ans, rate })` returns `{ ok, value, text }` or `{ ok:false, error:{ code, message, pos } }`.
 - `js/rates.js`: exchange rates (see below). `js/keep.js`: the versioned envelope in localStorage.
 - `js/panels.js`: history (searchable) and manual rates. `js/app.js`: the page. `js/commands.js`: SlopCmd.
+- `js/calendar.js` (`SlopCalcCalendar`): "Add to Calendar" shows only when the last calculation is a date. It saves an all-day
+  event through the shared store (`SlopEvents`, `shared/calendar/store.js`). Numbers and times of day are not added.
+- Test: `node tests/run.mjs calc` covers `tests/calculator/calendar.test.html` (a date result lands on the calendar).
 
 ## Syntax, by example
 - Precedence: `2 + 3 * 4` is 14; `2 ^ 3 ^ 2` is 512; `-2 ^ 2` is -4; brackets as usual.

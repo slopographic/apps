@@ -18,15 +18,16 @@ is open, and optionally as a browser notification. Nothing uses the network.
 - The engine runs every 15 seconds, and after each store change. A due reminder is written as fired first, then shown.
   A reminder that was due more than 5 minutes ago when first seen is marked fired silently, so the first open does not
   flood the page.
-- Delivery: `SlopNotify.show(text)` if a page loads it, otherwise a toast. A browser notification is also shown when the
+- Delivery: `SlopNotify.show({ title, body })` if a page loads it, otherwise a toast. A browser notification is also shown when the
   permission is granted. `SlopReminderEngine.setNotifier(fn)` replaces delivery (for tests).
 - Snooze sets `snoozedUntil` and clears `firedAt`, so the reminder fires again at that time. Dismiss hides it for good.
 
 ## Tests
 - `node tests/run.mjs todo`: the due and reminder rules (`tests/node/todo-logic.test.mjs`).
 - `node tests/run.mjs reminders`: `tests/reminders/reminders.test.html`. Fake clock: a custom reminder fires once, a 5 minute
-  snooze keeps it quiet at 4 minutes and fires it again at 5 minutes.
+  snooze keeps it quiet at 4 minutes and fires it again at 5 minutes, and a due reminder appears in the in-app notifications.
 
 ## Not done or not checked
-- `SlopNotify` is not in this repo. The call `SlopNotify.show(text)` is a guess at its API and is guarded.
+- In-app delivery calls `SlopNotify.show({ title, body })` (shell/notify.js, loaded by shell/shell.js). It used to pass one
+  string, which the notifier cannot read, so the pop-up said "Notice" with no text. `reminders.test.html` checks the title now.
 - Notifications only while a tab is open. Browser notifications were not tested on a real device.

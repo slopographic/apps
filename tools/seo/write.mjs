@@ -116,7 +116,11 @@ export async function build({ date }) {
     if (!copy) throw new Error(`${app.id}: no entry in shared/seo/copy.mjs`);
     copyEntries.push([app.id, copy]);
   }
-  for (const id of Object.keys(ABOUT)) copyEntries.push([`${id} about`, ABOUT[id]]);
+  const aboutApps = apps.filter((a) => isPage(a) && existsSync(path.join(ROOT, a.path, 'about', 'index.html')));
+  for (const a of aboutApps) {
+    if (!ABOUT[a.id]) throw new Error(`${a.id}: has about/ but no entry in shared/seo/copy.mjs ABOUT`);
+    copyEntries.push([`${a.id} about`, ABOUT[a.id]]);
+  }
   validateCopy(copyEntries);
 
   for (const app of apps) {
@@ -127,11 +131,9 @@ export async function build({ date }) {
     const url = pageUrl(app);
     pages.push({ file, url, html: null, block: { title: copy.title, description: copy.description, url, image: imageFor(app), jsonld: appJsonLd(app, copy, url) } });
   }
-  for (const id of Object.keys(ABOUT)) {
-    const app = apps.find((a) => a.id === id);
-    if (!app) throw new Error(`about page for unknown app ${id}`);
+  for (const app of aboutApps) {
+    const id = app.id;
     const file = path.join(ROOT, app.path, 'about', 'index.html');
-    if (!existsSync(file)) throw new Error(`${id}: no about page at ${app.path}about/index.html`);
     const url = `${SITE}/${app.path}about/`;
     const crumbs = [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
@@ -148,16 +150,16 @@ export async function build({ date }) {
     const after = injectHead(before, headBlock({ ...p.block, viewport: addViewport }));
     out.push({ file: p.file, html: after, before });
   }
-  out.push(await sitemap(apps, ABOUT, date));
+  out.push(await sitemap(apps, date));
   return out;
 }
 
-async function sitemap(apps, ABOUT, date) {
+async function sitemap(apps, date) {
   const file = path.join(ROOT, 'sitemap.xml');
   const old = await readFile(file, 'utf8');
   const urls = [`${SITE}/`];
   for (const a of apps) if (isPage(a)) urls.push(pageUrl(a));
-  for (const id of Object.keys(ABOUT)) urls.push(`${SITE}/${apps.find((a) => a.id === id).path}about/`);
+  for (const a of apps) if (isPage(a) && existsSync(path.join(ROOT, a.path, 'about', 'index.html'))) urls.push(`${SITE}/${a.path}about/`);
   // Keep the pages that are not app pages (the convert converters and hub) as they are.
   for (const m of old.matchAll(/<loc>([^<]+)<\/loc>/g)) if (!urls.includes(m[1])) urls.push(m[1]);
   const body = [...new Set(urls)].map((u) => `  <url><loc>${u}</loc><lastmod>${date}</lastmod></url>`).join('\n');
