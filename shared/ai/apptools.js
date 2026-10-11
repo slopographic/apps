@@ -23,7 +23,7 @@
     const tools = [
       { name: 'list_apps', description: 'List the Slopographic apps, games and experiments (id, name, what it does).', params: {},
         run: () => apps().map((a) => ({ id: a.id, name: a.name, kind: a.kind, does: a.tagline, status: a.status })) },
-      { name: 'open_app', description: 'Open a Slopographic app in a new tab, by its id (for example "paint", "vector", "pdf", "drive").',
+      { name: 'open_app', description: 'Open a Slopographic app in a new tab, by its id (for example "photoslop", "vector", "pdf", "drive").',
         params: { id: { type: 'string', description: 'app id', required: true } },
         run: (a) => {
           const app = apps().find((x) => x.id === a.id || x.name.toLowerCase() === String(a.id).toLowerCase());
