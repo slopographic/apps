@@ -48,6 +48,7 @@
       e.currentTarget.setAttribute('aria-pressed', String(on));
     });
     G.library.on(() => { if (G.state.state.view === 'album' && !G.library.album(G.state.state.query.album)) G.state.setView('photos'); });
+    await G.viewState.restore(); // ui/view-state.js: the view, filters, Select mode and scroll
     G.ready = true;
     openFromLaunch();
   }

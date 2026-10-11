@@ -18,10 +18,11 @@
     if (!dbp) dbp = new Promise((res, rej) => {
       if (!window.indexedDB) { rej(new Error('IndexedDB is unavailable')); return; }
       const r = indexedDB.open('slop-docs', 2);
-      r.onupgradeneeded = () => {
+      r.onupgradeneeded = (e) => {
+        // v1 had 'drafts' only; v2 (oldVersion < 2) adds 'templates'. Existing drafts are kept as they are.
         const d = r.result;
         if (!d.objectStoreNames.contains('drafts')) d.createObjectStore('drafts', { keyPath: 'key' });
-        if (!d.objectStoreNames.contains('templates')) d.createObjectStore('templates', { keyPath: 'id' });
+        if ((e.oldVersion || 0) < 2 && !d.objectStoreNames.contains('templates')) d.createObjectStore('templates', { keyPath: 'id' });
       };
       r.onsuccess = () => res(r.result);
       r.onerror = () => { dbp = null; rej(r.error); };
