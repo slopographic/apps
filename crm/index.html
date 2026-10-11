@@ -18,6 +18,7 @@
     try { var t = JSON.parse(localStorage.getItem('slop-crm.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
   </script>
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/layouts/layouts.css" data-src="shared/layouts/layouts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="css/crm.css">
@@ -143,7 +144,11 @@
   <script src="js/ui/import.js"></script>
   <script src="js/ui/followups.js"></script>
   <script src="js/ui/commands.js"></script>
+  <script src="../shared/layouts/presets.js" data-src="shared/layouts/presets.js"></script>
+  <script src="../shared/layouts/core.js" data-src="shared/layouts/core.js"></script>
+  <script src="../shared/layouts/layouts.js" data-src="shared/layouts/layouts.js"></script>
   <script src="js/ui/app.js"></script>
+  <script src="js/ui/layout.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>

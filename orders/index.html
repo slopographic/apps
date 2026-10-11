@@ -18,8 +18,10 @@
     try { var t = JSON.parse(localStorage.getItem('slop-orders.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
   </script>
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/layouts/layouts.css" data-src="shared/layouts/layouts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="../shared/docs/paper.css">
   <link rel="stylesheet" href="css/orders.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
@@ -70,7 +72,11 @@
           <h2 class="h2" id="eTitle">New order</h2>
           <span class="chip" id="eStatus"></span>
         </div>
-        <form class="card" id="eForm" novalidate>
+        <p class="msg" id="eMsg" role="status"></p>
+        <div class="toolbar" id="eModes"></div>
+        <div class="toolbar" id="eLayout"></div>
+        <div id="ePage" class="page-wrap"></div>
+        <form class="card" id="eForm" novalidate data-form-only>
           <div class="form-grid">
             <label class="wide">Customer
               <span class="inline"><select id="eCustomer"></select><button type="button" class="btn" id="eNewCustomer">New customer</button></span>
@@ -80,13 +86,12 @@
             <label class="wide">Notes <textarea id="eNotes" rows="2" maxlength="5000"></textarea></label>
           </div>
         </form>
-        <h2 class="h2">Lines</h2>
-        <div id="eLines" class="lines"></div>
-        <div class="toolbar"><button type="button" class="btn" id="eAddLine">Add line</button></div>
-        <div class="card totals" id="eTotals" aria-live="polite"></div>
+        <h2 class="h2" data-form-only>Lines</h2>
+        <div id="eLines" class="lines" data-form-only></div>
+        <div class="toolbar" data-form-only><button type="button" class="btn" id="eAddLine">Add line</button></div>
+        <div class="card totals" id="eTotals" aria-live="polite" data-form-only></div>
         <p class="note" id="eInvoice"></p>
         <div class="toolbar actions" id="eActions"></div>
-        <p class="msg" id="eMsg" role="status"></p>
       </section>
 
       <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
@@ -118,6 +123,12 @@
   <script src="../shared/docs/lines.js"></script>
   <script src="../shared/docs/customer-dialog.js"></script>
   <script src="../shared/docs/product-dialog.js"></script>
+  <script src="../shared/docs/pdf-layouts.js"></script>
+  <script src="../shared/docs/doc-view.js"></script>
+  <script src="../shared/docs/pdf-render.js"></script>
+  <script src="../shared/docs/paper.js"></script>
+  <script src="../shared/docs/paper-edit.js"></script>
+  <script src="../shared/docs/page.js"></script>
   <script src="../shared/slopui.js"></script>
   <script src="../shared/docs/samples.js"></script>
   <script src="../shared/docs/samples-run.js"></script>
@@ -130,12 +141,18 @@
   <script src="js/core/fulfil.js"></script>
   <script src="js/core/actions.js"></script>
   <script src="js/core/samples.js"></script>
+  <script src="js/core/pdf.js"></script>
   <script src="js/ui/list.js"></script>
   <script src="js/ui/samples.js"></script>
   <script src="js/ui/editor.js"></script>
+  <script src="js/ui/page.js"></script>
   <script src="js/ui/data.js"></script>
   <script src="js/ui/commands.js"></script>
+  <script src="../shared/layouts/presets.js" data-src="shared/layouts/presets.js"></script>
+  <script src="../shared/layouts/core.js" data-src="shared/layouts/core.js"></script>
+  <script src="../shared/layouts/layouts.js" data-src="shared/layouts/layouts.js"></script>
   <script src="js/ui/app.js"></script>
+  <script src="js/ui/layout.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>

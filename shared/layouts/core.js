@@ -49,6 +49,7 @@
   /**
    * The grid a preset gives for the panels an app has. `present` is the list of panel ids the app can place;
    * `opts.fixedTop` and `opts.fixedBottom` are the number of full-width rows the app keeps for itself (a top bar, a status bar).
+   * `opts.sizeVars` maps a panel id to a CSS variable the app already sets (its own drag handle); the track follows it, with the preset size as fallback.
    * Returns the column and row templates, where each placed panel goes ({ column, row } as grid lines), which
    * panels are off, and the line where the fixed bottom rows start.
    * Rule: left, centre and right share one band of rows; a side with k panels splits the band evenly; top and bottom
@@ -56,6 +57,8 @@
    */
   NS.arrange = function (p, present, opts) {
     const fixedTop = (opts && opts.fixedTop) || 0, fixedBottom = (opts && opts.fixedBottom) || 0;
+    const vars = (opts && opts.sizeVars) || {};
+    const rowSize = (id) => { const s = p.panels[id].size; if (s === null) return FR; return vars[id] ? `var(${vars[id]}, ${s}px)` : `${s}px`; };
     const panels = p.panels;
     const shown = Object.keys(panels).filter((id) => present.includes(id) && panels[id].show);
     const by = { left: [], center: [], right: [], top: [], bottom: [] };
@@ -75,7 +78,7 @@
     const placements = {};
     for (let i = 0; i < fixedTop; i++) rows.push('auto');
     let line = fixedTop + 1; // the next grid line to start from
-    for (const id of by.top) { rows.push(panels[id].size === null ? FR : `${panels[id].size}px`); placements[id] = { column: '1 / -1', row: `${line} / ${line + 1}` }; line++; }
+    for (const id of by.top) { rows.push(rowSize(id)); placements[id] = { column: '1 / -1', row: `${line} / ${line + 1}` }; line++; }
     const bandStart = line;
     for (let i = 0; i < band; i++) rows.push(FR);
     const COL = { left: '1 / 2', center: '2 / 3', right: '3 / 4' };
@@ -87,7 +90,7 @@
       });
     }
     line = bandStart + band;
-    for (const id of by.bottom) { rows.push(panels[id].size === null ? FR : `${panels[id].size}px`); placements[id] = { column: '1 / -1', row: `${line} / ${line + 1}` }; line++; }
+    for (const id of by.bottom) { rows.push(rowSize(id)); placements[id] = { column: '1 / -1', row: `${line} / ${line + 1}` }; line++; }
     const fixedBottomStart = line;
     for (let i = 0; i < fixedBottom; i++) rows.push('auto');
     const off = present.filter((id) => !placements[id]);

@@ -21,7 +21,11 @@
   <script src="../../shared/data/bundle-check.js"></script>
   <script src="../../shared/data/export.js"></script>
   <script src="../../shared/docs/model.js"></script>
+  <script src="../../shared/docs/pdf-layouts.js"></script>
+  <script src="../../shared/docs/doc-view.js"></script>
   <script src="../../vendor/pdf-lib/pdf-lib.min.js"></script>
+  <script src="../../shared/docs/pdf-render.js"></script>
+  <script src="../../shared/docs/paper.js"></script>
   <script src="../../invoices/js/core/util.js"></script>
   <script src="../../invoices/js/core/invoices.js"></script>
   <script src="../../invoices/js/core/context.js"></script>
@@ -175,15 +179,23 @@
       const doc = await PDFLib.PDFDocument.load(r.value);
       expect(doc.getPageCount()).toBe(1);
     });
-    it('a PDF with more lines than one page holds is refused with the reason', async () => {
+    it('a long invoice runs onto more pages, so the PDF is never refused for its length', async () => {
       const c = await customer();
-      const many = Array.from({ length: NS.pdf.MAX_LINES + 1 }, (_, i) => ({ description: `Line ${i + 1}`, qty: 1, unitPrice: 100, taxRate: 0 }));
+      const many = Array.from({ length: 60 }, (_, i) => ({ description: `Line ${i + 1}`, qty: 1, unitPrice: 100, taxRate: 0 }));
       const inv = must(await NS.invoices.saveDraft({ customerId: c.id, date: '2026-10-11', lines: many }));
       const issuedInv = must(await NS.invoices.issue(inv.id));
       const ctx = must(await NS.context.load(issuedInv.id));
       const r = await NS.pdf.invoicePdf(ctx);
-      expect(r.ok).toBe(false);
-      expect(r.code).toBe('too_long');
+      expect(r.ok).toBe(true);
+      const doc = await PDFLib.PDFDocument.load(r.value);
+      expect(doc.getPageCount()).toBeGreaterThanOrEqual(2);
+    });
+    it('the print sheet and the PDF are drawn from one template: the same invoice gives the same layout id', async () => {
+      const c = await customer();
+      const inv = await issued(c);
+      const ctx = must(await NS.context.load(inv.id));
+      const sheet = NS.preview.build(ctx);
+      expect(sheet.className).toMatch(new RegExp(`l-${NS.pdf.viewOf(ctx).style.id}`));
     });
   });
 

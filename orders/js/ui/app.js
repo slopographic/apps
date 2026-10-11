@@ -19,6 +19,7 @@
       if (t) { t.setAttribute('aria-selected', String(v === name)); t.tabIndex = v === name ? 0 : -1; }
     }
     $('tab-edit').hidden = name !== 'edit';
+  if (window.SlopLayouts) SlopLayouts.refresh('orders');
     const view = NS.views[name];
     return view && view.onShow ? view.onShow(arg) : undefined;
   }

@@ -21,7 +21,7 @@
         preview: { show: true, side: 'center', size: null },
         bin: { show: true, side: 'left', size: 280 },
         insp: { show: true, side: 'right', size: 300 },
-        timeline: { show: true, side: 'bottom', size: 260 },
+        timeline: { show: true, side: 'bottom', size: 300 },
       } },
     { id: 'image-edit', category: 'image', name: 'Image editing', apps: ['photoslop'],
       panels: {

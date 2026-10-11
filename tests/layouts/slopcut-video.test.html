@@ -45,6 +45,14 @@
       expect(mon.height).toBeGreaterThan(tl.height);
     }, { timeout: 60000 });
 
+    it('the timeline height follows the drag handle (--tl-h) while the layout is on', async () => {
+      const W = await open('../../slopcut/index.html');
+      W.document.documentElement.style.setProperty('--tl-h', '200px');
+      await sleep(60);
+      expect(Math.round(box(W, 'timeline').height)).toBeCloseTo(200, 2);
+      W.document.documentElement.style.removeProperty('--tl-h');
+    }, { timeout: 60000 });
+
     it('the choice is saved as a versioned envelope and Reset returns to the default', async () => {
       const W = await open('../../slopcut/index.html');
       const env = JSON.parse(W.localStorage.getItem('slop.layout.slopcut'));
@@ -56,10 +64,12 @@
       expect(W.document.getElementById('app').dataset.slopLayout).toBe('video-edit');
     }, { timeout: 60000 });
 
-    it('the palette offers the layouts as commands', async () => {
+    it('the palette offers the layouts as SlopCmd commands', async () => {
       const W = await open('../../slopcut/index.html');
       expect(W.SlopLayouts.presetsFor('slopcut').length).toBeGreaterThan(0);
       expect(W.SlopLayouts.menu('slopcut').length).toBeGreaterThan(1);
+      expect(!!W.SlopCmd.get('layout.video-edit')).toBe(true);
+      expect(!!W.SlopCmd.get('layout.reset')).toBe(true);
     }, { timeout: 60000 });
   });
   run({ name: 'SlopCut · workspace layouts' });

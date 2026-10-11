@@ -5,8 +5,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import { readFile } from 'node:fs/promises';
+import { inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -16,8 +16,11 @@ const FILES = ['shared/data/money.js', 'shared/data/barcode.js', 'shared/data/sc
 async function load() {
   const ctx = {};
   ctx.window = ctx;
-  ctx.PDFLib = createRequire(import.meta.url)(path.join(ROOT, 'vendor/pdf-lib/pdf-lib.min.js'));
+  ctx.self = ctx;   // pdf-lib's UMD wrapper reads self when it is not a module
   vm.createContext(ctx);
+  // pdf-lib runs in the same context as the code that calls it (arrays must share a realm for its instanceof checks)
+  const lib = 'vendor/pdf-lib/pdf-lib.min.js';
+  vm.runInContext(await readFile(path.join(ROOT, lib), 'utf8'), ctx, { filename: lib });
   for (const f of FILES) vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
   return ctx;
 }
@@ -40,7 +43,26 @@ function docOf(ctx, extra = {}) {
     paid: 0, balance: 2900, money: (m) => S.money.formatMinor(m, 'USD', 'en-US'), ...extra,
   };
 }
-const bytesText = (u8) => Buffer.from(u8).toString('latin1');
+/** The PDF's text: the file as latin1 plus every flate stream inflated (pdf-lib compresses the page content). */
+function pdfText(u8) {
+  const buf = Buffer.from(u8);
+  const parts = [buf.toString('latin1')];
+  let i = 0;
+  for (;;) {
+    const s = buf.indexOf('stream', i, 'latin1');
+    if (s < 0) break;
+    if (s >= 3 && buf.toString('latin1', s - 3, s) === 'end') { i = s + 6; continue; }
+    let start = s + 6;
+    if (buf[start] === 0x0d) start += 1;
+    if (buf[start] === 0x0a) start += 1;
+    const e = buf.indexOf('endstream', start, 'latin1');
+    if (e < 0) break;
+    try { parts.push(inflateSync(buf.subarray(start, e)).toString('latin1')); } catch (err) { /* not a flate stream */ }
+    i = e + 9;
+  }
+  // standard fonts are written as hex strings (<...> Tj): decode them so the text can be searched
+  return parts.join('\n').replace(/<([0-9A-Fa-f]*)>\s*Tj/g, (m, hex) => `(${Buffer.from(hex, 'hex').toString('latin1')}) Tj`);
+}
 
 test('every template renders a PDF whose bytes start with %PDF and contain the totals', async () => {
   const ctx = await load();
@@ -50,7 +72,7 @@ test('every template renders a PDF whose bytes start with %PDF and contain the t
     const r = await ctx.SlopDocs.pdf.renderPdf(view);
     assert.equal(r.ok, true, id);
     assert.equal(Buffer.from(r.value.slice(0, 5)).toString('latin1'), '%PDF-', id);
-    const text = bytesText(r.value);
+    const text = pdfText(r.value);
     assert.ok(text.includes('$29.00'), `${id}: the total 29.00 is in the bytes`);
     assert.ok(text.includes('$4.00'), `${id}: the tax 4.00 is in the bytes`);
     assert.ok(text.includes('$25.00'), `${id}: the subtotal 25.00 is in the bytes`);
@@ -76,7 +98,7 @@ test('a long table runs onto more pages and the document still loads with every 
   assert.equal(r.ok, true);
   const pdf = await ctx.PDFLib.PDFDocument.load(r.value);
   assert.ok(pdf.getPageCount() >= 3, `expected several pages, got ${pdf.getPageCount()}`);
-  assert.ok(bytesText(r.value).includes('Page 1 of '), 'the footer numbers the pages');
+  assert.ok(pdfText(r.value).includes('Page 1 of '), 'the footer numbers the pages');
 });
 
 test('the layout set has the five templates, and the schema accepts exactly their ids', async () => {
@@ -105,7 +127,7 @@ test('text wraps by words and cuts a word wider than the column', async () => {
   const ctx = await load();
   const font = { widthOfTextAtSize: (t, size) => t.length * size * 0.5 };   // 0.5 em per character
   const out = ctx.SlopDocs.pdf.wrap(font, 'one two three four five six', 10, 60);   // 12 characters per line
-  assert.deepEqual(out, ['one two', 'three four', 'five six']);
-  assert.deepEqual(ctx.SlopDocs.pdf.wrap(font, 'abcdefghijklmnop', 10, 60), ['abcdefghijkl', 'mnop']);
-  assert.deepEqual(ctx.SlopDocs.pdf.wrap(font, 'a\n\nb', 10, 60), ['a', '', 'b']);
+  assert.deepEqual([...out], ['one two', 'three four', 'five six']);
+  assert.deepEqual([...ctx.SlopDocs.pdf.wrap(font, 'abcdefghijklmnop', 10, 60)], ['abcdefghijkl', 'mnop']);
+  assert.deepEqual([...ctx.SlopDocs.pdf.wrap(font, 'a\n\nb', 10, 60)], ['a', '', 'b']);
 });

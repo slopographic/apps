@@ -11,6 +11,7 @@
     items: [], target: 30, pace: 'medium', preset: 'phone', custom: { w: 1080, h: 1920 },
     base: 'none', random: true, grids: RM.GRIDS.slice(), lane: [], seed: S.make(), plan: null, playhead: 0, fill: 'auto',
     timing: 'same', video: 'through', min: 1, max: 3, stagger: 1, locks: [], audioMode: 'off', audioTrack: 'random', music: null,
+    photo: { show: 'cut', sec: 3, min: 2, max: 4, from: 0, to: 0, enter: 'none', exit: 'none' }, clipVideo: { mode: 'full', start: 0, stop: 0, speed: 1 }, overrides: {},
     keys: [], kslot: 0, selKey: 0, effect: Object.assign({}, FX.DEFAULT)
   };
   /** Frame size of the chosen export preset (the sequence size). */
@@ -24,6 +25,7 @@
       tpl: st.base === 'none' ? null : st.base,
       switches: !!st.random, layouts: st.grids.slice(), fill: st.fill,
       timing: st.timing, video: st.video, min: st.min, max: st.max, stagger: st.stagger, locks: st.locks.map((l) => Object.assign({}, l)),
+      photo: Object.assign({}, st.photo), clipVideo: Object.assign({}, st.clipVideo), overrides: JSON.parse(JSON.stringify(st.overrides)),
       audio: { mode: st.audioMode, track: st.audioMode === 'music' && st.audioTrack === 'file' && st.music ? 'file' : st.audioTrack },
       segments: !st.random && st.lane.length ? st.lane.map((s) => ({ start: s.start, layout: s.layout })) : null,
       effect: Object.assign({}, st.effect)
@@ -38,6 +40,19 @@
     beat.forEach((x) => { x.fill = mode; });
     return true;
   };
+  /** The clip settings as the Options hold them now (photo or video). */
+  RM.clipSettings = function () {
+    const st = RM.state;
+    return { photo: Object.assign({}, st.photo), video: Object.assign({}, st.clipVideo) };
+  };
+  /** Override the settings for a clip ('m:<media id>') or a slot ('s:<slot>') with the current Options. */
+  RM.setOverride = function (key, kind) {
+    const cur = RM.state.overrides[key] || {};
+    RM.state.overrides[key] = Object.assign({}, cur, { [kind]: kind === 'photo' ? Object.assign({}, RM.state.photo) : Object.assign({}, RM.state.clipVideo) });
+    return RM.state.overrides[key];
+  };
+  /** Remove the override of a clip or slot. */
+  RM.clearOverride = function (key) { delete RM.state.overrides[key]; };
   /** Lock or unlock one slot (it keeps its clip through Reshuffle and Remix). */
   RM.toggleLock = function (ci, slot) {
     const beat = RM.state.plan && RM.state.plan.cuts[ci], it = beat && beat.find((x) => x.slot === slot);

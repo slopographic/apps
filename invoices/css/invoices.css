@@ -1,4 +1,4 @@
-/* Slop Invoices: tokens, layout, invoice rows, the invoice form, line cards and the printable sheet. Dark by default; data-theme="light" for light.
+/* Slop Invoices: tokens, layout, invoice rows, the invoice form, line cards and the print rules (the sheet: paper.css). Dark by default; data-theme="light" for light.
  * Works at 390 px wide with no horizontal page scroll: line cards stack, the tab strip scrolls inside itself. */
 :root {
   --bg: #0e0e10; --panel: #17171b; --panel-2: #1f1f25; --ink: #f1ede4; --mute: #9a968c; --line: #2b2b33;
@@ -117,35 +117,14 @@ input, select, textarea { background: var(--panel-2); border: 1px solid var(--li
   .line-grid .full { grid-column: 1 / -1; }
 }
 
-/* printable sheet: on screen it sits on a white card; in print only the sheet is shown, in black on white */
-.sheet { background: #fff; color: #111; border: 1px solid var(--line); border-radius: 8px; padding: 28px 30px; max-width: 760px; margin: 0 auto; font-size: 13px; }
-.sheet h1, .sheet h2, .sheet h3 { color: #111; margin: 0; }
-.sheet-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.sheet-co { font-size: 18px; }
-.sheet-title { font-size: 24px; letter-spacing: .04em; }
-.sheet-meta p { margin: 2px 0; text-align: right; }
-.sheet-meta .mono { font-family: ui-monospace, monospace; }
-.sheet-addr { color: #444; margin: 2px 0; white-space: pre-line; }
-.sheet-status { color: #555; text-transform: uppercase; font-size: 11px; letter-spacing: .08em; }
-.sheet-bill { margin: 22px 0 14px; }
-.sheet-bill h3 { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
-.sheet-bill p { margin: 2px 0; }
-.strong { font-weight: 700; }
-.sheet-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-.sheet-table th, .sheet-table td { border-bottom: 1px solid #ddd; padding: 6px 4px; text-align: left; vertical-align: top; }
-.sheet-table th { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: .04em; }
-.sheet-table .n, .sheet-table th.n { text-align: right; white-space: nowrap; }
-.sheet-sums { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; max-width: 340px; margin: 14px 0 0 auto; }
-.sheet-sums dt { color: #444; }
-.sheet-sums dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-.sheet-sums .grand { font-weight: 700; color: #111; border-top: 1px solid #111; padding-top: 4px; }
-.sheet-notes { margin-top: 18px; color: #333; white-space: pre-line; }
-
+/* The printable sheet is the paper view (shared/docs/paper.css): on screen a white page, and in print only the sheet */
 @media print {
   html, body { background: #fff !important; color: #000 !important; }
   .no-print, .topbar, .tabs, .toolbar, .note.no-print { display: none !important; }
   .main { padding: 0 !important; max-width: none !important; }
   .view:not([hidden]) { display: block; }
-  .sheet { border: 0; padding: 0; max-width: none; border-radius: 0; }
-  .sheet-table tr { break-inside: avoid; }
 }
+
+/* The paper view (shared/docs/paper.js) in the editor; the form-only parts are hidden in Page mode */
+.page-wrap { margin: 4px 0 18px; min-width: 0; }
+.page-wrap[hidden] { display: none !important; }

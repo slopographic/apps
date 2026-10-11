@@ -109,3 +109,7 @@ input, select, textarea { background: var(--panel-2); border: 1px solid var(--li
   .line-grid { grid-template-columns: 2fr 2fr 1fr 1fr 1fr; }
   .line-grid .full { grid-column: 1 / -1; }
 }
+
+/* The paper view (shared/docs/paper.js) in the editor; the form-only parts are hidden in Page mode */
+.page-wrap { margin: 4px 0 18px; min-width: 0; }
+.page-wrap[hidden] { display: none !important; }

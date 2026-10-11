@@ -61,6 +61,7 @@
 
     <main class="workspace" id="workspace" aria-label="Workspace">
       <div class="ctxbar" id="ctxbar" role="toolbar" aria-label="Tools"></div>
+      <div class="iso-drop" id="isoDrop"></div>
       <div class="stage" id="stage" tabindex="0" aria-label="Image canvas">
         <canvas class="view" id="view" aria-label="Image preview"></canvas>
         <div class="split" id="split" hidden><span class="split-knob" aria-hidden="true"></span><span class="split-l">Before</span><span class="split-r">After</span></div>
@@ -92,8 +93,7 @@
       <span class="st-local"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Local only</span>
     </footer>
   </div>
-  <div class="drop-overlay" id="dropOverlay" hidden><div><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg><b>Drop to cut out</b><span>Images · processed on this device</span></div></div>
-  <noscript><p class="noscript">SlopIsolate needs JavaScript. The AI runs entirely in your browser; nothing is uploaded.</p></noscript>
+    <noscript><p class="noscript">SlopIsolate needs JavaScript. The AI runs entirely in your browser; nothing is uploaded.</p></noscript>
 
   <script src="../shared/slopui.js"></script>
   <script src="../shared/ctxmenu.js"></script>
@@ -130,6 +130,9 @@
   <script src="js/ui/openin.js"></script>
   <script src="js/render/view.js"></script>
   <script src="js/io/zip.js"></script>
+  <script src="../shared/drop/rules.js"></script>
+  <script src="../shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js"></script>
   <script src="js/io/files.js"></script>
   <script src="js/io/sample.js"></script>
   <script src="js/io/export.js"></script>

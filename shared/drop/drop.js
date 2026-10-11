@@ -25,20 +25,22 @@
 
   /** Attach the drop feedback to a zone. o:
    *   accept: rules { types, exts, noun, maxBytes } (see rules.js); files that fail are refused with a reason.
-   *   process(file, progress): the app's own reader for one accepted file. Resolves with a value (the item id,
+   *   process(file, progress, ctx): the app's own reader for one accepted file. Resolves with a value (the item id,
    *     say) or throws Error(reason). progress(0..1) is optional; without it the bar shows motion while reading.
+   *     ctx: { at: { x, y } client point of a drop (null from Choose files), index: the file's place among the added ones }.
    *   begin(files)?: before the first file is read. done(summary)?: after the last one, summary = { added: [{ name,
    *     value }], skipped: [{ name, reason }] }. reveal(summary)?: returns the element to scroll into view and flash.
    *   targets?: elements that take drops (default: the zone). They are outlined while a file drag is over the window.
    *   input?: an existing <input type=file> to use for Choose files (its change event runs the same batch).
-   *   limit?: most files taken in one drop (the rest are refused with a reason). label?, hint?: text for the zone.
-   *   toast?: false to hide the toast. multiple?: default true.
+   *   limit?: most files taken in one drop (the rest are refused with a reason). overlay?: false to skip the outlines
+   *     and label (for an app that marks its own drop areas). label?, hint?: text for the zone.
+   *   toast?: false to hide the toast. multiple?: default true. compact?: one row (message and button), for a strip.
    *  Returns { choose(), run(files), destroy() }. */
   SD.attach = function (zone, o) {
     const rules = o.accept || {};
     const targets = o.targets && o.targets.length ? o.targets : [zone];
     const limit = o.limit || Infinity;
-    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint });
+    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint, compact: o.compact });
     const input = o.input || doc.createElement('input');
     input.type = 'file';
     input.multiple = o.multiple !== false;
@@ -50,11 +52,11 @@
 
     let chain = Promise.resolve();
     /** Runs one batch after the previous one (drops during a batch queue up). */
-    function run(list) {
-      chain = chain.then(() => batch(list)).catch((err) => console.error('SlopDrop', err));
+    function run(list, at) {
+      chain = chain.then(() => batch(list, at)).catch((err) => console.error('SlopDrop', err));
       return chain;
     }
-    async function batch(list) {
+    async function batch(list, at) {
       const files = Array.from(list || []);
       if (!files.length) return;
       ui.list.replaceChildren();
@@ -70,7 +72,7 @@
       for (const f of take) {
         const row = PN.row(ui.list, f.name, R.size(f.size));
         try {
-          const value = await o.process(f, (p) => row.progress(p));
+          const value = await o.process(f, (p) => row.progress(p), { at, index: added.length });
           row.set('ready', 'Ready');
           added.push({ name: f.name, value });
         } catch (err) {
@@ -94,7 +96,7 @@
     const onEnter = (e) => {
       if (!isFiles(e)) return;
       depth++;
-      if (!shown) { shown = true; PN.showHints(targets, R.dragLabel(dragTypes(e.dataTransfer), rules)); }
+      if (!shown) { shown = true; if (o.overlay !== false) PN.showHints(targets, R.dragLabel(dragTypes(e.dataTransfer), rules)); }
     };
     const onLeave = (e) => { if (!isFiles(e)) return; depth = Math.max(0, depth - 1); if (!depth) hide(); };
     const onOver = (e) => { if (!isFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; if (shown) PN.placeHints(); };
@@ -112,7 +114,7 @@
       e.sdHandled = true;
       hide();
       const files = e.dataTransfer.files;
-      if (files && files.length) run(files);
+      if (files && files.length) run(files, { x: e.clientX, y: e.clientY });
     };
     const win = root;
     win.addEventListener('dragenter', onEnter);

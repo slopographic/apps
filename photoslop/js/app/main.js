@@ -71,6 +71,7 @@ async function boot() {
   document.addEventListener('dragleave', (e) => { if (!e.relatedTarget || !document.contains(e.relatedTarget)) document.body.classList.remove('dropping'); });
   document.addEventListener('drop', onDropFiles);
   bindBufferDrop();
+  bindFileDrop();
   window.addEventListener('beforeunload', (e) => { flushAutosave(); if (DOCS.some(docIsDirty)) { e.preventDefault(); e.returnValue = ''; } });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && D.dirty) autosave(); });
   listeners.add((w) => { if (w === 'history' && Hist.idx > 0) scheduleAutosave(); });

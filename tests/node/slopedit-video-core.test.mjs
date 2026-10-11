@@ -12,7 +12,7 @@ const DIR = path.join(ROOT, 'shared', 'video');
 const ctx = { console };
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const f of ['seed.js', 'presets.js', 'grid.js', 'templates.js', 'layout.js', 'segments.js', 'timing.js', 'locks.js', 'audio.js', 'orient.js', 'random-edit.js']) {
+for (const f of ['seed.js', 'presets.js', 'grid.js', 'templates.js', 'layout.js', 'segments.js', 'timing.js', 'locks.js', 'audio.js', 'clipset.js', 'orient.js', 'random-edit.js']) {
   vm.runInContext(readFileSync(path.join(DIR, f), 'utf8'), ctx, { filename: f });
 }
 const SV = ctx.SlopVideo;

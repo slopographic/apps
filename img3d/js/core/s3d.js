@@ -17,7 +17,11 @@
       material: { color: '#ffffff', roughness: 0.9, metallic: 0, opacity: 1 },
     };
     if (opts.texture) node.material.map = opts.texture;
-    return { format: 'slop-3d', version: 1, name, seq: 1, roots: ['n1'], nodes: { n1: node } };
+    // Slop 3D lights a scene only from its light nodes, so the file carries an ambient and a sun light.
+    const light = (id, kind, intensity, p) => ({ id, type: 'light', name: kind === 'ambient' ? 'Ambient' : 'Sun', visible: true, parent: null,
+      transform: { p, r: [0, 0, 0], s: [1, 1, 1] }, light: { kind, color: '#ffffff', intensity } });
+    const nodes = { n1: node, l1: light('l1', 'ambient', 35, [0, 0, 0]), l2: light('l2', 'directional', 70, [1, 2, 3]) };
+    return { format: 'slop-3d', version: 1, name, seq: 1, roots: ['n1', 'l1', 'l2'], nodes };
   }
 
   ns.s3d = { sceneOf };

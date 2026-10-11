@@ -48,16 +48,21 @@
     else SV.toast('Open supports .svg files (use Place for images)', 'warn');
   };
   IO.pickFile = function (accept, cb, multiple) { window.SlopUI.pickFiles({ accept: accept, multiple: !!multiple }).then(cb); };
+  // Drops go through SlopDrop (shared/drop): a file is placed at the drop point (offset for each extra file), and the
+  // strip at the foot of the stage shows each file's progress. The window's drag outline comes from the module.
+  var DROP_RULES = { types: ['image/*'], exts: ['.svg'], noun: 'an SVG or a picture' };
   IO.bindDrop = function () {
-    var stage = SV.dom.stage, app = document.getElementById('app');
-    ['dragenter', 'dragover'].forEach(function (t) { app.addEventListener(t, function (e) { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') >= 0) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; app.classList.add('dropping'); } }); });
-    app.addEventListener('dragleave', function (e) { if (e.target === app || !app.contains(e.relatedTarget)) app.classList.remove('dropping'); });
-    app.addEventListener('drop', function (e) {
-      app.classList.remove('dropping');
-      if (!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files.length) return;
-      e.preventDefault();
-      var r = stage.getBoundingClientRect();
-      IO.placeFiles(e.dataTransfer.files, SV.toDoc(e.clientX - r.left, e.clientY - r.top));
+    var stage = SV.dom.stage;
+    window.SlopDrop.attach(document.getElementById('svDrop'), {
+      accept: DROP_RULES,
+      compact: true,
+      targets: [document.getElementById('app')],
+      process: function (file, progress, ctx) {
+        var r = stage.getBoundingClientRect();
+        var at = ctx.at ? SV.toDoc(ctx.at.x - r.left, ctx.at.y - r.top) : null;
+        var pt = at ? { x: at.x + ctx.index * 20, y: at.y + ctx.index * 20 } : null;
+        return IO.placeFiles([file], pt).then(function () { return file.name; });
+      },
     });
   };
 })();

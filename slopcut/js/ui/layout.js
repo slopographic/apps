@@ -8,6 +8,7 @@
     app: 'slopcut',
     root: $('app'),
     phone: '(max-width: 760px)',
+    sizeVars: { timeline: '--tl-h' }, // the timeline's drag handle (app.js) sets this, so the layout follows it
     fixed: { top: [document.querySelector('.topbar')], bottom: [$('status')] },
     panels: {
       bin: { el: $('bin') },

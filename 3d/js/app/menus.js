@@ -43,6 +43,7 @@
       cmd('3d.edit.selectall', 'Select all'),
       cmd('3d.view.frameAll', 'Frame all'),
       { label: 'View', sub: viewItems() },
+      { label: 'Layout', sub: window.SlopLayouts ? SlopLayouts.menu('3d') : [] },
       '-',
       cmd('3d.view.wire', 'Wireframe', { check: s.view.wire }),
       cmd('3d.view.grid', 'Grid', { check: s.view.grid }),

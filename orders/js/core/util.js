@@ -30,11 +30,12 @@
     return r.message || 'Something went wrong';
   }
 
-  /** Settings the app needs: currency, locale and the default tax rate. */
+  /** Settings the app needs: currency, locale, the default tax rate, and the company block for the PDF and the paper. */
   async function settings() {
     const r = await S.store.get('settings', 'main');
     const s = r.ok && r.value ? r.value : S.schema.DEFAULT_SETTINGS;
-    return { currency: s.defaultCurrency || 'USD', locale: s.locale || 'en-US', defaultTaxRate: s.defaultTaxRate || 0 };
+    return { currency: s.defaultCurrency || 'USD', locale: s.locale || 'en-US', defaultTaxRate: s.defaultTaxRate || 0,
+      companyName: s.companyName || '', address: s.address || '', taxNumber: s.taxNumber || '' };
   }
 
   /** Money for display only (Intl formatting of an integer amount). */

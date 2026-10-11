@@ -5,6 +5,7 @@
   const NS = (g.SlopOrders = g.SlopOrders || {});
   const U = NS.util;
   const M = g.SlopDocs.model;
+  const L = g.SlopDocs.layouts;
   const UI = g.SlopUI;
   const S = g.SlopData;
   const h = U.h;
@@ -15,7 +16,7 @@
   const st = {
     id: null, number: '', status: 'draft', currency: 'USD', locale: 'en-US', defaultTaxRate: 0,
     customerId: '', date: '', notes: '', lines: [], invoiceId: null, invoiceNumber: '',
-    customers: [], products: [], dirty: false,
+    customers: [], products: [], dirty: false, pdfSeed: 0, pdfLayout: '', company: { name: '', address: '', taxNumber: '' },
   };
   const isNew = () => !st.id;
   const locked = () => st.status === 'fulfilled' || st.status === 'cancelled';
@@ -35,6 +36,7 @@
     Object.assign(st, {
       id: rec.id, number: rec.number || '', status: rec.status, currency: rec.currency,
       customerId: rec.customerId, date: rec.date, notes: rec.notes || '', invoiceId: rec.invoiceId || null,
+      pdfSeed: rec.pdfSeed ?? L.seedOf(rec), pdfLayout: rec.pdfLayout || '',
     });
     st.lines = rec.lines.map((l) => ({ ...l }));
     st.invoiceNumber = '';
@@ -47,7 +49,7 @@
   function resetForm(s) {
     Object.assign(st, {
       id: null, number: '', status: 'draft', currency: s.currency, customerId: '', date: S.ledger.today(), notes: '',
-      invoiceId: null, invoiceNumber: '',
+      invoiceId: null, invoiceNumber: '', pdfSeed: L.newSeed(), pdfLayout: '',
     });
     st.lines = [M.newLine(null, s.defaultTaxRate)];
   }
@@ -57,6 +59,7 @@
     const s = await U.settings();
     st.locale = s.locale;
     st.defaultTaxRate = s.defaultTaxRate;
+    st.company = { name: s.companyName, address: s.address, taxNumber: s.taxNumber };
     const cs = await NS.orders.customers();
     const ps = await NS.orders.products();
     if (!cs.ok || !ps.ok) { setMsg(U.refusal(cs.ok ? ps : cs), true); return false; }
@@ -122,6 +125,7 @@
     const b = (label, fn, cls = 'btn') => h('button', { type: 'button', class: cls, text: label, onclick: fn });
     const out = [];
     if (isNew()) out.push(b('Random sample', () => NS.sampleActions.quick()));
+    if (!isNew()) out.push(b('Export PDF', exportPdf));
     if (st.status === 'draft') {
       out.push(b(isNew() ? 'Save draft' : 'Save', () => save()), b('Confirm order', confirm, 'btn primary'));
       if (!isNew()) out.push(b('Cancel order', cancel, 'btn danger'));
@@ -151,6 +155,7 @@
     SlopDocs.lines.drawTotals($('eTotals'), st.lines, lineOpts());
     paintInvoice();
     paintActions();
+    NS.page.paint();
   }
 
   /** Checks the form and returns the record to save, or the first problem in plain words. */
@@ -162,7 +167,7 @@
       const e = M.lineErrors(l);
       if (e.length) return { error: `Line ${i + 1}: ${e.join('; ')}.` };
     }
-    return { form: { id: st.id, customerId: st.customerId, date: st.date, notes: st.notes, currency: st.currency, lines: st.lines.map(M.cleanLine) } };
+    return { form: { id: st.id, customerId: st.customerId, date: st.date, notes: st.notes, currency: st.currency, lines: st.lines.map(M.cleanLine), pdfSeed: st.pdfSeed, pdfLayout: st.pdfLayout } };
   }
 
   /** Saves the form. A new order is a draft; an existing one keeps its status. */
@@ -215,6 +220,12 @@
     UI.toast(`${st.number} cancelled`);
   }
 
+  /** Saves first when there are changes, then downloads the order's PDF (the page's template and fields are what it shows). */
+  async function exportPdf() {
+    if (!(await saveIfNeeded())) return;
+    NS.page.exportPdf(st.id);
+  }
+
   async function convert() {
     if (!(await saveIfNeeded())) return;
     const r = await NS.actions.convertId(st.id);
@@ -248,10 +259,13 @@
       paintForm();
     }));
     $('eAddLine').addEventListener('click', () => { st.lines.push(M.newLine(null, st.defaultTaxRate)); setDirty(true); paintForm(); });
+    NS.page.mount();
   }
 
   NS.editor = {
-    mount, open, save, confirm, fulfil, cancel, convert, back,
+    mount, open, save, confirm, fulfil, cancel, convert, back, exportPdf,
+    live: () => st, repaint: () => paintForm(), note: (msg) => setMsg(msg, true),
+    edited: (msg) => { setDirty(true); paintForm(); setMsg(msg || '', true); },
     isDirty: () => st.dirty,
     id: () => st.id,
     route: () => (st.id ? `o/${st.id}` : 'new'),
