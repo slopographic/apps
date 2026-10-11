@@ -75,12 +75,17 @@
   describe('virtual timeline at scale', () => {
     it('5,000 photos: only the visible tiles exist in the DOM', async () => {
       await boot();
-      const base = Date.UTC(2010, 0, 1);
-      const rows = [];
+      // Seeded with one bulk write: one transaction, and one shared 4-byte blob (a fresh Blob per row cost more than the
+      // rest of the test). Going through library.addEntries would re-render the timeline and sidebar after every batch.
+      const base = Date.UTC(2010, 0, 1), blob = T.blobOf(4);
+      const metas = [];
       for (let i = 0; i < 5000; i++) {
-        rows.push({ meta: { id: 'p' + i, name: 'img' + i + '.jpg', type: 'image/jpeg', size: 4, sha: T.shaOf(i + 1), w: 40, h: 30, takenAt: base + i * 3600e3 * 9, modified: 0, make: '', model: '', orientation: 1, fav: false, liked: null, tags: [], addedAt: i, driveId: null }, original: T.blobOf(4), thumb: T.blobOf(4) });
+        metas.push({ id: 'p' + i, name: 'img' + i + '.jpg', type: 'image/jpeg', size: 4, sha: T.shaOf(i + 1), w: 40, h: 30, takenAt: base + i * 3600e3 * 9, modified: 0, make: '', model: '', orientation: 1, fav: false, liked: null, tags: [], addedAt: i, driveId: null });
       }
-      for (let i = 0; i < rows.length; i += 500) await G.library.addEntries(rows.slice(i, i + 500));
+      await G.db.write(['photos', 'originals', 'thumbs'], (s) => {
+        for (const m of metas) { s.photos.put(m); s.originals.put({ id: m.id, blob }); s.thumbs.put({ id: m.id, blob }); }
+      });
+      await G.library.load();
       G.timeline.render();
       await waitFor(() => G.timeline.count === 5000, { timeout: 8000 });
       const n = tiles().length;

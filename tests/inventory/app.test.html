@@ -16,7 +16,7 @@
   const win = () => frame.contentWindow;
   const doc = () => frame.contentDocument;
   const $ = (id) => doc().getElementById(id);
-  const ready = () => frame.contentWindow && frame.contentWindow.SlopInv && doc() && doc().getElementById('boot') && doc().getElementById('boot').hidden;
+  const ready = () => frame.contentWindow && frame.contentWindow.SlopInv && doc() && doc().getElementById('boot').hidden && doc().getElementById('pSummary').textContent !== '' && !doc().getElementById('view-products').hidden;
   const errors = [];
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const ean13 = (body12) => body12 + win().SlopData.barcode.checkDigit(body12);
@@ -26,10 +26,10 @@
     input.focus();
     for (const ch of code) {
       input.value += ch;
-      input.dispatchEvent(new win().KeyboardEvent('keydown', { key: ch, bubbles: true }));
+      input.dispatchEvent(new (win().KeyboardEvent)('keydown', { key: ch, bubbles: true }));
       await sleep(3);
     }
-    input.dispatchEvent(new win().KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    input.dispatchEvent(new (win().KeyboardEvent)('keydown', { key: 'Enter', bubbles: true }));
   };
   const dlgInputs = () => [...doc().querySelectorAll('.sui-dlg input')];
   const dlgButton = (cls) => doc().querySelector(`.sui-dlg .${cls}`);
@@ -85,7 +85,7 @@
 
     it('a sale below zero is refused in plain words', async () => {
       $('scanAction').value = 'sell';
-      $('scanAction').dispatchEvent(new win().Event('change'));
+      $('scanAction').dispatchEvent(new (win().Event)('change'));
       $('scanQty').value = '5';
       await typeCode(CODE);
       await waitFor(() => resultText().includes('Refused'));

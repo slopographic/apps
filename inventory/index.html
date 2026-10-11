@@ -41,7 +41,7 @@
     <main class="main" id="main">
       <div id="boot" class="boot" role="status">Opening your inventory…</div>
 
-      <section class="view" id="view-products" role="tabpanel" aria-labelledby="tab-products">
+      <section class="view" id="view-products" role="tabpanel" aria-labelledby="tab-products" hidden>
         <div class="toolbar">
           <label class="search"><span class="sr">Search products</span>
             <input id="pSearch" type="search" placeholder="Search SKU, EAN or name" autocomplete="off" spellcheck="false"></label>
@@ -69,6 +69,7 @@
           <label>Qty <input id="scanQty" type="number" min="1" step="1" value="1" inputmode="numeric"></label>
           <label>Location <input id="scanLoc" type="text" value="main" list="locations" autocomplete="off" maxlength="40"></label>
           <datalist id="locations"><option value="main"></datalist>
+          <button type="button" class="btn" id="scanUndo">Undo last scan</button>
         </div>
         <div class="camera" id="cameraBox" hidden>
           <video id="cam" playsinline muted aria-label="Live camera view"></video>
