@@ -46,6 +46,8 @@
       var rec = r.ok && !outdated(r.rec) ? r.rec : null;
       return { necessary: true, analytics: !!(rec && rec.categories.analytics), ads: !!(rec && rec.categories.ads), rates: !!(rec && rec.categories.rates) };
     },
+    /** The categories from a record of an older policy version, or null. Only a default for the next choice: nothing is on because of it. */
+    previous: function () { var r = record(); return r.ok && r.rec && outdated(r.rec) ? r.rec.categories : null; },
     /** Saves a choice for the current policy version. Returns the record, or null if storage refused. */
     write: function (cats) {
       var rec = {

@@ -31,6 +31,9 @@
   }
   function build() {
     var cur = C ? C.state() : { analytics: false, ads: false };
+    // After a policy change the earlier choice is the default (still unsaved: nothing turns on until Save).
+    var earlier = S && S.needsChoice() ? S.previous() : null;
+    if (earlier) cur = earlier;
     var manageId = 'slopc-manage';
     var analytics = text('input', { type: 'checkbox', id: 'slopc-analytics' });
     var ads = text('input', { type: 'checkbox', id: 'slopc-ads' });
