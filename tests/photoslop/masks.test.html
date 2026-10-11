@@ -22,7 +22,7 @@
     el.dispatchEvent(ev('pointermove', r.left + e.x, r.top + e.y));
     el.dispatchEvent(ev('pointerup', r.left + e.x, r.top + e.y));
   }
-  /** A menu item by its path, e.g. menuItem('Layer', 'Mask', 'Invert Mask'). */
+  /** A menu item by its path, e.g. menuItem('Layer', 'Mask', 'Invert'). */
   const menuItem = (...path) => W.eval(`(function () { let items = MENUS.find(function (m) { return m[0] === ${JSON.stringify(path[0])}; })[1], it = null;
     for (const l of ${JSON.stringify(path.slice(1))}) { it = items.find(function (x) { return x && x.label === l; }); if (!it) throw new Error('no menu item ' + l); items = it.sub; }
     return it; })()`);
@@ -100,7 +100,7 @@
       expect(colorAt(40, 100)[0]).toBe(0);
       expect(colorAt(200, 100)[0]).toBe(255);
       const n = W.Hist.idx;
-      run('Layer', 'Mask', 'Invert Mask');
+      run('Layer', 'Mask', 'Invert');
       expect(W.Hist.idx).toBe(n + 1);
       expect(colorAt(40, 100)[0]).toBe(255);
       expect(colorAt(200, 100)[0]).toBe(0);
@@ -118,7 +118,7 @@
       expect(W.Hist.idx).toBe(n + 1);
       run('Layer', 'Mask', 'Disable');
       expect(colorAt(200, 100)[0]).toBe(255);
-      run('Layer', 'Mask', 'Delete Mask');
+      run('Layer', 'Mask', 'Delete');
       expect(W.activeLayer().mask).toBe(null);
       W.undo(); expect(!!W.activeLayer().mask).toBe(true);
     });
@@ -126,7 +126,7 @@
     it('Apply Mask bakes the mask into the pixels and removes it', async () => {
       await makeDoc('#ff0000'); W.addMask('hide');
       setMaskCanvas((g) => { g.fillStyle = '#fff'; g.fillRect(0, 0, 100, 200); }, false);
-      run('Layer', 'Mask', 'Apply Mask');
+      run('Layer', 'Mask', 'Apply');
       expect(W.activeLayer().mask).toBe(null);
       expect(colorAt(50, 100)).toEqual([255, 0, 0, 255]);
       expect(colorAt(200, 100)[0]).toBe(255);

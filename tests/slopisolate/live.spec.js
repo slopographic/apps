@@ -6,16 +6,19 @@
   const f = document.getElementById('app');
 
   /** Open the app and wait until the sample image is cut out and on screen. */
+  let session = null; // one app session for the whole page: the model runs once per page, not per test
   async function open() {
+    if (session && session.CO.process.active && session.document.body) { session.CO.state.setTool('pan'); return session; }
     f.src = '../../slopisolate/index.html';
     await waitFor(() => f.contentWindow && f.contentWindow.CO && f.contentWindow.CO.state && f.contentWindow.document.readyState === 'complete', { timeout: 30000 });
     const w = f.contentWindow, CO = w.CO;
     // synthetic pointer ids cannot be captured; the capture is not what is under test
     w.Element.prototype.setPointerCapture = function () {};
     w.Element.prototype.releasePointerCapture = function () {};
-    CO.files.sample ? await CO.files.sample() : null;
+    await CO.files.sample();
     await waitFor(() => CO.process && CO.process.active && CO.process.active.mask, { timeout: 200000, polling: 300 });
     await sleep(120);
+    session = w;
     return w;
   }
   const at = (w, sx, sy, type, extra = {}) => w.document.getElementById('stage').dispatchEvent(new w.PointerEvent(type, Object.assign({ clientX: sx, clientY: sy, bubbles: true, pointerId: 7, pointerType: 'mouse', isPrimary: true }, extra)));
