@@ -91,7 +91,7 @@
   };
 
   /* ---------------------------------------------------------- rendering */
-  var cache = new Map(), MAXCACHE = 600, queue = [], active = 0;
+  var cache = new Map(), MAXCACHE = 600, MAXBYTES = 192e6, bytes = 0, queue = [], active = 0;
   function pump() {
     while (active < 3 && queue.length) {
       var job = queue.pop(); // LIFO: most recently requested (visible) first
@@ -113,7 +113,10 @@
     await task.promise;
     return canvas;
   };
-  E.bucket = function (px) { return px <= 200 ? 200 : px <= 320 ? 320 : px <= 480 ? 480 : px <= 720 ? 720 : 1000; };
+  /** Resolution buckets (longest side, device px) so thumbnails stay sharp from tiny to full-width. */
+  E.BUCKETS = [200, 320, 480, 720, 1000, 1400, 2000, 2800];
+  E.bucket = function (px) { for (var i = 0; i < E.BUCKETS.length; i++) if (px <= E.BUCKETS[i]) return E.BUCKETS[i]; return E.BUCKETS[E.BUCKETS.length - 1]; };
+  function evict(k0) { var e0 = cache.get(k0); cache.delete(k0); if (e0) { bytes -= e0.size || 0; if (e0.url) setTimeout(function (u) { URL.revokeObjectURL(u); }.bind(null, e0.url), 30000); } }
   /** Cached thumbnail object-URL for a page (unrotated raster). px = longest side in device px. */
   E.thumbURL = function (p, px) {
     if (p.blank) return Promise.resolve(null);
@@ -126,20 +129,19 @@
     var entry = { url: null };
     entry.p = schedule(async function () {
       var c = await E.renderToCanvas(f, p.i, scale);
-      var blob = await U.canvasToBlob(c, 'image/png');
-      entry.url = URL.createObjectURL(blob);
+      // big rasters as JPEG: far smaller and faster to encode/decode than PNG at these sizes
+      var blob = b > 1000 ? await U.canvasToBlob(c, 'image/jpeg', 0.9) : await U.canvasToBlob(c, 'image/png');
+      entry.url = URL.createObjectURL(blob); entry.size = blob.size; bytes += blob.size;
+      while (bytes > MAXBYTES && cache.size > 1) { var kk = cache.keys().next().value; if (kk === key) break; evict(kk); }
       c.width = c.height = 0;
       return entry.url;
     });
-    entry.p.catch(function () { cache.delete(key); });
+    entry.p.catch(function () { if (cache.get(key) === entry) cache.delete(key); });
     cache.set(key, entry);
-    while (cache.size > MAXCACHE) {
-      var k0 = cache.keys().next().value, e0 = cache.get(k0); cache.delete(k0);
-      if (e0 && e0.url) setTimeout(function (u) { URL.revokeObjectURL(u); }.bind(null, e0.url), 30000);
-    }
+    while (cache.size > MAXCACHE) evict(cache.keys().next().value);
     return entry.p;
   };
   E.dropCache = function (fid) {
-    Array.from(cache.keys()).forEach(function (k) { if (!fid || k.indexOf(fid + ':') === 0) { var e = cache.get(k); cache.delete(k); if (e && e.url) URL.revokeObjectURL(e.url); } });
+    Array.from(cache.keys()).forEach(function (k) { if (!fid || k.indexOf(fid + ':') === 0) { var e = cache.get(k); cache.delete(k); if (e) { bytes -= e.size || 0; if (e.url) URL.revokeObjectURL(e.url); } } });
   };
 })();

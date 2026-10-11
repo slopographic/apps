@@ -115,13 +115,15 @@
   V.loadRaster = function (el, p, px) {
     var img = el.querySelector('.sheet-img');
     if (p.blank) { img.removeAttribute('src'); img.style.visibility = 'hidden'; return Promise.resolve(); }
-    var key = p.f + ':' + p.i + ':' + E.formKey(p.f) + ':' + E.bucket(px);
-    if (img._key === key) return Promise.resolve();
-    img._key = key;
+    var base = p.f + ':' + p.i + ':' + E.formKey(p.f), b = E.bucket(px), key = base + ':' + b;
+    // zooming out keeps the sharper raster already shown instead of fetching a smaller one
+    if (img._key === key || (img._base === base && img._b >= b && img._shown)) return Promise.resolve();
+    img._key = key; img._base = base; img._b = b; img._shown = false;
     return E.thumbURL(p, px).then(function (url) {
       if (img._key !== key || !url) return;
       img.style.visibility = '';
       if (img.src !== url) img.src = url;
+      img._shown = true;
       el.classList.add('loaded');
     }).catch(function (e) { console.warn('Slop PDF: thumbnail failed', e); el.classList.add('failed'); });
   };

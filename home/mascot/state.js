@@ -24,7 +24,8 @@ export const rand = (a, b) => a + Math.random() * (b - a);
 export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 export const navH = () => { const n = document.querySelector('.nav'); return n ? n.getBoundingClientRect().bottom : 0; };
 export const pageW = () => document.body.clientWidth;
-export const pageH = () => document.body.scrollHeight;
+// The page's own height (the body box), not counting things that fell or flew past it.
+export const pageH = () => document.body.offsetHeight;
 
 export function setMood(mood, ms) { M.mood = mood; M.moodUntil = now() + ms; }
 export const moodIs = (mood) => M.mood === mood && now() < M.moodUntil;

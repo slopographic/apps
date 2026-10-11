@@ -17,12 +17,7 @@
   S.sep = function () { return h('span', { class: 'tb-sep', 'aria-hidden': 'true' }); }
   S.buildCtxBars = function () {
     var g = S.els.ctxGrid;
-    var sizeSeg = h('div', { class: 'seg seg-sm', role: 'radiogroup', 'aria-label': 'Thumbnail size' });
-    [[128, 'S'], [168, 'M'], [228, 'L']].forEach(function (s) {
-      var b = h('button', { type: 'button', class: 'seg-b' + (O.getSize() === s[0] ? ' on' : ''), role: 'radio', 'aria-label': 'Thumbnail size ' + s[1], 'aria-checked': O.getSize() === s[0] ? 'true' : 'false' }, s[1]);
-      b.addEventListener('click', function () { O.setSize(s[0]); U.$$('.seg-b', sizeSeg).forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b ? 'true' : 'false'); }); });
-      sizeSeg.appendChild(b);
-    });
+    var sizeSeg = O.sizeControl();
     g.append(
       S.ibl('selectall', 'Select all', function () { if (O.sel.size === E.state.pages.length) O.setSelection([]); else O.selectAll(); }, 'All'), S.sep(),
       S.ib('rotl', 'Rotate left', function () { A.rotate(A.targetIds(), -90); }),

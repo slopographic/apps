@@ -14,6 +14,7 @@ export const LINES = {
   knock: ['Oops.', 'Mine.', 'Bye!', 'Down you go.', 'gravity test'],
   blast: ['PEW', 'GOO BLAST', 'BLORP!', 'ka-SPLAT', 'eat goo'],
   hole: ['behold: the void', 'black hole go brrr', 'it hungers', 'into the slop dimension'],
+  fall: ['WHOA—', 'NOOOO—', 'not again', 'the floor is gone', 'aaaaa—', 'who ate my floor'],
   idle: ['no watermarks. ever. slop is free.', 'slop.', 'is it lunch', '…', 'hmm.', 'nice website', 'drag me. I dare you.', 'I could eat a heading'],
   level: ['LEVEL UP', 'stronger slop', 'I feel taller'],
   restore: ['All better.', 'good as new', 'I didn\'t do it'],

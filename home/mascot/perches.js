@@ -1,6 +1,7 @@
 // Perches: the top edges of [data-perch] elements (headings, cards, the intro ledge).
 import { M, navH, pageW } from './state.js';
 import { size } from './look.js';
+import { holesOf, isEaten } from './dom.js';
 
 /** Cards knocked off the page: no longer perches until the page is restored. */
 export const gone = new WeakSet();
@@ -12,9 +13,7 @@ export function rectOf(el) {
   const b = el.getBoundingClientRect();
   if (b.width < 40 || b.height <= 0) return null;
   if (isHeading(el)) {
-    const rg = document.createRange();
-    rg.selectNodeContents(el);
-    const rs = [...rg.getClientRects()].filter((q) => q.width > 1 && q.height > 1);
+    const rs = textRects(el);
     if (rs.length) {
       const top = Math.min(...rs.map((q) => q.top));
       const line = rs.filter((q) => q.top < top + q.height * 0.5);
@@ -24,6 +23,29 @@ export function rectOf(el) {
     }
   }
   return { left: b.left, right: b.right, top: b.top, bottom: b.bottom };
+}
+
+/** Text boxes of a heading; once chaos wrapped its letters, only the letters still there. */
+function textRects(el) {
+  const ch = el.querySelectorAll('.sloppo-ch');
+  if (ch.length) return [...ch].filter((s) => !isEaten(s)).map((s) => s.getBoundingClientRect()).filter((q) => q.width > 1 && q.height > 1);
+  const rg = document.createRange();
+  rg.selectNodeContents(el);
+  return [...rg.getClientRects()].filter((q) => q.width > 1 && q.height > 1);
+}
+
+/** Is there something to stand on at page x? Eaten letters and holes at the top edge leave gaps. */
+export function solidAt(el, x) {
+  const b = el.getBoundingClientRect(), lx = x - scrollX - b.left;
+  for (const h of holesOf(el)) {
+    if (h.r <= Math.abs(h.y)) continue;
+    if (Math.abs(lx - h.x) < Math.sqrt(h.r * h.r - h.y * h.y) - 2) return false;
+  }
+  if (isHeading(el) && el.querySelector('.sloppo-ch')) {
+    const cx = x - scrollX, rs = textRects(el), top = Math.min(...rs.map((q) => q.top));
+    return rs.some((q) => q.top < top + q.height * 0.5 && cx > q.left - 10 && cx < q.right + 10);
+  }
+  return true;
 }
 
 /** Every perch that is laid out right now: [{ el, r }]. */
@@ -43,6 +65,8 @@ export const inView = (r) => r.top > navH() + 60 && r.top < innerHeight - 8 && r
 export function point(p) {
   const r = p && rectOf(p.el);
   if (!r) return null;
+  // Once he stands somewhere, he stays at that spot of the element even if its text changes.
+  if (p.off != null) return { x: p.el.getBoundingClientRect().left + scrollX + p.off, y: r.top + scrollY };
   const pad = Math.min(30, (r.right - r.left) / 2);
   const x = Math.max(r.left + pad, Math.min(r.right - pad, r.left + p.frac * (r.right - r.left))) + scrollX;
   const edge = size() * 0.5;   // keep his puddle on the page
@@ -67,7 +91,7 @@ export function landing(x, y0, y1) {
   let best = null;
   for (const { el, r } of all()) {
     const top = r.top + scrollY, l = r.left + scrollX, rr = r.right + scrollX;
-    if (top >= y0 - 0.5 && top <= y1 && x >= l + 6 && x <= rr - 6 && (!best || top < best.top)) best = { el, top, frac: (x - l) / (rr - l) };
+    if (top >= y0 - 0.5 && top <= y1 && x >= l + 6 && x <= rr - 6 && (!best || top < best.top) && solidAt(el, x)) best = { el, top, frac: (x - l) / (rr - l) };
   }
   return best;
 }

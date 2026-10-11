@@ -4,7 +4,7 @@
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, V = SP.view;
   var O = SP.organizer = {};
-  var grid, scroller, els = new Map(), io = null, size = U.store.get('thumbSize', 168);
+  var grid, scroller, els = new Map(), io = null, size = U.clamp(+U.store.get('thumbSize', 168) || 168, 80, 4000);
   O.sel = new Set(); O.anchor = null; O.focusId = null;
   var S = O._ = { els: els }; // state shared with organize/drag.js and organize/keys.js
 
@@ -12,7 +12,7 @@
     grid = gridEl; scroller = scrollEl; S.grid = grid; S.scroller = scroller;
     grid.style.setProperty('--thumb', size + 'px');
     io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) { if (en.isIntersecting) { var el = en.target; el._visible = true; loadThumb(el); } else en.target._visible = false; });
+      entries.forEach(function (en) { if (en.isIntersecting) { var el = en.target; el._visible = true; if (!S.zooming) loadThumb(el); } else en.target._visible = false; });
     }, { root: scroller, rootMargin: '400px 0px' });
     grid.addEventListener('pointerdown', function (e) { S.onDown(e); });
     grid.addEventListener('dblclick', function (e) { var t = e.target.closest('.thumb'); if (t && !e.target.closest('button')) SP.app.openPage(t.dataset.id); });
@@ -20,6 +20,7 @@
     // once a touch drag has started, stop the browser from scrolling instead
     grid.addEventListener('touchmove', function (e) { if (S.dragging()) e.preventDefault(); }, { passive: false });
     grid.addEventListener('keydown', function (e) { S.onKey(e); });
+    if (O.initZoom) O.initZoom();
     grid.addEventListener('focusin', function (e) { var t = e.target.closest('.thumb'); if (t) O.focusId = t.dataset.id; });
     grid.addEventListener('click', function (e) {
       var b = e.target.closest('[data-act]'); if (!b) return;
@@ -34,7 +35,25 @@
       else if (act === 'view') SP.app.openPage(id);
     });
   };
-  O.setSize = function (px) { size = px; U.store.set('thumbSize', px); grid.style.setProperty('--thumb', px + 'px'); O.render(true); };
+  O.MIN = 80;
+  /** Largest useful size: one page per row across the grid's inner width. */
+  O.maxSize = function () {
+    if (!grid) return 1200;
+    var cs = getComputedStyle(grid), w = (scroller || grid).clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    return w > 0 ? Math.max(O.MIN + 40, Math.floor(w)) : 4000; // hidden grid: no limit yet
+  };
+  var saveSize = U.debounce(function () { U.store.set('thumbSize', size); }, 300), sizeFns = [];
+  O.onSize = function (fn) { sizeFns.push(fn); };
+  /** Sets the thumbnail size in CSS px (clamped to MIN..maxSize). Rasters follow once zooming settles. */
+  O.setSize = function (px) {
+    px = Math.round(U.clamp(px, O.MIN, O.maxSize()));
+    if (px === size && grid.style.getPropertyValue('--thumb')) return;
+    size = px; saveSize();
+    grid.style.setProperty('--thumb', px + 'px');
+    S.zooming = true; O.render(); settle();
+    sizeFns.forEach(function (fn) { fn(px); });
+  };
+  var settle = U.debounce(function () { S.zooming = false; els.forEach(function (el) { if (el._visible) loadThumb(el); }); }, 160);
   O.getSize = function () { return size; };
   O.selected = function () { return E.state.pages.filter(function (p) { return O.sel.has(p.id); }).map(function (p) { return p.id; }); };
   O.selectedIndices = function () { var out = []; E.state.pages.forEach(function (p, i) { if (O.sel.has(p.id)) out.push(i); }); return out; };
@@ -42,7 +61,7 @@
   O.selectAll = function () { O.setSelection(E.state.pages.map(function (p) { return p.id; })); };
   function toggle(id) { if (O.sel.has(id)) O.sel.delete(id); else O.sel.add(id); O.anchor = id; syncSel(); }
 
-  function thumbBox() { return { w: size, h: Math.round(size * 1.3) }; }
+  function thumbBox() { var s = Math.min(size, O.maxSize()); return { w: s, h: Math.round(s * 1.3) }; }
   function makeThumb(p) {
     var el = U.h('div', { class: 'thumb', role: 'option', tabindex: '-1', 'data-id': p.id, 'aria-selected': 'false' },
       U.h('div', { class: 'thumb-box' }),
@@ -62,7 +81,7 @@
   }
   function loadThumb(el) {
     var p = E.pageById(el.dataset.id); if (!p || !el._sheet) return;
-    var dpr = Math.min(2.5, window.devicePixelRatio || 1);
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
     var vs = E.viewSize(p), g = E.geom(p), sc = el._sheet._scale || 1;
     var px = Math.max(g.W, g.H) * sc * dpr;
     V.loadRaster(el._sheet, p, px);
@@ -93,7 +112,7 @@
       var part = el.querySelector('.thumb-part');
       if (parts && parts[i]) { part.hidden = false; part.textContent = parts[i]; part.className = 'thumb-part' + (parts[i].charAt(0) === '✂' ? ' cut' : ''); } else part.hidden = true;
       if (grid.children[i] !== el) grid.insertBefore(el, grid.children[i] || null);
-      if (el._visible) loadThumb(el);
+      if (el._visible && !S.zooming) loadThumb(el);
     });
     els.forEach(function (el, id) { if (!seen.has(id)) { io.unobserve(el); el.remove(); els.delete(id); } });
     O.sel.forEach(function (id) { if (!seen.has(id)) O.sel.delete(id); });

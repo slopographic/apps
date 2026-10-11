@@ -5,6 +5,9 @@ import * as P from './perches.js';
 import { size } from './look.js';
 import { dust } from './fx.js';
 import { hardLanding } from './rage.js';
+import { stepBodies } from './bodies.js';
+import { say } from './fx.js';
+import { line } from './lines.js';
 
 const GRAVITY = 2600, OFFSCREEN_MS = 1500;
 
@@ -13,6 +16,7 @@ export function place(p) {
   const pt = P.point(p);
   if (!pt) return false;
   Object.assign(M, { perch: p, mode: 'perched', x: pt.x, y: pt.y, vx: 0, vy: 0, rot: 0, vr: 0, offSince: 0 });
+  pin(p);
   M.nextIdle = now() + rand(3500, 8000);
   return true;
 }
@@ -58,7 +62,7 @@ function stepHop(dt) {
 function land(p, impact) {
   Object.assign(M, { perch: p, mode: 'perched', vx: 0, vy: 0, rot: 0, vr: 0, sqv: 0, offSince: 0 });
   const pt = p && P.point(p);
-  if (pt) { M.x = pt.x; M.y = pt.y; }
+  if (pt) { M.x = pt.x; M.y = pt.y; pin(p); }
   M.squash = clamp(impact / 2200, 0.25, 0.75);
   M.nextIdle = now() + rand(3500, 8000);
   if (M.hard || impact > 2000) hardLanding();
@@ -67,9 +71,14 @@ function land(p, impact) {
   if (!reduced()) dust(M.x, M.y, clamp(impact / 1400, 0.4, 1.4));
 }
 
-/** Let go: he falls from where he is. */
-export function fall(vx = 0, vy = 0) {
-  Object.assign(M, { mode: 'air', perch: null, vx, vy });
+/** Remember the exact spot on the element he stands on. */
+function pin(p) { p.off = M.x - (p.el.getBoundingClientRect().left + scrollX); }
+
+/** Let go: he falls from where he is. `flail` when the floor vanished under him (not a throw). */
+export function fall(vx = 0, vy = 0, flail = false) {
+  Object.assign(M, { mode: 'air', perch: null, vx, vy, flail, vr: 0 });
+  M.hop = null;
+  if (flail) say(line('fall'), 1100);
 }
 
 function stepAir(dt) {
@@ -78,7 +87,9 @@ function stepAir(dt) {
   M.vx *= Math.pow(0.55, dt);
   M.x += M.vx * dt;
   M.y += M.vy * dt;
-  if (!reduced()) M.rot += M.vr * dt;
+  if (reduced()) M.rot = 0;
+  else if (M.flail) M.rot = Math.sin(performance.now() / 45) * 0.28;   // arms-everywhere wobble
+  else M.rot += M.vr * dt;
   if (M.x < half) { M.x = half; M.vx = Math.abs(M.vx) * 0.5; M.vr *= -0.6; }
   if (M.x > W - half) { M.x = W - half; M.vx = -Math.abs(M.vx) * 0.5; M.vr *= -0.6; }
   if (M.y < s && M.vy < 0) { M.y = s; M.vy = -M.vy * 0.3; }
@@ -94,11 +105,12 @@ function stepPerched(t) {
   if (M.perch) {
     const pt = P.point(M.perch);
     if (!pt) {
-      // A knocked card drops him; a hidden perch (view switch, resize) sends him somewhere visible.
-      if (P.gone.has(M.perch.el)) fall();
+      // A removed or swallowed perch drops him; a hidden one (view switch) sends him somewhere visible.
+      if (P.gone.has(M.perch.el) || !M.perch.el.isConnected) fall(0, 0, true);
       else { M.perch = null; if (!leapIn()) M.offSince = t; }
       return;
     }
+    if (!P.solidAt(M.perch.el, pt.x)) { fall(0, 0, true); return; }   // eaten or holed under his feet
     M.x = pt.x;
     M.y = pt.y;
   }
@@ -165,6 +177,7 @@ export function step(dt, t) {
     M.sqv += (-340 * M.squash - 11 * M.sqv) * dt;               // wobbly jelly spring
     M.squash += M.sqv * dt;
   }
+  stepBodies(dt);
   if (M.mode === 'perched') stepPerched(t);
   else if (M.mode === 'hop') stepHop(dt);
   else if (M.mode === 'air') stepAir(dt);

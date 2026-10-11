@@ -176,4 +176,5 @@
 
   S.onDown = onDown; S.onContext = onContext; S.rangeSelect = rangeSelect;
   S.dragging = function () { return !!drag; };
+  S.cancelPress = function () { if (press || drag) onCancel(); };
 })();

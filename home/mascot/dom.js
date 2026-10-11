@@ -2,6 +2,7 @@
 import { record, keepStyle } from './journal.js';
 
 const holes = new WeakMap();   // element -> mask layers
+const geo = new WeakMap();     // element -> [{ x, y, r }] hole circles, for physics
 const wrapped = new WeakMap(); // heading -> letter spans
 export const eaten = new WeakSet();
 
@@ -10,14 +11,19 @@ export function punch(el, list) {
   const mine = holes.get(el) || [];
   const layers = list.map(({ x, y, r }) => `radial-gradient(circle at ${x.toFixed(1)}px ${y.toFixed(1)}px, transparent ${r.toFixed(1)}px, #000 ${(r + 0.8).toFixed(1)}px)`);
   keepStyle(el);
+  const circles = geo.get(el) || [];
   mine.push(...layers);
+  circles.push(...list.map(({ x, y, r }) => ({ x, y, r })));
   holes.set(el, mine);
-  record(() => { mine.length -= layers.length; });
+  geo.set(el, circles);
+  record(() => { mine.length -= layers.length; circles.length -= list.length; });
   el.style.setProperty('mask-image', mine.join(', '));
   el.style.setProperty('-webkit-mask-image', mine.join(', '));
   el.style.setProperty('mask-composite', mine.map(() => 'intersect').join(', '));
 }
 export const holeCount = (el) => (holes.get(el) || []).length;
+export const holesOf = (el) => geo.get(el) || [];
+export const isEaten = (span) => eaten.has(span);
 
 /** Wrap each letter of an element in a span (once), recording how to unwrap it. */
 export function letters(el) {
