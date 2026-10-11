@@ -48,6 +48,16 @@ Desktop (1440×900) and phone (390×844) in Chromium, with zero console errors:
 - Right-click menu.
 - Send to PhotoSLOP, and `?drive=` launch back into Vector.
 
+## Owner requests not done yet (next steps, in order)
+These were asked for together with the PhotoSLOP layer work; none of the Vector part is started.
+1. Check the "property change doesn't update" bug for text objects: fill colour, font, size and alignment, on the canvas and in the inspector. Fix it with a Playwright reproduction and a regression test (same approach as `photoslop/js/type/props.js`).
+2. Layers panel: double-click a row opens an object/layer options dialog (name, colour, lock/visibility, opacity/blend, appearance: several fills and strokes, drop shadow and blur effects). Double-click the name renames it inline.
+3. Canvas: double-click a text object to edit its text; double-click a group to enter isolation mode (Esc leaves it); double-click a path to switch to Direct Selection / point editing.
+4. Register these as SlopCmd actions (`SV.actions` → `js/ui/commands.js`) and add tests under `tests/vector/`.
+
+## Test note
+`io.test.html` 'offline builder › inlines the app…' currently fails, with a console error ("Cannot use import statement outside a module"). The cause is an uncommitted change by someone else: `vector/index.html` now loads `<script type="module" src="../shared/buddy/boot.js" data-offline="strip">`. The offline builder inlines module scripts as classic scripts. Fix the builder (strip `data-offline="strip"` scripts, or keep them as modules), or drop that tag. Without the tag the suite was 72/73 at the start of this session; the one failure was 'builds SVG and 2× PNG payloads', which timed out on a loaded machine.
+
 ## Known / next
 - The phone menubar is wider than 390 px; the last menus scroll horizontally inside the bar.
 - Google Fonts are linked as in the other apps; the offline build strips them and falls back to system fonts.

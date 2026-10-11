@@ -108,6 +108,7 @@ function buildLayersPanel() {
       eye.addEventListener('click', (e) => { e.stopPropagation(); if (e.altKey) { const solo = D.layers.every((l) => l === L || !l.visible); D.layers = D.layers.map((l) => Object.assign({}, l, { visible: solo ? true : l.id === L.id })); commit('Show/Hide'); } else setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer'); });
       const th = h('span', { class: 'lp-thumb' + (L.id === D.activeId && !UI.editMask ? ' target' : ''), title: 'Edit layer pixels' }, cachedThumb(L, false));
       th.addEventListener('click', () => { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); });
+      th.addEventListener('dblclick', (e) => { e.stopPropagation(); if (L.text) editTypeLayer(L); else dlgLayerProps(); });
       const row = h('li', { class: 'layer' + (L.id === D.activeId ? ' active' : ''), role: 'option', 'aria-selected': String(L.id === D.activeId), draggable: 'true', 'data-id': L.id }, eye, th);
       if (L.mask) {
         const mt = h('span', { class: 'lp-thumb mask' + (L.id === D.activeId && UI.editMask ? ' target' : '') + (L.mask.enabled === false ? ' off' : ''), title: 'Edit layer mask (Shift-click to disable)' }, cachedThumb(L, true));

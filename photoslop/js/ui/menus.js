@@ -94,6 +94,8 @@ const MENUS = [
       { label: 'Apply Mask', act: () => applyMask(), en: () => activeLayer() && !!activeLayer().mask },
       { label: 'Delete Mask', act: () => { const L = activeLayer(); UI.editMask = false; setLayerProps(L.id, { mask: null }, 'Delete Mask'); }, en: () => activeLayer() && !!activeLayer().mask },
     ] },
+    { label: 'Edit Text', act: () => editTypeLayer(), en: () => activeLayer() && !!activeLayer().text },
+    { label: 'Warp Text…', act: () => dlgWarpText(), en: () => activeLayer() && !!activeLayer().text },
     { label: 'Rasterize Type', act: () => rasterizeText(activeLayer()), en: () => activeLayer() && !!activeLayer().text },
     '-',
     { label: 'Arrange', sub: [
