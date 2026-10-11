@@ -79,7 +79,7 @@
       km.search.value = 'save'; km.search.dispatchEvent(new Event('input'));
       expect(km.list.querySelectorAll('.scmd-km-row').length).toBe(1);
       km.search.value = 'ctrl+s'; km.search.dispatchEvent(new Event('input'));
-      expect(km.list.querySelectorAll('.scmd-km-row').length).toBe(1);
+      expect(!!km.list.querySelector('[data-id="t.save"]')).toBe(true);
       await closeDialogs();
     });
     it('records a new shortcut by click + keypress, suppressing app shortcuts while recording', async () => {
@@ -113,9 +113,9 @@
       await SlopCmd.openKeymap();
       const km = SlopCmd._parts.keymap.current;
       km.list.querySelector('[data-id="t.open"] .scmd-add').click();
-      T.press('Mod+k', document.activeElement); T.press('Mod+o', document.activeElement);
+      T.press('Mod+g', document.activeElement); T.press('Mod+o', document.activeElement);
       await waitFor(() => !km.recording, { timeout: 3000 });
-      expect(SlopCmd.bindings('t.open')).toEqual(['Mod+O', 'Mod+K Mod+O']);
+      expect(SlopCmd.bindings('t.open')).toEqual(['Mod+O', 'Mod+G Mod+O']);
       km.list.querySelector('[data-id="t.open"] .scmd-chip').click();
       T.press('Mod+s', document.activeElement);
       const confirmBtn = await waitFor(() => [...document.querySelectorAll('.sui-dlg .sui-btn.sui-primary')].find((x) => x.textContent === 'Replace'), { timeout: 3000 });

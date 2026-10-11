@@ -46,9 +46,24 @@
     });
     it('lists Go to entries for other apps when searching', () => {
       T.fresh('label');
-      const r = S().results('vector')[0].items;
-      expect(r.some((x) => x.id === 'go.vector')).toBe(true);
-      expect(S().results('sloplabel')[0].items.some((x) => x.id === 'go.label')).toBe(false);
+      const flat = (q) => S().results(q).flatMap((s) => s.items);
+      expect(flat('vector').some((x) => x.id === 'go.vector')).toBe(true);
+      expect(flat('sloplabel').some((x) => x.id === 'go.label')).toBe(false);
+      let url = '';
+      S().navigate = (u) => { url = u; };
+      S().goTo(flat('vector').find((x) => x.id === 'go.vector').go);
+      expect(url).toMatch(/\/vector\/$/);
+    });
+    it('adds results from providers (e.g. files) under their own heading', () => {
+      T.fresh();
+      let ran = 0;
+      const off = SlopCmd.addProvider({ id: 'files', title: 'Files', search: (q) => (q.length > 1 ? [{ id: 'file.1', title: 'quarterly report.txt', run: () => ran++ }] : []) });
+      const sec = S().results('quarterly').find((s) => s.title === 'Files');
+      expect(sec.items[0].title).toBe('quarterly report.txt');
+      sec.items[0].provided();
+      expect(ran).toBe(1);
+      off();
+      expect(S().results('quarterly').some((s) => s.title === 'Files')).toBe(false);
     });
   });
   describe('recents', () => {
