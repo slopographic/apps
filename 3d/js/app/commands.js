@@ -51,7 +51,8 @@
       C('3d.menu.add', 'Add menu', 'Object', [], (ctx) => openMenu(document.getElementById('btnAdd'), S.menus.addItems()), { hidden: true }),
       C('3d.menu.open', 'Open menu', 'File', [], () => openMenu(document.getElementById('btnOpen'), [
         S.menus.cmd('3d.file.open', 'From disk…'), S.menus.cmd('3d.file.drive', 'From Slop Drive…'), '-',
-        S.menus.cmd('3d.file.import', 'Import into this scene…'), S.menus.cmd('3d.file.importConfig', 'Import config…')]), { hidden: true }),
+        S.menus.cmd('3d.file.import', 'Import into this scene…'), S.menus.cmd('3d.file.importConfig', 'Import config…'), '-',
+        S.menus.cmd('3d.config.template', 'Export plain template…'), S.menus.cmd('3d.config.ai', 'Ask AI to write a config…')]), { hidden: true }),
       C('3d.menu.export', 'Export menu', 'File', [], () => openMenu(document.getElementById('btnExport'), [
         S.menus.cmd('3d.file.download', 'Download .s3d'), S.menus.cmd('3d.file.exportObj', 'Export OBJ…'), '-',
         S.menus.cmd('3d.file.png1', 'Render PNG (1×)'), S.menus.cmd('3d.file.png2', 'Render PNG (2×)'), '-',

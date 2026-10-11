@@ -65,10 +65,12 @@
   /* Overrides for the app pages: surface, text and accent only (apps keep their own background and borders). The homepage
    * and Settings take the background and border too. --sl-on-accent is the ink or white that reads on the accent. */
   var CSS = [
-    'html:root[data-slop-theme]{--panel:var(--sl-surface);--surface:var(--sl-surface);--fg:var(--sl-text);--text:var(--sl-text);',
-    '--accent:var(--sl-accent);--accent-ink:var(--sl-on-accent);--accent-line:var(--sl-accent);',
-    '--dim:color-mix(in srgb,var(--sl-text) 78%,transparent);--mute:color-mix(in srgb,var(--sl-text) 78%,transparent);',
-    '--faint:color-mix(in srgb,var(--sl-text) 80%,transparent);--fg-faint:color-mix(in srgb,var(--sl-text) 80%,transparent)}',
+    /* The colour tokens of the chosen theme. !important: an app's own palette (some sit in higher-specificity rules, such as
+     * a :not() media query) must not win over the theme the person chose. */
+    'html:root[data-slop-theme]{--panel:var(--sl-surface)!important;--surface:var(--sl-surface)!important;--fg:var(--sl-text)!important;--text:var(--sl-text)!important;',
+    '--accent:var(--sl-accent)!important;--accent-ink:var(--sl-on-accent)!important;--accent-line:var(--sl-accent)!important;',
+    '--dim:color-mix(in srgb,var(--sl-text) 78%,transparent)!important;--mute:color-mix(in srgb,var(--sl-text) 78%,transparent)!important;',
+    '--faint:color-mix(in srgb,var(--sl-text) 80%,transparent)!important;--fg-faint:color-mix(in srgb,var(--sl-text) 80%,transparent)!important}',
     'html:root[data-slop-theme][data-slop-app=home],html:root[data-slop-theme][data-slop-app=settings]{',
     '--bg:var(--sl-background);--ink-2:var(--sl-surface);--ink-3:var(--sl-surface);',
     '--bone-dim:color-mix(in srgb,var(--sl-text) 62%,transparent);',

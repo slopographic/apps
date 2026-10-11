@@ -1,17 +1,20 @@
-/* Slop 3D config files (app): File > Import config… reads a scene3d config (core/config.js) and adds its objects in one
- * undo step, all or nothing. File > Export config… writes the scene's primitives and lights in the same shape.
- * Registration with shared/config is a stub: registerStub() does nothing until SlopConfig exists there.
- * Sets window.Slop3D.configio. */
+/* Slop 3D config files (app). The shared format (shared/config, HANDOFF.md there): kind 'scene' for app '3d', data
+ * { objects, lights } as core/config.js reads and writes them. The kind's check() runs core/config.js validate, so a file
+ * is checked by the same rules as before: all or nothing. Import also takes the older bare { objects, lights } JSON.
+ * File ▸ Config: export current config, plain template, import, ask AI. Sets window.Slop3D.configio. */
 (function () {
   'use strict';
   const S = (window.Slop3D = window.Slop3D || {});
   const s = S.state.s, A = S.actions;
+  const C = window.SlopConfig, D = window.SlopConfigDialog;
+  const APP = '3d';
   const toast = (m) => { if (window.SlopUI) SlopUI.toast(m); };
 
-  /** Validates config text and adds it to the scene. Returns true when it was added. */
+  /** Validates config text and adds it to the scene. Returns true when it was added. Accepts the shared envelope or bare JSON. */
   function importText(text) {
     let data;
     try { data = JSON.parse(String(text)); } catch (e) { toast('That file is not valid JSON'); return false; }
+    if (C && data && data.format === C.consts.FORMAT) { C.importText(String(text), { app: APP }).then((res) => D.showResult(res)); return true; }
     const r = S.config.validate(data);
     if (!r.ok) { toast('Config not imported: ' + r.errors.slice(0, 3).join('; ')); return false; }
     if (!r.trees.length) { toast('The config has no objects or lights'); return false; }
@@ -20,6 +23,7 @@
     return true;
   }
   function importDialog() {
+    if (D) { D.importDialog({ app: APP }); return; }
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json,application/json';
@@ -32,23 +36,45 @@
   function exportConfig() {
     const r = S.config.exportScene(s.doc);
     if (!r.data.objects.length && !r.data.lights.length) { toast('Nothing to export: the scene has no primitives or lights'); return false; }
-    if (window.SlopUI) SlopUI.download(new Blob([JSON.stringify(r.data, null, 2)], { type: 'application/json' }), (s.file.name || 'scene') + '.config.json');
+    if (C) { C.exportKind('scene', APP, (s.file.name || 'scene')).then((f) => SlopUI.download(f, f.name)).catch((e) => toast('Could not export: ' + e.message)); }
+    else if (window.SlopUI) SlopUI.download(new Blob([JSON.stringify(r.data, null, 2)], { type: 'application/json' }), (s.file.name || 'scene') + '.config.json');
     if (r.skipped) toast(`${r.skipped} edited or imported mesh${r.skipped === 1 ? '' : 'es'} left out (only primitives are written)`);
     return true;
   }
-  /** TODO(shared/config): when shared/config exists, register kind 'scene3d' for app '3d' there (data: the scene3d
-   * object list, validated by S.config.validate, built by addTrees, written by S.config.exportScene). Until then this
-   * does nothing, and the File menu items above work on their own. */
-  function registerStub() {
-    return !!(window.SlopConfig && typeof window.SlopConfig.register === 'function');
-  }
-  /** Commands for the palette and the File menu. */
-  function commands(C) {
-    return [
-      C('3d.file.importConfig', 'Import config…', 'File', [], () => importDialog()),
-      C('3d.file.exportConfig', 'Export config…', 'File', [], () => exportConfig()),
-    ];
+
+  /** Registers kind 'scene' for app '3d'. Called once at boot (main.js), after the shared config scripts have loaded. */
+  function registerConfig() {
+    if (!C || !D || !C.F) return false;
+    const F = C.F, free = F.obj({}, { strict: false });
+    const check = (data) => {
+      const r = S.config.validate(data);
+      return r.ok ? [] : r.errors.map((e) => ({ path: '', message: String(e) }));
+    };
+    C.registerKind('scene', APP, {
+      strict: true,
+      fields: {
+        objects: F.list(free, { max: 2000, desc: 'primitives: box, sphere, cylinder and the rest, each with a name, a position, rotation and scale, and a material' }),
+        lights: F.list(free, { max: 200, desc: 'lights: point, directional or spot, with position and colour' }),
+      },
+    }, async (data) => {
+      const r = S.config.validate(data);
+      if (!r.ok) throw new Error(r.errors.slice(0, 3).join('; '));
+      if (r.trees.length) A.addTrees(r.trees); // one undo step
+    }, {
+      label: 'Scene', description: 'Primitives and lights with positions, sizes and colours',
+      read: () => S.config.exportScene(s.doc).data, check,
+    });
+    return true;
   }
 
-  S.configio = { importText, importDialog, exportConfig, registerStub, commands };
+  /** Commands for the palette and the File menu. The Config group holds the four shared actions. */
+  function commands(C2) {
+    const cfg = D ? D.commands({ app: APP, prefix: '3d' }) : [];
+    return [
+      C2('3d.file.importConfig', 'Import config…', 'File', [], () => importDialog()),
+      C2('3d.file.exportConfig', 'Export config…', 'File', [], () => exportConfig()),
+    ].concat(cfg.map((c) => C2(c.id, c.title, 'Config', [], c.run)));
+  }
+
+  S.configio = { importText, importDialog, exportConfig, registerConfig, registerStub: registerConfig, commands };
 })();
