@@ -1,0 +1,5 @@
+{
+  "note": "Font packs offered by Get more (shared/library/get-more.js). Nothing downloads until a person clicks Download and confirms the licence and size. Each file needs an https URL on one of the hosts below, its exact size in bytes and its lowercase SHA-256. See shared/fonts/HANDOFF.md.",
+  "hosts": ["raw.githubusercontent.com", "cdn.jsdelivr.net"],
+  "packs": []
+}
