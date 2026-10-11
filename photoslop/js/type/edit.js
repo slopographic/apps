@@ -117,6 +117,8 @@ function editTypeLayer(L = activeLayer()) {
   showCharacterPanel();
 }
 listeners.add((w) => { if (w === 'zoom' && TE.el) teRender(true); });
+// Double-click on a text layer, with any tool: edit its text (the Type tool already does this on a single press).
+listeners.add((w) => { if (w === 'dblclick' && !TE.el && V.lastDbl) { const L = textLayerAt(V.lastDbl); if (L) editTypeLayer(L); } });
 defTool({ id: 'type', name: 'Horizontal Type Tool', key: 'T', icon: ICON('M5 5V3h14v2M12 3v18M9 21h6'),
   down(p, e) { if (e && e.target && e.target.closest && e.target.closest('.type-edit')) return; if (TE.el) { endTypeEdit(); return; } startTypeEdit(p, textLayerAt(p)); },
   deactivate() { endTypeEdit(); },
