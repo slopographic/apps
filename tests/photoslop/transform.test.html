@@ -105,10 +105,7 @@
       await waitFor(() => W.D.w === 300);
       expect([W.D.w, W.D.h]).toEqual([300, 150]);
       expect([W.activeLayer().x, W.activeLayer().y]).toEqual([100, 50]);
-      const flat = W.flattenCanvas();
-      expect(px(flat, 0, 0)[3]).toBe(0);
-      expect(px(flat, 99, 49)[3]).toBe(0);
-      expect(px(flat, 100, 50)).toEqual([255, 0, 0, 255]);
+      const flat = W.flattenCanvas(); expect(px(flat, 0, 0)[3]).toBe(0); expect(px(flat, 99, 49)[3]).toBe(0); expect(px(flat, 100, 50)).toEqual([255, 0, 0, 255]);
       expect(W.Hist.states[W.Hist.idx].label).toBe('Canvas Size');
       expect(W.D.layers.length).toBe(1);
     });
@@ -122,11 +119,8 @@
       setVal(dlg().querySelector('[aria-label="Canvas extension"]'), 'white');
       dlgBtn('OK').click();
       await waitFor(() => W.D.w === 240);
-      expect(W.D.layers.length).toBe(2);
-      expect(W.D.layers[0].name).toBe('Canvas Fill');
-      const flat = W.flattenCanvas();
-      expect(px(flat, 220, 50)).toEqual([255, 255, 255, 255]);
-      expect(px(flat, 10, 10)[3]).toBe(0);
+      expect(W.D.layers.length).toBe(2); expect(W.D.layers[0].name).toBe('Canvas Fill');
+      const flat = W.flattenCanvas(); expect(px(flat, 220, 50)).toEqual([255, 255, 255, 255]); expect(px(flat, 10, 10)[3]).toBe(0);
     });
 
     it('Image > Rotate 90° Clockwise turns 200 × 100 into 100 × 200 and moves every pixel', () => {
@@ -210,9 +204,7 @@
       for (const q of pts.slice(0, 8)) { const [r, , b] = rgb(q.x, q.y - 4); expect(b - r > 150).toBe(true); }
       expect(rgb(pts[8].x + 2, pts[8].y + 2).slice(0, 3)).toEqual([255, 255, 255]);
       W.selectTool('brush');
-      expect(W.idleBoxPoints().length).toBe(0);
-      W.selectTool('move');
-      expect(W.idleBoxPoints().length).toBe(9);
+      expect(W.idleBoxPoints().length).toBe(0); W.selectTool('move'); expect(W.idleBoxPoints().length).toBe(9);
     });
 
     it('double-click inside the box starts Free Transform, and a double-click outside it does not', () => {
@@ -221,9 +213,7 @@
       const b = W.layerBoundsDoc(L), inside = scr(b.x + b.w / 2, b.y + b.h / 2);
       ptr('pointerdown', inside.x, inside.y); ptr('pointerup', inside.x, inside.y);
       W.V.el.dispatchEvent(new win.MouseEvent('dblclick', { clientX: inside.x, clientY: inside.y, bubbles: true }));
-      expect(W.TRANSFORM.active).toBe(true);
-      key('Escape');
-      expect(W.TRANSFORM.active).toBe(false);
+      expect(W.TRANSFORM.active).toBe(true); key('Escape'); expect(W.TRANSFORM.active).toBe(false);
       const out = scr(2, 2);
       W.V.el.dispatchEvent(new win.MouseEvent('dblclick', { clientX: out.x, clientY: out.y, bubbles: true }));
       expect(W.TRANSFORM.active).toBe(false);
