@@ -45,6 +45,7 @@
     for (const v of Object.values(NS.views)) if (v.mount) v.mount();
     NS.commands.init();
     for (const t of document.querySelectorAll('.tab')) t.addEventListener('click', () => show(t.dataset.view));
+    $('dBack').addEventListener('click', () => show(lastTab));
     S.store.subscribe(() => refreshSoon());
     addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h)) show(h); });
     try { if (g.SlopHub) g.SlopHub.register('crm'); } catch (e) { /* no hub: the app still works */ }
