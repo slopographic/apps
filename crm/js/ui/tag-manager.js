@@ -21,17 +21,16 @@
       const body = el('div', { class: 'lab-body' });
       const msg = el('p', { class: 'msg', role: 'alert' });
       const say = (r, done) => { msg.textContent = r.ok ? '' : NS.util.refusal(r); if (r.ok && done) UI.toast(done); };
-      let newColour = 'blue';
       const newName = el('input', { type: 'text', maxlength: NS.labels.MAX.tag, placeholder: 'New tag', 'aria-label': 'New tag name',
         autocomplete: 'off', onkeydown: enter(() => add()) });
-      const addRow = el('div', { class: 'lab-add' }, newName,
-        colourSelect('blue', 'New tag colour', (c) => { newColour = c; }),
+      const newColour = colourSelect('blue', 'New tag colour', () => {});
+      const addRow = el('div', { class: 'lab-add' }, newName, newColour,
         el('button', { type: 'button', class: 'btn primary', onclick: () => add() }, 'Add tag'));
       const note = el('p', { class: 'note' }, 'Tags are coloured labels. Rename, recolour, merge or delete one here and every customer that has it is updated. ',
         'Categories are different: free text on each customer, kept as they were.');
 
       const add = async () => {
-        const r = await NS.labels.createTag(newName.value, newColour);
+        const r = await NS.labels.createTag(newName.value, newColour.value);
         say(r, 'Tag added');
         if (r.ok) newName.value = '';
         await draw();
