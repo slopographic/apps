@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="css/panels.css">
   <link rel="stylesheet" href="css/viz.css">
   <link rel="stylesheet" href="css/mobile.css">
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app" id="app">
@@ -28,6 +29,7 @@
       <div class="appname"><b>Slop Drive</b><a class="home-link" href="../">slopographic</a></div>
       <label class="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg><input id="search" type="search" placeholder="Search Slop Drive" aria-label="Search Slop Drive" autocomplete="off"></label>
       <div class="tb-group">
+        <button type="button" class="btn pwa-install" id="pwa-install" hidden>Install Slopographic</button>
         <button type="button" class="btn primary" id="btnNew"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>New</span></button>
         <button type="button" class="tb" id="btnCmd" title="Search commands (⌘K)" aria-label="Search commands" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></svg></button>
         <button type="button" class="tb" id="btnBackup" title="Backup & restore" aria-label="Backup and restore"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/></svg></button>
@@ -60,6 +62,8 @@
     <aside class="info" id="info" aria-label="Details" hidden><div class="info-grip" id="infoGrip" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset"></div></aside>
     <div class="dropzone" id="dropzone" hidden><div><b>Drop to upload</b><span>Files and folders go into the open folder.</span></div></div>
   </div>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount({ install: '#pwa-install' });</script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/slopui.js"></script>
   <script src="../shared/preview/chrome.js"></script>

@@ -42,7 +42,7 @@ Put these before any other script that could add a tag. Use paths relative to th
 | Ads granted, `adsensePublisherId` set  | `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<ID>`. |
 | Ads granted, ID empty                  | Nothing.                                                            |
 | Revoke                                 | Consent update to denied, `window['ga-disable-<ID>'] = true`, no page reload. Future visits load nothing. Scripts already on the page stay but get no consent. |
-| Rates granted (`rates: true`)          | No script. Allows `rates.updateRates()` in `shared/data/rates-ecb.js`, which fetches `https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml` only when the person presses the button, or when "Update on open" is also ticked. |
+| Rates granted (`rates: true`)          | No script. Allows `rates.updateRates()` in `shared/data/rates-ecb.js`, which fetches `https://data-api.ecb.europa.eu/service/data/EXR/D..EUR.SP00.A?lastNObservations=1&format=csvdata` only when the person presses the button, or when "Update on open" is also ticked. |
 | Rates revoked, or never granted        | No ECB request at all. The check runs before the request on every call, so a stub or a missed button cannot fetch. |
 
 Consent Mode types: analytics sets `analytics_storage`; ads sets `ad_storage`, `ad_user_data`, `ad_personalization`.
@@ -61,13 +61,13 @@ write it. The Admin app clears it (it is not cleared here).
 ### Exchange rates: the flow
 1. Settings, "Exchange rates" switch on (`SlopConsent.grant('rates')`). The record is saved like the other switches.
 2. "Update rates from the European Central Bank" (button, enabled only when the switch is on). One GET to the ECB
-   file, parsed with `DOMParser`. One row per currency is stored for today, with source `ecb`. The page reports what
+   data API (CSV), read locally. One row per currency is stored for today, with source `ecb`. The page reports what
    changed. If the download fails, nothing is stored and the message says so.
 3. "Update on open" (optional, also needs the switch on): the Settings page runs the same update when it opens.
    Other pages that use `shared/data` must do the same check themselves; none does yet.
 4. Switch off: no further downloads. Stored rates stay (they are the ledger's history).
 
-Host on the allow-list: `www.ecb.europa.eu` (also listed in `shared/sync/HANDOFF.md`).
+Host on the allow-list: `data-api.ecb.europa.eu` (also listed in `shared/sync/HANDOFF.md`).
 
 ## Owner must fill in (`config.js` defaults, all currently empty)
 1. `ga4MeasurementId`: GA4 measurement ID, e.g. `G-XXXXXXXXXX`. Empty = no analytics script ever loads.

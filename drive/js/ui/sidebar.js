@@ -50,20 +50,25 @@
   };
 
   /* ---------- storage ---------- */
-  let persisted = null;
+  let persisted = null;       // true/false once the browser has answered; null = ask it again
   DR.requestPersist = async function (loud) {
-    if (!navigator.storage || !navigator.storage.persist) { if (loud) window.SlopUI.alert('Storage', 'This browser cannot promise to keep storage. Export a backup now and then.'); return false; }
-    persisted = await navigator.storage.persist().catch(() => false);
-    if (loud) DR.toast(persisted ? 'This browser will keep Slop Drive unless you clear site data' : 'The browser said no. It may decide later; keep a backup to be safe');
+    const answer = await window.SlopPWA.requestPersist();
+    persisted = answer === 'granted';
+    if (loud) DR.toast(persisted ? 'The browser will keep Slop Drive' : 'The browser did not promise. See the note under Storage');
     DR.renderMeter();
     return persisted;
   };
+  // The install flow (appinstalled, or running standalone) records an answer on its own.
+  window.SlopPWA.onPersist(() => { persisted = null; DR.renderMeter(); });
   DR.renderMeter = async function () {
     const box = $('meter');
     const drive = DR.liveFiles().reduce((n, r) => n + (r.size || 0), 0) + DR.trashTops().reduce((n, it) => n + DR.sizeOf(it), 0);
     let usage = null, quota = null;
     try { if (navigator.storage && navigator.storage.estimate) ({ usage, quota } = await navigator.storage.estimate()); } catch (e) { /* unsupported */ }
     if (persisted == null && navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted().catch(() => false);
+    // The recorded answer explains a "no" in plain words; a yes shows as "Kept by the browser".
+    const recorded = window.SlopPWA.persistAnswer();
+    const state = persisted ? 'granted' : (recorded === 'denied' || recorded === 'unsupported' ? recorded : null);
     const pct = usage != null && quota ? Math.min(100, (usage / quota) * 100) : 0;
     const bar = el('div', { class: 'meter-bar', role: 'meter', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': pct.toFixed(1), 'aria-label': 'Storage used' }, el('i', { style: `width:${Math.max(pct, usage ? 1 : 0)}%` }));
     const keep = el('button', { type: 'button', class: 'linkish', 'data-act': 'persist' }, persisted ? 'Kept by the browser ✓' : 'Ask the browser to keep it');

@@ -49,24 +49,27 @@ function refsOf(p, txt) {
 
 const seen = new Set();
 const missing = new Set();
+const files = new Set();
 async function visit(p) {
   if (seen.has(p)) return;
   seen.add(p);
   const st = await exists(p);
   if (!st) { missing.add(p); return; }
-  if (st.isDirectory() || !/\.(html|m?js|css)$/.test(p)) return;
+  if (st.isDirectory()) return;            // "./" and folder links are not files
+  files.add(p);
+  if (!/\.(html|m?js|css)$/.test(p)) return;
   for (const r of refsOf(p, await readFile(path.join(ROOT, p), 'utf8'))) await visit(r);
 }
 
 const roots = [...(await pageRoots()), ...EXTRA];
 for (const r of roots) await visit(r);
-const files = [...seen].filter((p) => !missing.has(p)).sort();
+const list = [...files].sort();
 for (const m of missing) console.warn('not on disk, left out:', m);
 
 // Pack about four entries per line so the list stays short enough to read.
 const lines = [];
 let line = '  ';
-for (const f of files) {
+for (const f of list) {
   const item = `'/${f}', `;
   if (line.length + item.length > 120) { lines.push(line.trimEnd()); line = '  '; }
   line += item;
@@ -78,4 +81,4 @@ const block = `// BEGIN PRECACHE\nconst PRECACHE = [\n${lines.join('\n')}\n];\n/
 const next = src.replace(/\/\/ BEGIN PRECACHE[\s\S]*?\/\/ END PRECACHE/, block);
 if (next === src && !src.includes(block)) throw new Error('PRECACHE markers not found in service-worker.js');
 await writeFile(SW, next);
-console.log(`PRECACHE: ${files.length} files, ${roots.length} roots, ${missing.size} missing`);
+console.log(`PRECACHE: ${list.length} files, ${roots.length} roots, ${missing.size} missing`);
