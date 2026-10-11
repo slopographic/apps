@@ -132,7 +132,8 @@
 
   <script src="../../shared/apps.js"></script>
   <script src="../../shared/hub.js"></script>
-  <script src="../../shared/drive-link.js" onload="SlopDriveLink.mount('#menubar')"></script>
+  <script src="../../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('#menubar'));</script>
   <script src="../../shared/slopui.js"></script>
   <script src="../../shared/commands/commands.js"></script>
   <script src="../../shared/commands/search.js"></script>

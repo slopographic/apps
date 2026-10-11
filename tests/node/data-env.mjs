@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const DATA = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'shared', 'data');
-export const PURE = ['money.js', 'barcode.js', 'schema.js', 'numbering.js', 'ledger.js', 'stock.js', 'billing.js', 'bundle-check.js'];
+export const PURE = ['money.js', 'barcode.js', 'schema-defs.js', 'schema.js', 'currency.js', 'store.js', 'numbering.js', 'fx.js', 'ledger.js', 'stock.js', 'billing.js', 'bundle-check.js', 'rates-ecb.js'];
 
 /** Returns window.SlopData from a fresh context with the given files loaded in order. */
 export async function load(files = PURE) {

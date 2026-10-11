@@ -1,6 +1,6 @@
 /* Slop Slides: the inspector (right column; below the canvas on phones). Slide: layout, hidden, notes. Document:
    footer and slide numbers. Selection: position, size, rotation, opacity, fill, outline, text font, size, bold,
-   italics, alignment and colour, and arrange and copy actions. Each field applies on change as one undo step. The
+   italics, alignment and colour, arrange and copy actions, and the transition, Present and animation panels (anim-panel.js). Each field applies on change as one undo step. The
    fields refresh from the model when it changes under them (typing is never overwritten). Exposes window.SS.inspector. */
 (function () {
   'use strict';

@@ -22,8 +22,9 @@
     } catch (e) { throw new Error('WebGL is not available in this browser'); }
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.autoClear = false;           // we clear once per frame, so the overlay pass keeps the picture
+    renderer.setClearColor('#1d1e22');
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#1d1e22');
     const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 5000);
     const world = new THREE.Group();          // every object of the document lives under here
     world.name = 'world';
@@ -95,7 +96,7 @@
     }
 
     return { renderer, scene, camera, world, grid, axes, overlay, request, setOnFrame, resize, pick, capture, THREE,
-      get size() { return { w, h }; }, setBackground(hex) { scene.background = new THREE.Color(hex); request(); },
+      get size() { return { w, h }; }, setBackground(hex) { renderer.setClearColor(hex); request(); },
       setGrid(on) { grid.visible = on; request(); }, setAxes(on) { axes.visible = on; request(); },
       setWireframe(on, objs) { for (const o of objs) if (o.material) o.material.wireframe = on; request(); } };
   }

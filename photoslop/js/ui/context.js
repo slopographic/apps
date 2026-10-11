@@ -60,6 +60,7 @@ document.addEventListener('keydown', (e) => {
 function canvasItems({ x, y }) {
   const id = TRANSFORM.active ? 'transform' : UI.tool;
   if (BRUSH_OPTS()[id]) { openBrushPicker(x, y, id); return null; }
+  if (id === 'redeye') return [{ label: 'Red-Eye Removal…', act: () => runFilter('redeye') }, '-', M('Edit', 'Undo')];
   if (id === 'transform') return [
     { label: 'Commit Transform', key: 'Enter', act: commitTransform }, { label: 'Cancel Transform', key: 'Escape', act: cancelTransform }, '-',
     { label: 'Flip Horizontal', act: () => { TRANSFORM.sx *= -1; dirty(true); } }, { label: 'Flip Vertical', act: () => { TRANSFORM.sy *= -1; dirty(true); } },

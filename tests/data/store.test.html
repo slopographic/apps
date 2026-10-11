@@ -9,9 +9,12 @@
   <script src="../harness.js"></script>
   <script src="../../shared/data/money.js"></script>
   <script src="../../shared/data/barcode.js"></script>
+  <script src="../../shared/data/schema-defs.js"></script>
   <script src="../../shared/data/schema.js"></script>
+  <script src="../../shared/data/currency.js"></script>
   <script src="../../shared/data/store.js"></script>
   <script src="../../shared/data/numbering.js"></script>
+  <script src="../../shared/data/fx.js"></script>
   <script>
   const { describe, it, expect, beforeEach, run } = SlopTest;
   const S = window.SlopData;
@@ -26,7 +29,7 @@
       const accts = await st.list('accounts');
       expect(accts.ok).toBe(true);
       expect(accts.value.length).toBe(7);
-      expect((await st.get('settings', 'main')).value.currency).toBe('USD');
+      expect((await st.get('settings', 'main')).value.defaultCurrency).toBe('USD');
       expect((await S.numbering.peek('invoice')).value).toBe('INV-0001');
       expect((await S.numbering.peek('order')).value).toBe('ORD-0001');
     });

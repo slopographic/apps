@@ -106,7 +106,8 @@
   <script src="../shared/commands/recorder.js" data-src="shared/commands/recorder.js"></script>
   <script src="../shared/commands/keymap.js" data-src="shared/commands/keymap.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js"></script>
-  <script src="../shared/drive-link.js" onload="SlopDriveLink.mount('.topbar')"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
   <script src="../vendor/pdf-lib/pdf-lib.min.js" data-src="vendor/pdf-lib/pdf-lib.min.js"></script>
   <script src="js/io/build.js" data-src="pdf/js/io/build.js"></script>
   <script src="js/core/util.js" data-src="pdf/js/core/util.js"></script>

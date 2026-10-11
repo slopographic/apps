@@ -1,6 +1,8 @@
 // Invoices and payments: the only code that issues, pays or voids an invoice. Each step writes the
 // document and its journal entry in one transaction, so the books always match the documents.
 // Drafts are ordinary store.put calls; everything after that goes through these functions.
+// An invoice in a foreign currency is posted at its issue-date rate (see fx.js). Payments convert at that rate
+// too, so no realised exchange gain or loss is booked yet.
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
@@ -22,6 +24,14 @@
   /** Pure: what is still owed on an invoice given its payments. */
   const balanceDue = (inv, payments) => inv.total - paidOn(payments);
 
+  /** Pure: the base-currency amount of a payment. The payment that clears the invoice takes the rest of the
+   *  base total, so rounding never leaves a residue; earlier payments convert at the invoice's rate. */
+  function paymentBase(inv, payments, amount, due) {
+    const invBase = inv.amountBase !== undefined ? inv.amountBase : inv.total;
+    if (amount === due) return invBase - payments.reduce((s, p) => s + (p.amountBase !== undefined ? p.amountBase : p.amount), 0);
+    return inv.rateId ? ns.fx.scale(amount, inv.rate) : amount;
+  }
+
   async function loadInvoice(tx, id) {
     const r = await tx.get('invoices', id);
     if (!r.ok) return r;
@@ -41,8 +51,9 @@
       if (!up.ok) return up;
       const lines = invoiceLines(up.value);
       if (!lines.length) return up;
-      const j = await ns.ledger.postIn(tx, { date: up.value.date, memo: `Invoice ${up.value.number}`, source: `invoice:${id}:issue`, lines });
-      return j.ok ? up : j;
+      const j = await ns.ledger.postIn(tx, { date: up.value.date, memo: `Invoice ${up.value.number}`, source: `invoice:${id}:issue`, lines, currency: up.value.currency });
+      if (!j.ok) return j;
+      return tx.put('invoices', { ...up.value, rateId: j.value.rateId, rate: j.value.rate, amountBase: j.value.amountBase }, { posting: true });
     });
   }
 
@@ -58,14 +69,18 @@
       if (!pays.ok) return pays;
       const due = balanceDue(inv.value, pays.value);
       if (amount > due) return fail('overpayment', `only ${due} is due on this invoice`);
+      const base = paymentBase(inv.value, pays.value, amount, due);
       const id = ns.store.newId();
       const day = date || ns.ledger.today();
-      const p = await tx.put('payments', { id, invoiceId, amount, date: day, method: method || 'bank', note }, { posting: true });
+      const p = await tx.put('payments', {
+        id, invoiceId, amount, date: day, method: method || 'bank', note,
+        currency: inv.value.currency, rateId: inv.value.rateId, rate: inv.value.rate, amountBase: base,
+      }, { posting: true });
       if (!p.ok) return p;
       const bank = method === 'cash' ? A().CASH : A().BANK;
       const j = await ns.ledger.postIn(tx, {
         date: day, memo: `Payment for ${inv.value.number}`, source: `payment:${id}`,
-        lines: [{ account: bank, debit: amount, credit: 0 }, { account: A().AR, debit: 0, credit: amount }],
+        lines: [{ account: bank, debit: base, credit: 0 }, { account: A().AR, debit: 0, credit: base }],
       });
       if (!j.ok) return j;
       if (amount === due) {
@@ -97,5 +112,5 @@
     });
   }
 
-  ns.billing = { invoiceLines, paidOn, balanceDue, issue, recordPayment, voidInvoice };
+  ns.billing = { invoiceLines, paidOn, balanceDue, paymentBase, issue, recordPayment, voidInvoice };
 })(typeof window !== 'undefined' ? window : globalThis);

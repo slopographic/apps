@@ -91,7 +91,8 @@
   <script src="../shared/apps.js" data-src="shared/apps.js"></script>
   <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js"></script>
-  <script src="../shared/drive-link.js" onload="SlopDriveLink.mount('.topbar')"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
   <script src="js/core/text.js" data-src="contacts/js/core/text.js"></script>
   <script src="js/core/model.js" data-src="contacts/js/core/model.js"></script>
   <script src="js/core/phone.js" data-src="contacts/js/core/phone.js"></script>

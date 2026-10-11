@@ -55,7 +55,7 @@
 
     canvas.addEventListener('pointerdown', (e) => {
       if (e.button === 2) return;
-      canvas.setPointerCapture(e.pointerId);
+      try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer: no capture */ }
       e.preventDefault();
       const ndc = ndcOf(e);
       const axis = e.button === 0 && !e.shiftKey && !e.altKey && s.sel.length ? gizmo.hit(ndc, stage.camera) : null;
@@ -98,7 +98,7 @@
       if (!drag) return;
       const d = drag;
       drag = null;
-      if (canvas.hasPointerCapture && canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+      try { if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId); } catch (err) { /* no capture to release */ }
       canvas.style.cursor = '';
       if (d.mode === 'axis') gizmo.highlight(null);
       if (click && d.mode === 'orbit' && d.moved < 5) {

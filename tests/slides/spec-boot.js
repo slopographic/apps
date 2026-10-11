@@ -59,11 +59,13 @@
 
   describe('new from template', () => {
     it('File > New from template replaces the deck with the template, unlinked from Drive', async () => {
+      // The editor above is still dirty and autosaves a draft. A new editor would restore that draft and ask before
+      // replacing the deck, so clear it first (marking the editor clean also cancels its pending autosave).
+      window.__W1.SS.app.dirty = false;
+      window.__W1.SS.app.draftNow();
       const w = await ST.open('../../slides/');
       const t = w.SS.templates.byId('pitch');
       expect(t).toBeTruthy();
-      w.SS.files.fromTemplate('pitch');
-      throw new Error('DBG4 n=' + w.SS.app.deck.slides.length + ' title=' + w.SS.app.deck.title + ' dirty=' + w.SS.app.dirty + ' tpl=' + t.build().slides.length + ' idx=' + w.SS.app.idx + ' mode=' + w.SS.app.mode + ' confirmOpen=' + !!w.document.querySelector('.sui-dlg, dialog, [role=dialog]'));
       w.SS.files.fromTemplate('pitch');
       expect(w.SS.app.deck.slides.length).toBe(t.build().slides.length);
       expect(w.SS.app.deck.title).toBe('Pitch deck');

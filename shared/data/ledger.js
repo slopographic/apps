@@ -1,6 +1,7 @@
-// Double-entry ledger. Posted entries are immutable: a correction is a reversing entry.
-// The pure helpers (validateEntry, summarize, reverseLines) need no storage. postIn/reverseIn run
-// inside a store transaction. postJournal, reverseJournal and trialBalance are the public calls.
+// Double-entry ledger. Posted entries are immutable: a correction is a reversing entry. Lines are in the base
+// currency (debit, credit). A foreign-currency entry also keeps its original amounts (origDebit, origCredit,
+// amount, currency) and the rate row it used (rateId, rate); see fx.js. The pure helpers (validateEntry,
+// summarize, reverseLines) need no storage. postIn/reverseIn run inside a store transaction.
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
@@ -23,57 +24,83 @@
     return errors;
   }
 
-  /** The same entry with each line's sides swapped. */
+  /** The same entry with each line's sides swapped (original amounts too, when the line has them). */
   function reverseLines(lines) {
-    return lines.map((l) => ({ account: l.account, debit: l.credit, credit: l.debit }));
+    return lines.map((l) => {
+      const r = { account: l.account, debit: l.credit, credit: l.debit };
+      if (l.origDebit !== undefined) { r.origDebit = l.origCredit; r.origCredit = l.origDebit; }
+      return r;
+    });
   }
 
-  /** Pure trial balance: per-account totals and balance (normal side), plus the checks that totals agree. */
+  /** Pure trial balance: per-account totals and balance (normal side) in base, the checks that base totals agree,
+   *  and the foreign totals per currency (original amounts, reported apart from the base totals). */
   function summarize(entries, accounts) {
     const rows = new Map(accounts.map((a) => [a.code, { code: a.code, name: a.name, type: a.type, debit: 0, credit: 0 }]));
     const errors = [];
+    const foreign = new Map();
     let debit = 0, credit = 0;
     for (const e of entries) {
-      let ed = 0, ec = 0;
+      let ed = 0, ec = 0, od = 0, oc = 0;
       for (const l of e.lines || []) {
         ed += l.debit;
         ec += l.credit;
+        od += l.origDebit || 0;
+        oc += l.origCredit || 0;
         const row = rows.get(l.account);
         if (row) { row.debit += l.debit; row.credit += l.credit; } else errors.push(`entry ${e.id}: unknown account ${l.account}`);
       }
       if (ed !== ec) errors.push(`entry ${e.id} does not balance (${ed} debit, ${ec} credit)`);
       debit += ed;
       credit += ec;
+      if (e.rateId) {
+        if (od !== oc) errors.push(`entry ${e.id} does not balance in ${e.currency} (${od} debit, ${oc} credit)`);
+        const f = foreign.get(e.currency) || { currency: e.currency, debit: 0, credit: 0 };
+        f.debit += od;
+        f.credit += oc;
+        foreign.set(e.currency, f);
+      }
     }
     if (debit !== credit) errors.push(`debits and credits differ by ${debit - credit}`);
     const list = [...rows.values()].map((r) => ({ ...r, balance: TYPE_SIDE[r.type] === 'debit' ? r.debit - r.credit : r.credit - r.debit }));
-    return { rows: list, debit, credit, balanced: errors.length === 0, errors };
+    const fx = [...foreign.values()].sort((a, b) => (a.currency < b.currency ? -1 : 1)).map((f) => ({ ...f, balanced: f.debit === f.credit }));
+    return { rows: list, debit, credit, balanced: errors.length === 0, errors, foreign: fx };
   }
 
-  /** Posts an entry inside a transaction. Rejects unknown accounts and a source that was already posted. */
+  /** Posts an entry inside a transaction. A foreign currency is converted first (see fx.prepareIn). Rejects unknown
+   *  accounts and a source that was already posted. Returns the stored journal row. */
   async function postIn(tx, input) {
     const accts = await tx.list('accounts');
     if (!accts.ok) return accts;
-    const errors = validateEntry(input, accts.value);
+    const prep = await ns.fx.prepareIn(tx, input || {});
+    if (!prep.ok) return prep;
+    const e = prep.value;
+    const errors = validateEntry(e, accts.value);
     if (errors.length) return tx.fail(fail('invalid', ns.schema.errorText(errors), { errors }));
-    const dup = await tx.list('journal', { index: 'source', value: input.source, includeDeleted: true });
+    const dup = await tx.list('journal', { index: 'source', value: e.source, includeDeleted: true });
     if (!dup.ok) return dup;
-    if (dup.value.length) return tx.fail(fail('duplicate_source', `${input.source} has already been posted`));
-    return tx.put('journal', { date: input.date, memo: input.memo, source: input.source, lines: input.lines, reverses: input.reverses }, { posting: true });
+    if (dup.value.length) return tx.fail(fail('duplicate_source', `${e.source} has already been posted`));
+    return tx.put('journal', {
+      date: e.date, memo: e.memo, source: e.source, lines: e.lines, reverses: e.reverses,
+      currency: e.currency, amount: e.amount, amountBase: e.amountBase, rateId: e.rateId, rate: e.rate,
+    }, { posting: true });
   }
 
-  /** Reverses a posted entry inside a transaction. Reversing the same entry twice is rejected by the source rule. */
+  /** Reverses a posted entry inside a transaction. A foreign entry reverses at its original rate. Reversing the same entry twice is rejected by the source rule. */
   async function reverseIn(tx, id, opts = {}) {
     const j = await tx.get('journal', id);
     if (!j.ok) return j;
     if (!j.value) return tx.fail(fail('not_found', `no journal entry ${id}`));
+    const o = j.value;
+    const fx = o.rateId ? { rateId: o.rateId, rate: o.rate, amount: o.amount, amountBase: o.amountBase } : {};
     return postIn(tx, {
-      date: opts.date || today(), memo: opts.memo || `Reversal of ${j.value.memo || id}`,
-      source: `reversal:${id}`, reverses: id, lines: reverseLines(j.value.lines),
+      date: opts.date || today(), memo: opts.memo || `Reversal of ${o.memo || id}`,
+      source: `reversal:${id}`, reverses: id, lines: reverseLines(o.lines), currency: o.currency, ...fx,
     });
   }
 
-  /** Posts one balanced entry. Example: { date, memo, source: 'manual:42', lines: [{ account: '1000', debit: 500 }, { account: '4000', credit: 500 }] } */
+  /** Posts one balanced entry. Example: { date, memo, source: 'manual:42', currency: 'EUR', lines: [{ account: '1000', debit: 500 }, { account: '4000', credit: 500 }] }
+   *  Without currency (or with the base currency) the lines are base amounts. */
   const postJournal = (input) => ns.store.transact((tx) => postIn(tx, input));
   const reverseJournal = (id, opts) => ns.store.transact((tx) => reverseIn(tx, id, opts));
 
