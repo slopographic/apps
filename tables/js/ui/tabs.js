@@ -94,7 +94,10 @@ export const tabs = {
     api = SlopDocTabs.mount($('doc-tabs'), adapter, { appId: 'tables' });
     session = SlopDocTabs.session('tables', api, { notice: (m) => toast(m) });
     on('change', syncChange);
-    api.on(() => guard());
+    api.on((why, t) => {
+      if (why === 'drive' && t && t.doc.file) t.doc.file.driveId = t.driveId; // the file keeps the Drive id its tab is linked to
+      guard();
+    });
     return session;
   },
   restore: () => (session ? session.restore() : Promise.resolve(0)),
@@ -113,8 +116,6 @@ export const tabs = {
   sync() { if (current()) copyOut(current()); },
   anyDirty: () => (api ? api.tabs().some((t) => t.dirty) : false),
   setUrl,
-  /** The strip's switches and changes, and the Drive links, reach the page through here. */
-  link(T, id) { if (api) api.setDriveId(T, id); },
 };
 
 function guard() {

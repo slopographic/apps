@@ -26,7 +26,8 @@
       // Descriptions and keywords count too, so more than the PDF apps match; the PDF apps must be among them.
       for (const id of ['pdf', 'html2pdf', 'ocr', 'eml']) expect(resultCards().includes(id)).toBe(true);
       expect(visibleSections().includes('documents')).toBe(true);
-      expect(visibleSections().includes('tools')).toBe(false);
+      expect(resultCards().includes('calculator')).toBe(false);
+      expect(visibleSections().includes('business')).toBe(true);
       expect(doc.querySelector('#app-sections [data-id="pdf"]') !== null).toBe(true);
       clearAll();
     });
@@ -76,7 +77,9 @@
       expect(cards.length).toBeGreaterThan(3);
       expect(cards.includes('pdf')).toBe(false);
       expect(visibleSections().includes('tools')).toBe(true);
-      expect(building.getAttribute('aria-pressed')).toBe('true');
+      // The facet buttons are repainted on every change, so look the button up again.
+      const pressed = [...doc.querySelectorAll('#app-finder .sf-opt')].find((b) => b.textContent.startsWith('In development'));
+      expect(pressed.getAttribute('aria-pressed')).toBe('true');
       clearAll();
     });
     it('the table has name, section, file types and open columns, and no status column', async () => {

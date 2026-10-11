@@ -35,9 +35,9 @@
     }
     return out;
   }
+  /** Keeps a parameter value under its name. Only TYPE values are types; PREF, LANGUAGE and the rest are kept apart. */
   function addParam(params, key, val) {
-    if (key === 'ENCODING' || key === 'CHARSET' || key === 'VALUE') { (params[key] = params[key] || []).push(val); return; }
-    (params.TYPE = params.TYPE || []).push(val);
+    (params[key] = params[key] || []).push(val);
   }
   /** "group.NAME;PARAM=V,W;BARE:value" to { group, name, params, value }. */
   function parseLine(line) {

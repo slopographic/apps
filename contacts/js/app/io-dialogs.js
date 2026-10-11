@@ -29,7 +29,7 @@
       el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('contacts') }, 'Download example CSV')),
     buttons: [{ label: 'Cancel' }, { label: 'Choose files…', primary: true, act: async () => {
       const files = await UI.pickFiles({ accept: ACCEPT, multiple: true });
-      if (files && files.length) await importFiles(files);
+      if (files && files.length) importFiles(files); // the preview is its own dialog; this one closes now
     } }] });
   }
 
@@ -76,5 +76,5 @@
     } }] });
   }
 
-  SC.io = { importFiles, importPick, exportAs, exportDialog };
+  SC.io = { importFiles, importPick, exportAs, exportDialog, xlsxFile };
 })();

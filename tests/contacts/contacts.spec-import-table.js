@@ -21,7 +21,7 @@
   const rowFor = (win, name) => $$(win, '#rows .row').find((r) => r.querySelector('.row-name').textContent === name);
   const tableRow = (win, id) => $$(win, '#tbl tbody tr').find((tr) => tr.dataset.id === id);
   const tableNames = (win) => $$(win, '#tbl tbody tr').map((tr) => tr.querySelector('td[data-col="name"]').textContent);
-  const button = (win, root, text) => $$(win, root).find((b) => b.textContent.trim() === text);
+  const button = (win, root, text) => $$(win, `${root} button`).find((b) => b.textContent.trim() === text);
   const stored = async (name) => (await window.SlopData.store.list('customers')).value.find((c) => c.name === name) || null;
 
   /** A vCard that matches the seeded "It Ann" on e-mail, and adds "It Zed". */
@@ -96,8 +96,9 @@
       await waitFor(async () => (await stored('Tab Cy')).company === 'Gamma Ltd', { timeout: 8000 });
       click(win, tableRow(win, 'tb-1').querySelector('input[type="checkbox"]'));
       click(win, tableRow(win, 'tb-2').querySelector('input[type="checkbox"]'));
+      // The row whose cell was edited is selected too (a cell click selects its row), so three rows are selected.
       expect($(win, '#tblBar').hidden).toBe(false);
-      expect($(win, '#tblCount').textContent).toBe('2 selected');
+      expect($(win, '#tblCount').textContent).toBe('3 selected');
       click(win, $(win, '.seg-btn[data-view="cards"]'));
       expect($(win, '#tableView').hidden).toBe(true);
       expect($(win, '#listScroll').hidden).toBe(false);
@@ -118,6 +119,30 @@
       drag(win, rowFor(win, 'Dg Copy'), $(win, '.grp[data-group="cat:Dg New"]'), { altKey: true });
       await waitFor(async () => [...(await stored('Dg Copy')).categories].sort().join(',') === 'Dg New,Dg Old', { timeout: 8000 });
       expect(names(win)).toEqual(['Dg Copy', 'Dg Stay']);
+    });
+  });
+
+  describe('export', () => {
+    it('vCard 4.0 and the XLSX workbook come out with the right contents', async () => {
+      await CT.resetCustomers();
+      await CT.seed([{ id: 'ex-1', name: 'Ex One', company: 'Export Co', email: 'ex1@example.com', phone: '+1 555 0100', categories: ['Ex'] }]);
+      const win = await boot();
+      const list = win.SlopContacts.state.list;
+      const v4 = win.SlopContacts.format.exportAs('vcf40', list, 'Contacts');
+      const text = await v4.blob.text();
+      expect(v4.name).toBe('Contacts (4.0).vcf');
+      expect(text).toContain('VERSION:4.0');
+      expect(text).toContain('FN:Ex One');
+      const x = await win.SlopContacts.io.xlsxFile(list);
+      expect(x.name).toBe('Contacts.xlsx');
+      const bytes = new Uint8Array(await x.blob.arrayBuffer());
+      expect(bytes[0]).toBe(0x50); // a zip ("PK")
+      expect(new TextDecoder('latin1').decode(bytes)).toContain('xl/worksheets/sheet1.xml');
+      // The shared reader opens the workbook: the sheet holds the contact (its cells are compressed in the file).
+      const back = await (await import('../../shared/sheets/read.js')).read(new win.File([bytes], 'Contacts.xlsx'));
+      expect(back.format).toBe('xlsx');
+      expect(JSON.stringify(back.sheets[0])).toContain('Export Co');
+      expect(JSON.stringify(back.sheets[0])).toContain('ex1@example.com');
     });
   });
 
