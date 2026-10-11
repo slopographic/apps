@@ -13,6 +13,7 @@ function renderPanels(opts = {}) {
   }));
   if (opts.keepProps && App.tab === 'props') { syncGeomFields(); return; }
   const scroll = body.scrollTop, keep = body.dataset.tab === App.tab;
+  const focus = focusedField(body);
   body.replaceChildren();
   body.dataset.tab = App.tab;
   if (App.tab === 'props') renderProps(body);
@@ -20,6 +21,21 @@ function renderPanels(opts = {}) {
   else if (App.tab === 'vars') renderVars(body);
   else renderData(body);
   if (keep) body.scrollTop = scroll;
+  restoreField(body, focus);
+}
+/* A rebuild must not drop focus in the middle of a word: remember the field being typed in (by its
+ * position in the panel, since the rebuilt controls are new) and its caret, then put them back. */
+const panelFields = (body) => [...body.querySelectorAll('input, textarea, select')];
+function focusedField(body) {
+  const a = document.activeElement;
+  if (!a || !body.contains(a) || !isTyping(a)) return null;
+  return { idx: panelFields(body).indexOf(a), start: a.selectionStart, end: a.selectionEnd };
+}
+function restoreField(body, f) {
+  const el = f && f.idx >= 0 ? panelFields(body)[f.idx] : null;
+  if (!el || el.disabled) return;
+  el.focus({ preventScroll: true });
+  try { if (f.start != null) el.setSelectionRange(f.start, f.end); } catch (e) { /* number inputs have no caret */ }
 }
 
 /* ---------------- objects ---------------- */
