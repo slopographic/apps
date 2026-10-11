@@ -7,6 +7,7 @@
   let lastKey = '';
 
   const all = () => [...K.catalog.list, ...K.models.locals().map((r) => K.catalog.custom(r.model_id, { name: r.model_id.slice(6) }))];
+  AI.allModels = all;
 
   async function refreshStatus() {
     await Promise.all(all().map(async (m) => { statuses.set(m.id, await E.status(m.id).catch(() => ({ state: 'none', bytes: 0 }))); }));

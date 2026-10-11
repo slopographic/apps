@@ -97,7 +97,8 @@
     const v = AI.$('view-chat');
     const side = el('aside', { class: 'convs', id: 'convs', 'aria-label': 'Chats' },
       el('div', { class: 'convs-h' }, el('button', { type: 'button', class: 'btn primary new-chat', id: 'btnNewChat', onclick: () => AI.newChat() }, AI.icon('plus'), 'New chat')),
-      el('div', { class: 'conv-list', id: 'convList' }));
+      el('div', { class: 'conv-list', id: 'convList' }),
+      AI.renderLauncher());
     const main = el('div', { class: 'chat-main' }, el('div', { class: 'chat-bar', id: 'chatBar' }));
     v.append(side, el('div', { class: 'scrim', onclick: () => document.body.classList.remove('side-open') }), main);
     panel = AI.chat = new AI.ChatPanel(main, { kind: 'chat', empty, toolsFor: AI.toolsFor, onDone: () => bar(), onCreate: (c) => { if (AI.pendingTools) { c.tools = true; AI.pendingTools = false; } bar(); } });

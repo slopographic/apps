@@ -16,6 +16,18 @@
       .map((c) => ({ id: c.id, title: c.title, group: c.group || '' }));
   }
 
+  const TEXT_TYPE = /^text\/|json|xml|javascript|svg|yaml|toml|sql/;
+  const TEXT_NAME = /\.(md|markdown|txt|csv|tsv|json|js|mjs|ts|py|html?|css|xml|svg|ya?ml|toml|ini|sql|sh|log)$/i;
+  const isText = (f) => TEXT_TYPE.test(f.type || '') || TEXT_NAME.test(f.name || '');
+  /** A Slop Drive file by id, or by name (exact, then a part of the name). */
+  async function findFile(hub, q) {
+    if (!hub || !hub.list) throw new Error('Slop Drive is not available on this page.');
+    const files = await hub.list(), s = String(q || '').trim().toLowerCase();
+    const f = files.find((x) => x.id === q) || files.find((x) => x.name.toLowerCase() === s) || files.find((x) => x.name.toLowerCase().includes(s));
+    if (!f) throw new Error(`No Slop Drive file "${q}". Use list_files to see the names.`);
+    return f;
+  }
+
   function build(env = {}) {
     const apps = env.apps || (() => window.SLOP_APPS || []);
     const hub = env.hub !== undefined ? env.hub : window.SlopHub;
@@ -23,11 +35,17 @@
     const tools = [
       { name: 'list_apps', description: 'List the Slopographic apps, games and experiments (id, name, what it does).', params: {},
         run: () => apps().map((a) => ({ id: a.id, name: a.name, kind: a.kind, does: a.tagline, status: a.status })) },
-      { name: 'open_app', description: 'Open a Slopographic app in a new tab, by its id (for example "photoslop", "vector", "pdf", "drive").',
-        params: { id: { type: 'string', description: 'app id', required: true } },
-        run: (a) => {
+      { name: 'open_app', description: 'Open a Slopographic app in a new tab, by its id (for example "photoslop", "vector", "pdf", "drive"). With "file", the app opens that Slop Drive file (for example a poster.svg for Vector, or a photo for Cutout).',
+        params: { id: { type: 'string', description: 'app id', required: true }, file: { type: 'string', description: 'Slop Drive file name or id to open in the app' } },
+        run: async (a) => {
           const app = apps().find((x) => x.id === a.id || x.name.toLowerCase() === String(a.id).toLowerCase());
           if (!app) throw new Error(`No app "${a.id}". Use list_apps to see the ids.`);
+          if (a.file) {
+            const f = await findFile(hub, a.file);
+            const fits = !hub.matches || (app.accepts || []).some((p) => hub.matches(f.type, p));
+            open(hub.urlOf(app, { drive: f.id }));
+            return `Opened ${app.name} with ${f.name}.` + (fits ? '' : ` ${app.name} may not open ${f.type || 'this'} files.`);
+          }
           const url = hub && hub.urlOf ? hub.urlOf(app) : new URL(app.path, location.href).href;
           open(url);
           return `Opened ${app.name}.`;
@@ -49,6 +67,14 @@
           const files = (await hub.list()).filter((f) => !q || f.name.toLowerCase().includes(q)).slice(0, 40);
           return files.map((f) => ({ name: f.name, type: f.type, size: f.size, from: f.from }));
         } },
+      { name: 'read_file', description: 'Read a text file from Slop Drive (its first 4000 characters), so you can answer questions about it.',
+        params: { file: { type: 'string', description: 'Slop Drive file name or id', required: true } },
+        run: async (a) => {
+          const f = await findFile(hub, a.file);
+          if (!isText(f)) throw new Error(`${f.name} is not a text file (${f.type || 'unknown type'}).`);
+          const text = await f.blob.text();
+          return text.length > 4000 ? text.slice(0, 4000) + `\n… (${text.length - 4000} more characters)` : text;
+        } },
     ];
     const cmd = env.cmd;
     if (cmd && cmd.list && cmd.run) {
@@ -69,5 +95,5 @@
     return tools;
   }
 
-  K.appTools = { build, isDestructiveCommand, listCommands, DESTRUCTIVE };
+  K.appTools = { build, isDestructiveCommand, listCommands, findFile, DESTRUCTIVE };
 })();
