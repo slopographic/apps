@@ -75,10 +75,10 @@
       if (el.readyState < 2) { el.addEventListener('loadeddata', repaint, { once: true }); return; }
     }
     const mode = O.resolve(it.fill && it.fill !== 'auto' ? it.fill : plan.fill, plan.mixed);
-    paint(c, el, nw, nh, box, mode);
+    paint(c, el, nw, nh, box, mode, it.pan);
   }
   /** Paint one picture into a box: cover (crop), fit (letterbox), stretch (distort) or blur (blurred cover behind a fit). */
-  function paint(c, el, nw, nh, b, mode) {
+  function paint(c, el, nw, nh, b, mode, pan) {
     if (mode === 'stretch') { c.drawImage(el, b.x, b.y, b.w, b.h); return; }
     if (mode === 'blur') {
       const k = Math.max(b.w / nw, b.h / nh);
@@ -90,8 +90,11 @@
     const cover = mode === 'cover';
     const k = cover ? Math.max(b.w / nw, b.h / nh) : Math.min(b.w / nw, b.h / nh);
     const dw = nw * k, dh = nh * k;
+    // a cover picture can be panned inside its cell: pan -1..1 moves it to the cell's edge
+    const px = cover && pan ? Math.max(-1, Math.min(1, pan.x || 0)) * Math.max(0, (dw - b.w) / 2) : 0;
+    const py = cover && pan ? Math.max(-1, Math.min(1, pan.y || 0)) * Math.max(0, (dh - b.h) / 2) : 0;
     if (cover) { c.save(); c.beginPath(); c.rect(b.x, b.y, b.w, b.h); c.clip(); }
-    c.drawImage(el, b.x + (b.w - dw) / 2, b.y + (b.h - dh) / 2, dw, dh);
+    c.drawImage(el, b.x + (b.w - dw) / 2 + px, b.y + (b.h - dh) / 2 + py, dw, dh);
     if (cover) c.restore();
   }
   /** Re-read the plan into the item list (call after each Remix or edit). */

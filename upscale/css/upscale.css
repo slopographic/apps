@@ -93,6 +93,7 @@ h1, h2, p { margin: 0; }
 .up-drop-card { max-width: 480px; text-align: center; display: grid; gap: 10px; justify-items: center; }
 .up-drop-card h2 { font-size: 20px; font-weight: 700; }
 .up-drop-card p { color: var(--up-mute); }
+.up-dropzone { border: 1px dashed var(--up-line, #d6d6de); border-radius: 8px; padding: 12px 14px; background: var(--up-panel, transparent); }
 
 /* the preview and the before and after slider */
 .up-stage { position: relative; background: var(--up-panel); border: 1px solid var(--up-line); border-radius: 14px; overflow: hidden; }

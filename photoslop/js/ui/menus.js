@@ -179,6 +179,7 @@ const MENUS = [
     ] },
     { label: 'Show / Hide Panels', key: 'Tab', act: () => document.body.classList.toggle('no-panels') },
   ]],
+  ['Layout', () => (window.SlopLayouts ? SlopLayouts.menu('photoslop') : [])],
   ['Window', () => windowMenuItems()],
   ['Help', [
     { label: 'Search Commands…', cmdId: 'cmd.palette', act: () => openCommandPalette() },

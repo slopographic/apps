@@ -142,18 +142,23 @@
     if (off) $('rs-video-warning').textContent = `Video is not available here. ${sup.reason} Images only.`;
   }
 
+  // Drops (on the left column, or the zone) go through SlopDrop (shared/drop): each file is checked, read by the queue
+  // as before, and reported with its progress. A file the queue cannot read shows its error in the zone.
+  const DROP_RULES = {
+    types: ['image/*', 'video/*'],
+    exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp', '.tif', '.tiff', '.mp4', '.m4v', '.mov', '.webm', '.mkv', '.ogv'],
+    noun: 'a picture or a video',
+  };
   function wireDrop() {
-    let depth = 0;
-    const hasFiles = (e) => !!(e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files'));
-    addEventListener('dragenter', (e) => { if (hasFiles(e)) { depth++; document.body.classList.add('rs-drop'); } });
-    addEventListener('dragleave', () => { depth = Math.max(0, depth - 1); if (!depth) document.body.classList.remove('rs-drop'); });
-    addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
-    addEventListener('drop', (e) => {
-      if (!hasFiles(e)) return;
-      e.preventDefault();
-      depth = 0;
-      document.body.classList.remove('rs-drop');
-      addFiles(e.dataTransfer.files);
+    SlopDrop.attach($('rs-drop'), {
+      accept: DROP_RULES,
+      targets: [$('rs-left')],
+      process: async (file) => {
+        const it = await NS.queue.add(file);
+        if (it.status === 'error') throw new Error(it.err);
+        return it.id;
+      },
+      reveal: () => $('rs-list').lastElementChild,
     });
   }
 

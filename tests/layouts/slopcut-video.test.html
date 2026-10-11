@@ -14,8 +14,12 @@
   /** Load SlopCut in the iframe and wait until it is ready (body.ready and its editor is up). */
   async function open(src) {
     const want = new URL(src, location.href).pathname;
-    f.src = src;
-    await waitFor(() => f.contentWindow && f.contentWindow.location.pathname === want && f.contentWindow.document.readyState === 'complete' && f.contentWindow.document.body.classList.contains('ready') && f.contentWindow.SE && f.contentWindow.SE.viewState && f.contentWindow.SlopLayouts, { timeout: 30000 });
+    const prev = f.contentWindow && f.contentWindow.document;
+    f.src = src + (src.includes('?') ? '&' : '?') + 'run=' + Math.random().toString(36).slice(2);
+    await waitFor(() => {
+      const w = f.contentWindow, d = w && w.document;
+      return d && d !== prev && w.location.pathname === want && d.readyState === 'complete' && d.body && d.body.classList.contains('ready') && w.SE && w.SE.viewState && w.SlopLayouts;
+    }, { timeout: 30000 });
     return f.contentWindow;
   }
   const box = (W, id) => W.document.getElementById(id).getBoundingClientRect();

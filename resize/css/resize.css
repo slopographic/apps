@@ -38,7 +38,7 @@ h1, h2, p, ol { margin: 0; }
 /* layout */
 .rs-main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; padding: 0 16px 24px; align-items: start; }
 .rs-left { min-width: 0; }
-body.rs-drop .rs-left, body.rs-drop .rs-empty { outline: 2px dashed var(--rs-accent); outline-offset: 4px; border-radius: var(--rs-radius); }
+.rs-dropzone { border: 1px dashed var(--rs-line); border-radius: var(--rs-radius); padding: 12px 14px; margin-bottom: 14px; background: var(--rs-panel); }
 
 /* empty state */
 .rs-empty { display: grid; place-items: center; min-height: 52vh; }

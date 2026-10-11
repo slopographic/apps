@@ -75,8 +75,8 @@
 
   async function open(file, o = {}) {
     const kind = IO.kind(file);
-    if (!kind) { toast('That is not a picture or a video'); return; }
-    if (S.busy) { toast('Wait for the run to finish, or cancel it'); return; }
+    if (!kind) { toast('That is not a picture or a video'); return false; }
+    if (S.busy) { toast('Wait for the run to finish, or cancel it'); return false; }
     clear();
     const item = { name: file.name || 'Untitled', file, kind, url: URL.createObjectURL(file), canvas: null, out: null, outBlob: null, outName: '', drive: o.drive || null, w: 0, h: 0, dur: 0 };
     S.item = item;
@@ -92,12 +92,13 @@
         probe.removeAttribute('src'); probe.load();
         if (item.dur > V.MAX_SECONDS) throw new Error(`Videos up to ${V.MAX_SECONDS} seconds (this one is ${Math.round(item.dur)} s). Trim it first.`);
       }
-    } catch (e) { S.item = null; URL.revokeObjectURL(item.url); toast(e.message); setStatus(e.message); return; }
+    } catch (e) { S.item = null; URL.revokeObjectURL(item.url); toast(e.message); setStatus(e.message); return false; }
     $('up-empty').hidden = true;
     $('up-stage').hidden = false;
     showBefore();
     setStatus('Choose 2× or 4×, then Upscale.');
     updateInfo();
+    return true;
     updateButtons();
   }
 
@@ -264,9 +265,16 @@
     $('up-quality').addEventListener('input', (e) => { S.quality = Number(e.target.value) / 100; $('up-quality-val').textContent = e.target.value; });
     $('up-fps').addEventListener('change', (e) => { S.fps = Number(e.target.value); updateInfo(); });
     $('up-get-more').addEventListener('click', async () => { await loadLib(); if (g.SlopLibrary) g.SlopLibrary.open({ onInstalled: refreshModels }); });
-    const drop = $('up-stage-wrap');
-    drop.addEventListener('dragover', (e) => e.preventDefault());
-    drop.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) open(e.dataTransfer.files[0]); });
+    // Drops and the zone go through SlopDrop (shared/drop): one picture at a time, the rest are refused with a reason.
+    SlopDrop.attach($('up-drop'), {
+      accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: 'a picture or a short video' },
+      targets: [$('up-stage-wrap')],
+      limit: 1,
+      process: async (file) => {
+        if (!(await open(file))) throw new Error('could not be opened');
+        return file.name;
+      },
+    });
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
       else if (e.key === 'Escape' && S.busy) cancel();
