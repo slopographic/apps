@@ -72,7 +72,7 @@
   async function audioThumb(r) {
     const Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     const audio = await new Ctx(1, 1, 44100).decodeAudioData(await r.blob.arrayBuffer());
-    const N = 180, ch = audio.numberOfChannels, len = audio.length, step = Math.max(1, Math.floor(len / N));
+    const N = 1000, ch = audio.numberOfChannels, len = audio.length, step = Math.max(1, Math.floor(len / N));
     const data = [...Array(ch)].map((_, c) => audio.getChannelData(c)), peaks = [];
     for (let i = 0; i < N; i++) {
       let p = 0;
@@ -83,8 +83,10 @@
       }
       peaks.push(Math.min(1, p));
     }
-    const sub = `${dur(audio.duration)} · ${DR.kindLabel(r)}`;
-    return cardOf(r, { wave: peaks, sub, color: DR.kindColor(r) }, { kind: 'audio', duration: audio.duration, channels: ch, rate: audio.sampleRate });
+    const sub = `${dur(audio.duration)} · ${DR.kindLabel(r)}`, card = [];
+    for (let i = 0; i < 180; i++) card.push(Math.max(...peaks.slice(Math.floor(i * N / 180), Math.floor((i + 1) * N / 180))));
+    const rounded = peaks.map((v) => Math.round(v * 1000) / 1000);
+    return cardOf(r, { wave: card, sub, color: DR.kindColor(r) }, { kind: 'audio', duration: audio.duration, channels: ch, rate: audio.sampleRate, peaks: rounded });
   }
   async function threeThumb(r) {
     if (!DR.webgl3d()) return cardOf(r, { big: '3D', sub: '3D scene (no WebGL)' }, { kind: '3d' });
@@ -134,6 +136,7 @@
   /** The thumbnail of a file: { blob, info }. Never rejects. */
   DR.makeThumb = async function (r) {
     const kind = DR.kindOf(r), e = DR.ext(r.name);
+    if (!r.size) return cardOf(r, {}, { kind: kind === 'doc' ? 'doc' : 'card' }); // a new, empty file is not an error
     try {
       if (kind === 'image') return await imageThumb(r);
       if (kind === 'pdf' && r.size < PDF_MAX) return await pdfThumb(r);
