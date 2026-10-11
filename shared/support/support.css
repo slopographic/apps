@@ -1,6 +1,6 @@
 /* The support card. Small and quiet: a corner card (after an export) or an inline card (inside the progress dialog).
  * Colours follow the page's tokens when present. No overlay, nothing covers the page. */
-.slopsup-corner { position: fixed; right: 16px; bottom: 16px; z-index: 900; }
+.slopsup-corner { position: fixed; inset-inline-end: 16px; bottom: 16px; z-index: 900; }
 .slopsup-card { box-sizing: border-box; width: min(340px, calc(100vw - 32px)); padding: 12px 14px; border-radius: 10px;
   background: var(--paper, #f1ede4); color: var(--ink, #0a0a0a); border: 1px solid rgba(0,0,0,.18);
   box-shadow: 0 6px 24px rgba(0,0,0,.18); font: 13px/1.4 system-ui, sans-serif; }

@@ -41,7 +41,7 @@
     'settings.defaults': 'Padrões',
     'settings.exchange_rates': 'Taxas de câmbio',
     'settings.app_settings': 'Configurações dos apps',
-    'settings.donate': 'Doar',
+    'settings.donate': 'Pote de gorjetas',
 
     'settings.language': 'Idioma',
     'settings.language_saved': 'Salvo. {name} é o idioma do texto do app.',
@@ -56,7 +56,7 @@
     'support.title': 'Apoie a Slopographic',
     'support.text': 'A Sloppo tornou isto gratuito. Se ajudou, uma doação mantém o projeto funcionando.',
     'support.fine': 'Análises e anúncios vêm desligados por padrão.',
-    'support.donate': 'Doar',
+    'support.donate': 'Pote de gorjetas',
     'support.no_thanks': 'Não, obrigado',
     'support.close_aria': 'Fechar por enquanto',
     'support.ads': 'Anúncios',

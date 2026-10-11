@@ -21,9 +21,11 @@
 .carousel { position: relative; background: var(--ink-2); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
 .car-viewport { overflow: hidden; touch-action: pan-y; }
 .car-track { display: flex; transition: transform .5s ease; }
-.car-slide { flex: 0 0 100%; min-width: 0; box-sizing: border-box; padding: clamp(18px, 3vw, 32px); display: grid; align-content: start; gap: 14px; }
+.car-slide { flex: 0 0 100%; min-width: 0; box-sizing: border-box; padding: clamp(18px, 3vw, 32px); display: grid; align-content: start; gap: 18px; }
+.car-text { display: grid; align-content: start; gap: 14px; min-width: 0; }
+.car-visual { order: -1; display: grid; place-items: center; min-width: 0; }
+.car-icon { display: block; width: min(100%, 160px); height: auto; aspect-ratio: 1 / 1; }
 .car-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; }
-.car-icon { width: 56px; height: 56px; flex: 0 0 auto; }
 .car-head h3 { margin: 0; font: 800 clamp(26px, 3.4vw, 36px)/1.1 var(--cond); letter-spacing: -.01em; }
 .car-tag { margin: 0; max-width: 58ch; color: var(--bone-dim); font-size: 17px; line-height: 1.45; }
 .car-feats { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; color: var(--bone-dim); font-size: 14px; }

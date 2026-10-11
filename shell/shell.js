@@ -81,7 +81,8 @@
   if (!window.SLOP_ICONS) queue.push(['shared/app-icons.js']); // before brand.js, which puts the app's icon in the header brand
   if (!window.SlopBrand) queue.push(['brand/brand.js', { brandSrc: (me && me.dataset.brandSrc) || '' }]);
   if (!window.SlopUI) { addCss('shared/slopui.css'); queue.push(['shared/slopui.js']); }
-  if (!window.SlopI18n) queue.push(['shared/i18n/i18n.js'], ['shared/i18n/strings.js'], ['shared/i18n/es.js']);
+  if (!window.SlopI18n) queue.push(['shared/i18n/i18n.js'], ['shared/i18n/strings.js'], ['shared/i18n/es.js'], ['shared/i18n/fr.js'],
+    ['shared/i18n/de.js'], ['shared/i18n/pt-BR.js'], ['shared/i18n/it.js'], ['shared/i18n/ar.js']); // one file per language (LANGS)
   addCss('shell/shell.css');
   for (const m of ['notify', 'layout', 'tabs', 'switcher', 'drawer', 'header']) queue.push(['shell/' + m + '.js']);
 

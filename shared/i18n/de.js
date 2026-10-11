@@ -41,7 +41,7 @@
     'settings.defaults': 'Standardeinstellungen',
     'settings.exchange_rates': 'Wechselkurse',
     'settings.app_settings': 'App-Einstellungen',
-    'settings.donate': 'Spenden',
+    'settings.donate': 'Trinkgeldglas',
 
     'settings.language': 'Sprache',
     'settings.language_saved': 'Gespeichert. {name} ist die Sprache des App-Textes.',
@@ -56,7 +56,7 @@
     'support.title': 'Slopographic unterstützen',
     'support.text': 'Sloppo hat dies kostenlos gemacht. Wenn es Ihnen geholfen hat, hält eine Spende es am Laufen.',
     'support.fine': 'Analysen und Werbung sind standardmäßig aus.',
-    'support.donate': 'Spenden',
+    'support.donate': 'Trinkgeldglas',
     'support.no_thanks': 'Nein danke',
     'support.close_aria': 'Vorerst schließen',
     'support.ads': 'Werbung',
