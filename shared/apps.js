@@ -88,7 +88,7 @@
       features: ['Text, code and image pastes', 'Highlighting for six languages', 'Random link IDs and expiry labels', 'Copy, download and a local share link'],
       icon: 'doc', status: 'building' }),
     A('hex', 'app', 'Slop Hex', 'hex/', 'View and edit any file as bytes. Saved to Slop Drive.', { group: 'business',
-      accepts: ['*'],
+      accepts: [],
       features: ['Offset, hex and ASCII columns, with undo and redo', 'Find bytes or text, and go to any offset', 'Pages large files, so a 100 MB file opens', 'Open from and save to Slop Drive'],
       icon: 'doc', status: 'building' }),
     A('convert', 'app', 'Slop Convert', 'convert/', 'Images, PDFs, data and text, converted on your device.', { group: 'business', tool: true,
