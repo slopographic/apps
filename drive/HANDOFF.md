@@ -5,7 +5,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 **Status: beta** (registered in `shared/apps.js` as `drive`, `accepts: ['*']`, so "Send to Slop Drive" appears in every app's Send to menu).
 
 ## Tests
-`node tests/run.mjs drive` runs 117 tests on 13 pages, all green:
+`node tests/run.mjs drive` runs 123 tests on 14 pages, all green:
 
 | Page | What it covers |
 |---|---|
@@ -21,6 +21,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 | `sort.test.html` | each sort key ascending and descending with folders first, default directions, header and Alt+S menu arrows, a sort per view, kept across a reload |
 | `tags.test.html` | add (lowercase, unique, modified date kept), remove, the details panel chips, tags across a reload, sidebar tag counts and the drive-wide tag filter, the Tags column |
 | `columns.test.html` | list columns: header menu, drag to reorder, edge and keyboard resize (min clamp), order and widths across a reload, reset |
+| `columns-view.test.html` | Columns view: the `.col-pv` preview is the last column and shows the selected file, one preview at a time, arrow keys, the preview image still loads after the info panel is open and the view re-renders, a folder selection removes it |
 
 The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Drive database name and `?foreign=1` mimics the homepage. Helpers are in `tests/drive/util.js`.
 

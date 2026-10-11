@@ -1,9 +1,29 @@
 # Cloud backup (shared/sync): handoff
 
-Opt-in backup of the app's local data to the person's own Google Drive or Dropbox. Off by default.
+Opt-in backup of the app's local data to the person's own Google Drive or Dropbox, or to a local or network
+folder. Off by default.
 Files: `config.js` (settings, provider table), `pkce.js` (OAuth PKCE), `tokens.js` (encrypted token store),
-`providers/gdrive.js`, `providers/dropbox.js` (REST wrappers), `sync.js` (public API, `window.SlopSync`),
-`ui.js` (the "Cloud backup" panel, `window.SlopSyncUI`).
+`providers/gdrive.js`, `providers/dropbox.js` (REST wrappers), `providers/local.js` (folder via the File System
+Access API), `sync.js` (public API, `window.SlopSync`), `ui.js` (the "Cloud backup" panel, `window.SlopSyncUI`).
+
+## Local or network folder (`providers/local.js`)
+
+- **What it is:** a folder the person picks with `window.showDirectoryPicker({mode: 'readwrite'})`. The backup is
+  written as `slopographic-backup.json` in that folder; app files go to an `Apps` subfolder.
+- **No network at all.** It makes no fetch and needs no client ID or sign-in. `status`, `connect` and
+  `disconnect` never touch the network either.
+- **Browsers cannot speak SMB, NFS or WebDAV.** A NAS or network drive works only after the operating system has
+  mounted it as a folder (Windows: map the network drive; macOS: Go, Connect to Server; Linux: mount the share).
+  Then pick that folder. The panel's help text says this too.
+- **Chrome and Edge only.** Without `showDirectoryPicker` (Firefox, Safari) `connect` returns `unsupported: true`
+  and the panel offers "Download backup file" and "Upload backup file…" (`SlopData.exportAll` / `importAll`).
+- **Handle:** kept in IndexedDB (`slop-sync-local` / `handles`). Each call checks permission with
+  `queryPermission` and asks with `requestPermission` when needed. A request needs a button press. A refusal is a
+  plain error (`code: 'permission'`) and nothing is written.
+- **Writes** use `createWritable`, which replaces the file only on close, so a failed write keeps the old backup.
+- **Limits:** no file locking, so two browsers writing the same folder race (last write wins). Names are one path
+  segment, up to 200 characters. Subfolders are one level (`opts.folder`). `list` returns plain files only.
+  Forgetting the folder deletes nothing in it.
 
 ## Privacy behaviour
 
@@ -42,10 +62,14 @@ Files: `config.js` (settings, provider table), `pkce.js` (OAuth PKCE), `tokens.j
    redirect URI.
 3. In the app, open Cloud backup, choose "Add client ID", paste the client ID, then "Connect" and approve.
 4. "Back up now" uploads `slopographic-backup.json`. "Restore from cloud" replaces local data after confirmation.
-5. Call `SlopSyncUI.onLoad()` once at page load and `SlopSyncUI.open()` from the app menu. The data module must
+5. Local or network folder: no setup. Open Cloud backup, press "Choose folder…", and pick the folder. For a NAS,
+   mount the share in the operating system first.
+6. Call `SlopSyncUI.onLoad()` once at page load and `SlopSyncUI.open()` from the app menu. The data module must
    provide `SlopData.exportAll()` and `SlopData.importAll(blob)`.
 
 ## Tests
 
-`node tests/run.mjs sync` runs `tests/node/sync.test.mjs`, `tests/node/sync-providers.test.mjs` and the shared
-harness `tests/node/sync-helpers.mjs`. No network: fetch is a recording stub.
+`node tests/run.mjs sync` runs `tests/node/sync.test.mjs`, `tests/node/sync-providers.test.mjs`,
+`tests/node/sync-local.test.mjs` (the local folder, with a fake directory handle: write, read, list, subfolders,
+permission denied and re-asked, no folder, unsafe names, no network) and the shared harness
+`tests/node/sync-helpers.mjs`. No network: fetch is a recording stub.
