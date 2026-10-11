@@ -58,5 +58,5 @@
   /** A new record id (never one the store has seen, deleted records included). */
   const newId = () => D.store.newId();
 
-  SC.records = { init, load, persist, newId, flush: () => queue };
+  SC.records = { init, load, persist, newId, flush: () => queue, pending: () => pending > 0 };
 })();
