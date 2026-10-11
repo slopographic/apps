@@ -24,8 +24,9 @@
     if (!P.cur) return;
     name.textContent = P.cur.name;
     name.title = P.error || P.cur.name;
-    play.textContent = P.audio.paused ? '▶' : '❚❚';
-    play.title = play.getAttribute('aria-label') === 'Play' && P.audio.paused ? 'Play' : (P.audio.paused ? 'Play' : 'Pause');
+    const playing = !P.audio.paused;
+    play.textContent = playing ? '❚❚' : '▶';
+    play.title = playing ? 'Pause' : 'Play';
     play.setAttribute('aria-label', play.title);
     time.textContent = `${clock(P.audio.currentTime)} / ${clock(P.audio.duration)}`;
   }

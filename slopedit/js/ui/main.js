@@ -33,6 +33,7 @@
     let restored = false;
     try { restored = await SE.session.restore(); } catch (e) { console.warn(e); }
     if (restored) A.status('Restored your last project');
+    await SE.viewState.restore(); // ui/view-state.js: the timeline zoom, scroll, tool and phone pane
     await SE.session.launch().catch((e) => console.warn(e));
     if (A.isPhone()) A.setPane(SE.doc.clips.length ? 'timeline' : 'media');
     SE.emit('change', { label: 'boot', history: true });

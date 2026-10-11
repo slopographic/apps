@@ -16,10 +16,9 @@
   }
   /** A new queue that starts on startId (or at the top when startId is not in ids). */
   function create(ids, startId, { shuffle = false, repeat = 'off', rnd } = {}) {
-    const first = ids.includes(startId) ? startId : null;
-    const order = makeOrder(ids, { shuffle, first: first === null ? ids[0] ?? null : first, rnd });
-    const cur = order.indexOf(first === null ? ids[0] : first);
-    return { ids: ids.slice(), order, index: cur, shuffle, repeat };
+    const start = ids.includes(startId) ? startId : (ids[0] ?? null);
+    const order = makeOrder(ids, { shuffle, first: start, rnd });
+    return { ids: ids.slice(), order, index: start === null ? -1 : order.indexOf(start), shuffle, repeat };
   }
   /** Changes shuffle, keeping the current track playing. */
   function setShuffle(q, on, rnd) {
