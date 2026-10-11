@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="../shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="settings"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Profile and settings: Slopographic</title>
@@ -34,6 +36,16 @@
       <p class="kicker"><span>Slopographic</span><span>Settings</span></p>
       <h1 class="page-title">Your <em>choices</em></h1>
     </div>
+
+    <section aria-labelledby="appearance-title">
+      <h2 id="appearance-title">Appearance</h2>
+      <p>One theme for every Slopographic app and for this site. Pick it here and it applies at once. Each app uses the same choice when it opens.</p>
+      <fieldset class="theme-picker">
+        <legend class="sr">Theme</legend>
+        <div id="theme-options" class="theme-options"></div>
+      </fieldset>
+      <p id="theme-note" class="settings-note" role="status" aria-live="polite"></p>
+    </section>
 
     <section aria-labelledby="privacy-title">
       <h2 id="privacy-title">Privacy</h2>
@@ -159,9 +171,9 @@
   <script src="../shared/data/fx.js"></script>
   <script src="../shared/data/rates-ecb.js"></script>
   <script src="../shared/apps.js"></script>
-  <script src="../shared/profile/profile.js"></script>
   <script src="../shared/faces/copy.js"></script>
   <script src="../shared/profile/app-options.js"></script>
+  <script src="appearance.js"></script>
   <script src="settings.js"></script>
   <script src="defaults.js"></script>
   <script src="rates.js"></script>

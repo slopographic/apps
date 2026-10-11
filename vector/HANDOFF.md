@@ -40,7 +40,7 @@ An Illustrator-style vector editor at `/vector/`. Plain scripts (no modules, no 
 - **Eyedropper** (`js/tools/eyedrop.js`, key I): a click sets the fill of the selection to the colour under the pointer; Alt sets the stroke; Shift copies the object's whole appearance (the old behaviour). **Limit:** the colour is the object's solid fill, else its stroke, taken from the hit test (a gradient gives its first stop). It is not read from the rendered pixels: the artwork is SVG, so a pixel read per pointer move would be too slow. Nothing under the pointer is a toast and no change. There is no loupe and no Alt-to-sample on the drawing tools in Vector (PhotoSLOP has both).
 - **Keys:** X swaps fill and stroke (was focus toggle; Shift+X still swaps).
 
-## Tests (`node tests/run.mjs vector`): 89 green across 7 pages
+## Tests (`node tests/run.mjs vector`): 99 pass, 2 fail across 10 pages (the 2 are the offline builder tests in `tests/vector/io.test.html`; they fail on a clean HEAD too, because `shell/shell.js` has a `<script src=` comment)
 - `tests/vector/boot.js`: shared boot. It waits for the app iframe and exposes `W, SV, G, IO, UI, HUB` and helpers.
 - `geom.test.html` (16), `model.test.html` (16), `io.test.html` (11), `ui.test.html` (17), `guides.test.html` (8), `commands.test.html` (6). `color.test.html` (8: the eyedropper fill, Alt for stroke, the hex field and hue bar, alpha and its SVG export, recent colours, X and D, right-click and the Window entries). Each page also runs the boot test.
 - The offline builder strips `shared/guard.js` (hosted-site reload guard).

@@ -4,7 +4,7 @@
  * Only same-origin GET requests are handled. Other origins are never cached or intercepted. */
 'use strict';
 
-const VERSION = 'v10';
+const VERSION = 'v11';
 const CACHE = 'slopographic-' + VERSION;
 const OFFLINE = '/offline.html';
 const STATIC = /\.(m?js|css|woff2?|ttf|otf|png|jpe?g|webp|gif|svg|ico|wasm|json|glb|bcmap|pfb)$/i;
@@ -168,7 +168,7 @@ const PRECACHE = [
   '/shared/nav/nav.css', '/shared/nav/pad.js', '/shared/nav/presets.js', '/shared/nav/store.js', '/shared/nav/validate.js', '/shared/office/units.js',
   '/shared/office/xml.js', '/shared/office/zip.js', '/shared/preview/chrome.js', '/shared/preview/preview.js', '/shared/profile/app-options.js',
   '/shared/profile/profile.js', '/shared/pwa.js', '/shared/session/session.js', '/shared/shapes/rounded.js', '/shared/slopui.css', '/shared/slopui.js',
-  '/shared/tags/tags.js', '/shared/templates/check.js', '/shared/templates/choices.js', '/shared/templates/content.js', '/shared/templates/design.js',
+  '/shared/theme/theme.js', '/shared/tags/tags.js', '/shared/templates/check.js', '/shared/templates/choices.js', '/shared/templates/content.js', '/shared/templates/design.js',
   '/shared/templates/generate.js', '/shared/templates/parts.js', '/shared/templates/rng.js', '/shared/video/grid.js', '/shared/video/lane-view.js',
   '/shared/video/lane.css', '/shared/video/layout.js', '/shared/video/presets.js', '/shared/video/random-edit.js', '/shared/video/seed.js',
   '/shared/video/segments.js', '/shared/video/templates.js', '/shell/shell.js', '/slides/css/app.css', '/slides/index.html', '/slides/js/manifest.js',

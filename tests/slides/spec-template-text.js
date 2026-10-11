@@ -30,7 +30,7 @@
     w.SS.app.dirty = false;
     w.SS.app.draftNow();
     w.SS.files.fromTemplate(id);
-    expect(w.SS.app.deck.title).toBe(w.SS.templates.byId(id).name === 'Pitch deck' ? 'Pitch deck' : w.SS.app.deck.title);
+    expect(w.SS.app.deck.title).toBe(w.SS.templates.byId(id).build().title);
     return w;
   }
   const ph = (w, slideIdx, type) => w.SS.app.deck.slides[slideIdx].objects.find((o) => o.placeholder === type);
