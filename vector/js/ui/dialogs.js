@@ -1,4 +1,4 @@
-/* Slop Vector — ui: dialogs on the shared SlopUI kit */
+/* SlopVector — ui: dialogs on the shared SlopUI kit */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;
@@ -16,7 +16,7 @@
 
   /* ================= dialogs (shared SlopUI kit) ================= */
   // Thin adapter: app dialogs describe { title, body, buttons:[{label, primary, danger, left, onClick}], cls }
-  // and render through window.SlopUI (../shared/slopui.js), shared with PhotoSLOP and Slop PDF.
+  // and render through window.SlopUI (../shared/slopui.js), shared with PhotoSlop and Slop PDF.
   function dialog(opts) {
     var body = opts.body;
     if (typeof body === 'string') body = h('div', { class: 'sv-dlg-body', html: body });
@@ -99,7 +99,7 @@
   }
   function pdfDialog(asAI) {
     var body = asAI
-      ? '<p class="sui-p">Modern Adobe Illustrator <b>.ai</b> files are PDF-based, so Illustrator opens the same PDF bytes. Slop Vector writes a clean PDF&nbsp;1.4 (vector paths, gradients, opacity, blend modes, Helvetica/Times/Courier text) and saves it with an <b>.ai</b> extension.</p><p class="sui-p">It opens in Illustrator, Affinity, Inkscape and every PDF viewer. Live effects stay as plain vectors; fonts map to the standard PDF fonts.</p>'
+      ? '<p class="sui-p">Modern Adobe Illustrator <b>.ai</b> files are PDF-based, so Illustrator opens the same PDF bytes. SlopVector writes a clean PDF&nbsp;1.4 (vector paths, gradients, opacity, blend modes, Helvetica/Times/Courier text) and saves it with an <b>.ai</b> extension.</p><p class="sui-p">It opens in Illustrator, Affinity, Inkscape and every PDF viewer. Live effects stay as plain vectors; fonts map to the standard PDF fonts.</p>'
       : '<p class="sui-p">Writes a real vector PDF&nbsp;1.4 by hand: paths with fills and strokes, opacity and blend modes, linear and radial gradients (as PDF shadings), embedded images, and text set in the standard Helvetica/Times/Courier fonts.</p>';
     dialog({ title: asAI ? 'Export as .ai (PDF-compatible)' : 'Export as PDF', body: body, buttons: [{ label: 'Cancel' }, { label: 'Export', primary: true, onClick: function () { IO.exportPDF(asAI); } }] });
   }
@@ -162,11 +162,11 @@
     dialog({ title: 'Keyboard Shortcuts', body: wrap, cls: 'wide', buttons: [{ label: 'Close', primary: true }] });
   }
   function aboutDialog() {
-    var body = '<div class="about"><div class="about-mark">' + I.drop + '</div><div><h3>Slop Vector</h3><p class="mono">v1.0 · build ' + esc(String(SV.BUILD || '2026.10')) + '</p>' +
+    var body = '<div class="about"><div class="about-mark">' + I.drop + '</div><div><h3>SlopVector</h3><p class="mono">v1.0 · build ' + esc(String(SV.BUILD || '2026.10')) + '</p>' +
       '<p>A real vector editor that runs entirely in your browser: pen & pencil, live shapes, layers, gradients, pathfinder booleans, SVG/PDF/PNG export and a hand-written PDF writer. No accounts, no uploads, no tracking — your artwork never leaves this tab.</p>' +
       '<p>Part of <a href="../">Slopographic</a>, a museum of AI slop. The tool itself is, against all odds, not slop.</p>' +
       '<p class="sui-p">Tip: <b>File → Download App</b> saves a single offline .html copy of this whole editor.</p></div></div>';
-    dialog({ title: 'About Slop Vector', body: body, buttons: [{ label: 'Download App', left: true, onClick: function () { IO.downloadApp(); } }, { label: 'Close', primary: true }] });
+    dialog({ title: 'About SlopVector', body: body, buttons: [{ label: 'Download App', left: true, onClick: function () { IO.downloadApp(); } }, { label: 'Close', primary: true }] });
   }
 
   $.aboutDialog = aboutDialog; $.dialog = dialog; $.docSetupDialog = docSetupDialog; $.newDocDialog = newDocDialog; $.pdfDialog = pdfDialog; $.prefsDialog = prefsDialog; $.rasterDialog = rasterDialog; $.saveAsDialog = saveAsDialog; $.shortcutsDialog = shortcutsDialog; $.transformDialog = transformDialog;

@@ -1,4 +1,4 @@
-/* Slop Vector — tools: the eyedropper. A click samples the colour of the object under the pointer and sets the fill of
+/* SlopVector — tools: the eyedropper. A click samples the colour of the object under the pointer and sets the fill of
  * the selection (Alt: the stroke). Shift copies the whole appearance of that object (the old behaviour).
  * Limit: the colour comes from the object's solid fill or stroke (a gradient gives its first stop), not from the rendered
  * pixels, because the artwork is SVG and reading pixels for every pointer move would be too slow. */

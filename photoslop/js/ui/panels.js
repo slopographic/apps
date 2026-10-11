@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: docked panels and the Layers panel */
+/* PhotoSlop UI: docked panels and the Layers panel */
 'use strict';
 
 /* ---------- panels ---------- */

@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: right-click and keyboard (Menu key, Shift+F10) context menus.
+/* PhotoSlop UI: right-click and keyboard (Menu key, Shift+F10) context menus.
  * A target element is marked with ctxTarget(el, kind, build): data-ctx="<kind>" names what it is
  * (canvas, layer, text, swatch, panel, tab, brush) and build(pos) returns its menu items, or null when
  * nothing applies (then no menu opens). Items reuse the menu bar's own items (MENUS, via M()), so the

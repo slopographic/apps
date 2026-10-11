@@ -1,4 +1,4 @@
-/* Slop Vector — tools: pointer/touch/pinch/wheel pipeline and op helpers */
+/* SlopVector — tools: pointer/touch/pinch/wheel pipeline and op helpers */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom;

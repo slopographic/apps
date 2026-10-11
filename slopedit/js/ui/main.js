@@ -1,4 +1,4 @@
-/* SlopEdit: boot. Feature detection, wiring of panels, restore and Slop Hub launch. */
+/* SlopCut: boot. Feature detection, wiring of panels, restore and Slop Hub launch. */
 (function () {
   'use strict';
   const SE = window.SE, A = SE.app;

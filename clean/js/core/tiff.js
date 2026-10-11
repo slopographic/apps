@@ -1,4 +1,4 @@
-/* Slop Clean core: TIFF / EXIF structure. parse() reads every IFD (main image, EXIF, GPS, interoperability, the
+/* SlopClean core: TIFF / EXIF structure. parse() reads every IFD (main image, EXIF, GPS, interoperability, the
  * thumbnail IFD and any further pages). rewrite() writes a new TIFF with the kept entries only: the picture data
  * (strips, tiles, the thumbnail JPEG) is copied byte for byte and only its offsets change. fields() turns the tree
  * into plain findings for the report. Classic script; sets window.SlopClean.tiff. */

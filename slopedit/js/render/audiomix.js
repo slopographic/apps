@@ -1,4 +1,4 @@
-/* SlopEdit: the audio mix. Schedules every audible clip (track mute/solo, clip volume, keyframes,
+/* SlopCut: the audio mix. Schedules every audible clip (track mute/solo, clip volume, keyframes,
    fades, speed) on a WebAudio context. The same graph plays in real time and renders offline for export. */
 (function () {
   'use strict';

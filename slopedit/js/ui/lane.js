@@ -1,4 +1,4 @@
-/* SlopEdit: the Layout lane in the Templates tab. A strip over the sequence with one band per layout and a
+/* SlopCut: the Layout lane in the Templates tab. A strip over the sequence with one band per layout and a
    marker per switch (add at the playhead, drag, delete). The strip itself is shared/video/lane-view.js; this
    file wires it to the project: every change is one undo step (SE.change). */
 (function () {

@@ -1,4 +1,4 @@
-/* Slop Vector — geometry: Slopify (wobble + drips + gloss) */
+/* SlopVector — geometry: Slopify (wobble + drips + gloss) */
 (function () {
   'use strict';
   var G = window.SVGeom = window.SVGeom || {};

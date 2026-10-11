@@ -1,4 +1,4 @@
-/* Slop Clean core: JPEG. The file is split into marker segments and entropy-coded picture data. Segments are copied
+/* SlopClean core: JPEG. The file is split into marker segments and entropy-coded picture data. Segments are copied
  * byte for byte, except the metadata ones: APP1 (EXIF, XMP), APP2 multi-picture, APP13 (Photoshop, IPTC), other APPn,
  * COM, the JFXX thumbnail and any data after the end of the picture. The colour profile (APP2 ICC) and the JFIF and
  * Adobe headers that decoders need are kept. The picture data is never re-encoded. Classic script; sets window.SlopClean.jpeg. */

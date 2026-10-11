@@ -1,4 +1,4 @@
-/* Slop Cutout — the image queue (#queue): one thumbnail per image (status badge, active ring, remove
+/* SlopIsolate — the image queue (#queue): one thumbnail per image (status badge, active ring, remove
  * button) and an add tile. Tiles are kept per image and updated in place, so progress ticks only touch a badge. */
 (function () {
   'use strict';

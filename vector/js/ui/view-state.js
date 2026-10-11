@@ -1,4 +1,4 @@
-/* Slop Vector — ui/view-state: the artboard zoom and pan and the active tool are kept in SlopSession, so leaving Slop
+/* SlopVector — ui/view-state: the artboard zoom and pan and the active tool are kept in SlopSession, so leaving Slop
  * Vector and coming back restores them with the recovered document. The document itself autosaves (core/history.js);
  * the panels, tabs and theme are already kept in slopvector.prefs and slopvector.theme. Classic script; uses SV.state. */
 (function () {

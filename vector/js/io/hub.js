@@ -1,4 +1,4 @@
-/* Slop Vector — Slop Hub integration: Slop Drive open/place, "Send to" other apps, launch files.
+/* SlopVector — Slop Hub integration: Slop Drive open/place, "Send to" other apps, launch files.
    Uses window.SlopHub (../shared/hub.js) and window.SLOP_APPS (../shared/apps.js). */
 (function () {
   'use strict';
@@ -27,7 +27,7 @@
   HUB.openRecord = function (rec) {
     if (!rec || !rec.blob) return Promise.resolve(false);
     if (isSVG(rec)) return rec.blob.text().then(function (t) { var ok = IO.openSVGText(t, rec.name || 'Untitled.svg'); if (ok) HUB.linked = rec.id; return ok; });
-    if (!/^image\//.test(rec.type || '')) { SV.toast('Slop Vector can’t open ' + (rec.type || 'that file'), 'warn'); return Promise.resolve(false); }
+    if (!/^image\//.test(rec.type || '')) { SV.toast('SlopVector can’t open ' + (rec.type || 'that file'), 'warn'); return Promise.resolve(false); }
     return blobToDataURL(rec.blob).then(function (url) {
       return imageSize(url).then(function (sz) {
         var sc = Math.min(1, 8000 / Math.max(sz.w, sz.h)), w = Math.round(sz.w * sc), h = Math.round(sz.h * sc);
@@ -90,7 +90,7 @@
     var png = window.SlopHub.sendMenuItems(function () { return HUB.pngBlob(); }, function () { return name() + '.png'; }, 'image/png')
       .map(function (it) { return { label: it.label.replace(/^Send to /, 'Send PNG to '), act: it.act }; });
     var items = svg.concat(svg.length && png.length ? ['-'] : [], png);
-    if (!HUB.canSend()) items = items.map(function (it) { return it === '-' ? it : { label: it.label, disabled: true, title: 'Open Slop Vector on slopographic.com to send files' }; });
+    if (!HUB.canSend()) items = items.map(function (it) { return it === '-' ? it : { label: it.label, disabled: true, title: 'Open SlopVector on slopographic.com to send files' }; });
     return items.length ? items : [{ label: 'No other apps accept this', disabled: true }];
   };
   HUB.sendTo = function (appId, kind) {

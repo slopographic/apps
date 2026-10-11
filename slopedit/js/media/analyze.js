@@ -1,4 +1,4 @@
-/* SlopEdit: media analysis. Reads duration/size with <video>/<audio>/<img>, decodes audio with
+/* SlopCut: media analysis. Reads duration/size with <video>/<audio>/<img>, decodes audio with
    WebAudio (for playback, export and waveforms) and grabs filmstrip thumbnails. */
 (function () {
   'use strict';

@@ -1,4 +1,4 @@
-/* Slop Cutout — boot. Starts every UI and render module (a missing one is skipped with a warning, a failing
+/* SlopIsolate — boot. Starts every UI and render module (a missing one is skipped with a warning, a failing
  * init is logged and the rest still start), then keeps the app-level pieces in step: empty / work mode, the
  * status bar, the busy overlay, toasts, the download button, the unsaved-work guard, and the Slop Hub
  * (register, and open a file another app sent here with ?drive=). */
@@ -11,8 +11,8 @@
   function startModules() {
     for (const name of MODULES) {
       const m = CO[name];
-      if (!m || typeof m.init !== 'function') { console.warn('Slop Cutout: module missing: ' + name); continue; }
-      try { m.init(); } catch (e) { console.error('Slop Cutout: ' + name + '.init failed', e); }
+      if (!m || typeof m.init !== 'function') { console.warn('SlopIsolate: module missing: ' + name); continue; }
+      try { m.init(); } catch (e) { console.error('SlopIsolate: ' + name + '.init failed', e); }
     }
   }
 
@@ -89,9 +89,9 @@
   function boot() {
     startModules();
     wire();
-    CO.viewState.restore().catch(function (e) { console.warn('Slop Cutout: the last session was not restored', e); }); // ui/view-state.js
+    CO.viewState.restore().catch(function (e) { console.warn('SlopIsolate: the last session was not restored', e); }); // ui/view-state.js
     mode(); status(); download(); guardSync();
-    hubBoot().catch((e) => console.warn('Slop Cutout: Slop Hub is not available', e));
+    hubBoot().catch((e) => console.warn('SlopIsolate: Slop Hub is not available', e));
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

@@ -1,4 +1,4 @@
-/* PhotoSLOP: shared helpers (DOM, colour, canvas, pixel maths). Classic script: top-level names are shared by the other files. */
+/* PhotoSlop: shared helpers (DOM, colour, canvas, pixel maths). Classic script: top-level names are shared by the other files. */
 'use strict';
 
 const $ = (s, r = document) => r.querySelector(s);

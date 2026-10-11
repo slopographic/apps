@@ -1,4 +1,4 @@
-/* PhotoSLOP tools: free transform */
+/* PhotoSlop tools: free transform */
 'use strict';
 
 /* ---------- Free Transform (Ctrl+T) ---------- */

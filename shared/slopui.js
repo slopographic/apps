@@ -1,4 +1,4 @@
-/* SlopUI: the shared dialog / toast / menu kit for Slopographic apps (PhotoSLOP, Slop Vector, Slop PDF).
+/* SlopUI: the shared dialog / toast / menu kit for Slopographic apps (PhotoSlop, SlopVector, Slop PDF).
  * Classic script, no dependencies. Exposes window.SlopUI.
  * Theming: set --sui-* custom properties (see slopui.css); it falls back to each app's own tokens. */
 (function () {

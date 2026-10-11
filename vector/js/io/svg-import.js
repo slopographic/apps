@@ -1,4 +1,4 @@
-/* Slop Vector — io: SVG elements to editable objects */
+/* SlopVector — io: SVG elements to editable objects */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;

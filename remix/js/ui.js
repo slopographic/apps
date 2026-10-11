@@ -136,7 +136,7 @@
     drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
     drop.addEventListener('dragleave', () => drop.classList.remove('over'));
     drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); addFiles(e.dataTransfer.files); });
-    $('rm-send').addEventListener('click', () => RM.sendToSlopEdit && RM.sendToSlopEdit());
+    $('rm-send').addEventListener('click', () => RM.sendToSlopCut && RM.sendToSlopCut());
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

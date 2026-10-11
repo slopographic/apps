@@ -1,4 +1,4 @@
-/* Slop Cutout — the preview canvas. Screen = image * scale + offset (CSS px, relative to #stage).
+/* SlopIsolate — the preview canvas. Screen = image * scale + offset (CSS px, relative to #stage).
  * Views: result (composed picture over a checkerboard), before (original), split (original left of the
  * knob, result right; S.split is the knob's fraction of the stage width) and mask. Composed pictures are
  * cached per (act.rev, look), so pan and zoom never re-compose. */

@@ -1,4 +1,4 @@
-/* Slop Vector — io: images, file picking, drag and drop */
+/* SlopVector — io: images, file picking, drag and drop */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;

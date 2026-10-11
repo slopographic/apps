@@ -1,4 +1,4 @@
-/* SlopEdit: the random edit as a project write. The plan (cuts, seed, switches) is pure and lives in
+/* SlopCut: the random edit as a project write. The plan (cuts, seed, switches) is pure and lives in
    shared/video (SlopVideo.random); SE.random is that module plus build(), which writes a plan into the project as
    ordinary clips inside one SE.change (one undo step). Slot i of the layout active at a cut's start is video
    track V(i+1); the switches are kept as p.segments for the Layout lane. */

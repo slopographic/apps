@@ -11,7 +11,7 @@
       el('canvas', { class: 'hello-sloppo', width: 192, height: 192, 'aria-hidden': 'true' }),
       el('b', null, ready ? 'Ask me anything' : 'Your own private AI'),
       el('p', null, ready ? 'Everything runs on this device. Try one of these:' : 'Pick a model to start. It downloads once and then runs offline on your GPU.'),
-      ready ? el('div', { class: 'starters' }, ['Explain WebGPU like I am five', 'Write a haiku about slime', 'Give me 5 names for a pet blob', 'Open PhotoSLOP'].map((s) =>
+      ready ? el('div', { class: 'starters' }, ['Explain WebGPU like I am five', 'Write a haiku about slime', 'Give me 5 names for a pet blob', 'Open PhotoSlop'].map((s) =>
         el('button', { type: 'button', class: 'btn sm', onclick: () => { if (/^Open /.test(s) && panel.conv) panel.conv.tools = true; else if (/^Open /.test(s)) AI.pendingTools = true; panel.send(s); } }, s)))
         : el('div', { class: 'starters' }, el('button', { type: 'button', class: 'btn primary', onclick: () => AI.setTab('models') }, 'Choose a model'), el('button', { type: 'button', class: 'btn', onclick: () => AI.setTab('sys') }, 'Can my PC run it?')));
   }

@@ -1,4 +1,4 @@
-/* Slop Vector — tools: Pencil, Paintbrush, shape tools and Type */
+/* SlopVector — tools: Pencil, Paintbrush, shape tools and Type */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom;

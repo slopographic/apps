@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: the menu definitions and shortcut table */
+/* PhotoSlop UI: the menu definitions and shortcut table */
 'use strict';
 
 /* ---------- menus ---------- */
@@ -22,7 +22,7 @@ const MENUS = [
     { label: 'Export Layers as PNGs', act: () => exportLayers() },
     { label: 'Send to', sub: sendToMenu() },
     '-',
-    { label: 'Download PhotoSLOP for offline use (.html)', act: () => downloadOfflineApp() },
+    { label: 'Download PhotoSlop for offline use (.html)', act: () => downloadOfflineApp() },
     { label: 'Clear Recovery Data', act: () => clearAutosave() },
   ]],
   ['Edit', [
@@ -172,7 +172,7 @@ const MENUS = [
   ['Help', [
     { label: 'Search Commands…', cmdId: 'cmd.palette', act: () => openCommandPalette() },
     { label: 'Keyboard Shortcuts…', cmdId: 'cmd.keymap', act: () => openKeymap() },
-    { label: 'About PhotoSLOP', act: () => dlgAbout() },
+    { label: 'About PhotoSlop', act: () => dlgAbout() },
     '-',
     { label: 'Open Slop Paint Classic (MS Paint)', act: () => { location.href = 'classic/'; } },
     { label: 'Back to slopographic.com', act: () => { location.href = '../'; } },

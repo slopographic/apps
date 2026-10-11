@@ -1,6 +1,6 @@
-/* SlopEdit: the program monitor. Renders the timeline at the playhead with the compositor (video from
+/* SlopCut: the program monitor. Renders the timeline at the playhead with the compositor (video from
    the <video> pool, stills as bitmaps), keeps the canvas sized to the panel, draws the safe-area and
-   selection overlay, and offers snapshot to PNG / Send to PhotoSLOP. */
+   selection overlay, and offers snapshot to PNG / Send to PhotoSlop. */
 (function () {
   'use strict';
   const SE = window.SE, U = SE.util, M = SE.model, CMP = SE.compositor, VP = SE.vpool;
@@ -70,7 +70,7 @@
     const p = SE.doc;
     if (!p.clips.length) {
       msg.hidden = false;
-      msg.innerHTML = '<b>SlopEdit</b>' + (p.media.length ? 'Drag media from the bin onto the timeline, or double-click an item.' : 'Import video, audio or images to start editing.<br>Everything stays on this device.');
+      msg.innerHTML = '<b>SlopCut</b>' + (p.media.length ? 'Drag media from the bin onto the timeline, or double-click an item.' : 'Import video, audio or images to start editing.<br>Everything stays on this device.');
     } else msg.hidden = true;
   }
 
@@ -89,7 +89,7 @@
   SE.act.snapshot = async function () { SE.player.pause(); SlopUI.download(await PV.snapshotBlob(), shotName()); SE.app.status('Saved frame as PNG'); };
   SE.act.snapshotSend = async function () {
     SE.player.pause();
-    try { await SlopHub.sendTo('photoslop', await PV.snapshotBlob(), shotName()); SlopUI.toast('Opened the frame in PhotoSLOP'); } catch (e) { SlopUI.toast('Could not send: ' + e.message); }
+    try { await SlopHub.sendTo('photoslop', await PV.snapshotBlob(), shotName()); SlopUI.toast('Opened the frame in PhotoSlop'); } catch (e) { SlopUI.toast('Could not send: ' + e.message); }
   };
   SE.act.toggleSafe = function () { PV.safe = !PV.safe; U.store.set('safe', PV.safe); PV.request(); SE.emit('transport', {}); };
   SE.act.toggleQuality = function () { PV.half = !PV.half; U.store.set('half', PV.half); PV.layout(); SE.app.status('Preview quality: ' + (PV.half ? 'half' : 'full')); };

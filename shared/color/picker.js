@@ -1,4 +1,4 @@
-/* Shared colour picker body (PhotoSLOP's dialog and side panel, Slop Vector's popover).
+/* Shared colour picker body (PhotoSlop's dialog and side panel, SlopVector's popover).
  * Saturation-brightness square, hue and alpha bars, preview, hex / RGB / HSB / alpha fields, a recent-colours row
  * and an optional palette row. Exposed as window.SlopColorPicker.
  *   SlopColorPicker.create({ value, onChange(hex), recents: { list(), add(hex) }, palette: [], alpha: true })

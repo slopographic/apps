@@ -1,7 +1,7 @@
-/* Slop Vector — core: rounded rectangle corners.
+/* SlopVector — core: rounded rectangle corners.
  * A rect keeps rx (its single radius, or the largest corner when the corners differ) so older code still works.
  * When the corners were set one by one, rc = [tl, tr, br, bl] holds all four. The geometry (clamping, arcs)
- * is shared with PhotoSLOP in shared/shapes/rounded.js (window.SlopShapes). */
+ * is shared with PhotoSlop in shared/shapes/rounded.js (window.SlopShapes). */
 (function () {
   'use strict';
   var SV = window.SV = window.SV || {};

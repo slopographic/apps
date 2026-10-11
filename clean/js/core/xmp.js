@@ -1,4 +1,4 @@
-/* Slop Clean core: a quick look inside an XMP packet (JPEG APP1, PNG iTXt, WebP XMP chunk). The packet is not
+/* SlopClean core: a quick look inside an XMP packet (JPEG APP1, PNG iTXt, WebP XMP chunk). The packet is not
  * parsed as XML: each rule is a plain match for a property name, so the report can say "location is in the XMP
  * packet" before the packet is removed. Classic script; sets window.SlopClean.xmp. */
 (function (root) {

@@ -1,4 +1,4 @@
-/* Slop Vector — ui: Properties and Appearance panels */
+/* SlopVector — ui: Properties and Appearance panels */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;

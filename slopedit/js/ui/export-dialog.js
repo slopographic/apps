@@ -1,4 +1,4 @@
-/* SlopEdit: the Export dialog (MP4 / WebM / GIF, resolution, frame rate, quality, range), the progress
+/* SlopCut: the Export dialog (MP4 / WebM / GIF, resolution, frame rate, quality, range), the progress
    dialog with Cancel and the result dialog (preview, download, Save to Slop Drive). */
 (function () {
   'use strict';

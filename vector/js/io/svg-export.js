@@ -1,4 +1,4 @@
-/* Slop Vector — io: downloads, SVG export, PNG/JPG export */
+/* SlopVector — io: downloads, SVG export, PNG/JPG export */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;
@@ -36,12 +36,12 @@
     }
     var meta = '';
     if (opts.metadata) {
-      var json = JSON.stringify({ app: 'Slop Vector', format: 1, doc: doc });
+      var json = JSON.stringify({ app: 'SlopVector', format: 1, doc: doc });
       meta = '<metadata id="slopvector-document"><![CDATA[' + json.replace(/\]\]>/g, ']]]]><![CDATA[>') + ']]></metadata>\n';
     }
     return '<?xml version="1.0" encoding="UTF-8"?>\n' +
       '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="' + fmt(W) + '" height="' + fmt(H) + '" viewBox="' + vb + '">\n' +
-      '<title>' + esc(doc.name) + '</title>\n<desc>Made with Slop Vector — slopographic.com/vector</desc>\n' + meta +
+      '<title>' + esc(doc.name) + '</title>\n<desc>Made with SlopVector — slopographic.com/vector</desc>\n' + meta +
       (defs.length ? '<defs>\n' + defs.join('\n') + '\n</defs>\n' : '') + body + '</svg>\n';
   };
   IO.saveSVG = function (name) {
@@ -49,7 +49,7 @@
     var svg = IO.exportSVG({ metadata: true });
     IO.download(new Blob([svg], { type: 'image/svg+xml' }), IO.baseName() + '.svg');
     SV.markSaved(); SV.scheduleAutosave();
-    SV.toast('Saved “' + IO.baseName() + '.svg” (editable Slop Vector SVG)');
+    SV.toast('Saved “' + IO.baseName() + '.svg” (editable SlopVector SVG)');
   };
   IO.exportPlainSVG = function () {
     IO.download(new Blob([IO.exportSVG({})], { type: 'image/svg+xml' }), IO.baseName() + '.svg');

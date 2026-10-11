@@ -1,6 +1,6 @@
 /* SlopLabel — ui/hub: Slop Hub integration. Announces the app, opens files other apps sent here
  * (?drive=<id>: images are placed, CSV/Excel become the data source), Slop Drive pickers, and
- * File → Send to (PDF to Slop PDF, PNG to PhotoSLOP / Slop Vector). Off under file:// and offline. */
+ * File → Send to (PDF to Slop PDF, PNG to PhotoSlop / SlopVector). Off under file:// and offline. */
 'use strict';
 
 const hubAvailable = () => !!window.SlopHub && location.protocol !== 'file:' && !isOfflineBuild();

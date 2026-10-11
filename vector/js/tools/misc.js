@@ -1,4 +1,4 @@
-/* Slop Vector — tools: Eyedropper, Hand, Zoom, Rotate, Scale, Scissors, Gradient */
+/* SlopVector — tools: Eyedropper, Hand, Zoom, Rotate, Scale, Scissors, Gradient */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom;

@@ -1,4 +1,4 @@
-/* PhotoSLOP shape layers. A rectangle or rounded rectangle drawn with the Shape tool keeps
+/* PhotoSlop shape layers. A rectangle or rounded rectangle drawn with the Shape tool keeps
  * L.shape = { kind, r: { x, y, w, h }, radius, fill, stroke, strokeW, fg, bg } (r is in layer coordinates; the layer
  * sits at x = y = 0 when drawn). Its canvas is drawn from that record, so changing the Corner radius option
  * redraws the layer. Pixel edits, transforms and crops rasterize or drop the record, as type layers do. */

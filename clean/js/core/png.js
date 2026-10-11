@@ -1,4 +1,4 @@
-/* Slop Clean core: PNG. The file is a list of chunks; each one is copied byte for byte (CRC included) unless it is
+/* SlopClean core: PNG. The file is a list of chunks; each one is copied byte for byte (CRC included) unless it is
  * metadata: tEXt, zTXt and iTXt (by keyword: author, copyright, software, description...), tIME, eXIf (rewritten
  * with only the kept tags), iCCP (colour profile, kept unless chosen), pHYs (DPI, kept unless chosen) and unknown
  * ancillary chunks. Image chunks (IHDR, PLTE, IDAT, IEND, tRNS, gAMA, cHRM, sRGB, bKGD, sBIT, APNG chunks...) are kept.

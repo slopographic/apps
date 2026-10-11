@@ -1,4 +1,4 @@
-/* Slop Vector — geometry: SVG path data serialiser and full parser (incl. arcs) */
+/* SlopVector — geometry: SVG path data serialiser and full parser (incl. arcs) */
 (function () {
   'use strict';
   var G = window.SVGeom = window.SVGeom || {};

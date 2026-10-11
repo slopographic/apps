@@ -1,4 +1,4 @@
-/* PhotoSLOP files: clipboard, open, save and export */
+/* PhotoSlop files: clipboard, open, save and export */
 'use strict';
 
 /* ---------- clipboard ---------- */

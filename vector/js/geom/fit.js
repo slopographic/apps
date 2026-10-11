@@ -1,4 +1,4 @@
-/* Slop Vector — geometry: Schneider curve fitting (pencil, booleans, slopify) */
+/* SlopVector — geometry: Schneider curve fitting (pencil, booleans, slopify) */
 (function () {
   'use strict';
   var G = window.SVGeom = window.SVGeom || {};

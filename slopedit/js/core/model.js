@@ -1,4 +1,4 @@
-/* SlopEdit: the project model. Plain JSON (no blobs) so it can be snapshotted for undo and autosaved.
+/* SlopCut: the project model. Plain JSON (no blobs) so it can be snapshotted for undo and autosaved.
    Project { v, name, w, h, fps, bg, tracks[], clips[], markers[], media[] (metadata only),
              layout (template slots, see layout.js), random (record of the last random edit) }
    Track   { id, kind: 'video'|'audio', name, mute, solo, lock, hide }
@@ -102,7 +102,7 @@
   M.snapshot = (p) => JSON.parse(JSON.stringify(p));
   /** Upgrade/validate a loaded project; unknown fields are kept. */
   M.normalize = function (p) {
-    if (!p || !Array.isArray(p.tracks) || !Array.isArray(p.clips)) throw new Error('Not a SlopEdit project');
+    if (!p || !Array.isArray(p.tracks) || !Array.isArray(p.clips)) throw new Error('Not a SlopCut project');
     const out = Object.assign(M.newProject(), p);
     out.markers = p.markers || []; out.media = p.media || [];
     out.clips = p.clips.map((c) => Object.assign({}, M.CLIP, c, c.kind === 'title' ? { text: Object.assign({}, M.TEXT, c.text || {}) } : null));
