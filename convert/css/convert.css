@@ -88,3 +88,27 @@ output { color: var(--muted); font-weight: 500; }
   .cv-actions .cv-btn { flex: 1 1 140px; }
 }
 @media (prefers-reduced-motion: no-preference) { .cv-drop { transition: border-color .15s; } }
+
+/* Live preview (js/preview): input box, before and after panels, and the Copy, Swap and Download buttons. */
+.cv-pv { margin-top: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 16px; }
+.cv-pv [hidden] { display: none; }
+.cv-pv-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.cv-pv-head h2 { margin: 0; font-size: 1.1rem; }
+.cv-pv-status { color: var(--muted); font-size: .9rem; margin: 0; }
+.cv-pv-input { margin: 12px 0 0; }
+.cv-pv-input label { display: block; font-weight: 600; margin-bottom: 4px; }
+.cv-pv-input textarea { display: block; width: 100%; font: 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px; resize: vertical; }
+.cv-pv-input textarea:disabled { opacity: .6; }
+.cv-pv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.cv-pv-panel { margin: 0; min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); overflow: hidden; }
+.cv-pv-cap { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 6px 10px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: .9rem; }
+.cv-pv-meta { color: var(--muted); font-weight: 400; font-size: .85rem; }
+.cv-pv-body { padding: 8px; max-height: 360px; overflow: auto; }
+.cv-pv-body img { display: block; max-width: 100%; height: auto; margin: 0 auto; background: repeating-conic-gradient(var(--line) 0 25%, transparent 0 50%) 0 0 / 16px 16px; }
+.cv-pv-text { margin: 0; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
+.cv-pv-line { display: block; min-height: 1.45em; }
+.cv-pv-chg { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+.cv-pv-error { color: var(--danger); margin: 0; }
+.cv-pv-note { color: var(--muted); font-size: .9rem; margin: 10px 0 0; }
+.cv-pv-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+@media (max-width: 640px) { .cv-pv-grid { grid-template-columns: 1fr; } }

@@ -38,6 +38,7 @@
     <section id="tool" aria-label="Converter">
       <div class="cv-tool" data-convert-root data-preset="images-to-pdf" data-from="jpg"></div>
     </section>
+    <section class="cv-pv-wrap" aria-label="Live preview" data-convert-preview></section>
     <section class="cv-explain">
       <h2>How it works</h2>
       <p>JPG photos are embedded in the PDF without re-compression when they are upright. Photos with a sideways EXIF rotation are drawn upright first.</p>
@@ -86,5 +87,6 @@
     </section>
   </main>
   <script type="module" src="../../convert/js/ui/mount.js"></script>
+  <script type="module" src="../../convert/js/preview/mount.js"></script>
 </body>
 </html>
