@@ -55,6 +55,8 @@
       RM.dnd.cutTargets(span, i, x.slot);
       li.append(span);
     });
+    const fx = st.plan && st.plan.effect ? SV.effects.at(st.plan.effect, i) : null;
+    if (fx) li.append(' · fx ' + SV.effects.name(fx.kind));
     const sel = document.createElement('select');
     sel.className = 'rm-cutfill'; sel.setAttribute('aria-label', 'Fill for cut ' + (i + 1));
     fill(sel, FILL_LABELS, beat[0].fill || 'auto');
@@ -69,11 +71,12 @@
     const cuts = $('rm-cuts');
     $('rm-scrub').max = String(plan ? plan.total : 0);
     $('rm-total').textContent = plan ? 'Total ' + fmt(plan.total) + ' of ' + fmt(st.target) + ' · ' + plan.segments.length + ' layout' + (plan.segments.length > 1 ? 's' : '') + ' · seed ' + plan.seedHex : 'Nothing planned yet';
-    cuts.replaceChildren(...(plan ? plan.cuts.map((beat, i) => cutItem(beat, i, st)) : []));
+    cuts.replaceChildren(...(plan ? plan.cuts.map((beat, i) => cutItem(beat, i, st)) : []), RM.panel.effectRow());
     RM.lane.update({ duration: plan ? plan.total : st.target, switches: st.lane, layouts: RM.layoutChoices(), playhead: st.playhead });
     RM.preview.setPlan();
     RM.preview.seek(Math.min(st.playhead, plan ? plan.total : 0));
     slotsCut = -2; renderSlots();
+    RM.panel.renderKeys();
   }
   function readControls() {
     const st = RM.state;
@@ -135,7 +138,7 @@
     $('rm-music-name').textContent = st.music ? st.music.name : '';
   }
   /** Lock toggles for the slots of the cut at the playhead, under the preview. */
-  let slotsCut = -2;
+  let slotsCut = -2, keysCut = -2;
   function renderSlots() {
     const st = RM.state, plan = st.plan, t = RM.preview.t;
     let ci = -1;
@@ -184,6 +187,8 @@
     renderBin();
     renderPlan();
     wire();
+    RM.say = status; RM.renderPlan = renderPlan;
+    RM.panel.init();
     RM.ready = true;
   }
   /** Move the playhead to t and paint that frame (scrubbing; works while paused). */
@@ -191,6 +196,8 @@
   function syncTime() {
     const t = RM.preview.t;
     renderSlots();
+    const kc = RM.keys.cutAt(t);
+    if (kc !== keysCut) { keysCut = kc; RM.panel.renderKeys(); }
     $('rm-scrub').value = String(t);
     $('rm-time').textContent = fmt(t) + ' / ' + fmt(RM.preview.total());
     $('rm-play').textContent = RM.preview.playing ? 'Pause' : 'Play';

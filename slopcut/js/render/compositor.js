@@ -1,6 +1,8 @@
 /* SlopCut: the compositor. Works out which clips are visible at time t (including both sides of a
    transition) and draws them bottom (V1) to top with fit, crop, position, scale, rotation, opacity,
    fades, colour grading and the transition effect. Used by the live preview and by export.
+   An effect layer (clip kind 'effect', see core/fx-random.js) is a layer with `effect` set: it changes the frame
+   drawn so far, so it affects the tracks below it. Keyframes (core/anim.js) are read here as layer.xf.
    render(ctx, p, t, { W, H, source(clip, srcT) }) — source returns a drawable or null. */
 (function () {
   'use strict';
@@ -13,12 +15,19 @@
     const prev = M.prevAdjacent(p, c), d = c.trIn.dur;
     return prev ? { a: c.start - d / 2, b: c.start + d / 2, out: prev, inc: c, type: c.trIn.type } : { a: c.start, b: c.start + d, out: null, inc: c, type: c.trIn.type };
   };
-  /** Visible layers bottom to top: [{ clip, srcT, u, alpha, tr: { type, q, role } }]. */
+  /** Visible layers bottom to top: [{ clip, srcT, u, alpha, xf, tr: { type, q, role } }] and effect layers
+      [{ clip, effect, u, t }]. Effect layers come before the clips of their own track (they act on what is below). */
   CMP.layers = function (p, t) {
     const out = [];
     for (const tk of M.videoTracks(p)) {
       if (!M.trackLive(p, tk)) continue;
-      const clips = M.clipsOn(p, tk.id).filter((c) => c.kind !== 'audio');
+      const all = M.clipsOn(p, tk.id);
+      const fxc = all.find((c) => c.kind === 'effect' && t >= c.start && t < M.end(c));
+      if (fxc) {
+        const st = SE.fx.stateAt(fxc.fx, t - fxc.start);
+        if (st) out.push({ clip: fxc, effect: Object.assign(st, { t }), u: t - fxc.start });
+      }
+      const clips = all.filter((c) => c.kind !== 'audio' && c.kind !== 'effect');
       let win = null;
       for (const c of clips) { const w = CMP.trWindow(p, c); if (w && t >= w.a && t < w.b) { win = w; break; } }
       if (win) {
@@ -35,8 +44,8 @@
   function layer(p, c, t, tr) {
     const len = M.srcLen(p, c);
     const srcT = U.clamp(M.srcAt(c, t), 0, isFinite(len) ? Math.max(0, len - 1e-3) : Infinity);
-    const u = U.clamp(t - c.start, 0, c.dur);
-    return { clip: c, srcT, u, alpha: c.opacity * M.fadeAt(c, u), tr };
+    const u = U.clamp(t - c.start, 0, c.dur), xf = SE.anim.combine(c, u);
+    return { clip: c, srcT, u, alpha: xf.opacity * M.fadeAt(c, u), tr, xf };
   }
   /** Natural size of a layer's drawable (title/colour layers are frame-sized). */
   function sizeOf(src) {
@@ -44,7 +53,7 @@
   }
   /** Draw one layer. k = output pixels per project pixel. */
   function drawLayer(g, p, L, src, W, H, k) {
-    const c = L.clip, tr = L.tr;
+    const c = L.clip, tr = L.tr, xf = L.xf;
     let alpha = L.alpha, dx = 0, clip = null, overlay = null, sc = 1, dy = 0;
     if (tr) {
       const q = tr.q;
@@ -67,15 +76,15 @@
       const base = frame ? 1 : Math.min(W / s.w, H / s.h);
       let img = src;
       if (SE.grade.needed(c) && c.kind !== 'color') {
-        const gw = Math.min(s.w, s.w * base * c.scale * 1.05), gh = gw * s.h / s.w;
+        const gw = Math.min(s.w, s.w * base * xf.scale * 1.05), gh = gw * s.h / s.w;
         const graded = SE.grade.apply(src, gw, gh, c);
         if (graded) img = graded; else g.filter = SE.grade.filter(c);
       }
       if (L.blur) g.filter = 'blur(' + (L.blur * k).toFixed(1) + 'px)';
       g.globalAlpha = U.clamp(alpha, 0, 1);
-      g.translate(W / 2 + c.x * k + dx, H / 2 + c.y * k + dy);
-      if (c.rot) g.rotate((c.rot * Math.PI) / 180);
-      g.scale(base * c.scale * sc, base * c.scale * sc);
+      g.translate(W / 2 + xf.x * k + dx, H / 2 + xf.y * k + dy);
+      if (xf.rot) g.rotate((xf.rot * Math.PI) / 180);
+      g.scale(base * xf.scale * sc, base * xf.scale * sc);
       const iw = sizeOf(img).w / s.w; // graded copies may be smaller than the source
       const cl = c.cropL, ct = c.cropT, cw = Math.max(0, 1 - c.cropL - c.cropR), ch = Math.max(0, 1 - c.cropT - c.cropB);
       if (cw > 0 && ch > 0) {
@@ -98,6 +107,7 @@
     g.fillStyle = p.bg || '#000'; g.fillRect(0, 0, W, H);
     const layers = CMP.layers(p, t);
     for (const L of layers) {
+      if (L.effect) { SE.fxDraw.apply(g, W, H, L.effect); continue; }
       const c = L.clip;
       let src = null;
       if (c.kind === 'color') src = CMP.frameStub(W, H);
@@ -108,12 +118,14 @@
     g.restore();
     return layers;
   };
-  /** Project-space bounding box corners of a visual clip at its current transform (for the overlay). */
-  CMP.bounds = function (p, c) {
+  /** Project-space bounding box corners of a visual clip at its transform (for the overlay). With time t the
+      keyframes at t are included; without it the clip's own values are used. */
+  CMP.bounds = function (p, c, t) {
     let w = p.w, h = p.h;
     if (c.kind === 'title') { const m = SE.text.measure(c); w = m.w; h = m.h; } else if (c.media) { const m = M.media(p, c.media); if (m && m.w && m.h) { const b = Math.min(p.w / m.w, p.h / m.h); w = m.w * b; h = m.h * b; } }
-    const s = c.scale, r = (c.rot * Math.PI) / 180, cos = Math.cos(r), sin = Math.sin(r);
+    const xf = t == null ? { x: c.x, y: c.y, scale: c.scale, rot: c.rot } : SE.anim.combine(c, U.clamp(t - c.start, 0, c.dur));
+    const s = xf.scale, r = (xf.rot * Math.PI) / 180, cos = Math.cos(r), sin = Math.sin(r);
     const x0 = -w / 2 + c.cropL * w, x1 = w / 2 - c.cropR * w, y0 = -h / 2 + c.cropT * h, y1 = h / 2 - c.cropB * h;
-    return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(([x, y]) => [p.w / 2 + c.x + (x * cos - y * sin) * s, p.h / 2 + c.y + (x * sin + y * cos) * s]);
+    return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(([x, y]) => [p.w / 2 + xf.x + (x * cos - y * sin) * s, p.h / 2 + xf.y + (x * sin + y * cos) * s]);
   };
 })();

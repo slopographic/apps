@@ -17,7 +17,8 @@
     const p = SE.doc, k = PV.box ? PV.box.k : SE.app.els.overlay.width / p.w;
     const layers = CMP.layers(p, SE.player.time).reverse();
     for (const L of layers) {
-      const pts = CMP.bounds(p, L.clip).map(([a, b]) => [a * k, b * k]);
+      if (L.effect) continue;
+      const pts = CMP.bounds(p, L.clip, SE.player.time).map(([a, b]) => [a * k, b * k]);
       if (inside(pts, x, y)) return L.clip;
     }
     return null;
