@@ -33,7 +33,7 @@ test('a valid template file validates and comes back as a clean value', async ()
   stubTemplate(C);
   const r = C.validate(JSON.stringify(templateFile()), { app: 'tables' });
   assert.equal(r.ok, true, C.errorText(r.errors));
-  assert.deepEqual(r.errors, []);
+  assert.equal(r.errors.length, 0);
   assert.equal(r.value.data.pages[0].name, 'Sheet 1');
   assert.deepEqual(plain(r.value.data.pages[0].blocks[0].rows[1]), ['Rent', 900]);
 });

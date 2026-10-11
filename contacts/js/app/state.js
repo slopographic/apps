@@ -1,58 +1,81 @@
-/* Slop Contacts: shared app state and events. Exposes SlopContacts.state (S) and the event bus:
- *   S.on('change', fn)  the list or file changed (autosave, SlopGuard and re-render listen)
- *   S.on('render', fn)  view only (selection, filter, search)
- * The list is always normalised contacts. Changing the list through setList() marks the file dirty. */
+/* Slop Contacts: the screen state and events. The list is the contact view of the shared customer records
+ * (see core/customer-map.js). Changing it with setList() writes the difference to SlopData (records.js) unless
+ * { write: false } is given. Adds SlopContacts.state (S).
+ *   S.on('change', fn)  the list changed (the data, not only the view)
+ *   S.on('render', fn)  the view changed (group, search, selection, the open contact, edit mode) */
 (function () {
   'use strict';
   const SC = (window.SlopContacts = window.SlopContacts || {});
   const CC_KEY = 'slop-contacts.cc';
+  const RECENT = 25;
+  const STAGES = ['lead', 'contacted', 'customer', 'lost'];
   const readCc = () => { try { return localStorage.getItem(CC_KEY) || ''; } catch (e) { return ''; } };
   const subs = {};
+  const byName = (a, b) => String(a.fn).localeCompare(String(b.fn), undefined, { sensitivity: 'base' }) || (a.id < b.id ? -1 : 1);
 
   const S = {
-    list: [],                 // contacts
-    sel: new Set(),           // selected ids
-    query: '',               // search text
-    group: null,              // null = all, '' = ungrouped, otherwise a group name
-    cc: readCc(),             // default country code for E.164 (per viewer, also kept in the draft)
-    file: { name: 'Contacts', driveId: null, folderId: null, dirty: false },
+    list: [],                 // contacts, sorted by name
+    sel: new Set(),           // selected ids (Cmd or Shift click, or Select mode)
+    anchor: null,             // last clicked id, for Shift-click ranges
+    focus: null,              // keyboard position in the list
+    selectMode: false,        // checkboxes on every row (touch)
+    query: '',                // search text
+    group: null,              // null = all, 'recent', 'cat:<name>' or 'stage:<stage>'
+    open: null,               // id of the contact in the card
+    mode: 'view',             // card: 'view', 'edit' (in place) or 'new'
+    touched: new Map(),       // id -> updatedAt (ms), for Recent
+    cc: readCc(),             // default country code for E.164 (per viewer)
     ready: false,
+    persist: null,            // set by records.js: (prev, next) => writes the difference
+    STAGES,
     on(type, fn) { (subs[type] = subs[type] || []).push(fn); return () => { subs[type] = (subs[type] || []).filter((f) => f !== fn); }; },
     emit(type, data) { for (const fn of (subs[type] || []).slice()) { try { fn(data); } catch (e) { console.error(e); } } },
     byId: (id) => S.list.find((c) => c.id === id) || null,
-    /** Contacts shown now: the group filter, then the search (every word must match). */
+    /** The ids of the most recently changed contacts, newest first. */
+    recentIds: () => [...S.touched.entries()].sort((a, b) => b[1] - a[1]).slice(0, RECENT).map((x) => x[0]),
+    /** The contacts shown now: the group, then the search (every word must match). Recent keeps its own order. */
     visible() {
+      let list = S.list;
+      const g = S.group || '';
+      if (g === 'recent') {
+        const pos = new Map(S.recentIds().map((id, i) => [id, i]));
+        list = list.filter((c) => pos.has(c.id)).sort((a, b) => pos.get(a.id) - pos.get(b.id));
+      } else if (g.startsWith('cat:')) {
+        const name = g.slice(4);
+        list = list.filter((c) => c.groups.includes(name));
+      } else if (g.startsWith('stage:')) {
+        const st = g.slice(6);
+        list = list.filter((c) => c.stage === st);
+      }
       const words = S.query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-      return S.list.filter((c) => {
-        if (S.group === '' && c.groups.length) return false;
-        if (S.group && !c.groups.includes(S.group)) return false;
-        if (!words.length) return true;
-        const hay = SC.model.haystack(c);
-        return words.every((w) => hay.includes(w));
-      });
+      if (words.length) list = list.filter((c) => { const hay = SC.model.haystack(c); return words.every((w) => hay.includes(w)); });
+      return list;
     },
     selected: () => S.list.filter((c) => S.sel.has(c.id)),
     /** Ids for a bulk action: the selection when there is one, else null (= every contact). */
     scope: () => (S.sel.size ? new Set(S.sel) : null),
+    /** Counts for the group list. */
     groupCounts() {
-      const map = new Map();
-      let none = 0;
+      const cats = new Map(), stages = Object.fromEntries(STAGES.map((s) => [s, 0]));
       for (const c of S.list) {
-        if (!c.groups.length) none++;
-        for (const g of c.groups) map.set(g, (map.get(g) || 0) + 1);
+        stages[c.stage] = (stages[c.stage] || 0) + 1;
+        for (const g of c.groups) cats.set(g, (cats.get(g) || 0) + 1);
       }
-      return { all: S.list.length, none, groups: [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: 'base' })) };
+      return { all: S.list.length, recent: S.recentIds().length, cats: [...cats.entries()].sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: 'base' })), stages };
     },
-    /** Replace the whole list. dirty = true for user changes; false for a file just opened. */
-    setList(list, { dirty = true } = {}) {
-      S.list = list.map(SC.model.normalise);
-      S.sel = new Set([...S.sel].filter((id) => S.list.some((c) => c.id === id)));
-      if (S.group && !S.groupCounts().groups.some(([g]) => g === S.group)) S.group = null;
-      S.file.dirty = dirty ? true : S.file.dirty;
+    /** Replace the whole list. Writes the difference unless write is false (a load from the store). */
+    setList(list, { write = true } = {}) {
+      const prev = S.list;
+      S.list = list.map((x) => { const c = SC.model.normalise(x); if (!c.stage) c.stage = 'lead'; return c; }).sort(byName);
+      const ids = new Set(S.list.map((c) => c.id));
+      S.sel = new Set([...S.sel].filter((id) => ids.has(id)));
+      if (S.open && !ids.has(S.open)) { S.open = null; S.mode = 'view'; }
+      if (S.focus && !ids.has(S.focus)) S.focus = null;
       S.emit('change');
       S.emit('render');
+      if (write && S.persist) S.persist(prev, S.list);
     },
-    /** Put changed contacts back into the list by id (a copy of the list, same order). */
+    /** Puts changed contacts back by id (same order). */
     replaceMany(updated) {
       const byId = new Map(updated.map((c) => [c.id, c]));
       S.setList(S.list.map((c) => byId.get(c.id) || c));
@@ -61,4 +84,6 @@
     setCc(v) { S.cc = String(v || '').trim(); try { localStorage.setItem(CC_KEY, S.cc); } catch (e) { /* blocked */ } S.emit('change'); },
   };
   SC.state = S;
+  SC.STAGES = STAGES;
+  SC.stageLabel = (s) => ({ lead: 'Lead', contacted: 'Contacted', customer: 'Customer', lost: 'Lost' })[s] || s;
 })();

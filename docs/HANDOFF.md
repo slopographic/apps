@@ -37,6 +37,10 @@
   - DOCX: paragraphs, runs (bold, italic, underline, strike, size, colour, font, sup and sub), styles by name, lists by numbering format, tables, page size and margins.
   - Markdown: headings, lists, quotes, code blocks, bold, italic, underline and code spans.
   - Text: one paragraph per line. HTML: text only.
+- **Random templates** (`ui/random.js`, `ui/templates.js`, generator in `shared/templates/`):
+  - File ▸ New ▸ Random template, the toolbar's Random button, or the palette. The dialog draws the first page of a seeded design with the page renderer (`R.pageEl`). Click it to see it full size.
+  - The seed is shown and can be typed. Enter regenerates from it. Reshuffle draws a new seed.
+  - Use this template opens the design as a new, unsaved document. Save as template keeps it in File ▸ New ▸ My templates. It is stored in IndexedDB (`slop-docs` v2, store `templates`) and in Slop Drive as `<name>.sdoc-template` in a root folder "Templates".
 - **Phones:** on screens under 700 px the page is fitted to the width (zoom 35% to 100%). The top bar and toolbar fit at 390 px with no page-level scroll.
 
 ## Known gaps (not built yet)
@@ -70,8 +74,14 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
 - `docs/js/model/ops.js`: pure editing operations on blocks, copy-on-write.
 - `docs/js/io/sdoc.js`: `.sdoc`, text and Markdown.
 - `docs/js/io/docx.js`: DOCX export and import.
+- `docs/js/ui/random.js`: the Random template dialog. `docs/js/ui/templates.js`: My templates (IndexedDB and Slop Drive). `docs/css/random.css`.
+- `shared/templates/`: the generator (see its `HANDOFF.md`). Bridge exposes it as `SlopDocEngine.TPL`.
 
-## Tests (`node tests/run.mjs docs`, 58 tests, all green)
+## Tests
+- `node --test shared/templates/generate.test.mjs`: 7 Node tests for the generator. Same seed, same JSON. Every document validates against the Docs schema and `normalizeDoc` leaves it unchanged. Style choices stay in their lists. The validator rejects a broken document.
+- `tests/docs/templates.test.html` (in `node tests/run.mjs docs`): Random template opens the preview, the menu, Reshuffle, Enter to regenerate, full-size preview, Use this template (header text), Save as template and reload, and the Drive copy.
+
+## Tests (`node tests/run.mjs docs`, 58 tests before templates, all green)
 - `tests/docs/app.test.html`: runs the real page in an iframe.
   - Boot and the untitled draft.
   - Typing, Enter, Backspace, arrows, selection and undo.
