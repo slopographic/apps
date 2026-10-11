@@ -26,8 +26,8 @@
 - Order: `CAROUSEL_TOP` (by name), then the rest of the registry in registry order. A name missing from the registry is
   skipped. A slide with no glyph in `SLOP_ICONS` uses the card's fallback icon (`ICONS[a.icon]`).
 - `TOUR_DIRS` lists the folders with a tour. Keep it in step with `TOURS` in `shared/tour/mount.js`.
-- Controls: previous and next (wrap around), dots (one per slide, `aria-current` on the current one), a slide count,
-  and Pause. Auto-advance every 7 seconds (`CAROUSEL_MS`). It pauses while the pointer is over the carousel or focus is
+- Controls: previous and next (wrap around), a "4 / 41" counter, and Pause. Dots: one button per slide, but only five around
+  the current slide plus the first and last are shown (at most seven); `aria-current` marks the current one. Auto-advance every 7 seconds (`CAROUSEL_MS`). It pauses while the pointer is over the carousel or focus is
   inside it, and stops for good once a control, a dot, an arrow key or a swipe is used. Pause is hidden once stopped.
 - Arrow keys work when focus is inside the region. Swipe works on touch (horizontal, more than 40px, `touch-action: pan-y`).
 - `prefers-reduced-motion: reduce`: no auto-advance, no Pause button, slides change instantly.

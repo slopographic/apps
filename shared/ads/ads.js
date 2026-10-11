@@ -13,6 +13,7 @@
   var ATTR = 'data-slop-ad';
   var ID_RE = /^[a-z0-9-]{1,40}$/;
   var UNIT_RE = /^\d{6,20}$/;
+  var PUB_RE = /^ca-pub-\d{6,20}$/;
   var list = []; // normalized slots, filled once slots.json (or the test hook) is read
 
   /** Keeps only well-formed entries: a unique id, a name, a numeric unit (or ''), and a sane size. Bad entries are dropped. */
@@ -42,7 +43,7 @@
   /** True when this slot may show an ad right now. */
   function wanted(s) {
     if (!s || !s.unit || !s.width || !s.height) return false;
-    if (!C || !S || !UNIT_RE.test(cfg.adsensePublisherId || '')) return false;
+    if (!C || !S || !PUB_RE.test(cfg.adsensePublisherId || '')) return false;
     return S.current().ads === true;
   }
   function clear(el) {
