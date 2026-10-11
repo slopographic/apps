@@ -27,7 +27,7 @@
     const matte = (await V.enc.matteMp4(it.vid.src, it.vid.res, {})).blob;
     const matteId = await h.put(matte, { name: base + '-matte.mp4', from: 'cutout', meta: { role: 'matte' }, folderId });
     const colourName = base + '-cutout.mp4';
-    const colourId = await h.put(colour, { name: colourName, from: 'cutout', meta: { role: 'colour', matteId }, folderId });
+    const colourId = await h.put(colour, { name: colourName, from: 'cutout', meta: { role: 'colour', matteId, clipId: it.origin && it.origin.meta ? it.origin.meta.clipId || null : null }, folderId });
     const clipId = it.origin && it.origin.from === 'slopedit' && it.origin.meta ? it.origin.meta.clipId : null;
     const payload = { id: colourId, matteId, name: colourName, clipId: clipId || null };
     if (h.openApps().includes('slopedit')) { h.emit('cutout-result', payload); toast('Sent to the open Slop Cut'); }
