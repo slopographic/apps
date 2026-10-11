@@ -80,12 +80,14 @@
     return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
   }
 
-  /** The special token ids used by the decoder, read from added_tokens.json. */
-  function specials(added) {
-    const need = ['<|startoftranscript|>', '<|endoftext|>', '<|transcribe|>', '<|0.00|>'];
+  /** The special token ids: start, end (in vocab.json), transcribe, and the first timestamp (just after notimestamps). */
+  function specials(added, vocab) {
+    const need = ['<|startoftranscript|>', '<|transcribe|>', '<|notimestamps|>'];
     for (const k of need) if (added[k] === undefined) throw new Error('Whisper tokens are missing ' + k);
+    const eot = vocab.indexOf('<|endoftext|>');
+    if (eot < 0) throw new Error('Whisper vocabulary is missing <|endoftext|>');
     const langs = Object.entries(added).filter(([k, v]) => /^<\|[a-z]{2,3}\|>$/.test(k) && v > added['<|startoftranscript|>'] && v < added['<|transcribe|>']).map(([k, v]) => ({ code: k.slice(2, -2), id: v }));
-    return { sot: added['<|startoftranscript|>'], eot: added['<|endoftext|>'], transcribe: added['<|transcribe|>'], ts0: added['<|0.00|>'], langs };
+    return { sot: added['<|startoftranscript|>'], eot, transcribe: added['<|transcribe|>'], ts0: added['<|notimestamps|>'] + 1, langs };
   }
 
   /** Turns decoded tokens into timed segments. Timestamp tokens open and close segments. */
@@ -140,7 +142,7 @@
    */
   async function transcribe(models, samples, opts, progress) {
     const ort = await root.SlopAIOrt.get();
-    const S = specials(models.added);
+    const S = specials(models.added, models.vocab);
     const windows = Math.max(1, Math.ceil(samples.length / CHUNK));
     const segs = [];
     let language = null;

@@ -50,6 +50,7 @@
     try {
       await deps();
       for (const p of await root.SlopLibraryStore.listPacks()) {
+        if (p.kind === 'model') continue; // AI models are not fonts
         for (const f of p.files) if (!seen.has(f.family)) { seen.add(f.family); list.push({ name: f.family, source: 'downloaded' }); }
       }
     } catch (e) { /* storage unavailable: bundled fonts only */ }

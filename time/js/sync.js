@@ -22,7 +22,12 @@
   function describe(offsetMs) {
     const abs = Math.abs(offsetMs) / 1000;
     if (abs < 0.05) return 'The device clock matched the reference you entered, to within a tenth of a second.';
-    const amount = abs < 60 ? `${abs.toFixed(1)} s` : `${Math.floor(abs / 60)} min ${Math.round(abs % 60)} s`;
+    let amount;
+    if (abs < 60) amount = `${abs.toFixed(1)} s`;
+    else {
+      const total = Math.round(abs), h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
+      amount = h ? `${h} h ${m} min` : `${m} min ${s} s`;
+    }
     return `The device clock was ${amount} ${offsetMs > 0 ? 'behind' : 'ahead of'} the reference you entered.`;
   }
 

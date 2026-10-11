@@ -40,7 +40,7 @@
     var f = files[0], url = await U.blobToDataUrl(f), sz = await imageSize(url), d = A.deck;
     var k = Math.min(1, d.size.w * 0.6 / sz.w, d.size.h * 0.6 / sz.h);
     var mid = M.addMedia(d, url, f.name);
-    OP.add('image', { w: sz.w * k, h: sz.h * k, media: mid, name: f.name.replace(/\.[^.]+$/, '') || 'Picture' }, 'Insert picture');
+    OP.add('image', { w: sz.w * k, h: sz.h * k, src: { w: sz.w, h: sz.h }, media: mid, name: f.name.replace(/\.[^.]+$/, '') || 'Picture' }, 'Insert picture');
   };
 
   OP.deleteSel = function () {

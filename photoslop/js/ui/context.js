@@ -58,6 +58,12 @@ document.addEventListener('keydown', (e) => {
 
 /* ---------- canvas ---------- */
 function canvasItems({ x, y }) {
+  const items = canvasItemsFor({ x, y }), rc = V.el.getBoundingClientRect();
+  // Right-click on the layer's box (idle, handles shown): the box's own item comes first; it is disabled outside a transform
+  if (items && !TRANSFORM.active && boxShown() && idleHit({ x: x - rc.left, y: y - rc.top })) return [{ label: 'Restore original aspect ratio', en: tfCanRestore, act: () => restoreAspect(null) }, '-'].concat(items);
+  return items;
+}
+function canvasItemsFor({ x, y }) {
   const id = TRANSFORM.active ? 'transform' : UI.tool;
   if (BRUSH_OPTS()[id]) { openBrushPicker(x, y, id); return null; }
   if (id === 'redeye') return [{ label: 'Red-Eye Removal…', act: () => runFilter('redeye') }, '-', M('Edit', 'Undo')];
@@ -65,7 +71,8 @@ function canvasItems({ x, y }) {
     { label: 'Commit Transform', key: 'Enter', act: commitTransform }, { label: 'Cancel Transform', key: 'Escape', act: cancelTransform }, '-',
     { label: 'Flip Horizontal', act: () => { TRANSFORM.sx *= -1; dirty(true); } }, { label: 'Flip Vertical', act: () => { TRANSFORM.sy *= -1; dirty(true); } },
     { label: 'Rotate 90° Clockwise', act: () => { TRANSFORM.rot += Math.PI / 2; dirty(true); } }, { label: 'Rotate 90° Counter Clockwise', act: () => { TRANSFORM.rot -= Math.PI / 2; dirty(true); } },
-    { label: 'Reset', act: () => { Object.assign(TRANSFORM, { tx: 0, ty: 0, sx: 1, sy: 1, rot: 0 }); dirty(true); } }];
+    '-', { label: 'Restore original aspect ratio', en: tfCanRestore, act: () => restoreAspect(TRANSFORM_TOOL.handleAt(toDoc({ clientX: x, clientY: y }))) },
+    { label: 'Reset transform', act: () => { Object.assign(TRANSFORM, { tx: 0, ty: 0, sx: 1, sy: 1, rot: 0 }); dirty(true); } }];
   const p = toDoc({ clientX: x, clientY: y });
   const items = [];
   if (id === 'move') {

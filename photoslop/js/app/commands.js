@@ -69,6 +69,7 @@ function toolCommands() {
   C2('next-doc', 'Next document', ['Mod+Tab'], () => cycleDoc(1), { group: 'Window', when: () => DOCS.length > 1 });
   C2('prev-doc', 'Previous document', ['Shift+Mod+Tab'], () => cycleDoc(-1), { group: 'Window', when: () => DOCS.length > 1 });
   for (let i = 1; i <= 9; i++) C2('doc-' + i, `Go to document ${i}`, ['Alt+' + i], () => { if (DOCS[i - 1]) switchToDoc(DOCS[i - 1]); }, { group: 'Window', when: () => !!DOCS[i - 1], hidden: true });
+  C2('transform-restore-aspect', 'Restore original aspect ratio', [], () => restoreAspect(null), { group: 'Edit', when: tfCanRestore, keywords: ['transform', 'proportion', 'ratio', 'free transform'] });
   C2('guides-panel', 'Guides panel (guide layouts)', [], () => openGuidesPanel(), { group: 'Window', keywords: ['guideguide', 'grid', 'columns', 'layout'] });
   return out;
 }

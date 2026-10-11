@@ -24,9 +24,10 @@
   }
 
   /** An object or text box (the selection, when the pointer is on one of them). */
-  function objectItems(objs) {
+  function objectItems(objs, at) {
     var one = objs.length === 1 ? objs[0] : null, out = [];
     if (one && SS.textEdit.canEdit(one)) out.push({ label: 'Edit text', key: keyOf('edit.text'), act: function () { SS.textEdit.open(one); } }, '-');
+    out.push({ label: 'Restore original aspect ratio', disabled: !SS.aspect.target(), act: function () { SS.aspect.restore(SS.aspect.keepAt(at)); } }, '-');
     out.push(
       { label: 'Copy', key: keyOf('edit.copy'), act: function () { OP.copy(); } },
       { label: 'Paste', key: keyOf('edit.paste'), act: function () { OP.paste(); }, disabled: !A.clip },
@@ -77,7 +78,7 @@
     var p = SS.stage.toSlide(ev.clientX, ev.clientY), hit = SS.overlay.hit(A.slide(), p);
     if (hit) { if (A.sel.indexOf(hit.id) < 0) A.select([hit.id]); }
     else if (A.sel.length) A.select([]);
-    return A.selObjs().length ? objectItems(A.selObjs()) : emptyItems();
+    return A.selObjs().length ? objectItems(A.selObjs(), p) : emptyItems();
   }
   function index(id) { return A.deck.slides.findIndex(function (s) { return s.id === id; }); }
 

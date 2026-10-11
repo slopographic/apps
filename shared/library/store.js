@@ -58,7 +58,7 @@
       for (const f of pack.files) {
         t.objectStore('files').put({ key: `${pack.id}/${f.name}`, packId: pack.id, family: f.family, weight: f.weight, style: f.style, blob: blobs[f.name] });
       }
-      t.objectStore('packs').put({ id: pack.id, name: pack.name, licence: pack.licence, licenceUrl: pack.licenceUrl || '', size: pack.size, installedAt: new Date().toISOString(), files: pack.files.map((f) => ({ name: f.name, family: f.family, weight: f.weight, style: f.style, size: f.size, sha256: f.sha256 })) });
+      t.objectStore('packs').put({ id: pack.id, kind: pack.kind || 'font', name: pack.name, licence: pack.licence, licenceUrl: pack.licenceUrl || '', size: pack.size, installedAt: new Date().toISOString(), files: pack.files.map((f) => ({ name: f.name, family: f.family, weight: f.weight, style: f.style, size: f.size, sha256: f.sha256 })) });
     });
   }
 

@@ -29,6 +29,7 @@
   UI.canvasMenu = function (x, y) {
     var any = S.sel.length > 0, txt = selectedText();
     var items = [];
+    if (any) items.push({ label: 'Restore original aspect ratio', disabled: !SV.aspectTarget(), act: function () { SV.restoreAspect(SV.aspectKeepAt(x, y)); } }, '-');
     if (txt) items.push({ label: 'Edit Text', act: function () { SV.startTextEdit(txt, null); } }, '-');
     items.push(mi('edit.undo'), mi('edit.redo'), '-');
     if (any) items.push(mi('edit.cut'), mi('edit.copy'), mi('edit.copyBuffer'));
@@ -36,7 +37,7 @@
     if (any) {
       items.push(mi('edit.duplicate'), mi('edit.clear'), '-', mi('object.group'), mi('object.ungroup'),
         { label: 'Arrange', sub: [mi('arrange.front'), mi('arrange.forward'), mi('arrange.backward'), mi('arrange.back')] },
-        { label: 'Transform', sub: [mi('transform.move'), mi('transform.rotate'), mi('transform.scale'), mi('transform.reflect'), '-', mi('transform.flipH'), mi('transform.flipV')] },
+        { label: 'Transform', sub: [mi('transform.move'), mi('transform.rotate'), mi('transform.scale'), mi('transform.reflect'), '-', mi('transform.flipH'), mi('transform.flipV'), '-', mi('transform.restoreAspect')] },
         { label: 'Pathfinder', sub: [mi('pf.unite'), mi('pf.minus'), mi('pf.intersect'), mi('pf.exclude')] },
         mi('compound.make'), mi('object.expand'), '-', mi('object.lock'), mi('object.hide'), '-', mi('object.slopify'));
     } else {

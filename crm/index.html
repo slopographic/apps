@@ -87,6 +87,10 @@
         <p class="note" id="fSummary" role="status"></p>
         <ul class="list" id="fRows" role="list" aria-label="Follow-ups"></ul>
         <p class="empty" id="fEmpty" hidden>No follow-ups set. Open a customer and set a follow-up date.</p>
+        <h3 class="h3">Calendar and to-dos for customers</h3>
+        <p class="note">Calendar events for the next 60 days, and open to-do tasks, linked to a customer.</p>
+        <ul class="list" id="fLinkedRows" role="list" aria-label="Scheduled for customers"></ul>
+        <p class="empty" id="fLinkedEmpty" hidden>No calendar events or open tasks linked to customers. Use Schedule on a customer.</p>
       </section>
 
       <section class="view" id="view-customer" role="region" aria-label="Customer details" hidden>
@@ -110,6 +114,8 @@
   <script src="../shared/data/bundle-check.js"></script>
   <script src="../shared/data/export.js"></script>
   <script src="../shared/data/examples.js"></script>
+  <script src="../shared/calendar/tz.js"></script>
+  <script src="../shared/calendar/rrule.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/hub.js"></script>
   <script src="../shared/slopui.js"></script>

@@ -34,6 +34,7 @@
       cmd('insert.rect', 'Insert rectangle', 'Insert', [], function () { OP.addShape('rect'); }, editing),
       cmd('insert.ellipse', 'Insert ellipse', 'Insert', [], function () { OP.addShape('ellipse'); }, editing),
       cmd('insert.image', 'Insert picture…', 'Insert', [], function () { OP.addImage(); }, editing),
+      cmd('edit.restoreAspect', 'Restore original aspect ratio', 'Edit', [], function () { SS.aspect.restore(null); }, function () { return hasSel() && !!SS.aspect.target(); }),
       cmd('arrange.front', 'Bring to front', 'Arrange', ['Mod+Shift+]'], function () { OP.arrange('front'); }, hasSel),
       cmd('arrange.back', 'Send to back', 'Arrange', ['Mod+Shift+['], function () { OP.arrange('back'); }, hasSel),
       cmd('slide.new', 'New slide', 'Slide', ['Shift+Mod+Enter'], function () { OP.newSlide(); }, editing),

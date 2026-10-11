@@ -91,7 +91,7 @@
 
   /** Step 1: the list. Shows licence, size and the state of each pack. */
   async function showList(message) {
-    frame('Get more fonts', el('p', { class: 'meta' }, 'Optional packs from third-party sources. Nothing is downloaded until you press Download and confirm.'), null);
+    frame('Get more', el('p', { class: 'meta' }, 'Optional packs from third-party sources (fonts, and AI models for Slop Upscale). Nothing is downloaded until you press Download and confirm.'), null);
     const body = dialog.querySelector('.body');
     body.append(el('p', { class: 'meta' }, 'Loading the pack list…'));
     const m = await loadManifest(), inst = await installedMap();
@@ -141,7 +141,8 @@
         const buf = await r.arrayBuffer();
         const v = await M().verifyBytes(buf, f);
         if (!v.ok) throw new Error(v.reason);
-        blobs[f.name] = new Blob([buf], { type: f.name.endsWith('.woff2') ? 'font/woff2' : 'font/' + f.name.split('.').pop().toLowerCase() });
+        const type = p.kind === 'model' ? 'application/octet-stream' : f.name.endsWith('.woff2') ? 'font/woff2' : 'font/' + f.name.split('.').pop().toLowerCase();
+        blobs[f.name] = new Blob([buf], { type });
       }
       status.textContent = 'Storing…';
       await S().savePack(p, blobs);
@@ -151,7 +152,7 @@
       return;
     }
     notify(p);
-    showList(`${p.name} is installed. Its fonts are in every font picker.`);
+    showList(`${p.name} is installed. ${p.kind === 'model' ? 'Apps that use it can now load it.' : 'Its fonts are in every font picker.'}`);
   }
 
   async function removeInstalled(p) {

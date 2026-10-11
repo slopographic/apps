@@ -17,6 +17,35 @@
       } }, 'Done'));
   }
 
+  /** Calendar events (repeats expanded, next 60 days) and open to-do tasks linked to a customer, soonest first. */
+  async function linkedRows(customers) {
+    const S = g.SlopData, T = g.SlopTime, RR = g.SlopRecur, tz = T.deviceZone(), loc = NS.state.settings.locale;
+    const [ev, tk] = await Promise.all([S.store.list('events'), S.store.list('tasks')]);
+    if (!ev.ok || !tk.ok) return [];
+    const names = new Map(customers.map((c) => [c.id, c.name]));
+    const today = T.todayIn(tz);
+    const from = T.startOfDay(today, tz), to = T.startOfDay(T.addDays(today, 60), tz);
+    const out = [];
+    for (const e of ev.value) {
+      if (!e.customerId || !names.has(e.customerId)) continue;
+      for (const o of RR.occurrences(e, from, to, tz).slice(0, 5)) {
+        const at = o.allDay ? T.startOfDay(o.startDay, tz) : o.start;
+        out.push({ at, name: names.get(e.customerId), text: e.title, when: o.allDay ? NS.util.date(o.startDay, loc) : T.dateTimeText(o.start, tz, loc), kind: e.kind || 'event' });
+      }
+    }
+    for (const t of tk.value) {
+      if (t.done || !t.customerId || !names.has(t.customerId)) continue;
+      const at = t.due ? T.dayTimeToUtc(t.due, t.dueTime || '09:00', t.tz || tz) : Infinity;
+      out.push({ at, name: names.get(t.customerId), text: t.title, when: t.due ? NS.util.date(t.due, loc) : 'No due date', kind: 'task' });
+    }
+    return out.sort((a, b) => a.at - b.at);
+  }
+
+  function linkedRow(r) {
+    const kind = { call: 'Call', meeting: 'Meeting', event: 'Event', task: 'To-do' }[r.kind] || 'Event';
+    return el('li', { class: 'row', role: 'listitem' }, el('span', { class: 'row-open' }, el('b', null, r.name), el('span', { class: 'row-sub' }, `${kind} · ${r.text} · ${r.when}`)));
+  }
+
   async function render() {
     const r = await NS.customers.load();
     if (!r.ok) { $('fRows').replaceChildren(el('p', { class: 'msg', role: 'alert' }, NS.util.refusal(r))); return; }
@@ -26,6 +55,9 @@
     const loc = NS.state.settings.locale;
     $('fRows').replaceChildren(...due.map((c) => row(c, group(c), loc)));
     $('fEmpty').hidden = due.length > 0;
+    const extra = await linkedRows(r.value);
+    $('fLinkedRows').replaceChildren(...extra.map(linkedRow));
+    $('fLinkedEmpty').hidden = extra.length > 0;
     $('fSummary').textContent = `${due.filter((c) => group(c) === 'overdue').length} overdue · ${due.filter((c) => group(c) === 'today').length} today`;
   }
 

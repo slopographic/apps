@@ -16,20 +16,21 @@
   const copyLook = (it) => ({ s: it.s, bg: Object.assign({}, it.bg, { image: null }), shadow: it.shadow, crop: it.crop });
   const u8 = (a) => (a ? new Uint8ClampedArray(a) : null);
 
-  const auto = window.SlopSession.autosave(APP, KEY, function () {
+  function getValue() {
     const list = kept();
     return {
       v: 2,
       items: list.map((it) => {
         const rec = { kind: it.kind || 'image', name: it.name, file: it.file, model: it.model, look: copyLook(it), edit: it.edit ? u8(it.edit) : null, done: true };
-        if (done && rec.kind === 'image') Object.assign(rec, { base: it.base ? u8(it.base) : null, w: it.w, h: it.h });
-        if (done && rec.kind === 'video' && it.vid && it.vid.res) rec.res = { masks: it.vid.res.masks.map((m) => u8(m)), mw: it.vid.res.mw, mh: it.vid.res.mh };
+        if (rec.kind === 'image') Object.assign(rec, { base: it.base ? u8(it.base) : null, w: it.w, h: it.h });
+        if (rec.kind === 'video' && it.vid && it.vid.res) rec.res = { masks: it.vid.res.masks.map((m) => u8(m)), mw: it.vid.res.mw, mh: it.vid.res.mh };
         return rec;
       }),
       active: list.findIndex((it) => it.id === S.activeId),
       tool: S.tool, view: S.view, split: S.split,
     };
-  }, { delay: 600 });
+  }
+  const auto = window.SlopSession.autosave(APP, KEY, getValue, { delay: 600 });
   const touch = function () { if (ready) auto.touch(); };
   ['list', 'active', 'activeItem', 'item', 'history', 'look'].forEach((t) => CO.on(t, touch));
   ['pointerup', 'keyup', 'click', 'input', 'change'].forEach((t) => document.addEventListener(t, touch, true));
@@ -90,7 +91,6 @@
     },
     /** Flush the pending save now (used before an in-page navigation). */
     flush: function () { return auto.flush(); },
-    isImage: isImg,
   };
 
   /** The toolbar button: clear the saved work (asks first). */
