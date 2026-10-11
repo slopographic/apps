@@ -110,7 +110,7 @@ const PRECACHE = [
   '/photoslop/js/layers/fx-rows.js', '/photoslop/js/layers/fx.js', '/photoslop/js/tools/eyedrop.js',
   '/photoslop/js/tools/fill.js', '/photoslop/js/tools/heal.js', '/photoslop/js/tools/paint.js',
   '/photoslop/js/tools/redeye.js', '/photoslop/js/tools/select.js', '/photoslop/js/tools/state.js',
-  '/photoslop/js/tools/stroke.js', '/photoslop/js/tools/transform.js', '/photoslop/js/type/edit.js',
+  '/photoslop/js/tools/stroke.js', '/photoslop/js/tools/transform.js', '/photoslop/js/tools/transform-idle.js', '/photoslop/js/type/edit.js',
   '/photoslop/js/type/model.js', '/photoslop/js/type/props.js', '/photoslop/js/ui/chrome.js',
   '/photoslop/js/ui/color-picker.js', '/photoslop/js/ui/context.js', '/photoslop/js/ui/dialogs.js',
   '/photoslop/js/ui/doc-dialogs.js', '/photoslop/js/ui/filter-dialog.js', '/photoslop/js/ui/fx-dialog.js',

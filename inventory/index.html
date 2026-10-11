@@ -45,13 +45,13 @@
         <div class="toolbar">
           <label class="search"><span class="sr">Search products</span>
             <input id="pSearch" type="search" placeholder="Search SKU, EAN or name" autocomplete="off" spellcheck="false"></label>
-          <label>Sort <select id="pSort"><option value="name">Name</option><option value="sku">SKU</option><option value="onHand">On hand</option><option value="price">Price</option></select></label>
+          <label>Sort <select id="pSort"><option value="name">Name</option><option value="sku">SKU</option></select></label>
           <label>Show <select id="pFilter"><option value="all">All products</option><option value="low">Low stock only</option></select></label>
           <button type="button" class="btn primary" id="pAdd">Add product</button>
         </div>
         <p class="note" id="pSummary" role="status"></p>
         <div class="table" role="table" aria-label="Products">
-          <div class="row head" role="row"><span role="columnheader">Product</span><span role="columnheader">EAN</span><span role="columnheader">Price</span><span role="columnheader">Tax</span><span role="columnheader">On hand</span><span role="columnheader">Reorder</span></div>
+          <div class="row head" role="row"><span role="columnheader">Product (name and SKU)</span></div>
           <div id="pRows" role="rowgroup"></div>
         </div>
         <p class="empty" id="pEmpty" hidden>No products match. Add one, or import a CSV in the Data tab.</p>

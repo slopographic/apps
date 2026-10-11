@@ -11,18 +11,12 @@
   const COMPARE = {
     name: (a, b) => a.name.localeCompare(b.name),
     sku: (a, b) => a.sku.localeCompare(b.sku),
-    onHand: (a, b) => a.onHand - b.onHand,
-    price: (a, b) => a.price - b.price,
   };
 
-  function rowEl(r, st) {
+  /** A list row shows the product name and the part number (SKU) only. Price, tax, stock and EAN are in the form and reports. */
+  function rowEl(r) {
     return U.h('div', { class: 'row' + (r.low ? ' is-low' : ''), role: 'row', tabindex: 0, dataset: { id: r.id } },
-      U.h('span', { role: 'cell', class: 'c-name' }, U.h('b', { class: 'mono', text: r.sku }), U.h('span', { class: 'sub', text: r.name })),
-      U.h('span', { role: 'cell', class: 'mono', 'data-label': 'EAN', text: r.ean || '—' }),
-      U.h('span', { role: 'cell', 'data-label': 'Price', text: U.money(r.price, st.currency, st.locale) }),
-      U.h('span', { role: 'cell', 'data-label': 'Tax', text: `${U.percentText(r.taxRate)}%` }),
-      U.h('span', { role: 'cell', class: 'num', 'data-label': 'On hand', text: `${r.onHand} ${r.unit}` }, r.low ? U.h('span', { class: 'badge warn', text: 'Low' }) : null),
-      U.h('span', { role: 'cell', 'data-label': 'Reorder', text: r.reorderLevel === undefined ? '—' : String(r.reorderLevel) }));
+      U.h('span', { role: 'cell', class: 'c-name' }, U.h('b', { class: 'mono', text: r.sku }), U.h('span', { class: 'sub', text: r.name })));
   }
 
   /** Redraws the rows from the last read, applying the search, filter and sort. */
@@ -34,7 +28,7 @@
       .filter((r) => (!q || [r.sku, r.ean, r.name].some((x) => String(x).toLowerCase().includes(q))))
       .filter((r) => filter !== 'low' || r.low)
       .sort(COMPARE[$('pSort').value] || COMPARE.name);
-    $('pRows').replaceChildren(...list.map((r) => rowEl(r, st)));
+    $('pRows').replaceChildren(...list.map((r) => rowEl(r)));
     $('pEmpty').hidden = list.length > 0;
     const t = NS.rows.totalsOf(rows);
     $('pSummary').textContent = `${U.plural(t.products, 'product')} · ${t.low} at or below reorder level · stock value ${U.money(t.value, st.currency, st.locale)} · showing ${list.length}`;
