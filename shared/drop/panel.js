@@ -32,6 +32,7 @@
     '.sd-hint b{background:var(--sui-accent,#3b5bdb);color:#fff;font:600 13px/1.3 system-ui,sans-serif;padding:6px 10px;border-radius:6px;max-width:90%;text-align:center}',
     '.sd-toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:9001;max-width:min(560px,calc(100vw - 32px));background:var(--sui-text,#1b1b22);color:var(--sui-panel,#fff);font:13px/1.4 system-ui,sans-serif;padding:9px 14px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer}',
     '.sd-toast.warn{border-left:4px solid #e0a040}',
+    '.sd-over{outline:2px dashed var(--sui-accent,#3b5bdb);outline-offset:3px}',
     '.sd-flash{animation:sd-flash 1.2s ease-out}',
     '@keyframes sd-flash{from{box-shadow:0 0 0 3px var(--sui-accent,#3b5bdb)}to{box-shadow:0 0 0 0 transparent}}',
   ].join('\n');
@@ -96,7 +97,7 @@
   let toastEl = null, toastTimer = 0;
   P.toast = function (text, kind) {
     if (!doc.body) return;
-    if (!toastEl) {
+    if (!toastEl || !toastEl.isConnected) {
       toastEl = doc.createElement('div');
       toastEl.className = 'sd-toast'; toastEl.setAttribute('role', 'status'); toastEl.setAttribute('aria-live', 'polite');
       toastEl.addEventListener('click', () => { toastEl.remove(); toastEl = null; });

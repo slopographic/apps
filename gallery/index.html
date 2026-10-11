@@ -120,6 +120,7 @@
             <button type="button" class="tb-btn" id="peopleAll">Faces and people…</button>
           </div>
         </div>
+        <div id="gDrop" class="g-dropstrip"></div>
         <div class="grid" id="grid" tabindex="0" aria-label="Photos, newest first">
           <div class="sticky" id="sticky" hidden><span class="sticky-l"></span><span class="sticky-n"></span></div>
           <div class="tl-content" id="tlContent"></div>
@@ -142,7 +143,6 @@
 
     <footer class="statusbar"><span id="status" aria-live="polite"></span><span class="busy" id="busy" hidden></span></footer>
   </div>
-  <div class="drop-hint" aria-hidden="true">Drop photos or folders to import</div>
 
   <script src="../shared/session/session.js" data-src="shared/session/session.js"></script>
   <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
@@ -207,6 +207,9 @@
   <script src="js/ui/drive-viewer.js" data-src="gallery/js/ui/drive-viewer.js"></script>
   <script src="js/ui/drive-view.js" data-src="gallery/js/ui/drive-view.js"></script>
   <script src="js/ui/drive-bar.js" data-src="gallery/js/ui/drive-bar.js"></script>
+  <script src="../shared/drop/rules.js" data-src="shared/drop/rules.js"></script>
+  <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="js/ui/main.js" data-src="gallery/js/ui/main.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>

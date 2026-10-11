@@ -40,13 +40,25 @@
   /** The file picker (several files at once). */
   function importPick() {
     const ex = SlopExamples.info('contacts');
-    UI.dialog({ title: 'Import contacts', body: el('div', null, el('p', { class: 'sui-p' }, 'vCard, CSV (Google or Outlook layout) or .scontacts. Each contact is added; exact duplicates merge.'),
+    // A drop zone in the dialog (SlopDrop, shared/drop): each dropped file is imported as Choose files does.
+    const zone = document.createElement('div');
+    const parts = [el('p', { class: 'sui-p' }, 'vCard, CSV (Google or Outlook layout) or .scontacts. Each contact is added; exact duplicates merge.'),
       el('p', { class: 'sui-p' }, ex.note), el('p', { class: 'sui-p' }, 'Columns: ' + ex.columns.join(', ') + '.'),
-      el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('contacts') }, 'Download example CSV')),
+      el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('contacts') }, 'Download example CSV')];
+    if (window.SlopDrop) parts.push(zone);
+    UI.dialog({ title: 'Import contacts', body: el('div', null, ...parts),
     buttons: [{ label: 'Cancel' }, { label: 'Choose files…', primary: true, act: async () => {
       const files = await UI.pickFiles({ accept: ACCEPT, multiple: true });
       if (files && files.length) await importFiles(files);
     } }] });
+    if (window.SlopDrop) window.SlopDrop.attach(zone, {
+      accept: { types: ['text/*', 'application/json', 'application/vnd.ms-excel'], exts: ['.vcf', '.vcard', '.csv', '.tsv', '.txt', '.scontacts'], noun: 'a contact file (vCard, CSV or .scontacts)' },
+      compact: true, window: false, overlay: false, toast: false,
+      process: async (file) => {
+        if (!(await importFiles([file]))) throw new Error('has no contacts');
+        return file.name;
+      },
+    });
   }
 
   /** Downloads one export for a scope: a set of ids, or null for every contact. */

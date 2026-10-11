@@ -16,7 +16,8 @@ SlopCut. Local only: nothing is fetched or uploaded (`grep -rn "fetch\|XMLHttpRe
 - `js/panel.js`: the keyframe row, the effect controls, Reset all (`RM.panel`: `renderKeys`, `effectRow`, `sync`, `init`).
 - `js/items.js`: the bin. Files become items (images, videos with their duration and size); `RM.addFiles`, `RM.removeItem`.
 - `js/preview.js`: the preview (`RM.preview`): draws the plan at time t, fill modes, scrubbing, play, music and original sound.
-- `js/drop.js`: drag and drop (see below).
+- `js/drop.js`: bin clips dragged onto a slot of the preview or a cut (see below). Files from the desktop are not here: they
+  go through SlopDrop (`shared/drop`, see its HANDOFF), wired in `js/ui.js` (`wireDrop`).
 - `js/export.js`: Export (`RM.exporter.run`): records the plan at the preset size, with its sound.
 - `js/audio.js`: the reel's sound (`RM.audio`): music track, fade, routing for the export.
 - `js/send.js`: Send to SlopCut through Slop Drive (clips and manifest stored, then `SlopHub.sendTo('slopedit', …)`).
@@ -89,7 +90,9 @@ for the whole reel. The cut list ends with the effect layer's row, and each cut 
 
 ## Editing on the stage
 
-- Drag files from the desktop anywhere on the stage: they join the bin (the Add files path).
+- Drag files from the desktop onto the bin or the stage: SlopDrop (`shared/drop`) outlines both while the drag is over the
+  window, shows each file's progress in the bin's drop zone, adds them through `RM.addFiles` (the Add files path), and
+  toasts the result ("Added 2 files, 1 skipped: notes.txt is not a picture or video"). The new clip is scrolled into view.
 - Drag a clip from the bin onto a slot in the preview: it replaces that slot's clip in the cut showing at the playhead.
   Drag it onto a span in the cut list: it replaces that slot's clip in that cut. The clip keeps the cut's length; a clip
   shorter than its slot holds its last frame. Replaced clips stay until the next Remix or Reshuffle, which plans again.
@@ -131,7 +134,9 @@ replacements are not in the manifest (SlopCut replays the plan from the options)
 `tests/node/remix-edit.test.mjs` (timing, locks surviving a reshuffle, audio choice) and the browser pages
 `tests/remix/remix.test.html` (the edit, presets, lane) and `tests/remix/remix-stage.test.html` (stage size, drop on the stage,
 drop onto a cut, scrubbing paints a frame and Play carries on, export records a file) and `tests/remix/remix-keys.test.html`
-(adding a key at the playhead shows in the row, and Reset slot keys removes it).
+(adding a key at the playhead shows in the row, and Reset slot keys removes it) and `tests/remix/remix-drop.test.html` (the drop
+zone, the drag label over the window, a dropped picture shows a progress row and then the clip in the bin, a refused file is named
+in the toast). The accept and refuse rules are `tests/node/drop-rules.test.mjs`.
 `node tests/run.mjs video` runs `tests/node/video-keys.test.mjs` (interpolation through SlopMotion, each ease, the hold at both
 ends, the key edits, the Animate in presets) and `tests/node/video-effects.test.mjs` (the seeded choice of effects, Random by
 cut or by reel, the same seed gives the same effects, effects never change the cuts).

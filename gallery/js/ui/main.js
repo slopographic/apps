@@ -6,17 +6,22 @@
   const G = (window.SlopGallery = window.SlopGallery || {});
   const $ = (id) => document.getElementById(id);
 
+  // Files and folders dropped on the window: SlopDrop (shared/drop) shows the outline and each file's progress. The
+  // folder walk (G.source.fromDrop) reads the drop's entries inside the drop event, as before.
   function bindDrop() {
-    let depth = 0;
-    const on = (v) => document.body.classList.toggle('dragging', v);
-    window.addEventListener('dragenter', (e) => { if (e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files')) { depth++; on(true); e.preventDefault(); } });
-    window.addEventListener('dragover', (e) => { if (e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files')) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } });
-    window.addEventListener('dragleave', () => { depth = Math.max(0, depth - 1); if (!depth) on(false); });
-    window.addEventListener('drop', async (e) => {
-      e.preventDefault(); depth = 0; on(false);
-      if (!e.dataTransfer) return;
-      const items = await G.source.fromDrop(e.dataTransfer);
-      G.actions.importItems(items);
+    window.SlopDrop.attach($('gDrop'), {
+      accept: {
+        types: ['image/*'],
+        exts: ['.jpg', '.jpeg', '.jpe', '.png', '.webp', '.gif', '.avif', '.bmp', '.heic', '.heif', '.svg'],
+        noun: 'a photo',
+      },
+      compact: true,
+      targets: [document.body],
+      files: async (dt) => (await G.source.fromDrop(dt)).map((it) => it.file),
+      process: async (file) => {
+        await G.actions.importItems([{ file, name: file.name }]);
+        return file.name;
+      },
     });
   }
 

@@ -34,7 +34,7 @@ button, input, select { font: inherit; color: inherit; }
 .mu-main { padding: 16px 16px 96px; max-width: 1200px; margin: 0 auto; }
 .mu-view { position: relative; }
 .mu-view.mu-drop-on { outline: 2px dashed var(--mu-accent); outline-offset: 6px; border-radius: 8px; }
-.mu-drop-hint { display: none; }
+.mu-dropzone { margin: 0 0 10px; padding: 8px 10px; border: 1px dashed var(--mu-line, #3a3a46); border-radius: 8px; }
 .mu-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
 .mu-bar .sui-input { height: 32px; }
 #lib-search { flex: 1 1 220px; }

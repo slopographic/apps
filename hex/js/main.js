@@ -28,14 +28,13 @@
     });
     $('hx-findform').addEventListener('submit', (e) => { e.preventDefault(); A().find(1); });
     if (window.SlopCtx) SlopCtx.bind($('hx-scroll'), () => window.HexCommands.contextItems());
-    /* Drop a file anywhere on the page to open it (the browser would otherwise navigate to it). */
-    const hasFiles = (e) => e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files');
-    document.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
-    document.addEventListener('drop', (e) => {
-      if (!hasFiles(e)) return;
-      e.preventDefault();
-      const f = e.dataTransfer.files[0];
-      if (f) A().openBlob(f, { name: f.name });
+    /* Drop a file anywhere on the page to open it (SlopDrop, shared/drop: one file, the browser would otherwise navigate). */
+    window.SlopDrop.attach($('hx-drop'), {
+      accept: { any: true, allowEmpty: true, noun: 'a file' },
+      limit: 1,
+      compact: true,
+      targets: [document.body],
+      process: async (file) => { await A().openBlob(file, { name: file.name }); return file.name; },
     });
   }
 

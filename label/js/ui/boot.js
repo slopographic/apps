@@ -28,20 +28,25 @@ function wireChrome() {
   $('zoomVal').addEventListener('click', fitView);
   // tapping the canvas on a phone closes the panel sheet
   $('stage').addEventListener('pointerdown', () => { if (narrow()) hideDock(); }, true);
-  // drag and drop anywhere
-  const app = $('app');
-  let depth = 0;
-  addEventListener('dragenter', (e) => { if ([...(e.dataTransfer && e.dataTransfer.types || [])].includes('Files')) { e.preventDefault(); depth++; app.classList.add('dropping'); } });
-  addEventListener('dragleave', () => { if (--depth <= 0) { depth = 0; app.classList.remove('dropping'); } });
-  addEventListener('dragover', (e) => { if ([...(e.dataTransfer && e.dataTransfer.types || [])].includes('Files')) e.preventDefault(); });
-  addEventListener('drop', async (e) => {
-    depth = 0; app.classList.remove('dropping');
-    const files = [...((e.dataTransfer && e.dataTransfer.files) || [])]; if (!files.length) return;
-    e.preventDefault();
-    // images dropped on the label land where they were dropped
-    const img = files.find((f) => /^image\//.test(f.type));
-    if (img && files.length === 1 && e.target.closest && e.target.closest('#stage')) { const [x, y] = toMMpt(e); await insertImageFile(img, { x: round(x, 2), y: round(y, 2) }); return; }
-    await openFiles(files);
+  // drag and drop anywhere: SlopDrop (shared/drop) shows the outline and each file's progress in the strip over the
+  // stage. A picture dropped on the stage lands where it was dropped; everything else opens as before (openFiles).
+  const DROP_RULES = {
+    types: ['image/*'],
+    exts: ['.sloplabel', '.json', '.zpl', '.prn', '.txt', '.csv', '.tsv', '.xlsx', '.svg'],
+    noun: 'a label, picture or data file',
+  };
+  window.SlopDrop.attach($('lbDrop'), {
+    accept: DROP_RULES,
+    compact: true,
+    targets: [$('app')],
+    process: async (file, progress, ctx) => {
+      const hit = ctx.at && document.elementFromPoint(ctx.at.x, ctx.at.y);
+      if (/^image\//.test(file.type) && hit && hit.closest && hit.closest('#stage')) {
+        const [x, y] = toMMpt({ clientX: ctx.at.x, clientY: ctx.at.y });
+        await insertImageFile(file, { x: round(x, 2), y: round(y, 2) });
+      } else await openFiles([file]);
+      return file.name;
+    },
   });
   addEventListener('beforeunload', () => { if (App.doc && App.dirty) autosave(App.doc); });
   matchMedia('(max-width: 760px)').addEventListener('change', () => { hideDock(); setTimeout(fitView, 50); });

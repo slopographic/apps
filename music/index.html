@@ -46,6 +46,7 @@
       <div class="mu-lib">
         <aside class="mu-side" id="lib-side" aria-label="Tags"></aside>
         <div class="mu-lib-main">
+          <div id="lib-drop" class="mu-dropzone"></div>
           <div class="mu-bar">
             <input type="search" id="lib-search" class="sui-input" placeholder="Search title, artist, album" aria-label="Search the library">
             <select id="lib-sort" class="sui-input" aria-label="Sort by">
@@ -63,7 +64,6 @@
           </div>
         </div>
       </div>
-      <p class="mu-drop-hint" aria-hidden="true">Drop audio files to add them</p>
     </section>
 
     <section class="mu-view" id="v-playlists" aria-label="Playlists" hidden>
@@ -148,6 +148,9 @@
   <script src="js/core/media.js"></script>
   <script src="js/ui/format.js"></script>
   <script src="js/ui/waveform.js"></script>
+  <script src="../shared/drop/rules.js"></script>
+  <script src="../shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js"></script>
   <script src="js/ui/library.js"></script>
   <script src="js/ui/now.js"></script>
   <script src="js/ui/mini.js"></script>

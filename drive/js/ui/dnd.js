@@ -70,36 +70,44 @@
   };
 
   /* ---------- upload by dropping files from the computer ---------- */
+  // Files and folders go to the folder under the pointer (or the open folder). SlopDrop (shared/drop) takes the drop,
+  // shows the progress strip above the pane, and uploads each file; a lone Slop backup opens in Backup & restore.
   DR.wireDropUpload = function () {
-    let depth = 0;
-    const zone = $('dropzone');
+    let hover = null; // the data-drop target under the pointer at the last dragover (the drop reads it)
     const hasFiles = (e) => e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files');
-    addEventListener('dragenter', (e) => { if (!hasFiles(e)) return; e.preventDefault(); depth++; zone.hidden = false; });
-    addEventListener('dragleave', (e) => { if (!hasFiles(e)) return; depth = Math.max(0, depth - 1); if (!depth) zone.hidden = true; });
     addEventListener('dragover', (e) => {
       if (!hasFiles(e)) return;
-      e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
       document.querySelectorAll('.drop').forEach((n) => n.classList.remove('drop'));
       const d = document.elementFromPoint(e.clientX, e.clientY);
       const t = d && d.closest('[data-drop]');
-      if (t && t.dataset.drop !== 'trash' && t.dataset.drop !== 'star') t.classList.add('drop');
+      hover = t && t.dataset.drop !== 'trash' && t.dataset.drop !== 'star' ? t : null;
+      if (hover) hover.classList.add('drop');
     });
-    addEventListener('drop', async (e) => {
-      if (!hasFiles(e)) return;
-      e.preventDefault(); depth = 0; zone.hidden = true;
-      const d = document.elementFromPoint(e.clientX, e.clientY), t = d && d.closest('[data-drop]');
-      document.querySelectorAll('.drop').forEach((n) => n.classList.remove('drop'));
-      let dest = DR.dest();
-      if (t && t.dataset.drop !== 'trash' && t.dataset.drop !== 'star') dest = t.dataset.drop === 'root' ? null : t.dataset.drop;
-      const list = await DR.readDrop(e.dataTransfer);
-      if (list.length === 1 && /\.slop$/i.test(list[0].file.name) && await window.SlopUI.confirm('Restore this backup?', `“${list[0].file.name}” looks like a Slopographic backup. Open it in Backup & restore instead of uploading it?`, 'Open backup', { cancel: 'Just upload' })) {
-        if (window.SlopBackupUI) window.SlopBackupUI.open.choose = null;
-        DR.backupDialog();
-        for (let i = 0; i < 100 && !(window.SlopBackupUI && window.SlopBackupUI.open.choose); i++) await new Promise((r) => setTimeout(r, 50));
-        if (window.SlopBackupUI && window.SlopBackupUI.open.choose) window.SlopBackupUI.open.choose(list[0].file);
-        return;
-      }
-      if (list.length) DR.importFiles(list, dest);
+    let batchDest = null;
+    const dest = () => (hover ? (hover.dataset.drop === 'root' ? null : hover.dataset.drop) : DR.dest());
+    window.SlopDrop.attach(document.getElementById('drvDrop'), {
+      accept: { any: true, allowEmpty: true, noun: 'a file' },
+      compact: true,
+      targets: [document.body],
+      files: async (dt) => {
+        document.querySelectorAll('.drop').forEach((n) => n.classList.remove('drop'));
+        batchDest = dest();
+        const list = await DR.readDrop(dt);
+        if (list.length === 1 && /\.slop$/i.test(list[0].file.name)) {
+          if (await window.SlopUI.confirm('Restore this backup?', `“${list[0].file.name}” looks like a Slopographic backup. Open it in Backup & restore instead of uploading it?`, 'Open backup', { cancel: 'Just upload' })) {
+            if (window.SlopBackupUI) window.SlopBackupUI.open.choose = null;
+            DR.backupDialog();
+            for (let i = 0; i < 100 && !(window.SlopBackupUI && window.SlopBackupUI.open.choose); i++) await new Promise((r) => setTimeout(r, 50));
+            if (window.SlopBackupUI && window.SlopBackupUI.open.choose) window.SlopBackupUI.open.choose(list[0].file);
+            return [];
+          }
+        }
+        return list.map((r) => Object.assign(r.file, { slopPath: r.path, slopDest: batchDest }));
+      },
+      process: async (file) => {
+        await DR.importFiles([{ file, path: file.slopPath }], file.slopDest);
+        return file.name;
+      },
     });
   };
 })(window.DR);

@@ -25,10 +25,34 @@
     if (files && files[0]) showResult(await C.importFile(files[0], { app }));
   }
 
+  /** The import dialog's drop zone: one SlopDrop instance (shared/drop), moved into each dialog that opens. A .slop.json
+   *  file dropped on it, or chosen there, is checked and imported. Null when the page has no SlopDrop. */
+  let zone = null;
+  function importZone() {
+    if (!g.SlopDrop) return null;
+    if (!zone) {
+      zone = document.createElement('div');
+      zone.className = 'sd-config-zone';
+      g.SlopDrop.attach(zone, {
+        accept: { types: ['application/json'], exts: ['.json'], noun: 'a .slop.json file' },
+        compact: true, window: false, overlay: false,
+        process: async (file) => {
+          if (!/\.slop\.json$/i.test(file.name)) throw new Error('is not a .slop.json file');
+          showResult(await C.importFile(file, { app: zone.dataset.app }));
+          return file.name;
+        },
+      });
+    }
+    return zone;
+  }
+
   /** "Import config…": a file from this computer, or from Slop Drive. The file is checked before anything changes. */
   function importDialog(o = {}) {
     const app = appOf(o);
-    const body = UI().el('p', { class: 'sui-p' }, 'Choose a .slop.json file. It is checked in full first; nothing changes unless every part is valid.');
+    const kids = [UI().el('p', { class: 'sui-p' }, 'Choose a .slop.json file. It is checked in full first; nothing changes unless every part is valid.')];
+    const z = importZone();
+    if (z) { z.dataset.app = app; kids.push(z); }
+    const body = UI().el('div', null, ...kids);
     UI().dialog({
       title: o.title || 'Import config', body,
       buttons: [
