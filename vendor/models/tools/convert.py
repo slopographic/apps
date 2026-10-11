@@ -4,11 +4,13 @@
     python convert.py <upstream-dir> <out-dir>
 
 <upstream-dir> holds u2netp.onnx and isnet-general-use.onnx exactly as downloaded.
-Two transformations, both lossless in structure:
+Three transformations:
   1. prune: keep only the final saliency output (U2-Net/IS-Net also export their side outputs and,
      for IS-Net, five large feature maps that would cost ~100 MB of memory per run in the browser);
   2. weight-only int8 (IS-Net only): every Conv weight is stored as int8 with one float32 scale per
      output channel and expanded back with DequantizeLinear, so the math stays float32.
+  3. MaxPool(kernel 2, stride 2, ceil_mode=1) → MaxPool(ceil_mode=0, end pads 1): identical output for
+     every input size, but the WebGPU backend of ONNX Runtime Web cannot run ceil_mode (U²-Netp, IS-Net).
 MODNet is shipped unchanged.
 """
 import os, sys
@@ -63,12 +65,27 @@ def weight_int8(model):
     return model
 
 
+def no_ceil(model):
+    for n in model.graph.node:
+        if n.op_type != 'MaxPool':
+            continue
+        a = {x.name: helper.get_attribute_value(x) for x in n.attribute}
+        if a.get('ceil_mode') == 1 and list(a.get('kernel_shape', [])) == [2, 2] and list(a.get('strides', [])) == [2, 2] and not any(a.get('pads', [0])):
+            for x in n.attribute:
+                if x.name == 'ceil_mode':
+                    x.i = 0
+                elif x.name == 'pads':
+                    del x.ints[:]
+                    x.ints.extend([0, 0, 1, 1])
+    return model
+
+
 def main(src, out):
     os.makedirs(out, exist_ok=True)
-    m = prune(onnx.load(os.path.join(src, 'u2netp.onnx')), '1959')
+    m = no_ceil(prune(onnx.load(os.path.join(src, 'u2netp.onnx')), '1959'))
     onnx.checker.check_model(m)
     onnx.save(m, os.path.join(out, 'u2netp.onnx'))
-    m = weight_int8(prune(onnx.load(os.path.join(src, 'isnet-general-use.onnx')), 'output_image'))
+    m = no_ceil(weight_int8(prune(onnx.load(os.path.join(src, 'isnet-general-use.onnx')), 'output_image')))
     onnx.checker.check_model(m)
     onnx.save(m, os.path.join(out, 'isnet-general-w8.onnx'))
 

@@ -6,8 +6,8 @@ license that allows commercial use. **BRIA RMBG is deliberately not used** (non-
 
 | File | Mode | Size (bytes) | sha256 | License |
 |---|---|---|---|---|
-| `u2netp.onnx` | Fast | 4 574 105 | `585cbf8e2136eee5b2260c172be57829f8aacbc0512c8340ee888beb98fb7d02` | Apache-2.0 |
-| `isnet-general-w8.onnx` | Quality | 46 535 524 | `49934ab38a5cb4b4973da4fb1b20a5504719dd9765771c51be85f37f1e1f8d6c` | Apache-2.0 |
+| `u2netp.onnx` | Fast | 4 574 105 | `071286c4799087ffb7706481f2d970adb2ca2d70563f1d92f71e067fd4c8810c` | Apache-2.0 |
+| `isnet-general-w8.onnx` | Quality | 46 535 524 | `d26c429eb10cb83457239610a7cc4ccf21775e7bc18c16bc626c5bbf3b9743b8` | Apache-2.0 |
 | `modnet-portrait.onnx` | Portrait | 25 888 640 | `07c308cf0fc7e6e8b2065a12ed7fc07e1de8febb7dc7839d7b7f15dd66584df9` | Apache-2.0 |
 
 The app checks these hashes after every download (`shared/cutout/models.js`), so a changed file must
@@ -22,7 +22,9 @@ get its new hash there too.
 - ONNX export downloaded from the rembg release assets (rembg is MIT, the weights keep their
   Apache-2.0 license): https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx
   (4 574 861 bytes, sha256 `309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8`).
-- Changed: pruned to the single fused output `1959` (`tools/convert.py`). Input `input.1`
+- Changed (`tools/convert.py`, deterministic): pruned to the single fused output `1959`, and the
+  2×2 `MaxPool` layers rewritten from `ceil_mode=1` to `ceil_mode=0` with end padding 1 (bit-identical
+  output; the WebGPU backend cannot run `ceil_mode`). Input `input.1`
   [1,3,320,320], ImageNet mean/std after dividing by the image maximum; output min-max normalised.
 
 ### IS-Net general-use (Quality) — `isnet-general-w8.onnx`
@@ -32,7 +34,8 @@ get its new hash there too.
 - ONNX export downloaded from the rembg release assets:
   https://github.com/danielgatis/rembg/releases/download/v0.0.0/isnet-general-use.onnx
   (178 648 008 bytes, sha256 `60920e99c45464f2ba57bee2ad08c919a52bbf852739e96947fbb4358c0d964a`).
-- Changed (`tools/convert.py`, deterministic): pruned to `output_image`, then **weight-only int8**:
+- Changed (`tools/convert.py`, deterministic): pruned to `output_image`, then **weight-only int8**
+  (and the same `MaxPool` rewrite as above):
   Conv weights stored as int8 with a per-output-channel scale and expanded by `DequantizeLinear`
   (compute stays float32). 178 MB → 46.5 MB. Against the fp32 original (ONNX Runtime CPU) the
   mean absolute mask difference was 0.0000–0.0066 on our test images; full dynamic uint8

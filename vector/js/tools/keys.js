@@ -41,7 +41,9 @@
       pasteTimer = setTimeout(function () { pasteTimer = null; C.paste(); }, 80);
       return;
     }
-    var act = SV.keymap && SV.keymap[combo];
+    // With SlopCmd (ui/commands.js) every other shortcut is a customizable command; only context keys remain here.
+    if (SV.cmdOn && !/^(Escape|Enter|ArrowUp|ArrowDown)$/.test(e.key)) return;
+    var act = !SV.cmdOn && SV.keymap && SV.keymap[combo];
     if (act) {
       e.preventDefault();
       SV.runAction(act);
@@ -55,7 +57,7 @@
       SV.updateShapeOp(); return;
     }
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      if (e.ctrlKey || e.metaKey) return;
+      if (e.ctrlKey || e.metaKey || SV.cmdOn) return;
       e.preventDefault();
       var inc = S.prefs.keyInc * (e.shiftKey ? 10 : 1);
       C.nudge(e.key === 'ArrowLeft' ? -inc : e.key === 'ArrowRight' ? inc : 0, e.key === 'ArrowUp' ? -inc : e.key === 'ArrowDown' ? inc : 0);

@@ -31,11 +31,74 @@
     box.append(ph);
     if (a.shot) {
       const img = el('img', { alt: '', loading: 'lazy', decoding: 'async', src: a.shot });
-      img.addEventListener('load', () => box.classList.add('has-img'));
+      img.addEventListener('load', () => { box.classList.add('has-img'); if (!stillOnly()) box.dataset.clip = a.shot.replace('/shots/', '/clips/').replace(/\.jpe?g$/, ''); });
       img.addEventListener('error', () => img.remove());
       box.append(img);
     }
     return box;
+  }
+
+  /* ---------- clips: a muted loop on hover/focus (desktop) or for the one card in view (touch) ---------- */
+  const mq = (q) => window.matchMedia && matchMedia(q).matches;
+  function stillOnly() {
+    const c = navigator.connection;
+    return mq('(prefers-reduced-motion: reduce)') || !!(c && c.saveData);
+  }
+  /** The card's <video>, made on first use (preload none, poster = the shot). Null if the clip is missing. */
+  function clipOf(box) {
+    if (!box || !box.dataset.clip || box.dataset.noclip) return null;
+    let v = box.querySelector('video');
+    if (v) return v;
+    const src = box.dataset.clip;
+    v = el('video', { muted: '', loop: '', playsinline: '', preload: 'none', poster: src.replace('/clips/', '/shots/') + '.jpg', 'aria-hidden': 'true', tabindex: '-1' },
+      el('source', { src: src + '.webm', type: 'video/webm' }), el('source', { src: src + '.mp4', type: 'video/mp4' }));
+    v.muted = true;
+    v.addEventListener('playing', () => box.classList.add('playing'));
+    v.lastElementChild.addEventListener('error', () => { box.dataset.noclip = '1'; box.classList.remove('playing'); v.remove(); });
+    box.append(v);
+    return v;
+  }
+  function play(box) {
+    if (stillOnly()) return;
+    const v = clipOf(box);
+    if (v) { const p = v.play(); if (p && p.catch) p.catch(() => {}); }
+  }
+  function stop(box) {
+    const v = box && box.querySelector('video');
+    box && box.classList.remove('playing');
+    if (v) v.pause();
+  }
+  const cardShot = (t) => { const c = t && t.closest && t.closest('.app-card, .tile'); return c && c.querySelector('.shot[data-clip]'); };
+  const hoverable = () => mq('(hover: hover) and (pointer: fine)');
+  document.addEventListener('pointerover', (e) => { if (hoverable() && e.pointerType !== 'touch') { const s = cardShot(e.target); if (s) play(s); } });
+  document.addEventListener('pointerout', (e) => { const s = cardShot(e.target); if (s && !s.closest('.app-card, .tile').contains(e.relatedTarget)) stop(s); });
+  document.addEventListener('focusin', (e) => { const s = cardShot(e.target); if (s) play(s); });
+  document.addEventListener('focusout', (e) => { const s = cardShot(e.target); if (s) stop(s); });
+  /* Touch screens: play the single card nearest the middle of the viewport. */
+  let current = null;
+  const seen = new Set();
+  function pickCentre() {
+    if (hoverable()) return;
+    let best = null, bd = Infinity;
+    const mid = innerHeight / 2;
+    for (const s of seen) {
+      if (!s.dataset.clip) continue;
+      const r = s.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - mid);
+      if (r.top >= -r.height * 0.2 && r.bottom <= innerHeight + r.height * 0.2 && d < bd) { bd = d; best = s; }
+    }
+    if (best === current) return;
+    if (current) stop(current);
+    current = best;
+    if (best) play(best);
+  }
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const en of entries) { if (en.intersectionRatio >= 0.6) seen.add(en.target); else { seen.delete(en.target); if (en.target === current) { stop(current); current = null; } } }
+      pickCentre();
+    }, { threshold: [0, 0.6, 1] });
+    queueMicrotask(() => document.querySelectorAll('[data-list] .shot').forEach((s) => io.observe(s)));
+    let raf = 0;
+    addEventListener('scroll', () => { if (!raf && seen.size) raf = requestAnimationFrame(() => { raf = 0; pickCentre(); }); }, { passive: true });
   }
   function appCard(a) {
     const feats = el('ul', { class: 'feats' }, ...a.features.map((f) => el('li', null, f)));

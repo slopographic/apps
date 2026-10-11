@@ -1,0 +1,179 @@
+// Shake anger and calm-down snacks.
+// Shaking him while you drag: gentle wiggles make him giggle, real shaking makes him woozy, then
+// mad (same rage meter as drops and throws). Once he is MAD the meter stops draining until you give
+// him something from the "Give…" tray: each item calms a different amount, he has a favourite
+// (extra happy) and a least favourite (spits it out, madder). Items restock over time and more
+// unlock with levels. Petting helps a little, but not at full rage.
+import { M, now, reduced, setMood, changed, rand } from './state.js';
+import { say, hearts, sparkle, crumbs } from './fx.js';
+import { line } from './lines.js';
+import { size } from './look.js';
+import { save } from './store.js';
+import { addRage, calmRage, MAD, persistRage } from './rage.js';
+
+export const ITEMS = [
+  { id: 'cookie', icon: '🍪', name: 'cookie', calm: 1.0, cd: 20000, level: 1, act: 'eat' },
+  { id: 'candy', icon: '🍬', name: 'slop candy', calm: 0.8, cd: 25000, level: 1, act: 'eat' },
+  { id: 'juice', icon: '🧃', name: 'goo juice', calm: 1.2, cd: 40000, level: 2, act: 'eat' },
+  { id: 'plush', icon: '🧸', name: 'plushie', calm: 1.5, cd: 60000, level: 3, act: 'hug' },
+  { id: 'hat', icon: '🎩', name: 'new hat', calm: 2.0, cd: 120000, level: 4, act: 'hat' },
+];
+const byId = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
+
+/** How much an item calms him (negative: he hates it and gets madder). */
+export function calmValue(id, fav = M.fav, hate = M.hate) {
+  const it = byId[id];
+  if (!it) return 0;
+  if (id === hate) return -0.5;
+  return it.calm * (id === fav ? 2 : 1);
+}
+export const unlocked = (level = M.level) => ITEMS.filter((i) => i.level <= level);
+export const ready = (id, t = Date.now()) => t >= ((M.stock || {})[id] || 0);
+
+/** Pick a favourite and a least favourite once per person, and keep them. */
+function tastes() {
+  if (M.fav && M.hate && M.fav !== M.hate) return;
+  const ids = ITEMS.map((i) => i.id).sort(() => Math.random() - 0.5);
+  M.fav = ids[0];
+  M.hate = ids[1];
+  save({ fav: M.fav, hate: M.hate });
+}
+
+/** Give him an item. Returns the change in rage (negative = calmer), or null if not available. */
+export function give(id) {
+  const it = byId[id];
+  if (!it || it.level > M.level || !ready(id)) return null;
+  M.stock = Object.assign({}, M.stock, { [id]: Date.now() + it.cd });
+  save({ stock: M.stock });
+  const v = calmValue(id);
+  const before = M.rage;
+  if (v < 0) {
+    M.squash = -0.5;
+    setMood('annoyed', 2200);
+    say(line('spit'), 1800, { force: true });
+    if (!reduced()) crumbs(M.x + 20, M.y - size() * 0.4, '#a6ee14', 8);
+    if (M.raging) M.raging += 3000; else M.rage = Math.min(2.5, M.rage - v);
+  } else {
+    if (it.act === 'hat') { const hats = ['crown', 'tophat', 'wizard', 'party', 'cowboy']; M.tempHat = hats[Math.floor(Math.random() * hats.length)]; }
+    setMood(it.act === 'hug' ? 'love' : 'chomp', 900);
+    M.squash = 0.6;
+    if (!reduced()) { hearts(it.id === M.fav ? 6 : 2); if (it.id === M.fav) sparkle(); }
+    const fav = it.id === M.fav;
+    say(fav ? `OMG ${it.name.toUpperCase()}` : line(it.act === 'hug' ? 'hug' : 'snack'), 1800, { force: true });
+    if (M.raging && v >= 1.5) calmRage();
+    M.rage = Math.max(0, M.rage - v);
+    if (before >= MAD && M.rage < MAD && !M.raging) setTimeout(() => say(line('calmed'), 1600), 1900);
+  }
+  persistRage();
+  changed();
+  return M.rage - before;
+}
+
+/** Petting: a little calming, but not at full rage. Returns false when he refuses. */
+export function petAllowed() {
+  if (M.raging || M.rage >= 2.5) { say(line('nopets'), 1400, { force: true }); M.squash = -0.3; return false; }
+  if (M.rage > 0) { M.rage = Math.max(0, M.rage - 0.15); persistRage(); changed(); }
+  return true;
+}
+
+/* ---------- shaking ---------- */
+let samples = [], lastTier = 0;
+/**
+ * Shake intensity over the last second of drag samples [[t, x, y], …]:
+ * direction reversals (of fast moves) × mean speed / 1000. Gentle wiggles score under 2;
+ * a real shake scores 8 or more.
+ */
+export function shakeScore(list) {
+  let rev = 0, speed = 0, n = 0, px = 0, py = 0;
+  for (let i = 1; i < list.length; i++) {
+    const [t0, x0, y0] = list[i - 1], [t1, x1, y1] = list[i], dt = Math.max(8, t1 - t0) / 1000;
+    const vx = (x1 - x0) / dt, vy = (y1 - y0) / dt, v = Math.hypot(vx, vy);
+    speed += v; n++;
+    if (v > 150) {
+      if ((px && Math.sign(vx) !== Math.sign(px) && Math.abs(vx) > 150) || (py && Math.sign(vy) !== Math.sign(py) && Math.abs(vy) > 150)) rev++;
+      px = vx; py = vy;
+    }
+  }
+  return n ? (rev * (speed / n)) / 1000 : 0;
+}
+export const SHAKE = { giggle: 1.5, woozy: 4, mad: 8 };
+
+/** Called by input.js for every drag move. */
+export function onDrag(t, x, y) {
+  samples.push([t, x, y]);
+  while (samples.length && t - samples[0][0] > 1000) samples.shift();
+  const sc = shakeScore(samples);
+  if (t - lastTier < 1300) return sc;
+  if (sc >= SHAKE.mad) { lastTier = t; samples = []; setMood('woozy', 1800); slosh(); addRage(1, 'shake'); }
+  else if (sc >= SHAKE.woozy) { lastTier = t; setMood('woozy', 1500); slosh(); say(line('woozy'), 1000); }
+  else if (sc >= SHAKE.giggle) { lastTier = t; say(line('giggle'), 900); }
+  return sc;
+}
+export const dragEnded = () => { samples = []; };
+function slosh() { if (!reduced()) crumbs(M.x, M.y - size() * 0.5, '#a6ee14', 7); }
+
+/* ---------- the "Give…" tray ---------- */
+let tray = null;
+export function mount(hud) {
+  tastes();
+  tray = document.createElement('span');
+  tray.className = 'sh-give';
+  tray.innerHTML = '<span class="sh-give-l">Give…</span>';
+  for (const it of ITEMS) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sh-item';
+    b.dataset.item = it.id;
+    b.textContent = it.icon;
+    b.title = `Give him a ${it.name}`;
+    b.setAttribute('aria-label', `Give Sloppo a ${it.name}`);
+    dragToGive(b, it.id);
+    tray.append(b);
+  }
+  hud.append(tray);
+  render();
+}
+/** Tap to give, or drag the item onto him. */
+function dragToGive(b, id) {
+  let start = null, ghost = null;
+  b.addEventListener('pointerdown', (e) => { start = [e.clientX, e.clientY, e.pointerId]; });
+  b.addEventListener('pointermove', (e) => {
+    if (!start || e.pointerId !== start[2]) return;
+    if (!ghost && Math.hypot(e.clientX - start[0], e.clientY - start[1]) > 6) {
+      try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      ghost = document.createElement('span');
+      ghost.className = 'sh-ghost-item';
+      ghost.textContent = b.textContent;
+      document.body.append(ghost);
+    }
+    if (ghost) Object.assign(ghost.style, { left: e.clientX + 'px', top: e.clientY + 'px' });
+  });
+  b.addEventListener('pointerup', (e) => {
+    if (!start) return;
+    const dragged = !!ghost;
+    if (ghost) ghost.remove();
+    ghost = null;
+    start = null;
+    if (!dragged) return;                    // a tap: the click handler gives it
+    const r = M.hit.getBoundingClientRect();
+    if (e.clientX > r.left - 20 && e.clientX < r.right + 20 && e.clientY > r.top - 20 && e.clientY < r.bottom + 20) give(id);
+    b.dataset.dragged = '1';
+  });
+  b.addEventListener('click', () => { if (b.dataset.dragged) { delete b.dataset.dragged; return; } give(id); });
+}
+function render() {
+  if (!tray) return;
+  const t = Date.now();
+  tray.hidden = !(M.rage >= 1 || M.raging);
+  for (const b of tray.querySelectorAll('.sh-item')) {
+    const it = byId[b.dataset.item];
+    b.hidden = it.level > M.level;
+    b.disabled = !ready(it.id, t);
+    const left = Math.max(0, ((M.stock || {})[it.id] || 0) - t);
+    b.style.setProperty('--cd', left ? (left / it.cd).toFixed(3) : 0);
+  }
+}
+let nextRender = 0;
+export function tick(dt, t) {
+  if (t > nextRender) { nextRender = t + 250; render(); }
+}

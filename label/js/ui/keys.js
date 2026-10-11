@@ -74,45 +74,11 @@ async function onPaste(e) {
   if (text) addObject(makeObject(text.length > 40 || text.includes('\n') ? 'para' : 'text', { content: text.slice(0, 2000), x: 4, y: 4 }));
 }
 
-/* ---------------- keyboard ---------------- */
+/* ---------------- keyboard: Space-to-pan (held); the rest lives in ui/commands.js ---------------- */
 const isTyping = (t) => t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
 function onKeyDown(e) {
   if (e.key === ' ' && !isTyping(e.target)) { spaceDown = true; $('stage').classList.add('panning'); if (e.target === $('stage')) e.preventDefault(); }
-  if (SlopUI.openDialogs || document.body.classList.contains('form-mode')) return;
-  const mod = e.ctrlKey || e.metaKey, k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-  // shortcuts that work everywhere
-  if (mod && k === 'p') { e.preventDefault(); openPrintDialog(); return; }
-  if (mod && k === 's') { e.preventDefault(); saveProject(); return; }
-  if (mod && k === 'o') { e.preventDefault(); openFilesDialog(); return; }
-  if (isTyping(e.target)) return;
-  if (mod && k === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
-  if (mod && k === 'y') { e.preventDefault(); redo(); return; }
-  if (mod && k === 'a') { e.preventDefault(); selectAll(); return; }
-  if (mod && k === 'c') { e.preventDefault(); copySel(); return; }
-  if (mod && k === 'x') { e.preventDefault(); cutSel(); return; }
-  if (mod && k === 'd') { e.preventDefault(); duplicateSel(); return; }
-  if (mod && k === 'g') { e.preventDefault(); if (e.shiftKey) ungroupSel(); else groupSel(); return; }
-  if (mod && k === 'l') { e.preventDefault(); toggleLock(); return; }
-  if (mod && (k === '=' || k === '+')) { e.preventDefault(); zoomTo(App.zoom * 1.25); return; }
-  if (mod && k === '-') { e.preventDefault(); zoomTo(App.zoom / 1.25); return; }
-  if (mod && k === '0') { e.preventDefault(); fitView(); return; }
-  if (mod && k === '1') { e.preventDefault(); zoomActual(); return; }
-  if (mod && k === ']') { e.preventDefault(); orderSel(e.shiftKey ? 'front' : 'forward'); return; }
-  if (mod && k === '[') { e.preventDefault(); orderSel(e.shiftKey ? 'back' : 'backward'); return; }
-  if (mod) return;
-  if (k === 'Delete' || k === 'Backspace') { e.preventDefault(); deleteSel(); return; }
-  if (k === 'Escape') { if (Drag) return; deselect(); setTool('select'); return; }
-  if (k.startsWith('Arrow')) {
-    e.preventDefault();
-    const base = App.doc.grid.snap && +App.doc.grid.size ? +App.doc.grid.size : U() === 'in' ? 0.254 : 0.1, st = base * (e.shiftKey ? 10 : 1);
-    nudge(k === 'ArrowLeft' ? -st : k === 'ArrowRight' ? st : 0, k === 'ArrowUp' ? -st : k === 'ArrowDown' ? st : 0);
-    return;
-  }
-  if (k === 'Enter' && App.sel.length === 1) { e.preventDefault(); focusContent(); return; }
-  if (k === 'PageDown') { setRecord(App.rec + 1); return; }
-  if (k === 'PageUp') { setRecord(App.rec - 1); return; }
-  const t = TOOLS.find((x) => x && x.key && x.key.toLowerCase() === k);
-  if (t && !e.altKey) setTool(t.id);
+  // every other shortcut is a command in ui/commands.js, dispatched (and rebindable) by SlopCmd
 }
 function onKeyUp(e) { if (e.key === ' ') { spaceDown = false; $('stage').classList.remove('panning'); } }
 
@@ -121,20 +87,20 @@ function contextItems() {
   const n = App.sel.length, one = selOne();
   if (!n) return [
     { label: 'Paste', key: 'Ctrl+V', act: () => pasteClip() || SlopUI.toast('Nothing to paste') },
-    { label: 'Select all', key: 'Ctrl+A', act: selectAll }, '-',
-    { label: 'Label setup…', act: () => labelSetupDialog() }, { label: 'Fit label', key: 'Ctrl+0', act: fitView },
+    { label: 'Select all', key: K('selectAll'), act: selectAll }, '-',
+    { label: 'Label setup…', act: () => labelSetupDialog() }, { label: 'Fit label', key: K('fit'), act: fitView },
   ];
   const grouped = selObjs().some((o) => o.group);
   return [
-    { label: 'Cut', key: 'Ctrl+X', act: cutSel }, { label: 'Copy', key: 'Ctrl+C', act: copySel }, { label: 'Paste', key: 'Ctrl+V', act: pasteClip },
-    { label: 'Duplicate', key: 'Ctrl+D', act: () => duplicateSel() }, { label: 'Delete', key: 'Del', act: deleteSel }, '-',
-    one ? { label: 'Edit content…', key: 'Enter', act: focusContent } : null,
+    { label: 'Cut', key: K('cut'), act: cutSel }, { label: 'Copy', key: K('copy'), act: copySel }, { label: 'Paste', key: 'Ctrl+V', act: pasteClip },
+    { label: 'Duplicate', key: K('duplicate'), act: () => duplicateSel() }, { label: 'Delete', key: K('delete'), act: deleteSel }, '-',
+    one ? { label: 'Edit content…', key: K('editContent'), act: focusContent } : null,
     { label: 'Rotate 90° clockwise', act: () => rotateSel(90) }, { label: 'Rotate 90° counter-clockwise', act: () => rotateSel(270) },
     { label: 'Align', sub: alignItems() },
-    { label: 'Arrange', sub: [{ label: 'Bring to front', key: 'Ctrl+Shift+]', act: () => orderSel('front') }, { label: 'Bring forward', key: 'Ctrl+]', act: () => orderSel('forward') }, { label: 'Send backward', key: 'Ctrl+[', act: () => orderSel('backward') }, { label: 'Send to back', key: 'Ctrl+Shift+[', act: () => orderSel('back') }] },
-    n > 1 ? { label: 'Group', key: 'Ctrl+G', act: groupSel } : null,
-    grouped ? { label: 'Ungroup', key: 'Ctrl+Shift+G', act: ungroupSel } : null, '-',
-    { label: selObjs().every((o) => o.locked) ? 'Unlock' : 'Lock', key: 'Ctrl+L', act: toggleLock },
+    { label: 'Arrange', sub: [{ label: 'Bring to front', key: K('front'), act: () => orderSel('front') }, { label: 'Bring forward', key: K('forward'), act: () => orderSel('forward') }, { label: 'Send backward', key: K('backward'), act: () => orderSel('backward') }, { label: 'Send to back', key: K('back'), act: () => orderSel('back') }] },
+    n > 1 ? { label: 'Group', key: K('group'), act: groupSel } : null,
+    grouped ? { label: 'Ungroup', key: K('ungroup'), act: ungroupSel } : null, '-',
+    { label: selObjs().every((o) => o.locked) ? 'Unlock' : 'Lock', key: K('lock'), act: toggleLock },
     { label: selObjs().every((o) => o.hidden) ? 'Show' : 'Hide', act: toggleHide },
   ];
 }

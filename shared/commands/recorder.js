@@ -30,7 +30,7 @@
       const st = C.eventSteps(e);
       if (!st) return;
       if (st[0] === 'Escape') { finish(null); return; }
-      steps.push(st[st.length - 1]);
+      steps.push(st[1] || st[0]); // prefer the symbol form ('?' over 'Shift+?')
       if (opts.onStep) opts.onStep(steps.join(' '));
       clearTimeout(timer);
       if (steps.length >= maxSteps) finish(value());

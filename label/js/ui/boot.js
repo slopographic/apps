@@ -6,7 +6,7 @@ function buildToolbox() {
   const box = $('toolbox');
   for (const t of TOOLS) {
     if (t === '-') { box.append(mk('span', { class: 'tool-sep' })); continue; }
-    const b = mk('button', { type: 'button', class: 'tool' + (t.id === App.tool ? ' on' : ''), 'data-tool': t.id, title: `${t.name} (${t.key})`, 'aria-label': t.name, html: `<svg viewBox="0 0 24 24" aria-hidden="true">${t.svg}</svg>` });
+    const b = mk('button', { type: 'button', class: 'tool' + (t.id === App.tool ? ' on' : ''), 'data-tool': t.id, title: `${t.name} (${(window.SlopCmd && SlopCmd.keyFor('label.tool.' + t.id)) || t.key})`, 'aria-label': t.name, html: `<svg viewBox="0 0 24 24" aria-hidden="true">${t.svg}</svg>` });
     b.addEventListener('click', () => {
       if (t.id === 'image') { setTool('select'); insertImageFile(); return; }
       setTool(t.id);
@@ -54,7 +54,7 @@ async function boot() {
   if (lsGet('sloplabel-rulers') === '0') $('workspace').classList.add('no-rulers');
   App.doc = starterDoc();
   App.hist.reset(App.doc);
-  buildToolbox(); initMenus(); initView(); initInteract(); initKeys(); wireChrome();
+  buildToolbox(); initMenus(); initView(); initInteract(); initKeys(); initCommands(); wireChrome();
   onImageReady = () => refresh({ keepProps: true });
   if (await maybeFormMode()) return;
   const saved = await loadAutosave();

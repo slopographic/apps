@@ -12,10 +12,10 @@ function insertCentered(type, props = {}) {
 function menuFile() {
   const hub = hubAvailable(), send = sendToItems();
   return [
-    { label: 'New…', act: templatesDialog }, { label: 'Open…', key: 'Ctrl+O', act: openFilesDialog }, { label: 'Import ZPL…', act: importZPLDialog },
-    { label: 'Save', key: 'Ctrl+S', act: saveProject }, '-',
+    { label: 'New…', act: templatesDialog }, { label: 'Open…', key: K('open'), act: openFilesDialog }, { label: 'Import ZPL…', act: importZPLDialog },
+    { label: 'Save', key: K('save'), act: saveProject }, '-',
     hub ? { label: 'Insert image from Slop Drive…', act: imageFromDrive } : null, hub ? { label: 'Data from Slop Drive…', act: dataFromDrive } : null, hub ? '-' : null,
-    { label: 'Print…', key: 'Ctrl+P', act: openPrintDialog },
+    { label: 'Print…', key: K('print'), act: openPrintDialog },
     { label: 'Export', sub: [{ label: 'PDF', act: exportPDFQuick }, { label: 'PNG (current label)', act: exportPNG }, { label: 'SVG (current label)', act: exportSVG }, { label: 'ZPL (Zebra)', act: exportZPLQuick }, '-', { label: 'More formats and options…', act: openPrintDialog }] },
     send.length ? { label: 'Send to', sub: send } : null,
     { label: 'Share print form link…', act: shareFormLink }, '-',
@@ -26,23 +26,23 @@ function menuFile() {
 function menuEdit() {
   const has = App.sel.length > 0;
   return [
-    { label: App.hist.canUndo ? 'Undo ' + App.hist.undoLabel : 'Undo', key: 'Ctrl+Z', disabled: !App.hist.canUndo, act: undo },
-    { label: App.hist.canRedo ? 'Redo ' + App.hist.redoLabel : 'Redo', key: 'Ctrl+Y', disabled: !App.hist.canRedo, act: redo }, '-',
-    { label: 'Cut', key: 'Ctrl+X', disabled: !has, act: cutSel }, { label: 'Copy', key: 'Ctrl+C', disabled: !has, act: copySel }, { label: 'Paste', key: 'Ctrl+V', act: () => pasteClip() || SlopUI.toast('Nothing to paste') },
-    { label: 'Duplicate', key: 'Ctrl+D', disabled: !has, act: () => duplicateSel() }, { label: 'Delete', key: 'Del', disabled: !has, act: deleteSel }, '-',
-    { label: 'Select all', key: 'Ctrl+A', act: selectAll }, { label: 'Deselect', key: 'Esc', disabled: !has, act: deselect },
+    { label: App.hist.canUndo ? 'Undo ' + App.hist.undoLabel : 'Undo', key: K('undo'), disabled: !App.hist.canUndo, act: undo },
+    { label: App.hist.canRedo ? 'Redo ' + App.hist.redoLabel : 'Redo', key: K('redo'), disabled: !App.hist.canRedo, act: redo }, '-',
+    { label: 'Cut', key: K('cut'), disabled: !has, act: cutSel }, { label: 'Copy', key: K('copy'), disabled: !has, act: copySel }, { label: 'Paste', key: 'Ctrl+V', act: () => pasteClip() || SlopUI.toast('Nothing to paste') },
+    { label: 'Duplicate', key: K('duplicate'), disabled: !has, act: () => duplicateSel() }, { label: 'Delete', key: K('delete'), disabled: !has, act: deleteSel }, '-',
+    { label: 'Select all', key: K('selectAll'), act: selectAll }, { label: 'Deselect', key: K('deselect'), disabled: !has, act: deselect },
   ];
 }
 function menuInsert() {
   return [
-    { label: 'Text', key: 'T', act: () => insertCentered('text') }, { label: 'Paragraph', key: 'P', act: () => insertCentered('para') },
-    { label: 'Barcode (Code 128)', key: 'B', act: () => insertCentered('barcode', defaultsFor('barcode')) },
+    { label: 'Text', key: K('tool.text'), act: () => insertCentered('text') }, { label: 'Paragraph', key: K('tool.para'), act: () => insertCentered('para') },
+    { label: 'Barcode (Code 128)', key: K('tool.barcode'), act: () => insertCentered('barcode', defaultsFor('barcode')) },
     { label: 'EAN-13', act: () => insertCentered('barcode', { symbology: 'ean13', content: '590123412345', module: 0.33, hr: 'below', name: 'EAN-13' }) },
     { label: 'GS1-128', act: () => insertCentered('barcode', { symbology: 'gs1-128', content: '(01)09501101530003(10)LOT42', module: 0.33, name: 'GS1-128' }) },
-    { label: 'QR code', key: 'Q', act: () => insertCentered('barcode', defaultsFor('qr')) },
+    { label: 'QR code', key: K('tool.qr'), act: () => insertCentered('barcode', defaultsFor('qr')) },
     { label: 'Data Matrix', act: () => insertCentered('barcode', { symbology: 'datamatrix', content: 'SLOP-12345', module: 0.5, hr: 'none', name: 'Data Matrix' }) },
-    { label: 'Image…', key: 'I', act: () => insertImageFile() }, '-',
-    { label: 'Box', key: 'R', act: () => insertCentered('rect') }, { label: 'Line', key: 'L', act: () => insertCentered('line', { h: 0.5 }) }, { label: 'Ellipse', key: 'E', act: () => insertCentered('ellipse') }, { label: 'Inverse box', key: 'N', act: () => insertCentered('inverse') }, '-',
+    { label: 'Image…', key: K('tool.image'), act: () => insertImageFile() }, '-',
+    { label: 'Box', key: K('tool.rect'), act: () => insertCentered('rect') }, { label: 'Line', key: K('tool.line'), act: () => insertCentered('line', { h: 0.5 }) }, { label: 'Ellipse', key: K('tool.ellipse'), act: () => insertCentered('ellipse') }, { label: 'Inverse box', key: K('tool.inverse'), act: () => insertCentered('inverse') }, '-',
     { label: 'Variable', sub: Object.entries(VAR_TYPES).map(([t, l]) => ({ label: l + '…', act: () => varDialog(null, t) })) },
   ];
 }
@@ -50,10 +50,10 @@ function menuObject() {
   const has = App.sel.length > 0, objs = selObjs();
   return [
     { label: 'Align', disabled: !has, sub: alignItems() },
-    { label: 'Arrange', disabled: !has, sub: [{ label: 'Bring to front', act: () => orderSel('front') }, { label: 'Bring forward', act: () => orderSel('forward') }, { label: 'Send backward', act: () => orderSel('backward') }, { label: 'Send to back', act: () => orderSel('back') }] },
+    { label: 'Arrange', disabled: !has, sub: [{ label: 'Bring to front', key: K('front'), act: () => orderSel('front') }, { label: 'Bring forward', key: K('forward'), act: () => orderSel('forward') }, { label: 'Send backward', key: K('backward'), act: () => orderSel('backward') }, { label: 'Send to back', key: K('back'), act: () => orderSel('back') }] },
     { label: 'Rotate 90° clockwise', disabled: !has, act: () => rotateSel(90) }, { label: 'Rotate 90° counter-clockwise', disabled: !has, act: () => rotateSel(270) }, '-',
-    { label: 'Group', key: 'Ctrl+G', disabled: App.sel.length < 2, act: groupSel }, { label: 'Ungroup', key: 'Ctrl+Shift+G', disabled: !objs.some((o) => o.group), act: ungroupSel },
-    { label: objs.length && objs.every((o) => o.locked) ? 'Unlock' : 'Lock', key: 'Ctrl+L', disabled: !has, act: toggleLock },
+    { label: 'Group', key: K('group'), disabled: App.sel.length < 2, act: groupSel }, { label: 'Ungroup', key: K('ungroup'), disabled: !objs.some((o) => o.group), act: ungroupSel },
+    { label: objs.length && objs.every((o) => o.locked) ? 'Unlock' : 'Lock', key: K('lock'), disabled: !has, act: toggleLock },
     { label: objs.length && objs.every((o) => o.hidden) ? 'Show' : 'Hide', disabled: !has, act: toggleHide }, '-',
     { label: 'Properties', act: () => showDock('props') }, { label: 'Object list', act: () => showDock('objects') },
   ];
@@ -64,15 +64,15 @@ function menuData() {
     { label: 'Import CSV / Excel / JSON…', act: () => importDataDialog() }, { label: 'Paste data…', act: pasteDataDialog },
     hubAvailable() ? { label: 'From Slop Drive…', act: dataFromDrive } : null,
     { label: 'Map columns…', disabled: !D, act: () => mapColumnsDialog(D) }, { label: 'Remove data', disabled: !D, act: () => editDoc((d) => { d.data = null; }, 'Remove data') }, '-',
-    { label: 'Previous record', key: 'PgUp', disabled: n < 2, act: () => setRecord(App.rec - 1) }, { label: 'Next record', key: 'PgDn', disabled: n < 2, act: () => setRecord(App.rec + 1) }, '-',
+    { label: 'Previous record', key: K('prevRecord'), disabled: n < 2, act: () => setRecord(App.rec - 1) }, { label: 'Next record', key: K('nextRecord'), disabled: n < 2, act: () => setRecord(App.rec + 1) }, '-',
     { label: 'Variables', act: () => showDock('vars') }, { label: 'Data table', act: () => showDock('data') },
   ];
 }
 function menuView() {
   const d = App.doc, rulers = !$('workspace').classList.contains('no-rulers');
   return [
-    { label: 'Zoom in', key: 'Ctrl++', act: () => zoomTo(App.zoom * 1.25) }, { label: 'Zoom out', key: 'Ctrl+-', act: () => zoomTo(App.zoom / 1.25) },
-    { label: 'Fit label', key: 'Ctrl+0', act: fitView }, { label: 'Actual size', key: 'Ctrl+1', act: zoomActual }, '-',
+    { label: 'Zoom in', key: K('zoomIn'), act: () => zoomTo(App.zoom * 1.25) }, { label: 'Zoom out', key: K('zoomOut'), act: () => zoomTo(App.zoom / 1.25) },
+    { label: 'Fit label', key: K('fit'), act: fitView }, { label: 'Actual size', key: K('actual'), act: zoomActual }, '-',
     { label: 'Rulers', check: rulers, act: () => { $('workspace').classList.toggle('no-rulers'); lsSet('sloplabel-rulers', rulers ? '0' : '1'); } },
     { label: 'Grid', check: d.grid.show, act: () => editDoc((x) => { x.grid.show = !x.grid.show; }, 'Grid') },
     { label: 'Snap to grid', check: d.grid.snap, act: () => editDoc((x) => { x.grid.snap = !x.grid.snap; }, 'Snap') }, '-',
@@ -80,7 +80,11 @@ function menuView() {
   ];
 }
 function menuHelp() {
-  return [{ label: 'About SlopLabel', act: aboutDialog }, { label: 'Start from a template…', act: templatesDialog }, '-', { label: 'Slopographic home', act: () => { location.href = '../'; } }];
+  const C = window.SlopCmd;
+  return [
+    C ? { label: 'Search commands…', key: C.keyFor('cmd.palette'), act: () => C.open() } : null, C ? { label: 'Keyboard shortcuts…', key: C.keyFor('cmd.keymap'), act: () => C.openKeymap() } : null, C ? '-' : null,
+    { label: 'About SlopLabel', act: aboutDialog }, { label: 'Start from a template…', act: templatesDialog }, '-', { label: 'Slopographic home', act: () => { location.href = '../'; } },
+  ];
 }
 const MENUS = [['File', menuFile], ['Edit', menuEdit], ['Insert', menuInsert], ['Object', menuObject], ['Data', menuData], ['View', menuView], ['Help', menuHelp]];
 function initMenus() {

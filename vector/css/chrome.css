@@ -92,3 +92,4 @@
 .chip-in.none, .sw .chip-in.none { background: #fff !important; }
 .chip-in.none::before, .fs .chip-in.none::before { content: ''; position: absolute; left: -20%; right: -20%; top: 50%; height: 2px; background: #ff2b2b; transform: rotate(-35deg); }
 .chip:hover { border-color: var(--text-faint); }
+.iconbtn[hidden] { display: none; }

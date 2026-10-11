@@ -20,7 +20,7 @@
   /* ================= context menus (shared SlopUI kit) ================= */
   function mi(id, label) {
     var a = A[id]; if (!a) return null;
-    return { label: label || a.label, key: a.keyText || keyLabel(a.keys[0]), disabled: a.enabled ? !a.enabled() : false, check: a.checked ? a.checked() : false, act: function () { SV.runAction(id); } };
+    return { label: label || a.label, key: UI.actKey(a), disabled: a.enabled ? !a.enabled() : false, check: a.checked ? a.checked() : false, act: function () { SV.runAction(id); } };
   }
   UI.canvasMenu = function (x, y) {
     var any = S.sel.length > 0;

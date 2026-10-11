@@ -26,7 +26,7 @@
     { label: 'Select', items: ['select.all', 'select.none', 'select.inverse', '-', { label: 'Same', items: ['select.sameFill', 'select.sameStroke'] }, 'select.layer'] },
     { label: 'View', items: ['view.outline', '-', 'view.zoomIn', 'view.zoomOut', 'view.fit', 'view.actual', '-', 'view.rulers', 'view.grid', 'view.snapGrid', 'view.smart', '-', 'view.guides', 'view.lockGuides', 'view.snapGuides', 'view.clearGuides', 'view.newGuide', 'view.guideLayout', 'view.guidesFromSel', '-', { label: 'Theme', items: ['theme.pro', 'theme.light', 'theme.classic'] }] },
     { label: 'Window', items: PANEL_IDS.map(function (p) { return 'window.' + p; }).concat(['-', 'view.guideLayout', '-', 'window.togglePanels', 'window.reset']) },
-    { label: 'Help', items: ['help.shortcuts', 'help.about', '-', 'file.home'] }
+    { label: 'Help', items: ['help.commands', 'help.shortcuts', 'help.about', '-', 'file.home'] }
   ];
   function dynItems(kind) {
     if (kind === 'fonts') return Object.keys(SV.FONTS).map(function (f) { return { label: f, run: function () { SV.applyFont('family', f); }, checked: function () { return curFont().family === f; }, font: f }; });
@@ -54,7 +54,7 @@
       if (it === '-') return '-';
       if (typeof it === 'string') {
         var a = A[it]; if (!a) return null;
-        return { label: a.label, key: a.keyText || keyLabel(a.keys[0]), disabled: a.enabled ? !a.enabled() : false, check: a.checked ? a.checked() : false, act: function () { clearBar(); SV.runAction(it); } };
+        return { label: a.label, key: UI.actKey(a), disabled: a.enabled ? !a.enabled() : false, check: a.checked ? a.checked() : false, act: function () { clearBar(); SV.runAction(it); } };
       }
       if (it.items || it.dyn) { var sub = toItems(it.items || dynItems(it.dyn)); return { label: it.label, sub: sub.length ? sub : [{ label: '(none)', disabled: true }] }; }
       return { label: it.label, disabled: !!it.disabled, check: it.checked ? it.checked() : false, act: function () { clearBar(); it.run(); } };

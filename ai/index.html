@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop AI — Slopographic</title>
+  <meta name="description" content="Slop AI: chat with an AI that runs entirely on your own computer, in the browser, with WebGPU. Check what your PC can run, pick a model, build mini-apps and drive every Slopographic app. Your chats never leave your device.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://slopographic.com/ai/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slopographic">
+  <meta property="og:title" content="Slop AI — Slopographic">
+  <meta property="og:description" content="A private AI that runs on your own GPU, in your browser. Can your PC run it? Find out in ten seconds.">
+  <meta property="og:url" content="https://slopographic.com/ai/">
+  <meta property="og:image" content="https://slopographic.com/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-ai.prefs')).theme; if (t === 'light' || t === 'classic' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* no prefs yet */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/models.css">
+  <link rel="stylesheet" href="css/build.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <script src="../shared/guard.js" defer></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
+      <div class="appname"><b>Slop AI</b><a class="home-link" href="../">slopographic</a></div>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
+      <div class="tb-group">
+        <button type="button" class="chip" id="modelChip" title="Model"><i class="dot"></i><span>No model</span></button>
+        <button type="button" class="sloppo" id="sloppo" title="Ask Sloppo" aria-label="Ask Sloppo"><canvas width="88" height="88"></canvas></button>
+        <button type="button" class="tb" id="btnCmd" title="Search commands (⌘K)" aria-label="Search commands" hidden></button>
+        <button type="button" class="tb" id="btnTheme" title="Theme: Pro, Light, Classic 98" aria-label="Switch theme"></button>
+        <button type="button" class="tb" id="btnMore" title="More" aria-label="More"></button>
+      </div>
+    </header>
+    <main class="views" id="views">
+      <section class="view chat-view" id="view-chat" data-view="chat" aria-label="Chat"></section>
+      <section class="view build-view" id="view-build" data-view="build" aria-label="Build a mini-app"></section>
+      <section class="view page" id="view-models" data-view="models" aria-label="Models"></section>
+      <section class="view page" id="view-sys" data-view="sys" aria-label="System check"></section>
+    </main>
+  </div>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/ai/catalog.js"></script>
+  <script src="../shared/ai/sysinfo.js"></script>
+  <script src="../shared/ai/bench.js"></script>
+  <script src="../shared/ai/engines.js"></script>
+  <script src="../shared/ai/tools.js"></script>
+  <script src="../shared/ai/apptools.js"></script>
+  <script src="../shared/ai/md.js"></script>
+  <script src="../shared/ai/webllm.js"></script>
+  <script src="../shared/ai/bridge.js"></script>
+  <script src="../shared/ai/powerup.js"></script>
+  <script src="../shared/ai/slopai.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/engine.js"></script>
+  <script src="js/ui/shell.js"></script>
+  <script src="js/ui/sysview.js"></script>
+  <script src="js/ui/speccard.js"></script>
+  <script src="js/ui/models.js"></script>
+  <script src="js/ui/chatlist.js"></script>
+  <script src="js/ui/messages.js"></script>
+  <script src="js/ui/chat.js"></script>
+  <script src="js/ui/settings.js"></script>
+  <script src="js/ui/builder-prompts.js"></script>
+  <script src="js/ui/builder.js"></script>
+  <script src="js/ui/sloppo.js"></script>
+  <script src="js/ui/commands.js"></script>
+  <script src="js/app/main.js"></script>
+</body>
+</html>

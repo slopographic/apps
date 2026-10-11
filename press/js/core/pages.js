@@ -26,16 +26,23 @@
   };
   P.spreadOf = function (doc, i) { var ss = P.spreads(doc); for (var s = 0; s < ss.length; s++) if (ss[s].pages.indexOf(i) >= 0) return s; return 0; };
 
-  /** Margins resolved to left/right for page i. */
-  P.margins = function (doc, i) {
-    var m = doc.margins, s = P.side(doc, i);
-    var left = s === 'left' ? m.outside : m.inside, right = s === 'left' ? m.inside : m.outside;
+  /** Margins resolved to left/right for page i (or for a side: 'left' | 'right' | 'single'). */
+  P.marginsSide = function (doc, s) {
+    var m = doc.margins, left = s === 'left' ? m.outside : m.inside, right = s === 'left' ? m.inside : m.outside;
     return { top: m.top, bottom: m.bottom, left: left, right: right };
   };
-  P.bleed = function (doc, i) {
-    var b = doc.bleed, s = P.side(doc, i);
+  P.margins = function (doc, i) { return P.marginsSide(doc, typeof i === 'string' ? i : P.side(doc, i)); };
+  P.bleedSide = function (doc, s) {
+    var b = doc.bleed;
     return { top: b.top, bottom: b.bottom, left: s === 'left' ? b.outside : b.inside, right: s === 'left' ? b.inside : b.outside };
   };
+  P.bleed = function (doc, i) { return P.bleedSide(doc, typeof i === 'string' ? i : P.side(doc, i)); };
+  P.slug = function (doc, i) {
+    var b = doc.slug, s = typeof i === 'string' ? i : P.side(doc, i);
+    return { top: b.top, bottom: b.bottom, left: s === 'left' ? b.outside : b.inside, right: s === 'left' ? b.inside : b.outside };
+  };
+  /** Side of master page `side` index: 'left' | 'right' | 'single'. */
+  P.masterSideName = function (doc, side) { return !doc.facing ? 'single' : side === 0 ? 'left' : 'right'; };
   /** Column rectangles inside the margins of page i (page coordinates). */
   P.columns = function (doc, i) {
     var m = P.margins(doc, i), n = Math.max(1, doc.columns.count | 0), g = doc.columns.gutter;

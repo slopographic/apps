@@ -34,9 +34,9 @@
       expect(W.SlopUI.openDialogs).toBe(1);
       doc().querySelector('.sui-dlg .sui-x').click(); await closed();
     });
-    it('shows the shortcut sheet wide, closes on Escape, and blocks app keys meanwhile', async () => {
+    it('shows the shortcut editor wide, closes on Escape, and blocks app keys meanwhile', async () => {
       SV.runAction('help.shortcuts');
-      await waitFor(() => doc().querySelector('.sui-dlg.sui-wide .shortcuts'));
+      await waitFor(() => doc().querySelector('.sui-dlg.sui-wide.scmd-km-dlg'));
       W.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'm', code: 'KeyM', bubbles: true }));
       expect(SV.state.tool).toBe('select');
       doc().querySelector('.sui-dlg').dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));

@@ -5,7 +5,7 @@
   const frame = () => new Promise((r) => WIN.requestAnimationFrame(() => WIN.requestAnimationFrame(r)));
   const dlg = () => [...W.document.querySelectorAll('.sui-dlg')].filter((d) => !d.parentNode.classList.contains('sui-out')).pop();
   const clickBtn = (label) => { const b = [...dlg().querySelectorAll('button')].find((x) => x.textContent.trim() === label); if (!b) throw new Error('No button ' + label); b.click(); };
-  const closeAll = async () => { for (const d of W.document.querySelectorAll('.sui-back')) d.remove(); await sleep(10); };
+  const closeAll = async () => { for (const x of W.document.querySelectorAll('.sui-back .sui-x')) x.click(); await sleep(160); for (const d of W.document.querySelectorAll('.sui-back')) d.remove(); };
   let downloads = [];
   const captureDownloads = () => { downloads = []; WIN.SlopUI.download = (blob, name) => downloads.push({ blob, name }); };
 

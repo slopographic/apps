@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Slopographic Promo</title>
+  <meta name="description" content="A 90-second motion piece: every Slopographic app, game and experiment, set to a synthesized beat. Runs live in your browser.">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="css/promo.css">
+  <link rel="stylesheet" href="css/scenes.css">
+</head>
+<body>
+  <div class="stage" id="stage" aria-label="Slopographic promo video"></div>
+  <div class="ui" id="ui">
+    <button class="play" id="playBtn" type="button" aria-label="Play with sound">
+      <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>
+      <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+    </button>
+    <input class="scrub" id="scrub" type="range" min="0" max="1000" value="0" aria-label="Seek">
+    <a class="vlink" id="vLink" href="./?v=1">9:16</a>
+    <a class="home" href="../">slopographic.com</a>
+  </div>
+  <script src="../shared/apps.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

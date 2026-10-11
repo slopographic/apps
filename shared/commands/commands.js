@@ -83,8 +83,11 @@
     const out = [head.concat(e.shiftKey ? ['Shift', key] : [key]).join('+')];
     const sym = k.length === 1 && !/[\p{L}\p{N}\s]/u.test(k) ? normKey(k) : null;
     if (sym) { const alt = head.concat(sym).join('+'); if (alt !== out[0]) out.push(alt); }
+    const phys = PUNCT[c]; // the unshifted key on a US layout, so 'Shift+Mod+]' matches when Shift turns ] into }
+    if (phys && phys !== key) { const p = head.concat(e.shiftKey ? ['Shift', phys] : [phys]).join('+'); if (!out.includes(p)) out.push(p); }
     return out;
   }
+  const PUNCT = { BracketLeft: '[', BracketRight: ']', Minus: '-', Equal: '=', Semicolon: ';', Quote: "'", Comma: ',', Period: '.', Slash: '/', Backslash: '\\', Backquote: '`' };
   const hasMod = (seq) => seq.some((s) => /(^|\+)(Mod|Ctrl|Meta)\+/.test(s));
 
   /* ---------- storage ---------- */
