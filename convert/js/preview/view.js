@@ -34,7 +34,7 @@ function fill(pn, p) {
 
 /**
  * createView(block, { input }) → refs. input: true adds the text box (for conversions that take typed text).
- * refs.render(model), refs.empty(message), refs.setStatus(text), refs.ta, refs.copy, refs.swap, refs.download.
+ * refs.render(model), refs.empty(message), refs.setStatus(text), refs.ta, refs.taHint, refs.copy, refs.swap, refs.download.
  */
 export function createView(block, { input = false, placeholder = 'Type or paste text here' } = {}) {
   const status = h('p', { class: 'cv-pv-status', role: 'status' });
@@ -63,5 +63,5 @@ export function createView(block, { input = false, placeholder = 'Type or paste 
     fill(after, { kind: 'info', text: '' });
     setNote('');
   };
-  return { ta, copy, swap, download, status, setStatus, setNote, render, empty, panels: { before, after } };
+  return { ta, taHint, copy, swap, download, status, setStatus, setNote, render, empty, panels: { before, after } };
 }
