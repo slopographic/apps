@@ -34,7 +34,7 @@ textarea.inp { height: auto; min-height: 56px; resize: vertical; font-family: va
 .li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 6px; min-height: 28px; padding: 2px 4px 2px 6px; border-radius: var(--radius-s); color: var(--text); cursor: pointer; border: 1px solid transparent; background: none; text-align: left; width: 100%; }
 .li:hover { background: var(--bg-hover); }
 .li.on { background: var(--sel-row); border-color: var(--accent-line); }
-:root[data-theme="classic"] .li.on { color: #fff; }
+:root[data-theme="classic"] .li:hover, :root[data-theme="classic"] .li.on { color: var(--sl-on-accent, #fff); }
 .li .ic { font-size: 11px; color: var(--text-faint); text-align: center; font-family: var(--mono); }
 .li .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .li .sub { display: block; font-size: 10.5px; color: var(--text-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -53,7 +53,7 @@ textarea.inp { height: auto; min-height: 56px; resize: vertical; font-family: va
 .tbl tr.on td { background: var(--sel-row); }
 .tbl tbody tr { cursor: pointer; }
 .tbl tbody tr:hover td { background: var(--bg-hover); }
-:root[data-theme="classic"] .tbl tr.on td, :root[data-theme="classic"] .tbl tbody tr:hover td { color: #fff; }
+:root[data-theme="classic"] .tbl tr.on td, :root[data-theme="classic"] .tbl tbody tr:hover td { color: var(--sl-on-accent, #fff); }
 
 /* dialogs (built on SlopUI) */
 .dlg-form { display: grid; gap: 8px; }
@@ -65,7 +65,7 @@ textarea.inp { height: auto; min-height: 56px; resize: vertical; font-family: va
 .stock-list button { display: block; width: 100%; text-align: left; padding: 4px 10px; border: 0; background: none; color: var(--text); }
 .stock-list button:hover { background: var(--bg-hover); }
 .stock-list button.on { background: var(--sel-row); font-weight: 600; }
-:root[data-theme="classic"] .stock-list button:hover, :root[data-theme="classic"] .stock-list button.on { color: #fff; }
+:root[data-theme="classic"] .stock-list button:hover, :root[data-theme="classic"] .stock-list button.on { color: var(--sl-on-accent, #fff); }
 .tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
 .tpl { display: grid; gap: 6px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-panel-2); color: var(--text); text-align: left; }
 .tpl:hover { border-color: var(--accent-line); }

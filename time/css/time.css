@@ -1,25 +1,24 @@
-/* Slop Time: tokens (light, then dark), the tabs and the panels. One column at phone width (390 px); the grids open at 640 px. */
+/* Slop Time: colours come from the shared Slop theme (--sl-* set by shared/theme/theme.js); the fallbacks are the Dark look.
+ * Then the tabs and the panels. One column at phone width (390 px); the grids open at 640 px. */
 :root {
-  --st-bg: #fbfaf6; --st-panel: #f1efe8; --st-line: #d9d5ca; --st-fg: #1d1c19; --st-dim: #5f5b52; --st-faint: #8a857b;
-  --st-accent: #3d6b00; --st-on: rgba(61, 107, 0, .12); --st-hover: rgba(0, 0, 0, .05); --st-ink: #10180a;
-  --st-danger: #b3261e; --st-warn-bg: #fff4d6; --st-warn-fg: #5b4300; --st-ok: #2b6e1c;
+  --st-bg: var(--sl-background, #0e0e10); --st-panel: var(--sl-surface, #17171b); --st-line: var(--sl-border, #2c2c34);
+  --st-fg: var(--sl-text, #f1ede4); --st-dim: color-mix(in srgb, var(--st-fg) 75%, transparent); --st-faint: color-mix(in srgb, var(--st-fg) 65%, transparent);
+  --st-accent: var(--sl-accent, #d4ff3a); --st-on: color-mix(in srgb, var(--st-accent) 14%, transparent);
+  --st-hover: color-mix(in srgb, var(--st-fg) 7%, transparent); --st-ink: var(--sl-on-accent, #10180a);
+  --st-danger: #ff7b7b; --st-warn-bg: #3a3000; --st-warn-fg: #ffe59a; --st-ok: #b8e994;
   --st-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
   --st-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+}
+:root[data-slop-theme="light"], :root[data-slop-theme="classic"] {
+  --st-danger: #b3261e; --st-warn-bg: #fff4d6; --st-warn-fg: #5b4300; --st-ok: #2b6e1c;
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --st-bg: #0e0e10; --st-panel: #17171b; --st-line: #2c2c34; --st-fg: #f1ede4; --st-dim: #aaa59b; --st-faint: #78746c;
-    --st-accent: #d4ff3a; --st-on: rgba(212, 255, 58, .12); --st-hover: rgba(255, 255, 255, .06); --st-ink: #10180a;
-    --st-danger: #ff7b7b; --st-warn-bg: #3a3000; --st-warn-fg: #ffe59a; --st-ok: #b8e994;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --st-bg: #0e0e10; --st-panel: #17171b; --st-line: #2c2c34; --st-fg: #f1ede4; --st-dim: #aaa59b; --st-faint: #78746c;
-  --st-accent: #d4ff3a; --st-on: rgba(212, 255, 58, .12); --st-hover: rgba(255, 255, 255, .06); --st-ink: #10180a;
-  --st-danger: #ff7b7b; --st-warn-bg: #3a3000; --st-warn-fg: #ffe59a; --st-ok: #b8e994;
-  color-scheme: dark;
+/* SlopUI dialogs, menus and toasts follow the Time tokens (the shared --s-* fallbacks are fixed greys) */
+:root {
+  --sui-bg: var(--st-panel); --sui-bg2: var(--st-bg); --sui-input: var(--st-bg); --sui-line: var(--st-line);
+  --sui-fg: var(--st-fg); --sui-dim: var(--st-dim); --sui-faint: var(--st-faint); --sui-hover: var(--st-hover);
+  --sui-sel: var(--st-on); --sui-accent: var(--st-accent); --sui-accent-ink: var(--st-ink);
 }
 [hidden] { display: none !important; }
 html, body { margin: 0; min-height: 100%; }

@@ -145,7 +145,8 @@ function status(msg, cls = '', sticky = 0) {
 function setRecord(i) { const n = recordCount(App.doc); if (!n) return; App.rec = (i + n) % n; refresh(); }
 
 /* ---------------- theme & dock ---------------- */
-function setTheme(t) {
+/** Paints this page with a theme (pro, light or classic). The colours are the shared Slop theme tokens (--sl-*). */
+function applyTheme(t) {
   if (!THEMES.some(([id]) => id === t)) t = 'pro';
   document.documentElement.dataset.theme = t;
   lsSet('sloplabel-theme', t);
@@ -153,6 +154,12 @@ function setTheme(t) {
   if (m) m.content = t === 'light' ? '#f4f4f4' : t === 'classic' ? '#c0c0c0' : '#1e1e1e';
   if (typeof readViewColors === 'function') readViewColors();
   refresh();
+}
+/** A choice made in this app: it is saved as the shared Slop theme, so every page follows it. */
+function setTheme(t) {
+  const shared = { pro: 'dark', light: 'light', classic: 'classic' }[t];
+  if (window.SlopTheme && shared) SlopTheme.set(shared);
+  applyTheme(t);
 }
 const narrow = () => matchMedia('(max-width: 760px)').matches;
 function showDock(tab, open = true) {

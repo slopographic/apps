@@ -1,14 +1,26 @@
-/* Slop To-do: tokens, the sidebar of views and lists, the task list with subtasks, the editor. Dark by default. At 390 px the
+/* Slop To-do: colours come from the shared Slop theme (--sl-* set by shared/theme/theme.js); the fallbacks are the Dark look.
+ * Then the sidebar of views and lists, the task list with subtasks, the editor. At 390 px the
  * sidebar sits above the list as a row of buttons, so nothing scrolls sideways. */
 :root {
-  --bg: #0e0e10; --panel: #17171b; --panel-2: #1f1f25; --ink: #f1ede4; --mute: #9a968c; --line: #2b2b33;
-  --accent: #d4ff3a; --accent-ink: #0e0e10; --danger: #ff4f6e; --warn: #ffb547; --chip: #26262e; --focus: #d4ff3a;
+  --bg: var(--sl-background, #0e0e10); --panel: var(--sl-surface, #17171b);
+  --panel-2: color-mix(in srgb, var(--sl-text, #f1ede4) 6%, var(--sl-surface, #1f1f25));
+  --ink: var(--sl-text, #f1ede4); --mute: color-mix(in srgb, var(--sl-text, #f1ede4) 70%, transparent);
+  --line: var(--sl-border, #2b2b33);
+  --accent: var(--sl-accent, #d4ff3a); --accent-ink: var(--sl-on-accent, #0e0e10);
+  --danger: #ff4f6e; --warn: #ffb547;
+  --chip: color-mix(in srgb, var(--sl-text, #f1ede4) 10%, var(--sl-surface, #26262e));
+  --focus: var(--sl-accent, #d4ff3a);
   color-scheme: dark;
 }
-:root[data-theme="light"] {
-  --bg: #f6f4ef; --panel: #ffffff; --panel-2: #efece4; --ink: #17161a; --mute: #6b675e; --line: #d9d4c7;
-  --accent: #2f5bff; --accent-ink: #ffffff; --danger: #c81e44; --warn: #a25b00; --chip: #e7e3d8; --focus: #2f5bff;
+:root[data-slop-theme="light"], :root[data-slop-theme="classic"] {
+  --danger: #c81e44; --warn: #a25b00;
   color-scheme: light;
+}
+/* SlopUI dialogs, menus and toasts follow these tokens (the shared --s-* fallbacks are fixed greys) */
+:root {
+  --sui-bg: var(--panel); --sui-bg2: var(--panel-2); --sui-input: var(--panel-2); --sui-line: var(--line);
+  --sui-fg: var(--ink); --sui-dim: var(--mute); --sui-faint: var(--mute); --sui-hover: var(--chip);
+  --sui-sel: color-mix(in srgb, var(--accent) 14%, transparent); --sui-accent: var(--accent); --sui-accent-ink: var(--accent-ink);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 system-ui, sans-serif; }
