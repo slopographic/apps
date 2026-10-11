@@ -159,6 +159,22 @@
     });
   });
 
+  describe('Slop Code: opening a file keeps the sidebar', () => {
+    it('clicking a file in the Explorer opens it and leaves the sidebar open', async () => {
+      const z = await H().put(text('zed\n', 'text/plain'), { name: 'zed.txt', from: 'test', folderId: null });
+      close(w);
+      w = await frame('../../code/');
+      await waitFor(() => row('f:' + z), { timeout: 8000 });
+      const app = w.document.getElementById('cd-app');
+      expect(app.classList.contains('cd-tree-hidden')).toBe(false);
+      row('f:' + z).click();
+      await waitFor(() => doc(w) && doc(w).id === z, { timeout: 5000 });
+      expect(app.classList.contains('cd-tree-hidden')).toBe(false);
+      expect(w.document.getElementById('cd-tree').getBoundingClientRect().width > 0).toBe(true);
+      expect(w.document.getElementById('cd-files').getAttribute('aria-expanded')).toBe('true');
+    });
+  });
+
   describe('Slop Code: Explorer at phone width', () => {
     it('at 390 px the drawer is the sidebar, there is no sideways scroll, and the resize handle is hidden', async () => {
       close(w);

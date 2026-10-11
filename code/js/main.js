@@ -5,8 +5,8 @@ import { newView, makeState, setHooks, setWrap, isWrap, showFind } from './edito
 import { initTree, refresh as refreshTree, selectedFolder, revealFolder, newFolder } from './tree.js';
 import { initLayout, expandSection } from './explorer.js';
 import { renderExtensions, formatDoc, chooseLanguage } from './extensions.js';
-import { $, env, setHandlers, renderChrome, setStatus, setTreeOpen, treeOpen, setPreview, toast } from './ui.js';
-import { openRecord, saveDoc, saveAs, newFile, closeDoc, onEdit, showDoc, restoreTabs } from './ops.js';
+import { $, env, setHandlers, renderChrome, setStatus, setTreeOpen, treeOpen, setPreview, toast, isPhone } from './ui.js';
+import { openRecord, saveDoc, saveAs, newFile, closeDoc, onEdit, showDoc, restoreTabs, togglePreview } from './ops.js';
 import { runDoc, attachPreview, canRun } from './run.js';
 import { registerCommands } from './commands.js';
 
@@ -17,7 +17,7 @@ async function openPicker() {
 async function runCurrent() {
   const d = docs.current();
   if (!d) { toast('Open a file first'); return; }
-  if (!canRun(d.name)) { toast('Run works on HTML and JavaScript files'); return; }
+  if (d.kind !== 'text' || !canRun(d.name)) { toast('Run works on HTML and JavaScript files'); return; }
   setPreview(true);
   await runDoc(d, docs.textOf(d), (id) => { const o = docs.find(id); return o ? docs.textOf(o) : undefined; });
 }
@@ -51,6 +51,7 @@ const ACTIONS = {
   format: formatDoc,
   language: chooseLanguage,
   extensions: showExtensions,
+  markdown: () => togglePreview(),
 };
 
 function wireButtons() {
@@ -59,6 +60,7 @@ function wireButtons() {
   on('cd-new', () => ACTIONS.new()); on('cd-empty-new', () => ACTIONS.new()); on('cd-tree-new', () => ACTIONS.new());
   on('cd-save', () => saveDoc()); on('cd-saveas', () => saveAs());
   on('cd-run', runCurrent);
+  on('cd-md', () => togglePreview());
   on('cd-cmd', () => (window.SlopCmd && SlopCmd.open ? SlopCmd.open() : toast('Commands are not loaded')));
   on('cd-files', toggleFiles);
   on('cd-tree-folder', () => newFolder(selectedFolder()));
@@ -76,7 +78,8 @@ async function boot() {
   setHandlers({ select: (d) => showDoc(d), close: (d) => closeDoc(d) });
   attachPreview($('cd-frame'), $('cd-console'));
   initTree($('cd-tree-list'), {
-    onOpen: (rec) => { openRecord(rec); setTreeOpen(false); },
+    // Opening a file keeps the sidebar where it is. Only the phone drawer closes, since it covers the editor.
+    onOpen: (rec) => { openRecord(rec); if (isPhone()) setTreeOpen(false); },
     onNew: (folderId) => newFile(folderId),
     onRenamed: (rec) => { docs.rename(rec.id, rec.name); renderChrome(); },
     onMoved: (rec) => { docs.rename(rec.id, rec.name); const d = docs.find(rec.id); if (d) d.folderId = rec.folderId ?? null; renderChrome(); },
