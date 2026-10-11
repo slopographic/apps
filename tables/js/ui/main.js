@@ -13,6 +13,7 @@ import * as drafts from './drafts.js';
 import * as A from './actions.js';
 import * as ctxmenu from './ctxmenu.js';
 import * as TPL from './templates.js';
+import * as sidebar from './sidebar.js';
 import { undo, redo, canUndo, canRedo } from './history.js';
 import { moveTo } from './nav.js';
 import { toCsv } from '../io/csv.js';
@@ -20,7 +21,7 @@ import { toXlsx } from '../io/xlsx.js';
 import { toBlob } from '../io/native.js';
 import { parseCell } from '../engine/refs.js';
 
-const paint = () => { grid.render(); chrome.render(); };
+const paint = () => { grid.render(); chrome.render(); sidebar.render(); };
 
 function guard() { if (window.SlopGuard) window.SlopGuard.setUnsaved('tables', S.file.dirty); }
 
@@ -45,7 +46,7 @@ function bindToolbar() {
 }
 
 function boot() {
-  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); drafts.init(); A.bindClipboard(); ctxmenu.init();
+  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); drafts.init(); A.bindClipboard(); ctxmenu.init(); sidebar.init();
   setPainter(paint);
   on('change', guard); on('saved', guard); on('open', guard);
   $('vp').addEventListener('scroll', () => redraw());
