@@ -95,6 +95,7 @@
     const next = await G.urls.original(id);
     if (my !== token) { G.urls.release(next); return; }
     mount(next, (G.library.photo(id) || {}).name || '');
+    if (pv && G.people) G.people.overlay(pv.el, id); // face boxes, while face detection is on
     root.querySelector('[data-act="play"]').textContent = timer ? 'Pause' : 'Play';
     syncButtons();
     renderInfo();

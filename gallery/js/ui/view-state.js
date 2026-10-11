@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   const G = (window.SlopGallery = window.SlopGallery || {});
-  const APP = 'gallery', VIEWS = ['photos', 'favourites', 'album', 'dupes'];
+  const APP = 'gallery', VIEWS = ['photos', 'favourites', 'album', 'dupes', 'people'];
   let ready = false; // nothing is saved until the saved place has been applied
   const grid = () => document.getElementById('grid');
   const auto = window.SlopSession.autosave(APP, 'place', function () {

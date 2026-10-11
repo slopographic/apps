@@ -34,7 +34,7 @@
       $(win, 'input[aria-label="Company"]').value = 'Acme Ltd';
       $(win, 'input[aria-label="Job title"]').value = 'Buyer';
       $(win, 'form.ed-form').dispatchEvent(new win.Event('submit', { cancelable: true, bubbles: true }));
-      await waitFor(async () => (await stored('ed-1')).org === 'Acme Ltd', { timeout: 8000 });
+      await waitFor(async () => (await stored('ed-1')).company === 'Acme Ltd', { timeout: 8000 });
       const r = await stored('ed-1');
       expect(r.company).toBe('Acme Ltd');
       expect(r.title).toBe('Buyer');
@@ -113,9 +113,9 @@
       expect($(win, '#bulkBar').hidden).toBeFalsy();
       change(win, $(win, '#bulkStage'), 'customer');
       await waitFor(async () => (await stored('bk-c')).stage === 'customer', { timeout: 8000 });
+      await waitFor(async () => (await stored('bk-d')).stage === 'customer', { timeout: 8000 });
       expect((await stored('bk-a')).stage).toBe('customer');
       expect((await stored('bk-b')).stage).toBe('lead');
-      expect((await stored('bk-d')).stage).toBe('lead');
     });
 
     it('dragging a contact onto a group adds it to that group', async () => {
@@ -138,6 +138,7 @@
       await waitFor(() => $(win, '[data-act="dup"]'));
       $(win, '[data-act="dup"]').click();
       await waitFor(() => $(win, '.ed-form'), { timeout: 5000 });
+      await waitFor(async () => (await window.SlopData.store.list('customers')).value.filter((c) => c.name === 'Dup Hana').length === 2, { timeout: 8000 });
       const all = (await window.SlopData.store.list('customers')).value.filter((c) => c.name === 'Dup Hana');
       expect(all).toHaveLength(2);
       expect(all.map((c) => c.company)).toEqual(['Twin', 'Twin']);

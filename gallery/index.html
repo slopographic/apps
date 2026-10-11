@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/gallery.css" data-src="gallery/css/gallery.css">
   <link rel="stylesheet" href="css/viewer.css" data-src="gallery/css/viewer.css">
+  <link rel="stylesheet" href="css/people.css" data-src="gallery/css/people.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -49,6 +50,7 @@
           <button type="button" class="nav-item" data-view="photos"><span class="nav-l">Photos</span><span class="nav-n" id="cntAll">0</span></button>
           <button type="button" class="nav-item" data-view="favourites"><span class="nav-l">Favourites</span><span class="nav-n" id="cntFav">0</span></button>
           <button type="button" class="nav-item" data-view="dupes"><span class="nav-l">Duplicates</span><span class="nav-n" id="cntDupes"></span></button>
+          <button type="button" class="nav-item" data-view="people"><span class="nav-l">People</span></button>
         </nav>
 
         <div class="side-sec">
@@ -83,6 +85,16 @@
       </aside>
 
       <main class="grid-area">
+        <div class="people-bar" id="peopleBar" hidden>
+          <p class="people-text" id="peopleText" aria-live="polite"></p>
+          <p class="people-status muted" id="peopleStatus" aria-live="polite"></p>
+          <progress class="people-prog" id="peopleProg" hidden></progress>
+          <div class="people-acts">
+            <button type="button" class="tb-btn" id="peopleOn" hidden>Turn on face detection…</button>
+            <button type="button" class="tb-btn" id="peopleGo" hidden>Find faces</button>
+            <button type="button" class="tb-btn" id="peopleStop" hidden>Stop</button>
+          </div>
+        </div>
         <div class="grid" id="grid" tabindex="0" aria-label="Photos, newest first">
           <div class="sticky" id="sticky" hidden><span class="sticky-l"></span><span class="sticky-n"></span></div>
           <div class="tl-content" id="tlContent"></div>
@@ -108,6 +120,14 @@
   <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
   <script src="../shared/preview/chrome.js" data-src="shared/preview/chrome.js"></script>
   <script src="../shared/preview/preview.js" data-src="shared/preview/preview.js"></script>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/faces/copy.js" data-src="shared/faces/copy.js"></script>
+  <script src="../shared/profile/app-options.js" data-src="shared/profile/app-options.js"></script>
+  <script src="../shared/faces/decode.js" data-src="shared/faces/decode.js"></script>
+  <script src="../shared/faces/cache.js" data-src="shared/faces/cache.js"></script>
+  <script src="../shared/faces/index.js" data-src="shared/faces/index.js"></script>
+  <script src="../shared/faces/consent.js" data-src="shared/faces/consent.js"></script>
+  <script src="../shared/faces/overlay.js" data-src="shared/faces/overlay.js"></script>
   <script src="js/io/hash.js" data-src="gallery/js/io/hash.js"></script>
   <script src="js/io/exif.js" data-src="gallery/js/io/exif.js"></script>
   <script src="js/io/zip.js" data-src="gallery/js/io/zip.js"></script>
@@ -121,6 +141,7 @@
   <script src="js/core/query.js" data-src="gallery/js/core/query.js"></script>
   <script src="js/core/sort.js" data-src="gallery/js/core/sort.js"></script>
   <script src="js/core/urls.js" data-src="gallery/js/core/urls.js"></script>
+  <script src="js/core/people.js" data-src="gallery/js/core/people.js"></script>
   <script src="js/core/reel.js" data-src="gallery/js/core/reel.js"></script>
   <script src="js/io/reel-cutout.js" data-src="gallery/js/io/reel-cutout.js"></script>
   <script src="js/io/reel-drive.js" data-src="gallery/js/io/reel-drive.js"></script>
@@ -137,6 +158,7 @@
   <script src="js/ui/menus.js" data-src="gallery/js/ui/menus.js"></script>
   <script src="js/ui/commands.js" data-src="gallery/js/ui/commands.js"></script>
   <script src="js/ui/sidebar.js" data-src="gallery/js/ui/sidebar.js"></script>
+  <script src="js/ui/people.js" data-src="gallery/js/ui/people.js"></script>
   <script src="js/ui/view-state.js" data-src="gallery/js/ui/view-state.js"></script>
   <script src="js/ui/main.js" data-src="gallery/js/ui/main.js"></script>
   <script src="../shared/pwa.js"></script>
