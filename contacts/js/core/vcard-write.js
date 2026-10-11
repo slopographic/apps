@@ -1,0 +1,42 @@
+/* Slop Contacts: write vCard 3.0 for iOS and Android. VERSION:3.0, CRLF line ends, UTF-8, every physical line
+ * folded to at most 75 octets, text escaped (\ ; , and newlines), N and FN always, TEL/EMAIL with TYPE=,
+ * ADR, ORG, TITLE, BDAY as YYYY-MM-DD, CATEGORIES, plus NOTE, URL and UID so that a read gives the same data back.
+ * Classic script. Adds SlopContacts.vcard.write(contacts) -> string. */
+(function () {
+  'use strict';
+  const SC = (window.SlopContacts = window.SlopContacts || {});
+  const T = SC.text;
+  const esc = T.escVal;
+  const typeParam = (types) => {
+    const t = (types || []).map((x) => String(x).toUpperCase().replace(/[^A-Z0-9-]/g, '')).filter(Boolean);
+    return t.length ? ';TYPE=' + t.join(',') : '';
+  };
+
+  /** One contact as vCard 3.0 lines (CRLF-joined, with a final CRLF). */
+  function one(c) {
+    const out = [], put = (s) => out.push(T.fold(s));
+    const n = c.name || {};
+    out.push('BEGIN:VCARD', 'VERSION:3.0');
+    put(`N:${[n.family, n.given, n.additional, n.prefix, n.suffix].map(esc).join(';')}`);
+    put(`FN:${esc(c.fn || SC.model.displayName(c))}`);
+    if (c.org || c.dept) put(`ORG:${esc(c.org)};${esc(c.dept)}`);
+    if (c.title) put(`TITLE:${esc(c.title)}`);
+    for (const p of c.phones || []) put(`TEL${typeParam(p.types)}:${esc(p.value)}`);
+    for (const e of c.emails || []) put(`EMAIL${typeParam(e.types)}:${esc(e.value)}`);
+    for (const a of c.adr || []) put(`ADR${typeParam(a.types)}:${[a.po, a.ext, a.street, a.locality, a.region, a.postal, a.country].map(esc).join(';')}`);
+    if (c.bday) put(`BDAY:${c.bday}`);
+    if (c.url) put(`URL:${esc(c.url)}`);
+    if (c.note) put(`NOTE:${esc(c.note)}`);
+    if ((c.groups || []).length) put(`CATEGORIES:${c.groups.map(esc).join(',')}`);
+    if (c.id) put(`UID:${esc(c.id)}`);
+    out.push('END:VCARD');
+    return out.join('\r\n') + '\r\n';
+  }
+
+  /** Many contacts as one .vcf string (each card is complete, so concatenation is valid). */
+  function write(contacts) {
+    return (contacts || []).map((c) => one(SC.model.normalise(c))).join('');
+  }
+
+  SC.vcard = Object.assign(SC.vcard || {}, { write, one });
+})();
