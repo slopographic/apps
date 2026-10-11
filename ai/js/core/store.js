@@ -1,10 +1,10 @@
-/* Slop AI — core/store: conversations in IndexedDB (database "slop-ai", store "convs"; tests set window.SLOP_AI_DB).
+/* Slop AI — core/store: conversations in IndexedDB (database "slop-ai", store "convs"; tests use ?db=name or window.SLOP_AI_DB).
  * A conversation: { id, kind: 'chat' | 'build', title, created, updated, persona, system, temperature, maxTokens, tools,
  *   messages: [{ role, content, display?, attachments?, toolCalls?, name?, ok?, usage?, time }], html? (build only) }
  * Also: export to Markdown / JSON. */
 'use strict';
 (function (AI) {
-  const NAME = () => window.SLOP_AI_DB || 'slop-ai';
+  const NAME = () => window.SLOP_AI_DB || new URLSearchParams(location.search).get('db') || 'slop-ai';
   let dbp = null;
   function open() {
     if (dbp) return dbp;

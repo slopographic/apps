@@ -4,7 +4,7 @@
    SE.encode.run(opts) → { blob, info } ; opts: { format, w, h, fps, quality, a, b, audio, progress, signal } */
 (function () {
   'use strict';
-  const SE = window.SE, U = SE.util, Y = SE.synth;
+  const SE = window.SE, U = SE.util;
   const X = SE.encode = {};
   X.QUALITY = { low: 0.05, medium: 0.1, high: 0.17, max: 0.28 }; // bits per pixel per frame
 
@@ -30,7 +30,7 @@
     if (!video) throw new Error('No video encoder for ' + format.toUpperCase() + ' at ' + w + '×' + h);
     let audio = null;
     if (withAudio && typeof AudioEncoder === 'function') {
-      const a = await Y.pickAudioCodec(48000, 2, format === 'webm' ? ['opus'] : ['aac', 'opus']);
+      const a = await SE.synth.pickAudioCodec(48000, 2, format === 'webm' ? ['opus'] : ['aac', 'opus']);
       if (a) audio = { mux: format === 'webm' ? 'A_OPUS' : a.mux, codec: a.codec, cfg: a.cfg };
     }
     return { video, audio };
