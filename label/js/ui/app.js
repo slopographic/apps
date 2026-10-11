@@ -12,9 +12,10 @@ const THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic 
 
 /* ---------------- document access ---------------- */
 function previewGet() { return previewResolver(App.doc, App.rec, App.prompts); }
-function rebuildScene() { App.scene = buildScene(App.doc, previewGet()); return App.scene; }
+function rebuildScene() { App.scene = buildScene(App.doc, previewGet()); App.stale = false; return App.scene; }
 function objById(id) { return App.doc.objects.find((o) => o.id === id) || null; }
-function itemOf(id) { return App.scene.find((it) => it.obj.id === id) || null; }
+/** Laid-out item of an object; rebuilds the scene first if an edit is still waiting for the next frame. */
+function itemOf(id) { if (App.stale) rebuildScene(); return App.scene.find((it) => it.obj.id === id) || null; }
 function selObjs() { return App.doc.objects.filter((o) => App.sel.includes(o.id)); }
 function selOne() { const s = selObjs(); return s.length === 1 ? s[0] : null; }
 /** Label-space box of an object as drawn (auto-sized objects use their laid-out box). */
@@ -111,6 +112,7 @@ function duplicateSel(dx = 2, dy = 2) {
 /* ---------------- refresh scheduling ---------------- */
 let rafQ = 0, refreshOpts = {};
 function refresh(opts = {}) {
+  App.stale = true;
   refreshOpts = { keepProps: (rafQ ? refreshOpts.keepProps : true) && !!opts.keepProps };
   if (rafQ) return;
   rafQ = requestAnimationFrame(() => { rafQ = 0; const o = refreshOpts; refreshOpts = {}; refreshNow(o); });

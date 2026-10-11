@@ -30,7 +30,7 @@
       expect(W.gs1Check('590123412345')).toBe('7'); // 5901234123457
       expect(W.gs1Check('9638507')).toBe('4'); // EAN-8 96385074
       expect(W.gs1Check('03600029145')).toBe('2'); // UPC-A 036000291452
-      expect(W.gs1Check('1540014128876')).toBe('7'); // ITF-14 15400141288767
+      expect(W.gs1Check('1540014128876')).toBe('3'); // ITF-14 15400141288763
       expect(W.gs1Check('00614141123456789')).toBe('0'); // SSCC 006141411234567890
     });
     it('expands UPC-E and checks Code 39 mod 43', () => {
@@ -44,7 +44,7 @@
       expect(() => W.normalizeBarcode('ean13', '4006381333932')).toThrow(/check digit should be 1/);
       expect(() => W.normalizeBarcode('ean13', '40063813')).toThrow(/needs 12 digits/);
       expect(() => W.normalizeBarcode('ean8', '96385O7')).toThrow(/digits only/);
-      expect(W.normalizeBarcode('itf14', '1540014128876').text).toBe('1 54 00141 28876 7');
+      expect(W.normalizeBarcode('itf14', '1540014128876').text).toBe('1 54 00141 28876 3');
       expect(W.normalizeBarcode('upce', '425261').data).toBe('04252614');
       expect(() => W.normalizeBarcode('code39', 'abc*')).toThrow(/not allowed/);
       expect(W.normalizeBarcode('codabar', '12345').data).toBe('A12345A');

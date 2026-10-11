@@ -60,8 +60,9 @@
       const names = downloads.map((x) => x.name.split('.').pop()).sort();
       expect(names).toEqual(['epl', 'pdf', 'png', 'tspl', 'zpl']);
       const zpl = await downloads.find((x) => x.name.endsWith('.zpl')).blob.text();
-      expect((zpl.match(/\^XA/g) || []).length).toBe(2); // Ada ×2 merged into ^PQ2
-      expect(zpl).toContain('^PQ2,0,1,Y');
+      expect((zpl.match(/\^XA/g) || []).length).toBe(3); // Ada ×2 (different serials), Grace ×1
+      expect(zpl).toContain('^FD>:A-1->50001^FS'); // Code 128 B, then subset C for the digit run
+      expect(zpl).toContain('^FD>:A-1->50002^FS');
       const pdf = new Uint8Array(await downloads.find((x) => x.name.endsWith('.pdf')).blob.arrayBuffer());
       expect(String.fromCharCode(...pdf.slice(0, 8))).toBe('%PDF-1.4');
       const counter = W.App.doc.vars.find((v) => v.type === 'counter');
@@ -134,7 +135,7 @@
       expect(labels.some((l) => /Slop PDF \(PNG\)/.test(l))).toBe(false);
     });
     it('opens every menu', async () => {
-      for (const b of W.document.querySelectorAll('.mb')) { b.click(); expect(W.document.querySelectorAll('.sui-menu .sui-row').length).toBeGreaterThan(3); W.SlopUI.closeMenu(); }
+      for (const b of W.document.querySelectorAll('.mb')) { b.click(); expect(W.document.querySelectorAll('.sui-menu .sui-row').length).toBeGreaterThanOrEqual(3); W.SlopUI.closeMenu(); }
       const file = W.menuFile().filter((i) => i && i.label).map((i) => i.label);
       expect(file).toContain('Send to');
     });

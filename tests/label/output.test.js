@@ -132,7 +132,7 @@
       expect(Array.from(W.zplDecodeGFA(enc, bpr, bpr * h))).toEqual(Array.from(bits));
     });
     it('imports Zebra fields, serials and GS1 barcodes', async () => {
-      const zpl = '^XA^PW406^LL203^FO20,20^A0N,30,30^FN1^FDLot 7^FS^FO20,60^BY2^BCN,50,Y,N,N^FD>;>80109501101530003>6LOT^FS^FO20,140^A0N,25,25^SNA001,1,Y^FS^FO300,20^BQN,2,4^FDMA,https://x.y^FS^XZ';
+      const zpl = '^XA^PW406^LL203^FO20,20^A0N,30,30^FN1^FDLot 7^FS^FO20,60^BY2^BCN,50,Y,N,N^FD>;>80109501101530003>610LOT^FS^FO20,140^A0N,25,25^SNA001,1,Y^FS^FO300,20^BQN,2,4^FDMA,https://x.y^FS^XZ';
       const d = await W.importZPL(zpl);
       expect(d.vars.map((v) => v.type)).toEqual(['prompt', 'counter']);
       const gs = d.objects.find((o) => o.symbology === 'gs1-128');
