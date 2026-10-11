@@ -4,7 +4,7 @@
  * Only same-origin GET requests are handled. Other origins are never cached or intercepted. */
 'use strict';
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = 'slopographic-' + VERSION;
 const OFFLINE = '/offline.html';
 const STATIC = /\.(m?js|css|woff2?|ttf|otf|png|jpe?g|webp|gif|svg|ico|wasm|json|glb|bcmap|pfb)$/i;
@@ -94,7 +94,7 @@ const PRECACHE = [
   '/photoslop/css/type.css', '/photoslop/index.html', '/photoslop/js/app/commands.js', '/photoslop/js/app/main.js',
   '/photoslop/js/app/nav-adapter.js', '/photoslop/js/app/tabs.js', '/photoslop/js/brushes/engine.js',
   '/photoslop/js/brushes/packs.js', '/photoslop/js/brushes/panel.js', '/photoslop/js/core/composite.js',
-  '/photoslop/js/core/model.js', '/photoslop/js/core/ops.js', '/photoslop/js/core/util.js',
+  '/photoslop/js/core/model.js', '/photoslop/js/core/ops.js', '/photoslop/js/core/size.js', '/photoslop/js/core/util.js',
   '/photoslop/js/core/view.js', '/photoslop/js/filters/catalog.js', '/photoslop/js/filters/enhance.js',
   '/photoslop/js/filters/helpers.js', '/photoslop/js/filters/repair.js', '/photoslop/js/filters/slop.js',
   '/photoslop/js/guides/input.js', '/photoslop/js/guides/model.js', '/photoslop/js/guides/overlay.js',
@@ -107,7 +107,7 @@ const PRECACHE = [
   '/photoslop/js/type/props.js', '/photoslop/js/ui/chrome.js', '/photoslop/js/ui/context.js',
   '/photoslop/js/ui/dialogs.js', '/photoslop/js/ui/doc-dialogs.js', '/photoslop/js/ui/filter-dialog.js',
   '/photoslop/js/ui/fx-dialog.js', '/photoslop/js/ui/menus.js', '/photoslop/js/ui/panels.js',
-  '/photoslop/js/ui/popups.js', '/press/css/canvas.css', '/press/css/chrome.css', '/press/css/panels.css',
+  '/photoslop/js/ui/popups.js', '/photoslop/js/ui/size-dialogs.js', '/press/css/canvas.css', '/press/css/chrome.css', '/press/css/panels.css',
   '/press/css/responsive.css', '/press/css/themes.css', '/press/index.html', '/press/js/core/items.js',
   '/press/js/core/layers.js', '/press/js/core/model.js', '/press/js/core/pages.js', '/press/js/core/state.js',
   '/press/js/core/store.js', '/press/js/core/story.js', '/press/js/core/styles.js', '/press/js/core/util.js',
