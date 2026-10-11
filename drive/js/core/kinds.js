@@ -35,10 +35,9 @@
     if (t.startsWith('video/')) return 'video';
     if (/zip|x-tar|gzip|x-7z|x-rar|slopographic-backup/.test(t) || ARCH_EXT.includes(e)) return 'archive';
     if (t.startsWith('text/') || /json|xml|javascript|csv|yaml/.test(t) || TEXT_EXT.includes(e)) return 'text';
-    if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'avif', 'ico'].includes(e)) return 'image';
-    if (['mp3', 'wav', 'ogg', 'm4a', 'flac'].includes(e)) return 'audio';
-    if (['mp4', 'webm', 'mov', 'mkv'].includes(e)) return 'video';
-    return 'other';
+    // Images, audio and video by name or MIME type, from the shared kind table (shared/kinds/kinds.js) that every app uses.
+    const shared = window.SlopKinds ? window.SlopKinds.kindOf(r.name, r.type) : 'other';
+    return shared === 'image' || shared === 'audio' || shared === 'video' ? shared : 'other';
   }
   const isSvg = (r) => /svg/.test(r.type || '') || ext(r.name) === 'svg';
   /** Short label like "PNG image" or "PDF". */

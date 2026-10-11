@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-brand-tokens>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -28,8 +28,8 @@
 <body>
   <header class="nav">
     <a class="brand" href="#" data-view="home" aria-label="Slopographic, home">
-      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4" /></svg>
-      <span class="brand-name">Slopographic</span>
+      <svg class="mark" data-brand-logo viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4" /></svg>
+      <span class="brand-name" data-brand-name>Slopographic</span>
     </a>
     <nav class="tabs" aria-label="Sections">
       <a class="tab" href="#apps" data-jump>Apps</a>
@@ -153,13 +153,13 @@
   </main>
 
   <footer class="footer">
-    <p class="footer-mark" aria-hidden="true" data-perch>Slopographic</p>
+    <p class="footer-mark" aria-hidden="true" data-perch data-brand-name>Slopographic</p>
     <div class="footer-cols">
-      <p><strong>Slopographic</strong><br>Office and creative software that runs in your browser.</p>
+      <p><strong data-brand-name>Slopographic</strong><br>Office and creative software that runs in your browser.</p>
       <p>Everything works offline-first. Your files never leave your device.</p>
       <p>No accounts. Analytics and ads stay off unless you switch them on in Settings.</p>
     </div>
-    <p class="fine">© 2026 Slopographic.</p>
+    <p class="fine" data-brand-footer>© 2026 Slopographic.</p>
     <p class="fine legal"><a href="settings/">Settings and privacy</a> · <a href="https://github.com/slopographic/slopographic/blob/main/LICENSE">Code MIT</a> · <a href="https://github.com/slopographic/slopographic/blob/main/TRADEMARKS.md">Sloppo™ and Slopographic™ are trademarks</a></p>
   </footer>
 
@@ -178,6 +178,8 @@
   <script src="app.js"></script>
   <script src="home/catalog.js"></script>
   <script src="motion.js"></script>
+  <script src="brand/brand.js"></script>
   <script type="module" src="home/mascot/index.js"></script>
+  <script src="shell/shell.js"></script>
 </body>
 </html>
