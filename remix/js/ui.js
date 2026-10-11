@@ -46,6 +46,11 @@
     lk.title = locked ? 'Unlock cut ' + (i + 1) : 'Lock cut ' + (i + 1) + ': its clips stay through Reshuffle';
     lk.setAttribute('aria-label', lk.title); lk.setAttribute('aria-pressed', String(locked));
     lk.onclick = () => { RM.toggleCutLock(i); renderPlan(); status(locked ? 'Cut ' + (i + 1) + ' unlocked' : 'Cut ' + (i + 1) + ' locked: Reshuffle keeps its clips'); };
+    li.draggable = true; li.dataset.cut = String(i);
+    li.addEventListener('dragstart', (e) => RM.moves.cutDragStart(e, i, li));
+    li.addEventListener('dragover', (e) => RM.moves.cutDragOver(e, li));
+    li.addEventListener('dragleave', () => { delete li.dataset.drop; });
+    li.addEventListener('drop', (e) => { delete li.dataset.drop; RM.moves.cutDrop(e, i); });
     li.append(lk, ' ' + (i + 1) + '. ');
     beat.forEach((x, k) => {
       if (k) li.append(' | ');
@@ -181,7 +186,9 @@
     const row = $('rm-slots');
     if (ci < 0) { row.replaceChildren(); return; }
     const head = Object.assign(document.createElement('span'), { className: 'rm-size', textContent: 'Cut ' + (ci + 1) + ' slots:' });
-    row.replaceChildren(head, ...plan.cuts[ci].map((x) => {
+    const reset = Object.assign(document.createElement('button'), { type: 'button', className: 'rm-btn rm-slotlock', textContent: 'Reset position' });
+    reset.title = 'Centre the clips of this cut in their cells'; reset.onclick = () => { RM.resetPan(ci); renderPlan(); status('Positions of cut ' + (ci + 1) + ' reset.'); };
+    row.replaceChildren(head, reset, ...plan.cuts[ci].map((x) => {
       const on = SV.locks.has(st.locks, ci, x.slot);
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'rm-btn rm-slotlock' + (on ? ' on' : ''); b.innerHTML = LOCK_SVG + ' Slot ' + (x.slot + 1);
@@ -253,6 +260,7 @@
     $('rm-export').addEventListener('click', () => RM.exporter.run({ say: status }));
     $('rm-scrub').addEventListener('input', (e) => scrubTo(+e.target.value));
     wireDrop();
+    RM.moves.install({ redraw: () => renderPlan(), say: status });
     RM.dnd.install({
       stage: $('rm-stage'), say: status,
       redraw: () => { renderPlan(); renderBin(); }
