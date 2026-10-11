@@ -27,7 +27,7 @@
     A('cutout', 'app', 'Slop Cutout', 'cutout/', 'Remove backgrounds with AI that runs on your device.', {
       accepts: ['image/*'],
       features: ['One-click AI background removal', 'Refine brush & soft edges', 'Replace with colour, blur or image', 'Batch, no uploads, no watermarks'],
-      shot: 'assets/shots/cutout.jpg', icon: 'brush', status: 'building' }),
+      shot: 'assets/shots/cutout.jpg', icon: 'brush', status: 'beta' }),
     A('ai', 'app', 'Slop AI', 'ai/', 'Chat with an AI that runs on your own computer.', {
       accepts: ['text/*', 'image/*'],
       features: ['Local models via WebGPU, works offline', 'System check: what can your PC run?', 'Drives every Slopographic app', 'Builds mini-apps for you'],
