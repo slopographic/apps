@@ -9,7 +9,7 @@ import * as editor from './editor.js';
 import * as chrome from './chrome.js';
 import * as cmd from './commands.js';
 import * as F from './storage.js';
-import * as drafts from './drafts.js';
+import { tabs } from './tabs.js';
 import * as A from './actions.js';
 import * as ctxmenu from './ctxmenu.js';
 import * as TPL from './templates.js';
@@ -22,8 +22,6 @@ import { toBlob } from '../io/native.js';
 import { parseCell } from '../engine/refs.js';
 
 const paint = () => { grid.render(); chrome.render(); sidebar.render(); };
-
-function guard() { if (window.SlopGuard) window.SlopGuard.setUnsaved('tables', S.file.dirty); }
 
 function bindToolbar() {
   $('btnUndo').addEventListener('click', undo);
@@ -46,9 +44,8 @@ function bindToolbar() {
 }
 
 function boot() {
-  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); drafts.init(); A.bindClipboard(); ctxmenu.init(); sidebar.init();
+  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); A.bindClipboard(); ctxmenu.init(); sidebar.init();
   setPainter(paint);
-  on('change', guard); on('saved', guard); on('open', guard);
   $('vp').addEventListener('scroll', () => redraw());
   addEventListener('resize', () => redraw());
   bindToolbar();
@@ -84,6 +81,9 @@ function expose() {
     select(ref) { const p = at(ref); S.sel = { r: p.r, c: p.c, er: p.r, ec: p.c }; grid.ensureVisible(p.r, p.c); redraw(); },
     addSheet: () => { cmd.run('sheet.add'); },
     flush: () => paint(),
+    /** Writes the open tabs to this device now (the session of the strip). */
+    flushTabs: () => tabs.flush(),
+    tabs,
     command: (id) => cmd.run(id),
     undo, redo, canUndo, canRedo,
     save: () => F.save(),

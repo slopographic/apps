@@ -95,12 +95,13 @@
 
     /* ---------- painting ---------- */
     function paintFacets(counts) {
-      facetBox.replaceChildren(...spec.facets.map((f) => el('fieldset', { class: 'sf-facet' }, el('legend', null, f.label),
-        el('div', { class: 'sf-opts' }, (counts[f.key] || []).map((o) => el('button', { type: 'button',
-          class: 'sf-opt' + (o.selected ? ' is-on' : ''), 'aria-pressed': o.selected ? 'true' : 'false',
-          disabled: o.count === 0 && !o.selected ? true : null,
-          onclick: () => { st = M.toggleFacet(st, f.key, o.value); update(); } },
-        f.format ? f.format(o.value) : o.value, el('span', { class: 'sf-n' }, ' ' + o.count))))))));
+      const option = (f, o) => el('button', { type: 'button', class: 'sf-opt' + (o.selected ? ' is-on' : ''),
+        'aria-pressed': o.selected ? 'true' : 'false', disabled: o.count === 0 && !o.selected ? true : null,
+        onclick: () => { st = M.toggleFacet(st, f.key, o.value); update(); } },
+      f.format ? f.format(o.value) : o.value, el('span', { class: 'sf-n' }, ' ' + o.count));
+      const group = (f) => el('fieldset', { class: 'sf-facet' }, el('legend', null, f.label),
+        el('div', { class: 'sf-opts' }, (counts[f.key] || []).map((o) => option(f, o))));
+      facetBox.replaceChildren(...spec.facets.map(group));
       if (opts.facetsCollapsed) facetWrap.open = M.isFiltered(st) || facetWrap.open;
     }
     function paintChips() {

@@ -12,8 +12,12 @@
     base: 'none', random: true, grids: RM.GRIDS.slice(), lane: [], seed: S.make(), plan: null, playhead: 0, fill: 'auto',
     timing: 'same', video: 'through', min: 1, max: 3, stagger: 1, locks: [], audioMode: 'off', audioTrack: 'random', music: null,
     photo: { show: 'cut', sec: 3, min: 2, max: 4, from: 0, to: 0, enter: 'none', exit: 'none' }, clipVideo: { mode: 'full', start: 0, stop: 0, speed: 1 }, overrides: {},
-    keys: [], kslot: 0, selKey: 0, effect: Object.assign({}, FX.DEFAULT)
+    keys: [], kslot: 0, selKey: 0, effect: Object.assign({}, FX.DEFAULT),
+    pending: [] // ids of clips added since the last plan (auto remix and the Remix button's pulse read this)
   };
+  /** Functions run with the plan after each new plan (Remix, Reshuffle, Reset all, Randomise). */
+  RM.hooks = [];
+  RM.onPlan = (fn) => { RM.hooks.push(fn); };
   /** Frame size of the chosen export preset (the sequence size). */
   RM.size = () => P.size(RM.state.preset, RM.state.custom.w, RM.state.custom.h) || { w: 1080, h: 1920 };
   RM.aspect = (size) => { const p = P.get(P.idFor(size.w, size.h)); return p ? p.aspect : '16:9'; };
@@ -96,6 +100,8 @@
       st.seed = plan.seed;
       if (st.random) st.lane = plan.segments.filter((s) => s.layout).map((s) => ({ start: s.start, layout: s.layout }));
       st.keys = KF.prune(st.keys, plan.cuts.length); // keys of cuts the new plan does not have are dropped
+      st.pending = []; // every clip in the bin is in this plan now
+      RM.hooks.forEach((fn) => { try { fn(plan); } catch (e) { console.error('Remix: plan hook failed', e); } });
     }
     return plan;
   };
