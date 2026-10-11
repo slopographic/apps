@@ -14,29 +14,26 @@
   const ready = HomeTest.openHome().then((w) => { win = w; doc = w.document; });
 
   describe('catalog', () => {
-    it('renders every app in the Apps shelf and no games or experiments shelves', async () => {
+    it('every registry app has a card in a section, and no card sits outside a section', async () => {
       await ready;
-      const apps = win.SLOP_APPS.filter((a) => a.kind === 'app');
+      const apps = win.SLOP_APPS;
       expect(apps.length).toBeGreaterThan(5);
-      expect(doc.querySelector('[data-list="game"]')).toBe(null);
-      expect(doc.querySelector('[data-list="experiment"]')).toBe(null);
       for (const a of apps) {
-        const list = doc.querySelector(`[data-list="${a.group}"]`);
-        expect(!!list).toBe(true);
-        const card = list.querySelector(`[data-id="${a.id}"][data-perch="card"]`);
+        const card = doc.querySelector(`[data-section] > [data-perch="card"][data-id="${a.id}"]`);
         if (!card) throw new Error('missing card for ' + a.id);
         expect(card.getAttribute('href')).toBe(a.path);
         expect(card.querySelector('h3').textContent).toBe(a.name);
       }
-      const cards = doc.querySelectorAll('[data-list] > [data-perch="card"]');
-      expect(cards.length).toBe(apps.length);
+      expect(doc.querySelectorAll('[data-section] > [data-perch="card"]').length).toBeGreaterThan(apps.length);
     });
     it('compact cards show the tagline and a status badge from the registry, and no feature list', async () => {
       await ready;
       const labels = { live: 'Live', beta: 'Beta', building: 'In development' };
       for (const a of win.SLOP_APPS.filter((x) => x.kind === 'app')) {
         const card = doc.querySelector(`.app-card[data-id="${a.id}"]`);
-        expect(card.querySelector('.app-tag').textContent).toBe(a.tagline);
+        // A converter card shows its one-line "in and out" from SECTIONS, so the tagline is one of the two.
+        const lines = [a.tagline].concat([].concat(win.SlopHomeSections.SECTIONS[a.id] || []).map((p) => p.line).filter(Boolean));
+        expect(lines.includes(card.querySelector('.app-tag').textContent)).toBe(true);
         expect(card.querySelector('.feats')).toBe(null);
         const badge = card.querySelector('.badge');
         expect(badge.classList.contains(a.status)).toBe(true);
@@ -54,7 +51,7 @@
         expect(svg.querySelector('g').children.length).toBeGreaterThan(0);
         ids.add(svg.querySelector('g').innerHTML);
       }
-      expect(ids.size).toBe(doc.querySelectorAll('[data-list] .shot-icon').length);
+      expect(doc.querySelectorAll('[data-section] .shot-icon').length).toBeGreaterThan(ids.size);
     });
     it('lists every project on the status board with matching counts', async () => {
       await ready;
@@ -66,22 +63,6 @@
       const states = [...doc.querySelectorAll('#status-board .dot')].map((d) => d.className.split(' ')[1]);
       const rank = { building: 0, beta: 1, live: 2 };
       for (let i = 1; i < states.length; i++) expect(rank[states[i]]).toBeGreaterThanOrEqual(rank[states[i - 1]]);
-    });
-  });
-
-  describe('group labels', () => {
-    it('headings come from GROUP_LABELS and every group has a heading', async () => {
-      await ready;
-      const labels = win.SLOP_GROUP_LABELS;
-      expect(labels).toEqual({ business: 'Slop 365', creative: 'Creative Slop' });
-      for (const g of ['business', 'creative']) {
-        const h = doc.querySelector(`[data-group-label="${g}"]`);
-        expect(h.textContent).toBe(labels[g]);
-        expect(h.tagName).toBe('H2');
-        expect(h.closest('section').querySelector('[data-list]').getAttribute('data-list')).toBe(g);
-      }
-      expect(doc.body.textContent).not.toContain('Business tools');
-      expect(doc.body.textContent).not.toContain('Creative tools');
     });
   });
 
@@ -166,7 +147,7 @@
     it('each card and slide icon is an SVG-namespace svg with the badge rect and glyph group as direct children', async () => {
       await ready;
       const SVG = 'http://www.w3.org/2000/svg';
-      const icons = [...doc.querySelectorAll('[data-list] .shot-icon'), ...doc.querySelectorAll('.carousel .car-icon')];
+      const icons = [...doc.querySelectorAll('[data-section] .shot-icon'), ...doc.querySelectorAll('.carousel .car-icon')];
       expect(icons.length).toBeGreaterThan(win.SLOP_APPS.length);
       for (const svg of icons) {
         expect(svg.namespaceURI).toBe(SVG);

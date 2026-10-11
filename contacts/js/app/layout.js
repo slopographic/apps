@@ -30,7 +30,7 @@
     if (save) saveWidth(w);
     return w;
   }
-  const listWidth = () => $('colList').getBoundingClientRect().width;
+  const listWidth = () => document.querySelector('.col-list').getBoundingClientRect().width;
 
   function mountSplitter() {
     const sp = $('splitter');

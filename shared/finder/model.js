@@ -85,7 +85,9 @@
   function toggleFacet(st, key, value) {
     const cur = (st.facets && st.facets[key]) || [];
     const next = cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value];
-    return removeFacet({ ...st, facets: { ...st.facets, [key]: next } }, key, null);
+    const facets = { ...st.facets };
+    if (next.length) facets[key] = next; else delete facets[key];
+    return { ...st, facets };
   }
   /** Drops one facet value (or the whole facet when value is null); an empty facet is removed from the state. */
   function removeFacet(st, key, value) {

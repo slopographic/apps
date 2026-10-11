@@ -46,13 +46,15 @@
     target.dispatchEvent(new win.DragEvent('drop', opts));
   }
   const click = (win, el, detail = 1) => el.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true, detail }));
+  /** The saved place can open a group from an earlier test: go back to All Contacts before a test counts the list. */
+  const showAll = (win) => click(win, $(win, '.grp[data-group=""]'));
 
   describe('import by drop', () => {
     it('a dropped vCard is previewed with its duplicate flagged; merge adds the new phone, and Undo puts the list back', async () => {
       await CT.resetCustomers();
       await CT.seed([{ id: 'it-ann', name: 'It Ann', email: 'ann.it@example.com', stage: 'customer' }]);
       const win = await boot();
-      dropFiles(win, $(win, '.col-list'), [CT.file(VCF, 'people.vcf', 'text/vcard')].map((f) => new win.File([f], f.name, { type: 'text/vcard' })));
+      dropFiles(win, $(win, '.col-list'), [new win.File([VCF], 'people.vcf', { type: 'text/vcard' })]);
       await waitFor(() => button(win, '.sui-dlg', 'Import'), { timeout: 5000 });
       expect($$(win, '.imp-row.is-dup')).toHaveLength(1);
       expect($(win, '.imp-row.is-dup .imp-status').textContent).toBe('Duplicate of It Ann (e-mail ann.it@example.com): skipped');
@@ -75,6 +77,7 @@
       await CT.resetCustomers();
       await CT.seed([{ id: 'tb-1', name: 'Tab Bea', company: 'Zeta Inc' }, { id: 'tb-2', name: 'Tab Al', company: 'Acme' }, { id: 'tb-3', name: 'Tab Cy' }]);
       const win = await boot();
+      showAll(win);
       click(win, $(win, '.seg-btn[data-view="table"]'));
       expect($(win, '#tableView').hidden).toBe(false);
       expect(win.document.body.classList.contains('table-mode')).toBe(true);
@@ -123,6 +126,7 @@
       await CT.resetCustomers();
       await CT.seed([{ id: 'fl-a', name: 'Fl Alpha', company: 'Filter Co' }, { id: 'fl-b', name: 'Fl Beta', company: 'Other Co' }]);
       const win = await boot();
+      showAll(win);
       const sel = $(win, '#filters select[data-f="org"]');
       sel.value = 'Filter Co';
       sel.dispatchEvent(new win.Event('change', { bubbles: true }));
@@ -137,7 +141,7 @@
     it('the splitter moves with the arrow keys and keeps its width after a reload', async () => {
       localStorage.removeItem('slop-contacts.list-width');
       let win = await boot();
-      const width = (w) => Math.round(w.document.getElementById('colList').getBoundingClientRect().width);
+      const width = (w) => Math.round(w.document.querySelector('.col-list').getBoundingClientRect().width);
       const w0 = width(win);
       const sp = $(win, '#splitter');
       for (let i = 0; i < 2; i++) sp.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));

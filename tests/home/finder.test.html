@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Homepage · search and finder at the top</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="boot.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, run } = SlopTest;
+  let win, doc;
+  const ready = HomeTest.openHome().then((w) => { win = w; doc = w.document; });
+  const input = () => doc.querySelector('#app-finder input[type="search"]');
+  const type = (text) => { const i = input(); i.focus(); i.value = text; i.dispatchEvent(new win.Event('input', { bubbles: true })); };
+  const cardIds = () => [...new Set([...doc.querySelectorAll('#app-sections [data-perch="card"]')].map((c) => c.dataset.id))];
+  const visibleSections = () => [...doc.querySelectorAll('#app-sections > section.shelf')].filter((s) => !s.hidden).map((s) => s.id);
+  const resultCards = () => [...doc.querySelectorAll('#app-finder .sf-cards > [data-id]')].map((c) => c.dataset.id);
+  const clearAll = () => { const b = [...doc.querySelectorAll('#app-finder .sf-link')].find((x) => x.textContent === 'Clear all'); if (b) b.click(); else type(''); };
+
+  describe('homepage search at the top', () => {
+    it('search finds PDF, and only the sections with matches stay', async () => {
+      await ready;
+      type('pdf');
+      // Descriptions and keywords count too, so more than the PDF apps match; the PDF apps must be among them.
+      for (const id of ['pdf', 'html2pdf', 'ocr', 'eml']) expect(resultCards().includes(id)).toBe(true);
+      expect(visibleSections().includes('documents')).toBe(true);
+      expect(visibleSections().includes('tools')).toBe(false);
+      expect(doc.querySelector('#app-sections [data-id="pdf"]') !== null).toBe(true);
+      clearAll();
+    });
+    it('the search matches keywords and the longer description, not only names', async () => {
+      await ready;
+      type('isolate');
+      expect(doc.querySelector('#app-finder .sf-suggest li a').getAttribute('href')).toBe('slopisolate/');
+      expect(resultCards().includes('cutout')).toBe(true);
+      type('invoice');
+      expect(resultCards().includes('invoices')).toBe(true);
+      type('background remove');
+      expect(resultCards().includes('cutout')).toBe(true);
+      clearAll();
+    });
+    it('as you type, a list of matches shows the section of each; Enter would open the first', async () => {
+      await ready;
+      type('calendar');
+      const first = doc.querySelector('#app-finder .sf-suggest li');
+      expect(first.textContent).toContain('Slop Calendar');
+      expect(first.textContent).toContain('Business');
+      expect(input().getAttribute('aria-activedescendant')).toBe('');
+      clearAll();
+    });
+    it('the empty result says no apps match, with a Clear button that brings them back', async () => {
+      await ready;
+      type('zzzz-no-such-app');
+      const empty = doc.querySelector('#app-finder .sf-empty');
+      expect(empty.hidden).toBe(false);
+      expect(empty.textContent).toContain('No apps match');
+      expect(visibleSections().length).toBe(0);
+      empty.querySelector('.sf-btn').click();
+      expect(input().value).toBe('');
+      expect(visibleSections().length).toBe(7);
+    });
+  });
+
+  describe('homepage facets, views and sorting', () => {
+    it('a facet narrows the results and the shelves, and counts show on each value', async () => {
+      await ready;
+      clearAll();
+      doc.querySelector('#app-finder .sf-more-sum').click();
+      const readyOpt = [...doc.querySelectorAll('#app-finder .sf-opt')].find((b) => b.textContent.startsWith('Ready'));
+      expect(readyOpt.querySelector('.sf-n').textContent.trim() !== '').toBe(true);
+      const building = [...doc.querySelectorAll('#app-finder .sf-opt')].find((b) => b.textContent.startsWith('In development'));
+      building.click();
+      const cards = resultCards();
+      expect(cards.length).toBeGreaterThan(3);
+      expect(cards.includes('pdf')).toBe(false);
+      expect(visibleSections().includes('tools')).toBe(true);
+      expect(building.getAttribute('aria-pressed')).toBe('true');
+      clearAll();
+    });
+    it('the table has name, section, file types and open columns, and no status column', async () => {
+      await ready;
+      clearAll();
+      doc.querySelector('#app-finder .sf-view[data-view="table"]').click();
+      const heads = [...doc.querySelectorAll('#app-finder .sf-table th')].map((th) => th.textContent.trim());
+      expect(heads).toEqual(['App', 'Section', 'File types', 'Open']);
+      expect(doc.querySelector('#app-finder .sf-table').textContent.includes('In development')).toBe(false);
+      clearAll();
+      doc.querySelector('#app-finder .sf-view[data-view="cards"]').click();
+    });
+    it('the table sorts by name: ascending, then descending', async () => {
+      await ready;
+      doc.querySelector('#app-finder .sf-view[data-view="table"]').click();
+      type('music');
+      const sort = () => [...doc.querySelectorAll('#app-finder .sf-sort')].find((b) => b.textContent.trim().startsWith('App'));
+      sort().click();
+      const names = () => [...doc.querySelectorAll('#app-finder .sf-table tbody tr td:first-child')].map((td) => td.textContent.trim());
+      const asc = names();
+      expect(asc.length).toBeGreaterThan(0);
+      expect([...asc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))).toEqual(asc);
+      sort().click();
+      expect([...names()].reverse()).toEqual(asc);
+      clearAll();
+      doc.querySelector('#app-finder .sf-view[data-view="cards"]').click();
+    });
+    it('the list view shows every visible app, once each', async () => {
+      await ready;
+      type('pdf');
+      doc.querySelector('#app-finder .sf-view[data-view="list"]').click();
+      const rows = [...doc.querySelectorAll('#app-finder .sf-row')].map((r) => r.dataset.id);
+      expect(new Set(rows).size).toBe(rows.length);
+      const sectionIds = [...new Set([...doc.querySelectorAll('#app-sections [data-perch="card"]')].map((c) => c.dataset.id))].filter((id) => id !== 'print');
+      expect(rows.length).toBe(sectionIds.length);
+      expect(rows.sort()).toEqual(sectionIds.sort());
+      clearAll();
+      doc.querySelector('#app-finder .sf-view[data-view="cards"]').click();
+    });
+    it('a filter is kept in the URL, under hp.', async () => {
+      await ready;
+      type('calendar');
+      expect(win.location.search.includes('hp.q=calendar')).toBe(true);
+      clearAll();
+      expect(win.location.search.includes('hp.q')).toBe(false);
+    });
+  });
+
+  run();
+  </script>
+</body>
+</html>

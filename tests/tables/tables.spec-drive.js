@@ -7,7 +7,8 @@
   describe('Slop Drive', () => {
     it('first save asks for a folder, writes a .stab record, and the app remembers its id', async () => {
       await TB.boot();
-      TB.hub.pickFolder = async () => null;   // the folder picker is a dialog; choose the root
+      // The folder picker is a dialog: the save goes to the root instead (the strip's save calls SlopHub.saveToDrive).
+      TB.hub.saveToDrive = (blob, name, o) => TB.hub.put(blob, { name, from: (o && o.from) || 'tables', folderId: null });
       TB.T.setCell('A1', '7');
       TB.T.setCell('A2', '=A1*6');
       const ok = await TB.T.save();
@@ -74,11 +75,11 @@
     });
   });
 
-  describe('autosave draft', () => {
-    it('a plain start restores the unsaved workbook from the draft', async () => {
+  describe('autosave', () => {
+    it('a plain start restores the open tabs with their unsaved workbook', async () => {
       await TB.boot('', 'app', { keepDrafts: false });
       TB.T.setCell('C5', 'unsaved draft text');
-      await sleep(1000);
+      await TB.frame('app').SlopTables.flushTabs();
       await TB.boot('', 'app2', { keepDrafts: true });
       expect(TB.frame('app2').SlopTables.value('C5')).toBe('unsaved draft text');
     });
