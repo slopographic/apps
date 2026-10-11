@@ -95,6 +95,11 @@
       setDirty(true);
       paintForm();
     },
+    onNewProduct: (i) => SlopDocs.productDialog.open(async (rec) => {
+      const ps = await NS.orders.products();
+      if (ps.ok) st.products = ps.value;
+      lineOpts().onProduct(i, rec);
+    }, { currency: st.currency }),
     onRemove: (i) => { st.lines.splice(i, 1); setDirty(true); paintForm(); },
   });
 
