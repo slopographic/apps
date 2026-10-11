@@ -1,121 +1,120 @@
-/* Slop Slides: the inspector panel (Keynote style: Format / Animate / Document tabs) and its control kit. Panels
-   register with I.tab(id, render) and rebuild when the selection, slide or document changes. */
+/* Slop Slides: the inspector (right column; below the canvas on phones). Slide: layout, hidden, notes. Document:
+   footer and slide numbers. Selection: position, size, rotation, opacity, fill, outline, text font, size, bold,
+   italics, alignment and colour, and arrange and copy actions. Each field applies on change as one undo step. The
+   fields refresh from the model when it changes under them (typing is never overwritten). Exposes window.SS.inspector. */
 (function () {
   'use strict';
-  var SS = window.SS, A = SS.app, D = SS.dom, TH = SS.themes, U = SS.util;
-  var I = SS.inspector = { tabs: {}, cur: U.store.get('tab', 'format') };
+  var SS = window.SS, A = SS.app, O = SS.objects, TH = SS.themes, D = SS.dom, OP = SS.ops, F = SS.fonts;
+  var I = SS.inspector = {};
+  var root = null, binds = [];
+  var r1 = function (v) { return Math.round(v * 10) / 10; };
 
-  I.init = function (host) {
-    I.host = host;
-    I.bar = D.h('div', { class: 'insp-tabs', role: 'tablist' });
-    I.body = D.h('div', { class: 'insp-body' });
-    host.append(I.bar, I.body);
-    [['format', 'Format', 'format'], ['animate', 'Animate', 'animate'], ['document', 'Document', 'document']].forEach(function (t) {
-      var b = D.h('button', { type: 'button', role: 'tab', class: 'insp-tab', 'data-tab': t[0], html: D.icon(t[2]) + '<span>' + t[1] + '</span>' });
-      b.addEventListener('click', function () { I.show(t[0]); });
-      I.bar.append(b);
-    });
-    ['select', 'slide', 'deck', 'history'].forEach(function (ev) { A.on(ev, function () { if (!I.quiet) I.render(); }); });
-    A.on('editing', function () { I.render(); });
-    I.show(I.cur);
+  I.mount = function (el) {
+    root = el;
+    ['load', 'deck', 'slide', 'select'].forEach(function (ev) { A.on(ev, build); });
+    A.on('change', sync);
+    build();
   };
-  I.show = function (id) {
-    I.cur = id; U.store.set('tab', id);
-    D.$$('.insp-tab', I.bar).forEach(function (b) { var on = b.dataset.tab === id; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
-    I.render();
-    A.emit('inspector', id);
-  };
-  I.tab = function (id, fn) { I.tabs[id] = fn; };
-  I.render = function () {
-    if (!A.deck || !I.body) return;
-    var y = I.body.scrollTop;
-    I.body.innerHTML = '';
-    var fn = I.tabs[I.cur]; if (fn) fn(I.body);
-    I.body.scrollTop = y;
-  };
-  /** Runs an edit from a control without rebuilding the inspector (keeps focus on sliders/inputs). */
-  I.edit = function (label, fn, key) { I.quiet = true; try { A.change(label, fn, key); A.emit('select'); } finally { I.quiet = false; } };
-  I.editSel = function (label, fn, key) { var objs = A.selected(); I.edit(label, function () { objs.forEach(fn); }, key); };
+  /** One undo step for a field edit; repeated edits to the same field within 800 ms merge. */
+  function edit(label, fn) { return A.change(label, fn, 'insp:' + label + ':' + A.sel.join() + ':' + A.idx); }
+  function row(label, control) { return D.el('label', { class: 'row' }, D.el('span', { text: label }), control); }
+  function section(title, kids) { return D.el('section', { class: 'grp' }, D.el('h2', { text: title }), kids); }
+  function hexOf(ref) { return TH.color(SS.themes.of(A.deck), ref, 'text') || '#000000'; }
 
-  /* ---------- control kit ---------- */
-  I.section = function (title, kids, opts) {
-    var s = D.h('section', { class: 'insp-sec' + (opts && opts.cls ? ' ' + opts.cls : '') });
-    if (title) s.append(D.h('h3', { class: 'insp-h', text: title }));
-    (kids || []).forEach(function (k) { if (k) s.append(k); });
-    return s;
-  };
-  I.row = function (label, ctrl, cls) { return D.h('div', { class: 'insp-row' + (cls ? ' ' + cls : '') }, D.h('span', { class: 'insp-l', text: label }), ctrl); };
-  I.seg = function (opts, value, onchange, aria) {
-    var g = D.h('div', { class: 'seg', role: 'radiogroup', 'aria-label': aria || '' });
-    opts.forEach(function (o) {
-      var b = D.h('button', { type: 'button', class: 'seg-b' + (String(o.v) === String(value) ? ' on' : ''), title: o.title || o.label || '', 'aria-label': o.title || o.label || String(o.v), role: 'radio', 'aria-checked': String(o.v) === String(value) ? 'true' : 'false', html: o.icon ? D.icon(o.icon) : U.esc(o.label) });
-      b.addEventListener('click', function () { D.$$('.seg-b', g).forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-checked', 'false'); }); b.classList.add('on'); b.setAttribute('aria-checked', 'true'); onchange(o.v); });
-      g.append(b);
-    });
-    return g;
-  };
-  I.toggle = function (label, value, onchange) {
-    var c = D.h('input', { type: 'checkbox', checked: !!value });
-    c.addEventListener('change', function () { onchange(c.checked); });
-    return D.h('label', { class: 'insp-check' }, c, D.h('span', { text: label }));
-  };
-  I.select = function (opts, value, onchange, aria) {
-    var s = D.h('select', { class: 'inp', 'aria-label': aria || '' });
-    opts.forEach(function (o) { s.append(D.h('option', { value: o[0], selected: String(o[0]) === String(value) }, o[1])); });
-    s.addEventListener('change', function () { onchange(s.value); });
-    return s;
-  };
-  I.num = function (value, onchange, o) {
-    o = o || {};
-    var n = D.h('input', { class: 'inp num', type: 'number', value: U.round(value, o.dec == null ? 1 : o.dec), step: o.step || 1, min: o.min, max: o.max, 'aria-label': o.aria || '' });
-    n.addEventListener('change', function () { var v = parseFloat(n.value); if (!isNaN(v)) onchange(v); });
-    return o.unit ? D.h('span', { class: 'num-wrap' }, n, D.h('i', { text: o.unit })) : n;
-  };
-  I.slider = function (value, min, max, step, onchange, fmt, aria) {
-    var r = D.h('input', { type: 'range', class: 'rng', min: min, max: max, step: step, value: value, 'aria-label': aria || '' });
-    var out = D.h('output', { class: 'rng-v', text: fmt ? fmt(value) : String(value) });
-    r.addEventListener('input', function () { var v = parseFloat(r.value); out.textContent = fmt ? fmt(v) : String(v); onchange(v); });
-    return D.h('span', { class: 'rng-wrap' }, r, out);
-  };
-  /** A colour well: theme swatches plus a custom colour. value is a theme ref or hex. */
-  I.color = function (value, onchange, opts) {
+  /** type: number | text | color | check | select | area. get() reads the model; set(v) applies the edit. */
+  function field(label, type, get, set, opts) {
     opts = opts || {};
-    var theme = A.theme(), hex = TH.color(theme, value) || '#000000';
-    var well = D.h('button', { type: 'button', class: 'well' + (value == null || value === 'none' ? ' none' : ''), title: opts.title || 'Colour', 'aria-label': opts.title || 'Colour', style: { '--c': hex } });
-    well.addEventListener('click', function () { I.colorPop(well, value, function (v) { well.style.setProperty('--c', TH.color(A.theme(), v) || 'transparent'); well.classList.toggle('none', v === 'none'); onchange(v); }, opts); });
-    return well;
-  };
-  I.colorPop = function (anchor, value, onchange, opts) {
-    D.$$('.color-pop').forEach(function (p) { p.remove(); });
-    var theme = A.theme(), pop = D.h('div', { class: 'color-pop', role: 'dialog', 'aria-label': 'Colours' });
-    var grid = D.h('div', { class: 'sw-grid' });
-    TH.SLOTS.forEach(function (k) {
-      var b = D.h('button', { type: 'button', class: 'sw' + (value === k ? ' on' : ''), title: k, 'aria-label': 'Theme ' + k, style: { background: theme.colors[k] } });
-      b.addEventListener('click', function () { onchange(k); close(); });
-      grid.append(b);
+    var el;
+    if (type === 'select') el = D.el('select', null, (opts.options || []).map(function (o) { return D.option(o[0], o[1], ''); }));
+    else if (type === 'area') el = D.el('textarea', { rows: 3, 'aria-label': label });
+    else el = D.el('input', { type: type === 'check' ? 'checkbox' : type, min: opts.min, max: opts.max, step: type === 'number' ? (opts.step || 1) : null, 'aria-label': label });
+    var b = { el: el, get: get, type: type };
+    binds.push(b);
+    var commit = function () {
+      var v = type === 'check' ? el.checked : type === 'number' ? parseFloat(el.value) : el.value;
+      if (type === 'number' && !isFinite(v)) { sync(); return; }
+      set(v);
+    };
+    el.addEventListener('change', commit);
+    if (type === 'color') el.addEventListener('input', commit);
+    return row(label, el);
+  }
+  function sync() {
+    binds.forEach(function (b) {
+      if (document.activeElement === b.el) return;
+      var v = b.get();
+      if (v == null) v = '';
+      if (b.type === 'check') b.el.checked = !!v;
+      else if (String(b.el.value) !== String(v)) b.el.value = v;
     });
-    ['#ffffff', '#d9d9d9', '#8c8c8c', '#404040', '#000000', '#ff3b30', '#ff9500', '#ffcc00', '#34c759', '#007aff'].forEach(function (c) {
-      var b = D.h('button', { type: 'button', class: 'sw' + (value === c ? ' on' : ''), title: c, 'aria-label': c, style: { background: c } });
-      b.addEventListener('click', function () { onchange(c); close(); });
-      grid.append(b);
-    });
-    var custom = D.h('input', { type: 'color', value: TH.color(theme, value) || '#000000', 'aria-label': 'Custom colour' });
-    custom.addEventListener('input', function () { onchange(custom.value); });
-    pop.append(D.h('div', { class: 'pop-h', text: 'Theme colours' }), grid, D.h('label', { class: 'pop-custom' }, custom, D.h('span', { text: 'Custom…' })));
-    if (opts && opts.allowNone) { var nb = D.h('button', { type: 'button', class: 'btn sm', text: 'None' }); nb.addEventListener('click', function () { onchange('none'); close(); }); pop.append(nb); }
-    document.body.append(pop);
-    var r = anchor.getBoundingClientRect(), pr = pop.getBoundingClientRect();
-    pop.style.left = U.clamp(r.right - pr.width, 8, innerWidth - pr.width - 8) + 'px';
-    pop.style.top = U.clamp(r.bottom + 6, 8, innerHeight - pr.height - 8) + 'px';
-    function close() { pop.remove(); document.removeEventListener('pointerdown', outside, true); }
-    function outside(e) { if (!pop.contains(e.target) && e.target !== anchor) close(); }
-    setTimeout(function () { document.addEventListener('pointerdown', outside, true); }, 0);
-  };
-  I.btnRow = function (items) {
-    var g = D.h('div', { class: 'btn-row' });
-    items.forEach(function (it) { if (!it) return; var b = D.h('button', { type: 'button', class: 'ib', title: it.title, 'aria-label': it.title, disabled: !!it.disabled, html: it.icon ? D.icon(it.icon) : U.esc(it.label) }); b.addEventListener('click', it.run); g.append(b); });
-    return g;
-  };
-  I.button = function (label, run, cls) { var b = D.h('button', { type: 'button', class: 'btn ' + (cls || ''), text: label }); b.addEventListener('click', run); return b; };
-  I.empty = function (text) { return D.h('p', { class: 'insp-empty', text: text }); };
+  }
+  /** A field on the selection: reads the first selected object, writes every selected object. */
+  function objField(label, type, get, put, opts) {
+    return field(label, type, function () { var o = A.selObjs()[0]; return o ? get(o) : ''; },
+      function (v) { edit(label, function () { A.selObjs().forEach(function (o) { put(o, v); }); }); }, opts);
+  }
+  function fillOf(o) { return o.fill && o.fill.type === 'solid' ? o.fill : null; }
+  function textOf(o) { return SS.textEdit.canEdit(o); }
+
+  function build() {
+    if (!root || !A.deck) return;
+    binds = [];
+    var s = A.slide(), objs = A.selObjs(), o = objs[0], kids = [];
+    var fonts = [['body', 'Body (theme)'], ['heading', 'Heading (theme)']].concat(F.LIST.map(function (f) { return [f, f]; }));
+    kids.push(section('Slide', [
+      field('Layout', 'select', function () { var c = A.slide(); return c ? c.layout : ''; }, function (v) { OP.setLayout(v); },
+        { options: SS.layouts.list.map(function (l) { return [l.id, l.name]; }) }),
+      field('Hidden in show', 'check', function () { var c = A.slide(); return !!(c && c.hidden); }, function (v) { OP.setHidden(v); }),
+      field('Notes', 'area', function () { var c = A.slide(); return c ? c.notes || '' : ''; },
+        function (v) { edit('Notes', function () { A.slide().notes = v; }); })
+    ]));
+    kids.push(section('Document', [
+      field('Footer', 'text', function () { return A.deck.master.footer || ''; }, function (v) { edit('Footer', function () { A.deck.master.footer = v; }); }),
+      field('Slide numbers', 'check', function () { return !!A.deck.master.showNumber; }, function (v) { edit('Slide numbers', function () { A.deck.master.showNumber = v; }); })
+    ]));
+    if (o) {
+      kids.push(section(objs.length > 1 ? objs.length + ' objects' : (o.name || o.type), [
+        objField('X', 'number', function (x) { return r1(x.x); }, function (x, v) { x.x = v; }, { step: 0.5 }),
+        objField('Y', 'number', function (x) { return r1(x.y); }, function (x, v) { x.y = v; }, { step: 0.5 }),
+        objs.length === 1 && o.type !== 'group' ? objField('Width', 'number', function (x) { return r1(x.w); }, function (x, v) { x.w = Math.max(6, v); if (x.type === 'table') O.fixTable(x); }, { min: 6, step: 0.5 }) : null,
+        objs.length === 1 && o.type !== 'group' ? objField('Height', 'number', function (x) { return r1(x.h); }, function (x, v) { x.h = Math.max(6, v); if (x.type === 'table') O.fixTable(x); }, { min: 6, step: 0.5 }) : null,
+        objField('Rotation', 'number', function (x) { return r1(x.rot || 0); }, function (x, v) { x.rot = ((v % 360) + 360) % 360; }, { step: 1 }),
+        objField('Opacity %', 'number', function (x) { return Math.round((x.opacity == null ? 1 : x.opacity) * 100); },
+          function (x, v) { x.opacity = Math.max(0, Math.min(100, v)) / 100; }, { min: 0, max: 100 })
+      ].filter(Boolean)));
+      if (o.type === 'shape' || o.type === 'text') {
+        kids.push(section('Fill and outline', [
+          objField('Fill', 'check', function (x) { return !!fillOf(x); }, function (x, v) { x.fill = v ? { type: 'solid', color: (fillOf(x) || {}).color || 'accent1' } : null; }),
+          objField('Fill colour', 'color', function (x) { return fillOf(x) ? hexOf(fillOf(x).color) : '#000000'; }, function (x, v) { x.fill = { type: 'solid', color: v }; }),
+          objField('Outline width', 'number', function (x) { return x.stroke ? x.stroke.width : 0; }, function (x, v) {
+            if (v > 0) x.stroke = Object.assign({ color: 'text', dash: 'solid' }, x.stroke || {}, { width: v });
+            else if (O.isLine(x)) x.stroke = Object.assign({}, x.stroke, { width: 1 });
+            else x.stroke = null;
+          }, { min: 0, step: 0.5 }),
+          objField('Outline colour', 'color', function (x) { return x.stroke ? hexOf(x.stroke.color) : '#000000'; }, function (x, v) { x.stroke = Object.assign({ width: 1, dash: 'solid' }, x.stroke || {}, { color: v }); })
+        ].filter(Boolean)));
+      }
+      if (textOf(o)) {
+        kids.push(section('Text', [
+          objField('Font', 'select', function (x) { return x.style ? x.style.font : 'body'; }, function (x, v) { x.style = Object.assign({}, x.style, { font: v }); }, { options: fonts }),
+          objField('Size', 'number', function (x) { return x.style ? x.style.size : 18; }, function (x, v) { x.style = Object.assign({}, x.style, { size: Math.max(4, Math.min(400, v)) }); }, { min: 4, max: 400, step: 1 }),
+          objField('Bold', 'check', function (x) { return !!(x.style && x.style.bold); }, function (x, v) { x.style = Object.assign({}, x.style, { bold: v }); }),
+          objField('Italic', 'check', function (x) { return !!(x.style && x.style.italic); }, function (x, v) { x.style = Object.assign({}, x.style, { italic: v }); }),
+          objField('Align', 'select', function (x) { return x.style ? x.style.align : 'l'; }, function (x, v) { x.style = Object.assign({}, x.style, { align: v }); },
+            { options: [['l', 'Left'], ['c', 'Centre'], ['r', 'Right'], ['j', 'Justify']] }),
+          objField('Text colour', 'color', function (x) { return x.style ? hexOf(x.style.color) : '#000000'; }, function (x, v) { x.style = Object.assign({}, x.style, { color: v }); })
+        ]));
+      }
+      kids.push(section('Arrange', [D.el('div', { class: 'btns' },
+        D.el('button', { type: 'button', onclick: function () { OP.arrange('front'); } }, 'To front'),
+        D.el('button', { type: 'button', onclick: function () { OP.arrange('forward'); } }, 'Forward'),
+        D.el('button', { type: 'button', onclick: function () { OP.arrange('backward'); } }, 'Backward'),
+        D.el('button', { type: 'button', onclick: function () { OP.arrange('back'); } }, 'To back'),
+        D.el('button', { type: 'button', onclick: OP.duplicateSel }, 'Duplicate'),
+        D.el('button', { type: 'button', class: 'danger', onclick: OP.deleteSel }, 'Delete'))]));
+    }
+    if (!s) kids.push(D.el('p', { class: 'hint', text: 'No slide.' }));
+    root.replaceChildren(...kids);
+    sync();
+  }
 })();
