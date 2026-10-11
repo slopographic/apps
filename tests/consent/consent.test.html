@@ -50,7 +50,7 @@
     });
     it('never loads gtag without an ID, even when analytics is granted', async () => {
       const calls = stubLoader();
-      const w = await open({ cfg: {} });
+      const w = await open({ cfg: { ga4MeasurementId: '' } });
       w.SlopConsent.grant('analytics');
       expect(calls.length).toBe(0);
       expect(w['ga-disable-' + GA]).toBe(undefined);
