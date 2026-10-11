@@ -118,7 +118,10 @@
       el('div', { class: 'tile-body' }, el('div', { class: 'app-name' }, el('h3', null, a.name), badge(a)), el('p', null, a.tagline)));
   }
   // Apps are grouped (business, creative) on the homepage; experiments keep their own tile shelf.
+  // Group headings come from GROUP_LABELS in shared/apps.js (one source of truth).
   const GROUPS = ['business', 'creative'];
+  const LABELS = window.SLOP_GROUP_LABELS || {};
+  for (const h of document.querySelectorAll('[data-group-label]')) if (LABELS[h.dataset.groupLabel]) h.textContent = LABELS[h.dataset.groupLabel];
   for (const list of document.querySelectorAll('[data-list]')) {
     const kind = list.dataset.list;
     const pick = GROUPS.includes(kind) ? (a) => a.group === kind : (a) => a.kind === kind;

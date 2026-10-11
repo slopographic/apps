@@ -2,11 +2,14 @@
  * Used by the homepage, the cross-app "Send to…" menus (hub.js) and the status board.
  * Classic script: sets window.SLOP_APPS. Paths are relative to the site root.
  *   kind:    app | game | experiment
- *   group:   business | creative (how the homepage groups apps)
+ *   group:   business | creative (how the homepage groups apps; headings from GROUP_LABELS)
  *   status:  live | beta | building
  *   accepts: MIME patterns the app can open from Slop Drive (for "Send to…") */
 (function () {
   'use strict';
+  /* Group headings on the homepage. Change a label here only; the keys ('business', 'creative') stay as they are. */
+  const GROUP_LABELS = Object.freeze({ business: 'Slop 365', creative: 'Creative Slop' });
+  window.SLOP_GROUP_LABELS = GROUP_LABELS;
   const A = (id, kind, name, path, tagline, extra = {}) => Object.assign({ id, kind, name, path, tagline, status: 'live', accepts: [], features: [] }, extra);
   window.SLOP_APPS = [
     A('photoslop', 'app', 'PhotoSLOP', 'photoslop/', 'Photoshop, rebuilt for the browser.', { group: 'creative',
