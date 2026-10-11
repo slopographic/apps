@@ -4,7 +4,50 @@ A photo library that runs entirely in the browser. Classic scripts, no build ste
 
 ## What works (tested)
 
-Run `node tests/run.mjs gallery`: 42 checks in `tests/gallery/` (library and I/O page, and an app page that boots the real UI in an iframe).
+Run `node tests/run.mjs gallery`: 53 checks in `tests/gallery/` (library and I/O page, an app page that boots the real UI in an iframe, and `reel.test.html`, which runs the gallery and SlopEdit in iframes for Make reel).
+
+## Make reel (Gallery to SlopEdit)
+
+Select two or more photos, then **Make reel**: the toolbar button (shown while something is selected), the Actions menu, the right-click menu on a selected photo, or "Make reel from selection" in the command palette. The dialog sets:
+
+- **Template:** Random edit (default), Single photo, Split screen, Grid, 9:16 reel. The 9:16 reel also sets the aspect to 9:16.
+- **Target length:** 5 to 600 seconds (under 5 s is refused, and the dialog stays open with the reason).
+- **Pace:** slow, medium or fast. **Aspect:** 16:9, 9:16 or 1:1 (the sizes SlopEdit knows).
+- **Order:** oldest first (default), newest first, or selection order.
+- **Cut out subjects first:** runs each photo through Slop Cutout's engine (`shared/cutout/cutout.js`, loaded on first use) with the Fast model, as it is.
+
+The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
+
+1. A Slop Drive folder named `Reel YYYY-MM-DD HH.MM`.
+2. One Drive file per photo, with its original bytes and name, in play order.
+3. With the cut-out option, each photo's PNG with alpha is stored as `<name> (cutout).png` in the same folder. A progress dialog shows the stage. **Cancel** (or Escape) removes every record and the folder the reel wrote. A photo that cannot be cut out is left out of the overlays and listed at the end.
+4. The manifest, `<folder>.reel.json`, type `application/x-slop-reel+json`.
+5. SlopEdit opens in a new tab with `?drive=<manifest id>`. The tab is opened inside the click, so pop-up blockers allow it. If no tab can be opened, this tab navigates.
+
+**Manifest (format `slop-reel`, version 1):**
+
+```json
+{
+  "format": "slop-reel", "version": 1, "created": "2026-10-11T12:05:00.000Z", "from": "gallery",
+  "template": "random | single | split | grid | reel",
+  "length": 30, "pace": "slow | medium | fast", "aspect": "16:9 | 9:16 | 1:1",
+  "order": "oldest | newest | selection",
+  "files": ["<drive id of photo 1>", "<drive id of photo 2>"],
+  "overlays": [{ "id": "<drive id of a cut-out PNG>", "of": "<drive id of its photo>" }]
+}
+```
+
+`files` are in play order. `overlays` may be empty.
+
+**SlopEdit side** (`slopedit/js/io/reel.js`, reached from `io/session.js` when the launch record is a manifest):
+
+- Asks before replacing an open project, then starts a new project.
+- Imports the files one at a time, so the bin lists them in the manifest's order.
+- Maps the template (`single` → single, `split` → split-h, `grid` → grid2, `reel` → reel, `random` → one slot) and calls `SE.random.plan` and `SE.random.build` with the manifest's length, pace and aspect. It uses the templates' `SE.templates.get`, `SE.layout.fit` and `SE.layout.ensureTrack`.
+- Puts each cut-out on the track above the template's slots, over the beat after its photo's (the photo's own beat for the last one), in the slot the photo used. This placement rule is in `overlayClips()` and is a choice to revisit.
+- Without `SE.random` (for example, the random edit removed), it appends the photos to the timeline in order.
+
+**Limits:** photos only, because the gallery has no video. Cut-outs use the Fast model, so the mask is only as good as the model on that photo. The cut-outs are written to Drive one at a time, so the full-resolution PNGs are not all in memory at once.
 
 - **Import.** Files (picker), a folder dropped on the window (recursive via `webkitGetAsEntry`), a folder via `showDirectoryPicker` where the browser has it (Chromium), and one file from Slop Drive (`SlopHub.pickFromDrive`). Originals are stored as-is. Thumbnails are JPEG with the long edge at most 320 px, and EXIF orientation is applied by hand.
 - **Storage.** IndexedDB, database `slop-gallery`. Why not OPFS: photos are stored as Blobs, IndexedDB writes are transactional (a restore lands whole or not at all), indexes on SHA and date serve duplicate and timeline queries, and Slop Drive already uses it. OPFS would need a worker for fast sync access and would split the metadata across two places.
@@ -49,7 +92,7 @@ Run `node tests/run.mjs gallery`: 42 checks in `tests/gallery/` (library and I/O
 ## Files
 
 - `index.html`, `css/gallery.css`, `css/viewer.css`
-- `js/io/`: `hash.js`, `exif.js`, `zip.js`, `source.js`, `backup.js`, `export.js`
-- `js/core/`: `db.js`, `thumb.js`, `library.js`, `import.js`, `query.js`, `sort.js`, `urls.js`
-- `js/ui/`: `state.js`, `vlist.js`, `rows.js`, `timeline.js`, `viewer.js`, `sortmode.js`, `actions.js`, `albums.js`, `dupes.js`, `menus.js`, `commands.js`, `sidebar.js`, `main.js`
-- Tests: `tests/gallery/` (`gallery.test.html`, `app.test.html`, `helpers.js`, `spec-io.js`, `spec-core.js`, `spec-app.js`)
+- `js/io/`: `hash.js`, `exif.js`, `zip.js`, `source.js`, `backup.js`, `export.js`, `reel-cutout.js`, `reel-drive.js`
+- `js/core/`: `db.js`, `thumb.js`, `library.js`, `import.js`, `query.js`, `sort.js`, `urls.js`, `reel.js` (reel spec, validation, manifest)
+- `js/ui/`: `state.js`, `vlist.js`, `rows.js`, `timeline.js`, `viewer.js`, `sortmode.js`, `actions.js`, `albums.js`, `dupes.js`, `menus.js`, `commands.js`, `sidebar.js`, `reel.js` (Make reel dialog and run), `main.js`
+- Tests: `tests/gallery/` (`gallery.test.html`, `app.test.html`, `reel.test.html`, `helpers.js`, `spec-io.js`, `spec-core.js`, `spec-app.js`, `spec-reel.js`)
