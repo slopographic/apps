@@ -117,7 +117,7 @@
     if (!layer) throw new RangeError(`no layer ${layerId}`);
     const id = C().nextId(next, 'e');
     const seed = seedOf(id);
-    layer.effects.unshift({ id, kind, on: true, seed, params: D().defaultParams(kind) });
+    layer.effects.push({ id, kind, on: true, seed, params: D().defaultParams(kind) });
     return { doc: next, id };
   }
 

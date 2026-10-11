@@ -20,6 +20,7 @@
     if (t.img.getAttribute('src') !== it.url) t.img.src = it.url || '';
     t.btn.dataset.status = it.status;
     t.btn.classList.toggle('on', on);
+    t.btn.classList.toggle('sel', S.sel.has(it.id));
     t.btn.setAttribute('aria-current', on ? 'true' : 'false');
     t.btn.title = it.error ? it.name + ' — ' + it.error : it.name;
     t.badge.textContent = badgeText(it);
@@ -38,7 +39,13 @@
     });
     const btn = h('button', { type: 'button', class: 'q-item' }, img, badge, x);
     btn.dataset.id = String(id);
-    btn.addEventListener('click', () => { const it = S.get(id); if (it) Q.open(it); });
+    btn.addEventListener('click', (e) => {
+      const it = S.get(id);
+      if (!it) return;
+      if (e.shiftKey && S.anchor) CO.bulk.range(S.anchor, it.id); // Shift: range from the anchor
+      else if (e.ctrlKey || e.metaKey) CO.bulk.toggle(it.id); // Ctrl/Cmd: add or remove one
+      else { CO.bulk.clear(); Q.open(it); S.anchor = it.id; }
+    });
     return { btn, img, badge };
   }
 
@@ -74,6 +81,7 @@
       const t = tiles.get(it.id);
       if (t) update(t, it); else render();
     });
+    CO.on('sel', render);
     CO.on('progress', ({ it }) => { const t = tiles.get(it.id); if (t) update(t, it); });
     render();
   };

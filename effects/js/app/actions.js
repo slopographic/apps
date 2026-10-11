@@ -100,14 +100,22 @@
       S.edit('Rename project', (d) => ({ ...C().clone(d), name: String(name || 'Untitled').slice(0, 120) || 'Untitled' }));
     }
 
-    /** Adds an image or video layer for a bin entry, fitted to the composition when it is larger. */
+    /** Adds an image or video layer for a bin entry (and its media record), fitted to the composition when larger. One step. */
     function addMediaLayer(entry) {
       const comp = S.doc.comp;
       const fit = entry.w && entry.h ? Math.min(1, comp.width / entry.w, comp.height / entry.h) : 1;
       const s = Math.round(fit * 10000) / 100;
       const type = entry.kind === 'video' ? 'video' : 'image';
-      S.edit('Add media layer', (d) => L().addMedia(d, M().info ? M().info(entry) : entry));
-      return addLayer(type, { mediaId: entry.id, w: entry.w, h: entry.h, dur: entry.dur, base: { scale: [s, s] } });
+      let id = null;
+      const at = S.sel.layer ? S.doc.layers.findIndex((l) => l.id === S.sel.layer) : -1;
+      S.edit('Add ' + type, (d) => {
+        const withMedia = L().addMedia(d, M().info(entry));
+        const r = L().addLayer(withMedia, type, { mediaId: entry.id, w: entry.w, h: entry.h, dur: entry.dur, base: { scale: [s, s] }, index: Math.max(0, at) });
+        id = r.id;
+        return r.doc;
+      });
+      if (id) S.select({ layer: id, keys: [], fx: null });
+      return id;
     }
 
     /** The next media id for this document (m1, m2, ...). */

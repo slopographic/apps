@@ -117,6 +117,10 @@
       if (c.kind === 'color') src = CMP.frameStub(W, H);
       else if (c.kind === 'title') src = SE.text.canvas(c, W, H, k, SE.text.animAt(c, L.u).chars);
       else src = opts.source(c, L.srcT, L);
+      if (c.matteMedia && src && c.kind === 'video') { // a matte pair: colour × matte (matte-pair.js)
+        const msrc = opts.source(SE.matteDraw.clipOf(c), L.srcT, L);
+        if (msrc) { SE.matteDraw.layer(g, W, H, (lg) => drawLayer(lg, p, L, src, W, H, k), (lg) => drawLayer(lg, p, Object.assign({}, L, { alpha: 1, tr: null, blur: 0 }), msrc, W, H, k)); continue; }
+      }
       drawLayer(g, p, L, src, W, H, k);
     }
     g.restore();

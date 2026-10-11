@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   const CO = window.CO, U = CO.util, S = CO.state, $ = U.$;
-  const MODULES = ['view', 'pointer', 'ctxbar', 'panel', 'queue', 'menus', 'commands', 'ctxmenu', 'files', 'send'];
+  const MODULES = ['view', 'pointer', 'ctxbar', 'panel', 'queue', 'menus', 'commands', 'ctxmenu', 'files', 'send', 'videoPlayer', 'bulk', 'openIn'];
   let busyBy = null;
 
   function startModules() {
@@ -36,7 +36,7 @@
   /** The download button exports the active image in the chosen format; it needs a finished cutout. */
   function download() {
     const b = $('#btnDownload'), it = S.current(), fmt = S.exportOpts.format.toUpperCase();
-    b.disabled = !(it && it.status === 'done');
+    b.disabled = !(it && it.status === 'done' && it.kind !== 'video');
     U.btnIcon(b, 'download', 'Download ' + fmt);
     b.title = 'Download ' + fmt;
   }
@@ -85,7 +85,7 @@
     const rec = await hub.consumeLaunch();
     if (!rec || !CO.process) return;
     // A file PhotoSlop sent to be cut out (Layer ▸ Isolate Subject) remembers its request: the mask goes back to it.
-    const [it] = CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })]);
+    const [it] = CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })], { driveId: rec.id, origin: rec });
     if (it && rec.meta && rec.meta.requestId) it.request = { requestId: rec.meta.requestId };
   }
 

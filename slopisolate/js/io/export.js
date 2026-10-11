@@ -61,7 +61,7 @@
 
   /** Export every finished image into one zip (slop-cutouts.zip). Names are made unique. */
   CO.export.all = async function () {
-    const items = S.items.filter((it) => it.status === 'done');
+    const items = S.items.filter((it) => it.status === 'done' && it.kind !== 'video');
     if (!items.length) return toast('No finished cutouts to export yet');
     const entries = [], used = new Set();
     let failed = 0;

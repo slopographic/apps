@@ -112,23 +112,24 @@
       get mode() { return modes.has('seek') ? (modes.has('decoder') ? 'mixed' : 'seek') : 'decoder'; },
       async prepare(t) {
         ready.clear();
-        const layers = SE.compositor.layers(p, t), live = new Set(layers.map((L) => L.clip.id));
-        for (const L of layers) {
-          const c = L.clip;
+        const layers = SE.compositor.layers(p, t), jobs = [];
+        for (const L of layers) { jobs.push([L.clip, L.srcT]); if (L.clip.matteMedia) jobs.push([SE.matteDraw.clipOf(L.clip), L.srcT]); } // a matte pair also needs its matte frame
+        const live = new Set(jobs.map((j) => j[0].id));
+        for (const [c, srcT] of jobs) {
           if (c.kind !== 'video') continue;
           const it = SE.media.get(c.media);
           if (!it || it.status !== 'ready') continue;
           let r = await reader(c);
           let f = null;
-          try { f = await r.frameAt(L.srcT); }
+          try { f = await r.frameAt(srcT); }
           catch (e) {
             console.warn('SlopCut: decoder failed, falling back to seeking', e);
             r.close(); r = new SeekReader(it); readers.set(c.id, r); modes.add('seek');
-            f = await r.frameAt(L.srcT);
+            f = await r.frameAt(srcT);
           }
           ready.set(c.id, f);
         }
-        for (const [id, r] of readers) { const c = M.clip(p, id); if (!c || (!live.has(id) && t > M.end(c) + 1)) { r.close(); readers.delete(id); } }
+        for (const [id, r] of readers) { const c = M.clip(p, id.replace(/:matte$/, '')); if (!c || (!live.has(id) && t > M.end(c) + 1)) { r.close(); readers.delete(id); } }
       },
       get(c) {
         if (c.kind === 'image') { const it = SE.media.get(c.media); return it && it.bmp; }
