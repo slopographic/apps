@@ -109,7 +109,7 @@
     dropBound = true;
     const app = appOf(o);
     const hasFiles = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
-    g.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); }, true); // lets the drop land
+    // dragover disabled (experiment)
     g.addEventListener('drop', (e) => {
       const files = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
       const cfg = files.find((f) => /\.slop\.json$/i.test(f.name || ''));
