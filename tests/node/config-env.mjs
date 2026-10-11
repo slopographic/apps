@@ -3,7 +3,7 @@
 import { loadInto } from './fx-env.mjs';
 
 export const CORE = ['config/schema.js', 'config/validate.js', 'config/template.js', 'config/io.js', 'config/prompt.js'];
-const APPS = [{ id: 'tables' }, { id: 'slides' }, { id: 'orders' }];
+export const APPS = [{ id: 'tables' }, { id: 'slides' }, { id: 'orders' }];
 
 export async function config({ files = CORE, extra = {} } = {}) {
   const ctx = await loadInto(files, { SLOP_APPS: APPS, Blob, File, ...extra });

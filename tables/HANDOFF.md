@@ -7,7 +7,7 @@ formats, validation, sort/filter, find and comments are not built yet (see "Miss
 ## Files
 - `index.html`, `css/tables.css`: the page (top bar, formula bar, grid, sheet tabs, status bar). Dark by default, `data-theme="light"` for light.
 - `js/engine/`, `js/fn/`, `js/fmt/`: the engine (unchanged in this pass).
-- `js/io/native.js`: `.stab` JSON (`toNative`, `fromNative`, `toBlob`, `fromBlob`). Cells keep their input: formula text (`f`), or typed value (`v`, `e` for errors), plus a style id into a style table. Computed values are not stored; they recalc on open.
+- `js/io/native.js`: `.stab` JSON (`toNative`, `fromNative`, `toBlob`, `fromBlob`). `checkNative(obj)` is the one structural validator, used by `fromNative` and by template import. Cells keep their input: formula text (`f`), or typed value (`v`, `e` for errors), plus a style id into a style table. Computed values are not stored; they recalc on open.
 - `js/io/csv.js`: `toCsv(sheet)` (displayed text, CRLF, quoting) and `parseCsv(text, delim)`.
 - `js/io/xlsx.js`: `toXlsx(wb)` → Blob, built with shared/office `zip.js` and `xml.js`. Writes values, formulas with cached values, bold/italic, number formats (custom ones registered), column widths, row heights, hidden rows and columns, merges, freeze panes, sheet view selection and global names.
 - `js/ui/state.js`: shared state `S` (workbook, active sheet, selection `{r, c, er, ec}`, edit, file), `redraw()` (rAF-coalesced repaint) and `changed()` (dirty + events).
@@ -26,6 +26,10 @@ formats, validation, sort/filter, find and comments are not built yet (see "Miss
 - `js/ui/drafts.js`: autosave draft in IndexedDB (`slop-tables-drafts`), written 0.6 s after a change, restored on a plain start.
 - `js/ui/main.js`: boot and the test API `window.SlopTables` (`type`, `setCell`, `value`, `text`, `el`, `select`, `flush`, `save`, `csv`, `xlsx`, `native`, `command`, `undo`/`redo`, `ready`).
 - `js/ui/numfmt.js`: number format presets (the engine's fmt/ codes).
+- `js/templates/`: built-in templates. One data file per template (`budget.js`, `invoice.js`, `inventory.js`, `timesheet.js`, `project-plan.js`, `sales-pipeline.js`, `expense-claim.js`, `grade-book.js`): `{ id, name, description, sheets: [{ name, widths: {A: px}, styles: [[range, {b, i, nf, al}]], cells: {A1: 'input text'} }] }`. `build.js` makes a workbook from one (cells typed like a user types, so formulas compute). `index.js` lists `BUILTIN`.
+- `js/io/template.js`: the `.stab-template` file (`format: 'slop-tables-template'`, name, description, one `.stab` workbook). `parseTemplate(text)` validates and does a full build before returning, so a broken file keeps nothing.
+- `js/ui/template-store.js`: My templates in IndexedDB (`slop-tables-templates`, store `templates`) and the Drive `Templates` folder (root, created on first use).
+- `js/ui/templates.js`: File ▸ From template… (dialog with cards: name, description, a small preview of computed values, Preview, Use, and ⋯ for download, Save to Drive, delete), File ▸ Save as template… (IndexedDB and a copy in Drive), import file or from Drive (validated, adds to My templates). Exposed as `SlopTables.templates`.
 
 ## Storage and Slop Drive
 - Native type: `.stab`, mime `application/x-slop-table`. This is the `creates` entry in shared/apps.js, which Drive's New ▸ menu uses. (The brief said `.stables`; the registry says `.stab`, so `.stab` is used.)
@@ -34,8 +38,12 @@ formats, validation, sort/filter, find and comments are not built yet (see "Miss
 - `SlopHub.register('tables')` on launch. `SlopGuard.setUnsaved('tables', dirty)` keeps the reload warning honest.
 - Draft: a plain start with an unsaved draft restores it (toast "Restored your unsaved workbook").
 
+## Templates
+- File ▸ New is "New workbook" and "From template…" (both top level, also in the palette). "From template…" lists the 8 built-ins and My templates. Using a template opens it as a new, unsaved workbook (asks first if the current one has unsaved changes), named after the template.
+- Save as template keeps the current workbook (cells, styles, widths, all sheets) as a template named by the person. Import and export use `.stab-template`. Export downloads the file or saves it to Drive's Templates folder. Import accepts a file or a Drive record and never changes anything when the file is broken.
+
 ## Tests
-- `node tests/run.mjs tables`: `tests/tables/app.test.html` (37 tests: boot, formulas, keyboard editing, styles and undo, layout and virtualisation, freeze panes, sheets, Drive save and reopen, zero-byte .stab, CSV in Drive, unknown id, autosave draft, CSV export text, XLSX package, native round trip) plus the engine's 11 tests. All green.
+- `node tests/run.mjs tables`: `tests/tables/templates.test.html` (9 tests: every built-in opens and its formulas compute, Budget and Invoice checks, the From template dialog, Save as template with the Drive copy, export and import round trip, broken import changes nothing, import from Drive), `tests/tables/app.test.html` (37 tests: boot, formulas, keyboard editing, styles and undo, layout and virtualisation, freeze panes, sheets, Drive save and reopen, zero-byte .stab, CSV in Drive, unknown id, autosave draft, CSV export text, XLSX package, native round trip) plus the engine's 11 tests. All green.
 - Helpers in `tests/tables/tables.helpers.js`. The app runs in same-origin iframes, so the real Slop Drive and draft stores are used. Only the folder picker is stubbed.
 
 ## Known limits in this pass
@@ -43,6 +51,7 @@ formats, validation, sort/filter, find and comments are not built yet (see "Miss
 - Export: CSV exports the active sheet, as displayed. XLSX writes no charts, conditional formats, validation or comments. Newer functions (LET, LAMBDA, dynamic arrays) are written without the `_xlfn.` prefix, and spilled cells are written as plain values. ODS and print/PDF are not built.
 - Editing: a click on another cell while typing a formula does not insert a reference (no point mode). Arrow keys in a formula edit move the caret. There is no fill handle and no autofit on double-click of a header edge.
 - Structure: no insert or delete of rows and columns (the engine has `adjustForStructure` but no `Workbook.insertRows`).
+- Templates: no template editing or deleting built-ins, no template categories or search, no thumbnails (the preview is a table of values), no sharing between devices except through Slop Drive.
 - Not done: charts, pivots, conditional formats, data validation, sort and filter, find, comments, fill colour and text colour, merge commands in the UI (the model and XLSX export support merges), zoom.
 - Layout: a phone (390 px) has no page scroll, but the menus and toolbar scroll sideways inside the top bar. Sheet scroll positions are not remembered between sheets. Text does not spill into empty neighbours.
 - Undo covers edits, styles, paste, sheet operations, freeze and resize. Sheet selection and scroll are not undo steps.

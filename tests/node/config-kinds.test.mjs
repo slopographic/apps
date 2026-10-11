@@ -3,7 +3,8 @@
 // Run: node tests/run.mjs config   (or node --test tests/node/config.test.mjs)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CORE, config, templateFile, stubTemplate, fakeStore } from './config-env.mjs';
+import { loadInto, plain } from './fx-env.mjs';
+import { CORE, APPS, config, templateFile, stubTemplate, fakeStore } from './config-env.mjs';
 
 test('buildPrompt names every field and allowed value, and its example is a valid file', async () => {
   const C = await config({ files: [...CORE, 'config/kinds.js'], extra: { SlopData: { store: fakeStore() } } });
@@ -89,7 +90,11 @@ test('settings apply without SlopData on the page says so, and applies nothing',
 });
 
 
-test('the dialogs load on a page without SlopUI: menu items and the AI hook are wired', async () => {
-  const C = await config({ files: [...CORE, 'config/dialog.js', 'config/dialog-ai.js'] });
-  const D = C.open ? C : (await config.lastCtx) ;
+test('the dialogs load without SlopUI on the page: menu items and the AI hook are wired', async () => {
+  const ctx = await loadInto([...CORE, 'config/dialog.js', 'config/dialog-ai.js'], { SLOP_APPS: APPS, Blob, File });
+  const D = ctx.SlopConfigDialog;
+  assert.equal(typeof D.open, 'function');
+  assert.deepEqual(plain(D.menuItems({ app: 'tables' }).map((i) => i.label)), ['Import config…', 'Export config…', 'Make one with AI…']);
+  assert.equal(typeof D.makeAi, 'function');
+  assert.throws(() => D.open('nope'), /unknown dialog/);
 });
