@@ -42,11 +42,12 @@
       return clamp(Math.min(1, (W - 24) / v.w, (H - 24) / v.h), MIN, MAX);
     };
     /** Lay the content out. centre: a smaller picture is centred (fit, the buttons, keys, resize). Without it (pointer zoom,
-     * pinch, pan) a smaller picture keeps the position the anchor gave it, kept inside the view, so the point under the pointer holds. */
+     * pinch, pan) a smaller picture keeps the place the anchor gives it, its centre kept inside the view, so the point under
+     * the pointer holds. */
     function place(centre = false) {
       const { W, H } = size(), w = v.w * v.s, h = v.h * v.s;
-      v.x = w <= W ? (centre ? (W - w) / 2 : clamp(v.x, 0, W - w)) : clamp(v.x, W - w, 0);
-      v.y = h <= H ? (centre ? (H - h) / 2 : clamp(v.y, 0, H - h)) : clamp(v.y, H - h, 0);
+      v.x = w <= W ? (centre ? (W - w) / 2 : clamp(v.x, -w / 2, W - w / 2)) : clamp(v.x, W - w, 0);
+      v.y = h <= H ? (centre ? (H - h) / 2 : clamp(v.y, -h / 2, H - h / 2)) : clamp(v.y, H - h, 0);
       content.style.width = v.w + 'px';
       content.style.height = v.h + 'px';
       content.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.s})`;
