@@ -8,6 +8,7 @@
     AI.initBuilder();
     AI.initSloppo();
     AI.wireCommands();
+    AI.initCtxMenu();
     if (window.SlopHub) SlopHub.register('ai');
     E.watchHosts();
     const hash = location.hash.slice(1);

@@ -129,4 +129,24 @@
   AI.on('engine', onEngine);
   AI.on('sys', () => { if (AI.tab === 'models') render(); });
   AI.on('tab', ({ tab }) => { if (tab === 'models') AI.renderModels(); });
+  /** Menu rows for a model card (the right-click menu): the same actions as its buttons. */
+  AI.modelItems = function (id) {
+    const m = all().find((x) => x.id === id);
+    if (!m) return null;
+    const st = statuses.get(m.id) || {};
+    const loaded = E.model && E.model.id === m.id && E.engine && E.engine.loaded;
+    const loading = E.state === 'loading' && E.loadingId === m.id, paused = E.state === 'paused' && E.loadingId === m.id;
+    const out = [];
+    if (loading) out.push({ label: 'Pause', act: () => E.pause() }, { label: 'Cancel', act: () => E.cancel() });
+    else if (loaded) out.push({ label: 'Chat with this model', act: () => AI.setTab('chat') }, { label: 'Unload', act: () => E.unload() });
+    else {
+      const label = paused ? 'Resume' : st.state === 'ready' || m.custom ? 'Load' : st.state === 'partial' ? 'Resume download' : 'Download';
+      out.push({ label, act: () => load(m, paused) });
+      if (paused) out.push({ label: 'Cancel', act: () => E.cancel() });
+    }
+    const isDef = AI.prefs.defaultModel === m.id;
+    out.push('-', { label: isDef ? 'Clear default' : 'Set as default', act: () => setDefault(m) });
+    if (st.state !== 'none' && !loading) out.push({ label: 'Delete…', act: () => del(m) });
+    return out;
+  };
 })(window.AI);

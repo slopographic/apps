@@ -6,11 +6,10 @@
   const ns = (g.SlopData = g.SlopData || {});
   const MAX = 9e12;
   const META = ['createdAt', 'updatedAt', 'version', 'deletedAt'];
-  const ok = (value) => ({ ok: true, value });
+  const ok = (value) => ({ ok: true, value }), clone = (v) => (Array.isArray(v) ? v.slice() : v);
   const fail = (code, message, extra) => Object.assign({ ok: false, code, message: message || code }, extra || {});
   const isResult = (v) => !!v && typeof v === 'object' && typeof v.ok === 'boolean';
   const isObj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
-  const clone = (v) => (Array.isArray(v) ? v.slice() : v);
   ns.result = { ok, fail, isResult };
 
   const ENUM = {
@@ -23,10 +22,9 @@
   };
   const ACCT = { CASH: '1000', BANK: '1010', AR: '1200', TAX_PAYABLE: '2100', EQUITY: '3000', REVENUE: '4000', EXPENSES: '5000' };
   const DEFAULT_CHART = [
-    { code: '1000', name: 'Cash', type: 'asset' }, { code: '1010', name: 'Bank', type: 'asset' },
-    { code: '1200', name: 'Accounts Receivable', type: 'asset' }, { code: '2100', name: 'Sales Tax Payable', type: 'liability' },
-    { code: '3000', name: 'Equity', type: 'equity' }, { code: '4000', name: 'Sales Revenue', type: 'revenue' },
-    { code: '5000', name: 'Expenses', type: 'expense' },
+    { code: '1000', name: 'Cash', type: 'asset' }, { code: '1010', name: 'Bank', type: 'asset' }, { code: '1200', name: 'Accounts Receivable', type: 'asset' },
+    { code: '2100', name: 'Sales Tax Payable', type: 'liability' }, { code: '3000', name: 'Equity', type: 'equity' },
+    { code: '4000', name: 'Sales Revenue', type: 'revenue' }, { code: '5000', name: 'Expenses', type: 'expense' },
   ];
   const DEFAULT_SETTINGS = { id: 'main', currency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30 };
   const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }];
@@ -205,9 +203,7 @@
   }
 
   function checkMeta(rec, errors) {
-    for (const k of ['createdAt', 'updatedAt', 'deletedAt']) {
-      if (rec[k] !== undefined && !(Number.isSafeInteger(rec[k]) && rec[k] >= 0)) errors.push({ field: k, message: 'must be a timestamp' });
-    }
+    for (const k of ['createdAt', 'updatedAt', 'deletedAt']) if (rec[k] !== undefined && !(Number.isSafeInteger(rec[k]) && rec[k] >= 0)) errors.push({ field: k, message: 'must be a timestamp' });
     if (rec.version !== undefined && !(Number.isSafeInteger(rec.version) && rec.version >= 1)) errors.push({ field: 'version', message: 'must be a whole number from 1' });
   }
 
@@ -294,8 +290,7 @@
   /** Joins errors into one readable line: "lines[0].qty must be a whole number...". */
   function errorText(errors) {
     const e = (errors || [])[0];
-    if (!e) return 'invalid record';
-    return e.field ? `${e.field} ${e.message}` : e.message;
+    return !e ? 'invalid record' : e.field ? `${e.field} ${e.message}` : e.message;
   }
 
   ns.schema = {

@@ -49,8 +49,6 @@
 .dupe .sui-btn { grid-row: 1 / span 2; grid-column: 2; }
 @media (max-width: 560px) {
   .ed-row { grid-template-columns: minmax(0, 1fr) 34px; }
-  .ed-row .sui-select, .ed-row select { grid-column: 1 / -1; }
-  .ed-row select { grid-column: 1; }
+  .ed-row > select, .ed-adr > select { grid-column: 1 / -1; }
   .ed-adr { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .ed-adr select { grid-column: 1 / -1; }
 }
