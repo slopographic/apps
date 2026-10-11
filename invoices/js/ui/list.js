@@ -35,7 +35,8 @@
         h('span', { class: `chip ${x.overdue ? 'overdue' : x.status}`, text: label }),
         h('span', { text: x.dueDate ? `Due ${x.dueDate}` : x.date }),
         x.status === 'issued' ? h('span', { text: `Balance ${U.money(x.balance, x.currency, s.locale)}` }) : null,
-        x.orderId ? h('span', { text: 'from order' }) : null));
+        x.orderId ? h('span', { text: 'from order' }) : null,
+        x.sample ? h('span', { class: 'chip sample', text: 'Sample' }) : null));
   }
 
   function outRow(d, s) {
@@ -101,6 +102,7 @@
     $('iStatus').addEventListener('change', draw);
     $('iNew').addEventListener('click', () => NS.app.go('new'));
     $('iFromOrder').addEventListener('click', fromOrder);
+    NS.sampleActions.mount();
     const box = $('iRows');
     box.addEventListener('click', (e) => { const r = e.target.closest('[data-id]'); if (r) NS.app.go(`i/${r.dataset.id}`); });
     box.addEventListener('keydown', (e) => {

@@ -1,6 +1,6 @@
 /* SlopFaces: the detector's maths, with no DOM and no model. Decodes YuNet's raw outputs (strides 8, 16 and 32) into
  * boxes in source-image pixels, drops weak boxes (score threshold) and suppresses overlapping ones (greedy non-maximum
- * suppression). Classic script; creates or extends window.SlopFaces. The model and its loader are in index.js.
+ * suppression). Boxes keep the five landmarks (kps) when the model gives them. Classic script; creates or extends window.SlopFaces. The model and its loader are in index.js.
  * Decoding follows OpenCV's FaceDetectorYN; see vendor/face/README.md. */
 (function (g) {
   'use strict';
@@ -31,7 +31,7 @@
       if (kept.length >= max) break;
       if (kept.every((k) => F.iou(k, b) <= maxIou)) kept.push(b);
     }
-    return kept.map((b) => ({ x: b.x, y: b.y, w: b.w, h: b.h, score: b.score }));
+    return kept.map((b) => (b.kps ? { x: b.x, y: b.y, w: b.w, h: b.h, score: b.score, kps: b.kps } : { x: b.x, y: b.y, w: b.w, h: b.h, score: b.score }));
   };
 
   /** Decodes the raw YuNet outputs. out: { cls_8, obj_8, bbox_8, kps_8, cls_16, ... } as arrays or typed arrays (one
@@ -41,7 +41,7 @@
     const boxes = [];
     for (const st of STRIDES) {
       const cols = INPUT_SIZE / st;
-      const cls = out['cls_' + st], obj = out['obj_' + st], bb = out['bbox_' + st];
+      const cls = out['cls_' + st], obj = out['obj_' + st], bb = out['bbox_' + st], kp = out['kps_' + st];
       if (!cls || !obj || !bb) throw new Error('The face model returned an unexpected output.');
       for (let i = 0; i < cls.length; i++) {
         const score = Math.sqrt(clamp01(cls[i]) * clamp01(obj[i]));
@@ -49,7 +49,10 @@
         const col = i % cols, row = Math.floor(i / cols);
         const cx = (col + bb[i * 4]) * st, cy = (row + bb[i * 4 + 1]) * st;
         const w = Math.exp(bb[i * 4 + 2]) * st, h = Math.exp(bb[i * 4 + 3]) * st;
-        boxes.push({ x: (cx - w / 2) / scale, y: (cy - h / 2) / scale, w: w / scale, h: h / scale, score });
+        const box = { x: (cx - w / 2) / scale, y: (cy - h / 2) / scale, w: w / scale, h: h / scale, score };
+        // Five landmarks (eyes, nose, mouth corners) in source pixels, when the model has them: the recogniser aligns on them.
+        if (kp && kp.length >= (i + 1) * 10) box.kps = Array.from({ length: 5 }, (_, k) => [(((col + kp[i * 10 + 2 * k]) * st)) / scale, (((row + kp[i * 10 + 2 * k + 1]) * st)) / scale]);
+        boxes.push(box);
       }
     }
     return boxes;

@@ -19,7 +19,7 @@
   F.MODEL_ID = MODEL.id;
 
   /** The vendor folder, found from this script's own URL (so it works from any app folder). */
-  const VENDOR = (() => {
+  const VENDOR = F.VENDOR = (() => {
     try {
       const cs = typeof document !== 'undefined' && document.currentScript;
       const base = cs && cs.src ? cs.src : (g.location ? g.location.href : 'http://localhost/');
@@ -79,11 +79,7 @@
     const bytes = await res.arrayBuffer();
     if (!g.crypto || !g.crypto.subtle) throw new Error('This browser cannot check the face model.');
     if (hex(await g.crypto.subtle.digest('SHA-256', bytes)) !== MODEL.sha256) throw new Error('The face model failed its checksum.');
-    const ort = await import(new URL('onnxruntime-web/ort.wasm.min.mjs', VENDOR).href);
-    ort.env.wasm.numThreads = 1;
-    ort.env.wasm.proxy = false;
-    ort.env.wasm.wasmPaths = { mjs: new URL('onnxruntime-web/ort-wasm-simd-threaded.mjs', VENDOR).href, wasm: new URL('onnxruntime-web/ort-wasm-simd-threaded.wasm', VENDOR).href };
-    ort.env.logLevel = 'error';
+    const ort = await F.runtime(); // recognize.js: the same runtime, one thread
     const session = await ort.InferenceSession.create(new Uint8Array(bytes), { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
     const input = session.inputNames[0];
     return {
@@ -130,9 +126,12 @@
   F.detect = async function (source) {
     try {
       const boxes = await detectRaw(source);
-      return boxes ? boxes.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, score: f.score })) : [];
+      return boxes ? boxes.map(plain) : [];
     } catch (e) { lastError = (e && e.message) || String(e); return []; }
   };
+
+  /** A face as stored: its box, score, landmarks and (when there is one) its embedding. */
+  const plain = (f) => { const o = { x: f.x, y: f.y, w: f.w, h: f.h, score: f.score }; if (f.kps) o.kps = f.kps; if (f.emb) o.emb = f.emb; else if (f.emb === null) o.emb = null; return o; };
 
   /** Cached detection for one picture. Reads the stored result when its stamp (and the model) match, otherwise
    * detects, stores and returns it. Null when detection is off or the picture cannot be read. */
@@ -140,16 +139,20 @@
     try {
       if (!F.enabled() || !blob) return null;
       const row = await F.cache.get(scope, id, stamp);
-      if (row) return { w: row.w, h: row.h, faces: row.faces, cached: true };
+      // A row made without the recogniser is checked again once the recogniser can run.
+      if (row && (row.rec === 1 || !(await F.recogniserReady()))) return { w: row.w, h: row.h, faces: row.faces, cached: true };
       if (!g.createImageBitmap) return null;
       const bmp = await g.createImageBitmap(blob);
       const w = bmp.width, h = bmp.height;
-      let faces;
-      try { faces = await detectRaw(bmp); } finally { if (bmp.close) bmp.close(); }
-      if (!faces) return null;
-      const res = { w, h, faces: faces.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, score: f.score })) };
-      await F.cache.put(scope, id, stamp, res);
-      return Object.assign({ cached: false }, res);
+      let res;
+      try {
+        const faces = await detectRaw(bmp);
+        if (!faces) return null;
+        res = await F.embedFaces(bmp, faces);
+      } finally { if (bmp.close) bmp.close(); }
+      const out = { w, h, faces: res.faces.map(plain), rec: res.rec };
+      await F.cache.put(scope, id, stamp, out);
+      return Object.assign({ cached: false }, out);
     } catch (e) { lastError = (e && e.message) || String(e); return null; }
   };
 

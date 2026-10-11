@@ -10,6 +10,8 @@
   const D = () => ns.defs;
   const ICON = { solid: 'Sd', shape: 'Sh', text: 'T', image: 'Im', video: 'Vd', null: 'Nl' };
   const STEPS = [0.1, 0.25, 0.5, 1, 2, 5, 10, 30, 60];
+  /** Gap between the label column and time 0, so a key at 0 is not hidden under the labels. */
+  const PAD = 8;
 
   /** Mounts the timeline into host. Returns { render, placePlayhead }. */
   function mount(host, S, act) {
@@ -58,7 +60,7 @@
       const t = refs[0].t;
       const el = h('div', {
         class: 'fx-diamond' + (refs.some(isSel) ? ' is-sel' : '') + (easeHold ? ' is-hold' : ''),
-        style: `left:${(t * p).toFixed(3)}px`,
+        style: `left:${(PAD + t * p).toFixed(3)}px`,
         role: 'button', tabindex: 0, title,
         'aria-label': `${title}`,
         'data-t': t,
@@ -70,10 +72,10 @@
 
     /** A lane (the track area of one row) with the diamonds for the given key list. */
     function lane(p, width, items) {
-      const l = h('div', { class: 'fx-lane', style: `width:${width}px` });
+      const l = h('div', { class: 'fx-lane', style: `width:${width + PAD}px` });
       l.addEventListener('click', (e) => {
         if (e.target.classList && e.target.classList.contains('fx-diamond')) return;
-        const x = e.clientX - l.getBoundingClientRect().left;
+        const x = e.clientX - l.getBoundingClientRect().left - PAD;
         S.select({ keys: [], fx: S.sel.fx });
         S.seek(x / p);
       });
@@ -130,12 +132,12 @@
       const dur = S.doc.comp.duration, step = stepFor(p);
       const zoom = h('input', { type: 'range', min: 20, max: 400, step: 1, value: Math.round(p), 'aria-label': 'Timeline zoom', oninput: (e) => { view.zoom = Number(e.target.value); render(); } });
       const label = h('div', { class: 'fx-head-cell fx-zoom', style: `width:${view.labelW}px` }, zoom, h('button', { type: 'button', class: 'sui-btn', onclick: () => { view.zoom = null; render(); } }, 'Fit'));
-      const track = h('div', { class: 'fx-ruler-track', style: `left:${view.labelW}px;width:${width}px` });
-      for (let s = 0; s <= dur + 1e-9; s += step) track.append(h('div', { class: 'fx-tick', style: `left:${(s * p).toFixed(3)}px` }, `${s.toFixed(s % 1 ? 2 : 0)}s`));
-      const r = h('div', { class: 'fx-ruler', style: `width:${view.labelW + width}px` }, label, track);
+      const track = h('div', { class: 'fx-ruler-track', style: `left:${view.labelW}px;width:${width + PAD}px` });
+      for (let s = 0; s <= dur + 1e-9; s += step) track.append(h('div', { class: 'fx-tick', style: `left:${(PAD + s * p).toFixed(3)}px` }, `${s.toFixed(s % 1 ? 2 : 0)}s`));
+      const r = h('div', { class: 'fx-ruler', style: `width:${view.labelW + width + PAD}px` }, label, track);
       track.addEventListener('pointerdown', (e) => {
         track.setPointerCapture(e.pointerId);
-        const at = (ev) => S.seek((ev.clientX - track.getBoundingClientRect().left) / p);
+        const at = (ev) => S.seek((ev.clientX - track.getBoundingClientRect().left - PAD) / p);
         at(e);
         const move = (ev) => at(ev);
         const up = () => { track.removeEventListener('pointermove', move); track.removeEventListener('pointerup', up); };
@@ -150,7 +152,7 @@
       if (S.isDragging()) return;
       const p = pps(), dur = S.doc.comp.duration, width = Math.ceil(dur * p) + 40;
       keyEls.clear();
-      const grid = h('div', { class: 'fx-tl-grid', style: `width:${view.labelW + width}px` });
+      const grid = h('div', { class: 'fx-tl-grid', style: `width:${view.labelW + width + PAD}px` });
       grid.append(ruler(p, width));
       for (const layer of S.doc.layers) for (const row of layerRows(layer, p, width)) grid.append(row);
       if (!S.doc.layers.length) grid.append(h('div', { class: 'fx-empty' }, 'No layers yet. Use Layer to add a solid, shape, text, image, video or null.'));
@@ -166,7 +168,7 @@
       const ph = grid.querySelector('.fx-playhead');
       const cell = grid.querySelector('.fx-lcell, .fx-head-cell');
       if (cell) view.labelW = cell.offsetWidth || view.labelW;
-      ph.style.left = `${(view.labelW + S.playhead * pps()).toFixed(2)}px`;
+      ph.style.left = `${(view.labelW + PAD + S.playhead * pps()).toFixed(2)}px`;
     }
 
     /** Moves the diamonds of a set of refs to new times (during a drag). */
@@ -174,7 +176,7 @@
       const p = pps();
       for (const r of refs) {
         const el = keyEls.get(`${r.layer}|${r.prop}|${r.t.toFixed(6)}`);
-        if (el) el.style.left = `${((r.t + dt) * p).toFixed(3)}px`;
+        if (el) el.style.left = `${(PAD + (r.t + dt) * p).toFixed(3)}px`;
       }
     }
 

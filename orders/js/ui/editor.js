@@ -121,6 +121,7 @@
     const box = $('eActions');
     const b = (label, fn, cls = 'btn') => h('button', { type: 'button', class: cls, text: label, onclick: fn });
     const out = [];
+    if (isNew()) out.push(b('Random sample', () => NS.sampleActions.quick()));
     if (st.status === 'draft') {
       out.push(b(isNew() ? 'Save draft' : 'Save', () => save()), b('Confirm order', confirm, 'btn primary'));
       if (!isNew()) out.push(b('Cancel order', cancel, 'btn danger'));

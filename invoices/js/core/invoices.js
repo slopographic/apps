@@ -79,6 +79,7 @@
   async function saveDraft(form) {
     const base = { customerId: form.customerId, date: form.date, dueDate: form.dueDate, notes: form.notes, lines: form.lines };
     if (form.currency) base.currency = form.currency;
+    if (form.sample) base.sample = true;   // random samples (samples.js) are marked so they can be deleted together
     if (!form.id) return S.store.put('invoices', { ...base, status: 'draft' });
     const cur = await S.store.get('invoices', form.id);
     if (!cur.ok) return cur;

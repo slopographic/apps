@@ -51,7 +51,7 @@
 
 /* Timeline: a label column and a time area. */
 .fx-tl-grid { position: relative; min-width: 100%; }
-.fx-ruler { position: sticky; top: 0; z-index: 3; height: 26px; background: var(--fx-surface); border-bottom: 1px solid var(--fx-border); }
+.fx-ruler { position: sticky; top: 0; z-index: 3; height: 30px; background: var(--fx-surface); border-bottom: 1px solid var(--fx-border); }
 .fx-ruler-track { position: absolute; top: 0; bottom: 0; }
 .fx-tick { position: absolute; top: 0; bottom: 0; border-left: 1px solid color-mix(in srgb, var(--fx-text) 16%, transparent); font: 10px var(--sui-mono, monospace); color: var(--fx-dim); padding: 4px 0 0 3px; }
 .fx-head-cell { position: sticky; left: 0; z-index: 2; background: var(--fx-surface); }
@@ -71,7 +71,8 @@
 .fx-diamond.is-hold { background: transparent; border: 2px solid var(--fx-accent); }
 .fx-playhead { position: absolute; top: 0; bottom: 0; width: 1px; background: #ff4f6e; z-index: 4; pointer-events: none; }
 .fx-playhead::before { content: ""; position: absolute; top: 0; left: -5px; border: 5px solid transparent; border-top: 7px solid #ff4f6e; }
-.fx-zoom { display: flex; gap: 6px; align-items: center; padding: 6px 8px; color: var(--fx-dim); font-size: 12px; }
+.fx-zoom { display: flex; gap: 6px; align-items: center; height: 30px; padding: 0 8px; color: var(--fx-dim); font-size: 12px; overflow: hidden; }
+.fx-zoom .sui-btn { padding: 2px 8px; font-size: 12px; }
 .fx-zoom input { width: 120px; accent-color: var(--fx-accent); }
 
 /* Graph editor. */

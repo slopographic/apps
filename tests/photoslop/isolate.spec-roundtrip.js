@@ -64,6 +64,17 @@
       expect(maskAt(200, 150) < 32).toBe(true);
     }, { timeout: 150000 });
 
+    it('Send to PhotoSlop as a new layer adds the cut-out itself, with alpha', async () => {
+      const C = I().CO, it = C.state.items[0], n = P().eval('D.layers.length');
+      await C.send.layer(it);
+      await waitFor(() => P().eval('D.layers.length') === n + 1, { timeout: 20000 });
+      const alphaAt = (x, y) => P().eval(`(function () { const L = D.layers[D.layers.length - 1];
+        return L.canvas.getContext('2d', { willReadFrequently: true }).getImageData(${x} - L.x, ${y} - L.y, 1, 1).data[3]; })()`);
+      expect(P().eval('D.layers[D.layers.length - 1].name')).toBe('Cut-out');
+      expect(alphaAt(20, 20) < 32).toBe(true);
+      expect(alphaAt(150, 150) > 200).toBe(true);
+    }, { timeout: 30000 });
+
     it('a layer that already has a mask asks before it is replaced', async () => {
       let asked = 0;
       P().SlopUI.confirm = () => { asked++; return Promise.resolve(false); };

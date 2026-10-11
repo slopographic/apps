@@ -27,6 +27,7 @@
     it.kind = 'video'; it.status = 'ready'; it.error = '';
     it.vid = { src: null, res: null, ac: null };
     if (opts.driveId) it.driveOriginId = opts.driveId;
+    if (opts.origin) it.origin = opts.origin;
     S.items.push(it);
     CO.emit('list', S.items);
     try {
