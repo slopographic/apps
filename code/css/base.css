@@ -1,26 +1,19 @@
 /* Slop Code: layout, tokens and the chrome (toolbar, file tree, tabs, status bar, empty state). */
+/* Colours come from the shared Slop theme (shared/theme/theme.js sets --sl-* on the page). The fallbacks are the Dark look. */
 :root {
-  --cd-bg: #0e0e10; --cd-panel: #17171b; --cd-line: #2c2c34; --cd-fg: #f1ede4; --cd-dim: #aaa59b; --cd-faint: #78746c;
-  --cd-accent: #d4ff3a; --cd-hover: rgba(255, 255, 255, .06); --cd-on: rgba(212, 255, 58, .12);
+  --cd-bg: var(--sl-background, #0e0e10); --cd-panel: var(--sl-surface, #17171b); --cd-line: var(--sl-border, #2c2c34);
+  --cd-fg: var(--sl-text, #f1ede4); --cd-dim: color-mix(in srgb, var(--cd-fg) 75%, transparent); --cd-faint: color-mix(in srgb, var(--cd-fg) 65%, transparent);
+  --cd-accent: var(--sl-accent, #d4ff3a); --cd-ink: var(--sl-on-accent, #0e0e10);
+  --cd-hover: color-mix(in srgb, var(--cd-fg) 7%, transparent); --cd-on: color-mix(in srgb, var(--cd-accent) 14%, transparent);
   --cd-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
   --cd-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* syntax colours: the light set on the light and Classic 98 themes, the dark set elsewhere */
   --cd-kw: #ff9ec7; --cd-str: #b8e994; --cd-num: #ffcb6b; --cd-com: #7b7f8a; --cd-fn: #82aaff; --cd-tag: #ff7b7b;
   --cd-attr: #f5c178; --cd-prop: #9ad8ff; --cd-type: #c3a6ff; --cd-op: #c7c7cc; --cd-err: #ff4f6e;
   --cd-tree-w: 232px;
   color-scheme: dark;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --cd-bg: #fbfaf6; --cd-panel: #f1efe8; --cd-line: #d9d5ca; --cd-fg: #1d1c19; --cd-dim: #5f5b52; --cd-faint: #8a857b;
-    --cd-accent: #3d6b00; --cd-hover: rgba(0, 0, 0, .05); --cd-on: rgba(61, 107, 0, .12);
-    --cd-kw: #a2215f; --cd-str: #2b6e1c; --cd-num: #9a5b00; --cd-com: #7f8590; --cd-fn: #1f5bb5; --cd-tag: #b3261e;
-    --cd-attr: #8a4b00; --cd-prop: #0d5f7d; --cd-type: #6a2fb5; --cd-op: #3c3a35; --cd-err: #b3261e;
-    color-scheme: light;
-  }
-}
-:root[data-theme="light"] {
-  --cd-bg: #fbfaf6; --cd-panel: #f1efe8; --cd-line: #d9d5ca; --cd-fg: #1d1c19; --cd-dim: #5f5b52; --cd-faint: #8a857b;
-  --cd-accent: #3d6b00; --cd-hover: rgba(0, 0, 0, .05); --cd-on: rgba(61, 107, 0, .12);
+:root[data-slop-theme="light"], :root[data-slop-theme="classic"] {
   --cd-kw: #a2215f; --cd-str: #2b6e1c; --cd-num: #9a5b00; --cd-com: #7f8590; --cd-fn: #1f5bb5; --cd-tag: #b3261e;
   --cd-attr: #8a4b00; --cd-prop: #0d5f7d; --cd-type: #6a2fb5; --cd-op: #3c3a35; --cd-err: #b3261e;
   color-scheme: light;

@@ -13,10 +13,10 @@
 .cd-editor .cm-tooltip { background: var(--cd-panel); border: 1px solid var(--cd-line); color: var(--cd-fg); border-radius: 6px; }
 .cd-editor .cm-tooltip-autocomplete > ul { font: 13px/1.5 var(--cd-mono); max-height: 240px; }
 .cd-editor .cm-tooltip-autocomplete > ul > li { padding: 2px 8px; }
-.cd-editor .cm-tooltip-autocomplete > ul > li[aria-selected] { background: var(--cd-accent); color: #0e0e10; }
+.cd-editor .cm-tooltip-autocomplete > ul > li[aria-selected] { background: var(--cd-accent); color: var(--cd-ink); }
 .cd-editor .cm-completionDetail { color: var(--cd-faint); font-style: normal; margin-left: 8px; }
 .cd-editor .cm-completionMatchedText { text-decoration: none; font-weight: 700; color: var(--cd-accent); }
-.cd-editor .cm-tooltip-autocomplete > ul > li[aria-selected] .cm-completionMatchedText { color: #0e0e10; }
+.cd-editor .cm-tooltip-autocomplete > ul > li[aria-selected] .cm-completionMatchedText { color: var(--cd-ink); }
 .cd-editor .cm-panels { background: var(--cd-panel); color: var(--cd-fg); border-color: var(--cd-line); font: 13px/1.4 var(--cd-sans); }
 .cd-editor .cm-panels-top { border-bottom: 1px solid var(--cd-line); padding: 6px 8px; }
 .cd-editor .cm-search { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
