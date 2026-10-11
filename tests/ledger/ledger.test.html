@@ -92,6 +92,7 @@
       expect(e.amount).toBe(50000);
       expect(e.amountBase).toBe(expected);
       expect(e.rateId).toBe(rate.value.id);
+      await waitFor(() => entryCard('Export invoice'), { timeout: 8000 });
       const card = entryCard('Export invoice');
       expect(card.textContent).toContain(win().SlopLedger.util.money(expected, base, 'en-US'));
       expect(card.textContent).toContain(win().SlopLedger.util.money(50000, foreign, 'en-US'));
@@ -111,9 +112,12 @@
       await waitFor(async () => (await entries()).length === before + 1, { timeout: 8000 });
       const rev = (await entries()).find((e) => e.reverses);
       expect(rev.memo).toContain('Reversal of Cash sale');
+      const tb = await S().ledger.trialBalance();
+      const cash = tb.value.rows.find((r) => r.code === '1000').balance;
+      expect(cash).toBe(54210);
       win().SlopLedger.app.show('trial');
-      await waitFor(() => $('tCheck').textContent.includes('agrees'), { timeout: 8000 });
-      expect(trRow('tRows', '1000').children[4].textContent).toContain('$0.00');
+      await waitFor(() => trRow('tRows', '1000') && trRow('tRows', '1000').children[4].textContent === win().SlopLedger.util.money(cash, 'USD', 'en-US'), { timeout: 8000 });
+      expect($('tCheck').textContent).toContain('agrees');
     });
   });
 

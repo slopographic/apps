@@ -55,7 +55,6 @@
     $('empty').hidden = !!total;
     $('noMatch').hidden = !total || !!n;
     $('noMatch').textContent = S.group && !S.query.trim() ? `No contacts in ${titleOf(S.group)} yet.` : 'No contact matches that search.';
-    if (S.focus && S.open !== S.focus && !S.sel.size) { /* focus ring only */ }
   }
 
   function mount() {
