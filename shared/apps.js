@@ -26,7 +26,7 @@
       shot: 'assets/shots/label.jpg', icon: 'tag', status: 'beta' }),
     A('platformer', 'game', 'Sloppo Land', 'games/platformer/', 'A 3D platformer across goo-soaked worlds.', { shot: 'assets/shots/platformer.jpg', status: 'beta' }),
     A('sloppo-bird', 'game', 'Sloppo Bird', 'games/sloppo-bird/', 'Tap to bloop. Do not touch the pipes.', { shot: 'assets/shots/sloppo-bird.jpg' }),
-    A('runner', 'game', 'Sloppo Run', 'games/runner/', 'Endless running through the slopverse.', { shot: 'assets/shots/runner.jpg', status: 'building' }),
+    A('runner', 'game', 'Sloppo Run', 'games/runner/', 'Endless running through the slopverse.', { shot: 'assets/shots/runner.jpg', status: 'beta' }),
     A('star-defender', 'game', 'Star Defender', 'games/star-defender/', 'Defend the galaxy from the Slop Bots.', { shot: 'assets/shots/star-defender.jpg', status: 'beta' }),
     A('tower-defense', 'game', 'Goo Pool Defense', 'games/tower-defense/', 'Build Sloppo towers. Hold the line.', { shot: 'assets/shots/tower-defense.jpg' }),
     A('shots', 'game', 'Slop Shots', 'shots/', 'Holographic Sloppo cards. Collect all 60.', { shot: 'assets/shots/shots.jpg' }),
