@@ -9,12 +9,13 @@ product or fork) requires written permission from Slopographic.
 
   shared/sloppo/          the 2D Sloppo painter (body, face, hats, props, auras)
   shared/buddy/look.js    the goo Sloppo SVG look
-  shared/buddy/bodies.js  Sloppo body variants
   shared/buddy/hats.js    Sloppo hats
   shared/buddy/three3d.js, shared/buddy/view3d.js   the 3D Sloppo
+  The Sloppo face SVG in shared/buddy/boot.js and the goo splat SVG in
+  shared/buddy/fx.js
   games/*/js/player/      the in-game Sloppo models
   reel/js/sloppo/         the Sloppo Reel model
   The Sloppo SVG markup in 2100/index.html, favicon.svg and og.jpg
 
-Everything else in shared/buddy/ (physics, perches, input, chaos, the
-assistant engine) is code and is covered by the MIT License.
+Everything else in shared/buddy/ (bodies.js physics, perches, input, chaos,
+the assistant engine) is code and is covered by the MIT License.
