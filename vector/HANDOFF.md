@@ -74,3 +74,11 @@ These were asked for together with the PhotoSLOP layer work; none of the Vector 
 
 - **Save (Ctrl+S)** writes the SVG back to the Drive file the document was opened from (`HUB.linked`, via `SlopHub.update`, falling back to `put` with the same id). The first save asks for a folder. Any new document (New, Open, recovery, sample) unlinks. `File ▸ Save As…` still downloads. Without the hub, Save downloads as before.
 - Open/Place from Drive, `?drive=` launch and `register('vector')` as before. Tested in `tests/vector/ui.test.html` ("Save writes back…").
+
+## Rounded rectangle corners (`js/core/corners.js`, `js/ui/corner-controls.js`, `shared/shapes/`)
+
+- A `rect` keeps `rx` (its single radius, or the largest corner when the corners differ). When the corners were set one by one it also keeps `rc = [tl, tr, br, bl]`. `SV.rectRadii(o)` returns the four values.
+- Control bar and Properties share one control: a linked field (one value for all corners) and a link button that shows four fields (TL, TR, BR, BL). The link state is `S.shape.cornerLink`. Each change is one undo step (`SV.applyCorner`).
+- SVG export writes a rounded rect as `<path>` with circular arcs from `SlopShapes.svgPath`. A zero-radius rect stays `<rect>`. The object stays `type: 'rect'`.
+- Limits: direct-select anchors and hit testing (`G.rectSubs`) still use the single `rx`, the largest corner, so they only approximate per-corner shapes. SVG import reads one `rx` only.
+- Tests: `tests/vector/corners.test.html`. Node geometry tests: `tests/node/shapes-rounded.test.mjs`.

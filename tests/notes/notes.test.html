@@ -77,7 +77,7 @@
     });
 
     it('escapes HTML typed in the body, so it shows as text and never as markup', async () => {
-      type('#nt-body', '<img src=x onerror="alert(1)"> *ok* <script>x</script>');
+      type('#nt-body', '<img src=x onerror="alert(1)"> *ok* <\/script>x<\/script>');
       expect(q('#nt-preview img')).toBe(null);
       expect(q('#nt-preview script')).toBe(null);
       expect(q('#nt-preview').textContent).toMatch(/<img src=x/);

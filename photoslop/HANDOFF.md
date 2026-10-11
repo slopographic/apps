@@ -85,3 +85,10 @@ Desktop 1440×900 and phone 390×844 in Chromium, zero console errors: guide pan
 - **Save (Ctrl+S)** writes the layered PSD back to the Slop Drive file the tab was opened from (`CUR.driveId`, via `SlopHub.update`, falling back to `put` with the same id). The first save asks for a folder. `File ▸ Download as Photoshop (.psd)` keeps the old download; `Save PNG to Slop Drive` still adds a copy.
 - **File ▸ Open from Slop Drive…**, `?drive=<id>` launch (`hubBoot` → `openRecordTab`, which links the new tab), and `SlopHub.register('photoslop')` on boot.
 - Paint Classic (`classic/`): `hub.js` overrides `ACTIONS.save` (PNG written back to the linked Drive file) and adds `File ▸ Open from Slop Drive…`; it registers as `paint-classic` and opens `?drive=` launches. Offline and without `SlopHub`, Save downloads as before.
+
+## Shape corners (`js/tools/shape-layer.js`, `shared/shapes/`)
+
+- The Shape tool's Rectangle and Rounded Rectangle kinds have a Corner radius option (default 0; picking Rounded Rectangle sets 32 if it is 0). The path comes from `SlopShapes.canvasPath` (`js/tools/stroke.js` `shapePath`).
+- A drawn rectangle is a shape layer: `L.shape = { kind, r, radius, fill, stroke, strokeW, fg, bg }` and its canvas is redrawn from it. Changing the option redraws the active shape layer. A slider drag is one history step (400 ms settle), and a typed value is one step.
+- Painting, selecting, transforming or filtering a shape layer rasterizes it, as for type. Crop and resize drop the record and keep the pixels. Other kinds (ellipse, polygon, star, heart, line) are still plain pixels.
+- Tests: `tests/photoslop/shapes.test.html`.

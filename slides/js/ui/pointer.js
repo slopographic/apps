@@ -43,6 +43,7 @@
     var hit = OV.hit(A.slide(), p), h = OV.handleAt(p, A.selObjs());
     if (hit && last && last.id === hit.id && now - last.t < 450 && SS.textEdit.canEdit(hit)) {
       last = null;
+      e.preventDefault();
       SS.textEdit.open(hit);
       return;
     }
