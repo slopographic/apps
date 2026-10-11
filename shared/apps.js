@@ -2,60 +2,61 @@
  * Used by the homepage, the cross-app "Send to…" menus (hub.js) and the status board.
  * Classic script: sets window.SLOP_APPS. Paths are relative to the site root.
  *   kind:    app | game | experiment
+ *   group:   business | creative (how the homepage groups apps)
  *   status:  live | beta | building
  *   accepts: MIME patterns the app can open from Slop Drive (for "Send to…") */
 (function () {
   'use strict';
   const A = (id, kind, name, path, tagline, extra = {}) => Object.assign({ id, kind, name, path, tagline, status: 'live', accepts: [], features: [] }, extra);
   window.SLOP_APPS = [
-    A('photoslop', 'app', 'PhotoSLOP', 'photoslop/', 'Photoshop, rebuilt for the browser.', {
+    A('photoslop', 'app', 'PhotoSLOP', 'photoslop/', 'Photoshop, rebuilt for the browser.', { group: 'creative',
       accepts: ['image/*', 'image/vnd.adobe.photoshop', 'application/x-openraster'],
       features: ['Layers, masks & 17 blend modes', 'Real PSD open & save', '50+ filters, brush packs, .abr import', 'Tabs, autosave, offline .html'],
       shot: 'assets/shots/photoslop.jpg', icon: 'brush' }),
-    A('vector', 'app', 'Slop Vector', 'vector/', 'Illustrator, rebuilt for the browser.', {
+    A('vector', 'app', 'Slop Vector', 'vector/', 'Illustrator, rebuilt for the browser.', { group: 'creative',
       accepts: ['image/svg+xml', 'image/*'],
       features: ['Pen, shapes, type & layers', 'Real pathfinder booleans', 'SVG, PNG, PDF & .ai export', 'Offline .html'],
       shot: 'assets/shots/vector.jpg', icon: 'pen' }),
-    A('pdf', 'app', 'Slop PDF', 'pdf/', 'Organise, edit and sign PDFs. Nothing uploaded.', {
+    A('pdf', 'app', 'Slop PDF', 'pdf/', 'Organise, edit and sign PDFs. Nothing uploaded.', { group: 'business',
       accepts: ['application/pdf', 'image/*'],
       features: ['Reorder, merge & split', 'Text, shapes, images & signatures', 'Page numbers, watermarks, forms', 'Compress & convert'],
       shot: 'assets/shots/pdf.jpg', icon: 'doc' }),
-    A('label', 'app', 'SlopLabel', 'label/', 'Design and print barcode labels.', {
+    A('label', 'app', 'SlopLabel', 'label/', 'Design and print barcode labels.', { group: 'business',
       accepts: ['image/*', 'text/csv'],
       features: ['Barcodes & QR, GS1', 'Data merge from CSV & Excel', 'Zebra ZPL export & import', 'Sheets & thermal rolls'],
       shot: 'assets/shots/label.jpg', icon: 'tag', status: 'beta' }),
-    A('cutout', 'app', 'Slop Cutout', 'cutout/', 'Remove backgrounds with AI that runs on your device.', {
+    A('cutout', 'app', 'Slop Cutout', 'cutout/', 'Remove backgrounds with AI that runs on your device.', { group: 'creative',
       accepts: ['image/*'],
       features: ['One-click AI background removal', 'Refine brush & soft edges', 'Replace with colour, blur or image', 'Batch, no uploads, no watermarks'],
       shot: 'assets/shots/cutout.jpg', icon: 'brush', status: 'beta' }),
-    A('ai', 'app', 'Slop AI', 'ai/', 'Chat with an AI that runs on your own computer.', {
+    A('ai', 'app', 'Slop AI', 'ai/', 'Chat with an AI that runs on your own computer.', { group: 'business',
       accepts: ['text/*', 'image/*'],
       features: ['Local models via WebGPU, works offline', 'System check: what can your PC run?', 'Drives every Slopographic app', 'Builds mini-apps for you'],
       shot: 'assets/shots/ai.jpg', icon: 'spark', status: 'beta' }),
-    A('docs', 'app', 'Slop Docs', 'docs/', 'Word and Google Docs, rebuilt for the browser.', {
+    A('docs', 'app', 'Slop Docs', 'docs/', 'Word and Google Docs, rebuilt for the browser.', { group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/markdown', 'text/plain', 'text/html'],
       creates: [{ label: 'Document', ext: 'sdoc', mime: 'application/x-slop-doc' }],
       features: ['Real pages, headers & footers', 'Opens & saves DOCX and Markdown', 'PDF that matches what you see', 'Offline .html'],
       shot: 'assets/shots/docs.jpg', icon: 'page', status: 'building' }),
-    A('tables', 'app', 'Slop Tables', 'tables/', 'Excel and Google Sheets, rebuilt for the browser.', {
+    A('tables', 'app', 'Slop Tables', 'tables/', 'Excel and Google Sheets, rebuilt for the browser.', { group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'text/tab-separated-values'],
       creates: [{ label: 'Spreadsheet', ext: 'stab', mime: 'application/x-slop-table' }],
       features: ['400+ formulas, charts & pivots', 'Opens & saves XLSX, ODS and CSV', 'Print to PDF with page setup', 'Offline .html'],
       shot: 'assets/shots/tables.jpg', icon: 'grid', status: 'building' }),
-    A('slides', 'app', 'Slop Slides', 'slides/', 'Keynote and PowerPoint, rebuilt for the browser.', {
+    A('slides', 'app', 'Slop Slides', 'slides/', 'Keynote and PowerPoint, rebuilt for the browser.', { group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation', 'image/*'],
       creates: [{ label: 'Presentation', ext: 'sslide', mime: 'application/x-slop-slides' }],
       features: ['Themes, layouts & Magic Move', 'Opens & saves PPTX and ODP', 'Presenter view & PDF export', 'Offline .html'],
       shot: 'assets/shots/slides.jpg', icon: 'slides', status: 'building' }),
-    A('press', 'app', 'Slop Press', 'press/', 'InDesign, rebuilt for the browser.', {
+    A('press', 'app', 'Slop Press', 'press/', 'InDesign, rebuilt for the browser.', { group: 'business',
       accepts: ['image/*', 'application/pdf', 'text/plain'],
       features: ['Master pages & threaded text frames', 'Paragraph & character styles', 'Print-ready PDF export', 'Offline .html'],
       shot: 'assets/shots/press.jpg', icon: 'layout', status: 'beta' }),
-    A('slopedit', 'app', 'SlopEdit', 'slopedit/', 'A video editor that never uploads your footage.', {
+    A('slopedit', 'app', 'SlopEdit', 'slopedit/', 'A video editor that never uploads your footage.', { group: 'creative',
       accepts: ['video/*', 'audio/*', 'image/*'],
       features: ['Multi-track timeline', 'Trim, split, transitions & titles', 'Hardware MP4 export (WebCodecs)', 'Offline .html'],
       shot: 'assets/shots/slopedit.jpg', icon: 'film', status: 'beta' }),
-    A('drive', 'app', 'Slop Drive', 'drive/', 'Every file from every app, in one local drive.', {
+    A('drive', 'app', 'Slop Drive', 'drive/', 'Every file from every app, in one local drive.', { group: 'business',
       accepts: ['*'],
       features: ['Folders, stars, Trash & search', 'Grid, list, columns, node graph & disk usage', 'Duplicate finder', 'One-file backup & restore'],
       shot: 'assets/shots/drive.jpg', icon: 'folder', status: 'beta' }),

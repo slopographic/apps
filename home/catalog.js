@@ -117,9 +117,12 @@
       shot(a),
       el('div', { class: 'tile-body' }, el('div', { class: 'app-name' }, el('h3', null, a.name), badge(a)), el('p', null, a.tagline)));
   }
+  // Apps are grouped (business, creative) on the homepage; experiments keep their own tile shelf.
+  const GROUPS = ['business', 'creative'];
   for (const list of document.querySelectorAll('[data-list]')) {
     const kind = list.dataset.list;
-    list.append(...APPS.filter((a) => a.kind === kind).map(kind === 'app' ? appCard : tile));
+    const pick = GROUPS.includes(kind) ? (a) => a.group === kind : (a) => a.kind === kind;
+    list.append(...APPS.filter(pick).map(kind === 'app' || GROUPS.includes(kind) ? appCard : tile));
   }
 
   /* ---------- status board ---------- */
