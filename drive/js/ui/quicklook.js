@@ -5,6 +5,9 @@
   const S = DR.S, el = DR.el;
   let current = null;
   DR.quickLookOpen = () => !!current;
+  /** The id of the file in Quick look (kept in the URL as drv.f), or null. */
+  DR.quickLookId = () => (current && current.box.dataset.ql) || null;
+  DR.quickLookClose = () => { if (current) current.close(false); };
   DR.quickLook = function (r) {
     if (!r || r.isFolder) return;
     if (current) current.close(false);
@@ -17,10 +20,11 @@
     const buttons = [];
     if (apps.length) buttons.push({ label: `Open in ${apps[0].name}`, act: () => { DR.openWith(r, apps[0].id); } });
     buttons.push({ label: 'Download', act: () => { DR.downloadFile(r); return false; } }, { label: 'Close', primary: true });
-    const d = window.SlopUI.dialog({ title: r.name, cls: 'sui-wide ql', body: el('div', null, pv, meta), buttons, onClose: () => { shut = true; if (fh) fh.destroy(); if (current === d) current = null; qlUrls.forEach((u) => URL.revokeObjectURL(u)); } });
+    const d = window.SlopUI.dialog({ title: r.name, cls: 'sui-wide ql', body: el('div', null, pv, meta), buttons, onClose: () => { shut = true; if (fh) fh.destroy(); if (current === d) current = null; qlUrls.forEach((u) => URL.revokeObjectURL(u)); DR.syncUrl(); } });
     DR.attachFaces(pv, r, meta).then((h) => { if (shut && h) h.destroy(); else fh = h; });
     d.box.dataset.ql = r.id;
     current = d;
+    DR.syncUrl();
     const step = (n) => { const next = files[(i + n + files.length) % files.length]; if (next && next.id !== r.id) { if (S.sel.size <= 1) DR.select([DR.keyOf(next)]); DR.quickLook(next); } };
     d.box.addEventListener('keydown', (e) => {
       if (e.target.closest('audio, video, input, .ap')) return;

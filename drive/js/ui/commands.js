@@ -37,6 +37,7 @@
       C('goStarred', 'Go to Starred', 'Go', ['G S'], () => DR.goSection('starred')),
       C('goTrash', 'Go to Trash', 'Go', ['G T'], () => DR.goSection('trash')),
       C('showInFolder', 'Show in folder', 'Go', [], () => DR.reveal(one()), { when: () => !!one() && (!inFolder() || DR.searching()) }),
+      C('copyLink', 'Copy link to this view', 'Go', [], () => DR.copyLink(), { keywords: ['share', 'url', 'address', 'link', 'bookmark'] }),
       ...DR.VIEWS.map(([v, label, k]) => C('view.' + v, label + ' view', 'View', [k], () => DR.setView(v), { checked: () => S.view === v, keywords: v === 'usage' ? ['treemap', 'sunburst', 'size', 'space'] : v === 'nodes' ? ['graph', 'tree'] : [] })),
       C('view.treemap', 'Disk usage: treemap', 'View', [], () => { S.usageMode = 'treemap'; DR.savePrefs(); DR.setView('usage'); }, { checked: () => S.view === 'usage' && S.usageMode === 'treemap' }),
       C('view.sunburst', 'Disk usage: sunburst', 'View', [], () => { S.usageMode = 'sunburst'; DR.savePrefs(); DR.setView('usage'); }, { checked: () => S.view === 'usage' && S.usageMode === 'sunburst' }),

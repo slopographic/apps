@@ -1,8 +1,8 @@
-/* Slop Slides: files. Opening and saving go through Slop Drive: a file opened with ?drive=<id> (or picked from the
-   Drive) is saved back to the same id with SlopHub.put, and a new presentation is saved with SlopHub.saveToDrive the
-   first time. A zero-byte .sslide (Drive's New menu) opens as a blank deck. Pictures open as a one-slide deck and
-   other formats open as a blank deck with no link, so Save can never overwrite a file this editor did not write.
-   Also: the .sslide download, PowerPoint and PNG export, and restoring the autosaved draft at boot. Exposes SS.files. */
+/* Slop Slides: files. Each presentation is a tab (ui/tabs.js). Save and Open from Slop Drive go through the strip, so a
+   tab saves to its own Drive file (drive.js: the same id, in place) and a file opened with ?drive=<id> or from the Drive
+   picker opens in a tab linked to it. A zero-byte .sslide (Drive's New menu) opens as a blank deck. Pictures open as a
+   one-slide deck and other formats open as a blank deck, in a tab with no link, so Save can never overwrite a file this
+   editor did not write. Also: the .sslide download, PowerPoint and PNG export, and the boot. Exposes SS.files. */
 (function () {
   'use strict';
   var SS = window.SS, A = SS.app, N = SS.native, U = SS.util, D = SS.dom, R = SS.canvasRender;
@@ -10,42 +10,33 @@
   var PPTX = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
   var ODP = 'application/vnd.oasis.opendocument.presentation';
   var hub = function () { return window.SlopHub || null; };
+  var api = function () { return SS.tabs.api(); };
 
-  /** Puts the Drive id in the address bar (so a reload reopens the same file) or takes it out. */
-  function setUrl(id) {
-    try {
-      var u = new URL(location.href);
-      if (id) u.searchParams.set('drive', id); else u.searchParams.delete('drive');
-      history.replaceState(null, '', u.pathname + u.search + u.hash);
-    } catch (e) { /* not a real URL (file://) */ }
-  }
-  /** Runs fn now, or after the user agrees to drop unsaved edits (the draft is kept in this browser either way). */
-  F.confirm = async function (fn) {
-    if (!A.dirty || !window.SlopUI) return fn();
-    var ok = await SlopUI.confirm('Leave unsaved changes?', 'This presentation has changes that are not saved to Slop Drive. They stay in a draft in this browser, but this action replaces the open presentation.', 'Continue', { danger: true });
-    if (ok) return fn();
-  };
-  F.newDeck = function () {
-    F.confirm(function () { A.load(N.blank(), {}); setUrl(null); D.toast('New presentation'); });
-  };
+  F.newDeck = function () { SS.tabs.newTab(); D.toast('New presentation'); };
   /** A new presentation built from one of the starter templates (they are ordinary, editable decks). */
   F.fromTemplate = function (id) {
     var t = SS.templates.byId(id);
     if (!t) return;
-    F.confirm(function () { A.load(t.build(), {}); setUrl(null); D.toast('New presentation from ' + t.name); });
+    SS.tabs.open(t.build(), {});
+    D.toast('New presentation from ' + t.name);
   };
   /** A new presentation from one of "My templates" (a record from SS.templateStore; its deck is re-checked and copied). */
   F.fromStored = function (rec) {
-    F.confirm(function () { A.load(N.normalize(U.clone(rec.deck)), {}); setUrl(null); D.toast('New presentation from ' + rec.name); });
+    SS.tabs.open(N.normalize(U.clone(rec.deck)), {});
+    D.toast('New presentation from ' + rec.name);
   };
+  /** File ▸ Open: a native .sslide from Slop Drive, in a new tab linked to that file (the strip's picker and open). */
   F.openDrive = function () {
-    if (!hub()) return;
-    F.confirm(async function () {
-      var rec = await hub().pickFromDrive({ accept: [N.MIME, PPTX, ODP, 'image/*'] });
-      if (rec) await F.openRecord(rec);
-    });
+    if (!hub() || !api()) return null;
+    return api().openFromDrive({ title: 'Open from Slop Drive' });
   };
-  /** Opens a Drive record (full or summary). Resolves true when a deck is now open. */
+  /** File ▸ Import: a PowerPoint, OpenDocument or picture file from Slop Drive, in a tab with no link. */
+  F.importDrive = async function () {
+    if (!hub()) return;
+    var rec = await hub().pickFromDrive({ accept: [PPTX, ODP, 'image/*'], title: 'Import from Slop Drive' });
+    if (rec) await F.openRecord(rec);
+  };
+  /** Opens a Drive record (full or summary) in a tab. A tab already showing that file is brought forward. Resolves true when a deck is open. */
   F.openRecord = async function (rec) {
     var full = rec.blob !== undefined ? rec : await hub().get(rec.id);
     if (!full) { D.toast('That file is no longer in Slop Drive'); return false; }
@@ -54,40 +45,31 @@
     catch (e) { D.toast('Could not open ' + full.name + ': ' + e.message); return false; }
     var named = N.fileName(res.deck.title);
     if (res.kind === 'foreign') {
-      A.load(res.deck, { driveId: null, name: named });
-      setUrl(null);
+      SS.tabs.open(res.deck, { name: named });
       D.toast((res.type || 'This') + ' files cannot be opened in Slop Slides yet. Opened a blank presentation.', 4200);
     } else if (res.kind === 'image') {
-      A.load(res.deck, { driveId: null, name: named });
-      setUrl(null);
+      SS.tabs.open(res.deck, { name: named });
       D.toast('Picture added to a new presentation');
     } else {
-      A.load(res.deck, { driveId: full.id, name: full.name });
-      setUrl(full.id);
+      var open = api().tabs().find(function (t) { return t.driveId === full.id; });
+      if (open) api().activate(open.doc);
+      else SS.tabs.open(res.deck, { name: full.name }, full.id);
     }
     return true;
   };
 
-  /** Saves to Slop Drive. asNew: always ask for a new file (Save as). Resolves true when the file is written. */
+  /** Saves the open presentation to Slop Drive: its own file (in place), or a new one. asNew: always a new file (Save as). Resolves true when written. */
   F.save = async function (asNew) {
     if (!hub()) { D.toast('Slop Drive is not available here'); return false; }
-    var deck = A.deck, blob = N.toBlob(deck), id = asNew ? null : A.doc.driveId;
+    var T = SS.tabs.current();
+    if (!T) return false;
+    SS.tabs.sync();
+    var prev = api().driveIdOf(T);
     try {
-      if (id) {
-        var old = await hub().get(id);
-        await hub().put(blob, { id: id, name: A.doc.name || N.fileName(deck.title), from: 'slides', folderId: old ? old.folderId : null });
-        if (old && (old.starred || old.trashedAt)) await hub().update(id, { starred: old.starred, trashedAt: old.trashedAt }, { touch: false });
-        A.markSaved(id, A.doc.name || N.fileName(deck.title));
-        setUrl(id);
-        D.toast('Saved to Slop Drive');
-        return true;
-      }
-      var name = N.fileName(deck.title);
-      var nid = await hub().saveToDrive(blob, name, { from: 'slides' });
-      if (!nid) return false;
-      A.markSaved(nid, name);
-      setUrl(nid);
-      return true;
+      if (asNew) api().setDriveId(T, null);
+      var id = await api().saveToDrive(T);
+      if (!id && asNew) api().setDriveId(T, prev); // a cancelled Save as keeps the link
+      return !!id;
     } catch (e) { D.toast('Could not save: ' + e.message, 4000); return false; }
   };
   F.download = function () {
@@ -110,27 +92,15 @@
     cv.toBlob(function (b) { U.download(b, (A.doc.name || 'slide').replace(/\.sslide$/, '') + ' ' + (A.idx + 1) + '.png'); SlopSupport.afterExport('slides'); }, 'image/png');
   };
 
-  /** Boot: a launch from Slop Drive, else the autosaved draft, else a blank deck. */
+  /** Boot: the tabs come back (session.js). A launch from Slop Drive opens in a tab of its own, and an untouched blank tab it
+   * replaces is closed. The launch was read before this (main.js), because showing a tab rewrites the address bar. */
   F.boot = async function (launch) {
-    var draft = SS.draft ? await SS.draft.load() : null;
-    if (launch) {
-      if (draft && draft.driveId === launch.id && draft.savedAt > (launch.modified || launch.time || 0)) {
-        A.load(N.normalize(draft.deck), { driveId: launch.id, name: launch.name, dirty: true });
-        setUrl(launch.id);
-        D.toast('Restored your unsaved changes');
-        return;
-      }
-      if (!(await F.openRecord(launch))) A.load(N.blank(), {});
-      return;
-    }
-    if (draft && draft.deck) {
-      try {
-        A.load(N.normalize(draft.deck), { driveId: draft.driveId || null, name: draft.name || N.DEFAULT_NAME, dirty: true });
-        setUrl(draft.driveId || null);
-        D.toast('Restored your draft');
-        return;
-      } catch (e) { /* damaged draft: start blank */ }
-    }
-    A.load(N.blank(), {});
+    var session = SS.tabs.mount();
+    try { await session.restore(); } catch (e) { console.warn('Slop Slides: restore failed', e); }
+    if (!SS.tabs.current()) SS.tabs.newTab();
+    if (!launch) return;
+    var blank = SS.tabs.isPristine(SS.tabs.current()) ? SS.tabs.current() : null;
+    try { await F.openRecord(launch); } catch (e) { D.toast('Could not open: ' + e.message, 4000); }
+    if (blank && SS.tabs.current() !== blank) await api().close(blank);
   };
 })();

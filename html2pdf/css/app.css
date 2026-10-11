@@ -45,7 +45,7 @@ textarea.h2p-input { resize: vertical; font-family: ui-monospace, Menlo, Consola
 .h2p-stage.h2p-over { outline: 2px dashed var(--sl-accent); outline-offset: -12px; }
 .h2p-paper-box { position: relative; width: 100%; overflow: hidden; }
 .h2p-paper {
-  position: absolute; left: 0; top: 0; transform-origin: 0 0; border: 0; background: #fff;
+  position: absolute; left: 0; top: 0; transform-origin: 0 0; border: 0;
   box-shadow: 0 2px 14px var(--sl-border); pointer-events: none;
 }
 .h2p-empty { align-self: center; max-width: 420px; text-align: center; display: grid; gap: 10px; justify-items: center; }

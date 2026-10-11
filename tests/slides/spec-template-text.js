@@ -27,8 +27,6 @@
   /** A new editor with a template deck (its unsaved state cleared first, as the New from template test does). */
   async function fromTemplate(id) {
     const w = await ST.open('../../slides/');
-    w.SS.app.dirty = false;
-    w.SS.app.draftNow();
     w.SS.files.fromTemplate(id);
     expect(w.SS.app.deck.title).toBe(w.SS.templates.byId(id).build().title);
     return w;

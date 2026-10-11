@@ -81,16 +81,5 @@
     DR.select([DR.keyOf(it)]);
     DR.scrollToFocus && DR.scrollToFocus();
   };
-  /** Browser back/forward walk the folders. */
-  DR.pushHistory = function () {
-    const st = { section: S.section, cwd: S.cwd };
-    const cur = history.state;
-    if (cur && cur.section === st.section && cur.cwd === st.cwd) return;
-    try { history.pushState(st, '', location.pathname + location.search); } catch (e) { /* sandboxed */ }
-  };
-  addEventListener('popstate', (e) => {
-    const st = e.state; if (!st) return;
-    S.section = st.section || 'folder'; S.cwd = st.cwd && S.folders.has(st.cwd) ? st.cwd : null; S.sel.clear();
-    DR.render();
-  });
+  // DR.pushHistory (a navigation adds a history entry) and back/forward live in app/url-state.js.
 })(window.DR);

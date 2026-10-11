@@ -74,6 +74,7 @@
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/app.css" data-src="slides/css/app.css">
+  <link rel="stylesheet" href="../shared/doctabs/doctabs.css" data-src="shared/doctabs/doctabs.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -106,6 +107,7 @@
       <button type="button" class="tb-btn" id="btnPresent">Present</button>
       <button type="button" class="tb-btn icon" id="btnPalette" aria-label="Search commands" title="Search commands" hidden>&#8984;K</button>
     </header>
+    <div id="tabs" class="doctabs-host"></div>
 
     <div class="body">
       <aside class="slides-pane" aria-label="Slides">
@@ -166,6 +168,9 @@
   <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="../shared/config/dialog.js" data-src="shared/config/dialog.js"></script>
   <script src="../shared/config/dialog-ai.js" data-src="shared/config/dialog-ai.js"></script>
+  <script src="../shared/doctabs/tabs.js" data-src="shared/doctabs/tabs.js"></script>
+  <script src="../shared/doctabs/drive.js" data-src="shared/doctabs/drive.js"></script>
+  <script src="../shared/doctabs/session.js" data-src="shared/doctabs/session.js"></script>
   <script src="js/manifest.js" data-src="slides/js/manifest.js"></script>
   <script>
     // Every app script, in the order js/manifest.js gives. The manifest is the one list (tests and the offline build use it too).
