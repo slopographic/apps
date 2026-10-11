@@ -64,11 +64,12 @@ export function sheetFromGrid(name, grid) {
 const needsQuotes = (s, delim) => s.includes(delim) || /["\r\n]/.test(s);
 const quote = (s, delim) => (needsQuotes(s, delim) ? '"' + s.replace(/"/g, '""') + '"' : s);
 
-/** CSV or TSV text of a sheet, with rows taken in rowOrder (default: every row, in order). Shows the cell text. */
-export function csvBlob(sheet, rowOrder = null, delim = ',') {
+/** CSV or TSV text of a sheet, with rows taken in rowOrder (default: every row, in order). Shows the cell text.
+ * bom: a UTF-8 byte-order mark, so Excel reads the file as UTF-8. Off for files that other readers take as plain text. */
+export function csvBlob(sheet, rowOrder = null, delim = ',', { bom = true } = {}) {
   const order = rowOrder || Array.from({ length: sheet.height }, (_, i) => i);
   const lines = order.map((r) => sheet.text[r].map((s) => quote(String(s ?? ''), delim)).join(delim));
   const body = lines.join('\r\n') + (lines.length ? '\r\n' : '');
   const type = delim === '\t' ? 'text/tab-separated-values' : 'text/csv';
-  return new Blob(['﻿', body], { type: type + ';charset=utf-8' });
+  return new Blob(bom ? ['\uFEFF', body] : [body], { type: type + ';charset=utf-8' });
 }
