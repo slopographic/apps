@@ -18,15 +18,21 @@
   var A = $.A;
 
   /* ================= context menus (shared SlopUI kit) ================= */
+  // Right-click and the Menu key / Shift+F10 open the menu of the target: canvas, layer, object, group,
+  // text, swatch, dock tab and dock group (swatch, tab and group menus: ctxmenu-dock.js). Items run the menus' actions.
   function mi(id, label) {
     var a = A[id]; if (!a) return null;
     return { label: label || a.label, key: UI.actKey(a), disabled: a.enabled ? !a.enabled() : false, check: a.checked ? a.checked() : false, act: function () { SV.runAction(id); } };
   }
+  /** The single selected text object (for Edit Text), or null. */
+  function selectedText() { var o = S.sel.length === 1 ? getObj(S.sel[0]) : null; return o && o.type === 'text' && SV.isEditable(o) ? o : null; }
   UI.canvasMenu = function (x, y) {
-    var any = S.sel.length > 0;
-    var items = [mi('edit.undo'), mi('edit.redo'), '-'];
+    var any = S.sel.length > 0, txt = selectedText();
+    var items = [];
+    if (txt) items.push({ label: 'Edit Text', act: function () { SV.startTextEdit(txt, null); } }, '-');
+    items.push(mi('edit.undo'), mi('edit.redo'), '-');
     if (any) items.push(mi('edit.cut'), mi('edit.copy'));
-    items.push(mi('edit.paste'), mi('edit.pasteFront'));
+    if (S.clipboard) items.push(mi('edit.paste'), mi('edit.pasteFront'));
     if (any) {
       items.push(mi('edit.duplicate'), mi('edit.clear'), '-', mi('object.group'), mi('object.ungroup'),
         { label: 'Arrange', sub: [mi('arrange.front'), mi('arrange.forward'), mi('arrange.backward'), mi('arrange.back')] },
@@ -38,21 +44,39 @@
     }
     return window.SlopUI.menu(items, x, y);
   };
+  /** Rename, show or hide, lock or unlock: shared by layer and object rows. */
+  function rowItems(it, id) {
+    return [
+      { label: 'Rename…', act: function () { UI.st.renaming = id; UI.st.layersSig = ''; renderLayers(); } },
+      { label: it.hidden ? 'Show' : 'Hide', act: function () { it.hidden = !it.hidden; SV.commit(it.hidden ? 'hide' : 'show'); } },
+      { label: it.locked ? 'Unlock' : 'Lock', act: function () { it.locked = !it.locked; SV.commit(it.locked ? 'lock' : 'unlock'); } }];
+  }
+  function layerItems(L) {
+    return rowItems(L, L.id).concat(['-', { label: 'Select All on Layer', act: function () { C.selectLayer(); } }, { label: 'New Layer', act: newLayer },
+      { label: 'Delete Layer', disabled: S.doc.layers.length <= 1, act: function () { var i = S.doc.layers.indexOf(L); if (i < 0 || S.doc.layers.length <= 1) return; S.doc.layers.splice(i, 1); S.activeLayer = S.doc.layers[Math.max(0, i - 1)].id; SV.commit('delete layer'); } }]);
+  }
+  /** Object and group rows: a group selects its contents, a text object edits its text. */
+  function objItems(o, id) {
+    var pre = [];
+    if (o.type === 'group') pre.push({ label: 'Select Group Contents', act: function () { SV.select(SV.leaves(o).map(function (l) { return l.id; })); } }, '-');
+    if (o.type === 'text') pre.push({ label: 'Edit Text', act: function () { SV.startTextEdit(o, null); } }, '-');
+    return pre.concat(rowItems(o, id), ['-', mi('edit.duplicate'), mi('edit.clear'), '-', mi('arrange.front'), mi('arrange.back'), mi('object.group'), mi('object.ungroup')]);
+  }
   UI.layerMenu = function (id, x, y) {
     var L = SV.getLayer(id), o = L ? null : getObj(id), it = L || o; if (!it) return null;
-    var rename = { label: 'Rename…', act: function () { UI.st.renaming = id; UI.st.layersSig = ''; renderLayers(); } };
-    var vis = { label: it.hidden ? 'Show' : 'Hide', act: function () { it.hidden = !it.hidden; SV.commit(it.hidden ? 'hide' : 'show'); } };
-    var lock = { label: it.locked ? 'Unlock' : 'Lock', act: function () { it.locked = !it.locked; SV.commit(it.locked ? 'lock' : 'unlock'); } };
     var items;
-    if (L) {
-      S.activeLayer = id; SV.requestRender(true);
-      items = [rename, vis, lock, '-', { label: 'Select All on Layer', act: function () { C.selectLayer(); } }, { label: 'New Layer', act: newLayer },
-        { label: 'Delete Layer', disabled: S.doc.layers.length <= 1, act: function () { var i = S.doc.layers.indexOf(L); if (i < 0 || S.doc.layers.length <= 1) return; S.doc.layers.splice(i, 1); S.activeLayer = S.doc.layers[Math.max(0, i - 1)].id; SV.commit('delete layer'); } }];
-    } else {
-      if (SV.isEditable(o) && S.sel.indexOf(id) < 0) SV.select([id]);
-      items = [rename, vis, lock, '-', mi('edit.duplicate'), mi('edit.clear'), '-', mi('arrange.front'), mi('arrange.back'), mi('object.group'), mi('object.ungroup')];
-    }
+    if (L) { S.activeLayer = id; SV.requestRender(true); items = layerItems(L); }
+    else { if (SV.isEditable(o) && S.sel.indexOf(id) < 0) SV.select([id]); items = objItems(o, id); }
     return window.SlopUI.menu(items, x, y);
+  };
+  /** The menu for a dock or layer element (swatch, tab, group, layer row); null when none applies. */
+  UI.menuForTarget = function (el, x, y) {
+    if (!el || !el.closest) return null;
+    var row = el.closest('.lrow'); if (row) return UI.layerMenu(row.getAttribute('data-id'), x, y);
+    var sw = el.closest('#swgrid .sw'); if (sw) return UI.swatchMenu(Array.prototype.indexOf.call(sw.parentNode.children, sw), x, y);
+    var tab = el.closest('.dock-tab'); if (tab) return UI.tabMenu(tab, x, y);
+    var tabs = el.closest('.dock-tabs'); if (tabs) return UI.panelMenu(tabs.parentNode, x, y);
+    return null;
   };
   function bindContextMenus() {
     D.stage.addEventListener('contextmenu', function (e) {
@@ -68,9 +92,20 @@
       UI.canvasMenu(e.clientX, e.clientY);
     });
     document.getElementById('dock').addEventListener('contextmenu', function (e) {
-      var r = e.target.closest && e.target.closest('.lrow'); if (!r) return;
+      if (e.target.closest && e.target.closest('input, textarea')) return;
+      if (UI.menuForTarget(e.target, e.clientX, e.clientY)) e.preventDefault();
+    });
+    // Menu key / Shift+F10: the focused target's menu, or the canvas menu when the stage (or nothing) has focus
+    document.addEventListener('keydown', function (e) {
+      if (!(e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) || e.defaultPrevented) return;
+      var a = document.activeElement || document.body;
+      if (a.closest && a.closest('.sui-menu, input, textarea, select, [contenteditable="true"]')) return;
+      var onStage = a === document.body || D.stage.contains(a);
+      if (!onStage && !(a.closest && a.closest('.lrow, #swgrid .sw, .dock-tab, .dock-tabs'))) return;
       e.preventDefault();
-      UI.layerMenu(r.getAttribute('data-id'), e.clientX, e.clientY);
+      if (onStage) { var sr = D.stage.getBoundingClientRect(); UI.canvasMenu(sr.left + sr.width / 2, sr.top + sr.height / 2); return; }
+      var r = a.getBoundingClientRect();
+      UI.menuForTarget(a, r.left + 8, r.bottom);
     });
   }
 

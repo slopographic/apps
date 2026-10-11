@@ -29,7 +29,7 @@
     var ctx = c.getContext('2d'); ctx.scale(sc * 2, sc * 2);
     try { R.page(ctx, doc, i, { zoom: sc * 2, greek: true }); } catch (e) { /* ignore render glitches in thumbnails */ }
     var page = doc.pages[i], mm = page.master && M.findMaster(doc, page.master);
-    var el = h('div', { class: 'pthumb' + (i === S.page && !S.editMaster ? ' on' : '') + (picked.indexOf(i) >= 0 ? ' sel' : ''), 'data-i': i, title: 'Page ' + P.label(doc, i) + (mm ? ' · master ' + mm.prefix : '') },
+    var el = h('div', { class: 'pthumb' + (i === S.page && !S.editMaster ? ' on' : '') + (picked.indexOf(i) >= 0 ? ' sel' : ''), 'data-i': i, tabindex: '0', title: 'Page ' + P.label(doc, i) + (mm ? ' · master ' + mm.prefix : '') },
       h('div', { class: 'pthumb-wrap' }, c, mm ? h('span', { class: 'pmaster', style: { left: 0, top: 0 } }, mm.prefix) : null), h('span', { class: 'plabel' }, P.label(doc, i)));
     var pm = el.querySelector('.pmaster'); if (pm) { pm.style.position = 'absolute'; }
     el.addEventListener('click', function (e) {
