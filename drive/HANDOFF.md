@@ -5,7 +5,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 **Status: beta** (registered in `shared/apps.js` as `drive`, `accepts: ['*']`, so "Send to Slop Drive" appears in every app's Send to menu).
 
 ## Tests
-`node tests/run.mjs drive` runs the Drive pages (about 190 tests on 17 pages), all green:
+`node tests/run.mjs drive` runs 208 tests on 24 pages, plus the Node file `tests/node/faces-drive-gallery.test.mjs`, all green at the time of the face detection change. The table lists the main pages.
 
 | Page | What it covers |
 |---|---|
@@ -22,6 +22,8 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 | `tags.test.html` | add (lowercase, unique, modified date kept), remove, the details panel chips, tags across a reload, sidebar tag counts and the drive-wide tag filter, the Tags column |
 | `columns.test.html` | list columns: header menu, drag to reorder, edge and keyboard resize (min clamp), order and widths across a reload, reset |
 | `columns-view.test.html` | Columns view: the `.col-pv` preview is the last column and shows the selected file, one preview at a time, arrow keys, the preview image still loads after the info panel is open and the view re-renders, a folder selection removes it |
+| `faces.test.html` | Face detection with a stubbed detector: Find faces stores the count per file id and modified time, the details panel shows "2 faces" and a Find faces action, Quick look draws one box per face, an edited file is checked again |
+| `faces-optin.test.html` | The opt-in: the dialog on first use (wording, the Profile link), Not now changes nothing, Turn on carries on, turning it off stops detection, the two Profile switches (Drive and Gallery sections) stay in step |
 | `thumbs.test.html` | a PNG thumbnail kept in IndexedDB, a text card with its first line, a CSV card with its header, a Slop document's first paragraph, a cache hit that does not regenerate, a changed modified time that does, a removed file's cache entry gone, a broken file that still gets a card with the list rendering, a `.s3d` thumbnail and live 3D preview (orbit, wheel zoom, reset; skipped with a console note without WebGL) |
 | `audio-player.test.html` | a WAV's full waveform (1000 peaks), a click on the waveform seeks and moves the playhead, Space plays and pauses, arrows seek 5 s, speed and volume, the mini bar keeps playing after Quick look closes and Stop ends it, Next through the list, an undecodable MP3 names its format |
 
@@ -160,3 +162,13 @@ The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Dr
 - The 3D view and thumbnails need WebGL. Without it, the 3D view explains why, and a `.s3d` thumbnail is a card. Only `.s3d` is handled; `.glb`, `.gltf` and `.obj` are still plain files.
 - Audio waveforms are decoded in the browser, so a format it cannot decode has no waveform, but it still plays when the browser can play it.
 - Each generator change needs `VER` bumped in `thumbs.js`, or old cached thumbnails stay.
+
+## Face detection (opt-in, `shared/faces/`)
+- **Off by default.** Find faces (Actions, right-click, or the details panel) for raster pictures; the first use opens the
+  explanation dialog (`SlopFaces.askOptIn('drive')`), and Profile has the same switch. The model, its licence and how to
+  remove it are in `shared/faces/HANDOFF.md` and `vendor/face/README.md`.
+- **Details panel:** a "Faces" row for pictures when the setting is on: the count, or "Not checked yet".
+- **Quick look:** the face boxes are drawn over the picture (`SlopFaces.drawBoxes`) when the setting is on and the picture has been checked.
+- **Results:** `SlopFaces.analyse('drive', file id, file modified time, blob)`, kept in IndexedDB `slop-faces`. An edited file is checked again.
+- **Code:** `js/ui/faces.js` (`DR.isFaceable`, `DR.faceStamp`, `DR.facesOf`, `DR.findFaces`, `DR.faceOverlayFor`). `info.js`, `menus.js` and `quicklook.js` call it.
+- **No identity:** the detector only finds faces. Nothing is named or matched.

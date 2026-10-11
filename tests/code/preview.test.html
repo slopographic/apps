@@ -15,8 +15,8 @@
   const INDEX = '<!doctype html><html><head><meta charset="utf-8"><title>Site</title>'
     + '<link rel="stylesheet" href="style.css"></head><body><h1 id="t">Hello from Slop</h1>'
     + '<img src="pic.txt" alt="">'
-    + '<script src="app.js"></script>'
-    + '<script>console.log("page ran ok"); fetch("http://127.0.0.1:9/x").then(function () { console.log("REACHED"); }, function (e) { console.log("blocked: " + e.name); });</script>'
+    + '<script src="app.js"><\/script>'
+    + '<script>console.log("page ran ok"); fetch("http://127.0.0.1:9/x").then(function () { console.log("REACHED"); }, function (e) { console.log("blocked: " + e.name); });<\/script>'
     + '</body></html>';
 
   describe('Slop Code: run preview', () => {
