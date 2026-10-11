@@ -243,11 +243,17 @@
   document.addEventListener('pointerdown', (e) => { if (menuEl && !e.target.closest('.sui-menu')) closeMenu(); }, true);
 
   /* ---------- file picking ---------- */
+  /** Opens the file dialog once. Resolves with the chosen files, or [] when the dialog is cancelled (the cancel event),
+   *  so a caller that awaits it (a dialog button, for one) is never left waiting. A fresh input each time, removed at
+   *  once, so the same file can be chosen again. */
   function pickFiles({ accept = '', multiple = false } = {}) {
     return new Promise((res) => {
       const i = el('input', { type: 'file', accept, multiple, style: 'position:fixed;left:-9999px' });
+      let done = false;
+      const finish = (files) => { if (done) return; done = true; i.remove(); res(files); };
+      i.addEventListener('change', () => finish([...i.files]), { once: true });
+      i.addEventListener('cancel', () => finish([]), { once: true });
       document.body.append(i);
-      i.addEventListener('change', () => { res([...i.files]); i.remove(); }, { once: true });
       i.click();
     });
   }

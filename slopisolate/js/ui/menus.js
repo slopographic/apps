@@ -8,7 +8,8 @@
   const toast = (m) => window.SlopUI && SlopUI.toast(m);
   const cur = () => S.current();
   const done = () => { const it = cur(); return !!it && it.status === 'done'; };
-  const THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic']];
+  /* The app's names and the shared theme ids (shared/theme/theme.js): the choice is saved through SlopTheme.set. */
+  const THEMES = [['pro', 'Pro (dark)', 'dark'], ['light', 'Light', 'light'], ['classic', 'Classic', 'classic']];
 
   /* ---------- shared actions ---------- */
   async function guard(fn) { try { await fn(); } catch (e) { toast(e.message || String(e)); } }
@@ -51,7 +52,11 @@
       U.store.set('panel', !off);
       $('#btnPanel').setAttribute('aria-expanded', String(!off));
     },
-    theme: (v) => { document.documentElement.dataset.theme = v; U.store.set('theme', v); },
+    theme: (v) => {
+      const row = THEMES.find(([x]) => x === v) || THEMES[0];
+      const r = window.SlopTheme ? SlopTheme.set(row[2]) : { ok: false, error: 'The theme script did not load.' };
+      if (!r.ok) { if (window.SlopTheme) SlopTheme.apply(row[2]); toast(r.error); }
+    },
     keys: () => (window.SlopCmd ? SlopCmd.openKeymap() : SlopUI.alert('Keyboard shortcuts', 'Ctrl or ⌘ + O open · + S export · + Z undo · K keep · R remove · H pan · 0 fit · + and − zoom')),
     about: () => SlopUI.alert('SlopIsolate', 'Background removal that runs entirely on this device. Nothing is uploaded, and exports never carry a watermark.'),
   };
@@ -97,8 +102,8 @@
     return rows.map((r) => Object.assign(r, { disabled: !done() }));
   }
   function moreItems() {
-    const now = document.documentElement.dataset.theme || 'pro';
-    const out = [{ label: 'Theme', sub: THEMES.map(([v, l]) => ({ label: l, check: now === v, act: () => act.theme(v) })) }];
+    const now = window.SlopTheme ? SlopTheme.get() : 'dark';
+    const out = [{ label: 'Theme', sub: THEMES.map(([v, l, s]) => ({ label: l, check: now === s, act: () => act.theme(v) })) }];
     if (hub()) {
       const sub = sendItems(); if (sub.length) out.push({ label: 'Send to', sub });
       if (cur() && cur().request) out.push({ label: 'Send mask back to PhotoSlop', act: () => CO.send.mask(), disabled: !done() });

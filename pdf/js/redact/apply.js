@@ -97,6 +97,7 @@
     if (k) {
       out.setProducer('Slop PDF · slopographic.com/pdf');
       file = await E.registerPdf(await out.save({ useObjectStreams: true }), 'Redacted pages.pdf', null);
+      file.noLog = true; // generated: its bytes cannot be replayed
     }
     E.commit('Apply redactions', function (st) {
       st.pages.forEach(function (p) {

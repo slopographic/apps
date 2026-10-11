@@ -57,6 +57,20 @@ body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 
 .em-att-name { overflow-wrap: anywhere; }
 .em-att-meta { color: color-mix(in srgb, var(--sl-text) 62%, transparent); font-size: 12px; }
 .em-att-save { flex: 0 0 auto; }
+button.em-att-info { flex: 1 1 auto; align-items: flex-start; text-align: left; margin: -2px -4px; padding: 2px 4px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; cursor: pointer; }
+button.em-att-info:hover { background: color-mix(in srgb, var(--sl-text) 6%, transparent); }
+button.em-att-info:focus-visible { outline: 2px solid var(--sl-accent); outline-offset: 2px; }
+
+/* Attachment preview (eml/js/preview.js): a modal with the file in a sandboxed frame or a block */
+.sui-dlg.em-prev-dlg { width: min(960px, 94vw); max-width: 94vw; }
+.sui-dlg.em-prev-dlg .sui-title { overflow-wrap: anywhere; }
+.em-prev { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.em-prev-meta { margin: 0; font-size: 12px; color: color-mix(in srgb, var(--sl-text) 62%, transparent); overflow-wrap: anywhere; }
+.em-prev-body { display: flex; flex-direction: column; min-width: 0; }
+.em-prev-frame { width: 100%; height: min(70vh, 640px); min-height: 280px; border: 1px solid var(--sl-border); border-radius: 8px; }
+.em-prev-pre { min-height: 0; height: min(70vh, 640px); }
+.em-prev-sheet { min-width: 0; max-height: min(70vh, 640px); overflow: auto; }
+.em-prev-note { margin: 0; color: color-mix(in srgb, var(--sl-text) 72%, transparent); }
 
 /* Convert to PDF dialog */
 .em-pdfdlg { display: flex; flex-direction: column; gap: 12px; }

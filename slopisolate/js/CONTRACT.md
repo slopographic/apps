@@ -89,7 +89,7 @@ external requests, no attribution text anywhere. Load order is in `slopisolate/i
 - `ui/menus.js` → `CO.menus.init()`: fills `#menus` with File (Open…, Sample image, Export…, Export all…), Edit
   (Undo, Redo, Clear brush edits), View (Result, Before/after, Mask, Fit, Zoom in, Zoom out), Help (keyboard shortcuts)
   as buttons that open `SlopUI.menu(items, x, y)`. Also `#btnMore` opens a menu with Theme choice (pro, light, classic:
-  set `data-theme` on documentElement and `localStorage` key via CO.util.store.set('theme', v)), Send to (skip if no hub),
+  save it with `SlopTheme.set` (shared/theme/theme.js), which paints `data-slop-theme` and the --sl-* tokens), Send to (skip if no hub),
   and About. Binds `#btnUndo`, `#btnRedo` (disabled state from CO.history.can), `#btnDownload`, `#btnPanel`
   (toggles `.no-panel`/hidden on `#props`), `#emptyOpen`, `#emptySample`.
 - `ui/commands.js` → `CO.commands.init()`: registers every action with `window.SlopCmd` (guard

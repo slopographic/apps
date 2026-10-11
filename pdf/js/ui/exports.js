@@ -123,6 +123,7 @@
         prog(0.8);
         if (io.add && E.state.pages.length) {
           var f = await E.registerPdf(pdf, (items.length === 1 ? U.baseName(items[0].name) : 'Images (' + items.length + ')') + '.pdf', null);
+          f.noLog = true; // generated from images
           var pages = E.pagesForFile(f);
           E.commit('Add images', function (st) { E.ops.insert(st, st.pages.length, pages); });
           A.announce('Added ' + pages.length + ' image page' + (pages.length === 1 ? '' : 's'));
