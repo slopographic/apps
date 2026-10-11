@@ -210,6 +210,24 @@
       expect(SE.doc.random.tpl).toBe(null);
       expect(SE.doc.clips.every((c) => c.kind === 'image')).toBe(true);
     });
+    it('the same seed rebuilds the same edit; a template lays cuts across its slots', async () => {
+      await ST.reset();
+      const SE = ST.SE, W = SE.doc.w;
+      await importStills(4);
+      const cuts = () => SE.doc.clips.map((c) => [c.track, c.media, c.start, c.dur, c.in].join('|')).join(';');
+      SE.act.randomEdit({ target: 12, pace: 'fast', seed: 5 });
+      const first = cuts();
+      SE.act.randomEdit({ target: 12, pace: 'fast', seed: 5 });
+      expect(cuts()).toBe(first);
+      SE.act.randomEdit({ target: 12, pace: 'medium', seed: 6, tpl: 'split-h' });
+      const v1 = SE.doc.clips.filter((c) => c.track === ST.M.videoTracks(SE.doc)[0].id);
+      const v2 = SE.doc.clips.filter((c) => c.track === ST.M.videoTracks(SE.doc)[1].id);
+      expect(v1.length).toBe(v2.length);
+      expect(v1.every((c) => Math.abs(c.x + W / 4) < 1)).toBe(true);
+      expect(v2.every((c) => Math.abs(c.x - W / 4) < 1 && Math.abs(c.scale - 0.5) < 1e-3)).toBe(true);
+      expect(SE.doc.random.tpl).toBe('split-h');
+      expect(SE.doc.layout).toBe(null);
+    });
     it('the templates panel opens from the keyboard and the menu', async () => {
       await ST.reset();
       const win = ST.win, doc = win.document, SE = ST.SE;

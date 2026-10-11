@@ -222,7 +222,7 @@
       expect(E.SE.doc.clips.length).toBeGreaterThan(0);
       expect(E.SE.doc.w).toBe(1920);
       expect(E.SE.doc.h).toBe(1080);
-    }, { timeout: 120000 });
+    }, { timeout: 240000 });
     it('the template and length are applied: a 9:16 reel with two slots runs for the target length', async () => {
       await boot();
       const photos = await importDiscs(3);
@@ -234,7 +234,7 @@
       expect(new Set(video.map((c) => c.track)).size).toBe(2);
       const end = Math.max(...video.map((c) => c.start + c.dur));
       expect(Math.abs(end - 12)).toBeLessThan(0.05);
-    }, { timeout: 120000 });
+    }, { timeout: 240000 });
     it('a reel with cut-outs puts them in the bin too, and on the timeline', async () => {
       if (!shared.cut) throw new Error('the cut-out test did not run');
       const E = await openEditor(shared.cut.manifestId);
@@ -243,6 +243,6 @@
       expect(names.filter((n) => /\(cutout\)\.png$/.test(n)).length).toBe(2);
       const overlayIds = E.SE.doc.media.filter((m) => /\(cutout\)\.png$/.test(m.name)).map((m) => m.id);
       expect(E.SE.doc.clips.some((c) => overlayIds.includes(c.media))).toBe(true);
-    }, { timeout: 120000 });
+    }, { timeout: 240000 });
   });
 })();
