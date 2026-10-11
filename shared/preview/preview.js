@@ -137,6 +137,9 @@
     };
     stage.addEventListener('pointerup', (e) => release(e, false));
     stage.addEventListener('pointercancel', (e) => release(e, true));
+    // A press on the picture belongs to the viewer: a host's selection, marquee or click-to-clear handlers do not see it.
+    stage.addEventListener('pointerdown', (e) => e.stopPropagation());
+    stage.addEventListener('click', (e) => e.stopPropagation());
     /** Two taps close together: fit → 2× around the tap, otherwise back to fit. */
     function tapped(at) {
       const p = tap;

@@ -108,7 +108,9 @@ function classicContextTests({ describe, it, expect, waitFor }) {
     it('loads Slop Paint Classic', async () => {
       f = document.createElement('iframe'); f.style.cssText = 'width:900px;height:700px;border:0'; f.src = '../../photoslop/classic/index.html';
       document.body.append(f); w = f.contentWindow;
-      await waitFor(() => w.slopPaint && w.slopPaint.cmd && w.SlopUI && w.document.querySelector('#palette .sw'), { timeout: 20000 });
+      // Wait for 'load', not just for paint.js's state: ctx.js is a later script, and under load it can still be
+      // unloaded when the palette exists, so a right-click would find no menu listeners yet.
+      await waitFor(() => w.document.readyState === 'complete' && w.slopPaint && w.slopPaint.cmd && w.SlopUI && w.document.querySelector('#palette .sw'), { timeout: 20000 });
     }, { timeout: 30000 });
     it('right-clicking a palette swatch opens its menu, and Set as Primary Color sets it', () => {
       const cmd = w.slopPaint.cmd, sw = w.document.querySelectorAll('#palette .sw')[3];
