@@ -42,15 +42,19 @@
     try { if (window.SlopHub) SlopHub.register('docs'); } catch (e) { console.warn('Slop Docs: hub register failed', e); }
     wireChrome();
     fitZoom();
-    let opened = false;
-    try {
-      const launch = window.SlopHub ? await SlopHub.consumeLaunch() : null;
-      if (launch) opened = !!(await S.openRecord(launch, { silent: true }).then(() => true, (e) => { if (window.SlopUI) SlopUI.toast('Could not open: ' + e.message); return false; }));
-    } catch (e) { console.warn('Slop Docs: launch failed', e); }
-    if (!opened) {
-      let restored = false;
-      try { restored = await S.restorePlace(); } catch (e) { restored = false; } // ui/view-state.js: the last document, else the untitled draft
-      if (!restored) S.setDoc(window.SlopDocEngine.M.newDoc(), { file: { id: null, name: 'Untitled document', dirty: false } });
+    // The open tabs come back first (ui/tabs.js and shared/doctabs/session.js); a blank tab opens when none were stored.
+    const session = S.mountTabs();
+    try { await session.restore(); } catch (e) { console.warn('Slop Docs: restore failed', e); }
+    if (!S.tabsApi().current()) S.newDoc();
+    let launch = null;
+    try { launch = window.SlopHub ? await SlopHub.consumeLaunch() : null; } catch (e) { console.warn('Slop Docs: launch failed', e); }
+    if (launch) {
+      // A launch from Slop Drive opens its document in a new tab, and an untouched blank tab it replaces is closed.
+      const blank = S.isPristine(S.tabsApi().current()) ? S.tabsApi().current() : null;
+      try { await S.openRecord(launch, { silent: true }); } catch (e) { if (window.SlopUI) SlopUI.toast('Could not open: ' + e.message); }
+      if (blank && S.tabsApi().current() !== blank) await S.tabsApi().close(blank);
+    } else {
+      try { await S.restorePlace(); } catch (e) { /* the caret and zoom are optional */ }
     }
     S.focusIme();
     S.ready = true;
