@@ -15,5 +15,6 @@ export function restoreAll() {
 /** Remember an element's exact style attribute so it can be put back. */
 export function keepStyle(el) {
   const had = el.hasAttribute('style'), v = el.getAttribute('style');
-  record(() => (had ? el.setAttribute('style', v) : el.removeAttribute('style')));
+  (window.__ks = window.__ks || []).push((el.dataset.id || el.tagName) + ' snap had=' + had + ' ' + String(v).slice(0, 30) + ' ' + new Error().stack.split('\n')[2].trim());
+  record(() => { (had ? el.setAttribute('style', v) : el.removeAttribute('style')); window.__ks.push((el.dataset.id || el.tagName) + ' undo had=' + had + ' now=' + el.getAttribute('style')); });
 }
