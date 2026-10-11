@@ -5,6 +5,9 @@
   const APPS = window.SLOP_APPS || [];
   const STATUS = { live: 'Live', beta: 'Beta', building: 'In development' };
   const ICONS = {
+    page: '<path d="M12 6h17l9 9v27H12z"/><path d="M29 6v9h9M17 22h14M17 27h14M17 32h10"/>',
+    grid: '<rect x="6" y="8" width="36" height="32" rx="2"/><path d="M6 17h36M6 26h36M6 33h36M17 8v32M29 8v32"/>',
+    slides: '<rect x="6" y="8" width="36" height="24" rx="2"/><path d="M24 32v8M16 42h16M13 16h14M13 22h20"/>',
     folder: '<path d="M6 12h13l4 5h19v21H6z"/><path d="M6 20h36"/>',
     spark: '<path d="M24 6l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/><path d="M38 6v6M35 9h6"/>',
     film: '<rect x="6" y="10" width="36" height="28" rx="3"/><path d="M6 17h36M6 31h36M13 10v7M21 10v7M29 10v7M37 10v7M13 31v7M21 31v7M29 31v7M37 31v7"/><path d="m21 21 7 3-7 3z"/>',

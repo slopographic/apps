@@ -32,6 +32,21 @@
       accepts: ['text/*', 'image/*'],
       features: ['Local models via WebGPU, works offline', 'System check: what can your PC run?', 'Drives every Slopographic app', 'Builds mini-apps for you'],
       shot: 'assets/shots/ai.jpg', icon: 'spark', status: 'building' }),
+    A('docs', 'app', 'Slop Docs', 'docs/', 'Word and Google Docs, rebuilt for the browser.', {
+      accepts: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.oasis.opendocument.text', 'text/markdown', 'text/plain', 'text/html'],
+      creates: [{ label: 'Document', ext: 'sdoc', mime: 'application/x-slop-doc' }],
+      features: ['Real pages, headers & footers', 'Opens & saves DOCX and ODT', 'PDF that matches what you see', 'Offline .html'],
+      shot: 'assets/shots/docs.jpg', icon: 'page', status: 'building' }),
+    A('tables', 'app', 'Slop Tables', 'tables/', 'Excel and Google Sheets, rebuilt for the browser.', {
+      accepts: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'text/tab-separated-values'],
+      creates: [{ label: 'Spreadsheet', ext: 'stab', mime: 'application/x-slop-table' }],
+      features: ['400+ formulas, charts & pivots', 'Opens & saves XLSX, ODS and CSV', 'Print to PDF with page setup', 'Offline .html'],
+      shot: 'assets/shots/tables.jpg', icon: 'grid', status: 'building' }),
+    A('slides', 'app', 'Slop Slides', 'slides/', 'Keynote and PowerPoint, rebuilt for the browser.', {
+      accepts: ['application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation', 'image/*'],
+      creates: [{ label: 'Presentation', ext: 'sslide', mime: 'application/x-slop-slides' }],
+      features: ['Themes, layouts & Magic Move', 'Opens & saves PPTX and ODP', 'Presenter view & PDF export', 'Offline .html'],
+      shot: 'assets/shots/slides.jpg', icon: 'slides', status: 'building' }),
     A('press', 'app', 'Slop Press', 'press/', 'InDesign, rebuilt for the browser.', {
       accepts: ['image/*', 'application/pdf', 'text/plain'],
       features: ['Master pages & threaded text frames', 'Paragraph & character styles', 'Print-ready PDF export', 'Offline .html'],
