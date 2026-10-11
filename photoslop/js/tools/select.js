@@ -226,6 +226,3 @@ defTool({ id: 'crop', name: 'Crop Tool', key: 'C', icon: ICON('M6 2v16h16M2 6h16
     g.font = '11px "JetBrains Mono", monospace'; g.fillStyle = '#fff'; g.fillText(`${Math.round(r.w)} × ${Math.round(r.h)} px · Enter to crop`, a.x + 4, a.y - 8);
   },
 });
-defTool({ id: 'eyedropper', name: 'Eyedropper Tool', key: 'I', icon: ICON('M19 5a2.8 2.8 0 0 0-4 0l-2 2-1-1-2 2 1 1-7 7v4h4l7-7 1 1 2-2-1-1 2-2a2.8 2.8 0 0 0 0-4z'),
-  down(p, e) { this.pick(p, e); }, move(p, e) { this.pick(p, e); },
-  pick(p, e) { const c = pickColor(p, T.eyedrop.all, T.eyedrop.size); if (c) setColor(e.altKey ? 'bg' : 'fg', c); } });

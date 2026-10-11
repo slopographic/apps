@@ -99,7 +99,8 @@ function textItems(L) { activateLayer(L); return [M('Layer', 'Edit Text'), M('La
 
 /* ---------- swatches, panels, document tabs ---------- */
 function swatchItems(c, custom) {
-  return [{ label: 'Set as Foreground', act: () => setColor('fg', c) }, { label: 'Set as Background', act: () => setColor('bg', c) },
+  return [{ label: 'Edit Colour…', act: () => { setColor('fg', c); editSwatch('fg'); } },
+    { label: 'Set as Foreground', act: () => setColor('fg', c) }, { label: 'Set as Background', act: () => setColor('bg', c) },
     custom ? '-' : null, custom ? { label: 'Remove Swatch', act: () => removeSwatch(c) } : null];
 }
 function panelItems(p) {

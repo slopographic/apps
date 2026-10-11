@@ -41,7 +41,8 @@
   }
   /** The menu item at group › label (searching submenus). */
   function menuItem(group, label) {
-    const find = (list) => list.reduce((a, it) => a || (it && it.label === label ? it : it && it.sub ? find(it.sub) : null), null);
+    // Separators are the string '-', so only objects are checked (a string's .sub is String.prototype.sub).
+    const find = (list) => list.reduce((a, it) => a || (it && typeof it === 'object' ? (it.label === label ? it : it.sub ? find(it.sub) : null) : null), null);
     return find(W.MENUS.find(([n]) => n === group)[1]);
   }
   /** Dialog helpers: the newest SlopUI dialog. */

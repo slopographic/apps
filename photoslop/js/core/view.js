@@ -204,6 +204,7 @@ function onPointerDown(e) {
   const t = currentTool();
   const p = snapP(toDoc(e), t);
   V.cursor = p;
+  if (eyeAltSample(t, p, e)) { e.preventDefault(); return; } // Alt on a painting tool samples the colour and never paints
   // Shift-drag with a brush: left/right = size, up/down = hardness (with Alt: opacity).
   // A Shift-click without dragging still draws a straight line from the last point.
   const bo = typeof BRUSH_OPTS === 'function' && BRUSH_OPTS()[t.id];

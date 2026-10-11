@@ -133,6 +133,10 @@
   PANEL_IDS.forEach(function (p) { act('window.' + p, PANEL_NAMES[p], [], function () { showPanel(p); }, { checked: function () { return isPanelVisible(p); } }); });
   act('window.togglePanels', 'Show/Hide Panels', [], function () { togglePanels(); }, { keyText: 'Tab', checked: function () { return S.prefs.panels; } });
   act('window.reset', 'Reset Workspace', [], function () { S.prefs.panels = true; UI.st.activeTabs = { a: 'properties', c: 'swatches' }; UI.st.collapsed = {}; savePrefs(); applyDock(); });
+  // The colour picker, opened from the fill or stroke chip in the toolbar (the popover is anchored there).
+  function editChip(which) { var el = document.querySelector('.fs.' + which); if (el) { S.focus = which; UI.editPaint(which, el); } }
+  act('window.fillColor', 'Fill Colour…', [], function () { editChip('fill'); });
+  act('window.strokeColor', 'Stroke Colour…', [], function () { editChip('stroke'); });
 
   act('help.shortcuts', 'Keyboard Shortcuts', ['mod+/'], function () { shortcutsDialog(); }, { keyText: 'F1' });
   act('help.about', 'About Slop Vector', [], function () { aboutDialog(); });

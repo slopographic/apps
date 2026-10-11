@@ -38,7 +38,7 @@
     addAnchor: 'Click a path segment to add an anchor', deleteAnchor: 'Click an anchor to remove it',
     convertAnchor: 'Click an anchor to make it a corner · drag to pull out smooth handles',
     type: 'Click to place text · click existing text to edit · Esc to finish',
-    eyedropper: 'Click an object to sample its appearance onto the selection',
+    eyedropper: 'Click an object to sample its colour into the fill (Alt: stroke; Shift: copy its whole appearance)',
     hand: 'Drag to pan (or hold Space with any tool)', zoom: 'Click to zoom in · Alt-click to zoom out · drag to zoom to an area',
     scissors: 'Click on a path to cut it', gradient: 'Drag across the selected object to set the gradient direction',
     rotate: 'Drag to rotate around the origin · click to move the origin · Alt-click for exact angle',

@@ -120,6 +120,9 @@ function windowMenuItems() {
     '-',
     { label: 'Guides', check: () => !!SlopGuides.panel, act: () => openGuidesPanel() },
     '-',
+    { label: 'Foreground Colour…', act: () => editSwatch('fg') },
+    { label: 'Background Colour…', act: () => editSwatch('bg') },
+    '-',
     ...DOCS.map((rec, i) => ({ label: `${i + 1}  ${docName(rec)}`, check: () => rec === CUR, act: () => switchToDoc(rec), key: i < 9 ? `Alt+${i + 1}` : undefined })),
   ];
 }

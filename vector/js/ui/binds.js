@@ -86,11 +86,13 @@
     tb.appendChild(grid);
     // fill / stroke widget
     var fs = h('div', { class: 'fswidget', 'aria-label': 'Fill and stroke' });
-    var fillB = h('button', { type: 'button', class: 'fs fill', title: 'Fill (X to toggle focus, double-click to edit)', 'aria-label': 'Fill' }, [h('span', { class: 'chip-in' })]);
-    var strokeB = h('button', { type: 'button', class: 'fs stroke', title: 'Stroke (X to toggle focus, double-click to edit)', 'aria-label': 'Stroke' }, [h('span', { class: 'chip-in' }), h('span', { class: 'hole' })]);
+    var fillB = h('button', { type: 'button', class: 'fs fill', title: 'Fill (click, then click again to edit; right-click to edit)', 'aria-label': 'Fill' }, [h('span', { class: 'chip-in' })]);
+    var strokeB = h('button', { type: 'button', class: 'fs stroke', title: 'Stroke (click, then click again to edit; right-click to edit)', 'aria-label': 'Stroke' }, [h('span', { class: 'chip-in' }), h('span', { class: 'hole' })]);
     function fsClick(which, el) { return function () { if (S.focus === which) editPaint(which, el); else { S.focus = which; SV.requestRender(true); } }; }
     fillB.addEventListener('click', fsClick('fill', fillB));
     strokeB.addEventListener('click', fsClick('stroke', strokeB));
+    fillB.addEventListener('contextmenu', function (e) { e.preventDefault(); S.focus = 'fill'; editPaint('fill', fillB); });
+    strokeB.addEventListener('contextmenu', function (e) { e.preventDefault(); S.focus = 'stroke'; editPaint('stroke', strokeB); });
     var swapB = h('button', { type: 'button', class: 'fs-mini swapb', title: 'Swap Fill and Stroke (Shift+X)', 'aria-label': 'Swap fill and stroke', html: '<svg viewBox="0 0 16 16"><path d="M3 5h7a3 3 0 0 1 3 3v5M11 11l2 2 2-2M5 3L3 5l2 2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>', onclick: function () { SV.swapFillStroke(); } });
     var defB = h('button', { type: 'button', class: 'fs-mini defb', title: 'Default Fill and Stroke (D)', 'aria-label': 'Default fill and stroke', html: '<svg viewBox="0 0 16 16"><rect x="1.5" y="1.5" width="7" height="7" fill="#fff" stroke="#000"/><rect x="5.5" y="5.5" width="7" height="7" fill="none" stroke="#000" stroke-width="2"/></svg>', onclick: function () { SV.defaultFillStroke(); } });
     fs.appendChild(h('div', { class: 'fs-stack' }, [strokeB, fillB, swapB, defB]));
