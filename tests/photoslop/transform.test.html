@@ -203,6 +203,76 @@
       key('ArrowRight', { shiftKey: true }); expect(W.activeLayer().x).toBe(x0 + 11);
     });
 
+    it('the Move tool shows the layer box with eight handles and a rotate knob on the canvas, hidden under painting tools', () => {
+      scene('Box', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      const pts = W.idleBoxPoints();
+      expect(pts.length).toBe(9);
+      W.draw();
+      const ctx = W.V.canvas.getContext('2d', { willReadFrequently: true });
+      // Sampled 2 px in from each centre, clear of the rotate knob's stem and the box outline.
+      for (const q of pts) expect([...ctx.getImageData(Math.round(q.x + 2), Math.round(q.y + 2), 1, 1).data]).toEqual([255, 255, 255, 255]);
+      W.selectTool('brush');
+      expect(W.idleBoxPoints().length).toBe(0);
+      W.selectTool('move');
+      expect(W.idleBoxPoints().length).toBe(9);
+    });
+
+    it('double-click inside the box starts Free Transform, and a double-click outside it does not', () => {
+      const L = scene('Dbl', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      const b = W.layerBoundsDoc(L), inside = scr(b.x + b.w / 2, b.y + b.h / 2);
+      ptr('pointerdown', inside.x, inside.y); ptr('pointerup', inside.x, inside.y);
+      W.V.el.dispatchEvent(new win.MouseEvent('dblclick', { clientX: inside.x, clientY: inside.y, bubbles: true }));
+      expect(W.TRANSFORM.active).toBe(true);
+      key('Escape');
+      expect(W.TRANSFORM.active).toBe(false);
+      const out = scr(2, 2);
+      W.V.el.dispatchEvent(new win.MouseEvent('dblclick', { clientX: out.x, clientY: out.y, bubbles: true }));
+      expect(W.TRANSFORM.active).toBe(false);
+    });
+
+    it('dragging a box handle with the Move tool runs Free Transform, and Enter applies it in one step', () => {
+      const L = scene('Handle', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      const b = W.layerBoundsDoc(L), hist = W.Hist.idx;
+      drag([[b.x + b.w, b.y + b.h], [b.x + b.w * 0.75, b.y + b.h * 0.75], [b.x + b.w / 2, b.y + b.h / 2]]);
+      expect(W.TRANSFORM.active).toBe(true);
+      expect(W.TRANSFORM.sx).toBeCloseTo(0.5, 1);
+      key('Enter');
+      expect(W.TRANSFORM.active).toBe(false);
+      expect(W.Hist.idx).toBe(hist + 1);
+      expect(W.Hist.states[W.Hist.idx].label).toBe('Free Transform');
+      expect(Math.abs(W.layerBoundsDoc(W.activeLayer()).w - 20)).toBeLessThanOrEqual(1);
+    });
+
+    it('the Move options W field changes the layer width, and one undo restores it', () => {
+      scene('Width', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      const field = [...win.document.querySelectorAll('#options input')].find((i) => i.getAttribute('aria-label') === 'W');
+      expect(field.value).toBe('40');
+      const before = W.Hist.idx, x0 = W.layerBoundsDoc(W.activeLayer()).x, data = bytes(W.activeLayer().canvas);
+      setVal(field, 80);
+      expect(W.Hist.idx).toBe(before + 1);
+      expect(W.Hist.states[W.Hist.idx].label).toBe('Free Transform');
+      const nb = W.layerBoundsDoc(W.activeLayer());
+      expect(Math.abs(nb.w - 80)).toBeLessThanOrEqual(1);
+      expect(Math.abs(nb.x - x0)).toBeLessThanOrEqual(1);
+      W.undo();
+      expect(W.Hist.idx).toBe(before);
+      expect(bytes(W.activeLayer().canvas)).toEqual(data);
+    });
+
+    it('the Layers row button starts Free Transform, and the layer menu begins with it', () => {
+      scene('Row', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      const btn = win.document.querySelector('.layers li.active .lp-xf');
+      expect(btn).not.toBe(null);
+      btn.click();
+      expect(W.TRANSFORM.active).toBe(true);
+      key('Escape');
+      expect(W.layerItems(W.activeLayer())[0].label).toBe('Free Transform');
+    });
+
     it('every new transform item is a command, and the layer menu offers the transform items', () => {
       for (const [g, l] of [['Image', 'Rotate 90° Clockwise'], ['Image', 'Flip Vertical'], ['Image', 'Image Size…'], ['Image', 'Canvas Size…'], ['Layer', 'Rotate 180°'], ['Layer', 'Flip Vertical']]) {
         expect(menuItem(g, l).cmdId).toMatch(/^ps\./);
