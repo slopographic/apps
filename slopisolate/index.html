@@ -48,6 +48,7 @@
       </div>
       <span class="tb-flex"></span>
       <span class="local-badge" title="The AI runs on this device. Nothing is uploaded, and exports never carry a watermark."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>On-device AI · no watermarks</span></span>
+      <button type="button" class="btn primary dl" id="btnSendBack" hidden disabled></button>
       <button type="button" class="btn primary dl" id="btnDownload" disabled></button>
       <button type="button" class="tb" id="btnPanel" aria-label="Toggle settings panel" aria-expanded="true" title="Settings panel"></button>
       <button type="button" class="tb" id="btnMore" aria-label="More menu" title="Menu"></button>
@@ -104,6 +105,7 @@
   <script src="../shared/cutout/pipeline.js"></script>
   <script src="../shared/cutout/models.js"></script>
   <script src="../shared/cutout/cutout.js"></script>
+  <script src="../shared/cutout/mask-transfer.js"></script>
   <script src="js/core/util.js"></script>
   <script src="js/core/state.js"></script>
   <script src="js/core/brush.js"></script>
@@ -115,6 +117,7 @@
   <script src="js/io/files.js"></script>
   <script src="js/io/sample.js"></script>
   <script src="js/io/export.js"></script>
+  <script src="js/io/send.js"></script>
   <script src="js/ui/kit.js"></script>
   <script src="js/ui/panel.js"></script>
   <script src="js/ui/panel-look.js"></script>

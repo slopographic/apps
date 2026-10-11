@@ -6,10 +6,10 @@
 /** Copies the selection (or the merged image) to the buffer as a PNG. The internal clipboard gets it too. */
 function copyToBuffer(merged) {
   if (!activeLayer()) return;
-  const r = copySelectionPixels(merged);
-  CLIP.canvas = r.canvas; CLIP.x = r.x; CLIP.y = r.y; CLIP.t = Date.now();
+  const r = copySelectionPixels(merged), stamp = Date.now(); // one stamp: the buffer and the local clipboard agree
+  CLIP.canvas = r.canvas; CLIP.x = r.x; CLIP.y = r.y; CLIP.t = stamp;
   canvasToBlob(r.canvas)
-    .then((blob) => SlopBuffer.put({ kind: 'image', formats: { 'image/png': blob }, source: 'photoslop' }))
+    .then((blob) => SlopBuffer.put({ kind: 'image', formats: { 'image/png': blob }, source: 'photoslop', t: stamp }))
     .then(() => toast(merged ? 'Merged copy in the buffer' : 'Copied to the buffer'), () => toast('Could not copy to the buffer', 4200));
 }
 

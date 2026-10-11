@@ -59,6 +59,16 @@
     return value;
   }
 
+  /** Refuses a key on a property the layer cannot take: an effect that is missing, or a colour parameter. */
+  function checkKeyable(doc, layerId, prop) {
+    const fx = /^fx\.(e[0-9]+)\.([a-z]+)$/.exec(prop);
+    if (!fx) return;
+    const layer = doc.layers.find((l) => l.id === layerId);
+    const eff = layer && layer.effects.find((f) => f.id === fx[1]);
+    const def = eff && D().EFFECTS[eff.kind].params[fx[2]];
+    if (!def || def.type === 'colour') throw new RangeError(`cannot key ${prop}`);
+  }
+
   /** Checks an ease: a name the engine knows, or [x1, y1, x2, y2] with x in [0, 1]. */
   function checkEase(ease) {
     const e = ease === undefined || ease === null ? 'linear' : ease;
@@ -78,6 +88,7 @@
   function setKeyAt(doc, layerId, prop, t, value, ease) {
     const next = C().clone(doc);
     const v = checkValue(prop, value);
+    checkKeyable(next, layerId, prop);
     const at = clampTime(next, t);
     const keys = keysOf(next, layerId, prop);
     const old = keys.find((k) => Math.abs(k.t - at) < TOL);
@@ -183,6 +194,7 @@
     for (const it of p.items) {
       const fx = /^fx\.(e[0-9]+)\./.exec(it.prop);
       if (fx && !layer.effects.some((f) => f.id === fx[1])) { skipped += it.keys.length; continue; }
+      checkKeyable(next, layerId, it.prop);
       let keys = keysOf(next, layerId, it.prop);
       for (const k of it.keys) {
         const at = t + k.dt;

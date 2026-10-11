@@ -57,7 +57,7 @@
     slots.replaceChildren(...beat.map((x) => new Option('Slot ' + (x.slot + 1), String(x.slot))));
     if (cur) slots.value = String(cur.item.slot);
     const on = !!cur;
-    ['rm-kslot', 'rm-kease', 'rm-kadd', 'rm-kdel', 'rm-kpreset', 'rm-kanim', 'rm-kreset'].forEach((id) => { $(id).disabled = !on; });
+    ['rm-kslot', 'rm-kease', 'rm-kadd', 'rm-kdel', 'rm-kpreset', 'rm-kanim', 'rm-kreset', 'rm-ksave'].forEach((id) => { $(id).disabled = !on; });
     $('rm-ktrack').classList.toggle('off', !on);
     if (!on) { $('rm-ktrack').replaceChildren(); $('rm-kinfo').textContent = plan ? 'The playhead is outside the cuts.' : 'Press Remix to plan the reel, then add keys.'; return; }
     markers(cur);
@@ -96,7 +96,22 @@
     $('rm-fx').replaceChildren(...fxList);
     $('rm-fxchange').replaceChildren(...FX.CHANGE.map(([v, l]) => new Option(l, v)));
     $('rm-kease').replaceChildren(...KF.EASES.map(([v, l]) => new Option(l, v)));
-    $('rm-kpreset').replaceChildren(...KF.ANIMATE.map(([v, l]) => new Option(l, v)));
+    /* Animate in choices: the shared motion library when it is on the page (refreshed when presets change), else the built-ins. */
+    const presetOptions = () => (window.SlopPresets ? SlopPresets.list({ kind: 'motion', app: 'remix' }).map((p) => new Option(p.label, p.id)) : KF.ANIMATE.map(([v, l]) => new Option(l, v)));
+    const fillPresets = () => $('rm-kpreset').replaceChildren(...presetOptions());
+    fillPresets();
+    window.addEventListener('slop-presets:change', fillPresets);
+    if (window.SlopPresets) SlopPresets.useDrive().catch(() => null);
+    const saveKeys = document.createElement('button');
+    saveKeys.type = 'button'; saveKeys.id = 'rm-ksave'; saveKeys.className = 'rm-btn';
+    saveKeys.title = "Save this slot's keys as a motion preset (works in Slides and Slop Cut too)";
+    saveKeys.textContent = 'Save as preset…';
+    $('rm-kanim').after(saveKeys);
+    saveKeys.addEventListener('click', () => {
+      if (!window.SlopPresets) return;
+      const cur = RM.keys.current();
+      SlopPresets.openSave({ app: 'remix', apps: SlopPresets.MOTION_APPS, kinds: ['motion'], title: 'Save slot motion as preset', build: () => (cur ? RM.keys.motionParams(cur.keys) : null) });
+    });
     $('rm-kslot').addEventListener('change', (e) => { RM.state.kslot = +e.target.value; RM.state.selKey = 0; P.renderKeys(); });
     $('rm-kease').addEventListener('change', (e) => { RM.keys.setEase(RM.state.selKey, e.target.value); P.changed(false); P.renderKeys(); say('Ease: ' + e.target.options[e.target.selectedIndex].text + '.'); });
     $('rm-kadd').addEventListener('click', () => { if (RM.keys.addAtPlayhead()) { P.changed(); say('Key added at the playhead.'); } });

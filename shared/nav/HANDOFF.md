@@ -59,6 +59,9 @@ the host, the middle button, Space, and any key the active preset binds, and sto
 preset therefore wins over the app's own wheel, Space and shortcut handling. Keys it does not bind pass
 through untouched. Typing in an input, or a dialog being open, is never taken.
 
+The `passthrough` option (opt-in, `engine.attach`) leaves a wheel the preset does not bind to the host, so the host
+scrolls natively. Slop PDF uses it: its plain wheel scrolls and Shift+wheel pans sideways.
+
 ## Clashes
 
 `SlopNav.shortcutsFrom({ fit: 'Fit on Screen', ... })` reads the app's commands from SlopCmd by title. The
@@ -69,6 +72,8 @@ it is active. Same-action keys are not clashes (PhotoSlop's Ctrl+0 and the Photo
 
 - PhotoSlop: `photoslop/js/app/nav-adapter.js` (attaches itself; `view.js` is unchanged). Edit ▸ Preferences ▸ Navigation…, command palette "Navigation preset…". Script tags and the stylesheet are in `photoslop/index.html`.
 - SlopVector: `slopvector/js/ui/nav-adapter.js`. Edit ▸ Preferences ▸ Navigation…, and the command palette ("Navigation…", action `edit.nav`).
+- Slop PDF: `pdf/js/editor/view.js` calls `SlopNav.engine.attach` directly with its own fixed bindings (`passthrough: true`,
+  `skip` outside page view), so it does not read the Navigation preset store.
 - Not yet: Slop 3D, Cutout, Gallery viewer, Slides canvas, Label canvas, Press canvas, SlopCut monitor, and Slop Paint Classic. Each needs one adapter file and its script tags.
 
 ## Store API (for the profile page)

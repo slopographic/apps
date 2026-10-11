@@ -44,16 +44,17 @@
   OP.copyToBuffer = function () {
     var objs = A.selObjs(), deck = A.deck;
     if (!objs.length || !SB) { toast('Select a shape or a text box to copy to the buffer'); return; }
+    var stamp = Date.now(); // the buffer item and this app's clipboard share it, so the objects paste back as objects
     A.clip = U.clone(objs);
-    A.clipT = Date.now();
+    A.clipT = stamp;
     if (objs.length === 1 && objs[0].type === 'text') {
       var t = objs[0].text;
-      SB.put({ kind: 'text', formats: { 'text/html': textHtml(t), 'text/plain': O.plain(t) }, source: 'slides' })
+      SB.put({ kind: 'text', formats: { 'text/html': textHtml(t), 'text/plain': O.plain(t) }, source: 'slides', t: stamp })
         .then(function () { toast('Copied the text box to the buffer'); }, function () { toast('Could not copy to the buffer'); });
       return;
     }
     picturePng(deck, objs).then(function (blob) {
-      return SB.put({ kind: 'image', formats: { 'image/png': blob }, source: 'slides' });
+      return SB.put({ kind: 'image', formats: { 'image/png': blob }, source: 'slides', t: stamp });
     }).then(function () { toast('Copied to the buffer'); }, function () { toast('Could not copy to the buffer'); });
   };
 
