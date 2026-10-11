@@ -28,7 +28,7 @@
       for (const t of W.TOOLS) expect(ids.has('ps.tool.' + t.id)).toBe(true);
       expect(ids.has('ps.view-new-guide-layout')).toBe(true);
       expect(ids.has('ps.view-snap')).toBe(true);
-      expect(C.get('ps.file-save-as-photoshop-psd').keys).toEqual(['Mod+S']);
+      expect(C.get('ps.file-save').keys).toEqual(['Mod+S']);
     }, { timeout: 40000 });
 
     it('runs shortcuts through SlopCmd: tools, cycling, menus, canvas keys', () => {

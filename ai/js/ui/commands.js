@@ -17,6 +17,8 @@
       C('exportMd', 'Export chat as Markdown to Slop Drive…', 'Chat', [], () => AI.exportItems()[0].act(), { when: () => !!(AI.chat.conv && AI.chat.conv.messages.length) }),
       C('exportJson', 'Export chat as JSON to Slop Drive…', 'Chat', [], () => AI.exportItems()[1].act(), { when: () => !!(AI.chat.conv && AI.chat.conv.messages.length) }),
       C('import', 'Import a conversation…', 'Chat', [], () => AI.importConv()),
+      C('save', 'Save chat to Slop Drive', 'Chat', ['Mod+S'], () => AI.saveChatToDrive(), { when: () => !!(AI.chat.conv && AI.chat.conv.messages.length) && !!window.SlopHub }),
+      C('openDrive', 'Open a chat from Slop Drive…', 'Chat', [], () => AI.openChatFromDrive(), { when: () => !!window.SlopHub }),
       C('newBuild', 'New mini-app', 'Build', [], () => { AI.setTab('build'); AI.newBuild(); }),
       ...AI.TEMPLATES.map((t) => C('tpl.' + t.id, 'Mini-app template: ' + t.name, 'Build', [], () => { AI.setTab('build'); document.querySelector(`[data-tpl="${t.id}"]`) ? document.querySelector(`[data-tpl="${t.id}"]`).click() : AI.newBuild(); })),
       ...AI.TABS.map(([id, label], i) => C('tab.' + id, 'Go to ' + label, 'Go', ['Alt+' + (i + 1)], () => AI.setTab(id), { checked: () => AI.tab === id })),

@@ -149,6 +149,18 @@
       expect(SV.state.doc.layers[0].children[0].style.fill).toBe('#7a5cff');
       await W.SlopHub.remove(id);
     });
+    it('Save writes back to the Drive file a document was opened from, and a new document unlinks', async () => {
+      const id = await W.SlopHub.put(svgDoc('#123456'), { name: 'Saved back.svg', from: 'test' });
+      await HUB.openRecord(await W.SlopHub.get(id));
+      expect(HUB.linked).toBe(id);
+      SV.state.doc.layers[0].children[0].style.fill = '#abcdef';
+      await HUB.save();
+      const rec = await W.SlopHub.get(id);
+      expect([rec.id, (await rec.blob.text()).includes('#abcdef')]).toEqual([id, true]);
+      SV.loadDoc(SV.sampleDoc(), { fit: false });
+      expect(HUB.linked).toBe(null);
+      await W.SlopHub.remove(id);
+    });
     it('opens a file it was launched with (?drive=<id>) and tidies the URL', async () => {
       const id = await W.SlopHub.put(svgDoc('#00c2b8'), { name: 'Launched.svg', from: 'photoslop' });
       const f = await frameApp('../../vector/index.html?drive=' + id);

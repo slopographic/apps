@@ -40,6 +40,7 @@
     if (SE.player) SE.player.pause();
     SE.media.clear();
     SE.setDoc(M.newProject());
+    SE.project.driveId = null;
     if (SE.player) SE.player.seek(0);
     SE.app.select([]);
     await S.save();
@@ -51,7 +52,9 @@
     if (!window.SlopHub || SE.offline) return false;
     const rec = await SlopHub.consumeLaunch();
     if (!rec) return false;
-    await SE.app.importFiles([new File([rec.blob], rec.name, { type: rec.type })], { from: 'drive' });
+    const f = new File([rec.blob], rec.name, { type: rec.type });
+    if (/\.slopedit$/i.test(rec.name || '')) await SE.project.openFile(f, rec.id);
+    else await SE.app.importFiles([f], { from: 'drive' });
     SlopUI.toast('Opened ' + rec.name + ' from Slop Drive');
     return true;
   };

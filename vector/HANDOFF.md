@@ -62,3 +62,8 @@ These were asked for together with the PhotoSLOP layer work; none of the Vector 
 - The phone menubar is wider than 390 px; the last menus scroll horizontally inside the bar.
 - Google Fonts are linked as in the other apps; the offline build strips them and falls back to system fonts.
 - Ideas: ArrowRight to open SlopUI submenus (that belongs in shared), and a touch-friendly long-press context menu.
+
+## Slop Drive (shared storage)
+
+- **Save (Ctrl+S)** writes the SVG back to the Drive file the document was opened from (`HUB.linked`, via `SlopHub.update`, falling back to `put` with the same id). The first save asks for a folder. Any new document (New, Open, recovery, sample) unlinks. `File ▸ Save As…` still downloads. Without the hub, Save downloads as before.
+- Open/Place from Drive, `?drive=` launch and `register('vector')` as before. Tested in `tests/vector/ui.test.html` ("Save writes back…").

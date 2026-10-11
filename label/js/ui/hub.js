@@ -13,10 +13,31 @@ async function hubBoot() {
   if (!rec) return false;
   const f = driveFile(rec);
   if (/^image\//.test(f.type)) await insertImageFile(f);
-  else if (/\.sloplabel$/i.test(f.name)) await openFiles([f]);
+  else if (/\.sloplabel$/i.test(f.name) || /^application\/json$/.test(f.type)) await openProjectFromDrive(rec);
   else if (/\.(zpl|prn)$/i.test(f.name)) await importZPLText(await f.text(), f.name);
   else await importDataDialog(f);
   return true;
+}
+/** Open a label project from Slop Drive; Save then writes back to this same file. Other JSON goes to openFiles. */
+async function openProjectFromDrive(rec) {
+  const f = driveFile(rec), text = await f.text();
+  if (!/"app"\s*:\s*"sloplabel"/.test(text.slice(0, 400))) return openFiles([f]);
+  if (!(await confirmDiscard())) return;
+  try { setDoc(parseProject(text)); App.driveId = rec.id; status('Opened ' + f.name, '', 2500); }
+  catch (e) { SlopUI.alert('Could not open ' + f.name, e.message || String(e)); }
+}
+async function openProjectDrive() {
+  if (!hubAvailable()) return SlopUI.toast('Slop Drive is not available here');
+  const rec = await SlopHub.pickFromDrive({ accept: ['application/json'], title: 'Open label from Slop Drive' });
+  if (rec) await openProjectFromDrive(rec);
+}
+/** File ▸ Save: writes the project back to the linked Drive file, or asks for a folder the first time. */
+async function saveProjectToDrive() {
+  const name = safeName(App.doc.name, '.sloplabel'), blob = projectBlob(App.doc);
+  if (!App.driveId) { const id = await SlopHub.saveToDrive(blob, name, { from: 'label' }); if (!id) return; App.driveId = id; }
+  else if (!(await SlopHub.update(App.driveId, { blob, name, type: blob.type }))) await SlopHub.put(blob, { id: App.driveId, name, from: 'label' });
+  App.dirty = false;
+  status('Saved ' + name + ' to Slop Drive', '', 2500);
 }
 async function imageFromDrive() {
   if (!hubAvailable()) return SlopUI.toast('Slop Drive is not available here');

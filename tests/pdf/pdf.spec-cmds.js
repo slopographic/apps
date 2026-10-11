@@ -9,9 +9,9 @@
     it('registers tools, page operations and menu actions with default keys', async () => {
       if (!PT.SP) await PT.boot();
       const C = PT.win.SlopCmd, ids = C.list().map((c) => c.id);
-      for (const id of ['file.open', 'file.download', 'edit.undo', 'edit.redo', 'edit.delete', 'pages.rotateRight', 'pages.reverse', 'view.zoomIn', 'tool.text', 'tool.redact', 'panel.redact', 'redact.apply', 'cmd.palette', 'cmd.keymap']) expect(ids).toContain(id);
+      for (const id of ['file.open', 'file.save', 'file.download', 'edit.undo', 'edit.redo', 'edit.delete', 'pages.rotateRight', 'pages.reverse', 'view.zoomIn', 'tool.text', 'tool.redact', 'panel.redact', 'redact.apply', 'cmd.palette', 'cmd.keymap']) expect(ids).toContain(id);
       expect(C.get('tool.text').keys).toEqual(['T']);
-      expect(C.get('file.download').keys).toEqual(['Mod+S']);
+      expect(C.get('file.save').keys).toEqual(['Mod+S']);
       expect(C.app).toBe('pdf');
     });
 

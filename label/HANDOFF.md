@@ -66,3 +66,8 @@ Engine bugs fixed this round: literal U+2028/2029 in an offline.js regex (syntax
 - Text is edited in the Properties panel (double-click or Enter focuses it). There is no on-canvas text editing yet.
 - Rotation is in 90° steps only (thermal printers rotate fonts and barcodes in 90° steps).
 - NiceLabel `.nlbl` import is deliberately skipped.
+
+## Slop Drive (shared storage)
+
+- **Save (Ctrl+S)** writes the `.sloplabel` project back to the Drive file it was opened from (`App.driveId`, cleared by `setDoc`). The first save asks for a folder. `File ▸ Download project (.sloplabel)` downloads; offline and without the hub, Save downloads as before.
+- `File ▸ Open project from Slop Drive…` and `?drive=` launch open JSON/.sloplabel records and link them; `Insert image` and `Data` pickers are unchanged.

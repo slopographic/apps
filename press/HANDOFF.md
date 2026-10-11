@@ -38,3 +38,8 @@ Items: `text | image | rect | ellipse | line | polygon` with `x,y,w,h,rot,fill,s
 - Hyphenation patterns are a compact hand-made set (good, not TeX-complete); add exceptions with `PR.hyphen.addException('ex-am-ple')`.
 - Placing a PDF needs pdf.js (online only; the offline file has no pdf.js). WOFF/WOFF2 fonts cannot be embedded in PDF.
 - Phone layout (≤560 px) is view/edit-lite: tools are reachable from the menus and the command palette.
+
+## Slop Drive (shared storage)
+
+- **Save (Ctrl+S)** writes the `.slpress` back to the Drive file the document came from (`S.driveId`, set by `HB.openRecord` for project files, cleared by `PR.setDoc`). The first save asks for a folder. `File ▸ Save to Slop Drive…` creates a new Drive file and links to it. Save As and offline builds download as before (the offline build strips the hub).
+- Open/Place from Drive, `?drive=` launch and `register('press')` as before.

@@ -30,6 +30,7 @@
       { label: 'Try the sample PDF', act: A.loadSample },
       S.savedSession && !has ? { label: 'Restore last session', act: A.restoreSession } : null,
       '-',
+      window.SlopHub && !SP.offline ? { label: 'Save to Slop Drive', key: A.key('file.save'), act: function () { A.saveToDrive(); }, disabled: !has } : null,
       { label: 'Download PDF', key: A.key('file.download'), act: A.download, disabled: !has },
       { label: 'Download selected pages', act: A.extract, disabled: !O.sel.size },
       { label: 'Extract text…', act: A.extractText, disabled: !has },

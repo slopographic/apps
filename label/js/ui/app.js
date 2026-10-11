@@ -67,7 +67,7 @@ function redo() { const d = App.hist.redo(App.doc); if (d) { restore(d); status(
 function setDoc(doc, label = 'Open') {
   App.doc = normalizeDoc(doc);
   App.hist.reset(App.doc, label);
-  App.sel = []; App.rec = 0; App.prompts = {}; App.dirty = false;
+  App.sel = []; App.rec = 0; App.prompts = {}; App.dirty = false; App.driveId = null; // a new label is no longer linked to a Drive file
   document.title = App.doc.name + ' — SlopLabel';
   rebuildScene();
   if (typeof fitView === 'function') fitView();

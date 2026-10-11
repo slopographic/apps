@@ -96,3 +96,7 @@ snapshots), `bridge-frame.html`, `panel-page.html` (a pretend app with a stub Sl
 - The side panel is ready (`shared/ai/panel.js`) but no app includes it yet: adding the one tag is up to each app.
 - Chat history sent to the model is not trimmed to the context window (4k tokens for most models); very long chats
   will error, and the error shows in the chat. A sliding window would be a good next step.
+
+## Slop Drive (shared storage)
+
+- **Save chat to Slop Drive (Ctrl+S)** writes the conversation JSON (the Import format) back to the Drive file it was opened from (`conv.driveId`, via `SlopHub.update`). The first save asks for a folder. `More ▸ Open a chat from Slop Drive…` opens a JSON chat and links it. Attach ▸ From Slop Drive and the `?drive=` launch (text attached to a chat) are unchanged. Code: `js/ui/drive.js`.
