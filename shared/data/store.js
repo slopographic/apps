@@ -12,8 +12,9 @@
   let dbH = null, dbP = null, readyP = null, bc = null;
   const all = () => ns.schema.COLLECTIONS;
 
-  const ERR_CODES = { QuotaExceededError: 'quota', ConstraintError: 'conflict', InvalidStateError: 'unavailable', NotFoundError: 'unavailable' };
-  const codeOf = (e) => (e && e.code) || ERR_CODES[e && e.name] || 'idb';
+  const ERR_CODES = { QuotaExceededError: 'quota', NS_ERROR_DOM_QUOTA_REACHED: 'quota', ConstraintError: 'conflict', InvalidStateError: 'unavailable', NotFoundError: 'unavailable' };
+  // A DOMException's numeric code (22 for a full quota) is not a SlopData code: only a string code counts.
+  const codeOf = (e) => (e && typeof e.code === 'string' && e.code) || ERR_CODES[e && e.name] || 'idb';
   /** A full quota also shows the storage dialog (shared/storage/ui.js); the Result still goes to the caller. */
   const errOf = (e) => { const r = fail(codeOf(e), (e && e.message) || String(e)); if (r.code === 'quota') try { g.SlopStorage && g.SlopStorage.handle(e, { what: 'this change' }); } catch (x) { /* no dialog here */ } return r; };
   const req = (r) => new Promise((res, rej) => {
