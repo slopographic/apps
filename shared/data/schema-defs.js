@@ -10,6 +10,7 @@
     stage: ['lead', 'contacted', 'customer', 'lost'],
     invoiceStatus: ['draft', 'issued', 'paid', 'void'],
     orderStatus: ['draft', 'open', 'fulfilled', 'cancelled'],   // open = confirmed
+    pdfLayout: ['classic', 'modern', 'minimal', 'bold', 'sidebar'],   // PDF and print template (shared/docs/pdf-layouts.js); absent = random from pdfSeed
     accountType: ['asset', 'liability', 'equity', 'revenue', 'expense'],
     payMethod: ['cash', 'bank', 'card', 'other'],
     stockReason: ['receipt', 'sale', 'adjustment', 'transfer', 'count', 'return'],
@@ -162,7 +163,8 @@
       indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), currency: F.cur({}),
       status: F.en(ENUM.orderStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
-      notes: F.text({}), invoiceId: F.id({}), sample: F.bool({}) } },
+      notes: F.text({}), invoiceId: F.id({}), sample: F.bool({}),
+      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     invoices: { key: 'id', softDelete: true, derive: true, unique: ['number'], check: invoiceCheck, docCurrency: true,
       autoNumber: { seq: 'invoice', when: (r) => r.status !== 'draft' },
       removeRule: (r) => (r.status !== 'draft' ? 'issued invoices cannot be deleted; void them instead' : null),
@@ -170,7 +172,8 @@
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), dueDate: F.date({}),
       currency: F.cur({}), status: F.en(ENUM.invoiceStatus, { def: 'draft' }), lines: { t: 'lines', min: 0, def: [] }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
-      notes: F.text({}), orderId: F.id({}), issuedAt: F.ts({}), sample: F.bool({}) } },
+      notes: F.text({}), orderId: F.id({}), issuedAt: F.ts({}), sample: F.bool({}),
+      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     payments: { key: 'id', immutable: true, postingOnly: true, indexes: [{ name: 'invoiceId', key: 'invoiceId' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), invoiceId: F.id({ req: true }), amount: F.mny({ req: true, min: 1 }), date: F.date({ req: true }),
       currency: F.cur({}), rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),

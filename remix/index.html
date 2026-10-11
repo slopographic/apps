@@ -31,10 +31,8 @@
   <main class="rm-main">
     <aside class="rm-bin" aria-label="Media">
       <h2>Clips and photos <small id="rm-count"></small></h2>
-      <div id="rm-drop" class="rm-drop">
-        <p>Drop clips and photos here</p>
-        <label class="rm-btn">Add files<input id="rm-file" type="file" accept="video/*,image/*" multiple hidden></label>
-      </div>
+      <div id="rm-drop" class="rm-drop"></div>
+      <input id="rm-file" type="file" accept="video/*,image/*" multiple hidden>
       <ul id="rm-bin" class="rm-list"></ul>
     </aside>
     <section id="rm-stage" class="rm-stage" aria-label="Preview">
@@ -147,6 +145,9 @@
   <script src="../shared/commands/commands.js"></script>
   <script src="js/config-map.js"></script>
   <script src="js/config.js"></script>
+  <script src="../shared/drop/rules.js"></script>
+  <script src="../shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js"></script>
   <script src="js/ui.js"></script>
   <script src="../shell/shell.js"></script>
 </body>

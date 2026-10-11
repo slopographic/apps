@@ -11,6 +11,7 @@
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(g.positions, 3));
     if (g.normals) geo.setAttribute('normal', new THREE.Float32BufferAttribute(g.normals, 3));
+    if (g.uvs) geo.setAttribute('uv', new THREE.Float32BufferAttribute(g.uvs, 2));
     geo.setIndex(new THREE.BufferAttribute(new Uint32Array(g.indices), 1));
     if (!g.normals) geo.computeVertexNormals();
     geo.computeBoundingSphere();

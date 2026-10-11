@@ -64,6 +64,7 @@
     if (!Array.isArray(i) || i.length % 3) return 'mesh indices must be triangles';
     const vc = p.length / 3;
     if (i.some((v) => !Number.isInteger(v) || v < 0 || v >= vc)) return 'mesh index out of range';
+    if (g.uvs !== undefined && (!Array.isArray(g.uvs) || g.uvs.length !== vc * 2 || g.uvs.some((v) => typeof v !== 'number' || !Number.isFinite(v)))) return 'mesh uvs must be two numbers per vertex';
     if (g.faces !== undefined) {
       if (!Array.isArray(g.faces) || g.faces.some((f) => !Array.isArray(f) || f.length < 3 || f.some((v) => !Number.isInteger(v) || v < 0 || v >= vc))) return 'mesh faces must be lists of three or more vertex indices';
       if (g.hidden !== undefined && (!Array.isArray(g.hidden) || g.hidden.some((f) => !Number.isInteger(f) || f < 0 || f >= g.faces.length))) return 'mesh hidden must list face indices';
@@ -162,7 +163,11 @@
   /** Builds a shape. The blob is built by blob.js (icosphere plus noise). */
   function build(geom) {
     if (geom.kind === 'mesh' && geom.faces) return S.meshrender.build(geom);
-    if (geom.kind === 'mesh') return { positions: geom.positions.slice(), normals: geom.normals ? geom.normals.slice() : null, indices: geom.indices.slice() };
+    if (geom.kind === 'mesh') {
+      const out = { positions: geom.positions.slice(), normals: geom.normals ? geom.normals.slice() : null, indices: geom.indices.slice() };
+      if (geom.uvs) out.uvs = geom.uvs.slice();
+      return out;
+    }
     const g = normalize(geom);
     let b;
     switch (g.kind) {

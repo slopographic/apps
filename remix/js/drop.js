@@ -1,5 +1,4 @@
-/* Reel Remix: drag and drop. Media files dropped anywhere on the stage are added to the bin (the same path as
-   Add files). A clip dragged from the bin onto a slot of the preview replaces that slot's clip in the cut showing at
+/* Reel Remix: drag and drop of bin clips. A clip dragged from the bin onto a slot of the preview replaces that slot's clip in the cut showing at
    the playhead; dropped on a cut in the cut list, it replaces that slot's clip in that cut. ui.js calls install()
    once and cutTargets() for each cut item it draws. */
 (function () {
@@ -8,7 +7,6 @@
   const D = (RM.dnd = {});
   let opts = null;
 
-  const isFiles = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
   const isItem = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes(RM.ITEM_MIME);
   const itemId = (e) => e.dataTransfer.getData(RM.ITEM_MIME);
 
@@ -45,19 +43,19 @@
       place(ci, slot, itemId(e));
     });
   };
-  /** Wire the stage: files added to the bin, bin items dropped on the preview. o: { stage, canvas, addFiles, redraw, say }. */
+  /** Wire the stage for bin items dropped on the preview. Files dropped on the stage go to the bin through SlopDrop
+   (ui.js). o: { stage, redraw, say }. */
   D.install = function (o) {
     opts = o;
     const stage = o.stage;
     stage.addEventListener('dragover', (e) => {
-      if (!isFiles(e) && !isItem(e)) return;
+      if (!isItem(e)) return;
       e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; stage.classList.add('over');
     });
     stage.addEventListener('dragleave', (e) => { if (!stage.contains(e.relatedTarget)) stage.classList.remove('over'); });
     stage.addEventListener('drop', (e) => {
-      e.preventDefault(); stage.classList.remove('over');
-      if (isFiles(e) && e.dataTransfer.files.length) { o.addFiles(e.dataTransfer.files); return; }
       if (!isItem(e)) return;
+      e.preventDefault(); stage.classList.remove('over');
       if (!RM.state.plan) { o.say('Press Remix first, then drop a clip on a slot'); return; }
       const hit = D.slotAt(e.clientX, e.clientY);
       if (hit) place(hit.cut, hit.slot, itemId(e));

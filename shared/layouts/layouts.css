@@ -1,0 +1,2 @@
+/* Workspace layouts: a laid-out app drops any max-width its page sets, so the grid can use the window. */
+[data-slop-layout] { max-width: none !important; }

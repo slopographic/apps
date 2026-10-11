@@ -20,6 +20,7 @@
     $('rm-count').textContent = st.items.length + ' item' + (st.items.length === 1 ? '' : 's');
     ul.replaceChildren(...st.items.map((it) => {
       const li = document.createElement('li');
+      li.dataset.id = it.id;
       li.draggable = !it.missing; li.title = it.missing ? 'Missing: add a file with this name' : 'Drag onto a slot of the preview or a cut';
       li.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData(RM.ITEM_MIME, it.id); e.dataTransfer.setData('text/plain', it.name);
@@ -113,13 +114,28 @@
   RM.remixNow = remix;
   RM.reshuffleNow = function () { readControls(); RM.reshuffle(); $('rm-seed').value = S.hex(RM.state.seed); renderPlan(); status('Reshuffled: new seed ' + S.hex(RM.state.seed)); return RM.state.plan; };
 
-  async function addFiles(files) {
-    const holes = RM.state.items.filter((x) => x.missing).length;
-    const n = await RM.addFiles(files);
-    const filled = holes - RM.state.items.filter((x) => x.missing).length;
-    renderBin();
-    if (filled > 0) { remix(); status('Filled ' + filled + ' missing clip' + (filled > 1 ? 's' : '') + ' and planned the edit again.'); return; }
-    status(n ? 'Added ' + n + ' file' + (n > 1 ? 's' : '') + '. Press Remix to make the edit.' : 'Those files are not images or videos.');
+  // The bin and the stage take files through SlopDrop (shared/drop): it checks the types, shows each file's progress,
+  // and calls RM.addFiles (the same path as before) one file at a time.
+  const DROP_RULES = { types: ['image/*', 'video/*'], exts: [], noun: 'a picture or video' };
+  let missingBefore = 0;
+  function wireDrop() {
+    SlopDrop.attach($('rm-drop'), {
+      accept: DROP_RULES,
+      input: $('rm-file'),
+      targets: [$('rm-bin'), $('rm-stage')],
+      begin: () => { missingBefore = RM.state.items.filter((x) => x.missing).length; },
+      process: async (file) => {
+        if (!(await RM.addFiles([file]))) throw new Error('could not be decoded as a picture or video');
+        return RM.state.items.slice().reverse().find((x) => x.name === file.name).id;
+      },
+      done: (sum) => {
+        const filled = missingBefore - RM.state.items.filter((x) => x.missing).length;
+        renderBin();
+        if (filled > 0) { remix(); status('Filled ' + filled + ' missing clip' + (filled > 1 ? 's' : '') + ' and planned the edit again.'); }
+        else if (sum.added.length) status('Added ' + sum.added.length + ' file' + (sum.added.length > 1 ? 's' : '') + '. Press Remix to make the edit.');
+      },
+      reveal: (sum) => document.querySelector('#rm-bin li[data-id="' + sum.added[sum.added.length - 1].value + '"]'),
+    });
   }
   /** After a config import: the controls show the state, and the bin, the plan and the lane are drawn again. */
   RM.syncUI = function () {
@@ -236,9 +252,9 @@
     $('rm-play').addEventListener('click', () => (RM.preview.playing ? RM.preview.pause() : RM.preview.play()));
     $('rm-export').addEventListener('click', () => RM.exporter.run({ say: status }));
     $('rm-scrub').addEventListener('input', (e) => scrubTo(+e.target.value));
-    $('rm-file').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
+    wireDrop();
     RM.dnd.install({
-      stage: $('rm-stage'), addFiles, say: status,
+      stage: $('rm-stage'), say: status,
       redraw: () => { renderPlan(); renderBin(); }
     });
     const send = () => RM.sendToSlopCut && RM.sendToSlopCut();
