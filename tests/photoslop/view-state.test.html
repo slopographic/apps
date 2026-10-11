@@ -15,7 +15,7 @@
   /** Load a page in the iframe and wait until PhotoSLOP has booted (body.ready). */
   async function open(src) {
     const want = new URL(src, location.href).pathname, app = src.includes('photoslop');
-    f.src = src; console.error('DBG open ' + src);
+    f.src = src;
     await waitFor(() => f.contentWindow && f.contentWindow.location.pathname === want && f.contentWindow.document.readyState === 'complete' && (!app || isReady(f.contentWindow)), { timeout: 20000 });
     return f.contentWindow;
   }
@@ -23,12 +23,13 @@
   describe('PhotoSLOP saved view', () => {
     it('keeps the zoom and hidden panels after leaving for Slop Drive and coming back', async () => {
       let W = await open('../../photoslop/index.html');
-      console.error('DBG a'); await W.autosave(); console.error('DBG b');
+      await W.autosave();
+      W.D.dirty = false; // saved to this device just now, so the leave-page prompt does not hold the navigation
       W.setZoom(2);
       W.dirty();
       W.document.body.classList.add('no-panels');
       await sleep(400);
-      console.error('DBG c'); await open('../drive/frame.html'); console.error('DBG d');
+      await open('../drive/frame.html');
       await sleep(60);
       W = await open('../../photoslop/index.html');
       await waitFor(() => W.V && W.V.zoom > 0);
