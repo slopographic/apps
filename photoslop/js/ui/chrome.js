@@ -143,6 +143,7 @@ function buildOptions() {
     add(n('X', () => Math.round(tf.cx + tf.tx), (v) => { tf.tx = v - tf.cx; }, 'px'), n('Y', () => Math.round(tf.cy + tf.ty), (v) => { tf.ty = v - tf.cy; }, 'px'),
       n('W', () => Math.round(tf.sx * 1000) / 10, (v) => { tf.sx = v / 100; }, '%'), n('H', () => Math.round(tf.sy * 1000) / 10, (v) => { tf.sy = v / 100; }, '%'),
       n('∠', () => Math.round((tf.rot * 180) / Math.PI * 10) / 10, (v) => { tf.rot = (v * Math.PI) / 180; }, '°'),
+      optSelect('Interpolation', tf, 'interp', RESAMPLE_MODES, () => dirty(true)),
       h('span', { class: 'opt-spacer' }),
       h('button', { class: 'btn', type: 'button', onclick: cancelTransform, title: 'Cancel (Esc)' }, 'Cancel'),
       h('button', { class: 'btn primary', type: 'button', onclick: commitTransform, title: 'Commit (Enter)' }, 'Commit'));

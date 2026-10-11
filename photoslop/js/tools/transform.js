@@ -2,7 +2,9 @@
 'use strict';
 
 /* ---------- Free Transform (Ctrl+T) ---------- */
-const TRANSFORM = { active: false };
+/** interp: the resampling for the layer's pixels (nearest | bilinear | bicubic); it persists between transforms. */
+const TRANSFORM = { active: false, interp: 'bicubic' };
+const QUICK_LABEL = { cw: 'Rotate 90° Clockwise', ccw: 'Rotate 90° Counter Clockwise', 180: 'Rotate 180°', flipH: 'Flip Horizontal', flipV: 'Flip Vertical' };
 function startTransform() {
   if (TRANSFORM.active) return;
   let L = activeLayer(); if (!L) return;
@@ -42,10 +44,10 @@ function transformSurface(L) {
   const c = scratchCanvas('b', x1 - x0, y1 - y0), g = cx(c);
   if (t.rest) g.drawImage(t.rest, L.x - x0, L.y - y0);
   g.save(); g.setTransform(new DOMMatrix([1, 0, 0, 1, -x0, -y0]).multiply(tfMatrix()));
-  g.imageSmoothingQuality = 'high'; g.drawImage(t.float, t.x, t.y); g.restore();
+  setInterp(g, t.interp); g.drawImage(t.float, t.x, t.y); g.restore();
   return { canvas: c, x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
-function commitTransform() {
+function commitTransform(label) {
   const t = TRANSFORM; if (!t.active) return;
   const L = D.layers.find((l) => l.id === t.L.id);
   live = null; t.active = false;
@@ -63,7 +65,7 @@ function commitTransform() {
   }
   patchLayer(L.id, { canvas: c, x: s.x, y: s.y, mask });
   if (t.sel) { const sm = mkCanvas(D.w, D.h), sg = cx(sm); sg.setTransform(m); sg.drawImage(t.sel.mask, 0, 0); D.sel = makeSel(sm); }
-  commit('Free Transform');
+  commit(typeof label === 'string' ? label : 'Free Transform');
   emit('tool');
 }
 function cancelTransform() { if (!TRANSFORM.active) return; TRANSFORM.active = false; live = null; emit('tool'); dirty(true); }
@@ -72,7 +74,10 @@ function transformLayerQuick(kind) {
   startTransform(); if (!TRANSFORM.active) return;
   if (kind === 'flipH') TRANSFORM.sx = -1; else if (kind === 'flipV') TRANSFORM.sy = -1;
   else if (kind === 'cw') TRANSFORM.rot = Math.PI / 2; else if (kind === 'ccw') TRANSFORM.rot = -Math.PI / 2; else if (kind === '180') TRANSFORM.rot = Math.PI;
-  commitTransform();
+  // Quick turns and flips keep every pixel exact, so they use nearest neighbour whatever the interpolation choice is.
+  const keep = TRANSFORM.interp; TRANSFORM.interp = 'nearest';
+  commitTransform(QUICK_LABEL[kind]);
+  TRANSFORM.interp = keep;
 }
 const TRANSFORM_TOOL = {
   id: 'transform', name: 'Free Transform',
