@@ -5,13 +5,14 @@
 // it when he's calm enough. Each item calms a different amount; he has a favourite (extra happy)
 // and a least favourite (spits it out, madder). Items restock over time and more
 // unlock with levels. Petting helps a little, but not at full rage.
-import { M, now, reduced, setMood, changed, rand } from './state.js';
+import { M, now, reduced, setMood, changed, rand, cheer } from './state.js';
 import { say, hearts, sparkle, crumbs } from './fx.js';
 import { line } from './lines.js';
 import { size } from './look.js';
 import { save } from './store.js';
 import { addRage, calmRage, MAD, persistRage } from './rage.js';
 import { offer, tickTreats } from './treats.js';
+import { makeCandy, candyOut } from './candy.js';
 
 export const ITEMS = [
   { id: 'cookie', icon: '🍪', name: 'cookie', calm: 1.0, cd: 20000, level: 1, act: 'eat' },
@@ -56,6 +57,7 @@ export function feed(id) {
   } else {
     if (it.act === 'hat') { const hats = ['crown', 'tophat', 'wizard', 'party', 'cowboy']; M.tempHat = hats[Math.floor(Math.random() * hats.length)]; }
     const fav = it.id === M.fav;
+    cheer(fav ? 1 : 0.6);
     setMood(it.act === 'hug' || fav ? 'love' : 'chomp', fav ? 1600 : 900);
     M.squash = 0.6;
     if (!reduced()) { hearts(fav ? 6 : 2); if (fav) sparkle(); }
@@ -126,12 +128,19 @@ export const dragEnded = () => { samples = []; };
 function slosh() { if (!reduced()) crumbs(M.x, M.y - size() * 0.5, '#a6ee14', 7); }
 
 /* ---------- the "Give…" tray ---------- */
-let tray = null;
+let tray = null, candyBtn = null;
 export function mount(hud) {
   tastes();
   tray = document.createElement('span');
   tray.className = 'sh-give';
   tray.innerHTML = '<span class="sh-give-l">Give…</span>';
+  candyBtn = document.createElement('button');
+  candyBtn.type = 'button';
+  candyBtn.className = 'sh-mk';
+  candyBtn.textContent = 'Make candy';
+  candyBtn.title = 'Make a candy: drag it onto Sloppo to calm him';
+  candyBtn.addEventListener('click', () => makeCandy());
+  tray.append(candyBtn);
   for (const it of ITEMS) {
     const b = document.createElement('button');
     b.type = 'button';
@@ -151,6 +160,7 @@ function render() {
   if (!tray) return;
   const t = Date.now();
   tray.hidden = !(M.rage >= 1 || M.raging);
+  candyBtn.disabled = candyOut();
   for (const b of tray.querySelectorAll('.sh-item')) {
     const it = byId[b.dataset.item];
     b.hidden = it.level > M.level;

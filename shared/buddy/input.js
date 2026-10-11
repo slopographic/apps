@@ -1,10 +1,21 @@
 // Pointer and keyboard: click (or Enter) to pet, drag to carry, release to throw.
-import { M, now, setMood } from './state.js';
+import { M, now, setMood, cheer } from './state.js';
 import { startDrag, dragTo, release } from './motion.js';
 import { gain } from './levels.js';
 import { hearts, say } from './fx.js';
 import { line } from './lines.js';
 import { petAllowed, onDrag, dragEnded } from './care.js';
+import { addRage } from './rage.js';
+import { TIMING } from './timing.js';
+
+/** Too many pokes in a few seconds: a bad moment (mood.js keeps the count). */
+export function pokedTooOften(t) {
+  M.pokes = M.pokes.filter((x) => t - x < TIMING.pokeWindow);
+  M.pokes.push(t);
+  if (M.pokes.length < TIMING.pokeCount) return false;
+  M.pokes = [];
+  return true;
+}
 
 export function pet() {
   if (!petAllowed()) return;
@@ -12,10 +23,12 @@ export function pet() {
   M.squash = 0.55;
   M.sqv = 0;
   hearts(3);
+  cheer(0.7);
   gain(1, { source: 'pet', throttle: 250 });
   if (M.raging) { if (M.pets++ % 3 === 0) say(line('rage'), 1100); }
   else if (++M.pets % 4 === 0) say(line('pet'), 1100);
   M.nextIdle = Math.max(M.nextIdle, now() + 4000);
+  if (pokedTooOften(now())) addRage(1, 'poke');
 }
 
 export function bindInput(hit) {
