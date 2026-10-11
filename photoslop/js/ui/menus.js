@@ -8,7 +8,7 @@ const MENUS = [
   ['File', [
     { label: 'New…', key: 'Ctrl+N', alt: ['Alt+Ctrl+N'], act: () => dlgNew() },
     { label: 'Open…', key: 'Ctrl+O', act: () => openFilePicker(false) },
-    { label: 'Config', sub: window.PSConfig && window.PSConfig.menu ? window.PSConfig.menu().sub : [] },
+    { label: 'Config', sub: window.SlopConfigDialog ? SlopConfigDialog.menuItems({ app: 'photoslop' }) : [] },
     { label: 'Close', key: 'Alt+Ctrl+W', act: () => closeDoc() },
     { label: 'Close Others', act: async () => { for (const r of DOCS.filter((d) => d !== CUR)) await closeDoc(r); }, en: () => DOCS.length > 1 },
     { label: 'Open from Slop Drive…', act: () => openFromDrive(false) },
