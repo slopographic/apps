@@ -1,20 +1,24 @@
 /* The support card's contents: Sloppo, the ask, Donate, the ads slider (or the ad slot with "Turn off"), "No thanks" and ×.
- * Classic script, exposes window.SlopSupportCard.build({ onClose, onNoThanks }) and .config().
+ * Classic script, exposes window.SlopSupportCard.build({ onClose, onNoThanks }), .setBrand(json), .config().
  * Writes no storage itself. Ads go through SlopConsent.setChoices only (the one place ads load). Needs
  * shared/consent (config, state, consent-mode) on the page for the ads row; without it the row is hidden.
  * The ads slider starts at Off. Nothing about the card goes into an exported file. */
 (function () {
   'use strict';
-  function support() {
-    var d = { exportCard: true, donate: true, ads: true };
-    var c = window.SlopBrand && window.SlopBrand.config && window.SlopBrand.config.support;
-    if (c) { d.exportCard = c.exportCard !== false; d.donate = c.donate !== false; d.ads = c.ads !== false; }
-    return d;
+  // The brand data, set by support.js from brand/brand.json (raw or normalized). Missing: defaults, no donate link.
+  var brand = null;
+  var PATREON = /^https:\/\/[^\s"'<>]+$/;
+  function setBrand(json) {
+    var s = (json && json.support) || {};
+    var l = (json && json.links) || {};
+    brand = {
+      support: { exportCard: s.exportCard !== false, donate: s.donate !== false, ads: s.ads !== false },
+      patreon: typeof l.patreon === 'string' && PATREON.test(l.patreon.trim()) ? l.patreon.trim() : ''
+    };
+    return brand;
   }
-  function patreonUrl() {
-    var c = window.SlopBrand && window.SlopBrand.config && window.SlopBrand.config.links;
-    return (c && c.patreon) || '';
-  }
+  function support() { return brand ? brand.support : { exportCard: true, donate: true, ads: true }; }
+  function patreonUrl() { return brand ? brand.patreon : ''; }
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -119,5 +123,5 @@
     root.append(head, body);
     return root;
   }
-  window.SlopSupportCard = Object.freeze({ build: build, config: support, patreonUrl: patreonUrl });
+  window.SlopSupportCard = Object.freeze({ build: build, setBrand: setBrand, config: support, patreonUrl: patreonUrl });
 })();

@@ -86,6 +86,7 @@
     const name = 'remix-' + plan.seedHex + '.' + (type.includes('mp4') ? 'mp4' : 'webm');
     if (o.save !== false) save(blob, name);
     say((stoppedEarly ? 'Stopped. Saved ' : 'Exported ') + name + ' (' + W + '×' + H + ').');
+    SlopSupport.afterExport('remix');
     return { blob, name, stopped: stoppedEarly };
   };
 })();

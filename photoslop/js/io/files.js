@@ -117,7 +117,7 @@ async function renderExport(fmt, scale, bg) {
   if (scale !== 1) c = resampleCanvas(c, Math.max(1, Math.round(D.w * scale)), Math.max(1, Math.round(D.h * scale)));
   return c;
 }
-async function quickExport() { const c = await renderExport('image/png', 1, null); download(await canvasToBlob(c, 'image/png'), safeName() + '.png'); toast('Exported PNG'); }
+async function quickExport() { const c = await renderExport('image/png', 1, null); download(await canvasToBlob(c, 'image/png'), safeName() + '.png'); toast('Exported PNG'); SlopSupport.afterExport('photoslop'); }
 function dlgExport() {
   const fmt = h('select', null, [['image/png', 'PNG'], ['image/jpeg', 'JPEG'], ['image/webp', 'WebP']].map(([v, l]) => h('option', { value: v }, l)));
   const q = h('input', { type: 'range', min: 1, max: 100, value: 85 }), qn = h('span', { class: 'fp-u' }, '85');
@@ -140,6 +140,7 @@ function dlgExport() {
       const b = await canvasToBlob(c, f, +q.value / 100);
       if (!b) { toast('This browser cannot encode that format'); return false; }
       download(b, safeName() + { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp' }[f]);
+      SlopSupport.afterExport('photoslop');
     } }] });
   update();
 }
@@ -175,4 +176,5 @@ async function exportLayers() {
   download(zipStore(files), safeName() + ' layers.zip');
   document.body.classList.remove('busy');
   toast(`Exported ${files.length} layers`);
+  SlopSupport.afterExport('photoslop');
 }

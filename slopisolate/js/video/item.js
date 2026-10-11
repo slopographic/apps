@@ -80,6 +80,7 @@
       const out = alpha ? await V.enc.alphaWebm(it.vid.src, it.vid.res, o) : await V.enc.pngZip(it.vid.src, it.vid.res, o);
       const name = base + (alpha ? '-cutout.webm' : '-cutout-frames.zip');
       SlopUI.download(out.blob, name);
+      SlopSupport.afterExport('slopisolate');
       if (CO.drive && CO.drive.ready()) CO.drive.saveResult(it, out.blob, name);
       return out.kind === 'zip' ? 'Saved ' + out.frames + ' PNG frames (this browser cannot write WebM with alpha)' : 'Saved WebM with alpha';
     });
@@ -89,6 +90,7 @@
     return runExport(it, 'Writing MP4…', async (o) => {
       const out = await V.enc.mp4(it.vid.src, it.vid.res, Object.assign({ bg }, o));
       SlopUI.download(out.blob, name);
+      SlopSupport.afterExport('slopisolate');
       if (CO.drive && CO.drive.ready()) CO.drive.saveResult(it, out.blob, name);
       return 'Saved ' + name;
     });

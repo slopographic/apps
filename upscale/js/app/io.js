@@ -32,7 +32,7 @@
     }
     const c = document.createElement('canvas');
     c.width = src.naturalWidth || src.width; c.height = src.naturalHeight || src.height;
-    c.getContext('2d').drawImage(src, 0, 0);
+    c.getContext('2d', { willReadFrequently: true }).drawImage(src, 0, 0);
     if (src.close) src.close();
     return c;
   };

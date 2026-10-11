@@ -244,7 +244,7 @@
     return IO.buildPDF().then(function (blob) {
       var name = IO.baseName() + (asAI ? '.ai' : '.pdf');
       IO.download(asAI ? new Blob([blob], { type: 'application/postscript' }) : blob, name);
-      SV.toast('Exported ' + name);
+      SV.toast('Exported ' + name); SlopSupport.afterExport('slopvector');
       return blob;
     }).catch(function (e) { SV.toast('PDF export failed: ' + e.message, 'warn'); });
   };

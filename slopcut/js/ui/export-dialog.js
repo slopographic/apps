@@ -85,16 +85,20 @@
     const signal = { cancelled: false };
     const prog = SE.progress.open(o.format === 'gif' ? 'Exporting GIF' : 'Exporting video', { onCancel: () => { signal.cancelled = true; } });
     const progress = (f, m) => prog.set(f, m);
+    // A long video render (not GIF) shows the support card inside this dialog; the render is never affected.
+    const sup = o.format === 'gif' ? null : SlopSupport.trackRender('slopcut', prog.box);
     try {
       let out;
       if (o.format === 'gif') out = { blob: await SE.gif.render({ a: o.a, b: Math.min(o.b, o.a + 15), width: o.gw, fps: o.gf, progress, signal }), info: { fps: o.gf } };
       else if (o.format === 'rec') out = await SE.recorder.run({ w: o.size.w, h: o.size.h, fps: o.fps, a: o.a, b: o.b, quality: o.quality, progress, signal });
       else out = await SE.encode.run({ format: o.format, w: o.size.w, h: o.size.h, fps: o.fps, quality: o.quality, audio: o.audio, a: o.a, b: o.b, progress, signal });
+      if (sup) sup.done();
       prog.close();
       const ext = o.format === 'gif' ? 'gif' : out.blob.type.includes('mp4') ? 'mp4' : 'webm';
       result(out, nameFor(ext));
       return out;
     } catch (e) {
+      if (sup) sup.done();
       prog.close();
       if (e && e.name === 'AbortError') { SE.app.status('Export cancelled'); return null; }
       console.error(e);
@@ -114,6 +118,7 @@
         { label: 'Download', primary: true, act: () => SlopUI.download(out.blob, name) }].filter(Boolean)
     });
     SE.app.status('Exported ' + name);
+    SlopSupport.afterExport('slopcut');
     XD.last = out;
   }
 })();

@@ -92,11 +92,13 @@
   };
   F.download = function () {
     U.download(N.toBlob(A.deck), A.doc.name || N.fileName(A.deck.title));
+    SlopSupport.afterExport('slides');
   };
   F.exportPptx = async function () {
     try {
       var r = await SS.pptx.write(A.deck);
       U.download(r.blob, N.fileName(A.deck.title).replace(/\.sslide$/, '.pptx'));
+      SlopSupport.afterExport('slides');
       var left = r.skipped ? r.skipped + ' object' + (r.skipped === 1 ? ' was' : 's were') + ' left out (tables, charts and media are not in PowerPoint export yet). ' : '';
       D.toast(left + 'Slide transitions and object animations are not in the PowerPoint file. They are kept in the .sslide file.', 5200);
     } catch (e) { D.toast('Export failed: ' + e.message, 4000); }
@@ -105,7 +107,7 @@
     var s = A.slide();
     if (!s) return;
     var cv = R.slideToCanvas(A.deck, s, 1920, { scene: { editor: false } });
-    cv.toBlob(function (b) { U.download(b, (A.doc.name || 'slide').replace(/\.sslide$/, '') + ' ' + (A.idx + 1) + '.png'); }, 'image/png');
+    cv.toBlob(function (b) { U.download(b, (A.doc.name || 'slide').replace(/\.sslide$/, '') + ' ' + (A.idx + 1) + '.png'); SlopSupport.afterExport('slides'); }, 'image/png');
   };
 
   /** Boot: a launch from Slop Drive, else the autosaved draft, else a blank deck. */

@@ -100,7 +100,5 @@ body { min-height: 100vh; }
   .toolbar { padding: 8px 10px; }
   .toolbar h2 { flex-basis: 100%; order: -1; font-size: 16px; }
   .mo-cell { min-height: 62px; }
-  .mo-cell .chip { display: none; }
-  .mo-cell::after { content: ''; }
   .ev-form, .ics-preview { min-width: 0; width: min(92vw, 420px); }
 }

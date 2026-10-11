@@ -81,7 +81,7 @@
       expect(c.value.name).toBe('Ada');
       expect(c.value.categories).toEqual(['vip']);
       const v = await versionNow();
-      expect(v.v).toBe(3);   // 2 added exchangeRates, 3 added the CRM groups and tags stores
+      expect(v.v).toBe(4);   // 2 added exchangeRates, 3 the CRM groups and tags stores, 4 the events, tasks and reminders stores
       expect(v.names.includes('exchangeRates')).toBe(true);
       expect(v.names.includes('customerGroups')).toBe(true);
       expect(v.names.includes('customerTags')).toBe(true);
