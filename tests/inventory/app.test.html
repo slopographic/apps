@@ -20,8 +20,7 @@
   const errors = [];
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const ean13 = (body12) => body12 + win().SlopData.barcode.checkDigit(body12);
-  const CODE = ean13('400638133393');
-  const OTHER = ean13('500000000001');
+  let CODE = '', OTHER = ''; // set once the frame has loaded its shared data scripts
   const typeCode = async (code) => {
     const input = $('scanInput');
     input.focus();
@@ -39,6 +38,8 @@
   describe('the app in a 390 px wide window', () => {
     it('opens on an empty inventory, with no horizontal scroll', async () => {
       await waitFor(ready, { timeout: 20000 });
+      CODE = ean13('400638133393');
+      OTHER = ean13('500000000001');
       win().addEventListener('error', (e) => errors.push(e.message));
       expect($('view-products').hidden).toBe(false);
       expect($('pEmpty').hidden).toBe(false);
