@@ -8,5 +8,5 @@ window.SS_MANIFEST = {
   ui: ['slides/js/ui/dom.js', 'slides/js/ui/app.js', 'slides/js/ui/canvas-view.js', 'slides/js/ui/overlay.js', 'slides/js/ui/snap.js',
     'slides/js/ui/textedit-parse.js', 'slides/js/ui/textedit.js', 'slides/js/ui/pointer.js', 'slides/js/ui/ops.js', 'slides/js/ui/sorter.js',
     'slides/js/ui/sorter-drag.js', 'slides/js/ui/inspector.js', 'slides/js/ui/toolbar.js', 'slides/js/ui/files.js', 'slides/js/ui/present.js',
-    'slides/js/ui/commands.js', 'slides/js/ui/main.js']
+    'slides/js/ui/commands.js', 'slides/js/ui/ctxmenu.js', 'slides/js/ui/main.js']
 };
