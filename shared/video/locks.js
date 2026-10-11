@@ -29,15 +29,30 @@
    */
   LK.apply = function (plan, locks, media) {
     if (!plan || !plan.cuts) return plan;
+    const placed = new Map(); // cut -> media ids placed by locks
     for (const l of locks || []) {
       const beat = plan.cuts[l.cut], it = beat && beat.find((x) => x.slot === l.slot);
       const m = (media || []).find((x) => x.id === l.media);
       if (!it || !m) continue;
+      const used = placed.get(l.cut) || new Set();
+      if (used.has(m.id)) continue; // a locked cut never shows the same clip twice
+      used.add(m.id); placed.set(l.cut, used);
       it.media = m.id;
       it.in = m.kind === 'image' ? 0 : Math.max(0, Math.min(l.in || 0, m.dur - it.dur));
       it.fill = l.fill || 'auto';
       if (l.pan) it.pan = l.pan;
     }
+    // unlocked slots that now repeat a clip of their cut take a clip the cut does not use yet
+    plan.cuts.forEach((beat, ci) => {
+      const used = placed.get(ci) || new Set(), locked = new Set((locks || []).filter((l) => l.cut === ci).map((l) => l.slot));
+      for (const it of beat) {
+        if (locked.has(it.slot)) continue;
+        if (!used.has(it.media)) { used.add(it.media); continue; }
+        const free = (media || []).find((m) => !beat.some((x) => x.media === m.id) && !used.has(m.id));
+        if (free) { it.media = free.id; it.in = free.kind === 'image' ? 0 : Math.max(0, Math.min(it.in || 0, free.dur - it.dur)); used.add(free.id); }
+      }
+      placed.set(ci, used);
+    });
     return plan;
   };
 })();

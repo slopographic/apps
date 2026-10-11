@@ -8,18 +8,20 @@ journal in the same transaction); conversion from an order through `SlopData.bil
 
 ## Files
 
-- `index.html`: the page (Invoices list, Invoice editor, Print, Data). Loads `shared/data`, `shared/docs`, the core,
-  the UI and `vendor/pdf-lib/pdf-lib.min.js`.
+- `index.html`: the page (Invoices list, Invoice editor, Print, Data). Loads `shared/data`, `shared/docs` (the paper view,
+  the templates and the PDF renderer, see `shared/docs/HANDOFF.md`), the core, the UI and `vendor/pdf-lib/pdf-lib.min.js`.
 - `css/invoices.css`: tokens, rows, form, line cards, the printable sheet, and `@media print` (only the sheet prints).
 - `js/core/util.js`: refusals in plain words, settings (company, terms, currency), money, the DOM builder.
 - `js/core/invoices.js`: list with status and overdue, outstanding per customer and currency, customers, products,
   get with payments, save draft, remove draft, issue, record payment, void.
 - `js/core/context.js`: one invoice for printing and PDF (customer, payments, balance, tax by rate, company block).
-- `js/core/pdf.js`: the one-page A4 PDF with Helvetica (pdf-lib), up to 30 lines.
+- `js/core/pdf.js`: the invoice's view (`viewOf`) and the PDF (`invoicePdf`), through `SlopDocs.pdf.renderPdf`.
+- `js/ui/page.js`: the invoice on the page: the paper view with in-place editing and the layout pick. Drafts edit in place;
+  issued invoices are read only. Each change gets the form's own check.
 - `js/ui/list.js`: list, outstanding panel, row menu, "From an order…".
 - `js/ui/editor.js`: one invoice: customer, dates, notes, lines, totals, payments, and the actions for its status.
 - `js/ui/payment-dialog.js`: record a payment (amount defaults to the balance).
-- `js/ui/preview.js`: the printable sheet, and the PDF download.
+- `js/ui/preview.js`: the printable sheet (the paper view, the same template as the PDF), and the PDF download.
 - `js/ui/print.js`: the Print view (browser print dialog, PDF, back).
 - `js/ui/app.js`, `commands.js`, `data.js`: boot and routes (`#list`, `#new`, `#i/<id>`, `#p/<id>`, `#data`), SlopCmd
   commands, backup and restore.
@@ -41,9 +43,17 @@ journal in the same transaction); conversion from an order through `SlopData.bil
 - Owed by customer: issued balances per customer and currency, with the overdue part.
 - From an order: a dialog lists confirmed or fulfilled orders with no invoice and creates the draft (lines copied, the
   order keeps its link).
-- Preview / print: the Print view shows the invoice sheet with the number, dates, customer, lines, discounts, tax by
-  rate, total, paid and balance due. Print opens the browser's print dialog, and print CSS hides the app chrome.
-- PDF: one A4 page with the same content. Export from the editor, the list menu or the Print view.
+- Preview / print: the Print view shows the invoice as the paper view (the number, dates, customer, lines, discounts, tax
+  by rate, total, paid and balance due) in the invoice's template. Print opens the browser's print dialog; print CSS hides
+  the app chrome.
+- Page (the editor): the invoice is drawn as a page. Click the company name, customer, dates, notes, a line's description,
+  quantity, unit price, tax or discount to change it; Enter, blur or Ctrl+Enter (notes) saves it into the form, and Escape
+  puts it back. Page / Form switch in the editor (Form is the default on a phone). Drafts only. "Layout" picks one of the
+  five templates or random from the seed; "New seed" draws a new seed.
+- PDF: A4, in the invoice's template (classic, modern, minimal, bold header, side bar), with the company block, customer,
+  number, dates, lines (description, qty, unit price, discount, tax, total), totals, paid and balance, notes and a footer
+  with "Page n of N". A long invoice runs onto more pages with the head repeated. Export from the editor, the list menu
+  or the Print view. The same invoice always exports the same way: its `pdfSeed` is kept on the record.
 - Data: full backup download and validated restore. SlopCmd commands, SlopGuard, SlopHub registration.
 - Random samples (see below): "Random sample" on the list and in the editor (new draft), "Random samples…" (options),
   "Delete all samples" (SlopUI.confirm). The same actions are in the palette (Ctrl+K).
@@ -77,8 +87,8 @@ journal in the same transaction); conversion from an order through `SlopData.bil
 - No refunds or credit notes. A paid or part-paid invoice cannot be voided, and payments cannot be removed.
 - Currency: new invoices take the base currency. The UI has no currency choice. (The data layer supports a foreign
   currency through rates; the UI does not offer it yet.) No realised exchange gain or loss.
-- The PDF holds one page: up to 30 lines. More lines are refused with that reason; print the sheet instead (the
-  browser splits it across pages). The PDF font is Helvetica, so characters outside Latin text become "?".
+- The PDF fonts are the standard Helvetica or Times (pdf-lib cannot embed the bundled WOFF2 faces), so characters outside
+  Latin text become "?". The paper on screen is not paginated; the PDF and the print sheet are.
 - Overdue is judged on the local date when the list is drawn. There are no reminders and no aged-receivables report.
 - Payment methods are the four in the data layer.
 - The editor does not redraw under you when the same invoice changes in another tab; the list does.
@@ -91,7 +101,10 @@ journal in the same transaction); conversion from an order through `SlopData.bil
   draft editable and an issued invoice not, payments reducing the balance and marking it paid, an overpayment refused,
   void refused after a payment, void before a payment reversing the entry and keeping the number, overdue and the
   outstanding balance per customer, an order invoiced through the data layer, the printable preview listing the number,
-  customer, lines and total, the PDF having one page, and a PDF with 31 lines refused.
+  customer, lines and total, the PDF having one page, and a long invoice (60 lines) running onto more than one page.
+- `node tests/run.mjs invoices` also runs `tests/invoices/paper.test.html` (in the iframe of the real page: click a line
+  description, the form and the store follow, the PDF downloads with `%PDF-` bytes) and `tests/node/pdf-render.test.mjs`
+  (the bytes, the totals text, the templates, the seed).
 - `node tests/run.mjs samples` runs `tests/invoices/samples.test.html` (three random invoices saved as sample drafts with
   totals equal to the model, the same seed giving the same documents, delete all samples removing the three drafts and
   nothing else, an issued sample left alone) and `tests/node/invoices-orders-samples.test.mjs` (a fixed seed: plans and

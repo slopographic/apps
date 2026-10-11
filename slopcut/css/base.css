@@ -124,3 +124,7 @@ input[type=color] { width: 30px; height: 24px; padding: 0; border: 1px solid var
 .drop-overlay > div { display: grid; justify-items: center; gap: 6px; padding: 30px 46px; border: 2px dashed var(--accent-line); border-radius: 18px; background: var(--panel); color: var(--fg); }
 .drop-overlay .ic { width: 34px; height: 34px; color: var(--accent-line); }
 .drop-overlay span { color: var(--dim); }
+
+/* Drop strip over the monitor (shared/drop, compact) */
+#monitor { position: relative; }
+.sc-dropstrip { position: absolute; left: 12px; bottom: 12px; z-index: 5; max-width: min(420px, calc(100% - 24px)); max-height: 50%; overflow: auto; background: var(--panel, #fff); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.2); }

@@ -1,0 +1,60 @@
+# Shared documents: PDF, templates and the paper view (handoff)
+
+Used by Slop Orders and Slop Invoices. One view of a document feeds three outputs: the paper on the editor screen, the
+print sheet, and the PDF. The data (money, numbering, totals) is unchanged: this folder only draws.
+
+## Files
+
+| Path | Role |
+| --- | --- |
+| `pdf-layouts.js` | `SlopDocs.layouts`: the five templates (`classic`, `modern`, `minimal`, `bold`, `sidebar`), four accent colours, `newSeed()`, `seedOf(doc)`, `resolve(doc)` and `describe(style)`. Pure data. |
+| `doc-view.js` | `SlopDocs.view.build(doc)`: the one view of a document (company, number, dates, bill-to, rows with the raw value each editable cell edits, totals, notes). Money is formatted here. |
+| `pdf-render.js` | `SlopDocs.pdf.renderPdf(view)`: the A4 PDF through the vendored pdf-lib (global `PDFLib`). Wraps lines, paginates with a repeated table head, and draws a footer with "Page n of N". |
+| `paper.js` / `paper.css` | `SlopDocs.paper.build(view, { editable })`: the page as DOM, in the template's layout. Editable fields are `button.pe` with `data-edit`, `data-index` and `data-value`. |
+| `paper-edit.js` | `SlopDocs.paperEdit.attach(root, o)`: a click or Enter on a field opens an input; Enter, blur or change commits; Escape restores; Ctrl+Enter ends a note. |
+| `page.js` | `SlopDocs.page.mount(o)`: the Page / Form switch (Form is the default under 700 px), the layout pick and "New seed", and repainting the paper. The app supplies its state and its `field(name, index, value)`. |
+| `model.js`, `lines.js` | Unchanged apart from `SlopDocs.lines.parseField`, which the paper uses so typed values are read exactly as the form reads them. |
+
+## The template and the seed
+
+- A document has `pdfSeed` (an integer kept on the record, drawn once when the draft is created) and optionally
+  `pdfLayout` (a template id, or absent for "random from the seed"). The seed picks the template and the accent colour;
+  a picked template keeps the seed's accent. Same record, same bytes: `renderPdf` draws nothing random.
+- A record saved before seeds has no `pdfSeed`: `seedOf` then uses a stable hash of its id.
+- The schema (`shared/data/schema-defs.js`) has the two optional fields on `orders` and `invoices`, and the enum
+  `ENUM.pdfLayout`. Issued invoices keep the seed and layout they had at issue (their edits are refused, as before).
+- The template changes presentation only. It never changes a total, a number or a stored line.
+- The template applies to the PDF, the print sheet, and the paper on the editor screen, which is the same page the PDF
+  draws (the screen paper is "the same layout as the PDF").
+
+## The PDF
+
+- Standard fonts only: Helvetica (sans layouts) and Times (`classic`), with their bold faces. pdf-lib cannot embed the
+  bundled WOFF2 fonts (it needs fontkit, which is not vendored, and WOFF2 is not a pdf-lib format). Characters outside
+  WinAnsi become "?".
+- pdf-lib writes the page content as flate streams with hex text strings. The Node test inflates them and decodes the
+  hex before it looks for totals.
+- Metadata is not stamped (`updateMetadata: false`), so the same document gives the same bytes.
+
+## Rules
+
+- Keep one view for every output. A field that appears on the page must appear in `doc-view.js` first.
+- Editing on the page uses the form's own checks: `invoices/js/ui/page.js` and `orders/js/ui/page.js` have a
+  `fieldError` that gives the same messages as the save. A wrong value is shown and not saved until fixed.
+- The company name on the page is the shared settings' `companyName` (the settings page edits the same value).
+- Files stay under 300 lines.
+
+## Tests
+
+- `node tests/run.mjs docs` and the browser tests in `tests/invoices/paper.test.html` and `tests/orders/paper.test.html`
+  (click a line description on the page, check the form and the store follow, then export and check the `%PDF-` bytes).
+- `tests/node/pdf-render.test.mjs`: every template gives `%PDF-` bytes with the totals text (29.00, tax 4.00, subtotal
+  25.00), the same document gives the same bytes, a long table runs onto several pages, the schema enum equals the
+  template ids, the seed reaches all five templates, and word wrapping.
+
+## Known limits
+
+- The paper on screen grows with its content; it is not paginated on screen. The PDF and the print sheet paginate.
+- Fonts are the standard PDF faces, not the bundled library (see above).
+- `service-worker.js` precaches the app files and was not regenerated for these new files; regenerate its precache
+  before relying on offline use of the new paper view.
