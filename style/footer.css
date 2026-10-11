@@ -55,7 +55,6 @@
   .brand-name { display: none; }
   .tabs { margin-left: auto; }
   .tab { padding: 6px 7px; font-size: 10.5px; letter-spacing: 0.06em; }
-  .counter { display: none; }
   .hero { padding: 26px 16px 30px; }
   .kicker { font-size: 10px; gap: 6px 12px; }
   .kicker span + span::before { margin-right: 12px; }

@@ -1,4 +1,4 @@
-/* Slopographic homepage: renders Apps, Games, Experiments and the Status board from
+/* Slopographic homepage: renders Apps and the Status board from
  * shared/apps.js (the single source of truth), and smooth-scrolls the section links. */
 (() => {
   'use strict';
