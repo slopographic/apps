@@ -23,9 +23,20 @@ An Illustrator-style vector editor at `/vector/`. Plain scripts (no modules, no 
   - File ▸ Send to: sends the SVG, or a 2× PNG, to every app in `SLOP_APPS` that accepts it.
   - `?drive=<id>` launch via `consumeLaunch()`, which then strips the query string.
 
-## Tests (`node tests/run.mjs vector`): 59 green
+## Guides (`js/ui/guides.js`, uses `shared/guides/`)
+- Document guides stay `S.doc.guides = { h: [y…], v: [x…] }` (part of every history snapshot). Rulers drag guides out (`ui/status.js`), the Selection tool moves them (`tools/select.js`), and `SV.buildSnap` (`core/hittest.js`) snaps to them when Show Guides and Snap to Guides are on.
+- View ▸ New Guide Layout… (Alt+Shift+Ctrl+;, also in Window) opens the shared GuideGuide-style panel: Form / Notation / Intervals, presets, live preview (`S.guidePreview`, drawn by `core/overlay.js`), Apply / Replace / Clear as single undo steps (`SV.applyGuideList`, `SV.clearGuides`). Targets: Artboard or Selection bounds.
+- Also: New Guide… (units), Guides from Selection, Snap to Guides (Shift+Ctrl+;, pref `snapGuides`).
+
+## Commands and shortcuts (`js/ui/commands.js`, uses `shared/commands/`)
+- Every action in `SV.actions` is a SlopCmd command `sv.<action id>`; tools are `sv.tool.<id>`; canvas keys (X, Shift+X, D, /, comma, period, arrow nudges) are `sv.paint.*`, `sv.focus.toggle`, `sv.nudge.*`. Menus and context menus label items with `UI.actKey(a)`, i.e. the person's own binding.
+- Commands are gated off while the text editor, a SlopUI menu or the colour picker has the keys. Copy/Cut/Paste keep their native events (no SlopCmd keys). With SlopCmd active, `tools/keys.js` handles only Space, Esc, Enter, clipboard and shape-drag arrows.
+- Help ▸ Search Commands… (⌘K), Help ▸ Keyboard Shortcuts (SlopCmd's editor; F1), and a search button in the menubar.
+
+## Tests (`node tests/run.mjs vector`): 73 green
 - `tests/vector/boot.js`: shared boot. It waits for the app iframe and exposes `W, SV, G, IO, UI, HUB` and helpers.
-- `geom.test.html` (16), `model.test.html` (16), `io.test.html` (11), `ui.test.html` (17). Each page also runs the boot test.
+- `geom.test.html` (16), `model.test.html` (16), `io.test.html` (11), `ui.test.html` (17), `guides.test.html` (8), `commands.test.html` (6). Each page also runs the boot test.
+- The offline builder strips `shared/guard.js` (hosted-site reload guard).
 - Gotchas:
   - SlopUI fades closed dialogs for about 140 ms. The UI tests' `closed()` waits until `.sui-back` has left the DOM, so lookups never hit the old dialog.
   - Inside an inline `<script>` in a test page, write `<\/script>`, never a literal closing tag.
