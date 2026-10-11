@@ -41,13 +41,7 @@
     E.initFonts().catch(function (e) { console.warn(e); });
     // warm up pdf.js so the first open is snappy
     E.pdfjs().catch(function (e) { A.status('Could not load the PDF engine: ' + e.message, 'err'); });
-    if (U.store.get('autosave', true)) U.idb.get('session').then(function (s) {
-      if (s && s.state && s.state.pages && s.state.pages.length && !E.state.pages.length) {
-        S.savedSession = s;
-        S.els.restore.hidden = false;
-        S.els.restore.querySelector('span').textContent = 'Restore last session (' + s.files.length + ' file' + (s.files.length === 1 ? '' : 's') + ', ' + s.state.pages.length + ' pages)';
-      }
-    });
+    A.restoreView(); // ui/view-state.js: the saved session (autosave) and the view it was left in
     if (SP.offline) document.documentElement.classList.add('is-offline');
     document.documentElement.classList.add('ready');
   };

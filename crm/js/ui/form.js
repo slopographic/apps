@@ -39,7 +39,6 @@
           const r = await NS.customers.save(id, changes);
           if (!r.ok) { msg.textContent = NS.util.refusal(r); return false; }
           UI.toast(id ? 'Customer saved' : 'Customer added');
-          if (!id) NS.app.show('customer', r.value.id);
           return true;
         } },
       ],

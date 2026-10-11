@@ -7,10 +7,19 @@
   /** Run fn, then give focus back to the typing surface. */
   const act = (fn) => () => { try { fn(); } catch (e) { console.error(e); } if (S.focusIme) S.focusIme(); };
   const A = () => S.A;
+  /** The saved templates, for File ▸ New ▸ My templates (the list is loaded by templates.js). */
+  const mine = () => (S.tplList.length
+    ? S.tplList.map((t) => ({ label: t.name, act: act(() => S.random.useDoc(t.doc)) }))
+    : [{ label: 'No saved templates yet', disabled: true }]);
 
   S.menus = {
     file: () => [
-      { label: 'New document', key: key('file.new'), act: act(() => S.newDoc()) },
+      { label: 'New', sub: [
+        { label: 'Blank document', key: key('file.new'), act: act(() => S.newDoc()) },
+        { label: 'Random template…', key: key('file.random'), act: act(() => S.random.open()) },
+        '-',
+        { label: 'My templates', sub: mine() },
+      ] },
       { label: 'Open from Slop Drive…', key: key('file.open'), act: act(() => S.openFromDrive()), disabled: !window.SlopHub },
       '-',
       { label: 'Save to Slop Drive', key: key('file.save'), act: act(() => S.save()) },

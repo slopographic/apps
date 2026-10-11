@@ -94,6 +94,7 @@
     ];
     it('imports the saved list once, and a second import adds no duplicates', async () => {
       await win().SlopHub.put(list(contacts), { name: 'Contacts.scontacts', from: 'contacts' });
+      win().SlopCrm.app.show('customers');
       $('cImport').click();
       await waitFor(() => doc().querySelector('.sui-dlg') && dlgText().includes('2 new customers'), { timeout: 8000 });
       dlgSave().click();
