@@ -38,8 +38,43 @@ No SharedArrayBuffer, no ffmpeg.wasm (GitHub Pages cannot send COOP/COEP headers
    command (`js/ui/commands.js`; Help ▸ Search commands ⌘K, Keyboard shortcuts). `cmd-fallback.js` is a small
    built-in dispatcher/palette used only if SlopCmd is missing.
 
+## Templates and random edit
+
+**Templates** (`js/core/templates.js` data, `js/core/layout.js` operations, `js/ui/templates-panel.js`): a Templates tab
+in the bin (Shift+G, or Sequence ▸ Templates panel). Eight layouts, each a list of regions (fractions of the frame):
+Single, Split horizontal, Split vertical, Picture-in-picture (main plus a corner, layered), Grid 2×2 (4), Grid 3×3 (9),
+Three-up, Vertical 9:16 reel (sets a 9:16 frame, two stacked). Clips go to the monitor as transforms (fitted, letterboxed
+into the region) and to the timeline as slots: slot i is video track V(i+1) (linked sound on A(i+1)), all starting at the
+same time for the layout's length (the shortest selected clip, capped by the template's default length).
+- Apply: select clips on the timeline (Ctrl/Shift-click for several) and pick a template; with no clips selected, the media
+  picked in the bin (Ctrl/Shift-click) is added at the playhead. Clips beyond the slot count stay on the timeline.
+- Re-flow: with a layout on, choosing another template keeps the clips and re-flows them (extra clips leave the layout).
+- Slots in the panel: drag a clip from the chips into a slot, drag a filled slot onto another to swap, or use the per-slot
+  selects (choose a clip, swap with a slot, free the slot). Clear layout keeps the clips.
+- Project field `layout = { tpl, start, dur, slots[] }`. Undo covers every step.
+
+**Random edit** (`js/core/seed.js`, `js/core/random-edit.js`, `js/ui/random-dialog.js`): Shift+R or Sequence ▸ Random edit…
+- Options: target length (1–600 s), pace (fast 0.6–1.4 s cuts, medium 1.5–3 s, slow 3–6 s), aspect (16:9, 9:16, 1:1; sets the
+  sequence size), template (none = one clip after another; a template = beats of n simultaneous cuts, one per slot).
+- Clips: the bin items picked, else every ready video and still image. Shorter sources are skipped (under 0.2 s).
+- Seed: mulberry32, shown as 8 hex digits in the dialog, the status line and the Templates tab. Any text typed as the seed is
+  hashed. The same seed, options and clips always give the same cuts (`SE.random.plan` is pure). Reshuffle draws a new seed;
+  Sequence ▸ Reshuffle random edit (no shortcut) rebuilds with the last options and a new seed.
+- The random edit is ordinary timeline clips (video or still, plus linked sound). Build replaces the timeline clips in one
+  undo step. `project.random` records seed, target, pace, aspect, template, cut count and length.
+- Clips are drawn from a shuffled deck: no clip repeats until every clip has been used (when there are enough clips).
+
+Limits: cuts are straight cuts (no transitions; `shared/motion` transitions are CSS-slide keyframes, not compositor
+transitions, so they are not used); no audio ducking; no beat detection; each cut keeps its own sound, so sound changes
+abruptly at cuts; templates fit by contain (letterbox, no crop); the random build ignores track locks and replaces every
+timeline clip; with fewer clips than slots, clips repeat inside one cut; drag works between panel chips and slots only
+(timeline clips cannot be dragged into a slot from the monitor).
+`io/reel.js` (Slop Gallery reels) calls `SE.random.plan` / `build` and `SE.layout`: keep those signatures.
+
 ## Tests
-`node tests/run.mjs slopedit` → `tests/slopedit/slopedit.test.html` (37 tests, ~40 s, all green). App runs in
+`node tests/run.mjs slopedit` → `tests/slopedit/slopedit.test.html` (58 tests, ~40 s, all green). `slopedit.spec-tpl.js`
+covers templates (region data, apply, re-flow, swap, drop) and the random edit (seeded plan, length, slots, no repeats,
+build, reproducibility, reshuffle, one undo, dialog, menu and keyboard). App runs in
 iframes (1280×760 and 390×844); `slopedit.helpers.js` exposes `window.ST`. Specs: model (split/trim/ripple/move/
 overwrite/snap/links/undo/timecode), render (compositor pixels for layers, crop, rotation, fades, every transition,
 GPU vs CPU grade, titles; live preview), media (import + waveform, synthetic video encoded in the page with

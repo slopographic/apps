@@ -100,7 +100,12 @@
     d[axis] = sign * step * (big ? 10 : 1);
     return move(d, 'nudge');
   }
-  function setVisible(id, on) { return setField(id, 'visible', !!on, null); }
+  /** Shows or hides several nodes in one undo step. */
+  function setVisible(ids, on) {
+    let d = s.doc;
+    for (const id of [].concat(ids)) d = O.setField(d, id, 'visible', !!on) || d;
+    return commit(d, null);
+  }
 
   S.actions = { commit, undo, redo, add, importTree, remove, duplicate, group, ungroup, reparent, setField, move, beginDrag, setSnap, nudge, setVisible, restore };
 })();

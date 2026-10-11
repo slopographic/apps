@@ -68,6 +68,11 @@
       accepts: ['image/*'],
       features: ['Timeline, albums & favourites', 'Sort mode: like, dislike and tag', 'Exact duplicate finder', 'One-file backup & restore'],
       icon: 'brush', status: 'building' }),
+    A('3d', 'app', 'Slop 3D', '3d/', 'A 3D editor for simple models and scenes. Nothing uploaded.', { group: 'creative',
+      accepts: ['model/gltf-binary', 'model/obj', 'image/*'],
+      creates: [{ label: 'Scene', ext: 's3d', mime: 'application/x-slop-3d' }],
+      features: ['Primitives, groups, undo and snapping', 'Materials, lights and a live outliner', 'Imports OBJ and glTF/GLB, exports OBJ', 'Renders PNG at 1× or 2×'],
+      status: 'building' }),
     A('authenticator', 'experiment', 'The Authenticator', '#detector', 'Is your text secretly slop? Get it certified.', { shot: 'assets/shots/authenticator.jpg' }),
     A('paint-classic', 'experiment', 'Slop Paint Classic', 'photoslop/classic/', 'The 1998 experience. Every MS Paint tool.', { shot: 'assets/shots/paint-classic.jpg' }),
   ];

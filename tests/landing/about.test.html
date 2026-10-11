@@ -19,7 +19,9 @@
 
   /* One entry per app's about page. The app link is found by its "Open ..." text. */
   const PAGES = [
-    { app: 'label', path: 'label/about/' },
+    { app: 'label', path: 'label/about/', column: 'Slop Label' },
+    { app: 'photoslop', path: 'photoslop/about/', column: 'PhotoSLOP' },
+    { app: 'vector', path: 'vector/about/', column: 'Slop Vector' },
   ];
 
   const ROOT = new URL('../../', location.href);
@@ -67,7 +69,7 @@
         expect(caption.textContent.trim().length).toBeGreaterThan(20);
         const headers = table.querySelectorAll('thead th');
         expect(headers.length).toBe(3);
-        expect(headers[1].textContent.trim()).toBe('Slop Label');
+        expect(headers[1].textContent.trim()).toBe(p.column);
       });
 
       it('every matrix row has a feature name and two value cells', async () => {

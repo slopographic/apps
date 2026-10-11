@@ -60,9 +60,10 @@
   describe('new from template', () => {
     it('File > New from template replaces the deck with the template, unlinked from Drive', async () => {
       const w = await ST.open('../../slides/');
+      const dd = await w.SS.draft.load();
+      throw new Error('DBG3 dirty=' + w.SS.app.dirty + ' doc=' + JSON.stringify(w.SS.app.doc) + ' draft=' + JSON.stringify(dd && { n: dd.deck.slides.length, name: dd.name, d: dd.driveId, age: Date.now() - dd.savedAt }) + ' touch=' + (w.__TOUCH||'none').slice(0,200));
       const t = w.SS.templates.byId('pitch');
       expect(t).toBeTruthy();
-      if (1) throw new Error('DBG dirty=' + w.SS.app.dirty + ' w1dirty=' + (window.__W1 && window.__W1.SS.app.dirty) + ' slides=' + w.SS.app.deck.slides.length + ' w1slides=' + (window.__W1 && window.__W1.SS.app.deck.slides.length) + ' hasDraftFlag=' + w.SS.app.doc.name);
       w.SS.files.fromTemplate('pitch');
       expect(w.SS.app.deck.slides.length).toBe(t.build().slides.length);
       expect(w.SS.app.deck.title).toBe('Pitch deck');

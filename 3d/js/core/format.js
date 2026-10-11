@@ -32,6 +32,7 @@
       const m = n.material || {};
       if (!HEX.test(m.color || '')) bad('material colour must be #rrggbb');
       for (const k of ['roughness', 'metallic', 'opacity']) if (!isNum(m[k]) || m[k] < 0 || m[k] > 1) bad(`material.${k} must be 0 to 1`);
+      if (m.map !== undefined && !(isStr(m.map) && /^data:image\//.test(m.map) && m.map.length < 12000000)) bad('texture must be an embedded image');
     }
     if (n.type === 'group') {
       if (!Array.isArray(n.children) || !n.children.every((c) => isStr(c) && nodes[c] && nodes[c].parent === id)) bad('children must list nodes whose parent is this group');

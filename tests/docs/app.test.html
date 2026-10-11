@@ -11,7 +11,6 @@
  * pointer produce: input events on the hidden text box, keydown events and clicks on the toolbar. */
 const { describe, it, expect, waitFor, beforeEach } = SlopTest;
 const H = window.SlopHub;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const frames = [];
 /** Each describe starts with no saved drafts, so one test's autosave never reopens in the next. */
 async function clearDrafts() {
@@ -29,12 +28,7 @@ async function open(src, width = 1100) {
 }
 function close(W) { const f = frames.find((x) => x.contentWindow === W); if (f) { f.remove(); frames.splice(frames.indexOf(f), 1); } }
 /** Wait until the autosave draft (1.2 s after the last keystroke) holds what was typed since `since`. */
-async function draftSaved(W, since) {
-  await waitFor(async () => {
-    const d = await W.SlopDocs.draftGet(W.SlopDocs.file.id ? 'd:' + W.SlopDocs.file.id : 'untitled');
-    return !!(d && d.dirty && d.time >= since);
-  }, { timeout: 5000 });
-}
+const draftSaved = (W, since) => waitFor(async () => { const d = await W.SlopDocs.draftGet(W.SlopDocs.file.id ? 'd:' + W.SlopDocs.file.id : 'untitled'); return !!(d && d.dirty && d.time >= since); }, { timeout: 5000 });
 function typeText(W, s) {
   const ime = W.document.getElementById('ime');
   for (const ch of s) { ime.value = ch; ime.dispatchEvent(new W.InputEvent('input', { inputType: 'insertText', data: ch, bubbles: true })); }

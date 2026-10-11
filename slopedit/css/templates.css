@@ -39,3 +39,6 @@
 /* Three bin tabs must fit the phone width. */
 .bin-tab { padding: 0 8px; }
 @media (max-width: 760px) { .bin-tab { padding: 0 6px; font-size: 11px; } .bin-tabs .bin-info { display: none; } }
+/* The Slop Drive link (shared/drive-link.js) is about 96 px and does not fit the phone topbar; hidden under
+   760 px. File ▸ Import from Slop Drive still works on phones. */
+@media (max-width: 760px) { .topbar .sdl { display: none; } }
