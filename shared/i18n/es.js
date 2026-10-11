@@ -41,7 +41,7 @@
     'settings.defaults': 'Valores predeterminados',
     'settings.exchange_rates': 'Tipos de cambio',
     'settings.app_settings': 'Ajustes de las apps',
-    'settings.donate': 'Donar',
+    'settings.donate': 'Bote de propinas',
 
     'settings.language': 'Idioma',
     'settings.language_saved': 'Guardado. {name} es el idioma del texto de la app.',
@@ -56,7 +56,7 @@
     'support.title': 'Apoya a Slopographic',
     'support.text': 'Sloppo hizo esto gratis. Si te ayudó, una donación lo mantiene en marcha.',
     'support.fine': 'Las analíticas y los anuncios están desactivados por defecto.',
-    'support.donate': 'Donar',
+    'support.donate': 'Bote de propinas',
     'support.no_thanks': 'No, gracias',
     'support.close_aria': 'Cerrar por ahora',
     'support.ads': 'Anuncios',

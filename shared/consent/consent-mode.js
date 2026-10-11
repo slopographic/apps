@@ -2,6 +2,7 @@
  * Load order: config.js, state.js, then this file, before any other script. On load it sets every consent type to
  * 'denied' BEFORE any tag, then loads what the stored choice allows. Nothing is loaded while an ID is empty.
  * Revoking sets consent to denied, does not reload the page, and stops future loads (window['ga-disable-<ID>'] = true).
+ * Every apply() dispatches a window 'slop-consent' event (detail: the categories), so ad slots react at once.
  * Tests replace the loader: set window.SLOP_CONSENT_LOADER before this file, or SlopConsent.loadScript later. */
 (function () {
   'use strict';
@@ -69,6 +70,7 @@
   /** Makes the consent state match the stored record and loads whatever is allowed. */
   function apply() {
     var c = S.current();
+    try { window.dispatchEvent(new CustomEvent('slop-consent', { detail: c })); } catch (e) { /* old browser: slots re-check on load */ }
     gtag('consent', 'update', mapping(c));
     if (c.analytics) {
       if (cfg.ga4MeasurementId) window['ga-disable-' + cfg.ga4MeasurementId] = false;
