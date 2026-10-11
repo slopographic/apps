@@ -23,7 +23,7 @@ const BACKGROUND = { key: 'background', type: 'color', label: 'Background for tr
 const DELIM = { key: 'delimiter', type: 'select', label: 'Separator', value: 'auto', options: [['auto', 'Detect'], [',', 'Comma'], [';', 'Semicolon'], ['\t', 'Tab'], ['|', 'Pipe']] };
 const EOL = { key: 'eol', type: 'select', label: 'Line endings', value: 'lf', options: [['lf', 'LF (Mac, Linux)'], ['crlf', 'CRLF (Windows)'], ['cr', 'CR (old Mac)']] };
 
-async function imageTo(to) {
+function imageTo(to) {
   return async (files, o) => {
     const f = files[0];
     const r = await convertImage(f.file, { kind: f.kind, to, width: o.width, height: o.height, quality: (o.quality ?? 90) / 100, background: o.background, icoSize: o.icoSize });

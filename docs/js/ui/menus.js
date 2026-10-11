@@ -16,7 +16,7 @@
     file: () => [
       { label: 'New', sub: [
         { label: 'Blank document', key: key('file.new'), act: act(() => S.newDoc()) },
-        { label: 'Random template…', key: key('file.random'), act: act(() => S.random.open()) },
+        { label: 'Random template…', key: key('file.random'), act: () => S.random.open() },
         '-',
         { label: 'My templates', sub: mine() },
       ] },

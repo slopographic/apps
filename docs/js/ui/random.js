@@ -90,6 +90,7 @@
       onClose: () => { view = null; cur = null; run++; },
     });
     regenerate(seed || E().TPL.newSeed());
+    setTimeout(() => seedIn.focus({ preventScroll: true }), 30);
   };
   window.addEventListener('slopdocs:fonts', () => { if (view && cur) paint(); });
 })();
