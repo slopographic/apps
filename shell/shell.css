@@ -107,3 +107,6 @@ button { font: inherit; }
   .sh-mini { width: 52px; height: 52px; }
 }
 @media (prefers-reduced-motion: reduce) { .sn-toast { transition: none; } }
+
+/* The header logo when brand.js swaps the inline mark for the brand image: give it the same size as the mark. */
+img.brand-mark, header .brand img { width: 20px; height: 20px; display: block; flex: none; }
