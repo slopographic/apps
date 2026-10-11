@@ -40,7 +40,7 @@
       });
       var ins = SP.app.insertOpts;
       b.appendChild(section('Insert', [
-        row('Page size', seg([['a4', 'A4'], ['letter', 'Letter'], ['same', 'Same as neighbour']], ins.size, function (v) { ins.size = v; }, 'Blank page size')),
+        row('Page size', seg([['a4', 'A4'], ['letter', 'Letter'], ['same', 'Same', 'Same size as the neighbouring page']], ins.size, function (v) { ins.size = v; }, 'Blank page size')),
         row('Orientation', seg([['portrait', 'Portrait'], ['landscape', 'Landscape']], ins.orient, function (v) { ins.orient = v; }, 'Orientation')),
         row('Position', select([['after', 'After selection'], ['before', 'Before selection'], ['start', 'At the start'], ['end', 'At the end']], ins.where, function (v) { ins.where = v; })),
         h('div', { class: 'btn-row' }, btn('Blank page', 'blank', function () { SP.app.insertBlank(); }), btn('From file…', 'insert', function () { SP.app.insertFromFile(); }))]));

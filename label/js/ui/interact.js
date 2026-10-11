@@ -72,7 +72,7 @@ function onPointerDown(e) {
   pointers.set(e.pointerId, stagePoint(e));
   if (pointers.size === 2) { startPinch(); return; }
   if (pointers.size > 2) return;
-  st.setPointerCapture(e.pointerId);
+  try { st.setPointerCapture(e.pointerId); } catch (err) { /* synthetic or finished pointer */ }
   const [sx, sy] = stagePoint(e), [x, y] = toMMpt(e), tool = toolById(App.tool);
   if (e.button === 1 || App.tool === 'hand' || spaceDown) { Drag = { mode: 'pan', sx, sy, px: App.panX, py: App.panY }; st.classList.add('panning'); return; }
   if (e.button === 2) return;
