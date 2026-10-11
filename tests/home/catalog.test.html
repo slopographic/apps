@@ -21,7 +21,7 @@
       expect(doc.querySelector('[data-list="game"]')).toBe(null);
       expect(doc.querySelector('[data-list="experiment"]')).toBe(null);
       for (const a of apps) {
-        const list = doc.querySelector(`[data-list="${a.kind}"]`);
+        const list = doc.querySelector(`[data-list="${a.group}"]`);
         expect(!!list).toBe(true);
         const card = list.querySelector(`[data-id="${a.id}"][data-perch="card"]`);
         if (!card) throw new Error('missing card for ' + a.id);
