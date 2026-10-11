@@ -117,13 +117,15 @@
       const c = ST.renderAt(SE.doc, 1);
       expect(ST.near(ST.px(c, Math.round(W * 0.25), Math.round(H / 2)), [255, 0, 0, 255])).toBe(true);
       expect(ST.near(ST.px(c, Math.round(W * 0.75), Math.round(H / 2)), [0, 0, 255, 255])).toBe(true);
-      expect(win.document.querySelector('.tp-slot')).toBeTruthy();
+      SE.bin.show('templates');
+      await waitFor(() => win.document.querySelectorAll('.tp-slot').length === 2);
+      expect(win.document.querySelectorAll('.tp-slot')[1].textContent).toContain('Colour matte');
     });
     it('changing the template re-flows the same clips; swapping slots and dropping a clip into a slot', async () => {
       await ST.reset();
       const SE = ST.SE;
       let a, b, c3;
-      SE.change('m', (p) => { a = ST.matte(p, 0, 0, 4, '#ff0000'); b = ST.matte(p, 1, 0, 4, '#0000ff'); c3 = ST.matte(p, 2, 10, 4, '#00ff00'); });
+      SE.change('m', (p) => { ST.M.addTrack(p, 'video'); a = ST.matte(p, 0, 0, 4, '#ff0000'); b = ST.matte(p, 1, 0, 4, '#0000ff'); c3 = ST.matte(p, 2, 10, 4, '#00ff00'); });
       SE.app.select([a, b]);
       SE.act.applyTemplate('split-h');
       const before = SE.doc.clips.length;
@@ -211,7 +213,7 @@
     it('the templates panel opens from the keyboard and the menu', async () => {
       await ST.reset();
       const win = ST.win, doc = win.document, SE = ST.SE;
-      key(win, 'T', { shiftKey: true });
+      key(win, 'G', { shiftKey: true });
       expect(SE.bin.tab).toBe('templates');
       await waitFor(() => doc.querySelector('.tp-panel'));
       expect(doc.querySelectorAll('.tp-tile').length).toBe(8);
