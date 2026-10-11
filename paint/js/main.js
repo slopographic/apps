@@ -1,0 +1,73 @@
+/* Slop Shop: boot. */
+'use strict';
+
+function buildStatus() {
+  const sb = $('#status');
+  const zoom = h('input', { class: 'sb-zoom', type: 'text', 'aria-label': 'Zoom percent', spellcheck: 'false' });
+  const size = h('span', { class: 'sb-size' }), pos = h('span', { class: 'sb-pos' }), col = h('span', { class: 'sb-col' }), chip = h('i', { class: 'sb-chip' });
+  const saved = h('span', { id: 'sbSaved', class: 'sb-saved' }, 'Local only');
+  sb.append(zoom, size, pos, h('span', { class: 'sb-colwrap' }, chip, col), h('span', { class: 'sb-fill' }), saved);
+  const fmtZ = () => (V.zoom * 100 < 10 ? (V.zoom * 100).toFixed(1) : Math.round(V.zoom * 100)) + '%';
+  zoom.addEventListener('change', () => { const v = parseFloat(zoom.value); if (v > 0) setZoom(v / 100); zoom.blur(); });
+  zoom.addEventListener('keydown', (e) => { if (e.key === 'Enter') zoom.dispatchEvent(new Event('change')); e.stopPropagation(); });
+  const sync = () => {
+    if (document.activeElement !== zoom) zoom.value = fmtZ();
+    size.textContent = `${D.w} × ${D.h} px · ${D.layers.length} layer${D.layers.length === 1 ? '' : 's'}`;
+  };
+  let colT = 0;
+  listeners.add((w) => {
+    if (w === 'zoom' || w === 'doc') sync();
+    if (w === 'cursor' && V.cursor) {
+      const x = Math.floor(V.cursor.x), y = Math.floor(V.cursor.y), inside = x >= 0 && y >= 0 && x < D.w && y < D.h;
+      pos.textContent = inside ? `X ${x}  Y ${y}` : '';
+      const now = performance.now();
+      if (inside && V.comp && now - colT > 60) {
+        colT = now;
+        const d = cxr(V.comp).getImageData(x, y, 1, 1).data;
+        col.textContent = d[3] ? `${rgbToHex(d[0], d[1], d[2])}${d[3] < 255 ? ' · ' + Math.round((d[3] / 255) * 100) + '%' : ''}` : 'transparent';
+        chip.style.background = d[3] ? `rgba(${d[0]},${d[1]},${d[2]},${d[3] / 255})` : 'transparent';
+      } else if (!inside) { col.textContent = ''; chip.style.background = 'transparent'; }
+    }
+    if (w === 'docname' || w === 'history') {
+      const t = $('#docTitle'); if (t) t.textContent = (D.name || 'Untitled') + (D.dirty ? ' •' : '');
+      document.title = `${D.name || 'Untitled'}${D.dirty ? ' •' : ''} — Slop Shop`;
+    }
+  });
+  sync();
+}
+
+function wireMobile() {
+  const toggle = $('#panelToggle');
+  toggle.addEventListener('click', () => { const open = document.body.classList.toggle('panels-open'); toggle.setAttribute('aria-expanded', String(open)); });
+  $('#viewport').addEventListener('pointerdown', () => { if (document.body.classList.contains('panels-open') && innerWidth < 900) { document.body.classList.remove('panels-open'); toggle.setAttribute('aria-expanded', 'false'); } });
+}
+
+async function boot() {
+  setTheme(store.get('theme', 'pro'));
+  initView();
+  buildMenubar();
+  buildToolbox();
+  buildPanels();
+  buildStatus();
+  wireMobile();
+  $('#themeToggle').addEventListener('click', () => setTheme(theme() === 'pro' ? 'light' : theme() === 'light' ? 'paint' : 'pro'));
+  $('#exportBtn').addEventListener('click', () => dlgExport());
+  selectTool(TOOL[store.get('tool', 'brush')] ? store.get('tool', 'brush') : 'brush');
+  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('keyup', onKeyUp);
+  window.addEventListener('keydown', (e) => { pasteInPlace = e.shiftKey; }, true);
+  window.addEventListener('blur', () => { V.space = false; V.el.classList.remove('space'); });
+  document.addEventListener('paste', onPaste);
+  document.addEventListener('dragover', (e) => { e.preventDefault(); document.body.classList.add('dropping'); });
+  document.addEventListener('dragleave', (e) => { if (!e.relatedTarget) document.body.classList.remove('dropping'); });
+  document.addEventListener('drop', onDrop);
+  window.addEventListener('beforeunload', (e) => { if (D.dirty && Hist.idx > 0) { autosave(); e.preventDefault(); e.returnValue = ''; } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && D.dirty) autosave(); });
+  listeners.add((w) => { if (w === 'history' && Hist.idx > 0) scheduleAutosave(); });
+  const restored = await loadAutosave();
+  if (!restored) await sampleDocument();
+  emit('docname');
+  document.body.classList.add('ready');
+  if (!store.get('welcomed', false)) { store.set('welcomed', true); setTimeout(() => toast('Welcome to Slop Shop. Everything stays on your device.', 3600), 400); }
+}
+boot();

@@ -1756,7 +1756,7 @@ function aboutDialog() {
       <hr>
       <p>Hand-made pixels. Machine-made drips.<br>No AI was harmed in the making of this program.</p>
       <p>Physical memory available to Slop Paint: 640 KB (plenty)<br>System resources: 98% Free</p>
-      <p><a href="../">slopographic.com</a> · more slop where this came from</p>
+      <p><a href="../../">slopographic.com</a> · more slop where this came from</p>
     </div>` });
   return openDialog({ title: 'About Slop Paint', content, width: 400, buttons: [{ label: 'OK', value: 'ok', default: true }] });
 }
@@ -1897,8 +1897,8 @@ const ACTIONS = {
   open: async () => { if (op) cancelOp(); finishPending(); if (!await confirmSave()) return; fileMode = 'open'; fileInput.click(); },
   save: () => savePNG(),
   saveAs: saveAsDialog,
-  home: () => { location.href = '../'; },
-  exit: async () => { if (op) cancelOp(); finishPending(); if (await confirmSave()) location.href = '../'; },
+  home: () => { location.href = '../../'; },
+  exit: async () => { if (op) cancelOp(); finishPending(); if (await confirmSave()) location.href = '../../'; },
   undo, redo,
   cut: cutSel, copy: copySel, paste: pasteMenu,
   clearSel: () => { if (text) return; clearSelection(); },
