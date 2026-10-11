@@ -48,7 +48,7 @@
     if (!ids.length) return;
     A.change('Delete', function () {
       slide.objects = slide.objects.filter(function (o) { return ids.indexOf(o.id) < 0; });
-      O.cleanBuilds(slide);
+      M.cleanBuilds(slide);
     });
     A.select([]);
   };
