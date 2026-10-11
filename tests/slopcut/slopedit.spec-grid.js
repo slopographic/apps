@@ -95,6 +95,19 @@
       expect(JSON.stringify(labels)).toBe(JSON.stringify(['1×2', '2×1', '3×1', '1×3', '2×2', '3×3', 'PIP', 'Title + 2', '1×1', '9:16']));
     });
 
+    it('Title + 2: a title preset dropped on the title band becomes a title clip in slot 1', async () => {
+      await ST.reset();
+      const SE = ST.SE, doc = ST.win.document;
+      showTemplates();
+      SE.act.applyTemplate('title-two');
+      await waitFor(() => doc.querySelector('.tp-slot[data-slot="0"]'));
+      drop(doc.querySelector('.tp-slot[data-slot="0"]'), 'application/x-slopedit-fx', JSON.stringify({ kind: 'title', preset: { str: 'Hello', size: 80, anim: 'fade' } }));
+      const id = SE.doc.layout.slots[0], c = ST.M.clip(SE.doc, id);
+      expect(c.kind).toBe('title');
+      expect(c.text.str).toBe('Hello');
+      expect(c.track).toBe(videoTracks()[0].id);
+    });
+
     it('a 1×3 layout (three rows) gives three tracks and an empty slot on each', async () => {
       await ST.reset();
       showTemplates();

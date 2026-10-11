@@ -95,3 +95,9 @@ Keep the signatures stable: SlopCut's `io/reel.js` and the Remix manifest replay
 No audio rendering, no transitions: the core decides cuts, slots, regions, sizes, the effect picks and the keys' maths. Keyframes
 are drawn by the app (Remix), not here. Clip durations come from the
 app (`dur` on each media item; stills use `Infinity`). The lane widget needs `document` and is not loaded in Node.
+
+## Slots (slots.js)
+`SlopVideo.slots` is the slot maths for a layout as pure functions over arrays of clip ids (or null): `count`, `rects`,
+`empty`, `cellAt` (layered templates: the top-most slot wins), `resize`, `fill` (a clip already in another slot swaps),
+`swap`, `free`, `filled`. Geometry comes from `templates.js`. Tests: `tests/node/slopcut-grid.test.mjs`.
+`title-two` (a title band over two clips) joined the named templates, so Reel Remix's layout list shows it too.

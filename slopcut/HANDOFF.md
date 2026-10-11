@@ -20,8 +20,8 @@ No SharedArrayBuffer, no ffmpeg.wasm (GitHub Pages cannot send COOP/COEP headers
    crop, fades; colour grade on the GPU (`grade.js`, WebGL, with a Canvas2D filter fallback). Video comes from a
    `<video>` pool (`vpool.js`) synced to the WebAudio clock (`player.js` + `audiomix.js`). Safe-area overlay ('),
    half-quality toggle, level meter, on-canvas move/scale/rotate handles (`preview-input.js`).
-4. **Effects**: transitions (cross dissolve, dip to black/white, wipe, slide, push), titles (fonts, size, colour,
-   outline, box, bold/italic/shadow, align, animations fade/slide/pop/typewriter/rise), colour mattes, brightness/
+4. **Effects**: transitions (the library below), titles (fonts, size, colour, outline, box, bold/italic/shadow, align,
+   entrance and exit animations, see Text below), graphics (the library below), colour mattes, brightness/
    contrast/saturation/temperature + looks, speed (10–1600 %, later clips ripple), video fades, audio volume,
    keyframes and fades. Effects tab supports click-to-apply and drag onto the timeline.
 5. **Export** (`js/io/encode.js`, `js/ui/export-dialog.js`): WebCodecs VideoEncoder/AudioEncoder → MP4 (mp4-muxer)
@@ -41,18 +41,47 @@ No SharedArrayBuffer, no ffmpeg.wasm (GitHub Pages cannot send COOP/COEP headers
 
 ## Templates and random edit
 
-**Templates** (`shared/video/templates.js` and `grid.js` data, `js/core/layout.js` operations, `js/ui/templates-panel.js`): a Templates tab
-in the bin (Shift+G, or Sequence ▸ Templates panel). Eight layouts, each a list of regions (fractions of the frame):
-Single, Split horizontal, Split vertical, Picture-in-picture (main plus a corner, layered), Grid 2×2 (4), Grid 3×3 (9),
-Three-up, Vertical 9:16 reel (sets a 9:16 frame, two stacked), and Custom grid… (columns and rows, 1 to 4 each, equal cells; the id is `grid-RxC`, rows × columns, so 1x3 is three columns). Clips go to the monitor as transforms (fitted, letterboxed
-into the region) and to the timeline as slots: slot i is video track V(i+1) (linked sound on A(i+1)), all starting at the
-same time for the layout's length (the shortest selected clip, capped by the template's default length).
+**Templates** (`shared/video/templates.js` and `grid.js` data, `slots.js` slot maths, `js/core/layout.js` operations,
+`js/ui/templates-panel.js`, `js/render/cells.js`): a Templates tab in the bin (Shift+G, or Sequence ▸ Templates panel).
+The picker is labelled columns × rows (3×1 is three columns, 1×3 three rows): 1×2 (two rows), 2×1 (two columns),
+3×1 (three columns), 1×3 (three rows), 2×2, 3×3, Picture-in-picture (layered), Title + 2 (a title band over two clips),
+1×1, Vertical 9:16 reel, and Custom… (columns and rows 1 to 4). Shared ids: `split-v`, `split-h`, `three-up`, `grid-3x1`,
+`grid2`, `grid3`, `pip`, `title-two`, `single`, `reel`, `grid-RxC` (rows × columns). Clips go to the monitor as transforms
+(fitted, letterboxed into the region) and to the timeline as slots: slot i is video track V(i+1) (linked sound on A(i+1)),
+all starting at the layout's start for its length.
 - Apply: select clips on the timeline (Ctrl/Shift-click for several) and pick a template; with no clips selected, the media
-  picked in the bin (Ctrl/Shift-click) is added at the playhead. Clips beyond the slot count stay on the timeline.
+  picked in the bin is added at the playhead; with nothing picked, an **empty layout** is made at the playhead. Either way
+  every slot gets its own track row (V1…Vn) and a cell in the monitor; an empty slot shows as a dashed box on the timeline
+  and a numbered outline in the monitor. Clips beyond the slot count stay on the timeline.
+- Fill: drag a bin item into a panel slot, or drop it on a monitor cell (the cell under the pointer, `SlopVideo.slots.cellAt`).
+  Either makes a clip at the layout's start for its length (`L.placeMedia`). Dragging a timeline clip into a slot still works.
+- Swap and clear: drag a filled slot onto another to swap (reorder); drag it onto the clip list to clear it (the clip stays).
+  The per-slot selects (choose a clip, swap with a slot, free the slot) and Clear layout still work.
 - Re-flow: with a layout on, choosing another template keeps the clips and re-flows them (extra clips leave the layout).
-- Slots in the panel: drag a clip from the chips into a slot, drag a filled slot onto another to swap, or use the per-slot
-  selects (choose a clip, swap with a slot, free the slot). Clear layout keeps the clips.
 - Project field `layout = { tpl, start, dur, slots[] }`. Undo covers every step.
+- Slot maths (`shared/video/slots.js`, pure): `count`, `rects`, `empty`, `cellAt` (layered: top-most wins), `resize`, `fill`
+  (a clip already in another slot swaps), `swap`, `free`, `filled`. `js/core/layout.js` writes them into the project.
+
+**Transitions** (`js/render/transitions.js` = `SE.transitions`, `js/ui/tr-preview.js`): fourteen transitions, ids stored in
+projects: `cross` (cross dissolve), `blur` (blur dissolve), `black` and `white` (dip), `wipe` (wipe right), `wipe-left`,
+`wipe-up`, `wipe-down`, `slide`, `push`, `zoom-in`, `zoom-out`, `spin`, `glitch` (bands shift until the cut). `TR.params(type,
+role, q, w, h, solo)` gives the terms for one side at progress q; the compositor (preview and export) and the transition preview
+both draw from it, so they match. Glitch draws the layer in bands (`slices`). Length: `SE.transitions.dur` (0.2 to 3 s, the
+slider at the top of the Effects tab, remembered in the browser). Click a tile to add it at the cut (the preview replays),
+or drag it onto a cut. Titles still take a per-title entrance (`anim`) and exit (`out`: as in, none, fade, slide up, shrink,
+blur out); `out` is missing in older projects, which means "as in".
+
+**Text** (`js/render/text.js`, Inspector ▸ Text in `js/ui/insp-clip.js`, presets in `js/ui/effects.js`): Titles list has
+Headline, Lower third, Caption, Subtitle, Typewriter, Handwritten and Outline. Text takes a box (background colour), outline,
+shadow, alignment and an entrance and an exit. The Font list is the standard fonts plus the bundled and downloaded families of
+`shared/fonts/picker.js` (loaded when picked; the picker is not in the offline build, so the offline app has the standard list).
+
+**Graphics** (`shared/graphics/icons.js` = `window.SlopGraphics`, `js/render/graphics.js` = `SE.gfx`, `js/ui/graphics-panel.js`,
+`js/ui/insp-graphic.js`): a clip of kind `graphic` with `gfx = { id, color, size, anim, value }`. Shapes: arrow, circle
+highlight, box outline, underline, number counter, check mark, speech bubble, star burst (SVG path data in a 100 box). Motions:
+draw on, pulse, bounce, pop, none. Size is a fraction of the frame height. The Effects tab has the library (colour, size and
+motion above the grid; click adds at the playhead, drag onto the timeline). The Inspector ▸ Graphic edits a placed one.
+Graphics are drawn on a frame-sized canvas like titles, so keyframes, masks, transitions and export work unchanged.
 
 **Random edit** (the pure plan and seed are `shared/video/random-edit.js` and `seed.js`; `js/core/random-edit.js` writes the plan into the project; `js/ui/random-dialog.js`): Shift+R or Sequence ▸ Random edit…
 - Options: target length (1–600 s), pace (fast 0.6–1.4 s cuts, medium 1.5–3 s, slow 3–6 s), frame size (a preset; sets the
@@ -69,7 +98,7 @@ Limits: cuts are straight cuts (no transitions; `shared/motion` transitions are 
 transitions, so they are not used); no audio ducking; no beat detection; each cut keeps its own sound, so sound changes
 abruptly at cuts; templates fit by contain (letterbox, no crop); the random build ignores track locks and replaces every
 timeline clip; with fewer clips than slots, clips repeat inside one cut; drag works between panel chips and slots only
-(timeline clips cannot be dragged into a slot from the monitor).
+(timeline clips cannot be dragged into a slot from the monitor; bin items can be dropped on monitor cells).
 `io/reel.js` (Slop Gallery reels) calls `SE.random.plan` / `build` and `SE.layout`: keep those signatures.
 
 ## Layout lane, presets and the shared core
@@ -92,6 +121,13 @@ timeline clip; with fewer clips than slots, clips repeat inside one cut; drag wo
 - Timeline: the middle mouse button drags the timeline (horizontally and vertically) and does not select or move clips;
   left-drag is unchanged. Test: "a middle-button drag changes the timeline scroll position and does not move a clip".
 - Reel Remix sends a manifest with a `remix` object of the same plan options; `io/reel.js` replays it with `SE.random.plan`.
+
+## Limits of the grid, transitions, text and graphics round
+- The monitor takes bin items on cells only; timeline clips still go in through the panel. Empty layouts do not reserve time
+  past the layout's length. Transitions are not applied between layout cells (each cell is its own clip).
+- Template ids keep the shared rows × columns notation (`grid-3x1` is three rows); the picker labels are columns × rows.
+- Reel Remix lists `title-two` automatically (it reads `SlopVideo.templates.list`); its random plan uses grid ids only.
+- Glitch and blur are approximations (bands and a canvas blur), not frame-exact effects. Graphic counters count to a whole number.
 
 ## Keyframes and the random effect layer
 
@@ -148,6 +184,12 @@ scale 1, so it moves, scales and rotates with the clip (keyframed masks are not 
   change, saved with the project, the inspector section, the draw tool and the corner-handle drag, all through pointer events).
 
 ## Tests
+`node tests/run.mjs slopcut` runs the Slop Cut pages and the node files. `tests/node/slopcut-grid.test.mjs` (slot rectangles for
+each template, fill, swap, free, cell hit tests, the graphics data), `tests/node/slopcut-library.test.mjs` (transition terms,
+duration clamp, title exits). `tests/slopcut/slopedit.spec-grid.js` (in the slopedit page): a 3×1 template gives three slots
+and tracks; a bin item dropped on the middle slot is in the middle column (pixels checked); a monitor cell drop fills that
+cell; slots swap and clear by dragging; the picker labels; a 1×3 layout; a wipe-left renders from the right edge; the Effects
+tab shows the transition and graphics libraries; a box graphic renders in its colour.
 `node tests/run.mjs slopedit` → `tests/slopcut/slopedit.test.html` (63 tests with the node file, all green, ~40 s). `slopedit.spec-video.js` covers the Layout lane (a 1x1 then 1x3 switch, add/move/delete with undo), the middle-button pan and export presets. `tests/node/slopedit-video-core.test.mjs` tests `shared/video` in Node. `slopedit.spec-tpl.js`
 covers templates (region data, apply, re-flow, swap, drop) and the random edit (seeded plan, length, slots, no repeats,
 build, reproducibility, reshuffle, one undo, dialog, menu and keyboard). App runs in
