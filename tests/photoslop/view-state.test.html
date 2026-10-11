@@ -32,6 +32,8 @@
       W.document.body.classList.add('no-panels');
       await sleep(400);
       console.error('DBG pre ' + JSON.stringify([W.eval('DOCS.map(d=>[d.id, d.state && d.state.dirty, d.state && d.state.idx])'), W.eval('D.dirty'), W.eval('Hist.idx')]));
+      f.src = '../drive/frame.html';
+      for (let i = 0; i < 4; i++) { await sleep(1000); const w = f.contentWindow; console.error('DBG loc ' + (w && w.location.href) + ' ' + (w && w.document.readyState)); }
       await open('../drive/frame.html');
       await sleep(60);
       W = await open('../../photoslop/index.html');
