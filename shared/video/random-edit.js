@@ -44,7 +44,7 @@
       timing: TM.MODES.some(([v]) => v === o.timing) ? o.timing : 'same', video: o.video === 'random' ? 'random' : 'through',
       min: +o.min || TM.LEN.min, max: +o.max || TM.LEN.max, stagger: +o.stagger >= 0 ? +o.stagger : TM.LEN.stagger,
       locks: Array.isArray(o.locks) ? o.locks.slice() : [], audio: o.audio || { mode: 'off', track: null },
-      segments: Array.isArray(o.segments) && o.segments.length ? o.segments : null
+      segments: Array.isArray(o.segments) && o.segments.length ? o.segments : null, effect: o.effect || null
     };
   };
   /** Draws n distinct clips per call; a clip returns only after every other clip has been used. */
@@ -129,7 +129,9 @@
     if (opt.locks && opt.locks.length) LK.apply({ cuts }, opt.locks, pool);
     return Object.assign(opt, {
       seedHex: S.hex(opt.seed), slots: SEG.maxSlots(segs), segments: segs, cuts, total: t, clips: pool.length, used: used.size,
-      mixed: O.mixed(pool), audio: AU.choose(opt.audio, opt.seed, pool)
+      mixed: O.mixed(pool), audio: AU.choose(opt.audio, opt.seed, pool),
+      // the effect layer (shared/video/effects.js, read here when loaded: SlopCut does not load it)
+      effect: SV.effects ? SV.effects.plan(opt.effect, cuts, opt.seed) : null
     });
   };
   /** Region (fractions of the frame) of a cut item in a plan, from the layout active at its start. Null for none. */
