@@ -86,25 +86,26 @@
 
   describe('storage that never answers', () => {
     it('still opens a blank workbook with the grid and the sidebar', async () => {
-      // A held connection makes the next upgrade wait, and every open after it queues behind that upgrade.
-      const hold = await new Promise((res, rej) => {
-        const r = indexedDB.open('slop-tables-drafts', 1);
-        r.onupgradeneeded = () => r.result.createObjectStore('drafts');
-        r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
-      });
-      const up = indexedDB.open('slop-tables-drafts', 2);
-      up.onupgradeneeded = () => {};
-      try {
-        await TB.boot('', 'app', { keepDrafts: true });
-        TB.T.flush();
-        expect(doc().querySelectorAll('.ch').length).toBeGreaterThan(5);
-        expect(shown(doc().getElementById('cursor'))).toBe(true);
-        expect(shown(doc().querySelector('#tabs .tab:not(.tab-add)'))).toBe(true);
-        expect(shown(doc().getElementById('side'))).toBe(true);
-      } finally {
-        hold.close();
-        up.onsuccess = () => up.result.close();
-      }
+      // The app's HTML is written into the frame after a stub that makes indexedDB.open never answer,
+      // the way a blocked or stalled store behaves. Startup must not wait for it.
+      const fr = document.getElementById('app');
+      fr.src = 'about:blank';
+      await SlopTest.sleep(60);
+      const url = new URL('../../tables/index.html', location.href);
+      const html = await (await fetch(url.href)).text();
+      const stub = '<script>(function(){var never=function(){return {};};Object.defineProperty(window,"indexedDB",{configurable:true,value:{open:never,deleteDatabase:never}});})();</script>';
+      const d = fr.contentDocument;
+      d.open();
+      d.write(html.replace('<head>', '<head><base href="' + url.href + '">' + stub));
+      d.close();
+      await SlopTest.waitFor(() => fr.contentWindow && fr.contentWindow.SlopTables && fr.contentWindow.SlopTables.ready, { timeout: 30000 });
+      expect(String(fr.contentWindow.indexedDB.open).slice(0,60)).toBe('DEBUG');
+      Object.assign(TB, { win: fr.contentWindow, T: fr.contentWindow.SlopTables, doc: fr.contentDocument });
+      TB.T.flush();
+      expect(doc().querySelectorAll('.ch').length).toBeGreaterThan(5);
+      expect(shown(doc().getElementById('cursor'))).toBe(true);
+      expect(shown(doc().querySelector('#tabs .tab:not(.tab-add)'))).toBe(true);
+      expect(shown(doc().getElementById('side'))).toBe(true);
     }, { timeout: 60000 });
   });
 })();
