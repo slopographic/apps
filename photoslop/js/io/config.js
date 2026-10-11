@@ -91,10 +91,6 @@
       label: 'Document', description: 'Canvas size and the layer stack; pictures are added by name after import',
       read,
     });
-    const example = { kind: 'document', value: { document: { width: 1600, height: 1000 }, layers: [
-      { name: 'Background', visible: true, locked: false, opacity: 1, blend: 'normal', x: 0, y: 0, image: { name: 'Background.png', size: 1 } },
-    ] } };
-    window.PSConfig.menu = () => ({ label: 'Config', sub: D0.menuItems({ app: APP, example }) });
     D0.install({ app: APP });
   }
 })();
