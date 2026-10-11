@@ -3,14 +3,11 @@
 ## The goal
 slopographic.com is a **studio of professional creative apps that run 100% in the browser**: no installs, no accounts, no uploads, **no watermarks**, and each app can be downloaded as one offline `.html` file. All apps share one local file drive (Slop Drive) and can send work to each other. Sloppo™ (the goo mascot) can ride along in every app, Clippy-style.
 
-The **games and experiments** (Sloppo Land, Sloppo Bird, Sloppo Run, Star Defender, Goo Pool Defense, Slop Shots, WWW 2100, Slop Tank, Slop Lighter, Sloppo Reel, Unsubscribe) moved on 2026-10-11 to the **private repo `slopographic/games`**, served at **games.slopographic.com**. This repo's history was rewritten to remove them. Their registry entries here point there, and the old paths (`/games/*`, `/shots/`, `/cards/`, `/tank/`, `/fluid/`, `/lighter/`, `/reel/`, `/unsubscribe/`, `/annoying/`, `/2100/`) are redirect stubs.
+The **games and experiments** (Sloppo Land, Sloppo Bird, Sloppo Run, Star Defender, Goo Pool Defense, Slop Shots, WWW 2100, Slop Tank, Slop Lighter, Sloppo Reel, Unsubscribe) moved on 2026-10-11 to the **private repo `slopographic/games`**, served at **games.slopographic.com**. They are not in this repo's history. Their registry entries here point there, and the old paths (`/games/*`, `/shots/`, `/cards/`, `/tank/`, `/fluid/`, `/lighter/`, `/reel/`, `/unsubscribe/`, `/annoying/`, `/2100/`) are redirect stubs.
 
 ## Where things are
-- **Repo:** `slopographic/slopographic`. Static site, no build step. GitHub Pages, CNAME `slopographic.com`.
-- **Branch:** work on `main`.
-  - The old `claude/awesome-cannon-8azcvd` branch still serves the live site until Pages is switched. Publish with:
-    `T=$(git commit-tree "main^{tree}" -p origin/claude/awesome-cannon-8azcvd -m "Publish main") && git push origin $T:refs/heads/claude/awesome-cannon-8azcvd`
-  - To finish the move (owner, on GitHub): Settings → Default branch = `main`; Settings → Pages → branch `main` / root; then delete `claude/awesome-cannon-8azcvd` and `claude/pensive-faraday-r5n143`.
+- **Repo:** `slopographic/tools` (fresh repo with clean history; the old `slopographic/slopographic` repo is to be deleted). Static site, no build step. GitHub Pages from `main` / root, CNAME `slopographic.com`.
+- **Branch:** work on `main` and push to `main`. There is no separate publish branch any more.
 - **Commit identity:** `slopographic <340656300+slopographic@users.noreply.github.com>`. No Co-Authored-By, no session lines, no attribution of any kind.
 - **Tests:** `npm test`, i.e. `node tests/run.mjs [filter]` (headless Chromium via Playwright; harness `tests/harness.js`).
 - **Each folder has its own `HANDOFF.md`.** Read it before working there.
