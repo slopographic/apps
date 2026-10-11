@@ -3,30 +3,8 @@
 // Run: node tests/run.mjs config   (or node --test tests/node/config.test.mjs)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadInto, plain } from './fx-env.mjs';
-
-const CORE = ['config/schema.js', 'config/validate.js', 'config/template.js', 'config/io.js', 'config/prompt.js'];
-const APPS = [{ id: 'tables' }, { id: 'slides' }, { id: 'orders' }];
-
-async function config({ files = CORE, extra = {} } = {}) {
-  const ctx = await loadInto(files, { SLOP_APPS: APPS, Blob, File, ...extra });
-  return ctx.SlopConfig;
-}
-
-/** A template file for the tables app, as an object. Override any envelope key with over. */
-const templateFile = (over = {}) => ({
-  format: 'slop-config', version: 1, kind: 'template', app: 'tables', name: 'Budget',
-  created: '2026-10-11T09:00:00Z',
-  data: { pages: [{ name: 'Sheet 1', blocks: [{ type: 'table', rows: [['Item', 'Cost'], ['Rent', 900]] }] }] },
-  ...over,
-});
-
-/** Registers the tables template kind with a stub apply that records its calls. */
-function stubTemplate(C, apply = () => {}) {
-  const calls = [];
-  C.registerKind('template', 'tables', C.templateSchema, (data, ctx) => { calls.push({ data, ctx }); return apply(data, ctx); });
-  return calls;
-}
+import { plain } from './fx-env.mjs';
+import { config, templateFile, stubTemplate } from './config-env.mjs';
 
 test('a valid template file validates and comes back as a clean value', async () => {
   const C = await config();
@@ -218,31 +196,6 @@ test('parseAiReply still runs the validator on a parsed object (wrong kind is ca
   assert.ok(r.errors.some((e) => e.path === 'kind'), JSON.stringify(r.errors));
 });
 
-test('buildPrompt names every field and allowed value, and its example is a valid file', async () => {
-  const C = await config({ files: [...CORE, 'config/kinds.js'], extra: { SlopData: { store: fakeStore() } } });
-  const text = C.buildPrompt('numbering', 'slop', 'Use INV-2026- for invoices');
-  for (const word of ['sequences', 'id', 'prefix', 'pad', 'invoice', 'order', 'at most 12', 'Use INV-2026- for invoices']) {
-    assert.ok(text.includes(word), `prompt should mention ${word}`);
-  }
-  assert.ok(text.includes('"invoice", "order"'), 'allowed values are listed');
-  const example = text.slice(text.indexOf('An example of a valid file'), text.indexOf('What the person wants'));
-  const r = C.parseAiReply(example, { app: 'slop' });
-  assert.equal(r.ok, true, C.errorText(r.errors));
-
-  const settings = C.buildPrompt('settings', 'slop', '');
-  assert.ok(settings.includes('defaultCurrency') && settings.includes('defaultTaxRate') && settings.includes('locale'));
-
-  assert.throws(() => C.buildPrompt('nope', 'slop', ''), /no kind/);
-});
-
-test('buildPrompt for a template lists block types and the page limit', async () => {
-  const C = await config();
-  stubTemplate(C);
-  const text = C.buildPrompt('template', 'tables', '');
-  assert.ok(text.includes('"heading", "text", "list", "table"'));
-  assert.ok(text.includes('at most 200 items'));
-  assert.ok(text.includes('pages'));
-});
 
 test('registration rejects a bad schema and a duplicate kind', async () => {
   const C = await config();
@@ -251,89 +204,3 @@ test('registration rejects a bad schema and a duplicate kind', async () => {
   C.registerKind('x', 'tables', { fields: {} }, () => {});
   assert.throws(() => C.registerKind('x', 'tables', { fields: {} }, () => {}), /already registered/);
 });
-
-test('settings kind: the apply writes through the store in one transaction, and export reads it back', async () => {
-  const store = fakeStore();
-  const C = await config({ files: [...CORE, 'config/kinds.js'], extra: { SlopData: { store } } });
-  const file = { format: 'slop-config', version: 1, kind: 'settings', app: 'slop', name: 'Company', created: '2026-10-11T09:00:00Z',
-    data: { defaultCurrency: 'EUR', locale: 'de-DE', defaultTaxRate: 19.5 } };
-  const res = await C.importText(JSON.stringify(file), { app: 'tables' });
-  assert.equal(res.ok, true, C.errorText(res.errors));
-  assert.equal(store.transactions, 1);
-  assert.deepEqual(store.rows.settings.get('main'), { id: 'main', defaultCurrency: 'EUR', locale: 'de-DE', defaultTaxRate: 1950, paymentTermsDays: 30 });
-
-  const exported = await C.exportKind('settings', 'tables', 'Company');
-  const data = JSON.parse(await exported.text()).data;
-  assert.deepEqual(data, { defaultCurrency: 'EUR', locale: 'de-DE', defaultTaxRate: 19.5 });
-});
-
-test('numbering kind: the format changes and the counter is kept', async () => {
-  const store = fakeStore();
-  const C = await config({ files: [...CORE, 'config/kinds.js'], extra: { SlopData: { store } } });
-  const file = { format: 'slop-config', version: 1, kind: 'numbering', app: 'slop', name: 'Numbers', created: '2026-10-11T09:00:00Z',
-    data: { sequences: [{ id: 'invoice', prefix: 'INV-2026-', pad: 6 }] } };
-  const res = await C.importText(JSON.stringify(file), { app: 'tables' });
-  assert.equal(res.ok, true, C.errorText(res.errors));
-  assert.deepEqual(store.rows.numbering.get('invoice'), { id: 'invoice', prefix: 'INV-2026-', pad: 6, next: 7 });
-  assert.deepEqual(store.rows.numbering.get('order'), { id: 'order', prefix: 'ORD-', pad: 4, next: 3 });
-});
-
-test('numbering kind: an unknown sequence is refused before the store is touched', async () => {
-  const store = fakeStore();
-  const C = await config({ files: [...CORE, 'config/kinds.js'], extra: { SlopData: { store } } });
-  const file = { format: 'slop-config', version: 1, kind: 'numbering', app: 'slop', name: 'N', created: '2026-10-11T09:00:00Z',
-    data: { sequences: [{ id: 'credit', prefix: 'CN-', pad: 4 }] } };
-  const res = await C.importText(JSON.stringify(file));
-  assert.equal(res.ok, false);
-  assert.equal(store.transactions, 0);
-});
-
-test('a store failure in the middle of numbering rolls the whole apply back', async () => {
-  const store = fakeStore();
-  store.rows.numbering.delete('order'); // the second sequence is missing, so the store refuses
-  const C = await config({ files: [...CORE, 'config/kinds.js'], extra: { SlopData: { store } } });
-  const file = { format: 'slop-config', version: 1, kind: 'numbering', app: 'slop', name: 'N', created: '2026-10-11T09:00:00Z',
-    data: { sequences: [{ id: 'invoice', prefix: 'NEW-', pad: 4 }, { id: 'order', prefix: 'ORD-', pad: 4 }] } };
-  const res = await C.importText(JSON.stringify(file));
-  assert.equal(res.ok, false);
-  assert.equal(res.rolledBack, true);
-  assert.match(res.errors[0].message, /no numbering sequence order/);
-  assert.equal(store.rows.numbering.get('invoice').prefix, 'INV-');
-});
-
-test('settings apply without SlopData on the page says so, and applies nothing', async () => {
-  const C = await config({ files: [...CORE, 'config/kinds.js'] });
-  const file = { format: 'slop-config', version: 1, kind: 'settings', app: 'slop', name: 'S', created: '2026-10-11T09:00:00Z', data: { defaultCurrency: 'EUR' } };
-  const res = await C.importText(JSON.stringify(file));
-  assert.equal(res.ok, false);
-  assert.match(res.errors[0].message, /data store is not loaded/);
-});
-
-/** A small in-memory stand-in for SlopData.store: transact() works on a copy and commits only when the body succeeds. */
-function fakeStore() {
-  const rows = {
-    settings: new Map([['main', { id: 'main', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30 }]]),
-    numbering: new Map([['invoice', { id: 'invoice', prefix: 'INV-', pad: 4, next: 7 }], ['order', { id: 'order', prefix: 'ORD-', pad: 4, next: 3 }]]),
-  };
-  const store = {
-    rows,
-    transactions: 0,
-    async get(name, key) { return { ok: true, value: rows[name].get(key) ?? null }; },
-    async list(name) { return { ok: true, value: [...rows[name].values()] }; },
-    async transact(fn) {
-      store.transactions++;
-      const copy = { settings: new Map(rows.settings), numbering: new Map(rows.numbering) };
-      const api = {
-        get: async (n, k) => ({ ok: true, value: copy[n].get(k) ?? null }),
-        put: async (n, rec) => { copy[n].set(rec.id, { ...rec }); return { ok: true, value: rec }; },
-        fail: (r) => r,
-      };
-      const r = await fn(api);
-      if (r && r.ok === false) return r;
-      rows.settings = copy.settings;
-      rows.numbering = copy.numbering;
-      return { ok: true, value: r && r.value };
-    },
-  };
-  return store;
-}
