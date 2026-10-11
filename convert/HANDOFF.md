@@ -10,6 +10,7 @@ runs on the device. Status is `building` in `shared/apps.js`.
 - `css/convert.css`: tokens on `:root`, dark by default, light via `prefers-color-scheme` or `data-theme`.
 - `js/core/`: pure converters. `catalog.js` lists them; `pages.js` lists the SEO pages.
 - `js/ui/`: the tool controller (`tool.js`), its markup (`markup.js`), options, batch runner, units widget and `mount.js`.
+- `js/preview/`: the live preview (see below). `mount.js` is its entry point; `controller.js` debounces and runs the actions; `model.js` runs the converter for the preview; `view.js` draws the block; `units.js` is the unit converter's preview; `diff.js` and `spec.js` hold the line diff and the limits.
 - `js/io/`: file helpers, and `zip.js`, a re-export of `shared/office/zip.js` (ZIP writer and reader, shared with the other apps).
 
 ## Converters and their limits
@@ -51,6 +52,41 @@ Browser support: anything the browser cannot decode or encode (for example WebP 
 `sitemap.xml`. `tests/convert/seo.test.html` fails if a page in `pages.js` is missing from the sitemap, its
 file is missing, or its h1, canonical or JSON-LD is wrong.
 
+## Live preview
+
+Every converter page and the hub's converter card has a preview block below the tool:
+
+```html
+<section class="cv-pv-wrap" aria-label="Live preview" data-convert-preview></section>
+...
+<script type="module" src="../../convert/js/preview/mount.js"></script>
+```
+
+The unit converter uses `data-convert-preview="units"`. `js/preview/mount.js` loads after `js/ui/mount.js` and
+attaches to the root's `ConvertTool` (`root.convertTool`). The tool emits `cv:change` on its root whenever files,
+typed text, the target or an option changes. The preview debounces that by 150 ms and drops stale results.
+
+- **Before and after panels.** Pictures show the original and the converted picture with file size and pixel size
+  (read from the drawn image). PDF inputs and outputs show page 1 at 72 dpi. Text, CSV, JSON, Base64, URL and
+  line-ending conversions show the input and the output as text, with changed lines marked where the line
+  structure matches (`LINE_DIFF` in `spec.js`: line endings and URL encode/decode).
+- **Typed text.** Text converters have an input box. Typed text is one item named `pasted.<kind>`
+  (`ConvertTool.setText`), so Convert and Download handle it like a file. A file as input disables the box.
+- **Errors** from the converter show in the after panel in place (`role="alert"`).
+- **Actions.** Copy (text, or a picture as PNG where the browser allows it), Download (the whole conversion, one
+  file or a zip), and Swap for reversible text conversions (`REVERSE` in `spec.js`). Swap moves the output into
+  the input and switches the page to the reverse conversion (`ConvertTool.swapText`).
+- **Limits.** Text larger than 256 KB shows its first part, and the note says so. Pictures larger than 12 MB are
+  drawn at 1200 px wide. PDF previews render page 1 only, and `pdf-to-images` and `split-pdf` run page 1 unless a
+  page range is typed. Whenever a preview ran only part of the job, Download, Copy and Swap run the full conversion.
+
+**Rule:** when you add a converter with a page, give the page the block and the script above (the hub and the
+units page differ as noted). Keep the block out of the page's text and metadata. `tests/convert/preview.test.html`
+covers PNG to JPG and JSON to CSV.
+
+**Not done here:** `service-worker.js` has a precache list of convert files. The `js/preview/` files are not in it
+yet, so offline use of the preview needs them added there (that file is owned elsewhere).
+
 ## Tests
 
 `node tests/run.mjs convert` runs `tests/convert/*.test.html`:
@@ -61,6 +97,7 @@ file is missing, or its h1, canonical or JSON-LD is wrong.
 - `units.test.html`: exact conversions and the approximate flag.
 - `seo.test.html`: sitemap, robots, each page's h1, canonical, JSON-LD and embedded tool.
 - `ui.test.html`: target picker validity, preset limits, keyboard drop zone, labels, safe file names.
+- `preview.test.html`: the preview shows the PNG to JPG output and follows a new input; the JSON to CSV preview updates as text is typed and shows invalid JSON in place.
 
 ## Adding a converter
 

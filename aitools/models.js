@@ -121,7 +121,7 @@
     if (!m) throw new Error('Unknown model ' + id);
     const out = {};
     for (const f of m.files) {
-      if (f.path) out[f.name] = await bundled(f);
+      if (f.path) out[f.name] = (await bundled(f)).slice(0); // a copy: the worker takes ownership of what it is sent
       else {
         const row = await request('files', 'readonly', (s) => s.get(`${id}/${f.name}`));
         if (!row || !row.blob) throw new Error(`${f.name} is not installed. Press Get more first.`);

@@ -9,6 +9,9 @@ export const PREVIEW_PX = 1200;         // width of that smaller copy
 export const MAX_LINES = 400;           // lines shown per text panel
 export const IMAGE_KINDS = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg'];
 
+/** Conversions whose input and output have the same lines, so a line diff says what changed. */
+export const LINE_DIFF = ['line-endings', 'url-encode', 'url-decode'];
+
 /** Conversions whose preview shows the first page only, unless the page range is typed. */
 export const FIRST_PAGE_ONLY = ['pdf-to-images', 'split-pdf'];
 

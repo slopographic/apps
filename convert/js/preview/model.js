@@ -6,7 +6,7 @@ import { pdfToImages } from '../core/pdf-raster.js';
 import { parseCsv } from '../core/csv.js';
 import { fmtSize } from '../io/files.js';
 import { changedLines } from './diff.js';
-import { IMAGE_KINDS, TEXT_LIMIT, IMAGE_LIMIT, PREVIEW_PX, MAX_LINES, FIRST_PAGE_ONLY } from './spec.js';
+import { IMAGE_KINDS, TEXT_LIMIT, IMAGE_LIMIT, PREVIEW_PX, MAX_LINES, FIRST_PAGE_ONLY, LINE_DIFF } from './spec.js';
 
 const PICTURE_EXT = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'svg', 'ico'];
 const extOf = (name) => (/\.([^.]+)$/.exec(String(name)) || [, ''])[1].toLowerCase();
@@ -98,7 +98,7 @@ export async function buildPreview(conv, items, opts) {
   const notes = [];
   if (drawSmaller) notes.push(`Large picture: the preview is drawn ${PREVIEW_PX} px wide. Download converts it at full size.`);
   else if (cut) notes.push('Preview of the first part only. Download runs the full conversion.');
-  if (before.kind === 'text' && after.kind === 'text') {
+  if (LINE_DIFF.includes(conv.id) && before.kind === 'text' && after.kind === 'text') {
     const d = changedLines(before.lines, after.lines);
     if (d) { before.changed = d.a; after.changed = d.b; }
     else notes.push('Input too long to mark the changes.');
