@@ -8,7 +8,7 @@ import { syntaxHighlighting, HighlightStyle, bracketMatching, foldGutter, foldKe
 import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
 import { search, searchKeymap, highlightSelectionMatches, openSearchPanel } from '@codemirror/search';
 import { tags as t } from '@lezer/highlight';
-import { supportFor, languageFor } from './lang.js';
+import { languageFor, extOf } from './lang.js';
 import { completionExtensions, languageCompletion } from './completion.js';
 
 /** Colours come from the --cd-* tokens in css/base.css, so light and dark themes both work. */
@@ -35,6 +35,7 @@ const KEYS = [
   ...searchKeymap, ...closeBracketsKeymap, indentWithTab,
 ];
 const wrapCompartment = new Compartment();
+const langCompartment = new Compartment(); // the language support, so the mode switcher can change it
 const prefs = { wrap: false };
 const hooks = { change: null, select: null };
 
@@ -57,10 +58,16 @@ export function makeState(text, name) {
   return EditorState.create({
     doc: text,
     extensions: [
-      baseExtensions(), supportFor(name), languageCompletion(languageFor(name).id), completionExtensions(),
+      baseExtensions(), langCompartment.of(langParts(languageFor(name), extOf(name))), completionExtensions(),
       wrapCompartment.of(prefs.wrap ? EditorView.lineWrapping : []),
     ],
   });
+}
+/** The support and the completion for a language. `ext` picks the variant (jsx, tsx). */
+const langParts = (lang, ext) => [lang.support(ext), languageCompletion(lang.id)];
+/** Change the language of the shown document (highlighting and completion). The text and history stay. */
+export function setLanguage(view, lang) {
+  view.dispatch({ effects: langCompartment.reconfigure(langParts(lang, lang.ext)) });
 }
 /** Set the callbacks for edits and cursor moves (the app owns the one view). */
 export function setHooks(h) { Object.assign(hooks, h); }

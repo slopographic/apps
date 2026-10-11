@@ -8,7 +8,7 @@
   RM.GRIDS = ['grid-1x2', 'grid-2x2', 'grid-1x3', 'grid-2x3', 'grid-3x3'];
   RM.state = {
     items: [], target: 30, pace: 'medium', preset: 'phone', custom: { w: 1080, h: 1920 },
-    base: 'none', random: true, grids: RM.GRIDS.slice(), lane: [], seed: S.make(), plan: null, playhead: 0
+    base: 'none', random: true, grids: RM.GRIDS.slice(), lane: [], seed: S.make(), plan: null, playhead: 0, fill: 'auto'
   };
   /** Frame size of the chosen export preset (the sequence size). */
   RM.size = () => P.size(RM.state.preset, RM.state.custom.w, RM.state.custom.h) || { w: 1080, h: 1920 };
@@ -19,9 +19,28 @@
     return {
       seed: seed == null ? st.seed : seed, target: st.target, pace: st.pace, size, aspect: RM.aspect(size),
       tpl: st.base === 'none' ? null : st.base,
-      switches: !!st.random, layouts: st.grids.slice(),
+      switches: !!st.random, layouts: st.grids.slice(), fill: st.fill,
       segments: !st.random && st.lane.length ? st.lane.map((s) => ({ start: s.start, layout: s.layout })) : null
     };
+  };
+  /** Drag type of a bin item (its id is the data). */
+  RM.ITEM_MIME = 'application/x-rm-item';
+  /** Per-cut fill override: every slot of cut ci uses mode ('auto' means the plan's fill). */
+  RM.setCutFill = function (ci, mode) {
+    const beat = RM.state.plan && RM.state.plan.cuts[ci];
+    if (!beat) return false;
+    beat.forEach((x) => { x.fill = mode; });
+    return true;
+  };
+  /** Put bin item mediaId in slot `slot` of cut ci (the clip keeps the cut's length; a shorter clip holds its last frame). */
+  RM.replaceSlot = function (ci, slot, mediaId) {
+    const plan = RM.state.plan, m = RM.state.items.find((x) => x.id === mediaId);
+    const it = plan && plan.cuts[ci] && plan.cuts[ci].find((x) => x.slot === slot);
+    if (!it || !m) return false;
+    it.media = m.id;
+    const room = m.kind === 'image' ? Infinity : m.dur - it.dur;
+    it.in = room > 0 ? Math.min(it.in, room) : 0;
+    return true;
   };
   /** Media the plan may draw from: the loaded items. */
   RM.media = () => RM.state.items.filter((m) => m.kind && (m.kind === 'image' || m.dur > 0));

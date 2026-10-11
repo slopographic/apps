@@ -9,7 +9,7 @@
   const root = typeof window !== 'undefined' ? window : globalThis;
   const SV = (root.SlopVideo = root.SlopVideo || {});
   const R = (SV.random = {});
-  const S = SV.seed, T = SV.templates, P = SV.presets, SEG = SV.segments;
+  const S = SV.seed, T = SV.templates, P = SV.presets, SEG = SV.segments, O = SV.orient;
   const round = (v, k = 2) => { const f = Math.pow(10, k); return Math.round(v * f) / f; };
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
@@ -40,6 +40,7 @@
       seed: (o.seed == null ? S.make() : o.seed) >>> 0, target, pace, aspect, size,
       tpl: o.tpl === 'random' ? 'random' : T.get(o.tpl) ? T.get(o.tpl).id : null, // 'random': a grid drawn from the list
       switches: !!o.switches, layouts: [...new Set(layouts)],
+      fill: O.FILLS.includes(o.fill) ? o.fill : 'auto',
       segments: Array.isArray(o.segments) && o.segments.length ? o.segments : null
     };
   };
@@ -84,12 +85,20 @@
     return segs;
   }
 
+  /** Cell shapes (w/h in pixels) of a layout's slots in a frame of the given size, or null. */
+  function cellRatios(seg, size) {
+    const tpl = seg && seg.layout ? T.get(seg.layout) : null;
+    if (!tpl || !size || !size.w || !size.h) return null;
+    return tpl.slots.map((r) => (r.w * size.w) / (r.h * size.h));
+  }
   /** The cut list for a target length. Returns null when there is nothing usable. */
   R.plan = function (o, media) {
     const opt = R.norm(o), pool = R.usable(media || []);
     if (!pool.length) return null;
     const rng = S.rng(opt.seed), take = deck(pool, rng);
     const [lo, hi] = R.PACE[opt.pace];
+    // grids that suit the clips' orientations (sized clips only; manual switches are left alone)
+    if (opt.size && (opt.switches || opt.tpl === 'random')) opt.layouts = O.prefer(opt.layouts.length ? opt.layouts : R.LAYOUTS, opt.size, pool);
     if (opt.tpl === 'random') { // one grid for the whole edit, drawn from the list by the seed
       const list = opt.layouts.length ? opt.layouts : R.LAYOUTS;
       opt.tpl = list[Math.floor(rng() * list.length)];
@@ -106,7 +115,7 @@
       else if (toEnd - d < lo) d = toEnd - lo;            // never leave a sliver before a switch or the end
       d = round(d, 2);
       if (d < 0.01) d = Math.max(0.01, round(toEnd, 2));
-      const picks = take(seg.slots);
+      const picks = O.assign(take(seg.slots), cellRatios(seg, opt.size));
       d = round(Math.min(d, ...picks.map((m) => (m.kind === 'image' ? Infinity : m.dur))), 2); // a source may be shorter
       if (d < 0.01) { t = round(t + Math.max(0.01, toEnd), 2); continue; }
       cuts.push(picks.map((m, slot) => {
@@ -118,7 +127,8 @@
     }
     const used = new Set(cuts.flat().map((x) => x.media));
     return Object.assign(opt, {
-      seedHex: S.hex(opt.seed), slots: SEG.maxSlots(segs), segments: segs, cuts, total: t, clips: pool.length, used: used.size
+      seedHex: S.hex(opt.seed), slots: SEG.maxSlots(segs), segments: segs, cuts, total: t, clips: pool.length, used: used.size,
+      mixed: O.mixed(pool)
     });
   };
   /** Region (fractions of the frame) of a cut item in a plan, from the layout active at its start. Null for none. */

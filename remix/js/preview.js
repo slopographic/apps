@@ -1,10 +1,11 @@
 /* Reel Remix: the preview player. Draws the plan at a time t on a canvas: each cut shows its clip in the slot
-   region of the layout active at its start (R.regionFor), letterboxed inside the region. Stills and videos are
-   the bin items' own elements; videos are seeked to the cut's in point. Play runs the playhead with
-   requestAnimationFrame; there is no sound in the preview. */
+   region of the layout active at its start, filled by the cut's fill mode (cover, fit, stretch or blur background;
+   see SlopVideo.orient). Stills and videos are the bin items' own elements; videos are seeked to the cut's in point.
+   Scrubbing and clicks paint the frame at once, even when paused: a video that is still seeking repaints when its
+   frame arrives. Play runs the playhead with requestAnimationFrame; there is no sound in the preview. */
 (function () {
   'use strict';
-  const RM = window.RM, SV = window.SlopVideo, R = SV.random;
+  const RM = window.RM, SV = window.SlopVideo, R = SV.random, O = SV.orient;
   const PV = (RM.preview = { canvas: null, ctx: null, t: 0, playing: false, raf: 0, last: 0, items: [] });
 
   PV.attach = function (canvas) { PV.canvas = canvas; PV.ctx = canvas.getContext('2d'); };
@@ -19,35 +20,62 @@
     const sz = RM.size(), k = Math.min(1, 960 / sz.w);
     PV.canvas.width = Math.round(sz.w * k); PV.canvas.height = Math.round(sz.h * k);
   };
-  /** Draw the plan at time t. */
+  /** Draw the preview at time t (the playhead). */
   PV.draw = function (t) {
-    const c = PV.ctx, W = PV.canvas.width, H = PV.canvas.height, plan = RM.state.plan;
     PV.t = Math.max(0, Math.min(t, PV.total()));
+    drawFrame(PV.ctx, PV.canvas.width, PV.canvas.height, PV.t, RM.state.plan, PV.items);
+  };
+  /** Draw the plan at time t on any canvas context of size W x H (used by the export). */
+  PV.frame = (c, W, H, t) => drawFrame(c, W, H, t, RM.state.plan, PV.items);
+  /** Repaint at the current time (after a seeked frame arrives). */
+  const repaint = () => { if (!PV.playing) PV.draw(PV.t); };
+
+  function drawFrame(c, W, H, t, plan, items) {
     c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
     if (!plan) return;
-    for (const it of PV.items) {
-      if (!(PV.t >= it.start && PV.t < it.start + it.dur)) { if (it.m.kind === 'video') it.m.el.pause(); continue; }
+    for (const it of items) {
+      if (!(t >= it.start && t < it.start + it.dur)) { if (it.m.kind === 'video') it.m.el.pause(); continue; }
       const reg = R.regionFor(plan, it);
       if (!reg) continue;
-      const box = { x: reg.x * W, y: reg.y * H, w: reg.w * W, h: reg.h * H };
-      drawMedia(it, box);
+      drawItem(c, it, t, { x: reg.x * W, y: reg.y * H, w: reg.w * W, h: reg.h * H }, plan);
     }
-  };
-  /** Fit one media element into a box (contain), seeking videos to the cut's in point. */
-  function drawMedia(it, box) {
-    const el = it.m.el, c = PV.ctx;
-    const nw = it.m.kind === 'video' ? el.videoWidth : el.naturalWidth, nh = it.m.kind === 'video' ? el.videoHeight : el.naturalHeight;
-    if (!nw || !nh) return;
-    if (it.m.kind === 'video') {
-      const want = it.in + (PV.t - it.start);
-      if (Math.abs(el.currentTime - want) > 0.25 && el.readyState >= 1) el.currentTime = want;
-      if (el.readyState < 2) return;
-    }
-    const k = Math.min(box.w / nw, box.h / nh), dw = nw * k, dh = nh * k;
-    c.drawImage(el, box.x + (box.w - dw) / 2, box.y + (box.h - dh) / 2, dw, dh);
   }
-  /** Re-read the plan into the item list (call after each Remix). */
+  /** One cut's clip in its box: seeks a video to the in point, then paints it with the cell's fill mode. */
+  function drawItem(c, it, t, box, plan) {
+    const el = it.m.el, video = it.m.kind === 'video';
+    const nw = video ? el.videoWidth : el.naturalWidth, nh = video ? el.videoHeight : el.naturalHeight;
+    if (!nw || !nh) return;
+    if (video) {
+      const want = it.in + (t - it.start);
+      if (Math.abs(el.currentTime - want) > 0.25 && el.readyState >= 1) {
+        el.currentTime = want;
+        el.addEventListener('seeked', repaint, { once: true }); // paint the frame as soon as it arrives
+      }
+      if (el.readyState < 2) { el.addEventListener('loadeddata', repaint, { once: true }); return; }
+    }
+    const mode = O.resolve(it.fill && it.fill !== 'auto' ? it.fill : plan.fill, plan.mixed);
+    paint(c, el, nw, nh, box, mode);
+  }
+  /** Paint one picture into a box: cover (crop), fit (letterbox), stretch (distort) or blur (blurred cover behind a fit). */
+  function paint(c, el, nw, nh, b, mode) {
+    if (mode === 'stretch') { c.drawImage(el, b.x, b.y, b.w, b.h); return; }
+    if (mode === 'blur') {
+      const k = Math.max(b.w / nw, b.h / nh);
+      c.save(); c.beginPath(); c.rect(b.x, b.y, b.w, b.h); c.clip();
+      c.filter = 'blur(' + Math.round(Math.max(b.w, b.h) / 24) + 'px)';
+      c.drawImage(el, b.x + (b.w - nw * k) / 2, b.y + (b.h - nh * k) / 2, nw * k, nh * k);
+      c.filter = 'none'; c.restore();
+    }
+    const cover = mode === 'cover';
+    const k = cover ? Math.max(b.w / nw, b.h / nh) : Math.min(b.w / nw, b.h / nh);
+    const dw = nw * k, dh = nh * k;
+    if (cover) { c.save(); c.beginPath(); c.rect(b.x, b.y, b.w, b.h); c.clip(); }
+    c.drawImage(el, b.x + (b.w - dw) / 2, b.y + (b.h - dh) / 2, dw, dh);
+    if (cover) c.restore();
+  }
+  /** Re-read the plan into the item list (call after each Remix or edit). */
   PV.setPlan = function () { PV.items = PV.flat(RM.state.plan); PV.resize(); PV.draw(Math.min(PV.t, PV.total())); };
+  /** Move the playhead to t and paint that frame (also while paused). */
   PV.seek = (t) => { PV.draw(t); if (PV.onTick) PV.onTick(PV.t); };
   PV.play = function () {
     if (PV.playing) return;

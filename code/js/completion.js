@@ -7,6 +7,11 @@ import { keymap } from '@codemirror/view';
 import { autocompletion, acceptCompletion, startCompletion, completeAnyWord, ifNotIn } from '@codemirror/autocomplete';
 import { javascriptLanguage, typescriptLanguage } from '@codemirror/lang-javascript';
 import { jsonLanguage } from '@codemirror/lang-json';
+import { htmlLanguage } from '@codemirror/lang-html';
+import { cssLanguage } from '@codemirror/lang-css';
+import { pythonLanguage } from '@codemirror/lang-python';
+import { markdownLanguage } from '@codemirror/lang-markdown';
+import { snippetSource } from './snippets.js';
 
 /** Every extension that completes for the open document, whatever the language. */
 export function completionExtensions() {
@@ -59,8 +64,12 @@ const jsonLiterals = jsonLanguage.data.of({ autocomplete: ifNotIn(['String', 'Pr
 
 /** The extra completion for a language id (see lang.js). */
 export function languageCompletion(id) {
-  if (id === 'javascript') return jsGlobals(javascriptLanguage);
-  if (id === 'typescript') return jsGlobals(typescriptLanguage);
+  const snips = SNIPPET_LANGS[id] ? [SNIPPET_LANGS[id].data.of({ autocomplete: ifNotIn(['LineComment', 'BlockComment', 'String', 'TemplateString'], snippetSource(id)) })] : [];
+  if (id === 'javascript') return [jsGlobals(javascriptLanguage), ...snips];
+  if (id === 'typescript') return [jsGlobals(typescriptLanguage), ...snips];
   if (id === 'json') return jsonLiterals;
-  return [];
+  return snips;
 }
+/** The languages that take snippets (their data facet carries the source). */
+const SNIPPET_LANGS = { javascript: javascriptLanguage, typescript: typescriptLanguage, html: htmlLanguage,
+  css: cssLanguage, python: pythonLanguage, markdown: markdownLanguage };

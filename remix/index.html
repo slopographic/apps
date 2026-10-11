@@ -31,10 +31,12 @@
       </div>
       <ul id="rm-bin" class="rm-list"></ul>
     </aside>
-    <section class="rm-stage" aria-label="Preview">
+    <section id="rm-stage" class="rm-stage" aria-label="Preview">
       <canvas id="rm-canvas" class="rm-canvas" width="540" height="960" aria-label="Preview of the remix"></canvas>
       <div class="rm-transport">
         <button id="rm-play" type="button" class="rm-btn">Play</button>
+        <button id="rm-export" type="button" class="rm-btn" title="Render the plan at the export preset and save it">Export</button>
+        <button id="rm-send-stage" type="button" class="rm-btn">Send to SlopCut</button>
         <input id="rm-scrub" type="range" min="0" max="0" step="0.01" value="0" aria-label="Playhead">
         <span id="rm-time">0:00.0 / 0:00.0</span>
       </div>
@@ -47,6 +49,7 @@
       <label class="rm-f">Target length (s)<input id="rm-target" type="number" min="1" max="600" step="1" value="30"></label>
       <label class="rm-f">Pace<select id="rm-pace"></select></label>
       <label class="rm-f">Export preset<select id="rm-preset"></select></label>
+      <label class="rm-f">Fill<select id="rm-fill" title="How a clip fills its cell"></select></label>
       <div id="rm-custom" class="rm-custom" hidden>
         <label class="rm-f">Width<input id="rm-cw" type="number" min="16" max="7680" step="2" value="1080"></label>
         <label class="rm-f">Height<input id="rm-ch" type="number" min="16" max="4320" step="2" value="1920"></label>
@@ -71,12 +74,15 @@
   <script src="../shared/video/templates.js"></script>
   <script src="../shared/video/layout.js"></script>
   <script src="../shared/video/segments.js"></script>
+  <script src="../shared/video/orient.js"></script>
   <script src="../shared/video/random-edit.js"></script>
   <script src="../shared/video/lane-view.js"></script>
   <script src="../shared/hub.js"></script>
   <script src="js/core.js"></script>
   <script src="js/items.js"></script>
   <script src="js/preview.js"></script>
+  <script src="js/drop.js"></script>
+  <script src="js/export.js"></script>
   <script src="js/send.js"></script>
   <script src="js/ui.js"></script>
   <script src="../shell/shell.js"></script>

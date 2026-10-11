@@ -36,9 +36,24 @@
   }
   var loaded = { analytics: false, ads: false };
 
+  /** True when a gtag.js script for this ID is already on the page (the homepage puts it there inline). */
+  function gaTagOnPage(id) {
+    try {
+      var list = document.getElementsByTagName('script');
+      for (var i = 0; i < list.length; i++) {
+        if ((list[i].src || '').indexOf(GA_SRC + '?id=' + encodeURIComponent(id)) === 0) return true;
+      }
+    } catch (e) { /* no DOM access: treat as absent */ }
+    return false;
+  }
   function loadAnalytics() {
     if (loaded.analytics || !cfg.ga4MeasurementId) return;
     loaded.analytics = true;
+    if (gaTagOnPage(cfg.ga4MeasurementId)) {
+      // The tag and its config are already on the page: only the consent state changes.
+      gtag('consent', 'update', { analytics_storage: 'granted' });
+      return;
+    }
     api.loadScript(GA_SRC + '?id=' + encodeURIComponent(cfg.ga4MeasurementId));
     gtag('js', new Date());
     gtag('config', cfg.ga4MeasurementId);
@@ -58,6 +73,7 @@
       loadAnalytics();
     } else if (cfg.ga4MeasurementId) {
       window['ga-disable-' + cfg.ga4MeasurementId] = true;
+      if (gaTagOnPage(cfg.ga4MeasurementId)) gtag('consent', 'update', { analytics_storage: 'denied' });
     }
     if (c.ads) loadAds();
     return c;
