@@ -19,6 +19,8 @@
   })();
   const landed = () => waitFor(() => M.mode === 'perched' || M.mode === 'float', { timeout: 8000 });
   const quiet = () => { M.nextIdle = performance.now() + 1e6; };
+  /** His DOM box follows the model on the next frames: wait two before reading it. */
+  const frames = () => new Promise((r) => win.requestAnimationFrame(() => win.requestAnimationFrame(r)));
   const center = () => { const r = M.hit.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, r }; };
   const inBox = (r, x, y) => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
   const mouse = (type, x, y, extra = {}) => win.document.dispatchEvent(new win.PointerEvent(type, { pointerId: 1, pointerType: 'mouse', clientX: x, clientY: y, bubbles: true, ...extra }));
@@ -36,6 +38,7 @@
       await ready;
       await landed();
       quiet();
+      await frames();
       const from = { x: M.x, y: M.y };
       const c = center();
       mouse('pointermove', c.x, c.y);
@@ -44,6 +47,7 @@
       mouse('pointermove', c.x, c.y);            // more moves over the old spot: still one approach
       expect(M.glide).toBe(g);
       await waitFor(() => M.mode === 'float', { timeout: 3000 });
+      quiet();                                   // no idle hop while the checks run
       expect(Math.hypot(M.x - from.x, M.y - from.y)).toBeGreaterThan(60);
       const b = M.hit.getBoundingClientRect();
       expect(b.left >= 0 && b.right <= win.innerWidth && b.top >= 0 && b.bottom <= win.innerHeight).toBe(true);
@@ -63,6 +67,7 @@
       await ready;
       await landed();
       quiet();
+      await frames();
       mouse('pointermove', 4, 4);                // the pointer is away: the next press is a plain click
       const xp = S.xp;
       const c = center();
@@ -74,6 +79,7 @@
     it('a control under him is never clicked through him: the pointer passes to it', async () => {
       await landed();
       quiet();
+      await frames();
       const cover = win.document.createElement('button');
       cover.id = 'avoid-cover';
       cover.type = 'button';
@@ -83,7 +89,8 @@
       mouse('pointermove', c.x, c.y);            // no free spot anywhere: he stays put
       expect(M.mode).toBe(mode);
       expect(M.x).toBe(x0);
-      expect(JSON.stringify([M.x, M.y, win.scrollX, win.scrollY, M.hit.getBoundingClientRect().toJSON(), M.hit.style.left, M.hit.style.top, M.hit.style.width, M.hit.style.height, M.hit.style.pointerEvents, M.mode])).toBe('x');
+      expect(M.hit.style.pointerEvents).toBe('none');
+      expect(win.document.elementFromPoint(c.x, c.y).id).toBe('avoid-cover');
       mouse('pointermove', 4, 4);                // leaving him gives his hit box back
       expect(M.hit.style.pointerEvents).toBe('');
       cover.remove();
@@ -91,6 +98,7 @@
     it('touch never moves him, and a tap reacts', async () => {
       await landed();
       quiet();
+      await frames();
       const c = center(), mode = M.mode, x0 = M.x, y0 = M.y;
       win.document.dispatchEvent(new win.PointerEvent('pointermove', { pointerId: 5, pointerType: 'touch', clientX: c.x, clientY: c.y, bubbles: true }));
       await sleep(400);
