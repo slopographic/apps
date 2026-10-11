@@ -1,4 +1,4 @@
-# Slop Cutout — handoff
+# SlopIsolate — handoff
 
 On-device AI background removal. Engine in `shared/cutout/` (reusable by any app), app in `slopisolate/`
 (half-built), models in `vendor/models/`, ONNX Runtime Web 1.30.0 in `vendor/onnxruntime-web/`.
@@ -44,7 +44,7 @@ Registry status must stay **building** until the app UI is finished.
 5. export.js (PNG/WebP/JPG with bg colour at full res), zip.js (store-only) for batch, sample.js (Sloppo on a busy bg).
 6. Tests: brush, export dimensions, UI smoke (desktop + 390×844), then flip status to beta.
 
-## PhotoSLOP integration (planned)
+## PhotoSlop integration (planned)
 Menu Layer ▸ "Remove background": include `shared/cutout/cutout.js`, call
 `SlopCutout.removeBackground(layerCanvas, { model, onProgress })` and write `r.mask` (Uint8, w×h) into the layer's
 mask (white = keep); optionally replace pixels with `r.cutout` for decontaminated edges. Show progress for the

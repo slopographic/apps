@@ -1,4 +1,4 @@
-/* SlopEdit — panels: project bin, program monitor, transport, inspector, command palette fallback. */
+/* SlopCut — panels: project bin, program monitor, transport, inspector, command palette fallback. */
 .pane { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); overflow: hidden; }
 .pane-head { display: flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 8px; border-bottom: 1px solid var(--line); flex: none; }
 .pane-title { font: 700 11px var(--font-ui); text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }

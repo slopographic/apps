@@ -1,4 +1,4 @@
-/* Slop Cutout — settings panel: sections, rows, sliders, swatches, model picker, export block. */
+/* SlopIsolate — settings panel: sections, rows, sliders, swatches, model picker, export block. */
 .props { grid-area: props; display: flex; flex-direction: column; min-height: 0; background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; scrollbar-width: thin; }
 .pp-title { display: flex; align-items: center; gap: 8px; padding: 12px 14px 10px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel); z-index: 2; }
 .pp-title h2 { margin: 0; font: 800 14px var(--font-display); flex: 1; }

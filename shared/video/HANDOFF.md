@@ -1,6 +1,6 @@
 # shared/video: the video core (window.SlopVideo)
 
-One copy of the pure layout and random-edit logic, used by SlopEdit (`slopcut/`) and Reel Remix (`remix/`).
+One copy of the pure layout and random-edit logic, used by SlopCut (`slopcut/`) and Reel Remix (`remix/`).
 Classic scripts, no DOM except the lane widget, no fetch, no storage. Each file attaches to `window.SlopVideo`.
 
 ## Files and load order
@@ -23,7 +23,7 @@ Load order matters only in that `presets.js` precedes `templates.js` and `segmen
 
 - **`RxC` is rows × columns.** `1x3` is one row of three equal columns (the spec's "three equal columns"); `3x1` is three
   stacked rows; `2x3` is two rows of three columns (six slots). Template ids are `grid-RxC`; bare `RxC` also resolves.
-- Each grid axis is 1 to `grid.MAX` (4). Slot i is cell i, row by row, left to right. Slot i lives on video track i (V(i+1) in SlopEdit).
+- Each grid axis is 1 to `grid.MAX` (4). Slot i is cell i, row by row, left to right. Slot i lives on video track i (V(i+1) in SlopCut).
 - `gap` and `border` are fractions of the frame (max 0.2 and 0.3).
 
 ## Frame presets
@@ -68,7 +68,7 @@ const region = SV.random.regionFor(plan, plan.cuts[0][0]);   // where that cut g
 const t = SV.layout.fit({ w: 1920, h: 1080 }, { w: clip.w, h: clip.h }, region);
 ```
 
-Keep the signatures stable: SlopEdit's `io/reel.js` and the Remix manifest replay (`remix` options in a Drive manifest) call `plan`.
+Keep the signatures stable: SlopCut's `io/reel.js` and the Remix manifest replay (`remix` options in a Drive manifest) call `plan`.
 
 ## Limits
 

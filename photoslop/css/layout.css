@@ -1,4 +1,4 @@
-/* PhotoSLOP — themes: pro (default, dark), light, paint (Windows 98). */
+/* PhotoSlop — themes: pro (default, dark), light, paint (Windows 98). */
 :root, [data-theme="pro"] {
   --app: #1d1d1d; --bar: #2a2a2a; --panel: #262626; --panel-2: #2f2f2f; --panel-3: #383838; --line: #121212; --line-2: #3d3d3d;
   --fg: #d9d9d9; --fg-dim: #9b9b9b; --fg-faint: #6c6c6c; --hover: #3a3a3a; --active: #474747; --sel: #1f4a7a;

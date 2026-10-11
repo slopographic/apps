@@ -1,4 +1,4 @@
-# Slop Vector: handoff
+# SlopVector: handoff
 
 An Illustrator-style vector editor at `/slopvector/`. Plain scripts (no modules, no build), loaded in order from `index.html`. Every source and test file is at most 300 lines.
 
@@ -34,10 +34,10 @@ An Illustrator-style vector editor at `/slopvector/`. Plain scripts (no modules,
 - Help ▸ Search Commands… (⌘K), Help ▸ Keyboard Shortcuts (SlopCmd's editor; F1), and a search button in the menubar.
 
 ## Colour and eyedropper (`shared/color/`, `js/ui/color.js`, `js/tools/eyedrop.js`)
-- **Picker body** is `SlopColorPicker` (`shared/color/picker.js`, used by PhotoSLOP too): saturation-brightness square, hue and alpha bars, hex / RGB / HSB / alpha fields, a Recent row (`localStorage` `slopvector.recentColors`, 12 entries) and the palette row. Every change applies at once through `SV.applyStyle(which, hex, { commit: false })`; the undo step is written when the popover closes.
+- **Picker body** is `SlopColorPicker` (`shared/color/picker.js`, used by PhotoSlop too): saturation-brightness square, hue and alpha bars, hex / RGB / HSB / alpha fields, a Recent row (`localStorage` `slopvector.recentColors`, 12 entries) and the palette row. Every change applies at once through `SV.applyStyle(which, hex, { commit: false })`; the undo step is written when the popover closes.
 - **Alpha** is stored in the paint string as `#rrggbbaa`. The SVG writer splits it into the colour plus `fill-opacity` / `stroke-opacity` (`core/svgout.js` `paintAttr`). PDF export writes the colour opaque (`io/pdf.js` reads six hex digits). Gradient stops keep their own alpha field, so their picker is RGB only.
 - **Opening the picker:** click the fill or stroke chip twice (the first click focuses it), right-click either chip, or Window ▸ Fill Colour… / Stroke Colour….
-- **Eyedropper** (`js/tools/eyedrop.js`, key I): a click sets the fill of the selection to the colour under the pointer; Alt sets the stroke; Shift copies the object's whole appearance (the old behaviour). **Limit:** the colour is the object's solid fill, else its stroke, taken from the hit test (a gradient gives its first stop). It is not read from the rendered pixels: the artwork is SVG, so a pixel read per pointer move would be too slow. Nothing under the pointer is a toast and no change. There is no loupe and no Alt-to-sample on the drawing tools in Vector (PhotoSLOP has both).
+- **Eyedropper** (`js/tools/eyedrop.js`, key I): a click sets the fill of the selection to the colour under the pointer; Alt sets the stroke; Shift copies the object's whole appearance (the old behaviour). **Limit:** the colour is the object's solid fill, else its stroke, taken from the hit test (a gradient gives its first stop). It is not read from the rendered pixels: the artwork is SVG, so a pixel read per pointer move would be too slow. Nothing under the pointer is a toast and no change. There is no loupe and no Alt-to-sample on the drawing tools in Vector (PhotoSlop has both).
 - **Keys:** X swaps fill and stroke (was focus toggle; Shift+X still swaps).
 
 ## Tests (`node tests/run.mjs vector`): 99 pass, 2 fail across 10 pages (the 2 are the offline builder tests in `tests/slopvector/io.test.html`; they fail on a clean HEAD too, because `shell/shell.js` has a `<script src=` comment)
@@ -53,10 +53,10 @@ Desktop (1440×900) and phone (390×844) in Chromium, with zero console errors:
 - Menubar dropdown.
 - Document Setup dialog fits the screen.
 - Right-click menu.
-- Send to PhotoSLOP, and `?drive=` launch back into Vector.
+- Send to PhotoSlop, and `?drive=` launch back into Vector.
 
 ## Owner requests not done yet (next steps, in order)
-These were asked for together with the PhotoSLOP layer work; none of the Vector part is started.
+These were asked for together with the PhotoSlop layer work; none of the Vector part is started.
 1. Check the "property change doesn't update" bug for text objects: fill colour, font, size and alignment, on the canvas and in the inspector. Fix it with a Playwright reproduction and a regression test (same approach as `photoslop/js/type/props.js`).
 2. Layers panel: double-click a row opens an object/layer options dialog (name, colour, lock/visibility, opacity/blend, appearance: several fills and strokes, drop shadow and blur effects). Double-click the name renames it inline.
 3. Canvas: double-click a text object to edit its text; double-click a group to enter isolation mode (Esc leaves it); double-click a path to switch to Direct Selection / point editing.

@@ -4,7 +4,7 @@ A photo library that runs entirely in the browser. Classic scripts, no build ste
 
 ## What works (tested)
 
-Run `node tests/run.mjs gallery`: the checks in `tests/gallery/` (library and I/O page, an app page that boots the real UI in an iframe, `reel.test.html`, which runs the gallery and SlopEdit in iframes for Make reel, `viewer.test.html`, the viewer's preview, wheel, drag and arrow keys, and `drive-source.test.html`, the Drive source with stubbed Slop Drive calls).
+Run `node tests/run.mjs gallery`: the checks in `tests/gallery/` (library and I/O page, an app page that boots the real UI in an iframe, `reel.test.html`, which runs the gallery and SlopCut in iframes for Make reel, `viewer.test.html`, the viewer's preview, wheel, drag and arrow keys, and `drive-source.test.html`, the Drive source with stubbed Slop Drive calls).
 
 ## Viewer
 
@@ -22,15 +22,15 @@ The **Library / Drive** switch above the grid shows every file in Slop Drive (th
 
 **Kind table:** `shared/kinds/kinds.js` (`window.SlopKinds`). It is the one table for the kinds: `kindOf(name, type)` checks the extension first, then the MIME type, else Other. `CHIPS` lists the chips, and `countChips`, `chipMatch` and `label` serve the UI. Slop Drive does not use it yet (it has its own kind logic in `drive/js/ui/preview-kinds.js`).
 
-## Make reel (Gallery to SlopEdit)
+## Make reel (Gallery to SlopCut)
 
 Select two or more photos, then **Make reel**: the toolbar button (shown while something is selected), the Actions menu, the right-click menu on a selected photo, or "Make reel from selection" in the command palette. The dialog sets:
 
 - **Template:** Random edit (default), Single photo, Split screen, Grid, 9:16 reel. The 9:16 reel also sets the aspect to 9:16.
 - **Target length:** 5 to 600 seconds (under 5 s is refused, and the dialog stays open with the reason).
-- **Pace:** slow, medium or fast. **Aspect:** 16:9, 9:16 or 1:1 (the sizes SlopEdit knows).
+- **Pace:** slow, medium or fast. **Aspect:** 16:9, 9:16 or 1:1 (the sizes SlopCut knows).
 - **Order:** oldest first (default), newest first, or selection order.
-- **Cut out subjects first:** runs each photo through Slop Cutout's engine (`shared/cutout/cutout.js`, loaded on first use) with the Fast model, as it is.
+- **Cut out subjects first:** runs each photo through SlopIsolate's engine (`shared/cutout/cutout.js`, loaded on first use) with the Fast model, as it is.
 
 The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 
@@ -38,7 +38,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 2. One Drive file per photo, with its original bytes and name, in play order.
 3. With the cut-out option, each photo's PNG with alpha is stored as `<name> (cutout).png` in the same folder. A progress dialog shows the stage. **Cancel** (or Escape) removes every record and the folder the reel wrote. A photo that cannot be cut out is left out of the overlays and listed at the end.
 4. The manifest, `<folder>.reel.json`, type `application/x-slop-reel+json`.
-5. SlopEdit opens in a new tab with `?drive=<manifest id>`. The tab is opened inside the click, so pop-up blockers allow it. If no tab can be opened, this tab navigates.
+5. SlopCut opens in a new tab with `?drive=<manifest id>`. The tab is opened inside the click, so pop-up blockers allow it. If no tab can be opened, this tab navigates.
 
 **Manifest (format `slop-reel`, version 1):**
 
@@ -55,7 +55,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 
 `files` are in play order. `overlays` may be empty.
 
-**SlopEdit side** (`slopcut/js/io/reel.js`, reached from `io/session.js` when the launch record is a manifest):
+**SlopCut side** (`slopcut/js/io/reel.js`, reached from `io/session.js` when the launch record is a manifest):
 
 - Asks before replacing an open project, then starts a new project.
 - Imports the files one at a time, so the bin lists them in the manifest's order.

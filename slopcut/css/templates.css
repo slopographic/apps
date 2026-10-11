@@ -1,4 +1,4 @@
-/* SlopEdit: Templates tab and Random edit dialog. Colours come from the theme tokens (themes.css). */
+/* SlopCut: Templates tab and Random edit dialog. Colours come from the theme tokens (themes.css). */
 .tp-panel { display: grid; gap: 6px; padding-bottom: 12px; }
 .tp-note { margin: 0 2px; font-size: 11px; line-height: 1.45; color: var(--faint); }
 .tp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }

@@ -1,4 +1,4 @@
-# PhotoSLOP: handoff
+# PhotoSlop: handoff
 
 A layered, Photoshop-style image editor at `/photoslop/` (`/paint/` redirects here; `paint/classic/` is the separate MS Paint clone, still served from `photoslop/classic/`, leave it alone). Plain classic scripts loaded in order from `index.html`, sharing top-level names. Every file is at most 300 lines.
 
@@ -12,7 +12,7 @@ A layered, Photoshop-style image editor at `/photoslop/` (`/paint/` redirects he
 
 ## Colour (`shared/color/`, `js/ui/color-picker.js`, `js/tools/eyedrop.js`)
 - **Colour state** is unchanged: `C.fg` and `C.bg` (`tools/state.js`), written only by `setColor(which, hex)`. A colour is `#rrggbb`, or `#rrggbbaa` when its alpha is below 1. Canvas fills, the brush tint and type use the alpha; `hexToRgb` reads RGB only, so colour range and hue jitter ignore it.
-- **Shared with Slop Vector** (`shared/color/`): `model.js` (`SlopColor`: hex with alpha, HSB, recent-list update, alpha-weighted box mean, box clipping) and `picker.js` + `picker.css` (`SlopColorPicker.create`: saturation-brightness square, hue and alpha bars, preview, hex / RGB / HSB / alpha fields, recent and palette rows). A person's change calls `onChange` at once; `set` is silent; `commit` records the colour in recents.
+- **Shared with SlopVector** (`shared/color/`): `model.js` (`SlopColor`: hex with alpha, HSB, recent-list update, alpha-weighted box mean, box clipping) and `picker.js` + `picker.css` (`SlopColorPicker.create`: saturation-brightness square, hue and alpha bars, preview, hex / RGB / HSB / alpha fields, recent and palette rows). A person's change calls `onChange` at once; `set` is silent; `commit` records the colour in recents.
 - **Picker** (`js/ui/color-picker.js`): `editSwatch('fg' | 'bg')` opens the dialog. Changes apply live (swatch and canvas), Cancel restores the starting colour, OK records it. Recents are `store` key `recentColors`, 12 entries, newest first. Entry points: click or right-click the fg/bg swatch; Window ▸ Foreground Colour… and Background Colour…; right-click a Swatches panel swatch ▸ Edit Colour…. `pickColorDialog(title, initial, live)` also serves the filter colour parameters and the type colour (no live update). The side panel uses `colorPicker(get, set)`. On phones the dialog is a bottom sheet (`cp-sheet`, `css/extras.css`); at 390 px there is no page scroll.
 - **Shortcuts:** X swaps fg and bg, D sets the defaults (existing).
 - **Eyedropper** (`js/tools/eyedrop.js`, key I): point, 3×3, 5×5 or 11×11 average (`Sample Size` on the options bar); `Sample Composite` or `Sample Layer` (`T.eyedrop.all`). The average weights each pixel by alpha, so an opaque box gives the plain mean. A click or drag sets fg; Shift sets bg. A fully transparent sample leaves the colour unchanged (toast). **Loupe:** while the tool is active, an 11×11 magnifier (9 px cells) shows the pixels under the pointer, outlines the centre pixel and gives its hex. The source is cached per history step (`sampleCanvas`), so hovering does not flatten the document again.
@@ -77,7 +77,7 @@ Desktop 1440×900 and phone 390×844 in Chromium, zero console errors: guide pan
 5. **Right-drag brush sizing** (coordinator request, not started): right-drag, Alt+right-drag and Ctrl+Alt+left-drag change size (horizontal) and hardness (vertical) with a HUD; a right-click without a drag still opens the brush picker. Use one tool → property mapping table (type: size/leading, wand/bucket: tolerance, marquee: feather, shapes: radius/stroke). Values persist per tool and add no history. Today only the Shift-drag sizing exists (`core/view.js` `V.resize`) and the right-click is the `contextmenu` handler in `initView`; unify them there.
 
 ## Known / next
-- Guides are document-wide lines (no per-artboard guides; PhotoSLOP has no artboards). Smart guides between layers are not implemented.
+- Guides are document-wide lines (no per-artboard guides; PhotoSlop has no artboards). Smart guides between layers are not implemented.
 - The offline single-file build strips `shared/guard.js` (the hosted-site reload guard).
 
 ## Slop Drive (shared storage)

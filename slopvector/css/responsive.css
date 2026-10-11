@@ -1,4 +1,4 @@
-/* Slop Vector — responsive layout and SlopUI theming */
+/* SlopVector — responsive layout and SlopUI theming */
 /* ---------- responsive ---------- */
 @media (max-width: 1180px) { :root { --dock-w: 248px; } .docname { display: none; } }
 @media (max-width: 899px) {
@@ -35,7 +35,7 @@
 .shape-sec .grid2 { grid-template-columns: 1fr; }
 .shape-sec .grid2 .fld { grid-template-columns: 96px minmax(0, 120px) auto; }
 
-/* ---------- SlopUI (shared dialogs / toasts / context menus) themed from Slop Vector tokens ---------- */
+/* ---------- SlopUI (shared dialogs / toasts / context menus) themed from SlopVector tokens ---------- */
 :root {
   --sui-bg: var(--bg-panel); --sui-bg2: var(--bg-panel-2); --sui-input: var(--bg-input); --sui-line: var(--border);
   --sui-fg: var(--text); --sui-dim: var(--text-dim); --sui-faint: var(--text-faint); --sui-hover: var(--bg-hover);

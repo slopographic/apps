@@ -1,4 +1,4 @@
-/* Slop Vector — Classic 98 theme specifics */
+/* SlopVector — Classic 98 theme specifics */
 /* ---------- Classic 98 specifics ---------- */
 :root[data-theme="classic"] .menubar, :root[data-theme="classic"] .controlbar, :root[data-theme="classic"] .statusbar { border-color: #808080; }
 :root[data-theme="classic"] .menu-btn:hover, :root[data-theme="classic"] .menu-btn.open { background: #000080; color: #fff; }

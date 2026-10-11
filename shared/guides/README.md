@@ -1,6 +1,6 @@
 # shared/guides: SlopGuides
 
-GuideGuide-style guides and grids for Slopographic apps (PhotoSLOP, Slop Vector). Classic scripts, no build, no dependencies (SlopUI is used for menus/prompts when present). Exposes `window.SlopGuides`.
+GuideGuide-style guides and grids for Slopographic apps (PhotoSlop, SlopVector). Classic scripts, no build, no dependencies (SlopUI is used for menus/prompts when present). Exposes `window.SlopGuides`.
 
 Load in this order:
 ```html
@@ -21,7 +21,7 @@ Load in this order:
 - `compute(rect, { unit, dpi, snap, margins:{top,right,bottom,left}, cols:{count,width,gutter}, rows:{count,height,gutter}, colMid, rowMid, midV, midH, edges, marginGuides, baseline:{step,offset} })`
 - `intervals(rect, { x:{step,origin}, y:{step,origin}, unit, dpi, snap })`
 - `snap`: `'off'` (exact), `'round'` (each guide to a whole pixel), `'distribute'` (whole-pixel tracks; the remainder is spread one pixel at a time, see `distribute(total, n)`).
-- Helpers: `parseLen`, `toPx`, `fromPx`, `normalize`, `merge`, `toHV`/`fromHV` (Slop Vector's `{h:[],v:[]}`), `nearest(targets, value, tol)`.
+- Helpers: `parseLen`, `toPx`, `fromPx`, `normalize`, `merge`, `toHV`/`fromHV` (SlopVector's `{h:[],v:[]}`), `nearest(targets, value, tol)`.
 
 ## Notation (`notation.js`)
 `notation(text, rect, { unit, dpi, snap })` returns `{ guides, errors:[{line,msg}] }`.

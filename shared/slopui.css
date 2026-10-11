@@ -59,7 +59,7 @@ textarea.sui-input { height: auto; resize: vertical; }
 .sui-row[disabled] { color: var(--s-faint); cursor: default; }
 .sui-key { color: var(--s-faint); font-size: 11px; padding-left: 18px; }
 .sui-sep { height: 1px; background: var(--s-line); margin: 4px 6px; }
-/* Windows 98 themes (PhotoSLOP "paint", Slop Vector "classic") */
+/* Windows 98 themes (PhotoSlop "paint", SlopVector "classic") */
 [data-theme="paint"] .sui-dlg, [data-theme="classic"] .sui-dlg { background: #c0c0c0; color: #000; border: 0; border-radius: 0; padding: 3px; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf, 2px 2px 0 rgba(0, 0, 0, .4); font: 11px "MS Sans Serif", Tahoma, sans-serif; }
 [data-theme="paint"] .sui-head, [data-theme="classic"] .sui-head { background: linear-gradient(90deg, #000080, #1084d0); color: #fff; padding: 3px 3px 3px 6px; border: 0; }
 [data-theme="paint"] .sui-x, [data-theme="classic"] .sui-x { width: 16px; height: 14px; background: #c0c0c0; color: #000; border-radius: 0; font-size: 12px; font-weight: 700; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; }

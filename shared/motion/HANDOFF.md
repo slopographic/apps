@@ -1,7 +1,7 @@
 # Shared motion engine (window.SlopMotion)
 
 One keyframe and motion engine for every app: Slop Slides (transitions and object animations),
-Slop Cutout (animated previews), Slop Gallery (slideshow transitions) and Slop Effects.
+SlopIsolate (animated previews), Slop Gallery (slideshow transitions) and Slop Effects.
 
 ## The rule
 
