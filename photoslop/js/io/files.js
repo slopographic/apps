@@ -75,16 +75,18 @@ function openFilePicker(place) {
 async function handleFiles(files, place) {
   document.body.classList.add('busy');
   let opened = 0;
+  const failed = [];
   for (const f of files) {
     const name = (f.name || 'Untitled').replace(/\.[^.]+$/, '') || 'Untitled';
     try {
       const doc = await readAnyFile(f);
       if (place) pasteCanvas(doc.layers.length === 1 && !doc.layers[0].x && !doc.layers[0].y ? doc.layers[0].canvas : flattenDocLayers(doc), null, null, name);
       else { openDocTab(doc.w, doc.h, doc.layers, name); if (doc.guides) adoptGuides(doc.guides); opened++; }
-    } catch (e) { console.warn(e); toast(`Couldn't open ${f.name}: ${e.message || e}`, 4200); }
+    } catch (e) { console.warn(e); failed.push(`Couldn't open ${f.name}: ${e.message || e}`); toast(`Couldn't open ${f.name}: ${e.message || e}`, 4200); }
   }
   if (opened) toast(opened === 1 ? `Opened ${files[0].name}` : `Opened ${opened} files in tabs`);
   document.body.classList.remove('busy');
+  return failed;
 }
 function openDocument(w, hh, layers, name) {
   if (TE.el) endTypeEdit(true);

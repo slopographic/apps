@@ -28,6 +28,7 @@
     NS.state.split = split;
     const shown = split ? ['customers', 'customer'] : [name];
     for (const v of VIEWS) $(`view-${v}`).hidden = !shown.includes(v);
+  if (window.SlopLayouts) SlopLayouts.refresh('crm');
     $('main').classList.toggle('split', split);
     for (const t of TABS) {
       const b = $(`tab-${t}`);

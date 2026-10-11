@@ -115,6 +115,29 @@
       expect(JSON.stringify(RM().state.plan.cuts[0].map((x) => [x.slot, x.media]))).toBe(before);
       expect(RM().state.locks.length > 0).toBe(true);
     });
+    it('dragging a clip from one slot onto another slot swaps the two clips', async () => {
+      await ready();
+      if (RM().state.items.length < 4) await addStills(6);
+      $('rm-random').checked = false;
+      $('rm-base').value = 'grid-1x2';
+      change($('rm-base'));
+      $('rm-target').value = '4';
+      $('rm-remix').click();
+      RM().preview.seek(0);
+      const cut = RM().state.plan.cuts[0];
+      const a = cut.find((x) => x.slot === 0).media, b = cut.find((x) => x.slot === 1).media;
+      expect(a !== b).toBe(true);
+      const c0 = RM().moves.rectOf(RM().moves.regionOf(0, 0)), c1 = RM().moves.rectOf(RM().moves.regionOf(0, 1));
+      const at = (r) => ({ clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, button: 0, buttons: 1, bubbles: true, pointerId: 7 });
+      $('rm-canvas').dispatchEvent(new (win().PointerEvent)('pointerdown', at(c0)));
+      win().dispatchEvent(new (win().PointerEvent)('pointermove', at(c0)));
+      win().dispatchEvent(new (win().PointerEvent)('pointermove', at(c1)));
+      expect(doc().querySelector('.rm-hl').style.display).toBe('block');
+      win().dispatchEvent(new (win().PointerEvent)('pointerup', { ...at(c1), buttons: 0 }));
+      const after = RM().state.plan.cuts[0];
+      expect(after.find((x) => x.slot === 0).media).toBe(b);
+      expect(after.find((x) => x.slot === 1).media).toBe(a);
+    });
     it('Export records the plan at the preset size and returns a file', async () => {
       await ready();
       if (RM().state.items.length < 4) await addStills(6);
@@ -122,8 +145,9 @@
       change($('rm-preset'));
       $('rm-target').value = '2';
       $('rm-remix').click();
-      const out = await RM().exporter.run({ save: false });
-      expect(!!out).toBe(true);
+      const msgs = [];
+      const out = await RM().exporter.run({ save: false, say: (m) => msgs.push(m) });
+      if (!out) throw new Error('export gave nothing: ' + msgs.join(' | '));
       expect(out.blob.size > 0).toBe(true);
     }, { timeout: 90000 });
   });

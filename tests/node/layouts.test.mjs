@@ -53,7 +53,9 @@ test('video preset: preview large, timeline bottom, bin left, properties right',
   assert.equal(a.placements.insp.column, '3 / 4');
   assert.equal(a.placements.preview.column, '2 / 3');
   assert.equal(a.fixedBottomStart, 4);
-  assert.equal(a.rows, 'auto minmax(0, 1fr) 260px auto');
+  assert.equal(a.rows, 'auto minmax(0, 1fr) 300px auto');
+  const v = L.arrange(p, ['preview', 'bin', 'insp', 'timeline'], { fixedTop: 1, fixedBottom: 1, sizeVars: { timeline: '--tl-h' } });
+  assert.equal(v.rows, 'auto minmax(0, 1fr) var(--tl-h, 300px) auto', 'the app drives the timeline height');
 });
 
 test('a side with two panels splits the band; a missing panel is off', () => {

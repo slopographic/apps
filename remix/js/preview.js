@@ -8,7 +8,7 @@
    The effect layer (fx.js) is drawn last, over the whole frame. */
 (function () {
   'use strict';
-  const RM = window.RM, SV = window.SlopVideo, R = SV.random, O = SV.orient, KF = SV.keys;
+  const RM = window.RM, SV = window.SlopVideo, R = SV.random, O = SV.orient, KF = SV.keys, CS = SV.clipset;
   const FULL = { x: 0, y: 0, w: 1, h: 1 };
   const PV = (RM.preview = { canvas: null, ctx: null, t: 0, playing: false, raf: 0, last: 0, items: [] });
 
@@ -38,7 +38,7 @@
     c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
     if (!plan) return;
     for (const it of items) {
-      if (!(t >= it.start && t < holdOf(it))) { if (it.m.kind === 'video') it.m.el.pause(); continue; }
+      if (!inWindow(it, t)) { if (it.m.kind === 'video') it.m.el.pause(); continue; }
       const reg = R.regionFor(plan, it) || FULL; // no layout (None): the clip fills the frame
       const box = { x: reg.x * W, y: reg.y * H, w: reg.w * W, h: reg.h * H };
       const pose = KF.pose(KF.get(RM.state.keys, it.cut, it.slot), t - it.start);
@@ -60,13 +60,29 @@
   }
   /** End of a clip's window on its slot: the next clip in that slot (or its own end when the plan has no holds). */
   const holdOf = (it) => (it.hold != null ? it.hold : it.start + it.dur);
+  /** The end of a photo's show time is its own length (set in the photo settings); a video runs to its hold. */
+  const showEnd = (it) => (it.m.kind === 'image' ? Math.min(holdOf(it), it.start + it.dur) : holdOf(it));
+  /** Whether item it is on screen at t: its slot window, and the photo's reel window (from, to). */
+  function inWindow(it, t) {
+    if (!(t >= it.start && t < showEnd(it))) return false;
+    return (it.from == null || t >= it.from) && (it.to == null || t < it.to);
+  }
+  /** Photo edges: fade (alpha) and slide (a share of the cell's width) over EDGE_SECONDS at each end. */
+  function edgeOf(it, t) {
+    const E = CS.EDGE_SECONDS, s0 = Math.max(it.start, it.from || 0), e0 = Math.min(showEnd(it), it.to == null ? Infinity : it.to);
+    const p = Math.min(1, (t - s0) / E), q = Math.min(1, (e0 - t) / E);
+    let alpha = 1, dx = 0;
+    if (it.enter === 'fade') alpha *= p; if (it.exit === 'fade') alpha *= q;
+    if (it.enter === 'slide') dx -= 1 - p; if (it.exit === 'slide') dx += 1 - q;
+    return { alpha: Math.max(0, Math.min(1, alpha)), dx };
+  }
   /** One cut's clip in its box: seeks a video to the in point, then paints it with the cell's fill mode. */
   function drawItem(c, it, t, box, plan) {
     const el = it.m.el, video = it.m.kind === 'video';
     const nw = video ? el.videoWidth : el.naturalWidth, nh = video ? el.videoHeight : el.naturalHeight;
     if (!nw || !nh) return;
     if (video) {
-      const want = it.in + (Math.min(t, it.start + it.dur) - it.start); // a clip that has run out holds its last frame
+      const want = CS.videoTime(it.vset || { mode: 'full' }, t - it.start, it.m.dur); // the clip's settings: full, trim, speed or loop
       if (PV.playing && plan.audio && plan.audio.mode === 'original') { el.muted = false; if (el.paused) el.play().catch(() => {}); }
       if (Math.abs(el.currentTime - want) > 0.25 && el.readyState >= 1) {
         el.currentTime = want;
@@ -75,7 +91,11 @@
       if (el.readyState < 2) { el.addEventListener('loadeddata', repaint, { once: true }); return; }
     }
     const mode = O.resolve(it.fill && it.fill !== 'auto' ? it.fill : plan.fill, plan.mixed);
-    paint(c, el, nw, nh, box, mode, it.pan);
+    if (video) { paint(c, el, nw, nh, box, mode, it.pan); return; }
+    const ed = edgeOf(it, t), bx = Object.assign({}, box, { x: box.x + ed.dx * box.w });
+    const prev = c.globalAlpha; c.globalAlpha = prev * ed.alpha;
+    paint(c, el, nw, nh, bx, mode, it.pan);
+    c.globalAlpha = prev;
   }
   /** Paint one picture into a box: cover (crop), fit (letterbox), stretch (distort) or blur (blurred cover behind a fit). */
   function paint(c, el, nw, nh, b, mode, pan) {

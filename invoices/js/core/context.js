@@ -18,7 +18,7 @@
     return ok({
       invoice, customer, payments, paid, balance,
       totals: S.money.documentTotals(invoice.lines),
-      company: { name: s.companyName, address: s.address, taxNumber: s.taxNumber },
+      company: { name: s.companyName, address: s.address, taxNumber: s.taxNumber }, locale: s.locale,
       money: (minor) => NS.util.money(minor, invoice.currency, s.locale),
     });
   }

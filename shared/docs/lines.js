@@ -120,5 +120,5 @@
     box.append(dl);
   }
 
-  NS.lines = { draw: (box, lines, o) => { bind(box, lines, o); draw(box, lines, o); }, bind, drawTotals, paintCard, money };
+  NS.lines = { draw: (box, lines, o) => { bind(box, lines, o); draw(box, lines, o); }, bind, drawTotals, paintCard, money, parseField };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -152,3 +152,10 @@ The file is the scene JSON itself, UTF-8, with `"format": "slop-3d"` and `"versi
 - Opening or importing a model from disk or Drive creates a new scene that keeps the model and is marked unsaved.
 - Memory: every edit clones the scene as JSON (simple, exact undo). Very large imported meshes (millions of triangles)
   will be slow to edit.
+
+## Image to 3D (added with img3d/)
+
+- The toolbar has an **Image to 3D…** link (`#btnImg3d`, `../img3d/`, new tab). Slop Image to 3D sends a mesh back
+  with "Open in Slop 3D" (a `.s3d` in Slop Drive, opened with `?drive=`).
+- Meshes may carry optional `geom.uvs` (two numbers per vertex, checked by `geometry.js`). `render/objects.js` sets the
+  `uv` attribute, so `material.map` shows on them. Meshes without `uvs` are unchanged. Mesh edit drops the UVs.

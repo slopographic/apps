@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Invoices · edit on the page and export the PDF</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; } iframe { width: 1280px; height: 800px; border: 0; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <iframe id="app" src="../../invoices/index.html#new" title="Slop Invoices"></iframe>
+  <script>
+  const { describe, it, expect, run } = SlopTest;
+  const frame = document.getElementById('app');
+  const W = () => frame.contentWindow;
+  const $ = (sel) => frame.contentDocument.querySelector(sel);
+  const $$ = (sel) => [...frame.contentDocument.querySelectorAll(sel)];
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function until(fn, label, timeout = 12000) {
+    const t0 = Date.now();
+    for (;;) {
+      try { const v = fn(); if (v) return v; } catch (e) { /* not yet */ }
+      if (Date.now() - t0 > timeout) throw new Error(`timed out waiting for ${label}`);
+      await sleep(40);
+    }
+  }
+  const button = (text) => $$('button').find((b) => b.textContent.trim() === text);
+  const enter = (el) => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  /** Types into the input the paper just opened for a field, and presses Enter (the same as a person would). */
+  async function editOnPage(sel, text) {
+    const btn = await until(() => $(sel), sel);
+    btn.click();
+    const input = await until(() => $('#ePage .pe-input'), 'the input for ' + sel);
+    input.value = text;
+    enter(input);
+    await sleep(60);
+  }
+
+  let customerId = null;
+  describe('Slop Invoices: edit on the page', () => {
+    it('opens a new invoice as a page, with a layout note and the form available as a fallback', async () => {
+      await until(() => W().SlopData && $('#ePage .paper'), 'the paper view');
+      expect($('#ePage .paper .pe[data-edit="description"]')).toBeTruthy();
+      expect($('#eLayout').textContent).toMatch(/Layout: /);
+      expect(button('Form')).toBeTruthy();
+    });
+
+    it('clicking the customer, the description and the price on the page edits them; the form follows', async () => {
+      const c = (await W().SlopData.store.put('customers', { name: 'Acme Ltd', email: 'ap@acme.test', stage: 'customer' })).value;
+      customerId = c.id;
+      await W().SlopInvoices.views.edit.onShow(null);
+      await until(() => $('#ePage .pe[data-edit="customer"]'), 'the customer on the page');
+      $('#ePage .pe[data-edit="customer"]').click();
+      const sel = await until(() => $('#ePage select.pe-input'), 'the customer select');
+      sel.value = customerId;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      await sleep(60);
+      expect($('#ePage .pp-name').textContent).toBe('Acme Ltd');
+
+      await editOnPage('#ePage .pe[data-edit="description"][data-index="0"]', 'Widget');
+      expect($('#eLines [data-f="description"]').value).toBe('Widget');
+      await editOnPage('#ePage .pe[data-edit="unitPrice"][data-index="0"]', '10.00');
+      expect($('#eLines [data-f="unitPrice"]').value).toBe('10.00');
+      expect($('#ePage').textContent).toContain('$10.00');
+    });
+
+    it('a wrong value on the page gets the form\'s message and is not saved', async () => {
+      await editOnPage('#ePage .pe[data-edit="qty"][data-index="0"]', '1.5');
+      expect($('#eMsg').textContent).toContain('quantity must be a whole number');
+      await editOnPage('#ePage .pe[data-edit="qty"][data-index="0"]', '2');
+      expect($('#eLines [data-f="qty"]').value).toBe('2');
+    });
+
+    it('the layout can be picked and the page shows it; Save draft stores the edits and the seed', async () => {
+      const sel = $('#eLayout select');
+      sel.value = 'bold';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      await sleep(60);
+      expect($('#eLayout').textContent).toContain('Bold header');
+      button('Save draft').click();
+      const saved = await until(async () => (await W().SlopData.store.list('invoices')).value.find((r) => r.lines && r.lines[0] && r.lines[0].description === 'Widget'), 'the saved draft');
+      expect(saved.lines[0].unitPrice).toBe(1000);
+      expect(saved.lines[0].qty).toBe(2);
+      expect(saved.pdfLayout).toBe('bold');
+      expect(Number.isInteger(saved.pdfSeed)).toBeTruthy();
+    });
+
+    it('Export PDF downloads a real PDF of the page', async () => {
+      const NSI = W().SlopInvoices;
+      const trace = [];
+      const blobs = [];
+      const make = W().URL.createObjectURL;
+      W().URL.createObjectURL = (b) => { blobs.push(b); return make.call(W().URL, b); };
+      const origPdf = NSI.preview.pdf;
+      NSI.preview.pdf = (id) => { trace.push(`pdf ${id}`); return origPdf(id); };
+      const origLoad = NSI.context.load;
+      NSI.context.load = (id) => { trace.push('load'); return origLoad(id); };
+      try {
+        button('Export PDF').click();
+        await sleep(3000);
+        if (!blobs.length) throw new Error(`DBG trace ${trace.join(' / ')} msg ${frame.contentDocument.querySelector('#eMsg').textContent}`);
+        const blob = await until(() => blobs[0], 'the PDF download');
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        expect(String.fromCharCode(...bytes.slice(0, 5))).toBe('%PDF-');
+        expect(blob.type).toBe('application/pdf');
+      } finally {
+        W().URL.createObjectURL = make;
+        NSI.preview.pdf = origPdf;
+        NSI.context.load = origLoad;
+      }
+    });
+  });
+
+  run({ name: 'Slop Invoices · paper' });
+  </script>
+</body>
+</html>

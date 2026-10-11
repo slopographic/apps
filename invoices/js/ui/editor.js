@@ -6,6 +6,7 @@
   const NS = (g.SlopInvoices = g.SlopInvoices || {});
   const U = NS.util;
   const M = g.SlopDocs.model;
+  const L = g.SlopDocs.layouts;
   const UI = g.SlopUI;
   const h = U.h;
   const $ = (id) => document.getElementById(id);
@@ -14,7 +15,7 @@
   const st = {
     id: null, number: '', status: 'draft', currency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30,
     customerId: '', date: '', dueDate: '', notes: '', lines: [], orderId: null, payments: [], paid: 0, balance: 0,
-    customers: [], products: [], dirty: false,
+    customers: [], products: [], dirty: false, pdfSeed: 0, pdfLayout: '', company: { name: '', address: '', taxNumber: '' },
   };
   const locked = () => st.status !== 'draft';
   const isNew = () => !st.id;
@@ -35,7 +36,7 @@
     Object.assign(st, {
       id: inv.id, number: inv.number || '', status: inv.status, currency: inv.currency, customerId: inv.customerId,
       date: inv.date, dueDate: inv.dueDate || '', notes: inv.notes || '', orderId: inv.orderId || null,
-      payments: c.payments, paid: c.paid, balance: c.balance,
+      payments: c.payments, paid: c.paid, balance: c.balance, pdfSeed: inv.pdfSeed ?? L.seedOf(inv), pdfLayout: inv.pdfLayout || '',
     });
     st.lines = inv.lines.map((l) => ({ ...l }));
   }
@@ -44,7 +45,7 @@
     const today = S.ledger.today();
     Object.assign(st, {
       id: null, number: '', status: 'draft', currency: s.currency, customerId: '', date: today,
-      dueDate: M.addDays(today, s.paymentTermsDays), notes: '', orderId: null, payments: [], paid: 0, balance: 0,
+      dueDate: M.addDays(today, s.paymentTermsDays), notes: '', orderId: null, payments: [], paid: 0, balance: 0, pdfSeed: L.newSeed(), pdfLayout: '',
     });
     st.lines = [M.newLine(null, s.defaultTaxRate)];
   }
@@ -52,7 +53,8 @@
   /** Opens an invoice by id, or a new draft for id null. */
   async function open(id) {
     const s = await U.settings();
-    Object.assign(st, { locale: s.locale, defaultTaxRate: s.defaultTaxRate, paymentTermsDays: s.paymentTermsDays });
+    Object.assign(st, { locale: s.locale, defaultTaxRate: s.defaultTaxRate, paymentTermsDays: s.paymentTermsDays,
+      company: { name: s.companyName, address: s.address, taxNumber: s.taxNumber } });
     const cs = await NS.invoices.customers();
     const ps = await NS.invoices.products();
     if (!cs.ok || !ps.ok) { setMsg(U.refusal(cs.ok ? ps : cs), true); return false; }
@@ -148,6 +150,7 @@
     $('eOrder').replaceChildren(...(st.orderId ? ['From order: ', h('a', { href: `../orders/#o/${st.orderId}`, text: 'open the order' })] : []));
     paintPayments();
     paintActions();
+    NS.page.paint();
   }
 
   /** Checks the form and returns the record to save, or the first problem in plain words. */
@@ -160,7 +163,7 @@
       const e = M.lineErrors(l);
       if (e.length) return { error: `Line ${i + 1}: ${e.join('; ')}.` };
     }
-    return { form: { id: st.id, customerId: st.customerId, date: st.date, dueDate: st.dueDate || undefined, notes: st.notes, currency: st.currency, lines: st.lines.map(M.cleanLine) } };
+    return { form: { id: st.id, customerId: st.customerId, date: st.date, dueDate: st.dueDate || undefined, notes: st.notes, currency: st.currency, lines: st.lines.map(M.cleanLine), pdfSeed: st.pdfSeed, pdfLayout: st.pdfLayout } };
   }
 
   /** Saves the draft. Returns true on success. */
@@ -239,11 +242,14 @@
       paintForm();
     }));
     $('eAddLine').addEventListener('click', () => { st.lines.push(M.newLine(null, st.defaultTaxRate)); setDirty(true); paintForm(); });
+    NS.page.mount();
   }
 
   NS.editor = {
     mount, open, save, issue, voidInvoice, removeDraft, preview, back,
     isDirty: () => st.dirty, id: () => st.id, route: () => (st.id ? `i/${st.id}` : 'new'), clean: () => setDirty(false),
+    live: () => st, repaint: () => paintForm(), note: (msg) => setMsg(msg, true),
+    edited: (msg) => { setDirty(true); paintForm(); setMsg(msg || '', true); },
     state: () => ({ open: !!st.id || st.lines.length > 0, status: st.status, payments: st.payments.length, dirty: st.dirty, isNew: isNew() }),
   };
   NS.views = NS.views || {};

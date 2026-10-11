@@ -129,6 +129,7 @@ function windowMenuItems() {
 
 /* ---------- drag & drop: open as tabs, or place as layers ---------- */
 function dropZoneOf(e) { const z = e.target && e.target.closest && e.target.closest('.dz'); return z ? z.dataset.zone : 'open'; }
+let hotZone = 'open'; // the zone under the pointer at the last dragover (the drop reads it: the zone class is gone by then)
 function onDragOver(e) {
   if (dragTab) return;
   const types = e.dataTransfer ? [...e.dataTransfer.types] : [];
@@ -136,7 +137,23 @@ function onDragOver(e) {
   e.preventDefault();
   document.body.classList.add('dropping');
   const place = $('.dz-place .dz-doc'); if (place) place.textContent = D.name || 'this document';
-  $$('.dz').forEach((z) => z.classList.toggle('hot', z.dataset.zone === dropZoneOf(e)));
+  hotZone = dropZoneOf(e);
+  $$('.dz').forEach((z) => z.classList.toggle('hot', z.dataset.zone === hotZone));
+}
+/* Files: SlopDrop (shared/drop) takes them anywhere on the page, a strip at the foot of the viewport shows progress. */
+function bindFileDrop() {
+  const strip = $('#psDrop');
+  window.SlopDrop.attach(strip, {
+    accept: { types: ['image/*'], exts: ['.psd', '.psb', '.ora', '.kra', '.tif', '.tiff', '.svg', '.avif', '.bmp', '.gif'], noun: 'a picture or a document' },
+    compact: true, overlay: false,
+    targets: [document.body],
+    process: async (file) => {
+      const failed = await handleFiles([file], hotZone === 'place');
+      if (failed.length) throw new Error(failed[0]);
+      return file.name;
+    },
+  });
+  strip.addEventListener('pointerdown', (e) => e.stopPropagation());
 }
 async function onDropFiles(e) {
   if (dragTab) return;
@@ -144,7 +161,7 @@ async function onDropFiles(e) {
   document.body.classList.remove('dropping');
   const place = dropZoneOf(e) === 'place';
   const files = [...(e.dataTransfer.files || [])];
-  if (files.length) { handleFiles(files, place); return; }
+  if (files.length) return; // files go through SlopDrop (bindFileDrop)
   // An image dragged straight from another web page.
   const url = (e.dataTransfer.getData('text/uri-list') || '').split('\n').find((l) => l && !l.startsWith('#'));
   if (!url) return;

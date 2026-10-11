@@ -45,7 +45,8 @@
   function normalize(v, lo = 0.01, hi = 0.99) {
     const s = Float32Array.from(v).filter((x) => Number.isFinite(x)).sort();
     if (!s.length) return new Float32Array(v.length).fill(0.5);
-    const a = s[Math.floor(lo * (s.length - 1))], b = s[Math.floor(hi * (s.length - 1))];
+    let a = s[Math.floor(lo * (s.length - 1))], b = s[Math.floor(hi * (s.length - 1))];
+    if (!(b > a)) { a = s[0]; b = s[s.length - 1]; } // mostly flat input: use the full range so a spike still shows
     const out = new Float32Array(v.length);
     if (!(b > a)) { out.fill(0.5); return out; }
     for (let i = 0; i < v.length; i++) out[i] = Math.min(1, Math.max(0, (Number.isFinite(v[i]) ? v[i] : a) - a) / (b - a));

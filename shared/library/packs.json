@@ -18,6 +18,23 @@
           "sha256": "8213c3a2f08808d375d2b1aeeb52847fb53a38aea9df15835eabb203dbcbc52c"
         }
       ]
+    },
+    {
+      "id": "depth-anything-v2-small",
+      "kind": "model",
+      "name": "Depth Anything V2 Small (Slop Image to 3D, depth)",
+      "licence": "Apache-2.0",
+      "licenceUrl": "https://github.com/DepthAnything/Depth-Anything-V2/blob/main/LICENSE",
+      "description": "Depth Anything V2 Small (depth-anything/Depth-Anything-V2-Small, Apache-2.0), ONNX export from onnx-community with int8 weight quantisation. Estimates depth from one picture. Runs on your device; the picture is not uploaded.",
+      "size": 27258801,
+      "files": [
+        {
+          "name": "depth-anything-v2-small.onnx",
+          "url": "https://raw.githubusercontent.com/slopographic/apps/main/vendor/models/depth/depth-anything-v2-small.onnx",
+          "size": 27258801,
+          "sha256": "fcf51f1b230362b28690bb9d1809bf0431f29cad20534e3f589bd7285547f20d"
+        }
+      ]
     }
   ]
 }

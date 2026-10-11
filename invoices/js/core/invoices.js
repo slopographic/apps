@@ -6,6 +6,8 @@
   const NS = (g.SlopInvoices = g.SlopInvoices || {});
   const { ok, fail } = S.result;
   const B = S.billing;
+  /** A random PDF seed for a new document (the template is picked from it; see shared/docs/pdf-layouts.js). */
+  const newSeed = () => (g.crypto && g.crypto.getRandomValues ? g.crypto.getRandomValues(new Uint32Array(1))[0] & 0x7fffffff : Math.floor(Math.random() * 2147483647));
 
   /** Invoices with balance, overdue flag and customer name. status: all, draft, issued, paid, void or overdue. Newest first. */
   function list({ status = 'all', search = '' } = {}) {
@@ -75,12 +77,15 @@
     });
   }
 
-  /** Saves a draft. form: { id?, customerId, date, dueDate?, currency?, notes?, lines }. Issued invoices are refused. */
+  /** Saves a draft. form: { id?, customerId, date, dueDate?, currency?, notes?, lines, pdfSeed?, pdfLayout? }. Issued invoices are refused.
+   *  The PDF seed and layout are kept on the record (issue keeps them), so the same invoice always exports the same way. */
   async function saveDraft(form) {
     const base = { customerId: form.customerId, date: form.date, dueDate: form.dueDate, notes: form.notes, lines: form.lines };
     if (form.currency) base.currency = form.currency;
     if (form.sample) base.sample = true;   // random samples (samples.js) are marked so they can be deleted together
-    if (!form.id) return S.store.put('invoices', { ...base, status: 'draft' });
+    if (form.pdfLayout !== undefined) base.pdfLayout = form.pdfLayout || '';   // '' = the template the seed picks
+    if (form.pdfSeed !== undefined && form.pdfSeed !== null) base.pdfSeed = form.pdfSeed;
+    if (!form.id) return S.store.put('invoices', { ...base, pdfSeed: base.pdfSeed ?? newSeed(), status: 'draft' });
     const cur = await S.store.get('invoices', form.id);
     if (!cur.ok) return cur;
     if (!cur.value) return fail('not_found', 'this invoice no longer exists');

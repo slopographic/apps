@@ -28,41 +28,51 @@
     return take([file]);
   };
 
-  /** True when a drag carries files (not text or links). */
-  const hasFiles = (e) => !!e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files');
   const editable = (t) => !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+  const DROP_RULES = {
+    types: ['image/*', 'video/*'],
+    exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp', '.tif', '.tiff', '.mp4', '.m4v', '.mov', '.webm'],
+    noun: 'an image or a video',
+  };
+  /** One dropped file into the queue. Resolves with the item id once it is cut out (or the video is open), so the
+   *  drop list shows the decode as progress; rejects with the reason when the file cannot be used. */
+  function ingest(file, progress) {
+    if (CO.video && CO.video.isVideo(file)) {
+      return CO.video.addItem(file).then(() => {
+        const it = S().items.slice().reverse().find((x) => x.name === file.name);
+        if (!it || it.status === 'error') throw new Error(it ? it.error || 'cannot be read' : 'cannot be read');
+        return it.id;
+      });
+    }
+    const items = CO.process.add([file]);
+    if (!items.length) return Promise.reject(new Error('is not an image'));
+    const it = items[0];
+    return new Promise((resolve, reject) => {
+      const offs = [];
+      const finish = () => offs.forEach((off) => off());
+      offs.push(CO.on('item', (x) => {
+        if (x !== it) return;
+        if (it.status === 'done') { finish(); resolve(it.id); }
+        else if (it.status === 'error') { finish(); reject(new Error(it.error || 'could not be cut out')); }
+      }));
+      offs.push(CO.on('progress', (d) => { if (d && d.it === it && it.progress != null) progress(it.progress); }));
+    });
+  }
+  const S = () => CO.state;
 
-  /** Drag and drop onto the window, paste of image data, and the drop overlay. Safe to call once. */
+  /** Drag and drop onto the workspace (a compact zone above the stage, and the window). Pasting stays below. */
   F.init = function () {
-    const overlay = U.$('#dropOverlay');
-    let depth = 0;
-    const show = (on) => { if (overlay) overlay.hidden = !on; };
-
-    window.addEventListener('dragenter', (e) => {
-      if (!hasFiles(e)) return;
-      e.preventDefault();
-      depth++;
-      show(true);
+    SlopDrop.attach(U.$('#isoDrop'), {
+      accept: DROP_RULES,
+      compact: true,
+      targets: [U.$('#workspace')],
+      process: ingest,
+      done: (sum) => {
+        const last = sum.added[sum.added.length - 1];
+        const it = last && S().get(last.value);
+        if (it && it.status === 'done' && CO.process.select) CO.process.select(it);
+      },
     });
-    window.addEventListener('dragover', (e) => {
-      if (!hasFiles(e)) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'copy';
-    });
-    window.addEventListener('dragleave', (e) => {
-      if (!hasFiles(e)) return;
-      depth = Math.max(0, depth - 1);
-      if (!depth) show(false);
-    });
-    window.addEventListener('drop', (e) => {
-      if (!hasFiles(e)) return;
-      e.preventDefault();
-      depth = 0;
-      show(false);
-      take(e.dataTransfer.files);
-    });
-    // Dragging out of the window or cancelling a drag must also hide the overlay.
-    window.addEventListener('dragend', () => { depth = 0; show(false); });
 
     window.addEventListener('paste', (e) => {
       if (editable(e.target) || !e.clipboardData) return;

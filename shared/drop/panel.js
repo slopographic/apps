@@ -25,6 +25,9 @@
     '.sd-row.error{border-color:#c0392b}.sd-row.error .sd-msg-row{color:#c0392b}',
     '.sd-status{font-size:12px;margin:0;min-height:0}',
     '.sd-status:empty{display:none}',
+    '.sd-compact{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;text-align:left}',
+    '.sd-compact .sd-msg{flex:1 1 180px}',
+    '.sd-compact .sd-list,.sd-compact .sd-status{flex-basis:100%}',
     '.sd-hint{position:fixed;z-index:9000;pointer-events:none;box-sizing:border-box;border:2px dashed var(--sui-accent,#3b5bdb);border-radius:8px;background:color-mix(in srgb,var(--sui-accent,#3b5bdb) 8%,transparent);display:flex;align-items:center;justify-content:center;padding:6px}',
     '.sd-hint b{background:var(--sui-accent,#3b5bdb);color:#fff;font:600 13px/1.3 system-ui,sans-serif;padding:6px 10px;border-radius:6px;max-width:90%;text-align:center}',
     '.sd-toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:9001;max-width:min(560px,calc(100vw - 32px));background:var(--sui-text,#1b1b22);color:var(--sui-panel,#fff);font:13px/1.4 system-ui,sans-serif;padding:9px 14px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer}',
@@ -43,12 +46,12 @@
   P.build = function (zone, o) {
     style();
     const wrap = doc.createElement('div');
-    wrap.className = 'sd-zone';
+    wrap.className = 'sd-zone' + (o.compact ? ' sd-compact' : '');
     const msg = doc.createElement('p');
     msg.className = 'sd-msg';
     msg.textContent = o.label || 'Drop files here or choose files';
     wrap.append(msg);
-    if (o.hint) { const h = doc.createElement('p'); h.textContent = o.hint; wrap.append(h); }
+    if (o.hint && !o.compact) { const h = doc.createElement('p'); h.textContent = o.hint; wrap.append(h); }
     const choose = doc.createElement('button');
     choose.type = 'button'; choose.className = 'sd-choose';
     choose.textContent = o.chooseLabel || 'Choose files';

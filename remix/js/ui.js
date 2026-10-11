@@ -96,6 +96,9 @@
     st.min = +$('rm-lmin').value || 1; st.max = +$('rm-lmax').value || 3;
     st.stagger = $('rm-stagger').value === '' ? 1 : Math.max(0, +$('rm-stagger').value || 0);
     st.audioMode = $('rm-audio').value; st.audioTrack = $('rm-track').value || 'random';
+    st.photo = { show: $('rm-pshow').value, sec: +$('rm-psec').value || 3, min: +$('rm-pmin').value || 2, max: +$('rm-pmax').value || 4,
+      from: Math.max(0, +$('rm-pfrom').value || 0), to: Math.max(0, +$('rm-pto').value || 0), enter: $('rm-penter').value, exit: $('rm-pexit').value };
+    st.clipVideo = { mode: $('rm-vmode').value, start: Math.max(0, +$('rm-vstart').value || 0), stop: Math.max(0, +$('rm-vstop').value || 0), speed: +$('rm-vspeed').value || 1 };
     st.random = $('rm-random').checked;
     st.grids = RM.GRIDS.filter((g) => $('rm-g-' + g).checked);
     const seed = S.parse($('rm-seed').value);
@@ -185,17 +188,25 @@
     slotsCut = ci;
     const row = $('rm-slots');
     if (ci < 0) { row.replaceChildren(); return; }
-    const head = Object.assign(document.createElement('span'), { className: 'rm-size', textContent: 'Cut ' + (ci + 1) + ' slots:' });
-    const reset = Object.assign(document.createElement('button'), { type: 'button', className: 'rm-btn rm-slotlock', textContent: 'Reset position' });
-    reset.title = 'Centre the clips of this cut in their cells'; reset.onclick = () => { RM.resetPan(ci); renderPlan(); status('Positions of cut ' + (ci + 1) + ' reset.'); };
-    row.replaceChildren(head, reset, ...plan.cuts[ci].map((x) => {
-      const on = SV.locks.has(st.locks, ci, x.slot);
-      const b = document.createElement('button');
-      b.type = 'button'; b.className = 'rm-btn rm-slotlock' + (on ? ' on' : ''); b.innerHTML = LOCK_SVG + ' Slot ' + (x.slot + 1);
-      b.setAttribute('aria-pressed', String(on)); b.title = (on ? 'Unlock' : 'Lock') + ' slot ' + (x.slot + 1) + ' of cut ' + (ci + 1);
-      b.onclick = () => { RM.toggleLock(ci, x.slot); slotsCut = -2; renderSlots(); renderPlan(); status((on ? 'Unlocked' : 'Locked') + ' slot ' + (x.slot + 1) + ' of cut ' + (ci + 1) + '.'); };
-      return b;
+    const btn = (label, title, fn, cls) => Object.assign(document.createElement('button'), { type: 'button', className: 'rm-btn rm-slotlock' + (cls || ''), innerHTML: label, title, onclick: fn });
+    const head = Object.assign(document.createElement('span'), { className: 'rm-size', textContent: 'Cut ' + (ci + 1) + ':' });
+    const reset = btn('Reset position', 'Centre the clips of this cut in their cells', () => { RM.resetPan(ci); renderPlan(); status('Positions of cut ' + (ci + 1) + ' reset.'); });
+    const out = [head, reset];
+    for (const x of plan.cuts[ci]) {
+      const on = SV.locks.has(st.locks, ci, x.slot), m = st.items.find((q) => q.id === x.media);
+      const kind = m && m.kind === 'image' ? 'photo' : 'video', nm = m ? m.name : '?';
+      out.push(btn(LOCK_SVG + ' Slot ' + (x.slot + 1), (on ? 'Unlock' : 'Lock') + ' slot ' + (x.slot + 1) + ' of cut ' + (ci + 1), () => {
+        RM.toggleLock(ci, x.slot); slotsCut = -2; renderSlots(); renderPlan(); status((on ? 'Unlocked' : 'Locked') + ' slot ' + (x.slot + 1) + ' of cut ' + (ci + 1) + '.');
+      }, on ? ' on' : ''));
+      const setFor = (key, what) => { RM.setOverride(key, kind); slotsCut = -2; renderSlots(); status(what + ' uses the ' + kind + ' settings from Options. Press Remix to apply.'); };
+      out.push(btn('Settings: slot ' + (x.slot + 1), 'Give slot ' + (x.slot + 1) + ' the current ' + kind + ' settings', () => setFor('s:' + x.slot, 'Slot ' + (x.slot + 1))));
+      if (m) out.push(btn('Settings: ' + nm, 'Give the clip ' + nm + ' the current ' + kind + ' settings', () => setFor('m:' + m.id, nm)));
+    }
+    out.push(btn('Clear settings', 'Remove the slot and clip settings of this cut', () => {
+      for (const x of plan.cuts[ci]) { RM.clearOverride('s:' + x.slot); const m = st.items.find((q) => q.id === x.media); if (m) RM.clearOverride('m:' + m.id); }
+      slotsCut = -2; renderSlots(); status('Settings cleared for cut ' + (ci + 1) + '. Press Remix to apply.');
     }));
+    row.replaceChildren(...out);
   }
   function init() {
     const st = RM.state;
@@ -208,6 +219,13 @@
     $('rm-lmin').value = String(st.min); $('rm-lmax').value = String(st.max); $('rm-stagger').value = String(st.stagger);
     fill($('rm-audio'), SV.audio.MODES, st.audioMode);
     renderTracks();
+    fill($('rm-pshow'), SV.clipset.SHOW, st.photo.show);
+    fill($('rm-penter'), SV.clipset.EDGE, st.photo.enter);
+    fill($('rm-pexit'), SV.clipset.EDGE, st.photo.exit);
+    fill($('rm-vmode'), SV.clipset.VMODE, st.clipVideo.mode);
+    $('rm-psec').value = String(st.photo.sec); $('rm-pmin').value = String(st.photo.min); $('rm-pmax').value = String(st.photo.max);
+    $('rm-pfrom').value = String(st.photo.from); $('rm-pto').value = String(st.photo.to);
+    $('rm-vstart').value = String(st.clipVideo.start); $('rm-vstop').value = String(st.clipVideo.stop); $('rm-vspeed').value = String(st.clipVideo.speed);
     $('rm-cw').value = String(st.custom.w); $('rm-ch').value = String(st.custom.h);
     fill($('rm-base'), [['none', 'None: one clip after another'], ['random', 'Random grid from the list']].concat(SV.templates.list.map((t) => [t.id, t.name])).concat(RM.GRIDS.map((g) => [g, SV.templates.get(g).name])), st.base);
     $('rm-random').checked = st.random;
@@ -245,6 +263,7 @@
     if (RM.lane) RM.lane.update({ playhead: t });
   }
   function wire() {
+    ['rm-pshow', 'rm-psec', 'rm-pmin', 'rm-pmax', 'rm-pfrom', 'rm-pto', 'rm-penter', 'rm-pexit', 'rm-vmode', 'rm-vstart', 'rm-vstop', 'rm-vspeed'].forEach((id) => $(id).addEventListener('change', () => { readControls(); status('Clip settings: press Remix to apply them (or set them per slot or clip).'); }));
     ['rm-timing', 'rm-vtiming', 'rm-lmin', 'rm-lmax', 'rm-stagger'].forEach((id) => $(id).addEventListener('change', () => { readControls(); status('Timing: press Remix to plan the new timing.'); }));
     const audioChanged = () => { readControls(); renderTracks(); const p = RM.state.plan; if (p) p.audio = SV.audio.choose({ mode: RM.state.audioMode, track: RM.state.audioTrack }, p.seed, RM.media()); status('Audio: ' + $('rm-audio').options[$('rm-audio').selectedIndex].text + '.'); };
     $('rm-audio').addEventListener('change', audioChanged);

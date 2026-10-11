@@ -1,3 +1,4 @@
 .DS_Store
 node_modules/
 vendor/models/upscale/realesrgan-x4plus/model.onnx
+vendor/models/depth/depth-anything-v2-small.onnx

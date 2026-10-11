@@ -16,7 +16,7 @@ const FILES = [
   'shared/motion/easing.js', 'shared/motion/track.js',
   'shared/config/schema.js', 'shared/config/validate.js', 'shared/config/io.js', 'shared/config/prompt.js', 'shared/config/dialog.js',
   'shared/video/seed.js', 'shared/video/presets.js', 'shared/video/grid.js', 'shared/video/templates.js', 'shared/video/layout.js',
-  'shared/video/segments.js', 'shared/video/timing.js', 'shared/video/locks.js', 'shared/video/audio.js', 'shared/video/orient.js',
+  'shared/video/segments.js', 'shared/video/timing.js', 'shared/video/locks.js', 'shared/video/audio.js', 'shared/video/clipset.js', 'shared/video/orient.js',
   'shared/video/random-edit.js', 'shared/video/effects.js', 'shared/video/keys.js',
   'remix/js/core.js', 'remix/js/config-map.js', 'remix/js/config.js',
 ];

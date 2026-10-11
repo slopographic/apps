@@ -98,6 +98,24 @@ for the whole reel. The cut list ends with the effect layer's row, and each cut 
 - Export records the plan in real time (MediaRecorder on the canvas, WebM or MP4 where the browser records it). Keep the tab
   visible. Stop export saves what has been drawn. Browsers without MediaRecorder: use Send to SlopCut.
 
+## Moving clips and cuts (js/moves.js)
+
+- Swap: drag a clip on the preview from one slot onto another slot of the cut at the playhead. The target slot lights up
+  while you drag; releasing swaps the clips (with their in point, fill and pan). Timing stays with each slot.
+- Pan: drag a clip within its own slot to pan it inside its cell (cover fill). The position is kept on the slot;
+  Reset position (the slot row under the preview) clears it for that cut.
+- Reorder: drag a cut in the cut list up or down. Only cuts of the same layout span with the same slot count can change
+  places; the times are reassigned and the locks follow their cuts.
+- A ghost of the dragged clip follows the pointer.
+
+## Clip settings (Options: Photos and Video)
+
+- Photos: How long each shows (the cut length, fixed seconds, or a random range drawn from the seed), From and To (the window in
+  the reel; To 0 = the end), and Enter and Exit (none, fade or slide, 0.5 s each).
+- Video: Play the full video, Start and stop points, a set speed, or Loop until the slot ends.
+- Per slot or per clip: the slot row has Settings buttons that give that slot (or clip) the current Options values, and
+  Clear. Overrides apply on the next Remix. Clip settings are in the plan options (`photo`, `clipVideo`, `overrides`).
+
 ## Send to SlopCut
 
 The manifest is a Drive record of type `application/x-slop-reel+json`: `format: 'slop-reel'`, `version: 2`,

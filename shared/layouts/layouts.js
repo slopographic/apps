@@ -2,7 +2,8 @@
  * app's own grid (grid rows and columns) and calls the app's own show hook when a panel must hide. On a phone the
  * module steps aside and the app's own CSS applies, unchanged. Classic script, after core.js; extends window.SlopLayouts.
  *   SlopLayouts.mount({ app, root, panels: { id: { el, show? } }, fixed?: { top: [el], bottom: [el] },
- *                       phone?: media query (default '(max-width: 760px)'), active?: () => bool, release?: () => void })
+ *                       sizeVars?: { id: '--css-var' } (a size the app already drives), phone?: media query (default '(max-width: 760px)'),
+ *                       active?: () => bool, release?: () => void })
  * ?layout=<category or preset id> at boot chooses a layout for the app and saves it. */
 (function (g) {
   'use strict';
@@ -50,7 +51,7 @@
       if (phone || (m.active && !m.active())) { release(m); return; }
       const p = NS.resolve(app, readRaw(app));
       const present = Object.keys(m.panels);
-      const a = NS.arrange(p, present, { fixedTop: m.fixed.top.length, fixedBottom: m.fixed.bottom.length });
+      const a = NS.arrange(p, present, { fixedTop: m.fixed.top.length, fixedBottom: m.fixed.bottom.length, sizeVars: m.sizeVars });
       const r = m.root;
       r.style.gridTemplateColumns = a.columns;
       r.style.gridTemplateRows = a.rows;
@@ -92,7 +93,7 @@
     const m = (mounts[cfg.app] = {
       root: cfg.root, panels,
       fixed: { top: fixed.filter(Boolean), bottom: ((cfg.fixed && cfg.fixed.bottom) || []).filter(Boolean) },
-      active: cfg.active || null, release: cfg.release || null,
+      active: cfg.active || null, release: cfg.release || null, sizeVars: cfg.sizeVars || {},
       hiddenEls: new Set(), engaged: false, busy: false,
       mq: g.matchMedia ? g.matchMedia(cfg.phone || '(max-width: 760px)') : null,
     });

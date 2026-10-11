@@ -16,6 +16,7 @@ Classic scripts, no DOM except the lane widget, no fetch, no storage. Each file 
 | `orient.js` | `SlopVideo.orient` | Clip orientation (`of`, `classify`, `mixed`); grids that suit the clips (`prefer`); cell order (`assign`); `resolve(fill, mixed)` (auto is cover, or blur when mixed). |
 | `timing.js` | `SlopVideo.timing` | Per-slot timing inside a cut (`apply`: same, stagger, random length; video through or random point) and `holds` (each clip holds until the next clip in its slot). |
 | `locks.js` | `SlopVideo.locks` | Locked slots: `toggle`, `toggleCut`, `has`, and `apply(plan, locks, media)` puts locked clips back into a new plan. |
+| `clipset.js` | `SlopVideo.clipset` | Clip settings: photo show time (cut, fixed, random range), window and edges; video modes (full, trim, speed, loop); `apply` sets them on a planned item, with per-clip and per-slot overrides. |
 | `audio.js` | `SlopVideo.audio` | The reel's audio choice (`choose`): off, original, or music (a bin video's sound by seed, or a picked file). |
 | `random-edit.js` | `SlopVideo.random` | `plan(opts, media)` (pure), `norm`, `usable`, `switches`, `regionFor(plan, item)`. |
 | `lane-view.js` | `SlopVideo.laneView` | The Layout lane widget: `mount(host, {label, onCommit, onSeek})` returns `update({duration, switches, layouts, playhead})`. |
