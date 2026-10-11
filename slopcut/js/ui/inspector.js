@@ -1,6 +1,7 @@
 /* SlopCut: the Inspector. With nothing selected it shows the sequence settings; with a clip it shows
    timing, transform (position, scale, rotation, opacity, crop), colour, fades, transition, speed,
-   text (titles) and audio (volume, fades, keyframes). Builders for clip sections: insp-clip.js. */
+   text (titles) and audio (volume, fades, keyframes). Builders for clip sections: insp-clip.js; keyframes and the
+   random effect layer: insp-anim.js. */
 (function () {
   'use strict';
   const SE = window.SE, U = SE.util, M = SE.model, F = SE.fields;
@@ -49,14 +50,16 @@
       track(F.number('Duration', I.clipGet(id, 'dur'), (v) => SE.change('Duration', (d) => SE.edit.trim(d, id, 'out', M.clip(d, id).start + Math.max(1 / fps, v))), { step: 1 / fps, unit: 's' })),
       c.media && c.kind !== 'image' ? track(F.number('Source in', I.clipGet(id, 'in'), (v) => SE.change('Source in', (d) => { const cc = M.clip(d, id); cc.in = U.clamp(v, 0, Math.max(0, M.srcLen(d, cc) - cc.dur * cc.speed)); }), { step: 1 / fps, unit: 's' })) : null,
       c.media && c.kind !== 'image' ? track(F.slider('Speed', I.clipGet(id, 'speed', 1), (v) => SE.change('Speed', (d) => SE.edit.setSpeed(d, id, v), { key: 'insp:speed' + id }), { min: 10, max: 400, step: 5, scale: 100, unit: '%', reset: 1 })) : null));
-    if (c.kind !== 'audio') I.visualSections(c);
+    if (c.kind !== 'audio' && c.kind !== 'effect') I.visualSections(c);
+    if (c.kind !== 'audio' && c.kind !== 'effect') body.append(I.animSection(c));
+    if (c.kind === 'effect') body.append(I.effectSection(c));
     if (c.kind === 'title') I.textSection(c);
     if (c.kind === 'color') body.append(F.section('Matte', 'color', track(F.color('Colour', I.clipGet(id, 'color'), I.clipSet(id, 'color', 'Matte colour')))));
     if (c.kind === 'audio') I.audioSection(c);
     body.append(h('div', { class: 'ins-actions' },
       h('button', { type: 'button', class: 'btn sm', onclick: () => SE.cmd.run('edit.split') }, SE.icon('split'), 'Split'),
       h('button', { type: 'button', class: 'btn sm', onclick: () => SE.cmd.run('edit.delete') }, SE.icon('trash'), 'Delete'),
-      c.kind !== 'audio' ? h('button', { type: 'button', class: 'btn sm', onclick: () => SE.cmd.run('clip.reset') }, 'Reset') : null));
+      h('button', { type: 'button', class: 'btn sm', title: 'Transform, colour, fades, volume, keyframes and effect settings go back to defaults; media stays', onclick: () => SE.cmd.run('clip.reset') }, 'Reset all')));
   }
 
   I.render = function () {
