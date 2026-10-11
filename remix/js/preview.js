@@ -3,18 +3,20 @@
    see SlopVideo.orient). Stills and videos are the bin items' own elements; videos are seeked to the cut's in point.
    Scrubbing and clicks paint the frame at once, even when paused: a video that is still seeking repaints when its
    frame arrives. Play runs the playhead with requestAnimationFrame. Sound: the music track (remix/js/audio.js) and, in
-   Original mode, each video's own sound. Clips hold their windows (plan holds) and freeze when they run out. */
+   Original mode, each video's own sound. Clips hold their windows (plan holds) and freeze when they run out.
+   A slot with keyframes (keys.js) is drawn posed: clipped to its cell, then offset, scaled, rotated and faded.
+   The effect layer (fx.js) is drawn last, over the whole frame. */
 (function () {
   'use strict';
-  const RM = window.RM, SV = window.SlopVideo, R = SV.random, O = SV.orient;
+  const RM = window.RM, SV = window.SlopVideo, R = SV.random, O = SV.orient, KF = SV.keys;
   const FULL = { x: 0, y: 0, w: 1, h: 1 };
   const PV = (RM.preview = { canvas: null, ctx: null, t: 0, playing: false, raf: 0, last: 0, items: [] });
 
   PV.attach = function (canvas) { PV.canvas = canvas; PV.ctx = canvas.getContext('2d'); };
-  /** The plan's cut items, flat, with their media element. */
+  /** The plan's cut items, flat, with their media element and the index of their cut. */
   PV.flat = function (plan) {
     const byId = new Map(RM.state.items.map((m) => [m.id, m]));
-    return plan ? plan.cuts.flat().map((it) => Object.assign({}, it, { m: byId.get(it.media) })).filter((it) => it.m) : [];
+    return plan ? plan.cuts.flatMap((beat, ci) => beat.map((it) => Object.assign({}, it, { cut: ci, m: byId.get(it.media) }))).filter((it) => it.m) : [];
   };
   PV.total = () => (RM.state.plan ? RM.state.plan.total : 0);
   /** Size the canvas to the preset frame (its width capped for speed). */
@@ -38,8 +40,23 @@
     for (const it of items) {
       if (!(t >= it.start && t < holdOf(it))) { if (it.m.kind === 'video') it.m.el.pause(); continue; }
       const reg = R.regionFor(plan, it) || FULL; // no layout (None): the clip fills the frame
-      drawItem(c, it, t, { x: reg.x * W, y: reg.y * H, w: reg.w * W, h: reg.h * H }, plan);
+      const box = { x: reg.x * W, y: reg.y * H, w: reg.w * W, h: reg.h * H };
+      const pose = KF.pose(KF.get(RM.state.keys, it.cut, it.slot), t - it.start);
+      if (pose) drawPosed(c, it, t, box, plan, pose); else drawItem(c, it, t, box, plan);
     }
+    RM.layer.apply(c, W, H, t, plan);
+  }
+  /** A keyed slot: clipped to its cell, then faded, moved, scaled and rotated about the cell's centre. */
+  function drawPosed(c, it, t, box, plan, p) {
+    const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+    c.save();
+    c.beginPath(); c.rect(box.x, box.y, box.w, box.h); c.clip();
+    c.globalAlpha = Math.max(0, Math.min(1, p.opacity));
+    c.translate(cx + p.x * box.w, cy + p.y * box.h);
+    c.rotate((p.rot * Math.PI) / 180); c.scale(p.scale, p.scale);
+    c.translate(-cx, -cy);
+    drawItem(c, it, t, box, plan);
+    c.restore();
   }
   /** End of a clip's window on its slot: the next clip in that slot (or its own end when the plan has no holds). */
   const holdOf = (it) => (it.hold != null ? it.hold : it.start + it.dur);

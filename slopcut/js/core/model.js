@@ -2,7 +2,8 @@
    Project { v, name, w, h, fps, bg, tracks[], clips[], markers[], media[] (metadata only),
              layout (template slots, see layout.js), random (record of the last random edit) }
    Track   { id, kind: 'video'|'audio', name, mute, solo, lock, hide }
-   Clip    { id, track, kind: 'video'|'audio'|'image'|'title'|'color', media, start, dur, in, speed, link, … }
+   Clip    { id, track, kind: 'video'|'audio'|'image'|'title'|'color'|'effect', media, start, dur, in, speed, link, anim, fx, … }
+   anim: keyframes { x|y|scale|rot|opacity: [{ t, value, ease }] } (see core/anim.js); fx: random effect settings (core/fx-random.js).
    Times are seconds on the timeline (start, dur) or in the source (in). Video tracks draw V1 first (bottom). */
 (function () {
   'use strict';
@@ -13,8 +14,12 @@
     kind: 'video', media: null, name: '', start: 0, dur: 5, in: 0, speed: 1, link: null,
     x: 0, y: 0, scale: 1, rot: 0, opacity: 1, cropL: 0, cropT: 0, cropR: 0, cropB: 0,
     bright: 0, contrast: 0, sat: 0, temp: 0, fadeIn: 0, fadeOut: 0, trIn: null,
-    vol: 1, keys: null, afIn: 0, afOut: 0, color: '#1b1b22', text: null
+    vol: 1, keys: null, afIn: 0, afOut: 0, color: '#1b1b22', text: null,
+    anim: null, fx: null
   };
+  /** Random effect layer defaults (kind 'effect'). Reset restores these; a new layer gets a random seed. */
+  M.FX_DEFAULT = { seed: 1, every: 1, intensity: 0.6, types: ['grain', 'colour', 'glitch', 'zoom', 'vignette'] };
+  M.fxDefault = () => Object.assign({}, M.FX_DEFAULT, { types: M.FX_DEFAULT.types.slice() });
   M.TEXT = { str: 'Title', font: 'Archivo', size: 96, color: '#ffffff', stroke: '#000000', strokeW: 0, bold: true, italic: false, align: 'center', bg: '', anim: 'fade', shadow: true };
   M.TRANSITIONS = [['cross', 'Cross dissolve'], ['black', 'Dip to black'], ['white', 'Dip to white'], ['wipe', 'Wipe'], ['slide', 'Slide'], ['push', 'Push']];
   M.FONTS = ['Archivo', 'Inter Tight', 'JetBrains Mono', 'Instrument Serif', 'Caveat', 'Dancing Script', 'Great Vibes', 'Georgia', 'Impact', 'Arial', 'Times New Roman', 'Courier New'];
@@ -35,6 +40,7 @@
   M.newClip = function (o) {
     const c = Object.assign({}, M.CLIP, o, { id: o.id || U.uid('c') });
     if (c.kind === 'title') c.text = Object.assign({}, M.TEXT, o.text || {});
+    if (c.kind === 'effect' && !c.fx) c.fx = M.fxDefault();
     return c;
   };
 
@@ -94,6 +100,7 @@
   M.label = function (p, c) {
     if (c.kind === 'title') return (c.text && c.text.str) || 'Title';
     if (c.kind === 'color') return 'Colour matte';
+    if (c.kind === 'effect') return c.name || 'Random effect';
     const m = c.media && M.media(p, c.media);
     return c.name || (m ? m.name : 'Clip');
   };
@@ -105,7 +112,7 @@
     if (!p || !Array.isArray(p.tracks) || !Array.isArray(p.clips)) throw new Error('Not a SlopCut project');
     const out = Object.assign(M.newProject(), p);
     out.markers = p.markers || []; out.media = p.media || [];
-    out.clips = p.clips.map((c) => Object.assign({}, M.CLIP, c, c.kind === 'title' ? { text: Object.assign({}, M.TEXT, c.text || {}) } : null));
+    out.clips = p.clips.map((c) => M.newClip(Object.assign({}, c)));
     for (const t of out.tracks) Object.assign(t, Object.assign({ mute: false, solo: false, lock: false, hide: false }, t));
     return out;
   };

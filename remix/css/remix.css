@@ -51,3 +51,14 @@ h2 small { font-weight: 400; text-transform: none; }
 .rm-lockbtn { border: 0; background: none; color: var(--rm-muted); cursor: pointer; padding: 0 2px; vertical-align: middle; }
 .rm-cuts li.locked .rm-lockbtn { color: var(--rm-accent); }
 .rm-lockbadge { font-size: 11px; color: var(--rm-accent); border: 1px solid var(--rm-accent); border-radius: 4px; padding: 0 4px; }
+/* Keyframes and the effect layer */
+.rm-keys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0; padding: 8px; border: 1px solid var(--rm-line); border-radius: 6px; font-size: 12px; }
+.rm-keys:has(button:disabled) { opacity: .6; }
+.rm-inline { display: inline-flex; align-items: center; gap: 4px; }
+.rm-inline select, .rm-keys select { font: inherit; font-size: 12px; padding: 3px 6px; border: 1px solid var(--rm-line); border-radius: 6px; background: var(--rm-bg); color: var(--rm-text); }
+.rm-keys .rm-btn { padding: 4px 8px; font-size: 12px; }
+.rm-ktrack { position: relative; flex: 1 1 200px; min-width: 160px; height: 22px; border-radius: 4px; background: var(--rm-track); border: 1px solid var(--rm-line); }
+.rm-ktrack.off { opacity: .5; }
+.rm-kkey { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; padding: 0; border-radius: 50%; border: 2px solid var(--rm-accent); background: var(--rm-panel); cursor: ew-resize; touch-action: none; }
+.rm-kkey.on { background: var(--rm-accent); }
+.rm-fxrow { list-style: none; margin-top: 6px; color: var(--rm-text); }

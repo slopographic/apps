@@ -141,8 +141,39 @@
     if (!c) { A.status('Select an audio clip under the playhead'); return; }
     SE.change('Add keyframe', (p) => { const cc = M.clip(p, c.id), u = U.round(t - cc.start, 3); const v = cc.keys && cc.keys.length ? M.gainAt(Object.assign({}, cc, { vol: 1, afIn: 0, afOut: 0 }), u) : 1; cc.keys = (cc.keys || []).filter((k) => Math.abs(k.t - u) > 1e-3).concat({ t: u, v: U.round(v, 3) }).sort((a, b) => a.t - b.t); });
   };
+  /** Reset all: a clip's settings go back to their defaults. Media, timing, text, colour matte and links stay. */
   act.resetClip = function () {
     const ids = A.selectedIds();
-    SE.change('Reset clip', (p) => { for (const id of ids) { const c = M.clip(p, id); for (const k of ['x', 'y', 'scale', 'rot', 'opacity', 'cropL', 'cropT', 'cropR', 'cropB', 'bright', 'contrast', 'sat', 'temp']) c[k] = M.CLIP[k]; } });
+    SE.change('Reset clip', (p) => { for (const id of ids) resetAll(M.clip(p, id)); });
+  };
+  function resetAll(c) {
+    if (!c) return;
+    if (c.kind === 'effect') { c.fx = M.fxDefault(); return; }
+    for (const k of ['x', 'y', 'scale', 'rot', 'opacity', 'cropL', 'cropT', 'cropR', 'cropB', 'bright', 'contrast', 'sat', 'temp', 'fadeIn', 'fadeOut', 'vol', 'afIn', 'afOut']) c[k] = M.CLIP[k];
+    c.trIn = null; c.keys = null; c.anim = null;
+  }
+  /** Keyframes at the playhead: one key per property, holding its current value (so nothing jumps). */
+  act.keyAtPlayhead = function () {
+    const t = now(), AN = SE.anim;
+    const c = A.selectedIds().map((id) => M.clip(SE.doc, id)).find((x) => x && x.kind !== 'audio' && x.kind !== 'effect' && t >= x.start && t <= M.end(x));
+    if (!c) { A.status('Select a clip under the playhead to key it'); return; }
+    SE.change('Add keyframes', (p) => { const cc = M.clip(p, c.id), u = U.round(t - cc.start, 3); for (const k of AN.KEYS) AN.addKey(cc, k, u, AN.valueAt(cc, k, u), 'linear'); });
+  };
+  /** Reset keyframes for the selected clips (or the ids given). */
+  act.resetKeys = function (ids = A.selectedIds()) {
+    SE.change('Reset keyframes', (p) => { for (const id of ids) { const c = M.clip(p, id); if (c) SE.anim.clear(c); } });
+  };
+  /** Reset the random effect layer (its defaults) for the selected layers. */
+  act.resetEffect = function (ids = A.selectedIds()) {
+    SE.change('Reset effect layer', (p) => { for (const id of ids) { const c = M.clip(p, id); if (c && c.kind === 'effect') c.fx = M.fxDefault(); } });
+  };
+  /** Random effect layer at the playhead, on the lowest free video track above V1 (it acts on the tracks below). */
+  act.addEffect = function () {
+    const t = U.snapFrame(now(), fps());
+    SE.change('Add random effect layer', (p) => {
+      const fx = M.fxDefault(); fx.seed = window.SlopVideo.seed.make();
+      const id = E.addGenerated(p, 'effect', freeVideoTrack(p, t, 5), t, 5, { name: 'Random effect', fx });
+      A.select([id]);
+    });
   };
 })();

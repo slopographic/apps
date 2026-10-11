@@ -56,7 +56,7 @@
     const c = SE.app.primary();
     PV.box = null;
     if (c && c.kind !== 'audio' && SE.player.time >= c.start && SE.player.time < M.end(c) && !SE.player.playing) {
-      const pts = CMP.bounds(p, c).map(([x, y]) => [x * k, y * k]);
+      const pts = CMP.bounds(p, c, SE.player.time).map(([x, y]) => [x * k, y * k]);
       og.strokeStyle = '#d4ff3a'; og.lineWidth = 1.5;
       og.beginPath(); pts.forEach(([x, y], i) => (i ? og.lineTo(x, y) : og.moveTo(x, y))); og.closePath(); og.stroke();
       og.fillStyle = '#d4ff3a';

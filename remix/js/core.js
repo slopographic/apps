@@ -1,15 +1,17 @@
 /* Reel Remix: state, the plan and the reel manifest. The plan is shared/video (SlopVideo.random.plan), never a
    copy: Remix only chooses the options. The lane (layout switches over time) is the state's lane list; with
-   Random on, Remix draws new switch points and replaces the lane with them. Exposes window.RM. */
+   Random on, Remix draws new switch points and replaces the lane with them. Keyframes (keys: per cut and slot, see
+   keys.js) and the effect layer (effect, see shared/video/effects.js) are options too. Exposes window.RM. */
 (function () {
   'use strict';
   const SV = window.SlopVideo, RM = (window.RM = window.RM || {});
-  const S = SV.seed, R = SV.random, P = SV.presets, T = SV.templates;
+  const S = SV.seed, R = SV.random, P = SV.presets, T = SV.templates, KF = SV.keys, FX = SV.effects;
   RM.GRIDS = ['grid-1x2', 'grid-2x2', 'grid-1x3', 'grid-2x3', 'grid-3x3'];
   RM.state = {
     items: [], target: 30, pace: 'medium', preset: 'phone', custom: { w: 1080, h: 1920 },
     base: 'none', random: true, grids: RM.GRIDS.slice(), lane: [], seed: S.make(), plan: null, playhead: 0, fill: 'auto',
-    timing: 'same', video: 'through', min: 1, max: 3, stagger: 1, locks: [], audioMode: 'off', audioTrack: 'random', music: null
+    timing: 'same', video: 'through', min: 1, max: 3, stagger: 1, locks: [], audioMode: 'off', audioTrack: 'random', music: null,
+    keys: [], kslot: 0, selKey: 0, effect: Object.assign({}, FX.DEFAULT)
   };
   /** Frame size of the chosen export preset (the sequence size). */
   RM.size = () => P.size(RM.state.preset, RM.state.custom.w, RM.state.custom.h) || { w: 1080, h: 1920 };
@@ -23,7 +25,8 @@
       switches: !!st.random, layouts: st.grids.slice(), fill: st.fill,
       timing: st.timing, video: st.video, min: st.min, max: st.max, stagger: st.stagger, locks: st.locks.map((l) => Object.assign({}, l)),
       audio: { mode: st.audioMode, track: st.audioMode === 'music' && st.audioTrack === 'file' && st.music ? 'file' : st.audioTrack },
-      segments: !st.random && st.lane.length ? st.lane.map((s) => ({ start: s.start, layout: s.layout })) : null
+      segments: !st.random && st.lane.length ? st.lane.map((s) => ({ start: s.start, layout: s.layout })) : null,
+      effect: Object.assign({}, st.effect)
     };
   };
   /** Drag type of a bin item (its id is the data). */
@@ -77,8 +80,26 @@
     if (plan) {
       st.seed = plan.seed;
       if (st.random) st.lane = plan.segments.filter((s) => s.layout).map((s) => ({ start: s.start, layout: s.layout }));
+      st.keys = KF.prune(st.keys, plan.cuts.length); // keys of cuts the new plan does not have are dropped
     }
     return plan;
+  };
+  /** Reset all: the plan's options go back to their defaults (the clips and the export preset stay). The seed is kept. */
+  RM.resetAll = function () {
+    const st = RM.state;
+    Object.assign(st, {
+      target: 30, pace: 'medium', base: 'none', random: true, grids: RM.GRIDS.slice(), lane: [], fill: 'auto',
+      timing: 'same', video: 'through', min: 1, max: 3, stagger: 1, locks: [], keys: [], kslot: 0, selKey: 0,
+      effect: Object.assign({}, FX.DEFAULT), audioMode: 'off', audioTrack: 'random'
+    });
+    return RM.remix();
+  };
+  /** The effect layer: change some of its options and redraw its picks (the cuts are kept). */
+  RM.setEffect = function (patch) {
+    const st = RM.state;
+    st.effect = FX.norm(Object.assign({}, st.effect, patch));
+    if (st.plan) st.plan.effect = FX.plan(st.effect, st.plan.cuts, st.plan.seed);
+    return st.effect;
   };
   /** A new seed and a new edit with the same options. */
   RM.reshuffle = function () { RM.state.seed = S.make(); return RM.remix(); };
@@ -90,7 +111,7 @@
     return {
       format: 'slop-reel', version: 2, from: 'remix', created: new Date().toISOString(),
       template: 'remix', length: o.target, pace: o.pace, aspect: o.aspect, order: 'selection',
-      files: ids.slice(), overlays: [], remix: JSON.parse(JSON.stringify(o))
+      files: ids.slice(), overlays: [], remix: JSON.parse(JSON.stringify(o)), keys: JSON.parse(JSON.stringify(RM.state.keys))
     };
   };
 })();

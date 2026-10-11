@@ -1,5 +1,5 @@
 /* PhotoSlop: Select ▸ Subject. The on-device background remover (shared/cutout, the vendored
- * fast model) runs on the active layer's pixels and its matte becomes the selection, one history
+ * fast model) runs on the visible composite, over white and its matte becomes the selection, one history
  * step ('Select Subject'). If the model cannot run here (no WebAssembly, a stopped worker), a
  * colour-distance fallback selects whatever differs from the average colour of the border. Then
  * Layer ▸ Layer via Cut moves the selection to a new layer. */
@@ -31,20 +31,19 @@ function matteSelection(matte) {
   cx(c).putImageData(img, 0, 0);
   return makeSel(c);
 }
-/** Select ▸ Subject. Works on a copy of the active layer's pixels in document space. */
+/** Select ▸ Subject: the subject of the visible composite (over white), in document space. */
 async function selectSubject() {
-  const L = activeLayer();
-  if (!L || SUBJECT.busy) return;
-  const tab = CUR && CUR.id;
+  if (!activeLayer() || SUBJECT.busy) return;
+  const tab = CUR && CUR.id, src = flattenCanvas('#ffffff');
   SUBJECT.busy = true;
   toast('Finding the subject…');
   let matte, how = 'Subject model';
   try {
     if (!window.SlopCutout) throw new Error('no cutout');
-    const r = await SlopCutout.removeBackground(docCanvasOf(L), { model: 'fast' });
+    const r = await SlopCutout.removeBackground(src, { model: 'fast' });
     matte = r.mask;
   } catch (e) {
-    matte = borderMatte(docCanvasOf(L));
+    matte = borderMatte(src);
     how = 'Colour difference';
   } finally { SUBJECT.busy = false; }
   if (CUR && CUR.id !== tab) return; // the person switched documents meanwhile

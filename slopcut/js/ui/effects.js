@@ -39,6 +39,8 @@
       h('div', { class: 'fx-grid' }, FX.TITLES.map((pr) => tile(pr[0], 'text', () => ({ kind: 'title', preset: FX.titlePreset(pr) }), () => SE.act.addTitle(FX.titlePreset(pr))))),
       h('h4', { class: 'fx-h' }, 'Colour mattes'),
       h('div', { class: 'fx-grid' }, FX.MATTES.map(([l, c]) => tile(l, null, () => ({ kind: 'color', color: c }), () => SE.act.addColor(c), c))),
+      h('h4', { class: 'fx-h' }, 'Effect layer'),
+      h('div', { class: 'fx-grid' }, h('button', { type: 'button', class: 'fx', title: 'Adds a layer that applies one random effect (per cut, seeded) to the tracks below it', onclick: () => SE.act.addEffect() }, SE.icon('sparkle'), h('span', null, 'Random effect'))),
       h('h4', { class: 'fx-h' }, 'Colour looks (selected clips)'),
       h('div', { class: 'fx-grid' }, FX.LOOKS.map(([l, v]) => h('button', { type: 'button', class: 'fx', onclick: () => applyLook(l, v) }, SE.icon('color'), h('span', null, l)))),
       h('p', { class: 'fx-note' }, 'Tip: drop a transition on the second clip of a cut. Fades, speed and volume live in the Inspector.'));
