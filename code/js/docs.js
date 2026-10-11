@@ -25,7 +25,7 @@ export function openDoc(rec, text, saved) {
  * object URL of the blob (the caller frees it on close). Its editor state stays empty and it is never dirty. */
 export function openView(rec, kind, url) {
   const doc = { id: rec.id, name: rec.name, folderId: rec.folderId ?? null, savedText: '', dirty: false,
-    state: makeState('', rec.name), scroll: 0, langId: null, kind, url, preview: false };
+    state: makeState('', rec.name), scroll: 0, langId: null, kind, url, mime: (rec.blob && rec.blob.type) || '', preview: false };
   docs.push(doc);
   return doc;
 }
