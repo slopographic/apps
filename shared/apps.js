@@ -23,7 +23,7 @@
     A('label', 'app', 'SlopLabel', 'label/', 'Design and print barcode labels.', {
       accepts: ['image/*', 'text/csv'],
       features: ['Barcodes & QR, GS1', 'Data merge from CSV & Excel', 'Zebra ZPL export & import', 'Sheets & thermal rolls'],
-      shot: 'assets/shots/label.jpg', icon: 'tag', status: 'building' }),
+      shot: 'assets/shots/label.jpg', icon: 'tag', status: 'beta' }),
     A('platformer', 'game', 'Sloppo Land', 'games/platformer/', 'A 3D platformer across goo-soaked worlds.', { shot: 'assets/shots/platformer.jpg', status: 'beta' }),
     A('sloppo-bird', 'game', 'Sloppo Bird', 'games/sloppo-bird/', 'Tap to bloop. Do not touch the pipes.', { shot: 'assets/shots/sloppo-bird.jpg' }),
     A('runner', 'game', 'Sloppo Run', 'games/runner/', 'Endless running through the slopverse.', { shot: 'assets/shots/runner.jpg', status: 'building' }),
