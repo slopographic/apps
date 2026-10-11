@@ -12,9 +12,9 @@
     'el', 'al', 'bin', 'binti', 'ten', 'ter', 'y', 'e', 'zu', 'st']);
   const clone = (c) => JSON.parse(JSON.stringify(c));
 
-  /** One word: already styled words (McDonald, iPhone) stay; ALL CAPS and lower case get a capital. */
+  /** One word: already styled words (McDonald, iPhone, DeAngelo) stay; ALL CAPS and lower case get a capital. */
   function titleWord(w, first) {
-    if (/[a-z]/.test(w) && /[A-Z]/.test(w.slice(1))) return w;
+    if (/^(?:[A-Z]?[a-z]+)(?:[A-Z][a-z]+)+$/.test(w)) return w;
     const lw = w.toLowerCase();
     if (!first && PARTICLES.has(lw)) return lw;
     return lw.replace(/(^|[-'’.])(\p{L})/gu, (m, p, ch) => p + ch.toUpperCase());
