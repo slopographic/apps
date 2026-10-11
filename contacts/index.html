@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/contacts.css" data-src="contacts/css/contacts.css">
   <link rel="stylesheet" href="css/contacts-ui.css" data-src="contacts/css/contacts-ui.css">
+  <link rel="stylesheet" href="css/contacts-panel.css" data-src="contacts/css/contacts-panel.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -44,7 +45,7 @@
       <label class="fname"><span class="sr">List name</span><input id="fileName" type="text" value="Contacts" spellcheck="false" autocomplete="off" aria-label="List name"></label>
     </header>
 
-    <div class="shell">
+    <div class="shell" id="shell">
       <aside class="side" aria-label="Groups">
         <h2 class="side-h">Groups</h2>
         <div id="groups" class="groups"></div>
@@ -52,6 +53,7 @@
       </aside>
 
       <main class="main" id="main">
+        <div class="main-top">
         <div class="tools">
           <label class="search"><span class="sr">Search contacts</span>
             <input id="search" type="search" placeholder="Search name, phone, e-mail, organisation" autocomplete="off" spellcheck="false"></label>
@@ -70,6 +72,7 @@
         </div>
 
         <p class="status" id="count" aria-live="polite"></p>
+        </div>
         <ul id="rows" class="rows" aria-label="Contacts"></ul>
         <p id="noMatch" class="empty" hidden>No contact matches that search.</p>
         <div class="empty" id="empty">
@@ -81,6 +84,15 @@
           </div>
         </div>
       </main>
+
+      <aside class="detail" id="detail" aria-label="Contact details" hidden>
+        <header class="detail-bar">
+          <h2 class="detail-title" id="detailTitle">Contact</h2>
+          <button type="button" class="tb-btn detail-x" id="detailClose" aria-label="Close panel" title="Close panel">×</button>
+        </header>
+        <div class="detail-body" id="detailBody"></div>
+        <footer class="detail-foot" id="detailFoot"></footer>
+      </aside>
     </div>
 
     <footer class="bottombar">
@@ -95,6 +107,7 @@
   <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
   <script src="js/core/text.js" data-src="contacts/js/core/text.js"></script>
+  <script src="js/core/photo.js" data-src="contacts/js/core/photo.js"></script>
   <script src="js/core/model.js" data-src="contacts/js/core/model.js"></script>
   <script src="js/core/phone.js" data-src="contacts/js/core/phone.js"></script>
   <script src="js/core/vcard-read.js" data-src="contacts/js/core/vcard-read.js"></script>
@@ -108,7 +121,9 @@
   <script src="js/store/drafts.js" data-src="contacts/js/store/drafts.js"></script>
   <script src="js/app/state.js" data-src="contacts/js/app/state.js"></script>
   <script src="js/app/list.js" data-src="contacts/js/app/list.js"></script>
+  <script src="js/app/photo-ui.js" data-src="contacts/js/app/photo-ui.js"></script>
   <script src="js/app/editor.js" data-src="contacts/js/app/editor.js"></script>
+  <script src="js/app/panel.js" data-src="contacts/js/app/panel.js"></script>
   <script src="js/app/io-dialogs.js" data-src="contacts/js/app/io-dialogs.js"></script>
   <script src="js/app/tools-dialogs.js" data-src="contacts/js/app/tools-dialogs.js"></script>
   <script src="js/app/storage.js" data-src="contacts/js/app/storage.js"></script>

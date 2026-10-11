@@ -31,14 +31,16 @@
       const cards = doc.querySelectorAll('[data-list] > [data-perch="card"]');
       expect(cards.length).toBe(apps.length);
     });
-    it('shows app features and status badges from the registry', async () => {
+    it('compact cards show the tagline and a status badge from the registry, and no feature list', async () => {
       await ready;
+      const labels = { live: 'Live', beta: 'Beta', building: 'In development' };
       for (const a of win.SLOP_APPS.filter((x) => x.kind === 'app')) {
         const card = doc.querySelector(`.app-card[data-id="${a.id}"]`);
-        expect(card.querySelectorAll('.feats li').length).toBe(a.features.length);
+        expect(card.querySelector('.app-tag').textContent).toBe(a.tagline);
+        expect(card.querySelector('.feats')).toBe(null);
         const badge = card.querySelector('.badge');
-        if (a.status === 'live') expect(badge).toBe(null);
-        else expect(badge.classList.contains(a.status)).toBe(true);
+        expect(badge.classList.contains(a.status)).toBe(true);
+        expect(badge.textContent).toBe(labels[a.status]);
       }
     });
     it('lists every project on the status board with matching counts', async () => {
@@ -62,8 +64,8 @@
       for (const g of ['business', 'creative']) {
         const h = doc.querySelector(`[data-group-label="${g}"]`);
         expect(h.textContent).toBe(labels[g]);
-        expect(h.tagName).toBe('H3');
-        expect(h.nextElementSibling.getAttribute('data-list')).toBe(g);
+        expect(h.tagName).toBe('H2');
+        expect(h.closest('section').querySelector('[data-list]').getAttribute('data-list')).toBe(g);
       }
       expect(doc.body.textContent).not.toContain('Business tools');
       expect(doc.body.textContent).not.toContain('Creative tools');
@@ -85,7 +87,7 @@
     }
     it('switches to the Authenticator and back home', async () => {
       await ready;
-      doc.querySelector('.tabs [data-view="detector"]').click();
+      doc.defaultView.location.hash = '#detector';
       await waitFor(() => !doc.getElementById('view-detector').hidden);
       expect(doc.getElementById('view-home').hidden).toBe(true);
       expect(win.location.hash).toBe('#detector');
@@ -95,7 +97,7 @@
     });
     it('a jump link works from the Authenticator view too', async () => {
       await ready;
-      doc.querySelector('.tabs [data-view="detector"]').click();
+      doc.defaultView.location.hash = '#detector';
       await waitFor(() => doc.getElementById('view-home').hidden);
       doc.querySelector('.tabs a[data-jump][href="#apps"]').click();
       await waitFor(() => !doc.getElementById('view-home').hidden);
@@ -103,7 +105,7 @@
     });
     it('the Authenticator certifies pasted slop', async () => {
       await ready;
-      doc.querySelector('.tabs [data-view="detector"]').click();
+      doc.defaultView.location.hash = '#detector';
       doc.getElementById('sample-slop').click();
       await waitFor(() => !doc.getElementById('result').hidden);
       expect(+doc.getElementById('score').textContent).toBeGreaterThanOrEqual(0);

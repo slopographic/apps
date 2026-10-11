@@ -115,7 +115,7 @@
     });
     it('moves to a visible perch when the view changes', async () => {
       await ready;
-      win.document.querySelector('.tabs [data-view="detector"]').click();
+      win.location.hash = '#detector';
       await waitFor(() => M.mode === 'perched' && M.perch && M.perch.el.classList.contains('page-title'), { timeout: 6000 });
       win.document.querySelector('.brand').click();
       await sleep(100);

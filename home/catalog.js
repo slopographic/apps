@@ -24,7 +24,8 @@
     return n;
   };
   const html = (tag, attrs, inner) => { const n = el(tag, attrs); n.innerHTML = inner; return n; };
-  const badge = (a) => (a.status === 'live' ? null : el('span', { class: 'badge ' + a.status }, STATUS[a.status]));
+  /** The status badge. Live tiles stay unbadged; app cards always show their status. */
+  const badge = (a, always) => (a.status === 'live' && !always ? null : el('span', { class: 'badge ' + a.status }, STATUS[a.status]));
 
   /** A screenshot, or (until one exists) a generated tile in the app's colours. */
   function shot(a) {
@@ -103,13 +104,13 @@
     let raf = 0;
     addEventListener('scroll', () => { if (!raf && seen.size) raf = requestAnimationFrame(() => { raf = 0; pickCentre(); }); }, { passive: true });
   }
+  /* A compact card: thumbnail, name, status badge, one line of what it does, and the link. */
   function appCard(a) {
-    const feats = el('ul', { class: 'feats' }, ...a.features.map((f) => el('li', null, f)));
     return el('a', { class: 'app-card', href: a.path, 'data-perch': 'card', 'data-id': a.id },
       shot(a),
       el('div', { class: 'app-body' },
-        el('div', { class: 'app-name' }, el('h3', null, a.name), badge(a)),
-        el('p', { class: 'app-tag' }, a.tagline), feats,
+        el('div', { class: 'app-name' }, el('h3', null, a.name), badge(a, true)),
+        el('p', { class: 'app-tag' }, a.tagline),
         el('span', { class: 'go' }, a.status === 'building' ? 'Preview →' : 'Open →')));
   }
   function tile(a) {

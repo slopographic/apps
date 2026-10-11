@@ -1,5 +1,6 @@
-/* Slop Contacts: the contact editor (a SlopUI dialog). Name parts, display name, organisation, title, any number
- * of phones, e-mails and addresses (each with a TYPE), birthday, website, groups, note. Save normalises the contact. */
+/* Slop Contacts: the contact form (name parts, display name, organisation, title, photo, any number of phones,
+ * e-mails and addresses, each with a TYPE, birthday, website, groups, note). The form is shown in the detail panel
+ * (panel.js); open(id) hands over to it. read() gives the edited contact, normalised. Adds SlopContacts.editor. */
 (function () {
   'use strict';
   const SC = window.SlopContacts;
@@ -11,6 +12,8 @@
 
   const TYPE_LABEL = { '': '(no type)', CELL: 'Mobile', HOME: 'Home', WORK: 'Work', MAIN: 'Main', FAX: 'Fax', 'HOME,FAX': 'Home fax',
     'WORK,FAX': 'Work fax', PAGER: 'Pager', CAR: 'Car', OTHER: 'Other' };
+  /** A readable label for a list of types ('HOME,FAX' to "Home fax", custom 'DAD' to "Dad"). */
+  const typeLabel = (types) => (types || []).length ? (TYPE_LABEL[types.join(',')] || types.map((t) => t.charAt(0) + t.slice(1).toLowerCase()).join(', ')) : '';
   /** Select options for a list of type values, keeping the current value even when it is unusual. */
   function typeOptions(list, current) {
     const all = list.includes(current) ? list : [current, ...list];
@@ -56,10 +59,12 @@
       groups: input(c.groups.join(', '), 'Groups, comma separated'),
     };
     const note = el('textarea', { class: 'sui-input ed-note', rows: 3, 'aria-label': 'Note' }, c.note);
+    const photo = SC.photoUi.field(c);
     const phones = el('div', { class: 'ed-list' }, c.phones.map(phoneRow));
     const mails = el('div', { class: 'ed-list' }, c.emails.map(mailRow));
     const adrs = el('div', { class: 'ed-list' }, c.adr.map(adrRow));
     const body = el('div', { class: 'ed' },
+      section('Photo', photo.el),
       section('Name', el('div', { class: 'ed-grid' }, UI.field('Prefix', fields.prefix), UI.field('Given', fields.given),
         UI.field('Middle', fields.additional), UI.field('Family', fields.family), UI.field('Suffix', fields.suffix)),
         UI.field('Display name', fields.fn)),
@@ -76,7 +81,7 @@
       const newComposed = SC.model.composed({ name });
       const fn = fields.fn.value.trim() === oldFn && oldFn ? newComposed : fields.fn.value;
       return SC.model.normalise({
-        ...c, name, fn, org: fields.org.value, dept: fields.dept.value, title: fields.title.value,
+        ...c, name, fn, photo: photo.get(), org: fields.org.value, dept: fields.dept.value, title: fields.title.value,
         bday: fields.bday.value, url: fields.url.value, note: note.value, groups: fields.groups.value.split(','),
         phones: [...phones.querySelectorAll('.ed-phone')].map((r) => ({ types: splitType(r.querySelector('select').value), value: r.querySelector('input').value })),
         emails: [...mails.querySelectorAll('.ed-mail')].map((r) => ({ types: splitType(r.querySelector('select').value), value: r.querySelector('input').value })),
@@ -90,30 +95,8 @@
   }
   const splitType = (v) => String(v || '').split(',').filter(Boolean);
 
-  /** Open the editor for a contact id, or a new contact when id is null. */
-  function open(id) {
-    const existing = id ? S.byId(id) : null;
-    const base = existing || SC.model.blank();
-    const f = form(base);
-    UI.dialog({
-      title: existing ? 'Edit contact' : 'New contact', cls: 'ed-dlg', body: f.body,
-      buttons: [
-        ...(existing ? [{ label: 'Delete', danger: true, act: async () => {
-          const ok = await UI.confirm('Delete this contact?', `“${SC.model.displayName(existing)}” is removed from this list. Undo is not available.`, 'Delete', { danger: true });
-          if (!ok) return false;
-          S.setList(S.list.filter((c) => c.id !== existing.id), { dirty: true });
-          S.setSel([...S.sel].filter((x) => x !== existing.id));
-        } }] : []),
-        { label: 'Cancel' },
-        { label: 'Save', primary: true, act: () => {
-          const c = f.read();
-          if (!SC.model.hasContent(c) && !c.phones.length && !c.emails.length) { UI.toast('Add a name, a phone or an e-mail'); return false; }
-          if (existing) S.replaceMany([c]); else S.setList([...S.list, c]);
-          return undefined;
-        } },
-      ],
-    });
-  }
+  /** Edit a contact (by id), or a new one (null), in the detail panel. */
+  function open(id) { SC.panel.edit(id); }
 
-  SC.editor = { open, form, phoneRow, mailRow, adrRow };
+  SC.editor = { open, form, typeLabel, phoneRow, mailRow, adrRow };
 })();

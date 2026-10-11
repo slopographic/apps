@@ -69,7 +69,7 @@
       fn: pick((c) => c.fn),
       org: pick((c) => c.org), dept: pick((c) => c.dept), title: pick((c) => c.title),
       bday: pick((c) => c.bday), url: pick((c) => c.url),
-      note: pick((c) => c.note),
+      note: pick((c) => c.note), photo: pick((c) => c.photo),
       phones: unionBy(ranked.flatMap((c) => c.phones), (p) => P.phoneKey(p.value, cc) || p.value.toLowerCase()),
       emails: unionBy(ranked.flatMap((c) => c.emails), (e) => (e.value || '').toLowerCase()),
       adr: unionBy(ranked.flatMap((c) => c.adr), (a) => M.ADR_KEYS.map((k) => (a[k] || '').toLowerCase()).join('|')),
