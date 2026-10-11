@@ -119,7 +119,7 @@
       const before = new Set(e.ctrlKey || e.metaKey || e.shiftKey ? S.sel : []);
       const box = DR.el('div', { class: 'marquee' });
       const nodes = [...pane.querySelectorAll('[data-key]')].map((n) => { const r = n.getBoundingClientRect(); return { n, x: r.left - pr.left + pane.scrollLeft, y: r.top - pr.top + pane.scrollTop, w: r.width, h: r.height }; });
-      pane.setPointerCapture(e.pointerId);
+      try { pane.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
       const move = (ev) => {
         const x1 = ev.clientX - pr.left + pane.scrollLeft, y1 = ev.clientY - pr.top + pane.scrollTop;
         const L = Math.min(x0, x1), T = Math.min(y0, y1), W = Math.abs(x1 - x0), Hh = Math.abs(y1 - y0);

@@ -95,7 +95,7 @@
     svg.addEventListener('pointerdown', (e) => {
       if (e.target.closest('[data-key], [data-toggle]') && e.pointerType !== 'touch') return;
       pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      svg.setPointerCapture(e.pointerId);
+      try { svg.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
       if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k: tx.k }; pan = null; }
       else pan = { x: e.clientX - tx.x, y: e.clientY - tx.y, moved: false };
     });
