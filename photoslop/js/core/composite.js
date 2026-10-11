@@ -34,13 +34,45 @@ function layerSurface(L) {
   g.globalCompositeOperation = 'source-over';
   return { canvas: tmp, x: sx, y: sy, w, h: hh };
 }
+/* ---------- clipping masks ---------- */
+/** The layer a clipped layer clips to: the nearest lower layer that is not itself clipped (null if none). */
+function clipBase(L) {
+  if (!L.clip) return null;
+  const i = layerIndex(L.id);
+  for (let j = i - 1; j >= 0; j--) if (!D.layers[j].clip) return D.layers[j];
+  return null;
+}
+/** A copy of a surface on its own canvas, so later surfaces (which may share scratch canvases) cannot change it. */
+function surfaceCopy(s) {
+  const w = s.w || s.canvas.width, hh = s.h || s.canvas.height, c = mkCanvas(w, hh);
+  cx(c).drawImage(s.canvas, 0, 0, w, hh, 0, 0, w, hh);
+  return { canvas: c, x: s.x, y: s.y, w, h: hh };
+}
+/** Surface s kept only where the base copy b is opaque (both in document space). */
+function clipWith(s, b) {
+  const w = s.w || s.canvas.width, hh = s.h || s.canvas.height, c = mkCanvas(w, hh), g = cx(c);
+  g.drawImage(s.canvas, 0, 0, w, hh, 0, 0, w, hh);
+  g.globalCompositeOperation = 'destination-in';
+  g.drawImage(b.canvas, b.x - s.x, b.y - s.y);
+  return { canvas: c, x: s.x, y: s.y, w, h: hh };
+}
+/** The clip base's alpha as a copy (null when L is not clipped to anything). */
+function clipBaseCopy(L) {
+  const base = clipBase(L);
+  return base ? surfaceCopy(layerSurface(base)) : null;
+}
+
 /** Composite visible layers (bottom→top) onto ctx in document space. */
 function compositeInto(g, opts = {}) {
   for (let i = opts.from || 0; i < D.layers.length; i++) {
     const L = D.layers[i];
     if (!L.visible && !(opts.includeHidden)) continue;
     if (opts.only && !opts.only.includes(L)) continue;
-    const s = fxSurface(L, layerSurface(L));
+    const base = clipBase(L);
+    if (base && !base.visible && !opts.includeHidden) continue; // a clipped layer hides with its base
+    const bs = base ? clipBaseCopy(L) : null; // before layerSurface(L), which may reuse the scratch canvas
+    let s = fxSurface(L, layerSurface(L));
+    if (bs) s = clipWith(s, bs);
     g.globalAlpha = L.opacity;
     g.globalCompositeOperation = BLEND_OP[L.blend] || 'source-over';
     g.drawImage(s.canvas, 0, 0, s.w, s.h, s.x, s.y, s.w, s.h);
@@ -57,7 +89,8 @@ function flattenCanvas(bg) {
 /** A layer's pixels baked with its mask, in document space (for merge/export). */
 function bakedLayer(L) {
   const keep = live; live = null;
-  const s = layerSurface(L); live = keep;
+  const bs = clipBaseCopy(L), ls = layerSurface(L);
+  const s = bs ? clipWith(ls, bs) : ls; live = keep;
   const c = mkCanvas(s.w, s.h);
   cx(c).drawImage(s.canvas, 0, 0, s.w, s.h, 0, 0, s.w, s.h);
   return { canvas: c, x: s.x, y: s.y };
