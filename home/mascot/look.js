@@ -27,8 +27,9 @@ export function face(t = now()) {
   if (moodIs('dizzy')) return ['spiral', 'wavy'];
   if (M.mode === 'drag' || M.mode === 'air') return ['normal', 'o'];
   if (moodIs('love')) return ['heart', 'open'];
-  if (moodIs('chomp')) return [M.chaos ? 'angry' : 'happy', 'open'];
-  if (M.chaos) return ['angry', 'fangs'];
+  if (moodIs('chomp')) return [M.chaos || M.raging ? 'angry' : 'happy', 'open'];
+  if (M.chaos || M.raging) return ['angry', 'fangs'];
+  if (moodIs('annoyed')) return ['angry', 'frown'];
   if (moodIs('land')) return ['happy', 'smile'];
   if (M.mode === 'hop') return ['normal', 'open'];
   if (t > blinkAt) { blinkUntil = t + 140; blinkAt = t + 2200 + Math.random() * 3800; }

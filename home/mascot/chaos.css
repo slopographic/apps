@@ -1,0 +1,66 @@
+/* Sloppo's chaos and rage effects (home/mascot/). Loaded after mascot.css. */
+
+/* RAGE: red tint, shaking, steam */
+.sloppo.is-rage .sloppo-canvas {
+  filter: sepia(1) saturate(5) hue-rotate(-45deg) brightness(.95) drop-shadow(0 0 12px rgba(255, 40, 40, .8));
+  animation: sloppo-shake .09s linear infinite;
+}
+.sloppo.is-rage .sloppo-3d { animation: sloppo-shake .09s linear infinite; }
+@keyframes sloppo-shake {
+  0% { transform: translate(1.5px, 0) rotate(.6deg); }
+  25% { transform: translate(-1.5px, 1px) rotate(-.6deg); }
+  50% { transform: translate(1px, -1px) rotate(.4deg); }
+  75% { transform: translate(-1px, 1px) rotate(-.4deg); }
+  100% { transform: translate(1.5px, 0) rotate(.6deg); }
+}
+.sloppo-steam {
+  width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0) 70%);
+}
+
+/* 3D mode: the WebGL canvas replaces the painted one */
+.sloppo-3d { position: absolute; inset: 0; pointer-events: none; }
+.sloppo.is-3d .sloppo-canvas { display: none; }
+
+/* goo blasts */
+.sloppo-ball {
+  position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 35% 30%, #f1ffb8, #a6ee14 45%, #4d8f00); box-shadow: 0 0 14px rgba(166, 238, 20, .7);
+}
+.sloppo-crack { position: absolute; pointer-events: none; }
+.sloppo-crack svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.sloppo-crack path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.sloppo-crack .c-hi { stroke: rgba(241, 237, 228, .35); stroke-width: 3.2; transform: translate(.8px, .8px); }
+.sloppo-crack .c-lo { stroke: #050505; stroke-width: 1.8; }
+.sloppo-burn {
+  position: absolute; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(circle closest-side, transparent 0 46%, rgba(20, 8, 0, .95) 48%, rgba(110, 36, 0, .85) 56%,
+    rgba(255, 140, 30, .55) 63%, rgba(255, 90, 0, 0) 76%);
+  animation: sloppo-ember 1.4s ease-in-out infinite alternate;
+}
+@keyframes sloppo-ember { from { filter: brightness(.8); } to { filter: brightness(1.35); } }
+
+/* black holes */
+.sloppo-hole { position: absolute; width: 96px; height: 96px; transform: translate(-50%, -50%); pointer-events: none; }
+.sloppo-hole i { position: absolute; inset: 0; border-radius: 50%; }
+.sloppo-hole .bh-ring {
+  inset: -18px; filter: blur(2px);
+  background: conic-gradient(from 0deg, rgba(212, 255, 58, .0), rgba(212, 255, 58, .85), rgba(168, 107, 255, .7), rgba(92, 200, 255, .0), rgba(212, 255, 58, .8), rgba(212, 255, 58, 0));
+  -webkit-mask: radial-gradient(circle closest-side, transparent 52%, #000 56%, #000 80%, transparent 100%);
+  mask: radial-gradient(circle closest-side, transparent 52%, #000 56%, #000 80%, transparent 100%);
+  animation: sloppo-spin .9s linear infinite;
+}
+.sloppo-hole .bh-disk { inset: 18px; background: #000; box-shadow: 0 0 0 2px rgba(212, 255, 58, .35), 0 0 30px 10px rgba(0, 0, 0, .9); }
+@keyframes sloppo-spin { to { transform: rotate(360deg); } }
+
+/* HUD rage meter */
+.sh-rage { width: 34px; height: 6px; border-radius: 3px; background: rgba(255, 79, 110, .18); overflow: hidden; }
+.sh-rage[hidden] { display: none; }
+.sh-rage i { display: block; height: 100%; width: 0; background: #ff4f6e; transition: width .3s; }
+.sh-rage.full i { animation: sloppo-blink .3s steps(2) infinite; }
+@keyframes sloppo-blink { 50% { opacity: .3; } }
+.sh-3d[aria-pressed="true"] { background: var(--bone); color: var(--ink); border-color: var(--bone); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sloppo.is-rage .sloppo-canvas, .sloppo.is-rage .sloppo-3d, .sloppo-burn, .sloppo-hole .bh-ring, .sh-rage.full i { animation: none; }
+}

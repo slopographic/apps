@@ -4,6 +4,7 @@ import { M, reduced, now, rand, clamp, setMood, navH, pageW, pageH } from './sta
 import * as P from './perches.js';
 import { size } from './look.js';
 import { dust } from './fx.js';
+import { hardLanding } from './rage.js';
 
 const GRAVITY = 2600, OFFSCREEN_MS = 1500;
 
@@ -60,7 +61,7 @@ function land(p, impact) {
   if (pt) { M.x = pt.x; M.y = pt.y; }
   M.squash = clamp(impact / 2200, 0.25, 0.75);
   M.nextIdle = now() + rand(3500, 8000);
-  if (M.hard || impact > 2000) setMood('dizzy', 2400);
+  if (M.hard || impact > 2000) hardLanding();
   else if (impact > 0) setMood('land', 320);
   M.hard = false;
   if (!reduced()) dust(M.x, M.y, clamp(impact / 1400, 0.4, 1.4));

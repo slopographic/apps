@@ -1,13 +1,20 @@
 // "Unleash": chaos mode. A small brain picks actions while it lasts; Restore page undoes everything.
 import { M, sleep, rand, reduced, changed } from './state.js';
-import { ACTS } from './acts.js';
+import { bite, eat, knock, goo } from './acts.js';
+import { blast } from './blast.js';
+import { blackhole } from './blackhole.js';
 import { restoreAll } from './journal.js';
 import { say } from './fx.js';
+import { line } from './lines.js';
+import { bindChaos, calmRage } from './rage.js';
 
-const WEIGHTS = { bite: 3, eat: 3, knock: 1.4, goo: 2 };
+export const ACTS = { bite, eat, knock, goo, blast, blackhole };
+const CALM = { bite: 3, eat: 3, knock: 1.4, goo: 1.5, blast: 2, blackhole: 0.8 };
+const RAGE = { bite: 2, eat: 2, knock: 2, goo: 1, blast: 5, blackhole: 1.6 };
 
+/** Action names in a weighted random order. */
 function order() {
-  const left = { ...WEIGHTS }, out = [];
+  const left = { ...(M.raging ? RAGE : CALM) }, out = [];
   while (Object.keys(left).length) {
     let k = Math.random() * Object.values(left).reduce((a, b) => a + b, 0);
     for (const name in left) if ((k -= left[name]) <= 0) { out.push(name); delete left[name]; break; }
@@ -24,29 +31,32 @@ async function brain(tok) {
         if (tok !== M.token) return;
       }
     }
-    await sleep(reduced() ? 1400 : rand(450, 1000));
+    await sleep(reduced() ? 1400 : M.raging ? rand(200, 500) : rand(450, 1000));
   }
 }
 
-export function setChaos(on) {
+export function setChaos(on, { quiet = false } = {}) {
   on = !!on;
   if (on === M.chaos) return;
   M.chaos = on;
   M.token++;
   M.el.classList.toggle('is-chaos', on);
   M.squash = 0.6;
-  say(on ? 'RAAAH!' : '…fine.', 1100);
+  if (!quiet) say(line(on ? 'chaos' : 'calm'), 1100);
   changed();
   if (on) brain(M.token);
+  else if (M.raging && !quiet) { M.rageChaos = false; calmRage(); }
 }
+bindChaos(setChaos);
 
-/** Stop chaos and undo every change it made. */
+/** Stop chaos and rage, and undo every change they made. */
 export function restore() {
-  if (M.chaos) setChaos(false);
+  if (M.raging) calmRage();
+  if (M.chaos) setChaos(false, { quiet: true });
   M.token++;
   restoreAll();
-  for (const n of M.layer.querySelectorAll('.sloppo-letter, .sloppo-goo')) n.remove();
-  say('All better.', 1200);
+  for (const n of M.layer.querySelectorAll('.sloppo-letter, .sloppo-goo, .sloppo-ball, .sloppo-hole')) n.remove();
+  say(line('restore'), 1200);
 }
 
 /** Run one action now (used by tests and the debug hook). */

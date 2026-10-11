@@ -9,6 +9,8 @@ export const M = {
   mood: '', moodUntil: 0,      // love | dizzy | chomp | land
   offSince: 0, nextIdle: 0, hard: false, hover: false, pets: 0,
   chaos: false, token: 0,      // token changes when chaos stops, so running actions bail out
+  rage: 0, raging: 0, rageChaos: false, // rage meter (0..3) and when RAGE ends (ms)
+  is3d: false,
   xp: 0, level: 1, hat: null,
   layer: null, el: null, canvas: null, hit: null, bubble: null,
 };

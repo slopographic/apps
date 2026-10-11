@@ -1,11 +1,9 @@
 // Pointer and keyboard: click (or Enter) to pet, drag to carry, release to throw.
-import { M, now, setMood, pick } from './state.js';
+import { M, now, setMood } from './state.js';
 import { startDrag, dragTo, release } from './motion.js';
 import { gain } from './levels.js';
 import { hearts, say } from './fx.js';
-
-const PET_LINES = ['hehe', 'more!', 'purr…', 'squish!', 'again!', 'best day', '<3'];
-const THROW_LINES = ['Wheee!', 'Yeet!', 'Aaaa!', 'Again!'];
+import { line } from './lines.js';
 
 export function pet() {
   setMood('love', 1500);
@@ -13,7 +11,8 @@ export function pet() {
   M.sqv = 0;
   hearts(3);
   gain(1, { source: 'pet', throttle: 250 });
-  if (++M.pets % 5 === 0) say(pick(PET_LINES), 1100);
+  if (M.raging) { if (M.pets++ % 3 === 0) say(line('rage'), 1100); }
+  else if (++M.pets % 4 === 0) say(line('pet'), 1100);
   M.nextIdle = Math.max(M.nextIdle, now() + 4000);
 }
 
@@ -41,7 +40,7 @@ export function bindInput(hit) {
     hit.classList.remove('grabbing');
     if (was.drag) {
       const sp = release(e.timeStamp, cancel);
-      if (sp > 600) { gain(2, { source: 'throw', throttle: 600 }); say(pick(THROW_LINES), 900); }
+      if (sp > 600) { gain(2, { source: 'throw', throttle: 600 }); say(line('thrown'), 900); }
     } else if (!cancel) pet();
   };
   hit.addEventListener('pointerup', (e) => end(e, false));
