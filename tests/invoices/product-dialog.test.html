@@ -15,7 +15,9 @@
 
   /** Loads the invoices app on a new invoice and waits until its first line card is drawn. */
   async function openNewInvoice() {
+    const loaded = new Promise((res) => frame.addEventListener('load', res, { once: true }));
     frame.src = `../../invoices/index.html?t=${Date.now()}#new`;
+    await loaded;
     await waitFor(() => {
       const W = frame.contentWindow;
       return W && W.SlopInvoices && W.SlopInvoices.state.view === 'edit' && W.document.querySelector('#eLines .line-card');
