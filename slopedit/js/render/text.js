@@ -4,7 +4,7 @@
   'use strict';
   const SE = window.SE, U = SE.util;
   const TX = SE.text = {};
-  const cache = new Map();
+  const cache = new Map(), tried = new Set();
   TX.ANIMS = [['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide up'], ['pop', 'Pop'], ['type', 'Typewriter'], ['rise', 'Rise & blur']];
   const ease = (x) => 1 - Math.pow(1 - U.clamp(x, 0, 1), 3);
   const back = (x) => { x = U.clamp(x, 0, 1); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
@@ -37,6 +37,7 @@
     g.clearRect(0, 0, W, H);
     const px = Math.max(1, tx.size * k), lh = px * 1.15;
     g.font = fontOf(tx, px); g.textBaseline = 'middle';
+    if (document.fonts && document.fonts.check && !tried.has(g.font) && !document.fonts.check(g.font) && tried.add(g.font)) document.fonts.load(g.font).then(() => { cache.delete(c.id); SE.emit('frame', {}); }).catch(() => null);
     const lines = str.split('\n'), full = tx.str.split('\n');
     const widths = full.map((l) => g.measureText(l).width), bw = Math.max(1, ...widths);
     const bh = lh * full.length, x0 = W / 2 - bw / 2, y0 = H / 2 - bh / 2;

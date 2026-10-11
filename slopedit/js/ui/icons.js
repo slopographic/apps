@@ -47,6 +47,7 @@
     lockbadge: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     drive: '<path d="M4 15h16l-2.5-9h-11z"/><path d="M4 15v4h16v-4M8 17h.01"/>',
     color: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
     split: '<path d="M12 3v18"/><path d="M8 8 4 12l4 4M16 8l4 4-4 4"/>'
   };
   SE.ICONS = P;

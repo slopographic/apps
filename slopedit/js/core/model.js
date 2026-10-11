@@ -16,7 +16,7 @@
   };
   M.TEXT = { str: 'Title', font: 'Archivo', size: 96, color: '#ffffff', stroke: '#000000', strokeW: 0, bold: true, italic: false, align: 'center', bg: '', anim: 'fade', shadow: true };
   M.TRANSITIONS = [['cross', 'Cross dissolve'], ['black', 'Dip to black'], ['white', 'Dip to white'], ['wipe', 'Wipe'], ['slide', 'Slide'], ['push', 'Push']];
-  M.FONTS = ['Archivo', 'Inter Tight', 'JetBrains Mono', 'Georgia', 'Impact', 'Caveat', 'Arial', 'Times New Roman', 'Courier New'];
+  M.FONTS = ['Archivo', 'Inter Tight', 'JetBrains Mono', 'Instrument Serif', 'Caveat', 'Dancing Script', 'Great Vibes', 'Georgia', 'Impact', 'Arial', 'Times New Roman', 'Courier New'];
   M.PRESETS = [['1920x1080', '1080p HD 16:9'], ['1280x720', '720p HD 16:9'], ['3840x2160', '4K UHD 16:9'], ['1080x1920', 'Vertical 9:16'], ['1080x1080', 'Square 1:1']];
 
   M.newProject = function (o = {}) {
