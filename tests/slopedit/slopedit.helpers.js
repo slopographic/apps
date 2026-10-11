@@ -1,4 +1,4 @@
-/* SlopEdit test helpers: boot the real app in an iframe and reach its SE namespace.
+/* SlopCut test helpers: boot the real app in an iframe and reach its SE namespace.
    Exposes window.ST = { boot, win, SE, M, E, reset, matte, pixel, colorVideo, errors }. */
 (function () {
   'use strict';

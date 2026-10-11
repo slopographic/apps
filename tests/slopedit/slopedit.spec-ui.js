@@ -1,4 +1,4 @@
-/* SlopEdit tests: UI smoke on desktop and phone (390×844), shortcuts through the command layer,
+/* SlopCut tests: UI smoke on desktop and phone (390×844), shortcuts through the command layer,
    menus, inspector edits, the sample project, and Slop Hub launch with ?drive=. */
 (function () {
   'use strict';

@@ -1,4 +1,4 @@
-/* SlopEdit tests: media import (thumbnails, duration, waveform), frame-accurate decoding, export to
+/* SlopCut tests: media import (thumbnails, duration, waveform), frame-accurate decoding, export to
    MP4/WebM checked by demuxing, GIF, project save/open, autosave. A synthetic test video is encoded
    in the page with VideoEncoder; those tests skip (pass with a note) when WebCodecs is missing. */
 (function () {
@@ -31,7 +31,7 @@
       expect(stored.blob.size).toBe(wav.size);
     });
     it('encodes a synthetic video and imports it with thumbnails and sound', async () => {
-      if (!(await ready())) { console.warn('SlopEdit test: WebCodecs VideoEncoder unavailable, skipped'); return; }
+      if (!(await ready())) { console.warn('SlopCut test: WebCodecs VideoEncoder unavailable, skipped'); return; }
       video = await ST.colorVideo(20, 10, true);
       const metas = await ST.SE.media.importFiles([video]);
       meta = metas[0];
