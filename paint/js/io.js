@@ -189,7 +189,8 @@ async function idbDo(mode, fn) { const db = await idb(); return new Promise((res
 let autosaveTimer = 0;
 const pngCache = new WeakMap(); // canvases are immutable once in a document, so their PNGs can be reused
 async function pngOf(c) { let p = pngCache.get(c); if (!p) { p = canvasToBlob(c); pngCache.set(c, p); } return p; }
-function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(autosave, 1500); }
+// Encoding PNGs reads pixels back from the GPU, so wait for a pause and for idle time.
+function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(() => autosave(), { timeout: 4000 }) : autosave()), 2500); }
 function flushAutosave() { if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = 0; autosave(); } }
 function saveTabsIndex() { if (!CUR) return; idbDo('readwrite', (st) => st.put({ ids: DOCS.map((d) => d.id), active: CUR.id }, 'tabs')).catch(() => {}); }
 async function autosave() {

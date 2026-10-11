@@ -68,15 +68,8 @@
   };
   UI.I = I;
 
-  /* ================= toasts ================= */
-  UI.toast = function (msg, kind) {
-    var box = document.getElementById('toasts'); if (!box) return;
-    var t = h('div', { class: 'toast' + (kind ? ' ' + kind : ''), role: 'status', text: msg });
-    box.appendChild(t);
-    while (box.children.length > 4) box.removeChild(box.firstChild);
-    requestAnimationFrame(function () { t.classList.add('in'); });
-    setTimeout(function () { t.classList.remove('in'); setTimeout(function () { t.remove(); }, 300); }, kind === 'warn' ? 4200 : 2600);
-  };
+  /* ================= toasts (shared SlopUI kit) ================= */
+  UI.toast = function (msg, kind) { if (window.SlopUI) window.SlopUI.toast(String(msg), kind === 'warn' ? 4200 : 2600); };
 
   /* ================= keys display ================= */
   function keyLabel(combo) {
@@ -1199,63 +1192,50 @@
     document.getElementById('rulerCorner').addEventListener('dblclick', function () { SV.fitArtboard(); });
   }
 
-  /* ================= dialogs ================= */
-  var modalStack = [];
+  /* ================= dialogs (shared SlopUI kit) ================= */
+  // Thin adapter: app dialogs describe { title, body, buttons:[{label, primary, danger, left, onClick}], cls }
+  // and render through window.SlopUI (../shared/slopui.js), shared with PhotoSLOP and Slop PDF.
   function dialog(opts) {
-    var root = document.getElementById('modalRoot');
-    var back = h('div', { class: 'modal-back' });
-    var box = h('div', { class: 'modal' + (opts.cls ? ' ' + opts.cls : ''), role: 'dialog', 'aria-modal': 'true', 'aria-label': opts.title });
-    var head = h('div', { class: 'modal-head' }, [h('span', { class: 'modal-title', text: opts.title }), h('button', { type: 'button', class: 'xbtn', 'aria-label': 'Close', html: '&times;', onclick: function () { close(); } })]);
-    var body = h('div', { class: 'modal-body' });
-    if (typeof opts.body === 'string') body.innerHTML = opts.body; else if (opts.body) body.appendChild(opts.body);
-    var foot = h('div', { class: 'modal-foot' });
-    var primary = null;
-    (opts.buttons || [{ label: 'OK', primary: true }]).forEach(function (b) {
-      var el = btn(b.label, function () { if (b.onClick && b.onClick() === false) return; close(); }, b.primary ? 'primary' : '');
-      if (b.primary) primary = el;
-      if (b.left) { el.classList.add('left'); }
-      foot.appendChild(el);
+    var body = opts.body;
+    if (typeof body === 'string') body = h('div', { class: 'sv-dlg-body', html: body });
+    var specs = opts.buttons || [{ label: 'OK', primary: true }];
+    var d = window.SlopUI.dialog({
+      title: opts.title, body: body, dismissable: true,
+      cls: 'sv-dlg ' + (opts.cls === 'wide' ? 'sui-wide' : (opts.cls || '')),
+      buttons: specs.map(function (b) { return { label: b.label, primary: !!b.primary, danger: !!b.danger, act: b.onClick ? function () { return b.onClick(); } : undefined }; }),
+      onClose: function (ok) { if (opts.onClose) opts.onClose(ok); }
     });
-    box.appendChild(head); box.appendChild(body); box.appendChild(foot);
-    back.appendChild(box); root.appendChild(back);
-    back.addEventListener('pointerdown', function (e) { if (e.target === back) close(); });
-    var m = { el: back, close: close, primary: primary, onEsc: opts.onEsc };
-    function close() { var i = modalStack.indexOf(m); if (i >= 0) modalStack.splice(i, 1); back.remove(); if (opts.onClose) opts.onClose(); }
-    modalStack.push(m);
-    setTimeout(function () { var f = box.querySelector('input:not([type=checkbox]):not([type=radio]),select'); if (f) { f.focus(); if (f.select) f.select(); } else if (primary) primary.focus(); }, 30);
-    return m;
+    var foot = d.box.querySelector('.sui-foot');
+    if (foot) specs.forEach(function (b, i) { if (b.left && foot.children[i]) foot.children[i].classList.add('sv-left'); });
+    return d;
   }
   UI.dialog = dialog;
   UI.handleGlobalKey = function (e) {
     if (picker && e.key === 'Escape') { e.preventDefault(); UI.closePicker(); return true; }
-    if (modalStack.length) {
-      var m = modalStack[modalStack.length - 1];
-      if (e.key === 'Escape') { e.preventDefault(); m.close(); return true; }
-      if (e.key === 'Enter' && m.primary && !(e.target && e.target.tagName === 'TEXTAREA') && !(e.target && e.target.tagName === 'BUTTON')) { e.preventDefault(); if (e.target && e.target.dispatchEvent && e.target.tagName === 'INPUT') e.target.dispatchEvent(new Event('change')); m.primary.click(); return true; }
-      if (!(e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA'))) { if (!(e.ctrlKey || e.metaKey)) e.preventDefault(); }
+    // SlopUI dialogs handle their own keys (and stop propagation); anything reaching us while one is open
+    // came from outside it, so keep app shortcuts quiet.
+    if (window.SlopUI && window.SlopUI.openDialogs > 0) {
+      if (!(e.ctrlKey || e.metaKey) && !(e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName))) e.preventDefault();
       return true;
     }
     if (openMenu !== null && e.key === 'Escape') { UI.closeMenus(); e.preventDefault(); return true; }
     return false;
   };
   function form(fields) {
-    var wrap = h('div', { class: 'form' }), refs = {};
+    var U = window.SlopUI, wrap = h('div', { class: 'sv-form' }), refs = {};
     fields.forEach(function (f) {
-      if (f.type === 'note') { wrap.appendChild(h('p', { class: 'note', html: f.html || esc(f.text) })); return; }
+      if (f.type === 'note') { wrap.appendChild(h('p', { class: 'sui-p', html: f.html || esc(f.text) })); return; }
       var inp;
-      if (f.type === 'select') { inp = h('select', { class: 'sel', id: 'f-' + f.id }); f.options.forEach(function (o) { inp.appendChild(h('option', { value: o[0], text: o[1] })); }); inp.value = f.value; }
-      else if (f.type === 'checkbox') { inp = h('input', { type: 'checkbox', id: 'f-' + f.id }); inp.checked = !!f.value; wrap.appendChild(h('label', { class: 'chk' }, [inp, h('span', { text: f.label })])); refs[f.id] = inp; return; }
-      else if (f.type === 'radio') {
-        var grp = h('div', { class: 'radios', role: 'radiogroup' });
-        f.options.forEach(function (o) { var r = h('input', { type: 'radio', name: 'f-' + f.id, value: o[0] }); r.checked = String(f.value) === String(o[0]); grp.appendChild(h('label', { class: 'chk' }, [r, h('span', { text: o[1] })])); });
-        refs[f.id] = grp; wrap.appendChild(h('div', { class: 'frow' }, [h('span', { class: 'flabel', text: f.label }), grp])); return;
-      }
-      else { inp = h('input', { class: 'num' + (f.type === 'text' ? ' txt' : ' mono'), type: f.type || 'number', id: 'f-' + f.id, step: f.step || 'any', min: f.min, max: f.max }); inp.value = f.value; }
+      if (f.type === 'select') inp = U.select(f.options, f.value);
+      else if (f.type === 'checkbox') { var c = U.check(f.label, f.value); c.input.id = 'f-' + f.id; refs[f.id] = c.input; wrap.appendChild(h('div', { class: 'sv-check' }, [c.el])); return; }
+      else if (f.type === 'text') { inp = U.el('input', { class: 'sui-input', type: 'text' }); inp.value = f.value; }
+      else inp = U.number(f.value, f.min, f.max, f.step || 'any');
+      inp.id = 'f-' + f.id;
       if (f.onChange) inp.addEventListener(f.type === 'select' ? 'change' : 'input', function () { f.onChange(inp.value, refs); });
       refs[f.id] = inp;
-      wrap.appendChild(h('label', { class: 'frow', for: 'f-' + f.id }, [h('span', { class: 'flabel', text: f.label }), inp, f.unit ? h('span', { class: 'funit', text: f.unit }) : h('span', { class: 'funit' })]));
+      wrap.appendChild(U.field(f.label, inp, f.unit));
     });
-    return { el: wrap, refs: refs, val: function (id) { var r = refs[id]; if (!r) return null; if (r.classList && r.classList.contains('radios')) { var c = r.querySelector('input:checked'); return c ? c.value : null; } if (r.type === 'checkbox') return r.checked; if (r.type === 'number') return parseFloat(r.value); return r.value; } };
+    return { el: wrap, refs: refs, val: function (id) { var r = refs[id]; if (!r) return null; if (r.type === 'checkbox') return r.checked; if (r.type === 'number') return parseFloat(r.value); return r.value; } };
   }
   var PRESETS = [['letter', 'Letter (612 × 792)', 612, 792], ['a4', 'A4 (595 × 842)', 595.28, 841.89], ['square', 'Instagram (1080 × 1080)', 1080, 1080], ['hd', 'HD (1920 × 1080)', 1920, 1080], ['slop', 'Slop Default (1200 × 800)', 1200, 800], ['story', 'Story (1080 × 1920)', 1080, 1920], ['custom', 'Custom', null, null]];
   function newDocDialog() {
@@ -1282,17 +1262,19 @@
     dialog({ title: 'Document Setup', body: f.el, buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true, onClick: function () { var w = f.val('w'), hh = f.val('h'); if (!(w > 0 && hh > 0)) return false; S.doc.width = w; S.doc.height = hh; S.doc.name = f.val('name') || S.doc.name; SV.commit('document setup'); SV.fitArtboard(); } }] });
   }
   function saveAsDialog() {
-    var f = form([{ id: 'name', label: 'File name', type: 'text', value: S.doc.name }, { type: 'note', html: 'Saves a standard <b>.svg</b> that opens anywhere — and also embeds the full editable document (layers, names, live shapes, gradients) so re-opening it in Slop Vector restores everything.' }]);
-    dialog({ title: 'Save As', body: f.el, buttons: [{ label: 'Cancel' }, { label: 'Save', primary: true, onClick: function () { IO.saveSVG((f.val('name') || 'Untitled').replace(/\.svg$/i, '')); } }] });
+    return window.SlopUI.prompt('Save As', 'File name', S.doc.name, { ok: 'Save' }).then(function (name) {
+      if (name == null) return;
+      IO.saveSVG((String(name).trim() || 'Untitled').replace(/\.svg$/i, ''));
+    });
   }
   function rasterDialog(type) {
-    var f = form([{ id: 'scale', label: 'Resolution', type: 'radio', value: '1', options: [['1', '1×'], ['2', '2×'], ['4', '4×']] }].concat(type === 'png' ? [{ id: 'transparent', type: 'checkbox', label: 'Transparent background', value: false }] : [{ id: 'q', label: 'Quality', value: 92, min: 10, max: 100, unit: '%' }]).concat([{ type: 'note', text: 'Artboard ' + S.doc.width + ' × ' + S.doc.height + ' px. Web fonts fall back to system fonts in raster exports.' }]));
+    var f = form([{ id: 'scale', label: 'Resolution', type: 'select', value: '1', options: [['1', '1× (' + S.doc.width + ' × ' + S.doc.height + ')'], ['2', '2× (' + S.doc.width * 2 + ' × ' + S.doc.height * 2 + ')'], ['4', '4× (' + S.doc.width * 4 + ' × ' + S.doc.height * 4 + ')']] }].concat(type === 'png' ? [{ id: 'transparent', type: 'checkbox', label: 'Transparent background', value: false }] : [{ id: 'q', label: 'Quality', value: 92, min: 10, max: 100, unit: '%' }]).concat([{ type: 'note', text: 'Artboard ' + S.doc.width + ' × ' + S.doc.height + ' px. Web fonts fall back to system fonts in raster exports.' }]));
     dialog({ title: 'Export as ' + type.toUpperCase(), body: f.el, buttons: [{ label: 'Cancel' }, { label: 'Export', primary: true, onClick: function () { IO.exportRaster(type, parseFloat(f.val('scale')) || 1, type === 'png' ? f.val('transparent') : false, type === 'jpg' ? (f.val('q') || 92) / 100 : undefined); } }] });
   }
   function pdfDialog(asAI) {
     var body = asAI
-      ? '<p class="note">Modern Adobe Illustrator <b>.ai</b> files are PDF-based, so Illustrator opens the same PDF bytes. Slop Vector writes a clean PDF&nbsp;1.4 (vector paths, gradients, opacity, blend modes, Helvetica/Times/Courier text) and saves it with an <b>.ai</b> extension.</p><p class="note">It opens in Illustrator, Affinity, Inkscape and every PDF viewer. Live effects stay as plain vectors; fonts map to the standard PDF fonts.</p>'
-      : '<p class="note">Writes a real vector PDF&nbsp;1.4 by hand: paths with fills and strokes, opacity and blend modes, linear and radial gradients (as PDF shadings), embedded images, and text set in the standard Helvetica/Times/Courier fonts.</p>';
+      ? '<p class="sui-p">Modern Adobe Illustrator <b>.ai</b> files are PDF-based, so Illustrator opens the same PDF bytes. Slop Vector writes a clean PDF&nbsp;1.4 (vector paths, gradients, opacity, blend modes, Helvetica/Times/Courier text) and saves it with an <b>.ai</b> extension.</p><p class="sui-p">It opens in Illustrator, Affinity, Inkscape and every PDF viewer. Live effects stay as plain vectors; fonts map to the standard PDF fonts.</p>'
+      : '<p class="sui-p">Writes a real vector PDF&nbsp;1.4 by hand: paths with fills and strokes, opacity and blend modes, linear and radial gradients (as PDF shadings), embedded images, and text set in the standard Helvetica/Times/Courier fonts.</p>';
     dialog({ title: asAI ? 'Export as .ai (PDF-compatible)' : 'Export as PDF', body: body, buttons: [{ label: 'Cancel' }, { label: 'Export', primary: true, onClick: function () { IO.exportPDF(asAI); } }] });
   }
   function prefsDialog() {
@@ -1330,7 +1312,7 @@
       f = form([{ id: 'uni', type: 'checkbox', label: 'Uniform', value: lastT.scale.uni }, { id: 'u', label: 'Scale', value: lastT.scale.u, unit: '%' }, { id: 'h', label: 'Horizontal', value: lastT.scale.h, unit: '%' }, { id: 'v', label: 'Vertical', value: lastT.scale.v, unit: '%' }]);
       build = function () { var uni = f.val('uni'); lastT.scale = { uni: uni, u: f.val('u') || 100, h: f.val('h') || 100, v: f.val('v') || 100 }; var sx = (uni ? lastT.scale.u : lastT.scale.h) / 100, sy = (uni ? lastT.scale.u : lastT.scale.v) / 100; return G.scale(sx, sy, c.x, c.y); };
     } else {
-      f = form([{ id: 'axis', label: 'Axis', type: 'radio', value: lastT.reflect.axis, options: [['h', 'Horizontal'], ['v', 'Vertical']] }]);
+      f = form([{ id: 'axis', label: 'Axis', type: 'select', value: lastT.reflect.axis, options: [['h', 'Horizontal'], ['v', 'Vertical']] }]);
       build = function () { lastT.reflect.axis = f.val('axis') || 'v'; return lastT.reflect.axis === 'h' ? G.scale(1, -1, c.x, c.y) : G.scale(-1, 1, c.x, c.y); };
     }
     var titles = { move: 'Move', rotate: 'Rotate', scale: 'Scale', reflect: 'Reflect' };
@@ -1357,8 +1339,65 @@
     var body = '<div class="about"><div class="about-mark">' + I.drop + '</div><div><h3>Slop Vector</h3><p class="mono">v1.0 · build ' + esc(String(SV.BUILD || '2026.10')) + '</p>' +
       '<p>A real vector editor that runs entirely in your browser: pen & pencil, live shapes, layers, gradients, pathfinder booleans, SVG/PDF/PNG export and a hand-written PDF writer. No accounts, no uploads, no tracking — your artwork never leaves this tab.</p>' +
       '<p>Part of <a href="../">Slopographic</a>, a museum of AI slop. The tool itself is, against all odds, not slop.</p>' +
-      '<p class="note">Tip: <b>File → Download App</b> saves a single offline .html copy of this whole editor.</p></div></div>';
+      '<p class="sui-p">Tip: <b>File → Download App</b> saves a single offline .html copy of this whole editor.</p></div></div>';
     dialog({ title: 'About Slop Vector', body: body, buttons: [{ label: 'Download App', left: true, onClick: function () { IO.downloadApp(); } }, { label: 'Close', primary: true }] });
+  }
+
+  /* ================= context menus (shared SlopUI kit) ================= */
+  function mi(id, label) {
+    var a = A[id]; if (!a) return null;
+    return { label: label || a.label, key: a.keyText || keyLabel(a.keys[0]), disabled: a.enabled ? !a.enabled() : false, check: a.checked ? a.checked() : false, act: function () { SV.runAction(id); } };
+  }
+  UI.canvasMenu = function (x, y) {
+    var any = S.sel.length > 0;
+    var items = [mi('edit.undo'), mi('edit.redo'), '-'];
+    if (any) items.push(mi('edit.cut'), mi('edit.copy'));
+    items.push(mi('edit.paste'), mi('edit.pasteFront'));
+    if (any) {
+      items.push(mi('edit.duplicate'), mi('edit.clear'), '-', mi('object.group'), mi('object.ungroup'),
+        { label: 'Arrange', sub: [mi('arrange.front'), mi('arrange.forward'), mi('arrange.backward'), mi('arrange.back')] },
+        { label: 'Transform', sub: [mi('transform.move'), mi('transform.rotate'), mi('transform.scale'), mi('transform.reflect'), '-', mi('transform.flipH'), mi('transform.flipV')] },
+        { label: 'Pathfinder', sub: [mi('pf.unite'), mi('pf.minus'), mi('pf.intersect'), mi('pf.exclude')] },
+        mi('compound.make'), mi('object.expand'), '-', mi('object.lock'), mi('object.hide'), '-', mi('object.slopify'));
+    } else {
+      items.push('-', mi('select.all'), mi('object.unlockAll'), mi('object.showAll'), '-', mi('view.fit'), mi('view.outline'), mi('view.grid'), mi('view.rulers'), '-', mi('file.docSetup'));
+    }
+    return window.SlopUI.menu(items, x, y);
+  };
+  UI.layerMenu = function (id, x, y) {
+    var L = SV.getLayer(id), o = L ? null : getObj(id), it = L || o; if (!it) return null;
+    var rename = { label: 'Rename…', act: function () { renaming = id; layersSig = ''; renderLayers(); } };
+    var vis = { label: it.hidden ? 'Show' : 'Hide', act: function () { it.hidden = !it.hidden; SV.commit(it.hidden ? 'hide' : 'show'); } };
+    var lock = { label: it.locked ? 'Unlock' : 'Lock', act: function () { it.locked = !it.locked; SV.commit(it.locked ? 'lock' : 'unlock'); } };
+    var items;
+    if (L) {
+      S.activeLayer = id; SV.requestRender(true);
+      items = [rename, vis, lock, '-', { label: 'Select All on Layer', act: function () { C.selectLayer(); } }, { label: 'New Layer', act: newLayer },
+        { label: 'Delete Layer', disabled: S.doc.layers.length <= 1, act: function () { var i = S.doc.layers.indexOf(L); if (i < 0 || S.doc.layers.length <= 1) return; S.doc.layers.splice(i, 1); S.activeLayer = S.doc.layers[Math.max(0, i - 1)].id; SV.commit('delete layer'); } }];
+    } else {
+      if (SV.isEditable(o) && S.sel.indexOf(id) < 0) SV.select([id]);
+      items = [rename, vis, lock, '-', mi('edit.duplicate'), mi('edit.clear'), '-', mi('arrange.front'), mi('arrange.back'), mi('object.group'), mi('object.ungroup')];
+    }
+    return window.SlopUI.menu(items, x, y);
+  };
+  function bindContextMenus() {
+    D.stage.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      if (S.editing) SV.commitTextEdit();
+      if (S.pen) SV.finishPen();
+      var hit = SV.hitTest(SV.evDoc(e));
+      if (hit) {
+        var t = S.sel.indexOf(hit.obj.id) >= 0 ? hit.obj.id : hit.top.id;
+        if (S.sel.indexOf(t) < 0) SV.select([t]);
+      }
+      UI.closeMenus();
+      UI.canvasMenu(e.clientX, e.clientY);
+    });
+    document.getElementById('dock').addEventListener('contextmenu', function (e) {
+      var r = e.target.closest && e.target.closest('.lrow'); if (!r) return;
+      e.preventDefault();
+      UI.layerMenu(r.getAttribute('data-id'), e.clientX, e.clientY);
+    });
   }
 
   /* ================= theme & prefs ================= */
@@ -1447,9 +1486,9 @@
     loadPrefs();
     buildMenubar(); buildToolbar(); buildDock(); buildStatus(); bindRulers(); applyRulers();
     document.getElementById('panelsToggle').addEventListener('click', function () { togglePanels(); });
-    document.addEventListener('click', function (e) { var b = e.target && e.target.closest ? e.target.closest('button') : null; if (b && e.detail > 0 && !b.closest('.modal')) setTimeout(function () { if (document.activeElement === b) b.blur(); }, 0); }, true);
+    document.addEventListener('click', function (e) { var b = e.target && e.target.closest ? e.target.closest('button') : null; if (b && e.detail > 0 && !b.closest('.sui-dlg')) setTimeout(function () { if (document.activeElement === b) b.blur(); }, 0); }, true);
     D.textEditor.addEventListener('input', SV.onEditorInput);
-    SV.bindStage(); SV.bindKeys(); IO.bindDrop();
+    SV.bindStage(); SV.bindKeys(); IO.bindDrop(); bindContextMenus();
     var saved = SV.loadAutosave(), recovered = false;
     if (saved) { try { SV.loadDoc(saved.doc, { fit: true }); S.fileName = saved.fileName || null; recovered = true; } catch (e) { recovered = false; } }
     if (!recovered) SV.loadDoc(SV.sampleDoc(), { fit: true });

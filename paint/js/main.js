@@ -1,6 +1,8 @@
 /* PhotoSLOP: boot. */
 'use strict';
 
+let samplerCtx = null;
+const sampler = () => samplerCtx || (samplerCtx = mkCanvas(1, 1).getContext('2d', { willReadFrequently: true }));
 function buildStatus() {
   const sb = $('#status');
   const zoom = h('input', { class: 'sb-zoom', type: 'text', 'aria-label': 'Zoom percent', spellcheck: 'false' });
@@ -23,7 +25,10 @@ function buildStatus() {
       const now = performance.now();
       if (inside && V.comp && now - colT > 60) {
         colT = now;
-        const d = cxr(V.comp).getImageData(x, y, 1, 1).data;
+        // Sample through a 1×1 canvas: reading pixels straight off the composite would make
+        // the browser move that big canvas off the GPU, and every brush frame would crawl.
+        const sg = sampler(); sg.clearRect(0, 0, 1, 1); sg.drawImage(V.comp, x, y, 1, 1, 0, 0, 1, 1);
+        const d = sg.getImageData(0, 0, 1, 1).data;
         col.textContent = d[3] ? `${rgbToHex(d[0], d[1], d[2])}${d[3] < 255 ? ' · ' + Math.round((d[3] / 255) * 100) + '%' : ''}` : 'transparent';
         chip.style.background = d[3] ? `rgba(${d[0]},${d[1]},${d[2]},${d[3] / 255})` : 'transparent';
       } else if (!inside) { col.textContent = ''; chip.style.background = 'transparent'; }

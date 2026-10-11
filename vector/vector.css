@@ -383,27 +383,9 @@ button:disabled { cursor: default; opacity: .45; }
 .mi-arrow .ic { width: 12px; height: 12px; }
 .menu-sep { height: 1px; background: var(--sep); margin: 4px 0; }
 
-/* ---------- modal ---------- */
-.modal-back { position: fixed; inset: 0; background: rgba(0, 0, 0, .42); display: grid; place-items: center; z-index: 1100; padding: 16px; animation: fadein .12s ease-out; }
-.modal { width: 380px; max-width: 100%; max-height: calc(100dvh - 32px); display: flex; flex-direction: column; background: var(--bg-panel); color: var(--text); border: 1px solid var(--border-dark); border-radius: 8px; box-shadow: var(--shadow), var(--bevel-out); overflow: hidden; }
-.modal.wide { width: 900px; }
-.modal-head { display: flex; align-items: center; height: 36px; padding: 0 8px 0 14px; background: var(--title-bg); color: var(--title-fg); border-bottom: 1px solid var(--border-dark); flex: 0 0 auto; }
-.modal-title { font-weight: 700; font-size: 13px; flex: 1; }
+/* ---------- dialog bodies (dialog chrome comes from ../shared/slopui.css) ---------- */
 .xbtn { width: 24px; height: 22px; border: 0; background: none; color: inherit; font-size: 18px; line-height: 1; border-radius: var(--radius-s); padding: 0; opacity: .7; }
 .xbtn:hover { opacity: 1; background: rgba(127, 127, 127, .2); }
-.modal-body { padding: 16px; overflow: auto; }
-.modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--sep); background: var(--bg-panel-2); flex: 0 0 auto; }
-.modal-foot .btn { min-width: 76px; height: 28px; }
-.modal-foot .btn.left { margin-right: auto; }
-.form { display: flex; flex-direction: column; gap: 9px; }
-.frow { display: grid; grid-template-columns: 110px minmax(0, 1fr) 28px; align-items: center; gap: 8px; }
-.frow .num, .frow .sel { width: 100%; height: 26px; max-width: none; }
-.frow .txt { height: 26px; }
-.flabel { color: var(--text-dim); }
-.funit { color: var(--text-faint); }
-.radios { display: flex; gap: 14px; }
-.note { margin: 0; color: var(--text-dim); line-height: 1.5; }
-.note b { color: var(--text); }
 .shortcuts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .sc-col h4 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent-line); }
 .sc-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
@@ -415,7 +397,6 @@ kbd { font-family: var(--mono); font-size: 10.5px; background: var(--bg-input); 
 .about p { margin: 0 0 10px; line-height: 1.5; }
 .about a { color: var(--accent-line); }
 .about-mark .brand-mark { width: 64px; height: 64px; }
-@keyframes fadein { from { opacity: 0; } }
 
 /* ---------- colour picker ---------- */
 .picker { position: fixed; z-index: 1200; width: 244px; background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 8px; box-shadow: var(--shadow), var(--bevel-out); padding: 0 10px 10px; display: flex; flex-direction: column; gap: 9px; }
@@ -435,12 +416,6 @@ kbd { font-family: var(--mono); font-size: 10.5px; background: var(--bg-input); 
 .pk-sw:hover { transform: scale(1.15); }
 .pk-foot { display: flex; gap: 6px; align-items: center; }
 
-/* ---------- toasts ---------- */
-#toasts { position: fixed; left: 50%; bottom: 36px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 1300; pointer-events: none; width: max-content; max-width: calc(100vw - 24px); }
-.toast { background: #111; color: #f2f2f2; border: 1px solid #333; padding: 7px 13px; border-radius: 999px; font-size: 12px; box-shadow: 0 6px 22px rgba(0, 0, 0, .35); opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; text-align: center; }
-.toast::before { content: ''; display: inline-block; width: 7px; height: 7px; background: var(--slop); border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
-.toast.warn::before { background: #ff9d2b; }
-.toast.in { opacity: 1; transform: none; }
 .noscript { position: fixed; inset: 0; display: grid; place-items: center; background: var(--ink); color: var(--bone); margin: 0; }
 
 /* ---------- Classic 98 specifics ---------- */
@@ -470,14 +445,9 @@ kbd { font-family: var(--mono); font-size: 10.5px; background: var(--bg-input); 
 :root[data-theme="classic"] .segb.on { background: #000080; color: #fff; }
 :root[data-theme="classic"] .seg { border: 0; }
 :root[data-theme="classic"] .statusbar .sb-item { box-shadow: var(--bevel-in); padding: 1px 6px; }
-:root[data-theme="classic"] .modal, :root[data-theme="classic"] .picker { border-radius: 0; border: 0; padding-top: 0; }
-:root[data-theme="classic"] .modal-head, :root[data-theme="classic"] .picker-head { height: 24px; border-radius: 0; margin-top: 3px; margin-left: 3px; margin-right: 3px; }
 :root[data-theme="classic"] .picker-head { margin-left: -7px; margin-right: -7px; }
-:root[data-theme="classic"] .modal-head .xbtn, :root[data-theme="classic"] .picker-head .xbtn { background: #c0c0c0; color: #000; box-shadow: var(--bevel-btn); width: 18px; height: 16px; font-size: 13px; opacity: 1; font-weight: 700; }
-:root[data-theme="classic"] .modal-foot { background: #c0c0c0; border-top: 0; }
 :root[data-theme="classic"] .menu-list { box-shadow: var(--bevel-out), 2px 2px 0 rgba(0, 0, 0, .4); border: 0; padding: 3px; }
 :root[data-theme="classic"] .menu-item { height: 20px; }
-:root[data-theme="classic"] .toast { border-radius: 0; background: #ffffe1; color: #000; border: 1px solid #000; box-shadow: 2px 2px 0 rgba(0, 0, 0, .5); }
 :root[data-theme="classic"] .chip, :root[data-theme="classic"] .fs { border: 0; }
 :root[data-theme="classic"] .tool.on .ic, :root[data-theme="classic"] .tool.on .ic-fill { color: #000; }
 :root[data-theme="classic"] .fs.front { box-shadow: var(--bevel-in), 0 0 0 1px #000080; }
@@ -488,7 +458,6 @@ kbd { font-family: var(--mono); font-size: 10.5px; background: var(--bg-input); 
 :root[data-theme="classic"] .btn.slop { box-shadow: var(--bevel-btn); border: 0; }
 :root[data-theme="light"] .tool.on { box-shadow: inset 0 0 0 1px #9cc400; background: rgba(212, 255, 58, .55); color: #0a0a0a; }
 :root[data-theme="light"] .dock-tab.on { box-shadow: inset 0 2px 0 #9cc400; }
-:root[data-theme="light"] .toast { background: #1c1c1c; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 1180px) { :root { --dock-w: 248px; } .docname { display: none; } }
@@ -511,13 +480,11 @@ kbd { font-family: var(--mono); font-size: 10.5px; background: var(--bg-input); 
   .doctab .dt-meta { display: none; }
   .ruler { cursor: default; }
   .menu-btn { padding: 0 8px; }
-  .modal.wide .shortcuts { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
   #sbPos, #sbFlags, #sbSel, .sbb, .zsel { display: none; }
   .cb-label { min-width: 0; }
   .num.w52 { width: 46px; }
-  .frow { grid-template-columns: 90px minmax(0, 1fr) 24px; }
   :root { --ruler: 14px; }
 }
 @media (pointer: coarse) {
@@ -527,3 +494,26 @@ kbd { font-family: var(--mono); font-size: 10.5px; background: var(--bg-input); 
 .grid2 .fld .num { min-width: 44px; }
 .shape-sec .grid2 { grid-template-columns: 1fr; }
 .shape-sec .grid2 .fld { grid-template-columns: 96px minmax(0, 120px) auto; }
+
+/* ---------- SlopUI (shared dialogs / toasts / context menus) themed from Slop Vector tokens ---------- */
+:root {
+  --sui-bg: var(--bg-panel); --sui-bg2: var(--bg-panel-2); --sui-input: var(--bg-input); --sui-line: var(--border);
+  --sui-fg: var(--text); --sui-dim: var(--text-dim); --sui-faint: var(--text-faint); --sui-hover: var(--bg-hover);
+  --sui-sel: #46561a; --sui-accent: var(--slop); --sui-accent-ink: var(--ink);
+  --sui-radius: 4px; --sui-shadow: var(--shadow); --sui-font: var(--font-ui); --sui-mono: var(--mono);
+}
+:root[data-theme="light"] { --sui-sel: #e4f6a0; }
+:root[data-theme="classic"] { --sui-sel: #000080; --sui-radius: 0; }
+.sv-form .sui-field { grid-template-columns: 110px minmax(0, 1fr) 28px; }
+.sv-form .sui-input { width: 100%; }
+.sv-check { margin: 2px 0 10px 118px; }
+.sui-dlg .sui-p b { color: var(--sui-fg); }
+.sui-foot .sv-left { margin-right: auto; }
+.sui-dlg.sui-wide .sui-body { max-height: calc(100dvh - 140px); }
+:root[data-theme="classic"] .picker { border-radius: 0; border: 0; padding-top: 0; }
+:root[data-theme="classic"] .picker-head { height: 24px; border-radius: 0; margin-top: 3px; margin-left: -7px; margin-right: -7px; }
+:root[data-theme="classic"] .picker-head .xbtn { background: #c0c0c0; color: #000; box-shadow: var(--bevel-btn); width: 18px; height: 16px; font-size: 13px; opacity: 1; font-weight: 700; }
+@media (max-width: 899px) { .sui-wide .shortcuts { grid-template-columns: 1fr; } .sv-check { margin-left: 0; } }
+@media (max-width: 560px) { .sv-form .sui-field { grid-template-columns: 90px minmax(0, 1fr) 24px; } }
+/* SlopUI keeps a closing backdrop in the DOM for its 140ms fade; don't let it swallow canvas input. */
+.sui-back.sui-out { pointer-events: none; }

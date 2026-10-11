@@ -8,12 +8,7 @@
   var IO = SV.io = {};
 
   /* ================= download helper ================= */
-  IO.download = function (blob, name) {
-    var url = URL.createObjectURL(blob), a = document.createElement('a');
-    a.href = url; a.download = name; a.rel = 'noopener'; a.style.display = 'none';
-    document.body.appendChild(a); a.click();
-    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 4000);
-  };
+  IO.download = function (blob, name) { window.SlopUI.download(blob, name); };
   function safeName(n) { return String(n || 'Untitled').replace(/[\\/:*?"<>|]+/g, '-').trim() || 'Untitled'; }
   IO.baseName = function () { return safeName(S.doc.name); };
 
@@ -725,12 +720,7 @@
     else if (/^image\//.test(file.type)) IO.placeFiles([file]);
     else SV.toast('Open supports .svg files (use Place for images)', 'warn');
   };
-  IO.pickFile = function (accept, cb, multiple) {
-    var inp = document.createElement('input');
-    inp.type = 'file'; inp.accept = accept; inp.multiple = !!multiple; inp.style.display = 'none';
-    inp.addEventListener('change', function () { cb(Array.from(inp.files || [])); inp.remove(); });
-    document.body.appendChild(inp); inp.click();
-  };
+  IO.pickFile = function (accept, cb, multiple) { window.SlopUI.pickFiles({ accept: accept, multiple: !!multiple }).then(cb); };
   IO.bindDrop = function () {
     var stage = SV.dom.stage, app = document.getElementById('app');
     ['dragenter', 'dragover'].forEach(function (t) { app.addEventListener(t, function (e) { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') >= 0) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; app.classList.add('dropping'); } }); });
@@ -775,9 +765,15 @@
           html = html.split(j.k).join(rep);
         });
         html = html.replace(/<meta charset="utf-8">/i, '<meta charset="utf-8">\n  <meta name="slop-vector-build" content="offline">');
-        return html;
+        return IO.normalizeHTML(html);
       });
     });
+  };
+  // Serialise through the HTML parser so the first offline build is byte-identical to the copy the
+  // offline app later re-serialises from its own DOM (see the capture script in index.html).
+  IO.normalizeHTML = function (html) {
+    var d = new DOMParser().parseFromString(html, 'text/html');
+    return '<!doctype html>\n' + d.documentElement.outerHTML;
   };
   IO.downloadApp = function () {
     return IO.buildOfflineHTML().then(function (html) {

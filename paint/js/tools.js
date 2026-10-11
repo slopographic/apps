@@ -146,10 +146,13 @@ function bakeStroke(L, buf, opts, into) {
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   return c;
 }
+let strokePool = null;
 /** Start a buffered paint stroke (brush, pencil, eraser, clone). */
 function startBufferedStroke(L, opts) {
-  const S = { L, buf: mkCanvas(D.w, D.h), opts };
-  S.g = cx(S.buf);
+  // Reuse one stroke buffer instead of allocating a document-sized canvas per stroke.
+  if (!strokePool || strokePool.width !== D.w || strokePool.height !== D.h) strokePool = mkCanvas(D.w, D.h);
+  const S = { L, buf: strokePool, opts };
+  S.g = cx(S.buf); S.g.setTransform(1, 0, 0, 1, 0, 0); S.g.globalAlpha = 1; S.g.globalCompositeOperation = 'source-over'; S.g.clearRect(0, 0, D.w, D.h);
   if (opts.mask) {
     const work = mkCanvas(L.mask.canvas.width, L.mask.canvas.height), wg = cx(work);
     live = { layerId: L.id, maskSurface: (LL) => { const m = LL.mask; wg.globalCompositeOperation = 'copy'; wg.globalAlpha = 1; wg.drawImage(m.canvas, 0, 0); wg.globalCompositeOperation = 'source-over'; bakeStroke(LL, S.buf, opts, work); return { canvas: work, x: m.x, y: m.y, def: m.def }; } };

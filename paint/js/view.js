@@ -83,13 +83,25 @@ function frame() {
 function draw() {
   const g = V.g, z = V.zoom;
   g.setTransform(V.dpr, 0, 0, V.dpr, 0, 0);
-  g.fillStyle = getComputedStyle(V.el).getPropertyValue('--pasteboard') || '#262626';
+  if (!V.paste || V.pasteTheme !== document.documentElement.dataset.theme) { V.paste = getComputedStyle(V.el).getPropertyValue('--pasteboard') || '#262626'; V.pasteTheme = document.documentElement.dataset.theme; }
+  g.fillStyle = V.paste;
   g.fillRect(0, 0, V.W, V.H);
   if (!D.layers.length) return;
   if (V.needComp || live) {
     if (!V.comp || V.comp.width !== D.w || V.comp.height !== D.h) V.comp = mkCanvas(D.w, D.h);
     const cg = cx(V.comp); cg.clearRect(0, 0, D.w, D.h);
-    compositeInto(cg);
+    // While a live edit runs on one layer, the layers beneath it can't change: cache them once.
+    const li = live && live.layerId ? layerIndex(live.layerId) : -1;
+    if (li > 0) {
+      if (!V.below || V.below.live !== live || V.below.w !== D.w || V.below.h !== D.h) {
+        const c = V.below && V.below.c.width === D.w && V.below.c.height === D.h ? V.below.c : mkCanvas(D.w, D.h), bg = cx(c);
+        bg.clearRect(0, 0, D.w, D.h);
+        const keep = live; live = null; compositeInto(bg, { only: D.layers.slice(0, li) }); live = keep;
+        V.below = { live, c, w: D.w, h: D.h };
+      }
+      cg.drawImage(V.below.c, 0, 0);
+      compositeInto(cg, { from: li });
+    } else compositeInto(cg);
     V.needComp = !!live;
   }
   const x0 = V.ox, y0 = V.oy, w = D.w * z, hh = D.h * z;

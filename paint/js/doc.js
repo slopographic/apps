@@ -136,7 +136,8 @@ function layerSurface(L) {
 }
 /** Composite visible layers (bottom→top) onto ctx in document space. */
 function compositeInto(g, opts = {}) {
-  for (const L of D.layers) {
+  for (let i = opts.from || 0; i < D.layers.length; i++) {
+    const L = D.layers[i];
     if (!L.visible && !(opts.includeHidden)) continue;
     if (opts.only && !opts.only.includes(L)) continue;
     const s = layerSurface(L);

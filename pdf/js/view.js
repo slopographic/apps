@@ -1,0 +1,120 @@
+/* Slop PDF — page "sheets": a rotated wrapper around the unrotated page raster plus an SVG
+   layer of annotations. Used by both the organizer thumbnails and the page editor, and
+   drawn from exactly the same geometry the pdf-lib export uses. */
+(function () {
+  'use strict';
+  var SP = window.SP, U = SP.util, E = SP.engine;
+  var V = SP.view = {};
+
+  /** CSS transform that maps the unrotated layer (W×H at scale s) onto the rotated view. */
+  V.layerTransform = function (R, W, H, s) {
+    if (R === 90) return 'translate(' + (H * s) + 'px,0) rotate(90deg)';
+    if (R === 180) return 'translate(' + (W * s) + 'px,' + (H * s) + 'px) rotate(180deg)';
+    if (R === 270) return 'translate(0,' + (W * s) + 'px) rotate(270deg)';
+    return 'none';
+  };
+
+  function fmt(v) { return String(U.round(v, 3)); }
+
+  /** One annotation → SVG element in unrotated page space (points). */
+  V.annotNode = function (a) {
+    var g, op = 'opacity' in a ? a.opacity : 1;
+    if (!E.isBox(a)) {
+      if (!a.pts || !a.pts.length) return null;
+      g = U.s('g', { 'data-aid': a.id, class: 'an an-' + a.type });
+      var pts = a.pts.map(function (p) { return fmt(p[0]) + ',' + fmt(p[1]); });
+      if (a.type === 'line' || a.type === 'arrow') pts = [pts[0], pts[pts.length - 1]];
+      if (pts.length === 1) pts.push(fmt(a.pts[0][0] + 0.01) + ',' + fmt(a.pts[0][1]));
+      var attrs = { points: pts.join(' '), fill: 'none', stroke: a.color || '#000', 'stroke-width': a.width || 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-opacity': op };
+      if (a.type === 'marker') attrs.style = 'mix-blend-mode:multiply';
+      // fat invisible hit line so thin strokes are easy to grab
+      g.appendChild(U.s('polyline', { points: attrs.points, fill: 'none', stroke: 'transparent', 'stroke-width': Math.max(10, (a.width || 2) + 8), class: 'an-hit', 'stroke-linecap': 'round' }));
+      g.appendChild(U.s('polyline', attrs));
+      if (a.type === 'arrow') g.appendChild(U.s('path', { d: E.arrowHead(a), fill: a.color || '#000', 'fill-opacity': op }));
+      return g;
+    }
+    g = U.s('g', { 'data-aid': a.id, class: 'an an-' + a.type, transform: 'translate(' + fmt(a.cx) + ' ' + fmt(a.cy) + ') rotate(' + fmt(-(a.rot || 0)) + ') translate(' + fmt(-a.w / 2) + ' ' + fmt(-a.h / 2) + ')' });
+    g.appendChild(U.s('rect', { x: 0, y: 0, width: fmt(a.w), height: fmt(a.h), fill: 'transparent', class: 'an-hit' }));
+    if (a.type === 'text') {
+      var t = E.textLayout(a);
+      var txt = U.s('text', { 'font-family': E.CSSFONT[a.font] || E.CSSFONT.Helvetica, 'font-size': fmt(t.size), fill: a.color || '#000', 'fill-opacity': op, 'font-weight': a.bold ? '700' : '400', 'font-style': a.italic ? 'italic' : 'normal', 'xml:space': 'preserve', style: 'white-space:pre' });
+      t.lines.forEach(function (line, i) { txt.appendChild(U.s('tspan', { x: fmt(t.pad), y: fmt(t.base(i)) }, line || ' ')); });
+      g.appendChild(txt);
+    } else if (a.type === 'image') {
+      var as = E.assets.get(a.asset);
+      if (as) g.appendChild(U.s('image', { href: as.url, x: 0, y: 0, width: fmt(a.w), height: fmt(a.h), preserveAspectRatio: 'none', opacity: op }));
+    } else {
+      var sw = a.type === 'whiteout' || a.type === 'hlbox' ? 0 : (a.width == null ? 2 : a.width);
+      var fill = a.fill && a.fill !== 'none' ? a.fill : 'none';
+      var at = { fill: fill, stroke: sw > 0 && a.color && a.color !== 'none' ? a.color : 'none', 'stroke-width': sw };
+      if (fill !== 'none') at['fill-opacity'] = a.type === 'hlbox' ? (a.opacity == null ? 0.4 : a.opacity) : (a.fillOpacity == null ? op : a.fillOpacity);
+      at['stroke-opacity'] = op;
+      if (a.type === 'hlbox') at.style = 'mix-blend-mode:multiply';
+      if (a.type === 'ellipse') {
+        at.cx = fmt(a.w / 2); at.cy = fmt(a.h / 2); at.rx = fmt(Math.max(0.1, (a.w - sw) / 2)); at.ry = fmt(Math.max(0.1, (a.h - sw) / 2));
+        g.appendChild(U.s('ellipse', at));
+      } else {
+        at.x = fmt(sw / 2); at.y = fmt(sw / 2); at.width = fmt(Math.max(0.1, a.w - sw)); at.height = fmt(Math.max(0.1, a.h - sw));
+        g.appendChild(U.s('rect', at));
+      }
+    }
+    return g;
+  };
+
+  /** Fills an <svg> with the page's annotations (+ stamps preview). */
+  V.paintAnnots = function (svg, p, index, total, opts) {
+    opts = opts || {};
+    var g = E.geom(p);
+    svg.setAttribute('viewBox', '0 0 ' + fmt(g.W) + ' ' + fmt(g.H));
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var stamps = index != null ? E.stampAnnots(p, index, total) : [];
+    var sg = U.s('g', { class: 'stamps' });
+    stamps.forEach(function (a) { var n = V.annotNode(a); if (n) sg.appendChild(n); });
+    var ag = U.s('g', { class: 'annots' });
+    (p.annots || []).forEach(function (a) { if (opts.hide && opts.hide === a.id) return; var n = V.annotNode(a); if (n) ag.appendChild(n); });
+    if (opts.draft) { var d = V.annotNode(opts.draft); if (d) { d.classList.add('draft'); ag.appendChild(d); } }
+    svg.appendChild(ag); svg.appendChild(sg);
+  };
+
+  /** Signature used to skip re-painting unchanged thumbnails. */
+  V.sig = function (p, index, total) {
+    var st = E.state.stamps, s = E.rotation(p) + '|' + JSON.stringify(p.annots || []);
+    if (st.pageNumbers) s += '|n' + index + '/' + total + JSON.stringify(st.pageNumbers);
+    if (st.watermark) s += '|w' + JSON.stringify(st.watermark);
+    return s;
+  };
+
+  /** Builds (or updates) a sheet for a page, fitting maxW×maxH CSS px. Returns {el, scale}. */
+  V.sheet = function (el, p, maxW, maxH, index, total) {
+    var g = E.geom(p), R = E.rotation(p), vs = E.viewSize(p);
+    var s = Math.min(maxW / vs.w, maxH / vs.h);
+    if (!el) {
+      el = U.h('div', { class: 'sheet' },
+        U.h('div', { class: 'sheet-layer' }, U.h('img', { class: 'sheet-img', alt: '', draggable: 'false', decoding: 'async' }), U.s('svg', { class: 'sheet-svg', 'aria-hidden': 'true', preserveAspectRatio: 'none' })));
+    }
+    el.style.width = (vs.w * s) + 'px'; el.style.height = (vs.h * s) + 'px';
+    var layer = el.firstChild;
+    layer.style.width = (g.W * s) + 'px'; layer.style.height = (g.H * s) + 'px';
+    layer.style.transform = V.layerTransform(R, g.W, g.H, s);
+    el.classList.toggle('is-blank', !!p.blank);
+    var svg = layer.querySelector('svg');
+    var sig = V.sig(p, index, total) + '|' + g.W + 'x' + g.H;
+    if (el._sig !== sig) { el._sig = sig; V.paintAnnots(svg, p, index, total); }
+    el._scale = s;
+    return el;
+  };
+  /** Loads the raster into a sheet's <img> (lazy; called when visible). */
+  V.loadRaster = function (el, p, px) {
+    var img = el.querySelector('.sheet-img');
+    if (p.blank) { img.removeAttribute('src'); img.style.visibility = 'hidden'; return Promise.resolve(); }
+    var key = p.f + ':' + p.i + ':' + E.formKey(p.f) + ':' + E.bucket(px);
+    if (img._key === key) return Promise.resolve();
+    img._key = key;
+    return E.thumbURL(p, px).then(function (url) {
+      if (img._key !== key || !url) return;
+      img.style.visibility = '';
+      if (img.src !== url) img.src = url;
+      el.classList.add('loaded');
+    }).catch(function (e) { console.warn('Slop PDF: thumbnail failed', e); el.classList.add('failed'); });
+  };
+})();
