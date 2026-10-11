@@ -43,9 +43,9 @@ function snapTargets(o) {
 /** The nearest target for one coordinate: { pos, d } or null. Grid lines are found arithmetically. */
 function snapCoord(o, v, tol) {
   let best = SlopGuides.nearest(snapTargets(o), v, tol);
-  if (GUIDE_PREFS.grid && GUIDE_PREFS.snapTo('grid')) {
+  if (!best && GUIDE_PREFS.grid && GUIDE_PREFS.snapTo('grid')) { // guides and bounds win over the grid
     const step = GUIDE_PREFS.gridSize / GUIDE_PREFS.gridSub, g = Math.round(v / step) * step, d = g - v;
-    if (Math.abs(d) <= tol && (!best || Math.abs(d) < Math.abs(best.d))) best = { pos: g, d };
+    if (Math.abs(d) <= tol) best = { pos: g, d };
   }
   return best;
 }
