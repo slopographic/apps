@@ -10,7 +10,10 @@ SlopCut. Local only: nothing is fetched or uploaded (`grep -rn "fetch\|XMLHttpRe
 - `index.html`: the page. Bin (left), stage (centre: canvas, transport with Play, Export and Send to SlopCut, the slot
   lock row, the Layout lane, the cut list), options (right).
 - `js/core.js`: state (`RM.state`), `RM.options()` (every option of the plan), `RM.remix()`, `RM.reshuffle()`,
-  `RM.manifest(ids)`, `RM.setCutFill`, `RM.replaceSlot`, `RM.toggleLock`, `RM.toggleCutLock`, `RM.setMusic`.
+  `RM.resetAll()`, `RM.setEffect()`, `RM.manifest(ids)`, `RM.setCutFill`, `RM.replaceSlot`, `RM.toggleLock`, `RM.toggleCutLock`, `RM.setMusic`.
+- `js/keys.js`: keyframes of the selected slot (`RM.keys`: `current`, `addAtPlayhead`, `move`, `remove`, `setEase`, `animateIn`, `reset`).
+- `js/fx.js`: the effect layer's drawing (`RM.layer.apply`), called by the preview for every frame.
+- `js/panel.js`: the keyframe row, the effect controls, Reset all (`RM.panel`: `renderKeys`, `effectRow`, `sync`, `init`).
 - `js/items.js`: the bin. Files become items (images, videos with their duration and size); `RM.addFiles`, `RM.removeItem`.
 - `js/preview.js`: the preview (`RM.preview`): draws the plan at time t, fill modes, scrubbing, play, music and original sound.
 - `js/drop.js`: drag and drop (see below).
@@ -19,6 +22,8 @@ SlopCut. Local only: nothing is fetched or uploaded (`grep -rn "fetch\|XMLHttpRe
 - `js/send.js`: Send to SlopCut through Slop Drive (clips and manifest stored, then `SlopHub.sendTo('slopedit', …)`).
 - `js/ui.js`: the page wiring. `RM.remixNow`, `RM.reshuffleNow` are the entry points the tests use.
 - `css/remix.css`: layout (the stage is the widest column; the canvas fills its width, max-height 70vh), tokens.
+- Shared (`shared/video`, see its HANDOFF): `keys.js` (the keyframe maths, on `SlopMotion.track`) and `effects.js` (the effect
+  picks, seeded).
 
 ## How it plans
 
@@ -45,6 +50,43 @@ Every option is in `RM.options()`, so the manifest records the whole edit.
 - Seed: shown as 8 hex digits. Remix repeats the seed shown; Reshuffle draws a new one. The same seed, options and clips give
   the same edit, the same timing and the same music.
 
+## Keyframes
+
+Each slot of a cut can have keys for position (`x`, `y`, as fractions of the cell from its centre), scale, rotation (degrees)
+and opacity. A key is a whole pose at a time, from the slot's start (its window: start to hold), with an ease for the
+segment that starts at it: Linear, Ease in, Ease out or Ease in-out (SlopMotion's quad easings). Keys are stored in
+`state.keys` per cut and slot (`{ cut, slot, keys }`), so they stay through Reshuffle and Remix like locks; a key list for a cut
+the new plan does not have is dropped.
+
+- The keyframe row sits under the slot row, for the slot chosen in "Keys for" (the cut at the playhead). Add key at playhead
+  stores the pose the slot has there, so adding a key changes nothing on screen. Drag a marker (or Left and Right keys) to move
+  it, Delete removes the selected key, and Ease sets the selected key's segment.
+- Animate in writes the chosen preset (fade in, slide in from left, right, top or bottom, zoom in) for the first 0.5 s of the
+  slot: its keys in that window are replaced, later keys are kept. A slot shorter than 0.5 s ends at its end.
+- Keys are drawn in `drawFrame` (`js/preview.js`): a keyed slot is clipped to its cell, then faded, moved, scaled and rotated
+  about the cell's centre. Export uses the same frame function, so it shows the keys.
+
+## Effect layer
+
+One layer over the whole reel, in the plan as `plan.effect` (`{ kind, intensity, change, picks }`, `picks` one per cut, `{ kind,
+seed }`). Choose None, Random, Film grain, Colour shift, Glitch, Zoom pulse or Vignette. Intensity (0 to 100 %) scales each
+effect; intensity 0 draws nothing. Random chooses from the five effects: per cut ("Changes at every cut", the default) or once
+for the whole reel. The cut list ends with the effect layer's row, and each cut shows its pick ("fx …").
+
+- Seed: the picks come from the seed with their own generator (not the cuts' one), so the same seed gives the same effects, and
+  changing the effect never changes the cuts. Changing the effect redraws its picks in place (`RM.setEffect`); the cuts stay.
+- Drawing (`js/fx.js`): film grain is a seeded noise tile moved 24 times a second; colour shift lays a seeded hue over in colour
+  mode; glitch shifts slices of the frame on about half the frames (12 a second); zoom pulse punches in at each cut and settles
+  over 0.6 s; vignette darkens the corners. The effect is drawn after the cuts, in the preview and in the export.
+
+## Reset
+
+- Reset slot keys (the keyframe row): removes the keys of the selected slot.
+- Reset effect layer (Options): the effect goes back to None, intensity 50 %, changes at every cut.
+- Reset all (Options): the plan's options go back to their defaults (target 30 s, medium pace, no base layout, Random on with
+  every grid, no manual layout switches, fill Auto, timing Same time, video Play through, lengths 1 to 3 s, stagger 1 s, locks,
+  keys, effect and audio off). The clips, the export preset and the seed are kept, and the plan is drawn again with that seed.
+
 ## Editing on the stage
 
 - Drag files from the desktop anywhere on the stage: they join the bin (the Add files path).
@@ -59,19 +101,27 @@ Every option is in `RM.options()`, so the manifest records the whole edit.
 ## Send to SlopCut
 
 The manifest is a Drive record of type `application/x-slop-reel+json`: `format: 'slop-reel'`, `version: 2`,
-`from: 'remix'`, the clip ids in play order, and `remix`: the options used (including timing, locks and audio). SlopCut's
+`from: 'remix'`, the clip ids in play order, and `remix`: the options used (including timing, locks, audio and the effect layer),
+and `keys` (the keyframes per cut and slot, recorded for reference). SlopCut's
 reel loader (`slopcut/js/io/reel.js`) runs `SE.random.plan` with those options, so the same clips give the same cuts.
 Limits: SlopCut reads durations from its own import, so a clip whose length differs there can change the plan; manual cell
-replacements are not in the manifest (SlopCut replays the plan from the options), and SlopCut does not play the music.
+replacements are not in the manifest (SlopCut replays the plan from the options), and SlopCut does not play the music, does not draw the keyframes or the effect layer.
 
 ## Tests
 
 `node tests/run.mjs remix` runs `tests/node/remix-orient.test.mjs` (orientation, grid choice, cell order, fill),
 `tests/node/remix-edit.test.mjs` (timing, locks surviving a reshuffle, audio choice) and the browser pages
 `tests/remix/remix.test.html` (the edit, presets, lane) and `tests/remix/remix-stage.test.html` (stage size, drop on the stage,
-drop onto a cut, scrubbing paints a frame and Play carries on, export records a file).
+drop onto a cut, scrubbing paints a frame and Play carries on, export records a file) and `tests/remix/remix-keys.test.html`
+(adding a key at the playhead shows in the row, and Reset slot keys removes it).
+`node tests/run.mjs video` runs `tests/node/video-keys.test.mjs` (interpolation through SlopMotion, each ease, the hold at both
+ends, the key edits, the Animate in presets) and `tests/node/video-effects.test.mjs` (the seeded choice of effects, Random by
+cut or by reel, the same seed gives the same effects, effects never change the cuts).
 
 ## Not done
 
 Audio in the export of Original mode follows real time (the clips play with their cut); transitions; cut-outs; per-cut
-timing beyond the slot offsets; a lock on a single slot that is in a cut with a different slot count after Remix.
+timing beyond the slot offsets; a lock on a single slot that is in a cut with a different slot count after Remix. Keys are per
+cut and slot, so after Remix a slot keeps its keys only when the new plan has the same cut and slot. Keyframes cover position,
+scale, rotation and opacity only (no key on colour or the clip's in point); the effect layer has no per-effect settings beyond
+intensity and change.
