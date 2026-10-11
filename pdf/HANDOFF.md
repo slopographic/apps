@@ -1,7 +1,7 @@
 # Slop PDF — handoff
 
 In-browser PDF editor at `/pdf/` (pdf.js 4.10.38 for parsing/rendering, pdf-lib 1.17.1 for writing,
-both vendored in `/vendor/`). Nothing is committed; the main session commits.
+both vendored in `/vendor/`).
 
 ## What works (verified with Playwright e2e scripts + poppler)
 - Open PDFs/images (picker, drag & drop), merge, colour-coded thumbnail grid (lazy, cached).
@@ -22,30 +22,45 @@ both vendored in `/vendor/`). Nothing is committed; the main session commits.
   File ▸ Open from Slop Drive, File ▸ Send to, page context menu ▸ Send page as image to).
 - Code split into packages; every non-vendor file ≤ 300 lines.
 
-## Unfinished / not yet verified
-- `tests/pdf/pdf.test.html` (SlopTest unit tests, required by the lead) is NOT written yet.
-- Offline single-file download (`js/io/build.js`, File ▸ Download app) is implemented but NOT yet
-  tested from file:// with the network blocked, nor the identical-rebuild check.
-- Mobile (390px) layout and touch drag/pinch not yet tested or screenshotted; themes not yet visually reviewed
-  in Light/Classic after the CSS split.
-- Hub integration (Send to / Drive / ?drive=) written but untested.
-- IndexedDB autosave/restore written but untested.
-- One e2e check in t3 (watermark text extraction order on rotated page) needs its assertion relaxed — the
-  rendering itself is correct (verified by image).
-- Known limitations: bookmarks/outlines and tagged structure are not carried over; non-WinAnsi text
-  (CJK, emoji) in added text becomes "?" (standard fonts only); cMaps/standard fonts are not embedded in the
-  offline file (only the Symbol/Dingbats fonts are).
+## Tests
+`node tests/run.mjs pdf` runs `tests/pdf/pdf.test.html` (36 tests, ~55 s, all green). The real app runs in
+an iframe; `tests/pdf/pdf.helpers.js` (`window.PT`) boots it, makes fixture PDFs with the app's own pdf-lib,
+opens them through `A.addFiles`, captures downloads and reads output back with pdf.js. Specs:
+- `pdf.spec-core.js`: ranges, zip/CRC, sniffing, geometry, page ops, undo/redo/coalescing, page-number text,
+  `SP.build.escapeJSON`/`toClassic`.
+- `pdf.spec-export.js`: merge order/rotation/blank pages, annotation placement pixel-checked on /Rotate 90,
+  user-rotated and offset-MediaBox pages, text/pen/arrow/image/stamps, metadata, forms (fill + keep
+  editable, flatten), split to zip and to files, extract.
+- `pdf.spec-io.js`: RC4-128/AES-128/AES-256/owner-only fixtures (`tests/pdf/fixtures/`, made with pypdf;
+  user password `slop`), wrong/cancelled password, broken files, autosave to IndexedDB + restore after reload,
+  autosave off, Slop Hub (Send to items, Send page as image → Drive + `?drive=`, open from Drive picker,
+  launch with `?drive=`), offline build (self-contained, byte-identical rebuild, boots and exports).
+Cross-realm gotcha: arrays/typed arrays passed into the iframe's pdf-lib/pdf.js must be made with
+`PT.win.Array`/`PT.win.Uint8Array`.
+
+## Verified by hand (Playwright scripts, not in the repo)
+- Offline file: File ▸ Download app, opened from file:// in an offline context with every non-file request
+  aborted: zero requests, zero console errors, sample loads, export validates, `SP.build.make()` inside it
+  reproduces the downloaded file byte-for-byte. The offline file has no Slop Hub (Drive belongs to the site's
+  origin), so Drive/Send to menu items are hidden there.
+- Mobile 390×844 with touch: no horizontal page scroll (rail and page toolbar scroll inside themselves), tap
+  selects, long-press drag reorders, two-finger pinch zooms the page view, bottom sheet panel opens/closes.
+- Themes Pro/Light/Classic 98 screenshotted on desktop and mobile.
+- Send page as image → PhotoSLOP opens `paint/?drive=` with the page (1240×1754 at 150 dpi).
+
+## Fixed in this pass
+- Radio groups with an /Opt array (pdf-lib, Acrobat) showed options "0", "1" and could not be filled;
+  real labels now come from pdf-lib (`io/forms.js`).
+- Touch long-press on an unselected page dragged the previously tapped page along too.
+- Closed mobile panel peeked 10 px above the bottom edge; rail labels wrapped and clipped in Classic.
+- Removed the dead pre-split `js/engine.js` / `js/util.js` (944/318 lines, not loaded anywhere).
+
+## Known limitations
+- Bookmarks/outlines and tagged structure are not carried over; non-WinAnsi text (CJK, emoji) in added text
+  becomes "?" (standard fonts only); cMaps/standard fonts are not embedded in the offline file (only the
+  Symbol/Dingbats fonts are), so CJK PDFs without embedded fonts may render with fallback glyphs offline.
+- Classic 98 on phones ellipsises "Page numbers" in the bottom rail.
 
 ## Next steps
-1. Write `tests/pdf/pdf.test.html` (+ helper .js ≤ 300 lines): load `pdf/js/core/*`, `io/*`, `ui/sheet.js`
-   with pdf-lib, then test `U.parseRanges`, `U.makeZip`/`crc32`, `E.ops.*`, `E.commit/undo/redo`,
-   `E.pageNumberText`, `E.build` output reloaded with pdf.js (order/rotation), `E.annotViewRect`/`toPage`,
-   `SP.build.escapeJSON`/`toClassic`. Run `node tests/run.mjs pdf`.
-2. Test the offline build (download, open from file:// with routes blocked, rebuild and byte-compare).
-3. Mobile viewport + theme screenshots; fix anything ugly.
-
-## How to test
-E2E scripts live outside the repo in the session scratchpad (`pdf-tests/`: `t1_organize.js`,
-`t2_edit.js`, `t3_tools.js`, `t4_forms_pw.js`, fixtures via `mkfx.py`). They expect the static server at
-http://localhost:8125/ (`npx http-server . -p 8125 -s -c-1`). Results at handoff: t1 30/30, t2 32/32,
-t3 19/20 (assertion issue above), t4 20/20, zero console errors.
+- Optional: outlines carry-over, embedding a Unicode font for added text.
+- Recommended status in `shared/apps.js`: live.
