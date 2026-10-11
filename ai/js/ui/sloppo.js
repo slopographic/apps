@@ -10,7 +10,7 @@
     const g = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
     g.clearRect(0, 0, W, H);
     if (!draw) return;
-    const look = { body: 'lime', eyes: AI.E.ready() ? 'star' : 'normal', mouth: 'smile', noGlow: true, baseY: big ? 0.8 : 0.86, scale: big ? 1.55 : 1.7 };
+    const look = { body: 'lime', eyes: AI.E.ready() ? 'star' : 'normal', mouth: 'smile', noGlow: true, baseY: big ? 0.86 : 0.9, scale: big ? 2.1 : 2.3 };
     if (AI.E.ready()) K.powerUp.draw(g, W, H, look, t, draw);
     else draw(g, W, H, look, t);
   }
