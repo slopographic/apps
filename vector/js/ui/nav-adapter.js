@@ -1,11 +1,12 @@
 /* Slop Vector navigation presets: the stage adapter for shared/nav (wheel, pan, touch and keys).
  * Only this file touches the view: the presets, the engine and the dialog live in shared/nav.
  * Wheel and keys ease (core/zoom.js); a pinch (live) follows the fingers at once.
- * Loaded after ui/commands.js (S, SV and the stage element are its globals). */
+ * Loaded after ui/commands.js (SV and the stage element are its globals). */
 (function () {
   'use strict';
   const host = document.getElementById('stage');
   if (!window.SlopNav || !host) return;
+  const S = window.SV.state; // the app state (core/state.js); a classic script has no global S
   SlopNav.attach('vector', {
     title: 'Slop Vector',
     host,
