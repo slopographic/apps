@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 export const SYNC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'shared', 'sync');
-export const FILES = ['config.js', 'pkce.js', 'tokens.js', 'providers/gdrive.js', 'providers/dropbox.js', 'sync.js'];
+export const FILES = ['config.js', 'pkce.js', 'tokens.js', 'providers/gdrive.js', 'providers/dropbox.js', 'providers/local.js', 'sync.js'];
 
 export const reply = (status, body) => ({
   ok: status >= 200 && status < 300,
