@@ -26,10 +26,18 @@
       extraAuthParams: { token_access_type: 'offline' },
       consoleUrl: 'https://www.dropbox.com/developers/apps',
       consoleHelp: 'Dropbox app console: create an app (Scoped access, Full or App folder) and add this page as a redirect URI.'
+    },
+    // No sign-in and no network: a folder the person picks (a mounted NAS or network share counts as a folder).
+    local: {
+      id: 'local',
+      label: 'Local or network folder',
+      local: true,
+      consoleUrl: '',
+      consoleHelp: 'Browsers cannot speak SMB, NFS or WebDAV. Mount the share in your operating system first, then pick the folder. Chrome or Edge only.'
     }
   };
 
-  const defaults = () => ({ gdrive: { clientId: '', lastSync: 0 }, dropbox: { clientId: '', lastSync: 0 } });
+  const defaults = () => Object.fromEntries(Object.keys(PROVIDERS).map((id) => [id, { clientId: '', lastSync: 0 }]));
 
   function read() {
     const cfg = defaults();
