@@ -47,8 +47,10 @@ Validation rejects unknown keys, values outside the list, bad combos, and two bi
 
 ## Adapter
 
-An adapter is `{ zoomAt(factor, x, y), panBy(dx, dy), fit(), actual(), zoomStep?(dir, x, y), cancelStroke?() }`.
-Coordinates are host-relative pixels. `cancelStroke` runs when a second finger lands during an app stroke.
+An adapter is `{ zoomAt(factor, x, y, live?), panBy(dx, dy), fit(), actual(), zoomStep?(dir, x, y), cancelStroke?() }`.
+Coordinates are host-relative pixels. `live` is true for a pinch (touch, or a trackpad's ctrl+wheel): apply it at once, not eased.
+A pinch zooms about the midpoint it started from and then pans by how far the midpoint moved, so content stays under the fingers.
+`cancelStroke` runs when a second finger lands during an app stroke.
 
 ## Precedence
 
