@@ -143,8 +143,8 @@
     return lum > 0.6 ? '#0a0a0a' : '#ffffff';
   }
 
-  /** Puts a choice on this page: data-theme (for the apps that use it), the --sl-* variables and the colour scheme. */
-  function apply(choice) {
+  /** Paints a choice on this page: data-theme (for the apps that use it), the --sl-* variables and the colour scheme. */
+  function paint(choice) {
     var id = resolve(choice), t = byId[id], root = doc && doc.documentElement;
     if (!root) return id;
     var e = APPS[page.app];
@@ -160,7 +160,14 @@
     root.style.colorScheme = t.scheme;
     return id;
   }
-  function refresh() { page.choice = choiceFor(page.app); return apply(page.choice); }
+  function refresh() { page.choice = choiceFor(page.app); return paint(page.choice); }
+  /** Paints a theme id or 'system' on this page without saving it. With no argument, paints the stored choice for this page. */
+  function apply(choice) {
+    if (choice === undefined) return refresh();
+    if (choice !== SYSTEM && !byId[choice]) return resolve(SYSTEM);
+    page.choice = choice;
+    return paint(choice);
+  }
 
   /** Follows the operating system while the choice is System. */
   function watch() {
@@ -168,7 +175,7 @@
     watching = true;
     try {
       var mq = g.matchMedia('(prefers-color-scheme: light)');
-      var on = function () { if (page.choice === SYSTEM) apply(page.choice); };
+      var on = function () { if (page.choice === SYSTEM) paint(page.choice); };
       if (mq.addEventListener) mq.addEventListener('change', on); else mq.addListener(on);
     } catch (e) { /* no media queries: stays on its first resolution */ }
   }
@@ -213,7 +220,7 @@
     get: current,
     resolve: resolve,
     set: set,
-    apply: refresh,
+    apply: apply,
     load: load,
     appKeys: function () { return Object.keys(APPS).filter(function (a) { return APPS[a].key; }); },
   });
