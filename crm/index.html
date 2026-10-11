@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="css/crm.css">
+  <link rel="stylesheet" href="css/crm-labels.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -36,8 +37,8 @@
     </header>
 
     <nav class="tabs" role="tablist" aria-label="CRM sections">
-      <button type="button" role="tab" class="tab" id="tab-pipeline" data-view="pipeline" aria-controls="view-pipeline" aria-selected="true">Pipeline</button>
-      <button type="button" role="tab" class="tab" id="tab-customers" data-view="customers" aria-controls="view-customers" aria-selected="false">Customers</button>
+      <button type="button" role="tab" class="tab" id="tab-customers" data-view="customers" aria-controls="view-customers" aria-selected="true">Customers</button>
+      <button type="button" role="tab" class="tab" id="tab-pipeline" data-view="pipeline" aria-controls="view-pipeline" aria-selected="false">Pipeline</button>
       <button type="button" role="tab" class="tab" id="tab-followups" data-view="followups" aria-controls="view-followups" aria-selected="false">Follow-ups</button>
     </nav>
 
@@ -61,11 +62,25 @@
           <button type="button" class="btn primary" id="cAdd">Add customer</button>
           <button type="button" class="btn" id="cImport">Import from Slop Contacts</button>
         </div>
-        <p class="note" id="cSummary" role="status"></p>
-        <div class="bulk" id="cBulk" role="region" aria-label="Bulk actions" hidden></div>
-        <label class="sel-head"><input type="checkbox" id="cSelAll"> <span>Select all shown</span></label>
-        <ul class="list" id="cRows" role="list" aria-label="Customers"></ul>
-        <p class="empty" id="cEmpty" hidden></p>
+        <div class="cshell">
+          <div class="cgrid">
+          <aside class="side" id="cSide" aria-label="Filter by group and tag"></aside>
+          <div class="clist">
+            <div class="list-tools">
+              <p class="note" id="cSummary" role="status"></p>
+              <label class="sort-only">Sort <select id="cSort"></select></label>
+              <div class="density" id="cDensity" role="radiogroup" aria-label="Row density"></div>
+            </div>
+            <div class="bulk" id="cBulk" role="region" aria-label="Bulk actions" hidden></div>
+            <div class="colhead" id="cHead" role="row">
+              <label class="sel-head"><input type="checkbox" id="cSelAll"><span class="sr">Select all shown</span></label>
+              <div class="sort-head" id="cSortHead"></div>
+            </div>
+            <ul class="list crows" id="cRows" role="list" aria-label="Customers"></ul>
+            <p class="empty" id="cEmpty" hidden></p>
+          </div>
+          </div>
+        </div>
       </section>
 
       <section class="view" id="view-followups" role="tabpanel" aria-labelledby="tab-followups" hidden>
@@ -104,8 +119,16 @@
   <script src="js/core/util.js"></script>
   <script src="js/core/notes.js"></script>
   <script src="js/core/customers.js"></script>
+  <script src="js/core/labels.js"></script>
+  <script src="js/core/customer-fields.js"></script>
+  <script src="js/core/query.js"></script>
   <script src="js/core/contacts-import.js"></script>
   <script src="js/ui/menu.js"></script>
+  <script src="js/ui/photo.js"></script>
+  <script src="js/ui/form-parts.js"></script>
+  <script src="js/ui/groups-panel.js"></script>
+  <script src="js/ui/tag-manager.js"></script>
+  <script src="js/ui/sidebar.js"></script>
   <script src="js/ui/board.js"></script>
   <script src="js/ui/bulk.js"></script>
   <script src="js/ui/list.js"></script>

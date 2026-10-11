@@ -88,17 +88,40 @@
     report(`Follow-up set to ${date}`, await each((id) => NS.customers.setFollowUp(id, date)));
   }
 
+  /** Adds the selected customers to one group, or removes them, after the group is picked in a dialog. */
+  async function groupDialog(on) {
+    const r = await NS.labels.load();
+    if (!r.ok) { UI.toast(NS.util.refusal(r)); return; }
+    const groups = r.value.groups;
+    if (!groups.length) {
+      UI.dialog({ title: 'Groups', body: 'There are no groups yet. Make one first with Manage in the Groups list of the sidebar.', buttons: [{ label: 'OK', primary: true }] });
+      return;
+    }
+    const sel = UI.select(groups.map((x) => [x.id, x.name]), groups[0].id);
+    UI.dialog({ title: on ? 'Add to group' : 'Remove from group',
+      body: el('div', null, UI.field('Group', sel), el('p', { class: 'note' }, `${plural(NS.selection.size)} selected.`)),
+      buttons: [{ label: 'Cancel' }, { label: on ? 'Add' : 'Remove', primary: true, act: async () => {
+        const name = groups.find((x) => x.id === sel.value).name;
+        const res = await NS.labels.setMembers([...NS.selection], 'group', sel.value, on);
+        UI.toast(res.ok ? `${on ? 'Added to' : 'Removed from'} ${name}` : NS.util.refusal(res));
+        return res.ok;
+      } }] });
+  }
+
   /** The selected customers, read fresh from the store, as one CSV file (UTF-8 with a BOM so Excel reads accents). */
   async function exportCsv() {
     const r = await NS.customers.load();
-    if (!r.ok) { UI.toast(NS.util.refusal(r)); return; }
+    const lab = await NS.labels.load();
+    if (!r.ok || !lab.ok) { UI.toast(NS.util.refusal(r.ok ? lab : r)); return; }
+    const names = (ids, list) => (ids || []).map((id) => (list.find((x) => x.id === id) || {}).name).filter(Boolean);
     const rows = r.value.filter((c) => NS.selection.has(c.id));
     const cell = (v) => {
       const s = Array.isArray(v) ? v.join(', ') : String(v == null ? '' : v);
       return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
-    const head = ['Name', 'Stage', 'Email', 'Phone', 'Address', 'Follow-up', 'Categories', 'Notes'];
-    const lines = [head, ...rows.map((c) => [c.name, NS.stageLabel(c.stage), c.email, c.phone, c.address, c.followUp, c.categories, c.notes])];
+    const head = ['Name', 'Stage', 'Email', 'Phone', 'Address', 'Follow-up', 'Categories', 'Tags', 'Groups', 'Notes'];
+    const lines = [head, ...rows.map((c) => [c.name, NS.stageLabel(c.stage), c.email, c.phone, c.address, c.followUp, c.categories,
+      names(c.tagIds, lab.value.tags), names(c.groupIds, lab.value.groups), c.notes])];
     const text = '﻿' + lines.map((l) => l.map(cell).join(',')).join('\r\n') + '\r\n';
     UI.download(new Blob([text], { type: 'text/csv;charset=utf-8' }), `slop-crm-customers-${NS.util.today()}.csv`);
     UI.toast(`Exported ${plural(rows.length)}`);
@@ -112,7 +135,7 @@
     const openGone = !!NS.state.current && NS.selection.has(NS.state.current);
     const res = await each((id) => NS.customers.remove(id), true);
     report('Deleted', res);
-    if (openGone) { NS.state.current = null; NS.app.show('customers'); }
+    if (openGone) NS.app.close();
   }
 
   /** Builds the bar, once, and wires the select-all box. Called when the Customers view mounts. */
@@ -127,6 +150,8 @@
       stage,
       btn('Add category', addCategory),
       btn('Remove category', removeCategory),
+      btn('Add to group…', () => groupDialog(true)),
+      btn('Remove from group…', () => groupDialog(false)),
       el('span', { class: 'bulk-date' }, date, btn('Apply', () => setFollowUp(date.value))),
       btn('Export CSV', exportCsv),
       btn('Delete', removeSelected, 'danger'),

@@ -20,7 +20,7 @@
         const r = await NS.customers.remove(c.id);
         if (!r.ok) { UI.toast(NS.util.refusal(r)); return; }
         UI.toast(`${c.name} deleted`);
-        if (NS.state.current === c.id) NS.app.show('customers');
+        if (NS.state.current === c.id) NS.app.close();
       });
   }
 

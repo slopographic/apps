@@ -61,8 +61,9 @@
     A.change('Duplicate', function () { out.forEach(function (c) { slide.objects.push(c); }); });
     A.select(out.map(function (c) { return c.id; }));
   };
-  OP.copy = function () { var objs = A.selObjs(); if (objs.length) A.clip = U.clone(objs); };
+  OP.copy = function () { var objs = A.selObjs(); if (objs.length) { A.clip = U.clone(objs); A.clipT = Date.now(); } };
   OP.paste = function () {
+    if (OP.pasteBuffer && OP.pasteBuffer()) return; // the shared buffer, when it is newer
     if (!A.clip || A.mode !== 'edit') return;
     var slide = A.slide(), out = copies(A.clip, 24);
     A.clip = copies(A.clip, 24);

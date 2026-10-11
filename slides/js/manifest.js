@@ -7,7 +7,7 @@ window.SS_MANIFEST = {
     'shared/motion/playback.js', 'shared/motion/presets.js', 'slides/js/anim/object.js', 'slides/js/anim/transition.js', 'slides/js/anim/migrate.js'],
   io: ['slides/js/io/templates.js', 'slides/js/io/templates-decks.js', 'slides/js/io/validate.js', 'slides/js/io/native.js', 'slides/js/io/template-file.js', 'slides/js/io/template-store.js', 'slides/js/io/draft.js', 'slides/js/io/pptx.js'],
   ui: ['slides/js/ui/dom.js', 'slides/js/ui/app.js', 'slides/js/ui/view-state.js', 'slides/js/ui/canvas-view.js', 'slides/js/ui/overlay.js', 'slides/js/ui/snap.js',
-    'slides/js/ui/textedit-parse.js', 'slides/js/ui/textedit.js', 'slides/js/ui/pointer.js', 'slides/js/ui/ops.js', 'slides/js/ui/sorter.js',
+    'slides/js/ui/textedit-parse.js', 'slides/js/ui/textedit.js', 'slides/js/ui/pointer.js', 'slides/js/ui/ops.js', 'slides/js/ui/buffer.js', 'slides/js/ui/sorter.js',
     'slides/js/ui/sorter-drag.js', 'slides/js/ui/inspector.js', 'slides/js/ui/anim-panel.js', 'slides/js/ui/toolbar.js', 'slides/js/ui/files.js', 'slides/js/ui/templates-dialog.js', 'slides/js/ui/present-view.js', 'slides/js/ui/present.js',
     'slides/js/ui/commands.js', 'slides/js/ui/ctxmenu.js', 'slides/js/ui/main.js']
 };

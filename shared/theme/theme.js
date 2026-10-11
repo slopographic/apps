@@ -50,13 +50,14 @@
     orders: { key: 'slop-orders.theme', fmt: 'json', native: NO_CLASSIC },
     ledger: { key: 'slop-ledger.theme', fmt: 'json', native: NO_CLASSIC },
     press: { key: 'slop.press.theme', fmt: 'json', native: STD },
-    gallery: { key: 'slop-gallery.theme', fmt: 'json', native: NO_CLASSIC },
+    gallery: { key: 'slop-gallery.theme', fmt: 'json', native: DARK_CSS },
     '3d': { key: 'slop-3d.theme', fmt: 'json', native: NO_CLASSIC },
     inventory: { key: 'slop-inventory.theme', fmt: 'json', native: NO_CLASSIC },
     vector: { key: 'slopvector.theme', fmt: 'raw', native: STD },
     label: { key: 'sloplabel-theme', fmt: 'raw', native: STD },
     contacts: { key: null, native: DARK_CSS },
     convert: { key: null, native: DARK_CSS },
+    slides: { key: null, native: DARK_CSS },
     music: { key: null, native: DARK_CSS },
     photoslop: { key: 'slopshop.theme', fmt: 'json', native: { light: 'light', dark: 'pro', classic: 'paint', lime: 'pro' } },
   };
@@ -65,9 +66,9 @@
    * and Settings take the background and border too. --sl-on-accent is the ink or white that reads on the accent. */
   var CSS = [
     'html:root[data-slop-theme]{--panel:var(--sl-surface);--surface:var(--sl-surface);--fg:var(--sl-text);--text:var(--sl-text);',
-    '--accent:var(--sl-accent);--accent-ink:var(--sl-on-accent);',
+    '--accent:var(--sl-accent);--accent-ink:var(--sl-on-accent);--accent-line:var(--sl-accent);',
     '--dim:color-mix(in srgb,var(--sl-text) 78%,transparent);--mute:color-mix(in srgb,var(--sl-text) 78%,transparent);',
-    '--faint:color-mix(in srgb,var(--sl-text) 62%,transparent);--fg-faint:color-mix(in srgb,var(--sl-text) 62%,transparent)}',
+    '--faint:color-mix(in srgb,var(--sl-text) 80%,transparent);--fg-faint:color-mix(in srgb,var(--sl-text) 80%,transparent)}',
     'html:root[data-slop-theme][data-slop-app=home],html:root[data-slop-theme][data-slop-app=settings]{',
     '--bg:var(--sl-background);--ink-2:var(--sl-surface);--ink-3:var(--sl-surface);',
     '--bone-dim:color-mix(in srgb,var(--sl-text) 62%,transparent);',

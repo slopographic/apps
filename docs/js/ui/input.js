@@ -61,6 +61,7 @@
   input.addEventListener('compositionend', () => { const t = input.value; input.value = ''; if (t) A().type(t); });
   input.addEventListener('paste', (e) => {
     e.preventDefault();
+    if (A().pasteBuffer && A().pasteBuffer()) return; // the shared buffer, when it is newer than this document's last copy
     A().paste((e.clipboardData && e.clipboardData.getData('text/plain')) || '');
   });
   input.addEventListener('copy', (e) => {

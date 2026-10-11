@@ -11,6 +11,8 @@
     { id: 'customers.search', title: 'Customers: search', group: 'Customers', keywords: ['find', 'filter'],
       run: () => { NS.app.show('customers'); setTimeout(() => $('cSearch').focus(), 40); } },
     { id: 'customers.import', title: 'Customers: import from Slop Contacts', group: 'Customers', run: () => NS.importUi.open() },
+    { id: 'labels.tags', title: 'Customers: manage tags', group: 'Customers', keywords: ['colour', 'color', 'merge'], run: () => NS.tagManager.open() },
+    { id: 'labels.groups', title: 'Customers: manage groups', group: 'Customers', keywords: ['filter', 'segment'], run: () => NS.groupsPanel.open() },
   ];
   const byId = Object.fromEntries(COMMANDS.map((c) => [c.id, c]));
 

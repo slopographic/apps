@@ -43,6 +43,7 @@
   }
   function styleAttrs(o, ctx) {
     var st = o.style, a = '';
+    if (ctx.clipping) return ''; // a clip shape only gives geometry; a clipPath ignores paint
     if (ctx.outline) {
       if (o.type === 'text') return ' fill="#000"';
       return ' fill="none" stroke="#000" stroke-width="1" vector-effect="non-scaling-stroke"';
@@ -76,6 +77,12 @@
     var c = commonAttrs(o, ctx), s, lb;
     switch (o.type) {
       case 'group':
+        if (o.clip && o.children.length) { // clipping mask: a <clipPath> in defs, the clipped objects inside a clip-path group
+          var cl = SV.clipMask.svg('sv-clip-' + o.id, objToSVG(o.children[o.children.length - 1], Object.assign({}, ctx, { clipping: true })),
+            o.children.slice(0, -1).map(function (ch) { return objToSVG(ch, ctx); }).join(''), c);
+          ctx.defs.push(cl.def);
+          return cl.markup;
+        }
         return '<g' + c + '>' + o.children.map(function (ch) { return objToSVG(ch, ctx); }).join('') + '</g>';
       case 'rect':
         s = styleAttrs(o, ctx);
@@ -104,6 +111,7 @@
         lay.lines.forEach(function (ln, i) { t += '<tspan x="' + fmt(o.x) + '" y="' + fmt(o.y + i * lay.L) + '">' + esc(ln) + '</tspan>'; });
         return t + '</text>';
       case 'image':
+        if (ctx.clipping) return '<rect x="' + fmt(o.x) + '" y="' + fmt(o.y) + '" width="' + fmt(o.w) + '" height="' + fmt(o.h) + '"' + c + '/>'; // <image> is not allowed in a clipPath
         if (ctx.outline) {
           lb = localBox(o);
           return '<path d="M' + fmt(o.x) + ' ' + fmt(o.y) + 'h' + fmt(o.w) + 'v' + fmt(o.h) + 'h' + fmt(-o.w) + 'zM' + fmt(o.x) + ' ' + fmt(o.y) + 'L' + fmt(o.x + o.w) + ' ' + fmt(o.y + o.h) + 'M' + fmt(o.x + o.w) + ' ' + fmt(o.y) + 'L' + fmt(o.x) + ' ' + fmt(o.y + o.h) + '" fill="none" stroke="#000" stroke-width="1" vector-effect="non-scaling-stroke"' + c + '/>';

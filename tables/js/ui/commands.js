@@ -8,6 +8,7 @@ import * as Sh from './sheets.js';
 import * as TPL from './templates.js';
 import { NUMBER_FORMATS } from './numfmt.js';
 import { clearRange } from './actions.js';
+import { configCommands } from '../io/config.js';
 
 /** Grid commands run only when no text field has focus (Ctrl+A, Ctrl+Z… belong to the field then). */
 const idle = () => { const a = document.activeElement; return !S.edit && !(a && a.closest && a.closest('input, textarea, select, [contenteditable="true"]')); };
@@ -38,6 +39,7 @@ export const COMMANDS = [
   { id: 'help.keys', title: 'Keyboard shortcuts…', group: 'Help', run: () => window.SlopCmd && window.SlopCmd.openKeymap(), when: () => !!window.SlopCmd },
   { id: 'help.about', title: 'About Slop Tables', group: 'Help', run: about },
 ];
+COMMANDS.push(...configCommands()); // Config: export, plain template, import, ask AI (io/config.js)
 const byId = Object.fromEntries(COMMANDS.map((c) => [c.id, c]));
 export const run = (id) => byId[id] && byId[id].run();
 
@@ -80,6 +82,7 @@ export function menus() {
   const paste = () => (navigator.clipboard && navigator.clipboard.readText ? navigator.clipboard.readText().then(A.paste, () => toast('Use Ctrl+V to paste')) : toast('Use Ctrl+V to paste'));
   return {
     File: [item('file.new'), item('file.fromTemplate'), item('file.open'), '-', item('file.save'), item('file.saveAs'), item('file.saveTemplate'), '-',
+      { label: 'Config', sub: ['tables.config.export', 'tables.config.template', 'tables.config.import', 'tables.config.ai'].map((id) => item(id)) }, '-',
       { label: 'Download', sub: [item('file.stab', 'Download .stab (Slop Tables file)'), item('file.csv'), item('file.xlsx')] }],
     Edit: [item('edit.undo'), item('edit.redo'), '-',
       { label: 'Cut', key: 'Ctrl+X', act: () => document.execCommand('cut') },
