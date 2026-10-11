@@ -1,4 +1,4 @@
-/* Slop Pastebin actions: new pastes (typed, pasted or an image), opening, copy, download, the share link, Trash, and
+/* Paste actions: new pastes (typed, pasted or an image), opening, copy, download, the share link, Trash, and
  * the open paste remembered for the next visit. The share link is local: ?paste=<id> opens the paste in this browser. */
 import * as store from './store.js';
 import { S, byId, byLink, visible } from './state.js';

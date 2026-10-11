@@ -1,6 +1,6 @@
-# Slop Pastebin: handoff
+# Paste: handoff
 
-Slop Pastebin keeps pastes (text, code and images) in Slop Drive. It is registered in `shared/apps.js` as `paste` (status `building`, group `business`). Nothing is uploaded: no server, no network request, no CDN.
+Paste keeps pastes (text, code and images) in Slop Drive. It is registered in `shared/apps.js` as `paste` (status `building`, group `business`). Nothing is uploaded: no server, no network request, no CDN.
 
 ## What works
 - **Paste anywhere:** paste text outside a field and it becomes a new text paste. Paste an image (or use Image in the list header) and it becomes an image paste. Typing in a field is left alone.
@@ -23,7 +23,7 @@ Slop Pastebin keeps pastes (text, code and images) in Slop Drive. It is register
 ## Where the data lives
 - Each paste is one Drive file. A text paste is a `text/plain` blob, and an image paste is the image itself.
 - `meta` is `{ type: 'paste', pasteId, title, language, expiry, kind }`, where `kind` is `text` or `image`.
-- New files go into the app's own Drive folder, named Slop Pastebin (`SlopHub.put` with `from: 'paste'`).
+- New files go into the app's own Drive folder, named Paste (`SlopHub.put` with `from: 'paste'`).
 - Trash moves the Drive record to the Trash. The Drive backup (Slop Admin, "Export everything") covers these records. The app has no separate store.
 
 ## Files

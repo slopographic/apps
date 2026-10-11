@@ -1,4 +1,4 @@
-/* Slop Pastebin state: the pastes loaded from Slop Drive and what the screen shows. S.id is the open paste (its Drive id).
+/* Paste state: the pastes loaded from Slop Drive and what the screen shows. S.id is the open paste (its Drive id).
  * S.pane is the phone view: 'list' or 'editor'. Wide screens show both. */
 export const S = { pastes: [], id: null, query: '', pane: 'list' };
 
