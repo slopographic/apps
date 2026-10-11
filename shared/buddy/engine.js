@@ -1,14 +1,17 @@
 // Sloppo the buddy: the engine. He perches on headings, cards, toolbars and panels, hops around,
 // can be petted, dragged and thrown, levels up (with hats), has RAGE and an "Unleash" chaos mode
 // with a full undo, physics, tips, snacks and an AI power-up. Pages load it through boot.js.
-import { M, reduced, rand, listeners, navH, changed, now, pageH } from './state.js';
+import { M, reduced, rand, listeners, navH, changed, now, pageH, cheer } from './state.js';
 import { load, levelFor } from './store.js';
 import { setup, draw, size, face, CW, CH, BASE } from './look.js';
-import { step, place, hopTo, leapIn } from './motion.js';
+import { step, place, hopTo, leapIn, fall } from './motion.js';
 import * as P from './perches.js';
 import { bindInput, pet } from './input.js';
 import { mountHud } from './hud.js';
 import { setChaos, restore, act } from './chaos.js';
+import { TIMING } from './timing.js';
+import { tickMood, askForCandy } from './mood.js';
+import { makeCandy, clearCandy } from './candy.js';
 import { gain } from './levels.js';
 import { say, placeBubble, hush } from './fx.js';
 import { count } from './journal.js';
@@ -59,10 +62,10 @@ function fit() {
 }
 
 /* ---------- idle chatter ---------- */
-let nextChat = now() + 25000;
+let nextChat = now() + TIMING.chatterMin;
 function chatter(t) {
   if (t < nextChat) return;
-  nextChat = t + 25000 + Math.random() * 25000;
+  nextChat = t + TIMING.chatterMin + Math.random() * (TIMING.chatterMax - TIMING.chatterMin);
   const vis = M.y > scrollY && M.y < scrollY + innerHeight;
   if (!vis || M.mode !== 'perched' || M.chaos || M.raging) return;
   if (!tips.maybeTip() && !power.maybeComment()) say(line(M.rage > 1.4 ? 'annoyed' : 'idle'), 1600);
@@ -92,6 +95,7 @@ function frame(t) {
     if (!hold) {
       step(dt, t);
       tickRage(dt, t);
+      tickMood(dt, t);
       care.tick(dt, t);
       chatter(t);
     }
@@ -145,6 +149,8 @@ export function start(opts = {}) {
   requestAnimationFrame((t) => { last = t; frame(t); });
   const api = {
     M, pet, gain, act, restore, leapIn, hopTo, face, impact, perches: P, bodies: () => bodyCount(), show, toggleHud, tips, power, care, treats,
+    fling: (vx, vy) => fall(vx, vy), cheer, askForCandy, candy: { make: makeCandy, clear: clearCandy },
+    repair: () => restore({ animate: true }),
     unleash: () => setChaos(true), calm: () => setChaos(false), bonk: hardLanding, enrage, calmRage, set3d, say,
     get level() { return M.level; }, get xp() { return M.xp; }, get hat() { return M.hat; }, get journal() { return count(); },
     get visible() { return visible; },
@@ -163,6 +169,7 @@ export function show(on) {
   if (!on) {
     if (count() || M.chaos || M.raging) restore();
     hush();
+    clearCandy();
     M.layer.hidden = true;
     hud.hidden = true;
     M.mode = 'hidden';
