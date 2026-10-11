@@ -36,12 +36,13 @@
       }
       return known.get(ch);
     };
-    /** Text the font can draw: tabs as spaces, control characters dropped, other unknown characters as '?'. */
+    /** Text the font can draw: line breaks and tabs kept (tabs as spaces), other control characters dropped, unknown characters as '?'. */
     const clean = (str) => {
       let out = '';
       for (const ch of String(str == null ? '' : str)) {
         const c = ch.codePointAt(0);
-        if (c === 9) out += '    ';
+        if (c === 10) out += '\n';
+        else if (c === 9) out += '    ';
         else if (c < 32 || c === 127) continue;
         else if (encodable(ch)) out += ch;
         else {

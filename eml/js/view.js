@@ -84,7 +84,9 @@
     const remote = hasHtml && view === 'html' ? M.remoteRefs(m.html) : 0;
     const cids = hasHtml && view === 'html' ? M.cidRefs(m.html) : 0;
     $('em-notice').hidden = !(remote || cids);
-    $('em-remote').hidden = !remote;
+    $('em-notice-t').textContent = remote
+      ? 'Remote images are blocked. This app loads nothing from the network.'
+      : 'This message has embedded images. They are not shown until you choose to.';
     $('em-cid').hidden = !cids;
     $('em-cid').textContent = doc.cids ? 'Hide embedded images' : 'Show embedded images';
     $('em-cid').setAttribute('aria-pressed', String(!!doc.cids));

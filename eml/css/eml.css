@@ -1,0 +1,84 @@
+/* Slop EML: layout for the theme. Colours are the theme's --sl-* tokens only; the print rules at the end are the one place
+ * with fixed black and white. The mail itself is shown on white paper inside its frame (set in eml/js/frame.js). */
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+.em-noscript { padding: 16px; }
+.em-app { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.sui-btn[aria-pressed="true"] { background: var(--sl-accent); color: var(--sl-on-accent); border-color: var(--sl-accent); }
+
+/* Header */
+.em-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 14px; border-bottom: 1px solid var(--sl-border); background: var(--sl-surface); }
+.em-brand { display: flex; align-items: center; gap: 8px; }
+.em-brand h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: .01em; }
+.em-logo { width: 14px; height: 14px; border-radius: 3px; background: var(--sl-accent); }
+.em-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.em-dropstrip:not(:empty) { padding: 0 14px; }
+
+/* Open messages */
+.em-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 8px 14px; border-bottom: 1px solid var(--sl-border); }
+.em-tab { display: flex; align-items: center; flex: 0 0 auto; min-width: 0; max-width: 280px; border: 1px solid var(--sl-border); border-radius: 999px; background: var(--sl-surface); }
+.em-tab.em-on { border-color: var(--sl-accent); }
+.em-tab-pick { min-width: 0; max-width: 240px; padding: 5px 4px 5px 12px; border: 0; background: none; color: inherit; font: inherit; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.em-tab-pick[aria-current="true"] { font-weight: 700; }
+.em-tab-x { flex: 0 0 auto; padding: 3px 10px 3px 6px; border: 0; background: none; color: inherit; font-size: 16px; line-height: 1; cursor: pointer; }
+
+/* Main */
+.em-main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: auto; }
+.em-empty { margin: auto; max-width: 460px; padding: 24px; text-align: center; }
+.em-empty-t { margin: 0 0 8px; font-size: 18px; }
+.em-empty-s { margin: 0 0 16px; color: color-mix(in srgb, var(--sl-text) 72%, transparent); }
+.em-empty-b { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.em-msg { display: flex; flex: 1 0 auto; flex-direction: column; gap: 10px; min-width: 0; padding: 14px; }
+.em-subject { margin: 0; font-size: 18px; overflow-wrap: anywhere; }
+.em-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 14px; margin: 0; font-size: 13px; }
+.em-head > div { display: contents; }
+.em-head dt { color: color-mix(in srgb, var(--sl-text) 62%, transparent); }
+.em-head dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.em-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.em-seg { display: inline-flex; gap: 6px; }
+
+/* Notices and body */
+.em-notice { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; padding: 8px 10px; border: 1px solid var(--sl-border); border-radius: 8px; background: var(--sl-surface); font-size: 13px; }
+.em-notice-t { margin: 0; }
+.em-body { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; min-height: 360px; }
+.em-frame { flex: 1 1 auto; width: 100%; min-height: 360px; border: 1px solid var(--sl-border); border-radius: 8px; }
+.em-plain { flex: 1 1 auto; min-height: 240px; margin: 0; padding: 14px; overflow: auto; border: 1px solid var(--sl-border); border-radius: 8px; background: var(--sl-surface); font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.em-none { color: color-mix(in srgb, var(--sl-text) 72%, transparent); }
+
+/* Warnings and attachments */
+.em-warn { font-size: 13px; }
+.em-warn summary { cursor: pointer; color: color-mix(in srgb, var(--sl-text) 80%, transparent); }
+.em-warn ul { margin: 6px 0 0; padding-left: 20px; overflow-wrap: anywhere; }
+.em-atts-h { margin: 6px 0 8px; font-size: 15px; }
+.em-att-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.em-att { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; padding: 8px 10px; border: 1px solid var(--sl-border); border-radius: 8px; }
+.em-att-info { display: flex; flex-direction: column; min-width: 0; }
+.em-att-name { overflow-wrap: anywhere; }
+.em-att-meta { color: color-mix(in srgb, var(--sl-text) 62%, transparent); font-size: 12px; }
+.em-att-save { flex: 0 0 auto; }
+
+/* Convert to PDF dialog */
+.em-pdfdlg { display: flex; flex-direction: column; gap: 12px; }
+.em-help { margin: 0; }
+
+/* Phone: the header stacks, and the page itself does not scroll sideways */
+@media (max-width: 600px) {
+  .em-top { padding: 8px 10px; }
+  .em-tools { margin-left: 0; width: 100%; }
+  .em-msg { padding: 10px; }
+  .em-head { grid-template-columns: minmax(0, 1fr); }
+  .em-head dt { margin-top: 4px; }
+  .em-att { flex-wrap: wrap; }
+}
+
+/* Print: headers and body only, no toolbar, tabs, notices or dialogs. Printing from this page uses these fixed colours. */
+@media print {
+  html, body { height: auto; overflow: visible; background: #fff; color: #000; }
+  .em-top, .em-dropstrip, .em-tabs, .em-bar, .em-notice, .em-warn, .em-atts, .em-empty, .sui-toast, .sui-back { display: none !important; }
+  .em-app, .em-main, .em-msg, .em-body { display: block; height: auto; min-height: 0; overflow: visible; padding: 0; border: 0; }
+  .em-msg { display: block; }
+  .em-head dt, .em-head dd, .em-subject { color: #000; }
+  .em-frame { width: 100%; min-height: 0; height: auto; border: 0; }
+  .em-plain { display: block; min-height: 0; padding: 0; border: 0; background: none; color: #000; overflow: visible; }
+}

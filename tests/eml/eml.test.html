@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slop EML tests</title>
+  <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; display: block; }</style>
+</head>
+<body>
+  <!-- The real app runs in an iframe. The sample message is fetched from fixtures/sample.eml and handed to the app as a File. -->
+  <iframe id="app" src="about:blank"></iframe>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, beforeEach, expect, waitFor, sleep, run } = SlopTest;
+  const f = document.getElementById('app');
+  const W = () => f.contentWindow;
+  const q = (sel) => W().document.querySelector(sel);
+  const qa = (sel) => [...W().document.querySelectorAll(sel)];
+  const A = () => W().EmlApp;
+  /** The text lines a PDF draws: each content stream is inflated, and pdf-lib's hex strings before Tj decode to the
+   *  Latin text they hold (WinAnsi matches ASCII here). */
+  async function drawnLines(bytes) {
+    const latin = new TextDecoder('windows-1252').decode(bytes);
+    const out = [];
+    let i = 0;
+    while ((i = latin.indexOf('stream', i)) >= 0) {
+      if (latin.slice(i - 3, i) === 'end') { i += 6; continue; }
+      let start = i + 6;
+      if (latin[start] === '\r') start++;
+      if (latin[start] === '\n') start++;
+      let end = latin.indexOf('endstream', start);
+      if (end < 0) break;
+      i = end + 9;
+      if (latin[end - 1] === '\n') end--;
+      if (latin[end - 1] === '\r') end--;
+      try {
+        const ds = new DecompressionStream('deflate');
+        const writer = ds.writable.getWriter();
+        writer.write(new Uint8Array(bytes.slice(start, end))).catch(() => {});
+        writer.close().catch(() => {});
+        const txt = new TextDecoder().decode(await new Response(ds.readable).arrayBuffer());
+        for (const m of txt.matchAll(/<([0-9A-Fa-f]+)>\s*Tj/g)) {
+          out.push(m[1].match(/../g).map((h) => String.fromCharCode(parseInt(h, 16))).join(''));
+        }
+      } catch (e) { /* not a Flate stream */ }
+    }
+    return out;
+  }
+  const SRC = '../../eml/index.html';
+
+  /** Loads the app fresh (about:blank first, so a reload never reads the old page's ready flag). */
+  async function open(src = SRC) {
+    f.src = 'about:blank';
+    await waitFor(() => f.contentWindow && f.contentWindow.location.href === 'about:blank', { timeout: 5000 });
+    f.src = src;
+    const want = new URL(src, location.href).pathname;
+    await waitFor(() => { const w = f.contentWindow; return w && w.location.pathname === want && w.document.readyState === 'complete' && w.document.body && w.document.body.classList.contains('ready'); }, { timeout: 20000 });
+  }
+  /** The sample message as a File, the way a picker or a drop gives it. */
+  async function sampleFile() {
+    const bytes = await (await fetch('fixtures/sample.eml')).arrayBuffer();
+    return new File([bytes], 'sample.eml', { type: 'message/rfc822' });
+  }
+  async function openSample() { return A().openFile(await sampleFile()); }
+
+  describe('Slop EML: opening and reading a message', () => {
+    beforeEach(async () => { await open(); });
+
+    it('opens the sample file and shows its headers, decoded', async () => {
+      const doc = await openSample();
+      expect(doc.summary.from).toBe('Ann Example <ann@example.com>');
+      expect(doc.summary.subject).toBe('Quarterly report ✓');
+      expect(q('#em-subject').textContent).toBe('Quarterly report ✓');
+      const heads = qa('#em-head dt').map((d) => d.textContent);
+      expect(heads).toEqual(['From', 'To', 'Cc', 'Date']);
+      const to = qa('#em-head dd')[1].textContent;
+      expect(to).toContain('Ben <ben@example.org>');
+      expect(to).toContain('Cy, Jr.');
+    });
+
+    it('shows the HTML body in a sandboxed frame with no scripts and a CSP that blocks the network', async () => {
+      await openSample();
+      const frame = q('#em-body iframe');
+      expect(frame).toBeTruthy();
+      const sandbox = frame.getAttribute('sandbox') || '';
+      expect(sandbox).not.toContain('allow-scripts');
+      expect(sandbox).not.toContain('allow-same-origin');
+      const src = frame.srcdoc;
+      expect(src).toContain('http-equiv="Content-Security-Policy"');
+      expect(src).toContain("default-src 'none'");
+      expect(src).toContain('img-src data: blob:');
+      expect(/<script/i.test(src)).toBeFalsy();
+    });
+
+    it('blocks remote images and says so, and the remote image does not load', async () => {
+      await openSample();
+      expect(q('#em-notice').hidden).toBeFalsy();
+      expect(q('#em-notice-t').textContent).toContain('Remote images are blocked');
+      expect(q('#em-body iframe').srcdoc).toContain('https://tracker.example.com/pixel.gif');
+    });
+
+    it('shows cid: images only when asked, from the message attachment', async () => {
+      await openSample();
+      const btn = q('#em-cid');
+      expect(btn.hidden).toBeFalsy();
+      expect(q('#em-body iframe').srcdoc).toContain('src="cid:logo@example.com"');
+      btn.click();
+      expect(q('#em-body iframe').srcdoc).toContain('data:image/png;base64,iVBORw0K');
+      expect(q('#em-body iframe').srcdoc).not.toContain('cid:logo@example.com');
+      q('#em-cid').click();
+      expect(q('#em-body iframe').srcdoc).toContain('cid:logo@example.com');
+    });
+
+    it('switches to plain text, shown escaped with the links as text', async () => {
+      await openSample();
+      expect(q('#em-views').hidden).toBeFalsy();
+      q('#em-v-text').click();
+      expect(q('#em-body iframe')).toBe(null);
+      const pre = q('#em-body pre.em-plain');
+      expect(pre.textContent).toContain('Hello Ben,');
+      expect(pre.textContent).toContain('https://example.com/report');
+      expect(q('#em-body a')).toBe(null);
+      q('#em-v-html').click();
+      expect(q('#em-body iframe')).toBeTruthy();
+    });
+
+    it('lists the attachments with decoded names, and saves their decoded bytes', async () => {
+      const doc = await openSample();
+      const names = qa('.em-att-name').map((n) => n.textContent);
+      expect(names).toContain('Q3 report €.pdf');
+      expect(names).toContain('logo.png');
+      const got = A().attachmentBlob(doc, names.indexOf('Q3 report €.pdf'));
+      expect(got.name).toBe('Q3 report €.pdf');
+      const head = new Uint8Array(await got.blob.arrayBuffer()).slice(0, 4);
+      expect(String.fromCharCode(...head)).toBe('%PDF');
+    });
+
+    it('opens several messages in turn, as tabs, and closes one', async () => {
+      const first = await openSample();
+      await openSample();
+      expect(qa('.em-tab').length).toBe(2);
+      A().select(first.id);
+      expect(A().current().id).toBe(first.id);
+      A().close(first.id);
+      expect(qa('.em-tab').length).toBe(1);
+      expect(A().docs().length).toBe(1);
+    });
+
+    it('a file that is not a message still opens, with a warning, and never throws', async () => {
+      const bad = new File([new Uint8Array([0, 255, 13, 10, 13, 10, 45, 45])], 'junk.eml', { type: 'message/rfc822' });
+      const doc = await A().openFile(bad);
+      expect(doc.msg.warnings.length).toBeGreaterThan(0);
+      expect(q('#em-msg').hidden).toBeFalsy();
+    });
+  });
+
+  describe('Slop EML: print and PDF', () => {
+    beforeEach(async () => { await open(); });
+
+    it('makes a PDF whose bytes start with %PDF', async () => {
+      const doc = await openSample();
+      const r = await W().EmlPdf.build(doc);
+      expect(r.bytes.length).toBeGreaterThan(1000);
+      expect(String.fromCharCode(r.bytes[0], r.bytes[1], r.bytes[2], r.bytes[3])).toBe('%PDF');
+      expect(r.pages).toBeGreaterThanOrEqual(1);
+    });
+
+    it('replaces a character the standard font cannot draw with ? and reports it', async () => {
+      const doc = await openSample();
+      const r = await W().EmlPdf.build(doc);
+      expect(r.replaced).toBeGreaterThanOrEqual(1);
+      expect(r.samples).toContain('☺');
+    });
+
+    it('keeps the paragraphs on their own lines, and draws the unknown emoji as ?', async () => {
+      const doc = await openSample();
+      const r = await W().EmlPdf.build(doc);
+      const lines = await drawnLines(r.bytes);
+      expect(lines).toContain('Hello Ben,');
+      expect(lines).toContain('Smile ? (that emoji cannot be drawn in the PDF font).');
+      expect(lines.some((l) => l.includes('Hello Ben,') && l.includes('The report'))).toBeFalsy();
+      expect(lines).toContain('Attachments (2)');
+    });
+
+    it('lists the attachments at the end by default, and can leave them out', async () => {
+      const doc = await openSample();
+      const withList = await W().EmlPdf.build(doc);
+      const without = await W().EmlPdf.build(doc, { attachments: false });
+      expect(withList.bytes.length).toBeGreaterThan(without.bytes.length);
+    });
+
+    it('the convert dialog says what the PDF keeps and what it does not', async () => {
+      await openSample();
+      W().EmlActions.convertPdf();
+      const dlg = q('.sui-dlg');
+      expect(dlg).toBeTruthy();
+      expect(dlg.textContent).toContain('HTML layout and images are not kept in the PDF');
+      expect(dlg.textContent).toContain('use Print to keep them');
+      expect(dlg.textContent).toContain('replaced with "?"');
+      q('.sui-x').click();
+      await sleep(200);
+    });
+
+    it('Print opens a print window with the headers and the body, and no toolbar', async () => {
+      await openSample();
+      const real = W().open;
+      let html = '', printed = false;
+      W().open = () => ({ document: { open() {}, write(h) { html = h; }, close() {} }, focus() {}, print() { printed = true; } });
+      try {
+        W().EmlActions.print();
+        await waitFor(() => printed, { timeout: 3000 });
+      } finally { W().open = real; }
+      expect(html).toContain('<header class="em-ph">');
+      expect(html).toContain('Quarterly report');
+      expect(html).toContain('Content-Security-Policy');
+      expect(html.includes('em-toolbar') || html.includes('em-top')).toBeFalsy();
+      expect(/<script/i.test(html)).toBeFalsy();
+    });
+  });
+
+  describe('Slop EML: the page at phone width', () => {
+    beforeEach(async () => { await open(); });
+
+    it('the page does not scroll sideways at 390 px', async () => {
+      await openSample();
+      f.style.width = '390px';
+      try {
+        await sleep(150);
+        const doc = W().document;
+        expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+        expect(q('.em-top').getBoundingClientRect().height).toBeGreaterThan(40);
+      } finally { f.style.width = '1280px'; }
+    });
+  });
+
+  run({ name: 'Slop EML tests' });
+  </script>
+</body>
+</html>
