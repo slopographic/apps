@@ -1,5 +1,5 @@
 /* Slopographic UI: routing, the live counter and the
- * Authenticator. The home film lives in scenes.js; text engine in slop.js.
+ * Authenticator. The home film lives in scenes.js; text engine in slop/.
  */
 (() => {
   'use strict';

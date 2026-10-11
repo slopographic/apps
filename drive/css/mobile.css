@@ -24,7 +24,7 @@
   .brand { display: none; }
   .topbar { gap: 6px; padding: 0 8px; padding-top: env(safe-area-inset-top); }
   .search { height: 36px; }
-  .btn.primary { width: 38px; padding: 0; justify-content: center; }
+  #btnNew { width: 38px; padding: 0; justify-content: center; }
   .side { position: fixed; z-index: 800; left: 0; top: 0; bottom: 0; width: min(300px, 84vw); transform: translateX(-102%); transition: transform .2s ease; box-shadow: var(--shadow); padding-top: env(safe-area-inset-top); }
   body.drawer-open .side { transform: none; }
   .scrim { position: fixed; inset: 0; z-index: 700; background: rgba(0, 0, 0, .45); }
