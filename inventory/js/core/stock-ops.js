@@ -5,7 +5,7 @@
   'use strict';
   const S = g.SlopData;
   const NS = (g.SlopInv = g.SlopInv || {});
-  const { ok, fail } = S.result;
+  const { fail } = S.result;
   const whole = (n) => Number.isSafeInteger(n) && n > 0;
 
   /** Receipt: adds stock at a location. */
