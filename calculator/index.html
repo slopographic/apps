@@ -85,6 +85,12 @@
   <script src="../shared/data/store.js"></script>
   <script src="../shared/data/numbering.js"></script>
   <script src="../shared/data/fx.js"></script>
+  <script src="../shared/data/ledger.js"></script>
+  <script src="../shared/data/stock.js"></script>
+  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/calendar/tz.js"></script>
+  <script src="../shared/calendar/rrule.js"></script>
+  <script src="../shared/calendar/store.js"></script>
   <script src="js/lexer.js"></script>
   <script src="js/units.js"></script>
   <script src="js/dates.js"></script>
@@ -95,6 +101,7 @@
   <script src="js/keep.js"></script>
   <script src="js/rates.js"></script>
   <script src="js/panels.js"></script>
+  <script src="js/calendar.js"></script>
   <script src="js/app.js"></script>
   <script src="js/commands.js"></script>
 </head>
@@ -134,6 +141,7 @@
         <div class="sc-actions">
           <button type="button" class="sc-btn" id="sc-copy">Copy result</button>
           <button type="button" class="sc-btn" id="sc-save">Save to Slop Drive</button>
+          <button type="button" class="sc-btn" id="sc-cal" hidden>Add to Calendar</button>
           <button type="button" class="sc-btn" id="sc-clear">Clear</button>
         </div>
         <p class="sc-help" id="sc-help">Enter calculates. Up and Down bring back earlier lines. Esc clears.

@@ -50,6 +50,7 @@
     showPreview(r);
     if (!r.ok) { setStatus('Not calculated: ' + r.error.message); return; }
     S.last = { expr: src, value: r.value, text: r.text };
+    el.cal.hidden = !SlopCalcCalendar.formFor(S.last);
     S.ans = r.value;
     S.tape.push({ expr: src, text: r.text });
     if (S.tape.length > TAPE_MAX) S.tape.splice(0, S.tape.length - TAPE_MAX);
@@ -134,13 +135,22 @@
     } catch (e) { setStatus('Not saved: ' + (e && e.message ? e.message : 'Slop Drive refused the file')); }
   }
 
+  /** Adds the last calculation to the Calendar, when its result is a date. */
+  async function addToCalendar() {
+    if (!S.last) { setStatus('Calculate something first'); return; }
+    const r = await SlopCalcCalendar.add(S.last);
+    setStatus(r.message);
+    if (r.ok) toast(r.message);
+  }
+
   function boot() {
-    el = { expr: $('sc-expr'), preview: $('sc-preview'), status: $('sc-status'), tape: $('sc-tape'), tapeClear: $('sc-tape-clear') };
+    el = { expr: $('sc-expr'), preview: $('sc-preview'), status: $('sc-status'), tape: $('sc-tape'), tapeClear: $('sc-tape-clear'), cal: $('sc-cal') };
     el.expr.addEventListener('input', () => { S.recall = -1; schedulePreview(); });
     el.expr.addEventListener('keydown', onKey);
     $('sc-enter').addEventListener('click', commit);
     $('sc-copy').addEventListener('click', copyResult);
     $('sc-save').addEventListener('click', saveDrive);
+    el.cal.addEventListener('click', addToCalendar);
     $('sc-clear').addEventListener('click', clearInput);
     el.tapeClear.addEventListener('click', clearTape);
     document.querySelectorAll('[data-ins]').forEach((b) => b.addEventListener('click', () => insert(b.dataset.ins)));
