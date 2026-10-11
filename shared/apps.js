@@ -28,6 +28,10 @@
       accepts: ['image/*'],
       features: ['One-click AI background removal', 'Refine brush & soft edges', 'Replace with colour, blur or image', 'Batch, no uploads, no watermarks'],
       shot: 'assets/shots/cutout.jpg', icon: 'brush', status: 'building' }),
+    A('ai', 'app', 'Slop AI', 'ai/', 'Chat with an AI that runs on your own computer.', {
+      accepts: ['text/*', 'image/*'],
+      features: ['Local models via WebGPU, works offline', 'System check: what can your PC run?', 'Drives every Slopographic app', 'Builds mini-apps for you'],
+      shot: 'assets/shots/ai.jpg', icon: 'spark', status: 'building' }),
     A('press', 'app', 'Slop Press', 'press/', 'InDesign, rebuilt for the browser.', {
       accepts: ['image/*', 'application/pdf', 'text/plain'],
       features: ['Master pages & threaded text frames', 'Paragraph & character styles', 'Print-ready PDF export', 'Offline .html'],
