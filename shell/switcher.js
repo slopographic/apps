@@ -8,6 +8,13 @@
   let back = null, input = null, listEl = null, items = [], active = 0, returnTo = null, isOpen = false;
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const hue = (s) => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
+  /** The text for a key in the chosen language (SlopI18n), else the English given. {name} vars are filled. */
+  const tr = (key, en, vars) => {
+    const I = window.SlopI18n;
+    const s = I ? I.t(key, vars) : '';
+    if (s && s !== key) return s;
+    return vars ? en.replace(/\{(\w+)\}/g, (m, n) => (n in vars ? String(vars[n]) : m)) : en;
+  };
 
   /** Sections for the current query. Each item: { kind: 'app', app } or { kind: 'tab', tab }. */
   function sections(q) {
@@ -16,19 +23,19 @@
     if (query) {
       const hits = all.filter((a) => (a.name + ' ' + a.id + ' ' + (a.tagline || '')).toLowerCase().includes(query))
         .sort((a, b) => Number(!a.name.toLowerCase().startsWith(query)) - Number(!b.name.toLowerCase().startsWith(query)));
-      return [{ title: hits.length ? 'Apps' : '', items: hits.map((app) => ({ kind: 'app', app })) }];
+      return [{ title: hits.length ? tr('nav.apps', 'Apps') : '', items: hits.map((app) => ({ kind: 'app', app })) }];
     }
     const cur = S.currentApp && S.currentApp.id;
     const recent = S.recent().filter((id) => id !== cur).map((id) => all.find((a) => a.id === id)).filter(Boolean).slice(0, 5);
     const tabs = window.SlopTabs ? window.SlopTabs.list() : [];
     return [
-      { title: 'Recent', items: recent.map((app) => ({ kind: 'app', app })) },
-      { title: 'Open tabs', items: tabs.map((tab) => ({ kind: 'tab', tab })) },
-      { title: 'All apps', items: all.map((app) => ({ kind: 'app', app })) },
+      { title: tr('switcher.recent', 'Recent'), items: recent.map((app) => ({ kind: 'app', app })) },
+      { title: tr('switcher.open_tabs', 'Open tabs'), items: tabs.map((tab) => ({ kind: 'tab', tab })) },
+      { title: tr('switcher.all_apps', 'All apps'), items: all.map((app) => ({ kind: 'app', app })) },
     ].filter((s) => s.items.length);
   }
   function label(it) {
-    if (it.kind === 'tab') return { name: it.tab.name || 'Open tab', sub: 'Open in another window', letter: (it.tab.name || '?')[0], key: 'tab:' + it.tab.tab };
+    if (it.kind === 'tab') return { name: it.tab.name || tr('switcher.tab_name', 'Open tab'), sub: tr('switcher.tab_sub', 'Open in another window'), letter: (it.tab.name || '?')[0], key: 'tab:' + it.tab.tab };
     return { name: it.app.name, sub: it.app.tagline || '', letter: it.app.name[0], key: 'app:' + it.app.id, status: it.app.status };
   }
 
@@ -54,7 +61,7 @@
         items.push(it);
       }
     }
-    if (!items.length) { const p = document.createElement('p'); p.className = 'sh-empty'; p.textContent = `No app matches “${q.trim()}”.`; listEl.append(p); }
+    if (!items.length) { const p = document.createElement('p'); p.className = 'sh-empty'; p.textContent = tr('switcher.no_match', 'No app matches “{query}”.', { query: q.trim() }); listEl.append(p); }
     active = 0;
     setActive(0, false);
   }
@@ -77,14 +84,15 @@
     back = document.createElement('div');
     back.className = 'sh-back';
     back.hidden = true;
-    back.innerHTML = `<div class="sh-sw" role="dialog" aria-modal="true" aria-label="Switch app">
-      <div class="sh-sw-head"><label class="sh-sr" for="sh-q">Search apps</label>
-        <input id="sh-q" class="sh-q" type="search" placeholder="Search apps" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="sh-list" aria-autocomplete="list">
-        <kbd class="sh-kbd">Esc</kbd></div>
-      <div class="sh-list" id="sh-list" role="listbox" aria-label="Apps"></div>
-      <div class="sh-sw-foot"><span class="sh-hint">Enter to open · ↑ ↓ to move</span><button type="button" class="sh-all">All apps</button></div>
+    back.innerHTML = `<div class="sh-sw" role="dialog" aria-modal="true" aria-label="Switch app" data-i18n-attr="aria-label:shell.switch_app">
+      <div class="sh-sw-head"><label class="sh-sr" for="sh-q" data-i18n="switcher.search">Search apps</label>
+        <input id="sh-q" class="sh-q" type="search" placeholder="Search apps" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="sh-list" aria-autocomplete="list" data-i18n-attr="placeholder:switcher.search">
+        <kbd class="sh-kbd" data-i18n="switcher.esc">Esc</kbd></div>
+      <div class="sh-list" id="sh-list" role="listbox" aria-label="Apps" data-i18n-attr="aria-label:nav.apps"></div>
+      <div class="sh-sw-foot"><span class="sh-hint" data-i18n="switcher.hint">Enter to open · ↑ ↓ to move</span><button type="button" class="sh-all" data-i18n="switcher.all_apps">All apps</button></div>
     </div>`;
     document.body.append(back);
+    if (window.SlopI18n) window.SlopI18n.apply(); // the static labels, in the chosen language
     input = back.querySelector('#sh-q');
     listEl = back.querySelector('#sh-list');
     input.addEventListener('input', render);

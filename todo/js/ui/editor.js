@@ -44,7 +44,7 @@
       if (!r.ok) UI.toast(r.message); else { subInput.value = ''; subs.append(subRow(r.value)); }
     } }, 'Add');
     const body = el('form', { class: 'task-form', id: 'tForm', onsubmit: (e) => e.preventDefault() },
-      field('tTitle', 'Title', inp('tTitle', 'text', f.title, 'Title', { maxlength: 200, required: true, autofocus: true })),
+      field('teTitle', 'Title', inp('teTitle', 'text', f.title, 'Title', { maxlength: 200, required: true, autofocus: true })),
       field('tNotes', 'Notes', el('textarea', { id: 'tNotes', rows: 3, maxlength: 5000, 'aria-label': 'Notes' }, f.notes || '')),
       el('div', { class: 'ev-row' },
         field('tDue', 'Due date', inp('tDue', 'date', f.due, 'Due date')),
@@ -52,7 +52,7 @@
       field('tTz', 'Zone of the due time', sel('tTz', zones(f.tz).map((z) => ({ v: z, label: z })), f.tz, 'Zone of the due time')),
       el('div', { class: 'ev-row' },
         field('tPriority', 'Priority', sel('tPriority', [{ v: 'none', label: 'None' }, { v: 'low', label: 'Low' }, { v: 'high', label: 'High' }], f.priority, 'Priority')),
-        field('tList', 'List', el('span', null, inp('tList', 'text', f.list, 'List', { list: 'tListNames', maxlength: 40 }),
+        field('teList', 'List', el('span', null, inp('teList', 'text', f.list, 'List', { list: 'tListNames', maxlength: 40 }),
           el('datalist', { id: 'tListNames' }, lists.map((n) => el('option', { value: n })))))),
       field('tTags', 'Tags, separated by commas', inp('tTags', 'text', f.tags, 'Tags', { maxlength: 400 })),
       el('div', { class: 'ev-row' },
@@ -66,8 +66,8 @@
         el('div', { class: 'inline' }, subInput, subAdd)) : el('p', { class: 'note' }, 'Save the task first to add subtasks.'));
     const read = () => {
       const v = (id) => body.querySelector(`#${id}`).value;
-      return { title: v('tTitle'), notes: v('tNotes'), due: v('tDue'), dueTime: v('tTime'), tz: v('tTz'), priority: v('tPriority'),
-        list: v('tList'), tags: v('tTags'), freq: v('tRepeat'), until: v('tUntil'), remind: v('tRemind'), customerId: v('tCustomer'),
+      return { title: v('teTitle'), notes: v('tNotes'), due: v('tDue'), dueTime: v('tTime'), tz: v('tTz'), priority: v('tPriority'),
+        list: v('teList'), tags: v('tTags'), freq: v('tRepeat'), until: v('tUntil'), remind: v('tRemind'), customerId: v('tCustomer'),
         parentId: f.parentId };
     };
     const save = async () => {

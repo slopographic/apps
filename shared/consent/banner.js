@@ -1,6 +1,7 @@
 /* The consent strip: a slim bar along the bottom edge, not a modal. Shown only when storage works and there is no choice
  * for the current policy version. Accept or Reject saves the choice; × rejects the optional extras and closes.
- * Detailed switches live on the Settings page. Classic script, exposes window.SlopBanner.
+ * Detailed switches live on the Settings page. Classic script, exposes window.SlopBanner. Its text is marked for
+ * SlopI18n (data-i18n on the text, data-i18n-attr on the labels), so the language applies to it.
  * Needs config.js, state.js and consent-mode.js loaded first. Plain DOM, native buttons (keyboard works). */
 (function () {
   'use strict';
@@ -14,9 +15,17 @@
     (kids || []).forEach(function (k) { el.append(typeof k === 'string' ? document.createTextNode(k) : k); });
     return el;
   }
-  function button(label, act, cls, aria) {
-    var b = text('button', { type: 'button', class: 'slopc-btn' + (cls ? ' ' + cls : ''), 'data-act': act }, [label]);
-    if (aria) b.setAttribute('aria-label', aria);
+  /** The English text, or the chosen language's text for the key when SlopI18n is on the page. */
+  function tr(key, en) {
+    var I = window.SlopI18n;
+    var s = I ? I.t(key) : en;
+    return s === key ? en : s;
+  }
+  function button(key, en, act, cls, aria) {
+    var attrs = { type: 'button', class: 'slopc-btn' + (cls ? ' ' + cls : ''), 'data-act': act };
+    if (key) attrs['data-i18n'] = key;
+    var b = text('button', attrs, [key ? tr(key, en) : en]);
+    if (aria) { b.setAttribute('aria-label', tr(aria[0], aria[1])); b.setAttribute('data-i18n-attr', 'aria-label:' + aria[0]); }
     return b;
   }
   function injectCss() {
@@ -33,15 +42,16 @@
     remove(); // a choice (or a refused save) ends the strip: nothing asks again on this page
   }
   function build() {
-    var root = text('div', { id: ID, class: 'slopc-banner', role: 'region', 'aria-label': 'Privacy choice' }, [
+    var root = text('div', { id: ID, class: 'slopc-banner', role: 'region', 'aria-label': tr('consent.region', 'Privacy choice'), 'data-i18n-attr': 'aria-label:consent.region' }, [
       text('p', { class: 'slopc-text' }, [
-        'Analytics and ads are off. Turn them on? You can change this any time in ',
-        text('a', { href: S.base + 'settings/' }, ['Settings']), '.'
+        text('span', { 'data-i18n': 'consent.text' }, [tr('consent.text', 'Analytics and ads are off. Turn them on? You can change this any time in')]),
+        ' ',
+        text('a', { href: S.base + 'settings/', 'data-i18n': 'nav.settings' }, [tr('nav.settings', 'Settings')]), '.'
       ]),
       text('div', { class: 'slopc-actions' }, [
-        button('Reject', 'reject'),
-        button('Accept', 'accept', 'primary'),
-        button('×', 'close', 'x', 'Reject optional and close')
+        button('consent.reject', 'Reject', 'reject'),
+        button('consent.accept', 'Accept', 'accept', 'primary'),
+        button(null, '×', 'close', 'x', ['consent.close_aria', 'Reject optional and close'])
       ])
     ]);
     root.addEventListener('click', function (e) {

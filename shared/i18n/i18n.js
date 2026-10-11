@@ -11,6 +11,7 @@
   'use strict';
   var LANGS = Object.freeze([
     Object.freeze({ code: 'en', name: 'English', dir: 'ltr', complete: true }),
+    Object.freeze({ code: 'es', name: 'Español', dir: 'ltr', complete: true }),
   ]);
   var DEFAULT = 'en';
   var KEY_RE = /\{(\w+)\}/g;
