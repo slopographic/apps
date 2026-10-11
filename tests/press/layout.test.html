@@ -44,7 +44,7 @@
     });
     it('Knuth–Plass finds breaks with lower total badness than greedy', () => {
       const text = 'aaa bb cc ddddd aaa bb cc ddddd aaa bb cc ddddd aaa bb cc ddddd aaa bb cc ddddd';
-      const W = 130, kp = B.kp(B.elements(fixedGlyphs(text), {}), () => W, 3);
+      const W = 130, kp = B.kp(B.elements(fixedGlyphs(text), {}), () => W, 10);
       expect(Array.isArray(kp)).toBe(true);
       const sq = (breaks, El) => { let i = 0, sum = 0; breaks.forEach((b, n) => { const ln = B.line(El, i, b); if (n < breaks.length - 1) sum += Math.pow(W - ln.nat, 2); i = B.after(El, b); }); return sum; };
       const Ek = B.elements(fixedGlyphs(text), {});
