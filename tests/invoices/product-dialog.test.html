@@ -59,7 +59,7 @@
       fillDialog(W, { sku, name: 'Desk lamp', price: '12.50', tax: '20' });
       clickButton(W, 'Add product');
       await waitFor(() => !dialogOf(W), { timeout: 5000 });
-      await waitFor(() => productSelect(W).value && productSelect(W).selectedOptions[0].textContent.includes(sku), { timeout: 5000 });
+      await waitFor(() => { const sel = productSelect(W); return sel && sel.value && sel.selectedOptions[0].textContent.includes(sku); }, { timeout: 5000 });
       expect(productSelect(W).selectedOptions[0].textContent).toContain('Desk lamp');
       expect(field(W, 'description').value).toBe('Desk lamp');
       expect(field(W, 'unitPrice').value).toBe('12.50');
