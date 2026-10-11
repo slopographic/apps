@@ -131,9 +131,26 @@
 
   async function forget() { await hs().del(KEY); }
 
+  // 'none' (no folder chosen), or the browser's answer for read and write: 'granted', 'prompt' or 'denied'.
+  // Never asks the person, so it is safe to call on every render.
+  async function permission() {
+    const h = await hs().get(KEY).catch(() => null);
+    if (!h) return 'none';
+    if (!h.queryPermission) return 'granted';
+    return h.queryPermission({ mode: 'readwrite' }).catch(() => 'prompt');
+  }
+
+  // Asks the browser for read and write access to the chosen folder. Needs a button press (user activation).
+  async function allow() {
+    const h = await hs().get(KEY).catch(() => null);
+    if (!h) return 'none';
+    if (!h.requestPermission) return 'granted';
+    return h.requestPermission({ mode: 'readwrite' }).catch(() => 'denied');
+  }
+
   window.SlopSyncProviders = window.SlopSyncProviders || {};
   window.SlopSyncProviders.local = {
-    label: 'Local or network folder', upload, download, list, pick, chosen, forget, supported,
+    label: 'Local or network folder', upload, download, list, pick, chosen, forget, supported, permission, allow,
     setHandleStore(s) { store = s; }
   };
 })();

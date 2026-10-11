@@ -84,6 +84,7 @@
     const theme = document.documentElement.getAttribute('data-theme');
     window.SlopUI.menu([
       { label: 'Backup & restore…', act: () => DR.backupDialog() },
+      ...DR.folderMenuRows(),
       { label: 'Find duplicates…', act: () => DR.dupesDialog() },
       '-',
       { label: 'View', sub: DR.VIEWS.map(([v, l, k]) => ({ label: l, key: k, check: S.view === v, act: () => DR.setView(v) })) },
