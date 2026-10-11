@@ -42,12 +42,11 @@
     view._full = out;
   }
   async function segment() {
-    $('run') && ($('run').disabled = true);
     $('msg').textContent = 'Finding the person…';
     try {
       const r = await window.SlopCutout.removeBackground(picture.file, { model: 'portrait', keep: false, onProgress: (p) => { if (p && p.phase) $('msg').textContent = p.phase === 'model' ? 'Loading the portrait model…' : p.phase === 'infer' ? 'Finding the person…' : 'Working…'; } });
       mask = r.mask; maskW = r.width; maskH = r.height;
-      $('strength').disabled = false; $('dl').disabled = false; $('cutout').disabled = false;
+      $('strength').disabled = false; $('dl').disabled = false;
       $('msg').textContent = 'Drag the strength to set how far the background blurs.';
       render();
     } catch (e) { $('msg').textContent = 'Could not blur the background: ' + e.message; }
@@ -68,9 +67,5 @@
   $('drop').addEventListener('drop', (e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); });
   $('strength').addEventListener('input', render);
   $('dl').addEventListener('click', () => { const v = $('view')._full; if (v) v.toBlob((b) => T.download(fileName + '-blur.png', b, 'image/png')); });
-  $('cutout').addEventListener('click', () => {
-    const app = window.SlopHub && window.SlopHub.appById('cutout');
-    if (app) window.open(app.path, '_blank');
-  });
-  T.gate('portrait', () => { $('ui').hidden = true; });
+  T.gate('portrait', () => { $('ui').hidden = false; });
 })();
