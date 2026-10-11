@@ -130,7 +130,7 @@
     const el = SE.app.els.tlCanvas;
     if (e.button === 1) { // middle button: pan only (no selection, no clip move, no middle-click autoscroll)
       e.preventDefault();
-      el.setPointerCapture(e.pointerId);
+      try { el.setPointerCapture(e.pointerId); } catch (err) { /* not an active pointer (synthetic): the drag still works */ }
       pointers.set(e.pointerId, local(e));
       startPan(e, local(e));
       return;
