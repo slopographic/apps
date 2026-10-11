@@ -6,7 +6,7 @@
 (function (g) {
   'use strict';
   const C = (g.SlopConfig = g.SlopConfig || {});
-  const { FORMAT, VERSION, SHARED, SHARED_APP, LIMITS, ENVELOPE_KEYS, KIND_RX } = C.consts;
+  const { FORMAT, VERSION, SHARED, SHARED_APP, LIMITS, ENVELOPE_KEYS, KIND_RX, APP_RX } = C.consts;
   const CODE_RX = /<\s*\/?\s*(script|iframe|object|embed|style|link|meta|svg|math)\b|javascript:|vbscript:|data:text\/html|<[^>]*\son[a-z]+\s*=/i;
   const LOCALE_RX = /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/;
   const CURRENCY_RX = /^[A-Z]{3}$/;
@@ -106,7 +106,7 @@
       err('created', 'must be a date and time such as 2026-10-11T09:00:00Z');
     }
     const kindOk = typeof obj.kind === 'string' && KIND_RX.test(obj.kind);
-    const appOk = typeof obj.app === 'string' && KIND_RX.test(obj.app);
+    const appOk = typeof obj.app === 'string' && APP_RX.test(obj.app);
     if (!kindOk) err('kind', 'must be a short lowercase name such as "template" or "settings"');
     if (!appOk) err('app', 'must be an app id such as "tables", or "slop" for shared kinds');
     if (appOk && Array.isArray(g.SLOP_APPS) && obj.app !== SHARED_APP && !g.SLOP_APPS.some((a) => a && a.id === obj.app)) {

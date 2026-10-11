@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="resize" data-src="shared/theme/theme.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Resize — Slopographic</title>
+  <meta name="description" content="Slop Resize: resize pictures and videos to a size, a percentage, a long edge or a file size limit, in your browser. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="canonical" href="https://slopographic.com/resize/">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/resize.css">
+</head>
+<body>
+  <header class="rs-top">
+    <div class="rs-brand"><span class="rs-logo" aria-hidden="true"></span><h1>Slop Resize</h1><span class="rs-tag">Resize pictures and videos. Nothing uploaded.</span></div>
+    <div class="rs-tools" role="toolbar" aria-label="Queue">
+      <button type="button" class="sui-btn" id="rs-open">Open…</button>
+      <button type="button" class="sui-btn" id="rs-drive">From Slop Drive…</button>
+      <button type="button" class="sui-btn sui-primary" id="rs-run" disabled title="Resize every file in the list (Ctrl+Enter)">Resize all</button>
+      <button type="button" class="sui-btn" id="rs-cancel" disabled title="Stop after the current file (Esc)">Cancel</button>
+      <button type="button" class="sui-btn" id="rs-zip" disabled title="One zip of every result (Ctrl+S)">Download all (zip)</button>
+      <button type="button" class="sui-btn" id="rs-save-all" disabled title="Save the results to the Slop Resize folder in Slop Drive">Save to Slop Drive</button>
+      <button type="button" class="sui-btn" id="rs-clear" disabled>Clear</button>
+    </div>
+  </header>
+  <div class="rs-stat" id="rs-stat" aria-live="polite"></div>
+  <div class="rs-warning" id="rs-video-warning" role="note" hidden></div>
+  <main class="rs-main">
+    <section class="rs-left" aria-label="Files">
+      <section class="rs-empty" id="rs-empty" aria-label="Open files">
+        <div class="rs-drop-card">
+          <h2>Drop pictures or videos here</h2>
+          <p>JPEG, PNG, WebP, AVIF and GIF pictures, and MP4, WebM or MOV video. Many at once. Each file is read and resized in this browser and never uploaded.</p>
+          <p class="rs-fine">Originals are never changed. Results are copies: download them, or save them to the Slop Resize folder in Slop Drive. Keys: Ctrl+O open, Ctrl+Enter resize, Esc cancel, Ctrl+S zip.</p>
+          <button type="button" class="sui-btn sui-primary" id="rs-open-empty">Open…</button>
+        </div>
+      </section>
+      <div id="rs-queue-wrap" hidden>
+        <ol class="rs-list" id="rs-list" aria-label="Queue"></ol>
+      </div>
+    </section>
+
+    <aside class="rs-panel" id="rs-panel" aria-label="Resize settings">
+      <h2 class="rs-h">Size</h2>
+      <label class="rs-field">Target
+        <select id="rs-preset"></select>
+      </label>
+      <label class="rs-field">Resize by
+        <select id="rs-mode">
+          <option value="size">Width and height</option>
+          <option value="scale">Percentage</option>
+          <option value="long">Long edge</option>
+          <option value="bytes">Maximum file size (pictures)</option>
+        </select>
+      </label>
+      <div class="rs-pair" data-modes="size bytes">
+        <label class="rs-field">Width (px)<input type="number" id="rs-w" min="0" max="16384" step="1" inputmode="numeric"></label>
+        <label class="rs-field">Height (px)<input type="number" id="rs-h" min="0" max="16384" step="1" inputmode="numeric"></label>
+      </div>
+      <p class="rs-fine" data-modes="size bytes">A side left at 0 follows the picture.</p>
+      <label class="rs-check" data-modes="size bytes"><input type="checkbox" id="rs-keep" checked> Keep aspect ratio</label>
+      <label class="rs-field" data-modes="size bytes">Fill
+        <select id="rs-fill">
+          <option value="fit">Fit (letterbox)</option>
+          <option value="cover">Cover (crop)</option>
+          <option value="stretch">Stretch</option>
+          <option value="within">Fit inside (no padding)</option>
+        </select>
+      </label>
+      <label class="rs-field" data-modes="size bytes">Keep the middle of the picture from
+        <select id="rs-anchor">
+          <option value="center">Centre</option>
+          <option value="top">Top</option>
+          <option value="bottom">Bottom</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="top-left">Top left</option>
+          <option value="top-right">Top right</option>
+          <option value="bottom-left">Bottom left</option>
+          <option value="bottom-right">Bottom right</option>
+        </select>
+      </label>
+      <div class="rs-field rs-colour" data-modes="size bytes">
+        <span>Letterbox colour</span>
+        <span class="rs-inline"><input type="color" id="rs-bg" value="#ffffff" aria-label="Letterbox colour"><label class="rs-check"><input type="checkbox" id="rs-transparent" checked> Transparent</label></span>
+      </div>
+      <label class="rs-field" data-modes="scale">Scale
+        <span class="rs-range"><input type="range" id="rs-scale" min="1" max="400" value="50"><output id="rs-scale-out" for="rs-scale">50%</output></span>
+      </label>
+      <label class="rs-field" data-modes="long">Long edge (px)
+        <input type="number" id="rs-long" min="1" max="16384" step="1" value="1920">
+      </label>
+      <label class="rs-field" data-modes="bytes">Maximum file size (KB)
+        <input type="number" id="rs-kb" min="1" step="1" value="500">
+      </label>
+      <p class="rs-fine" data-modes="bytes">Pictures only. JPEG, WebP and AVIF lower their quality to fit; PNG cannot.</p>
+      <label class="rs-check"><input type="checkbox" id="rs-even" checked> Round to even numbers (video needs them)</label>
+
+      <h2 class="rs-h">Output</h2>
+      <label class="rs-field">Picture format
+        <select id="rs-mime">
+          <option value="image/jpeg">JPEG</option>
+          <option value="image/png">PNG</option>
+          <option value="image/webp">WebP</option>
+          <option value="image/avif">AVIF</option>
+        </select>
+      </label>
+      <label class="rs-field">Picture quality
+        <span class="rs-range"><input type="range" id="rs-quality" min="30" max="100" value="85"><output id="rs-quality-out" for="rs-quality">85%</output></span>
+      </label>
+      <label class="rs-field">Video format
+        <select id="rs-vformat">
+          <option value="mp4">MP4 (H.264)</option>
+          <option value="webm">WebM (VP9 or VP8)</option>
+        </select>
+      </label>
+      <label class="rs-field">Video quality
+        <select id="rs-vquality">
+          <option value="low">Smaller file</option>
+          <option value="medium" selected>Balanced</option>
+          <option value="high">Best quality</option>
+        </select>
+      </label>
+      <label class="rs-field">Frame rate
+        <select id="rs-fps">
+          <option value="24">24</option>
+          <option value="25">25</option>
+          <option value="30" selected>30</option>
+          <option value="50">50</option>
+          <option value="60">60</option>
+        </select>
+      </label>
+      <label class="rs-check"><input type="checkbox" id="rs-audio" checked> Keep the audio track</label>
+      <p class="rs-note" id="rs-engine-note" hidden></p>
+
+      <h2 class="rs-h">Saved settings</h2>
+      <label class="rs-field"><span class="sr-only">Saved settings</span>
+        <select id="rs-saved"></select>
+      </label>
+      <div class="rs-row3">
+        <button type="button" class="sui-btn" id="rs-apply">Apply</button>
+        <button type="button" class="sui-btn" id="rs-save-as">Save as…</button>
+        <button type="button" class="sui-btn" id="rs-delete">Delete</button>
+      </div>
+      <p class="rs-fine">Saved in Slop Drive, in the Slop Resize folder. Without Slop Drive they stay in this browser.</p>
+    </aside>
+  </main>
+
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/guard.js" defer></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="../shared/backup/zip.js"></script>
+  <script src="../vendor/mp4-muxer/mp4-muxer.js"></script>
+  <script src="../vendor/webm-muxer/webm-muxer.js"></script>
+  <script src="js/core/size.js"></script>
+  <script src="js/core/format.js"></script>
+  <script src="js/image/image.js"></script>
+  <script src="js/video/probe.js"></script>
+  <script src="js/video/audio.js"></script>
+  <script src="js/video/encode.js"></script>
+  <script src="js/video/run.js"></script>
+  <script src="js/app/queue.js"></script>
+  <script src="js/app/settings.js"></script>
+  <script src="js/app/drive.js"></script>
+  <script src="js/app/presets.js"></script>
+  <script src="js/app/list.js"></script>
+  <script src="js/app/commands.js"></script>
+  <script src="js/app/main.js"></script>
+  <script src="../shell/shell.js"></script>
+</body>
+</html>

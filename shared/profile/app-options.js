@@ -12,6 +12,7 @@
   g.SLOP_APP_OPTIONS = Object.freeze({
     faces: {
       detect: { label: C.switchLabel, type: 'bool', default: false, help: C.lines.join(' ') },
+      threshold: { label: 'Same person threshold', type: 'number', default: 0.4, min: 0.2, max: 0.8, help: 'How alike two faces must look to be grouped as one person (0.2 is strict, 0.8 is loose). Used when faces are grouped; Regroup in Faces and people applies a new value.' },
     },
   });
   g.SLOP_APP_SHARED = Object.freeze({

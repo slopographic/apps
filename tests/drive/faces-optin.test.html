@@ -9,6 +9,8 @@
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   let W, DR, H, rec, calls = 0;
+  // A fixed embedding per face (no model): the vector depends on the box position only.
+  const fakeEmbed = async (src, f) => { const v = new Array(128).fill(0); v[Math.round(f.x) % 128] = 1; return v; };
   const stub = () => ({ detect: async () => { calls++; return [{ x: 2, y: 2, w: 6, h: 6, score: 0.9 }]; } });
   const dialog = () => W.document.querySelector('.faces-dlg');
   const btn = (label) => [...W.document.querySelectorAll('.faces-dlg .sui-btn')].find((b) => b.textContent === label);
@@ -21,6 +23,7 @@
       W.SlopProfile.reset('faces');
       W.localStorage.removeItem('slop-faces-asked');
       W.SlopFaces.setBackend(stub());
+    W.SlopFaces.setEmbedder(fakeEmbed); // no recogniser model in the test: a fixed vector per face
       expect(W.SlopFaces.enabled()).toBe(false);
       expect(W.SlopFaces.status()).toBe('off');
       rec = await H.get(await H.put(await DT.png('#d4ff3a', 40, 30), { name: 'first.png', from: 'clean' }));

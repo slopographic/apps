@@ -64,6 +64,7 @@
       file ? { label: 'Open with', sub: DR.openInRows(file) } : null,
       ...DR.cleanRows(items),
       items.some(DR.isFaceable) ? { label: 'Find faces', act: () => DR.findFaces(items) } : null,
+      items.some(DR.isFaceable) ? { label: 'Faces and people…', act: () => DR.openFaces() } : null,
       file ? { label: 'Quick look', key: 'Space', act: () => DR.quickLook(file) } : null,
       one && (S.section !== 'folder' || DR.searching()) ? { label: 'Show in folder', act: () => DR.reveal(one) } : null,
       '-',

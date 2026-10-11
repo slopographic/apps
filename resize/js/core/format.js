@@ -29,7 +29,7 @@
     return null;
   };
 
-  F.baseName = (name) => String(name || 'picture').replace(/\.[^./\\]+$/, '') || 'picture';
+  F.baseName = (name) => { const s = String(name || ''), b = s.replace(/\.[^./\\]+$/, ''); return b || s || 'picture'; };
   F.outName = (name, w, h, ext) => `${F.baseName(name)}-${w}x${h}.${ext}`;
 
   F.bytes = function (n) {

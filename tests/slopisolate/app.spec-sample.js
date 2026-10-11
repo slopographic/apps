@@ -20,7 +20,7 @@
       expect(frame.contentDocument.getElementById('app').dataset.mode).toBe('work');
       expect(CO.process.active.mask.some((v) => v > 128)).toBe(true);
       expect(CO.process.active.mask.some((v) => v < 16)).toBe(true);
-    });
+    }, { timeout: 180000 }); // the model run plus the first full-size result can take well over the default 15 s
     it('renders the output with transparent corners and an opaque subject', () => {
       const act = CO.process.active, it = act.item;
       const c = CO.compose.render(it, act), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;

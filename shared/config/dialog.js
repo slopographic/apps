@@ -101,15 +101,17 @@
   }
 
   /** o.example = { kind, value }: a hand-made example for one kind (an app can show its own shape). */
-  /** Drag and drop: a .slop.json file dropped anywhere on the page is checked and imported. The drop is taken only when
-   * it holds such a file; other drops reach the app as usual. Bound once per page, in the capture phase. */
+  /** Drag and drop: a .slop.json file dropped on the page is checked and imported. The drop is taken only when it holds
+   * such a file; other drops reach the app as usual. Bound once per page, in the capture phase. */
   let dropBound = false;
   function bindDrop(o = {}) {
     if (dropBound || !g.addEventListener) return;
     dropBound = true;
     const app = appOf(o);
-    const hasFiles = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
-    // dragover disabled (experiment)
+    if (o.dragover) { // opt-in for apps with no page-wide file drop: lets a config file land on the page
+      const hasFiles = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+      g.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); }, true);
+    }
     g.addEventListener('drop', (e) => {
       const files = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
       const cfg = files.find((f) => /\.slop\.json$/i.test(f.name || ''));

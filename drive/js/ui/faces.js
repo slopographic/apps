@@ -1,7 +1,9 @@
 /* Slop Drive: face detection for pictures (opt-in, off by default; see shared/faces/). "Find faces" runs the detector on
  * the selected pictures and keeps the result in the shared cache, keyed by the file id and its modified time, so an
- * edited picture is detected again. The details panel shows the count, and Quick look draws the boxes. No names, no
- * identity matching. The first use asks first (SlopFaces.askOptIn). Classic script; adds to window.DR. */
+ * edited picture is detected again. The details panel and Quick look show the count as a badge (shared/faces/view.js):
+ * the boxes are drawn for the photo when its badge is opened, or on every photo in the "Boxes on photos" mode. The
+ * Faces and people dialog (shared/faces/panel.js) groups the faces. The first use asks first (SlopFaces.askOptIn).
+ * Classic script; adds to window.DR. */
 'use strict';
 (function (DR) {
   const F = () => window.SlopFaces;
@@ -28,15 +30,33 @@
       found += res.faces.length; last = { r, n: res.faces.length };
     }
     DR.renderInfo(true);
+    if (F().panel && F().panel.isOpen()) F().peopleFor('drive', DR.facesAdapter).refresh();
     if (failed === pics.length) return DR.toast(F().lastError() ? `Faces could not be found: ${F().lastError()}` : 'Faces could not be found in these pictures');
     if (pics.length === 1 && last) return DR.toast(`${DR.faceText(last.n)} in “${last.r.name}”`);
     DR.toast(`${found} ${found === 1 ? 'face' : 'faces'} found in ${pics.length - failed} ${pics.length - failed === 1 ? 'picture' : 'pictures'}`);
   };
 
-  /** Quick look: draws the stored boxes over the picture, while the setting is on. */
-  DR.faceOverlayFor = async function (pv, r) {
-    if (!F() || !F().enabled() || !DR.isFaceable(r)) return;
+  /** The face badge and boxes for a picture on screen (Quick look, the details panel): the handle, or null when the
+   * picture has no current result. badgeHost gets the badge (see shared/faces/view.js). */
+  DR.attachFaces = async function (host, r, badgeHost) {
+    if (!F() || !F().view || !DR.isFaceable(r)) return null;
     const row = await DR.facesOf(r);
-    if (row && row.faces.length) F().drawBoxes(pv, row.faces);
+    if (!row) return null;
+    return F().view.attachPhoto(host, { scope: 'drive', id: r.id, faces: row.faces, badgeHost });
+  };
+
+  /** What the Faces and people dialog needs from Drive: the picture's stamp, its blob, its name, and how to open it. */
+  DR.facesAdapter = {
+    scope: 'drive', title: 'Faces and people',
+    stampOf: (id) => { const r = DR.S.files.get(id); return r && DR.isFaceable(r) ? DR.faceStamp(r) : null; },
+    blobOf: async (id) => { const r = DR.S.files.get(id); return (r && r.blob) || null; },
+    nameOf: (id) => ((DR.S.files.get(id) || {}).name || ''),
+    openPhoto: (id) => { const r = DR.S.files.get(id); if (!r) return; F().panel.close(); DR.quickLook(r); },
+  };
+  /** Opens the Faces and people dialog, with the groups loaded from the store. */
+  DR.openFaces = function () {
+    if (!F() || !F().panel) return DR.toast('Face detection is not available here');
+    const d = F().panel.open(DR.facesAdapter);
+    if (d) F().peopleFor('drive', DR.facesAdapter).load();
   };
 })(window.DR);

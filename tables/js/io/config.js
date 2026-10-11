@@ -55,5 +55,5 @@ if (C && D) {
     label: 'Workbook', description: 'Sheets and their cell contents; a formula is written as text starting with =',
     read: () => pagesOf(S.wb),
   });
-  D.install({ app: APP });
+  D.install({ app: APP, dragover: true });
 }

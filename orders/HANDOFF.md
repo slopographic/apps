@@ -17,8 +17,10 @@ backups. Money is integer minor units; the line maths is `SlopDocs.model` and `S
 - `js/ui/editor.js`: one order: customer, date, notes, lines, totals, the actions for its status.
 - `js/ui/app.js`, `commands.js`, `data.js`: boot and routes (`#list`, `#new`, `#o/<id>`, `#data`), SlopCmd commands,
   backup and restore.
+- `js/core/samples.js`: the io for random samples (no DOM). `js/ui/samples.js`: the list buttons and the editor action.
 - Shared with invoices, in `shared/docs/`: `model.js` (percent and money text, line totals, `addDays`, status names),
-  `lines.js` (line cards and totals box), `customer-dialog.js` (New customer).
+  `lines.js` (line cards and totals box), `customer-dialog.js` (New customer), `product-dialog.js`, and the sample generator
+  `samples.js`, `samples-run.js` and `samples-dialog.js` (see invoices/HANDOFF.md, Random samples).
 
 ## What works
 
@@ -35,11 +37,18 @@ backups. Money is integer minor units; the line maths is `SlopDocs.model` and `S
 - List: search (number, customer, notes), status filter, newest first. Right-click (or Menu key) on a row: Open, Confirm,
   Fulfil, Cancel, Convert, Open invoice, as the status allows.
 - Data: full backup download, and restore through the validated import (a bad file changes nothing).
+- Random samples: "Random sample" on the list and in the editor (a new order), "Random samples…" (count 1 to 50, seed,
+  currency, date range, create missing customers and products; a progress bar from five), "Delete all samples" (SlopUI.confirm).
+  Samples are drafts with a number and `sample: true`, shown with a Sample chip. Customers and products come from the same
+  generator as invoices (`shared/docs/samples.js`). The same seed, count and dates give the same orders.
+- **Delete all samples cancels, it does not delete.** Orders cannot be deleted (their number is taken on creation, and a
+  deleted number would leave a gap), so a sample order that is a draft or confirmed becomes cancelled and stays in the
+  list with its number. Fulfilled samples stay. Sample customers and products that no live invoice or order uses are deleted.
 - SlopCmd commands (Ctrl+K), SlopGuard (unsaved edits warn before leaving), SlopHub registration.
 
 ## Data written
 
-- `orders` (create, edit while draft or confirmed, status changes, `invoiceId`), `customers` (inline adds),
+- `orders` (create, edit while draft or confirmed, status changes, `invoiceId`, `sample`), `customers` (inline adds and samples),
   `stockMovements` (only through `SlopData.stock`: `sale` on fulfil, `return` when a fulfil is undone), `invoices`
   (drafts from conversion only). The order number comes from the `order` sequence.
 
@@ -61,3 +70,6 @@ backups. Money is integer minor units; the line maths is `SlopDocs.model` and `S
   before tax, gapless order numbers, the editor's text parsers, the status path (draft, confirmed, fulfilled, no way
   back), fulfil taking stock out, fulfil refused with no stock and no change, convert copying the lines and linking
   both records, the second convert refused, a draft refused for conversion, and the list filter and search.
+- The random samples are tested by `node tests/run.mjs samples` (the Node test `tests/node/invoices-orders-samples.test.mjs`
+  covers both apps; the browser test is the invoices one). Orders run through the same generator and runner as invoices.
+

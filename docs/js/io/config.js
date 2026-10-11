@@ -95,6 +95,6 @@
       commands: () => D.commands({ app: APP, prefix: 'docs', example }),
       menu: () => ({ label: 'Config', sub: D.menuItems({ app: APP, example }) }),
     };
-    D.install({ app: APP });
+    D.install({ app: APP, dragover: true });
   }
 })();

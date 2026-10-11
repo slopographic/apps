@@ -112,14 +112,8 @@
     start() { paused = false; if (F() && F().enabled()) scan(); else emit(); },
     /** Pauses after the current photo. */
     stop() { paused = true; emit(); },
-    /** The faces of a photo for the viewer's boxes, or null. */
+    /** The faces of a photo (the viewer's badge and boxes, shared/faces/view.js), or null. */
     facesOf: (id) => (on() && results.has(id) ? results.get(id).faces : null),
-    /** Draws the boxes of a photo over a SlopPreview element, while the setting is on. */
-    overlay(el, id) {
-      if (!F() || !F().enabled()) return;
-      const faces = G.people.facesOf(id);
-      if (faces && faces.length) F().drawBoxes(el, faces);
-    },
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
     GROUPS: GROUPS.map((g) => g.key),
   };
