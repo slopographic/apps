@@ -141,10 +141,11 @@
       if (row) return { w: row.w, h: row.h, faces: row.faces, cached: true };
       if (!g.createImageBitmap) return null;
       const bmp = await g.createImageBitmap(blob);
+      const w = bmp.width, h = bmp.height;
       let faces;
       try { faces = await detectRaw(bmp); } finally { if (bmp.close) bmp.close(); }
       if (!faces) return null;
-      const res = { w: bmp.width, h: bmp.height, faces: faces.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, score: f.score })) };
+      const res = { w, h, faces: faces.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, score: f.score })) };
       await F.cache.put(scope, id, stamp, res);
       return Object.assign({ cached: false }, res);
     } catch (e) { lastError = (e && e.message) || String(e); return null; }

@@ -98,6 +98,13 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
 - Drive is unchanged and still green: `node tests/run.mjs drive` gives 73 passed across 8 pages.
 - Not automated: the first-save folder picker (it is a dialog), the real IME composition path, and touch.
 
+## Outline sidebar
+- Left of the page area: a tree of the Heading 1 to 3 paragraphs (H2 under the H1 above, H3 under the H2 above). The current section is highlighted as the caret or the page moves. Collapse arrows per heading. Clicking a heading places the caret there.
+- Hide to a 30 px rail and show it again (remembered per session). On a phone it is a drawer.
+- Sections are the real structure: a heading owns the blocks up to the next heading of the same or a higher level. Add section, rename, move (Alt+Up/Down), promote/demote, delete (heading only, or with content after a dialog), and the right-click menu. Ctrl+Shift+O toggles it.
+- Files: `js/model/outline.js` (pure: tree, sections, moves), `js/ui/outline.js` (module entry: DOM, state, shortcuts), `js/ui/outline-actions.js` (commits through `SlopDocs.edit`), `js/ui/outline-menu.js`, `css/outline.css` (the app is a grid: outline column beside `#stage`). Loaded by one module script line and one `#outline` element in `index.html`.
+- Not done: headings past level 3 are not listed; a rename drops objects in the heading.
+
 ## Next steps, in order
 1. PDF export. Use the layout lines and the subset TTF fonts (`fonts/ttf.js`). Add ToUnicode, links and the outline from `headings`, and check that PDF line breaks match the layout.
 2. Table editing: caret in cells, insert and delete rows and columns, and cell formatting.
@@ -105,7 +112,7 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
 4. Headers, footers and page numbers: a UI for them, then import and export.
 5. Virtualise pages off screen, and move the page render to SVG per the original plan.
 6. Offline single-file build.
-7. Rulers and a sidebar, then the templates.
+7. Rulers, then the templates.
 8. Layout tests from the earlier list still open: widows and orphans, keepNext, table header repeat, TOC, floats, footnotes.
 
 ## Engine (already done, unchanged in this pass)
