@@ -315,6 +315,7 @@
       const parent = win.document.querySelector('.menu'), row = [...parent.querySelectorAll('.menu-row')].find((r) => r.querySelector('.menu-label').textContent === 'Mask');
       expect(!!row).toBe(true);
       row.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+      expect(String(row.getAttribute('aria-haspopup')) + '|' + row.disabled + '|' + win.document.querySelectorAll('.menu').length + '|' + row.className + '|' + (win.document.body.innerHTML.length)).toBe('x');
       const menus = win.document.querySelectorAll('.menu');
       expect(menus.length).toBe(2);
       expect(menus[1].getBoundingClientRect().left >= parent.getBoundingClientRect().right).toBe(true);
