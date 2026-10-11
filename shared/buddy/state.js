@@ -3,7 +3,8 @@ export const M = {
   x: 0, y: 0, vx: 0, vy: 0,   // feet position in page coordinates, and velocity (px/s)
   rot: 0, vr: 0,               // spin while thrown (rad, rad/s)
   squash: 0, sqv: 0,           // jelly squash-and-stretch spring (>0 wide, <0 tall)
-  mode: 'hidden',              // hidden | perched | hop | air | drag
+  mode: 'hidden',              // hidden | perched | hop | air | drag | glide (a short move aside) | float (rests in the open)
+  glide: null,                 // { x0, y0, x1, y1, t, T } while gliding (glide.js)
   perch: null,                 // { el, frac } or null (the page floor)
   hop: null, samples: [],
   mood: '', moodUntil: 0,      // love | dizzy | chomp | land
@@ -19,6 +20,9 @@ export const M = {
 };
 
 const mq = matchMedia('(prefers-reduced-motion: reduce)');
+const coarse = matchMedia('(pointer: coarse)');
+/** Touch first: he does not wander on his own, and a touch never moves him. */
+export const touchOnly = () => coarse.matches;
 export const reduced = () => mq.matches;
 export const now = () => performance.now();
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
