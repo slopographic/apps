@@ -1,4 +1,4 @@
-/* Slop Shop: the viewport. Zoom/pan, checkerboard, composite cache, marching ants, tool overlays, pointer routing. */
+/* PhotoSLOP: the viewport. Zoom/pan, checkerboard, composite cache, marching ants, tool overlays, pointer routing. */
 'use strict';
 
 const V = {
@@ -113,7 +113,17 @@ function draw() {
   if (D.sel && !(live && live.hideSel)) drawAnts(g);
   const t = currentTool();
   if (t.overlay) { g.save(); t.overlay(g); g.restore(); }
-  if (V.cursorIn && V.cursor && t.brushCursor && !V.pan) {
+  if (V.resize && V.resize.moved) {
+    // live brush preview while Shift-dragging
+    const R = V.resize, r = V.el.getBoundingClientRect(), cxp = R.sx - r.left, cyp = R.sy - r.top, rad = Math.max(1, (R.o.size * V.zoom) / 2);
+    const hd = R.o.hardness != null ? R.o.hardness : 1, gr = g.createRadialGradient(cxp, cyp, 0, cxp, cyp, rad);
+    gr.addColorStop(0, 'rgba(212,255,58,.55)'); gr.addColorStop(clamp(hd, 0, 0.98), 'rgba(212,255,58,.55)'); gr.addColorStop(1, 'rgba(212,255,58,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(cxp, cyp, rad, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke();
+    const label = `${R.o.size}px · ${R.alt ? 'opacity ' + Math.round((R.o.opacity || 1) * 100) : 'hardness ' + Math.round(hd * 100)}%`;
+    g.font = '600 12px "JetBrains Mono", monospace'; const tw = g.measureText(label).width;
+    g.fillStyle = 'rgba(0,0,0,.75)'; g.fillRect(cxp - tw / 2 - 8, cyp + rad + 10, tw + 16, 22); g.fillStyle = '#fff'; g.fillText(label, cxp - tw / 2, cyp + rad + 25);
+  } else if (V.cursorIn && V.cursor && t.brushCursor && !V.pan) {
     const r = Math.max(0.5, (t.brushCursor() * z) / 2), s = toScreen(V.cursor.x, V.cursor.y);
     g.beginPath(); g.arc(s.x, s.y, r, 0, Math.PI * 2);
     g.lineWidth = 1; g.strokeStyle = 'rgba(0,0,0,.8)'; g.stroke();
@@ -190,6 +200,15 @@ function onPointerDown(e) {
   const t = currentTool();
   const p = toDoc(e);
   V.cursor = p;
+  // Shift-drag with a brush: left/right = size, up/down = hardness (with Alt: opacity).
+  // A Shift-click without dragging still draws a straight line from the last point.
+  const bo = typeof BRUSH_OPTS === 'function' && BRUSH_OPTS()[t.id];
+  if (bo && e.shiftKey && !TRANSFORM.active) {
+    V.resize = { id: e.pointerId, sx: e.clientX, sy: e.clientY, p, e, o: bo, size: bo.size, hard: bo.hardness, op: bo.opacity, moved: false, alt: e.altKey };
+    try { V.el.setPointerCapture(e.pointerId); } catch (err) { /* synthetic */ }
+    e.preventDefault(); dirty();
+    return;
+  }
   if (t.down) {
     V.op = { tool: t, id: e.pointerId };
     try { V.el.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
@@ -216,6 +235,18 @@ function onPointerMove(e) {
   V.cursor = p; V.cursorIn = true;
   emit('cursor');
   if (V.pan) { V.ox = V.pan.ox + e.clientX - V.pan.x; V.oy = V.pan.oy + e.clientY - V.pan.y; dirty(); return; }
+  if (V.resize && V.resize.id === e.pointerId) {
+    const R = V.resize, dx = e.clientX - R.sx, dy = e.clientY - R.sy;
+    if (!R.moved && Math.hypot(dx, dy) > 4) R.moved = true;
+    if (R.moved) {
+      R.o.size = clamp(Math.round(R.size + dx / V.zoom * 1.2), 1, 1000);
+      if (R.alt || e.altKey) { if (R.o.opacity != null) R.o.opacity = clamp(R.op - dy / 200, 0.01, 1); }
+      else if (R.o.hardness != null) R.o.hardness = clamp(R.hard - dy / 200, 0, 1);
+      if (R.o.preset) R.o.preset = null;
+      emit('options');
+    }
+    dirty(); return;
+  }
   const t = currentTool();
   if (V.op && V.op.id === e.pointerId) {
     if (t.move) {
@@ -228,6 +259,12 @@ function onPointerMove(e) {
 function onPointerUp(e) {
   if (e.pointerType === 'touch') { V.touches.delete(e.pointerId); if (V.pinch) { if (V.touches.size === 0) V.pinch = null; return; } }
   if (V.pan) { V.pan = null; V.el.classList.remove('panning'); return; }
+  if (V.resize && V.resize.id === e.pointerId) {
+    const R = V.resize; V.resize = null;
+    if (R.moved) { saveToolOptions(); buildOptions(); }
+    else { const t = currentTool(); if (t.down) { t.down(R.p, R.e); if (t.up) t.up(R.p, R.e); } }
+    dirty(); return;
+  }
   if (V.op && V.op.id === e.pointerId) {
     const t = V.op.tool; V.op = null;
     if (t.up) t.up(toDoc(e), e);

@@ -1,4 +1,4 @@
-/* Slop Shop: shared helpers (DOM, colour, canvas, pixel maths). Classic script: top-level names are shared by the other files. */
+/* PhotoSLOP: shared helpers (DOM, colour, canvas, pixel maths). Classic script: top-level names are shared by the other files. */
 'use strict';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -184,12 +184,7 @@ function unpackBits(src, p, end, dst, dp, dlen) {
 }
 
 /* ---------- small UI helpers ---------- */
-let toastTimer = 0;
-function toast(msg, ms = 2400) {
-  const t = $('#toast'); if (!t) return;
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
-}
+function toast(msg, ms = 2400) { if (window.SlopUI) SlopUI.toast(msg, ms); }
 const store = {
   get(k, d) { try { const v = localStorage.getItem('slopshop.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('slopshop.' + k, JSON.stringify(v)); } catch (e) { /* private mode / quota */ } },

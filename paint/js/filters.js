@@ -1,4 +1,4 @@
-/* Slop Shop: adjustments, filters and layer styles.
+/* PhotoSLOP: adjustments, filters and layer styles.
  * Each entry: { id, name, menu, params, fn(canvas, params, env) → canvas | Promise<canvas> }.
  * fn must not mutate its input. env = { fg, bg } colours. */
 'use strict';

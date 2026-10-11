@@ -1,4 +1,4 @@
-/* Slop Shop: boot. */
+/* PhotoSLOP: boot. */
 'use strict';
 
 function buildStatus() {
@@ -30,7 +30,7 @@ function buildStatus() {
     }
     if (w === 'docname' || w === 'history') {
       const t = $('#docTitle'); if (t) t.textContent = (D.name || 'Untitled') + (D.dirty ? ' •' : '');
-      document.title = `${D.name || 'Untitled'}${D.dirty ? ' •' : ''} — Slop Shop`;
+      document.title = `${D.name || 'Untitled'}${D.dirty ? ' •' : ''} — PhotoSLOP`;
     }
   });
   sync();
@@ -64,10 +64,11 @@ async function boot() {
   window.addEventListener('beforeunload', (e) => { flushAutosave(); if (DOCS.some(docIsDirty)) { e.preventDefault(); e.returnValue = ''; } });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && D.dirty) autosave(); });
   listeners.add((w) => { if (w === 'history' && Hist.idx > 0) scheduleAutosave(); });
+  await loadBrushPacks();
   const restored = await loadAutosave();
   if (!restored) { let done; openInNewTab(() => { done = sampleDocument(); }); await done; renderTabs(); }
   emit('docname');
   document.body.classList.add('ready');
-  if (!store.get('welcomed', false)) { store.set('welcomed', true); setTimeout(() => toast('Welcome to Slop Shop. Everything stays on your device.', 3600), 400); }
+  if (!store.get('welcomed', false)) { store.set('welcomed', true); setTimeout(() => toast('Welcome to PhotoSLOP. Everything stays on your device.', 3600), 400); }
 }
 boot();

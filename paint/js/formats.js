@@ -1,4 +1,4 @@
-/* Slop Shop: more file formats. TIFF (baseline + LZW/PackBits/Deflate), OpenRaster (.ora, read/write),
+/* PhotoSLOP: more file formats. TIFF (baseline + LZW/PackBits/Deflate), OpenRaster (.ora, read/write),
  * Krita (.kra, flattened), and magic-byte sniffing so files open whatever their extension says. */
 'use strict';
 

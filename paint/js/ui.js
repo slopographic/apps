@@ -1,4 +1,4 @@
-/* Slop Shop: menus, options bar, toolbox, panels, dialogs, keyboard. */
+/* PhotoSLOP: menus, options bar, toolbox, panels, dialogs, keyboard. */
 'use strict';
 
 const MOD = isMac ? '⌘' : 'Ctrl+';
@@ -21,47 +21,17 @@ function comboOf(e) {
 }
 
 /* ---------- dialogs ---------- */
-let openDialogs = 0;
+/* Dialogs come from the shared SlopUI kit (../shared/slopui.js), so PhotoSLOP, Slop Vector and Slop PDF share them. */
+const CLS_MAP = { 'dlg-wide': 'sui-wide', 'dlg-color': 'sui-narrow', 'dlg-filter': 'sui-filter', 'dlg-curve': 'sui-curve' };
 function dialog({ title, body, buttons = [], onClose, cls = '' }) {
-  const back = h('div', { class: 'modal-back' });
-  const box = h('div', { class: 'dlg ' + cls, role: 'dialog', 'aria-modal': 'true', 'aria-label': title });
-  const head = h('div', { class: 'dlg-head' }, h('span', null, title), h('button', { class: 'dlg-x', type: 'button', 'aria-label': 'Close', onclick: () => close(false) }, '×'));
-  const foot = h('div', { class: 'dlg-foot' });
-  box.append(head, h('div', { class: 'dlg-body' }, body), foot);
-  back.append(box);
-  document.body.append(back);
-  openDialogs++;
-  let closed = false;
-  function close(ok) {
-    if (closed) return; closed = true; openDialogs--;
-    back.remove();
-    if (onClose) onClose(ok);
-  }
-  for (const b of buttons) {
-    const btn = h('button', { type: 'button', class: 'btn' + (b.primary ? ' primary' : '') }, b.label);
-    btn.addEventListener('click', async () => { if (b.act) { const r = await b.act(); if (r === false) return; } close(!!b.primary); });
-    foot.append(btn);
-  }
-  back.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(false); }
-    else if (e.key === 'Enter' && !(e.target.tagName === 'TEXTAREA') && !(e.target.tagName === 'BUTTON')) { const p = buttons.find((b) => b.primary); if (p) { e.preventDefault(); e.stopPropagation(); foot.querySelector('.primary').click(); } }
-  });
-  // drag by header
-  head.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('button')) return;
-    const r = box.getBoundingClientRect(), sx = e.clientX - r.left, sy = e.clientY - r.top;
-    head.setPointerCapture(e.pointerId);
-    const mv = (ev) => { box.style.position = 'fixed'; box.style.margin = '0'; box.style.left = clamp(ev.clientX - sx, 0, innerWidth - 60) + 'px'; box.style.top = clamp(ev.clientY - sy, 0, innerHeight - 40) + 'px'; };
-    head.addEventListener('pointermove', mv);
-    head.addEventListener('pointerup', () => head.removeEventListener('pointermove', mv), { once: true });
-  });
-  setTimeout(() => { const f = box.querySelector('input:not([type=checkbox]):not([type=range]), select, textarea') || foot.querySelector('.primary'); if (f) f.focus(); if (f && f.select) f.select(); }, 0);
-  return { box, close };
+  const parts = cls.split(/\s+/).filter(Boolean);
+  const dock = parts.includes('dlg-filter') ? 'right' : undefined;
+  return SlopUI.dialog({ title, body, buttons, onClose, dock, modal: !dock, cls: parts.map((c) => CLS_MAP[c] || c).join(' ') });
 }
 function field(label, input, unit) { return h('label', { class: 'field' }, h('span', { class: 'field-l' }, label), input, unit ? h('span', { class: 'field-u' }, unit) : null); }
 function numInput(v, min, max, step = 1) { return h('input', { type: 'number', value: v, min, max, step, inputmode: 'decimal' }); }
-function alertDlg(title, msg) { return new Promise((res) => dialog({ title, body: h('p', { class: 'dlg-p' }, msg), buttons: [{ label: 'OK', primary: true }], onClose: () => res() })); }
-function confirmDlg(title, msg, ok = 'OK') { return new Promise((res) => dialog({ title, body: h('p', { class: 'dlg-p' }, msg), buttons: [{ label: 'Cancel' }, { label: ok, primary: true }], onClose: (r) => res(r) })); }
+const alertDlg = (title, msg) => SlopUI.alert(title, msg);
+const confirmDlg = (title, msg, ok = 'OK') => SlopUI.confirm(title, msg, ok);
 
 /* ---------- colour picker ---------- */
 function colorPicker(get, set) {
@@ -127,7 +97,7 @@ const MENUS = [
     { label: 'Quick Export as PNG', key: 'Alt+Shift+Ctrl+S', act: () => quickExport() },
     { label: 'Export Layers as PNGs', act: () => exportLayers() },
     '-',
-    { label: 'Download Slop Shop for offline use (.html)', act: () => downloadOfflineApp() },
+    { label: 'Download PhotoSLOP for offline use (.html)', act: () => downloadOfflineApp() },
     { label: 'Clear Recovery Data', act: () => clearAutosave() },
   ]],
   ['Edit', [
@@ -154,6 +124,10 @@ const MENUS = [
       { label: 'Flip Horizontal', act: () => transformLayerQuick('flipH') },
       { label: 'Flip Vertical', act: () => transformLayerQuick('flipV') },
     ] },
+    '-',
+    { label: 'Brush Settings…', key: 'F5', act: () => dlgBrushSettings() },
+    { label: 'Define Brush Preset…', act: () => defineBrushFromSelection(), need: 'layer' },
+    { label: 'Import Brushes (.abr, .slopbrush, PNG)…', act: () => SlopUI.pickFiles({ accept: '.abr,.slopbrush,.json,image/*', multiple: true }).then(importBrushFiles) },
     '-',
     { label: 'Keyboard Shortcuts…', key: 'Alt+Shift+Ctrl+K', act: () => dlgShortcuts() },
   ]],
@@ -249,7 +223,7 @@ const MENUS = [
   ['Window', () => windowMenuItems()],
   ['Help', [
     { label: 'Keyboard Shortcuts…', act: () => dlgShortcuts() },
-    { label: 'About Slop Shop', act: () => dlgAbout() },
+    { label: 'About PhotoSLOP', act: () => dlgAbout() },
     '-',
     { label: 'Open Slop Paint Classic (MS Paint)', act: () => { location.href = 'classic/'; } },
     { label: 'Back to slopographic.com', act: () => { location.href = '../'; } },
@@ -410,9 +384,9 @@ function buildOptions() {
   }
   const blendOpts = BLENDS.map((b) => [b[0], b[1]]);
   switch (t.id) {
-    case 'brush': add(brushPickerButton(), optSelect('Tip', T.brush, 'tip', TIPS), optRange('Size', T.brush, 'size', 1, 1000, 1, (v) => v + ''), optRange('Hardness', T.brush, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optSelect('Mode', T.brush, 'blend', blendOpts), optRange('Opacity', T.brush, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.brush, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.brush, 'pressure')); break;
+    case 'brush': add(brushPickerButton(), optSelect('Tip', T.brush, 'tip', tipOptions(T.brush)), optRange('Size', T.brush, 'size', 1, 1000, 1, (v) => v + ''), optRange('Hardness', T.brush, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optSelect('Mode', T.brush, 'blend', blendOpts), optRange('Opacity', T.brush, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.brush, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.brush, 'pressure')); break;
     case 'pencil': add(optRange('Size', T.pencil, 'size', 1, 200), optRange('Opacity', T.pencil, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
-    case 'eraser': add(brushPickerButton(), optSelect('Tip', T.eraser, 'tip', TIPS), optRange('Size', T.eraser, 'size', 1, 1000), optRange('Hardness', T.eraser, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.eraser, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.eraser, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.eraser, 'pressure')); break;
+    case 'eraser': add(brushPickerButton(), optSelect('Tip', T.eraser, 'tip', tipOptions(T.eraser)), optRange('Size', T.eraser, 'size', 1, 1000), optRange('Hardness', T.eraser, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.eraser, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.eraser, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.eraser, 'pressure')); break;
     case 'clone': add(optRange('Size', T.clone, 'size', 1, 1000), optRange('Hardness', T.clone, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.clone, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Aligned', T.clone, 'aligned'), optCheck('Sample all layers', T.clone, 'sampleAll'), h('span', { class: 'opt-hint' }, isMac ? '⌥-click to set the source' : 'Alt-click to set the source')); break;
     case 'blur': case 'sharpen': { const o = T[t.id]; add(brushPickerButton(), optRange('Size', o, 'size', 1, 500), optRange('Hardness', o, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Strength', o, 'strength', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break; }
     case 'sponge': add(brushPickerButton(), optSelect('', T.sponge, 'mode', [['saturate', 'Saturate'], ['desaturate', 'Desaturate']]), optRange('Size', T.sponge, 'size', 1, 500), optRange('Flow', T.sponge, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
@@ -471,6 +445,7 @@ function buildPanels() {
   };
   renderSw();
   side.append(panel('swatches', 'Swatches', sw));
+  side.append(panel('brushes', 'Brushes', buildBrushesPanel()));
   // Layers
   side.append(panel('layers', 'Layers', buildLayersPanel()));
   // History
@@ -752,7 +727,7 @@ function dlgNumber(title, label, v, min, max, unit, fn) {
   const i = numInput(v, min, max, 0.5);
   dialog({ title, body: field(label, i, unit), buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true, act: () => fn(clamp(+i.value, min, max)) }] });
 }
-const PRESETS = [['Slop Shop default', 1600, 1000], ['Instagram post', 1080, 1080], ['Instagram story', 1080, 1920], ['HD 1080p', 1920, 1080], ['4K UHD', 3840, 2160], ['Twitter / X header', 1500, 500], ['A4 @150ppi', 1240, 1754], ['Meme (classic)', 800, 800], ['Icon', 512, 512]];
+const PRESETS = [['PhotoSLOP default', 1600, 1000], ['Instagram post', 1080, 1080], ['Instagram story', 1080, 1920], ['HD 1080p', 1920, 1080], ['4K UHD', 3840, 2160], ['Twitter / X header', 1500, 500], ['A4 @150ppi', 1240, 1754], ['Meme (classic)', 800, 800], ['Icon', 512, 512]];
 function dlgNew() {
   const w = numInput(1600, 1, 12000), hh = numInput(1000, 1, 12000);
   const preset = h('select', null, PRESETS.map(([n, a, b], i) => h('option', { value: i }, `${n} — ${a} × ${b}`)), h('option', { value: 'clip' }, 'Clipboard size'));
@@ -823,8 +798,8 @@ function dlgShortcuts() {
   dialog({ title: 'Keyboard Shortcuts', cls: 'dlg-wide', body: h('div', { class: 'keys-wrap' }, h('div', null, h('h4', null, 'Tools'), table(toolRows), h('h4', null, 'Canvas'), table(extra)), h('div', null, h('h4', null, 'Menus'), table(rows))), buttons: [{ label: 'Close', primary: true }] });
 }
 function dlgAbout() {
-  dialog({ title: 'About Slop Shop', body: h('div', { class: 'about' },
-    h('p', { class: 'about-logo' }, 'Slop Shop'),
+  dialog({ title: 'About PhotoSLOP', body: h('div', { class: 'about' },
+    h('p', { class: 'about-logo' }, 'PhotoSLOP'),
     h('p', null, 'A layered image editor that runs entirely in your browser. Nothing you open, paint or save ever leaves your device: there is no server, no account and no upload.'),
     h('p', null, 'Opens and saves real Photoshop .psd files (layers, masks, opacity and blend modes), exports PNG, JPEG and WebP, and can be downloaded as a single offline .html file.'),
     h('p', { class: 'dlg-p' }, 'Part of ', h('a', { href: '../' }, 'slopographic.com'), '. Prefer the 1998 experience? ', h('a', { href: 'classic/' }, 'Slop Paint Classic'), '.')),
@@ -839,7 +814,7 @@ function setTheme(t) { document.documentElement.dataset.theme = t; store.set('th
 const TOOL_KEYS = {};
 for (const t of TOOLS) (TOOL_KEYS[t.key] = TOOL_KEYS[t.key] || []).push(t.id);
 function onKeyDown(e) {
-  if (openDialogs || isTyping(e.target)) return;
+  if (SlopUI.openDialogs || isTyping(e.target)) return;
   if (e.code === 'Space' && !e.repeat) { V.space = true; V.el.classList.add('space'); e.preventDefault(); return; }
   const combo = comboOf(e);
   const t = currentTool();
@@ -882,22 +857,6 @@ listeners.add((w) => { if (w === 'tool') { const t = TOOL[UI.tool]; if (t) store
 
 /* ---------- right-click: brush picker & context menus ---------- */
 const BRUSH_OPTS = () => ({ brush: T.brush, pencil: T.pencil, eraser: T.eraser, clone: T.clone, smudge: T.smudge, dodge: T.dodge, blur: T.blur, sharpen: T.sharpen, sponge: T.sponge });
-const BRUSH_PRESETS = [
-  { label: 'Soft Round', tip: 'round', size: 45, hardness: 0 }, { label: 'Hard Round', tip: 'round', size: 20, hardness: 1 },
-  { label: 'Soft Round Big', tip: 'round', size: 200, hardness: 0 }, { label: 'Hard Round Fine', tip: 'round', size: 4, hardness: 1 },
-  { label: 'Square', tip: 'square', size: 30, hardness: 1 }, { label: 'Soft Square', tip: 'square', size: 50, hardness: 0.4 },
-  { label: 'Calligraphy', tip: 'flat', size: 34, hardness: 1 }, { label: 'Marker', tip: 'flat', size: 60, hardness: 0.7 },
-  { label: 'Spray', tip: 'spray', size: 70, hardness: 1 }, { label: 'Chalk', tip: 'chalk', size: 40, hardness: 0.8 },
-  { label: 'Slime Drip', tip: 'slime', size: 46, hardness: 0.85 }, { label: 'Fuzzy', tip: 'chalk', size: 90, hardness: 0.2 },
-];
-function presetPreview(p) {
-  const c = mkCanvas(64, 40), g = cx(c), col = theme() === 'pro' ? '#e8e8e8' : '#111111';
-  const s = clamp(p.size, 3, 26) * (p.tip === 'spray' ? 1.4 : 1);
-  const tip = dabCanvas(s, p.hardness, col, p.tip, 0);
-  if (p.size > 120 || p.size < 6) { g.drawImage(tip, 32 - tip.width / 2, 20 - tip.height / 2); return c; }
-  for (let i = 0; i <= 14; i++) { const t = i / 14, x = 8 + t * 48, y = 20 + Math.sin(t * Math.PI * 2) * 8; g.globalAlpha = p.tip === 'spray' ? 0.8 : 0.55; g.drawImage(dabCanvas(s, p.hardness, col, p.tip, i % (TIP_VARIANTS[p.tip] || 1)), x - tip.width / 2, y - tip.height / 2); }
-  return c;
-}
 let popover = null;
 function closePopover() { if (popover) { popover.remove(); popover = null; } }
 function openBrushPicker(x, y, toolId = UI.tool) {
@@ -917,13 +876,17 @@ function openBrushPicker(x, y, toolId = UI.tool) {
   if (o.hardness != null) el.append(row('Hardness', 'hardness', 0, 100, (v) => v / 100, (v) => v * 100, '%'));
   if (o.opacity != null) el.append(row('Opacity', 'opacity', 1, 100, (v) => v / 100, (v) => v * 100, '%'));
   if (o.tip != null) {
-    const grid = h('div', { class: 'bp-grid' });
-    for (const p of BRUSH_PRESETS) {
-      const b = h('button', { type: 'button', class: 'bp-preset' + (o.tip === p.tip && o.size === p.size && Math.abs(o.hardness - p.hardness) < 0.01 ? ' on' : ''), title: `${p.label} · ${p.size}px`, 'aria-label': p.label }, presetPreview(p), h('span', null, p.label), h('em', null, p.size));
-      b.addEventListener('click', () => { Object.assign(o, { tip: p.tip, size: p.size, hardness: p.hardness }); saveToolOptions(); buildOptions(); dirty(); closePopover(); toast(`${p.label} brush`, 900); });
-      grid.append(b);
+    for (const pack of allPacks()) {
+      if (!pack.brushes.length) continue;
+      const grid = h('div', { class: 'bp-grid' });
+      for (const p of pack.brushes) {
+        const b = h('button', { type: 'button', class: 'bp-preset' + (o.preset === p.name ? ' on' : ''), title: `${p.name} · ${p.size}px`, 'aria-label': p.name }, presetPreview(p), h('span', null, p.name), h('em', null, p.size));
+        b.addEventListener('click', () => { applyPreset(p); closePopover(); toast(`${p.name} brush`, 900); });
+        grid.append(b);
+      }
+      el.append(h('div', { class: 'bp-sub' }, pack.name), grid);
     }
-    el.append(h('div', { class: 'bp-sub' }, 'Brush presets'), grid);
+    el.append(h('div', { class: 'bp-sub bp-tip' }, 'Tip: hold Shift and drag on the canvas: left/right = size, up/down = hardness (+Alt: opacity)'));
   }
   document.body.append(el);
   const r = el.getBoundingClientRect();

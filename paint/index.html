@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Slop Shop — Slopographic</title>
-  <meta name="description" content="Slop Shop: a layered image editor that runs entirely in your browser. Layers, masks, blend modes, 40+ filters, and real Photoshop PSD open and save. Download it as one offline HTML file.">
+  <title>PhotoSLOP — Slopographic</title>
+  <meta name="description" content="PhotoSLOP: a layered image editor that runs entirely in your browser. Layers, masks, blend modes, 40+ filters, and real Photoshop PSD open and save. Download it as one offline HTML file.">
   <meta name="theme-color" content="#1d1d1d">
   <meta name="color-scheme" content="dark light">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="canonical" href="https://slopographic.com/paint/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
-  <meta property="og:title" content="Slop Shop — Slopographic">
+  <meta property="og:title" content="PhotoSLOP — Slopographic">
   <meta property="og:description" content="A layered image editor in your browser: masks, blend modes, filters and real PSD files. Nothing leaves your device.">
   <meta property="og:url" content="https://slopographic.com/paint/">
   <meta property="og:image" content="https://slopographic.com/og.jpg">
@@ -19,6 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="shop.css">
 </head>
 <body>
@@ -26,7 +27,7 @@
     <header class="topbar">
       <a class="logo" href="../" title="Back to slopographic.com" aria-label="Slopographic home">
         <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
-        <span class="logo-word">Slop Shop</span>
+        <span class="logo-word">PhotoSLOP</span>
       </a>
       <nav class="menubar" id="menubar" aria-label="Menu"></nav>
       <div class="doc-title" id="docTitle">Untitled</div>
@@ -55,16 +56,17 @@
     </div>
     <footer class="status" id="status" aria-label="Status"></footer>
   </div>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <input type="file" id="fileIn" multiple hidden>
-  <noscript><p class="noscript">Slop Shop needs JavaScript to run. Nothing is uploaded: it all runs on your device.</p></noscript>
+  <noscript><p class="noscript">PhotoSLOP needs JavaScript to run. Nothing is uploaded: it all runs on your device.</p></noscript>
 
+  <script src="../shared/slopui.js"></script>
   <script src="js/util.js"></script>
   <script src="js/doc.js"></script>
   <script src="js/psd.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/view.js"></script>
   <script src="js/tools.js"></script>
+  <script src="js/brushes.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/io.js"></script>
   <script src="js/formats.js"></script>

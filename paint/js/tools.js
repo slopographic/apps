@@ -1,4 +1,4 @@
-/* Slop Shop: tools. Each tool: { id, name, key, icon, down, move, up, hover, overlay, cancel, activate, deactivate, brushCursor }. */
+/* PhotoSLOP: tools. Each tool: { id, name, key, icon, down, move, up, hover, overlay, cancel, activate, deactivate, brushCursor }. */
 'use strict';
 
 const C = { fg: store.get('fg', '#000000'), bg: store.get('bg', '#ffffff') };
@@ -475,14 +475,8 @@ function brushTool(def) {
       if (this.aliased) {
         S.stroker = new Stroker(() => 1, (x, y) => { const dc = pixelDisc(o.size, color), n = Math.max(1, Math.round(o.size)); S.g.drawImage(dc, Math.round(x - n / 2), Math.round(y - n / 2)); });
       } else {
-        const tip = o.tip || 'round', nv = TIP_VARIANTS[tip] || 1;
-        const dabs = Array.from({ length: nv }, (_, v) => dabCanvas(o.size, o.hardness, color, tip, v));
-        const spacing = tip === 'spray' ? Math.max(o.spacing, 0.3) : tip === 'slime' ? Math.max(o.spacing, 0.18) : o.spacing;
-        S.stroker = new Stroker((pr) => Math.max(0.5, o.size * (usePressure ? clamp(pr, 0.05, 1) : 1) * spacing), (x, y, pr) => {
-          const dab = dabs[(Math.random() * nv) | 0];
-          const s = o.size * (usePressure ? clamp(pr, 0.05, 1) : 1), d = (dab.width * s) / o.size;
-          S.g.globalAlpha = o.flow; S.g.drawImage(dab, x - d / 2, y - d / 2, d, d);
-        });
+        const D2 = makeDabber(o, color, usePressure);
+        S.stroker = new Stroker((pr) => D2.spacing(pr), (x, y, pr) => D2.dab(S.g, x, y, pr));
       }
       if (e.shiftKey && this.lastPoint) { S.stroker.begin(this.lastPoint); S.stroker.to(p); } else S.stroker.begin(p);
       dirty(true);
