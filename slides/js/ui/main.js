@@ -18,6 +18,7 @@
     SS.commands.setup();
     var launch = window.SlopHub ? await SlopHub.consumeLaunch() : null;
     await SS.files.boot(launch);
+    await SS.viewState.restore();
     document.body.classList.add('ready');
   }
   boot();

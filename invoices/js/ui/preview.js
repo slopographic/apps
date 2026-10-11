@@ -5,6 +5,7 @@
   'use strict';
   const NS = (g.SlopInvoices = g.SlopInvoices || {});
   const U = NS.util;
+  const UI = g.SlopUI;
   const h = U.h;
   const $ = (id) => document.getElementById(id);
   const STATUS = { draft: 'Draft', issued: 'Issued', paid: 'Paid', void: 'Void' };
@@ -50,5 +51,15 @@
     box.replaceChildren(build(r.value));
   }
 
-  NS.preview = { build, show, STATUS };
+  /** Makes the one-page PDF for an invoice and downloads it. A refusal (for example too many lines) says why. */
+  async function pdf(id) {
+    const c = await NS.context.load(id);
+    if (!c.ok) { UI.alert('Not available', U.refusal(c)); return; }
+    const r = await NS.pdf.invoicePdf(c.value);
+    if (!r.ok) { UI.alert('PDF not made', `The PDF was not made: ${r.message}.`); return; }
+    UI.download(new Blob([r.value], { type: 'application/pdf' }), `${c.value.invoice.number || 'draft'}.pdf`);
+    UI.toast('PDF downloaded');
+  }
+
+  NS.preview = { build, show, pdf, STATUS };
 })(typeof window !== 'undefined' ? window : globalThis);
