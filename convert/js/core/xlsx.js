@@ -1,6 +1,6 @@
 /* CSV rows → a minimal XLSX workbook (one sheet). Uses the shared OOXML XML and ZIP helpers.
  * Numbers that round-trip exactly are stored as numbers; everything else is an inline string. */
-import { x, doc, NS } from '../../../shared/office/xml.js';
+import { x, doc, NS, raw } from '../../../shared/office/xml.js';
 import { writeZip } from '../io/zip.js';
 
 const NUM = /^-?(0|[1-9]\d*)(\.\d+)?$/;
@@ -13,8 +13,8 @@ function cellXml(v, ref) {
 }
 
 export function sheetXml(rows) {
-  const body = rows.map((r, ri) => x('row', { r: ri + 1 }, r.map((v, ci) => cellXml(String(v ?? ''), colName(ci) + (ri + 1))).join(''))).join('');
-  return doc(x('worksheet', { xmlns: NS.s }, [x('sheetData', null, body)]));
+  const body = rows.map((r, ri) => x('row', { r: ri + 1 }, raw(r.map((v, ci) => cellXml(String(v ?? ''), colName(ci) + (ri + 1))).join('')))).join('');
+  return doc(x('worksheet', { xmlns: NS.s }, [x('sheetData', null, raw(body))]));
 }
 
 export async function rowsToXlsx(rows) {

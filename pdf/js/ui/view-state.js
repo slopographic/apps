@@ -47,6 +47,4 @@
     if (S.els.grid && sc.grid) S.els.grid.scrollTop = sc.grid;
     if (S.els.viewer) { if (sc.viewer) S.els.viewer.scrollTop = sc.viewer; if (sc.viewerLeft) S.els.viewer.scrollLeft = sc.viewerLeft; }
   }
-  window.__pdfTouch = function () { touch(); };
-  window.__pdfVS = function () { try { return { ready: ready, now: viewNow() }; } catch (e) { return { err: String(e && e.stack).slice(0, 300) }; } };
 })();

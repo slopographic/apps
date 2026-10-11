@@ -2,7 +2,8 @@
  * that cleans one up (trims, drops empty entries, fills FN, reads dates). Adds SlopContacts.model.
  *   { id, name: {prefix, given, additional, family, suffix}, fn, org, dept, title,
  *     phones: [{value, types}], emails: [{value, types}], adr: [{types, po, ext, street, locality, region, postal, country}],
- *     bday ('YYYY-MM-DD' or '--MM-DD'), url, note, groups: [string], photo ('' | data: URI | https link) } */
+ *     bday ('YYYY-MM-DD' or '--MM-DD'), url, note, groups: [string], photo ('' | data: URI | https link),
+ *     stage ('lead' | 'contacted' | 'customer' | 'lost'), followUp ('YYYY-MM-DD') when set } */
 (function () {
   'use strict';
   const SC = (window.SlopContacts = window.SlopContacts || {});
@@ -46,6 +47,9 @@
       groups: T.uniq(list(s.groups).map((g) => T.tidy(g)).filter(Boolean)),
       photo: SC.photo.normPhoto(s.photo),
     };
+    // CRM fields, kept when present (the shared customer record carries them): pipeline stage and follow-up date.
+    if (s.stage) c.stage = T.tidy(s.stage);
+    if (s.followUp) c.followUp = T.tidy(s.followUp);
     c.fn = c.fn || composed(c) || c.org || (c.emails[0] && c.emails[0].value) || (c.phones[0] && c.phones[0].value) || 'No name';
     return c;
   }

@@ -107,7 +107,7 @@
 
     it('Delete section asks before it deletes content, and Heading only keeps the body', async () => {
       setDoc([H('Gone', 'H1'), H('body text'), H('after')]);
-      await rowsAre(1);
+      await waitFor(() => labelRow('Gone') && rows().length === 1, { timeout: 3000 });
       labelRow('Gone').querySelector('.ol-label').dispatchEvent(new win.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 200, clientY: 200 }));
       const item = [...doc.querySelectorAll('.sui-menu .sui-row')].find((r) => r.querySelector('.sui-lbl').textContent === 'Delete section');
       expect(item).toBeTruthy();

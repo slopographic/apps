@@ -182,4 +182,5 @@ async function importFromDrive() {
 }
 
 function refresh() { if (current) renderList(); }
-export { TEMPLATE_MIME };
+/** My templates, newest first (for tests and the console). */
+export const listMine = () => store.listMine();

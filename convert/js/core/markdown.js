@@ -20,7 +20,7 @@ function inline(src) {
   s = s.replace(/\*(?=\S)([\s\S]*?\S)\*|(?<![\w])_(?=\S)([\s\S]*?\S)_(?![\w])/g, (_, a, b) => `<em>${a ?? b}</em>`);
   s = s.replace(/~~(?=\S)([\s\S]*?\S)~~/g, '<del>$1</del>');
   s = s.replace(/ {2,}$/gm, '<br>');
-  return s.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${esc(codes[Number(i)])}</code>`);
+  return s.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[Number(i)]}</code>`);
 }
 
 const RULE = /^\s{0,3}((\*\s*){3,}|(-\s*){3,}|(_\s*){3,})$/;
