@@ -2,8 +2,9 @@
 'use strict';
 
 /* ---------- Free Transform (Ctrl+T) ---------- */
-/** interp: the resampling for the layer's pixels (nearest | bilinear | bicubic); it persists between transforms. */
-const TRANSFORM = { active: false, interp: 'bicubic' };
+/** interp: the resampling for the layer's pixels (nearest | bilinear | bicubic); it persists between transforms.
+    lock: the proportion lock, on by default and kept for this page session only. Shift inverts it for one drag. */
+const TRANSFORM = { active: false, interp: 'bicubic', lock: true };
 const QUICK_LABEL = { cw: 'Rotate 90° Clockwise', ccw: 'Rotate 90° Counter Clockwise', 180: 'Rotate 180°', flipH: 'Flip Horizontal', flipV: 'Flip Vertical' };
 function startTransform() {
   if (TRANSFORM.active) return;
@@ -129,17 +130,21 @@ const TRANSFORM_TOOL = {
       // pointer in the box's local (unrotated) frame
       const lx = c * (p.x - Cx) + s * (p.y - Cy), ly = -s * (p.x - Cx) + c * (p.y - Cy);
       const hw = (t.w * d.sx) / 2, hh = (t.h * d.sy) / 2;
-      let nsx = d.sx, nsy = d.sy, ncx = 0, ncy = 0;
+      // The lock is on by default; Shift inverts it for this drag. Locked: both sides scale by one factor.
+      const lock = t.lock !== !!e.shiftKey;
+      let nsx = d.sx, nsy = d.sy;
       if (e.altKey) { if (hx) nsx = (lx * hx * 2) / t.w; if (hy) nsy = (ly * hy * 2) / t.h; }
-      else {
-        if (hx) { const ax = -hx * hw; nsx = ((lx - ax) * hx) / t.w; ncx = (ax + lx) / 2; }
-        if (hy) { const ay = -hy * hh; nsy = ((ly - ay) * hy) / t.h; ncy = (ay + ly) / 2; }
+      else { if (hx) nsx = ((lx + hx * hw) * hx) / t.w; if (hy) nsy = ((ly + hy * hh) * hy) / t.h; }
+      if (lock) {
+        if (hx && hy) {
+          const k = Math.max(Math.abs(nsx / d.sx), Math.abs(nsy / d.sy));
+          nsx = d.sx * k * Math.sign(nsx / d.sx || 1); nsy = d.sy * k * Math.sign(nsy / d.sy || 1);
+        } else if (hx) { const k = Math.abs(nsx / d.sx); nsx = d.sx * k * Math.sign(nsx / d.sx || 1); nsy = d.sy * k; }
+        else if (hy) { const k = Math.abs(nsy / d.sy); nsy = d.sy * k * Math.sign(nsy / d.sy || 1); nsx = d.sx * k; }
       }
-      if (e.shiftKey && hx && hy) {
-        const k = Math.max(Math.abs(nsx / d.sx), Math.abs(nsy / d.sy));
-        nsx = d.sx * k * Math.sign(nsx / d.sx || 1); nsy = d.sy * k * Math.sign(nsy / d.sy || 1);
-        if (!e.altKey) { ncx = -hx * hw + (hx * t.w * nsx) / 2; ncy = -hy * hh + (hy * t.h * nsy) / 2; }
-      }
+      // The edge opposite the dragged handle stays put (Alt keeps the centre); a locked edge pulls the box about its far midpoint.
+      let ncx = 0, ncy = 0;
+      if (!e.altKey) { if (hx) ncx = -hx * hw + (hx * t.w * nsx) / 2; if (hy) ncy = -hy * hh + (hy * t.h * nsy) / 2; }
       t.sx = Math.abs(nsx) < 0.002 ? 0.002 * Math.sign(nsx || 1) : nsx; t.sy = Math.abs(nsy) < 0.002 ? 0.002 * Math.sign(nsy || 1) : nsy;
       t.tx = d.tx + c * ncx - s * ncy; t.ty = d.ty + s * ncx + c * ncy;
     }

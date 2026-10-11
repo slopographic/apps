@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Orders — Slopographic</title>
+  <meta name="description" content="Slop Orders: customers, products and orders with stock, fulfilment and conversion to invoices. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-orders.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/orders.css">
+  <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop Orders</b><a class="home-link" href="../">slopographic</a></div>
+      <span class="local-badge" title="Customers, orders and stock stay in this browser. Nothing is uploaded."><span>100% local</span></span>
+      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Orders sections">
+      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Orders</button>
+      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Order</button>
+      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
+    </nav>
+
+    <main class="main" id="main">
+      <div id="boot" class="boot" role="status">Opening your orders…</div>
+
+      <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list" hidden>
+        <div class="toolbar">
+          <label class="search"><span class="sr">Search orders</span>
+            <input id="oSearch" type="search" placeholder="Search number, customer or notes" autocomplete="off" spellcheck="false"></label>
+          <label>Status <select id="oStatus">
+            <option value="all">All</option><option value="draft">Draft</option><option value="open">Confirmed</option>
+            <option value="fulfilled">Fulfilled</option><option value="cancelled">Cancelled</option>
+          </select></label>
+          <button type="button" class="btn primary" id="oNew">New order</button>
+        </div>
+        <p class="note" id="oSummary" role="status"></p>
+        <div class="table" role="table" aria-label="Orders">
+          <div id="oRows" role="rowgroup"></div>
+        </div>
+        <p class="empty" id="oEmpty" hidden>No orders match. Start one with New order.</p>
+      </section>
+
+      <section class="view" id="view-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
+        <div class="head-row">
+          <button type="button" class="btn small" id="eBack">← Orders</button>
+          <h2 class="h2" id="eTitle">New order</h2>
+          <span class="chip" id="eStatus"></span>
+        </div>
+        <form class="card" id="eForm" novalidate>
+          <div class="form-grid">
+            <label class="wide">Customer
+              <span class="inline"><select id="eCustomer"></select><button type="button" class="btn" id="eNewCustomer">New customer</button></span>
+            </label>
+            <label>Date <input id="eDate" type="date" required></label>
+            <label>Currency <input id="eCurrency" type="text" readonly tabindex="-1"></label>
+            <label class="wide">Notes <textarea id="eNotes" rows="2" maxlength="5000"></textarea></label>
+          </div>
+        </form>
+        <h2 class="h2">Lines</h2>
+        <div id="eLines" class="lines"></div>
+        <div class="toolbar"><button type="button" class="btn" id="eAddLine">Add line</button></div>
+        <div class="card totals" id="eTotals" aria-live="polite"></div>
+        <p class="note" id="eInvoice"></p>
+        <div class="toolbar actions" id="eActions"></div>
+        <p class="msg" id="eMsg" role="status"></p>
+      </section>
+
+      <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+        <div class="card">
+          <h2 class="h2">Full backup</h2>
+          <p class="note">A backup holds every record in the shared business data for this browser: customers, products, orders, invoices, payments, stock and the ledger.</p>
+          <div class="toolbar"><button type="button" class="btn primary" id="dBackup">Download full backup</button></div>
+          <label class="file">Restore from a backup file <input id="dRestore" type="file" accept="application/json,.json"></label>
+          <ul class="report" id="dRestoreMsg" aria-live="polite"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../shared/data/money.js"></script>
+  <script src="../shared/data/barcode.js"></script>
+  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema.js"></script>
+  <script src="../shared/data/currency.js"></script>
+  <script src="../shared/data/store.js"></script>
+  <script src="../shared/data/numbering.js"></script>
+  <script src="../shared/data/fx.js"></script>
+  <script src="../shared/data/ledger.js"></script>
+  <script src="../shared/data/stock.js"></script>
+  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/data/bundle-check.js"></script>
+  <script src="../shared/data/export.js"></script>
+  <script src="../shared/docs/model.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/orders.js"></script>
+  <script src="js/core/fulfil.js"></script>
+  <script src="js/ui/list.js"></script>
+  <script src="js/ui/lines.js"></script>
+  <script src="js/ui/customer-dialog.js"></script>
+  <script src="js/ui/editor.js"></script>
+  <script src="js/ui/data.js"></script>
+  <script src="js/ui/commands.js"></script>
+  <script src="js/ui/app.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
+</body>
+</html>
