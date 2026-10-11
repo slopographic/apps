@@ -51,7 +51,7 @@
       let r = `RRULE:FREQ=${ev.freq.toUpperCase()}`;
       if (ev.until) {
         const d = T.parseDay(ev.until);
-        r += `;UNTIL=${ev.allDay ? compact(ev.until) : utcStamp(T.wallToUtc(d.y, d.mo, d.d, 23, 59, 59, ev.tz))}`;
+        r += `;UNTIL=${ev.allDay ? compact(ev.until) : utcStamp(T.wallToUtc(d.y, d.mo, d.d, 23, 59, ev.tz, 59))}`;
       }
       L.push(r);
     }
