@@ -58,7 +58,7 @@
   function load(family) {
     if (!family) return Promise.resolve(false);
     if (loaded.has(family)) return loaded.get(family).promise;
-    const rec = { faces: [], promise: null };
+    const rec = { faces: [], promise: null, bundled: false };
     rec.promise = (async () => {
       const add = async (src, desc) => {
         const ff = new FontFace(family, src, desc);
@@ -68,6 +68,7 @@
       try {
         const bundled = (await bundledIndex()).filter((f) => f.family === family);
         if (bundled.length) {
+          rec.bundled = true;
           for (const f of bundled) await add(`url("${LIB + f.file}") format("woff2")`, { weight: f.weight, style: f.style });
           return true;
         }
@@ -87,6 +88,11 @@
     })();
     loaded.set(family, rec);
     return rec.promise;
+  }
+
+  /** After a pack is installed or removed: forget downloaded faces so they re-read the store. */
+  function dropDownloaded() {
+    for (const [k, r] of loaded) if (!r.bundled) { for (const ff of r.faces) doc.fonts.delete(ff); loaded.delete(k); }
   }
 
   /** CSS font-family list for a family name: the name, then a generic guessed from the bundled category. */
@@ -133,10 +139,12 @@
         if (root.SlopLibrary) root.SlopLibrary.open({ onInstalled: () => refresh() });
       });
       sel.insertAdjacentElement('afterend', btn);
-      deps().then(() => root.SlopLibraryManifest && root.SlopLibrary.loadManifest()).then((m) => {
-        if (m && !m.packs.length) btn.textContent = 'Get more (no packs listed)';
+      deps().then(async () => {
+        if (!root.SlopLibrary) return;
+        const m = await root.SlopLibrary.loadManifest();
+        if (!m.packs.length) btn.textContent = 'Get more (no packs listed)';
+        root.SlopLibrary.onChange(async () => { dropDownloaded(); await refresh(); load(sel.value); });
       });
-      if (root.SlopLibrary) root.SlopLibrary.onChange(() => { loaded.forEach((r, k) => { if (!r.faces.length) loaded.delete(k); }); refresh(); });
     }
     return { refresh, set(family) { current = family; sel.value = family; return load(family); } };
   }
