@@ -68,7 +68,6 @@
 .theme-opt:has(input:focus-visible) { outline: 2px solid var(--slop); outline-offset: 2px; }
 .theme-swatch { position: relative; display: flex; height: 76px; border-radius: 4px; overflow: hidden; border: 1px solid var(--sw-border, var(--line)); background: var(--sw-bg); }
 .theme-half { flex: 1; background: var(--sw-bg); }
-.theme-half + .theme-half { background: var(--sw-bg); }
 .theme-panel { position: absolute; left: 12px; right: 12px; top: 12px; bottom: 26px; background: var(--sw-surface); border-radius: 3px; }
 .theme-dot { position: absolute; right: 18px; bottom: 18px; width: 14px; height: 14px; border-radius: 50%; background: var(--sw-accent); }
 .theme-aa { position: absolute; left: 18px; bottom: 14px; font-family: var(--cond); font-weight: 800; font-size: 18px; color: var(--sw-text); }
