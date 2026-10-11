@@ -17,8 +17,8 @@
     const b = Math.min(frame.w / mw, frame.h / mh);
     const dw = mw * b, dh = mh * b;
     return {
-      x: round((r.x + r.w / 2 - 0.5) * frame.w, 0),
-      y: round((r.y + r.h / 2 - 0.5) * frame.h, 0),
+      x: round((r.x + r.w / 2 - 0.5) * frame.w, 3),
+      y: round((r.y + r.h / 2 - 0.5) * frame.h, 3),
       scale: round(Math.min((r.w * frame.w) / dw, (r.h * frame.h) / dh), 5)
     };
   };
