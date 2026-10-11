@@ -81,18 +81,22 @@
   };
 
   /* ---------- built-in dispatcher (only while SlopCmd is absent) ---------- */
+  var CODES = { Period: '.', Comma: ',', Minus: '-', Equal: '=', BracketLeft: '[', BracketRight: ']', Semicolon: ';', Quote: "'", Backslash: '\\', Slash: '/', Backquote: '`' };
   function eventKey(e) {
-    var k = e.key;
-    if (k === ' ') k = 'Space';
-    else if (k.length === 1) k = k.toUpperCase();
-    if (k === '+' ) k = '=';
-    var parts = [];
-    if (e.shiftKey && (k.length > 1 || /[A-Z0-9]/.test(k) || e.ctrlKey || e.metaKey)) parts.push('Shift');
-    if (e.altKey) parts.push('Alt');
-    if (e.ctrlKey || e.metaKey) parts.push('Mod');
+    var k = e.key, mod = e.ctrlKey || e.metaKey;
     if (/^(Shift|Alt|Control|Meta)$/.test(k)) return null;
-    // with Shift, use the unshifted digit/letter (e.code) so "Shift+Mod+." style bindings still match
-    if (e.shiftKey && /^Digit\d$/.test(e.code)) k = e.code.slice(5);
+    if (k === ' ') k = 'Space';
+    // with modifiers, use the physical key (Shift/Alt change e.key: '>' for Shift+., '–' for Alt+- on a Mac)
+    if (e.code && (e.shiftKey || e.altKey || mod)) {
+      if (CODES[e.code]) k = CODES[e.code];
+      else if (/^Key[A-Z]$/.test(e.code)) k = e.code.slice(3);
+      else if (/^Digit\d$/.test(e.code)) k = e.code.slice(5);
+    }
+    if (k.length === 1) k = k.toUpperCase();
+    var parts = [];
+    if (e.shiftKey) parts.push('Shift');
+    if (e.altKey) parts.push('Alt');
+    if (mod) parts.push('Mod');
     parts.push(k);
     return parts.join('+');
   }
