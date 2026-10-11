@@ -88,8 +88,8 @@
       const card = [...doc.querySelectorAll('[data-perch="card"]')].find((c) => c.style.pointerEvents === 'none');
       const bottom = () => card.getBoundingClientRect().bottom + win.scrollY;
       const floor = doc.querySelector('body > footer').getBoundingClientRect().top + win.scrollY - 2;
-      await waitFor(() => Math.abs(bottom() - floor) < 30, { timeout: 15000 });
-      await sleep(600);
+      // Resting: on the footer and still there a moment later (it may bounce and tip over first).
+      await waitFor(async () => { if (Math.abs(bottom() - floor) >= 30) return false; await sleep(400); return Math.abs(bottom() - floor) < 30; }, { timeout: 20000 });
       if (Math.abs(bottom() - floor) >= 30) throw new Error(`card bottom ${bottom()} vs floor ${floor}: ${card.style.transform} ${card.getBoundingClientRect().height}`);
       win.scrollTo(0, floor - win.innerHeight + 40);
       await sleep(60);
@@ -102,9 +102,11 @@
       expect(S.bodies()).toBe(0);
       expect(card.hasAttribute('style')).toBe(false);
       await landed();
-    }, { timeout: 25000 });
+    }, { timeout: 35000 });
     it('two knocked cards collide instead of overlapping', async () => {
       await ready;
+      S.restore();
+      await landed();
       await standOn(doc.querySelector('.app-card'), 0.5);
       await S.act('knock');
       await landed();
