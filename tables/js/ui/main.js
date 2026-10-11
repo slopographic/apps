@@ -11,6 +11,7 @@ import * as F from './storage.js';
 import * as drafts from './drafts.js';
 import * as A from './actions.js';
 import * as ctxmenu from './ctxmenu.js';
+import * as TPL from './templates.js';
 import { undo, redo, canUndo, canRedo } from './history.js';
 import { moveTo } from './nav.js';
 import { toCsv } from '../io/csv.js';
@@ -88,6 +89,7 @@ function expose() {
     xlsx: () => toXlsx(S.wb),
     native: () => toBlob(S.wb),
     editing: () => !!S.edit,
+    templates: TPL,
   };
 }
 

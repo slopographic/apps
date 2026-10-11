@@ -42,11 +42,11 @@
   }
 
   /** Saves the editor's form. form: { id?, customerId, date, currency?, notes, lines (stored shape) }.
-   *  New orders start as drafts and take a number. Existing orders keep their status unless one is given. */
+   *  New orders are always drafts and take a number. Existing orders keep their status unless one is given. */
   async function save(form, status) {
     const base = { customerId: form.customerId, date: form.date, notes: form.notes, lines: form.lines };
     if (form.currency) base.currency = form.currency;   // an absent currency keeps the stored one (or takes the base)
-    if (!form.id) return S.store.put('orders', { ...base, status: status || 'draft' });
+    if (!form.id) return S.store.put('orders', { ...base, status: 'draft' });
     const cur = await S.store.get('orders', form.id);
     if (!cur.ok) return cur;
     if (!cur.value) return fail('not_found', 'this order no longer exists');
@@ -61,7 +61,11 @@
     return S.store.put('orders', { ...cur.value, status });
   }
 
-  const confirm = (form) => save(form, 'open');
+  /** Saves the form, then confirms it (draft -> open). Two writes: the save, then the status change. */
+  async function confirm(form) {
+    const r = await save(form);
+    return r.ok ? setStatus(r.value.id, 'open') : r;
+  }
   const cancel = (id) => setStatus(id, 'cancelled');
 
   NS.orders = { list, customers, products, addCustomer, save, setStatus, confirm, cancel, get: (id) => S.store.get('orders', id) };

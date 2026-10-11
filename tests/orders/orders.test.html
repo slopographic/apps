@@ -26,7 +26,7 @@
   <script src="../../orders/js/core/fulfil.js"></script>
   <script src="../../orders/js/core/actions.js"></script>
   <script>
-  const { describe, it, expect, run } = SlopTest;
+  const { describe, it, beforeEach, expect, run } = SlopTest;
   const S = window.SlopData;
   const NS = window.SlopOrders;
   const M = window.SlopDocs.model;
@@ -101,10 +101,10 @@
     it('fulfilling takes the stock out through SlopData.stock, one sale per stock line', async () => {
       const c = await acme(), w = await widget();
       must(await S.stock.move({ productId: w.id, qty: 10, reason: 'receipt' }));
-      const o = must(await save({ customerId: c.id, date: '2026-10-11', lines: [
+      const o = must(await NS.orders.confirm({ customerId: c.id, date: '2026-10-11', lines: [
         { productId: w.id, sku: 'W-1', description: 'Widget', qty: 4, unitPrice: 1000, taxRate: 0 },
         { description: 'Delivery', qty: 1, unitPrice: 500, taxRate: 0 },
-      ] }), 'open');
+      ] }));
       must(await NS.fulfil.fulfil(o.id));
       expect(await S.stock.onHand(w.id, 'main')).toEqual({ ok: true, value: 6 });
       const mv = must(await S.store.list('stockMovements', { index: 'productId', value: w.id }));
@@ -112,7 +112,7 @@
     });
     it('a fulfilment with too little stock is refused and changes nothing', async () => {
       const c = await acme(), w = await widget();
-      const o = must(await save({ customerId: c.id, date: '2026-10-11', lines: [{ productId: w.id, sku: 'W-1', description: 'Widget', qty: 3, unitPrice: 1000, taxRate: 0 }] }), 'open');
+      const o = must(await NS.orders.confirm({ customerId: c.id, date: '2026-10-11', lines: [{ productId: w.id, sku: 'W-1', description: 'Widget', qty: 3, unitPrice: 1000, taxRate: 0 }] }));
       const r = await NS.fulfil.fulfil(o.id);
       expect(r.ok).toBe(false);
       expect(r.code).toBe('insufficient_stock');
@@ -121,10 +121,10 @@
     });
     it('convert to invoice copies the lines and links both records; a second convert is refused', async () => {
       const c = await acme(), w = await widget(), g2 = await gadget();
-      const o = must(await save({ customerId: c.id, date: '2026-10-11', notes: 'Net 30', lines: [
+      const o = must(await NS.orders.confirm({ customerId: c.id, date: '2026-10-11', notes: 'Net 30', lines: [
         { productId: w.id, sku: 'W-1', description: 'Widget', qty: 2, unitPrice: 1000, taxRate: 2000 },
         { productId: g2.id, sku: 'G-2', description: 'Gadget', qty: 3, unitPrice: 333, taxRate: 1000, discount: 500 },
-      ] }), 'open');
+      ] }));
       const inv = must(await NS.actions.convertId(o.id));
       expect(inv.status).toBe('draft');
       expect(inv.orderId).toBe(o.id);
@@ -132,7 +132,9 @@
       expect(inv.lines.map((l) => [l.description, l.qty, l.unitPrice, l.taxRate, l.discount])).toEqual([
         ['Widget', 2, 1000, 2000, undefined], ['Gadget', 3, 333, 1000, 500],
       ]);
-      expect(inv.total).toBe(M.totals(o.lines).total === 3499 ? inv.total : -1);
+      expect(inv.subtotal).toBe(2949);   // 2000 + (999 less 5% = 949)
+      expect(inv.tax).toBe(495);         // 400 + round(94.9) = 95
+      expect(inv.total).toBe(3444);
       const again = await NS.actions.convertId(o.id);
       expect(again.ok).toBe(false);
       expect(again.code).toBe('conflict');
