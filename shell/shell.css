@@ -96,6 +96,8 @@ button { font: inherit; }
 
 @media (max-width: 560px) {
   .sh-hbtn-txt { display: none; }
+  .sh-hdr { gap: 4px; margin-left: 4px; }
+  .sh-hbtn { min-width: 28px; height: 28px; padding: 0 6px; }
   .sh-back { padding-top: 8px; }
   .sh-sw { max-height: 86vh; }
   .sn-stack { left: 12px; right: 12px; bottom: 12px; width: auto; }

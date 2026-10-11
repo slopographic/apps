@@ -24,36 +24,6 @@
   function evDoc(e) { var r = stageRect(); return toDoc(e.clientX - r.left, e.clientY - r.top); }
   SV.evDoc = evDoc;
 
-  SV.setZoom = function (z, cx, cy) {
-    z = clamp(z, 0.02, 64);
-    var r = stageRect();
-    if (cx == null) { cx = r.width / 2; cy = r.height / 2; }
-    var d = toDoc(cx, cy);
-    S.view.zoom = z; S.view.x = cx - d.x * z; S.view.y = cy - d.y * z;
-    SV.requestRender(true);
-  };
-  SV.zoomStep = function (dir, cx, cy) {
-    var steps = [0.03125, 0.0625, 0.125, 0.1667, 0.25, 0.333, 0.5, 0.667, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 24, 32, 64];
-    var z = S.view.zoom, nz = z;
-    if (dir > 0) { for (var i = 0; i < steps.length; i++) if (steps[i] > z * 1.001) { nz = steps[i]; break; } }
-    else { for (var j = steps.length - 1; j >= 0; j--) if (steps[j] < z / 1.001) { nz = steps[j]; break; } }
-    SV.setZoom(nz, cx, cy);
-  };
-  SV.fitArtboard = function () {
-    var r = stageRect(), pad = r.width < 500 ? 16 : 48;
-    var z = min((r.width - pad * 2) / S.doc.width, (r.height - pad * 2) / S.doc.height);
-    z = clamp(z, 0.02, 64);
-    S.view.zoom = z; S.view.x = (r.width - S.doc.width * z) / 2; S.view.y = (r.height - S.doc.height * z) / 2;
-    SV.requestRender(true);
-  };
-  SV.actualSize = function () { SV.setZoom(1); var r = stageRect(); S.view.x = (r.width - S.doc.width) / 2; S.view.y = (r.height - S.doc.height) / 2; SV.requestRender(true); };
-  SV.zoomToRect = function (b) {
-    var r = stageRect(); if (b.w < 1 || b.h < 1) return;
-    var z = clamp(min(r.width / b.w, r.height / b.h) * 0.92, 0.02, 64);
-    S.view.zoom = z; S.view.x = r.width / 2 - (b.x + b.w / 2) * z; S.view.y = r.height / 2 - (b.y + b.h / 2) * z;
-    SV.requestRender(true);
-  };
-
   /* ================= rendering ================= */
   var objEls = new Map(), layerEls = new Map(), rafPending = false, uiPending = false;
   SV.requestRender = function (ui) {

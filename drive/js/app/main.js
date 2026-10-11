@@ -42,13 +42,13 @@
     addEventListener('resize', DR.debounce(() => { DR.clampInfoWidth(); if (['usage', 'nodes', 'list'].includes(DR.viewNow())) DR.render(); }, 200));
   }
   // Other tabs and apps change the Drive too (Send to…, saves, a restore): follow along.
-  const outside = DR.debounce(async () => { await DR.refresh(); DR.render(); }, 150);
+  const outside = DR.debounce(async () => { await DR.timed('Updating Slop Drive', () => DR.refresh(), { onRetry: () => DR.render() }); DR.render(); }, 150);
 
   DR.boot = async function () {
     wire();
     try { window.SlopHub.register('drive'); } catch (e) { /* no bus */ }
     window.SlopHub.on('drive:change', outside);
-    try { await DR.refresh(); } catch (e) { window.SlopUI.alert('Slop Drive is unavailable', 'This browser blocked storage for this site (private mode or a storage setting). ' + e.message); }
+    try { await DR.timed('Loading Slop Drive', () => DR.refresh(), { onRetry: () => DR.render() }); } catch (e) { window.SlopUI.alert('Slop Drive is unavailable', 'This browser blocked storage for this site (private mode or a storage setting). ' + e.message); }
     try { await DR.restoreView(); } catch (e) { /* no saved place: start at the root */ }
     S.ready = true;
     try { history.replaceState({ section: S.section, cwd: S.cwd }, ''); } catch (e) { /* sandboxed */ }

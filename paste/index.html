@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Pastebin</title>
+  <meta name="description" content="Slop Pastebin: paste text, code or images, highlight them and share a local link. Saved to Slop Drive. Nothing uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/paste.css">
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/guard.js" defer></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="../shared/session/session.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <div class="pb-app" id="pb-app" data-pane="list">
+    <header class="pb-top">
+      <button type="button" class="sui-btn pb-narrow" id="pb-side-btn" aria-label="Show the paste list">Pastes</button>
+      <div class="pb-brand"><span class="pb-logo" aria-hidden="true"></span><h1>Slop Pastebin</h1></div>
+      <span class="pb-save" id="pb-save" role="status" aria-live="polite"></span>
+      <div class="pb-tools" role="toolbar" aria-label="Pastes">
+        <button type="button" class="sui-btn sui-primary" id="pb-new" title="New text paste (Ctrl+Alt+N)">New paste</button>
+        <button type="button" class="sui-btn" id="pb-cmd" aria-label="Commands (search every command)">Commands</button>
+      </div>
+    </header>
+
+    <section class="pb-list" aria-label="Pastes">
+      <div class="pb-search">
+        <input type="search" id="pb-q" placeholder="Search titles and text" aria-label="Search pastes">
+        <button type="button" class="sui-btn" id="pb-add-img" title="Add an image paste">Image</button>
+      </div>
+      <div class="pb-items" id="pb-items"></div>
+      <p class="pb-none" id="pb-none" hidden></p>
+    </section>
+
+    <main class="pb-main" id="pb-main">
+      <p class="pb-empty" id="pb-empty">Paste text, code or an image here, or use New paste. Each paste is saved to Slop Drive as you go.</p>
+      <div class="pb-editor" id="pb-editor" hidden>
+        <div class="pb-bar">
+          <button type="button" class="sui-btn pb-narrow" id="pb-back">Back</button>
+          <button type="button" class="sui-btn" id="pb-copy">Copy</button>
+          <button type="button" class="sui-btn" id="pb-download">Download</button>
+          <button type="button" class="sui-btn" id="pb-share">Share link</button>
+          <button type="button" class="sui-btn pb-danger" id="pb-del">Trash</button>
+        </div>
+        <div class="pb-fields">
+          <input type="text" id="pb-title" placeholder="Title (optional)" aria-label="Paste title">
+          <label class="pb-field"><span>Language</span><select id="pb-lang" aria-label="Language"></select></label>
+          <label class="pb-field"><span>Expires</span><select id="pb-expiry" aria-label="Expiry label"></select></label>
+        </div>
+        <p class="pb-meta" id="pb-meta"></p>
+        <div class="pb-share" id="pb-share-box" hidden>
+          <label class="pb-field"><span>Share link (this browser only)</span>
+            <span class="pb-linkrow"><input type="text" id="pb-link" readonly aria-label="Share link"><button type="button" class="sui-btn" id="pb-link-copy">Copy</button></span>
+          </label>
+        </div>
+        <div class="pb-text" id="pb-text-wrap">
+          <textarea id="pb-src" spellcheck="false" aria-label="Paste text"></textarea>
+          <pre class="pb-code" data-lang="plain" id="pb-pre" aria-label="Highlighted text"><code id="pb-code" class="language-plain"></code></pre>
+        </div>
+        <figure class="pb-image" id="pb-image-wrap" hidden>
+          <img id="pb-img" alt="Pasted image">
+        </figure>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -115,3 +115,5 @@
 .sb-flags { color: var(--accent-line); }
 /* The shared guide-layout panel floats left of the dock. */
 @media (min-width: 901px) { .sgd-panel { right: 300px; top: 110px; } .app.no-dock ~ .sgd-panel { right: 16px; } }
+.corner-four { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 8px; }
+.corner-four .fld { min-width: 0; }

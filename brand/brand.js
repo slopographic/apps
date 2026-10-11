@@ -33,7 +33,9 @@
   });
   const COLOR = /^#[0-9a-f]{3,8}$/i;
   const str = (v, d) => (typeof v === 'string' ? v.trim() : d);
-  const safeUrl = (v) => (typeof v === 'string' && /^(https?:\/\/|mailto:|\/|\.{0,2}\/?[\w-])[^\s"'<>]*$/.test(v.trim()) ? v.trim() : '');
+  // Allowed: https links, mailto:, and paths without a scheme (no javascript: or other schemes).
+  const URL_OK = /^(https:\/\/[^\s"'<>]+|http:\/\/[^\s"'<>]+|mailto:[^\s"'<>]+|\/[^\s"'<>]*|\.{1,2}\/[^\s"'<>]*|[\w][\w./-]*)$/;
+  const safeUrl = (v) => (typeof v === 'string' && URL_OK.test(v.trim()) ? v.trim() : '');
 
   /** Merge raw JSON over the defaults. Unknown or invalid values fall back to the defaults. */
   function normalize(raw) {

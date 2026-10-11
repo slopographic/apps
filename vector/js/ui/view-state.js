@@ -6,7 +6,8 @@
   var SV = window.SV, S = SV.state, APP = 'vector';
   var ready = false; // nothing is saved until the saved view has been applied, so boot cannot overwrite it
   var auto = window.SlopSession.autosave(APP, 'view', function () {
-    return { zoom: S.view.zoom, x: S.view.x, y: S.view.y, tool: S.tool };
+    var v = SV.targetView(); // where an eased zoom ends, never a frame in between
+    return { zoom: v.zoom, x: v.x, y: v.y, tool: S.tool };
   }, { delay: 300 });
   var touch = function () { if (ready) auto.touch(); };
   // Zoom, pan and tool changes come from pointer, wheel and key input: save after any of them.
@@ -18,7 +19,7 @@
     return window.SlopSession.load(APP, 'view', null).catch(function () { return null; }).then(function (v) {
       if (v && typeof v === 'object') {
         if (recovered && v.zoom > 0 && isFinite(v.x) && isFinite(v.y)) {
-          S.view.zoom = v.zoom; S.view.x = v.x; S.view.y = v.y;
+          S.view.zoom = SV.clamp(v.zoom, SV.ZOOM_MIN, SV.ZOOM_MAX); S.view.x = v.x; S.view.y = v.y;
           SV.requestRender(true);
         }
         if (typeof v.tool === 'string' && SV.TOOL_LIST.some(function (t) { return t.id === v.tool; })) SV.setTool(v.tool);

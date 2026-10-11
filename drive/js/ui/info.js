@@ -14,7 +14,7 @@
    * keeps its object URLs (the info panel frees its own on each change; a column keeps its own). */
   DR.previewOf = function (r, big = false, sink = urls) {
     const kind = DR.kindOf(r), box = el('div', { class: 'pv pv-' + kind });
-    if (kind === 'image' || kind === 'pdf') box.append(DR.viewerFor(r, big, sink).el);
+    if (kind === 'image' || kind === 'pdf' || DR.isAi(r)) box.append(DR.viewerFor(r, big, sink).el);
     else if (kind === 'model' && DR.ext(r.name) === 's3d') box.append(DR.preview3d(r, big));
     else if (kind === 'audio') box.append(DR.audioView(r, big));
     else if (kind === 'video') box.append(el('video', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata', playsinline: true }));

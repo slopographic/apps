@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Slop Vector · zoom</title>
+<style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style></head>
+<body>
+  <iframe id="app" src="about:blank"></iframe>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  const f = document.getElementById('app');
+  localStorage.removeItem('slop-nav'); // the default Slop preset: plain wheel zooms, pinch zooms
+  const booted = (w) => { try { return !!(w && w.document.getElementById('app') && w.document.getElementById('app').classList.contains('ready') && w.SV); } catch (e) { return false; } };
+  async function open() {
+    f.src = '../../vector/index.html';
+    await waitFor(() => f.contentWindow && f.contentWindow.document.readyState === 'complete' && booted(f.contentWindow), { timeout: 30000 });
+    await sleep(400); // the saved view restores after boot; let it land before a test sets its own view
+    return f.contentWindow;
+  }
+  let W, SV, S;
+  const settled = () => waitFor(() => SV.targetZoom() === S.view.zoom, { timeout: 2000 });
+  const stageRect = () => W.document.getElementById('stage').getBoundingClientRect();
+  /** The document point under a stage-relative point, read from the live view. */
+  const docAt = (x, y) => ({ x: (x - S.view.x) / S.view.zoom, y: (y - S.view.y) / S.view.zoom });
+  const near = (a, b, eps = 1e-6) => Math.abs(a - b) <= eps;
+  function wheel(x, y, deltaY, mods = {}) {
+    const r = stageRect();
+    const ev = new W.WheelEvent('wheel', Object.assign({ deltaY, deltaMode: 0, clientX: r.left + x, clientY: r.top + y, bubbles: true, cancelable: true }, mods));
+    W.document.getElementById('stage').dispatchEvent(ev);
+  }
+  function pointer(type, id, x, y) {
+    const r = stageRect();
+    W.document.getElementById('stage').dispatchEvent(new W.PointerEvent(type, { pointerId: id, pointerType: 'touch', isPrimary: id === 1, clientX: r.left + x, clientY: r.top + y, button: 0, buttons: type === 'pointerup' ? 0 : 1, bubbles: true, cancelable: true }));
+  }
+  function key(k, code, mods = {}) {
+    W.document.body.dispatchEvent(new W.KeyboardEvent('keydown', Object.assign({ key: k, code, bubbles: true, cancelable: true }, mods)));
+  }
+
+  describe('Slop Vector zoom', () => {
+    it('a wheel step keeps the point under the pointer fixed, mid-ease and at rest', async () => {
+      W = await open(); SV = W.SV; S = SV.state;
+      SV.actualSize();
+      const px = 210, py = 150, before = docAt(px, py), z0 = S.view.zoom;
+      wheel(px, py, -100);
+      expect(S.view.zoom).toBe(z0); // no jump on the event itself
+      expect(SV.targetZoom()).toBeGreaterThan(z0);
+      await sleep(45);
+      expect(S.view.zoom).toBeGreaterThan(z0); // the ease is under way
+      const mid = docAt(px, py);
+      expect(near(mid.x, before.x, 1e-6)).toBe(true);
+      expect(near(mid.y, before.y, 1e-6)).toBe(true);
+      await settled();
+      const after = docAt(px, py);
+      expect(near(after.x, before.x, 1e-6)).toBe(true);
+      expect(near(after.y, before.y, 1e-6)).toBe(true);
+    });
+
+    it('the zoom eases to the target: a value strictly between start and target appears, then it settles', async () => {
+      SV.actualSize();
+      const z0 = S.view.zoom;
+      wheel(300, 200, -240);
+      const target = SV.targetZoom();
+      expect(target).toBeGreaterThan(z0 * 1.2);
+      const seen = [];
+      const t0 = performance.now();
+      while (performance.now() - t0 < 600 && S.view.zoom !== target) { seen.push(S.view.zoom); await sleep(8); }
+      expect(S.view.zoom).toBe(target);
+      expect(seen.some((z) => z > z0 && z < target)).toBe(true);
+      const ms = performance.now() - t0;
+      expect(ms).toBeLessThan(600);
+      for (let i = 1; i < seen.length; i++) expect(seen[i]).toBeGreaterThanOrEqual(seen[i - 1] - 1e-12);
+    });
+
+    it('a burst of wheel steps adds up from the target, not from the value on screen', async () => {
+      SV.actualSize();
+      const z0 = S.view.zoom;
+      for (let i = 0; i < 4; i++) wheel(300, 200, -100);
+      const t = SV.targetZoom();
+      expect(near(t, z0 * Math.exp(0.8), 1e-6)).toBe(true);
+      await settled();
+      expect(near(S.view.zoom, t, 1e-9)).toBe(true);
+    });
+
+    it('zoom clamps at 1% and 3200%, and the status bar shows the percentage', async () => {
+      SV.actualSize();
+      for (let i = 0; i < 40; i++) wheel(300, 200, -500);
+      await settled();
+      expect(S.view.zoom).toBe(32);
+      expect(W.document.getElementById('zoomIn').value).toBe('3200%');
+      SV.zoomTo(1000); await settled();
+      expect(S.view.zoom).toBe(32);
+      SV.zoomTo(0.0001); await settled();
+      expect(S.view.zoom).toBe(0.01);
+      expect(W.document.getElementById('zoomIn').value).toBe('1%');
+      for (let i = 0; i < 40; i++) wheel(300, 200, 500);
+      await settled();
+      expect(S.view.zoom).toBe(0.01);
+      SV.setZoom(1e6); expect(S.view.zoom).toBe(32);
+      SV.setZoom(0); expect(S.view.zoom).toBe(0.01);
+    });
+
+    it('keyboard: + zooms in one step around the centre, 1 is 100%, 0 fits the artboard', async () => {
+      SV.actualSize();
+      const r = stageRect(), c = { x: r.width / 2, y: r.height / 2 }, centre = docAt(c.x, c.y);
+      key('=', 'Equal', { ctrlKey: true });
+      expect(SV.targetZoom()).toBe(1.5);
+      await settled();
+      const after = docAt(c.x, c.y);
+      expect(near(after.x, centre.x, 1e-6)).toBe(true);
+      expect(near(after.y, centre.y, 1e-6)).toBe(true);
+      key('1', 'Digit1');
+      await settled();
+      expect(S.view.zoom).toBe(1);
+      key('0', 'Digit0');
+      const fit = SV.fitTarget();
+      expect(near(SV.targetZoom(), fit.zoom, 1e-9)).toBe(true);
+      await settled();
+      expect(near(S.view.zoom, fit.zoom, 1e-9)).toBe(true);
+      expect(near(S.view.x, fit.x, 1e-6)).toBe(true);
+      expect(near(S.view.y, fit.y, 1e-6)).toBe(true);
+    });
+
+    it('a pinch with two synthetic touches scales around the midpoint and starts without a jump', async () => {
+      SV.actualSize();
+      await settled();
+      const m = { x: 400, y: 300 }, before = docAt(m.x, m.y), z0 = S.view.zoom;
+      pointer('pointerdown', 1, m.x - 50, m.y);
+      pointer('pointerdown', 2, m.x + 50, m.y);
+      expect(S.view.zoom).toBe(z0); // the second finger lands: nothing moves yet
+      pointer('pointermove', 2, m.x + 75, m.y);
+      pointer('pointermove', 1, m.x - 75, m.y);
+      pointer('pointermove', 2, m.x + 100, m.y);
+      pointer('pointermove', 1, m.x - 100, m.y);
+      expect(near(S.view.zoom, z0 * 2, 1e-6)).toBe(true);
+      const after = docAt(m.x, m.y);
+      expect(near(after.x, before.x, 1e-6)).toBe(true);
+      expect(near(after.y, before.y, 1e-6)).toBe(true);
+      pointer('pointerup', 1, m.x - 100, m.y);
+      pointer('pointerup', 2, m.x + 100, m.y);
+    });
+  });
+  run({ name: 'Slop Vector · zoom' });
+  </script>
+</body>
+</html>

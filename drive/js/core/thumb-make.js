@@ -31,12 +31,18 @@
       return { blob: await DR.canvasBlob(c), info: { kind: 'image', w: bmp.width, h: bmp.height } };
     } finally { bmp.close(); }
   }
-  async function pdfThumb(r) {
-    const doc = await DR.openPdf(r.blob);
+  async function pdfThumb(r, blob = r.blob) {
+    const doc = await DR.openPdf(blob);
     try {
       const c = await DR.renderPdfPage(doc, 1, SIZE), p1 = (await doc.getPage(1)).getViewport({ scale: 1 });
       return { blob: await DR.canvasBlob(c), info: { kind: 'pdf', pages: doc.numPages, w: Math.round(p1.width), h: Math.round(p1.height), unit: 'pt' } };
     } finally { doc.destroy(); }
+  }
+  /** An Illustrator file: page 1 of the PDF inside it, or a card when there is none. */
+  async function aiThumb(r) {
+    const pdf = await DR.aiPdfBlob(r.blob);
+    if (!pdf) return cardOf(r, {}, { kind: 'card' });
+    return pdfThumb(r, pdf);
   }
   /** A frame one second in (or the last frame of a shorter clip): { c, meta }. */
   function videoFrame(r) {
@@ -140,6 +146,7 @@
     try {
       if (kind === 'image') return await imageThumb(r);
       if (kind === 'pdf' && r.size < PDF_MAX) return await pdfThumb(r);
+      if (DR.isAi(r) && r.size < PDF_MAX) return await aiThumb(r);
       if (kind === 'video') return await videoThumb(r);
       if (kind === 'audio' && r.size < AUDIO_MAX) return await audioThumb(r);
       if (kind === 'model' && e === 's3d') return await threeThumb(r);

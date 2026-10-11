@@ -40,23 +40,27 @@
     return shared === 'image' || shared === 'audio' || shared === 'video' ? shared : 'other';
   }
   const isSvg = (r) => /svg/.test(r.type || '') || ext(r.name) === 'svg';
+  /** Adobe Illustrator files (.ai): a design file whose preview is the PDF page inside them (core/pdf.js). */
+  const isAi = (r) => !!r && !r.isFolder && ext(r.name) === 'ai';
   /** Short label like "PNG image" or "PDF". */
   function kindLabel(r) {
     if (r.isFolder) return 'Folder';
     const k = BY[kindOf(r)], e = ext(r.name).toUpperCase();
     if (k.id === 'pdf') return 'PDF document';
+    if (isAi(r)) return 'Illustrator design file';
     if (k.id === 'other') return e ? e + ' file' : 'File';
     return (e ? e + ' ' : '') + k.one.toLowerCase();
   }
   /** Best MIME type for a file the browser gave us with no type. */
   function guessType(name, type) {
-    if (type) return type;
     const e = ext(name);
+    if (e === 'ai') return 'application/illustrator'; // browsers give .ai files all sorts of MIME types, or none
+    if (type) return type;
     return ({ png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml', bmp: 'image/bmp', avif: 'image/avif',
       pdf: 'application/pdf', txt: 'text/plain', md: 'text/markdown', csv: 'text/csv', tsv: 'text/tab-separated-values', json: 'application/json', html: 'text/html', css: 'text/css', js: 'text/javascript',
       mp3: 'audio/mpeg', wav: 'audio/wav', ogg: 'audio/ogg', m4a: 'audio/mp4', mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', zip: 'application/zip',
       psd: 'image/vnd.adobe.photoshop', ora: 'application/x-openraster', slop: 'application/x-slopographic-backup', s3d: 'application/x-slop-3d', sdoc: 'application/x-slop-doc', stab: 'application/x-slop-table', sslide: 'application/x-slop-slides', sinv: 'application/x-slop-invoice', zpl: 'text/plain', sloplabel: 'application/json' })[e] || 'application/octet-stream';
   }
-  DR.KINDS = KINDS; DR.KIND = BY; DR.kindOf = kindOf; DR.kindLabel = kindLabel; DR.ext = ext; DR.isSvg = isSvg; DR.guessType = guessType;
+  DR.KINDS = KINDS; DR.KIND = BY; DR.kindOf = kindOf; DR.kindLabel = kindLabel; DR.ext = ext; DR.isSvg = isSvg; DR.guessType = guessType; DR.isAi = isAi;
   DR.kindColor = (r) => (kindOf(r) === 'doc' && DOC_COLOR[ext(r.name)]) || BY[kindOf(r)].color;
 })(window.DR);

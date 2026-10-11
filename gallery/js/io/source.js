@@ -3,19 +3,24 @@
  *  - fromDrop(DataTransfer)       dropped files and whole folders (webkitGetAsEntry, recursive)
  *  - fromDirectory()              showDirectoryPicker where the browser has it (FileSystemDirectoryHandle), else null
  *  - fromDrive()                  one file from Slop Drive (SlopHub.pickFromDrive), keeps its Drive id
- * Entries are read synchronously inside the drop event, as the browser requires, before any await.
+ * Entries are read synchronously inside the drop event, as the browser requires, before any await. The library keeps
+ * photos (JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, HEIC); video files (WebM and the rest) are left out and listed in
+ * .skipped on the array, so the import can say why. WebM plays in the Drive view.
  * Exposes window.SlopGallery.source. */
 (function () {
   'use strict';
   const G = (window.SlopGallery = window.SlopGallery || {});
-  const EXT = { jpg: 'image/jpeg', jpeg: 'image/jpeg', jpe: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif', bmp: 'image/bmp', heic: 'image/heic', heif: 'image/heif' };
+  const EXT = { jpg: 'image/jpeg', jpeg: 'image/jpeg', jpe: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif', bmp: 'image/bmp', heic: 'image/heic', heif: 'image/heif', svg: 'image/svg+xml' };
+  const isVideo = (file, name) => /^video\//.test(file.type || '') || /\.(webm|mp4|m4v|mov|mkv|ogv)$/i.test(name || file.name || '');
   const extOf = (name) => (/\.([a-z0-9]+)$/i.exec(name || '') || [])[1]?.toLowerCase() || '';
   const mimeOf = (name) => EXT[extOf(name)] || 'application/octet-stream';
   const isImage = (file, name) => /^image\//.test(file.type || '') || !!EXT[extOf(name || file.name)];
 
-  /** Keeps image files only and gives each a display name. */
+  /** Keeps image files only and gives each a display name. The array's .skipped lists the video files left out. */
   function keepImages(list) {
-    return list.filter((x) => x && x.file && isImage(x.file, x.name)).map((x) => ({ file: x.file, name: x.name || x.file.name || 'photo', driveId: x.driveId || null }));
+    const out = list.filter((x) => x && x.file && isImage(x.file, x.name)).map((x) => ({ file: x.file, name: x.name || x.file.name || 'photo', driveId: x.driveId || null }));
+    out.skipped = list.filter((x) => x && x.file && !isImage(x.file, x.name) && isVideo(x.file, x.name)).map((x) => x.name || x.file.name || 'video');
+    return out;
   }
   function fromFiles(fileList) {
     return keepImages([...(fileList || [])].map((f) => ({ file: f, name: f.name })));

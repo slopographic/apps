@@ -16,8 +16,11 @@
   }
 
   /** Runs the import pipeline and reports the result. items: [{ file, name, driveId? }]. */
+  /** The note for video files that were left out (the library keeps photos). */
+  const videoNote = (names) => `${plural(names.length, 'video was', 'videos were')} not imported: the library keeps photos. Play them in the Drive view.`;
   async function importItems(items) {
-    if (!items || !items.length) { toast('Nothing to import: no photos found.'); return null; }
+    const videos = (items && items.skipped) || [];
+    if (!items || !items.length) { toast(videos.length ? videoNote(videos) : 'Nothing to import: no photos found.'); return null; }
     const busy = document.getElementById('busy');
     const keep = !!(document.getElementById('keepDup') || {}).checked;
     if (busy) { busy.hidden = false; busy.textContent = `Importing ${items.length}…`; }
@@ -26,6 +29,7 @@
       report = await G.importer.run(items, { keepDuplicates: keep, onProgress: (p) => { if (busy) busy.textContent = `Importing ${p.done + 1} of ${p.total}${p.name ? ' · ' + p.name : ''}`; } });
     } finally { if (busy) busy.hidden = true; }
     const parts = [plural(report.added, 'photo added', 'photos added')];
+    if (videos.length) parts.push(videoNote(videos));
     if (report.skipped) parts.push(`${report.skipped} already in the library`);
     if (report.failed.length) parts.push(`${report.failed.length} could not be read`);
     toast(parts.join(' · '));

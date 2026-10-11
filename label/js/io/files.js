@@ -4,12 +4,14 @@
 
 function readAsDataURL(blob) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(blob); }); }
 function loadImageURL(url) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Could not read that image')); i.src = url; }); }
-/** Add an image file (PNG/JPEG/SVG/GIF/WebP) as an asset; large bitmaps are downscaled. → { id, aspect, w, h } */
+/** Add an image file (PNG/JPEG/SVG/GIF/WebP/AVIF) as an asset. SVG stays vector (never rasterised); large bitmaps are
+ * downscaled. A format this browser cannot decode gets a clear message. → { id, aspect, w, h } */
 async function addImageAsset(doc, blob) {
-  if (!/^image\//.test(blob.type) && !/\.(png|jpe?g|svg|gif|webp|bmp)$/i.test(blob.name || '')) throw new Error('Choose a PNG, JPEG, SVG, GIF or WebP image');
+  if (/\.webm$/i.test(blob.name || '') || /^video\//.test(blob.type || '')) throw new Error('WebM is video. SlopLabel places pictures and does not play video; export a still image instead.');
+  if (!/^image\//.test(blob.type) && !/\.(png|jpe?g|svg|gif|webp|avif|bmp)$/i.test(blob.name || '')) throw new Error('Choose a PNG, JPEG, SVG, GIF, WebP or AVIF image');
   let url = await readAsDataURL(blob);
   if (/\.svg$/i.test(blob.name || '') && !/^data:image\/svg/.test(url)) url = 'data:image/svg+xml;base64,' + url.split(',')[1];
-  const img = await loadImageURL(url);
+  const img = await loadImageURL(url).catch(() => { throw new Error(`This browser cannot decode ${blob.name || 'that image'}. Try a PNG, JPEG or SVG.`); });
   let w = img.naturalWidth || 300, h = img.naturalHeight || 300;
   if (!/svg/.test(url.slice(0, 30)) && (Math.max(w, h) > 2400 || url.length > 3e6)) {
     const k = 2400 / Math.max(w, h), c = document.createElement('canvas');

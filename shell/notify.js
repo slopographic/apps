@@ -135,13 +135,21 @@
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', 'Notifications');
     panel.innerHTML = '<div class="sn-phead"><span>Notifications</span><button type="button" class="sn-clear">Clear all</button></div><div class="sn-list"></div><div class="sn-perm" hidden><p>Get alerts when this page is in the background.</p><button type="button" class="sn-ask">Turn on desktop alerts</button></div>';
-    panel.querySelector('.sn-clear').addEventListener('click', () => { history = []; actions.clear(); unread = 0; save(); emit(); });
+    panel.querySelector('.sn-clear').addEventListener('click', clearAll);
     panel.querySelector('.sn-ask').addEventListener('click', () => { askDesktop(); });
     document.body.append(panel);
     document.addEventListener('pointerdown', (e) => { if (!panel.hidden && !panel.contains(e.target) && !bell.contains(e.target)) openPanel(false); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) openPanel(false); });
     renderBell();
     return bell;
+  }
+  function clearAll() {
+    history = [];
+    actions.clear();
+    unread = 0;
+    save();
+    if (stack) stack.textContent = '';
+    emit();
   }
   function askDesktop() {
     if (!hasNative() || Notification.permission !== 'default') return Promise.resolve(desktopState());
@@ -153,7 +161,7 @@
   window.SlopNotify = {
     show, dismiss, mountBell, askDesktop, desktopState,
     history: () => history.slice(),
-    clear() { history = []; actions.clear(); unread = 0; save(); emit(); },
+    clear() { clearAll(); },
     unread: () => unread,
     markRead() { unread = 0; history.forEach((r) => { r.read = true; }); save(); emit(); },
     onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
