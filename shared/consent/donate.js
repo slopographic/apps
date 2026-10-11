@@ -1,4 +1,4 @@
-/* Donate link. Classic script, exposes window.SlopDonate. Renders into every [data-donate] element, but only when
+/* Tip jar link (the donate link). Classic script, exposes window.SlopDonate. Renders into every [data-donate] element, but only when
  * config patreonUrl is set. With an empty URL the element stays hidden and nothing is rendered. */
 (function () {
   'use strict';
@@ -14,7 +14,7 @@
     a.href = cfg.patreonUrl;
     a.target = '_blank';
     a.rel = 'noopener';
-    a.textContent = 'Support Slopographic on Patreon';
+    a.textContent = 'Tip jar';
     el.append(a);
     el.hidden = false;
     return true;

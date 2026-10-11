@@ -44,7 +44,7 @@
     'settings.defaults': 'Defaults',
     'settings.exchange_rates': 'Exchange rates',
     'settings.app_settings': 'App settings',
-    'settings.donate': 'Donate',
+    'settings.donate': 'Tip jar',
 
     'settings.language': 'Language',
     'settings.language_saved': 'Saved. {name} is the language of the app text.',
@@ -59,7 +59,7 @@
     'support.title': 'Support Slopographic',
     'support.text': 'Sloppo made this free. If it helped, a donation keeps it going.',
     'support.fine': 'Analytics and ads are off by default.',
-    'support.donate': 'Donate',
+    'support.donate': 'Tip jar',
     'support.no_thanks': 'No thanks',
     'support.close_aria': 'Close for now',
     'support.ads': 'Ads',

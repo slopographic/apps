@@ -48,11 +48,11 @@
       expect(r.right).toBeLessThanOrEqual(innerWidth);
       expect(document.querySelector('[class*="overlay"], [class*="backdrop"]')).toBe(null);
     });
-    it('the card has Donate (new tab, Patreon URL from brand.json), No thanks, ×, Sloppo, and the ads slider off', async () => {
+    it('the card has the Tip jar link (new tab, Patreon URL from brand.json), No thanks, ×, Sloppo, and the ads slider off', async () => {
       await SlopSupport.afterExport('photoslop');
       await waitFor(() => cards().length === 1);
       const j = await brandJson();
-      const donate = Array.from(document.querySelectorAll('.slopsup-card a')).find((a) => a.textContent === 'Donate');
+      const donate = Array.from(document.querySelectorAll('.slopsup-card a')).find((a) => a.textContent === 'Tip jar');
       expect(donate.getAttribute('href')).toBe(j.links.patreon);
       expect(donate.getAttribute('target')).toBe('_blank');
       expect(donate.getAttribute('rel')).toMatch(/noopener/);

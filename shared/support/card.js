@@ -1,4 +1,4 @@
-/* The support card's contents: Sloppo, the ask, Donate, the ads slider (or the ad slot with "Turn off"), "No thanks" and ×.
+/* The support card's contents: Sloppo, the ask, the Tip jar link, the ads slider (or the ad slot with "Turn off"), "No thanks" and ×.
  * Classic script, exposes window.SlopSupportCard.build({ onClose, onNoThanks }), .setBrand(json), .config().
  * Writes no storage itself. Ads go through SlopConsent.setChoices only (the one place ads load). Needs
  * shared/consent (config, state, consent-mode) on the page for the ads row; without it the row is hidden.
@@ -121,7 +121,7 @@
     var actions = el('div', 'slopsup-actions');
     var url = patreonUrl();
     if (flags.donate && url) {
-      var a = el('a', 'slopsup-btn', 'Donate', 'support.donate');
+      var a = el('a', 'slopsup-btn', 'Tip jar', 'support.donate');
       a.href = url; a.target = '_blank'; a.rel = 'noopener';
       actions.append(a);
     }

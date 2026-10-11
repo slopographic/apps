@@ -13,7 +13,7 @@ Nothing third-party loads until the visitor accepts. The default for every categ
   `rates` never loads a script and does not map to a Consent Mode type: it only allows the ECB download in `shared/data`.
 - `banner.js` + `banner.css`: `window.SlopBanner`. Shown when storage works and there is no choice for the current
   policy version. Injects `banner.css` itself. Pages with `<body data-consent="off">` never show it.
-- `donate.js`: `window.SlopDonate`. Fills every `[data-donate]` element with a Patreon link (`target="_blank"`,
+- `donate.js`: `window.SlopDonate`. Fills every `[data-donate]` element with the Tip jar link (label "Tip jar") (`target="_blank"`,
   `rel="noopener"`) only when `patreonUrl` is set. Otherwise the element is hidden.
 - `../../settings/index.html` + `settings.js` + `settings.css`: the Settings page. Toggles save at once. Its footer
   and header match the homepage. Also `defaults.js` (default currency and locale), `rates.js` (the exchange-rates
