@@ -96,13 +96,13 @@
       expect(S.face()).toEqual(['normal', 'o']);
       await HomeTest.settled(win);
     });
-    it('makes the o face in the air and spiral eyes after a hard landing', async () => {
+    it('makes the o face in the air and sleepy eyes after a hard landing', async () => {
       await ready;
       await HomeTest.settled(win);
       expect(S.face()[1]).not.toBe('o');
       S.bonk();
       expect(M.mood).toBe('dizzy');
-      expect(S.face()).toEqual(['spiral', 'wavy']);
+      expect(S.face()).toEqual(['sleepy', 'wavy']);
       expect(M.bubble.textContent.length).toBeGreaterThan(0);
     });
     it('leaps back into view when his perch scrolls away', async () => {

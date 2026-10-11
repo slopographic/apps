@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Consent · settings page</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="frames.js"></script>
+  <script>
+  const { describe, it, beforeEach, expect, sleep, waitFor, run } = SlopTest;
+  const { openPage, stubLoader, reset } = ConsentTest;
+  // The real config has empty IDs, so toggling here can never load a third-party script.
+  const page = () => openPage('../../settings/index.html');
+  const record = () => JSON.parse(localStorage.getItem('slop-consent'));
+
+  describe('settings page', () => {
+    beforeEach(reset);
+    it('starts with both switches off and no banner', async () => {
+      const w = await page();
+      expect(w.document.getElementById('set-analytics').checked).toBe(false);
+      expect(w.document.getElementById('set-ads').checked).toBe(false);
+      expect(w.document.getElementById('slopc-banner')).toBe(null);
+      expect(w.document.getElementById('donate').hidden).toBe(true);
+    });
+    it('the switches read and write the same record as the banner', async () => {
+      const w = await page();
+      const a = w.document.getElementById('set-analytics');
+      a.checked = true;
+      a.dispatchEvent(new w.Event('change'));
+      expect(record().categories.analytics).toBe(true);
+      expect(w.SlopConsent.state().analytics).toBe(true);
+      a.checked = false;
+      a.dispatchEvent(new w.Event('change'));
+      expect(record().categories.analytics).toBe(false);
+    });
+    it('shows the privacy sentence', async () => {
+      const w = await page();
+      expect(w.document.querySelector('.privacy').textContent).toContain('never leave your device');
+    });
+  });
+
+  run({ name: 'Consent settings page' });
+  </script>
+</body>
+</html>

@@ -31,7 +31,7 @@
         if (/rel="icon"/i.test(tag) && !/^https?:|^data:/i.test(href)) { var k2 = '@@ICON' + jobs.length + '@@'; jobs.push({ k: k2, url: href, kind: 'icon' }); return k2; }
         return tag;
       });
-      html = html.replace(/<script\b([^>]*)\bsrc="([^"]+)"([^>]*)><\/script>/gi, function (m, a, src) {
+      html = html.replace(/<script\b([^>]*)\ssrc="([^"]+)"([^>]*)><\/script>/gi, function (m, a, src) {
         if (/^https?:/i.test(src)) return m;
         if (/shared\/guard\.js$/.test(src) || /data-offline="strip"/i.test(m)) return ''; // hosted-site-only scripts (reload guard, Sloppo buddy)
         var k = '@@JS' + jobs.length + '@@'; jobs.push({ k: k, url: src, kind: 'js' }); return k;

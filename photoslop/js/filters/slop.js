@@ -15,7 +15,7 @@ FILTERS.push(
       let c = displace(s, (x, y, o) => { const t = y / hh; o[0] = x + Math.sin(y / 23 + x / 41) * 4 * k; o[1] = y - drip[x] * t * t; });
       if (p.tint > 0) { const g = cx(c); g.globalCompositeOperation = 'source-atop'; g.globalAlpha = p.tint / 100; const gr = g.createLinearGradient(0, 0, 0, hh); gr.addColorStop(0, '#e6ff8c'); gr.addColorStop(0.55, '#9fcc00'); gr.addColorStop(1, '#3d5200'); g.fillStyle = gr; g.globalCompositeOperation = 'source-atop'; g.fillRect(0, 0, w, hh); g.globalAlpha = 1; }
       return c; } },
-  /* ---------- Layer styles (baked) ---------- */
+  /* ---------- Layer styles: the effect renderers of the stack (js/layers/fx.js) ---------- */
   { id: 'shadow', menu: 'style', name: 'Drop Shadow…', cover: true, params: [{ k: 'color', label: 'Colour', type: 'color', v: '#000000' }, R('op', 'Opacity', 0, 100, 60, { unit: '%' }), R('a', 'Angle', -180, 180, 120, { unit: '°' }), R('dist', 'Distance', 0, 300, 12, { unit: 'px' }), R('size', 'Size', 0, 250, 14, { unit: 'px' })],
     fn: (s, p) => { const sh = silhouette(s, p.color, p.op / 100), c = mkCanvas(s.width, s.height), g = cx(c); const a = (p.a * Math.PI) / 180; g.drawImage(p.size ? gaussian(sh, p.size) : sh, -Math.cos(a) * p.dist, Math.sin(a) * p.dist); g.drawImage(s, 0, 0); return c; } },
   { id: 'glow', menu: 'style', name: 'Outer Glow…', cover: true, params: [{ k: 'color', label: 'Colour', type: 'color', v: '#d4ff3a' }, R('op', 'Opacity', 0, 100, 85, { unit: '%' }), R('spread', 'Spread', 0, 40, 4, { unit: 'px' }), R('size', 'Size', 1, 250, 24, { unit: 'px' })],

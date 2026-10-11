@@ -11,13 +11,16 @@ window.DR = window.DR || {};
   DR.S = {
     files: new Map(), folders: new Map(),
     section: 'folder', cwd: null, query: '', kind: 'all',
-    view: p.view || 'grid', usageMode: p.usageMode || 'treemap', sort: p.sort || { key: 'name', dir: 1 },
+    view: p.view || 'grid', usageMode: p.usageMode || 'treemap', tag: '',
+    sorts: p.sorts || (p.sort ? { [p.view || 'grid']: p.sort } : {}), cols: p.cols || {},
     info: p.info != null ? p.info : innerWidth > 1100, tree: new Set(p.tree || []), collapsed: new Set(p.collapsed || []),
     sel: new Set(), anchor: null, focus: null, clip: null, ready: false,
   };
+  /** The sort in use is the one remembered for the current view (each view keeps its own). */
+  DR.S.sort = DR.S.sorts[DR.S.view] || { key: 'name', dir: 1 };
   DR.savePrefs = function () {
     const S = DR.S;
-    try { localStorage.setItem(PREF, JSON.stringify({ view: S.view, usageMode: S.usageMode, sort: S.sort, info: S.info, tree: [...S.tree], collapsed: [...S.collapsed] })); } catch (e) { /* blocked */ }
+    try { localStorage.setItem(PREF, JSON.stringify({ view: S.view, usageMode: S.usageMode, sorts: S.sorts, cols: S.cols, info: S.info, tree: [...S.tree], collapsed: [...S.collapsed] })); } catch (e) { /* blocked */ }
   };
   DR.el = el;
   DR.$ = (id) => document.getElementById(id);

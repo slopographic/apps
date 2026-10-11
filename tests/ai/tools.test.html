@@ -96,7 +96,8 @@
     it('exposes SLOP_APPS: list_apps and open_app', async () => {
       const opened = [];
       const tools = K.appTools.build({ open: (u) => opened.push(u), hub: null });
-      expect(tools.map((t) => t.name)).toEqual(['list_apps', 'open_app', 'save_to_drive', 'list_files']);
+      // read_file is deliberate: it lets the model answer questions about a Drive text file, and apps.test.html tests it.
+      expect(tools.map((t) => t.name)).toEqual(['list_apps', 'open_app', 'save_to_drive', 'list_files', 'read_file']);
       const apps = JSON.parse((await T.dispatch({ name: 'list_apps', arguments: {} }, tools)).result);
       expect(apps.some((a) => a.id === 'photoslop')).toBe(true);
       expect((await T.dispatch({ name: 'open_app', arguments: { id: 'photoslop' } }, tools)).ok).toBe(true);

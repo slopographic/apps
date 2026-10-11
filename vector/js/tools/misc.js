@@ -19,25 +19,7 @@
   var CURSORS = $.CURSORS;
   var TOOLS = $.TOOLS;
 
-  /* ================= eyedropper / hand / zoom ================= */
-  TOOLS.eyedropper = {
-    down: function (ev) {
-      var h = SV.hitTest(ev.p); if (!h) return;
-      var src = h.obj; if (!src.style) return;
-      var keys = ['fill', 'stroke', 'sw', 'cap', 'join', 'miter', 'dash', 'opacity', 'blend'];
-      var targets = [];
-      SV.selObjs().forEach(function (o) { SV.leaves(o).forEach(function (l) { if (l.id !== src.id && SV.isEditable(l)) targets.push(l); }); });
-      targets.forEach(function (t) {
-        keys.forEach(function (k) { if (t.type === 'image' && k !== 'opacity' && k !== 'blend') return; t.style[k] = clone(src.style[k]); });
-        if (t.type === 'text' && src.type === 'text') t.font = clone(src.font);
-      });
-      if (src.type !== 'image') keys.forEach(function (k) { S.style[k] = clone(src.style[k]); });
-      if (src.type === 'text') S.font = clone(src.font);
-      if (targets.length) SV.commit('eyedropper'); else SV.requestRender(true);
-      SV.toast(targets.length ? 'Applied sampled appearance' : 'Sampled appearance — select objects first to apply it');
-    },
-    hover: function (ev) { var h = SV.hitTest(ev.p); S.hover = h ? h.obj.id : null; setCursor(CURSORS.eyedropper); }
-  };
+  /* ================= hand / zoom (the eyedropper is in eyedrop.js) ================= */
   TOOLS.hand = { hover: function () { setCursor('grab'); } };
   TOOLS.zoom = {
     down: function (ev) { S.op = { kind: 'marquee', tool: 'zoom', start: ev.p, mk: 'zoom', alt: ev.alt, sx: ev.sx, sy: ev.sy }; S.marquee = { x: ev.p.x, y: ev.p.y, w: 0, h: 0, zoom: true }; },

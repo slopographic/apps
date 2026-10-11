@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="home/home.css">
   <link rel="stylesheet" href="shared/buddy/buddy.css">
   <link rel="stylesheet" href="shared/buddy/extras.css">
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <header class="nav">
@@ -35,6 +36,7 @@
       <a class="tab" href="#status" data-jump>Status</a>
       <button class="tab" data-view="detector">Authenticator</button>
     </nav>
+    <button type="button" class="btn pwa-install" id="pwa-install" hidden>Install Slopographic</button>
   </header>
 
   <main>
@@ -133,11 +135,13 @@
       <p>No accounts, no tracking. Sloppo is the only one watching.</p>
     </div>
     <p class="fine">© 2026 Slopographic.</p>
-    <p class="fine legal"><a href="https://github.com/slopographic/slopographic/blob/main/LICENSE">Code MIT</a> · <a href="https://github.com/slopographic/slopographic/blob/main/TRADEMARKS.md">Sloppo™ and Slopographic™ are trademarks</a></p>
+    <p class="fine legal"><a href="settings/">Settings and privacy</a> · <a href="https://github.com/slopographic/slopographic/blob/main/LICENSE">Code MIT</a> · <a href="https://github.com/slopographic/slopographic/blob/main/TRADEMARKS.md">Sloppo™ and Slopographic™ are trademarks</a></p>
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+  <script src="shared/pwa.js"></script>
+  <script>SlopPWA.mount({ install: '#pwa-install' });</script>
   <script src="shared/apps.js"></script>
   <script src="shared/hub.js"></script>
   <script src="shared/guard.js" defer></script>

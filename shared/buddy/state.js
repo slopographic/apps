@@ -8,6 +8,9 @@ export const M = {
   hop: null, samples: [],
   mood: '', moodUntil: 0,      // love | dizzy | chomp | land
   offSince: 0, nextIdle: 0, hard: false, hover: false, pets: 0,
+  thrown: false, daze: 0,      // a throw in flight (ends on the page floor = left the page); dizzy until this time
+  glad: 0,                     // happiness 0..1 from good moments, fades fast (mood.js)
+  happyAt: 0, askAt: 0, pokes: [], offs: [],   // mood bookkeeping (mood.js, motion.js, input.js)
   chaos: false, token: 0,      // token changes when chaos stops, so running actions bail out
   rage: 0, raging: 0, rageChaos: false, // rage meter (0..3) and when RAGE ends (ms)
   is3d: false,
@@ -29,6 +32,8 @@ export const pageH = () => Math.max(document.body.offsetHeight, document.documen
 
 export function setMood(mood, ms) { M.mood = mood; M.moodUntil = now() + ms; }
 export const moodIs = (mood) => M.mood === mood && now() < M.moodUntil;
+/** A good moment: lifts his happiness (clamped to 0..1, never lowered here). */
+export const cheer = (a) => { M.glad = Math.max(M.glad, Math.min(1, a)); };
 
 /** HUD and hit-box listeners: called whenever level, hat, chaos or the journal change. */
 export const listeners = new Set();

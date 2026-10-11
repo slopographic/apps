@@ -10,6 +10,7 @@ import { resolvedProps, clearParaCache } from './layout/para.js';
 import { marksAt } from './model/ops.js';
 import * as SD from './io/sdoc.js';
 import * as DX from './io/docx.js';
+import * as TB from './model/table-ops.js';
 
 /** Load every face the document's runs use (the layout falls back to nearby faces until they arrive). */
 async function ensureDocFonts(doc) {
@@ -29,7 +30,7 @@ async function ensureDocFonts(doc) {
 F.onFontLoad(() => { clearParaCache(); window.dispatchEvent(new Event('slopdocs:fonts')); });
 
 window.SlopDocEngine = {
-  M, S, O, F, SD, DX,
+  M, S, O, F, SD, DX, TB,
   layoutDoc, resolvedProps, marksAt, ensureDocFonts, clearParaCache,
   textWidth: F.textWidth, vmetrics: F.vmetrics, bestFace: F.bestFace, familyOf: F.familyOf, cssFamily: F.cssFamily,
   FAMILIES: F.FAMILIES, onFontLoad: F.onFontLoad,

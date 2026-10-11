@@ -46,7 +46,7 @@ function mergeLayers(list, name, label) {
   // Respect the bottom layer's own opacity/blend by compositing everything with their settings.
   for (const L of list) {
     if (!L.visible) continue;
-    const s = bakedLayer(L);
+    const b = bakedLayer(L), s = L.fx && L.fx.length ? renderFx(b, L.fx) : b;
     g.globalAlpha = L.opacity; g.globalCompositeOperation = BLEND_OP[L.blend] || 'source-over';
     g.drawImage(s.canvas, s.x, s.y);
   }
@@ -90,36 +90,6 @@ function applyToLayer(label, fn, L = activeLayer()) {
 }
 function rasterizeText(L, quiet) { const R = patchLayer(L.id, { text: null }); if (!quiet) commit('Rasterize Type'); return R; }
 
-/** Resize/crop the canvas. dx,dy = where the old (0,0) lands. */
-function resizeCanvas(w, hh, dx, dy, label = 'Canvas Size') {
-  D.layers = D.layers.map((L) => Object.assign({}, L, { x: L.x + dx, y: L.y + dy, mask: L.mask && Object.assign({}, L.mask, { x: L.mask.x + dx, y: L.mask.y + dy }), text: L.text && Object.assign({}, L.text, { x: L.text.x + dx, y: L.text.y + dy }) }));
-  D.w = Math.round(w); D.h = Math.round(hh);
-  D.sel = null; remapGuides((g) => ({ o: g.o, pos: g.pos + (g.o === 'v' ? dx : dy) }));
-  commit(label);
-}
-function resampleCanvas(c, w, hh) {
-  // Step down in halves for smooth downscaling.
-  let src = c;
-  while (src.width / 2 >= w && src.height / 2 >= hh && src.width > 2) {
-    const t = mkCanvas(src.width / 2, src.height / 2), g = cx(t); g.imageSmoothingQuality = 'high'; g.drawImage(src, 0, 0, t.width, t.height); src = t;
-  }
-  const out = mkCanvas(w, hh), g = cx(out); g.imageSmoothingQuality = 'high'; g.drawImage(src, 0, 0, w, hh);
-  return out;
-}
-function imageSize(w, hh, smooth = true) {
-  const sx = w / D.w, sy = hh / D.h;
-  D.layers = D.layers.map((L) => {
-    const nw = Math.max(1, Math.round(L.canvas.width * sx)), nh = Math.max(1, Math.round(L.canvas.height * sy));
-    let c;
-    if (smooth) c = resampleCanvas(L.canvas, nw, nh); else { c = mkCanvas(nw, nh); const g = cx(c); g.imageSmoothingEnabled = false; g.drawImage(L.canvas, 0, 0, nw, nh); }
-    let mask = L.mask;
-    if (mask) mask = Object.assign({}, mask, { canvas: resampleCanvas(mask.canvas, Math.max(1, Math.round(mask.canvas.width * sx)), Math.max(1, Math.round(mask.canvas.height * sy))), x: Math.round(mask.x * sx), y: Math.round(mask.y * sy) });
-    return Object.assign({}, L, { canvas: c, x: Math.round(L.x * sx), y: Math.round(L.y * sy), mask, text: L.text && scaleTextModel(L.text, sx, sy) });
-  });
-  remapGuides((g) => ({ o: g.o, pos: g.pos * (g.o === 'v' ? sx : sy) }));
-  D.w = Math.round(w); D.h = Math.round(hh); D.sel = null;
-  commit('Image Size');
-}
 /** Transform every layer: kind = cw | ccw | 180 | flipH | flipV. */
 function transformCanvas(kind) {
   const ow = D.w, oh = D.h, swap = kind === 'cw' || kind === 'ccw';
@@ -144,7 +114,7 @@ function transformCanvas(kind) {
   remapGuides((g) => (kind === 'flipH' ? (g.o === 'v' ? { o: 'v', pos: ow - g.pos } : g) : kind === 'flipV' ? (g.o === 'h' ? { o: 'h', pos: oh - g.pos } : g) : kind === '180' ? { o: g.o, pos: (g.o === 'v' ? ow : oh) - g.pos } : kind === 'cw' ? (g.o === 'v' ? { o: 'h', pos: g.pos } : { o: 'v', pos: oh - g.pos }) : g.o === 'v' ? { o: 'h', pos: ow - g.pos } : { o: 'v', pos: g.pos }));
   if (swap) { D.w = oh; D.h = ow; }
   D.sel = null;
-  commit({ cw: 'Rotate 90° CW', ccw: 'Rotate 90° CCW', 180: 'Rotate 180°', flipH: 'Flip Canvas Horizontal', flipV: 'Flip Canvas Vertical' }[kind]);
+  commit({ cw: 'Rotate 90° Clockwise', ccw: 'Rotate 90° Counter Clockwise', 180: 'Rotate 180°', flipH: 'Flip Horizontal', flipV: 'Flip Vertical' }[kind]);
 }
 /** Trim the document to the selection bounds (or a given rect). */
 function cropTo(r, deletePixels = true) {

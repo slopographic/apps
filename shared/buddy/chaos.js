@@ -3,7 +3,7 @@ import { M, sleep, rand, reduced, changed } from './state.js';
 import { bite, eat, knock, goo } from './acts.js';
 import { blast } from './blast.js';
 import { blackhole } from './blackhole.js';
-import { restoreAll } from './journal.js';
+import { restoreAll, count } from './journal.js';
 import { say } from './fx.js';
 import { line } from './lines.js';
 import { bindChaos, calmRage } from './rage.js';
@@ -51,8 +51,20 @@ export function setChaos(on, { quiet = false } = {}) {
 }
 bindChaos(setChaos);
 
-/** Stop chaos and rage, and undo every change they made. */
-export function restore() {
+const DAMAGE = '.sloppo-crack, .sloppo-burn, .sloppo-goo, .sloppo-hole, .sloppo-ball, .sloppo-letter';
+let repairing = false;
+
+/**
+ * Stop chaos and rage, and undo every change they made. With { animate: true } (his happy repair)
+ * the cracks, burns and goo fade out first, then the same undo runs. Only the animation differs.
+ */
+export function restore({ animate = false } = {}) {
+  if (animate && !reduced() && !repairing && count()) {
+    repairing = true;
+    for (const n of M.layer.querySelectorAll(DAMAGE)) n.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'forwards' });
+    setTimeout(() => { repairing = false; restore(); say(line('repair'), 1800, { force: true }); }, 480);
+    return;
+  }
   if (M.raging) calmRage();
   if (M.chaos) setChaos(false, { quiet: true });
   M.token++;

@@ -93,7 +93,8 @@
     try {
       var r = await SS.pptx.write(A.deck);
       U.download(r.blob, N.fileName(A.deck.title).replace(/\.sslide$/, '.pptx'));
-      D.toast(r.skipped ? r.skipped + ' object' + (r.skipped === 1 ? ' was' : 's were') + ' left out (tables, charts and media are not in PowerPoint export yet)' : 'PowerPoint file ready', 4200);
+      var left = r.skipped ? r.skipped + ' object' + (r.skipped === 1 ? ' was' : 's were') + ' left out (tables, charts and media are not in PowerPoint export yet). ' : '';
+      D.toast(left + 'Slide transitions and object animations are not in the PowerPoint file. They are kept in the .sslide file.', 5200);
     } catch (e) { D.toast('Export failed: ' + e.message, 4000); }
   };
   F.exportPng = function () {

@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   const CO = window.CO, U = CO.util, S = CO.state, $ = U.$;
-  const MODULES = ['view', 'pointer', 'ctxbar', 'panel', 'queue', 'menus', 'commands', 'files'];
+  const MODULES = ['view', 'pointer', 'ctxbar', 'panel', 'queue', 'menus', 'commands', 'ctxmenu', 'files'];
   let busyBy = null;
 
   function startModules() {

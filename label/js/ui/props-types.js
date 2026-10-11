@@ -69,12 +69,16 @@ function barcodeSections(o, it) {
   out.push(fSec('Options', ...opts));
   return out;
 }
+/** Asks for an image file and swaps it into every selected image object. */
+async function replaceImage() {
+  const f = (await SlopUI.pickFiles({ accept: 'image/*,.svg' }))[0]; if (!f) return;
+  try { const a = await addImageAsset(App.doc, f); await preloadImages(App.doc); editSel((x) => { x.asset = a.id; x.aspect = a.aspect; }, 'Replace image'); pruneAssets(App.doc); } catch (e) { SlopUI.toast(e.message); }
+}
+/** Resets the selected image to its natural aspect ratio. */
+function originalRatio() { editSel((x) => { if (x.aspect) x.h = round(x.w / x.aspect, 3); }, 'Original ratio'); }
 function imageSections(o) {
   return [fSec('Image',
-    mk('div', { class: 'btnrow' }, fBtn('Replace image…', async () => {
-      const f = (await SlopUI.pickFiles({ accept: 'image/*,.svg' }))[0]; if (!f) return;
-      try { const a = await addImageAsset(App.doc, f); await preloadImages(App.doc); editSel((x) => { x.asset = a.id; x.aspect = a.aspect; }, 'Replace image'); pruneAssets(App.doc); } catch (e) { SlopUI.toast(e.message); }
-    }), fBtn('Original ratio', () => editSel((x) => { if (x.aspect) x.h = round(x.w / x.aspect, 3); }, 'Original ratio'))),
+    mk('div', { class: 'btnrow' }, fBtn('Replace image…', replaceImage), fBtn('Original ratio', originalRatio)),
     mk('div', { class: 'btnrow' }, fChk('Keep proportions', o.keepAspect !== false, (v) => setProp('keepAspect', v, 'Keep proportions'))),
     fRow('Threshold', fNum(o.threshold, (v) => setProp('threshold', v | 0, 'Threshold'), { min: 1, max: 254, step: 1, title: 'Grey level that becomes black on thermal printers (ZPL, EPL, TSPL)' })),
     mk('div', { class: 'btnrow' }, fChk('Dither for thermal', o.dither !== false, (v) => setProp('dither', v, 'Dither'))),

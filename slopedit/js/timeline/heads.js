@@ -30,7 +30,7 @@
     inner.replaceChildren();
     for (const r of TL.rows()) {
       const t = r.track, v = t.kind === 'video';
-      const row = h('div', { class: 'th ' + t.kind + (t.lock ? ' locked' : ''), style: { height: r.h + 'px' }, dataset: { id: t.id } },
+      const row = h('div', { class: 'th ' + t.kind + (t.lock ? ' locked' : ''), style: { height: r.h + 'px' }, dataset: { id: t.id }, tabindex: '0' },
         h('span', { class: 'th-name', title: 'Double-click to rename' }, t.name),
         h('div', { class: 'th-tools' },
           v ? tog(t.hide ? 'eyeoff' : 'eye', t.hide, t.hide ? 'Show track' : 'Hide track', () => setTrack(t.id, { hide: !t.hide }, t.hide ? 'Show track' : 'Hide track'), 'eye') : null,
@@ -39,6 +39,7 @@
           tog(t.lock ? 'lock' : 'unlock', t.lock, t.lock ? 'Unlock track' : 'Lock track', () => setTrack(t.id, { lock: !t.lock }, t.lock ? 'Unlock track' : 'Lock track'), 'lock')));
       row.querySelector('.th-name').addEventListener('dblclick', () => rename(t));
       row.addEventListener('contextmenu', (e) => { e.preventDefault(); trackMenu(t, e.clientX, e.clientY); });
+      row.addEventListener('keydown', (e) => { if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) { e.preventDefault(); const b = row.getBoundingClientRect(); trackMenu(t, b.left + 16, b.top + 16); } });
       inner.append(row);
     }
     inner.append(h('div', { class: 'th-add' },

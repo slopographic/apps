@@ -16,7 +16,7 @@
         var eye = h('button', { type: 'button', title: l.visible ? 'Hide layer' : 'Show layer', 'aria-label': 'Toggle visibility', html: K.icon('eye', l.visible ? '' : 'off') });
         var lock = h('button', { type: 'button', title: l.locked ? 'Unlock layer' : 'Lock layer', 'aria-label': 'Toggle lock', html: K.icon('lock', l.locked ? '' : 'off') });
         var name = h('span', { class: 'lname' }, l.name + (selLayers[l.id] ? '  ■' : ''));
-        var row = h('div', { class: 'lrow' + (L.active === l.id ? ' on' : ''), role: 'listitem', title: 'Click: draw on this layer · double-click: rename · drag to reorder' },
+        var row = h('div', { class: 'lrow' + (L.active === l.id ? ' on' : ''), role: 'listitem', tabindex: '0', title: 'Click: draw on this layer · double-click: rename · drag to reorder' },
           eye, lock, h('span', { class: 'lcolor', style: { background: l.color } }), name, h('span', { class: 'lmeta' }, count(doc, l.id)));
         eye.addEventListener('click', function (e) { e.stopPropagation(); l.visible = !l.visible; H.commit('Layer visibility'); });
         lock.addEventListener('click', function (e) { e.stopPropagation(); l.locked = !l.locked; if (l.locked) S.sel = S.sel.filter(function (id) { var f = M.findItem(doc, id); return f && f.item.layer !== l.id; }); H.commit('Layer lock'); });

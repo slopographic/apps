@@ -7,9 +7,10 @@ import { line } from './lines.js';
 import { size } from './look.js';
 import { CFG } from './config.js';
 import { save } from './store.js';
+import { TIMING } from './timing.js';
 
-export const RAGE_MS = 15000;
-const DRAIN = 1 / 10;      // meter units per second (one hard drop wears off in 10 s)
+export const RAGE_MS = TIMING.rageMs;
+const DRAIN = TIMING.drainPerSec;   // meter units per second (one hard drop wears off in 4 s)
 /** At or above this he is MAD: the meter stops draining until you give him something (care.js). */
 export const MAD = 1.5;
 let setChaos = () => {};
@@ -25,10 +26,12 @@ export const hardLanding = () => addRage(1, 'ouch');
 
 /** Add to the rage meter. 1st step: dizzy (with a `kind` line); 2nd: annoyed; 3rd: RAGE. */
 export function addRage(n = 1, kind = 'ouch') {
+  M.glad = 0;                          // a bad moment ends a happy one at once
   if (M.raging) { M.raging = Math.max(M.raging, now() + 4000); say(line('rage'), 1400); setMood('dizzy', 900); return; }
   M.rage = Math.min(3, M.rage + n);
   if (M.rage > 2.5 && !reduced()) enrage();
   else if (M.rage > MAD) { M.rage = Math.min(M.rage, 2.5); setMood('annoyed', 3000); say(line('annoyed'), 2400); }
+  else if (kind === 'poke' || kind === 'offpage') { setMood('annoyed', 2000); say(line(kind), 1800); }
   else { setMood('dizzy', 2400); say(line(kind), 1500); }
   persistRage();
   changed();

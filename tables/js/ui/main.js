@@ -10,6 +10,7 @@ import * as cmd from './commands.js';
 import * as F from './storage.js';
 import * as drafts from './drafts.js';
 import * as A from './actions.js';
+import * as ctxmenu from './ctxmenu.js';
 import { undo, redo, canUndo, canRedo } from './history.js';
 import { moveTo } from './nav.js';
 import { toCsv } from '../io/csv.js';
@@ -42,7 +43,7 @@ function bindToolbar() {
 }
 
 function boot() {
-  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); drafts.init(); A.bindClipboard();
+  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); drafts.init(); A.bindClipboard(); ctxmenu.init();
   setPainter(paint);
   on('change', guard); on('saved', guard); on('open', guard);
   $('vp').addEventListener('scroll', () => redraw());

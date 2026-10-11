@@ -37,13 +37,8 @@
       if (it) CO.process.remove(it);
     });
     const btn = h('button', { type: 'button', class: 'q-item' }, img, badge, x);
-    btn.addEventListener('click', () => {
-      const it = S.get(id);
-      if (!it) return;
-      S.activeId = it.id;
-      CO.emit('activeItem', it);
-      CO.process.select(it);
-    });
+    btn.dataset.id = String(id);
+    btn.addEventListener('click', () => { const it = S.get(id); if (it) Q.open(it); });
     return { btn, img, badge };
   }
 
@@ -59,6 +54,13 @@
     });
     root.replaceChildren(...nodes, addBtn);
   }
+
+  /** Makes one image the active one (the click on a tile and the queue's context menu both use this). */
+  Q.open = function (it) {
+    S.activeId = it.id;
+    CO.emit('activeItem', it);
+    CO.process.select(it);
+  };
 
   Q.init = function () {
     root = U.$('#queue');

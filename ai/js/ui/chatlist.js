@@ -27,15 +27,17 @@
     for (const c of convs) {
       list.append(el('div', { class: 'conv' + (panel.conv && panel.conv.id === c.id ? ' on' : ''), 'data-id': c.id, role: 'button', tabindex: 0,
         onclick: (e) => { if (!e.target.closest('.conv-more')) AI.openConv(c.id); },
-        onkeydown: (e) => { if (e.key === 'Enter') AI.openConv(c.id); },
-        oncontextmenu: (e) => { e.preventDefault(); convMenu(c, e.clientX, e.clientY); } },
+        onkeydown: (e) => { if (e.key === 'Enter') AI.openConv(c.id); } },
       el('span', { class: 'conv-t' }, c.title), el('span', { class: 'faint conv-d' }, AI.fmtTime(c.updated)),
       el('button', { type: 'button', class: 'conv-more', 'aria-label': 'More for ' + c.title, onclick: (e) => { const r = e.currentTarget.getBoundingClientRect(); convMenu(c, r.left, r.bottom); } }, AI.icon('more'))));
     }
   }
-  function convMenu(c, x, y) {
-    window.SlopUI.menu([{ label: 'Rename…', act: () => AI.renameConv(c) }, { label: 'Export', sub: AI.exportItems(c) }, '-', { label: 'Delete…', act: () => AI.deleteConv(c) }], x, y);
-  }
+  /** The menu rows for one conversation (the More button and the right-click menu share them). */
+  AI.convItems = function (c) {
+    return [{ label: 'Rename…', act: () => AI.renameConv(c) }, { label: 'Export', sub: AI.exportItems(c) }, '-', { label: 'Delete…', act: () => AI.deleteConv(c) }];
+  };
+  AI.convById = (id) => convs.find((c) => String(c.id) === String(id)) || null;
+  function convMenu(c, x, y) { window.SlopUI.menu(AI.convItems(c), x, y); }
 
   AI.openConv = async function (id) {
     const c = await AI.db.get(id); if (!c) return;
@@ -97,7 +99,8 @@
     const v = AI.$('view-chat');
     const side = el('aside', { class: 'convs', id: 'convs', 'aria-label': 'Chats' },
       el('div', { class: 'convs-h' }, el('button', { type: 'button', class: 'btn primary new-chat', id: 'btnNewChat', onclick: () => AI.newChat() }, AI.icon('plus'), 'New chat')),
-      el('div', { class: 'conv-list', id: 'convList' }));
+      el('div', { class: 'conv-list', id: 'convList' }),
+      AI.renderLauncher());
     const main = el('div', { class: 'chat-main' }, el('div', { class: 'chat-bar', id: 'chatBar' }));
     v.append(side, el('div', { class: 'scrim', onclick: () => document.body.classList.remove('side-open') }), main);
     panel = AI.chat = new AI.ChatPanel(main, { kind: 'chat', empty, toolsFor: AI.toolsFor, onDone: () => bar(), onCreate: (c) => { if (AI.pendingTools) { c.tools = true; AI.pendingTools = false; } bar(); } });

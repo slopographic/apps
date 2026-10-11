@@ -44,6 +44,7 @@
       return { label: it.label, sub: sub.length ? sub : [{ label: '(none)', disabled: true }] };
     }).filter(Boolean);
   }
+  UI.toItems = toItems;
   UI.menuItems = function (label) { var m = MENUS.filter(function (x) { return x.label === label; })[0]; return m ? toItems(m.items) : []; };
   var openIdx = null;
   function clearBar() { openIdx = null; U.$$('.menu-btn.open').forEach(function (b) { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); }); }
@@ -74,14 +75,5 @@
       b.addEventListener('pointerenter', function () { if (openIdx !== null && openIdx !== i) openAt(b, i); });
       nav.append(b);
     });
-  };
-  /** Right-click menu on the canvas. */
-  UI.contextMenu = function (w, e) {
-    var hit = PR.tools.hit(w.x, w.y);
-    if (hit && S.sel.indexOf(hit.it.id) < 0 && !S.text) PR.select([hit.it.id]);
-    var ids = S.text ? ['edit.cut', 'edit.copy', 'edit.paste', '-', { label: 'Paragraph Style', dyn: 'para' }, { label: 'Character Style', dyn: 'char' }, { label: 'Insert Special Character', items: ['type.pageNumber', 'type.emDash', 'type.enDash', 'type.nbsp', 'type.softHyphen', 'type.lineBreak'] }, '-', 'type.placeholder']
-      : S.sel.length ? ['edit.cut', 'edit.copy', 'edit.paste', 'edit.duplicate', 'edit.delete', '-', { label: 'Arrange', items: ['arrange.front', 'arrange.forward', 'arrange.backward', 'arrange.back'] }, { label: 'Text Wrap', items: ['wrap.none', 'wrap.box', 'wrap.contour', 'wrap.jump'] }, { label: 'Fitting', items: ['object.fitFill', 'object.fitFit', 'object.fitCenter', 'object.fitStretch'] }, '-', 'object.textFrameOptions', 'object.placeImage', 'type.placeholder', 'object.lock']
-        : ['edit.paste', 'edit.selectAll', '-', 'layout.addPage', 'layout.marginsColumns', 'layout.createGuides', '-', 'view.fitPage', 'view.preview'];
-    window.SlopUI.menu(toItems(ids), e.clientX, e.clientY);
   };
 })();

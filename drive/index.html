@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="css/panels.css">
   <link rel="stylesheet" href="css/viz.css">
   <link rel="stylesheet" href="css/mobile.css">
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app" id="app">
@@ -28,6 +29,7 @@
       <div class="appname"><b>Slop Drive</b><a class="home-link" href="../">slopographic</a></div>
       <label class="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg><input id="search" type="search" placeholder="Search Slop Drive" aria-label="Search Slop Drive" autocomplete="off"></label>
       <div class="tb-group">
+        <button type="button" class="btn pwa-install" id="pwa-install" hidden>Install Slopographic</button>
         <button type="button" class="btn primary" id="btnNew"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>New</span></button>
         <button type="button" class="tb" id="btnCmd" title="Search commands (⌘K)" aria-label="Search commands" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></svg></button>
         <button type="button" class="tb" id="btnBackup" title="Backup & restore" aria-label="Backup and restore"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/></svg></button>
@@ -38,6 +40,8 @@
       <nav class="places" id="places"></nav>
       <div class="tree-h">Folders</div>
       <div class="tree" id="tree" role="tree"></div>
+      <div class="tree-h">Tags</div>
+      <nav class="tags" id="tags" aria-label="Filter by tag"></nav>
       <div class="meter" id="meter"></div>
     </aside>
     <div class="scrim" id="scrim" hidden></div>
@@ -47,6 +51,7 @@
         <div class="bar-tools">
           <select id="kind" class="inp" aria-label="Filter by kind"></select>
           <div class="seg" id="views" role="group" aria-label="View"></div>
+          <button type="button" class="tb" id="btnSort" title="Sort (Alt+S)" aria-label="Sort" aria-haspopup="menu"><svg class="ic" viewBox="0 0 24 24"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3"/></svg></button>
           <button type="button" class="tb" id="btnInfo" title="Info panel (I)" aria-label="Info panel" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
         </div>
       </div>
@@ -54,11 +59,16 @@
       <section class="pane" id="pane" tabindex="0" aria-label="Files"></section>
       <footer class="status" id="status" role="status"></footer>
     </main>
-    <aside class="info" id="info" aria-label="Details" hidden></aside>
+    <aside class="info" id="info" aria-label="Details" hidden><div class="info-grip" id="infoGrip" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset"></div></aside>
     <div class="dropzone" id="dropzone" hidden><div><b>Drop to upload</b><span>Files and folders go into the open folder.</span></div></div>
   </div>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount({ install: '#pwa-install' });</script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/preview/chrome.js"></script>
+  <script src="../shared/preview/preview.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="../shared/hub.js"></script>
   <script src="../shared/guard.js" defer></script>
@@ -68,6 +78,7 @@
   <script src="js/core/kinds.js"></script>
   <script src="js/core/store.js"></script>
   <script src="js/core/ops.js"></script>
+  <script src="js/core/tags.js"></script>
   <script src="js/core/io.js"></script>
   <script src="js/core/thumbs.js"></script>
   <script src="js/core/dupes.js"></script>
@@ -76,14 +87,19 @@
   <script src="js/ui/items.js"></script>
   <script src="js/ui/view-files.js"></script>
   <script src="js/ui/view-columns.js"></script>
+  <script src="js/ui/list-cols.js"></script>
   <script src="js/ui/view-nodes.js"></script>
   <script src="js/ui/view-usage.js"></script>
   <script src="js/ui/select.js"></script>
   <script src="js/ui/dnd.js"></script>
   <script src="js/ui/newdoc.js"></script>
   <script src="js/ui/menus.js"></script>
+  <script src="js/ui/ctxmenu.js"></script>
   <script src="js/ui/commands.js"></script>
+  <script src="js/ui/viewer.js"></script>
+  <script src="js/ui/clean-action.js"></script>
   <script src="js/ui/info.js"></script>
+  <script src="js/ui/info-width.js"></script>
   <script src="js/ui/quicklook.js"></script>
   <script src="js/ui/dupes-ui.js"></script>
   <script src="js/ui/keys.js"></script>

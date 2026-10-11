@@ -87,6 +87,7 @@ function renderTabs() {
     const x = h('button', { type: 'button', class: 'doctab-x', 'aria-label': `Close ${docName(rec)}`, title: 'Close (Alt+Ctrl+W)' }, '×');
     x.addEventListener('click', (e) => { e.stopPropagation(); closeDoc(rec); });
     tab.append(x);
+    ctxTarget(tab, 'tab', () => tabItems(rec));
     tab.addEventListener('pointerdown', (e) => { if (e.button === 0 && !e.target.closest('.doctab-x')) switchToDoc(rec); });
     tab.addEventListener('auxclick', (e) => { if (e.button === 1) { e.preventDefault(); closeDoc(rec); } });
     tab.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') cycleDoc(1); if (e.key === 'ArrowLeft') cycleDoc(-1); });
@@ -118,6 +119,9 @@ function windowMenuItems() {
     { label: 'Previous Document', key: 'Shift+Ctrl+Tab', act: () => cycleDoc(-1), en: () => DOCS.length > 1 },
     '-',
     { label: 'Guides', check: () => !!SlopGuides.panel, act: () => openGuidesPanel() },
+    '-',
+    { label: 'Foreground Colour…', act: () => editSwatch('fg') },
+    { label: 'Background Colour…', act: () => editSwatch('bg') },
     '-',
     ...DOCS.map((rec, i) => ({ label: `${i + 1}  ${docName(rec)}`, check: () => rec === CUR, act: () => switchToDoc(rec), key: i < 9 ? `Alt+${i + 1}` : undefined })),
   ];

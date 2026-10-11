@@ -21,7 +21,7 @@
   };
   AI.toolsFor = function (c) {
     if (!c || !c.tools) return [];
-    return K.appTools.build({ appId: 'ai', confirm: (t, m) => window.SlopUI.confirm(t, m, 'Allow') });
+    return K.appTools.build({ appId: 'ai', workspace: window.SlopWorkspace || null, confirm: (t, m) => window.SlopUI.confirm(t, m, 'Allow') });
   };
 
   /** The settings dialog for conversation c (or the defaults for new chats when c is null). */

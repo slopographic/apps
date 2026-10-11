@@ -59,6 +59,10 @@
 
   describe('new from template', () => {
     it('File > New from template replaces the deck with the template, unlinked from Drive', async () => {
+      // The editor above is still dirty and autosaves a draft. A new editor would restore that draft and ask before
+      // replacing the deck, so clear it first (marking the editor clean also cancels its pending autosave).
+      window.__W1.SS.app.dirty = false;
+      window.__W1.SS.app.draftNow();
       const w = await ST.open('../../slides/');
       const t = w.SS.templates.byId('pitch');
       expect(t).toBeTruthy();

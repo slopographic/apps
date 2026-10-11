@@ -1,0 +1,111 @@
+/* Slopographic app landing pages (<app>/about/). Shared by every app's about page: hero, sections,
+ * the feature matrix and the privacy and limits blocks. Dark only, like the rest of the site.
+ * Pages add their own copy and screenshot; the markup for the matrix is the same on every page. */
+:root {
+  --ink: #0a0a0a;
+  --ink-2: #111111;
+  --bone: #f1ede4;
+  --bone-dim: rgba(241, 237, 228, 0.7);
+  --bone-faint: rgba(241, 237, 228, 0.45);
+  --line: rgba(241, 237, 228, 0.14);
+  --slop: #d4ff3a;
+  --amber: #f5c26b;
+  --sans: "Inter Tight", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: var(--bone); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--slop); outline-offset: 2px; }
+h1, h2, h3 { line-height: 1.12; letter-spacing: -0.01em; margin: 0; }
+p { margin: 0 0 12px; }
+
+.l-wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+
+/* top bar */
+.l-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.l-brand { font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+.l-brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--slop); }
+.l-top nav { display: flex; gap: 16px; font-size: 14px; }
+.l-top nav a { color: var(--bone-dim); text-decoration: none; }
+.l-top nav a:hover { color: var(--bone); }
+
+/* hero */
+.l-hero { padding: 56px 0 28px; }
+.l-eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone-faint); margin: 0 0 10px; }
+.l-hero h1 { font-size: clamp(44px, 9vw, 76px); font-weight: 800; margin-bottom: 14px; }
+.l-badge { display: inline-block; margin-left: 10px; vertical-align: middle; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--amber); color: var(--amber); padding: 2px 8px; border-radius: 999px; }
+.l-promise { font-size: clamp(18px, 3vw, 23px); color: var(--bone-dim); max-width: 34em; margin-bottom: 26px; }
+.l-cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.l-btn { display: inline-block; padding: 12px 18px; border-radius: 6px; border: 1px solid var(--line); text-decoration: none; font-weight: 600; }
+.l-btn.primary { background: var(--slop); color: var(--ink); border-color: var(--slop); }
+.l-btn.primary:hover { filter: brightness(1.06); }
+.l-btn.ghost:hover { border-color: var(--bone-dim); }
+.l-back { font-size: 15px; color: var(--bone-dim); }
+
+/* screenshot */
+.l-shot { margin: 28px 0 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--ink-2); }
+.l-shot img { display: block; width: 100%; height: auto; }
+
+/* sections */
+.l-sec { padding: 44px 0; border-bottom: 1px solid var(--line); }
+.l-sec h2 { font-size: clamp(26px, 4.5vw, 36px); margin-bottom: 14px; }
+.l-sec p { color: var(--bone-dim); max-width: 44em; }
+.l-points { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 26px; }
+.l-points h3 { font-size: 18px; margin-bottom: 6px; }
+.l-points p { font-size: 15px; margin: 0; }
+
+/* feature matrix */
+.l-matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 16px; }
+.l-matrix { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.l-matrix caption { caption-side: top; text-align: left; color: var(--bone-dim); padding: 0 0 12px; font-size: 14px; max-width: 46em; }
+.l-matrix th, .l-matrix td { padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.l-matrix thead th { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bone-faint); font-weight: 500; border-bottom-color: var(--bone-faint); }
+.l-matrix tbody th { font-weight: 500; width: 40%; }
+.l-matrix td { color: var(--bone-dim); width: 30%; }
+.l-matrix td.us { color: var(--bone); background: rgba(212, 255, 58, 0.06); }
+.l-matrix .yes { color: var(--slop); font-weight: 600; }
+.l-matrix .later { color: var(--amber); font-weight: 600; }
+.l-matrix .no { color: var(--bone-faint); font-weight: 600; }
+.l-note { font-size: 13px; color: var(--bone-faint); margin-top: 12px; }
+
+/* privacy and limits */
+.l-priv { margin-top: 0; padding: 18px 20px; border: 1px solid var(--line); border-left: 3px solid var(--slop); border-radius: 6px; background: var(--ink-2); }
+.l-priv p { color: var(--bone); margin: 0; }
+.l-list { margin: 14px 0 0; padding-left: 20px; color: var(--bone-dim); }
+.l-list li { margin-bottom: 8px; }
+
+/* footer */
+.l-foot { padding: 32px 0 48px; font-size: 14px; color: var(--bone-dim); }
+.l-foot-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; }
+.l-foot a { color: var(--bone-dim); }
+.l-foot a:hover { color: var(--bone); }
+.l-fine { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--bone-faint); }
+
+/* phones: the matrix turns into one card per feature. Headers stay in the DOM for screen readers. */
+@media (max-width: 640px) {
+  .l-hero { padding-top: 36px; }
+  .l-cta .l-btn { flex: 1 1 auto; text-align: center; }
+  .l-matrix-wrap { overflow: visible; }
+  .l-matrix, .l-matrix tbody, .l-matrix tr, .l-matrix th, .l-matrix td { display: block; width: 100%; }
+  .l-matrix caption { display: block; }
+  .l-matrix thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .l-matrix tr { border-bottom: 1px solid var(--line); padding: 10px 0; }
+  .l-matrix th, .l-matrix td { border: 0; padding: 3px 0; }
+  .l-matrix tbody th { width: 100%; margin-bottom: 4px; }
+  .l-matrix td { width: 100%; }
+  .l-matrix td::before { content: attr(data-label); display: block; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bone-faint); }
+}

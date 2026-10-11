@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Inventory — Slopographic</title>
+  <meta name="description" content="Slop Inventory: products, stock by location, barcode scanning with a camera or any USB scanner, stock counts and reports. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-inventory.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/inventory.css">
+  <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop Inventory</b><a class="home-link" href="../">slopographic</a></div>
+      <span class="local-badge" title="Your products and stock stay in this browser. Nothing is uploaded."><span>100% local</span></span>
+      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Inventory sections">
+      <button type="button" role="tab" class="tab" id="tab-products" data-view="products" aria-controls="view-products" aria-selected="true">Products</button>
+      <button type="button" role="tab" class="tab" id="tab-scan" data-view="scan" aria-controls="view-scan" aria-selected="false">Scan</button>
+      <button type="button" role="tab" class="tab" id="tab-stock" data-view="stock" aria-controls="view-stock" aria-selected="false">Stock</button>
+      <button type="button" role="tab" class="tab" id="tab-count" data-view="count" aria-controls="view-count" aria-selected="false">Count</button>
+      <button type="button" role="tab" class="tab" id="tab-reports" data-view="reports" aria-controls="view-reports" aria-selected="false">Reports</button>
+      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
+    </nav>
+
+    <main class="main" id="main">
+      <div id="boot" class="boot" role="status">Opening your inventory…</div>
+
+      <section class="view" id="view-products" role="tabpanel" aria-labelledby="tab-products" hidden>
+        <div class="toolbar">
+          <label class="search"><span class="sr">Search products</span>
+            <input id="pSearch" type="search" placeholder="Search SKU, EAN or name" autocomplete="off" spellcheck="false"></label>
+          <label>Sort <select id="pSort"><option value="name">Name</option><option value="sku">SKU</option><option value="onHand">On hand</option><option value="price">Price</option></select></label>
+          <label>Show <select id="pFilter"><option value="all">All products</option><option value="low">Low stock only</option></select></label>
+          <button type="button" class="btn primary" id="pAdd">Add product</button>
+        </div>
+        <p class="note" id="pSummary" role="status"></p>
+        <div class="table" role="table" aria-label="Products">
+          <div class="row head" role="row"><span role="columnheader">Product</span><span role="columnheader">EAN</span><span role="columnheader">Price</span><span role="columnheader">Tax</span><span role="columnheader">On hand</span><span role="columnheader">Reorder</span></div>
+          <div id="pRows" role="rowgroup"></div>
+        </div>
+        <p class="empty" id="pEmpty" hidden>No products match. Add one, or import a CSV in the Data tab.</p>
+      </section>
+
+      <section class="view" id="view-scan" role="tabpanel" aria-labelledby="tab-scan" hidden>
+        <div class="scan-bar">
+          <div class="seg" role="group" aria-label="Scan mode">
+            <button type="button" id="modeKeyboard" aria-pressed="true">Keyboard or scanner</button>
+            <button type="button" id="modeCamera" aria-pressed="false">Camera</button>
+          </div>
+          <label>Action <select id="scanAction">
+            <option value="receive">Receive +</option><option value="sell">Sell −</option><option value="count">Count</option><option value="lookup">Look up only</option>
+          </select></label>
+          <label>Qty <input id="scanQty" type="number" min="1" step="1" value="1" inputmode="numeric"></label>
+          <label>Location <input id="scanLoc" type="text" value="main" list="locations" autocomplete="off" maxlength="40"></label>
+          <datalist id="locations"><option value="main"></datalist>
+          <button type="button" class="btn" id="scanUndo">Undo last scan</button>
+        </div>
+        <div class="camera" id="cameraBox" hidden>
+          <video id="cam" playsinline muted aria-label="Live camera view"></video>
+          <p class="note" id="camMsg" role="status"></p>
+        </div>
+        <div class="scanfield">
+          <label for="scanInput">Scan or type a code, then Enter</label>
+          <input id="scanInput" type="text" autocomplete="off" spellcheck="false" aria-describedby="scanHint">
+          <p class="note" id="scanHint">A USB or Bluetooth scanner types the code here and presses Enter. This works in every browser, with or without a camera.</p>
+        </div>
+        <section class="result" id="scanResult" role="status" aria-live="polite" aria-label="Last scan">
+          <p class="empty">Nothing scanned yet.</p>
+        </section>
+        <h2 class="h2">Scan log</h2>
+        <ul class="log" id="scanLog" aria-label="Recent scans"></ul>
+        <p class="empty" id="scanLogEmpty">No scans yet. Right-click a scan for more actions.</p>
+      </section>
+
+      <section class="view" id="view-stock" role="tabpanel" aria-labelledby="tab-stock" hidden>
+        <div class="toolbar">
+          <label class="grow">Product <select id="sProduct"></select></label>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <h2 class="h2" id="sTitle">Stock by location</h2>
+            <ul class="levels" id="sLevels"></ul>
+            <p class="note" id="sTotal"></p>
+          </div>
+          <div class="card">
+            <h2 class="h2">Movements</h2>
+            <ul class="history" id="sHistory" aria-label="Stock movements"></ul>
+          </div>
+        </div>
+        <div class="forms">
+          <form class="card" id="fReceive" novalidate>
+            <h3 class="h3">Receive</h3>
+            <label>Quantity <input id="rQty" type="number" min="1" step="1" inputmode="numeric" required></label>
+            <label>Location <input id="rLoc" type="text" value="main" list="locations" autocomplete="off"></label>
+            <label>Note <input id="rNote" type="text" maxlength="300" autocomplete="off"></label>
+            <button type="submit" class="btn">Receive</button>
+          </form>
+          <form class="card" id="fSell" novalidate>
+            <h3 class="h3">Sell</h3>
+            <label>Quantity <input id="sellQty" type="number" min="1" step="1" inputmode="numeric" required></label>
+            <label>Location <input id="sellLoc" type="text" value="main" list="locations" autocomplete="off"></label>
+            <label class="check"><input id="sellNeg" type="checkbox"> Allow stock below zero</label>
+            <button type="submit" class="btn">Sell</button>
+          </form>
+          <form class="card" id="fAdjust" novalidate>
+            <h3 class="h3">Adjust</h3>
+            <label>Change (+ or −) <input id="adjQty" type="number" step="1" inputmode="numeric" required></label>
+            <label>Location <input id="adjLoc" type="text" value="main" list="locations" autocomplete="off"></label>
+            <label class="check"><input id="adjNeg" type="checkbox"> Allow stock below zero</label>
+            <button type="submit" class="btn">Adjust</button>
+          </form>
+          <form class="card" id="fTransfer" novalidate>
+            <h3 class="h3">Transfer</h3>
+            <label>Quantity <input id="trQty" type="number" min="1" step="1" inputmode="numeric" required></label>
+            <label>From <input id="trFrom" type="text" value="main" list="locations" autocomplete="off"></label>
+            <label>To <input id="trTo" type="text" value="back" list="locations" autocomplete="off"></label>
+            <button type="submit" class="btn">Transfer</button>
+          </form>
+        </div>
+        <p class="msg" id="sMsg" role="status"></p>
+      </section>
+
+      <section class="view" id="view-count" role="tabpanel" aria-labelledby="tab-count" hidden>
+        <div class="card" id="cStart">
+          <h2 class="h2">Start a stock count</h2>
+          <p class="note">Counting changes no stock. When you post, each difference becomes one count movement, all in one step.</p>
+          <div class="toolbar">
+            <label>Location <input id="cLoc" type="text" value="main" list="locations" autocomplete="off"></label>
+            <button type="button" class="btn primary" id="cBegin">Start count</button>
+          </div>
+        </div>
+        <div class="card" id="cOpen" hidden>
+          <h2 class="h2" id="cTitle">Count open</h2>
+          <p class="note">Scan in the Scan tab with the Count action (each scan adds one), or set quantities here.</p>
+          <div class="toolbar">
+            <label class="grow">Product <select id="cPick"></select></label>
+            <label>Counted <input id="cQty" type="number" min="0" step="1" inputmode="numeric"></label>
+            <button type="button" class="btn" id="cSet">Set counted</button>
+          </div>
+          <ul class="levels" id="cLines" aria-label="Counted products"></ul>
+          <div class="toolbar">
+            <button type="button" class="btn primary" id="cReview">Review differences</button>
+            <button type="button" class="btn danger" id="cCancel">Cancel count</button>
+          </div>
+        </div>
+        <div class="card" id="cReviewBox" hidden>
+          <h2 class="h2">Review before posting</h2>
+          <div id="cDiffs"></div>
+          <label>Note for this count <input id="cNotes" type="text" maxlength="300" autocomplete="off"></label>
+          <div class="toolbar">
+            <button type="button" class="btn primary" id="cPost">Post count</button>
+            <button type="button" class="btn" id="cBack">Keep counting</button>
+          </div>
+        </div>
+        <p class="msg" id="cMsg" role="status"></p>
+      </section>
+
+      <section class="view" id="view-reports" role="tabpanel" aria-labelledby="tab-reports" hidden>
+        <div class="kpis">
+          <div class="kpi"><span>Stock value</span><b id="kValue">—</b></div>
+          <div class="kpi"><span>Products</span><b id="kProducts">—</b></div>
+          <div class="kpi"><span>Units on hand</span><b id="kUnits">—</b></div>
+          <div class="kpi"><span>At or below reorder</span><b id="kLow">—</b></div>
+        </div>
+        <p class="note">Value is on hand times the selling price, before tax, in whole minor units.</p>
+        <h2 class="h2">Low stock</h2>
+        <ul class="levels" id="lowList"></ul>
+        <p class="empty" id="lowEmpty" hidden>Nothing is at or below its reorder level.</p>
+        <h2 class="h2">Stock value by product</h2>
+        <ul class="levels" id="valueList"></ul>
+      </section>
+
+      <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+        <div class="card">
+          <h2 class="h2">Products CSV</h2>
+          <p class="note">Columns: SKU, EAN, Name, Price, Reorder level. Import shows a preview and a report first, and changes nothing if any row is wrong.</p>
+          <div class="toolbar">
+            <button type="button" class="btn primary" id="dImport">Import products from CSV…</button>
+            <button type="button" class="btn" id="dExport">Export product list (CSV)</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2 class="h2">Full backup</h2>
+          <p class="note">A backup holds every record in the shared business data for this browser (products, stock, customers, invoices and the ledger).</p>
+          <div class="toolbar">
+            <button type="button" class="btn" id="dBackup">Download full backup</button>
+          </div>
+          <label class="file">Restore from a backup file <input id="dRestore" type="file" accept="application/json,.json"></label>
+          <ul class="report" id="dRestoreMsg" aria-live="polite"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../shared/data/money.js"></script>
+  <script src="../shared/data/barcode.js"></script>
+  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema.js"></script>
+  <script src="../shared/data/currency.js"></script>
+  <script src="../shared/data/store.js"></script>
+  <script src="../shared/data/numbering.js"></script>
+  <script src="../shared/data/fx.js"></script>
+  <script src="../shared/data/ledger.js"></script>
+  <script src="../shared/data/stock.js"></script>
+  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/data/bundle-check.js"></script>
+  <script src="../shared/data/export.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/csv.js"></script>
+  <script src="js/core/products.js"></script>
+  <script src="js/core/import.js"></script>
+  <script src="js/core/rows.js"></script>
+  <script src="js/core/stock-ops.js"></script>
+  <script src="js/core/count.js"></script>
+  <script src="js/core/scan.js"></script>
+  <script src="js/scan/wedge.js"></script>
+  <script src="js/scan/camera.js"></script>
+  <script src="js/ui/product-form.js"></script>
+  <script src="js/ui/products.js"></script>
+  <script src="js/ui/import.js"></script>
+  <script src="js/ui/stock.js"></script>
+  <script src="js/ui/scan-view.js"></script>
+  <script src="js/ui/count.js"></script>
+  <script src="js/ui/reports.js"></script>
+  <script src="js/ui/commands.js"></script>
+  <script src="js/ui/app.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
+</body>
+</html>

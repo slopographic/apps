@@ -2,7 +2,7 @@
 'use strict';
 
 /* ---------- menus ---------- */
-const filterMenu = (group) => FILTERS.filter((f) => f.menu === group || (f.sep === group)).map((f) => (f.sep ? '-' : { label: f.name, key: f.key, act: () => runFilter(f.id), need: 'layer' }));
+const filterMenu = (group) => FILTERS.filter((f) => f.menu === group || (f.sep === group)).map((f) => (f.sep ? '-' : { label: f.name, key: f.key, act: () => (f.menu === 'style' ? addStyleEffect(f.id) : runFilter(f.id)), need: 'layer' }));
 function filterSub(name) { return { label: name, sub: filterMenu(name) }; }
 const MENUS = [
   ['File', [
@@ -54,6 +54,9 @@ const MENUS = [
     { label: 'Define Brush Preset…', act: () => defineBrushFromSelection(), need: 'layer' },
     { label: 'Import Brushes (.abr, .slopbrush, PNG)…', act: () => SlopUI.pickFiles({ accept: '.abr,.slopbrush,.json,image/*', multiple: true }).then(importBrushFiles) },
     '-',
+    { label: 'Preferences', sub: [
+      { label: 'Navigation…', act: () => SlopNav.openModal('photoslop') },
+    ] },
     { label: 'Keyboard Shortcuts…', key: 'Alt+Shift+Ctrl+K', act: () => dlgShortcuts() },
   ]],
   ['Image', [
@@ -61,14 +64,14 @@ const MENUS = [
     '-',
     { label: 'Image Size…', key: 'Alt+Ctrl+I', act: () => dlgImageSize() },
     { label: 'Canvas Size…', key: 'Alt+Ctrl+C', act: () => dlgCanvasSize() },
-    { label: 'Image Rotation', sub: [
-      { label: '180°', act: () => transformCanvas('180') },
-      { label: '90° Clockwise', act: () => transformCanvas('cw') },
-      { label: '90° Counter Clockwise', act: () => transformCanvas('ccw') },
-      '-',
-      { label: 'Flip Canvas Horizontal', act: () => transformCanvas('flipH') },
-      { label: 'Flip Canvas Vertical', act: () => transformCanvas('flipV') },
-    ] },
+    '-',
+    { label: 'Rotate 90° Clockwise', act: () => transformCanvas('cw') },
+    { label: 'Rotate 90° Counter Clockwise', act: () => transformCanvas('ccw') },
+    { label: 'Rotate 180°', act: () => transformCanvas('180') },
+    '-',
+    { label: 'Flip Horizontal', act: () => transformCanvas('flipH') },
+    { label: 'Flip Vertical', act: () => transformCanvas('flipV') },
+    '-',
     { label: 'Crop to Selection', act: () => { const b = D.sel.bounds; cropTo(b, true); fitView(); }, en: () => !!D.sel },
     { label: 'Trim Transparent Pixels', act: () => { const b = alphaBounds(flattenCanvas()); if (b) { cropTo(b, true); fitView(); } } },
   ]],
@@ -98,6 +101,14 @@ const MENUS = [
     { label: 'Edit Text', act: () => editTypeLayer(), en: () => activeLayer() && !!activeLayer().text },
     { label: 'Warp Text…', act: () => dlgWarpText(), en: () => activeLayer() && !!activeLayer().text },
     { label: 'Rasterize Type', act: () => rasterizeText(activeLayer()), en: () => activeLayer() && !!activeLayer().text },
+    { label: 'Rotate and Flip', sub: [
+      { label: 'Rotate 180°', act: () => transformLayerQuick('180') },
+      { label: 'Rotate 90° Clockwise', act: () => transformLayerQuick('cw') },
+      { label: 'Rotate 90° Counter Clockwise', act: () => transformLayerQuick('ccw') },
+      '-',
+      { label: 'Flip Horizontal', act: () => transformLayerQuick('flipH') },
+      { label: 'Flip Vertical', act: () => transformLayerQuick('flipV') },
+    ] },
     '-',
     { label: 'Arrange', sub: [
       { label: 'Bring to Front', key: 'Shift+Ctrl+]', act: () => moveLayer(D.activeId, D.layers.length - 1) },
@@ -127,6 +138,15 @@ const MENUS = [
     { label: 'Last Filter', key: 'Alt+Ctrl+F', act: () => LAST_FILTER.id && runFilter(LAST_FILTER.id, LAST_FILTER.params), en: () => !!LAST_FILTER.id, dyn: () => (LAST_FILTER.id ? 'Last Filter: ' + FILTER_BY_ID[LAST_FILTER.id].name.replace('…', '') : 'Last Filter') },
     '-',
     filterSub('Blur'), filterSub('Sharpen'), filterSub('Noise'), filterSub('Pixelate'), filterSub('Stylize'), filterSub('Distort'), filterSub('Render'), filterSub('Other'),
+    '-',
+    ...filterMenu('Auto'),
+    { label: 'Repair', sub: [
+      { label: 'Spot Healing Brush', act: () => selectTool('spot') },
+      { label: 'Healing Brush', act: () => selectTool('heal') },
+      { label: 'Red Eye Tool', act: () => selectTool('redeye') },
+      '-',
+      ...filterMenu('Repair'),
+    ] },
     '-',
     filterSub('Slop'),
   ]],

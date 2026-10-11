@@ -1,0 +1,58 @@
+/* Slop Contacts: the contact rows, selection bar, empty state and the editor and review dialogs. */
+.selbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 10px; margin-bottom: 8px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); min-width: 0; }
+.selcount { font-weight: 600; margin-right: 4px; }
+.rows { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.row { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 0 10px 0 4px; border-top: 1px solid var(--line); }
+.row:first-child { border-top: 0; }
+.row.is-sel { background: color-mix(in srgb, var(--accent) 12%, var(--panel)); }
+.ck { display: inline-flex; align-items: center; justify-content: center; width: 40px; min-height: 52px; flex: none; cursor: pointer; }
+.ck input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.open { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-height: 52px; padding: 8px 6px; border: 0; background: none; text-align: left; cursor: pointer; }
+.open:hover .nm { text-decoration: underline; }
+.nm { font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sub { font-size: 12.5px; color: var(--mute); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chips { display: flex; gap: 4px; flex: none; max-width: 40%; overflow: hidden; }
+.chip { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; background: var(--chip); white-space: nowrap; }
+.empty { margin: 28px auto; max-width: 480px; text-align: center; color: var(--mute); }
+.empty-h { font-size: 18px; font-weight: 600; color: var(--ink); margin: 0 0 6px; }
+.empty-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
+.hint, .status { overflow-wrap: anywhere; }
+
+@media (max-width: 560px) {
+  .chips { display: none; }
+  .ck { width: 36px; }
+  .row { padding-right: 6px; }
+}
+
+/* editor and review dialogs (SlopUI boxes with these classes) */
+.ed-dlg, .dupe-dlg { width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 32px); }
+.ed { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ed-sec { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px 10px; margin: 0; min-width: 0; }
+.ed-sec legend { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--mute); padding: 0 4px; }
+.ed-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; min-width: 0; }
+/* labels sit above their inputs in the editor, so the inputs have room */
+.ed .sui-field { grid-template-columns: minmax(0, 1fr); gap: 3px; margin-bottom: 0; min-width: 0; }
+.ed .sui-field > .sui-input, .ed .sui-field > textarea { width: 100%; }
+.ed .sui-input { height: 32px; }
+.ed .ed-note { height: auto; }
+.ed-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; min-width: 0; }
+.ed-row { display: grid; grid-template-columns: minmax(96px, 130px) minmax(0, 1fr) 34px; gap: 6px; align-items: center; min-width: 0; }
+.ed-adr { display: grid; grid-template-columns: minmax(96px, 120px) minmax(0, 1fr) minmax(0, 1fr); gap: 6px; padding: 6px; border: 1px dashed var(--line); border-radius: 8px; position: relative; min-width: 0; }
+.ed-adr .sui-input { min-width: 0; width: 100%; }
+.ed-adr .ed-rm { position: absolute; top: 4px; right: 4px; }
+.ed-rm { width: 34px; min-height: 34px; padding: 0; font-size: 18px; line-height: 1; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); cursor: pointer; }
+.ed-add { min-height: 32px; font-size: 13px; }
+.ed-note { width: 100%; min-height: 72px; resize: vertical; }
+.ed-scope { display: flex; flex-wrap: wrap; gap: 14px; margin: 6px 0; }
+.ed-hint { font-size: 12.5px; color: var(--mute); }
+.ed .sui-input, .dupe-dlg .sui-input { width: 100%; min-width: 0; box-sizing: border-box; }
+.dupes { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow: auto; }
+.dupe { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.dupe .dn { font-weight: 600; overflow-wrap: anywhere; }
+.dupe .dr { grid-column: 1; font-size: 12.5px; color: var(--mute); overflow-wrap: anywhere; }
+.dupe .sui-btn { grid-row: 1 / span 2; grid-column: 2; }
+@media (max-width: 560px) {
+  .ed-row { grid-template-columns: minmax(0, 1fr) 34px; }
+  .ed-row > select, .ed-adr > select { grid-column: 1 / -1; }
+  .ed-adr { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}

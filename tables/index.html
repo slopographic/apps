@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/tables.css" data-src="tables/css/tables.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app">
@@ -73,9 +74,14 @@
   </div>
 
   <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js" data-src="shared/ctxmenu.js"></script>
   <script src="../shared/apps.js" data-src="shared/apps.js"></script>
   <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
   <script type="module" src="js/ui/main.js" data-src="tables/js/ui/main.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

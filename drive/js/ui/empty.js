@@ -35,7 +35,7 @@
       if (what === 'drive') { const bk = el('button', { type: 'button', class: 'btn' }, 'Restore a backup…'); bk.addEventListener('click', () => DR.backupDialog()); acts.append(bk); }
     } else if (what === 'search') {
       const clr = el('button', { type: 'button', class: 'btn' }, 'Clear search');
-      clr.addEventListener('click', () => { DR.S.query = ''; DR.S.kind = 'all'; DR.$('search').value = ''; DR.render(); });
+      clr.addEventListener('click', () => { DR.S.query = ''; DR.S.tag = ''; DR.S.kind = 'all'; DR.$('search').value = ''; DR.render(); });
       acts.append(clr);
     }
     const box = el('div', { class: 'empty', 'data-empty': what }, cv, el('h2', null, h), el('p', null, p), acts);

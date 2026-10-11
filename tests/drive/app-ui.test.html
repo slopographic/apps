@@ -42,7 +42,8 @@
     });
     it('list sorts by clicking the column headers', () => {
       DR.setView('list');
-      expect(qa('.lhead .hcol').map((b) => b.textContent.replace(/[▲▼]/, ''))).toEqual(['Name', 'Kind', 'Size', 'Modified', 'App']);
+      // the default columns: Type replaced Kind, and Location replaced App (see columns.test.html)
+      expect(qa('.lhead .hcol').map((b) => b.textContent.replace(/[▲▼]/, ''))).toEqual(['Name', 'Type', 'Size', 'Modified', 'Location']);
       DR.S.sort = { key: 'name', dir: 1 }; DR.render();
       expect(qa('#pane .row .nm').map((n) => n.textContent)).toEqual(['Inner', 'one copy.png', 'one.png', 'two.png']);
       q('.lhead [data-sort="size"]').click(); // size: biggest first
@@ -62,6 +63,8 @@
       DR.setView('columns'); DR.go(folder('Inner').id);
       expect(qa('#pane .cols > .col').length).toBe(3);
       expect(qa('#pane .crow.open .nm').map((n) => n.textContent)).toEqual(['Pictures', 'Inner']);
+      // the details panel is open by default and shows the preview itself: close it, so the column preview shows
+      DR.S.info = false; DR.renderInfo(true);
       click(q(`#pane .crow[data-key="f:${file('logo.svg').id}"]`));
       expect(q('#pane .col-pv')).toBeTruthy();
       click(q(`#pane .crow[data-key="d:${folder('Docs').id}"]`));

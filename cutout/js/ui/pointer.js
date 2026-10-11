@@ -99,7 +99,6 @@
     stage.addEventListener('pointercancel', onUp);
     stage.addEventListener('pointerleave', () => { if (!drag && cur) cur.hidden = true; });
     stage.addEventListener('wheel', onWheel, { passive: false });
-    stage.addEventListener('contextmenu', (e) => e.preventDefault());
     window.addEventListener('keydown', onKey(true));
     window.addEventListener('keyup', onKey(false));
     window.addEventListener('blur', () => { space = false; });
