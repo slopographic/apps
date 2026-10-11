@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   const S = (window.Slop3D = window.Slop3D || {});
-  const st = S.state, s = st.s, A = S.actions;
+  const s = S.state.s, A = S.actions;
   const toast = (m) => { if (window.SlopUI) SlopUI.toast(m); };
 
   /** Validates config text and adds it to the scene. Returns true when it was added. */
@@ -51,5 +51,4 @@
   }
 
   S.configio = { importText, importDialog, exportConfig, registerStub, commands };
-  void st;
 })();

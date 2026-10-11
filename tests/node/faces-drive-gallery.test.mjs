@@ -30,6 +30,8 @@ function memoryStorage(seed = {}) {
   return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) };
 }
 const pure = () => load(['shared/faces/decode.js']).SlopFaces;
+/** Values made inside the vm context have another Array prototype: copy them before comparing. */
+const plain = (v) => JSON.parse(JSON.stringify(v));
 
 describe('box filtering (decode.js)', () => {
   test('iou: identical boxes 1, disjoint 0, half overlap 1/3', () => {
@@ -47,7 +49,7 @@ describe('box filtering (decode.js)', () => {
       { x: 100, y: 0, w: 10, h: 10, score: 0.6 },
       { x: 200, y: 0, w: 10, h: 10, score: 0.95 },
     ], { minScore: 0.6 });
-    assert.deepEqual(kept.map((b) => b.score), [0.95, 0.6]);
+    assert.deepEqual(plain(kept.map((b) => b.score)), [0.95, 0.6]);
   });
 
   test('overlap suppression: of two boxes over IoU 0.3, only the more confident survives', () => {
@@ -69,7 +71,7 @@ describe('box filtering (decode.js)', () => {
       { x: 60, y: 60, w: 10, h: 10, score: NaN }, // no score
       null,
     ], { minScore: 0.6, maxIou: 0.3 });
-    assert.deepEqual(kept.map((b) => b.score), [0.8, 0.7]);
+    assert.deepEqual(plain(kept.map((b) => b.score)), [0.8, 0.7]);
   });
 
   test('the max count caps the result', () => {
@@ -149,7 +151,7 @@ describe('opt-in gate (index.js)', () => {
     const F = W.SlopFaces;
     let calls = 0;
     F.setBackend({ detect: () => { calls++; return [{ x: 1, y: 1, w: 5, h: 5, score: 0.9 }]; } });
-    assert.deepEqual(await F.detect(picture), []);
+    assert.deepEqual(plain(await F.detect(picture)), []);
     assert.equal(calls, 0);
   });
 
@@ -168,25 +170,25 @@ describe('opt-in gate (index.js)', () => {
     F.setBackend({ detect: () => { calls++; return [{ x: 1, y: 1, w: 5, h: 5, score: 0.9 }]; } });
     let changes = 0;
     F.onChange(() => changes++);
-    assert.deepEqual(F.setEnabled(true), { ok: true });
+    assert.deepEqual(plain(F.setEnabled(true)), { ok: true });
     assert.equal(F.enabled(), true);
     assert.equal(F.status(), 'ready');
     assert.equal((await F.detect(picture)).length, 1);
     assert.equal(calls, 1);
-    assert.deepEqual(F.setEnabled(false), { ok: true });
+    assert.deepEqual(plain(F.setEnabled(false)), { ok: true });
     assert.equal(F.enabled(), false);
-    assert.deepEqual(await F.detect(picture), []);
+    assert.deepEqual(plain(await F.detect(picture)), []);
     assert.equal(calls, 1, 'no detection after the setting is off');
     assert.equal(changes, 2);
   });
 
   test('the setting is one stored value in SlopProfile under faces.detect', () => {
     const storage = memoryStorage();
-    const F = gated(storage).SlopFaces;
-    F.setEnabled(true);
-    assert.equal(JSON.parse(storage.getItem('slop-profile')).faces.detect, true);
-    F.setEnabled(false);
-    assert.equal(storage.getItem('slop-profile'), '{}');
+    const W = gated(storage);
+    W.SlopFaces.setEnabled(true);
+    assert.deepEqual(plain(W.SlopProfile.overrides('faces')), { detect: true });
+    W.SlopFaces.setEnabled(false);
+    assert.deepEqual(plain(W.SlopProfile.overrides('faces')), {});
   });
 
   test('a value saved in another tab is read at once', () => {

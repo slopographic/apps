@@ -10,6 +10,8 @@
     ['plane', 'Add plane'], ['blob', 'Add blob'], ['group', 'Add group'], ['directional', 'Add sun (directional light)'], ['ambient', 'Add ambient light']];
   const VIEWS = [['front', '1', 'Front view'], ['top', '2', 'Top view'], ['side', '3', 'Side view'], ['perspective', '4', 'Perspective view']];
   const nudgeOk = () => { const a = document.activeElement; return !(a && a.closest && a.closest('.outl-list')); };
+  /** Object-mode keys only work outside mesh edit mode (their keys are reused there). */
+  const solid = () => !S.edit.active();
   const C = (id, title, group, keys, run, extra = {}) => Object.assign({ id, title, group, keys, run, noRecent: false }, extra);
 
   function openMenu(anchor, items) {
@@ -33,30 +35,32 @@
       C('3d.file.png2', 'Render PNG (2×)', 'File', [], () => F.exportPng(2)),
       C('3d.edit.undo', 'Undo', 'Edit', ['Mod+Z'], () => A.undo()),
       C('3d.edit.redo', 'Redo', 'Edit', ['Mod+Shift+Z', 'Mod+Y'], () => A.redo()),
-      C('3d.edit.duplicate', 'Duplicate', 'Edit', ['Mod+D'], () => A.duplicate()),
-      C('3d.edit.delete', 'Delete', 'Edit', ['Delete', 'Backspace'], () => A.remove(), { when: nudgeOk }),
-      C('3d.edit.group', 'Group selection', 'Edit', ['Mod+G'], () => A.group()),
-      C('3d.edit.ungroup', 'Ungroup', 'Edit', ['Mod+Shift+G'], () => A.ungroup()),
-      C('3d.edit.selectall', 'Select all', 'Edit', ['Mod+A'], () => selectAll()),
-      C('3d.edit.deselect', 'Deselect', 'Edit', ['Escape'], () => st.select([]), { when: () => s.sel.length > 0 }),
+      C('3d.edit.duplicate', 'Duplicate', 'Edit', ['Mod+D'], () => A.duplicate(), { when: solid }),
+      C('3d.edit.delete', 'Delete', 'Edit', ['Delete', 'Backspace'], () => A.remove(), { when: () => nudgeOk() && solid() }),
+      C('3d.edit.group', 'Group selection', 'Edit', ['Mod+G'], () => A.group(), { when: solid }),
+      C('3d.edit.ungroup', 'Ungroup', 'Edit', ['Mod+Shift+G'], () => A.ungroup(), { when: solid }),
+      C('3d.edit.selectall', 'Select all', 'Edit', ['Mod+A'], () => selectAll(), { when: solid }),
+      C('3d.edit.deselect', 'Deselect', 'Edit', ['Escape'], () => st.select([]), { when: () => s.sel.length > 0 && solid() }),
       C('3d.object.rename', 'Rename…', 'Object', ['F2'], () => ui.rename(st.primary()), { when: () => !!st.primary() }),
-      C('3d.object.hide', 'Hide or show', 'Object', ['H'], () => A.setVisible(s.sel, !(s.doc.nodes[st.primary()] || { visible: true }).visible), { when: () => s.sel.length > 0 }),
-      C('3d.view.frame', 'Frame selection', 'View', ['F'], () => ui.frame(s.sel)),
+      C('3d.object.hide', 'Hide or show', 'Object', ['H'], () => A.setVisible(s.sel, !(s.doc.nodes[st.primary()] || { visible: true }).visible), { when: () => s.sel.length > 0 && solid() }),
+      C('3d.view.frame', 'Frame selection', 'View', ['F'], () => ui.frame(s.sel), { when: solid }),
       C('3d.view.frameAll', 'Frame all', 'View', ['Home'], () => ui.frame([])),
-      C('3d.view.wire', 'Wireframe', 'View', ['W'], () => { s.view.wire = !s.view.wire; ui.applyView(); }),
-      C('3d.view.grid', 'Grid', 'View', ['G'], () => { s.view.grid = !s.view.grid; ui.applyView(); }),
+      C('3d.view.wire', 'Wireframe', 'View', ['W'], () => { s.view.wire = !s.view.wire; ui.applyView(); }, { when: solid }),
+      C('3d.view.grid', 'Grid', 'View', ['G'], () => { s.view.grid = !s.view.grid; ui.applyView(); }, { when: solid }),
       C('3d.view.axes', 'Axes', 'View', [], () => { s.view.axes = !s.view.axes; ui.applyView(); }),
       C('3d.menu.add', 'Add menu', 'Object', [], (ctx) => openMenu(document.getElementById('btnAdd'), S.menus.addItems()), { hidden: true }),
       C('3d.menu.open', 'Open menu', 'File', [], () => openMenu(document.getElementById('btnOpen'), [
         S.menus.cmd('3d.file.open', 'From disk…'), S.menus.cmd('3d.file.drive', 'From Slop Drive…'), '-',
-        S.menus.cmd('3d.file.import', 'Import into this scene…')]), { hidden: true }),
+        S.menus.cmd('3d.file.import', 'Import into this scene…'), S.menus.cmd('3d.file.importConfig', 'Import config…')]), { hidden: true }),
       C('3d.menu.export', 'Export menu', 'File', [], () => openMenu(document.getElementById('btnExport'), [
         S.menus.cmd('3d.file.download', 'Download .s3d'), S.menus.cmd('3d.file.exportObj', 'Export OBJ…'), '-',
-        S.menus.cmd('3d.file.png1', 'Render PNG (1×)'), S.menus.cmd('3d.file.png2', 'Render PNG (2×)')]), { hidden: true }),
+        S.menus.cmd('3d.file.png1', 'Render PNG (1×)'), S.menus.cmd('3d.file.png2', 'Render PNG (2×)'), '-',
+        S.menus.cmd('3d.file.exportConfig', 'Export config…')]), { hidden: true }),
     ];
     for (const [k, title] of ADD) out.push(C(`3d.add.${k}`, title, 'Add', [], () => A.add(k)));
-    for (const [name, key, title] of VIEWS) out.push(C(`3d.view.${name}`, title, 'View', [key], () => ui.setView(name)));
-    const nudge = (id, title, axis, sign, keys) => C(id, title, 'Nudge', keys, () => A.nudge(axis, sign), { when: nudgeOk, repeat: true });
+    out.push(...S.editcommands.list(), ...S.configio.commands(C));
+    for (const [name, key, title] of VIEWS) out.push(C(`3d.view.${name}`, title, 'View', [key], () => ui.setView(name), key === '4' ? {} : { when: solid }));
+    const nudge = (id, title, axis, sign, keys) => C(id, title, 'Nudge', keys, () => A.nudge(axis, sign), { when: () => nudgeOk() && solid(), repeat: true });
     out.push(nudge('3d.nudge.left', 'Nudge left (−X)', 0, -1, ['ArrowLeft']), nudge('3d.nudge.right', 'Nudge right (+X)', 0, 1, ['ArrowRight']),
       nudge('3d.nudge.back', 'Nudge towards back (−Z)', 2, -1, ['ArrowUp']), nudge('3d.nudge.front', 'Nudge towards front (+Z)', 2, 1, ['ArrowDown']),
       nudge('3d.nudge.up', 'Nudge up (+Y)', 1, 1, ['Shift+ArrowUp']), nudge('3d.nudge.down', 'Nudge down (−Y)', 1, -1, ['Shift+ArrowDown']));

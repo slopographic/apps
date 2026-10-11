@@ -36,13 +36,15 @@ export function setStatus() {
   bar.textContent = parts.join('  ·  ');
 }
 
-/** The Files drawer on a phone (and the Files button's state). */
+const phone = () => window.matchMedia('(max-width: 719px)').matches;
+/** Show or hide the file tree: a drawer on a phone, a column on a desktop. */
 export function setTreeOpen(on) {
-  $('cd-app').classList.toggle('cd-tree-open', !!on);
-  $('cd-scrim').hidden = !on;
+  const app = $('cd-app');
+  if (phone()) { app.classList.toggle('cd-drawer-open', !!on); $('cd-scrim').hidden = !on; }
+  else app.classList.toggle('cd-tree-hidden', !on);
   $('cd-files').setAttribute('aria-expanded', on ? 'true' : 'false');
 }
-export const treeOpen = () => $('cd-app').classList.contains('cd-tree-open');
+export const treeOpen = () => (phone() ? $('cd-app').classList.contains('cd-drawer-open') : !$('cd-app').classList.contains('cd-tree-hidden'));
 
 /** The preview pane (the Run output and the console). */
 export function setPreview(on) {

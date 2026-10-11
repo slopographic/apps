@@ -19,6 +19,7 @@
     return [cmd('3d.view.perspective', 'Perspective'), cmd('3d.view.front', 'Front'), cmd('3d.view.top', 'Top'), cmd('3d.view.side', 'Side')];
   }
   function objectItems() {
+    if (S.edit && S.edit.active()) return S.editcommands.menuItems();
     const p = st.primary(), n = p && s.doc.nodes[p];
     return [
       cmd('3d.edit.duplicate', 'Duplicate'),
@@ -35,6 +36,7 @@
     ];
   }
   function viewportItems() {
+    if (S.edit && S.edit.active()) return S.editcommands.menuItems();
     return [
       { label: 'Add', sub: addItems() },
       '-',

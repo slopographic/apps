@@ -103,6 +103,10 @@
       creates: [{ label: 'Scene', ext: 's3d', mime: 'application/x-slop-3d' }],
       features: ['Primitives, groups, undo and snapping', 'Materials, lights and a live outliner', 'Imports OBJ and glTF/GLB, exports OBJ', 'Renders PNG at 1× or 2×'],
       status: 'building' }),
+    A('music', 'app', 'Slop Music', 'music/', 'Play the audio in your Slop Drive. Nothing uploaded.', { group: 'creative',
+      accepts: ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/flac', 'audio/mp4', 'audio/aac', 'audio/opus'],
+      features: ['Library from Slop Drive, sorted and searchable', 'Playlists, tags and .splaylist files', 'Waveform seek, shuffle and repeat', 'Media keys and lock-screen controls'],
+      icon: 'spark', status: 'building' }),
     A('authenticator', 'experiment', 'The Authenticator', '#detector', 'Is your text secretly slop? Get it certified.', { shot: 'assets/shots/authenticator.jpg' }),
     A('paint-classic', 'experiment', 'Slop Paint Classic', 'photoslop/classic/', 'The 1998 experience. Every MS Paint tool.', { shot: 'assets/shots/paint-classic.jpg' }),
   ];

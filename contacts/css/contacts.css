@@ -35,7 +35,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .appname b { font-weight: 600; font-size: 15px; }
 .home-link { color: var(--mute); font-size: 12px; text-decoration: none; }
 .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; min-width: 0; }
-.tb-btn, .btn { min-height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; white-space: nowrap; font-size: 13px; }
+.tb-btn, .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; white-space: nowrap; font-size: 13px; }
 .tb-btn:hover, .btn:hover { background: var(--panel-2); }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
 .btn.danger, .tb-btn.danger { color: var(--danger); }
