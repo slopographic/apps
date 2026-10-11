@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reel Remix</title>
+  <meta name="description" content="Reel Remix: drop clips and photos, press Remix, and get a random edit with grids, layout switches and export presets. Nothing is uploaded.">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../shared/video/lane.css">
+  <link rel="stylesheet" href="css/remix.css">
+  <script>try { if (matchMedia('(prefers-color-scheme: dark)').matches && !document.documentElement.dataset.theme) document.documentElement.dataset.theme = 'dark'; } catch (e) {}</script>
+</head>
+<body>
+  <header class="rm-top">
+    <b>Reel Remix</b>
+    <a class="rm-home" href="../">slopographic</a>
+    <span class="rm-note">Nothing is uploaded. The edit is planned on this device.</span>
+  </header>
+  <main class="rm-main">
+    <aside class="rm-bin" aria-label="Media">
+      <h2>Clips and photos <small id="rm-count"></small></h2>
+      <div id="rm-drop" class="rm-drop">
+        <p>Drop clips and photos here</p>
+        <label class="rm-btn">Add files<input id="rm-file" type="file" accept="video/*,image/*" multiple hidden></label>
+      </div>
+      <ul id="rm-bin" class="rm-list"></ul>
+    </aside>
+    <section class="rm-stage" aria-label="Preview">
+      <canvas id="rm-canvas" class="rm-canvas" width="540" height="960" aria-label="Preview of the remix"></canvas>
+      <div class="rm-transport">
+        <button id="rm-play" type="button" class="rm-btn">Play</button>
+        <input id="rm-scrub" type="range" min="0" max="0" step="0.01" value="0" aria-label="Playhead">
+        <span id="rm-time">0:00.0 / 0:00.0</span>
+      </div>
+      <div id="rm-lanehost" class="rm-lane"></div>
+      <p id="rm-total" class="rm-total"></p>
+      <ol id="rm-cuts" class="rm-cuts" aria-label="Cuts in order"></ol>
+    </section>
+    <aside class="rm-side" aria-label="Options">
+      <h2>Options</h2>
+      <label class="rm-f">Target length (s)<input id="rm-target" type="number" min="1" max="600" step="1" value="30"></label>
+      <label class="rm-f">Pace<select id="rm-pace"></select></label>
+      <label class="rm-f">Export preset<select id="rm-preset"></select></label>
+      <div id="rm-custom" class="rm-custom" hidden>
+        <label class="rm-f">Width<input id="rm-cw" type="number" min="16" max="7680" step="2" value="1080"></label>
+        <label class="rm-f">Height<input id="rm-ch" type="number" min="16" max="4320" step="2" value="1920"></label>
+      </div>
+      <p id="rm-size" class="rm-size"></p>
+      <label class="rm-f">Layout<select id="rm-base"></select></label>
+      <label class="rm-chk"><input id="rm-random" type="checkbox"> Random: switch layouts at random points</label>
+      <fieldset class="rm-grids"><legend>Grids to choose from</legend><div id="rm-grids"></div></fieldset>
+      <label class="rm-f">Seed<input id="rm-seed" type="text" spellcheck="false" autocomplete="off" maxlength="32"></label>
+      <div class="rm-row">
+        <button id="rm-reshuffle" type="button" class="rm-btn">Reshuffle</button>
+        <button id="rm-remix" type="button" class="rm-btn primary">Remix</button>
+      </div>
+      <button id="rm-send" type="button" class="rm-btn wide">Send to SlopEdit</button>
+      <p id="rm-status" class="rm-status" role="status"></p>
+    </aside>
+  </main>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/video/seed.js"></script>
+  <script src="../shared/video/presets.js"></script>
+  <script src="../shared/video/grid.js"></script>
+  <script src="../shared/video/templates.js"></script>
+  <script src="../shared/video/layout.js"></script>
+  <script src="../shared/video/segments.js"></script>
+  <script src="../shared/video/random-edit.js"></script>
+  <script src="../shared/video/lane-view.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/items.js"></script>
+  <script src="js/preview.js"></script>
+  <script src="js/send.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>

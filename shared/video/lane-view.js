@@ -49,7 +49,7 @@
       const i = +m.dataset.i;
       st.sel = i; track.focus?.();
       st.drag = { i, moved: false, t: st.switches[i].start, pointer: e.pointerId, m };
-      m.setPointerCapture(e.pointerId);
+      try { m.setPointerCapture(e.pointerId); } catch (err) { /* not an active pointer: the drag still follows the track */ }
       e.preventDefault();
       for (const x of track.querySelectorAll('.lv-mark')) x.classList.toggle('on', +x.dataset.i === i);
       del.disabled = false;
