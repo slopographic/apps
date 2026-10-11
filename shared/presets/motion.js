@@ -73,7 +73,9 @@
     const times = [...new Set([0, params.duration].concat(...Object.values(params.tracks).map((ks) => ks.map((k) => k.t))))].sort((a, b) => a - b);
     return times.filter((t) => t <= params.duration + 1e-9).map((t) => {
       const ease = easeFor(params, t);
-      return { t: round(t * s), pose: pose(params, t), ease };
+      const p = pose(params, t);
+      for (const k of Object.keys(p)) p[k] = round(p[k]);
+      return { t: round(t * s), pose: p, ease };
     });
   }
   /** Remix eases: the segment starting at the key with the same family (linear when unknown). */

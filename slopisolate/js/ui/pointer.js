@@ -98,8 +98,7 @@
     }
     if (drag.kind === 'brush') {
       const en = CO.brush.end(drag.st);
-      if (en) CO.history.push(drag.it, en);
-      CO.process.refresh(drag.it);
+      if (en) CO.history.push(drag.it, en); // the history event schedules the full refresh (process.js)
     }
     drag = null;
     stage.classList.remove('grabbing');
