@@ -24,11 +24,11 @@ permission policy because those files belong to other agents). Each app owner ad
 | Loader, settings | `boot.js`, `prefs.js`, `config.js` (HOME vs APP options: perch/card/heading selectors, floor, z-index, autoChaos, tips) |
 | Engine | `engine.js` (build, frame loop, spawn, show/hide, ghost mode in apps, game pause), `state.js` (shared state `M`) |
 | Look (art) | `look.js` (the SVG goo look: lumps + goo filter, moods by swapping face parts, blush only in love), `hats.js` (18 hats + the AI brain), `three3d.js` + `view3d.js` (3D metaball version) |
-| Moving | `perches.js` (live perch geometry, solid-at-x with eaten letters and holes), `motion.js` (hops, falls, drag and throw, leap back into view), `bodies.js` (knocked cards as rigid bodies) |
+| Moving | `perches.js` (live perch geometry, solid-at-x with eaten letters and holes), `motion.js` (hops, falls, drag and throw, dizzy after a throw that ends on the page floor, leap back into view), `bodies.js` (knocked cards as rigid bodies) |
 | Input, HUD | `input.js`, `hud.js`, `fx.js` (particles, speech bubble with buttons/streaming) |
 | Levels, lines | `store.js`, `levels.js`, `lines.js` (pools per mood, no back-to-back repeats) |
 | Chaos | `chaos.js` (brain, Unleash, Restore page), `acts.js` (bite, eat, knock, goo), `blast.js`, `blackhole.js`, `dom.js` (masks, letter wrapping), `journal.js` (undo log) |
-| Feelings | `rage.js` (meter, RAGE; MAD = 1.5 stops draining), `care.js` (shake detection, items, feeding, petting rules), `treats.js` (placed treats he walks to, snubs or kicks) |
+| Feelings | `rage.js` (meter, RAGE; MAD = 1.5 stops draining), `care.js` (shake detection, items, feeding, petting rules), `treats.js` (placed treats he walks to, snubs or kicks), `timing.js` (mood timings, old and new values), `mood.js` (happiness fade, happy repair, candy ask), `candy.js` (Make candy: canvas sprite, drag onto him) |
 | Clippy, AI | `tips.js` (tips per app id, SlopCmd buttons, opt-out), `power.js` (SlopAI power-up, Ask Sloppo, comments) |
 | CSS | `buddy.css`, `extras.css` (the engine adds them if the page has not linked them) |
 
@@ -38,8 +38,17 @@ permission policy because those files belong to other agents). Each app owner ad
   any input. RAGE never starts chaos by itself in apps; Unleash is explicit; Restore page works everywhere; hiding
   him restores the page first. The HUD is folded away in apps (the toggle's "⋯" opens it) unless there is something
   to restore or he is angry.
-- Rage: hard throws, long falls and hard shaking add 1. 1: dizzy/"OUCH!", 2: annoyed (MAD, no draining), 3: RAGE
-  for 15 s (red, shaking, steam; chaos on the homepage only), then he stays MAD until fed. Petting is refused at 2.5+.
+- Rage: hard throws, long falls, hard shaking and 5 pokes within 4 s add 1. 1: dizzy/"OUCH!" (pokes: annoyed),
+  2: annoyed (MAD, no draining), 3: RAGE for 10 s (red, shaking, steam; chaos on the homepage only), then he stays
+  MAD until fed. Petting is refused at 2.5+. A hard drop wears off in 4 s (drain 0.25/s).
+- Candy: when angry (MAD or RAGE) he asks in his bubble ("Make candy" button, every 20 s); the HUD tray has the same
+  button. A candy is a canvas-drawn lollipop or gummy; drag it onto him to calm him (-1.2) and make him happy.
+  One candy at a time; it fades after 60 s.
+- Happy: pets and treats raise a happiness meter (`cheer`, halves every 1.2 s; happy face above 0.45). While happy
+  with damage on the page and no chaos, rage or treats running, he repairs it through `restore({ animate: true })`:
+  the cracks, burns and goo fade out, then the same Restore page undo runs.
+- Thrown off the page (a throw that ends on the page floor): dizzy for 2.6 s (stars, spiral eyes, a wobble), then he
+  hops back up. A second such fall within a minute adds rage.
 - Treats: the Give tray (HUD, while angry) places a treat beside him. Delay before he eats it depends on rage
   (favourites faster); at 2.5+ he turns his back, at full rage may kick it. Treats melt rage slowly, fade after 30 s.
 - AI: feature-detects `window.SlopAI` (shared/ai/slopai.js); never loads a model.
@@ -52,5 +61,7 @@ splat SVG in `fx.js`. `bodies.js` is physics, not art.
 ## Tests
 `node tests/run.mjs buddy`: `app.test.html` (toggle, persistence, shortcut, drag, perches, no pointer blocking, no
 auto chaos, Restore in an app), `tips.test.html` (tips per app, SlopCmd buttons, opt-out, Ask, AI stub power-up),
-`care.test.html` (shake thresholds, item values, spit-out, MAD, petting at full rage, placed treats, faces).
+`care.test.html` (shake thresholds, item values, spit-out, MAD, petting at full rage, placed treats, faces),
+`mood.test.html` (candy made and dropped calms him, the candy ask, pokes, happy repair, dizzy after a fall, old and
+new mood timings).
 Fixture app: `tests/buddy/fixture.html` (`?app=`, `?cmd=1`, `?ai=1|ready`). Homepage tests: `tests/home/`.
