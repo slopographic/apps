@@ -20,7 +20,7 @@
   function isHardReload(e) {
     const k = (e.key || '').toLowerCase();
     if (k === 'f5' && (e.ctrlKey || e.shiftKey)) return true;
-    return k === 'r' && e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey;
+    return !!(k === 'r' && e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey);
   }
   let backupP = null;
   function backup() {
