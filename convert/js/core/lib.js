@@ -1,0 +1,23 @@
+/* Loaders for the vendored libraries. pdf-lib is a UMD build (global PDFLib); pdf.js is an ES module.
+ * Paths are resolved from this file, so the same code works from the hub and from every converter page. */
+const VENDOR = new URL('../../../vendor/', import.meta.url);
+export const PDFJS_URL = new URL('pdfjs/pdf.min.js', VENDOR).href;
+export const PDFJS_WORKER_URL = new URL('pdfjs/pdf.worker.min.js', VENDOR).href;
+export const PDFJS_CMAP_URL = new URL('pdfjs/cmaps/', VENDOR).href;
+const PDF_LIB_URL = new URL('pdf-lib/pdf-lib.min.js', VENDOR).href;
+
+let pdfLibPending = null;
+/** Resolves the pdf-lib namespace, injecting its script tag once. */
+export function loadPdfLib() {
+  if (globalThis.PDFLib) return Promise.resolve(globalThis.PDFLib);
+  if (!pdfLibPending) {
+    pdfLibPending = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = PDF_LIB_URL;
+      s.onload = () => (globalThis.PDFLib ? resolve(globalThis.PDFLib) : reject(new Error('pdf-lib did not load')));
+      s.onerror = () => { pdfLibPending = null; reject(new Error('Could not load the PDF library')); };
+      document.head.append(s);
+    });
+  }
+  return pdfLibPending;
+}
