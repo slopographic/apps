@@ -58,6 +58,7 @@ export function close(doc) {
   const next = docs[Math.min(i, docs.length - 1)] || null;
   active = null;
   if (next) show(next);
+  else if (view) view.setState(makeState('', 'untitled.txt'));
   return next;
 }
 

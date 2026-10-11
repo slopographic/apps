@@ -64,7 +64,7 @@
     const k = r.id + ':' + (err && err.message);
     if (logged.has(k)) return;
     logged.add(k);
-    console.error(`Slop Drive: no thumbnail for "${r.name}", showing its card instead:`, err);
+    console.warn(`Slop Drive: no thumbnail for "${r.name}", showing its card instead:`, err);
   };
   /** Drops the thumbnails of files that are gone (called after each refresh) and their cached copies. */
   DR.pruneThumbs = async function (liveIds) {
