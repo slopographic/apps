@@ -27,6 +27,7 @@ button, select, input { font: inherit; color: inherit; }
 .docname:empty::before { content: ""; }
 .actions { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-left: auto; }
 .tb-btn, .btn, .vp-btn { background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 5px 9px; cursor: pointer; color: var(--ink); }
+a.tb-btn { text-decoration: none; display: inline-block; }
 .tb-btn:hover, .vp-btn:hover { background: var(--panel-2); border-color: var(--line); }
 .tb-btn[aria-pressed="true"] { background: var(--panel-2); border-color: var(--accent); }
 .tb-btn:focus-visible, .btn:focus-visible, .vp-btn:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

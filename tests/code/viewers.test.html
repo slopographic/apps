@@ -84,7 +84,7 @@
       tabBtn().click();
       await waitFor(() => editorShown(), { timeout: 3000 });
       expect(viewer().hidden).toBe(true);
-      expect(w.SlopCode.view().state.doc.toString().endsWith('Edited.\n') || w.SlopCode.view().state.doc.toString().includes('Edited.')).toBe(true);
+      expect(w.SlopCode.view().state.doc.toString().includes('Edited.')).toBe(true);
       expect(doc(w).dirty).toBe(true);
     });
 

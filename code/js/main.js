@@ -71,6 +71,7 @@ function wireButtons() {
 async function boot() {
   SlopHub.register('code');
   initLayout();
+  setTreeOpen(treeOpen()); // keeps the Files button's aria-expanded in step with what is shown
   const view = newView($('cd-editor'), makeState('', 'untitled.txt'));
   env.view = view;
   docs.attachView(view);
