@@ -34,9 +34,7 @@
     }, { once: true });
     try { var t = localStorage.getItem('slopvector.theme'); if (t === 'light' || t === 'classic' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..900&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/chrome.css">
