@@ -3,6 +3,7 @@
 import * as store from './store.js';
 import { S, byId, curNote, visibleNotes } from './state.js';
 import { download, notebookZip, fileBase } from './export.js';
+import { openNote, newNoteTab, dropNotes } from './tabs.js';
 
 let redraw = () => {};
 export const setRedraw = (fn) => { redraw = fn; };
@@ -11,53 +12,30 @@ const ask = (title, label, value, ok) => SlopUI.prompt(title, label, value, { ok
 const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
 const byTitle = (a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' });
 
-/** Remembers the note and notebook last open, so a later visit reopens them (SlopSession). */
-function remember() {
-  try { SlopSession.save('notes', 'last', { noteId: S.noteId, notebookId: S.notebookId }).catch(() => {}); } catch (e) { /* no session store */ }
-}
-
 export function setPane(pane) { S.pane = pane; redraw(); }
 
 export function selectNotebook(id) {
   S.notebookId = id || null;
   S.folderId = null;
   S.tag = null;
-  if (id && curNote() && curNote().notebook !== id) S.noteId = null;
   S.pane = 'list';
-  remember();
   redraw();
 }
 
 export function selectFolder(id) { S.folderId = id || null; S.tag = null; S.pane = 'list'; redraw(); }
 export function selectTag(tag) { S.tag = S.tag === tag ? null : tag; redraw(); }
 
+/** Shows a note in its tab (a new tab when it is not open yet). */
 export function selectNote(id) {
   if (!S.notes.some((n) => n.id === id)) return;
-  S.noteId = id;
   S.pane = 'editor';
-  remember();
+  openNote(id);
   redraw();
 }
 
-/** The notebook new things go into: the chosen one, else the first, else a new 'My notes'. */
-async function ensureNotebook() {
-  if (S.notebookId) return S.notebookId;
-  if (!S.notebooks.length) S.notebooks.push(await store.createNotebook('My notes'));
-  S.notebookId = S.notebooks[0].id;
-  return S.notebookId;
-}
-
-export async function newNote() {
-  const notebook = await ensureNotebook();
-  const n = await store.createNote({ notebook, folder: S.folderId, title: '' });
-  S.notes.push(n);
-  S.noteId = n.id;
-  S.pane = 'editor';
-  remember();
-  redraw();
-  const t = document.getElementById('nt-title');
-  if (t) { t.focus(); t.select(); }
-  return n;
+/** New note: a new record in Drive, in a new tab (the title gets the focus once it exists). */
+export function newNote() {
+  newNoteTab();
 }
 
 export async function newNotebook() {
@@ -124,10 +102,9 @@ export async function remove(item) {
   S.notes = S.notes.filter((n) => !gone.has(n.id));
   S.folders = S.folders.filter((f) => !gone.has(f.id));
   S.notebooks = S.notebooks.filter((b) => !gone.has(b.id));
-  if (gone.has(S.noteId)) S.noteId = null;
+  dropNotes(ids);
   if (gone.has(S.notebookId)) { S.notebookId = null; S.folderId = null; }
   if (gone.has(S.folderId)) S.folderId = null;
-  remember();
   redraw();
   toast('Moved to Trash');
 }
