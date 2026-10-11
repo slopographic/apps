@@ -9,6 +9,7 @@
   <!-- The real app runs in a same-origin iframe; tests drive its globals directly. -->
   <iframe id="app" src="../../photoslop/index.html"></iframe>
   <script src="../harness.js"></script>
+  <script src="context-menus.js"></script>
   <script>
   const { describe, it, expect, waitFor, pixel } = SlopTest;
   let W; // the app's global scope (incl. top-level const/let), via a proxy over the iframe's eval
@@ -258,6 +259,9 @@
       } finally { f.remove(); await W.SlopHub.remove(id); }
     }, { timeout: 30000 });
   });
+
+  contextMenuTests({ describe, it, expect, getW: () => W });
+  classicContextTests({ describe, it, expect, waitFor });
 
   SlopTest.run({ name: 'PhotoSLOP' });
   </script>

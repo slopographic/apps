@@ -433,9 +433,8 @@ function renderPalette() {
   pal.textContent = '';
   PALETTE.forEach((c, i) => {
     let lp = 0;
-    const b = h('button', { class: 'sw', type: 'button', 'aria-label': `Color ${c}`, title: 'Left-click: primary · Right-click: secondary · Double-click: edit', style: { background: c } });
+    const b = h('button', { class: 'sw', type: 'button', 'aria-label': `Color ${c}`, title: 'Left-click: primary · Right-click: menu · Double-click: edit', style: { background: c } });
     b.addEventListener('pointerdown', e => {
-      if (e.button === 2) { e.preventDefault(); setColor(2, PALETTE[i]); return; }
       if (e.button !== 0) return;
       const prev = S.primary;
       setColor(0, PALETTE[i]);
@@ -2151,5 +2150,5 @@ window.slopPaint = { state: S, get selection() { return sel; }, undoDepth: () =>
   // for the Slop Drive integration (hub.js), which runs outside this closure
   drive: { ACTIONS, main, S, openBlob, confirmSave, finishPending, cancelOp, status, updateTitle, opActive: () => !!op },
   // for the shared command palette (commands.js)
-  cmd: { MENUS, TOOLS, run, setTool, swapColors: () => { const p = S.primary; setColor(0, S.secondary); setColor(2, p); }, busy: () => openMenu >= 0 || !$('#startmenu').hidden || !!document.querySelector('.modal-back, .viewbmp') } };
+  cmd: { MENUS, TOOLS, run, setTool, setColor, editSwatch, palette: PALETTE, hasClip: () => !!clip, swapColors: () => { const p = S.primary; setColor(0, S.secondary); setColor(2, p); }, busy: () => openMenu >= 0 || !$('#startmenu').hidden || !!document.querySelector('.modal-back, .viewbmp') } };
 })();

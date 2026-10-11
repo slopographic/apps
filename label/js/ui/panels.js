@@ -33,7 +33,7 @@ function renderObjects(body) {
   const list = mk('div', { class: 'list', role: 'listbox', 'aria-label': 'Objects, front to back' });
   for (const o of d.objects.slice().reverse()) {
     const act = (lbl, t, f) => { const b = mk('button', { type: 'button', title: t, 'aria-label': t }, lbl); b.addEventListener('click', (e) => { e.stopPropagation(); f(); }); return b; };
-    const row = mk('div', { class: 'li' + (App.sel.includes(o.id) ? ' on' : '') + (o.hidden ? ' hiddenobj' : ''), role: 'option', 'aria-selected': String(App.sel.includes(o.id)), tabindex: '0' },
+    const row = mk('div', { class: 'li' + (App.sel.includes(o.id) ? ' on' : '') + (o.hidden ? ' hiddenobj' : ''), role: 'option', 'aria-selected': String(App.sel.includes(o.id)), tabindex: '0', 'data-id': o.id },
       mk('span', { class: 'ic' }, TYPE_ICON[o.type] || '?'),
       mk('span', { class: 'nm' }, o.name || TYPE_NAMES[o.type], o.group ? ' ⛓' : '', mk('span', { class: 'sub' }, objSummary(o))),
       mk('span', { class: 'acts' },
@@ -42,7 +42,7 @@ function renderObjects(body) {
     row.addEventListener('click', (e) => select([o.id], e.shiftKey || e.ctrlKey || e.metaKey));
     row.addEventListener('dblclick', () => { select([o.id]); focusContent(); });
     row.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select([o.id]); } });
-    row.addEventListener('contextmenu', (e) => { e.preventDefault(); if (!App.sel.includes(o.id)) select([o.id]); SlopUI.menu(contextItems(), e.clientX, e.clientY); });
+    row.addEventListener('contextmenu', (e) => { e.preventDefault(); if (!App.sel.includes(o.id)) select([o.id]); openContext(o, e.clientX, e.clientY); });
     list.append(row);
   }
   body.append(list, App.sel.length ? arrangeSection(App.sel.length === 1) : mk('p', { class: 'hint' }, 'Top of the list prints on top. Shift-click to select several.'));

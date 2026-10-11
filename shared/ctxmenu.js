@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (window.SlopCtx) return;
-  let keyOpenedAt = 0;
+  let keyOpenedAt = -Infinity;
 
   function show(items, x, y) {
     if (!items || !items.length || !window.SlopUI) return false;
@@ -18,7 +18,7 @@
     if (!root || typeof resolve !== 'function') return () => {};
     const onContext = (e) => {
       // A Menu key or Shift+F10 press already opened the menu; some browsers then fire contextmenu too.
-      if (performance.now() - keyOpenedAt < 400) { e.preventDefault(); return; }
+      if (e.detail === 0 && performance.now() - keyOpenedAt < 400) { e.preventDefault(); return; } // detail 0: not a mouse click
       const items = resolve(e.target, e);
       if (!items || !items.length) return; // no menu for this target: keep the browser's own menu
       e.preventDefault();
