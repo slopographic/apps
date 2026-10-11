@@ -1,5 +1,5 @@
 // Reminder engine: while a page is open, it checks the reminders every 15 seconds and whenever the store changes. A due
-// reminder shows as an in-app notification (SlopNotify.show(message) when that is loaded, otherwise a toast), and as a
+// reminder shows as an in-app notification (SlopNotify.show({ title, body }) when that is loaded, otherwise a toast), and as a
 // browser notification when the person has allowed it. Nothing here touches the network. Snoozes, dismissals and fired
 // marks are written to the 'reminders' collection; the reminders themselves are read from events and tasks.
 // Exposes window.SlopReminderEngine. Load after SlopData, SlopUI, tz.js, rrule.js, tasks/logic.js and reminders/core.js.
@@ -32,7 +32,7 @@
     const w = wording(it);
     for (const fn of fireListeners) { try { fn(it); } catch (e) { /* a listener must not stop the others */ } }
     if (notifier) return notifier(it, w);
-    if (g.SlopNotify && typeof g.SlopNotify.show === 'function') { try { g.SlopNotify.show(`${w.title}: ${w.body}`); return; } catch (e) { /* fall through */ } }
+    if (g.SlopNotify && typeof g.SlopNotify.show === 'function') { try { g.SlopNotify.show({ title: w.title, body: w.body }); return; } catch (e) { /* fall through */ } }
     if (g.SlopUI && SlopUI.toast) SlopUI.toast(`${w.title} — ${w.body}`);
     if (E.permission() === 'granted') { try { new Notification(w.title, { body: w.body, tag: it.key }); } catch (e) { /* not available here */ } }
   }
