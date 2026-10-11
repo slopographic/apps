@@ -36,7 +36,7 @@
       { label: 'Pages to images…', act: function () { A.setTool('convert'); }, disabled: !has },
       '-',
       sendSub(A.sendItems(), 'Send to', 'No other app opens PDFs yet'),
-      '-',
+      window.SlopHub && !SP.offline && has ? '-' : null,
       { label: 'Download app (offline .html)', act: A.downloadApp },
       { label: 'Autosave session in this browser', check: U.store.get('autosave', true), act: function () { var v = !U.store.get('autosave', true); U.store.set('autosave', v); if (!v) U.idb.del('session'); SlopUI.toast(v ? 'Autosave on (stored only in this browser)' : 'Autosave off; saved session deleted'); } },
       '-',

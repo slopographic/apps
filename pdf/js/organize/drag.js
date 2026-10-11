@@ -24,7 +24,8 @@
       if (grip) { if (!O.sel.has(id)) O.setSelection([id], id); beginDrag(e); }
       else press.timer = setTimeout(function () {
         if (!press) return;
-        if (!O.sel.has(id)) { O.sel.add(id); O.anchor = id; S.syncSel(); }
+        // carry a multi-selection (made with the check buttons) along; a single tapped page is replaced
+        if (!O.sel.has(id)) { if (O.sel.size > 1) { O.sel.add(id); O.anchor = id; S.syncSel(); } else O.setSelection([id], id); }
         if (navigator.vibrate) try { navigator.vibrate(12); } catch (er) { /* ignore */ }
         beginDrag({ clientX: press.x, clientY: press.y });
       }, 380);

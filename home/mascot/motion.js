@@ -1,0 +1,170 @@
+// Moving around: perching, hopping between perches, falling with physics, drag and throw,
+// and leaping back into view when his perch scrolls away.
+import { M, reduced, now, rand, clamp, setMood, navH, pageW, pageH } from './state.js';
+import * as P from './perches.js';
+import { size } from './look.js';
+import { dust } from './fx.js';
+
+const GRAVITY = 2600, OFFSCREEN_MS = 1500;
+
+/** Put him on a perch at once (no animation). */
+export function place(p) {
+  const pt = P.point(p);
+  if (!pt) return false;
+  Object.assign(M, { perch: p, mode: 'perched', x: pt.x, y: pt.y, vx: 0, vy: 0, rot: 0, vr: 0, offSince: 0 });
+  M.nextIdle = now() + rand(3500, 8000);
+  return true;
+}
+
+/** Hop to a perch along an arc. Resolves true on landing, false if interrupted. */
+export function hopTo(p, { high = 0, from = null } = {}) {
+  cancelHop();
+  return new Promise((resolve) => {
+    const pt = P.point(p);
+    if (!pt) { resolve(false); return; }
+    if (reduced()) { place(p); resolve(true); return; }
+    if (from) { M.x = from.x; M.y = from.y; }
+    const dist = Math.hypot(pt.x - M.x, pt.y - M.y);
+    const crouch = from || M.mode !== 'perched' ? 0 : 0.11;
+    M.hop = { p, x0: M.x, y0: M.y, t: -crouch, T: clamp(0.36 + dist / 1700, 0.38, 0.95), lift: clamp(46 + dist * 0.16, 46, 220) + high, resolve };
+    M.mode = 'hop';
+    M.perch = null;
+    M.rot = 0;
+  });
+}
+export function cancelHop() {
+  if (!M.hop) return;
+  const r = M.hop.resolve;
+  M.hop = null;
+  r(false);
+}
+
+function stepHop(dt) {
+  const h = M.hop;
+  h.t += dt;
+  if (h.t < 0) { M.squash = 0.45; M.sqv = 0; return; }           // crouch before the jump
+  const pt = P.point(h.p);
+  if (!pt) { M.hop = null; fall(); h.resolve(false); return; }  // the target vanished mid-air
+  const u = Math.min(1, h.t / h.T);
+  const apex = Math.min(h.y0, pt.y) - h.lift, c = 2 * apex - (h.y0 + pt.y) / 2;
+  M.x = h.x0 + (pt.x - h.x0) * u;
+  M.y = (1 - u) * (1 - u) * h.y0 + 2 * u * (1 - u) * c + u * u * pt.y;
+  M.squash = u < 0.4 ? -0.28 * (1 - u / 0.4) : 0;                // stretch on take-off
+  M.sqv = 0;
+  if (u >= 1) { M.hop = null; land(h.p, 900); h.resolve(true); }
+}
+
+function land(p, impact) {
+  Object.assign(M, { perch: p, mode: 'perched', vx: 0, vy: 0, rot: 0, vr: 0, sqv: 0, offSince: 0 });
+  const pt = p && P.point(p);
+  if (pt) { M.x = pt.x; M.y = pt.y; }
+  M.squash = clamp(impact / 2200, 0.25, 0.75);
+  M.nextIdle = now() + rand(3500, 8000);
+  if (M.hard || impact > 2000) setMood('dizzy', 2400);
+  else if (impact > 0) setMood('land', 320);
+  M.hard = false;
+  if (!reduced()) dust(M.x, M.y, clamp(impact / 1400, 0.4, 1.4));
+}
+
+/** Let go: he falls from where he is. */
+export function fall(vx = 0, vy = 0) {
+  Object.assign(M, { mode: 'air', perch: null, vx, vy });
+}
+
+function stepAir(dt) {
+  const y0 = M.y, s = size(), half = s * 0.55, W = pageW();
+  M.vy += GRAVITY * dt;
+  M.vx *= Math.pow(0.55, dt);
+  M.x += M.vx * dt;
+  M.y += M.vy * dt;
+  if (!reduced()) M.rot += M.vr * dt;
+  if (M.x < half) { M.x = half; M.vx = Math.abs(M.vx) * 0.5; M.vr *= -0.6; }
+  if (M.x > W - half) { M.x = W - half; M.vx = -Math.abs(M.vx) * 0.5; M.vr *= -0.6; }
+  if (M.y < s && M.vy < 0) { M.y = s; M.vy = -M.vy * 0.3; }
+  if (M.vy > 0) {
+    const hit = P.landing(M.x, y0, M.y);
+    if (hit) { land({ el: hit.el, frac: hit.frac }, M.vy); return; }
+  }
+  const floor = pageH() - 2;
+  if (M.y >= floor) { M.y = floor; land(null, M.vy); }
+}
+
+function stepPerched(t) {
+  if (M.perch) {
+    const pt = P.point(M.perch);
+    if (!pt) {
+      // A knocked card drops him; a hidden perch (view switch, resize) sends him somewhere visible.
+      if (P.gone.has(M.perch.el)) fall();
+      else { M.perch = null; if (!leapIn()) M.offSince = t; }
+      return;
+    }
+    M.x = pt.x;
+    M.y = pt.y;
+  }
+  const vis = M.y > scrollY + navH() + 6 && M.y - size() * 0.7 < scrollY + innerHeight;
+  if (vis) M.offSince = 0;
+  else if (!M.offSince) M.offSince = t;
+  else if (t - M.offSince > OFFSCREEN_MS) { M.offSince = t; leapIn(); return; }
+  if (vis && !M.chaos && !reduced() && !M.hover && t > M.nextIdle) idleHop();
+}
+
+function idleHop() {
+  M.nextIdle = now() + rand(4500, 9500);
+  if (M.perch && Math.random() < 0.3) hopTo({ el: M.perch.el, frac: 0.1 + Math.random() * 0.8 });
+  else { const p = P.pick({ exclude: M.perch && M.perch.el }); if (p) hopTo(p); }
+}
+
+/** Leap onto a visible perch, entering from the edge of the screen he went out of. */
+export function leapIn() {
+  const p = P.pick({ near: false });
+  if (!p) return false;
+  if (reduced()) return place(p);
+  const pt = P.point(p), top = scrollY + navH(), bottom = scrollY + innerHeight, s = size();
+  const x = clamp(pt.x + rand(-140, 140), s, pageW() - s);
+  let from = null;
+  if (M.mode === 'hidden' || M.y < top + 6) from = { x, y: top - 8 };
+  else if (M.y - s * 0.7 > bottom) from = { x, y: bottom + s + 10 };
+  hopTo(p, { from, high: from ? 30 : 0 });
+  return true;
+}
+
+/* ---------- drag and throw ---------- */
+export function startDrag() {
+  cancelHop();
+  Object.assign(M, { mode: 'drag', perch: null, samples: [], vx: 0, vy: 0, vr: 0 });
+}
+export function dragTo(x, y, t) {
+  const s = M.samples;
+  if (s.length) { const [t0, x0] = s[s.length - 1]; const v = (x - x0) / Math.max(8, t - t0) * 1000; M.rot += (clamp(v * 0.00035, -0.45, 0.45) - M.rot) * 0.3; }
+  M.x = x;
+  M.y = y;
+  s.push([t, x, y]);
+  while (s.length > 2 && t - s[0][0] > 90) s.shift();
+}
+/** Release a drag: throw with the pointer's recent velocity. Returns the throw speed. */
+export function release(t, cancel = false) {
+  const s = M.samples;
+  let vx = 0, vy = 0;
+  if (!cancel && s.length > 1 && t - s[s.length - 1][0] < 80) {
+    const a = s[0], b = s[s.length - 1], d = Math.max(16, b[0] - a[0]) / 1000;
+    vx = (b[1] - a[1]) / d;
+    vy = (b[2] - a[2]) / d;
+  }
+  const sp = Math.hypot(vx, vy), k = sp > 3200 ? 3200 / sp : 1;
+  fall(vx * k, vy * k);
+  M.vr = reduced() ? 0 : clamp(vx * k * 0.004, -12, 12);
+  M.hard = sp > 1900;
+  return sp * k;
+}
+
+/** One simulation step. */
+export function step(dt, t) {
+  if (reduced()) { M.squash = 0; M.sqv = 0; }
+  else if (M.mode !== 'hop') {
+    M.sqv += (-340 * M.squash - 11 * M.sqv) * dt;               // wobbly jelly spring
+    M.squash += M.sqv * dt;
+  }
+  if (M.mode === 'perched') stepPerched(t);
+  else if (M.mode === 'hop') stepHop(dt);
+  else if (M.mode === 'air') stepAir(dt);
+}

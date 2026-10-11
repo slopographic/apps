@@ -21,6 +21,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="home/home.css">
+  <link rel="stylesheet" href="home/mascot/mascot.css">
 </head>
 <body>
   <header class="nav">
@@ -91,7 +92,7 @@
           <h2 id="status-title" data-perch>Status</h2>
           <p class="status-sum" id="status-sum"></p>
         </header>
-        <div class="status-board" id="status-board" role="table" aria-label="Status of every app"></div>
+        <div class="status-board" id="status-board" data-perch role="table" aria-label="Status of every app"></div>
       </section>
     </section>
 
@@ -141,7 +142,7 @@
   </main>
 
   <footer class="footer">
-    <p class="footer-mark" aria-hidden="true">Slopographic</p>
+    <p class="footer-mark" aria-hidden="true" data-perch>Slopographic</p>
     <div class="footer-cols">
       <p><strong>Slopographic</strong><br>Creative software that runs in your browser.</p>
       <p>Everything works offline-first. Your files never leave your device.</p>
@@ -158,5 +159,6 @@
   <script src="app.js"></script>
   <script src="home/catalog.js"></script>
   <script src="motion.js"></script>
+  <script type="module" src="home/mascot/index.js"></script>
 </body>
 </html>
