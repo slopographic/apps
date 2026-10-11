@@ -11,7 +11,7 @@
  *   [data-brand-logo]        the logo image (or the first svg in header .brand)
  *   [data-brand-home], header a.brand (app pages)  href: home, when home is set
  *   [data-brand-footer]      text: footer line
- *   [data-brand-link=patreon|support]  href; hidden when empty
+ *   [data-brand-link=patreon|support|reddit|x|tiktok]  href; hidden when empty
  *   CSS variables --brand-ink, --brand-paper, --brand-accent on :root. Pages that set
  *   <html data-brand-tokens> also get --ink, --bone and --slop, which the homepage uses.
  * Data source: data-brand-src on this script tag (relative to the site root), default brand/brand.json.
@@ -28,7 +28,7 @@
     home: '',
     colors: Object.freeze({ ink: '#0a0a0a', paper: '#f1ede4', accent: '#d4ff3a' }),
     footer: '',
-    links: Object.freeze({ patreon: '', support: '' }),
+    links: Object.freeze({ patreon: '', support: '', reddit: '', x: '', tiktok: '' }),
     appOrder: Object.freeze([]),
   });
   const COLOR = /^#[0-9a-f]{3,8}$/i;
@@ -37,12 +37,14 @@
   const URL_OK = /^(https:\/\/[^\s"'<>]+|http:\/\/[^\s"'<>]+|mailto:[^\s"'<>]+|\/[^\s"'<>]*|\.{1,2}\/[^\s"'<>]*|[\w][\w./-]*)$/;
   const safeUrl = (v) => (typeof v === 'string' && URL_OK.test(v.trim()) ? v.trim() : '');
 
+  const LINK_KEYS = ['patreon', 'support', 'reddit', 'x', 'tiktok'];
   /** Merge raw JSON over the defaults. Unknown or invalid values fall back to the defaults. */
   function normalize(raw) {
     const r = raw && typeof raw === 'object' ? raw : {};
     const colors = Object.assign({}, DEFAULTS.colors);
     for (const k of Object.keys(colors)) if (r.colors && COLOR.test(r.colors[k])) colors[k] = r.colors[k];
-    const links = { patreon: safeUrl(r.links && r.links.patreon), support: safeUrl(r.links && r.links.support) };
+    const links = {};
+    for (const k of LINK_KEYS) links[k] = safeUrl(r.links && r.links[k]);
     const appOrder = Array.isArray(r.appOrder) ? r.appOrder.filter((x) => typeof x === 'string' && /^[\w-]+$/.test(x)) : [];
     return {
       name: str(r.name, DEFAULTS.name) || DEFAULTS.name,
