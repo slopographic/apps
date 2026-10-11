@@ -4,6 +4,7 @@
   'use strict';
   const SE = window.SE = window.SE || {};
   const U = SE.util = {};
+  SE.act = SE.act || {}; // actions run by commands (see ui/commands.js)
 
   U.$ = (sel, root) => (root || document).querySelector(sel);
   U.$$ = (sel, root) => [...(root || document).querySelectorAll(sel)];

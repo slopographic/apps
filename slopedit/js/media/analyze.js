@@ -83,7 +83,7 @@
     return out;
   };
   /** Filmstrip thumbnails: [{ t, c: canvas }]. Height th px. */
-  A.thumbs = async function (v, dur, count, th = 54) {
+  A.thumbs = async function (v, dur, count, th = 72) {
     const w = Math.max(1, Math.round(th * (v.videoWidth / Math.max(1, v.videoHeight)))), out = [];
     for (let i = 0; i < count; i++) {
       const t = count === 1 ? Math.min(0.5, dur / 2) : (dur * (i + 0.5)) / count;
@@ -95,7 +95,7 @@
     return out;
   };
   /** One thumbnail of a still image. */
-  A.imageThumb = function (bmp, th = 54) {
+  A.imageThumb = function (bmp, th = 90) {
     const c = U.canvas(Math.max(1, Math.round(th * bmp.width / bmp.height)), th);
     c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
     return [{ t: 0, c }];
