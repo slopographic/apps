@@ -1,5 +1,5 @@
 /* Make reel: the dialog's validation, the Slop Drive hand-off (records, order, manifest), Cut out subjects through
- * Slop Cutout's engine (alpha checked on generated discs), cancel with rollback, and SlopEdit opening the manifest. */
+ * SlopIsolate's engine (alpha checked on generated discs), cancel with rollback, and SlopEdit opening the manifest. */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;

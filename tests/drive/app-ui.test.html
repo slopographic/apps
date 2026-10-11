@@ -184,7 +184,7 @@
       const info = q('#info');
       expect(info.hidden).toBe(false);
       expect(info.textContent).toContain('one.png');
-      expect(info.textContent).toContain('PhotoSLOP');
+      expect(info.textContent).toContain('PhotoSlop');
       await waitFor(() => /120 × 90 px/.test(info.textContent));
       DR.select(['f:' + file('one.png').id, 'f:' + file('one copy.png').id]);
       expect(info.textContent).toContain('2 items');
@@ -205,7 +205,7 @@
       const n = node('f:' + file('one.png').id), c = center(n);
       n.dispatchEvent(new W.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: c.x, clientY: c.y }));
       const labels = qa('.sui-menu .sui-lbl').map((x) => x.textContent);
-      expect(labels).toContain('Open in PhotoSLOP'); expect(labels).toContain('Open with'); expect(labels).toContain('Move to Trash');
+      expect(labels).toContain('Open in PhotoSlop'); expect(labels).toContain('Open with'); expect(labels).toContain('Move to Trash');
       W.SlopUI.closeMenu();
     });
   });
