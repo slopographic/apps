@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="css/canvas.css" data-src="press/css/canvas.css">
   <link rel="stylesheet" href="css/panels.css" data-src="press/css/panels.css">
   <link rel="stylesheet" href="css/responsive.css" data-src="press/css/responsive.css">
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div id="app" class="app">
@@ -78,6 +79,8 @@
   <script src="../shared/guides/panel.js" data-src="shared/guides/panel.js"></script>
   <script src="../shared/apps.js" data-src="shared/apps.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js" data-offline="strip"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('#menubar'));</script>
   <script src="js/core/util.js" data-src="press/js/core/util.js"></script>
   <script src="js/core/model.js" data-src="press/js/core/model.js"></script>
   <script src="js/core/pages.js" data-src="press/js/core/pages.js"></script>
@@ -126,6 +129,7 @@
   <script src="js/ui/commands.js" data-src="press/js/ui/commands.js"></script>
   <script src="js/ui/commands2.js" data-src="press/js/ui/commands2.js"></script>
   <script src="js/ui/menus.js" data-src="press/js/ui/menus.js"></script>
+  <script src="js/ui/context.js" data-src="press/js/ui/context.js"></script>
   <script src="js/ui/toolbar.js" data-src="press/js/ui/toolbar.js"></script>
   <script src="js/ui/controlbar.js" data-src="press/js/ui/controlbar.js"></script>
   <script src="js/ui/dock.js" data-src="press/js/ui/dock.js"></script>
@@ -142,5 +146,7 @@
   <script src="js/ui/export-dialogs.js" data-src="press/js/ui/export-dialogs.js"></script>
   <script src="js/ui/main.js" data-src="press/js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shared/pwa.js" data-offline="strip"></script>
+  <script>window.SlopPWA && SlopPWA.mount();</script>
 </body>
 </html>

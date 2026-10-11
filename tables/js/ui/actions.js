@@ -122,3 +122,24 @@ export function bindClipboard() {
     paste(e.clipboardData ? e.clipboardData.getData('text/plain') : undefined);
   });
 }
+
+/* Whole rows and columns: select one, hide or show them (the header menus). */
+export function selectLine(axis, i) {
+  S.sel = axis === 'row' ? { r: i, c: 0, er: i, ec: MAX_COLS - 1 } : { r: 0, c: i, er: MAX_ROWS - 1, ec: i };
+  redraw();
+}
+export function setHidden(axis, a, b, hidden) {
+  transact(() => {
+    const sh = sheet();
+    for (let i = a; i <= b; i++) {
+      const o = axis === 'row' ? sh.rowProp(i) : sh.colProp(i);
+      if (hidden) o.hidden = true; else delete o.hidden;
+    }
+  });
+  redraw();
+}
+export const hasHidden = () => { const sh = sheet(); return [...sh.rows.values(), ...sh.cols.values()].some((o) => o && o.hidden); };
+export function showAll() {
+  transact(() => { const sh = sheet(); for (const o of [...sh.rows.values(), ...sh.cols.values()]) delete o.hidden; });
+  redraw();
+}

@@ -20,12 +20,12 @@
   /* ================= menus ================= */
   var MENUS = [
     { label: 'File', items: ['file.new', 'file.open', 'file.openDrive', 'file.sample', '-', 'file.place', 'file.placeDrive', '-', 'file.save', 'file.saveAs', { label: 'Export', items: ['file.exportSVG', 'file.exportPNG', 'file.exportJPG', 'file.exportPDF', 'file.exportAI'] }, { label: 'Send to', dyn: 'sendto' }, '-', 'file.docSetup', '-', 'file.downloadApp', '-', 'file.home'] },
-    { label: 'Edit', items: ['edit.undo', 'edit.redo', '-', 'edit.cut', 'edit.copy', 'edit.paste', 'edit.pasteFront', 'edit.pasteBack', 'edit.clear', '-', 'edit.duplicate', 'select.all', 'select.none', '-', 'edit.prefs'] },
+    { label: 'Edit', items: ['edit.undo', 'edit.redo', '-', 'edit.cut', 'edit.copy', 'edit.paste', 'edit.pasteFront', 'edit.pasteBack', 'edit.clear', '-', 'edit.duplicate', 'select.all', 'select.none', '-', 'edit.prefs', { label: 'Preferences', items: ['edit.nav'] }] },
     { label: 'Object', items: [{ label: 'Transform', items: ['transform.move', 'transform.rotate', 'transform.scale', 'transform.reflect', '-', 'transform.flipH', 'transform.flipV'] }, { label: 'Arrange', items: ['arrange.front', 'arrange.forward', 'arrange.backward', 'arrange.back'] }, '-', 'object.group', 'object.ungroup', '-', 'object.lock', 'object.unlockAll', 'object.hide', 'object.showAll', '-', 'object.expand', { label: 'Compound Path', items: ['compound.make', 'compound.release'] }, { label: 'Pathfinder', items: ['pf.unite', 'pf.minus', 'pf.intersect', 'pf.exclude'] }, '-', 'object.slopify'] },
     { label: 'Type', items: [{ label: 'Font', dyn: 'fonts' }, { label: 'Size', dyn: 'sizes' }, { label: 'Weight', dyn: 'weights' }, '-', 'type.alignLeft', 'type.alignCenter', 'type.alignRight', '-', { label: 'Change Case', items: ['type.upper', 'type.lower', 'type.title'] }, 'type.ipsum'] },
     { label: 'Select', items: ['select.all', 'select.none', 'select.inverse', '-', { label: 'Same', items: ['select.sameFill', 'select.sameStroke'] }, 'select.layer'] },
     { label: 'View', items: ['view.outline', '-', 'view.zoomIn', 'view.zoomOut', 'view.fit', 'view.actual', '-', 'view.rulers', 'view.grid', 'view.snapGrid', 'view.smart', '-', 'view.guides', 'view.lockGuides', 'view.snapGuides', 'view.clearGuides', 'view.newGuide', 'view.guideLayout', 'view.guidesFromSel', '-', { label: 'Theme', items: ['theme.pro', 'theme.light', 'theme.classic'] }] },
-    { label: 'Window', items: PANEL_IDS.map(function (p) { return 'window.' + p; }).concat(['-', 'view.guideLayout', '-', 'window.togglePanels', 'window.reset']) },
+    { label: 'Window', items: PANEL_IDS.map(function (p) { return 'window.' + p; }).concat(['-', 'window.fillColor', 'window.strokeColor', '-', 'view.guideLayout', '-', 'window.togglePanels', 'window.reset']) },
     { label: 'Help', items: ['help.commands', 'help.shortcuts', 'help.about', '-', 'file.home'] }
   ];
   function dynItems(kind) {

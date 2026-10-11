@@ -74,7 +74,7 @@ function showMenu(btn, items, focus) {
 /* ---------- toolbox ---------- */
 function buildToolbox() {
   const box = $('#toolbox');
-  const order = ['move', 'marquee', 'ellipse', 'lasso', 'polylasso', 'wand', 'crop', 'eyedropper', 'brush', 'pencil', 'clone', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'hand', 'zoom'];
+  const order = ['move', 'marquee', 'ellipse', 'lasso', 'polylasso', 'wand', 'crop', 'eyedropper', 'brush', 'pencil', 'clone', 'heal', 'spot', 'redeye', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'hand', 'zoom'];
   const grid = h('div', { class: 'tools' });
   for (const id of order) {
     const t = TOOL[id];
@@ -86,8 +86,10 @@ function buildToolbox() {
   const bg = h('button', { class: 'sw-bg', type: 'button', title: 'Set background colour', 'aria-label': 'Background colour' });
   const swap = h('button', { class: 'sw-swap', type: 'button', title: 'Swap colours (X)', 'aria-label': 'Swap colours', html: '<svg viewBox="0 0 12 12"><path d="M2 4h6l-2-2M10 8H4l2 2"/></svg>' });
   const def = h('button', { class: 'sw-def', type: 'button', title: 'Default colours (D)', 'aria-label': 'Default colours' }, h('i'), h('i'));
-  fg.addEventListener('click', async () => { const c = await pickColorDialog('Color Picker (Foreground Color)', C.fg); if (c) setColor('fg', c); });
-  bg.addEventListener('click', async () => { const c = await pickColorDialog('Color Picker (Background Color)', C.bg); if (c) setColor('bg', c); });
+  for (const [b, which] of [[fg, 'fg'], [bg, 'bg']]) {
+    b.addEventListener('click', () => editSwatch(which));
+    b.addEventListener('contextmenu', (e) => { e.preventDefault(); editSwatch(which); });
+  }
   swap.addEventListener('click', swapColors);
   def.addEventListener('click', defaultColors);
   box.append(grid, h('div', { class: 'swatches-fgbg' }, bg, fg, swap, def));
@@ -143,6 +145,7 @@ function buildOptions() {
     add(n('X', () => Math.round(tf.cx + tf.tx), (v) => { tf.tx = v - tf.cx; }, 'px'), n('Y', () => Math.round(tf.cy + tf.ty), (v) => { tf.ty = v - tf.cy; }, 'px'),
       n('W', () => Math.round(tf.sx * 1000) / 10, (v) => { tf.sx = v / 100; }, '%'), n('H', () => Math.round(tf.sy * 1000) / 10, (v) => { tf.sy = v / 100; }, '%'),
       n('∠', () => Math.round((tf.rot * 180) / Math.PI * 10) / 10, (v) => { tf.rot = (v * Math.PI) / 180; }, '°'),
+      optSelect('Interpolation', tf, 'interp', RESAMPLE_MODES, () => dirty(true)),
       h('span', { class: 'opt-spacer' }),
       h('button', { class: 'btn', type: 'button', onclick: cancelTransform, title: 'Cancel (Esc)' }, 'Cancel'),
       h('button', { class: 'btn primary', type: 'button', onclick: commitTransform, title: 'Commit (Enter)' }, 'Commit'));
@@ -154,6 +157,9 @@ function buildOptions() {
     case 'pencil': add(optRange('Size', T.pencil, 'size', 1, 200), optRange('Opacity', T.pencil, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
     case 'eraser': add(brushPickerButton(), optSelect('Tip', T.eraser, 'tip', tipOptions(T.eraser)), optRange('Size', T.eraser, 'size', 1, 1000), optRange('Hardness', T.eraser, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.eraser, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.eraser, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.eraser, 'pressure')); break;
     case 'clone': add(optRange('Size', T.clone, 'size', 1, 1000), optRange('Hardness', T.clone, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.clone, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Aligned', T.clone, 'aligned'), optCheck('Sample all layers', T.clone, 'sampleAll'), h('span', { class: 'opt-hint' }, isMac ? '⌥-click to set the source' : 'Alt-click to set the source')); break;
+    case 'heal': add(brushPickerButton(), optRange('Size', T.heal, 'size', 1, 1000), optRange('Hardness', T.heal, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.heal, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Aligned', T.heal, 'aligned'), optCheck('Sample all layers', T.heal, 'sampleAll'), h('span', { class: 'opt-hint' }, isMac ? '⌥-click to set the source, then paint' : 'Alt-click to set the source, then paint')); break;
+    case 'spot': add(brushPickerButton(), optRange('Size', T.spot, 'size', 1, 1000), optRange('Hardness', T.spot, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.spot, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), h('span', { class: 'opt-hint' }, 'Paint over a blemish: the source is picked from the clean ring around it')); break;
+    case 'redeye': add(optRange('Tolerance', T.redeye, 'tol', 0, 100, 1, pct, (v) => v, (v) => v), optRange('Darkening', T.redeye, 'dark', 0, 100, 1, pct, (v) => v, (v) => v), h('span', { class: 'opt-hint' }, 'Drag around the eye (a click corrects a square). Works inside the selection.')); break;
     case 'blur': case 'sharpen': { const o = T[t.id]; add(brushPickerButton(), optRange('Size', o, 'size', 1, 500), optRange('Hardness', o, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Strength', o, 'strength', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break; }
     case 'sponge': add(brushPickerButton(), optSelect('', T.sponge, 'mode', [['saturate', 'Saturate'], ['desaturate', 'Desaturate']]), optRange('Size', T.sponge, 'size', 1, 500), optRange('Flow', T.sponge, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
     case 'smudge': add(optRange('Size', T.smudge, 'size', 1, 500), optRange('Strength', T.smudge, 'strength', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
@@ -166,7 +172,7 @@ function buildOptions() {
     case 'type': buildTypeOptions(add); break;
     case 'move': add(optCheck('Auto-select layer', T.move, 'auto'), h('span', { class: 'opt-hint' }, 'Drag to move · arrow keys nudge · Ctrl+T to transform')); break;
     case 'crop': add(optCheck('Delete cropped pixels', T.crop, 'del'), h('span', { class: 'opt-spacer' }), h('button', { class: 'btn', type: 'button', onclick: () => { TOOL.crop.activate(); dirty(); } }, 'Reset'), h('button', { class: 'btn primary', type: 'button', onclick: () => TOOL.crop.apply() }, 'Crop')); break;
-    case 'eyedropper': add(optSelect('Sample size', T.eyedrop, 'size', [[1, 'Point'], [3, '3 × 3 average'], [5, '5 × 5 average'], [11, '11 × 11 average']].map(([v, l]) => [String(v), l])), optCheck('All layers', T.eyedrop, 'all')); break;
+    case 'eyedropper': add(optSelect('Sample size', T.eyedrop, 'size', [[1, 'Point'], [3, '3 × 3 average'], [5, '5 × 5 average'], [11, '11 × 11 average']].map(([v, l]) => [String(v), l])), sampleSourceOpt()); break;
     case 'hand': case 'zoom': add(h('button', { class: 'btn', type: 'button', onclick: () => actualPixels() }, '100%'), h('button', { class: 'btn', type: 'button', onclick: () => fitView() }, 'Fit Screen')); break;
   }
   if (t.id === 'eyedropper') { const s = bar.querySelector('select'); s.value = String(T.eyedrop.size); s.onchange = () => { T.eyedrop.size = +s.value; saveToolOptions(); }; }

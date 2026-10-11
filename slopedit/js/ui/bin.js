@@ -4,7 +4,7 @@
   'use strict';
   const SE = window.SE, U = SE.util, M = SE.model, A = SE.app;
   const h = U.h;
-  const B = SE.bin = { tab: 'media', filter: '' };
+  const B = SE.bin = { tab: 'media', filter: '', picked: new Set() };
   let root, list, info, search;
 
   const KIND_ICON = { video: 'film', audio: 'music', image: 'image' };
@@ -20,19 +20,30 @@
     if (it.status === 'ready') thumb.append(h('button', { type: 'button', class: 'bi-add', title: 'Add at playhead', 'aria-label': 'Add ' + meta.name + ' at the playhead', onclick: (e) => { e.stopPropagation(); addAtPlayhead(meta); } }, SE.icon('plus')));
     const used = SE.doc.clips.some((c) => c.media === meta.id);
     const el = h('div', {
-      class: 'bi' + (used ? ' used' : ''), role: 'option', tabindex: '0', draggable: it.status === 'ready' ? 'true' : 'false', dataset: { id: meta.id },
+      class: 'bi' + (used ? ' used' : '') + (B.picked.has(meta.id) ? ' on' : ''), role: 'option', tabindex: '0', draggable: it.status === 'ready' ? 'true' : 'false', dataset: { id: meta.id }, 'aria-selected': B.picked.has(meta.id) ? 'true' : 'false',
       title: meta.name + (meta.w ? ' · ' + meta.w + '×' + meta.h : '') + (meta.kind !== 'image' ? ' · ' + U.dur(meta.dur) : '') + (meta.kind === 'video' ? (meta.hasAudio ? ' · with sound' : ' · no sound') : '')
     }, thumb, h('div', { class: 'bi-name' }, SE.icon(KIND_ICON[meta.kind] || 'film'), h('span', null, meta.name)));
     el.addEventListener('dragstart', (e) => { e.dataTransfer.setData('application/x-slopedit-media', meta.id); e.dataTransfer.effectAllowed = 'copy'; SE.timeline && SE.timeline.dragMedia(meta.id); });
     el.addEventListener('dragend', () => SE.timeline && SE.timeline.dragMedia(null));
     el.addEventListener('dblclick', () => addAtPlayhead(meta));
-    el.addEventListener('keydown', (e) => { if (e.key === 'Enter') addAtPlayhead(meta); else if (e.key === 'Delete' || e.key === 'Backspace') { e.stopPropagation(); removeItem(meta); } });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addAtPlayhead(meta);
+      else if (e.key === ' ') { e.preventDefault(); B.picked.has(meta.id) ? B.picked.delete(meta.id) : B.picked.add(meta.id); B.render(); }
+      else if (e.key === 'Delete' || e.key === 'Backspace') { e.stopPropagation(); removeItem(meta); }
+      else if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) { e.preventDefault(); const r = el.getBoundingClientRect(); itemMenu(meta, r.left + 16, r.top + 16); }
+    });
     el.addEventListener('contextmenu', (e) => { e.preventDefault(); itemMenu(meta, e.clientX, e.clientY); });
     let lp = 0;
     el.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') lp = setTimeout(() => itemMenu(meta, e.clientX, e.clientY), 550); });
     el.addEventListener('pointerup', () => clearTimeout(lp));
     el.addEventListener('pointercancel', () => clearTimeout(lp));
-    el.addEventListener('click', (e) => { if (e.pointerType && e.pointerType !== 'mouse') return; U.$$('.bi.on', list).forEach((x) => x.classList.remove('on')); el.classList.add('on'); });
+    el.addEventListener('click', (e) => {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      // Ctrl/Shift-click builds a multi-selection (templates and the random edit use it); a plain click selects one.
+      if (e.ctrlKey || e.metaKey || e.shiftKey) { if (B.picked.has(meta.id)) B.picked.delete(meta.id); else B.picked.add(meta.id); }
+      else { B.picked = new Set([meta.id]); }
+      B.render();
+    });
     return el;
   }
   function addAtPlayhead(meta) {
@@ -68,7 +79,8 @@
     if (!root) return;
     U.$$('.bin-tab', root).forEach((b) => b.classList.toggle('on', b.dataset.tab === B.tab));
     root.dataset.tab = B.tab;
-    if (B.tab !== 'media') { if (SE.effectsPanel) SE.effectsPanel.render(list); return; }
+    if (B.tab === 'effects') { if (SE.effectsPanel) SE.effectsPanel.render(list); return; }
+    if (B.tab === 'templates') { if (SE.tplPanel) SE.tplPanel.render(list); info.textContent = ''; return; }
     list.replaceChildren();
     const q = B.filter.toLowerCase();
     const items = SE.doc.media.filter((m) => !q || m.name.toLowerCase().includes(q));
@@ -92,6 +104,7 @@
     const tabs = h('div', { class: 'bin-tabs', role: 'tablist' },
       h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'media' }, onclick: () => { B.tab = 'media'; B.render(); } }, 'Media'),
       h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'effects' }, onclick: () => { B.tab = 'effects'; B.render(); } }, 'Effects'),
+      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'templates' }, onclick: () => { B.tab = 'templates'; B.render(); } }, 'Templates'),
       h('span', { class: 'tb-flex' }), info);
     const tools = h('div', { class: 'bin-tools' },
       h('button', { type: 'button', class: 'btn sm', title: 'Import files (Ctrl+I)', onclick: A.openDialog }, SE.icon('plus'), 'Import'),
@@ -100,9 +113,11 @@
     list = h('div', { class: 'bin-list' });
     root.append(h('div', { class: 'pane-head' }, tabs), tools, list);
     SE.on('media', U.debounce(B.render, 60));
-    SE.on('change', U.debounce(() => { if (B.tab === 'media') B.render(); }, 120));
+    SE.on('change', U.debounce(() => { if (B.tab !== 'effects') B.render(); }, 120));
     SE.on('doc', B.render);
     B.render();
   };
   B.show = function (tab) { B.tab = tab; B.render(); if (A.isPhone()) A.setPane(tab === 'effects' ? 'effects' : 'media'); };
+  // Drop picked items that were removed from the bin.
+  SE.on('doc', () => { B.picked = new Set([...B.picked].filter((id) => SE.doc.media.some((m) => m.id === id))); });
 })();

@@ -12,7 +12,7 @@
         var st = doc.styles[kind][n] || {}, eff = kind === 'para' ? ST.para(doc, n) : ST.char(doc, n);
         var sample = h('span', { class: 'sname', style: { fontFamily: eff.font ? PR.fonts.family(eff.font).css : '', fontWeight: PR.fonts.isBold(eff.fontStyle) ? 700 : '', fontStyle: PR.fonts.isItalic(eff.fontStyle) ? 'italic' : '' } }, n);
         var edit = h('button', { type: 'button', class: 'sedit', title: 'Edit style', 'aria-label': 'Edit ' + n, html: PR.kit.icon('edit') });
-        var row = h('div', { class: 'srow' + (curName === n ? ' on' : ''), role: 'option', 'aria-selected': String(curName === n), title: (st.basedOn ? 'Based on ' + st.basedOn + ' · ' : '') + 'Click to apply · Alt-click: apply and clear overrides' },
+        var row = h('div', { class: 'srow' + (curName === n ? ' on' : ''), role: 'option', tabindex: '0', 'aria-selected': String(curName === n), title: (st.basedOn ? 'Based on ' + st.basedOn + ' · ' : '') + 'Click to apply · Alt-click: apply and clear overrides' },
           sample, curName === n && ov ? h('span', { class: 'plus', title: 'Local overrides' }, '+') : null, h('span', { class: 'smeta' }, use[kind][n] || ''), /^\[/.test(n) && kind === 'char' ? null : edit);
         row.addEventListener('click', function (e) {
           if (e.target.closest('.sedit')) return;

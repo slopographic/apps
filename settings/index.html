@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Settings and privacy: Slopographic</title>
+  <meta name="description" content="Slopographic settings: your privacy choices for analytics, ads and exchange rates, your defaults, and how the site handles your data.">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://slopographic.com/settings/">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
+  <link rel="stylesheet" href="../style/base.css">
+  <link rel="stylesheet" href="../style/footer.css">
+  <link rel="stylesheet" href="../shared/consent/banner.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body data-consent="off">
+  <header class="nav">
+    <a class="brand" href="../" aria-label="Slopographic, home">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4" /></svg>
+      <span class="brand-name">Slopographic</span>
+    </a>
+    <nav class="tabs" aria-label="Sections">
+      <a class="tab" href="../#apps">Apps</a>
+      <a class="tab" href="../#status">Status</a>
+      <a class="tab" href="./" aria-current="page">Settings</a>
+    </nav>
+  </header>
+
+  <main class="settings-main">
+    <div class="settings-hero">
+      <p class="kicker"><span>Slopographic</span><span>Settings</span></p>
+      <h1 class="page-title">Your <em>choices</em></h1>
+    </div>
+
+    <section aria-labelledby="privacy-title">
+      <h2 id="privacy-title">Privacy</h2>
+      <p class="privacy">Slopographic runs in your browser and your files never leave your device. Your choices on this page are stored in this browser's local storage and nowhere else. Analytics and ads are off until you turn them on, and no third-party script loads until you do. You can change this at any time.</p>
+    </section>
+
+    <section aria-labelledby="choices-title">
+      <h2 id="choices-title">Analytics and ads</h2>
+      <div class="set-row">
+        <div>
+          <h3 id="set-analytics-label">Analytics</h3>
+          <p>Google Analytics 4 counts page views, so we can see which apps people use. Off by default.</p>
+        </div>
+        <label class="set-switch"><input type="checkbox" id="set-analytics" aria-labelledby="set-analytics-label"><span class="track" aria-hidden="true"></span></label>
+      </div>
+      <div class="set-row">
+        <div>
+          <h3 id="set-ads-label">Ads</h3>
+          <p>Google AdSense may show ads on some pages. Off by default.</p>
+        </div>
+        <label class="set-switch"><input type="checkbox" id="set-ads" aria-labelledby="set-ads-label"><span class="track" aria-hidden="true"></span></label>
+      </div>
+      <p id="settings-note" class="settings-note" role="status" aria-live="polite"></p>
+    </section>
+
+    <section aria-labelledby="defaults-title">
+      <h2 id="defaults-title">Defaults</h2>
+      <p>Used for new invoices, orders and journal entries, and for numbers, currencies and dates. Language of the app text is not changed by these.</p>
+      <div class="set-row set-row-field">
+        <div>
+          <h3><label for="set-currency">Default currency</label></h3>
+          <p>The ledger's base currency. Entries in other currencies keep their own amounts and are converted at the rate on their date.</p>
+        </div>
+        <select id="set-currency" class="set-select" disabled></select>
+      </div>
+      <div class="set-row set-row-field">
+        <div>
+          <h3><label for="set-locale">Locale</label></h3>
+          <p>How numbers, currencies and dates are written. Starts as your browser's language.</p>
+        </div>
+        <select id="set-locale" class="set-select" disabled></select>
+      </div>
+      <p id="defaults-note" class="settings-note" role="status" aria-live="polite"></p>
+    </section>
+
+    <section aria-labelledby="rates-title">
+      <h2 id="rates-title">Exchange rates</h2>
+      <p>Rates are entered by you, or downloaded on purpose from the European Central Bank. Nothing is downloaded unless you turn this on and press the button, or tick "Update on open".</p>
+      <div class="set-row">
+        <div>
+          <h3 id="set-rates-label">Exchange rates</h3>
+          <p>Allows the Update button below to download the ECB's daily reference rates. Off by default.</p>
+        </div>
+        <label class="set-switch"><input type="checkbox" id="set-rates" aria-labelledby="set-rates-label"><span class="track" aria-hidden="true"></span></label>
+      </div>
+      <div class="set-row">
+        <div>
+          <h3 id="set-rates-open-label">Update on open</h3>
+          <p>Download the ECB rates each time this page opens. Needs Exchange rates on.</p>
+        </div>
+        <label class="set-switch"><input type="checkbox" id="set-rates-open" aria-labelledby="set-rates-open-label" disabled><span class="track" aria-hidden="true"></span></label>
+      </div>
+      <div class="rates-update">
+        <button type="button" class="btn" id="rates-update" disabled>Update rates from the European Central Bank</button>
+        <p id="rates-status" class="settings-note" role="status" aria-live="polite"></p>
+      </div>
+
+      <h3 class="sub-title">Add a rate</h3>
+      <form id="rate-form" class="rate-form" novalidate>
+        <label>Base <select id="rate-base"></select></label>
+        <label>Quote <select id="rate-quote"></select></label>
+        <label>Date <input type="date" id="rate-date" required></label>
+        <label>Rate <input type="text" id="rate-value" inputmode="decimal" placeholder="1.0842" autocomplete="off" required></label>
+        <label class="rate-note">Note <input type="text" id="rate-note" maxlength="300" autocomplete="off"></label>
+        <button type="submit" class="btn">Save rate</button>
+      </form>
+      <p class="settings-note">One unit of the base currency equals the rate in the quote currency. Saved rates cannot be edited; to correct one, add a new row for the date.</p>
+      <p id="rate-msg" class="settings-note" role="status" aria-live="polite"></p>
+      <div class="rate-table-wrap">
+        <table class="rate-table">
+          <caption>Recent rates</caption>
+          <thead><tr><th scope="col">Pair</th><th scope="col">Date</th><th scope="col">Rate</th><th scope="col">Source</th><th scope="col">Note</th></tr></thead>
+          <tbody id="rate-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="apps-title">
+      <h2 id="apps-title">App settings</h2>
+      <p>Options for each app. Changing one here only changes that app. Reset an app to go back to its own defaults.</p>
+      <div id="app-settings"></div>
+    </section>
+
+    <section id="donate" data-donate aria-labelledby="donate-title" hidden>
+      <h2 id="donate-title">Donate</h2>
+      <p>Slopographic is free to use. If you want to help keep it going, you can support it on Patreon.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-mark" aria-hidden="true">Slopographic</p>
+    <div class="footer-cols">
+      <p><strong>Slopographic</strong><br>Creative software that runs in your browser.</p>
+      <p>Everything works offline-first. Your files never leave your device.</p>
+      <p>No accounts. Analytics and ads are off unless you turn them on in Settings.</p>
+    </div>
+    <p class="fine">© 2026 Slopographic.</p>
+    <p class="fine legal"><a href="https://github.com/slopographic/slopographic/blob/main/LICENSE">Code MIT</a> · <a href="https://github.com/slopographic/slopographic/blob/main/TRADEMARKS.md">Sloppo™ and Slopographic™ are trademarks</a></p>
+  </footer>
+
+  <script src="../shared/consent/config.js"></script>
+  <script src="../shared/consent/state.js"></script>
+  <script src="../shared/consent/consent-mode.js"></script>
+  <script src="../shared/consent/donate.js"></script>
+  <script src="../shared/data/money.js"></script>
+  <script src="../shared/data/barcode.js"></script>
+  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema.js"></script>
+  <script src="../shared/data/currency.js"></script>
+  <script src="../shared/data/store.js"></script>
+  <script src="../shared/data/numbering.js"></script>
+  <script src="../shared/data/ledger.js"></script>
+  <script src="../shared/data/fx.js"></script>
+  <script src="../shared/data/rates-ecb.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/profile/profile.js"></script>
+  <script src="../shared/profile/app-options.js"></script>
+  <script src="settings.js"></script>
+  <script src="defaults.js"></script>
+  <script src="rates.js"></script>
+  <script src="app-settings.js"></script>
+</body>
+</html>

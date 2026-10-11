@@ -34,10 +34,19 @@
     chip.title = E.state === 'loading' ? E.text : E.ready() ? 'Model loaded on this device' : 'Pick a model';
   }
 
-  function chipMenu() {
+  /** Models already on this device (downloaded or loaded from a folder), for the switcher. */
+  async function readyModels() {
+    const out = [];
+    for (const m of AI.allModels()) { const st = await E.status(m.id).catch(() => null); if (st && st.state === 'ready') out.push(m); }
+    return out;
+  }
+  async function chipMenu() {
     const r = AI.$('modelChip').getBoundingClientRect(), items = [];
     if (E.state === 'loading') items.push({ label: 'Pause download', act: () => E.pause() }, { label: 'Cancel download', act: () => E.cancel() });
     if (E.state === 'paused' && E.loadingId) items.push({ label: 'Resume download', act: () => E.load(E.loadingId, { skipConsent: true }) }, { label: 'Cancel download', act: () => E.cancel() });
+    const cur = E.model && E.engine && E.engine.loaded ? E.model.id : null;
+    const others = (await readyModels()).filter((m) => m.id !== cur);
+    if (others.length) items.push({ label: cur ? 'Switch model' : 'Load a downloaded model', sub: others.map((m) => ({ label: m.name, act: () => E.load(m.id, { skipConsent: true }) })) });
     if (E.engine && E.engine.loaded) items.push({ label: 'Unload model (free GPU memory)', act: () => E.unload() });
     items.push({ label: 'Choose a model…', act: () => AI.setTab('models') }, { label: 'Can my PC run it?', act: () => AI.setTab('sys') });
     window.SlopUI.menu(items, r.left, r.bottom + 4);

@@ -26,8 +26,11 @@
   <link rel="stylesheet" href="css/chat.css">
   <link rel="stylesheet" href="css/models.css">
   <link rel="stylesheet" href="css/build.css">
+  <link rel="stylesheet" href="css/launcher.css">
+  <link rel="stylesheet" href="css/workspace.css">
   <link rel="stylesheet" href="css/mobile.css">
   <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app" id="app">
@@ -44,16 +47,21 @@
       </div>
     </header>
     <main class="views" id="views">
-      <section class="view chat-view" id="view-chat" data-view="chat" aria-label="Chat"></section>
-      <section class="view build-view" id="view-build" data-view="build" aria-label="Build a mini-app"></section>
-      <section class="view page" id="view-models" data-view="models" aria-label="Models"></section>
-      <section class="view page" id="view-sys" data-view="sys" aria-label="System check"></section>
+      <div class="views-main">
+        <section class="view chat-view" id="view-chat" data-view="chat" aria-label="Chat"></section>
+        <section class="view build-view" id="view-build" data-view="build" aria-label="Build a mini-app"></section>
+        <section class="view page" id="view-models" data-view="models" aria-label="Models"></section>
+        <section class="view page" id="view-sys" data-view="sys" aria-label="System check"></section>
+      </div>
     </main>
   </div>
   <script src="../shared/apps.js"></script>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="../shared/hub.js"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
   <script src="../shared/ai/catalog.js"></script>
   <script src="../shared/ai/sysinfo.js"></script>
   <script src="../shared/ai/bench.js"></script>
@@ -69,10 +77,12 @@
   <script src="js/core/store.js"></script>
   <script src="js/core/engine.js"></script>
   <script src="js/ui/shell.js"></script>
+  <script src="js/ui/workspace.js"></script>
   <script src="js/ui/sysview.js"></script>
   <script src="js/ui/speccard.js"></script>
   <script src="js/ui/models.js"></script>
   <script src="js/ui/chatlist.js"></script>
+  <script src="js/ui/launcher.js"></script>
   <script src="js/ui/drive.js"></script>
   <script src="js/ui/messages.js"></script>
   <script src="js/ui/chat.js"></script>
@@ -81,7 +91,10 @@
   <script src="js/ui/builder.js"></script>
   <script src="js/ui/sloppo.js"></script>
   <script src="js/ui/commands.js"></script>
+  <script src="js/ui/ctxmenu.js"></script>
   <script src="js/app/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

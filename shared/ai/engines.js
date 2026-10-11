@@ -92,7 +92,8 @@ for (const k of '789/456*123-0.=+C') { const b = document.createElement('button'
       const apps = window.SLOP_APPS || [];
       if (tools.includes('open_app') && /\b(open|launch|start|go to)\b/.test(lq)) {
         const app = apps.find((a) => lq.includes(a.name.toLowerCase()) || new RegExp('\\b' + a.id + '\\b').test(lq));
-        if (app) return 'Opening ' + app.name + '. ' + call('open_app', { id: app.id });
+        const file = (q.match(/\bwith\s+([\w.-]+\.\w+)/i) || [])[1];
+        if (app) return 'Opening ' + app.name + '. ' + call('open_app', file ? { id: app.id, file } : { id: app.id });
       }
       if (tools.includes('run_command') && /\b(run|do|command)\b/.test(lq)) { const m = q.match(/[a-z]+\.[\w.]+/i); if (m) return call('run_command', { id: m[0] }); }
       if (tools.includes('save_to_drive') && /\bsave\b/.test(lq)) return call('save_to_drive', { name: 'note from Slop AI.md', content: '# Note\n\nSaved by the fake engine.' });

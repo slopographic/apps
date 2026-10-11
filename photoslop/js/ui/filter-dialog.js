@@ -16,6 +16,8 @@ async function runFilter(id, presetParams) {
   if (f.cover) L = coverDoc(L);
   const env = { fg: C.fg, bg: C.bg };
   const base = L.canvas;
+  // Analysing filters (Auto Enhance) give the dialog their values from the layer; others use their list.
+  const plist = f.plist ? f.plist(base) : (f.params || null);
   const finish = async (params) => {
     document.body.classList.add('busy');
     await new Promise((r) => setTimeout(r, 20));
@@ -30,9 +32,10 @@ async function runFilter(id, presetParams) {
     } catch (e) { console.warn(e); toast('That filter failed: ' + e.message); live = null; dirty(true); }
     document.body.classList.remove('busy');
   };
-  if (!f.params || presetParams) { await finish(presetParams || {}); return; }
-  const params = {};
-  for (const p of f.params) if (p.k) params[p.k] = p.v === '@fg' ? C.fg : p.v === '@bg' ? C.bg : JSON.parse(JSON.stringify(p.v === undefined ? null : p.v));
+  if (!plist || presetParams) { await finish(presetParams || {}); return; }
+  const params = {}, autoVals = {};
+  for (const p of plist) if (p.k) autoVals[p.k] = p.v;
+  for (const p of plist) if (p.k) params[p.k] = p.v === '@fg' ? C.fg : p.v === '@bg' ? C.bg : JSON.parse(JSON.stringify(p.v === undefined ? null : p.v));
   if (LAST_FILTER.id === id && LAST_FILTER.params) Object.assign(params, JSON.parse(JSON.stringify(LAST_FILTER.params)));
   let preview = true, token = 0, pending = false, lastOut = null;
   const status = h('span', { class: 'dlg-status' });
@@ -54,12 +57,24 @@ async function runFilter(id, presetParams) {
     dirty(true);
   };
   const body = h('div', { class: 'fparams' });
-  for (const p of f.params) body.append(paramControl(p, params, base, runPreview));
+  for (const p of plist) body.append(paramControl(p, params, base, runPreview));
   const pv = h('input', { type: 'checkbox', checked: true });
   pv.addEventListener('change', () => { preview = pv.checked; runPreview(); });
   body.append(h('div', { class: 'dlg-row' }, h('label', { class: 'opt-check' }, pv, h('span', null, 'Preview')), status));
-  dialog({ title: f.name.replace('…', ''), body, cls: 'dlg-filter' + (f.params.some((p) => p.type === 'curve') ? ' dlg-curve' : ''),
-    buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true }],
+  // Reset to auto: restores the analysed values and refreshes the sliders (the dialog stays open).
+  const reset = () => {
+    for (const p of plist) {
+      if (!p.k || p.type === 'histogram' || p.type === 'curve' || p.type === 'color') continue;
+      params[p.k] = autoVals[p.k];
+      for (const el of body.querySelectorAll(`[aria-label="${p.label}"]`)) { if (el.type === 'checkbox') el.checked = !!params[p.k]; else el.value = params[p.k]; }
+    }
+    runPreview();
+    return false;
+  };
+  const buttons = [{ label: 'Cancel' }, { label: 'OK', primary: true }];
+  if (f.auto) buttons.splice(1, 0, { label: 'Reset to auto', act: reset });
+  dialog({ title: f.name.replace('…', ''), body, cls: 'dlg-filter' + (plist.some((p) => p.type === 'curve') ? ' dlg-curve' : ''),
+    buttons,
     onClose: async (ok) => {
       token++;
       if (!ok) { live = null; dirty(true); return; }
@@ -77,11 +92,12 @@ function paramControl(p, params, base, changed) {
   if (p.type === 'range') {
     const r = h('input', { type: 'range', min: p.min, max: p.max, step: p.step || 1, value: params[p.k], 'aria-label': p.label });
     const n = h('input', { type: 'number', min: p.min, max: p.max, step: p.step || 1, value: params[p.k], class: 'opt-num', 'aria-label': p.label });
-    const set = (v) => { v = clamp(+v, p.min, p.max); params[p.k] = v; r.value = v; if (document.activeElement !== n) n.value = v; changed(); };
-    r.addEventListener('input', () => set(r.value)); n.addEventListener('change', () => set(n.value));
+    // A slider always updates its number box; the box is only left alone while the person types in it.
+    const set = (v, fromNumber) => { v = clamp(+v, p.min, p.max); params[p.k] = v; r.value = v; if (!fromNumber) n.value = v; changed(); };
+    r.addEventListener('input', () => set(r.value)); n.addEventListener('change', () => set(n.value, true));
     return h('div', { class: 'fp fp-range' }, h('div', { class: 'fp-l' }, h('span', null, p.label), h('span', { class: 'fp-n' }, n, p.unit ? h('span', { class: 'fp-u' }, p.unit) : null)), r);
   }
-  if (p.type === 'check') { const c = h('input', { type: 'checkbox', checked: !!params[p.k] }); c.addEventListener('change', () => { params[p.k] = c.checked; changed(); }); return h('label', { class: 'fp opt-check' }, c, h('span', null, p.label)); }
+  if (p.type === 'check') { const c = h('input', { type: 'checkbox', checked: !!params[p.k], 'aria-label': p.label }); c.addEventListener('change', () => { params[p.k] = c.checked; changed(); }); return h('label', { class: 'fp opt-check' }, c, h('span', null, p.label)); }
   if (p.type === 'select') { const s = h('select', null, p.options.map(([v, l]) => h('option', { value: v, selected: params[p.k] === v }, l))); s.addEventListener('change', () => { params[p.k] = s.value; changed(); }); return h('label', { class: 'fp fp-sel' }, h('span', null, p.label), s); }
   if (p.type === 'color') {
     const b = h('button', { type: 'button', class: 'fp-color', 'aria-label': p.label }); b.style.background = params[p.k];

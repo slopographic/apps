@@ -10,13 +10,13 @@
     if (current) current.close(false);
     DR.touch(r);
     const files = (DR.lastVisible || []).filter((x) => !x.isFolder), i = files.findIndex((x) => x.id === r.id);
-    const apps = r.trashedAt ? [] : DR.appsFor(r);
-    const pv = DR.previewOf(r, true);
+    const apps = r.trashedAt ? [] : DR.orderedAppsFor(r);
+    const qlUrls = [], pv = DR.previewOf(r, true, qlUrls); // its own object URLs: the details panel frees its own on each change
     const meta = el('div', { class: 'ql-meta' }, `${DR.kindLabel(r)} · ${DR.fmtSize(r.size)} · ${DR.appName(r.from)} · ${DR.fmtFull(r.modified || r.time)}`, files.length > 1 && i >= 0 ? el('span', null, `${i + 1} / ${files.length}`) : '');
     const buttons = [];
     if (apps.length) buttons.push({ label: `Open in ${apps[0].name}`, act: () => { DR.openWith(r, apps[0].id); } });
     buttons.push({ label: 'Download', act: () => { DR.downloadFile(r); return false; } }, { label: 'Close', primary: true });
-    const d = window.SlopUI.dialog({ title: r.name, cls: 'sui-wide ql', body: el('div', null, pv, meta), buttons, onClose: () => { if (current === d) current = null; pv.querySelectorAll('audio,video').forEach((m) => m.pause()); } });
+    const d = window.SlopUI.dialog({ title: r.name, cls: 'sui-wide ql', body: el('div', null, pv, meta), buttons, onClose: () => { if (current === d) current = null; pv.querySelectorAll('audio,video').forEach((m) => m.pause()); qlUrls.forEach((u) => URL.revokeObjectURL(u)); } });
     d.box.dataset.ql = r.id;
     current = d;
     const step = (n) => { const next = files[(i + n + files.length) % files.length]; if (next && next.id !== r.id) { if (S.sel.size <= 1) DR.select([DR.keyOf(next)]); DR.quickLook(next); } };

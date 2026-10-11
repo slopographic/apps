@@ -11,7 +11,6 @@
  * pointer produce: input events on the hidden text box, keydown events and clicks on the toolbar. */
 const { describe, it, expect, waitFor, beforeEach } = SlopTest;
 const H = window.SlopHub;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const frames = [];
 /** Each describe starts with no saved drafts, so one test's autosave never reopens in the next. */
 async function clearDrafts() {
@@ -28,6 +27,8 @@ async function open(src, width = 1100) {
   return f.contentWindow;
 }
 function close(W) { const f = frames.find((x) => x.contentWindow === W); if (f) { f.remove(); frames.splice(frames.indexOf(f), 1); } }
+/** Wait until the autosave draft (1.2 s after the last keystroke) holds what was typed since `since`. */
+const draftSaved = (W, since) => waitFor(async () => { const d = await W.SlopDocs.draftGet(W.SlopDocs.file.id ? 'd:' + W.SlopDocs.file.id : 'untitled'); return !!(d && d.dirty && d.time >= since); }, { timeout: 5000 });
 function typeText(W, s) {
   const ime = W.document.getElementById('ime');
   for (const ch of s) { ime.value = ch; ime.dispatchEvent(new W.InputEvent('input', { inputType: 'insertText', data: ch, bubbles: true })); }
@@ -56,8 +57,9 @@ describe('boot', () => {
   });
   it('restores the untitled draft on a plain open, and starts blank after New', async () => {
     const W1 = await open('../../docs/');
+    const t1 = Date.now();
     typeText(W1, 'Draft words');
-    await sleep(1600);
+    await draftSaved(W1, t1);
     close(W1);
     const W2 = await open('../../docs/');
     expect(text(W2)).toEqual(['Draft words']);
@@ -269,9 +271,10 @@ describe('Slop Drive', () => {
   it('keeps unsaved typing as a draft and restores it on the next launch', async () => {
     const id = await H.put(new Blob([], { type: 'application/x-slop-doc' }), { name: 'Draft.sdoc', from: 'drive' });
     const W1 = await open('../../docs/?drive=' + id);
+    const t1 = Date.now();
     typeText(W1, 'Not saved yet');
     expect(W1.SlopDocs.file.dirty).toBeTruthy();
-    await sleep(1600);
+    await draftSaved(W1, t1);
     close(W1);
     const W2 = await open('../../docs/?drive=' + id);
     expect(text(W2)).toEqual(['Not saved yet']);

@@ -4,6 +4,7 @@ import { M, now, reduced, moodIs } from './state.js';
 import { scaleFor } from './store.js';
 import { HAT_SVG, BRAIN_SVG } from './hats.js';
 import { MAD } from './rage.js';
+import { GLAD_FACE } from './timing.js';
 
 /** The mascot box (CSS px) and the y of his feet inside it. */
 export const CW = 176, CH = 204, BASE = 168;
@@ -63,7 +64,7 @@ export function setup(container) {
 
 /** [eyes, mouth] for the current state. */
 export function face(t = now()) {
-  if (moodIs('dizzy')) return ['spiral', 'wavy'];
+  if (moodIs('dizzy')) return ['sleepy', 'wavy'];
   if (M.mode === 'drag' || M.mode === 'air') return ['normal', 'o'];
   if (moodIs('love')) return ['heart', 'open'];
   if (moodIs('chomp')) return [M.chaos || M.raging ? 'angry' : 'happy', 'open'];
@@ -71,6 +72,7 @@ export function face(t = now()) {
   if (M.chaos || M.raging) return ['angry', 'frown'];
   if (moodIs('annoyed') || M.rage >= MAD) return ['angry', 'frown'];
   if (moodIs('land')) return ['happy', 'smile'];
+  if (M.glad >= GLAD_FACE) return ['happy', 'smile'];      // a good moment still glowing
   if (M.mode === 'hop') return ['normal', 'open'];
   if (t > blinkAt) { blinkUntil = t + 140; blinkAt = t + 2200 + Math.random() * 3800; }
   return [t < blinkUntil ? 'sleepy' : 'normal', 'smile'];

@@ -83,6 +83,12 @@
     { id: 'clip.speed', title: 'Speed / duration…', group: 'Clip', keys: ['Mod+R'], keywords: ['slow motion', 'fast'], when: hasSel, run: run('speedDialog') },
     { id: 'clip.reset', title: 'Reset transform and colour', group: 'Clip', when: hasSel, run: run('resetClip') },
     { id: 'clip.volKey', title: 'Add volume keyframe at playhead', group: 'Clip', keys: ['Shift+K'], when: hasSel, run: run('addVolumeKey') },
+    // Templates and random edit
+    { id: 'tpl.panel', title: 'Templates panel', group: 'Sequence', keys: ['Shift+G'], keywords: ['layout', 'split', 'grid', 'picture in picture', 'slots'], run: run('openTemplates') },
+    { id: 'tpl.random', title: 'Random edit…', group: 'Sequence', keys: ['Shift+R'], keywords: ['shuffle', 'auto edit', 'montage', 'seed', 'build'], run: run('randomDialog') },
+    { id: 'tpl.reshuffle', title: 'Reshuffle random edit (new seed)', group: 'Sequence', keywords: ['shuffle', 'seed'], when: () => !!SE.doc.random, run: run('reshuffleRandom') },
+    { id: 'tpl.clear', title: 'Clear template layout', group: 'Sequence', when: () => !!SE.doc.layout, run: run('clearLayout') },
+    ...SE.templates.list.map((t) => ({ id: 'tpl.apply.' + t.id, title: 'Apply template: ' + t.name, group: 'Templates', keywords: ['layout', 'slots', t.desc], run: run('applyTemplate', t.id) })),
     // View
     { id: 'view.safe', title: 'Safe area overlay', group: 'View', keys: ["'"], checked: () => !!(SE.preview && SE.preview.safe), run: run('toggleSafe') },
     { id: 'view.quality', title: 'Preview quality: full / half', group: 'View', checked: () => !!(SE.preview && SE.preview.half), run: run('toggleQuality') },

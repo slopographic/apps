@@ -1,5 +1,6 @@
 /* SlopEdit: the project model. Plain JSON (no blobs) so it can be snapshotted for undo and autosaved.
-   Project { v, name, w, h, fps, bg, tracks[], clips[], markers[], media[] (metadata only) }
+   Project { v, name, w, h, fps, bg, tracks[], clips[], markers[], media[] (metadata only),
+             layout (template slots, see layout.js), random (record of the last random edit) }
    Track   { id, kind: 'video'|'audio', name, mute, solo, lock, hide }
    Clip    { id, track, kind: 'video'|'audio'|'image'|'title'|'color', media, start, dur, in, speed, link, … }
    Times are seconds on the timeline (start, dur) or in the source (in). Video tracks draw V1 first (bottom). */
@@ -20,7 +21,7 @@
   M.PRESETS = [['1920x1080', '1080p HD 16:9'], ['1280x720', '720p HD 16:9'], ['3840x2160', '4K UHD 16:9'], ['1080x1920', 'Vertical 9:16'], ['1080x1080', 'Square 1:1']];
 
   M.newProject = function (o = {}) {
-    const p = { v: 1, name: o.name || 'Untitled project', w: o.w || 1920, h: o.h || 1080, fps: o.fps || 30, bg: '#000000', tracks: [], clips: [], markers: [], media: [], io: null };
+    const p = { v: 1, name: o.name || 'Untitled project', w: o.w || 1920, h: o.h || 1080, fps: o.fps || 30, bg: '#000000', tracks: [], clips: [], markers: [], media: [], io: null, layout: null, random: null };
     M.addTrack(p, 'video'); M.addTrack(p, 'video'); M.addTrack(p, 'audio'); M.addTrack(p, 'audio');
     return p;
   };

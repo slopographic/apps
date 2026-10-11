@@ -44,8 +44,8 @@
   function canvasCommands() {
     var C = SV.cmd, out = [];
     function K(id, title, keys, run, when, extra) { out.push(Object.assign({ id: 'sv.' + id, title: title, group: 'Canvas', keys: keys, run: run, when: gate(when) }, extra || {})); }
-    K('focus.toggle', 'Toggle fill / stroke focus', ['X'], function () { S.focus = S.focus === 'fill' ? 'stroke' : 'fill'; SV.requestRender(true); });
-    K('paint.swap', 'Swap fill and stroke', ['Shift+X'], function () { SV.swapFillStroke(); });
+    K('focus.toggle', 'Toggle fill / stroke focus', [], function () { S.focus = S.focus === 'fill' ? 'stroke' : 'fill'; SV.requestRender(true); });
+    K('paint.swap', 'Swap fill and stroke colours', ['X', 'Shift+X'], function () { SV.swapFillStroke(); });
     K('paint.default', 'Default fill and stroke', ['D'], function () { SV.defaultFillStroke(); });
     K('paint.none', 'Set focused paint to None', ['/'], function () { SV.applyStyle(S.focus, null); });
     K('paint.color', 'Set focused paint to a colour', [','], function () { var cp = SV.currentPaint(S.focus); SV.applyStyle(S.focus, typeof cp === 'string' ? cp : (cp && cp.stops ? cp.stops[0].c : '#d4ff3a')); });

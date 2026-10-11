@@ -22,6 +22,11 @@
     }
     return null;
   }
+  /** The clip under a pointer event on the monitor (or null). */
+  PV.clipAt = function (e) {
+    const ov = SE.app.els.overlay, r = ov.getBoundingClientRect();
+    return pick((e.clientX - r.left) * (ov.width / r.width), (e.clientY - r.top) * (ov.height / r.height));
+  };
   PV.initInput = function (ov) {
     const stage = SE.app.els.monStage;
     let drag = null;

@@ -4,7 +4,7 @@
    never overwrites a file it could not read. Classic script; exposes window.SS.native. */
 (function () {
   'use strict';
-  var SS = window.SS, M = SS.model, U = SS.util;
+  var SS = window.SS, M = SS.model, U = SS.util, O = SS.objects;
   var N = SS.native = {};
   N.MIME = 'application/x-slop-slides';
   N.EXT = 'sslide';
@@ -19,13 +19,16 @@
     d.media = d.media || {};
     d.master = Object.assign({ footer: '', showNumber: false }, d.master);
     if (!d.theme || !d.theme.colors) d.theme = U.clone(SS.themes.byId(typeof d.theme === 'string' ? d.theme : 'slop'));
+    if (SS.anim) SS.anim.migrateDeck(d);   // version 1 files: legacy transitions and builds become animations
     d.slides.forEach(function (s) {
       s.objects = s.objects || [];
-      s.builds = s.builds || [];
       s.notes = s.notes || '';
       s.hidden = !!s.hidden;
-      s.transition = s.transition || { type: 'none', dur: 0.6 };
       s.layout = s.layout || 'blank';
+      if (SS.anim) {
+        s.transition = SS.anim.transitionOf(s);
+        O.walk(s.objects, function (o) { o.anims = SS.anim.cleanList(o.anims); });
+      }
     });
     if (!d.slides.length) M.addSlide(d, 'title');
     return d;

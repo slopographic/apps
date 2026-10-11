@@ -81,27 +81,47 @@
     DR.status && DR.status('');
   };
 
-  /* ---------- open with ---------- */
+  /* ---------- open in ---------- */
+  const OPEN_PREF = 'slop-drive.openIn';
+  /** The app remembered per file type (by extension, else MIME type): { png: 'vector', … }. */
+  const remembered = () => { try { return JSON.parse(localStorage.getItem(OPEN_PREF)) || {}; } catch (e) { return {}; } };
+  const typeKey = (r) => DR.ext(r.name) || (r.type || '').toLowerCase();
+  /** The apps that open a file: an accepts pattern matches its MIME type, or a creates entry matches its type or
+   * extension. The app that made it comes first, then the most specific match (creates, exact MIME, then wildcard). */
   DR.appsFor = (r) => {
     if (!r || r.isFolder) return [];
+    const e = DR.ext(r.name);
+    const rank = (a) => {
+      if ((a.creates || []).some((c) => c.mime === r.type || (!!e && c.ext === e))) return 3;
+      let best = 0;
+      for (const p of a.accepts || []) if (H().matches(r.type, p)) best = Math.max(best, p.includes('*') || a.tool ? 1 : 2); // tools never become the default app
+      return best;
+    };
     const own = DR.creatorOf ? DR.creatorOf(r) : null;
-    const rest = window.SLOP_APPS.filter((a) => a.kind === 'app' && a.id !== 'drive' && a !== own && (a.accepts || []).some((p) => H().matches(r.type, p)));
+    const rest = window.SLOP_APPS.filter((a) => a.kind === 'app' && a.id !== 'drive' && a !== own && rank(a) > 0).sort((x, y) => rank(y) - rank(x));
     return own ? [own, ...rest] : rest;
   };
-  DR.openWith = async function (r, appId) {
+  /** The default app for a file: the one remembered for its type if it still opens the file, else the first. */
+  DR.defaultAppFor = (r) => { const apps = DR.appsFor(r), id = remembered()[typeKey(r)]; return apps.find((a) => a.id === id) || apps[0] || null; };
+  /** Every app that opens a file, the default first. */
+  DR.orderedAppsFor = (r) => { const apps = DR.appsFor(r), d = DR.defaultAppFor(r); return d ? [d, ...apps.filter((a) => a !== d)] : []; };
+  /** Remember appId as the app for this file's type (localStorage; a blocked store just forgets it). */
+  DR.rememberApp = (r, appId) => { try { localStorage.setItem(OPEN_PREF, JSON.stringify({ ...remembered(), [typeKey(r)]: appId })); } catch (e) { /* storage blocked */ } };
+  DR.openWith = async function (r, appId, { remember = false } = {}) {
     if (!r || r.isFolder) return;
+    if (remember) DR.rememberApp(r, appId);
     const app = H().appById(appId);
     r.opened = Date.now();
     await H().update(r.id, { opened: r.opened }, { touch: false });
     await H().sendTo(appId, null, r.name, { id: r.id });
     DR.toast(`Opened in ${app ? app.name : appId}`);
   };
-  /** Double-click / Enter: folders open, files open in their first app, or in Quick Look if no app takes them. */
+  /** Double-click / Enter: folders open, files open in their default app, or in Quick Look if no app takes them. */
   DR.open = function (it) {
     if (!it) return;
     if (it.isFolder) { if (it.trashedAt || DR.hidden(it)) return DR.toast('Restore the folder to open it'); return DR.go(it.id); }
-    const apps = DR.appsFor(it);
-    if (apps.length && !it.trashedAt) return DR.openWith(it, apps[0].id);
+    const app = it.trashedAt ? null : DR.defaultAppFor(it);
+    if (app) return DR.openWith(it, app.id);
     DR.quickLook && DR.quickLook(it);
   };
 })(window.DR);

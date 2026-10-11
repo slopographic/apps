@@ -1,35 +1,25 @@
 /* Slop Drive — ui/info: the details panel (right side on desktop, a bottom sheet on phones): a live preview
- * plus size, kind, type, dates, the app that made it, location and dimensions. */
+ * plus size, kind, type, dates, the app that made it, location, dimensions and tags. The grip and the width: info-width.js. */
 'use strict';
 (function (DR) {
   const S = DR.S, el = DR.el, $ = DR.$;
   let shownKey = null, urls = [];
   const free = () => { urls.forEach((u) => URL.revokeObjectURL(u)); urls = []; };
-  const objUrl = (b) => { const u = URL.createObjectURL(b); urls.push(u); return u; };
+  const objUrl = (b, sink = urls) => { const u = URL.createObjectURL(b); sink.push(u); return u; };
   const rows = (pairs) => el('dl', { class: 'facts' }, pairs.filter((p) => p && p[1] != null && p[1] !== '').flatMap(([k, v]) => [el('dt', null, k), el('dd', null, v)]));
 
-  /** A live preview element for a file (shared with Quick Look). big: full-size variant. */
-  DR.previewOf = function (r, big = false) {
+  /** A live preview element for a file (Quick Look, the details panel and the columns). Images and PDFs use the shared
+   * viewer (ui/viewer.js: zoom, pan, open in a new tab). big: the Quick Look variant. sink: the array that keeps
+   * its object URLs (the info panel frees its own on each change; a column keeps its own). */
+  DR.previewOf = function (r, big = false, sink = urls) {
     const kind = DR.kindOf(r), box = el('div', { class: 'pv pv-' + kind });
-    if (kind === 'image') { box.append(el('img', { src: objUrl(r.blob), alt: r.name, draggable: 'false' })); }
-    else if (kind === 'audio') box.append(el('audio', { src: objUrl(r.blob), controls: true, preload: 'metadata' }));
-    else if (kind === 'video') box.append(el('video', { src: objUrl(r.blob), controls: true, preload: 'metadata', playsinline: true }));
+    if (kind === 'image' || kind === 'pdf') box.append(DR.viewerFor(r, big, sink).el);
+    else if (kind === 'audio') box.append(el('audio', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata' }));
+    else if (kind === 'video') box.append(el('video', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata', playsinline: true }));
     else if (kind === 'text') {
       const pre = el('pre', { class: 'pv-text' }, 'Loading…');
       r.blob.slice(0, big ? 400000 : 4000).text().then((t) => { pre.textContent = t + (r.size > (big ? 400000 : 4000) ? '\n…' : ''); });
       box.append(pre);
-    } else if (kind === 'pdf') {
-      if (big) {
-        const pages = el('div', { class: 'pv-pages' }, el('p', { class: 'pv-note' }, 'Rendering…'));
-        box.append(pages);
-        DR.openPdf(r.blob).then(async (doc) => {
-          pages.replaceChildren();
-          const n = Math.min(doc.numPages, 20);
-          for (let i = 1; i <= n && pages.isConnected; i++) pages.append(await DR.renderPdfPage(doc, i, Math.min(900, innerWidth - 80) * (devicePixelRatio > 1 ? 1.5 : 1)));
-          if (doc.numPages > n) pages.append(el('p', { class: 'pv-note' }, `Showing ${n} of ${doc.numPages} pages. Open it in Slop PDF for the rest.`));
-          doc.destroy();
-        }).catch(() => { pages.replaceChildren(el('p', { class: 'pv-note' }, 'This PDF could not be rendered.')); });
-      } else { const th = el('div', { class: 'th' }, DR.badge(r, 'badge big')); DR.fillThumb(th, r); box.append(th); }
     } else box.append(el('div', { class: 'th' }, DR.badge(r, 'badge big')), el('p', { class: 'pv-note' }, 'No preview for this kind of file.'));
     return box;
   };
@@ -44,10 +34,13 @@
   function actions(r) {
     const b = (label, act, cls = '') => { const x = el('button', { type: 'button', class: 'btn ' + cls }, label); x.addEventListener('click', act); return x; };
     if (r.trashedAt) return el('div', { class: 'acts' }, b('Restore', () => DR.restore([r]), 'primary'), b('Delete forever', () => DR.purge([r]), 'danger'));
-    const apps = DR.appsFor(r);
-    return el('div', { class: 'acts' }, ...apps.slice(0, 3).map((a, i) => b(`Open in ${a.name}`, () => DR.openWith(r, a.id), i ? '' : 'primary')),
+    const apps = DR.orderedAppsFor(r), d = apps[0];
+    const openIn = r.isFolder ? [] : d ? [b(`Open in ${d.name}`, () => DR.openWith(r, d.id, { remember: false }), 'primary'),
+      b('Open in…', (e) => { const x = e.currentTarget.getBoundingClientRect(); window.SlopUI.menu(DR.openInRows(r), x.left, x.bottom + 4); })] : [el('span', { class: 'muted' }, 'No app opens this type')];
+    return el('div', { class: 'acts' }, ...openIn,
       r.isFolder ? b('Open', () => DR.open(r), 'primary') : b('Quick look', () => DR.quickLook(r)),
-      b(r.isFolder ? 'Download .zip' : 'Download', () => DR.download([r])), b(r.starred ? 'Unstar' : 'Star', () => DR.setStar([r], !r.starred)));
+      b(r.isFolder ? 'Download .zip' : 'Download', () => DR.download([r])), b(r.starred ? 'Unstar' : 'Star', () => DR.setStar([r], !r.starred)),
+      DR.isCleanable(r) ? b('Remove metadata…', () => DR.openInClean(r)) : null);
   }
   function single(r) {
     const head = el('div', { class: 'info-h' }, DR.badge(r, 'badge sm'), el('h2', { title: r.name }, r.name));
@@ -63,7 +56,24 @@
     const facts = rows([['Kind', DR.kindLabel(r)], ['Type', r.type], ['Size', `${DR.fmtSize(r.size)} (${(r.size || 0).toLocaleString()} bytes)`], ['Made by', DR.appName(r.from)],
       ['Location', loc], ['Added', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], ['Opened', r.opened ? DR.fmtFull(r.opened) : 'Never'], r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null]);
     if (['image', 'video', 'pdf'].includes(DR.kindOf(r))) facts.append(el('dt', null, DR.kindOf(r) === 'pdf' ? 'Pages' : 'Dimensions'), dd);
-    return [head, DR.previewOf(r), actions(r), facts];
+    return [head, DR.previewOf(r), actions(r), facts, tagBox(r)];
+  }
+  /** A file's tags: a chip per tag with a remove button, and a box that adds more (Enter or a comma). */
+  function tagBox(r) {
+    const focusTags = () => { const i = DR.$('info') && DR.$('info').querySelector('.tag-in'); if (i) i.focus(); };
+    const chips = DR.tagsOf(r).map((t) => {
+      const x = el('button', { type: 'button', class: 'tag-x', title: `Remove ${t}`, 'aria-label': `Remove tag ${t}` }, DR.icon('x'));
+      x.addEventListener('click', async () => { await DR.removeTag([r], t); focusTags(); });
+      return el('span', { class: 'tag' }, t, x);
+    });
+    const input = el('input', { type: 'text', class: 'tag-in', placeholder: 'Add a tag', 'aria-label': 'Add a tag', autocomplete: 'off', maxlength: '200' });
+    input.addEventListener('keydown', async (e) => {
+      if (e.key !== 'Enter' && e.key !== ',') return;
+      e.preventDefault();
+      if (input.value.trim()) { await DR.addTags([r], input.value); focusTags(); }
+    });
+    return el('div', { class: 'tags-box' }, el('h3', { class: 'tags-h' }, 'Tags'),
+      el('div', { class: 'tag-chips' }, ...(chips.length ? chips : [el('span', { class: 'muted' }, 'No tags yet')])), input);
   }
   function many(items) {
     const by = new Map();
@@ -90,7 +100,7 @@
     shownKey = key; free();
     const close = el('button', { type: 'button', class: 'tb info-x', 'aria-label': 'Close details' }, DR.icon('x'));
     close.addEventListener('click', () => { if (document.body.classList.contains('sheet-open')) DR.sheet(false); else DR.toggleInfo(false); });
-    box.replaceChildren(close, ...(items.length === 1 ? single(items[0]) : items.length ? many(items) : place()));
+    box.replaceChildren(DR.$('infoGrip'), close, ...(items.length === 1 ? single(items[0]) : items.length ? many(items) : place()));
   };
   /** Phones: the details panel as a bottom sheet. */
   DR.sheet = function (open) {

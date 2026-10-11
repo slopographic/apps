@@ -36,6 +36,8 @@
   </script>
   <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
   <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/color/picker.css">
+  <link rel="stylesheet" href="../shared/nav/nav.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/guides/guides.css">
   <link rel="stylesheet" href="css/themes.css">
@@ -46,6 +48,7 @@
   <link rel="stylesheet" href="css/classic.css">
   <link rel="stylesheet" href="css/responsive.css">
   <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div id="app" class="app">
@@ -89,13 +92,26 @@
   </div>
   <noscript><p class="noscript">Slop Vector needs JavaScript. It runs entirely in your browser — nothing is uploaded.</p></noscript>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/color/model.js"></script>
+  <script src="../shared/color/picker.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="../shared/commands/search.js"></script>
   <script src="../shared/commands/palette.js"></script>
   <script src="../shared/commands/recorder.js"></script>
   <script src="../shared/commands/keymap.js"></script>
+  <script src="../shared/nav/presets.js"></script>
+  <script src="../shared/nav/validate.js"></script>
+  <script src="../shared/nav/logic.js"></script>
+  <script src="../shared/nav/describe.js"></script>
+  <script src="../shared/nav/store.js"></script>
+  <script src="../shared/nav/engine.js"></script>
+  <script src="../shared/nav/pad.js"></script>
+  <script src="../shared/nav/modal.js"></script>
+  <script src="../shared/nav/index.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/hub.js"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('#menubar'));</script>
   <!-- geom -->
   <script src="js/geom/math.js"></script>
   <script src="js/geom/bezier.js"></script>
@@ -121,6 +137,7 @@
   <script src="js/tools/pen.js"></script>
   <script src="js/tools/draw.js"></script>
   <script src="js/tools/misc.js"></script>
+  <script src="js/tools/eyedrop.js"></script>
   <script src="js/tools/commands.js"></script>
   <script src="js/tools/commands2.js"></script>
   <script src="js/tools/keys.js"></script>
@@ -143,6 +160,7 @@
   <script src="../shared/guides/panel.js"></script>
   <script src="js/ui/guides.js"></script>
   <script src="js/ui/commands.js"></script>
+  <script src="js/ui/nav-adapter.js"></script>
   <script src="js/ui/menus.js"></script>
   <script src="js/ui/color.js"></script>
   <script src="js/ui/binds.js"></script>
@@ -154,8 +172,11 @@
   <script src="js/ui/status.js"></script>
   <script src="js/ui/dialogs.js"></script>
   <script src="js/ui/ctxmenu.js"></script>
+  <script src="js/ui/ctxmenu-dock.js"></script>
   <script src="js/ui/sample.js"></script>
   <script src="js/ui/init.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shared/pwa.js" data-offline="strip"></script>
+  <script>window.SlopPWA && SlopPWA.mount();</script>
 </body>
 </html>

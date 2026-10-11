@@ -8,6 +8,7 @@
 
   function wireChrome() {
     S.wireMenus();
+    if (S.ctxmenu) S.ctxmenu.init();
     $('btnSave').addEventListener('click', () => S.save());
     const name = $('docName');
     name.addEventListener('change', () => {

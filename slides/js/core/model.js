@@ -1,6 +1,7 @@
 /* Slop Slides: the deck model and its operations (slides, sections, size, theme, media, z-order, alignment).
-   deck = { version, title, size {w,h,preset}, theme {…full theme…}, master {footer, showNumber},
-            slides: [{ id, layout, hidden, section, background, objects, notes, transition, builds }], media: { id: {mime, data, name} } } */
+   deck = { version: 2, title, size {w,h,preset}, theme {…full theme…}, master {footer, showNumber},
+            slides: [{ id, layout, hidden, section, background, objects, notes, transition: {name, duration} }], media: { id: {mime, data, name} } }
+   Objects may carry anims: [{ id, preset, trigger, at, timeScale }] (see anim/object.js). */
 (function () {
   'use strict';
   var SS = window.SS, U = SS.util, O = SS.objects;
@@ -10,13 +11,13 @@
   M.newDeck = function (opts) {
     opts = opts || {};
     var sz = M.SIZES[opts.size || '16:9'] || M.SIZES['16:9'];
-    var deck = { version: 1, title: opts.title || 'Untitled presentation', size: { w: sz.w, h: sz.h, preset: opts.size || '16:9' },
+    var deck = { version: 2, title: opts.title || 'Untitled presentation', size: { w: sz.w, h: sz.h, preset: opts.size || '16:9' },
       theme: U.clone(SS.themes.byId(opts.theme || 'slop')), master: { footer: '', showNumber: false }, slides: [], media: {} };
     if (opts.empty !== true) M.addSlide(deck, 'title');
     return deck;
   };
   M.newSlide = function (deck, layoutId) {
-    var s = { id: U.uid('s'), layout: layoutId || 'title-content', hidden: false, section: null, background: null, objects: [], notes: '', transition: { type: 'none', dur: 0.6 }, builds: [] };
+    var s = { id: U.uid('s'), layout: layoutId || 'title-content', hidden: false, section: null, background: null, objects: [], notes: '', transition: { name: 'none', duration: 0.6 } };
     return SS.layouts.apply(deck, s, s.layout);
   };
   M.addSlide = function (deck, layoutId, at) {
@@ -28,11 +29,8 @@
   M.slide = function (deck, id) { return deck.slides[M.index(deck, id)] || null; };
   M.duplicateSlide = function (deck, id) {
     var i = M.index(deck, id), s = U.clone(deck.slides[i]);
-    var map = {};
     s.id = U.uid('s'); s.section = null;
-    O.walk(s.objects, function (o) { var old = o.id; o.id = U.uid(o.type[0]); map[old] = o.id; });
-    // keep object names so Magic Move matches the copy; builds follow the new ids
-    s.builds = (s.builds || []).map(function (b) { return Object.assign({}, b, { id: U.uid('b'), obj: map[b.obj] || b.obj }); });
+    O.walk(s.objects, function (o) { o.id = U.uid(o.type[0]); });
     deck.slides.splice(i + 1, 0, s);
     return s;
   };
@@ -150,8 +148,4 @@
     items.forEach(function (it) { it.o[X] += pos - it.b[X]; pos += it.b[W] + gap; });
   };
 
-  /** Removes builds that point at objects no longer on the slide. */
-  M.cleanBuilds = function (slide) {
-    slide.builds = (slide.builds || []).filter(function (b) { return !!O.find(slide, b.obj); });
-  };
 })();

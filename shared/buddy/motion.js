@@ -4,12 +4,14 @@ import { M, reduced, now, rand, clamp, setMood, navH, pageW, pageH } from './sta
 import * as P from './perches.js';
 import { size } from './look.js';
 import { dust } from './fx.js';
-import { hardLanding } from './rage.js';
+import { hardLanding, addRage } from './rage.js';
 import { stepBodies } from './bodies.js';
 import { say } from './fx.js';
 import { line } from './lines.js';
+import { TIMING } from './timing.js';
 
 const GRAVITY = 2600, OFFSCREEN_MS = 1500;
+let dazeTok = 0;
 
 /** Put him on a perch at once (no animation). */
 export function place(p) {
@@ -60,7 +62,8 @@ function stepHop(dt) {
 }
 
 function land(p, impact) {
-  Object.assign(M, { perch: p, mode: 'perched', vx: 0, vy: 0, rot: 0, vr: 0, sqv: 0, offSince: 0, flail: false });
+  const leftPage = !p && M.thrown;   // a throw that ended on the page floor
+  Object.assign(M, { perch: p, mode: 'perched', vx: 0, vy: 0, rot: 0, vr: 0, sqv: 0, offSince: 0, flail: false, thrown: false });
   const pt = p && P.point(p);
   if (pt) { M.x = pt.x; M.y = pt.y; pin(p); }
   M.squash = clamp(impact / 2200, 0.25, 0.75);
@@ -69,6 +72,26 @@ function land(p, impact) {
   else if (impact > 0) setMood('land', 320);
   M.hard = false;
   if (!reduced()) dust(M.x, M.y, clamp(impact / 1400, 0.4, 1.4));
+  if (leftPage) fellOff();
+}
+
+/**
+ * He was thrown off the page: dizzy for a few seconds (stars, spiral eyes, a wobble), then he jumps
+ * back up onto a perch. A second fall within a minute is an anger moment (addRage).
+ */
+function fellOff() {
+  const tok = ++dazeTok, t = now();
+  M.offs = M.offs.filter((x) => t - x < 60000);
+  M.offs.push(t);
+  M.daze = t + TIMING.dazeMs;
+  if (M.offs.length >= 2) { M.offs = []; addRage(1, 'offpage'); }
+  else { setMood('dizzy', TIMING.dazeMs); say(line('dizzy'), TIMING.dazeMs); }
+  setTimeout(() => {
+    if (tok !== dazeTok) return;
+    M.daze = 0;
+    M.rot = 0;
+    if (M.visible && M.mode === 'perched' && !M.perch) leapIn();
+  }, TIMING.dazeMs);
 }
 
 /** Remember the exact spot on the element he stands on. */
@@ -76,7 +99,7 @@ function pin(p) { p.off = M.x - (p.el.getBoundingClientRect().left + scrollX); }
 
 /** Let go: he falls from where he is. `flail` when the floor vanished under him (not a throw). */
 export function fall(vx = 0, vy = 0, flail = false) {
-  Object.assign(M, { mode: 'air', perch: null, vx, vy, flail, vr: 0 });
+  Object.assign(M, { mode: 'air', perch: null, vx, vy, flail, vr: 0, thrown: !flail && Math.hypot(vx, vy) > 300 });
   M.hop = null;
   if (flail) say(line('fall'), 1100);
 }
@@ -102,6 +125,7 @@ function stepAir(dt) {
 }
 
 function stepPerched(t) {
+  if (t < M.daze) { M.rot = Math.sin(t / 110) * 0.2; return; }   // dizzy: wobbling, no hops yet
   if (M.perch) {
     const pt = P.point(M.perch);
     if (!pt) {

@@ -16,7 +16,7 @@ An Illustrator-style vector editor at `/vector/`. Plain scripts (no modules, no 
   - Hovering another button switches menus. Left and right arrows move between menus. Escape closes.
   - `UI.menuItems(label)` returns a menu's SlopUI items.
   - While a SlopUI menu has focus, app shortcuts are suppressed (`UI.handleGlobalKey`).
-- The only app-owned popover left is the colour picker (`js/ui/color.js`). It is a picker, not a dialog or menu.
+- The only app-owned popover left is the colour picker shell (`js/ui/color.js`: position, outside click, Done / None / Gradient…). Its body is the shared picker (`shared/color/`, see Colour below).
 - **SlopHub** (`js/io/hub.js`):
   - `register('vector')`.
   - File ▸ Open from Slop Drive… and Place from Slop Drive…: SVG opens as a document, raster images open or place as image objects.
@@ -29,13 +29,20 @@ An Illustrator-style vector editor at `/vector/`. Plain scripts (no modules, no 
 - Also: New Guide… (units), Guides from Selection, Snap to Guides (Shift+Ctrl+;, pref `snapGuides`).
 
 ## Commands and shortcuts (`js/ui/commands.js`, uses `shared/commands/`)
-- Every action in `SV.actions` is a SlopCmd command `sv.<action id>`; tools are `sv.tool.<id>`; canvas keys (X, Shift+X, D, /, comma, period, arrow nudges) are `sv.paint.*`, `sv.focus.toggle`, `sv.nudge.*`. Menus and context menus label items with `UI.actKey(a)`, i.e. the person's own binding.
+- Every action in `SV.actions` is a SlopCmd command `sv.<action id>`; tools are `sv.tool.<id>`; canvas keys (X and Shift+X swap fill and stroke, D sets the defaults, / comma, period, arrow nudges) are `sv.paint.*`, `sv.nudge.*`. `sv.focus.toggle` (fill / stroke focus) has no key now; the fill and stroke chips do it. Menus and context menus label items with `UI.actKey(a)`, i.e. the person's own binding.
 - Commands are gated off while the text editor, a SlopUI menu or the colour picker has the keys. Copy/Cut/Paste keep their native events (no SlopCmd keys). With SlopCmd active, `tools/keys.js` handles only Space, Esc, Enter, clipboard and shape-drag arrows.
 - Help ▸ Search Commands… (⌘K), Help ▸ Keyboard Shortcuts (SlopCmd's editor; F1), and a search button in the menubar.
 
-## Tests (`node tests/run.mjs vector`): 73 green
+## Colour and eyedropper (`shared/color/`, `js/ui/color.js`, `js/tools/eyedrop.js`)
+- **Picker body** is `SlopColorPicker` (`shared/color/picker.js`, used by PhotoSLOP too): saturation-brightness square, hue and alpha bars, hex / RGB / HSB / alpha fields, a Recent row (`localStorage` `slopvector.recentColors`, 12 entries) and the palette row. Every change applies at once through `SV.applyStyle(which, hex, { commit: false })`; the undo step is written when the popover closes.
+- **Alpha** is stored in the paint string as `#rrggbbaa`. The SVG writer splits it into the colour plus `fill-opacity` / `stroke-opacity` (`core/svgout.js` `paintAttr`). PDF export writes the colour opaque (`io/pdf.js` reads six hex digits). Gradient stops keep their own alpha field, so their picker is RGB only.
+- **Opening the picker:** click the fill or stroke chip twice (the first click focuses it), right-click either chip, or Window ▸ Fill Colour… / Stroke Colour….
+- **Eyedropper** (`js/tools/eyedrop.js`, key I): a click sets the fill of the selection to the colour under the pointer; Alt sets the stroke; Shift copies the object's whole appearance (the old behaviour). **Limit:** the colour is the object's solid fill, else its stroke, taken from the hit test (a gradient gives its first stop). It is not read from the rendered pixels: the artwork is SVG, so a pixel read per pointer move would be too slow. Nothing under the pointer is a toast and no change. There is no loupe and no Alt-to-sample on the drawing tools in Vector (PhotoSLOP has both).
+- **Keys:** X swaps fill and stroke (was focus toggle; Shift+X still swaps).
+
+## Tests (`node tests/run.mjs vector`): 89 green across 7 pages
 - `tests/vector/boot.js`: shared boot. It waits for the app iframe and exposes `W, SV, G, IO, UI, HUB` and helpers.
-- `geom.test.html` (16), `model.test.html` (16), `io.test.html` (11), `ui.test.html` (17), `guides.test.html` (8), `commands.test.html` (6). Each page also runs the boot test.
+- `geom.test.html` (16), `model.test.html` (16), `io.test.html` (11), `ui.test.html` (17), `guides.test.html` (8), `commands.test.html` (6). `color.test.html` (8: the eyedropper fill, Alt for stroke, the hex field and hue bar, alpha and its SVG export, recent colours, X and D, right-click and the Window entries). Each page also runs the boot test.
 - The offline builder strips `shared/guard.js` (hosted-site reload guard).
 - Gotchas:
   - SlopUI fades closed dialogs for about 140 ms. The UI tests' `closed()` waits until `.sui-back` has left the DOM, so lookups never hit the old dialog.

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop 3D — Slopographic</title>
+  <meta name="description" content="Slop 3D: a browser 3D editor for simple modelling and scenes. Primitives, transforms, materials, lights, OBJ and glTF import, .s3d files. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slopographic">
+  <meta property="og:title" content="Slop 3D — Slopographic">
+  <meta property="og:description" content="A 3D editor that runs in your browser. Nothing is uploaded.">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-3d.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
+  <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
+  <link rel="stylesheet" href="css/app.css" data-src="3d/css/app.css">
+  <link rel="stylesheet" href="css/panels.css" data-src="3d/css/panels.css">
+  <script src="../shared/guard.js" defer data-offline="strip"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop 3D</b><a class="home-link" href="../">slopographic</a><span id="docName" class="docname"></span></div>
+      <div class="actions" role="toolbar" aria-label="Scene">
+        <button type="button" class="tb-btn" data-cmd="3d.file.new">New</button>
+        <button type="button" class="tb-btn" data-cmd="3d.menu.open" id="btnOpen" aria-haspopup="menu">Open</button>
+        <button type="button" class="tb-btn" data-cmd="3d.file.import">Import</button>
+        <button type="button" class="tb-btn" data-cmd="3d.menu.add" id="btnAdd" aria-haspopup="menu">Add</button>
+        <button type="button" class="tb-btn" data-cmd="3d.edit.undo" title="Undo (Ctrl+Z)">Undo</button>
+        <button type="button" class="tb-btn" data-cmd="3d.edit.redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
+        <label class="tb-field">Snap <select id="snap" class="tb-sel" aria-label="Snap step"></select></label>
+        <button type="button" class="tb-btn" data-cmd="3d.view.wire" aria-pressed="false" id="btnWire">Wireframe</button>
+        <button type="button" class="tb-btn" data-cmd="3d.view.grid" aria-pressed="true" id="btnGrid">Grid</button>
+        <button type="button" class="tb-btn" data-cmd="3d.menu.export" id="btnExport" aria-haspopup="menu">Export</button>
+        <button type="button" class="tb-btn" data-cmd="cmd.palette" title="Search commands (Ctrl+K)" aria-label="Search commands">⌘K</button>
+        <button type="button" class="btn primary" data-cmd="3d.file.save" title="Save to Slop Drive (Ctrl+S)">Save</button>
+      </div>
+    </header>
+    <main class="workspace">
+      <aside class="panel panel-left" aria-label="Outliner">
+        <h2 class="panel-h">Scene</h2>
+        <div id="outliner" class="panel-body"></div>
+      </aside>
+      <section class="viewport" aria-label="3D viewport">
+        <canvas id="view" tabindex="0" aria-label="3D viewport. Drag to orbit, Shift-drag or middle-drag to pan, wheel to zoom, F to frame the selection."></canvas>
+        <div class="vp-views" role="toolbar" aria-label="Views">
+          <button type="button" class="vp-btn" data-cmd="3d.view.front">1 Front</button>
+          <button type="button" class="vp-btn" data-cmd="3d.view.top">2 Top</button>
+          <button type="button" class="vp-btn" data-cmd="3d.view.side">3 Side</button>
+          <button type="button" class="vp-btn" data-cmd="3d.view.perspective">4 Persp</button>
+          <button type="button" class="vp-btn" data-cmd="3d.view.frame">F Frame</button>
+        </div>
+        <p id="hint" class="vp-hint">Drag to orbit · Shift-drag to pan · wheel to zoom · right-click for the menu</p>
+        <div id="nogl" class="nogl" hidden role="alert"></div>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </section>
+      <aside class="panel panel-right" aria-label="Properties">
+        <h2 class="panel-h">Properties</h2>
+        <div id="inspector" class="panel-body"></div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/drive-link.js" data-offline="strip" onload="SlopDriveLink.mount('.topbar')"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="js/core/xform.js"></script>
+  <script src="js/core/snap.js"></script>
+  <script src="js/core/geometry.js"></script>
+  <script src="js/core/blob.js"></script>
+  <script src="js/core/model.js"></script>
+  <script src="js/core/ops.js"></script>
+  <script src="js/core/history.js"></script>
+  <script src="js/core/format.js"></script>
+  <script src="js/core/obj.js"></script>
+  <script src="js/core/glb.js"></script>
+  <script src="js/render/stage.js"></script>
+  <script src="js/render/camera.js"></script>
+  <script src="js/render/objects.js"></script>
+  <script src="js/render/gizmo.js"></script>
+  <script src="js/app/state.js"></script>
+  <script src="js/app/actions.js"></script>
+  <script src="js/app/files.js"></script>
+  <script src="js/app/menus.js"></script>
+  <script src="js/app/viewport.js"></script>
+  <script src="js/app/outliner.js"></script>
+  <script src="js/app/inspector.js"></script>
+  <script src="js/app/commands.js"></script>
+  <script src="js/app/main.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
+</body>
+</html>

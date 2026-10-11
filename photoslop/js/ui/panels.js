@@ -6,8 +6,14 @@ function panel(id, title, body, extra) {
   const collapsed = store.get('collapsed.' + id, false);
   const p = h('section', { class: 'panel' + (collapsed ? ' collapsed' : ''), id: 'panel-' + id },
     h('button', { class: 'panel-head', type: 'button', 'aria-expanded': String(!collapsed) }, h('span', null, title), extra || null), h('div', { class: 'panel-body' }, body));
-  p.firstChild.addEventListener('click', (e) => { if (e.target.closest('.panel-extra')) return; p.classList.toggle('collapsed'); p.firstChild.setAttribute('aria-expanded', String(!p.classList.contains('collapsed'))); store.set('collapsed.' + id, p.classList.contains('collapsed')); });
+  p.firstChild.addEventListener('click', (e) => { if (e.target.closest('.panel-extra')) return; setPanelCollapsed(p, !p.classList.contains('collapsed')); });
+  ctxTarget(p.firstChild, 'panel', () => panelItems(p));
   return p;
+}
+/** Collapse or expand a docked panel (remembered per panel). */
+function setPanelCollapsed(p, on) {
+  p.classList.toggle('collapsed', on); p.firstChild.setAttribute('aria-expanded', String(!on));
+  store.set('collapsed.' + p.id.slice('panel-'.length), on);
 }
 function buildPanels() {
   const side = $('#panels');
@@ -25,7 +31,7 @@ function buildPanels() {
       const b = h('button', { type: 'button', class: 'swatch', title: c + ' — click: foreground, Alt-click: background', 'aria-label': 'Swatch ' + c });
       b.style.background = c;
       b.addEventListener('click', (e) => setColor(e.altKey ? 'bg' : 'fg', c));
-      b.addEventListener('contextmenu', (e) => { e.preventDefault(); if (custom.includes(c)) { store.set('swatches', custom.filter((x) => x !== c)); renderSw(); } });
+      ctxTarget(b, 'swatch', () => swatchItems(c, custom.includes(c)));
       sw.append(b);
     }
     const addB = h('button', { type: 'button', class: 'swatch add', title: 'Add the foreground colour', 'aria-label': 'Add swatch' }, '+');
@@ -33,6 +39,7 @@ function buildPanels() {
     sw.append(addB);
   };
   renderSw();
+  listeners.add((w) => { if (w === 'swatches') renderSw(); });
   side.append(panel('swatches', 'Swatches', sw));
   side.append(panel('brushes', 'Brushes', buildBrushesPanel()));
   side.append(panel('character', 'Character', buildCharPanel()));
@@ -121,7 +128,7 @@ function buildLayersPanel() {
       if (L.locked) row.append(h('span', { class: 'lp-lock', title: 'Locked', html: '<svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z"/></svg>' }));
       if (L.blend !== 'normal' || L.opacity < 1) row.append(h('span', { class: 'lp-meta' }, (L.blend !== 'normal' ? BLENDS.find((b) => b[0] === L.blend)[1] : '') + (L.opacity < 1 ? ` ${Math.round(L.opacity * 100)}%` : '')));
       row.addEventListener('click', () => { if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); } });
-      row.addEventListener('contextmenu', (e) => layerContextMenu(e, L));
+      ctxTarget(row, L.text ? 'text' : 'layer', () => (L.text ? textItems(L) : layerItems(L)));
       row.addEventListener('dragstart', (e) => { dragId = L.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(L.id)); row.classList.add('dragging'); });
       row.addEventListener('dragend', () => { dragId = null; row.classList.remove('dragging'); $$('.layer', list).forEach((r) => r.classList.remove('drop-above', 'drop-below')); });
       row.addEventListener('dragover', (e) => { if (dragId == null) return; e.preventDefault(); const r = row.getBoundingClientRect(), above = e.clientY < r.top + r.height / 2; row.classList.toggle('drop-above', above); row.classList.toggle('drop-below', !above); });
@@ -134,12 +141,15 @@ function buildLayersPanel() {
         moveLayer(dragId, to);
       });
       list.append(row);
+      for (const fr of fxRows(L)) list.append(fr);
     }
   };
   listeners.add((w) => { if (w === 'doc') render(); });
   render();
   return h('div', { class: 'lp' }, h('div', { class: 'lp-top' }, blend, h('label', { class: 'lp-opl' }, h('span', null, 'Opacity'), op, opN)), list, foot);
 }
+/** Remove a custom swatch and redraw the swatch grid. */
+function removeSwatch(c) { store.set('swatches', store.get('swatches', []).filter((x) => x !== c)); emit('swatches'); }
 function renameInline(el, L) {
   const inp = h('input', { class: 'lp-rename', value: L.name, 'aria-label': 'Layer name' });
   el.replaceWith(inp); inp.focus(); inp.select();

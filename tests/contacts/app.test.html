@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slop Contacts tests</title>
+  <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; display: block; }</style>
+</head>
+<body>
+  <!-- The real app runs in same-origin iframes; the tests drive window.SlopContacts inside them. -->
+  <iframe id="app"></iframe>
+  <iframe id="app2"></iframe>
+  <script src="../harness.js"></script>
+  <script src="../../contacts/js/core/text.js"></script>
+  <script src="../../contacts/js/core/model.js"></script>
+  <script src="../../contacts/js/core/phone.js"></script>
+  <script src="../../contacts/js/core/vcard-read.js"></script>
+  <script src="../../contacts/js/core/vcard-write.js"></script>
+  <script src="../../contacts/js/core/csv-read.js"></script>
+  <script src="../../contacts/js/core/csv-write.js"></script>
+  <script src="../../contacts/js/core/dedupe.js"></script>
+  <script src="../../contacts/js/core/bulk.js"></script>
+  <script src="../../contacts/js/core/zip.js"></script>
+  <script src="../../contacts/js/core/format.js"></script>
+  <script src="contacts.helpers.js"></script>
+  <script src="contacts.spec-vcard.js"></script>
+  <script src="contacts.spec-csv.js"></script>
+  <script src="contacts.spec-dedupe.js"></script>
+  <script src="contacts.spec-app.js"></script>
+  <script>SlopTest.run({ name: 'Slop Contacts' });</script>
+</body>
+</html>

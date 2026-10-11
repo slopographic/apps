@@ -14,7 +14,11 @@
   /** Loads tables/index.html (plus an optional query) into the iframe and waits for launch to finish. */
   TB.boot = async function (query = '', frameId = 'app', { keepDrafts = false } = {}) {
     const fr = document.getElementById(frameId);
-    fr.src = 'about:blank';
+    // Blank every app frame first: a frame left running from an earlier test (the second window of
+    // the autosave test) would otherwise write its draft back after clearDrafts, and the next plain
+    // start would restore that stale workbook into this one.
+    // The main frame ('app') stays alive unless it is the one being booted: TB.hub and TB.T point into it.
+    for (const f of document.querySelectorAll('iframe')) if (f === fr || f.id !== 'app') f.src = 'about:blank';
     await SlopTest.sleep(60);
     if (!keepDrafts) await TB.clearDrafts();
     fr.src = '../../tables/index.html' + query;

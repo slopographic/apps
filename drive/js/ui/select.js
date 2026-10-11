@@ -83,7 +83,7 @@
         }
         return DR.clickItem(it.dataset.key, e);
       }
-      if (!e.target.closest('button, a, input, select, svg.viz, .usage, .nodes') && !marqueeMoved && !(e.ctrlKey || e.metaKey || e.shiftKey)) DR.select([]);
+      if (!e.target.closest('button, a, input, select, svg.viz, .usage, .nodes, .lhead') && !marqueeMoved && !(e.ctrlKey || e.metaKey || e.shiftKey)) DR.select([]);
     });
     pane.addEventListener('dblclick', (e) => { const it = e.target.closest('[data-key]'); if (it && !e.target.closest('.no-open')) DR.open(DR.item(it.dataset.key)); });
     let lp = 0;
@@ -98,14 +98,6 @@
       pane.addEventListener('pointerup', cancel, { once: true });
       pane.addEventListener('pointercancel', cancel, { once: true });
       pane.addEventListener('pointermove', (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) cancel(); });
-    });
-    pane.addEventListener('contextmenu', (e) => {
-      if (e.target.closest('input, textarea')) return;
-      e.preventDefault();
-      const it = e.target.closest('[data-key]');
-      if (it && !S.sel.has(it.dataset.key)) DR.select([it.dataset.key]);
-      if (!it) DR.select([]);
-      DR.contextMenu(e.clientX, e.clientY);
     });
     wireMarquee(pane);
   };

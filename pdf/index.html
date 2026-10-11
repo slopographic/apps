@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="css/redact.css" data-src="pdf/css/redact.css">
   <link rel="stylesheet" href="css/themes.css" data-src="pdf/css/themes.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app" id="app" data-mode="empty">
@@ -106,6 +107,8 @@
   <script src="../shared/commands/recorder.js" data-src="shared/commands/recorder.js"></script>
   <script src="../shared/commands/keymap.js" data-src="shared/commands/keymap.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
   <script src="../vendor/pdf-lib/pdf-lib.min.js" data-src="vendor/pdf-lib/pdf-lib.min.js"></script>
   <script src="js/io/build.js" data-src="pdf/js/io/build.js"></script>
   <script src="js/core/util.js" data-src="pdf/js/core/util.js"></script>
@@ -144,8 +147,11 @@
   <script src="js/redact/panel.js" data-src="pdf/js/redact/panel.js"></script>
   <script src="js/ui/menus.js" data-src="pdf/js/ui/menus.js"></script>
   <script src="js/ui/commands.js" data-src="pdf/js/ui/commands.js"></script>
+  <script src="js/ui/context.js" data-src="pdf/js/ui/context.js"></script>
   <script src="js/ui/input.js" data-src="pdf/js/ui/input.js"></script>
   <script src="js/ui/main.js" data-src="pdf/js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shared/pwa.js" data-offline="strip"></script>
+  <script>window.SlopPWA && SlopPWA.mount();</script>
 </body>
 </html>

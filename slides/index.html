@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/app.css" data-src="slides/css/app.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app" id="app">
@@ -65,7 +66,7 @@
       </aside>
 
       <main class="stage" id="stage" aria-label="Slide">
-        <canvas id="canvas" role="img" aria-label="Current slide"></canvas>
+        <canvas id="canvas" tabindex="0" role="img" aria-label="Current slide"></canvas>
         <textarea id="editor" class="editor" hidden aria-label="Edit text" spellcheck="true"></textarea>
       </main>
 
@@ -81,6 +82,7 @@
   </div>
 
   <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js" data-src="shared/ctxmenu.js"></script>
   <script src="../shared/apps.js" data-src="shared/apps.js"></script>
   <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
   <script src="../shared/commands/search.js" data-src="shared/commands/search.js"></script>
@@ -88,6 +90,8 @@
   <script src="../shared/commands/recorder.js" data-src="shared/commands/recorder.js"></script>
   <script src="../shared/commands/keymap.js" data-src="shared/commands/keymap.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('header.top'));</script>
   <script src="js/manifest.js" data-src="slides/js/manifest.js"></script>
   <script>
     // Every app script, in the order js/manifest.js gives. The manifest is the one list (tests and the offline build use it too).
@@ -98,5 +102,7 @@
       });
     })();
   </script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

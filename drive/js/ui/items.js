@@ -5,14 +5,26 @@
   const recency = (r) => Math.max(r.modified || 0, r.opened || 0, r.time || 0);
   const SORTS = {
     name: (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
-    kind: (a, b) => DR.kindLabel(a).localeCompare(DR.kindLabel(b)) || SORTS.name(a, b),
+    type: (a, b) => DR.kindLabel(a).localeCompare(DR.kindLabel(b)) || SORTS.name(a, b),
     size: (a, b) => DR.sizeOf(a) - DR.sizeOf(b) || SORTS.name(a, b),
-    modified: (a, b) => (a.modified || a.time) - (b.modified || b.time) || SORTS.name(a, b),
-    app: (a, b) => (a.isFolder ? '' : DR.appName(a.from)).localeCompare(b.isFolder ? '' : DR.appName(b.from)) || SORTS.name(a, b),
+    modified: (a, b) => (a.modified || a.time || 0) - (b.modified || b.time || 0) || SORTS.name(a, b),
+    added: (a, b) => (a.time || 0) - (b.time || 0) || SORTS.name(a, b),
+    opened: (a, b) => (a.opened || 0) - (b.opened || 0) || SORTS.name(a, b),
   };
+  /** The sort keys, in menu order. */
+  DR.SORT_KEYS = [['name', 'Name'], ['type', 'Type'], ['size', 'Size'], ['modified', 'Modified'], ['added', 'Added'], ['opened', 'Opened']];
   DR.SORTS = SORTS;
   DR.recency = recency;
-  /** Sort with folders first (except Recent, which is by time). */
+  /** The first direction for a key: newest, biggest and last-used first; names and types A to Z. */
+  DR.defaultDir = (key) => (['modified', 'added', 'size', 'opened'].includes(key) ? -1 : 1);
+  /** Sort by key in dir (1 ascending, -1 descending) for the current view, and remember it for that view. */
+  DR.setSort = function (key, dir = DR.defaultDir(key)) {
+    S.sort = { key, dir: dir > 0 ? 1 : -1 };
+    S.sorts[S.view] = S.sort;
+    DR.savePrefs(); DR.render();
+  };
+  /** A header click or menu pick: a new key starts at its default direction; the same key flips. */
+  DR.sortClick = (key) => DR.setSort(key, S.sort.key === key ? -S.sort.dir : DR.defaultDir(key));
   DR.sortItems = function (list, sort = S.sort) {
     const f = SORTS[sort.key] || SORTS.name, d = sort.dir || 1;
     return list.sort((a, b) => (a.isFolder !== b.isFolder ? (a.isFolder ? -1 : 1) : d * f(a, b)));
@@ -26,14 +38,14 @@
     if (S.section === 'trash') list = DR.trashTops();
     else if (S.section === 'recent') list = DR.liveFiles();
     else if (S.section === 'starred') list = [...DR.liveFolders(), ...DR.liveFiles()].filter((it) => it.starred);
-    else if (q) list = [...DR.liveFolders(), ...DR.liveFiles()];
+    else if (q || S.tag) list = [...DR.liveFolders(), ...DR.liveFiles()];
     else { const c = DR.children(S.cwd); list = [...c.folders, ...c.files]; }
-    list = list.filter((it) => kindOk(it) && queryOk(it, q));
+    list = list.filter((it) => kindOk(it) && queryOk(it, q) && DR.tagOk(it));
     if (S.section === 'recent') return list.sort((a, b) => recency(b) - recency(a)).slice(0, 200);
     if (S.section === 'trash' && S.sort.key === 'name' && !q) return list.sort((a, b) => b.trashedAt - a.trashedAt);
     return DR.sortItems(list);
   };
-  DR.searching = () => !!S.query.trim() && S.section === 'folder';
+  DR.searching = () => !!(S.query.trim() || S.tag) && S.section === 'folder';
   /** Title of the current place. */
   DR.placeName = function () {
     if (S.section === 'recent') return 'Recent';
@@ -50,13 +62,13 @@
   /** Navigate. go(folderId) opens a folder; go(null) the root; section switches with goSection. */
   DR.go = function (id, { keepQuery = false } = {}) {
     S.section = 'folder'; S.cwd = id || null; S.sel.clear(); S.anchor = S.focus = null;
-    if (!keepQuery) { S.query = ''; const s = DR.$('search'); if (s) s.value = ''; }
+    if (!keepQuery) { S.query = ''; S.tag = ''; const s = DR.$('search'); if (s) s.value = ''; }
     for (const f of DR.pathOf(S.cwd)) S.tree.add(f.id);
     DR.pushHistory && DR.pushHistory();
     DR.render();
   };
   DR.goSection = function (sec) {
-    S.section = sec; S.sel.clear(); S.anchor = S.focus = null; S.query = ''; const s = DR.$('search'); if (s) s.value = '';
+    S.section = sec; S.sel.clear(); S.anchor = S.focus = null; S.query = ''; S.tag = ''; const s = DR.$('search'); if (s) s.value = '';
     DR.pushHistory && DR.pushHistory();
     DR.render();
   };
