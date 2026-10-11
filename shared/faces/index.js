@@ -63,6 +63,8 @@
     const ctx = c.getContext('2d', { willReadFrequently: true });
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, S, S);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high'; // a clean downscale: the boxes then match the reference decoder closely
     ctx.drawImage(source, 0, 0, w * scale, h * scale);
     const px = ctx.getImageData(0, 0, S, S).data, plane = S * S, t = new Float32Array(3 * plane);
     for (let i = 0; i < plane; i++) { t[i] = px[i * 4 + 2]; t[plane + i] = px[i * 4 + 1]; t[2 * plane + i] = px[i * 4]; }
