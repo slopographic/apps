@@ -28,7 +28,6 @@
           'data-drop': f.id, 'data-key': 'd:' + f.id, style: `--d:${depth}`, title: f.name }, tw, DR.icon('folder'), el('span', { class: 'nm' }, f.name), f.starred ? DR.icon('star', 'ic st') : '');
         tw.addEventListener('click', (e) => { e.stopPropagation(); if (open) S.tree.delete(f.id); else S.tree.add(f.id); DR.savePrefs(); DR.renderTree(); });
         b.addEventListener('click', () => { DR.go(f.id); closeDrawer(); });
-        b.addEventListener('contextmenu', (e) => { e.preventDefault(); DR.select(['d:' + f.id]); DR.contextMenu(e.clientX, e.clientY); });
         box.append(b);
         if (open && has) walk(f.id, depth + 1);
       }

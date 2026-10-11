@@ -99,14 +99,6 @@
       pane.addEventListener('pointercancel', cancel, { once: true });
       pane.addEventListener('pointermove', (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) cancel(); });
     });
-    pane.addEventListener('contextmenu', (e) => {
-      if (e.target.closest('input, textarea')) return;
-      e.preventDefault();
-      const it = e.target.closest('[data-key]');
-      if (it && !S.sel.has(it.dataset.key)) DR.select([it.dataset.key]);
-      if (!it) DR.select([]);
-      DR.contextMenu(e.clientX, e.clientY);
-    });
     wireMarquee(pane);
   };
   let marqueeMoved = false;
