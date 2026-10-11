@@ -1,4 +1,4 @@
-/* Slop PDF — page view & editor: large zoomable preview (wheel/S.pinch), and annotation tools:
+/* Slop PDF — page view & editor: large zoomable preview (wheel, pinch and Space pan through shared/nav), and annotation tools:
    text, pen, highlighter, rectangle, ellipse, line, arrow, whiteout, highlight box, image,
    signature. Annotations can be selected, moved, resized, edited and deleted. */
 (function () {
