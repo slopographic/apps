@@ -47,6 +47,7 @@
   <link rel="stylesheet" href="css/classic.css">
   <link rel="stylesheet" href="css/responsive.css">
   <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div id="app" class="app">
@@ -171,5 +172,7 @@
   <script src="js/ui/sample.js"></script>
   <script src="js/ui/init.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

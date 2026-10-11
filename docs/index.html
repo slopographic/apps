@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/app.css" data-src="docs/css/app.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app" id="app">
@@ -116,5 +117,7 @@
   <script src="js/ui/commands.js" defer data-src="docs/js/ui/commands.js"></script>
   <script src="js/ui/ctxmenu.js" defer data-src="docs/js/ui/ctxmenu.js"></script>
   <script src="js/ui/main.js" defer data-src="docs/js/ui/main.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

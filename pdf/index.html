@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="css/redact.css" data-src="pdf/css/redact.css">
   <link rel="stylesheet" href="css/themes.css" data-src="pdf/css/themes.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app" id="app" data-mode="empty">
@@ -150,5 +151,7 @@
   <script src="js/ui/input.js" data-src="pdf/js/ui/input.js"></script>
   <script src="js/ui/main.js" data-src="pdf/js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

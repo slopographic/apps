@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="css/app.css" data-src="3d/css/app.css">
   <link rel="stylesheet" href="css/panels.css" data-src="3d/css/panels.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app">
@@ -98,5 +99,7 @@
   <script src="js/app/inspector.js"></script>
   <script src="js/app/commands.js"></script>
   <script src="js/app/main.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>
