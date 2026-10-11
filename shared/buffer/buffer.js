@@ -40,13 +40,13 @@
     current = rec;
     if (!opts || opts.system !== false) B.writeSystem(rec); // started now, so the copy keeps its user gesture
     notify(rec);
-    return B.store.write(rec).then(function () { post({ type: 'put', t: rec.t }); return rec; });
+    return B.store.write(rec).then(function (ok) { if (ok) post({ type: 'put', t: rec.t }); return rec; });
   };
 
   B.clear = function () {
     current = null;
     notify(null);
-    return B.store.clear().then(function (ok) { post({ type: 'clear' }); return ok; });
+    return B.store.clear().then(function (ok) { if (ok) post({ type: 'clear' }); return ok; });
   };
 
   B.onChange = function (fn) {

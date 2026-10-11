@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="effects" data-src="shared/theme/theme.js"></script>
+  <script src="../shared/consent/config.js"></script>
+  <script src="../shared/consent/state.js"></script>
+  <script src="../shared/consent/consent-mode.js"></script>
+  <script src="../shared/consent/banner.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Effects — Slopographic</title>
+  <meta name="description" content="Slop Effects: a motion design tool in the browser. Layers, keyframes with easing and a graph editor, effects, seeded random motion, and renders to WebM, MP4 or a PNG sequence. Nothing is uploaded.">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="canonical" href="https://slopographic.com/effects/">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/effects.css">
+</head>
+<body>
+  <div class="fx-app" id="fx-app">
+    <header class="fx-top">
+      <a class="fx-brand" href="../" aria-label="Slopographic home">Slop Effects</a>
+      <input class="fx-name sui-input" id="fx-name" type="text" value="Untitled" aria-label="Project name" maxlength="120">
+      <div class="fx-tools" role="toolbar" aria-label="Project">
+        <button type="button" class="sui-btn" id="fx-undo" title="Undo">Undo</button>
+        <button type="button" class="sui-btn" id="fx-redo" title="Redo">Redo</button>
+        <button type="button" class="sui-btn" id="fx-file">File</button>
+        <button type="button" class="sui-btn" id="fx-comp">Composition</button>
+        <button type="button" class="sui-btn" id="fx-layer">Layer</button>
+        <button type="button" class="sui-btn sui-primary" id="fx-render">Render</button>
+        <button type="button" class="sui-btn" id="fx-search" title="Search commands (Ctrl+K)">Search</button>
+      </div>
+    </header>
+    <main class="fx-main">
+      <section class="fx-stage" aria-label="Preview">
+        <div class="fx-view" id="fx-view"><canvas id="fx-canvas" aria-label="Preview of the composition"></canvas></div>
+        <div class="fx-transport" id="fx-transport"></div>
+      </section>
+      <aside class="fx-side" aria-label="Properties">
+        <nav class="fx-tabs" role="tablist" id="fx-tabs">
+          <button type="button" role="tab" data-tab="layer" aria-selected="true">Layer</button>
+          <button type="button" role="tab" data-tab="fx" aria-selected="false">Effects</button>
+          <button type="button" role="tab" data-tab="motion" aria-selected="false">Motion</button>
+        </nav>
+        <div class="fx-panel" id="fx-panel" role="tabpanel"></div>
+      </aside>
+      <section class="fx-tl" aria-label="Timeline">
+        <nav class="fx-tabs" role="tablist" id="fx-tl-tabs">
+          <button type="button" role="tab" data-tl="timeline" aria-selected="true">Timeline</button>
+          <button type="button" role="tab" data-tl="graph" aria-selected="false">Graph editor</button>
+        </nav>
+        <div id="fx-timeline" class="fx-timeline"></div>
+        <div id="fx-graph" class="fx-graph" hidden></div>
+      </section>
+    </main>
+    <div class="fx-status" id="fx-status" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/buffer/formats.js"></script>
+  <script src="../shared/buffer/store.js"></script>
+  <script src="../shared/buffer/clipboard.js"></script>
+  <script src="../shared/buffer/buffer.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="../shared/fonts/picker.js"></script>
+  <script src="../shared/config/schema.js"></script>
+  <script src="../shared/config/validate.js"></script>
+  <script src="../shared/config/template.js"></script>
+  <script src="../shared/config/io.js"></script>
+  <script src="../shared/config/prompt.js"></script>
+  <script src="../shared/config/dialog.js"></script>
+  <script src="../shared/config/dialog-ai.js"></script>
+  <script src="../shared/motion/easing.js"></script>
+  <script src="../shared/motion/track.js"></script>
+  <script src="../shared/motion/timeline.js"></script>
+  <script src="../shared/motion/playback.js"></script>
+  <script src="../shared/motion/presets.js"></script>
+  <script src="../shared/video/seed.js"></script>
+  <script src="js/model/defs.js"></script>
+  <script src="js/model/core.js"></script>
+  <script src="js/model/values.js"></script>
+  <script src="js/model/layers.js"></script>
+  <script src="js/model/keys.js"></script>
+  <script src="js/model/motion.js"></script>
+  <script src="js/model/history.js"></script>
+  <script src="js/model/project.js"></script>
+  <script src="js/render/fx.js"></script>
+  <script src="js/render/draw.js"></script>
+  <script src="js/render/media.js"></script>
+  <script src="js/render/export.js"></script>
+  <script src="js/app/state.js"></script>
+  <script src="js/app/actions.js"></script>
+  <script src="js/app/actions-keys.js"></script>
+  <script src="js/ui/dom.js"></script>
+  <script src="js/ui/preview.js"></script>
+  <script src="js/ui/transport.js"></script>
+  <script src="js/ui/timeline.js"></script>
+  <script src="js/ui/timeline-keys.js"></script>
+  <script src="js/ui/graph.js"></script>
+  <script src="js/ui/props.js"></script>
+  <script src="js/ui/props-fx.js"></script>
+  <script src="js/ui/menus.js"></script>
+  <script src="js/ui/render-dialog.js"></script>
+  <script src="js/app/io.js"></script>
+  <script src="js/app/cmd.js"></script>
+  <script src="js/main.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
+</body>
+</html>

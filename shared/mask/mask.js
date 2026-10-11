@@ -21,6 +21,7 @@
   function align(mask, w, h, ox, oy) {
     const c = mk(w, h), g = ctx2d(c);
     if (!mask.def) { g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height); }
+    g.clearRect(mask.x - ox, mask.y - oy, mask.canvas.width, mask.canvas.height);
     g.drawImage(mask.canvas, mask.x - ox, mask.y - oy);
     return c;
   }
