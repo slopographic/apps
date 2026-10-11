@@ -15,7 +15,7 @@
   const { openApp, turnOn } = BuddyTest;
   let win, S, M, doc;
   const ready = openApp('', { clear: true }).then(async (w) => { win = w; doc = w.document; S = await turnOn(w); M = S.M; S.toggleHud(true); win.scrollTo(0, 0); });
-  const calm = () => { M.rage = 0; M.glad = 0; M.raging = 0; M.askAt = 0; M.happyAt = 0; };
+  const calm = () => { M.rage = 0; M.glad = 0; M.raging = 0; M.askAt = 0; M.happyAt = 0; S.candy.clear(); };
   const floorY = () => Math.max(doc.body.offsetHeight, doc.documentElement.clientHeight) - 2;
 
   describe('candy', () => {

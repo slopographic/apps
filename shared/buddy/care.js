@@ -5,7 +5,7 @@
 // it when he's calm enough. Each item calms a different amount; he has a favourite (extra happy)
 // and a least favourite (spits it out, madder). Items restock over time and more
 // unlock with levels. Petting helps a little, but not at full rage.
-import { M, now, reduced, setMood, changed, rand, cheer } from './state.js';
+import { M, now, reduced, setMood, changed, rand, cheer, listeners } from './state.js';
 import { say, hearts, sparkle, crumbs } from './fx.js';
 import { line } from './lines.js';
 import { size } from './look.js';
@@ -153,6 +153,7 @@ export function mount(hud) {
     tray.append(b);
   }
   hud.append(tray);
+  listeners.add(render);                   // the candy button follows changes at once
   render();
 }
 
