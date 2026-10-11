@@ -1,6 +1,7 @@
-/* The consent banner: shown only when storage works and there is no choice for the current policy version.
- * Classic script, exposes window.SlopBanner. Needs config.js, state.js and consent-mode.js loaded first.
- * Plain DOM, native buttons and checkboxes (keyboard works), styled by banner.css (injected once). */
+/* The consent strip: a slim bar along the bottom edge, not a modal. Shown only when storage works and there is no choice
+ * for the current policy version. Accept or Reject saves the choice; × rejects the optional extras and closes.
+ * Detailed switches live on the Settings page. Classic script, exposes window.SlopBanner.
+ * Needs config.js, state.js and consent-mode.js loaded first. Plain DOM, native buttons (keyboard works). */
 (function () {
   'use strict';
   var S = window.SlopConsentState;
@@ -13,8 +14,10 @@
     (kids || []).forEach(function (k) { el.append(typeof k === 'string' ? document.createTextNode(k) : k); });
     return el;
   }
-  function button(label, act, cls) {
-    return text('button', { type: 'button', class: 'slopc-btn' + (cls ? ' ' + cls : ''), 'data-act': act }, [label]);
+  function button(label, act, cls, aria) {
+    var b = text('button', { type: 'button', class: 'slopc-btn' + (cls ? ' ' + cls : ''), 'data-act': act }, [label]);
+    if (aria) b.setAttribute('aria-label', aria);
+    return b;
   }
   function injectCss() {
     if (document.getElementById('slopc-css')) return;
@@ -27,36 +30,18 @@
   }
   function choose(next) {
     if (C) C.setChoices(next);
-    remove(); // a choice (or a refused save) ends the banner: nothing asks again on this page
+    remove(); // a choice (or a refused save) ends the strip: nothing asks again on this page
   }
   function build() {
-    var cur = C ? C.state() : { analytics: false, ads: false };
-    // After a policy change the earlier choice is the default (still unsaved: nothing turns on until Save).
-    var earlier = S && S.needsChoice() ? S.previous() : null;
-    if (earlier) cur = earlier;
-    var manageId = 'slopc-manage';
-    var analytics = text('input', { type: 'checkbox', id: 'slopc-analytics' });
-    var ads = text('input', { type: 'checkbox', id: 'slopc-ads' });
-    analytics.checked = cur.analytics;
-    ads.checked = cur.ads;
-    var manage = text('div', { id: manageId, class: 'slopc-manage', hidden: '' }, [
-      text('label', { class: 'slopc-switch' }, [analytics, text('span', {}, ['Analytics'])]),
-      text('label', { class: 'slopc-switch' }, [ads, text('span', {}, ['Ads'])]),
-      button('Save choices', 'save', 'primary')
-    ]);
-    var manageBtn = button('Manage', 'manage');
-    manageBtn.setAttribute('aria-expanded', 'false');
-    manageBtn.setAttribute('aria-controls', manageId);
-    var link = text('a', { href: S.base + 'settings/' }, ['Settings']);
-    var root = text('div', { id: ID, class: 'slopc-banner', role: 'region', 'aria-label': 'Privacy choices' }, [
-      text('div', { class: 'slopc-body' }, [
-        text('p', {}, ['We use local storage for your settings. Turn on analytics and ads? You can change this any time in ', link, '.']),
-        text('div', { class: 'slopc-actions' }, [
-          button('Accept all', 'accept', 'primary'),
-          button('Reject optional', 'reject'),
-          manageBtn
-        ]),
-        manage
+    var root = text('div', { id: ID, class: 'slopc-banner', role: 'region', 'aria-label': 'Privacy choice' }, [
+      text('p', { class: 'slopc-text' }, [
+        'Analytics and ads are off. Turn them on? You can change this any time in ',
+        text('a', { href: S.base + 'settings/' }, ['Settings']), '.'
+      ]),
+      text('div', { class: 'slopc-actions' }, [
+        button('Reject', 'reject'),
+        button('Accept', 'accept', 'primary'),
+        button('×', 'close', 'x', 'Reject optional and close')
       ])
     ]);
     root.addEventListener('click', function (e) {
@@ -64,17 +49,11 @@
       if (!b) return;
       var act = b.getAttribute('data-act');
       if (act === 'accept') choose({ analytics: true, ads: true });
-      else if (act === 'reject') choose({ analytics: false, ads: false });
-      else if (act === 'manage') {
-        var open = manage.hasAttribute('hidden');
-        if (open) manage.removeAttribute('hidden'); else manage.setAttribute('hidden', '');
-        manageBtn.setAttribute('aria-expanded', String(open));
-        if (open) analytics.focus();
-      } else if (act === 'save') choose({ analytics: analytics.checked, ads: ads.checked });
+      else if (act === 'reject' || act === 'close') choose({ analytics: false, ads: false });
     });
     return root;
   }
-  /** Shows the banner if the visitor still needs to choose. Pages with body[data-consent="off"] never show it. */
+  /** Shows the strip if the visitor still needs to choose. Pages with body[data-consent="off"] never show it. */
   function mount() {
     if (!S || !C) return false;
     if (document.body && document.body.getAttribute('data-consent') === 'off') return false;
