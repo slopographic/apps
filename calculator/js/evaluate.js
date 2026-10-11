@@ -88,7 +88,7 @@
     if (a.t === 'd' && b.t === 'q' && b.dim === 'calendar' && (op === '+' || op === '-')) return addSpan(a.iso, op === '+' ? 1 : -1, b, pos);
     if (a.t === 'q' && b.t === 'd' && a.dim === 'calendar' && op === '+') return addSpan(b.iso, 1, a, pos);
     if (a.t === 'd' && b.t === 'd' && op === '-') return Q('calendar', 'days', dates.diffDays(a.iso, b.iso));
-    if (a.t === 'd' && b.t === 'n') throw fail('Add a span such as 2 weeks, 3 months or 90 days', pos);
+    if (a.t === 'd' && b.t === 'n' && (op === '+' || op === '-')) return addSpan(a.iso, op === '+' ? 1 : -1, { v: b.v, unit: 'days' }, pos);  // a bare number is days: 20261011 + 40
     throw fail('A date can only be moved by days, weeks, months or years, or two dates subtracted', pos);
   }
 
