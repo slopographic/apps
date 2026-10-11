@@ -185,6 +185,5 @@
   }
 
   ns.evaluate = (tree, ctx) => evaluate(tree, Object.assign({ today: dates.localIso(), ans: null, rate: null }, ctx || {}));
-  ns.evalNode = evaluate;
   ns.plain = plain;
 })(typeof window !== 'undefined' ? window : globalThis);

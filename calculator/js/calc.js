@@ -14,7 +14,7 @@
       if (e && e.name === 'CalcError') {
         return { ok: false, error: { code: e.code, message: e.message, pos: e.pos, from: e.from, to: e.to } };
       }
-      throw e;
+      return { ok: false, error: { code: 'syntax', message: 'Could not calculate that: ' + (e && e.message ? e.message : 'unknown error'), pos: 0 } };
     }
   }
 

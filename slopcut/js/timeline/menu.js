@@ -24,7 +24,7 @@
         it('edit.delete'), it('edit.rippleDelete'), '-',
         c.kind !== 'audio' ? { label: 'Transition in', sub: M.TRANSITIONS.map(([t, l]) => ({ label: l, check: c.trIn && c.trIn.type === t, act: () => { SE.change('Add transition', (p) => E.setTransition(p, c.id, t, (c.trIn && c.trIn.dur) || 1)); } })).concat(['-', { label: 'None', disabled: !c.trIn, act: () => SE.change('Remove transition', (p) => E.setTransition(p, c.id, null)) }]) } : null,
         c.kind !== 'audio' && c.kind !== 'effect' ? { label: 'Mask', sub: SE.maskMenu() } : null,
-        it('clip.fadeIn'), it('clip.fadeOut'), it('clip.speed'),
+        it('clip.fadeIn'), it('clip.fadeOut'), it('clip.speed'), it('clip.restoreAspect'),
         c.kind === 'audio' ? { label: 'Add volume keyframe here', act: () => SE.change('Add keyframe', (p) => { const cc = M.clip(p, c.id), u = U.round(h.t - cc.start, 3); cc.keys = (cc.keys || []).concat({ t: u, v: 1 }).sort((a, b) => a.t - b.t); }) } : null,
         c.kind === 'audio' && c.keys ? { label: 'Clear volume keyframes', act: () => SE.change('Clear keyframes', (p) => { M.clip(p, c.id).keys = null; }) } : null,
         '-',

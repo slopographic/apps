@@ -21,7 +21,8 @@
       h('div', { class: 'ins-actions' },
         h('button', { type: 'button', class: 'btn sm', onclick: () => fill(id, 'fit') }, 'Fit'),
         h('button', { type: 'button', class: 'btn sm', onclick: () => fill(id, 'fill') }, 'Fill frame'),
-        h('button', { type: 'button', class: 'btn sm', onclick: () => SE.change('Centre', (p) => { const cc = M.clip(p, id); cc.x = 0; cc.y = 0; }) }, 'Centre'))));
+        h('button', { type: 'button', class: 'btn sm', onclick: () => SE.change('Centre', (p) => { const cc = M.clip(p, id); cc.x = 0; cc.y = 0; }) }, 'Centre'),
+        h('button', { type: 'button', class: 'btn sm', disabled: !SE.aspect.targetOf(SE.doc, c), title: 'Set the visible box back to the source ratio', onclick: () => SE.aspect.restore(id) }, 'Restore aspect ratio'))));
     if (c.kind !== 'color') body().append(F.section('Colour', 'color',
       t(F.slider('Brightness', get('bright'), set('bright', 'Brightness'), { min: -100, max: 100, reset: 0 })),
       t(F.slider('Contrast', get('contrast'), set('contrast', 'Contrast'), { min: -100, max: 100, reset: 0 })),
