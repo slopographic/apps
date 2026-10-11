@@ -28,7 +28,7 @@ defTool({ id: 'move', name: 'Move Tool', key: 'V', icon: ICON('M12 2v20M2 12h20M
     const s = this.s = { L, start: p, dx: 0, dy: 0, box: D.sel ? D.sel.bounds : layerBoundsDoc(L) };
     if (D.sel && !e.altKey) {
       // Lift the selected pixels and float them.
-      if (L.text) s.L = L = rasterizeText(L, true);
+      if (L.text || L.shape) s.L = L = rasterizeText(L, true);
       const sel = selInLayer(L);
       s.lift = copyCanvas(L.canvas); const lg = cx(s.lift); lg.globalCompositeOperation = 'destination-in'; lg.drawImage(sel, 0, 0);
       s.rest = copyCanvas(L.canvas); const rg = cx(s.rest); rg.globalCompositeOperation = 'destination-out'; rg.drawImage(sel, 0, 0);

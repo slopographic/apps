@@ -25,7 +25,7 @@ function imageSize(w, hh, mode = 'bicubic') {
   const sc = (c) => resampleCanvas(c, Math.max(1, Math.round(c.width * sx)), Math.max(1, Math.round(c.height * sy)), mode);
   D.layers = D.layers.map((L) => {
     const mask = L.mask && Object.assign({}, L.mask, { canvas: sc(L.mask.canvas), x: Math.round(L.mask.x * sx), y: Math.round(L.mask.y * sy) });
-    return Object.assign({}, L, { canvas: sc(L.canvas), x: Math.round(L.x * sx), y: Math.round(L.y * sy), mask, text: L.text && scaleTextModel(L.text, sx, sy) });
+    return Object.assign({}, L, { canvas: sc(L.canvas), x: Math.round(L.x * sx), y: Math.round(L.y * sy), mask, text: L.text && scaleTextModel(L.text, sx, sy), shape: null });
   });
   remapGuides((g) => ({ o: g.o, pos: g.pos * (g.o === 'v' ? sx : sy) }));
   D.w = Math.round(w); D.h = Math.round(hh); D.sel = null;
