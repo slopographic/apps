@@ -1,0 +1,67 @@
+// Slop Orders data: every read and write goes through SlopData (store, stock, billing). No second order model here.
+// An order is a record in `orders`; its lines are SlopData lines (see shared/docs/model.js for the line helpers).
+(function (g) {
+  'use strict';
+  const S = g.SlopData;
+  const NS = (g.SlopOrders = g.SlopOrders || {});
+  const { ok, fail } = S.result;
+
+  /** Orders with a status filter and a search over number, customer name and notes. Newest number first. */
+  function list({ status = 'all', search = '' } = {}) {
+    return S.store.readAll(async (tx) => {
+      const o = await tx.list('orders');
+      if (!o.ok) return o;
+      const c = await tx.list('customers');
+      if (!c.ok) return c;
+      const names = new Map(c.value.map((x) => [x.id, x.name]));
+      const q = String(search).trim().toLowerCase();
+      const rows = o.value
+        .map((r) => ({ ...r, customerName: names.get(r.customerId) || '(no customer)' }))
+        .filter((r) => status === 'all' || r.status === status)
+        .filter((r) => !q || [r.number, r.customerName, r.notes].some((t) => String(t || '').toLowerCase().includes(q)))
+        .sort((a, b) => String(b.number).localeCompare(String(a.number)));
+      return ok(rows);
+    });
+  }
+
+  /** Customers (not deleted), by name. */
+  async function customers() {
+    const r = await S.store.list('customers');
+    return r.ok ? ok(r.value.sort((a, b) => a.name.localeCompare(b.name))) : r;
+  }
+
+  /** Products (with sku and price), by SKU. */
+  async function products() {
+    const r = await S.store.list('products');
+    return r.ok ? ok(r.value.sort((a, b) => a.sku.localeCompare(b.sku))) : r;
+  }
+
+  /** Adds a customer from inside an order. Stage is 'customer' because they are buying. */
+  function addCustomer({ name, email, phone }) {
+    return S.store.put('customers', { name, email, phone, stage: 'customer' });
+  }
+
+  /** Saves the editor's form. form: { id?, customerId, date, currency?, notes, lines (stored shape) }.
+   *  New orders start as drafts and take a number. Existing orders keep their status unless one is given. */
+  async function save(form, status) {
+    const base = { customerId: form.customerId, date: form.date, notes: form.notes, currency: form.currency, lines: form.lines };
+    if (!form.id) return S.store.put('orders', { ...base, status: status || 'draft' });
+    const cur = await S.store.get('orders', form.id);
+    if (!cur.ok) return cur;
+    if (!cur.value) return fail('not_found', 'this order no longer exists');
+    return S.store.put('orders', { ...cur.value, ...base, status: status || cur.value.status });
+  }
+
+  /** Moves an order to another status through the store's rules (draft, confirmed, fulfilled, cancelled). */
+  async function setStatus(id, status) {
+    const cur = await S.store.get('orders', id);
+    if (!cur.ok) return cur;
+    if (!cur.value) return fail('not_found', 'this order no longer exists');
+    return S.store.put('orders', { ...cur.value, status });
+  }
+
+  const confirm = (form) => save(form, 'open');
+  const cancel = (id) => setStatus(id, 'cancelled');
+
+  NS.orders = { list, customers, products, addCustomer, save, setStatus, confirm, cancel, get: (id) => S.store.get('orders', id) };
+})(typeof window !== 'undefined' ? window : globalThis);
