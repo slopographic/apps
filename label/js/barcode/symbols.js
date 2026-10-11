@@ -102,3 +102,21 @@ function parseGS1(str, autoCheck = true) {
 const gs1Text = (els) => els.map((e) => `(${e.ai})${e.value}`).join('');
 /** Raw element string with FNC1 marked as \x1d (GS) after variable-length fields. */
 function gs1Raw(els) { return els.map((e, i) => e.ai + e.value + (i < els.length - 1 && !GS1_FIXED2.has(e.ai.slice(0, 2)) ? '\x1d' : '')).join(''); }
+/** Raw GS1 element string (FNC1 as \x1d) → [{ai, value}] using the AI table (for ZPL import). */
+function gs1FromRaw(raw) {
+  const s = String(raw).replace(/^\x1d/, ''), out = [];
+  let i = 0;
+  while (i < s.length) {
+    if (s[i] === '\x1d') { i++; continue; }
+    let ai = null;
+    for (const n of [2, 3, 4]) if (GS1_AI[s.substr(i, n)]) { ai = s.substr(i, n); break; }
+    if (!ai) throw new Error('Unknown GS1 AI at "' + s.slice(i, i + 4) + '"');
+    i += ai.length;
+    const fx = /^n(\d+)$/.exec(GS1_AI[ai][0]);
+    let v;
+    if (fx) { v = s.substr(i, +fx[1]); i += +fx[1]; }
+    else { const e = s.indexOf('\x1d', i); v = s.slice(i, e < 0 ? s.length : e); i = e < 0 ? s.length : e + 1; }
+    out.push({ ai, value: v });
+  }
+  return out;
+}

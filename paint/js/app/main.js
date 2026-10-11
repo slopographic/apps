@@ -71,7 +71,8 @@ async function boot() {
   listeners.add((w) => { if (w === 'history' && Hist.idx > 0) scheduleAutosave(); });
   await loadBrushPacks();
   const restored = await loadAutosave();
-  if (!restored) { let done; openInNewTab(() => { done = sampleDocument(); }); await done; renderTabs(); }
+  const launched = await hubBoot().catch((e) => { console.warn(e); return false; });
+  if (!restored && !launched) { let done; openInNewTab(() => { done = sampleDocument(); }); await done; renderTabs(); }
   emit('docname');
   document.body.classList.add('ready');
   if (!store.get('welcomed', false)) { store.set('welcomed', true); setTimeout(() => toast('Welcome to PhotoSLOP. Everything stays on your device.', 3600), 400); }

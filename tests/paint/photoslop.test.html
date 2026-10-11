@@ -238,6 +238,27 @@
     });
   });
 
+  describe('Slop Hub', () => {
+    it('offers Send to for the other apps that open PNGs', () => {
+      const labels = W.sendToMenu().map((r) => r.label).filter(Boolean);
+      expect(labels).toContain('Send to Slop Vector');
+      expect(labels.some((l) => /PhotoSLOP/.test(l))).toBe(false);
+    });
+    it('opens a file another app sent with ?drive=', async () => {
+      const c = W.mkCanvas(7, 5); W.cx(c).fillRect(0, 0, 7, 5);
+      const id = await W.SlopHub.put(await W.canvasToBlob(c), { name: 'hello.png', from: 'vector' });
+      const f = document.createElement('iframe');
+      f.src = '../../paint/index.html?drive=' + id; document.body.append(f);
+      try {
+        await waitFor(() => f.contentWindow.document.body.classList.contains('ready'), { timeout: 15000 });
+        const D2 = f.contentWindow.eval('D');
+        expect(D2.name).toBe('hello');
+        expect(D2.w).toBe(7);
+        expect(f.contentWindow.location.search).toBe('');
+      } finally { f.remove(); await W.SlopHub.remove(id); }
+    }, { timeout: 30000 });
+  });
+
   SlopTest.run({ name: 'PhotoSLOP' });
   </script>
 </body>
