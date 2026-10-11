@@ -6,17 +6,18 @@
   'use strict';
   const { describe, it, expect, sleep, waitFor } = SlopTest;
 
-  /** Loads a page into a frame and waits until its app is ready. */
-  async function load(frameId, path, readyCheck) {
+  /** Loads a page into a frame (blank first, so the page really reloads) and waits until ready(window) is true. */
+  async function load(frameId, url, pathPart, ready) {
     const fr = document.getElementById(frameId);
     fr.src = 'about:blank';
     await waitFor(() => fr.contentWindow && fr.contentWindow.location.href === 'about:blank', { timeout: 5000 });
-    fr.src = path;
-    await waitFor(() => fr.contentWindow && fr.contentWindow.location.pathname.endsWith(path.replace(/^\.\.\/\.\.\//, '/').split('?')[0].replace(/^\//, '/').replace(/^\/\.\.\/\.\.\//, '/')) && readyCheck(fr.contentWindow), { timeout: 30000 });
+    fr.src = url;
+    await waitFor(() => fr.contentWindow && fr.contentWindow.location.pathname.includes(pathPart) && ready(fr.contentWindow), { timeout: 30000 });
     return fr.contentWindow;
   }
   /** Boots Slop Contacts after the store has the records. */
-  const boot = (frameId = 'app') => load(frameId, '../../contacts/index.html', (w) => w.SlopContacts && w.SlopContacts.ready && w.SlopContacts.state.ready);
+  const boot = (frameId = 'app') => load(frameId, '../../contacts/index.html', 'contacts/index.html',
+    (w) => w.SlopContacts && w.SlopContacts.ready);
   const $ = (win, sel) => win.document.querySelector(sel);
   const $$ = (win, sel) => [...win.document.querySelectorAll(sel)];
   const letters = (win) => $$(win, '#rows .letter').map((h) => h.textContent);
@@ -28,20 +29,17 @@
   const rowFor = (win, name) => $$(win, '#rows .row').find((r) => r.querySelector('.row-name').textContent === name);
   const dialogButton = (win, label) => $$(win, '.sui-dlg button').find((b) => b.textContent.trim() === label);
   const stored = (id) => window.SlopData.store.get('customers', id).then((r) => r.value);
-  const uniq = (s) => `${s}-${Math.random().toString(36).slice(2, 7)}`;
 
   describe('letters and rows', () => {
     it('the letter headers appear in order, # last, and each contact is under its letter', async () => {
       await CT.resetCustomers();
-      const p = uniq('L');
       await CT.seed([{ name: 'Zoe Adams', id: 'lt-z' }, { name: 'Adam Smith', id: 'lt-a' }, { name: 'Émile Zola', id: 'lt-e' },
-        { name: 'Bob Ray', id: 'lt-b' }, { name: '1 Hour Taxi', id: 'lt-n' }, { name: 'Ann Lee', id: 'lt-a2' }].map((r) => ({ ...r, name: r.name })));
+        { name: 'Bob Ray', id: 'lt-b' }, { name: '1 Hour Taxi', id: 'lt-n' }, { name: 'Ann Lee', id: 'lt-a2' }]);
       const win = await boot();
       expect(letters(win)).toEqual(['A', 'B', 'E', 'Z', '#']);
       expect(sectionOf(win, 'A')).toEqual(['Adam Smith', 'Ann Lee']);
       expect(sectionOf(win, 'E')).toEqual(['Émile Zola']);
       expect(sectionOf(win, '#')).toEqual(['1 Hour Taxi']);
-      expect(p).toBeTruthy();
     });
 
     it('the list shows one line per contact: the company, or the stage when there is no company', async () => {
@@ -68,7 +66,8 @@
       expect(saved.phone).toBe('+44 20 7946 0000');
       expect(saved.phoneLabel).toBe('mobile');
 
-      const crm = await load('app2', '../../crm/index.html#customers', (w) => w.SlopCrm && w.SlopCrm.app && w.document.getElementById('cRows'));
+      const crm = await load('app2', '../../crm/index.html#customers', 'crm/index.html',
+        (w) => w.SlopCrm && w.document.getElementById('boot') && w.document.getElementById('boot').hidden);
       await waitFor(() => $$(crm, '#cRows .row-open b').some((b) => b.textContent === 'Mira Quill'), { timeout: 10000 });
       expect($$(crm, '#cRows .row-open b').map((b) => b.textContent)).toContain('Mira Quill');
     });
@@ -123,7 +122,7 @@
       rowFor(win, 'Phone Page').click();
       await waitFor(() => win.getComputedStyle($(win, '#card')).display !== 'none', { timeout: 5000 });
       await sleep(60);
-      expect($(win, '#card').getBoundingClientRect().width).toBeCloseTo(390, 0);
+      expect($(win, '#card').getBoundingClientRect().width).toBeCloseTo(390, 0.5);
       expect(win.getComputedStyle($(win, '.back')).display).not.toBe('none');
       expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
       $(win, '.card-bar .back').click();
