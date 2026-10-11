@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>nav debug</title>
+<style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; display: block; }</style>
+</head>
+<body>
+  <iframe id="app"></iframe>
+  <script src="../harness.js"></script>
+  <script src="pdf.helpers.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  describe('dbg', () => {
+    it('reload state', async () => {
+      await PT.boot();
+      PT.reset();
+      await PT.open(await PT.makePdf([{ text: 'a' }, { text: 'b' }]), 'dbg.pdf');
+      PT.A.openPage(PT.E.state.pages[0].id);
+      PT.SP.editor.zoomMode = 'num'; PT.SP.editor.zoom = 1; PT.SP.editor.layout();
+      await sleep(250);
+      const pg = PT.win.document.querySelector('#viewer .pv-page'); const r = pg.getBoundingClientRect();
+      pg.dispatchEvent(new PT.win.WheelEvent('wheel', { deltaY: -100, ctrlKey: true, clientX: r.left + 10, clientY: r.top + 10, bubbles: true, cancelable: true }));
+      await sleep(400);
+      const before = { z: PT.SP.editor.zoom, mode: PT.A.mode, pages: PT.E.state.pages.length, saved: await PT.U.idb.get('session').then((s) => !!s, () => 'err') };
+      await sleep(1600);
+      const viewSaved = await PT.win.SlopSession.load('pdf', 'view', null).catch((e) => 'err ' + e);
+      await PT.boot();
+      const t0 = Date.now(); let st = null;
+      while (Date.now() - t0 < 15000) { st = { pages: PT.E.state.pages.length, mode: PT.A.mode, z: PT.SP.editor.zoom, ready: PT.win.document.documentElement.className }; if (st.pages > 0 && st.mode === 'page') break; await sleep(300); }
+      throw new Error('DBG before=' + JSON.stringify(before) + ' view=' + JSON.stringify(viewSaved) + ' after=' + JSON.stringify(st));
+    }, { timeout: 90000 });
+  });
+  run({ name: 'dbg' });
+  </script>
+</body>
+</html>

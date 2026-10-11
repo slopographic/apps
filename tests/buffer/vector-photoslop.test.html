@@ -15,7 +15,7 @@
   const { describe, it, expect, waitFor } = SlopTest;
   let V = null, P = null, before = 0;
   const vecReady = (w) => { try { const a = w.document.getElementById('app'); return !!(a && a.classList.contains('ready') && w.SV); } catch (e) { return false; } };
-  const psReady = (w) => { try { return !!(w.document.body.classList.contains('ready') && w.SlopBuffer && w.D); } catch (e) { return false; } };
+  const psReady = (w) => { try { return !!(w.document.body.classList.contains('ready') && w.SlopBuffer && w.eval('typeof D') === 'object'); } catch (e) { return false; } };
 
   describe('SlopBuffer: SlopVector to PhotoSlop', () => {
     it('both apps boot with the shared buffer', async () => {
