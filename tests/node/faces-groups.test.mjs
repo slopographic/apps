@@ -192,6 +192,18 @@ describe('the fixed vectors and the maths', () => {
   });
 });
 
+describe('the same-person threshold (Settings)', () => {
+  test('read from the profile and kept between 0.2 and 0.8; the default is 0.4', () => {
+    const files = ['shared/faces/groups.js', 'shared/faces/people.js'];
+    const at = (v) => load(files, { profile: { get: (app, key, dflt) => (v === undefined ? dflt : v) } }).SlopFaces.threshold();
+    assert.equal(at(undefined), 0.4);
+    assert.equal(at(0.5), 0.5);
+    assert.equal(at(0.05), 0.2);
+    assert.equal(at(3), 0.8);
+    assert.equal(at('nope'), 0.4);
+  });
+});
+
 describe('view state: the versioned envelope', () => {
   const viewFiles = ['shared/faces/overlay.js', 'shared/faces/view.js'];
   test('the mode defaults to Count only; a valid envelope is read; any other version is ignored', () => {

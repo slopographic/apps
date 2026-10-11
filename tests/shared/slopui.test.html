@@ -126,6 +126,7 @@
       expect(r.right).toBeLessThanOrEqual(innerWidth);
       expect(r.bottom).toBeLessThanOrEqual(innerHeight);
       m.querySelector('.sui-row').dispatchEvent(new PointerEvent('pointerenter'));
+      await new Promise((r) => setTimeout(r, 260)); // hover opens a submenu after a short delay
       expect(document.querySelectorAll('.sui-menu').length).toBe(2);
       U.closeMenu();
       expect(document.querySelectorAll('.sui-menu').length).toBe(0);
