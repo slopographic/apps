@@ -30,7 +30,7 @@
       const rec = await hub().pickFromDrive({ accept: ['image/*'], title: 'Open from Slop Drive' });
       if (rec) CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })]);
     }),
-    exportOne: () => guard(() => CO.export.one(needItem())),
+    exportOne: (it) => guard(() => CO.export.one(it || needItem())),
     exportAll: () => guard(() => CO.export.all()),
     undo: () => { const it = cur(); if (H.can(it, 'undo')) H.undo(it); },
     redo: () => { const it = cur(); if (H.can(it, 'redo')) H.redo(it); },
