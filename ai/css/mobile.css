@@ -37,4 +37,6 @@
   .mgrid, .spec-grid { grid-template-columns: minmax(0, 1fr); }
   .verdicts th:nth-child(2), .verdicts td:nth-child(2), .verdicts th:nth-child(3), .verdicts td:nth-child(3) { display: none; }
   .sloppo-bubble { right: 16px; }
+  .sandbox-note { display: none; }
+  .build-preview .chat-bar { gap: 4px; }
 }

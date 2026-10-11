@@ -72,6 +72,7 @@
     const here = DR.canAddHere();
     window.SlopUI.menu([
       { label: 'New folder', key: DR.keyLabel('newFolder'), act: () => DR.newFolder(DR.dest()), disabled: !here && S.section !== 'recent' && S.section !== 'starred' },
+      DR.newSub ? DR.newSub(DR.dest()) : null,
       '-',
       { label: 'Upload files…', key: DR.keyLabel('upload'), act: () => DR.uploadPicker(false) },
       { label: 'Upload a folder…', act: () => DR.uploadPicker(true) },

@@ -12,6 +12,7 @@
     const C = (id, title, group, keys, run, extra = {}) => Object.assign({ id: 'drive.' + id, title, group, keys, run }, extra);
     const list = [
       C('newFolder', 'New folder', 'File', ['Shift+Mod+N'], () => DR.newFolder(DR.dest()), { keywords: ['create', 'mkdir'] }),
+      ...(DR.creatables ? DR.creatables() : []).map((c) => C('new.' + c.app.id, `New ${c.label.toLowerCase()} (${c.app.name})`, 'File', [], () => DR.createNew(c), { keywords: ['create', 'new', c.ext, c.label] })),
       C('upload', 'Upload files…', 'File', ['Mod+U'], () => DR.uploadPicker(false), { keywords: ['import', 'add'] }),
       C('uploadFolder', 'Upload a folder…', 'File', [], () => DR.uploadPicker(true)),
       C('open', 'Open', 'File', [], () => DR.open(one()), { when: () => !!one() }),

@@ -83,10 +83,10 @@
       ST.E.addMedia(p, p.media[0], V[0].id, 0);
       ST.E.split(p, 5);
       const second = ST.M.clipsOn(p, V[0].id)[1].id;
-      ST.E.addGenerated(p, 'color', V[1].id, 9, 1);
+      ST.E.addGenerated(p, 'color', V[1].id, 10, 1);
       ST.E.trim(p, second, 'in', 6, { ripple: true });
       expect(clipsOn(p, 0)).toEqual([[0, 5, 0], [5, 4, 6]]);
-      expect(clipsOn(p, 1)).toEqual([[8, 1, 0]]);
+      expect(clipsOn(p, 1)).toEqual([[9, 1, 0]]);
     });
     it('moves with overwrite and across tracks', () => {
       const p = withMedia(), V = ST.M.videoTracks(p);

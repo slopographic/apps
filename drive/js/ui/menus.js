@@ -19,6 +19,7 @@
     if (!items.length) {
       m = [
         { label: 'New folder', key: DR.keyLabel('newFolder'), act: () => DR.newFolder(DR.dest()), disabled: !DR.canAddHere() },
+        DR.canAddHere() ? DR.newSub(DR.dest()) : null,
         { label: 'Upload files…', key: DR.keyLabel('upload'), act: () => DR.uploadPicker(false) },
         { label: 'Paste', key: DR.keyLabel('paste'), act: () => DR.paste(), disabled: !S.clip || !DR.canAddHere() },
         '-',
@@ -59,6 +60,7 @@
         { label: 'Move to…', key: DR.keyLabel('move'), act: () => DR.moveDialog(items) },
         { label: 'Copy to…', act: () => DR.moveDialog(items, true) },
         folder ? { label: 'New folder inside', act: () => DR.newFolder(folder.id) } : null,
+        folder ? DR.newSub(folder.id) : null,
         '-',
         { label: 'Info', key: DR.keyLabel('info'), act: () => { DR.toggleInfo(true); if (DR.isMobile()) DR.sheet(true); } },
         { label: 'Move to Trash', key: DR.keyLabel('trash'), act: () => DR.trash(items) },

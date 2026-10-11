@@ -82,7 +82,12 @@
   };
 
   /* ---------- open with ---------- */
-  DR.appsFor = (r) => (!r || r.isFolder ? [] : window.SLOP_APPS.filter((a) => a.kind === 'app' && a.id !== 'drive' && (a.accepts || []).some((p) => H().matches(r.type, p))));
+  DR.appsFor = (r) => {
+    if (!r || r.isFolder) return [];
+    const own = DR.creatorOf ? DR.creatorOf(r) : null;
+    const rest = window.SLOP_APPS.filter((a) => a.kind === 'app' && a.id !== 'drive' && a !== own && (a.accepts || []).some((p) => H().matches(r.type, p)));
+    return own ? [own, ...rest] : rest;
+  };
   DR.openWith = async function (r, appId) {
     if (!r || r.isFolder) return;
     const app = H().appById(appId);

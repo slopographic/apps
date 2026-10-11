@@ -40,7 +40,6 @@
       expect($('.build-preview').getBoundingClientRect().width).toBe(0);
       $('#btnShowPreview').click();
       await waitFor(() => inView($('#preview')), { timeout: 3000 });
-      if (!noSideways()) throw new Error([D.documentElement.scrollWidth, D.body.scrollWidth, [...D.querySelectorAll('*')].filter((n) => n.getBoundingClientRect().right > 391).slice(0, 6).map((n) => n.tagName + '.' + n.className + '#' + n.id + ' ' + n.getBoundingClientRect().right)].join(' '));
       expect(noSideways()).toBe(true);
     });
   });

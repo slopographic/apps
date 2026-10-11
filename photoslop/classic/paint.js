@@ -1922,6 +1922,7 @@ const ACTIONS = {
   slopify: async () => { await applyImage(slopify); toast('SLOPIFIED'); status('Slopified. Ctrl+Z if you regret it.'); },
   editColors: async () => { const res = await editColorsDialog(S.primary); if (res) setColor(0, res); },
   help: helpDialog, about: aboutDialog,
+  palette: () => { if (window.SlopCmd) SlopCmd.open(); }, keymap: () => { if (window.SlopCmd) SlopCmd.openKeymap(); },
 };
 const hasSel = () => !!sel;
 const MENUS = [
@@ -1976,6 +1977,8 @@ const MENUS = [
   ] },
   { label: '&Help', items: [
     { label: '&Help Topics', key: 'F1', act: 'help' },
+    { label: 'Search &Commands...', key: 'Ctrl+K', act: 'palette' },
+    { label: '&Keyboard Shortcuts...', act: 'keymap' },
     '-',
     { label: '&About Slop Paint', act: 'about' },
     { label: 'Back to &slopographic.com', act: 'home' },
@@ -2003,7 +2006,7 @@ function showMenu(i, focusFirst) {
     const dis = it.enabled ? !it.enabled() : false;
     const chk = it.checked ? it.checked() : null;
     const b = h('button', { class: 'mi' + (it.cls ? ' ' + it.cls : ''), type: 'button', role: chk == null ? 'menuitem' : 'menuitemcheckbox', 'aria-checked': chk == null ? null : String(chk), 'aria-disabled': dis ? 'true' : null, 'data-acc': accKey(it.label) },
-      h('span', { class: 'chk', text: chk ? '✓' : '' }), h('span', { class: 'lbl' }, accel(it.label)), h('span', { class: 'k', text: it.key || '' }));
+      h('span', { class: 'chk', text: chk ? '✓' : '' }), h('span', { class: 'lbl' }, accel(it.label)), h('span', { class: 'k', text: (window.SlopCmd && SlopCmd.get(it.act === 'palette' ? 'cmd.palette' : 'paint.' + it.act) ? SlopCmd.keyFor(it.act === 'palette' ? 'cmd.palette' : 'paint.' + it.act) : it.key) || '' }));
     b.addEventListener('pointerenter', () => b.focus({ preventScroll: true }));
     b.addEventListener('click', () => { if (dis) return; closeMenus(); run(it.act); });
     m.append(b);
@@ -2079,12 +2082,9 @@ document.addEventListener('keydown', e => {
   if (e.key === 'F10' && !e.shiftKey) { e.preventDefault(); menubar.children[0].focus(); return; }
   if (isTyping(e.target)) return;
   if (openMenu >= 0) return;
-  const go = act => { e.preventDefault(); run(act); };
-  if (e.key === 'F1') return go('help');
-  if (e.key === 'F4') return go('redo');
+  // menu actions, tools and colour swap are rebindable commands (commands.js, SlopCmd); these stay contextual:
   if (e.key === 'Enter' && poly) { e.preventDefault(); commitPoly(); return; }
   if (e.key === 'Enter' && curve) { e.preventDefault(); commitCurve(); return; }
-  if ((e.key === 'Delete' || e.key === 'Backspace') && !ctrl) { if (sel) go('clearSel'); return; }
   if (sel && sel.canvas !== undefined && e.key.startsWith('Arrow') && !ctrl) {
     e.preventDefault();
     lift();
@@ -2092,34 +2092,6 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') sel.x -= d; if (e.key === 'ArrowRight') sel.x += d;
     if (e.key === 'ArrowUp') sel.y -= d; if (e.key === 'ArrowDown') sel.y += d;
     renderFloating(); updateSelBox();
-    return;
-  }
-  if (!ctrl) {
-    if (k === 'x' && !e.altKey) { const p = S.primary; setColor(0, S.secondary); setColor(2, p); }
-    return;
-  }
-  if (e.shiftKey && k === 'z') return go('redo');
-  if (e.shiftKey && k === 'w') return go('stretchSkew');
-  if (e.shiftKey && k === 'x') return go('clearImage');
-  if (e.shiftKey) return;
-  switch (k) {
-    case 'z': return go('undo');
-    case 'y': return go('redo');
-    case 'x': return go('cut');
-    case 'c': if (sel) return go('copy'); return;
-    case 'v': return; // handled by the paste event (reads the OS clipboard too)
-    case 'a': return go('selectAll');
-    case 'o': return go('open');
-    case 's': return go('save');
-    case 'e': return go('attributes');
-    case 'r': return go('flipRotate');
-    case 'i': return go('invert');
-    case 'g': return go('grid');
-    case 'f': return go('viewBitmap');
-    case 'pageup': return go('zoomNormal');
-    case 'pagedown': return go('zoomLarge');
-    case '=': case '+': return go('zoomIn');
-    case '-': return go('zoomOut');
   }
 });
 
@@ -2174,5 +2146,7 @@ setTool('pencil');
 updateTitle();
 status();
 // expose a tiny hook for automated tests / curious slop scientists
-window.slopPaint = { state: S, get selection() { return sel; }, undoDepth: () => undoStack.length, redoDepth: () => redoStack.length, canvas: main };
+window.slopPaint = { state: S, get selection() { return sel; }, undoDepth: () => undoStack.length, redoDepth: () => redoStack.length, canvas: main,
+  // for the shared command palette (commands.js)
+  cmd: { MENUS, TOOLS, run, setTool, swapColors: () => { const p = S.primary; setColor(0, S.secondary); setColor(2, p); }, busy: () => openMenu >= 0 || !$('#startmenu').hidden || !!document.querySelector('.modal-back, .viewbmp') } };
 })();
