@@ -80,13 +80,13 @@
     const at = TL.t(U.clamp(ax, 0, TL.w));
     TL.pps = U.clamp(pps, 2, 2400);
     TL.scrollX = at - ax / TL.pps;
-    TL.clampScroll(); TL.dirty(); SE.emit('zoom', {});
+    TL.clampScroll(); TL.dirty(); U.store.set('pps', TL.pps); SE.emit('zoom', {});
   };
   TL.zoomBy = (f, ax) => TL.setZoom(TL.pps * f, ax);
   TL.fit = function () {
     const d = Math.max(M.duration(SE.doc), 5);
     TL.pps = U.clamp((TL.w - 40) / d, 2, 2400); TL.scrollX = 0;
-    TL.clampScroll(); TL.dirty(); SE.emit('zoom', {});
+    TL.clampScroll(); TL.dirty(); U.store.set('pps', TL.pps); SE.emit('zoom', {});
   };
   /** Keep the playhead visible while playing (page-scroll style). */
   TL.follow = function (t) {
@@ -126,6 +126,7 @@
     SE.on('doc', () => { TL.scrollX = 0; TL.scrollY = 0; setTimeout(TL.fit, 0); });
     if (TL.initInput) TL.initInput();
     if (TL.initHeads) TL.initHeads();
+    if (TL.initDrops) TL.initDrops();
     TL.resize();
     TL.pps = U.store.get('pps', 60);
   };
