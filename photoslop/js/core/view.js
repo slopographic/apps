@@ -29,7 +29,7 @@ function initView() {
     if (brushRightContext()) { e.preventDefault(); e.stopPropagation(); return; } // a right-button brush drag (brush-resize.js)
     if (V.op) { const t = V.op.tool; if (e.pointerType === 'touch' || !e.button) { if (t.cancel) t.cancel(); V.op = null; } }
   });
-  V.el.addEventListener('dblclick', (e) => { const t = currentTool(); if (t.dblclick) t.dblclick(toDoc(e), e); });
+  V.el.addEventListener('dblclick', (e) => { const t = currentTool(); V.lastDbl = toDoc(e); if (t.dblclick) t.dblclick(toDoc(e), e); emit('dblclick'); });
   listeners.add((what) => { if (what === 'doc') { V.needComp = true; dirty(); } });
   requestAnimationFrame(frame);
 }
