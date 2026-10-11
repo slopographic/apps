@@ -1,5 +1,7 @@
 /* Slop 3D viewport input: orbit (drag), pan (Shift-drag or middle drag), zoom (wheel), click to select (Shift adds),
  * double-click to frame, gizmo arrows to move the selection along an axis (snapped), and the right-click menu.
+ * In mesh edit mode the same gizmo moves the selected elements, a click or box picks elements (editpick.js), Alt-drag
+ * orbits, and a running transform (editmodal.js) takes the pointer until it is confirmed or cancelled.
  * Sets window.Slop3D.viewport: create({ canvas, stage, cam, gizmo, objects, menus }) → { redraw, frame, setView, pickAt }. */
 (function () {
   'use strict';
@@ -19,6 +21,8 @@
   function create({ canvas, stage, cam, gizmo, objects, menus }) {
     const THREE = stage.THREE;
     let drag = null, hover = null;
+    S.editenv = { THREE, canvas, stage, cam, objects };
+    const editOn = () => S.edit.active();
 
     const ndcOf = (e) => {
       const r = canvas.getBoundingClientRect();
@@ -32,10 +36,12 @@
     }
     const pickAt = (e) => stage.pick(ndcOf(e), stage.camera, objects.pickables());
 
-    /** Keeps the gizmo on the primary selection and at a constant on-screen size. */
+    /** Keeps the gizmo on the primary selection (or the element pivot in edit mode) at a constant on-screen size. */
     function refreshGizmo() {
+      const p = editOn() ? S.edit.pivot() : null;
+      if (p) { gizmo.place(p, cam.st.dist * 0.11, true); return; }
       const id = st.primary();
-      if (!id || !s.doc.nodes[id]) { gizmo.place([0, 0, 0], 1, false); return; }
+      if (editOn() || !id || !s.doc.nodes[id]) { gizmo.place([0, 0, 0], 1, false); return; }
       const W = M.worldMatrix(s.doc, id);
       gizmo.place([W[12], W[13], W[14]], cam.st.dist * 0.11, true);
     }
@@ -54,28 +60,33 @@
     const toggle = (id) => { const cur = s.sel.slice(), i = cur.indexOf(id); if (i >= 0) cur.splice(i, 1); else cur.push(id); return cur; };
 
     canvas.addEventListener('pointerdown', (e) => {
+      if (S.editmodal.pointerDown(e)) { redraw(); return; }
       if (e.button === 2) return;
       try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer: no capture */ }
       e.preventDefault();
       const ndc = ndcOf(e);
-      const axis = e.button === 0 && !e.shiftKey && !e.altKey && s.sel.length ? gizmo.hit(ndc, stage.camera) : null;
+      const axis = e.button === 0 && !e.shiftKey && !e.altKey && (editOn() ? S.edit.hasSel() : s.sel.length) ? gizmo.hit(ndc, stage.camera) : null;
       if (axis) {
-        const id = st.primary(), W = M.worldMatrix(s.doc, id);
-        const origin = [W[12], W[13], W[14]], dir = gizmo.dirOf(axis), r = rayFrom(ndc);
+        const origin = editOn() ? S.edit.pivot() : (() => { const W = M.worldMatrix(s.doc, st.primary()); return [W[12], W[13], W[14]]; })();
+        const dir = gizmo.dirOf(axis), r = rayFrom(ndc);
         const t0 = closestParam(origin, dir, r);
         if (t0 !== null) {
-          drag = { mode: 'axis', origin, dir, t0, applied: 0, key: A.beginDrag(), x: e.clientX, y: e.clientY };
+          const sess = editOn() ? S.edit.begin() : null;
+          drag = { mode: 'axis', origin, dir, t0, applied: 0, key: A.beginDrag(), sess, x: e.clientX, y: e.clientY };
           gizmo.highlight(axis);
           canvas.style.cursor = 'grabbing';
           return;
         }
       }
-      if (e.button === 1 || (e.button === 0 && e.shiftKey)) drag = { mode: 'pan', x: e.clientX, y: e.clientY };
+      if (e.button === 0 && editOn() && !e.altKey && S.editpick.down(e, S.editenv)) return;
+      if (e.button === 1 || (e.button === 0 && e.shiftKey && !editOn()) || (e.button === 0 && e.altKey && editOn())) drag = { mode: 'pan', x: e.clientX, y: e.clientY };
       else if (e.button === 0) drag = { mode: 'orbit', x: e.clientX, y: e.clientY, moved: 0 };
     });
     canvas.addEventListener('pointermove', (e) => {
+      if (S.editmodal.pointerMove(e)) { redraw(); return; }
+      if (S.editpick.dragging()) { S.editpick.move(e); stage.request(); return; }
       if (!drag) {
-        const a = s.sel.length ? gizmo.hit(ndcOf(e), stage.camera) : null;
+        const a = (editOn() ? S.edit.hasSel() : s.sel.length) ? gizmo.hit(ndcOf(e), stage.camera) : null;
         if (a !== hover) { hover = a; gizmo.highlight(a); stage.request(); }
         canvas.style.cursor = a ? 'move' : '';
         return;
@@ -88,20 +99,24 @@
         const t = closestParam(drag.origin, drag.dir, rayFrom(ndcOf(e)));
         if (t === null) return;
         const amount = S.snap.snap(t - drag.t0, s.snapStep);
-        const d = amount - drag.applied;
-        if (Math.abs(d) > 1e-12) { drag.applied = amount; A.move(drag.dir.map((v) => v * d), drag.key); }
+        if (drag.sess) drag.sess.apply(S.meshxf.translate(drag.dir.map((v) => v * amount)));
+        else {
+          const d = amount - drag.applied;
+          if (Math.abs(d) > 1e-12) { drag.applied = amount; A.move(drag.dir.map((v) => v * d), drag.key); }
+        }
         refreshGizmo();
         stage.request();
       }
     });
     const endDrag = (e, click) => {
+      if (S.editpick.up()) { redraw(); return; }
       if (!drag) return;
       const d = drag;
       drag = null;
       try { if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId); } catch (err) { /* no capture to release */ }
       canvas.style.cursor = '';
       if (d.mode === 'axis') gizmo.highlight(null);
-      if (click && d.mode === 'orbit' && d.moved < 5) {
+      if (click && d.mode === 'orbit' && d.moved < 5 && !editOn()) {
         const hit = pickAt(e);
         if (hit) st.select(e.shiftKey ? toggle(hit.id) : [hit.id]);
         else if (!e.shiftKey) st.select([]);
@@ -116,19 +131,21 @@
       redraw();
     }, { passive: false });
     canvas.addEventListener('dblclick', (e) => {
+      if (editOn()) return;
       const hit = pickAt(e);
       if (hit) { st.select([hit.id]); frame([hit.id]); }
     });
     if (window.SlopCtx) SlopCtx.bind(canvas, (target, ev) => {
       if (ev) {
         const hit = pickAt(ev);
-        if (hit) { if (!s.sel.includes(hit.id)) st.select([hit.id]); return menus.objectItems(); }
+        if (hit && !editOn()) { if (!s.sel.includes(hit.id)) st.select([hit.id]); return menus.objectItems(); }
         return menus.viewportItems();
       }
-      return s.sel.length ? menus.objectItems() : menus.viewportItems();
+      return s.sel.length && !editOn() ? menus.objectItems() : menus.viewportItems();
     });
     st.on('doc', () => { refreshGizmo(); stage.request(); });
     st.on('sel', () => { refreshGizmo(); stage.request(); });
+    st.on('edit', () => { refreshGizmo(); stage.request(); });
     return { redraw, frame, setView, pickAt, refreshGizmo };
   }
 

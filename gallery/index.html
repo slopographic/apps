@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="css/gallery.css" data-src="gallery/css/gallery.css">
   <link rel="stylesheet" href="css/viewer.css" data-src="gallery/css/viewer.css">
   <link rel="stylesheet" href="css/people.css" data-src="gallery/css/people.css">
+  <link rel="stylesheet" href="css/drive.css" data-src="gallery/css/drive.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -46,20 +47,20 @@
     <div class="body">
       <aside class="side" id="side" aria-label="Library">
         <button type="button" class="drawer-close" id="btnDrawerClose" aria-label="Close filters">×</button>
-        <nav class="nav" aria-label="Views">
+        <nav class="nav" id="sideNav" aria-label="Views">
           <button type="button" class="nav-item" data-view="photos"><span class="nav-l">Photos</span><span class="nav-n" id="cntAll">0</span></button>
           <button type="button" class="nav-item" data-view="favourites"><span class="nav-l">Favourites</span><span class="nav-n" id="cntFav">0</span></button>
           <button type="button" class="nav-item" data-view="dupes"><span class="nav-l">Duplicates</span><span class="nav-n" id="cntDupes"></span></button>
           <button type="button" class="nav-item" data-view="people"><span class="nav-l">People</span></button>
         </nav>
 
-        <div class="side-sec">
+        <div class="side-sec" id="secAlbums">
           <div class="side-h"><h2>Albums</h2><button type="button" class="link" id="btnNewAlbum">New album</button></div>
           <ul class="albums" id="albumList"></ul>
           <p class="muted" id="albumEmpty">No albums yet. An album links to photos; it never copies them.</p>
         </div>
 
-        <div class="side-sec">
+        <div class="side-sec" id="secFilters">
           <h2>Filters</h2>
           <label class="fld"><span>Name</span><input id="fText" type="search" placeholder="Search by file name" autocomplete="off"></label>
           <label class="fld"><span>Year</span><select id="fYear"><option value="">All years</option></select></label>
@@ -85,6 +86,21 @@
       </aside>
 
       <main class="grid-area">
+        <div class="srcbar">
+          <div class="seg" role="group" aria-label="Source">
+            <button type="button" class="seg-btn" id="srcLibrary" aria-pressed="true">Library</button>
+            <button type="button" class="seg-btn" id="srcDrive" aria-pressed="false">Drive</button>
+          </div>
+          <div class="dbar" id="dbar" hidden>
+            <div class="chips" id="dchips" role="group" aria-label="File kinds"></div>
+            <div class="dtools">
+              <input type="search" id="dSearch" placeholder="Search by name" autocomplete="off" aria-label="Search Slop Drive files">
+              <select id="dSort" aria-label="Sort Slop Drive files"><option value="added">Date added</option><option value="name">Name</option></select>
+              <span class="dcount" id="dCount"></span>
+              <button type="button" class="link" id="dClear">Clear</button>
+            </div>
+          </div>
+        </div>
         <div class="people-bar" id="peopleBar" hidden>
           <p class="people-text" id="peopleText" aria-live="polite"></p>
           <p class="people-status muted" id="peopleStatus" aria-live="polite"></p>
@@ -103,6 +119,15 @@
             <button type="button" class="tb-btn primary" id="emptyImport">Import photos</button>
           </div>
         </div>
+        <div class="dgrid" id="dgrid" hidden>
+          <div class="dtiles" id="dtiles"></div>
+          <div class="empty" id="dempty" hidden><p id="dEmptyText"></p></div>
+        </div>
+        <div class="astrip" id="astrip" hidden>
+          <span class="astrip-n" id="astripName"></span>
+          <audio id="astripAudio" controls preload="auto"></audio>
+          <button type="button" class="link" id="astripClose">Close</button>
+        </div>
       </main>
     </div>
 
@@ -115,6 +140,7 @@
   <script src="../shared/ctxmenu.js" data-src="shared/ctxmenu.js"></script>
   <script src="../shared/apps.js" data-src="shared/apps.js"></script>
   <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
+  <script src="../shared/kinds/kinds.js" data-src="shared/kinds/kinds.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js"></script>
   <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
@@ -160,6 +186,12 @@
   <script src="js/ui/sidebar.js" data-src="gallery/js/ui/sidebar.js"></script>
   <script src="js/ui/people.js" data-src="gallery/js/ui/people.js"></script>
   <script src="js/ui/view-state.js" data-src="gallery/js/ui/view-state.js"></script>
+  <script src="js/core/drive-query.js" data-src="gallery/js/core/drive-query.js"></script>
+  <script src="js/io/drive-source.js" data-src="gallery/js/io/drive-source.js"></script>
+  <script src="js/ui/drive-open.js" data-src="gallery/js/ui/drive-open.js"></script>
+  <script src="js/ui/drive-viewer.js" data-src="gallery/js/ui/drive-viewer.js"></script>
+  <script src="js/ui/drive-view.js" data-src="gallery/js/ui/drive-view.js"></script>
+  <script src="js/ui/drive-bar.js" data-src="gallery/js/ui/drive-bar.js"></script>
   <script src="js/ui/main.js" data-src="gallery/js/ui/main.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>

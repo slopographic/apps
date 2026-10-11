@@ -29,7 +29,18 @@
     const name = picked ? `${picked.name} (${S.model.typeLabel(picked)})` : 'Nothing selected';
     const view = cam && cam.st.view ? cam.st.view[0].toUpperCase() + cam.st.view.slice(1) : 'Free';
     const snapTxt = s.snapStep > 0 ? ` · snap ${s.snapStep}` : '';
-    $('status').textContent = `${fmtCount(meshes, 'object')}${s.sel.length > 1 ? ` · ${s.sel.length} selected` : ''} · ${name} · ${view} view${snapTxt}`;
+    const editTxt = S.edit.active()
+      ? ` · Edit: ${S.edit.mode()} mode · ${S.edit.sel().ids.size} ${({ vertex: 'vertex|vertices', edge: 'edge|edges', face: 'face|faces' })[S.edit.mode()].split('|')[S.edit.sel().ids.size === 1 ? 0 : 1]} selected${S.edit.info() ? ' · ' + S.edit.info() : ''}`
+      : '';
+    $('status').textContent = `${fmtCount(meshes, 'object')}${s.sel.length > 1 ? ` · ${s.sel.length} selected` : ''} · ${name} · ${view} view${snapTxt}${editTxt}`;
+  }
+  /** Toolbar state for mesh edit mode: the Edit button's pressed state and the mode and Mesh buttons. */
+  function editToolbar() {
+    const on = S.edit.active();
+    $('btnEdit').setAttribute('aria-pressed', String(on));
+    $('editModes').hidden = !on;
+    $('btnMesh').hidden = !on;
+    for (const b of document.querySelectorAll('#editModes [data-cmd]')) b.setAttribute('aria-pressed', String(b.dataset.cmd === '3d.mesh.' + S.edit.mode()));
   }
   function setTitle() {
     const name = s.file.name || 'Untitled';
@@ -66,6 +77,7 @@
     const cam = S.camera.create(THREE, stage);
     const gizmo = S.gizmo.create(THREE, stage.overlay);
     const objects = S.objects.create(THREE, stage.world, () => stage.request());
+    const editview = S.editview.create(THREE);
     const view = S.viewport.create({ canvas, stage, cam, gizmo, objects, menus: S.menus });
     S.files.bindStage(stage);
     const applyView = () => {
@@ -88,8 +100,19 @@
     st.on('doc', sync);
     st.on('sel', sync);
     st.on('snap', () => statusLine(cam));
+    const syncEdit = () => {
+      if (!S.edit.active()) editview.clear();
+      else { const it = objects.items.get(S.edit.node().id); editview.sync(it && it.obj, S.edit.mesh(), S.edit.sel()); }
+      editToolbar();
+      statusLine(cam);
+      stage.request();
+    };
+    st.on('doc', syncEdit);
+    st.on('sel', syncEdit);
+    st.on('edit', syncEdit);
     new ResizeObserver(() => { stage.resize(); stage.request(); }).observe(canvas);
-    S.app = { THREE, stage, cam, gizmo, objects, view, ui, commands: cmds };
+    S.app = { THREE, stage, cam, gizmo, objects, view, ui, commands: cmds, editview };
+    S.configio.registerStub();
     cam.apply();
     sync();
     view.redraw();

@@ -36,6 +36,8 @@
       scroller: $('grid'), content: $('tlContent'), sticky: $('sticky'), empty: $('empty'), status: $('status'),
     });
     G.sidebar.init($('side'));
+    G.driveView.init(); // the Library / Drive switch (ui/drive-view.js)
+    G.driveBar.init();
     G.peopleBar.init(); // the People bar (ui/people.js); the scan starts from core/people.js
     G.menus.bind($('grid'));
     $('topImport').addEventListener('click', () => G.actions.importFiles());

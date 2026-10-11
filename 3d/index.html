@@ -35,6 +35,13 @@
         <button type="button" class="tb-btn" data-cmd="3d.menu.open" id="btnOpen" aria-haspopup="menu">Open</button>
         <button type="button" class="tb-btn" data-cmd="3d.file.import">Import</button>
         <button type="button" class="tb-btn" data-cmd="3d.menu.add" id="btnAdd" aria-haspopup="menu">Add</button>
+        <button type="button" class="tb-btn" data-cmd="3d.edit.toggle" aria-pressed="false" id="btnEdit" title="Edit mesh (Tab)">Edit</button>
+        <span id="editModes" class="tb-group" role="group" aria-label="Edit mode" hidden>
+          <button type="button" class="tb-btn" data-cmd="3d.mesh.vertex" title="Vertex mode (1)">Vertex</button>
+          <button type="button" class="tb-btn" data-cmd="3d.mesh.edge" title="Edge mode (2)">Edge</button>
+          <button type="button" class="tb-btn" data-cmd="3d.mesh.face" title="Face mode (3)">Face</button>
+        </span>
+        <button type="button" class="tb-btn" data-cmd="3d.menu.mesh" id="btnMesh" aria-haspopup="menu" hidden>Mesh</button>
         <button type="button" class="tb-btn" data-cmd="3d.edit.undo" title="Undo (Ctrl+Z)">Undo</button>
         <button type="button" class="tb-btn" data-cmd="3d.edit.redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
         <label class="tb-field">Snap <select id="snap" class="tb-sel" aria-label="Snap step"></select></label>
@@ -59,7 +66,7 @@
           <button type="button" class="vp-btn" data-cmd="3d.view.perspective">4 Persp</button>
           <button type="button" class="vp-btn" data-cmd="3d.view.frame">F Frame</button>
         </div>
-        <p id="hint" class="vp-hint">Drag to orbit · Shift-drag to pan · wheel to zoom · right-click for the menu</p>
+        <p id="hint" class="vp-hint">Drag to orbit · Shift-drag to pan · wheel to zoom · right-click for the menu · Tab to edit the mesh</p>
         <div id="nogl" class="nogl" hidden role="alert"></div>
         <div id="status" class="status" role="status" aria-live="polite"></div>
       </section>
@@ -103,6 +110,12 @@
   <script src="js/app/viewport.js"></script>
   <script src="js/app/outliner.js"></script>
   <script src="js/app/inspector.js"></script>
+  <script src="js/render/editview.js"></script>
+  <script src="js/app/edit.js"></script>
+  <script src="js/app/editmodal.js"></script>
+  <script src="js/app/editpick.js"></script>
+  <script src="js/app/editcommands.js"></script>
+  <script src="js/app/configio.js"></script>
   <script src="js/app/commands.js"></script>
   <script src="js/app/main.js"></script>
   <script src="../shared/pwa.js"></script>
