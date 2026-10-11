@@ -25,7 +25,7 @@ Everything is static files: no backend, no accounts, no build step. Each room is
 | `app.js` | Routing (`#detector`), the live counter and the Authenticator |
 | `slop.js` | Text generators and the slop-detector rules (no DOM; also runs in Node) |
 | `motion.js` | Small site-wide effects (stamp slam, footer fill) |
-| `vendor/` | three.js r170 (MIT) and GSAP 3.13 (standard no-charge license), vendored with their license headers |
+| `vendor/` | third-party libraries (three.js, pdf.js, pdf-lib, bwip-js, onnxruntime-web, web-llm), each with its own license file |
 | `CNAME` | Custom domain for GitHub Pages |
 
 ## Run locally
@@ -41,3 +41,10 @@ Pages serves this branch from the repo root:
 1. **Settings → Pages → Source: Deploy from a branch**, pick the branch, folder `/ (root)`.
 2. **Custom domain:** `slopographic.com` (already in `CNAME`), with **Enforce HTTPS** on.
 3. **DNS** at your registrar: `A` records for `@` → `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`, and a `CNAME` for `www` → `slopographic.github.io`.
+
+## License
+- **Code:** MIT, see [`LICENSE`](LICENSE).
+- **Sloppo character art:** all rights reserved, see [`LICENSE-ART`](LICENSE-ART).
+- **Brand:** Slopographic™ and Sloppo™ are trademarks; see [`TRADEMARKS.md`](TRADEMARKS.md). Forks must rename and use their own mascot.
+- **Third-party code** in `vendor/` keeps its own license.
+
