@@ -32,6 +32,10 @@
     { type: 'linear', x1: 0.5, y1: 0, x2: 0.5, y2: 1, stops: [{ o: 0, c: '#f1ede4', a: 1 }, { o: 1, c: '#0a0a0a', a: 1 }], name: 'Bone to Ink' }];
   var selSwatch = -1;
   function swatches() { return S.doc.swatches || DEFAULT_SWATCHES; }
+  /** Apply swatch i to 'fill' or 'stroke' (the swatch click and its context menu). */
+  function applySwatch(i, which) { selSwatch = i; var v = clone(swatches()[i]); if (v && typeof v === 'object') delete v.name; SV.applyStyle(which, v); }
+  /** Delete swatch i from the document's swatches. */
+  function deleteSwatch(i) { var list = swatches().slice(); list.splice(i, 1); S.doc.swatches = list; selSwatch = -1; SV.commit('delete swatch'); }
   function buildSwatches() {
     var body = panelEls.swatches.body;
     var grid = h('div', { class: 'swgrid', id: 'swgrid', role: 'listbox', 'aria-label': 'Swatches' });
@@ -44,7 +48,7 @@
       }),
       ibtn(I.trash, 'Delete Swatch', function () {
         if (selSwatch < 0) return UI.toast('Alt-click or select a swatch first');
-        var list = swatches().slice(); list.splice(selSwatch, 1); S.doc.swatches = list; selSwatch = -1; SV.commit('delete swatch');
+        deleteSwatch(selSwatch);
       })
     ]));
     var sig = '';
@@ -56,10 +60,8 @@
         var b = h('button', { type: 'button', class: 'sw' + (p && typeof p === 'object' ? ' grad' : '') + (i === selSwatch ? ' on' : ''), role: 'option', title: !p ? 'None' : typeof p === 'string' ? p.toUpperCase() : (p.name || 'Gradient'), 'aria-label': !p ? 'None' : typeof p === 'string' ? p : (p.name || 'Gradient') }, [h('span', { class: 'chip-in' })]);
         paintBG(b.firstChild, p);
         b.addEventListener('click', function (e) {
-          if (e.altKey) { selSwatch = i; var list = swatches().slice(); list.splice(i, 1); S.doc.swatches = list; selSwatch = -1; SV.commit('delete swatch'); return; }
-          selSwatch = i;
-          var v = clone(p); if (v && typeof v === 'object') delete v.name;
-          SV.applyStyle(S.focus, v);
+          if (e.altKey) { deleteSwatch(i); return; }
+          applySwatch(i, S.focus);
         });
         grid.appendChild(b);
       });
@@ -162,5 +164,5 @@
     body.appendChild(h('button', { type: 'button', class: 'btn slop wide', html: I.slop + '<span>Slopify</span>', title: 'Turn the selection into dripping slime', onclick: function () { SV.runAction('object.slopify'); } }));
   }
 
-  $.buildAlign = buildAlign; $.buildGradient = buildGradient; $.buildPathfinder = buildPathfinder; $.buildSwatches = buildSwatches; $.swatches = swatches;
+  $.buildAlign = buildAlign; $.buildGradient = buildGradient; $.buildPathfinder = buildPathfinder; $.buildSwatches = buildSwatches; $.swatches = swatches; $.applySwatch = applySwatch; $.deleteSwatch = deleteSwatch;
 })();
