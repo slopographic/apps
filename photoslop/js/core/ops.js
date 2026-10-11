@@ -46,7 +46,7 @@ function mergeLayers(list, name, label) {
   // Respect the bottom layer's own opacity/blend by compositing everything with their settings.
   for (const L of list) {
     if (!L.visible) continue;
-    const s = bakedLayer(L);
+    const b = bakedLayer(L), s = L.fx && L.fx.length ? renderFx(b, L.fx) : b;
     g.globalAlpha = L.opacity; g.globalCompositeOperation = BLEND_OP[L.blend] || 'source-over';
     g.drawImage(s.canvas, s.x, s.y);
   }

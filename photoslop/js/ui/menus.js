@@ -2,7 +2,7 @@
 'use strict';
 
 /* ---------- menus ---------- */
-const filterMenu = (group) => FILTERS.filter((f) => f.menu === group || (f.sep === group)).map((f) => (f.sep ? '-' : { label: f.name, key: f.key, act: () => runFilter(f.id), need: 'layer' }));
+const filterMenu = (group) => FILTERS.filter((f) => f.menu === group || (f.sep === group)).map((f) => (f.sep ? '-' : { label: f.name, key: f.key, act: () => (f.menu === 'style' ? addStyleEffect(f.id) : runFilter(f.id)), need: 'layer' }));
 function filterSub(name) { return { label: name, sub: filterMenu(name) }; }
 const MENUS = [
   ['File', [
