@@ -63,6 +63,7 @@ h1, h2, p { margin: 0; }
 .up-logo { width: 12px; height: 12px; border-radius: 3px; background: var(--up-accent); display: inline-block; align-self: center; }
 .up-tag-line { color: var(--up-mute); font-size: 13px; }
 .up-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.up-top .sh-hdr { order: 9; margin-left: 0; }
 .up-status-line { padding: 10px 20px; min-height: 40px; color: var(--up-mute); font-size: 13px; overflow-wrap: anywhere; border-bottom: 1px solid var(--up-line); }
 
 /* layout: settings column (left) and preview (right) */
@@ -83,7 +84,7 @@ h1, h2, p { margin: 0; }
 .up-field select:focus-visible, .up-quality-range:focus-visible { outline: 2px solid var(--up-accent); outline-offset: 2px; }
 .up-quality-range { width: 100%; accent-color: var(--up-accent); margin: 4px 0 0; }
 .up-val { color: var(--up-mute); font-variant-numeric: tabular-nums; }
-.up-group .sui-btn { justify-self: start; }
+.up-group > .sui-btn { justify-self: start; }
 .up-note { margin: 0; font-size: 12px; color: var(--up-mute); }
 .up-fine { font-size: 12px; color: var(--up-mute); }
 
@@ -120,6 +121,7 @@ h1, h2, p { margin: 0; }
 .up-status { min-height: 1.5em; color: var(--up-ink); overflow-wrap: anywhere; }
 .up-status:empty::before { content: "Nothing upscaled yet. Result and progress appear here."; color: var(--up-mute); }
 
+@media (max-width: 1320px) { .up-tag-line { display: none; } }
 @media (min-width: 861px) {
   .up-panel { grid-column: 1; grid-row: 1; position: sticky; top: 90px; }
   .up-left { grid-column: 2; grid-row: 1; }

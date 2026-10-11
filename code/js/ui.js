@@ -5,6 +5,7 @@ import { renderTabs } from './tabs.js';
 import { isWrap } from './editor.js';
 import { langOf } from './lang.js';
 import { renderOpenEditors } from './explorer.js';
+import { syncViewer } from './viewers.js';
 
 export const $ = (id) => document.getElementById(id);
 export const env = { view: null };
@@ -19,11 +20,21 @@ export function renderChrome() {
   const pick = { onSelect: (d) => handlers.select(d), onClose: (d) => handlers.close(d) };
   renderTabs($('cd-tabs'), list, cur, pick);
   renderOpenEditors($('cd-open-list'), list, cur, pick);
+  // The editor shows text tabs; a file view (picture, media, binary) or the Markdown preview takes its place.
+  const text = !!cur && cur.kind === 'text', isMd = text && langOf(cur).id === 'markdown';
+  if (cur && cur.preview && !isMd) cur.preview = false; // the language changed away from Markdown
+  const other = !!cur && (cur.kind !== 'text' || !!cur.preview);
   $('cd-empty').hidden = list.length > 0;
-  $('cd-editor').hidden = list.length === 0;
-  $('cd-save').disabled = !cur;
-  $('cd-saveas').disabled = !cur;
-  $('cd-run').disabled = !cur;
+  $('cd-editor').hidden = list.length === 0 || other;
+  $('cd-viewer').hidden = !other;
+  syncViewer(cur);
+  $('cd-save').disabled = !text;
+  $('cd-saveas').disabled = !text;
+  $('cd-run').disabled = !text;
+  const md = $('cd-md');
+  md.hidden = !isMd;
+  md.textContent = cur && cur.preview ? 'Edit' : 'Preview';
+  md.setAttribute('aria-pressed', cur && cur.preview ? 'true' : 'false');
   setStatus();
   if (window.SlopGuard && SlopGuard.setUnsaved) SlopGuard.setUnsaved('code', list.some((d) => d.dirty));
 }
@@ -31,7 +42,9 @@ export function renderChrome() {
 /** The status bar: language, cursor position, cursors, wrap and saved state. */
 export function setStatus() {
   const cur = docs.current(), view = env.view, bar = $('cd-status');
-  if (!cur || !view) { bar.textContent = ''; return; }
+  if (!cur) { bar.textContent = ''; return; }
+  if (cur.kind !== 'text') { bar.textContent = [cur.kind === 'binary' ? 'Not text' : cur.kind[0].toUpperCase() + cur.kind.slice(1), 'Read only here'].join('  ·  '); return; }
+  if (!view) { bar.textContent = ''; return; }
   const sel = view.state.selection, head = sel.main.head, line = view.state.doc.lineAt(head);
   const parts = [langOf(cur).label, `Ln ${line.number}, Col ${head - line.from + 1}`];
   if (sel.ranges.length > 1) parts.push(`${sel.ranges.length} cursors`);
@@ -39,7 +52,8 @@ export function setStatus() {
   bar.textContent = parts.join('  ·  ');
 }
 
-const phone = () => window.matchMedia('(max-width: 719px)').matches;
+export const isPhone = () => window.matchMedia('(max-width: 719px)').matches;
+const phone = isPhone;
 /** Show or hide the file tree: a drawer on a phone, a column on a desktop. */
 export function setTreeOpen(on) {
   const app = $('cd-app');

@@ -20,6 +20,7 @@ const INFO = {
 export function formatDoc() {
   const d = docs.current(), view = env.view;
   if (!d || !view) { toast('Open a file first'); return false; }
+  if (d.kind !== 'text') { toast('This file is not edited here'); return false; }
   if (!helperOn('formatter')) { toast('The formatter is off. Turn it on in Extensions.'); return false; }
   const before = view.state.doc.toString();
   let out;
@@ -34,6 +35,7 @@ export function formatDoc() {
 export async function chooseLanguage() {
   const d = docs.current(), view = env.view;
   if (!d || !view) { toast('Open a file first'); return false; }
+  if (d.kind !== 'text') { toast('This file is not edited here'); return false; }
   if (!helperOn('languageMode')) { toast('The language mode switcher is off. Turn it on in Extensions.'); return false; }
   const id = await askLanguage(langOf(d).id);
   if (!id) return false;

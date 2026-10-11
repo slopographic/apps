@@ -4,7 +4,8 @@ import * as docs from './docs.js';
 import { getDraft, putDraft, dropDraft } from './drafts.js';
 import { readText, writeText, createFile, uniqueName, pathOf } from './drive.js';
 import { askNewFile, askUnsaved } from './dialogs.js';
-import { mimeFor } from './lang.js';
+import { mimeFor, langOf } from './lang.js';
+import { mediaKind } from './viewers.js';
 import { renderChrome, setStatus, env, toast } from './ui.js';
 import { setActive, refresh as refreshTree, revealFolder } from './tree.js';
 
@@ -12,14 +13,21 @@ const H = () => window.SlopHub;
 const TABS_KEY = 'slop-code.tabs';
 const timers = new Map();
 
-/** Open a record in a tab (or switch to its tab). Non-text files are refused. */
+/** Open a record in a tab (or switch to its tab). Pictures, audio, video and PDFs open as views; a file that is not
+ * text opens as a view with the "Open in an app" list. Text opens in the editor. */
 export async function openRecord(rec, { quiet = false, activate = true } = {}) {
   if (!rec) return null;
   const have = docs.find(rec.id);
   if (have) { if (activate) showDoc(have); return have; }
   if (rec.trashedAt) { if (!quiet) toast(`“${rec.name}” is in the Trash`); return null; }
-  const text = await readText(rec);
-  if (text === null) { if (!quiet) toast(`“${rec.name}” is not a text file, so Slop Code cannot edit it`); return null; }
+  const media = mediaKind(rec.name);
+  const text = media ? null : await readText(rec);
+  if (media || text === null) {
+    const doc = docs.openView(rec, media || 'binary', URL.createObjectURL(rec.blob));
+    H().touch(rec.id);
+    if (activate) showDoc(doc); else { renderChrome(); persistTabs(); }
+    return doc;
+  }
   const draft = await getDraft(rec.id);
   const restore = !!draft && typeof draft.text === 'string' && draft.text !== text;
   const doc = docs.openDoc(rec, restore ? draft.text : text, text);
@@ -39,9 +47,9 @@ export function showDoc(doc) {
   if (env.view) env.view.focus();
 }
 
-/** Save the document's text to its own Slop Drive record. */
+/** Save the document's text to its own Slop Drive record. Views (pictures, media, binary) are not saved here. */
 export async function saveDoc(doc = docs.current()) {
-  if (!doc) return false;
+  if (!doc || doc.kind !== 'text') return false;
   const text = docs.textOf(doc);
   try { await writeText(doc.id, text, doc.name); } catch (e) { toast('Could not save: ' + e.message); return false; }
   docs.markSaved(doc, text);
@@ -54,7 +62,7 @@ export async function saveDoc(doc = docs.current()) {
 
 /** Save a copy into a folder the user picks. Opens the copy in a new tab. */
 export async function saveAs(doc = docs.current()) {
-  if (!doc) return null;
+  if (!doc || doc.kind !== 'text') return null;
   const name = await SlopUI.prompt('Save as', 'File name', doc.name, { ok: 'Next' });
   if (!name || !name.trim()) return null;
   const folderId = await H().pickFolder({ title: `Save “${name.trim()}” to…`, ok: 'Save here', start: doc.folderId ?? await H().appFolderId('code') });
@@ -88,10 +96,20 @@ export async function closeDoc(doc = docs.current()) {
   clearTimeout(timers.get(doc.id));
   await dropDraft(doc.id);
   docs.close(doc);
+  if (doc.url) URL.revokeObjectURL(doc.url);
   setActive(docs.current() ? docs.current().id : null);
   renderChrome();
   persistTabs();
   return true;
+}
+
+/** Switch a Markdown tab between the editor and its rendered preview. Only the view changes, not the text. */
+export function togglePreview(doc = docs.current()) {
+  if (!doc || doc.kind !== 'text' || langOf(doc).id !== 'markdown') { toast('The preview is for Markdown files'); return false; }
+  doc.preview = !doc.preview;
+  renderChrome();
+  if (env.view && !doc.preview) env.view.focus();
+  return doc.preview;
 }
 
 /** Called on every edit of the editor. Refreshes the dirty flag and schedules the draft autosave. */
