@@ -1,0 +1,62 @@
+/* Slop HTML to PDF: the app's own layout. Theme colours come from the --sl-* tokens only.
+ * The sheet and header styles are not here: they travel with the markup (html2pdf/js/sheet.js), so the preview and the print match. */
+[hidden] { display: none !important; }
+.h2p-app {
+  display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; box-sizing: border-box;
+  background: var(--sl-background); color: var(--sl-text);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.h2p-app *, .h2p-app *::before, .h2p-app *::after { box-sizing: border-box; }
+
+/* Header bar (the plain fallback: shared/appbar/ is not in this repo) */
+.sl-appbar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 16px; background: var(--sl-surface); border-bottom: 1px solid var(--sl-border);
+}
+.sl-appbar h1 { margin: 0; font-size: 17px; font-weight: 650; }
+.sl-appbar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sl-appbar-logo { width: 22px; height: 22px; border-radius: 6px; background: var(--sl-accent); flex: none; }
+.sl-appbar-tag { font-size: 12px; opacity: .7; }
+.sl-appbar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Layout: options on the left, preview on the right; one column on a phone */
+.h2p-main { display: grid; grid-template-columns: 300px minmax(0, 1fr); flex: 1; min-height: 0; }
+.h2p-side {
+  display: flex; flex-direction: column; gap: 20px; overflow: auto; padding: 16px;
+  border-right: 1px solid var(--sl-border);
+}
+.h2p-group { display: grid; gap: 10px; }
+.h2p-group h2 { margin: 0; font-size: 12px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
+.h2p-field { display: grid; gap: 4px; font-size: 13px; }
+.h2p-input {
+  width: 100%; padding: 7px 9px; border: 1px solid var(--sl-border); border-radius: 6px;
+  background: var(--sl-background); color: var(--sl-text); font: inherit;
+}
+.h2p-input:disabled { opacity: .5; }
+textarea.h2p-input { resize: vertical; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+.h2p-check { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.h2p-note { margin: 0; font-size: 12px; line-height: 1.45; opacity: .75; }
+
+/* Preview stage: the paper sits on the stage, scaled to its width */
+.h2p-stage {
+  position: relative; display: flex; justify-content: center; align-items: flex-start;
+  overflow: auto; padding: 24px; background: var(--sl-surface); min-width: 0;
+}
+.h2p-stage.h2p-over { outline: 2px dashed var(--sl-accent); outline-offset: -12px; }
+.h2p-paper-box { position: relative; width: 100%; overflow: hidden; }
+.h2p-paper {
+  position: absolute; left: 0; top: 0; transform-origin: 0 0; border: 0; background: #fff;
+  box-shadow: 0 2px 14px var(--sl-border); pointer-events: none;
+}
+.h2p-empty { align-self: center; max-width: 420px; text-align: center; display: grid; gap: 10px; justify-items: center; }
+.h2p-empty h2 { margin: 0; font-size: 18px; }
+.h2p-empty p { margin: 0; opacity: .75; }
+
+.h2p-status { margin: 0; padding: 8px 16px; font-size: 12px; border-top: 1px solid var(--sl-border); }
+
+@media (max-width: 800px) {
+  .h2p-main { grid-template-columns: minmax(0, 1fr); }
+  .h2p-side { border-right: 0; border-bottom: 1px solid var(--sl-border); }
+  .h2p-stage { padding: 16px; }
+  .sl-appbar { padding: 10px 16px; }
+}

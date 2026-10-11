@@ -24,7 +24,7 @@
 .h2p-text{min-width:0;flex:1}
 .h2p-name,.h2p-meta{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .h2p-name{font-weight:700;font-size:9.5pt}
-.h2p-qr{flex:none;width:11mm;height:11mm}
+.h2p-qr{flex:none;box-sizing:border-box;width:11mm;height:11mm;padding:.6mm;background:#fff}
 .h2p-qr svg{display:block;width:100%;height:100%}
 .h2p-table{width:100%;border-collapse:collapse;border:0}
 .h2p-table td{padding:0;border:0;vertical-align:top}

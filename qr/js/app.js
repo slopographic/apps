@@ -1,137 +1,235 @@
-/* QR SLOP: app state and the single-code view. Holds the kind of code, its values for each kind, and the output options.
- * Draws the preview, downloads SVG and PNG, and copies the encoded text. Classic script; exposes window.QRApp. */
+/* QR SLOP: the page. Wires the header, the tabs, the panels, the preview and the exports to the state in state.js.
+ * Exposes window.QRApp, which the batch view, the commands and the tests use. Classic script. */
 (function () {
   'use strict';
   if (window.QRApp) return;
   const $ = (id) => document.getElementById(id);
-  const E = (tag, attrs, ...kids) => window.SlopUI.el(tag, attrs, ...kids);
   const toast = (m) => window.SlopUI.toast(m);
-  const stamp = () => new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
+  const Q = () => window.QRState;
+  const S = () => window.QRState.S;
+  const TABS = ['templates', 'content', 'design', 'logo', 'raw', 'batch'];
+  const NAMES = { templates: 'Templates', content: 'Content', design: 'Design', logo: 'Logo', raw: 'Raw text', batch: 'Batch' };
 
-  const S = {
-    type: 'text', values: {}, mode: 'single',
-    opts: { size: 512, ec: 'M', fg: '#000000', bg: '#ffffff', transparent: false },
-  };
-  let last = null; // { text, svg } for the code on screen, or null when the form is not complete
+  let last = null;      // { text, svg } for the code on screen, or null
+  let touched = false;  // after the first edit, errors show; before it the form only says what to do
+  let dirty = false;    // changed since the last save or open
+  let tab = 'content';
+  let barKey = '';
+  let bar = null;
 
-  const vals = () => (S.values[S.type] = S.values[S.type] || {});
-  const current = () => window.QRPayload.build(S.type, vals());
-  /** SVG markup for one text at the current output options. Throws when the text does not fit. */
-  const svgFor = (text) => window.QRRender.qrSvg(window.QRRender.encode(text, S.opts.ec), S.opts);
+  const opts = () => Q().renderOpts();
+  const px = () => opts().size;
+  const base = () => window.QRSave.baseName(S());
 
-  function placeholder() {
-    return E('p', { class: 'qr-off' }, 'Fill in the form to see the code.');
+  /** The header's actions and the ⋯ menu. They follow whether there is a code to act on. */
+  function actions() {
+    const has = !!last;
+    return [
+      { id: 'save', label: 'Save to Drive', icon: 'save', primary: true, disabled: !has, onClick: saveDrive },
+      { id: 'open', label: 'Open from Drive', icon: 'open', onClick: openDrive },
+      { id: 'buffer', label: 'Copy to buffer', icon: 'copy', disabled: !has, onClick: toBuffer },
+    ];
+  }
+  function menu() {
+    const has = !!last;
+    return [
+      { id: 'dl-svg', label: 'Download SVG', icon: 'download', disabled: !has, onClick: downloadSvg },
+      { id: 'dl-png', label: 'Download PNG', icon: 'download', disabled: !has, onClick: downloadPng },
+      { id: 'dl-pdf', label: 'Download print page (PDF)', icon: 'print', disabled: !has, onClick: downloadPdf },
+      { separator: true },
+      { id: 'cmd', label: 'Commands', onClick: () => { if (window.SlopCmd && SlopCmd.open) SlopCmd.open(); } },
+    ];
+  }
+  function syncBar() {
+    if (!bar) return;
+    bar.setDirty(dirty);
+    const key = (last ? '1' : '0');
+    if (key === barKey) return;
+    barKey = key;
+    bar.setActions(actions());
+    bar.setMenu(menu());
   }
 
-  /** Redraws the preview, the encoded text, the message and the buttons from the current form and options. */
+  function meta(text) {
+    const logo = S().logo.href ? ' · logo ' + Math.round(opts().logo.frac * 100) + '%' : '';
+    return px() + ' px · error correction ' + opts().ec + ' · ' + window.QRPayload.byteLength(text) + ' bytes' + logo;
+  }
+
+  /** Redraws the preview, the message, the buttons and the header from the state. Cheap enough to run on every key. */
   function refresh() {
-    const r = current();
-    $('qr-payload').textContent = r.ok ? r.text : '';
-    $('qr-err').textContent = r.ok ? '' : r.error;
-    const pv = $('qr-preview');
+    const r = Q().encodedText();
+    let err = r.ok || !touched ? '' : r.error;
+    let svg = null;
     last = null;
     if (r.ok) {
-      try {
-        last = { text: r.text, svg: svgFor(r.text) };
-        pv.innerHTML = last.svg;
-        $('qr-err').textContent = '';
-      } catch (e) { pv.replaceChildren(); $('qr-err').textContent = e.message; }
-    } else pv.replaceChildren(placeholder());
-    for (const id of ['qr-svg', 'qr-png', 'qr-copy']) $(id).disabled = !last;
+      try { svg = window.QRExport.svgFor(r.text, opts()); last = { text: r.text, svg }; }
+      catch (e) { err = e.message; }
+    }
+    window.QRPreview.show(svg);
+    if (svg) window.QRPreview.prepare(svg, px());
+    $('qr-off').hidden = !!svg || !!err;
+    $('qr-err').textContent = err;
+    $('qr-meta').textContent = svg ? meta(r.text) : '';
+    for (const id of ['qr-dl-svg', 'qr-dl-png', 'qr-dl-pdf', 'qr-copy']) $(id).disabled = !last;
+    syncBar();
+    return last;
   }
+  /** An edit: the form, raw text, design or logo changed. */
+  function edit() { touched = true; dirty = true; refresh(); }
 
-  /** An output option changed: the single code and the batch cards are both drawn again. */
-  function optionsChanged() {
+  /* ---------- tabs and panels ---------- */
+  function setTab(t) {
+    if (!TABS.includes(t)) return;
+    tab = t;
+    for (const k of TABS) {
+      const on = k === t;
+      $('qr-tab-' + k).setAttribute('aria-selected', String(on));
+      $('qr-tab-' + k).tabIndex = on ? 0 : -1;
+      $('qr-panel-' + k).hidden = !on;
+    }
+    drawTab(t);
+  }
+  function drawTab(t = tab) {
+    if (t === 'content') drawContent();
+    else if (t === 'design') window.QRPanelDesign.drawDesign($('qr-design'), S().style, designChange);
+    else if (t === 'logo') window.QRPanelDesign.drawLogo($('qr-logo'), S().logo, logoActs);
+    else if (t === 'raw') drawRaw();
+    else if (t === 'batch' && window.QRBatch) window.QRBatch.refresh();
+  }
+  function drawContent() {
+    $('qr-name').value = S().label;
+    window.QRPanelContent.drawKinds($('qr-kinds'), S().kind, (k) => { Q().setKind(k); drawContent(); edit(); });
+    window.QRPanelContent.drawForm($('qr-form'), S().kind, Q().vals(), (k, v) => { Q().setValue(k, v); edit(); });
+  }
+  function drawRaw() {
+    const r = Q().encodedText();
+    const typed = S().raw !== null;
+    if (!typed) $('qr-raw').value = r.ok ? r.text : '';
+    $('qr-raw-note').textContent = typed
+      ? 'Encoding this text exactly as typed. Edits here fill the form when the kind allows it.'
+      : 'Showing the text built from the form. Edit it here to encode exactly this text.';
+    $('qr-raw-reset').disabled = !typed;
+  }
+  function designChange(k, v) { S().style[k] = v; edit(); }
+  const logoActs = {
+    async file(f) {
+      try { S().logo.href = await window.QRLogo.fromFile(f); S().logo.name = f.name; S().logo.mark = ''; logoDone(); }
+      catch (e) { toast(e.message); }
+    },
+    async mark(id) {
+      try { S().logo.href = await window.QRLogo.fromMark(id); S().logo.mark = id; S().logo.name = ''; logoDone(); }
+      catch (e) { toast(e.message); }
+    },
+    remove() { S().logo.href = null; S().logo.name = ''; S().logo.mark = ''; logoDone(); },
+    width(f) { S().logo.frac = window.QRRender.clampLogo(f); edit(); },
+  };
+  function logoDone() { edit(); drawTab('logo'); }
+
+  function applyTemplate(id) {
+    const t = window.QRTemplates.get(id);
+    if (!t || !Q().applyTemplate(id)) return;
+    Q().setLabel(t.name);
+    touched = true; dirty = true;
+    setTab('content');
     refresh();
-    if (window.QRBatch) window.QRBatch.refresh();
+    toast('Filled in “' + t.name + '”. Change the details, then download.');
   }
 
-  /** Downloads an SVG markup string as a file. */
-  function saveSvg(svg, base) {
-    window.SlopUI.download(new Blob([svg], { type: 'image/svg+xml' }), 'qr-' + base + '.svg');
+  /* ---------- exports ---------- */
+  function downloadSvg() { if (last) window.SlopUI.download(new Blob([last.svg], { type: 'image/svg+xml' }), base() + '.svg'); }
+  async function downloadPng() {
+    if (!last) return;
+    try { window.SlopUI.download(await window.QRPreview.pngFor(last.svg, px()), base() + '.png'); }
+    catch (e) { toast(e.message); }
   }
-  /** Downloads an SVG markup string as a PNG at the chosen size; a transparent code stays transparent. */
-  async function savePng(svg, base) {
+  async function downloadPdf() {
+    if (!last) return;
     try {
-      const blob = await window.QRRender.svgToPng(svg, S.opts.size);
-      window.SlopUI.download(blob, 'qr-' + base + '.png');
-    } catch (e) { toast(e.message); }
+      const png = await window.QRPreview.pngFor(last.svg, px());
+      const pdf = await window.QRExport.toPdf(png, { title: S().label || 'QR code', line: last.text });
+      window.SlopUI.download(pdf, base() + '-print.pdf');
+    } catch (e) { toast('Could not make the PDF: ' + e.message); }
   }
-
-  const fileBase = () => S.type + '-' + stamp();
-  function downloadSvg() { if (last) saveSvg(last.svg, fileBase()); }
-  function downloadPng() { if (last) savePng(last.svg, fileBase()); }
   async function copyText() {
     if (!last) return;
     try { await navigator.clipboard.writeText(last.text); toast('Copied the encoded text.'); }
-    catch (e) { toast('Could not copy. Select the text above and copy it.'); }
+    catch (e) { toast('Could not copy. Select the text in the Raw tab and copy it.'); }
   }
 
-  function setType(t) {
-    if (!window.QRPayload.TYPES.includes(t)) return;
-    S.type = t;
-    const sel = $('qr-type');
-    if (sel) sel.value = t;
-    drawForm();
+  /* ---------- Slop Drive and the buffer ---------- */
+  async function saveDrive() {
+    if (!last) return;
+    try {
+      const folder = await window.QRSave.chooseFolder();
+      if (folder === undefined) return;
+      const png = await window.QRPreview.pngFor(last.svg, px());
+      const name = base();
+      await window.QRSave.saveTo(folder, png, Q().snapshot(), name);
+      dirty = false; syncBar();
+      toast('Saved to Slop Drive as ' + name + '.png');
+    } catch (e) { toast('Could not save to Slop Drive: ' + e.message); }
+  }
+  async function openDrive() {
+    try {
+      const r = await window.QRSave.openPicked();
+      if (!r) return;
+      if (!r.snapshot || !Q().restore(r.snapshot)) { toast('That file has no QR settings. Pick a PNG saved by QR SLOP, or its .qr.json record.'); return; }
+      touched = true; dirty = false;
+      redrawAll();
+      toast('Opened ' + r.name + ' with its settings.');
+    } catch (e) { toast('Could not open from Slop Drive: ' + e.message); }
+  }
+  function redrawAll() {
+    $('qr-name').value = S().label;
+    drawTab(tab);
     refresh();
   }
-  function drawForm() {
-    window.QRForms.draw($('qr-form'), S.type, vals(), (k, v) => { vals()[k] = v; refresh(); });
+  async function toBuffer() {
+    if (!last) return;
+    try {
+      await window.QRSave.toBuffer(await window.QRPreview.pngFor(last.svg, px()));
+      toast('Copied to the buffer. Paste or drop it into another app.');
+    } catch (e) { toast('Could not copy to the buffer: ' + e.message); }
   }
 
-  /** Output options: size, error correction, colours and a transparent background. */
-  function drawOptions() {
-    const host = $('qr-opts');
-    const o = S.opts;
-    const size = window.SlopUI.number(o.size, 16, 4096, 1);
-    size.id = 'qr-size';
-    const ec = window.SlopUI.select([['L', 'L (7%)'], ['M', 'M (15%)'], ['Q', 'Q (25%)'], ['H', 'H (30%)']], o.ec);
-    const fg = E('input', { type: 'color', value: o.fg, 'aria-label': 'Code colour' });
-    const bg = E('input', { type: 'color', value: o.bg, 'aria-label': 'Background colour' });
-    const tr = window.SlopUI.check('Transparent background', o.transparent);
-    const sync = () => { bg.disabled = o.transparent; };
-    size.addEventListener('input', () => { o.size = window.QRRender.clampSize(size.value); optionsChanged(); });
-    ec.addEventListener('change', () => { o.ec = ec.value; optionsChanged(); });
-    fg.addEventListener('input', () => { o.fg = fg.value; optionsChanged(); });
-    bg.addEventListener('input', () => { o.bg = bg.value; optionsChanged(); });
-    tr.input.addEventListener('change', () => { o.transparent = tr.input.checked; sync(); optionsChanged(); });
-    sync();
-    host.replaceChildren(
-      window.SlopUI.field('Size (px)', size),
-      window.SlopUI.field('Error correction', ec),
-      window.SlopUI.field('Code colour', fg),
-      window.SlopUI.field('Background colour', bg),
-      tr.el,
-    );
-  }
-
-  /** Switches between the single code and the batch grid. */
-  function setMode(m) {
-    S.mode = m === 'batch' ? 'batch' : 'single';
-    $('qr-single').hidden = S.mode !== 'single';
-    $('qr-batch').hidden = S.mode !== 'batch';
-    $('qr-mode-single').setAttribute('aria-pressed', String(S.mode === 'single'));
-    $('qr-mode-batch').setAttribute('aria-pressed', String(S.mode === 'batch'));
-    if (S.mode === 'batch' && window.QRBatch) window.QRBatch.refresh();
+  /** Batch cards: the same options, one code per text. */
+  function svgFor(text) { return window.QRExport.svgFor(text, opts()); }
+  function saveSvg(svg, name) { window.SlopUI.download(new Blob([svg], { type: 'image/svg+xml' }), 'qr-' + name + '.svg'); }
+  async function savePng(svg, name) {
+    try { window.SlopUI.download(await window.QRExport.toPng(svg, px()), 'qr-' + name + '.png'); }
+    catch (e) { toast(e.message); }
   }
 
   function init() {
-    const sel = window.SlopUI.select(window.QRPayload.TYPES.map((t) => [t, window.QRPayload.LABELS[t]]), S.type);
-    sel.id = 'qr-type';
-    sel.addEventListener('change', () => setType(sel.value));
-    $('qr-typehost').replaceChildren(window.SlopUI.field('Kind of code', sel));
-    drawOptions();
-    drawForm();
-    $('qr-svg').addEventListener('click', downloadSvg);
-    $('qr-png').addEventListener('click', downloadPng);
+    bar = window.SlopAppBar.mount($('qr-bar'), {
+      title: 'QR SLOP', subtitle: 'Codes with logos, templates and a live preview. Nothing is uploaded.', icon: 'qr', actions: [], menu: [],
+    });
+    window.QRPreview.init();
+    window.QRPanelContent.drawTemplates($('qr-templates'), applyTemplate);
+    for (const k of TABS) {
+      $('qr-tab-' + k).textContent = NAMES[k];
+      $('qr-tab-' + k).addEventListener('click', () => setTab(k));
+    }
+    $('qr-tabs').addEventListener('keydown', (e) => {
+      const i = TABS.indexOf(tab);
+      const n = e.key === 'ArrowRight' ? (i + 1) % TABS.length : e.key === 'ArrowLeft' ? (i - 1 + TABS.length) % TABS.length
+        : e.key === 'Home' ? 0 : e.key === 'End' ? TABS.length - 1 : -1;
+      if (n < 0) return;
+      e.preventDefault(); setTab(TABS[n]); $('qr-tab-' + TABS[n]).focus();
+    });
+    $('qr-name').addEventListener('input', () => { Q().setLabel($('qr-name').value); dirty = true; syncBar(); });
+    $('qr-raw').addEventListener('input', () => { Q().setRaw($('qr-raw').value); edit(); drawRaw(); });
+    $('qr-raw-reset').addEventListener('click', () => { Q().clearRaw(); drawRaw(); edit(); });
+    $('qr-dl-svg').addEventListener('click', downloadSvg);
+    $('qr-dl-png').addEventListener('click', downloadPng);
+    $('qr-dl-pdf').addEventListener('click', downloadPdf);
     $('qr-copy').addEventListener('click', copyText);
-    $('qr-mode-single').addEventListener('click', () => setMode('single'));
-    $('qr-mode-batch').addEventListener('click', () => setMode('batch'));
+    setTab(tab);
     refresh();
   }
 
   window.QRApp = {
-    S, init, refresh, setType, setMode, svgFor, saveSvg, savePng, downloadSvg, downloadPng, copyText,
-    current, last: () => last,
+    init, refresh, edit, setTab, tab: () => tab, last: () => last, state: S, svgFor, saveSvg, savePng,
+    downloadSvg, downloadPng, downloadPdf, copyText, toBuffer, saveDrive, openDrive, applyTemplate, redrawAll,
   };
 })();
