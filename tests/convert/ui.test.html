@@ -70,7 +70,7 @@ describe('preset converter pages', () => {
     expect(t.ui.zip.hidden).toBeTruthy();
   });
   it('offers a zip when a batch makes several files', async () => {
-    const t = mount({ conv: 'to-png', from: ['png'] });
+    const t = mount({ conv: 'to-jpg', from: ['png'] });
     await t.addFiles([await pngFile('a.png'), await pngFile('b.png')]);
     await t.run();
     expect(t.ui.outList.querySelectorAll('a').length).toBe(2);

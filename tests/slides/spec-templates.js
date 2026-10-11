@@ -12,7 +12,7 @@
   /** A template file text with a custom deck (for broken and old files). */
   const fileText = (deck, extra) => JSON.stringify(Object.assign({ kind: 'slop-slides-template', format: 1, name: 'Hand made', created: 1, deck }, extra || {}));
   /** A deck with one shape of the given type (for validation tests). */
-  const deckWith = (w, obj) => { const d = w.SS.templates.byId('title').build(); d.slides[0].objects.push(obj); return JSON.parse(JSON.stringify(d)); };
+  const deckWith = (w, obj) => { const d = w.SS.model.newDeck({}); d.slides[0].objects.push(obj); return JSON.parse(JSON.stringify(d)); };
 
   describe('save as template and My templates', () => {
     it('saves the deck as a template: it is listed under My templates with a preview of its first slide', async () => {
@@ -68,14 +68,14 @@
       const w = await ST.open('../../slides/');
       loadStarter(w, 'album');
       w.SS.app.go(1);
-      const dlg = w.SS.templatesUI.openSave();
+      w.SS.templatesUI.openSave();
       const input = w.document.querySelector('.tpl-save input');
       input.value = 'From the dialog';
       w.document.querySelector('.tpl-save select').value = 'slide';
       w.document.querySelector('.sui-dlg .sui-primary').click();
       const rec = await waitFor(async () => (await w.SS.templateStore.list()).find((r) => r.name === 'From the dialog'));
       expect((await rec).slides).toBe(1);
-      expect(dlg.box.isConnected).toBe(false);
+      await waitFor(() => !w.document.querySelector('.tpl-save'));
       await w.SS.templateStore.remove((await rec).id);
       ST.close(w);
     }, { timeout: 60000 });
@@ -121,7 +121,7 @@
 
     it('the File > Save as template export is a download with the .sslide-template name', async () => {
       const w = await ST.open('../../slides/');
-      loadStarter(w, 'quote' === 'x' ? 'pitch' : 'report');
+      loadStarter(w, 'report');
       const rec = await w.SS.templatesUI.saveTemplate({ name: 'Q3 review', slideIndex: null });
       expect(w.SS.templateFile.fileName(rec.name)).toBe('Q3 review.sslide-template');
       await w.SS.templateStore.remove(rec.id);

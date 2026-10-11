@@ -25,7 +25,12 @@
       const fr = document.getElementById('app');
       fr.src = '../drive/frame.html';
       await sleep(1500);
+      const pre = await PT.win.SlopSession.load('pdf', 'view', 'none');
+      expect(JSON.stringify(pre)).toBe('x');
       await PT.boot('', 'app');
+      await sleep(300);
+      const sv = await PT.win.SlopSession.load('pdf', 'view', null);
+      expect(JSON.stringify([sv, PT.A.tool, PT.A.mode, PT.SP.editor.pid])).toBe('x');
       expect(PT.A.tool).toBe('edit');
       expect(PT.SP.editor.pid).toBe(pid);
       expect(PT.SP.editor.zoomMode).toBe('num');
