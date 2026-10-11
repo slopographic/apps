@@ -153,4 +153,45 @@
       expect(primary()).toBeTruthy();
     }, { timeout: 60000 }));
   });
+  describe('Slop 3D mesh edit (WebGL)', () => {
+    /** Screen position (CSS px, page coordinates of the iframe) of vertex i of the edited mesh. */
+    function vertexScreen(w, id, i) {
+      const { THREE, stage: st3, cam, objects } = w.Slop3D.app;
+      cam.apply();
+      st3.request();
+      const it = objects.items.get(id);
+      it.obj.updateWorldMatrix(true, false);
+      const p = w.Slop3D.state.s.doc.nodes[id].geom.positions;
+      const v = new THREE.Vector3(p[3 * i], p[3 * i + 1], p[3 * i + 2]).applyMatrix4(it.obj.matrixWorld).project(st3.camera);
+      const r = doc().getElementById('view').getBoundingClientRect();
+      return [r.left + ((v.x + 1) / 2) * r.width, r.top + ((1 - v.y) / 2) * r.height];
+    }
+    const key = (w, k) => doc().getElementById('view').dispatchEvent(new w.KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+
+    it('Tab enters edit mode, selecting a vertex and pressing G moves it, undo restores it', skipIfNoGL(async () => {
+      const w = await openApp();
+      cmd('3d.add.cube');
+      await waitFor(() => rowNamed('Cube'));
+      const id = primary();
+      key(w, 'Tab');
+      expect(w.Slop3D.edit.active()).toBe(true);
+      expect(meshNode().geom.kind).toBe('mesh');
+      const canvas = doc().getElementById('view');
+      const [sx, sy] = vertexScreen(w, id, 0);
+      const ev = (type) => new w.PointerEvent(type, { bubbles: true, cancelable: true, button: 0, pointerId: 1, clientX: sx, clientY: sy });
+      canvas.dispatchEvent(ev('pointerdown'));
+      canvas.dispatchEvent(ev('pointerup'));
+      expect(w.Slop3D.edit.sel().ids.has(0)).toBe(true);
+      const x0 = meshNode().geom.positions[0];
+      key(w, 'g');
+      key(w, 'x');
+      key(w, '1');
+      key(w, 'Enter');
+      expect(Math.abs(meshNode().geom.positions[0] - (x0 + 1))).toBeLessThan(1e-6);
+      cmd('3d.edit.undo');
+      expect(Math.abs(meshNode().geom.positions[0] - x0)).toBeLessThan(1e-9);
+      key(w, 'Tab');
+      expect(w.Slop3D.edit.active()).toBe(false);
+    }, { timeout: 60000 }));
+  });
 })();

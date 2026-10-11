@@ -43,6 +43,7 @@
       });
       pending--;
       if (!r.ok) { UI.alert('Could not save', `${r.message || 'Nothing was changed.'} The list has been reloaded.`); await load(); }
+      else if (!pending) await load(); // picks up the stored times (Recent) once the queue is empty
     };
     queue = queue.then(run, run);
   }

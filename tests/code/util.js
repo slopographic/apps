@@ -26,7 +26,12 @@ window.CT = (function () {
     v.focus();
   }
   /** Type text as the user would (execCommand insertText goes through CodeMirror's input handling). */
-  function typeText(w, s) { toEnd(w); w.document.execCommand('insertText', false, s); }
+  async function typeText(w, s) {
+    toEnd(w);
+    const before = view(w).state.doc.length;
+    w.document.execCommand('insertText', false, s);
+    await waitFor(() => view(w).state.doc.length === before + s.length, { timeout: 4000 });
+  }
   /** A keydown on the focused element. */
   function key(w, k, { ctrl = false, shift = false, alt = false } = {}) {
     const target = w.document.activeElement || w.document.body;

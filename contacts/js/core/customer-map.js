@@ -60,25 +60,30 @@
     });
   }
 
+  /** Field limits of the shared record (schema-defs.js). A value over a limit is cut, so one long value cannot stop a
+   *  whole save: the store refuses a transaction when any record in it is invalid. */
+  const LIMIT = { phone: 60, email: 200, address: 1000, notes: 5000, photo: 390000, groups: 20, group: 40, entries: 10 };
+
   /** Contact values to record fields: the first of each kind is the primary, the rest are extra entries. */
-  function valuesIn(list, kind) {
-    const rows = (Array.isArray(list) ? list : []).map((e) => ({ value: clip(e && e.value, 1000), label: labelOf(e && e.types, kind) }))
-      .filter((r) => r.value);
+  function valuesIn(list, kind, max) {
+    const rows = (Array.isArray(list) ? list : []).map((e) => ({ value: clip(e && e.value, max), label: labelOf(e && e.types, kind) }))
+      .filter((r) => r.value).slice(0, LIMIT.entries);
     const [first, ...rest] = rows;
     return { primary: first ? first.value : undefined, label: first ? first.label : undefined, extra: rest.length ? rest : undefined };
   }
 
   /** A contact to the record fields, merged over the stored record (fields the screen does not show are kept). */
   function toRecord(c, cur) {
-    const p = valuesIn(c.phones, 'phone'), e = valuesIn(c.emails, 'email');
-    const a = (Array.isArray(c.adr) ? c.adr : []).map((x) => ({ value: addressText(x), label: labelOf(x && x.types, 'address') }))
-      .filter((x) => x.value);
+    const p = valuesIn(c.phones, 'phone', LIMIT.phone), e = valuesIn(c.emails, 'email', LIMIT.email);
+    const a = (Array.isArray(c.adr) ? c.adr : []).map((x) => ({ value: clip(addressText(x), LIMIT.address), label: labelOf(x && x.types, 'address') }))
+      .filter((x) => x.value).slice(0, LIMIT.entries);
     const [af, ...ar] = a;
     return {
       ...(cur || {}),
       name: clip(c.fn, 200) || 'No name', company: clip(c.org, 200) || undefined, department: clip(c.dept, 200) || undefined,
       title: clip(c.title, 200) || undefined, birthday: clip(c.bday, 20) || undefined, website: clip(c.url, 300) || undefined,
-      notes: String(c.note || '').trim() || undefined, photo: c.photo || undefined, categories: c.groups || [],
+      notes: String(c.note || '').trim().slice(0, LIMIT.notes) || undefined, photo: c.photo && c.photo.length <= LIMIT.photo ? c.photo : undefined,
+      categories: (Array.isArray(c.groups) ? c.groups : []).map((g) => clip(g, LIMIT.group)).filter(Boolean).slice(0, LIMIT.groups),
       stage: c.stage || 'lead', followUp: c.followUp || undefined,
       phone: p.primary, phoneLabel: p.label, phones: p.extra,
       email: e.primary, emailLabel: e.label, emails: e.extra,
