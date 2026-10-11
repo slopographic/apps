@@ -104,6 +104,8 @@
   ];
   const byId = new Map(C.list.map((c) => [c.id, c]));
   C.get = (id) => byId.get(id);
+  /** Adds commands from another script (SE.cmd.add): io/config.js uses it, loaded after this file. */
+  C.add = (list) => { for (const c of list) { C.list.push(c); byId.set(c.id, c); } };
   C.run = function (id) {
     if (window.SlopCmd && registered) return SlopCmd.run(id);
     const c = byId.get(id); if (!c || (c.when && !c.when())) return;

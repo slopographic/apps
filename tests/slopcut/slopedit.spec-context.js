@@ -27,7 +27,7 @@
       rightClick(ov, c.x, c.y);
       expect(menuText()).toContain('Cut');
       expect(menuText()).toContain('Duplicate clip');
-      expect(menuText()).toContain('Reset transform and colour');
+      expect(menuText()).toContain('Reset all (settings, keeps media)');
       expect(menuText()).not.toContain('Edit title text…');
       clickItem('Duplicate clip');
       expect(SE().doc.clips.length).toBe(2);

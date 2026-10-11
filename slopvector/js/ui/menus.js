@@ -29,7 +29,7 @@
     { label: 'Help', items: ['help.commands', 'help.shortcuts', 'help.about', '-', 'file.home'] }
   ];
   function dynItems(kind) {
-    if (kind === 'fonts') return Object.keys(SV.FONTS).map(function (f) { return { label: f, run: function () { SV.applyFont('family', f); }, checked: function () { return curFont().family === f; }, font: f }; });
+    if (kind === 'fonts') return Object.keys(SV.FONTS).concat(window.SlopFonts ? window.SlopFonts.names().filter(function (n) { return !SV.FONTS[n]; }) : []).map(function (f) { return { label: f, run: function () { SV.applyFont('family', f); }, checked: function () { return curFont().family === f; }, font: f }; });
     if (kind === 'sizes') return [8, 10, 12, 14, 18, 24, 36, 48, 72, 96, 144].map(function (s) { return { label: s + ' px', run: function () { SV.applyFont('size', s); }, checked: function () { return curFont().size === s; } }; });
     if (kind === 'sendto') return SV.hub.sendItems().map(function (it) { return it === '-' ? '-' : { label: it.label, run: it.act, disabled: it.disabled }; });
     if (kind === 'weights') return [[300, 'Light'], [400, 'Regular'], [500, 'Medium'], [600, 'Semibold'], [700, 'Bold'], [800, 'Extra Bold'], [900, 'Black']].map(function (w) { return { label: w[1] + ' (' + w[0] + ')', run: function () { SV.applyFont('weight', w[0]); }, checked: function () { return +curFont().weight === w[0]; } }; });

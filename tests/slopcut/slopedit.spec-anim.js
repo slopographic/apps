@@ -104,7 +104,7 @@
       expect(ST.M.clip(SE.doc, fxc.id).fx.intensity).toBe(1);
       const before = ST.renderAt(SE.doc, 0.5), after = ST.renderAt(SE.doc, 2);
       expect(ST.near(ST.px(before, 2, 2), RED)).toBe(true); // before the layer starts: nothing changes
-      const corner = ST.px(after, 2, 2), mid = ST.px(after, 80, 45);
+      const corner = ST.px(after, 2, 2), mid = ST.px(after, 960, 540); // 1920×1080 project: the vignette's clear middle
       expect(corner[0] < 200).toBe(true);
       expect(ST.near(mid, RED)).toBe(true);
       // Reset the layer: all five effects, intensity 60 %, a change every second, the default seed

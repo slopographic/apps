@@ -208,6 +208,17 @@
     return { ok: true, id: id };
   }
 
+  /** An app whose key is missing gets the explicit choice mirrored into it, so the app's own boot code (which reads its key)
+   * agrees with the choice. Only missing keys are written; System and a person who never chose are left alone. */
+  function mirrorMissing() {
+    var o = prof ? prof.overrides('theme') : {};
+    if (o.mode === undefined || o.mode === SYSTEM) return;
+    for (var app in APPS) {
+      var e = APPS[app];
+      if (e.key && legacyRead(e) === null) legacyWrite(e, e.native[o.mode]);
+    }
+  }
+
   /** Runs at first paint from the page's <head>. */
   function load() {
     var self = doc && doc.currentScript;
@@ -219,6 +230,7 @@
       doc.head.appendChild(s);
     }
     if (doc && doc.documentElement) doc.documentElement.setAttribute('data-slop-app', page.app);
+    mirrorMissing();
     refresh();
     watch();
     try {
