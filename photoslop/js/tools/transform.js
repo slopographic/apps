@@ -70,6 +70,24 @@ function commitTransform(label) {
   emit('tool');
 }
 function cancelTransform() { if (!TRANSFORM.active) return; TRANSFORM.active = false; live = null; emit('tool'); dirty(true); }
+/** The source ratio of the transform: the pixels' own proportions when this Free Transform started (TRANSFORM.w : h). */
+const tfSource = () => ({ src: { w: TRANSFORM.w, h: TRANSFORM.h } });
+/** Restore original aspect ratio is on when a transform runs and its source has a ratio. */
+const tfCanRestore = () => TRANSFORM.active && SlopAspect.ratio(tfSource()) !== null;
+/** Sets the box back to the source's proportions in one move: the width stays (a top or bottom handle keeps the height),
+    and the top-left corner stays put. The change joins the open transform, so Enter commits it as one step. */
+function restoreAspect(handle) {
+  if (!tfCanRestore()) return;
+  const t = TRANSFORM, cur = { w: t.w * Math.abs(t.sx), h: t.h * Math.abs(t.sy) };
+  const keep = handle && handle.hy && !handle.hx ? 'h' : 'w';
+  const want = SlopAspect.restore(cur, tfSource(), keep);
+  const before = tfCorners()[0];
+  t.sx = (t.sx < 0 ? -1 : 1) * Math.max(0.002, want.w / t.w);
+  t.sy = (t.sy < 0 ? -1 : 1) * Math.max(0.002, want.h / t.h);
+  const after = tfCorners()[0];
+  t.tx += before.x - after.x; t.ty += before.y - after.y;
+  dirty(true); emit('transform');
+}
 /** The proportion lock as a chain-link toggle for the options bars (Move and Free Transform). Shows the session setting. */
 function lockButton() {
   const b = h('button', { class: 'btn', type: 'button', 'aria-label': 'Proportion lock', html: LINK_ICON });
