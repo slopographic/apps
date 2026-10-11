@@ -55,7 +55,7 @@ function wireChrome() {
 function starterDoc() { return TEMPLATES.find((t) => t.id === 'product').build(); }
 
 async function boot() {
-  setTheme(lsGet('sloplabel-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'pro'));
+  applyTheme(document.documentElement.dataset.theme); // theme.js has painted the shared choice before this runs
   if (lsGet('sloplabel-rulers') === '0') $('workspace').classList.add('no-rulers');
   App.doc = starterDoc();
   App.hist.reset(App.doc);

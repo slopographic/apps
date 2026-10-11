@@ -1,53 +1,25 @@
-/* Slop Upscale: tokens (dark and light), layout, the before and after slider, and the phone stack.
+/* Slop Upscale: colours come from the shared Slop theme (--sl-* set by shared/theme/theme.js); the fallbacks are the Dark look.
+ * Then layout, the before and after slider, and the phone stack.
  * Desktop: settings in a tidy left column, the picture large on the right. Phone (≤860 px): picture, then settings. */
 :root {
-  --up-bg: #0e0e10;
-  --up-panel: #17171b;
-  --up-line: #2a2a31;
-  --up-ink: #ecebe6;
-  --up-mute: #9b9aa3;
-  --up-accent: #f2c14e;
+  --up-bg: var(--sl-background, #0e0e10);
+  --up-panel: var(--sl-surface, #17171b);
+  --up-line: var(--sl-border, #2a2a31);
+  --up-ink: var(--sl-text, #ecebe6);
+  --up-mute: color-mix(in srgb, var(--up-ink) 70%, transparent);
+  --up-accent: var(--sl-accent, #f2c14e);
   --up-ok: #7fd3a0;
   --up-warn: #f08a6c;
   /* the shared button and dialog kit (shared/slopui.css) reads these */
-  --s-bg: var(--up-panel); --s-bg2: #22222a; --s-input: var(--up-bg); --s-line: var(--up-line);
-  --s-fg: var(--up-ink); --s-dim: var(--up-mute); --s-accent: var(--up-accent); --s-accent-ink: #15120a;
-  --s-hover: rgba(127, 127, 127, .14); --s-radius: 8px; --s-shadow: 0 12px 40px rgba(0, 0, 0, .35);
+  --s-bg: var(--up-panel); --s-bg2: color-mix(in srgb, var(--up-ink) 6%, var(--up-panel)); --s-input: var(--up-bg); --s-line: var(--up-line);
+  --s-fg: var(--up-ink); --s-dim: var(--up-mute); --s-accent: var(--up-accent); --s-accent-ink: var(--sl-on-accent, #15120a);
+  --s-hover: color-mix(in srgb, var(--up-ink) 14%, transparent); --s-radius: 8px; --s-shadow: 0 12px 40px rgba(0, 0, 0, .35);
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --up-bg: #f6f5f1;
-    --up-panel: #ffffff;
-    --up-line: #dcdad2;
-    --up-ink: #1c1c20;
-    --up-mute: #63626b;
-    --up-accent: #9a6b00;
-    --up-ok: #1f7a46;
-    --up-warn: #a8402a;
-    --s-bg2: #f0eee7; --s-accent-ink: #ffffff;
-  }
-}
-:root[data-theme="light"] {
-  --up-bg: #f6f5f1;
-  --up-panel: #ffffff;
-  --up-line: #dcdad2;
-  --up-ink: #1c1c20;
-  --up-mute: #63626b;
-  --up-accent: #9a6b00;
+:root[data-slop-theme="light"], :root[data-slop-theme="classic"] {
   --up-ok: #1f7a46;
   --up-warn: #a8402a;
-  --s-bg2: #f0eee7; --s-accent-ink: #ffffff;
-}
-:root[data-theme="dark"] {
-  --up-bg: #0e0e10;
-  --up-panel: #17171b;
-  --up-line: #2a2a31;
-  --up-ink: #ecebe6;
-  --up-mute: #9b9aa3;
-  --up-accent: #f2c14e;
-  --up-ok: #7fd3a0;
-  --up-warn: #f08a6c;
-  --s-bg2: #22222a; --s-accent-ink: #15120a;
+  color-scheme: light;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -103,7 +75,7 @@ h1, h2, p { margin: 0; }
 .up-before { position: relative; }
 .up-after { clip-path: inset(0 0 0 50%); }
 .up-divider { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--up-accent); box-shadow: 0 0 0 1px rgba(0, 0, 0, .3); pointer-events: none; }
-.up-handle { position: absolute; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: var(--up-accent); color: #15120a; border: 3px solid #fff; box-shadow: 0 3px 14px rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; gap: 0; cursor: ew-resize; touch-action: none; }
+.up-handle { position: absolute; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: var(--up-accent); color: var(--s-accent-ink); border: 3px solid var(--up-panel); box-shadow: 0 3px 14px rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; gap: 0; cursor: ew-resize; touch-action: none; }
 .up-handle::before, .up-handle::after { content: ""; width: 7px; height: 7px; border: solid currentColor; border-width: 0 2.5px 2.5px 0; }
 .up-handle::before { transform: rotate(135deg); margin-right: 3px; }
 .up-handle::after { transform: rotate(-45deg); margin-left: 3px; }

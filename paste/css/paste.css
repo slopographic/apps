@@ -1,29 +1,28 @@
-/* Paste: tokens (light, then dark), the list and editor layout, and the highlighted code block.
+/* Paste: colours come from the shared Slop theme (--sl-* set by shared/theme/theme.js); the fallbacks are the Dark look.
+ * Then the list and editor layout, and the highlighted code block.
  * Wide (900 px and up): list | paste. Phone (390 px): one pane at a time, chosen by data-pane. */
 :root {
-  --pb-bg: #fbfaf6; --pb-panel: #f1efe8; --pb-line: #d9d5ca; --pb-fg: #1d1c19; --pb-dim: #5f5b52; --pb-faint: #8a857b;
-  --pb-accent: #3d6b00; --pb-hover: rgba(0, 0, 0, .05); --pb-on: rgba(61, 107, 0, .12); --pb-ink: #10180a;
-  --pb-danger: #b3261e; --pb-code: #f7f5ef;
-  --pb-k: #a2215f; --pb-s: #2b6e1c; --pb-n: #9a5b00; --pb-c: #7f8590; --pb-f: #1f5bb5; --pb-p: #0d5f7d; --pb-t: #b3261e; --pb-a: #8a4b00; --pb-h: #6a2fb5;
+  --pb-bg: var(--sl-background, #0e0e10); --pb-panel: var(--sl-surface, #17171b); --pb-line: var(--sl-border, #2c2c34);
+  --pb-fg: var(--sl-text, #f1ede4); --pb-dim: color-mix(in srgb, var(--pb-fg) 75%, transparent); --pb-faint: color-mix(in srgb, var(--pb-fg) 65%, transparent);
+  --pb-accent: var(--sl-accent, #d4ff3a); --pb-hover: color-mix(in srgb, var(--pb-fg) 7%, transparent);
+  --pb-on: color-mix(in srgb, var(--pb-accent) 14%, transparent); --pb-ink: var(--sl-on-accent, #10180a);
+  --pb-danger: #ff7b7b; --pb-code: color-mix(in srgb, var(--pb-fg) 8%, var(--pb-panel));
+  /* syntax colours: the dark set by default, the light set on the light and Classic 98 themes */
+  --pb-k: #ff9ec7; --pb-s: #b8e994; --pb-n: #ffcb6b; --pb-c: #7b7f8a; --pb-f: #82aaff; --pb-p: #9ad8ff; --pb-t: #ff7b7b; --pb-a: #f5c178; --pb-h: #c3a6ff;
   --pb-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
   --pb-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+}
+:root[data-slop-theme="light"], :root[data-slop-theme="classic"] {
+  --pb-danger: #b3261e;
+  --pb-k: #a2215f; --pb-s: #2b6e1c; --pb-n: #9a5b00; --pb-c: #7f8590; --pb-f: #1f5bb5; --pb-p: #0d5f7d; --pb-t: #b3261e; --pb-a: #8a4b00; --pb-h: #6a2fb5;
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --pb-bg: #0e0e10; --pb-panel: #17171b; --pb-line: #2c2c34; --pb-fg: #f1ede4; --pb-dim: #aaa59b; --pb-faint: #78746c;
-    --pb-accent: #d4ff3a; --pb-hover: rgba(255, 255, 255, .06); --pb-on: rgba(212, 255, 58, .12); --pb-ink: #10180a;
-    --pb-danger: #ff7b7b; --pb-code: #1c1c22;
-    --pb-k: #ff9ec7; --pb-s: #b8e994; --pb-n: #ffcb6b; --pb-c: #7b7f8a; --pb-f: #82aaff; --pb-p: #9ad8ff; --pb-t: #ff7b7b; --pb-a: #f5c178; --pb-h: #c3a6ff;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --pb-bg: #0e0e10; --pb-panel: #17171b; --pb-line: #2c2c34; --pb-fg: #f1ede4; --pb-dim: #aaa59b; --pb-faint: #78746c;
-  --pb-accent: #d4ff3a; --pb-hover: rgba(255, 255, 255, .06); --pb-on: rgba(212, 255, 58, .12); --pb-ink: #10180a;
-  --pb-danger: #ff7b7b; --pb-code: #1c1c22;
-  --pb-k: #ff9ec7; --pb-s: #b8e994; --pb-n: #ffcb6b; --pb-c: #7b7f8a; --pb-f: #82aaff; --pb-p: #9ad8ff; --pb-t: #ff7b7b; --pb-a: #f5c178; --pb-h: #c3a6ff;
-  color-scheme: dark;
+/* SlopUI dialogs, menus and toasts follow the Paste tokens (the shared --s-* fallbacks are fixed greys) */
+:root {
+  --sui-bg: var(--pb-panel); --sui-bg2: var(--pb-bg); --sui-input: var(--pb-bg); --sui-line: var(--pb-line);
+  --sui-fg: var(--pb-fg); --sui-dim: var(--pb-dim); --sui-faint: var(--pb-faint); --sui-hover: var(--pb-hover);
+  --sui-sel: var(--pb-on); --sui-accent: var(--pb-accent); --sui-accent-ink: var(--pb-ink);
 }
 [hidden] { display: none !important; }
 html, body { height: 100%; margin: 0; }

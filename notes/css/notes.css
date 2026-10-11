@@ -1,26 +1,25 @@
-/* Slop Notes: tokens (light, then dark), the three-pane layout, the note list, the editor and the preview.
+/* Slop Notes: colours come from the shared Slop theme (--sl-* set by shared/theme/theme.js); the fallbacks are the Dark look.
+ * The layout is below: the three-pane layout, the note list, the editor and the preview.
  * Wide (900 px and up): notebooks | notes | editor. Phone (390 px): one pane at a time, chosen by data-pane. */
 :root {
-  --nt-bg: #fbfaf6; --nt-panel: #f1efe8; --nt-line: #d9d5ca; --nt-fg: #1d1c19; --nt-dim: #5f5b52; --nt-faint: #8a857b;
-  --nt-accent: #3d6b00; --nt-hover: rgba(0, 0, 0, .05); --nt-on: rgba(61, 107, 0, .12); --nt-ink: #10180a;
-  --nt-danger: #b3261e; --nt-code: #f1efe8;
+  --nt-bg: var(--sl-background, #0e0e10); --nt-panel: var(--sl-surface, #17171b); --nt-line: var(--sl-border, #2c2c34);
+  --nt-fg: var(--sl-text, #f1ede4); --nt-dim: color-mix(in srgb, var(--nt-fg) 75%, transparent); --nt-faint: color-mix(in srgb, var(--nt-fg) 65%, transparent);
+  --nt-accent: var(--sl-accent, #d4ff3a); --nt-hover: color-mix(in srgb, var(--nt-fg) 7%, transparent);
+  --nt-on: color-mix(in srgb, var(--nt-accent) 14%, transparent); --nt-ink: var(--sl-on-accent, #10180a);
+  --nt-danger: #ff7b7b; --nt-code: color-mix(in srgb, var(--nt-fg) 8%, var(--nt-panel));
   --nt-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
   --nt-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+}
+:root[data-slop-theme="light"], :root[data-slop-theme="classic"] {
+  --nt-danger: #b3261e;
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --nt-bg: #0e0e10; --nt-panel: #17171b; --nt-line: #2c2c34; --nt-fg: #f1ede4; --nt-dim: #aaa59b; --nt-faint: #78746c;
-    --nt-accent: #d4ff3a; --nt-hover: rgba(255, 255, 255, .06); --nt-on: rgba(212, 255, 58, .12); --nt-ink: #10180a;
-    --nt-danger: #ff7b7b; --nt-code: #222228;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --nt-bg: #0e0e10; --nt-panel: #17171b; --nt-line: #2c2c34; --nt-fg: #f1ede4; --nt-dim: #aaa59b; --nt-faint: #78746c;
-  --nt-accent: #d4ff3a; --nt-hover: rgba(255, 255, 255, .06); --nt-on: rgba(212, 255, 58, .12); --nt-ink: #10180a;
-  --nt-danger: #ff7b7b; --nt-code: #222228;
-  color-scheme: dark;
+/* SlopUI dialogs, menus and toasts follow the Notes tokens (the shared --s-* fallbacks are fixed greys) */
+:root {
+  --sui-bg: var(--nt-panel); --sui-bg2: var(--nt-bg); --sui-input: var(--nt-bg); --sui-line: var(--nt-line);
+  --sui-fg: var(--nt-fg); --sui-dim: var(--nt-dim); --sui-faint: var(--nt-faint); --sui-hover: var(--nt-hover);
+  --sui-sel: var(--nt-on); --sui-accent: var(--nt-accent); --sui-accent-ink: var(--nt-ink);
 }
 [hidden] { display: none !important; }
 html, body { height: 100%; margin: 0; }
