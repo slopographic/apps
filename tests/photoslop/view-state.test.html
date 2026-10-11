@@ -24,7 +24,7 @@
     it('keeps the zoom and hidden panels after leaving for Slop Drive and coming back', async () => {
       let W = await open('../../photoslop/index.html');
       await W.autosave();
-      W.D.dirty = false; // saved to this device just now, so the leave-page prompt does not hold the navigation
+      W.eval('D.dirty = false'); // saved to this device just now, so the leave-page prompt does not hold the navigation
       W.setZoom(2);
       W.dirty();
       W.document.body.classList.add('no-panels');
