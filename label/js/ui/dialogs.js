@@ -43,8 +43,9 @@ function labelSetupDialog(target) {
     mk('div', null, mk('div', { class: 'sec-h' }, 'Stock'), list, info),
     mk('div', { class: 'dlg-form' }, mk('div', { class: 'sec-h' }, 'Label'), dRow('Name', name), dRow('Units', unit), dRow('Width', W), dRow('Height', H), dRow('Gap (mm)', gap), dRow('Corners (mm)', rad),
       mk('div', { class: 'sec-h' }, 'Printer'), dRow('Resolution', dpi), dRow('Darkness 0–30', dark), dRow('Speed (ips)', speed), dRow('Media', media), dRow('Method', method), rot.el));
+  SlopFormReset.snapshot(body);
   return new Promise((res) => SlopUI.dialog({ title: 'Label setup', cls: 'sl-wide', body, onClose: (ok) => res(ok),
-    buttons: [{ label: 'Cancel' }, { label: 'Apply', primary: true, act: () => {
+    buttons: [{ label: 'Cancel' }, SlopFormReset.dialogButton(body), { label: 'Apply', primary: true, act: () => {
       const w = toMM(+W.value, unit.value, +dpi.value), h = toMM(+H.value, unit.value, +dpi.value);
       if (!(w >= 1 && h >= 1 && w <= 2000 && h <= 2000)) { SlopUI.toast('Enter a label size between 1 and 2000 mm'); return false; }
       const apply = (x) => {
@@ -80,8 +81,9 @@ function varDialog(v, type) {
   };
   const body = mk('div', { class: 'dlg-form' }, dRow('Name', name), mk('p', { class: 'hint' }, VAR_TYPES[draft.type] + ' · use it as {' + draft.name + '} in text and barcodes.'), ...rows, prev);
   body.addEventListener('input', upd); body.addEventListener('change', upd); upd();
+  SlopFormReset.snapshot(body);
   return new Promise((res) => SlopUI.dialog({ title: (isNew ? 'New ' : 'Edit ') + VAR_TYPES[draft.type].toLowerCase(), body, onClose: (ok) => { if (!ok) res(null); },
-    buttons: [{ label: 'Cancel' }, { label: isNew ? 'Add' : 'Save', primary: true, act: () => {
+    buttons: [{ label: 'Cancel' }, SlopFormReset.dialogButton(body), { label: isNew ? 'Add' : 'Save', primary: true, act: () => {
       const x = read();
       if (!VAR_NAME_RE.test(x.name)) { SlopUI.toast('Names start with a letter and use letters, digits, spaces, _ . -'); return false; }
       if (App.doc.vars.some((y) => y.name === x.name && y.id !== x.id) || ['LABEL_NO', 'RECORD_NO', 'TODAY', 'NOW'].includes(x.name)) { SlopUI.toast('That name is already used'); return false; }

@@ -19,7 +19,7 @@
   }
   /** The real themes. Every theme has all five tokens; System resolves to one of these. */
   var THEMES = Object.freeze([
-    th('light', 'Light', 'light', '#ebe7de', '#f8f6f1', '#0a0a0a', '#5f7d00', '#dcd6c9'),
+    th('light', 'Light', 'light', '#ebe7de', '#f8f6f1', '#0a0a0a', '#4f6c00', '#dcd6c9'),
     th('dark', 'Dark', 'dark', '#0a0a0a', '#151518', '#f1ede4', '#d4ff3a', '#2a2a30'),
     th('classic', 'Classic 98', 'light', '#c0c0c0', '#ffffff', '#000000', '#000080', '#808080'),
     th('lime', 'Slopographic Lime', 'dark', '#0d1206', '#171f0c', '#f1ffb8', '#d4ff3a', '#33461a'),
@@ -56,6 +56,9 @@
     vector: { key: 'slopvector.theme', fmt: 'raw', native: STD },
     label: { key: 'sloplabel-theme', fmt: 'raw', native: STD },
     contacts: { key: null, native: DARK_CSS },
+    convert: { key: null, native: DARK_CSS },
+    music: { key: null, native: DARK_CSS },
+    photoslop: { key: 'slopshop.theme', fmt: 'json', native: { light: 'light', dark: 'pro', classic: 'paint', lime: 'pro' } },
   };
 
   /* Overrides for the app pages: surface, text and accent only (apps keep their own background and borders). The homepage

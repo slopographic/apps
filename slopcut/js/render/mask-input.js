@@ -19,6 +19,8 @@
   const toast = (m) => SlopUI.toast(m);
   const eligible = (c) => !!c && KINDS.includes(c.kind);
   const stop = (e) => { e.preventDefault(); e.stopImmediatePropagation(); };
+  /** Keep the pointer on the monitor during a drag (ignored for synthetic or finished pointers). */
+  const capture = (e) => { try { stage.setPointerCapture(e.pointerId); } catch (err) { /* no active pointer */ } };
   /** One undo step: the mask of clip id becomes `mask` (or none). */
   function commit(label, id, mask, { tool = false } = {}) {
     SE.change(label, (p) => { const c = M.clip(p, id); if (c) c.mask = MK.clean(mask); });
@@ -95,7 +97,7 @@
       if (MI.tool === 'pen') return penDown(e, c, q);
       if (MI.tool === 'free') { drag = { kind: 'free', id: c.id, pts: [q] }; MI.pending = { kind: 'free', id: c.id, pts: drag.pts }; }
       else { drag = { kind: 'box', id: c.id, shape: MI.tool, a: q, b: q }; MI.pending = { kind: 'box', id: c.id, shape: MI.tool, a: q, b: q }; }
-      stage.setPointerCapture(e.pointerId);
+      capture(e);
       return;
     }
     if (!c || !c.mask || MI.edit !== c.id) return;
@@ -109,7 +111,7 @@
       stop(e);
       drag = { kind: 'move', id: c.id, q0: q, s0: { x: m.x, y: m.y }, p0: m.pts.map((p) => ({ x: p.x, y: p.y })), label: 'Move mask' };
     } else return;
-    stage.setPointerCapture(e.pointerId);
+    capture(e);
   }
   function move(e) {
     if (!drag) { if (MI.tool && stage) stage.style.cursor = 'crosshair'; return; }

@@ -38,9 +38,15 @@
   }
 
   /** The file picker (several files at once). */
-  async function importPick() {
-    const files = await UI.pickFiles({ accept: ACCEPT, multiple: true });
-    if (files && files.length) await importFiles(files);
+  function importPick() {
+    const ex = SlopExamples.info('contacts');
+    UI.dialog({ title: 'Import contacts', body: el('div', null, el('p', { class: 'sui-p' }, 'vCard, CSV (Google or Outlook layout) or .scontacts. Each contact is added; exact duplicates merge.'),
+      el('p', { class: 'sui-p' }, ex.note), el('p', { class: 'sui-p' }, 'Columns: ' + ex.columns.join(', ') + '.'),
+      el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('contacts') }, 'Download example CSV')),
+    buttons: [{ label: 'Cancel' }, { label: 'Choose files…', primary: true, act: async () => {
+      const files = await UI.pickFiles({ accept: ACCEPT, multiple: true });
+      if (files && files.length) await importFiles(files);
+    } }] });
   }
 
   /** Downloads one export for a scope: a set of ids, or null for every contact. */

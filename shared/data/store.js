@@ -7,7 +7,7 @@
   const ns = (g.SlopData = g.SlopData || {});
   const { ok, fail, isResult } = ns.result;
   const DB_NAME = 'slop-data';
-  const DB_VERSION = 2; // 2 adds the exchangeRates store. Every version needs an entry in UPGRADES below.
+  const DB_VERSION = 3; // 2 adds exchangeRates; 3 adds customerGroups and customerTags. Every version needs an entry in UPGRADES below.
   const subs = new Set();
   let dbH = null, dbP = null, readyP = null, bc = null;
   const all = () => ns.schema.COLLECTIONS;
@@ -44,8 +44,8 @@
       for (const ix of d.indexes || []) st.createIndex(ix.name, ix.key, { unique: !!ix.unique, multiEntry: !!ix.multi });
     }
   }
-  /** Upgrade steps keyed by the version they reach. v1 -> v2 adds exchangeRates. Records are migrated in seedDefaults. */
-  const UPGRADES = { 1: createStores, 2: createStores };
+  /** Upgrade steps keyed by the version they reach. v1 -> v2 adds exchangeRates, v2 -> v3 the CRM label stores. Records are migrated in seedDefaults. */
+  const UPGRADES = { 1: createStores, 2: createStores, 3: createStores };
 
   function openDb() {
     if (dbH) return Promise.resolve(dbH);

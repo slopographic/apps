@@ -13,6 +13,8 @@
   <meta name="description" content="Reel Remix: drop clips and photos, press Remix, and get a random edit with grids, layout switches and export presets. Nothing is uploaded.">
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="../shared/video/lane.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="css/remix.css">
   <script>try { if (matchMedia('(prefers-color-scheme: dark)').matches && !document.documentElement.dataset.theme) document.documentElement.dataset.theme = 'dark'; } catch (e) {}</script>
 </head>
@@ -21,6 +23,7 @@
     <b>Reel Remix</b>
     <a class="rm-home" href="../">slopographic</a>
     <span class="rm-note">Nothing is uploaded. The edit is planned on this device.</span>
+    <button id="rm-config" type="button" class="rm-btn" title="Export or import the reel as a .slop.json config, or ask an AI to write one">Config</button>
   </header>
   <main class="rm-main">
     <aside class="rm-bin" aria-label="Media">
@@ -124,6 +127,16 @@
   <script src="js/export.js"></script>
   <script src="js/send.js"></script>
   <script src="js/panel.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/config/schema.js"></script>
+  <script src="../shared/config/validate.js"></script>
+  <script src="../shared/config/io.js"></script>
+  <script src="../shared/config/prompt.js"></script>
+  <script src="../shared/config/dialog.js"></script>
+  <script src="../shared/config/dialog-ai.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="js/config-map.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/ui.js"></script>
   <script src="../shell/shell.js"></script>
 </body>

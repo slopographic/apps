@@ -24,12 +24,17 @@
       } else { URL.revokeObjectURL(url); resolve(null); }
     });
   }
-  /** Add files to the bin. Returns the number added. Does not re-plan (Remix does that). */
+  /** Add files to the bin. A file with the name of a missing clip fills that clip (same id, so the plan keeps it).
+   *  Returns the number added. Does not re-plan (the caller does that when a clip was filled). */
   RM.addFiles = async function (files) {
     let n = 0;
     for (const f of [...files]) {
       const it = await load(f);
-      if (it) { RM.state.items.push(it); n++; }
+      if (!it) continue;
+      const hole = RM.state.items.find((x) => x.missing && x.name === f.name);
+      if (hole) Object.assign(hole, { kind: it.kind, dur: it.dur, w: it.w, h: it.h, url: it.url, el: it.el, file: f, missing: false });
+      else RM.state.items.push(it);
+      n++;
     }
     return n;
   };

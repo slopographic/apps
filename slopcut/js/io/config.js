@@ -5,7 +5,7 @@
    commands. Loaded after ui/commands.js and io/config-map.js. */
 (function () {
   'use strict';
-  const SE = window.SE, U = SE.util, L = SE.media, CM = SE.configMap, C = window.SlopConfig, D = window.SlopConfigDialog;
+  const SE = window.SE, U = SE.util, CM = SE.configMap, C = window.SlopConfig, D = window.SlopConfigDialog;
   const APP = 'slopedit';
   const MB = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1e3)) + ' KB');
 
@@ -40,7 +40,7 @@
   async function apply(d) {
     const p = SE.doc, created = [];
     const parts = CM.fromData(d, resolver(p, created));
-    for (const m of created) L.addMissing(m);
+    for (const m of created) SE.media.addMissing(m);
     SE.change('Import config', (doc) => {
       Object.assign(doc, { w: parts.w, h: parts.h, fps: parts.fps, tracks: parts.tracks, clips: parts.clips, markers: parts.markers });
       for (const m of created) doc.media.push(m);
@@ -48,7 +48,7 @@
     SE.app.select([]);
     // every file the timeline uses that is not ready yet: listed so the person can add it
     const used = new Set(parts.clips.map((c) => c.media).filter(Boolean));
-    const missing = SE.doc.media.filter((m) => used.has(m.id) && (!L.get(m.id) || L.get(m.id).status !== 'ready'));
+    const missing = SE.doc.media.filter((m) => used.has(m.id) && (!SE.media.get(m.id) || SE.media.get(m.id).status !== 'ready'));
     askForMedia(missing);
   }
 

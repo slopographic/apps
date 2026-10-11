@@ -32,6 +32,8 @@ const MENUS = [
     { label: 'Cut', key: 'Ctrl+X', act: () => cutSel(), need: 'layer' },
     { label: 'Copy', key: 'Ctrl+C', act: () => copySel(false), need: 'layer' },
     { label: 'Copy Merged', key: 'Shift+Ctrl+C', act: () => copySel(true) },
+    { label: 'Copy to Buffer', act: () => copyToBuffer(false), need: 'layer' },
+    { label: 'Copy Merged to Buffer', act: () => copyToBuffer(true) },
     { label: 'Paste', key: 'Ctrl+V', act: () => pasteFromSystem(false) },
     { label: 'Paste in Place', key: 'Shift+Ctrl+V', act: () => pasteFromSystem(true) },
     { label: 'Clear', key: 'Delete', act: () => clearSelectionPixels(), en: () => !!D.sel },
