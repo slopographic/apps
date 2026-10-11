@@ -55,7 +55,7 @@ test('a custom 2x3 grid fills six slots (rows x columns)', () => {
   for (const beat of p.cuts) same(beat.map((x) => x.slot), [0, 1, 2, 3, 4, 5]);
 });
 test('named templates keep their ids; grid ids resolve', () => {
-  same(SV.templates.list.map((t) => t.id), ['single', 'split-h', 'split-v', 'pip', 'grid2', 'grid3', 'three-up', 'reel']);
+  same(SV.templates.list.map((t) => t.id), ['single', 'split-h', 'split-v', 'pip', 'grid2', 'grid3', 'three-up', 'reel', 'title-two']);
   assert.equal(SV.templates.get('grid-1x2').slots.length, 2);
   assert.equal(SV.templates.get('2x2').id, 'grid-2x2');
   assert.equal(SV.templates.get('grid-9x9'), null);

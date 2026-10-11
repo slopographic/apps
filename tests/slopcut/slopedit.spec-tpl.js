@@ -33,7 +33,7 @@
         if (t.layered) t.slots.forEach((r) => expect(r.x >= 0 && r.y >= 0 && r.x + r.w <= 1 && r.y + r.h <= 1).toBe(true));
         else expect(T.tiles(t)).toBe(true);
       }
-      expect(T.list.map((t) => t.id)).toEqual(['single', 'split-h', 'split-v', 'pip', 'grid2', 'grid3', 'three-up', 'reel']);
+      expect(T.list.map((t) => t.id)).toEqual(['single', 'split-h', 'split-v', 'pip', 'grid2', 'grid3', 'three-up', 'reel', 'title-two']);
       expect(T.get('grid3').slots.length).toBe(9);
       expect(T.get('reel').aspect).toBe('9:16');
     });
@@ -234,7 +234,7 @@
       key(win, 'G', { shiftKey: true });
       expect(SE.bin.tab).toBe('templates');
       await waitFor(() => doc.querySelector('.tp-panel'));
-      expect(doc.querySelectorAll('.tp-tile:not(.tp-custom)').length).toBe(8);
+      expect(doc.querySelectorAll('.tp-tile:not(.tp-custom)').length).toBe(10);
       expect(doc.querySelectorAll('.tp-custom').length).toBe(1);
       SE.bin.tab = 'media'; SE.bin.render();
       doc.querySelectorAll('.menu-b')[3].click();

@@ -3,7 +3,7 @@
    dashed box on its track over the layout's time span. Slot i is video track i (V(i+1)). */
 (function () {
   'use strict';
-  const SE = window.SE, U = SE.util, M = SE.model, L = SE.layout, T = SE.templates, TL = SE.timeline, SV = window.SlopVideo;
+  const SE = window.SE, U = SE.util, M = SE.model, L = SE.layout, T = SE.templates, SV = window.SlopVideo; // SE.timeline loads later: read it at call time
   const C = SE.cells = {};
   const MIME_MEDIA = 'application/x-slopedit-media';
   let stage = null, ov = null;
@@ -42,7 +42,7 @@
 
   /** Empty slots on the timeline: a dashed box on the slot's track over the layout's time span. */
   C.drawTimeline = function (g, col) {
-    const lay = SE.doc.layout;
+    const lay = SE.doc.layout, TL = SE.timeline;
     if (!lay) return;
     const vts = M.videoTracks(SE.doc);
     lay.slots.forEach((id, i) => {
