@@ -66,7 +66,14 @@ function dlgAbout() {
 
 /* ---------- themes ---------- */
 const theme = () => document.documentElement.dataset.theme || 'pro';
-function setTheme(t) { document.documentElement.dataset.theme = t; store.set('theme', t); const m = $('meta[name=theme-color]'); if (m) m.content = t === 'paint' ? '#008080' : t === 'light' ? '#e8e8e8' : '#1d1d1d'; dirty(); emit('theme'); }
+/* The in-app Theme menu is the shared switcher: Pro is the shared Dark, Light is Light, Paint '98 is Classic 98. Lime and Dark
+ * both use data-theme "pro", so the menu saves the shared choice itself (SlopTheme.set) rather than its own key alone. */
+const SHARED_OF = { pro: 'dark', light: 'light', paint: 'classic' };
+function setTheme(t) {
+  const shared = window.SlopTheme && SHARED_OF[t];
+  if (!shared || !SlopTheme.set(SHARED_OF[t]).ok) { document.documentElement.dataset.theme = t; store.set('theme', t); if (shared) SlopTheme.apply(SHARED_OF[t]); }
+  dirty(); emit('theme');
+}
 
 /* ---------- keyboard ---------- */
 const TOOL_KEYS = {};
