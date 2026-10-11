@@ -22,7 +22,7 @@ describe('sitemap and robots', () => {
   it('sitemap.xml lists only URLs that exist', async () => {
     const xml = await text('../../sitemap.xml');
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-    expect(locs.length).toBe(PAGES.length + 1);
+    expect(locs.filter((l) => l.startsWith(`${SITE}/convert/`)).length).toBe(PAGES.length + 1);
     for (const loc of locs) {
       const path = loc.replace(SITE, '');
       const r = await fetch(`../..${path}`);

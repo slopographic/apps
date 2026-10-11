@@ -78,12 +78,33 @@ Slop Code takes no files from the computer (its drop only moves tree items), so 
 Pages that open the Config import dialog load the three scripts (13 pages: effects, tables, slopvector, label, slides, 3d,
 slopisolate, photoslop, docs, calendar, slopcut, todo, remix). Without them the dialog has no zone and works as before.
 
+## Missing elements (why a call can fail)
+
+`attach(zone, o)` returns `null` when `zone` is missing (nothing is attached, no error). A `targets` entry that is missing
+(`$('some-id')` returns null) is skipped; with no target left, the zone itself takes the drops, so the zone always works.
+The first version of this module threw `Cannot read properties of null (reading 'addEventListener')` when a target was
+null. The cause was in Slop Resize: `resize/js/app/main.js` passed `targets: [$('rs-left')]`, but the column was a class
+(`class="rs-left"`), not an id. The column now has `id="rs-left"`. Drive, Upscale and the config dialog were checked: their
+zones exist (or are created) before attach, and attach runs after DOMContentLoaded, so they were not the cause.
+
 ## Tests
 
-- `node tests/run.mjs drop`: `tests/node/drop-rules.test.mjs` (accept and refuse rules, drag-time labels, toast words, sizes)
+- `node tests/run.mjs drop`: `tests/node/drop.test.mjs` (a refused file and a limit through a drop, a reader error as a row,
+  `attach` with a missing zone (null, no throw) and with a missing target (skipped; the zone takes drops when none is left),
+  destroy, the drag label for `any: true`), `tests/node/drop-rules.test.mjs` (accept and refuse rules, drag-time labels, toast words, sizes)
   and the browser pages `tests/shared/drop.test.html` (zone, refusal toast, limit, progress, files hook, window off, `.sd-over`)
+  `tests/drop/drop-apps.test.html` (real apps in iframes, simulated DataTransfer drops: a picture on Drive's pane is added
+  to the folder with a highlight, a progress row and the toast; on Remix's stage it is added to the bin; on Upscale's stage it
+  is opened (Run enabled) and a second file is refused; on Resize's column it is queued),
   and `tests/remix/remix-drop.test.html` (a picture dropped on the stage shows a progress row, then the new clip in the bin;
   a refused file is named in the toast; a drop outside the bin and stage says where to drop).
+
+## Fixes in this round
+
+- Upscale `open()` called `updateButtons()` after `return true`, so Run stayed disabled after a picture was opened (by drop
+  or by Open). Moved before the return.
+- `R.maybeOk` ignored `rules.any`, so Drive's drag label said "(N will be refused)" for every type it takes. Fixed.
+- Resize's column id (above).
 
 ## Limits
 

@@ -31,7 +31,8 @@
    *   begin(files)?: before the first file is read. done(summary)?: after the last one, summary = { added: [{ name,
    *     value }], skipped: [{ name, reason }] }. reveal(summary)?: returns the element to scroll into view and flash.
    *   files?(dataTransfer) → File[] (or a Promise of one): the files of a drop, when the app reads them itself (folders).
-   *   targets?: elements that take drops (default: the zone). They are outlined while a file drag is over the window.
+   *   targets?: elements that take drops (default: the zone). A null in the list (a missing element) is skipped; with none
+   *     left, the zone takes the drops. They are outlined while a file drag is over the window.
    *   input?: an existing <input type=file> to use for Choose files (its change event runs the same batch).
    *   limit?: most files taken in one drop (the rest are refused with a reason). overlay?: false to skip the outlines
    *     and label (for an app that marks its own drop areas). window?: false leaves the rest of the page alone: only the

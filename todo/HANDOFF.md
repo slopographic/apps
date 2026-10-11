@@ -33,8 +33,8 @@ read-only layer (toggle on the calendar page), and completing a task in either a
 ## Config kind `todo`
 - `tasks`: a list, with subtasks nested under each parent. Import validates (a due time needs a due date, a repeat needs a due
   date, zones must be real), then adds in one transaction.
-- Not yet usable from the Config menu: the config format refuses an app id that is not in shared/apps.js, and To-do has no
-  registry entry yet. That entry needs approval (the one-entry limit on shared/apps.js).
+- Config menu: works. The registry entry is in shared/apps.js (id `todo`), so the config format accepts the kind.
+- The editor's inputs use ids `teTitle` and `teList`. `tTitle` and `tList` are the page's own elements, so the ids must not repeat.
 
 ## Keys (SlopCmd)
 - `t` Today, `u` Upcoming, `a` All, `n` new task, `f` find, `h` show done. Palette commands go to the Calendar and Reminders too.
