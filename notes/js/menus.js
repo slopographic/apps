@@ -1,8 +1,25 @@
-/* Right-click and keyboard menus for notebooks, folders and notes, and the Export menu. Items call the actions. */
+/* Right-click and keyboard menus for notebooks, folders, notes and the note source, and the Export menu. Items call the
+ * actions. F2 on a notebook, folder or note renames it (renameFocused). */
 import * as A from './actions.js';
 import { S, byId, curNote } from './state.js';
+import { blockItems } from './blocks.js';
 
 const key = (id) => (window.SlopCtx ? SlopCtx.keyFor(id) : '');
+
+/** The export choices for one note: each format once, then the whole notebook as a zip. The Export button and the
+ * right-click menu both use this list. */
+export function exportItems(n) {
+  return [
+    { label: 'Export as Markdown (.md)', act: () => A.exportNote(n, 'md') },
+    { label: 'Export as HTML (.html)', act: () => A.exportNote(n, 'html') },
+    { label: 'Export as plain text (.txt)', act: () => A.exportNote(n, 'txt') },
+    { label: 'Export as PDF (print view)', act: () => A.exportNote(n, 'pdf') },
+    { label: 'Export as Word (.doc)', act: () => A.exportNote(n, 'doc') },
+    '-',
+    { label: 'Whole notebook as Markdown (.zip)', act: () => A.exportNotebook(n.notebook, 'md') },
+    { label: 'Whole notebook as HTML (.zip)', act: () => A.exportNotebook(n.notebook, 'html') },
+  ];
+}
 
 /** The menu for one item. kind is 'notebook', 'folder' or 'note'; id is its Drive id. */
 export function menuFor(kind, id) {
@@ -14,6 +31,10 @@ export function menuFor(kind, id) {
       { label: 'New note here', act: () => { A.selectNotebook(id); A.newNote(); } },
       { label: 'New folder…', act: () => { A.selectNotebook(id); A.newFolder(null); } },
       { label: 'Rename…', act: () => A.rename(nb) },
+      { label: 'Export notebook', sub: [
+        { label: 'As Markdown files (.zip)', act: () => A.exportNotebook(id, 'md') },
+        { label: 'As HTML files (.zip)', act: () => A.exportNotebook(id, 'html') },
+      ] },
       '-',
       { label: 'Move to Trash…', act: () => A.remove(nb) },
     ];
@@ -39,11 +60,11 @@ export function menuFor(kind, id) {
     return [
       { label: 'Open note', act: () => A.selectNote(id) },
       { label: n.pinned ? 'Unpin' : 'Pin to top', key: key('notes.pin'), act: () => A.togglePin(n) },
+      { label: 'Rename…', act: () => A.rename(n) },
       { label: 'Move to folder', sub: toFolders },
       ...(toBooks.length ? [{ label: 'Move to notebook', sub: toBooks }] : []),
       '-',
-      { label: 'Export as Markdown (.md)', act: () => A.exportNote(n, 'md') },
-      { label: 'Export as HTML (.html)', act: () => A.exportNote(n, 'html') },
+      { label: 'Export', sub: exportItems(n) },
       '-',
       { label: 'Move to Trash…', key: key('notes.delete'), act: () => A.remove(n) },
     ];
@@ -54,15 +75,25 @@ export function menuFor(kind, id) {
 /** The Export button's menu, for the current note. */
 export function exportMenu() {
   const n = curNote();
-  if (!n) return null;
-  return [
-    { label: 'Export as Markdown (.md)', act: () => A.exportNote(n, 'md') },
-    { label: 'Export as HTML (.html)', act: () => A.exportNote(n, 'html') },
-  ];
+  return n ? exportItems(n) : null;
 }
 
-/** Resolves the menu for a right-click or Menu key target (the nearest item with data-kind). */
+/** The menu for a right-click or Menu key target: the note source offers the blocks; otherwise the nearest item with
+ * data-kind offers its own menu. */
 export function resolveMenu(target) {
+  if (target && target.id === 'nt-body') return blockItems();
   const item = target && target.closest ? target.closest('[data-kind]') : null;
   return item ? menuFor(item.dataset.kind, item.dataset.id) : null;
+}
+
+const LISTS = { notebook: () => S.notebooks, folder: () => S.folders, note: () => S.notes };
+
+/** F2 on a notebook, folder or note renames it. Returns true when it did. */
+export function renameFocused(target) {
+  const item = target && target.closest ? target.closest('[data-kind]') : null;
+  const list = item && LISTS[item.dataset.kind] ? LISTS[item.dataset.kind]() : null;
+  const x = list && byId(list, item.dataset.id);
+  if (!x) return false;
+  A.rename(x);
+  return true;
 }
