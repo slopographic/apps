@@ -27,7 +27,7 @@
     if (r.isFolder) return 'folder';
     const t = (r.type || '').toLowerCase(), e = ext(r.name);
     if (e === 's3d' || t === 'application/x-slop-3d') return 'model';
-    if (e in DOC_COLOR || /x-slop-(doc|table|slides|invoice)/.test(t)) return 'doc';
+    if (DOC_COLOR[e] || /x-slop-(doc|table|slides|invoice)/.test(t)) return 'doc';
     if (t === 'image/vnd.adobe.photoshop' || t === 'application/x-openraster' || DESIGN_EXT.includes(e)) return 'design';
     if (t.startsWith('image/')) return 'image';
     if (t === 'application/pdf' || e === 'pdf') return 'pdf';
