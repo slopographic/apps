@@ -32,6 +32,10 @@
       accepts: ['video/*', 'audio/*', 'image/*'],
       features: ['Multi-track timeline', 'Trim, split, transitions & titles', 'Hardware MP4 export (WebCodecs)', 'Offline .html'],
       shot: 'assets/shots/slopedit.jpg', icon: 'film', status: 'building' }),
+    A('drive', 'app', 'Slop Drive', 'drive/', 'Every file from every app, in one local drive.', {
+      accepts: ['*'],
+      features: ['Folders, stars, Trash & search', 'Grid, list, columns, node graph & disk usage', 'Duplicate finder', 'One-file backup & restore'],
+      shot: 'assets/shots/drive.jpg', icon: 'folder', status: 'beta' }),
     A('platformer', 'game', 'Sloppo Land', 'games/platformer/', 'A 3D platformer across goo-soaked worlds.', { shot: 'assets/shots/platformer.jpg', status: 'beta' }),
     A('sloppo-bird', 'game', 'Sloppo Bird', 'games/sloppo-bird/', 'Tap to bloop. Do not touch the pipes.', { shot: 'assets/shots/sloppo-bird.jpg' }),
     A('runner', 'game', 'Sloppo Run', 'games/runner/', 'Endless running through the slopverse.', { shot: 'assets/shots/runner.jpg', status: 'beta' }),

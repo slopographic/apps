@@ -86,7 +86,8 @@
   DR.openWith = async function (r, appId) {
     if (!r || r.isFolder) return;
     const app = H().appById(appId);
-    await H().update(r.id, { opened: Date.now() }, { touch: false });
+    r.opened = Date.now();
+    await H().update(r.id, { opened: r.opened }, { touch: false });
     await H().sendTo(appId, null, r.name, { id: r.id });
     DR.toast(`Opened in ${app ? app.name : appId}`);
   };
