@@ -32,8 +32,7 @@
     });
     return backupP;
   }
-  let leaving = false;
-  function reload() { leaving = true; location.reload(); }
+  function reload() { window.SlopGuard.reload(); }
 
   let showing = null;
   /** Show the dialog. Resolves with 'export' | 'reload' | 'cancel' (after the dialog closes). */
@@ -81,5 +80,5 @@
     return '';
   });
 
-  window.SlopGuard = { show, isHardReload, enabled, setEnabled, setUnsaved, hasUnsaved, MSG, ROOT };
+  window.SlopGuard = { show, isHardReload, enabled, setEnabled, setUnsaved, hasUnsaved, MSG, ROOT, reload: () => location.reload() };
 })();

@@ -1,4 +1,4 @@
-/* Sloppo, the homepage mascot (home/mascot/). Tokens come from style.css. */
+/* Sloppo, the homepage mascot (home/mascot/). Tokens come from style/base.css. */
 body.has-sloppo { position: relative; }
 .sloppo-layer { position: absolute; inset: 0; z-index: 15; overflow: clip; pointer-events: none; }
 .sloppo { position: absolute; left: 0; top: 0; will-change: transform; }

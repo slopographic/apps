@@ -1,0 +1,95 @@
+/* Slopographic site styles, part 2: the Authenticator. Tokens are in style/base.css. */
+
+/* ---------- authenticator ---------- */
+
+.page-title {
+  margin: 0 0 16px;
+  font-family: var(--cond);
+  font-stretch: 62%;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: clamp(64px, 13vw, 180px);
+  line-height: 0.85;
+}
+.page-title em { text-transform: none; color: var(--slop); font-size: 1.05em; letter-spacing: -0.02em; }
+.hero.small .lede { max-width: 36em; }
+
+.detector { max-width: 1400px; margin: 0 auto; padding: 0 24px 60px; }
+.detector > * { max-width: 900px; }
+textarea {
+  width: 100%;
+  min-height: 200px;
+  resize: vertical;
+  background: var(--ink-2);
+  color: var(--bone);
+  border: 1px solid var(--line);
+  padding: 16px 18px;
+  font: inherit;
+  line-height: 1.55;
+}
+textarea::placeholder { color: var(--bone-faint); font-family: var(--serif); font-style: italic; font-size: 19px; }
+.detect-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+
+.cert {
+  position: relative;
+  margin-top: 10px;
+  padding: 26px;
+  background: var(--bone);
+  color: var(--ink);
+  outline: 1px solid var(--bone);
+  outline-offset: 5px;
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.cert-head, .cert-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.cert-head { padding-bottom: 14px; border-bottom: 1px solid rgba(10, 10, 10, 0.2); }
+.cert-foot { padding-top: 14px; margin-top: 18px; border-top: 1px solid rgba(10, 10, 10, 0.2); color: rgba(10, 10, 10, 0.6); }
+.cert-main { display: flex; gap: 24px; align-items: center; padding: 22px 0 6px; position: relative; }
+.score { font-family: var(--cond); font-stretch: 62%; font-weight: 900; font-size: 120px; line-height: 0.8; font-variant-numeric: tabular-nums; }
+.score small { font-size: 48px; }
+.score p { margin: 8px 0 0; font-family: var(--mono); font-weight: 400; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; }
+.verdict { flex: 1; min-width: 0; }
+.tier { font-family: var(--serif); font-style: italic; font-size: 34px; line-height: 1.05; }
+#tier-blurb { margin: 6px 0 12px; color: rgba(10, 10, 10, 0.7); }
+.bar { height: 6px; background: rgba(10, 10, 10, 0.12); }
+#bar-fill { height: 100%; width: 0; background: var(--ink); transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+.stamp {
+  flex: none;
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 14px;
+  font-family: var(--cond);
+  font-stretch: 75%;
+  font-weight: 900;
+  font-size: 17px;
+  line-height: 1;
+  text-transform: uppercase;
+  transform: rotate(-14deg);
+  border: 3px double currentColor;
+}
+.stamp.genuine { color: var(--ink); background: var(--slop); box-shadow: 0 0 0 4px var(--slop); }
+.stamp.fake { color: #c1121f; }
+
+.cert h3 { font-family: var(--mono); font-weight: 400; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em; margin: 22px 0 8px; color: rgba(10, 10, 10, 0.6); }
+#tells { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+#tells li { border: 1px solid rgba(10, 10, 10, 0.25); border-radius: 999px; padding: 3px 10px; font-size: 13px; }
+#tells li b { font-family: var(--mono); font-weight: 600; }
+#tells .none { color: rgba(10, 10, 10, 0.6); border-style: dashed; }
+#annotated { white-space: pre-wrap; background: rgba(10, 10, 10, 0.05); padding: 14px 16px; max-height: 360px; overflow: auto; font-size: 14px; overflow-wrap: anywhere; }
+mark { background: var(--slop); color: var(--ink); padding: 0 2px; cursor: help; }
+.cert .btn { color: var(--ink); border-color: rgba(10, 10, 10, 0.3); }
+.cert .btn:hover { border-color: var(--ink); }
+

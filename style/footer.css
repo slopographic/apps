@@ -1,0 +1,94 @@
+/* Slopographic site styles, part 3: footer, toast, responsive rules and motion. */
+
+/* ---------- footer ---------- */
+
+.footer { border-top: 1px solid var(--line); padding: 40px 24px 40px; overflow: hidden; }
+.footer-mark {
+  margin: 0 0 28px;
+  font-family: var(--cond);
+  font-stretch: 62%;
+  font-weight: 900;
+  font-size: min(16vw, 240px);
+  line-height: 0.8;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--bone-faint);
+  white-space: nowrap;
+  text-align: center;
+}
+.footer-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1400px; margin: 0 auto; font-size: 13.5px; color: var(--bone-dim); }
+.footer-cols p { margin: 0; }
+.footer-cols strong { color: var(--bone); font-weight: 600; }
+.footer-cols p:nth-child(2) { font-family: var(--serif); font-style: italic; font-size: 22px; line-height: 1.15; color: var(--bone); }
+.footer .fine { max-width: 1400px; margin: 30px auto 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone-faint); }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 20px);
+  background: var(--slop);
+  color: var(--ink);
+  font-weight: 600;
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 30;
+  max-width: calc(100vw - 32px);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 860px) {
+  .footer-cols { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .nav { padding: 10px 14px; gap: 10px; }
+  .brand-name { display: none; }
+  .tabs { margin-left: auto; }
+  .tab { padding: 6px 7px; font-size: 10.5px; letter-spacing: 0.06em; }
+  .counter { display: none; }
+  .hero { padding: 26px 16px 30px; }
+  .kicker { font-size: 10px; gap: 6px 12px; }
+  .kicker span + span::before { margin-right: 12px; }
+  .cert { padding: 18px; }
+  .cert-main { flex-wrap: wrap; }
+  .score { font-size: 96px; }
+  .stamp { position: absolute; right: -6px; top: 6px; width: 96px; height: 96px; font-size: 13px; }
+  .detector { padding: 0 16px 50px; }
+}
+
+/* ================================================================ motion */
+
+/* Authenticator: the stamp slams, the certificate takes the hit. */
+.stamp.slam { animation: slam 0.55s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
+@keyframes slam {
+  0% { transform: rotate(-38deg) scale(3); opacity: 0; filter: blur(4px); }
+  55% { transform: rotate(-12deg) scale(0.92); opacity: 1; filter: none; }
+  100% { transform: rotate(-14deg) scale(1); opacity: 1; }
+}
+.cert.thud { animation: thud 0.45s ease-out 0.28s; }
+@keyframes thud {
+  0%, 100% { transform: none; }
+  20% { transform: translate(-3px, 2px) rotate(-0.4deg); }
+  40% { transform: translate(3px, -1px) rotate(0.3deg); }
+  60% { transform: translate(-2px, 1px); }
+  80% { transform: translate(1px, 0); }
+}
+
+/* Footer wordmark fills with slime when it scrolls into view. */
+.footer-mark {
+  background: linear-gradient(to top, var(--slop) 50%, transparent 50%);
+  background-size: 100% 200%;
+  background-position: 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: background-position 1.6s cubic-bezier(0.6, 0, 0.2, 1);
+}
+.footer-mark.filled { background-position: 0 100%; }
+
