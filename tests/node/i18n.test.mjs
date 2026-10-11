@@ -71,7 +71,7 @@ test('set refuses a code that is not in the list and stores nothing', async () =
 
 test('set stores the choice in SlopProfile under lang/mode, and get reads it back', async () => {
   const storage = memStorage();
-  const I = instance({ en: EN, xx: { 'nav.apps': 'Xx apps' } });
+  const I = instance({ storage, en: EN, xx: { 'nav.apps': 'Xx apps' } });
   assert.deepEqual(plain(I.set('xx')), { ok: true, code: 'xx' });
   const o = JSON.parse(storage.m.get('slop-profile'));
   assert.equal(o.data.lang.mode, 'xx');

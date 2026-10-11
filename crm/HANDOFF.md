@@ -9,6 +9,10 @@ All data is the shared business store (`shared/data/HANDOFF.md`): the `customers
   right-click it, or press the Menu key on a focused card. Each move is saved at once and redraws the board.
 - **Customers tab**: search by name, email, phone or address; filter by stage and category; row menu (Open, Edit,
   Move to, Delete). Delete is a soft delete behind a SlopUI confirmation.
+- **Bulk actions**: tick rows (or select all shown) to change stage, add or remove a category, set a follow-up
+  date, export CSV, or delete. Selection is held in `SlopCrm.selection` and pruned when customers disappear.
+- **Two panes** (min-width 960 px): the list stays left and the detail panel is sticky on the right. Below that the
+  detail is a full page with Back.
 - **Detail panel**: contact details (mailto and tel links), stage, follow-up date, categories (comma separated),
   dated notes (newest first), orders and invoices with their status and totals.
 - **Follow-ups tab**: customers with a follow-up date, overdue first, then today, then later. Done clears the date.
