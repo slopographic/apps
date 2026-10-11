@@ -222,13 +222,13 @@ test('lastSync is recorded after a successful push and shown by status', async (
   assert.equal(st.connected, true);
 });
 
-test('errors come back as messages, and a missing SlopData is reported without a request', async () => {
+test('errors come back as messages, and a missing SlopCentral is reported without a request', async () => {
   const env = await makeEnv({ fetchImpl: () => reply(500, { error: { message: 'boom' } }) });
   await seedTokens(env);
   const r = await env.S.pushBackup('gdrive');
   assert.equal(r.ok, false);
   assert.match(r.error, /HTTP 500/);
-  env.ctx.SlopData = undefined;
+  env.ctx.SlopCentral = undefined;
   const calls = env.calls.length;
   const r2 = await env.S.pushBackup('gdrive');
   assert.match(r2.error, /not available/);

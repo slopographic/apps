@@ -46,10 +46,20 @@
     return [...a, ...b, c];
   };
 
-  /** Wait for an element or condition in a test frame. */
-  CT.clearDrafts = () => new Promise((res) => {
-    const r = indexedDB.deleteDatabase('slop-contacts-drafts');
-    r.onsuccess = r.onerror = r.onblocked = () => res();
-  });
+  /** Removes every live customer from the shared store (orders and invoices stay; tests use their own names). */
+  CT.resetCustomers = async () => {
+    const r = await window.SlopData.store.list('customers');
+    for (const c of r.value || []) await window.SlopData.store.remove('customers', c.id);
+  };
+  /** Writes customer records into the shared store, as the CRM and Orders apps do. Returns the saved records. */
+  CT.seed = async (recs) => {
+    const out = [];
+    for (const rec of recs) {
+      const r = await window.SlopData.store.put('customers', { stage: 'lead', ...rec });
+      if (!r.ok) throw new Error(`seed failed: ${r.message}`);
+      out.push(r.value);
+    }
+    return out;
+  };
   CT.file = (text, name, type) => new File([text], name, { type: type || '' });
 })();

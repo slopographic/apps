@@ -1,4 +1,4 @@
-/* Slop Vector — ui: context menus, theme, prefs and UI refresh */
+/* SlopVector — ui: context menus, theme, prefs and UI refresh */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;

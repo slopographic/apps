@@ -12,6 +12,7 @@
     for (const f of S.folders.values()) f.parent = S.folders.has(f.parentId) && f.parentId !== f.id ? f.parentId : null;
     S.files = new Map(files.map((r) => [r.id, Object.assign(r, { isFolder: false, parent: S.folders.has(r.folderId) ? r.folderId : null })]));
     version++;
+    if (DR.pruneThumbs) DR.pruneThumbs([...S.files.keys()]).catch(() => { /* the cache is optional */ });
     if (S.cwd && (!S.folders.has(S.cwd) || DR.hidden(S.folders.get(S.cwd)))) S.cwd = null;
     for (const k of [...S.sel]) { const it = DR.item(k); if (!it) S.sel.delete(k); }
     return version;

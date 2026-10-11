@@ -1,4 +1,4 @@
-/* Slop Cutout — compose the final picture from an active cutout: background (transparent, colour,
+/* SlopIsolate — compose the final picture from an active cutout: background (transparent, colour,
  * gradient or blurred original), drop shadow and crop. Pure canvas work, no DOM state. */
 (function () {
   'use strict';

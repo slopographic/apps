@@ -4,7 +4,23 @@ A photo library that runs entirely in the browser. Classic scripts, no build ste
 
 ## What works (tested)
 
-Run `node tests/run.mjs gallery`: 53 checks in `tests/gallery/` (library and I/O page, an app page that boots the real UI in an iframe, and `reel.test.html`, which runs the gallery and SlopEdit in iframes for Make reel).
+Run `node tests/run.mjs gallery`: the checks in `tests/gallery/` (library and I/O page, an app page that boots the real UI in an iframe, `reel.test.html`, which runs the gallery and SlopEdit in iframes for Make reel, `viewer.test.html`, the viewer's preview, wheel, drag and arrow keys, and `drive-source.test.html`, the Drive source with stubbed Slop Drive calls).
+
+## Viewer
+
+The picture is `SlopPreview` (`shared/preview/`, the component Slop Drive uses), made for each photo with `chrome: false`, so the gallery keeps its own header and footer. Zoom is the wheel (around the pointer), `+ − 0 1`, the toolbar with the percentage, drag, pinch and double-tap. The viewer adds: `← →` for previous and next, Space for the slideshow (3, 5 or 10 s), `I` for the info panel, `L` and `D` for like and dislike, `F` for favourite, Delete for remove (after a confirmation), and the counter. The footer holds Info, Like, Dislike, Favourite and Remove. `Z` (fit or 100%) is gone: `0` and `1` do the same. When the viewer moves to another photo or closes, the old preview leaves the page and its blob URL is revoked.
+
+## Drive source
+
+The **Library / Drive** switch above the grid shows every file in Slop Drive (the Trash excluded) instead of the photo library. It reads Slop Drive only through `SlopHub.list()` and `SlopHub.get()`, plus the Drive's thumbnail cache, and writes nothing to Drive.
+
+- **Tiles:** the Drive's own thumbnail when one is cached, else a card with the file's kind and extension. The thumbnail is read from `slop-drive-thumbs` (read only: the database is never created here) as the tile scrolls into view. A record is used only while its modified time matches and its version is `THUMB_VER` (3). That number mirrors `VER` in `drive/js/core/thumbs.js`, so change both together.
+- **Kind chips** (multi-select: a file shows when its kind is in any chip that is on): Media (image, video, audio), Photos, Videos, Audio, Documents, Code and text, 3D, Archives, Other. The counts follow the name search and ignore the chips, so each chip still says what it would add.
+- **Search** by name (case-insensitive). **Sort:** date added, newest first (default), or name.
+- **Opening:** image or video opens in the Gallery viewer (SlopPreview for images, a native player for video; ← → step through the images and videos on screen). Audio plays in the audio strip under the grid. 3D opens in Slop 3D. Documents, code and the rest open in the app the Drive's rule picks: the registry's `accepts` (SlopHub's `appsAccepting`), a specific MIME pattern before a wildcard, tools never. So a `.js` file opens in Slop AI, which accepts `text/*`, as it does in Drive. A file no app takes gets a note.
+- **Limits:** `SlopHub.list()` reads every file, blobs included, each time the source is opened. The grid draws every matching tile (no virtual list), with thumbnails loaded as they scroll into view.
+
+**Kind table:** `shared/kinds/kinds.js` (`window.SlopKinds`). It is the one table for the kinds: `kindOf(name, type)` checks the extension first, then the MIME type, else Other. `CHIPS` lists the chips, and `countChips`, `chipMatch` and `label` serve the UI. Slop Drive does not use it yet (it has its own kind logic in `drive/js/ui/preview-kinds.js`).
 
 ## Make reel (Gallery to SlopEdit)
 
@@ -56,9 +72,9 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 - **Timeline.** Months, newest first, with a sticky month header. A virtual list renders only the visible rows (the test asserts fewer than 160 tiles in the DOM for 5,000 photos). Arrow keys move between tiles, Enter opens, Space selects.
 - **Albums.** Create, rename, delete. Adding a photo links its id and never copies the bytes (tested).
 - **Favourites, likes and tags.** Liked, disliked and free-text tags live on the photo record. Photos from Slop Drive also have them written to their Drive record under `meta.gallery`, so the tags travel with the Drive file.
-- **Sort mode (swipe deck).** Up likes and moves on. Down dislikes and moves on. Left goes back with no tag. Right skips ahead with no tag. The queue is the timeline's visible list when the deck opens (or the selection). Key rules are in `js/core/sort.js` and tested.
+- **Sort mode (swipe deck).** Up likes and moves on. Down dislikes and moves on. Left goes back with no tag. Right skips ahead with no tag. Enter (or any letter or number) opens a tag field under the photo: Enter adds the tag(s), comma-separated, and moves on; Escape cancels. The queue is the timeline's visible list when the deck opens (or the selection). Key rules are in `js/core/sort.js` and tested.
 - **Filters.** Name, year, month, camera, favourites, album, and tag (liked only, disliked only, untagged only).
-- **Viewer.** Full screen, arrows, Fit or 100%, info panel, like and dislike (L and D), remove (Delete, after confirmation), slideshow at 3, 5 or 10 seconds.
+- **Viewer.** Full screen, on the shared preview. See the Viewer section above.
 - **Export.** One photo downloads as its original file. Several photos download as one store-only zip (`js/io/zip.js`, CRC-32 checked on read). The whole library backs up to one zip with a manifest, originals and thumbnails. Restore validates the manifest and every SHA-256 before writing, then writes in one transaction.
 - **Right-click menus** on photos, albums, month headers and the empty grid (SlopCtx and SlopUI).
 - **SlopCmd commands** for the main actions (`js/ui/commands.js`).
@@ -72,7 +88,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 
 - **Face and object recognition** are not built. They would need a local model (for example ONNX or WebGPU), which is a separate piece of work.
 - **HEIC and RAW** files are refused, because Chromium cannot decode them here. They are reported as "could not be read" and not stored.
-- **Videos** are not supported.
+- **Videos** are not in the library. The Drive source shows and plays them.
 - **Editing** (crop, rotate on disk, adjust) is not built. Viewer and deck are read-only apart from tags.
 - **Similar, not identical, photos** are not grouped. Duplicates are exact bytes only.
 - **Zip64** is not supported. The zip and backup writers refuse archives over 4 GB.
@@ -91,8 +107,27 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 
 ## Files
 
-- `index.html`, `css/gallery.css`, `css/viewer.css`
+- `index.html`, `css/gallery.css`, `css/viewer.css`, `css/drive.css`
+- `shared/kinds/kinds.js`: the file-kind table (see Drive source)
 - `js/io/`: `hash.js`, `exif.js`, `zip.js`, `source.js`, `backup.js`, `export.js`, `reel-cutout.js`, `reel-drive.js`
-- `js/core/`: `db.js`, `thumb.js`, `library.js`, `import.js`, `query.js`, `sort.js`, `urls.js`, `reel.js` (reel spec, validation, manifest)
+- `js/core/`: `db.js`, `thumb.js`, `library.js`, `import.js`, `query.js`, `sort.js`, `urls.js`, `reel.js` (reel spec, validation, manifest), `drive-query.js` (Drive search, chips, sort, counts)
+- `js/io/drive-source.js`: the Drive source, read only (`load`, `thumb`)
+- `js/ui/drive-view.js`, `drive-bar.js`, `drive-open.js`, `drive-viewer.js`: the Drive grid and switch, its bar, the open rules and the Drive viewer
 - `js/ui/`: `state.js`, `vlist.js`, `rows.js`, `timeline.js`, `viewer.js`, `sortmode.js`, `actions.js`, `albums.js`, `dupes.js`, `menus.js`, `commands.js`, `sidebar.js`, `reel.js` (Make reel dialog and run), `main.js`
-- Tests: `tests/gallery/` (`gallery.test.html`, `app.test.html`, `reel.test.html`, `helpers.js`, `spec-io.js`, `spec-core.js`, `spec-app.js`, `spec-reel.js`)
+- Tests: `tests/gallery/` (`gallery.test.html`, `app.test.html`, `reel.test.html`, `helpers.js`, `spec-io.js`, `spec-core.js`, `spec-app.js`, `spec-reel.js`, `viewer.test.html`, `spec-viewer.js`)
+
+## People (face counts, opt-in, `shared/faces/`)
+- **Off by default.** Turn it on in Profile (the Gallery section, "Find faces on this device"), or the first time you open
+  the People view (the same dialog as Slop Drive). Nothing is uploaded and no one is identified.
+- **People view** (`data-view="people"`): photos grouped as **One face**, **Two or more faces** and **No faces**. Empty groups
+  are left out. Photos not checked yet are not shown; the bar says how many are checked.
+- **Background scan** (`core/people.js`): when the setting is on, every photo without a result is checked, newest first, one
+  at a time, with idle time between photos. A photo added later is checked too. The bar (`ui/people.js`) shows the
+  progress, with **Stop** (and **Resume**). Turning the setting off stops the scan after the photo in hand and hides the groups.
+- **Results:** `SlopFaces.analyse('gallery', photo id, photo SHA-256, original)`, kept in IndexedDB `slop-faces`. They are
+  derived data and are not in the Gallery backup.
+- **Viewer:** the face boxes are drawn over the photo (`G.people.overlay`) while the setting is on.
+- **View state:** `people` is restored by `ui/view-state.js` (the view list).
+- **No identity:** groups are counts of faces only. Nothing is named, matched or recognised.
+- **Tests:** `tests/gallery/faces.test.html` (stubbed detector: the picture's width sets its faces), and the Node file
+  `tests/node/faces-drive-gallery.test.mjs`. `node tests/run.mjs gallery` runs them with the rest of the suite, all green at the time of this change.

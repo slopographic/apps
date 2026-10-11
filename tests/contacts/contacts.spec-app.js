@@ -1,151 +1,170 @@
-/* Slop Contacts app: boot, commands, Slop Drive save and reopen by ?drive=, autosave draft, export to Drive,
- * the group filter, SlopGuard, and the 390 px layout. The app runs in same-origin iframes, so the real
- * Slop Drive and draft stores are used. */
+/* Slop Contacts app: the three-column layout on the shared customer records. Letter headers in order, a new contact
+ * in its letter section and in the CRM view, the orders and invoices of a customer, the 390 px layout with no
+ * horizontal scroll, and the keyboard (arrows, Enter, Cmd+N, Delete asks first). The app runs in a same-origin iframe
+ * and reads the same IndexedDB as the test page. */
 (function () {
   'use strict';
   const { describe, it, expect, sleep, waitFor } = SlopTest;
 
-  /** Load contacts/index.html (plus an optional query) into a frame and wait until it is ready. */
-  async function boot(query = '', frameId = 'app') {
+  /** Loads a page into a frame (blank first, so the page really reloads) and waits until ready(window) is true. */
+  async function load(frameId, url, pathPart, ready) {
     const fr = document.getElementById(frameId);
     fr.src = 'about:blank';
-    await sleep(60);
-    fr.src = '../../contacts/index.html' + query;
-    await waitFor(() => fr.contentWindow && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
+    await waitFor(() => fr.contentWindow && fr.contentWindow.location.href === 'about:blank', { timeout: 5000 });
+    fr.src = url;
+    await waitFor(() => fr.contentWindow && fr.contentWindow.location.pathname.includes(pathPart) && ready(fr.contentWindow), { timeout: 30000 });
     return fr.contentWindow;
   }
-  const driveRecords = async (win) => (await win.SlopHub.list({ trashed: 'any' }));
-  /** The most recent Drive record with this name. */
-  const latest = async (win, name) => (await driveRecords(win)).find((r) => r.name === name);
-  const shownNames = (win) => [...win.document.querySelectorAll('#rows .nm')].map((n) => n.textContent);
+  /** Boots Slop Contacts after the store has the records. */
+  const boot = (frameId = 'app') => load(frameId, '../../contacts/index.html', 'contacts/index.html',
+    (w) => w.SlopContacts && w.SlopContacts.ready);
+  const $ = (win, sel) => win.document.querySelector(sel);
+  const $$ = (win, sel) => [...win.document.querySelectorAll(sel)];
+  const letters = (win) => $$(win, '#rows .letter').map((h) => h.textContent);
+  const rowNames = (win) => $$(win, '#rows .row-name').map((n) => n.textContent);
+  const sectionOf = (win, letter) => {
+    const h = $$(win, '#rows .letter').find((x) => x.textContent === letter);
+    return h ? [...h.parentElement.querySelectorAll('.row-name')].map((n) => n.textContent) : [];
+  };
+  const rowFor = (win, name) => $$(win, '#rows .row').find((r) => r.querySelector('.row-name').textContent === name);
+  const dialogButton = (win, label) => $$(win, '.sui-dlg button').find((b) => b.textContent.trim() === label);
+  const stored = (id) => window.SlopData.store.get('customers', id).then((r) => r.value);
 
-  describe('boot and commands', () => {
-    it('starts blank, with the SlopCmd commands and the shared chrome', async () => {
-      await CT.clearDrafts();
-      const win = await boot('', 'app');
-      expect(win.SlopContacts.state.list).toHaveLength(0);
-      expect(win.document.getElementById('empty').hidden).toBeFalsy();
-      expect(win.SlopCmd.get('export.vcf')).toBeTruthy();
-      expect(win.SlopCmd.get('contacts.dupes')).toBeTruthy();
-      expect(win.SlopCmd.get('file.save')).toBeTruthy();
+  describe('letters and rows', () => {
+    it('the letter headers appear in order, # last, and each contact is under its letter', async () => {
+      await CT.resetCustomers();
+      await CT.seed([{ name: 'Zoe Adams', id: 'lt-z' }, { name: 'Adam Smith', id: 'lt-a' }, { name: 'Émile Zola', id: 'lt-e' },
+        { name: 'Bob Ray', id: 'lt-b' }, { name: '1 Hour Taxi', id: 'lt-n' }, { name: 'Ann Lee', id: 'lt-a2' }]);
+      const win = await boot();
+      expect(letters(win)).toEqual(['A', 'B', 'E', 'Z', '#']);
+      expect(sectionOf(win, 'A')).toEqual(['Adam Smith', 'Ann Lee']);
+      expect(sectionOf(win, 'E')).toEqual(['Émile Zola']);
+      expect(sectionOf(win, '#')).toEqual(['1 Hour Taxi']);
     });
-    it('lists the four export formats', () => {
-      const ids = document.getElementById('app').contentWindow.SlopContacts.format.FORMATS.map((f) => f.id);
-      expect(ids).toEqual(['vcf', 'zip', 'google', 'outlook']);
+
+    it('the list shows one line per contact: the company, or the stage when there is no company', async () => {
+      await CT.resetCustomers();
+      await CT.seed([{ id: 'sb-1', name: 'Sub Acme', company: 'Acme Ltd' }, { id: 'sb-2', name: 'Sub Plain', stage: 'customer' }]);
+      const win = await boot();
+      expect(rowFor(win, 'Sub Acme').querySelector('.row-sub').textContent).toBe('Acme Ltd');
+      expect(rowFor(win, 'Sub Plain').querySelector('.row-sub').textContent).toBe('Customer');
+    });
+
+    it('a new contact appears in its letter section and in the CRM view', async () => {
+      await CT.resetCustomers();
+      const win = await boot();
+      $(win, '#btnNew').click();
+      await waitFor(() => dialogButton(win, 'Create'));
+      $(win, '.quick-form input[aria-label="Name"]').value = 'Mira Quill';
+      $(win, '.quick-form input[aria-label="Phone"]').value = '+44 20 7946 0000';
+      $(win, '.quick-form input[aria-label="Company"]').value = 'Quill Co';
+      dialogButton(win, 'Create').click();
+      await waitFor(() => sectionOf(win, 'M').includes('Mira Quill'));
+      expect(sectionOf(win, 'M')).toEqual(['Mira Quill']);
+      await waitFor(async () => (await window.SlopData.store.list('customers')).value.some((c) => c.name === 'Mira Quill'), { timeout: 8000 });
+      const saved = (await window.SlopData.store.list('customers')).value.find((c) => c.name === 'Mira Quill');
+      expect(saved.company).toBe('Quill Co');
+      expect(saved.phone).toBe('+44 20 7946 0000');
+      expect(saved.phoneLabel).toBe('mobile');
+
+      const crm = await load('app2', '../../crm/index.html#customers', 'crm/index.html',
+        (w) => w.SlopCrm && w.document.getElementById('boot') && w.document.getElementById('boot').hidden);
+      await waitFor(() => $$(crm, '#cRows .row-open b').some((b) => b.textContent === 'Mira Quill'), { timeout: 10000 });
+      expect($$(crm, '#cRows .row-open b').map((b) => b.textContent)).toContain('Mira Quill');
     });
   });
 
-  describe('Slop Drive and autosave', () => {
-    it('shows the list, and the group sidebar counts and filters it', async () => {
-      const win = document.getElementById('app').contentWindow;
-      win.SlopContacts.state.setList(CT.sample());
-      await sleep(30);
-      expect(win.document.querySelectorAll('#rows .row')).toHaveLength(CT.sample().length);
-      const club = win.document.querySelector('.gbtn[data-name="Club"]');
-      expect(club).toBeTruthy();
-      club.click();
-      expect(win.SlopContacts.state.group).toBe('Club');
-      expect(win.document.querySelectorAll('#rows .row')).toHaveLength(1);
-      win.document.querySelector('.gbtn[data-kind="all"]').click();
-      expect(win.document.querySelectorAll('#rows .row')).toHaveLength(CT.sample().length);
+  describe('orders and invoices', () => {
+    it('the card lists the orders and invoices of this customer from the shared collections, with links', async () => {
+      await CT.resetCustomers();
+      const [cust] = await CT.seed([{ name: 'Ivy Order', id: 'ord-ivy' }]);
+      const store = window.SlopData.store;
+      const o = await store.put('orders', { customerId: cust.id, date: '2026-10-01', status: 'open', currency: 'USD',
+        lines: [{ description: 'Widget', qty: 2, unitPrice: 1250, taxRate: 0 }] });
+      const i = await store.put('invoices', { customerId: cust.id, date: '2026-10-02', status: 'draft', currency: 'USD',
+        lines: [{ description: 'Widget', qty: 1, unitPrice: 500, taxRate: 0 }] });
+      expect(o.ok).toBeTruthy();
+      expect(i.ok).toBeTruthy();
+      const win = await boot();
+      rowFor(win, 'Ivy Order').click();
+      await waitFor(() => $(win, '#cardHistory .docs'), { timeout: 8000 });
+      const text = $(win, '#cardHistory').textContent;
+      expect(text).toContain(o.value.number);
+      expect(text).toContain('Draft invoice');
+      expect($(win, `#cardHistory a[href="../orders/#o/${o.value.id}"]`)).toBeTruthy();
+      expect($(win, `#cardHistory a[href="../invoices/#i/${i.value.id}"]`)).toBeTruthy();
+      expect(text).toContain('$25.00');
     });
-    it('first save asks for a folder and writes a .scontacts record; the app keeps its id', async () => {
-      const win = document.getElementById('app').contentWindow;
-      win.SlopHub.pickFolder = async () => null;
-      expect(win.SlopGuard.hasUnsaved()).toBeTruthy();
-      const ok = await win.SlopContacts.storage.save();
-      expect(ok).toBeTruthy();
-      const id = win.SlopContacts.state.file.driveId;
-      expect(id).toBeTruthy();
-      const rec = await win.SlopHub.get(id);
-      expect(rec.name).toBe('Contacts.scontacts');
-      expect(rec.type).toBe('application/x-slop-contacts');
-      expect(rec.from).toBe('contacts');
-      expect(win.SlopContacts.state.file.dirty).toBeFalsy();
-      expect(win.SlopGuard.hasUnsaved()).toBeFalsy();
-    });
-    it('reopening with ?drive=<id> restores the same contacts', async () => {
-      const win = document.getElementById('app').contentWindow;
-      const id = win.SlopContacts.state.file.driveId;
-      const expected = win.SlopContacts.state.list.slice();
-      const win2 = await boot('?drive=' + id, 'app2');
-      const got = win2.SlopContacts.state.list;
-      expect(got).toHaveLength(expected.length);
-      expect(got.map((c) => c.id)).toEqual(expected.map((c) => c.id));
-      for (let i = 0; i < got.length; i++) expect(got[i]).toEqual(expected[i]);
-      expect(win2.SlopContacts.state.file.driveId).toBe(id);
-      expect(win2.SlopContacts.state.file.name).toBe('Contacts');
-    });
-    it('saving again writes the same Drive record', async () => {
-      const win = document.getElementById('app').contentWindow;
-      const id = win.SlopContacts.state.file.driveId;
-      win.SlopContacts.state.setList([...win.SlopContacts.state.list, CT.make({ id: 'more', name: { given: 'More' } })]);
-      await win.SlopContacts.storage.save();
-      const win2 = await boot('?drive=' + id, 'app2');
-      expect(win2.SlopContacts.state.list.some((c) => c.id === 'more')).toBeTruthy();
-      expect(win2.SlopContacts.state.list).toHaveLength(CT.sample().length + 1);
-    });
-    it('a vCard record opens as an unsaved import, so Drive keeps its own format', async () => {
-      const win = document.getElementById('app').contentWindow;
-      win.SlopHub.pickFolder = async () => null;
-      const put = await win.SlopHub.put(CT.file(CT.VCF30, 'Team.vcf', 'text/vcard'), { name: 'Team.vcf', from: 'test' });
-      const win2 = await boot('?drive=' + put, 'app2');
-      expect(win2.SlopContacts.state.list).toHaveLength(1);
-      expect(win2.SlopContacts.state.file.driveId).toBeFalsy();
-      expect(win2.SlopContacts.state.file.dirty).toBeTruthy();
-    });
-    it('autosaves a draft to IndexedDB and restores it on a plain start', async () => {
-      await CT.clearDrafts();
-      const win = await boot('', 'app');
-      win.SlopContacts.state.setList([CT.make({ id: 'draft-1', name: { given: 'Draft', family: 'Person' } })]);
-      await sleep(900);
-      const d = await win.SlopContacts.drafts.read();
-      expect(d && d.json).toBeTruthy();
-      const win2 = await boot('', 'app2');
-      expect(win2.SlopContacts.state.list.map((c) => c.id)).toEqual(['draft-1']);
-    });
-    it('exports are downloaded and saved to Slop Drive', async () => {
-      const win = document.getElementById('app').contentWindow;
-      const list = win.SlopContacts.state.list;
-      const ok = await win.SlopContacts.io.exportAs('vcf', list);
-      expect(ok).toBeTruthy();
-      const rec = await latest(win, 'Contacts.vcf');
-      expect(rec).toBeTruthy();
-      expect(rec.type).toBe('text/vcard');
-      const text = await rec.blob.text();
-      expect(text.split('BEGIN:VCARD')).toHaveLength(list.length + 1);
-      await win.SlopContacts.io.exportAs('google', list);
-      expect(await latest(win, 'Contacts (Google).csv')).toBeTruthy();
+
+    it('a contact with no orders says so', async () => {
+      await CT.resetCustomers();
+      await CT.seed([{ name: 'Nia None', id: 'ord-none' }]);
+      const win = await boot();
+      rowFor(win, 'Nia None').click();
+      await waitFor(() => $(win, '#cardHistory').textContent.includes('No orders'), { timeout: 8000 });
+      expect($(win, '#cardHistory').textContent).toContain('No orders for this contact yet.');
     });
   });
 
-  describe('layout', () => {
-    it('works at 390 px wide with no horizontal page scroll', async () => {
-      const win = document.getElementById('app').contentWindow;
-      win.SlopContacts.state.setList(CT.sample().concat([CT.make({ id: 'wide', name: { given: 'Supercalifragilisticexpialidocious'.repeat(3) },
-        org: 'An organisation with a very long name that would overflow a narrow screen if the layout were careless', phones: [{ value: '+44 7700 900123' }] })]));
+  describe('layout and keyboard', () => {
+    it('at 390 px the list is the screen, the card opens as a full page, and nothing scrolls sideways', async () => {
+      await CT.resetCustomers();
+      await CT.seed([{ name: 'Phone Page', id: 'mob-1' }, { name: 'Other One', id: 'mob-2' }]);
+      const win = await boot();
       const fr = document.getElementById('app');
       fr.style.width = '390px';
+      fr.style.height = '780px';
       await sleep(250);
-      const de = win.document.documentElement;
-      const overflow = de.scrollWidth - de.clientWidth;
+      const doc = win.document;
+      expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
+      expect(win.getComputedStyle($(win, '#card')).display).toBe('none');
+      expect($(win, '#rows').getBoundingClientRect().width).toBeGreaterThan(300);
+      rowFor(win, 'Phone Page').click();
+      await waitFor(() => win.getComputedStyle($(win, '#card')).display !== 'none', { timeout: 5000 });
+      await sleep(60);
+      expect($(win, '#card').getBoundingClientRect().width).toBeCloseTo(390, 0.5);
+      expect(win.getComputedStyle($(win, '.back')).display).not.toBe('none');
+      expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
+      $(win, '.card-bar .back').click();
+      await sleep(40);
+      expect(win.getComputedStyle($(win, '#card')).display).toBe('none');
       fr.style.width = '1280px';
-      expect(overflow).toBeLessThanOrEqual(1);
+      fr.style.height = '760px';
     });
-    it('the editor dialog opens and saves a new phone', async () => {
-      const win = document.getElementById('app').contentWindow;
-      win.SlopContacts.editor.open(win.SlopContacts.state.list[0].id);
-      await sleep(120);
-      const dlg = win.document.querySelector('.sui-dlg.ed-dlg');
-      expect(dlg).toBeTruthy();
-      dlg.querySelector('.ed-add').click();
-      const rows = dlg.querySelectorAll('.ed-phone');
-      const input = rows[rows.length - 1].querySelector('input');
-      input.value = '+49 151 000 111';
-      [...dlg.querySelectorAll('.sui-btn.sui-primary')].find((b) => b.textContent === 'Save').click();
-      await sleep(260);
-      const first = win.SlopContacts.state.list[0];
-      expect(first.phones.some((p) => p.value === '+49 151 000 111')).toBeTruthy();
+
+    it('arrow keys move through the list, Enter opens the card, and Delete asks before it removes', async () => {
+      await CT.resetCustomers();
+      await CT.seed([{ name: 'Key Anna', id: 'k-1' }, { name: 'Key Bea', id: 'k-2' }, { name: 'Key Cal', id: 'k-3' }]);
+      const win = await boot();
+      $(win, '#rows').focus();
+      win.document.activeElement.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+      await sleep(40);
+      win.document.activeElement.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+      await sleep(40);
+      expect(win.SlopContacts.state.open).toBe('k-2');
+      expect($$(win, '#rows .row.is-focus')[0].dataset.id).toBe('k-2');
+      win.document.activeElement.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      await sleep(40);
+      expect($(win, '#cardBody .card-name').textContent).toBe('Key Bea');
+      win.document.activeElement.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
+      await waitFor(() => dialogButton(win, 'Delete'));
+      dialogButton(win, 'Cancel').click();
+      await waitFor(() => !$(win, '.sui-dlg'));
+      expect((await stored('k-2')).id).toBe('k-2');
+      win.document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
+      await waitFor(() => dialogButton(win, 'Delete'));
+      dialogButton(win, 'Delete').click();
+      await waitFor(async () => !(await stored('k-2')), { timeout: 8000 });
+      expect(await stored('k-2')).toBeFalsy();
+      await waitFor(() => !rowNames(win).includes('Key Bea'), { timeout: 5000 });
+    });
+
+    it('Cmd+N opens the quick form for a new contact', async () => {
+      const win = await boot();
+      win.document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'n', metaKey: true, bubbles: true }));
+      await waitFor(() => $(win, '.quick-form'), { timeout: 3000 });
+      expect($(win, '.quick-form')).toBeTruthy();
+      dialogButton(win, 'Cancel').click();
     });
   });
 })();

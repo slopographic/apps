@@ -9,7 +9,7 @@
   const ENUM = {
     stage: ['lead', 'contacted', 'customer', 'lost'],
     invoiceStatus: ['draft', 'issued', 'paid', 'void'],
-    orderStatus: ['open', 'fulfilled', 'cancelled'],
+    orderStatus: ['draft', 'open', 'fulfilled', 'cancelled'],   // open = confirmed
     accountType: ['asset', 'liability', 'equity', 'revenue', 'expense'],
     payMethod: ['cash', 'bank', 'card', 'other'],
     stockReason: ['receipt', 'sale', 'adjustment', 'transfer', 'count', 'return'],
@@ -25,7 +25,7 @@
   const DEFAULT_SETTINGS = { id: 'main', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30, ratesUpdateOnOpen: false };
   const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }];
   const INVOICE_NEXT = { draft: ['issued'], issued: ['paid', 'void'], paid: [], void: [] };
-  const ORDER_NEXT = { open: ['fulfilled', 'cancelled'], fulfilled: [], cancelled: [] };
+  const ORDER_NEXT = { draft: ['open', 'cancelled'], open: ['fulfilled', 'cancelled'], fulfilled: [], cancelled: [] };
   const RX = { currency: /^[A-Z]{3}$/, locale: /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/ };
 
   // Field specs. t = type; req = required; def = default; min/max/values/pattern/itemMax as named.
@@ -42,10 +42,12 @@
     en: (values, o) => ({ t: 'enum', values, ...o }),
     cur: (o) => ({ t: 'currency', ...o }),
     bool: (o) => ({ t: 'bool', ...o }),
+    entries: (o) => ({ t: 'entries', max: 10, valMax: 200, ...o }),
   };
   const LINE = {
     productId: F.id(), sku: F.str({ max: 80 }), description: F.str({ req: true, max: 300 }),
     qty: F.int({ req: true, min: 1, max: 1e6 }), unitPrice: F.mny({ req: true }), taxRate: F.rate({ req: true }),
+    discount: F.int({ min: 0, max: 10000 }),   // basis points off the line net (absent = none)
     net: F.mny(), tax: F.mny(), total: F.mny(),
   };
   // debit and credit are base-currency minor units. origDebit and origCredit are the original amounts of a foreign posting.
@@ -110,9 +112,16 @@
       id: F.id({ req: true, def: 'main' }), companyName: F.str({}), address: F.text({ max: 1000 }), taxNumber: F.str({ max: 60 }),
       defaultCurrency: F.cur({ def: 'USD' }), locale: { t: 'locale', def: 'en-US' }, defaultTaxRate: F.rate({ def: 0 }),
       paymentTermsDays: F.int({ min: 0, max: 365, def: 30 }), ratesUpdateOnOpen: F.bool({ def: false }) } },
+    // The first phone, e-mail and address are kept in phone, email and address (other apps read them). Each has a
+    // label (mobile, work, home, other ...). Further values are in phones, emails and addresses ({ label, value }).
     customers: { key: 'id', softDelete: true, indexes: [{ name: 'name', key: 'name' }, { name: 'stage', key: 'stage' }, { name: 'categories', key: 'categories', multi: true }], fields: {
       id: F.id({ req: true }), name: F.str({ req: true }), email: F.str({ max: 200 }), phone: F.str({ max: 60 }), address: F.text({ max: 1000 }),
-      categories: { t: 'strings', max: 20, itemMax: 40, def: [] }, stage: F.en(ENUM.stage, { def: 'lead' }), notes: F.text({}) } },
+      categories: { t: 'strings', max: 20, itemMax: 40, def: [] }, stage: F.en(ENUM.stage, { def: 'lead' }), notes: F.text({}),
+      contactId: F.str({ max: 80 }), followUp: F.date({}),
+      company: F.str({ max: 200 }), department: F.str({ max: 200 }), title: F.str({ max: 200 }), website: F.str({ max: 300 }),
+      birthday: F.str({ max: 20 }), photo: F.str({ max: 400000 }),
+      phoneLabel: F.str({ max: 40 }), emailLabel: F.str({ max: 40 }), addressLabel: F.str({ max: 40 }),
+      phones: F.entries({ max: 10, valMax: 60 }), emails: F.entries({ max: 10, valMax: 200 }), addresses: F.entries({ max: 10, valMax: 1000 }) } },
     products: { key: 'id', unique: ['sku', 'ean'], refs: [{ collection: 'stockMovements', index: 'productId' }],
       indexes: [{ name: 'sku', key: 'sku', unique: true }, { name: 'ean', key: 'ean', unique: true }, { name: 'name', key: 'name' }], fields: {
       id: F.id({ req: true }), sku: F.str({ req: true, max: 80, pattern: /^\S+$/ }), ean: { t: 'ean' }, name: F.str({ req: true }),
@@ -122,7 +131,7 @@
       noRemove: 'orders cannot be deleted; cancel them instead',
       indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), currency: F.cur({}),
-      status: F.en(ENUM.orderStatus, { def: 'open' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
+      status: F.en(ENUM.orderStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       notes: F.text({}), invoiceId: F.id({}) } },
     invoices: { key: 'id', softDelete: true, derive: true, unique: ['number'], check: invoiceCheck, docCurrency: true,
       autoNumber: { seq: 'invoice', when: (r) => r.status !== 'draft' },

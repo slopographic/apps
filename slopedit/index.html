@@ -1,17 +1,23 @@
 <!doctype html>
 <html lang="en" data-theme="pro">
 <head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="slopedit" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>SlopEdit — Slopographic</title>
-  <meta name="description" content="SlopEdit: a free video editor that runs 100% in your browser. Multi-track timeline, trim, split, transitions, titles, colour and audio mixing, MP4 export with WebCodecs. Nothing is uploaded.">
+  <title>SlopCut — Slopographic</title>
+  <meta name="description" content="SlopCut: a free video editor that runs 100% in your browser. Multi-track timeline, trim, split, transitions, titles, colour and audio mixing, MP4 export with WebCodecs. Nothing is uploaded.">
   <meta name="theme-color" content="#0e0e10">
   <meta name="color-scheme" content="dark light">
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="canonical" href="https://slopographic.com/slopedit/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
-  <meta property="og:title" content="SlopEdit — Slopographic">
+  <meta property="og:title" content="SlopCut — Slopographic">
   <meta property="og:description" content="A video editor that never uploads your footage: cut, trim, add titles and transitions, and export MP4 right in your browser.">
   <meta property="og:url" content="https://slopographic.com/slopedit/">
   <meta property="og:image" content="https://slopographic.com/og.jpg">
@@ -27,6 +33,7 @@
   <link rel="stylesheet" href="css/timeline.css" data-src="slopedit/css/timeline.css">
   <link rel="stylesheet" href="css/themes.css" data-src="slopedit/css/themes.css">
   <link rel="stylesheet" href="css/templates.css" data-src="slopedit/css/templates.css">
+  <link rel="stylesheet" href="../shared/video/lane.css" data-src="shared/video/lane.css">
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
@@ -35,7 +42,7 @@
       <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
         <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
       </a>
-      <div class="appname"><b>SlopEdit</b><a class="home-link" href="../">slopographic</a></div>
+      <div class="appname"><b>SlopCut</b><a class="home-link" href="../">slopographic</a></div>
       <nav class="menus" id="menus" aria-label="Main menu"></nav>
       <div class="tb-group">
         <button type="button" class="tb" id="btnUndo" aria-label="Undo" title="Undo" disabled></button>
@@ -83,10 +90,11 @@
     </footer>
   </div>
   <div class="drop-overlay" id="dropOverlay" hidden><div><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg><b>Drop to import</b><span>Video, audio and images · processed locally</span></div></div>
-  <noscript><p class="noscript">SlopEdit needs JavaScript. It runs entirely in your browser — nothing is uploaded.</p></noscript>
+  <noscript><p class="noscript">SlopCut needs JavaScript. It runs entirely in your browser — nothing is uploaded.</p></noscript>
 
   <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
   <script src="../shared/apps.js" data-src="shared/apps.js"></script>
+  <script src="../shared/session/session.js" data-src="shared/session/session.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js"></script>
   <script src="../shared/drive-link.js" data-offline="strip" onload="SlopDriveLink.mount('.topbar')"></script>
   <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
@@ -96,14 +104,21 @@
   <script src="../shared/commands/keymap.js" data-src="shared/commands/keymap.js"></script>
   <script src="../vendor/mp4-muxer/mp4-muxer.js" data-src="vendor/mp4-muxer/mp4-muxer.js"></script>
   <script src="../vendor/webm-muxer/webm-muxer.js" data-src="vendor/webm-muxer/webm-muxer.js"></script>
+  <script src="../shared/video/seed.js" data-src="shared/video/seed.js"></script>
+  <script src="../shared/video/presets.js" data-src="shared/video/presets.js"></script>
+  <script src="../shared/video/grid.js" data-src="shared/video/grid.js"></script>
+  <script src="../shared/video/templates.js" data-src="shared/video/templates.js"></script>
+  <script src="../shared/video/layout.js" data-src="shared/video/layout.js"></script>
+  <script src="../shared/video/segments.js" data-src="shared/video/segments.js"></script>
+  <script src="../shared/video/random-edit.js" data-src="shared/video/random-edit.js"></script>
+  <script src="../shared/video/lane-view.js" data-src="shared/video/lane-view.js"></script>
   <script src="js/core/util.js" data-src="slopedit/js/core/util.js"></script>
   <script src="js/ui/icons.js" data-src="slopedit/js/ui/icons.js"></script>
   <script src="js/core/model.js" data-src="slopedit/js/core/model.js"></script>
   <script src="js/core/history.js" data-src="slopedit/js/core/history.js"></script>
   <script src="js/core/edit.js" data-src="slopedit/js/core/edit.js"></script>
-  <script src="js/core/seed.js" data-src="slopedit/js/core/seed.js"></script>
-  <script src="js/core/templates.js" data-src="slopedit/js/core/templates.js"></script>
   <script src="js/core/layout.js" data-src="slopedit/js/core/layout.js"></script>
+  <script src="js/core/lane.js" data-src="slopedit/js/core/lane.js"></script>
   <script src="js/core/random-edit.js" data-src="slopedit/js/core/random-edit.js"></script>
   <script src="js/core/zip.js" data-src="slopedit/js/core/zip.js"></script>
   <script src="js/ui/app.js" data-src="slopedit/js/ui/app.js"></script>
@@ -136,6 +151,7 @@
   <script src="js/io/sample.js" data-src="slopedit/js/io/sample.js"></script>
   <script src="js/io/build.js" data-src="slopedit/js/io/build.js"></script>
   <script src="js/ui/bin.js" data-src="slopedit/js/ui/bin.js"></script>
+  <script src="js/ui/lane.js" data-src="slopedit/js/ui/lane.js"></script>
   <script src="js/ui/templates-panel.js" data-src="slopedit/js/ui/templates-panel.js"></script>
   <script src="js/ui/random-dialog.js" data-src="slopedit/js/ui/random-dialog.js"></script>
   <script src="js/ui/effects.js" data-src="slopedit/js/ui/effects.js"></script>
@@ -149,9 +165,11 @@
   <script src="js/io/session.js" data-src="slopedit/js/io/session.js"></script>
   <script src="js/ui/menus.js" data-src="slopedit/js/ui/menus.js"></script>
   <script src="js/ui/context.js" data-src="slopedit/js/ui/context.js"></script>
+  <script src="js/ui/view-state.js" data-src="slopedit/js/ui/view-state.js"></script>
   <script src="js/ui/main.js" data-src="slopedit/js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js" data-offline="strip"></script>
   <script>window.SlopPWA && SlopPWA.mount();</script>
+  <script src="../shell/shell.js"></script>
 </body>
 </html>

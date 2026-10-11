@@ -1,39 +1,41 @@
-/* Slop Contacts: boot. Wires the chrome (file name, status line, shortcuts), starts the list and exposes
- * window.SlopContacts.ready for tests and the console. Load after every other app script. */
+/* Slop Contacts: boot. Mounts the columns, reads the customers from SlopData, and opens a .scontacts file that was
+ * handed over from Slop Drive (?drive=). Load after every other app script. Sets SlopContacts.ready for tests. */
 (function () {
   'use strict';
   const SC = window.SlopContacts;
   const S = SC.state;
   const $ = (id) => document.getElementById(id);
 
-  function status() {
-    const st = S.file.dirty ? 'Unsaved changes' : S.file.driveId ? 'Saved to Slop Drive' : 'Not saved yet';
-    $('saveState').textContent = `${st} · ${S.list.length} contact${S.list.length === 1 ? '' : 's'}`;
-    $('saveState').classList.toggle('is-dirty', !!S.file.dirty);
-    document.title = `${S.file.dirty ? '• ' : ''}${S.file.name} — Slop Contacts`;
-  }
-  function bindChrome() {
-    const name = $('fileName');
-    name.addEventListener('change', () => { S.file.name = name.value.trim() || 'Contacts'; S.file.dirty = true; S.emit('change'); });
-    name.addEventListener('keydown', (e) => { if (e.key === 'Enter') name.blur(); });
-    S.on('change', () => { if (document.activeElement !== name) name.value = S.file.name; status(); });
-    S.on('render', status);
-    S.on('saved', status);
-    S.on('open', status);
-    $('ccLabel').textContent = S.cc ? `Country ${S.cc}` : 'No country code';
-    S.on('change', () => { $('ccLabel').textContent = S.cc ? `Country ${S.cc}` : 'No country code'; });
+  async function launch() {
+    const h = window.SlopHub || null;
+    if (h) { try { h.register('contacts'); } catch (e) { /* hub without register */ } }
+    let rec = null;
+    try { rec = h ? await h.consumeLaunch() : null; } catch (e) { rec = null; }
+    if (rec && rec.blob) {
+      await SC.io.importFiles([{ name: rec.name || 'contacts.scontacts', text: () => rec.blob.text() }]);
+    }
   }
 
-  function boot() {
-    bindChrome();
+  async function boot() {
+    const storage = window.SlopData && (await window.SlopData.store.ready());
+    if (storage && !storage.ok) {
+      $('empty').hidden = false;
+      $('empty').textContent = `Storage is not available here: ${storage.message}. Nothing can be saved in this window.`;
+      return;
+    }
+    SC.list.mount();
+    SC.select.mount();
+    SC.groups.mount();
+    SC.card.mount();
+    SC.keys.mount();
     SC.commands.init();
+    $('btnNew').addEventListener('click', () => SC.newContact.open());
+    $('btnGroups').setAttribute('aria-expanded', 'false');
+    const ok = await SC.records.init();
+    if (ok) { await launch(); await SC.viewState.restore(); } // js/app/view-state.js: the group, search, open card and selection
+    S.ready = true;
+    SC.ready = true;
     S.emit('render');
-    SC.storage.launch().then(() => {
-      S.ready = true;
-      SC.ready = true;
-      S.emit('render');
-      status();
-    });
   }
 
   if (document.readyState === 'loading') addEventListener('DOMContentLoaded', boot); else boot();

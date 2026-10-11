@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: brush picker, context menus and system paste */
+/* PhotoSlop UI: brush picker, context menus and system paste */
 'use strict';
 
 /* ---------- right-click: brush picker & context menus ---------- */

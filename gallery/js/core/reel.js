@@ -1,6 +1,6 @@
 /* Slop Gallery: the reel spec and manifest, as plain data (no DOM, no storage, so tests and the dialog share it).
  * A reel is the selected photos, in an order, with a template, a target length, a pace and an aspect. Its manifest
- * is one Slop Drive record (type application/x-slop-reel+json) that SlopEdit reads on launch (?drive=<manifest id>).
+ * is one Slop Drive record (type application/x-slop-reel+json) that SlopCut reads on launch (?drive=<manifest id>).
  * Exposes window.SlopGallery.reelCore. */
 (function () {
   'use strict';
@@ -47,7 +47,7 @@
   /** "IMG_1.jpg" becomes "IMG_1 (cutout).png" when stored with a cut-out. */
   const cutoutName = (name) => (String(name || 'photo').replace(/\.[^./\\]+$/, '') || 'photo') + ' (cutout).png';
 
-  /** The manifest: what SlopEdit needs to build the reel. files are Drive ids in play order; overlays are cut-out PNGs. */
+  /** The manifest: what SlopCut needs to build the reel. files are Drive ids in play order; overlays are cut-out PNGs. */
   function buildManifest({ spec, fileIds, overlays = [], now = new Date() }) {
     return {
       format: FORMAT, version: VERSION, created: now.toISOString(), from: 'gallery',

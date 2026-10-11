@@ -1,4 +1,4 @@
-/* Slop Clean core: WebP (RIFF). Chunks are copied byte for byte. EXIF and XMP chunks are removed (EXIF is rewritten
+/* SlopClean core: WebP (RIFF). Chunks are copied byte for byte. EXIF and XMP chunks are removed (EXIF is rewritten
  * with only the kept tags), the colour profile ICCP is kept unless chosen, the VP8X feature flags are cleared for
  * what is gone and the RIFF size is recalculated. Classic script; sets window.SlopClean.webp. */
 (function (root) {

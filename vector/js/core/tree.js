@@ -1,4 +1,4 @@
-/* Slop Vector — core: document tree helpers */
+/* SlopVector — core: document tree helpers */
 (function () {
   'use strict';
   var G = window.SVGeom;

@@ -1,4 +1,4 @@
-/* Slop Vector — core: selection overlay (bounding boxes, anchors, guides) */
+/* SlopVector — core: selection overlay (bounding boxes, anchors, guides) */
 (function () {
   'use strict';
   var G = window.SVGeom;

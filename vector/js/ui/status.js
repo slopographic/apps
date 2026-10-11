@@ -1,4 +1,4 @@
-/* Slop Vector — ui: status bar and rulers */
+/* SlopVector — ui: status bar and rulers */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;
@@ -18,10 +18,10 @@
   function buildStatus() {
     var sb = document.getElementById('statusbar');
     var zin = h('input', { class: 'zin mono', id: 'zoomIn', 'aria-label': 'Zoom level', type: 'text' });
-    zin.addEventListener('change', function () { var v = parseFloat(zin.value); if (v > 0) SV.setZoom(v / 100); zin.blur(); });
+    zin.addEventListener('change', function () { var v = parseFloat(zin.value); if (v > 0) SV.zoomTo(v / 100); zin.blur(); });
     zin.addEventListener('keydown', function (e) { if (e.key === 'Enter') zin.dispatchEvent(new Event('change')); });
     var zsel = h('select', { class: 'zsel', 'aria-label': 'Zoom presets' }, [h('option', { value: '', text: '' })].concat([3200, 1600, 800, 400, 200, 150, 100, 66.67, 50, 33.33, 25, 12.5].map(function (z) { return h('option', { value: z, text: z + '%' }); })).concat([h('option', { value: 'fit', text: 'Fit Artboard' })]));
-    zsel.addEventListener('change', function () { if (zsel.value === 'fit') SV.fitArtboard(); else if (zsel.value) SV.setZoom(parseFloat(zsel.value) / 100); zsel.value = ''; });
+    zsel.addEventListener('change', function () { if (zsel.value === 'fit') SV.fitArtboard(); else if (zsel.value) SV.zoomTo(parseFloat(zsel.value) / 100); zsel.value = ''; });
     sb.appendChild(h('div', { class: 'sb-zoom' }, [h('button', { type: 'button', class: 'sbb', title: 'Zoom out (' + keyLabel('mod+-') + ')', 'aria-label': 'Zoom out', text: '−', onclick: function () { SV.zoomStep(-1); } }), zin, zsel, h('button', { type: 'button', class: 'sbb', title: 'Zoom in (' + keyLabel('mod+=') + ')', 'aria-label': 'Zoom in', text: '+', onclick: function () { SV.zoomStep(1); } })]));
     sb.appendChild(h('span', { class: 'sb-item mono', id: 'sbArt' }));
     sb.appendChild(h('span', { class: 'sb-item mono', id: 'sbPos', text: 'X 0  Y 0' }));
@@ -43,7 +43,7 @@
       var title = S.doc.name + (dirty ? ' •' : '');
       document.getElementById('docTab').innerHTML = '<span class="dt-name">' + esc(S.doc.name) + '.svg</span><span class="dt-meta mono">@ ' + (Math.round(S.view.zoom * 1000) / 10) + '% (RGB/' + (S.prefs.outline ? 'Outline' : 'Preview') + ')</span>' + (dirty ? '<span class="dt-dirty" title="Unsaved changes">●</span>' : '');
       document.getElementById('docTitle').textContent = title;
-      document.title = (dirty ? '• ' : '') + 'Slop Vector — Slopographic';
+      document.title = (dirty ? '• ' : '') + 'SlopVector — Slopographic';
     });
   }
 

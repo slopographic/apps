@@ -1,4 +1,4 @@
-/* Slop Vector — core: hit testing, smart-guide snapping, insert/remove */
+/* SlopVector — core: hit testing, smart-guide snapping, insert/remove */
 (function () {
   'use strict';
   var G = window.SVGeom;

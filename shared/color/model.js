@@ -1,4 +1,4 @@
-/* Shared colour model (PhotoSLOP and Slop Vector): hex with optional alpha, HSB, recent colours and pixel sampling.
+/* Shared colour model (PhotoSlop and SlopVector): hex with optional alpha, HSB, recent colours and pixel sampling.
  * Colours are strings: '#rrggbb', or '#rrggbbaa' when alpha is below 1. Exposed as window.SlopColor. */
 (function () {
   'use strict';

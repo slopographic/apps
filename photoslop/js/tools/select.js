@@ -1,4 +1,4 @@
-/* PhotoSLOP tools: tool registry, move, selection, crop and eyedropper */
+/* PhotoSlop tools: tool registry, move, selection, crop and eyedropper */
 'use strict';
 
 /* ---------- tool definitions ---------- */
@@ -28,7 +28,7 @@ defTool({ id: 'move', name: 'Move Tool', key: 'V', icon: ICON('M12 2v20M2 12h20M
     const s = this.s = { L, start: p, dx: 0, dy: 0, box: D.sel ? D.sel.bounds : layerBoundsDoc(L) };
     if (D.sel && !e.altKey) {
       // Lift the selected pixels and float them.
-      if (L.text) s.L = L = rasterizeText(L, true);
+      if (L.text || L.shape) s.L = L = rasterizeText(L, true);
       const sel = selInLayer(L);
       s.lift = copyCanvas(L.canvas); const lg = cx(s.lift); lg.globalCompositeOperation = 'destination-in'; lg.drawImage(sel, 0, 0);
       s.rest = copyCanvas(L.canvas); const rg = cx(s.rest); rg.globalCompositeOperation = 'destination-out'; rg.drawImage(sel, 0, 0);
@@ -50,10 +50,6 @@ defTool({ id: 'move', name: 'Move Tool', key: 'V', icon: ICON('M12 2v20M2 12h20M
   overlay(g) {
     const s = this.s;
     if (s && s.sel) drawAnts(g, s.sel, { x: Math.round(s.dx), y: Math.round(s.dy) });
-    const L = activeLayer();
-    if (!L || !store.get('showBounds', true)) return;
-    const b = s ? null : layerBoundsDoc(L);
-    if (b) { const a = toScreen(b.x, b.y); g.strokeStyle = 'rgba(80,160,255,.9)'; g.lineWidth = 1; g.setLineDash([]); g.strokeRect(Math.round(a.x) + 0.5, Math.round(a.y) + 0.5, Math.round(b.w * V.zoom), Math.round(b.h * V.zoom)); }
   },
 });
 function layerBoundsDoc(L) {

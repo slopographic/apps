@@ -1,4 +1,4 @@
-/* SlopEdit: the playback engine. Owns the playhead (time), the clock and real-time audio.
+/* SlopCut: the playback engine. Owns the playhead (time), the clock and real-time audio.
    At normal speed the WebAudio clock drives the playhead so sound and picture stay in sync;
    J/K/L shuttle speeds (±2×, 4×, 8×, reverse) run on the performance clock without sound.
    Emits 'time' on every frame; the preview listens and redraws. */

@@ -60,7 +60,7 @@ async function boot() {
   const saved = await loadAutosave();
   if (saved && saved.doc) { App.doc = saved.doc; App.hist.reset(App.doc, 'Restore'); document.title = App.doc.name + ' — SlopLabel'; await preloadImages(App.doc); }
   rebuildScene(); fitView(); refreshNow();
-  setTool('select');
+  await applyView(!!saved); // ui/view-state.js: the tool, and the zoom and pan of a restored label
   status(saved ? 'Restored your last label' : 'Ready', '', 3000);
   await hubBoot().catch((e) => console.warn(e));
   document.body.classList.add('ready');

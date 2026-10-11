@@ -1,4 +1,4 @@
-/* Slop Clean: the controller. Opens pictures (button, drop, Slop Drive ?drive=<id>), cleans them with the chosen
+/* SlopClean: the controller. Opens pictures (button, drop, Slop Drive ?drive=<id>), cleans them with the chosen
  * categories, and hands out the results: a download (one file, or a zip through the shared SlopZip), a copy saved to
  * Slop Drive, or (only for a picture opened from Drive, after a confirmation) a replaced original. Classic script. */
 (function () {
@@ -47,7 +47,7 @@
   async function saveAll(only) {
     const ready = (only ? [only] : S.items).filter((x) => x.out);
     if (!ready.length) return UI().toast('Nothing cleaned yet');
-    const folderId = await H().pickFolder({ title: 'Save cleaned copies to Slop Drive' });
+    const folderId = await H().pickFolder({ title: 'Save cleaned copies to Slop Drive', start: await H().appFolderId('clean') });
     if (folderId === undefined) return;
     for (const it of ready) await H().put(blobOf(it), { name: CL.io.copyName(it.name), from: 'clean', folderId });
     UI().toast(ready.length === 1 ? 'Saved a copy to Slop Drive' : `Saved ${ready.length} copies to Slop Drive`);

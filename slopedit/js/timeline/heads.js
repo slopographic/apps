@@ -1,4 +1,4 @@
-/* SlopEdit: track headers (name, eye/mute/solo/lock) and the timeline toolbar
+/* SlopCut: track headers (name, eye/mute/solo/lock) and the timeline toolbar
    (tools, snapping, split, marker, title, zoom). */
 (function () {
   'use strict';

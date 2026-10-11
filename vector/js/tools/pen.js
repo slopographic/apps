@@ -1,4 +1,4 @@
-/* Slop Vector — tools: Pen and Add/Delete/Convert anchor tools */
+/* SlopVector — tools: Pen and Add/Delete/Convert anchor tools */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom;

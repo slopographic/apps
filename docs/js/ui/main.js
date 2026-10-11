@@ -49,7 +49,7 @@
     } catch (e) { console.warn('Slop Docs: launch failed', e); }
     if (!opened) {
       let restored = false;
-      try { restored = await S.restoreUntitled(); } catch (e) { restored = false; }
+      try { restored = await S.restorePlace(); } catch (e) { restored = false; } // ui/view-state.js: the last document, else the untitled draft
       if (!restored) S.setDoc(window.SlopDocEngine.M.newDoc(), { file: { id: null, name: 'Untitled document', dirty: false } });
     }
     S.focusIme();

@@ -1,4 +1,4 @@
-/* SlopEdit: "Download app (offline .html)". Builds one self-contained HTML file: every stylesheet and
+/* SlopCut: "Download app (offline .html)". Builds one self-contained HTML file: every stylesheet and
    script listed with data-src in index.html is inlined (the vendored muxers too). Slop Hub is left out,
    because Slop Drive belongs to the website's origin; the shared command palette (SlopCmd) is inlined with all its parts. */
 (function () {

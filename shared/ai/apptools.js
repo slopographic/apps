@@ -99,7 +99,7 @@
         run: () => apps().map((a) => ({ id: a.id, name: a.name, kind: a.kind, does: a.tagline, status: a.status })) },
       { name: 'open_app', description: ws
         ? 'Open a Slopographic app beside this chat in the workspace, by its id (for example "photoslop", "vector", "pdf", "drive"), or focus it if it is already open. Pass a web address (https://…) as the id to open a website in a new browser tab instead; websites never open inside the workspace. With "file", the app opens that Slop Drive file in a new tab.'
-        : 'Open a Slopographic app in a new tab, by its id (for example "photoslop", "vector", "pdf", "drive"). With "file", the app opens that Slop Drive file (for example a poster.svg for Vector, or a photo for Cutout).',
+        : 'Open a Slopographic app in a new tab, by its id (for example "photoslop", "vector", "pdf", "drive"). With "file", the app opens that Slop Drive file (for example a poster.svg for SlopVector, or a photo for Cutout).',
         params: { id: { type: 'string', description: 'app id, or a web address to open in a new tab', required: true }, file: { type: 'string', description: 'Slop Drive file name or id to open in the app' } },
         run: async (a) => {
           if (ws && /^https?:\/\//i.test(String(a.id))) return ws.openUrl(String(a.id));

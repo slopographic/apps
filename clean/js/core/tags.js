@@ -1,4 +1,4 @@
-/* Slop Clean core: what each metadata tag is, in plain words, and which category (what the person can choose to
+/* SlopClean core: what each metadata tag is, in plain words, and which category (what the person can choose to
  * remove) it belongs to. Categories: location, date, camera, serial, software, author, copyright, description,
  * thumbnail, embedded (XMP, IPTC, Photoshop, other blocks), other (exposure settings and the rest), physical (DPI),
  * icc (colour profile). 'struct' tags are picture structure: they are never removed. */

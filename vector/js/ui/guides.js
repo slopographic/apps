@@ -1,4 +1,4 @@
-/* Slop Vector — ui: guide layouts. Wires the shared GuideGuide-style panel (../shared/guides) to the
+/* SlopVector — ui: guide layouts. Wires the shared GuideGuide-style panel (../shared/guides) to the
  * document's guides ({ h: [y…], v: [x…] }), plus New Guide… and Snap to Guides. Guides snap through
  * SV.buildSnap (core/hittest.js), so generated guides snap like hand-made ones. */
 (function () {

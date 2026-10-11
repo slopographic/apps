@@ -1,4 +1,4 @@
-/* Slop Vector — tools: edit commands (clipboard, group, arrange, lock) */
+/* SlopVector — tools: edit commands (clipboard, group, arrange, lock) */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom;

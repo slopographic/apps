@@ -9,27 +9,28 @@
   const rows = (pairs) => el('dl', { class: 'facts' }, pairs.filter((p) => p && p[1] != null && p[1] !== '').flatMap(([k, v]) => [el('dt', null, k), el('dd', null, v)]));
 
   /** A live preview element for a file (Quick Look, the details panel and the columns). Images and PDFs use the shared
-   * viewer (ui/viewer.js: zoom, pan, open in a new tab). big: the Quick Look variant. sink: the array that keeps
-   * its object URLs (the info panel frees its own on each change; a column keeps its own). */
+   * viewer (ui/viewer.js: zoom, pan, open in a new tab). 3D scenes get a live 3D view (ui/preview-3d.js), CSV a table,
+   * text its start, and any other kind its card (ui/preview-kinds.js). big: the Quick Look variant. sink: the array that
+   * keeps its object URLs (the info panel frees its own on each change; a column keeps its own). */
   DR.previewOf = function (r, big = false, sink = urls) {
     const kind = DR.kindOf(r), box = el('div', { class: 'pv pv-' + kind });
-    if (kind === 'image' || kind === 'pdf') box.append(DR.viewerFor(r, big, sink).el);
-    else if (kind === 'audio') box.append(el('audio', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata' }));
+    if (kind === 'image' || kind === 'pdf' || DR.isAi(r)) box.append(DR.viewerFor(r, big, sink).el);
+    else if (kind === 'model' && DR.ext(r.name) === 's3d') box.append(DR.preview3d(r, big));
+    else if (kind === 'audio') box.append(DR.audioView(r, big));
     else if (kind === 'video') box.append(el('video', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata', playsinline: true }));
-    else if (kind === 'text') {
-      const pre = el('pre', { class: 'pv-text' }, 'Loading…');
-      r.blob.slice(0, big ? 400000 : 4000).text().then((t) => { pre.textContent = t + (r.size > (big ? 400000 : 4000) ? '\n…' : ''); });
-      box.append(pre);
-    } else box.append(el('div', { class: 'th' }, DR.badge(r, 'badge big')), el('p', { class: 'pv-note' }, 'No preview for this kind of file.'));
+    else if (kind === 'text' && ['csv', 'tsv'].includes(DR.ext(r.name))) box.append(DR.csvPreview(r, big));
+    else if (kind === 'text') box.append(DR.textPreview(r, big));
+    else box.append(...DR.cardPreview(r));
     return box;
   };
   function dims(r) {
     const m = DR.mediaInfo(r);
     if (!m) return null;
     if (m.pages) return `${m.pages} page${m.pages === 1 ? '' : 's'} · ${m.w} × ${m.h} pt`;
-    let s = `${m.w} × ${m.h} px`;
-    if (m.duration) s += ` · ${Math.floor(m.duration / 60)}:${String(Math.round(m.duration % 60)).padStart(2, '0')}`;
-    return s;
+    const parts = [];
+    if (m.w) parts.push(`${m.w} × ${m.h} px`);
+    if (m.duration) parts.push(`${Math.floor(m.duration / 60)}:${String(Math.round(m.duration % 60)).padStart(2, '0')}`);
+    return parts.join(' · ') || null;
   }
   function actions(r) {
     const b = (label, act, cls = '') => { const x = el('button', { type: 'button', class: 'btn ' + cls }, label); x.addEventListener('click', act); return x; };
@@ -40,7 +41,15 @@
     return el('div', { class: 'acts' }, ...openIn,
       r.isFolder ? b('Open', () => DR.open(r), 'primary') : b('Quick look', () => DR.quickLook(r)),
       b(r.isFolder ? 'Download .zip' : 'Download', () => DR.download([r])), b(r.starred ? 'Unstar' : 'Star', () => DR.setStar([r], !r.starred)),
-      DR.isCleanable(r) ? b('Remove metadata…', () => DR.openInClean(r)) : null);
+      DR.isCleanable(r) ? b('Remove metadata…', () => DR.openInClean(r)) : null,
+      DR.isFaceable(r) ? b('Find faces', () => DR.findFaces([r])) : null);
+  }
+  /** The face count row for a picture, when face detection is on: the stored count, or "Not checked yet". */
+  function faceRow(r, facts) {
+    if (!DR.isFaceable(r) || !window.SlopFaces || !window.SlopFaces.enabled()) return;
+    const cell = el('dd', { class: 'faces-n' }, 'Not checked yet');
+    facts.append(el('dt', null, 'Faces'), cell);
+    DR.facesOf(r).then((row) => { if (row) cell.textContent = DR.faceText(row.faces.length); });
   }
   function single(r) {
     const head = el('div', { class: 'info-h' }, DR.badge(r, 'badge sm'), el('h2', { title: r.name }, r.name));
@@ -56,6 +65,7 @@
     const facts = rows([['Kind', DR.kindLabel(r)], ['Type', r.type], ['Size', `${DR.fmtSize(r.size)} (${(r.size || 0).toLocaleString()} bytes)`], ['Made by', DR.appName(r.from)],
       ['Location', loc], ['Added', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], ['Opened', r.opened ? DR.fmtFull(r.opened) : 'Never'], r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null]);
     if (['image', 'video', 'pdf'].includes(DR.kindOf(r))) facts.append(el('dt', null, DR.kindOf(r) === 'pdf' ? 'Pages' : 'Dimensions'), dd);
+    faceRow(r, facts);
     return [head, DR.previewOf(r), actions(r), facts, tagBox(r)];
   }
   /** A file's tags: a chip per tag with a remove button, and a box that adds more (Enter or a comma). */

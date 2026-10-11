@@ -1,4 +1,4 @@
-/* Slop Vector — io: offline single-file self-download */
+/* SlopVector — io: offline single-file self-download */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;

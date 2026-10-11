@@ -79,6 +79,22 @@
     const est = navigator.storage && navigator.storage.estimate ? await navigator.storage.estimate().catch(() => ({})) : {};
     const box = AI.$('mUsage');
     if (box) box.textContent = `Models use ${AI.fmtBytes(total)} on this device` + (est.quota ? ` · ${AI.fmtBytes(est.quota - (est.usage || 0))} free for this site` : '');
+    paintStorage(est);
+  }
+  /** Storage: each downloaded model with its size and a Delete button (the same cache the engine uses), and a plain
+   * warning when this site is nearly out of space, saying what to free. */
+  const LOW_BYTES = 256 * 1048576;
+  function paintStorage(est) {
+    const body = AI.$('mStorageBody'); if (!body) return;
+    const rows = all().map((m) => ({ m, st: statuses.get(m.id) || { state: 'none', bytes: 0 } })).filter((r) => r.st.state !== 'none');
+    const total = rows.reduce((n, r) => n + (r.st.bytes || 0), 0);
+    const free = est && est.quota ? est.quota - (est.usage || 0) : null;
+    body.replaceChildren(
+      free != null && free < LOW_BYTES ? el('p', { class: 'msg err', id: 'mFull', role: 'alert' }, `Storage is full for this site (${AI.fmtBytes(Math.max(0, free))} left). To free space, delete a model below, or use Slop Drive ▸ Storage ▸ Clear local cache. Then try again.`) : null,
+      el('p', { class: 'faint' }, rows.length ? `Downloaded models use ${AI.fmtBytes(total)} in this browser. Deleting one removes only its files; you can download it again.` : 'No model is stored in this browser yet.'),
+      rows.length ? el('table', { class: 'mtable' }, el('tbody', null, rows.map(({ m, st }) => el('tr', { 'data-id': m.id },
+        el('th', { scope: 'row' }, m.name), el('td', null, st.state === 'partial' ? 'Partly downloaded' : 'Downloaded'), el('td', { class: 'num' }, AI.fmtBytes(st.bytes)),
+        el('td', null, el('button', { type: 'button', class: 'btn sm danger', 'data-act': 'delete-storage', onclick: () => del(m) }, AI.icon('trash'), 'Delete')))))) : null);
   }
 
   async function importDisk() {
@@ -108,7 +124,8 @@
         el('p', { class: 'faint', id: 'mUsage' }, '…')),
       el('div', { class: 'head-acts' }, el('button', { type: 'button', class: 'btn', id: 'btnDisk', onclick: importDisk, disabled: E.isFake() }, AI.icon('folder'), 'Load from disk…'),
         !AI.sys ? el('button', { type: 'button', class: 'btn', onclick: () => AI.setTab('sys') }, 'Check my PC') : null)),
-      el('div', { class: 'mgrid' }, all().map((m) => card(m, rec, recCode)))));
+      el('div', { class: 'mgrid' }, all().map((m) => card(m, rec, recCode))),
+      el('section', { class: 'mstore', id: 'mStorage', 'aria-labelledby': 'mStorageH' }, el('h2', { id: 'mStorageH' }, 'Storage'), el('div', { id: 'mStorageBody' }, '…'))));
     const f = v.querySelector('.mcard.focus'); if (f) { f.scrollIntoView({ block: 'center' }); AI.focusModel = null; }
     usage();
   }

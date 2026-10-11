@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>PhotoSLOP transform tests</title>
+  <title>PhotoSlop transform tests</title>
   <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style>
 </head>
 <body>
@@ -11,12 +11,9 @@
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
   let W, win;
-  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   /** Client point for a document point (the viewport is at 100 % for these small documents). */
   const scr = (x, y) => { const r = W.V.el.getBoundingClientRect(); return { x: r.left + W.V.ox + x * W.V.zoom, y: r.top + W.V.oy + y * W.V.zoom }; };
-  function ptr(type, x, y, opts = {}) {
-    W.V.el.dispatchEvent(new win.PointerEvent(type, Object.assign({ clientX: x, clientY: y, button: 0, buttons: type === 'pointerup' ? 0 : 1, pointerId: 9, pointerType: 'mouse', bubbles: true, cancelable: true }, opts)));
-  }
+  function ptr(type, x, y, opts = {}) { W.V.el.dispatchEvent(new win.PointerEvent(type, Object.assign({ clientX: x, clientY: y, button: 0, buttons: type === 'pointerup' ? 0 : 1, pointerId: 9, pointerType: 'mouse', bubbles: true, cancelable: true }, opts))); }
   /** A drag through document points (first point = pointer down, last = pointer up). */
   function drag(pts, opts = {}) {
     const a = scr(...pts[0]); ptr('pointerdown', a.x, a.y, opts);
@@ -36,12 +33,10 @@
   function scene(name, w, hh, paint, bg = '#ffffff') {
     W.newDocTab(w, hh, bg, name); W.actualPixels(); W.selectTool('move'); W.setColor('fg', '#000000');
     const c = W.mkCanvas(w, hh), g = W.cx(c); if (paint) paint(g, c);
-    W.addLayer({ name: 'Scene', canvas: c }, 'Add Scene');
-    return W.activeLayer();
+    W.addLayer({ name: 'Scene', canvas: c }, 'Add Scene'); return W.activeLayer();
   }
-  /** The menu item at group › label (searching submenus). */
+  /** The menu item at group › label (searching submenus; separators are the string '-', so only objects are checked). */
   function menuItem(group, label) {
-    // Separators are the string '-', so only objects are checked (a string's .sub is String.prototype.sub).
     const find = (list) => list.reduce((a, it) => a || (it && typeof it === 'object' ? (it.label === label ? it : it.sub ? find(it.sub) : null) : null), null);
     return find(W.MENUS.find(([n]) => n === group)[1]);
   }
@@ -50,18 +45,21 @@
   const dlgBtn = (label) => [...dlg().querySelectorAll('.sui-btn')].find((b) => b.textContent === label);
   const fld = (label) => dlg().querySelector(`[aria-label="${label}"]`);
   const setVal = (el, v) => { el.value = String(v); el.dispatchEvent(new win.Event('input', { bubbles: true })); el.dispatchEvent(new win.Event('change', { bubbles: true })); };
-  /** Drags the bottom-right handle so the box is f times its size (anchored at the top-left corner). */
-  function scaleBox(f) {
-    const cs = W.tfCorners(), tl = cs[0], br = cs[2];
-    const to = { x: tl.x + (br.x - tl.x) * f, y: tl.y + (br.y - tl.y) * f };
-    drag([[br.x, br.y], [(br.x + to.x) / 2, (br.y + to.y) / 2], [to.x, to.y]]);
+  /** A field of the options bar, by its label (W, H, ...). */
+  const optField = (label) => [...win.document.querySelectorAll('#options input')].find((i) => i.getAttribute('aria-label') === label);
+  /** Drags the bottom-right corner so the box is fx × its width and fy × its height (anchored at the top-left corner). */
+  function cornerDrag(fx, fy, opts) {
+    const cs = W.tfCorners(), tl = cs[0], br = cs[2], to = { x: tl.x + (br.x - tl.x) * fx, y: tl.y + (br.y - tl.y) * fy };
+    drag([[br.x, br.y], [(br.x + to.x) / 2, (br.y + to.y) / 2], [to.x, to.y]], opts);
   }
+  const scaleBox = (f) => cornerDrag(f, f);
 
   describe('Transform: Image Size, Canvas Size, rotate and flip, Free Transform', () => {
     it('boots', async () => {
       win = document.getElementById('app').contentWindow;
       await waitFor(() => win.document && win.document.body && win.document.body.classList.contains('ready'), { timeout: 30000 });
       W = new Proxy({}, { get: (_, k) => win.eval(String(k)) });
+      W.store.set('snap', false); // snapping would pull the test drags onto the centre lines
       expect(typeof W.resizeCanvas).toBe('function');
       expect(typeof W.dlgImageSize).toBe('function');
     }, { timeout: 40000 });
@@ -72,13 +70,11 @@
       W.dlgImageSize();
       await waitFor(() => fld('Width'));
       expect(fld('Height').value).toBe('100');
-      setVal(fld('Width'), 100);
-      expect(fld('Height').value).toBe('50');
+      setVal(fld('Width'), 100); expect(fld('Height').value).toBe('50');
       expect(dlg().textContent).toContain('New size: 100 × 50 px');
       dlgBtn('OK').click();
       await waitFor(() => W.Hist.idx === before + 1);
-      expect([W.D.w, W.D.h]).toEqual([100, 50]);
-      expect(W.Hist.states[W.Hist.idx].label).toBe('Image Size');
+      expect([W.D.w, W.D.h]).toEqual([100, 50]); expect(W.Hist.states[W.Hist.idx].label).toBe('Image Size');
     });
 
     it('Image Size in percent with the link off sets each side on its own', async () => {
@@ -110,10 +106,7 @@
       await waitFor(() => W.D.w === 300);
       expect([W.D.w, W.D.h]).toEqual([300, 150]);
       expect([W.activeLayer().x, W.activeLayer().y]).toEqual([100, 50]);
-      const flat = W.flattenCanvas();
-      expect(px(flat, 0, 0)[3]).toBe(0);
-      expect(px(flat, 99, 49)[3]).toBe(0);
-      expect(px(flat, 100, 50)).toEqual([255, 0, 0, 255]);
+      const flat = W.flattenCanvas(); expect(px(flat, 0, 0)[3]).toBe(0); expect(px(flat, 99, 49)[3]).toBe(0); expect(px(flat, 100, 50)).toEqual([255, 0, 0, 255]);
       expect(W.Hist.states[W.Hist.idx].label).toBe('Canvas Size');
       expect(W.D.layers.length).toBe(1);
     });
@@ -127,11 +120,8 @@
       setVal(dlg().querySelector('[aria-label="Canvas extension"]'), 'white');
       dlgBtn('OK').click();
       await waitFor(() => W.D.w === 240);
-      expect(W.D.layers.length).toBe(2);
-      expect(W.D.layers[0].name).toBe('Canvas Fill');
-      const flat = W.flattenCanvas();
-      expect(px(flat, 220, 50)).toEqual([255, 255, 255, 255]);
-      expect(px(flat, 10, 10)[3]).toBe(0);
+      expect(W.D.layers.length).toBe(2); expect(W.D.layers[0].name).toBe('Canvas Fill');
+      const flat = W.flattenCanvas(); expect(px(flat, 220, 50)).toEqual([255, 255, 255, 255]); expect(px(flat, 10, 10)[3]).toBe(0);
     });
 
     it('Image > Rotate 90° Clockwise turns 200 × 100 into 100 × 200 and moves every pixel', () => {
@@ -175,8 +165,7 @@
       key('Escape');
       expect(W.TRANSFORM.active).toBe(false);
       expect(W.activeLayer().canvas).toBe(L0.canvas);
-      expect(bytes(W.activeLayer().canvas)).toEqual(before);
-      expect(W.Hist.idx).toBe(hist);
+      expect(bytes(W.activeLayer().canvas)).toEqual(before); expect(W.Hist.idx).toBe(hist);
     });
 
     it('Free Transform: Enter applies the scale in one step, and one undo restores the layer', async () => {
@@ -203,6 +192,68 @@
       key('ArrowRight', { shiftKey: true }); expect(W.activeLayer().x).toBe(x0 + 11);
     });
 
+    it('the Move tool shows the layer box with eight handles and a rotate knob on the canvas, hidden under painting tools', () => {
+      scene('Box', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      const pts = W.idleBoxPoints();
+      expect(pts.length).toBe(9);
+      W.draw();
+      const ctx = W.V.canvas.getContext('2d', { willReadFrequently: true });
+      // Sampled 2 px in from each centre, clear of the rotate knob's stem and the box outline.
+      // Each handle has a blue outline on its top edge (the handles are white on the white page), and the knob is white.
+      const rgb = (x, y) => [...ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data];
+      for (const q of pts.slice(0, 8)) { const [r, , b] = rgb(q.x, q.y - 4); expect(b - r > 150).toBe(true); }
+      expect(rgb(pts[8].x + 2, pts[8].y + 2).slice(0, 3)).toEqual([255, 255, 255]);
+      W.selectTool('brush');
+      expect(W.idleBoxPoints().length).toBe(0); W.selectTool('move'); expect(W.idleBoxPoints().length).toBe(9);
+    });
+
+    it('double-click inside the box starts Free Transform, and a double-click outside it does not', () => {
+      const L = scene('Dbl', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      const b = W.layerBoundsDoc(L), inside = scr(b.x + b.w / 2, b.y + b.h / 2);
+      ptr('pointerdown', inside.x, inside.y); ptr('pointerup', inside.x, inside.y);
+      W.V.el.dispatchEvent(new win.MouseEvent('dblclick', { clientX: inside.x, clientY: inside.y, bubbles: true }));
+      expect(W.TRANSFORM.active).toBe(true); key('Escape'); expect(W.TRANSFORM.active).toBe(false);
+      const out = scr(2, 2);
+      W.V.el.dispatchEvent(new win.MouseEvent('dblclick', { clientX: out.x, clientY: out.y, bubbles: true }));
+      expect(W.TRANSFORM.active).toBe(false);
+    });
+
+    it('dragging a box handle with the Move tool runs Free Transform, and Enter applies it in one step', () => {
+      const L = scene('Handle', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      const b = W.layerBoundsDoc(L), hist = W.Hist.idx;
+      drag([[b.x + b.w, b.y + b.h], [b.x + b.w * 0.75, b.y + b.h * 0.75], [b.x + b.w / 2, b.y + b.h / 2]]);
+      expect(W.TRANSFORM.active).toBe(true); expect(W.TRANSFORM.sx).toBeCloseTo(0.5, 1);
+      key('Enter'); expect(W.TRANSFORM.active).toBe(false);
+      expect(W.Hist.idx).toBe(hist + 1); expect(W.Hist.states[W.Hist.idx].label).toBe('Free Transform');
+      expect(Math.abs(W.layerBoundsDoc(W.activeLayer()).w - 20)).toBeLessThanOrEqual(1);
+    });
+
+    it('the Move options W field changes the layer width, and one undo restores it', () => {
+      scene('Width', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      const field = optField('W');
+      expect(field.value).toBe('40');
+      const before = W.Hist.idx, x0 = W.layerBoundsDoc(W.activeLayer()).x, data = bytes(W.activeLayer().canvas);
+      setVal(field, 80);
+      expect(W.Hist.idx).toBe(before + 1); expect(W.Hist.states[W.Hist.idx].label).toBe('Free Transform');
+      const nb = W.layerBoundsDoc(W.activeLayer());
+      expect(Math.abs(nb.w - 80)).toBeLessThanOrEqual(1); expect(Math.abs(nb.x - x0)).toBeLessThanOrEqual(1);
+      W.undo(); expect(W.Hist.idx).toBe(before); expect(bytes(W.activeLayer().canvas)).toEqual(data);
+    });
+
+    it('the Layers row button starts Free Transform, and the layer menu begins with it', () => {
+      scene('Row', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      const btn = win.document.querySelector('.layers li.active .lp-xf');
+      expect(btn).not.toBe(null);
+      btn.click();
+      expect(W.TRANSFORM.active).toBe(true);
+      key('Escape');
+      expect(W.layerItems(W.activeLayer())[0].label).toBe('Free Transform');
+    });
+
     it('every new transform item is a command, and the layer menu offers the transform items', () => {
       for (const [g, l] of [['Image', 'Rotate 90° Clockwise'], ['Image', 'Flip Vertical'], ['Image', 'Image Size…'], ['Image', 'Canvas Size…'], ['Layer', 'Rotate 180°'], ['Layer', 'Flip Vertical']]) {
         expect(menuItem(g, l).cmdId).toMatch(/^ps\./);
@@ -215,8 +266,35 @@
       expect(labels).toContain('Free Transform');
       expect(labels).toContain('Rotate and Flip');
     });
+
+    it('the proportion lock is on by default: a corner drag keeps the aspect ratio, and Shift makes it change', () => {
+      scene('Lock', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.startTransform();
+      expect(W.TRANSFORM.lock).toBe(true);
+      cornerDrag(0.5, 0.9); expect(Math.abs(W.TRANSFORM.sx - W.TRANSFORM.sy)).toBeLessThan(0.01); key('Escape');
+      W.startTransform(); cornerDrag(0.5, 0.9, { shiftKey: true });
+      expect(Math.abs(W.TRANSFORM.sx - W.TRANSFORM.sy)).toBeGreaterThan(0.2); key('Escape');
+    });
+
+    it('with the lock on, the W field changes H too', () => {
+      scene('Lock W', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      setVal(optField('W'), 80);
+      expect(Math.abs(W.layerBoundsDoc(W.activeLayer()).h - 60)).toBeLessThanOrEqual(1); expect(optField('H').value).toBe('60');
+      W.undo();
+    });
+
+    it('the chain-link button turns the lock off for the session, so a corner drag changes the aspect ratio', () => {
+      scene('Lock off', 200, 100, (g) => { g.fillStyle = '#ff0000'; g.fillRect(60, 30, 40, 30); }, 'transparent');
+      W.selectTool('move');
+      const b = win.document.querySelector('#options [aria-label="Proportion lock"]');
+      expect(b.getAttribute('aria-pressed')).toBe('true');
+      b.click(); expect(b.getAttribute('aria-pressed')).toBe('false'); expect(W.TRANSFORM.lock).toBe(false);
+      W.startTransform(); cornerDrag(0.5, 0.9);
+      expect(Math.abs(W.TRANSFORM.sx - W.TRANSFORM.sy)).toBeGreaterThan(0.2); key('Escape');
+    });
   });
-  SlopTest.run({ name: 'PhotoSLOP transform' });
+  SlopTest.run({ name: 'PhotoSlop transform' });
   </script>
 </body>
 </html>

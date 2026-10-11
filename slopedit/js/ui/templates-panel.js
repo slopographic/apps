@@ -1,9 +1,9 @@
-/* SlopEdit: the Templates tab of the bin. Template tiles (click to apply or re-flow), the slots of the
+/* SlopCut: the Templates tab of the bin. Template tiles (click to apply or re-flow), the slots of the
    current layout (drag a clip into a slot, drag a slot onto another to swap, or use the selects), and
    the clips on the timeline as draggable chips. Renders into the bin's list element. */
 (function () {
   'use strict';
-  const SE = window.SE, U = SE.util, M = SE.model, T = SE.templates, L = SE.layout, h = U.h;
+  const SE = window.SE, U = SE.util, M = SE.model, T = SE.templates, L = SE.layout, h = U.h, SV = window.SlopVideo, G = SV.grid;
   const P = SE.tplPanel = {};
   const MIME_SLOT = 'application/x-slopedit-slot', MIME_CLIP = 'application/x-slopedit-clip';
   const dragHas = (e, type) => !!e.dataTransfer && [...(e.dataTransfer.types || [])].includes(type);
@@ -18,6 +18,22 @@
     const cur = !!SE.doc.layout && SE.doc.layout.tpl === tpl.id;
     return h('button', { type: 'button', class: 'tp-tile' + (cur ? ' on' : ''), 'aria-pressed': cur ? 'true' : 'false', title: tpl.name + ' — ' + tpl.desc, onclick: () => SE.act.applyTemplate(tpl.id) },
       thumb(tpl), h('b', null, tpl.name), h('small', null, tpl.desc));
+  }
+  /** Custom grid…: columns and rows (1 to 4 each), applied like a template (equal cells). */
+  function customTile() {
+    return h('button', { type: 'button', class: 'tp-tile tp-custom', title: 'Custom grid: choose columns and rows', onclick: () => customDialog() },
+      h('span', { class: 'tp-thumb tp-cgrid', 'aria-hidden': 'true' }, '+'), h('b', null, 'Custom grid…'), h('small', null, 'Columns and rows'));
+  }
+  function customDialog() {
+    const cols = SlopUI.number(3, 1, G.MAX, 1), rows = SlopUI.number(2, 1, G.MAX, 1);
+    const sum = h('p', { class: 'sui-p', role: 'status' });
+    const upd = () => { sum.textContent = cols.value * rows.value + ' equal cells: ' + cols.value + ' column' + (cols.value > 1 ? 's' : '') + ' × ' + rows.value + ' row' + (rows.value > 1 ? 's' : '') + '. Each cell takes a track.'; };
+    cols.addEventListener('input', upd); rows.addEventListener('input', upd); upd();
+    SlopUI.dialog({
+      title: 'Custom grid', cls: 'sui-narrow',
+      body: h('div', null, SlopUI.field('Columns', cols), SlopUI.field('Rows', rows), sum),
+      buttons: [{ label: 'Cancel' }, { label: 'Apply', primary: true, act: () => { SE.act.applyTemplate(G.id(+rows.value, +cols.value)); } }]
+    });
   }
   const clipLabel = (c) => M.label(SE.doc, c) + ' · ' + U.dur(c.start);
   /** Visual clips on the timeline, in time order (the choices for a slot). */
@@ -63,7 +79,7 @@
     const kids = [
       h('h4', { class: 'fx-h' }, 'Layouts'),
       h('p', { class: 'tp-note' }, lay ? 'Choose another template to re-flow this layout. The clips stay.' : 'Select clips on the timeline (Ctrl/Shift-click for several), or media in the bin, then choose a layout. Each slot gets a track.'),
-      h('div', { class: 'tp-grid' }, T.list.map(tile))
+      h('div', { class: 'tp-grid' }, T.list.map(tile), customTile())
     ];
     if (tpl) {
       kids.push(h('h4', { class: 'fx-h' }, 'Slots · ' + tpl.name));
@@ -72,6 +88,8 @@
       kids.push(h('div', { class: 'tp-slotctl' }, tpl.slots.map((_, i) => h('div', { class: 'tp-row' }, h('span', { class: 'tp-lbl' }, 'Slot ' + (i + 1)), slotControls(i)))));
       kids.push(h('div', { class: 'tp-actions' }, h('button', { type: 'button', class: 'btn sm', onclick: () => SE.act.clearLayout() }, 'Clear layout (keeps clips)')));
     }
+    kids.push(h('h4', { class: 'fx-h' }, 'Layout lane'));
+    kids.push(SE.laneUI.element());
     const vis = visual();
     kids.push(h('h4', { class: 'fx-h' }, 'Clips on the timeline'));
     kids.push(vis.length ? h('div', { class: 'tp-chips' }, vis.map(chip)) : h('p', { class: 'tp-note' }, 'No video or image clips yet.'));

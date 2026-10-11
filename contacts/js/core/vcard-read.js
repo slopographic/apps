@@ -1,5 +1,6 @@
 /* Slop Contacts: read vCard 2.1, 3.0 and 4.0 (.vcf). Handles folded lines, quoted-printable (2.1),
- * escaped characters, several TEL/EMAIL/ADR with TYPE, Apple itemN.X-ABLabel and CATEGORIES as groups.
+ * escaped characters, several TEL/EMAIL/ADR with TYPE, Apple itemN.X-ABLabel, CATEGORIES as groups and PHOTO
+ * (base64 JPEG or PNG, or a URL kept as text).
  * Classic script. Adds SlopContacts.vcard.read(text) -> contacts (normalised). */
 (function () {
   'use strict';
@@ -92,6 +93,7 @@
         case 'NOTE': c.note = c.note ? c.note + '\n' + u : u; break;
         case 'CATEGORIES': c.groups.push(...T.splitUnescaped(raw, ',').map(T.unescVal)); break;
         case 'UID': if (u.trim()) c.id = u.trim(); break;
+        case 'PHOTO': if (!c.photo) c.photo = SC.photo.fromVcard(p.value, p.params); break;
         default: break;
       }
     }

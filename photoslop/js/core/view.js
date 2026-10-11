@@ -1,4 +1,4 @@
-/* PhotoSLOP: the viewport. Zoom/pan, checkerboard, composite cache, marching ants, tool overlays, pointer routing. */
+/* PhotoSlop: the viewport. Zoom/pan, checkerboard, composite cache, marching ants, tool overlays, pointer routing. */
 'use strict';
 
 const V = {
@@ -26,6 +26,7 @@ function initView() {
   V.el.addEventListener('wheel', onWheel, { passive: false });
   ctxTarget(V.el, 'canvas', canvasItems); // right-click and Menu key: ui/context.js
   V.el.addEventListener('contextmenu', (e) => {
+    if (brushRightContext()) { e.preventDefault(); e.stopPropagation(); return; } // a right-button brush drag (brush-resize.js)
     if (V.op) { const t = V.op.tool; if (e.pointerType === 'touch' || !e.button) { if (t.cancel) t.cancel(); V.op = null; } }
   });
   V.el.addEventListener('dblclick', (e) => { const t = currentTool(); if (t.dblclick) t.dblclick(toDoc(e), e); });
@@ -123,6 +124,7 @@ function draw() {
   if (D.sel && !(live && live.hideSel)) drawAnts(g);
   const t = currentTool();
   if (t.overlay) { g.save(); t.overlay(g); g.restore(); }
+  drawIdleBox(g);
   if (V.resize && V.resize.moved) {
     // live brush preview while Shift-dragging
     const R = V.resize, r = V.el.getBoundingClientRect(), cxp = R.sx - r.left, cyp = R.sy - r.top, rad = Math.max(1, (R.o.size * V.zoom) / 2);
@@ -198,12 +200,14 @@ function onPointerDown(e) {
     V.el.setPointerCapture(e.pointerId); V.el.classList.add('panning'); e.preventDefault();
     return;
   }
-  if (e.button !== 0) return; // right-click opens the brush picker / context menu instead
+  if (e.button === 2 && brushRightDown(e)) return; // right-drag resizes the brush; a plain right-click opens the menu
+  if (e.button !== 0) return;
   if (isMac && e.ctrlKey && !e.metaKey) return; // Ctrl-click = context menu on a Mac
   if (document.activeElement && document.activeElement.blur && document.activeElement !== document.body && !document.activeElement.closest('.type-edit')) document.activeElement.blur();
   const t = currentTool();
   const p = snapP(toDoc(e), t);
   V.cursor = p;
+  if (idleBoxDown(p, e)) { e.preventDefault(); dirty(); return; } // a handle of the layer's box (tools/transform-idle.js)
   if (eyeAltSample(t, p, e)) { e.preventDefault(); return; } // Alt on a painting tool samples the colour and never paints
   // Shift-drag with a brush: left/right = size, up/down = hardness (with Alt: opacity).
   // A Shift-click without dragging still draws a straight line from the last point.
@@ -245,7 +249,7 @@ function onPointerMove(e) {
     if (!R.moved && Math.hypot(dx, dy) > 4) R.moved = true;
     if (R.moved) {
       R.o.size = clamp(Math.round(R.size + dx / V.zoom * 1.2), 1, 1000);
-      if (R.alt || e.altKey) { if (R.o.opacity != null) R.o.opacity = clamp(R.op - dy / 200, 0.01, 1); }
+      if (!R.right && (R.alt || e.altKey)) { if (R.o.opacity != null) R.o.opacity = clamp(R.op - dy / 200, 0.01, 1); }
       else if (R.o.hardness != null) R.o.hardness = clamp(R.hard - dy / 200, 0, 1);
       if (R.o.preset) R.o.preset = null;
       emit('options');
@@ -254,9 +258,10 @@ function onPointerMove(e) {
   }
   const t = currentTool();
   if (V.op && V.op.id === e.pointerId) {
-    if (t.move) {
-      const evs = t.coalesce && e.getCoalescedEvents ? e.getCoalescedEvents() : null;
-      if (evs && evs.length > 1) for (const ce of evs) t.move(toDoc(ce), ce); else t.move(p, e);
+    const ot = V.op.tool; // the tool that owns the gesture (a box handle hands over to Free Transform mid-drag)
+    if (ot.move) {
+      const evs = ot.coalesce && e.getCoalescedEvents ? e.getCoalescedEvents() : null;
+      if (evs && evs.length > 1) for (const ce of evs) ot.move(toDoc(ce), ce); else ot.move(p, e);
     }
   } else if (t.hover) t.hover(p, e);
   dirty();
@@ -266,7 +271,8 @@ function onPointerUp(e) {
   if (V.pan) { V.pan = null; V.el.classList.remove('panning'); return; }
   if (V.resize && V.resize.id === e.pointerId) {
     const R = V.resize; V.resize = null;
-    if (R.moved) { saveToolOptions(); buildOptions(); }
+    if (R.right) brushRightEnd(R);
+    else if (R.moved) { saveToolOptions(); buildOptions(); }
     else { const t = currentTool(); if (t.down) { t.down(R.p, R.e); if (t.up) t.up(R.p, R.e); } }
     dirty(); return;
   }

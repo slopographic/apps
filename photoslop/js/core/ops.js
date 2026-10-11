@@ -1,4 +1,4 @@
-/* PhotoSLOP document: document and layer operations */
+/* PhotoSlop document: document and layer operations */
 'use strict';
 
 /* ---------- document ops ---------- */
@@ -81,14 +81,14 @@ function setLayerProps(id, patch, label) {
 function applyToLayer(label, fn, L = activeLayer()) {
   if (!L) return;
   if (L.locked) { toast('That layer is locked'); return; }
-  if (L.text) L = rasterizeText(L, true);
+  if (L.text || L.shape) L = rasterizeText(L, true);
   const proc = fn(L.canvas, L);
   if (!proc) return;
   const out = D.sel ? mixBySel(L.canvas, proc, selInLayer(L)) : proc;
   patchLayer(L.id, { canvas: out });
   commit(label);
 }
-function rasterizeText(L, quiet) { const R = patchLayer(L.id, { text: null }); if (!quiet) commit('Rasterize Type'); return R; }
+function rasterizeText(L, quiet) { const R = patchLayer(L.id, { text: null, shape: null }); if (!quiet) commit('Rasterize Type'); return R; }
 
 /** Transform every layer: kind = cw | ccw | 180 | flipH | flipV. */
 function transformCanvas(kind) {
@@ -124,7 +124,7 @@ function cropTo(r, deletePixels = true) {
       const c = mkCanvas(r.w, r.h); cx(c).drawImage(L.canvas, L.x - r.x, L.y - r.y);
       let mask = L.mask;
       if (mask) { const m = mkCanvas(r.w, r.h), g = cx(m); if (mask.def) { g.fillStyle = '#000'; g.fillRect(0, 0, r.w, r.h); g.clearRect(mask.x - r.x, mask.y - r.y, mask.canvas.width, mask.canvas.height); } g.drawImage(mask.canvas, mask.x - r.x, mask.y - r.y); mask = Object.assign({}, mask, { canvas: m, x: 0, y: 0 }); }
-      return Object.assign({}, L, { canvas: c, x: 0, y: 0, mask, text: L.text && Object.assign({}, L.text, { x: L.text.x - r.x, y: L.text.y - r.y }) });
+      return Object.assign({}, L, { canvas: c, x: 0, y: 0, mask, text: L.text && Object.assign({}, L.text, { x: L.text.x - r.x, y: L.text.y - r.y }), shape: null });
     });
     D.w = r.w; D.h = r.h; D.sel = null; remapGuides((g) => ({ o: g.o, pos: g.pos - (g.o === 'v' ? r.x : r.y) }));
     commit('Crop');
@@ -151,7 +151,7 @@ function clearSelectionPixels(label = 'Clear') {
 function fillSelection(color, label = 'Fill', opacity = 1, blend = 'normal', ignoreSel = false) {
   const L0 = activeLayer(); if (!L0) return;
   if (L0.locked) { toast('That layer is locked'); return; }
-  const L = coverDoc(L0.text ? rasterizeText(L0, true) : L0);
+  const L = coverDoc(L0.text || L0.shape ? rasterizeText(L0, true) : L0);
   const c = copyCanvas(L.canvas), g = cx(c);
   const f = mkCanvas(D.w, D.h), fg = cx(f);
   if (color instanceof HTMLCanvasElement) fg.drawImage(color, 0, 0); else { fg.fillStyle = color; fg.fillRect(0, 0, D.w, D.h); }

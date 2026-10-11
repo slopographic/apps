@@ -1,97 +1,76 @@
-/* Slop Drive — core/thumbs: thumbnails for images, SVG, PDF (first page via vendor pdf.js) and video,
- * made off the main path with a small queue and cached as object URLs. Also remembers dimensions. */
+/* Slop Drive — core/thumbs: the thumbnail for every file, made once in the background and cached in IndexedDB
+ * (core/thumb-cache.js) keyed by file id and modified time. Generation runs one job at a time, so the list never
+ * waits. DR.thumb(r) → a Promise of an object URL (never rejects; null for folders). The kinds: core/thumb-make.js. */
 'use strict';
 (function (DR) {
-  const cache = new Map(), info = new Map(), SIZE = 320;
-  let running = 0;
-  const queue = [];
-  const pump = () => { while (running < 3 && queue.length) { const job = queue.shift(); running++; job().finally(() => { running--; pump(); }); } };
-  const enqueue = (fn) => new Promise((res) => { queue.push(() => fn().then(res, () => res(null))); pump(); });
-  const keyOf = (r) => r.id + ':' + (r.modified || r.time);
+  const VER = 3; // bump when a generator changes, so every stored thumbnail is made again
+  const memo = new Map(), urls = new Map(), info = new Map(), logged = new Set();
+  const stamp = (r) => r.modified || r.time || 0;
+  const keyOf = (r) => r.id + ':' + stamp(r);
+  /** Counts for the tests and the console: made = generated now, cached = read from IndexedDB. */
+  const stats = DR.thumbStats = { made: 0, cached: 0 };
 
-  function canvasUrl(src, w, h) {
-    const s = Math.min(1, SIZE / Math.max(w, h)), c = document.createElement('canvas');
-    c.width = Math.max(1, Math.round(w * s)); c.height = Math.max(1, Math.round(h * s));
-    c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
-    return new Promise((res) => c.toBlob((b) => res(b ? URL.createObjectURL(b) : null), 'image/webp', 0.82));
-  }
-  async function imageThumb(r) {
-    if (DR.isSvg(r)) {
-      const url = URL.createObjectURL(r.blob);
-      const img = new Image(); img.src = url;
-      try { await img.decode(); info.set(r.id, { w: img.naturalWidth, h: img.naturalHeight }); } catch (e) { /* still show it */ }
-      return url;
+  // One job at a time: each job starts when the previous one has finished (and never rejects).
+  let chain = Promise.resolve();
+  const enqueue = (fn) => { const p = chain.then(fn).catch(() => null); chain = p; return p; };
+
+  /** The stored or freshly made thumbnail blob for a record. */
+  async function blobFor(r) {
+    const hit = await DR.thumbCache.get(r.id);
+    if (hit && hit.modified === stamp(r) && hit.ver === VER && hit.blob) {
+      info.set(r.id, hit.info || {}); stats.cached++;
+      return hit.blob;
     }
-    const bmp = await createImageBitmap(r.blob);
-    info.set(r.id, { w: bmp.width, h: bmp.height });
-    const url = await canvasUrl(bmp, bmp.width, bmp.height);
-    bmp.close();
+    const made = await DR.makeThumb(r);
+    stats.made++;
+    info.set(r.id, made.info || {});
+    await DR.thumbCache.put({ id: r.id, modified: stamp(r), ver: VER, blob: made.blob, info: made.info || {} });
+    return made.blob;
+  }
+  /** An object URL for a blob, reused while the same version of the file is shown. */
+  function urlFor(r, key, blob) {
+    const old = urls.get(r.id);
+    if (old && old.key === key) return old.url;
+    if (old) URL.revokeObjectURL(old.url);
+    const url = URL.createObjectURL(blob);
+    urls.set(r.id, { key, url });
     return url;
   }
-  let pdfjsP = null;
-  DR.pdfjs = function () {
-    if (!pdfjsP) pdfjsP = (async () => {
-      const base = new URL('../vendor/pdfjs/', document.baseURI).href;
-      const lib = await import(base + 'pdf.min.js');
-      lib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js';
-      return { lib, base };
-    })().catch((e) => { pdfjsP = null; throw e; });
-    return pdfjsP;
-  };
-  DR.openPdf = async function (blob) {
-    const { lib, base } = await DR.pdfjs();
-    return lib.getDocument({ data: new Uint8Array(await blob.arrayBuffer()), cMapUrl: base + 'cmaps/', cMapPacked: true, standardFontDataUrl: base + 'standard_fonts/', isEvalSupported: false }).promise;
-  };
-  DR.renderPdfPage = async function (doc, n, width) {
-    const page = await doc.getPage(n), v1 = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale: width / v1.width });
-    const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
-    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
-    return c;
-  };
-  async function pdfThumb(r) {
-    const doc = await DR.openPdf(r.blob);
-    try {
-      const c = await DR.renderPdfPage(doc, 1, SIZE);
-      const p1 = (await doc.getPage(1)).getViewport({ scale: 1 });
-      info.set(r.id, { pages: doc.numPages, w: Math.round(p1.width), h: Math.round(p1.height), unit: 'pt' });
-      return canvasUrl(c, c.width, c.height);
-    } finally { doc.destroy(); }
-  }
-  function videoThumb(r) {
-    return new Promise((res, rej) => {
-      const v = document.createElement('video'), url = URL.createObjectURL(r.blob);
-      const end = (x) => { URL.revokeObjectURL(url); v.removeAttribute('src'); v.load(); x instanceof Error ? rej(x) : res(x); };
-      v.muted = true; v.preload = 'metadata'; v.playsInline = true;
-      v.onloadedmetadata = () => { info.set(r.id, { w: v.videoWidth, h: v.videoHeight, duration: v.duration }); v.currentTime = Math.min(1, (v.duration || 2) / 3); };
-      v.onseeked = () => canvasUrl(v, v.videoWidth || 320, v.videoHeight || 180).then(end, end);
-      v.onerror = () => end(new Error('video'));
-      setTimeout(() => end(new Error('timeout')), 8000);
-      v.src = url;
-    });
-  }
-  /** Promise of a thumbnail URL (or null). */
+
+  /** Promise of a thumbnail URL for a file (or null for folders and records without a blob). Never rejects. */
   DR.thumb = function (r) {
     if (!r || r.isFolder || !r.blob) return Promise.resolve(null);
-    const k = keyOf(r);
-    if (cache.has(k)) return cache.get(k);
-    const kind = DR.kindOf(r);
-    let p = null;
-    if (kind === 'image') p = enqueue(() => imageThumb(r));
-    else if (kind === 'pdf' && r.size < 60 * 1048576) p = enqueue(() => pdfThumb(r));
-    else if (kind === 'video') p = enqueue(() => videoThumb(r));
-    else p = Promise.resolve(null);
-    cache.set(k, p);
-    return p;
+    const key = keyOf(r);
+    if (!memo.has(key)) {
+      const p = enqueue(() => blobFor(r)).then((blob) => (blob ? urlFor(r, key, blob) : null), () => null);
+      memo.set(key, p);
+    }
+    return memo.get(key);
   };
-  DR.thumbNow = (r) => cache.get(keyOf(r));
-  /** Dimensions etc. (after the thumbnail was made). */
+  /** Forgets the in-memory promises (the IndexedDB copies stay). Used by the tests. */
+  DR.thumbReset = () => memo.clear();
+  /** Facts kept with a thumbnail: { kind, w, h, pages, duration, lines, header, ... } once it has been made or read. */
   DR.mediaInfo = (r) => info.get(r.id) || null;
-  /** Fill an element with the thumbnail when ready. */
+  /** Fills a box with the thumbnail when it is ready (the box then gets the has-img class). */
   DR.fillThumb = function (box, r) {
     DR.thumb(r).then((url) => {
-      if (!url) return;
-      const img = DR.el('img', { src: url, alt: '', draggable: 'false', decoding: 'async' });
-      box.replaceChildren(img); box.classList.add('has-img');
+      if (!url || !box.isConnected) return;
+      box.replaceChildren(DR.el('img', { src: url, alt: '', draggable: 'false', decoding: 'async' }));
+      box.classList.add('has-img');
     });
+  };
+  /** Logs a thumbnail failure once per file and kind of error. */
+  DR.logThumbError = function (r, err) {
+    const k = r.id + ':' + (err && err.message);
+    if (logged.has(k)) return;
+    logged.add(k);
+    console.warn(`Slop Drive: no thumbnail for "${r.name}", showing its card instead:`, err);
+  };
+  /** Drops the thumbnails of files that are gone (called after each refresh) and their cached copies. */
+  DR.pruneThumbs = async function (liveIds) {
+    const live = new Set(liveIds);
+    for (const [id, u] of urls) if (!live.has(id)) { URL.revokeObjectURL(u.url); urls.delete(id); info.delete(id); }
+    for (const k of [...memo.keys()]) if (!live.has(k.slice(0, k.indexOf(':')))) memo.delete(k);
+    await DR.thumbCache.prune(live);
   };
 })(window.DR);

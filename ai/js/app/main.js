@@ -15,6 +15,7 @@
     const hash = location.hash.slice(1);
     AI.setTab(AI.TABS.some((t) => t[0] === hash) ? hash : AI.prefs.tab || 'chat');
     addEventListener('hashchange', () => { const h = location.hash.slice(1); if (AI.TABS.some((t) => t[0] === h)) AI.setTab(h); });
+    await AI.restoreChatPlace(); // ui/view-state.js: the open chat and its unsent text
     // "Send to Slop AI" from another app: text files become an attachment
     if (window.SlopHub) {
       const r = await SlopHub.consumeLaunch();

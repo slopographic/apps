@@ -1,4 +1,4 @@
-/* Slop Cutout — the look sections of the settings panel: Background, Shadow and Crop. panel.js appends
+/* SlopIsolate — the look sections of the settings panel: Background, Shadow and Crop. panel.js appends
  * them. Each control is a kit control bound to one field of the active image's look (undo per drag). */
 (function () {
   'use strict';

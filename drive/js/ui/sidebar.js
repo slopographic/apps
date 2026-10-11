@@ -23,9 +23,11 @@
       const kids = DR.children(parent).folders.sort(DR.SORTS.name);
       for (const f of kids) {
         const open = S.tree.has(f.id), has = DR.hasSubfolders(f.id), on = S.section === 'folder' && S.cwd === f.id;
+        const app = DR.appOfFolder(f);
         const tw = el('span', { class: 'twisty' + (has ? '' : ' none') + (open ? ' open' : ''), 'aria-hidden': 'true' }, DR.icon('chev'));
-        const b = el('button', { type: 'button', class: 'node' + (on ? ' on' : ''), role: 'treeitem', 'aria-expanded': has ? String(open) : null, 'aria-selected': String(on),
-          'data-drop': f.id, 'data-key': 'd:' + f.id, style: `--d:${depth}`, title: f.name }, tw, DR.icon('folder'), el('span', { class: 'nm' }, f.name), f.starred ? DR.icon('star', 'ic st') : '');
+        const b = el('button', { type: 'button', class: 'node' + (on ? ' on' : '') + (app ? ' app' : ''), role: 'treeitem', 'aria-expanded': has ? String(open) : null, 'aria-selected': String(on),
+          'data-drop': f.id, 'data-key': 'd:' + f.id, 'data-app': app ? app.id : null, style: `--d:${depth}`, title: app ? `${f.name} (${app.name} keeps its files here)` : f.name },
+          tw, DR.icon('folder'), el('span', { class: 'nm' }, f.name), f.starred ? DR.icon('star', 'ic st') : '');
         tw.addEventListener('click', (e) => { e.stopPropagation(); if (open) S.tree.delete(f.id); else S.tree.add(f.id); DR.savePrefs(); DR.renderTree(); });
         b.addEventListener('click', () => { DR.go(f.id); closeDrawer(); });
         box.append(b);
@@ -76,10 +78,20 @@
     keep.addEventListener('click', () => DR.requestPersist(true));
     const bk = el('button', { type: 'button', class: 'linkish' }, 'Backup & restore…');
     bk.addEventListener('click', () => DR.backupDialog());
+    const clear = el('button', { type: 'button', class: 'linkish', 'data-act': 'clear-cache', title: 'Removes only what is made again on demand' }, 'Clear local cache…');
+    clear.addEventListener('click', () => DR.clearLocalCache());
     const note = state ? el('p', { class: 'meter-note persist-note', 'data-state': state }, window.SlopPWA.persistMessage(state)) : null;
     box.replaceChildren(
       el('div', { class: 'meter-h' }, el('b', null, 'Storage'), el('span', null, usage != null ? `${DR.fmtSize(usage)} of ${DR.fmtSize(quota)}` : 'Unknown')), bar,
-      el('div', { class: 'meter-note' }, `Slop Drive: ${DR.fmtSize(drive)}. Everything stays in this browser.`), ...(note ? [note] : []), keep, bk);
+      el('div', { class: 'meter-note' }, `Slop Drive: ${DR.fmtSize(drive)}. Everything stays in this browser.`), ...(note ? [note] : []), keep, bk, clear);
+  };
+  /** Removes only the regenerable caches (thumbnails, waveforms, face results, downloaded models). Files and documents stay. */
+  DR.clearLocalCache = async function () {
+    const yes = await window.SlopUI.confirm('Clear local cache?', 'This removes only what is made again on demand: thumbnails, waveforms, face results and downloaded AI and cut-out models. Your files, documents and backups are kept. A model downloads again when you use it.', 'Clear cache');
+    if (!yes) return;
+    const n = await window.SlopRegen.clear();
+    DR.toast(`Cleared ${n.thumbs + n.faces + n.models + n.cutout} cached entries. Your files are unchanged.`);
+    DR.renderMeter();
   };
 
   /** Mobile: the sidebar is a drawer. */

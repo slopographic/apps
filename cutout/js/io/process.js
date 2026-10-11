@@ -1,4 +1,4 @@
-/* Slop Cutout — the queue and the active image. Every image is segmented once (its base mask is kept on
+/* SlopIsolate — the queue and the active image. Every image is segmented once (its base mask is kept on
  * the item). The image on screen owns a worker job (CO.active): slider and brush changes re-run only the
  * cheap post-processing in the worker via SlopCutout.finish(), so the model never runs twice. */
 (function () {

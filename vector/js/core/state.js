@@ -1,4 +1,4 @@
-/* Slop Vector — core: constants, app state, utilities, object factories */
+/* SlopVector — core: constants, app state, utilities, object factories */
 (function () {
   'use strict';
   var G = window.SVGeom;

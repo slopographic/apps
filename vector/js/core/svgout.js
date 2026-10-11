@@ -1,4 +1,4 @@
-/* Slop Vector — core: objects and paints to SVG markup (live render + export) */
+/* SlopVector — core: objects and paints to SVG markup (live render + export) */
 (function () {
   'use strict';
   var G = window.SVGeom;
@@ -79,7 +79,10 @@
         return '<g' + c + '>' + o.children.map(function (ch) { return objToSVG(ch, ctx); }).join('') + '</g>';
       case 'rect':
         s = styleAttrs(o, ctx);
-        return '<rect x="' + fmt(o.x) + '" y="' + fmt(o.y) + '" width="' + fmt(o.w) + '" height="' + fmt(o.h) + '"' + (o.rx > 0 ? ' rx="' + fmt(min(o.rx, o.w / 2, o.h / 2)) + '"' : '') + s + c + '/>';
+        var rr = SV.rectRadii(o);
+        if (rr[0] + rr[1] + rr[2] + rr[3] > 0) // rounded: the shared rounded-rectangle path (circular arcs)
+          return '<path d="' + window.SlopShapes.svgPath({ x: o.x, y: o.y, w: o.w, h: o.h, radius: rr }) + '"' + s + c + '/>';
+        return '<rect x="' + fmt(o.x) + '" y="' + fmt(o.y) + '" width="' + fmt(o.w) + '" height="' + fmt(o.h) + '"' + s + c + '/>';
       case 'ellipse':
         s = styleAttrs(o, ctx);
         if (abs(o.rx - o.ry) < 1e-9) return '<circle cx="' + fmt(o.cx) + '" cy="' + fmt(o.cy) + '" r="' + fmt(o.rx) + '"' + s + c + '/>';

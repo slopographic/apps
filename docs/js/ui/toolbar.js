@@ -34,6 +34,7 @@
     $('selSize').addEventListener('change', (e) => { A().setSize(e.target.value); S.focusIme(); });
     $('selSize').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); A().setSize(e.target.value); S.focusIme(); } });
     $('zoomSel').addEventListener('change', (e) => { S.zoom = Number(e.target.value) || 1; S.R.render(); S.R.reveal(); S.focusIme(); });
+    $('tbRandom').addEventListener('click', () => S.random.open());
     keepFocus($('toolbar'));
     fillFonts();
   }

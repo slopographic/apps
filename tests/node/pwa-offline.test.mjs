@@ -61,7 +61,7 @@ test('the homepage and Slop Drive open offline after the service worker has prec
 
   await page.goto(base + '/');
   await page.waitForSelector('.app-card', { timeout: 20000 });
-  assert.equal(await page.title(), 'Slopographic: creative apps in your browser');
+  assert.equal(await page.title(), 'Slopographic: office software in your browser');
 
   await page.goto(base + '/drive/');
   await page.waitForSelector('body.ready', { timeout: 30000 });

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Slop Convert: SEO pages, sitemap, robots</title></head>
+<body>
+<script src="../harness.js"></script>
+<script type="module">
+import { PAGES } from '../../convert/js/core/pages.js';
+const { describe, it, expect } = SlopTest;
+const SITE = 'https://slopographic.com';
+const text = async (url) => { const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) throw new Error(`${url} returned ${r.status}`); return r.text(); };
+const pageUrl = (slug) => `${SITE}/convert/${slug}/`;
+const parse = (html) => new DOMParser().parseFromString(html, 'text/html');
+const htmlOf = {};
+const load = async (slug) => (htmlOf[slug] ??= await text(`../../convert/${slug}/index.html`));
+
+describe('sitemap and robots', () => {
+  it('sitemap.xml lists the hub and every converter page', async () => {
+    const xml = await text('../../sitemap.xml');
+    expect(xml).toContain(`${SITE}/convert/</loc>`);
+    for (const p of PAGES) expect(xml).toContain(`<loc>${pageUrl(p.slug)}</loc>`);
+  });
+  it('sitemap.xml lists only URLs that exist', async () => {
+    const xml = await text('../../sitemap.xml');
+    const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+    expect(locs.length).toBe(PAGES.length + 1);
+    for (const loc of locs) {
+      const path = loc.replace(SITE, '');
+      const r = await fetch(`../..${path}`);
+      expect(r.status).toBe(200);
+    }
+  });
+  it('robots.txt allows crawling and names the sitemap', async () => {
+    const t = await text('../../robots.txt');
+    expect(t).toContain('User-agent: *');
+    expect(t).toContain('Allow: /');
+    expect(t).toContain(`Sitemap: ${SITE}/sitemap.xml`);
+    expect(t).not.toContain('Disallow: /');
+  });
+});
+
+describe('each converter page', () => {
+  for (const p of PAGES) {
+    it(`${p.slug}: exists, one h1, canonical, meta, JSON-LD, embedded tool`, async () => {
+      const html = await load(p.slug);
+      const doc = parse(html);
+      expect(doc.querySelectorAll('h1').length).toBe(1);
+      expect(doc.querySelector('h1').textContent.trim()).toBe(p.h1);
+      expect(doc.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(pageUrl(p.slug));
+      expect(doc.title.length).toBeGreaterThan(20);
+      expect(doc.querySelector('meta[name="description"]').getAttribute('content').length).toBeGreaterThan(60);
+      expect(doc.querySelector('meta[property="og:title"]')).toBeTruthy();
+      const ld = [...doc.querySelectorAll('script[type="application/ld+json"]')].map((s) => JSON.parse(s.textContent));
+      expect(ld.some((o) => o['@type'] === 'SoftwareApplication' && o.url === pageUrl(p.slug))).toBeTruthy();
+      expect(doc.querySelector('[data-convert-root]')).toBeTruthy();
+      if (p.conv !== 'units') expect(doc.querySelector('[data-convert-root]').dataset.preset).toBe(p.conv);
+      expect(html).toContain('Your files stay on this device');
+      expect(html).toContain('../../convert/js/ui/mount.js');
+    });
+  }
+});
+
+describe('the hub', () => {
+  it('has one h1, a canonical and the mount script', async () => {
+    const doc = parse(await text('../../convert/index.html'));
+    expect(doc.querySelectorAll('h1').length).toBe(1);
+    expect(doc.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(`${SITE}/convert/`);
+    expect(doc.querySelectorAll('[data-convert-root]').length).toBe(2);
+  });
+});
+
+SlopTest.run({ name: 'Slop Convert: SEO' });
+</script>
+</body>
+</html>

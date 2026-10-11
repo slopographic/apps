@@ -1,4 +1,4 @@
-/* Slop Cutout — menus: the File / Edit / View / Help bar, the More menu (theme, Send to, about), the top-bar
+/* SlopIsolate — menus: the File / Edit / View / Help bar, the More menu (theme, Send to, about), the top-bar
  * buttons (undo, redo, download, panel, more) and the empty-state buttons. The shared actions live in
  * CO.menus.act, so the menus and the SlopCmd commands (ui/commands.js) run the same code. */
 (function () {
@@ -53,7 +53,7 @@
     },
     theme: (v) => { document.documentElement.dataset.theme = v; U.store.set('theme', v); },
     keys: () => (window.SlopCmd ? SlopCmd.openKeymap() : SlopUI.alert('Keyboard shortcuts', 'Ctrl or ⌘ + O open · + S export · + Z undo · K keep · R remove · H pan · 0 fit · + and − zoom')),
-    about: () => SlopUI.alert('Slop Cutout', 'Background removal that runs entirely on this device. Nothing is uploaded, and exports never carry a watermark.'),
+    about: () => SlopUI.alert('SlopIsolate', 'Background removal that runs entirely on this device. Nothing is uploaded, and exports never carry a watermark.'),
   };
 
   /* ---------- menu items (built fresh each time a menu opens, so states and keys are current) ---------- */
@@ -99,7 +99,7 @@
     const now = document.documentElement.dataset.theme || 'pro';
     const out = [{ label: 'Theme', sub: THEMES.map(([v, l]) => ({ label: l, check: now === v, act: () => act.theme(v) })) }];
     if (hub()) { const sub = sendItems(); if (sub.length) out.push({ label: 'Send to', sub }); }
-    out.push('-', { label: 'About Slop Cutout', act: act.about });
+    out.push('-', { label: 'About SlopIsolate', act: act.about });
     return out;
   }
 

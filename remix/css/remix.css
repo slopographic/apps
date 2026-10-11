@@ -1,0 +1,40 @@
+/* Reel Remix: a three-column page that stacks on a phone. Colours are tokens on :root (light by default). */
+:root { --rm-bg: #f6f6f8; --rm-panel: #fff; --rm-line: #d6d6de; --rm-text: #1b1b22; --rm-muted: #5d5d6b; --rm-accent: #3b5bdb; --rm-track: #ececf1; }
+:root[data-theme="dark"] { --rm-bg: #15151b; --rm-panel: #1f1f27; --rm-line: #3a3a46; --rm-text: #ececf3; --rm-muted: #a4a4b3; --rm-accent: #7c93ff; --rm-track: #2a2a34; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --rm-bg: #15151b; --rm-panel: #1f1f27; --rm-line: #3a3a46; --rm-text: #ececf3; --rm-muted: #a4a4b3; --rm-accent: #7c93ff; --rm-track: #2a2a34; } }
+/* lane.css reads these host tokens */
+:root { --sui-text: var(--rm-text); --sui-line: var(--rm-line); --sui-panel: var(--rm-panel); --sui-track: var(--rm-track); --sui-accent: var(--rm-accent); --sui-muted: var(--rm-muted); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--rm-bg); color: var(--rm-text); font: 14px/1.4 system-ui, -apple-system, Segoe UI, sans-serif; }
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--rm-muted); margin: 0 0 10px; }
+h2 small { font-weight: 400; text-transform: none; }
+.rm-top { display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-bottom: 1px solid var(--rm-line); background: var(--rm-panel); flex-wrap: wrap; }
+.rm-home { color: var(--rm-muted); }
+.rm-note { color: var(--rm-muted); font-size: 12px; margin-left: auto; }
+.rm-main { display: grid; grid-template-columns: 260px minmax(0, 1fr) 300px; gap: 16px; padding: 16px; align-items: start; }
+.rm-bin, .rm-side, .rm-stage { background: var(--rm-panel); border: 1px solid var(--rm-line); border-radius: 8px; padding: 14px; min-width: 0; }
+.rm-drop { border: 2px dashed var(--rm-line); border-radius: 8px; padding: 14px; text-align: center; color: var(--rm-muted); }
+.rm-drop.over { border-color: var(--rm-accent); }
+.rm-drop p { margin: 0 0 8px; }
+.rm-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; max-height: 60vh; overflow: auto; }
+.rm-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--rm-line); border-radius: 6px; }
+.rm-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.rm-empty { color: var(--rm-muted); border-style: dashed !important; justify-content: center; }
+.rm-x { border: 0; background: none; color: var(--rm-muted); font-size: 16px; cursor: pointer; }
+.rm-canvas { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; background: #000; border-radius: 6px; }
+.rm-transport { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+.rm-transport input[type=range] { flex: 1; }
+.rm-lane { margin: 10px 0; }
+.rm-total { color: var(--rm-muted); font-size: 13px; margin: 6px 0; }
+.rm-cuts { font-size: 12px; color: var(--rm-muted); max-height: 220px; overflow: auto; padding-left: 22px; }
+.rm-f { display: grid; gap: 4px; margin-bottom: 10px; font-size: 13px; }
+.rm-f input, .rm-f select { font: inherit; padding: 6px 8px; border: 1px solid var(--rm-line); border-radius: 6px; background: var(--rm-bg); color: var(--rm-text); }
+.rm-chk { display: flex; gap: 6px; align-items: center; margin: 4px 0 10px; font-size: 13px; }
+.rm-grids { border: 1px solid var(--rm-line); border-radius: 6px; padding: 6px 10px; margin: 0 0 10px; }
+.rm-grids legend { font-size: 12px; color: var(--rm-muted); padding: 0 4px; }
+.rm-size, .rm-status { font-size: 12px; color: var(--rm-muted); margin: 4px 0 10px; }
+.rm-row { display: flex; gap: 8px; }
+.rm-btn { font: inherit; padding: 7px 12px; border: 1px solid var(--rm-line); border-radius: 6px; background: var(--rm-panel); color: var(--rm-text); cursor: pointer; }
+.rm-btn.primary { background: var(--rm-accent); border-color: var(--rm-accent); color: #fff; }
+.rm-btn.wide { width: 100%; margin-top: 8px; }
+@media (max-width: 960px) { .rm-main { grid-template-columns: 1fr; } }

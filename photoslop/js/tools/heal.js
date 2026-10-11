@@ -1,4 +1,4 @@
-/* PhotoSLOP tools: healing brush (source + blend) and spot healing brush (automatic ring source).
+/* PhotoSlop tools: healing brush (source + blend) and spot healing brush (automatic ring source).
  *
  * Both paint one buffered stroke (startBufferedStroke / finishBufferedStroke), so a stroke is one
  * history step and respects the selection and the layer's opacity, as the clone stamp does.

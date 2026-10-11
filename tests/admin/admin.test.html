@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Admin · the app at 390 px</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, run } = SlopTest;
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'width:390px;height:820px;border:0;position:fixed;left:0;top:0;background:#111';
+  frame.src = '../../admin/index.html';
+  document.body.append(frame);
+  const win = () => frame.contentWindow;
+  const doc = () => frame.contentDocument;
+  const $ = (id) => doc().getElementById(id);
+  const S = () => win().SlopData;
+  const A = () => win().SlopAdmin;
+  const ready = () => win() && win().SlopAdmin && doc() && doc().getElementById('boot').hidden && !!$('cSave');
+  const errors = [];
+  const counts = async () => (await A().overview.counts()).value;
+  const live = (c) => Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.live]));
+  const openDlg = () => doc().querySelector('.sui-back:not(.sui-out) .sui-dlg');
+  const dlgSave = () => openDlg().querySelector('.sui-primary');
+  const captured = [];
+  let seeded = null;
+
+  describe('Slop Admin in a 390 px wide window', () => {
+    it('opens on the company profile, with no horizontal scroll', async () => {
+      await waitFor(ready, { timeout: 20000 });
+      win().addEventListener('error', (e) => errors.push(e.message));
+      expect($('cName').value).toBe('');
+      expect(doc().documentElement.scrollWidth).toBeLessThanOrEqual(390);
+    });
+
+    it('saves the company profile, with the tax rate as a percentage stored in basis points', async () => {
+      $('cName').value = 'Acme Test Ltd';
+      $('cRate').value = '7.5';
+      $('cCur').value = 'usd';
+      $('cLocale').value = 'en-US';
+      $('cSave').click();
+      await waitFor(async () => (await S().store.get('settings', 'main')).value.companyName === 'Acme Test Ltd', { timeout: 8000 });
+      const s = (await S().store.get('settings', 'main')).value;
+      expect(s.defaultTaxRate).toBe(750);
+      expect(s.defaultCurrency).toBe('USD');
+    });
+
+    it('refuses a tax rate out of range with a message, and keeps the old value', async () => {
+      $('cRate').value = '150';
+      $('cSave').click();
+      await waitFor(() => $('cMsg').textContent.includes('from 0 to 100'), { timeout: 8000 });
+      expect((await S().store.get('settings', 'main')).value.defaultTaxRate).toBe(750);
+    });
+
+    it('the invoice number can only move forward', async () => {
+      win().SlopAdmin.app.show('numbering');
+      await waitFor(() => doc().querySelector('[data-seq="invoice"] [data-field="next"]'), { timeout: 8000 });
+      const card = doc().querySelector('[data-seq="invoice"]');
+      card.querySelector('[data-field="prefix"]').value = 'SI-';
+      card.querySelector('[data-field="next"]').value = '5';
+      card.querySelector('.btn.primary').click();
+      await waitFor(async () => (await S().store.get('numbering', 'invoice')).value.next === 5, { timeout: 8000 });
+      card.querySelector('[data-field="next"]').value = '2';
+      card.querySelector('.btn.primary').click();
+      await waitFor(() => card.querySelector('.msg').textContent.includes('only move forward'), { timeout: 8000 });
+      expect((await S().store.get('numbering', 'invoice')).value.next).toBe(5);
+      expect((await S().store.get('numbering', 'invoice')).value.prefix).toBe('SI-');
+    });
+
+    it('seeds some records, then the backup downloads and restores to the same counts', async () => {
+      for (const name of ['Ann', 'Bo', 'Cy']) await S().store.put('customers', { name });
+      const gone = await S().store.put('customers', { name: 'Old' });
+      await S().store.remove('customers', gone.value.id);
+      await S().store.put('products', { sku: 'T-1', name: 'Tee', price: 1000, taxRate: 2000 });
+      seeded = await counts();
+      expect(seeded.customers.live).toBe(3);
+      expect(seeded.customers.deleted).toBe(1);
+      win().SlopUI.download = (blob, name) => captured.push({ blob, name });
+      win().SlopAdmin.app.show('data');
+      await waitFor(() => doc().querySelector('[data-collection="customers"]'), { timeout: 8000 });
+      $('dBackup').click();
+      await waitFor(() => captured.length === 1, { timeout: 8000 });
+      expect(captured[0].name).toMatch(/^slop-data-\d{4}-\d{2}-\d{2}\.json$/);
+      await S().store.put('customers', { name: 'Extra after backup' });
+      expect((await counts()).customers.live).toBe(4);
+      const text = await captured[0].blob.text();
+      const dt = new (win().DataTransfer)();
+      dt.items.add(new (win().File)([text], 'backup.json', { type: 'application/json' }));
+      $('dRestore').files = dt.files;
+      $('dRestore').dispatchEvent(new (win().Event)('change'));
+      await waitFor(() => openDlg(), { timeout: 8000 });
+      dlgSave().click();
+      await waitFor(async () => (await counts()).customers.live === 3, { timeout: 8000 });
+      expect(live(await counts())).toEqual(live(seeded));
+      expect(await counts()).toEqual(seeded);
+    });
+
+    it('a broken backup file changes nothing', async () => {
+      const before = await counts();
+      const good = JSON.parse(await captured[0].blob.text());
+      good.collections.customers.push({ id: 'bad-1', name: '' });
+      const dt = new (win().DataTransfer)();
+      dt.items.add(new (win().File)([JSON.stringify(good)], 'broken.json', { type: 'application/json' }));
+      $('dRestore').files = dt.files;
+      $('dRestore').dispatchEvent(new (win().Event)('change'));
+      await waitFor(() => $('dRestoreMsg').textContent.includes('not restored'), { timeout: 8000 });
+      expect(openDlg()).toBe(null);
+      expect(await counts()).toEqual(before);
+      const notJson = new (win().DataTransfer)();
+      notJson.items.add(new (win().File)(['{ not json'], 'junk.json', { type: 'application/json' }));
+      $('dRestore').files = notJson.files;
+      $('dRestore').dispatchEvent(new (win().Event)('change'));
+      await waitFor(() => $('dRestoreMsg').textContent.includes('not valid JSON'), { timeout: 8000 });
+      expect(await counts()).toEqual(before);
+    });
+
+    it('reset needs the typed word RESET, and the backup is offered before anything is erased', async () => {
+      captured.length = 0;
+      $('dReset').click();
+      await waitFor(() => openDlg(), { timeout: 8000 });
+      doc().getElementById('rInput').value = 'reset';
+      dlgSave().click();
+      await waitFor(() => openDlg() && openDlg().querySelector('.msg').textContent.includes('Type RESET'), { timeout: 8000 });
+      expect(captured.length).toBe(0);
+      expect((await counts()).customers.live).toBe(3);
+      doc().getElementById('rInput').value = 'RESET';
+      dlgSave().click();
+      await waitFor(async () => (await counts()).customers.live === 0, { timeout: 8000 });
+      expect(captured.length).toBe(1);
+      const offered = JSON.parse(await captured[0].blob.text());
+      expect(offered.collections.customers.length).toBe(4);
+      expect((await S().store.get('settings', 'main')).value.companyName).toBeFalsy();
+    });
+  });
+
+  describe('the local-only rule', () => {
+    it('no error reached the page', () => {
+      expect(errors).toHaveLength(0);
+    });
+  });
+
+  run({ name: 'Slop Admin · 390 px' });
+  </script>
+</body>
+</html>

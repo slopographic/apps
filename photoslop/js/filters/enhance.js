@@ -1,4 +1,4 @@
-/* PhotoSLOP filters: Auto Enhance (Filter ▸ Auto Enhance). One click, in this order:
+/* PhotoSlop filters: Auto Enhance (Filter ▸ Auto Enhance). One click, in this order:
  *   1. levels from the 0.5 and 99.5 percentiles of luma (gentle clip; at least 16 levels wide)
  *   2. grey-world white balance, each of red and blue limited to ±8 % (green is the reference)
  *   3. exposure nudge: half the log2 distance of the median (after 1 and 2) to mid-grey, at most ±0.4 EV

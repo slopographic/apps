@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: document dialogs, themes and keyboard */
+/* PhotoSlop UI: document dialogs, themes and keyboard */
 'use strict';
 
 /* ---------- misc dialogs ---------- */
@@ -6,7 +6,7 @@ function dlgNumber(title, label, v, min, max, unit, fn) {
   const i = numInput(v, min, max, 0.5);
   dialog({ title, body: field(label, i, unit), buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true, act: () => fn(clamp(+i.value, min, max)) }] });
 }
-const PRESETS = [['PhotoSLOP default', 1600, 1000], ['Instagram post', 1080, 1080], ['Instagram story', 1080, 1920], ['HD 1080p', 1920, 1080], ['4K UHD', 3840, 2160], ['Twitter / X header', 1500, 500], ['A4 @150ppi', 1240, 1754], ['Meme (classic)', 800, 800], ['Icon', 512, 512]];
+const PRESETS = [['PhotoSlop default', 1600, 1000], ['Instagram post', 1080, 1080], ['Instagram story', 1080, 1920], ['HD 1080p', 1920, 1080], ['4K UHD', 3840, 2160], ['Twitter / X header', 1500, 500], ['A4 @150ppi', 1240, 1754], ['Meme (classic)', 800, 800], ['Icon', 512, 512]];
 function dlgNew() {
   const w = numInput(1600, 1, 12000), hh = numInput(1000, 1, 12000);
   const preset = h('select', null, PRESETS.map(([n, a, b], i) => h('option', { value: i }, `${n} — ${a} × ${b}`)), h('option', { value: 'clip' }, 'Clipboard size'));
@@ -56,8 +56,8 @@ function dlgShortcuts() {
   dialog({ title: 'Keyboard Shortcuts', cls: 'dlg-wide', body: h('div', { class: 'keys-wrap' }, h('div', null, h('h4', null, 'Tools'), table(toolRows), h('h4', null, 'Canvas'), table(extra)), h('div', null, h('h4', null, 'Menus'), table(rows))), buttons: [{ label: 'Close', primary: true }] });
 }
 function dlgAbout() {
-  dialog({ title: 'About PhotoSLOP', body: h('div', { class: 'about' },
-    h('p', { class: 'about-logo' }, 'PhotoSLOP'),
+  dialog({ title: 'About PhotoSlop', body: h('div', { class: 'about' },
+    h('p', { class: 'about-logo' }, 'PhotoSlop'),
     h('p', null, 'A layered image editor that runs entirely in your browser. Nothing you open, paint or save ever leaves your device: there is no server, no account and no upload.'),
     h('p', null, 'Opens and saves real Photoshop .psd files (layers, masks, opacity and blend modes), exports PNG, JPEG and WebP, and can be downloaded as a single offline .html file.'),
     h('p', { class: 'dlg-p' }, 'Part of ', h('a', { href: '../' }, 'slopographic.com'), '. Prefer the 1998 experience? ', h('a', { href: 'classic/' }, 'Slop Paint Classic'), '.')),

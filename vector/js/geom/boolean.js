@@ -1,4 +1,4 @@
-/* Slop Vector — geometry: arrangement-based polygon booleans and bezier refitting */
+/* SlopVector — geometry: arrangement-based polygon booleans and bezier refitting */
 (function () {
   'use strict';
   var G = window.SVGeom = window.SVGeom || {};

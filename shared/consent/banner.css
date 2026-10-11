@@ -1,8 +1,7 @@
-/* Consent banner and the Manage switches. Light by default, dark when the system asks for dark. */
+/* The consent strip: one slim bar along the bottom edge. Light by default, dark when the theme or the system asks for dark. */
 :root {
   --slopc-bg: #ffffff;
   --slopc-fg: #111111;
-  --slopc-dim: #4a4a4a;
   --slopc-line: rgba(0, 0, 0, 0.18);
   --slopc-accent: #d4ff3a;
   --slopc-accent-ink: #0a0a0a;
@@ -11,14 +10,12 @@
   :root:not([data-theme="light"]) {
     --slopc-bg: #111111;
     --slopc-fg: #f1ede4;
-    --slopc-dim: rgba(241, 237, 228, 0.72);
     --slopc-line: rgba(241, 237, 228, 0.25);
   }
 }
 :root[data-theme="dark"] {
   --slopc-bg: #111111;
   --slopc-fg: #f1ede4;
-  --slopc-dim: rgba(241, 237, 228, 0.72);
   --slopc-line: rgba(241, 237, 228, 0.25);
 }
 
@@ -28,36 +25,29 @@
   right: 0;
   bottom: 0;
   z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 8px 14px;
   background: var(--slopc-bg);
   color: var(--slopc-fg);
   border-top: 1px solid var(--slopc-line);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
-  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
-.slopc-body { max-width: 720px; margin: 0 auto; padding: 16px; }
-.slopc-body p { margin: 0 0 12px; color: var(--slopc-fg); }
-.slopc-body a { color: inherit; text-underline-offset: 2px; }
-.slopc-actions, .slopc-manage { display: flex; flex-wrap: wrap; gap: 8px; }
-.slopc-manage { margin-top: 12px; align-items: center; }
+.slopc-text { margin: 0; flex: 1 1 260px; }
+.slopc-text a { color: inherit; text-underline-offset: 2px; }
+.slopc-actions { display: flex; align-items: center; gap: 6px; }
 .slopc-btn {
-  min-height: 44px;
-  padding: 8px 14px;
+  font: inherit;
+  padding: 4px 12px;
   border: 1px solid var(--slopc-line);
   border-radius: 999px;
   background: transparent;
   color: var(--slopc-fg);
-  font: inherit;
-  font-weight: 600;
   cursor: pointer;
 }
-.slopc-btn:hover { border-color: var(--slopc-fg); }
 .slopc-btn.primary { background: var(--slopc-accent); border-color: var(--slopc-accent); color: var(--slopc-accent-ink); }
-.slopc-btn:focus-visible, .slopc-switch input:focus-visible { outline: 2px solid var(--slopc-fg); outline-offset: 2px; }
-.slopc-switch { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding-right: 8px; cursor: pointer; }
-.slopc-switch input { width: 20px; height: 20px; margin: 0; accent-color: var(--slopc-accent-ink); }
-[hidden] { display: none !important; }
-
-@media (max-width: 420px) {
-  .slopc-body { padding: 14px 16px 18px; }
-  .slopc-btn { flex: 1 1 auto; }
-}
+.slopc-btn.x { padding: 2px 9px; border: 0; font-size: 16px; line-height: 1; }
+.slopc-btn:focus-visible { outline: 2px solid var(--slopc-fg); outline-offset: 2px; }

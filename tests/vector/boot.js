@@ -1,4 +1,4 @@
-/* Shared setup for the Slop Vector test pages: waits for the app in #app (a same-origin iframe)
+/* Shared setup for the SlopVector test pages: waits for the app in #app (a same-origin iframe)
    and exposes its modules plus small geometry helpers as globals for the test files. */
 /* exported W, SV, G, IO, UI, HUB, bootVector, appReady, area, square, circlePts, blank, ascii, frameApp */
 var W, SV, G, IO, UI, HUB;
@@ -25,13 +25,13 @@ const circlePts = (cx, cy, r) => G.flatten(G.ellipseSubs(cx, cy, r, r), 0.25)[0]
 const blank = () => { SV.loadDoc(SV.newDoc(1200, 800, 'Test'), { fit: false }); SV.resetHistory(); };
 const ascii = (bytes, a = 0, b = bytes.length) => { let s = ''; for (let i = a; i < b; i++) s += String.fromCharCode(bytes[i]); return s; };
 SlopTest.describe('boot', () => {
-  SlopTest.it('loads Slop Vector with the Sloppo sample, tools and the shared kits', async () => {
+  SlopTest.it('loads SlopVector with the Sloppo sample, tools and the shared kits', async () => {
     await bootVector();
     const { expect } = SlopTest;
     expect(SV.state.doc.layers.map((l) => l.name)).toEqual(['Background', 'Sloppo', 'Type']);
     expect(W.document.querySelectorAll('.tool').length).toBe(22);
     expect(typeof W.SlopUI.dialog).toBe('function');
     expect(typeof W.SlopHub.put).toBe('function');
-    expect(W.document.title).toContain('Slop Vector');
+    expect(W.document.title).toContain('SlopVector');
   }, { timeout: 40000 });
 });

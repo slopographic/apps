@@ -1,4 +1,4 @@
-/* SlopEdit: real-time WebM export for browsers without WebCodecs (older Firefox/Safari).
+/* SlopCut: real-time WebM export for browsers without WebCodecs (older Firefox/Safari).
    Plays the range with the normal player, draws each frame at export size onto a canvas captured with
    captureStream(), routes the mix to a MediaStreamDestination and records both with MediaRecorder. */
 (function () {

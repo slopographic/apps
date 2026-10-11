@@ -112,5 +112,30 @@
     });
   }
 
-  ns.billing = { invoiceLines, paidOn, balanceDue, paymentBase, issue, recordPayment, voidInvoice };
+  /** Order -> draft invoice, in one transaction. Copies the customer, currency, notes and lines (discounts too); the
+   *  invoice carries orderId and the order carries invoiceId. Refused for draft or cancelled orders, and for an order
+   *  whose invoice still exists. Totals are recomputed from the lines by the schema. */
+  function invoiceFromOrder(orderId, { dueDate } = {}) {
+    return ns.store.transact(async (tx) => {
+      const o = await tx.get('orders', orderId);
+      if (!o.ok) return o;
+      if (!o.value || o.value.deletedAt) return fail('not_found', `no order ${orderId}`);
+      const order = o.value;
+      if (order.status === 'draft' || order.status === 'cancelled') return fail('invalid_transition', 'only a confirmed or fulfilled order can be invoiced');
+      if (order.invoiceId) {
+        const old = await tx.get('invoices', order.invoiceId);
+        if (!old.ok) return old;
+        if (old.value && !old.value.deletedAt) return fail('conflict', `this order already has invoice ${old.value.number || 'draft'}`);
+      }
+      const inv = await tx.put('invoices', {
+        customerId: order.customerId, date: ns.ledger.today(), dueDate, currency: order.currency,
+        lines: order.lines.map((l) => ({ ...l })), notes: order.notes, orderId,
+      });
+      if (!inv.ok) return inv;
+      const link = await tx.put('orders', { ...order, invoiceId: inv.value.id });
+      return link.ok ? inv : link;
+    });
+  }
+
+  ns.billing = { invoiceLines, paidOn, balanceDue, paymentBase, issue, recordPayment, voidInvoice, invoiceFromOrder };
 })(typeof window !== 'undefined' ? window : globalThis);

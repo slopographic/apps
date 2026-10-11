@@ -1,4 +1,4 @@
-/* SlopEdit: colour adjustments (brightness, contrast, saturation, temperature) on the GPU with one
+/* SlopCut: colour adjustments (brightness, contrast, saturation, temperature) on the GPU with one
    shared WebGL canvas. grade(src, w, h, clip) returns a canvas to draw immediately. Without WebGL
    it falls back to a Canvas2D filter string (no temperature). */
 (function () {
@@ -34,7 +34,7 @@
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
       loc = { br: gl.getUniformLocation(prog, 'br'), ct: gl.getUniformLocation(prog, 'ct'), sa: gl.getUniformLocation(prog, 'sa'), tp: gl.getUniformLocation(prog, 'tp') };
       return true;
-    } catch (e) { console.warn('SlopEdit: WebGL colour grading unavailable, using 2D filters', e); gl = null; failed = true; return false; }
+    } catch (e) { console.warn('SlopCut: WebGL colour grading unavailable, using 2D filters', e); gl = null; failed = true; return false; }
   }
   G.needed = (c) => !!(c.bright || c.contrast || c.sat || c.temp);
   G.params = (c) => ({ br: (c.bright || 0) / 100 * 0.5, ct: 1 + (c.contrast || 0) / 100, sa: 1 + (c.sat || 0) / 100, tp: (c.temp || 0) / 100 * 0.12 });

@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: keyboard labels, dialogs and the colour picker */
+/* PhotoSlop UI: keyboard labels, dialogs and the colour picker */
 'use strict';
 
 const MOD = isMac ? '⌘' : 'Ctrl+';
@@ -21,7 +21,7 @@ function comboOf(e) {
 }
 
 /* ---------- dialogs ---------- */
-/* Dialogs come from the shared SlopUI kit (../shared/slopui.js), so PhotoSLOP, Slop Vector and Slop PDF share them. */
+/* Dialogs come from the shared SlopUI kit (../shared/slopui.js), so PhotoSlop, SlopVector and Slop PDF share them. */
 const CLS_MAP = { 'dlg-wide': 'sui-wide', 'dlg-color': 'sui-narrow', 'dlg-filter': 'sui-filter', 'dlg-curve': 'sui-curve' };
 function dialog({ title, body, buttons = [], onClose, cls = '' }) {
   const parts = cls.split(/\s+/).filter(Boolean);

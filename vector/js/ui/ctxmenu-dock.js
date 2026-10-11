@@ -1,4 +1,4 @@
-/* Slop Vector — ui: context menus for swatches, dock tabs and dock groups (SlopUI menus).
+/* SlopVector — ui: context menus for swatches, dock tabs and dock groups (SlopUI menus).
  * Opened by UI.menuForTarget (ctxmenu.js) from a right-click or the Menu key. */
 (function () {
   'use strict';

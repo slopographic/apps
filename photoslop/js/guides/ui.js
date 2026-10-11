@@ -1,4 +1,4 @@
-/* PhotoSLOP guides: View-menu items, New Guide / Grid Settings dialogs and the shared GuideGuide-style panel. */
+/* PhotoSlop guides: View-menu items, New Guide / Grid Settings dialogs and the shared GuideGuide-style panel. */
 'use strict';
 
 function guidesMenuItems() {

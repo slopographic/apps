@@ -10,6 +10,12 @@
     const e = (DR.ext(it.name) || (it.type || '').split('/').pop() || '?').slice(0, 4).toUpperCase();
     return el('span', { class: cls, style: `--k:${DR.kindColor(it)}` }, el('span', null, e));
   };
+  /** The list's icon: the file's thumbnail when it is ready, otherwise its badge (folders always get the glyph). */
+  DR.iconOf = function (it, cls = 'badge') {
+    const b = DR.badge(it, cls);
+    if (!it.isFolder) DR.fillThumb(b, it);
+    return b;
+  };
   function base(it, cls) {
     const key = DR.keyOf(it);
     const n = el('div', { class: 'it ' + cls + (S.sel.has(key) ? ' sel' : '') + (S.focus === key ? ' focus' : '') + (S.clip && S.clip.cut && S.clip.keys.includes(key) ? ' cut' : ''),

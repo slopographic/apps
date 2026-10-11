@@ -37,6 +37,10 @@
   - DOCX: paragraphs, runs (bold, italic, underline, strike, size, colour, font, sup and sub), styles by name, lists by numbering format, tables, page size and margins.
   - Markdown: headings, lists, quotes, code blocks, bold, italic, underline and code spans.
   - Text: one paragraph per line. HTML: text only.
+- **Random templates** (`ui/random.js`, `ui/templates.js`, generator in `shared/templates/`):
+  - File ▸ New ▸ Random template, the toolbar's Random button, or the palette. The dialog draws the first page of a seeded design with the page renderer (`R.pageEl`). Click it to see it full size.
+  - The seed is shown and can be typed. Enter regenerates from it. Reshuffle draws a new seed.
+  - Use this template opens the design as a new, unsaved document. Save as template keeps it in File ▸ New ▸ My templates. It is stored in IndexedDB (`slop-docs` v2, store `templates`) and in Slop Drive as `<name>.sdoc-template` in a root folder "Templates".
 - **Phones:** on screens under 700 px the page is fitted to the width (zoom 35% to 100%). The top bar and toolbar fit at 390 px with no page-level scroll.
 
 ## Known gaps (not built yet)
@@ -49,7 +53,7 @@
 - **Save as:** only Save exists. The first save picks a folder, and saving a copy elsewhere is not built.
 - **Print:** `@media print` CSS is in place. It has not been checked against a real print.
 - **Offline single-file build:** not done.
-- **Other UI:** no rulers, sidebar, templates, zoom beyond four presets, or word-count dialog.
+- **Other UI:** no rulers, templates, zoom beyond four presets, or word-count dialog.
 - **Touch:** no selection handles. Touch uses tap and double-tap only.
 
 ## Files (all under 300 lines)
@@ -70,8 +74,14 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
 - `docs/js/model/ops.js`: pure editing operations on blocks, copy-on-write.
 - `docs/js/io/sdoc.js`: `.sdoc`, text and Markdown.
 - `docs/js/io/docx.js`: DOCX export and import.
+- `docs/js/ui/random.js`: the Random template dialog. `docs/js/ui/templates.js`: My templates (IndexedDB and Slop Drive). `docs/css/random.css`.
+- `shared/templates/`: the generator (see its `HANDOFF.md`). Bridge exposes it as `SlopDocEngine.TPL`.
 
-## Tests (`node tests/run.mjs docs`, 58 tests, all green)
+## Tests
+- `node --test shared/templates/generate.test.mjs`: 7 Node tests for the generator. Same seed, same JSON. Every document validates against the Docs schema and `normalizeDoc` leaves it unchanged. Style choices stay in their lists. The validator rejects a broken document.
+- `tests/docs/templates.test.html` (in `node tests/run.mjs docs`): Random template opens the preview, the menu, Reshuffle, Enter to regenerate, full-size preview, Use this template (header text), Save as template and reload, and the Drive copy.
+
+## Tests (`node tests/run.mjs docs`, 58 tests before templates, all green)
 - `tests/docs/app.test.html`: runs the real page in an iframe.
   - Boot and the untitled draft.
   - Typing, Enter, Backspace, arrows, selection and undo.
@@ -88,6 +98,13 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
 - Drive is unchanged and still green: `node tests/run.mjs drive` gives 73 passed across 8 pages.
 - Not automated: the first-save folder picker (it is a dialog), the real IME composition path, and touch.
 
+## Outline sidebar
+- Left of the page area: a tree of the Heading 1 to 3 paragraphs (H2 under the H1 above, H3 under the H2 above). The current section is highlighted as the caret or the page moves. Collapse arrows per heading. Clicking a heading places the caret there.
+- Hide to a 30 px rail and show it again (remembered per session). On a phone it is a drawer.
+- Sections are the real structure: a heading owns the blocks up to the next heading of the same or a higher level. Add section, rename, move (Alt+Up/Down), promote/demote, delete (heading only, or with content after a dialog), and the right-click menu. Ctrl+Shift+O toggles it.
+- Files: `js/model/outline.js` (pure: tree, sections, moves), `js/ui/outline.js` (module entry: DOM, state, shortcuts), `js/ui/outline-actions.js` (commits through `SlopDocs.edit`), `js/ui/outline-menu.js`, `css/outline.css` (the app is a grid: outline column beside `#stage`). Loaded by one module script line and one `#outline` element in `index.html`.
+- Not done: headings past level 3 are not listed; a rename drops objects in the heading.
+
 ## Next steps, in order
 1. PDF export. Use the layout lines and the subset TTF fonts (`fonts/ttf.js`). Add ToUnicode, links and the outline from `headings`, and check that PDF line breaks match the layout.
 2. Table editing: caret in cells, insert and delete rows and columns, and cell formatting.
@@ -95,7 +112,7 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
 4. Headers, footers and page numbers: a UI for them, then import and export.
 5. Virtualise pages off screen, and move the page render to SVG per the original plan.
 6. Offline single-file build.
-7. Rulers and a sidebar, then the templates.
+7. Rulers, then the templates.
 8. Layout tests from the earlier list still open: widows and orphans, keepNext, table header repeat, TOC, floats, footnotes.
 
 ## Engine (already done, unchanged in this pass)

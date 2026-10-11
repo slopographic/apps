@@ -52,7 +52,8 @@ async function openFiles(files) {
     try {
       if (/\.sloplabel$/.test(n)) { if (await confirmDiscard()) { setDoc(parseProject(await f.text())); status('Opened ' + f.name, '', 2500); } }
       else if (/\.(zpl|prn)$/.test(n)) await importZPLText(await f.text(), f.name);
-      else if (/^image\//.test(f.type) || /\.(png|jpe?g|gif|webp|svg|bmp)$/.test(n)) await insertImageFile(f);
+      else if (/\.webm$/.test(n) || /^video\//.test(f.type)) SlopUI.alert('WebM is video', 'SlopLabel places pictures and does not play video. Export a still image (PNG, JPEG or WebP) instead.');
+      else if (/^image\//.test(f.type) || /\.(png|jpe?g|gif|webp|avif|svg|bmp)$/.test(n)) await insertImageFile(f);
       else if (/\.(csv|tsv|tab|xlsx)$/.test(n) || /csv|spreadsheet/.test(f.type)) await importDataDialog(f);
       else if (/\.(json|txt)$/.test(n)) {
         const t = await f.text();

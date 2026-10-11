@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>PhotoSLOP commands tests</title>
+  <title>PhotoSlop commands tests</title>
   <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style>
 </head>
 <body>
@@ -14,7 +14,7 @@
   const key = (code, k, mods = {}) => { const e = new win.KeyboardEvent('keydown', Object.assign({ code, key: k, bubbles: true, cancelable: true }, mods)); win.document.body.dispatchEvent(e); return e; };
   const leaves = () => { const out = []; const walk = (items) => { for (const it of items) { if (!it || it === '-') continue; if (it.sub) walk(it.sub); else if (it.act) out.push(it); } }; W.MENUS.forEach(([, items]) => { if (Array.isArray(items)) walk(items); }); return out; };
 
-  describe('SlopCmd in PhotoSLOP', () => {
+  describe('SlopCmd in PhotoSlop', () => {
     it('registers every menu action and every tool', async () => {
       win = document.getElementById('app').contentWindow;
       await waitFor(() => win.document && win.document.body && win.document.body.classList.contains('ready'), { timeout: 30000 });
@@ -90,7 +90,7 @@
       win.document.querySelector('.sui-dlg .sui-x').click();
     });
   });
-  SlopTest.run({ name: 'PhotoSLOP commands' });
+  SlopTest.run({ name: 'PhotoSlop commands' });
   </script>
 </body>
 </html>

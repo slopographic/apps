@@ -1,4 +1,4 @@
-/* Slop Vector — core: object geometry, text layout, bounds, transforms */
+/* SlopVector — core: object geometry, text layout, bounds, transforms */
 (function () {
   'use strict';
   var G = window.SVGeom;
@@ -75,7 +75,7 @@
   SV.selBBox = selBBox;
   var flatCache = new Map();
   function flatPolys(o) {
-    var sig = JSON.stringify([o.type, o.subpaths, o.x, o.y, o.w, o.h, o.rx, o.cx, o.cy, o.r, o.r1, o.r2, o.sides, o.points, o.m, o.text, o.font]);
+    var sig = JSON.stringify([o.type, o.subpaths, o.x, o.y, o.w, o.h, o.rx, o.rc, o.cx, o.cy, o.r, o.r1, o.r2, o.sides, o.points, o.m, o.text, o.font]);
     var c = flatCache.get(o.id);
     if (c && c.sig === sig) return c.polys;
     var polys = G.flatten(docSubs(o), 0.7);

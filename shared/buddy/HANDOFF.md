@@ -36,8 +36,8 @@ permission policy because those files belong to other agents). Each app owner ad
 - Apps: z-index 900 (dialogs at 1000+ stay above him); he perches on toolbars, panels, headers, dialog title bars;
   while you press/drag anywhere else he turns into a pointer-transparent ghost; in games he also pauses for 4 s after
   any input. RAGE never starts chaos by itself in apps; Unleash is explicit; Restore page works everywhere; hiding
-  him restores the page first. The HUD is folded away in apps (the toggle's "⋯" opens it) unless there is something
-  to restore or he is angry.
+  him restores the page first. The HUD is a small level toggle beside him; click it or press H to open the card (Escape,
+  a click outside or the grip closes it; a bottom sheet on phones). The toggle fades after 6 s idle.
 - Rage: hard throws, long falls, hard shaking and 5 pokes within 4 s add 1. 1: dizzy/"OUCH!" (pokes: annoyed),
   2: annoyed (MAD, no draining), 3: RAGE for 10 s (red, shaking, steam; chaos on the homepage only), then he stays
   MAD until fed. Petting is refused at 2.5+. A hard drop wears off in 4 s (drain 0.25/s).

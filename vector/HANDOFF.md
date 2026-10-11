@@ -40,7 +40,7 @@ An Illustrator-style vector editor at `/vector/`. Plain scripts (no modules, no 
 - **Eyedropper** (`js/tools/eyedrop.js`, key I): a click sets the fill of the selection to the colour under the pointer; Alt sets the stroke; Shift copies the object's whole appearance (the old behaviour). **Limit:** the colour is the object's solid fill, else its stroke, taken from the hit test (a gradient gives its first stop). It is not read from the rendered pixels: the artwork is SVG, so a pixel read per pointer move would be too slow. Nothing under the pointer is a toast and no change. There is no loupe and no Alt-to-sample on the drawing tools in Vector (PhotoSLOP has both).
 - **Keys:** X swaps fill and stroke (was focus toggle; Shift+X still swaps).
 
-## Tests (`node tests/run.mjs vector`): 89 green across 7 pages
+## Tests (`node tests/run.mjs vector`): 99 pass, 2 fail across 10 pages (the 2 are the offline builder tests in `tests/vector/io.test.html`; they fail on a clean HEAD too, because `shell/shell.js` has a `<script src=` comment)
 - `tests/vector/boot.js`: shared boot. It waits for the app iframe and exposes `W, SV, G, IO, UI, HUB` and helpers.
 - `geom.test.html` (16), `model.test.html` (16), `io.test.html` (11), `ui.test.html` (17), `guides.test.html` (8), `commands.test.html` (6). `color.test.html` (8: the eyedropper fill, Alt for stroke, the hex field and hue bar, alpha and its SVG export, recent colours, X and D, right-click and the Window entries). Each page also runs the boot test.
 - The offline builder strips `shared/guard.js` (hosted-site reload guard).
@@ -74,3 +74,11 @@ These were asked for together with the PhotoSLOP layer work; none of the Vector 
 
 - **Save (Ctrl+S)** writes the SVG back to the Drive file the document was opened from (`HUB.linked`, via `SlopHub.update`, falling back to `put` with the same id). The first save asks for a folder. Any new document (New, Open, recovery, sample) unlinks. `File ▸ Save As…` still downloads. Without the hub, Save downloads as before.
 - Open/Place from Drive, `?drive=` launch and `register('vector')` as before. Tested in `tests/vector/ui.test.html` ("Save writes back…").
+
+## Rounded rectangle corners (`js/core/corners.js`, `js/ui/corner-controls.js`, `shared/shapes/`)
+
+- A `rect` keeps `rx` (its single radius, or the largest corner when the corners differ). When the corners were set one by one it also keeps `rc = [tl, tr, br, bl]`. `SV.rectRadii(o)` returns the four values.
+- Control bar and Properties share one control: a linked field (one value for all corners) and a link button that shows four fields (TL, TR, BR, BL). The link state is `S.shape.cornerLink`. Each change is one undo step (`SV.applyCorner`).
+- SVG export writes a rounded rect as `<path>` with circular arcs from `SlopShapes.svgPath`. A zero-radius rect stays `<rect>`. The object stays `type: 'rect'`.
+- Limits: direct-select anchors and hit testing (`G.rectSubs`) still use the single `rx`, the largest corner, so they only approximate per-corner shapes. SVG import reads one `rx` only.
+- Tests: `tests/vector/corners.test.html`. Node geometry tests: `tests/node/shapes-rounded.test.mjs`.

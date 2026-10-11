@@ -123,7 +123,7 @@
     if (c.convertToBlob) return c.convertToBlob({ type, quality });
     return new Promise((res) => c.toBlob(res, type, quality));
   }
-  /** Grey RGBA view of a mask (white = keep), e.g. for a PhotoSLOP layer mask or a preview. */
+  /** Grey RGBA view of a mask (white = keep), e.g. for a PhotoSlop layer mask or a preview. */
   function maskToImageData(mask, w, h) {
     const d = new Uint8ClampedArray(w * h * 4);
     for (let i = 0, j = 0; i < mask.length; i++, j += 4) { d[j] = d[j + 1] = d[j + 2] = mask[i]; d[j + 3] = 255; }

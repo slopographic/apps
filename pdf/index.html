@@ -1,13 +1,19 @@
 <!doctype html>
 <html lang="en" data-theme="pro">
 <head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="pdf" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Slop PDF — Slopographic</title>
   <meta name="description" content="Slop PDF: a free PDF editor that runs 100% in your browser. Merge, split, reorder, rotate, sign, fill forms, add text, page numbers and watermarks, compress and convert. Nothing is uploaded.">
   <meta name="theme-color" content="#0e0e10">
   <meta name="color-scheme" content="dark light">
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="canonical" href="https://slopographic.com/pdf/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
@@ -100,6 +106,7 @@
   <noscript><p class="noscript">Slop PDF needs JavaScript. It runs entirely in your browser — nothing is uploaded.</p></noscript>
 
   <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/session/session.js" data-src="shared/session/session.js"></script>
   <script src="../shared/apps.js" data-src="shared/apps.js"></script>
   <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
   <script src="../shared/commands/search.js" data-src="shared/commands/search.js"></script>
@@ -149,9 +156,11 @@
   <script src="js/ui/commands.js" data-src="pdf/js/ui/commands.js"></script>
   <script src="js/ui/context.js" data-src="pdf/js/ui/context.js"></script>
   <script src="js/ui/input.js" data-src="pdf/js/ui/input.js"></script>
+  <script src="js/ui/view-state.js" data-src="pdf/js/ui/view-state.js"></script>
   <script src="js/ui/main.js" data-src="pdf/js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js" data-offline="strip"></script>
   <script>window.SlopPWA && SlopPWA.mount();</script>
+  <script src="../shell/shell.js"></script>
 </body>
 </html>

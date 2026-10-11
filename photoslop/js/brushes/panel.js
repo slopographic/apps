@@ -1,4 +1,4 @@
-/* PhotoSLOP brushes: Brushes panel and Brush Settings */
+/* PhotoSlop brushes: Brushes panel and Brush Settings */
 'use strict';
 
 /* ---------- Brushes panel ---------- */

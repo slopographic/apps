@@ -1,7 +1,8 @@
 # Homepage handoff
 
 ## Files
-- `index.html`: intro, Apps / Games / Experiments shelves, Status board, the Authenticator view (`#detector`), footer
+- `index.html`: intro (trust row), "Why it's different" strip, Slop 365 and Creative Slop shelves (under `#apps`),
+  Status board, the Authenticator view (`#detector`), footer
   (licence and trademark line). Loads `style/*.css`, `home/home.css`, the buddy CSS, `shared/apps.js`, `shared/hub.js`,
   the `slop/` engine, `app.js`, `home/catalog.js`, `motion.js` and `home/mascot/index.js` (module).
 - `app.js`: routing (home vs `#detector`), the live counter and the Authenticator. Clicks only count as navigation on
@@ -22,7 +23,7 @@ Sloppo stands on the top edges of `[data-perch]` elements: the intro title, the 
 every card (`data-perch="card"`, which chaos may bite, knock or blast), the status board and the footer wordmark.
 
 ## Tests (`node tests/run.mjs home`)
-- `tests/home/catalog.test.html` (11): every registry entry renders in its shelf, badges and features, the status
+- `tests/home/catalog.test.html` (12, incl. group labels): every registry entry renders in its shelf, badges and features, the status
   board, tab jumps, Authenticator view switching, and clicks on Sloppo are not navigation.
 - `tests/home/mascot.test.html` (11): levels/hats/lines (pure), loads and perches, pet, level-up with hat and growth,
   drag and throw, moods, leaping back into view, view switches, lazy 3D.

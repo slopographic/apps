@@ -43,6 +43,9 @@
     var hit = OV.hit(A.slide(), p), h = OV.handleAt(p, A.selObjs());
     if (hit && last && last.id === hit.id && now - last.t < 450 && SS.textEdit.canEdit(hit)) {
       last = null;
+      // Cancel the press so the browser does not move focus to the canvas after the editor takes it (that blur would
+      // commit and close the editor at once).
+      e.preventDefault();
       SS.textEdit.open(hit);
       return;
     }

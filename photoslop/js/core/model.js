@@ -1,4 +1,4 @@
-/* PhotoSLOP: document model, history, compositing, selection.
+/* PhotoSlop: document model, history, compositing, selection.
  *
  * Every layer record and every canvas attached to one is treated as immutable
  * once it is in the document: edits make a new canvas and a new record. That

@@ -1,11 +1,12 @@
 /* Slop Gallery: decode an image, apply its EXIF orientation by hand, and make a JPEG thumbnail (long edge <= 320 px).
  * Decoding uses imageOrientation 'none' so the browser never rotates the pixels behind our back: the orientation we
  * read from EXIF is the only one applied, and the stored width/height are the upright ones.
- * Classic script, exposes window.SlopGallery.thumb.make(blob, orientation) -> { blob, w, h }. */
+ * SVG is drawn from an <img> (createImageBitmap refuses SVG). Classic script, exposes window.SlopGallery.thumb.make(blob,
+ * orientation) -> { blob, w, h }. */
 (function () {
   'use strict';
   const G = (window.SlopGallery = window.SlopGallery || {});
-  const MAX_EDGE = 320;
+  const MAX_EDGE = 320, SVG_SIZE = 512;
 
   /** The affine matrix [a, b, c, d, e, f] that maps raw pixel coords (rw x rh) to upright coords, for EXIF 1-8. */
   function matrix(o, rw, rh) {
@@ -23,8 +24,27 @@
   /** Upright width/height for a raw size and orientation (5-8 turn the image on its side). */
   function uprightSize(o, rw, rh) { return o >= 5 && o <= 8 ? { w: rh, h: rw } : { w: rw, h: rh }; }
 
+  /** An SVG picture from an <img> (its size is the SVG's own, or SVG_SIZE when it has none). */
+  function decodeSvg(blob) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(blob), img = new Image();
+      const close = () => URL.revokeObjectURL(url);
+      img.onload = () => res({ src: img, width: img.naturalWidth || SVG_SIZE, height: img.naturalHeight || SVG_SIZE, close });
+      img.onerror = () => { close(); rej(new Error('This SVG could not be read')); };
+      img.src = url;
+    });
+  }
+  /** Is this blob an SVG? By its type, or by its opening text when the type is missing. */
+  async function isSvg(blob) {
+    if (/svg/.test(blob.type || '')) return true;
+    return /<svg[\s>]/i.test(await blob.slice(0, 1024).text());
+  }
+  /** { src, width, height, close } for a blob the browser can draw: an ImageBitmap, or an SVG <img>. */
   async function decode(blob) {
-    try { return await createImageBitmap(blob, { imageOrientation: 'none' }); } catch (e) { return createImageBitmap(blob); }
+    if (await isSvg(blob)) return decodeSvg(blob);
+    let bmp;
+    try { bmp = await createImageBitmap(blob, { imageOrientation: 'none' }); } catch (e) { bmp = await createImageBitmap(blob); }
+    return { src: bmp, width: bmp.width, height: bmp.height, close: () => bmp.close() };
   }
 
   /** Thumbnail for an image Blob. Throws if the browser cannot decode it (for example HEIC in Chromium). */
@@ -41,11 +61,11 @@
       const [a, b, c, d, e, f] = matrix(o, bmp.width, bmp.height);
       ctx.setTransform(a * s, b * s, c * s, d * s, e * s, f * s);
       ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(bmp, 0, 0, bmp.width, bmp.height);
+      ctx.drawImage(bmp.src, 0, 0, bmp.width, bmp.height);
       const out = await new Promise((res, rej) => canvas.toBlob((x) => (x ? res(x) : rej(new Error('Thumbnail failed'))), 'image/jpeg', 0.82));
       return { blob: out, w: up.w, h: up.h };
     } finally {
-      if (bmp.close) bmp.close();
+      bmp.close();
     }
   }
 
@@ -53,7 +73,7 @@
   async function dims(blob, orientation = 1) {
     const bmp = await decode(blob);
     const up = uprightSize(orientation, bmp.width, bmp.height);
-    if (bmp.close) bmp.close();
+    bmp.close();
     return up;
   }
 

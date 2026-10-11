@@ -1,4 +1,4 @@
-/* SlopEdit: frame-accurate video frames for export and snapshots.
+/* SlopCut: frame-accurate video frames for export and snapshots.
    Preferred path: demux the MP4 and decode with WebCodecs VideoDecoder (exact frames, fast).
    Fallback: a private <video> element seeked to each frame (requestVideoFrameCallback when available).
    SE.frames.exporter(p) → { prepare(t), get(clip, srcT), close(), mode } */
@@ -21,7 +21,7 @@
       t.config = cfg;
       t.order = t.samples.map((s, i) => i).filter((i) => t.samples[i].key).sort((a, b) => t.samples[a].pts - t.samples[b].pts);
       return t;
-    })().catch((e) => { console.warn('SlopEdit: demux failed', e); return null; });
+    })().catch((e) => { console.warn('SlopCut: demux failed', e); return null; });
     return it.demuxP;
   };
 
@@ -122,7 +122,7 @@
           let f = null;
           try { f = await r.frameAt(L.srcT); }
           catch (e) {
-            console.warn('SlopEdit: decoder failed, falling back to seeking', e);
+            console.warn('SlopCut: decoder failed, falling back to seeking', e);
             r.close(); r = new SeekReader(it); readers.set(c.id, r); modes.add('seek');
             f = await r.frameAt(L.srcT);
           }

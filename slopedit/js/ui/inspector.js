@@ -1,4 +1,4 @@
-/* SlopEdit: the Inspector. With nothing selected it shows the sequence settings; with a clip it shows
+/* SlopCut: the Inspector. With nothing selected it shows the sequence settings; with a clip it shows
    timing, transform (position, scale, rotation, opacity, crop), colour, fades, transition, speed,
    text (titles) and audio (volume, fades, keyframes). Builders for clip sections: insp-clip.js. */
 (function () {

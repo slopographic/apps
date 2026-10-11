@@ -71,7 +71,7 @@
     }
     function shapeSection(n) {
       const g = n.geom;
-      if (g.kind === 'mesh') return section('Shape', el('p', { class: 'insp-kind', text: `Imported mesh · ${g.indices.length / 3} triangles` }));
+      if (g.kind === 'mesh') return section('Shape', el('p', { class: 'insp-kind', text: `${g.faces ? 'Edited mesh' : 'Imported mesh'} · ${g.indices.length / 3} triangles${g.faces ? ` · ${g.faces.length} faces` : ''}` }));
       const spec = S.geometry.SPEC[g.kind] || {};
       return section('Shape', ...Object.keys(spec).map((k) => {
         const [lo, hi, int] = spec[k];

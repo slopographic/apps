@@ -1,4 +1,4 @@
-/* PhotoSLOP filters: red-eye removal (Filter ▸ Repair). redEyeData is shared with the Red Eye tool. */
+/* PhotoSlop filters: red-eye removal (Filter ▸ Repair). redEyeData is shared with the Red Eye tool. */
 'use strict';
 
 /**

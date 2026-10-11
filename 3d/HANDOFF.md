@@ -21,13 +21,76 @@ Slop Drive, and download. Status in `shared/apps.js` is `building`, group `creat
 - `js/core/` (pure, no DOM, loads in Node): `xform.js` (4×4 maths, Euler XYZ in degrees), `snap.js`, `geometry.js`
   (primitives as parameters), `blob.js` (icosphere plus value noise, seeded), `model.js` (scene and tree), `ops.js`
   (duplicate, group, ungroup, reparent, move, set field, bounds), `history.js` (snapshot undo with merge keys),
-  `format.js` (.s3d serialise, parse and validate), `obj.js`, `glb.js`.
+  `format.js` (.s3d serialise, parse and validate), `obj.js`, `glb.js`, and the mesh editing set: `mesh.js` (welded
+  polygon working form, bake of primitives, edge map, compact), `meshrender.js` (flat-where-it-bends render arrays),
+  `meshsel.js` (element selection, mode conversion, edge loops, screen picks), `meshops.js` (extrude, delete,
+  subdivide, merge, flip, fill, hide, reveal), `meshxf.js` (world matrices applied to selected vertices), `config.js`
+  (scene3d config: validate, build, export).
 - `js/render/` (three.js): `stage.js` (renderer, loop, picking, PNG capture), `camera.js`, `objects.js` (scene to
-  three objects, synced by id), `gizmo.js`.
+  three objects, synced by id), `gizmo.js`, `editview.js` (edit overlay: vertices, edges, selected faces).
 - `js/app/` (UI): `state.js`, `actions.js` (every edit goes through `commit`), `viewport.js`, `outliner.js`,
-  `inspector.js`, `menus.js` (right-click menus), `commands.js` (SlopCmd ids `3d.*`), `files.js`, `main.js`.
-- Tests: `tests/node/3d-*.test.mjs` (pure logic, via `tests/node/3d-env.mjs`), `tests/3d/app.test.html` with `3d.spec.js`
-  (browser, same-origin iframe of the real app; WebGL tests report skipped when the browser has no WebGL).
+  `inspector.js`, `menus.js` (right-click menus), `commands.js` (SlopCmd ids `3d.*`), `files.js`, `main.js`, and the
+  edit mode: `edit.js` (edited mesh, element mode, selection, commit path), `editmodal.js` (G, R, S, E transform
+  modal), `editpick.js` (clicks and box select), `editcommands.js` (edit keys and the Mesh menu), `configio.js` (config
+  import and export).
+- Tests: `tests/node/3d-*.test.mjs` (pure logic, via `tests/node/3d-env.mjs`: scene, geometry, mesh, config), and
+  `tests/3d/app.test.html` with `3d.spec.js` (browser, same-origin iframe of the real app; WebGL tests report skipped
+  when the browser has no WebGL).
+
+## Mesh edit mode
+
+Tab turns edit mode on for the selected mesh (a primitive is baked into an editable mesh first, one undo step). The
+status line shows the mode and the count. Object-mode keys that clash (1 to 3 views, F, G, H, W, Delete, Mod+D) work
+only outside edit mode.
+
+| Keys | What |
+| --- | --- |
+| Tab | Edit mode on or off (Edit button) |
+| 1 / 2 / 3 | Vertex / Edge / Face mode (toolbar buttons too) |
+| Click | Select the nearest vertex, edge or face. Shift adds, Ctrl toggles. Alt-click on an edge selects its loop. |
+| Drag on empty space | Box select (Shift adds, Ctrl removes). Alt-drag orbits. |
+| A / I / Alt+A or Escape | Select all, invert, clear |
+| G / R / S | Move, rotate, scale the selected elements (world space, pivot = selection centre) |
+| E | Extrude selected faces, then move along their normal |
+| X or Delete | Delete (vertices or edges take the faces that use them) |
+| W | Subdivide selected faces once (quads, neighbours kept watertight) |
+| M | Merge selected vertices at their centre (Merge by distance in the menu) |
+| Shift+F | Flip normals of selected faces |
+| F | Fill a face from one closed loop of selected edges or vertices |
+| H / Alt+H | Hide selection / show all hidden faces (and select them) |
+
+- Transform modal: the mouse moves it. Type numbers to set it (after X, Y or Z to pick an axis; for rotate, degrees;
+  for scale, a factor). Enter or left-click confirms, Escape or right-click cancels. The gizmo arrows also move the
+  selection in edit mode, snapped to the Snap step. One gesture is one undo step.
+- Mesh menu (toolbar Mesh button, or right-click in edit mode) lists every tool.
+- Storage: the mesh stays in the .s3d geom. A `kind: 'mesh'` geom keeps `positions` (welded), `indices` (triangles of the
+  visible faces), and optional `faces` (polygon vertex lists, the source of truth) and `hidden` (hidden face indices).
+  Files without `faces` read as triangles, as before. Selection is session state only.
+- Shading: an edited mesh is drawn flat where neighbouring faces bend more than 35 degrees and smooth elsewhere. The
+  imported normals of an OBJ or glTF mesh are dropped on the first edit.
+- Limits: no bevel, bridge, knife, loop cut, inset, or edge slide. No vertex colour or sculpt brushes yet (the mesh ops
+  in `core/` are pure functions over vertex arrays, so brushes can call them per stroke). Extrude works on faces only
+  (vertex and edge selections are converted to the faces they span). Delete refuses to remove every face. Fill needs one
+  closed loop. Undo restores the whole mesh; the element selection is clamped to what still exists after undo.
+
+## Config files (scene3d)
+
+File > Import config… and Export config… (the palette has both too). Data is `{ "objects": [...], "lights": [...] }`
+(a bare list is read as objects):
+
+- object: `type` cube, sphere, cylinder, cone, torus, plane or group; `name`; `position`, `rotation` (degrees), `scale`
+  as three numbers; `material` { `color` #rrggbb, `roughness`, `metallic`, `opacity` 0 to 1 }; `params` (shape
+  parameters, as in `core/geometry.js`); `children` (groups only).
+- light: `type` directional or ambient; `name`; `color`; `intensity` 0 to 100; `position` (directional).
+
+Import validates everything first and refuses the whole file with the path of each problem (`objects[2].position`).
+Valid data is added as ordinary scene nodes in one undo step. Export writes the visible primitives and lights with
+world transforms and groups flattened; meshes that are not primitives are counted and left out. The .s3d file is
+unchanged by this.
+
+Registration: `shared/config/` did not exist when this was written, so `configio.js` has `registerStub()`, which does
+nothing until `SlopConfig` exists. Once it does, register kind `scene3d` for app `3d` there with the same validate,
+build and export functions (`S.config` in `core/config.js`).
 
 ## The .s3d format (version 1)
 
@@ -38,7 +101,7 @@ The file is the scene JSON itself, UTF-8, with `"format": "slop-3d"` and `"versi
   nodes: { id: { id, type: "mesh"|"group"|"light", name, visible, parent: id|null,
                  transform: { p: [x,y,z], r: [x,y,z] /* degrees, XYZ */, s: [x,y,z] },
                  geom:     { kind: "cube"|"plane"|"sphere"|"cylinder"|"cone"|"torus"|"blob", …params }   // mesh
-                           | { kind: "mesh", positions: [], normals?: [], indices: [] }                   // imported mesh
+                           | { kind: "mesh", positions: [], normals?: [], indices: [], faces?: [[…]], hidden?: [face…] }   // mesh (imported or edited)
                  material: { color, roughness, metallic, opacity, map?: "data:image/…" }                 // mesh
                  children: [id…]                                                                         // group
                  light:    { kind: "directional"|"ambient", color, intensity }                           // light
@@ -56,6 +119,8 @@ The file is the scene JSON itself, UTF-8, with `"format": "slop-3d"` and `"versi
   (Home), numbered views 1 front, 2 top, 3 side, 4 perspective, wireframe (W), grid (G), axes.
 - Primitives: cube, sphere, cylinder, cone, torus, plane, blob, created at the origin, plus groups and lights (sun and
   ambient). Shape parameters are editable in the inspector.
+- Mesh edit: Tab, then vertex, edge and face selection with G, R, S, E, X, W, M, F, H and the Mesh menu (see Mesh edit mode).
+- Config: File > Import config… and Export config… (scene3d data, see Config files).
 - Edit: duplicate (Ctrl+D), delete, group and ungroup (Ctrl+G / Ctrl+Shift+G), undo and redo (Ctrl+Z, Ctrl+Shift+Z),
   select all, hide or show (H), rename (F2 or double-click in the outliner).
 - Transform: move by the gizmo arrows (snapped to the Snap step), numeric position, rotation (degrees) and scale
@@ -73,9 +138,11 @@ The file is the scene JSON itself, UTF-8, with `"format": "slop-3d"` and `"versi
 
 ## What is missing
 
-- Rotate and scale gizmos (use the numeric fields).
+- Rotate and scale gizmos for objects (use the numeric fields). Element rotate and scale have no gizmo yet (R and S).
 - GLB export (no exporter in the vendored three.js).
 - Boolean operations, sculpting, animation, UV editing, materials beyond the four values plus an image.
+- Mesh tools beyond the list above (bevel, bridge, knife, inset, loop cut, slide), and element edits on imported meshes
+  beyond what the list covers.
 - Multi-object inspector editing (the inspector shows the last selected object).
 - Snapping for typed values (only gizmo drags and nudges snap). Camera moves are not in the undo history.
 - Clicking a child in the viewport selects the child; select the group in the outliner to move the whole group.

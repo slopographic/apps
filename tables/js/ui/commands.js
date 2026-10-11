@@ -5,6 +5,7 @@ import { undo, redo, canUndo, canRedo } from './history.js';
 import * as A from './actions.js';
 import * as F from './storage.js';
 import * as Sh from './sheets.js';
+import * as TPL from './templates.js';
 import { NUMBER_FORMATS } from './numfmt.js';
 import { clearRange } from './actions.js';
 
@@ -13,6 +14,8 @@ const idle = () => { const a = document.activeElement; return !S.edit && !(a && 
 
 export const COMMANDS = [
   { id: 'file.new', title: 'New workbook', group: 'File', run: F.newBlank },
+  { id: 'file.fromTemplate', title: 'From template…', group: 'File', run: () => TPL.openTemplates() },
+  { id: 'file.saveTemplate', title: 'Save as template…', group: 'File', run: () => TPL.saveAsTemplate() },
   { id: 'file.open', title: 'Open from Slop Drive…', group: 'File', keys: ['Mod+O'], run: F.openFromDrive, when: () => !!window.SlopHub },
   { id: 'file.save', title: 'Save', group: 'File', keys: ['Mod+S'], run: () => F.save() },
   { id: 'file.saveAs', title: 'Save to Slop Drive…', group: 'File', run: () => F.save({ as: true }), when: () => !!window.SlopHub },
@@ -76,7 +79,7 @@ const item = (id, label) => { const c = byId[id]; return { label: label || c.tit
 export function menus() {
   const paste = () => (navigator.clipboard && navigator.clipboard.readText ? navigator.clipboard.readText().then(A.paste, () => toast('Use Ctrl+V to paste')) : toast('Use Ctrl+V to paste'));
   return {
-    File: [item('file.new'), item('file.open'), '-', item('file.save'), item('file.saveAs'), '-',
+    File: [item('file.new'), item('file.fromTemplate'), item('file.open'), '-', item('file.save'), item('file.saveAs'), item('file.saveTemplate'), '-',
       { label: 'Download', sub: [item('file.stab', 'Download .stab (Slop Tables file)'), item('file.csv'), item('file.xlsx')] }],
     Edit: [item('edit.undo'), item('edit.redo'), '-',
       { label: 'Cut', key: 'Ctrl+X', act: () => document.execCommand('cut') },

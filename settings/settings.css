@@ -57,3 +57,20 @@
   .set-row-field { flex-direction: column; align-items: stretch; }
   .rate-form .rate-note { grid-column: auto; }
 }
+
+/* Appearance: one radio per theme, each with a swatch painted from the theme's tokens (see appearance.js). */
+.theme-picker { border: 0; margin: 0 0 8px; padding: 0; min-width: 0; }
+.theme-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.theme-opt { position: relative; display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+.theme-opt:hover { border-color: var(--bone-dim); }
+.theme-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.theme-opt:has(input:checked) { border-color: var(--slop); box-shadow: 0 0 0 1px var(--slop); }
+.theme-opt:has(input:focus-visible) { outline: 2px solid var(--slop); outline-offset: 2px; }
+.theme-swatch { position: relative; display: flex; height: 76px; border-radius: 4px; overflow: hidden; border: 1px solid var(--sw-border, var(--line)); background: var(--sw-bg); }
+.theme-half { flex: 1; background: var(--sw-bg); }
+.theme-panel { position: absolute; left: 12px; right: 12px; top: 12px; bottom: 26px; background: var(--sw-surface); border-radius: 3px; }
+.theme-dot { position: absolute; right: 18px; bottom: 18px; width: 14px; height: 14px; border-radius: 50%; background: var(--sw-accent); }
+.theme-aa { position: absolute; left: 18px; bottom: 14px; font-family: var(--cond); font-weight: 800; font-size: 18px; color: var(--sw-text); }
+.theme-text { display: flex; flex-direction: column; gap: 2px; }
+.theme-name { font-size: 15px; font-weight: 600; color: var(--bone); }
+.theme-hint { font-family: var(--mono); font-size: 12px; color: var(--bone-faint); }

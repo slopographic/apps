@@ -1,83 +1,68 @@
-/* Slop Contacts: the group sidebar (with counts; click to filter) and the contact list (checkboxes, search,
- * selection bar). Renders from SlopContacts.state; user input updates the state and re-renders. */
+/* Slop Contacts: the middle column. The alphabetical list under letter headers (A to Z, then #), each row with an
+ * avatar, the name and one line of company or stage. Recent is one flat list. Clicks, keys and drags are in select.js.
+ * Renders from SlopContacts.state. Adds SlopContacts.list. */
 (function () {
   'use strict';
   const SC = window.SlopContacts;
   const S = SC.state;
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
-  const isGroupOn = (kind, name) => (kind === 'all' ? S.group === null : kind === 'none' ? S.group === '' : S.group === name);
 
-  function sideButton(kind, name, label, count) {
-    const on = isGroupOn(kind, name);
-    return `<button type="button" class="gbtn${on ? ' is-on' : ''}" data-kind="${kind}" data-name="${esc(name)}" aria-pressed="${on}">` +
-      `<span class="gl">${esc(label)}</span><span class="gn">${count}</span></button>`;
+  /** The heading letter of a name: its first letter without accents, or # for anything else. */
+  function letterOf(name) {
+    const ch = String(name || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().charAt(0).toUpperCase();
+    return /^[A-Z]$/.test(ch) ? ch : '#';
   }
-  function renderGroups() {
-    const g = S.groupCounts();
-    const rows = [sideButton('all', '', 'All contacts', g.all), sideButton('none', '', 'Ungrouped', g.none)];
-    for (const [name, n] of g.groups) rows.push(sideButton('group', name, name, n));
-    $('groups').innerHTML = rows.join('');
-    $('groupHint').textContent = g.groups.length ? '' : 'Groups come from CATEGORIES (vCard), Group Membership (Google) and Categories (Outlook).';
+  /** The visible contacts in letter sections, in A to Z order with # last. */
+  function sectionsOf(list) {
+    const map = new Map();
+    for (const c of list) { const k = letterOf(c.fn); if (!map.has(k)) map.set(k, []); map.get(k).push(c); }
+    return [...map.entries()].sort(([a], [b]) => (a === '#' ? 1 : b === '#' ? -1 : a < b ? -1 : a > b ? 1 : 0));
+  }
+  /** One row. The second line is the company, or the stage when there is no company. */
+  function rowHtml(c) {
+    const on = S.sel.has(c.id);
+    const cls = ['row', on && 'is-sel', S.open === c.id && 'is-open', S.focus === c.id && 'is-focus'].filter(Boolean).join(' ');
+    const sub = c.org || SC.stageLabel(c.stage);
+    const check = S.selectMode ? `<span class="row-check${on ? ' on' : ''}" aria-hidden="true">${on ? '✓' : ''}</span>` : '';
+    return `<li class="${cls}" role="listitem" data-id="${esc(c.id)}" draggable="true" aria-selected="${on}"${S.open === c.id ? ' aria-current="true"' : ''}>`
+      + `${check}${SC.photoUi.avatarHtml(c)}<span class="row-text"><span class="row-name">${esc(c.fn)}</span>`
+      + `<span class="row-sub">${esc(sub)}</span></span></li>`;
   }
 
-  /** The row for one contact. */
-  function rowHtml(c, shown) {
-    const on = S.sel.has(c.id), name = SC.model.displayName(c);
-    const sub = [c.org, c.phones[0] && c.phones[0].value, c.emails[0] && c.emails[0].value].filter(Boolean).join(' · ');
-    const chips = c.groups.slice(0, 4).map((g) => `<span class="chip">${esc(g)}</span>`).join('') + (c.groups.length > 4 ? `<span class="chip">+${c.groups.length - 4}</span>` : '');
-    return `<li class="row${on ? ' is-sel' : ''}" data-id="${esc(c.id)}" data-shown="${shown}">` +
-      `<label class="ck"><input type="checkbox" data-ck="${esc(c.id)}"${on ? ' checked' : ''} aria-label="Select ${esc(name)}"></label>` +
-      `<button type="button" class="open" data-open="${esc(c.id)}" title="Edit ${esc(name)}">` +
-      `<span class="nm">${esc(name)}</span><span class="sub">${esc(sub) || '&nbsp;'}</span></button>` +
-      `<span class="chips">${chips}</span></li>`;
+  /** The title of the open group. */
+  function titleOf(g) {
+    if (!g) return 'All Contacts';
+    if (g === 'recent') return 'Recent';
+    if (g.startsWith('cat:')) return g.slice(4);
+    return SC.stageLabel(g.slice(6));
   }
-  function renderRows() {
-    const vis = S.visible();
-    $('rows').innerHTML = vis.map((c) => rowHtml(c, true)).join('');
-    const total = S.list.length;
-    $('count').textContent = !total ? '' : vis.length === total ? `${total} contact${total === 1 ? '' : 's'}` : `${vis.length} of ${total} shown`;
-    $('empty').hidden = total > 0;
-    $('noMatch').hidden = !(total && !vis.length);
-    const n = S.sel.size;
-    $('selBar').hidden = !n;
-    $('selCount').textContent = `${n} selected`;
-    $('btnSelAll').textContent = vis.length && vis.every((c) => S.sel.has(c.id)) ? 'Clear shown' : 'Select all shown';
-    $('btnSelAll').dataset.cmd = vis.length && vis.every((c) => S.sel.has(c.id)) ? 'contacts.clearSel' : 'contacts.selectAll';
-  }
-  const render = () => { renderGroups(); renderRows(); };
 
-  function bind() {
-    $('groups').addEventListener('click', (e) => {
-      const b = e.target.closest('.gbtn');
-      if (!b) return;
-      const kind = b.dataset.kind;
-      S.group = kind === 'all' ? null : kind === 'none' ? '' : b.dataset.name;
-      S.emit('render');
-    });
-    $('rows').addEventListener('click', (e) => {
-      const b = e.target.closest('[data-open]');
-      if (b) { SC.editor.open(b.dataset.open); return; }
-      const ck = e.target.closest('input[data-ck]');
-      if (ck) {
-        const next = new Set(S.sel);
-        if (ck.checked) next.add(ck.dataset.ck); else next.delete(ck.dataset.ck);
-        S.setSel(next);
-      }
-    });
+  function render() {
+    const list = S.visible();
+    const n = list.length, total = S.list.length;
+    $('listTitle').textContent = titleOf(S.group);
+    $('listCount').textContent = S.query.trim() || S.group ? `${n} of ${total}` : `${total} contact${total === 1 ? '' : 's'}`;
+    $('btnSelect').setAttribute('aria-pressed', String(S.selectMode));
+    $('btnSelect').classList.toggle('on', S.selectMode);
+    const flat = S.group === 'recent';
+    const html = flat
+      ? `<ul class="rows" role="list" aria-label="Recent">${list.map(rowHtml).join('')}</ul>`
+      : sectionsOf(list).map(([k, items]) => `<section class="letter-sec" aria-labelledby="letter-${k === '#' ? 'hash' : k}">`
+        + `<h2 class="letter" id="letter-${k === '#' ? 'hash' : k}">${k}</h2><ul class="rows" role="list">${items.map(rowHtml).join('')}</ul></section>`).join('');
+    $('rows').innerHTML = html;
+    $('rows').hidden = !total || !n;
+    $('empty').hidden = !!total;
+    $('noMatch').hidden = !total || !!n;
+    $('noMatch').textContent = S.group && !S.query.trim() ? `No contacts in ${titleOf(S.group)} yet.` : 'No contact matches that search.';
+  }
+
+  function mount() {
     $('search').addEventListener('input', (e) => { S.query = e.target.value; S.emit('render'); });
+    $('btnSelect').addEventListener('click', () => { S.selectMode = !S.selectMode; S.emit('render'); });
     S.on('render', render);
     S.on('change', render);
   }
 
-  /** Shift-click ranges are not needed; this selects every shown contact. */
-  function selectShown(on) {
-    const vis = S.visible();
-    const next = new Set(on ? S.sel : []);
-    for (const c of vis) { if (on) next.add(c.id); else next.delete(c.id); }
-    S.setSel(next);
-  }
-
-  SC.list = { render, bind, esc, selectShown, rowHtml };
-  bind();
+  SC.list = { mount, render, sectionsOf, letterOf, rowHtml, titleOf };
 })();

@@ -47,7 +47,7 @@
   async function baseIn(tx) {
     const s = await tx.get('settings', 'main');
     if (!s.ok) return s;
-    return ok((s.value && s.value.defaultCurrency) || 'USD');
+    return ok((s.value && (s.value.defaultCurrency || s.value.currency)) || 'USD'); // 'currency' is the v1 name
   }
 
   /** The rate to use for base <- ... inside a transaction. Same currency is 1 (no row). Fails with 'no_rate' when none exists. */

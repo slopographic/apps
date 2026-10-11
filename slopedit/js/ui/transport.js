@@ -1,4 +1,4 @@
-/* SlopEdit: the transport bar under the program monitor (timecode, play controls, loop, safe areas,
+/* SlopCut: the transport bar under the program monitor (timecode, play controls, loop, safe areas,
    snapshot) and the "go to time" dialog. */
 (function () {
   'use strict';

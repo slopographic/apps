@@ -58,9 +58,11 @@
   /** Tax on a net amount at a rate in basis points, rounded half away from zero. */
   const taxOn = (net, rateBp) => mulDiv(net, rateBp, ONE);
 
-  /** One line: net = qty x unit price (exact), tax = taxOn(net), total = net + tax. Prices are tax-exclusive. */
+  /** One line: gross = qty x unit price (exact), net = gross less the discount (basis points, rounded half away),
+   *  tax = taxOn(net), total = net + tax. Prices are tax-exclusive. An absent discount is zero. */
   function lineAmounts(line) {
-    const net = mulDiv(line.qty, line.unitPrice, 1);
+    const gross = mulDiv(line.qty, line.unitPrice, 1);
+    const net = line.discount ? mulDiv(gross, 10000 - line.discount, 10000) : gross;
     const tax = taxOn(net, line.taxRate);
     return { net, tax, total: net + tax };
   }

@@ -28,7 +28,7 @@
 
   /**
    * What a wheel event does under a bindings object.
-   * Returns { kind: 'zoom', factor } (factor > 0 around the pointer), { kind: 'pan', dx, dy } (screen px),
+   * Returns { kind: 'zoom', factor, live? } (factor > 0 around the pointer; live marks a trackpad pinch, applied at once), { kind: 'pan', dx, dy } (screen px),
    * or null. Ctrl alone is a trackpad pinch when pinch is 'zoom' and zoomWheel is not ctrl.
    */
   function wheelAction(b, ev) {
@@ -37,10 +37,10 @@
     const ctrlOnly = !!(ev.ctrlKey || ev.metaKey) && !ev.altKey && !ev.shiftKey;
     if (b.zoomWheel !== 'off' && wheelMatches(b.zoomWheel, ev)) {
       // A small ctrl-wheel delta is how browsers report a trackpad pinch: zoom it more gently.
-      const k = ctrlOnly && Math.abs(dy) < 50 ? 0.01 : 0.002;
-      return { kind: 'zoom', factor: Math.exp(-dy * k) };
+      const trackpad = ctrlOnly && Math.abs(dy) < 50, k = trackpad ? 0.01 : 0.002;
+      return { kind: 'zoom', factor: Math.exp(-dy * k), live: trackpad };
     }
-    if (b.pinch === 'zoom' && ctrlOnly) return { kind: 'zoom', factor: Math.exp(-dy * 0.01) };
+    if (b.pinch === 'zoom' && ctrlOnly) return { kind: 'zoom', factor: Math.exp(-dy * 0.01), live: true };
     if (b.panWheel !== 'off' && wheelMatches(b.panWheel, ev)) {
       if (b.panWheel === 'shift') return { kind: 'pan', dx: -(dy || dx), dy: 0 };
       return { kind: 'pan', dx: -dx, dy: -dy };
