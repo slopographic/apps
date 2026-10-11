@@ -33,6 +33,7 @@
       });
       html = html.replace(/<script\b([^>]*)\bsrc="([^"]+)"([^>]*)><\/script>/gi, function (m, a, src) {
         if (/^https?:/i.test(src)) return m;
+        if (/shared\/guard\.js$/.test(src)) return ''; // the reload guard is for the hosted site only
         var k = '@@JS' + jobs.length + '@@'; jobs.push({ k: k, url: src, kind: 'js' }); return k;
       });
       return Promise.all(jobs.map(function (j) { return fetchText(j.url).then(function (t) { j.text = t; }); })).then(function () {

@@ -84,7 +84,7 @@ function buildOfflineHTML(files) {
   const esc = (s) => s.replace(/<\/(script)/gi, '<\\/$1').replace(/<!--/g, '<\\!--');
   let html = files['index.html'];
   // Web fonts stay online-only (the woff2 set is ~0.8 MB): offline, the fallback font stack is used.
-  html = html.replace(/\s*<link rel="preconnect"[^>]*>/g, '').replace(/\s*<link\b[^>]*data-offline="strip"[^>]*>/g, '');
+  html = html.replace(/\s*<script src="[^"]*shared\/guard\.js"[^>]*><\/script>/g, '').replace(/\s*<link rel="preconnect"[^>]*>/g, '').replace(/\s*<link\b[^>]*data-offline="strip"[^>]*>/g, '');
   // Function replacers throughout: a replacement *string* would treat "$$" and "$&" in the code as patterns.
   if (files.favicon) html = html.replace(/<link rel="icon" href="[^"]*"[^>]*>/, () => `<link rel="icon" href="data:image/svg+xml,${encodeURIComponent(files.favicon)}" type="image/svg+xml">`);
   html = html.replace(/<link rel="stylesheet" href="([^"]+)">/g, (m, href) => (files[href] != null ? `<style>\n${files[href].replace(/<\/style/gi, '<\\/style')}\n</style>` : m));

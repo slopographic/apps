@@ -92,7 +92,7 @@
       W.selectTool('marquee');
       const a = scr(450 + 4 / W.V.zoom, 100), b = scr(700, 198);
       ptr('pointerdown', a.x, a.y); ptr('pointermove', b.x, b.y);
-      expect(W.V.snapInd && W.V.snapInd.x).toBe(450);
+      expect(W.V.snapInd && W.V.snapInd.y).toBe(200);
       ptr('pointerup', b.x, b.y);
       expect(W.D.sel.bounds.x).toBe(450);
       expect(W.D.sel.bounds.y + W.D.sel.bounds.h).toBe(200);
