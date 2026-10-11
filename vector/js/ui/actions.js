@@ -65,6 +65,7 @@
   act('edit.clear', 'Delete', [], function () { C.deleteSel(); }, { enabled: hasSel, keyText: 'Del' });
   act('edit.duplicate', 'Duplicate', ['mod+d'], function () { C.duplicate(); }, { enabled: hasSel });
   act('edit.prefs', 'Preferences…', ['mod+k'], function () { prefsDialog(); });
+  act('edit.nav', 'Navigation…', [], function () { SlopNav.openModal('vector'); });
 
   act('object.group', 'Group', ['mod+g'], function () { C.group(); }, { enabled: hasSel });
   act('object.ungroup', 'Ungroup', ['mod+shift+g'], function () { C.ungroup(); }, { enabled: function () { return SV.selObjs().some(function (o) { return o.type === 'group'; }); } });
