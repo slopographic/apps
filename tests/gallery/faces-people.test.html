@@ -83,16 +83,22 @@
       G.viewer.close();
     }, { timeout: 60000 });
 
-    it('the mode "Boxes on photos" draws every photo\'s boxes, and "Off" hides the badge too', async () => {
+    it('"Boxes on photos" draws the boxes on every photo; a photo\'s own choice still wins; "Off" hides the badge too', async () => {
       W.SlopFaces.view.setMode('boxes');
-      const a = photo('a.jpg');
-      G.viewer.open(ids(), ids().indexOf(a.id));
-      await waitFor(() => rects() === 2, { timeout: 8000 });
-      expect(badge().getAttribute('aria-pressed')).toBe('true'); // the photo's own choice (hidden) wins: it was set to off above
-      G.viewer.close();
+      const a = photo('a.jpg'), b = photo('b.jpg');
+      G.viewer.open(ids(), ids().indexOf(b.id)); // no choice stored for b: the mode decides
+      await waitFor(() => rects() === 1, { timeout: 8000 });
+      expect(badge().getAttribute('aria-pressed')).toBe('true');
+      badge().click(); // hides b's boxes for b only
+      await waitFor(() => rects() === 0, { timeout: 8000 });
+      expect(JSON.parse(W.localStorage.getItem('slop-faces-photos')).data['gallery:' + b.id]).toBe(false);
+      G.viewer.open(ids(), ids().indexOf(a.id)); // a's choice was "hidden" (set in the first test): it stays hidden
+      await waitFor(() => badge() && badge().textContent === '2 faces', { timeout: 8000 });
+      await sleep(150);
+      expect(rects()).toBe(0);
+      expect(badge().getAttribute('aria-pressed')).toBe('false');
       W.SlopFaces.view.setMode('off');
-      G.viewer.open(ids(), ids().indexOf(a.id));
-      await sleep(200);
+      await sleep(100);
       expect(badge()).toBe(null);
       expect(rects()).toBe(0);
       G.viewer.close();
