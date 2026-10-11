@@ -65,11 +65,11 @@
         </div>
       </div>
       <div class="selbar" id="selbar" hidden></div>
+      <div id="drvDrop" class="drv-dropstrip"></div>
       <section class="pane" id="pane" tabindex="0" aria-label="Files"></section>
       <footer class="status" id="status" role="status"></footer>
     </main>
     <aside class="info" id="info" aria-label="Details" hidden><div class="info-grip" id="infoGrip" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset"></div></aside>
-    <div class="dropzone" id="dropzone" hidden><div><b>Drop to upload</b><span>Files and folders go into the open folder.</span></div></div>
   </div>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount({ install: '#pwa-install' });</script>
@@ -125,6 +125,9 @@
   <script src="js/ui/view-nodes.js"></script>
   <script src="js/ui/view-usage.js"></script>
   <script src="js/ui/select.js"></script>
+  <script src="../shared/drop/rules.js"></script>
+  <script src="../shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js"></script>
   <script src="js/ui/dnd.js"></script>
   <script src="js/ui/newdoc.js"></script>
   <script src="js/ui/menus.js"></script>

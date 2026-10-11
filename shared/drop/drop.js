@@ -30,10 +30,12 @@
    *     ctx: { at: { x, y } client point of a drop (null from Choose files), index: the file's place among the added ones }.
    *   begin(files)?: before the first file is read. done(summary)?: after the last one, summary = { added: [{ name,
    *     value }], skipped: [{ name, reason }] }. reveal(summary)?: returns the element to scroll into view and flash.
+   *   files?(dataTransfer) → File[] (or a Promise of one): the files of a drop, when the app reads them itself (folders).
    *   targets?: elements that take drops (default: the zone). They are outlined while a file drag is over the window.
    *   input?: an existing <input type=file> to use for Choose files (its change event runs the same batch).
    *   limit?: most files taken in one drop (the rest are refused with a reason). overlay?: false to skip the outlines
-   *     and label (for an app that marks its own drop areas). label?, hint?: text for the zone.
+   *     and label (for an app that marks its own drop areas). window?: false leaves the rest of the page alone: only the
+   *     targets take drops (marked .sd-over while a file is over them). label?, hint?: text for the zone.
    *   toast?: false to hide the toast. multiple?: default true. compact?: one row (message and button), for a strip.
    *  Returns { choose(), run(files), destroy() }. */
   SD.attach = function (zone, o) {
@@ -57,7 +59,8 @@
       return chain;
     }
     async function batch(list, at) {
-      const files = Array.from(list || []);
+      let files;
+      try { files = Array.from((await list) || []); } catch (err) { PN.toast('Could not read the dropped files', 'warn'); return; }
       if (!files.length) return;
       ui.list.replaceChildren();
       const take = [], added = [], skipped = [];
@@ -113,27 +116,50 @@
       e.preventDefault();
       e.sdHandled = true;
       hide();
-      const files = e.dataTransfer.files;
-      if (files && files.length) run(files, { x: e.clientX, y: e.clientY });
+      // o.files(dataTransfer) is read now, inside the drop event (folder entries must be), and may resolve later.
+      const list = o.files ? o.files(e.dataTransfer) : Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+      run(list, { x: e.clientX, y: e.clientY });
     };
     const win = root;
-    win.addEventListener('dragenter', onEnter);
-    win.addEventListener('dragleave', onLeave);
-    win.addEventListener('dragover', onOver);
-    win.addEventListener('drop', onWindowDrop);
-    win.addEventListener('scroll', onScroll, { capture: true, passive: true });
-    for (const t of targets) t.addEventListener('drop', onTargetDrop);
+    // window: false leaves the page alone (no window outline, no drops taken elsewhere): only the targets react.
+    const winOn = o.window !== false;
+    if (winOn) {
+      win.addEventListener('dragenter', onEnter);
+      win.addEventListener('dragleave', onLeave);
+      win.addEventListener('dragover', onOver);
+      win.addEventListener('drop', onWindowDrop);
+      win.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    }
+    const onTargetOver = (e) => { if (isFiles(e)) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } };
+    const onTargetEnter = (e) => { if (isFiles(e)) e.currentTarget.classList.add('sd-over'); };
+    const onTargetLeave = (e) => { if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('sd-over'); };
+    const onTargetEnd = (e) => e.currentTarget.classList.remove('sd-over');
+    for (const t of targets) {
+      t.addEventListener('dragover', onTargetOver);
+      t.addEventListener('dragenter', onTargetEnter);
+      t.addEventListener('dragleave', onTargetLeave);
+      t.addEventListener('drop', onTargetEnd);
+      t.addEventListener('drop', onTargetDrop);
+    }
 
     return {
       choose: () => input.click(),
       run,
       destroy() {
-        win.removeEventListener('dragenter', onEnter);
-        win.removeEventListener('dragleave', onLeave);
-        win.removeEventListener('dragover', onOver);
-        win.removeEventListener('drop', onWindowDrop);
-        win.removeEventListener('scroll', onScroll, { capture: true });
-        for (const t of targets) t.removeEventListener('drop', onTargetDrop);
+        if (winOn) {
+          win.removeEventListener('dragenter', onEnter);
+          win.removeEventListener('dragleave', onLeave);
+          win.removeEventListener('dragover', onOver);
+          win.removeEventListener('drop', onWindowDrop);
+          win.removeEventListener('scroll', onScroll, { capture: true });
+        }
+        for (const t of targets) {
+          t.removeEventListener('dragover', onTargetOver);
+          t.removeEventListener('dragenter', onTargetEnter);
+          t.removeEventListener('dragleave', onTargetLeave);
+          t.removeEventListener('drop', onTargetEnd);
+          t.removeEventListener('drop', onTargetDrop);
+        }
         input.removeEventListener('change', onPick);
         hide();
       },

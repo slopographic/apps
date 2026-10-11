@@ -1,6 +1,7 @@
 /* SlopDrop rules: which dropped files an app takes, why it refuses the others, and the words for the result.
    Pure (no DOM, no fetch). Attaches to window.SlopDrop.rules. See shared/drop/HANDOFF.md.
    A rule set: { types: ['image/*', 'video/*', 'application/pdf'], exts: ['.heic'], noun: 'a picture or video', maxBytes }.
+   any: true takes every type; allowEmpty: true takes zero-byte files.
    types: MIME patterns (type/* or an exact type). exts: used only when the browser gives no type (or octet-stream).
    noun: how a refusal reads, "notes.txt is not <noun>". */
 (function (root) {
@@ -32,9 +33,9 @@
   R.check = function (file, rules) {
     const name = file.name || 'file', size = Number(file.size) || 0;
     const known = R.knownType(file.type);
-    const byType = known ? R.typeOk(file.type, rules) : (rules.exts || []).includes(R.ext(name));
+    const byType = rules.any || (known ? R.typeOk(file.type, rules) : (rules.exts || []).includes(R.ext(name)));
     if (!byType) return { ok: false, reason: name + ' is not ' + (rules.noun || 'a supported file') };
-    if (size === 0) return { ok: false, reason: name + ' is empty' };
+    if (size === 0 && !rules.allowEmpty) return { ok: false, reason: name + ' is empty' };
     if (rules.maxBytes && size > rules.maxBytes) return { ok: false, reason: name + ' is larger than ' + R.size(rules.maxBytes) };
     return { ok: true };
   };

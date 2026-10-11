@@ -88,3 +88,6 @@ button:disabled { cursor: default; opacity: .4; }
 .dropzone > div { display: grid; gap: 4px; text-align: center; padding: 30px 40px; border: 2px dashed var(--accent-line); border-radius: 16px; background: var(--panel); color: var(--dim); }
 .dropzone b { color: var(--fg); font-size: 18px; }
 .marquee { position: absolute; z-index: 5; border: 1px solid var(--sel-line); background: var(--sel-bg); pointer-events: none; }
+
+/* Upload strip above the file pane (shared/drop, compact) */
+.drv-dropstrip { margin: 8px 12px 0; padding: 6px 10px; border: 1px dashed var(--line, #3a3a46); border-radius: 8px; }

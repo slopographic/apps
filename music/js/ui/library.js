@@ -99,9 +99,16 @@
     $('mu-add').addEventListener('click', async () => addFiles(await UI().pickFiles({ accept: 'audio/*,.mp3,.wav,.ogg,.oga,.flac,.m4a,.aac,.opus', multiple: true })));
     $('lib-add-empty').addEventListener('click', async () => addFiles(await UI().pickFiles({ accept: 'audio/*,.mp3,.wav,.ogg,.oga,.flac,.m4a,.aac,.opus', multiple: true })));
     const view = $('v-library');
-    view.addEventListener('dragover', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); view.classList.add('mu-drop-on'); } });
-    view.addEventListener('dragleave', (e) => { if (!view.contains(e.relatedTarget)) view.classList.remove('mu-drop-on'); });
-    view.addEventListener('drop', (e) => { e.preventDefault(); view.classList.remove('mu-drop-on'); addFiles([...e.dataTransfer.files]); });
+    // Files dropped on the library go through SlopDrop (shared/drop): each one is added to Slop Drive as before.
+    SlopDrop.attach($('lib-drop'), {
+      accept: { types: ['audio/*'], exts: ['.mp3', '.wav', '.ogg', '.oga', '.flac', '.m4a', '.aac', '.opus'], noun: 'an audio file' },
+      compact: true,
+      targets: [view],
+      process: async (file) => {
+        if (!(await M.lib.addFiles([file]))) throw new Error('could not be added to Slop Drive');
+        return file.name;
+      },
+    });
     M.lib.subscribe(schedule);
     M.engine.subscribe(() => { if (M.engine.state().trackId !== bind.last) { bind.last = M.engine.state().trackId; markCurrent(); } });
   }

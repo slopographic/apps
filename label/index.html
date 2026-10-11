@@ -66,7 +66,7 @@
       <canvas class="ruler ruler-v" id="rulerV" aria-hidden="true"></canvas>
       <div class="stage" id="stage" tabindex="0" aria-label="Label canvas">
         <canvas id="cv"></canvas>
-        <div class="drop-hint"><span>Drop images, data (CSV, Excel), ZPL or .sloplabel files</span></div>
+        <div id="lbDrop" class="lb-dropstrip"></div>
       </div>
     </main>
     <aside class="dock" id="dock" aria-label="Panels">
@@ -121,6 +121,9 @@
   <script src="../shared/config/validate.js"></script>
   <script src="../shared/config/io.js"></script>
   <script src="../shared/config/prompt.js"></script>
+  <script src="../shared/drop/rules.js" data-src="shared/drop/rules.js"></script>
+  <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="../shared/config/dialog.js"></script>
   <script src="../shared/config/dialog-ai.js"></script>
   <script src="js/io/config.js"></script>
@@ -141,6 +144,9 @@
   <script src="js/ui/menus.js"></script>
   <script src="js/ui/context.js"></script>
   <script src="js/ui/view-state.js"></script>
+  <script src="../shared/drop/rules.js" data-src="shared/drop/rules.js"></script>
+  <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="js/ui/boot.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js"></script>
