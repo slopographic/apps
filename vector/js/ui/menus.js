@@ -19,7 +19,7 @@
 
   /* ================= menus ================= */
   var MENUS = [
-    { label: 'File', items: ['file.new', 'file.open', 'file.sample', '-', 'file.place', '-', 'file.save', 'file.saveAs', { label: 'Export', items: ['file.exportSVG', 'file.exportPNG', 'file.exportJPG', 'file.exportPDF', 'file.exportAI'] }, '-', 'file.docSetup', '-', 'file.downloadApp', '-', 'file.home'] },
+    { label: 'File', items: ['file.new', 'file.open', 'file.openDrive', 'file.sample', '-', 'file.place', 'file.placeDrive', '-', 'file.save', 'file.saveAs', { label: 'Export', items: ['file.exportSVG', 'file.exportPNG', 'file.exportJPG', 'file.exportPDF', 'file.exportAI'] }, { label: 'Send to', dyn: 'sendto' }, '-', 'file.docSetup', '-', 'file.downloadApp', '-', 'file.home'] },
     { label: 'Edit', items: ['edit.undo', 'edit.redo', '-', 'edit.cut', 'edit.copy', 'edit.paste', 'edit.pasteFront', 'edit.pasteBack', 'edit.clear', '-', 'edit.duplicate', 'select.all', 'select.none', '-', 'edit.prefs'] },
     { label: 'Object', items: [{ label: 'Transform', items: ['transform.move', 'transform.rotate', 'transform.scale', 'transform.reflect', '-', 'transform.flipH', 'transform.flipV'] }, { label: 'Arrange', items: ['arrange.front', 'arrange.forward', 'arrange.backward', 'arrange.back'] }, '-', 'object.group', 'object.ungroup', '-', 'object.lock', 'object.unlockAll', 'object.hide', 'object.showAll', '-', 'object.expand', { label: 'Compound Path', items: ['compound.make', 'compound.release'] }, { label: 'Pathfinder', items: ['pf.unite', 'pf.minus', 'pf.intersect', 'pf.exclude'] }, '-', 'object.slopify'] },
     { label: 'Type', items: [{ label: 'Font', dyn: 'fonts' }, { label: 'Size', dyn: 'sizes' }, { label: 'Weight', dyn: 'weights' }, '-', 'type.alignLeft', 'type.alignCenter', 'type.alignRight', '-', { label: 'Change Case', items: ['type.upper', 'type.lower', 'type.title'] }, 'type.ipsum'] },
@@ -31,6 +31,7 @@
   function dynItems(kind) {
     if (kind === 'fonts') return Object.keys(SV.FONTS).map(function (f) { return { label: f, run: function () { SV.applyFont('family', f); }, checked: function () { return curFont().family === f; }, font: f }; });
     if (kind === 'sizes') return [8, 10, 12, 14, 18, 24, 36, 48, 72, 96, 144].map(function (s) { return { label: s + ' px', run: function () { SV.applyFont('size', s); }, checked: function () { return curFont().size === s; } }; });
+    if (kind === 'sendto') return SV.hub.sendItems().map(function (it) { return it === '-' ? '-' : { label: it.label, run: it.act, disabled: it.disabled }; });
     if (kind === 'weights') return [[300, 'Light'], [400, 'Regular'], [500, 'Medium'], [600, 'Semibold'], [700, 'Bold'], [800, 'Extra Bold'], [900, 'Black']].map(function (w) { return { label: w[1] + ' (' + w[0] + ')', run: function () { SV.applyFont('weight', w[0]); }, checked: function () { return +curFont().weight === w[0]; } }; });
     return [];
   }
@@ -50,7 +51,7 @@
       var a, label, keys, enabled = true, checked = null, run, sub = null;
       if (typeof it === 'string') { a = A[it]; if (!a) return; label = a.label; keys = a.keyText || keyLabel(a.keys[0]); enabled = !a.enabled || a.enabled(); checked = a.checked ? a.checked() : null; run = function () { SV.runAction(it); }; }
       else if (it.items || it.dyn) { label = it.label; sub = it.items || dynItems(it.dyn); }
-      else { label = it.label; run = it.run; checked = it.checked ? it.checked() : null; }
+      else { label = it.label; run = it.run; checked = it.checked ? it.checked() : null; enabled = !it.disabled; }
       var row = h('div', { class: 'menu-item' + (enabled ? '' : ' disabled') + (sub ? ' has-sub' : ''), role: 'menuitem', tabindex: '-1', 'aria-disabled': enabled ? null : 'true', 'data-action': typeof it === 'string' ? it : null },
         [h('span', { class: 'mi-check', text: checked ? '✓' : '' }), h('span', { class: 'mi-label', text: label, style: it.font ? { 'font-family': SV.fontStack(it.font) } : null }), h('span', { class: 'mi-key', text: sub ? '' : (keys || '') }), sub ? h('span', { class: 'mi-arrow', html: I.caret }) : null]);
       if (sub) {

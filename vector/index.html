@@ -26,6 +26,8 @@
         if (location.protocol === 'file:' || document.querySelector('meta[name="slop-vector-build"]')) {
           var c = document.documentElement.cloneNode(true);
           c.setAttribute('data-theme', window.__SV_THEME0 || 'pro');
+          // drop nodes injected by scripts at load (Slop Hub's picker styles) so the copy is pristine
+          Array.prototype.forEach.call(c.querySelectorAll('head > style'), function (st) { if (/^\.hub-/.test(st.textContent)) st.remove(); });
           window.__SV_PRISTINE = '<!doctype html>\n' + c.outerHTML;
         }
       } catch (e) { /* ignore */ }
@@ -124,6 +126,7 @@
   <script src="js/io/svg-open.js"></script>
   <script src="js/io/files.js"></script>
   <script src="js/io/offline.js"></script>
+  <script src="js/io/hub.js"></script>
   <!-- ui -->
   <script src="js/ui/base.js"></script>
   <script src="js/ui/actions.js"></script>

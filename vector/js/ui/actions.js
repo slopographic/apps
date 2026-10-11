@@ -37,6 +37,8 @@
   act('file.new', 'New…', ['mod+alt+n'], function () { newDocDialog(); });
   act('file.open', 'Open…', ['mod+o'], function () { IO.pickFile('.svg,image/svg+xml', function (f) { if (f[0]) IO.openFile(f[0]); }); });
   act('file.place', 'Place…', ['mod+shift+p'], function () { IO.pickFile('.svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp', function (f) { IO.placeFiles(f); }, true); });
+  act('file.openDrive', 'Open from Slop Drive…', [], function () { SV.hub.openFromDrive(); });
+  act('file.placeDrive', 'Place from Slop Drive…', [], function () { SV.hub.placeFromDrive(); });
   act('file.sample', 'Open Sample: Sloppo', [], function () { SV.loadDoc(SV.sampleDoc(), { fit: true }); SV.commit('sample'); UI.toast('Say hi to Sloppo'); });
   act('file.save', 'Save', ['mod+s'], function () { IO.saveSVG(); });
   act('file.saveAs', 'Save As…', ['mod+shift+s'], function () { saveAsDialog(); });
