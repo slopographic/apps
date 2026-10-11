@@ -32,7 +32,7 @@
     $('btnNew').addEventListener('click', () => SC.newContact.open());
     $('btnGroups').setAttribute('aria-expanded', 'false');
     const ok = await SC.records.init();
-    if (ok) { await launch(); }
+    if (ok) { await launch(); await SC.viewState.restore(); } // js/app/view-state.js: the group, search, open card and selection
     S.ready = true;
     SC.ready = true;
     S.emit('render');

@@ -9,6 +9,7 @@
   'use strict';
   if (window.SlopBackupCore) return;
   const FORMAT = 'slopographic-backup', VERSION = 1, DRIVE = 'slop-drive';
+  const THUMBS = 'slop-drive-thumbs'; // the Drive's thumbnail cache: made again on demand, so it is not backed up
   const req = (r) => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
   const done = (t) => new Promise((res, rej) => { t.oncomplete = res; t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error('Aborted')); });
   const pad = (n) => String(n).padStart(2, '0');
@@ -16,7 +17,7 @@
 
   async function dbNames() {
     let names = [];
-    try { if (indexedDB.databases) names = (await indexedDB.databases()).map((d) => d.name).filter(Boolean); } catch (e) { /* unsupported */ }
+    try { if (indexedDB.databases) names = (await indexedDB.databases()).map((d) => d.name).filter((n) => n && n !== THUMBS); } catch (e) { /* unsupported */ }
     if (!names.includes(DRIVE)) names.push(DRIVE); // always try the Drive, even where databases() is missing
     return names;
   }

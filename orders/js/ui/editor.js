@@ -184,6 +184,7 @@
     const r = await NS.actions.confirmId(st.id);
     if (!r.ok) { setMsg(U.refusal(r), true); return; }
     await reload();
+    setMsg(`${st.number} is confirmed.`);
     UI.toast(`${st.number} confirmed`);
   }
 
@@ -193,6 +194,7 @@
     const r = await NS.fulfil.fulfil(st.id);
     if (!r.ok) { UI.alert('Not fulfilled', U.refusal(r)); return; }
     await reload();
+    setMsg(`${st.number} is fulfilled. Stock is updated.`);
     UI.toast(`${st.number} fulfilled`);
   }
 
@@ -203,6 +205,7 @@
     const r = await NS.actions.cancelId(st.id);
     if (!r.ok) { UI.alert('Not cancelled', U.refusal(r)); return; }
     await reload();
+    setMsg(`${st.number} is cancelled.`);
     UI.toast(`${st.number} cancelled`);
   }
 
@@ -211,6 +214,7 @@
     const r = await NS.actions.convertId(st.id);
     if (!r.ok) { UI.alert('Not converted', U.refusal(r)); return; }
     await reload();
+    setMsg('Invoice draft created. The order keeps a link to it.');
     UI.toast('Invoice draft created. The order keeps a link to it.');
   }
 

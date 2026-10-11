@@ -1,27 +1,25 @@
 <!doctype html>
-<html lang="en" data-theme="pro">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Slop Contacts — Slopographic</title>
-  <meta name="description" content="Slop Contacts: import vCard and CSV, find and merge duplicates, clean up in bulk, and export for iOS, Android, Google or Outlook. Nothing is uploaded.">
-  <meta name="theme-color" content="#0e0e10">
-  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Slop Contacts: your customers as an address book. Groups, letters, a card for each contact, and the pipeline, orders and invoices from Slop CRM and Slop Orders. Nothing is uploaded.">
+  <meta name="theme-color" content="#f6f6f4" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
   <meta property="og:title" content="Slop Contacts — Slopographic">
-  <meta property="og:description" content="An address book that runs in your browser: vCard and CSV in and out, duplicates merged. Nothing is uploaded.">
-  <meta name="twitter:card" content="summary_large_image">
-  <script>
-    try { var t = JSON.parse(localStorage.getItem('slop-contacts.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
-  </script>
+  <meta property="og:description" content="An address book for your customers that runs in your browser. vCard and CSV in and out. Nothing is uploaded.">
   <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/contacts.css" data-src="contacts/css/contacts.css">
+  <link rel="stylesheet" href="css/contacts-list.css" data-src="contacts/css/contacts-list.css">
+  <link rel="stylesheet" href="css/contacts-card.css" data-src="contacts/css/contacts-card.css">
   <link rel="stylesheet" href="css/contacts-ui.css" data-src="contacts/css/contacts-ui.css">
-  <link rel="stylesheet" href="css/contacts-panel.css" data-src="contacts/css/contacts-panel.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -31,78 +29,80 @@
       <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
         <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
       </a>
-      <div class="appname"><b>Slop Contacts</b><a class="home-link" href="../">slopographic</a></div>
+      <div class="appname"><b>Contacts</b><a class="home-link" href="../">slopographic</a></div>
       <div class="actions" role="toolbar" aria-label="Contacts">
-        <button type="button" class="tb-btn" data-cmd="contacts.new">New</button>
+        <button type="button" class="tb-btn" data-cmd="contacts.new">New contact</button>
         <button type="button" class="tb-btn" data-cmd="import.files">Import</button>
+        <button type="button" class="tb-btn" data-cmd="export.open">Export</button>
         <button type="button" class="tb-btn" data-cmd="contacts.dupes">Duplicates</button>
         <button type="button" class="tb-btn" data-cmd="contacts.clean">Clean up</button>
-        <button type="button" class="tb-btn" data-cmd="export.open">Export</button>
-        <button type="button" class="tb-btn" id="ccBtn" data-cmd="settings.country" title="Default country code for phone numbers"><span id="ccLabel">No country code</span></button>
-        <button type="button" class="btn primary" id="btnSave" data-cmd="file.save" title="Save to Slop Drive (Ctrl+S)">Save</button>
+        <button type="button" class="tb-btn" data-cmd="settings.country" title="Default country code for phone numbers">Country code</button>
       </div>
-      <span class="local-badge" title="Your contacts are processed on this device. Nothing is uploaded."><span>100% local</span></span>
-      <label class="fname"><span class="sr">List name</span><input id="fileName" type="text" value="Contacts" spellcheck="false" autocomplete="off" aria-label="List name"></label>
+      <span class="local-badge" title="Your customers stay in this browser. Nothing is uploaded."><span>100% local</span></span>
     </header>
 
-    <div class="shell" id="shell">
-      <aside class="side" aria-label="Groups">
-        <h2 class="side-h">Groups</h2>
+    <div class="cols" id="shell">
+      <aside class="col col-groups" id="colGroups" aria-label="Groups">
         <div id="groups" class="groups"></div>
-        <p class="hint" id="groupHint"></p>
       </aside>
+      <div class="scrim" id="scrim"></div>
 
-      <main class="main" id="main">
-        <div class="main-top">
-        <div class="tools">
+      <section class="col col-list" aria-label="Contacts">
+        <div class="list-head">
+          <div class="list-bar">
+            <button type="button" class="icon-btn narrow-only" id="btnGroups" aria-label="Groups" aria-expanded="false" title="Groups">☰</button>
+            <h1 class="list-title" id="listTitle">All Contacts</h1>
+            <span class="list-count" id="listCount" aria-live="polite"></span>
+            <button type="button" class="text-btn" id="btnSelect" aria-pressed="false">Select</button>
+            <button type="button" class="icon-btn" id="btnNew" aria-label="New contact" title="New contact (Cmd+N)">+</button>
+          </div>
           <label class="search"><span class="sr">Search contacts</span>
-            <input id="search" type="search" placeholder="Search name, phone, e-mail, organisation" autocomplete="off" spellcheck="false"></label>
-          <button type="button" class="tb-btn" id="btnSelAll" data-cmd="contacts.selectAll">Select all shown</button>
-        </div>
-
-        <div class="selbar" id="selBar" hidden>
-          <span id="selCount" class="selcount"></span>
-          <button type="button" class="tb-btn" data-cmd="groups.add">Add to group</button>
-          <button type="button" class="tb-btn" data-cmd="groups.remove">Remove from group</button>
-          <button type="button" class="tb-btn" data-cmd="contacts.findReplace">Find and replace</button>
-          <button type="button" class="tb-btn" data-cmd="contacts.clean">Clean up</button>
-          <button type="button" class="tb-btn" data-cmd="export.open">Export</button>
-          <button type="button" class="tb-btn danger" data-cmd="contacts.delete">Delete</button>
-          <button type="button" class="tb-btn" data-cmd="contacts.clearSel">Clear</button>
-        </div>
-
-        <p class="status" id="count" aria-live="polite"></p>
-        </div>
-        <ul id="rows" class="rows" aria-label="Contacts"></ul>
-        <p id="noMatch" class="empty" hidden>No contact matches that search.</p>
-        <div class="empty" id="empty">
-          <p class="empty-h">No contacts yet</p>
-          <p>Import a vCard (.vcf) or a CSV from Google, Outlook or Apple. Your list stays in this browser until you save it to Slop Drive.</p>
-          <div class="empty-acts">
-            <button type="button" class="btn primary" data-cmd="import.files">Import contacts</button>
-            <button type="button" class="tb-btn" data-cmd="contacts.new">New contact</button>
+            <input id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false"></label>
+          <div class="bulkbar" id="bulkBar" hidden>
+            <span id="bulkCount" class="bulk-n"></span>
+            <button type="button" class="text-btn" data-cmd="groups.add">Add to group</button>
+            <label class="bulk-stage"><span class="sr">Set stage for the selection</span><select id="bulkStage"></select></label>
+            <button type="button" class="text-btn danger" data-cmd="contacts.delete">Delete</button>
+            <button type="button" class="text-btn" data-cmd="contacts.clearSel">Done</button>
           </div>
         </div>
-      </main>
+        <div class="list-scroll" id="listScroll">
+          <div id="rows" class="rows-wrap" tabindex="0" aria-label="Contacts list"></div>
+          <p id="noMatch" class="empty" hidden></p>
+          <div class="empty" id="empty" hidden>
+            <p class="empty-h">No contacts yet</p>
+            <p>Your customers appear here. Add one, or import a vCard (.vcf) or CSV from Google, Outlook or Apple.</p>
+            <div class="empty-acts">
+              <button type="button" class="btn primary" data-cmd="contacts.new">New contact</button>
+              <button type="button" class="btn" data-cmd="import.files">Import</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <aside class="detail" id="detail" aria-label="Contact details" hidden>
-        <header class="detail-bar">
-          <h2 class="detail-title" id="detailTitle">Contact</h2>
-          <button type="button" class="tb-btn detail-x" id="detailClose" aria-label="Close panel" title="Close panel">×</button>
-        </header>
-        <div class="detail-body" id="detailBody"></div>
-        <footer class="detail-foot" id="detailFoot"></footer>
-      </aside>
+      <section class="col col-card" id="card" aria-label="Contact">
+        <div id="cardBody" class="card-body"></div>
+      </section>
     </div>
-
-    <footer class="bottombar">
-      <span class="save-state" id="saveState" aria-live="polite"></span>
-    </footer>
   </div>
 
+  <script src="../shared/data/money.js" data-src="shared/data/money.js"></script>
+  <script src="../shared/data/barcode.js" data-src="shared/data/barcode.js"></script>
+  <script src="../shared/data/schema-defs.js" data-src="shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema.js" data-src="shared/data/schema.js"></script>
+  <script src="../shared/data/currency.js" data-src="shared/data/currency.js"></script>
+  <script src="../shared/data/store.js" data-src="shared/data/store.js"></script>
+  <script src="../shared/data/numbering.js" data-src="shared/data/numbering.js"></script>
+  <script src="../shared/data/fx.js" data-src="shared/data/fx.js"></script>
+  <script src="../shared/data/ledger.js" data-src="shared/data/ledger.js"></script>
+  <script src="../shared/data/stock.js" data-src="shared/data/stock.js"></script>
+  <script src="../shared/data/billing.js" data-src="shared/data/billing.js"></script>
+  <script src="../shared/data/bundle-check.js" data-src="shared/data/bundle-check.js"></script>
+  <script src="../shared/data/export.js" data-src="shared/data/export.js"></script>
   <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
   <script src="../shared/apps.js" data-src="shared/apps.js"></script>
   <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
+  <script src="../shared/session/session.js" data-src="shared/session/session.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js"></script>
   <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
@@ -110,6 +110,8 @@
   <script src="js/core/photo.js" data-src="contacts/js/core/photo.js"></script>
   <script src="js/core/model.js" data-src="contacts/js/core/model.js"></script>
   <script src="js/core/phone.js" data-src="contacts/js/core/phone.js"></script>
+  <script src="js/core/activity.js" data-src="contacts/js/core/activity.js"></script>
+  <script src="js/core/customer-map.js" data-src="contacts/js/core/customer-map.js"></script>
   <script src="js/core/vcard-read.js" data-src="contacts/js/core/vcard-read.js"></script>
   <script src="js/core/vcard-write.js" data-src="contacts/js/core/vcard-write.js"></script>
   <script src="js/core/csv-read.js" data-src="contacts/js/core/csv-read.js"></script>
@@ -118,16 +120,21 @@
   <script src="js/core/bulk.js" data-src="contacts/js/core/bulk.js"></script>
   <script src="js/core/zip.js" data-src="contacts/js/core/zip.js"></script>
   <script src="js/core/format.js" data-src="contacts/js/core/format.js"></script>
-  <script src="js/store/drafts.js" data-src="contacts/js/store/drafts.js"></script>
   <script src="js/app/state.js" data-src="contacts/js/app/state.js"></script>
-  <script src="js/app/list.js" data-src="contacts/js/app/list.js"></script>
+  <script src="js/app/records.js" data-src="contacts/js/app/records.js"></script>
   <script src="js/app/photo-ui.js" data-src="contacts/js/app/photo-ui.js"></script>
-  <script src="js/app/editor.js" data-src="contacts/js/app/editor.js"></script>
-  <script src="js/app/panel.js" data-src="contacts/js/app/panel.js"></script>
+  <script src="js/app/list.js" data-src="contacts/js/app/list.js"></script>
+  <script src="js/app/select.js" data-src="contacts/js/app/select.js"></script>
+  <script src="js/app/groups.js" data-src="contacts/js/app/groups.js"></script>
+  <script src="js/app/card-read.js" data-src="contacts/js/app/card-read.js"></script>
+  <script src="js/app/card-edit.js" data-src="contacts/js/app/card-edit.js"></script>
+  <script src="js/app/card.js" data-src="contacts/js/app/card.js"></script>
+  <script src="js/app/new-contact.js" data-src="contacts/js/app/new-contact.js"></script>
   <script src="js/app/io-dialogs.js" data-src="contacts/js/app/io-dialogs.js"></script>
   <script src="js/app/tools-dialogs.js" data-src="contacts/js/app/tools-dialogs.js"></script>
-  <script src="js/app/storage.js" data-src="contacts/js/app/storage.js"></script>
+  <script src="js/app/keys.js" data-src="contacts/js/app/keys.js"></script>
   <script src="js/app/commands.js" data-src="contacts/js/app/commands.js"></script>
+  <script src="js/app/view-state.js" data-src="contacts/js/app/view-state.js"></script>
   <script src="js/app/main.js" data-src="contacts/js/app/main.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>

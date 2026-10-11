@@ -22,7 +22,8 @@
   const errors = [];
   const counts = async () => (await A().overview.counts()).value;
   const live = (c) => Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.live]));
-  const dlgSave = () => doc().querySelector('.sui-dlg .sui-primary');
+  const openDlg = () => doc().querySelector('.sui-back:not(.sui-out) .sui-dlg');
+  const dlgSave = () => openDlg().querySelector('.sui-primary');
   const captured = [];
   let seeded = null;
 
@@ -58,12 +59,13 @@
       await waitFor(() => doc().querySelector('[data-seq="invoice"] [data-field="next"]'), { timeout: 8000 });
       const card = doc().querySelector('[data-seq="invoice"]');
       card.querySelector('[data-field="prefix"]').value = 'SI-';
-      card.querySelector('[data-field="next"]').value = '1';
-      card.querySelector('.btn.primary').click();
-      await waitFor(() => card.querySelector('.msg').textContent.includes('only move forward'), { timeout: 8000 });
       card.querySelector('[data-field="next"]').value = '5';
       card.querySelector('.btn.primary').click();
       await waitFor(async () => (await S().store.get('numbering', 'invoice')).value.next === 5, { timeout: 8000 });
+      card.querySelector('[data-field="next"]').value = '2';
+      card.querySelector('.btn.primary').click();
+      await waitFor(() => card.querySelector('.msg').textContent.includes('only move forward'), { timeout: 8000 });
+      expect((await S().store.get('numbering', 'invoice')).value.next).toBe(5);
       expect((await S().store.get('numbering', 'invoice')).value.prefix).toBe('SI-');
     });
 
@@ -88,7 +90,7 @@
       dt.items.add(new (win().File)([text], 'backup.json', { type: 'application/json' }));
       $('dRestore').files = dt.files;
       $('dRestore').dispatchEvent(new (win().Event)('change'));
-      await waitFor(() => doc().querySelector('.sui-dlg'), { timeout: 8000 });
+      await waitFor(() => openDlg(), { timeout: 8000 });
       dlgSave().click();
       await waitFor(async () => (await counts()).customers.live === 3, { timeout: 8000 });
       expect(live(await counts())).toEqual(live(seeded));
@@ -104,7 +106,7 @@
       $('dRestore').files = dt.files;
       $('dRestore').dispatchEvent(new (win().Event)('change'));
       await waitFor(() => $('dRestoreMsg').textContent.includes('not restored'), { timeout: 8000 });
-      expect(doc().querySelector('.sui-dlg')).toBe(null);
+      expect(openDlg()).toBe(null);
       expect(await counts()).toEqual(before);
       const notJson = new (win().DataTransfer)();
       notJson.items.add(new (win().File)(['{ not json'], 'junk.json', { type: 'application/json' }));
@@ -117,10 +119,10 @@
     it('reset needs the typed word RESET, and the backup is offered before anything is erased', async () => {
       captured.length = 0;
       $('dReset').click();
-      await waitFor(() => doc().querySelector('.sui-dlg'), { timeout: 8000 });
+      await waitFor(() => openDlg(), { timeout: 8000 });
       doc().getElementById('rInput').value = 'reset';
       dlgSave().click();
-      await waitFor(() => doc().querySelector('.sui-dlg .msg') && doc().querySelector('.sui-dlg .msg').textContent.includes('Type RESET'), { timeout: 8000 });
+      await waitFor(() => openDlg() && openDlg().querySelector('.msg').textContent.includes('Type RESET'), { timeout: 8000 });
       expect(captured.length).toBe(0);
       expect((await counts()).customers.live).toBe(3);
       doc().getElementById('rInput').value = 'RESET';
