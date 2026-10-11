@@ -77,5 +77,5 @@
   };
   var q = false;
   function later() { if (q) return; q = true; requestAnimationFrame(function () { q = false; UI.refreshControlBar(); }); }
-  ['select', 'tool', 'textsel', 'commit', 'doc', 'fonts'].forEach(function (ev) { PR.on(ev, later); });
+  ['select', 'tool', 'textsel', 'commit', 'doc', 'fonts', 'change'].forEach(function (ev) { PR.on(ev, later); });
 })();

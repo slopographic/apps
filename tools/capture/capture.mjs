@@ -85,7 +85,7 @@ async function capture(app) {
     for (let i = 0; i < n; i++) {
       await r.frame?.(page, i, i / FPS);
       await page.evaluate((dt) => window.__cap.tick(dt), 1 / FPS);
-      await page.screenshot({ path: path.join(dir, String(i).padStart(4, '0') + '.jpg'), type: 'jpeg', quality: 92 });
+      await page.screenshot({ path: path.join(dir, String(i).padStart(4, '0') + '.jpg'), type: 'jpeg', quality: 92, timeout: 180000 });
     }
     encodeClip(['-framerate', String(FPS), '-i', path.join(dir, '%04d.jpg')], app.id, len);
     if (!opt.flags.has('keep')) await rm(dir, { recursive: true, force: true });
