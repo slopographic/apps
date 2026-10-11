@@ -109,6 +109,14 @@ test('date arithmetic: add and subtract days, weeks, months and years', () => {
   assert.equal(ok('2026-03-31 - 1 month').value.iso, '2026-02-28');
 });
 
+test('yyyymmdd without dashes is a date, and a bare number after a date is days', () => {
+  assert.equal(ok('20261011 + 40').value.iso, '2026-11-20');
+  assert.equal(ok('20261011 - 40').value.iso, '2026-09-01');
+  assert.equal(ok('20261011 + 2 weeks').value.iso, '2026-10-25');
+  assert.equal(ok('20261011 - 20260101').text, '283 days');
+  assert.equal(ok('12345678 + 1').value.v, 12345679);
+});
+
 test('date differences in days, weeks and years', () => {
   assert.equal(ok('2026-12-25 - 2026-10-11').text, '75 days');
   assert.equal(ok('2026-10-11 - 2026-12-25').text, '-75 days');
@@ -122,7 +130,7 @@ test('date differences in days, weeks and years', () => {
 test('date errors', () => {
   bad('2026-02-30', 'syntax');
   bad('2026-10-11 + 2h', 'type');
-  bad('2026-10-11 + 3', 'type');
+  assert.equal(ok('2026-10-11 + 3').value.iso, '2026-10-14');  // a bare number is days
   bad('2026-10-11 + 1.5 weeks', 'math');
   bad('2026-10-11 * 2', 'type');
 });
