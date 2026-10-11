@@ -67,7 +67,7 @@ function computeGeometry(o, value, dpi) {
     const q = o.quiet ? S.quiet[0] * m : 0;
     const sw = cols * m, sh = rows * m;
     rects.push(...mergeRows(r.pixs, cols, rows, m, q, q, m));
-    return { ok: true, w: sw + 2 * q, h: sh + 2 * q, rects, texts, sym: { x: q, y: q, w: sw, h: sh }, modules: cols, rows, data: norm.data, text: norm.text, module: m };
+    return { ok: true, w: sw + 2 * q, h: sh + 2 * q, rects, texts, sym: { x: q, y: q, w: sw, h: sh }, modules: cols, rows, data: norm.data, text: norm.text, module: m, gs1: norm.gs1 };
   }
   // ---- linear ----
   let sbs, guards = null;

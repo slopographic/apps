@@ -108,7 +108,7 @@ async function buildPDF(doc, scenes, { start = 0, title = 'Labels', compress = t
   };
   const catalogId = add(''), pagesId = add(''), resId = add(''), infoId = add('');
   const fontIds = [];
-  for (const [name, res] of fonts) fontIds.push(`${res.slice(1)} ${ref(add(`<< /Type /Font /Subtype /Type1 /BaseFont /${name} /Encoding /WinAnsiEncoding >>`))}`);
+  for (const [name, res] of fonts) fontIds.push(`${res} ${ref(add(`<< /Type /Font /Subtype /Type1 /BaseFont /${name} /Encoding /WinAnsiEncoding >>`))}`);
   const imgIds = [];
   for (const [key, res] of images) {
     let id;
@@ -120,7 +120,7 @@ async function buildPDF(doc, scenes, { start = 0, title = 'Labels', compress = t
       if (jp && (jp.comps === 1 || jp.comps === 3)) { const o = await stream(`/Type /XObject /Subtype /Image /Width ${jp.w} /Height ${jp.h} /ColorSpace /${jp.comps === 1 ? 'DeviceGray' : 'DeviceRGB'} /BitsPerComponent 8 /Filter /DCTDecode`, bytes, true); id = add(o.head, o.stream); }
       else { await preloadImages(doc); const img = assetImage(doc, key); id = img ? await addCanvasImage(objs, add, stream, imageCanvas(img)) : null; }
     }
-    if (id) imgIds.push(`${res.slice(1)} ${ref(id)}`);
+    if (id) imgIds.push(`${res} ${ref(id)}`);
   }
   const pageIds = [];
   for (const c of contents) {

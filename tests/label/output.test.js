@@ -125,6 +125,14 @@
       expect((z.match(/\^PQ3,/g) || []).length).toBe(2);
       expect(W.zplFieldData('a^b~c\\é')).toEqual({ fh: '^FH\\', data: 'a\\5Eb\\7Ec\\5C\\C3\\A9' });
     });
+    it('exports GS1 DataMatrix natively and rotated QR as a graphic', () => {
+      const d = W.newDoc({ stock: W.stockById('roll-50x25') });
+      d.objects.push(W.makeObject('barcode', { symbology: 'gs1datamatrix', content: '(01)09501101530003(10)A1', module: 0.5, hr: 'none', x: 2, y: 2 }),
+        W.makeObject('barcode', { symbology: 'qrcode', content: 'hi', module: 0.5, hr: 'none', x: 25, y: 2, rot: 90 }));
+      const z = W.buildZPL(d, [W.buildScene(d, W.previewResolver(d))]);
+      expect(z).toContain('^BXN,4,200,,,,_^FD_1010950110153000310A1^FS');
+      expect(z).toMatch(/\^GFA,\d+,\d+,\d+,/);
+    });
     it('compresses and decodes ^GFA graphics losslessly', () => {
       const bpr = 3, h = 4, bits = new Uint8Array([0, 0, 0, 255, 255, 255, 255, 255, 255, 0x81, 0x00, 0x42]);
       const enc = W.zplCompressGFA(bits, bpr, h);
@@ -168,6 +176,7 @@
       expect(s).toContain('/MediaBox [0 0 288 432]');
       expect(s).toContain('/Count 2');
       expect(s).toContain('/BaseFont /Helvetica-Bold');
+      expect(s).toMatch(/\/Font << \/F1 \d+ 0 R \/F2 \d+ 0 R/); // resource names keep their slash
       const sx = +/startxref\n(\d+)/.exec(s)[1];
       expect(s.slice(sx, sx + 4)).toBe('xref');
       const m = /xref\n0 (\d+)\n/.exec(s.slice(sx)), n = +m[1];

@@ -182,7 +182,8 @@ function zplBarcodeField(f, data, x, y, mm) {
     case 'B9': return lin('upce', 1, 2, data);
     case 'B3': return lin('code39', 2, 3, data, { check: (a[1] || 'N').toUpperCase() === 'Y' ? 'mod43' : 'auto' });
     case 'BA': return lin('code93', 1, 2, data);
-    case 'B2': return lin(/^\d{14}$/.test(data) ? 'itf14' : 'i2of5', 1, 2, data);
+    // ITF-14 bearer bars come in as their own ^GB box, so the barcode itself draws none
+    case 'B2': return /^\d{14}$/.test(data) ? lin('itf14', 1, 2, data, { bearer: false }) : lin('i2of5', 1, 2, data);
     case 'BK': return lin('codabar', 2, 3, (a[5] || 'A') + data + (a[6] || 'A'));
     case 'BQ': {
       const m = /^([LMQH])?([AM])?,?(.*)$/s.exec(data) || [];
