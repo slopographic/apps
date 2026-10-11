@@ -1,9 +1,13 @@
 /* Slop Hub: how Slopographic apps talk to each other.
- *  - Slop Drive: a shared IndexedDB file store (same origin, this device only) that every app can
- *    put files into and open files from.
+ *  - Slop Drive: a shared IndexedDB store (same origin, this device only) of files and nested folders
+ *    that every app can put files into and open files from. The Drive app (drive/) manages it.
  *  - Bus: live messages between open apps/tabs over BroadcastChannel('slopographic').
  *  - Send to…: put a file in the Drive and open another app on it (?drive=<id>).
- * Classic script, needs shared/apps.js (and shared/slopui.js for the dialogs). Exposes window.SlopHub. */
+ * Classic script, needs shared/apps.js (and shared/slopui.js for the dialogs). Exposes window.SlopHub.
+ * Records:  file   { id, name, type, size, from, time, modified, opened, folderId, starred, trashedAt, meta, blob }
+ *           folder { id, name, parentId, time, modified, starred, trashedAt }   (folderId/parentId null = root)
+ * DB 'slop-drive' v2 (window.SLOP_DRIVE_DB overrides the name, for tests). v1 records are migrated on upgrade
+ * and normalised on every read, so files written by an old cached hub still show up correctly. */
 (function () {
   'use strict';
   if (window.SlopHub) return;
@@ -12,35 +16,99 @@
   const appById = (id) => apps().find((a) => a.id === id);
   const urlOf = (app, params) => { const u = new URL(app.path, ROOT); if (params) for (const k in params) u.searchParams.set(k, params[k]); return u.href; };
 
-  /* ---------- Slop Drive ---------- */
+  /* ---------- Slop Drive: storage ---------- */
+  const DB_NAME = window.SLOP_DRIVE_DB || 'slop-drive', DB_VER = 2;
+  const normFile = (r) => r && Object.assign({ folderId: null, starred: false, trashedAt: null, modified: r.time || 0, opened: 0, meta: {}, from: 'unknown' }, r);
+  const normFolder = (f) => f && Object.assign({ parentId: null, starred: false, trashedAt: null, modified: f.time || 0 }, f);
   let dbp = null;
   function db() {
     if (!dbp) dbp = new Promise((res, rej) => {
       if (!window.indexedDB) { rej(new Error('Storage is unavailable')); return; }
-      const r = indexedDB.open('slop-drive', 1);
-      r.onupgradeneeded = () => { const s = r.result.createObjectStore('files', { keyPath: 'id' }); s.createIndex('time', 'time'); };
-      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+      const r = indexedDB.open(DB_NAME, DB_VER);
+      r.onupgradeneeded = (e) => {
+        const d = r.result, t = r.transaction;
+        if (!d.objectStoreNames.contains('files')) d.createObjectStore('files', { keyPath: 'id' }).createIndex('time', 'time');
+        if (!d.objectStoreNames.contains('folders')) d.createObjectStore('folders', { keyPath: 'id' });
+        if (e.oldVersion > 0 && e.oldVersion < 2) {
+          t.objectStore('files').openCursor().onsuccess = (ev) => { const c = ev.target.result; if (!c) return; c.update(normFile(c.value)); c.continue(); };
+        }
+      };
+      r.onsuccess = () => { const d = r.result; d.onversionchange = () => { d.close(); dbp = null; }; res(d); };
+      r.onerror = () => { dbp = null; rej(r.error); };
+      r.onblocked = () => console.warn('Slop Drive: close other Slopographic tabs to finish upgrading storage');
     });
     return dbp;
   }
-  async function tx(mode, fn) {
+  /** Run fn(store | {files, folders}) in one transaction; resolves with the last request's result. */
+  async function tx(mode, fn, stores = 'files') {
     const d = await db();
-    return new Promise((res, rej) => { const t = d.transaction('files', mode), r = fn(t.objectStore('files')); t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error); });
+    return new Promise((res, rej) => {
+      const t = d.transaction(stores, mode);
+      const s = Array.isArray(stores) ? Object.fromEntries(stores.map((n) => [n, t.objectStore(n)])) : t.objectStore(stores);
+      const r = fn(s);
+      t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error('Aborted'));
+    });
   }
   const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-  async function put(blob, { name = 'Untitled', from = 'unknown', meta = {} } = {}) {
-    const rec = { id: newId(), name, type: blob.type || 'application/octet-stream', size: blob.size, from, time: Date.now(), meta, blob };
+  const changed = (what, data) => { emit('drive:' + what, data); emit('drive:change', { what, ...data }); };
+
+  async function put(blob, { name = 'Untitled', from = 'unknown', meta = {}, folderId = null, id } = {}) {
+    const now = Date.now();
+    const rec = { id: id || newId(), name, type: blob.type || 'application/octet-stream', size: blob.size, from, time: now, modified: now, opened: 0, folderId, starred: false, trashedAt: null, meta, blob };
     await tx('readwrite', (s) => s.put(rec));
-    emit('drive:put', { id: rec.id, name, type: rec.type, from });
+    changed('put', { id: rec.id, name, type: rec.type, from, folderId });
     return rec.id;
   }
-  const get = (id) => tx('readonly', (s) => s.get(id));
-  async function list({ accept } = {}) {
-    const all = (await tx('readonly', (s) => s.getAll())) || [];
-    return all.filter((r) => !accept || matches(r.type, accept)).sort((a, b) => b.time - a.time);
+  const get = async (id) => normFile(await tx('readonly', (s) => s.get(id)));
+  /** list({ accept, folderId, trashed }): folderId undefined = every folder; trashed false (default) | true | 'any'. Newest first. */
+  async function list({ accept, folderId, trashed = false } = {}) {
+    const all = ((await tx('readonly', (s) => s.getAll())) || []).map(normFile);
+    return all.filter((r) => (!accept || matches(r.type, accept)) && (folderId === undefined || r.folderId === folderId) &&
+      (trashed === 'any' || !!r.trashedAt === !!trashed)).sort((a, b) => b.time - a.time);
   }
-  async function remove(id) { await tx('readwrite', (s) => s.delete(id)); emit('drive:remove', { id }); }
-  async function clear() { await tx('readwrite', (s) => s.clear()); emit('drive:clear', {}); }
+  /** Merge a patch into a file record (rename, move, star, trash…). Resolves with the new record. */
+  async function update(id, patch, { touch = true } = {}) {
+    let out = null;
+    await tx('readwrite', (s) => { const g = s.get(id); g.onsuccess = () => { if (!g.result) return; out = Object.assign(normFile(g.result), patch); if (touch) out.modified = Date.now(); if (patch.blob) { out.size = patch.blob.size; out.type = patch.type || patch.blob.type || out.type; } s.put(out); }; return g; });
+    if (out) changed('update', { id, patch: Object.keys(patch) });
+    return out;
+  }
+  async function remove(id) { await tx('readwrite', (s) => s.delete(id)); changed('remove', { id }); }
+  async function clear() { await tx('readwrite', (s) => { s.files.clear(); return s.folders.clear(); }, ['files', 'folders']); changed('clear', {}); }
+  const touch = (id) => update(id, { opened: Date.now() }, { touch: false }).catch(() => null);
+
+  /* ---------- Slop Drive: folders ---------- */
+  async function createFolder(name = 'New folder', parentId = null, { id } = {}) {
+    const now = Date.now(), f = { id: id || newId(), name, parentId, time: now, modified: now, starred: false, trashedAt: null };
+    await tx('readwrite', (s) => s.put(f), 'folders');
+    changed('folder', { id: f.id, parentId });
+    return f.id;
+  }
+  const getFolder = async (id) => normFolder(await tx('readonly', (s) => s.get(id), 'folders'));
+  async function listFolders({ parentId, trashed = 'any' } = {}) {
+    const all = ((await tx('readonly', (s) => s.getAll(), 'folders')) || []).map(normFolder);
+    return all.filter((f) => (parentId === undefined || f.parentId === parentId) && (trashed === 'any' || !!f.trashedAt === !!trashed))
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+  }
+  async function updateFolder(id, patch) {
+    let out = null;
+    await tx('readwrite', (s) => { const g = s.get(id); g.onsuccess = () => { if (!g.result) return; out = Object.assign(normFolder(g.result), patch, { modified: Date.now() }); s.put(out); }; return g; }, 'folders');
+    if (out) changed('folder', { id });
+    return out;
+  }
+  async function removeFolder(id) { await tx('readwrite', (s) => s.delete(id), 'folders'); changed('folder', { id, removed: true }); }
+  /** Folders from the root down to id (excluding the root itself). */
+  async function folderPath(id) {
+    const all = new Map((await listFolders()).map((f) => [f.id, f])), out = [];
+    for (let f = all.get(id), n = 0; f && n < 64; f = all.get(f.parentId), n++) out.unshift(f);
+    return out;
+  }
+  /** Is this file or folder hidden because it, or a folder above it, is in the Trash? */
+  function inTrash(item, folders) {
+    if (item.trashedAt) return true;
+    for (let p = folders.get(item.folderId !== undefined ? item.folderId : item.parentId), n = 0; p && n < 64; p = folders.get(p.parentId), n++) if (p.trashedAt) return true;
+    return false;
+  }
   function matches(type, accept) {
     const list = [].concat(accept);
     return list.some((p) => p === '*' || p === type || (p.endsWith('/*') && type.startsWith(p.slice(0, -1))));
@@ -67,58 +135,56 @@
   const openApps = () => [...new Set([...peers.values()].map((p) => p.app))];
 
   /* ---------- Send to / open from ---------- */
-  function appsAccepting(type) { return apps().filter((a) => a.kind === 'app' && a.id !== self.app && a.accepts.some((p) => matches(type, p))); }
-  async function sendTo(appId, blob, name, { newTab = true, from = self.app } = {}) {
+  function appsAccepting(type) { return apps().filter((a) => a.kind === 'app' && a.id !== self.app && (a.accepts || []).some((p) => matches(type, p))); }
+  /** Put blob in the Drive (root unless folderId) and open appId on it. Pass { id } to open an existing Drive file instead. */
+  async function sendTo(appId, blob, name, { newTab = true, from = self.app, folderId = null, id } = {}) {
     const app = appById(appId); if (!app) throw new Error('Unknown app ' + appId);
-    const id = await put(blob, { name, from });
-    const url = urlOf(app, { drive: id });
+    const fid = id || await put(blob, { name, from, folderId });
+    const url = urlOf(app, { drive: fid });
     if (newTab) { const w = window.open(url, '_blank'); if (!w) location.href = url; } else location.href = url;
-    return id;
+    return fid;
   }
-  /** Menu items (for SlopUI.menu or an app menu): "Send to PhotoSLOP", … getBlob() may be async. */
-  function sendMenuItems(getBlob, name, type) {
-    return appsAccepting(type).map((a) => ({ label: `Send to ${a.name}`, act: async () => {
-      try { const b = await getBlob(); await sendTo(a.id, b, typeof name === 'function' ? name() : name); if (window.SlopUI) SlopUI.toast(`Opened in ${a.name}`); }
+  /** Menu items (for SlopUI.menu or an app menu): "Send to PhotoSLOP", … getBlob() may be async.
+   * opts.folder: also add "Save to Slop Drive…", which asks for a folder first. */
+  function sendMenuItems(getBlob, name, type, opts = {}) {
+    const nm = () => (typeof name === 'function' ? name() : name);
+    const items = appsAccepting(type).map((a) => ({ label: `Send to ${a.name}`, act: async () => {
+      try { const b = await getBlob(); await sendTo(a.id, b, nm()); if (window.SlopUI) SlopUI.toast(`Opened in ${a.name}`); }
       catch (e) { if (window.SlopUI) SlopUI.toast('Could not send: ' + e.message); }
     } }));
+    if (opts.folder) items.push({ label: 'Save to Slop Drive…', act: async () => { try { await saveToDrive(await getBlob(), nm()); } catch (e) { if (window.SlopUI) SlopUI.toast('Could not save: ' + e.message); } } });
+    return items;
   }
   /** If this page was opened with ?drive=<id>, return that Drive record (once) and tidy the URL. */
   async function consumeLaunch() {
     const u = new URL(location.href), id = u.searchParams.get('drive');
     if (!id) return null;
     u.searchParams.delete('drive'); history.replaceState(null, '', u.pathname + u.search + u.hash);
-    try { return await get(id); } catch (e) { return null; }
+    try { const r = await get(id); if (r) touch(id); return r; } catch (e) { return null; }
   }
   const fmtSize = (n) => (n < 1024 ? n + ' B' : n < 1048576 ? Math.round(n / 1024) + ' KB' : (n / 1048576).toFixed(1) + ' MB');
-  /** A Slop Drive picker dialog. Resolves with a record or null. */
-  function pickFromDrive({ accept, title = 'Open from Slop Drive' } = {}) {
-    return new Promise(async (res) => {
-      const UI = window.SlopUI, el = UI.el;
-      const items = await list({ accept }).catch(() => []);
-      let chosen = null;
-      const grid = el('div', { class: 'hub-grid' });
-      if (!items.length) grid.append(el('p', { class: 'sui-p' }, 'Slop Drive is empty. Use “Send to…” in any Slopographic app to put files here. Files stay on this device.'));
-      const urls = [];
-      for (const r of items) {
-        const isImg = r.type.startsWith('image/') && r.type !== 'image/vnd.adobe.photoshop';
-        let thumb;
-        if (isImg) { const u = URL.createObjectURL(r.blob); urls.push(u); thumb = el('img', { src: u, alt: '' }); }
-        else thumb = el('span', { class: 'hub-ext' }, (r.name.split('.').pop() || r.type.split('/').pop()).slice(0, 4).toUpperCase());
-        const app = appById(r.from);
-        const b = el('button', { type: 'button', class: 'hub-item' }, el('span', { class: 'hub-thumb' }, thumb), el('b', null, r.name), el('small', null, `${app ? app.name : r.from} · ${fmtSize(r.size)} · ${new Date(r.time).toLocaleString()}`));
-        b.addEventListener('click', () => { chosen = r; d.close(true); });
-        b.addEventListener('contextmenu', (e) => { e.preventDefault(); UI.menu([{ label: 'Delete from Slop Drive', act: async () => { await remove(r.id); b.remove(); } }], e.clientX, e.clientY); });
-        grid.append(b);
-      }
-      const d = UI.dialog({ title, cls: 'sui-wide', body: el('div', null, el('p', { class: 'sui-p' }, 'Files shared between Slopographic apps. Stored only in this browser.'), grid),
-        buttons: items.length ? [{ label: 'Clear Drive', danger: true, act: async () => { if (await UI.confirm('Clear Slop Drive?', 'Delete every file in Slop Drive on this device?', 'Clear', { danger: true })) { await clear(); return true; } return false; } }, { label: 'Cancel' }] : [{ label: 'OK', primary: true }],
-        onClose: () => { urls.forEach((u) => URL.revokeObjectURL(u)); res(chosen); } });
-    });
-  }
-  // Minimal styles for the picker (works in every app theme via SlopUI variables).
-  const css = document.createElement('style');
-  css.textContent = '.hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;max-height:60vh;overflow:auto}.hub-item{display:grid;gap:3px;text-align:left;padding:8px;border-radius:8px;border:1px solid var(--s-line);background:var(--s-bg2);color:var(--s-fg);cursor:pointer;font:inherit}.hub-item:hover{border-color:var(--s-accent)}.hub-thumb{display:grid;place-items:center;height:96px;border-radius:5px;background:repeating-conic-gradient(#3a3a3a 0 25%,#2a2a2a 0 50%) 0 0/12px 12px;overflow:hidden}.hub-thumb img{max-width:100%;max-height:96px}.hub-ext{font:700 18px var(--s-mono);color:var(--s-dim)}.hub-item b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hub-item small{color:var(--s-faint);font-size:10.5px}';
-  document.head.append(css);
 
-  window.SlopHub = { apps, appById, urlOf, put, get, list, remove, clear, on, emit, register, openApps, appsAccepting, sendTo, sendMenuItems, consumeLaunch, pickFromDrive, matches, self };
+  /* ---------- Pickers (shared/drive/picker.js, loaded on first use) ---------- */
+  const loaded = new Map();
+  function loadScript(rel) {
+    if (!loaded.has(rel)) loaded.set(rel, new Promise((res, rej) => { const s = document.createElement('script'); s.src = new URL(rel, ROOT).href; s.onload = res; s.onerror = () => { loaded.delete(rel); rej(new Error('Could not load ' + rel)); }; document.head.append(s); }));
+    return loaded.get(rel);
+  }
+  const picker = () => loadScript('shared/drive/picker.js').then(() => window.SlopDrivePicker);
+  /** A Slop Drive file picker with folder navigation. Resolves with a record or null. */
+  const pickFromDrive = (opts = {}) => picker().then((p) => p.pickFile(opts)).catch((e) => { console.warn(e); if (window.SlopUI) SlopUI.toast('Slop Drive is not available'); return null; });
+  /** Choose a Drive folder. Resolves with a folder id, null for the root, or undefined if cancelled. */
+  const pickFolder = (opts = {}) => picker().then((p) => p.pickFolder(opts));
+  /** Ask for a folder, then put blob there. Resolves with the new file id, or null if cancelled. */
+  async function saveToDrive(blob, name, { from = self.app || 'unknown', title } = {}) {
+    const folderId = await pickFolder({ title: title || `Save “${name}” to Slop Drive` });
+    if (folderId === undefined) return null;
+    const id = await put(blob, { name, from, folderId });
+    if (window.SlopUI) SlopUI.toast('Saved to Slop Drive');
+    return id;
+  }
+
+  window.SlopHub = { apps, appById, urlOf, put, get, list, update, remove, clear, touch, createFolder, getFolder, listFolders, updateFolder, removeFolder, folderPath, inTrash,
+    on, emit, register, openApps, appsAccepting, sendTo, sendMenuItems, consumeLaunch, pickFromDrive, pickFolder, saveToDrive, matches, fmtSize, loadScript, self,
+    driveTx: tx, normFile, normFolder, ROOT, DB_NAME };
 })();
