@@ -2,7 +2,8 @@
    region of the layout active at its start, filled by the cut's fill mode (cover, fit, stretch or blur background;
    see SlopVideo.orient). Stills and videos are the bin items' own elements; videos are seeked to the cut's in point.
    Scrubbing and clicks paint the frame at once, even when paused: a video that is still seeking repaints when its
-   frame arrives. Play runs the playhead with requestAnimationFrame; there is no sound in the preview. */
+   frame arrives. Play runs the playhead with requestAnimationFrame. Sound: the music track (remix/js/audio.js) and, in
+   Original mode, each video's own sound. Clips hold their windows (plan holds) and freeze when they run out. */
 (function () {
   'use strict';
   const RM = window.RM, SV = window.SlopVideo, R = SV.random, O = SV.orient;
@@ -35,18 +36,21 @@
     c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
     if (!plan) return;
     for (const it of items) {
-      if (!(t >= it.start && t < it.start + it.dur)) { if (it.m.kind === 'video') it.m.el.pause(); continue; }
+      if (!(t >= it.start && t < holdOf(it))) { if (it.m.kind === 'video') it.m.el.pause(); continue; }
       const reg = R.regionFor(plan, it) || FULL; // no layout (None): the clip fills the frame
       drawItem(c, it, t, { x: reg.x * W, y: reg.y * H, w: reg.w * W, h: reg.h * H }, plan);
     }
   }
+  /** End of a clip's window on its slot: the next clip in that slot (or its own end when the plan has no holds). */
+  const holdOf = (it) => (it.hold != null ? it.hold : it.start + it.dur);
   /** One cut's clip in its box: seeks a video to the in point, then paints it with the cell's fill mode. */
   function drawItem(c, it, t, box, plan) {
     const el = it.m.el, video = it.m.kind === 'video';
     const nw = video ? el.videoWidth : el.naturalWidth, nh = video ? el.videoHeight : el.naturalHeight;
     if (!nw || !nh) return;
     if (video) {
-      const want = it.in + (t - it.start);
+      const want = it.in + (Math.min(t, it.start + it.dur) - it.start); // a clip that has run out holds its last frame
+      if (PV.playing && plan.audio && plan.audio.mode === 'original') { el.muted = false; if (el.paused) el.play().catch(() => {}); }
       if (Math.abs(el.currentTime - want) > 0.25 && el.readyState >= 1) {
         el.currentTime = want;
         el.addEventListener('seeked', repaint, { once: true }); // paint the frame as soon as it arrives
@@ -76,16 +80,18 @@
   /** Re-read the plan into the item list (call after each Remix or edit). */
   PV.setPlan = function () { PV.items = PV.flat(RM.state.plan); PV.resize(); PV.draw(Math.min(PV.t, PV.total())); };
   /** Move the playhead to t and paint that frame (also while paused). */
-  PV.seek = (t) => { PV.draw(t); if (PV.onTick) PV.onTick(PV.t); };
+  PV.seek = (t) => { PV.draw(t); if (PV.playing) RM.audio.seek(RM.state.plan, PV.t); if (PV.onTick) PV.onTick(PV.t); };
   PV.play = function () {
     if (PV.playing) return;
     if (PV.t >= PV.total() - 0.01) PV.t = 0;
     PV.playing = true; PV.last = performance.now();
+    RM.audio.start(RM.state.plan, PV.t, PV.total());
     const step = (now) => {
       if (!PV.playing) return;
       PV.t += (now - PV.last) / 1000; PV.last = now;
       if (PV.t >= PV.total()) { PV.t = PV.total(); PV.pause(); }
       PV.draw(PV.t);
+      RM.audio.tick(RM.state.plan, PV.t, PV.total());
       if (PV.onTick) PV.onTick(PV.t);
       if (PV.playing) PV.raf = requestAnimationFrame(step);
     };
@@ -93,6 +99,7 @@
   };
   PV.pause = function () {
     PV.playing = false; cancelAnimationFrame(PV.raf);
+    RM.audio.stop();
     for (const it of PV.items) if (it.m.kind === 'video') it.m.el.pause();
     if (PV.onTick) PV.onTick(PV.t);
   };

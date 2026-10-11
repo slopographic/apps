@@ -8,7 +8,8 @@
   RM.GRIDS = ['grid-1x2', 'grid-2x2', 'grid-1x3', 'grid-2x3', 'grid-3x3'];
   RM.state = {
     items: [], target: 30, pace: 'medium', preset: 'phone', custom: { w: 1080, h: 1920 },
-    base: 'none', random: true, grids: RM.GRIDS.slice(), lane: [], seed: S.make(), plan: null, playhead: 0, fill: 'auto'
+    base: 'none', random: true, grids: RM.GRIDS.slice(), lane: [], seed: S.make(), plan: null, playhead: 0, fill: 'auto',
+    timing: 'same', video: 'through', min: 1, max: 3, stagger: 1, locks: [], audioMode: 'off', audioTrack: 'random', music: null
   };
   /** Frame size of the chosen export preset (the sequence size). */
   RM.size = () => P.size(RM.state.preset, RM.state.custom.w, RM.state.custom.h) || { w: 1080, h: 1920 };
@@ -20,6 +21,8 @@
       seed: seed == null ? st.seed : seed, target: st.target, pace: st.pace, size, aspect: RM.aspect(size),
       tpl: st.base === 'none' ? null : st.base,
       switches: !!st.random, layouts: st.grids.slice(), fill: st.fill,
+      timing: st.timing, video: st.video, min: st.min, max: st.max, stagger: st.stagger, locks: st.locks.map((l) => Object.assign({}, l)),
+      audio: { mode: st.audioMode, track: st.audioMode === 'music' && st.audioTrack === 'file' && st.music ? 'file' : st.audioTrack },
       segments: !st.random && st.lane.length ? st.lane.map((s) => ({ start: s.start, layout: s.layout })) : null
     };
   };
@@ -32,12 +35,34 @@
     beat.forEach((x) => { x.fill = mode; });
     return true;
   };
+  /** Lock or unlock one slot (it keeps its clip through Reshuffle and Remix). */
+  RM.toggleLock = function (ci, slot) {
+    const beat = RM.state.plan && RM.state.plan.cuts[ci], it = beat && beat.find((x) => x.slot === slot);
+    if (!it) return false;
+    RM.state.locks = SV.locks.toggle(RM.state.locks, ci, slot, it);
+    return true;
+  };
+  /** Lock or unlock every slot of a cut. */
+  RM.toggleCutLock = function (ci) {
+    const beat = RM.state.plan && RM.state.plan.cuts[ci];
+    if (!beat) return false;
+    RM.state.locks = SV.locks.toggleCut(RM.state.locks, ci, beat);
+    return true;
+  };
+  /** A music file the person picked (kept in the reel, not in the bin). */
+  RM.setMusic = function (file) {
+    if (RM.state.music) URL.revokeObjectURL(RM.state.music.url);
+    RM.state.music = { name: file.name, url: URL.createObjectURL(file) };
+    RM.state.audioTrack = 'file';
+    return RM.state.music;
+  };
   /** Put bin item mediaId in slot `slot` of cut ci (the clip keeps the cut's length; a shorter clip holds its last frame). */
   RM.replaceSlot = function (ci, slot, mediaId) {
     const plan = RM.state.plan, m = RM.state.items.find((x) => x.id === mediaId);
     const it = plan && plan.cuts[ci] && plan.cuts[ci].find((x) => x.slot === slot);
     if (!it || !m) return false;
     it.media = m.id;
+    RM.state.locks = RM.state.locks.map((l) => (l.cut === ci && l.slot === slot ? Object.assign({}, l, { media: m.id, in: 0 }) : l));
     const room = m.kind === 'image' ? Infinity : m.dur - it.dur;
     it.in = room > 0 ? Math.min(it.in, room) : 0;
     return true;
