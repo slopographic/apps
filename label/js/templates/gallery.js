@@ -3,7 +3,8 @@
 'use strict';
 
 const T = (type, props) => makeObject(type, props);
-const tx = (x, y, content, size = 10, more = {}) => T('text', Object.assign({ x, y, content, size }, more));
+// Auto-sized text aligned right/centre anchors at x (zero-width box), so x is the right edge / centre.
+const tx = (x, y, content, size = 10, more = {}) => T('text', Object.assign({ x, y, content, size }, more.fit !== 'box' && (more.align === 'right' || more.align === 'center') ? { w: 0 } : {}, more));
 const hline = (x, y, w, s = 0.5) => T('line', { x, y: y - s / 2, w, h: s, stroke: s, dir: 'h', name: 'Rule' });
 const vline = (x, y, h, s = 0.5) => T('line', { x: x - s / 2, y, w: s, h, stroke: s, dir: 'v', name: 'Rule' });
 
@@ -91,6 +92,7 @@ const TEMPLATES = [
       T('barcode', { x: 1.5, y: 7.4, symbology: 'qrcode', content: '{AssetURL}', module: 0.5, ec: 'M', quiet: false, hr: 'none', name: 'QR' }),
       tx(21, 9, 'ASSET', 6, { bold: true }), tx(21, 12, '{AssetID}', 12, { bold: true, font: 'mono', name: 'Asset ID' }),
       T('para', { x: 21, y: 18.3, w: 28, h: 5.5, size: 5.5, content: 'Scan to report an issue or check this item out.', shrink: true }));
+    d.objects.forEach((o) => syncAutoSize(d, o, previewResolver(d)));
     return d;
   } },
   { id: 'badge', name: 'Name badge 4 × 3"', desc: 'Auto-shrinking name, company, role and a contact QR', build() {
@@ -112,6 +114,7 @@ const TEMPLATES = [
     d.label.margin = [1.5, 3, 1.5, 3];
     d.data = tableToSource(SAMPLE_ADDRESSES, 'addresses.csv');
     d.objects.push(T('para', { x: 4, y: 2.5, w: 58.7, h: 20.4, size: 10, valign: 'middle', content: '**{Name}**\n{Address}\n{City}, {State} {ZIP}', shrink: true, lineSpacing: 1.15, name: 'Address' }));
+    d.objects.forEach((o) => syncAutoSize(d, o, previewResolver(d)));
     return d;
   } },
 ];

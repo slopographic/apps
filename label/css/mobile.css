@@ -1,0 +1,44 @@
+/* SlopLabel — narrow screens: tools along the bottom, panels in a slide-up sheet */
+@media (max-width: 1100px) {
+  :root { --dock-w: 270px; }
+}
+@media (max-width: 760px) {
+  :root { --menubar-h: 42px; --cb-h: 36px; --ruler: 0px; }
+  .only-narrow { display: inline-flex !important; }
+  .only-wide { display: none !important; }
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: var(--menubar-h) var(--cb-h) minmax(0, 1fr) 52px;
+    grid-template-areas: 'menu' 'ctrl' 'work' 'tools';
+  }
+  .brand { font-size: 0; gap: 0; padding-right: 4px; }
+  .brand-dot { width: 16px; height: 16px; }
+  .mb { height: 32px; padding: 0 8px; }
+  .menubar .btn { height: 32px; }
+  .btn.ghost { min-width: 32px; font-size: 16px; }
+  .chip { height: 28px; max-width: 40vw; }
+  .ctrlbar .sep { display: none; }
+  #recInfo { min-width: 48px; }
+  .status { display: none; }
+  .workspace { grid-template-columns: 0 minmax(0, 1fr); grid-template-rows: 0 minmax(0, 1fr); }
+  .ruler, .ruler-corner { display: none; }
+  .toolbox { flex-direction: row; justify-content: flex-start; padding: 0 6px; gap: 2px; border-right: 0; border-top: 1px solid var(--border-dark); overflow-x: auto; overflow-y: hidden; }
+  .tool { width: 44px; height: 44px; }
+  .tool-sep { width: 1px; height: 26px; margin: 0 3px; }
+  .dock {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; height: min(62vh, 520px);
+    border-left: 0; border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, .45);
+    transform: translateY(105%); transition: transform .22s ease; visibility: hidden;
+  }
+  .app.dock-open .dock { transform: none; visibility: visible; }
+  .tabs { padding-top: 8px; border-radius: 12px 12px 0 0; }
+  .tab { height: 32px; }
+  .row { grid-template-columns: 84px minmax(0, 1fr); }
+  .inp, .dock-body select { height: 32px; font-size: 16px; }
+  textarea.inp { font-size: 14px; }
+  .dlg-cols, .pd { grid-template-columns: minmax(0, 1fr); }
+  .dlg-form .row { grid-template-columns: 92px minmax(0, 1fr); }
+  .pd-canvas { min-height: 180px; max-height: 34vh; }
+  .sui-dlg .inp { font-size: 16px; }
+}
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) { .dock { transition: none; } }

@@ -1,0 +1,161 @@
+/* SlopLabel — ui/app: application state, commit/undo history, selection, theme, status and autosave. */
+'use strict';
+
+const $ = (id) => document.getElementById(id);
+const mk = (...a) => SlopUI.el(...a);
+const App = {
+  doc: null, hist: new History(), sel: [], tool: 'select',
+  zoom: 4, panX: 40, panY: 40, rec: 0, prompts: {}, scene: [],
+  dirty: false, clip: null, tab: 'props', guides: [], hover: null, marquee: null, ghost: null,
+};
+const THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic 98']];
+
+/* ---------------- document access ---------------- */
+function previewGet() { return previewResolver(App.doc, App.rec, App.prompts); }
+function rebuildScene() { App.scene = buildScene(App.doc, previewGet()); return App.scene; }
+function objById(id) { return App.doc.objects.find((o) => o.id === id) || null; }
+function itemOf(id) { return App.scene.find((it) => it.obj.id === id) || null; }
+function selObjs() { return App.doc.objects.filter((o) => App.sel.includes(o.id)); }
+function selOne() { const s = selObjs(); return s.length === 1 ? s[0] : null; }
+/** Label-space box of an object as drawn (auto-sized objects use their laid-out box). */
+function boxOf(o) { const it = itemOf(o.id); return it ? it.box : objBox(o); }
+function selBox() { return unionBox(selObjs().map(boxOf)); }
+const U = () => App.doc.unit;
+/** Display value of a length (mm → document unit). */
+function toU(mm) { return +num(fromMM(mm, U(), App.doc.dpi), unitDigits(U()) + 1); }
+function fromU(v) { return round(toMM(v, U(), App.doc.dpi), 4); }
+const unitLabel = () => (U() === 'in' ? 'in' : U());
+
+/* ---------------- selection ---------------- */
+function select(ids, add = false) {
+  ids = expandGroups(App.doc, ids);
+  if (add) { const s = new Set(App.sel); for (const id of ids) { if (s.has(id)) s.delete(id); else s.add(id); } App.sel = [...s]; }
+  else App.sel = ids;
+  if (App.sel.length && App.tab !== 'props' && App.tab !== 'objects') App.tab = 'props';
+  refresh();
+}
+function selectAll() { App.sel = App.doc.objects.filter((o) => !o.locked && !o.hidden).map((o) => o.id); refresh(); }
+function deselect() { if (App.sel.length) { App.sel = []; refresh(); } }
+
+/* ---------------- history ---------------- */
+let autosaveT = 0;
+function commit(label = 'Edit', coalesce = '', opts = {}) {
+  if (App.hist.push(App.doc, label, coalesce)) {
+    App.dirty = true;
+    clearTimeout(autosaveT); autosaveT = setTimeout(() => autosave(App.doc), 900);
+  }
+  refresh(opts);
+}
+/** Mutate the selected objects, re-fit auto-sized ones and commit. */
+function editSel(fn, label = 'Edit', coalesce = '', opts = {}) {
+  const get = previewGet();
+  for (const o of selObjs()) { fn(o); syncAutoSize(App.doc, o, get); }
+  commit(label, coalesce, opts);
+}
+function editDoc(fn, label = 'Edit', coalesce = '', opts = {}) { fn(App.doc); commit(label, coalesce, opts); }
+function restore(d) {
+  App.doc = d;
+  App.sel = App.sel.filter((id) => objById(id));
+  App.rec = Math.min(App.rec, Math.max(0, recordCount(d) - 1));
+  clearTimeout(autosaveT); autosaveT = setTimeout(() => autosave(App.doc), 900);
+  refresh();
+}
+function undo() { const d = App.hist.undo(App.doc); if (d) { restore(d); status('Undo ' + App.hist.redoLabel); } }
+function redo() { const d = App.hist.redo(App.doc); if (d) { restore(d); status('Redo ' + App.hist.undoLabel); } }
+/** Replace the whole document (open, new, template). */
+function setDoc(doc, label = 'Open') {
+  App.doc = normalizeDoc(doc);
+  App.hist.reset(App.doc, label);
+  App.sel = []; App.rec = 0; App.prompts = {}; App.dirty = false;
+  document.title = App.doc.name + ' — SlopLabel';
+  rebuildScene();
+  if (typeof fitView === 'function') fitView();
+  refresh();
+  autosave(App.doc);
+}
+async function confirmDiscard() {
+  if (!App.dirty || !App.doc.objects.length) return true;
+  return SlopUI.confirm('Replace this label?', 'Your current label is autosaved in this browser, but it will be replaced. Save it first (File → Save) if you want to keep a copy.', 'Replace');
+}
+
+/* ---------------- add / remove objects ---------------- */
+function addObject(o, label = 'Add ' + (TYPE_NAMES[o.type] || o.type)) {
+  App.doc.objects.push(o);
+  syncAutoSize(App.doc, o, previewGet());
+  App.sel = [o.id];
+  App.tab = 'props';
+  commit(label);
+  return o;
+}
+function deleteSel() {
+  const ids = new Set(App.sel.filter((id) => { const o = objById(id); return o && !o.locked; }));
+  if (!ids.size) return;
+  App.doc.objects = App.doc.objects.filter((o) => !ids.has(o.id));
+  App.sel = [];
+  pruneAssets(App.doc);
+  commit(ids.size > 1 ? `Delete ${ids.size} objects` : 'Delete');
+}
+function duplicateSel(dx = 2, dy = 2) {
+  const src = selObjs(); if (!src.length) return;
+  const gmap = {}, out = [];
+  for (const o of src) {
+    const c = Object.assign(deepClone(o), { id: uid(), x: round(o.x + dx), y: round(o.y + dy), locked: false });
+    if (o.group) c.group = gmap[o.group] || (gmap[o.group] = uid('g'));
+    out.push(c);
+  }
+  App.doc.objects.push(...out);
+  App.sel = out.map((o) => o.id);
+  commit(out.length > 1 ? 'Duplicate objects' : 'Duplicate');
+}
+
+/* ---------------- refresh scheduling ---------------- */
+let rafQ = 0, refreshOpts = {};
+function refresh(opts = {}) {
+  refreshOpts = { keepProps: (rafQ ? refreshOpts.keepProps : true) && !!opts.keepProps };
+  if (rafQ) return;
+  rafQ = requestAnimationFrame(() => { rafQ = 0; const o = refreshOpts; refreshOpts = {}; refreshNow(o); });
+}
+function refreshNow(o = {}) {
+  rebuildScene();
+  if (typeof drawView === 'function') drawView();
+  if (typeof renderPanels === 'function') renderPanels(o);
+  updateChrome();
+}
+function updateChrome() {
+  const d = App.doc, n = recordCount(d);
+  $('cbLabel').textContent = `${d.name} · ${fmtLen(d.label.w, d.unit, d.dpi, false)} × ${fmtLen(d.label.h, d.unit, d.dpi)} · ${d.dpi} dpi`;
+  $('recNav').hidden = !n;
+  if (n) $('recInfo').textContent = `${App.rec + 1} / ${n}`;
+  $('btnUndo').disabled = !App.hist.canUndo; $('btnRedo').disabled = !App.hist.canRedo;
+  $('btnUndo').title = App.hist.canUndo ? 'Undo ' + App.hist.undoLabel + ' (Ctrl+Z)' : 'Undo';
+  $('zoomVal').textContent = Math.round((App.zoom / (96 / 25.4)) * 100) + '%';
+  const errs = sceneErrors(App.scene), warns = App.scene.filter((i) => i.warn).length;
+  if (errs.length) status(errs[0] + (errs.length > 1 ? ` (+${errs.length - 1} more)` : ''), 'err');
+  else if (warns) status(`${warns} text object${warns > 1 ? 's do' : ' does'} not fit ${warns > 1 ? 'their boxes' : 'its box'}`, 'warn');
+  else if (statusSticky < Date.now()) status(`${d.objects.length} object${d.objects.length === 1 ? '' : 's'}${App.sel.length ? ` · ${App.sel.length} selected` : ''}${n ? ` · ${n} records` : ''}`);
+}
+let statusSticky = 0;
+function status(msg, cls = '', sticky = 0) {
+  const s = $('stMsg'); if (!s) return;
+  s.textContent = msg; s.className = cls;
+  if (sticky) statusSticky = Date.now() + sticky;
+}
+function setRecord(i) { const n = recordCount(App.doc); if (!n) return; App.rec = (i + n) % n; refresh(); }
+
+/* ---------------- theme & dock ---------------- */
+function setTheme(t) {
+  if (!THEMES.some(([id]) => id === t)) t = 'pro';
+  document.documentElement.dataset.theme = t;
+  lsSet('sloplabel-theme', t);
+  const m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.content = t === 'light' ? '#f4f4f4' : t === 'classic' ? '#c0c0c0' : '#1e1e1e';
+  if (typeof readViewColors === 'function') readViewColors();
+  refresh();
+}
+const narrow = () => matchMedia('(max-width: 760px)').matches;
+function showDock(tab, open = true) {
+  if (tab) App.tab = tab;
+  $('app').classList.toggle('dock-open', open && narrow());
+  refresh();
+}
+function hideDock() { $('app').classList.remove('dock-open'); }
