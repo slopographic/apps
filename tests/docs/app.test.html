@@ -12,10 +12,11 @@
 const { describe, it, expect, waitFor, beforeEach } = SlopTest;
 const H = window.SlopHub;
 const frames = [];
-/** Each describe starts with no saved drafts, so one test's autosave never reopens in the next. */
+/** Each describe starts with no open tabs and no saved drafts, so one test's autosave never reopens in the next. */
 async function clearDrafts() {
   for (const f of frames.splice(0)) f.remove();
-  await new Promise((res) => { const r = indexedDB.deleteDatabase('slop-docs'); r.onsuccess = r.onerror = r.onblocked = () => res(); });
+  localStorage.removeItem('slop.doctabs.docs.v1');
+  await new Promise((res) => { const r = indexedDB.deleteDatabase('slop-doctabs'); r.onsuccess = r.onerror = r.onblocked = () => res(); });
 }
 async function open(src, width = 1100) {
   const f = document.createElement('iframe');
@@ -27,8 +28,8 @@ async function open(src, width = 1100) {
   return f.contentWindow;
 }
 function close(W) { const f = frames.find((x) => x.contentWindow === W); if (f) { f.remove(); frames.splice(frames.indexOf(f), 1); } }
-/** Wait until the autosave draft (1.2 s after the last keystroke) holds what was typed since `since`. */
-const draftSaved = (W, since) => waitFor(async () => { const d = await W.SlopDocs.draftGet(W.SlopDocs.file.id ? 'd:' + W.SlopDocs.file.id : 'untitled'); return !!(d && d.dirty && d.time >= since); }, { timeout: 5000 });
+/** Write the autosave now: the open tabs (their content, as the strip's session keeps it on this device). */
+const draftSaved = (W) => W.SlopDocs.session.flush();
 function typeText(W, s) {
   const ime = W.document.getElementById('ime');
   for (const ch of s) { ime.value = ch; ime.dispatchEvent(new W.InputEvent('input', { inputType: 'insertText', data: ch, bubbles: true })); }
@@ -55,18 +56,17 @@ describe('boot', () => {
     expect(W.SlopCmd).toBeTruthy();
     close(W);
   });
-  it('restores the untitled draft on a plain open, and starts blank after New', async () => {
+  it('restores the open tabs on a plain open, and New opens a blank tab after them', async () => {
     const W1 = await open('../../docs/');
-    const t1 = Date.now();
     typeText(W1, 'Draft words');
-    await draftSaved(W1, t1);
+    await draftSaved(W1);
     close(W1);
     const W2 = await open('../../docs/');
     expect(text(W2)).toEqual(['Draft words']);
     expect(W2.SlopDocs.file.dirty).toBeTruthy();
-    W2.SlopUI.confirm = async () => true; // answer "Discard" to the unsaved-changes dialog
     await W2.SlopDocs.newDoc();
     expect(text(W2)).toEqual(['']);
+    expect(W2.SlopDocs.tabsApi().tabs().length).toBe(2);
     close(W2);
   });
   it('shows the page at Letter size with 1-inch margins (816 px wide at 100%)', async () => {
@@ -260,6 +260,7 @@ describe('Slop Drive', () => {
     click(W1, 'tbItalic');
     click(W1, 'tbBullets');
     await W1.SlopDocs.save();
+    await draftSaved(W1);
     close(W1);
     const W2 = await open('../../docs/?drive=' + id);
     expect(text(W2)).toEqual(['Keep me']);
@@ -271,10 +272,9 @@ describe('Slop Drive', () => {
   it('keeps unsaved typing as a draft and restores it on the next launch', async () => {
     const id = await H.put(new Blob([], { type: 'application/x-slop-doc' }), { name: 'Draft.sdoc', from: 'drive' });
     const W1 = await open('../../docs/?drive=' + id);
-    const t1 = Date.now();
     typeText(W1, 'Not saved yet');
     expect(W1.SlopDocs.file.dirty).toBeTruthy();
-    await draftSaved(W1, t1);
+    await draftSaved(W1);
     close(W1);
     const W2 = await open('../../docs/?drive=' + id);
     expect(text(W2)).toEqual(['Not saved yet']);
