@@ -13,6 +13,7 @@
  *   anchor    where a cover crop or a fit letterbox sits: center, top, bottom, left, right, top-left, …
  *   bg        '#rrggbb' or 'transparent' (the colour behind a fit letterbox)
  *   even      round both sides to even numbers (video needs it; dims() can force it with opts.even)
+ *   resample  'best' shrinks in halving steps with high smoothing (the default); 'nearest' keeps hard pixels
  *
  * dims(src, spec, opts) → { w, h, x, y, dw, dh, fill }
  *   w × h   the output size.
@@ -25,12 +26,14 @@
   const MAX_SIDE = 16384, MAX_AREA = 100e6; // images; video passes opts.max (8192)
   const MODES = ['size', 'bytes', 'scale', 'long'];
   const FILLS = ['fit', 'cover', 'stretch', 'within'];
+  const RESAMPLE = ['best', 'nearest'];
   /** Anchor name → [ax, ay] in 0…1 (0 = left/top, 1 = right/bottom). */
   const ANCHORS = { center: [0.5, 0.5], top: [0.5, 0], bottom: [0.5, 1], left: [0, 0.5], right: [1, 0.5], 'top-left': [0, 0], 'top-right': [1, 0], 'bottom-left': [0, 1], 'bottom-right': [1, 1] };
   S.ANCHORS = Object.keys(ANCHORS);
   S.FILLS = FILLS.slice();
   S.MODES = MODES.slice();
   S.MAX_SIDE = MAX_SIDE;
+  S.RESAMPLE = RESAMPLE.slice();
 
   const num = (v, d = 0) => { const n = typeof v === 'string' ? parseFloat(v) : v; return Number.isFinite(n) ? n : d; };
   const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
@@ -53,8 +56,19 @@
       anchor: hasOwn(ANCHORS, s.anchor) ? s.anchor : 'center',
       bg: /^#[0-9a-f]{6}$/i.test(s.bg || '') ? s.bg.toLowerCase() : 'transparent',
       even: !!s.even,
+      resample: RESAMPLE.includes(s.resample) ? s.resample : 'best',
       maxBytes: Math.max(0, Math.round(num(s.maxBytes))),
     };
+  };
+
+  /** Keep-ratio lock: the other side for a side that was typed. which is 'w' or 'h'; ratio is the picture's width ÷
+   *  height. Derives from the typed value only (never from a rounded one), so editing does not drift. Returns 0 when
+   *  there is nothing to derive from. even rounds the derived side to an even number, as the output does. */
+  S.lockSide = function (which, value, ratio, even) {
+    const v = num(value);
+    if (!(v > 0 && ratio > 0)) return 0;
+    const n = which === 'w' ? v / ratio : v * ratio;
+    return even ? S.even(n) : S.px(n);
   };
 
   /** Output size and picture placement for a source of src = { w, h }. Throws on a size that cannot be made. */

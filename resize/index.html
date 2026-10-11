@@ -116,6 +116,7 @@
       </div>
       <p class="rs-fine" data-modes="size bytes">A side left at 0 follows the picture.</p>
       <label class="rs-check" data-modes="size bytes"><input type="checkbox" id="rs-keep" checked> Keep aspect ratio</label>
+      <p class="rs-fine" id="rs-ratio-note" data-modes="size bytes"></p>
       <label class="rs-field" data-modes="size bytes">Fill
         <select id="rs-fill">
           <option value="fit">Fit (letterbox)</option>
@@ -137,10 +138,11 @@
           <option value="bottom-right">Bottom right</option>
         </select>
       </label>
-      <div class="rs-field rs-colour" data-modes="size bytes">
-        <span>Letterbox colour</span>
-        <span class="rs-inline"><input type="color" id="rs-bg" value="#ffffff" aria-label="Letterbox colour"><label class="rs-check"><input type="checkbox" id="rs-transparent" checked> Transparent</label></span>
+      <div class="rs-field rs-colour">
+        <span>Background colour</span>
+        <span class="rs-inline"><input type="color" id="rs-bg" value="#ffffff" aria-label="Background colour"><label class="rs-check"><input type="checkbox" id="rs-transparent" checked> Transparent</label></span>
       </div>
+      <p class="rs-note" id="rs-alpha-note" hidden></p>
       <label class="rs-field" data-modes="scale">Scale
         <span class="rs-range"><input type="range" id="rs-scale" min="1" max="400" value="50"><output id="rs-scale-out" for="rs-scale">50%</output></span>
       </label>
@@ -152,6 +154,12 @@
       </label>
       <p class="rs-fine" data-modes="bytes">Pictures only. JPEG, WebP and AVIF lower their quality to fit; PNG cannot.</p>
       <label class="rs-check"><input type="checkbox" id="rs-even" checked> Round to even numbers (video needs them)</label>
+      <label class="rs-field">Resampling
+        <select id="rs-resample">
+          <option value="best">Smooth, in steps (best for shrinking)</option>
+          <option value="nearest">Hard pixels (nearest, for pixel art)</option>
+        </select>
+      </label>
 
       <h2 class="rs-h">Output</h2>
       <label class="rs-field">Picture format
