@@ -4,7 +4,7 @@
  * Only same-origin GET requests are handled. Other origins are never cached or intercepted. */
 'use strict';
 
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = 'slopographic-' + VERSION;
 const OFFLINE = '/offline.html';
 const STATIC = /\.(m?js|css|woff2?|ttf|otf|png|jpe?g|webp|gif|svg|ico|wasm|json|glb|bcmap|pfb)$/i;
@@ -225,14 +225,17 @@ async function networkFirst(req, url) {
   }
 }
 
-// Static files: the saved copy first. A new CACHE version starts empty, so updates arrive with it.
-async function cacheFirst(req) {
+// Static files (scripts, styles, data such as the app registry): the network first, so a new app or a
+// changed file shows on the next visit with no reload. The saved copy is used only when offline.
+async function networkFirstStatic(req) {
   const cache = await caches.open(CACHE);
-  const hit = await cache.match(req.url);
-  if (hit) return hit;
-  const res = await fetch(req);
-  if (cacheable(res)) cache.put(req.url, res.clone());
-  return res;
+  try {
+    const res = await fetch(req);
+    if (cacheable(res)) cache.put(req.url, res.clone());
+    return res;
+  } catch (err) {
+    return (await cache.match(req.url)) || Response.error();
+  }
 }
 
 self.addEventListener('install', (event) => {
@@ -263,5 +266,5 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return;
   if (isNavigation(req)) event.respondWith(networkFirst(req, url));
-  else if (STATIC.test(url.pathname)) event.respondWith(cacheFirst(req));
+  else if (STATIC.test(url.pathname)) event.respondWith(networkFirstStatic(req));
 });
