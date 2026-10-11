@@ -109,12 +109,13 @@
         const parent = [...$$('.sui-row')].find((r) => r.textContent.includes('Load a downloaded model'));
         fire(parent, 'pointerenter');
         await waitFor(() => $$('.sui-menu[data-level="1"] .sui-lbl').length === 2);
-        expect($$('.sui-menu[data-level="1"] .sui-lbl').map((x) => x.textContent)).toEqual(['Llama 3.2 1B', 'Qwen2.5 0.5B']);
+        // The menu lists downloaded models in catalog order, which is not alphabetical; check the set, not the order.
+        expect($$('.sui-menu[data-level="1"] .sui-lbl').map((x) => x.textContent).sort()).toEqual(['Llama 3.2 1B', 'Qwen2.5 0.5B']);
         [...$$('.sui-menu[data-level="1"] .sui-row')].find((r) => r.textContent.includes('Qwen2.5 0.5B')).click();
         await waitFor(() => AI.E.ready());
         expect(AI.E.model.id).toBe('Qwen2.5-0.5B-Instruct-q4f16_1-MLC');
         await waitFor(() => $('#modelChip').textContent.includes('Qwen2.5 0.5B'));
-      } finally { localStorage.removeItem('slop-ai.fake-cache'); }
+      } finally { localStorage.removeItem('slop-ai.fake-cache'); W.SlopUI.closeMenu(); }
     });
     it('"Open Slop Vector with poster.svg" lets the model open the app on that Drive file', async () => {
       const id = await W.SlopHub.put(new Blob(['<svg/>'], { type: 'image/svg+xml' }), { name: 'poster.svg', from: 'ai' });
@@ -133,6 +134,7 @@
       expect(D.documentElement.scrollWidth <= W.innerWidth).toBe(true);
     });
   });
+  SlopTest.run({ name: 'Slop AI: apps, files and layout' });
   </script>
 </body>
 </html>

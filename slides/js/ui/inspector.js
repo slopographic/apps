@@ -68,10 +68,12 @@
       field('Notes', 'area', function () { var c = A.slide(); return c ? c.notes || '' : ''; },
         function (v) { edit('Notes', function () { A.slide().notes = v; }); })
     ]));
+    if (s) kids.push(SS.animPanel.transitionSection(s));
     kids.push(section('Document', [
       field('Footer', 'text', function () { return A.deck.master.footer || ''; }, function (v) { edit('Footer', function () { A.deck.master.footer = v; }); }),
       field('Slide numbers', 'check', function () { return !!A.deck.master.showNumber; }, function (v) { edit('Slide numbers', function () { A.deck.master.showNumber = v; }); })
     ]));
+    kids.push(SS.animPanel.presentSection());
     if (o) {
       kids.push(section(objs.length > 1 ? objs.length + ' objects' : (o.name || o.type), [
         objField('X', 'number', function (x) { return r1(x.x); }, function (x, v) { x.x = v; }, { step: 0.5 }),
@@ -105,6 +107,7 @@
           objField('Text colour', 'color', function (x) { return x.style ? hexOf(x.style.color) : '#000000'; }, function (x, v) { x.style = Object.assign({}, x.style, { color: v }); })
         ]));
       }
+      if (objs.length === 1 && s && s.objects.indexOf(o) >= 0) kids.push(SS.animPanel.objectSection(o));
       kids.push(section('Arrange', [D.el('div', { class: 'btns' },
         D.el('button', { type: 'button', onclick: function () { OP.arrange('front'); } }, 'To front'),
         D.el('button', { type: 'button', onclick: function () { OP.arrange('forward'); } }, 'Forward'),

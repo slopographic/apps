@@ -14,7 +14,7 @@
 
   describe('deck & slides', () => {
     it('boots the core and the fonts', async () => {
-      SS = await loadSlides(['core', 'render', 'io']);
+      SS = await loadSlides(['core', 'render', 'anim', 'io']);
       expect(SS.fonts.isReady()).toBe(true);
       expect(SS.themes.list.length).toBeGreaterThanOrEqual(6);
       expect(SS.themes.byId('slop').colors.accent1).toBe('#d4ff3a');

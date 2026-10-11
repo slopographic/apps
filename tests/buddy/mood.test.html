@@ -104,7 +104,7 @@
       expect(M.thrown).toBe(true);
       await waitFor(() => M.daze > 0, { timeout: 3000 });
       expect(M.mood).toBe('dizzy');
-      expect(S.face()).toEqual(['spiral', 'wavy']);
+      expect(S.face()).toEqual(['sleepy', 'wavy']);
       expect(M.el.classList.contains('is-dizzy')).toBe(true);
       await sleep(300);
       expect(M.mode).toBe('perched');                         // no hop while dizzy

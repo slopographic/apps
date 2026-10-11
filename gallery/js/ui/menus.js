@@ -39,6 +39,7 @@
     items.push({ label: 'Add to album', sub: albumSub(ids) });
     if (st.view === 'album') items.push({ label: 'Remove from this album', act: () => G.library.removeFromAlbum(st.query.album, ids) });
     items.push('-', { label: 'Download' + (ids.length > 1 ? ` (${ids.length})` : ''), act: () => A().exportIds(ids) });
+    if (inSel) items.push({ label: 'Make reel…', disabled: sel.length < 2, act: () => A().makeReel(sel) });
     if (single) items.push(...sendItems(id, meta));
     items.push('-', { label: 'Remove from library…', act: () => A().removeIds(ids) });
     return items;
@@ -85,11 +86,23 @@
     return null;
   }
 
+  /** The Actions button's menu (the toolbar's less common actions). */
+  function openActions(btn) {
+    const sel = G.state.selected, r = btn.getBoundingClientRect();
+    SlopUI.menu([
+      { label: 'Make reel from selection…', disabled: sel.length < 2, act: () => A().makeReel(sel) },
+      '-',
+      { label: 'Import photos…', act: () => A().importFiles() },
+      { label: 'Find duplicates…', act: () => A().dupes() },
+      { label: 'Back up the whole library', act: () => A().backup() },
+    ], r.left, r.bottom + 4);
+  }
+
   /** Binds the menus to a root element (the timeline area or the sidebar). */
   function bind(root) {
     if (!window.SlopCtx) return () => {};
     return SlopCtx.bind(root, resolve);
   }
 
-  G.menus = { bind, resolve, photoItems, albumItems };
+  G.menus = { bind, resolve, photoItems, albumItems, openActions };
 })();

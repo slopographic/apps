@@ -19,19 +19,23 @@
     });
     return o;
   };
-  /** Adds a slide from a spec: { layout, title, subtitle, body, body2, number, quote, attribution, pic, objects, notes, transition, builds, section, background } */
+  /** Adds a slide from a spec: { layout, title, subtitle, body, body2, number, quote, attribution, pic, objects, notes,
+      transition: {name, duration}, anims: { placeholderOrObjectName: [{ preset, trigger, at, timeScale }] }, section, background } */
   TP.slide = function (deck, s) {
     var slide = M.addSlide(deck, s.layout || 'title-content');
     ['title', 'subtitle', 'body', 'body2', 'number', 'quote', 'attribution', 'pic'].forEach(function (k) { if (s[k] != null) TP.fill(slide, k, s[k]); });
     (s.objects || []).forEach(function (o) { slide.objects.push(o.type ? o : O.make(o.kind, o.props)); });
     if (s.notes) slide.notes = s.notes;
-    if (s.transition) slide.transition = Object.assign({ dur: 0.7 }, s.transition);
+    if (s.transition) slide.transition = { name: s.transition.name, duration: SS.anim.clampDuration(s.transition.duration) };
     if (s.section) slide.section = s.section;
     if (s.background) slide.background = s.background;
-    if (s.builds) slide.builds = s.builds.map(function (b) {
-      var target = typeof b.obj === 'number' ? slide.objects[b.obj] : (ph(slide, b.obj) || slide.objects.filter(function (o) { return o.name === b.obj; })[0]);
-      return Object.assign({ id: U.uid('b'), type: 'in', effect: 'fade', trigger: 'click', delay: 0, dur: 0.6, by: 'object' }, b, { obj: target && target.id });
-    }).filter(function (b) { return b.obj; });
+    Object.keys(s.anims || {}).forEach(function (key) {
+      slide.objects.filter(function (o) { return o.placeholder === key || o.name === key; }).forEach(function (o) {
+        o.anims = (o.anims || []).concat(s.anims[key].map(function (a) {
+          return Object.assign(SS.anim.make(a.preset, a.trigger), { at: a.at || 0, timeScale: a.timeScale || 1 });
+        }));
+      });
+    });
     if (s.hidden) slide.hidden = true;
     return slide;
   };
