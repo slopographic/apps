@@ -186,7 +186,7 @@
   }
   function onKey(e) {
     if (recording || e.isComposing) return;
-    if (e.target && e.target.closest && e.target.closest('.sui-menu')) return; // an open menu takes its own keys
+    if (e.target && e.target.closest && e.target.closest('[role="menu"]')) return; // an open menu takes its own keys
     const steps = eventSteps(e);
     if (!steps) return;
     const typing = isTyping(e.composedPath ? e.composedPath()[0] : e.target), blocked = dialogOpen();

@@ -76,7 +76,7 @@ function toolCommands() {
 /* ---------- keys that must run before the commands ---------- */
 // Space-to-pan and tool keys (Enter/Esc/Backspace in transforms, crop, lassos) win over shortcuts, as before.
 /** Keys pressed in an open menu (SlopUI or the menu bar) belong to the menu, not the tools. */
-function inMenu(e) { return !!(e.target.closest && e.target.closest('.sui-menu, .menu')); }
+function inMenu(e) { return !!(e.target.closest && e.target.closest('[role="menu"]')); }
 function onEarlyKey(e) {
   if (!CMD_ON || SlopUI.openDialogs || isTyping(e.target) || inMenu(e) || (window.SlopCmd && SlopCmd.isOpen)) return;
   if (e.code === 'Space' && !e.ctrlKey && !e.metaKey) { if (!e.repeat) { V.space = true; V.el.classList.add('space'); } e.preventDefault(); e.stopImmediatePropagation(); return; }

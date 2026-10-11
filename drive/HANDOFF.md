@@ -170,5 +170,5 @@ The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Dr
 - **Details panel:** a "Faces" row for pictures when the setting is on: the count, or "Not checked yet".
 - **Quick look:** the face boxes are drawn over the picture (`SlopFaces.drawBoxes`) when the setting is on and the picture has been checked.
 - **Results:** `SlopFaces.analyse('drive', file id, file modified time, blob)`, kept in IndexedDB `slop-faces`. An edited file is checked again.
-- **Code:** `js/ui/faces.js` (`DR.isFaceable`, `DR.faceStamp`, `DR.facesOf`, `DR.findFaces`, `DR.faceOverlayFor`). `info.js`, `menus.js` and `quicklook.js` call it.
+- **Code:** `js/ui/faces.js` (`DR.isFaceable`, `DR.faceStamp`, `DR.facesOf`, `DR.findFaces`, `DR.attachFaces`, `DR.openFaces`, `DR.facesAdapter`). `info.js`, `menus.js` and `quicklook.js` call it; the badge and the people dialog are in `shared/faces/` (see its HANDOFF.md).
 - **No identity:** the detector only finds faces. Nothing is named or matched.

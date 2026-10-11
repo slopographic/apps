@@ -16,7 +16,6 @@
     const toast = (m) => { if (ui.toast) ui.toast(m); };
     const sel = () => S.doc.layers.find((l) => l.id === S.sel.layer) || null;
     const isKeyed = (doc, layer, prop) => !!(doc.tl.tracks[layer] && doc.tl.tracks[layer][prop]);
-
     /** The value of a property at the playhead (a keyed value, else the base). */
     const valueNow = (layerId, prop) => {
       const layer = C().findLayer(S.doc, layerId);
@@ -31,8 +30,7 @@
       if (!layerId) return;
       const fx = /^fx\.(e[0-9]+)\.([a-z]+)$/.exec(prop);
       if (fx) {
-        const doc = S.doc;
-        if (isKeyed(doc, layerId, prop)) S.edit('Set keyframe', (d) => K().setKeyAt(d, layerId, prop, S.playhead, value));
+        if (isKeyed(S.doc, layerId, prop)) S.edit('Set keyframe', (d) => K().setKeyAt(d, layerId, prop, S.playhead, value));
         else S.edit('Set effect', (d) => L().setEffectParam(d, layerId, fx[1], fx[2], value));
         return;
       }

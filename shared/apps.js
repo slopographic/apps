@@ -87,6 +87,7 @@
     A('paste', 'app', 'Paste', 'paste/', 'Paste text, code or images, and share a link. Nothing uploaded.', { group: 'business',
       features: ['Text, code and image pastes', 'Highlighting for six languages', 'Random link IDs and expiry labels', 'Copy, download and a local share link'],
       icon: 'doc', status: 'building' }),
+    A('effects', 'app', 'Slop Effects', 'effects/', 'Motion design in the browser. Nothing uploaded.', { group: 'creative', accepts: ['application/json', 'image/*', 'video/*'], features: ['Layers, keyframes and easing', 'Graph editor and seeded random motion', 'Blur, glow, shadow, colour, grain, vignette, glitch', 'WebM, MP4 and PNG sequence'], icon: 'film', status: 'beta' }),
     A('hex', 'app', 'Slop Hex', 'hex/', 'View and edit any file as bytes. Saved to Slop Drive.', { group: 'business',
       accepts: [],
       features: ['Offset, hex and ASCII columns, with undo and redo', 'Find bytes or text, and go to any offset', 'Pages large files, so a 100 MB file opens', 'Open from and save to Slop Drive'],
