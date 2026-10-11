@@ -1,11 +1,12 @@
 /* Typing into a cell and the formula bar. Both show S.edit: typing in one updates the other.
    Enter/Shift+Enter commit and move down/up, Tab/Shift+Tab commit and move across, Escape cancels,
-   clicking elsewhere commits. */
+   clicking elsewhere commits. While a formula is edited, arrows point at cells (point.js). */
 import { S, $, sheet, toast, redraw } from './state.js';
 import { transact } from './history.js';
 import { els, placeEditor, focusGrid } from './grid.js';
 import { moveTo } from './nav.js';
 import { parseInput } from '../engine/index.js';
+import { isFormula, isPointKey, pointKey } from './point.js';
 
 /** The text a cell shows when you edit it (formula with "=", text that would parse as a number keeps "'"). */
 export function rawText(sh, r, c) {
@@ -85,6 +86,7 @@ export function syncBar() {
 function editKey(e) {
   const from = S.edit ? S.edit.from : 'cell';
   const formula = S.edit && S.edit.text[0] === '=';
+  if (formula && isPointKey(e.key)) { e.preventDefault(); pointKey(e); e.stopPropagation(); return; }
   if (e.key === 'Enter') { e.preventDefault(); commitEdit(e.shiftKey ? -1 : 1, 0); }
   else if (e.key === 'Tab') { e.preventDefault(); commitEdit(0, e.shiftKey ? -1 : 1); }
   else if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
