@@ -45,7 +45,9 @@ def build(gd, scale):
         w = c[f'f{k}']                      # TF HWIO
         kh, kw = w.shape[0], w.shape[1]
         wname = init(f'W{k}', np.transpose(w, (3, 2, 0, 1)))   # ONNX OIHW
-        bname = init(f'B{k}', c[f'b{k}'].reshape(-1))
+        # conv8 has no bias: b8 is added after DepthToSpace (it has one value)
+        bias = c[f'b{k}'].reshape(-1) if k != 8 else np.zeros(w.shape[3], np.float32)
+        bname = init(f'B{k}', bias)
         y = f'conv{k}_out'
         nodes.append(helper.make_node('Conv', [x, wname, bname], [y], name=f'conv{k}',
                                       kernel_shape=[kh, kw], strides=[1, 1],

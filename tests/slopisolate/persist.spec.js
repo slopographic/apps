@@ -33,12 +33,18 @@
       await waitFor(() => !!w.CO.process.active, { timeout: 60000, polling: 100 });
       const before = fingerprint(w.CO.process.active);
       expect(before.n > 0).toBe(true);
+      if (!w.__pre) w.__pre = 1;
       await sleep(1500); // the autosave waits 600 ms, then writes to IndexedDB
+      const pre = JSON.stringify({ st: w.CO.state.items.map((i) => [i.status, !!i.base]), saved: await w.SlopSession.load('cutout', 'session', null).then((p) => p && p.items && p.items.length).catch((e) => 'ERR ' + e) });
+      if (window.__DBG) window.__DBG.pre = pre;
+      console.log('PRE ' + pre);
 
       await goto('../../slopisolate/about/index.html');
       await sleep(300);
       w = await openApp();
-      await waitFor(() => w.CO.state.items.length === 1 && w.CO.state.items[0].status === 'done' && w.CO.process && w.CO.process.active && w.CO.process.active.mask, { timeout: 60000, polling: 100 });
+      await sleep(2500);
+      const dbg = JSON.stringify({ items: w.CO.state.items.map((i) => [i.name, i.status, i.error, !!i.base, i.kind]), active: w.CO.state.activeId, saved: await w.SlopSession.load('cutout', 'session', null).then((p) => p && p.items && p.items.map((i) => [i.name, i.done, !!i.base])).catch((e) => 'ERR ' + e) });
+      await waitFor(() => w.CO.state.items.length === 1 && w.CO.state.items[0].status === 'done' && w.CO.process && w.CO.process.active && w.CO.process.active.mask, { timeout: 60000, polling: 100 }).catch((e) => { throw new Error(e.message + ' ' + dbg); });
       expect(w.CO.state.items[0].name).toBe('sloppo-sample.png');
       expect(fingerprint(w.CO.process.active)).toEqual(before);
     }, { timeout: 300000 });
