@@ -23,8 +23,9 @@
   const SCREEN_CSS = 'html,body{margin:0;background:#fff;color:#111;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}' +
     'body{padding:16px;overflow-wrap:anywhere;word-break:break-word}img{max-width:100%;height:auto}table{max-width:100%}';
 
-  function page(inner, css, base) {
+  function page(inner, css, base, title) {
     return '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+      (title ? '<title>' + F.esc(title) + '</title>' : '') +
       '<meta http-equiv="Content-Security-Policy" content="' + CSP + '">' +
       '<meta name="viewport" content="width=device-width, initial-scale=1">' +
       (base ? '<base target="_blank">' : '') +
@@ -52,6 +53,6 @@
     const head = '<header class="em-ph"><h1>' + F.esc(summary.subject || '(no subject)') + '</h1><dl>' + rows + '</dl></header>';
     const useHtml = view === 'html' && msg.html != null;
     const body = useHtml ? F.bodyHtml(msg, true) : '<pre>' + F.esc(msg.text != null ? msg.text : '') + '</pre>';
-    return page(head + body, PRINT_CSS, false);
+    return page(head + body, PRINT_CSS, false, summary.subject || 'Message');
   };
 })();

@@ -58,6 +58,8 @@ export const APPS = {
     description: 'Layers with keyframes and easing, a graph editor, seeded random motion and effects such as glow, glitch and grain. Exports WebM, MP4 or PNG.' },
   hex: { title: 'Slop Hex: view and edit any file as bytes | Slopographic', category: 'DeveloperApplication',
     description: 'A hex editor for your browser. Edit any file in offset, hex and ASCII columns, find bytes or text, and page through files up to 100 MB.' },
+  eml: { title: 'Slop EML: preview, print and convert email files | Slopographic', category: 'UtilitiesApplication',
+    description: 'Open .eml email files in your browser. Read the headers, HTML and attachments, print them, or convert to PDF. Remote images stay blocked.' },
   qr: { title: 'QR SLOP: QR codes for links, Wi-Fi and contacts | Slopographic', category: 'UtilitiesApplication',
     description: 'QR codes for text, links, email, Wi-Fi, contacts, locations and events. Download SVG or PNG, with transparency if you need it. Nothing is uploaded.' },
   convert: { title: 'Slop Convert: image, PDF and data converter | Slopographic', category: 'UtilitiesApplication',
