@@ -2,11 +2,11 @@
  *   enabled() / setEnabled(on)  the opt-in, stored once in SlopProfile ('faces', 'detect'). Off until the person turns it on.
  *   status()                    'off' | 'idle' | 'loading' | 'ready' | 'unavailable'
  *   detect(source)              [{ x, y, w, h, score }] in the source's pixels. While off: [] and no model work at all.
- *   analyse(scope, id, stamp, blob)  cached detection for one picture: { w, h, faces } or null (off, or unreadable).
+ *   analyse(scope, id, stamp, blob)  cached detection and embeddings for one picture: { w, h, faces, rec } or null (off, or unreadable).
  *   onChange(fn)                fires when the setting or the model state changes (also from another tab).
  *   setBackend({ detect }) / MODEL  tests stub the detector; MODEL describes the vendored file.
  * The model is vendor/face/ (YuNet, MIT). ONNX Runtime Web is vendor/onnxruntime-web/. Needs decode.js, cache.js and
- * copy.js first, and profile.js with app-options.js for the setting. Everything is in try/catch. See shared/faces/HANDOFF.md. */
+ * copy.js first, and profile.js with app-options.js for the setting. recognize.js adds the embeddings (see HANDOFF.md). Everything is in try/catch. See shared/faces/HANDOFF.md. */
 (function (g) {
   'use strict';
   const F = (g.SlopFaces = g.SlopFaces || {});

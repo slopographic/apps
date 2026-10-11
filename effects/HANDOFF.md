@@ -109,7 +109,8 @@ Ctrl+S save to Drive, Ctrl+O open from Drive, Ctrl+K command search.
 
 ## Needed outside this folder (not done here)
 
-1. `shared/apps.js`: add the registry entry. Config import and export refuse the `effects` app until it is there (the
-   validator checks `SLOP_APPS`). Suggested entry:
+1. `shared/apps.js`: add the registry entry. Until it is there, config import and export, and Slop Drive open (which validates
+   through `shared/config`), refuse the `effects` app with "not an app in the registry". Saving to Drive works without it.
+   Suggested entry:
    `A('effects', 'app', 'Slop Effects', 'effects/', 'Motion design in the browser. Nothing uploaded.', { group: 'creative', accepts: ['application/json', 'image/*', 'video/*'], features: ['Layers, keyframes and easing', 'Graph editor and seeded random motion', 'Blur, glow, shadow, colour, grain, vignette, glitch', 'WebM, MP4 and PNG sequence'], icon: 'film', status: 'beta' })`
 2. `service-worker.js`: add `effects/` to the precache list so the app works offline.

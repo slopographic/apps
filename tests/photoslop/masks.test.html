@@ -287,6 +287,17 @@
       win.SlopUI.closeMenu();
     });
 
+    it('while the mask is edited, the viewport tints where it hides', async () => {
+      await makeDoc('#000000'); W.addMask('hide'); W.UI.editMask = true; W.dirty(true);
+      await sleep(80);
+      const s = W.eval('toScreen(60, 60)'), dpr = W.V.dpr;
+      const p = pixel(W.V.el.getContext ? W.V.el : W.V.el.querySelector('canvas'), Math.round(s.x * dpr), Math.round(s.y * dpr));
+      expect(p[0] > p[1] + 60).toBe(true);
+      W.UI.editMask = false; W.dirty(true);
+      await sleep(60);
+      const q = pixel(W.V.el.getContext ? W.V.el : W.V.el.querySelector('canvas'), Math.round(s.x * dpr), Math.round(s.y * dpr));
+      expect(q[0] > q[1] + 60).toBe(false);
+    });
     it('painting on the mask updates the canvas during the stroke, before the mouse is released', async () => {
       await makeDoc(); W.addMask('hide'); W.UI.editMask = true;
       W.selectTool('brush'); W.eval('T.brush.size = 30; T.brush.pressure = false; T.brush.hardness = 1');
@@ -315,7 +326,6 @@
       const parent = win.document.querySelector('.menu'), row = [...parent.querySelectorAll('.menu-row')].find((r) => r.querySelector('.menu-label').textContent === 'Mask');
       expect(!!row).toBe(true);
       row.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
-      expect(String(row.getAttribute('aria-haspopup')) + '|' + row.disabled + '|' + win.document.querySelectorAll('.menu').length + '|' + row.className + '|' + (win.document.body.innerHTML.length)).toBe('x');
       const menus = win.document.querySelectorAll('.menu');
       expect(menus.length).toBe(2);
       expect(menus[1].getBoundingClientRect().left >= parent.getBoundingClientRect().right).toBe(true);
