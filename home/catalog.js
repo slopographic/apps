@@ -31,7 +31,8 @@
   function shot(a) {
     const box = el('div', { class: 'shot', 'data-id': a.id, 'aria-hidden': 'true' });
     const ph = el('div', { class: 'shot-ph' }, el('b', null, a.name));
-    if (a.icon && ICONS[a.icon]) ph.prepend(html('svg', { viewBox: '0 0 48 48', class: 'shot-icon' }, ICONS[a.icon]));
+    const glyph = (window.SLOP_ICONS && window.SLOP_ICONS[a.id]) || ICONS[a.icon];
+    if (glyph) ph.prepend(html('svg', { viewBox: '0 0 48 48', class: 'shot-icon' }, glyph));
     box.append(ph);
     if (a.shot) {
       const img = el('img', { alt: '', loading: 'lazy', decoding: 'async', src: a.shot });
