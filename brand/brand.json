@@ -2,7 +2,7 @@
   "name": "Slopographic",
   "tagline": "Office and creative software that runs in your browser.",
   "logo": "brand/logo.svg",
-  "home": "/",
+  "home": "",
   "colors": {
     "ink": "#0a0a0a",
     "paper": "#f1ede4",

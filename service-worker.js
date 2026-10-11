@@ -4,7 +4,7 @@
  * Only same-origin GET requests are handled. Other origins are never cached or intercepted. */
 'use strict';
 
-const VERSION = 'v9';
+const VERSION = 'v10';
 const CACHE = 'slopographic-' + VERSION;
 const OFFLINE = '/offline.html';
 const STATIC = /\.(m?js|css|woff2?|ttf|otf|png|jpe?g|webp|gif|svg|ico|wasm|json|glb|bcmap|pfb)$/i;
@@ -196,7 +196,7 @@ const PRECACHE = [
   '/tables/js/ui/storage.js', '/tables/js/ui/template-store.js', '/tables/js/ui/templates.js', '/tables/js/ui/view-state.js', '/vector/css/canvas.css',
   '/vector/css/chrome.css', '/vector/css/classic.css', '/vector/css/panels.css', '/vector/css/popups.css', '/vector/css/responsive.css',
   '/vector/css/themes.css', '/vector/index.html', '/vector/js/core/history.js', '/vector/js/core/hittest.js', '/vector/js/core/objects.js',
-  '/vector/js/core/overlay.js', '/vector/js/core/render.js', '/vector/js/core/state.js', '/vector/js/core/svgout.js', '/vector/js/core/tree.js',
+  '/vector/js/core/overlay.js', '/vector/js/core/render.js', '/vector/js/core/state.js', '/vector/js/core/svgout.js', '/vector/js/core/tree.js', '/vector/js/core/zoom.js',
   '/vector/js/geom/bezier.js', '/vector/js/geom/boolean.js', '/vector/js/geom/fit.js', '/vector/js/geom/hit.js', '/vector/js/geom/math.js',
   '/vector/js/geom/pathdata.js', '/vector/js/geom/slopify.js', '/vector/js/io/files.js', '/vector/js/io/hub.js', '/vector/js/io/offline.js',
   '/vector/js/io/pdf.js', '/vector/js/io/svg-export.js', '/vector/js/io/svg-import.js', '/vector/js/io/svg-open.js', '/vector/js/io/svg-parse.js',
