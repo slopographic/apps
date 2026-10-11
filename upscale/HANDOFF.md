@@ -51,7 +51,7 @@ SHA-256. Get more shows them before anything downloads. The file is stored in th
 (`slop-library`), and the worker checks its size and SHA-256 again before it loads it. The worker never fetches a
 model that is not bundled.
 
-**The download URL is `raw.githubusercontent.com/slopographic/apps/main/vendor/models/upscale/realesrgan-x4plus/model.onnx`.
+**The download URL is `raw.githubusercontent.com/slopographic/cdn/main/models/upscale/realesrgan-x4plus.onnx`.
 It only works once that file is on `main`.** Until then Get more reports that the download failed, and Quality falls
 back to Lanczos. The file is 67 MB; commit it with git LFS if the repository should not hold it directly.
 
