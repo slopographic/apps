@@ -17,7 +17,7 @@ const T = Object.assign({
   bucket: { tol: 32, contiguous: true, sampleAll: false, opacity: 1 },
   gradient: { type: 'linear', mode: 'fgbg', reverse: false, opacity: 1 },
   shape: { kind: 'rect', fill: true, stroke: false, strokeW: 6, radius: 32, sides: 5, strokeColor: '#000000' },
-  type: { font: 'Archivo', size: 96, bold: true, italic: false, align: 'left' },
+  type: { font: 'Archivo', size: 96, bold: true, italic: false, align: 'left', tracking: 0, leading: 120, aa: 'smooth' },
   move: { auto: false },
   crop: { del: true },
   eyedrop: { size: 1, all: true },

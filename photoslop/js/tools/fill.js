@@ -78,75 +78,7 @@ defTool({ id: 'bucket', name: 'Paint Bucket Tool', key: 'G', icon: ICON('M5 11 1
     commit('Paint Bucket');
   } });
 
-/* Type */
-const TE = { el: null, layerId: null, x: 0, y: 0 };
-function typeFont(t, z = 1) { return `${t.italic ? 'italic ' : ''}${t.bold ? '700 ' : '400 '}${t.size * z}px ${fontStack(t.font)}`; }
-function fontStack(f) { return `"${f}", ${/Mono|Courier/.test(f) ? 'ui-monospace, monospace' : /Serif|Georgia|Times/.test(f) ? 'Georgia, serif' : 'system-ui, -apple-system, "Segoe UI", sans-serif'}`; }
-function renderTextCanvas(t) {
-  const meas = cx(mkCanvas(1, 1)); meas.font = typeFont(t);
-  const lines = String(t.str).split('\n'), lh = t.size * 1.2, pad = Math.ceil(t.size * 0.35);
-  const widths = lines.map((l) => meas.measureText(l).width), maxW = Math.max(1, ...widths);
-  const c = mkCanvas(maxW + pad * 2, lines.length * lh + pad * 2), g = cx(c);
-  g.font = typeFont(t); g.fillStyle = t.color; g.textBaseline = 'top';
-  lines.forEach((l, i) => { const x = t.align === 'center' ? (maxW - widths[i]) / 2 : t.align === 'right' ? maxW - widths[i] : 0; g.fillText(l, pad + x, pad + i * lh + (lh - t.size) / 2); });
-  return { canvas: c, x: Math.round(t.x - pad), y: Math.round(t.y - pad) };
-}
-function textLayerAt(p) {
-  for (let i = D.layers.length - 1; i >= 0; i--) { const L = D.layers[i]; if (!L.text || !L.visible) continue; if (p.x >= L.x && p.y >= L.y && p.x <= L.x + L.canvas.width && p.y <= L.y + L.canvas.height) return L; }
-  return null;
-}
-function startTypeEdit(p, L) {
-  endTypeEdit();
-  const t = L ? Object.assign({}, L.text) : Object.assign({ str: '', x: Math.round(p.x), y: Math.round(p.y), color: C.fg }, T.type);
-  if (L) { Object.assign(T.type, { font: t.font, size: t.size, bold: t.bold, italic: t.italic, align: t.align }); emit('tool'); }
-  const el = h('textarea', { class: 'type-edit', spellcheck: 'false', 'aria-label': 'Type layer text' });
-  el.value = t.str;
-  TE.el = el; TE.layerId = L ? L.id : null; TE.t = t;
-  if (L) live = { layerId: L.id, surface: () => ({ canvas: scratchCanvas('b', 1, 1), x: 0, y: 0, w: 1, h: 1 }) };
-  V.el.append(el);
-  el.addEventListener('input', () => { TE.t.str = el.value; layoutTypeEdit(); });
-  el.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { e.preventDefault(); endTypeEdit(true); }
-    else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); endTypeEdit(); }
-    e.stopPropagation();
-  });
-  layoutTypeEdit();
-  setTimeout(() => el.focus(), 0);
-  dirty(true);
-}
-function layoutTypeEdit() {
-  if (!TE.el) return;
-  const t = TE.t, el = TE.el, s = toScreen(t.x, t.y), z = V.zoom;
-  Object.assign(el.style, { left: s.x + 'px', top: s.y + 'px', font: typeFont(t, z), color: t.color, textAlign: t.align, lineHeight: 1.2 });
-  el.style.height = '0px'; el.style.width = '0px';
-  el.style.width = Math.max(t.size * z * 0.7, el.scrollWidth + t.size * z * 0.5) + 'px';
-  el.style.height = el.scrollHeight + 'px';
-}
-async function endTypeEdit(cancel) {
-  if (!TE.el) return;
-  const el = TE.el, t = TE.t, id = TE.layerId;
-  TE.el = null; el.remove();
-  live = null;
-  if (cancel) { dirty(true); return; }
-  t.str = el.value.replace(/\s+$/, '');
-  try { await document.fonts.load(typeFont(t)); } catch (e) { /* offline: fallback font */ }
-  if (!t.str) { if (id) { const i = layerIndex(id); if (i >= 0 && D.layers.length > 1) { D.layers.splice(i, 1); D.activeId = D.layers[Math.max(0, i - 1)].id; commit('Delete Type'); } } dirty(true); return; }
-  const r = renderTextCanvas(t);
-  const name = t.str.split('\n')[0].slice(0, 32);
-  if (id && layerIndex(id) >= 0) { patchLayer(id, { canvas: r.canvas, x: r.x, y: r.y, text: t, name }); commit('Edit Type'); }
-  else addLayer({ name, canvas: r.canvas, x: r.x, y: r.y, text: t }, 'Type Layer');
-}
-function updateEditingType() { if (TE.el) { Object.assign(TE.t, T.type, { color: TE.t.color }); layoutTypeEdit(); } }
-listeners.add((w) => { if (w === 'zoom' && TE.el) layoutTypeEdit(); });
-defTool({ id: 'type', name: 'Horizontal Type Tool', key: 'T', icon: ICON('M5 5V3h14v2M12 3v18M9 21h6'),
-  down(p) { if (TE.el) { endTypeEdit(); return; } startTypeEdit(p, textLayerAt(p)); },
-  deactivate() { endTypeEdit(); },
-  hover(p) { V.el.style.cursor = textLayerAt(p) ? 'text' : 'text'; },
-  overlay(g) {
-    if (!TE.el) return;
-    layoutTypeEdit();
-  },
-});
+/* Type: see js/type/ */
 
 /* Shapes */
 defTool({ id: 'shape', name: 'Shape Tool', key: 'U', icon: ICON('M3 3h10v10H3zM16 11a5 5 0 1 1 0 10 5 5 0 0 1 0-10z'),

@@ -14,7 +14,8 @@ export function makePlan(apps) {
     const list = apps.filter((a) => a.kind === kind);
     if (!list.length) continue;
     add('chapter', 4, { title: KIND_TITLE[kind], line: KIND_LINE[kind], count: list.length, kind });
-    list.forEach((a, i) => add('app', kind === 'app' ? 6 : 4, { app: a, index: i, of: list.length }));
+    // Shipping apps get a bar and a half; apps still in development flash by; games and experiments get a bar.
+    list.forEach((a, i) => add('app', kind !== 'app' ? 4 : a.status === 'building' ? 3 : 6, { app: a, index: i, of: list.length }));
   }
   add('montage', 10, { games: apps.filter((a) => a.kind === 'game') });
   add('pillars', 24);

@@ -182,6 +182,7 @@ function drawAnts(g, sel = D.sel, offset) {
 
 /* ---------- input ---------- */
 function onPointerDown(e) {
+  if (e.target && e.target.closest && e.target.closest('.type-edit')) return; // caret and selection inside the text box
   if (e.pointerType === 'touch') {
     V.touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (V.touches.size === 2) {

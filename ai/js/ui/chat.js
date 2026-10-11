@@ -119,14 +119,13 @@
         if (this.opts.onDone) this.opts.onDone(c, lastBot);
       } catch (e) {
         c.messages.push({ role: 'assistant', content: '', display: '⚠️ ' + ((e && e.message) || e), error: true, time: Date.now() });
-      } finally {
-        lives.forEach((l) => l && l.end());
-        this.busy = false; this.ctl = null; this.syncButtons();
-        if (window.SlopGuard) SlopGuard.setUnsaved('slop-ai-gen', false);
       }
+      lives.forEach((l) => l && l.end());
       c.model = (E.label() || '');
-      await AI.db.put(c);
-      this.render();
+      try { await AI.db.put(c); } catch (e) { AI.toast('Could not save the chat: ' + e.message); }
+      if (this.conv === c) this.render();
+      this.busy = false; this.ctl = null; this.syncButtons(); // only now: the list shows the saved messages
+      if (window.SlopGuard) SlopGuard.setUnsaved('slop-ai-gen', false);
       return c;
     }
   }

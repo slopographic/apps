@@ -32,13 +32,14 @@ export function makeMontage(seg, ctx) {
   s.render = (lt) => {
     const D = seg.dur;
     full.forEach((f, i) => {
-      const t0 = i * cutLen, on = lt >= t0 - 0.0001 && lt < t0 + cutLen && lt < cutEnd;
+      const last = i === Math.min(games.length, 6) - 1, t0 = i * cutLen;
+      const on = lt >= t0 - 0.0001 && lt < t0 + cutLen + (last ? 0.45 : 0) && (lt < cutEnd || last);
       f.box.style.display = on ? '' : 'none';
       if (f.v) ctx.setTime(f.v, lt - t0 + 1, on);
       if (on) {
         fitOnce(f.box.querySelector('.mt-name'), ctx.W * 0.68);
         const p = (lt - t0) / cutLen;
-        css(f.box, { transform: `scale(${1.15 - p * 0.1 + punch(lt, t0, 0.3) * 0.04}) rotate(${(i % 2 ? 1 : -1) * (1 - p) * 1.5}deg)` });
+        css(f.box, { transform: `scale(${1.15 - p * 0.1 + punch(lt, t0, 0.3) * 0.04}) rotate(${(i % 2 ? 1 : -1) * (1 - p) * 1.5}deg)`, opacity: 1 - k(lt, cutEnd, cutEnd + 0.45) });
         css(f.box.querySelector('.mt-name'), { transform: `translate(-50%, -50%) scale(${lerp(1.25, 1, k(lt, t0, t0 + 0.2, E.outExpo))})` });
       }
     });

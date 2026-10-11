@@ -57,10 +57,13 @@
 .as-feat { display: flex; align-items: center; gap: 16px; font-size: 28px; font-weight: 600; color: var(--bone); background: rgba(255, 255, 255, .05); border: 1px solid rgba(212, 255, 58, .3); padding: 12px 22px 12px 14px; border-radius: 14px; align-self: flex-start; }
 .as-feat i { width: 30px; height: 30px; border-radius: 8px; background: var(--lime); flex: none; position: relative; }
 .as-feat i::after { content: ""; position: absolute; left: 10px; top: 5px; width: 8px; height: 14px; border: solid var(--ink); border-width: 0 4px 4px 0; transform: rotate(45deg); }
-.v .as-dev { left: 50%; top: 22%; width: 940px; height: 588px; margin: -294px 0 0 -470px; }
-.v .as-text { left: 80px; right: 80px; width: auto; top: 46%; transform: none; }
+.v .as-dev { left: 50%; top: 31%; width: 960px; height: 600px; margin: -300px 0 0 -480px; }
+.v .as-text { left: 70px; right: 70px; width: auto; top: 51%; transform: none; gap: 26px; }
 .v .as-num { right: -2%; bottom: -3%; font-size: 460px; }
-.v .as-name { font-size: 130px; }
+.v .as-name { font-size: 150px; }
+.v .as-tag { font-size: 56px; }
+.v .as-feat { font-size: 32px; }
+.v .as-idx { font-size: 26px; }
 
 /* devices */
 .dev { position: absolute; inset: 0; transform-style: preserve-3d; }

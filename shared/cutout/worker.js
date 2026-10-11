@@ -16,7 +16,14 @@ const send = (id, type, data, transfer) => self.postMessage({ id, type, data }, 
 /* ---------- ONNX Runtime ---------- */
 async function gpuOK() {
   if (cfg.backend === 'wasm' || !self.navigator || !navigator.gpu) return false;
-  try { return !!(await navigator.gpu.requestAdapter()); } catch (e) { return false; }
+  try {
+    const a = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+    if (!a) return false;
+    const info = a.info || (a.requestAdapterInfo ? await a.requestAdapterInfo() : {}) || {};
+    // A software adapter (SwiftShader, llvmpipe) is far slower than WebAssembly: skip it.
+    if (a.isFallbackAdapter || info.isFallbackAdapter) return false;
+    return !/swiftshader|llvmpipe|software|basic render/i.test([info.vendor, info.architecture, info.device, info.description].join(' '));
+  } catch (e) { return false; }
 }
 /** A source URL: the vendored file, or a Blob URL from an offline single-file build. */
 const src = (base, file) => (cfg.sources && cfg.sources[file]) || base + file;
@@ -79,8 +86,10 @@ async function infer(modelId, rgba, W, H, progress) {
   const tensor = new ort.Tensor('float32', P.toTensor(small, tw, th, m), [1, 3, th, tw]);
   const feed = (sess) => ({ [sess.inputNames.includes(m.input) ? m.input : sess.inputNames[0]]: tensor });
   let t0 = performance.now(), out;
-  try { out = await s.run(feed(s)); }
-  catch (e) {
+  try {
+    out = await s.run(feed(s));
+    if (s.backend === 'webgpu') { const d = out[s.outputNames[0]].data; for (let i = 0; i < d.length; i += 97) if (!Number.isFinite(d[i])) throw new Error('non-finite output'); }
+  } catch (e) {
     if (s.backend !== 'webgpu') throw e;
     console.warn('SlopCutout: WebGPU run failed, retrying on WebAssembly:', e.message);
     s = await session(m.id, progress, true);

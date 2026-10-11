@@ -70,7 +70,8 @@
     }
     var back = doc.pages[7].items;
     TP.shape(doc, back, 'rect', -b, -b, W + 2 * b, H + 2 * b, { fill: '#d4ff3a' });
-    TP.text(doc, back, 30, H / 2 - 30, W - 60, 60, 'made with Slop Press', 'Zine Title');
+    var bt = TP.text(doc, back, 30, H / 2 - 40, W - 60, 100, 'made with\nSlop Press', 'Zine Title');
+    doc.stories[bt.story].paras.forEach(function (p) { p.ov = { align: 'center' }; });
     return doc;
   } };
   TP.defs.blank = { name: 'Blank A4', desc: 'Four facing pages, two columns', make: function () { return M.create({ pages: 4 }); } };

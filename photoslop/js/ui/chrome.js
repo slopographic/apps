@@ -163,17 +163,11 @@ function buildOptions() {
     case 'bucket': add(optRange('Tolerance', T.bucket, 'tol', 0, 255), optRange('Opacity', T.bucket, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Contiguous', T.bucket, 'contiguous'), optCheck('All layers', T.bucket, 'sampleAll')); break;
     case 'gradient': add(optSelect('', T.gradient, 'type', [['linear', 'Linear'], ['radial', 'Radial'], ['reflected', 'Reflected'], ['angle', 'Angle']]), optSelect('', T.gradient, 'mode', [['fgbg', 'Foreground → Background'], ['fgt', 'Foreground → Transparent'], ['slop', 'Slop Green'], ['spectrum', 'Spectrum']]), optCheck('Reverse', T.gradient, 'reverse'), optRange('Opacity', T.gradient, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
     case 'shape': add(optSelect('', T.shape, 'kind', [['rect', 'Rectangle'], ['rounded', 'Rounded Rectangle'], ['ellipse', 'Ellipse'], ['polygon', 'Polygon'], ['star', 'Star'], ['heart', 'Heart'], ['line', 'Line']], buildOptions), optCheck('Fill (fg)', T.shape, 'fill'), optCheck('Stroke', T.shape, 'stroke'), optRange('Stroke', T.shape, 'strokeW', 1, 200)); if (T.shape.kind === 'rounded') add(optRange('Radius', T.shape, 'radius', 0, 500)); if (T.shape.kind === 'polygon' || T.shape.kind === 'star') add(optRange('Sides', T.shape, 'sides', 3, 40)); break;
-    case 'type': {
-      const fonts = [['Archivo', 'Archivo'], ['Inter Tight', 'Inter Tight'], ['Instrument Serif', 'Instrument Serif'], ['JetBrains Mono', 'JetBrains Mono'], ['Impact', 'Impact'], ['Comic Sans MS', 'Comic Sans MS'], ['Georgia', 'Georgia'], ['Times New Roman', 'Times New Roman'], ['Arial', 'Arial'], ['Courier New', 'Courier New']];
-      add(optSelect('', T.type, 'font', fonts, updateEditingType), optRange('Size', T.type, 'size', 4, 600), optCheck('Bold', T.type, 'bold'), optCheck('Italic', T.type, 'italic'), optSelect('', T.type, 'align', [['left', 'Left'], ['center', 'Center'], ['right', 'Right']], updateEditingType),
-        h('span', { class: 'opt-hint' }, `Click to type · ${MOD}Enter to commit · Esc to cancel`));
-      break;
-    }
+    case 'type': buildTypeOptions(add); break;
     case 'move': add(optCheck('Auto-select layer', T.move, 'auto'), h('span', { class: 'opt-hint' }, 'Drag to move · arrow keys nudge · Ctrl+T to transform')); break;
     case 'crop': add(optCheck('Delete cropped pixels', T.crop, 'del'), h('span', { class: 'opt-spacer' }), h('button', { class: 'btn', type: 'button', onclick: () => { TOOL.crop.activate(); dirty(); } }, 'Reset'), h('button', { class: 'btn primary', type: 'button', onclick: () => TOOL.crop.apply() }, 'Crop')); break;
     case 'eyedropper': add(optSelect('Sample size', T.eyedrop, 'size', [[1, 'Point'], [3, '3 × 3 average'], [5, '5 × 5 average'], [11, '11 × 11 average']].map(([v, l]) => [String(v), l])), optCheck('All layers', T.eyedrop, 'all')); break;
     case 'hand': case 'zoom': add(h('button', { class: 'btn', type: 'button', onclick: () => actualPixels() }, '100%'), h('button', { class: 'btn', type: 'button', onclick: () => fitView() }, 'Fit Screen')); break;
   }
   if (t.id === 'eyedropper') { const s = bar.querySelector('select'); s.value = String(T.eyedrop.size); s.onchange = () => { T.eyedrop.size = +s.value; saveToolOptions(); }; }
-  if (t.id === 'type') $$('input[type=range], input[type=number], input[type=checkbox]', bar).forEach((i) => i.addEventListener('input', updateEditingType));
 }

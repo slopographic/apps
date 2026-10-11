@@ -46,13 +46,13 @@
     const node = AI.msgEl({ role: 'assistant', content: '' }, -1, { live: true });
     const md = node.querySelector('.md');
     list.append(node);
-    let text = '', raf = 0;
-    const paint = () => { raf = 0; md.innerHTML = K.md.render(text.replace(/<tool_call>[\s\S]*$/, '')) + '<span class="caret"></span>'; };
+    let text = '', raf = 0, tm = 0;
+    const paint = () => { cancelAnimationFrame(raf); clearTimeout(tm); raf = tm = 0; md.innerHTML = K.md.render(text.replace(/<tool_call>[\s\S]*$/, '')) + '<span class="caret"></span>'; };
     return {
       node,
-      add(t) { text += t; if (!raf) raf = requestAnimationFrame(paint); },
+      add(t) { text += t; if (!raf) { raf = requestAnimationFrame(paint); tm = setTimeout(paint, 80); } }, // the timer covers throttled frames
       get text() { return text; },
-      end() { if (raf) cancelAnimationFrame(raf); paint(); node.classList.remove('live'); const c = md.querySelector('.caret'); if (c) c.remove(); },
+      end() { paint(); node.classList.remove('live'); const c = md.querySelector('.caret'); if (c) c.remove(); },
     };
   };
 

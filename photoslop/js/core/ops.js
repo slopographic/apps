@@ -27,7 +27,7 @@ function deleteLayer(id = D.activeId) {
 function duplicateLayer(id = D.activeId) {
   const i = layerIndex(id); if (i < 0) return;
   const S = D.layers[i];
-  const L = Object.assign({}, S, { id: uid(), name: S.name + ' copy', canvas: copyCanvas(S.canvas), mask: S.mask && Object.assign({}, S.mask, { canvas: copyCanvas(S.mask.canvas) }), text: S.text && Object.assign({}, S.text) });
+  const L = Object.assign({}, S, { id: uid(), name: S.name + ' copy', canvas: copyCanvas(S.canvas), mask: S.mask && Object.assign({}, S.mask, { canvas: copyCanvas(S.mask.canvas) }), text: S.text && normText(S.text) });
   D.layers.splice(i + 1, 0, L); D.activeId = L.id;
   commit('Duplicate Layer');
 }
@@ -114,7 +114,7 @@ function imageSize(w, hh, smooth = true) {
     if (smooth) c = resampleCanvas(L.canvas, nw, nh); else { c = mkCanvas(nw, nh); const g = cx(c); g.imageSmoothingEnabled = false; g.drawImage(L.canvas, 0, 0, nw, nh); }
     let mask = L.mask;
     if (mask) mask = Object.assign({}, mask, { canvas: resampleCanvas(mask.canvas, Math.max(1, Math.round(mask.canvas.width * sx)), Math.max(1, Math.round(mask.canvas.height * sy))), x: Math.round(mask.x * sx), y: Math.round(mask.y * sy) });
-    return Object.assign({}, L, { canvas: c, x: Math.round(L.x * sx), y: Math.round(L.y * sy), mask, text: L.text && Object.assign({}, L.text, { x: L.text.x * sx, y: L.text.y * sy, size: L.text.size * Math.sqrt(sx * sy) }) });
+    return Object.assign({}, L, { canvas: c, x: Math.round(L.x * sx), y: Math.round(L.y * sy), mask, text: L.text && scaleTextModel(L.text, sx, sy) });
   });
   remapGuides((g) => ({ o: g.o, pos: g.pos * (g.o === 'v' ? sx : sy) }));
   D.w = Math.round(w); D.h = Math.round(hh); D.sel = null;
