@@ -19,11 +19,13 @@
   function ease(t) { return 1 - Math.pow(1 - t, 3); }
   function stop() { if (raf) cancelAnimationFrame(raf); raf = 0; anim = null; }
 
-  function frame() {
+  /** One animation frame at time now (performance.now() units; requestAnimationFrame passes its own). */
+  function frame(now) {
+    if (raf) cancelAnimationFrame(raf);
     raf = 0;
     var a = anim;
     if (!a) return;
-    var t = Math.min(1, Math.max(0, (performance.now() - a.t0) / ZOOM_MS));
+    var t = Math.min(1, Math.max(0, ((now == null ? performance.now() : now) - a.t0) / ZOOM_MS));
     if (t >= 1) { S.view.zoom = a.zt; S.view.x = a.xt; S.view.y = a.yt; anim = null; }
     else {
       var e = ease(t), z = a.z0 + (a.zt - a.z0) * e;
@@ -36,6 +38,8 @@
   }
   /** Starts an eased move from the view on screen now. A move that starts during another one continues from it. */
   function run(a) { anim = a; if (!raf) raf = requestAnimationFrame(frame); }
+  /** Test and tooling hook: runs the frame for time now, so the ease can be read at a chosen moment. */
+  SV.zoomTick = function (now) { frame(now); };
   function from(zt) { var v = S.view; return { z0: v.zoom, x0: v.x, y0: v.y, zt: zt, t0: performance.now(), px: null }; }
   function animateTo(zt, x, y) { var a = from(clampZoom(zt)); a.xt = x; a.yt = y; run(a); }
   function animateAt(z, cx, cy) {
