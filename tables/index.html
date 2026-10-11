@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Tables — Slopographic</title>
+  <meta name="description" content="Slop Tables: a spreadsheet that runs 100% in your browser. Formulas, number formats, sheets, freeze panes, and XLSX and CSV export. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://slopographic.com/tables/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slopographic">
+  <meta property="og:title" content="Slop Tables — Slopographic">
+  <meta property="og:description" content="A spreadsheet that runs in your browser: 300+ formulas, XLSX and CSV export. Nothing is uploaded.">
+  <meta property="og:url" content="https://slopographic.com/tables/">
+  <meta property="og:image" content="https://slopographic.com/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-tables.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
+  <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
+  <link rel="stylesheet" href="css/tables.css" data-src="tables/css/tables.css">
+  <script src="../shared/guard.js" defer data-offline="strip"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop Tables</b><a class="home-link" href="../">slopographic</a></div>
+      <nav class="menus" id="menus" aria-label="Main menu"></nav>
+      <div class="tb-group">
+        <button type="button" class="tb" id="btnUndo" aria-label="Undo" title="Undo" disabled>↶</button>
+        <button type="button" class="tb" id="btnRedo" aria-label="Redo" title="Redo" disabled>↷</button>
+        <button type="button" class="tb" id="btnBold" aria-label="Bold" title="Bold (Ctrl+B)" aria-pressed="false"><b>B</b></button>
+        <button type="button" class="tb" id="btnItalic" aria-label="Italic" title="Italic (Ctrl+I)" aria-pressed="false"><i>I</i></button>
+        <label class="nf-wrap"><span class="sr">Number format</span><select id="nf" class="nf" title="Number format"></select></label>
+      </div>
+      <span class="tb-flex"></span>
+      <span class="local-badge" title="Your workbook is processed on this device. Nothing is uploaded."><span>100% local</span></span>
+      <label class="fname"><span class="sr">Workbook name</span><input id="fileName" type="text" value="Untitled spreadsheet" spellcheck="false" autocomplete="off" aria-label="Workbook name"></label>
+      <button type="button" class="btn primary" id="btnSave" title="Save to Slop Drive (Ctrl+S)">Save</button>
+    </header>
+
+    <div class="fbar">
+      <input id="namebox" class="namebox" type="text" spellcheck="false" autocomplete="off" aria-label="Name box" value="A1">
+      <span class="fx-label" aria-hidden="true">fx</span>
+      <input id="fx" class="fx" type="text" spellcheck="false" autocomplete="off" aria-label="Formula bar">
+    </div>
+
+    <main class="grid" id="grid" tabindex="0" aria-label="Spreadsheet grid" aria-multiselectable="true">
+      <div class="corner" id="corner"></div>
+      <div class="colhead" id="colhead"></div>
+      <div class="rowhead" id="rowhead"></div>
+      <div class="vp" id="vp"><div class="sizer" id="sizer"></div></div>
+      <div class="plane" id="plane">
+        <div id="cells"></div>
+        <div class="selrect" id="selrect" hidden></div>
+        <div class="cursor" id="cursor"></div>
+        <input id="editor" class="editor" type="text" spellcheck="false" autocomplete="off" aria-label="Cell editor">
+      </div>
+    </main>
+
+    <div class="bottombar">
+      <div class="tabs" id="tabs" role="tablist" aria-label="Sheets"></div>
+      <span class="status" id="status" aria-live="polite"></span>
+      <span class="save-state" id="saveState"></span>
+    </div>
+  </div>
+
+  <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/apps.js" data-src="shared/apps.js"></script>
+  <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
+  <script src="../shared/hub.js" data-src="shared/hub.js"></script>
+  <script type="module" src="js/ui/main.js" data-src="tables/js/ui/main.js"></script>
+</body>
+</html>
