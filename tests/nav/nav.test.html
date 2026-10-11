@@ -19,7 +19,6 @@
     W = new Proxy({}, { get: (_, k) => win.eval(String(k)) });
     N = win.SlopNav;
     N.store.setPreset('photoslop', 'slop');
-    return W;
   }
   async function reload() {
     const done = new Promise((r) => frame().addEventListener('load', r, { once: true }));
@@ -164,6 +163,7 @@
       await waitFor(() => !dialogUp());
     });
   });
+  SlopTest.run({ name: 'Navigation presets' });
   </script>
 </body>
 </html>
