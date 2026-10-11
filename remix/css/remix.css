@@ -44,3 +44,10 @@ h2 small { font-weight: 400; text-transform: none; }
 .rm-btn.primary { background: var(--rm-accent); border-color: var(--rm-accent); color: #fff; }
 .rm-btn.wide { width: 100%; margin-top: 8px; }
 @media (max-width: 960px) { .rm-main { grid-template-columns: 1fr; } .rm-canvas { max-height: 70vh; } }
+/* Timing, locks and audio */
+.rm-slots { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0; }
+.rm-slotlock { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 12px; }
+.rm-slotlock.on { background: var(--rm-accent); border-color: var(--rm-accent); color: #fff; }
+.rm-lockbtn { border: 0; background: none; color: var(--rm-muted); cursor: pointer; padding: 0 2px; vertical-align: middle; }
+.rm-cuts li.locked .rm-lockbtn { color: var(--rm-accent); }
+.rm-lockbadge { font-size: 11px; color: var(--rm-accent); border: 1px solid var(--rm-accent); border-radius: 4px; padding: 0 4px; }
