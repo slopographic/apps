@@ -48,7 +48,7 @@ function wireMobile() {
 }
 
 async function boot() {
-  setTheme(store.get('theme', 'pro'));
+  if (!window.SlopTheme) setTheme(store.get('theme', 'pro')); // the shared script has already painted the choice
   initView();
   initBoxTool();
   initGuideInput();
