@@ -7,14 +7,18 @@ backups. Money is integer minor units; the line maths is `SlopDocs.model` and `S
 
 ## Files
 
-- `index.html`: the page (Orders list, Order editor, Data). Loads `shared/data`, `shared/docs`, the core and the UI.
+- `index.html`: the page (Orders list, Order editor, Data). Loads `shared/data`, `shared/docs` (the paper view, templates and
+  PDF renderer, see `shared/docs/HANDOFF.md`), `vendor/pdf-lib/pdf-lib.min.js`, the core and the UI.
 - `css/orders.css`: tokens (dark by default, `data-theme="light"`), order rows, form, line cards. Works at 390 px.
 - `js/core/util.js`: refusals in plain words, settings, money formatting, the DOM builder.
 - `js/core/orders.js`: list with status filter and search, customers, products, save, status change, cancel.
 - `js/core/fulfil.js`: fulfilment through `SlopData.stock`.
 - `js/core/actions.js`: confirm, convert, fulfil and cancel by id (shared by the list menu and the editor).
 - `js/ui/list.js`: the list, row menu (right-click or Menu key).
-- `js/ui/editor.js`: one order: customer, date, notes, lines, totals, the actions for its status.
+- `js/ui/editor.js`: one order: customer, date, notes, lines, totals, the actions for its status, Export PDF.
+- `js/core/pdf.js`: the order with its customer and company block (`load`), its view (`viewOf`) and the PDF (`orderPdf`).
+- `js/ui/page.js`: the order on the page: the paper view in its template, with in-place editing, the layout pick, and the PDF
+  download. Draft and confirmed orders edit in place; fulfilled and cancelled ones are read only.
 - `js/ui/app.js`, `commands.js`, `data.js`: boot and routes (`#list`, `#new`, `#o/<id>`, `#data`), SlopCmd commands,
   backup and restore.
 - `js/core/samples.js`: the io for random samples (no DOM). `js/ui/samples.js`: the list buttons and the editor action.
@@ -44,11 +48,18 @@ backups. Money is integer minor units; the line maths is `SlopDocs.model` and `S
 - **Delete all samples cancels, it does not delete.** Orders cannot be deleted (their number is taken on creation, and a
   deleted number would leave a gap), so a sample order that is a draft or confirmed becomes cancelled and stays in the
   list with its number. Fulfilled samples stay. Sample customers and products that no live invoice or order uses are deleted.
+- Page and PDF: the order is drawn as a page (Page / Form switch in the editor; Form is the default on a phone). Click the
+  company name, customer, date, notes, a line's description, quantity, unit price, tax or discount to change it (the same
+  checks as the form; a wrong value is shown and not saved until fixed). "Layout" picks one of five templates or random from
+  the order's seed. "Export PDF" saves the changes first, then downloads `<order number>.pdf` in that template, with the
+  company block from the settings, the lines, totals, notes and a footer.
+- The company name on the page is the shared settings' company name (the same value the settings page edits).
 - SlopCmd commands (Ctrl+K), SlopGuard (unsaved edits warn before leaving), SlopHub registration.
 
 ## Data written
 
-- `orders` (create, edit while draft or confirmed, status changes, `invoiceId`, `sample`), `customers` (inline adds and samples),
+- `orders` (create, edit while draft or confirmed, status changes, `invoiceId`, `sample`, `pdfSeed`, `pdfLayout`),
+  `customers` (inline adds and samples), `settings` (only when the company name is changed on the page),
   `stockMovements` (only through `SlopData.stock`: `sale` on fulfil, `return` when a fulfil is undone), `invoices`
   (drafts from conversion only). The order number comes from the `order` sequence.
 
@@ -62,6 +73,8 @@ backups. Money is integer minor units; the line maths is `SlopDocs.model` and `S
 - The line currency is the order's currency (the base currency). No per-order currency choice in the UI.
 - The editor does not redraw under you when the same order changes in another tab; the list does.
 - No delete: cancel instead (the data layer's rule).
+- The PDF uses standard Helvetica or Times (see shared/docs/HANDOFF.md); characters outside Latin become "?". The paper on
+  screen is not paginated; the PDF is.
 - Customers are chosen from the list; there is no customer editor here (use the invoices app or the data import).
 
 ## Tests
@@ -70,6 +83,9 @@ backups. Money is integer minor units; the line maths is `SlopDocs.model` and `S
   before tax, gapless order numbers, the editor's text parsers, the status path (draft, confirmed, fulfilled, no way
   back), fulfil taking stock out, fulfil refused with no stock and no change, convert copying the lines and linking
   both records, the second convert refused, a draft refused for conversion, and the list filter and search.
+- `node tests/run.mjs orders` also runs `tests/orders/paper.test.html`: in the iframe of the real page, click the customer
+  and a line description on the page, a wrong date is refused with the form's message, Save draft stores the edits, and
+  Export PDF downloads a PDF (`%PDF-` bytes).
 - The random samples are tested by `node tests/run.mjs samples` (the Node test `tests/node/invoices-orders-samples.test.mjs`
   covers both apps; the browser test is the invoices one). Orders run through the same generator and runner as invoices.
 

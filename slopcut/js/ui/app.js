@@ -95,18 +95,32 @@
 
   /* ------------------------------------------------------------ drag and drop of files */
   function hasFiles(e) { return e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files'); }
+  // Files: a timeline lane takes the batch where it is dropped (TL.dropFiles, one placement). Everywhere else, SlopDrop
+  // imports each file (A.importFiles, the same path as Open) and shows its progress in a strip over the monitor.
   function wireDrop() {
-    let depth = 0;
-    const ov = A.els.dropOverlay;
-    addEventListener('dragenter', (e) => { if (!hasFiles(e)) return; e.preventDefault(); depth++; ov.hidden = false; });
-    addEventListener('dragleave', (e) => { if (!hasFiles(e)) return; depth = Math.max(0, depth - 1); if (!depth) ov.hidden = true; });
-    addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
-    addEventListener('drop', (e) => {
-      if (!hasFiles(e)) return;
-      e.preventDefault(); depth = 0; ov.hidden = true;
-      const files = [...e.dataTransfer.files];
-      const tl = SE.timeline && SE.timeline.dropTarget(e);
-      if (tl) SE.timeline.dropFiles(files, tl); else A.importFiles(files);
+    document.getElementById('timeline').addEventListener('drop', (e) => {
+      if (!hasFiles(e) || !SE.timeline) return;
+      const tl = SE.timeline.dropTarget(e);
+      if (!tl) return;
+      e.preventDefault(); e.sdHandled = true;
+      SE.timeline.dropFiles([...e.dataTransfer.files], tl);
+    });
+    const zone = document.createElement('div');
+    zone.id = 'scDrop'; zone.className = 'sc-dropstrip';
+    document.getElementById('monitor').append(zone);
+    SlopDrop.attach(zone, {
+      accept: {
+        types: ['video/*', 'audio/*', 'image/*'],
+        exts: ['.mp4', '.m4v', '.mov', '.webm', '.mkv', '.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.slopedit'],
+        noun: 'a video, audio, picture or project',
+      },
+      compact: true,
+      targets: [document.body],
+      process: async (file) => {
+        const metas = await A.importFiles([file]);
+        if (!metas.length && !/\.slopedit$/i.test(file.name)) throw new Error('could not be imported');
+        return file.name;
+      },
     });
   }
 

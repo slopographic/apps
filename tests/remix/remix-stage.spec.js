@@ -119,6 +119,7 @@
       await ready();
       if (RM().state.items.length < 4) await addStills(6);
       $('rm-random').checked = false;
+      RM().state.locks = [];
       $('rm-base').value = 'grid-1x2';
       change($('rm-base'));
       $('rm-target').value = '4';
@@ -126,7 +127,7 @@
       RM().preview.seek(0);
       const cut = RM().state.plan.cuts[0];
       const a = cut.find((x) => x.slot === 0).media, b = cut.find((x) => x.slot === 1).media;
-      expect(a !== b).toBe(true);
+      if (a === b) throw new Error('same clip in both slots: ' + JSON.stringify(cut) + ' items ' + RM().state.items.length);
       const c0 = RM().moves.rectOf(RM().moves.regionOf(0, 0)), c1 = RM().moves.rectOf(RM().moves.regionOf(0, 1));
       const at = (r) => ({ clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, button: 0, buttons: 1, bubbles: true, pointerId: 7 });
       $('rm-canvas').dispatchEvent(new (win().PointerEvent)('pointerdown', at(c0)));

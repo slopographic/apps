@@ -86,26 +86,18 @@
 
     it('Export PDF downloads a real PDF of the page', async () => {
       const NSI = W().SlopInvoices;
-      const trace = [];
+      await until(() => !NSI.editor.isDirty() && NSI.editor.id() && button('Export PDF'), 'the saved invoice');
       const blobs = [];
       const make = W().URL.createObjectURL;
       W().URL.createObjectURL = (b) => { blobs.push(b); return make.call(W().URL, b); };
-      const origPdf = NSI.preview.pdf;
-      NSI.preview.pdf = (id) => { trace.push(`pdf ${id}`); return origPdf(id); };
-      const origLoad = NSI.context.load;
-      NSI.context.load = (id) => { trace.push('load'); return origLoad(id); };
       try {
         button('Export PDF').click();
-        await sleep(3000);
-        if (!blobs.length) throw new Error(`DBG trace ${trace.join(' / ')} msg ${frame.contentDocument.querySelector('#eMsg').textContent}`);
         const blob = await until(() => blobs[0], 'the PDF download');
         const bytes = new Uint8Array(await blob.arrayBuffer());
         expect(String.fromCharCode(...bytes.slice(0, 5))).toBe('%PDF-');
         expect(blob.type).toBe('application/pdf');
       } finally {
         W().URL.createObjectURL = make;
-        NSI.preview.pdf = origPdf;
-        NSI.context.load = origLoad;
       }
     });
   });
