@@ -91,7 +91,7 @@
       const f = s.fill === 'cover' ? Math.max(w / sw, h / sh) : Math.min(w / sw, h / sh);
       dw = sw * f; dh = sh * f;
       const [ax, ay] = ANCHORS[s.anchor];
-      x = (w - dw) * ax; y = (h - dh) * ay;
+      x = (w - dw) * ax || 0; y = (h - dh) * ay || 0; // || 0 turns a -0 into 0
     }
     return { w, h, x, y, dw, dh, fill: boxed ? s.fill : 'none' };
   };

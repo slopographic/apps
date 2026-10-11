@@ -75,7 +75,7 @@
     });
     CFG.commands = () => D.commands({ app: APP, prefix: 'slides', example: EXAMPLE() });
     CFG.menu = () => D.menuItems({ app: APP, example: EXAMPLE() });
-    D.install({ app: APP });
+    D.install({ app: APP, dragover: true });
   }
 
   function EXAMPLE() {

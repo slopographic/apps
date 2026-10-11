@@ -16,3 +16,4 @@
   .people-text { flex-basis: 100%; }
   .people-prog { max-width: none; flex-basis: 100%; }
 }
+.people-mode { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }

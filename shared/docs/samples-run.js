@@ -92,7 +92,7 @@
 
   /**
    * Deletes every live sample of one kind (io.sampleDocuments and io.removeDocument), then the sample customers and
-   * products nothing else uses. Records the data layer refuses stay, and the reasons are listed in kept.
+   * products that no live invoice or order uses. Records the data layer refuses stay, and the reasons are listed in kept.
    * Returns a Result: { documents, customers, products, kept: [string] }.
    */
   async function removeSamples(io) {
@@ -104,11 +104,14 @@
       if (r.ok) out.documents++;
       else out.kept.push(`${d.number || 'draft'}: ${why(r)}`);
     }
-    const used = new Set();
+    const used = new Set(), usedProducts = new Set();
     for (const name of ['invoices', 'orders']) {
       const rows = await S.store.list(name);
       if (!rows.ok) return rows;
-      for (const x of rows.value) used.add(x.customerId);
+      for (const x of rows.value) {
+        used.add(x.customerId);
+        for (const l of x.lines || []) if (l.productId) usedProducts.add(l.productId);
+      }
     }
     const cs = await S.store.list('customers');
     if (!cs.ok) return cs;
@@ -118,7 +121,7 @@
     }
     const ps = await S.store.list('products');
     if (!ps.ok) return ps;
-    for (const p of ps.value.filter((x) => x.sample)) {
+    for (const p of ps.value.filter((x) => x.sample && !usedProducts.has(x.id))) {
       const r = await S.store.remove('products', p.id);
       if (r.ok) out.products++;
     }

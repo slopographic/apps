@@ -38,6 +38,7 @@
     const prog = $('peopleProg');
     prog.hidden = !(on && (s.running || s.paused) && s.pending + s.done > 0);
     if (!prog.hidden) { prog.max = Math.max(1, s.done + s.pending); prog.value = s.done; }
+    if (F() && F().view) $('peopleMode').value = F().view.mode();
     $('peopleStatus').textContent = s.running ? `Checking photos on this device: ${s.done} done, ${s.pending} to go.` : (s.paused ? 'Paused.' : '');
   }
 
@@ -48,6 +49,12 @@
     $('peopleOn').addEventListener('click', () => { if (F()) F().askOptIn('gallery'); });
     $('peopleGo').addEventListener('click', () => G.people.start());
     $('peopleStop').addEventListener('click', () => G.people.stop());
+    $('peopleAll').addEventListener('click', () => { if (G.facesUi) G.facesUi.open(); });
+    if (F() && F().view) {
+      const mode = $('peopleMode');
+      mode.addEventListener('change', () => F().view.setMode(mode.value));
+      F().view.onChange(render);
+    }
     G.state.subscribe((what) => {
       if (what !== 'view') return;
       if (G.state.state.view === 'people' && F() && !F().enabled() && !F().asked()) F().askOptIn('gallery');

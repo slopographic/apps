@@ -9,6 +9,7 @@
   'use strict';
   const C = (g.SlopConfig = g.SlopConfig || {});
   const FORMAT = 'slop-config', VERSION = 1, SHARED = '*', SHARED_APP = 'slop';
+  const APP_RX = /^[a-z0-9][a-z0-9-]{0,39}$/; // app ids come from shared/apps.js; one of them is '3d'
   const LIMITS = Object.freeze({ bytes: 5 * 1024 * 1024, text: 5000, str: 200, items: 200, rows: 1000, cols: 100, errors: 50 });
   const ENVELOPE_KEYS = Object.freeze(['format', 'version', 'kind', 'app', 'name', 'description', 'created', 'data']);
   const KIND_RX = /^[a-z][a-z0-9-]{0,39}$/;
@@ -52,7 +53,7 @@
    */
   function registerKind(kind, app, schema, apply, opts = {}) {
     if (typeof kind !== 'string' || !KIND_RX.test(kind)) throw new Error(`registerKind: bad kind name "${kind}"`);
-    if (app !== SHARED && (typeof app !== 'string' || !KIND_RX.test(app))) throw new Error(`registerKind: bad app id "${app}"`);
+    if (app !== SHARED && (typeof app !== 'string' || !APP_RX.test(app))) throw new Error(`registerKind: bad app id "${app}"`);
     if (!schema || typeof schema !== 'object' || !schema.fields) throw new Error(`registerKind: ${kind} needs a schema with fields`);
     if (typeof apply !== 'function') throw new Error(`registerKind: ${kind} needs an apply function`);
     const spec = { type: 'object', fields: schema.fields, strict: schema.strict !== false };
@@ -91,7 +92,7 @@
     return env;
   }
 
-  C.consts = { FORMAT, VERSION, SHARED, SHARED_APP, LIMITS, ENVELOPE_KEYS, KIND_RX };
+  C.consts = { FORMAT, VERSION, SHARED, SHARED_APP, LIMITS, ENVELOPE_KEYS, KIND_RX, APP_RX };
   C.F = F;
   C.registerKind = registerKind;
   C.getKind = getKind;

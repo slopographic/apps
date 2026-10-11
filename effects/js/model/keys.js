@@ -76,6 +76,12 @@
     return Array.isArray(e) ? e.slice() : e;
   }
 
+  /** A time moved onto the nearest frame of the composition, kept inside it. */
+  function snapTime(doc, t) {
+    const fps = doc.comp.fps;
+    return Math.min(doc.comp.duration, Math.max(0, Math.round(clampTime(doc, t) * fps) / fps));
+  }
+
   function clampTime(doc, t) {
     if (!Number.isFinite(t)) throw new RangeError('key time must be a finite number');
     return Math.min(doc.comp.duration, Math.max(0, t));
@@ -139,7 +145,7 @@
       const keys = keysOf(next, grp.layer, grp.prop);
       const moving = keys.filter((k) => grp.times.some((t) => Math.abs(t - k.t) < TOL));
       const staying = keys.filter((k) => !moving.includes(k));
-      const landed = moving.map((k) => ({ ...k, t: clampTime(next, k.t + delta) }));
+      const landed = moving.map((k) => ({ ...k, t: snapTime(next, k.t + delta) }));
       const landedTimes = new Set(landed.map((k) => k.t));
       setTrack(next, grp.layer, grp.prop, staying.filter((k) => !landedTimes.has(k.t)).concat(landed));
     }

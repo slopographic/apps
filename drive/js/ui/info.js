@@ -42,15 +42,23 @@
       r.isFolder ? b('Open', () => DR.open(r), 'primary') : b('Quick look', () => DR.quickLook(r)),
       b(r.isFolder ? 'Download .zip' : 'Download', () => DR.download([r])), b(r.starred ? 'Unstar' : 'Star', () => DR.setStar([r], !r.starred)),
       DR.isCleanable(r) ? b('Remove metadata…', () => DR.openInClean(r)) : null,
-      DR.isFaceable(r) ? b('Find faces', () => DR.findFaces([r])) : null);
+      DR.isFaceable(r) ? b('Find faces', () => DR.findFaces([r])) : null,
+      DR.isFaceable(r) ? b('Faces and people…', () => DR.openFaces()) : null);
   }
-  /** The face count row for a picture, when face detection is on: the stored count, or "Not checked yet". */
-  function faceRow(r, facts) {
+  /** The face row for a picture, when face detection is on: the badge with the count (it draws the boxes on the preview
+   * when opened, shared/faces/view.js), or "Not checked yet". With the mode Off, the count as text. */
+  function faceRow(r, facts, preview) {
     if (!DR.isFaceable(r) || !window.SlopFaces || !window.SlopFaces.enabled()) return;
     const cell = el('dd', { class: 'faces-n' }, 'Not checked yet');
     facts.append(el('dt', null, 'Faces'), cell);
-    DR.facesOf(r).then((row) => { if (row) cell.textContent = DR.faceText(row.faces.length); });
+    DR.facesOf(r).then((row) => {
+      if (!row) return;
+      if (window.SlopFaces.view.mode() === 'off') { cell.textContent = DR.faceText(row.faces.length); return; }
+      cell.textContent = '';
+      DR.attachFaces(preview, r, cell).then((h) => { if (h) faceH = h; });
+    });
   }
+  let faceH = null; // the badge and boxes of the shown picture (destroyed when the panel is rebuilt)
   function single(r) {
     const head = el('div', { class: 'info-h' }, DR.badge(r, 'badge sm'), el('h2', { title: r.name }, r.name));
     const loc = r.parent ? DR.pathOf(r.parent).map((f) => f.name).join(' / ') : 'Slop Drive';
@@ -65,8 +73,9 @@
     const facts = rows([['Kind', DR.kindLabel(r)], ['Type', r.type], ['Size', `${DR.fmtSize(r.size)} (${(r.size || 0).toLocaleString()} bytes)`], ['Made by', DR.appName(r.from)],
       ['Location', loc], ['Added', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], ['Opened', r.opened ? DR.fmtFull(r.opened) : 'Never'], r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null]);
     if (['image', 'video', 'pdf'].includes(DR.kindOf(r))) facts.append(el('dt', null, DR.kindOf(r) === 'pdf' ? 'Pages' : 'Dimensions'), dd);
-    faceRow(r, facts);
-    return [head, DR.previewOf(r), DR.pvGrip(), actions(r), facts, tagBox(r)];
+    const pv = DR.previewOf(r);
+    faceRow(r, facts, pv);
+    return [head, pv, DR.pvGrip(), actions(r), facts, tagBox(r)];
   }
   /** A file's tags: a chip per tag with a remove button, and a box that adds more (Enter or a comma). */
   function tagBox(r) {
@@ -108,6 +117,7 @@
     const key = DR.version() + '|' + (items.length ? items.map(DR.keyOf).join(',') : 'place:' + S.section + ':' + S.cwd + ':' + (DR.lastVisible || []).length);
     if (key === shownKey && !force) return;
     shownKey = key; free();
+    if (faceH) { faceH.destroy(); faceH = null; }
     const close = el('button', { type: 'button', class: 'tb info-x', 'aria-label': 'Close details' }, DR.icon('x'));
     close.addEventListener('click', () => { if (document.body.classList.contains('sheet-open')) DR.sheet(false); else DR.toggleInfo(false); });
     box.replaceChildren(DR.$('infoGrip'), close, ...(items.length === 1 ? single(items[0]) : items.length ? many(items) : place()));

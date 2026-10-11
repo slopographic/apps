@@ -23,7 +23,9 @@ journal in the same transaction); conversion from an order through `SlopData.bil
 - `js/ui/print.js`: the Print view (browser print dialog, PDF, back).
 - `js/ui/app.js`, `commands.js`, `data.js`: boot and routes (`#list`, `#new`, `#i/<id>`, `#p/<id>`, `#data`), SlopCmd
   commands, backup and restore.
-- Shared with orders, in `shared/docs/`: `model.js`, `lines.js`, `customer-dialog.js`.
+- `js/core/samples.js`: the io for random samples (no DOM). `js/ui/samples.js`: the list buttons and the editor action.
+- Shared with orders, in `shared/docs/`: `model.js`, `lines.js`, `customer-dialog.js`, `product-dialog.js`, and the sample
+  generator: `samples.js` (pure plan), `samples-run.js` (create and delete through the app's io), `samples-dialog.js` (the buttons).
 
 ## What works
 
@@ -43,12 +45,32 @@ journal in the same transaction); conversion from an order through `SlopData.bil
   rate, total, paid and balance due. Print opens the browser's print dialog, and print CSS hides the app chrome.
 - PDF: one A4 page with the same content. Export from the editor, the list menu or the Print view.
 - Data: full backup download and validated restore. SlopCmd commands, SlopGuard, SlopHub registration.
+- Random samples (see below): "Random sample" on the list and in the editor (new draft), "Random samples…" (options),
+  "Delete all samples" (SlopUI.confirm). The same actions are in the palette (Ctrl+K).
 
 ## Data written
 
-- `invoices` (drafts, issue, status changes made by billing only, `orderId`), `payments` (through billing only),
-  `journal` (through billing only: issue, payment, void reversal), `customers` (inline adds). The invoice number comes
-  from the `invoice` sequence, taken at issue.
+- `invoices` (drafts, issue, status changes made by billing only, `orderId`, `sample`), `payments` (through billing only),
+  `journal` (through billing only: issue, payment, void reversal), `customers` (inline adds and samples). The invoice number
+  comes from the `invoice` sequence, taken at issue.
+
+## Random samples
+
+- **Random sample**: one draft with a customer (a random one from the list; with none, a generated customer is saved), 1 to 6
+  lines (catalogue products when there are any, generated products saved when the list is empty), random quantities (1 to
+  12), catalogue prices and tax rates in the base currency, a discount on about a quarter of lines, a date in the last 90
+  days, a due date (the payment terms), and a note. The editor's "Random sample" does the same and opens it.
+- **Random samples…** (SlopUI dialog): count (1 to 50), seed (blank = new; same seed, count and dates give the same
+  documents), currency, the date range, and whether to create missing customers and products. Five or more show a progress bar.
+  The summary gives the count, totals per currency, customers and products added, the seed, and any refusals.
+- Samples are **drafts**, so they take no invoice number: the gapless sequence is only used when one is issued. Each
+  document is one save (one record, in the store's transaction). The apps have no undo stack, so Delete all samples is the way back.
+- **Samples are marked** `sample: true` (the schema's optional flag on invoices, orders, customers and products). The list
+  shows a Sample chip.
+- **Delete all samples** deletes sample drafts (an issued sample stays: void it to remove it), then sample customers and
+  products that no live invoice or order uses. A customer or product used by any live document, including an order, stays.
+- Money is integer minor units and every total comes from `SlopDocs.model.totals`; the saved total must equal it, or the
+  sample is refused. Options are checked before anything is saved.
 
 ## Limits
 
@@ -70,3 +92,8 @@ journal in the same transaction); conversion from an order through `SlopData.bil
   void refused after a payment, void before a payment reversing the entry and keeping the number, overdue and the
   outstanding balance per customer, an order invoiced through the data layer, the printable preview listing the number,
   customer, lines and total, the PDF having one page, and a PDF with 31 lines refused.
+- `node tests/run.mjs samples` runs `tests/invoices/samples.test.html` (three random invoices saved as sample drafts with
+  totals equal to the model, the same seed giving the same documents, delete all samples removing the three drafts and
+  nothing else, an issued sample left alone) and `tests/node/invoices-orders-samples.test.mjs` (a fixed seed: plans and
+  saved totals validate against the schema across 300 seeds, the batch is repeatable, and bad options save nothing).
+

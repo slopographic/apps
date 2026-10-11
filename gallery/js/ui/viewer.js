@@ -95,7 +95,7 @@
     const next = await G.urls.original(id);
     if (my !== token) { G.urls.release(next); return; }
     mount(next, (G.library.photo(id) || {}).name || '');
-    if (pv && G.people) G.people.overlay(pv.el, id); // face boxes, while face detection is on
+    if (pv && G.facesUi) G.facesUi.attach(pv.el, root.querySelector('.v-top'), id); // the face badge and boxes (shared/faces/view.js)
     root.querySelector('[data-act="play"]').textContent = timer ? 'Pause' : 'Play';
     syncButtons();
     renderInfo();
@@ -115,6 +115,7 @@
     stopSlides();
     token++;
     dropPreview();
+    if (G.facesUi) G.facesUi.detach();
     root.hidden = true;
     if (opener && opener.isConnected) try { opener.focus({ preventScroll: true }); } catch (e) { /* gone */ }
   }

@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="css/gallery.css" data-src="gallery/css/gallery.css">
   <link rel="stylesheet" href="css/viewer.css" data-src="gallery/css/viewer.css">
   <link rel="stylesheet" href="css/people.css" data-src="gallery/css/people.css">
+  <link rel="stylesheet" href="../shared/faces/faces.css" data-src="shared/faces/faces.css">
   <link rel="stylesheet" href="css/drive.css" data-src="gallery/css/drive.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
@@ -115,6 +116,8 @@
             <button type="button" class="tb-btn" id="peopleOn" hidden>Turn on face detection…</button>
             <button type="button" class="tb-btn" id="peopleGo" hidden>Find faces</button>
             <button type="button" class="tb-btn" id="peopleStop" hidden>Stop</button>
+            <label class="people-mode">Show faces <select id="peopleMode" class="set-select"><option value="off">Off</option><option value="boxes">Boxes on photos</option><option value="count">Count only</option></select></label>
+            <button type="button" class="tb-btn" id="peopleAll">Faces and people…</button>
           </div>
         </div>
         <div class="grid" id="grid" tabindex="0" aria-label="Photos, newest first">
@@ -159,6 +162,12 @@
   <script src="../shared/faces/index.js" data-src="shared/faces/index.js"></script>
   <script src="../shared/faces/consent.js" data-src="shared/faces/consent.js"></script>
   <script src="../shared/faces/overlay.js" data-src="shared/faces/overlay.js"></script>
+  <script src="../shared/faces/recognize.js" data-src="shared/faces/recognize.js"></script>
+  <script src="../shared/faces/view.js" data-src="shared/faces/view.js"></script>
+  <script src="../shared/faces/groups.js" data-src="shared/faces/groups.js"></script>
+  <script src="../shared/faces/people.js" data-src="shared/faces/people.js"></script>
+  <script src="../shared/faces/crops.js" data-src="shared/faces/crops.js"></script>
+  <script src="../shared/faces/panel.js" data-src="shared/faces/panel.js"></script>
   <script src="js/io/hash.js" data-src="gallery/js/io/hash.js"></script>
   <script src="js/io/exif.js" data-src="gallery/js/io/exif.js"></script>
   <script src="js/io/zip.js" data-src="gallery/js/io/zip.js"></script>
@@ -190,6 +199,7 @@
   <script src="js/ui/commands.js" data-src="gallery/js/ui/commands.js"></script>
   <script src="js/ui/sidebar.js" data-src="gallery/js/ui/sidebar.js"></script>
   <script src="js/ui/people.js" data-src="gallery/js/ui/people.js"></script>
+  <script src="js/ui/people-faces.js" data-src="gallery/js/ui/people-faces.js"></script>
   <script src="js/ui/view-state.js" data-src="gallery/js/ui/view-state.js"></script>
   <script src="js/core/drive-query.js" data-src="gallery/js/core/drive-query.js"></script>
   <script src="js/io/drive-source.js" data-src="gallery/js/io/drive-source.js"></script>
