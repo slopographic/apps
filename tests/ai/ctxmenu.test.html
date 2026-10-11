@@ -34,6 +34,8 @@
     });
 
     it('right-click on a chat reply offers Copy reply, and a code block offers Copy code and Open in builder', async () => {
+      await AI.E.load(CARD, { skipConsent: true });
+      await waitFor(() => AI.E.ready(), { timeout: 10000 });
       AI.setTab('chat'); AI.newChat(); AI.fakeDelay = 0;
       const ta = $('.chat-main .input'); ta.value = 'Tell me something';
       ta.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
@@ -42,12 +44,13 @@
       rightClick(bot);
       expect(labels()).toContain('Copy reply');
       pick('Copy reply');
-      expect(AI.lastCopied).toBe(AI.chat.conv.messages[AI.chat.conv.messages.length - 1].content);
+      const reply = AI.chat.conv.messages[AI.chat.conv.messages.length - 1].content;
+      await waitFor(() => AI.lastCopied === reply, { timeout: 3000 });
       rightClick(bot.querySelector('.md-code'));
       expect(labels()).toContain('Copy code');
       expect(labels()).toContain('Open in builder');
       pick('Copy code');
-      expect(AI.lastCopied).toBe('console.log("hello from the slop");');
+      await waitFor(() => AI.lastCopied === 'console.log("hello from the slop");', { timeout: 3000 });
     });
 
     it('the last reply offers Regenerate, which calls the chat regenerate action', async () => {
@@ -62,8 +65,8 @@
     });
 
     it('right-click on a conversation offers rename, export and delete, and the Menu key on it opens the same menu', async () => {
+      await waitFor(() => $('.conv[data-id]'), { timeout: 5000 });
       const item = $('.conv[data-id]');
-      expect(!!item).toBe(true);
       rightClick(item);
       expect(labels()).toContain('Rename…');
       expect(labels()).toContain('Export');
