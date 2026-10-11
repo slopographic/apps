@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Clean — Slopographic</title>
+  <meta name="description" content="Slop Clean: see what a photo reveals (GPS location, camera serial, dates, author) and remove it without re-encoding the picture. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://slopographic.com/clean/">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/clean.css">
+</head>
+<body>
+  <header class="cl-top">
+    <div class="cl-brand"><span class="cl-logo" aria-hidden="true"></span><h1>Slop Clean</h1><span class="cl-tag">Metadata remover. Nothing uploaded.</span></div>
+    <div class="cl-tools">
+      <button type="button" class="sui-btn" id="cl-open">Open pictures…</button>
+      <button type="button" class="sui-btn" id="cl-remove-all" title="Tick the default categories again (the colour profile and DPI stay)">Remove all</button>
+      <button type="button" class="sui-btn sui-primary" id="cl-all" disabled title="Copy and clean: the originals stay as they are">Copy and clean: download</button>
+      <button type="button" class="sui-btn" id="cl-save-all" disabled title="Copy and clean: the originals stay as they are">Copy and clean: save to Slop Drive…</button>
+    </div>
+  </header>
+  <div class="cl-stat" id="cl-stat" aria-live="polite"></div>
+  <main class="cl-main-wrap">
+    <section class="cl-empty" id="cl-empty" aria-label="Open pictures">
+      <div class="cl-drop">
+        <h2>Drop pictures here</h2>
+        <p>JPEG, PNG, WebP or TIFF. Several at once. Each one is read in this browser and never uploaded.</p>
+        <p class="cl-fine">Copy and clean: originals are never changed. Downloads and Drive saves are copies named “(clean)”. HEIC, HEIF and RAW are not supported.</p>
+        <button type="button" class="sui-btn sui-primary" id="cl-open-empty">Open pictures…</button>
+      </div>
+    </section>
+    <section class="cl-list" id="cl-list" aria-label="Pictures and what they hold"></section>
+    <aside class="cl-side" id="cl-choices" aria-label="Choices"></aside>
+  </main>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.cl-tools', { before: '#cl-open' }));</script>
+  <script src="../shared/guard.js" defer></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="../shared/backup/zip.js"></script>
+  <script src="js/core/bytes.js"></script>
+  <script src="js/core/tags.js"></script>
+  <script src="js/core/xmp.js"></script>
+  <script src="js/core/tiff.js"></script>
+  <script src="js/core/jpeg.js"></script>
+  <script src="js/core/png.js"></script>
+  <script src="js/core/webp.js"></script>
+  <script src="js/core/index.js"></script>
+  <script src="js/io/files.js"></script>
+  <script src="js/ui/report.js"></script>
+  <script src="js/ui/choices.js"></script>
+  <script src="js/app/main.js"></script>
+</body>
+</html>

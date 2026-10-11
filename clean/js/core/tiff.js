@@ -104,8 +104,8 @@
       }
       kept.push(p);
     }
-    if (!kept.length) return null;
     const next = node.next && ctx.keepNode(node.next) ? plan(node.next, ctx) : null;
+    if (!kept.length && !next) return null;
     return { kind: node.kind, entries: kept, next };
   }
 
@@ -209,9 +209,6 @@
       seen.add(node);
       for (const e of node.entries) {
         if (POINTERS[e.tag] !== undefined) { if (e.child) walk(e.child); continue; }
-        const d = describe(node.kind, e.tag);
-        if (d.cat === 'struct') continue;
-        if (node.kind === 'gps' && [1, 2, 3, 4].includes(e.tag)) continue;
         if (node.kind === 'thumb') {
           if (e.tag === 0x201) {
             const len = node.entries.find((x) => x.tag === 0x202);
@@ -219,6 +216,9 @@
           }
           continue;
         }
+        const d = describe(node.kind, e.tag);
+        if (d.cat === 'struct') continue;
+        if (node.kind === 'gps' && [1, 2, 3, 4].includes(e.tag)) continue;
         out.push({ cat: d.cat, label: d.label, where: WHERE[node.kind] || 'Metadata', value: formatValue(e, le) });
       }
       walk(node.next);
