@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SlopLabel — Slopographic</title>
+  <meta name="description" content="SlopLabel: design and print barcode labels in the browser. Code 128, EAN, GS1-128, QR and Data Matrix, CSV and Excel merge, Avery sheets and thermal rolls, PDF and Zebra ZPL export. Nothing is uploaded.">
+  <meta name="theme-color" content="#1e1e1e">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://slopographic.com/label/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slopographic">
+  <meta property="og:title" content="SlopLabel — Slopographic">
+  <meta property="og:description" content="Design and print barcode labels. Data merge, Avery sheets, thermal rolls, PDF and ZPL. 100% in your browser.">
+  <meta property="og:url" content="https://slopographic.com/label/">
+  <meta property="og:image" content="https://slopographic.com/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/panels.css">
+  <link rel="stylesheet" href="css/classic.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="menubar" id="menubar">
+      <a class="brand" href="../" title="Slopographic home"><span class="brand-dot"></span>SlopLabel</a>
+      <nav class="menus" id="menus" aria-label="Main menu"></nav>
+      <span class="grow"></span>
+      <button type="button" class="btn ghost only-wide" id="btnUndo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
+      <button type="button" class="btn ghost only-wide" id="btnRedo" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button>
+      <button type="button" class="btn primary" id="btnPrint" title="Print (Ctrl+P)">Print…</button>
+      <button type="button" class="btn ghost only-narrow" id="btnDock" aria-label="Show panels" title="Panels">☰</button>
+    </header>
+    <div class="ctrlbar" id="ctrlbar">
+      <button type="button" class="chip" id="cbLabel" title="Label setup"></button>
+      <span class="sep"></span>
+      <span class="recnav" id="recNav" hidden>
+        <button type="button" class="btn ghost" id="recPrev" aria-label="Previous record">‹</button>
+        <span id="recInfo" class="mono"></span>
+        <button type="button" class="btn ghost" id="recNext" aria-label="Next record">›</button>
+      </span>
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" id="zoomOut" aria-label="Zoom out">−</button>
+      <button type="button" class="chip mono" id="zoomVal" title="Fit label (Ctrl+0)">100%</button>
+      <button type="button" class="btn ghost" id="zoomIn" aria-label="Zoom in">+</button>
+    </div>
+    <aside class="toolbox" id="toolbox" aria-label="Tools"></aside>
+    <main class="workspace" id="workspace">
+      <div class="ruler-corner" id="rulerCorner"></div>
+      <canvas class="ruler ruler-h" id="rulerH" aria-hidden="true"></canvas>
+      <canvas class="ruler ruler-v" id="rulerV" aria-hidden="true"></canvas>
+      <div class="stage" id="stage" tabindex="0" aria-label="Label canvas">
+        <canvas id="cv"></canvas>
+        <div class="drop-hint"><span>Drop images, data (CSV, Excel), ZPL or .sloplabel files</span></div>
+      </div>
+    </main>
+    <aside class="dock" id="dock" aria-label="Panels">
+      <div class="tabs" id="dockTabs" role="tablist"></div>
+      <div class="dock-body" id="dockBody"></div>
+    </aside>
+    <footer class="status" id="status"><span id="stMsg"></span><span class="grow"></span><span id="stPos" class="mono"></span></footer>
+  </div>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../vendor/bwip-js/bwip-js-min.js"></script>
+  <script src="js/core/units.js"></script>
+  <script src="js/core/stocks.js"></script>
+  <script src="js/core/model.js"></script>
+  <script src="js/barcode/symbols.js"></script>
+  <script src="js/barcode/code128.js"></script>
+  <script src="js/barcode/geometry.js"></script>
+  <script src="js/vars/vars.js"></script>
+  <script src="js/vars/sources.js"></script>
+  <script src="js/render/text.js"></script>
+  <script src="js/render/scene.js"></script>
+  <script src="js/render/canvas.js"></script>
+  <script src="js/render/svg.js"></script>
+  <script src="js/print/job.js"></script>
+  <script src="js/print/html.js"></script>
+  <script src="js/print/pdf.js"></script>
+  <script src="js/print/zplgfx.js"></script>
+  <script src="js/print/zpl.js"></script>
+  <script src="js/print/epl.js"></script>
+  <script src="js/io/zplimport.js"></script>
+  <script src="js/io/files.js"></script>
+  <script src="js/io/offline.js"></script>
+  <script src="js/templates/gallery.js"></script>
+  <script src="js/ui/app.js"></script>
+  <script src="js/ui/view.js"></script>
+  <script src="js/ui/interact.js"></script>
+  <script src="js/ui/keys.js"></script>
+  <script src="js/ui/props.js"></script>
+  <script src="js/ui/props-types.js"></script>
+  <script src="js/ui/panels.js"></script>
+  <script src="js/ui/dialogs.js"></script>
+  <script src="js/ui/datadlg.js"></script>
+  <script src="js/ui/export.js"></script>
+  <script src="js/ui/printdlg.js"></script>
+  <script src="js/ui/form.js"></script>
+  <script src="js/ui/hub.js"></script>
+  <script src="js/ui/menus.js"></script>
+  <script src="js/ui/boot.js"></script>
+</body>
+</html>

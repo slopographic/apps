@@ -36,55 +36,44 @@
     return [];
   }
   function curFont() { var t = firstOfType('text'); return t ? t.font : S.font; }
+  /* Dropdowns render through the shared SlopUI menu (../shared/slopui.js); this file only keeps the
+     menubar buttons and the Illustrator-style "hover to switch menus" behaviour. */
   UI.st.openMenu = null;
-  UI.closeMenus = function () {
-    var layer = document.getElementById('menuLayer');
-    if (UI.st.openMenu === null) return false;
-    layer.innerHTML = ''; UI.st.openMenu = null;
+  function clearBar() {
+    UI.st.openMenu = null;
     document.querySelectorAll('.menu-btn.open').forEach(function (b) { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
-    return true;
-  };
-  function buildMenuList(items, level) {
-    var list = h('div', { class: 'menu-list', role: 'menu' });
-    items.forEach(function (it) {
-      if (it === '-') { list.appendChild(h('div', { class: 'menu-sep', role: 'separator' })); return; }
-      var a, label, keys, enabled = true, checked = null, run, sub = null;
-      if (typeof it === 'string') { a = A[it]; if (!a) return; label = a.label; keys = a.keyText || keyLabel(a.keys[0]); enabled = !a.enabled || a.enabled(); checked = a.checked ? a.checked() : null; run = function () { SV.runAction(it); }; }
-      else if (it.items || it.dyn) { label = it.label; sub = it.items || dynItems(it.dyn); }
-      else { label = it.label; run = it.run; checked = it.checked ? it.checked() : null; enabled = !it.disabled; }
-      var row = h('div', { class: 'menu-item' + (enabled ? '' : ' disabled') + (sub ? ' has-sub' : ''), role: 'menuitem', tabindex: '-1', 'aria-disabled': enabled ? null : 'true', 'data-action': typeof it === 'string' ? it : null },
-        [h('span', { class: 'mi-check', text: checked ? '✓' : '' }), h('span', { class: 'mi-label', text: label, style: it.font ? { 'font-family': SV.fontStack(it.font) } : null }), h('span', { class: 'mi-key', text: sub ? '' : (keys || '') }), sub ? h('span', { class: 'mi-arrow', html: I.caret }) : null]);
-      if (sub) {
-        var openSub = function () {
-          Array.prototype.forEach.call(list.querySelectorAll(':scope > .menu-item > .menu-list'), function (l) { if (l.parentNode !== row) l.remove(); });
-          list.querySelectorAll(':scope > .menu-item.sub-open').forEach(function (r) { if (r !== row) r.classList.remove('sub-open'); });
-          if (row.querySelector('.menu-list')) return;
-          var sl = buildMenuList(sub, level + 1); sl.classList.add('submenu'); row.appendChild(sl); row.classList.add('sub-open');
-          var rr = sl.getBoundingClientRect();
-          if (rr.right > window.innerWidth - 4) { sl.classList.add('left'); }
-          if (rr.bottom > window.innerHeight - 4) sl.style.top = Math.max(-rr.top + 4, window.innerHeight - 4 - rr.bottom) + 'px';
-        };
-        row.addEventListener('mouseenter', openSub);
-        row.addEventListener('click', function (e) { e.stopPropagation(); openSub(); });
-      } else {
-        row.addEventListener('mouseenter', function () {
-          list.querySelectorAll(':scope > .menu-item.sub-open').forEach(function (r) { r.classList.remove('sub-open'); var l = r.querySelector('.menu-list'); if (l) l.remove(); });
-        });
-        if (enabled) row.addEventListener('click', function (e) { e.stopPropagation(); UI.closeMenus(); run(); });
-      }
-      list.appendChild(row);
-    });
-    return list;
   }
+  UI.closeMenus = function () {
+    var had = UI.st.openMenu !== null || !!document.querySelector('.sui-menu');
+    if (window.SlopUI) window.SlopUI.closeMenu();
+    clearBar();
+    return had;
+  };
+  function toItems(items) {
+    return items.map(function (it) {
+      if (it === '-') return '-';
+      if (typeof it === 'string') {
+        var a = A[it]; if (!a) return null;
+        return { label: a.label, key: a.keyText || keyLabel(a.keys[0]), disabled: a.enabled ? !a.enabled() : false, check: a.checked ? a.checked() : false, act: function () { clearBar(); SV.runAction(it); } };
+      }
+      if (it.items || it.dyn) { var sub = toItems(it.items || dynItems(it.dyn)); return { label: it.label, sub: sub.length ? sub : [{ label: '(none)', disabled: true }] }; }
+      return { label: it.label, disabled: !!it.disabled, check: it.checked ? it.checked() : false, act: function () { clearBar(); it.run(); } };
+    }).filter(Boolean);
+  }
+  UI.menuItems = function (label) { var m = MENUS.filter(function (x) { return x.label === label; })[0]; return m ? toItems(m.items) : []; };
   function openMenuAt(btn, idx) {
     UI.closeMenus();
-    var layer = document.getElementById('menuLayer');
-    var list = buildMenuList(MENUS[idx].items, 0); list.classList.add('dropdown');
-    layer.appendChild(list);
     var r = btn.getBoundingClientRect();
-    var left = min(r.left, window.innerWidth - list.offsetWidth - 4);
-    list.style.left = max(4, left) + 'px'; list.style.top = r.bottom + 'px';
-    list.style.maxHeight = (window.innerHeight - r.bottom - 8) + 'px';
+    var m = window.SlopUI.menu(toItems(MENUS[idx].items), r.left, r.bottom);
+    m.classList.add('sv-dropdown'); m.setAttribute('data-menu', MENUS[idx].label);
+    m.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { clearBar(); btn.focus(); }
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        var bs = document.querySelectorAll('#menus .menu-btn'), n = bs.length, j = (idx + (e.key === 'ArrowRight' ? 1 : n - 1)) % n;
+        openMenuAt(bs[j], j);
+      }
+    });
     btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
     UI.st.openMenu = idx;
   }
@@ -92,17 +81,18 @@
     var nav = document.getElementById('menus');
     MENUS.forEach(function (m, i) {
       var b = h('button', { class: 'menu-btn', type: 'button', 'aria-haspopup': 'true', 'aria-expanded': 'false', text: m.label, 'data-menu': m.label });
-      b.addEventListener('pointerdown', function (e) { e.preventDefault(); if (UI.st.openMenu === i) UI.closeMenus(); else openMenuAt(b, i); });
+      // SlopUI closes its menu on any outside pointerdown first (capture), so a second press on the open button just closes.
+      b.addEventListener('pointerdown', function (e) { e.preventDefault(); if (UI.st.openMenu === i) clearBar(); else openMenuAt(b, i); });
       b.addEventListener('mouseenter', function () { if (UI.st.openMenu !== null && UI.st.openMenu !== i) openMenuAt(b, i); });
       b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); openMenuAt(b, i); } });
       nav.appendChild(b);
     });
     document.addEventListener('pointerdown', function (e) {
       if (UI.st.openMenu === null) return;
-      if (e.target.closest && (e.target.closest('#menuLayer') || e.target.closest('.menu-btn'))) return;
-      UI.closeMenus();
+      if (e.target.closest && (e.target.closest('.sui-menu') || e.target.closest('.menu-btn'))) return;
+      clearBar();
     }, true);
-    window.addEventListener('resize', function () { UI.closeMenus(); });
+    window.addEventListener('resize', function () { if (UI.st.openMenu !== null) UI.closeMenus(); });
   }
 
   $.buildMenubar = buildMenubar; $.curFont = curFont;
