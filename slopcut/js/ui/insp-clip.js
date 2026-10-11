@@ -57,8 +57,9 @@
     const tg = (k) => () => { const cc = M.clip(SE.doc, id); return cc ? cc.text[k] : ''; };
     const ts = (k, l) => F.setter(l || 'Text', id + ':text.' + k, (p, v) => { const cc = M.clip(p, id); if (cc) cc.text = Object.assign({}, cc.text, { [k]: v }); });
     const tb = t(F.text('Text', tg('str'), ts('str'), { multiline: true }));
+    const fontF = t(F.select('Font', fontOptions(), tg('font'), ts('font', 'Font')));
     body().append(F.section('Text', 'text', tb,
-      t(F.select('Font', fontOptions(), tg('font'), (v) => { ts('font', 'Font')(v); if (window.SlopFonts) SlopFonts.load(v).then(() => SE.emit('frame', {})); })),
+      fontF,
       t(F.slider('Size', tg('size'), ts('size', 'Text size'), { min: 8, max: 400, step: 1, unit: 'px', hardMin: 4 })),
       t(F.chips('Style', [['b', 'Bold'], ['i', 'Italic'], ['s', 'Shadow']], () => { const x = M.clip(SE.doc, id); return x ? [x.text.bold && 'b', x.text.italic && 'i', x.text.shadow && 's'].filter(Boolean) : []; },
         (v) => { const k = { b: 'bold', i: 'italic', s: 'shadow' }[v]; ts(k, 'Text style')(!M.clip(SE.doc, id).text[k]); SE.history.breakCoalescing(); })),
@@ -70,6 +71,8 @@
       t(F.chips('Animation in', SE.text.ANIMS, tg('anim'), (v) => { ts('anim', 'Text animation')(v); SE.history.breakCoalescing(); })),
       t(F.chips('Animation out', SE.text.OUTS, () => { const x = M.clip(SE.doc, id); return x && x.text.out ? x.text.out : 'same'; }, (v) => { ts('out', 'Text exit')(v); SE.history.breakCoalescing(); }))));
     I.textInput = tb.input;
+    // The font list is the shared picker (shared/fonts/picker.js): bundled and downloaded families, and Get more.
+    if (window.SlopFonts) SlopFonts.attach(fontF.el.querySelector('select'), { value: c.text.font, legacy: M.FONTS, onPick: () => SE.emit('frame', {}) });
   };
   I.audioSection = function (c) {
     const id = c.id, t = I.track, get = (k) => I.clipGet(id, k);

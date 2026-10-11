@@ -6,7 +6,7 @@
   'use strict';
   const SE = window.SE, U = SE.util, M = SE.model, T = SE.templates, L = SE.layout, h = U.h, SV = window.SlopVideo, G = SV.grid;
   const P = SE.tplPanel = {};
-  const MIME_SLOT = 'application/x-slopedit-slot', MIME_CLIP = 'application/x-slopedit-clip', MIME_MEDIA = 'application/x-slopedit-media';
+  const MIME_SLOT = 'application/x-slopedit-slot', MIME_CLIP = 'application/x-slopedit-clip', MIME_MEDIA = 'application/x-slopedit-media', MIME_FX = 'application/x-slopedit-fx';
   const dragHas = (e, type) => !!e.dataTransfer && [...(e.dataTransfer.types || [])].includes(type);
   /** The picker, in order: [template id, label (columns × rows), description]. Grids are made on demand (grid.js). */
   P.PICK = [
@@ -54,16 +54,29 @@
       h('span', { class: 'tp-num' }, String(i + 1)),
       h('span', { class: 'tp-name' }, c ? M.label(SE.doc, c) : 'Empty'));
     card.addEventListener('dragstart', (e) => { if (!c) return; e.dataTransfer.setData(MIME_SLOT, String(i)); e.dataTransfer.effectAllowed = 'move'; });
-    card.addEventListener('dragover', (e) => { if (dragHas(e, MIME_SLOT) || dragHas(e, MIME_CLIP) || dragHas(e, MIME_MEDIA)) { e.preventDefault(); card.classList.add('over'); } });
+    card.addEventListener('dragover', (e) => { if (dragHas(e, MIME_SLOT) || dragHas(e, MIME_CLIP) || dragHas(e, MIME_MEDIA) || dragHas(e, MIME_FX)) { e.preventDefault(); card.classList.add('over'); } });
     card.addEventListener('dragleave', () => card.classList.remove('over'));
     card.addEventListener('drop', (e) => {
       e.preventDefault(); card.classList.remove('over');
-      const from = e.dataTransfer.getData(MIME_SLOT), clip = e.dataTransfer.getData(MIME_CLIP), media = e.dataTransfer.getData(MIME_MEDIA);
+      const from = e.dataTransfer.getData(MIME_SLOT), clip = e.dataTransfer.getData(MIME_CLIP), media = e.dataTransfer.getData(MIME_MEDIA), fx = e.dataTransfer.getData(MIME_FX);
       if (from !== '') SE.change('Swap slots', (p) => L.swap(p, i, +from));
       else if (clip) SE.change('Put clip in slot', (p) => L.put(p, i, clip));
       else if (media && SE.media.ready(media)) SE.change('Put media in slot', (p) => L.placeMedia(p, i, M.media(p, media)));
+      else if (fx) addTitleTo(i, fx);
     });
     return card;
+  }
+  /** A title preset dropped from the Effects tab becomes a title clip in the slot (the title band of Title + 2). */
+  function addTitleTo(i, raw) {
+    let fx = null;
+    try { fx = JSON.parse(raw); } catch (e) { return; }
+    if (!fx || fx.kind !== 'title') return;
+    SE.change('Title in slot', (p) => {
+      const lay = p.layout;
+      if (!lay) return false;
+      const id = SE.edit.addGenerated(p, 'title', L.ensureTrack(p, 'video', 0).id, lay.start, lay.dur, JSON.parse(JSON.stringify(fx.preset || {})));
+      L.put(p, i, id);
+    });
   }
   /** Per-slot controls: choose a clip, free the slot, or swap with another slot (keyboard friendly). */
   function slotControls(i) {
@@ -106,7 +119,7 @@
     ];
     if (tpl) {
       kids.push(h('h4', { class: 'fx-h' }, 'Slots · ' + tpl.name));
-      kids.push(h('p', { class: 'tp-note' }, 'Drag a bin item or a clip into a slot (or onto its cell in the monitor). Drag a slot onto another to swap, or onto the clip list to clear it.'));
+      kids.push(h('p', { class: 'tp-note' }, 'Drag a bin item, a clip or a title from the Effects tab into a slot (or a bin item onto its monitor cell). Drag a slot onto another to swap, or onto the clip list to clear it.'));
       kids.push(h('div', { class: 'tp-slots' + (tpl.aspect ? ' portrait' : '') }, tpl.slots.map((_, i) => slotCard(i))));
       kids.push(h('div', { class: 'tp-slotctl' }, tpl.slots.map((_, i) => h('div', { class: 'tp-row' }, h('span', { class: 'tp-lbl' }, 'Slot ' + (i + 1)), slotControls(i)))));
       kids.push(h('div', { class: 'tp-actions' }, h('button', { type: 'button', class: 'btn sm', onclick: () => SE.act.clearLayout() }, 'Clear layout (keeps clips)')));
