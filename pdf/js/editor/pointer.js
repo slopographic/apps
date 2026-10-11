@@ -11,7 +11,7 @@
     S.act = null; S.draft = null; Ed.paint();
   };
   S.onDown = function (e) {
-    if (S.pinch || e.button > 0) return;
+    if (e.button > 0) return;
     if (S.editing) { if (e.target === S.ta) return; S.finishText(true); }
     var p = Ed.page(); if (!p) return;
     var handle = e.target.closest('.handle'), hitG = e.target.closest('.annots [data-aid]');
@@ -59,7 +59,7 @@
     S.pageEl.addEventListener('pointercancel', S.onUp);
   }
   S.onMove = function (e) {
-    if (!S.act || S.pinch) return;
+    if (!S.act) return;
     var c = S.ctx();
     if (S.act.kind === 'draw') {
       var pt = S.pagePt(e), last = S.draft.pts[S.draft.pts.length - 1];
@@ -104,7 +104,7 @@
     S.act = { kind: 'edit', h: h, id: a.id, orig: JSON.parse(JSON.stringify(a)), start: S.viewPt(e), r0: E.annotViewRect(a, c.R, c.W, c.H), moved: false };
     S.pageEl.setPointerCapture(e.pointerId);
     function mv(ev) {
-      if (!S.act || S.pinch) return;
+      if (!S.act) return;
       var v = S.viewPt(ev), dx = v[0] - S.act.start[0], dy = v[1] - S.act.start[1];
       if (!S.act.moved && Math.hypot(dx, dy) * c.z < 2) return;
       S.act.moved = true;
