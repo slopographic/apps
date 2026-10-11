@@ -1,7 +1,7 @@
 /* Slop 3D objects: turns the scene document into three.js objects under stage.world and keeps them in step.
- * sync(doc, { selected, wireframe }) is cheap to call after every change: objects are created, updated or removed
- * by node id, geometry is rebuilt only when a shape changes, and selection outlines are redrawn.
- * Each mesh and light marker carries userData.nodeId, which picking reads. Sets window.Slop3D.objects. */
+ * sync(doc, { selected }) is cheap to call after every change: objects are created, updated or removed by node id,
+ * geometry is rebuilt only when a shape changes, and selection outlines are redrawn. Meshes and light markers carry
+ * userData.nodeId, which picking reads. Sets window.Slop3D.objects. */
 (function () {
   'use strict';
   const S = (window.Slop3D = window.Slop3D || {});
@@ -16,7 +16,7 @@
     geo.computeBoundingSphere();
     return geo;
   }
-  /** A cheap change key for a shape: parameters for primitives, a sampled checksum for imported meshes. */
+  /** A cheap change key for a shape: its parameters for primitives, a sampled checksum for imported meshes. */
   function geomKey(node) {
     const g = node.geom;
     if (g.kind !== 'mesh') return JSON.stringify(g);
@@ -26,26 +26,24 @@
     return `mesh:${p.length}:${g.indices.length}:${sum}`;
   }
 
-  function create(THREE, world) {
-    const items = new Map();     // node id → { obj, key, kind, mesh?, marker? }
-    const geoCache = new Map();  // id → { key, geo }
-    const sel = new THREE.Group();
-    const ui = new THREE.Group(); ui.name = 'selection';
+  /** create(THREE, world, requestRender): world is the stage's group for document objects. */
+  function create(THREE, world, requestRender = () => {}) {
+    const items = new Map(); // node id → { obj, kind, key, mesh?, marker? }
+    const ui = new THREE.Group();
+    ui.name = 'selection';
     world.parent.add(ui);
     const markerGeo = new THREE.OctahedronGeometry(0.12, 0);
-    const wireMat = new THREE.LineBasicMaterial({ color: 0xffb020, depthTest: false, transparent: true });
 
     function meshFor(node, it) {
-      const key = geomKey(node);
       if (!it.mesh) {
         it.mesh = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshStandardMaterial({ side: THREE.DoubleSide }));
         it.mesh.userData.nodeId = node.id;
         it.obj.add(it.mesh);
       }
+      const key = geomKey(node);
       if (it.key !== key) {
-        const g = S.geometry.build(node.geom);
         it.mesh.geometry.dispose();
-        it.mesh.geometry = toGeometry(THREE, g);
+        it.mesh.geometry = toGeometry(THREE, S.geometry.build(node.geom));
         it.key = key;
       }
       const m = node.material, mat = it.mesh.material;
@@ -54,41 +52,51 @@
       mat.metalness = m.metallic;
       mat.opacity = m.opacity;
       mat.transparent = m.opacity < 1;
-      if (node.material.map && mat.userData.map !== node.material.map) {
-        mat.userData.map = node.material.map;
-        new THREE.TextureLoader().load(node.material.map, (t) => { t.colorSpace = THREE.SRGBColorSpace; mat.map = t; mat.needsUpdate = true; stage.request(); });
-      } else if (!node.material.map && mat.map) { mat.map = null; mat.userData.map = null; mat.needsUpdate = true; }
+      if (m.map && mat.userData.map !== m.map) {
+        mat.userData.map = m.map;
+        new THREE.TextureLoader().load(m.map, (t) => { t.colorSpace = THREE.SRGBColorSpace; mat.map = t; mat.needsUpdate = true; requestRender(); });
+      } else if (!m.map && mat.map) { mat.map = null; mat.userData.map = null; mat.needsUpdate = true; }
     }
     function lightFor(node, it) {
       const L = node.light;
-      if (!it.obj.isLight) {
+      if (!it.lit) {
         it.obj.removeFromParent();
-        it.obj = L.kind === 'ambient' ? new THREE.AmbientLight() : new THREE.DirectionalLight();
-        if (it.obj.isDirectionalLight) { it.obj.target.position.set(0, 0, 0); world.add(it.obj.target); }
+        it.lit = true;
+        it.obj = new THREE.Group();
+        it.obj.userData.nodeId = node.id;
+        it.light = L.kind === 'ambient' ? new THREE.AmbientLight() : new THREE.DirectionalLight();
+        if (it.light.isDirectionalLight) { it.light.target.position.set(0, 0, 0); world.add(it.light.target); }
+        it.obj.add(it.light);
         it.marker = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({ wireframe: true }));
         it.marker.userData.nodeId = node.id;
         it.obj.add(it.marker);
-        it.obj.userData.nodeId = node.id;
-        it.kind = 'light';
       }
-      it.obj.color.set(L.color);
-      it.obj.intensity = L.intensity;
+      it.light.color.set(L.color);
+      it.light.intensity = L.intensity;
       it.marker.material.color.set(L.color);
     }
+    function removeItem(id) {
+      const it = items.get(id);
+      if (!it) return;
+      if (it.light && it.light.isDirectionalLight) world.remove(it.light.target);
+      it.obj.removeFromParent();
+      if (it.mesh) { it.mesh.geometry.dispose(); it.mesh.material.dispose(); }
+      items.delete(id);
+    }
+    const objOf = (id, doc) => (doc.nodes[id] && doc.nodes[id].parent && items.get(doc.nodes[id].parent) ? items.get(doc.nodes[id].parent).obj : world);
 
-    /** Creates, updates or removes objects so they match doc. opts: { selected: Set|[], wireframe: bool, stage }. */
+    /** Creates, updates or removes objects so they match doc. opts: { selected: array of ids }. */
     function sync(doc, opts = {}) {
       const alive = new Set(Object.keys(doc.nodes));
-      for (const id of [...items.keys()]) if (!alive.has(id)) { removeItem(id); }
+      for (const id of [...items.keys()]) if (!alive.has(id)) removeItem(id);
       for (const id of alive) {
         const node = doc.nodes[id];
+        const kind = node.type;
         let it = items.get(id);
-        const kind = node.type === 'light' ? 'light' : node.type;
         if (it && it.kind !== kind) { removeItem(id); it = null; }
         if (!it) {
-          const obj = node.type === 'group' ? new THREE.Group() : node.type === 'mesh' ? new THREE.Group() : new THREE.Group();
-          it = { obj, kind, key: null };
-          obj.userData.nodeId = id;
+          it = { obj: new THREE.Group(), kind, key: null, lit: false };
+          it.obj.userData.nodeId = id;
           items.set(id, it);
         }
         if (kind === 'light') lightFor(node, it);
@@ -99,41 +107,29 @@
         it.obj.scale.set(s[0], s[1], s[2]);
         it.obj.visible = node.visible;
       }
-      // Re-parent: attach every object under its parent's object (or the world).
+      // Attach every object under its parent's object (parents are listed before their children in outliner order).
       for (const id of alive) {
-        const node = doc.nodes[id], it = items.get(id);
-        const parentObj = node.parent && items.get(node.parent) ? items.get(node.parent).obj : world;
+        const it = items.get(id), parentObj = objOf(id, doc);
         if (it.obj.parent !== parentObj) parentObj.add(it.obj);
       }
-      for (const id of alive) { const node = doc.nodes[id]; const it = items.get(id); if (it.obj.parent !== (node.parent && items.get(node.parent) ? items.get(node.parent).obj : world)) { /* order fixed above */ } }
-      sel.clear();
       ui.clear();
       for (const id of opts.selected || []) {
         const it = items.get(id);
-        if (!it || !alive.has(id)) continue;
-        ui.add(new THREE.BoxHelper(it.obj, 0xffb020));
+        if (it && alive.has(id)) ui.add(new THREE.BoxHelper(it.obj, 0xffb020));
       }
       return items;
     }
-    function removeItem(id) {
-      const it = items.get(id);
-      if (!it) return;
-      if (it.obj.isDirectionalLight) world.remove(it.obj.target);
-      it.obj.removeFromParent();
-      if (it.mesh) { it.mesh.geometry.dispose(); it.mesh.material.dispose(); }
-      items.delete(id);
-    }
-    /** Every pickable object (meshes and light markers) that is currently visible. */
+    /** Every pickable object (meshes and light markers) that is visible. */
     function pickables() {
       const out = [];
-      for (const [, it] of items) {
-        if (it.mesh && it.mesh.visible && it.obj.visible !== false) out.push(it.mesh);
+      for (const it of items.values()) {
+        if (it.mesh) out.push(it.mesh);
         if (it.marker) out.push(it.marker);
       }
       return out.filter((o) => { for (let c = o; c; c = c.parent) if (c.visible === false) return false; return true; });
     }
-    let stage = null;
-    return { sync, pickables, items, bindStage(s) { stage = s; }, dispose() { for (const id of [...items.keys()]) removeItem(id); ui.clear(); }, _unused: [sel, wireMat, geoCache] };
+    function dispose() { for (const id of [...items.keys()]) removeItem(id); ui.clear(); }
+    return { sync, pickables, items, dispose };
   }
 
   S.objects = { create, toGeometry, geomKey };
