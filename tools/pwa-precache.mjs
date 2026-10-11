@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 // Rebuilds the PRECACHE list in service-worker.js from the boot files of every app page.
-//   node tools/pwa-precache.mjs
+//   node tools/pwa-precache.mjs            rewrite the PRECACHE list in service-worker.js
+//   node tools/pwa-precache.mjs --dry-run  print the count only, write nothing
 // Walks each page's static <script src>, stylesheet <link href>, ES module imports (not dynamic
 // import()) and CSS url()/@import, so the list follows what a page needs to boot offline.
+// shell/shell.js loads its parts at run time (brand, registry, SlopUI, shell/*.js, CSS), so its
+// quoted .js/.css paths are followed too.
 // Entries that do not exist on disk are reported and left out. Bump VERSION in service-worker.js
 // after running this; the browser only updates the worker when its bytes change.
 import { readFile, writeFile, stat } from 'node:fs/promises';
@@ -13,7 +16,21 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SW = path.join(ROOT, 'service-worker.js');
 const exists = (p) => stat(path.join(ROOT, p)).then((s) => s, () => null);
 const resolveRef = (from, ref) => path.posix.normalize(path.posix.join(path.posix.dirname(from), ref));
-const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'shared/pwa.js'];
+const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'shared/pwa.js',
+  'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo.svg'];
+const DRY = process.argv.includes('--dry-run');
+
+// shell/shell.js loads its parts with addScript()/addCss(), so static refs miss them. Its paths are
+// relative to the site root. Follow every quoted .js/.css path, and expand 'shell/' + m + '.js' over its loop list.
+function shellLoads(txt) {
+  const out = [];
+  for (const m of txt.matchAll(/'([^'\s]+\.(?:m?js|css))'/g)) out.push(m[1]);
+  for (const [, v, list] of txt.matchAll(/for \(const (\w+) of \[([^\]]*)\]\)/g)) {
+    const names = [...list.matchAll(/'([^']+)'/g)].map((x) => x[1]);
+    for (const t of txt.matchAll(new RegExp(`'([^']*)'\\s*\\+\\s*${v}\\s*\\+\\s*'([^']*)'`, 'g'))) for (const n of names) out.push(t[1] + n + t[2]);
+  }
+  return out;
+}
 
 async function pageRoots() {
   const apps = await readFile(path.join(ROOT, 'shared/apps.js'), 'utf8');
@@ -23,6 +40,7 @@ async function pageRoots() {
 }
 
 function refsOf(p, txt) {
+  if (p === 'shell/shell.js') return shellLoads(txt);
   const out = [];
   if (p.endsWith('.html')) {
     for (const m of txt.matchAll(/<(script|link)\b[^>]*?>/gi)) {
@@ -80,5 +98,5 @@ const src = await readFile(SW, 'utf8');
 const block = `// BEGIN PRECACHE\nconst PRECACHE = [\n${lines.join('\n')}\n];\n// END PRECACHE`;
 const next = src.replace(/\/\/ BEGIN PRECACHE[\s\S]*?\/\/ END PRECACHE/, block);
 if (next === src && !src.includes(block)) throw new Error('PRECACHE markers not found in service-worker.js');
-await writeFile(SW, next);
-console.log(`PRECACHE: ${list.length} files, ${roots.length} roots, ${missing.size} missing`);
+if (!DRY) await writeFile(SW, next);
+console.log(`PRECACHE: ${list.length} files, ${roots.length} roots, ${missing.size} missing${DRY ? ' (dry run, nothing written)' : ''}`);

@@ -22,6 +22,8 @@ const PORT = { id: 'P', name: 'P', kind: 'image', dur: Infinity, w: 900, h: 1200
 const SQ = { id: 'S', name: 'S', kind: 'image', dur: Infinity, w: 1000, h: 1000 };
 const FRAME = { w: 1920, h: 1080 };
 const GRIDS = ['grid-1x2', 'grid-2x2', 'grid-1x3', 'grid-2x3', 'grid-3x3'];
+// vm arrays and objects come from another realm, so compare them as JSON.
+const same = (a, b) => assert.equal(JSON.stringify(a), JSON.stringify(b));
 
 test('orientation: landscape, portrait and square from the size; unknown sizes are null', () => {
   assert.equal(O.of(LAND), 'landscape');
@@ -48,20 +50,19 @@ test('prefer: portrait clips in a landscape frame keep the narrow grids (1x3 and
 
 test('prefer: landscape clips keep the wide-celled grids (2x2 and 3x3)', () => {
   const kept = O.prefer(GRIDS, FRAME, [LAND, LAND, LAND]);
-  assert.deepEqual(kept, ['grid-2x2', 'grid-3x3']);
+  same(kept, ['grid-2x2', 'grid-3x3']);
 });
 
 test('prefer: no sized clips or no frame size leaves the list as it was', () => {
-  assert.deepEqual(O.prefer(GRIDS, FRAME, [{ dur: 2 }]), GRIDS);
-  assert.deepEqual(O.prefer(GRIDS, null, [LAND]), GRIDS);
-  assert.deepEqual(O.prefer(GRIDS, FRAME, []), GRIDS);
+  same(O.prefer(GRIDS, FRAME, [{ dur: 2 }]), GRIDS);
+  same(O.prefer(GRIDS, null, [LAND]), GRIDS);
+  same(O.prefer(GRIDS, FRAME, []), GRIDS);
 });
 
 test('assign: each clip goes to the cell whose shape it suits, and unknown clips keep their order', () => {
-  const cells = [O.cellRatio(1, 2, FRAME.w / FRAME.h), O.cellRatio(1, 2, FRAME.w / FRAME.h)]; // two wide-ish cells
   const tall = { w: 900, h: 1600 }, wide = { w: 1600, h: 900 };
-  assert.deepEqual(O.assign([tall, wide], [1.78, 0.4]), [wide, tall]);
-  assert.deepEqual(O.assign([{ dur: 1 }, { dur: 2 }], cells), [{ dur: 1 }, { dur: 2 }]);
+  same(O.assign([tall, wide], [1.78, 0.4]), [wide, tall]);
+  same(O.assign([{ dur: 1 }, { dur: 2 }], [1, 1]), [{ dur: 1 }, { dur: 2 }]);
 });
 
 test('fill: auto is cover for one orientation and blur when orientations mix; explicit modes win', () => {
