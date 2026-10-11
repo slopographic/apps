@@ -101,7 +101,7 @@
       const tree = w.document.getElementById('cd-tree');
       expect(w.getComputedStyle(tree).transform).not.toBe('none');
       w.document.getElementById('cd-files').click();
-      await sleep(260);
+      await waitFor(() => w.getComputedStyle(tree).transform === 'none', { timeout: 5000, step: 20 }); // the drawer slides in (.18 s)
       expect(w.document.getElementById('cd-app').classList.contains('cd-drawer-open')).toBe(true);
       expect(w.getComputedStyle(tree).transform).toBe('none');
       w.document.getElementById('cd-scrim').click();
