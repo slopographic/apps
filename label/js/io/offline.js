@@ -9,7 +9,7 @@ const LINK_RE = /<link rel="stylesheet" href="([^"]+)">/g;
 const SCRIPT_RE = /<script src="([^"]+)"><\/script>/g;
 function escInlineScript(code) { return String(code).replace(/<\/(script)/gi, (m, w) => '<\\/' + w).replace(/<!--/g, () => '<\\!--'); }
 function escInlineStyle(css) { return String(css).replace(/<\/(style)/gi, (m, w) => '<\\/' + w); }
-function escJSONForHTML(json) { return json.replace(/</g, () => '\\u003c').replace(/ /g, () => '\\u2028').replace(/ /g, () => '\\u2029'); }
+function escJSONForHTML(json) { return json.replace(/</g, () => '\\u003c').replace(/\u2028/g, () => '\\u2028').replace(/\u2029/g, () => '\\u2029'); }
 /** Local stylesheet/script paths referenced by index.html, in document order. */
 function offlineManifest(indexHTML) {
   const out = [];
