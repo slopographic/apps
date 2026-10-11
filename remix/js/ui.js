@@ -137,6 +137,7 @@
         return RM.state.items.slice().reverse().find((x) => x.name === file.name).id;
       },
       done: (sum) => {
+        if (RM.auto) RM.auto.batchDone(sum); // the batch's clips are in the bin now: pending for auto remix
         const filled = missingBefore - RM.state.items.filter((x) => x.missing).length;
         renderBin();
         if (filled > 0) { remix(); status('Filled ' + filled + ' missing clip' + (filled > 1 ? 's' : '') + ' and planned the edit again.'); }

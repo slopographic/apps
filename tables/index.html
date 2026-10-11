@@ -79,6 +79,7 @@
   <link rel="stylesheet" href="css/tables.css" data-src="tables/css/tables.css">
   <link rel="stylesheet" href="css/templates.css" data-src="tables/css/templates.css">
   <link rel="stylesheet" href="css/sidebar.css" data-src="tables/css/sidebar.css">
+  <link rel="stylesheet" href="../shared/doctabs/doctabs.css" data-src="shared/doctabs/doctabs.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -102,6 +103,7 @@
       <label class="fname"><span class="sr">Workbook name</span><input id="fileName" type="text" value="Untitled spreadsheet" spellcheck="false" autocomplete="off" aria-label="Workbook name"></label>
       <button type="button" class="btn primary" id="btnSave" title="Save to Slop Drive (Ctrl+S)">Save</button>
     </header>
+    <div id="doc-tabs" class="doctabs-host"></div>
 
     <div class="fbar">
       <input id="namebox" class="namebox" type="text" spellcheck="false" autocomplete="off" aria-label="Name box" value="A1">
@@ -179,6 +181,9 @@
   <script src="../shared/buffer/tray.js" data-src="shared/buffer/tray.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
   <script src="../shared/session/session.js" data-src="shared/session/session.js"></script>
+  <script src="../shared/doctabs/tabs.js" data-src="shared/doctabs/tabs.js"></script>
+  <script src="../shared/doctabs/drive.js" data-src="shared/doctabs/drive.js"></script>
+  <script src="../shared/doctabs/session.js" data-src="shared/doctabs/session.js"></script>
   <script type="module" src="js/ui/main.js" data-src="tables/js/ui/main.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>

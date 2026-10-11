@@ -40,7 +40,7 @@
     sp.addEventListener('pointerdown', (e) => {
       if (!wide() || e.button !== 0) return;
       e.preventDefault();
-      sp.setPointerCapture(e.pointerId);
+      try { sp.setPointerCapture(e.pointerId); } catch (err) { /* no active pointer: the drag still works on the page */ }
       const x0 = e.clientX, w0 = listWidth();
       sp.classList.add('on');
       const move = (ev) => setWidth(w0 + ev.clientX - x0, false);

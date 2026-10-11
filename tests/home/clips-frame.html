@@ -24,10 +24,16 @@
   </script>
 </head>
 <body>
-  <div class="tile-grid" data-list="game" style="width:600px"></div>
+  <div class="tile-grid" id="grid" style="width:600px"></div>
   <div class="spacer"></div>
-  <div class="tile-grid" data-list="experiment" style="width:600px"></div>
+  <div class="tile-grid" id="grid2" style="width:600px"></div>
   <div class="spacer"></div>
+  <script src="../../home/sections.js"></script>
   <script src="../../home/catalog.js"></script>
+  <script>
+    // The fixture's tiles come from the same renderer the homepage uses for its shelves.
+    for (const a of window.SLOP_APPS) document.getElementById(a.id === 'c' ? 'grid2' : 'grid').append(window.SlopHomeCards.tile(a));
+    window.SlopHomeCards.watch();
+  </script>
 </body>
 </html>

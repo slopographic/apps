@@ -149,8 +149,11 @@
     it('a vCard becomes customer records: the name, the labelled phones and e-mails, birthday and groups', async () => {
       await CT.resetCustomers();
       const win = await boot();
-      const r = await win.SlopContacts.io.importFiles([{ name: 'people.vcf', text: () => Promise.resolve(CT.VCF30) }]);
-      expect(r).toBe(1);
+      // The import shows the preview first: the file is read, then Import is pressed in the dialog.
+      const pending = win.SlopContacts.io.importFiles([{ name: 'people.vcf', text: () => Promise.resolve(CT.VCF30) }]);
+      await waitFor(() => [...win.document.querySelectorAll('.sui-dlg button')].find((b) => b.textContent.trim() === 'Import'), { timeout: 5000 });
+      [...win.document.querySelectorAll('.sui-dlg button')].find((b) => b.textContent.trim() === 'Import').click();
+      expect(await pending).toBe(true);
       await waitFor(() => win.SlopContacts.state.list.some((c) => c.id && c.fn.startsWith('Dr. Jose')), { timeout: 8000 });
       const c = (await window.SlopData.store.list('customers')).value.find((x) => x.name.startsWith('Dr. Jose'));
       expect(c.company).toBe('Acme; Ltd');
