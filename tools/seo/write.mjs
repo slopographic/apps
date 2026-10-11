@@ -13,7 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const SITE = 'https://slopographic.com';
-const DEFAULT_IMAGE = `${SITE}/og.jpg`;
+const DEFAULT_IMAGE = `${SITE}/og-share.png`;
 const DESC_MIN = 120, DESC_MAX = 160;
 const TITLE_SUFFIX = ' | Slopographic';
 const OS = 'Any (runs in a web browser)';
@@ -61,6 +61,8 @@ function headBlock({ title, description, url, image, jsonld, viewport }) {
     `<meta property="og:description" content="${escAttr(description)}">`,
     `<meta property="og:url" content="${url}">`,
     `<meta property="og:image" content="${image}">`,
+    '<meta property="og:image:width" content="1200">',
+    '<meta property="og:image:height" content="630">',
     '<meta name="twitter:card" content="summary_large_image">',
     `<meta name="twitter:title" content="${escAttr(title)}">`,
     `<meta name="twitter:description" content="${escAttr(description)}">`,
