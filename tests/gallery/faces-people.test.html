@@ -111,6 +111,13 @@
       const P = W.SlopFaces.peopleFor('gallery');
       const before = P.faces().length;
       expect(before).toBe(3);
+      // The All faces tab lists every face, with its photo.
+      const tabAll = [...D.querySelectorAll('.faces-tab')].find((b) => b.textContent === 'All faces');
+      tabAll.click();
+      await waitFor(() => D.querySelectorAll('.faces-all .fc').length === 3, { timeout: 8000 });
+      expect([...D.querySelectorAll('.faces-all .fc-cap')].map((e) => e.textContent).sort()).toEqual(['a.jpg', 'a.jpg', 'b.jpg']);
+      [...D.querySelectorAll('.faces-tab')].find((b) => b.textContent === 'People').click();
+      await waitFor(() => D.querySelectorAll('.fp-card').length === 2, { timeout: 8000 });
       const picks = [...D.querySelectorAll('.fp-pick input')];
       setCheck(picks[0], true);
       setCheck(picks[1], true);

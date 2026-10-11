@@ -55,6 +55,14 @@
       d.close(false);
     });
 
+    it('Faces and people lists the two faces as two people (their embeddings differ), each with its picture', async () => {
+      DR.openFaces();
+      await waitFor(() => W.document.querySelectorAll('.faces-panel .fp-card').length === 2, { timeout: 8000 });
+      expect(W.document.querySelectorAll('.faces-panel .fp-card').length).toBe(2);
+      expect(W.document.querySelector('.faces-panel .faces-mode').value).toBe('count');
+      W.SlopFaces.panel.close();
+    });
+
     it('an edited picture (new modified time) has no result until it is checked again', async () => {
       await H.update(rec.id, { modified: Date.now() + 60000 });
       await DR.refresh();

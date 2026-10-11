@@ -307,6 +307,23 @@
       W.UI.editMask = false;
     }, { timeout: 30000 });
   });
+  describe('Menu bar submenus', () => {
+    it('a menu-bar submenu opens beside its row, to the right of the menu, and Escape closes it first', async () => {
+      await makeDoc();
+      const bar = [...win.document.querySelectorAll('.mb-item')].find((b) => b.textContent === 'Layer');
+      bar.dispatchEvent(new win.PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 }));
+      const parent = win.document.querySelector('.menu'), row = [...parent.querySelectorAll('.menu-row')].find((r) => r.querySelector('.menu-label').textContent === 'Mask');
+      expect(!!row).toBe(true);
+      row.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+      const menus = win.document.querySelectorAll('.menu');
+      expect(menus.length).toBe(2);
+      expect(menus[1].getBoundingClientRect().left >= parent.getBoundingClientRect().right).toBe(true);
+      menus[1].querySelector('.menu-row').dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      expect(win.document.querySelectorAll('.menu').length).toBe(1);
+      win.SlopUI.closeMenu();
+      win.document.querySelectorAll('.menu').forEach((m) => m.remove());
+    });
+  });
   SlopTest.run({ name: 'PhotoSlop masks and clipping' });
   </script>
 </body>
