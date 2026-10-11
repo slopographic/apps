@@ -45,8 +45,10 @@
   function actions(r) {
     const b = (label, act, cls = '') => { const x = el('button', { type: 'button', class: 'btn ' + cls }, label); x.addEventListener('click', act); return x; };
     if (r.trashedAt) return el('div', { class: 'acts' }, b('Restore', () => DR.restore([r]), 'primary'), b('Delete forever', () => DR.purge([r]), 'danger'));
-    const apps = DR.appsFor(r);
-    return el('div', { class: 'acts' }, ...apps.slice(0, 3).map((a, i) => b(`Open in ${a.name}`, () => DR.openWith(r, a.id), i ? '' : 'primary')),
+    const apps = DR.orderedAppsFor(r), d = apps[0];
+    const openIn = r.isFolder ? [] : d ? [b(`Open in ${d.name}`, () => DR.openWith(r, d.id, { remember: false }), 'primary'),
+      b('Open in…', (e) => { const x = e.currentTarget.getBoundingClientRect(); window.SlopUI.menu(DR.openInRows(r), x.left, x.bottom + 4); })] : [el('span', { class: 'muted' }, 'No app opens this type')];
+    return el('div', { class: 'acts' }, ...openIn,
       r.isFolder ? b('Open', () => DR.open(r), 'primary') : b('Quick look', () => DR.quickLook(r)),
       b(r.isFolder ? 'Download .zip' : 'Download', () => DR.download([r])), b(r.starred ? 'Unstar' : 'Star', () => DR.setStar([r], !r.starred)));
   }

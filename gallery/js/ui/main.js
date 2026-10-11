@@ -40,6 +40,8 @@
     $('topImport').addEventListener('click', () => G.actions.importFiles());
     $('emptyImport').addEventListener('click', () => G.actions.importFiles());
     $('topSort').addEventListener('click', () => G.actions.sortIds(G.state.selected.length ? G.state.selected : []));
+    G.reel.init($('topReel'));
+    $('btnActions').addEventListener('click', (e) => G.menus.openActions(e.currentTarget));
     $('btnSelectMode').addEventListener('click', (e) => {
       const on = !G.state.state.selectMode;
       G.state.state.selectMode = on;

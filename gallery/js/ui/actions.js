@@ -90,5 +90,6 @@
     like: (ids, v) => G.library.setLiked(ids, v),
     dupes: () => G.dupes.open(),
     backup: () => G.export.downloadBackup().then((n) => toast(`Backup saved (${Math.round(n / 1024)} KB)`)),
+    makeReel: (ids) => G.reel.open(ids),
   };
 })();

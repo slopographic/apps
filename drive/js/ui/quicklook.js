@@ -10,7 +10,7 @@
     if (current) current.close(false);
     DR.touch(r);
     const files = (DR.lastVisible || []).filter((x) => !x.isFolder), i = files.findIndex((x) => x.id === r.id);
-    const apps = r.trashedAt ? [] : DR.appsFor(r);
+    const apps = r.trashedAt ? [] : DR.orderedAppsFor(r);
     const pv = DR.previewOf(r, true);
     const meta = el('div', { class: 'ql-meta' }, `${DR.kindLabel(r)} · ${DR.fmtSize(r.size)} · ${DR.appName(r.from)} · ${DR.fmtFull(r.modified || r.time)}`, files.length > 1 && i >= 0 ? el('span', null, `${i + 1} / ${files.length}`) : '');
     const buttons = [];

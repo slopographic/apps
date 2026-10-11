@@ -48,15 +48,20 @@
     '-',
     { label: 'Empty Trash…', act: () => DR.emptyTrash() },
   ];
+  /** The "Open in" submenu for one file: the apps that open it, the default first (marked). Picking one remembers it. */
+  DR.openInRows = (r) => {
+    const apps = DR.orderedAppsFor(r), d = apps[0];
+    return apps.length ? apps.map((a) => ({ label: a === d ? `${a.name} (default)` : a.name, act: () => DR.openWith(r, a.id, { remember: true }) }))
+      : [{ label: 'No app opens this type', disabled: true }];
+  };
   /** Rows for one file or one folder (or several items of both): the open, share and edit rows, then the shared ones. */
   const itemRows = (items) => {
     const one = items.length === 1 ? items[0] : null, file = one && !one.isFolder ? one : null, folder = one && one.isFolder ? one : null;
-    const apps = file ? DR.appsFor(file) : [];
     const allStarred = items.every((i) => i.starred);
     return [
       folder ? { label: 'Open', key: 'Enter', act: () => DR.open(folder) } : null,
-      file ? { label: apps.length ? `Open in ${apps[0].name}` : 'Open', key: 'Enter', act: () => DR.open(file) } : null,
-      file ? { label: 'Open with', sub: apps.length ? apps.map((a) => ({ label: a.name, act: () => DR.openWith(file, a.id) })) : [{ label: 'No app opens this type', disabled: true }] } : null,
+      file ? { label: DR.defaultAppFor(file) ? `Open in ${DR.defaultAppFor(file).name}` : 'Open', key: 'Enter', act: () => DR.open(file) } : null,
+      file ? { label: 'Open with', sub: DR.openInRows(file) } : null,
       file ? { label: 'Quick look', key: 'Space', act: () => DR.quickLook(file) } : null,
       one && (S.section !== 'folder' || DR.searching()) ? { label: 'Show in folder', act: () => DR.reveal(one) } : null,
       '-',

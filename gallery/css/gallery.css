@@ -98,3 +98,9 @@ body.dragging .drop-hint { display: flex; }
   .grid { padding: 6px 6px 20px; }
   .tb-group .tb-btn { padding: 6px 8px; }
 }
+
+/* Make reel: the dialog's form, its validation line and the cut-out progress bar. */
+.reel-form { display: grid; gap: 10px; min-width: min(360px, 80vw); }
+.reel-err { color: #ff8a8a; min-height: 1em; margin: 0; }
+.reel-err:empty { display: none; }
+.reel-bar { width: 100%; height: 10px; }

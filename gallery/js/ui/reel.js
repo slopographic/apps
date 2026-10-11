@@ -42,14 +42,14 @@
     };
   }
 
-  /** Makes the reel. Resolves with { cancelled, error, failed, folderId, manifestId, fileIds, overlays }. */
+  /** Makes the reel. Resolves with { cancelled, error, failed, folderId, manifestId, files (Drive ids in order), overlays }. */
   async function run(photos, spec, opts = {}) {
     const ctl = new AbortController();
     if (opts.signal) { if (opts.signal.aborted) ctl.abort(); else opts.signal.addEventListener('abort', () => ctl.abort(), { once: true }); }
     const check = () => { if (ctl.signal.aborted) throw new Cancelled(); };
     const ordered = C().orderPhotos(photos, spec.order);
     const name = C().folderName(new Date());
-    const out = { cancelled: false, error: '', folderId: null, manifestId: null, fileIds: [], overlays: [], failed: [] };
+    const out = { cancelled: false, error: '', folderId: null, manifestId: null, files: [], fileIds: [], overlays: [], failed: [] };
     let session = null, bar = null;
     try {
       session = await G.reelDrive.begin(name);
@@ -81,7 +81,8 @@
         bar.set(n, 'Saving the reel…');
       }
       check();
-      const manifest = C().buildManifest({ spec, fileIds: out.fileIds.map((x) => x.id), overlays: out.overlays, now: new Date() });
+      out.files = out.fileIds.map((x) => x.id);
+      const manifest = C().buildManifest({ spec, fileIds: out.files, overlays: out.overlays, now: new Date() });
       out.manifestId = await session.finish(manifest);
       if (bar) bar.close();
       if (opts.open !== false) openEditor(out.manifestId, opts.win);

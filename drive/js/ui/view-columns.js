@@ -24,11 +24,13 @@
     col.append(DR.previewOf(r, false, colUrls), el('b', { class: 'pv-name' }, r.name), el('div', { class: 'muted' }, `${DR.kindLabel(r)} · ${DR.fmtSize(r.size)}`), el('div', { class: 'muted' }, `Modified ${DR.fmtFull(r.modified || r.time)}`), el('div', { class: 'muted' }, `Made by ${DR.appName(r.from)}`));
     return col;
   }
-  /** The preview column: at most one, always the last column, showing the one selected file (if exactly one file is). */
+  /** The preview column: at most one, always the last column, showing the one selected file (if exactly one file is and the details panel is closed). */
   function placePreview(wrap) {
     wrap.querySelectorAll('.col-pv').forEach((n) => n.remove());
     freeUrls();
     const sel = DR.selected();
+    // The details panel already shows the selected file's preview, so the column is left out while it is open.
+    if (document.body.classList.contains('info-on')) return;
     if (sel.length === 1 && !sel[0].isFolder) wrap.append(previewCol(sel[0]));
   }
   /** The folder columns: the root, then each folder on the path down to the open folder. */

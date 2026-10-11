@@ -10,7 +10,7 @@
     { id: 'grid', label: 'Grid' }, { id: 'reel', label: '9:16 reel' },
   ];
   const PACES = [{ id: 'slow', label: 'Slow' }, { id: 'medium', label: 'Medium' }, { id: 'fast', label: 'Fast' }];
-  const ASPECTS = [{ id: '16:9', label: '16:9 landscape' }, { id: '9:16', label: '9:16 vertical' }, { id: '1:1', label: '1:1 square' }, { id: '4:5', label: '4:5 portrait' }];
+  const ASPECTS = [{ id: '16:9', label: '16:9 landscape' }, { id: '9:16', label: '9:16 vertical' }, { id: '1:1', label: '1:1 square' }];
   const ORDERS = [{ id: 'oldest', label: 'Oldest first' }, { id: 'newest', label: 'Newest first' }, { id: 'selection', label: 'Selection order' }];
   const MIN_FILES = 2, MIN_LENGTH = 5, MAX_LENGTH = 600;
   const MANIFEST_TYPE = 'application/x-slop-reel+json', FORMAT = 'slop-reel', VERSION = 1;

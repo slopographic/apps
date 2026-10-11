@@ -64,7 +64,7 @@ export function setup(container) {
 
 /** [eyes, mouth] for the current state. */
 export function face(t = now()) {
-  if (moodIs('dizzy')) return ['spiral', 'wavy'];
+  if (moodIs('dizzy')) return ['sleepy', 'wavy'];
   if (M.mode === 'drag' || M.mode === 'air') return ['normal', 'o'];
   if (moodIs('love')) return ['heart', 'open'];
   if (moodIs('chomp')) return [M.chaos || M.raging ? 'angry' : 'happy', 'open'];
