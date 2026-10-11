@@ -7,16 +7,24 @@
   --slopc-accent-ink: #0a0a0a;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme="light"]):not([data-slop-theme]) {
     --slopc-bg: #111111;
     --slopc-fg: #f1ede4;
     --slopc-line: rgba(241, 237, 228, 0.25);
   }
 }
-:root[data-theme="dark"] {
+:root[data-theme="dark"]:not([data-slop-theme]) {
   --slopc-bg: #111111;
   --slopc-fg: #f1ede4;
   --slopc-line: rgba(241, 237, 228, 0.25);
+}
+/* On a page with the shared theme (theme.js sets data-slop-theme), the banner takes the chosen theme's colours. */
+:root[data-slop-theme] {
+  --slopc-bg: var(--sl-surface, #ffffff);
+  --slopc-fg: var(--sl-text, #111111);
+  --slopc-line: color-mix(in srgb, var(--sl-text, #111111) 25%, transparent);
+  --slopc-accent: var(--sl-accent, #d4ff3a);
+  --slopc-accent-ink: var(--sl-on-accent, #0a0a0a);
 }
 
 .slopc-banner {
