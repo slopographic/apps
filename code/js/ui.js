@@ -3,7 +3,8 @@
 import * as docs from './docs.js';
 import { renderTabs } from './tabs.js';
 import { isWrap } from './editor.js';
-import { languageFor } from './lang.js';
+import { langOf } from './lang.js';
+import { renderOpenEditors } from './explorer.js';
 
 export const $ = (id) => document.getElementById(id);
 export const env = { view: null };
@@ -15,7 +16,9 @@ export const toast = (msg) => window.SlopUI && SlopUI.toast(msg);
 /** Redraw the tabs, the empty state, the buttons, the status bar and the unsaved flag. */
 export function renderChrome() {
   const list = docs.list(), cur = docs.current();
-  renderTabs($('cd-tabs'), list, cur, { onSelect: (d) => handlers.select(d), onClose: (d) => handlers.close(d) });
+  const pick = { onSelect: (d) => handlers.select(d), onClose: (d) => handlers.close(d) };
+  renderTabs($('cd-tabs'), list, cur, pick);
+  renderOpenEditors($('cd-open-list'), list, cur, pick);
   $('cd-empty').hidden = list.length > 0;
   $('cd-editor').hidden = list.length === 0;
   $('cd-save').disabled = !cur;
@@ -30,7 +33,7 @@ export function setStatus() {
   const cur = docs.current(), view = env.view, bar = $('cd-status');
   if (!cur || !view) { bar.textContent = ''; return; }
   const sel = view.state.selection, head = sel.main.head, line = view.state.doc.lineAt(head);
-  const parts = [languageFor(cur.name).label, `Ln ${line.number}, Col ${head - line.from + 1}`];
+  const parts = [langOf(cur).label, `Ln ${line.number}, Col ${head - line.from + 1}`];
   if (sel.ranges.length > 1) parts.push(`${sel.ranges.length} cursors`);
   parts.push(isWrap() ? 'Wrap on' : 'Wrap off', cur.dirty ? 'Unsaved changes' : 'Saved to Slop Drive');
   bar.textContent = parts.join('  ·  ');

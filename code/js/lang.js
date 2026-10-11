@@ -38,3 +38,5 @@ export function withExt(name, lang) {
   const base = String(name || '').trim() || 'untitled';
   return languageFor(base).id === lang.id && extOf(base) ? base : base.replace(/\.[^.]*$/, '') + '.' + lang.ext;
 }
+/** The language of an open document: the one the mode switcher chose (doc.langId), else the one for its name. */
+export const langOf = (doc) => (doc && doc.langId ? languageById(doc.langId) : languageFor(doc ? doc.name : ''));

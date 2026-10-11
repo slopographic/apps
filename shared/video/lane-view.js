@@ -56,7 +56,8 @@
     });
     track.addEventListener('pointermove', (e) => {
       const d = st.drag;
-      if (!d || d.pointer !== e.pointerId) return;
+      if (!d) { if (opts.onScrub && e.buttons === 1) opts.onScrub(timeAt(track, e.clientX, st.duration)); return; }
+      if (d.pointer !== e.pointerId) return;
       const t = timeAt(track, e.clientX, st.duration);
       d.moved = d.moved || t !== d.t;
       d.t = t;

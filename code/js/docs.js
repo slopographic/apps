@@ -16,7 +16,7 @@ export { newView, setHooks };
 /** Open a document. `text` is what the editor shows (a draft, or the saved text); `saved` is the Drive text. */
 export function openDoc(rec, text, saved) {
   const doc = { id: rec.id, name: rec.name, folderId: rec.folderId ?? null, savedText: saved, dirty: text !== saved,
-    state: makeState(text, rec.name), scroll: 0 };
+    state: makeState(text, rec.name), scroll: 0, langId: null }; // langId: set by the mode switcher (session only)
   docs.push(doc);
   return doc;
 }

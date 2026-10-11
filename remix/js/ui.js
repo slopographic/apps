@@ -1,10 +1,12 @@
-/* Reel Remix: the page. Wires the bin (drop or pick clips and photos), the controls (target length, pace,
-   export preset, layout, Random, seed), Remix and Reshuffle, the preview, the Layout lane and the cut list.
-   Everything here is the DOM side; the plan, the state and the manifest are in core.js. */
+/* Reel Remix: the page. Wires the bin (drop or pick clips and photos, drag them onto the stage), the controls (target
+   length, pace, export preset, fill, layout, Random, seed), Remix and Reshuffle, the preview with Play, Export and
+   Send to SlopCut, the Layout lane (click or drag to scrub) and the cut list (per-cut fill, drop targets). Everything
+   here is the DOM side; the plan, the state and the manifest are in core.js. */
 (function () {
   'use strict';
   const RM = window.RM, SV = window.SlopVideo, $ = (id) => document.getElementById(id), S = SV.seed;
   const fmt = (s) => { const t = Math.max(0, s), m = Math.floor(t / 60), r = (t - m * 60).toFixed(1); return m + ':' + (r.length < 4 ? '0' : '') + r; };
+  const FILL_LABELS = [['auto', 'Auto: cover, blur when orientations mix'], ['cover', 'Cover (crop to fill)'], ['fit', 'Fit (letterbox)'], ['stretch', 'Stretch (distort to fill)'], ['blur', 'Blur background']];
 
   function status(msg) { $('rm-status').textContent = msg; }
   /** Fill a select from [value, label] pairs, keeping the value when it is still there. */
@@ -17,8 +19,13 @@
     $('rm-count').textContent = st.items.length + ' item' + (st.items.length === 1 ? '' : 's');
     ul.replaceChildren(...st.items.map((it) => {
       const li = document.createElement('li');
+      li.draggable = true; li.title = 'Drag onto a slot of the preview or a cut';
+      li.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData(RM.ITEM_MIME, it.id); e.dataTransfer.setData('text/plain', it.name);
+        e.dataTransfer.effectAllowed = 'copy';
+      });
       const name = document.createElement('span');
-      name.className = 'rm-name'; name.textContent = it.name + ' · ' + (it.kind === 'video' ? fmt(it.dur) : 'photo');
+      name.className = 'rm-name'; name.textContent = it.name + ' · ' + (it.kind === 'video' ? fmt(it.dur) : 'photo') + (it.w && it.h ? ' · ' + SV.orient.classify(it.w / it.h) : '');
       const rm = document.createElement('button');
       rm.type = 'button'; rm.className = 'rm-x'; rm.textContent = '×'; rm.title = 'Remove ' + it.name; rm.setAttribute('aria-label', 'Remove ' + it.name);
       rm.onclick = () => { RM.removeItem(it.id); renderBin(); status('Removed ' + it.name + '. Press Remix to plan again.'); };
@@ -27,18 +34,32 @@
     }));
     if (!st.items.length) ul.append(Object.assign(document.createElement('li'), { className: 'rm-empty', textContent: 'Drop clips and photos here, or use Add files.' }));
   }
+  /** One cut in the cut list: its items (each a drop target for a clip) and its fill. */
+  function cutItem(beat, i, st) {
+    const li = document.createElement('li');
+    li.append(i + 1 + '. ');
+    beat.forEach((x, k) => {
+      if (k) li.append(' | ');
+      const m = st.items.find((q) => q.id === x.media);
+      const span = document.createElement('span');
+      span.className = 'rm-cut-item'; span.textContent = (m ? m.name : '?') + ' (slot ' + (x.slot + 1) + ')';
+      RM.dnd.cutTargets(span, i, x.slot);
+      li.append(span);
+    });
+    const sel = document.createElement('select');
+    sel.className = 'rm-cutfill'; sel.setAttribute('aria-label', 'Fill for cut ' + (i + 1));
+    fill(sel, FILL_LABELS, beat[0].fill || 'auto');
+    sel.addEventListener('change', () => { RM.setCutFill(i, sel.value); renderPlan(); status('Cut ' + (i + 1) + ' fill: ' + sel.options[sel.selectedIndex].text); });
+    li.append(' · ' + fmt(beat[0].start) + ' ', sel);
+    return li;
+  }
   /** Show the plan: the cut list, the total, the lane and the scrubber range. */
   function renderPlan() {
     const st = RM.state, plan = st.plan;
     const cuts = $('rm-cuts');
-    cuts.replaceChildren();
     $('rm-scrub').max = String(plan ? plan.total : 0);
     $('rm-total').textContent = plan ? 'Total ' + fmt(plan.total) + ' of ' + fmt(st.target) + ' · ' + plan.segments.length + ' layout' + (plan.segments.length > 1 ? 's' : '') + ' · seed ' + plan.seedHex : 'Nothing planned yet';
-    if (plan) plan.cuts.forEach((beat, i) => {
-      const li = document.createElement('li');
-      li.textContent = (i + 1) + '. ' + beat.map((x) => { const m = st.items.find((q) => q.id === x.media); return (m ? m.name : '?') + ' (slot ' + (x.slot + 1) + ')'; }).join(' | ') + ' · ' + fmt(beat[0].start);
-      cuts.append(li);
-    });
+    cuts.replaceChildren(...(plan ? plan.cuts.map((beat, i) => cutItem(beat, i, st)) : []));
     RM.lane.update({ duration: plan ? plan.total : st.target, switches: st.lane, layouts: RM.layoutChoices(), playhead: st.playhead });
     RM.preview.setPlan();
     RM.preview.seek(Math.min(st.playhead, plan ? plan.total : 0));
@@ -50,6 +71,7 @@
     st.preset = $('rm-preset').value;
     st.custom = { w: +$('rm-cw').value || 1080, h: +$('rm-ch').value || 1920 };
     st.base = $('rm-base').value;
+    st.fill = $('rm-fill').value;
     st.random = $('rm-random').checked;
     st.grids = RM.GRIDS.filter((g) => $('rm-g-' + g).checked);
     const seed = S.parse($('rm-seed').value);
@@ -94,6 +116,7 @@
     $('rm-target').value = String(st.target);
     fill($('rm-pace'), SV.random.PACES, st.pace);
     fill($('rm-preset'), SV.presets.choices(), st.preset);
+    fill($('rm-fill'), FILL_LABELS, st.fill);
     $('rm-cw').value = String(st.custom.w); $('rm-ch').value = String(st.custom.h);
     fill($('rm-base'), [['none', 'None: one clip after another'], ['random', 'Random grid from the list']].concat(SV.templates.list.map((t) => [t.id, t.name])).concat(RM.GRIDS.map((g) => [g, SV.templates.get(g).name])), st.base);
     $('rm-random').checked = st.random;
@@ -106,7 +129,7 @@
         st.lane = list; RM.lane.update({ switches: list }); renderPlan();
         status(st.random ? 'Random is on, so Remix draws new switches over the lane. Turn Random off to keep these.' : 'Layout switches changed: press Remix to re-plan with them.');
       },
-      onSeek: (t) => { RM.preview.pause(); RM.state.playhead = t; RM.preview.seek(t); syncTime(); }
+      onSeek: scrubTo, onScrub: scrubTo
     });
     RM.preview.onTick = syncTime;
     readControls();
@@ -115,6 +138,8 @@
     wire();
     RM.ready = true;
   }
+  /** Move the playhead to t and paint that frame (scrubbing; works while paused). */
+  function scrubTo(t) { RM.preview.pause(); RM.state.playhead = t; RM.preview.seek(t); syncTime(); }
   function syncTime() {
     const t = RM.preview.t;
     $('rm-scrub').value = String(t);
@@ -124,19 +149,23 @@
     if (RM.lane) RM.lane.update({ playhead: t });
   }
   function wire() {
+    $('rm-fill').addEventListener('change', () => { readControls(); if (RM.state.plan) { RM.state.plan.fill = RM.state.fill; renderPlan(); } status('Fill: ' + $('rm-fill').options[$('rm-fill').selectedIndex].text + '.'); });
     const ctl = ['rm-target', 'rm-pace', 'rm-preset', 'rm-cw', 'rm-ch', 'rm-base', 'rm-random', 'rm-seed'];
     ctl.forEach((id) => $(id).addEventListener('change', () => { readControls(); if (id === 'rm-preset' || id === 'rm-cw' || id === 'rm-ch') status('Frame size ' + RM.size().w + '×' + RM.size().h + ': press Remix to plan for it.'); }));
     $('rm-seed').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); remix(false); } });
     $('rm-remix').addEventListener('click', () => remix(false));
     $('rm-reshuffle').addEventListener('click', () => RM.reshuffleNow());
     $('rm-play').addEventListener('click', () => (RM.preview.playing ? RM.preview.pause() : RM.preview.play()));
-    $('rm-scrub').addEventListener('input', (e) => { RM.preview.pause(); RM.preview.seek(+e.target.value); syncTime(); });
+    $('rm-export').addEventListener('click', () => RM.exporter.run({ say: status }));
+    $('rm-scrub').addEventListener('input', (e) => scrubTo(+e.target.value));
     $('rm-file').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
-    const drop = $('rm-drop');
-    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
-    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
-    drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); addFiles(e.dataTransfer.files); });
-    $('rm-send').addEventListener('click', () => RM.sendToSlopCut && RM.sendToSlopCut());
+    RM.dnd.install({
+      stage: $('rm-stage'), addFiles, say: status,
+      redraw: () => { renderPlan(); renderBin(); }
+    });
+    const send = () => RM.sendToSlopCut && RM.sendToSlopCut();
+    $('rm-send').addEventListener('click', send);
+    $('rm-send-stage').addEventListener('click', send);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

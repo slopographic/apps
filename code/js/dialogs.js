@@ -39,3 +39,15 @@ export function askUnsaved(name) {
 export const askTrash = (name, isFolder) => UI().confirm(`Delete “${name}”?`,
   `${isFolder ? 'This folder and its contents' : 'This file'} moves to the Slop Drive Trash, where you can restore it.`,
   'Delete', { danger: true });
+
+/** Language mode: the language for the open file. Resolves the language id, or null on Cancel. */
+export function askLanguage(curId) {
+  return new Promise((res) => {
+    let picked = null;
+    const sel = UI().select(LANGS.map((l) => [l.id, l.label]), curId);
+    const body = el('div', null, UI().field('Language', sel),
+      el('p', { class: 'sui-p cd-note' }, 'Highlighting and completion change for this file. Its name and its Slop Drive record stay as they are.'));
+    UI().dialog({ title: 'Language mode', body, buttons: [{ label: 'Cancel' }, { label: 'Set', primary: true, act: () => { picked = sel.value; } }],
+      onClose: () => res(picked) });
+  });
+}
