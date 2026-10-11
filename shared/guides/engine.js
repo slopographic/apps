@@ -87,12 +87,11 @@
     }
     const used = widths.reduce((a, b) => a + b, 0) + gutter * (count - 1);
     let x = start + (size > 0 ? (len - used) / 2 : 0);
-    if (snap !== 'off') x = Math.round(x);
+    if (snap === 'distribute') x = Math.round(x);
     const out = [];
     for (let i = 0; i < count; i++) {
-      let a = x, b = x + widths[i];
-      if (snap === 'round') { a = Math.round(a); b = Math.round(b); }
-      out.push({ a, b });
+      const a = x, b = x + widths[i];
+      out.push(snap === 'round' ? { a: Math.round(a), b: Math.round(b) } : { a, b });
       x = b + gutter;
     }
     return out;
