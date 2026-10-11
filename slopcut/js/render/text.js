@@ -8,20 +8,32 @@
   TX.ANIMS = [['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide up'], ['pop', 'Pop'], ['type', 'Typewriter'], ['rise', 'Rise & blur']];
   const ease = (x) => 1 - Math.pow(1 - U.clamp(x, 0, 1), 3);
   const back = (x) => { x = U.clamp(x, 0, 1); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
-
+  /** How a title leaves. 'same' (the default for titles saved before this field) repeats the entrance motion backwards. */
+  TX.OUTS = [['same', 'As in'], ['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide up'], ['pop', 'Shrink'], ['rise', 'Blur out']];
+  /** Entrance motions: k is the eased progress 0..1 over the entrance time d, u the clip-relative time. */
+  const IN = {
+    fade: (s, k) => { s.alpha = ease(k); },
+    slide: (s, k) => { s.alpha = ease(k); s.dy += (1 - ease(k)) * 0.06; },
+    pop: (s, k) => { s.scale = k < 1 ? 0.5 + 0.5 * back(k) : 1; s.alpha = ease(k * 2); },
+    type: (s, k, u, c) => { const len = [...c.text.str].length, need = U.clamp(len / 18, 0.4, Math.max(0.4, c.dur * 0.6)); s.chars = Math.floor(len * U.clamp(u / need, 0, 1)); s.alpha = 1; },
+    rise: (s, k) => { s.alpha = ease(k); s.dy += (1 - ease(k)) * 0.12; s.blur += (1 - ease(k)) * 12; }
+  };
+  /** Exit motions: they only ever reduce alpha, scale or offset, so an entrance and an exit can be combined. */
+  const OUT = {
+    fade: (s, k) => { s.alpha = Math.min(s.alpha, ease(k)); },
+    slide: (s, k) => { s.alpha = Math.min(s.alpha, ease(k)); s.dy -= (1 - ease(k)) * 0.06; },
+    pop: (s, k) => { s.alpha = Math.min(s.alpha, ease(k)); if (k < 1) s.scale *= 0.9 + 0.1 * k; },
+    rise: (s, k) => { s.alpha = Math.min(s.alpha, ease(k)); s.blur += (1 - ease(k)) * 12; },
+    type: (s, k) => { s.alpha = Math.min(s.alpha, ease(k)); }
+  };
   /** Animation state at clip-relative time u: { alpha, dy (fraction of H), scale, chars, blur }. */
   TX.animAt = function (c, u) {
     const tx = c.text, d = Math.min(0.6, c.dur / 3), outU = c.dur - u;
     const s = { alpha: 1, dy: 0, scale: 1, chars: Infinity, blur: 0 };
     const kIn = d > 0 ? U.clamp(u / d, 0, 1) : 1, kOut = d > 0 ? U.clamp(outU / d, 0, 1) : 1;
-    switch (tx.anim) {
-      case 'fade': s.alpha = Math.min(ease(kIn), ease(kOut)); break;
-      case 'slide': s.alpha = Math.min(ease(kIn), ease(kOut)); s.dy = (1 - ease(kIn)) * 0.06 - (1 - ease(kOut)) * 0.06; break;
-      case 'pop': s.scale = kIn < 1 ? 0.5 + 0.5 * back(kIn) : 1; s.alpha = Math.min(ease(kIn * 2), ease(kOut)); if (kOut < 1) s.scale *= 0.9 + 0.1 * kOut; break;
-      case 'type': { const len = [...tx.str].length, need = U.clamp(len / 18, 0.4, Math.max(0.4, c.dur * 0.6)); s.chars = Math.floor(len * U.clamp(u / need, 0, 1)); s.alpha = ease(kOut); break; }
-      case 'rise': s.alpha = Math.min(ease(kIn), ease(kOut)); s.dy = (1 - ease(kIn)) * 0.12; s.blur = (1 - ease(kIn)) * 12 + (1 - ease(kOut)) * 12; break;
-      default: break;
-    }
+    if (IN[tx.anim]) IN[tx.anim](s, kIn, u, c);
+    const out = !tx.out || tx.out === 'same' ? tx.anim : tx.out;
+    if (OUT[out]) OUT[out](s, kOut); // 'none' has no exit: the entrance alone
     return s;
   };
   function fontOf(tx, px) { return (tx.italic ? 'italic ' : '') + (tx.bold ? '800 ' : '400 ') + px + 'px "' + tx.font + '", ' + (/(mono|courier)/i.test(tx.font) ? 'monospace' : 'sans-serif'); }
@@ -68,10 +80,13 @@
     const pad = tx.bg ? tx.size * 0.7 : tx.size * 0.1;
     return { w: w + pad, h: tx.size * 1.15 * lines.length + (tx.bg ? tx.size * 0.6 : 0) };
   };
-  /** Make sure web fonts used by titles are loaded before rendering (export, snapshots). */
+  /** Make sure web fonts used by titles are loaded before rendering (export, snapshots). Bundled and downloaded
+      families from shared/fonts are registered with the document first. */
   TX.ready = async function (p) {
+    const titles = p.clips.filter((c) => c.kind === 'title');
+    if (window.SlopFonts) await Promise.all([...new Set(titles.map((c) => c.text.font))].map((f) => SlopFonts.load(f).catch(() => false)));
     if (!document.fonts || !document.fonts.load) return;
-    const fams = new Set(p.clips.filter((c) => c.kind === 'title').map((c) => fontOf(c.text, 40)));
+    const fams = new Set(titles.map((c) => fontOf(c.text, 40)));
     await Promise.all([...fams].map((f) => document.fonts.load(f).catch(() => null)));
   };
 })();

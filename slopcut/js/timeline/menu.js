@@ -105,7 +105,7 @@
     const start = TL.snapT(tg.t);
     SE.change('Add clip', (p) => { const ids = E.addMedia(p, meta, tg.row.track.id, start); A.select(ids); return ids.length ? ids : false; });
   }
-  /** Effects dropped on the timeline: { kind: 'transition', type } | { kind: 'title', preset } | { kind: 'color', color } */
+  /** Effects dropped on the timeline: { kind: 'transition', type, dur } | { kind: 'title', preset } | { kind: 'color', color } | { kind: 'graphic', gfx } */
   TL.dropFx = function (fx, tg) {
     const h = TL.hit(tg.x, tg.y);
     if (fx.kind === 'transition') {
@@ -113,15 +113,18 @@
       if (!c) { SlopUI.toast('Drop a transition onto a clip'); return; }
       const near = h.clip && tg.t - c.start > c.dur / 2 ? M.nextAdjacent(SE.doc, c) : null;
       const id = (near || c).id;
-      SE.change('Add transition', (p) => E.setTransition(p, id, fx.type, 1));
+      SE.change('Add transition', (p) => E.setTransition(p, id, fx.type, fx.dur || SE.transitions.dur));
       A.select([id]);
       return;
     }
     let tk = tg.row.track;
     if (tk.kind !== 'video') tk = M.videoTracks(SE.doc).slice(-1)[0];
     const start = TL.snapT(tg.t);
-    SE.change(fx.kind === 'title' ? 'Add title' : 'Add colour matte', (p) => {
-      const id = E.addGenerated(p, fx.kind, tk.id, start, fx.kind === 'title' ? 4 : 5, fx.kind === 'title' ? JSON.parse(JSON.stringify(fx.preset || {})) : { color: fx.color });
+    const made = { title: 'Add title', graphic: 'Add graphic' }[fx.kind] || 'Add colour matte';
+    const dur = fx.kind === 'title' ? 4 : fx.kind === 'graphic' ? 3 : 5;
+    const extra = fx.kind === 'title' ? JSON.parse(JSON.stringify(fx.preset || {})) : fx.kind === 'graphic' ? { gfx: Object.assign({}, fx.gfx) } : { color: fx.color };
+    SE.change(made, (p) => {
+      const id = E.addGenerated(p, fx.kind, tk.id, start, dur, extra);
       A.select([id]);
     });
   };

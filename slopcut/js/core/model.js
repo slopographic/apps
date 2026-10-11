@@ -2,7 +2,8 @@
    Project { v, name, w, h, fps, bg, tracks[], clips[], markers[], media[] (metadata only),
              layout (template slots, see layout.js), random (record of the last random edit) }
    Track   { id, kind: 'video'|'audio', name, mute, solo, lock, hide }
-   Clip    { id, track, kind: 'video'|'audio'|'image'|'title'|'color'|'effect', media, start, dur, in, speed, link, anim, fx, … }
+   Clip    { id, track, kind: 'video'|'audio'|'image'|'title'|'color'|'effect'|'graphic', media, start, dur, in, speed, link, anim, fx, gfx, … }
+   gfx: { id, color, size, anim, value } for graphics (shared/graphics); text.out: how a title leaves ('same' when missing).
    anim: keyframes { x|y|scale|rot|opacity: [{ t, value, ease }] } (see core/anim.js); fx: random effect settings (core/fx-random.js).
    Times are seconds on the timeline (start, dur) or in the source (in). Video tracks draw V1 first (bottom). */
 (function () {
@@ -20,8 +21,11 @@
   /** Random effect layer defaults (kind 'effect'). Reset restores these; a new layer gets a random seed. */
   M.FX_DEFAULT = { seed: 1, every: 1, intensity: 0.6, types: ['grain', 'colour', 'glitch', 'zoom', 'vignette'] };
   M.fxDefault = () => Object.assign({}, M.FX_DEFAULT, { types: M.FX_DEFAULT.types.slice() });
-  M.TEXT = { str: 'Title', font: 'Archivo', size: 96, color: '#ffffff', stroke: '#000000', strokeW: 0, bold: true, italic: false, align: 'center', bg: '', anim: 'fade', shadow: true };
-  M.TRANSITIONS = [['cross', 'Cross dissolve'], ['black', 'Dip to black'], ['white', 'Dip to white'], ['wipe', 'Wipe'], ['slide', 'Slide'], ['push', 'Push']];
+  M.TEXT = { str: 'Title', font: 'Archivo', size: 96, color: '#ffffff', stroke: '#000000', strokeW: 0, bold: true, italic: false, align: 'center', bg: '', anim: 'fade', out: 'fade', shadow: true };
+  /** Transition library (core/transitions in render/transitions.js gives the motion). Ids are stored in projects. */
+  M.TRANSITIONS = [['cross', 'Cross dissolve'], ['blur', 'Blur dissolve'], ['black', 'Dip to black'], ['white', 'Dip to white'], ['wipe', 'Wipe right'], ['wipe-left', 'Wipe left'], ['wipe-up', 'Wipe up'], ['wipe-down', 'Wipe down'], ['slide', 'Slide'], ['push', 'Push'], ['zoom-in', 'Zoom in'], ['zoom-out', 'Zoom out'], ['spin', 'Spin'], ['glitch', 'Glitch']];
+  /** Graphic clip defaults (kind 'graphic'): shape id, colour, size (fraction of the frame height), motion, counter target. */
+  M.GFX_DEFAULT = { id: 'check', color: '#d4ff3a', size: 0.3, anim: 'draw', value: 100 };
   M.FONTS = ['Archivo', 'Inter Tight', 'JetBrains Mono', 'Instrument Serif', 'Caveat', 'Dancing Script', 'Great Vibes', 'Georgia', 'Impact', 'Arial', 'Times New Roman', 'Courier New'];
   M.PRESETS = window.SlopVideo.presets.LIST.map((x) => [x.w + 'x' + x.h, x.name]); // sequence sizes: shared/video presets
 
@@ -41,6 +45,7 @@
     const c = Object.assign({}, M.CLIP, o, { id: o.id || U.uid('c') });
     if (c.kind === 'title') c.text = Object.assign({}, M.TEXT, o.text || {});
     if (c.kind === 'effect' && !c.fx) c.fx = M.fxDefault();
+    if (c.kind === 'graphic') c.gfx = Object.assign({}, M.GFX_DEFAULT, c.gfx || {});
     c.mask = SE.mask ? SE.mask.clean(c.mask) : c.mask; // clip mask (core/mask.js), sanitised on load
     return c;
   };
@@ -102,6 +107,7 @@
     if (c.kind === 'title') return (c.text && c.text.str) || 'Title';
     if (c.kind === 'color') return 'Colour matte';
     if (c.kind === 'effect') return c.name || 'Random effect';
+    if (c.kind === 'graphic') return c.name || ((window.SlopGraphics && SlopGraphics.get(c.gfx.id)) || { name: 'Graphic' }).name;
     const m = c.media && M.media(p, c.media);
     return c.name || (m ? m.name : 'Clip');
   };

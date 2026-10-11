@@ -65,6 +65,7 @@
       og.beginPath(); og.arc(top[0], top[1] - 18 * PV.dpr, 5, 0, Math.PI * 2); og.fill();
       PV.box = { clip: c.id, pts, rot: [top[0], top[1] - 18 * PV.dpr], k };
     }
+    if (SE.cells) SE.cells.draw(og, W, H); // the layout's cells (render/cells.js)
     if (SE.maskView) SE.maskView.draw(og); // the clip's mask outline and handles (render/mask-view.js)
   }
   function updateMsg() {
@@ -105,6 +106,7 @@
     SE.on('transport', () => { if (!SE.player.playing) VP.pauseAll(); PV.request(); });
     if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', PV.request);
     if (PV.initInput) PV.initInput(ov);
+    if (SE.cells) SE.cells.init();
     if (SE.maskInput) SE.maskInput.init();
     PV.layout();
   };

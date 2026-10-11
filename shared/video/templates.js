@@ -21,7 +21,8 @@
     { id: 'grid2', name: 'Grid 2×2', desc: 'Four cells', slots: G.grid(2, 2), dur: 3, layered: false },
     { id: 'grid3', name: 'Grid 3×3', desc: 'Nine cells', slots: G.grid(3, 3), dur: 2, layered: false },
     { id: 'three-up', name: 'Three-up', desc: 'Three columns', slots: G.grid(1, 3), dur: 3, layered: false },
-    { id: 'reel', name: 'Vertical 9:16 reel', desc: 'Portrait frame, two stacked', slots: G.grid(2, 1), dur: 2, layered: false, aspect: '9:16' }
+    { id: 'reel', name: 'Vertical 9:16 reel', desc: 'Portrait frame, two stacked', slots: G.grid(2, 1), dur: 2, layered: false, aspect: '9:16' },
+    { id: 'title-two', name: 'Title + two clips', desc: 'Title band over two side-by-side clips', slots: [{ x: 0, y: 0, w: 1, h: 0.28 }, { x: 0, y: 0.28, w: 0.5, h: 0.72 }, { x: 0.5, y: 0.28, w: 0.5, h: 0.72 }], dur: 4, layered: false }
   ];
   /** A grid template for 'RxC' (rows x columns). Its name is 'Grid R×C'. */
   T.grid = function (rows, cols, o = {}) {
