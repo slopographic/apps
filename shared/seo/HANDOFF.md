@@ -27,7 +27,7 @@ tag only when they are missing. Nothing else in the page changes.
   `BreadcrumbList` (Home > App).
 - About pages: `BreadcrumbList` (Home > App > About).
 - Homepage: `Organization`, and an `ItemList` of every app in the registry (anchor apps included).
-- Open Graph and Twitter image: the app's `shot` when that file exists, else `og.jpg`.
+- Open Graph and Twitter image: the app's `shot` when that file exists, else `og-share.png`.
 - `sitemap.xml`: the homepage, every app page, every about page, and the converter pages already
   listed. `lastmod` is today's date (or `--date=YYYY-MM-DD`).
 
@@ -37,7 +37,7 @@ site. The tool refuses to write otherwise.
 ## Adding a new app
 
 1. Add the app to `shared/apps.js` with `path: 'name/'`. Add `shot: 'assets/shots/name.jpg'` if you
-   have a screenshot. Without one, the share image is `og.jpg`.
+   have a screenshot. Without one, the share image is `og-share.png` (1200 x 630, rendered by tools/og/render.mjs).
 2. Add an entry to `APPS` in `shared/seo/copy.mjs`:
    `name: { title: 'Name: short hook in your browser | Slopographic', category: 'BusinessApplication', description: '...' }`.
    The category is a schema.org `applicationCategory` value (for example `MultimediaApplication`,
