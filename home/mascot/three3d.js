@@ -71,7 +71,7 @@ export function create(container, W, H, base) {
     return e;
   });
   const cheeks = [-1, 1].map((sx) => { const c = new THREE.Mesh(sph, new THREE.MeshBasicMaterial({ color: 0xff6f96, transparent: true, opacity: 0.45 })); c.scale.set(0.065, 0.035, 0.02); c.position.set(sx * 0.29, 0.32, 0.34); face.add(c); return c; });
-  const smile = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.012, 8, 20, Math.PI), dark);
+  const smile = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.015, 8, 20, Math.PI), dark);
   smile.rotation.z = Math.PI; smile.position.set(0, 0.29, 0.41);
   const mouthO = new THREE.Mesh(sph, dark); mouthO.scale.set(0.035, 0.045, 0.02); mouthO.position.set(0, 0.27, 0.41);
   const fangs = [-1, 1].map((sx) => { const f = new THREE.Mesh(new THREE.ConeGeometry(0.014, 0.04, 8), white); f.rotation.z = Math.PI; f.position.set(sx * 0.022, 0.255, 0.42); return f; });

@@ -2,7 +2,7 @@
 
 /* RAGE: red tint, shaking, steam */
 .sloppo.is-rage .sloppo-canvas {
-  filter: sepia(1) saturate(5) hue-rotate(-45deg) brightness(.95) drop-shadow(0 0 12px rgba(255, 40, 40, .8));
+  filter: hue-rotate(-88deg) saturate(1.8) drop-shadow(0 0 12px rgba(255, 40, 40, .85));
   animation: sloppo-shake .09s linear infinite;
 }
 .sloppo.is-rage .sloppo-3d { animation: sloppo-shake .09s linear infinite; }
@@ -14,8 +14,8 @@
   100% { transform: translate(1.5px, 0) rotate(.6deg); }
 }
 .sloppo-steam {
-  width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0) 70%);
+  width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 30%, rgba(255, 255, 255, 0) 70%);
 }
 
 /* 3D mode: the WebGL canvas replaces the painted one */
