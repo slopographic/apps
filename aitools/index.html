@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Slop AI Tools</title>
+  <meta name="description" content="OCR, speech to text, denoise, auto tags and portrait blur, on your device. Each model downloads only when you ask, and shows its licence first.">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="aitools.css">
+</head>
+<body>
+  <main>
+    <h1>Slop AI Tools</h1>
+    <p class="ai-intro">Five tools that run on your device. Nothing is uploaded. Each model is optional: it downloads only when you press <strong>Get more</strong>, and the dialog shows its licence and size first.</p>
+
+    <h2>Tools</h2>
+    <div id="toolList" class="ai-grid" aria-live="polite"></div>
+
+    <h2>Models</h2>
+    <p class="ai-meta" id="storeNote"></p>
+    <div id="modelList" class="ai-models-list"></div>
+    <p class="ai-err" id="status" role="status"></p>
+  </main>
+
+  <script src="../shared/apps.js"></script>
+  <script src="model-registry.js"></script>
+  <script src="models.js"></script>
+  <script src="support.js"></script>
+  <script src="get-more.js"></script>
+  <script src="hub.js"></script>
+</body>
+</html>

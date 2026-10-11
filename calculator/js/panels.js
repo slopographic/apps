@@ -5,12 +5,14 @@
   'use strict';
   const R = window.SlopCalcRates;
   const $ = (id) => document.getElementById(id);
-  const el = { hist: $('sc-history'), none: $('sc-history-none'), q: $('sc-hq'), clear: $('sc-history-clear'),
-    rateList: $('sc-rate-list'), rateForm: $('sc-rate-form'), ledger: $('sc-ledger-note') };
+  /* Looked up when used, because this script runs in the <head>, before the page's elements exist. */
+  const els = () => ({ hist: $('sc-history'), none: $('sc-history-none'), q: $('sc-hq'), clear: $('sc-history-clear'),
+    rateList: $('sc-rate-list'), rateForm: $('sc-rate-form'), ledger: $('sc-ledger-note') });
   let o = { pick() {}, history: () => [], setHistory() {}, ratesChanged() {}, status() {} };
   let shown = [];
 
   function renderHistory(list) {
+    const el = els();
     const q = (el.q.value || '').trim().toLowerCase();
     shown = (list || []).filter((h) => !q || h.expr.toLowerCase().includes(q) || h.text.toLowerCase().includes(q));
     el.hist.replaceChildren(...shown.map((h) => {
@@ -31,6 +33,7 @@
   }
 
   function renderRates() {
+    const el = els();
     el.ledger.textContent = R.ledgerReady()
       ? 'Rates from Slop Ledger are used when there is no manual rate for the pair.'
       : 'Slop Ledger rates are not loaded, so only manual rates are used.';
@@ -58,6 +61,7 @@
   }
 
   function bindRateForm() {
+    const el = els();
     el.rateForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const from = $('sc-rate-from').value.trim().toUpperCase();
@@ -74,6 +78,7 @@
 
   function init(opts) {
     o = Object.assign(o, opts);
+    const el = els();
     el.q.addEventListener('input', () => renderHistory(o.history()));
     el.clear.addEventListener('click', () => { o.setHistory([]); renderHistory([]); o.status('History cleared'); });
     bindRateForm();
