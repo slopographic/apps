@@ -9,7 +9,7 @@
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect } = SlopTest;
-  const APPS = ['photoslop/', 'vector/', 'pdf/', 'label/', 'cutout/', 'ai/', 'docs/', 'tables/', 'slides/', 'press/', 'slopedit/', 'contacts/', 'gallery/', '3d/', 'drive/'];
+  const APPS = ['photoslop/', 'slopvector/', 'pdf/', 'label/', 'slopisolate/', 'ai/', 'docs/', 'tables/', 'slides/', 'press/', 'slopcut/', 'contacts/', 'gallery/', '3d/', 'drive/'];
   let m = null;
   const text = (url) => fetch(url).then((r) => { if (!r.ok) throw new Error(url + ' answered ' + r.status); return r.text(); });
 

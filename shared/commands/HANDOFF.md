@@ -52,7 +52,7 @@ Dispatch rules:
 - **tank**, **lighter**, **unsubscribe** (light touch) and **photoslop/classic** (Win98 skin, Help entries): `tests/commands/apps.test.html`.
 - **2100**: `/` stays the search shortcut through `paletteKeys`. Its own 38 tests passed; a palette page test is still to do.
 
-Not integrated (owned by other agents): photoslop/, vector/, pdf/, press/, slopedit/, drive/ (drive already codes against it and uses `addProvider`), home/, reel/.
+Not integrated (owned by other agents): photoslop/, slopvector/, pdf/, press/, slopcut/, drive/ (drive already codes against it and uses `addProvider`), home/, reel/.
 
 ## Tests
 - `node tests/run.mjs commands/commands`: 41 tests.

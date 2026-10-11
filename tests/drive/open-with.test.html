@@ -84,7 +84,7 @@
       await waitFor(() => labels(1).length > 0, { timeout: 3000 });
       rowNamed('Slop Vector', 1).click();
       await waitFor(() => opened.length === 1, { timeout: 5000 });
-      expect(opened[0]).toContain('/vector/?drive=' + png);
+      expect(opened[0]).toContain('/slopvector/?drive=' + png);
       expect(JSON.parse(localStorage.getItem('slop-drive.openIn'))).toEqual({ png: 'vector' });
     });
 
@@ -95,7 +95,7 @@
       expect(DR.openInRows(r)[0].label).toBe('Slop Vector (default)');
       DR.open(r);
       await waitFor(() => opened.length === 1, { timeout: 5000 });
-      expect(opened[0]).toContain('/vector/?drive=' + png);
+      expect(opened[0]).toContain('/slopvector/?drive=' + png);
     });
 
     it('the choice is per file type: another .png follows it, a .jpg does not', async () => {

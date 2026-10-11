@@ -31,7 +31,7 @@
       const id = await H.put(blob('hello', 'text/plain'), { name: 'notes.txt', from: 'ai' }); ids.push(id);
       const opened = [];
       const r = await K.tools.dispatch({ name: 'open_app', arguments: { id: 'cutout', file: id } }, toolsWith(opened));
-      expect(opened[0]).toContain('/cutout/?drive=' + id);
+      expect(opened[0]).toContain('/slopisolate/?drive=' + id);
       expect(r.result).toMatch(/may not open text\/plain/);
     });
     it('open_app reports a missing file or app without opening anything', async () => {
@@ -124,7 +124,7 @@
         W.__opened.length = 0;
         await AI.chat.send('Open Slop Vector with poster.svg');
         await waitFor(() => W.__opened.length);
-        expect(W.__opened[0]).toContain('/vector/?drive=' + id);
+        expect(W.__opened[0]).toContain('/slopvector/?drive=' + id);
         expect($('.chat-main .msg.tool').textContent).toContain('open_app');
       } finally { await W.SlopHub.remove(id); }
     });

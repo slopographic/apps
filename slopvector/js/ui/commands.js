@@ -1,0 +1,84 @@
+/* SlopVector — ui: every action, tool and canvas key as a SlopCmd command (shared/commands), so the
+ * Spotlight palette (⌘K) finds them and every shortcut can be rebound. Without SlopCmd the legacy
+ * keymap in tools/keys.js keeps working. Context keys (Space, Esc, Enter, clipboard) stay in keys.js. */
+(function () {
+  'use strict';
+  var SV = window.SV, S = SV.state, D = SV.dom;
+  var UI = SV.ui = SV.ui || {};
+  var $ = UI._p = UI._p || {};
+  var A = $.A, act = $.act;
+  function keyLabel() { return $.keyLabel.apply(this, arguments); }
+  SV.cmdOn = false;
+
+  var GROUPS = { file: 'File', edit: 'Edit', object: 'Object', arrange: 'Object', transform: 'Object', compound: 'Object', pf: 'Object', type: 'Type', select: 'Select', view: 'View', theme: 'View', window: 'Window', help: 'Help' };
+  // The native copy/cut/paste events carry the clipboard, so those keys stay with keys.js.
+  var NATIVE = { 'edit.copy': 1, 'edit.cut': 1, 'edit.paste': 1 };
+  var EXTRA = { 'edit.clear': ['Delete', 'Backspace'], 'window.togglePanels': ['Tab'], 'help.shortcuts': ['F1', 'Shift+Mod+/'], 'file.new': ['Mod+N'] };
+  /** 'mod+shift+z' → 'Mod+Shift+Z' (SlopCmd syntax). */
+  function toCmd(k) { return k.split('+').map(function (p) { return p === 'mod' ? 'Mod' : p === 'alt' ? 'Alt' : p === 'shift' ? 'Shift' : p; }).join('+'); }
+  /** Keys go to the text editor, an open SlopUI menu or the colour picker before any shortcut. */
+  function free() {
+    var a = document.activeElement;
+    if (a && a === D.textEditor) return false;
+    if (a && a.closest && a.closest('.sui-menu')) return false;
+    return !UI.st.picker;
+  }
+  function gate(fn) { return function () { return free() && (!fn || fn()); }; }
+
+  function actionCommands() {
+    return Object.keys(A).map(function (id) {
+      var a = A[id];
+      var keys = NATIVE[id] ? [] : a.keys.map(toCmd).concat(EXTRA[id] || []);
+      return { id: 'sv.' + id, title: a.label, group: GROUPS[id.split('.')[0]] || 'Other', keys: keys, keywords: [id.split('.')[0]],
+        when: gate(a.enabled), checked: a.checked, run: function () { SV.runAction(id); } };
+    });
+  }
+  function toolCommands() {
+    var keysOf = {};
+    var TK = SV._tools.TOOL_KEYS;
+    Object.keys(TK).forEach(function (k) { (keysOf[TK[k]] = keysOf[TK[k]] || []).push(k.replace(/^shift\+/, 'Shift+').replace(/^([a-z])$/, function (m) { return m.toUpperCase(); }).replace(/\+([a-z])$/, function (m, c) { return '+' + c.toUpperCase(); })); });
+    return SV.TOOL_LIST.map(function (t) {
+      return { id: 'sv.tool.' + t.id, title: t.name + ' tool', group: 'Tools', keys: keysOf[t.id] || [], keywords: ['tool'], when: gate(), checked: function () { return S.tool === t.id; }, run: function () { SV.setTool(t.id); } };
+    });
+  }
+  function canvasCommands() {
+    var C = SV.cmd, out = [];
+    function K(id, title, keys, run, when, extra) { out.push(Object.assign({ id: 'sv.' + id, title: title, group: 'Canvas', keys: keys, run: run, when: gate(when) }, extra || {})); }
+    K('focus.toggle', 'Toggle fill / stroke focus', [], function () { S.focus = S.focus === 'fill' ? 'stroke' : 'fill'; SV.requestRender(true); });
+    K('paint.swap', 'Swap fill and stroke colours', ['X', 'Shift+X'], function () { SV.swapFillStroke(); });
+    K('paint.default', 'Default fill and stroke', ['D'], function () { SV.defaultFillStroke(); });
+    K('paint.none', 'Set focused paint to None', ['/'], function () { SV.applyStyle(S.focus, null); });
+    K('paint.color', 'Set focused paint to a colour', [','], function () { var cp = SV.currentPaint(S.focus); SV.applyStyle(S.focus, typeof cp === 'string' ? cp : (cp && cp.stops ? cp.stops[0].c : '#d4ff3a')); });
+    K('paint.gradient', 'Set focused paint to a gradient', ['.'], function () { var gp = SV.currentPaint(S.focus); SV.applyStyle(S.focus, gp && typeof gp === 'object' ? gp : SV.defaultGradient(gp)); });
+    var noShapeOp = function () { return !(S.op && S.op.kind === 'shape'); };
+    [['left', -1, 0], ['right', 1, 0], ['up', 0, -1], ['down', 0, 1]].forEach(function (d) {
+      var key = 'Arrow' + d[0][0].toUpperCase() + d[0].slice(1);
+      K('nudge.' + d[0], 'Nudge ' + d[0], [key], function () { var i = S.prefs.keyInc; C.nudge(d[1] * i, d[2] * i); }, noShapeOp, { repeat: true });
+      K('nudge.' + d[0] + '10', 'Nudge ' + d[0] + ' ×10', ['Shift+' + key], function () { var i = S.prefs.keyInc * 10; C.nudge(d[1] * i, d[2] * i); }, noShapeOp, { repeat: true });
+    });
+    return out;
+  }
+
+  /** The shortcut label for an action in menus: the person's own binding when SlopCmd is active. */
+  UI.actKey = function (a) {
+    if (a.id === 'help.commands' && SV.cmdOn) return window.SlopCmd.keyFor('cmd.palette');
+    if (SV.cmdOn && !NATIVE[a.id]) return window.SlopCmd.keyFor('sv.' + a.id);
+    return a.keyText || keyLabel(a.keys[0]);
+  };
+  act('help.commands', 'Search Commands…', [], function () { if (SV.cmdOn) window.SlopCmd.open(); else SV.runAction('help.shortcuts'); });
+  var oldShortcuts = A['help.shortcuts'].run;
+  A['help.shortcuts'].run = function () { if (SV.cmdOn) window.SlopCmd.openKeymap(); else oldShortcuts(); };
+
+  SV.wireCommands = function () {
+    var SC = window.SlopCmd;
+    if (!SC || !SC.register) return false;
+    try {
+      SC.init({ app: 'vector' });
+      SC.register(actionCommands().filter(function (c) { return c.id !== 'sv.help.commands'; }).concat(toolCommands(), canvasCommands()));
+      SV.cmdOn = true;
+      var b = document.getElementById('cmdBtn');
+      if (b) { b.hidden = false; b.title = 'Search commands (' + SC.keyFor('cmd.palette') + ')'; b.addEventListener('click', function () { SC.open(); }); }
+    } catch (e) { console.warn(e); SV.cmdOn = false; }
+    return SV.cmdOn;
+  };
+})();
