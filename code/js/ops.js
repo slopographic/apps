@@ -57,7 +57,7 @@ export async function saveAs(doc = docs.current()) {
   if (!doc) return null;
   const name = await SlopUI.prompt('Save as', 'File name', doc.name, { ok: 'Next' });
   if (!name || !name.trim()) return null;
-  const folderId = await H().pickFolder({ title: `Save “${name.trim()}” to…`, ok: 'Save here', start: doc.folderId ?? null });
+  const folderId = await H().pickFolder({ title: `Save “${name.trim()}” to…`, ok: 'Save here', start: doc.folderId ?? await H().appFolderId('code') });
   if (folderId === undefined) return null;
   const fname = await uniqueName(name.trim(), folderId);
   const id = await H().put(new Blob([docs.textOf(doc)], { type: mimeFor(fname) }), { name: fname, from: 'code', folderId });

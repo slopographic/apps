@@ -86,7 +86,7 @@ export async function save({ as = false } = {}) {
       const prev = await h.get(S.file.driveId);
       await h.put(blob, { id: S.file.driveId, name, from: 'tables', folderId: prev ? prev.folderId : S.file.folderId });
     } else {
-      const folderId = await h.pickFolder({ title: `Save “${name}” to Slop Drive` });
+      const folderId = await h.pickFolder({ title: `Save “${name}” to Slop Drive`, start: await h.appFolderId('tables') });
       if (folderId === undefined) return false;
       S.file.driveId = await h.put(blob, { name, from: 'tables', folderId });
       S.file.folderId = folderId;

@@ -122,6 +122,13 @@
     })());
     return making.get(appId);
   }
+  /** A named subfolder inside an app's folder (made on first use), e.g. "Templates" in Slop Docs. Null for an unknown app. */
+  async function appSubfolderId(appId, name) {
+    const parent = await appFolderId(appId);
+    if (!parent) return null;
+    const found = (await listFolders({ parentId: parent })).find((f) => f.name === name && !f.trashedAt);
+    return found ? found.id : createFolder(name, parent);
+  }
   /** Folders from the root down to id (excluding the root itself). */
   async function folderPath(id) {
     const all = new Map((await listFolders()).map((f) => [f.id, f])), out = [];
@@ -200,14 +207,18 @@
   const pickFromDrive = (opts = {}) => picker().then((p) => p.pickFile(opts)).catch((e) => { console.warn(e); if (window.SlopUI) SlopUI.toast('Slop Drive is not available'); return null; });
   /** Choose a Drive folder. Resolves with a folder id, null for the root, or undefined if cancelled. */
   const pickFolder = (opts = {}) => picker().then((p) => p.pickFolder(opts));
-  /** Save blob to the app's folder in Slop Drive (see put). Resolves with the new file id. The person can move it. */
-  async function saveToDrive(blob, name, { from = self.app || 'unknown', app } = {}) {
-    const id = await put(blob, { name, from, app });
+  /** Ask for a folder, then put blob there. The picker opens in the app's folder (see appFolderId), so a plain
+   * "Save here" keeps the file in its app's folder. Resolves with the new file id, or null if cancelled. */
+  async function saveToDrive(blob, name, { from = self.app || 'unknown', app, title } = {}) {
+    const start = await appFolderId(app || from);
+    const folderId = await pickFolder({ title: title || `Save “${name}” to Slop Drive`, start });
+    if (folderId === undefined) return null;
+    const id = await put(blob, { name, from, folderId });
     if (window.SlopUI) SlopUI.toast('Saved to Slop Drive');
     return id;
   }
 
-  window.SlopHub = { apps, appById, urlOf, put, get, list, update, remove, clear, touch, createFolder, getFolder, listFolders, updateFolder, removeFolder, folderPath, inTrash, appFolderId,
+  window.SlopHub = { apps, appById, urlOf, put, get, list, update, remove, clear, touch, createFolder, getFolder, listFolders, updateFolder, removeFolder, folderPath, inTrash, appFolderId, appSubfolderId,
     on, emit, register, openApps, appsAccepting, sendTo, sendMenuItems, consumeLaunch, pickFromDrive, pickFolder, saveToDrive, matches, fmtSize, loadScript, self,
     driveTx: tx, normFile, normFolder, ROOT, DB_NAME };
 })();

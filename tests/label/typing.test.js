@@ -18,7 +18,7 @@
   describe('typing in the properties panel', () => {
     it('keeps focus and every character when a word is typed into the content field', async () => {
       const t = W.App.doc.objects.find((o) => o.type === 'text');
-      W.select([t.id]); await frame();
+      W.showDock('props', false); W.select([t.id]); await frame();
       typeInto(W.$('pContent'), 'Hello');
       await frame();
       expect(W.objById(t.id).content).toBe('Hello');
@@ -28,7 +28,7 @@
     });
     it('keeps focus and every character when a word is typed into the name field', async () => {
       const t = W.App.doc.objects.find((o) => o.type === 'text');
-      W.select([t.id]); await frame();
+      W.showDock('props', false); W.select([t.id]); await frame();
       const nameField = () => W.document.querySelector('#dockBody > .sec .row input[type="text"]:not(#pContent)');
       typeInto(nameField(), 'Price tag');
       await frame();
