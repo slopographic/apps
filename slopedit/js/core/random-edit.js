@@ -29,7 +29,7 @@
         p.clips.push(a);
       }
     }
-    p.random = { seed: plan.seed, seedHex: plan.seedHex, target: plan.target, pace: plan.pace, aspect: plan.aspect, size: plan.size || null, tpl: plan.tpl, switches: plan.switches ? 1 : 0, cuts: plan.cuts.length, total: plan.total };
+    p.random = { seed: plan.seed, seedHex: plan.seedHex, target: plan.target, pace: plan.pace, aspect: plan.aspect, size: plan.size || null, tpl: plan.tpl, switches: !!plan.switches, layouts: plan.layouts, cuts: plan.cuts.length, total: plan.total };
     return plan.total;
   };
 })();

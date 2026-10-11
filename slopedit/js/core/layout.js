@@ -7,6 +7,7 @@
   'use strict';
   const SE = window.SE, SV = window.SlopVideo, M = SE.model, E = SE.edit, T = SV.templates;
   const L = SE.layout = {};
+  SE.templates = SV.templates; SE.seed = SV.seed; // the shared modules, under their old names
 
   /** Transform (x, y, scale) that fits a clip's picture inside a region of the sequence frame. */
   L.fit = function (p, c, r) {

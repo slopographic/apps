@@ -29,7 +29,7 @@
       .filter((m) => (m.kind === 'image' || m.kind === 'video') && (m.kind === 'image' || m.dur > R.MIN_SRC))
       .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   };
-  /** Options with every field checked and defaulted. */
+  /** Options with every field checked and defaulted. tpl: a layout id, 'random' (a grid from layouts), or null. */
   R.norm = function (o = {}) {
     const pace = R.PACE[o.pace] ? o.pace : 'medium';
     const aspect = P.byAspect(o.aspect) ? o.aspect : '16:9';
@@ -38,7 +38,7 @@
     const layouts = (Array.isArray(o.layouts) ? o.layouts : []).map((id) => (T.get(id) ? T.get(id).id : null)).filter(Boolean);
     return {
       seed: (o.seed == null ? S.make() : o.seed) >>> 0, target, pace, aspect, size,
-      tpl: T.get(o.tpl) ? T.get(o.tpl).id : null,
+      tpl: o.tpl === 'random' ? 'random' : T.get(o.tpl) ? T.get(o.tpl).id : null, // 'random': a grid drawn from the list
       switches: !!o.switches, layouts: [...new Set(layouts)],
       segments: Array.isArray(o.segments) && o.segments.length ? o.segments : null
     };
@@ -90,6 +90,10 @@
     if (!pool.length) return null;
     const rng = S.rng(opt.seed), take = deck(pool, rng);
     const [lo, hi] = R.PACE[opt.pace];
+    if (opt.tpl === 'random') { // one grid for the whole edit, drawn from the list by the seed
+      const list = opt.layouts.length ? opt.layouts : R.LAYOUTS;
+      opt.tpl = list[Math.floor(rng() * list.length)];
+    }
     const segs = segmentsFor(opt, rng);
     const segAt = (t) => SEG.at(segs, t) || segs[segs.length - 1];
     const cuts = [];
