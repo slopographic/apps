@@ -6,6 +6,7 @@
 (function () {
   'use strict';
   const RM = window.RM, SV = window.SlopVideo, R = SV.random, O = SV.orient;
+  const FULL = { x: 0, y: 0, w: 1, h: 1 };
   const PV = (RM.preview = { canvas: null, ctx: null, t: 0, playing: false, raf: 0, last: 0, items: [] });
 
   PV.attach = function (canvas) { PV.canvas = canvas; PV.ctx = canvas.getContext('2d'); };
@@ -35,8 +36,7 @@
     if (!plan) return;
     for (const it of items) {
       if (!(t >= it.start && t < it.start + it.dur)) { if (it.m.kind === 'video') it.m.el.pause(); continue; }
-      const reg = R.regionFor(plan, it);
-      if (!reg) continue;
+      const reg = R.regionFor(plan, it) || FULL; // no layout (None): the clip fills the frame
       drawItem(c, it, t, { x: reg.x * W, y: reg.y * H, w: reg.w * W, h: reg.h * H }, plan);
     }
   }

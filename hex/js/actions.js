@@ -40,7 +40,7 @@
     $('hx-size').textContent = sizeText(d.size);
     $('hx-sel').textContent = selText();
     const sha = $('hx-sha');
-    sha.textContent = sha.dataset.value ? sha.dataset.value + (app.shaStale ? ' (before your edits)' : '') : '';
+    sha.textContent = app.shaBusy ? 'Computing…' : sha.dataset.value ? sha.dataset.value + (app.shaStale ? ' (before your edits)' : '') : '';
     $('hx-sha-btn').hidden = !app.shaStale;
     if (window.SlopGuard) SlopGuard.setUnsaved('hex', d.dirty());
     updateType();
@@ -56,13 +56,13 @@
   async function computeSha() {
     const d = app.doc; if (!d) return;
     const tok = ++app.shaTok, sha = $('hx-sha');
-    sha.dataset.value = ''; sha.textContent = 'Computing…';
+    sha.dataset.value = ''; app.shaBusy = true; refresh();
     try {
       const h = await d.sha256();
       if (tok !== app.shaTok || app.doc !== d) return;
       sha.dataset.value = h; app.shaStale = false;
-      refresh();
     } catch (e) { if (tok === app.shaTok) sha.textContent = 'Could not compute: ' + e.message; }
+    if (tok === app.shaTok) { app.shaBusy = false; refresh(); }
   }
 
   /** Any byte change: the hash is out of date until it is recalculated. */
