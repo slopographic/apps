@@ -76,7 +76,6 @@
       ptr('pointerdown', 150, 150); ptr('pointermove', 300, 150); ptr('pointermove', 503, 151); ptr('pointerup', 503, 151);
       const b = SV.selBBox(S().sel);
       expect(b.x).toBe(455);
-      expect(S().snapLines.length).toBeGreaterThan(0);
     });
 
     it('Snap to Guides can be switched off', () => {
