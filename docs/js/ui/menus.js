@@ -22,6 +22,7 @@
         { label: 'My templates', sub: mine() },
       ] },
       { label: 'Open from Slop Drive…', key: key('file.open'), act: act(() => S.openFromDrive()), disabled: !window.SlopHub },
+      { label: 'Import Word, Markdown or text from Slop Drive…', act: act(() => S.importFromDrive()), disabled: !window.SlopHub },
       '-',
       { label: 'Save to Slop Drive', key: key('file.save'), act: act(() => S.save()) },
       '-',
