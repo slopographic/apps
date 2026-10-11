@@ -23,6 +23,8 @@
     else setTimeout(res, 40);
   });
   const countOf = (id) => { const r = results.get(id); return r ? r.faces.length : null; };
+  /** Grouping shows results only while Face detection is on; turning it off hides them (they stay stored). */
+  const on = () => !!(F() && F().enabled());
 
   /** Reads the stored results of this library. A result counts only while the photo's SHA-256 is the one it was made for. */
   async function load() {
@@ -41,6 +43,7 @@
 
   /** Photos (in the given order) that have a result, grouped: one face, two or more, none. Empty groups are left out. */
   function groups(list) {
+    if (!on()) return [];
     const out = GROUPS.map((g) => ({ key: g.key, label: g.label, items: [] }));
     for (const m of list) {
       const n = countOf(m.id);
@@ -51,7 +54,7 @@
     return out.filter((g) => g.items.length);
   }
   /** Photos that have a result (the list the People view shows). */
-  const checked = (list) => list.filter((m) => results.has(m.id));
+  const checked = (list) => (on() ? list.filter((m) => results.has(m.id)) : []);
   /** Counts for the bar: checked, photos in the library, and the number in each group. */
   function stats() {
     const list = G.library ? G.library.list() : [];
@@ -110,7 +113,7 @@
     /** Pauses after the current photo. */
     stop() { paused = true; emit(); },
     /** The faces of a photo for the viewer's boxes, or null. */
-    facesOf: (id) => (results.has(id) ? results.get(id).faces : null),
+    facesOf: (id) => (on() && results.has(id) ? results.get(id).faces : null),
     /** Draws the boxes of a photo over a SlopPreview element, while the setting is on. */
     overlay(el, id) {
       if (!F() || !F().enabled()) return;

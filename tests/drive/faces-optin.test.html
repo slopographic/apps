@@ -28,6 +28,8 @@
     });
 
     it('the first Find faces opens the explanation dialog and detects nothing yet', async () => {
+      await waitFor(() => !dialog()); // the last one may still be fading out
+      await waitFor(() => !dialog());
       const p = DR.findFaces([rec]);
       await waitFor(() => dialog());
       expect(W.document.querySelector('.faces-dlg .sui-title').textContent).toBe('Find faces on this device?');
@@ -47,6 +49,8 @@
     });
 
     it('"Turn on" in the dialog turns detection on and carries on with the pictures', async () => {
+      await waitFor(() => !dialog()); // the last one may still be fading out
+      await waitFor(() => !dialog());
       const p = DR.findFaces([rec]);
       await waitFor(() => dialog());
       btn('Turn on').click();
@@ -63,6 +67,8 @@
       expect(W.SlopFaces.enabled()).toBe(false);
       expect(await W.SlopFaces.detect({ width: 40, height: 30 })).toEqual([]);
       expect(calls).toBe(1);
+      await waitFor(() => !dialog()); // the last one may still be fading out
+      await waitFor(() => !dialog());
       const p = DR.findFaces([rec]);
       await waitFor(() => dialog());
       btn('Not now').click();
