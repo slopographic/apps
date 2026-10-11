@@ -44,6 +44,7 @@ input, select, textarea { background: var(--panel-2); border: 1px solid var(--li
 .btn.small { min-height: 28px; padding: 0 8px; font-size: 12.5px; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
 .btn.danger { color: var(--danger); }
+.sample-progress { display: block; width: 100%; margin-top: 8px; }
 .tabs { display: flex; gap: 2px; overflow-x: auto; padding: 0 8px; border-bottom: 1px solid var(--line); background: var(--panel); scrollbar-width: none; }
 .tab { flex: 0 0 auto; min-height: 42px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--mute); cursor: pointer; }
 .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
@@ -70,6 +71,7 @@ input, select, textarea { background: var(--panel-2); border: 1px solid var(--li
 .chip.open { color: var(--accent); }
 .chip.fulfilled { color: var(--ok); }
 .chip.cancelled { color: var(--mute); text-decoration: line-through; }
+.chip.sample { color: var(--warn); }
 
 .head-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .head-row .h2 { margin: 0; }

@@ -85,7 +85,7 @@
     const rec = await hub.consumeLaunch();
     if (!rec || !CO.process) return;
     // A file PhotoSlop sent to be cut out (Layer ▸ Isolate Subject) remembers its request: the mask goes back to it.
-    const [it] = CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })], { driveId: rec.id, origin: rec });
+    const [it] = CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })], { driveId: rec.id, origin: { from: rec.from, meta: rec.meta || {} } });
     if (it && rec.meta && rec.meta.requestId) it.request = { requestId: rec.meta.requestId };
   }
 

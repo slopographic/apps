@@ -8,6 +8,9 @@
   const D = () => ns.defs;
   const UI = () => g.SlopUI;
 
+  /** Opens the render dialog for the document. */
+  const openRender = (S, act) => ns.renderDialog.open(S, act.toast);
+
   /** Opens a SlopUI menu under an element. items as SlopUI.menu takes them. */
   function openMenu(anchor, items) {
     const r = anchor.getBoundingClientRect();
@@ -64,7 +67,7 @@
       '-',
       ...cfg,
       '-',
-      { label: 'Render…', key: 'Mod+E', act: () => io.renderDialog() },
+      { label: 'Render…', key: 'Mod+E', act: () => openRender(S, act) },
     ];
   }
 
@@ -92,7 +95,7 @@
     document.getElementById('fx-file').addEventListener('click', (e) => openMenu(e.currentTarget, fileItems(S, act, io)));
     document.getElementById('fx-layer').addEventListener('click', (e) => openMenu(e.currentTarget, layerItems(S, act, io)));
     document.getElementById('fx-comp').addEventListener('click', () => compDialog(S, act));
-    document.getElementById('fx-render').addEventListener('click', () => io.renderDialog());
+    document.getElementById('fx-render').addEventListener('click', () => openRender(S, act));
     document.getElementById('fx-search').addEventListener('click', () => g.SlopCmd && g.SlopCmd.open && g.SlopCmd.open(''));
 
     /** Keeps the buttons and the name in step with the document. */

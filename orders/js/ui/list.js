@@ -30,7 +30,8 @@
         h('span', { class: `chip ${x.status}`, text: M.STATUS_LABEL[x.status] || x.status }),
         h('span', { text: x.date }),
         h('span', { text: `${lines} line${lines === 1 ? '' : 's'}` }),
-        x.invoiceId ? h('span', { text: 'invoiced' }) : null));
+        x.invoiceId ? h('span', { text: 'invoiced' }) : null,
+        x.sample ? h('span', { class: 'chip sample', text: 'Sample' }) : null));
   }
 
   /** Runs a Result-returning action from the menu: a plain message on refusal, then redraws. */
@@ -67,6 +68,7 @@
     $('oSearch').addEventListener('input', draw);
     $('oStatus').addEventListener('change', draw);
     $('oNew').addEventListener('click', () => NS.app.go('new'));
+    NS.sampleActions.mount();
     const box = $('oRows');
     box.addEventListener('click', (e) => { const r = e.target.closest('[data-id]'); if (r) NS.app.go(`o/${r.dataset.id}`); });
     box.addEventListener('keydown', (e) => {

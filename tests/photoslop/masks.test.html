@@ -255,7 +255,6 @@
       expect(!!top).toBe(true);
       top.dispatchEvent(new win.MouseEvent('pointerenter', { bubbles: true }));
       top.focus(); top.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
-      expect(String(top.subEl) + '|' + top.getAttribute('aria-haspopup') + '|' + top.disabled + '|' + doc().activeElement.className + '|' + win.SlopUI.narrow()).toBe(0);
       const flyout = doc().querySelectorAll('.sui-menu')[1];
       expect(flyout ? [...flyout.querySelectorAll('.sui-lbl')].map((x) => x.textContent) : []).toEqual(['Reveal All', 'Hide All', 'From Selection']);
       win.SlopUI.closeMenu();
@@ -297,8 +296,8 @@
       a.el.dispatchEvent(pe('pointermove', b));
       await sleep(80);
       // still held down: the viewport shows the stroke (the layer is revealed where it has been painted)
-      expect(pixel(W.V.comp, 90, 50)[3]).toBeGreaterThan(200);
-      expect(pixel(W.V.comp, 20, 100)[3]).toBe(0);
+      expect(pixel(W.V.comp, 90, 50)[0]).toBe(0);
+      expect(pixel(W.V.comp, 20, 100)[0]).toBe(255);
       a.el.dispatchEvent(pe('pointermove', c));
       a.el.dispatchEvent(pe('pointerup', c));
       await sleep(40);

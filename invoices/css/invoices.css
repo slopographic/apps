@@ -74,6 +74,8 @@ input, select, textarea { background: var(--panel-2); border: 1px solid var(--li
 .chip.paid { color: var(--ok); }
 .chip.void { color: var(--mute); text-decoration: line-through; }
 .chip.overdue { color: var(--danger); font-weight: 600; }
+.chip.sample { color: var(--warn); }
+.sample-progress { display: block; width: 100%; margin-top: 8px; }
 .orow.overdue { border-left: 3px solid var(--danger); }
 .bad-text { color: var(--danger); }
 

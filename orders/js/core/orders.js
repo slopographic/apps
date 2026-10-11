@@ -46,6 +46,7 @@
   async function save(form, status) {
     const base = { customerId: form.customerId, date: form.date, notes: form.notes, lines: form.lines };
     if (form.currency) base.currency = form.currency;   // an absent currency keeps the stored one (or takes the base)
+    if (form.sample) base.sample = true;   // random samples are marked so they can be cancelled together
     if (!form.id) return S.store.put('orders', { ...base, status: 'draft' });
     const cur = await S.store.get('orders', form.id);
     if (!cur.ok) return cur;

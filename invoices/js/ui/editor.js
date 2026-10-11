@@ -108,6 +108,7 @@
   function paintActions() {
     const b = (label, fn, cls = 'btn', disabled = false, title) => h('button', { type: 'button', class: cls, text: label, onclick: fn, disabled, title });
     const out = [];
+    if (isNew()) out.push(b('Random sample', () => NS.sampleActions.quick(), 'btn'));
     if (st.status === 'draft') {
       out.push(b(isNew() ? 'Save draft' : 'Save', () => save()));
       out.push(b('Issue…', issue, 'btn primary'));
