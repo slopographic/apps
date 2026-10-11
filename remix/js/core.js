@@ -63,7 +63,7 @@
   RM.replaceSlot = function (ci, slot, mediaId) {
     const plan = RM.state.plan, m = RM.state.items.find((x) => x.id === mediaId);
     const it = plan && plan.cuts[ci] && plan.cuts[ci].find((x) => x.slot === slot);
-    if (!it || !m) return false;
+    if (!it || !m || m.missing) return false;
     it.media = m.id;
     RM.state.locks = RM.state.locks.map((l) => (l.cut === ci && l.slot === slot ? Object.assign({}, l, { media: m.id, in: 0 }) : l));
     const room = m.kind === 'image' ? Infinity : m.dur - it.dur;
@@ -71,7 +71,7 @@
     return true;
   };
   /** Media the plan may draw from: the loaded items. */
-  RM.media = () => RM.state.items.filter((m) => m.kind && (m.kind === 'image' || m.dur > 0));
+  RM.media = () => RM.state.items.filter((m) => !m.missing && m.kind && (m.kind === 'image' || m.dur > 0));
   /** Build the random edit. With Random on, the drawn switch points become the lane. Returns the plan or null. */
   RM.remix = function () {
     const st = RM.state;

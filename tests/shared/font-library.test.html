@@ -49,7 +49,7 @@
     for (;;) { let v = null; try { v = await fn(); } catch (e) { v = null; } if (v) return v; if (Date.now() - t0 > ms) throw new Error('timed out waiting'); await sleep(50); }
   }
   const sel = document.getElementById('pick');
-  const groupNames = (label) => { const g = sel.querySelector(`optgroup[label="${label}"]`); return g ? [...g.options].map((o) => o.value) : []; };
+  const groupNames = (label) => { const g = sel.querySelector(`optgroup[label="${label}"]`); return g ? [...g.children].map((o) => o.value) : []; };
   const facesOf = (name) => [...document.fonts].filter((f) => f.family.replace(/"/g, '') === name);
   const dialog = () => document.querySelector('.slop-lib');
   const btnIn = (root, text) => [...root.querySelectorAll('button')].find((b) => b.textContent.trim().startsWith(text));
@@ -61,21 +61,21 @@
       await until(() => groupNames('Bundled (offline)').length === 12);
       const names = groupNames('Bundled (offline)');
       for (const n of ['Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Playfair Display', 'Merriweather', 'Oswald', 'Source Sans 3', 'Nunito', 'Raleway', 'Space Mono']) expect(names.includes(n)).toBe(true);
-      expect(groupNames('Standard')).toEqual(['Georgia', 'Arial', 'Inter'].filter((n, i, a) => a.indexOf(n) === i).slice(0, 0).concat(['Georgia', 'Arial']));
+      expect(groupNames("Standard")).toEqual(["Georgia", "Arial"]);
     });
     it('keeps bundled faces off the network until one is picked', async () => {
-      expect(window.__net.bundledWoff2).toBe(0);
+      expect(performance.getEntriesByType('resource').some((e) => /\/fonts\/library\/.*\.woff2$/.test(e.name))).toBe(false);
     });
     it('picking a bundled family registers it with FontFace and loads it', async () => {
       sel.value = 'Lato';
       sel.dispatchEvent(new Event('change'));
       await until(() => facesOf('Lato').some((f) => f.status === 'loaded'));
       expect(facesOf('Lato').length >= 1).toBe(true);
-      expect(window.__net.bundledWoff2 >= 1).toBe(true);
+      expect(performance.getEntriesByType('resource').some((e) => e.name.endsWith('/lato/lato-400-normal.woff2'))).toBe(true);
     });
     it('the Get more button is there and says nothing is downloaded until clicked', async () => {
       expect(getMore.textContent).toBe('Get more…');
-      expect(getMore.title.includes('only when you click')).toBe(false);
+      expect(getMore.title.includes('only when you click')).toBe(true);
       expect(window.__net.packBytes).toBe(0);
     });
   });
@@ -100,7 +100,7 @@
     });
     it('Cancel at the confirmation downloads nothing', async () => {
       btnIn(dialog(), 'Cancel').click();
-      await until(() => dialog() && dialog().textContent.includes('Get more fonts'));
+      await until(() => dialog().querySelector('.pk'));
       expect(window.__net.packBytes).toBe(0);
     });
     it('confirming downloads, verifies and stores the pack; its font then shows in the picker', async () => {

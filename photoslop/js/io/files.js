@@ -7,7 +7,7 @@ let pasteInPlace = false;
 function copySel(merged) {
   if (!activeLayer()) return;
   const r = copySelectionPixels(merged);
-  CLIP.canvas = r.canvas; CLIP.x = r.x; CLIP.y = r.y;
+  CLIP.canvas = r.canvas; CLIP.x = r.x; CLIP.y = r.y; CLIP.t = Date.now();
   toast(merged ? 'Copied merged' : 'Copied');
   try {
     if (navigator.clipboard && window.ClipboardItem) navigator.clipboard.write([new ClipboardItem({ 'image/png': canvasToBlob(r.canvas) })]).catch(() => {});
@@ -46,11 +46,12 @@ async function onPaste(e) {
     const src = (cd.getData('text/html').match(/<img[^>]+src="([^"]+)"/) || [])[1];
     if (src && /^data:image\//.test(src)) { const im = await loadImage(src); const c = mkCanvas(im.naturalWidth, im.naturalHeight); cx(c).drawImage(im, 0, 0); pasteCanvas(c, null, null, 'Pasted Image'); return; }
   }
+  if (file && SlopBuffer.isSystemCopyOf(file) && pasteBuffer()) return; // our own buffer copy: place the buffer item
   if (file) {
     const c = await fileToCanvas(file);
     if (CLIP.canvas && c.width === CLIP.canvas.width && c.height === CLIP.canvas.height) { pasteInternal(pasteInPlace); return; }
     pasteCanvas(c, null, null, 'Pasted Image');
-  } else pasteInternal(pasteInPlace);
+  } else if (!pasteBuffer()) pasteInternal(pasteInPlace);
 }
 
 /* ---------- opening ---------- */

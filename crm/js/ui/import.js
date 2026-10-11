@@ -5,6 +5,7 @@
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const UI = g.SlopUI;
   const el = UI.el;
+  const SC_INFO = SlopExamples.info('crm');
 
   /** The plan for the list the person picked: reads the file and checks it against the customers. */
   async function planFor(rec) {
@@ -37,7 +38,9 @@
     UI.dialog({
       title: 'Import from Slop Contacts',
       body: el('div', null, UI.field('Saved list', sel), info,
-        el('p', { class: 'note' }, 'Each contact becomes a lead. Contacts already linked to a customer are skipped.')),
+        el('p', { class: 'note' }, 'Each contact becomes a lead. Contacts already linked to a customer are skipped.'),
+        el('p', { class: 'note' }, SC_INFO.note),
+        el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('crm') }, 'Download example CSV')),
       buttons: [
         { label: 'Cancel' },
         { label: 'Import', primary: true, act: async () => {

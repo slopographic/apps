@@ -9,6 +9,12 @@
   const SELF = (doc && doc.currentScript && doc.currentScript.src) || (root.location && root.location.href) || '';
   const PACKS_URL = new URL('packs.json', SELF).href;
   const listeners = new Set();
+  let onDone = null;
+  /** Tells the page (every listener, then the callback of the dialog that is open) that the pack set changed. */
+  function notify(p) {
+    for (const fn of listeners) { try { fn(p); } catch (e) { /* a listener must not break the dialog */ } }
+    if (onDone) { try { onDone(p); } catch (e) { /* ignore */ } }
+  }
   let manifestP = null, dialog = null, host = null;
 
   const M = () => root.SlopLibraryManifest, S = () => root.SlopLibraryStore;
@@ -58,7 +64,7 @@
 
   /** Opens the dialog. opts.onInstalled(pack) runs after a pack is stored. */
   function open(opts = {}) {
-    if (opts.onInstalled) listeners.add(opts.onInstalled);
+    onDone = opts.onInstalled || null;
     css();
     if (host) host.remove();
     host = el('div', { class: 'slop-lib-ov', on: { click: (e) => { if (e.target === host) close(); } } });
@@ -71,6 +77,7 @@
   }
   function onKey(e) { if (e.key === 'Escape' && host) { e.stopPropagation(); close(); } }
   function close() {
+    onDone = null;
     if (host) host.remove();
     host = null; dialog = null;
     doc.removeEventListener('keydown', onKey, true);
@@ -143,13 +150,13 @@
       go.disabled = false; cancel.disabled = false;
       return;
     }
-    for (const fn of listeners) { try { fn(p); } catch (e) { /* a listener must not break the dialog */ } }
+    notify(p);
     showList(`${p.name} is installed. Its fonts are in every font picker.`);
   }
 
   async function removeInstalled(p) {
     try { await S().removePack(p.id); } catch (e) { showList('Could not remove ' + p.name + ': ' + e.message); return; }
-    for (const fn of listeners) { try { fn(null); } catch (e) { /* ignore */ } }
+    notify(null);
     showList(`${p.name} was removed.`);
   }
 

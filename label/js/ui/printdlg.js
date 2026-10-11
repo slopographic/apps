@@ -11,9 +11,10 @@ function promptValuesDialog(doc = App.doc) {
     inputs[v.name] = dInp(App.prompts[v.name] != null ? App.prompts[v.name] : v.def, 'text', { placeholder: v.pattern ? 'Format: ' + v.pattern : '', maxlength: v.maxLen || null });
     return dRow(v.prompt || v.name, inputs[v.name]);
   }));
+  SlopFormReset.snapshot(body);
   return new Promise((res) => {
     let out = null;
-    SlopUI.dialog({ title: 'Print values', body, onClose: () => res(out), buttons: [{ label: 'Cancel' }, { label: 'Continue', primary: true, act: () => {
+    SlopUI.dialog({ title: 'Print values', body, onClose: () => res(out), buttons: [{ label: 'Cancel' }, SlopFormReset.dialogButton(body), { label: 'Continue', primary: true, act: () => {
       const vals = {}; for (const k in inputs) vals[k] = inputs[k].value;
       const errs = checkPrompts(doc, vals);
       if (errs.length) { SlopUI.toast(errs[0]); return false; }
@@ -87,7 +88,8 @@ async function openPrintDialog() {
   qty.disabled = !!(n && d.data.qtyCol);
   if (n && d.data.qtyCol) qty.title = 'Quantity comes from the "' + d.data.qtyCol + '" column';
   update();
-  SlopUI.dialog({ title: 'Print', cls: 'sl-wide', body, buttons: [{ label: 'Close' }] });
+  SlopFormReset.snapshot(body);
+  SlopUI.dialog({ title: 'Print', cls: 'sl-wide', body, buttons: [SlopFormReset.dialogButton(body), { label: 'Close' }] });
 }
 function zplPreviewDialog(zpl, dpi) {
   const ta = mk('textarea', { class: 'code-view', spellcheck: 'false' }); ta.value = zpl;
@@ -98,7 +100,9 @@ function zplPreviewDialog(zpl, dpi) {
   };
   let t = 0; ta.addEventListener('input', () => { clearTimeout(t); t = setTimeout(render, 400); });
   render();
-  SlopUI.dialog({ title: 'ZPL preview', cls: 'sl-wide', body: mk('div', { class: 'dlg-cols' }, mk('div', null, ta), mk('div', null, pic, info)),
-    buttons: [{ label: 'Copy', act: async () => { try { await navigator.clipboard.writeText(ta.value); SlopUI.toast('ZPL copied'); } catch (e) { ta.select(); document.execCommand('copy'); } return false; } },
+  const cols = mk('div', { class: 'dlg-cols' }, mk('div', null, ta), mk('div', null, pic, info));
+  SlopFormReset.snapshot(cols);
+  SlopUI.dialog({ title: 'ZPL preview', cls: 'sl-wide', body: cols,
+    buttons: [SlopFormReset.dialogButton(cols), { label: 'Copy', act: async () => { try { await navigator.clipboard.writeText(ta.value); SlopUI.toast('ZPL copied'); } catch (e) { ta.select(); document.execCommand('copy'); } return false; } },
       { label: 'Download', act: () => { downloadBytes(ta.value, fileBase() + '.zpl', 'text/plain'); return false; } }, { label: 'Close', primary: true }] });
 }

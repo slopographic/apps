@@ -94,7 +94,7 @@ test('the dialogs load without SlopUI on the page: menu items and the AI hook ar
   const ctx = await loadInto([...CORE, 'config/dialog.js', 'config/dialog-ai.js'], { SLOP_APPS: APPS, Blob, File });
   const D = ctx.SlopConfigDialog;
   assert.equal(typeof D.open, 'function');
-  assert.deepEqual(plain(D.menuItems({ app: 'tables' }).map((i) => i.label)), ['Import config…', 'Export config…', 'Make one with AI…']);
+  assert.deepEqual(plain(D.menuItems({ app: 'tables' }).map((i) => i.label)), ['Export current config…', 'Export plain template…', 'Import config…', 'Ask AI to write a config…']);
   assert.equal(typeof D.makeAi, 'function');
   assert.throws(() => D.open('nope'), /unknown dialog/);
 });

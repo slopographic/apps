@@ -48,16 +48,18 @@ function textSections(o) {
   out.push(fSec('Fit', ...fit));
   return out;
 }
+/** Switching the symbology keeps the module sensible: 2D codes get a bigger module and no text. */
+function applySymbology(x, v) {
+  const was2d = (SYM[x.symbology] || {}).kind === '2d'; x.symbology = v;
+  if (SYM[v].kind === '2d' && !was2d) { x.hr = 'none'; x.module = Math.max(x.module, 0.4); }
+  if (SYM[v].kind === '1d' && was2d) { x.hr = 'below'; x.module = 0.33; }
+}
 function barcodeSections(o, it) {
   const S = SYM[o.symbology] || {}, is2d = S.kind === '2d', lin = !is2d;
   const out = [contentField(o, { placeholder: S.hint || '' }), mk('p', { class: 'hint' }, S.hint || '')];
   if (it && it.value != null && it.value !== o.content && !it.error) out.push(mk('p', { class: 'hint' }, 'Encodes: ', mk('span', { class: 'mono' }, it.value)));
-  const sym = fSec('Symbology', fRow('Type', fSel(symOptions(), o.symbology, (v) => editSel((x) => {
-    const was2d = (SYM[x.symbology] || {}).kind === '2d'; x.symbology = v;
-    if (SYM[v].kind === '2d' && !was2d) { x.hr = 'none'; x.module = Math.max(x.module, 0.4); }
-    if (SYM[v].kind === '1d' && was2d) { x.hr = 'below'; x.module = 0.33; }
-  }, 'Barcode type'))));
-  out.push(sym);
+  const sym = fSec('Symbology', fRow('Type', fSel(symOptions(), o.symbology, (v) => editSel((x) => applySymbology(x, v), 'Barcode type'))));
+  out.push(sym, barcodeGenSection());
   const dims = [fRow('Module (mm)', fNum(o.module, (v) => setProp('module', v, 'Module width'), { min: 0.05, max: 5, step: 0.01, title: 'Width of the narrowest bar or one 2D cell' }))];
   const g = it && it.geom;
   if (g && g.ok) dims.push(mk('p', { class: 'hint' }, `${num(g.module, 3)} mm = ${Math.max(1, mmToDots(g.module, App.doc.dpi))} dots at ${App.doc.dpi} dpi${lin ? ` · ${g.modules} modules` : ` · ${g.modules} × ${g.rows} cells`}`));

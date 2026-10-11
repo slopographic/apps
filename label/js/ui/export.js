@@ -80,8 +80,10 @@ async function importZPLText(text, name) {
 function importZPLDialog() {
   const ta = mk('textarea', { class: 'inp', rows: 12, placeholder: '^XA\n^FO50,50^A0N,40,40^FDHello^FS\n^XZ', style: 'width:100%;min-height:220px;font-family:var(--mono)' });
   const dpi = dSel([[152, '152 dpi'], [203, '203 dpi'], [300, '300 dpi'], [600, '600 dpi']], App.doc.dpi);
-  SlopUI.dialog({ title: 'Import ZPL', cls: 'sui-wide', body: mk('div', { class: 'dlg-form' }, mk('p', { class: 'sui-p' }, 'Paste a ZPL II format (from ZebraDesigner, NiceLabel, an ERP or a printer dump). Fields with ^FN become prompts and ^SN becomes a counter.'), ta, dRow('Printer resolution', dpi)),
-    buttons: [{ label: 'Open file…', act: async () => { const f = (await SlopUI.pickFiles({ accept: '.zpl,.prn,.txt' }))[0]; if (f) ta.value = await f.text(); return false; } }, { label: 'Cancel' },
+  const zbody = mk('div', { class: 'dlg-form' }, mk('p', { class: 'sui-p' }, 'Paste a ZPL II format (from ZebraDesigner, NiceLabel, an ERP or a printer dump). Fields with ^FN become prompts and ^SN becomes a counter.'), ta, dRow('Printer resolution', dpi));
+  SlopFormReset.snapshot(zbody);
+  SlopUI.dialog({ title: 'Import ZPL', cls: 'sui-wide', body: zbody,
+    buttons: [{ label: 'Open file…', act: async () => { const f = (await SlopUI.pickFiles({ accept: '.zpl,.prn,.txt' }))[0]; if (f) ta.value = await f.text(); return false; } }, SlopFormReset.dialogButton(zbody), { label: 'Cancel' },
       { label: 'Import', primary: true, act: async () => {
         if (!/\^XA/i.test(ta.value)) { SlopUI.toast('No ^XA … ^XZ format found'); return false; }
         const old = App.doc.dpi; App.doc.dpi = +dpi.value;

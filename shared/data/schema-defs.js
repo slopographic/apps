@@ -14,6 +14,7 @@
     payMethod: ['cash', 'bank', 'card', 'other'],
     stockReason: ['receipt', 'sale', 'adjustment', 'transfer', 'count', 'return'],
     rateSource: ['manual', 'ecb', 'fixed'],
+    tagColor: ['blue', 'green', 'amber', 'red', 'violet', 'teal', 'pink', 'grey'],
   };
   const ACCT = { CASH: '1000', BANK: '1010', AR: '1200', TAX_PAYABLE: '2100', EQUITY: '3000', REVENUE: '4000', EXPENSES: '5000' };
   const DEFAULT_CHART = [
@@ -118,10 +119,17 @@
       id: F.id({ req: true }), name: F.str({ req: true }), email: F.str({ max: 200 }), phone: F.str({ max: 60 }), address: F.text({ max: 1000 }),
       categories: { t: 'strings', max: 20, itemMax: 40, def: [] }, stage: F.en(ENUM.stage, { def: 'lead' }), notes: F.text({}),
       contactId: F.str({ max: 80 }), followUp: F.date({}),
+      groupIds: { t: 'strings', max: 50, itemMax: 80, def: [] }, tagIds: { t: 'strings', max: 50, itemMax: 80, def: [] },
       company: F.str({ max: 200 }), department: F.str({ max: 200 }), title: F.str({ max: 200 }), website: F.str({ max: 300 }),
       birthday: F.str({ max: 20 }), photo: F.str({ max: 400000 }),
       phoneLabel: F.str({ max: 40 }), emailLabel: F.str({ max: 40 }), addressLabel: F.str({ max: 40 }),
       phones: F.entries({ max: 10, valMax: 60 }), emails: F.entries({ max: 10, valMax: 200 }), addresses: F.entries({ max: 10, valMax: 1000 }) } },
+    // Groups: named sets a customer can belong to (many to many). Customers keep the group ids in groupIds.
+    customerGroups: { key: 'id', fields: {
+      id: F.id({ req: true }), name: F.str({ req: true, max: 60 }) } },
+    // Tags: coloured labels with one definition each. Customers keep the tag ids in tagIds. Merge and delete update customers.
+    customerTags: { key: 'id', fields: {
+      id: F.id({ req: true }), name: F.str({ req: true, max: 40 }), color: F.en(ENUM.tagColor, { req: true, def: 'blue' }) } },
     products: { key: 'id', unique: ['sku', 'ean'], refs: [{ collection: 'stockMovements', index: 'productId' }],
       indexes: [{ name: 'sku', key: 'sku', unique: true }, { name: 'ean', key: 'ean', unique: true }, { name: 'name', key: 'name' }], fields: {
       id: F.id({ req: true }), sku: F.str({ req: true, max: 80, pattern: /^\S+$/ }), ean: { t: 'ean' }, name: F.str({ req: true }),

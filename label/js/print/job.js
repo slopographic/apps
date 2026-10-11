@@ -2,7 +2,7 @@
  * position) into concrete labels with resolved variables, and places them on pages. */
 'use strict';
 
-/** opts: { records: 'all'|'current'|'range', from, to (1-based), current (0-based), qty (labels when no data),
+/** opts: { records: 'all'|'current'|'range'|'only', only (0-based indexes, for 'only'), from, to (1-based), current (0-based), qty (labels when no data),
  *  copies (identical copies), qtyCol, prompts, now, counterBase } → { labels:[{get, record, serial, copy}], warnings } */
 function buildJob(doc, opts = {}) {
   const n = recordCount(doc);
@@ -12,6 +12,7 @@ function buildJob(doc, opts = {}) {
   let recIdx = [];
   if (!n) recIdx = [-1];
   else if (opts.records === 'current') recIdx = [clamp(opts.current | 0, 0, n - 1)];
+  else if (opts.records === 'only') recIdx = (opts.only || []).filter((i) => i >= 0 && i < n);
   else if (opts.records === 'range') { const a = clamp((opts.from | 0 || 1) - 1, 0, n - 1), b = clamp((opts.to | 0 || n) - 1, a, n - 1); for (let i = a; i <= b; i++) recIdx.push(i); }
   else for (let i = 0; i < n; i++) recIdx.push(i);
   const qtyCol = opts.qtyCol != null ? opts.qtyCol : doc.data && doc.data.qtyCol;

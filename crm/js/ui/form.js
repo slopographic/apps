@@ -26,10 +26,12 @@
     const body = el('form', { class: 'crm-form', novalidate: true, onsubmit: (e) => e.preventDefault() },
       UI.field('Name', f.name), UI.field('Email', f.email), UI.field('Phone', f.phone), UI.field('Address', f.address),
       UI.field('Categories (comma separated)', f.categories), UI.field('Stage', f.stage), UI.field('Follow-up date', f.followUp), msg);
+    SlopFormReset.snapshot(body);
     UI.dialog({
       title: id ? 'Edit customer' : 'Add customer', body,
       buttons: [
         { label: 'Cancel' },
+        SlopFormReset.dialogButton(body),
         { label: 'Save', primary: true, act: async () => {
           const changes = {
             name: f.name.value, email: f.email.value, phone: f.phone.value, address: f.address.value,

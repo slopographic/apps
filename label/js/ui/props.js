@@ -79,6 +79,8 @@ function focusContent() {
 
 /* ---------------- panel ---------------- */
 function renderProps(body) {
+  markPropsOpen();
+  body.append(mk('div', { class: 'btnrow', style: 'margin-bottom:6px' }, fBtn('Reset', resetProps, { cls: 'small', title: 'Put back the values from when this was selected' })));
   const objs = selObjs();
   if (!objs.length) return renderLabelProps(body);
   if (objs.length > 1) return renderMultiProps(body, objs);

@@ -110,23 +110,29 @@ function deleteVar(v) {
 function renderData(body) {
   const d = App.doc, D = d.data;
   const btns = mk('div', { class: 'btnrow' }, fBtn('Import CSV / Excel…', () => importDataDialog()), fBtn('Paste data…', () => pasteDataDialog()), hubAvailable() ? fBtn('From Slop Drive…', () => dataFromDrive()) : null);
+  const examples = mk('div', { class: 'btnrow' }, fBtn('Example CSV', downloadExampleCSV, { title: 'Download a CSV with the right column names' }), fBtn('Example template', downloadExampleTemplate, { title: 'Download a sample .sloplabel label to open' }));
   if (!D) {
-    body.append(fSec('Data source', btns, mk('p', { class: 'hint' }, 'Merge a spreadsheet: every row prints one label. Columns become {Fields}; a column with the same name as a prompt variable fills it. CSV, TSV, JSON and Excel .xlsx are read here in the browser.')));
+    body.append(fSec('Data source', btns, examples, mk('p', { class: 'hint' }, 'Merge a spreadsheet: every row prints one label. Columns become {Fields}; a column with the same name as a prompt variable fills it. CSV, TSV, JSON and Excel .xlsx are read here in the browser. The example CSV has SKU, Name, Price, EAN and Qty columns; Qty sets how many labels a row prints.')));
     return;
   }
   const n = D.rows.length;
   body.append(fSec('Data source',
     mk('p', { class: 'hint' }, `${D.name} · ${n} record${n === 1 ? '' : 's'} · ${D.columns.length} columns`),
     mk('div', { class: 'btnrow' }, fBtn('Map columns…', () => mapColumnsDialog(D)), fBtn('Replace…', () => importDataDialog()), fBtn('Remove', () => editDoc((x) => { x.data = null; }, 'Remove data'), { cls: 'danger' })),
-    fRow('Quantity from', fSel([['', '(1 label per record)'], ...D.columns.map((c) => [c, c])], D.qtyCol || '', (v) => editDoc((x) => { x.data.qtyCol = v; }, 'Quantity column')))));
+    fRow('Quantity from', fSel([['', '(1 label per record)'], ...D.columns.map((c) => [c, c])], D.qtyCol || '', (v) => editDoc((x) => { x.data.qtyCol = v; }, 'Quantity column'))),
+    mk('div', { class: 'btnrow' }, fBtn(`Print all (${n})`, () => bulkPrint(false), { cls: 'primary', title: 'One label per record, on the label stock or a custom grid' }),
+      fBtn(`Print selected (${[...BULK.picked].filter((i) => i < n).length})`, () => bulkPrint(true), { title: 'Tick records in the table below first' })),
+    examples));
   const wrap = mk('div', { class: 'tbl-wrap' }), tbl = mk('table', { class: 'tbl' }), max = Math.min(n, 300);
-  tbl.append(mk('thead', null, mk('tr', null, mk('th', null, '#'), D.columns.map((c) => mk('th', { title: (D.map && D.map[c] && D.map[c] !== c) ? '→ {' + D.map[c] + '}' : c }, c + (D.map && D.map[c] && D.map[c] !== c ? ' → ' + D.map[c] : ''))))));
+  tbl.append(mk('thead', null, mk('tr', null, mk('th', { title: 'Tick to print selected' }, 'Print'), mk('th', null, '#'), D.columns.map((c) => mk('th', { title: (D.map && D.map[c] && D.map[c] !== c) ? '→ {' + D.map[c] + '}' : c }, c + (D.map && D.map[c] && D.map[c] !== c ? ' → ' + D.map[c] : ''))))));
   const tb = mk('tbody');
   for (let i = 0; i < max; i++) {
-    const tr = mk('tr', { class: i === App.rec ? 'on' : '' }, mk('td', null, i + 1), D.rows[i].map((v) => mk('td', { title: v }, v)));
+    const tick = mk('input', { type: 'checkbox', checked: BULK.picked.has(i), 'aria-label': 'Print record ' + (i + 1) });
+    tick.addEventListener('click', (e) => { e.stopPropagation(); if (tick.checked) BULK.picked.add(i); else BULK.picked.delete(i); });
+    const tr = mk('tr', { class: i === App.rec ? 'on' : '' }, mk('td', null, tick), mk('td', null, i + 1), D.rows[i].map((v) => mk('td', { title: v }, v)));
     tr.addEventListener('click', () => setRecord(i));
     tb.append(tr);
   }
   tbl.append(tb); wrap.append(tbl);
-  body.append(wrap, n > max ? mk('p', { class: 'hint' }, `Showing the first ${max} of ${n} records.`) : null, mk('p', { class: 'hint' }, 'Click a row to preview it on the label (PageUp / PageDown step through records).'));
+  body.append(wrap, n > max ? mk('p', { class: 'hint' }, `Showing the first ${max} of ${n} records.`) : null, mk('p', { class: 'hint' }, 'Click a row to preview it on the label (PageUp / PageDown step through records). Tick rows to print only those.'));
 }

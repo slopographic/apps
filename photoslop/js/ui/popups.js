@@ -61,12 +61,14 @@ async function clipboardImage() {
 async function pasteFromSystem(inPlace) {
   try {
     const blob = await clipboardImage();
+    if (blob && SlopBuffer.isSystemCopyOf(blob) && pasteBuffer()) return; // our own buffer copy: the buffer item, with its vector
     if (blob) {
       const c = await fileToCanvas(blob);
       if (CLIP.canvas && c.width === CLIP.canvas.width && c.height === CLIP.canvas.height) { pasteInternal(inPlace); return; }
       pasteCanvas(c, null, null, 'Pasted Image'); return;
     }
   } catch (e) { /* permission denied or unsupported: fall back to the internal clipboard */ }
+  if (pasteBuffer()) return; // nothing on the system clipboard: the shared buffer, if it is newer
   if (CLIP.canvas) pasteInternal(inPlace);
   else toast(`Copy an image anywhere, then press ${MOD}V here to paste it`);
 }

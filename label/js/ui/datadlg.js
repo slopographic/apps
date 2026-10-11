@@ -26,6 +26,7 @@ async function useDataSource(src) {
 }
 function pasteDataDialog() {
   const ta = mk('textarea', { class: 'inp', rows: 10, placeholder: 'Name,SKU,Price\nLime goo,SLP-1,4.99\n…  (or a JSON array)', style: 'width:100%;min-height:200px' });
+  SlopFormReset.snapshot(ta.parentNode);
   SlopUI.dialog({ title: 'Paste data', cls: 'sui-wide', body: mk('div', null, mk('p', { class: 'sui-p' }, 'Paste rows from a spreadsheet (tab separated), CSV or JSON. The first row holds the column names.'), ta),
     buttons: [{ label: 'Cancel' }, { label: 'Next', primary: true, act: async () => {
       const t = ta.value.trim(); if (!t) return false;
@@ -50,8 +51,9 @@ function mapColumnsDialog(D, isNew = false) {
   const qty = mk('select', { class: 'inp' }, [['', '(one label per record)'], ...D.columns.map((c) => [c, c])].map(([v, l]) => mk('option', { value: v }, l)));
   qty.value = D.qtyCol || '';
   const body = mk('div', { class: 'dlg-form' }, mk('p', { class: 'sui-p' }, `${D.name}: ${D.rows.length} records. Each column becomes a {Field}; or let it fill an existing variable (for example a prompt).`), grid, dRow('Labels per record', qty));
+  SlopFormReset.snapshot(body);
   return new Promise((res) => SlopUI.dialog({ title: 'Map data columns', cls: 'sui-wide', body, onClose: (ok) => res(ok),
-    buttons: [{ label: 'Cancel' }, { label: isNew ? 'Use data' : 'Apply', primary: true, act: () => {
+    buttons: [{ label: 'Cancel' }, SlopFormReset.dialogButton(body), { label: isNew ? 'Use data' : 'Apply', primary: true, act: () => {
       const map = {}; for (const c of D.columns) if (sels[c].value !== c) map[c] = sels[c].value;
       if (isNew) { D.map = map; D.qtyCol = qty.value; } else editDoc((d) => { d.data.map = map; d.data.qtyCol = qty.value; }, 'Map columns');
     } }] }));

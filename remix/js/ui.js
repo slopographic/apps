@@ -20,13 +20,13 @@
     $('rm-count').textContent = st.items.length + ' item' + (st.items.length === 1 ? '' : 's');
     ul.replaceChildren(...st.items.map((it) => {
       const li = document.createElement('li');
-      li.draggable = true; li.title = 'Drag onto a slot of the preview or a cut';
+      li.draggable = !it.missing; li.title = it.missing ? 'Missing: add a file with this name' : 'Drag onto a slot of the preview or a cut';
       li.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData(RM.ITEM_MIME, it.id); e.dataTransfer.setData('text/plain', it.name);
         e.dataTransfer.effectAllowed = 'copy';
       });
       const name = document.createElement('span');
-      name.className = 'rm-name'; name.textContent = it.name + ' · ' + (it.kind === 'video' ? fmt(it.dur) : 'photo') + (it.w && it.h ? ' · ' + SV.orient.classify(it.w / it.h) : '');
+      name.className = 'rm-name'; name.textContent = (it.missing ? 'Missing · ' : '') + it.name + ' · ' + (it.kind === 'video' ? fmt(it.dur) : 'photo') + (it.w && it.h ? ' · ' + SV.orient.classify(it.w / it.h) : '');
       const rm = document.createElement('button');
       rm.type = 'button'; rm.className = 'rm-x'; rm.textContent = '×'; rm.title = 'Remove ' + it.name; rm.setAttribute('aria-label', 'Remove ' + it.name);
       rm.onclick = () => { RM.removeItem(it.id); renderBin(); status('Removed ' + it.name + '. Press Remix to plan again.'); };
@@ -114,10 +114,27 @@
   RM.reshuffleNow = function () { readControls(); RM.reshuffle(); $('rm-seed').value = S.hex(RM.state.seed); renderPlan(); status('Reshuffled: new seed ' + S.hex(RM.state.seed)); return RM.state.plan; };
 
   async function addFiles(files) {
+    const holes = RM.state.items.filter((x) => x.missing).length;
     const n = await RM.addFiles(files);
+    const filled = holes - RM.state.items.filter((x) => x.missing).length;
     renderBin();
+    if (filled > 0) { remix(); status('Filled ' + filled + ' missing clip' + (filled > 1 ? 's' : '') + ' and planned the edit again.'); return; }
     status(n ? 'Added ' + n + ' file' + (n > 1 ? 's' : '') + '. Press Remix to make the edit.' : 'Those files are not images or videos.');
   }
+  /** After a config import: the controls show the state, and the bin, the plan and the lane are drawn again. */
+  RM.syncUI = function () {
+    const st = RM.state;
+    $('rm-target').value = String(st.target);
+    $('rm-pace').value = st.pace; $('rm-preset').value = st.preset; $('rm-fill').value = st.fill;
+    $('rm-timing').value = st.timing; $('rm-vtiming').value = st.video;
+    $('rm-lmin').value = String(st.min); $('rm-lmax').value = String(st.max); $('rm-stagger').value = String(st.stagger);
+    $('rm-audio').value = st.audioMode; renderTracks();
+    $('rm-cw').value = String(st.custom.w); $('rm-ch').value = String(st.custom.h);
+    $('rm-base').value = st.base; $('rm-random').checked = st.random; gridBoxes();
+    $('rm-seed').value = S.hex(st.seed);
+    if (RM.lane) RM.lane.update({ switches: st.lane });
+    renderBin(); renderPlan();
+  };
   function gridBoxes() {
     const wrap = $('rm-grids');
     wrap.replaceChildren(...RM.GRIDS.map((g) => {

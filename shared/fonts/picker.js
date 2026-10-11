@@ -104,8 +104,9 @@
     return `"${String(family).replace(/"/g, '')}", ${GENERIC[m ? m.category : 'sans'] || 'sans-serif'}`;
   }
 
-  /** Rebuilds the options (legacy entries are a name or a [value, label] pair): standard names, bundled families, then downloaded ones. The value in the
-   * select (or current) is kept even when that font is not installed, so a saved document still shows it. */
+  /** Rebuilds the options. Legacy entries are a name or a [value, label] pair; the order is standard names,
+   * bundled families, downloaded ones. The value in the select (or current) is kept even when that font is not
+   * installed, so a saved document still shows it. */
   function render(sel, legacy, extra, current) {
     const want = sel.value || current || '';
     const groups = [['Standard', []], ['Bundled (offline)', []], ['Downloaded', []]];
@@ -123,6 +124,9 @@
     }));
     sel.value = want;
   }
+
+  /** Synchronous list of bundled and downloaded family names known so far (for menus). */
+  function names() { return BUNDLED.concat(downloadedNames); }
 
   /** Connects a <select> to the picker. opts: { value, legacy: [names], onPick(family), getMore: true }.
    * The options are there at once; downloaded families are added when the store answers.
