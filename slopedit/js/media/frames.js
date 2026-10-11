@@ -112,7 +112,8 @@
       get mode() { return modes.has('seek') ? (modes.has('decoder') ? 'mixed' : 'seek') : 'decoder'; },
       async prepare(t) {
         ready.clear();
-        for (const L of SE.compositor.layers(p, t)) {
+        const layers = SE.compositor.layers(p, t), live = new Set(layers.map((L) => L.clip.id));
+        for (const L of layers) {
           const c = L.clip;
           if (c.kind !== 'video') continue;
           const it = SE.media.get(c.media);
@@ -127,7 +128,7 @@
           }
           ready.set(c.id, f);
         }
-        for (const [id, r] of readers) if (!M.clip(p, id) || !SE.compositor.layers(p, t).some((L) => L.clip.id === id)) { if (t > M.end(M.clip(p, id) || { start: 0, dur: 0 }) + 2) { r.close(); readers.delete(id); } }
+        for (const [id, r] of readers) { const c = M.clip(p, id); if (!c || (!live.has(id) && t > M.end(c) + 1)) { r.close(); readers.delete(id); } }
       },
       get(c) {
         if (c.kind === 'image') { const it = SE.media.get(c.media); return it && it.bmp; }

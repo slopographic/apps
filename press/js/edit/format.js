@@ -16,7 +16,7 @@
     return out;
   };
   FM.hasText = function () { return FM.targets().length > 0; };
-  function done(label) { STY.invalidate(); H.commit(label); if (TE.changed && S.text) TE.changed(); PR.emit('textsel'); }
+  function done(label) { STY.invalidate(); H.commit(label); if (TE.changed && S.text) { TE.changed(); var ae = document.activeElement; if (!ae || ae === TE.input || !/^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) TE.focus(); } PR.emit('textsel'); }
 
   /** Character attributes (overrides). patch values of null remove an override. */
   FM.char = function (patch, label) {
