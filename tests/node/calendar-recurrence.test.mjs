@@ -17,6 +17,8 @@ for (const f of ['tz.js', 'rrule.js', 'ics.js']) {
 const T = ctx.SlopTime, R = ctx.SlopRecur, I = ctx.SlopIcs;
 const PARIS = 'Europe/Paris', NY = 'America/New_York', TOKYO = 'Asia/Tokyo';
 const plain = (v) => JSON.parse(JSON.stringify(v));
+// Values made inside the vm context have another Array prototype, so compare as JSON text.
+const same = (a, b) => assert.equal(JSON.stringify(a), JSON.stringify(b));
 
 /** A timed event in a zone from wall-clock start and end readings. */
 function timed(id, title, tz, y, mo, d, h, mi, durMin, extra = {}) {
@@ -29,14 +31,14 @@ const wallOf = (instant, tz) => { const p = T.parts(instant, tz); return `${p.da
 test('weekly event repeats on the same weekday and wall time in its zone', () => {
   const ev = timed('w1', 'Standup', PARIS, 2026, 10, 1, 9, 0, 30, { freq: 'weekly' });
   const occ = R.occurrences(ev, ms(2026, 10, 1, 0, 0, PARIS), ms(2026, 11, 1, 0, 0, PARIS), PARIS);
-  assert.deepEqual(occ.map((o) => wallOf(o.start, PARIS)), ['2026-10-01 09:00', '2026-10-08 09:00', '2026-10-15 09:00', '2026-10-22 09:00', '2026-10-29 09:00']);
+  same(occ.map((o) => wallOf(o.start, PARIS)), ['2026-10-01 09:00', '2026-10-08 09:00', '2026-10-15 09:00', '2026-10-22 09:00', '2026-10-29 09:00']);
   assert.ok(occ.every((o) => o.end - o.start === 30 * 60000));
 });
 
 test('weekly repeat keeps 09:00 Paris across the spring daylight saving change', () => {
   const ev = timed('w2', 'Gym', PARIS, 2026, 3, 22, 9, 0, 60, { freq: 'weekly' });
   const occ = R.occurrences(ev, ms(2026, 3, 20, 0, 0, PARIS), ms(2026, 4, 12, 0, 0, PARIS), PARIS);
-  assert.deepEqual(occ.map((o) => wallOf(o.start, PARIS).slice(-5)), ['09:00', '09:00', '09:00']);
+  same(occ.map((o) => wallOf(o.start, PARIS).slice(-5)), ['09:00', '09:00', '09:00']);
   // 22 March is winter time (+1), 29 March is summer time (+2): the UTC hour moves, the wall clock does not.
   assert.equal(new Date(occ[0].start).getUTCHours(), 8);
   assert.equal(new Date(occ[1].start).getUTCHours(), 7);
@@ -52,13 +54,13 @@ test('until is inclusive and ends the repeat', () => {
 test('monthly repeat skips months without the day, as RFC 5545 does', () => {
   const ev = { id: 'm1', title: 'Rent', allDay: true, startDay: '2026-01-31', endDay: '2026-01-31', tz: PARIS, freq: 'monthly', color: 'blue' };
   const occ = R.occurrences(ev, ms(2026, 1, 1, 0, 0, PARIS), ms(2026, 5, 1, 0, 0, PARIS), PARIS);
-  assert.deepEqual(occ.map((o) => o.startDay), ['2026-01-31', '2026-03-31']);
+  same(occ.map((o) => o.startDay), ['2026-01-31', '2026-03-31']);
 });
 
 test('yearly repeat of 29 February skips common years', () => {
   const ev = { id: 'y1', title: 'Leap', allDay: true, startDay: '2028-02-29', endDay: '2028-02-29', tz: PARIS, freq: 'yearly', color: 'blue' };
   const occ = R.occurrences(ev, ms(2028, 1, 1, 0, 0, PARIS), ms(2033, 1, 1, 0, 0, PARIS), PARIS);
-  assert.deepEqual(occ.map((o) => o.startDay), ['2028-02-29', '2032-02-29']);
+  same(occ.map((o) => o.startDay), ['2028-02-29', '2032-02-29']);
 });
 
 test('a far-off range is reached without walking every earlier occurrence', () => {
@@ -110,7 +112,7 @@ test('.ics round trip keeps title, times, zone, repeat, place, notes and reminde
   assert.ok(text.includes('DTEND;VALUE=DATE:20261227'));
   const back = I.parse(text, { fallbackZone: PARIS });
   assert.equal(back.total, 3);
-  assert.deepEqual(back.warnings, []);
+  same(back.warnings, []);
   const [a, b, c] = back.events;
   assert.equal(a.title, 'Call Jane, re: quote; final');
   assert.equal(a.start, src[0].start);
@@ -164,5 +166,5 @@ test('.ics import reads a UTC DTSTART with an alarm as minutes before', () => {
 
 test('a plain JSON check: records survive the store shape', () => {
   const ev = timed('s1', 'Shape', PARIS, 2026, 10, 1, 9, 0, 30, { freq: 'weekly' });
-  assert.deepEqual(plain(ev).freq, 'weekly');
+  same(plain(ev).freq, 'weekly');
 });
