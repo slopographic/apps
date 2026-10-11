@@ -35,6 +35,12 @@
     ctx.defs.push(gradSVG(p, id));
     return 'url(#' + id + ')';
   }
+  /** A paint attribute. A solid '#rrggbbaa' is written SVG 1.1 style: the colour plus fill-opacity / stroke-opacity. */
+  function paintAttr(name, p, ctx, o, which) {
+    var r = paintRef(p, ctx, o, which), m = /^#([0-9a-f]{6})([0-9a-f]{2})$/i.exec(r);
+    if (!m) return ' ' + name + '="' + r + '"';
+    return ' ' + name + '="#' + m[1] + '" ' + name + '-opacity="' + fmt(parseInt(m[2], 16) / 255) + '"';
+  }
   function styleAttrs(o, ctx) {
     var st = o.style, a = '';
     if (ctx.outline) {
@@ -42,10 +48,10 @@
       return ' fill="none" stroke="#000" stroke-width="1" vector-effect="non-scaling-stroke"';
     }
     if (o.type !== 'image') {
-      a += ' fill="' + paintRef(st.fill, ctx, o, 'f') + '"';
+      a += paintAttr('fill', st.fill, ctx, o, 'f');
       if (st.fill && st.rule === 'evenodd') a += ' fill-rule="evenodd"';
       if (st.stroke && st.sw > 0) {
-        a += ' stroke="' + paintRef(st.stroke, ctx, o, 's') + '" stroke-width="' + fmt(st.sw) + '"';
+        a += paintAttr('stroke', st.stroke, ctx, o, 's') + ' stroke-width="' + fmt(st.sw) + '"';
         if (st.cap && st.cap !== 'butt') a += ' stroke-linecap="' + st.cap + '"';
         if (st.join && st.join !== 'miter') a += ' stroke-linejoin="' + st.join + '"';
         if (st.join === 'miter' && st.miter && st.miter !== 4) a += ' stroke-miterlimit="' + fmt(st.miter) + '"';

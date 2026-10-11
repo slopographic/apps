@@ -159,7 +159,19 @@
       expect(W.C.bg).toBe('#334455');
     });
 
-    it('the alpha field writes an alpha colour and X swaps the swatch colours, D restores the defaults', async () => {
+    it('the alpha field writes an alpha colour to the foreground, and Cancel restores the old colour', async () => {
+      W.setColor('fg', '#102030');
+      win.document.querySelector('.sw-fg').click();
+      await waitFor(() => dlg() && dlg().querySelector('.scp-hex'), { timeout: 5000 });
+      const a = [...dlg().querySelectorAll('input')].find((i) => i.getAttribute('aria-label') === 'Alpha');
+      a.value = '50'; a.dispatchEvent(new win.Event('input', { bubbles: true }));
+      expect(W.C.fg).toBe('#10203080');
+      dlgButton('Cancel').click();
+      await sleep(300);
+      expect(W.C.fg).toBe('#102030');
+    });
+
+    it('X swaps the swatch colours, D restores the defaults', async () => {
       W.setColor('fg', '#112233'); W.setColor('bg', '#445566');
       key('x', 'KeyX');
       expect(W.C.fg).toBe('#445566'); expect(W.C.bg).toBe('#112233');

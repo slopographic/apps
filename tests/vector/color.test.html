@@ -83,6 +83,13 @@
       UI.closePicker();
     });
 
+    it('an alpha fill exports as an SVG 1.1 colour plus fill-opacity', () => {
+      blank();
+      rect(10, 10, 50, 50, { fill: '#11223380', stroke: null });
+      const svg = IO.exportSVG({});
+      expect(svg).toMatch(/fill="#112233" fill-opacity="0\.50\d*"/);
+    });
+
     it('the recent colours row keeps the colours used, newest first', async () => {
       SV.lsSet('slopvector.recentColors', '[]');
       blank();

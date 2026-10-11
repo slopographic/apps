@@ -91,7 +91,7 @@
     var stopChip = h('button', { type: 'button', class: 'chip small', title: 'Stop color', 'aria-label': 'Stop color' }, [h('span', { class: 'chip-in' })]);
     stopChip.addEventListener('click', function () {
       var p = gradTargetPaint(); if (!p) return; var sIdx = min(gStop, p.stops.length - 1);
-      UI.pickColor(stopChip, p.stops[sIdx].c, function (hex) { setGrad(function (q) { q.stops[sIdx].c = hex; }, false); }, function (v, changed) { if (changed) SV.commit('gradient stop'); }, { title: 'Gradient stop' });
+      UI.pickColor(stopChip, p.stops[sIdx].c, function (hex) { setGrad(function (q) { q.stops[sIdx].c = hex; }, false); }, function (v, changed) { if (changed) SV.commit('gradient stop'); }, { title: 'Gradient stop', alpha: false });
     });
     var stopOp = numIn(g, { label: 'Stop opacity', min: 0, max: 100, get: function () { var p = gradTargetPaint(); if (!p) return null; var s = p.stops[min(gStop, p.stops.length - 1)]; return round((s.a == null ? 1 : s.a) * 100); }, set: function (v) { setGrad(function (p) { p.stops[min(gStop, p.stops.length - 1)].a = v / 100; }); }, cls: 'w44' });
     var stopLoc = numIn(g, { label: 'Stop location', min: 0, max: 100, get: function () { var p = gradTargetPaint(); if (!p) return null; return round(p.stops[min(gStop, p.stops.length - 1)].o * 100); }, set: function (v) { setGrad(function (p) { p.stops[min(gStop, p.stops.length - 1)].o = v / 100; }); }, cls: 'w44' });
