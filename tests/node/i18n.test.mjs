@@ -18,29 +18,23 @@ const EN = {
   'greet': 'Hi {name}, {n} left, {missing} stays',
 };
 
+const TWO = [{ code: 'en', name: 'English', dir: 'ltr', complete: true }, { code: 'xx', name: 'Test', dir: 'rtl', complete: false }];
+const base = await loadInto(['profile/profile.js', 'i18n/i18n.js'], { localStorage: memStorage() });
+
 /** The global instance, loaded the way a page loads it (profile, then i18n, then strings). */
 async function global(seed = {}) {
   const storage = memStorage(seed);
   const ctx = await loadInto(['profile/profile.js', 'i18n/i18n.js', 'i18n/strings.js'], { localStorage: storage });
   return { I: ctx.SlopI18n, storage };
 }
-/** A fresh instance with its own two-language list and storage. */
-function instance({ seed = {}, en = EN, xx } = {}) {
-  const storage = memStorage(seed);
-  return ctxFor(storage, en, xx);
+/** A fresh instance over a two-language list (en, xx), with its own storage and strings. */
+function instance({ seed = {}, en = EN, xx, document, storage } = {}) {
+  const I = base.SlopI18n.create({ languages: TWO, storage: storage || memStorage(seed), document });
+  I.add('en', en);
+  if (xx) I.add('xx', xx);
+  return I;
 }
-let ctxFor;
-async function setup() {
-  const ctx = await loadInto(['profile/profile.js', 'i18n/i18n.js'], { localStorage: memStorage() });
-  ctxFor = (storage, en, xx) => {
-    const languages = [{ code: 'en', name: 'English', dir: 'ltr', complete: true }, { code: 'xx', name: 'Test', dir: 'rtl', complete: false }];
-    const I = ctx.SlopI18n.create({ languages, storage });
-    I.add('en', en);
-    if (xx) I.add('xx', xx);
-    return I;
-  };
-}
-await setup();
+const XX = JSON.stringify({ v: 1, data: { lang: { mode: 'xx' } } });
 
 test('the language list is data: English first, codes unique, each with a name and a text direction', async () => {
   const { I } = await global();
@@ -110,21 +104,17 @@ test('t() on the global instance gives the English strings the pages use', async
 });
 
 test('apply() sets lang and dir on the root, replaces data-i18n text and data-i18n-attr attributes', async () => {
-  const seed = { 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: 'xx' } } }) };
-  const I = instance({ seed, en: EN, xx: { 'nav.apps': 'Xx apps' } });
   const root = fakeEl('html');
   const apps = fakeEl('a', { 'data-i18n': 'nav.apps' }, 'Apps');
   const status = fakeEl('a', { 'data-i18n': 'nav.status' }, 'Status');
   const aria = fakeEl('button', { 'data-i18n-attr': 'aria-label:nav.apps;title:nav.status' }, '');
   const keep = fakeEl('p', { 'data-i18n': 'no.such.key' }, 'Kept');
   const nodes = { '[data-i18n]': [apps, status, keep], '[data-i18n-attr]': [aria] };
-  const doc = { documentElement: root, querySelectorAll: (sel) => nodes[sel] || [] };
-  const I2 = I.create({ document: doc, languages: I.LANGS, storage: memStorage(seed) });
-  I2.add('en', EN);
-  I2.add('xx', { 'nav.apps': 'Xx apps' });
-  I2.apply();
+  const document = { documentElement: root, querySelectorAll: (sel) => nodes[sel] || [] };
+  const I = instance({ seed: { 'slop-profile': XX }, en: EN, xx: { 'nav.apps': 'Xx apps' }, document });
+  I.apply();
   assert.equal(root.attrs.lang, 'xx');
-  assert.equal(root.attrs.dir, 'ltr', 'xx is listed as rtl in the test list only through its own entry');
+  assert.equal(root.attrs.dir, 'rtl');
   assert.equal(apps.textContent, 'Xx apps');
   assert.equal(status.textContent, 'Status', 'missing in xx, so English text');
   assert.equal(keep.textContent, 'Kept', 'missing everywhere, so the element keeps its own text');
@@ -132,14 +122,12 @@ test('apply() sets lang and dir on the root, replaces data-i18n text and data-i1
   assert.equal(aria.attrs.title, 'Status');
 });
 
-test('a right-to-left language sets dir="rtl" on the root', async () => {
-  const seed = { 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: 'xx' } } }) };
+test('apply() on an English page sets lang="en" and dir="ltr"', async () => {
   const root = fakeEl('html');
-  const doc = { documentElement: root, querySelectorAll: () => [] };
-  const ctx = await loadInto(['profile/profile.js', 'i18n/i18n.js'], { localStorage: memStorage(seed) });
-  const I = ctx.SlopI18n.create({ document: doc, languages: [{ code: 'en', name: 'English', dir: 'ltr' }, { code: 'xx', name: 'Test', dir: 'rtl' }], storage: memStorage(seed) });
-  I.apply();
-  assert.equal(root.attrs.dir, 'rtl');
+  const document = { documentElement: root, querySelectorAll: () => [] };
+  instance({ en: EN, document }).apply();
+  assert.equal(root.attrs.lang, 'en');
+  assert.equal(root.attrs.dir, 'ltr');
 });
 
 test('every data-i18n key on the homepage and Settings has an English string', async () => {
