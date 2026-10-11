@@ -15,6 +15,7 @@ const frames = [];
 /** Each describe starts with no open tabs and no saved drafts, so one test's autosave never reopens in the next. */
 async function clearDrafts() {
   for (const f of frames.splice(0)) f.remove();
+  await new Promise((res) => setTimeout(res, 300)); // a removed page still flushes its tabs on pagehide: let that land first
   localStorage.removeItem('slop.doctabs.docs.v1');
   await new Promise((res) => { const r = indexedDB.deleteDatabase('slop-doctabs'); r.onsuccess = r.onerror = r.onblocked = () => res(); });
 }
