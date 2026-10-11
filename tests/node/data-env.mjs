@@ -1,0 +1,21 @@
+// Loads the classic browser scripts of shared/data into a vm context (no DOM, no IndexedDB).
+// Helper for data.test.mjs and data-ledger.test.mjs. Not a test file itself.
+import vm from 'node:vm';
+import path from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+
+const DATA = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'shared', 'data');
+export const PURE = ['money.js', 'barcode.js', 'schema.js', 'numbering.js', 'ledger.js', 'stock.js', 'billing.js', 'bundle-check.js'];
+
+/** Returns window.SlopData from a fresh context with the given files loaded in order. */
+export async function load(files = PURE) {
+  const ctx = {};
+  ctx.window = ctx;
+  vm.createContext(ctx);
+  for (const f of files) vm.runInContext(await readFile(path.join(DATA, f), 'utf8'), ctx, { filename: f });
+  return ctx.SlopData;
+}
+
+/** Plain copy of a value, so objects made inside the vm context compare equal to host objects. */
+export const plain = (v) => JSON.parse(JSON.stringify(v));
