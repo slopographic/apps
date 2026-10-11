@@ -3,7 +3,7 @@
 // Run: node tests/run.mjs consent
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadInto, DATA_FILES, fakeTx, plain, FakeDOMParser, ECB_FIXTURE } from './fx-env.mjs';
+import { loadInto, DATA_FILES, fakeTx, plain, ECB_FIXTURE } from './fx-env.mjs';
 
 const CONSENT = ['consent/config.js', 'consent/state.js', 'consent/consent-mode.js'];
 const memStorage = () => {
@@ -35,7 +35,7 @@ test('rates are off by default and the consent record carries the new category',
 
 test('switch off: updateRates stores nothing and fetches nothing', async () => {
   const p = await page();
-  const r = await p.rates.updateRates({ DOMParser: FakeDOMParser });
+  const r = await p.rates.updateRates({});
   assert.equal(r.ok, false);
   assert.equal(r.code, 'consent_off');
   assert.match(r.message, /Turn on Exchange rates/);
@@ -46,7 +46,7 @@ test('switch off: updateRates stores nothing and fetches nothing', async () => {
 test('switch off: "Update on open" is ticked but still nothing fetches', async () => {
   const p = await page();
   p.tx.tables.settings[0].ratesUpdateOnOpen = true;
-  const r = await p.rates.updateOnOpen({ DOMParser: FakeDOMParser });
+  const r = await p.rates.updateOnOpen({});
   assert.deepEqual({ ok: r.ok, skipped: r.value.skipped }, { ok: true, skipped: 'consent' });
   assert.equal(p.calls.length, 0);
 });
@@ -56,7 +56,7 @@ test('other consent switches do not turn rates on', async () => {
   assert.equal(p.C.grant('analytics'), true);
   assert.equal(p.C.grant('ads'), true);
   assert.equal(p.S.current().rates, false);
-  assert.equal((await p.rates.updateRates({ DOMParser: FakeDOMParser })).code, 'consent_off');
+  assert.equal((await p.rates.updateRates({})).code, 'consent_off');
   assert.equal(p.calls.length, 0);
 });
 
@@ -64,9 +64,14 @@ test('switch on: one fetch of the ECB file, rows stored, and a switch off stops 
   const p = await page();
   assert.equal(p.C.grant('rates'), true);
   assert.equal(p.S.current().rates, true);
-  const r = await p.rates.updateRates({ DOMParser: FakeDOMParser });
+  const r = await p.rates.updateRates({});
   assert.equal(r.ok, true);
-  assert.deepEqual(p.calls, ['https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml']);
+  assert.deepEqual(p.calls, ['https://data-api.ecb.europa.eu/service/data/EXR/D..EUR.SP00.A?lastNObservations=1&format=csvdata']);
+  const sent = new URL(p.calls[0]);
+  assert.equal(sent.protocol, 'https:');
+  assert.equal(sent.host, 'data-api.ecb.europa.eu');
+  assert.equal(sent.pathname, '/service/data/EXR/D..EUR.SP00.A');
+  assert.equal(sent.searchParams.get('format'), 'csvdata');
   assert.equal(p.tx.tables.exchangeRates.length, 3);
 
   assert.equal(p.C.grant('analytics'), true);      // an unrelated change keeps rates on
@@ -76,7 +81,7 @@ test('switch on: one fetch of the ECB file, rows stored, and a switch off stops 
 
   assert.equal(p.C.revoke('rates'), true);
   assert.equal(p.S.current().rates, false);
-  const off = await p.rates.updateRates({ DOMParser: FakeDOMParser, today: '2026-10-12' });
+  const off = await p.rates.updateRates({ today: '2026-10-12' });
   assert.equal(off.code, 'consent_off');
   assert.equal(p.calls.length, 1);
 });
@@ -85,7 +90,7 @@ test('"Update on open" runs only with both the box and the switch on', async () 
   const p = await page();
   p.tx.tables.settings[0].ratesUpdateOnOpen = true;
   p.C.grant('rates');
-  const r = await p.rates.updateOnOpen({ DOMParser: FakeDOMParser });
+  const r = await p.rates.updateOnOpen({});
   assert.equal(r.ok, true);
   assert.equal(r.value.date !== undefined, true);
   assert.equal(p.calls.length, 1);
@@ -99,6 +104,6 @@ test('the record stores the category and the blocked-storage path keeps everythi
   blocked.ctx.localStorage = { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); } };
   assert.equal(blocked.S.current().rates, false);
   assert.equal(blocked.C.grant('rates'), false);
-  assert.equal((await blocked.rates.updateRates({ DOMParser: FakeDOMParser })).code, 'consent_off');
+  assert.equal((await blocked.rates.updateRates({})).code, 'consent_off');
   assert.equal(blocked.calls.length, 0);
 });

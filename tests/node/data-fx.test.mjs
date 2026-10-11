@@ -1,8 +1,8 @@
 // Unit tests for shared/data currency support: rate lookup, scaling, foreign postings, reversals, trial balance
-// in base currency, and the ECB XML parse (fixture only, never the network). Run: node tests/run.mjs data
+// in base currency, and the ECB CSV parse (fixture only, never the network). Run: node tests/run.mjs data
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadInto, DATA_FILES, fakeTx, plain, FakeDOMParser, ECB_FIXTURE } from './fx-env.mjs';
+import { loadInto, DATA_FILES, fakeTx, plain, ECB_FIXTURE } from './fx-env.mjs';
 
 const D = (await loadInto(DATA_FILES.map((f) => `data/${f}`))).SlopData;
 const { fx, ledger, locale, rates, schema } = { fx: D.fx, ledger: D.ledger, locale: D.locale, rates: D.rates, schema: D.schema };
@@ -178,18 +178,20 @@ test('trial balance in base currency; foreign totals reported apart; a broken fo
   assert.ok(bad.errors.some((e) => /does not balance in EUR/.test(e)));
 });
 
-test('ECB XML parse: date, rates scaled by 1e6, bad input refused (DOMParser stand-in, fixture only)', () => {
-  const r = rates.parseEcb(ECB_FIXTURE, FakeDOMParser);
+test('ECB CSV parse: date, rates scaled by 1e6, stale and empty rows skipped, bad input refused (fixture only)', () => {
+  const r = rates.parseEcb(ECB_FIXTURE);
   ok(r);
   assert.equal(r.value.date, '2026-10-09');
   assert.deepEqual(plain(r.value.rates), [
     { quote: 'USD', rate: 1160000 }, { quote: 'JPY', rate: 180250000 }, { quote: 'GBP', rate: 871200 },
   ]);
-  assert.equal(rates.parseEcb('', FakeDOMParser).ok, false);
-  assert.equal(rates.parseEcb('not xml at all', FakeDOMParser).ok, false);
-  assert.equal(rates.parseEcb(ECB_FIXTURE.replace('"1.1600"', '"abc"'), FakeDOMParser).ok, false);
-  assert.equal(rates.parseEcb(ECB_FIXTURE.replace('time="2026-10-09"', 'time="09/10/2026"'), FakeDOMParser).ok, false);
-  assert.equal(rates.parseEcb(ECB_FIXTURE, undefined).code, 'unavailable');
+  assert.equal(rates.parseEcb('').ok, false);
+  assert.equal(rates.parseEcb('not csv at all').ok, false);
+  assert.equal(rates.parseEcb(ECB_FIXTURE.replace('OBS_VALUE', 'VALUE')).code, 'invalid');
+  assert.equal(rates.parseEcb(ECB_FIXTURE.replace('1.1600', 'abc')).ok, false);
+  assert.equal(rates.parseEcb(ECB_FIXTURE.replace('2026-10-09,180.25', '09/10/2026,180.25')).ok, false);
+  const onlyEmpty = ECB_FIXTURE.split('\n').filter((l) => !/,\d{4}-\d{2}-\d{2},\d/.test(l)).join('\n');
+  assert.equal(rates.parseEcb(onlyEmpty).code, 'invalid');
 });
 
 test('ECB rows: one per currency with source ecb for today, same-day repeat is unchanged, a failed download stores nothing', async () => {
@@ -198,7 +200,7 @@ test('ECB rows: one per currency with source ecb for today, same-day repeat is u
   D.store.transact = (fn) => fn(tx);
   try {
     const okFetch = async () => ({ ok: true, status: 200, text: async () => ECB_FIXTURE });
-    const first = await rates.updateRates({ fetch: okFetch, allowed: () => true, DOMParser: FakeDOMParser, today: '2026-10-11' });
+    const first = await rates.updateRates({ fetch: okFetch, allowed: () => true, today: '2026-10-11' });
     ok(first);
     assert.equal(first.value.added.length, 3);
     assert.equal(tx.tables.exchangeRates.length, 3);
@@ -208,17 +210,17 @@ test('ECB rows: one per currency with source ecb for today, same-day repeat is u
       assert.equal(row.date, '2026-10-11');
       assert.equal(row.note, 'ECB reference 2026-10-09');
     }
-    const again = await rates.updateRates({ fetch: okFetch, allowed: () => true, DOMParser: FakeDOMParser, today: '2026-10-11' });
+    const again = await rates.updateRates({ fetch: okFetch, allowed: () => true, today: '2026-10-11' });
     assert.equal(again.value.unchanged.length, 3);
     assert.equal(tx.tables.exchangeRates.length, 3);
 
-    const down = await rates.updateRates({ fetch: async () => { throw new TypeError('offline'); }, allowed: () => true, DOMParser: FakeDOMParser, today: '2026-10-12' });
+    const down = await rates.updateRates({ fetch: async () => { throw new TypeError('offline'); }, allowed: () => true, today: '2026-10-12' });
     assert.equal(down.ok, false);
     assert.equal(down.code, 'network');
     assert.match(down.message, /No rates were stored/);
     assert.equal(tx.tables.exchangeRates.length, 3);
 
-    const notOk = await rates.updateRates({ fetch: async () => ({ ok: false, status: 503 }), allowed: () => true, DOMParser: FakeDOMParser, today: '2026-10-12' });
+    const notOk = await rates.updateRates({ fetch: async () => ({ ok: false, status: 503 }), allowed: () => true, today: '2026-10-12' });
     assert.equal(notOk.code, 'http');
     assert.match(notOk.message, /503/);
   } finally {

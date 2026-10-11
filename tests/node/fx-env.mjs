@@ -1,5 +1,5 @@
-// Helpers for the currency and rate tests: an in-memory transaction over the real schema (no IndexedDB), a small
-// DOMParser stand-in for the ECB fixture, and a loader that runs the consent scripts and the data scripts in one
+// Helpers for the currency and rate tests: an in-memory transaction over the real schema (no IndexedDB), a CSV
+// fixture in the shape of the ECB data API, and a loader that runs the consent scripts and the data scripts in one
 // vm context. Not a test file itself.
 import vm from 'node:vm';
 import path from 'node:path';
@@ -58,32 +58,13 @@ export function fakeTx(D, seed = {}) {
   return tx;
 }
 
-/** A DOMParser stand-in that reads <Cube ...> elements with a regex. Enough for the ECB daily file, nothing more. */
-export class FakeDOMParser {
-  parseFromString(text) {
-    const cubes = [];
-    const re = /<Cube\s+([^>]*?)\/?>/g;
-    let m;
-    while ((m = re.exec(text))) {
-      const attrs = {};
-      for (const a of m[1].matchAll(/(\w+)="([^"]*)"/g)) attrs[a[1]] = a[2];
-      cubes.push({ getAttribute: (k) => (Object.prototype.hasOwnProperty.call(attrs, k) ? attrs[k] : null) });
-    }
-    return {
-      getElementsByTagName: (n) => (n === 'Cube' ? cubes : n === 'parsererror' && !cubes.length ? [{}] : []),
-    };
-  }
-}
-
-/** A small fixture in the shape of the ECB daily reference file. */
-export const ECB_FIXTURE = `<?xml version="1.0" encoding="UTF-8"?>
-<gesmes:Envelope xmlns:gesmes="http://www.gesmes.org/xml/2002-08-01" xmlns="http://www.ecb.int/vocabulary/2002-08-01/eurofxref">
-<gesmes:subject>Reference rates</gesmes:subject>
-<Cube>
-<Cube time="2026-10-09">
-<Cube currency="USD" rate="1.1600"/>
-<Cube currency="JPY" rate="180.25"/>
-<Cube currency="GBP" rate="0.8712"/>
-</Cube>
-</Cube>
-</gesmes:Envelope>`;
+/** A small fixture in the shape of the ECB data API (SDMX CSV, lastNObservations=1). Same rates as the old XML
+ *  fixture (USD 1.1600, JPY 180.25, GBP 0.8712 on 2026-10-09). The last two rows are a discontinued series with an
+ *  old date and a row with an empty OBS_VALUE: the parser must skip both. */
+export const ECB_FIXTURE = `KEY,FREQ,CURRENCY,CURRENCY_DENOM,EXR_TYPE,EXR_SUFFIX,TIME_PERIOD,OBS_VALUE,OBS_STATUS,TITLE
+EXR.D.USD.EUR.SP00.A,D,USD,EUR,SP00,A,2026-10-09,1.1600,A,US dollar/Euro ECB reference exchange rate
+EXR.D.JPY.EUR.SP00.A,D,JPY,EUR,SP00,A,2026-10-09,180.25,A,"Japanese yen/Euro, ECB reference"
+EXR.D.GBP.EUR.SP00.A,D,GBP,EUR,SP00,A,2026-10-09,0.8712,A,Pound sterling/Euro ECB reference exchange rate
+EXR.D.ARS.EUR.SP00.A,D,ARS,EUR,SP00,A,2020-10-30,91.5953,A,Argentine peso/Euro
+EXR.D.BGN.EUR.SP00.A,D,BGN,EUR,SP00,A,2025-12-31,,A,Euro/Bulgarian lev
+`;

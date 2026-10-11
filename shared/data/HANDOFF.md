@@ -120,16 +120,21 @@ Rules enforced by `schema.js` and `store.js`:
 
 ### Online rates (rates-ecb.js): opt-in and consent-gated
 
-- Source: `https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml` (ECB daily reference rates, EUR-based).
-  The host is on the allow-list in `shared/sync/HANDOFF.md`.
-- `rates.updateRates({ fetch?, allowed?, DOMParser?, today? })` checks the `rates` consent category **before** any
-  request (`consent_off`, and no fetch, otherwise). It parses the XML with `DOMParser` (never evaluated) and stores one
+- Source: `https://data-api.ecb.europa.eu/service/data/EXR/D..EUR.SP00.A?lastNObservations=1&format=csvdata` (ECB daily
+  reference rates, EUR-based, SDMX CSV). The data API sends `Access-Control-Allow-Origin: *`; the old XML file under
+  `www.ecb.europa.eu` sent none, so browser fetches of it always failed. The host is on the allow-list in
+  `shared/sync/HANDOFF.md`.
+- `rates.updateRates({ fetch?, allowed?, today? })` checks the `rates` consent category **before** any
+  request (`consent_off`, and no fetch, otherwise). It reads the CSV by hand (never evaluated) and stores one
   row per currency with source `ecb` for today's date (`note: "ECB reference <date>"`), in one transaction. A same-day
   row with the same rate is left alone. Returns `{ date, referenceDate, added: [{ quote, rate, previous }], unchanged: [] }`.
   A failed download, an HTTP error or an unreadable file stores **nothing**, and the message says so.
 - `rates.updateOnOpen()` runs `updateRates` only when `settings.ratesUpdateOnOpen` is true **and** the category is on.
   The Settings page calls it when it opens. Other pages must opt in the same way. Nothing else runs in the background.
-- `rates.parseEcb(text, DOMParser)` is pure given a parser. It returns `{ date, rates: [{ quote, rate }] }` with rate scaled by 1e6.
+- `rates.parseEcb(text)` is pure. It reads the CSV columns `CURRENCY`, `TIME_PERIOD` and `OBS_VALUE`, skips rows with an
+  empty `OBS_VALUE`, and keeps only the rows on the newest `TIME_PERIOD`. The API returns the last observation of every
+  series, so discontinued currencies carry old dates and must not be stored as today's rate. It returns
+  `{ date, rates: [{ quote, rate }] }` with rate scaled by 1e6.
 
 ## store.js: storage
 
@@ -209,11 +214,11 @@ Rules enforced by `schema.js` and `store.js`:
 - `node tests/run.mjs data` runs `tests/node/data.test.mjs`, `tests/node/data-ledger.test.mjs` and
   `tests/node/data-fx.test.mjs` (pure logic, and an in-memory transaction over the real schema: rate lookup, scaling and
   half-up rounding, EUR into a USD ledger, old postings unchanged after a new row, reversals, the base trial balance,
-  and the ECB XML parse on a fixture). It also runs the browser pages `tests/data/store.test.html` (IndexedDB behaviour:
+  and the ECB CSV parse on a fixture). It also runs the browser pages `tests/data/store.test.html` (IndexedDB behaviour:
   validation, soft delete, uniqueness, transactions and rollback, numbering rollback, subscribers),
   `tests/data/flows.test.html` (issue, payments, voids, reversals, stock, counts, export and import) and
   `tests/data/currency.test.html` (default currency, base lock, immutable rates, a foreign invoice paid to the base total,
-  the ECB parse with the real DOMParser, and consent off means no fetch).
+  the ECB CSV parse, and consent off means no fetch).
 
 ## Not built yet (decide before the apps need it)
 
