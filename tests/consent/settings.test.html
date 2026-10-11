@@ -44,8 +44,8 @@
       expect(box.querySelector('.storage-parts').textContent).toContain('localStorage');
       expect(box.querySelector('[data-act="persist"]')).toBeTruthy();
       const acts = [...box.querySelectorAll('.storage-acts .btn')].map((b) => b.textContent);
-      expect(acts.length).toBe(4);
-      expect(acts[3]).toContain('never deletes your files');
+      expect(acts.length).toBe(6);
+      expect(acts[5]).toContain('never deletes your files');
       expect(box.textContent).toContain('Drive makes thumbnails');
     });
     it('the Storage clear actions ask first and do nothing when the person says no', async () => {

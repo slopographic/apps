@@ -6,6 +6,8 @@
  *   models   downloaded AI model files (Cache API webllm/model, webllm/config, webllm/wasm), except models
  *            imported from a folder on this computer, which have no download to make again
  *   cutout   the cut-out model cache (Cache slop-cutout-v1 and its IndexedDB fallback slop-cutout, store files)
+ *   packs    downloaded library packs (IndexedDB slop-library, stores packs and files)
+ *   aitools  AI Tools models installed from the Get more page (IndexedDB slop-aitools, stores models and files)
  * Every call resolves with the number of entries removed per kind. SlopRegen.only(kind) clears one kind. A missing database or a blocked browser counts as 0.
  * Classic script; adds window.SlopRegen. */
 (function (g) {
@@ -42,6 +44,12 @@
     }
     return n;
   }
+  /** Empties several object stores of one database. */
+  async function clearStores(name, stores) {
+    let n = 0;
+    for (const store of stores) n += await clearStore(name, store);
+    return n;
+  }
   async function clearCutout() {
     if (!g.caches) return 0;
     const cache = await ok(caches.open('slop-cutout-v1'), null);
@@ -50,10 +58,17 @@
     return n + (await clearStore('slop-cutout', 'files'));
   }
 
-  const ONE = { thumbs: () => clearStore(g.SLOP_THUMB_DB || 'slop-drive-thumbs', 'thumbs'), faces: () => clearStore(g.SLOP_FACES_DB || 'slop-faces', 'results'), models: clearModels, cutout: clearCutout };
+  const ONE = {
+    thumbs: () => clearStore(g.SLOP_THUMB_DB || 'slop-drive-thumbs', 'thumbs'),
+    faces: () => clearStore(g.SLOP_FACES_DB || 'slop-faces', 'results'),
+    models: clearModels,
+    cutout: clearCutout,
+    packs: () => clearStores('slop-library', ['packs', 'files']),
+    aitools: () => clearStores('slop-aitools', ['models', 'files']),
+  };
 
   g.SlopRegen = {
-    /** Clears one kind: 'thumbs' | 'faces' | 'models' | 'cutout'. Resolves with the number removed (0 for an unknown kind). */
+    /** Clears one kind: 'thumbs' | 'faces' | 'models' | 'cutout' | 'packs' | 'aitools'. Resolves with the number removed (0 for an unknown kind). */
     only(kind) { return ONE[kind] ? ok(ONE[kind]().catch(() => 0), 0) : Promise.resolve(0); },
     /** Clears every regenerable cache. Resolves with { thumbs, faces, models, cutout } counts. */
     async clear() {
