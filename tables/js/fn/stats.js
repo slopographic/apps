@@ -1,5 +1,5 @@
 /* Slop Tables functions: descriptive statistics, conditional aggregates, ranking. */
-import { def, alias, FN } from './registry.js';
+import { def, FN } from './registry.js';
 import { num, int, nums, numsOnly, opt, check, ERR, bail, matrix, flat, ifsMask, sized, isErr, fix15, criteria, Ref } from './helpers.js';
 const S = { cat: 'Statistical' };
 export const sum = (a) => { let s = 0; for (const x of a) s += x; return s; };
@@ -132,5 +132,4 @@ def('AGGREGATE', (c, f, o, ...rest) => {
   if (f >= 14) return FN[fn].f(c, visibleVals(c, [rest[0]], skipHidden, skipErr), rest[1]);
   return FN[fn].f(c, visibleVals(c, rest, skipHidden, skipErr));
 }, { min: 3, cat: 'Math' });
-alias('COUNTA', 'COUNTUNIQUE_'); delete FN.COUNTUNIQUE_;
 def('COUNTUNIQUE', (c, ...a) => { const s = new Set(); for (const x of a) for (const v of flat(c, x)) if (v !== null && v !== '') s.add(typeof v === 'string' ? 's' + v : typeof v + String(v)); return s.size; }, { min: 1, ...S });

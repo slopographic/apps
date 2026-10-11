@@ -46,7 +46,7 @@
 
     for (const [k, v, get] of PROPS) {
       it(`whole layer: ${k}`, async () => {
-        const L = await makeType(k === 'leading' ? 'Two\nlines' : 'Slop type');
+        const L = await makeType(k === 'leading' || k === 'align' ? 'Wide line\nab' : 'Slop type');
         const before = sig(L.canvas), n = W.Hist.idx;
         await W.setTypeProps({ [k]: v });
         const L2 = W.activeLayer();
@@ -126,6 +126,7 @@
       expect(W.activeLayer()).toBe(L); expect(W.Hist.idx).toBe(n);
     });
   });
+  SlopTest.run({ name: 'PhotoSLOP type' });
   </script>
 </body>
 </html>

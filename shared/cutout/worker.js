@@ -137,6 +137,13 @@ const handlers = {
     const fin = P.finish(j.rgba, j.W, j.H, j.base, d.edit ? new Uint8ClampedArray(d.edit) : null, d.settings || {});
     return { result: { width: j.W, height: j.H, mask: fin.mask, cutout: fin.cutout }, transfer: [fin.mask.buffer, fin.cutout.buffer] };
   },
+  /** { jobId, image, base } → stores pixels + an existing base mask (from an earlier segment) for finish(). */
+  job(d) {
+    const { W, H, rgba } = pixels(d.image), base = new Uint8ClampedArray(d.base);
+    if (base.length !== W * H) throw new Error('Mask size does not match the image');
+    jobs.set(d.jobId, { rgba, W, H, base });
+    return { width: W, height: H };
+  },
   release(d) { jobs.delete(d.jobId); return { ok: true }; },
 };
 

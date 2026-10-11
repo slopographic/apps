@@ -12,6 +12,7 @@
  *   softness (0..1, 1 = keep the soft matte); feather (px); decontaminate (default true);
  *   keep: true keeps the pixels in the worker so finish(r.jobId, settings, edit) can re-run the cheap
  *   post-processing (threshold, brush edits, feather) at full resolution; call release(r.jobId) after.
+ *   createJob(input, base) does the same later for a stored base mask without re-running the model.
  *   onProgress({ phase: 'runtime'|'model'|'init'|'infer'|'refine', loaded, total, cached, model }).
  * Accepts Blob/File, ImageBitmap, HTMLImageElement, canvas (incl. OffscreenCanvas) or ImageData. */
 (function () {
@@ -103,6 +104,14 @@
     return wrap(r, { jobId });
   }
 
+  /** Store an image plus a base mask from an earlier removeBackground() in the worker, without running
+   *  the model again, so finish() works on it. Resolves with the new jobId. */
+  async function createJob(input, base) {
+    const { image, transfer } = await prepare(input), b = base.slice(), jobId = 'j' + (++jobSeq);
+    await call('job', { jobId, image, base: b.buffer }, { transfer: transfer.concat([b.buffer]) });
+    return jobId;
+  }
+
   /* ---------- helpers ---------- */
   function canvasOf(imageData) {
     const c = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(imageData.width, imageData.height) : Object.assign(document.createElement('canvas'), { width: imageData.width, height: imageData.height });
@@ -122,7 +131,7 @@
   }
 
   window.SlopCutout = {
-    removeBackground, finish,
+    removeBackground, finish, createJob,
     release: (jobId) => (jobId && worker ? call('release', { jobId }) : Promise.resolve()),
     /** Download (or read from cache) and initialise a model ahead of time. */
     load: (model = 'fast', onProgress) => call('load', { model }, { onProgress }),

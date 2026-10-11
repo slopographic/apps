@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Cutout — Slopographic</title>
+  <meta name="description" content="Slop Cutout: remove image backgrounds with AI that runs 100% on your device. Batch, refine brush, soft edges, new backgrounds and shadows, full-resolution PNG, WebP and JPG. No uploads, no account, no watermarks.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://slopographic.com/cutout/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slopographic">
+  <meta property="og:title" content="Slop Cutout — Slopographic">
+  <meta property="og:description" content="AI background removal that never uploads your photos. Batch cutouts, refine brush, new backgrounds, full resolution, no watermarks, ever.">
+  <meta property="og:url" content="https://slopographic.com/cutout/">
+  <meta property="og:image" content="https://slopographic.com/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-cutout.theme')); if (t === 'light' || t === 'classic' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/workspace.css">
+  <link rel="stylesheet" href="css/panel.css">
+  <link rel="stylesheet" href="css/themes.css">
+</head>
+<body>
+  <div class="app" id="app" data-mode="empty">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop Cutout</b><a class="home-link" href="../">slopographic</a></div>
+      <nav class="menus" id="menus" aria-label="Main menu"></nav>
+      <div class="tb-group">
+        <button type="button" class="tb" id="btnUndo" aria-label="Undo" disabled></button>
+        <button type="button" class="tb" id="btnRedo" aria-label="Redo" disabled></button>
+      </div>
+      <span class="tb-flex"></span>
+      <span class="local-badge" title="The AI runs on this device. Nothing is uploaded, and exports never carry a watermark."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>On-device AI · no watermarks</span></span>
+      <button type="button" class="btn primary dl" id="btnDownload" disabled></button>
+      <button type="button" class="tb" id="btnPanel" aria-label="Toggle settings panel" aria-expanded="true" title="Settings panel"></button>
+      <button type="button" class="tb" id="btnMore" aria-label="More menu" title="Menu"></button>
+    </header>
+
+    <aside class="queue" id="queue" aria-label="Images"></aside>
+
+    <main class="workspace" id="workspace" aria-label="Workspace">
+      <div class="ctxbar" id="ctxbar" role="toolbar" aria-label="Tools"></div>
+      <div class="stage" id="stage">
+        <canvas class="view" id="view" aria-label="Image preview"></canvas>
+        <div class="split" id="split" hidden><span class="split-knob" aria-hidden="true"></span><span class="split-l">Before</span><span class="split-r">After</span></div>
+        <div class="brush-cursor" id="brushCursor" hidden></div>
+        <div class="empty" id="empty">
+          <div class="drop-card">
+            <svg class="empty-art" viewBox="0 0 120 120" aria-hidden="true"><rect x="14" y="20" width="92" height="80" rx="8" class="ea-photo"/><path d="M60 34s-17 19-17 31a17 17 0 0 0 34 0c0-12-17-31-17-31z" class="ea-goo"/><path d="M52.5 67a8 8 0 0 0 6 7.7" class="ea-shine"/><path d="M14 84l22-18 18 14 16-10 36 22" class="ea-hill"/></svg>
+            <h1>Drop images here</h1>
+            <p>The AI cuts out the subject right in your browser.<br>PNG, JPEG, WebP, AVIF… several at once for a batch.</p>
+            <div class="empty-actions">
+              <button type="button" class="btn primary lg" id="emptyOpen"></button>
+              <button type="button" class="btn lg" id="emptySample"></button>
+            </div>
+            <p class="empty-hint">or paste an image with <kbd>Ctrl</kbd>+<kbd>V</kbd></p>
+            <p class="empty-privacy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Your photos never leave this device. No uploads, no account, and no watermarks, ever.</p>
+          </div>
+        </div>
+        <div class="busy" id="busy" hidden role="status" aria-live="polite"><span class="spinner" aria-hidden="true"></span><span class="busy-msg">Working…</span><span class="busy-bar"><i></i></span></div>
+      </div>
+    </main>
+
+    <aside class="props" id="props" aria-label="Settings"></aside>
+
+    <footer class="statusbar" id="status">
+      <span id="statusLeft">No image</span>
+      <span id="statusMsg" class="st-msg" aria-live="polite"></span>
+      <span class="tb-flex"></span>
+      <span id="statusZoom"></span>
+      <span class="st-local"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Local only</span>
+    </footer>
+  </div>
+  <div class="drop-overlay" id="dropOverlay" hidden><div><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg><b>Drop to cut out</b><span>Images · processed on this device</span></div></div>
+  <noscript><p class="noscript">Slop Cutout needs JavaScript. The AI runs entirely in your browser; nothing is uploaded.</p></noscript>
+
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="../shared/cutout/pipeline.js"></script>
+  <script src="../shared/cutout/models.js"></script>
+  <script src="../shared/cutout/cutout.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/state.js"></script>
+  <script src="js/core/brush.js"></script>
+  <script src="js/core/history.js"></script>
+  <script src="js/render/compose.js"></script>
+  <script src="js/render/view.js"></script>
+  <script src="js/io/zip.js"></script>
+  <script src="js/io/process.js"></script>
+  <script src="js/io/files.js"></script>
+  <script src="js/io/sample.js"></script>
+  <script src="js/io/export.js"></script>
+  <script src="js/ui/kit.js"></script>
+  <script src="js/ui/panel.js"></script>
+  <script src="js/ui/panel-look.js"></script>
+  <script src="js/ui/queue.js"></script>
+  <script src="js/ui/ctxbar.js"></script>
+  <script src="js/ui/pointer.js"></script>
+  <script src="js/ui/menus.js"></script>
+  <script src="js/ui/commands.js"></script>
+  <script src="js/ui/main.js"></script>
+</body>
+</html>

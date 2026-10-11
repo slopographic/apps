@@ -24,6 +24,8 @@
       canUndo: function () { return undo.length > 0; },
       canRedo: function () { return redo.length > 0; },
       label: function (which) { var a = which === 'redo' ? redo : undo; return a.length ? a[a.length - 1].label : ''; },
+      /** Forgets the newest undo step (an edit that turned out to change nothing). */
+      drop: function () { undo.pop(); lastKey = null; emit(); },
       clear: function () { undo.length = 0; redo.length = 0; lastKey = null; emit(); },
       breakCoalesce: function () { lastKey = null; },
       on: function (fn) { listeners.push(fn); }

@@ -53,6 +53,19 @@
       await expect(C.removeBackground(blob, { signal: AbortSignal.abort() })).rejects(/Abort/);
       await expect(C.removeBackground({})).rejects(/Unsupported image/);
     });
+    it('createJob + finish run the post-processing on a stored mask without a model', async () => {
+      const img = new ImageData(4, 2); img.data.fill(255);
+      const base = Uint8ClampedArray.of(0, 60, 200, 255, 255, 140, 100, 0);
+      const job = await C.createJob(img, base);
+      const r = await C.finish(job, { threshold: 0.5, softness: 0, decontaminate: false });
+      expect(Array.from(r.mask)).toEqual([0, 0, 255, 255, 255, 255, 0, 0]);
+      expect(r.cutout.width).toBe(4);
+      expect(r.cutout.data[3]).toBe(0); expect(r.cutout.data[11]).toBe(255);
+      const edit = new Uint8ClampedArray(8).fill(128); edit[0] = 255;
+      expect((await C.finish(job, { softness: 0 }, edit)).mask[0]).toBe(255);
+      await C.release(job);
+      await expect(C.createJob(img, new Uint8ClampedArray(3))).rejects(/does not match/);
+    });
     it('mask helpers: grey ImageData view and PNG blob', async () => {
       const m = C.maskToImageData(Uint8ClampedArray.of(0, 128, 255, 9), 2, 2);
       expect(Array.from(m.data.slice(4, 8))).toEqual([128, 128, 128, 255]);

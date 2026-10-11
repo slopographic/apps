@@ -7,6 +7,7 @@
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
   let W, AI;
+  const wf = (label, fn) => waitFor(fn).catch(() => { throw new Error('timed out waiting for ' + label); });
   describe('conversation storage (IndexedDB)', () => {
     it('saves, lists newest first, filters by kind, removes and clears', async () => {
       W = await AT.app(); AI = W.AI;
@@ -47,16 +48,16 @@
       AT.answer(W, { confirm: true, prompt: 'Renamed chat' });
       const c = AI.db.blank('chat', { title: 'First' }); c.messages.push({ role: 'user', content: 'hello' });
       await AI.db.put(c);
-      await waitFor(() => W.document.querySelectorAll('#convList .conv').length === 1);
+      await wf('one chat in the list', () => W.document.querySelectorAll('#convList .conv').length === 1);
       W.document.querySelector('#convList .conv').click();
-      await waitFor(() => AI.chat.conv && AI.chat.conv.id === c.id);
+      await wf('the chat to open', () => AI.chat.conv && AI.chat.conv.id === c.id);
       expect(W.document.querySelector('.msg.user .bubble').textContent).toBe('hello');
       await AI.renameConv();
       expect((await AI.db.get(c.id)).title).toBe('Renamed chat');
       expect(W.document.getElementById('convTitle').textContent).toBe('Renamed chat');
       await AI.deleteConv();
       expect(await AI.db.get(c.id)).toBe(undefined);
-      await waitFor(() => !W.document.querySelector('#convList .conv'));
+      await wf('an empty list', () => !W.document.querySelector('#convList .conv'));
       expect(AI.chat.conv.messages.length).toBe(0);
     });
     it('export goes to Slop Drive as .md and .json', async () => {

@@ -38,8 +38,8 @@
   /** Loads every face. `src(key)` may supply bytes (the offline build does); otherwise they are fetched. */
   F.load = function (src) {
     if (loading) return loading;
-    var keys = [];
-    F.LIST.forEach(function (f) { var d = F.FAMILIES[f]; [d.regular, d.bold, d.italic].forEach(function (k) { if (k && keys.indexOf(k) < 0) keys.push(k); }); });
+    var keys = [], familyOfKey = {};
+    F.LIST.forEach(function (f) { var d = F.FAMILIES[f]; [d.regular, d.bold, d.italic].forEach(function (k) { if (k && keys.indexOf(k) < 0) { keys.push(k); familyOfKey[k] = f; } }); });
     loading = Promise.all(keys.map(function (k) {
       var p = src && src(k) ? Promise.resolve(src(k)) : fetch(F.BASE + k + '.ttf').then(function (r) { if (!r.ok) throw new Error('Font ' + k + ' ' + r.status); return r.arrayBuffer(); }).then(function (b) { return new Uint8Array(b); });
       return p.then(function (u8) {
@@ -47,7 +47,11 @@
         faces[k] = { key: k, u8: u8, font: font };
         var ff = new FontFace('SSF-' + k, u8.slice().buffer);
         document.fonts.add(ff);
-        return ff.load().catch(function () { /* metrics still work */ });
+        // the same file again under the family name with weight/style descriptors, for DOM text (the editor)
+        var fam = familyOfKey[k], d = F.FAMILIES[fam];
+        var gf = new FontFace('SSG-' + fam, u8.slice().buffer, { weight: k === d.bold ? '700' : '400', style: k === d.italic ? 'italic' : 'normal' });
+        document.fonts.add(gf);
+        return Promise.all([ff.load(), gf.load()]).catch(function () { /* metrics still work */ });
       });
     })).then(function () { ready = true; });
     return loading;
@@ -79,5 +83,7 @@
     return { ascent: f.ascent * size / f.upm, descent: -f.descent * size / f.upm, cap: f.capHeight * size / f.upm };
   };
   /** CSS font string for canvas. Sizes are in canvas units (the caller scales the context). */
+  /** CSS font-family for DOM text in a family (bold/italic come from font-weight/font-style). */
+  F.domFamily = function (family) { var f = F.family(family); return '"SSG-' + f + '", ' + (F.FAMILIES[f].kind === 'serif' ? 'serif' : F.FAMILIES[f].kind === 'mono' ? 'monospace' : 'sans-serif'); };
   F.css = function (face, size) { return size + 'px "' + face.css + '", sans-serif'; };
 })();
