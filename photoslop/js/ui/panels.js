@@ -141,6 +141,7 @@ function buildLayersPanel() {
         moveLayer(dragId, to);
       });
       list.append(row);
+      for (const fr of fxRows(L)) list.append(fr);
     }
   };
   listeners.add((w) => { if (w === 'doc') render(); });

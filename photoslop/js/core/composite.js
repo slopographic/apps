@@ -40,7 +40,7 @@ function compositeInto(g, opts = {}) {
     const L = D.layers[i];
     if (!L.visible && !(opts.includeHidden)) continue;
     if (opts.only && !opts.only.includes(L)) continue;
-    const s = layerSurface(L);
+    const s = fxSurface(L, layerSurface(L));
     g.globalAlpha = L.opacity;
     g.globalCompositeOperation = BLEND_OP[L.blend] || 'source-over';
     g.drawImage(s.canvas, 0, 0, s.w, s.h, s.x, s.y, s.w, s.h);
