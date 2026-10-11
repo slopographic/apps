@@ -96,16 +96,21 @@
       { label: 'Empty Trash…', act: () => DR.emptyTrash() },
       '-',
       { label: 'Search commands…', key: window.SlopCmd ? 'Ctrl+K' : undefined, act: () => DR.openPalette() },
-      { label: 'Help', sub: [{ label: 'Keyboard shortcuts…', key: '?', act: () => DR.shortcutsDialog() }, { label: 'Search commands… (⌘K)', act: () => DR.openPalette() }] },
+      { label: 'Help', sub: [{ label: 'Keyboard shortcuts…', key: '?', act: () => DR.shortcutsDialog() }, { label: 'About local drives…', act: () => DR.localDrivesHelp() }, { label: 'Search commands… (⌘K)', act: () => DR.openPalette() }] },
     ], x, y);
   };
   DR.backupDialog = () => window.SlopBackup.openDialog({ onRestored: () => DR.done() });
   DR.toggleInfo = function (on = !S.info) { S.info = on; DR.savePrefs(); DR.render(); };
+  /** Move to… and Copy to…: the picker shows every place (Slop Drive, the Local folder, the named drives). */
   DR.moveDialog = async function (items, copy = false) {
     if (!items.length) return;
-    const exclude = items.filter((i) => i.isFolder).map((i) => i.id);
-    const dest = await window.SlopHub.pickFolder({ title: (copy ? 'Copy ' : 'Move ') + (items.length === 1 ? `“${items[0].name}”` : items.length + ' items'), ok: copy ? 'Copy here' : 'Move here', start: items[0].parent, exclude });
-    if (dest === undefined) return;
-    return copy ? DR.copy(items, dest) : DR.move(items, dest);
+    const target = await DR.providerPicker({
+      title: (copy ? 'Copy ' : 'Move ') + (items.length === 1 ? `“${items[0].name}”` : items.length + ' items') + ' to…',
+      ok: copy ? 'Copy here' : 'Move here',
+      exclude: items.filter((i) => i.isFolder).map((i) => ({ id: 'drive', ref: i.id })),
+      start: { id: 'drive', ref: items[0].parent },
+    });
+    if (target === undefined) return;
+    return DR.transferEntries(DR.internalEntries(items), await DR.resolveDest(target), { move: !copy });
   };
 })(window.DR);

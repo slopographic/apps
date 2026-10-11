@@ -7,7 +7,7 @@
   DR.render = function () {
     if (!S.ready) return;
     DR.touchView();
-    DR.renderPlaces(); DR.renderTree(); DR.renderTags(); DR.renderCrumbs(); DR.renderTools();
+    DR.renderPlaces(); DR.renderTree(); DR.renderProviders(); DR.renderTags(); DR.renderCrumbs(); DR.renderTools();
     const pane = $('pane'), view = DR.viewNow(), list = DR.visible();
     DR.lastVisible = list;
     const keep = pane.dataset.view === view && pane.dataset.place === S.section + ':' + S.cwd ? pane.scrollTop : 0;
@@ -38,6 +38,7 @@
     $('btnSide').addEventListener('click', () => DR.drawer(!document.body.classList.contains('drawer-open')));
     $('scrim').addEventListener('click', () => { DR.drawer(false); DR.sheet(false); });
     DR.wireCommands(); DR.wireSelect(); DR.wireDrag(); DR.wireDropUpload(); DR.wireKeys(); DR.wireCtxMenu();
+    DR.wireProviders(); DR.wireProvDrag();
     $('btnCmd').addEventListener('click', () => DR.openPalette());
     addEventListener('resize', DR.debounce(() => { DR.clampInfoWidth(); if (['usage', 'nodes', 'list'].includes(DR.viewNow())) DR.render(); }, 200));
   }
@@ -54,6 +55,7 @@
     try { history.replaceState({ section: S.section, cwd: S.cwd }, ''); } catch (e) { /* sandboxed */ }
     DR.render();
     DR.folderRefresh().then(() => DR.renderFolder()).catch((e) => console.warn('Slop Drive: folder state', e));
+    DR.refreshProviders().catch((e) => console.warn('Slop Drive: places', e));
     DR.restoreScroll();
     const launch = await window.SlopHub.consumeLaunch().catch(() => null);
     if (launch && S.files.has(launch.id)) DR.reveal(S.files.get(launch.id));

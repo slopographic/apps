@@ -12,6 +12,7 @@
     if (!items.length) return 0;
     if (target === 'trash') return DR.trash(items);
     if (target === 'star') return DR.setStar(items, true);
+    if (DR.isPvTarget(target)) return DR.dropToProvider(DR.internalEntries(items), target, copy);
     const dest = target === 'root' || target == null ? null : target;
     if (dest && !S.folders.has(dest)) return 0;
     if (copy) return DR.copy(items, dest);
@@ -46,7 +47,7 @@
         const t = targetAt(ev.clientX, ev.clientY, keys);
         if (over && (!t || t.node !== over.node)) over.node.classList.remove('drop');
         if (t) {
-          const items = DR.items(keys), ok = t.value === 'trash' || t.value === 'star' || DR.canMove(items, t.value === 'root' ? null : t.value);
+          const ok = DR.canDrop(DR.items(keys), t.value);
           if (ok) t.node.classList.add('drop');
           over = ok ? t : null;
         } else over = null;
@@ -93,6 +94,7 @@
         document.querySelectorAll('.drop').forEach((n) => n.classList.remove('drop'));
         batchDest = dest();
         const list = await DR.readDrop(dt);
+        if (DR.isPvTarget(batchDest)) { await DR.uploadToProvider(list, batchDest); return []; }
         if (list.length === 1 && /\.slop$/i.test(list[0].file.name)) {
           if (await window.SlopUI.confirm('Restore this backup?', `“${list[0].file.name}” looks like a Slopographic backup. Open it in Backup & restore instead of uploading it?`, 'Open backup', { cancel: 'Just upload' })) {
             if (window.SlopBackupUI) window.SlopBackupUI.open.choose = null;
