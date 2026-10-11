@@ -50,8 +50,8 @@
     if (ev.freq && ev.freq !== 'none') {
       let r = `RRULE:FREQ=${ev.freq.toUpperCase()}`;
       if (ev.until) {
-        const u = ev.allDay ? compact(ev.until) : utcStamp(T.wallToUtc(...T.parseDay(ev.until).y ? [T.parseDay(ev.until).y, T.parseDay(ev.until).mo, T.parseDay(ev.until).d, 23, 59, 59] : [0, 1, 1, 0, 0, 0], ev.tz, 0));
-        r += `;UNTIL=${u}`;
+        const d = T.parseDay(ev.until);
+        r += `;UNTIL=${ev.allDay ? compact(ev.until) : utcStamp(T.wallToUtc(d.y, d.mo, d.d, 23, 59, 59, ev.tz))}`;
       }
       L.push(r);
     }
@@ -97,7 +97,7 @@
     const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/.exec(v);
     if (!m) return null;
     const [, y, mo, d, h, mi, s, z] = m;
-    if (z) return { allDay: false, ms: Date.UTC(+y, +mo - 1, +d, +h, +mi, +s), tz: 'UTC' };
+    if (z) return { allDay: false, ms: Date.UTC(+y, +mo - 1, +d, +h, +mi, +s), tz: fallbackZone };
     const tz = p.params.TZID && T.isZone(p.params.TZID) ? p.params.TZID : fallbackZone;
     return { allDay: false, ms: T.wallToUtc(+y, +mo, +d, +h, +mi, tz, +s), tz };
   }
@@ -111,8 +111,6 @@
     for (const k of Object.keys(parts)) if (!['FREQ', 'UNTIL', 'WKST'].includes(k) && !(k === 'INTERVAL' && parts[k] === '1')) warn.push(`${k} is not supported, so it repeats ${freq} without it`);
     let until;
     if (parts.UNTIL) {
-      const u = prop({ ...{ line: '' }, name: '' }) || null;
-      void u;
       const m = /^(\d{4})(\d{2})(\d{2})(T(\d{2})(\d{2})(\d{2})(Z?))?$/.exec(parts.UNTIL);
       if (m) {
         until = `${m[1]}-${m[2]}-${m[3]}`;
@@ -133,7 +131,7 @@
    * Reads a calendar file. Returns { events, warnings, total }: events are records without id (the app adds one),
    * warnings are { uid, title, message } for anything that was simplified or left out.
    */
-  function parse(text, { fallbackZone = T.deviceZone(), now = Date.now() } = {}) {
+  function parse(text, { fallbackZone = T.deviceZone() } = {}) {
     const events = [], warnings = [];
     let cur = null, total = 0, inAlarm = false, alarmMin = null;
     for (const line of unfold(text)) {
@@ -142,7 +140,7 @@
       if (p.name === 'BEGIN' && p.value === 'VEVENT') { cur = { props: {} }; total++; alarmMin = null; continue; }
       if (p.name === 'BEGIN' && p.value === 'VALARM' && cur) { inAlarm = true; continue; }
       if (p.name === 'END' && p.value === 'VALARM') { inAlarm = false; if (cur && alarmMin !== null) cur.props.REMIND = alarmMin; continue; }
-      if (p.name === 'END' && p.value === 'VEVENT') { if (cur) events.push(finish(cur, fallbackZone, warnings, now)); cur = null; continue; }
+      if (p.name === 'END' && p.value === 'VEVENT') { if (cur) events.push(finish(cur, fallbackZone, warnings)); cur = null; continue; }
       if (!cur) continue;
       if (inAlarm) { if (p.name === 'TRIGGER') alarmMin = trigger(p.value); continue; }
       cur.props[p.name] = { ...p, value: p.value };
@@ -151,7 +149,7 @@
   }
 
   /** Turns the collected properties of one VEVENT into an event record (or null when it has no usable start). */
-  function finish(cur, zone, warnings, now) {
+  function finish(cur, zone, warnings) {
     const P = cur.props;
     const uid = P.UID ? unesc(P.UID.value) : '';
     const title = P.SUMMARY ? unesc(P.SUMMARY.value) : '(untitled)';
@@ -185,8 +183,6 @@
       if (r.until) rec.until = r.until;
       for (const m of r.warn || []) warn(m);
     }
-    if (rec.freq !== 'none' && !rec.until && P.RRULE && /UNTIL/i.test(P.RRULE.value) === false) rec.until = undefined;
-    void now;
     return rec;
   }
 
