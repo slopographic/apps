@@ -18,3 +18,4 @@
 .code-view { margin: 0; padding: 12px; overflow: auto; background: var(--input); font: 12px/1.5 var(--mono); white-space: pre; }
 .build-hello .starters .btn { height: auto; padding: 10px 14px; flex-direction: column; align-items: flex-start; }
 .stage .empty { background: var(--surface); }
+.build-chat .md-code pre { max-height: 200px; }

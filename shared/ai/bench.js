@@ -35,6 +35,7 @@ fn main(@builtin(global_invocation_id) g: vec3<u32>, @builtin(num_workgroups) w:
   if (i < arrayLength(&src)) { dst[i] = src[i] * 1.0001; }
 }`;
   const now = () => performance.now();
+  const r2 = (x) => (x < 10 ? Math.round(x * 100) / 100 : Math.round(x * 10) / 10);
 
   async function timed(device, encodeOnce, reps) {
     const go = (k) => { const enc = device.createCommandEncoder(); for (let i = 0; i < k; i++) encodeOnce(enc); device.queue.submit([enc.finish()]); return device.queue.onSubmittedWorkDone(); };
@@ -70,18 +71,21 @@ fn main(@builtin(global_invocation_id) g: vec3<u32>, @builtin(num_workgroups) w:
     return { bandwidthGBs: (2 * bytes * reps) / (ms / 1000) / 1e9, ms, reps };
   }
 
-  async function run(adapter, { onStep, n = 512, mb = 64, budgetMs = 400 } = {}) {
+  /** Starts small (128², 8 MB) and only scales up when the GPU is fast, so a software GPU finishes in a second too. */
+  async function run(adapter, { onStep, budgetMs = 400 } = {}) {
     if (!adapter) throw new Error('No WebGPU adapter');
     const device = await adapter.requestDevice();
     const lim = Math.min(device.limits.maxStorageBufferBindingSize, device.limits.maxBufferSize);
-    mb = Math.max(4, Math.min(mb, Math.floor(lim / 1048576 / 2)));
+    const maxMb = Math.max(4, Math.floor(lim / 1048576 / 2));
     const t0 = now();
     try {
       if (onStep) onStep('Matrix multiply…');
-      const m = await matmul(device, n, budgetMs);
+      let n = 128, m = await matmul(device, n, budgetMs / 4);
+      if (m.ms / m.reps < 2) { n = 512; m = await matmul(device, n, budgetMs); }
       if (onStep) onStep('Memory bandwidth…');
-      const c = await copy(device, mb, budgetMs);
-      return { gflops: Math.round(m.gflops * 10) / 10, bandwidthGBs: Math.round(c.bandwidthGBs * 10) / 10, n, mb, ms: Math.round(now() - t0) };
+      let mb = Math.min(8, maxMb), c = await copy(device, mb, budgetMs / 4);
+      if (c.ms / c.reps < 4 && maxMb > mb) { mb = Math.min(64, maxMb); c = await copy(device, mb, budgetMs); }
+      return { gflops: r2(m.gflops), bandwidthGBs: r2(c.bandwidthGBs), n, mb, ms: Math.round(now() - t0) };
     } finally { device.destroy(); }
   }
 

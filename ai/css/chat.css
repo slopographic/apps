@@ -23,7 +23,7 @@
 
 .msgs { flex: 1; min-height: 0; overflow: auto; padding: 18px 16px 10px; }
 .msgs.drop { outline: 2px dashed var(--accent-line); outline-offset: -8px; }
-.msg-list { max-width: 820px; margin: 0 auto; display: grid; gap: 16px; }
+.msg-list { max-width: 820px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .msg.user { justify-self: end; max-width: min(640px, 88%); display: grid; gap: 6px; justify-items: end; }
 .msg.user .bubble { padding: 9px 13px; border-radius: 16px 16px 4px 16px; background: var(--panel-2); border: 1px solid var(--line); white-space: pre-wrap; word-break: break-word; box-shadow: var(--bevel); }
 .msg.bot { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; }
