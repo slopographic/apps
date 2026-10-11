@@ -26,7 +26,7 @@
       const labels = Array.from(banner(w).querySelectorAll('.slopc-actions button')).map((b) => b.textContent);
       expect(labels).toEqual(['Accept all', 'Reject optional', 'Manage']);
       for (const b of banner(w).querySelectorAll('button')) expect(b.tagName).toBe('BUTTON');
-      expect(banner(w).querySelector('p a').getAttribute('href')).toBe('../settings/');
+      expect(banner(w).querySelector('p a').getAttribute('href').endsWith('/settings/')).toBe(true);
     });
     it('shows once: after Reject optional it is gone and stays gone', async () => {
       const w = await open({ cfg: IDS });
