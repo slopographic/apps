@@ -17,22 +17,23 @@
     if (typeof v !== 'object') return null; // functions/symbols cannot be stored in IndexedDB anyway
     if (seen.has(v)) return null;
     const ref = (data) => blobs.push(data) - 1;
-    if (typeof File !== 'undefined' && v instanceof File) return { $: 'file', ref: ref(v), type: v.type, name: v.name, lastModified: v.lastModified };
-    if (v instanceof Blob) return { $: 'blob', ref: ref(v), type: v.type };
-    if (v instanceof ArrayBuffer) return { $: 'ab', ref: ref(new Blob([v])) };
+    const T = tag(v); // tags, not instanceof, so values from another frame work too
+    if (T === 'File') return { $: 'file', ref: ref(v), type: v.type, name: v.name, lastModified: v.lastModified };
+    if (T === 'Blob') return { $: 'blob', ref: ref(v), type: v.type };
+    if (T === 'ArrayBuffer') return { $: 'ab', ref: ref(new Blob([v])) };
     if (ArrayBuffer.isView(v)) {
       const bytes = new Uint8Array(v.buffer, v.byteOffset, v.byteLength).slice();
       return { $: 'ta', t: tag(v), ref: ref(new Blob([bytes])) };
     }
-    if (typeof ImageData !== 'undefined' && v instanceof ImageData) return { $: 'img', w: v.width, h: v.height, ref: ref(new Blob([v.data.slice()])) };
-    if (v instanceof Date) return { $: 'date', v: v.getTime() };
-    if (v instanceof RegExp) return { $: 're', s: v.source, f: v.flags };
+    if (T === 'ImageData') return { $: 'img', w: v.width, h: v.height, ref: ref(new Blob([v.data.slice()])) };
+    if (T === 'Date') return { $: 'date', v: v.getTime() };
+    if (T === 'RegExp') return { $: 're', s: v.source, f: v.flags };
     seen.add(v);
     try {
-      if (v instanceof Map) return { $: 'map', v: [...v].map(([k, x]) => [encode(k, blobs, seen), encode(x, blobs, seen)]) };
-      if (v instanceof Set) return { $: 'set', v: [...v].map((x) => encode(x, blobs, seen)) };
+      if (T === 'Map') return { $: 'map', v: [...v].map(([k, x]) => [encode(k, blobs, seen), encode(x, blobs, seen)]) };
+      if (T === 'Set') return { $: 'set', v: [...v].map((x) => encode(x, blobs, seen)) };
       if (Array.isArray(v)) return v.map((x) => encode(x, blobs, seen));
-      if (['Boolean', 'Number', 'String'].includes(tag(v))) return { $: 'box', t: tag(v), v: v.valueOf() };
+      if (['Boolean', 'Number', 'String'].includes(T)) return { $: 'box', t: tag(v), v: v.valueOf() };
       const o = {};
       for (const k of Object.keys(v)) o[k] = encode(v[k], blobs, seen);
       return '$' in o ? { $: 'obj', v: o } : o;

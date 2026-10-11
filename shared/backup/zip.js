@@ -14,13 +14,15 @@
     const d = new Date(t || Date.now()), y = Math.max(1980, d.getFullYear());
     return { time: (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), date: ((y - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate() };
   }
+  // Duck-typed so data from another frame (another realm) works too.
+  const isBlob = (d) => d && typeof d === 'object' && typeof d.arrayBuffer === 'function' && typeof d.size === 'number';
+  const isAB = (d) => Object.prototype.toString.call(d) === '[object ArrayBuffer]';
   async function bytesOf(data) {
     if (data == null) return new Uint8Array(0);
     if (typeof data === 'string') return enc.encode(data);
-    if (data instanceof Uint8Array) return data;
-    if (data instanceof ArrayBuffer) return new Uint8Array(data);
     if (ArrayBuffer.isView(data)) return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-    if (data instanceof Blob) return new Uint8Array(await data.arrayBuffer());
+    if (isAB(data)) return new Uint8Array(data);
+    if (isBlob(data)) return new Uint8Array(await data.arrayBuffer());
     throw new Error('Unsupported zip entry data');
   }
 
@@ -36,7 +38,7 @@
       h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
       h.setUint16(10, time, true); h.setUint16(12, date, true); h.setUint32(14, crc, true); h.setUint32(18, size, true); h.setUint32(22, size, true);
       h.setUint16(26, name.length, true); h.setUint16(28, 0, true);
-      parts.push(h.buffer, name, e.data instanceof Blob && !isDir ? e.data : bytes);
+      parts.push(h.buffer, name, isBlob(e.data) && !isDir ? e.data : bytes);
       const c = new DataView(new ArrayBuffer(46));
       c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
       c.setUint16(12, time, true); c.setUint16(14, date, true); c.setUint32(16, crc, true); c.setUint32(20, size, true); c.setUint32(24, size, true);
@@ -57,7 +59,7 @@
     return new Uint8Array(await new Response(s).arrayBuffer());
   }
   async function unzip(src) {
-    const buf = src instanceof Blob ? new Uint8Array(await src.arrayBuffer()) : src instanceof ArrayBuffer ? new Uint8Array(src) : src;
+    const buf = isBlob(src) ? new Uint8Array(await src.arrayBuffer()) : await bytesOf(src);
     const v = new DataView(buf.buffer, buf.byteOffset, buf.byteLength), dec = new TextDecoder();
     let e = -1;
     for (let i = buf.length - 22; i >= Math.max(0, buf.length - 65557); i--) if (v.getUint32(i, true) === 0x06054b50) { e = i; break; }
