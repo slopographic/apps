@@ -113,3 +113,5 @@
 .sb-item { overflow: hidden; text-overflow: ellipsis; }
 .sb-tool { color: var(--text); font-weight: 600; }
 .sb-flags { color: var(--accent-line); }
+/* The shared guide-layout panel floats left of the dock. */
+@media (min-width: 901px) { .sgd-panel { right: 300px; top: 110px; } .app.no-dock ~ .sgd-panel { right: 16px; } }

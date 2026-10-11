@@ -46,6 +46,10 @@
       S.doc.guides.v.forEach(function (gx) { var x = round(gx * z + S.view.x) + 0.5; out.push('<line class="guide" x1="' + x + '" y1="0" x2="' + x + '" y2="' + r.height + '"/>'); });
       S.doc.guides.h.forEach(function (gy) { var y = round(gy * z + S.view.y) + 0.5; out.push('<line class="guide" x1="0" y1="' + y + '" x2="' + r.width + '" y2="' + y + '"/>'); });
     }
+    if (S.guidePreview && S.guidePreview.length) S.guidePreview.forEach(function (g) {
+      var p = round(g.pos * z + (g.o === 'v' ? S.view.x : S.view.y)) + 0.5;
+      out.push(g.o === 'v' ? '<line class="guide preview" x1="' + p + '" y1="0" x2="' + p + '" y2="' + r.height + '"/>' : '<line class="guide preview" x1="0" y1="' + p + '" x2="' + r.width + '" y2="' + p + '"/>');
+    });
     if (S.guideDrag) {
       var gd = S.guideDrag;
       if (gd.axis === 'v') { var gx2 = round(gd.pos * z + S.view.x) + 0.5; out.push('<line class="guide active" x1="' + gx2 + '" y1="0" x2="' + gx2 + '" y2="' + r.height + '"/>'); }

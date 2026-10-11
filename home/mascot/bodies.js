@@ -1,4 +1,4 @@
-// Rigid bodies for cards knocked off the page: gravity, spin, bouncing off the page bottom,
+// Rigid bodies for cards knocked off the page: gravity, spin, bouncing off the page bottom (the top of the footer),
 // the page sides and each other (axis-aligned boxes around the rotated card). The card keeps its
 // place in the layout and moves with a transform, so Restore page only has to clear the style.
 // A fallen card is still a perch: Sloppo can land on it and ride it.
@@ -24,7 +24,8 @@ function half(b) {
 
 export function stepBodies(dt) {
   if (!bodies.length) return;
-  const floor = pageH() - 2, W = pageW();
+  const W = pageW(), foot = document.querySelector('body > footer');
+  const floor = foot ? foot.getBoundingClientRect().top + scrollY - 2 : pageH() - 2;   // they pile up on the footer
   for (const b of bodies) {
     if (!b.el.isConnected) continue;
     b.vy += G * dt;

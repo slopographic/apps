@@ -10,7 +10,7 @@
   var PR = window.PR, U = PR.util;
   var M = PR.model = {};
 
-  M.PAGE_NUM = ''; // special character: current page number marker
+  M.PAGE_NUM = '\uE000'; // special character: current page number marker
   M.LAYER_COLORS = ['#4f8cff', '#ff4f6e', '#3fcf8e', '#f5a623', '#a970ff', '#00c2d1', '#ff7ac6'];
 
   M.defaultParaStyles = function () {

@@ -73,6 +73,7 @@
 .overlay .smart { stroke: #ff2dd4; stroke-width: 1; }
 .overlay .guide { stroke: #00b8f0; stroke-width: 1; }
 .overlay .guide.active { stroke: #ff2dd4; stroke-dasharray: 4 3; }
+.overlay .guide.preview { stroke: #ff2dd4; stroke-dasharray: 5 4; }
 .overlay .origin circle { fill: rgba(255, 255, 255, .6); stroke: #ff2dd4; stroke-width: 1.5; }
 .overlay .origin path { stroke: #ff2dd4; stroke-width: 1.5; }
 .overlay .gradline { stroke: #0a0a0a; stroke-width: 1.5; }

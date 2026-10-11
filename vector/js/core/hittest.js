@@ -111,7 +111,7 @@
         });
       });
     }
-    if (S.prefs.guides) {
+    if (S.prefs.guides && S.prefs.snapGuides !== false) {
       S.doc.guides.v.forEach(function (x) { xs.push({ v: x, a: -1e5, b: 1e5, guide: true }); });
       S.doc.guides.h.forEach(function (y) { ys.push({ v: y, a: -1e5, b: 1e5, guide: true }); });
     }
