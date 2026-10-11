@@ -67,7 +67,7 @@
 /* HUD */
 .sloppo-hud {
   position: fixed; left: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 25;
-  display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: calc(100vw - 24px);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: calc(100vw - 84px); /* room for the toggle */
   padding: 5px 5px 5px 12px; border-radius: 18px; border: 1px solid var(--line);
   background: rgba(17, 17, 17, .88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   font: 600 11px var(--mono); color: var(--bone); box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
