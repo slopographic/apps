@@ -36,7 +36,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..900&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../shared/slopui.css">
-  <link rel="stylesheet" href="vector.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/chrome.css">
+  <link rel="stylesheet" href="css/canvas.css">
+  <link rel="stylesheet" href="css/panels.css">
+  <link rel="stylesheet" href="css/popups.css">
+  <link rel="stylesheet" href="css/classic.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
   <div id="app" class="app">
@@ -79,11 +85,60 @@
   </div>
   <div id="menuLayer"></div>
   <noscript><p class="noscript">Slop Vector needs JavaScript. It runs entirely in your browser — nothing is uploaded.</p></noscript>
-  <script src="geom.js"></script>
-  <script src="vector.js"></script>
-  <script src="tools.js"></script>
-  <script src="io.js"></script>
   <script src="../shared/slopui.js"></script>
-  <script src="ui.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <!-- geom -->
+  <script src="js/geom/math.js"></script>
+  <script src="js/geom/bezier.js"></script>
+  <script src="js/geom/pathdata.js"></script>
+  <script src="js/geom/hit.js"></script>
+  <script src="js/geom/fit.js"></script>
+  <script src="js/geom/boolean.js"></script>
+  <script src="js/geom/slopify.js"></script>
+  <!-- core -->
+  <script src="js/core/state.js"></script>
+  <script src="js/core/tree.js"></script>
+  <script src="js/core/objects.js"></script>
+  <script src="js/core/svgout.js"></script>
+  <script src="js/core/render.js"></script>
+  <script src="js/core/overlay.js"></script>
+  <script src="js/core/history.js"></script>
+  <script src="js/core/hittest.js"></script>
+  <!-- tools -->
+  <script src="js/tools/meta.js"></script>
+  <script src="js/tools/pointer.js"></script>
+  <script src="js/tools/select.js"></script>
+  <script src="js/tools/direct.js"></script>
+  <script src="js/tools/pen.js"></script>
+  <script src="js/tools/draw.js"></script>
+  <script src="js/tools/misc.js"></script>
+  <script src="js/tools/commands.js"></script>
+  <script src="js/tools/commands2.js"></script>
+  <script src="js/tools/keys.js"></script>
+  <!-- io -->
+  <script src="js/io/svg-export.js"></script>
+  <script src="js/io/pdf.js"></script>
+  <script src="js/io/svg-parse.js"></script>
+  <script src="js/io/svg-import.js"></script>
+  <script src="js/io/svg-open.js"></script>
+  <script src="js/io/files.js"></script>
+  <script src="js/io/offline.js"></script>
+  <!-- ui -->
+  <script src="js/ui/base.js"></script>
+  <script src="js/ui/actions.js"></script>
+  <script src="js/ui/menus.js"></script>
+  <script src="js/ui/color.js"></script>
+  <script src="js/ui/binds.js"></script>
+  <script src="js/ui/controlbar.js"></script>
+  <script src="js/ui/dock.js"></script>
+  <script src="js/ui/props.js"></script>
+  <script src="js/ui/layers.js"></script>
+  <script src="js/ui/paint-panels.js"></script>
+  <script src="js/ui/status.js"></script>
+  <script src="js/ui/dialogs.js"></script>
+  <script src="js/ui/ctxmenu.js"></script>
+  <script src="js/ui/sample.js"></script>
+  <script src="js/ui/init.js"></script>
 </body>
 </html>

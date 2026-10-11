@@ -23,7 +23,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin data-offline="strip">
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500..900&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Caveat:wght@600&family=Dancing+Script:wght@600&family=Great+Vibes&display=swap" rel="stylesheet" data-offline="strip">
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
-  <link rel="stylesheet" href="pdf.css" data-src="pdf/pdf.css">
+  <link rel="stylesheet" href="css/base.css" data-src="pdf/css/base.css">
+  <link rel="stylesheet" href="css/workspace.css" data-src="pdf/css/workspace.css">
+  <link rel="stylesheet" href="css/panels.css" data-src="pdf/css/panels.css">
+  <link rel="stylesheet" href="css/themes.css" data-src="pdf/css/themes.css">
 </head>
 <body>
   <div class="app" id="app" data-mode="empty">
@@ -95,16 +98,42 @@
   <noscript><p class="noscript">Slop PDF needs JavaScript. It runs entirely in your browser — nothing is uploaded.</p></noscript>
 
   <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/apps.js" data-src="shared/apps.js"></script>
+  <script src="../shared/hub.js" data-src="shared/hub.js"></script>
   <script src="../vendor/pdf-lib/pdf-lib.min.js" data-src="vendor/pdf-lib/pdf-lib.min.js"></script>
-  <script src="js/build.js" data-src="pdf/js/build.js"></script>
-  <script src="js/util.js" data-src="pdf/js/util.js"></script>
-  <script src="js/crypto.js" data-src="pdf/js/crypto.js"></script>
-  <script src="js/engine.js" data-src="pdf/js/engine.js"></script>
-  <script src="js/view.js" data-src="pdf/js/view.js"></script>
-  <script src="js/organizer.js" data-src="pdf/js/organizer.js"></script>
-  <script src="js/editor.js" data-src="pdf/js/editor.js"></script>
-  <script src="js/sign.js" data-src="pdf/js/sign.js"></script>
-  <script src="js/panels.js" data-src="pdf/js/panels.js"></script>
-  <script src="js/app.js" data-src="pdf/js/app.js"></script>
+  <script src="js/io/build.js" data-src="pdf/js/io/build.js"></script>
+  <script src="js/core/util.js" data-src="pdf/js/core/util.js"></script>
+  <script src="js/core/zip.js" data-src="pdf/js/core/zip.js"></script>
+  <script src="js/ui/icons.js" data-src="pdf/js/ui/icons.js"></script>
+  <script src="js/io/decrypt.js" data-src="pdf/js/io/decrypt.js"></script>
+  <script src="js/core/model.js" data-src="pdf/js/core/model.js"></script>
+  <script src="js/core/text.js" data-src="pdf/js/core/text.js"></script>
+  <script src="js/core/pdfjs.js" data-src="pdf/js/core/pdfjs.js"></script>
+  <script src="js/io/forms.js" data-src="pdf/js/io/forms.js"></script>
+  <script src="js/io/export.js" data-src="pdf/js/io/export.js"></script>
+  <script src="js/io/convert.js" data-src="pdf/js/io/convert.js"></script>
+  <script src="js/io/sample.js" data-src="pdf/js/io/sample.js"></script>
+  <script src="js/io/session.js" data-src="pdf/js/io/session.js"></script>
+  <script src="js/ui/sheet.js" data-src="pdf/js/ui/sheet.js"></script>
+  <script src="js/organize/grid.js" data-src="pdf/js/organize/grid.js"></script>
+  <script src="js/organize/drag.js" data-src="pdf/js/organize/drag.js"></script>
+  <script src="js/organize/keys.js" data-src="pdf/js/organize/keys.js"></script>
+  <script src="js/editor/view.js" data-src="pdf/js/editor/view.js"></script>
+  <script src="js/editor/annots.js" data-src="pdf/js/editor/annots.js"></script>
+  <script src="js/editor/pointer.js" data-src="pdf/js/editor/pointer.js"></script>
+  <script src="js/editor/text.js" data-src="pdf/js/editor/text.js"></script>
+  <script src="js/tools/sign.js" data-src="pdf/js/tools/sign.js"></script>
+  <script src="js/ui/panel-kit.js" data-src="pdf/js/ui/panel-kit.js"></script>
+  <script src="js/tools/organize-panel.js" data-src="pdf/js/tools/organize-panel.js"></script>
+  <script src="js/tools/edit-panel.js" data-src="pdf/js/tools/edit-panel.js"></script>
+  <script src="js/tools/stamp-panels.js" data-src="pdf/js/tools/stamp-panels.js"></script>
+  <script src="js/tools/doc-panels.js" data-src="pdf/js/tools/doc-panels.js"></script>
+  <script src="js/ui/app.js" data-src="pdf/js/ui/app.js"></script>
+  <script src="js/ui/ctxbars.js" data-src="pdf/js/ui/ctxbars.js"></script>
+  <script src="js/ui/actions.js" data-src="pdf/js/ui/actions.js"></script>
+  <script src="js/ui/exports.js" data-src="pdf/js/ui/exports.js"></script>
+  <script src="js/ui/menus.js" data-src="pdf/js/ui/menus.js"></script>
+  <script src="js/ui/input.js" data-src="pdf/js/ui/input.js"></script>
+  <script src="js/ui/main.js" data-src="pdf/js/ui/main.js"></script>
 </body>
 </html>

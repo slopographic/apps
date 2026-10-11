@@ -10,8 +10,8 @@
   var SCRIPT_SRC = (document.currentScript && document.currentScript.src) || '';
 
   /** App scripts in load order (paths relative to the site root). */
-  B.SCRIPTS = ['pdf/js/util.js', 'pdf/js/crypto.js', 'pdf/js/engine.js', 'pdf/js/view.js', 'pdf/js/organizer.js', 'pdf/js/editor.js', 'pdf/js/sign.js', 'pdf/js/panels.js', 'pdf/js/app.js'];
-  B.TEXT = ['pdf/index.html', 'pdf/pdf.css', 'shared/slopui.css', 'shared/slopui.js', 'favicon.svg', 'vendor/pdf-lib/pdf-lib.min.js', 'vendor/pdfjs/pdf.min.js', 'vendor/pdfjs/pdf.worker.min.js', 'pdf/js/build.js'].concat(B.SCRIPTS);
+  B.SCRIPTS = ['pdf/js/core/util.js', 'pdf/js/core/zip.js', 'pdf/js/ui/icons.js', 'pdf/js/io/decrypt.js', 'pdf/js/core/model.js', 'pdf/js/core/text.js', 'pdf/js/core/pdfjs.js', 'pdf/js/io/forms.js', 'pdf/js/io/export.js', 'pdf/js/io/convert.js', 'pdf/js/io/sample.js', 'pdf/js/io/session.js', 'pdf/js/ui/sheet.js', 'pdf/js/organize/grid.js', 'pdf/js/organize/drag.js', 'pdf/js/organize/keys.js', 'pdf/js/editor/view.js', 'pdf/js/editor/annots.js', 'pdf/js/editor/pointer.js', 'pdf/js/editor/text.js', 'pdf/js/tools/sign.js', 'pdf/js/ui/panel-kit.js', 'pdf/js/tools/organize-panel.js', 'pdf/js/tools/edit-panel.js', 'pdf/js/tools/stamp-panels.js', 'pdf/js/tools/doc-panels.js', 'pdf/js/ui/app.js', 'pdf/js/ui/ctxbars.js', 'pdf/js/ui/actions.js', 'pdf/js/ui/exports.js', 'pdf/js/ui/menus.js', 'pdf/js/ui/input.js', 'pdf/js/ui/main.js'];
+  B.TEXT = ['pdf/index.html', 'pdf/css/base.css', 'pdf/css/workspace.css', 'pdf/css/panels.css', 'pdf/css/themes.css', 'shared/slopui.css', 'shared/slopui.js', 'shared/apps.js', 'shared/hub.js', 'favicon.svg', 'vendor/pdf-lib/pdf-lib.min.js', 'vendor/pdfjs/pdf.min.js', 'vendor/pdfjs/pdf.worker.min.js', 'pdf/js/io/build.js'].concat(B.SCRIPTS);
   /** Small binary assets (base64): the two symbol fonts pdf.js cannot take from the system. */
   B.BINARY = ['vendor/pdfjs/standard_fonts/FoxitSymbol.pfb', 'vendor/pdfjs/standard_fonts/FoxitDingbats.pfb'];
 
@@ -58,7 +58,7 @@
     var SP = window.SP = window.SP || {};
     function run(code, name) { var s = document.createElement('script'); s.textContent = code + '\n//# sourceURL=' + name; document.body.appendChild(s); }
     function bytes(b64s) { var bin = atob(b64s), o = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) o[i] = bin.charCodeAt(i); return o; }
-    run(S['pdf/js/build.js'], 'build.js');
+    run(S['pdf/js/io/build.js'], 'build.js');
     var B = SP.build;
     SP.offline = { sources: S };
     function FontFactory() {}
@@ -68,6 +68,8 @@
     };
     SP.offline.FontFactory = FontFactory;
     run(S['shared/slopui.js'], 'slopui.js');
+    run(S['shared/apps.js'], 'apps.js');
+    run(S['shared/hub.js'], 'hub.js');
     run(S['vendor/pdf-lib/pdf-lib.min.js'], 'pdf-lib.min.js');
     run(B.toClassic(S['vendor/pdfjs/pdf.min.js'], 'pdfjsLib'), 'pdf.min.js');
     var wsrc = B.toClassic(S['vendor/pdfjs/pdf.worker.min.js'], 'pdfjsWorker');
@@ -83,7 +85,7 @@
   /** Collects the sources: from the embedded JSON when offline, otherwise from the site. */
   B.collect = async function () {
     if (SP.offline && SP.offline.sources) return SP.offline.sources;
-    var root = new URL(SCRIPT_SRC ? '../../' : '../', SCRIPT_SRC || document.baseURI).href, S = {};
+    var root = new URL(SCRIPT_SRC ? '../../../' : '../', SCRIPT_SRC || document.baseURI).href, S = {};
     for (var i = 0; i < B.TEXT.length; i++) {
       var r = await fetch(root + B.TEXT[i], { cache: 'no-cache' });
       if (!r.ok) throw new Error('Could not read ' + B.TEXT[i] + ' (' + r.status + ')');
