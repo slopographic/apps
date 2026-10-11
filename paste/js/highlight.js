@@ -1,4 +1,4 @@
-/* A small highlighter for Slop Pastebin: plain, JavaScript, Python, HTML, CSS, JSON and Markdown. The Code app's
+/* A small highlighter for Paste: plain, JavaScript, Python, HTML, CSS, JSON and Markdown. The Code app's
  * highlighter (CodeMirror) is not shared, so this one is kept here. Output is escaped HTML: each token is a
  * <span class="tok-…"> (com, str, num, kw, fn, prop, tag, attr, head, quote, link). Plain text gets no spans. */
 

@@ -84,7 +84,7 @@
     A('notes', 'app', 'Slop Notes', 'notes/', 'Notebooks and Markdown notes, saved to Slop Drive.', { group: 'business',
       features: ['Notebooks, folders, tags and pinned notes', 'Markdown with a live preview', 'Search across every note', 'Export as .md or standalone .html'],
       icon: 'page', status: 'building' }),
-    A('paste', 'app', 'Slop Pastebin', 'paste/', 'Paste text, code or images, and share a link. Nothing uploaded.', { group: 'business',
+    A('paste', 'app', 'Paste', 'paste/', 'Paste text, code or images, and share a link. Nothing uploaded.', { group: 'business',
       features: ['Text, code and image pastes', 'Highlighting for six languages', 'Random link IDs and expiry labels', 'Copy, download and a local share link'],
       icon: 'doc', status: 'building' }),
     A('convert', 'app', 'Slop Convert', 'convert/', 'Images, PDFs, data and text, converted on your device.', { group: 'business', tool: true,

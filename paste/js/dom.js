@@ -1,4 +1,4 @@
-/* DOM helpers for Slop Pastebin. SlopUI.el builds the nodes (text is escaped; on* props become listeners). */
+/* DOM helpers for Paste. SlopUI.el builds the nodes (text is escaped; on* props become listeners). */
 export const $ = (id) => document.getElementById(id);
 export const el = (tag, attrs, ...kids) => window.SlopUI.el(tag, attrs, ...kids);
 /** Empties a node and returns it. */

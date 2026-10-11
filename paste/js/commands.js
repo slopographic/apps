@@ -1,4 +1,4 @@
-/* Slop Pastebin commands (SlopCmd: palette, shortcut editor and menu labels) and the right-click menus for pastes. */
+/* Paste commands (SlopCmd: palette, shortcut editor and menu labels) and the right-click menus for pastes. */
 import * as A from './actions.js';
 import { S, byId, current } from './state.js';
 import { $ } from './dom.js';

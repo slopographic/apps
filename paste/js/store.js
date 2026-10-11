@@ -1,4 +1,4 @@
-/* Slop Pastebin data, kept in Slop Drive. Each paste is one Drive file with meta.type 'paste': a text paste is a
+/* Paste data, kept in Slop Drive. Each paste is one Drive file with meta.type 'paste': a text paste is a
  * text/plain blob, an image paste is the image itself. meta.pasteId is the private random link ID (?paste=<id>).
  * Expiry is a label only: nothing is deleted or hidden by time. Saves are debounced, like Slop Notes. */
 const TYPE = 'paste';

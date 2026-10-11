@@ -1,4 +1,4 @@
-/* The Pastebin screen: the paste list, and the open paste (fields, highlighted text or image, and the share link). */
+/* The Paste screen: the paste list, and the open paste (fields, highlighted text or image, and the share link). */
 import * as store from './store.js';
 import { S, current, visible, firstLine } from './state.js';
 import { highlight, LANGS } from './highlight.js';
