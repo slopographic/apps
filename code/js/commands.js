@@ -6,13 +6,13 @@ export function commandList(A) {
   const C = (id, title, group, keys, extra = {}) => ({ id: 'code.' + id, title, group, keys, run: () => A[id](), ...extra });
   return [
     C('open', 'Open from Slop Drive…', 'File', ['Mod+O'], { keywords: ['load', 'drive'] }),
-    C('new', 'New file…', 'File', ['Alt+N'], { keywords: ['create', 'type', 'language'] }),
+    C('new', 'New file…', 'File', ['Mod+Alt+N'], { keywords: ['create', 'type', 'language'] }),
     C('save', 'Save', 'File', ['Mod+S'], { keywords: ['write', 'drive'] }),
     C('saveAs', 'Save as…', 'File', ['Shift+Mod+S'], { keywords: ['copy', 'folder'] }),
-    C('close', 'Close tab', 'File', ['Alt+W']),
+    C('close', 'Close tab', 'File', ['Mod+Alt+W']),
     C('find', 'Find', 'Edit', ['Mod+F'], { keywords: ['search'] }),
     C('replace', 'Replace', 'Edit', ['Mod+H'], { keywords: ['substitute'] }),
-    C('wrap', 'Toggle line wrap', 'View', ['Alt+Z'], { keywords: ['word wrap'] }),
+    C('wrap', 'Toggle line wrap', 'View', ['Mod+Alt+Z'], { keywords: ['word wrap'] }),
     C('files', 'Show or hide files', 'View', ['Mod+B'], { keywords: ['tree', 'drawer'] }),
     C('run', 'Run preview', 'Tools', ['Mod+Enter'], { keywords: ['preview', 'html', 'javascript'] }),
   ];

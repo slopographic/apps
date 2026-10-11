@@ -40,8 +40,8 @@ export function markSaved(doc, text) {
 
 /** Make a document the one in the editor, keeping the previous one's state and scroll position. */
 export function show(doc) {
-  if (!doc) return;
-  if (active && view && active !== doc) { active.state = view.state; active.scroll = view.scrollDOM.scrollTop; }
+  if (!doc || doc === active) return; // the active document's live state is in the view, not in doc.state
+  if (active && view) { active.state = view.state; active.scroll = view.scrollDOM.scrollTop; }
   active = doc;
   if (view) {
     view.setState(doc.state);

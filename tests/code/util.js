@@ -41,8 +41,9 @@ window.CT = (function () {
   }
   const rec = (id) => H().get(id);
   const tabNames = (w) => [...w.document.querySelectorAll('.cd-tab-name')].map((b) => b.textContent.replace('•', '').trim());
-  const dialog = (w) => w.document.querySelector('.sui-dlg');
-  const dialogButtons = (w) => [...w.document.querySelectorAll('.sui-dlg .sui-btn')];
+  // The newest dialog that is still open (SlopUI keeps a closed one in the DOM for 140 ms).
+  const dialog = (w) => [...w.document.querySelectorAll('.sui-dlg')].filter((d) => !d.parentElement.classList.contains('sui-out')).pop() || null;
+  const dialogButtons = (w) => { const d = dialog(w); return d ? [...d.querySelectorAll('.sui-btn')] : []; };
   const clickButton = (w, label) => { const b = dialogButtons(w).find((x) => x.textContent.trim() === label); if (!b) throw new Error('no dialog button ' + label); b.click(); };
   const rawGet = (db, store, id) => new Promise((res, rej) => {
     const r = indexedDB.open(db);

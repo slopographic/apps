@@ -9,7 +9,7 @@
   describe('Slop Code: vendored CodeMirror 6', () => {
     it('the import map in code/index.html matches vendor/codemirror/import-map.json', async () => {
       const html = await (await fetch('../../code/index.html')).text();
-      const inline = JSON.parse(html.split('<script type="importmap">')[1].split('</script>')[0]);
+      const inline = JSON.parse(html.split('<script type="importmap">')[1].split('<\/script>')[0]);
       const manifest = JSON.parse(await (await fetch('../../vendor/codemirror/import-map.json')).text());
       expect(inline).toEqual(manifest);
       expect(Object.keys(inline.imports)).toHaveLength(27);
@@ -19,7 +19,8 @@
       const html = await (await fetch('../../code/index.html')).text();
       const map = document.createElement('script');
       map.type = 'importmap';
-      map.textContent = html.split('<script type="importmap">')[1].split('</script>')[0];
+      // The app's map is relative to code/; this page is one folder deeper, so rebase the paths.
+      map.textContent = html.split('<script type="importmap">')[1].split('<\/script>')[0].replaceAll('"../vendor/', '"../../vendor/');
       document.head.append(map); // before any module is loaded, so the map applies
       const names = Object.keys(JSON.parse(map.textContent).imports);
       for (const name of names) {

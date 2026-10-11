@@ -8,6 +8,7 @@ import { askTrash } from './dialogs.js';
 const KEY = 'slop-code.open-folders';
 const H = () => window.SlopHub;
 let host = null, cb = null, rows = [], byKey = new Map();
+let cache = { folders: [], files: [] }; // the last read of Drive, so a toggle redraws without reading again
 let expanded = readExpanded();
 let selected = null; // folder id of the last folder clicked (null: the root)
 let activeId = null;
@@ -36,7 +37,13 @@ export function initTree(listEl, callbacks) {
 
 /** Read Drive and redraw. */
 export async function refresh() {
-  const { folders, files } = await loadTree();
+  cache = await loadTree();
+  build();
+}
+
+/** Flatten the cached folders and files into rows, following the open folders. */
+function build() {
+  const { folders, files } = cache;
   rows = [];
   const walk = (parentId, depth) => {
     for (const f of folders.filter((x) => (x.parentId ?? null) === parentId).sort(byName)) {
@@ -69,7 +76,7 @@ function activate(r) {
     selected = r.rec.id;
     if (expanded.has(r.rec.id)) expanded.delete(r.rec.id); else expanded.add(r.rec.id);
     saveExpanded();
-    draw();
+    build();
     return;
   }
   cb.onOpen(r.rec);
@@ -79,7 +86,16 @@ function activate(r) {
 export function setActive(id) { activeId = id; for (const b of host.querySelectorAll('.cd-row')) { const on = b.dataset.key === 'f:' + id; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); } }
 /** The folder for New: the last folder clicked, or the root. */
 export const selectedFolder = () => selected;
-export function revealFolder(id) { for (let f = id; f; ) { expanded.add(f); const p = rows.find((r) => r.rec.id === f); f = p ? p.rec.parentId : null; } saveExpanded(); }
+/** Open every folder above `id` so a file in it shows in the tree. */
+export function revealFolder(id) {
+  for (let f = id, n = 0; f && n < 64; n++) {
+    expanded.add(f);
+    const folder = cache.folders.find((x) => x.id === f);
+    f = folder ? folder.parentId ?? null : null;
+  }
+  saveExpanded();
+  build();
+}
 
 /* ---------- right-click menu ---------- */
 function resolveMenu(target) {

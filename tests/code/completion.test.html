@@ -109,6 +109,10 @@
       await w.SlopCode.openRecord(await H().get(a));
       expect(textOf(w)).toContain('more');
       expect(tabNames(w)).toContain('two.txt');
+      // Clicking the tab that is already active keeps its unsaved text.
+      await typeText(w, 'typed');
+      w.document.querySelector('.cd-tab.on .cd-tab-name').click();
+      expect(textOf(w)).toContain('typed');
     });
   });
   SlopTest.run({ name: 'Slop Code: completion' });

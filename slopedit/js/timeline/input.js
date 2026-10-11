@@ -128,6 +128,13 @@
 
   function down(e) {
     const el = SE.app.els.tlCanvas;
+    if (e.button === 1) { // middle button: pan only (no selection, no clip move, no middle-click autoscroll)
+      e.preventDefault();
+      el.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId, local(e));
+      startPan(e, local(e));
+      return;
+    }
     pointers.set(e.pointerId, local(e));
     if (pointers.size === 2) { // pinch zoom
       const [a, b] = [...pointers.values()]; drag = { kind: 'pinch', d0: Math.abs(a.x - b.x) || 1, pps0: TL.pps, cx: (a.x + b.x) / 2 };
@@ -203,6 +210,7 @@
     el.addEventListener('pointercancel', up);
     el.addEventListener('pointerleave', () => { if (!drag) { TL.hover = null; TL.razorX = null; TL.dirty(); } });
     el.addEventListener('wheel', wheel, { passive: false });
+    el.addEventListener('auxclick', (e) => { if (e.button === 1) e.preventDefault(); });
     el.addEventListener('dblclick', (e) => { const pt = local(e), h = TL.hit(pt.x, pt.y); if (TL.onDouble) TL.onDouble(h, e); });
     el.addEventListener('contextmenu', (e) => { e.preventDefault(); const pt = local(e), h = TL.hit(pt.x, pt.y); if (TL.contextMenu) TL.contextMenu(h, e.clientX, e.clientY); });
   };

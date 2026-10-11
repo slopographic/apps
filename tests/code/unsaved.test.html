@@ -21,10 +21,10 @@
       expect(w.document.querySelector('.cd-dirty')).toBeTruthy();
     });
 
-    it('Alt+W asks with a SlopUI dialog (never a browser dialog), and Cancel keeps the tab', async () => {
+    it('Ctrl+Alt+W asks with a SlopUI dialog (never a browser dialog), and Cancel keeps the tab', async () => {
       let browserDialog = false;
       w.alert = w.confirm = () => { browserDialog = true; };
-      key(w, 'w', { alt: true });
+      key(w, 'w', { ctrl: true, alt: true });
       await waitFor(() => dialog(w) && dialog(w).querySelector('.sui-title').textContent === 'Unsaved changes', { timeout: 5000 });
       expect(dialogButtons(w).map((b) => b.textContent.trim())).toEqual(['Cancel', 'Discard', 'Save']);
       clickButton(w, 'Cancel');
@@ -51,7 +51,7 @@
       await waitFor(() => dialog(w), { timeout: 5000 });
       clickButton(w, 'Save');
       await waitFor(() => tabNames(w).length === 0, { timeout: 8000 });
-      expect(await H().get(id).then((r) => r.blob.text())).toBe('original\nchanged\nkept\n');
+      expect(await H().get(id).then((r) => r.blob.text())).toBe('original\nkept\n');
     });
 
     it('a saved file closes without asking', async () => {

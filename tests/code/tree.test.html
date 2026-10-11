@@ -103,7 +103,7 @@
       w.document.getElementById('cd-files').click();
       await sleep(260);
       expect(w.document.getElementById('cd-app').classList.contains('cd-drawer-open')).toBe(true);
-      expect(w.getComputedStyle(tree).transform).toBe('matrix(1, 0, 0, 1, 0, 0)');
+      expect(w.getComputedStyle(tree).transform).toBe('none');
       w.document.getElementById('cd-scrim').click();
       await sleep(50);
       expect(w.document.getElementById('cd-app').classList.contains('cd-drawer-open')).toBe(false);
