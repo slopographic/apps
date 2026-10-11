@@ -53,7 +53,7 @@
 - **Save as:** only Save exists. The first save picks a folder, and saving a copy elsewhere is not built.
 - **Print:** `@media print` CSS is in place. It has not been checked against a real print.
 - **Offline single-file build:** not done.
-- **Other UI:** no rulers, sidebar, templates, zoom beyond four presets, or word-count dialog.
+- **Other UI:** no rulers, templates, zoom beyond four presets, or word-count dialog.
 - **Touch:** no selection handles. Touch uses tap and double-tap only.
 
 ## Files (all under 300 lines)

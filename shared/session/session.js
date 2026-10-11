@@ -49,12 +49,14 @@
 
   /* ---------- localStorage mirror ---------- */
   function lsGet(k) { try { const raw = localStorage.getItem(LS + k); return raw ? JSON.parse(raw) : undefined; } catch (e) { return undefined; } }
+  /* JSON only: a Blob, ArrayBuffer or typed array would come back as {} from the mirror, so those stay in IndexedDB. */
+  const plainOnly = (k, v) => { if (v && typeof v === 'object' && (v instanceof Blob || v instanceof ArrayBuffer || ArrayBuffer.isView(v))) throw new TypeError('binary'); return v; };
   function lsSet(k, rec) {
     try {
-      const raw = JSON.stringify(rec);
+      const raw = JSON.stringify(rec, plainOnly);
       if (raw.length > MIRROR_MAX) { localStorage.removeItem(LS + k); return false; }
       localStorage.setItem(LS + k, raw); return true;
-    } catch (e) { return false; }
+    } catch (e) { try { localStorage.removeItem(LS + k); } catch (err) { /* blocked */ } return false; }
   }
   function lsDel(k) { try { localStorage.removeItem(LS + k); } catch (e) { /* blocked */ } }
   const timeout = (p, ms) => new Promise((res, rej) => { const t = setTimeout(() => rej(new Error('timeout')), ms); p.then((v) => { clearTimeout(t); res(v); }, (e) => { clearTimeout(t); rej(e); }); });

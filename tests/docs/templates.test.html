@@ -37,6 +37,7 @@ function setSeed(W, s) {
   seedIn(W).dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
 }
 /** Every menu row under File, with its submenus flattened to labels. */
+const myTemplates = (W) => W.SlopDocs.menus.file().find((r) => r.label === 'New').sub.find((r) => r.label === 'My templates').sub;
 const menuLabels = (rows, out = []) => { for (const r of rows) { if (r && typeof r === 'object') { out.push(r.label); if (r.sub) menuLabels(r.sub, out); } } return out; };
 
 describe('Random template: preview and dialog', () => {
@@ -122,12 +123,12 @@ describe('My templates', () => {
     W.SlopUI.prompt = async () => 'Keep me';
     button(W, 'Save as template').click();
     await waitFor(() => W.SlopDocs.tplList.some((t) => t.name === 'Keep me'), { timeout: 8000 });
-    expect(menuLabels(W.SlopDocs.menus.file()[0].sub[2].sub)).toContain('Keep me');
+    expect(menuLabels(myTemplates(W))).toContain('Keep me');
     close(W);
 
     const W2 = await open();
     await waitFor(() => W2.SlopDocs.tplList.some((t) => t.name === 'Keep me'), { timeout: 5000 });
-    const rows = W2.SlopDocs.menus.file()[0].sub[2].sub;
+    const rows = myTemplates(W2);
     expect(menuLabels(rows)).toContain('Keep me');
     const rec = W2.SlopDocs.tplList.find((t) => t.name === 'Keep me');
     expect(rec.seed).toBe('keep me');
