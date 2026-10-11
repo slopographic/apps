@@ -119,6 +119,7 @@
 
   /* Ctrl+Space and Cmd+Space. Skipped when a page already used the key (defaultPrevented). */
   document.addEventListener('keydown', (e) => {
+    if (isOpen && e.key === 'Escape' && !e.defaultPrevented) { e.preventDefault(); close(); return; }
     if (e.defaultPrevented || !(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
     if (e.code !== 'Space' && e.key !== ' ') return;
     e.preventDefault();

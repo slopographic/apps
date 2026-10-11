@@ -8,10 +8,11 @@
   /** A viewer for a file (image or PDF). big: Quick look (every page, up to 20); otherwise the first page only.
    * sink: the array that keeps the object URL (the caller frees it). */
   DR.viewerFor = function (r, big, sink) {
-    const kind = DR.kindOf(r), blobUrl = URL.createObjectURL(r.blob);
+    const kind = DR.isAi(r) ? 'pdf' : DR.kindOf(r), blobUrl = URL.createObjectURL(r.blob); // an .ai file shows its PDF page
     sink.push(blobUrl);
     const o = { title: r.name, blobUrl, kind, chrome: false };
     if (kind === 'pdf') o.renderPages = () => pdfPages(r.blob, big);
+    if (DR.isAi(r)) o.renderPages = () => DR.aiPdfBlob(r.blob).then((pdf) => (pdf ? pdfPages(pdf, big) : { pages: [], note: 'No PDF page inside this Illustrator file, so there is no preview.' }));
     return window.SlopPreview.create(o);
   };
   /** The pages as canvases, each sized in CSS px (at 100%) and rendered at up to 2× for sharpness. */

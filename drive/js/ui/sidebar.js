@@ -78,10 +78,20 @@
     keep.addEventListener('click', () => DR.requestPersist(true));
     const bk = el('button', { type: 'button', class: 'linkish' }, 'Backup & restore…');
     bk.addEventListener('click', () => DR.backupDialog());
+    const clear = el('button', { type: 'button', class: 'linkish', 'data-act': 'clear-cache', title: 'Removes only what is made again on demand' }, 'Clear local cache…');
+    clear.addEventListener('click', () => DR.clearLocalCache());
     const note = state ? el('p', { class: 'meter-note persist-note', 'data-state': state }, window.SlopPWA.persistMessage(state)) : null;
     box.replaceChildren(
       el('div', { class: 'meter-h' }, el('b', null, 'Storage'), el('span', null, usage != null ? `${DR.fmtSize(usage)} of ${DR.fmtSize(quota)}` : 'Unknown')), bar,
-      el('div', { class: 'meter-note' }, `Slop Drive: ${DR.fmtSize(drive)}. Everything stays in this browser.`), ...(note ? [note] : []), keep, bk);
+      el('div', { class: 'meter-note' }, `Slop Drive: ${DR.fmtSize(drive)}. Everything stays in this browser.`), ...(note ? [note] : []), keep, bk, clear);
+  };
+  /** Removes only the regenerable caches (thumbnails, waveforms, face results, downloaded models). Files and documents stay. */
+  DR.clearLocalCache = async function () {
+    const yes = await window.SlopUI.confirm('Clear local cache?', 'This removes only what is made again on demand: thumbnails, waveforms, face results and downloaded AI and cut-out models. Your files, documents and backups are kept. A model downloads again when you use it.', 'Clear cache');
+    if (!yes) return;
+    const n = await window.SlopRegen.clear();
+    DR.toast(`Cleared ${n.thumbs + n.faces + n.models + n.cutout} cached entries. Your files are unchanged.`);
+    DR.renderMeter();
   };
 
   /** Mobile: the sidebar is a drawer. */

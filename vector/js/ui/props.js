@@ -92,12 +92,13 @@
     // shape section
     var shp = h('div', { class: 'psec shape-sec' });
     shp.appendChild(h('div', { class: 'psec-title', text: 'Shape' }));
-    var shRect = field('Corner radius', numIn(g, { label: 'Corner radius', min: 0, get: function () { var r = firstOfType('rect'); return r ? r.rx : 0; }, set: function (v) { SV.applyShapeOpt('radius', v); } }), 'px');
+    var corners = $.cornerControls(g, '', function () { return !!firstOfType('rect'); });
     var shPoly = field('Sides', numIn(g, { label: 'Sides', min: 3, max: 64, get: function () { var r = firstOfType('polygon'); return r ? r.sides : 6; }, set: function (v) { SV.applyShapeOpt('sides', round(v)); } }));
     var shStar = field('Points', numIn(g, { label: 'Points', min: 2, max: 64, get: function () { var r = firstOfType('star'); return r ? r.points : 5; }, set: function (v) { SV.applyShapeOpt('points', round(v)); } }));
     var shStar2 = field('Inner radius', numIn(g, { label: 'Inner radius', min: 5, max: 100, get: function () { var r = firstOfType('star'); return r ? round(r.r2 / (r.r1 || 1) * 100) : 45; }, set: function (v) { SV.applyShapeOpt('inner', v / 100); } }), '%');
-    shp.appendChild(h('div', { class: 'grid2' }, [shRect, shPoly, shStar, shStar2]));
-    bind(g, function () { shRect.hidden = !firstOfType('rect'); shPoly.hidden = !firstOfType('polygon'); shStar.hidden = shStar2.hidden = !firstOfType('star'); });
+    shp.appendChild(h('div', { class: 'grid2' }, [corners.one, shPoly, shStar, shStar2]));
+    shp.appendChild(corners.four); shp.appendChild(h('div', { class: 'btnrow' }, [corners.link]));
+    bind(g, function () { shPoly.hidden = !firstOfType('polygon'); shStar.hidden = shStar2.hidden = !firstOfType('star'); });
     // character section
     var ch = h('div', { class: 'psec char-sec' });
     ch.appendChild(h('div', { class: 'psec-title', text: 'Character' }));

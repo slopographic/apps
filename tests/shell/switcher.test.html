@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Shell · switcher (Ctrl+Space, search, keys)</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="../../shell/shell.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  const key = (k, o = {}) => document.body.dispatchEvent(new KeyboardEvent('keydown', { key: k, code: o.code || '', ctrlKey: !!o.ctrl, metaKey: !!o.meta, bubbles: true, cancelable: true }));
+  const typeQuery = (q) => { const i = document.getElementById('sh-q'); i.value = q; i.dispatchEvent(new Event('input', { bubbles: true })); };
+  const names = () => [...document.querySelectorAll('.sh-opt .sh-opt-name')].map((n) => n.textContent);
+  const selected = () => document.querySelector('.sh-opt.sh-on');
+  const closeIfOpen = () => { if (window.SlopSwitcher.isOpen()) key('Escape', { code: 'Escape' }); };
+  const escapeFromInput = () => document.getElementById('sh-q').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+
+  window.SlopShell.ready.then(() => {
+    const S = window.SlopShell;
+    let navigated = null;
+    S.navigate = (url) => { navigated = url; };
+
+    describe('switcher', () => {
+      it('opens on Ctrl+Space and closes on Escape', async () => {
+        closeIfOpen();
+        key(' ', { code: 'Space', ctrl: true });
+        expect(window.SlopSwitcher.isOpen()).toBe(true);
+        expect(document.querySelector('.sh-back').hidden).toBe(false);
+        await waitFor(() => document.activeElement && document.activeElement.id === 'sh-q');
+        escapeFromInput();
+        expect(window.SlopSwitcher.isOpen()).toBe(false);
+        expect(document.querySelector('.sh-back').hidden).toBe(true);
+      });
+
+      it('Cmd+Space also opens it, and a second press closes it', () => {
+        closeIfOpen();
+        key(' ', { code: 'Space', meta: true });
+        expect(window.SlopSwitcher.isOpen()).toBe(true);
+        key(' ', { code: 'Space', meta: true });
+        expect(window.SlopSwitcher.isOpen()).toBe(false);
+      });
+
+      it('ignores plain Space and Ctrl+other keys', () => {
+        closeIfOpen();
+        key(' ', { code: 'Space' });
+        key('k', { code: 'KeyK', ctrl: true });
+        expect(window.SlopSwitcher.isOpen()).toBe(false);
+      });
+
+      it('filters the registry by name', () => {
+        closeIfOpen();
+        key(' ', { code: 'Space', ctrl: true });
+        typeQuery('music');
+        expect(names()).toEqual(['Slop Music']);
+        typeQuery('PDF');
+        expect(names()[0]).toBe('Slop PDF');
+        expect(names().includes('Slop Music')).toBe(false);
+        typeQuery('zzqx');
+        expect(document.querySelectorAll('.sh-opt').length).toBe(0);
+        expect(document.querySelector('.sh-empty').textContent).toMatch(/No app matches/);
+        closeIfOpen();
+      });
+
+      it('Enter opens the app that is highlighted', () => {
+        closeIfOpen();
+        navigated = null;
+        key(' ', { code: 'Space', ctrl: true });
+        typeQuery('music');
+        document.getElementById('sh-q').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+        expect(navigated).toBe(S.appUrl(S.apps().find((a) => a.id === 'music')));
+        expect(window.SlopSwitcher.isOpen()).toBe(false);
+      });
+
+      it('arrow keys move the highlight and Enter opens it', () => {
+        closeIfOpen();
+        navigated = null;
+        key(' ', { code: 'Space', ctrl: true });
+        typeQuery('slop');
+        const q = document.getElementById('sh-q');
+        const press = (k) => q.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+        press('ArrowDown'); press('ArrowDown');
+        expect(selected().dataset.i).toBe('2');
+        press('ArrowUp');
+        expect(selected().dataset.i).toBe('1');
+        press('ArrowUp'); press('ArrowUp');
+        expect(selected().dataset.i).toBe(String(document.querySelectorAll('.sh-opt').length - 1));
+        press('ArrowDown');
+        press('Enter');
+        expect(navigated).toBe(S.appUrl(window.SlopSwitcher.items()[0].app));
+      });
+
+      it('lists recently used apps first, from storage', () => {
+        closeIfOpen();
+        localStorage.setItem('slop.shell.recent.v1', JSON.stringify({ v: 1, data: ['music', 'pdf'] }));
+        key(' ', { code: 'Space', ctrl: true });
+        const heads = [...document.querySelectorAll('.sh-sec')].map((h) => h.textContent);
+        expect(heads[0]).toBe('Recent');
+        expect(names().slice(0, 2)).toEqual(['Slop Music', 'Slop PDF']);
+        closeIfOpen();
+        localStorage.removeItem('slop.shell.recent.v1');
+      });
+    });
+    run({ name: 'Shell · switcher' });
+  });
+  </script>
+</body>
+</html>

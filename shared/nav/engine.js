@@ -1,6 +1,6 @@
 /* SlopNav engine: the DOM side of a preset. Attaches wheel, pointer, touch and key handling for one
- * canvas host and calls the app's view functions through an adapter { zoomAt, panBy, fit, actual,
- * zoomStep?, cancelStroke? }. It never touches app data. Listeners sit on window in the capture phase,
+ * canvas host and calls the app's view functions through an adapter { zoomAt(f, x, y, live?), panBy, fit, actual,
+ * zoomStep?, cancelStroke? }. live is true for pinch (touch and trackpad): apply at once, no easing. It never touches app data. Listeners sit on window in the capture phase,
  * so an active preset wins over the app's own wheel, Space and shortcut handling (it stops those events).
  * Classic script; sets window.SlopNav.engine. */
 (function () {
@@ -40,7 +40,7 @@
       const a = L.wheelAction(cfg(), e);
       if (!a) return;
       const p = local(e);
-      if (a.kind === 'zoom') { adapter.zoomAt(a.factor, p.x, p.y); emit({ type: 'zoom', factor: a.factor, via: 'wheel' }); }
+      if (a.kind === 'zoom') { adapter.zoomAt(a.factor, p.x, p.y, !!a.live); emit({ type: 'zoom', factor: a.factor, via: 'wheel' }); }
       else { adapter.panBy(a.dx, a.dy); emit({ type: 'pan', dx: a.dx, dy: a.dy, via: 'wheel' }); }
     }
 
@@ -109,7 +109,7 @@
       if (!pinch || touches.size !== 2) return;
       e.stopImmediatePropagation();
       const b = cfg(), m = pinchMid();
-      if (b.pinch === 'zoom' && pinch.d > 0 && m.d > 0) adapter.zoomAt(m.d / pinch.d, m.x, m.y);
+      if (b.pinch === 'zoom' && pinch.d > 0 && m.d > 0) adapter.zoomAt(m.d / pinch.d, m.x, m.y, true);
       if (b.touchPan) adapter.panBy(m.x - pinch.mx, m.y - pinch.my);
       if (b.pinch === 'zoom' || b.touchPan) emit({ type: 'pinch', factor: m.d / (pinch.d || 1), via: 'touch' });
       pinch.d = m.d; pinch.mx = m.x; pinch.my = m.y;

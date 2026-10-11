@@ -3,7 +3,7 @@
 'use strict';
 (function (DR) {
   const S = DR.S, H = () => window.SlopHub;
-  async function done(msg) { await DR.refresh(); if (DR.render) DR.render(); if (msg) DR.toast(msg); }
+  async function done(msg) { await DR.timed('Updating Slop Drive', () => DR.refresh(), { onRetry: () => DR.render && DR.render() }); if (DR.render) DR.render(); if (msg) DR.toast(msg); }
   DR.done = done;
   const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
   const describe = (items) => (items.length === 1 ? `“${items[0].name}”` : plural(items.length, 'item'));

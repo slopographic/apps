@@ -4,7 +4,7 @@
  * Every call resolves to null or a value on failure, never throws: without storage the thumbnails are simply made again. */
 'use strict';
 (function (DR) {
-  const NAME = window.SLOP_THUMB_DB || 'slop-drive-thumbs', STORE = 'thumbs';
+  const NAME = window.SLOP_THUMB_DB || 'slop-drive-thumbs', STORE = 'thumbs', LIMIT = 6000;
   let dbp = null;
   function db() {
     if (!dbp) dbp = new Promise((res, rej) => {
@@ -19,11 +19,15 @@
   /** Runs fn(store) in one transaction and resolves with the request's result. */
   async function run(mode, fn) {
     const d = await db();
-    return new Promise((res, rej) => {
+    // A transaction the browser never finishes must not hold the list: after LIMIT ms the call fails (and safe() gives null).
+    let timer = 0;
+    const limit = new Promise((_, rej) => { timer = setTimeout(() => rej(new Error('thumbnail cache is not answering')), LIMIT); });
+    const work = new Promise((res, rej) => {
       const t = d.transaction(STORE, mode), out = fn(t.objectStore(STORE));
       t.oncomplete = () => res(out ? out.result : undefined);
       t.onerror = t.onabort = () => rej(t.error || new Error('thumbnail cache aborted'));
     });
+    return Promise.race([work, limit]).finally(() => clearTimeout(timer));
   }
   const safe = (p, fallback = null) => p.catch(() => fallback);
   const cache = {

@@ -108,10 +108,13 @@
 
   /* ---------- toast ---------- */
   let toastEl = null, toastT = 0;
-  function toast(msg, ms = 2400) {
+  /** action (optional): { label, run } adds a button to the toast, e.g. { label: 'Retry', run: retry }. */
+  function toast(msg, ms = 2400, action = null) {
     if (!toastEl) { toastEl = el('div', { class: 'sui-toast', role: 'status', 'aria-live': 'polite' }); document.body.append(toastEl); }
-    toastEl.textContent = msg; toastEl.classList.add('sui-show');
-    clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('sui-show'), ms);
+    toastEl.replaceChildren(document.createTextNode(msg));
+    if (action) toastEl.append(' ', el('button', { type: 'button', class: 'sui-toast-act', onclick: () => { toastEl.classList.remove('sui-show'); action.run(); } }, action.label));
+    toastEl.classList.add('sui-show');
+    clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('sui-show'), action ? Math.max(ms, 10000) : ms);
   }
 
   /* ---------- context menu ---------- */

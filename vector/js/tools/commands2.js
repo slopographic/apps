@@ -189,7 +189,7 @@
     SV.selObjs().forEach(function (o) {
       SV.leaves(o).forEach(function (l) {
         if (!SV.isEditable(l)) return;
-        if (key === 'radius' && l.type === 'rect') { l.rx = value; n++; }
+        if (key === 'radius' && l.type === 'rect') { l.rx = value; delete l.rc; n++; }
         if (key === 'sides' && l.type === 'polygon') { l.sides = value; n++; }
         if (key === 'points' && l.type === 'star') { l.points = value; n++; }
         if (key === 'inner' && l.type === 'star') { l.r2 = l.r1 * value; n++; }
