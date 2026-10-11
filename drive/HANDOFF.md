@@ -5,7 +5,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 **Status: beta** (registered in `shared/apps.js` as `drive`, `accepts: ['*']`, so "Send to Slop Drive" appears in every app's Send to menu).
 
 ## Tests
-`node tests/run.mjs drive` runs 66 tests on 6 pages, all green:
+`node tests/run.mjs drive` runs 69 tests on 7 pages, all green:
 
 | Page | What it covers |
 |---|---|
@@ -14,6 +14,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 | `app-ui.test.html` | Grid thumbnails, List header sorting, Compact, the 1–6 keys, Columns, Nodes (collapse, zoom, pointer-drag a node onto a folder), squarified treemap maths, treemap drill-in, sunburst, click/Ctrl/Shift selection, marquee, arrow keys, drag onto a breadcrumb, Quick Look (image, text, PDF pages), the info panel with dimensions, shortcuts, the context menu, the duplicate finder |
 | `backup.test.html` | zip round trip (stored and deflated), the codec (Blob, File, typed arrays, Map/Set/Date/RegExp, NaN, -0, BigInt, `$` keys), export, replace, merge, rejecting non-backups, the dialog |
 | `guard.test.html` | Ctrl+Shift+R, Ctrl+F5 and Cmd+Shift+R are caught (plain Ctrl+R is not), the dialog text and buttons, Export backup, Reload anyway, "Don't show again", the `beforeunload` prompt only while work is unsaved, pages with a foreign `window.SlopUI` (the homepage), the folder-aware picker, `saveToDrive` |
+| `commands.test.html` | the command list, registering with SlopCmd (a stub), handing shortcuts over, the files provider |
 | `mobile.test.html` | 390×844: no sideways scroll in any view, drawer, tap to open, details sheet, long-press menu |
 
 The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Drive database name and `?foreign=1` mimics the homepage. Helpers are in `tests/drive/util.js`.
@@ -90,6 +91,17 @@ The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Dr
 - **Launch:** `?drive=<id>` reveals that file. This is what "Send to Slop Drive" uses.
 - **Storage:** the meter uses `navigator.storage.estimate()`. `persist()` is requested after the first upload and from the sidebar and the More menu.
 - **Shortcuts:** see `DR.SHORTCUTS` or press `?` in the app.
+
+## Command palette (SlopCmd)
+- `js/ui/commands.js` describes every action as a command (`DR.commands()`, ids `drive.*`, groups File, Edit, Go, View, Tools and Help). Each command has default keys.
+- When `window.SlopCmd` exists, `DR.wireCommands()` does the following:
+  - calls `init({ app: 'drive' })` and `register(...)`;
+  - adds a "Files" palette provider (`addProvider` or `provider`, whichever exists) that reveals matching files and folders;
+  - shows the ⌘K button in the top bar.
+- While SlopCmd is active it owns the shortcuts, so they can be rebound. `keys.js` then handles only arrows, Home/End, Enter, Space and Escape. Without SlopCmd, `keys.js` falls back to its own map.
+- Menus read key labels through `DR.keyLabel(id)`, which calls `SlopCmd.keyFor`.
+- More ▸ "Search commands…" and Help ▸ "Keyboard shortcuts…" use `SlopCmd.open` / `openKeymap`.
+- `index.html` already includes `../shared/commands/commands.css` and `commands.js`. They return 404 until that package lands, and the app works without them.
 
 ## Ideas not done
 - Undo for move and rename (the Trash already covers deletes).

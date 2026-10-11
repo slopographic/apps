@@ -92,7 +92,7 @@
       { label: 'Keep storage (ask the browser)', act: () => DR.requestPersist(true) },
       { label: 'Empty Trash…', act: () => DR.emptyTrash() },
       '-',
-      { label: 'Search commands…', key: window.SlopCmd ? '⌘K'.replace('⌘', /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+') : undefined, act: () => DR.openPalette() },
+      { label: 'Search commands…', key: window.SlopCmd ? 'Ctrl+K' : undefined, act: () => DR.openPalette() },
       { label: 'Help', sub: [{ label: 'Keyboard shortcuts…', key: '?', act: () => DR.shortcutsDialog() }, { label: 'Search commands… (⌘K)', act: () => DR.openPalette() }] },
     ], x, y);
   };
