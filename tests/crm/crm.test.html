@@ -11,7 +11,7 @@
   const { describe, it, expect, waitFor, run } = SlopTest;
   const frame = document.createElement('iframe');
   frame.style.cssText = 'width:390px;height:820px;border:0;position:fixed;left:0;top:0;background:#111';
-  frame.src = '../../crm/index.html';
+  frame.src = '../../crm/index.html#pipeline';
   document.body.append(frame);
   const win = () => frame.contentWindow;
   const doc = () => frame.contentDocument;
@@ -20,8 +20,8 @@
   const errors = [];
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const S = () => win().SlopData;
-  const field = (label) => [...doc().querySelectorAll('.sui-dlg .sui-field')]
-    .find((l) => l.querySelector('.sui-label').textContent === label).querySelector('input,select,textarea');
+  const field = (label) => [...doc().querySelectorAll('.sui-dlg .fld')]
+    .find((l) => l.querySelector('.fld-t').textContent === label).querySelector('input,select,textarea');
   const dlgSave = () => doc().querySelector('.sui-dlg .sui-primary');
   const dlgText = () => (doc().querySelector('.sui-dlg') || { textContent: '' }).textContent;
   const customerNamed = async (name) => (await S().store.list('customers')).value.find((c) => c.name === name);

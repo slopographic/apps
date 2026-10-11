@@ -13,7 +13,8 @@
   const dialogsOpen = () => { try { return !!(window.SlopUI && SlopUI.openDialogs); } catch (e) { return false; } };
 
   /**
-   * attach({ host, adapter, bindings(), keys: 'global'|'hover', onAction?, skip? }) → { detach(), bindings() }
+   * attach({ host, adapter, bindings(), keys: 'global'|'hover', onAction?, skip?, passthrough? }) → { detach(), bindings() }
+   * passthrough: an unbound wheel event is not stopped, so the host's own scrolling runs (Slop PDF uses it).
    * bindings() returns the bindings object to use now. keys 'global' takes keys anywhere on the page
    * (except while a dialog is open); 'hover' takes them only while the pointer is over the host.
    */
@@ -36,9 +37,10 @@
 
     function onWheel(e) {
       if (!inHost(e.target)) return;
-      stop(e);
       const a = L.wheelAction(cfg(), e);
-      if (!a) return;
+      // passthrough (opt-in): a wheel the preset does not bind is left to the page, so it scrolls natively.
+      if (!a) { if (!o.passthrough) stop(e); return; }
+      stop(e);
       const p = local(e);
       if (a.kind === 'zoom') { adapter.zoomAt(a.factor, p.x, p.y, !!a.live); emit({ type: 'zoom', factor: a.factor, via: 'wheel' }); }
       else { adapter.panBy(a.dx, a.dy); emit({ type: 'pan', dx: a.dx, dy: a.dy, via: 'wheel' }); }

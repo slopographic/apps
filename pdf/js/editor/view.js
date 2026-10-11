@@ -42,8 +42,6 @@
     S.layer.append(S.canvas, S.svg); S.pageEl.append(S.layer, S.overlay, S.ta); S.pad.appendChild(S.pageEl); S.viewer.appendChild(S.pad);
     S.pageEl.addEventListener('pointerdown', S.onDown);
     S.pageEl.addEventListener('dblclick', S.onDbl);
-    S.viewer.addEventListener('wheel', S.onWheel, { passive: false });
-    S.viewer.addEventListener('pointerdown', S.onViewerDown, true);
     S.viewer.addEventListener('pointerdown', function (e) { if (e.target === S.viewer || e.target === S.pad) { if (e.pointerType === 'mouse' && e.button === 0) S.startPan(e); else if (e.pointerType !== 'mouse') S.startPan(e); Ed.select(null); } });
     S.ta.addEventListener('input', S.onTextInput);
     S.ta.addEventListener('blur', function () { S.finishText(true); });
@@ -52,14 +50,26 @@
       e.stopPropagation();
     });
     new ResizeObserver(function () { if (Ed.pid && Ed.zoomMode !== 'num') Ed.layout(); }).observe(S.viewer);
+    // Phone width: the toolbar's zoom buttons sit off-screen and the status bar is hidden, so a small cluster floats here.
+    var zo = U.h('button', { type: 'button', class: 'pv-zf', title: 'Zoom out (Ctrl −)', 'aria-label': 'Zoom out' }, '−');
+    var zi = U.h('button', { type: 'button', class: 'pv-zf', title: 'Zoom in (Ctrl +)', 'aria-label': 'Zoom in' }, '+');
+    var zw = U.h('button', { type: 'button', class: 'pv-zf', title: 'Fit width (Ctrl 0)', 'aria-label': 'Fit width', html: U.icon('fit') });
+    S.zoomPct = U.h('span', { class: 'pv-zpct' }, '100%');
+    zo.addEventListener('click', function () { Ed.zoomBy(1 / 1.25); });
+    zi.addEventListener('click', function () { Ed.zoomBy(1.25); });
+    zw.addEventListener('click', function () { Ed.fit('width'); });
+    S.zoomFab = U.h('div', { class: 'pv-zoomfab', role: 'toolbar', 'aria-label': 'Zoom' }, zo, S.zoomPct, zi, zw);
+    S.viewer.parentNode.appendChild(S.zoomFab);
+    attachNav();
   };
   Ed.page = function () { return Ed.pid ? E.pageById(Ed.pid) : null; };
   Ed.show = function (pid) {
     if (Ed.pid !== pid) { S.finishText(true); Ed.selId = null; }
+    stopEase();
     Ed.pid = pid;
     Ed.layout(true);
   };
-  Ed.hide = function () { S.finishText(true); Ed.pid = null; Ed.selId = null; };
+  Ed.hide = function () { S.finishText(true); stopEase(); Ed.pid = null; Ed.selId = null; };
 
   /* --------------------------------------------------------------- layout */
   S.fitZoom = function (mode) {
@@ -80,6 +90,7 @@
     var key = (p.blank ? 'blank' : p.f + ':' + p.i + ':' + E.formKey(p.f)) + '@' + Math.round(z * 100);
     if (forceRaster || S.canvas._key !== key) S.scheduleRaster(key);
     if (SP.app) SP.app.zoomChanged(z);
+    if (S.zoomPct) S.zoomPct.textContent = Ed.percent(z) + '%';
   };
   S.scheduleRaster = function (key) {
     clearTimeout(renderTimer);
@@ -113,24 +124,74 @@
     S.canvas._key = key;
     S.pageEl.classList.add('loaded');
   }
-  Ed.setZoom = function (z, anchor) {
-    var old = Ed.zoom;
-    z = U.clamp(z, 0.1, 8);
-    var r = S.pageEl.getBoundingClientRect(), ax, ay, cxp, cyp;
-    if (anchor) { ax = anchor.x; ay = anchor.y; } else { var vr = S.viewer.getBoundingClientRect(); ax = vr.left + vr.width / 2; ay = vr.top + vr.height / 2; }
-    cxp = (ax - r.left) / old; cyp = (ay - r.top) / old;
-    Ed.zoomMode = 'num'; Ed.zoom = z;
-    Ed.layout();
+  /* ----------------------------------------------------------------- zoom
+     Ed.zoom is in layout units: the status bar shows Ed.zoom × 72/96 (1 is 75%), so the 10% to 800% limits are
+     ZMIN..ZMAX here. Wheel, keys, buttons and fit ease for ZOOM_MS and keep the point under the pointer (or the
+     centre) in place on every frame. Pinch and trackpad pinch are immediate, so they follow the fingers. */
+  var ZOOM_MS = 120, ZMIN = 0.1 * 96 / 72, ZMAX = 8 * 96 / 72, ease = null, easeRaf = 0;
+  Ed.ZOOM_MIN = ZMIN; Ed.ZOOM_MAX = ZMAX;
+  Ed.percent = function (z) { return Math.round(z * 72 / 96 * 100); };
+  function stopEase() { if (easeRaf) cancelAnimationFrame(easeRaf); easeRaf = 0; ease = null; }
+  function centre() { var vr = S.viewer.getBoundingClientRect(); return { x: vr.left + vr.width / 2, y: vr.top + vr.height / 2 }; }
+  /** Zoom now to z, keeping the page point under client (ax, ay) in place. */
+  function setRaw(z, ax, ay) {
+    var old = Ed.zoom, r = S.pageEl.getBoundingClientRect(), cxp = (ax - r.left) / old, cyp = (ay - r.top) / old;
+    Ed.zoomMode = 'num'; Ed.zoom = U.clamp(z, ZMIN, ZMAX); Ed.layout();
     var r2 = S.pageEl.getBoundingClientRect();
-    S.viewer.scrollLeft += (r2.left + cxp * z) - ax;
-    S.viewer.scrollTop += (r2.top + cyp * z) - ay;
+    S.viewer.scrollLeft += (r2.left + cxp * Ed.zoom) - ax;
+    S.viewer.scrollTop += (r2.top + cyp * Ed.zoom) - ay;
+  }
+  function frame(now) {
+    easeRaf = 0;
+    var a = ease; if (!a) return;
+    var t = U.clamp(((now == null ? performance.now() : now) - a.t0) / ZOOM_MS, 0, 1), k = 1 - Math.pow(1 - t, 3);
+    if (t >= 1) { stopEase(); setRaw(a.zt, a.ax, a.ay); if (a.mode) { Ed.zoomMode = a.mode; Ed.layout(); } return; }
+    setRaw(a.z0 + (a.zt - a.z0) * k, a.ax, a.ay);
+    easeRaf = requestAnimationFrame(frame);
+  }
+  /** Eased zoom to zt from the zoom on screen now (a move in flight is continued); mode is kept after it lands. */
+  function easeTo(zt, ax, ay, mode) {
+    if (!Ed.page()) return;
+    stopEase();
+    ease = { z0: Ed.zoom, zt: U.clamp(zt, ZMIN, ZMAX), t0: performance.now(), ax: ax, ay: ay, mode: mode || null };
+    easeRaf = requestAnimationFrame(frame);
+  }
+  /** The zoom the view is heading to (the current one when nothing moves). Wheel and key steps build on it. */
+  Ed.targetZoom = function () { return ease ? ease.zt : Ed.zoom; };
+  /** Immediate zoom (the zoom menu's entries, pinch). anchor is client coordinates; the centre when omitted. */
+  Ed.setZoom = function (z, anchor) { stopEase(); var c = anchor || centre(); setRaw(z, c.x, c.y); };
+  /** Eased zoom by a factor of the target zoom, about anchor (client coordinates) or the centre. */
+  Ed.zoomBy = function (k, anchor) { var c = anchor || centre(); easeTo(Ed.targetZoom() * k, c.x, c.y, null); };
+  /** Fit: 'fit' (the whole page) or 'width' (Ctrl/⌘ 0). It keeps following the window size after it lands. */
+  Ed.fit = function (mode) {
+    mode = mode || 'fit';
+    if (!Ed.page()) { Ed.zoomMode = mode; return; }
+    var c = centre(); easeTo(S.fitZoom(mode), c.x, c.y, mode);
   };
-  Ed.zoomBy = function (k, anchor) { Ed.setZoom(Ed.zoom * k, anchor); };
-  Ed.fit = function (mode) { Ed.zoomMode = mode || 'fit'; Ed.layout(); };
-  S.onWheel = function (e) {
-    if (!(e.ctrlKey || e.metaKey)) return;
-    e.preventDefault();
-    Ed.zoomBy(Math.exp(-e.deltaY * 0.0022), { x: e.clientX, y: e.clientY });
+  /** 100%: 1 pt per CSS pixel is 96/72 layout units (Ed.zoom 4/3). */
+  Ed.actual = function () { var c = centre(); easeTo(96 / 72, c.x, c.y, null); };
+
+  /* Navigation: the wheel, Space or middle drag, keys and touch are shared/nav's engine on this viewer, with these
+     fixed bindings (not the Navigation preset): Ctrl/⌘ + wheel zooms about the pointer, the plain wheel scrolls
+     (passthrough: the viewer scrolls natively), Shift + wheel scrolls sideways, pinch zooms, two fingers pan. */
+  var NAV = { zoomWheel: 'ctrl', panWheel: 'shift', spacePan: true, middlePan: true, pinch: 'zoom', touchPan: true, fitKey: 'Mod+0', actualKey: 'Mod+1', handKey: '', clickZoomKey: '', zoomInKeys: ['Mod+='], zoomOutKeys: ['Mod+-'] };
+  /** The engine's adapter: its coordinates are relative to the viewer, so they are converted to client ones here. */
+  function atViewer(x, y) { var r = S.viewer.getBoundingClientRect(); return { x: r.left + x, y: r.top + y }; }
+  Ed.nav = {
+    zoomAt: function (f, x, y, live) { var c = atViewer(x, y); if (live) Ed.setZoom(Ed.zoom * f, c); else easeTo(Ed.targetZoom() * f, c.x, c.y, null); },
+    panBy: function (dx, dy) { S.viewer.scrollLeft -= dx; S.viewer.scrollTop -= dy; },
+    fit: function () { Ed.fit('width'); },
+    actual: function () { Ed.actual(); },
+    zoomStep: function (dir, x, y) { var c = atViewer(x, y); easeTo(Ed.targetZoom() * (dir > 0 ? 1.25 : 0.8), c.x, c.y, null); },
+    cancelStroke: function () { if (Ed.cancelInteraction) Ed.cancelInteraction(); if (S.cancelPan) S.cancelPan(); },
+  };
+  /** Attaches the engine to the viewer. Keys and Space are left to the app outside page view (grid). */
+  function attachNav() {
+    if (!window.SlopNav || !SlopNav.engine) return;
+    SlopNav.engine.attach({
+      host: S.viewer, adapter: Ed.nav, bindings: function () { return NAV; }, passthrough: true,
+      skip: function () { return !SP.app || SP.app.mode !== 'page'; },
+    });
   }
 
   /* ---------------------------------------------------------------- paint */
@@ -180,38 +241,20 @@
     S.overlay.appendChild(del);
   }
 
-  /* ------------------------------------------------------- pan & pinch */
-  var touches = new Map();
+  /* ------------------------------------------------------------- pan
+     A drag on the empty viewer (mouse, pen or one finger) scrolls it. Space or middle drag pans through the engine.
+     S.cancelPan ends this drag; the engine calls it when a second finger lands (pinch and two-finger pan). */
   S.startPan = function (e) {
+    if (S.cancelPan) S.cancelPan();
     var sx = e.clientX, sy = e.clientY, sl = S.viewer.scrollLeft, st = S.viewer.scrollTop, pid = e.pointerId;
-    function mv(ev) { if (ev.pointerId !== pid || S.pinch) return; S.viewer.scrollLeft = sl - (ev.clientX - sx); S.viewer.scrollTop = st - (ev.clientY - sy); }
-    function up(ev) { if (ev.pointerId !== pid) return; window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up); S.viewer.classList.remove('panning'); }
+    function mv(ev) { if (ev.pointerId === pid) { S.viewer.scrollLeft = sl - (ev.clientX - sx); S.viewer.scrollTop = st - (ev.clientY - sy); } }
+    function up(ev) { if (ev.pointerId === pid) end(); }
+    function end() {
+      window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+      S.viewer.classList.remove('panning'); if (S.cancelPan === end) S.cancelPan = null;
+    }
+    S.cancelPan = end;
     S.viewer.classList.add('panning');
     window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
   }
-  S.onViewerDown = function (e) {
-    if (e.pointerType !== 'touch') return;
-    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (touches.size === 2 && !S.pinch) {
-      Ed.cancelInteraction();
-      var pts = Array.from(touches.values());
-      S.pinch = { d0: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1, z0: Ed.zoom, mid: { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 } };
-      var r = S.pageEl.getBoundingClientRect();
-      S.pinch.cx = (S.pinch.mid.x - r.left) / Ed.zoom; S.pinch.cy = (S.pinch.mid.y - r.top) / Ed.zoom;
-    }
-  }
-  window.addEventListener('pointermove', function (e) {
-    if (!touches.has(e.pointerId)) return;
-    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (!S.pinch || touches.size < 2) return;
-    var pts = Array.from(touches.values()), d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-    var mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
-    var z = U.clamp(S.pinch.z0 * d / S.pinch.d0, 0.1, 8);
-    Ed.zoomMode = 'num'; Ed.zoom = z; Ed.layout();
-    var r = S.pageEl.getBoundingClientRect();
-    S.viewer.scrollLeft += (r.left + S.pinch.cx * z) - mid.x;
-    S.viewer.scrollTop += (r.top + S.pinch.cy * z) - mid.y;
-  }, { passive: true });
-  function endTouch(e) { touches.delete(e.pointerId); if (touches.size < 2) S.pinch = null; }
-  window.addEventListener('pointerup', endTouch); window.addEventListener('pointercancel', endTouch);
 })();

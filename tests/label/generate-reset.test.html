@@ -97,8 +97,10 @@
       expect(f.querySelector('#b2').getAttribute('aria-pressed')).toBe('true');
       const btn = SlopFormReset.dialogButton(f);
       expect(btn.label).toBe('Reset');
-      const kept = await btn.act();
-      expect(kept).toBe(false);
+      const pending = btn.act();
+      await waitFor(() => dlgBtn(document, '.sui-primary'));
+      dlgBtn(document, '.sui-primary').click();
+      expect(await pending).toBe(false);
       expect(f.querySelector('#b1').getAttribute('aria-pressed')).toBe('true');
       f.remove();
     });

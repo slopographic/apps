@@ -49,7 +49,7 @@
       L.push(cmd('nudge.' + d[0].toLowerCase(), 'Nudge ' + d[0].toLowerCase(), 'Arrange', ['Arrow' + d[0]], function () { OP.nudge(d[1], d[2]); }, hasSel, { repeat: true, hidden: true }));
       L.push(cmd('nudge.big' + d[0].toLowerCase(), 'Nudge ' + d[0].toLowerCase() + ' (10 pt)', 'Arrange', ['Shift+Arrow' + d[0]], function () { OP.nudge(d[1] * 10, d[2] * 10); }, hasSel, { repeat: true, hidden: true }));
     });
-    return L;
+    return L.concat(SS.configio && SS.configio.commands ? SS.configio.commands() : []);
   }
   /** Called once at boot. Without SlopCmd the editor still works, only without shortcuts and the palette. */
   K.setup = function () {

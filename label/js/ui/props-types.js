@@ -10,7 +10,7 @@ function ensureFont(name) {
 }
 /** Family select: the four standard faces, bundled and downloaded families, and Get more. */
 function familySelect(o, key, label, flag) {
-  if (!window.SlopFonts) return fSel(FONT_OPTS, o[key], (v) => setProp(key, v, label, flag)); // offline build: plain list
+  return fSel(FONT_OPTS, o[key], (v) => setProp(key, v, label, flag)); // TEMP-EXPERIMENT
   const s = mk('select', { class: 'inp' });
   ensureFont(o[key]);
   const pick = SlopFonts.attach(s, { value: o[key], legacy: FONT_OPTS, onPick: (f) => { ensureFont(f); setProp(key, f, label, flag); } });
