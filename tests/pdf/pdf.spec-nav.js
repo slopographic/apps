@@ -71,7 +71,7 @@
       PT.win.document.body.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: '0', code: 'Digit0', ctrlKey: true, bubbles: true, cancelable: true }));
       await sleep(300);
       expect(Ed.zoomMode).toBe('width');
-      expect(Ed.zoom).toBeCloseTo(Ed.fitZoom('width'), 1e-6);
+      expect(Ed.zoom).toBeCloseTo(Ed._.fitZoom('width'), 1e-6);
     }, { timeout: 60000 });
 
     it('the zoom and the view come back after a reload', async () => {
