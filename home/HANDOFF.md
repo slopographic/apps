@@ -23,8 +23,8 @@
 - One slide per app, built in `home/catalog.js` from `window.SLOP_APPS` (shared/apps.js), with the badge from
   `window.SLOP_ICONS` / `SLOP_ICON_BADGE` (shared/app-icons.js). Each slide: badge, name, status, the registry `tagline`,
   the first three `features`, an Open link (`href` = the app's path) and a Tour link (`?tour=1`) when the app has a tour.
-- Order: `CAROUSEL_TOP` (by name), then the rest of the registry in registry order. "Slop Image to 3D" is not in the
-  registry yet, so it has no slide until it is added to `shared/apps.js`; add it to `CAROUSEL_TOP` then.
+- Order: `CAROUSEL_TOP` (by name), then the rest of the registry in registry order. A name missing from the registry is
+  skipped. A slide with no glyph in `SLOP_ICONS` uses the card's fallback icon (`ICONS[a.icon]`).
 - `TOUR_DIRS` lists the folders with a tour. Keep it in step with `TOURS` in `shared/tour/mount.js`.
 - Controls: previous and next (wrap around), dots (one per slide, `aria-current` on the current one), a slide count,
   and Pause. Auto-advance every 7 seconds (`CAROUSEL_MS`). It pauses while the pointer is over the carousel or focus is

@@ -13,7 +13,10 @@
   let win, doc, S, M, pristine;
   // The page itself changes as cards scroll into view (lazy screenshots load or fall back, clips attach):
   // compare without those parts.
-  const main = () => doc.querySelector('main').innerHTML.replace(/<img[^>]*>|<video[\s\S]*?<\/video>| data-clip="[^"]*"| has-img/g, '');
+  // The app carousel auto-advances on its own, so its current slide, dots and live text change too: compare without those.
+  const main = () => doc.querySelector('main').innerHTML
+    .replace(/<img[^>]*>|<video[\s\S]*?<\/video>| data-clip="[^"]*"| has-img/g, '')
+    .replace(/ style="transform: translateX\(-?\d+%\);"| is-current| aria-current="true"| inert=""|<p class="sr" aria-live="\w+">[^<]*<\/p>|<span class="car-count" aria-hidden="true">[^<]*<\/span>/g, '');
   const leftovers = () => doc.querySelectorAll('.sloppo-layer > :not(.sloppo):not(.sloppo-fx)').length;
   const ready = HomeTest.openHome().then(async (w) => {
     win = w; doc = w.document; S = w.SlopMascot; M = S.M;

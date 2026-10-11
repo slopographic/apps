@@ -64,12 +64,13 @@
     const b = button('Tour', 'Start the ' + NAME[APP] + ' tour', () => startTour(APP));
     if (host.matches('.top-actions, main, body')) host.prepend(b); else host.append(b);
   }
+  /** Register "Start tour: <name>". Pages without the palette get its registry core (no key handling) to hold it. */
   function paletteCommand() {
     const reg = () => window.SlopCmd && SlopCmd.register && SlopCmd.register([{
       id: 'tour.start.' + APP, title: 'Start tour: ' + NAME[APP], group: 'Help',
       keywords: ['tour', 'guide', 'walkthrough', 'learn', 'help'], run: () => startTour(APP),
     }]);
-    if (window.SlopCmd) reg(); else addEventListener('load', reg, { once: true });
+    if (window.SlopCmd) reg(); else script(BASE + '../commands/commands.js').then(reg, () => {});
   }
   function homeMenu() {
     const nav = document.querySelector('header.nav') || document.querySelector('header');
