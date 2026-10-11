@@ -1,12 +1,18 @@
 <!doctype html>
 <html lang="en" data-theme="pro">
 <head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="label" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>SlopLabel — Slopographic</title>
   <meta name="description" content="SlopLabel: design and print barcode labels in the browser. Code 128, EAN, GS1-128, QR and Data Matrix, CSV and Excel merge, Avery sheets and thermal rolls, PDF and Zebra ZPL export. Nothing is uploaded.">
   <meta name="theme-color" content="#1e1e1e">
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="canonical" href="https://slopographic.com/label/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
@@ -67,6 +73,7 @@
     <footer class="status" id="status"><span id="stMsg"></span><span class="grow"></span><span id="stPos" class="mono"></span></footer>
   </div>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/session/session.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/hub.js"></script>
   <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
@@ -115,9 +122,11 @@
   <script src="js/ui/hub.js"></script>
   <script src="js/ui/menus.js"></script>
   <script src="js/ui/context.js"></script>
+  <script src="js/ui/view-state.js"></script>
   <script src="js/ui/boot.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
+  <script src="../shell/shell.js"></script>
 </body>
 </html>

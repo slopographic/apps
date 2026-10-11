@@ -13,13 +13,13 @@
   N.blank = function (opts) { return M.newDeck(Object.assign({ title: 'Untitled presentation' }, opts || {})); };
   N.toBlob = function (deck) { return new Blob([JSON.stringify(deck)], { type: N.MIME }); };
 
-  /** Validates and fills in a parsed deck (older or hand-made files may lack fields). Throws on a non-deck. */
+  /** The one deck validator (io/validate.js): throws with the reason if d is not a deck. Then fills in defaults
+      (older or hand-made files may lack fields). Used for .sslide files, drafts and template files alike. */
   N.normalize = function (d) {
-    if (!d || typeof d !== 'object' || !Array.isArray(d.slides) || !d.size) throw new Error('This is not a Slop Slides file');
+    SS.deckCheck.run(d);   // version check, migration of version 1 files, structure
     d.media = d.media || {};
     d.master = Object.assign({ footer: '', showNumber: false }, d.master);
     if (!d.theme || !d.theme.colors) d.theme = U.clone(SS.themes.byId(typeof d.theme === 'string' ? d.theme : 'slop'));
-    if (SS.anim) SS.anim.migrateDeck(d);   // version 1 files: legacy transitions and builds become animations
     d.slides.forEach(function (s) {
       s.objects = s.objects || [];
       s.notes = s.notes || '';

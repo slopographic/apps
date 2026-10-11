@@ -1,4 +1,4 @@
-/* PhotoSLOP filters: adjustments, blur, sharpen, noise, pixelate, stylize, distort and render */
+/* PhotoSlop filters: adjustments, blur, sharpen, noise, pixelate, stylize, distort and render */
 'use strict';
 
 FILTERS.push(

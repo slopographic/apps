@@ -1,4 +1,4 @@
-/* PhotoSLOP type: changing type properties (options bar, Character panel, colour picker, Warp Text).
+/* PhotoSlop type: changing type properties (options bar, Character panel, colour picker, Warp Text).
  * While editing, a change restyles the selected characters (all of them when nothing is selected) and
  * is part of the edit's one history step. With a type layer selected, it restyles the whole layer at once:
  * sliders and colour drags preview live and commit one step when they settle. */

@@ -1,4 +1,4 @@
-/* Slop Vector — tools: pointer/touch/pinch/wheel pipeline and op helpers */
+/* SlopVector — tools: pointer/touch/pinch/wheel pipeline and op helpers */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom;
@@ -86,7 +86,7 @@
     var ps = Array.from(pointers.values()); if (ps.length < 2) return;
     var r = D.stage.getBoundingClientRect();
     var d = hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y), m = { x: (ps[0].x + ps[1].x) / 2 - r.left, y: (ps[0].y + ps[1].y) / 2 - r.top };
-    var z = SV.clamp(gesture.z0 * d / gesture.d0, 0.02, 64);
+    var z = SV.clamp(gesture.z0 * d / gesture.d0, SV.ZOOM_MIN, SV.ZOOM_MAX);
     var docPt = { x: (gesture.m0.x - gesture.vx) / gesture.z0, y: (gesture.m0.y - gesture.vy) / gesture.z0 };
     S.view.zoom = z; S.view.x = m.x - docPt.x * z; S.view.y = m.y - docPt.y * z;
     SV.requestRender(true);
@@ -96,10 +96,10 @@
     var r = D.stage.getBoundingClientRect(), cx = e.clientX - r.left, cy = e.clientY - r.top;
     var dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY, dx = e.deltaMode === 1 ? e.deltaX * 16 : e.deltaX;
     if (e.ctrlKey || e.metaKey || e.altKey) {
-      SV.setZoom(S.view.zoom * Math.exp(-dy * (e.ctrlKey && !e.altKey ? 0.01 : 0.002)), cx, cy);
+      SV.zoomBy(Math.exp(-dy * (e.ctrlKey && !e.altKey ? 0.01 : 0.002)), cx, cy);
     } else {
       if (e.shiftKey && !dx) { dx = dy; dy = 0; }
-      S.view.x -= dx; S.view.y -= dy; SV.requestRender(true);
+      SV.panView(-dx, -dy);
     }
     if (S.editing) SV.positionEditor();
   }

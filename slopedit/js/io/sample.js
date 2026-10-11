@@ -1,4 +1,4 @@
-/* SlopEdit: the sample project. All media is generated on this device (two short videos with sound,
+/* SlopCut: the sample project. All media is generated on this device (two short videos with sound,
    a music bed and a logo still), then cut together with a transition, a title and markers. */
 (function () {
   'use strict';

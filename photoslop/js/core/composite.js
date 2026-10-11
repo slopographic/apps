@@ -1,4 +1,4 @@
-/* PhotoSLOP document: compositing and selections */
+/* PhotoSlop document: compositing and selections */
 'use strict';
 
 /* ---------- compositing ---------- */

@@ -1,4 +1,4 @@
-/* Slop Cutout — namespace (window.CO), DOM helpers, storage, formatting, icons, image decoding. */
+/* SlopIsolate — namespace (window.CO), DOM helpers, storage, formatting, icons, image decoding. */
 (function () {
   'use strict';
   const CO = window.CO = window.CO || {};

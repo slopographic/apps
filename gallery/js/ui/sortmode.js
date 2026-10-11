@@ -1,14 +1,17 @@
 /* Slop Gallery: Sort mode, a swipe-deck organiser over a queue (the photos visible when it opened).
  *   Up arrow: like and next      Down arrow: dislike and next
  *   Left arrow: back, no tag     Right arrow: skip ahead, no tag
+ *   Enter: open a tag field under the photo. A letter or number typed on the photo opens it with that character.
+ *          In the field: Enter adds the tag (commas separate several) and moves on; Escape cancels and stays.
  * Tags are the same as everywhere else in the app (photo.liked, photo.tags, and the Drive record for Drive photos).
- * Free-text tags are added with the box in the panel. The key rules live in core/sort.js.
+ * Free-text tags are also added with the box in the panel. The key rules live in core/sort.js.
  * Exposes window.SlopGallery.sortmode: open(ids), close(), press(key) -> { pos, tag, atEnd }, state(). */
 (function () {
   'use strict';
   const G = (window.SlopGallery = window.SlopGallery || {});
   let root = null, queue = [], pos = 0, url = null, token = 0, opener = null;
   const TAG_LABEL = { liked: 'Liked', disliked: 'Disliked' };
+  const CHAR = /^[\p{L}\p{N}]$/u;
 
   function build() {
     root = document.createElement('div');
@@ -22,13 +25,14 @@
         <button type="button" class="v-btn" data-act="close" title="Close (Esc)">Done</button>
         <span class="s-count" aria-live="polite"></span>
         <span class="v-spacer"></span>
-        <span class="s-hint">↑ like · ↓ dislike · ← back · → skip</span>
+        <span class="s-hint">↑ like · ↓ dislike · ← back · → skip · Enter tag</span>
       </div>
       <div class="s-stage">
         <button type="button" class="v-nav prev" data-act="back" aria-label="Back, no tag">‹</button>
         <div class="s-pic"><img alt=""></div>
         <button type="button" class="v-nav next" data-act="skip" aria-label="Skip ahead, no tag">›</button>
       </div>
+      <div class="s-quick" hidden><input type="text" maxlength="64" autocomplete="off" placeholder="Tag, or several separated by commas. Enter adds, Esc cancels" aria-label="Tags for this photo"></div>
       <div class="s-bar">
         <button type="button" class="s-big like" data-act="like" aria-label="Like and next">Like</button>
         <button type="button" class="s-big dislike" data-act="dislike" aria-label="Dislike and next">Dislike</button>
@@ -50,6 +54,9 @@
   }
 
   const cur = () => (queue.length ? G.library.photo(queue[pos]) : null);
+  const quickBox = () => root.querySelector('.s-quick');
+  const quickInput = () => root.querySelector('.s-quick input');
+  const quickOpen = () => !!quickBox() && !quickBox().hidden;
 
   /** Applies one key: the position moves at once; the tag (if any) is written, then the deck repaints.
    * Resolves with what happened once the write has finished (null when the key means nothing here). */
@@ -58,6 +65,7 @@
     if (key === 'Escape') { close(); return Promise.resolve(null); }
     const d = G.sort.decide(key, pos, queue.length);
     if (!d) return Promise.resolve(null);
+    hideQuick();
     const id = queue[pos];
     pos = d.pos;
     const write = d.tag && id ? G.library.setLiked([id], d.tag) : Promise.resolve(null);
@@ -66,6 +74,47 @@
     return write.then(() => { paint(); return { pos: d.pos, tag: d.tag, atEnd: d.atEnd }; });
   }
   function setStatus(t) { if (root) root.querySelector('.s-status').textContent = t; }
+
+  /** Opens the tag field under the photo, optionally already holding the first typed character. */
+  function openQuick(first) {
+    if (!root || root.hidden || !queue.length) return;
+    const box = quickBox(), input = quickInput();
+    input.value = first || '';
+    box.hidden = false;
+    input.focus({ preventScroll: true });
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+  /** Hides the tag field and gives focus back to the deck. Nothing is written. */
+  function hideQuick(refocus) {
+    if (!quickOpen()) return;
+    quickInput().value = '';
+    quickBox().hidden = true;
+    if (refocus !== false) root.focus({ preventScroll: true });
+  }
+  /** Splits the field text into tags: trimmed, lower case, no repeats, none the photo already has. */
+  function parseTags(text, m) {
+    const have = new Set(m ? m.tags : []);
+    const out = [];
+    for (const part of String(text).split(',')) {
+      const t = part.trim().toLowerCase();
+      if (t && !have.has(t) && !out.includes(t)) out.push(t);
+    }
+    return out;
+  }
+  /** Enter in the field: writes each tag through the library (storage and Drive mirror), then moves on. */
+  function commitQuick() {
+    const id = queue[pos];
+    if (!id) { hideQuick(); return Promise.resolve(null); }
+    const tags = parseTags(quickInput().value, cur());
+    if (!tags.length) { hideQuick(); setStatus('No tag added.'); return Promise.resolve(null); }
+    hideQuick();
+    const d = G.sort.decide('ArrowRight', pos, queue.length);
+    pos = d.pos;
+    const writes = tags.reduce((p, t) => p.then(() => G.library.addTag([id], t)), Promise.resolve());
+    setStatus(`Tagged “${tags.join('”, “')}”. ${d.atEnd ? 'That was the last photo in the queue.' : 'Next photo.'}`);
+    paint();
+    return writes.then(() => { paint(); return { pos: d.pos, tags, atEnd: d.atEnd }; });
+  }
 
   async function paint() {
     const id = queue[pos], m = cur();
@@ -96,8 +145,19 @@
     input.value = '';
     G.library.addTag([queue[pos]], t).then(() => { paint(); setStatus(`Tagged “${t}”.`); });
   }
+
   function onKey(e) {
+    // The tag field owns its keys: nothing typed there reaches the deck's shortcuts or the page's.
+    if (e.target.closest && e.target.closest('.s-quick')) {
+      e.stopPropagation();
+      if (e.key === 'Enter') { e.preventDefault(); commitQuick(); }
+      else if (e.key === 'Escape') { e.preventDefault(); hideQuick(); }
+      return;
+    }
+    // The panel's own tag box keeps its keys, except Escape, which closes the deck as before.
     if (e.target.closest && e.target.closest('input')) { if (e.key !== 'Escape') return; }
+    if (e.key === 'Enter' && !(e.target.closest && e.target.closest('button'))) { e.preventDefault(); e.stopPropagation(); openQuick(''); return; }
+    if (!quickOpen() && !e.ctrlKey && !e.metaKey && !e.altKey && CHAR.test(e.key)) { e.preventDefault(); e.stopPropagation(); openQuick(e.key); return; }
     if (!G.sort.KEYS[e.key] && e.key !== 'Escape') return;
     e.preventDefault(); e.stopPropagation();
     press(e.key);
@@ -109,6 +169,7 @@
     queue = ids.slice(); pos = 0;
     opener = document.activeElement;
     root.hidden = false;
+    hideQuick(false);
     setStatus(queue.length ? '' : 'Nothing to sort here. Change the filters or import photos.');
     paint();
     root.focus({ preventScroll: true });
@@ -116,12 +177,13 @@
   function close() {
     if (!root || root.hidden) return;
     token++;
+    hideQuick(false);
     root.hidden = true;
     G.urls.release(url); url = null;
     root.querySelector('.s-pic img').removeAttribute('src');
     if (opener && opener.isConnected) try { opener.focus({ preventScroll: true }); } catch (e) { /* gone */ }
   }
-  const state = () => ({ open: !!root && !root.hidden, pos, length: queue.length, id: queue[pos] || null });
+  const state = () => ({ open: !!root && !root.hidden, pos, length: queue.length, id: queue[pos] || null, quick: quickOpen() });
 
   G.sortmode = { open, close, press, state };
 })();

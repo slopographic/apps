@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="admin" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Admin — Slopographic</title>
+  <meta name="description" content="Slop Admin: company profile, numbering, tax rates, data overview, backup and restore, storage and reset. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-admin.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop Admin</b><a class="home-link" href="../">slopographic</a></div>
+      <span class="local-badge" title="Settings and records stay in this browser. Nothing is uploaded."><span>100% local</span></span>
+      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Admin sections">
+      <button type="button" role="tab" class="tab" id="tab-company" data-view="company" aria-controls="view-company" aria-selected="true">Company</button>
+      <button type="button" role="tab" class="tab" id="tab-numbering" data-view="numbering" aria-controls="view-numbering" aria-selected="false">Numbering</button>
+      <button type="button" role="tab" class="tab" id="tab-taxes" data-view="taxes" aria-controls="view-taxes" aria-selected="false">Tax rates</button>
+      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
+      <button type="button" role="tab" class="tab" id="tab-storage" data-view="storage" aria-controls="view-storage" aria-selected="false">Storage</button>
+    </nav>
+
+    <main class="main" id="main">
+      <div id="boot" class="boot" role="status">Opening Slop Admin…</div>
+
+      <section class="view" id="view-company" role="tabpanel" aria-labelledby="tab-company" hidden>
+        <form class="card" id="cForm" novalidate onsubmit="return false">
+          <h2 class="h2">Company profile</h2>
+          <p class="note">These details appear on your invoices and orders. The default currency is the ledger’s base currency and cannot change once entries are posted.</p>
+          <div class="grid2">
+            <label>Company name <input id="cName" type="text" maxlength="200" autocomplete="organization"></label>
+            <label>Tax number <input id="cTax" type="text" maxlength="60" autocomplete="off"></label>
+          </div>
+          <label>Address <textarea id="cAddress" rows="3" maxlength="1000" autocomplete="street-address"></textarea></label>
+          <div class="grid3">
+            <label>Default currency <input id="cCur" type="text" list="cCurList" maxlength="3" autocomplete="off" placeholder="USD"></label>
+            <label>Locale <input id="cLocale" type="text" maxlength="20" autocomplete="off" placeholder="en-US"></label>
+            <label>Default tax rate (%) <input id="cRate" type="text" inputmode="decimal" maxlength="7" autocomplete="off" placeholder="20"></label>
+          </div>
+          <datalist id="cCurList"></datalist>
+          <div class="toolbar"><button type="button" class="btn primary" id="cSave">Save profile</button></div>
+          <p class="msg" id="cMsg" role="alert"></p>
+        </form>
+        <p class="note">Products are kept in <a href="../inventory/">Slop Inventory</a>, the product catalogue. They are not copied here.</p>
+      </section>
+
+      <section class="view" id="view-numbering" role="tabpanel" aria-labelledby="tab-numbering" hidden>
+        <p class="note">Numbers are gapless. Changing the prefix or digits affects new numbers only. The next number can only move forward.</p>
+        <div id="nCards"></div>
+      </section>
+
+      <section class="view" id="view-taxes" role="tabpanel" aria-labelledby="tab-taxes" hidden>
+        <p class="note" id="xDefault" role="status"></p>
+        <div class="tablewrap">
+          <table class="grid-t">
+            <thead><tr><th class="num">Tax rate</th><th class="num">Products</th></tr></thead>
+            <tbody id="xRows"></tbody>
+          </table>
+        </div>
+        <p class="empty" id="xEmpty" hidden>No products yet. Tax rates appear here once products carry one.</p>
+        <p class="note">Each product keeps its own tax rate. Change it in <a href="../inventory/">Slop Inventory</a>, where products are kept.</p>
+      </section>
+
+      <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+        <div class="card">
+          <h2 class="h3">Records</h2>
+          <div class="tablewrap">
+            <table class="grid-t">
+              <thead><tr><th>Collection</th><th class="num">Records</th><th class="num">Deleted</th></tr></thead>
+              <tbody id="dCounts"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <h2 class="h3">Full backup</h2>
+          <p class="note">A backup holds every record, deleted ones included, in one file.</p>
+          <div class="toolbar"><button type="button" class="btn primary" id="dBackup">Download full backup</button></div>
+        </div>
+        <div class="card">
+          <h2 class="h3">Everything in one file</h2>
+          <p class="note">Every app in the suite in one .slop-backup.json file: Slop Data, Slop Drive, Gallery, Music playlists, templates and profile settings. Secrets and caches are never in it.</p>
+          <div class="toolbar"><button type="button" class="btn" id="dEverything">Export or import everything…</button></div>
+        </div>
+        <div class="card">
+          <h2 class="h3">Restore</h2>
+          <p class="note">The whole file is checked first. A bad file changes nothing. A good one replaces every record here.</p>
+          <label>Backup file <input id="dRestore" type="file" accept="application/json,.json"></label>
+          <p class="msg" id="dRestoreMsg" role="status"></p>
+        </div>
+        <div class="card danger-card">
+          <h2 class="h3">Reset</h2>
+          <p class="note">Erases every record in this browser. A full backup downloads first, and you type RESET to confirm.</p>
+          <div class="toolbar"><button type="button" class="btn danger" id="dReset">Reset all data…</button></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-storage" role="tabpanel" aria-labelledby="tab-storage" hidden>
+        <div class="card">
+          <h2 class="h3">Space</h2>
+          <p class="note" id="sUsage" role="status"></p>
+        </div>
+        <div class="card">
+          <h2 class="h3">Keeping your data</h2>
+          <p class="note" id="sState"></p>
+          <p class="note" id="sPersist"></p>
+          <div class="toolbar"><button type="button" class="btn" id="sAsk">Ask the browser to keep this data</button></div>
+          <p class="msg" id="sMsg" role="alert"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../shared/data/money.js"></script>
+  <script src="../shared/data/barcode.js"></script>
+  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema.js"></script>
+  <script src="../shared/data/currency.js"></script>
+  <script src="../shared/data/store.js"></script>
+  <script src="../shared/data/numbering.js"></script>
+  <script src="../shared/data/fx.js"></script>
+  <script src="../shared/data/ledger.js"></script>
+  <script src="../shared/data/stock.js"></script>
+  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/data/bundle-check.js"></script>
+  <script src="../shared/data/export.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/backup/index.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/profile.js"></script>
+  <script src="js/core/numbering.js"></script>
+  <script src="js/core/restore.js"></script>
+  <script src="js/core/overview.js"></script>
+  <script src="js/core/tax.js"></script>
+  <script src="js/core/storage.js"></script>
+  <script src="js/ui/company.js"></script>
+  <script src="js/ui/numbering.js"></script>
+  <script src="js/ui/taxes.js"></script>
+  <script src="js/ui/data.js"></script>
+  <script src="js/ui/storage.js"></script>
+  <script src="js/ui/commands.js"></script>
+  <script src="js/ui/app.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
+  <script src="../shell/shell.js"></script>
+</body>
+</html>

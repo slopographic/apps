@@ -1,4 +1,4 @@
-/* SlopEdit: WebCodecs export. Renders every frame with the compositor (frame-accurate sources from
+/* SlopCut: WebCodecs export. Renders every frame with the compositor (frame-accurate sources from
    frames.js), encodes with VideoEncoder (H.264 → VP9 → AV1) and AudioEncoder (AAC → Opus) and muxes
    to MP4 (mp4-muxer) or WebM (webm-muxer). Audio is rendered offline and interleaved with video.
    SE.encode.run(opts) → { blob, info } ; opts: { format, w, h, fps, quality, a, b, audio, progress, signal } */

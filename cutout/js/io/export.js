@@ -1,4 +1,4 @@
-/* Slop Cutout — export. One image: its look rendered at full resolution, encoded in S.exportOpts.format and
+/* SlopIsolate — export. One image: its look rendered at full resolution, encoded in S.exportOpts.format and
  * downloaded. Many images: every finished item into one zip. A fresh worker job is built per item so the
  * export always matches the item's settings and brush edits; the job and the decoded bitmap are freed after. */
 (function () {

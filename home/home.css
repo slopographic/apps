@@ -1,28 +1,47 @@
-/* Slopographic homepage: intro, app shelves and the status board. Tokens come from style/base.css. */
+/* Slopographic homepage: intro, the "why" strip, the two app groups, and the status board.
+ * Tokens come from style/base.css (colours, Archivo / Instrument Serif / Inter Tight / JetBrains Mono). */
 .home { padding: calc(var(--top, 64px) + 24px) clamp(16px, 4vw, 56px) 40px; max-width: 1280px; margin: 0 auto; }
-.intro { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 32px; align-items: end; padding: clamp(24px, 6vw, 72px) 0 56px; border-bottom: 1px solid var(--line); }
-.intro-title { font-family: var(--cond); font-weight: 850; font-stretch: 85%; font-size: clamp(40px, 6.4vw, 84px); line-height: .95; letter-spacing: -.02em; margin: 14px 0 18px; }
+
+/* ---------- hero ---------- */
+.intro { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 32px; align-items: end; padding: clamp(24px, 6vw, 72px) 0 48px; border-bottom: 1px solid var(--line); }
+.intro-title { font-family: var(--cond); font-weight: 850; font-stretch: 85%; font-size: clamp(38px, 5.6vw, 72px); line-height: .98; letter-spacing: -.02em; margin: 14px 0 18px; }
 .intro-title em { font-family: var(--serif); font-weight: 400; font-style: italic; color: var(--slop); letter-spacing: 0; }
-.intro-lede { max-width: 56ch; color: var(--bone-dim); font-size: 17px; margin: 0 0 26px; }
+.intro-lede { max-width: 54ch; color: var(--bone-dim); font-size: 17px; margin: 0 0 26px; }
 .intro-cta { display: flex; flex-wrap: wrap; gap: 10px; }
 .btn.primary { background: var(--slop); color: var(--ink); border-color: var(--slop); font-weight: 600; }
 .btn.primary:hover { background: #e6ff7a; }
-.intro-facts { list-style: none; padding: 0; margin: 30px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px; font: 12px var(--mono); color: var(--bone-faint); }
-.intro-facts b { color: var(--bone); }
-.intro-stage { min-height: 220px; position: relative; }
-.stage-ledge { position: absolute; left: 10%; right: 10%; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
+.intro-facts { list-style: none; padding: 0; margin: 28px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px; font: 13px var(--mono); color: var(--bone-dim); }
+.intro-facts li::before { content: "✓"; color: var(--slop); margin-right: 7px; }
 
+.intro-stage { min-height: 220px; position: relative; display: flex; flex-direction: column; justify-content: flex-end; }
+.device { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto 16px; fill: none; stroke: var(--bone-faint); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.device .tint { fill: rgba(212, 255, 58, .05); }
+.device .accent { stroke: var(--slop); }
+.stage-ledge { position: relative; left: 10%; width: 80%; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
+
+/* ---------- why it's different ---------- */
+.why { padding: 56px 0 0; }
+.why-title { font: 700 13px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--bone-faint); margin: 0 0 16px; }
+.why-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; }
+.why-grid li { background: var(--ink-2); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 20px; }
+.why-grid h3 { margin: 0 0 6px; font: 600 17px/1.3 var(--sans); }
+.why-grid p { margin: 0; color: var(--bone-dim); font-size: 14px; }
+
+/* ---------- shelves: Slop 365 and Creative Slop ---------- */
 .shelf { padding: 64px 0 8px; scroll-margin-top: calc(var(--top, 64px) + 8px); }
+.apps-wrap { scroll-margin-top: calc(var(--top, 64px) + 8px); }
 .shelf-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 32px; margin-bottom: 22px; }
 .shelf-head h2 { font-family: var(--cond); font-weight: 800; font-stretch: 90%; font-size: clamp(30px, 3.6vw, 44px); margin: 0; letter-spacing: -.01em; }
 .shelf-head p { margin: 0; max-width: 60ch; color: var(--bone-dim); }
 
-.group-title { margin: 22px 0 10px; font: 700 13px/1.2 var(--mono, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--faint, #888); }
-.group-title:first-of-type { margin-top: 0; }
-.app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; }
 .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 14px; }
-.app-card, .tile { display: flex; flex-direction: column; color: inherit; text-decoration: none; background: var(--ink-2); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; transition: border-color .2s, transform .2s; }
+.app-card, .tile { display: flex; color: inherit; text-decoration: none; background: var(--ink-2); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; transition: border-color .2s, transform .2s; }
+.app-card { min-height: 96px; }
+.tile { flex-direction: column; }
 .app-card:hover, .tile:hover, .app-card:focus-visible, .tile:focus-visible { border-color: var(--slop); transform: translateY(-2px); }
+
+/* Compact card: a small thumbnail (screenshot, clip or tile), then name, badge, one line and the link. */
 .shot { position: relative; aspect-ratio: 16 / 10; background: radial-gradient(120% 90% at 30% 20%, #1f2a0a, var(--ink-3) 70%); overflow: hidden; }
 .shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .shot video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .25s; pointer-events: none; }
@@ -31,18 +50,22 @@
 .shot.has-img .shot-ph { display: none; }
 .shot-ph b { font-family: var(--cond); font-size: 22px; color: var(--bone-dim); }
 .shot-icon { width: 48px; height: 48px; fill: none; stroke: var(--slop); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-.app-body, .tile-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-.app-name { display: flex; align-items: center; gap: 8px; }
-.app-name h3 { margin: 0; font-size: 18px; font-weight: 600; }
+.app-card .shot { flex: 0 0 92px; width: 92px; aspect-ratio: auto; align-self: stretch; }
+.app-card .shot-ph { padding: 8px; text-align: center; gap: 6px; }
+.app-card .shot-ph b { font-size: 13px; line-height: 1.2; color: var(--bone-dim); }
+.app-card .shot-icon { width: 30px; height: 30px; }
+.app-body, .tile-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.app-name { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.app-name h3 { margin: 0; font-size: 16px; font-weight: 600; }
 .tile .app-name h3 { font-size: 16px; }
-.app-tag, .tile-body p { margin: 0; color: var(--bone-dim); font-size: 14px; }
-.feats { margin: 4px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--bone-faint); display: grid; gap: 3px; }
-.feats li::before { content: "✓ "; color: var(--slop); }
-.go { margin-top: auto; padding-top: 8px; font: 600 12px var(--mono); color: var(--slop); }
+.app-tag, .tile-body p { margin: 0; color: var(--bone-dim); font-size: 14px; line-height: 1.4; }
+.go { margin-top: auto; padding-top: 4px; font: 600 12px var(--mono); color: var(--slop); }
 .badge { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 3px 7px; border-radius: 99px; border: 1px solid currentColor; }
+.badge.live { color: var(--slop); }
 .badge.beta { color: #5cc8ff; }
 .badge.building { color: #ffa23a; }
 
+/* ---------- status board ---------- */
 .status-sum { color: var(--bone-dim); }
 .status-board { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
 .status-row { display: grid; grid-template-columns: 14px minmax(120px, 180px) 100px 130px 1fr; gap: 14px; align-items: center; padding: 12px 18px; color: inherit; text-decoration: none; border-top: 1px solid var(--line); font-size: 14px; }
@@ -55,8 +78,11 @@
 .dot.building { background: #ffa23a; box-shadow: 0 0 10px #ffa23a; }
 
 @media (max-width: 760px) {
-  .intro { grid-template-columns: 1fr; }
+  .intro { grid-template-columns: 1fr; padding-bottom: 36px; }
   .intro-stage { display: none; }
   .status-row { grid-template-columns: 14px 1fr auto; }
   .status-row .kind, .status-row .tagline { display: none; }
+}
+@media (max-width: 420px) {
+  .app-card .shot { flex-basis: 76px; width: 76px; }
 }

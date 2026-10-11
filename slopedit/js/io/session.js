@@ -1,4 +1,4 @@
-/* SlopEdit: autosave of the project to IndexedDB (media blobs are stored as they are imported),
+/* SlopCut: autosave of the project to IndexedDB (media blobs are stored as they are imported),
    restore on start, new project, and Slop Hub launch (?drive=<id>). */
 (function () {
   'use strict';
@@ -10,7 +10,7 @@
   S.save = async function () {
     if (!S.enabled() || restoring) return;
     try { await U.idb.set('project', { v: 1, time: Date.now(), playhead: SE.player ? SE.player.time : 0, doc: M.snapshot(SE.doc) }); SE.emit('saved', {}); }
-    catch (e) { console.warn('SlopEdit: autosave failed', e); }
+    catch (e) { console.warn('SlopCut: autosave failed', e); }
   };
   const later = U.debounce(S.save, 700);
   SE.on('change', later);
@@ -30,7 +30,7 @@
       await SE.media.restore(SE.doc.media);
       if (SE.player && rec.playhead) SE.player.seek(rec.playhead);
       SE.emit('change', { label: 'Restore', history: true });
-    } catch (e) { console.warn('SlopEdit: could not restore', e); return false; }
+    } catch (e) { console.warn('SlopCut: could not restore', e); return false; }
     finally { restoring = false; }
     return true;
   };

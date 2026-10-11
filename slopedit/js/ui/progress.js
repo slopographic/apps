@@ -1,4 +1,4 @@
-/* SlopEdit: a progress dialog with an optional Cancel button.
+/* SlopCut: a progress dialog with an optional Cancel button.
    const p = SE.progress.open(title, { cancel: true }); p.set(0.4, 'Encoding…'); p.cancelled; p.close(); */
 (function () {
   'use strict';

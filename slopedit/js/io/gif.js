@@ -1,4 +1,4 @@
-/* SlopEdit: an animated GIF encoder (global median-cut palette, ordered dithering, LZW).
+/* SlopCut: an animated GIF encoder (global median-cut palette, ordered dithering, LZW).
    SE.gif.encode(frames: ImageData[], w, h, delayCs) → Blob. Used by File ▸ Export GIF for short ranges. */
 (function () {
   'use strict';

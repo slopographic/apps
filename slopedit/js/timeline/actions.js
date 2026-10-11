@@ -1,4 +1,4 @@
-/* SlopEdit: timeline actions run by commands (split, delete, clipboard, markers, in/out, titles,
+/* SlopCut: timeline actions run by commands (split, delete, clipboard, markers, in/out, titles,
    transitions, fades, nudging, trimming to the playhead, tracks). They live on SE.act. */
 (function () {
   'use strict';

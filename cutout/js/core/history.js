@@ -1,4 +1,4 @@
-/* Slop Cutout — per-image undo/redo. Every image keeps its own two stacks (item.hist).
+/* SlopIsolate — per-image undo/redo. Every image keeps its own two stacks (item.hist).
  * Entries: { kind: 'stroke', label, tiles, rect } (brush strokes, see brush.js) and
  * { kind: 'look', label, before, after } (edge, background, shadow and crop changes).
  * A stroke entry is its own inverse: CO.brush.swap exchanges the bytes, so the same entry

@@ -1,6 +1,7 @@
 /* Slop Contacts: write vCard 3.0 for iOS and Android. VERSION:3.0, CRLF line ends, UTF-8, every physical line
  * folded to at most 75 octets, text escaped (\ ; , and newlines), N and FN always, TEL/EMAIL with TYPE=,
- * ADR, ORG, TITLE, BDAY as YYYY-MM-DD, CATEGORIES, plus NOTE, URL and UID so that a read gives the same data back.
+ * ADR, ORG, TITLE, BDAY as YYYY-MM-DD, CATEGORIES, PHOTO (base64 or a URL), plus NOTE, URL and UID so that a read
+ * gives the same data back.
  * Classic script. Adds SlopContacts.vcard.write(contacts) -> string. */
 (function () {
   'use strict';
@@ -24,6 +25,8 @@
     for (const p of c.phones || []) put(`TEL${typeParam(p.types)}:${esc(p.value)}`);
     for (const e of c.emails || []) put(`EMAIL${typeParam(e.types)}:${esc(e.value)}`);
     for (const a of c.adr || []) put(`ADR${typeParam(a.types)}:${[a.po, a.ext, a.street, a.locality, a.region, a.postal, a.country].map(esc).join(';')}`);
+    const ph = SC.photo.toVcard(c.photo);
+    if (ph) put(`PHOTO${ph.params}:${ph.value}`);
     if (c.bday) put(`BDAY:${c.bday}`);
     if (c.url) put(`URL:${esc(c.url)}`);
     if (c.note) put(`NOTE:${esc(c.note)}`);

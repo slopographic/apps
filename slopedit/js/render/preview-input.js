@@ -1,4 +1,4 @@
-/* SlopEdit: direct manipulation in the program monitor. Click a layer to select it, drag to move
+/* SlopCut: direct manipulation in the program monitor. Click a layer to select it, drag to move
    (snaps to centre), drag a corner to scale, drag the round handle to rotate (Shift: 15° steps). */
 (function () {
   'use strict';

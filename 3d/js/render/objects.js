@@ -16,14 +16,16 @@
     geo.computeBoundingSphere();
     return geo;
   }
-  /** A cheap change key for a shape: its parameters for primitives, a sampled checksum for imported meshes. */
+  /** A change key for a shape: its parameters for primitives, a checksum over every value for meshes (edits move single vertices). */
   function geomKey(node) {
     const g = node.geom;
     if (g.kind !== 'mesh') return JSON.stringify(g);
     let sum = 0;
-    const p = g.positions, step = Math.max(3, Math.floor(p.length / 4096) * 3);
-    for (let i = 0; i < p.length; i += step) sum += p[i] * 1.000001 + p[i + 1] * 0.7 + p[i + 2] * 0.3;
-    return `mesh:${p.length}:${g.indices.length}:${sum}`;
+    const p = g.positions;
+    for (let i = 0; i < p.length; i++) sum += p[i] * (1 + (i % 7) * 0.13);
+    const idx = g.indices;
+    for (let i = 0; i < idx.length; i++) sum += idx[i] * (1 + (i % 5) * 0.07);
+    return `mesh:${p.length}:${idx.length}:${(g.faces || []).length}:${(g.hidden || []).length}:${sum}`;
   }
 
   /** create(THREE, world, requestRender): world is the stage's group for document objects. */

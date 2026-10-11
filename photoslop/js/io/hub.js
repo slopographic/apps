@@ -1,4 +1,4 @@
-/* PhotoSLOP: Slop Hub integration. Open files from Slop Drive, send the image to other
+/* PhotoSlop: Slop Hub integration. Open files from Slop Drive, send the image to other
  * Slopographic apps, and open whatever another app sent here (?drive=<id>).
  * Works without the hub (offline file, old browsers): every entry point checks for it. */
 'use strict';

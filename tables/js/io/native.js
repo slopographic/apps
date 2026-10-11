@@ -3,6 +3,7 @@
    (they are recalculated on open). */
 import { Workbook } from '../engine/index.js';
 import { ERR, FErr, errFrom } from '../engine/values.js';
+import { MAX_ROWS, MAX_COLS } from '../engine/refs.js';
 
 export const FORMAT = 'slop-tables', VERSION = 1;
 export const MIME = 'application/x-slop-table', EXT = 'stab';
@@ -32,9 +33,45 @@ function encodeCell(cell) {
   return rec;
 }
 
-/** Plain object → Workbook. Throws if the object is not a Slop Tables file. */
+const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+const isInt = (v, lo, hi) => Number.isInteger(v) && v >= lo && v < hi;
+const damaged = (what) => new Error('This Slop Tables file is damaged (' + what + ').');
+const CELL_VALUE = (v) => v === null || v === undefined || typeof v === 'string' || typeof v === 'boolean' || (typeof v === 'number' && isFinite(v));
+
+/** Structural check of a workbook object: the one validator for .stab files and for templates. Throws
+   an Error saying what is wrong, and never changes anything. Use it before fromNative. */
+export function checkNative(obj) {
+  if (!isObj(obj) || obj.format !== FORMAT) throw new Error('This is not a Slop Tables file.');
+  if (obj.version !== undefined && !(isInt(obj.version, 1, VERSION + 1))) throw new Error('This Slop Tables file is from a newer version of Slop Tables.');
+  if (obj.title !== undefined && typeof obj.title !== 'string') throw damaged('title');
+  if (obj.active !== undefined && !isInt(obj.active, 0, 256)) throw damaged('active sheet');
+  if (obj.styles !== undefined && (!Array.isArray(obj.styles) || !obj.styles.every(isObj))) throw damaged('styles');
+  if (!Array.isArray(obj.sheets) || obj.sheets.length < 1 || obj.sheets.length > 255) throw damaged('sheets');
+  obj.sheets.forEach((so, i) => {
+    const where = 'sheet ' + (i + 1);
+    if (!isObj(so)) throw damaged(where);
+    if (so.name !== undefined && typeof so.name !== 'string') throw damaged(where + ' name');
+    if (so.cells !== undefined && !Array.isArray(so.cells)) throw damaged(where + ' cells');
+    for (const e of so.cells || []) {
+      if (!Array.isArray(e) || e.length !== 3 || !isInt(e[0], 0, MAX_ROWS) || !isInt(e[1], 0, MAX_COLS) || !isObj(e[2])) throw damaged(where + ' cell');
+      const rec = e[2];
+      if (rec.f !== undefined && (typeof rec.f !== 'string' || rec.f.length > 8192)) throw damaged(where + ' formula');
+      if (rec.e !== undefined && typeof rec.e !== 'string') throw damaged(where + ' error');
+      if (rec.v !== undefined && !CELL_VALUE(rec.v)) throw damaged(where + ' value');
+      if (rec.s !== undefined && !isInt(rec.s, 0, 1e6)) throw damaged(where + ' style');
+    }
+    for (const list of [so.cols, so.rows]) {
+      if (list !== undefined && (!Array.isArray(list) || !list.every((x) => Array.isArray(x) && isInt(x[0], 0, Math.max(MAX_ROWS, MAX_COLS)) && isObj(x[1])))) throw damaged(where + ' sizes');
+    }
+    if (so.merges !== undefined && (!Array.isArray(so.merges) || !so.merges.every((m) => isObj(m) && isInt(m.r1, 0, MAX_ROWS) && isInt(m.c1, 0, MAX_COLS) && isInt(m.r2, 0, MAX_ROWS) && isInt(m.c2, 0, MAX_COLS)))) throw damaged(where + ' merges');
+  });
+  if (obj.names !== undefined && (!Array.isArray(obj.names) || !obj.names.every((d) => isObj(d) && typeof d.name === 'string' && typeof d.ref === 'string'))) throw damaged('names');
+  return obj;
+}
+
+/** Plain object → Workbook. Throws if the object is not a valid Slop Tables file (see checkNative). */
 export function fromNative(obj) {
-  if (!obj || obj.format !== FORMAT || !Array.isArray(obj.sheets)) throw new Error('This is not a Slop Tables file.');
+  checkNative(obj);
   const wb = new Workbook({ sheets: 0 });
   wb.auto = false;
   const smap = [0];

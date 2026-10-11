@@ -1,4 +1,4 @@
-/* Slop Clean: the picture list. One card per picture: a preview, what it holds (grouped by category, each line marked
+/* SlopClean: the picture list. One card per picture: a preview, what it holds (grouped by category, each line marked
  * Removed or Kept against the current choices), and its own actions. Classic script; sets window.CL.report. */
 (function () {
   'use strict';

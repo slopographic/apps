@@ -1,4 +1,4 @@
-/* PhotoSLOP: boot. */
+/* PhotoSlop: boot. */
 'use strict';
 
 let samplerCtx = null;
@@ -35,7 +35,7 @@ function buildStatus() {
     }
     if (w === 'docname' || w === 'history') {
       const t = $('#docTitle'); if (t) t.textContent = (D.name || 'Untitled') + (D.dirty ? ' •' : '');
-      document.title = `${D.name || 'Untitled'}${D.dirty ? ' •' : ''} — PhotoSLOP`;
+      document.title = `${D.name || 'Untitled'}${D.dirty ? ' •' : ''} — PhotoSlop`;
     }
   });
   sync();
@@ -50,6 +50,7 @@ function wireMobile() {
 async function boot() {
   setTheme(store.get('theme', 'pro'));
   initView();
+  initBoxTool();
   initGuideInput();
   buildMenubar();
   buildToolbox();
@@ -76,8 +77,9 @@ async function boot() {
   const restored = await loadAutosave();
   const launched = await hubBoot().catch((e) => { console.warn(e); return false; });
   if (!restored && !launched) { let done; openInNewTab(() => { done = sampleDocument(); }); await done; renderTabs(); }
+  await restoreView(restored && !launched);
   emit('docname');
   document.body.classList.add('ready');
-  if (!store.get('welcomed', false)) { store.set('welcomed', true); setTimeout(() => toast('Welcome to PhotoSLOP. Everything stays on your device.', 3600), 400); }
+  if (!store.get('welcomed', false)) { store.set('welcomed', true); setTimeout(() => toast('Welcome to PhotoSlop. Everything stays on your device.', 3600), 400); }
 }
 boot();

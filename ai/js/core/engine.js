@@ -15,7 +15,7 @@
   const friendly = (e) => {
     const m = String((e && e.message) || e);
     if (/failed to fetch|networkerror|load failed|err_/i.test(m)) return 'the download failed. Check your connection (huggingface.co and raw.githubusercontent.com must be reachable), then press Download again: finished parts are kept.';
-    if (/quota|storage/i.test(m)) return 'this browser ran out of storage for the model. Free some space or delete another model.';
+    if (/quota|storage|no space/i.test(m)) return 'storage for this site is full, so the model cannot be saved. To free space, delete a model in Models ▸ Storage, or use Slop Drive ▸ Storage ▸ Clear local cache. Then press Download again.';
     if (/device|adapter|webgpu|gpu/i.test(m)) return 'WebGPU failed (' + m + '). See "Can my PC run it?".';
     return m;
   };

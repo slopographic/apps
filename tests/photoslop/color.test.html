@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>PhotoSLOP colour tests</title>
+  <title>PhotoSlop colour tests</title>
   <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style>
 </head>
 <body>
@@ -69,7 +69,7 @@
     });
   });
 
-  describe('PhotoSLOP colour picker and eyedropper', () => {
+  describe('PhotoSlop colour picker and eyedropper', () => {
     it('Alt+click with the brush sets the foreground to the pixel under the pointer and paints nothing', async () => {
       scene('Alt sample', 120, 100, (g) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, 120, 100); g.fillStyle = 'rgb(200,30,90)'; g.fillRect(40, 40, 1, 1); });
       W.selectTool('brush'); W.setColor('fg', '#000000'); W.setColor('bg', '#ffffff');
@@ -222,7 +222,7 @@
       expect(W.T.eyedrop.all).toBe(true);
     });
   });
-  SlopTest.run({ name: 'PhotoSLOP colour' });
+  SlopTest.run({ name: 'PhotoSlop colour' });
   </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* SlopEdit: the project model. Plain JSON (no blobs) so it can be snapshotted for undo and autosaved.
+/* SlopCut: the project model. Plain JSON (no blobs) so it can be snapshotted for undo and autosaved.
    Project { v, name, w, h, fps, bg, tracks[], clips[], markers[], media[] (metadata only),
              layout (template slots, see layout.js), random (record of the last random edit) }
    Track   { id, kind: 'video'|'audio', name, mute, solo, lock, hide }
@@ -18,10 +18,10 @@
   M.TEXT = { str: 'Title', font: 'Archivo', size: 96, color: '#ffffff', stroke: '#000000', strokeW: 0, bold: true, italic: false, align: 'center', bg: '', anim: 'fade', shadow: true };
   M.TRANSITIONS = [['cross', 'Cross dissolve'], ['black', 'Dip to black'], ['white', 'Dip to white'], ['wipe', 'Wipe'], ['slide', 'Slide'], ['push', 'Push']];
   M.FONTS = ['Archivo', 'Inter Tight', 'JetBrains Mono', 'Instrument Serif', 'Caveat', 'Dancing Script', 'Great Vibes', 'Georgia', 'Impact', 'Arial', 'Times New Roman', 'Courier New'];
-  M.PRESETS = [['1920x1080', '1080p HD 16:9'], ['1280x720', '720p HD 16:9'], ['3840x2160', '4K UHD 16:9'], ['1080x1920', 'Vertical 9:16'], ['1080x1080', 'Square 1:1']];
+  M.PRESETS = window.SlopVideo.presets.LIST.map((x) => [x.w + 'x' + x.h, x.name]); // sequence sizes: shared/video presets
 
   M.newProject = function (o = {}) {
-    const p = { v: 1, name: o.name || 'Untitled project', w: o.w || 1920, h: o.h || 1080, fps: o.fps || 30, bg: '#000000', tracks: [], clips: [], markers: [], media: [], io: null, layout: null, random: null };
+    const p = { v: 1, name: o.name || 'Untitled project', w: o.w || 1920, h: o.h || 1080, fps: o.fps || 30, bg: '#000000', tracks: [], clips: [], markers: [], media: [], io: null, layout: null, random: null, segments: [] };
     M.addTrack(p, 'video'); M.addTrack(p, 'video'); M.addTrack(p, 'audio'); M.addTrack(p, 'audio');
     return p;
   };
@@ -102,7 +102,7 @@
   M.snapshot = (p) => JSON.parse(JSON.stringify(p));
   /** Upgrade/validate a loaded project; unknown fields are kept. */
   M.normalize = function (p) {
-    if (!p || !Array.isArray(p.tracks) || !Array.isArray(p.clips)) throw new Error('Not a SlopEdit project');
+    if (!p || !Array.isArray(p.tracks) || !Array.isArray(p.clips)) throw new Error('Not a SlopCut project');
     const out = Object.assign(M.newProject(), p);
     out.markers = p.markers || []; out.media = p.media || [];
     out.clips = p.clips.map((c) => Object.assign({}, M.CLIP, c, c.kind === 'title' ? { text: Object.assign({}, M.TEXT, c.text || {}) } : null));

@@ -9,7 +9,7 @@ for backups. No second product or stock model exists here.
 
 - `index.html`: the page (six views: Products, Scan, Stock, Count, Reports, Data). Loads `shared/data`, the core, the
   scanners and the views, in that order.
-- `css/inventory.css`: tokens (dark by default, `data-theme="light"`), the product rows (stacked below 600 px), the
+- `css/inventory.css`: tokens (dark by default, `data-theme="light"`), the product rows (name and SKU, one column), the
   scan panel and forms.
 - `js/core/`: no DOM, so the tests load it directly.
   - `util.js`: refusals in plain words, money formatting and parsing, the DOM builder `h()`.
@@ -30,8 +30,12 @@ more). A product with no reorder level is never flagged low. `shared/apps.js` ga
 
 ## What works
 
-- Products: search, sort (name, SKU, on hand, price), filter to low stock, add, edit, delete (refused while stock
+- Products: search, sort (name, SKU), filter to low stock, add, edit, delete (refused while stock
   movements exist, with the reason). Right-click or the Menu key on a row: Edit product, Show movements, Delete.
+  Each list row shows the product name and the part number (SKU) only. Price, tax, EAN, on hand and reorder level
+  are not in the rows: they are in the product form, the reports and the CSV export. A low product still shows its
+  SKU in the warning colour, the low-stock filter still works, and the line above the list still gives the stock value
+  total. To see a product's stock, use Show movements or the Stock tab.
 - Import CSV (SKU, EAN, Name, Price, Reorder level; any column order): preview with new and update counts, a line
   report with errors, and an import that is refused as a whole when any row is wrong. A row whose SKU exists updates
   that product; tax rate and unit are kept. An export imports back.
@@ -99,6 +103,7 @@ more). A product with no reorder level is never flagged low. `shared/apps.js` ga
   - `stock.test.html`: count differences and posting; no open count; transfer; zero and fractional quantities; negative
     adjustment rule; delete refused with stock history; low stock at or below the level; stock value in minor units;
     CSV preview, all-or-nothing, duplicates, missing columns, export round trip, quoted cells.
-  - `app.test.html`: the real page in a 390 px frame: add a product in the form, scanner burst in the Scan view, unknown
-    EAN creation applies the scan, refused sale, undo, camera fallback, Stock tab, count post, reports, no errors.
+  - `app.test.html`: the real page in a 390 px frame: add a product in the form, the list row shows name and SKU with no
+    price, scanner burst in the Scan view, unknown EAN creation applies the scan, refused sale, undo, camera fallback,
+    Stock tab, count post, reports, no errors.
 - `node tests/run.mjs data` covers the shared data layer, including the new `reorderLevel` field.

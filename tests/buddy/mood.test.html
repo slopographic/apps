@@ -23,6 +23,7 @@
       await ready;
       calm(); M.rage = 2;                                   // MAD: the tray shows
       await waitFor(() => !doc.querySelector('.sh-give').hidden, { timeout: 2000 });
+      doc.querySelector('.sh-give-l').click();                 // open the Give section
       doc.querySelector('.sh-mk').click();
       expect(doc.querySelectorAll('.sloppo-candy').length).toBe(1);
       expect(doc.querySelector('.sh-mk').disabled).toBe(true);     // one candy at a time

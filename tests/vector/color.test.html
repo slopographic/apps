@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Slop Vector · colour tests</title>
+<head><meta charset="utf-8"><title>SlopVector · colour tests</title>
 <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style></head>
 <body>
   <iframe id="app" src="../../vector/index.html"></iframe>
@@ -27,7 +27,7 @@
   const picker = () => W.document.querySelector('.picker');
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-  describe('Slop Vector colour picker and eyedropper', () => {
+  describe('SlopVector colour picker and eyedropper', () => {
     it('the eyedropper sets the fill of the selected object to the colour of the object under the pointer', async () => {
       blank();
       const src = rect(10, 10, 50, 50, { fill: '#00aa66', stroke: null });
@@ -130,6 +130,6 @@
     });
   });
   </script>
-  <script>SlopTest.run({ name: 'Slop Vector · colour' });</script>
+  <script>SlopTest.run({ name: 'SlopVector · colour' });</script>
 </body>
 </html>

@@ -64,8 +64,12 @@
           finally { go.disabled = false; }
         });
       }
+      const everything = el('section', { class: 'bk-sec' }, el('h3', null, 'Everything, one file'),
+        el('p', { class: 'sui-p' }, 'Every app in the suite in one .slop-backup.json file. Secrets and caches are never in it.'),
+        el('div', { class: 'bk-row' }, el('button', { type: 'button', class: 'sui-btn', 'data-act': 'everything' }, 'Export or import everything…')));
+      everything.querySelector('button').addEventListener('click', () => B.openEverything({ onRestored }));
       const d = UI.dialog({ title: 'Backup & restore', cls: 'bk-dlg', body: el('div', null,
-        el('p', { class: 'sui-p' }, 'Everything you make in Slopographic lives only in this browser. Clearing browser or site data deletes it, so keep a backup.'), exp, imp),
+        el('p', { class: 'sui-p' }, 'Everything you make in Slopographic lives only in this browser. Clearing browser or site data deletes it, so keep a backup.'), exp, everything, imp),
         buttons: [{ label: 'Done', primary: true }], onClose: () => resolve() });
       d.box.dataset.backup = '1';
       open.choose = choose; // for tests and drag-and-drop of .slop files

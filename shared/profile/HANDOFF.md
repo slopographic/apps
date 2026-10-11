@@ -11,8 +11,8 @@ Two levels, both on the Settings page (`settings/`):
 ## Files
 
 - `profile.js`: `window.SlopProfile`. Classic script. Needs `window.SLOP_APP_OPTIONS` (or `SlopProfile.create({ options })`).
-- `app-options.js`: `window.SLOP_APP_OPTIONS`, the declared options per app. **No app declares options yet**, so the
-  Settings page says so. The file shows the shape in a comment.
+- `app-options.js`: `window.SLOP_APP_OPTIONS`, the declared options per app. The `faces` group (face detection, off by
+  default) is declared there and shared by Drive and Gallery (`SLOP_APP_SHARED`); see `shared/faces/HANDOFF.md`. The file shows the shape in a comment.
 
 ## For an app: read and write its own settings
 

@@ -5,7 +5,8 @@ window.DR = window.DR || {};
 (function (DR) {
   const el = (...a) => window.SlopUI.el(...a);
   const PREF = 'slop-drive.prefs';
-  const load = () => { try { return JSON.parse(localStorage.getItem(PREF)) || {}; } catch (e) { return {}; } };
+  // Stored as { v: 1, data }. The flat object from before the envelope (and from before sorts and cols) is still read.
+  const load = () => { try { const o = JSON.parse(localStorage.getItem(PREF)) || {}; return o.v === 1 && o.data && typeof o.data === 'object' ? o.data : o; } catch (e) { return {}; } };
   const p = load();
   /** UI state. section: folder | recent | starred | trash. view: grid | list | compact | columns | nodes | usage. */
   DR.S = {
@@ -20,7 +21,8 @@ window.DR = window.DR || {};
   DR.S.sort = DR.S.sorts[DR.S.view] || { key: 'name', dir: 1 };
   DR.savePrefs = function () {
     const S = DR.S;
-    try { localStorage.setItem(PREF, JSON.stringify({ view: S.view, usageMode: S.usageMode, sorts: S.sorts, cols: S.cols, info: S.info, tree: [...S.tree], collapsed: [...S.collapsed] })); } catch (e) { /* blocked */ }
+    const data = { view: S.view, usageMode: S.usageMode, sorts: S.sorts, cols: S.cols, info: S.info, tree: [...S.tree], collapsed: [...S.collapsed] };
+    try { localStorage.setItem(PREF, JSON.stringify({ v: 1, data })); } catch (e) { /* blocked */ }
   };
   DR.el = el;
   DR.$ = (id) => document.getElementById(id);

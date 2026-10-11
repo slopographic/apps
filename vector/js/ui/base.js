@@ -1,4 +1,4 @@
-/* Slop Vector — ui: DOM helper, icons, toasts, key labels */
+/* SlopVector — ui: DOM helper, icons, toasts, key labels */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;

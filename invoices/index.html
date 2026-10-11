@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="invoices" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Invoices — Slopographic</title>
+  <meta name="description" content="Slop Invoices: gapless invoices, payments, overdue balances, a printable invoice and PDF, posted to a local ledger. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-invoices.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/invoices.css">
+  <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar no-print">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop Invoices</b><a class="home-link" href="../">slopographic</a></div>
+      <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded."><span>100% local</span></span>
+      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+    </header>
+
+    <nav class="tabs no-print" role="tablist" aria-label="Invoice sections">
+      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Invoices</button>
+      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Invoice</button>
+      <button type="button" role="tab" class="tab" id="tab-print" data-view="print" aria-controls="view-print" aria-selected="false" hidden>Print</button>
+      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
+    </nav>
+
+    <main class="main" id="main">
+      <div id="boot" class="boot no-print" role="status">Opening your invoices…</div>
+
+      <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list" hidden>
+        <div class="toolbar">
+          <label class="search"><span class="sr">Search invoices</span>
+            <input id="iSearch" type="search" placeholder="Search number, customer or notes" autocomplete="off" spellcheck="false"></label>
+          <label>Status <select id="iStatus">
+            <option value="all">All</option><option value="draft">Draft</option><option value="issued">Issued</option>
+            <option value="overdue">Overdue</option><option value="paid">Paid</option><option value="void">Void</option>
+          </select></label>
+          <button type="button" class="btn primary" id="iNew">New invoice</button>
+          <button type="button" class="btn" id="iFromOrder">From an order…</button>
+        </div>
+        <h2 class="h2">Owed by customer</h2>
+        <div class="table" id="iOutstanding" aria-label="Outstanding balances"></div>
+        <h2 class="h2">Invoices</h2>
+        <p class="note" id="iSummary" role="status"></p>
+        <div class="table" role="table" aria-label="Invoices"><div id="iRows" role="rowgroup"></div></div>
+        <p class="empty" id="iEmpty" hidden>No invoices match. Start one with New invoice, or from an order.</p>
+      </section>
+
+      <section class="view" id="view-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
+        <div class="head-row no-print">
+          <button type="button" class="btn small" id="eBack">← Invoices</button>
+          <h2 class="h2" id="eTitle">New invoice</h2>
+          <span class="chip" id="eStatus"></span>
+        </div>
+        <form class="card" id="eForm" novalidate>
+          <div class="form-grid">
+            <label class="wide">Customer
+              <span class="inline"><select id="eCustomer"></select><button type="button" class="btn" id="eNewCustomer">New customer</button></span>
+            </label>
+            <label>Invoice date <input id="eDate" type="date" required></label>
+            <label>Due date <input id="eDue" type="date"></label>
+            <label>Currency <input id="eCurrency" type="text" readonly tabindex="-1"></label>
+            <label class="wide">Notes <textarea id="eNotes" rows="2" maxlength="5000"></textarea></label>
+          </div>
+        </form>
+        <h2 class="h2">Lines</h2>
+        <div id="eLines" class="lines"></div>
+        <div class="toolbar"><button type="button" class="btn" id="eAddLine">Add line</button></div>
+        <div class="card totals" id="eTotals" aria-live="polite"></div>
+        <p class="note" id="eBalance"></p>
+        <p class="note" id="eOrder"></p>
+        <h2 class="h2">Payments</h2>
+        <div id="ePayments"></div>
+        <div class="toolbar actions" id="eActions"></div>
+        <p class="msg" id="eMsg" role="status"></p>
+      </section>
+
+      <section class="view" id="view-print" role="tabpanel" aria-labelledby="tab-print" hidden>
+        <div class="toolbar no-print">
+          <button type="button" class="btn" id="pBack">← Back to invoice</button>
+          <button type="button" class="btn primary" id="pPrint">Print…</button>
+          <button type="button" class="btn" id="pPdf">Export PDF</button>
+        </div>
+        <div id="pSheet"></div>
+      </section>
+
+      <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+        <div class="card">
+          <h2 class="h2">Full backup</h2>
+          <p class="note">A backup holds every record in the shared business data for this browser: customers, products, orders, invoices, payments, stock and the ledger.</p>
+          <div class="toolbar"><button type="button" class="btn primary" id="dBackup">Download full backup</button></div>
+          <label class="file">Restore from a backup file <input id="dRestore" type="file" accept="application/json,.json"></label>
+          <ul class="report" id="dRestoreMsg" aria-live="polite"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../shared/data/money.js"></script>
+  <script src="../shared/data/barcode.js"></script>
+  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema.js"></script>
+  <script src="../shared/data/currency.js"></script>
+  <script src="../shared/data/store.js"></script>
+  <script src="../shared/data/numbering.js"></script>
+  <script src="../shared/data/fx.js"></script>
+  <script src="../shared/data/ledger.js"></script>
+  <script src="../shared/data/stock.js"></script>
+  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/data/bundle-check.js"></script>
+  <script src="../shared/data/export.js"></script>
+  <script src="../shared/docs/model.js"></script>
+  <script src="../shared/docs/lines.js"></script>
+  <script src="../shared/docs/customer-dialog.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="../vendor/pdf-lib/pdf-lib.min.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/invoices.js"></script>
+  <script src="js/core/context.js"></script>
+  <script src="js/core/pdf.js"></script>
+  <script src="js/ui/preview.js"></script>
+  <script src="js/ui/list.js"></script>
+  <script src="js/ui/payment-dialog.js"></script>
+  <script src="js/ui/editor.js"></script>
+  <script src="js/ui/print.js"></script>
+  <script src="js/ui/data.js"></script>
+  <script src="js/ui/commands.js"></script>
+  <script src="js/ui/app.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
+  <script src="../shell/shell.js"></script>
+</body>
+</html>

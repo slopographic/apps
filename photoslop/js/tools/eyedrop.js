@@ -1,4 +1,4 @@
-/* PhotoSLOP: the eyedropper. Samples a point or an averaged box from the layer or the composite. The eyedropper tool (I)
+/* PhotoSlop: the eyedropper. Samples a point or an averaged box from the layer or the composite. The eyedropper tool (I)
  * draws a loupe. Alt on a painting or fill tool samples into the foreground (Alt+Shift: background) and never paints. */
 'use strict';
 

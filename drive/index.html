@@ -1,13 +1,19 @@
 <!doctype html>
 <html lang="en" data-theme="pro">
 <head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="drive" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Slop Drive — Slopographic</title>
   <meta name="description" content="Slop Drive: every file from every Slopographic app in one local drive. Folders, previews, search, duplicates, disk usage and one-file backups. Nothing leaves your browser.">
   <meta name="theme-color" content="#0e0e10">
   <meta name="color-scheme" content="dark light">
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="canonical" href="https://slopographic.com/drive/">
   <script>
     try { var t = JSON.parse(localStorage.getItem('slop-drive.theme')); if (t === 'light' || t === 'classic' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
@@ -19,6 +25,7 @@
   <link rel="stylesheet" href="css/panels.css">
   <link rel="stylesheet" href="css/viz.css">
   <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/preview.css">
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
@@ -66,6 +73,7 @@
   <script>SlopPWA.mount({ install: '#pwa-install' });</script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/session/session.js"></script>
   <script src="../shared/preview/chrome.js"></script>
   <script src="../shared/preview/preview.js"></script>
   <script src="../shared/ctxmenu.js"></script>
@@ -74,13 +82,31 @@
   <script src="../shared/guard.js" defer></script>
   <script src="../shared/backup/zip.js"></script>
   <script src="../shared/backup/index.js"></script>
+  <script src="../shared/faces/copy.js"></script>
+  <script src="../shared/profile/app-options.js"></script>
+  <script src="../shared/faces/decode.js"></script>
+  <script src="../shared/faces/cache.js"></script>
+  <script src="../shared/faces/index.js"></script>
+  <script src="../shared/faces/consent.js"></script>
+  <script src="../shared/cache/regen.js"></script>
+  <script src="../shared/faces/overlay.js"></script>
+  <script src="../shared/kinds/kinds.js"></script>
   <script src="js/core/util.js"></script>
+  <script src="js/core/timed.js"></script>
   <script src="js/core/kinds.js"></script>
   <script src="js/core/store.js"></script>
+  <script src="js/core/appfolders.js"></script>
   <script src="js/core/ops.js"></script>
   <script src="js/core/tags.js"></script>
   <script src="js/core/io.js"></script>
+  <script src="js/core/csv.js"></script>
+  <script src="js/core/pdf.js"></script>
+  <script src="js/core/thumb-cache.js"></script>
+  <script src="js/core/thumb-card.js"></script>
+  <script src="js/core/render3d.js"></script>
+  <script src="js/core/thumb-make.js"></script>
   <script src="js/core/thumbs.js"></script>
+  <script src="js/core/player.js"></script>
   <script src="js/core/dupes.js"></script>
   <script src="js/ui/shell.js"></script>
   <script src="js/ui/sidebar.js"></script>
@@ -97,14 +123,21 @@
   <script src="js/ui/ctxmenu.js"></script>
   <script src="js/ui/commands.js"></script>
   <script src="js/ui/viewer.js"></script>
+  <script src="js/ui/preview-kinds.js"></script>
+  <script src="js/ui/preview-3d.js"></script>
+  <script src="js/ui/audio-view.js"></script>
+  <script src="js/ui/mini-player.js"></script>
   <script src="js/ui/clean-action.js"></script>
+  <script src="js/ui/faces.js"></script>
   <script src="js/ui/info.js"></script>
   <script src="js/ui/info-width.js"></script>
   <script src="js/ui/quicklook.js"></script>
   <script src="js/ui/dupes-ui.js"></script>
   <script src="js/ui/keys.js"></script>
   <script src="js/ui/empty.js"></script>
+  <script src="js/app/view-state.js"></script>
   <script src="js/app/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shell/shell.js"></script>
 </body>
 </html>

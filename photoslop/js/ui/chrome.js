@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: menubar, toolbox and options bar */
+/* PhotoSlop UI: menubar, toolbox and options bar */
 'use strict';
 
 let openMenu = null;
@@ -143,7 +143,7 @@ function buildOptions() {
     const tf = TRANSFORM;
     const n = (label, get, set, unit) => { const i = h('input', { type: 'number', class: 'opt-num wide', value: get(), step: 0.1 }); i.addEventListener('change', () => { set(+i.value); dirty(true); }); listeners.add((w) => { if (w === 'transform' && document.activeElement !== i) i.value = get(); }); return h('label', { class: 'opt' }, h('span', null, label), i, unit ? h('span', { class: 'opt-u' }, unit) : null); };
     add(n('X', () => Math.round(tf.cx + tf.tx), (v) => { tf.tx = v - tf.cx; }, 'px'), n('Y', () => Math.round(tf.cy + tf.ty), (v) => { tf.ty = v - tf.cy; }, 'px'),
-      n('W', () => Math.round(tf.sx * 1000) / 10, (v) => { tf.sx = v / 100; }, '%'), n('H', () => Math.round(tf.sy * 1000) / 10, (v) => { tf.sy = v / 100; }, '%'),
+      n('W', () => Math.round(tf.sx * 1000) / 10, (v) => tfScale('x', v), '%'), lockButton(), n('H', () => Math.round(tf.sy * 1000) / 10, (v) => tfScale('y', v), '%'),
       n('∠', () => Math.round((tf.rot * 180) / Math.PI * 10) / 10, (v) => { tf.rot = (v * Math.PI) / 180; }, '°'),
       optSelect('Interpolation', tf, 'interp', RESAMPLE_MODES, () => dirty(true)),
       h('span', { class: 'opt-spacer' }),
@@ -168,9 +168,9 @@ function buildOptions() {
     case 'wand': add(optSelMode(), optRange('Tolerance', T.wand, 'tol', 0, 255), optCheck('Contiguous', T.wand, 'contiguous'), optCheck('Sample all layers', T.wand, 'sampleAll')); break;
     case 'bucket': add(optRange('Tolerance', T.bucket, 'tol', 0, 255), optRange('Opacity', T.bucket, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Contiguous', T.bucket, 'contiguous'), optCheck('All layers', T.bucket, 'sampleAll')); break;
     case 'gradient': add(optSelect('', T.gradient, 'type', [['linear', 'Linear'], ['radial', 'Radial'], ['reflected', 'Reflected'], ['angle', 'Angle']]), optSelect('', T.gradient, 'mode', [['fgbg', 'Foreground → Background'], ['fgt', 'Foreground → Transparent'], ['slop', 'Slop Green'], ['spectrum', 'Spectrum']]), optCheck('Reverse', T.gradient, 'reverse'), optRange('Opacity', T.gradient, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
-    case 'shape': add(optSelect('', T.shape, 'kind', [['rect', 'Rectangle'], ['rounded', 'Rounded Rectangle'], ['ellipse', 'Ellipse'], ['polygon', 'Polygon'], ['star', 'Star'], ['heart', 'Heart'], ['line', 'Line']], buildOptions), optCheck('Fill (fg)', T.shape, 'fill'), optCheck('Stroke', T.shape, 'stroke'), optRange('Stroke', T.shape, 'strokeW', 1, 200)); if (T.shape.kind === 'rounded') add(optRange('Radius', T.shape, 'radius', 0, 500)); if (T.shape.kind === 'polygon' || T.shape.kind === 'star') add(optRange('Sides', T.shape, 'sides', 3, 40)); break;
+    case 'shape': add(optSelect('', T.shape, 'kind', [['rect', 'Rectangle'], ['rounded', 'Rounded Rectangle'], ['ellipse', 'Ellipse'], ['polygon', 'Polygon'], ['star', 'Star'], ['heart', 'Heart'], ['line', 'Line']], () => { if (T.shape.kind === 'rounded' && !T.shape.radius) T.shape.radius = 32; buildOptions(); }), optCheck('Fill (fg)', T.shape, 'fill'), optCheck('Stroke', T.shape, 'stroke'), optRange('Stroke', T.shape, 'strokeW', 1, 200)); if (T.shape.kind === 'rect' || T.shape.kind === 'rounded') add(optRange('Corner radius', T.shape, 'radius', 0, 500)); if (T.shape.kind === 'polygon' || T.shape.kind === 'star') add(optRange('Sides', T.shape, 'sides', 3, 40)); break;
     case 'type': buildTypeOptions(add); break;
-    case 'move': add(optCheck('Auto-select layer', T.move, 'auto'), h('span', { class: 'opt-hint' }, 'Drag to move · arrow keys nudge · Ctrl+T to transform')); break;
+    case 'move': add(optCheck('Auto-select layer', T.move, 'auto'), ...moveBoxOptions(), h('span', { class: 'opt-hint' }, 'Drag to move · arrow keys nudge · Ctrl+T to transform')); break;
     case 'crop': add(optCheck('Delete cropped pixels', T.crop, 'del'), h('span', { class: 'opt-spacer' }), h('button', { class: 'btn', type: 'button', onclick: () => { TOOL.crop.activate(); dirty(); } }, 'Reset'), h('button', { class: 'btn primary', type: 'button', onclick: () => TOOL.crop.apply() }, 'Crop')); break;
     case 'eyedropper': add(optSelect('Sample size', T.eyedrop, 'size', [[1, 'Point'], [3, '3 × 3 average'], [5, '5 × 5 average'], [11, '11 × 11 average']].map(([v, l]) => [String(v), l])), sampleSourceOpt()); break;
     case 'hand': case 'zoom': add(h('button', { class: 'btn', type: 'button', onclick: () => actualPixels() }, '100%'), h('button', { class: 'btn', type: 'button', onclick: () => fitView() }, 'Fit Screen')); break;

@@ -1,4 +1,4 @@
-/* Slop Vector — ui: the action registry (menus, shortcuts, context menus) */
+/* SlopVector — ui: the action registry (menus, shortcuts, context menus) */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;
@@ -114,8 +114,8 @@
 
   act('view.zoomIn', 'Zoom In', ['mod+=', 'mod+shift+='], function () { SV.zoomStep(1); });
   act('view.zoomOut', 'Zoom Out', ['mod+-'], function () { SV.zoomStep(-1); });
-  act('view.fit', 'Fit Artboard in Window', ['mod+0'], function () { SV.fitArtboard(); });
-  act('view.actual', 'Actual Size', ['mod+1'], function () { SV.actualSize(); });
+  act('view.fit', 'Fit Artboard in Window', ['mod+0', '0'], function () { SV.fitArtboard(true); });
+  act('view.actual', 'Actual Size', ['mod+1', '1'], function () { SV.actualSize(true); });
   act('view.outline', 'Outline', ['mod+y'], togglePref('outline'), { checked: function () { return S.prefs.outline; } });
   act('view.rulers', 'Rulers', ['mod+r'], function () { S.prefs.rulers = !S.prefs.rulers; savePrefs(); applyRulers(); SV.requestRender(true); }, { checked: function () { return S.prefs.rulers; } });
   act('view.grid', 'Grid', ["mod+'"], togglePref('grid'), { checked: function () { return S.prefs.grid; } });
@@ -139,7 +139,7 @@
   act('window.strokeColor', 'Stroke Colour…', [], function () { editChip('stroke'); });
 
   act('help.shortcuts', 'Keyboard Shortcuts', ['mod+/'], function () { shortcutsDialog(); }, { keyText: 'F1' });
-  act('help.about', 'About Slop Vector', [], function () { aboutDialog(); });
+  act('help.about', 'About SlopVector', [], function () { aboutDialog(); });
 
   SV.runAction = function (id) {
     var a = A[id]; if (!a) return;

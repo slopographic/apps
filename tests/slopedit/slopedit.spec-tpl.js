@@ -1,4 +1,4 @@
-/* SlopEdit tests: templates (region data, apply, re-flow, swap, drop into a slot) and the random edit
+/* SlopCut tests: templates (region data, apply, re-flow, swap, drop into a slot) and the random edit
    (seeded plan, build as ordinary clips, reshuffle, one undo step, dialog and menu/keyboard entry). */
 (function () {
   'use strict';
@@ -234,7 +234,8 @@
       key(win, 'G', { shiftKey: true });
       expect(SE.bin.tab).toBe('templates');
       await waitFor(() => doc.querySelector('.tp-panel'));
-      expect(doc.querySelectorAll('.tp-tile').length).toBe(8);
+      expect(doc.querySelectorAll('.tp-tile:not(.tp-custom)').length).toBe(8);
+      expect(doc.querySelectorAll('.tp-custom').length).toBe(1);
       SE.bin.tab = 'media'; SE.bin.render();
       doc.querySelectorAll('.menu-b')[3].click();
       await waitFor(() => doc.querySelector('.sui-menu'));

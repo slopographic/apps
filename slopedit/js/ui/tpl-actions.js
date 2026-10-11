@@ -1,4 +1,4 @@
-/* SlopEdit: template and random-edit actions (SE.act.*), run by commands and menus.
+/* SlopCut: template and random-edit actions (SE.act.*), run by commands and menus.
    Templates apply to the selected timeline clips, else to the media picked in the bin (placed at the
    playhead). With a layout already on, choosing a template re-flows that layout instead. */
 (function () {
@@ -63,6 +63,6 @@
   act.reshuffleRandom = function (seed) {
     const last = SE.doc.random;
     if (!last) { A.status('Make a random edit first (Shift+R)'); return false; }
-    return act.randomEdit({ target: last.target, pace: last.pace, aspect: last.aspect, tpl: last.tpl, seed: seed == null ? S.make() : seed });
+    return act.randomEdit({ target: last.target, pace: last.pace, aspect: last.aspect, size: last.size, tpl: last.tpl, switches: last.switches, layouts: last.layouts, seed: seed == null ? S.make() : seed });
   };
 })();

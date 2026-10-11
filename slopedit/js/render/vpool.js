@@ -1,4 +1,4 @@
-/* SlopEdit: <video> elements for the live preview, one per visible clip. While playing they run at
+/* SlopCut: <video> elements for the live preview, one per visible clip. While playing they run at
    the clip's speed and are nudged back when they drift from the playhead; when paused they seek to
    the exact frame and ask for a redraw once it has arrived. */
 (function () {

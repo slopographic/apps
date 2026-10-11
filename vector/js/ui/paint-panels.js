@@ -1,4 +1,4 @@
-/* Slop Vector — ui: Swatches, Gradient, Align and Pathfinder panels */
+/* SlopVector — ui: Swatches, Gradient, Align and Pathfinder panels */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;

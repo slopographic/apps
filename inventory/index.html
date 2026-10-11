@@ -1,13 +1,19 @@
 <!doctype html>
 <html lang="en" data-theme="pro">
 <head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="inventory" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Slop Inventory — Slopographic</title>
   <meta name="description" content="Slop Inventory: products, stock by location, barcode scanning with a camera or any USB scanner, stock counts and reports. Nothing is uploaded.">
   <meta name="theme-color" content="#0e0e10">
   <meta name="color-scheme" content="dark light">
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <script>
     try { var t = JSON.parse(localStorage.getItem('slop-inventory.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
   </script>
@@ -45,13 +51,13 @@
         <div class="toolbar">
           <label class="search"><span class="sr">Search products</span>
             <input id="pSearch" type="search" placeholder="Search SKU, EAN or name" autocomplete="off" spellcheck="false"></label>
-          <label>Sort <select id="pSort"><option value="name">Name</option><option value="sku">SKU</option><option value="onHand">On hand</option><option value="price">Price</option></select></label>
+          <label>Sort <select id="pSort"><option value="name">Name</option><option value="sku">SKU</option></select></label>
           <label>Show <select id="pFilter"><option value="all">All products</option><option value="low">Low stock only</option></select></label>
           <button type="button" class="btn primary" id="pAdd">Add product</button>
         </div>
         <p class="note" id="pSummary" role="status"></p>
         <div class="table" role="table" aria-label="Products">
-          <div class="row head" role="row"><span role="columnheader">Product</span><span role="columnheader">EAN</span><span role="columnheader">Price</span><span role="columnheader">Tax</span><span role="columnheader">On hand</span><span role="columnheader">Reorder</span></div>
+          <div class="row head" role="row"><span role="columnheader">Product (name and SKU)</span></div>
           <div id="pRows" role="rowgroup"></div>
         </div>
         <p class="empty" id="pEmpty" hidden>No products match. Add one, or import a CSV in the Data tab.</p>
@@ -208,6 +214,7 @@
     </main>
   </div>
 
+  <script src="../shared/session/session.js"></script>
   <script src="../shared/data/money.js"></script>
   <script src="../shared/data/barcode.js"></script>
   <script src="../shared/data/schema-defs.js"></script>
@@ -242,8 +249,10 @@
   <script src="js/ui/count.js"></script>
   <script src="js/ui/reports.js"></script>
   <script src="js/ui/commands.js"></script>
+  <script src="js/ui/view-state.js"></script>
   <script src="js/ui/app.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
+  <script src="../shell/shell.js"></script>
 </body>
 </html>

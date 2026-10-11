@@ -86,7 +86,7 @@ export async function save({ as = false } = {}) {
       const prev = await h.get(S.file.driveId);
       await h.put(blob, { id: S.file.driveId, name, from: 'tables', folderId: prev ? prev.folderId : S.file.folderId });
     } else {
-      const folderId = await h.pickFolder({ title: `Save “${name}” to Slop Drive` });
+      const folderId = await h.pickFolder({ title: `Save “${name}” to Slop Drive`, start: await h.appFolderId('tables') });
       if (folderId === undefined) return false;
       S.file.driveId = await h.put(blob, { name, from: 'tables', folderId });
       S.file.folderId = folderId;
@@ -108,19 +108,33 @@ function setUrl(id) {
   history.replaceState(null, '', u.pathname + u.search + u.hash);
 }
 
+/** Open wb as a new, unsaved workbook (a template). Asks first when the current workbook has unsaved changes. */
+export async function useWorkbook(wb, name) {
+  if (!(await confirmDiscard())) return false;
+  install(wb, { name: name || 'Untitled spreadsheet' });
+  setUrl(null);
+  return true;
+}
+
 export const downloadNative = () => window.SlopUI.download(toBlob(S.wb), fileName());
 export const downloadCsv = () => window.SlopUI.download(new Blob([toCsv(sheet())], { type: 'text/csv' }), fileName('csv'));
 export async function downloadXlsx() { window.SlopUI.download(await toXlsx(S.wb), fileName('xlsx')); }
+
+/* Startup reads are time-limited: a storage that never answers (blocked IndexedDB, a stalled hub) must not
+   keep the workbook from opening, or the page stays blank. A late answer is ignored. */
+const START_MS = 1500;
+const within = (p, fallback) => new Promise((res) => {
+  const t = setTimeout(() => res(fallback), START_MS);
+  Promise.resolve(p).then((v) => { clearTimeout(t); res(v); }, () => { clearTimeout(t); res(fallback); });
+});
 
 /** Startup: ?drive=<id> first, then the unsaved draft, then a blank workbook. */
 export async function launch() {
   const h = hub();
   if (h) { try { h.register('tables'); } catch (e) { /* hub without register */ } }
-  let rec = null;
-  try { rec = h ? await h.consumeLaunch() : null; } catch (e) { rec = null; }
+  const rec = h ? await within(Promise.resolve().then(() => h.consumeLaunch()), null) : null;
   if (rec && await openRecord(rec, { ask: false })) return;
-  let draft = null;
-  try { draft = await readDraft(); } catch (e) { draft = null; }
+  const draft = await within(Promise.resolve().then(() => readDraft()), null);
   if (draft && draft.json) {
     try {
       install(fromNative(JSON.parse(draft.json)), { name: draft.name, driveId: draft.driveId, folderId: draft.folderId, dirty: true });

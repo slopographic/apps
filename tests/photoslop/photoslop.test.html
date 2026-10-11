@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>PhotoSLOP tests</title>
+  <title>PhotoSlop tests</title>
   <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style>
 </head>
 <body>
@@ -22,7 +22,7 @@
       W = new Proxy({}, { get: (_, k) => win.eval(String(k)) });
       expect(W.D.layers.length).toBeGreaterThan(0);
       expect(W.TOOLS.length).toBeGreaterThanOrEqual(23);
-      expect(W.document.title).toContain('PhotoSLOP');
+      expect(W.document.title).toContain('PhotoSlop');
       expect(W.document.querySelectorAll('.panel').length).toBeGreaterThanOrEqual(5);
     }, { timeout: 40000 });
   });
@@ -242,8 +242,8 @@
   describe('Slop Hub', () => {
     it('offers Send to for the other apps that open PNGs', () => {
       const labels = W.sendToMenu().map((r) => r.label).filter(Boolean);
-      expect(labels).toContain('Send to Slop Vector');
-      expect(labels.some((l) => /PhotoSLOP/.test(l))).toBe(false);
+      expect(labels).toContain('Send to SlopVector');
+      expect(labels.some((l) => /PhotoSlop/.test(l))).toBe(false);
     });
     it('opens a file another app sent with ?drive=', async () => {
       const c = W.mkCanvas(7, 5); W.cx(c).fillRect(0, 0, 7, 5);
@@ -263,7 +263,7 @@
   contextMenuTests({ describe, it, expect, getW: () => W });
   classicContextTests({ describe, it, expect, waitFor });
 
-  SlopTest.run({ name: 'PhotoSLOP' });
+  SlopTest.run({ name: 'PhotoSlop' });
   </script>
 </body>
 </html>

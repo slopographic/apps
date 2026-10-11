@@ -1,4 +1,4 @@
-/* SlopEdit: timeline context menus, double-click, and drops (media from the bin, effects from the
+/* SlopCut: timeline context menus, double-click, and drops (media from the bin, effects from the
    Effects tab, files from the desktop) with a ghost preview of where clips will land. */
 (function () {
   'use strict';

@@ -19,6 +19,7 @@
     win = w; doc = w.document; S = w.SlopMascot; M = S.M;
     doc.documentElement.style.scrollBehavior = 'auto';
     await sleep(1500);                         // let missing screenshots fall back to tiles
+    S.toggleHud(true);                         // the HUD card is collapsed by default: open it for its buttons
     pristine = main();
   });
   async function onApps() {

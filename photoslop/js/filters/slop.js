@@ -1,4 +1,4 @@
-/* PhotoSLOP filters: the Slop menu and layer styles */
+/* PhotoSlop filters: the Slop menu and layer styles */
 'use strict';
 
 FILTERS.push(

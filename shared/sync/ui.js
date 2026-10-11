@@ -74,10 +74,10 @@
 
   // Fallback without a folder: save the backup as a file the person keeps. A local download, no network.
   async function downloadFile() {
-    if (!window.SlopData || typeof window.SlopData.exportAll !== 'function') throw new Error('Backup is not available in this app yet.');
-    const blob = await window.SlopData.exportAll();
-    const url = URL.createObjectURL(blob);
-    const a = U().el('a', { href: url, download: S().BACKUP_NAME });
+    const r = await S().exportFile();
+    if (!r.ok) throw new Error(r.error);
+    const url = URL.createObjectURL(r.blob);
+    const a = U().el('a', { href: url, download: r.name });
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
     U().toast('Backup file saved.');
@@ -85,11 +85,11 @@
 
   // Fallback: restore from a backup file the person chose. Same warning as a cloud restore.
   async function restoreFile(file) {
-    if (!window.SlopData || typeof window.SlopData.importAll !== 'function') { U().toast('Restore is not available in this app yet.'); return; }
     const warn = U().el('div', null, U().el('p', null, RESTORE_WARNING));
     const yes = await U().confirm('Restore from this file?', warn, 'Replace local data', { danger: true, cancel: 'Keep local data' });
     if (!yes) return;
-    try { await window.SlopData.importAll(file); } catch (e) { U().toast(String((e && e.message) || 'The file could not be restored.')); return; }
+    const r = await S().restoreFile(file, { confirmed: true });
+    if (!r.ok) { U().toast(r.error); return; }
     await U().alert('Restored', 'The backup file is now on this device. The page will reload to show it.');
     window.location.reload();
   }

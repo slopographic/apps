@@ -70,13 +70,29 @@
     return next.access;
   }
 
-  // Reads the local export through SlopData (owned by shared/data/export.js).
-  async function exportBlob() {
-    const SD = window.SlopData;
-    if (!SD || typeof SD.exportAll !== 'function') throw new Error('Backup is not available in this app yet.');
-    const blob = await SD.exportAll();
-    if (!blob || typeof blob.size !== 'number') throw new Error('The export did not produce a file.');
-    return blob;
+  // The central "Export everything" module (shared/backup/central.js). Loads it on first use.
+  async function central() {
+    const SC = window.SlopCentral || (window.SlopBackup && await window.SlopBackup.central());
+    if (!SC) throw new Error('Backup is not available in this app yet.');
+    return SC;
+  }
+
+  // Builds the local backup file. No network.
+  async function exportLocal() {
+    const SC = await central();
+    const out = await SC.exportEverything();
+    if (!out || !out.blob || typeof out.blob.size !== 'number') throw new Error('The export did not produce a file.');
+    return out;
+  }
+
+  // Reads, validates and migrates a backup (Blob or File), then applies it all or nothing. No network.
+  async function restoreLocal(input) {
+    const SC = await central();
+    const p = await SC.plan(input);
+    if (!p.ok) throw new Error(p.errors[0] || 'The backup file is not valid. Nothing was changed.');
+    const r = await SC.apply(p);
+    if (!r.ok) throw new Error(r.errors[0] || 'The backup could not be restored.');
+    return r;
   }
 
   const SlopSync = {
@@ -156,8 +172,9 @@
     async pushBackup(id) {
       try {
         const mod = providerModule(id);
+        await central();
         const auth = await authFor(id);
-        const blob = await exportBlob();
+        const { blob } = await exportLocal();
         await mod.upload(auth, BACKUP_NAME, blob);
         const at = Date.now();
         C().setLastSync(id, at);
@@ -171,12 +188,29 @@
       try {
         if (opts.confirmed !== true) return fail('Restoring replaces your local data. Confirm first.');
         const mod = providerModule(id);
-        if (!window.SlopData || typeof window.SlopData.importAll !== 'function') return fail('Restore is not available in this app yet.');
+        await central();
         const auth = await authFor(id);
         const blob = await mod.download(auth, BACKUP_NAME);
         if (!blob) return fail('No cloud backup found yet. Back up first.');
-        await window.SlopData.importAll(blob);
+        await restoreLocal(blob);
         return { ok: true, bytes: blob.size };
+      } catch (e) { return fail(msg(e)); }
+    },
+
+    // Local file (no network): the "Download backup file" fallback. Returns { ok, blob, name }.
+    async exportFile() {
+      try {
+        const out = await exportLocal();
+        return { ok: true, blob: out.blob, name: out.name };
+      } catch (e) { return fail(msg(e)); }
+    },
+
+    // Local file (no network): restores a backup file the person chose. Refuses unless confirmed: true.
+    async restoreFile(file, opts = {}) {
+      try {
+        if (opts.confirmed !== true) return fail('Restoring replaces your local data. Confirm first.');
+        const r = await restoreLocal(file);
+        return { ok: true, applied: r.applied.length };
       } catch (e) { return fail(msg(e)); }
     },
 

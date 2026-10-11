@@ -1,9 +1,10 @@
-/* PhotoSLOP tools: free transform */
+/* PhotoSlop tools: free transform */
 'use strict';
 
 /* ---------- Free Transform (Ctrl+T) ---------- */
-/** interp: the resampling for the layer's pixels (nearest | bilinear | bicubic); it persists between transforms. */
-const TRANSFORM = { active: false, interp: 'bicubic' };
+/** interp: the resampling for the layer's pixels (nearest | bilinear | bicubic); it persists between transforms.
+    lock: the proportion lock, on by default and kept for this page session only. Shift inverts it for one drag. */
+const TRANSFORM = { active: false, interp: 'bicubic', lock: true };
 const QUICK_LABEL = { cw: 'Rotate 90° Clockwise', ccw: 'Rotate 90° Counter Clockwise', 180: 'Rotate 180°', flipH: 'Flip Horizontal', flipV: 'Flip Vertical' };
 function startTransform() {
   if (TRANSFORM.active) return;
@@ -11,7 +12,7 @@ function startTransform() {
   if (L.locked) { toast('That layer is locked'); return; }
   if (!L.visible) { toast('Show the layer first'); return; }
   if (TE.el) endTypeEdit();
-  if (L.text) L = rasterizeText(L, true);
+  if (L.text || L.shape) L = rasterizeText(L, true);
   let float, rest = null, b;
   if (D.sel) {
     const sel = selInLayer(L);
@@ -69,6 +70,21 @@ function commitTransform(label) {
   emit('tool');
 }
 function cancelTransform() { if (!TRANSFORM.active) return; TRANSFORM.active = false; live = null; emit('tool'); dirty(true); }
+/** The proportion lock as a chain-link toggle for the options bars (Move and Free Transform). Shows the session setting. */
+function lockButton() {
+  const b = h('button', { class: 'btn', type: 'button', 'aria-label': 'Proportion lock', html: LINK_ICON });
+  const show = () => { b.classList.toggle('primary', TRANSFORM.lock); b.setAttribute('aria-pressed', String(TRANSFORM.lock)); b.title = 'Proportion lock ' + (TRANSFORM.lock ? 'on' : 'off') + ' (Shift inverts it for one drag)'; };
+  b.addEventListener('click', () => { TRANSFORM.lock = !TRANSFORM.lock; show(); });
+  show();
+  return b;
+}
+/** Sets W (axis 'x') or H ('y') from a percentage in the Free Transform bar. With the lock on, the other side follows. */
+function tfScale(axis, pct) {
+  const t = TRANSFORM, f = Math.max(0.002, (Number.isFinite(pct) ? pct : 100) / 100);
+  if (axis === 'x' || t.lock) t.sx = f;
+  if (axis === 'y' || t.lock) t.sy = f;
+  emit('transform'); dirty(true);
+}
 function transformLayerQuick(kind) {
   // Flip / rotate the active layer (or selection) about its centre, committed immediately.
   startTransform(); if (!TRANSFORM.active) return;
@@ -79,13 +95,35 @@ function transformLayerQuick(kind) {
   commitTransform(QUICK_LABEL[kind]);
   TRANSFORM.interp = keep;
 }
+/* Box geometry in screen space, shared with the idle box (tools/transform-idle.js). cs = corners tl, tr, br, bl. */
+const boxMid = (cs, i) => ({ x: (cs[i].x + cs[(i + 1) % 4].x) / 2, y: (cs[i].y + cs[(i + 1) % 4].y) / 2 });
+/** The scale handle under screen point s: { hx, hy } (each -1, 0 or 1), or null. */
+function boxHandle(cs, s) {
+  const H = [[cs[0], -1, -1], [boxMid(cs, 0), 0, -1], [cs[1], 1, -1], [boxMid(cs, 1), 1, 0], [cs[2], 1, 1], [boxMid(cs, 2), 0, 1], [cs[3], -1, 1], [boxMid(cs, 3), -1, 0]];
+  for (const [q, hx, hy] of H) if (Math.hypot(q.x - s.x, q.y - s.y) < 9) return { hx, hy };
+  return null;
+}
+/** The rotate knob: 24 px out from the middle of the top edge, along the box's normal. */
+function boxKnob(cs) {
+  const m = boxMid(cs, 0), c = { x: (cs[0].x + cs[2].x) / 2, y: (cs[0].y + cs[2].y) / 2 }, d = Math.hypot(m.x - c.x, m.y - c.y) || 1;
+  return { x: m.x + ((m.x - c.x) / d) * 24, y: m.y + ((m.y - c.y) / d) * 24 };
+}
+function drawBox(g, cs) {
+  g.strokeStyle = '#1e90ff'; g.lineWidth = 1; g.beginPath(); cs.forEach((q, i) => (i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y))); g.closePath(); g.stroke();
+  for (const q of cs.concat([0, 1, 2, 3].map((i) => boxMid(cs, i)))) { g.fillStyle = '#fff'; g.fillRect(q.x - 4, q.y - 4, 8, 8); g.strokeRect(q.x - 4 + 0.5, q.y - 4 + 0.5, 7, 7); }
+}
+function drawKnob(g, cs) {
+  const m = boxMid(cs, 0), k = boxKnob(cs);
+  g.strokeStyle = '#1e90ff'; g.lineWidth = 1; g.beginPath(); g.moveTo(m.x, m.y); g.lineTo(k.x, k.y); g.stroke();
+  g.beginPath(); g.arc(k.x, k.y, 5, 0, Math.PI * 2); g.fillStyle = '#fff'; g.fill(); g.stroke();
+}
+function handleCursor(h) { return h.move ? 'move' : h.rotate ? 'alias' : h.hx * h.hy > 0 ? 'nwse-resize' : h.hx * h.hy < 0 ? 'nesw-resize' : h.hx ? 'ew-resize' : 'ns-resize'; }
+
 const TRANSFORM_TOOL = {
   id: 'transform', name: 'Free Transform',
   handleAt(p) {
     const cs = tfCorners().map((q) => toScreen(q.x, q.y)), s = toScreen(p.x, p.y);
-    const mids = [0, 1, 2, 3].map((i) => ({ x: (cs[i].x + cs[(i + 1) % 4].x) / 2, y: (cs[i].y + cs[(i + 1) % 4].y) / 2 }));
-    const H = [[cs[0], -1, -1], [mids[0], 0, -1], [cs[1], 1, -1], [mids[1], 1, 0], [cs[2], 1, 1], [mids[2], 0, 1], [cs[3], -1, 1], [mids[3], -1, 0]];
-    for (const [q, hx, hy] of H) if (Math.hypot(q.x - s.x, q.y - s.y) < 9) return { hx, hy };
+    const h = boxHandle(cs, s); if (h) return h;
     // inside?
     let inside = false;
     for (let i = 0, j = 3; i < 4; j = i++) { const a = cs[i], b = cs[j]; if ((a.y > s.y) !== (b.y > s.y) && s.x < ((b.x - a.x) * (s.y - a.y)) / (b.y - a.y) + a.x) inside = !inside; }
@@ -107,34 +145,37 @@ const TRANSFORM_TOOL = {
       // pointer in the box's local (unrotated) frame
       const lx = c * (p.x - Cx) + s * (p.y - Cy), ly = -s * (p.x - Cx) + c * (p.y - Cy);
       const hw = (t.w * d.sx) / 2, hh = (t.h * d.sy) / 2;
-      let nsx = d.sx, nsy = d.sy, ncx = 0, ncy = 0;
+      // The lock is on by default; Shift inverts it for this drag. Locked: both sides scale by one factor.
+      const lock = t.lock !== !!e.shiftKey;
+      let nsx = d.sx, nsy = d.sy;
       if (e.altKey) { if (hx) nsx = (lx * hx * 2) / t.w; if (hy) nsy = (ly * hy * 2) / t.h; }
-      else {
-        if (hx) { const ax = -hx * hw; nsx = ((lx - ax) * hx) / t.w; ncx = (ax + lx) / 2; }
-        if (hy) { const ay = -hy * hh; nsy = ((ly - ay) * hy) / t.h; ncy = (ay + ly) / 2; }
+      else { if (hx) nsx = ((lx + hx * hw) * hx) / t.w; if (hy) nsy = ((ly + hy * hh) * hy) / t.h; }
+      if (lock) {
+        if (hx && hy) {
+          const k = Math.max(Math.abs(nsx / d.sx), Math.abs(nsy / d.sy));
+          nsx = d.sx * k * Math.sign(nsx / d.sx || 1); nsy = d.sy * k * Math.sign(nsy / d.sy || 1);
+        } else if (hx) { const k = Math.abs(nsx / d.sx); nsx = d.sx * k * Math.sign(nsx / d.sx || 1); nsy = d.sy * k; }
+        else if (hy) { const k = Math.abs(nsy / d.sy); nsy = d.sy * k * Math.sign(nsy / d.sy || 1); nsx = d.sx * k; }
       }
-      if (e.shiftKey && hx && hy) {
-        const k = Math.max(Math.abs(nsx / d.sx), Math.abs(nsy / d.sy));
-        nsx = d.sx * k * Math.sign(nsx / d.sx || 1); nsy = d.sy * k * Math.sign(nsy / d.sy || 1);
-        if (!e.altKey) { ncx = -hx * hw + (hx * t.w * nsx) / 2; ncy = -hy * hh + (hy * t.h * nsy) / 2; }
-      }
+      // The edge opposite the dragged handle stays put (Alt keeps the centre); a locked edge pulls the box about its far midpoint.
+      let ncx = 0, ncy = 0;
+      if (!e.altKey) { if (hx) ncx = -hx * hw + (hx * t.w * nsx) / 2; if (hy) ncy = -hy * hh + (hy * t.h * nsy) / 2; }
       t.sx = Math.abs(nsx) < 0.002 ? 0.002 * Math.sign(nsx || 1) : nsx; t.sy = Math.abs(nsy) < 0.002 ? 0.002 * Math.sign(nsy || 1) : nsy;
       t.tx = d.tx + c * ncx - s * ncy; t.ty = d.ty + s * ncx + c * ncy;
     }
     dirty(true); emit('transform');
   },
   up() { TRANSFORM.drag = null; },
-  hover(p) { const h = this.handleAt(p); V.el.style.cursor = h.move ? 'move' : h.rotate ? 'alias' : (h.hx * h.hy > 0 ? 'nwse-resize' : h.hx * h.hy < 0 ? 'nesw-resize' : h.hx ? 'ew-resize' : 'ns-resize'); },
+  hover(p) { V.el.style.cursor = handleCursor(this.handleAt(p)); },
   dblclick() { commitTransform(); },
   onKey(e) { if (e.key === 'Enter') { commitTransform(); return true; } if (e.key === 'Escape') { cancelTransform(); return true; } return false; },
   cancel() { TRANSFORM.drag = null; },
   overlay(g) {
     if (!TRANSFORM.active) return;
     const cs = tfCorners().map((q) => toScreen(q.x, q.y));
-    g.strokeStyle = '#1e90ff'; g.lineWidth = 1; g.beginPath(); cs.forEach((q, i) => (i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y))); g.closePath(); g.stroke();
-    const mids = [0, 1, 2, 3].map((i) => ({ x: (cs[i].x + cs[(i + 1) % 4].x) / 2, y: (cs[i].y + cs[(i + 1) % 4].y) / 2 }));
-    for (const q of cs.concat(mids)) { g.fillStyle = '#fff'; g.fillRect(q.x - 4, q.y - 4, 8, 8); g.strokeRect(q.x - 4 + 0.5, q.y - 4 + 0.5, 7, 7); }
+    drawBox(g, cs); drawKnob(g, cs);
     const c = toScreen(TRANSFORM.cx + TRANSFORM.tx, TRANSFORM.cy + TRANSFORM.ty);
+    g.strokeStyle = '#1e90ff';
     g.beginPath(); g.arc(c.x, c.y, 4, 0, Math.PI * 2); g.stroke();
   },
 };

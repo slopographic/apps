@@ -17,6 +17,7 @@
     const base = G.query.sortNewest(L.list());
     const shown = G.query.filter(base, st.query, L.albums());
     if (st.view === 'dupes') return G.query.dupeGroups(L.list()).flatMap((g) => g.items).sort((a, b) => (a.sha < b.sha ? -1 : a.sha > b.sha ? 1 : 0));
+    if (st.view === 'people') return G.people.checked(shown);
     return shown;
   }
   function layout() {
@@ -81,19 +82,22 @@
   function render() {
     if (!vl) return;
     const list = photos();
+    const people = G.state.state.view === 'people';
     const { cols, cell } = layout();
-    const key = list.length + '|' + cols + '|' + cell + '|' + list.map((m) => m.id).join(',');
+    // People groups by face count (core/people.js); every other view groups by month. The grid order is the groups' order.
+    const groups = people ? G.people.groups(list) : G.query.groupMonths(list);
+    const ids = groups.flatMap((g) => g.items.map((m) => m.id));
+    const key = ids.length + '|' + cols + '|' + cell + '|' + ids.join(',') + (people ? '|people|' + groups.map((g) => g.key + ':' + g.items.length).join(',') : '');
     const sameLayout = key === lastKey;
     lastKey = key;
     if (!sameLayout || cols !== lastCols || cell !== lastCell) {
-      const groups = G.query.groupMonths(list);
       const built = G.rows.build(groups, { cols, cell, gap: GAP, headH: HEAD_H });
-      cur = { ids: list.map((m) => m.id), rows: built.rows, heads: built.heads, cols, cell, count: built.count };
+      cur = { ids, rows: built.rows, heads: built.heads, cols, cell, count: built.count };
       lastCols = cols; lastCell = cell;
       vl.setRows(built.rows);
     }
     G.state.pruneSelection({ has: (id) => !!G.library.photo(id) }); // hidden by a filter is not gone: only removed photos leave the selection
-    els.empty.hidden = list.length > 0 || !G.library.loaded;
+    els.empty.hidden = people || list.length > 0 || !G.library.loaded; // People explains its own empty state in the bar
     els.empty.querySelector('[data-empty-text]').textContent = G.library.size ? 'Nothing matches these filters.' : 'Your library is empty. Import photos to start.';
     markSelection();
   }
@@ -156,6 +160,7 @@
     if (ro) ro.observe(els.scroller); else window.addEventListener('resize', render);
     G.state.subscribe((what) => { if (what === 'selection') markSelection(); else render(); });
     G.library.on(() => render());
+    G.people.subscribe(() => { if (G.state.state.view === 'people') render(); }); // a face result arrives: regroup
     render();
   }
 

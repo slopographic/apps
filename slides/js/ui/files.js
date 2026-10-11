@@ -34,6 +34,10 @@
     if (!t) return;
     F.confirm(function () { A.load(t.build(), {}); setUrl(null); D.toast('New presentation from ' + t.name); });
   };
+  /** A new presentation from one of "My templates" (a record from SS.templateStore; its deck is re-checked and copied). */
+  F.fromStored = function (rec) {
+    F.confirm(function () { A.load(N.normalize(U.clone(rec.deck)), {}); setUrl(null); D.toast('New presentation from ' + rec.name); });
+  };
   F.openDrive = function () {
     if (!hub()) return;
     F.confirm(async function () {

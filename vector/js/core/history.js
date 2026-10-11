@@ -1,4 +1,4 @@
-/* Slop Vector — core: undo history, autosave, document load, selection */
+/* SlopVector — core: undo history, autosave, document load, selection */
 (function () {
   'use strict';
   var G = window.SVGeom;

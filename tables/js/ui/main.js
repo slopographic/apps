@@ -1,6 +1,7 @@
 /* Slop Tables: boot. Wires the grid, keyboard, mouse, editor, toolbar, menus and storage together, and
    exposes window.SlopTables (used by the tests and by the console). */
 import { S, $, setPainter, on, redraw, sheet } from './state.js';
+import { restorePlace } from './view-state.js';
 import * as grid from './grid.js';
 import * as pointer from './pointer.js';
 import * as keys from './keys.js';
@@ -11,6 +12,8 @@ import * as F from './storage.js';
 import * as drafts from './drafts.js';
 import * as A from './actions.js';
 import * as ctxmenu from './ctxmenu.js';
+import * as TPL from './templates.js';
+import * as sidebar from './sidebar.js';
 import { undo, redo, canUndo, canRedo } from './history.js';
 import { moveTo } from './nav.js';
 import { toCsv } from '../io/csv.js';
@@ -18,7 +21,7 @@ import { toXlsx } from '../io/xlsx.js';
 import { toBlob } from '../io/native.js';
 import { parseCell } from '../engine/refs.js';
 
-const paint = () => { grid.render(); chrome.render(); };
+const paint = () => { grid.render(); chrome.render(); sidebar.render(); };
 
 function guard() { if (window.SlopGuard) window.SlopGuard.setUnsaved('tables', S.file.dirty); }
 
@@ -43,13 +46,13 @@ function bindToolbar() {
 }
 
 function boot() {
-  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); drafts.init(); A.bindClipboard(); ctxmenu.init();
+  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); drafts.init(); A.bindClipboard(); ctxmenu.init(); sidebar.init();
   setPainter(paint);
   on('change', guard); on('saved', guard); on('open', guard);
   $('vp').addEventListener('scroll', () => redraw());
   addEventListener('resize', () => redraw());
   bindToolbar();
-  F.launch().then(() => { if (window.SlopTables) window.SlopTables.ready = true; redraw(); });
+  F.launch().then(() => restorePlace()).then(() => { if (window.SlopTables) window.SlopTables.ready = true; redraw(); });
   expose();
 }
 
@@ -88,6 +91,7 @@ function expose() {
     xlsx: () => toXlsx(S.wb),
     native: () => toBlob(S.wb),
     editing: () => !!S.edit,
+    templates: TPL,
   };
 }
 

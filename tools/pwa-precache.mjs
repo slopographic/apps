@@ -71,7 +71,7 @@ const lines = [];
 let line = '  ';
 for (const f of list) {
   const item = `'/${f}', `;
-  if (line.length + item.length > 120) { lines.push(line.trimEnd()); line = '  '; }
+  if (line.length + item.length > 160) { lines.push(line.trimEnd()); line = '  '; }
   line += item;
 }
 if (line.trim()) lines.push(line.trimEnd());

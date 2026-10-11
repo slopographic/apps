@@ -1,4 +1,4 @@
-/* PhotoSLOP: tools. Each tool: { id, name, key, icon, down, move, up, hover, overlay, cancel, activate, deactivate, brushCursor }. */
+/* PhotoSlop: tools. Each tool: { id, name, key, icon, down, move, up, hover, overlay, cancel, activate, deactivate, brushCursor }. */
 'use strict';
 
 const C = { fg: store.get('fg', '#000000'), bg: store.get('bg', '#ffffff') };
@@ -19,7 +19,7 @@ const T = Object.assign({
   wand: { tol: 32, contiguous: true, sampleAll: false },
   bucket: { tol: 32, contiguous: true, sampleAll: false, opacity: 1 },
   gradient: { type: 'linear', mode: 'fgbg', reverse: false, opacity: 1 },
-  shape: { kind: 'rect', fill: true, stroke: false, strokeW: 6, radius: 32, sides: 5, strokeColor: '#000000' },
+  shape: { kind: 'rect', fill: true, stroke: false, strokeW: 6, radius: 0, sides: 5, strokeColor: '#000000' },
   type: { font: 'Archivo', size: 96, bold: true, italic: false, align: 'left', tracking: 0, leading: 120, aa: 'smooth' },
   move: { auto: false },
   crop: { del: true },
@@ -38,7 +38,7 @@ function editableLayer(forPixels = true) {
   if (!L) return null;
   if (!L.visible) { toast('The target layer is hidden. Show it first.'); return null; }
   if (L.locked) { toast('That layer is locked'); return null; }
-  if (forPixels && L.text && !UI.editMask) { L = rasterizeText(L, true); toast('Type layer rasterized'); }
+  if (forPixels && (L.text || L.shape) && !UI.editMask) { const what = L.text ? 'Type' : 'Shape'; L = rasterizeText(L, true); toast(what + ' layer rasterized'); }
   return L;
 }
 function maskTarget(L) { return UI.editMask && L.mask; }

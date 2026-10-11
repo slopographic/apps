@@ -1,4 +1,4 @@
-/* PhotoSLOP guides: document guides (D.guides, undoable), view settings and snapping.
+/* PhotoSlop guides: document guides (D.guides, undoable), view settings and snapping.
  * Guides are { o: 'v' | 'h', pos } in document pixels (see shared/guides). D.guides is treated as
  * immutable: every change makes a new array and commits one history step. */
 'use strict';

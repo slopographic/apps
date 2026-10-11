@@ -1,6 +1,6 @@
 # Slop Slides: handoff
 
-Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the first version works end to end: you can make a deck, edit it, save it to Slop Drive, reopen it, present it, and export PPTX. `node tests/run.mjs slides` is green (87 tests, 5 pages).
+Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the first version works end to end: you can make a deck, edit it, save it to Slop Drive, reopen it, present it, export PPTX, and keep decks as templates. `node tests/run.mjs slides` is green (98 tests, 7 pages).
 
 ## Architecture
 - Classic scripts under `window.SS`. The load order is `js/manifest.js` (`SS_MANIFEST`: core, render, anim, io, ui). `index.html` writes its script tags from that list, so the manifest is the only list. Tests and the future offline build use it too.
@@ -14,6 +14,9 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
   - `native.js`: `.sslide` read/write. Mime `application/x-slop-slides`.
   - `draft.js`: the autosave draft in IndexedDB (`slop-slides`, store `drafts`, key `last`).
   - `pptx.js`: PPTX writer on `shared/office/zip.js`.
+  - `validate.js`: `SS.deckCheck.run(deck)`, the one deck validator. Version check, migration (`anim/migrate.js`), then structure (types, numbers, layouts, picture references). Throws with a reason ("Slide 2, object 3 (Name): unknown type ...").
+  - `template-file.js`: `.sslide-template` files (`SS.templateFile`). Envelope `{kind:'slop-slides-template', format:1, name, created, deck}`. Parsing calls `SS.native.normalize`, so a template and a `.sslide` pass the same checks.
+  - `template-store.js`: "My templates" (`SS.templateStore`). IndexedDB `slop-slides-templates` / `templates` (record: name, slides, first-slide JPEG preview, deck, driveId), plus a copy in the "Templates" folder of Slop Drive.
 
 ## Files
 | File | Job |
@@ -29,6 +32,7 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 | `js/ui/sorter.js`, `sorter-drag.js` | slide strip: thumbnails, click to select, drag to reorder (desktop) |
 | `js/ui/inspector.js` | slide (layout, hidden, notes), document (footer, numbers), selection (position, size, rotation, opacity, fill, outline, font, size, bold, italic, align, colour, arrange) |
 | `js/ui/toolbar.js` | top bar; File menu (new, new from template, open, save, download, export) |
+| `js/ui/templates-dialog.js` | "New from template" (starter and My templates cards with previews, Export, Delete, Import file / Drive), "Save as template" (name, whole deck or current slide), import validation dialogs (`SS.templatesUI`) |
 | `js/ui/files.js` | Drive open/save, `?drive=` launch, zero-byte New file, picture and foreign files, `.sslide` download, PPTX and PNG export, boot and draft restore |
 | `js/anim/object.js` | object animations: `anims` lists, the build plan (steps and clicks), state at a time (presets + timeline) |
 | `js/anim/transition.js` | slide transition `{name, duration}`, engine names, clamping, menu labels |
@@ -53,11 +57,14 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
   - Autosave draft in IndexedDB about 1 s after each edit. It is restored at boot and cleared once the deck is saved. Unsaved state is reported to `SlopGuard`.
 - **Present:** full screen (Fullscreen API where allowed). Each slide opens with its transition (`SlopMotion.transitions`, duration from the slide), then plays its automatic build. A click, Right, Down, PageDown, Space or Enter first finishes a motion that is running, else plays the next on-click build, else moves to the next slide. Left, Up, PageUp, Backspace go back (a transition plays either way). Home/End jump with no transition. Clicks: left third goes back. B blacks out, Escape returns to the slide you were on, hidden slides are skipped, editing commands are off during the show. The inspector's **Present** section has **Play animations** (session only, not saved): off means no builds and no transitions, each click moves on.
 - **Animations:** each object (top-level, any type) can have a list of `{id, preset, trigger, at, timeScale}`. Presets are the engine's (fade-in, slide-up, pop, shake, pulse, spin-in). `trigger` is `with` (starts with the previous animation on the slide, plus `at`) or `click` (starts a new build at the end of the previous one). Duration is the preset duration times `timeScale`. Before its start an animated object is in its first frame (fade-in hidden).
-- **Transitions:** each slide has `{name, duration}` (names: none, fade, push-left/right/up/down, wipe, zoom-in/out, cube; duration 0.2 to 3 s). Set in the inspector's Transition section; Apply to all slides copies it.- **Export:** `.sslide` JSON download (schema version 2: transitions and animations are kept). PowerPoint `.pptx` (text with runs, bullets, alignment, shapes with fill and outline and rotation, pictures PNG/JPEG/GIF, backgrounds as solid colour). PNG of the current slide at 1920 px.
+- **Transitions:** each slide has `{name, duration}` (names: none, fade, push-left/right/up/down, wipe, zoom-in/out, cube; duration 0.2 to 3 s). Set in the inspector's Transition section; Apply to all slides copies it.- **Templates you keep:** File > Save as template… keeps the whole deck or the current slide. File > New from template… lists the starter templates and My templates, each with a preview of its first slide. Export downloads a `.sslide-template`. Import takes a file from this computer or from Slop Drive; the file is validated first and a bad one shows its reason and changes nothing. Templates are copied to the "Templates" folder of Slop Drive when saved or imported.
+- **Export:** `.sslide` JSON download (schema version 2: transitions and animations are kept). PowerPoint `.pptx` (text with runs, bullets, alignment, shapes with fill and outline and rotation, pictures PNG/JPEG/GIF, backgrounds as solid colour). PNG of the current slide at 1920 px.
 - **Mobile:** at 390×844 there is no horizontal page scroll. The canvas, slide strip and inspector stack in one column. The top bar wraps.
 - **Shortcuts and palette:** SlopCmd (Mod+K, the keymap). Keys: Mod+N, Mod+O, Mod+S, Mod+Z, Shift+Mod+Z, Mod+Y, Mod+C, Mod+V, Mod+D, Mod+A, Delete, Escape, Enter, T (text box), Shift+Mod+Enter (new slide), PageUp/PageDown, F5 (Present), Arrow keys.
 
 ## Schema
+- `.sslide-template` (format **1**): `{kind, format, name, created, deck}`. `deck` is a full deck (version 2) with only the pictures it uses, embedded as data. "Layouts" means each slide's `layout` id, checked against `SS.layouts`; the placeholder geometry stays in code.
+- Import of any deck (template, `.sslide`, draft): `SS.deckCheck.run` refuses a newer version, migrates version 1, then checks structure. A picture reference with no picture in the file is an error. Nothing is stored or opened before the check passes.
 - `.sslide` version **2** (`deck.version`). Slides: `transition: {name, duration}`; objects: `anims: [...]` (optional, default `[]`); slides no longer have `builds`.
 - Version 1 files open with a migration (`js/anim/migrate.js`): `transition {type, dir, dur}` maps to an engine name (dissolve and magic become fade, slide and push become push-<dir>, zoom becomes zoom-in), and each v1 build becomes an animation on its object (fly to slide-up, scale to pop, otherwise fade-in; `after` becomes `with`). The paragraph split of builds is not kept. Files with no transition or animation fields open with the defaults.
 - Drafts and Drive files both go through `SS.native.normalize`, so both migrate.
@@ -70,8 +77,13 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 - `tests/slides/model.test.html` (existing): model, layouts, text layout, history, templates.
 - `tests/slides/anim.test.html`: engine names, clamping, the first frame of a fade-in is hidden, delay and time scale, with-previous and on-click steps, legacy and version 1 files, round trip, templates.
 - `tests/slides/present-anim.test.html` (`spec-anim.js`): Present on an injected clock (`SS.present.clock`): progress 0 shows only the outgoing slide, 1 only the incoming (all ten transitions), clicks play builds before the next slide, Play animations off, the transition and animation inspector panels store their data.
+- `tests/slides/templates.test.html` (`spec-templates.js`): save as template (whole deck and one slide, Save as template dialog) and its preview in New from template, the Drive copy in the Templates folder, export then import round trip (slides, transitions, animations), pictures copied in as data, a broken import changes nothing and shows the reason, the `.sslide` loader and template import give the same reason, a version 1 deck migrates on import.
 - `tests/slides/app.test.html`: runs the real editor in iframes (`frame.js` helpers, `spec-boot.js`, `spec-storage.js`, `spec-present.js`). Covers boot, slides, text boxes and dragging, undo, double-click editing, inspector fields, picture insert, template, 390×844 layout, Ctrl+S to the same Drive id and reopen by `?drive=`, folder and star kept, zero-byte, picture, PowerPoint, damaged, draft restore, PPTX package, Present key handling.
 - PPTX was loaded with python-pptx (slide size, text, picture and shape positions). **Not yet opened in Microsoft PowerPoint.**
+
+## Templates: not done
+- Import from Drive and from a file are covered by `importText` tests; the file picker and Drive picker themselves are not automated.
+- My templates has no rename and no reorder. Preview is one slide, the first.
 
 ## Missing (in rough order of value)
 1. **PDF export** from the display list (subset fonts via `js/render/ttf.js`). Not started. Stretch goal not done.

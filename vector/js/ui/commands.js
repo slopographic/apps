@@ -1,4 +1,4 @@
-/* Slop Vector — ui: every action, tool and canvas key as a SlopCmd command (shared/commands), so the
+/* SlopVector — ui: every action, tool and canvas key as a SlopCmd command (shared/commands), so the
  * Spotlight palette (⌘K) finds them and every shortcut can be rebound. Without SlopCmd the legacy
  * keymap in tools/keys.js keeps working. Context keys (Space, Esc, Enter, clipboard) stay in keys.js. */
 (function () {

@@ -1,4 +1,4 @@
-/* PhotoSLOP navigation presets: the viewport adapter for shared/nav (wheel, pan, touch and keys).
+/* PhotoSlop navigation presets: the viewport adapter for shared/nav (wheel, pan, touch and keys).
  * Only this file touches the view: the presets, the engine and the dialog live in shared/nav.
  * Loaded after view.js (V, setZoom, fitView, actualPixels, zoomStep, dirty are its globals). */
 (function () {
@@ -17,7 +17,7 @@
     V.space = true; V.el.classList.add('space');
   }, true);
   SlopNav.attach(APP, {
-    title: 'PhotoSLOP',
+    title: 'PhotoSlop',
     host,
     adapter: {
       zoomAt: (f, x, y) => setZoom(V.zoom * f, { x, y }),

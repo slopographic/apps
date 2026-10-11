@@ -24,9 +24,12 @@
 @keyframes buddy-blink { 50% { opacity: .2; } }
 
 /* the "Give…" tray (shown in the HUD while he's mad) */
-.sh-give { display: inline-flex; align-items: center; gap: 3px; padding-left: 4px; border-left: 1px solid rgba(241, 237, 228, .15); }
+.sh-give { display: grid; gap: 6px; }
 .sh-give[hidden] { display: none; }
-.sh-give-l { color: #ff8fa3; margin-right: 2px; }
+.sh-give-l { justify-self: start; padding: 2px 0; border: 0; background: none; color: #ff8fa3; font: inherit; cursor: pointer; }
+.sh-give-l:focus-visible { outline: 2px solid var(--slop); outline-offset: 2px; }
+.sh-give-body { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding-top: 8px; border-top: 1px solid rgba(241, 237, 228, .15); }
+.sh-give-body[hidden] { display: none; }
 .sh-item {
   position: relative; width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 1px solid rgba(241, 237, 228, .18);
   background: rgba(241, 237, 228, .06); font-size: 16px; line-height: 1; cursor: grab; touch-action: none; overflow: hidden;
@@ -39,7 +42,6 @@
 .sh-item[hidden] { display: none; }
 .sh-item:disabled { cursor: default; opacity: .45; }
 .sh-item::after { content: ""; position: absolute; inset: 0; background: rgba(10, 10, 10, .6); transform-origin: bottom; transform: scaleY(var(--cd, 0)); }
-.sloppo-hud.is-angry { border-color: rgba(255, 79, 110, .5); }
 
 /* treats placed on the page */
 .sloppo-treat {
@@ -56,9 +58,6 @@
 .sloppo-candy:focus-visible { outline: 2px dashed var(--slop, #d4ff3a); outline-offset: 3px; }
 @keyframes buddy-wobble { 0%, 100% { rotate: -6deg; } 50% { rotate: 6deg; } }
 .m-face { transition: opacity .25s; }
-
-/* apps: the HUD sits above the toggle button, out of the work area until opened */
-.sloppo-hud.in-app { left: auto; right: 12px; bottom: calc(68px + env(safe-area-inset-bottom, 0px)); max-width: min(420px, calc(100vw - 24px)); }
 
 @media (prefers-reduced-motion: reduce) {
   .sloppo.is-powered::before, .sloppo.is-powered .m-led, .sloppo-treat { animation: none; }

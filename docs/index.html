@@ -1,13 +1,19 @@
 <!doctype html>
 <html lang="en" data-theme="pro">
 <head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="docs" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Slop Docs — Slopographic</title>
   <meta name="description" content="Slop Docs: a word processor that runs 100% in your browser. Real pages, styles, lists and tables. Opens and saves Word files. Nothing is uploaded.">
   <meta name="theme-color" content="#0e0e10">
   <meta name="color-scheme" content="dark light">
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="canonical" href="https://slopographic.com/docs/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
@@ -23,6 +29,7 @@
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/app.css" data-src="docs/css/app.css">
+  <link rel="stylesheet" href="css/random.css" data-src="docs/css/random.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -74,8 +81,11 @@
       <span class="sep" aria-hidden="true"></span>
       <button type="button" class="tb" id="tbBullets" aria-label="Bulleted list" title="Bulleted list (Ctrl+Shift+L)" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="7" r="1.4"/><circle cx="5" cy="12" r="1.4"/><circle cx="5" cy="17" r="1.4"/><path d="M9 7h11M9 12h11M9 17h11"/></svg></button>
       <button type="button" class="tb" id="tbNumbers" aria-label="Numbered list" title="Numbered list (Ctrl+Shift+7)" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 7h10M10 12h10M10 17h10"/><path d="M4 6l1.5-1V10M4 14.5a1.5 1.5 0 1 1 2.6 1L4 19h3"/></svg></button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" class="tb tb-text" id="tbRandom" aria-label="Random template" title="Random template: a new document from a random design (File ▸ New)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><circle cx="8.5" cy="8.5" r="1.2"/><circle cx="15.5" cy="15.5" r="1.2"/><circle cx="12" cy="12" r="1.2"/></svg><span>Random</span></button>
     </div>
 
+    <aside class="outline" id="outline"></aside>
     <main class="stage" id="stage" aria-label="Document">
       <div class="pages" id="pages"></div>
     </main>
@@ -95,6 +105,7 @@
   <noscript><p class="noscript">Slop Docs needs JavaScript. It runs entirely in your browser; nothing is uploaded.</p></noscript>
 
   <script src="../shared/slopui.js" defer data-src="shared/slopui.js"></script>
+  <script src="../shared/session/session.js"></script>
   <script src="../shared/ctxmenu.js" defer data-src="shared/ctxmenu.js"></script>
   <script src="../shared/apps.js" defer data-src="shared/apps.js"></script>
   <script src="../shared/commands/commands.js" defer data-src="shared/commands/commands.js"></script>
@@ -113,11 +124,16 @@
   <script src="js/ui/input.js" defer data-src="docs/js/ui/input.js"></script>
   <script src="js/ui/toolbar.js" defer data-src="docs/js/ui/toolbar.js"></script>
   <script src="js/ui/files.js" defer data-src="docs/js/ui/files.js"></script>
+  <script src="js/ui/templates.js" defer data-src="docs/js/ui/templates.js"></script>
+  <script src="js/ui/random.js" defer data-src="docs/js/ui/random.js"></script>
   <script src="js/ui/menus.js" defer data-src="docs/js/ui/menus.js"></script>
   <script src="js/ui/commands.js" defer data-src="docs/js/ui/commands.js"></script>
   <script src="js/ui/ctxmenu.js" defer data-src="docs/js/ui/ctxmenu.js"></script>
+  <script src="js/ui/view-state.js" defer data-src="docs/js/ui/view-state.js"></script>
   <script src="js/ui/main.js" defer data-src="docs/js/ui/main.js"></script>
+  <script type="module" src="js/ui/outline.js" data-src="docs/js/ui/outline.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
+  <script src="../shell/shell.js"></script>
 </body>
 </html>

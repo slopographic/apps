@@ -1,4 +1,4 @@
-/* Slop Vector — io: SVG import helpers (colours, transforms, CSS) */
+/* SlopVector — io: SVG import helpers (colours, transforms, CSS) */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;

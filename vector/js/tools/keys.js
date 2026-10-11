@@ -1,4 +1,4 @@
-/* Slop Vector — tools: keyboard shortcuts and clipboard events */
+/* SlopVector — tools: keyboard shortcuts and clipboard events */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom;

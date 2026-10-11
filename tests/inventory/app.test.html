@@ -46,16 +46,20 @@
       expect(doc().documentElement.scrollWidth).toBeLessThanOrEqual(390);
     });
 
-    it('a product added in the form appears in the list with its EAN', async () => {
+    it('a product added in the form appears in the list by name and SKU, with no price in the row', async () => {
       $('pAdd').click();
       await waitFor(() => doc().querySelector('.sui-dlg'));
       const [sku, ean, name, price, tax] = dlgInputs();
       sku.value = 'W-EAN-1'; ean.value = CODE; name.value = 'Washer'; price.value = '12.50'; tax.value = '20';
       dlgButton('sui-primary').click();
       await waitFor(() => $('pRows').querySelector('[data-id]'));
-      expect($('pRows').textContent).toContain('Washer');
-      expect($('pRows').textContent).toContain(CODE);
-      expect($('pRows').textContent).toContain('$12.50');
+      const row = $('pRows').querySelector('[data-id]');
+      expect(row.querySelector('.c-name').textContent).toContain('Washer');
+      expect(row.querySelector('.c-name').textContent).toContain('W-EAN-1');
+      expect(row.querySelectorAll('[role="cell"]')).toHaveLength(1);
+      expect($('pRows').textContent).not.toContain('$12.50');
+      expect($('pRows').textContent).not.toContain(CODE);
+      expect($('pSummary').textContent).toContain('stock value');
     });
 
     it('a scanner burst on the Scan tab receives one unit, and the result stays visible', async () => {

@@ -1,4 +1,4 @@
-/* SlopEdit: synthetic media generators (used by the sample project and the tests).
+/* SlopCut: synthetic media generators (used by the sample project and the tests).
    SE.synth.video({ w, h, fps, dur, draw(ctx, t, i), tone }) → Blob (MP4 via WebCodecs, else WebM via MediaRecorder)
    SE.synth.wav(dur, fn(t) → [l, r], sampleRate) → Blob (16-bit PCM WAV)
    SE.synth.png(w, h, draw(ctx)) → Blob */
@@ -109,7 +109,7 @@
   }
   Y.video = async function (o) {
     o = Object.assign({ w: 640, h: 360, fps: 30, dur: 2 }, o);
-    if (!o.forceRecorder) { try { const b = await webcodecsVideo(o); if (b) return b; } catch (e) { console.warn('SlopEdit: WebCodecs synth failed, recording instead', e); } }
+    if (!o.forceRecorder) { try { const b = await webcodecsVideo(o); if (b) return b; } catch (e) { console.warn('SlopCut: WebCodecs synth failed, recording instead', e); } }
     return recorderVideo(o);
   };
   Y.wav = function (dur, fn, sr = 48000) {

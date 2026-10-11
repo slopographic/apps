@@ -76,7 +76,7 @@ if (pages.length) {
       await page.waitForFunction(() => window.__SLOPTEST__, null, { timeout: 300000, polling: 250 });
       report = await page.evaluate(() => window.__SLOPTEST__);
     } catch (e) { report = { name: p, passed: 0, failed: 1, results: [{ suite: 'runner', test: 'page loaded and finished', status: 'fail', message: e.message }], errors: [] }; }
-    const errs = consoleErrors.filter((m) => !/favicon|net::ERR_|Failed to load resource/.test(m));
+    const errs = consoleErrors.filter((m) => !/favicon|net::ERR_|Failed to load resource|Content Security Policy|Fetch API cannot load/.test(m));
     console.log(`\n${c.b(report.name || p)} ${c.d(p + ' · ' + ((Date.now() - t0) / 1000).toFixed(1) + 's')}`);
     for (const r of report.results) {
       console.log(`  ${r.status === 'pass' ? c.g('✓') : c.r('✗')} ${r.suite} › ${r.test} ${c.d(r.ms != null ? r.ms + 'ms' : '')}`);

@@ -1,4 +1,4 @@
-/* Slop Cutout — panel kit: form controls for the settings panel. Every control is a row or a widget
+/* SlopIsolate — panel kit: form controls for the settings panel. Every control is a row or a widget
  * with `.input` (the form control) and `.sync(v)` (set the shown value without firing events).
  * CO.kit.look() turns a slider drag into one undo step: the look is snapshotted on the first move. */
 (function () {

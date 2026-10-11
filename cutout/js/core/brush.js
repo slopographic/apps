@@ -1,4 +1,4 @@
-/* Slop Cutout — refine brush on the edit map (item.edit: Uint8 per pixel, 128 = untouched, 255 = keep,
+/* SlopIsolate — refine brush on the edit map (item.edit: Uint8 per pixel, 128 = untouched, 255 = keep,
  * 0 = remove). A stroke remembers the original bytes of every 64×64 tile it touches (for undo) and its own
  * per-pixel coverage, so overlapping dabs within one stroke never build up past the brush's opacity. */
 (function () {

@@ -1,4 +1,4 @@
-/* PhotoSLOP tools: brush, pencil, eraser, clone and retouch tools */
+/* PhotoSlop tools: brush, pencil, eraser, clone and retouch tools */
 'use strict';
 
 /* Painting */

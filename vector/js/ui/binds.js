@@ -1,4 +1,4 @@
-/* Slop Vector — ui: control bindings and the tools panel */
+/* SlopVector — ui: control bindings and the tools panel */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;

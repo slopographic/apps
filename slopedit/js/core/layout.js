@@ -1,23 +1,18 @@
-/* SlopEdit: template layouts on the project. p.layout = { tpl, start, dur, slots[] } where slot i holds
-   a clip id (or null). Slot i lives on video track V(i+1) (its linked audio on A(i+1)), all starting at
-   layout.start and lasting layout.dur (or less when the source is shorter). Pure functions over a
-   project p; call them inside SE.change. Changing the template keeps the clips and re-flows them. */
+/* SlopCut: layouts on the project. The geometry and templates come from shared/video (SlopVideo.layout,
+   .templates, .presets). Here: the project operations. p.layout = { tpl, start, dur, slots[] } where slot i
+   holds a clip id (or null). Slot i lives on video track V(i+1) (its linked audio on A(i+1)), all starting at
+   layout.start and lasting layout.dur (or less when the source is shorter). Pure functions over a project p;
+   call them inside SE.change. Changing the template keeps the clips and re-flows them. */
 (function () {
   'use strict';
-  const SE = window.SE, M = SE.model, E = SE.edit, T = SE.templates;
+  const SE = window.SE, SV = window.SlopVideo, M = SE.model, E = SE.edit, T = SV.templates;
   const L = SE.layout = {};
+  SE.templates = SV.templates; SE.seed = SV.seed; // the shared modules, under their old names
 
-  /** Transform (x, y, scale) that fits a clip's picture inside a template region, keeping its aspect. */
+  /** Transform (x, y, scale) that fits a clip's picture inside a region of the sequence frame. */
   L.fit = function (p, c, r) {
     const m = c.media && M.media(p, c.media);
-    const mw = (m && m.w) || p.w, mh = (m && m.h) || p.h; // mattes and titles are frame sized
-    const b = Math.min(p.w / mw, p.h / mh);
-    const dw = mw * b, dh = mh * b;
-    return {
-      x: SE.util.round((r.x + r.w / 2 - 0.5) * p.w),
-      y: SE.util.round((r.y + r.h / 2 - 0.5) * p.h),
-      scale: SE.util.round(Math.min((r.w * p.w) / dw, (r.h * p.h) / dh), 5)
-    };
+    return SV.layout.fit({ w: p.w, h: p.h }, m ? { w: m.w, h: m.h } : null, r); // mattes and titles are frame sized
   };
   /** Make sure video (or audio) track i exists; returns it. */
   L.ensureTrack = function (p, kind, i) {
@@ -26,7 +21,7 @@
     return list()[i];
   };
   L.setAspect = function (p, name) {
-    const s = T.aspectSize(name);
+    const s = SV.presets.aspectSize(name);
     if (s) { p.w = s.w; p.h = s.h; }
   };
   /** Clip ids of a clip's group (itself plus linked audio/video). */

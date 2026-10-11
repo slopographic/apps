@@ -1,4 +1,4 @@
-/* SlopEdit: every action as a command (for menus, shortcuts and the Spotlight palette).
+/* SlopCut: every action as a command (for menus, shortcuts and the Spotlight palette).
    Registered with the shared SlopCmd package (shared/commands/) when it is available; until then a
    small built-in dispatcher and palette handle the same definitions. Actions live on SE.act.* */
 (function () {
@@ -23,7 +23,7 @@
     { id: 'file.export', title: 'Export video…', group: 'File', keys: ['Mod+E'], keywords: ['render', 'mp4', 'webm', 'h264'], when: hasClips, run: run('exportVideo') },
     { id: 'file.gif', title: 'Export GIF…', group: 'File', keywords: ['animated', 'gif'], when: hasClips, run: run('exportGif') },
     { id: 'file.snapshot', title: 'Snapshot frame to PNG', group: 'File', keys: ['Shift+E'], keywords: ['still', 'frame', 'image', 'screenshot'], run: run('snapshot') },
-    { id: 'file.snapshotSend', title: 'Send frame to PhotoSLOP', group: 'File', keywords: ['photoslop', 'still', 'edit'], when: () => !!window.SlopHub && !SE.offline, run: run('snapshotSend') },
+    { id: 'file.snapshotSend', title: 'Send frame to PhotoSlop', group: 'File', keywords: ['photoslop', 'still', 'edit'], when: () => !!window.SlopHub && !SE.offline, run: run('snapshotSend') },
     { id: 'file.sample', title: 'Load sample project', group: 'File', keywords: ['demo', 'example'], run: () => SE.sample && SE.sample.load() },
     { id: 'file.offline', title: 'Download app (offline .html)', group: 'File', run: run('downloadApp') },
     // Edit
@@ -96,7 +96,7 @@
     // Help
     { id: 'help.search', title: 'Search commands…', group: 'Help', keys: window.SlopCmd ? undefined : ['Mod+K'], run: () => C.palette() },
     { id: 'help.keys', title: 'Keyboard shortcuts…', group: 'Help', keys: ['?', 'Shift+?'], run: () => C.keymap() },
-    { id: 'help.about', title: 'About SlopEdit & privacy', group: 'Help', run: run('about') }
+    { id: 'help.about', title: 'About SlopCut & privacy', group: 'Help', run: run('about') }
   ];
   const byId = new Map(C.list.map((c) => [c.id, c]));
   C.get = (id) => byId.get(id);
@@ -128,7 +128,7 @@
       SlopCmd.register(C.list.map((c) => Object.assign({}, c, { icon: undefined })));
       registered = true;
       if (SlopCmd.on) SlopCmd.on('change', () => SE.emit('keys', {}));
-    } catch (e) { console.warn('SlopEdit: SlopCmd registration failed', e); }
+    } catch (e) { console.warn('SlopCut: SlopCmd registration failed', e); }
     return registered;
   };
   C.usingShared = () => registered;

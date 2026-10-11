@@ -1,4 +1,4 @@
-/* SlopEdit tests: the timeline model (split, trim, ripple, move/overwrite, snapping, links, undo). */
+/* SlopCut tests: the timeline model (split, trim, ripple, move/overwrite, snapping, links, undo). */
 (function () {
   'use strict';
   const { describe, it, expect } = SlopTest;
@@ -14,7 +14,7 @@
   describe('boot', () => {
     it('loads the app with panels, timeline and commands', async () => {
       await ST.boot('app');
-      expect(ST.win.document.title).toContain('SlopEdit');
+      expect(ST.win.document.title).toContain('SlopCut');
       expect(ST.SE.doc.tracks.length).toBe(4);
       expect(ST.win.document.querySelectorAll('.menu-b').length).toBe(6);
       expect(ST.SE.cmd.list.length).toBeGreaterThan(60);

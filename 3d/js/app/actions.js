@@ -47,6 +47,14 @@
     st.select([r.id]);
     return r.id;
   }
+  /** Adds several import trees (scene3d config objects, ops.importTree shape) as roots, in one undo step. */
+  function addTrees(trees) {
+    let doc = s.doc;
+    const ids = trees.map((t) => { const r = O.importTree(doc, t, null, -1); doc = r.scene; return r.id; });
+    commit(doc);
+    st.select(ids);
+    return ids;
+  }
   function remove(ids = s.sel) {
     if (!ids.length) return false;
     const ok = commit(M.removeNodes(s.doc, ids));
@@ -107,5 +115,5 @@
     return commit(d, null);
   }
 
-  S.actions = { commit, undo, redo, add, importTree, remove, duplicate, group, ungroup, reparent, setField, move, beginDrag, setSnap, nudge, setVisible, restore };
+  S.actions = { commit, undo, redo, add, importTree, addTrees, remove, duplicate, group, ungroup, reparent, setField, move, beginDrag, setSnap, nudge, setVisible, restore };
 })();

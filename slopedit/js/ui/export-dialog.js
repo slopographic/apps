@@ -1,18 +1,15 @@
-/* SlopEdit: the Export dialog (MP4 / WebM / GIF, resolution, frame rate, quality, range), the progress
+/* SlopCut: the Export dialog (MP4 / WebM / GIF, resolution, frame rate, quality, range), the progress
    dialog with Cancel and the result dialog (preview, download, Save to Slop Drive). */
 (function () {
   'use strict';
-  const SE = window.SE, U = SE.util, M = SE.model;
+  const SE = window.SE, SV = window.SlopVideo, U = SE.util, M = SE.model;
   const h = U.h;
   const XD = SE.exportDialog = {};
 
-  /** Output size for a preset height (keeps the sequence aspect; the short side gets the preset). */
-  XD.size = function (preset) {
-    const p = SE.doc;
-    if (preset === 'seq') return { w: p.w + (p.w % 2), h: p.h + (p.h % 2) };
-    const short = +preset, land = p.w >= p.h, ar = p.w / p.h;
-    const w = land ? Math.round((short * ar) / 2) * 2 : short, hh = land ? short : Math.round(short / ar / 2) * 2;
-    return { w, h: hh };
+  /** Output size for a preset id (shared/video presets), or the custom width and height. Even sides. */
+  XD.size = function (choice, cw, ch) {
+    const sz = SV.presets.size(choice, cw, ch) || { w: SE.doc.w, h: SE.doc.h };
+    return { w: sz.w + (sz.w % 2), h: sz.h + (sz.h % 2) };
   };
   XD.range = function (which) {
     const p = SE.doc, d = M.duration(p);
@@ -30,7 +27,9 @@
     const caps = SE.caps, p = SE.doc, st = U.store.get('export', {});
     const formats = (caps.webcodecs ? [['mp4', 'MP4 (H.264 / AAC)'], ['webm', 'WebM (VP9 / Opus)']] : []).concat(caps.recorder ? [['rec', 'WebM (real-time recording)']] : [], [['gif', 'Animated GIF (short clip)']]);
     const fmt = SlopUI.select(formats, formats.some(([v]) => v === init.format) ? init.format : formats[0][0]);
-    const res = SlopUI.select([['720', '720p'], ['1080', '1080p'], ['2160', '4K UHD'], ['seq', 'Sequence (' + p.w + '×' + p.h + ')']], st.res || (p.h >= 1080 || p.w >= 1920 ? '1080' : '720'));
+    const res = SlopUI.select(SV.presets.choices(), st.res || SV.presets.idFor(p.w, p.h));
+    const cw = SlopUI.number(st.cw || p.w, SV.presets.MIN, SV.presets.MAX_W, 2), ch = SlopUI.number(st.ch || p.h, SV.presets.MIN, SV.presets.MAX_H, 2);
+    const cwRow = SlopUI.field('Width', cw, 'px'), chRow = SlopUI.field('Height', ch, 'px');
     const fps = SlopUI.select([[24, '24 fps'], [25, '25 fps'], [30, '30 fps'], [50, '50 fps'], [60, '60 fps']], st.fps || p.fps);
     const q = SlopUI.select([['low', 'Low (small file)'], ['medium', 'Medium'], ['high', 'High'], ['max', 'Maximum']], st.q || 'high');
     const hasIO = !!(p.io && (p.io.in != null || p.io.out != null));
@@ -39,14 +38,15 @@
     const gf = SlopUI.select([[10, '10 fps'], [12, '12 fps'], [15, '15 fps']], st.gf || 12);
     const audio = SlopUI.check('Include audio', true);
     const note = h('p', { class: 'exp-note' });
-    const vRows = h('div', { class: 'exp-grid' }, SlopUI.field('Resolution', res), SlopUI.field('Frame rate', fps), SlopUI.field('Quality', q), audio.el);
+    const vRows = h('div', { class: 'exp-grid' }, SlopUI.field('Size', res), cwRow, chRow, SlopUI.field('Frame rate', fps), SlopUI.field('Quality', q), audio.el);
     const gRows = h('div', { class: 'exp-grid' }, SlopUI.field('Width', gw), SlopUI.field('Frame rate', gf));
     async function refresh() {
       const f = fmt.value, gif = f === 'gif';
       vRows.hidden = gif; gRows.hidden = !gif;
+      cwRow.hidden = chRow.hidden = res.value !== SV.presets.CUSTOM;
       const r = XD.range(range.value), dur = r.b - r.a;
       if (gif) { note.className = 'exp-note' + (dur > 15 ? ' warn' : ''); note.textContent = dur > 15 ? 'GIFs are limited to 15 seconds: the first 15 s of the range will be used. Set in/out points (I, O) to pick a part.' : 'Exports ' + U.dur(dur) + ' as a looping GIF.'; return; }
-      const s = XD.size(res.value), est = SE.encode.bitrate(s.w, s.h, +fps.value, q.value) * dur / 8 + (audio.input.checked ? 16000 * dur : 0);
+      const s = XD.size(res.value, +cw.value, +ch.value), est = SE.encode.bitrate(s.w, s.h, +fps.value, q.value) * dur / 8 + (audio.input.checked ? 16000 * dur : 0);
       let msg = s.w + '×' + s.h + ' · ' + U.dur(dur) + ' · about ' + U.fmtBytes(est) + '. ';
       note.className = 'exp-note';
       if (f === 'rec') { msg += 'This browser has no WebCodecs, so the video is recorded in real time while it plays (takes ' + U.dur(dur) + '). Keep this tab visible.'; note.className = 'exp-note warn'; }
@@ -59,14 +59,15 @@
       }
       note.textContent = msg;
     }
-    for (const el of [fmt, res, fps, q, range, gw, gf, audio.input]) el.addEventListener('change', refresh);
+    for (const el of [fmt, res, cw, ch, fps, q, range, gw, gf, audio.input]) el.addEventListener('change', refresh);
     SlopUI.dialog({
       title: 'Export', cls: 'exp-dlg',
       body: h('div', null, SlopUI.field('Format', fmt), SlopUI.field('Range', range), vRows, gRows, note),
       buttons: [{ label: 'Cancel' }, { label: 'Export', primary: true, act: () => {
-        U.store.set('export', { res: res.value, fps: +fps.value, q: q.value, gw: +gw.value, gf: +gf.value });
-        const r = XD.range(range.value);
-        setTimeout(() => run({ format: fmt.value, size: XD.size(res.value), fps: +fps.value, quality: q.value, audio: audio.input.checked, a: r.a, b: r.b, gw: +gw.value, gf: +gf.value }), 0);
+        U.store.set('export', { res: res.value, cw: +cw.value, ch: +ch.value, fps: +fps.value, q: q.value, gw: +gw.value, gf: +gf.value });
+        const r = XD.range(range.value), size = XD.size(res.value, +cw.value, +ch.value);
+        if (size.w !== SE.doc.w || size.h !== SE.doc.h) SE.settings.apply({ w: size.w, h: size.h }); // the preset is the sequence size
+        setTimeout(() => run({ format: fmt.value, size, fps: +fps.value, quality: q.value, audio: audio.input.checked, a: r.a, b: r.b, gw: +gw.value, gf: +gf.value }), 0);
       } }]
     });
     refresh();

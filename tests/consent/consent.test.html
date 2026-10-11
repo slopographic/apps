@@ -50,14 +50,14 @@
     });
     it('never loads gtag without an ID, even when analytics is granted', async () => {
       const calls = stubLoader();
-      const w = await open({ cfg: {} });
+      const w = await open({ cfg: { ga4MeasurementId: '' } });
       w.SlopConsent.grant('analytics');
       expect(calls.length).toBe(0);
       expect(w['ga-disable-' + GA]).toBe(undefined);
     });
     it('loads AdSense only when a publisher ID is set and ads is granted', async () => {
       const calls = stubLoader();
-      const w = await open({ cfg: { ga4MeasurementId: GA } });
+      const w = await open({ cfg: { ga4MeasurementId: GA, adsensePublisherId: '' } });
       w.SlopConsent.grant('ads');
       expect(calls.length).toBe(0); // ads granted but no publisher ID
       const w2 = await open({ cfg: { adsensePublisherId: ADS } });

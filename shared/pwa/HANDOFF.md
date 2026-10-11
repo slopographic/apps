@@ -35,6 +35,9 @@ persistent storage to Slop Drive. It does not guarantee it: Chrome still decides
    browser also updates the worker only when its bytes change.
 4. Run `node tests/run.mjs pwa`. The offline test checks that the homepage and Slop Drive open
    with the server stopped.
+5. **Run `node tests/run.mjs storage` before publishing.** It opens a real version 1 database and
+   old-shape localStorage fixtures against the new code, and checks that the service worker never
+   clears IndexedDB or localStorage. Any failure blocks the release. Rules: `storage/HANDOFF.md`.
 
 `tools/pwa-icons.mjs` regenerates the PNG icons from `favicon.svg`. Run it only if the icon changes.
 

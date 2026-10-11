@@ -1,4 +1,4 @@
-/* SlopEdit: the media library (runtime side of the bin). Each item keeps its Blob in IndexedDB so the
+/* SlopCut: the media library (runtime side of the bin). Each item keeps its Blob in IndexedDB so the
    project survives a reload. Runtime record: { id, blob, url, meta, status, el, bmp, audio, peaks, thumbs, poster }.
    The metadata (meta) also lives in SE.doc.media so the project knows what it uses. */
 (function () {
@@ -40,7 +40,7 @@
       it.status = 'ready';
     } catch (e) {
       it.status = 'error'; it.error = e.message || String(e);
-      console.warn('SlopEdit: could not read', m.name, e);
+      console.warn('SlopCut: could not read', m.name, e);
     }
     notify(it);
     SE.emit('media-ready', { id: it.id });
@@ -63,7 +63,7 @@
       const it = register(id, f, meta);
       SE.doc.media.push(meta);
       notify(it);
-      U.idb.putMedia({ id, name: meta.name, type: meta.type, blob: f }).catch((e) => console.warn('SlopEdit: media not stored', e));
+      U.idb.putMedia({ id, name: meta.name, type: meta.type, blob: f }).catch((e) => console.warn('SlopCut: media not stored', e));
       jobs.push(analyse(it).then(() => { if (it.status === 'ready') out.push(meta); else SlopUI.toast(meta.name + ': ' + it.error, 4000); }));
     }
     await Promise.all(jobs);

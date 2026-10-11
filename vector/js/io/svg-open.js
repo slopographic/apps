@@ -1,4 +1,4 @@
-/* Slop Vector — io: open/import SVG documents */
+/* SlopVector — io: open/import SVG documents */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;
@@ -42,7 +42,7 @@
     SV.loadDoc(doc, { fit: true });
     SV.commit('open');
     SV.markSaved();
-    SV.toast(r.slop ? 'Opened “' + doc.name + '” — fully editable Slop Vector document' : 'Opened “' + doc.name + '”');
+    SV.toast(r.slop ? 'Opened “' + doc.name + '” — fully editable SlopVector document' : 'Opened “' + doc.name + '”');
     return true;
   };
   IO.importSVGText = function (text, opts) {

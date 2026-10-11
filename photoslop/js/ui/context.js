@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: right-click and keyboard (Menu key, Shift+F10) context menus.
+/* PhotoSlop UI: right-click and keyboard (Menu key, Shift+F10) context menus.
  * A target element is marked with ctxTarget(el, kind, build): data-ctx="<kind>" names what it is
  * (canvas, layer, text, swatch, panel, tab, brush) and build(pos) returns its menu items, or null when
  * nothing applies (then no menu opens). Items reuse the menu bar's own items (MENUS, via M()), so the
@@ -89,9 +89,9 @@ function selectLayerPixels(L) { const c = mkCanvas(D.w, D.h); cx(c).drawImage(ba
 function activateLayer(L) { if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); } }
 function layerItems(L) {
   activateLayer(L);
-  return [M('Layer', 'Layer Properties…'), M('Layer', 'Duplicate Layer'), M('Layer', 'Delete Layer'), '-',
+  return [M('Edit', 'Free Transform'), '-', M('Layer', 'Layer Properties…'), M('Layer', 'Duplicate Layer'), M('Layer', 'Delete Layer'), '-',
     { label: 'Select Pixels', act: () => selectLayerPixels(L) }, M('Layer', 'Layer Mask'), M('Layer', 'Layer Style'), '-',
-    M('Edit', 'Free Transform'), M('Layer', 'Rotate and Flip'), '-',
+    M('Layer', 'Rotate and Flip'), '-',
     M('Layer', 'Lock / Unlock Layer'), { label: L.visible ? 'Hide Layer' : 'Show Layer', act: () => setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer') }, '-',
     M('Layer', 'Merge Down'), M('Layer', 'Merge Visible'), M('Layer', 'Flatten Image')];
 }

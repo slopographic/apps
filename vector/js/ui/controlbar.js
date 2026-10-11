@@ -1,4 +1,4 @@
-/* Slop Vector — ui: context-sensitive control bar */
+/* SlopVector — ui: context-sensitive control bar */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;
@@ -67,7 +67,8 @@
     };
     if (shapeOpt('radius')) {
       cb.appendChild(h('span', { class: 'cb-sep' }));
-      cb.appendChild(field('Corners', numIn(g, { label: 'Corner radius', min: 0, max: 5000, get: function () { var r = firstOfType('rect'); return r ? r.rx : S.shape.radius; }, set: function (v) { SV.applyShapeOpt('radius', v); }, cls: 'w52' }), 'px'));
+      var corners = $.cornerControls(g, 'w52', null);
+      cb.appendChild(corners.one); cb.appendChild(corners.four); cb.appendChild(corners.link);
     }
     if (shapeOpt('sides')) {
       cb.appendChild(h('span', { class: 'cb-sep' }));

@@ -5,7 +5,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 **Status: beta** (registered in `shared/apps.js` as `drive`, `accepts: ['*']`, so "Send to Slop Drive" appears in every app's Send to menu).
 
 ## Tests
-`node tests/run.mjs drive` runs 123 tests on 14 pages, all green:
+`node tests/run.mjs drive` runs 208 tests on 24 pages, plus the Node file `tests/node/faces-drive-gallery.test.mjs`, all green at the time of the face detection change. The table lists the main pages.
 
 | Page | What it covers |
 |---|---|
@@ -22,6 +22,10 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 | `tags.test.html` | add (lowercase, unique, modified date kept), remove, the details panel chips, tags across a reload, sidebar tag counts and the drive-wide tag filter, the Tags column |
 | `columns.test.html` | list columns: header menu, drag to reorder, edge and keyboard resize (min clamp), order and widths across a reload, reset |
 | `columns-view.test.html` | Columns view: the `.col-pv` preview is the last column and shows the selected file, one preview at a time, arrow keys, the preview image still loads after the info panel is open and the view re-renders, a folder selection removes it |
+| `faces.test.html` | Face detection with a stubbed detector: Find faces stores the count per file id and modified time, the details panel shows "2 faces" and a Find faces action, Quick look draws one box per face, an edited file is checked again |
+| `faces-optin.test.html` | The opt-in: the dialog on first use (wording, the Profile link), Not now changes nothing, Turn on carries on, turning it off stops detection, the two Profile switches (Drive and Gallery sections) stay in step |
+| `thumbs.test.html` | a PNG thumbnail kept in IndexedDB, a text card with its first line, a CSV card with its header, a Slop document's first paragraph, a cache hit that does not regenerate, a changed modified time that does, a removed file's cache entry gone, a broken file that still gets a card with the list rendering, a `.s3d` thumbnail and live 3D preview (orbit, wheel zoom, reset; skipped with a console note without WebGL) |
+| `audio-player.test.html` | a WAV's full waveform (1000 peaks), a click on the waveform seeks and moves the playhead, Space plays and pauses, arrows seek 5 s, speed and volume, the mini bar keeps playing after Quick look closes and Stop ends it, Next through the list, an undecodable MP3 names its format |
 
 The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Drive database name and `?foreign=1` mimics the homepage. Helpers are in `tests/drive/util.js`.
 
@@ -78,18 +82,21 @@ The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Dr
     - `store.js`: in-memory mirror and tree helpers.
     - `ops.js`: new folder, rename, move, copy, star, trash, restore, purge, empty Trash.
     - `io.js`: upload, drop folders, zip download, Open with.
-    - `thumbs.js`: image, SVG, PDF via `vendor/pdfjs`, video poster, dimensions.
+    - `thumbs.js`: the thumbnail queue (one job at a time), memory and IndexedDB lookups, `DR.thumb`. See "Thumbnails" below.
+    - `thumb-cache.js`, `thumb-make.js` (one generator per kind), `thumb-card.js` (the typed card), `render3d.js` (Slop 3D sources, loaded on demand), `pdf.js` (vendored PDF.js), `csv.js` (CSV/TSV reader).
+    - `player.js`: the one audio player (`DR.player`), owning its object URL.
     - `dupes.js`: size, then SHA-256; dHash for similar images.
   - `js/ui/`:
     - `shell.js`, `sidebar.js` (places, tree, storage meter, persist), `items.js` (what is visible, navigation, history).
     - View files: `view-files.js` (grid, list, compact), `view-columns.js`, `view-nodes.js`, `view-usage.js` (treemap, sunburst).
     - Interaction: `select.js` (click, Shift, Ctrl, marquee, touch), `dnd.js` (pointer drag onto any `[data-drop]`; Alt or Ctrl copies; file and folder drops from the computer; dropping a `.slop` file offers a restore).
     - Panels and dialogs: `menus.js`, `info.js` (details panel or phone sheet, previews), `quicklook.js`, `dupes-ui.js`.
+    - Previews: `preview-kinds.js` (text, CSV table, card), `preview-3d.js` (live 3D view), `audio-view.js` (player with waveform), `mini-player.js` (bar at the bottom while audio plays).
     - `keys.js`, and `empty.js` (Sloppo empty states via `shared/sloppo`).
     - `list-cols.js`: the List columns (choose, reorder, resize; persisted in `S.cols`). `info-width.js`: the details panel grip, clamp and rail.
   - `js/core/tags.js`: tags live in `meta.tags` on each file, so backups and copies keep them. Sorting is per view (`S.sorts`, set through `DR.setSort`).
   - `js/app/main.js`: render and boot.
-- **CSS:** `base.css` (tokens for Pro/Light/Classic 98), `views.css`, `panels.css`, `viz.css` and `mobile.css`.
+- **CSS:** `base.css` (tokens for Pro/Light/Classic 98), `views.css`, `panels.css`, `viz.css`, `mobile.css` and `preview.css` (thumbnails in icon slots, 3D view, CSV table, audio player, mini bar).
 - **Item keys:** `d:<folderId>` and `f:<fileId>`.
 - **Views:** Columns, Nodes and Usage show the folder tree. In Recent, Starred, Trash and search they fall back to List (`DR.viewNow()`).
 - **Trash model:**
@@ -124,4 +131,44 @@ The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Dr
 - Undo for move and rename (the Trash already covers deletes).
 - Sharing a folder as a link is impossible by design, since everything is local.
 - A virtualised list for drives with tens of thousands of files. Rendering is chunked now, so it stays usable.
-- Text thumbnails: text files show a badge in Grid, and a preview in the info panel and Quick Look.
+
+## Thumbnails (`js/core/thumbs.js` and friends)
+- **Where:** every file gets one in Grid, the List's icon column, the Columns preview column (via its preview), the details panel and duplicates. Folders keep their glyph.
+- **Kinds:**
+  - Images (PNG, JPG, WebP, GIF, BMP, AVIF and so on): scaled down to 320 px. SVG is rasterised.
+  - PDF: page 1 with the vendored PDF.js (under 60 MB).
+  - Video: a frame one second in (the last frame of a shorter clip).
+  - Audio (under 80 MB): a waveform from decoded samples (OfflineAudioContext). It keeps 1000 peaks, which the player uses as its full waveform.
+  - `.s3d`: rendered offscreen with the Slop 3D renderer and camera (default perspective view, framed on the scene). Without WebGL it is a "3D" card.
+  - Slop documents (`.sdoc`, `.stab`, `.sslide`, `.sinv`; JSON, under 20 MB): a card with the first paragraph, slide text, or the first sheet's first cells, in the app's colour.
+  - Text and code: a card with the first lines. CSV and TSV: a card with the header and the first rows.
+  - Everything else, and anything that fails: a typed card with the extension, size and kind. Failures are logged once as a `console.warn`. A new, empty file gets its card without a warning.
+- **Not done:** Slop Docs, Tables and Slides are not rendered page by page. Their apps are DOM-bound and cannot be loaded without a worker, so the cards show the first text instead.
+- **Cache:** IndexedDB database `slop-drive-thumbs` (store `thumbs`, key = file id), record `{ id, modified, ver, blob, info }`. A record is used only while `modified` and `ver` match. `ver` is `VER` in `thumbs.js`: bump it when a generator changes. Records of removed files are pruned on every refresh. The database is left out of backups (`shared/backup/core.js`), since it is made again on demand.
+- **Queue:** one job at a time, through a chained promise. Cache reads run in the same queue, and `DR.thumb` never rejects.
+- **Stats** for tests and debugging: `DR.thumbStats` `{ made, cached }`. `DR.thumbReset()` forgets the in-memory promises only.
+
+## Previews (Quick look and the details panel)
+- Images and PDFs: the shared viewer (`SlopPreview`), as before.
+- `.s3d`: a live 3D view. Drag to orbit, Shift- or right-drag to pan, wheel to zoom, Reset view. Each view owns a WebGL context: at most 4 are live, and contexts of views that left the page are released by a one-second sweep.
+- Audio: the player (`audio-view.js`) with the full waveform. Click or drag to seek. Play/pause, back and forward 10 s, previous and next file in the list, speed (0.5× to 2×), volume and the time. Space plays or pauses and the arrows seek 5 s while the player has focus. The shared engine (`core/player.js`) keeps the sound going when Quick look or the panel closes. The mini bar at the bottom shows the file with play/pause, previous, next and Stop. Playing a file moves on to the next audio file in the list when one ends.
+  - Formats are whatever the browser decodes. Tested here: WAV. A file the browser cannot play shows a message naming its format (for example "cannot play MP3 audio").
+- Video: native controls. Text and code: the start of the file in a scrollable block (4 KB in the panel, 400 KB in Quick look).
+- CSV and TSV: a table of the first 200 rows, from the first 256 KB, with the header row sticky.
+- Anything else: its card at full size, with the size and type. The open-in options are in the panel's actions and in Quick look.
+
+## Limits
+- Thumbnails of files over the size limits (PDF 60 MB, audio 80 MB, documents 20 MB) are cards, not pictures.
+- The 3D view and thumbnails need WebGL. Without it, the 3D view explains why, and a `.s3d` thumbnail is a card. Only `.s3d` is handled; `.glb`, `.gltf` and `.obj` are still plain files.
+- Audio waveforms are decoded in the browser, so a format it cannot decode has no waveform, but it still plays when the browser can play it.
+- Each generator change needs `VER` bumped in `thumbs.js`, or old cached thumbnails stay.
+
+## Face detection (opt-in, `shared/faces/`)
+- **Off by default.** Find faces (Actions, right-click, or the details panel) for raster pictures; the first use opens the
+  explanation dialog (`SlopFaces.askOptIn('drive')`), and Profile has the same switch. The model, its licence and how to
+  remove it are in `shared/faces/HANDOFF.md` and `vendor/face/README.md`.
+- **Details panel:** a "Faces" row for pictures when the setting is on: the count, or "Not checked yet".
+- **Quick look:** the face boxes are drawn over the picture (`SlopFaces.drawBoxes`) when the setting is on and the picture has been checked.
+- **Results:** `SlopFaces.analyse('drive', file id, file modified time, blob)`, kept in IndexedDB `slop-faces`. An edited file is checked again.
+- **Code:** `js/ui/faces.js` (`DR.isFaceable`, `DR.faceStamp`, `DR.facesOf`, `DR.findFaces`, `DR.faceOverlayFor`). `info.js`, `menus.js` and `quicklook.js` call it.
+- **No identity:** the detector only finds faces. Nothing is named or matched.

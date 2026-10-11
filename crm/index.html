@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="crm" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop CRM — Slopographic</title>
+  <meta name="description" content="Slop CRM: customers, a pipeline board, dated notes, follow-ups and orders and invoices per customer. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-crm.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/crm.css">
+  <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop CRM</b><a class="home-link" href="../">slopographic</a></div>
+      <span class="local-badge" title="Your customers stay in this browser. Nothing is uploaded."><span>100% local</span></span>
+      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="CRM sections">
+      <button type="button" role="tab" class="tab" id="tab-pipeline" data-view="pipeline" aria-controls="view-pipeline" aria-selected="true">Pipeline</button>
+      <button type="button" role="tab" class="tab" id="tab-customers" data-view="customers" aria-controls="view-customers" aria-selected="false">Customers</button>
+      <button type="button" role="tab" class="tab" id="tab-followups" data-view="followups" aria-controls="view-followups" aria-selected="false">Follow-ups</button>
+    </nav>
+
+    <main class="main" id="main">
+      <div id="boot" class="boot" role="status">Opening your customers…</div>
+
+      <section class="view" id="view-pipeline" role="tabpanel" aria-labelledby="tab-pipeline" hidden>
+        <div class="toolbar">
+          <p class="note">Drag a card to another column, use its Move button, or right-click it.</p>
+          <button type="button" class="btn primary" id="pAdd">Add customer</button>
+        </div>
+        <div class="board" id="board" role="list" aria-label="Pipeline"></div>
+      </section>
+
+      <section class="view" id="view-customers" role="tabpanel" aria-labelledby="tab-customers" hidden>
+        <div class="toolbar">
+          <label class="search"><span class="sr">Search customers</span>
+            <input id="cSearch" type="search" placeholder="Search name, email, phone or address" autocomplete="off" spellcheck="false"></label>
+          <label>Stage <select id="cStage"></select></label>
+          <label>Category <select id="cCat"></select></label>
+          <button type="button" class="btn primary" id="cAdd">Add customer</button>
+          <button type="button" class="btn" id="cImport">Import from Slop Contacts</button>
+        </div>
+        <p class="note" id="cSummary" role="status"></p>
+        <ul class="list" id="cRows" role="list" aria-label="Customers"></ul>
+        <p class="empty" id="cEmpty" hidden></p>
+      </section>
+
+      <section class="view" id="view-followups" role="tabpanel" aria-labelledby="tab-followups" hidden>
+        <p class="note" id="fSummary" role="status"></p>
+        <ul class="list" id="fRows" role="list" aria-label="Follow-ups"></ul>
+        <p class="empty" id="fEmpty" hidden>No follow-ups set. Open a customer and set a follow-up date.</p>
+      </section>
+
+      <section class="view" id="view-customer" role="region" aria-label="Customer details" hidden>
+        <div class="toolbar"><button type="button" class="btn" id="dBack">← Back</button></div>
+        <div id="dBody"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../shared/data/money.js"></script>
+  <script src="../shared/data/barcode.js"></script>
+  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema.js"></script>
+  <script src="../shared/data/currency.js"></script>
+  <script src="../shared/data/store.js"></script>
+  <script src="../shared/data/numbering.js"></script>
+  <script src="../shared/data/fx.js"></script>
+  <script src="../shared/data/ledger.js"></script>
+  <script src="../shared/data/stock.js"></script>
+  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/data/bundle-check.js"></script>
+  <script src="../shared/data/export.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/notes.js"></script>
+  <script src="js/core/customers.js"></script>
+  <script src="js/core/contacts-import.js"></script>
+  <script src="js/ui/menu.js"></script>
+  <script src="js/ui/board.js"></script>
+  <script src="js/ui/list.js"></script>
+  <script src="js/ui/detail.js"></script>
+  <script src="js/ui/form.js"></script>
+  <script src="js/ui/import.js"></script>
+  <script src="js/ui/followups.js"></script>
+  <script src="js/ui/commands.js"></script>
+  <script src="js/ui/app.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
+  <script src="../shell/shell.js"></script>
+</body>
+</html>
