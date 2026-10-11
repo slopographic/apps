@@ -64,6 +64,7 @@ export function breakLines(atoms, P, opts) {
         continue;
       }
       if (a.kind === 'space') { line.atoms.push({ ...a, x }); x += a.w; lastBrk = line.atoms.length - 1; continue; }
+      if (a.kind === 'float') { line.atoms.push({ ...a, x }); continue; }
       if (x + a.w > right + EPS && content) {
         if (lastBrk >= 0) {
           // give back the atoms after the last break opportunity (never a split tail: those start a line)
@@ -112,7 +113,7 @@ function finish(line, P, left, right, prevEnd) {
   // metrics
   let asc = 0, desc = 0, gap = 0;
   const all = line.label ? [line.label, ...at] : at;
-  for (const a of all) { if (a.kind === 'nl' && at.length > 1) continue; const m = atomMetrics(a); asc = Math.max(asc, m.asc); desc = Math.max(desc, m.desc); gap = Math.max(gap, m.gap); }
+  for (const a of all) { if ((a.kind === 'nl' && at.length > 1) || a.kind === 'float') continue; const m = atomMetrics(a); asc = Math.max(asc, m.asc); desc = Math.max(desc, m.desc); gap = Math.max(gap, m.gap); }
   if (!all.length || (asc === 0 && desc === 0)) { const v = vmetrics(P.emptyStyle && P.emptyStyle.face, (P.emptyStyle && P.emptyStyle.full) || 11); asc = v.asc; desc = v.desc; gap = v.gap; }
   const natural = asc + desc + gap;
   let h = P.lineExact ? P.lineExact : natural * (P.line || 1);
@@ -121,7 +122,7 @@ function finish(line, P, left, right, prevEnd) {
   line.baseline = P.lineExact ? Math.min(h, (h - (asc + desc)) / 2 + asc) : gap / 2 + asc + (h - natural) * 0.5;
   // trailing spaces do not count for alignment
   let lastContent = at.length - 1;
-  while (lastContent >= 0 && (at[lastContent].kind === 'space' || at[lastContent].kind === 'nl' || at[lastContent].kind === 'pb')) lastContent--;
+  while (lastContent >= 0 && /^(space|nl|pb|float)$/.test(at[lastContent].kind)) lastContent--;
   const endX = lastContent >= 0 ? at[lastContent].x + at[lastContent].w : left;
   const free = right - endX;
   let shift = 0, extra = 0;
@@ -151,6 +152,7 @@ function finish(line, P, left, right, prevEnd) {
     }
     if (a.kind === 'tab') { cur = null; frags.push({ kind: 'tab', text: '', x, w: a.w, start: a.start, end: a.end, st: a.st, leader: a.leader }); continue; }
     if (a.kind === 'nl' || a.kind === 'pb') { cur = null; frags.push({ kind: a.kind, text: '', x, w: 0, start: a.start, end: a.end, st: a.st }); continue; }
+    if (a.kind === 'float') { cur = null; frags.push({ kind: 'float', text: '', x, w: 0, start: a.start, end: a.end, st: a.st, run: a.run }); continue; }
     if (a.kind === 'img') { cur = null; frags.push({ kind: 'img', text: '', x, w: a.w, h: a.h, start: a.start, end: a.end, st: a.st, run: a.run }); continue; }
     if (cur && cur.st === a.st && !a.atomic && !cur.atomic && cur.end === a.start) { cur.text += a.text; cur.end = a.end; cur.w += a.w; continue; }
     cur = { kind: 'text', text: a.text, x, w: a.w, start: a.start, end: a.end, st: a.st, atomic: a.atomic };

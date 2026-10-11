@@ -28,7 +28,7 @@ export function emitLines(L, out, info, k, n, x, y, w, story, path, p) {
   if (P.borderLeft && n) out.push({ kind: 'rule', x1: L0 - 9, y1: y0, x2: L0 - 9, y2: y, w: P.borderLeft.w || 1, color: P.borderLeft.color || '#000' });
   if (P.borderTop && n && k === 0) out.push({ kind: 'rule', x1: L0, y1: y0, x2: R0, y2: y0, w: P.borderTop.w || 1, color: P.borderTop.color || '#000' });
   if (P.borderBottom && n && k + n === lines.length) out.push({ kind: 'rule', x1: L0, y1: y + 2, x2: R0, y2: y + 2, w: P.borderBottom.w || 1, color: P.borderBottom.color || '#000' });
-  if (k === 0 && n && headingLevel(p.style) && L.headings && story === 'body') L.headings.push({ level: headingLevel(p.style), text: paraText(p).replace(/￼/g, '').trim(), page: L.pages ? L.pages.length - 1 : 0, y: y0, path, pid: p.id });
+  if (k === 0 && n && headingLevel(p.style) && L.headings && story === 'body' && path.length === 1) L.headings.push({ level: headingLevel(p.style), text: paraText(p).replace(/￼/g, '').trim(), page: L.pages ? L.pages.length - 1 : 0, y: y0, path, pid: p.id });
   return y;
 }
 

@@ -28,7 +28,7 @@ export function resolvedProps(doc, p) {
 export function layoutPara(doc, p, width, ctx = {}) {
   const dyn = hasDynamic(p);
   const key = `${gen}|${width.toFixed(2)}|${ctx.label || ''}|${dyn ? ctx.key || '' : ''}`;
-  const canCache = !ctx.widthAt && !ctx.startAt;
+  const canCache = !ctx.widthAt && !ctx.startAt && !ctx.pending;
   if (canCache) {
     const m = cache.get(p);
     if (m && m.key === key && m.doc === doc.styles && m.lists === doc.lists) return m.out;
@@ -42,7 +42,7 @@ export function layoutPara(doc, p, width, ctx = {}) {
     const st = styleFor(doc, p, { ...(first && !first.obj ? first : p.rm || {}), u: false, s: false, link: undefined, hl: undefined, va: undefined });
     label = { text: ctx.label, st };
   }
-  const lines = breakLines(atoms, P, { width, label, widthAt: ctx.widthAt, startAt: ctx.startAt, first: ctx.first, paraStart: 0 });
+  const lines = breakLines(atoms, P, { width, label, widthAt: ctx.widthAt, startAt: ctx.startAt, pending: ctx.pending, first: ctx.first, paraStart: 0 });
   const out = { lines, P, atoms };
   if (canCache) cache.set(p, { key, doc: doc.styles, lists: doc.lists, out });
   return out;

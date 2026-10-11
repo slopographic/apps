@@ -25,7 +25,8 @@ export function atomsOf(doc, p, ctx = {}) {
     const st = styleFor(doc, p, r), len = r.text.length;
     if (r.obj) {
       const base = { start: off, end: off + len, st, run: r, brk: true };
-      if (r.obj === 'img') atoms.push({ ...base, kind: 'img', w: r.w || 100, h: r.h || 100, text: '' });
+      if (r.obj === 'img' && (r.wrap === 'left' || r.wrap === 'right')) atoms.push({ ...base, kind: 'float', w: 0, fw: r.w || 100, fh: r.h || 100, text: '' });
+      else if (r.obj === 'img') atoms.push({ ...base, kind: 'img', w: r.w || 100, h: r.h || 100, text: '' });
       else if (r.obj === 'pb') atoms.push({ ...base, kind: 'pb', w: 0, text: '' });
       else if (r.obj === 'field' || r.obj === 'fn') {
         const text = r.obj === 'fn' ? (ctx.fnLabel ? ctx.fnLabel(r.id) : '*') : (ctx.field ? ctx.field(r.f) : '#');
