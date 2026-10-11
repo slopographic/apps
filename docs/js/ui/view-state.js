@@ -17,18 +17,13 @@
   document.addEventListener('wheel', touch, { capture: true, passive: true });
   if (stage()) stage().addEventListener('scroll', touch, { passive: true });
 
-  /** Boot, when there is no Slop Drive launch: the document left open in Slop Drive, else the untitled draft. */
+  /** Boot, when there is no Slop Drive launch: the caret, zoom and scroll of the tab that was on screen. The tabs
+   * themselves come back from the strip's session (ui/tabs.js), before this runs. */
   S.restorePlace = async function () {
     const p = await window.SlopSession.load(APP, 'place', null);
     const place = p && typeof p === 'object' ? p : null;
-    let ok = false;
-    if (place && place.id && window.SlopHub) {
-      const rec = await window.SlopHub.get(place.id).catch(() => null);
-      if (rec) ok = await S.openRecord(rec, { silent: true }).then(() => true, () => false);
-    }
-    if (!ok) ok = await S.restoreUntitled().catch(() => false);
-    if (ok && place) applyPlace(place);
-    return ok;
+    if (place) applyPlace(place);
+    return !!place;
   };
   function validPoint(pt) { return !!pt && Number.isInteger(pt.b) && pt.b >= 0 && pt.b < S.doc.blocks.length && Number.isInteger(pt.o) && pt.o >= 0; }
   function applyPlace(p) {
