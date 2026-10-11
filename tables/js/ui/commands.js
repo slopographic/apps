@@ -79,7 +79,7 @@ const item = (id, label) => { const c = byId[id]; return { label: label || c.tit
 export function menus() {
   const paste = () => (navigator.clipboard && navigator.clipboard.readText ? navigator.clipboard.readText().then(A.paste, () => toast('Use Ctrl+V to paste')) : toast('Use Ctrl+V to paste'));
   return {
-    File: [{ label: 'New', sub: [item('file.new', 'Blank workbook'), item('file.fromTemplate')] }, item('file.open'), '-', item('file.save'), item('file.saveAs'), item('file.saveTemplate'), '-',
+    File: [item('file.new'), item('file.fromTemplate'), item('file.open'), '-', item('file.save'), item('file.saveAs'), item('file.saveTemplate'), '-',
       { label: 'Download', sub: [item('file.stab', 'Download .stab (Slop Tables file)'), item('file.csv'), item('file.xlsx')] }],
     Edit: [item('edit.undo'), item('edit.redo'), '-',
       { label: 'Cut', key: 'Ctrl+X', act: () => document.execCommand('cut') },
