@@ -107,7 +107,7 @@
     // View
     { id: 'view.safe', title: 'Safe area overlay', group: 'View', keys: ["'"], checked: () => !!(SE.preview && SE.preview.safe), run: run('toggleSafe') },
     { id: 'view.quality', title: 'Preview quality: full / half', group: 'View', checked: () => !!(SE.preview && SE.preview.half), run: run('toggleQuality') },
-    ...SE.app.THEMES.map(([t, label]) => ({ id: 'view.theme.' + t, title: 'Theme: ' + label, group: 'View', checked: () => document.documentElement.getAttribute('data-theme') === t, run: () => SE.app.setTheme(t) })),
+    ...SE.app.THEMES.map(([t, label, s]) => ({ id: 'view.theme.' + t, title: 'Theme: ' + label, group: 'View', checked: () => !!window.SlopTheme && SlopTheme.get() === s, run: () => SE.app.setTheme(t) })),
     // Help
     { id: 'help.search', title: 'Search commands…', group: 'Help', keys: window.SlopCmd ? undefined : ['Mod+K'], run: () => C.palette() },
     { id: 'help.keys', title: 'Keyboard shortcuts…', group: 'Help', keys: ['?', 'Shift+?'], run: () => C.keymap() },

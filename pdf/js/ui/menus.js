@@ -8,7 +8,8 @@
     return { label: label, sub: items.length ? items : [{ label: emptyLabel, disabled: true }] };
   }
   A.sendSub = sendSub;
-  var THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic 98']];
+  /* The app's names and the shared theme ids (shared/theme/theme.js): the choice is saved through SlopTheme.set. */
+  var THEMES = [['pro', 'Pro (dark)', 'dark'], ['light', 'Light', 'light'], ['classic', 'Classic 98', 'classic']];
   /* ------------------------------------------------------------- menus */
   S.buildMenus = function () {
     var defs = [['File', S.fileMenu], ['Edit', S.editMenu], ['View', S.viewMenu], ['Help', S.helpMenu]];
@@ -63,7 +64,7 @@
     ];
   }
   S.viewMenu = function () {
-    var theme = document.documentElement.getAttribute('data-theme');
+    var theme = window.SlopTheme ? SlopTheme.get() : 'dark';
     return [
       { label: 'All pages (organizer)', act: function () { A.showGrid(); }, check: A.mode === 'grid' },
       { label: 'Page view', act: function () { A.ensurePage(); }, check: A.mode === 'page', disabled: !E.state.pages.length },
@@ -72,7 +73,7 @@
       { label: 'Zoom out', key: A.key('view.zoomOut'), act: function () { if (A.mode === 'page') Ed.zoomBy(0.8); else O.zoomBy(0.8); } },
       { label: 'Fit page', key: A.key('view.fit'), act: function () { Ed.fit('fit'); }, disabled: A.mode !== 'page' },
       '-',
-      { label: 'Theme', sub: THEMES.map(function (t) { return { label: t[1], check: theme === t[0], act: function () { A.setTheme(t[0]); } }; }) },
+      { label: 'Theme', sub: THEMES.map(function (t) { return { label: t[1], check: theme === t[2], act: function () { A.setTheme(t[0]); } }; }) },
       { label: 'Properties panel', check: !S.els.app.classList.contains('no-panel'), act: function () { A.togglePanel(); } }
     ];
   }
@@ -95,14 +96,18 @@
   }
 
   /* ------------------------------------------------------------ themes */
-  A.setTheme = function (t, silent) {
-    if (!THEMES.some(function (x) { return x[0] === t; })) t = 'pro';
-    document.documentElement.setAttribute('data-theme', t);
+  /* The choice is saved for every page by the shared switcher; this page only shows it. */
+  A.paintMeta = function () {
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', t === 'light' ? '#f1ede4' : t === 'classic' ? '#c0c0c0' : '#0e0e10');
-    document.documentElement.style.colorScheme = t === 'pro' ? 'dark' : 'light';
-    U.store.set('theme', t);
-    if (!silent) A.status('Theme: ' + THEMES.filter(function (x) { return x[0] === t; })[0][1]);
+    var id = document.documentElement.getAttribute('data-slop-theme');
+    if (meta) meta.setAttribute('content', id === 'light' ? '#f1ede4' : id === 'classic' ? '#c0c0c0' : '#0e0e10');
+  };
+  A.setTheme = function (t) {
+    var row = THEMES.filter(function (x) { return x[0] === t; })[0] || THEMES[0];
+    var r = window.SlopTheme ? SlopTheme.set(row[2]) : { ok: false, error: 'The theme script did not load.' };
+    if (!r.ok) { if (window.SlopTheme) SlopTheme.apply(row[2]); A.status(r.error, 'err'); }
+    else A.status('Theme: ' + row[1]);
+    A.paintMeta();
   };
   A.togglePanel = function (force) {
     var narrow = window.innerWidth <= 900;

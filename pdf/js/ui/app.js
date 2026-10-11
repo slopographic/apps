@@ -35,7 +35,7 @@
     $('#emptySample').addEventListener('click', function () { A.loadSample(); });
     S.els.restore.addEventListener('click', function () { A.restoreSession(); });
     S.setupDrop(); S.setupKeys();
-    A.setTheme(document.documentElement.getAttribute('data-theme') || 'pro', true);
+    A.paintMeta(); // the shared theme script has already painted the page
     A.setTool('organize');
     S.refreshAll();
     E.initFonts().catch(function (e) { console.warn(e); });

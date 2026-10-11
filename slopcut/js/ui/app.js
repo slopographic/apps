@@ -67,16 +67,22 @@
   };
 
   /* ------------------------------------------------------------ theme */
-  const THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic 98']];
+  /* The app's names and the shared theme ids (shared/theme/theme.js): the choice is saved through SlopTheme.set. */
+  const THEMES = [['pro', 'Pro (dark)', 'dark'], ['light', 'Light', 'light'], ['classic', 'Classic 98', 'classic']];
   A.THEMES = THEMES;
-  A.setTheme = function (t, silent) {
-    if (!THEMES.some((x) => x[0] === t)) t = 'pro';
-    document.documentElement.setAttribute('data-theme', t);
+  /* The choice is saved for every page by the shared switcher; this page only shows it. */
+  A.paintMeta = function () {
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', t === 'light' ? '#f1ede4' : t === 'classic' ? '#c0c0c0' : '#0e0e10');
-    U.store.set('theme', t);
-    SE.emit('theme', { t });
-    if (!silent) A.status('Theme: ' + THEMES.find((x) => x[0] === t)[1]);
+    const id = document.documentElement.getAttribute('data-slop-theme');
+    if (meta) meta.setAttribute('content', id === 'light' ? '#f1ede4' : id === 'classic' ? '#c0c0c0' : '#0e0e10');
+  };
+  A.setTheme = function (t, silent) {
+    const row = THEMES.find((x) => x[0] === t) || THEMES[0];
+    const r = window.SlopTheme ? SlopTheme.set(row[2]) : { ok: false, error: 'The theme script did not load.' };
+    if (!r.ok) { if (window.SlopTheme) SlopTheme.apply(row[2]); A.status(r.error, 'err'); }
+    else if (!silent) A.status('Theme: ' + row[1]);
+    A.paintMeta();
+    SE.emit('theme', { t: row[0] });
   };
   A.cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -143,7 +149,7 @@
     A.els.btnUndo.append(SE.icon('undo')); A.els.btnRedo.append(SE.icon('redo')); A.els.btnSearch.append(SE.icon('zoomin'));
     A.els.btnExport.append(SE.icon('export'), U.h('span', null, 'Export'));
     A.els.btnMore.append(SE.icon('more'));
-    A.setTheme(U.store.get('theme', 'pro'), true);
+    A.paintMeta(); // the shared theme script has already painted the page
     buildTabs(); wireDrop(); wireSplit();
     A.setPane(A.els.app.dataset.pane || 'media');
     A.els.projName.addEventListener('change', () => { SE.doc.name = A.els.projName.value.trim() || 'Untitled project'; SE.emit('autosave'); });

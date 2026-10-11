@@ -22,14 +22,14 @@
   --sui-hover: var(--hover); --sui-sel: var(--active); --sui-accent: var(--accent); --sui-accent-ink: var(--accent-ink); --sui-radius: 6px; --sui-shadow: var(--shadow); --sui-font: var(--font-ui); --sui-mono: var(--mono);
   color-scheme: dark;
 }
-:root[data-theme="light"] {
+:root[data-slop-theme="light"] {
   --accent-line: var(--sl-accent, #5f7d00);
   --danger: #d0263f; --ok: #4d7a00; --warn: #a66b00;
   --shadow: 0 16px 44px rgba(40, 30, 10, .2), 0 2px 6px rgba(40, 30, 10, .12);
   --sheet-shadow: 0 1px 2px rgba(40, 30, 10, .18), 0 6px 18px rgba(40, 30, 10, .16);
   color-scheme: light;
 }
-:root[data-theme="classic"] {
+:root[data-slop-theme="classic"] {
   --font-ui: Tahoma, 'MS Sans Serif', 'Microsoft Sans Serif', 'Segoe UI', Geneva, Verdana, sans-serif;
   --font-display: Tahoma, 'MS Sans Serif', Verdana, sans-serif;
   --mono: 'Lucida Console', 'Courier New', monospace;
