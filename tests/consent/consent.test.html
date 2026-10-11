@@ -57,7 +57,7 @@
     });
     it('loads AdSense only when a publisher ID is set and ads is granted', async () => {
       const calls = stubLoader();
-      const w = await open({ cfg: { ga4MeasurementId: GA } });
+      const w = await open({ cfg: { ga4MeasurementId: GA, adsensePublisherId: '' } });
       w.SlopConsent.grant('ads');
       expect(calls.length).toBe(0); // ads granted but no publisher ID
       const w2 = await open({ cfg: { adsensePublisherId: ADS } });
