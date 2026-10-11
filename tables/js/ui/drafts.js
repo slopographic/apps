@@ -31,7 +31,7 @@ export function writeDraftNow() {
   if (!S.wb) return;
   try {
     run('readwrite', (s) => s.put({ json: JSON.stringify(toNative(S.wb)), name: S.file.name, driveId: S.file.driveId, folderId: S.file.folderId, time: Date.now() }, KEY))
-      .catch(() => { /* storage blocked: the workbook still works, it is just not kept */ });
+      .catch((e) => { try { window.SlopStorage && SlopStorage.handle(e, { once: 'tables-draft' }); } catch (x) { /* no dialog on this page */ }; /* the workbook still works, it is just not kept */ });
   } catch (e) { /* ignore */ }
 }
 

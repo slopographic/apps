@@ -43,6 +43,19 @@
         expect(badge.textContent).toBe(labels[a.status]);
       }
     });
+    it('every app card draws its own Sloppo badge, a lime tile holding the glyph', async () => {
+      await ready;
+      const ids = new Set();
+      for (const a of win.SLOP_APPS.filter((x) => x.kind === 'app')) {
+        const svg = doc.querySelector(`.shot[data-id="${a.id}"] svg.shot-icon`);
+        if (!svg) throw new Error('no icon on the card for ' + a.id);
+        expect(svg.getAttribute('data-icon')).toBe(a.id);
+        expect(svg.querySelector('rect').getAttribute('fill')).toBe('#d4ff3a');
+        expect(svg.querySelector('g').children.length).toBeGreaterThan(0);
+        ids.add(svg.querySelector('g').innerHTML);
+      }
+      expect(ids.size).toBe(doc.querySelectorAll('[data-list] .shot-icon').length);
+    });
     it('lists every project on the status board with matching counts', async () => {
       await ready;
       const apps = win.SLOP_APPS;

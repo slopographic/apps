@@ -40,13 +40,15 @@
     return dbp;
   }
   /** Run fn(store | {files, folders}) in one transaction; resolves with the last request's result. */
+  /** A full storage quota shows the storage dialog once (shared/storage/ui.js); the error still goes to the caller. */
+  const full = (e) => { try { if (window.SlopStorage && window.SlopStorage.handle) window.SlopStorage.handle(e, { what: 'this file' }); } catch (x) { /* dialog unavailable */ } return e; };
   async function tx(mode, fn, stores = 'files') {
     const d = await db();
     return new Promise((res, rej) => {
       const t = d.transaction(stores, mode);
       const s = Array.isArray(stores) ? Object.fromEntries(stores.map((n) => [n, t.objectStore(n)])) : t.objectStore(stores);
       const r = fn(s);
-      t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error('Aborted'));
+      t.oncomplete = () => res(r && r.result); t.onerror = () => rej(full(t.error)); t.onabort = () => rej(full(t.error || new Error('Aborted')));
     });
   }
   const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);

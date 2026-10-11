@@ -1,8 +1,27 @@
-/* One icon per app, drawn as line art on a 48 × 48 grid (same style as the homepage tiles).
- * Classic script, exposes window.SLOP_ICONS: { <app id>: <svg inner markup> }. Keyed by the id in shared/apps.js.
- * Add an app: add one entry here. Apps with no entry fall back to their `icon` name, then to no icon. */
+/* One icon per app: a Sloppo badge (a rounded lime tile, the Sloppo colour) holding a line-art glyph on a 48 × 48 grid.
+ * Classic script. Exposes two globals:
+ *   window.SLOP_ICONS                   { <app id>: <glyph markup> }: the glyph only, as <path>, <rect>, <circle> with no fill or stroke.
+ *   window.SLOP_ICON_BADGE(glyph, colour?)  builds the full 48 × 48 badge SVG inner markup from a glyph. Every tile uses it.
+ * The homepage (home/catalog.js) draws SLOP_ICON_BADGE(SLOP_ICONS[id]) inside <svg viewBox="0 0 48 48" class="shot-icon">.
+ * Keyed by the id in shared/apps.js. tests/node/app-icons.test.mjs fails if any app id has no entry.
+ * Add an app's icon:
+ *   1. Draw a glyph on the 48 × 48 grid, inside about 6 to 42, stroke only (no fill, no colour).
+ *   2. Add one entry to SLOP_ICONS, keyed by the app id. Keep it distinct: no entry may repeat another's markup.
+ *   3. Reuse an existing glyph only when the app is the same kind of tool; otherwise draw a new one.
+ *   4. Run `node tests/run.mjs app-icons` (the node test). An app with no entry falls back to its `icon` name, then to no icon.
+ * Glyphs never set their own colour: the badge sets the ink, so every app reads as Sloppo with a tool. */
 (function () {
   'use strict';
+  /* Sloppo's lime and ink (see shared/buddy/look.js). */
+  const SLOPPO_LIME = '#d4ff3a';
+  const SLOPPO_INK = '#0b1300';
+  /** The badge: a rounded Sloppo-coloured tile with a small shine, and the glyph drawn in ink on top. */
+  function badge(glyph, colour = SLOPPO_LIME) {
+    return '<rect x="2" y="2" width="44" height="44" rx="12" fill="' + colour + '"/>' +
+      '<ellipse cx="16" cy="13" rx="7" ry="3.5" transform="rotate(-30 16 13)" fill="#fff" opacity=".55"/>' +
+      '<g transform="translate(24 24) scale(.78) translate(-24 -24)" fill="none" stroke="' + SLOPPO_INK + '" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">' + glyph + '</g>';
+  }
+  window.SLOP_ICON_BADGE = badge;
   window.SLOP_ICONS = Object.freeze({
     photoslop: '<path d="M14 34c4 0 7-3 7-7l-4-4c-4 0-7 3-7 7 0 2-1 3-3 4 2 0 5 0 7 0z"/><path d="M19 25 36 8l4 4-17 17"/>',
     vector: '<path d="M8 38C14 14 34 34 40 10"/><circle cx="8" cy="38" r="3"/><circle cx="40" cy="10" r="3"/><circle cx="24" cy="24" r="3"/>',
@@ -34,5 +53,15 @@
     music: '<path d="M18 34V10l20-4v24"/><circle cx="13" cy="34" r="5"/><circle cx="33" cy="30" r="5"/>',
     authenticator: '<rect x="14" y="6" width="20" height="36" rx="3"/><path d="M22 36h4M20 14h8"/><path d="M19 24l3 3 6-6"/>',
     'paint-classic': '<path d="M24 6c-10 0-18 7-18 16 0 7 6 8 9 6 3-2 1 6 6 6 9 0 15-6 15-14 0-7-6-14-12-14z"/><circle cx="16" cy="18" r="2.5"/><circle cx="24" cy="14" r="2.5"/><circle cx="32" cy="18" r="2.5"/>',
+    aitools: '<rect x="6" y="16" width="36" height="24" rx="3"/><path d="M17 16v-5h14v5M6 26h36M22 22h4"/>',
+    resize: '<path d="M6 18V6h12M42 30v12H30"/><rect x="16" y="16" width="16" height="16" rx="1"/>',
+    upscale: '<path d="M24 40V8M14 18l10-10 10 10M8 42h32"/>',
+    effects: '<path d="M18 14v20l16-10z"/><path d="M6 14h7M6 24h7M6 34h7"/>',
+    hex: '<path d="M16 8h-6v32h6M32 8h6v32h-6"/><path d="M18 24h2M23 24h2M28 24h2"/>',
+    calculator: '<rect x="10" y="6" width="28" height="36" rx="3"/><rect x="15" y="11" width="18" height="7" rx="1"/><path d="M15 26h3M22 26h3M29 26h3M15 33h3M22 33h3M29 33h3"/>',
+    time: '<circle cx="24" cy="24" r="16"/><path d="M24 14v10l7 5"/>',
+    calendar: '<rect x="7" y="10" width="34" height="31" rx="3"/><path d="M7 19h34M16 6v8M32 6v8M15 26h3M22 26h3M29 26h3M15 33h3M22 33h3"/>',
+    todo: '<rect x="9" y="8" width="30" height="34" rx="3"/><path d="M15 21l3 3 5-6M15 33l3 3 5-6M27 21h6M27 33h6"/>',
+    reminders: '<path d="M13 34V22a11 11 0 0 1 22 0v12l3 4H10z"/><path d="M20 42h8"/><circle cx="24" cy="8" r="2"/>',
   });
 })();

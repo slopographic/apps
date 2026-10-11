@@ -34,7 +34,7 @@ async function autosave() {
     await idbDo('readwrite', (st) => st.put({ v: 2, w: snap.w, h: snap.h, name: snap.name, active: snap.active, layers, guides: snap.guides, time: Date.now() }, 'doc:' + snap.id));
     saveTabsIndex();
     const s = $('#sbSaved'); if (s) { s.textContent = 'Saved on this device'; s.title = 'Recovered automatically if you close the tab. Never uploaded.'; }
-  } catch (e) { const s = $('#sbSaved'); if (s) s.textContent = 'Recovery off'; }
+  } catch (e) { const s = $('#sbSaved'); if (s) s.textContent = 'Recovery off'; try { window.SlopStorage && SlopStorage.handle(e, { once: 'photoslop-recovery' }); } catch (x) { /* no dialog on this page */ }; }
 }
 async function blobToCanvasExact(b) { const u = URL.createObjectURL(b); try { const i = await loadImage(u); const c = mkCanvas(i.width, i.height); cx(c).drawImage(i, 0, 0); return c; } finally { URL.revokeObjectURL(u); } }
 async function docFromSaved(d) {

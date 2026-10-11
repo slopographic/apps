@@ -92,13 +92,15 @@
     });
     return dbp;
   }
+  /** A full quota shows the storage dialog once (shared/storage/ui.js); the error still goes to the caller. */
+  const full = (e) => { try { window.SlopStorage && SlopStorage.handle(e, { what: 'this media' }); } catch (x) { /* no dialog on this page */ } return e; };
   async function tx(store, mode, fn) {
     const d = await db();
     return new Promise((res, rej) => {
       const t = d.transaction(store, mode), req = fn(t.objectStore(store));
       t.oncomplete = () => res(req && req.result);
-      t.onerror = () => rej(t.error);
-      t.onabort = () => rej(t.error || new Error('aborted'));
+      t.onerror = () => rej(full(t.error));
+      t.onabort = () => rej(full(t.error || new Error('aborted')));
     });
   }
   U.idb = {
