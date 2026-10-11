@@ -14,8 +14,15 @@
   var num = function (v, lo, hi, dflt) { v = Number(v); return isFinite(v) ? Math.max(lo, Math.min(hi, v)) : dflt; };
 
   /** Preset list for menus: [{name, label, duration}]. */
-  ANIM.presets = function () { return MO.presets.list(); };
-  ANIM.presetDuration = function (name) { return MO.presets.get(name).duration; };
+  /** The shared library (built-ins and the person's own motion presets) when it is on the page, else SlopMotion's own. */
+  var lib = function () { return window.SlopPresets || null; };
+  var libPreset = function (name) { var L = lib(), p = L && L.get(name); return p && p.kind === 'motion' ? p : null; };
+  /** Motion presets for menus: [{name, label, duration}]. */
+  ANIM.presets = function () {
+    var L = lib();
+    return L ? L.list({ kind: 'motion', app: 'slides' }).map(function (p) { return { name: p.id, label: p.label, duration: p.params.duration }; }) : MO.presets.list();
+  };
+  ANIM.presetDuration = function (name) { var p = libPreset(name); return p ? p.params.duration : MO.presets.get(name).duration; };
   /** Seconds an animation takes (its preset duration stretched by timeScale). */
   ANIM.duration = function (a) { return ANIM.presetDuration(a.preset) * a.timeScale; };
   /** A new animation for `preset`, starting with the previous one (or on click). */
@@ -38,7 +45,12 @@
    * steps[0] plays when the slide opens, unless it begins with a click. Each step: { from, to, click, items }.
    * Returns { steps, tl (SlopMotion timeline), end, clicks, byObj: { objId: { cx, cy, targets: [] } } }.
    */
-  ANIM.plan = function (slide) {
+  /** Places a preset on the timeline: a library preset through its frame-aware conversion, a SlopMotion name as before. */
+  function applyMotion(tl, name, target, opts) {
+    var p = libPreset(name);
+    return p ? lib().motion.applyToTimeline(tl, p.params, target, opts) : MO.presets.apply(tl, name, target, opts);
+  }
+  ANIM.plan = function (slide, frame) {
     var tl = MO.timeline.create({ duration: 0 }), steps = [{ from: 0, to: 0, click: false, items: [] }], byObj = {};
     var prev = 0;
     slide.objects.forEach(function (o) {
@@ -50,7 +62,7 @@
           base = cur.from;
         } else base = prev;
         var start = base + a.at, dur = ANIM.duration(a), target = o.id + '#' + a.id;
-        tl = MO.presets.apply(tl, a.preset, target, { at: start, timeScale: a.timeScale });
+        tl = applyMotion(tl, a.preset, target, { at: start, timeScale: a.timeScale, frame: frame });
         cur.items.push({ id: a.id, target: target, start: start, end: start + dur });
         cur.to = Math.max(cur.to, start + dur);
         prev = start;

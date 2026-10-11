@@ -95,10 +95,10 @@
       const b = cfg();
       if (touches.size === 2 && (b.pinch === 'zoom' || b.touchPan)) {
         if (adapter.cancelStroke) adapter.cancelStroke();
-        const [p1, p2] = [...touches.values()];
-        pinch = { d: Math.hypot(p1.x - p2.x, p1.y - p2.y), mx: (p1.x + p2.x) / 2, my: (p1.y + p2.y) / 2 };
+        // The start point is host-relative, like every later midpoint (pinchMid); a client-relative start would jump on the first move.
+        const m = pinchMid();
+        pinch = { d: m.d, mx: m.x, my: m.y };
         owned.add(e.pointerId); // the first finger stays with the app, so its own pointerup still cleans up
-        pinchMid();
         stop(e);
       } else if (pinch) stop(e);
     }

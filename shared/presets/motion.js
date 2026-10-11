@@ -11,7 +11,7 @@
   const SP = (g.SlopPresets = g.SlopPresets || {});
   const MO = () => g.SlopMotion;
   const NEUTRAL = { x: 0, y: 0, scale: 1, rot: 0, opacity: 1 };
-  const FRAME = { w: 1280, h: 720 };
+  const FRAME = { w: 960, h: 540 };
   const round = (v) => Math.round(v * 1e6) / 1e6;
   /** SlopMotion property for each preset track (Slides). */
   const SLIDES_PROP = { x: 'translateX', y: 'translateY', scale: 'scale', rot: 'rotate', opacity: 'opacity' };

@@ -43,6 +43,7 @@
       h('div', { class: 'fx-grid' }, h('button', { type: 'button', class: 'fx', title: 'Adds a layer that applies one random effect (per cut, seeded) to the tracks below it', onclick: () => SE.act.addEffect() }, SE.icon('sparkle'), h('span', null, 'Random effect'))),
       h('h4', { class: 'fx-h' }, 'Colour looks (selected clips)'),
       h('div', { class: 'fx-grid' }, FX.LOOKS.map(([l, v]) => h('button', { type: 'button', class: 'fx', onclick: () => applyLook(l, v) }, SE.icon('color'), h('span', null, l)))),
+      ...(SE.clipPresets ? SE.clipPresets.sections() : []),
       h('p', { class: 'fx-note' }, 'Tip: drop a transition on the second clip of a cut. Fades, speed and volume live in the Inspector.'));
   };
   function applyLook(name, v) {

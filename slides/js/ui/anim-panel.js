@@ -6,6 +6,7 @@
   'use strict';
   var SS = window.SS, A = SS.app, D = SS.dom, AN = SS.anim;
   var AP = SS.animPanel = {};
+  if (window.SlopPresets) window.SlopPresets.useDrive().catch(function () {});
   var clamp = function (v, lo, hi, dflt) { v = parseFloat(v); return isFinite(v) ? Math.max(lo, Math.min(hi, v)) : dflt; };
   var round1 = function (v) { return Math.round(v * 10) / 10; };
 
@@ -71,6 +72,19 @@
       list.splice(j, 0, item);
     });
   }
+  /** Saves an object's first animation as a motion preset: its keys, stretched by its timing. The preset also applies in
+   * Cut and Remix (same keys). Needs the shared library on the page (shared/presets). */
+  function saveAsPreset(o) {
+    var L = window.SlopPresets;
+    if (!L) { if (window.SlopUI) SlopUI.toast('Presets are not available here'); return; }
+    L.openSave({
+      app: 'slides', apps: L.MOTION_APPS, kinds: ['motion'], title: 'Save animation as preset',
+      build: function () {
+        var a = (o.anims || [])[0], src = a && L.get(a.preset);
+        return src && src.kind === 'motion' ? L.motion.scaleTime(src.params, a.timeScale) : null;
+      },
+    });
+  }
   function animRow(oid, a, i, n) {
     var pre = D.el('select', { 'aria-label': 'Animation' }, AN.presets().map(function (p) { return D.option(p.name, p.label, a.preset); }));
     var trig = D.el('select', { 'aria-label': 'Trigger' }, AN.TRIGGERS.map(function (t) { return D.option(t[0], t[1], a.trigger); }));
@@ -105,7 +119,8 @@
       var preset = add.value, t = trig.value;
       structural('Add animation', o.id, function (x) { x.anims = (x.anims || []).concat([AN.make(preset, t)]); });
     } }, 'Add animation');
-    kids.push(D.el('div', { class: 'anim-add' }, add, trig, addBtn));
+    var saveBtn = D.el('button', { type: 'button', title: 'Save this object\'s first animation, with its timing, as a preset', onclick: function () { saveAsPreset(o); } }, 'Save as preset…');
+    kids.push(D.el('div', { class: 'anim-add' }, add, trig, addBtn, list.length ? saveBtn : null));
     return section('Animation', kids);
   };
 })();

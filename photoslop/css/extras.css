@@ -7,6 +7,8 @@
 .menu-row[disabled] { color: var(--fg-faint); cursor: default; }
 .menu-key { color: var(--fg-faint); font-size: 11px; padding-left: 18px; }
 .menu-check { font-size: 11px; }
+.menu-inline { position: static; min-width: 0; padding: 0 0 0 14px; border: 0; box-shadow: none; background: none; }
+.menu-inline .menu-row { padding-left: 6px; }
 .menu-sep { height: 1px; background: var(--line-2); margin: 4px 6px; }
 
 /* ---------- dialog contents (chrome comes from ../shared/slopui.css) ---------- */

@@ -20,42 +20,79 @@ function menuEnabled(it) {
   if (it.need === 'layer' && !activeLayer()) return false;
   return true;
 }
-function renderMenu(items, x, y, level) {
-  const m = h('div', { class: 'menu', role: 'menu' });
+let subT = 0; // the pending hover-open of a submenu (one at a time)
+/** Removes the open menus deeper than a level, except one (keep). */
+function closeDeeper(level, keep) { $$('.menu').forEach((mm) => { if (+mm.dataset.level > level && mm !== keep) mm.remove(); }); }
+function collapseInline(row) {
+  row.classList.remove('sub-open'); row.setAttribute('aria-expanded', 'false');
+  if (row.inlineEl) { row.inlineEl.remove(); row.inlineEl = null; }
+}
+/** Escape or ArrowLeft in a menu: leave the inline group, close this submenu, or close the bar's menu. */
+function leaveSub(m) {
+  const cur = document.activeElement, grp = cur && cur.closest ? cur.closest('.menu-inline') : null;
+  if (grp) { const p = grp.inlineOf; collapseInline(p); p.focus({ preventScroll: true }); return; }
+  if (+m.dataset.level > 0) { const pr = m.ownerRow; closeDeeper(+m.dataset.level - 1); if (pr) { pr.subEl = null; pr.focus({ preventScroll: true }); } return; }
+  const b = openMenu && openMenu.btn; closeMenus(); if (b) b.focus();
+}
+/** A submenu row: a flyout beside the menu on hover (after a short delay), click, Enter or ArrowRight;
+ * on a phone, the rows open in place under the row. */
+function subRow(row, it, level) {
+  const openFly = (focus) => {
+    closeDeeper(level, row.subEl);
+    if (!(row.subEl && row.subEl.isConnected)) {
+      const sm = renderMenu(it.sub, 0, 0, level + 1);
+      sm.ownerRow = row; row.subEl = sm;
+      SlopUI.placeFlyout(sm, row);
+    }
+    row.setAttribute('aria-expanded', 'true');
+    if (focus) { const f = row.subEl.querySelector('.menu-row:not([disabled])'); if (f) f.focus({ preventScroll: true }); }
+  };
+  const toggleInline = () => {
+    const was = row.classList.contains('sub-open');
+    $$('.menu-row').forEach((r) => { if (r.inlineEl) collapseInline(r); });
+    if (was) return;
+    const grp = renderMenu(it.sub, 0, 0, level, true);
+    grp.inlineOf = row; row.after(grp); row.inlineEl = grp;
+    row.classList.add('sub-open'); row.setAttribute('aria-expanded', 'true');
+  };
+  row.addEventListener('pointerenter', (e) => {
+    clearTimeout(subT);
+    if (e.pointerType === 'touch' || SlopUI.narrow() || (row.subEl && row.subEl.isConnected)) return;
+    subT = setTimeout(() => openFly(false), 180);
+  });
+  row.addEventListener('click', () => { clearTimeout(subT); if (SlopUI.narrow()) toggleInline(); else openFly(false); });
+  row.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'Enter') return;
+    e.preventDefault(); e.stopPropagation(); clearTimeout(subT);
+    if (SlopUI.narrow()) { if (!row.classList.contains('sub-open')) toggleInline(); if (row.inlineEl) { const f = row.inlineEl.querySelector('.menu-row:not([disabled])'); if (f) f.focus({ preventScroll: true }); } }
+    else openFly(true);
+  });
+}
+function renderMenu(items, x, y, level, inline = false) {
+  const m = h('div', { class: 'menu' + (inline ? ' menu-inline' : ''), role: 'menu' });
   for (const it of items) {
     if (it === '-') { m.append(h('div', { class: 'menu-sep', role: 'separator' })); continue; }
-    const en = it.sub ? true : menuEnabled(it);
-    const row = h('button', { class: 'menu-row' + (it.sub ? ' has-sub' : ''), type: 'button', role: 'menuitem', disabled: !en },
+    const en = menuEnabled(it);
+    const row = h('button', { class: 'menu-row' + (it.sub ? ' has-sub' : ''), type: 'button', role: 'menuitem', disabled: !en, 'aria-haspopup': it.sub ? 'menu' : null },
       h('span', { class: 'menu-check' }, it.check ? (it.check() ? '✓' : '') : ''),
       h('span', { class: 'menu-label' }, it.dyn ? it.dyn() : it.label),
       h('span', { class: 'menu-key' }, it.sub ? '▸' : menuKey(it)));
-    if (it.sub) {
-      const openSub = () => {
-        $$('.menu').filter((mm) => +mm.dataset.level > level).forEach((mm) => mm.remove());
-        $$('.menu-row.sub-open', m).forEach((r) => r.classList.remove('sub-open'));
-        row.classList.add('sub-open');
-        const r = row.getBoundingClientRect();
-        const sm = renderMenu(it.sub, r.right - 2, r.top - 4, level + 1);
-        const sr = sm.getBoundingClientRect();
-        if (sr.right > innerWidth) sm.style.left = Math.max(0, r.left - sr.width + 2) + 'px';
-      };
-      row.addEventListener('pointerenter', openSub);
-      row.addEventListener('click', openSub);
-      row.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { openSub(); const f = $$('.menu').pop().querySelector('.menu-row:not([disabled])'); if (f) f.focus(); } });
-    } else {
-      row.addEventListener('pointerenter', () => { $$('.menu').filter((mm) => +mm.dataset.level > level).forEach((mm) => mm.remove()); });
+    if (it.sub) subRow(row, it, level);
+    else {
+      row.addEventListener('pointerenter', () => { clearTimeout(subT); closeDeeper(level); });
       row.addEventListener('click', () => { closeMenus(); if (en) it.act(); });
     }
     m.append(row);
   }
   m.dataset.level = level;
-  m.style.left = x + 'px'; m.style.top = y + 'px';
+  if (inline) return m;
   m.addEventListener('keydown', (e) => {
     const rows = $$('.menu-row:not([disabled])', m), i = rows.indexOf(document.activeElement);
     if (e.key === 'ArrowDown') { e.preventDefault(); (rows[i + 1] || rows[0]).focus(); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); (rows[i - 1] || rows[rows.length - 1]).focus(); }
-    else if (e.key === 'Escape' || e.key === 'ArrowLeft') { e.preventDefault(); if (level === 0) { const b = openMenu && openMenu.btn; closeMenus(); if (b) b.focus(); } else { m.remove(); } }
+    else if (e.key === 'Escape' || e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); leaveSub(m); }
   });
+  m.style.left = x + 'px'; m.style.top = y + 'px';
   document.body.append(m);
   const r = m.getBoundingClientRect();
   if (r.bottom > innerHeight) m.style.top = Math.max(0, innerHeight - r.height - 4) + 'px';

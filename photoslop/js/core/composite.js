@@ -13,9 +13,7 @@ function scratchCanvas(key, w, hh) {
 const maskCache = new WeakMap();
 function alignedMask(mask, w, hh, ox, oy, cacheable) {
   if (cacheable && maskCache.has(mask)) { const e = maskCache.get(mask); if (e.w === w && e.h === hh && e.x === ox && e.y === oy) return e.c; }
-  const c = mkCanvas(w, hh), g = cx(c);
-  if (mask.def) { g.fillStyle = '#000'; g.fillRect(0, 0, w, hh); g.clearRect(mask.x - ox, mask.y - oy, mask.canvas.width, mask.canvas.height); }
-  g.drawImage(mask.canvas, mask.x - ox, mask.y - oy);
+  const c = SlopMask.align(mask, w, hh, ox, oy);
   if (cacheable) maskCache.set(mask, { c, w, h: hh, x: ox, y: oy });
   return c;
 }

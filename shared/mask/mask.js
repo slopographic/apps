@@ -57,14 +57,14 @@
 
   /** A live surface for a stroke in progress, to use as a compositing override (e.g. PhotoSlop's live.maskSurface).
    * getMask() returns the current mask; the surface is rebuilt on every call, so the canvas shows each
-   * dab as it lands. The last result stays on fn.last for overlays. */
+   * dab as it lands. buf may be a canvas or a function returning one. The last result stays on fn.last for overlays. */
   function live(getMask, buf, opts) {
     let work = null;
     const fn = (L) => {
       const m = getMask(L);
       if (!m) return null;
       if (!work || work.width !== m.canvas.width || work.height !== m.canvas.height) work = mk(m.canvas.width, m.canvas.height);
-      paint(m.canvas, buf, opts, m.x, m.y, work);
+      paint(m.canvas, typeof buf === 'function' ? buf() : buf, opts, m.x, m.y, work);
       fn.last = { canvas: work, x: m.x, y: m.y, def: m.def };
       return fn.last;
     };

@@ -7,7 +7,9 @@
 'use strict';
 
 /** Effect types: the 'style' entries of FILTERS, which are also their renderers. */
-const FX_DEFS = FILTERS.filter((f) => f.menu === 'style' && f.fn);
+/* Filters that a layer effect can also be (for effect presets, fx-presets.js): the same renderers, run non-destructively. */
+const FX_PRESET_FILTERS = ['gauss', 'sharpen', 'noise', 'vignette', 'huesat', 'glitch'];
+const FX_DEFS = FILTERS.filter((f) => (f.menu === 'style' || FX_PRESET_FILTERS.includes(f.id)) && f.fn);
 const FX_BY_ID = Object.fromEntries(FX_DEFS.map((f) => [f.id, f]));
 const FX_PAD_MAX = 400;
 

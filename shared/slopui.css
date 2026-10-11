@@ -73,3 +73,10 @@ textarea.sui-input { height: auto; resize: vertical; }
 [data-theme="paint"] .sui-p, [data-theme="classic"] .sui-p, [data-theme="paint"] .sui-field, [data-theme="classic"] .sui-field { color: #000; }
 @media (max-width: 900px) { .sui-back.sui-dock-right { place-items: end center; padding: 16px; } }
 @media (prefers-reduced-motion: reduce) { .sui-back, .sui-dlg { animation: none; } }
+/* submenus: beside the row (desktop) or in place as an indented list (phones, see slopui.js) */
+.sui-row.sui-open { background: var(--s-sel); }
+.sui-inline { padding-left: 14px; }
+@media (max-width: 640px) {
+  .sui-menu { max-width: calc(100vw - 16px); min-width: min(240px, calc(100vw - 16px)); }
+  .sui-inline { padding-left: 16px; }
+}

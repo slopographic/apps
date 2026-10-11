@@ -78,21 +78,17 @@ function maskedBuffer(buf) {
 }
 /** Apply a doc-space stroke buffer to a layer (or its mask). Returns a new canvas. */
 function bakeStroke(L, buf, opts, into) {
-  const target = into || (opts.mask ? L.mask.canvas : L.canvas), ox = opts.mask ? L.mask.x : L.x, oy = opts.mask ? L.mask.y : L.y;
+  if (opts.mask) return SlopMask.paint(L.mask.canvas, maskedBuffer(buf), opts, L.mask.x, L.mask.y);
+  const target = into || L.canvas, ox = L.x, oy = L.y;
   const c = into ? target : copyCanvas(target), g = cx(c);
   const mb = maskedBuffer(buf);
-  if (opts.mask) {
-    g.globalAlpha = opts.opacity; g.globalCompositeOperation = 'destination-out'; g.drawImage(mb, -ox, -oy);
-    g.globalAlpha = opts.opacity * opts.value; g.globalCompositeOperation = 'lighter'; g.drawImage(mb, -ox, -oy);
-  } else {
-    g.globalAlpha = opts.opacity; g.globalCompositeOperation = opts.erase ? 'destination-out' : BLEND_OP[opts.blend || 'normal'] || 'source-over';
-    if (!opts.erase && opts.blend && opts.blend !== 'normal') {
-      // Blend modes only apply where the stroke lands: composite through a clipped copy.
-      const t = mkCanvas(c.width, c.height), tg = cx(t); tg.drawImage(c, 0, 0); tg.globalCompositeOperation = BLEND_OP[opts.blend]; tg.drawImage(mb, -ox, -oy);
-      tg.globalCompositeOperation = 'destination-in'; tg.drawImage(mb, -ox, -oy);
-      g.globalCompositeOperation = 'source-over'; g.drawImage(t, 0, 0);
-    } else g.drawImage(mb, -ox, -oy);
-  }
+  g.globalAlpha = opts.opacity; g.globalCompositeOperation = opts.erase ? 'destination-out' : BLEND_OP[opts.blend || 'normal'] || 'source-over';
+  if (!opts.erase && opts.blend && opts.blend !== 'normal') {
+    // Blend modes only apply where the stroke lands: composite through a clipped copy.
+    const t = mkCanvas(c.width, c.height), tg = cx(t); tg.drawImage(c, 0, 0); tg.globalCompositeOperation = BLEND_OP[opts.blend]; tg.drawImage(mb, -ox, -oy);
+    tg.globalCompositeOperation = 'destination-in'; tg.drawImage(mb, -ox, -oy);
+    g.globalCompositeOperation = 'source-over'; g.drawImage(t, 0, 0);
+  } else g.drawImage(mb, -ox, -oy);
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   return c;
 }
@@ -104,8 +100,8 @@ function startBufferedStroke(L, opts) {
   const S = { L, buf: strokePool, opts };
   S.g = cx(S.buf); S.g.setTransform(1, 0, 0, 1, 0, 0); S.g.globalAlpha = 1; S.g.globalCompositeOperation = 'source-over'; S.g.clearRect(0, 0, D.w, D.h);
   if (opts.mask) {
-    const work = mkCanvas(L.mask.canvas.width, L.mask.canvas.height), wg = cx(work);
-    live = { layerId: L.id, maskSurface: (LL) => { const m = LL.mask; wg.globalCompositeOperation = 'copy'; wg.globalAlpha = 1; wg.drawImage(m.canvas, 0, 0); wg.globalCompositeOperation = 'source-over'; bakeStroke(LL, S.buf, opts, work); return { canvas: work, x: m.x, y: m.y, def: m.def }; } };
+    // the mask is painted live: each composite bakes the stroke so far into the mask (SlopMask.live)
+    live = { layerId: L.id, maskSurface: SlopMask.live((LL) => LL.mask, () => maskedBuffer(S.buf), opts) };
   } else {
     live = { layerId: L.id, surface: (LL) => { const t = scratchCanvas('b', LL.canvas.width, LL.canvas.height); cx(t).drawImage(LL.canvas, 0, 0); bakeStroke(LL, S.buf, opts, t); return { canvas: t, x: LL.x, y: LL.y, w: LL.canvas.width, h: LL.canvas.height }; } };
   }

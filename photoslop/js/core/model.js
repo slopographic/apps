@@ -67,10 +67,7 @@ function coverDoc(L) {
   cx(c).drawImage(L.canvas, L.x - x0, L.y - y0);
   let mask = L.mask;
   if (mask) {
-    const m = mkCanvas(c.width, c.height), g = cx(m);
-    if (mask.def) { g.fillStyle = '#000'; g.fillRect(0, 0, m.width, m.height); g.clearRect(mask.x - x0, mask.y - y0, mask.canvas.width, mask.canvas.height); }
-    g.drawImage(mask.canvas, mask.x - x0, mask.y - y0);
-    mask = Object.assign({}, mask, { canvas: m, x: x0, y: y0 });
+    mask = Object.assign({}, mask, { canvas: SlopMask.align(mask, c.width, c.height, x0, y0), x: x0, y: y0 });
   }
   return patchLayer(L.id, { canvas: c, x: x0, y: y0, mask });
 }

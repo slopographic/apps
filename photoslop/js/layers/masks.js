@@ -9,11 +9,13 @@
 function invertMask(id) {
   const L = D.layers.find((l) => l.id === id);
   if (!L || !L.mask) return;
-  const m = L.mask, c = copyCanvas(m.canvas), g = cxr(c);
-  const img = g.getImageData(0, 0, c.width, c.height), d = img.data;
-  for (let i = 3; i < d.length; i += 4) d[i] = 255 - d[i];
-  g.putImageData(img, 0, 0);
-  setLayerProps(id, { mask: Object.assign({}, m, { canvas: c, def: !m.def }) }, 'Invert Mask');
+  setLayerProps(id, { mask: SlopMask.invert(L.mask) }, 'Invert Mask');
+}
+/** While a mask is edited, tints where it hides (the live stroke's mask while painting). */
+function drawMaskOverlay(g) {
+  const L = activeLayer(); if (!L || !L.mask || L.mask.enabled === false) return;
+  const m = live && live.layerId === L.id && live.maskSurface && live.maskSurface.last ? live.maskSurface.last : L.mask;
+  SlopMask.overlay(g, m.canvas, m.x, m.y, V.ox, V.oy, V.zoom);
 }
 
 /** Clipping mask on/off: a clipped layer shows only where the layer below it is opaque. */
