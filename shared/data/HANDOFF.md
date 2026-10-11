@@ -9,18 +9,27 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 ```html
 <script src="…/shared/data/money.js"></script>
 <script src="…/shared/data/barcode.js"></script>
+<script src="…/shared/data/schema-defs.js"></script>
 <script src="…/shared/data/schema.js"></script>
+<script src="…/shared/data/currency.js"></script>
 <script src="…/shared/data/store.js"></script>
 <script src="…/shared/data/numbering.js"></script>
+<script src="…/shared/data/fx.js"></script>
 <script src="…/shared/data/ledger.js"></script>
 <script src="…/shared/data/stock.js"></script>
 <script src="…/shared/data/billing.js"></script>
 <script src="…/shared/data/bundle-check.js"></script>
 <script src="…/shared/data/export.js"></script>
+<script src="…/shared/data/rates-ecb.js"></script>   <!-- only if the page offers the ECB update -->
 ```
 
-Everything hangs off `window.SlopData`: `money`, `barcode`, `schema`, `result`, `store`, `numbering`, `ledger`,
-`stock`, `billing`, `bundleCheck`, `exporter`. The Node tests load the same files in a vm context (`tests/node/data-env.mjs`).
+`schema-defs.js` holds the record definitions and `schema.js` the rules over them (split to keep each file small).
+`rates-ecb.js` is optional and does nothing until the person turns on the consent category (see below).
+
+Everything hangs off `window.SlopData`: `money`, `barcode`, `schema`, `schemaDefs`, `result`, `locale`, `store`,
+`numbering`, `fx`, `ledger`, `stock`, `billing`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
+files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 2: version 2 added
+`exchangeRates`, and upgrades create missing stores.
 
 ## Result shape (every async call)
 
@@ -39,21 +48,23 @@ Codes: `invalid`, `invalid_transition`, `immutable`, `posting_required`, `delete
 - Document: `subtotal = sum(net)`, `tax = sum(line tax)` (rounded per line, then summed), `total = subtotal + tax`.
   `documentTotals(lines).byRate` gives the tax breakdown.
 - `parseMinor('12.5')` -> `1250`, or `null` (never rounds typed text; too many decimals is `null`).
-- `formatMinor(1234, 'USD', 'en-US')` -> `"$12.34"` via `Intl.NumberFormat` only. Settings hold `currency` and `locale`.
+- `formatMinor(minor, currency, locale)` -> `"$12.34"` via `Intl.NumberFormat` only (digits from the currency, half-expand rounding).
+  Settings hold `defaultCurrency` and `locale`; pass them in.
 - Largest stored amount: `money.MAX_MINOR` (9e12).
 
 ## Collections (schema.js: `schema.def(name)`, `schema.COLLECTIONS`)
 
 | collection | key | notes |
 |---|---|---|
-| `settings` | `id` ('main') | companyName, address, taxNumber, currency (USD), locale (en-US), defaultTaxRate, paymentTermsDays |
+| `settings` | `id` ('main') | companyName, address, taxNumber, **defaultCurrency** (ISO 4217; the ledger's base; USD unless the browser's region says otherwise), locale (the browser's, else en-US), defaultTaxRate, paymentTermsDays, ratesUpdateOnOpen (bool, false) |
 | `customers` | `id` | name*, email, phone, address, `categories[]` (tags), `stage` lead\|contacted\|customer\|lost (default lead). **Soft delete.** |
 | `products` | `id` | sku* (no spaces, unique), `ean` (optional, unique, GS1 check digit), name*, price* (minor), taxRate* (bp), unit |
-| `orders` | `id` | number (ORD-0001, auto), customerId*, date*, status open\|fulfilled\|cancelled, `lines[]`*, totals. Never deleted: cancel. |
-| `invoices` | `id` | number (INV-0001, assigned on issue), customerId*, date*, dueDate, status draft\|issued\|paid\|void, `lines[]`, totals, orderId. **Soft delete, drafts only.** |
-| `payments` | `id` | invoiceId*, amount* (> 0), date*, method cash\|bank\|card\|other. Immutable. |
+| `orders` | `id` | number (ORD-0001, auto), customerId*, date*, currency (default: base), status open\|fulfilled\|cancelled, `lines[]`*, totals. Never deleted: cancel. |
+| `invoices` | `id` | number (INV-0001, assigned on issue), customerId*, date*, dueDate, currency (default: base), status draft\|issued\|paid\|void, `lines[]`, totals (in `currency`), orderId; set on issue for a foreign currency: rateId, rate, amountBase. **Soft delete, drafts only.** |
+| `payments` | `id` | invoiceId*, amount* (> 0, in the invoice's currency), date*, method cash\|bank\|card\|other; currency, amountBase, rate, rateId. Immutable. |
+| `exchangeRates` | `id` | base*, quote* (ISO codes), date* (YYYY-MM-DD), rate* (integer, scaled by 1e6), source manual\|ecb\|fixed, note. **Immutable**: a correction is a new row. |
 | `accounts` | `code` (4 digits) | name*, type asset\|liability\|equity\|revenue\|expense. Never deleted. |
-| `journal` | `id` | date*, memo, source* (unique, e.g. `invoice:<id>:issue`), `lines[{account, debit, credit}]`, reverses. Immutable. |
+| `journal` | `id` | date*, memo, source* (unique, e.g. `invoice:<id>:issue`), `lines[{account, debit, credit, origDebit?, origCredit?}]` (debit and credit in base), reverses; a foreign entry also has currency, amount (original), amountBase, rateId, rate. Immutable. |
 | `stockMovements` | `id` | productId*, location (default main), qty* (signed, non-zero), reason receipt\|sale\|adjustment\|transfer\|count\|return, date*, ref. Immutable. |
 | `stockCounts` | `id` | location*, date*, `lines[{productId, expected, counted, diff}]`, status posted. Immutable. |
 | `numbering` | `id` ('invoice', 'order') | prefix, pad, next. Only moves forward. |
@@ -73,8 +84,52 @@ Rules enforced by `schema.js` and `store.js`:
 - Invoice status can change only through `billing` (`store.put` refuses it otherwise).
 - `journal`, `payments`, `stockMovements`, `stockCounts` are `postingOnly`: only `ledger`, `billing` and `stock` write them.
 - Journal lines: each has exactly one positive side (debit or credit), whole amounts, and the entry balances.
+  A foreign entry must also balance in its original currency, and `amount` and `amountBase` must equal the sums.
+- New invoices and orders take `settings.defaultCurrency` unless a currency is given. A journal entry without a
+  currency is a base-currency entry.
+- The default currency cannot change once any journal entry exists (`base_locked`). Old postings never change.
 - Stock sign rules: receipt and return add (+), sale removes (-), adjustment, count and transfer are non-zero.
 - Products with stock movements cannot be deleted (`in_use`). Unique: sku, ean, invoice number, order number, journal source.
+
+## Currency and exchange rates (currency.js, fx.js, rates-ecb.js)
+
+- **Base currency** = `settings.defaultCurrency`. Every journal line and every trial-balance total is in base.
+- **Rates**: a row says 1 unit of `base` = `rate / 1e6` units of `quote`, from `date`. `1.0842` is stored as `1084200`.
+  `locale.parseRate('1.0842')` reads typed text (up to six decimals; a seventh decimal rounds half up).
+- `fx.rateOn(base, quote, date)` (async) -> `{ id, rate, inverted, base, quote, date }`: the latest row on or before the
+  date (a later-created row wins a same-day tie). With no direct row, a reversed row is used inverted. **It fails with
+  `no_rate`** when neither exists; there is never a silent 1:1. The same currency is 1 with no row.
+- `fx.addRate({ base, quote, date, rate, source?, note? })` -> the stored row. Rows cannot be edited or deleted.
+- **Posting in a foreign currency** (`ledger.postJournal` or `billing.issue`): each line converts at the rate on the
+  posting date, rounded half away from zero. The rounding difference goes to the largest line on the short side, so
+  base balances. The entry keeps `currency`, `amount` (original debits), `amountBase`, `rateId` (the row used) and
+  `rate` (the rate applied). Each line keeps `origDebit` and `origCredit`.
+- A reversal of a foreign entry uses the same row and rate, so it cancels the original in base exactly. Old postings
+  are never recomputed when new rows arrive.
+- An invoice in a foreign currency takes its rate on issue and stores `rateId`, `rate` and `amountBase`. Payments
+  convert at that rate. The payment that clears the invoice takes the remaining base amount, so the balance closes to
+  zero. **No realised exchange gain or loss is booked** (not built yet).
+- `ledger.trialBalance()` checks base totals (debits equal credits in base) and returns `foreign: [{ currency, debit,
+  credit, balanced }]` for the original amounts, reported apart. A foreign entry that does not balance in its own
+  currency is an error.
+- Dates: `locale.formatDate('2026-10-11', locale)` (Intl, UTC, so the day never shifts). Numbers and currencies:
+  `money.formatMinor(minor, currency, locale)`. **Translations of the app text are not part of this.** The locale only
+  changes number, currency and date formats.
+- `locale.currencies()` is `Intl.supportedValuesOf('currency')` when available. `locale.browserDefaults()` gives the
+  browser's locale and the currency of its region (USD when unknown).
+
+### Online rates (rates-ecb.js): opt-in and consent-gated
+
+- Source: `https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml` (ECB daily reference rates, EUR-based).
+  The host is on the allow-list in `shared/sync/HANDOFF.md`.
+- `rates.updateRates({ fetch?, allowed?, DOMParser?, today? })` checks the `rates` consent category **before** any
+  request (`consent_off`, and no fetch, otherwise). It parses the XML with `DOMParser` (never evaluated) and stores one
+  row per currency with source `ecb` for today's date (`note: "ECB reference <date>"`), in one transaction. A same-day
+  row with the same rate is left alone. Returns `{ date, referenceDate, added: [{ quote, rate, previous }], unchanged: [] }`.
+  A failed download, an HTTP error or an unreadable file stores **nothing**, and the message says so.
+- `rates.updateOnOpen()` runs `updateRates` only when `settings.ratesUpdateOnOpen` is true **and** the category is on.
+  The Settings page calls it when it opens. Other pages must opt in the same way. Nothing else runs in the background.
+- `rates.parseEcb(text, DOMParser)` is pure given a parser. It returns `{ date, rates: [{ quote, rate }] }` with rate scaled by 1e6.
 
 ## store.js: storage
 
@@ -84,6 +139,9 @@ Rules enforced by `schema.js` and `store.js`:
   Indexes: customers `name`, `stage`, `categories` (multi-entry tag); products `sku`, `ean`, `name`;
   invoices `number`, `customerId`, `status`, `date`; payments `invoiceId`, `date`; journal `source`, `date`, `reverses`; etc.
 - `store.put(name, record, { posting? })` -> saved record. `store.remove(name, id)` -> `{ id, soft }`.
+  New invoices and orders take the default currency here when none is given. A settings change of `defaultCurrency`
+  is refused (`base_locked`) once any journal entry exists. On first open after version 1, a stored `currency`
+  field in settings moves to `defaultCurrency`.
 - `store.transact(fn)`: `fn(tx)` runs in ONE read-write transaction over every store. `tx` has
   `get(name, id)`, `list(name, opts)`, `put`, `remove`, `allocate(seq)`, and `fail(result)`. A failed step, or
   returning a failed Result, rolls back everything. Only IndexedDB work may happen inside `fn` (no fetch, no timers).
@@ -148,15 +206,25 @@ Rules enforced by `schema.js` and `store.js`:
 
 ## Tests
 
-- `node tests/run.mjs data` runs `tests/node/data.test.mjs` and `tests/node/data-ledger.test.mjs` (pure logic, no storage)
-  and the browser pages `tests/data/store.test.html` (IndexedDB behaviour: validation, soft delete, uniqueness,
-  transactions and rollback, numbering rollback, subscribers) and `tests/data/flows.test.html` (issue, payments,
-  voids, reversals, stock, counts, export and import).
+- `node tests/run.mjs data` runs `tests/node/data.test.mjs`, `tests/node/data-ledger.test.mjs` and
+  `tests/node/data-fx.test.mjs` (pure logic, and an in-memory transaction over the real schema: rate lookup, scaling and
+  half-up rounding, EUR into a USD ledger, old postings unchanged after a new row, reversals, the base trial balance,
+  and the ECB XML parse on a fixture). It also runs the browser pages `tests/data/store.test.html` (IndexedDB behaviour:
+  validation, soft delete, uniqueness, transactions and rollback, numbering rollback, subscribers),
+  `tests/data/flows.test.html` (issue, payments, voids, reversals, stock, counts, export and import) and
+  `tests/data/currency.test.html` (default currency, base lock, immutable rates, a foreign invoice paid to the base total,
+  the ECB parse with the real DOMParser, and consent off means no fetch).
 
 ## Not built yet (decide before the apps need it)
 
 - Refunds and credit notes: a paid or part-paid invoice cannot be voided, and payments cannot be removed. A refund record is needed.
-- Discounts on lines, multiple currencies on one document, fractional quantities (quantities are whole numbers).
+- Discounts on lines, fractional quantities (quantities are whole numbers), and a line in a different currency from its document.
+- Realised and unrealised exchange gains or losses (payments on foreign invoices convert at the issue rate, so no gain
+  or loss arises yet). Cross-rates through a third currency: GBP to USD needs its own row, or the inverse of one. A
+  rate-history view, and deletion of a mistaken row (rows are immutable; add a correcting row instead).
+- Import of a version 1 backup: its settings still carry `currency`, so the bundle check refuses it until renamed.
+- Translations of the app text (the locale only changes number, currency and date formats).
+- Automatic background rate updates: none. Only the Settings button, or "Update on open" when both it and the consent category are on.
 - Revenue accounts per product (all sales credit 4000 Sales Revenue), and tax-inclusive pricing.
 - Order-to-invoice conversion, due-date reminders, and aged receivables reports.
 - Accounts cannot be deactivated or deleted, and there is no UI or rule for renaming them safely once used.
