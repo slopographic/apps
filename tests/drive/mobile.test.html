@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Slop Drive on a phone</title><style>body { margin: 0; }</style></head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="util.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  let W, DR, H, D;
+  const q = (s) => D.querySelector(s);
+  const tap = (el) => { const r = el.getBoundingClientRect(), o = { bubbles: true, cancelable: true, clientX: r.left + 10, clientY: r.top + 10, pointerType: 'touch', pointerId: 3, isPrimary: true };
+    el.dispatchEvent(new W.PointerEvent('pointerdown', o)); el.dispatchEvent(new W.PointerEvent('pointerup', o)); el.dispatchEvent(new W.MouseEvent('click', o)); };
+
+  describe('390 × 844 layout', () => {
+    it('boots at phone width without sideways scrolling', async () => {
+      W = await DT.frame('../../drive/', (w) => w.document.body.classList.contains('ready'), { width: 390, height: 844 });
+      DR = W.DR; H = W.SlopHub; D = W.document;
+      await H.clear();
+      const f = await H.createFolder('Photos');
+      await H.put(await DT.png(), { name: 'pic.png', from: 'photoslop', folderId: f });
+      await H.put(DT.text('hi'), { name: 'hi.txt' });
+      await DR.refresh(); DR.setView('grid'); DR.go(null);
+      expect(DR.isMobile()).toBe(true);
+      expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      expect(getComputedStyle(q('#side')).position).toBe('fixed');
+      expect(q('#btnSide').offsetWidth).toBeGreaterThan(0);
+    });
+    it('the sidebar is a drawer', () => {
+      q('#btnSide').click();
+      expect(D.body.classList.contains('drawer-open')).toBe(true);
+      expect(q('#scrim').hidden).toBe(false);
+      q('#scrim').click();
+      expect(D.body.classList.contains('drawer-open')).toBe(false);
+    });
+    it('tapping a folder opens it; tapping a file shows the details sheet', async () => {
+      tap(q(`#pane [data-key="d:${[...DR.S.folders.keys()][0]}"]`));
+      expect(DR.S.cwd).toBe([...DR.S.folders.keys()][0]);
+      const k = 'f:' + [...DR.S.files.values()].find((r) => r.name === 'pic.png').id;
+      tap(q(`#pane [data-key="${k}"]`));
+      expect(D.body.classList.contains('sheet-open')).toBe(true);
+      expect(q('#info').hidden).toBe(false);
+      expect(q('#info').textContent).toContain('pic.png');
+      const r = q('#info').getBoundingClientRect();
+      expect(Math.round(r.width)).toBe(390);
+      expect(r.bottom).toBeLessThanOrEqual(845);
+      q('#scrim').click();
+      expect(D.body.classList.contains('sheet-open')).toBe(false);
+    });
+    it('long-press selects and opens the menu; the selection bar shows', async () => {
+      const k = 'f:' + [...DR.S.files.values()].find((r) => r.name === 'pic.png').id, el = q(`#pane [data-key="${k}"]`), r = el.getBoundingClientRect();
+      el.dispatchEvent(new W.PointerEvent('pointerdown', { bubbles: true, clientX: r.left + 10, clientY: r.top + 10, pointerType: 'touch', pointerId: 4 }));
+      await waitFor(() => q('.sui-menu'), { timeout: 2000 });
+      expect(DR.S.sel.has(k)).toBe(true);
+      expect(q('#selbar').hidden).toBe(false);
+      W.SlopUI.closeMenu();
+      el.dispatchEvent(new W.PointerEvent('pointerup', { bubbles: true, pointerType: 'touch', pointerId: 4 }));
+    });
+    it('every view fits the phone', () => {
+      for (const v of ['list', 'compact', 'columns', 'nodes', 'usage', 'grid']) {
+        DR.setView(v);
+        expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      }
+    });
+  });
+  SlopTest.run({ name: 'Slop Drive: phone' });
+  </script>
+</body>
+</html>

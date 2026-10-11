@@ -1,5 +1,5 @@
 /* Slop PDF — redaction: badges on thumbnails and the page view, the Redact panel and its confirm dialog. */
-.thumb-redact { position: absolute; right: 10px; bottom: 34px; padding: 2px 7px; border-radius: 99px; background: #111; color: #fff; font: 700 10px var(--mono); letter-spacing: .02em; text-transform: uppercase; z-index: 1; box-shadow: 0 0 0 1px rgba(255, 255, 255, .25); }
+.thumb-redact { position: absolute; left: 12px; top: 34px; padding: 2px 7px; border-radius: 99px; background: #111; color: #fff; font: 700 10px var(--mono); letter-spacing: .02em; text-transform: uppercase; z-index: 1; box-shadow: 0 0 0 1px rgba(255, 255, 255, .25); }
 .thumb-redact.pending { background: repeating-linear-gradient(45deg, #e0102f 0 4px, #b00020 4px 8px); }
 .pv-page.is-redacted::after { content: 'Redacted'; position: absolute; right: 8px; top: 8px; padding: 3px 9px; border-radius: 99px; background: #111; color: #fff; font: 700 11px var(--mono); text-transform: uppercase; letter-spacing: .03em; pointer-events: none; z-index: 2; box-shadow: 0 2px 8px rgba(0, 0, 0, .3); }
 .pv-page[data-tool="redact"] { cursor: crosshair; }

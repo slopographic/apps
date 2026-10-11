@@ -17,7 +17,11 @@
     return (p.annots || []).filter(function (a) { return a.type === 'redact'; }).map(function (a) { return E.annotViewRect(a, 0, g.W, g.H); });
   };
 
-  /** Renders page p without its marks, burns black boxes in, returns {bytes, w, h} (PNG). */
+  async function deflate(u8) {
+    var cs = new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate'));
+    return new Uint8Array(await new Response(cs).arrayBuffer());
+  }
+  /** Renders page p, burns black boxes into the bitmap, returns {rgb (zlib), png, w, h}. */
   R.rasterPage = async function (p, boxes, dpi) {
     var f = E.fileOfPage(p), g = E.geom(p), scale = (dpi || 200) / 72;
     var maxPx = 40e6; if (g.W * g.H * scale * scale > maxPx) scale = Math.sqrt(maxPx / (g.W * g.H));
@@ -28,11 +32,23 @@
       var x0 = Math.floor(b.x * scale) - 1, y0 = Math.floor(b.y * scale) - 1;
       cx.fillRect(x0, y0, Math.ceil((b.x + b.w) * scale) + 1 - x0, Math.ceil((b.y + b.h) * scale) + 1 - y0);
     });
-    var bytes = await U.blobToBytes(await U.canvasToBlob(c, 'image/png'));
-    var out = { bytes: bytes, w: c.width, h: c.height };
+    var out = { w: c.width, h: c.height };
+    if (typeof CompressionStream === 'function') {
+      var px = cx.getImageData(0, 0, c.width, c.height).data, rgb = new Uint8Array(c.width * c.height * 3);
+      for (var i = 0, j = 0; i < px.length; i += 4, j += 3) { rgb[j] = px[i]; rgb[j + 1] = px[i + 1]; rgb[j + 2] = px[i + 2]; }
+      out.rgb = await deflate(rgb);
+    } else out.png = await U.blobToBytes(await U.canvasToBlob(c, 'image/png'));
     c.width = c.height = 0;
     return out;
   };
+  /** Draws a rasterPage result over the whole page (raw Flate RGB image, or PNG via pdf-lib). */
+  async function drawRaster(out, page, img, W, H) {
+    var L = PDFLib;
+    if (img.png) { page.drawImage(await out.embedPng(img.png), { x: 0, y: 0, width: W, height: H }); return; }
+    var ref = out.context.register(out.context.stream(img.rgb, { Type: 'XObject', Subtype: 'Image', Width: img.w, Height: img.h, ColorSpace: 'DeviceRGB', BitsPerComponent: 8, Filter: 'FlateDecode' }));
+    var name = page.node.newXObject('Redacted', ref);
+    page.pushOperators(L.pushGraphicsState(), L.concatTransformationMatrix(W, 0, 0, H, 0, 0), L.drawObject(name), L.popGraphicsState());
+  }
 
   /** Web links (URI actions) of a source page whose rects stay clear of every box. */
   function keptLinks(src, p, boxes) {
@@ -66,7 +82,7 @@
       if (!p.blank) {
         var g = E.geom(p), img = await R.rasterPage(p, boxes, opts.dpi);
         var page = out.addPage([g.W, g.H]);
-        page.drawImage(await out.embedPng(img.bytes), { x: 0, y: 0, width: g.W, height: g.H });
+        await drawRaster(out, page, img, g.W, g.H);
         page.setRotation(L.degrees(g.base));
         if (!srcs.has(p.f)) srcs.set(p.f, await L.PDFDocument.load(E.files.get(p.f).bytes, { updateMetadata: false, ignoreEncryption: true, throwOnInvalidObject: false }));
         keptLinks(srcs.get(p.f), p, boxes).forEach(function (l) {

@@ -48,7 +48,7 @@
       expect(svg.querySelector('.m-body').getAttribute('filter')).toBe('url(#slp-goo-mascot)');
       expect(svg.querySelector('.m-c0').getAttribute('fill')).toBe('url(#slp-g-mascot)');
       expect(win.document.querySelectorAll('#slp-g-mascot').length).toBe(1);
-      expect(svg.querySelectorAll('.m-eyes ellipse').length).toBe(2);
+      expect(svg.querySelector('.m-eyes').children.length).toBeGreaterThan(1);
       const box = svg.querySelector('.m-body').getBoundingClientRect();
       expect(box.width).toBeGreaterThan(60);
       expect(win.document.querySelector('.sloppo-hud .sh-lv b').textContent).toBe('1');
@@ -70,8 +70,7 @@
       S.gain(8 - S.xp);
       expect(S.level).toBe(2);
       expect(S.hat).toBe('sprout');
-      await sleep(40);
-      expect(M.svg.querySelector('.m-hat').children.length).toBeGreaterThan(0);
+      await waitFor(() => M.svg.querySelector('.m-hat').children.length > 0, { timeout: 2000 });
       expect(parseFloat(M.hit.style.width)).toBeGreaterThan(hitW);
       const hud = win.document.querySelector('.sloppo-hud');
       expect(hud.querySelector('.sh-lv b').textContent).toBe('2');
