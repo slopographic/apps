@@ -145,22 +145,23 @@
     });
   }
 
-  document.querySelectorAll('[data-view]').forEach((t) =>
-    t.addEventListener('click', (e) => {
-      e.preventDefault();
-      const v = t.dataset.view;
-      history.replaceState(null, '', v === 'home' ? location.pathname + location.search : '#' + v);
-      showView(v);
-      window.scrollTo({ top: 0 });
-      if (v === 'detector') input.focus({ preventScroll: true });
-    }),
-  );
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-view]');
+    if (!t) return;
+    e.preventDefault();
+    const v = t.dataset.view;
+    history.replaceState(null, '', v === 'home' ? location.pathname + location.search : '#' + v);
+    showView(v);
+    window.scrollTo({ top: 0 });
+    if (v === 'detector') input.focus({ preventScroll: true });
+  });
 
   function route() {
     // Old feed links (#feed, #p=…) land on the home film now.
     showView(location.hash === '#detector' ? 'detector' : 'home');
   }
   window.addEventListener('hashchange', route);
+  window.slopShowView = showView; // used by home/catalog.js and the mascot
 
   const setTopOffset = () => document.documentElement.style.setProperty('--top', $('.nav').offsetHeight + 'px');
 
