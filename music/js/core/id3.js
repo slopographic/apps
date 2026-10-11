@@ -71,7 +71,7 @@
     const img = d.subarray(enc === 1 || enc === 2 ? z + 2 : z + 1);
     if (img.length < 4) return null;
     const type = mime.indexOf('/') > 0 ? mime : sniffImage(img);
-    return new Blob([img], { type: type === 'image/jpeg' || type === 'image/png' || type === 'image/webp' ? type : sniffImage(img) });
+    return new Blob([img], { type: /^image\/(jpeg|png|webp)$/.test(type) ? type : sniffImage(img) });
   }
 
   /** Reads the ID3v2 tag at the start of a blob. Never throws: returns what it could read. */
