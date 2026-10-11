@@ -7,24 +7,27 @@ export function mountUnitsPreview(block, root) {
   const view = createView(block, { input: false });
   const q = (sel) => root.querySelector(sel);
   const label = (sel) => { const o = q(sel).selectedOptions[0]; return o ? o.textContent : ''; };
+  let copyText = '';
   const update = () => {
     const value = (q('#cv-u-value').value || '').trim() || '0';
     const fromLabel = label('#cv-u-from'), toLabel = label('#cv-u-to');
     let after;
     try {
       const r = convert(q('#cv-u-cat').value, q('#cv-u-from').value, q('#cv-u-to').value, value);
-      after = { kind: 'text', text: `${r.exact ? '' : '≈ '}${r.text} ${toLabel}`, label: toLabel };
+      const text = `${r.exact ? '' : '≈ '}${r.text} ${toLabel}`;
+      after = { kind: 'text', text, lines: [text] };
     } catch (e) {
       after = { kind: 'error', message: e.message };
     }
-    view.render({ before: { kind: 'text', text: `${value} ${fromLabel}`, lines: [`${value} ${fromLabel}`], label: 'Input' }, after, note: '' });
-    if (after.kind === 'text') view.panels.after.body.querySelector('pre');
-    view.copy.disabled = after.kind !== 'text';
+    const input = `${value} ${fromLabel}`;
+    view.render({ before: { kind: 'text', text: input, lines: [input] }, after, note: '' });
+    copyText = after.kind === 'text' ? after.text : '';
+    view.copy.disabled = !copyText;
     view.swap.hidden = false;
     view.download.hidden = true;
   };
   view.copy.addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(view.panels.after.body.textContent.trim()); view.setStatus('Copied.'); }
+    try { await navigator.clipboard.writeText(copyText); view.setStatus('Copied.'); }
     catch (e) { view.setStatus(`Could not copy: ${e.message}`); }
   });
   view.swap.addEventListener('click', () => {
