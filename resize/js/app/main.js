@@ -12,6 +12,8 @@
     $('rs-empty').hidden = items.length > 0;
     $('rs-queue-wrap').hidden = items.length === 0;
     NS.list.render($('rs-list'), items, actions);
+    const ref = items.find((i) => i.src);
+    NS.settings.setSource(ref ? ref.src : null, ref ? ref.name : '');
     const ready = items.some((i) => i.src), done = items.filter((i) => i.status === 'done');
     $('rs-run').disabled = busy || !ready;
     $('rs-cancel').disabled = !busy;
@@ -130,6 +132,7 @@
     const [mimes, sup] = await Promise.all([NS.format.imageSupport(), NS.video.support()]);
     for (const opt of $('rs-mime').options) opt.disabled = !mimes.has(opt.value);
     if (!mimes.has($('rs-mime').value)) $('rs-mime').value = 'image/jpeg';
+    NS.settings.alphaUI();
     for (const opt of $('rs-vformat').options) opt.disabled = !sup.formats[opt.value];
     const vf = $('rs-vformat');
     if (!sup.formats[vf.value]) vf.value = sup.formats.webm ? 'webm' : 'mp4';
@@ -164,7 +167,7 @@
 
   function wirePanel() {
     const panel = $('rs-panel');
-    panel.addEventListener('change', () => { NS.settings.showModes($('rs-mode').value); NS.settings.labels(); });
+    panel.addEventListener('change', () => { NS.settings.showModes($('rs-mode').value); NS.settings.labels(); NS.settings.alphaUI(); });
     panel.addEventListener('input', () => NS.settings.labels());
     $('rs-open').addEventListener('click', () => api.open());
     $('rs-open-empty').addEventListener('click', () => api.open());
@@ -182,6 +185,7 @@
     NS.settings.write(NS.settings.fromSaved(NS.settings.DEFAULTS));
     NS.presets.bind({ select: $('rs-saved'), apply: $('rs-apply'), saveAs: $('rs-save-as'), del: $('rs-delete'), status: toast });
     wirePanel();
+    NS.settings.wireLock();
     wireDrop();
     NS.queue.on(render);
     render();
