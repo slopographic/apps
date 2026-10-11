@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Slop Vector · rounded corners</title>
+<head><meta charset="utf-8"><title>SlopVector · rounded corners</title>
 <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style></head>
 <body>
   <iframe id="app" src="../../vector/index.html"></iframe>
@@ -20,7 +20,7 @@
     (type === 'pointerdown' ? W.document.getElementById('stage') : W).dispatchEvent(ev);
   }
 
-  describe('rounded rectangle corners in Slop Vector', () => {
+  describe('rounded rectangle corners in SlopVector', () => {
     it('draws a rectangle, sets the corner radius to 20 in the control bar, and exports arc commands', async () => {
       blank(); SV.setTool('rect');
       ptr('pointerdown', 100, 100); ptr('pointermove', 200, 160); ptr('pointermove', 300, 220); ptr('pointerup', 300, 220);
@@ -71,7 +71,7 @@
       expect(SV.rectRadii(SV.getObj(id))).toEqual([12, 12, 12, 12]);
     });
   });
-  SlopTest.run({ name: 'Slop Vector · rounded corners' });
+  SlopTest.run({ name: 'SlopVector · rounded corners' });
   </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>PhotoSLOP shapes</title>
+  <title>PhotoSlop shapes</title>
   <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style>
 </head>
 <body>
@@ -34,7 +34,7 @@
     input.value = String(value); input.dispatchEvent(new W.Event('change')); await sleep(20);
   }
 
-  describe('PhotoSLOP shape tools', () => {
+  describe('PhotoSlop shape tools', () => {
     it('the rounded rectangle tool draws a rounded shape layer, and the radius field changes it', async () => {
       const W = await fresh();
       W.eval("selectTool('shape')"); await sleep(30);
@@ -83,7 +83,7 @@
       expect(W.eval('activeLayer()').shape.radius).toBe(40);
     }, { timeout: 60000 });
   });
-  run({ name: 'PhotoSLOP shapes' });
+  run({ name: 'PhotoSlop shapes' });
   </script>
 </body>
 </html>

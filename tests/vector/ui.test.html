@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Slop Vector · UI &amp; hub tests</title>
+<head><meta charset="utf-8"><title>SlopVector · UI &amp; hub tests</title>
 <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style></head>
 <body>
   <iframe id="app" src="../../vector/index.html"></iframe>
@@ -153,8 +153,8 @@
     });
     it('offers Send to (SVG) and Send PNG items, also in File ▸ Send to', async () => {
       const labels = HUB.sendItems().map((i) => i === '-' ? '-' : i.label);
-      ['Send to PhotoSLOP', 'Send to Slop PDF', 'Send PNG to PhotoSLOP', 'Send PNG to Slop PDF'].forEach((l) => expect(labels).toContain(l));
-      expect(labels).not.toContain('Send to Slop Vector');
+      ['Send to PhotoSlop', 'Send to Slop PDF', 'Send PNG to PhotoSlop', 'Send PNG to Slop PDF'].forEach((l) => expect(labels).toContain(l));
+      expect(labels).not.toContain('Send to SlopVector');
       const btn = doc().querySelector('.menu-btn[data-menu="File"]');
       btn.dispatchEvent(new W.PointerEvent('pointerdown', { bubbles: true }));
       const drop = doc().querySelector('.sui-menu.sv-dropdown[data-menu="File"]');
@@ -187,7 +187,7 @@
     });
     it('sends the artwork through Slop Drive and opens the target app', async () => {
       let opened = null; const realOpen = W.open; W.open = (u) => { opened = u; return {}; };
-      try { await HUB.sendItems().find((i) => i.label === 'Send PNG to PhotoSLOP').act(); } finally { W.open = realOpen; }
+      try { await HUB.sendItems().find((i) => i.label === 'Send PNG to PhotoSlop').act(); } finally { W.open = realOpen; }
       expect(opened).toMatch(/\/photoslop\/\?drive=/);
       const rec = await W.SlopHub.get(new URL(opened).searchParams.get('drive'));
       expect([rec.type, rec.from, rec.name]).toEqual(['image/png', 'vector', 'Sloppo.png']);
@@ -233,7 +233,7 @@
     }, { timeout: 40000 });
   });
 
-  SlopTest.run({ name: 'Slop Vector · UI & hub' });
+  SlopTest.run({ name: 'SlopVector · UI & hub' });
   </script>
 </body>
 </html>

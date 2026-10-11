@@ -1,4 +1,4 @@
-/* SlopEdit tests: templates (region data, apply, re-flow, swap, drop into a slot) and the random edit
+/* SlopCut tests: templates (region data, apply, re-flow, swap, drop into a slot) and the random edit
    (seeded plan, build as ordinary clips, reshuffle, one undo step, dialog and menu/keyboard entry). */
 (function () {
   'use strict';

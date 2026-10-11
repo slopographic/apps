@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Slop Vector · zoom</title>
+<head><meta charset="utf-8"><title>SlopVector · zoom</title>
 <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style></head>
 <body>
   <iframe id="app" src="about:blank"></iframe>
@@ -35,7 +35,7 @@
     W.document.body.dispatchEvent(new W.KeyboardEvent('keydown', Object.assign({ key: k, code, bubbles: true, cancelable: true }, mods)));
   }
 
-  describe('Slop Vector zoom', () => {
+  describe('SlopVector zoom', () => {
     it('a wheel step keeps the point under the pointer fixed, mid-ease and at rest', async () => {
       W = await open(); SV = W.SV; S = SV.state;
       SV.actualSize();
@@ -150,7 +150,7 @@
       pointer('pointerup', 2, m.x + 140, m.y);
     });
   });
-  run({ name: 'Slop Vector · zoom' });
+  run({ name: 'SlopVector · zoom' });
   </script>
 </body>
 </html>

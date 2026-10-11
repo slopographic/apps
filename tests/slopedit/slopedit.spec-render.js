@@ -1,4 +1,4 @@
-/* SlopEdit tests: the compositor draws the expected pixels at a given time (layers, transform, crop,
+/* SlopCut tests: the compositor draws the expected pixels at a given time (layers, transform, crop,
    opacity, fades, transitions, colour grade, titles) and the live preview shows the timeline. */
 (function () {
   'use strict';

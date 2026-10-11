@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Slop Vector · commands tests</title>
+<head><meta charset="utf-8"><title>SlopVector · commands tests</title>
 <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style></head>
 <body>
   <iframe id="app" src="../../vector/index.html"></iframe>
@@ -12,7 +12,7 @@
   const bx = () => SV.selBBox(SV.state.sel).x;
   const key = (code, k, mods = {}, target) => { const e = new W.KeyboardEvent('keydown', Object.assign({ code, key: k, bubbles: true, cancelable: true }, mods)); (target || W.document.body).dispatchEvent(e); return e; };
 
-  describe('SlopCmd in Slop Vector', () => {
+  describe('SlopCmd in SlopVector', () => {
     it('registers every action and tool', () => {
       C = W.SlopCmd; C.resetKeys();
       expect(SV.cmdOn).toBe(true);
@@ -70,6 +70,6 @@
     });
   });
   </script>
-  <script>SlopTest.run({ name: 'Slop Vector · commands' });</script>
+  <script>SlopTest.run({ name: 'SlopVector · commands' });</script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* SlopEdit tests: the Layout lane (switches over time, a 1x1 then 1x3 switch), the middle-button pan of the
+/* SlopCut tests: the Layout lane (switches over time, a 1x1 then 1x3 switch), the middle-button pan of the
    timeline, and export presets (the chosen size is the sequence size). */
 (function () {
   'use strict';

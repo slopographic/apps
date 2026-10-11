@@ -1,4 +1,4 @@
-/* PhotoSLOP right-click and keyboard context menus. Loaded by photoslop.test.html, which passes the
+/* PhotoSlop right-click and keyboard context menus. Loaded by photoslop.test.html, which passes the
  * harness and a getter for the app's global scope (W, a proxy over the iframe's eval). */
 function contextMenuTests({ describe, it, expect, getW }) {
   const W = new Proxy({}, { get: (_, k) => getW()[k] });
