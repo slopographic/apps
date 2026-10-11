@@ -19,7 +19,7 @@
     A('pdf', 'app', 'Slop PDF', 'pdf/', 'Organise, edit and sign PDFs. Nothing uploaded.', {
       accepts: ['application/pdf', 'image/*'],
       features: ['Reorder, merge & split', 'Text, shapes, images & signatures', 'Page numbers, watermarks, forms', 'Compress & convert'],
-      shot: 'assets/shots/pdf.jpg', icon: 'doc', status: 'beta' }),
+      shot: 'assets/shots/pdf.jpg', icon: 'doc' }),
     A('label', 'app', 'SlopLabel', 'label/', 'Design and print barcode labels.', {
       accepts: ['image/*', 'text/csv'],
       features: ['Barcodes & QR, GS1', 'Data merge from CSV & Excel', 'Zebra ZPL export & import', 'Sheets & thermal rolls'],
