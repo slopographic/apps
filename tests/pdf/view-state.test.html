@@ -14,6 +14,10 @@
   describe('Slop PDF saved view', () => {
     it('brings back the open page, tool and zoom after leaving for Slop Drive and coming back', async () => {
       await PT.boot('', 'app');
+      await sleep(800); // let the boot-time session restore finish, so it cannot replace the page made below
+      await PT.U.idb.del('session');
+      PT.E.closeAll();
+      await sleep(300);
       const { E, A, SP } = PT;
       E.commit('Blank', (st) => E.ops.insert(st, 0, [E.blankPage(200, 100)]));
       const pid = E.state.pages[0].id;

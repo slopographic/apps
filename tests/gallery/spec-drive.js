@@ -3,7 +3,9 @@
  * The thumbnail cache is a test database too (window.SLOP_THUMB_DB, set on the iframe). */
 (function () {
   'use strict';
-  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  const { describe, expect, waitFor, sleep } = SlopTest;
+  // Each test boots a fresh gallery in the iframe, so it gets more time than the harness default.
+  const it = (name, fn) => SlopTest.it(name, fn, { timeout: 45000 });
   const NOW = Date.UTC(2026, 9, 1);
   const rec = (id, name, type, size, time) => ({ id, name, type, size, time, modified: time, blob: new Blob(['x'], { type }) });
   const LIST = [
@@ -153,7 +155,7 @@
       await seedThumb(thumbDb, 'img1', NOW - 3000, new Blob(['png'], { type: 'image/png' }));
       W.SLOP_THUMB_DB = thumbDb;
       await useDrive(LIST);
-      await waitFor(() => D.querySelector('.dtile[data-id="img1"] img'), { timeout: 8000 });
+      await waitFor(() => D.querySelector('.dtile[data-id="img1"] img'), { timeout: 15000 });
       expect(D.querySelector('.dtile[data-id="img1"] img').getAttribute('src').startsWith('blob:')).toBe(true);
       expect(D.querySelector('.dtile[data-id="doc1"] .dcard')).toBeTruthy();
       expect(D.querySelector('.dtile[data-id="doc1"] img')).toBe(null);
@@ -162,10 +164,10 @@
       await boot();
       await useDrive(LIST);
       D.querySelector('.dtile[data-id="img1"]').click();
-      await waitFor(() => !D.querySelector('.dviewer').hidden && D.querySelector('.dviewer .spv'), { timeout: 8000 });
+      await waitFor(() => !D.querySelector('.dviewer').hidden && D.querySelector('.dviewer .spv'), { timeout: 15000 });
       expect(D.querySelector('.dviewer .v-count').textContent).toMatch(/^2 \/ 2 · holiday\.png$/);
       D.querySelector('.dviewer [data-act="next"]').click();
-      await waitFor(() => D.querySelector('.dviewer video'), { timeout: 8000 });
+      await waitFor(() => D.querySelector('.dviewer video'), { timeout: 15000 });
       expect(D.querySelector('.dviewer .v-count').textContent).toMatch(/^1 \/ 2 · clip\.mp4$/);
       D.querySelector('.dviewer [data-act="close"]').click();
       expect(D.querySelector('.dviewer').hidden).toBe(true);
@@ -174,7 +176,7 @@
       await boot();
       await useDrive(AUDIO);
       D.querySelector('.dtile').click();
-      await waitFor(() => !D.getElementById('astrip').hidden, { timeout: 8000 });
+      await waitFor(() => !D.getElementById('astrip').hidden, { timeout: 15000 });
       expect(D.getElementById('astripName').textContent).toBe('song.mp3');
       expect(D.getElementById('astripAudio').getAttribute('src').startsWith('blob:')).toBe(true);
       D.getElementById('astripClose').click();

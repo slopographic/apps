@@ -18,7 +18,7 @@
       W.SlopProfile.reset('faces');
       W.SlopFaces.setBackend(stub());
       expect(W.SlopFaces.setEnabled(true).ok).toBe(true);
-      rec = await H.put(await DT.png('#d4ff3a', 40, 30), { name: 'portrait.png', from: 'clean' });
+      rec = await H.get(await H.put(await DT.png('#d4ff3a', 40, 30), { name: 'portrait.png', from: 'clean' }));
       await DR.refresh(); DR.render();
       expect(DR.isFaceable(rec)).toBe(true);
     });

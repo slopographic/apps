@@ -51,11 +51,9 @@
       PT.A._.autosave.flush();
       await waitFor(async () => { const s = await PT.U.idb.get('session'); return s && s.state.pages.length === 2 && s.state.pages[0].annots.length === 1; });
       await PT.boot();
-      const btn = PT.win.document.getElementById('restore');
-      await waitFor(() => !btn.hidden);
-      expect(btn.textContent).toContain('1 file, 2 pages');
-      btn.click();
-      await waitFor(() => PT.E.state.pages.length === 2);
+      // Slop PDF restores the autosaved session by itself on boot (ui/view-state.js); the Restore button stays hidden.
+      await waitFor(() => PT.E.state.pages.length === 2, { timeout: 20000 });
+      expect(PT.win.document.getElementById('restore').hidden).toBe(true);
       expect(PT.E.state.pages[1].rot).toBe(90);
       expect(PT.E.state.pages[0].annots[0].id).toBe('k');
       expect(PT.win.document.getElementById('fileName').value).toBe('keep-edited.pdf');

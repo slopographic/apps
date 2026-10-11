@@ -22,7 +22,9 @@
 
   /** Boot: bring back the saved session (when autosave is on), then the view. */
   A.restoreView = async function () {
-    var s = U.store.get('autosave', true) ? await U.idb.get('session').catch(function () { return null; }) : null;
+    // A Slop Drive launch (?drive=<id>) opens its own file, so the autosaved session is not put back over it.
+    var launching = /[?&]drive=/.test(location.search);
+    var s = U.store.get('autosave', true) && !launching ? await U.idb.get('session').catch(function () { return null; }) : null;
     if (s && s.state && s.state.pages && s.state.pages.length && !E.state.pages.length) {
       try {
         await E.restore(s);
