@@ -40,6 +40,9 @@ Access API), `sync.js` (public API, `window.SlopSync`), `ui.js` (the "Cloud back
   - `status`, `configure`, `disconnect`: no network.
 - Hosts contacted (allow-list): accounts.google.com, oauth2.googleapis.com, www.googleapis.com,
   www.dropbox.com, api.dropboxapi.com, content.dropboxapi.com. Nothing else is requested by this module.
+  This module is the only one in the cloud sync. The ECB exchange-rate download (`shared/data/rates-ecb.js`, host
+  `www.ecb.europa.eu`) is on the same kind of allow-list: it runs only when the visitor turned on the `rates` consent
+  category and pressed the button (or ticked "Update on open"). See `shared/consent/HANDOFF.md`.
 - Scope: Google uses `drive.file` (only files this app creates or opens). Dropbox uses
   `files.content.read` and `files.content.write`, which cover the whole Dropbox unless the app is set to
   App folder access. Prefer App folder when creating the Dropbox app.
