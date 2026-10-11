@@ -36,10 +36,11 @@ test('percentages: plus, minus, of, and the tax, discount and markup helpers', (
   assert.equal(ok('200 + 20%').value.v, 240);
   assert.equal(ok('200 - 15%').value.v, 170);
   assert.equal(ok('100 + 25%').value.v, 125);
-  assert.equal(ok('50%').text, '0.5');
+  assert.equal(ok('50%').text, '50%');
+  assert.equal(ok('50%').value.v, 0.5);
   assert.equal(ok('20% of 150').value.v, 30);
   assert.equal(ok('8% of 1000 + 1').value.v, 81);
-  assert.equal(ok('3 * 20%').value.v, 0.6);
+  assert.equal(ok('3 * 20%').text, '0.6');
   assert.equal(ok('tax(200, 8)').value.v, 216);
   assert.equal(ok('tax(200, 8%)').value.v, 216);
   assert.equal(ok('discount(200, 15)').value.v, 170);
