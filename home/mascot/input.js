@@ -51,6 +51,7 @@ export function bindInput(hit) {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pet(); }
   });
   hit.addEventListener('contextmenu', (e) => e.preventDefault());
+  hit.addEventListener('click', (e) => e.stopPropagation()); // pointer capture sends the click here
   hit.addEventListener('pointerenter', () => { M.hover = true; });
   hit.addEventListener('pointerleave', () => { M.hover = false; });
 }

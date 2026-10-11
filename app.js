@@ -147,7 +147,7 @@
 
   document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-view]');
-    if (!t) return;
+    if (!t || t === document.body) return; // body carries data-view as state, not as a link
     e.preventDefault();
     const v = t.dataset.view;
     history.replaceState(null, '', v === 'home' ? location.pathname + location.search : '#' + v);
