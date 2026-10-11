@@ -40,7 +40,11 @@
       if (!(e.ctrlKey || e.metaKey) && !(e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName))) e.preventDefault();
       return true;
     }
-    if (UI.st.openMenu !== null && e.key === 'Escape') { UI.closeMenus(); e.preventDefault(); return true; }
+    // A SlopUI menu (menubar dropdown or context menu) owns arrows/Enter/Escape while it has focus.
+    if (document.querySelector('.sui-menu')) {
+      if (e.key === 'Escape') { UI.closeMenus(); e.preventDefault(); return true; }
+      if (e.target && e.target.closest && e.target.closest('.sui-menu')) return true;
+    }
     return false;
   };
   function form(fields) {

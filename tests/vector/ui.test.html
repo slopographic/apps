@@ -9,7 +9,8 @@
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   const doc = () => W.document;
-  const closed = () => waitFor(() => W.SlopUI.openDialogs === 0);
+  // SlopUI fades a closed dialog out for ~140 ms; wait until it has left the DOM so the next lookup can't hit it.
+  const closed = () => waitFor(() => W.SlopUI.openDialogs === 0 && !doc().querySelector('.sui-back'));
   const svgDoc = (fill) => new Blob([`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><rect x="10" y="10" width="80" height="40" fill="${fill}"/></svg>`], { type: 'image/svg+xml' });
   async function pngBlob(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').fillRect(0, 0, w, h); return new Promise((r) => c.toBlob(r, 'image/png')); }
 
@@ -94,11 +95,26 @@
       expect(labels).not.toContain('Send to Slop Vector');
       const btn = doc().querySelector('.menu-btn[data-menu="File"]');
       btn.dispatchEvent(new W.PointerEvent('pointerdown', { bubbles: true }));
-      const row = [...doc().querySelectorAll('#menuLayer .menu-item')].find((r) => r.querySelector('.mi-label').textContent === 'Send to');
-      row.dispatchEvent(new W.MouseEvent('mouseenter'));
-      expect([...row.querySelectorAll('.submenu .mi-label')].map((x) => x.textContent)).toContain('Send PNG to Slop PDF');
-      expect([...doc().querySelectorAll('#menuLayer .mi-label')].map((x) => x.textContent)).toContain('Open from Slop Drive…');
-      UI.closeMenus();
+      const drop = doc().querySelector('.sui-menu.sv-dropdown[data-menu="File"]');
+      expect(btn.classList.contains('open')).toBe(true);
+      expect([...drop.querySelectorAll('.sui-lbl')].map((x) => x.textContent)).toContain('Open from Slop Drive…');
+      const row = [...drop.querySelectorAll('.sui-row')].find((r) => r.querySelector('.sui-lbl').textContent === 'Send to');
+      row.dispatchEvent(new W.PointerEvent('pointerenter'));
+      const sub = [...doc().querySelectorAll('.sui-menu')].find((m) => m.dataset.level === '1');
+      expect([...sub.querySelectorAll('.sui-lbl')].map((x) => x.textContent)).toContain('Send PNG to Slop PDF');
+      expect(UI.closeMenus()).toBe(true);
+      expect(doc().querySelector('.sui-menu')).toBe(null); expect(btn.classList.contains('open')).toBe(false);
+    });
+    it('menubar dropdowns are SlopUI menus that run actions and switch on hover', () => {
+      const file = doc().querySelector('.menu-btn[data-menu="File"]'), edit = doc().querySelector('.menu-btn[data-menu="Edit"]');
+      file.dispatchEvent(new W.PointerEvent('pointerdown', { bubbles: true }));
+      edit.dispatchEvent(new W.MouseEvent('mouseenter'));
+      expect(doc().querySelectorAll('.sui-menu').length).toBe(1);
+      expect(doc().querySelector('.sui-menu').dataset.menu).toBe('Edit');
+      SV.runAction('select.none');
+      [...doc().querySelectorAll('.sui-menu .sui-row')].find((r) => r.querySelector('.sui-lbl').textContent === 'All').click();
+      expect(SV.state.sel.length).toBeGreaterThan(0);
+      expect(doc().querySelector('.sui-menu')).toBe(null); expect(UI.st.openMenu).toBe(null);
     });
     it('builds SVG and 2× PNG payloads', async () => {
       SV.loadDoc(SV.sampleDoc(), { fit: false });

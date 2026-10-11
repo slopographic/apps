@@ -29,7 +29,7 @@
 }
 @media (pointer: coarse) {
   .lrow { height: 32px; }
-  .menu-item { height: 32px; }
+  .sui-menu .sui-row { min-height: 34px; }
 }
 .grid2 .fld .num { min-width: 44px; }
 .shape-sec .grid2 { grid-template-columns: 1fr; }

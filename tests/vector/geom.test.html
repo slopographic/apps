@@ -76,8 +76,8 @@
       expect(r.length).toBe(1); expect(r[0].length).toBe(4); expect(Math.abs(ringArea(r[0]))).toBeCloseTo(20000, 1e-6);
     });
     it('unites three operands in one pass and respects evenodd operands', () => {
-      const r = G.boolean([A(), B(), { rings: [square(140, 140, 20)] }], 'union');
-      expect(tot(r)).toBeCloseTo(17500 + 200, 1e-6);
+      const r = G.boolean([A(), B(), { rings: [square(160, 160, 20)] }], 'union');
+      expect(tot(r)).toBeCloseTo(17500 + 400, 1e-6);
       const donut = { rings: [square(0, 0, 100), square(25, 25, 50)], rule: 'evenodd' };
       expect(tot(G.boolean([donut, { rings: [square(40, 40, 20)] }], 'intersect'))).toBe(0);
     });
