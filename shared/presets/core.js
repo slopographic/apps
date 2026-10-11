@@ -147,6 +147,8 @@
   let user = new Map(), store = null, loaded = false;
   const newId = () => ID_PREFIX + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   const copy = (r) => JSON.parse(JSON.stringify(r));
+  /** The preset data of a record (drops id, created, modified and builtin). */
+  const dataOf = (r) => { const d = {}; for (const f of ['kind', 'label', 'description', 'apps', 'params']) if (r[f] !== undefined) d[f] = r[f]; return d; };
   /** A store that keeps records in memory (node tests, and pages without Slop Drive). */
   function memoryStore() {
     const rows = new Map();
