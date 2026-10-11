@@ -30,9 +30,9 @@ function el(tag, cls, attrs = {}) {
 }
 
 function build() {
-  if (!document.querySelector('link[data-buddy-css]')) {
-    const css = el('link', '', { rel: 'stylesheet', href: new URL('./buddy.css', import.meta.url).href, 'data-buddy-css': '' });
-    document.head.append(css);
+  for (const f of ['buddy.css', 'extras.css']) {
+    if ([...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => l.href.endsWith('/shared/buddy/' + f))) continue;
+    document.head.append(el('link', '', { rel: 'stylesheet', href: new URL('./' + f, import.meta.url).href }));
   }
   const layer = el('div', 'sloppo-layer' + (CFG.home ? '' : ' in-app'));
   layer.style.zIndex = CFG.z;
@@ -137,7 +137,7 @@ export function start(opts = {}) {
   fit();
   bindInput(M.hit);
   listeners.add(fit);
-  hud = mountHud({ onUnleash: () => setChaos(!M.chaos), onRestore: restore, on3d: () => set3d(!M.is3d), onAsk: () => tips.ask() });
+  hud = mountHud({ onUnleash: () => setChaos(!M.chaos), onRestore: restore, on3d: () => set3d(!M.is3d), onAsk: () => power.ask() });
   care.mount(hud);
   power.watch();
   if (!CFG.home) guard();

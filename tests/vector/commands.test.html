@@ -9,6 +9,7 @@
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
   let C;
+  const bx = () => SV.selBBox(SV.state.sel).x;
   const key = (code, k, mods = {}, target) => { const e = new W.KeyboardEvent('keydown', Object.assign({ code, key: k, bubbles: true, cancelable: true }, mods)); (target || W.document.body).dispatchEvent(e); return e; };
 
   describe('SlopCmd in Slop Vector', () => {
@@ -23,15 +24,16 @@
       expect(C.get('sv.tool.rrect').keys.map((k) => C.canon(k))).toEqual(['Shift+M']);
     });
 
-    it('runs tools, actions and canvas keys through SlopCmd', () => {
+    it('runs tools, actions and canvas keys through SlopCmd', async () => {
       blank();
       key('KeyM', 'm'); expect(SV.state.tool).toBe('rect');
       key('KeyM', 'M', { shiftKey: true }); expect(SV.state.tool).toBe('rrect');
       key('KeyV', 'v'); expect(SV.state.tool).toBe('select');
       const L = SV.activeLayer(); L.children.push(SV.mk.rect(10, 10, 50, 50, 0, { fill: '#f00' })); SV.commit('r'); SV.select([L.children[0].id]);
-      key('ArrowRight', 'ArrowRight'); expect(SV.state.doc.layers[0].children[0].x).toBe(10 + SV.state.prefs.keyInc);
-      key('ArrowRight', 'ArrowRight', { shiftKey: true }); expect(SV.state.doc.layers[0].children[0].x).toBe(10 + SV.state.prefs.keyInc * 11);
-      key('KeyZ', 'z', { ctrlKey: true }); expect(SV.state.doc.layers[0].children[0].x).toBe(10 + SV.state.prefs.keyInc);
+      key('ArrowRight', 'ArrowRight'); expect(bx()).toBe(10 + SV.state.prefs.keyInc);
+      key('ArrowRight', 'ArrowRight', { shiftKey: true }); expect(bx()).toBe(10 + SV.state.prefs.keyInc * 11);
+      key('KeyZ', 'z', { ctrlKey: true }); expect(SV.state.doc.layers[0].children[0].x).toBe(10); // quick nudges merge into one undo step
+      SV.select([SV.state.doc.layers[0].children[0].id]);
       const g = SV.state.prefs.guides; key('Semicolon', ';', { ctrlKey: true }); expect(SV.state.prefs.guides).toBe(!g); key('Semicolon', ';', { ctrlKey: true });
       key('Delete', 'Delete'); expect(SV.state.doc.layers[0].children.length).toBe(0);
     });

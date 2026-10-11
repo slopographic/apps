@@ -81,6 +81,7 @@
   A.isPhone = () => window.innerWidth <= 760;
   A.setPane = function (pane) {
     A.els.app.dataset.pane = pane;
+    if (SE.bin && (pane === 'media' || pane === 'effects') && SE.bin.tab !== pane) { SE.bin.tab = pane; SE.bin.render(); }
     U.$$('.mtab', A.els.mtabs).forEach((b) => b.classList.toggle('on', b.dataset.pane === pane));
     SE.emit('layout', {});
   };

@@ -1,6 +1,11 @@
 /* Sloppo, the homepage mascot (home/mascot/). Tokens come from style/base.css. */
-body.has-sloppo { position: relative; }
-.sloppo-layer { position: absolute; inset: 0; z-index: 15; overflow: clip; pointer-events: none; }
+/* The layer spans the whole page (its height is kept in sync by engine.js) and lets clicks through. */
+.sloppo-layer { position: absolute; left: 0; top: 0; width: 100%; z-index: 15; overflow: clip; pointer-events: none; }
+.sloppo-layer[hidden], .sloppo-hud[hidden] { display: none; }
+/* In apps he turns into a ghost while you work (press, drag, paint, play). */
+.sloppo-layer.is-ghost .sloppo { opacity: .28; transition: opacity .2s; }
+.sloppo-layer.is-ghost .sloppo-hit, .sloppo-layer.is-ghost .sloppo-say { pointer-events: none; }
+@media print { .sloppo-layer, .sloppo-hud { display: none; } }
 .sloppo { position: absolute; left: 0; top: 0; will-change: transform; }
 .sloppo[hidden] { display: none; }
 .sloppo-svg { position: absolute; inset: 0; overflow: visible; pointer-events: none; transition: filter .3s; }
