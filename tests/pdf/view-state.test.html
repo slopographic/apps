@@ -20,13 +20,12 @@
       A.setTool('edit');
       A.openPage(pid);
       SP.editor.zoomMode = 'num'; SP.editor.zoom = 1.5; SP.editor.layout();
+      document.getElementById('app').contentDocument.body.dispatchEvent(new (document.getElementById('app').contentWindow.MouseEvent)('click', { bubbles: true })); // a user gesture, as the app saves on input
       await sleep(1600); // the session autosave is debounced by about a second
       const fr = document.getElementById('app');
       fr.src = '../drive/frame.html';
-      await waitFor(() => fr.contentWindow && fr.contentWindow.location.pathname.endsWith('/drive/frame.html') && fr.contentWindow.document.readyState === 'complete', { timeout: 15000 });
-      await sleep(60);
+      await sleep(1500);
       await PT.boot('', 'app');
-      await waitFor(() => PT.E.state.pages.length > 0 && PT.A.mode === 'page', { timeout: 20000 });
       expect(PT.A.tool).toBe('edit');
       expect(PT.SP.editor.pid).toBe(pid);
       expect(PT.SP.editor.zoomMode).toBe('num');

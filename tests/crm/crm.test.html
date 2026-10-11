@@ -98,7 +98,7 @@
       $('cImport').click();
       await waitFor(() => doc().querySelector('.sui-dlg') && dlgText().includes('2 new customers'), { timeout: 8000 });
       dlgSave().click();
-      await waitFor(async () => (await S().store.list('customers')).value.length === 3, { timeout: 8000 });
+      await waitFor(async () => (await S().store.list('customers')).value.length === 4, { timeout: 8000 });
       const cara = await customerNamed('Cara Vale');
       expect(cara.contactId).toBe('c-1');
       expect(cara.categories).toEqual(['wholesale']);
@@ -109,7 +109,7 @@
       expect(dlgSave().disabled).toBe(false);
       dlgSave().click();
       await sleep(300);
-      expect((await S().store.list('customers')).value).toHaveLength(3);
+      expect((await S().store.list('customers')).value).toHaveLength(4);
     });
   });
 

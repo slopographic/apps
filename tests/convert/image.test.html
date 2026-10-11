@@ -67,7 +67,7 @@ describe('other raster outputs', () => {
     expect(b[4] + (b[5] << 8)).toBe(1);
     expect(b[6]).toBe(32);
     expect(b[7]).toBe(32);
-    expect(String.fromCharCode(b[25], b[26], b[27])).toBe('PNG');
+    expect(String.fromCharCode(b[23], b[24], b[25])).toBe('PNG');
   });
   it('keeps transparency in WebP output where the browser can write WebP', async () => {
     const out = await convertImage(await halfTransparentPng(), { kind: 'png', to: 'webp', quality: 0.9 }).catch((e) => ({ error: e }));

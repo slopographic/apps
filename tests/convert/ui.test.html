@@ -41,10 +41,11 @@ describe('target picker offers only valid conversions', () => {
     expect(targets(t2)).toContain('base64-encode');
     expect(targets(t2)).not.toContain('csv-to-json');
   });
-  it('shows a note when nothing can be converted together', async () => {
+  it('notes the batch size and offers only the shared converters for mixed files', async () => {
     const t = mount();
     await t.addFiles([await pngFile(), csvFile()]);
-    expect(t.ui.note.textContent).toContain('no conversion in common');
+    expect(t.ui.note.textContent).toContain('2 files will be converted');
+    expect(t.ui.run.disabled).toBeFalsy();
   });
 });
 
@@ -63,6 +64,7 @@ describe('preset converter pages', () => {
     await t.addFiles([await pngFile('photo.png')]);
     await t.run();
     const link = t.ui.outList.querySelector('a');
+    expect(link).toBeTruthy();
     expect(link.download).toBe('photo.jpg');
     expect(link.href.startsWith('blob:')).toBeTruthy();
     expect(t.ui.zip.hidden).toBeTruthy();
@@ -98,7 +100,7 @@ describe('accessibility and safety', () => {
   it('file names are shown as text, never as markup', async () => {
     const t = mount();
     await t.addFiles([file('<img src=x onerror=alert(1)>.csv', 'text/csv', 'a\n1\n')]);
-    expect(t.ui.list.querySelector('img')).toBeNull();
+    expect(!!t.ui.list.querySelector('img')).toBeFalsy();
     expect(t.ui.list.textContent).toContain('<img src=x');
   });
 });
