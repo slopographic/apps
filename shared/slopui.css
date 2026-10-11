@@ -26,9 +26,11 @@
 .sui-back.sui-out { animation: sui-out .14s ease-in forwards; }
 @keyframes sui-in { from { opacity: 0; } }
 @keyframes sui-out { to { opacity: 0; } }
-.sui-dlg { width: min(420px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: var(--s-bg); border: 1px solid var(--s-line); border-radius: calc(var(--s-radius) + 3px); box-shadow: var(--s-shadow); animation: sui-pop .18s cubic-bezier(.2, 1.4, .4, 1); }
+.sui-dlg { width: min(580px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: var(--s-bg); border: 1px solid var(--s-line); border-radius: calc(var(--s-radius) + 3px); box-shadow: var(--s-shadow); animation: sui-pop .18s cubic-bezier(.2, 1.4, .4, 1); }
 .sui-dlg.sui-moved { position: fixed; margin: 0; }
-.sui-dlg.sui-wide { width: min(860px, 100%); }
+.sui-dlg.sui-wide { width: min(980px, 100%); }
+.sui-dlg.sui-full, .sui-dlg.tpl-full-dlg { width: min(1320px, calc(100vw - 32px)); height: calc(100vh - 32px); max-height: calc(100vh - 32px); }
+.sui-dlg.sui-full .sui-body, .sui-dlg.tpl-full-dlg .sui-body { flex: 1; min-height: 0; overflow: auto; padding: 18px; background: var(--s-panel, transparent); }
 .sui-dlg.sui-narrow { width: min(320px, 100%); }
 @keyframes sui-pop { from { transform: translateY(6px) scale(.98); opacity: 0; } }
 .sui-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 8px 8px 14px; border-bottom: 1px solid var(--s-line); font-weight: 600; cursor: move; user-select: none; touch-action: none; }
