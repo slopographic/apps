@@ -62,13 +62,29 @@
     store(cur, KF.setEase(cur.keys, i, ease));
     return true;
   };
-  /** Animate in: writes the preset's keys for the first half second of the current slot. */
+  /** Animate in: writes the preset's keys for the first half second of the current slot. A library motion preset writes
+   * its own keys (SlopPresets.motion.toRemixKeys); the built-in names keep the KF.ANIMATE keys. */
   K.animateIn = function (name) {
     const cur = K.current();
     if (!cur) return false;
-    store(cur, KF.animateIn(cur.keys, name, cur.span));
+    const lib = window.SlopPresets, p = lib && !KF.ANIMATE.some((a) => a[0] === name) ? lib.get(name) : null;
+    if (p && p.kind === 'motion') {
+      const fresh = lib.motion.toRemixKeys(p.params, cur.span).map((k) => KF.make(k.t, k.pose, k.ease));
+      const end = fresh.length ? fresh[fresh.length - 1].t : 0;
+      store(cur, fresh.concat(KF.sort(cur.keys).filter((k) => k.t > end + 0.001)));
+    } else store(cur, KF.animateIn(cur.keys, name, cur.span));
     RM.state.selKey = 0;
     return true;
+  };
+  /** The slot's keys as a motion preset's params (x, y, scale, rot, opacity; times in seconds). Null with no keys. */
+  K.motionParams = function (keys) {
+    const lib = window.SlopPresets, ks = KF.sort(keys);
+    if (!lib || !ks.length) return null;
+    const tracks = {};
+    for (const prop of ['x', 'y', 'scale', 'rot', 'opacity']) {
+      tracks[prop] = ks.map((k) => ({ t: k.t, value: k[prop], ease: KF.EASE_MAP[k.ease] || 'linear' }));
+    }
+    return lib.motion.make(Math.max(ks[ks.length - 1].t, 0.05), tracks);
   };
   /** Reset: removes every key of the current slot. */
   K.reset = function () {

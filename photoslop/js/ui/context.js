@@ -73,7 +73,7 @@ function canvasItems({ x, y }) {
     if (hits.length) { for (const L of hits) items.push({ label: L.name, check: () => L.id === D.activeId, act: () => { D.activeId = L.id; UI.editMask = false; emit('doc'); } }); items.push('-'); }
   }
   if (D.sel) items.push(M('Select', 'Deselect'), M('Select', 'Inverse'), M('Select', 'Feather…'), '-',
-    M('Layer', 'Layer via Copy'), M('Layer', 'Layer via Cut'), '-',
+    M('Layer', 'Layer via Copy'), M('Layer', 'Layer via Cut'), { label: 'Isolate Subject…', act: () => isolateSubject() }, '-',
     M('Edit', 'Fill with Foreground'), M('Edit', 'Stroke Selection…'), M('Edit', 'Clear'), '-');
   else if (['marquee', 'ellipse', 'lasso', 'polylasso', 'wand'].includes(id)) items.push(M('Select', 'All'), { label: 'Select Layer Pixels', act: () => selectLayerPixels(activeLayer()) }, '-');
   items.push(M('Edit', 'Free Transform'), M('Edit', 'Undo'), '-', M('Edit', 'Copy'), M('Edit', 'Copy Merged'));
@@ -89,7 +89,7 @@ function selectLayerPixels(L) { const c = mkCanvas(D.w, D.h); cx(c).drawImage(ba
 function activateLayer(L) { if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); } }
 function layerItems(L) {
   activateLayer(L);
-  return [M('Edit', 'Free Transform'), '-', M('Layer', 'Layer Properties…'), M('Layer', 'Duplicate Layer'), M('Layer', 'Delete Layer'), '-',
+  return [M('Edit', 'Free Transform'), '-', M('Layer', 'Layer Properties…'), M('Layer', 'Duplicate Layer'), M('Layer', 'Delete Layer'), { label: 'Isolate Subject…', act: () => isolateSubject(L.id) }, '-',
     { label: 'Select Pixels', act: () => selectLayerPixels(L) }, (hasMask() ? M('Layer', 'Mask') : { label: 'Add layer mask', sub: maskAddItems() }), M('Layer', 'Layer Style'), { label: 'Apply Effect Preset…', act: () => fxPresetPick(L.id) }, { label: 'Save Effects as Preset…', act: () => fxPresetSaveDialog(L.id), en: () => !!(L.fx && L.fx.length) },{ label: L.clip ? 'Release Clipping Mask' : 'Create Clipping Mask', act: () => setClipping(L.id, !L.clip) }, '-',
     M('Layer', 'Rotate and Flip'), '-',
     M('Layer', 'Lock / Unlock Layer'), { label: L.visible ? 'Hide Layer' : 'Show Layer', act: () => setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer') }, '-',

@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   const CO = window.CO, U = CO.util, S = CO.state, $ = U.$;
-  const MODULES = ['view', 'pointer', 'ctxbar', 'panel', 'queue', 'menus', 'commands', 'ctxmenu', 'files'];
+  const MODULES = ['view', 'pointer', 'ctxbar', 'panel', 'queue', 'menus', 'commands', 'ctxmenu', 'files', 'send'];
   let busyBy = null;
 
   function startModules() {
@@ -83,7 +83,10 @@
     if (!hub) return;
     hub.register('cutout');
     const rec = await hub.consumeLaunch();
-    if (rec && CO.process) CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })]);
+    if (!rec || !CO.process) return;
+    // A file PhotoSlop sent to be cut out (Layer ▸ Isolate Subject) remembers its request: the mask goes back to it.
+    const [it] = CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })]);
+    if (it && rec.meta && rec.meta.requestId) it.request = { requestId: rec.meta.requestId };
   }
 
   function boot() {

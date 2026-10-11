@@ -251,7 +251,7 @@
       const f = document.createElement('iframe');
       f.src = '../../photoslop/index.html?drive=' + id; document.body.append(f);
       try {
-        await waitFor(() => f.contentWindow.document.body.classList.contains('ready'), { timeout: 15000 });
+        await waitFor(() => f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready'), { timeout: 15000 });
         const D2 = f.contentWindow.eval('D');
         expect(D2.name).toBe('hello');
         expect(D2.w).toBe(7);

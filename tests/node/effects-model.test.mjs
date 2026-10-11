@@ -105,7 +105,7 @@ test('animate in starts at an offset and ends at rest; animate out does the reve
   dEq(values.valuesAt(outDoc, layerOf(outDoc, id), 0.5).position, [500, 500], 'still at rest before the out');
   dEq(values.valuesAt(outDoc, layerOf(outDoc, id), 2).position, [500, 540], 'ends 40 px below');
   const pop = motion.animate(doc, id, 'in', 'pop');
-  assert.equal(values.valuesAt(pop, layerOf(pop, id), 0).scale[0], 0, 'pop starts at scale zero');
+  assert.ok(Math.abs(values.valuesAt(pop, layerOf(pop, id), 0).scale[0]) < 1e-9, 'pop starts at scale zero');
   assert.throws(() => motion.animate(doc, id, 'in', 'shake'), /unknown preset/);
 });
 

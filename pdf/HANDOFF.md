@@ -9,7 +9,7 @@ both vendored in `/vendor/`).
   rotate, delete, duplicate, insert blank, insert from file, reverse, sort/collate, extract selection.
 - Split by ranges / every N / each page, to zip (hand-written store-only zip, CRCs verified) or separate files.
 - Undo/redo for all operations.
-- Page view: zoom (wheel, buttons, pinch code), annotations: text, pen, highlighter, rect, ellipse,
+- Page view: navigation and zoom through `shared/nav` (see below), annotations: text, pen, highlighter, rect, ellipse,
   line, arrow, whiteout, highlight box, image, signature (draw/type/saved in localStorage).
   Move/resize/edit/delete. Export placement verified pixel-exact on /Rotate 90, user-rotated and
   offset-MediaBox pages.
@@ -57,8 +57,35 @@ both vendored in `/vendor/`).
   - No "keep vector text" mode is offered (content-stream rewriting was not done; image-only is the safe path).
     Invisible OCR text on redacted pages is lost too (they become pure images).
 
+## Navigation and zoom (page view)
+The page view uses the shared navigation engine (`shared/nav`, `SlopNav.engine.attach`), not its own wheel or pinch code.
+The bindings are fixed for Slop PDF (`NAV` in `js/editor/view.js`), so the Navigation preset store does not apply here:
+- Ctrl/⌘ + wheel zooms about the pointer, eased over 120 ms; a trackpad pinch (small Ctrl + wheel deltas) is immediate.
+- The plain wheel scrolls the pages vertically and Shift + wheel scrolls them sideways. The engine is opened with
+  `passthrough: true`, so a wheel it does not bind is left to the viewer's native scrolling.
+- Ctrl/⌘ + and − zoom (eased), Ctrl/⌘ 0 fits the page width, Ctrl/⌘ 1 is 100%. The grid keeps its own keys: the engine's
+  `skip` hands every key and Space to SlopCmd outside page view, so Ctrl/⌘ + in the grid still resizes thumbnails.
+- Space drag and middle drag pan. Touch: two-finger pinch zooms (immediate) and two-finger drag pans. A single-finger
+  drag on the empty viewer pans from `S.startPan`, which `cancelStroke` stops when a second finger lands.
+- Zoom limits are 10% to 800% as the status bar shows them. The status bar is `Ed.zoom × 72/96` (1 is 75%), so the
+  internal limits are `Ed.ZOOM_MIN` / `Ed.ZOOM_MAX` (0.133 to 10.67). `Ed.easing()` tells tests when an ease has landed.
+- Anchoring: each eased frame keeps the page point under the pointer in place (`setRaw`). A page smaller than the
+  viewer cannot scroll, so the rest of the move becomes a `left`/`top` offset on the page; the next layout clears it.
+  The viewer sets `overflow-anchor: none`, so the browser does not also move the scroll.
+- Phone width (≤ 900 px): the status bar is hidden, so a floating cluster (`.pv-zoomfab`, built in `Ed.init`) shows
+  − / percentage / + / fit width above the bottom rail. The toolbar's zoom buttons stay in the context bar too.
+- Saved view: `ui/view-state.js` saves the zoom, mode and scroll. Its listeners are on `window` in capture phase,
+  because the engine stops the wheel, Space and pointer events it takes before any listener further down sees them.
+  A reopened page keeps the saved zoom when the app reloads; opening a page from the grid still starts at fit (as before).
+
+## Engine changes made for this (shared/nav)
+- `engine.attach({ passthrough: true })`: an unbound wheel is not stopped (default off, so the other apps are unchanged).
+- Fixed the pinch start: `touchDown` stored the midpoint in client coordinates while every later midpoint is
+  host-relative, so the first pinch move jumped by the host's offset. Affects any app whose host is not at the
+  window's origin (PhotoSlop, SlopVector, Slop PDF).
+
 ## Tests
-`node tests/run.mjs pdf` runs `tests/pdf/pdf.test.html` (46 tests, ~80 s, all green). The real app runs in
+`node tests/run.mjs pdf` runs `tests/pdf/pdf.test.html` (49 tests, ~120 s) and `tests/pdf/view-state.test.html`. The real app runs in
 an iframe; `tests/pdf/pdf.helpers.js` (`window.PT`) boots it, makes fixture PDFs with the app's own pdf-lib,
 opens them through `A.addFiles`, captures downloads and reads output back with pdf.js. Specs:
 - `pdf.spec-core.js`: ranges, zip/CRC, sniffing, geometry, page ops, undo/redo/coalescing, page-number text,
@@ -155,3 +182,6 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
 
 - **Save (Ctrl+S)** builds the PDF and writes it back to the Drive file the document came from (`A.driveId`, set when a Drive file opens into an empty document, cleared by Close all and Try the sample). The first save asks for a folder. Without the hub or offline, Ctrl+S downloads as before; `File ▸ Download PDF` is unchanged (no shortcut now).
 - Open from Drive, `?drive=` launch and `register('pdf')` as before.
+- `pdf.spec-nav.js`: Ctrl+wheel zooms about the pointer (eased, the document point stays under the pointer), the plain
+  wheel is left to the viewer, Shift+wheel scrolls sideways, 10% and 800% limits, Ctrl/⌘ 0 fits the width, and the zoom
+  comes back after a reload.
