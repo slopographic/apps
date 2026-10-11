@@ -44,10 +44,10 @@
       expect(row('f:' + page).getAttribute('aria-current')).toBe('true');
     });
 
-    it('right-click on a file shows Open, New, Rename, Copy path and Delete', async () => {
+    it('right-click on a file shows Open, New, Rename, Move to, Copy path and Delete', async () => {
       rightClick(row('f:' + readme));
       await waitFor(() => menuItem('Rename…'), { timeout: 3000 });
-      expect(menuLabels()).toEqual(['Open', 'New', 'Rename…', 'Copy path', 'Delete…']);
+      expect(menuLabels()).toEqual(['Open', 'New', 'Rename…', 'Move to…', 'Copy path', 'Delete…']);
       w.SlopUI.closeMenu();
     });
 
