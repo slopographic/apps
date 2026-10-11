@@ -9,6 +9,7 @@
   const run = (name, ...a) => () => (act[name] ? act[name](...a) : undefined);
   const hasClips = () => SE.doc.clips.length > 0;
   const hasSel = () => SE.app.selectedIds().length > 0;
+  const hasMask = () => { const c = SE.app.primary(); return !!(c && c.mask); };
   const T = SE.model.TRANSITIONS;
 
   C.list = [
@@ -87,6 +88,15 @@
     { id: 'clip.keysReset', title: 'Reset keyframes', group: 'Clip', keywords: ['animation', 'keyframe'], when: hasSel, run: run('resetKeys') },
     { id: 'clip.effectReset', title: 'Reset random effect layer', group: 'Clip', when: hasSel, run: run('resetEffect') },
     { id: 'clip.volKey', title: 'Add volume keyframe at playhead', group: 'Clip', keys: ['Shift+K'], when: hasSel, run: run('addVolumeKey') },
+    // Clip masks (core/mask.js, render/mask-input.js, ui/insp-mask.js)
+    { id: 'mask.add.rect', title: 'Add mask: rectangle', group: 'Clip', keywords: ['mask', 'crop', 'shape'], when: hasSel, run: run('maskAdd', 'rect') },
+    { id: 'mask.add.ellipse', title: 'Add mask: ellipse', group: 'Clip', keywords: ['mask', 'circle', 'oval', 'shape'], when: hasSel, run: run('maskAdd', 'ellipse') },
+    { id: 'mask.add.rrect', title: 'Add mask: rounded rectangle', group: 'Clip', keywords: ['mask', 'corner', 'radius', 'shape'], when: hasSel, run: run('maskAdd', 'rrect') },
+    { id: 'mask.draw.free', title: 'Draw mask: freehand', group: 'Clip', keywords: ['mask', 'path', 'brush', 'lasso'], when: hasSel, run: run('maskTool', 'free') },
+    { id: 'mask.draw.pen', title: 'Draw mask: bezier path', group: 'Clip', keywords: ['mask', 'pen', 'curve', 'path'], when: hasSel, run: run('maskTool', 'pen') },
+    { id: 'mask.remove', title: 'Remove mask', group: 'Clip', keywords: ['mask', 'clear', 'delete'], when: hasMask, run: run('maskRemove') },
+    { id: 'mask.invert', title: 'Invert mask', group: 'Clip', keywords: ['mask', 'outside', 'flip'], checked: () => { const c = SE.app.primary(); return !!(c && c.mask && c.mask.invert); }, when: hasMask, run: run('maskInvert') },
+    { id: 'mask.edit', title: 'Edit mask shape (monitor handles)', group: 'Clip', keywords: ['mask', 'handles', 'points'], checked: () => { const c = SE.app.primary(); return !!(c && SE.maskInput && SE.maskInput.edit === c.id); }, when: hasMask, run: run('maskEdit') },
     // Templates and random edit
     { id: 'tpl.panel', title: 'Templates panel', group: 'Sequence', keys: ['Shift+G'], keywords: ['layout', 'split', 'grid', 'picture in picture', 'slots'], run: run('openTemplates') },
     { id: 'tpl.random', title: 'Random edit…', group: 'Sequence', keys: ['Shift+R'], keywords: ['shuffle', 'auto edit', 'montage', 'seed', 'build'], run: run('randomDialog') },

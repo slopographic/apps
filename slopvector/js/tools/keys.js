@@ -38,7 +38,7 @@
     if (combo === 'mod+c' || combo === 'mod+x') { if (combo === 'mod+c') C.copy(); else C.cut(); return; }
     if (combo === 'mod+v') {
       clearTimeout(pasteTimer);
-      pasteTimer = setTimeout(function () { pasteTimer = null; C.paste(); }, 80);
+      pasteTimer = setTimeout(function () { pasteTimer = null; if (!SV.buffer.pasteIfNewer()) C.paste(); }, 80);
       return;
     }
     // With SlopCmd (ui/commands.js) every other shortcut is a customizable command; only context keys remain here.
@@ -110,7 +110,9 @@
       clearTimeout(pasteTimer); pasteTimer = null;
       e.preventDefault();
       var dt = e.clipboardData, files = dt ? Array.from(dt.files || []) : [];
-      if (files.length) { SV.io.placeFiles(files); return; }
+      if (files.length && !SV.buffer.ownsPasteFile(files[0])) { SV.io.placeFiles(files); return; }
+      if (SV.buffer.pasteIfNewer()) return;
+      if (files.length) { C.paste(); return; }
       var txt = dt ? dt.getData('text/plain') : '';
       if (!txt || (S.clipboard && txt === S.clipText)) { C.paste(); return; }
       if (/<svg[\s>]/i.test(txt)) { SV.io.importSVGText(txt, { place: true }); return; }

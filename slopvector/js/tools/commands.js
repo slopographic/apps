@@ -33,7 +33,7 @@
   };
   C.copy = function () {
     var ids = topSel(); if (!ids.length) return false;
-    S.clipboard = { objs: ids.map(function (id) { return clone(getObj(id)); }), box: SV.selBBox(ids), assets: {} };
+    S.clipboard = { objs: ids.map(function (id) { return clone(getObj(id)); }), box: SV.selBBox(ids), assets: {}, t: Date.now() };
     S.clipboard.objs.forEach(function (o) { SV.leaves(o).forEach(function (l) { if (l.type === 'image') S.clipboard.assets[l.asset] = S.doc.assets[l.asset]; }); });
     try { S.clipText = SV.io.exportSVG({ ids: ids }); } catch (e) { S.clipText = ''; }
     return true;

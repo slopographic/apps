@@ -59,7 +59,7 @@
     var kids = r.layers[0] ? r.layers[0].children : [];
     if (!kids.length) { SV.toast('Nothing to import in that SVG', 'warn'); return null; }
     if (!SV.canDraw()) return null;
-    var o = kids.length === 1 ? kids[0] : SV.mk.group(kids, opts.name || 'Placed SVG');
+    var o = kids.length === 1 && !opts.group ? kids[0] : SV.mk.group(kids, opts.name || 'Placed SVG');
     if (opts.name && !o.name) o.name = opts.name;
     var b = SV.objBBox(o), c = opts.at;
     if (!c) { var rr = SV.dom.stage.getBoundingClientRect(); c = SV.toDoc(rr.width / 2, rr.height / 2); }

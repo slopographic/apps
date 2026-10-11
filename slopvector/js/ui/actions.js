@@ -43,6 +43,7 @@
   act('file.save', 'Save', ['mod+s'], function () { SV.hub.save(); });
   act('file.saveAs', 'Save As…', ['mod+shift+s'], function () { saveAsDialog(); });
   act('file.exportSVG', 'Export as SVG…', [], function () { IO.exportPlainSVG(); });
+  act('file.exportBuffer', 'Export to buffer', [], function () { SV.buffer.exportToBuffer(); });
   act('file.exportPNG', 'Export as PNG…', ['mod+shift+e'], function () { rasterDialog('png'); });
   act('file.exportJPG', 'Export as JPG…', [], function () { rasterDialog('jpg'); });
   act('file.exportPDF', 'Export as PDF…', [], function () { pdfDialog(false); });
@@ -55,7 +56,9 @@
   act('edit.redo', 'Redo', ['mod+shift+z'], function () { SV.redo(); }, { enabled: function () { return S.hIdx < S.history.length - 1; } });
   act('edit.cut', 'Cut', ['mod+x'], function () { C.copy(); try { document.execCommand('copy'); } catch (e) { /* ignore */ } C.cut(); }, { enabled: hasSel });
   act('edit.copy', 'Copy', ['mod+c'], function () { C.copy(); try { document.execCommand('copy'); } catch (e) { /* ignore */ } UI.toast('Copied'); }, { enabled: hasSel });
+  act('edit.copyBuffer', 'Copy as buffer', [], function () { SV.buffer.copyAsBuffer(); }, { enabled: hasSel });
   act('edit.paste', 'Paste', ['mod+v'], function () {
+    if (SV.buffer.pasteIfNewer()) return;
     if (S.clipboard) return C.paste();
     if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(function (t) { if (/<svg[\s>]/i.test(t)) IO.importSVGText(t, { place: true }); else UI.toast('Clipboard is empty'); }).catch(function () { UI.toast('Clipboard is empty'); });
     else UI.toast('Clipboard is empty');
