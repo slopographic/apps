@@ -4,7 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopTime = g.SlopTime || {});
-  const Z = ns.zones, S = ns.state, W = ns.work, UI = ns.ui, $ = UI.$;
+  const T = g.SlopTime, Z = ns.zones, S = ns.state, W = ns.work, UI = ns.ui, $ = UI.$;
   let zones = [];
 
   function renderChips() {
@@ -46,9 +46,31 @@
       const each = document.createElement('p');
       each.className = 'st-win-each';
       each.textContent = zones.map((z) => `${Z.cityOf(z)} ${UI.hm(z, w.start)}–${UI.hm(z, w.end)}`).join(' · ');
-      li.append(head, each);
+      const add = document.createElement('button');
+      add.type = 'button';
+      add.className = 'st-btn st-small';
+      add.textContent = 'Add to Calendar';
+      add.setAttribute('aria-label', `Add the meeting ${UI.windowLabel(home, w.start, w.end)} to Calendar`);
+      add.addEventListener('click', () => addToCalendar(w, home));
+      li.append(head, each, add);
       out.append(li);
     }
+  }
+
+  /** Saves one planned window to the shared Calendar as a meeting in the home zone (the Calendar reads it from the same store). */
+  async function addToCalendar(w, home) {
+    const msg = $('st-meet-msg');
+    msg.textContent = '';
+    if (!g.SlopEvents || !g.SlopData) { msg.textContent = 'Calendar is not available in this browser.'; return; }
+    const a = T.parts(w.start, home), b = T.parts(w.end, home);
+    const hm = (q) => `${UI.pad(q.h)}:${UI.pad(q.mi)}`;
+    const people = zones.map((z) => Z.cityOf(z));
+    const made = g.SlopEvents.fromForm({ title: people.length ? `Meeting with ${people.join(', ')}` : 'Meeting', kind: 'meeting',
+      allDay: false, date: a.day, endDate: b.day, startTime: hm(a), endTime: hm(b), tz: home,
+      notes: `Planned in Slop Time, ${zones.map((z) => `${Z.cityOf(z)} ${UI.hm(z, w.start)}–${UI.hm(z, w.end)}`).join(', ')}.` });
+    if (!made.ok) { msg.textContent = made.error; return; }
+    const r = await g.SlopEvents.save(made.value);
+    msg.textContent = r.ok ? `Added to Calendar: ${UI.windowLabel(home, w.start, w.end)}.` : (r.message || 'The meeting was not added.');
   }
 
   function addZone() {

@@ -1,6 +1,6 @@
 /* SlopTour: SlopVector. Targets are ids in slopvector/index.html. */
 SlopTour.define({
-  app: 'vector',
+  app: 'slopvector',
   title: 'SlopVector tour',
   steps: [
     { id: 'menus', title: 'Menus', text: 'File, Edit, Object, Type and the other menus list every command.', target: '#menus' },

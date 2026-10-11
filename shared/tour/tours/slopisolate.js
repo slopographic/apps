@@ -1,6 +1,6 @@
 /* SlopTour: Slop Isolate (the slopisolate folder). Targets are ids in slopisolate/index.html. */
 SlopTour.define({
-  app: 'cutout',
+  app: 'slopisolate',
   title: 'Slop Isolate tour',
   steps: [
     { id: 'queue', title: 'Image list', text: 'Every image you open is listed here. Click one to work on it.', target: '#queue' },
