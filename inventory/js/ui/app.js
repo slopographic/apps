@@ -49,8 +49,12 @@
     S.store.subscribe(() => refreshSoon());
     addEventListener('hashchange', () => show(location.hash.slice(1)));
     NS.state.settings = await U.settings();
-    const start = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'products';
+    // An explicit #view wins; otherwise the view Inventory was left on (ui/view-state.js), else Products.
+    const hashView = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : null;
+    const place = await NS.viewState.restore();
+    const start = hashView || (place && VIEWS.includes(place.view) ? place.view : 'products');
     show(start);
+    NS.viewState.restoreScroll(place);
   }
 
   NS.app = { show, refresh, refreshSoon, boot };
