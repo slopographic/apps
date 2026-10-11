@@ -50,6 +50,13 @@
       expect(fired.length).toBe(2);
       expect(fired[1]).toBe(T0 + 5 * 60000);
     });
+
+    it('a due reminder shows in the in-app notifications with its title and a line of when', async () => {
+      await w().SlopReminderEngine.addCustom('Notify me', now - 1000);
+      const found = () => w().SlopNotify.history().find((r) => r.title === 'Notify me');
+      await waitFor(async () => { await w().SlopReminderEngine.scan(); return found(); }, { timeout: 8000 });
+      expect(found().body).toContain('Reminder ·');
+    });
   });
 
   run({ name: 'Reminders · snooze' });
