@@ -54,7 +54,7 @@
     A('slopedit', 'app', 'SlopEdit', 'slopedit/', 'A video editor that never uploads your footage.', {
       accepts: ['video/*', 'audio/*', 'image/*'],
       features: ['Multi-track timeline', 'Trim, split, transitions & titles', 'Hardware MP4 export (WebCodecs)', 'Offline .html'],
-      shot: 'assets/shots/slopedit.jpg', icon: 'film', status: 'building' }),
+      shot: 'assets/shots/slopedit.jpg', icon: 'film', status: 'beta' }),
     A('drive', 'app', 'Slop Drive', 'drive/', 'Every file from every app, in one local drive.', {
       accepts: ['*'],
       features: ['Folders, stars, Trash & search', 'Grid, list, columns, node graph & disk usage', 'Duplicate finder', 'One-file backup & restore'],
