@@ -55,7 +55,8 @@
       U.h('div', { class: 'thumb-grip', 'aria-hidden': 'true', html: U.icon('grip') }),
       U.h('div', { class: 'thumb-cap' }, U.h('span', { class: 'fdot' }), U.h('span', { class: 'pnum' }), U.h('span', { class: 'psrc' })),
       U.h('span', { class: 'thumb-badge', hidden: true }),
-      U.h('span', { class: 'thumb-part', hidden: true }));
+      U.h('span', { class: 'thumb-part', hidden: true }),
+      U.h('span', { class: 'thumb-redact', hidden: true }));
     io.observe(el);
     return el;
   }
@@ -85,7 +86,10 @@
       el.setAttribute('aria-label', 'Page ' + (i + 1) + (p.blank ? ', blank' : ', from ' + (f ? f.name : '') + ' page ' + (p.i + 1)) + (p.rot ? ', rotated ' + p.rot + '°' : ''));
       el.title = p.blank ? 'Blank page' : f.name + ' — page ' + (p.i + 1);
       var badge = el.querySelector('.thumb-badge'), na = (p.annots || []).length;
-      badge.hidden = !na; if (na) badge.innerHTML = U.icon('edit') + na;
+      var nr = (p.annots || []).filter(function (a) { return a.type === 'redact'; }).length, rb = el.querySelector('.thumb-redact');
+      na -= nr; badge.hidden = !na; if (na) badge.innerHTML = U.icon('edit') + na;
+      rb.hidden = !(nr || p.redacted); rb.className = 'thumb-redact' + (nr ? ' pending' : '');
+      rb.textContent = nr ? nr + ' to redact' : 'Redacted';
       var part = el.querySelector('.thumb-part');
       if (parts && parts[i]) { part.hidden = false; part.textContent = parts[i]; part.className = 'thumb-part' + (parts[i].charAt(0) === '✂' ? ' cut' : ''); } else part.hidden = true;
       if (grid.children[i] !== el) grid.insertBefore(el, grid.children[i] || null);

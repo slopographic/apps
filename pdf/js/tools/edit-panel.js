@@ -52,8 +52,9 @@
     }
     if (type === 'rect' || type === 'ellipse') kids.push(row('Fill', colorPicker(d.fill || 'none', set('fill'), true)));
     if (type === 'whiteout' || type === 'hlbox') kids.push(row(type === 'whiteout' ? 'Cover colour' : 'Colour', colorPicker(d.fill, set('fill'))));
+    if (type === 'redact') { box.appendChild(section(a ? 'Selected: Redaction mark' : 'New redaction mark', [note('Drag over anything that must be removed. Marks are hatched red until you apply them in the Redact panel; applying replaces the page with an image and removes the content for good.', 'warn'), h('div', { class: 'btn-row' }, btn('Open Redact panel', 'redact', function () { SP.app.setTool('redact'); }), a ? btn('Delete', 'trash', function () { Ed.deleteSelected(); }, 'danger-text') : null)])); return; }
     if (type !== 'whiteout') kids.push(row('Opacity', slider(Math.round((d.opacity == null ? 1 : d.opacity) * 100), 5, 100, 1, function (v) { Ed.setProp('opacity', v / 100); }, function (v) { return v + '%'; })));
-    if (type === 'whiteout') kids.push(note('Whiteout paints an opaque box over the page. It hides content visually; the original text underneath is still in the file.', 'warn'));
+    if (type === 'whiteout') kids.push(note('Whiteout paints an opaque box over the page. It hides content visually; the original text underneath is still in the file. Use Redact to remove content for real.', 'warn'));
     var names = { text: 'Text', pen: 'Drawing', marker: 'Highlighter', rect: 'Rectangle', ellipse: 'Ellipse', line: 'Line', arrow: 'Arrow', whiteout: 'Whiteout', hlbox: 'Highlight box', image: a && a.sig ? 'Signature' : 'Image' };
     box.appendChild(section((a ? 'Selected: ' : 'New ') + (names[type] || type), kids));
     if (a) {

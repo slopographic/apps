@@ -126,7 +126,7 @@
     it('sends the artwork through Slop Drive and opens the target app', async () => {
       let opened = null; const realOpen = W.open; W.open = (u) => { opened = u; return {}; };
       try { await HUB.sendItems().find((i) => i.label === 'Send PNG to PhotoSLOP').act(); } finally { W.open = realOpen; }
-      expect(opened).toMatch(/\/paint\/\?drive=/);
+      expect(opened).toMatch(/\/photoslop\/\?drive=/);
       const rec = await W.SlopHub.get(new URL(opened).searchParams.get('drive'));
       expect([rec.type, rec.from, rec.name]).toEqual(['image/png', 'vector', 'Sloppo.png']);
     });

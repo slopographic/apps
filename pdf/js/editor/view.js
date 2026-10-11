@@ -10,7 +10,7 @@
   Ed.TOOLS = [
     ['select', 'Select & move', 'select', 'V'], ['text', 'Text', 'text', 'T'], ['pen', 'Draw', 'pen', 'P'], ['marker', 'Highlighter', 'marker', 'H'],
     ['rect', 'Rectangle', 'rect', 'R'], ['ellipse', 'Ellipse', 'ellipse', 'E'], ['line', 'Line', 'line', 'L'], ['arrow', 'Arrow', 'arrow', 'A'],
-    ['whiteout', 'Whiteout (cover content)', 'whiteout', 'W'], ['hlbox', 'Highlight box', 'hlbox', 'B'], ['image', 'Image', 'image', 'I'], ['signature', 'Signature', 'sign', 'S']
+    ['whiteout', 'Whiteout (cover content)', 'whiteout', 'W'], ['redact', 'Redact (remove content)', 'redact', 'X'], ['hlbox', 'Highlight box', 'hlbox', 'B'], ['image', 'Image', 'image', 'I'], ['signature', 'Signature', 'sign', 'S']
   ];
   var DEF = {
     text: { color: '#111111', font: 'Helvetica', size: 16, bold: false, italic: false, opacity: 1 },
@@ -22,6 +22,7 @@
     arrow: { color: '#e0245e', width: 2.5, opacity: 1 },
     whiteout: { fill: '#ffffff', opacity: 1 },
     hlbox: { fill: '#ffe14d', opacity: 0.4 },
+    redact: {},
     image: { opacity: 1 }
   };
   Ed.DEF = DEF;
@@ -74,6 +75,7 @@
     S.layer.style.width = (g.W * z) + 'px'; S.layer.style.height = (g.H * z) + 'px';
     S.layer.style.transform = V.layerTransform(R, g.W, g.H, z);
     S.pageEl.dataset.tool = Ed.tool;
+    S.pageEl.classList.toggle('is-redacted', !!p.redacted);
     Ed.paint();
     var key = (p.blank ? 'blank' : p.f + ':' + p.i + ':' + E.formKey(p.f)) + '@' + Math.round(z * 100);
     if (forceRaster || S.canvas._key !== key) S.scheduleRaster(key);

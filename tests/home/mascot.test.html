@@ -42,10 +42,15 @@
       await HomeTest.settled(win);
       expect(M.el.hidden).toBe(false);
       expect(!!M.perch && M.perch.el.hasAttribute('data-perch')).toBe(true);
-      const c = M.canvas, px = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-      let painted = 0;
-      for (let i = 3; i < px.length; i += 4) if (px[i]) painted++;
-      expect(painted).toBeGreaterThan(500);
+      // The 2100 look: lime gradient goo lumps under a goo filter, with ids unique to the mascot.
+      const svg = M.svg;
+      expect(svg.querySelectorAll('.m-body circle').length).toBe(4);
+      expect(svg.querySelector('.m-body').getAttribute('filter')).toBe('url(#slp-goo-mascot)');
+      expect(svg.querySelector('.m-c0').getAttribute('fill')).toBe('url(#slp-g-mascot)');
+      expect(win.document.querySelectorAll('#slp-g-mascot').length).toBe(1);
+      expect(svg.querySelectorAll('.m-eyes ellipse').length).toBe(2);
+      const box = svg.querySelector('.m-body').getBoundingClientRect();
+      expect(box.width).toBeGreaterThan(60);
       expect(win.document.querySelector('.sloppo-hud .sh-lv b').textContent).toBe('1');
     });
     it('petting gives XP, hearts and a happy face', async () => {
@@ -54,6 +59,8 @@
       M.hit.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
       expect(S.xp).toBe(xp + 1);
       expect(M.mood).toBe('love');
+      await sleep(40);
+      expect(M.svg.querySelectorAll('.m-eyes path[fill="#ff4f86"]').length).toBe(2);   // heart eyes
       expect(win.document.querySelectorAll('.sloppo-heart').length).toBeGreaterThan(0);
     });
     it('levels up, gets a hat, grows and saves progress', async () => {
@@ -62,6 +69,8 @@
       S.gain(8 - S.xp);
       expect(S.level).toBe(2);
       expect(S.hat).toBe('sprout');
+      await sleep(40);
+      expect(M.svg.querySelector('.m-hat').children.length).toBeGreaterThan(0);
       expect(parseFloat(M.hit.style.width)).toBeGreaterThan(hitW);
       const hud = win.document.querySelector('.sloppo-hud');
       expect(hud.querySelector('.sh-lv b').textContent).toBe('2');

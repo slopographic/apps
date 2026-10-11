@@ -52,7 +52,7 @@
         if (k === '-') { Ed.zoomBy(0.8); return; }
         if (k === '0') { Ed.fit('fit'); return; }
         if (k === 'Enter' && sel && sel.type === 'text') { e.preventDefault(); Ed.editSelectedText(); return; }
-        var map = { v: 'select', t: 'text', p: 'pen', h: 'marker', r: 'rect', e: 'ellipse', l: 'line', a: 'arrow', w: 'whiteout', b: 'hlbox', i: 'image', s: 'signature' };
+        var map = { v: 'select', t: 'text', p: 'pen', h: 'marker', r: 'rect', e: 'ellipse', l: 'line', a: 'arrow', w: 'whiteout', x: 'redact', b: 'hlbox', i: 'image', s: 'signature' };
         if (!e.altKey && map[k.toLowerCase()] && !e.shiftKey) { e.preventDefault(); Ed.setTool(map[k.toLowerCase()]); return; }
         return;
       }

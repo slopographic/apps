@@ -22,7 +22,7 @@ const EYES = {
   happy: (x) => `<path d="M${x - 3.6} 1.5 Q${x} -4 ${x + 3.6} 1.5" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
   heart: (x) => `<path d="M${x} 4.5 C${x - 8} -1 ${x - 4} -7 ${x} -3 C${x + 4} -7 ${x + 8} -1 ${x} 4.5Z" fill="#ff4f86" stroke="${INK}" stroke-width=".7"/><circle cx="${x - 2}" cy="-2.6" r=".9" fill="#fff"/>`,
   spiral: (x) => `<circle cx="${x}" cy="0" r="4.8" fill="#fff" stroke="${INK}" stroke-width=".7"/><path d="M${x} 0 m0 -.6 a.6 .6 0 1 1 -.1 0 m0 -1.4 a2 2 0 1 1 -.3 0 m.1 -1.3 a3.4 3.4 0 1 1 -.4 0" stroke="${INK}" stroke-width=".8" fill="none"/>`,
-  angry: (x) => `${EYES.normal(x)}<path d="M${x - 5 * Math.sign(x)} -9 L${x + 3.5 * Math.sign(x)} -5.5" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/>`,
+  angry: (x) => `${EYES.normal(x)}<path d="M${x - 5 * Math.sign(x)} -5.5 L${x + 3.5 * Math.sign(x)} -9" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/>`,
 };
 const MOUTHS = {
   smile: `<path d="M-5 10 Q0 14 5 10" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/>`,

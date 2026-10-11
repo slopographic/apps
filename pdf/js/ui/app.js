@@ -9,8 +9,10 @@
   A.insertOpts = { size: 'a4', orient: 'portrait', where: 'after' };
   var $ = U.$, h = U.h;
   var S = A._ = { els: {}, fileNameTouched: false, savedSession: null }; // shared by ui/*.js
-  var RAIL = [['organize', 'Organize', 'organize'], ['edit', 'Edit page', 'edit'], ['sign', 'Sign', 'sign'], ['numbers', 'Page numbers', 'numbers'], ['watermark', 'Watermark', 'watermark'],
+  var RAIL = [['organize', 'Organize', 'organize'], ['edit', 'Edit page', 'edit'], ['sign', 'Sign', 'sign'], ['redact', 'Redact', 'redact'], ['numbers', 'Page numbers', 'numbers'], ['watermark', 'Watermark', 'watermark'],
     ['forms', 'Forms', 'forms'], ['compress', 'Compress', 'compress'], ['convert', 'Convert', 'convert'], ['split', 'Split', 'split'], ['metadata', 'Metadata', 'info']];
+
+  var PAGE_TOOLS = { edit: 1, sign: 1, redact: 1 };
 
   /* ---------------------------------------------------------------- boot */
   A.boot = function () {
@@ -61,7 +63,7 @@
     if (Ed.isEditingText()) Ed.commitText();
     A.tool = t;
     U.$$('.rail-b', S.els.rail).forEach(function (b) { var on = b.dataset.tool === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
-    if (t === 'edit' || t === 'sign') { if (E.state.pages.length) A.ensurePage(); }
+    if (PAGE_TOOLS[t]) { if (E.state.pages.length) A.ensurePage(); if (t === 'redact' && Ed.tool !== 'redact') Ed.setTool('redact'); }
     else if (A.mode === 'page') A.showGrid(true);
     PN.show(t);
     O.render();
@@ -76,7 +78,7 @@
     if (!E.pageById(id)) return;
     A.mode = 'page';
     S.els.app.dataset.mode = 'page';
-    if (!keepTool && A.tool !== 'edit' && A.tool !== 'sign') { A.tool = 'edit'; U.$$('.rail-b', S.els.rail).forEach(function (b) { b.classList.toggle('on', b.dataset.tool === 'edit'); b.setAttribute('aria-selected', b.dataset.tool === 'edit' ? 'true' : 'false'); }); PN.show('edit'); }
+    if (!keepTool && !PAGE_TOOLS[A.tool]) { A.tool = 'edit'; U.$$('.rail-b', S.els.rail).forEach(function (b) { b.classList.toggle('on', b.dataset.tool === 'edit'); b.setAttribute('aria-selected', b.dataset.tool === 'edit' ? 'true' : 'false'); }); PN.show('edit'); }
     Ed.zoomMode = Ed.zoomMode === 'num' ? 'fit' : Ed.zoomMode;
     Ed.show(id);
     O.setSelection([id], id);
@@ -87,7 +89,7 @@
     var id = Ed.pid;
     A.mode = 'grid'; S.els.app.dataset.mode = 'grid';
     Ed.hide();
-    if (!fromTool && (A.tool === 'edit' || A.tool === 'sign')) { A.tool = 'organize'; A.setTool('organize'); }
+    if (!fromTool && PAGE_TOOLS[A.tool]) { A.tool = 'organize'; A.setTool('organize'); }
     S.updateChrome();
     if (id) setTimeout(function () { O.reveal(id); O.focus(id, false); }, 0);
   };

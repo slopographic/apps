@@ -84,17 +84,17 @@
     var c = S.ctx();
     if (kind === 'box') {
       var r = E.annotViewRect(a, c.R, c.W, c.H);
-      if (r.w < 4 && r.h < 4) { var dw = a.type === 'whiteout' || a.type === 'hlbox' ? 140 : 120, dh = a.type === 'whiteout' || a.type === 'hlbox' ? 28 : 80; E.setAnnotViewRect(a, { x: r.x - dw / 2, y: r.y - dh / 2, w: dw, h: dh }, c.R, c.W, c.H); }
+      if (r.w < 4 && r.h < 4) { var wide = /^(whiteout|hlbox|redact)$/.test(a.type), dw = wide ? 140 : 120, dh = wide ? 28 : 80; E.setAnnotViewRect(a, { x: r.x - dw / 2, y: r.y - dh / 2, w: dw, h: dh }, c.R, c.W, c.H); }
     }
     if (kind === 'line') {
       var l = Math.hypot(a.pts[1][0] - a.pts[0][0], a.pts[1][1] - a.pts[0][1]);
       if (l < 3) { var v0 = E.toView(c.R, c.W, c.H, a.pts[0][0], a.pts[0][1]); a.pts[1] = E.toPage(c.R, c.W, c.H, v0[0] + 100, v0[1]); }
     }
     a.id = U.uid('a');
-    var names = { pen: 'Draw', marker: 'Highlight', rect: 'Add rectangle', ellipse: 'Add ellipse', line: 'Add line', arrow: 'Add arrow', whiteout: 'Add whiteout', hlbox: 'Add highlight' };
+    var names = { pen: 'Draw', marker: 'Highlight', rect: 'Add rectangle', ellipse: 'Add ellipse', line: 'Add line', arrow: 'Add arrow', whiteout: 'Add whiteout', hlbox: 'Add highlight', redact: 'Mark for redaction' };
     Ed.addAnnot(a, names[a.type]);
     if (a.type === 'pen' || a.type === 'marker') { Ed.selId = null; Ed.paint(); }
-    else if (!(a.type === 'whiteout' || a.type === 'hlbox')) { Ed.tool = 'select'; S.pageEl.dataset.tool = 'select'; if (SP.app) SP.app.toolChanged(); }
+    else if (!/^(whiteout|hlbox|redact)$/.test(a.type)) { Ed.tool = 'select'; S.pageEl.dataset.tool = 'select'; if (SP.app) SP.app.toolChanged(); }
   }
 
   /* move / resize / endpoints */

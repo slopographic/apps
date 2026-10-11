@@ -46,6 +46,7 @@
     line: '<path d="M5 19 19 5"/>',
     arrow: '<path d="M5 19 19 5M10 5h9v9"/>',
     whiteout: '<rect x="3" y="6" width="18" height="12" rx="1.5" fill="currentColor" fill-opacity=".18"/><path d="M7 12h10"/>',
+    redact: '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M7 9h10" stroke-width="3.2"/><path d="M7 15h6" stroke-width="3.2"/>',
     hlbox: '<rect x="3" y="6" width="18" height="12" rx="1.5"/><path d="M3 10h18M3 14h18" opacity=".5"/>',
     image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m4 18 5-5 4 4 3-3 4 4"/>',
     hand: '<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5V4a1.5 1.5 0 0 1 3 0v7M14 10.5V5.5a1.5 1.5 0 0 1 3 0V13M17 9.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-2c-3 0-4.5-1.5-6.5-4l-2.3-3a1.5 1.5 0 0 1 2.3-2L8 14"/>',
