@@ -22,7 +22,7 @@ function buildBrushesPanel() {
         if (!previewCache.has(key)) previewCache.set(key, presetPreview(b));
         const btn = h('button', { type: 'button', class: 'bpk-b' + (cur === b.name ? ' on' : ''), title: `${b.name} · ${b.size}px` }, previewCache.get(key), h('span', null, b.name));
         btn.addEventListener('click', () => applyPreset(b));
-        btn.addEventListener('contextmenu', (e) => { e.preventDefault(); SlopUI.menu([{ label: 'Use', act: () => applyPreset(b) }, { label: 'Brush Settings…', act: () => { applyPreset(b); dlgBrushSettings(); } }, !pack.builtin ? { label: 'Delete brush', act: async () => { pack.brushes.splice(pack.brushes.indexOf(b), 1); await saveBrushPacks(); emit('brushes'); } } : null], e.clientX, e.clientY); });
+        ctxTarget(btn, 'brush', () => [{ label: 'Use', act: () => applyPreset(b) }, { label: 'Brush Settings…', act: () => { applyPreset(b); dlgBrushSettings(); } }, !pack.builtin ? { label: 'Delete brush', act: async () => { pack.brushes.splice(pack.brushes.indexOf(b), 1); await saveBrushPacks(); emit('brushes'); } } : null]);
         grid.append(btn);
       }
       wrap.append(head, grid);

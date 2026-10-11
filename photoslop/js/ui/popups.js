@@ -43,52 +43,6 @@ function openBrushPicker(x, y, toolId = UI.tool) {
   setTimeout(() => { const f = el.querySelector('input[type=range]'); if (f) f.focus(); }, 0);
 }
 document.addEventListener('pointerdown', (e) => { if (popover && !e.target.closest('.brush-pop')) closePopover(); }, true);
-function showContextMenu(items, x, y) { closeMenus(); closePopover(); const m = renderMenu(items, x, y, 0); openMenu = { btn: null, m }; const f = m.querySelector('.menu-row:not([disabled])'); if (f) f.focus({ preventScroll: true }); }
-function openCanvasContext(e) {
-  const id = TRANSFORM.active ? 'transform' : UI.tool, x = e.clientX, y = e.clientY;
-  if (BRUSH_OPTS()[id]) { openBrushPicker(x, y, id); return; }
-  if (id === 'transform') { showContextMenu([{ label: 'Commit Transform', key: 'Enter', act: commitTransform }, { label: 'Cancel Transform', key: 'Escape', act: cancelTransform }, '-', { label: 'Flip Horizontal', act: () => { TRANSFORM.sx *= -1; dirty(true); } }, { label: 'Flip Vertical', act: () => { TRANSFORM.sy *= -1; dirty(true); } }, { label: 'Rotate 90° Clockwise', act: () => { TRANSFORM.rot += Math.PI / 2; dirty(true); } }, { label: 'Rotate 90° Counter Clockwise', act: () => { TRANSFORM.rot -= Math.PI / 2; dirty(true); } }, { label: 'Reset', act: () => { Object.assign(TRANSFORM, { tx: 0, ty: 0, sx: 1, sy: 1, rot: 0 }); dirty(true); } }], x, y); return; }
-  const p = toDoc(e);
-  const items = [];
-  if (id === 'move') {
-    const hits = D.layers.filter((L) => { if (!L.visible) return false; const lx = Math.floor(p.x - L.x), ly = Math.floor(p.y - L.y); return lx >= 0 && ly >= 0 && lx < L.canvas.width && ly < L.canvas.height && cxr(L.canvas).getImageData(lx, ly, 1, 1).data[3] > 10; }).reverse();
-    if (hits.length) { for (const L of hits) items.push({ label: L.name, check: () => L.id === D.activeId, act: () => { D.activeId = L.id; UI.editMask = false; emit('doc'); } }); items.push('-'); }
-  }
-  if (D.sel) items.push(
-    { label: 'Deselect', key: 'Ctrl+D', act: deselect }, { label: 'Select Inverse', key: 'Shift+Ctrl+I', act: selectInverse },
-    { label: 'Feather…', key: 'Shift+F6', act: () => dlgNumber('Feather Selection', 'Feather radius', 8, 0.5, 250, 'px', (v) => featherSel(v)) }, '-',
-    { label: 'Layer via Copy', key: 'Ctrl+J', act: () => layerViaCopy(false) }, { label: 'Layer via Cut', key: 'Shift+Ctrl+J', act: () => layerViaCopy(true) }, '-',
-    { label: 'Fill with Foreground', key: 'Alt+Backspace', act: () => fillSelection(C.fg, 'Fill') }, { label: 'Stroke…', act: dlgStroke }, { label: 'Clear', key: 'Delete', act: () => clearSelectionPixels() }, '-');
-  else if (['marquee', 'ellipse', 'lasso', 'polylasso', 'wand'].includes(id)) items.push({ label: 'Select All', key: 'Ctrl+A', act: selectAll }, { label: 'Select Layer Pixels', act: () => { const L = activeLayer(); const c = mkCanvas(D.w, D.h); cx(c).drawImage(bakedLayer(L).canvas, L.x, L.y); D.sel = makeSel(c); commit('Load Selection'); } }, '-');
-  items.push(
-    { label: 'Free Transform', key: 'Ctrl+T', act: startTransform, need: 'layer' },
-    { label: 'Undo', key: 'Ctrl+Z', act: undo, en: () => Hist.idx > 0, dyn: () => (Hist.idx > 0 ? 'Undo ' + Hist.states[Hist.idx].label : 'Undo') },
-    '-',
-    { label: 'Copy', key: 'Ctrl+C', act: () => copySel(false) }, { label: 'Copy Merged', key: 'Shift+Ctrl+C', act: () => copySel(true) },
-    { label: 'Paste', key: 'Ctrl+V', act: () => pasteFromSystem(false) },
-    '-',
-    { label: 'New Layer', key: 'Shift+Ctrl+N', act: () => addLayer() }, { label: 'Duplicate Layer', act: () => duplicateLayer() });
-  showContextMenu(items, x, y);
-}
-function layerContextMenu(e, L) {
-  e.preventDefault();
-  if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); }
-  showContextMenu([
-    { label: 'Layer Properties…', act: dlgLayerProps },
-    { label: 'Duplicate Layer', act: () => duplicateLayer() }, { label: 'Delete Layer', act: () => deleteLayer() },
-    '-',
-    { label: 'Select Pixels', act: () => { const c = mkCanvas(D.w, D.h); cx(c).drawImage(bakedLayer(L).canvas, L.x, L.y); D.sel = makeSel(c); commit('Load Selection'); } },
-    L.mask ? { label: 'Delete Layer Mask', act: () => { UI.editMask = false; setLayerProps(L.id, { mask: null }, 'Delete Mask'); } } : { label: 'Add Layer Mask', act: () => addMask(D.sel ? 'sel' : 'reveal') },
-    L.mask ? { label: 'Apply Layer Mask', act: applyMask } : null,
-    L.text ? { label: 'Rasterize Type', act: () => rasterizeText(L) } : null,
-    { label: 'Layer Style', sub: filterMenu('style') },
-    '-',
-    { label: L.locked ? 'Unlock Layer' : 'Lock Layer', act: () => setLayerProps(L.id, { locked: !L.locked }, L.locked ? 'Unlock Layer' : 'Lock Layer') },
-    { label: L.visible ? 'Hide Layer' : 'Show Layer', act: () => setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer') },
-    '-',
-    { label: 'Merge Down', key: 'Ctrl+E', act: mergeDown }, { label: 'Merge Visible', key: 'Shift+Ctrl+E', act: mergeVisible }, { label: 'Flatten Image', act: flattenImage },
-  ].filter(Boolean), e.clientX, e.clientY);
-}
 
 /* ---------- pasting from the system clipboard ---------- */
 let catcher = null;

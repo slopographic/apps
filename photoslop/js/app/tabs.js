@@ -87,6 +87,7 @@ function renderTabs() {
     const x = h('button', { type: 'button', class: 'doctab-x', 'aria-label': `Close ${docName(rec)}`, title: 'Close (Alt+Ctrl+W)' }, '×');
     x.addEventListener('click', (e) => { e.stopPropagation(); closeDoc(rec); });
     tab.append(x);
+    ctxTarget(tab, 'tab', () => tabItems(rec));
     tab.addEventListener('pointerdown', (e) => { if (e.button === 0 && !e.target.closest('.doctab-x')) switchToDoc(rec); });
     tab.addEventListener('auxclick', (e) => { if (e.button === 1) { e.preventDefault(); closeDoc(rec); } });
     tab.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') cycleDoc(1); if (e.key === 'ArrowLeft') cycleDoc(-1); });

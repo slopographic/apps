@@ -1,4 +1,4 @@
-/* Sheet tabs: switch, add, rename (double-click or menu), delete, and a right-click menu. */
+/* Sheet tabs: switch, add, rename (double-click or menu), delete. The right-click menu is in ui/ctxmenu.js. */
 import { S, $, redraw, toast } from './state.js';
 import { transact } from './history.js';
 import { commitEdit } from './editor.js';
@@ -14,10 +14,6 @@ export function render() {
     b.dataset.i = i;
     b.addEventListener('click', () => select(i));
     b.addEventListener('dblclick', () => rename(i));
-    b.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      window.SlopUI.menu([{ label: 'Rename…', act: () => rename(i) }, { label: 'Delete sheet', act: () => remove(i) }, '-', { label: 'Add sheet', act: add }], e.clientX, e.clientY);
-    });
     frag.append(b);
   });
   const plus = document.createElement('button');

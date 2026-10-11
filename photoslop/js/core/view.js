@@ -24,10 +24,9 @@ function initView() {
   V.el.addEventListener('pointerleave', () => { V.cursorIn = false; dirty(); });
   V.el.addEventListener('pointerenter', () => { V.cursorIn = true; });
   V.el.addEventListener('wheel', onWheel, { passive: false });
+  ctxTarget(V.el, 'canvas', canvasItems); // right-click and Menu key: ui/context.js
   V.el.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
     if (V.op) { const t = V.op.tool; if (e.pointerType === 'touch' || !e.button) { if (t.cancel) t.cancel(); V.op = null; } }
-    if (typeof openCanvasContext === 'function') openCanvasContext(e);
   });
   V.el.addEventListener('dblclick', (e) => { const t = currentTool(); if (t.dblclick) t.dblclick(toDoc(e), e); });
   listeners.add((what) => { if (what === 'doc') { V.needComp = true; dirty(); } });

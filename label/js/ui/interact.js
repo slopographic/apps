@@ -247,6 +247,6 @@ function initInteract() {
     e.preventDefault();
     const [x, y] = toMMpt(e), o = hitTest(x, y);
     if (o && !App.sel.includes(o.id)) select([o.id]);
-    SlopUI.menu(contextItems(), e.clientX, e.clientY);
+    openContext(o, e.clientX, e.clientY);
   });
 }
