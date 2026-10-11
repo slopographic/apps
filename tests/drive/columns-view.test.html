@@ -11,7 +11,7 @@
   const file = (n) => [...DR.S.files.values()].find((x) => x.name === n);
   const folder = (n) => [...DR.S.folders.values()].find((x) => x.name === n);
   const click = (el, opts = {}) => el.dispatchEvent(new W.MouseEvent('click', Object.assign({ bubbles: true, cancelable: true }, opts)));
-  const key = (k, opts) => D.body.dispatchEvent(DT.key(k, opts));
+  const key = (k) => D.body.dispatchEvent(DT.key(k));
   const lastCol = () => { const c = qa('#pane .cols > .col'); return c[c.length - 1]; };
 
   describe('columns view: the preview column', () => {
@@ -28,29 +28,43 @@
       expect(qa('#pane .cols > .col').length).toBe(2);
     });
 
-    it('after selecting a file, the .col-pv is the last .col and shows that file', () => {
+    it('after selecting a file, the .col-pv is the last .col and contains the file name', () => {
       click(q(`#pane .crow[data-key="f:${file('two.png').id}"]`));
       expect(qa('#pane .col-pv').length).toBe(1);
       expect(lastCol().classList.contains('col-pv')).toBe(true);
       expect(lastCol().querySelector('.pv-name').textContent).toBe('two.png');
       expect(lastCol().querySelector('.pv img')).toBeTruthy();
-      // the preview is its own column: the folder columns did not grow a preview
+      // no folder column holds a preview
       qa('#pane .cols > .col:not(.col-pv)').forEach((c) => expect(c.querySelector('.pv')).toBe(null));
     });
 
-    it('selecting another file moves the preview, still last', () => {
+    it('selecting another file replaces the preview, which stays last', () => {
       click(q(`#pane .crow[data-key="f:${file('one.png').id}"]`));
       expect(qa('#pane .col-pv').length).toBe(1);
       expect(lastCol().classList.contains('col-pv')).toBe(true);
       expect(lastCol().querySelector('.pv-name').textContent).toBe('one.png');
     });
 
-    it('arrow keys keep the preview last and showing the focused file', async () => {
+    it('arrow keys keep one preview, last, showing the focused file', async () => {
       key('ArrowDown');
       await waitFor(() => DR.S.focus && DR.item(DR.S.focus) && DR.item(DR.S.focus).name !== 'one.png');
       expect(qa('#pane .col-pv').length).toBe(1);
       expect(lastCol().classList.contains('col-pv')).toBe(true);
       expect(lastCol().querySelector('.pv-name').textContent).toBe(DR.item(DR.S.focus).name);
+    });
+
+    it('the preview image still loads after the info panel is open and the view re-renders', async () => {
+      DR.go(folder('Pictures').id);
+      DR.S.info = true;
+      click(q(`#pane .crow[data-key="f:${file('two.png').id}"]`));
+      DR.renderInfo(true);
+      await DR.refresh(); DR.render();     // the info panel frees its own object URLs; the column keeps its own
+      DR.renderInfo(true);
+      const img = lastCol().querySelector('.pv img');
+      await waitFor(() => img.complete);
+      expect(img.naturalWidth).toBeGreaterThan(0);
+      expect(lastCol().querySelector('.pv-name').textContent).toBe('two.png');
+      DR.S.info = false; DR.renderInfo(true);
     });
 
     it('a folder selection removes the preview', () => {
@@ -59,27 +73,6 @@
       expect(qa('#pane .col-pv').length).toBe(0);
     });
   });
-    it('probe: a file in an ancestor column', () => {
-      DR.go(folder('Inner').id);
-      const cols = qa('#pane .cols > .col').map((c) => c.getAttribute('aria-label') + ':' + c.querySelectorAll('.crow').length + ':' + !!c.querySelector('.pv'));
-      console.log('PROBE before ' + JSON.stringify(cols));
-      click(q(`#pane .crow[data-key="f:${file('one.png').id}"]`));
-      const after = qa('#pane .cols > .col').map((c) => (c.classList.contains('col-pv') ? 'PV' : c.getAttribute('aria-label')) + ':' + c.querySelectorAll('.crow').length);
-      console.log('PROBE after ' + JSON.stringify(after) + ' cwd=' + DR.S.cwd + ' sel=' + [...DR.S.sel]);
-    });
-    it('probe: root file', () => {
-      DR.go(null);
-      click(q(`#pane .crow[data-key="f:${file('read me.txt').id}"]`));
-      console.log('PROBE root ' + JSON.stringify(qa('#pane .cols > .col').map((c) => c.classList.contains('col-pv') ? 'PV' : c.getAttribute('aria-label'))));
-    });
-    it('probe: keys', () => {
-      DR.go(folder('Pictures').id);
-      click(q(`#pane .crow[data-key="f:${file('one.png').id}"]`));
-      key('ArrowLeft');
-      console.log('PROBE keyleft ' + JSON.stringify(qa('#pane .cols > .col').map((c) => c.classList.contains('col-pv') ? 'PV' : c.getAttribute('aria-label'))) + ' sel=' + [...DR.S.sel]);
-      key('ArrowRight');
-      console.log('PROBE keyright ' + JSON.stringify(qa('#pane .cols > .col').map((c) => c.classList.contains('col-pv') ? 'PV' : c.getAttribute('aria-label'))) + ' sel=' + [...DR.S.sel] + ' cwd=' + DR.S.cwd);
-    });
   SlopTest.run({ name: 'Slop Drive app: columns preview' });
   </script>
 </body>

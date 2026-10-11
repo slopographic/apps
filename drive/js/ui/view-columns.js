@@ -1,8 +1,10 @@
 /* Slop Drive — ui/view-columns: Finder-style Miller columns. One column per folder on the path to the open
- * folder; selecting a file adds a preview column. → enters a folder, ← goes back out. */
+ * folder; selecting a file adds a preview column, always the last one. → enters a folder, ← goes back out. */
 'use strict';
 (function (DR) {
   const S = DR.S, el = DR.el;
+  let colUrls = []; // object URLs of the preview column (the info panel keeps and frees its own)
+  const freeUrls = () => { colUrls.forEach((u) => URL.revokeObjectURL(u)); colUrls = []; };
   const kindOk = (it) => S.kind === 'all' || (S.kind === 'folder' ? it.isFolder : !it.isFolder && DR.kindOf(it) === S.kind);
   function column(parent, openId) {
     const c = DR.children(parent), list = DR.sortItems([...c.folders, ...c.files].filter((it) => it.isFolder || kindOk(it)));
@@ -19,25 +21,36 @@
   }
   function previewCol(r) {
     const col = el('div', { class: 'col col-pv' });
-    col.append(DR.previewOf(r), el('b', { class: 'pv-name' }, r.name), el('div', { class: 'muted' }, `${DR.kindLabel(r)} · ${DR.fmtSize(r.size)}`), el('div', { class: 'muted' }, `Modified ${DR.fmtFull(r.modified || r.time)}`), el('div', { class: 'muted' }, `Made by ${DR.appName(r.from)}`));
+    col.append(DR.previewOf(r, false, colUrls), el('b', { class: 'pv-name' }, r.name), el('div', { class: 'muted' }, `${DR.kindLabel(r)} · ${DR.fmtSize(r.size)}`), el('div', { class: 'muted' }, `Modified ${DR.fmtFull(r.modified || r.time)}`), el('div', { class: 'muted' }, `Made by ${DR.appName(r.from)}`));
     return col;
   }
-  DR.renderColumns = function (pane) {
-    const path = DR.pathOf(S.cwd), wrap = el('div', { class: 'cols' });
+  /** The preview column: at most one, always the last column, showing the one selected file (if exactly one file is). */
+  function placePreview(wrap) {
+    wrap.querySelectorAll('.col-pv').forEach((n) => n.remove());
+    freeUrls();
+    const sel = DR.selected();
+    if (sel.length === 1 && !sel[0].isFolder) wrap.append(previewCol(sel[0]));
+  }
+  /** The folder columns: the root, then each folder on the path down to the open folder. */
+  function folderCols(wrap) {
+    const path = DR.pathOf(S.cwd);
     const parents = [null, ...path.map((f) => f.id)];
     parents.forEach((p, i) => wrap.append(column(p, path[i] ? path[i].id : null)));
-    const sel = DR.selected();
-    if (sel.length === 1 && !sel[0].isFolder && sel[0].parent === S.cwd) wrap.append(previewCol(sel[0]));
+  }
+  DR.renderColumns = function (pane) {
+    const wrap = el('div', { class: 'cols' });
+    freeUrls();
+    folderCols(wrap);
+    placePreview(wrap);
     pane.append(wrap);
     requestAnimationFrame(() => { wrap.scrollLeft = wrap.scrollWidth; });
   };
-  // A file click shows/hides the preview column; folders open on click.
+  // A selection change moves the preview column; folders open on click.
   DR.onSelectColumns = function () {
     if (DR.viewNow() !== 'columns') return;
-    const wrap = document.querySelector('#pane .cols'); if (!wrap) return;
-    const old = wrap.querySelector('.col-pv'); if (old) old.remove();
-    const sel = DR.selected();
-    if (sel.length === 1 && !sel[0].isFolder && sel[0].parent === S.cwd) { wrap.append(previewCol(sel[0])); wrap.scrollLeft = wrap.scrollWidth; }
+    const wrap = DR.$('pane').querySelector('.cols'); if (!wrap) return;
+    placePreview(wrap);
+    wrap.scrollLeft = wrap.scrollWidth;
   };
   document.addEventListener('click', (e) => {
     if (DR.viewNow() !== 'columns' || e.shiftKey || e.ctrlKey || e.metaKey) return;
@@ -52,7 +65,9 @@
     const it = DR.item(S.focus);
     if (e.key === 'ArrowRight' && it && it.isFolder) {
       e.preventDefault(); DR.go(it.id);
-      const first = document.querySelector('#pane .cols .col:last-child .crow'); if (first) DR.select([first.dataset.key]);
+      // the newest folder column (the preview column is never a folder column)
+      const cols = document.querySelectorAll('#pane .cols .col:not(.col-pv)');
+      const first = cols.length && cols[cols.length - 1].querySelector('.crow'); if (first) DR.select([first.dataset.key]);
       return true;
     }
     if (e.key === 'ArrowLeft' && S.cwd) { e.preventDefault(); DR.up(); return true; }
