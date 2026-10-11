@@ -117,7 +117,10 @@
       expect(out[0].timeScale).toBe(10);
     });
     it('every preset name in the engine is one the editor offers', () => {
-      expect(SS.anim.presets().map((p) => p.name).sort()).toEqual(['fade-in', 'pop', 'pulse', 'shake', 'slide-up', 'spin-in']);
+      // The editor offers the shared motion library (a superset): all six engine presets, each with a duration.
+      const names = SS.anim.presets().map((p) => p.name);
+      for (const n of ['fade-in', 'pop', 'pulse', 'shake', 'slide-up', 'spin-in']) expect(names.includes(n)).toBe(true);
+      for (const n of names) expect(SS.anim.presetDuration(n) > 0).toBe(true);
     });
   });
 

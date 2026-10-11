@@ -69,24 +69,32 @@
     return { total: list.length, checked: checkedN, one: by[1], many: by[2], none: by[0], running, paused, done, pending: total - done, message: lastMessage };
   }
 
-  /** Scans the photos that have no result yet. Re-entrant safe: a second call while a scan runs does nothing. */
+  /** Scans the photos that have no result yet. Re-entrant safe: a second call while a scan runs does nothing. Photos added
+   * while it runs are picked up: each pass takes the list as it is, and the scan goes on until no photo is left. */
   async function scan() {
     if (running || !F() || !G.library || !G.library.loaded) return;
     if (!F().enabled() || paused) { emit(); return; }
     running = true;
     done = 0;
-    total = G.library.list().filter((m) => countOf(m.id) == null && !failed.has(m.id)).length;
     lastMessage = '';
     emit();
     try {
-      for (const m of G.query.sortNewest(G.library.list())) {
-        if (paused || !F().enabled()) break;
-        if (countOf(m.id) != null || failed.has(m.id)) continue;
-        await idle();
-        if (paused || !F().enabled()) break;
-        await one(m);
-        done++;
-        emit();
+      for (;;) {
+        const todo = G.query.sortNewest(G.library.list()).filter((m) => countOf(m.id) == null && !failed.has(m.id));
+        total = done + todo.length;
+        if (!todo.length) break;
+        let progressed = false;
+        for (const m of todo) {
+          if (paused || !F().enabled()) break;
+          if (countOf(m.id) != null || failed.has(m.id)) continue;
+          await idle();
+          if (paused || !F().enabled()) break;
+          await one(m);
+          progressed = true;
+          done++;
+          emit();
+        }
+        if (!progressed || paused || !F().enabled()) break;
       }
     } finally {
       running = false;
