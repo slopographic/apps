@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../style/footer.css">
   <link rel="stylesheet" href="../shared/consent/banner.css">
   <link rel="stylesheet" href="settings.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
 </head>
 <body data-consent="off">
   <header class="nav">
@@ -111,6 +112,13 @@
       <p class="settings-note"><a href="../drive/">Open Slop Drive</a> to see the files in this folder.</p>
     </section>
 
+    <section id="storage" aria-labelledby="storage-title">
+      <h2 id="storage-title">Storage</h2>
+      <p>How much room this site uses in your browser, and what uses it. Your files, documents and saved projects are stored here too. Clearing a cache removes only what is made again when needed.</p>
+      <div id="storage-box" class="storage-box"></div>
+      <p id="storage-note" class="settings-note" role="status" aria-live="polite"></p>
+    </section>
+
     <section aria-labelledby="rates-title">
       <h2 id="rates-title" data-i18n="settings.exchange_rates">Exchange rates</h2>
       <p>Rates are entered by you, or downloaded on purpose from the European Central Bank. Nothing is downloaded unless you turn this on and press the button, or tick "Update on open".</p>
@@ -198,6 +206,11 @@
   <script src="../shared/sync/providers/local.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/faces/copy.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/cache/regen.js"></script>
+  <script src="../shared/storage/classify.js"></script>
+  <script src="../shared/storage/storage.js"></script>
+  <script src="../shared/storage/clear.js"></script>
   <script src="../shared/profile/app-options.js"></script>
   <script src="appearance.js"></script>
   <script src="language.js"></script>
@@ -205,6 +218,7 @@
   <script src="defaults.js"></script>
   <script src="rates.js"></script>
   <script src="folder.js"></script>
+  <script src="storage.js"></script>
   <script src="app-settings.js"></script>
   <script src="../shell/shell.js"></script>
 </body>

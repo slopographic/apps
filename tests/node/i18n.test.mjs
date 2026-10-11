@@ -145,6 +145,62 @@ test('every data-i18n key on the homepage and Settings has an English string', a
   assert.deepEqual(missing, []);
 });
 
+/** The keys and values of a language file (shared/i18n/<file>), read from its add('<code>', { 'key': 'text', ... }) call. */
+async function table(file) {
+  const src = await readFile(path.join(ROOT, 'shared', 'i18n', file), 'utf8');
+  const out = new Map();
+  for (const m of src.matchAll(/^\s*'([\w.]+)':\s*'((?:[^'\\]|\\.)*)',?\s*$/gm)) out.set(m[1], m[2]);
+  return out;
+}
+const placeholders = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(',');
+
+test('every key in English has a translation in each other language, with the same placeholders', async () => {
+  const { I } = await global();
+  const en = await table('strings.js');
+  assert.ok(en.size > 50, 'the English table is read');
+  const others = plain(I.LANGS).filter((l) => l.code !== 'en');
+  assert.ok(others.length >= 1, 'at least one other language');
+  for (const l of others) {
+    const file = `${l.code}.js`;
+    const tr = await table(file);
+    const missing = [...en.keys()].filter((k) => !tr.has(k));
+    const extra = [...tr.keys()].filter((k) => !en.has(k));
+    assert.deepEqual(missing, [], `${l.code} is missing keys`);
+    assert.deepEqual(extra, [], `${l.code} has keys English does not`);
+    for (const [k, v] of en) {
+      assert.ok(tr.get(k).trim().length > 0, `${l.code}: ${k} is empty`);
+      assert.equal(placeholders(tr.get(k)), placeholders(v), `${l.code}: ${k} placeholders`);
+    }
+  }
+});
+
+test('Spanish is the second language in the list, complete, left to right, and its table loads on the page', async () => {
+  const { I } = await global();
+  const list = plain(I.LANGS);
+  assert.deepEqual(list.map((l) => l.code), ['en', 'es']);
+  assert.equal(list[1].name, 'Español');
+  assert.equal(list[1].dir, 'ltr');
+  assert.equal(list[1].complete, true);
+  const storage = memStorage({ 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: 'es' } } }) });
+  const ctx = await loadInto(['profile/profile.js', 'i18n/i18n.js', 'i18n/strings.js', 'i18n/es.js'], { localStorage: storage });
+  assert.equal(ctx.SlopI18n.t('nav.apps'), 'Aplicaciones');
+  assert.equal(ctx.SlopI18n.t('nav.profile'), 'Perfil');
+});
+
+test('every shared-chrome key used by the shell, the consent strip, the support card and the homepage and Settings exists in English', async () => {
+  const files = ['shell/header.js', 'shell/switcher.js', 'shell/shell.js', 'shared/consent/banner.js', 'shared/support/card.js', 'index.html', 'settings/index.html'];
+  const en = await table('strings.js');
+  const missing = [];
+  for (const f of files) {
+    const src = await readFile(path.join(ROOT, f), 'utf8');
+    for (const m of src.matchAll(/['"]((?:nav|shell|switcher|consent|support|menu|settings|footer)\.[a-z_]+)['"]/g)) {
+      if (/^settings\.(css|js|html)$/.test(m[1])) continue; // file names, not keys
+      if (!en.has(m[1])) missing.push(`${f}: ${m[1]}`);
+    }
+  }
+  assert.deepEqual(missing, []);
+});
+
 /** A minimal element: attributes, textContent. Enough for apply(). */
 function fakeEl(tag, attrs = {}, text = '') {
   const el = { tag, attrs: { ...attrs }, textContent: text };
