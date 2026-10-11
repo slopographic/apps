@@ -99,7 +99,6 @@
       d.write(html.replace('<head>', '<head><base href="' + url.href + '">' + stub));
       d.close();
       await SlopTest.waitFor(() => fr.contentWindow && fr.contentWindow.SlopTables && fr.contentWindow.SlopTables.ready, { timeout: 30000 });
-      expect(String(fr.contentWindow.indexedDB.open).slice(0,60)).toBe('DEBUG');
       Object.assign(TB, { win: fr.contentWindow, T: fr.contentWindow.SlopTables, doc: fr.contentDocument });
       TB.T.flush();
       expect(doc().querySelectorAll('.ch').length).toBeGreaterThan(5);
