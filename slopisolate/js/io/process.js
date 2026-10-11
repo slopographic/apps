@@ -102,19 +102,22 @@
     if (act) SlopCutout.release(act.jobId).catch(() => {});
   };
 
-  /** Re-run post-processing for the active image (settings or brush edits changed). Newest call wins. */
-  P.refresh = async function (it) {
+  /** Re-run post-processing for the active image (settings or brush edits changed). Newest call wins.
+   * quick: a live stroke preview without colour decontamination (the slow part, a few seconds at full size). */
+  P.refresh = async function (it, { quick = false } = {}) {
     const act = P.active;
     if (!act || act.item !== it || !act.jobId) return;
     const seq = ++refreshSeq;
     try {
-      const r = await SlopCutout.finish(act.jobId, it.s, it.edit);
+      const settings = quick ? { ...it.s, decontaminate: false } : it.s;
+      const r = await SlopCutout.finish(act.jobId, settings, it.edit);
       if (seq !== refreshSeq || P.active !== act) return;
       fill(act, r);
       CO.emit('active', act);
     } catch (e) { S.setStatus(it, 'error', { error: e.message }); }
   };
   P.refreshSoon = U.debounce((it) => P.refresh(it), 90);
+  P.preview = U.debounce((it) => P.refresh(it, { quick: true }), 60);
 
   /** Remove an item from the list. */
   P.remove = function (it) {
