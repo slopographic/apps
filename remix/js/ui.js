@@ -121,6 +121,7 @@
     $('rm-time').textContent = fmt(t) + ' / ' + fmt(RM.preview.total());
     $('rm-play').textContent = RM.preview.playing ? 'Pause' : 'Play';
     RM.state.playhead = t;
+    if (RM.lane) RM.lane.update({ playhead: t });
   }
   function wire() {
     const ctl = ['rm-target', 'rm-pace', 'rm-preset', 'rm-cw', 'rm-ch', 'rm-base', 'rm-random', 'rm-seed'];
