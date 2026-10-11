@@ -46,7 +46,7 @@ Cross-realm gotcha: arrays/typed arrays passed into the iframe's pdf-lib/pdf.js 
 - Mobile 390×844 with touch: no horizontal page scroll (rail and page toolbar scroll inside themselves), tap
   selects, long-press drag reorders, two-finger pinch zooms the page view, bottom sheet panel opens/closes.
 - Themes Pro/Light/Classic 98 screenshotted on desktop and mobile.
-- Send page as image → PhotoSLOP opens `paint/?drive=` with the page (1240×1754 at 150 dpi).
+- Send page as image → PhotoSLOP opens `photoslop/?drive=` with the page (1240×1754 at 150 dpi).
 
 ## Fixed in this pass
 - Radio groups with an /Opt array (pdf-lib, Acrobat) showed options "0", "1" and could not be filled;

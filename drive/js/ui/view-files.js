@@ -32,11 +32,11 @@
     const h = el('div', { class: 'lhead', role: 'row' });
     for (const [k, label] of COLS) {
       const on = S.sort.key === k && S.section !== 'recent';
-      const b = el('button', { type: 'button', class: 'col c-' + k + (on ? ' on' : ''), 'data-sort': k, 'aria-sort': on ? (S.sort.dir > 0 ? 'ascending' : 'descending') : 'none' }, label, on ? el('span', { class: 'arrow' }, S.sort.dir > 0 ? '▲' : '▼') : '');
+      const b = el('button', { type: 'button', class: 'hcol c-' + k + (on ? ' on' : ''), 'data-sort': k, 'aria-sort': on ? (S.sort.dir > 0 ? 'ascending' : 'descending') : 'none' }, label, on ? el('span', { class: 'arrow' }, S.sort.dir > 0 ? '▲' : '▼') : '');
       b.addEventListener('click', () => { S.sort = { key: k, dir: S.sort.key === k ? -S.sort.dir : k === 'modified' || k === 'size' ? -1 : 1 }; DR.savePrefs(); DR.render(); });
       h.append(b);
     }
-    if (showWhere()) h.append(el('span', { class: 'col c-where' }, S.section === 'trash' ? 'Trashed' : 'Location'));
+    if (showWhere()) h.append(el('span', { class: 'hcol c-where' }, S.section === 'trash' ? 'Trashed' : 'Location'));
     return h;
   }
   function row(it) {

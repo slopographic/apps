@@ -11,7 +11,7 @@
 :root[data-theme="classic"] .side, :root[data-theme="classic"] .info, :root[data-theme="classic"] .bar, :root[data-theme="classic"] .status { box-shadow: var(--bevel); border: 0; }
 :root[data-theme="classic"] .pane { box-shadow: var(--bevel-in); }
 :root[data-theme="classic"] .lhead { background: #c0c0c0; }
-:root[data-theme="classic"] .lhead .col { color: #000; text-transform: none; letter-spacing: 0; }
+:root[data-theme="classic"] .lhead .hcol { color: #000; text-transform: none; letter-spacing: 0; }
 :root[data-theme="classic"] .meter-bar { border-radius: 0; box-shadow: var(--bevel-in); border: 0; height: 12px; }
 :root[data-theme="classic"] .meter-bar i { background: repeating-linear-gradient(90deg, #000080 0 8px, transparent 8px 10px); }
 

@@ -34,8 +34,8 @@
 .lhead, .row { display: grid; grid-template-columns: minmax(200px, 3fr) minmax(90px, 1.2fr) 80px 120px minmax(80px, 1fr); align-items: center; gap: 10px; padding: 0 14px; }
 .with-where .lhead, .with-where .row { grid-template-columns: minmax(200px, 3fr) minmax(90px, 1.2fr) 80px 120px minmax(80px, 1fr) minmax(100px, 1.5fr); }
 .lhead { position: sticky; top: 0; z-index: 2; height: 32px; background: var(--panel); border-bottom: 1px solid var(--line); }
-.lhead .col { display: flex; align-items: center; gap: 4px; border: 0; background: none; padding: 0; color: var(--faint); font-size: var(--fs-s); text-align: left; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
-.lhead .col.on, .lhead .col:hover { color: var(--fg); }
+.lhead .hcol { display: flex; align-items: center; gap: 4px; border: 0; background: none; padding: 0; color: var(--faint); font-size: var(--fs-s); text-align: left; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+.lhead .hcol.on, .lhead .hcol:hover { color: var(--fg); }
 .lhead .arrow { font-size: 8px; }
 .lhead .c-size { justify-content: flex-end; }
 .row { height: 36px; border-bottom: 1px solid var(--line); border-left: 0; border-right: 0; }

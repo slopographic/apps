@@ -34,13 +34,12 @@
       const base = new URL('../vendor/pdfjs/', document.baseURI).href;
       const lib = await import(base + 'pdf.min.js');
       lib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js';
-      lib.__base = base;
-      return lib;
+      return { lib, base };
     })().catch((e) => { pdfjsP = null; throw e; });
     return pdfjsP;
   };
   DR.openPdf = async function (blob) {
-    const lib = await DR.pdfjs(), base = lib.__base;
+    const { lib, base } = await DR.pdfjs();
     return lib.getDocument({ data: new Uint8Array(await blob.arrayBuffer()), cMapUrl: base + 'cmaps/', cMapPacked: true, standardFontDataUrl: base + 'standard_fonts/', isEvalSupported: false }).promise;
   };
   DR.renderPdfPage = async function (doc, n, width) {

@@ -7,7 +7,7 @@
 </head>
 <body>
   <!-- The real app runs in a same-origin iframe; tests drive its globals directly. -->
-  <iframe id="app" src="../../paint/index.html"></iframe>
+  <iframe id="app" src="../../photoslop/index.html"></iframe>
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, pixel } = SlopTest;
@@ -248,7 +248,7 @@
       const c = W.mkCanvas(7, 5); W.cx(c).fillRect(0, 0, 7, 5);
       const id = await W.SlopHub.put(await W.canvasToBlob(c), { name: 'hello.png', from: 'vector' });
       const f = document.createElement('iframe');
-      f.src = '../../paint/index.html?drive=' + id; document.body.append(f);
+      f.src = '../../photoslop/index.html?drive=' + id; document.body.append(f);
       try {
         await waitFor(() => f.contentWindow.document.body.classList.contains('ready'), { timeout: 15000 });
         const D2 = f.contentWindow.eval('D');
