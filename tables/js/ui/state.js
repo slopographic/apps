@@ -6,6 +6,7 @@ export const S = {
   edit: null,                                 // { r, c, text, orig, from: 'cell' | 'bar' } while typing in a cell
   file: { name: 'Untitled spreadsheet', driveId: null, folderId: null, dirty: false },
   clip: null,                                 // internal clipboard: { r1, c1, cells, text, cut }
+  hist: { undo: [], redo: [] },               // undo and redo steps of the open workbook (each tab has its own)
 };
 
 export const $ = (id) => document.getElementById(id);

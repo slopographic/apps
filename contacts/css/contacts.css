@@ -42,8 +42,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .local-badge { font-size: 12px; color: var(--mute); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .local-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 
-/* Three columns: groups | list | card. Below 960 px the list is the screen; the card is a page; groups a sheet. */
-.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: 210px minmax(280px, 340px) minmax(0, 1fr); min-width: 0; position: relative; }
+/* Three columns: groups | list | splitter | card. The list's width is --list-w (set by the splitter, saved in localStorage).
+ * Below 960 px the list is the screen; the card is a page; groups a sheet. */
+.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: 210px minmax(260px, var(--list-w, 340px)) 6px minmax(0, 1fr); min-width: 0; position: relative; }
 .col { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--panel); }
 .col-groups { background: var(--bg); border-right: 1px solid var(--line); overflow: auto; padding: 14px 0; }
 .col-list { border-right: 1px solid var(--line); }
@@ -55,6 +56,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (max-width: 959px) {
   .cols { grid-template-columns: minmax(0, 1fr); }
   .col-list { border-right: 0; }
+  .splitter { display: none; }
   .wide-only { display: none !important; }
   .list-bar .narrow-only { display: inline-flex; }
   .col-card { position: fixed; inset: 0; z-index: 30; display: none; }

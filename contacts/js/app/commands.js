@@ -36,6 +36,9 @@
     { id: 'groups.sheet', title: 'Show groups', group: 'Groups', run: () => SC.groups.sheet(true) },
     { id: 'settings.country', title: 'Default country code…', group: 'Settings', run: () => tools().countryDialog() },
     { id: 'view.search', title: 'Search contacts', group: 'View', run: () => { const q = document.getElementById('search'); if (q) q.focus(); } },
+    { id: 'view.table', title: 'Show contacts as a table', group: 'View', run: () => SC.layout.setView('table'), when: hasContacts },
+    { id: 'view.cards', title: 'Show contacts as cards', group: 'View', run: () => SC.layout.setView('cards') },
+    { id: 'filters.clear', title: 'Clear all filters', group: 'View', run: () => { S.filters = SC.filters.clean({}); S.emit('render'); }, when: () => SC.filters.active(S.filters) },
     { id: 'help.about', title: 'About Slop Contacts', group: 'Help', run: about },
   ];
   const byId = Object.fromEntries(COMMANDS.map((c) => [c.id, c]));
