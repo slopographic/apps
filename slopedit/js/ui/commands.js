@@ -127,15 +127,8 @@
   C.usingShared = () => registered;
   C.palette = () => (registered && SlopCmd.open ? SlopCmd.open() : SE.cmdFallback && SE.cmdFallback.palette());
   C.keymap = () => (registered && SlopCmd.openKeymap ? SlopCmd.openKeymap() : SE.cmdFallback && SE.cmdFallback.keymap());
-  /** Load the shared command package if the site has it (it is optional for the offline build). */
+  /** Register with SlopCmd (loaded by index.html); the built-in fallback covers pages without it. */
   C.load = async function () {
-    if (!window.SlopCmd && window.SlopHub && !SE.offline) {
-      try {
-        const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = new URL('shared/commands/commands.css', SlopHub.ROOT).href;
-        await SlopHub.loadScript('shared/commands/commands.js');
-        document.head.append(css);
-      } catch (e) { /* not available yet: fallback dispatcher */ }
-    }
     if (!C.register() && SE.cmdFallback) SE.cmdFallback.install(C.list);
   };
 })();

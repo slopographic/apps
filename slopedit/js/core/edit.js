@@ -60,7 +60,7 @@
    *  A negative delta is limited so nothing overlaps. Returns the delta applied. Markers follow. */
   E.rippleShift = function (p, pivot, delta, skip) {
     const moving = p.clips.filter((c) => !(skip && skip.has(c.id)) && c.start >= pivot - EPS && !locked(p, c.track));
-    if (!moving.length || Math.abs(delta) < EPS) return 0;
+    if (Math.abs(delta) < EPS) return 0;
     if (delta < 0) {
       for (const m of moving) {
         let limit = m.start; // can't go below 0

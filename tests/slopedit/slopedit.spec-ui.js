@@ -38,7 +38,8 @@
       expect(doc.querySelector('.sui-menu').textContent).toContain('Export video');
       win.SlopUI.closeMenu();
       ST.SE.cmd.palette();
-      await waitFor(() => doc.querySelector('.sui-dlg, .slopcmd, [class*="palette"]'));
+      await waitFor(() => doc.querySelector('.sui-dlg, [class*="scmd"]'));
+      expect(ST.SE.cmd.usingShared()).toBe(!!win.SlopCmd);
       key(win, 'Escape'); closeDialogs(win);
       ST.SE.cmd.keymap();
       await waitFor(() => doc.body.textContent.includes('Split at playhead'));

@@ -75,7 +75,7 @@
     var p2 = doc.pages[1].items, p3 = doc.pages[2].items, cw = W - mL.left - mL.right;
     TP.text(doc, p2, mL.left, top, cw, 70 * mm, 'Feature\nSetting type in a browser tab\nHow a page layout engine fits real typography into a few hundred kilobytes of script.', 'Kicker');
     var head = doc.stories[p2[p2.length - 1].story]; head.paras[1].ps = 'Title'; head.paras[2].ps = 'Deck';
-    var t1 = TP.text(doc, p2, mL.left, top + 72 * mm, cw, colH - 72 * mm, COPY.concat(COPY).join('\n'), 'Body', { cols: 2, gutter: 5 * mm });
+    var t1 = TP.text(doc, p2, mL.left, top + 72 * mm, cw, colH - 72 * mm, COPY.concat(COPY, COPY, COPY, COPY).join('\n'), 'Body', { cols: 2, gutter: 5 * mm });
     var st = doc.stories[t1.story]; st.paras[0].ps = 'Body Drop';
     var t2 = TP.text(doc, p3, mR.left, top, cw, colH, '', 'Body', { cols: 2, gutter: 5 * mm }); TP.thread(doc, t1, t2);
     var art = TP.image(doc, p3, mR.left + cw / 2 - 32 * mm, top + 40 * mm, 64 * mm, 64 * mm, TP.art(500, 500, ['#ffd166', '#ef476f', '#06d6a0', '#118ab2'], 3), { radius: 0 });

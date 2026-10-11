@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SlopCmd in the single-file apps</title>
+  <style>body { margin: 0; background: #111; } iframe { width: 900px; height: 700px; border: 0; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script>
+  // Slop Tank, Slop Lighter, Unsubscribe and Slop Paint Classic each load SlopCmd and register their actions.
+  const { describe, it, expect, waitFor } = SlopTest;
+  async function load(src, id) {
+    const f = document.createElement('iframe');
+    f.src = src;
+    document.body.append(f);
+    const w = f.contentWindow;
+    await waitFor(() => w.SlopCmd && w.SlopCmd.list().some((c) => c.id === id), { timeout: 20000 });
+    w.SlopCmd.resetKeys();
+    const key = (k, o = {}) => w.document.body.dispatchEvent(new w.KeyboardEvent('keydown', Object.assign({ key: k, bubbles: true, cancelable: true }, o)));
+    return { f, w, C: w.SlopCmd, key, $: (s) => w.document.querySelector(s) };
+  }
+  describe('single-file apps', () => {
+    it('Slop Tank: keys press the panel buttons and follow rebinding', async () => {
+      const { f, C, key, $ } = await load('../../tank/index.html', 'tank.pause');
+      expect(C.app).toBe('tank');
+      key('p'); expect($('#b-pause').getAttribute('aria-pressed')).toBe('true');
+      C.setKeys('tank.pause', ['Shift+P']);
+      key('p'); expect($('#b-pause').getAttribute('aria-pressed')).toBe('true');
+      key('P', { shiftKey: true }); expect($('#b-pause').getAttribute('aria-pressed')).toBe('false');
+      await new Promise((r) => setTimeout(r, 10));
+      expect($('#b-pause kbd').textContent).toBe('Shift+P');
+      $('#b-cmds').click();
+      await waitFor(() => C.isOpen);
+      C.close(); C.resetKeys(); f.remove();
+    }, { timeout: 30000 });
+    it('Slop Lighter: lid, flames and search button', async () => {
+      const { f, C, key, $ } = await load('../../lighter/index.html', 'lighter.lid');
+      expect(C.app).toBe('lighter');
+      key('o'); expect($('#lighter').dataset.open).toBe('true');
+      key('3'); expect($('.chip[data-mode="2"]').classList.contains('on')).toBe(true);
+      expect($('#cmdBtn').hidden).toBe(false);
+      $('#cmdBtn').click();
+      await waitFor(() => C.isOpen);
+      C.close(); f.remove();
+    }, { timeout: 30000 });
+    it('Unsubscribe: a light touch, with the floating search button', async () => {
+      const { f, w, C, $ } = await load('../../unsubscribe/index.html', 'unsub.now');
+      expect(C.app).toBe('unsubscribe');
+      expect(C.list().filter((c) => c.id.startsWith('unsub.')).length).toBe(4);
+      expect(C.list().find((c) => c.id === 'unsub.skip').enabled).toBe(false);
+      const fab = await waitFor(() => $('.scmd-fab'));
+      fab.click();
+      await waitFor(() => C.isOpen);
+      C.close();
+      C.run('unsub.now');
+      await waitFor(() => w.document.querySelector('.sui-toast.sui-show'));
+      f.remove();
+    }, { timeout: 30000 });
+    it('Slop Paint Classic: menu actions, tools, Win98 palette and Help entries', async () => {
+      const { f, w, C, key, $ } = await load('../../photoslop/classic/index.html', 'paint.invert');
+      expect(C.app).toBe('paint-classic');
+      const P = w.slopPaint;
+      key('i', { ctrlKey: true, code: 'KeyI' });
+      expect(P.undoDepth()).toBe(1);
+      key('z', { ctrlKey: true, code: 'KeyZ' });
+      expect(P.undoDepth()).toBe(0);
+      C.run('tool.brush');
+      expect(P.state.tool).toBe('brush');
+      C.setKeys('paint.invert', ['Mod+Shift+I']);
+      key('i', { ctrlKey: true, code: 'KeyI' });
+      expect(P.undoDepth()).toBe(0);
+      expect(w.document.documentElement.dataset.theme).toBe('paint');
+      [...w.document.querySelectorAll('.mb-item')].find((b) => b.textContent === 'Help').click();
+      const labels = [...w.document.querySelectorAll('.menu .mi')].map((b) => b.textContent);
+      expect(labels.some((t) => t.startsWith('Search Commands'))).toBe(true);
+      expect(labels.some((t) => t.startsWith('Keyboard Shortcuts'))).toBe(true);
+      key('Escape');
+      [...w.document.querySelectorAll('.mb-item')].find((b) => b.textContent === 'Image').click();
+      expect([...w.document.querySelectorAll('.menu .mi')].find((b) => b.textContent.startsWith('Invert')).textContent).toContain('Ctrl+Shift+I');
+      key('Escape');
+      C.resetKeys(); f.remove();
+    }, { timeout: 30000 });
+  });
+  SlopTest.run({ name: 'SlopCmd in the single-file apps' });
+  </script>
+</body>
+</html>

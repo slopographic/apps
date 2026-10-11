@@ -11,7 +11,9 @@
   <script>
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   let win, doc, S, M, pristine;
-  const main = () => doc.querySelector('main').innerHTML;
+  // The page itself changes as cards scroll into view (lazy screenshots load or fall back, clips attach):
+  // compare without those parts.
+  const main = () => doc.querySelector('main').innerHTML.replace(/<img[^>]*>|<video[\s\S]*?<\/video>| data-clip="[^"]*"| class="shot has-img"/g, '');
   const leftovers = () => doc.querySelectorAll('.sloppo-layer > :not(.sloppo):not(.sloppo-fx)').length;
   const ready = HomeTest.openHome().then(async (w) => {
     win = w; doc = w.document; S = w.SlopMascot; M = S.M;
@@ -33,7 +35,7 @@
     expect(leftovers()).toBe(0);
     if (main() !== pristine) {
       const a = pristine, b = main(); let i = 0; while (a[i] === b[i]) i++;
-      throw new Error('page not restored near: ' + b.slice(Math.max(0, i - 80), i + 80));
+      throw new Error('page not restored near: ' + b.slice(Math.max(0, i - 40), i + 120) + '\n  expected: ' + a.slice(Math.max(0, i - 40), i + 120));
     }
   }
 

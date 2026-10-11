@@ -56,7 +56,7 @@
       const ta = $('.chat-main .input'); ta.value = 'Tell me something'; ta.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
       await waitFor(() => !AI.chat.busy && $$('.chat-main .msg.bot').length === 1);
       const bot = $('.chat-main .msg.bot');
-      if (!bot.querySelector('.md strong')) throw new Error('DBG ' + D.querySelector('.chat-main .msg-list').innerHTML.slice(0, 600));
+      if (!bot.querySelector('.md-code')) throw new Error('DBG ' + D.querySelector('.chat-main .msg-list').innerHTML.slice(0, 600));
       expect(bot.querySelector('.md strong').textContent).toBe('Fake engine');
       expect(bot.querySelector('.md-code code').textContent).toContain('hello from the slop');
       expect(bot.querySelector('.stats').textContent).toMatch(/\d+ tokens · [\d.]+ tok\/s/);

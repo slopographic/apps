@@ -68,7 +68,7 @@
       A.els.btnUndo.disabled = !SE.history.canUndo(); A.els.btnRedo.disabled = !SE.history.canRedo();
       A.els.btnUndo.title = 'Undo ' + SE.history.undoLabel() + ' (' + C.keyFor('edit.undo') + ')';
       A.els.btnRedo.title = 'Redo ' + SE.history.redoLabel() + ' (' + C.keyFor('edit.redo') + ')';
-      A.els.btnSearch.title = 'Search commands (' + (C.usingShared() ? (SlopCmd.keyFor && SlopCmd.keyFor('palette')) || 'Ctrl+K' : C.keyFor('help.search')) + ')';
+      A.els.btnSearch.title = 'Search commands (' + (C.usingShared() ? (SlopCmd.keyFor && SlopCmd.keyFor('cmd.palette')) || 'Ctrl+K' : C.keyFor('help.search')) + ')';
     };
     SE.on('change', sync); SE.on('keys', sync); sync();
   };
