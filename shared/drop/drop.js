@@ -39,8 +39,12 @@
    *   toast?: false to hide the toast. multiple?: default true. compact?: one row (message and button), for a strip.
    *  Returns { choose(), run(files), destroy() }. */
   SD.attach = function (zone, o) {
+    if (!zone) return null; // the page has no drop zone: nothing to attach, and no error
+    o = o || {};
     const rules = o.accept || {};
-    const targets = o.targets && o.targets.length ? o.targets : [zone];
+    // A target that is missing from this page (a page without that element) is skipped, never an error.
+    const targets = ((o.targets && o.targets.length ? o.targets : [zone]) || []).filter(Boolean);
+    if (!targets.length) return;
     const limit = o.limit || Infinity;
     const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint, compact: o.compact });
     const input = o.input || doc.createElement('input');
