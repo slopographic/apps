@@ -68,11 +68,11 @@
         run = null;
       }
       ln.g.forEach(function (g) {
-        if (g.hidden || g.nl || g.c === '\t' || g.c === ' ' || (g.trail && /\s/.test(g.c))) return;
+        if (g.hidden || g.nl || g.c === '\t' || g.c === '\u2028' || (g.trail && /\s/.test(g.c))) return;
         var rec = C.fonts.get(g.s.font, g.s.fontStyle); if (!rec) return;
         var y = ln.y + (g.by || 0) - (g.s.baselineShift || 0), col = g.s.color || '#000';
         if (run && (run.res !== rec.res || run.size !== g.size || run.y !== y || run.color !== col)) flush();
-        var e = C.fonts.encode(rec, g.c === ' ' ? ' ' : g.c, g.fk);
+        var e = C.fonts.encode(rec, g.c === '\u00A0' ? ' ' : g.c, g.fk);
         if (!run) run = { res: rec.res, size: g.size, y: y, x: g.x, color: col, gl: [] };
         run.gl.push({ g: g, hex: e.hex, w: e.w });
         if (g.s.underline || g.s.strike) deco.push({ g: g, y: y });
