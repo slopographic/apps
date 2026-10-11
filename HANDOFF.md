@@ -1,6 +1,7 @@
 # Handoff: where the work stands
 
-Branch: `claude/awesome-cannon-8azcvd` (GitHub Pages serves it). Commit as `Slopographic <hello@slopographic.com>`, no attribution lines.
+Branch: `main` (single author history). Commit as `slopographic <340656300+slopographic@users.noreply.github.com>`, with no Co-Authored-By or session lines.
+The old `claude/awesome-cannon-8azcvd` branch is superseded; delete it once GitHub Pages serves `main`.
 Tests: `npm test` (or `node tests/run.mjs <filter>`); needs Playwright Chromium.
 
 ## Rules the owner set
@@ -12,7 +13,7 @@ Tests: `npm test` (or `node tests/run.mjs <filter>`); needs Playwright Chromium.
 ## Status
 | Area | State |
 |---|---|
-| PhotoSLOP `paint/` | Done, 25 tests green. TODO: split `js/*.js` into packages (ui 987, tools 933, filters 437, doc 412, brushes 399, io 324, shop.css 380 lines); wire hub (register, `consumeLaunch`, Open from Slop Drive, Send to). |
+| PhotoSLOP `paint/` | Done, 25 tests green, split into packages `js/{core,io,filters,tools,brushes,ui,app}` + `css/`. TODO: wire hub (register, `consumeLaunch`, Open from Slop Drive, Send to). |
 | Slop Vector `vector/` | Built; SlopUI/hub migration in progress. |
 | Slop PDF `pdf/` | In progress (organise, edit, sign). |
 | SlopLabel `label/` | In progress (NiceLabel replacement: barcodes, CSV merge, ZPL). |
