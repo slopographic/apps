@@ -325,3 +325,26 @@ body.no-panels .main { grid-template-columns: 1fr; }
   .options { gap: 10px; }
   .opt-name, .opt-hint { display: none; }
 }
+
+/* ---------- brush picker ---------- */
+.bp-btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 6px 0 4px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--input); flex: none; }
+.bp-btn canvas { width: 24px; height: 24px; object-fit: contain; }
+.bp-btn span { font: 11px var(--mono); min-width: 20px; text-align: right; }
+.bp-btn i { font-style: normal; color: var(--fg-faint); font-size: 10px; }
+.brush-pop { position: fixed; z-index: 150; width: 300px; background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 8px; box-shadow: var(--shadow); padding: 10px; display: grid; gap: 8px; }
+.bp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.bp-head span { color: var(--fg-faint); font-size: 10.5px; }
+.bp-row { display: grid; grid-template-columns: 62px 1fr 52px 18px; align-items: center; gap: 6px; color: var(--fg-dim); }
+.bp-row input[type=range] { width: 100%; }
+.bp-sub { color: var(--fg-faint); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+.bp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; max-height: 260px; overflow-y: auto; }
+.bp-preset { display: grid; justify-items: center; gap: 1px; padding: 4px 2px 3px; border: 1px solid transparent; border-radius: 5px; background: var(--input); position: relative; }
+.bp-preset canvas { width: 64px; height: 40px; max-width: 100%; }
+.bp-preset span { font-size: 9.5px; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.bp-preset em { position: absolute; top: 2px; right: 4px; font: 9px var(--mono); color: var(--fg-faint); font-style: normal; }
+.bp-preset:hover { border-color: var(--line-2); background: var(--hover); }
+.bp-preset.on { border-color: var(--accent); }
+[data-theme="pro"] .bp-preset.on { border-color: #d4ff3a; }
+[data-theme="paint"] .brush-pop { background: #c0c0c0; border: 0; border-radius: 0; box-shadow: var(--bevel-out), 2px 2px 0 rgba(0,0,0,.4); }
+[data-theme="paint"] .bp-preset, [data-theme="paint"] .bp-btn { border-radius: 0; background: #fff; box-shadow: var(--bevel-in); border: 0; }
+.paste-catcher { position: fixed; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; }

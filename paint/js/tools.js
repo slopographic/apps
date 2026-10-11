@@ -3,9 +3,12 @@
 
 const C = { fg: store.get('fg', '#000000'), bg: store.get('bg', '#ffffff') };
 const T = Object.assign({
-  brush: { size: 30, hardness: 0.7, opacity: 1, flow: 1, spacing: 0.12, pressure: true, blend: 'normal' },
+  brush: { size: 30, hardness: 0.7, opacity: 1, flow: 1, spacing: 0.12, pressure: true, blend: 'normal', tip: 'round' },
   pencil: { size: 2, opacity: 1 },
-  eraser: { size: 40, hardness: 0.6, opacity: 1, flow: 1, spacing: 0.12, pressure: true },
+  eraser: { size: 40, hardness: 0.6, opacity: 1, flow: 1, spacing: 0.12, pressure: true, tip: 'round' },
+  blur: { size: 50, hardness: 0.3, strength: 0.5 },
+  sharpen: { size: 50, hardness: 0.3, strength: 0.4 },
+  sponge: { size: 60, hardness: 0.3, flow: 0.4, mode: 'saturate' },
   clone: { size: 60, hardness: 0.5, opacity: 1, flow: 1, aligned: true, sampleAll: false },
   smudge: { size: 40, hardness: 0.4, strength: 0.6 },
   dodge: { size: 70, hardness: 0.3, exposure: 0.35, mode: 'dodge' },
@@ -49,17 +52,45 @@ function pickColor(p, all, size = 1) {
   return rgbToHex(R0 / A, G / A, B / A);
 }
 const dabCache = new Map();
-function dabCanvas(size, hardness, color) {
-  const key = `${Math.ceil(size)}|${hardness.toFixed(2)}|${color}`;
+/** Brush tips. 'round' is the classic soft/hard round; the others are shaped tips. */
+const TIPS = [['round', 'Round'], ['square', 'Square'], ['flat', 'Flat (calligraphy)'], ['spray', 'Spray'], ['chalk', 'Chalk'], ['slime', 'Slime drip']];
+const TIP_VARIANTS = { spray: 6, chalk: 4 };
+function tipPath(g, tip, cxp, cyp, r) {
+  g.beginPath();
+  if (tip === 'square') g.rect(cxp - r * 0.88, cyp - r * 0.88, r * 1.76, r * 1.76);
+  else if (tip === 'flat') g.ellipse(cxp, cyp, r, Math.max(0.6, r * 0.26), -Math.PI / 4, 0, Math.PI * 2);
+  else if (tip === 'slime') {
+    g.arc(cxp, cyp - r * 0.25, r * 0.7, 0, Math.PI * 2);
+    for (const [dx, len, w] of [[-0.38, 0.95, 0.16], [0.05, 1.2, 0.2], [0.42, 0.75, 0.14]]) { g.moveTo(cxp + dx * r + w * r, cyp); g.ellipse(cxp + dx * r, cyp + (len - 0.6) * r * 0.5, w * r, len * r * 0.62, 0, 0, Math.PI * 2); }
+  } else g.arc(cxp, cyp, Math.max(0.5, r), 0, Math.PI * 2);
+}
+function dabCanvas(size, hardness, color, tip = 'round', variant = 0) {
+  const key = `${Math.ceil(size)}|${hardness.toFixed(2)}|${color}|${tip}|${variant}`;
   if (dabCache.has(key)) return dabCache.get(key);
-  if (dabCache.size > 60) dabCache.clear();
+  if (dabCache.size > 80) dabCache.clear();
   const d = Math.max(2, Math.ceil(size) + 2), c = mkCanvas(d, d), g = cx(c), r = size / 2;
-  if (hardness >= 0.99 || size < 3) { g.fillStyle = color; g.beginPath(); g.arc(d / 2, d / 2, Math.max(0.5, r), 0, Math.PI * 2); g.fill(); }
-  else {
-    const [R0, G, B] = hexToRgb(color), gr = g.createRadialGradient(d / 2, d / 2, 0, d / 2, d / 2, r);
+  const [R0, G, B] = hexToRgb(color);
+  g.fillStyle = color;
+  if (tip === 'round' && (hardness >= 0.99 || size < 3)) { g.beginPath(); g.arc(d / 2, d / 2, Math.max(0.5, r), 0, Math.PI * 2); g.fill(); }
+  else if (tip === 'round') {
+    const gr = g.createRadialGradient(d / 2, d / 2, 0, d / 2, d / 2, r);
     gr.addColorStop(0, `rgba(${R0},${G},${B},1)`); gr.addColorStop(clamp(hardness, 0, 0.98), `rgba(${R0},${G},${B},1)`);
     for (let i = 1; i <= 6; i++) { const t = i / 6, a = Math.pow(1 - t, 1.6); gr.addColorStop(hardness + (1 - hardness) * t, `rgba(${R0},${G},${B},${a})`); }
     g.fillStyle = gr; g.fillRect(0, 0, d, d);
+  } else if (tip === 'spray') {
+    const rnd = rng(variant * 977 + 13), n = Math.max(6, Math.round(size * 1.4)), dot = Math.max(0.6, size * 0.025);
+    for (let i = 0; i < n; i++) { const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * (r - dot); g.globalAlpha = 0.5 + rnd() * 0.5; g.beginPath(); g.arc(d / 2 + Math.cos(a) * rr, d / 2 + Math.sin(a) * rr, dot * (0.6 + rnd()), 0, Math.PI * 2); g.fill(); }
+    g.globalAlpha = 1;
+  } else {
+    // Shaped tips: stack shrinking copies for a soft edge.
+    const steps = hardness >= 0.99 ? 1 : 8;
+    for (let i = 0; i < steps; i++) { const k = steps === 1 ? 1 : 1 - (i / (steps - 1)) * (1 - hardness); g.globalAlpha = steps === 1 ? 1 : 1 / steps + 0.06; tipPath(g, tip, d / 2, d / 2, r * k); g.fill(); }
+    g.globalAlpha = 1;
+    if (tip === 'chalk') {
+      const rnd = rng(variant * 331 + 7), img = g.getImageData(0, 0, d, d), px = img.data;
+      for (let i = 3; i < px.length; i += 4) px[i] *= rnd() < 0.42 ? rnd() * 0.3 : 0.75 + rnd() * 0.25;
+      g.putImageData(img, 0, 0);
+    }
   }
   dabCache.set(key, c);
   return c;
@@ -436,16 +467,19 @@ function brushTool(def) {
     down(p, e) {
       const L = editableLayer(); if (!L) { this.s = null; return; }
       const Lc = coverDoc(L), o = this.opt(), mask = maskTarget(Lc);
-      const color = mask ? '#000000' : (e.button === 2 ? C.bg : C.fg);
-      const opts = { opacity: o.opacity, erase: !!this.erase, blend: o.blend, mask: !!mask, value: mask ? luma(...hexToRgb(e.button === 2 ? C.bg : C.fg)) / 255 : 1 };
+      const color = mask ? '#000000' : C.fg;
+      const opts = { opacity: o.opacity, erase: !!this.erase, blend: o.blend, mask: !!mask, value: mask ? luma(...hexToRgb(C.fg)) / 255 : 1 };
       if (this.erase && mask) { opts.erase = false; opts.value = 0; }
       const S = this.s = startBufferedStroke(Lc, opts);
       const usePressure = o.pressure && p.pen;
       if (this.aliased) {
         S.stroker = new Stroker(() => 1, (x, y) => { const dc = pixelDisc(o.size, color), n = Math.max(1, Math.round(o.size)); S.g.drawImage(dc, Math.round(x - n / 2), Math.round(y - n / 2)); });
       } else {
-        const dab = dabCanvas(o.size, o.hardness, color);
-        S.stroker = new Stroker((pr) => Math.max(0.5, o.size * (usePressure ? clamp(pr, 0.05, 1) : 1) * o.spacing), (x, y, pr) => {
+        const tip = o.tip || 'round', nv = TIP_VARIANTS[tip] || 1;
+        const dabs = Array.from({ length: nv }, (_, v) => dabCanvas(o.size, o.hardness, color, tip, v));
+        const spacing = tip === 'spray' ? Math.max(o.spacing, 0.3) : tip === 'slime' ? Math.max(o.spacing, 0.18) : o.spacing;
+        S.stroker = new Stroker((pr) => Math.max(0.5, o.size * (usePressure ? clamp(pr, 0.05, 1) : 1) * spacing), (x, y, pr) => {
+          const dab = dabs[(Math.random() * nv) | 0];
           const s = o.size * (usePressure ? clamp(pr, 0.05, 1) : 1), d = (dab.width * s) / o.size;
           S.g.globalAlpha = o.flow; S.g.drawImage(dab, x - d / 2, y - d / 2, d, d);
         });
@@ -553,6 +587,41 @@ directTool({ id: 'dodge', name: 'Dodge / Burn Tool', key: 'O', icon: ICON('M12 3
     s.g.putImageData(img, x0, y0);
   } });
 
+/** Soft falloff weight 0..1 for a pixel at distance dist (in radii). */
+const falloff = (dist, hardness) => (dist >= 1 ? 0 : dist < hardness ? 1 : 1 - (dist - hardness) / (1 - hardness || 1));
+function dabRegion(s, x, y, r, pad = 0) {
+  const x0 = Math.max(0, Math.floor(x - r - pad)), y0 = Math.max(0, Math.floor(y - r - pad));
+  const x1 = Math.min(s.work.width, Math.ceil(x + r + pad)), y1 = Math.min(s.work.height, Math.ceil(y + r + pad));
+  return x1 > x0 && y1 > y0 ? { x0, y0, w: x1 - x0, h: y1 - y0 } : null;
+}
+function blurSharpenDab(s, x, y, o, sharpen) {
+  const r = o.size / 2, pad = 6, R0 = dabRegion(s, x, y, r, pad); if (!R0) return;
+  const img = s.g.getImageData(R0.x0, R0.y0, R0.w, R0.h), d = img.data;
+  const bl = new ImageData(new Uint8ClampedArray(d), R0.w, R0.h);
+  blurImageData(bl, sharpen ? 2.2 : 2 + o.size * 0.04);
+  const b = bl.data, k = o.strength * (sharpen ? 1.6 : 0.85);
+  for (let j = 0; j < R0.h; j++) for (let i = 0; i < R0.w; i++) {
+    const f = falloff(Math.hypot(R0.x0 + i + 0.5 - x, R0.y0 + j + 0.5 - y) / r, o.hardness) * k; if (!f) continue;
+    const q = (j * R0.w + i) * 4;
+    for (let c = 0; c < 4; c++) d[q + c] = sharpen ? d[q + c] + (d[q + c] - b[q + c]) * f : d[q + c] + (b[q + c] - d[q + c]) * Math.min(1, f);
+  }
+  s.g.putImageData(img, R0.x0, R0.y0);
+}
+directTool({ id: 'blur', name: 'Blur Tool', key: 'R', icon: ICON('M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z'), opt: () => T.blur, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.blur, false); } });
+directTool({ id: 'sharpen', name: 'Sharpen Tool', key: 'R', icon: ICON('M12 3 20 20H4z'), opt: () => T.sharpen, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.sharpen, true); } });
+directTool({ id: 'sponge', name: 'Sponge Tool', key: 'O', icon: ICON('M5 8c0-2 2-4 7-4s7 2 7 4v8c0 2-2 4-7 4s-7-2-7-4zM9 9h.01M14 11h.01M10 14h.01M15 16h.01'),
+  opt: () => T.sponge, begin() {},
+  dab(s, x, y) {
+    const o = T.sponge, r = o.size / 2, R0 = dabRegion(s, x, y, r); if (!R0) return;
+    const img = s.g.getImageData(R0.x0, R0.y0, R0.w, R0.h), d = img.data, sat = o.mode === 'saturate';
+    for (let j = 0; j < R0.h; j++) for (let i = 0; i < R0.w; i++) {
+      const f = falloff(Math.hypot(R0.x0 + i + 0.5 - x, R0.y0 + j + 0.5 - y) / r, o.hardness) * o.flow * 0.25; if (!f) continue;
+      const q = (j * R0.w + i) * 4, l = luma(d[q], d[q + 1], d[q + 2]), k = sat ? 1 + f : 1 - f;
+      d[q] = l + (d[q] - l) * k; d[q + 1] = l + (d[q + 1] - l) * k; d[q + 2] = l + (d[q + 2] - l) * k;
+    }
+    s.g.putImageData(img, R0.x0, R0.y0);
+  } });
+
 /* Fill tools */
 defTool({ id: 'gradient', name: 'Gradient Tool', key: 'G', icon: ICON('M3 3h18v18H3zM3 21 21 3'),
   down(p, e) { const L = editableLayer(); if (!L) return; this.s = { L: coverDoc(L), a: p, b: p }; },
@@ -624,8 +693,8 @@ defTool({ id: 'bucket', name: 'Paint Bucket Tool', key: 'G', icon: ICON('M5 11 1
     const L = coverDoc(L0), src = T.bucket.sampleAll ? flattenCanvas() : docCanvasOf(L);
     const m = regionMask(src, p.x, p.y, T.bucket.tol, T.bucket.contiguous); if (!m) return;
     const region = maskToCanvas(m, D.w, D.h), g = cx(region);
-    g.globalCompositeOperation = 'source-in'; g.fillStyle = e.button === 2 ? C.bg : C.fg; g.fillRect(0, 0, D.w, D.h);
-    if (maskTarget(L)) { const v = luma(...hexToRgb(e.button === 2 ? C.bg : C.fg)) / 255; patchLayer(L.id, { mask: Object.assign({}, L.mask, { canvas: bakeStroke(L, region, { opacity: T.bucket.opacity, mask: true, value: v }) }) }); }
+    g.globalCompositeOperation = 'source-in'; g.fillStyle = C.fg; g.fillRect(0, 0, D.w, D.h);
+    if (maskTarget(L)) { const v = luma(...hexToRgb(C.fg)) / 255; patchLayer(L.id, { mask: Object.assign({}, L.mask, { canvas: bakeStroke(L, region, { opacity: T.bucket.opacity, mask: true, value: v }) }) }); }
     else patchLayer(L.id, { canvas: bakeStroke(L, region, { opacity: T.bucket.opacity }) });
     commit('Paint Bucket');
   } });

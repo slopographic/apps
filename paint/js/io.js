@@ -33,12 +33,21 @@ function pasteInternal(inPlace) {
   pasteCanvas(copyCanvas(CLIP.canvas), inPlace ? CLIP.x : null, inPlace ? CLIP.y : null, 'Layer');
 }
 async function onPaste(e) {
-  if (isTyping(e.target) || openDialogs) return;
-  const items = e.clipboardData ? [...e.clipboardData.items] : [];
+  const fromCatcher = e.target && e.target.classList && e.target.classList.contains('paste-catcher');
+  if ((!fromCatcher && isTyping(e.target)) || openDialogs) return;
+  if (fromCatcher) e.target.blur();
+  const cd = e.clipboardData, items = cd ? [...cd.items] : [];
   const img = items.find((i) => i.kind === 'file' && i.type.startsWith('image/'));
+  const file = img ? img.getAsFile() : cd && cd.files && [...cd.files].find((f) => f.type.startsWith('image/') || isPSD(f));
   e.preventDefault();
-  if (img) {
-    const c = await fileToCanvas(img.getAsFile());
+  if (file && isPSD(file)) { handleFiles([file], true); return; }
+  if (!file && cd) {
+    // Images copied from some web pages arrive only as HTML.
+    const src = (cd.getData('text/html').match(/<img[^>]+src="([^"]+)"/) || [])[1];
+    if (src && /^data:image\//.test(src)) { const im = await loadImage(src); const c = mkCanvas(im.naturalWidth, im.naturalHeight); cx(c).drawImage(im, 0, 0); pasteCanvas(c, null, null, 'Pasted Image'); return; }
+  }
+  if (file) {
+    const c = await fileToCanvas(file);
     if (CLIP.canvas && c.width === CLIP.canvas.width && c.height === CLIP.canvas.height) { pasteInternal(pasteInPlace); return; }
     pasteCanvas(c, null, null, 'Pasted Image');
   } else pasteInternal(pasteInPlace);

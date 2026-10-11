@@ -24,7 +24,11 @@ function initView() {
   V.el.addEventListener('pointerleave', () => { V.cursorIn = false; dirty(); });
   V.el.addEventListener('pointerenter', () => { V.cursorIn = true; });
   V.el.addEventListener('wheel', onWheel, { passive: false });
-  V.el.addEventListener('contextmenu', (e) => e.preventDefault());
+  V.el.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    if (V.op) { const t = V.op.tool; if (e.pointerType === 'touch' || !e.button) { if (t.cancel) t.cancel(); V.op = null; } }
+    if (typeof openCanvasContext === 'function') openCanvasContext(e);
+  });
   V.el.addEventListener('dblclick', (e) => { const t = currentTool(); if (t.dblclick) t.dblclick(toDoc(e), e); });
   listeners.add((what) => { if (what === 'doc') { V.needComp = true; dirty(); } });
   requestAnimationFrame(frame);
@@ -180,7 +184,8 @@ function onPointerDown(e) {
     V.el.setPointerCapture(e.pointerId); V.el.classList.add('panning'); e.preventDefault();
     return;
   }
-  if (e.button !== 0 && e.button !== 2) return;
+  if (e.button !== 0) return; // right-click opens the brush picker / context menu instead
+  if (isMac && e.ctrlKey && !e.metaKey) return; // Ctrl-click = context menu on a Mac
   if (document.activeElement && document.activeElement.blur && document.activeElement !== document.body && !document.activeElement.closest('.type-edit')) document.activeElement.blur();
   const t = currentTool();
   const p = toDoc(e);

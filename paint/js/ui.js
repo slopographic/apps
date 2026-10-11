@@ -117,6 +117,7 @@ const MENUS = [
     { label: 'New…', key: 'Ctrl+N', act: () => dlgNew() },
     { label: 'Open…', key: 'Ctrl+O', act: () => openFilePicker(false) },
     { label: 'Place Image as Layer…', key: 'Shift+Ctrl+P', act: () => openFilePicker(true) },
+    { label: 'New from Clipboard', key: 'Alt+Shift+Ctrl+N', act: () => newFromClipboard() },
     '-',
     { label: 'Save as Photoshop (.psd)', key: 'Ctrl+S', act: () => savePSD() },
     { label: 'Export As…', key: 'Alt+Shift+Ctrl+W', act: () => dlgExport() },
@@ -133,8 +134,8 @@ const MENUS = [
     { label: 'Cut', key: 'Ctrl+X', act: () => cutSel(), need: 'layer' },
     { label: 'Copy', key: 'Ctrl+C', act: () => copySel(false), need: 'layer' },
     { label: 'Copy Merged', key: 'Shift+Ctrl+C', act: () => copySel(true) },
-    { label: 'Paste', key: 'Ctrl+V', act: () => pasteInternal(false), en: () => !!CLIP.canvas },
-    { label: 'Paste in Place', key: 'Shift+Ctrl+V', act: () => pasteInternal(true), en: () => !!CLIP.canvas },
+    { label: 'Paste', key: 'Ctrl+V', act: () => pasteFromSystem(false) },
+    { label: 'Paste in Place', key: 'Shift+Ctrl+V', act: () => pasteFromSystem(true) },
     { label: 'Clear', key: 'Delete', act: () => clearSelectionPixels(), en: () => !!D.sel },
     '-',
     { label: 'Fill with Foreground', key: 'Alt+Backspace', act: () => fillSelection(C.fg, 'Fill'), need: 'layer' },
@@ -326,7 +327,7 @@ function showMenu(btn, items, focus) {
 /* ---------- toolbox ---------- */
 function buildToolbox() {
   const box = $('#toolbox');
-  const order = ['move', 'marquee', 'ellipse', 'lasso', 'polylasso', 'wand', 'crop', 'eyedropper', 'brush', 'pencil', 'clone', 'eraser', 'gradient', 'bucket', 'smudge', 'dodge', 'type', 'shape', 'hand', 'zoom'];
+  const order = ['move', 'marquee', 'ellipse', 'lasso', 'polylasso', 'wand', 'crop', 'eyedropper', 'brush', 'pencil', 'clone', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'hand', 'zoom'];
   const grid = h('div', { class: 'tools' });
   for (const id of order) {
     const t = TOOL[id];
@@ -402,10 +403,12 @@ function buildOptions() {
   }
   const blendOpts = BLENDS.map((b) => [b[0], b[1]]);
   switch (t.id) {
-    case 'brush': add(optRange('Size', T.brush, 'size', 1, 1000, 1, (v) => v + ''), optRange('Hardness', T.brush, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optSelect('Mode', T.brush, 'blend', blendOpts), optRange('Opacity', T.brush, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.brush, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.brush, 'pressure')); break;
+    case 'brush': add(brushPickerButton(), optSelect('Tip', T.brush, 'tip', TIPS), optRange('Size', T.brush, 'size', 1, 1000, 1, (v) => v + ''), optRange('Hardness', T.brush, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optSelect('Mode', T.brush, 'blend', blendOpts), optRange('Opacity', T.brush, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.brush, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.brush, 'pressure')); break;
     case 'pencil': add(optRange('Size', T.pencil, 'size', 1, 200), optRange('Opacity', T.pencil, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
-    case 'eraser': add(optRange('Size', T.eraser, 'size', 1, 1000), optRange('Hardness', T.eraser, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.eraser, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.eraser, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.eraser, 'pressure')); break;
+    case 'eraser': add(brushPickerButton(), optSelect('Tip', T.eraser, 'tip', TIPS), optRange('Size', T.eraser, 'size', 1, 1000), optRange('Hardness', T.eraser, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.eraser, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.eraser, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.eraser, 'pressure')); break;
     case 'clone': add(optRange('Size', T.clone, 'size', 1, 1000), optRange('Hardness', T.clone, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Opacity', T.clone, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Aligned', T.clone, 'aligned'), optCheck('Sample all layers', T.clone, 'sampleAll'), h('span', { class: 'opt-hint' }, isMac ? '⌥-click to set the source' : 'Alt-click to set the source')); break;
+    case 'blur': case 'sharpen': { const o = T[t.id]; add(brushPickerButton(), optRange('Size', o, 'size', 1, 500), optRange('Hardness', o, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Strength', o, 'strength', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break; }
+    case 'sponge': add(brushPickerButton(), optSelect('', T.sponge, 'mode', [['saturate', 'Saturate'], ['desaturate', 'Desaturate']]), optRange('Size', T.sponge, 'size', 1, 500), optRange('Flow', T.sponge, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
     case 'smudge': add(optRange('Size', T.smudge, 'size', 1, 500), optRange('Strength', T.smudge, 'strength', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
     case 'dodge': add(optSelect('', T.dodge, 'mode', [['dodge', 'Dodge (lighten)'], ['burn', 'Burn (darken)']]), optRange('Size', T.dodge, 'size', 1, 1000), optRange('Exposure', T.dodge, 'exposure', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100)); break;
     case 'marquee': case 'ellipse': case 'lasso': case 'polylasso': add(optSelMode(), optRange('Feather', T.select, 'feather', 0, 250, 1, (v) => v), h('span', { class: 'opt-hint' }, t.id === 'polylasso' ? 'Click points · double-click or Enter to close' : 'Drag inside a selection to move it')); break;
@@ -545,6 +548,7 @@ function buildLayersPanel() {
       if (L.locked) row.append(h('span', { class: 'lp-lock', title: 'Locked', html: '<svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z"/></svg>' }));
       if (L.blend !== 'normal' || L.opacity < 1) row.append(h('span', { class: 'lp-meta' }, (L.blend !== 'normal' ? BLENDS.find((b) => b[0] === L.blend)[1] : '') + (L.opacity < 1 ? ` ${Math.round(L.opacity * 100)}%` : '')));
       row.addEventListener('click', () => { if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); } });
+      row.addEventListener('contextmenu', (e) => layerContextMenu(e, L));
       row.addEventListener('dragstart', (e) => { dragId = L.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(L.id)); row.classList.add('dragging'); });
       row.addEventListener('dragend', () => { dragId = null; row.classList.remove('dragging'); $$('.layer', list).forEach((r) => r.classList.remove('drop-above', 'drop-below')); });
       row.addEventListener('dragover', (e) => { if (dragId == null) return; e.preventDefault(); const r = row.getBoundingClientRect(), above = e.clientY < r.top + r.height / 2; row.classList.toggle('drop-above', above); row.classList.toggle('drop-below', !above); });
@@ -839,7 +843,7 @@ function onKeyDown(e) {
   if (e.key === 'Escape' && D.sel && !(TE.el)) { /* Photoshop keeps the selection on Esc */ }
   const item = SHORTCUTS.get(combo) || (combo === 'Ctrl+Y' ? SHORTCUTS.get('Shift+Ctrl+Z') : null) || (combo === 'Alt+Ctrl+Z' ? SHORTCUTS.get('Ctrl+Z') : null) || (combo === 'Backspace' ? SHORTCUTS.get('Delete') : null) || (combo === 'Ctrl+Shift+=' || combo === 'Shift+Ctrl+=' ? SHORTCUTS.get('Ctrl+=') : null);
   if (item) {
-    if (combo === 'Ctrl+V' || combo === 'Shift+Ctrl+V') return; // handled by the paste event so system images work
+    if (combo === 'Ctrl+V' || combo === 'Shift+Ctrl+V') { armPasteCatcher(); return; } // the native paste event carries system images
     if (combo === 'Ctrl+C' || combo === 'Ctrl+X') { e.preventDefault(); item.act(); return; }
     if (!menuEnabled(item)) { e.preventDefault(); return; }
     e.preventDefault(); closeMenus(); item.act(); return;
@@ -852,7 +856,7 @@ function onKeyDown(e) {
     else selectTool(ids.includes(store.get('lastOf.' + k)) ? store.get('lastOf.' + k) : ids[0]);
     e.preventDefault(); return;
   }
-  const o = { brush: T.brush, pencil: T.pencil, eraser: T.eraser, clone: T.clone, smudge: T.smudge, dodge: T.dodge }[UI.tool];
+  const o = BRUSH_OPTS()[UI.tool];
   if (o && (e.code === 'BracketLeft' || e.code === 'BracketRight')) {
     const up = e.code === 'BracketRight';
     if (e.shiftKey && o.hardness != null) o.hardness = clamp(Math.round((o.hardness + (up ? 0.25 : -0.25)) * 4) / 4, 0, 1);
@@ -869,3 +873,147 @@ function onKeyDown(e) {
 }
 function onKeyUp(e) { if (e.code === 'Space') { V.space = false; V.el.classList.remove('space'); } }
 listeners.add((w) => { if (w === 'tool') { const t = TOOL[UI.tool]; if (t) store.set('lastOf.' + t.key, t.id); buildOptions(); V.el.style.cursor = ''; } });
+
+/* ---------- right-click: brush picker & context menus ---------- */
+const BRUSH_OPTS = () => ({ brush: T.brush, pencil: T.pencil, eraser: T.eraser, clone: T.clone, smudge: T.smudge, dodge: T.dodge, blur: T.blur, sharpen: T.sharpen, sponge: T.sponge });
+const BRUSH_PRESETS = [
+  { label: 'Soft Round', tip: 'round', size: 45, hardness: 0 }, { label: 'Hard Round', tip: 'round', size: 20, hardness: 1 },
+  { label: 'Soft Round Big', tip: 'round', size: 200, hardness: 0 }, { label: 'Hard Round Fine', tip: 'round', size: 4, hardness: 1 },
+  { label: 'Square', tip: 'square', size: 30, hardness: 1 }, { label: 'Soft Square', tip: 'square', size: 50, hardness: 0.4 },
+  { label: 'Calligraphy', tip: 'flat', size: 34, hardness: 1 }, { label: 'Marker', tip: 'flat', size: 60, hardness: 0.7 },
+  { label: 'Spray', tip: 'spray', size: 70, hardness: 1 }, { label: 'Chalk', tip: 'chalk', size: 40, hardness: 0.8 },
+  { label: 'Slime Drip', tip: 'slime', size: 46, hardness: 0.85 }, { label: 'Fuzzy', tip: 'chalk', size: 90, hardness: 0.2 },
+];
+function presetPreview(p) {
+  const c = mkCanvas(64, 40), g = cx(c), col = theme() === 'pro' ? '#e8e8e8' : '#111111';
+  const s = clamp(p.size, 3, 26) * (p.tip === 'spray' ? 1.4 : 1);
+  const tip = dabCanvas(s, p.hardness, col, p.tip, 0);
+  if (p.size > 120 || p.size < 6) { g.drawImage(tip, 32 - tip.width / 2, 20 - tip.height / 2); return c; }
+  for (let i = 0; i <= 14; i++) { const t = i / 14, x = 8 + t * 48, y = 20 + Math.sin(t * Math.PI * 2) * 8; g.globalAlpha = p.tip === 'spray' ? 0.8 : 0.55; g.drawImage(dabCanvas(s, p.hardness, col, p.tip, i % (TIP_VARIANTS[p.tip] || 1)), x - tip.width / 2, y - tip.height / 2); }
+  return c;
+}
+let popover = null;
+function closePopover() { if (popover) { popover.remove(); popover = null; } }
+function openBrushPicker(x, y, toolId = UI.tool) {
+  closeMenus(); closePopover();
+  const o = BRUSH_OPTS()[toolId]; if (!o) return;
+  const t = TOOL[toolId];
+  const el = h('div', { class: 'brush-pop', role: 'dialog', 'aria-label': 'Brush picker' });
+  const row = (label, key, min, max, toV = (v) => v, fromV = (v) => v, unit = 'px') => {
+    const r = h('input', { type: 'range', min, max, value: Math.round(fromV(o[key])), 'aria-label': label });
+    const n = h('input', { type: 'number', min, max, value: Math.round(fromV(o[key])), class: 'opt-num', 'aria-label': label });
+    const set = (v) => { v = clamp(+v, min, max); o[key] = toV(v); r.value = v; if (document.activeElement !== n) n.value = v; saveToolOptions(); buildOptions(); dirty(); };
+    r.addEventListener('input', () => set(r.value)); n.addEventListener('change', () => set(n.value));
+    return h('label', { class: 'bp-row' }, h('span', null, label), r, n, h('span', { class: 'opt-u' }, unit));
+  };
+  el.append(h('div', { class: 'bp-head' }, h('b', null, t.name.replace(' Tool', '')), h('span', null, 'Right-click on the canvas any time')));
+  el.append(row('Size', 'size', 1, toolId === 'pencil' ? 200 : 1000));
+  if (o.hardness != null) el.append(row('Hardness', 'hardness', 0, 100, (v) => v / 100, (v) => v * 100, '%'));
+  if (o.opacity != null) el.append(row('Opacity', 'opacity', 1, 100, (v) => v / 100, (v) => v * 100, '%'));
+  if (o.tip != null) {
+    const grid = h('div', { class: 'bp-grid' });
+    for (const p of BRUSH_PRESETS) {
+      const b = h('button', { type: 'button', class: 'bp-preset' + (o.tip === p.tip && o.size === p.size && Math.abs(o.hardness - p.hardness) < 0.01 ? ' on' : ''), title: `${p.label} · ${p.size}px`, 'aria-label': p.label }, presetPreview(p), h('span', null, p.label), h('em', null, p.size));
+      b.addEventListener('click', () => { Object.assign(o, { tip: p.tip, size: p.size, hardness: p.hardness }); saveToolOptions(); buildOptions(); dirty(); closePopover(); toast(`${p.label} brush`, 900); });
+      grid.append(b);
+    }
+    el.append(h('div', { class: 'bp-sub' }, 'Brush presets'), grid);
+  }
+  document.body.append(el);
+  const r = el.getBoundingClientRect();
+  el.style.left = clamp(x, 4, innerWidth - r.width - 4) + 'px';
+  el.style.top = clamp(y, 4, innerHeight - r.height - 4) + 'px';
+  popover = el;
+  el.addEventListener('keydown', (e) => { if (e.key === 'Escape' || e.key === 'Enter') { e.stopPropagation(); closePopover(); } });
+  setTimeout(() => { const f = el.querySelector('input[type=range]'); if (f) f.focus(); }, 0);
+}
+document.addEventListener('pointerdown', (e) => { if (popover && !e.target.closest('.brush-pop')) closePopover(); }, true);
+function showContextMenu(items, x, y) { closeMenus(); closePopover(); const m = renderMenu(items, x, y, 0); openMenu = { btn: null, m }; const f = m.querySelector('.menu-row:not([disabled])'); if (f) f.focus({ preventScroll: true }); }
+function openCanvasContext(e) {
+  const id = TRANSFORM.active ? 'transform' : UI.tool, x = e.clientX, y = e.clientY;
+  if (BRUSH_OPTS()[id]) { openBrushPicker(x, y, id); return; }
+  if (id === 'transform') { showContextMenu([{ label: 'Commit Transform', key: 'Enter', act: commitTransform }, { label: 'Cancel Transform', key: 'Escape', act: cancelTransform }, '-', { label: 'Flip Horizontal', act: () => { TRANSFORM.sx *= -1; dirty(true); } }, { label: 'Flip Vertical', act: () => { TRANSFORM.sy *= -1; dirty(true); } }, { label: 'Rotate 90° Clockwise', act: () => { TRANSFORM.rot += Math.PI / 2; dirty(true); } }, { label: 'Rotate 90° Counter Clockwise', act: () => { TRANSFORM.rot -= Math.PI / 2; dirty(true); } }, { label: 'Reset', act: () => { Object.assign(TRANSFORM, { tx: 0, ty: 0, sx: 1, sy: 1, rot: 0 }); dirty(true); } }], x, y); return; }
+  const p = toDoc(e);
+  const items = [];
+  if (id === 'move') {
+    const hits = D.layers.filter((L) => { if (!L.visible) return false; const lx = Math.floor(p.x - L.x), ly = Math.floor(p.y - L.y); return lx >= 0 && ly >= 0 && lx < L.canvas.width && ly < L.canvas.height && cxr(L.canvas).getImageData(lx, ly, 1, 1).data[3] > 10; }).reverse();
+    if (hits.length) { for (const L of hits) items.push({ label: L.name, check: () => L.id === D.activeId, act: () => { D.activeId = L.id; UI.editMask = false; emit('doc'); } }); items.push('-'); }
+  }
+  if (D.sel) items.push(
+    { label: 'Deselect', key: 'Ctrl+D', act: deselect }, { label: 'Select Inverse', key: 'Shift+Ctrl+I', act: selectInverse },
+    { label: 'Feather…', key: 'Shift+F6', act: () => dlgNumber('Feather Selection', 'Feather radius', 8, 0.5, 250, 'px', (v) => featherSel(v)) }, '-',
+    { label: 'Layer via Copy', key: 'Ctrl+J', act: () => layerViaCopy(false) }, { label: 'Layer via Cut', key: 'Shift+Ctrl+J', act: () => layerViaCopy(true) }, '-',
+    { label: 'Fill with Foreground', key: 'Alt+Backspace', act: () => fillSelection(C.fg, 'Fill') }, { label: 'Stroke…', act: dlgStroke }, { label: 'Clear', key: 'Delete', act: () => clearSelectionPixels() }, '-');
+  else if (['marquee', 'ellipse', 'lasso', 'polylasso', 'wand'].includes(id)) items.push({ label: 'Select All', key: 'Ctrl+A', act: selectAll }, { label: 'Select Layer Pixels', act: () => { const L = activeLayer(); const c = mkCanvas(D.w, D.h); cx(c).drawImage(bakedLayer(L).canvas, L.x, L.y); D.sel = makeSel(c); commit('Load Selection'); } }, '-');
+  items.push(
+    { label: 'Free Transform', key: 'Ctrl+T', act: startTransform, need: 'layer' },
+    { label: 'Undo', key: 'Ctrl+Z', act: undo, en: () => Hist.idx > 0, dyn: () => (Hist.idx > 0 ? 'Undo ' + Hist.states[Hist.idx].label : 'Undo') },
+    '-',
+    { label: 'Copy', key: 'Ctrl+C', act: () => copySel(false) }, { label: 'Copy Merged', key: 'Shift+Ctrl+C', act: () => copySel(true) },
+    { label: 'Paste', key: 'Ctrl+V', act: () => pasteFromSystem(false) },
+    '-',
+    { label: 'New Layer', key: 'Shift+Ctrl+N', act: () => addLayer() }, { label: 'Duplicate Layer', act: () => duplicateLayer() });
+  showContextMenu(items, x, y);
+}
+function layerContextMenu(e, L) {
+  e.preventDefault();
+  if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); }
+  showContextMenu([
+    { label: 'Layer Properties…', act: dlgLayerProps },
+    { label: 'Duplicate Layer', act: () => duplicateLayer() }, { label: 'Delete Layer', act: () => deleteLayer() },
+    '-',
+    { label: 'Select Pixels', act: () => { const c = mkCanvas(D.w, D.h); cx(c).drawImage(bakedLayer(L).canvas, L.x, L.y); D.sel = makeSel(c); commit('Load Selection'); } },
+    L.mask ? { label: 'Delete Layer Mask', act: () => { UI.editMask = false; setLayerProps(L.id, { mask: null }, 'Delete Mask'); } } : { label: 'Add Layer Mask', act: () => addMask(D.sel ? 'sel' : 'reveal') },
+    L.mask ? { label: 'Apply Layer Mask', act: applyMask } : null,
+    L.text ? { label: 'Rasterize Type', act: () => rasterizeText(L) } : null,
+    { label: 'Layer Style', sub: filterMenu('style') },
+    '-',
+    { label: L.locked ? 'Unlock Layer' : 'Lock Layer', act: () => setLayerProps(L.id, { locked: !L.locked }, L.locked ? 'Unlock Layer' : 'Lock Layer') },
+    { label: L.visible ? 'Hide Layer' : 'Show Layer', act: () => setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer') },
+    '-',
+    { label: 'Merge Down', key: 'Ctrl+E', act: mergeDown }, { label: 'Merge Visible', key: 'Shift+Ctrl+E', act: mergeVisible }, { label: 'Flatten Image', act: flattenImage },
+  ].filter(Boolean), e.clientX, e.clientY);
+}
+
+/* ---------- pasting from the system clipboard ---------- */
+let catcher = null;
+function armPasteCatcher() {
+  // Some browsers only fire 'paste' at an editable element: give them one for this keystroke.
+  if (!catcher) { catcher = h('textarea', { class: 'paste-catcher', 'aria-hidden': 'true', tabindex: '-1' }); document.body.append(catcher); }
+  catcher.value = ''; catcher.focus({ preventScroll: true });
+  setTimeout(() => { if (document.activeElement === catcher) catcher.blur(); }, 400);
+}
+async function clipboardImage() {
+  if (!navigator.clipboard || !navigator.clipboard.read) return null;
+  const items = await navigator.clipboard.read();
+  for (const it of items) { const type = it.types.find((t) => t.startsWith('image/')); if (type) return it.getType(type); }
+  return null;
+}
+async function pasteFromSystem(inPlace) {
+  try {
+    const blob = await clipboardImage();
+    if (blob) {
+      const c = await fileToCanvas(blob);
+      if (CLIP.canvas && c.width === CLIP.canvas.width && c.height === CLIP.canvas.height) { pasteInternal(inPlace); return; }
+      pasteCanvas(c, null, null, 'Pasted Image'); return;
+    }
+  } catch (e) { /* permission denied or unsupported: fall back to the internal clipboard */ }
+  if (CLIP.canvas) pasteInternal(inPlace);
+  else toast(`Copy an image anywhere, then press ${MOD}V here to paste it`);
+}
+async function newFromClipboard() {
+  let c = null;
+  try { const blob = await clipboardImage(); if (blob) c = await fileToCanvas(blob); } catch (e) { /* fall through */ }
+  if (!c && CLIP.canvas) c = copyCanvas(CLIP.canvas);
+  if (!c) { toast('The clipboard has no image'); return; }
+  if (!(await okToDiscard())) return;
+  openDocument(c.width, c.height, [{ name: 'Background', canvas: c }], 'Pasted image');
+}
+
+function brushPickerButton() {
+  const o = BRUSH_OPTS()[UI.tool];
+  const b = h('button', { type: 'button', class: 'bp-btn', title: 'Brush picker (or right-click the canvas)', 'aria-label': 'Open brush picker' },
+    dabCanvas(clamp(o.size, 4, 22), o.hardness != null ? o.hardness : 1, theme() === 'pro' ? '#e8e8e8' : '#111111', o.tip || 'round', 0), h('span', null, o.size), h('i', null, '▾'));
+  b.addEventListener('click', () => { const r = b.getBoundingClientRect(); openBrushPicker(r.left, r.bottom + 4); });
+  return b;
+}
