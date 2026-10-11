@@ -4,7 +4,7 @@
  * pixels, because the artwork is SVG and reading pixels for every pointer move would be too slow. */
 (function () {
   'use strict';
-  var SV = window.SV, S = SV.state, UI = SV.ui, $ = SV._tools;
+  var SV = window.SV, S = SV.state, $ = SV._tools;
   var TOOLS = $.TOOLS, CURSORS = $.CURSORS;
 
   /** The solid colour of a paint value (a hex string, or a gradient's first stop), with its alpha; null for none. */
@@ -49,7 +49,7 @@
       if (!s) { SV.toast('Nothing solid under the pointer'); return; }
       var which = ev.alt ? 'stroke' : 'fill';
       var n = SV.applyStyle(which, s.hex);
-      UI.noteRecent(s.hex);
+      SV.ui.noteRecent(s.hex); // SV.ui is created by ui/color.js, which loads after this file
       SV.toast(n ? 'Set the ' + which + ' to ' + s.hex.toUpperCase() : 'Sampled ' + s.hex.toUpperCase() + ': select objects to apply it');
     },
     hover: function (ev) { var h = SV.hitTest(ev.p); S.hover = h ? h.obj.id : null; $.setCursor(CURSORS.eyedropper); },
