@@ -11,7 +11,7 @@
   'use strict';
   var B = g.SlopBuffer = g.SlopBuffer || {};
   var TYPE = 'application/x-slop-buffer';
-  var current = null, listeners = [], chan = null, reading = null;
+  var current = null, listeners = [], chan = null;
 
   B.DRAG_TYPE = TYPE;
 
@@ -22,13 +22,12 @@
 
   /** Reads the stored item into memory. A different item from another tab, or the same one, is taken as it is stored. */
   B.reload = function () {
-    reading = B.store.read().then(function (rec) {
+    return B.store.read().then(function (rec) {
       var changed = !!rec !== !!current || (rec && current && rec.t !== current.t);
       current = rec;
       if (changed) notify(rec);
       return rec;
     });
-    return reading;
   };
 
   B.ready = B.reload();
@@ -40,17 +39,14 @@
     try { rec = B.record(input); } catch (e) { return Promise.reject(e); }
     current = rec;
     if (!opts || opts.system !== false) B.writeSystem(rec); // started now, so the copy keeps its user gesture
-    var written = B.store.write(rec);
     notify(rec);
-    post({ type: 'put', t: rec.t });
-    return written.then(function () { return rec; });
+    return B.store.write(rec).then(function () { post({ type: 'put', t: rec.t }); return rec; });
   };
 
   B.clear = function () {
     current = null;
     notify(null);
-    post({ type: 'clear' });
-    return B.store.clear();
+    return B.store.clear().then(function (ok) { post({ type: 'clear' }); return ok; });
   };
 
   B.onChange = function (fn) {
@@ -97,6 +93,4 @@
       };
     } catch (e) { chan = null; }
   }
-
-  B._reading = function () { return reading; };
 })(window);
