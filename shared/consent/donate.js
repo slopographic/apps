@@ -1,0 +1,29 @@
+/* Donate link. Classic script, exposes window.SlopDonate. Renders into every [data-donate] element, but only when
+ * config patreonUrl is set. With an empty URL the element stays hidden and nothing is rendered. */
+(function () {
+  'use strict';
+  var cfg = window.SLOP_CONSENT_CONFIG;
+
+  /** Fills one [data-donate] container with the link (or hides it when there is no URL). */
+  function render(el) {
+    if (!el) return false;
+    while (el.firstChild) el.removeChild(el.firstChild);
+    if (!cfg.patreonUrl) { el.hidden = true; return false; }
+    var a = document.createElement('a');
+    a.className = 'btn';
+    a.href = cfg.patreonUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = 'Support Slopographic on Patreon';
+    el.append(a);
+    el.hidden = false;
+    return true;
+  }
+  function renderAll() {
+    var els = document.querySelectorAll('[data-donate]');
+    for (var i = 0; i < els.length; i++) render(els[i]);
+  }
+  window.SlopDonate = { render: render, renderAll: renderAll };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderAll);
+  else renderAll();
+})();
