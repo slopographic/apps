@@ -16,6 +16,7 @@ export function glideTo(x, y) {
     rememberSpot();
     return;
   }
+  console.error('TRACE glideTo', Math.round(M.x), Math.round(M.y), '->', Math.round(x), Math.round(y), M.mode);
   M.glide = { x0: M.x, y0: M.y, x1: x, y1: y, t: 0, T: Math.min(0.6, 0.22 + dist / 1100) };
   M.mode = 'glide';
 }
@@ -41,6 +42,7 @@ function store() {
 
 /** Remember where he is (page coordinates) for this page, for the rest of the browser session. */
 export function rememberSpot() {
+  console.error('TRACE remember', M.mode, Math.round(M.x), Math.round(M.y), new Error().stack.split('\n')[2]);
   try {
     const all = store();
     all[location.pathname] = { x: Math.round(M.x), y: Math.round(M.y) };
