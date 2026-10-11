@@ -92,12 +92,12 @@
       openRow(win, 'p3').click();
       await waitFor(() => dlgButton(win, 'Discard'));
       dlgButton(win, 'Cancel').click();
-      await sleep(40);
+      await waitFor(() => !win.document.querySelector('.sui-dlg'));
       expect(win.document.querySelector('#detailBody input[aria-label="Given name"]').value).toBe('Typed');
       openRow(win, 'p3').click();
       await waitFor(() => dlgButton(win, 'Discard'));
       dlgButton(win, 'Discard').click();
-      await sleep(40);
+      await waitFor(() => !win.document.querySelector('.sui-dlg'));
       expect($(win, 'detailBody').textContent).toContain('Cy');
       expect(win.SlopContacts.state.byId('p1').name.given).toBe('Ann');
     });
