@@ -28,3 +28,32 @@
   .settings-main { padding: 0 16px 40px; }
   .settings-main h2 { margin-top: 32px; }
 }
+
+/* Defaults, exchange rates and app settings. */
+.set-row-field { align-items: center; }
+.set-row-field > div { flex: 1; min-width: 0; }
+.set-row-field label { font-size: 16px; font-weight: 600; color: var(--bone); }
+.set-select, .settings-main .rate-form input, .settings-main .rate-form select { font: inherit; font-size: 15px; color: var(--bone); background: var(--ink-3); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; min-width: 0; max-width: 100%; }
+.set-select { width: 220px; flex: none; }
+.set-select:disabled { opacity: 0.5; }
+.settings-main .sub-title { font-family: var(--cond); font-stretch: 62%; font-weight: 800; font-size: 20px; text-transform: uppercase; margin: 28px 0 10px; }
+.rates-update { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin: 16px 0 4px; }
+.rate-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end; }
+.rate-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--bone-dim); }
+.rate-form .rate-note { grid-column: span 2; }
+.rate-form .btn { justify-self: start; }
+.rate-table-wrap { overflow-x: auto; margin-top: 12px; }
+.rate-table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--bone); }
+.rate-table caption { text-align: left; color: var(--bone-dim); padding-bottom: 6px; font-size: 13px; }
+.rate-table th, .rate-table td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.app-block { border-top: 1px solid var(--line); padding: 16px 0; }
+.app-block h3 { margin: 0 0 10px; font-size: 16px; font-weight: 600; color: var(--bone); }
+.app-opt { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.app-opt label, .set-check { font-size: 14px; color: var(--bone); display: flex; gap: 8px; align-items: center; }
+.app-block .btn { margin-top: 6px; }
+
+@media (max-width: 560px) {
+  .set-select { width: 100%; }
+  .set-row-field { flex-direction: column; align-items: stretch; }
+  .rate-form .rate-note { grid-column: auto; }
+}

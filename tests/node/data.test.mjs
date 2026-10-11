@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { load, plain } from './data-env.mjs';
 
-const D = await load(['money.js', 'barcode.js', 'schema.js']);
+const D = await load(['money.js', 'barcode.js', 'schema-defs.js', 'schema.js']);
 const { money, barcode, schema } = D;
 const CUST = 'c1';
 const line = (o = {}) => ({ description: 'Bolt', qty: 2, unitPrice: 1050, taxRate: 2000, ...o });

@@ -16,7 +16,7 @@
   const clone = (v) => JSON.parse(JSON.stringify(v));
 
   const transform = (p = [0, 0, 0], r = [0, 0, 0], s = [1, 1, 1]) => ({ p: p.slice(), r: r.slice(), s: s.slice() });
-  const material = (o = {}) => ({ color: o.color || '#c9c3b6', roughness: o.roughness ?? 0.55, metallic: o.metallic ?? 0, opacity: o.opacity ?? 1 });
+  const material = (o = {}) => Object.assign({ color: o.color || '#c9c3b6', roughness: o.roughness ?? 0.55, metallic: o.metallic ?? 0, opacity: o.opacity ?? 1 }, o.map ? { map: String(o.map) } : {});
   const local = (n) => X.fromTRS(n.transform.p, n.transform.r, n.transform.s);
 
   function emptyScene(name = 'Untitled') {
@@ -34,7 +34,7 @@
   function makeNode(scene, spec) {
     const type = TYPES.includes(spec.type) ? spec.type : 'group';
     const n = { id: nextId(scene), type, name: String(spec.name || type), visible: spec.visible !== false, parent: null, transform: transform(spec.transform?.p, spec.transform?.r, spec.transform?.s) };
-    if (type === 'mesh') { n.geom = clone(spec.geom || { kind: 'cube' }); n.material = material(spec.material); }
+    if (type === 'mesh') { n.geom = spec.geom && spec.geom.kind === 'mesh' ? clone(spec.geom) : S.geometry.normalize(spec.geom); n.material = material(spec.material); }
     if (type === 'group') n.children = [];
     if (type === 'light') n.light = Object.assign({ kind: 'directional', color: '#ffffff', intensity: 1 }, clone(spec.light || {}));
     return n;
@@ -85,11 +85,12 @@
     for (const id of ids) if (s.nodes[id]) subtree(s, id).forEach((x) => gone.add(x));
     for (const id of gone) {
       const n = s.nodes[id];
+      if (gone.has(n.parent)) continue;   // its parent's list is dropped with the parent
       const list = siblingsOf(s, n.parent);
       const at = list.indexOf(id);
       if (at >= 0) list.splice(at, 1);
-      delete s.nodes[id];
     }
+    for (const id of gone) delete s.nodes[id];
     return s;
   }
   /** Removes id from its parent list without deleting it (keeps the node object). */

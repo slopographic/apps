@@ -30,7 +30,8 @@
     freeUrls();
     const sel = DR.selected();
     // The details panel already shows the selected file's preview, so the column is left out while it is open.
-    if (document.body.classList.contains('info-on')) return;
+    // S.info is read here, not the info-on class: DR.render() places the columns before renderInfo() sets the class.
+    if (S.info) return;
     if (sel.length === 1 && !sel[0].isFolder) wrap.append(previewCol(sel[0]));
   }
   /** The folder columns: the root, then each folder on the path down to the open folder. */

@@ -11,14 +11,14 @@
   const REFS = [
     ['invoices', 'customerId', 'customers'], ['orders', 'customerId', 'customers'], ['orders', 'invoiceId', 'invoices'],
     ['invoices', 'orderId', 'orders'], ['payments', 'invoiceId', 'invoices'], ['stockMovements', 'productId', 'products'],
-    ['journal', 'reverses', 'journal'],
+    ['journal', 'reverses', 'journal'], ['journal', 'rateId', 'exchangeRates'], ['invoices', 'rateId', 'exchangeRates'], ['payments', 'rateId', 'exchangeRates'],
   ];
 
   function validateBundle(b) {
     if (!b || typeof b !== 'object' || b.format !== FORMAT) return { ok: false, errors: ['not a slop-data export file'] };
     if (b.version !== VERSION) return { ok: false, errors: [`unsupported export version ${b.version}`] };
-    const cols = b.collections;
-    if (!cols || typeof cols !== 'object') return { ok: false, errors: ['the file has no collections'] };
+    if (!b.collections || typeof b.collections !== 'object') return { ok: false, errors: ['the file has no collections'] };
+    const cols = { exchangeRates: [], ...b.collections }; // older exports have no rate table: it reads as empty
     const names = ns.schema.COLLECTIONS;
     const errors = [];
     for (const n of names) if (!Array.isArray(cols[n])) errors.push(`${n}: missing or not a list`);

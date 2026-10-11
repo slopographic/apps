@@ -33,7 +33,7 @@
       await waitFor(() => banner(w));
       banner(w).querySelector('[data-act="reject"]').click();
       expect(banner(w)).toBe(null);
-      expect(record().categories).toEqual({ necessary: true, analytics: false, ads: false });
+      expect(record().categories).toEqual({ necessary: true, analytics: false, ads: false, rates: false });
       const w2 = await open({ cfg: IDS });
       await sleep(150);
       expect(banner(w2)).toBe(null);
@@ -44,9 +44,9 @@
       await waitFor(() => banner(w));
       banner(w).querySelector('[data-act="accept"]').click();
       expect(banner(w)).toBe(null);
-      expect(record().categories).toEqual({ necessary: true, analytics: true, ads: true });
+      expect(record().categories).toEqual({ necessary: true, analytics: true, ads: true, rates: false });
       expect(calls.length).toBe(2);
-      expect(record().version).toBe(1);
+      expect(record().version).toBe(2);
       const w2 = await open({ cfg: IDS });
       await sleep(150);
       expect(banner(w2)).toBe(null);
@@ -68,13 +68,13 @@
       d.checked = false;
       panel.querySelector('[data-act="save"]').click();
       expect(banner(w)).toBe(null);
-      expect(record().categories).toEqual({ necessary: true, analytics: true, ads: false });
+      expect(record().categories).toEqual({ necessary: true, analytics: true, ads: false, rates: false });
     });
     it('an outdated policy version asks again, and its old choice does not apply', async () => {
       localStorage.setItem(KEY, JSON.stringify({ version: 2, timestamp: 1, categories: { necessary: true, analytics: true, ads: true } }));
       const w = await open({ cfg: { ...IDS, policyVersion: 3 } });
       await waitFor(() => banner(w));
-      expect(w.SlopConsent.state()).toEqual({ necessary: true, analytics: false, ads: false });
+      expect(w.SlopConsent.state()).toEqual({ necessary: true, analytics: false, ads: false, rates: false });
     });
     it('a current policy version does not ask again', async () => {
       const calls = stubLoader();

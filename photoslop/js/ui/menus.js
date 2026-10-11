@@ -54,6 +54,9 @@ const MENUS = [
     { label: 'Define Brush Preset…', act: () => defineBrushFromSelection(), need: 'layer' },
     { label: 'Import Brushes (.abr, .slopbrush, PNG)…', act: () => SlopUI.pickFiles({ accept: '.abr,.slopbrush,.json,image/*', multiple: true }).then(importBrushFiles) },
     '-',
+    { label: 'Preferences', sub: [
+      { label: 'Navigation…', act: () => SlopNav.openModal('photoslop') },
+    ] },
     { label: 'Keyboard Shortcuts…', key: 'Alt+Shift+Ctrl+K', act: () => dlgShortcuts() },
   ]],
   ['Image', [
@@ -127,6 +130,15 @@ const MENUS = [
     { label: 'Last Filter', key: 'Alt+Ctrl+F', act: () => LAST_FILTER.id && runFilter(LAST_FILTER.id, LAST_FILTER.params), en: () => !!LAST_FILTER.id, dyn: () => (LAST_FILTER.id ? 'Last Filter: ' + FILTER_BY_ID[LAST_FILTER.id].name.replace('…', '') : 'Last Filter') },
     '-',
     filterSub('Blur'), filterSub('Sharpen'), filterSub('Noise'), filterSub('Pixelate'), filterSub('Stylize'), filterSub('Distort'), filterSub('Render'), filterSub('Other'),
+    '-',
+    ...filterMenu('Auto'),
+    { label: 'Repair', sub: [
+      { label: 'Spot Healing Brush', act: () => selectTool('spot') },
+      { label: 'Healing Brush', act: () => selectTool('heal') },
+      { label: 'Red Eye Tool', act: () => selectTool('redeye') },
+      '-',
+      ...filterMenu('Repair'),
+    ] },
     '-',
     filterSub('Slop'),
   ]],

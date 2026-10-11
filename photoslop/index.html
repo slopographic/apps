@@ -18,6 +18,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
   <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/nav/nav.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/extras.css">
@@ -73,9 +74,19 @@
   <script src="../shared/commands/palette.js"></script>
   <script src="../shared/commands/recorder.js"></script>
   <script src="../shared/commands/keymap.js"></script>
+  <script src="../shared/nav/presets.js"></script>
+  <script src="../shared/nav/validate.js"></script>
+  <script src="../shared/nav/logic.js"></script>
+  <script src="../shared/nav/describe.js"></script>
+  <script src="../shared/nav/store.js"></script>
+  <script src="../shared/nav/engine.js"></script>
+  <script src="../shared/nav/pad.js"></script>
+  <script src="../shared/nav/modal.js"></script>
+  <script src="../shared/nav/index.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/hub.js"></script>
-  <script src="../shared/drive-link.js" onload="SlopDriveLink.mount('.topbar')"></script>
+  <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
   <script src="js/core/util.js"></script>
   <script src="js/core/model.js"></script>
   <script src="js/core/composite.js"></script>
@@ -84,6 +95,8 @@
   <script src="js/io/psd-meta.js"></script>
   <script src="js/filters/helpers.js"></script>
   <script src="js/filters/catalog.js"></script>
+  <script src="js/filters/repair.js"></script>
+  <script src="js/filters/enhance.js"></script>
   <script src="js/filters/slop.js"></script>
   <script src="js/layers/fx.js"></script>
   <script src="js/core/view.js"></script>
@@ -91,6 +104,8 @@
   <script src="js/tools/stroke.js"></script>
   <script src="js/tools/select.js"></script>
   <script src="js/tools/paint.js"></script>
+  <script src="js/tools/heal.js"></script>
+  <script src="js/tools/redeye.js"></script>
   <script src="js/tools/fill.js"></script>
   <script src="js/type/model.js"></script>
   <script src="js/type/edit.js"></script>
@@ -124,6 +139,7 @@
   <script src="js/io/formats.js"></script>
   <script src="js/app/tabs.js"></script>
   <script src="js/app/commands.js"></script>
+  <script src="js/app/nav-adapter.js"></script>
   <script src="js/app/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
 </body>

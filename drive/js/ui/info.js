@@ -8,29 +8,18 @@
   const objUrl = (b, sink = urls) => { const u = URL.createObjectURL(b); sink.push(u); return u; };
   const rows = (pairs) => el('dl', { class: 'facts' }, pairs.filter((p) => p && p[1] != null && p[1] !== '').flatMap(([k, v]) => [el('dt', null, k), el('dd', null, v)]));
 
-  /** A live preview element for a file (shared with Quick Look). big: full-size variant. sink: the array that keeps
+  /** A live preview element for a file (Quick Look, the details panel and the columns). Images and PDFs use the shared
+   * viewer (ui/viewer.js: zoom, pan, open in a new tab). big: the Quick Look variant. sink: the array that keeps
    * its object URLs (the info panel frees its own on each change; a column keeps its own). */
   DR.previewOf = function (r, big = false, sink = urls) {
     const kind = DR.kindOf(r), box = el('div', { class: 'pv pv-' + kind });
-    if (kind === 'image') { box.append(el('img', { src: objUrl(r.blob, sink), alt: r.name, draggable: 'false' })); }
+    if (kind === 'image' || kind === 'pdf') box.append(DR.viewerFor(r, big, sink).el);
     else if (kind === 'audio') box.append(el('audio', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata' }));
     else if (kind === 'video') box.append(el('video', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata', playsinline: true }));
     else if (kind === 'text') {
       const pre = el('pre', { class: 'pv-text' }, 'Loading…');
       r.blob.slice(0, big ? 400000 : 4000).text().then((t) => { pre.textContent = t + (r.size > (big ? 400000 : 4000) ? '\n…' : ''); });
       box.append(pre);
-    } else if (kind === 'pdf') {
-      if (big) {
-        const pages = el('div', { class: 'pv-pages' }, el('p', { class: 'pv-note' }, 'Rendering…'));
-        box.append(pages);
-        DR.openPdf(r.blob).then(async (doc) => {
-          pages.replaceChildren();
-          const n = Math.min(doc.numPages, 20);
-          for (let i = 1; i <= n && pages.isConnected; i++) pages.append(await DR.renderPdfPage(doc, i, Math.min(900, innerWidth - 80) * (devicePixelRatio > 1 ? 1.5 : 1)));
-          if (doc.numPages > n) pages.append(el('p', { class: 'pv-note' }, `Showing ${n} of ${doc.numPages} pages. Open it in Slop PDF for the rest.`));
-          doc.destroy();
-        }).catch(() => { pages.replaceChildren(el('p', { class: 'pv-note' }, 'This PDF could not be rendered.')); });
-      } else { const th = el('div', { class: 'th' }, DR.badge(r, 'badge big')); DR.fillThumb(th, r); box.append(th); }
     } else box.append(el('div', { class: 'th' }, DR.badge(r, 'badge big')), el('p', { class: 'pv-note' }, 'No preview for this kind of file.'));
     return box;
   };

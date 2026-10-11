@@ -78,8 +78,9 @@ body.resizing, body.resizing * { cursor: col-resize !important; user-select: non
 .ql .pv { min-height: 50vh; max-height: 72vh; border-radius: 0; overflow: auto; }
 .ql .pv img, .ql .pv video { max-height: 70vh; }
 .ql .pv pre { max-height: 70vh; font-size: 12px; }
-.ql .pv-pages { display: grid; gap: 12px; padding: 14px; justify-items: center; }
-.ql .pv-pages canvas { max-width: 100%; height: auto; box-shadow: 0 2px 10px rgba(0, 0, 0, .35); background: #fff; }
+/* Images and PDFs: the shared viewer (shared/preview) fills this box; its own CSS lays out the pictures and pages. */
+.pv-image, .pv-pdf { display: block; height: 280px; min-height: 0; max-height: none; overflow: hidden; }
+.ql .pv-image, .ql .pv-pdf { height: 72vh; min-height: 50vh; max-height: 72vh; border-radius: 0; }
 .ql-meta { display: flex; justify-content: space-between; gap: 10px; padding: 8px 14px; color: var(--s-faint); border-top: 1px solid var(--s-line); }
 /* dialogs */
 .keys { display: grid; gap: 5px; }

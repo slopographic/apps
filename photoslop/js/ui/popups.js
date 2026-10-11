@@ -2,7 +2,7 @@
 'use strict';
 
 /* ---------- right-click: brush picker & context menus ---------- */
-const BRUSH_OPTS = () => ({ brush: T.brush, pencil: T.pencil, eraser: T.eraser, clone: T.clone, smudge: T.smudge, dodge: T.dodge, blur: T.blur, sharpen: T.sharpen, sponge: T.sponge });
+const BRUSH_OPTS = () => ({ brush: T.brush, pencil: T.pencil, eraser: T.eraser, clone: T.clone, heal: T.heal, spot: T.spot, smudge: T.smudge, dodge: T.dodge, blur: T.blur, sharpen: T.sharpen, sponge: T.sponge });
 let popover = null;
 function closePopover() { if (popover) { popover.remove(); popover = null; } }
 function openBrushPicker(x, y, toolId = UI.tool) {

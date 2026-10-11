@@ -7,7 +7,7 @@
   const ns = (g.SlopData = g.SlopData || {});
   const { ok, fail, isResult } = ns.result;
   const DB_NAME = 'slop-data';
-  const DB_VERSION = 1;
+  const DB_VERSION = 2; // 2 adds the exchangeRates store (createStores creates missing stores on upgrade)
   const subs = new Set();
   let dbH = null, dbP = null, readyP = null, bc = null;
   const all = () => ns.schema.COLLECTIONS;
@@ -115,7 +115,8 @@
     if (prev && d.immutable) return fail('immutable', `${name} records cannot be changed`);
     if (prev && prev.deletedAt) return fail('deleted', `${name} ${key} was deleted`);
     if (d.postingOnly && !opts.posting) return fail('posting_required', `${name} is written by the billing, ledger and stock modules only`);
-    const first = ns.schema.prepare(name, { ...input, [d.key]: key }, { deferNumber: !!d.autoNumber });
+    const defaults = await ns.fx.docDefaults(api, d, prev, input);
+    const first = ns.schema.prepare(name, { ...input, ...defaults, [d.key]: key }, { deferNumber: !!d.autoNumber });
     if (!first.ok) return fail('invalid', ns.schema.errorText(first.errors), { errors: first.errors });
     const value = first.value;
     if (d.autoNumber && !value.number && d.autoNumber.when(value)) {
@@ -125,6 +126,8 @@
       const errs = ns.schema.validate(name, value);
       if (errs.length) return fail('invalid', ns.schema.errorText(errs), { errors: errs });
     }
+    const lock = await ns.fx.lockCheck(api, name, prev, value);
+    if (!lock.ok) return lock;
     if (prev) {
       const t = ns.schema.checkTransition(name, prev, value);
       if (t) return fail('invalid_transition', t);
@@ -216,9 +219,16 @@
   /** Seeds the default chart, settings and numbering sequences where they are missing. */
   async function seedDefaults() {
     return runTx(all(), 'readwrite', async (api) => {
+      const old = await api.get('settings', 'main'); // version 1 called the field 'currency'; move it once
+      if (!old.ok) return old;
+      if (old.value && 'currency' in old.value) {
+        const { currency, ...rest } = old.value;
+        const w = await api.rawPut('settings', { ...rest, defaultCurrency: rest.defaultCurrency || currency });
+        if (!w.ok) return w;
+      }
       const plan = [
         ...ns.schema.DEFAULT_CHART.map((a) => ['accounts', a.code, a]),
-        ['settings', 'main', ns.schema.DEFAULT_SETTINGS],
+        ['settings', 'main', { ...ns.schema.DEFAULT_SETTINGS, ...(ns.locale ? ns.locale.browserDefaults() : {}) }],
         ...ns.schema.DEFAULT_SEQUENCES.map((s) => ['numbering', s.id, s]),
       ];
       for (const [name, key, rec] of plan) {

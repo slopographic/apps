@@ -1,5 +1,5 @@
 /* The consent record in localStorage under 'slop-consent'. Classic script, exposes window.SlopConsentState.
- * Record: { "version": <policyVersion>, "timestamp": <ms>, "categories": { "necessary": true, "analytics": bool, "ads": bool } }
+ * Record: { "version": <policyVersion>, "timestamp": <ms>, "categories": { "necessary": true, "analytics": bool, "ads": bool, "rates": bool } }
  * Every storage access is wrapped. If storage is blocked: current() is all denied and needsChoice() is false,
  * so nobody is asked over and over. A record from another policy version counts as missing (the visitor is asked again). */
 (function () {
@@ -21,7 +21,7 @@
       return {
         version: Number(o.version),
         timestamp: Number(o.timestamp) || 0,
-        categories: { necessary: true, analytics: o.categories.analytics === true, ads: o.categories.ads === true }
+        categories: { necessary: true, analytics: o.categories.analytics === true, ads: o.categories.ads === true, rates: o.categories.rates === true }
       };
     } catch (e) { return null; }
   }
@@ -44,14 +44,14 @@
     current: function () {
       var r = record();
       var rec = r.ok && !outdated(r.rec) ? r.rec : null;
-      return { necessary: true, analytics: !!(rec && rec.categories.analytics), ads: !!(rec && rec.categories.ads) };
+      return { necessary: true, analytics: !!(rec && rec.categories.analytics), ads: !!(rec && rec.categories.ads), rates: !!(rec && rec.categories.rates) };
     },
     /** Saves a choice for the current policy version. Returns the record, or null if storage refused. */
     write: function (cats) {
       var rec = {
         version: cfg.policyVersion,
         timestamp: Date.now(),
-        categories: { necessary: true, analytics: !!(cats && cats.analytics === true), ads: !!(cats && cats.ads === true) }
+        categories: { necessary: true, analytics: !!(cats && cats.analytics === true), ads: !!(cats && cats.ads === true), rates: !!(cats && cats.rates === true) }
       };
       try {
         window.localStorage.setItem(KEY, JSON.stringify(rec));

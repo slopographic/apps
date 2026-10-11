@@ -8,7 +8,7 @@
     ga4MeasurementId: '',   // e.g. 'G-XXXXXXXXXX'. Empty: the gtag script never loads.
     adsensePublisherId: '', // e.g. 'ca-pub-0000000000000000'. Empty: the AdSense script never loads.
     patreonUrl: '',         // e.g. 'https://www.patreon.com/yourname'. Empty: the donate link is hidden.
-    policyVersion: 1        // Consent policy version. A change makes every stored record outdated.
+    policyVersion: 2        // Consent policy version. A change makes every stored record outdated (2 adds the 'rates' category).
   };
   // Test hook only: test pages set window.SLOP_CONSENT_OVERRIDES before this file loads. Nothing in the app sets it.
   var over = window.SLOP_CONSENT_OVERRIDES || {};

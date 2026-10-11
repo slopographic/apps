@@ -1,11 +1,12 @@
 # Slop Slides: handoff
 
-Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the first version works end to end: you can make a deck, edit it, save it to Slop Drive, reopen it, present it, and export PPTX. `node tests/run.mjs slides` is green (46 tests, 2 pages).
+Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the first version works end to end: you can make a deck, edit it, save it to Slop Drive, reopen it, present it, and export PPTX. `node tests/run.mjs slides` is green (87 tests, 5 pages).
 
 ## Architecture
 - Classic scripts under `window.SS`. The load order is `js/manifest.js` (`SS_MANIFEST`: core, render, anim, io, ui). `index.html` writes its script tags from that list, so the manifest is the only list. Tests and the future offline build use it too.
 - The model is in points: 16:9 is 960×540, 4:3 is 720×540.
 - A deck is JSON: `size`, a full copy of `theme`, `master` (footer, showNumber), `slides[]` and `media{id:{mime,data}}`. The shapes are documented in the header comments of `js/core/model.js` and `js/core/objects.js`.
+- **Motion** is the shared engine `shared/motion/` (SlopMotion, see its HANDOFF). The `anim` group of `js/manifest.js` loads it first. The editor never interpolates or eases: `js/anim/` only plans and samples through the engine.
 - **One display list for every output.** `js/render/scene.js` builds it, `js/render/canvas.js` draws it. The editor, thumbnails, Present mode and PNG export all use it.
 - **Editing goes through one function:** `SS.app.change(label, fn, key)` (`js/ui/app.js`). It records an undo step before `fn` runs, marks the deck unsaved and schedules an autosave. `A.touch()` is the same without an undo step (used during a drag). `A.hist` is `core/history.js`.
 - Views subscribe with `A.on(event, fn)`: `load`, `deck` (undo/redo replaced the deck object, so re-read it), `change`, `select`, `slide`, `render`, `mode`.
@@ -29,7 +30,12 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 | `js/ui/inspector.js` | slide (layout, hidden, notes), document (footer, numbers), selection (position, size, rotation, opacity, fill, outline, font, size, bold, italic, align, colour, arrange) |
 | `js/ui/toolbar.js` | top bar; File menu (new, new from template, open, save, download, export) |
 | `js/ui/files.js` | Drive open/save, `?drive=` launch, zero-byte New file, picture and foreign files, `.sslide` download, PPTX and PNG export, boot and draft restore |
-| `js/ui/present.js` | Present mode |
+| `js/anim/object.js` | object animations: `anims` lists, the build plan (steps and clicks), state at a time (presets + timeline) |
+| `js/anim/transition.js` | slide transition `{name, duration}`, engine names, clamping, menu labels |
+| `js/anim/migrate.js` | version 1 to 2 file migration (legacy transitions and builds) |
+| `js/ui/present.js` | Present mode: slide order, builds, transitions, keys, clicks |
+| `js/ui/present-view.js` | Present picture: two canvases whose transform, opacity and clip come from `SlopMotion.transitions` |
+| `js/ui/anim-panel.js` | inspector sections: Transition (Apply to all slides), Present switch, Animation list (add, preset, trigger, delay, duration, move, delete) |
 | `js/ui/commands.js` | every shortcut and palette command (SlopCmd, app `slides`) |
 | `js/ui/main.js` | boot; adds `body.ready` |
 
@@ -45,22 +51,34 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
   - A zero-byte `.sslide` (Drive's New menu, "Untitled Presentation.sslide") opens as a blank deck linked to that file.
   - A picture opens as a one-slide deck with no link. Other formats open as a blank deck with no link. A damaged `.sslide` is reported and never overwritten. In all three cases Save makes a new file, so nothing is overwritten.
   - Autosave draft in IndexedDB about 1 s after each edit. It is restored at boot and cleared once the deck is saved. Unsaved state is reported to `SlopGuard`.
-- **Present:** full screen (Fullscreen API where allowed), Right/Down/PageDown/Space/Enter advance, Left/Up/PageUp/Backspace go back, Home/End jump, a click advances (left third goes back), B blacks out, Escape returns to the slide you were on, hidden slides are skipped, editing commands are off during the show.
-- **Export:** `.sslide` JSON download. PowerPoint `.pptx` (text with runs, bullets, alignment, shapes with fill and outline and rotation, pictures PNG/JPEG/GIF, backgrounds as solid colour). PNG of the current slide at 1920 px.
+- **Present:** full screen (Fullscreen API where allowed). Each slide opens with its transition (`SlopMotion.transitions`, duration from the slide), then plays its automatic build. A click, Right, Down, PageDown, Space or Enter first finishes a motion that is running, else plays the next on-click build, else moves to the next slide. Left, Up, PageUp, Backspace go back (a transition plays either way). Home/End jump with no transition. Clicks: left third goes back. B blacks out, Escape returns to the slide you were on, hidden slides are skipped, editing commands are off during the show. The inspector's **Present** section has **Play animations** (session only, not saved): off means no builds and no transitions, each click moves on.
+- **Animations:** each object (top-level, any type) can have a list of `{id, preset, trigger, at, timeScale}`. Presets are the engine's (fade-in, slide-up, pop, shake, pulse, spin-in). `trigger` is `with` (starts with the previous animation on the slide, plus `at`) or `click` (starts a new build at the end of the previous one). Duration is the preset duration times `timeScale`. Before its start an animated object is in its first frame (fade-in hidden).
+- **Transitions:** each slide has `{name, duration}` (names: none, fade, push-left/right/up/down, wipe, zoom-in/out, cube; duration 0.2 to 3 s). Set in the inspector's Transition section; Apply to all slides copies it.- **Export:** `.sslide` JSON download (schema version 2: transitions and animations are kept). PowerPoint `.pptx` (text with runs, bullets, alignment, shapes with fill and outline and rotation, pictures PNG/JPEG/GIF, backgrounds as solid colour). PNG of the current slide at 1920 px.
 - **Mobile:** at 390×844 there is no horizontal page scroll. The canvas, slide strip and inspector stack in one column. The top bar wraps.
 - **Shortcuts and palette:** SlopCmd (Mod+K, the keymap). Keys: Mod+N, Mod+O, Mod+S, Mod+Z, Shift+Mod+Z, Mod+Y, Mod+C, Mod+V, Mod+D, Mod+A, Delete, Escape, Enter, T (text box), Shift+Mod+Enter (new slide), PageUp/PageDown, F5 (Present), Arrow keys.
 
+## Schema
+- `.sslide` version **2** (`deck.version`). Slides: `transition: {name, duration}`; objects: `anims: [...]` (optional, default `[]`); slides no longer have `builds`.
+- Version 1 files open with a migration (`js/anim/migrate.js`): `transition {type, dir, dur}` maps to an engine name (dissolve and magic become fade, slide and push become push-<dir>, zoom becomes zoom-in), and each v1 build becomes an animation on its object (fly to slide-up, scale to pop, otherwise fade-in; `after` becomes `with`). The paragraph split of builds is not kept. Files with no transition or animation fields open with the defaults.
+- Drafts and Drive files both go through `SS.native.normalize`, so both migrate.
+
+## PowerPoint export drops
+- Slide transitions and object animations are not written to `.pptx` (not sure of the transition XML, so none is invented). The export message says so.
+- Also left out: tables, charts and media (the message counts them).
+
 ## Tests
 - `tests/slides/model.test.html` (existing): model, layouts, text layout, history, templates.
+- `tests/slides/anim.test.html`: engine names, clamping, the first frame of a fade-in is hidden, delay and time scale, with-previous and on-click steps, legacy and version 1 files, round trip, templates.
+- `tests/slides/present-anim.test.html` (`spec-anim.js`): Present on an injected clock (`SS.present.clock`): progress 0 shows only the outgoing slide, 1 only the incoming (all ten transitions), clicks play builds before the next slide, Play animations off, the transition and animation inspector panels store their data.
 - `tests/slides/app.test.html`: runs the real editor in iframes (`frame.js` helpers, `spec-boot.js`, `spec-storage.js`, `spec-present.js`). Covers boot, slides, text boxes and dragging, undo, double-click editing, inspector fields, picture insert, template, 390×844 layout, Ctrl+S to the same Drive id and reopen by `?drive=`, folder and star kept, zero-byte, picture, PowerPoint, damaged, draft restore, PPTX package, Present key handling.
 - PPTX was loaded with python-pptx (slide size, text, picture and shape positions). **Not yet opened in Microsoft PowerPoint.**
 
 ## Missing (in rough order of value)
 1. **PDF export** from the display list (subset fonts via `js/render/ttf.js`). Not started. Stretch goal not done.
-2. **Transitions, builds and Magic Move** (`anim/` is empty). Builds and transitions are stored on slides but not played.
+2. **Magic Move** is not in the engine (the v1 `magic` transition maps to fade). Animations apply to top-level objects only, not to children of a group.
 3. **Presenter window** (second window with notes and timer, via BroadcastChannel), laser pointer.
 4. **PowerPoint and ODP import.** A `.pptx` or `.odp` from Drive opens as a blank deck with no link, so it is never overwritten.
-5. **PPTX export gaps:** tables, charts, video and audio are left out (the result says how many); speaker notes; footer and slide numbers; transitions.
+5. **PPTX export gaps:** tables, charts, video and audio are left out (the result says how many); speaker notes; footer and slide numbers; transitions and animations (see Schema and PowerPoint export drops).
 6. **Editing gaps:** no rotation handle (use the Rotation field), no marquee selection, no group/ungroup or align/distribute buttons (the model has them), no table or chart editing, no image crop or mask, no slide-size change, no per-run formatting controls (only the object's default style).
 7. **Text:** the overlay edits plain text. Whole-line changes in multi-run paragraphs lose run formatting.
 8. **Drag reorder** works with the mouse (HTML5 drag). On phones use the Move up and Move down buttons.
@@ -69,6 +87,6 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 ## Next steps, in order
 1. Open a PPTX that the export wrote in PowerPoint and Keynote, and fix whatever they flag.
 2. Add PDF export from the display list, and an export test that reads the PDF back.
-3. Add `anim/` (builds and transitions) and play them in Present mode.
+3. Animations for objects inside groups.
 4. Import PPTX (`shared/office/zip.js` + `ppt/slides/*.xml`).
 5. Presenter window and notes.

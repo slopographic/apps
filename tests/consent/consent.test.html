@@ -19,7 +19,7 @@
     beforeEach(reset);
     it('every category is off for a visitor with no record', async () => {
       const w = await open({ cfg: IDS });
-      expect(w.SlopConsent.state()).toEqual({ necessary: true, analytics: false, ads: false });
+      expect(w.SlopConsent.state()).toEqual({ necessary: true, analytics: false, ads: false, rates: false });
     });
     it('sets every consent type to denied as the first dataLayer entry, before any tag', async () => {
       const w = await open({ cfg: IDS });
@@ -125,7 +125,7 @@
       const w = await open({ cfg: IDS, block: true });
       expect(w.__errors).toEqual([]);
       expect(w.SlopConsentState.available()).toBe(false);
-      expect(w.SlopConsent.state()).toEqual({ necessary: true, analytics: false, ads: false });
+      expect(w.SlopConsent.state()).toEqual({ necessary: true, analytics: false, ads: false, rates: false });
       expect(w.SlopConsentState.needsChoice()).toBe(false);
       expect(w.SlopConsent.grant('analytics')).toBe(false);
       expect(calls.length).toBe(0);

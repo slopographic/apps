@@ -47,6 +47,9 @@
       C('3d.view.grid', 'Grid', 'View', ['G'], () => { s.view.grid = !s.view.grid; ui.applyView(); }),
       C('3d.view.axes', 'Axes', 'View', [], () => { s.view.axes = !s.view.axes; ui.applyView(); }),
       C('3d.menu.add', 'Add menu', 'Object', [], (ctx) => openMenu(document.getElementById('btnAdd'), S.menus.addItems()), { hidden: true }),
+      C('3d.menu.open', 'Open menu', 'File', [], () => openMenu(document.getElementById('btnOpen'), [
+        S.menus.cmd('3d.file.open', 'From disk…'), S.menus.cmd('3d.file.drive', 'From Slop Drive…'), '-',
+        S.menus.cmd('3d.file.import', 'Import into this scene…')]), { hidden: true }),
       C('3d.menu.export', 'Export menu', 'File', [], () => openMenu(document.getElementById('btnExport'), [
         S.menus.cmd('3d.file.download', 'Download .s3d'), S.menus.cmd('3d.file.exportObj', 'Export OBJ…'), '-',
         S.menus.cmd('3d.file.png1', 'Render PNG (1×)'), S.menus.cmd('3d.file.png2', 'Render PNG (2×)')]), { hidden: true }),

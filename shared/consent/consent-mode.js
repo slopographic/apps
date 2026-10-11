@@ -68,14 +68,15 @@
     var base = S.current();
     var rec = S.write({
       analytics: next && 'analytics' in next ? !!next.analytics : base.analytics,
-      ads: next && 'ads' in next ? !!next.ads : base.ads
+      ads: next && 'ads' in next ? !!next.ads : base.ads,
+      rates: next && 'rates' in next ? !!next.rates : base.rates
     });
     if (!rec) return false;
     apply();
     return true;
   }
   function setOne(cat, on) {
-    if (cat !== 'analytics' && cat !== 'ads') throw new Error('unknown consent category: ' + cat);
+    if (cat !== 'analytics' && cat !== 'ads' && cat !== 'rates') throw new Error('unknown consent category: ' + cat);
     var o = {}; o[cat] = on;
     return setChoices(o);
   }
