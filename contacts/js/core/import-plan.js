@@ -7,7 +7,7 @@
 (function () {
   'use strict';
   const SC = (window.SlopContacts = window.SlopContacts || {});
-  const M = SC.model, P = SC.phone, D = SC.dedupe;
+  const M = SC.model, P = SC.phone; // SC.dedupe is read when used (it loads after this file in the page)
 
   /** Read one file. Returns { kind: 'vcard' | 'scontacts', name, contacts } or { kind: 'csv', name, headers, rows }. */
   async function readFile(file) {
@@ -54,8 +54,8 @@
       if (r.match && choice === 'skip') { out.skipped++; continue; }
       if (!r.match || choice === 'add') { list.push(M.normalise({ ...r.c, id: newId() })); out.added++; continue; }
       const i = pos.get(r.match.id), cur = list[i];
-      const m = D.mergeGroup([cur, r.c], cc);
-      list[i] = M.normalise({ ...m, id: cur.id, stage: cur.stage, followUp: cur.followUp, tagIds: cur.tagIds });
+      const m = SC.dedupe.mergeGroup([cur, r.c], cc);
+      list[i] = M.normalise({ ...m, id: cur.id });
       out.merged++;
     }
     return { list, ...out };

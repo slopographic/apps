@@ -93,6 +93,16 @@
   E.redoLabel = function () { return redoS.length ? redoS[redoS.length - 1].label : ''; };
   E.resetHistory = function () { undoS = []; redoS = []; lastKey = null; };
   E.endCoalesce = function () { lastKey = null; };
+  /** One history per open tab: switches the active stacks to those of `key` (a tab adapter calls this on switch). */
+  var stacks = {}, curKey = 'doc';
+  H.useStack = function (key) {
+    if (key === curKey) return;
+    stacks[curKey] = { u: undoS, r: redoS };
+    var s = stacks[key] || { u: [], r: [] };
+    undoS = s.u; redoS = s.r; lastKey = null; curKey = key;
+    E.emit('change', { label: 'Switch tab', history: true });
+  };
+  H.stackKey = function () { return curKey; };
   /** The applied commands, oldest first (read-only use). */
   H.entries = function () { return undoS.slice(); };
 })();

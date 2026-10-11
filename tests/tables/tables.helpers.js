@@ -9,7 +9,18 @@
   TB.clearDrafts = async () => {
     await SlopTest.sleep(300); // a page that was just removed still writes its tabs on pagehide: let that land first
     localStorage.removeItem('slop.doctabs.tables.v1');
-    await new Promise((res) => { const r = indexedDB.deleteDatabase('slop-doctabs'); r.onsuccess = r.onerror = r.onblocked = () => res(); });
+    // Clear the records rather than delete the database: a live frame still holds it open, and a pending delete would
+    // block every later open of it.
+    await new Promise((res) => {
+      const r = indexedDB.open('slop-doctabs', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('docs');
+      r.onerror = r.onblocked = () => res();
+      r.onsuccess = () => {
+        const d = r.result;
+        try { const tx = d.transaction('docs', 'readwrite'); tx.objectStore('docs').clear(); tx.oncomplete = tx.onerror = tx.onabort = () => { d.close(); res(); }; }
+        catch (e) { d.close(); res(); }
+      };
+    });
   };
 
   /** Loads tables/index.html (plus an optional query) into the iframe and waits for launch to finish. */

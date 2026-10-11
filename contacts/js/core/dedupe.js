@@ -74,6 +74,9 @@
       emails: unionBy(ranked.flatMap((c) => c.emails), (e) => (e.value || '').toLowerCase()),
       adr: unionBy(ranked.flatMap((c) => c.adr), (a) => M.ADR_KEYS.map((k) => (a[k] || '').toLowerCase()).join('|')),
       groups: [...new Set(ranked.flatMap((c) => c.groups))],
+      // the pipeline and the shared tags are kept, so a merge does not reset the stage to Lead
+      stage: pick((c) => c.stage), followUp: pick((c) => c.followUp),
+      tagIds: [...new Set(ranked.flatMap((c) => c.tagIds || []))],
     };
     return M.normalise(merged);
   }

@@ -12,7 +12,9 @@
     let rec = null;
     try { rec = h ? await h.consumeLaunch() : null; } catch (e) { rec = null; }
     if (rec && rec.blob) {
-      await SC.io.importFiles([{ name: rec.name || 'contacts.scontacts', text: () => rec.blob.text() }]);
+      // Not awaited: the import waits for the person to confirm the preview, and the page must not wait for that.
+      SC.io.importFiles([{ name: rec.name || 'contacts.scontacts', text: () => rec.blob.text() }])
+        .catch((e) => window.SlopUI.toast(`Could not import: ${e.message}`));
     }
   }
 

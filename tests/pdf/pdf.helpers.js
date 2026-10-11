@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const { waitFor } = SlopTest;
-  const PT = window.PT = {};
+  const PT = window.PT = {}; PT._nonce = 0;
 
   /** Loads pdf/index.html (plus an optional query) into the iframe #app and waits for boot. */
   PT.boot = async function (query = '', frameId = 'app') {
@@ -35,6 +35,9 @@
     }
     if (opts.form) opts.form(doc, doc.getForm(), doc.getPages());
     if (opts.title) doc.setTitle(opts.title);
+    // pdf-lib dates have one-second resolution: a unique date keeps two fixtures made in the same second apart,
+    // so one test's saved edits are never offered to the next (see pdf/js/io/edit-log.js)
+    doc.setCreationDate(new PT.win.Date(PT.win.Date.UTC(2020, 0, 1) + (++PT._nonce) * 1000));
     return doc.save();
   };
 
