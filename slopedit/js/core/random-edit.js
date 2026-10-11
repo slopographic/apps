@@ -51,11 +51,12 @@
     let t = 0;
     while (opt.target - t > 0.005) {
       const rem = opt.target - t;
-      let d = U.round(lo + (hi - lo) * rng(), 2);
-      if (rem - d < lo) d = rem;            // the last cut takes what is left, never a sliver
-      const picks = take(n);
-      d = Math.min(d, ...picks.map((m) => (m.kind === 'image' ? Infinity : m.dur)));
+      let d = lo + (hi - lo) * rng();
+      if (rem <= hi) d = rem;                       // the final cut takes what is left, within the pace
+      else if (rem - d < lo) d = rem - lo;          // never leave a sliver: the next cut is a full one
       d = U.round(d, 2);
+      const picks = take(n);
+      d = U.round(Math.min(d, ...picks.map((m) => (m.kind === 'image' ? Infinity : m.dur))), 2); // a source may be shorter
       cuts.push(picks.map((m, slot) => {
         const room = m.kind === 'image' ? Infinity : m.dur - d;
         const inPt = isFinite(room) && room > 0 ? U.round(rng() * room, 2) : 0;
@@ -69,6 +70,7 @@
 
   /** Write a plan into the project: replaces the timeline clips (call inside SE.change). */
   R.build = function (p, plan) {
+    if (!plan) return 0;
     const meta = new Map(p.media.map((m) => [m.id, m]));
     const tpl = T.get(plan.tpl);
     L.setAspect(p, plan.aspect);

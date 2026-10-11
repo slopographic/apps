@@ -62,6 +62,7 @@
       const w = await ST.open('../../slides/');
       const t = w.SS.templates.byId('pitch');
       expect(t).toBeTruthy();
+      if (1) throw new Error('DBG dirty=' + w.SS.app.dirty + ' w1dirty=' + (window.__W1 && window.__W1.SS.app.dirty) + ' slides=' + w.SS.app.deck.slides.length + ' w1slides=' + (window.__W1 && window.__W1.SS.app.deck.slides.length) + ' hasDraftFlag=' + w.SS.app.doc.name);
       w.SS.files.fromTemplate('pitch');
       expect(w.SS.app.deck.slides.length).toBe(t.build().slides.length);
       expect(w.SS.app.deck.title).toBe('Pitch deck');

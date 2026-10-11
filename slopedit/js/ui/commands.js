@@ -84,7 +84,7 @@
     { id: 'clip.reset', title: 'Reset transform and colour', group: 'Clip', when: hasSel, run: run('resetClip') },
     { id: 'clip.volKey', title: 'Add volume keyframe at playhead', group: 'Clip', keys: ['Shift+K'], when: hasSel, run: run('addVolumeKey') },
     // Templates and random edit
-    { id: 'tpl.panel', title: 'Templates panel', group: 'Sequence', keys: ['Shift+T'], keywords: ['layout', 'split', 'grid', 'picture in picture', 'slots'], run: run('openTemplates') },
+    { id: 'tpl.panel', title: 'Templates panel', group: 'Sequence', keys: ['Shift+G'], keywords: ['layout', 'split', 'grid', 'picture in picture', 'slots'], run: run('openTemplates') },
     { id: 'tpl.random', title: 'Random edit…', group: 'Sequence', keys: ['Shift+R'], keywords: ['shuffle', 'auto edit', 'montage', 'seed', 'build'], run: run('randomDialog') },
     { id: 'tpl.reshuffle', title: 'Reshuffle random edit (new seed)', group: 'Sequence', keywords: ['shuffle', 'seed'], when: () => !!SE.doc.random, run: run('reshuffleRandom') },
     { id: 'tpl.clear', title: 'Clear template layout', group: 'Sequence', when: () => !!SE.doc.layout, run: run('clearLayout') },
