@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DIR = path.join(ROOT, 'shared', 'video');
-const CORE = ['seed.js', 'presets.js', 'grid.js', 'templates.js', 'layout.js', 'segments.js', 'timing.js', 'locks.js', 'audio.js', 'orient.js'];
+const CORE = ['seed.js', 'presets.js', 'grid.js', 'templates.js', 'layout.js', 'segments.js', 'timing.js', 'locks.js', 'audio.js', 'orient.js', 'clipset.js'];
 /** A fresh video-core context; withEffects false leaves effects.js out (as SlopCut does). */
 function load(withEffects = true) {
   const ctx = { console };

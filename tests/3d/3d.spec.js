@@ -94,8 +94,14 @@
 
     it('renders the cube into the picture, not a blank frame', skipIfNoGL(async () => {
       const w = await openApp();
+      // Count the frames drawn from now on, then wait for one that comes after the cube was added (no fixed delay).
+      const renderer = w.Slop3D.app.stage.renderer, draw = renderer.render;
+      let frames = 0;
+      renderer.render = function (...a) { frames++; return draw.apply(this, a); };
       cmd('3d.add.cube');
       await waitFor(() => rowNamed('Cube'));
+      await waitFor(() => frames > 0, { timeout: 15000, step: 20 });
+      renderer.render = draw;
       const blob = await w.Slop3D.app.stage.capture(1);
       const bmp = await createImageBitmap(blob);
       const c = doc().createElement('canvas');
