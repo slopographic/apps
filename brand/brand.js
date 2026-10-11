@@ -9,7 +9,7 @@
  *   [data-brand-name]        text: name (also header .brand-name)
  *   [data-brand-tagline]     text: tagline
  *   [data-brand-logo]        the logo image (or the first svg in header .brand)
- *   [data-brand-home]        href: home
+ *   [data-brand-home], header a.brand (app pages)  href: home, when home is set
  *   [data-brand-footer]      text: footer line
  *   [data-brand-link=patreon|support]  href; hidden when empty
  *   CSS variables --brand-ink, --brand-paper, --brand-accent on :root. Pages that set
@@ -25,7 +25,7 @@
     name: 'Slopographic',
     tagline: 'Office and creative software that runs in your browser.',
     logo: '',
-    home: '/',
+    home: '',
     colors: Object.freeze({ ink: '#0a0a0a', paper: '#f1ede4', accent: '#d4ff3a' }),
     footer: '',
     links: Object.freeze({ patreon: '', support: '' }),
@@ -97,7 +97,7 @@
     setText('[data-brand-name], header .brand-name', current.name);
     setText('[data-brand-tagline]', current.tagline);
     setText('[data-brand-footer]', current.footer);
-    document.querySelectorAll('[data-brand-home]').forEach((a) => { a.setAttribute('href', current.home); });
+    if (current.home) document.querySelectorAll('[data-brand-home], header a.brand:not([data-view])').forEach((a) => { a.setAttribute('href', current.home); });
     document.querySelectorAll('[data-brand-link]').forEach((a) => {
       const url = current.links[a.dataset.brandLink] || '';
       if (url) { a.setAttribute('href', url); a.hidden = false; } else a.hidden = true;

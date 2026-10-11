@@ -11,7 +11,7 @@ support links) comes from `brand/brand.json`. Apps and the homepage read it thro
    - `name`, `tagline`: the header name and the line under the homepage title.
    - `logo`: a path from the site root to your logo (SVG or PNG). Replace `brand/logo.svg`, or point to a new file.
      An empty string keeps the built-in mark.
-   - `home`: where the logo links (`/` for the site root, or a full `https://` URL).
+   - `home`: where the logo links go (a full `https://` URL or a path). Empty keeps each page's own link, which is the site root.
    - `colors`: `ink` (background), `paper` (text), `accent` (highlight). Use `#rgb`, `#rrggbb` or `#rrggbbaa`.
    - `footer`: the footer line on the homepage.
    - `links.patreon`, `links.support`: `https://` or `mailto:` links. An empty value hides that link.
@@ -31,7 +31,7 @@ Bad values (for example a `javascript:` link or a malformed colour) fall back to
 | `[data-brand-name]`, header `.brand-name` | Text: `name` |
 | `[data-brand-tagline]` | Text: `tagline` |
 | `[data-brand-logo]`, or the first svg in a header `.brand` link | The logo image from `logo` |
-| `[data-brand-home]` | `href`: `home` |
+| `[data-brand-home]`, and the logo link `header a.brand` on app pages | `href`: `home`, when it is set |
 | `[data-brand-footer]` | Text: `footer` |
 | `[data-brand-link="patreon"]`, `[data-brand-link="support"]` | `href`, hidden when empty |
 | `--brand-ink`, `--brand-paper`, `--brand-accent` on `:root` | Colours for the shell and any page that uses them |

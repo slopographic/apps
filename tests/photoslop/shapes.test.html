@@ -15,7 +15,7 @@
   const ev = (W, type, x, y) => new W.PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 9, pointerType: 'mouse', button: 0, buttons: type === 'pointerup' ? 0 : 1, clientX: x, clientY: y });
   async function fresh() {
     await new Promise((res) => { const q = indexedDB.deleteDatabase('slopshop'); q.onsuccess = q.onerror = q.onblocked = () => res(); });
-    f.src = '../../photoslop/index.html';
+    await new Promise((res) => { f.onload = () => { f.onload = null; res(); }; f.src = '../../photoslop/index.html'; }); // a new document, not the old ready one
     await waitFor(() => f.contentWindow && f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready'), { timeout: 30000 });
     return f.contentWindow;
   }
