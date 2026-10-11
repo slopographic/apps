@@ -90,7 +90,7 @@ function activateLayer(L) { if (D.activeId !== L.id) { D.activeId = L.id; UI.edi
 function layerItems(L) {
   activateLayer(L);
   return [M('Edit', 'Free Transform'), '-', M('Layer', 'Layer Properties…'), M('Layer', 'Duplicate Layer'), M('Layer', 'Delete Layer'), '-',
-    { label: 'Select Pixels', act: () => selectLayerPixels(L) }, M('Layer', 'Layer Mask'), M('Layer', 'Layer Style'), '-',
+    { label: 'Select Pixels', act: () => selectLayerPixels(L) }, M('Layer', 'Layer Mask'), M('Layer', 'Layer Style'), { label: L.clip ? 'Release Clipping Mask' : 'Create Clipping Mask', act: () => setClipping(L.id, !L.clip) }, '-',
     M('Layer', 'Rotate and Flip'), '-',
     M('Layer', 'Lock / Unlock Layer'), { label: L.visible ? 'Hide Layer' : 'Show Layer', act: () => setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer') }, '-',
     M('Layer', 'Merge Down'), M('Layer', 'Merge Visible'), M('Layer', 'Flatten Image')];
