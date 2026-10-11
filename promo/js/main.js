@@ -89,20 +89,20 @@ function syncOne(v, exact) {
 }
 
 /* ---------- live playback ---------- */
-let playing = false, ac = null, src = null, t0 = 0, audioBuf = null, raf = 0;
-async function getAudio() {
-  if (!audioBuf) audioBuf = await renderScore(plan);
-  return audioBuf;
-}
+let playing = false, ac = null, src = null, t0 = 0, audioP = null, raf = 0;
+const getAudio = () => audioP || (audioP = renderScore(plan));
 async function play(from = !started || now >= plan.total - 0.05 ? 0 : now) {
   if (playing) return;
   started = true;
   document.documentElement.classList.add('started');
   playing = true;
-  document.documentElement.classList.add('playing');
+  document.documentElement.classList.add('playing', 'loading');
+  ac = ac || new AudioContext();               // made inside the click, so it may play sound
+  const resumed = ac.resume();
   const buf = await getAudio();
-  ac = ac || new AudioContext();
-  await ac.resume();
+  await resumed;
+  document.documentElement.classList.remove('loading');
+  if (!playing) return;
   src = ac.createBufferSource(); src.buffer = buf; src.connect(ac.destination);
   t0 = ac.currentTime - from;
   src.start(0, from);
@@ -148,4 +148,4 @@ window.__promo = { ready: false, duration: plan.total, size: { W, H }, beat: BEA
 (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
   const start = q.has('t') ? parseFloat(q.get('t')) || 0 : rendering ? 0 : POSTER_T;
   return seek(start);
-}).then(() => { window.__promo.ready = true; updateUI(now); });
+}).then(() => { window.__promo.ready = true; updateUI(now); if (!rendering) setTimeout(() => getAudio(), 400); });

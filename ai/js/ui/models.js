@@ -54,7 +54,8 @@
     const v = AI.sys ? K.sysinfo.verdict(AI.sys, m) : null;
     const loading = E.loadingId === m.id && (E.state === 'loading' || E.state === 'paused');
     const loaded = E.model && E.model.id === m.id && E.engine && E.engine.loaded;
-    const stateText = loaded ? 'Loaded and ready' : st.state === 'ready' ? `Downloaded · ${AI.fmtBytes(st.bytes)}` : st.state === 'partial' ? `Partly downloaded · ${AI.fmtBytes(st.bytes)}` : m.custom ? 'From a folder on this computer' : 'Not downloaded';
+    const failed = E.state === 'error' && E.loadingId === m.id;
+    const stateText = failed ? 'Failed: ' + E.error : loaded ? 'Loaded and ready' : st.state === 'ready' ? `Downloaded · ${AI.fmtBytes(st.bytes)}` : st.state === 'partial' ? `Partly downloaded · ${AI.fmtBytes(st.bytes)}` : m.custom ? 'From a folder on this computer' : 'Not downloaded';
     return el('article', { class: 'mcard' + (loaded ? ' loaded' : '') + (AI.focusModel === m.id ? ' focus' : ''), 'data-id': m.id },
       el('div', { class: 'm-head' }, el('div', null, el('h3', null, m.name), el('div', { class: 'faint' }, [m.maker, m.params ? m.params + 'B parameters' : ''].filter(Boolean).join(' · '))),
         el('div', { class: 'm-badges' }, m.id === rec ? el('span', { class: 'badge rec' }, 'Recommended') : null, m.id === recCode ? el('span', { class: 'badge rec' }, 'Best for code') : null,
@@ -66,7 +67,7 @@
         el('dt', null, 'GPU memory'), el('dd', null, m.vramMB ? AI.fmtMB(v && v.vram || m.vramMB) : '—'),
         el('dt', null, 'Context'), el('dd', null, Math.round(m.ctx / 1024) + 'k tokens'),
         el('dt', null, 'Licence'), el('dd', null, m.license.url ? el('a', { href: m.license.url, target: '_blank', rel: 'noopener' }, m.license.name) : m.license.name)),
-      el('div', { class: 'm-state' + (loading ? ' on' : '') }, el('span', { class: 'm-st' }, loading ? (E.state === 'paused' ? 'Paused at ' + Math.round(E.progress * 100) + '%' : E.text) : stateText),
+      el('div', { class: 'm-state' + (loading ? ' on' : '') + (failed ? ' bad' : '') }, el('span', { class: 'm-st' }, loading ? (E.state === 'paused' ? 'Paused at ' + Math.round(E.progress * 100) + '%' : E.text) : stateText),
         loading ? el('div', { class: 'pbar' }, el('i', { style: `width:${Math.round(E.progress * 100)}%` })) : null),
       el('div', { class: 'faint mono m-id' }, m.loadId || (AI.sys ? K.catalog.idFor(m, AI.sys) : m.id)),
       actions(m, st));

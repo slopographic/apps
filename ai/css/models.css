@@ -53,3 +53,4 @@
 .settings { display: grid; gap: 10px; }
 .settings .hint { margin: -4px 0 0; font-size: 11px; }
 .range { flex: 1; accent-color: var(--accent-line); }
+.m-state.bad { color: var(--danger); }

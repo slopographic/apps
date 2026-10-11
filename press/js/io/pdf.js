@@ -30,7 +30,7 @@
       if (!img) return null;
       var w = img.naturalWidth, h = img.naturalHeight, sc = Math.min(1, 4000 / Math.max(w, h)), cw = Math.max(1, Math.round(w * sc)), ch = Math.max(1, Math.round(h * sc));
       var c = document.createElement('canvas'); c.width = cw; c.height = ch;
-      var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, cw, ch);
+      var ctx = c.getContext('2d', { willReadFrequently: true }); ctx.drawImage(img, 0, 0, cw, ch);
       var px = ctx.getImageData(0, 0, cw, ch).data, rgb = new Uint8Array(cw * ch * 3), alpha = new Uint8Array(cw * ch), hasA = false;
       for (var i = 0, j = 0, k = 0; i < px.length; i += 4) { rgb[j++] = px[i]; rgb[j++] = px[i + 1]; rgb[j++] = px[i + 2]; alpha[k++] = px[i + 3]; if (px[i + 3] < 255) hasA = true; }
       var smask = hasA ? W.stream({ Type: '/XObject', Subtype: '/Image', Width: cw, Height: ch, ColorSpace: '/DeviceGray', BitsPerComponent: 8 }, alpha, true) : undefined;

@@ -86,7 +86,9 @@
     const r = opts.r || Math.max(2, Math.round(Math.max(gw, gh) / 128));
     const [Ir, Ig, Ib] = planes(rgba, W, H, gw, gh);
     const a = gw === W && gh === H ? P.toF32(alpha) : P.resample(alpha, W, H, 1, gw, gh).map((v) => v / 255);
-    const ia = a.map((v) => 1 - v);
+    // Weights favour clean pixels (nearly opaque for F, nearly transparent for B) over mixed ones.
+    const ia = a.map((v) => (1 - v) * (1 - v) * (1 - v));
+    for (let i = 0; i < n; i++) a[i] = a[i] * a[i] * a[i];
     const blur = (x) => P.boxBlur(P.boxBlur(x, gw, gh, r), gw, gh, r);
     const wa = blur(a), wb = blur(ia);
     const Fr = blur(mul(Ir, a)), Fg = blur(mul(Ig, a)), Fb = blur(mul(Ib, a));

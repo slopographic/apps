@@ -8,7 +8,7 @@
   var F = PR.fonts = {};
   var VENDOR = (function () {
     var s = document.currentScript && document.currentScript.src;
-    return s ? new URL('../../../vendor/pdfjs/standard_fonts/', s).href : new URL('../vendor/pdfjs/standard_fonts/', document.baseURI).href;
+    try { return s ? new URL('../../../vendor/pdfjs/standard_fonts/', s).href : new URL('../vendor/pdfjs/standard_fonts/', document.baseURI).href; } catch (e) { return '../vendor/pdfjs/standard_fonts/'; }
   })();
   F.STYLES = ['Regular', 'Bold', 'Italic', 'Bold Italic'];
   var LIB = { Regular: 'LiberationSans-Regular.ttf', Bold: 'LiberationSans-Bold.ttf', Italic: 'LiberationSans-Italic.ttf', 'Bold Italic': 'LiberationSans-BoldItalic.ttf' };

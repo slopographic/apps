@@ -53,3 +53,5 @@ body { font-family: 'Inter Tight', system-ui, sans-serif; }
 .cover:hover .cover-i { transform: scale(1.06); }
 .cover:focus-visible { outline: 3px solid var(--bone); outline-offset: 4px; }
 .started .cover, .render .cover { display: none; }
+.loading .play { animation: pulse .8s ease-in-out infinite alternate; }
+@keyframes pulse { to { opacity: .4; } }

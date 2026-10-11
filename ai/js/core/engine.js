@@ -12,6 +12,13 @@
   E.make = () => (AI.engineKind() === 'fake' ? new K.FakeEngine({ delay: AI.fakeDelay != null ? AI.fakeDelay : 14, loadMs: AI.fakeLoadMs != null ? AI.fakeLoadMs : 900 }) : new K.WebLLMEngine());
   E.isFake = () => AI.engineKind() === 'fake';
   const changed = () => AI.emit('engine', E);
+  const friendly = (e) => {
+    const m = String((e && e.message) || e);
+    if (/failed to fetch|networkerror|load failed|err_/i.test(m)) return 'the download failed. Check your connection (huggingface.co and raw.githubusercontent.com must be reachable), then press Download again: finished parts are kept.';
+    if (/quota|storage/i.test(m)) return 'this browser ran out of storage for the model. Free some space or delete another model.';
+    if (/device|adapter|webgpu|gpu/i.test(m)) return 'WebGPU failed (' + m + '). See "Can my PC run it?".';
+    return m;
+  };
 
   /** The engine chats go to: the local one, else one borrowed from another tab. */
   E.active = () => (E.engine && E.engine.loaded ? E.engine : E.remote);
@@ -24,7 +31,7 @@
     if (st.state === 'ready') return true;
     const body = AI.el('div', { class: 'consent' },
       AI.el('p', null, AI.el('b', null, `Download ${m.name}?`)),
-      AI.el('p', null, `This downloads about ${AI.fmtMB(m.sizeMB)} from huggingface.co (plus the GPU kernels from raw.githubusercontent.com), once. It is stored in this browser and works offline afterwards.`),
+      AI.el('p', null, `This downloads about ${AI.fmtMB(m.sizeMB * (AI.sys && K.catalog.idFor(m, AI.sys) !== m.id ? 1.35 : 1))} from huggingface.co (plus the GPU kernels from raw.githubusercontent.com), once. It is stored in this browser and works offline afterwards.`),
       AI.el('p', { class: 'ok-note' }, 'Your chats never leave your device: the model runs on your own GPU.'),
       AI.el('p', { class: 'dim' }, 'Licence: ', m.license.url ? AI.el('a', { href: m.license.url, target: '_blank', rel: 'noopener' }, m.license.name) : m.license.name, ` · commercial use: ${m.license.commercial || 'see licence'}`),
       st.state === 'partial' ? AI.el('p', { class: 'dim' }, 'Part of it is already downloaded; it continues where it stopped.') : null);
@@ -56,7 +63,7 @@
     } catch (e) {
       if (E.ctl !== ctl) return false;
       const why = ctl.signal.aborted ? ctl.signal.reason : null;
-      Object.assign(E, { state: why === 'pause' ? 'paused' : why ? 'idle' : 'error', ctl: null, error: why ? null : String((e && e.message) || e) });
+      Object.assign(E, { state: why === 'pause' ? 'paused' : why ? 'idle' : 'error', ctl: null, error: why ? null : friendly(e) });
       if (why !== 'pause') E.loadingId = why === 'cancel' ? null : E.loadingId;
       if (why === 'cancel') await E.remove(id, { quiet: true });
       changed();

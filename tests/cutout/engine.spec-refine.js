@@ -13,24 +13,23 @@
   /** Low-res step mask (mw×mh) with a soft (blurred) edge, 1 on the right. */
   function softStep(mw, mh) {
     const m = new Float32Array(mw * mh);
-    for (let y = 0; y < mh; y++) for (let x = 0; x < mw; x++) m[y * mw + x] = Math.min(1, Math.max(0, (x + 0.5 - mw / 2) / 5 + 0.5));
+    for (let y = 0; y < mh; y++) for (let x = 0; x < mw; x++) m[y * mw + x] = Math.min(1, Math.max(0, (x + 0.5 - mw / 2) / 1.5 + 0.5));
     return m;
   }
   const width = (row, lo = 25, hi = 230) => row.filter((v) => v > lo && v < hi).length;
 
   describe('guided upsample', () => {
-    it('follows the photo edge: a much sharper transition than bilinear', () => {
+    it('follows the photo edge: a sharp step where bilinear gives a ramp', () => {
       const W = 256, H = 16, img = split(W, H, [20, 120, 220], [230, 60, 30]);
       const low = softStep(32, 2);
       const plain = P.plainUpsample(low, 32, 2, W, H), guided = P.guidedUpsample(img, W, H, low, 32, 2, { r: 8 });
       const row = (m) => Array.from(m.subarray(8 * W, 9 * W));
-      expect(width(row(plain))).toBeGreaterThan(30);
-      expect(width(row(guided))).toBeLessThan(width(row(plain)) / 4);
+      const jump = (r) => { let best = 0, at = -1; for (let x = 1; x < r.length; x++) if (r[x] - r[x - 1] > best) { best = r[x] - r[x - 1]; at = x; } return { best, at }; };
+      const jg = jump(row(guided)), jp = jump(row(plain));
+      expect(jg.best).toBeGreaterThan(jp.best * 4);
+      expect(Math.abs(jg.at - W / 2)).toBeLessThan(2); // the step sits on the photo's edge
       expect(guided[8 * W + 10]).toBeLessThan(10);
       expect(guided[8 * W + 245]).toBeGreaterThan(245);
-      // The edge stays where the photo's edge is.
-      const g = row(guided), cross = g.findIndex((v) => v >= 128);
-      expect(Math.abs(cross - W / 2)).toBeLessThan(3);
     });
     it('output is full resolution, and the work resolution is capped', () => {
       expect(P.workSize(4000, 3000)).toEqual([1024, 768]);
@@ -70,7 +69,7 @@
 
   describe('finish', () => {
     it('applies threshold → edit → feather and writes alpha into the cutout', () => {
-      const W = 8, H = 1, rgba = new Uint8ClampedArray(W * 4).fill(200), base = Uint8ClampedArray.of(0, 40, 90, 130, 170, 220, 255, 255);
+      const W = 8, H = 1, rgba = new Uint8ClampedArray(W * 4).fill(200).map((v, i) => (i % 4 === 3 ? 255 : v)), base = Uint8ClampedArray.of(0, 40, 90, 130, 170, 220, 255, 255);
       const edit = new Uint8ClampedArray(W).fill(128); edit[0] = 255; edit[7] = 0;
       const r = P.finish(rgba, W, H, base, edit, { threshold: 0.5, softness: 0, decontaminate: false });
       expect(Array.from(r.mask)).toEqual([255, 0, 0, 255, 255, 255, 255, 0]);

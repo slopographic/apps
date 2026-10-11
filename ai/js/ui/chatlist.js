@@ -16,8 +16,11 @@
         : el('div', { class: 'starters' }, el('button', { type: 'button', class: 'btn primary', onclick: () => AI.setTab('models') }, 'Choose a model'), el('button', { type: 'button', class: 'btn', onclick: () => AI.setTab('sys') }, 'Can my PC run it?')));
   }
 
+  let seq = 0;
   async function refresh() {
-    convs = await AI.db.list('chat');
+    const my = ++seq, got = await AI.db.list('chat');
+    if (my !== seq) return; // a newer refresh is on its way
+    convs = got;
     const list = AI.$('convList'); if (!list) return;
     list.textContent = '';
     if (!convs.length) list.append(el('div', { class: 'faint conv-empty' }, 'No chats yet.'));
@@ -97,7 +100,7 @@
       el('div', { class: 'conv-list', id: 'convList' }));
     const main = el('div', { class: 'chat-main' }, el('div', { class: 'chat-bar', id: 'chatBar' }));
     v.append(side, el('div', { class: 'scrim', onclick: () => document.body.classList.remove('side-open') }), main);
-    panel = AI.chat = new AI.ChatPanel(main, { kind: 'chat', empty, toolsFor: AI.toolsFor, onCreate: (c) => { if (AI.pendingTools) { c.tools = true; AI.pendingTools = false; } bar(); } });
+    panel = AI.chat = new AI.ChatPanel(main, { kind: 'chat', empty, toolsFor: AI.toolsFor, onDone: () => bar(), onCreate: (c) => { if (AI.pendingTools) { c.tools = true; AI.pendingTools = false; } bar(); } });
     AI.on('convs', AI.debounce(refresh, 30));
     AI.on('engine', () => { if (panel.conv && !panel.conv.messages.length || !panel.conv) panel.render(); });
     panel.setConv(null); bar(); refresh();

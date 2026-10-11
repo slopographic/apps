@@ -140,7 +140,7 @@
     var W = doc.size.w + b.left + b.right, H = doc.size.h + b.top + b.bottom;
     var c = document.createElement('canvas');
     c.width = Math.max(1, Math.round(W * scale)); c.height = Math.max(1, Math.round(H * scale));
-    var ctx = c.getContext('2d');
+    var ctx = c.getContext('2d', { willReadFrequently: true }); // CPU canvas: fast readback for exports
     ctx.scale(scale, scale); ctx.translate(b.left, b.top);
     R.page(ctx, doc, i, { bleed: !!o.bleed, zoom: scale, paper: o.paper });
     return c;

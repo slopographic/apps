@@ -132,7 +132,6 @@ export class Calc {
   spill(sheet, k, r, c, arr, reads) {
     const rows = arr.length, cols = arr[0].length;
     const old = sheet.spills.get(k);
-    if (old && old.rows === rows && old.cols === cols) { old.data = arr; return arr[0][0]; }
     let blocked = r + rows > MAX_ROWS || c + cols > MAX_COLS;
     for (let i = 0; i < rows && !blocked; i++) for (let j = 0; j < cols; j++) {
       if (!i && !j) continue;
@@ -144,7 +143,8 @@ export class Calc {
     }
     reads.push({ sid: sheet.id, r1: r, c1: c + 1, r2: r, c2: Math.min(c + cols - 1, MAX_COLS - 1) });
     if (rows > 1) reads.push({ sid: sheet.id, r1: r + 1, c1: c, r2: Math.min(r + rows - 1, MAX_ROWS - 1), c2: Math.min(c + cols - 1, MAX_COLS - 1) });
-    if (cols === 1) reads.shift();
+    if (cols === 1) reads.splice(reads.length - 2, 1);
+    if (!blocked && old && old.rows === rows && old.cols === cols) { old.data = arr; return arr[0][0]; }
     this.clearSpill(sheet, k, false);
     if (blocked) return ERR.SPILL;
     sheet.spills.set(k, { r, c, rows, cols, data: arr });
