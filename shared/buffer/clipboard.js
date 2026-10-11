@@ -1,7 +1,7 @@
 /* SlopBuffer clipboard: turns a record into the standard system formats (image/png, text/html, text/plain) and writes
  * them to the system clipboard, so the item pastes outside the site too. Vectors are rasterised for the clipboard
  * (the system clipboard has no SVG type). Where the browser refuses, writeSystem resolves false and nothing else changes.
- * Classic script; adds SlopBuffer.rasterize, SlopBuffer.toPng and SlopBuffer.writeSystem. */
+ * Classic script; adds SlopBuffer.rasterize, toPng, writeSystem, plainFor and isSystemCopyOf. */
 (function (g) {
   'use strict';
   var B = g.SlopBuffer = g.SlopBuffer || {};
@@ -48,6 +48,13 @@
     return null;
   };
 
+  /** True when a file from a paste event is the PNG this buffer put on the system clipboard (same record, same size and
+   *  type), so the app can use the buffer's own item instead of the flattened picture. */
+  B.isSystemCopyOf = function (file) {
+    var s = B.systemFile, c = B.get ? B.get() : null;
+    return !!(file && s && c && s.t === c.t && file.size === s.size && file.type === s.type);
+  };
+
   /** Writes the record to the system clipboard. The write starts at once (so the user gesture still counts) and
    *  rasterising is done lazily through promises. Resolves true when the browser took it, false when it refused. */
   B.writeSystem = function (rec) {
@@ -55,7 +62,11 @@
     if (!nav || !nav.clipboard || !nav.clipboard.write || !CI || !rec) return Promise.resolve(false);
     var items = {}, f = rec.formats;
     if (f['image/png'] || f['image/svg+xml']) {
-      items['image/png'] = B.toPng(rec).then(function (b) { if (!b) throw new Error('no image'); return b; });
+      items['image/png'] = B.toPng(rec).then(function (b) {
+        if (!b) throw new Error('no image');
+        B.systemFile = { t: rec.t, size: b.size, type: b.type };
+        return b;
+      });
     }
     if (f['text/html']) items['text/html'] = Promise.resolve(new Blob([f['text/html']], { type: 'text/html' }));
     var plain = B.plainFor(rec);
