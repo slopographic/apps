@@ -15,6 +15,10 @@
     stockReason: ['receipt', 'sale', 'adjustment', 'transfer', 'count', 'return'],
     rateSource: ['manual', 'ecb', 'fixed'],
     tagColor: ['blue', 'green', 'amber', 'red', 'violet', 'teal', 'pink', 'grey'],
+    eventKind: ['event', 'call', 'meeting'],
+    repeatFreq: ['none', 'daily', 'weekly', 'monthly', 'yearly'],
+    priority: ['none', 'low', 'high'],
+    reminderSource: ['event', 'task', 'custom'],
   };
   const ACCT = { CASH: '1000', BANK: '1010', AR: '1200', TAX_PAYABLE: '2100', EQUITY: '3000', REVENUE: '4000', EXPENSES: '5000' };
   const DEFAULT_CHART = [
@@ -106,6 +110,24 @@
     }
     return out;
   };
+  /** Calendar events: timed ones need start and end (ms); all-day ones need startDay and endDay (inclusive). */
+  const eventCheck = (r) => {
+    if (r.allDay) {
+      if (!r.startDay) return ['an all-day event needs a start day'];
+      if (r.endDay && r.endDay < r.startDay) return ['the end day is before the start day'];
+      return [];
+    }
+    if (r.start === undefined) return ['a timed event needs a start'];
+    if (r.end !== undefined && r.end < r.start) return ['the end is before the start'];
+    return [];
+  };
+  /** Tasks: a due time needs a due date, and a repeating task needs a due date to repeat from. */
+  const taskCheck = (r) => {
+    const out = [];
+    if (r.dueTime && !r.due) out.push('a task with a due time needs a due date');
+    if (r.freq && r.freq !== 'none' && !r.due) out.push('a repeating task needs a due date');
+    return out;
+  };
   const rateCheck = (r) => (r.base && r.base === r.quote ? ['base and quote must be different currencies'] : []);
 
   const DEFS = {
@@ -173,6 +195,26 @@
       notes: F.text({}), status: F.en(['posted'], { def: 'posted' }) } },
     numbering: { key: 'id', noRemove: 'sequences cannot be deleted', fields: {
       id: F.id({ req: true }), prefix: F.str({ max: 20 }), pad: F.int({ min: 1, max: 12, def: 4 }), next: F.int({ req: true, min: 1, max: 1e12 }) } },
+    // Calendar events. Timed events keep epoch ms in start and end; all-day events keep startDay and endDay (inclusive).
+    // tz is the zone the event was made in. freq, until and remind (minutes before start) describe repeats and reminders.
+    events: { key: 'id', check: eventCheck, indexes: [{ name: 'customerId', key: 'customerId' }, { name: 'start', key: 'start' }], fields: {
+      id: F.id({ req: true }), title: F.str({ req: true, max: 200 }), allDay: F.bool({ def: false }),
+      startDay: F.date({}), endDay: F.date({}), start: F.ts({}), end: F.ts({}), tz: F.str({ req: true, max: 64 }),
+      location: F.str({ max: 200 }), notes: F.text({}), color: F.en(ENUM.tagColor, { def: 'blue' }), kind: F.en(ENUM.eventKind, { def: 'event' }),
+      freq: F.en(ENUM.repeatFreq, { def: 'none' }), until: F.date({}), remind: F.int({ min: 0, max: 525600 }),
+      customerId: F.id({}), uid: F.str({ max: 120 }) } },
+    // To-do tasks. due (YYYY-MM-DD) and dueTime (HH:MM, in tz) are the due moment. parentId makes a subtask.
+    tasks: { key: 'id', check: taskCheck, indexes: [{ name: 'list', key: 'list' }, { name: 'customerId', key: 'customerId' }, { name: 'parentId', key: 'parentId' }], fields: {
+      id: F.id({ req: true }), title: F.str({ req: true, max: 200 }), notes: F.text({}), due: F.date({}),
+      dueTime: F.str({ max: 5, pattern: /^([01]\d|2[0-3]):[0-5]\d$/ }), tz: F.str({ max: 64 }), priority: F.en(ENUM.priority, { def: 'none' }),
+      list: F.str({ max: 40, def: 'Inbox' }), tags: { t: 'strings', max: 20, itemMax: 40, def: [] }, parentId: F.id({}),
+      done: F.bool({ def: false }), doneAt: F.ts({}), freq: F.en(ENUM.repeatFreq, { def: 'none' }), until: F.date({}),
+      remind: F.int({ min: 0, max: 525600 }), customerId: F.id({}) } },
+    // Reminders. Custom reminders are rows of their own (source custom). Event and task reminders are read from the
+    // events and tasks; a row here only records what the person did (snoozedUntil, firedAt, dismissedAt) for one of them.
+    reminders: { key: 'id', indexes: [{ name: 'source', key: 'source' }], fields: {
+      id: F.id({ req: true }), source: F.en(ENUM.reminderSource, { req: true }), refId: F.id({}), title: F.str({ req: true, max: 200 }),
+      at: F.ts({ req: true }), snoozedUntil: F.ts({}), firedAt: F.ts({}), dismissedAt: F.ts({}) } },
   };
   const COLLECTIONS = Object.keys(DEFS);
 

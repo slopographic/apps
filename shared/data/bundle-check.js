@@ -18,7 +18,7 @@
     if (!b || typeof b !== 'object' || b.format !== FORMAT) return { ok: false, errors: ['not a slop-data export file'] };
     if (b.version !== VERSION) return { ok: false, errors: [`unsupported export version ${b.version}`] };
     if (!b.collections || typeof b.collections !== 'object') return { ok: false, errors: ['the file has no collections'] };
-    const cols = { exchangeRates: [], customerGroups: [], customerTags: [], ...b.collections }; // older exports lack these tables: they read as empty
+    const cols = { exchangeRates: [], customerGroups: [], customerTags: [], events: [], tasks: [], reminders: [], ...b.collections }; // older exports lack these tables: they read as empty
     const names = ns.schema.COLLECTIONS;
     const errors = [];
     for (const n of names) if (!Array.isArray(cols[n])) errors.push(`${n}: missing or not a list`);
