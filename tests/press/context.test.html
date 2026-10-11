@@ -57,12 +57,12 @@
       expect(menuText()).toContain(labelOf('object.lock'));
       expect(menuText()).not.toContain(labelOf('object.placeImage'));
       clickItem(labelOf('object.lock'));
-      expect(!!PR.selected()[0].locked).toBe(true);
+      expect(!!r.locked).toBe(true);
       closeMenus();
     });
 
     it('Shift+F10 on the canvas with a selection opens the same menu for it', async () => {
-      const r = makeRect();
+      makeRect();
       const c = W.document.getElementById('view');
       c.focus();
       menuKey(c);
@@ -73,15 +73,18 @@
 
     it('the Menu key on a focused page thumbnail opens the page menu', async () => {
       PR.select([]);
+      PR.actions.run('window.pages');
       const th = W.document.querySelector('.pthumb');
       expect(!!th).toBe(true);
       th.focus();
       menuKey(th, 'ContextMenu', {});
-      expect(menuText()).toContain(labelOf('layout.addPage'));
+      expect(menuText()).toContain('Insert Page After');
       closeMenus();
     });
 
     it('Shift+F10 on a focused layer row opens the layer menu', async () => {
+      PR.actions.run('window.layers');
+      await waitFor(() => W.document.querySelector('.lrow'));
       const row = W.document.querySelector('.lrow');
       expect(!!row).toBe(true);
       row.focus();
@@ -90,6 +93,7 @@
       closeMenus();
     });
   });
+  SlopTest.run({ name: 'Slop Press · context menus' });
   </script>
 </body>
 </html>

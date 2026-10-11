@@ -286,5 +286,5 @@
     });
   }
 
-  ns.store = { DB_NAME, DB_VERSION, ready, seed: () => seedDefaults(), get, list, put, remove, transact, read: readAll, subscribe, newId, erase, restore };
+  ns.store = { DB_NAME, DB_VERSION, ready, seed: () => seedDefaults(), get, list, put, remove, transact, subscribe, newId, erase, restore, readAll };
 })(typeof window !== 'undefined' ? window : globalThis);

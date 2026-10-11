@@ -123,9 +123,11 @@ test('dates must be real calendar dates', () => {
 
 test('stored totals must match the lines', () => {
   const r = schema.prepare('invoices', { customerId: CUST, date: '2026-10-11', lines: [line()] });
-  const bad = { ...r.value, total: r.value.total + 1 };
+  const stored = { ...r.value, id: 'i1' };
+  const bad = { ...stored, total: stored.total + 1 };
   assert.ok(schema.validate('invoices', bad).some((e) => /does not match the lines/.test(e.message)));
-  assert.equal(schema.validate('invoices', r.value).length, 0);
+  assert.equal(schema.validate('invoices', stored).length, 0);
+  assert.ok(schema.validate('invoices', r.value).some((e) => e.field === 'id'));
 });
 
 test('invoice transitions: draft to issued to paid or void, and issued documents are fixed', () => {
