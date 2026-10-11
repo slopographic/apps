@@ -22,22 +22,21 @@
   const stored = () => { try { return JSON.parse(win().localStorage.getItem('slop.tour.' + APP)); } catch (e) { return null; } };
   const sleepBlink = () => sleep(320); // the spotlight eases to its new place over .18s
 
-  beforeEach(async () => {
-    document.querySelectorAll('iframe.tour-frame').forEach((f) => f.remove());
-    frame = document.createElement('iframe');
-    frame.className = 'tour-frame';
-    frame.style.cssText = 'display:block;width:1280px;height:520px;border:0;background:#000';
-    frame.src = '../../' + APP + '/index.html';
-    document.body.prepend(frame);
-    await waitFor(() => frame.contentDocument && frame.contentDocument.readyState === 'complete' && q('.stour-btn'), { timeout: 30000 });
-    win().localStorage.removeItem('slop.tour.' + APP);
-  });
-  afterEach(() => {
-    try { if (win().SlopTour && win().SlopTour.isOpen()) win().SlopTour.close(); win().localStorage.removeItem('slop.tour.' + APP); } catch (e) { /* frame gone */ }
-    frame.remove();
-  });
-
   describe('PhotoSlop tour', () => {
+    beforeEach(async () => {
+      document.querySelectorAll('iframe.tour-frame').forEach((f) => f.remove());
+      frame = document.createElement('iframe');
+      frame.className = 'tour-frame';
+      frame.style.cssText = 'display:block;width:1280px;height:520px;border:0;background:#000';
+      frame.src = '../../' + APP + '/index.html';
+      document.body.prepend(frame);
+      await waitFor(() => frame.contentDocument && frame.contentDocument.readyState === 'complete' && q('.stour-btn'), { timeout: 30000 });
+      win().localStorage.removeItem('slop.tour.' + APP);
+    });
+    afterEach(() => {
+      try { if (win().SlopTour && win().SlopTour.isOpen()) win().SlopTour.close(); win().localStorage.removeItem('slop.tour.' + APP); } catch (e) { /* frame gone */ }
+      frame.remove();
+    });
     it('adds a Tour button and a palette command', () => {
       expect(q('.stour-btn').textContent).toBe('Tour');
       const cmd = win().SlopCmd.get('tour.start.' + APP);
