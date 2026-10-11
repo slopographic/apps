@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Homepage · catalog and navigation</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="boot.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  let win, doc;
+  const ready = HomeTest.openHome().then((w) => { win = w; doc = w.document; });
+
+  describe('catalog', () => {
+    it('renders every SLOP_APPS entry in its shelf', async () => {
+      await ready;
+      const apps = win.SLOP_APPS;
+      expect(apps.length).toBeGreaterThan(5);
+      for (const a of apps) {
+        const list = doc.querySelector(`[data-list="${a.kind}"]`);
+        expect(!!list).toBe(true);
+        const card = list.querySelector(`[data-id="${a.id}"][data-perch="card"]`);
+        if (!card) throw new Error('missing card for ' + a.id);
+        expect(card.getAttribute('href')).toBe(a.path);
+        expect(card.querySelector('h3').textContent).toBe(a.name);
+      }
+      const cards = doc.querySelectorAll('[data-list] > [data-perch="card"]');
+      expect(cards.length).toBe(apps.length);
+    });
+    it('shows app features and status badges from the registry', async () => {
+      await ready;
+      for (const a of win.SLOP_APPS.filter((x) => x.kind === 'app')) {
+        const card = doc.querySelector(`.app-card[data-id="${a.id}"]`);
+        expect(card.querySelectorAll('.feats li').length).toBe(a.features.length);
+        const badge = card.querySelector('.badge');
+        if (a.status === 'live') expect(badge).toBe(null);
+        else expect(badge.classList.contains(a.status)).toBe(true);
+      }
+    });
+    it('lists every project on the status board with matching counts', async () => {
+      await ready;
+      const apps = win.SLOP_APPS;
+      expect(doc.querySelectorAll('#status-board .status-row').length).toBe(apps.length);
+      const live = apps.filter((a) => a.status === 'live').length;
+      expect(doc.getElementById('status-sum').textContent).toContain(`${apps.length} projects: ${live} live`);
+      // In development first, live last.
+      const states = [...doc.querySelectorAll('#status-board .dot')].map((d) => d.className.split(' ')[1]);
+      const rank = { building: 0, beta: 1, live: 2 };
+      for (let i = 1; i < states.length; i++) expect(rank[states[i]]).toBeGreaterThanOrEqual(rank[states[i - 1]]);
+    });
+  });
+
+  describe('navigation', () => {
+    for (const id of ['apps', 'games', 'experiments', 'status']) {
+      it(`the ${id} tab jumps to its section`, async () => {
+        await ready;
+        win.scrollTo(0, 0);
+        doc.documentElement.style.scrollBehavior = 'auto';
+        doc.querySelector(`.tabs a[data-jump][href="#${id}"]`).click();
+        const target = doc.getElementById(id);
+        await waitFor(() => Math.abs(target.getBoundingClientRect().top - parseFloat(win.getComputedStyle(target).scrollMarginTop)) < 40, { timeout: 5000 });
+        expect(win.location.hash).toBe('');
+      });
+    }
+    it('switches to the Authenticator and back home', async () => {
+      await ready;
+      doc.querySelector('.tabs [data-view="detector"]').click();
+      await waitFor(() => !doc.getElementById('view-detector').hidden);
+      expect(doc.getElementById('view-home').hidden).toBe(true);
+      expect(win.location.hash).toBe('#detector');
+      doc.querySelector('.brand').click();
+      await waitFor(() => !doc.getElementById('view-home').hidden);
+      expect(doc.getElementById('view-detector').hidden).toBe(true);
+    });
+    it('a jump link works from the Authenticator view too', async () => {
+      await ready;
+      doc.querySelector('.tabs [data-view="detector"]').click();
+      await waitFor(() => doc.getElementById('view-home').hidden);
+      doc.querySelector('.tabs a[data-jump][href="#games"]').click();
+      await waitFor(() => !doc.getElementById('view-home').hidden);
+      await waitFor(() => Math.abs(doc.getElementById('games').getBoundingClientRect().top) < 120, { timeout: 5000 });
+    });
+    it('the Authenticator certifies pasted slop', async () => {
+      await ready;
+      doc.querySelector('.tabs [data-view="detector"]').click();
+      doc.getElementById('sample-slop').click();
+      await waitFor(() => !doc.getElementById('result').hidden);
+      expect(+doc.getElementById('score').textContent).toBeGreaterThanOrEqual(0);
+      doc.querySelector('.brand').click();
+    });
+    it('clicks on the mascot do not count as navigation', async () => {
+      await ready;
+      await HomeTest.settled(win);
+      win.scrollTo(0, 300);
+      await sleep(50);
+      win.SlopMascot.M.hit.click();
+      await sleep(50);
+      expect(win.scrollY).toBe(300);
+    });
+  });
+
+  ready.then(() => sleep(100)).then(() => run());
+  </script>
+</body>
+</html>
