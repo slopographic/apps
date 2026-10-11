@@ -163,3 +163,13 @@ test('names that exist on Object.prototype are not units or functions', () => {
   bad('constructor(3)', 'syntax');
   bad('5 toString', 'unit');
 });
+
+test('an unexpected failure comes back as an error, never a thrown exception', () => {
+  const boom = C.calc('100 USD in EUR', { today: TODAY, rate: () => { throw new Error('boom'); } });
+  assert.equal(boom.ok, false);
+  assert.match(boom.error.message, /boom/);
+  assert.equal(C.calc('5 km / 0').error.code, 'math');
+  assert.equal(C.calc('tax()').ok, false);
+  assert.equal(C.calc('--3').text, '3');
+  assert.equal(C.calc('100 USD + 8%', { rate }).text, '108.00 USD', 'a percentage of a currency needs no rate');
+});

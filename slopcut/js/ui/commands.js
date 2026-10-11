@@ -83,6 +83,7 @@
     { id: 'clip.fadeIn', title: 'Fade in (1 s)', group: 'Clip', when: hasSel, run: run('fade', 'in') },
     { id: 'clip.fadeOut', title: 'Fade out (1 s)', group: 'Clip', when: hasSel, run: run('fade', 'out') },
     { id: 'clip.speed', title: 'Speed / duration…', group: 'Clip', keys: ['Mod+R'], keywords: ['slow motion', 'fast'], when: hasSel, run: run('speedDialog') },
+    { id: 'clip.restoreAspect', title: 'Restore original aspect ratio', group: 'Clip', when: () => { const c = SE.app.primary(); return !!c && !!SE.aspect.targetOf(SE.doc, c); }, run: () => { const c = SE.app.primary(); if (c) SE.aspect.restore(c.id); } },
     { id: 'clip.reset', title: 'Reset all (settings, keeps media)', group: 'Clip', when: hasSel, run: run('resetClip') },
     { id: 'clip.keyPlayhead', title: 'Keyframe at playhead (all properties)', group: 'Clip', keywords: ['animation', 'keyframe', 'key', 'position', 'scale', 'rotation', 'opacity'], when: hasSel, run: run('keyAtPlayhead') },
     { id: 'clip.keysReset', title: 'Reset keyframes', group: 'Clip', keywords: ['animation', 'keyframe'], when: hasSel, run: run('resetKeys') },

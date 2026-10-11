@@ -46,13 +46,9 @@
       expect(chip(taskId)).toBe(null);
     });
 
-    it('is put back by the calendar checkbox and returns to To-do as open', async () => {
-      await waitFor(() => false, { timeout: 0 }).catch(() => {});
-      const S = cw().SlopData;
-      const r = await S.store.get('tasks', taskId);
-      expect(r.value.done).toBe(true);
-      const reopened = await cw().SlopTaskStore.reopen(taskId);
-      expect(reopened.ok).toBe(true);
+    it('is reopened in To-do, and the calendar block comes back', async () => {
+      td().querySelector(`.t-row[data-id="${taskId}"] .t-check`).click();
+      await waitFor(async () => (await tw().SlopData.store.get('tasks', taskId)).value.done === false, { timeout: 8000 });
       await waitFor(() => chip(taskId), { timeout: 8000 });
       expect(chip(taskId).querySelector('input').checked).toBe(false);
     });
