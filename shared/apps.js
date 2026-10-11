@@ -31,7 +31,7 @@
     A('ai', 'app', 'Slop AI', 'ai/', 'Chat with an AI that runs on your own computer.', {
       accepts: ['text/*', 'image/*'],
       features: ['Local models via WebGPU, works offline', 'System check: what can your PC run?', 'Drives every Slopographic app', 'Builds mini-apps for you'],
-      shot: 'assets/shots/ai.jpg', icon: 'spark', status: 'building' }),
+      shot: 'assets/shots/ai.jpg', icon: 'spark', status: 'beta' }),
     A('docs', 'app', 'Slop Docs', 'docs/', 'Word and Google Docs, rebuilt for the browser.', {
       accepts: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.oasis.opendocument.text', 'text/markdown', 'text/plain', 'text/html'],
       creates: [{ label: 'Document', ext: 'sdoc', mime: 'application/x-slop-doc' }],
