@@ -142,13 +142,14 @@
       run("editDoc((d) => d.objects.push(makeObject('barcode', { id: 'tb-rst', x: 5, y: 30, w: 40, h: 15, content: 'OLD-VALUE', symbology: 'code128' })), 'test')");
       run("App.tab = 'props'; select(['tb-rst'])");
       const doc = WIN.document;
-      await waitFor(() => [...doc.querySelectorAll('#dockBody button')].some((b) => b.textContent.trim() === 'Reset'));
-      const field = await waitFor(() => doc.querySelector('#pContent'));
-      await sleep(100);
+      // The dock still shows the previous selection until the next frame, so wait for the panel of this
+      // object: its content field holds the object's value.
+      const field = await waitFor(() => { const f = doc.querySelector('#pContent'); return f && f.value === 'OLD-VALUE' ? f : null; });
       field.value = 'CHANGED';
       field.dispatchEvent(new WIN.Event('input', { bubbles: true }));
       expect(run("App.doc.objects.find((x) => x.id === 'tb-rst').content")).toBe('CHANGED');
-      [...doc.querySelectorAll('#dockBody button')].find((b) => b.textContent.trim() === 'Reset').click();
+      const reset = await waitFor(() => [...doc.querySelectorAll('#dockBody button')].find((b) => b.textContent.trim() === 'Reset'));
+      reset.click();
       await waitFor(() => dlgBtn(doc, '.sui-primary'), { timeout: 5000 });
       dlgBtn(doc, '.sui-primary').click();
       await waitFor(() => run("App.doc.objects.find((x) => x.id === 'tb-rst').content") === 'OLD-VALUE', { timeout: 5000 });

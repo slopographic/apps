@@ -4,10 +4,19 @@
 const $ = (id) => document.getElementById(id);
 const mk = (...a) => SlopUI.el(...a);
 const App = {
-  doc: null, hist: new History(), sel: [], tool: 'select',
+  doc: null, hist: new History(), tool: 'select',
   zoom: 4, panX: 40, panY: 40, rec: 0, prompts: {}, scene: [],
   dirty: false, clip: null, tab: 'props', guides: [], hover: null, marquee: null, ghost: null,
 };
+// App.sel takes the Properties panel's baseline (props-reset.js) the moment the selection changes, not on the
+// next frame. An edit made before that frame (a drag, or a field typed into right after selecting) must not
+// end up in the baseline, or Reset would have nothing to undo.
+let selIds = [];
+Object.defineProperty(App, 'sel', {
+  enumerable: true,
+  get: () => selIds,
+  set(ids) { selIds = ids; if (App.doc && typeof markPropsOpen === 'function') markPropsOpen(); },
+});
 const THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic 98']];
 
 /* ---------------- document access ---------------- */
