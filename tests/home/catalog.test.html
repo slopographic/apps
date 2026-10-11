@@ -54,6 +54,22 @@
     });
   });
 
+  describe('group labels', () => {
+    it('headings come from GROUP_LABELS and every group has a heading', async () => {
+      await ready;
+      const labels = win.SLOP_GROUP_LABELS;
+      expect(labels).toEqual({ business: 'Slop 365', creative: 'Creative Slop' });
+      for (const g of ['business', 'creative']) {
+        const h = doc.querySelector(`[data-group-label="${g}"]`);
+        expect(h.textContent).toBe(labels[g]);
+        expect(h.tagName).toBe('H3');
+        expect(h.nextElementSibling.getAttribute('data-list')).toBe(g);
+      }
+      expect(doc.body.textContent).not.toContain('Business tools');
+      expect(doc.body.textContent).not.toContain('Creative tools');
+    });
+  });
+
   describe('navigation', () => {
     for (const id of ['apps', 'status']) {
       it(`the ${id} tab jumps to its section`, async () => {
