@@ -62,6 +62,7 @@
     const out = [
       { label: 'Open…', key: keyOf('co.file-open', 'Ctrl+O'), act: act.open },
       { label: 'Sample image', key: keyOf('co.file-sample'), act: act.sample },
+      { label: 'Config', sub: window.SlopConfigDialog ? SlopConfigDialog.menuItems({ app: 'cutout' }) : [] },
     ];
     if (hub()) out.push({ label: 'Open from Slop Drive…', act: act.driveOpen });
     out.push('-',

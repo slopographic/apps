@@ -74,7 +74,7 @@
       expect(P.eval('D.layers.length')).toBe(n + 1);
     }, { timeout: 30000 });
 
-    it('a copy made in PhotoSlop after the vector is the newer item, so Paste keeps to the local copy', async () => {
+    it('a newer local copy wins over the buffer (bufferIsNewer follows the clipboard times)', async () => {
       P.eval('CLIP.t = 0');
       const r = P.SlopBuffer.get();
       expect(r.kind).toBe('vector');
@@ -84,6 +84,7 @@
       P.eval('CLIP.t = 0');
     }, { timeout: 5000 });
   });
+  SlopTest.run({ name: 'SlopBuffer: SlopVector to PhotoSlop' });
   </script>
 </body>
 </html>

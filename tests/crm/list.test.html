@@ -93,7 +93,9 @@
     it('a tag is added to a customer in the detail panel, saved, and shows as a coloured chip in the list', async () => {
       const ben = await customerNamed('Ben Sort');
       win().SlopCrm.app.show('customer', ben.id);
-      await waitFor(() => $('dBody').querySelector('select[aria-label="Add a tag"]'), { timeout: 8000 });
+      // wait for this customer's panel, with the new tag in its picker (the panel is redrawn from the store)
+      const hasVip = () => [...($('dBody').querySelector('select[aria-label="Add a tag"]') || { options: [] }).options].some((o) => o.textContent === 'VIP');
+      await waitFor(() => $('dBody').querySelector('.h2') && $('dBody').querySelector('.h2').textContent === 'Ben Sort' && hasVip(), { timeout: 8000 });
       const tag = (await S().store.list('customerTags')).value.find((t) => t.name === 'VIP');
       const pick = $('dBody').querySelector('select[aria-label="Add a tag"]');
       pick.value = tag.id;

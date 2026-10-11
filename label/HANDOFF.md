@@ -17,9 +17,10 @@ Status: **beta.** The designer works end to end in the browser: design, data mer
 | vars/vars.js | Variables (prompt, counter, date, formula, fixed), `formatDate`, `interpolate` with `{Name\|filter:arg}`, `makeResolver`, `checkPrompts` |
 | vars/sources.js | `parseCSV`, `parseJSONSource`, `readZip`, `readXLSX`, `loadDataFile` |
 | render/text.js, scene.js, canvas.js, svg.js | Fonts and layout, the shared display list (`buildScene`), canvas/SVG backends, 1-bit rasterising |
-| print/job.js, html.js, pdf.js | Jobs (records, quantity column, copies, sheet start), `@page` print HTML, hand-written PDF 1.4 |
+| print/job.js, html.js, pdf.js | Jobs (records, quantity column, copies, sheet start; `records: 'only'` with a list of indexes for ticked rows), `@page` print HTML, hand-written PDF 1.4 |
 | print/zplgfx.js, zpl.js, epl.js | ^GFA compression, ZPL II, EPL2, TSPL |
 | io/zplimport.js, files.js, offline.js | ZPL → document, projects/autosave/form-link hashing, offline single-file builder |
+| io/examples.js | Example CSV (text from `SlopExamples`) and a sample product-label `.sloplabel` template, built in the browser |
 | templates/gallery.js | 6 starter templates (shipping 4×6, product EAN-13, SSCC pallet, asset QR, badge, Avery 5160 merge) |
 
 ### UI (`js/ui/`)
@@ -30,7 +31,10 @@ Status: **beta.** The designer works end to end in the browser: design, data mer
 | interact.js | `TOOLS`, hit testing, move/resize (grid snap, smart guides, Alt disables), click or drag to create, image placing, marquee, pan (Space, middle button, Hand, one finger on empty canvas), wheel and pinch zoom |
 | commands.js | Every tool and menu action registered with the shared command palette (`shared/commands`, `SlopCmd`): Ctrl/⌘+K search, all shortcuts rebindable (Help ▸ Keyboard shortcuts…, stored in `slop.keys.label`). `K(id)` gives menu key labels; `updateKeyTitles` refreshes tooltips after a rebind. Nothing runs from the keyboard in print-form mode |
 | keys.js | Space-to-pan (held), clipboard (internal copy/paste, pasted images/text/ZPL), align/order/group/rotate/lock commands, context menu |
-| props.js, props-types.js | Properties panel: form helpers, label properties, geometry, per-type sections, the "{ } Insert field" menu |
+| props.js, props-types.js | Properties panel: form helpers, label properties, geometry, per-type sections, the "{ } Insert field" menu. `applySymbology` keeps the module sensible when the type changes |
+| barcode-gen.js | "Generate random value" block of a barcode: symbology (Code 128, EAN-13, EAN-8, UPC-A, Code 39, QR, Data Matrix), value kind, length, prefix. **Generate** fills the selected barcode; **Generate many…** replaces the data with N random values (column `Barcode`, one label per row) and sets the barcode to `{Barcode}`. Values come from `shared/data/barcode.js` |
+| props-reset.js | **Reset** at the top of the Properties panel. The baseline is taken when the selection changes; Reset restores those objects (or the label settings when nothing is selected), after a SlopUI confirm when they were edited |
+| bulkprint.js | **Print all** / **Print selected** (Data tab). One label per record (the quantity column is ignored). Layout: the label stock, or a custom grid (labels across × down, gaps, margin, A4 or Letter). Preview, page count and a refusal when the grid does not fit. Prints through `printHTML` + `printViaIframe`, the same print page as single labels |
 | panels.js | Dock tabs: Properties, Objects (list with hide/lock), Variables (plus preview values for prompts), Data (table, quantity column) |
 | dialogs.js | Label setup (stock picker, size, printer settings), variable editor (live preview, renames references), template gallery, About |
 | datadlg.js | Data import (CSV/TSV/JSON/xlsx file or paste) and column → field mapping |
@@ -43,12 +47,19 @@ Status: **beta.** The designer works end to end in the browser: design, data mer
 
 CSS (`css/`): themes.css (tokens for Pro, Light and Classic 98, mapped onto `--sui-*`), layout.css, panels.css, classic.css, mobile.css (≤760 px: tools along the bottom, panels in a slide-up sheet opened with ☰).
 
+## Forms: Reset and examples
+- Every Label form has a **Reset** button that puts back the values the form had when it opened (the property panel: the selection when it was selected; dialogs: the values when the dialog opened). With edits, it asks first (SlopUI confirm). Dialogs use `SlopFormReset.dialogButton(body)` from `shared/ui/form-reset.js`: label setup, variable editor, Print, Print values, map columns, paste data, ZPL import and ZPL preview. The stock picker list in label setup is not a form field, so Reset restores its size and printer fields but not the stock chosen.
+- **Example CSV** and **Example template** sit in the Data tab, next to Import. The CSV is `SlopExamples.csv('label')` (columns SKU, Name, Price, EAN, Qty). The template is `exampleTemplateText()`.
+- The ZPL import dialog has no example file yet.
+
 ## Tests
 `tests/label/sloplabel.test.html` loads the app in two same-origin iframes (1280 px and 390 px) and reaches its globals with `win.eval`:
 - engine.test.js: units, check digits, Code 128 values (`ABC123` gives `[104,33,34,35,17,18,19,67,106]`), barcode validation, GS1, variables, CSV, JSON, and xlsx (generated by a small zip writer in the test).
 - output.test.js: Avery 5160 positions, sheet start offsets, `pageCSS`, jobs, History, scene errors, ZPL snapshot and round trip, ^PQ merging, ^FH escaping, ^GFA, ZPL import (^FN/^SN/GS1/QR), GS1 DataMatrix, EPL/TSPL, PDF xref offsets and resources, projects, form-link hashes, offline builder escaping.
 - ui.test.js: creating objects with each tool by synthetic pointer events, smart-guide snap, move/resize/marquee/delete/undo, wheel zoom, properties panel edits, align/rotate/group/order, clipboard.
 - commands.test.js: commands registered for every tool and menu action, tool keys through SlopCmd and rebinding (tooltips follow), zoom keys, Ctrl+K palette and toolbar button, Help entries and the shortcut editor, offline manifest includes the palette.
+- generate-reset.test.html (`tests/label/generate-reset.test.html`): the shared form Reset on a plain form (confirm, cancel, no-confirm, segmented control and the dialog button), then in the designer: Generate fills an EAN-13, Generate many makes 25 unique rows, the panel Reset restores the content, the example CSV header.
+- node: `tests/node/barcode-gen.test.mjs` (check digits, lengths, alphabets, prefixes, seeded uniqueness, refusals) and `tests/node/examples-csv.test.mjs` (every example's header and row widths, EAN check digits, quoting).
 - ui-flows.test.js: CSV import through the mapping dialog, variable editor, print dialog outputs (PDF/ZPL/EPL/TSPL/PNG captured), sheet layout, ZPL preview, templates, themes, label setup, opening files, Slop Hub Send to, menus, form-link mode, phone layout.
 
 Verified by hand in this round:
@@ -66,6 +77,8 @@ Engine bugs fixed this round: literal U+2028/2029 in an offline.js regex (syntax
 - Text is edited in the Properties panel (double-click or Enter focuses it). There is no on-canvas text editing yet.
 - Rotation is in 90° steps only (thermal printers rotate fonts and barcodes in 90° steps).
 - NiceLabel `.nlbl` import is deliberately skipped.
+- Generate many replaces the current data after a confirm. Bulk print does not offer PDF or ZPL output; use the Print dialog for those.
+- `service-worker.js` precaches the shared files by path. The new `shared/data/examples.js` and `shared/ui/form-reset.js` (and the Label scripts `js/ui/barcode-gen.js`, `js/ui/props-reset.js`, `js/ui/bulkprint.js`, `js/io/examples.js`) are not in that list yet, so they are missing from the offline cache until it is updated.
 
 ## Slop Drive (shared storage)
 

@@ -60,7 +60,7 @@
     }
     if (total > MAX_PACK) return { error: `${who}: larger than 40 MB` };
     if (p.size !== total) return { error: `${who}: declared size ${p.size} does not match the files (${total})` };
-    return { pack: { id: p.id, name: p.name.trim(), licence: p.licence, licenceUrl: typeof p.licenceUrl === 'string' ? p.licenceUrl : '', description: typeof p.description === 'string' ? p.description.slice(0, 300) : '', size: total, files } };
+    return { pack: { id: p.id, name: p.name.trim(), licence: p.licence, licenceUrl: typeof p.licenceUrl === 'string' && /^https:\/\//.test(p.licenceUrl) ? p.licenceUrl : '', description: typeof p.description === 'string' ? p.description.slice(0, 300) : '', size: total, files } };
   }
 
   /** Validates the whole manifest. Returns { packs, errors, hosts }. Never throws. */
