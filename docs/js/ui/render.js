@@ -158,23 +158,27 @@
     }
   }
 
+  /** One laid-out page as a DOM element at k px per point. sels and caret are the page view's overlays (optional).
+   * The Random template preview draws its first page with this too. */
+  R.pageEl = function (pg, pi, k, sels = [], caret = null) {
+    const page = el('div', 'page', { width: pg.w * k + 'px', height: pg.h * k + 'px' });
+    page.dataset.pi = pi;
+    for (const s of sels) if (s.pi === pi) page.append(el('div', 'sel-r', { left: s.x * k + 'px', top: s.y * k + 'px', width: s.w * k + 'px', height: s.h * k + 'px' }));
+    for (const it of pg.items) {
+      if (it.kind === 'line') for (const f of it.line.frags) addFrag(page, it, f, k);
+      else addItem(page, it, k);
+    }
+    if (caret && caret.pi === pi) page.append(el('div', 'caret', { left: caret.x * k - 1 + 'px', top: caret.top * k + 'px', height: caret.h * k + 'px' }));
+    return page;
+  };
+
   /** Redraw every page, the selection and the caret. */
   R.render = function () {
     const host = pagesEl();
     if (!host || !S.layout) return;
     const k = R.k();
     const sels = segments(), caret = R.caretBox(S.sel.f);
-    const pages = S.layout.pages.map((pg, pi) => {
-      const page = el('div', 'page', { width: pg.w * k + 'px', height: pg.h * k + 'px' });
-      page.dataset.pi = pi;
-      for (const s of sels) if (s.pi === pi) page.append(el('div', 'sel-r', { left: s.x * k + 'px', top: s.y * k + 'px', width: s.w * k + 'px', height: s.h * k + 'px' }));
-      for (const it of pg.items) {
-        if (it.kind === 'line') for (const f of it.line.frags) addFrag(page, it, f, k);
-        else addItem(page, it, k);
-      }
-      if (caret && caret.pi === pi) page.append(el('div', 'caret', { left: caret.x * k - 1 + 'px', top: caret.top * k + 'px', height: caret.h * k + 'px' }));
-      return page;
-    });
+    const pages = S.layout.pages.map((pg, pi) => R.pageEl(pg, pi, k, sels, caret));
     host.replaceChildren(...pages);
     R.placeIme();
   };

@@ -23,7 +23,7 @@
       b.setAttribute('aria-selected', String(on));
       b.tabIndex = on ? 0 : -1;
     }
-    render();
+    return render();
   }
 
   /** Redraws the open view (and reloads the settings it formats money and dates with). */
@@ -41,7 +41,6 @@
       $('boot').textContent = `Storage is not available here: ${ready.message}. Nothing can be saved in this window.`;
       return;
     }
-    $('boot').hidden = true;
     for (const v of Object.values(NS.views)) if (v.mount) v.mount();
     NS.commands.init();
     for (const t of document.querySelectorAll('.tab')) t.addEventListener('click', () => show(t.dataset.view));
@@ -50,7 +49,8 @@
     addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h)) show(h); });
     try { if (g.SlopHub) g.SlopHub.register('crm'); } catch (e) { /* no hub: the app still works */ }
     const start = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'pipeline';
-    show(start);
+    await show(start);
+    $('boot').hidden = true;
   }
 
   NS.app = { show, render, refreshSoon, boot };

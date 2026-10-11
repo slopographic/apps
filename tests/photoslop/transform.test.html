@@ -59,6 +59,7 @@
       win = document.getElementById('app').contentWindow;
       await waitFor(() => win.document && win.document.body && win.document.body.classList.contains('ready'), { timeout: 30000 });
       W = new Proxy({}, { get: (_, k) => win.eval(String(k)) });
+      W.GUIDE_PREFS.snap = false; // snapping would pull the test drags onto the centre lines
       expect(typeof W.resizeCanvas).toBe('function');
       expect(typeof W.dlgImageSize).toBe('function');
     }, { timeout: 40000 });

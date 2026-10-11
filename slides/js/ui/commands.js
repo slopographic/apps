@@ -17,6 +17,8 @@
       cmd('file.save', 'Save to Slop Drive', 'File', ['Mod+S'], function () { SS.files.save(false); }, editing, { keywords: ['store'] }),
       cmd('file.saveAs', 'Save as a new Drive file…', 'File', [], function () { SS.files.save(true); }, editing),
       cmd('file.download', 'Download .sslide', 'File', [], function () { SS.files.download(); }),
+      cmd('file.newTemplate', 'New from template…', 'File', [], function () { SS.templatesUI.openNew(); }, function () { return A.mode === 'edit'; }, { keywords: ['template', 'import'] }),
+      cmd('file.saveTemplate', 'Save as template…', 'File', [], function () { SS.templatesUI.openSave(); }, editing, { keywords: ['template', 'export'] }),
       cmd('file.pptx', 'Export PowerPoint (.pptx)', 'File', [], function () { SS.files.exportPptx(); }, null, { keywords: ['powerpoint', 'export'] }),
       cmd('edit.undo', 'Undo', 'Edit', ['Mod+Z'], function () { A.undo(); }, function () { return editing() && A.hist.canUndo(); }),
       cmd('edit.redo', 'Redo', 'Edit', ['Shift+Mod+Z', 'Mod+Y'], function () { A.redo(); }, function () { return editing() && A.hist.canRedo(); }),

@@ -17,16 +17,20 @@
   function db() {
     if (!dbp) dbp = new Promise((res, rej) => {
       if (!window.indexedDB) { rej(new Error('IndexedDB is unavailable')); return; }
-      const r = indexedDB.open('slop-docs', 1);
-      r.onupgradeneeded = () => r.result.createObjectStore('drafts', { keyPath: 'key' });
+      const r = indexedDB.open('slop-docs', 2);
+      r.onupgradeneeded = () => {
+        const d = r.result;
+        if (!d.objectStoreNames.contains('drafts')) d.createObjectStore('drafts', { keyPath: 'key' });
+        if (!d.objectStoreNames.contains('templates')) d.createObjectStore('templates', { keyPath: 'id' });
+      };
       r.onsuccess = () => res(r.result);
       r.onerror = () => { dbp = null; rej(r.error); };
     });
     return dbp;
   }
-  function store(mode, fn) {
+  function store(mode, fn, name = 'drafts') {
     return db().then((d) => new Promise((res, rej) => {
-      const t = d.transaction('drafts', mode), req = fn(t.objectStore('drafts'));
+      const t = d.transaction(name, mode), req = fn(t.objectStore(name));
       t.oncomplete = () => res(req ? req.result : undefined);
       t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
     }));
@@ -35,6 +39,8 @@
   S.draftGet = (key) => store('readonly', (s) => s.get(key)).catch(() => null);
   S.draftPut = (key, rec) => store('readwrite', (s) => s.put(Object.assign({ key }, rec))).catch(() => null);
   S.draftDel = (key) => store('readwrite', (s) => s.delete(key)).catch(() => null);
+  /** My templates (IndexedDB 'slop-docs', store 'templates'): the same database as the drafts. */
+  S.tplStore = (mode, fn) => store(mode, fn, 'templates');
   let timer = 0;
   function scheduleDraft() {
     clearTimeout(timer);
@@ -75,6 +81,7 @@
       history.replaceState(null, '', u.pathname + u.search + u.hash);
     } catch (e) { /* sandboxed */ }
   }
+  S.setUrl = setUrl;
 
   /** Show a record in the editor. Restores a newer unsaved draft of the same record when there is one. */
   S.openRecord = async function (rec, { silent = false } = {}) {

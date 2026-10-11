@@ -10,11 +10,12 @@
     var hub = !!window.SlopHub;
     SlopUI.menu([
       { label: 'New presentation', key: keyOf('file.new'), act: SS.files.newDeck },
-      { label: 'New from template', sub: SS.templates.list.map(function (t) { return { label: t.name, act: function () { SS.files.fromTemplate(t.id); } }; }) },
+      { label: 'New from template…', key: keyOf('file.newTemplate'), act: function () { SS.templatesUI.openNew(); } },
       { label: 'Open from Slop Drive…', key: keyOf('file.open'), act: SS.files.openDrive, disabled: !hub },
       '-',
       { label: 'Save to Slop Drive', key: keyOf('file.save'), act: function () { SS.files.save(false); }, disabled: !hub },
       { label: 'Save as a new Drive file…', act: function () { SS.files.save(true); }, disabled: !hub },
+      { label: 'Save as template…', key: keyOf('file.saveTemplate'), act: function () { SS.templatesUI.openSave(); } },
       '-',
       { label: 'Download .sslide', act: SS.files.download },
       { label: 'Export PowerPoint (.pptx)', act: SS.files.exportPptx },

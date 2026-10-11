@@ -59,8 +59,7 @@ test('every style choice is from its allowed list', () => {
   for (const s of SEEDS) {
     const { vars, doc } = generateTemplate(s);
     for (const key of Object.keys(CHOICES)) {
-      if (key === 'scheme') continue;
-      assert.ok(CHOICES[key].includes(vars[key === 'scheme' ? 'scheme' : key]) || key === 'paper' && ['Letter', 'A4'].includes(vars.paper), `${key} = ${vars[key]} seed ${s}`);
+      assert.ok(CHOICES[key].includes(vars[key]), `${key} = ${vars[key]} seed ${s}`);
       (seen[key] = seen[key] || new Set()).add(vars[key]);
     }
     assert.ok(SCHEMES.some((x) => x.id === vars.scheme), `scheme ${vars.scheme}`);

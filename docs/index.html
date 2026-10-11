@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/app.css" data-src="docs/css/app.css">
+  <link rel="stylesheet" href="css/random.css" data-src="docs/css/random.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -74,6 +75,8 @@
       <span class="sep" aria-hidden="true"></span>
       <button type="button" class="tb" id="tbBullets" aria-label="Bulleted list" title="Bulleted list (Ctrl+Shift+L)" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="7" r="1.4"/><circle cx="5" cy="12" r="1.4"/><circle cx="5" cy="17" r="1.4"/><path d="M9 7h11M9 12h11M9 17h11"/></svg></button>
       <button type="button" class="tb" id="tbNumbers" aria-label="Numbered list" title="Numbered list (Ctrl+Shift+7)" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 7h10M10 12h10M10 17h10"/><path d="M4 6l1.5-1V10M4 14.5a1.5 1.5 0 1 1 2.6 1L4 19h3"/></svg></button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" class="tb tb-text" id="tbRandom" aria-label="Random template" title="Random template: a new document from a random design (File ▸ New)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><circle cx="8.5" cy="8.5" r="1.2"/><circle cx="15.5" cy="15.5" r="1.2"/><circle cx="12" cy="12" r="1.2"/></svg><span>Random</span></button>
     </div>
 
     <main class="stage" id="stage" aria-label="Document">
@@ -113,6 +116,8 @@
   <script src="js/ui/input.js" defer data-src="docs/js/ui/input.js"></script>
   <script src="js/ui/toolbar.js" defer data-src="docs/js/ui/toolbar.js"></script>
   <script src="js/ui/files.js" defer data-src="docs/js/ui/files.js"></script>
+  <script src="js/ui/templates.js" defer data-src="docs/js/ui/templates.js"></script>
+  <script src="js/ui/random.js" defer data-src="docs/js/ui/random.js"></script>
   <script src="js/ui/menus.js" defer data-src="docs/js/ui/menus.js"></script>
   <script src="js/ui/commands.js" defer data-src="docs/js/ui/commands.js"></script>
   <script src="js/ui/ctxmenu.js" defer data-src="docs/js/ui/ctxmenu.js"></script>
