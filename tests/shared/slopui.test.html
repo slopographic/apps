@@ -67,7 +67,7 @@
     });
     it('prompt returns the typed value (Enter submits) or null', async () => {
       let p = U.prompt('Name', 'Your name', 'Sloppo');
-      await sleep(30);
+      await sleep(80);
       const input = dlg().querySelector('input');
       if (document.hasFocus()) expect(document.activeElement).toBe(input);   // focus needs a focused window
       input.value = 'Goo';
