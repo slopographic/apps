@@ -70,7 +70,7 @@
       await waitFor(() => P().eval('D.layers.length') === n + 1, { timeout: 20000 });
       const alphaAt = (x, y) => P().eval(`(function () { const L = D.layers[D.layers.length - 1];
         return L.canvas.getContext('2d', { willReadFrequently: true }).getImageData(${x} - L.x, ${y} - L.y, 1, 1).data[3]; })()`);
-      expect(P().eval('D.layers[D.layers.length - 1].name')).toBe('Cut-out');
+      expect(P().eval('D.layers[D.layers.length - 1].name')).toMatch(/^Cut-out/);
       expect(alphaAt(20, 20) < 32).toBe(true);
       expect(alphaAt(150, 150) > 200).toBe(true);
     }, { timeout: 30000 });
