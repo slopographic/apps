@@ -70,7 +70,6 @@
 
   async function refresh() { await renderTools(); await renderModels(); }
 
-  $('year') && ($('year').textContent = String(new Date().getFullYear()));
   refresh();
   window.SlopAIHub = { refresh, toolState };
 })();

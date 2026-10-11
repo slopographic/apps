@@ -37,7 +37,7 @@ async function looksBinary(blob) {
 
 /** A text panel: the first lines for display, the full (already cut) text for diffs and copies. */
 function textPanel(text, { size, truncated = false, label = '' } = {}) {
-  const all = text.split('\n');
+  const all = (text.endsWith('\n') ? text.slice(0, -1) : text).split('\n');   // a final newline is not a line
   const notes = [];
   if (all.length > MAX_LINES) notes.push(`Showing the first ${MAX_LINES} of ${all.length} lines.`);
   if (truncated) notes.push(`Large file: only the first ${fmtSize(TEXT_LIMIT)} is read here.`);
@@ -83,9 +83,8 @@ export async function buildPreview(conv, items, opts) {
   const runOpts = { ...opts };
   let cut = inputs.some((i) => i.truncated);
   if (FIRST_PAGE_ONLY.includes(conv.id) && !String(opts.pages || '').trim()) { runOpts.pages = '1'; cut = true; }
-  if (inputs.some((i) => i.large) && conv.options.some((o) => o.key === 'width') && !opts.width && !opts.height) {
-    runOpts.width = PREVIEW_PX; cut = true;
-  }
+  const drawSmaller = inputs.some((i) => i.large) && conv.options.some((o) => o.key === 'width') && !opts.width && !opts.height;
+  if (drawSmaller) { runOpts.width = PREVIEW_PX; cut = true; }
   const before = await beforePanel(inputs[0]).catch((e) => ({ kind: 'error', message: e.message || String(e) }));
   let after, outputs = null;
   try {
@@ -97,7 +96,8 @@ export async function buildPreview(conv, items, opts) {
     if (cut) after.hint = 'This preview uses the first part of the file. Download converts the whole file.';
   }
   const notes = [];
-  if (cut) notes.push('Preview of the first part only. Download runs the full conversion.');
+  if (drawSmaller) notes.push(`Large picture: the preview is drawn ${PREVIEW_PX} px wide. Download converts it at full size.`);
+  else if (cut) notes.push('Preview of the first part only. Download runs the full conversion.');
   if (before.kind === 'text' && after.kind === 'text') {
     const d = changedLines(before.lines, after.lines);
     if (d) { before.changed = d.a; after.changed = d.b; }

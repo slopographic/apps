@@ -7,7 +7,7 @@
   const $ = (id) => document.getElementById(id);
   const HIST_KEY = 'slopcalc.history', HIST_MAX = 200, TAPE_MAX = 300;
   const S = { ans: null, tape: [], history: K.read(HIST_KEY, []), recall: -1, seq: 0, last: null, timer: 0 };
-  const el = { expr: $('sc-expr'), preview: $('sc-preview'), status: $('sc-status'), tape: $('sc-tape'), tapeClear: $('sc-tape-clear') };
+  let el = null; // filled in boot(): this script runs in the <head>, before the page's elements exist
   const today = () => C.dates.localIso();
 
   function setStatus(msg) { el.status.textContent = msg; }
@@ -135,6 +135,7 @@
   }
 
   function boot() {
+    el = { expr: $('sc-expr'), preview: $('sc-preview'), status: $('sc-status'), tape: $('sc-tape'), tapeClear: $('sc-tape-clear') };
     el.expr.addEventListener('input', () => { S.recall = -1; schedulePreview(); });
     el.expr.addEventListener('keydown', onKey);
     $('sc-enter').addEventListener('click', commit);
