@@ -19,7 +19,7 @@
   };
   function drawArt(w, h, palette, seed) {
     var c = document.createElement('canvas'); c.width = w; c.height = h;
-    var x = c.getContext('2d'), rnd = function () { seed = (seed * 16807 + 11) % 2147483647; return seed / 2147483647; };
+    var x = c.getContext('2d', { willReadFrequently: true }), rnd = function () { seed = (seed * 16807 + 11) % 2147483647; return seed / 2147483647; };
     var g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, palette[0]); g.addColorStop(1, palette[1]);
     x.fillStyle = g; x.fillRect(0, 0, w, h);
     for (var i = 0; i < 14; i++) {
