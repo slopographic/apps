@@ -5,15 +5,16 @@
   const S = DR.S, el = DR.el, $ = DR.$;
   let shownKey = null, urls = [];
   const free = () => { urls.forEach((u) => URL.revokeObjectURL(u)); urls = []; };
-  const objUrl = (b) => { const u = URL.createObjectURL(b); urls.push(u); return u; };
+  const objUrl = (b, sink = urls) => { const u = URL.createObjectURL(b); sink.push(u); return u; };
   const rows = (pairs) => el('dl', { class: 'facts' }, pairs.filter((p) => p && p[1] != null && p[1] !== '').flatMap(([k, v]) => [el('dt', null, k), el('dd', null, v)]));
 
-  /** A live preview element for a file (shared with Quick Look). big: full-size variant. */
-  DR.previewOf = function (r, big = false) {
+  /** A live preview element for a file (shared with Quick Look). big: full-size variant. sink: the array that keeps
+   * its object URLs (the info panel frees its own on each change; a column keeps its own). */
+  DR.previewOf = function (r, big = false, sink = urls) {
     const kind = DR.kindOf(r), box = el('div', { class: 'pv pv-' + kind });
-    if (kind === 'image') { box.append(el('img', { src: objUrl(r.blob), alt: r.name, draggable: 'false' })); }
-    else if (kind === 'audio') box.append(el('audio', { src: objUrl(r.blob), controls: true, preload: 'metadata' }));
-    else if (kind === 'video') box.append(el('video', { src: objUrl(r.blob), controls: true, preload: 'metadata', playsinline: true }));
+    if (kind === 'image') { box.append(el('img', { src: objUrl(r.blob, sink), alt: r.name, draggable: 'false' })); }
+    else if (kind === 'audio') box.append(el('audio', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata' }));
+    else if (kind === 'video') box.append(el('video', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata', playsinline: true }));
     else if (kind === 'text') {
       const pre = el('pre', { class: 'pv-text' }, 'Loading…');
       r.blob.slice(0, big ? 400000 : 4000).text().then((t) => { pre.textContent = t + (r.size > (big ? 400000 : 4000) ? '\n…' : ''); });
