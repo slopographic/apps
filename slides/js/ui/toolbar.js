@@ -21,6 +21,8 @@
       { label: 'Export PowerPoint (.pptx)', act: SS.files.exportPptx },
       { label: 'Export this slide as PNG', act: SS.files.exportPng },
       '-',
+      '-',
+      { label: 'Config', sub: SS.configio && SS.configio.menu ? SS.configio.menu() : [] },
       { label: 'Present', key: keyOf('view.present') || 'F5', act: function () { SS.present.start(); } }
     ], x, y);
   }

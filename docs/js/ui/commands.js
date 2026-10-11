@@ -11,6 +11,7 @@
 
   C.init({ app: 'docs' });
   C.register([
+    ...(window.SlopDocsConfig ? window.SlopDocsConfig.commands() : []),
     cmd('file.new', 'New document', 'File', [], () => S.newDoc(), { keywords: ['blank', 'create'] }),
     cmd('file.open', 'Open from Slop Drive…', 'File', ['Mod+O'], () => S.openFromDrive(), { keywords: ['drive', 'import', 'docx', 'word'] }),
     cmd('file.random', 'Random template…', 'File', [], () => S.random.open(), { keywords: ['template', 'design', 'generate', 'seed', 'new'] }),

@@ -78,14 +78,21 @@
   });
 
   describe('the two-pane view on a wide screen', () => {
-    it('the list stays on the left and the details sit on the right, with a placeholder until a customer is picked', async () => {
+    it('with nothing picked the list stays full width and the detail pane stays hidden', async () => {
       win().SlopCrm.app.show('customers');
+      await waitFor(() => !$('view-customers').hidden, { timeout: 4000 });
+      expect($('main').classList.contains('split')).toBe(false);
+      expect($('view-customer').hidden).toBe(true);
+      expect($('view-customers').getBoundingClientRect().width).toBeGreaterThan(900);
+      expect(doc().documentElement.scrollWidth).toBeLessThanOrEqual(1100);
+    });
+
+    it('a customer picked from the list opens beside it, on the right', async () => {
+      row('Cy Bulk').querySelector('.row-open').click();
       await waitFor(() => $('main').classList.contains('split'), { timeout: 4000 });
       expect($('view-customers').hidden).toBe(false);
       expect($('view-customer').hidden).toBe(false);
       expect($('view-customer').getBoundingClientRect().left).toBeGreaterThan($('view-customers').getBoundingClientRect().left);
-      expect($('dBody').textContent).toContain('Select a customer to see details');
-      expect(doc().documentElement.scrollWidth).toBeLessThanOrEqual(1100);
     });
 
     it('picking a customer name fills the right pane and keeps the list in place', async () => {

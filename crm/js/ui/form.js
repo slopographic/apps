@@ -28,6 +28,17 @@
     if (first) first.focus();
   }
 
+  /** Reads every field back from the form before a save, so a value set without an input event (a paste, a script) counts. */
+  function readBack(body, v) {
+    for (const i of body.querySelectorAll('[data-key]')) {
+      const key = i.dataset.key;
+      const row = /^(phone|email|address):(\d+)$/.exec(key);
+      if (row) { const r = v[NS.fields.PLURAL[row[1]]][Number(row[2])]; if (r) r.value = i.value; }
+      else if (key === 'categories') v.categories = NS.util.tags(i.value);
+      else if (typeof v[key] === 'string') v[key] = i.value;
+    }
+  }
+
   /** The messages for a refused save: the field errors the store names, else the refusal text under the form. */
   function serverErrors(r) {
     const list = r.errors || [];
@@ -82,6 +93,7 @@
     el('p', { class: 'msg fld-err', 'data-err': 'form', role: 'alert' }));
 
     const save = async () => {
+      readBack(body, v);
       const errs = NS.fields.validate(v);
       if (Object.keys(errs).length) { showErrors(body, errs); return false; }
       const r = await NS.customers.save(id, NS.fields.toChanges(v));
