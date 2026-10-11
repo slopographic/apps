@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SlopAppBar tests</title>
+  <script src="../../shared/theme/theme.js"></script>
+  <link rel="stylesheet" href="../../shared/appbar/appbar.css">
+  <script src="../../shared/app-icons.js"></script>
+  <script src="../../shared/appbar/appbar.js"></script>
+  <style>body { margin: 0; padding: 16px; background: #0a0a0a; color: #f1ede4; font: 14px system-ui; } .host { width: 720px; margin-bottom: 24px; } .host.narrow { width: 380px; }</style>
+</head>
+<body>
+  <div class="host" id="wide"></div>
+  <div class="host narrow" id="narrow"></div>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  describe('SlopAppBar: header', () => {
+    it('renders the title, subtitle and the app badge', () => {
+      const bar = SlopAppBar.mount(document.getElementById('wide'), { title: 'QR SLOP', subtitle: 'Codes on this device', icon: 'qr' });
+      expect(document.querySelector('#wide .sab-name').textContent).toBe('QR SLOP');
+      expect(document.querySelector('#wide .sab-sub').textContent).toBe('Codes on this device');
+      expect(document.querySelector('#wide .sab-badge svg')).toBeTruthy();
+      expect(document.querySelector('#wide .sab-badge svg').getAttribute('viewBox')).toBe('0 0 48 48');
+      bar.destroy();
+    });
+
+    it('hides the badge when the app has no icon', () => {
+      const bar = SlopAppBar.mount(document.getElementById('wide'), { title: 'Plain' });
+      expect(document.querySelector('#wide .sab-badge').hidden).toBe(true);
+      bar.destroy();
+    });
+
+    it('setTitle changes the title', () => {
+      const bar = SlopAppBar.mount(document.getElementById('wide'), { title: 'A' });
+      bar.setTitle('B · file.png');
+      expect(document.querySelector('#wide .sab-name').textContent).toBe('B · file.png');
+      bar.destroy();
+    });
+
+    it('the dirty dot shows only while there are unsaved changes, and is announced', () => {
+      const bar = SlopAppBar.mount(document.getElementById('wide'), { title: 'Dirty' });
+      const dot = document.querySelector('#wide .sab-dirty');
+      expect(dot.hidden).toBe(true);
+      bar.setDirty(true);
+      expect(dot.hidden).toBe(false);
+      expect(dot.getAttribute('aria-label')).toBe('Unsaved changes');
+      bar.setDirty(false);
+      expect(dot.hidden).toBe(true);
+      bar.destroy();
+    });
+  });
+
+  describe('SlopAppBar: actions', () => {
+    it('renders each action as a labelled button, primary styled, and runs onClick', () => {
+      let saved = 0;
+      const bar = SlopAppBar.mount(document.getElementById('wide'), {
+        title: 'Actions',
+        actions: [
+          { id: 'save', label: 'Save to Drive', icon: 'save', primary: true, onClick: () => { saved++; } },
+          { id: 'copy', label: 'Copy to buffer', icon: 'copy', onClick: () => {} },
+        ],
+      });
+      const b = document.querySelector('#wide .sab-actions [data-id="save"]');
+      expect(b.tagName).toBe('BUTTON');
+      expect(b.getAttribute('aria-label')).toBe('Save to Drive');
+      expect(b.classList.contains('sab-primary')).toBe(true);
+      b.click();
+      expect(saved).toBe(1);
+      bar.destroy();
+    });
+
+    it('a disabled action is disabled and does not run', () => {
+      let ran = false;
+      const bar = SlopAppBar.mount(document.getElementById('wide'), {
+        title: 'Off', actions: [{ id: 'x', label: 'Nope', disabled: true, onClick: () => { ran = true; } }],
+      });
+      const b = document.querySelector('#wide [data-id="x"]');
+      expect(b.disabled).toBe(true);
+      b.click();
+      expect(ran).toBe(false);
+      bar.destroy();
+    });
+
+    it('setActions replaces the buttons', () => {
+      const bar = SlopAppBar.mount(document.getElementById('wide'), { title: 'Swap', actions: [{ id: 'a', label: 'A' }] });
+      bar.setActions([{ id: 'b', label: 'B' }]);
+      expect(document.querySelector('#wide [data-id="a"]')).toBe(null);
+      expect(document.querySelector('#wide [data-id="b"]').getAttribute('aria-label')).toBe('B');
+      bar.destroy();
+    });
+
+    it('a narrow host collapses the actions into the ⋯ menu, and the menu runs them by keyboard', async () => {
+      let ran = '';
+      const bar = SlopAppBar.mount(document.getElementById('narrow'), {
+        title: 'Narrow',
+        actions: [{ id: 'one', label: 'One', onClick: () => { ran = 'one'; } }, { id: 'two', label: 'Two', onClick: () => { ran = 'two'; } }],
+        menu: [{ separator: true }, { id: 'cmd', label: 'Commands', onClick: () => { ran = 'cmd'; } }],
+      });
+      await frame();
+      const root = document.querySelector('#narrow .sab');
+      expect(root.dataset.narrow).toBe('true');
+      expect(getComputedStyle(document.querySelector('#narrow .sab-actions')).display).toBe('none');
+      const more = document.querySelector('#narrow .sab-more-btn');
+      expect(more.getAttribute('aria-expanded')).toBe('false');
+      more.focus();
+      more.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+      expect(more.getAttribute('aria-expanded')).toBe('true');
+      const items = [...document.querySelectorAll('#narrow .sab-menu [role="menuitem"]')];
+      expect(items.map((i) => i.textContent)).toEqual(['One', 'Two', 'Commands']);
+      expect(document.activeElement).toBe(items[0]);
+      items[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+      expect(document.activeElement).toBe(items[2]);
+      document.querySelector('#narrow .sab-menu').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      expect(more.getAttribute('aria-expanded')).toBe('false');
+      expect(document.activeElement).toBe(more);
+      more.click();
+      document.querySelector('#narrow [data-id="cmd"]').click();
+      expect(ran).toBe('cmd');
+      bar.destroy();
+    });
+
+    it('a wide host keeps the actions in a row, with the menu only for menu entries', async () => {
+      const bar = SlopAppBar.mount(document.getElementById('wide'), { title: 'Wide', actions: [{ id: 'k', label: 'Keep' }] });
+      await frame();
+      expect(document.querySelector('#wide').querySelector('.sab').dataset.narrow).toBe('false');
+      expect(getComputedStyle(document.querySelector('#wide .sab-actions')).display).not.toBe('none');
+      expect(document.querySelector('#wide .sab-more').hidden).toBe(true);
+      bar.destroy();
+    });
+  });
+
+  run();
+  </script>
+</body>
+</html>

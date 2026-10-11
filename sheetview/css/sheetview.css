@@ -5,6 +5,8 @@
 html, body { height: 100%; margin: 0; }
 body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
 .sv-app { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+/* The shared drop panel reads --sui-* tokens: point them at this app's colours. */
+.sv-app { --sui-panel: var(--sl-surface); --sui-text: var(--sl-text); --sui-line: var(--sl-border); --sui-muted: var(--sl-text); --sui-accent: var(--sl-accent); }
 
 .sv-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 16px; border-bottom: 1px solid var(--sl-border); background: var(--sl-surface); }
 .sv-brand { display: flex; align-items: center; gap: 8px; }
@@ -31,7 +33,8 @@ body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 
 .sv-sheettab { font: inherit; font-size: 13px; color: var(--sl-text); background: none; border: 1px solid transparent; border-radius: 6px; padding: 4px 10px; cursor: pointer; white-space: nowrap; }
 .sv-sheettab.on { background: var(--sl-accent); color: var(--sl-on-accent); border-color: var(--sl-accent); font-weight: 600; }
 
-.sv-dropstrip { flex: 0 0 auto; }
+.sv-dropstrip { flex: 0 0 auto; padding: 6px 16px; border-bottom: 1px solid var(--sl-border); }
+.sv-dropstrip .sd-zone { opacity: .85; }
 .sv-main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .sv-empty { margin: auto; max-width: 460px; padding: 24px 16px; text-align: center; }
 .sv-empty-t { font-size: 18px; margin: 0 0 8px; }
