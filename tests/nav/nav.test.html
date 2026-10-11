@@ -13,19 +13,19 @@
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   let win, W, N;
   const frame = () => document.getElementById('app');
-  async function boot() {
+  async function boot(reset = true) {
     win = frame().contentWindow;
     await waitFor(() => win.document && win.document.body && win.document.body.classList.contains('ready'), { timeout: 30000 });
     W = new Proxy({}, { get: (_, k) => win.eval(String(k)) });
     N = win.SlopNav;
     cancelAll();
-    N.store.setPreset('photoslop', 'slop');
+    if (reset) N.store.setPreset('photoslop', 'slop');
   }
   async function reload() {
     const done = new Promise((r) => frame().addEventListener('load', r, { once: true }));
     frame().src = '../../photoslop/index.html?' + Math.random();
     await done;
-    await boot();
+    await boot(false); // keep the saved preset: this is the reload being tested
   }
   const wheel = (o) => {
     const v = win.document.getElementById('viewport');
@@ -140,8 +140,7 @@
       sel.value = 'alt';
       sel.dispatchEvent(new win.Event('change'));
       await applyDialog();
-      const dump = JSON.stringify({ get: N.store.get('photoslop').preset, res: N.store.resolve('photoslop').id, raw: win.localStorage.getItem('slop-nav') });
-      expect(dump.includes('"res":"custom"') ? 'ok' : dump).toBe('ok');
+      expect(N.store.resolve('photoslop').id).toBe('custom');
       expect(N.store.resolve('photoslop').bindings.zoomWheel).toBe('alt');
       await reload();
       const again = win.SlopNav.store.resolve('photoslop');

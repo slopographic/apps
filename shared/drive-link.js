@@ -34,12 +34,14 @@
     s.textContent = CSS;
     document.head.append(s);
   }
-  /** The link element (not yet placed). */
+  /** The link element (not yet placed), or null when there is no Drive URL to point at. */
   function build() {
+    const url = href();
+    if (!url) return null;
     style();
     const a = document.createElement('a');
     a.className = 'sdl';
-    a.href = href();
+    a.href = url;
     a.title = 'Open Slop Drive (Shift- or middle-click: new tab)';
     a.setAttribute('aria-label', 'Slop Drive');
     a.dataset.sdl = '';
@@ -59,6 +61,7 @@
     const have = host.querySelector(':scope > [data-sdl]');
     if (have) return have;
     const a = build();
+    if (!a) return null;
     const ref = typeof before === 'string' ? host.querySelector(before) : before;
     host.insertBefore(a, ref && ref.parentNode === host ? ref : null);
     return a;
