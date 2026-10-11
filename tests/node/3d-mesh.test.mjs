@@ -168,3 +168,8 @@ test('the format refuses faces that point at missing vertices', () => {
   const r = F.parse(F.serialize(sc));
   assert.equal(r.ok, false);
 });
+
+test('a merge that would leave no faces is refused, not stored', () => {
+  const r = MO.mergeCentre(quadMesh(), vertSel([0, 1, 2, 3]));
+  assert.ok(r && r.error, 'every corner merged into one point is refused');
+});

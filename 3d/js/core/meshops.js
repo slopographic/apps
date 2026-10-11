@@ -116,6 +116,7 @@
       while (v.length > 1 && v[0] === v[v.length - 1]) v.pop();
       if (v.length >= 3) faces.push({ v, hide: f.hide });
     }
+    if (!faces.length) return { error: 'That merge would delete every face. Merge fewer vertices.' };
     const ids = new Set([...sel.ids].map(map));
     return finish({ pos, faces }, { mode: 'vertex', ids });
   }

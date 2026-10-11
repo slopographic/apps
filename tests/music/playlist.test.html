@@ -31,10 +31,10 @@
     it('reorders and removes tracks, and the new order survives a reload', async () => {
       const P = W.SlopMusic.playlists;
       await P.setTracks(pl.id, [ids[1], ids[2], ids[0]]);
-      W = await reopen((w) => w.SlopMusic && w.SlopMusic.playlists.get(pl.id) && w.SlopMusic.playlists.get(pl.id).trackIds[0] === ids[1]);
+      W = await reopen((w) => w.SlopMusic && w.SlopMusic.playlists.get(pl.id)?.trackIds[0] === ids[1]);
       expect(W.SlopMusic.playlists.get(pl.id).trackIds).toEqual([ids[1], ids[2], ids[0]]);
       await W.SlopMusic.playlists.setTracks(pl.id, [ids[1], ids[0]]);
-      W = await reopen((w) => w.SlopMusic && w.SlopMusic.playlists.get(pl.id).trackIds.length === 2);
+      W = await reopen((w) => w.SlopMusic && w.SlopMusic.playlists.get(pl.id)?.trackIds.length === 2);
       expect(W.SlopMusic.playlists.get(pl.id).trackIds).toEqual([ids[1], ids[0]]);
     });
 

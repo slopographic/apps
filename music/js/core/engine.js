@@ -50,7 +50,7 @@
   }
   /** Starts a queue made from ids (list order) at startId. */
   function setQueue(ids, startId) {
-    st.q = Object.assign(Q.create(ids, startId, { shuffle: st.q.shuffle, repeat: st.q.repeat }));
+    st.q = Q.create(ids, startId, { shuffle: st.q.shuffle, repeat: st.q.repeat });
     if (!st.q.order.length) return Promise.resolve();
     return playIndex(st.q.index);
   }

@@ -100,7 +100,9 @@ uploaded.
 - **Department and URL** are kept on the record (`department`, `website`); the vCard ADR parts beyond the street text
   are joined into one line.
 - **Photos**: JPEG and PNG only; a photo picked in the form is at most 256 px. A link photo is kept as text and shows as
-  initials. Photos are stored in the customer record, so a list with many photos is larger in the browser.
+  initials. Photos are stored in the customer record. A photo over about 290 KB (390,000 characters as a data URI) is not kept
+  when the contact is saved, and a value over another record limit (notes 5,000 characters, 10 phones, 10 e-mails, 10
+  addresses, 20 groups) is cut, so one large contact cannot stop a whole import or bulk change.
 - **Labels**: a custom Apple label becomes its letters as one type (for example `DADMAIL`) and shows lower case.
 - **Outlook CSV** has fixed slots (see the codec); extra values are not written.
 - **No undo** for bulk changes or deletes (deletes are soft in the store, so the CRM keeps the record out of view).

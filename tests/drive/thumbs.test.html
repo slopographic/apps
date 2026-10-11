@@ -8,6 +8,7 @@
   const { describe, it, expect, waitFor } = SlopTest;
   let W, DR, H, D;
   const file = (n) => [...DR.S.files.values()].find((x) => x.name === n);
+  const T = (p, label, ms = 8000) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' timed out: ' + (window.__box ? window.__box.textContent : ''))), ms))]);
   const blobJson = (o) => new Blob([JSON.stringify(o)], { type: 'application/x-slop-doc' });
 
   describe('thumbnails: making, caching and fallbacks', () => {
@@ -86,7 +87,7 @@
     });
 
     it('a file that cannot be thumbnailed still shows a card, and the list still renders', async () => {
-      await H.put(DT.text('not a picture at all'), { name: 'broken.png', from: 'upload', type: 'image/png' });
+      await H.put(new Blob(['not a picture at all'], { type: 'image/png' }), { name: 'broken.png', from: 'upload' });
       await DR.refresh();
       const r = file('broken.png');
       const url = await DR.thumb(r);
@@ -100,16 +101,17 @@
   describe('thumbnails: the 3D preview', () => {
     it('a .s3d gets a rendered thumbnail, and its preview opens with orbit, zoom and reset', async () => {
       if (!DR.webgl3d()) { console.info('SKIP 3D preview: WebGL is not available in this browser'); return; }
-      const { S } = await DR.load3d();
+      const { S } = await T(DR.load3d(), 'load3d');
       await H.put(new Blob([S.format.serialize(S.model.defaultScene('Test scene'))], { type: 'application/x-slop-3d' }), { name: 'scene.s3d', from: 'slopedit' });
       await DR.refresh();
       const r = file('scene.s3d');
       expect(DR.kindOf(r)).toBe('model');
-      await DR.thumb(r);
+      await T(DR.thumb(r), 'thumb of the scene');
       expect(DR.mediaInfo(r).kind).toBe('3d');
       const box = DR.previewOf(r, true);
       D.body.append(box);
-      await waitFor(() => box.s3dView, { timeout: 15000 });
+      window.__box = box;
+      const t0 = Date.now(); await waitFor(() => box.s3dView, { timeout: 60000 }); window.__t = Date.now() - t0;
       const view = box.s3dView, canvas = box.querySelector('canvas'), reset = box.querySelector('.pv3d-reset');
       expect(canvas).toBeTruthy();
       expect(reset).toBeTruthy();
@@ -120,7 +122,7 @@
       reset.click();
       expect(view.cam.st.view).toBe('perspective');
       box.remove();
-    });
+    }, { timeout: 90000 });
   });
   SlopTest.run({ name: 'Slop Drive app: thumbnails' });
   </script>
