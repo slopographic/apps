@@ -70,11 +70,9 @@ describe('other raster outputs', () => {
     expect(String.fromCharCode(b[25], b[26], b[27])).toBe('PNG');
   });
   it('keeps transparency in WebP output where the browser can write WebP', async () => {
-    const c = makeCanvas(4, 4);
     const out = await convertImage(await halfTransparentPng(), { kind: 'png', to: 'webp', quality: 0.9 }).catch((e) => ({ error: e }));
     if (out.error) return; // this browser cannot write WebP: the UI reports it
     expect(out.blob.type).toBe('image/webp');
-    expect(c.width).toBe(4);
   });
 });
 

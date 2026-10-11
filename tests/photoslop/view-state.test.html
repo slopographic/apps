@@ -22,6 +22,8 @@
 
   describe('PhotoSLOP saved view', () => {
     it('keeps the zoom and hidden panels after leaving for Slop Drive and coming back', async () => {
+      // Start from an empty PhotoSLOP store: tabs left by earlier runs would also count as unsaved work.
+      await new Promise((res) => { const q = indexedDB.deleteDatabase('slopshop'); q.onsuccess = q.onerror = q.onblocked = () => res(); });
       let W = await open('../../photoslop/index.html');
       await W.autosave();
       W.eval('D.dirty = false'); // saved to this device just now, so the leave-page prompt does not hold the navigation
