@@ -44,5 +44,10 @@
     "gallery",
     "3d",
     "music"
-  ]
+  ],
+  "support": {
+    "exportCard": true,
+    "donate": true,
+    "ads": true
+  }
 }

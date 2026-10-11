@@ -40,6 +40,7 @@
       await w().SlopReminderEngine.scan();
       await w().SlopReminderEngine.scan();
       expect(fired.length).toBe(1);
+      await waitFor(() => rowFor('Ring back') && rowFor('Ring back').textContent.includes('snoozed until'), { timeout: 4000 });
       expect(rowFor('Ring back').textContent).toContain('snoozed until');
     });
 

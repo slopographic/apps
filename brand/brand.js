@@ -3,6 +3,7 @@
  *   SlopBrand.ready    Promise that resolves with the applied config (never rejects)
  *   SlopBrand.config   the config in use (defaults where brand.json is missing or invalid)
  *   SlopBrand.order    the default app order (ids), from appOrder
+ *   SlopBrand.config.support  { exportCard, donate, ads } (booleans, default true). false hides that part of the export card.
  *   SlopBrand.apply(c) apply any config object again (used by tests and by live previews)
  * What it touches (hooks in the markup, see brand/README.md):
  *   document.title           the word "Slopographic" in the title is replaced by the name
@@ -30,6 +31,7 @@
     footer: '',
     links: Object.freeze({ patreon: '', support: '', reddit: '', x: '', tiktok: '', gumroad: '' }),
     appOrder: Object.freeze([]),
+    support: Object.freeze({ exportCard: true, donate: true, ads: true }),
   });
   const COLOR = /^#[0-9a-f]{3,8}$/i;
   const str = (v, d) => (typeof v === 'string' ? v.trim() : d);
@@ -38,6 +40,7 @@
   const safeUrl = (v) => (typeof v === 'string' && URL_OK.test(v.trim()) ? v.trim() : '');
 
   const LINK_KEYS = ['patreon', 'support', 'reddit', 'x', 'tiktok', 'gumroad'];
+  const SUPPORT_KEYS = ['exportCard', 'donate', 'ads'];
   /** Merge raw JSON over the defaults. Unknown or invalid values fall back to the defaults. */
   function normalize(raw) {
     const r = raw && typeof raw === 'object' ? raw : {};
@@ -45,6 +48,9 @@
     for (const k of Object.keys(colors)) if (r.colors && COLOR.test(r.colors[k])) colors[k] = r.colors[k];
     const links = {};
     for (const k of LINK_KEYS) links[k] = safeUrl(r.links && r.links[k]);
+    // Only an explicit false hides a part of the export card. Anything else (missing, malformed) keeps it on.
+    const support = {};
+    for (const k of SUPPORT_KEYS) support[k] = !(r.support && r.support[k] === false);
     const appOrder = Array.isArray(r.appOrder) ? r.appOrder.filter((x) => typeof x === 'string' && /^[\w-]+$/.test(x)) : [];
     return {
       name: str(r.name, DEFAULTS.name) || DEFAULTS.name,
@@ -55,6 +61,7 @@
       footer: str(r.footer, DEFAULTS.footer),
       links,
       appOrder,
+      support,
     };
   }
 

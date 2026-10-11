@@ -21,7 +21,6 @@
     };
     range.addEventListener('input', setPos);
     box.replaceChildren(layer('up-before', before), after_, divider, range);
-    box.insertAdjacentHTML('beforeend', '');
     setPos();
     box.append(labelFor('Before', 'up-tag-before'), labelFor('After', 'up-tag-after'));
   };

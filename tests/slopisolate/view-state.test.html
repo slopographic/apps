@@ -33,6 +33,8 @@
       W.CO.state.setView('mask');
       W.CO.state.split = 0.3;
       await waitFor(() => W.CO.state.items.length === 1, { timeout: 5000 });
+      // only finished images are kept (an unfinished one is not restarted on return), so wait for the cut-out
+      await waitFor(() => W.CO.state.items[0].status === 'done', { timeout: 150000, polling: 200 });
       await sleep(900);
       W.SlopGuard && W.SlopGuard.setUnsaved('cutout', false); // the leave-page prompt would hold the navigation
       await open('../drive/frame.html');
@@ -43,7 +45,7 @@
       expect(W.CO.state.tool).toBe('keep');
       expect(W.CO.state.view).toBe('mask');
       expect(W.CO.state.split).toBeCloseTo(0.3, 1e-6);
-    }, { timeout: 90000 });
+    }, { timeout: 200000 });
   });
   run({ name: 'Slop Cutout · saved session' });
   </script>
