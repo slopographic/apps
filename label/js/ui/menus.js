@@ -13,7 +13,8 @@ function menuFile() {
   const hub = hubAvailable(), send = sendToItems();
   return [
     { label: 'New…', act: templatesDialog }, { label: 'Open…', key: K('open'), act: openFilesDialog }, { label: 'Import ZPL…', act: importZPLDialog },
-    { label: 'Save', key: K('save'), act: saveProject }, '-',
+    { label: 'Save', key: K('save'), act: saveProject }, { label: 'Download project (.sloplabel)', act: downloadProject }, '-',
+    hub ? { label: 'Open project from Slop Drive…', act: openProjectDrive } : null,
     hub ? { label: 'Insert image from Slop Drive…', act: imageFromDrive } : null, hub ? { label: 'Data from Slop Drive…', act: dataFromDrive } : null, hub ? '-' : null,
     { label: 'Print…', key: K('print'), act: openPrintDialog },
     { label: 'Export', sub: [{ label: 'PDF', act: exportPDFQuick }, { label: 'PNG (current label)', act: exportPNG }, { label: 'SVG (current label)', act: exportSVG }, { label: 'ZPL (Zebra)', act: exportZPLQuick }, '-', { label: 'More formats and options…', act: openPrintDialog }] },

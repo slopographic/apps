@@ -8,9 +8,35 @@
     var name = rec.name || 'file', type = rec.type || (rec.blob && rec.blob.type) || '';
     try { return new File([rec.blob], name, { type: type }); } catch (e) { var b = rec.blob; try { b.name = name; } catch (er) { /* ignore */ } return b; }
   }
+  // A.driveId: the Slop Drive record the open document came from (or was saved to). Only a document
+  // that was empty when a Drive file arrived takes that file's id, so Save never overwrites a different file.
+  A.driveId = null;
+  function openDriveRecord(rec) {
+    var wasEmpty = !E.state.pages.length;
+    return A.addFiles([recToFile(rec)]).then(function () { if (wasEmpty && E.state.pages.length) A.driveId = rec.id; });
+  }
   A.openFromDrive = function () {
     var H = hub(); if (!H) return;
-    H.pickFromDrive({ accept: ['application/pdf', 'image/*'] }).then(function (rec) { if (rec && rec.blob) A.addFiles([recToFile(rec)]); });
+    H.pickFromDrive({ accept: ['application/pdf', 'image/*'] }).then(function (rec) { if (rec && rec.blob) openDriveRecord(rec); });
+  };
+  // Starting a different document unlinks the Drive file.
+  ['closeAll', 'loadSample'].forEach(function (k) {
+    var orig = A[k]; if (!orig) return;
+    A[k] = function () { A.driveId = null; return orig.apply(this, arguments); };
+  });
+  /** File ▸ Save: the PDF goes back to the linked Drive file, or a folder is asked for the first time. */
+  A.saveToDrive = function () {
+    var H = hub(); if (!H || !E.state.pages.length) return Promise.resolve(null);
+    return S.guarded('Saving to Slop Drive…', function () { return A.currentPdfBlob(); }).then(function (blob) {
+      var name = U.safeName(S.els.fileName.value || 'document.pdf', 'pdf');
+      S.els.fileName.value = name;
+      if (!A.driveId) return H.saveToDrive(blob, name, { from: 'pdf' }).then(function (id) { if (id) A.driveId = id; return id; });
+      return H.update(A.driveId, { blob: blob, name: name, type: blob.type }).then(function (rec) {
+        if (!rec) return H.put(blob, { id: A.driveId, name: name, from: 'pdf' });
+        SlopUI.toast('Saved ' + name + ' to Slop Drive');
+        return A.driveId;
+      });
+    });
   };
   /** The current document as a validated PDF blob. */
   A.currentPdfBlob = async function () {
@@ -43,7 +69,7 @@
     try { H.register('pdf'); } catch (e) { console.warn('Slop PDF: hub register failed', e); }
     var rec = null;
     try { rec = await H.consumeLaunch(); } catch (e) { rec = null; }
-    if (rec && rec.blob) { await A.addFiles([recToFile(rec)]); SlopUI.toast('Opened “' + (rec.name || 'file') + '” from Slop Drive'); }
+    if (rec && rec.blob) { await openDriveRecord(rec); SlopUI.toast('Opened “' + (rec.name || 'file') + '” from Slop Drive'); }
   }
   function start() { A.boot(); launch(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

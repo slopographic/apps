@@ -150,3 +150,8 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
 ## Next steps
 - Optional: outlines carry-over, embedding a Unicode font for added text.
 - Recommended status in `shared/apps.js`: live.
+
+## Slop Drive (shared storage)
+
+- **Save (Ctrl+S)** builds the PDF and writes it back to the Drive file the document came from (`A.driveId`, set when a Drive file opens into an empty document, cleared by Close all and Try the sample). The first save asks for a folder. Without the hub or offline, Ctrl+S downloads as before; `File ▸ Download PDF` is unchanged (no shortcut now).
+- Open from Drive, `?drive=` launch and `register('pdf')` as before.

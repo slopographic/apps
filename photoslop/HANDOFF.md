@@ -49,3 +49,9 @@ Desktop 1440×900 and phone 390×844 in Chromium, zero console errors: guide pan
 ## Known / next
 - Guides are document-wide lines (no per-artboard guides; PhotoSLOP has no artboards). Smart guides between layers are not implemented.
 - The offline single-file build strips `shared/guard.js` (the hosted-site reload guard).
+
+## Slop Drive (shared storage)
+
+- **Save (Ctrl+S)** writes the layered PSD back to the Slop Drive file the tab was opened from (`CUR.driveId`, via `SlopHub.update`, falling back to `put` with the same id). The first save asks for a folder. `File ▸ Download as Photoshop (.psd)` keeps the old download; `Save PNG to Slop Drive` still adds a copy.
+- **File ▸ Open from Slop Drive…**, `?drive=<id>` launch (`hubBoot` → `openRecordTab`, which links the new tab), and `SlopHub.register('photoslop')` on boot.
+- Paint Classic (`classic/`): `hub.js` overrides `ACTIONS.save` (PNG written back to the linked Drive file) and adds `File ▸ Open from Slop Drive…`; it registers as `paint-classic` and opens `?drive=` launches. Offline and without `SlopHub`, Save downloads as before.

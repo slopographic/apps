@@ -19,6 +19,7 @@
     { id: 'file.open', title: 'Open project (.slopedit)…', group: 'File', keys: ['Mod+O'], run: run('openProject') },
     { id: 'file.save', title: 'Save project (.slopedit)', group: 'File', keys: ['Mod+S'], keywords: ['download', 'zip'], run: run('saveProject') },
     { id: 'file.saveDrive', title: 'Save project to Slop Drive…', group: 'File', when: () => !!window.SlopHub && !SE.offline, run: run('saveProjectDrive') },
+    { id: 'file.download', title: 'Download project (.slopedit)', group: 'File', run: run('downloadProject') },
     { id: 'file.export', title: 'Export video…', group: 'File', keys: ['Mod+E'], keywords: ['render', 'mp4', 'webm', 'h264'], when: hasClips, run: run('exportVideo') },
     { id: 'file.gif', title: 'Export GIF…', group: 'File', keywords: ['animated', 'gif'], when: hasClips, run: run('exportGif') },
     { id: 'file.snapshot', title: 'Snapshot frame to PNG', group: 'File', keys: ['Shift+E'], keywords: ['still', 'frame', 'image', 'screenshot'], run: run('snapshot') },

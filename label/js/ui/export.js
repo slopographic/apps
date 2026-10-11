@@ -33,7 +33,12 @@ async function exportPDFQuick() { try { downloadBytes(await pdfBytes({ prompts: 
 function exportZPLQuick() { try { downloadBytes(zplText({ prompts: App.prompts }), fileBase() + '.zpl', 'text/plain'); } catch (e) { SlopUI.alert('ZPL export failed', e.message); } }
 
 /* ---------------- projects ---------------- */
+/** File ▸ Save (Ctrl+S): to Slop Drive when available (see hub.js), otherwise the .sloplabel download. */
 function saveProject() {
+  if (hubAvailable()) return saveProjectToDrive();
+  downloadProject();
+}
+function downloadProject() {
   SlopUI.download(projectBlob(App.doc), safeName(App.doc.name, '.sloplabel'));
   App.dirty = false;
   status('Saved ' + safeName(App.doc.name, '.sloplabel'), '', 2500);

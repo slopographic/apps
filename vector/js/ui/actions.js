@@ -40,7 +40,7 @@
   act('file.openDrive', 'Open from Slop Drive…', [], function () { SV.hub.openFromDrive(); });
   act('file.placeDrive', 'Place from Slop Drive…', [], function () { SV.hub.placeFromDrive(); });
   act('file.sample', 'Open Sample: Sloppo', [], function () { SV.loadDoc(SV.sampleDoc(), { fit: true }); SV.commit('sample'); UI.toast('Say hi to Sloppo'); });
-  act('file.save', 'Save', ['mod+s'], function () { IO.saveSVG(); });
+  act('file.save', 'Save', ['mod+s'], function () { SV.hub.save(); });
   act('file.saveAs', 'Save As…', ['mod+shift+s'], function () { saveAsDialog(); });
   act('file.exportSVG', 'Export as SVG…', [], function () { IO.exportPlainSVG(); });
   act('file.exportPNG', 'Export as PNG…', ['mod+shift+e'], function () { rasterDialog('png'); });

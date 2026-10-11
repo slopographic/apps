@@ -63,3 +63,8 @@ Note: Playwright's Chromium has no H.264/AAC, so tests exercise VP9/Opus in MP4;
 
 Vendored: `vendor/mp4-muxer` (mp4-muxer 5.2.2, MIT), `vendor/webm-muxer` (webm-muxer 5.1.4, MIT), both by Vanilagy.
 Every source file is ≤ 300 lines.
+
+## Slop Drive (shared storage)
+
+- **Save project (Ctrl+S)** writes the `.slopedit` back to the Drive file the project came from (`PJ.driveId`, set by `PJ.openFile(file, driveId)` for Drive projects, cleared by New project). The first save asks for a folder. `File ▸ Download project (.slopedit)` downloads; offline builds download on Save.
+- Opening a `.slopedit` from Drive (picker or `?drive=`) opens it as a project; media files still import into the bin.

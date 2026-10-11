@@ -47,7 +47,9 @@
     if (!window.SlopHub) return;
     const rec = await SlopHub.pickFromDrive({ accept: ['video/*', 'audio/*', 'image/*', 'application/x-slopedit', 'application/zip'], title: 'Import from Slop Drive' });
     if (!rec) return;
-    A.importFiles([new File([rec.blob], rec.name, { type: rec.type })], { from: 'drive' });
+    const f = new File([rec.blob], rec.name, { type: rec.type });
+    if (/\.slopedit$/i.test(rec.name || '')) return SE.project.openFile(f, rec.id);
+    A.importFiles([f], { from: 'drive' });
   };
   /** Put media at the end of the timeline (V1 for pictures, A1 for sound). */
   A.appendToTimeline = function (metas, at) {

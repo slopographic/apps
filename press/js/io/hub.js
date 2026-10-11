@@ -7,9 +7,11 @@
   HB.available = function () { return !!window.SlopHub; };
   HB.canSend = function () { return HB.available() && location.protocol !== 'file:'; };
   function recFile(rec) { return new File([rec.blob], rec.name || 'file', { type: rec.type || rec.blob.type || '' }); }
+  // Only project files are linked: Save writes the .slpress back to that record. Images and text open as new documents.
+  function isProject(rec) { return /\.(slpress|json)$/i.test(rec.name || '') || /slop-press|zip/.test(rec.type || ''); }
   HB.openRecord = function (rec) {
     if (!rec || !rec.blob) return Promise.resolve(false);
-    return PR.io.openAny(recFile(rec)).then(function () { return true; });
+    return PR.io.openAny(recFile(rec)).then(function () { if (isProject(rec)) S.driveId = rec.id; return true; });
   };
   HB.openFromDrive = function () {
     if (!HB.available()) return U.toast('Slop Drive is unavailable');
@@ -19,8 +21,23 @@
     if (!HB.available()) return U.toast('Slop Drive is unavailable');
     return window.SlopHub.pickFromDrive({ accept: ['image/*', 'text/*', 'application/pdf'], title: 'Place from Slop Drive' }).then(function (rec) { if (rec) return PR.place.files([recFile(rec)]); });
   };
+  /** File ▸ Save to Slop Drive…: a new file in a folder of your choice, which Save then keeps writing to. */
   HB.saveToDrive = function () {
-    return PR.io.projectBlob().then(function (b) { return window.SlopHub.saveToDrive(b, PR.io.baseName() + '.slpress', { from: 'press' }); });
+    return PR.io.projectBlob().then(function (b) {
+      return window.SlopHub.saveToDrive(b, PR.io.baseName() + '.slpress', { from: 'press' }).then(function (id) { if (id) { S.driveId = id; S.dirty = false; PR.emit('commit', 'save'); } return id; });
+    });
+  };
+  /** File ▸ Save: writes back to the linked Drive file (first time: asks for a folder); the .slpress download when Drive is off. */
+  HB.save = function () {
+    if (!HB.available()) return PR.io.save();
+    return PR.io.projectBlob().then(function (b) {
+      var name = PR.io.baseName() + '.slpress', H = window.SlopHub;
+      if (!S.driveId) return H.saveToDrive(b, name, { from: 'press' }).then(function (id) { if (id) S.driveId = id; return id; });
+      return H.update(S.driveId, { blob: b, name: name, type: b.type }).then(function (rec) {
+        if (!rec) return H.put(b, { id: S.driveId, name: name, from: 'press' }).then(function (id) { return id; });
+        U.toast('Saved ' + name + ' to Slop Drive'); return S.driveId;
+      });
+    }).then(function (id) { if (id) { S.dirty = false; PR.emit('commit', 'save'); } return id; });
   };
   HB.pdfBlob = function () { return PR.pdf.export({ pages: null, marks: false, bleed: false }).then(function (bytes) { return new Blob([bytes], { type: 'application/pdf' }); }); };
   HB.pngBlob = function () { return PR.raster.pageBlob(S.page, 150); };

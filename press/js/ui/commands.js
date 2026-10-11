@@ -24,7 +24,7 @@
     { id: 'file.template', title: 'New from Template…', group: 'File', keys: ['Alt+Mod+N'], keywords: ['magazine', 'flyer', 'business card', 'zine'], run: function () { ui().templates(); } },
     { id: 'file.open', title: 'Open…', group: 'File', keys: ['Mod+O'], keywords: ['slpress', 'load'], run: function () { PR.io.openFile(); } },
     { id: 'file.openDrive', title: 'Open from Slop Drive…', group: 'File', when: function () { return !!window.SlopHub; }, run: function () { PR.hub.openFromDrive(); } },
-    { id: 'file.save', title: 'Save', group: 'File', keys: ['Mod+S'], keywords: ['slpress', 'download'], run: function () { PR.io.save(); } },
+    { id: 'file.save', title: 'Save', group: 'File', keys: ['Mod+S'], keywords: ['slpress', 'download'], run: function () { if (PR.hub) PR.hub.save(); else PR.io.save(); } },
     { id: 'file.saveAs', title: 'Save As…', group: 'File', keys: ['Shift+Mod+S'], run: function () { PR.io.save(true); } },
     { id: 'file.saveDrive', title: 'Save to Slop Drive…', group: 'File', when: function () { return !!window.SlopHub && PR.hub.canSend(); }, run: function () { PR.hub.saveToDrive(); } },
     { id: 'file.place', title: 'Place…', group: 'File', keys: ['Mod+D'], keywords: ['image', 'import', 'text file'], run: function () { PR.place.pick(); } },

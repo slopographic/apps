@@ -40,10 +40,12 @@
     await SE.session.save();
     return doc;
   };
-  PJ.openFile = async function (file) {
+  // PJ.driveId: the Slop Drive record the open project came from (or was saved to). Save writes back to it.
+  PJ.driveId = null;
+  PJ.openFile = async function (file, driveId) {
     if (SE.doc.clips.length && !(await SlopUI.confirm('Open project', 'Replace the current project with “' + file.name + '”?', 'Open'))) return;
     const dlg = SE.progress.open('Opening ' + file.name, { cancel: false });
-    try { await PJ.load(file); SE.app.status('Opened ' + file.name); }
+    try { await PJ.load(file); PJ.driveId = driveId || null; SE.app.status('Opened ' + file.name); }
     catch (e) { console.error(e); SlopUI.alert('Open project', 'Could not open this project: ' + e.message); }
     finally { dlg.close(); }
   };
@@ -51,14 +53,28 @@
     const files = await SlopUI.pickFiles({ accept: '.slopedit,application/zip,' + PJ.MIME });
     if (files[0]) PJ.openFile(files[0]);
   };
-  SE.act.saveProject = async function () {
+  SE.act.downloadProject = async function () {
     const dlg = SE.progress.open('Saving project', { cancel: false });
     try { dlg.set(0.3, 'Packing media…'); SlopUI.download(await PJ.toBlob(), PJ.fileName()); SE.app.status('Saved ' + PJ.fileName()); }
     catch (e) { SlopUI.alert('Save project', 'Could not save: ' + e.message); }
     finally { dlg.close(); }
   };
+  // File ▸ Save: writes back to the linked Drive project (first time: asks for a folder); a download without Drive.
+  SE.act.saveProject = async function () {
+    if (!window.SlopHub || SE.offline) return SE.act.downloadProject();
+    const dlg = SE.progress.open('Saving project to Slop Drive', { cancel: false });
+    try {
+      dlg.set(0.3, 'Packing media…');
+      const blob = await PJ.toBlob(), name = PJ.fileName();
+      if (!PJ.driveId) { const id = await SlopHub.saveToDrive(blob, name, { from: 'slopedit' }); if (id) PJ.driveId = id; return; }
+      if (!(await SlopHub.update(PJ.driveId, { blob, name, type: blob.type }))) await SlopHub.put(blob, { id: PJ.driveId, name, from: 'slopedit' });
+      SE.app.status('Saved ' + name + ' to Slop Drive');
+    } catch (e) { SlopUI.alert('Save project', 'Could not save: ' + e.message); }
+    finally { dlg.close(); }
+  };
+  // File ▸ Save project to Slop Drive…: a new Drive file in a folder of your choice, which Save then keeps writing to.
   SE.act.saveProjectDrive = async function () {
     if (!window.SlopHub) return;
-    try { await SlopHub.saveToDrive(await PJ.toBlob(), PJ.fileName()); } catch (e) { SlopUI.toast('Could not save: ' + e.message); }
+    try { const id = await SlopHub.saveToDrive(await PJ.toBlob(), PJ.fileName(), { from: 'slopedit' }); if (id) PJ.driveId = id; } catch (e) { SlopUI.toast('Could not save: ' + e.message); }
   };
 })();

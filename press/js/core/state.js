@@ -57,6 +57,7 @@
     opts = opts || {};
     S.doc = M.normalize(doc); S.sel = []; S.page = 0; S.editMaster = null; S.text = null;
     S.dirty = !!opts.dirty; S.fileName = opts.fileName || null;
+    S.driveId = null; // the Slop Drive record this document is linked to (set by hub.js), if any
     PR.styles.invalidate();
     H.reset(); PR.touch(); PR.emit('doc', 'open');
   };

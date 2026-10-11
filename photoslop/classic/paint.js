@@ -1929,6 +1929,7 @@ const MENUS = [
   { label: '&File', items: [
     { label: '&New', act: 'new' },
     { label: '&Open...', key: 'Ctrl+O', act: 'open' },
+    { label: 'Open from Slop &Drive...', act: 'openDrive', enabled: () => !!window.SlopHub },
     { label: '&Save', key: 'Ctrl+S', act: 'save' },
     { label: 'Save &As...', act: 'saveAs' },
     '-',
@@ -2147,6 +2148,8 @@ updateTitle();
 status();
 // expose a tiny hook for automated tests / curious slop scientists
 window.slopPaint = { state: S, get selection() { return sel; }, undoDepth: () => undoStack.length, redoDepth: () => redoStack.length, canvas: main,
+  // for the Slop Drive integration (hub.js), which runs outside this closure
+  drive: { ACTIONS, main, S, openBlob, confirmSave, finishPending, cancelOp, status, updateTitle, opActive: () => !!op },
   // for the shared command palette (commands.js)
   cmd: { MENUS, TOOLS, run, setTool, swapColors: () => { const p = S.primary; setColor(0, S.secondary); setColor(2, p); }, busy: () => openMenu >= 0 || !$('#startmenu').hidden || !!document.querySelector('.modal-back, .viewbmp') } };
 })();
