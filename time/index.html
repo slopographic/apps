@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="time" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Time</title>
+  <meta name="description" content="Slop Time: a world clock, my time in another city, a meeting planner, a time zone converter, a stopwatch and a timer. Nothing uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/time.css">
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="js/keep.js"></script>
+  <script src="js/zones.js"></script>
+  <script src="js/work.js"></script>
+  <script src="js/convert.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/timers.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/my.js"></script>
+  <script src="js/meet.js"></script>
+  <script src="js/convert-ui.js"></script>
+  <script src="js/clocks.js"></script>
+  <script src="js/sync-ui.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/commands.js"></script>
+</head>
+<body>
+  <div class="st-app">
+    <header class="st-top">
+      <div class="st-brand"><span class="st-logo" aria-hidden="true"></span><h1>Slop Time</h1></div>
+      <p class="st-device" id="st-device"></p>
+    </header>
+
+    <nav class="st-tabs" role="tablist" aria-label="Sections">
+      <button type="button" role="tab" id="tab-world" aria-controls="p-world">World clock</button>
+      <button type="button" role="tab" id="tab-my" aria-controls="p-my">My time</button>
+      <button type="button" role="tab" id="tab-meet" aria-controls="p-meet">Meetings</button>
+      <button type="button" role="tab" id="tab-conv" aria-controls="p-conv">Convert</button>
+      <button type="button" role="tab" id="tab-timers" aria-controls="p-timers">Timers</button>
+      <button type="button" role="tab" id="tab-sync" aria-controls="p-sync">Sync</button>
+    </nav>
+
+    <datalist id="st-zones"></datalist>
+
+    <main class="st-main">
+      <section class="st-panel" id="p-world" role="tabpanel" aria-labelledby="tab-world">
+        <h2>World clock</h2>
+        <div class="st-field">
+          <label for="st-add">Add a city or time zone</label>
+          <input id="st-add" type="search" autocomplete="off" placeholder="Lisbon, Sydney, America/Chicago">
+          <ul class="st-results" id="st-add-results"></ul>
+        </div>
+        <ul class="st-cards" id="st-cities"></ul>
+        <p class="st-empty" id="st-world-empty" hidden>No cities yet. Search above to add one.</p>
+        <p class="st-note" id="st-world-note"></p>
+      </section>
+
+      <section class="st-panel" id="p-my" role="tabpanel" aria-labelledby="tab-my" hidden>
+        <h2>My working hours</h2>
+        <fieldset class="st-prefs">
+          <legend class="st-visually-hidden">My working pattern</legend>
+          <div class="st-field">
+            <label for="st-home">My time zone</label>
+            <input id="st-home" list="st-zones" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="st-grid2">
+            <div class="st-field"><label for="st-start">Start (hour)</label><input id="st-start" type="number" min="0" max="23.5" step="0.5"></div>
+            <div class="st-field"><label for="st-end">End (hour)</label><input id="st-end" type="number" min="0.5" max="24" step="0.5"></div>
+          </div>
+          <div class="st-days" role="group" aria-label="Working days">
+            <label><input type="checkbox" name="st-day" value="1"> Mon</label>
+            <label><input type="checkbox" name="st-day" value="2"> Tue</label>
+            <label><input type="checkbox" name="st-day" value="3"> Wed</label>
+            <label><input type="checkbox" name="st-day" value="4"> Thu</label>
+            <label><input type="checkbox" name="st-day" value="5"> Fri</label>
+            <label><input type="checkbox" name="st-day" value="6"> Sat</label>
+            <label><input type="checkbox" name="st-day" value="0"> Sun</label>
+          </div>
+          <p class="st-err" id="st-prefs-err"></p>
+        </fieldset>
+
+        <h2>My time in…</h2>
+        <div class="st-grid2">
+          <div class="st-field"><label for="st-my-zone">City or zone</label><input id="st-my-zone" list="st-zones" autocomplete="off" spellcheck="false" placeholder="Asia/Tokyo"></div>
+          <div class="st-field"><label for="st-my-date">Day (in my time zone)</label><input id="st-my-date" type="date"></div>
+        </div>
+        <p class="st-msg" id="st-my-msg"></p>
+        <div id="st-my-out"></div>
+      </section>
+
+      <section class="st-panel" id="p-meet" role="tabpanel" aria-labelledby="tab-meet" hidden>
+        <h2>Meeting planner</h2>
+        <div class="st-grid2">
+          <div class="st-field"><label for="st-meet-date">Day (in my time zone)</label><input id="st-meet-date" type="date"></div>
+          <div class="st-field"><label for="st-meet-step">Window step</label>
+            <select id="st-meet-step"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="60">1 hour</option></select></div>
+        </div>
+        <div class="st-field">
+          <label for="st-meet-add">Add a zone to the meeting</label>
+          <div class="st-row"><input id="st-meet-add" list="st-zones" autocomplete="off" spellcheck="false" placeholder="Asia/Tokyo">
+            <button type="button" class="st-btn" id="st-meet-add-btn">Add</button></div>
+          <p class="st-err" id="st-meet-err"></p>
+        </div>
+        <ul class="st-chips" id="st-meet-zones" aria-label="Zones in the meeting"></ul>
+        <p class="st-row"><button type="button" class="st-btn st-small" id="st-meet-cities">Use my cities</button></p>
+        <ul class="st-windows" id="st-meet-out"></ul>
+        <p class="st-empty" id="st-meet-none" hidden></p>
+      </section>
+
+      <section class="st-panel" id="p-conv" role="tabpanel" aria-labelledby="tab-conv" hidden>
+        <h2>Time zone converter</h2>
+        <div class="st-grid3">
+          <div class="st-field"><label for="st-conv-from">Time is in</label><input id="st-conv-from" list="st-zones" autocomplete="off" spellcheck="false"></div>
+          <div class="st-field"><label for="st-conv-date">Date</label><input id="st-conv-date" type="date"></div>
+          <div class="st-field"><label for="st-conv-time">Time (24 h)</label><input id="st-conv-time" inputmode="numeric" placeholder="09:30" autocomplete="off"></div>
+        </div>
+        <p class="st-row"><button type="button" class="st-btn st-small" id="st-conv-now">Use the current time</button></p>
+        <p class="st-err" id="st-conv-err"></p>
+        <p class="st-caption" id="st-conv-caption"></p>
+        <div class="st-tablewrap">
+          <table class="st-table" id="st-conv-table">
+            <thead><tr><th scope="col">City</th><th scope="col">Time</th><th scope="col">Day</th><th scope="col">Offset</th></tr></thead>
+            <tbody id="st-conv-out"></tbody>
+          </table>
+        </div>
+
+        <h2>Time difference between two zones</h2>
+        <div class="st-grid2">
+          <div class="st-field"><label for="st-diff-a">First zone</label><input id="st-diff-a" list="st-zones" autocomplete="off" spellcheck="false"></div>
+          <div class="st-field"><label for="st-diff-b">Second zone</label><input id="st-diff-b" list="st-zones" autocomplete="off" spellcheck="false"></div>
+        </div>
+        <p class="st-msg" id="st-diff-out" aria-live="polite"></p>
+      </section>
+
+      <section class="st-panel" id="p-timers" role="tabpanel" aria-labelledby="tab-timers" hidden>
+        <h2>Stopwatch</h2>
+        <p class="st-big" id="st-sw-time" aria-live="off">0:00:00.0</p>
+        <div class="st-row">
+          <button type="button" class="st-btn st-primary" id="st-sw-go" aria-pressed="false">Start</button>
+          <button type="button" class="st-btn" id="st-sw-lap" disabled>Lap</button>
+          <button type="button" class="st-btn" id="st-sw-reset">Reset</button>
+        </div>
+        <ol class="st-laps" id="st-sw-laps"></ol>
+
+        <h2>Countdown timer</h2>
+        <div class="st-row">
+          <input id="st-tm-input" placeholder="5, 4:30 or 1:05:00" aria-label="Countdown length" autocomplete="off" inputmode="numeric">
+          <button type="button" class="st-btn" id="st-tm-set">Set</button>
+        </div>
+        <div class="st-row">
+          <button type="button" class="st-btn st-small" data-min="1">1 min</button>
+          <button type="button" class="st-btn st-small" data-min="5">5 min</button>
+          <button type="button" class="st-btn st-small" data-min="10">10 min</button>
+          <button type="button" class="st-btn st-small" data-min="25">25 min</button>
+        </div>
+        <p class="st-big" id="st-tm-time" aria-live="polite">0:05:00</p>
+        <div class="st-row">
+          <button type="button" class="st-btn st-primary" id="st-tm-go" aria-pressed="false">Start</button>
+          <button type="button" class="st-btn" id="st-tm-reset">Reset</button>
+        </div>
+        <p class="st-err" id="st-tm-err"></p>
+        <p class="st-note">Timers run only while this page is open. They reset on reload.</p>
+      </section>
+
+      <section class="st-panel" id="p-sync" role="tabpanel" aria-labelledby="tab-sync" hidden>
+        <h2>Manual clock offset</h2>
+        <p class="st-warn"><strong>This is not a network sync.</strong> Slop Time makes no network calls and never asks a
+          server for the time. Read the time from a source you trust, type it here, and the app records how far this
+          device's clock was from it at that moment.</p>
+        <div class="st-grid3">
+          <div class="st-field"><label for="st-sync-date">Date of that time</label><input id="st-sync-date" type="date"></div>
+          <div class="st-field"><label for="st-sync-time">Time (HH:MM:SS)</label><input id="st-sync-time" value="" placeholder="14:05:30" autocomplete="off" inputmode="numeric"></div>
+          <div class="st-field"><label for="st-sync-zone">Time zone of that time</label><input id="st-sync-zone" list="st-zones" autocomplete="off" spellcheck="false"></div>
+        </div>
+        <div class="st-row">
+          <button type="button" class="st-btn st-primary" id="st-sync-set">Set offset</button>
+          <button type="button" class="st-btn" id="st-sync-clear">Clear offset</button>
+        </div>
+        <p class="st-err" id="st-sync-err"></p>
+        <p class="st-msg" id="st-sync-status" aria-live="polite"></p>
+        <p class="st-msg" id="st-sync-now"></p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

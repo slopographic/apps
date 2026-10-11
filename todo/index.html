@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="todo" data-src="shared/theme/theme.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop To-do — Slopographic</title>
+  <meta name="description" content="Slop To-do: tasks with due dates, lists, repeats, reminders and subtasks. Due times show in Slop Calendar. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-todo.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/todo.css">
+  <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg>
+      </a>
+      <div class="appname"><b>Slop To-do</b><a class="home-link" href="../">slopographic</a></div>
+      <span class="local-badge" title="Your tasks stay in this browser. Nothing is uploaded."><span>100% local</span></span>
+      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+    </header>
+
+    <div class="layout">
+      <aside class="side" id="tSide" aria-label="Views and lists"></aside>
+      <main class="main" id="main">
+        <div class="head">
+          <h2 id="tTitle" class="h2"></h2>
+          <div class="head-tools">
+            <label class="check"><input type="checkbox" id="tDone"> Show done</label>
+            <label class="search"><span class="sr">Find a task</span><input id="tSearch" type="search" placeholder="Find" autocomplete="off"></label>
+            <button type="button" class="btn" id="tConfig" aria-haspopup="menu">Config</button>
+          </div>
+        </div>
+        <form class="add" onsubmit="return false">
+          <label class="sr" for="tAdd">Add a task</label>
+          <input id="tAdd" type="text" maxlength="200" placeholder="Add a task, then press Enter" autocomplete="off">
+          <button type="button" class="btn primary" id="tAddBtn">Add</button>
+          <button type="button" class="btn" id="tNew">Details…</button>
+        </form>
+        <p class="note" id="tNote" role="status"></p>
+        <div id="tBoot" class="empty" role="status">Opening your tasks…</div>
+        <div id="tList"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../shared/data/money.js"></script>
+  <script src="../shared/data/barcode.js"></script>
+  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema.js"></script>
+  <script src="../shared/data/currency.js"></script>
+  <script src="../shared/data/store.js"></script>
+  <script src="../shared/data/numbering.js"></script>
+  <script src="../shared/data/fx.js"></script>
+  <script src="../shared/data/ledger.js"></script>
+  <script src="../shared/data/stock.js"></script>
+  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="../shared/config/schema.js"></script>
+  <script src="../shared/config/validate.js"></script>
+  <script src="../shared/config/io.js"></script>
+  <script src="../shared/config/kinds.js"></script>
+  <script src="../shared/config/prompt.js"></script>
+  <script src="../shared/config/dialog.js"></script>
+  <script src="../shared/config/dialog-ai.js"></script>
+  <script src="../shared/calendar/tz.js"></script>
+  <script src="../shared/calendar/rrule.js"></script>
+  <script src="../shared/calendar/store.js"></script>
+  <script src="../shared/tasks/logic.js"></script>
+  <script src="../shared/tasks/store.js"></script>
+  <script src="../shared/reminders/core.js"></script>
+  <script src="../shared/reminders/engine.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/ui/editor.js"></script>
+  <script src="js/ui/list.js"></script>
+  <script src="js/ui/commands.js"></script>
+  <script src="js/ui/app.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
+  <script src="../shell/shell.js"></script>
+</body>
+</html>

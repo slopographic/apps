@@ -24,6 +24,7 @@
       var c = at; if (!c) { var rr = SV.dom.stage.getBoundingClientRect(); c = SV.toDoc(rr.width / 2, rr.height / 2); }
       var aid = 'a' + SV.uid(); S.doc.assets[aid] = url;
       var o = SV.mk.image(aid, c.x - w / 2, c.y - h / 2, w, h, name || 'Image');
+      o.src = { w: img.naturalWidth || w, h: img.naturalHeight || h }; // the source ratio, for Restore original aspect ratio
       SV.insertObj(o); SV.select([o.id]); SV.commit('place image');
       return o;
     }).catch(function () { SV.toast('Could not read that image', 'warn'); });

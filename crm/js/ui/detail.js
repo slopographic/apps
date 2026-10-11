@@ -95,6 +95,24 @@
       el('span', { class: 'amt' }, money(d.total || 0, d.currency || cur.defaultCurrency, loc)))));
   }
 
+  /** Schedules a call or meeting with this customer: an event in Slop Calendar that links to the customer. */
+  function schedule(c) {
+    const day = el('input', { type: 'date', id: 'dSchedDay', value: NS.util.today(), 'aria-label': 'Day' });
+    const time = el('input', { type: 'time', id: 'dSchedTime', value: '10:00', 'aria-label': 'Start time' });
+    const kind = el('select', { id: 'dSchedKind', 'aria-label': 'Kind' }, el('option', { value: 'call' }, 'Call'), el('option', { value: 'meeting' }, 'Meeting'));
+    const go = async () => {
+      if (!NS.util.isDate(day.value) || !/^\d{2}:\d{2}$/.test(time.value)) { UI.toast('Pick a day and a time.'); return; }
+      const T = g.SlopTime, tz = T.deviceZone(), start = T.dayTimeToUtc(day.value, time.value, tz);
+      const word = kind.value === 'meeting' ? 'Meeting' : 'Call';
+      const r = await g.SlopData.store.put('events', { title: `${word} ${c.name}`, allDay: false, start, end: start + 30 * 60000, tz,
+        kind: kind.value, customerId: c.id, color: 'teal', freq: 'none' });
+      UI.toast(r.ok ? `${word} scheduled. See it in Slop Calendar or in Follow-ups.` : NS.util.refusal(r));
+    };
+    return sect('Schedule',
+      el('p', { class: 'note' }, 'Adds an event to Slop Calendar, linked to this customer. The time is in this device\'s zone.'),
+      el('div', { class: 'inline' }, day, time, kind, el('button', { type: 'button', class: 'btn', onclick: go }, 'Schedule')));
+  }
+
   async function render() {
     const body = $('dBody');
     const id = NS.state.current;
@@ -105,7 +123,7 @@
     const c = r.value, cur = NS.state.settings;
     const h = await NS.history.of(id);
     if (!h.ok) { body.replaceChildren(el('p', { class: 'msg', role: 'alert' }, NS.util.refusal(h))); return; }
-    body.replaceChildren(header(c), contact(c), tagsAndGroups(c), pipeline(c), categories(c), notes(c, cur.locale),
+    body.replaceChildren(header(c), contact(c), tagsAndGroups(c), pipeline(c), categories(c), notes(c, cur.locale), schedule(c),
       sect('Orders', docList(h.value.orders, cur, cur.locale, 'Orders', 'No orders for this customer yet.')),
       sect('Invoices', docList(h.value.invoices, cur, cur.locale, 'Invoices', 'No invoices for this customer yet.')),
       el('div', { class: 'd-actions' },

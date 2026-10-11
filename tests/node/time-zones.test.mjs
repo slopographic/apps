@@ -137,6 +137,9 @@ test('manual clock offset: reference time, offset and wording (not a network syn
   assert.equal(SY.describe(2400), 'The device clock was 2.4 s behind the reference you entered.');
   assert.equal(SY.describe(-1500), 'The device clock was 1.5 s ahead of the reference you entered.');
   assert.equal(SY.describe(125000), 'The device clock was 2 min 5 s behind the reference you entered.');
+  assert.equal(SY.describe(-17159000), 'The device clock was 4 h 45 min ahead of the reference you entered.');
+  assert.equal(SY.describe(59600), 'The device clock was 59.6 s behind the reference you entered.');
+  assert.equal(SY.describe(60000), 'The device clock was 1 min 0 s behind the reference you entered.');
   assert.match(SY.describe(0), /matched/);
 });
 

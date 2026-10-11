@@ -82,6 +82,7 @@
   act('transform.reflect', 'Reflect…', [], function () { transformDialog('reflect'); }, { enabled: hasSel });
   act('transform.flipH', 'Flip Horizontal', [], function () { C.flip('h'); }, { enabled: hasSel });
   act('transform.flipV', 'Flip Vertical', [], function () { C.flip('v'); }, { enabled: hasSel });
+  act('transform.restoreAspect', 'Restore original aspect ratio', [], function () { SV.restoreAspect(null); }, { enabled: function () { return !!SV.aspectTarget(); } });
   act('object.lock', 'Lock Selection', ['mod+2'], function () { C.lockSel(); }, { enabled: hasSel });
   act('object.unlockAll', 'Unlock All', ['mod+alt+2'], function () { C.unlockAll(); });
   act('object.hide', 'Hide Selection', ['mod+3'], function () { C.hideSel(); }, { enabled: hasSel });
