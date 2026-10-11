@@ -23,8 +23,8 @@
 .th-b .ic { width: 14px; height: 14px; }
 .th-b:hover { background: var(--hover); color: var(--fg); }
 .th-b.on { color: var(--accent-ink); background: var(--accent); }
-.th-b.mute.on { background: #ff8a3d; color: #000; }
-.th-b.solo.on { background: #ffc94a; color: #000; }
+.th-b.mute.on { background: #ff8a3d; color: var(--ink); }
+.th-b.solo.on { background: #ffc94a; color: var(--ink); }
 .th-b.eye.on, .th-b.lock.on { background: var(--active); color: var(--danger); }
 .th.locked .th-name { color: var(--faint); }
 .th-add { display: flex; gap: 4px; padding: 6px; }

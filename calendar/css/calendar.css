@@ -1,16 +1,16 @@
-/* Slop Calendar: tokens, the toolbar, month grid, time grid, agenda, chips and the editor. Dark by default; data-theme="light"
- * for light. Nothing scrolls sideways: at 390 px the agenda replaces the week and day views. */
+/* Slop Calendar: tokens, the toolbar, month grid, time grid, agenda, chips and the editor. The colours come from the shared
+ * Slop theme (--sl-*, set by shared/theme/theme.js); the category colours below are fixed event colours. Nothing scrolls
+ * sideways: at 390 px the agenda replaces the week and day views. */
 :root {
-  --bg: #0e0e10; --panel: #17171b; --panel-2: #1f1f25; --ink: #f1ede4; --mute: #9a968c; --line: #2b2b33;
-  --accent: #d4ff3a; --accent-ink: #0e0e10; --danger: #ff4f6e; --chip: #26262e; --focus: #d4ff3a; --today: rgba(212, 255, 58, 0.09);
+  --bg: var(--sl-background, #0e0e10); --panel: var(--sl-surface, #17171b); --ink: var(--sl-text, #f1ede4);
+  --panel-2: color-mix(in srgb, var(--panel) 88%, var(--ink)); --chip: color-mix(in srgb, var(--panel) 90%, var(--ink));
+  --mute: color-mix(in srgb, var(--ink) 68%, transparent); --line: var(--sl-border, #2b2b33);
+  --accent: var(--sl-accent, #d4ff3a); --accent-ink: var(--sl-on-accent, #0e0e10); --danger: #c81e44;
+  --focus: var(--accent); --today: color-mix(in srgb, var(--accent) 9%, transparent);
   --c-blue: #5b8cff; --c-green: #5fc97a; --c-amber: #f5b041; --c-red: #ff5d6c; --c-violet: #a78bfa; --c-teal: #2dd4bf; --c-pink: #f472b6; --c-grey: #9aa0a6;
-  color-scheme: dark;
 }
-:root[data-theme="light"] {
-  --bg: #f6f4ef; --panel: #ffffff; --panel-2: #efece4; --ink: #17161a; --mute: #6b675e; --line: #d9d4c7;
-  --accent: #2f5bff; --accent-ink: #ffffff; --danger: #c81e44; --chip: #e7e3d8; --focus: #2f5bff; --today: rgba(47, 91, 255, 0.07);
-  color-scheme: light;
-}
+/* The status red is lighter on the dark surfaces. */
+:root[data-slop-theme="dark"], :root[data-slop-theme="lime"] { --danger: #ff4f6e; }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 system-ui, sans-serif; }
 body { min-height: 100vh; }
