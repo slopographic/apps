@@ -47,6 +47,7 @@ export async function create(p) {
   it.id = await SH().put(blobOf(it), { name, from: APP, meta: metaFor(it) });
   it.time = it.modified = Date.now();
   it.dirty = false;
+  listener('saved');
   return it;
 }
 
