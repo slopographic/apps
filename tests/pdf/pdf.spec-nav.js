@@ -16,6 +16,8 @@
     await sleep(250);
     return Ed;
   }
+  /** Waits for an eased zoom to land (frames are paced by the browser, so a fixed sleep is not enough). */
+  const settle = () => waitFor(() => !PT.SP.editor.easing(), { timeout: 8000 }).then(() => sleep(30));
   const page = () => PT.win.document.querySelector('#viewer .pv-page');
   const viewer = () => PT.win.document.getElementById('viewer');
   /** Dispatches a wheel event on the page; returns it so the caller can read defaultPrevented. */
@@ -39,7 +41,7 @@
       const ev = wheel(page(), { deltaY: -100, ctrlKey: true, clientX: x, clientY: y });
       expect(ev.defaultPrevented).toBe(true);
       expect(Ed.zoom).toBe(z0); // the ease has not run yet
-      await sleep(400);
+      await settle();
       // deltaY -100 is one mouse notch: a factor of exp(0.2) on the zoom
       expect(Ed.zoom / z0).toBeCloseTo(Math.exp(0.2), 1e-3);
       const after = docPoint(Ed, x, y);
@@ -48,7 +50,7 @@
       const z1 = Ed.zoom;
       const plain = wheel(page(), { deltaY: 120, clientX: x, clientY: y });
       expect(plain.defaultPrevented).toBe(false); // the viewer scrolls natively
-      await sleep(300);
+      await sleep(200);
       expect(Ed.zoom).toBe(z1);
     });
 
@@ -61,15 +63,15 @@
       await sleep(100);
       expect(v.scrollLeft).toBeGreaterThan(0);
       for (let i = 0; i < 40; i++) wheel(page(), { deltaY: -300, ctrlKey: true, clientX: x, clientY: y });
-      await sleep(400);
+      await settle();
       expect(Ed.percent(Ed.zoom)).toBe(800);
       expect(Ed.zoom).toBeCloseTo(Ed.ZOOM_MAX, 1e-9);
       for (let i = 0; i < 80; i++) wheel(page(), { deltaY: 300, ctrlKey: true, clientX: x, clientY: y });
-      await sleep(400);
+      await settle();
       expect(Ed.percent(Ed.zoom)).toBe(10);
       expect(Ed.zoom).toBeCloseTo(Ed.ZOOM_MIN, 1e-9);
       PT.win.document.body.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: '0', code: 'Digit0', ctrlKey: true, bubbles: true, cancelable: true }));
-      await sleep(300);
+      await settle();
       expect(Ed.zoomMode).toBe('width');
       expect(Ed.zoom).toBeCloseTo(Ed._.fitZoom('width'), 1e-6);
     }, { timeout: 60000 });
@@ -80,7 +82,7 @@
       const x = r.left + r.width * 0.5, y = r.top + r.height * 0.5;
       wheel(page(), { deltaY: -100, ctrlKey: true, clientX: x, clientY: y });
       wheel(page(), { deltaY: -100, ctrlKey: true, clientX: x, clientY: y });
-      await sleep(400);
+      await settle();
       const saved = Ed.zoom;
       expect(saved).toBeGreaterThan(1.3);
       await sleep(1600); // the view autosave is debounced

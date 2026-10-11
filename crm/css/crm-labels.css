@@ -18,7 +18,7 @@
 
 .cgrid .side { display: flex; flex-direction: column; gap: 14px; min-width: 0; position: sticky; top: 12px; }
 .side-sec { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.side-h { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--mute);
+.side-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--mute);
   text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
 .side-manage { background: none; border: 0; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0; }
 .side-item { display: flex; align-items: center; gap: 6px; width: 100%; background: none; border: 0; border-radius: 8px; padding: 5px 8px;

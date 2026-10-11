@@ -163,6 +163,8 @@
   }
   /** The zoom the view is heading to (the current one when nothing moves). Wheel and key steps build on it. */
   Ed.targetZoom = function () { return ease ? ease.zt : Ed.zoom; };
+  /** True while an eased zoom is running (tests wait for it to land). */
+  Ed.easing = function () { return !!ease; };
   /** Immediate zoom (the zoom menu's entries, pinch). anchor is client coordinates; the centre when omitted. */
   Ed.setZoom = function (z, anchor) { stopEase(); var c = anchor || centre(); setRaw(z, c.x, c.y); };
   /** Eased zoom by a factor of the target zoom, about anchor (client coordinates) or the centre. */
