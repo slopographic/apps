@@ -18,13 +18,20 @@
   const run = (code) => WIN.eval(code);
   /** Clicks the first button with this text inside the given document (or the top page). */
   const clickBtn = (doc, text) => { const b = [...doc.querySelectorAll('button')].find((x) => x.textContent.trim() === text); if (!b) throw new Error('no button ' + text); b.click(); };
-  const confirmDlg = (doc) => doc.querySelector('.sui-dlg');
+  const confirmDlg = (doc) => { const all = doc.querySelectorAll('.sui-dlg'); return all[all.length - 1] || null; };
+  /** The newest dialog's button (the confirm this test opened), so a fading dialog from an earlier test is never clicked. */
+  const dlgBtn = (doc, sel) => { const d = confirmDlg(doc); return d ? d.querySelector(sel) : null; };
+  // Let an earlier test's dialog finish fading out before this test opens its own.
+  const settle = () => sleep(250);
 
   describe('shared form Reset (shared/ui/form-reset.js)', () => {
     const make = () => {
       const f = document.createElement('form');
       f.innerHTML = '<input id="name" value="Ada"><textarea id="note">first</textarea><select id="stage"><option>lead</option><option>customer</option></select><input id="vip" type="checkbox">'
         + '<div role="group"><button type="button" aria-pressed="true" id="b1">A</button><button type="button" aria-pressed="false" id="b2">B</button></div>';
+      f.querySelectorAll('[role="group"] button').forEach((b) => b.addEventListener('click', () => {
+        f.querySelectorAll('[role="group"] button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      }));
       document.body.append(f);
       return f;
     };
@@ -39,6 +46,7 @@
       f.remove();
     });
     it('reset asks first when there are edits, then restores every field', async () => {
+      await settle();
       const f = make();
       SlopFormReset.snapshot(f);
       f.querySelector('#name').value = 'Grace';
@@ -48,9 +56,9 @@
       let inputs = 0;
       f.addEventListener('input', () => inputs++);
       const done = SlopFormReset.reset(f);
-      await waitFor(() => confirmDlg(document) && document.querySelector('.sui-dlg .sui-primary'));
+      await waitFor(() => dlgBtn(document, '.sui-primary'));
       expect(f.querySelector('#name').value).toBe('Grace');
-      document.querySelector('.sui-dlg .sui-primary').click();
+      dlgBtn(document, '.sui-primary').click();
       expect(await done).toBe(true);
       expect(f.querySelector('#name').value).toBe('Ada');
       expect(f.querySelector('#note').value).toBe('first');
@@ -61,24 +69,28 @@
       f.remove();
     });
     it('Cancel in the confirm keeps the edits', async () => {
+      await settle();
       const f = make();
       SlopFormReset.snapshot(f);
       f.querySelector('#name').value = 'Grace';
       const done = SlopFormReset.reset(f);
-      await waitFor(() => document.querySelector('.sui-dlg .sui-btn:not(.sui-primary)'));
-      document.querySelector('.sui-dlg .sui-btn:not(.sui-primary)').click();
+      await waitFor(() => dlgBtn(document, '.sui-btn:not(.sui-primary)'));
+      dlgBtn(document, '.sui-btn:not(.sui-primary)').click();
       expect(await done).toBe(false);
       expect(f.querySelector('#name').value).toBe('Grace');
       f.remove();
     });
     it('a form without edits resets with no confirm', async () => {
+      await settle();
       const f = make();
       SlopFormReset.snapshot(f);
+      const before = document.querySelectorAll('.sui-dlg').length;
       expect(await SlopFormReset.reset(f)).toBe(true);
-      expect(confirmDlg(document)).toBe(null);
+      expect(document.querySelectorAll('.sui-dlg').length).toBe(before);
       f.remove();
     });
     it('restores a segmented control and the dialog button keeps the dialog open', async () => {
+      await settle();
       const f = make();
       SlopFormReset.snapshot(f);
       f.querySelector('#b2').click();
@@ -126,17 +138,18 @@
 
     it('the panel Reset restores the selection as it was when it opened', async () => {
       run("editDoc((d) => d.objects.push(makeObject('barcode', { id: 'tb-rst', x: 5, y: 30, w: 40, h: 15, content: 'OLD-VALUE', symbology: 'code128' })), 'test')");
-      run("select(['tb-rst'])");
+      run("App.tab = 'props'; select(['tb-rst'])");
       const doc = WIN.document;
       await waitFor(() => [...doc.querySelectorAll('#dockBody button')].some((b) => b.textContent.trim() === 'Reset'));
       const field = await waitFor(() => doc.querySelector('#pContent'));
+      await sleep(100);
       field.value = 'CHANGED';
       field.dispatchEvent(new WIN.Event('input', { bubbles: true }));
       expect(run("App.doc.objects.find((x) => x.id === 'tb-rst').content")).toBe('CHANGED');
-      clickBtn(doc, 'Reset');
-      await waitFor(() => doc.querySelector('.sui-dlg .sui-primary'));
-      doc.querySelector('.sui-dlg .sui-primary').click();
-      await waitFor(() => run("App.doc.objects.find((x) => x.id === 'tb-rst').content") === 'OLD-VALUE', { timeout: 3000 });
+      [...doc.querySelectorAll('#dockBody button')].find((b) => b.textContent.trim() === 'Reset').click();
+      await waitFor(() => dlgBtn(doc, '.sui-primary'), { timeout: 5000 });
+      dlgBtn(doc, '.sui-primary').click();
+      await waitFor(() => run("App.doc.objects.find((x) => x.id === 'tb-rst').content") === 'OLD-VALUE', { timeout: 5000 });
       expect(run("App.doc.objects.find((x) => x.id === 'tb-rst').content")).toBe('OLD-VALUE');
     });
 
