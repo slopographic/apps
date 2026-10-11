@@ -4,7 +4,6 @@
   'use strict';
   const S = g.SlopData;
   const NS = (g.SlopDocs = g.SlopDocs || {});
-  const UI = g.SlopUI;
 
   /** Small DOM builder (same as lines.js). */
   function h(tag, attrs, ...kids) {
@@ -22,6 +21,8 @@
 
   /** Opens the dialog. onSaved(record) runs after the customer is stored. */
   function open(onSaved) {
+    // Read at open time: this script can load before shared/slopui.js.
+    const UI = g.SlopUI;
     const name = h('input', { type: 'text', maxlength: 200, autocomplete: 'off' });
     const email = h('input', { type: 'email', maxlength: 200, autocomplete: 'off' });
     const phone = h('input', { type: 'tel', maxlength: 60, autocomplete: 'off' });
