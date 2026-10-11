@@ -1,7 +1,7 @@
 /* Slop AI Tools: shared styles for the hub and the tool pages. Colours are tokens on :root, with dark mode. */
-:root { --bg: #f6f6f4; --fg: #1b1b1f; --muted: #5d5d66; --card: #ffffff; --line: #d9d9de; --accent: #1b1b1f; --accent-fg: #ffffff; --ok: #1e7a3c; --warn: #8a5a00; --bad: #a11d1d; --focus: #2563eb; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #141417; --fg: #ececf1; --muted: #a2a2ad; --card: #1f1f24; --line: #3a3a42; --accent: #ececf1; --accent-fg: #141417; --ok: #5fd08a; --warn: #f0b860; --bad: #ff8a8a; --focus: #7aa7ff; } }
-:root[data-theme="dark"] { --bg: #141417; --fg: #ececf1; --muted: #a2a2ad; --card: #1f1f24; --line: #3a3a42; --accent: #ececf1; --accent-fg: #141417; --ok: #5fd08a; --warn: #f0b860; --bad: #ff8a8a; --focus: #7aa7ff; }
+/* The colours come from the shared theme (--sl-* on data-slop-theme, set by shared/theme/theme.js), so AI Tools
+ * follows the same theme switcher as every other app. The fallbacks are the light theme for a page without the script. */
+:root { --bg: var(--sl-background, #f6f6f4); --fg: var(--sl-text, #1b1b1f); --muted: color-mix(in srgb, var(--sl-text, #1b1b1f) 65%, transparent); --card: var(--sl-surface, #ffffff); --line: var(--sl-border, #d9d9de); --accent: var(--sl-accent, #1b1b1f); --accent-fg: var(--sl-on-accent, #ffffff); --ok: #1e7a3c; --warn: #8a5a00; --bad: #a11d1d; --focus: var(--sl-accent, #2563eb); }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
 main { max-width: 880px; margin: 0 auto; padding: 24px 16px 48px; }
