@@ -3,6 +3,8 @@
 <head>
   <script src="shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="shared/theme/theme.js" data-app="home" data-src="shared/theme/theme.js"></script>
+  <script src="shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="shared/i18n/strings.js" data-src="shared/i18n/strings.js"></script>
 <script src="shared/consent/config.js"></script>
 <script src="shared/consent/state.js"></script>
 <script src="shared/consent/consent-mode.js"></script>
@@ -38,9 +40,9 @@
       <span class="brand-name" data-brand-name>Slopographic</span>
     </a>
     <nav class="tabs" aria-label="Sections">
-      <a class="tab" href="#apps" data-jump>Apps</a>
-      <a class="tab" href="#status" data-jump>Status</a>
-      <a class="tab" href="settings/">Profile</a>
+      <a class="tab" href="#apps" data-jump data-i18n="nav.apps">Apps</a>
+      <a class="tab" href="#status" data-jump data-i18n="nav.status">Status</a>
+      <a class="tab" href="settings/" data-i18n="nav.profile">Profile</a>
     </nav>
     <button type="button" class="btn pwa-install" id="pwa-install" hidden>Install Slopographic</button>
   </header>
@@ -161,9 +163,9 @@
   <footer class="footer">
     <p class="footer-mark" aria-hidden="true" data-perch data-brand-name>Slopographic</p>
     <div class="footer-cols">
-      <p><strong data-brand-name>Slopographic</strong><br>Office and creative software that runs in your browser.</p>
-      <p>Everything works offline-first. Your files never leave your device.</p>
-      <p>No accounts. Analytics and ads stay off unless you switch them on in Settings.</p>
+      <p><strong data-brand-name>Slopographic</strong><br><span data-i18n="footer.office">Office and creative software that runs in your browser.</span></p>
+      <p><span data-i18n="footer.offline">Everything works offline-first. Your files never leave your device.</span></p>
+      <p><span data-i18n="footer.accounts_home">No accounts. Analytics and ads stay off unless you switch them on in Settings.</span></p>
     </div>
     <p class="fine" data-brand-footer>© 2026 Slopographic.</p>
     <p class="fine social">
@@ -173,7 +175,7 @@
       <a href="#" hidden data-brand-link="tiktok" rel="noopener" target="_blank">TikTok</a>
       <a href="#" hidden data-brand-link="gumroad" rel="noopener" target="_blank">Gumroad</a>
     </p>
-    <p class="fine legal"><a href="settings/">Settings and privacy</a> · <a href="https://github.com/slopographic/slopographic/blob/main/LICENSE">Code MIT</a> · <a href="https://github.com/slopographic/slopographic/blob/main/TRADEMARKS.md">Sloppo™ and Slopographic™ are trademarks</a></p>
+    <p class="fine legal"><a href="settings/" data-i18n="footer.settings_link">Settings and privacy</a> · <a href="https://github.com/slopographic/slopographic/blob/main/LICENSE" data-i18n="footer.code_license">Code MIT</a> · <a href="https://github.com/slopographic/slopographic/blob/main/TRADEMARKS.md" data-i18n="footer.trademarks">Sloppo™ and Slopographic™ are trademarks</a></p>
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>

@@ -3,6 +3,8 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="settings" data-src="shared/theme/theme.js"></script>
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="../shared/i18n/strings.js" data-src="shared/i18n/strings.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Profile and settings: Slopographic</title>
@@ -25,9 +27,9 @@
       <span class="brand-name">Slopographic</span>
     </a>
     <nav class="tabs" aria-label="Sections">
-      <a class="tab" href="../#apps">Apps</a>
-      <a class="tab" href="../#status">Status</a>
-      <a class="tab" href="./" aria-current="page">Profile</a>
+      <a class="tab" href="../#apps" data-i18n="nav.apps">Apps</a>
+      <a class="tab" href="../#status" data-i18n="nav.status">Status</a>
+      <a class="tab" href="./" aria-current="page" data-i18n="nav.profile">Profile</a>
     </nav>
   </header>
 
@@ -38,22 +40,29 @@
     </div>
 
     <section aria-labelledby="appearance-title">
-      <h2 id="appearance-title">Appearance</h2>
-      <p>One theme for every Slopographic app and for this site. Pick it here and it applies at once. Each app uses the same choice when it opens.</p>
+      <h2 id="appearance-title" data-i18n="settings.appearance">Appearance</h2>
+      <p data-i18n="settings.appearance_lede">One theme for every Slopographic app and for this site. Pick it here and it applies at once. Each app uses the same choice when it opens.</p>
       <fieldset class="theme-picker">
-        <legend class="sr">Theme</legend>
+        <legend class="sr" data-i18n="settings.theme">Theme</legend>
         <div id="theme-options" class="theme-options"></div>
       </fieldset>
       <p id="theme-note" class="settings-note" role="status" aria-live="polite"></p>
+      <div class="set-row set-row-field">
+        <div>
+          <h3><label for="lang-select" data-i18n="settings.language">Language</label></h3>
+        </div>
+        <select id="lang-select" class="set-select"></select>
+      </div>
+      <p id="lang-note" class="settings-note" role="status" aria-live="polite"></p>
     </section>
 
     <section aria-labelledby="privacy-title">
-      <h2 id="privacy-title">Privacy</h2>
+      <h2 id="privacy-title" data-i18n="settings.privacy">Privacy</h2>
       <p class="privacy">Slopographic runs in your browser and your files never leave your device. Your choices on this page are stored in this browser's local storage and nowhere else. Analytics and ads are off until you turn them on, and no third-party script loads until you do. You can change this at any time.</p>
     </section>
 
     <section aria-labelledby="choices-title">
-      <h2 id="choices-title">Analytics and ads</h2>
+      <h2 id="choices-title" data-i18n="settings.analytics_ads">Analytics and ads</h2>
       <div class="set-row">
         <div>
           <h3 id="set-analytics-label">Analytics</h3>
@@ -72,7 +81,7 @@
     </section>
 
     <section aria-labelledby="defaults-title">
-      <h2 id="defaults-title">Defaults</h2>
+      <h2 id="defaults-title" data-i18n="settings.defaults">Defaults</h2>
       <p>Used for new invoices, orders and journal entries, and for numbers, currencies and dates. Language of the app text is not changed by these.</p>
       <div class="set-row set-row-field">
         <div>
@@ -92,7 +101,7 @@
     </section>
 
     <section aria-labelledby="rates-title">
-      <h2 id="rates-title">Exchange rates</h2>
+      <h2 id="rates-title" data-i18n="settings.exchange_rates">Exchange rates</h2>
       <p>Rates are entered by you, or downloaded on purpose from the European Central Bank. Nothing is downloaded unless you turn this on and press the button, or tick "Update on open".</p>
       <div class="set-row">
         <div>
@@ -134,13 +143,13 @@
     </section>
 
     <section aria-labelledby="apps-title">
-      <h2 id="apps-title">App settings</h2>
+      <h2 id="apps-title" data-i18n="settings.app_settings">App settings</h2>
       <p>Options for each app. Changing one here only changes that app, unless its section says it is shared (face detection is shared by Slop Drive and Slop Gallery). Reset an app to go back to its own defaults.</p>
       <div id="app-settings"></div>
     </section>
 
     <section id="donate" data-donate aria-labelledby="donate-title" hidden>
-      <h2 id="donate-title">Donate</h2>
+      <h2 id="donate-title" data-i18n="settings.donate">Donate</h2>
       <p>Slopographic is free to use. If you want to help keep it going, you can support it on Patreon.</p>
     </section>
   </main>
@@ -148,12 +157,12 @@
   <footer class="footer">
     <p class="footer-mark" aria-hidden="true">Slopographic</p>
     <div class="footer-cols">
-      <p><strong>Slopographic</strong><br>Creative software that runs in your browser.</p>
-      <p>Everything works offline-first. Your files never leave your device.</p>
-      <p>No accounts. Analytics and ads are off unless you turn them on in Settings.</p>
+      <p><strong>Slopographic</strong><br><span data-i18n="footer.creative">Creative software that runs in your browser.</span></p>
+      <p><span data-i18n="footer.offline">Everything works offline-first. Your files never leave your device.</span></p>
+      <p><span data-i18n="footer.accounts_settings">No accounts. Analytics and ads are off unless you turn them on in Settings.</span></p>
     </div>
     <p class="fine">© 2026 Slopographic.</p>
-    <p class="fine legal"><a href="https://github.com/slopographic/slopographic/blob/main/LICENSE">Code MIT</a> · <a href="https://github.com/slopographic/slopographic/blob/main/TRADEMARKS.md">Sloppo™ and Slopographic™ are trademarks</a></p>
+    <p class="fine legal"><a href="https://github.com/slopographic/slopographic/blob/main/LICENSE" data-i18n="footer.code_license">Code MIT</a> · <a href="https://github.com/slopographic/slopographic/blob/main/TRADEMARKS.md" data-i18n="footer.trademarks">Sloppo™ and Slopographic™ are trademarks</a></p>
   </footer>
 
   <script src="../shared/consent/config.js"></script>
@@ -174,6 +183,7 @@
   <script src="../shared/faces/copy.js"></script>
   <script src="../shared/profile/app-options.js"></script>
   <script src="appearance.js"></script>
+  <script src="language.js"></script>
   <script src="settings.js"></script>
   <script src="defaults.js"></script>
   <script src="rates.js"></script>
