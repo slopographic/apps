@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>QR SLOP tests</title>
+  <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 800px; border: 0; display: block; }</style>
+</head>
+<body>
+  <!-- The real app runs in an iframe. Each test reads the app's own state and DOM through the frame's window. -->
+  <iframe id="app" src="about:blank"></iframe>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  const f = document.getElementById('app');
+  const W = () => f.contentWindow;
+  const q = (sel) => W().document.querySelector(sel);
+  const qa = (sel) => [...W().document.querySelectorAll(sel)];
+  const SRC = '../../qr/index.html';
+
+  /** Load the app fresh, and wait until its boot has run (body.ready). */
+  async function open() {
+    f.src = 'about:blank';
+    await waitFor(() => f.contentWindow && f.contentWindow.location.href === 'about:blank', { timeout: 5000 });
+    f.src = SRC;
+    await waitFor(() => { const w = f.contentWindow; return w && w.location.pathname.endsWith('/qr/index.html') && w.document.body && w.document.body.classList.contains('ready'); }, { timeout: 20000 });
+    f.style.width = '1280px';
+    return W();
+  }
+  /** Types into a field the way the person does: set the value, then fire input. */
+  function type(el, value) {
+    el.value = value;
+    el.dispatchEvent(new (W().Event)('input', { bubbles: true }));
+  }
+  /** The field in the form with this label text. */
+  function field(label) {
+    const lab = qa('#qr-form label').find((l) => l.querySelector('.sui-label') && l.querySelector('.sui-label').textContent === label);
+    return lab && lab.querySelector('input, textarea, select');
+  }
+  /** Decodes a PNG blob into RGBA pixels, through this page's own canvas. */
+  async function pixels(blob) {
+    const bmp = await createImageBitmap(blob);
+    const cv = document.createElement('canvas');
+    cv.width = bmp.width; cv.height = bmp.height;
+    const cx = cv.getContext('2d');
+    cx.drawImage(bmp, 0, 0);
+    return { w: bmp.width, h: bmp.height, data: cx.getImageData(0, 0, bmp.width, bmp.height).data };
+  }
+
+  describe('QR SLOP: single code', () => {
+    it('boots with an empty form and says what to do', async () => {
+      await open();
+      expect(q('#qr-preview .qr-off')).toBeTruthy();
+      expect(q('#qr-svg').disabled).toBe(true);
+      expect(q('#qr-payload').textContent).toBe('');
+    });
+
+    it('a text code draws an SVG, and the payload preview shows the exact text', async () => {
+      const w = await open();
+      type(field('Text'), 'Hello, QR');
+      expect(q('#qr-payload').textContent).toBe('Hello, QR');
+      const svg = q('#qr-preview svg');
+      expect(svg).toBeTruthy();
+      expect(svg.getAttribute('viewBox')).toMatch(/^0 0 \d+ \d+$/);
+      expect(svg.querySelector('path').getAttribute('d')).toMatch(/^M\d+ \d+h\d+v1h-\d+z/);
+      expect(q('#qr-svg').disabled).toBe(false);
+      expect(w.QRApp.last().text).toBe('Hello, QR');
+    });
+
+    it('a URL without a scheme is encoded with https://', async () => {
+      await open();
+      W().QRApp.setType('url');
+      type(field('Web address'), 'example.com');
+      expect(q('#qr-payload').textContent).toBe('https://example.com');
+    });
+
+    it('a Wi-Fi code escapes the separators in the name and password', async () => {
+      await open();
+      W().QRApp.setType('wifi');
+      type(field('Network name (SSID)'), 'Cafe;1');
+      type(field('Password'), 'pass,word:1');
+      expect(q('#qr-payload').textContent).toBe('WIFI:T:WPA;S:Cafe\\;1;P:pass\\,word\\:1;H:false;;');
+    });
+
+    it('a bad value shows the reason and no code', async () => {
+      await open();
+      W().QRApp.setType('url');
+      type(field('Web address'), 'two words');
+      expect(q('#qr-err').textContent).toBe('A web address cannot contain spaces.');
+      expect(q('#qr-preview svg')).toBe(null);
+      expect(q('#qr-svg').disabled).toBe(true);
+    });
+
+    it('the default output has a white background shape', async () => {
+      await open();
+      type(field('Text'), 'bg check');
+      const rect = q('#qr-preview svg rect');
+      expect(rect).toBeTruthy();
+      expect(rect.getAttribute('fill')).toBe('#ffffff');
+    });
+
+    it('transparent background leaves out the background shape', async () => {
+      await open();
+      type(field('Text'), 'transparent check');
+      q('#qr-opts input[type="checkbox"]').click();
+      expect(q('#qr-preview svg rect')).toBe(null);
+      expect(q('#qr-preview svg path')).toBeTruthy();
+      expect(q('#qr-opts input[type="color"][aria-label="Background colour"]').disabled).toBe(true);
+    });
+
+    it('colour and size reach the SVG, and the SVG text holds the size', async () => {
+      const w = await open();
+      type(field('Text'), 'colour check');
+      const size = q('#qr-size');
+      size.value = '300';
+      size.dispatchEvent(new (W().Event)('input', { bubbles: true }));
+      const fg = q('input[type="color"][aria-label="Code colour"]');
+      fg.value = '#ff0000';
+      fg.dispatchEvent(new (W().Event)('input', { bubbles: true }));
+      const svg = w.QRApp.last().svg;
+      expect(svg.startsWith('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"')).toBe(true);
+      expect(svg).toContain('fill="#ff0000"');
+    });
+
+    it('PNG keeps transparency: corners are clear with a transparent background, white without', async () => {
+      const w = await open();
+      type(field('Text'), 'png alpha');
+      const svg = w.QRApp.last().svg;
+      const opaque = await pixels(await w.QRRender.svgToPng(svg, 64));
+      expect(opaque.data[3]).toBe(255);
+      expect(opaque.data[0]).toBe(255);
+      q('#qr-opts input[type="checkbox"]').click();
+      const clear = await pixels(await w.QRRender.svgToPng(w.QRApp.last().svg, 64));
+      expect(clear.w).toBe(64);
+      expect(clear.data[3]).toBe(0);
+      let dark = 0, clearPx = 0;
+      for (let i = 0; i < clear.data.length; i += 4) {
+        if (clear.data[i + 3] === 255 && clear.data[i] < 32) dark++;
+        if (clear.data[i + 3] === 0) clearPx++;
+      }
+      expect(dark).toBeGreaterThan(0);
+      expect(clearPx).toBeGreaterThan(0);
+    });
+
+    it('the SVG and PNG downloads and the copy button are wired', async () => {
+      const w = await open();
+      type(field('Text'), 'download check');
+      expect(q('#qr-png').disabled).toBe(false);
+      expect(q('#qr-copy').disabled).toBe(false);
+      const blob = await w.QRRender.svgToPng(w.QRApp.last().svg, 128);
+      expect(blob.type).toBe('image/png');
+      expect(blob.size).toBeGreaterThan(100);
+    });
+
+    it('the phone width (390 px) has no sideways page scroll', async () => {
+      await open();
+      f.style.width = '390px';
+      await sleep(120);
+      const doc = W().document.documentElement;
+      expect(doc.scrollWidth).toBeLessThanOrEqual(doc.clientWidth);
+    });
+  });
+
+  describe('QR SLOP: batch', () => {
+    it('one card per non-empty line, each with SVG and PNG buttons', async () => {
+      await open();
+      q('#qr-mode-batch').click();
+      expect(q('#qr-batch').hidden).toBe(false);
+      type(q('#qr-batch-in'), 'first\n\n  second  \nthird');
+      q('#qr-batch-go').click();
+      const cards = qa('#qr-grid .qr-card');
+      expect(cards.length).toBe(3);
+      expect(cards[1].querySelector('figcaption').textContent).toBe('second');
+      expect(cards[0].querySelectorAll('button').length).toBe(2);
+      expect(cards[2].querySelector('svg')).toBeTruthy();
+    });
+
+    it('the batch cards follow the output options', async () => {
+      const w = await open();
+      q('#qr-mode-batch').click();
+      type(q('#qr-batch-in'), 'a\nb');
+      q('#qr-batch-go').click();
+      q('#qr-opts input[type="checkbox"]').click();
+      expect(qa('#qr-grid .qr-card svg rect').length).toBe(0);
+      expect(w.QRBatch.items().length).toBe(2);
+    });
+  }, { timeout: 60000 });
+
+  run();
+  </script>
+</body>
+</html>
