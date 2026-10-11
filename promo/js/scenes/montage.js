@@ -1,5 +1,5 @@
 // Games montage (12 beats): rapid full-bleed cuts on every beat, then every game in one grid.
-import { h, css, k, E, punch, lerp } from '../ease.js';
+import { h, css, k, E, punch, lerp, fitOnce } from '../ease.js';
 import { mediaOf } from '../plan.js';
 
 export function makeMontage(seg, ctx) {
@@ -36,6 +36,7 @@ export function makeMontage(seg, ctx) {
       f.box.style.display = on ? '' : 'none';
       if (f.v) ctx.setTime(f.v, lt - t0 + 1, on);
       if (on) {
+        fitOnce(f.box.querySelector('.mt-name'), ctx.W * 0.68);
         const p = (lt - t0) / cutLen;
         css(f.box, { transform: `scale(${1.15 - p * 0.1 + punch(lt, t0, 0.3) * 0.04}) rotate(${(i % 2 ? 1 : -1) * (1 - p) * 1.5}deg)` });
         css(f.box.querySelector('.mt-name'), { transform: `translate(-50%, -50%) scale(${lerp(1.25, 1, k(lt, t0, t0 + 0.2, E.outExpo))})` });
@@ -44,6 +45,7 @@ export function makeMontage(seg, ctx) {
     const gOn = lt >= cutEnd;
     grid.style.display = gOn ? '' : 'none';
     head.style.display = gOn ? '' : 'none';
+    if (gOn) fitOnce(head, ctx.W * 0.92);
     const out = k(lt, D - 0.25, D + 0.35, E.inExpo);
     cells.forEach((c, i) => {
       const t0 = cutEnd + i * 0.06, p = k(lt, t0, t0 + 0.45, E.outBack);

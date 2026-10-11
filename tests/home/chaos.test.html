@@ -45,7 +45,7 @@
       expect(M.chaos).toBe(true);
       expect(btn.getAttribute('aria-pressed')).toBe('true');
       expect(M.el.classList.contains('is-chaos')).toBe(true);
-      expect(S.face()).toEqual(['angry', 'fangs']);
+      expect(S.face()).toEqual(['angry', 'frown']);
       btn.click();
       expect(M.chaos).toBe(false);
       expect(btn.textContent).toBe('Unleash');

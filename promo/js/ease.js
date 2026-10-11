@@ -57,3 +57,11 @@ export function letters(el, text) {
   el.textContent = '';
   return [...text].map((c) => { const s = h('span', 'ch', c === ' ' ? '&nbsp;' : c.replace(/&/g, '&amp;').replace(/</g, '&lt;')); el.append(s); return s; });
 }
+/** Shrink el's font-size (once, after fonts load) until it is at most maxW pixels wide. */
+export function fitOnce(el, maxW) {
+  if (el._fit || !el.getClientRects().length) return;
+  el._fit = true;
+  let fs = parseFloat(getComputedStyle(el).fontSize);
+  const w = el.scrollWidth;
+  if (w > maxW) { fs = Math.floor(fs * maxW / w); el.style.fontSize = fs + 'px'; }
+}

@@ -1,5 +1,5 @@
 // Chapter card (4 beats): lime bars sweep in, the section word slams, the count ticks up.
-import { h, css, k, E, punch, letters } from '../ease.js';
+import { h, css, k, E, punch, letters, fitOnce } from '../ease.js';
 
 export function makeChapter(seg, ctx) {
   const el = h('div', 'scene chapter');
@@ -13,6 +13,7 @@ export function makeChapter(seg, ctx) {
   const n = String(seg.count).padStart(2, '0');
   const s = { el, pre: 0.25, post: 0.3 };
   s.render = (t) => {
+    fitOnce(word, ctx.W * 0.9); fitOnce(outline, ctx.W * 0.9 / 1.0); fitOnce(line, ctx.W * 0.9);
     bars.forEach((b, i) => {
       const inP = k(t, -0.25 + i * 0.04, 0.15 + i * 0.04, E.outExpo), outP = k(t, 1.65 + i * 0.03, 2.05 + i * 0.03, E.inExpo);
       css(b, { top: (i * 20) + '%', transform: `translateX(${(1 - inP) * -101 + outP * 101}%)` });

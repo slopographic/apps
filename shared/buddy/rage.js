@@ -1,6 +1,6 @@
 // RAGE: hard drops and throws fill a rage meter that drains over time.
 // 1st hard landing: dizzy, "OUCH!". 2nd: annoyed. 3rd: RAGE for about 15 s (red, shaking,
-// fangs, steam) and chaos runs on its own until he calms down. Reduced motion: no automatic rage.
+// angry brows and a frown, steam) and chaos runs on its own until he calms down. Reduced motion: no automatic rage.
 import { M, now, reduced, setMood, changed, rand } from './state.js';
 import { say } from './fx.js';
 import { line } from './lines.js';

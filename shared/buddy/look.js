@@ -23,13 +23,13 @@ const EYES = {
   happy: (x) => `<path d="M${x - 3.6} 1.5 Q${x} -4 ${x + 3.6} 1.5" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
   heart: (x) => `<path d="M${x} 4.5 C${x - 8} -1 ${x - 4} -7 ${x} -3 C${x + 4} -7 ${x + 8} -1 ${x} 4.5Z" fill="#ff4f86" stroke="${INK}" stroke-width=".7"/><circle cx="${x - 2}" cy="-2.6" r=".9" fill="#fff"/>`,
   spiral: (x) => `<circle cx="${x}" cy="0" r="4.8" fill="#fff" stroke="${INK}" stroke-width=".7"/><path d="M${x} 0 m0 -.6 a.6 .6 0 1 1 -.1 0 m0 -1.4 a2 2 0 1 1 -.3 0 m.1 -1.3 a3.4 3.4 0 1 1 -.4 0" stroke="${INK}" stroke-width=".8" fill="none"/>`,
-  angry: (x) => `${EYES.normal(x)}<path d="M${x - 5 * Math.sign(x)} -5.5 L${x + 3.5 * Math.sign(x)} -9" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/>`,
+  // Narrowed eyes under angry brows (no teeth: anger is brows, a frown, red, shaking and steam).
+  angry: (x) => `<ellipse cx="${x}" cy="0.8" rx="3.6" ry="3.4" fill="${INK}"/><circle cx="${x - 1.2}" cy="-0.4" r=".9" fill="#fff"/><path d="M${x - 5 * Math.sign(x)} -5.5 L${x + 3.5 * Math.sign(x)} -9" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/>`,
 };
 const MOUTHS = {
   smile: `<path d="M-5 10 Q0 14 5 10" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
   open: `<path d="M-6.5 8.5 Q0 7.5 6.5 8.5 Q5.5 21 0 21 Q-5.5 21 -6.5 8.5Z" fill="${INK}"/><ellipse cx="0" cy="17.5" rx="3.6" ry="2.2" fill="#ff6f8e"/>`,
   o: `<ellipse cx="0" cy="12" rx="2.6" ry="3.4" fill="${INK}"/>`,
-  fangs: `<path d="M-6 10 Q0 15 6 10" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M-4 11 L-2 15.5 L-1 11.8Z M4 11 L2 15.5 L1 11.8Z" fill="#fff"/>`,
   frown: `<path d="M-5 13.5 Q0 9 5 13.5" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
   wavy: `<path d="M-6 11 q1.5 -2 3 0 t3 0 t3 0 t3 0" stroke="${INK}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
 };
@@ -50,13 +50,13 @@ export function setup(container) {
   </defs>
   <g class="m-root"><g class="m-squash"><g class="m-scale">
     <g class="m-body" filter="url(#slp-goo-mascot)">${LUMPS.map((l, i) => `<circle class="m-c${i}" cx="${l[0]}" cy="${l[1]}" r="${l[2]}"/>`).join('')}</g>
-    <g class="m-face"><g class="m-eyes"></g><g class="m-cheeks"><ellipse cx="-14" cy="6" rx="3.4" ry="2" fill="#ff6f96" opacity=".45"/><ellipse cx="14" cy="6" rx="3.4" ry="2" fill="#ff6f96" opacity=".45"/></g><g class="m-mouth"></g></g>
+    <g class="m-face"><g class="m-eyes"></g><g class="m-cheeks" style="opacity:0;transition:opacity .45s"><ellipse cx="-14" cy="6" rx="3.4" ry="2" fill="#ff6f96" opacity=".45"/><ellipse cx="14" cy="6" rx="3.4" ry="2" fill="#ff6f96" opacity=".45"/></g><g class="m-mouth"></g></g>
     <ellipse class="m-shine" cx="-10" cy="-10" rx="6" ry="3.5" transform="rotate(-30 -10 -10)" fill="rgba(255,255,255,.8)"/>
     <g class="m-hat"></g><g class="m-brain"></g>
   </g></g></g>`;
   container.append(svg);
   const q = (s) => svg.querySelector(s);
-  parts = { root: q('.m-root'), squash: q('.m-squash'), scale: q('.m-scale'), eyes: q('.m-eyes'), mouth: q('.m-mouth'), hat: q('.m-hat'), brain: q('.m-brain'), lumps: LUMPS.map((_, i) => q('.m-c' + i)) };
+  parts = { root: q('.m-root'), squash: q('.m-squash'), scale: q('.m-scale'), eyes: q('.m-eyes'), cheeks: q('.m-cheeks'), face: q('.m-face'), shine: q('.m-shine'), mouth: q('.m-mouth'), hat: q('.m-hat'), brain: q('.m-brain'), lumps: LUMPS.map((_, i) => q('.m-c' + i)) };
   lastEyes = lastMouth = lastHat = ''; lastRage = null; lastBrain = false;
   return svg;
 }
@@ -68,7 +68,7 @@ export function face(t = now()) {
   if (moodIs('love')) return ['heart', 'open'];
   if (moodIs('chomp')) return [M.chaos || M.raging ? 'angry' : 'happy', 'open'];
   if (moodIs('woozy')) return ['sleepy', 'wavy'];
-  if (M.chaos || M.raging) return ['angry', 'fangs'];
+  if (M.chaos || M.raging) return ['angry', 'frown'];
   if (moodIs('annoyed') || M.rage >= MAD) return ['angry', 'frown'];
   if (moodIs('land')) return ['happy', 'smile'];
   if (M.mode === 'hop') return ['normal', 'open'];
@@ -79,8 +79,17 @@ export function face(t = now()) {
 export function draw(t) {
   if (!svg) return;
   const [eyes, mouth] = face(t), still = reduced(), s = size(), k = s / 50;
-  if (eyes !== lastEyes) { parts.eyes.innerHTML = EYES[eyes](-8) + EYES[eyes](8); lastEyes = eyes; }
+  if (eyes !== lastEyes) {
+    parts.eyes.innerHTML = EYES[eyes](-8) + EYES[eyes](8);
+    lastEyes = eyes;
+    // Blush only shows (and fades) in love: petted, a favourite treat, heart eyes.
+    parts.cheeks.style.opacity = eyes === 'heart' || moodIs('love') ? '1' : '0';
+  }
   if (mouth !== lastMouth) { parts.mouth.innerHTML = MOUTHS[mouth]; lastMouth = mouth; }
+  // Turned his back (snubbing a treat): no face, the shine moves to the other side.
+  const back = now() < (M.backUntil || 0);
+  parts.face.style.opacity = back ? '0' : '';
+  parts.shine.setAttribute('transform', back ? 'translate(18 0) rotate(-30 -10 -10)' : 'rotate(-30 -10 -10)');
   const hat = M.tempHat || M.hat || '';
   if (hat !== lastHat) { parts.hat.innerHTML = HAT_SVG[hat] || ''; lastHat = hat; }
   if (!!M.powered !== lastBrain) { lastBrain = !!M.powered; parts.brain.innerHTML = lastBrain ? BRAIN_SVG : ''; }

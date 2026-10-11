@@ -95,8 +95,7 @@ export function create(container, W, H, base) {
   const frown = new THREE.Mesh(new THREE.TubeGeometry(curve(-3, 1), 16, 1, 6), dark);
   const open = new THREE.Mesh(sph, dark); open.scale.set(6, 6, 1.5); open.position.y = -5;
   const o = new THREE.Mesh(sph, dark); o.scale.set(2.6, 3.4, 1.5); o.position.y = -2;
-  const fangs = [-2.5, 2.5].map((x) => { const f = new THREE.Mesh(new THREE.ConeGeometry(1, 4, 8), white); f.rotation.z = Math.PI; f.position.set(x, -3.5, 1); return f; });
-  mouthGroup.add(smile, frown, open, o, ...fangs);
+  mouthGroup.add(smile, frown, open, o);
   const shine = new THREE.Mesh(sph, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 }));
   shine.scale.set(6, 3.5, 1); shine.rotation.z = 0.52; shine.position.set(-10, 14, z(-10, 14));
   body.add(shine);
@@ -144,17 +143,16 @@ export function create(container, W, H, base) {
       const { ball, hi, brow } = e.userData;
       const closed = eyeKind === 'sleepy' || eyeKind === 'happy';
       ball.material = eyeKind === 'heart' ? pink : eyeKind === 'spiral' ? white : dark;
-      ball.scale.set(3.6, closed ? 0.6 : 5, 1.6);
+      ball.scale.set(3.6, closed ? 0.6 : eyeKind === 'angry' ? 3.4 : 5, 1.6);
       hi.material = eyeKind === 'spiral' ? dark : white;
       hi.position.set(eyeKind === 'spiral' ? Math.cos(t / 90) * 2 : -1.2, eyeKind === 'spiral' ? Math.sin(t / 90) * 2 : 2, 1.4);
       hi.visible = !closed;
       brow.visible = eyeKind === 'angry';
     }
-    smile.visible = mouth === 'smile' || mouth === 'fangs' || mouth === 'wavy';
+    smile.visible = mouth === 'smile' || mouth === 'wavy';
     frown.visible = mouth === 'frown';
     open.visible = mouth === 'open';
     o.visible = mouth === 'o';
-    fangs.forEach((f) => { f.visible = mouth === 'fangs'; });
     renderer.render(scene, cam);
   }
   function dispose() { renderer.dispose(); geo.dispose(); canvas.remove(); }

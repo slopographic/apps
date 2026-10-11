@@ -34,12 +34,19 @@
 .sh-item[hidden] { display: none; }
 .sh-item:disabled { cursor: default; opacity: .45; }
 .sh-item::after { content: ""; position: absolute; inset: 0; background: rgba(10, 10, 10, .6); transform-origin: bottom; transform: scaleY(var(--cd, 0)); }
-.sh-ghost-item { position: fixed; z-index: 2147483000; font-size: 28px; transform: translate(-50%, -60%); pointer-events: none; }
 .sloppo-hud.is-angry { border-color: rgba(255, 79, 110, .5); }
+
+/* treats placed on the page */
+.sloppo-treat {
+  position: absolute; font-size: 22px; line-height: 1; transform: translate(-50%, -100%); pointer-events: none;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .45)); animation: buddy-wobble 1.4s ease-in-out infinite;
+}
+@keyframes buddy-wobble { 0%, 100% { rotate: -6deg; } 50% { rotate: 6deg; } }
+.m-face { transition: opacity .25s; }
 
 /* apps: the HUD sits above the toggle button, out of the work area until opened */
 .sloppo-hud.in-app { left: auto; right: 12px; bottom: calc(68px + env(safe-area-inset-bottom, 0px)); max-width: min(420px, calc(100vw - 24px)); }
 
 @media (prefers-reduced-motion: reduce) {
-  .sloppo.is-powered::before, .sloppo.is-powered .m-led { animation: none; }
+  .sloppo.is-powered::before, .sloppo.is-powered .m-led, .sloppo-treat { animation: none; }
 }

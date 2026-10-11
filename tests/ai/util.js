@@ -15,6 +15,7 @@ window.AT = (function () {
   async function app(extra = '', size) {
     const w = await frame('../../ai/?engine=fake&db=' + db() + extra, undefined, size);
     w.AI.fakeDelay = 0; w.AI.fakeLoadMs = 10; w.AI.autoload = false;
+    await waitFor(() => w.AI.sys && !w.AI.sysBusy); // the quick boot-time check, so it cannot overwrite a mock later
     w.__opened = []; w.open = (url) => { w.__opened.push(url); return {}; };
     return w;
   }

@@ -1,6 +1,6 @@
 // Intro (16 beats): a goo drop falls and lands, floods the screen lime, SLOPOGRAPHIC slams in
 // letter by letter, then "creative apps that run 100% in your browser".
-import { h, css, k, E, punch, letters, lerp } from '../ease.js';
+import { h, css, k, E, punch, letters, lerp, fitOnce } from '../ease.js';
 import { sloppo } from '../goo.js';
 
 export function makeIntro(seg, ctx) {
@@ -20,14 +20,15 @@ export function makeIntro(seg, ctx) {
   const s = { pre: 0, post: 0.4 };
   s.el = el;
   s.render = (t) => {
+    fitOnce(word, ctx.W * 0.86); fitOnce(big, ctx.W * 0.9); fitOnce(tail, ctx.W * 0.9); fitOnce(tag, ctx.W * 0.9);
     // 1. the drop falls (0..1s), lands, bounces, then rides the word.
     const fall = k(t, 0.2, 1.0, E.inQuad);
     let y = lerp(-0.7, 0, fall), squash = 0;
     if (t >= 1.0 && t < 1.6) { const b = (t - 1.0) / 0.6; y = -Math.sin(b * Math.PI) * 0.12; squash = punch(t, 1.0, 0.5) * 0.8; }
     const sizeK = k(t, 2.0, 2.6, E.inOutCubic);
-    const spSize = lerp(V ? 260 : 240, V ? 150 : 130, sizeK);
+    const spSize = lerp(V ? 520 : 480, V ? 260 : 300, sizeK);
     const wordTop = V ? 0.43 : 0.40;
-    const yPix = t < 2.0 ? (0.5 + y * 0.6) * ctx.H - spSize * 0.6 : lerp(0.5 * ctx.H - spSize * 0.6, wordTop * ctx.H - spSize * 0.98, sizeK);
+    const yPix = t < 2.0 ? (0.5 + y * 0.6) * ctx.H - spSize * 0.6 : lerp(0.5 * ctx.H - spSize * 0.6, wordTop * ctx.H + (V ? 90 : 80) - word.offsetHeight * 0.45 - spSize * 0.72, sizeK);
     const landHop = t > 2.6 && t < 4.6 ? Math.abs(Math.sin((t - 2.6) * Math.PI * 2)) * 18 : 0;
     css(sp.el, { width: spSize + 'px', height: spSize + 'px', left: (ctx.W - spSize) / 2 + 'px', top: yPix - landHop + 'px', opacity: t < 0.2 ? 0 : t > 4.9 ? 0 : 1 });
     sp.pose(t, { squash: squash + (t > 2.6 && t < 4.6 ? punch(t, 2.6 + Math.floor((t - 2.6) * 2) / 2, 0.4) * 0.4 : 0), open: k(t, 1.0, 1.15) - k(t, 1.5, 1.8), look: Math.sin(t * 1.3) * 0.4 });

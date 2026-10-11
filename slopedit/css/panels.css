@@ -84,7 +84,7 @@
 .ins-reset:hover { color: var(--accent-line); }
 
 /* progress dialog and keymap */
-.prog { display: grid; gap: 10px; min-width: min(360px, 80vw); }
+.prog { display: grid; gap: 10px; min-width: 0; }
 .prog-bar { height: 10px; border-radius: 99px; background: var(--input); overflow: hidden; border: 1px solid var(--line-2); }
 .prog-bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s; }
 .prog-msg { color: var(--dim); font: 500 11.5px var(--mono); }

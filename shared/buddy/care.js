@@ -1,8 +1,9 @@
 // Shake anger and calm-down snacks.
 // Shaking him while you drag: gentle wiggles make him giggle, real shaking makes him woozy, then
 // mad (same rage meter as drops and throws). Once he is MAD the meter stops draining until you give
-// him something from the "Give…" tray: each item calms a different amount, he has a favourite
-// (extra happy) and a least favourite (spits it out, madder). Items restock over time and more
+// him something from the "Give…" tray: a treat is placed near him (treats.js) and he goes and eats
+// it when he's calm enough. Each item calms a different amount; he has a favourite (extra happy)
+// and a least favourite (spits it out, madder). Items restock over time and more
 // unlock with levels. Petting helps a little, but not at full rage.
 import { M, now, reduced, setMood, changed, rand } from './state.js';
 import { say, hearts, sparkle, crumbs } from './fx.js';
@@ -10,6 +11,7 @@ import { line } from './lines.js';
 import { size } from './look.js';
 import { save } from './store.js';
 import { addRage, calmRage, MAD, persistRage } from './rage.js';
+import { offer, tickTreats } from './treats.js';
 
 export const ITEMS = [
   { id: 'cookie', icon: '🍪', name: 'cookie', calm: 1.0, cd: 20000, level: 1, act: 'eat' },
@@ -39,12 +41,10 @@ function tastes() {
   save({ fav: M.fav, hate: M.hate });
 }
 
-/** Give him an item. Returns the change in rage (negative = calmer), or null if not available. */
-export function give(id) {
+/** He eats (or hugs) an item: apply its effect. Returns the change in rage (negative = calmer). */
+export function feed(id) {
   const it = byId[id];
-  if (!it || it.level > M.level || !ready(id)) return null;
-  M.stock = Object.assign({}, M.stock, { [id]: Date.now() + it.cd });
-  save({ stock: M.stock });
+  if (!it) return null;
   const v = calmValue(id);
   const before = M.rage;
   if (v < 0) {
@@ -55,10 +55,10 @@ export function give(id) {
     if (M.raging) M.raging += 3000; else M.rage = Math.min(2.5, M.rage - v);
   } else {
     if (it.act === 'hat') { const hats = ['crown', 'tophat', 'wizard', 'party', 'cowboy']; M.tempHat = hats[Math.floor(Math.random() * hats.length)]; }
-    setMood(it.act === 'hug' ? 'love' : 'chomp', 900);
-    M.squash = 0.6;
-    if (!reduced()) { hearts(it.id === M.fav ? 6 : 2); if (it.id === M.fav) sparkle(); }
     const fav = it.id === M.fav;
+    setMood(it.act === 'hug' || fav ? 'love' : 'chomp', fav ? 1600 : 900);
+    M.squash = 0.6;
+    if (!reduced()) { hearts(fav ? 6 : 2); if (fav) sparkle(); }
     say(fav ? `OMG ${it.name.toUpperCase()}` : line(it.act === 'hug' ? 'hug' : 'snack'), 1800, { force: true });
     if (M.raging && v >= 1.5) calmRage();
     M.rage = Math.max(0, M.rage - v);
@@ -98,6 +98,16 @@ export function shakeScore(list) {
 }
 export const SHAKE = { giggle: 1.5, woozy: 4, mad: 8 };
 
+/** Start an item's cooldown. Returns false if it isn't available yet (or not unlocked). */
+export function take(id) {
+  const it = byId[id];
+  if (!it || it.level > M.level || !ready(id)) return false;
+  M.stock = Object.assign({}, M.stock, { [id]: Date.now() + it.cd });
+  save({ stock: M.stock });
+  return true;
+}
+export const item = (id) => byId[id];
+
 /** Called by input.js for every drag move. */
 export function onDrag(t, x, y) {
   samples.push([t, x, y]);
@@ -127,40 +137,13 @@ export function mount(hud) {
     b.textContent = it.icon;
     b.title = `Give him a ${it.name}`;
     b.setAttribute('aria-label', `Give Sloppo a ${it.name}`);
-    dragToGive(b, it.id);
+    b.addEventListener('click', () => { if (take(it.id)) offer(it.id); });
     tray.append(b);
   }
   hud.append(tray);
   render();
 }
-/** Tap to give, or drag the item onto him. */
-function dragToGive(b, id) {
-  let start = null, ghost = null;
-  b.addEventListener('pointerdown', (e) => { start = [e.clientX, e.clientY, e.pointerId]; });
-  b.addEventListener('pointermove', (e) => {
-    if (!start || e.pointerId !== start[2]) return;
-    if (!ghost && Math.hypot(e.clientX - start[0], e.clientY - start[1]) > 6) {
-      try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
-      ghost = document.createElement('span');
-      ghost.className = 'sh-ghost-item';
-      ghost.textContent = b.textContent;
-      document.body.append(ghost);
-    }
-    if (ghost) Object.assign(ghost.style, { left: e.clientX + 'px', top: e.clientY + 'px' });
-  });
-  b.addEventListener('pointerup', (e) => {
-    if (!start) return;
-    const dragged = !!ghost;
-    if (ghost) ghost.remove();
-    ghost = null;
-    start = null;
-    if (!dragged) return;                    // a tap: the click handler gives it
-    const r = M.hit.getBoundingClientRect();
-    if (e.clientX > r.left - 20 && e.clientX < r.right + 20 && e.clientY > r.top - 20 && e.clientY < r.bottom + 20) give(id);
-    b.dataset.dragged = '1';
-  });
-  b.addEventListener('click', () => { if (b.dataset.dragged) { delete b.dataset.dragged; return; } give(id); });
-}
+
 function render() {
   if (!tray) return;
   const t = Date.now();
@@ -175,5 +158,6 @@ function render() {
 }
 let nextRender = 0;
 export function tick(dt, t) {
+  tickTreats(dt, t);
   if (t > nextRender) { nextRender = t + 250; render(); }
 }

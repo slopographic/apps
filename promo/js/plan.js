@@ -16,9 +16,9 @@ export function makePlan(apps) {
     add('chapter', 4, { title: KIND_TITLE[kind], line: KIND_LINE[kind], count: list.length, kind });
     list.forEach((a, i) => add('app', kind === 'app' ? 6 : 4, { app: a, index: i, of: list.length }));
   }
-  add('montage', 12, { games: apps.filter((a) => a.kind === 'game') });
+  add('montage', 10, { games: apps.filter((a) => a.kind === 'game') });
   add('pillars', 24);
-  add('outro', 16);
+  add('outro', 14);
   const total = beat * BEAT;
   return { segs, total, beats: beat };
 }

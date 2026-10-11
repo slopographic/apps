@@ -1,6 +1,6 @@
 // The pillars (24 beats): no installs · no accounts · no uploads · NO WATERMARKS (its own
 // moment: Sloppo eats a watermark off a picture) · works offline.
-import { h, css, k, E, punch, lerp } from '../ease.js';
+import { h, css, k, E, punch, lerp, fitOnce } from '../ease.js';
 import { sloppo } from '../goo.js';
 
 const ICONS = {
@@ -46,6 +46,7 @@ export function makePillars(seg, ctx) {
       const t0 = c.p.at, dur = 2, on = lt >= t0 - 0.0001 && lt < t0 + dur + (c.p.at === 10 ? 0.4 : 0);
       c.el.style.display = on ? '' : 'none';
       if (!on) continue;
+      fitOnce(c.word, ctx.vertical ? ctx.W * 0.9 : ctx.W * 0.6);
       const x = lt - t0;
       const shake = punch(x, 0, 0.35) * 12;
       css(c.el, { transform: `translate(${shake}px, ${-shake * 0.5}px)` });
@@ -61,6 +62,7 @@ export function makePillars(seg, ctx) {
     const w = lt - 6, won = w >= -0.05 && w < 4.05;
     wm.style.display = won ? '' : 'none';
     if (won) {
+      fitOnce(ever, ctx.W * 0.9);
       const inP = k(w, 0, 0.35, E.outBack);
       css(pic, { transform: `translate(-50%, -50%) scale(${(0.85 + inP * 0.15) * (1 - k(w, 2, 2.3, E.outCubic) * 0.12)}) rotate(${(1 - inP) * -4 + Math.sin(w * 3) * 0.6}deg)`, opacity: Math.min(1, inP * 2) });
       css(cap, { opacity: k(w, 0.1, 0.4) * (1 - k(w, 1.8, 2.0)) });

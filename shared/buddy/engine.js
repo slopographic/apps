@@ -21,6 +21,7 @@ import { CFG, configure } from './config.js';
 import * as tips from './tips.js';
 import * as power from './power.js';
 import * as care from './care.js';
+import * as treats from './treats.js';
 
 function el(tag, cls, attrs = {}) {
   const n = document.createElement(tag);
@@ -143,7 +144,7 @@ export function start(opts = {}) {
   if (!CFG.home) guard();
   requestAnimationFrame((t) => { last = t; frame(t); });
   const api = {
-    M, pet, gain, act, restore, leapIn, hopTo, face, impact, perches: P, bodies: () => bodyCount(), show, toggleHud, tips, power, care,
+    M, pet, gain, act, restore, leapIn, hopTo, face, impact, perches: P, bodies: () => bodyCount(), show, toggleHud, tips, power, care, treats,
     unleash: () => setChaos(true), calm: () => setChaos(false), bonk: hardLanding, enrage, calmRage, set3d, say,
     get level() { return M.level; }, get xp() { return M.xp; }, get hat() { return M.hat; }, get journal() { return count(); },
     get visible() { return visible; },
