@@ -62,9 +62,10 @@
   .statusbar { display: none; }
   .rail { flex-direction: row; gap: 0; padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); border-right: 0; border-top: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; }
   .rail-b { flex: none; width: 72px; padding: 6px 2px; font-size: 10px; }
+  .rail-b span { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .rail-b.on::before { left: 14px; right: 14px; top: -4px; bottom: auto; width: auto; height: 3px; border-radius: 0 0 3px 3px; }
-  .props { position: fixed; left: 0; right: 0; bottom: 62px; max-height: 62vh; z-index: 40; border-left: 0; border-top: 1px solid var(--line-2); border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0, 0, 0, .4); transform: translateY(110%); transition: transform .22s ease; display: block !important; }
-  .app.sheet-open .props { transform: none; }
+  .props { position: fixed; left: 0; right: 0; bottom: 62px; max-height: 62vh; z-index: 40; border-left: 0; border-top: 1px solid var(--line-2); border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0, 0, 0, .4); transform: translateY(calc(100% + 80px)); visibility: hidden; transition: transform .22s ease, visibility 0s .22s; display: block !important; }
+  .app.sheet-open .props { transform: none; visibility: visible; transition: transform .22s ease; }
   .pp-title { border-radius: 18px 18px 0 0; }
   #btnPanel { display: inline-flex; }
   .menus, .tb-group { display: none; }
