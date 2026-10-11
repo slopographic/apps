@@ -44,7 +44,7 @@ Codes: `invalid`, `invalid_transition`, `immutable`, `posting_required`, `delete
 - Amounts are **integer minor units** (cents). `$12.34` is `1234`. Never floats.
 - Tax rates are **integer basis points**: `2000` = 20.00%.
 - **Rounding: half away from zero** (ties go up in magnitude: 0.5 -> 1, 2.5 -> 3, -0.5 -> -1). All products use BigInt.
-- Line: `net = qty * unitPrice` (exact), `tax = round(net * taxRate / 10000)`, `total = net + tax`. Prices are tax-exclusive.
+- Line: `gross = qty * unitPrice` (exact), `net = gross` less `discount` (optional basis points, `round(gross * (10000 - discount) / 10000)`; absent is 0), `tax = round(net * taxRate / 10000)`, `total = net + tax`. Prices are tax-exclusive.
 - Document: `subtotal = sum(net)`, `tax = sum(line tax)` (rounded per line, then summed), `total = subtotal + tax`.
   `documentTotals(lines).byRate` gives the tax breakdown.
 - `parseMinor('12.5')` -> `1250`, or `null` (never rounds typed text; too many decimals is `null`).
@@ -57,9 +57,9 @@ Codes: `invalid`, `invalid_transition`, `immutable`, `posting_required`, `delete
 | collection | key | notes |
 |---|---|---|
 | `settings` | `id` ('main') | companyName, address, taxNumber, **defaultCurrency** (ISO 4217; the ledger's base; USD unless the browser's region says otherwise), locale (the browser's, else en-US), defaultTaxRate, paymentTermsDays, ratesUpdateOnOpen (bool, false) |
-| `customers` | `id` | name*, email, phone, address, `categories[]` (tags), `stage` lead\|contacted\|customer\|lost (default lead). **Soft delete.** |
+| `customers` | `id` | name*, email, phone, address, `categories[]` (tags), `stage` lead\|contacted\|customer\|lost (default lead), `notes` (text; the CRM writes dated lines `[YYYY-MM-DD] text`), `contactId` (the Slop Contacts id a customer was imported from; the CRM never imports the same id twice), `followUp` (date, optional). **Soft delete.** |
 | `products` | `id` | sku* (no spaces, unique), `ean` (optional, unique, GS1 check digit), name*, price* (minor), taxRate* (bp), unit |
-| `orders` | `id` | number (ORD-0001, auto), customerId*, date*, currency (default: base), status open\|fulfilled\|cancelled, `lines[]`*, totals. Never deleted: cancel. |
+| `orders` | `id` | number (ORD-0001, auto), customerId*, date*, currency (default: base), status draft\|open\|fulfilled\|cancelled (`open` is shown as Confirmed), `lines[]`*, totals, invoiceId (the invoice made from it). Never deleted: cancel. |
 | `invoices` | `id` | number (INV-0001, assigned on issue), customerId*, date*, dueDate, currency (default: base), status draft\|issued\|paid\|void, `lines[]`, totals (in `currency`), orderId; set on issue for a foreign currency: rateId, rate, amountBase. **Soft delete, drafts only.** |
 | `payments` | `id` | invoiceId*, amount* (> 0, in the invoice's currency), date*, method cash\|bank\|card\|other; currency, amountBase, rate, rateId. Immutable. |
 | `exchangeRates` | `id` | base*, quote* (ISO codes), date* (YYYY-MM-DD), rate* (integer, scaled by 1e6), source manual\|ecb\|fixed, note. **Immutable**: a correction is a new row. |
@@ -80,7 +80,7 @@ Rules enforced by `schema.js` and `store.js`:
   recomputed from `lines` (callers cannot set them).
 - `prepare(name, input)` normalises and validates. `validate(name, record)` checks a stored shape (needs `id`).
 - Issued invoices: `customerId`, `date`, `dueDate`, `number`, `lines`, `notes`, totals are frozen. Status moves
-  only draft->issued->paid|void (issued->void). Orders: open->fulfilled|cancelled, then frozen.
+  only draft->issued->paid|void (issued->void). Orders: draft->open->fulfilled|cancelled. A draft or open order is editable; fulfilled and cancelled are frozen (the invoice link can still be set).
 - Invoice status can change only through `billing` (`store.put` refuses it otherwise).
 - `journal`, `payments`, `stockMovements`, `stockCounts` are `postingOnly`: only `ledger`, `billing` and `stock` write them.
 - Journal lines: each has exactly one positive side (debit or credit), whole amounts, and the entry balances.
@@ -179,6 +179,7 @@ Rules enforced by `schema.js` and `store.js`:
 - `billing.recordPayment({ invoiceId, amount, date?, method?, note? })`: partial or full. Cash debits Cash (1000), others Bank (1010).
   Credits AR. Marks the invoice paid when nothing is due. Refuses overpayment.
 - `billing.voidInvoice(invoiceId)`: issued -> void, only while there are no payments. Reverses the issue entry. The number stays used.
+- `billing.invoiceFromOrder(orderId, { dueDate? })`: one transaction. Creates a draft invoice with the order's customer, currency, notes and lines (discounts included), sets `orderId` on the invoice and `invoiceId` on the order. Refused for draft or cancelled orders, and while the order's invoice still exists (`conflict`).
 - Pure: `billing.invoiceLines(invoice)`, `billing.paidOn(payments)`, `billing.balanceDue(invoice, payments)`.
 
 ## stock.js
@@ -223,7 +224,7 @@ Rules enforced by `schema.js` and `store.js`:
 ## Not built yet (decide before the apps need it)
 
 - Refunds and credit notes: a paid or part-paid invoice cannot be voided, and payments cannot be removed. A refund record is needed.
-- Discounts on lines, fractional quantities (quantities are whole numbers), and a line in a different currency from its document.
+- Fractional quantities (quantities are whole numbers), and a line in a different currency from its document.
 - Realised and unrealised exchange gains or losses (payments on foreign invoices convert at the issue rate, so no gain
   or loss arises yet). Cross-rates through a third currency: GBP to USD needs its own row, or the inverse of one. A
   rate-history view, and deletion of a mistaken row (rows are immutable; add a correcting row instead).
@@ -231,7 +232,7 @@ Rules enforced by `schema.js` and `store.js`:
 - Translations of the app text (the locale only changes number, currency and date formats).
 - Automatic background rate updates: none. Only the Settings button, or "Update on open" when both it and the consent category are on.
 - Revenue accounts per product (all sales credit 4000 Sales Revenue), and tax-inclusive pricing.
-- Order-to-invoice conversion, due-date reminders, and aged receivables reports.
+- Due-date reminders and aged receivables reports (the invoices app lists overdue and balances per customer).
 - Accounts cannot be deactivated or deleted, and there is no UI or rule for renaming them safely once used.
 - Cross-tab conflict UI: the transactions serialise writes correctly, but the apps must re-read on `subscribe` events.
 - Authorisation. Posting-only checks protect integrity inside the app, not against a malicious script.
