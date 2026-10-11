@@ -68,7 +68,7 @@ it is active. Same-action keys are not clashes (PhotoSLOP's Ctrl+0 and the Photo
 ## Adoption
 
 - PhotoSLOP: `photoslop/js/app/nav-adapter.js` (attaches itself; `view.js` is unchanged). Edit ▸ Preferences ▸ Navigation…, command palette "Navigation preset…". Script tags and the stylesheet are in `photoslop/index.html`.
-- Slop Vector: `vector/js/ui/nav-adapter.js`. Edit ▸ Preferences ▸ Navigation…, and the command palette ("Navigation…", action `edit.nav`).
+- Slop Vector: `slopvector/js/ui/nav-adapter.js`. Edit ▸ Preferences ▸ Navigation…, and the command palette ("Navigation…", action `edit.nav`).
 - Not yet: Slop 3D, Cutout, Gallery viewer, Slides canvas, Label canvas, Press canvas, SlopEdit monitor, and Slop Paint Classic. Each needs one adapter file and its script tags.
 
 ## Store API (for the profile page)

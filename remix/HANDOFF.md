@@ -32,7 +32,7 @@ Remix never copies the logic: it fills in options and calls `SlopVideo.random.pl
 
 The manifest is a Drive record of type `application/x-slop-reel+json`: `format: 'slop-reel'`, `version: 2`,
 `from: 'remix'`, the clip ids in play order, and `remix`: the exact options used. SlopEdit's reel loader
-(`slopedit/js/io/reel.js`) runs `SE.random.plan` with those options, so the same clips give the same edit, then builds it.
+(`slopcut/js/io/reel.js`) runs `SE.random.plan` with those options, so the same clips give the same edit, then builds it.
 SlopEdit reads durations from its own import, so a clip whose length differs there can change the plan.
 
 ## Tests
