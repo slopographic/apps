@@ -73,8 +73,10 @@
     if (thumb) return thumbItems(index(thumb.dataset.id));
     var canvas = target.closest('#stage');
     if (!canvas || !A.slide()) return null;
+    // a right-click on an object selects it; on empty slide it clears the selection, as a desktop app does
     var p = SS.stage.toSlide(ev.clientX, ev.clientY), hit = SS.overlay.hit(A.slide(), p);
-    if (hit && A.sel.indexOf(hit.id) < 0) A.select([hit.id]);
+    if (hit) { if (A.sel.indexOf(hit.id) < 0) A.select([hit.id]); }
+    else if (A.sel.length) A.select([]);
     return A.selObjs().length ? objectItems(A.selObjs()) : emptyItems();
   }
   function index(id) { return A.deck.slides.findIndex(function (s) { return s.id === id; }); }

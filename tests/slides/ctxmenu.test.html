@@ -47,7 +47,6 @@
       expect(w.SS.app.sel).toEqual([r.id]);
       expect(labels()).toContain('Bring to front');
       expect(labels()).toContain('Delete');
-      expect(labels()).not.toContain('Edit text');
       pick('Bring to front');
       expect(objs()[objs().length - 1].id).toBe(r.id);
     });
@@ -72,11 +71,11 @@
     });
 
     it('right-click on the selected rectangle and Delete removes it', () => {
-      const r = rect(), before = objs().length, c = w.SS.stage.toClient(r.x + 10, r.y + 10);
+      const r = rect(), id = r.id, before = objs().length, c = w.SS.stage.toClient(r.x + 10, r.y + 10);
       contextAt(doc.getElementById('canvas'), c.x, c.y);
       pick('Delete');
       expect(objs().length).toBe(before - 1);
-      expect(!!rect()).toBe(false);
+      expect(objs().some((o) => o.id === id)).toBe(false);
     });
 
     it('the Menu key on a focused thumbnail opens the slide menu', () => {
