@@ -1,74 +1,66 @@
 # SlopLabel: handoff
 
-Status: **incomplete, not shippable yet.** The engine layer (model, barcodes, variables, data sources, renderers, PDF/ZPL/EPL/TSPL export, ZPL import, offline builder, templates) is written. There is **no UI, no `index.html`, no CSS and no tests**, and none of the code has been run in a browser. Expect syntax and runtime bugs on first load.
+Status: **beta.** The designer works end to end in the browser: design, data merge, print, PDF/ZPL/EPL/TSPL/PNG/SVG export, ZPL import and preview, print-form links, Slop Hub, offline single-file build. Tests: `node tests/run.mjs label` gives 62 passing, with no console errors. Not yet checked on real printer hardware (see Known risks).
 
 ## Layout (classic scripts with top-level globals; every file is under 300 lines)
-Load the scripts in this order: core → barcode → vars → render → print → io → templates → ui.
+`index.html` loads the scripts in this order: `../shared/slopui.js`, `../shared/apps.js`, `../shared/hub.js`, `../vendor/bwip-js/bwip-js-min.js`, then core → barcode → vars → render → print → io → templates → ui. Keep the exact tag forms `<link rel="stylesheet" href="…">` and `<script src="…"></script>`, because the offline builder's regexes match them. No CDN, no web fonts.
 
-| File | Lines | What it does |
-|---|---|---|
-| js/core/units.js | 38 | mm/in/dots/pt conversion, `num`, `fmtLen`, `clamp`, `round`, `uid`, `escHTML` |
-| js/core/stocks.js | 67 | `STOCKS` library (thermal rolls, Avery Letter/A4, Herma A4), `stockOf`, `sheetPositions` |
-| js/core/model.js | 168 | `newDoc`, `applyStock`, `setOrientation`, `makeObject`, `History` (snapshot undo/redo), align/distribute/reorder/group, `parseProject`/`normalizeDoc` |
-| js/barcode/symbols.js | 122 | `SYMBOLOGIES`, `gs1Check` (mod 10), UPC-E expansion, Code 39 mod 43, GS1 AI table, `parseGS1`, `gs1Raw`, `gs1FromRaw` |
-| js/barcode/code128.js | 124 | Own Code 128 auto-subset encoder (`code128Encode`, `code128Widths`), `normalizeBarcode` (validation with readable errors, auto check digits) |
-| js/barcode/geometry.js | 144 | `barcodeGeometry(obj, value, dpi)`: mm rects and HR text (EAN/UPC guard layout, ITF-14 bearers). 2D codes and the other linear codes use `bwipjs.raw` |
-| js/vars/vars.js | 149 | Variables (prompt, counter, date with offsets, formula, fixed), `formatDate`, `interpolate` with `{Name\|filter:arg}`, `makeResolver`, `recordAt`, `checkPrompts` |
-| js/vars/sources.js | 154 | `parseCSV` (RFC 4180, auto delimiter), `parseJSONSource`, `readZip` (DecompressionStream deflate-raw), `readXLSX` (shared strings, inline strings, date styles), `loadDataFile` |
-| js/render/text.js | 128 | Fonts (sans/cond/serif/mono, mapped to PDF base-14), `measureMM`, `layoutText` (wrap, align, auto-shrink, para `**bold**`/`_italic_`) |
-| js/render/scene.js | 102 | `buildScene`/`buildItem`: objects become a primitive display list in mm; also rotation matrices, anchored auto-size and `syncAutoSize` |
-| js/render/canvas.js | 134 | `drawItems`, `renderLabelCanvas`, `toMono` (threshold/dither), `rasterizeItem` (1-bit for ^GFA), image cache |
-| js/render/svg.js | 48 | `labelSVG` |
-| js/print/job.js | 56 | `buildJob` (records, range, quantity column, identical copies, counters), `layoutPages` (sheet start position), `previewResolver` |
-| js/print/html.js | 55 | `pageCSS` (exact `@page size: Wmm Hmm`), `printHTML` (vector SVG or 1-bit bitmap), `printViaIframe` |
-| js/print/pdf.js | 176 | Hand-written PDF 1.4: exact MediaBox, vector bars, base-14 text with Tz width matching, JPEG passthrough, RGB+SMask, /BM Difference inverse, raster fallback for non-WinAnsi text |
-| js/print/zplgfx.js | 86 | ^GFA with Zebra ASCII compression (encode and decode), :Z64: decode, ^FH escaping, bits to PNG |
-| js/print/zpl.js | 136 | `buildZPL`: ^A0 text, native barcodes (Code 128 via explicit `>9 >: >; >5 >6 >7 >8` from our own encoder), ^GB/^GE/^GD, ^FR inverse, ^GFA images, ^PQ for copies, ~SD ^PR ^MN ^MT ^PO |
-| js/print/epl.js | 92 | `buildTSPL`, `buildEPL`: native text, barcodes and boxes, with bitmap fallback; returns bytes |
-| js/io/zplimport.js | 201 | `importZPL` (async): ^FO ^FT ^LH ^PW ^LL ^CF ^A ^FB ^FD ^FH ^FR ^FN (becomes a prompt var) ^SN (becomes a counter) ^BY, all main barcode commands, ^GB ^GE ^GC ^GD ^GF |
-| js/io/files.js | 63 | `addImageAsset`, `projectBlob`, IndexedDB autosave (`autosave`/`loadAutosave`), `encodeDocHash`/`decodeDocHash` (CompressionStream deflate-raw, base64url) |
-| js/io/offline.js | 67 | `buildOfflineHTML(sources)` (function replacers, `</script` and `<!--` escaping, `#app-src` JSON; large exact-inline files are stored as null), `extractOfflineSources`, `collectOfflineSources`, `downloadOfflineApp` |
-| js/templates/gallery.js | 117 | `TEMPLATES`: shipping 4×6, product EAN-13, SSCC pallet, asset QR, name badge, Avery 5160 address merge |
+### Engine (`js/`)
+| File | What it does |
+|---|---|
+| core/units.js | mm/in/dots/pt conversion, `num`, `fmtLen`, `clamp`, `round`, `uid`, `escHTML` |
+| core/stocks.js | `STOCKS` library (thermal rolls, Avery Letter/A4, Herma A4), `stockOf`, `sheetPositions` |
+| core/model.js | `newDoc`, `applyStock`, `setOrientation`, `makeObject`, `History` (snapshot undo/redo with coalescing), align/distribute/reorder/group, `parseProject`/`normalizeDoc` |
+| barcode/symbols.js | `SYMBOLOGIES`, `gs1Check`, UPC-E expansion, Code 39 mod 43, GS1 AI table, `parseGS1`, `gs1Raw`, `gs1FromRaw` |
+| barcode/code128.js | Code 128 auto-subset encoder, `normalizeBarcode` (readable errors, automatic check digits) |
+| barcode/geometry.js | `barcodeGeometry`: mm rects and HR text. Most linear and all 2D codes go through `bwipjs.raw` |
+| vars/vars.js | Variables (prompt, counter, date, formula, fixed), `formatDate`, `interpolate` with `{Name\|filter:arg}`, `makeResolver`, `checkPrompts` |
+| vars/sources.js | `parseCSV`, `parseJSONSource`, `readZip`, `readXLSX`, `loadDataFile` |
+| render/text.js, scene.js, canvas.js, svg.js | Fonts and layout, the shared display list (`buildScene`), canvas/SVG backends, 1-bit rasterising |
+| print/job.js, html.js, pdf.js | Jobs (records, quantity column, copies, sheet start), `@page` print HTML, hand-written PDF 1.4 |
+| print/zplgfx.js, zpl.js, epl.js | ^GFA compression, ZPL II, EPL2, TSPL |
+| io/zplimport.js, files.js, offline.js | ZPL → document, projects/autosave/form-link hashing, offline single-file builder |
+| templates/gallery.js | 6 starter templates (shipping 4×6, product EAN-13, SSCC pallet, asset QR, badge, Avery 5160 merge) |
 
-Vendored: `/vendor/bwip-js/` holds bwip-js 4.11.4 `bwip-js-min.js` (1,112,458 bytes, MIT `LICENSE`), plus `LICENSE.INCONSOLATA` (SIL OFL, for the embedded font) and `README.txt`. `bwipjs.raw()` was probed in Node and works for every listed symbology. `pip install zxing-cpp` is installed in this container for decode tests.
+### UI (`js/ui/`)
+| File | What it does |
+|---|---|
+| app.js | `App` state, `commit`/`editSel`/`undo`/`redo`/`setDoc`, selection, `refresh` (one frame later; `App.stale` makes `itemOf`/`boxOf` rebuild the scene when they are called before then), status bar, theme, dock |
+| view.js | Canvas viewport (screen = pan + mm × zoom), label/grid/margins, selection handles, smart guides, rulers |
+| interact.js | `TOOLS`, hit testing, move/resize (grid snap, smart guides, Alt disables), click or drag to create, image placing, marquee, pan (Space, middle button, Hand, one finger on empty canvas), wheel and pinch zoom |
+| keys.js | Shortcuts, clipboard (internal copy/paste, pasted images/text/ZPL), align/order/group/rotate/lock commands, context menu |
+| props.js, props-types.js | Properties panel: form helpers, label properties, geometry, per-type sections, the "{ } Insert field" menu |
+| panels.js | Dock tabs: Properties, Objects (list with hide/lock), Variables (plus preview values for prompts), Data (table, quantity column) |
+| dialogs.js | Label setup (stock picker, size, printer settings), variable editor (live preview, renames references), template gallery, About |
+| datadlg.js | Data import (CSV/TSV/JSON/xlsx file or paste) and column → field mapping |
+| export.js | `jobScenes`, project open/save, `openFiles` (dispatch by type), PNG/SVG/PDF/ZPL quick export, ZPL import dialog, `zplPreviewCanvas` |
+| printdlg.js | Prompt values, Print dialog (records, quantity, copies, sheet start, page preview, all outputs), ZPL preview dialog |
+| form.js | Print-form mode (`#form=` + `encodeDocHash`) and "Share print form link…" |
+| hub.js | `SlopHub.register('label')`, `consumeLaunch` (image → placed; CSV/xlsx → data; .sloplabel/.zpl → opened), Slop Drive pickers, File → Send to (PDF to Slop PDF; PNG to PhotoSLOP and Slop Vector). Hidden under `file:` and in the offline build |
+| menus.js | Menu bar: File, Edit, Insert, Object, Data, View (themes), Help |
+| boot.js | Toolbox, chrome wiring, drag and drop, boot order (form link → autosave → starter template → hub launch), adds `body.ready` |
 
-## Not done (next steps, in order)
-1. **`label/index.html`.** Copy the head tags from `/fluid/index.html` (title "SlopLabel — Slopographic", canonical `/label/`, og:image). Script order: `../shared/slopui.js`, `../shared/apps.js`, `../shared/hub.js`, `../vendor/bwip-js/bwip-js-min.js`, then the files above, then the ui files. Use the exact tag forms `<link rel="stylesheet" href="…">` and `<script src="…"></script>`, because the offline builder's regexes match them.
-2. **`label/css/*.css`.** Pro, Light and Classic 98 themes. Copy the token approach from `/vector/vector.css`, map the `--sui-*` variables, and keep each file under 300 lines.
-3. **`js/ui/*`.** Planned split:
-   - app.js: state, commit/history, selection, theme, autosave
-   - view.js: canvas viewport, rulers, grid, handles, smart guides
-   - interact.js: tools, drag/resize/create, pan/zoom, keyboard shortcuts
-   - menus.js
-   - props.js: properties panel
-   - panels.js: objects, variables, data
-   - dialogs.js: label setup with the stock picker, variable editor, data import with column mapping
-   - printdlg.js: print dialog, PDF/ZPL/EPL/TSPL/PNG export, ZPL preview via `importZPL` and then render, plus the "direct printing needs a helper" note
-   - form.js: print-form mode, opened by `#form=` + `encodeDocHash`
-   - hub.js integration: `SlopHub.register('label')`; `consumeLaunch()` places an image or loads a CSV as data; add "Insert image from Slop Drive…" and "Data from Slop Drive…"; add File → Send to ▸ (PDF to Slop PDF; PNG to PhotoSLOP/Slop Vector). Hide Send to under `file:`.
-4. **Tests.** Add `tests/label/sloplabel.test.html` with helper .js files, each under 300 lines, using the iframe plus eval-Proxy pattern from `tests/paint/photoslop.test.html`. Cover:
-   - check digits
-   - Code 128 values (`ABC123` gives `[104,33,34,35,17,18,19,67,106]`)
-   - units
-   - variables
-   - CSV
-   - xlsx (generate the fixture with a small zip writer in the test)
-   - ZPL snapshot and round trip
-   - `pageCSS`
-   - PDF xref offsets
-   - Avery 5160 positions (first slot `{x: 4.7625, y: 12.7}`, pitch 69.85 × 25.4 mm, 30 slots)
-   - History
-   - offline builder escaping
-5. **Verification.**
-   - Decode PNG renders with zxing-cpp.
-   - Run `pdfinfo` to check the page size (4×6 in should be 288 × 432 pt).
-   - Take Playwright screenshots in every theme and on mobile.
+CSS (`css/`): themes.css (tokens for Pro, Light and Classic 98, mapped onto `--sui-*`), layout.css, panels.css, classic.css, mobile.css (≤760 px: tools along the bottom, panels in a slide-up sheet opened with ☰).
 
-## Known risks and unverified points
-- No file has been executed yet, so expect typos.
-- ZPL GS1 DataMatrix (`^BX…,_` with `_1`) and QR (^BQ origin offset) are from memory and have not been checked on hardware.
-- The TSPL/EPL bitmap bit polarity is inverted on the assumption that 0 = black there.
-- NiceLabel `.nlbl` import is deliberately skipped (format not parseable reliably).
+## Tests
+`tests/label/sloplabel.test.html` loads the app in two same-origin iframes (1280 px and 390 px) and reaches its globals with `win.eval`:
+- engine.test.js: units, check digits, Code 128 values (`ABC123` gives `[104,33,34,35,17,18,19,67,106]`), barcode validation, GS1, variables, CSV, JSON, and xlsx (generated by a small zip writer in the test).
+- output.test.js: Avery 5160 positions, sheet start offsets, `pageCSS`, jobs, History, scene errors, ZPL snapshot and round trip, ^PQ merging, ^FH escaping, ^GFA, ZPL import (^FN/^SN/GS1/QR), GS1 DataMatrix, EPL/TSPL, PDF xref offsets and resources, projects, form-link hashes, offline builder escaping.
+- ui.test.js: creating objects with each tool by synthetic pointer events, smart-guide snap, move/resize/marquee/delete/undo, wheel zoom, properties panel edits, align/rotate/group/order, clipboard.
+- ui-flows.test.js: CSV import through the mapping dialog, variable editor, print dialog outputs (PDF/ZPL/EPL/TSPL/PNG captured), sheet layout, ZPL preview, templates, themes, label setup, opening files, Slop Hub Send to, menus, form-link mode, phone layout.
 
-## How to test (once the UI and tests exist)
-`node tests/run.mjs label`. A static server is at http://localhost:8125/label/.
+Verified by hand in this round:
+- Every symbology (0° and 90°), rendered to PNG, decodes with zxing-cpp (`pip install zxing-cpp`). So does the round trip through ZPL export → import → render (including ^GFA graphics).
+- `pdfinfo` reports 288 × 432 pt for 4×6 and Letter for Avery 5160, with no syntax errors. `pdffonts` lists the base-14 fonts.
+- The offline file (`File → Download app`) boots from `file://` and can rebuild itself.
+- Screenshots in all three themes at desktop size and at 390×844.
+
+Engine bugs fixed this round: literal U+2028/2029 in an offline.js regex (syntax error); PDF font/image resource names lost their `/`; 2D geometry dropped `gs1`, which broke GS1 DataMatrix ZPL; ZPL import of ITF-14 drew a second bearer; the offline builder inserted its JSON at the first `</body>`, which can sit inside inlined code; templates anchored right-aligned text off the label.
+
+## Known risks / next steps
+- Not tested on hardware: ZPL GS1 DataMatrix (`^BX…,_` with `_1`), the QR ^BQ origin offset, ITF bearer ^GB, and the TSPL/EPL bitmap polarity (assumes 0 = black).
+- UPC-E, GS1 QR, rotated QR and rectangular Data Matrix go to ZPL as ^GFA graphics. They decode fine, but output is larger. ^B9 needs checking against a printer before it is used.
+- Direct printing to a printer (Zebra Browser Print / WebUSB) is not implemented. The print dialog explains the workaround.
+- Text is edited in the Properties panel (double-click or Enter focuses it). There is no on-canvas text editing yet.
+- Rotation is in 90° steps only (thermal printers rotate fonts and barcodes in 90° steps).
+- NiceLabel `.nlbl` import is deliberately skipped.

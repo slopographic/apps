@@ -38,6 +38,7 @@ function labelSetupDialog(target) {
   unit.addEventListener('change', () => { const mmW = toMM(+W.value, unitPrev, +dpi.value), mmH = toMM(+H.value, unitPrev, +dpi.value); unitPrev = unit.value; W.value = num(fromMM(mmW, unitPrev, +dpi.value), 4); H.value = num(fromMM(mmH, unitPrev, +dpi.value), 4); });
   let unitPrev = u;
   showInfo();
+  requestAnimationFrame(() => { const on = list.querySelector('button.on'); if (on) on.scrollIntoView({ block: 'center' }); });
   const body = mk('div', { class: 'dlg-cols' },
     mk('div', null, mk('div', { class: 'sec-h' }, 'Stock'), list, info),
     mk('div', { class: 'dlg-form' }, mk('div', { class: 'sec-h' }, 'Label'), dRow('Name', name), dRow('Units', unit), dRow('Width', W), dRow('Height', H), dRow('Gap (mm)', gap), dRow('Corners (mm)', rad),
