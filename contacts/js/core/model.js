@@ -2,7 +2,7 @@
  * that cleans one up (trims, drops empty entries, fills FN, reads dates). Adds SlopContacts.model.
  *   { id, name: {prefix, given, additional, family, suffix}, fn, org, dept, title,
  *     phones: [{value, types}], emails: [{value, types}], adr: [{types, po, ext, street, locality, region, postal, country}],
- *     bday ('YYYY-MM-DD' or '--MM-DD'), url, note, groups: [string] } */
+ *     bday ('YYYY-MM-DD' or '--MM-DD'), url, note, groups: [string], photo ('' | data: URI | https link) } */
 (function () {
   'use strict';
   const SC = (window.SlopContacts = window.SlopContacts || {});
@@ -27,7 +27,7 @@
     return s;
   }
   const blank = () => ({ id: uid(), name: { prefix: '', given: '', additional: '', family: '', suffix: '' }, fn: '', org: '', dept: '', title: '',
-    phones: [], emails: [], adr: [], bday: '', url: '', note: '', groups: [] });
+    phones: [], emails: [], adr: [], bday: '', url: '', note: '', groups: [], photo: '' });
   const composed = (c) => NAME_KEYS.map((k) => (c.name && c.name[k]) || '').filter(Boolean).join(' ');
   const adrEntry = (a) => { const x = a || {}; const o = { types: types(x.types) }; for (const k of ADR_KEYS) o[k] = T.tidy(x[k]); return o; };
   const ent = (e, clean) => ({ value: clean(e && e.value), types: types(e && e.types) });
@@ -44,6 +44,7 @@
       adr: list(s.adr).map(adrEntry).filter((a) => ADR_KEYS.some((k) => a[k])),
       bday: normBday(s.bday), url: T.tidy(s.url), note: T.tidyNote(s.note),
       groups: T.uniq(list(s.groups).map((g) => T.tidy(g)).filter(Boolean)),
+      photo: SC.photo.normPhoto(s.photo),
     };
     c.fn = c.fn || composed(c) || c.org || (c.emails[0] && c.emails[0].value) || (c.phones[0] && c.phones[0].value) || 'No name';
     return c;

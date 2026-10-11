@@ -22,7 +22,7 @@ Sloppo stands on the top edges of `[data-perch]` elements: the intro title, the 
 every card (`data-perch="card"`, which chaos may bite, knock or blast), the status board and the footer wordmark.
 
 ## Tests (`node tests/run.mjs home`)
-- `tests/home/catalog.test.html` (11): every registry entry renders in its shelf, badges and features, the status
+- `tests/home/catalog.test.html` (12, incl. group labels): every registry entry renders in its shelf, badges and features, the status
   board, tab jumps, Authenticator view switching, and clicks on Sloppo are not navigation.
 - `tests/home/mascot.test.html` (11): levels/hats/lines (pure), loads and perches, pet, level-up with hat and growth,
   drag and throw, moods, leaping back into view, view switches, lazy 3D.

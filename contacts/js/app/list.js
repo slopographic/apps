@@ -1,5 +1,5 @@
-/* Slop Contacts: the group sidebar (with counts; click to filter) and the contact list (checkboxes, search,
- * selection bar). Renders from SlopContacts.state; user input updates the state and re-renders. */
+/* Slop Contacts: the group sidebar (with counts; click to filter) and the contact list (avatar, checkboxes, search,
+ * selection bar). A click on a row opens that contact in the detail panel. Renders from SlopContacts.state. */
 (function () {
   'use strict';
   const SC = window.SlopContacts;
@@ -23,13 +23,13 @@
 
   /** The row for one contact. */
   function rowHtml(c, shown) {
-    const on = S.sel.has(c.id), name = SC.model.displayName(c);
+    const on = S.sel.has(c.id), name = SC.model.displayName(c), open = SC.panel && SC.panel.openId() === c.id;
     const sub = [c.org, c.phones[0] && c.phones[0].value, c.emails[0] && c.emails[0].value].filter(Boolean).join(' · ');
     const chips = c.groups.slice(0, 4).map((g) => `<span class="chip">${esc(g)}</span>`).join('') + (c.groups.length > 4 ? `<span class="chip">+${c.groups.length - 4}</span>` : '');
-    return `<li class="row${on ? ' is-sel' : ''}" data-id="${esc(c.id)}" data-shown="${shown}">` +
+    return `<li class="row${on ? ' is-sel' : ''}${open ? ' is-open' : ''}" data-id="${esc(c.id)}" data-shown="${shown}">` +
       `<label class="ck"><input type="checkbox" data-ck="${esc(c.id)}"${on ? ' checked' : ''} aria-label="Select ${esc(name)}"></label>` +
-      `<button type="button" class="open" data-open="${esc(c.id)}" title="Edit ${esc(name)}">` +
-      `<span class="nm">${esc(name)}</span><span class="sub">${esc(sub) || '&nbsp;'}</span></button>` +
+      `<button type="button" class="open" data-open="${esc(c.id)}" title="Open ${esc(name)}"${open ? ' aria-current="true"' : ''}>` +
+      `${SC.photoUi.avatarHtml(c)}<span class="open-text"><span class="nm">${esc(name)}</span><span class="sub">${esc(sub) || '&nbsp;'}</span></span></button>` +
       `<span class="chips">${chips}</span></li>`;
   }
   function renderRows() {
@@ -57,7 +57,7 @@
     });
     $('rows').addEventListener('click', (e) => {
       const b = e.target.closest('[data-open]');
-      if (b) { SC.editor.open(b.dataset.open); return; }
+      if (b) { SC.panel.show(b.dataset.open); return; }
       const ck = e.target.closest('input[data-ck]');
       if (ck) {
         const next = new Set(S.sel);
