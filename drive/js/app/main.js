@@ -1,0 +1,63 @@
+/* Slop Drive — app/main: boot, the render loop, top bar wiring, and live updates from other tabs/apps. */
+'use strict';
+(function (DR) {
+  const S = DR.S, $ = DR.$;
+  const meter = DR.debounce(() => DR.renderMeter(), 250);
+
+  DR.render = function () {
+    if (!S.ready) return;
+    DR.renderPlaces(); DR.renderTree(); DR.renderCrumbs(); DR.renderTools();
+    const pane = $('pane'), view = DR.viewNow(), list = DR.visible();
+    DR.lastVisible = list;
+    const keep = pane.dataset.view === view && pane.dataset.place === S.section + ':' + S.cwd ? pane.scrollTop : 0;
+    pane.replaceChildren();
+    pane.dataset.view = view; pane.dataset.place = S.section + ':' + S.cwd;
+    const driveEmpty = !S.files.size && !S.folders.size;
+    if (driveEmpty) pane.append(DR.emptyState('drive'));
+    else if (view === 'columns') DR.renderColumns(pane);
+    else if (view === 'nodes') DR.renderNodes(pane);
+    else if (view === 'usage') DR.renderUsage(pane);
+    else if (!list.length) pane.append(DR.emptyState(S.query.trim() || S.kind !== 'all' ? 'search' : S.section === 'folder' ? 'folder' : S.section));
+    else DR.renderFiles(pane, list, view);
+    pane.scrollTop = keep;
+    document.title = (S.section === 'folder' && !S.cwd ? '' : DR.placeName() + ' — ') + 'Slop Drive — Slopographic';
+    DR.renderSelbar(); DR.renderStatus(); DR.renderInfo(); meter();
+  };
+  DR.onSelect = () => { DR.onSelectColumns(); };
+  DR.viewKeys = (e) => DR.columnKeys(e);
+
+  function wire() {
+    const search = $('search'), go = DR.debounce(() => { S.query = search.value; S.sel.clear(); DR.render(); }, 120);
+    search.addEventListener('input', go);
+    $('btnNew').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); DR.newMenu(r.left, r.bottom + 4); });
+    $('btnMore').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); DR.moreMenu(r.right - 220, r.bottom + 4); });
+    $('btnBackup').addEventListener('click', () => DR.backupDialog());
+    $('btnInfo').addEventListener('click', () => { if (DR.isMobile()) DR.sheet(!document.body.classList.contains('sheet-open')); else DR.toggleInfo(); });
+    $('btnSide').addEventListener('click', () => DR.drawer(!document.body.classList.contains('drawer-open')));
+    $('scrim').addEventListener('click', () => { DR.drawer(false); DR.sheet(false); });
+    DR.wireSelect(); DR.wireDrag(); DR.wireDropUpload(); DR.wireKeys();
+    addEventListener('resize', DR.debounce(() => { if (['usage', 'nodes'].includes(DR.viewNow())) DR.render(); }, 200));
+  }
+  // Other tabs and apps change the Drive too (Send to…, saves, a restore): follow along.
+  const outside = DR.debounce(async () => { await DR.refresh(); DR.render(); }, 150);
+
+  DR.boot = async function () {
+    wire();
+    try { window.SlopHub.register('drive'); } catch (e) { /* no bus */ }
+    window.SlopHub.on('drive:change', outside);
+    try { await DR.refresh(); } catch (e) { window.SlopUI.alert('Slop Drive is unavailable', 'This browser blocked storage for this site (private mode or a storage setting). ' + e.message); }
+    S.ready = true;
+    try { history.replaceState({ section: S.section, cwd: S.cwd }, ''); } catch (e) { /* sandboxed */ }
+    DR.render();
+    const launch = await window.SlopHub.consumeLaunch().catch(() => null);
+    if (launch && S.files.has(launch.id)) DR.reveal(S.files.get(launch.id));
+    document.body.classList.add('ready');
+    $('pane').focus({ preventScroll: true });
+  };
+  // Ask the browser to keep our storage after the first upload (a gesture is in progress then).
+  const imp = DR.importFiles;
+  let asked = false;
+  DR.importFiles = async function (...a) { const r = await imp.apply(this, a); if (!asked && r.length) { asked = true; DR.requestPersist(false); } return r; };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', DR.boot); else DR.boot();
+})(window.DR);

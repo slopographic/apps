@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Homepage · Sloppo mascot</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="boot.js"></script>
+  <script type="module">
+  import { levelFor, xpFor, hatsFor, scaleFor, HAT_ORDER } from '../../home/mascot/store.js';
+  import { HATS } from '../../shared/sloppo/index.js';
+  import { LINES, line } from '../../home/mascot/lines.js';
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  let win, S, M;
+  const ready = HomeTest.openHome().then((w) => { win = w; S = w.SlopMascot; M = S.M; });
+
+  describe('levels and hats (pure)', () => {
+    it('level = 1 + floor(sqrt(xp / 8))', () => {
+      expect([0, 7, 8, 31, 32, 72, 128].map(levelFor)).toEqual([1, 1, 2, 2, 3, 4, 5]);
+      for (let lv = 1; lv < 12; lv++) { expect(levelFor(xpFor(lv))).toBe(lv); expect(levelFor(xpFor(lv) - 1)).toBe(Math.max(1, lv - 1)); }
+    });
+    it('unlocks one real hat per level and grows a little', () => {
+      for (const h of HAT_ORDER) expect(typeof HATS[h]).toBe('function');
+      expect(hatsFor(1)).toEqual([]);
+      expect(hatsFor(3)).toEqual(HAT_ORDER.slice(0, 2));
+      expect(scaleFor(2)).toBeGreaterThan(scaleFor(1));
+      expect(scaleFor(99)).toBeCloseTo(1.45);
+    });
+    it('never says the same line twice in a row', () => {
+      for (const kind of Object.keys(LINES)) {
+        let prev = line(kind);
+        for (let i = 0; i < 40; i++) { const l = line(kind); expect(LINES[kind]).toContain(l); if (LINES[kind].length > 1) expect(l === prev).toBe(false); prev = l; }
+      }
+    });
+  });
+
+  describe('mascot', () => {
+    it('loads, appears and lands on a perch', async () => {
+      await ready;
+      await HomeTest.settled(win);
+      expect(M.el.hidden).toBe(false);
+      expect(!!M.perch && M.perch.el.hasAttribute('data-perch')).toBe(true);
+      const c = M.canvas, px = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+      let painted = 0;
+      for (let i = 3; i < px.length; i += 4) if (px[i]) painted++;
+      expect(painted).toBeGreaterThan(500);
+      expect(win.document.querySelector('.sloppo-hud .sh-lv b').textContent).toBe('1');
+    });
+    it('petting gives XP, hearts and a happy face', async () => {
+      await ready;
+      const xp = S.xp;
+      M.hit.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      expect(S.xp).toBe(xp + 1);
+      expect(M.mood).toBe('love');
+      expect(win.document.querySelectorAll('.sloppo-heart').length).toBeGreaterThan(0);
+    });
+    it('levels up, gets a hat, grows and saves progress', async () => {
+      await ready;
+      const hitW = parseFloat(M.hit.style.width);
+      S.gain(8 - S.xp);
+      expect(S.level).toBe(2);
+      expect(S.hat).toBe('sprout');
+      expect(parseFloat(M.hit.style.width)).toBeGreaterThan(hitW);
+      const hud = win.document.querySelector('.sloppo-hud');
+      expect(hud.querySelector('.sh-lv b').textContent).toBe('2');
+      expect(hud.querySelector('.sh-hat').hidden).toBe(false);
+      expect(JSON.parse(win.localStorage.getItem('slop.mascot.v1')).xp).toBe(8);
+      hud.querySelector('.sh-hat').click();
+      expect(S.hat).toBe(null);
+      hud.querySelector('.sh-hat').click();
+      expect(S.hat).toBe('sprout');
+    });
+    it('can be dragged and thrown, and lands again', async () => {
+      await ready;
+      await HomeTest.settled(win);
+      const r = M.hit.getBoundingClientRect();
+      let x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const ev = (type) => M.hit.dispatchEvent(new win.PointerEvent(type, { pointerId: 7, pointerType: 'mouse', button: 0, clientX: x, clientY: y, bubbles: true }));
+      ev('pointerdown');
+      for (let i = 0; i < 6; i++) { x += 20; y -= 18; ev('pointermove'); await sleep(16); }
+      expect(M.mode).toBe('drag');
+      ev('pointerup');
+      expect(M.mode).toBe('air');
+      expect(M.vx).toBeGreaterThan(100);
+      await HomeTest.settled(win);
+    });
+    it('makes the o face in the air and spiral eyes after a hard landing', async () => {
+      await ready;
+      const look = await import('../../home/mascot/look.js');
+      expect(look.face()[1]).not.toBe('o');
+      S.bonk();
+      expect(M.mood).toBe('dizzy');
+      expect(look.face()).toEqual(['spiral', 'wavy']);
+      expect(M.bubble.textContent.length).toBeGreaterThan(0);
+    });
+    it('leaps back into view when his perch scrolls away', async () => {
+      await ready;
+      await HomeTest.settled(win);
+      win.scrollTo(0, win.document.getElementById('status').offsetTop);
+      await waitFor(() => M.y > win.scrollY && M.y < win.scrollY + win.innerHeight && M.mode === 'perched', { timeout: 6000 });
+    });
+    it('moves to a visible perch when the view changes', async () => {
+      await ready;
+      win.document.querySelector('.tabs [data-view="detector"]').click();
+      await waitFor(() => M.mode === 'perched' && M.perch && M.perch.el.classList.contains('page-title'), { timeout: 6000 });
+      win.document.querySelector('.brand').click();
+      await sleep(100);
+    });
+    it('3D toggle loads three.js lazily, or falls back to 2D quietly', async () => {
+      await ready;
+      const loaded = () => performance.getEntriesByType('resource').concat(win.performance.getEntriesByType('resource')).some((e) => e.name.includes('three.module'));
+      expect(loaded()).toBe(false);
+      win.document.querySelector('.sh-3d').click();
+      await waitFor(() => !win.document.querySelector('.sh-3d').disabled && (M.is3d || win.document.querySelector('.sh-3d').getAttribute('aria-pressed') === 'false'), { timeout: 8000 });
+      await sleep(300);
+      if (M.is3d) {
+        expect(!!M.el.querySelector('canvas.sloppo-3d')).toBe(true);
+        expect(loaded()).toBe(true);
+      }
+      await S.set3d(false);
+      expect(M.is3d).toBe(false);
+      expect(M.el.querySelector('canvas.sloppo-3d')).toBe(null);
+    });
+  });
+
+  ready.then(() => sleep(100)).then(() => run());
+  </script>
+</body>
+</html>
