@@ -65,7 +65,7 @@
       await BK.eraseData();
       const p = await C.plan(BK.blob(JSON.stringify(v1)));
       expect(p.ok).toBe(true);
-      expect(p.legacy).toBe('Slop Data backup, version 1');
+      expect(p.source).toBe('Slop Data backup, version 1');
       const row = p.rows.find((r) => r.id === 'data');
       expect(row.from).toBe(1);
       expect(row.version).toBe(2);
@@ -92,7 +92,7 @@
         { name: 'idb.json', data: JSON.stringify(idb) }, { name: 'blobs/0', data: new Blob(['abc']) }]);
       const p = await C.plan(new File([zip], 'old.slop'));
       expect(p.ok).toBe(true);
-      expect(p.legacy).toBe('Slopographic backup, version 1');
+      expect(p.source).toBe('Slopographic backup, version 1');
       expect(p.rows.find((r) => r.id === 'drive').action).toBe('import');
       expect(p.rows.find((r) => r.id === 'profile').action).toBe('import');
       expect(JSON.stringify(p.envelope)).not.toContain('LEGACY-TOKEN');
@@ -100,6 +100,18 @@
       expect(await (await BK.driveFile('f1')).blob.text()).toBe('abc');
       expect(JSON.parse(localStorage.getItem('slop-profile')).data.photoslop.zoom).toBe('fit');
       localStorage.removeItem('slop-profile');
+    });
+  });
+  describe('the dialog', () => {
+    it('opens with the export and import sections, and Done closes it', async () => {
+      const C = await BK.central();
+      const closed = C.openDialog();
+      await SlopTest.waitFor(() => document.querySelector('.ev-dlg'), { timeout: 8000 });
+      expect(!!document.querySelector('[data-act="export-all"]')).toBe(true);
+      expect(!!document.querySelector('[data-act="import-all"]')).toBe(true);
+      document.querySelector('.ev-dlg .sui-foot button').click();
+      await closed;
+      expect(!!document.querySelector('.ev-dlg')).toBe(false);
     });
   });
   run({ name: 'Backup · Export everything: round trips and version 1 files' });

@@ -62,6 +62,7 @@
 
   function mount() {
     $('dBackup').addEventListener('click', backup);
+    $('dEverything').addEventListener('click', () => g.SlopBackup.openEverything());
     $('dRestore').addEventListener('change', (e) => { restoreFrom(e.target.files && e.target.files[0]); e.target.value = ''; });
     $('dReset').addEventListener('click', reset);
   }
