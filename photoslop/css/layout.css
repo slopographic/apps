@@ -168,6 +168,9 @@ body.dropping .drop-zones { display: grid; }
 .lp-eye svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; }
 .lp-eye.on { color: var(--fg); }
 .lp-eye:not(.on) svg { opacity: .25; }
+.lp-xf { width: 22px; height: 22px; border: 0; background: none; display: grid; place-items: center; padding: 0; color: var(--fg-faint); flex: none; border-radius: 4px; }
+.lp-xf:hover { color: var(--fg); background: var(--hover); }
+.lp-xf svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .lp-thumb { flex: none; width: 42px; height: 32px; display: grid; place-items: center; background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0 / 8px 8px; border: 1px solid var(--line); outline-offset: 1px; cursor: pointer; }
 .lp-thumb canvas { max-width: 40px; max-height: 30px; }
 .lp-thumb.target { outline: 1.5px solid var(--fg); }

@@ -125,6 +125,9 @@ function buildLayersPanel() {
       const name = h('span', { class: 'lp-name' }, L.text ? h('b', { class: 'lp-t' }, 'T') : null, L.name);
       name.addEventListener('dblclick', (e) => { e.stopPropagation(); renameInline(name, L); });
       row.append(name);
+      const xf = h('button', { type: 'button', class: 'lp-xf', title: 'Free Transform (Ctrl+T)', 'aria-label': 'Free Transform ' + L.name, html: '<svg viewBox="0 0 24 24"><path d="M6 6h12v12H6zM2 2h3v3H2zM19 2h3v3h-3zM2 19h3v3H2zM19 19h3v3h-3zM12 2v4"/></svg>' });
+      xf.addEventListener('click', (e) => { e.stopPropagation(); activateLayer(L); startTransform(); });
+      row.append(xf);
       if (L.locked) row.append(h('span', { class: 'lp-lock', title: 'Locked', html: '<svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z"/></svg>' }));
       if (L.blend !== 'normal' || L.opacity < 1) row.append(h('span', { class: 'lp-meta' }, (L.blend !== 'normal' ? BLENDS.find((b) => b[0] === L.blend)[1] : '') + (L.opacity < 1 ? ` ${Math.round(L.opacity * 100)}%` : '')));
       row.addEventListener('click', () => { if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); } });

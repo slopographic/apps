@@ -79,13 +79,35 @@ function transformLayerQuick(kind) {
   commitTransform(QUICK_LABEL[kind]);
   TRANSFORM.interp = keep;
 }
+/* Box geometry in screen space, shared with the idle box (tools/transform-idle.js). cs = corners tl, tr, br, bl. */
+const boxMid = (cs, i) => ({ x: (cs[i].x + cs[(i + 1) % 4].x) / 2, y: (cs[i].y + cs[(i + 1) % 4].y) / 2 });
+/** The scale handle under screen point s: { hx, hy } (each -1, 0 or 1), or null. */
+function boxHandle(cs, s) {
+  const H = [[cs[0], -1, -1], [boxMid(cs, 0), 0, -1], [cs[1], 1, -1], [boxMid(cs, 1), 1, 0], [cs[2], 1, 1], [boxMid(cs, 2), 0, 1], [cs[3], -1, 1], [boxMid(cs, 3), -1, 0]];
+  for (const [q, hx, hy] of H) if (Math.hypot(q.x - s.x, q.y - s.y) < 9) return { hx, hy };
+  return null;
+}
+/** The rotate knob: 24 px out from the middle of the top edge, along the box's normal. */
+function boxKnob(cs) {
+  const m = boxMid(cs, 0), c = { x: (cs[0].x + cs[2].x) / 2, y: (cs[0].y + cs[2].y) / 2 }, d = Math.hypot(m.x - c.x, m.y - c.y) || 1;
+  return { x: m.x + ((m.x - c.x) / d) * 24, y: m.y + ((m.y - c.y) / d) * 24 };
+}
+function drawBox(g, cs) {
+  g.strokeStyle = '#1e90ff'; g.lineWidth = 1; g.beginPath(); cs.forEach((q, i) => (i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y))); g.closePath(); g.stroke();
+  for (const q of cs.concat([0, 1, 2, 3].map((i) => boxMid(cs, i)))) { g.fillStyle = '#fff'; g.fillRect(q.x - 4, q.y - 4, 8, 8); g.strokeRect(q.x - 4 + 0.5, q.y - 4 + 0.5, 7, 7); }
+}
+function drawKnob(g, cs) {
+  const m = boxMid(cs, 0), k = boxKnob(cs);
+  g.strokeStyle = '#1e90ff'; g.lineWidth = 1; g.beginPath(); g.moveTo(m.x, m.y); g.lineTo(k.x, k.y); g.stroke();
+  g.beginPath(); g.arc(k.x, k.y, 5, 0, Math.PI * 2); g.fillStyle = '#fff'; g.fill(); g.stroke();
+}
+function handleCursor(h) { return h.move ? 'move' : h.rotate ? 'alias' : h.hx * h.hy > 0 ? 'nwse-resize' : h.hx * h.hy < 0 ? 'nesw-resize' : h.hx ? 'ew-resize' : 'ns-resize'; }
+
 const TRANSFORM_TOOL = {
   id: 'transform', name: 'Free Transform',
   handleAt(p) {
     const cs = tfCorners().map((q) => toScreen(q.x, q.y)), s = toScreen(p.x, p.y);
-    const mids = [0, 1, 2, 3].map((i) => ({ x: (cs[i].x + cs[(i + 1) % 4].x) / 2, y: (cs[i].y + cs[(i + 1) % 4].y) / 2 }));
-    const H = [[cs[0], -1, -1], [mids[0], 0, -1], [cs[1], 1, -1], [mids[1], 1, 0], [cs[2], 1, 1], [mids[2], 0, 1], [cs[3], -1, 1], [mids[3], -1, 0]];
-    for (const [q, hx, hy] of H) if (Math.hypot(q.x - s.x, q.y - s.y) < 9) return { hx, hy };
+    const h = boxHandle(cs, s); if (h) return h;
     // inside?
     let inside = false;
     for (let i = 0, j = 3; i < 4; j = i++) { const a = cs[i], b = cs[j]; if ((a.y > s.y) !== (b.y > s.y) && s.x < ((b.x - a.x) * (s.y - a.y)) / (b.y - a.y) + a.x) inside = !inside; }
@@ -124,17 +146,16 @@ const TRANSFORM_TOOL = {
     dirty(true); emit('transform');
   },
   up() { TRANSFORM.drag = null; },
-  hover(p) { const h = this.handleAt(p); V.el.style.cursor = h.move ? 'move' : h.rotate ? 'alias' : (h.hx * h.hy > 0 ? 'nwse-resize' : h.hx * h.hy < 0 ? 'nesw-resize' : h.hx ? 'ew-resize' : 'ns-resize'); },
+  hover(p) { V.el.style.cursor = handleCursor(this.handleAt(p)); },
   dblclick() { commitTransform(); },
   onKey(e) { if (e.key === 'Enter') { commitTransform(); return true; } if (e.key === 'Escape') { cancelTransform(); return true; } return false; },
   cancel() { TRANSFORM.drag = null; },
   overlay(g) {
     if (!TRANSFORM.active) return;
     const cs = tfCorners().map((q) => toScreen(q.x, q.y));
-    g.strokeStyle = '#1e90ff'; g.lineWidth = 1; g.beginPath(); cs.forEach((q, i) => (i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y))); g.closePath(); g.stroke();
-    const mids = [0, 1, 2, 3].map((i) => ({ x: (cs[i].x + cs[(i + 1) % 4].x) / 2, y: (cs[i].y + cs[(i + 1) % 4].y) / 2 }));
-    for (const q of cs.concat(mids)) { g.fillStyle = '#fff'; g.fillRect(q.x - 4, q.y - 4, 8, 8); g.strokeRect(q.x - 4 + 0.5, q.y - 4 + 0.5, 7, 7); }
+    drawBox(g, cs); drawKnob(g, cs);
     const c = toScreen(TRANSFORM.cx + TRANSFORM.tx, TRANSFORM.cy + TRANSFORM.ty);
+    g.strokeStyle = '#1e90ff';
     g.beginPath(); g.arc(c.x, c.y, 4, 0, Math.PI * 2); g.stroke();
   },
 };

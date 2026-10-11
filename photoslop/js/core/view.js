@@ -123,6 +123,7 @@ function draw() {
   if (D.sel && !(live && live.hideSel)) drawAnts(g);
   const t = currentTool();
   if (t.overlay) { g.save(); t.overlay(g); g.restore(); }
+  drawIdleBox(g);
   if (V.resize && V.resize.moved) {
     // live brush preview while Shift-dragging
     const R = V.resize, r = V.el.getBoundingClientRect(), cxp = R.sx - r.left, cyp = R.sy - r.top, rad = Math.max(1, (R.o.size * V.zoom) / 2);
@@ -204,6 +205,7 @@ function onPointerDown(e) {
   const t = currentTool();
   const p = snapP(toDoc(e), t);
   V.cursor = p;
+  if (idleBoxDown(p, e)) { e.preventDefault(); dirty(); return; } // a handle of the layer's box (tools/transform-idle.js)
   if (eyeAltSample(t, p, e)) { e.preventDefault(); return; } // Alt on a painting tool samples the colour and never paints
   // Shift-drag with a brush: left/right = size, up/down = hardness (with Alt: opacity).
   // A Shift-click without dragging still draws a straight line from the last point.
@@ -254,9 +256,10 @@ function onPointerMove(e) {
   }
   const t = currentTool();
   if (V.op && V.op.id === e.pointerId) {
-    if (t.move) {
-      const evs = t.coalesce && e.getCoalescedEvents ? e.getCoalescedEvents() : null;
-      if (evs && evs.length > 1) for (const ce of evs) t.move(toDoc(ce), ce); else t.move(p, e);
+    const ot = V.op.tool; // the tool that owns the gesture (a box handle hands over to Free Transform mid-drag)
+    if (ot.move) {
+      const evs = ot.coalesce && e.getCoalescedEvents ? e.getCoalescedEvents() : null;
+      if (evs && evs.length > 1) for (const ce of evs) ot.move(toDoc(ce), ce); else ot.move(p, e);
     }
   } else if (t.hover) t.hover(p, e);
   dirty();

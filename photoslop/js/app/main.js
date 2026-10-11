@@ -50,6 +50,7 @@ function wireMobile() {
 async function boot() {
   setTheme(store.get('theme', 'pro'));
   initView();
+  initBoxTool();
   initGuideInput();
   buildMenubar();
   buildToolbox();
