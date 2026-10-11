@@ -8,6 +8,7 @@
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   let W;
   const dlg = () => W.document.querySelector('.sui-back:not(.sui-out) [data-guard]');
+  const live = (sel) => W.document.querySelector('.sui-back:not(.sui-out) ' + sel);
   const btn = (box, label) => [...box.querySelectorAll('.sui-btn')].find((b) => b.textContent === label);
   const press = (key, opts) => { const e = DT.key(key, opts); W.document.body.dispatchEvent(e); return e; };
 
@@ -35,9 +36,9 @@
     });
     it('Ctrl+F5 and Cmd+Shift+R open it too; a plain Ctrl+R does not', async () => {
       expect(press('F5', { ctrlKey: true }).defaultPrevented).toBe(true);
-      await waitFor(dlg); W.document.querySelector('[data-guard] .sui-x').click(); await waitFor(() => !dlg());
+      await waitFor(dlg); dlg().querySelector('.sui-x').click(); await waitFor(() => !dlg());
       expect(press('r', { metaKey: true, shiftKey: true }).defaultPrevented).toBe(true);
-      await waitFor(dlg); W.document.querySelector('[data-guard] .sui-x').click(); await waitFor(() => !dlg());
+      await waitFor(dlg); dlg().querySelector('.sui-x').click(); await waitFor(() => !dlg());
       expect(press('r', { ctrlKey: true }).defaultPrevented).toBe(false);
       await sleep(150);
       expect(dlg()).toBe(null);
@@ -113,20 +114,20 @@
     it('saveToDrive asks for a folder (root by default) and can make a new one', async () => {
       const H = W.SlopHub;
       const p1 = H.saveToDrive(DT.text('1'), 'one.txt');
-      let box = await waitFor(() => W.document.querySelector('.hub-rows'));
+      let box = await waitFor(() => live('.hub-rows'));
       [...box.closest('.sui-dlg').querySelectorAll('.sui-btn')].find((b) => b.textContent === 'Save here').click();
       const id1 = await p1;
       expect((await H.get(id1)).folderId).toBe(null);
       const p2 = H.saveToDrive(DT.text('2'), 'two.txt');
-      box = await waitFor(() => W.document.querySelector('.hub-rows [data-folder]'));
+      box = await waitFor(() => live('.hub-rows [data-folder]'));
       box.click();
-      await waitFor(() => W.document.querySelector('.hub-crumbs').textContent.includes('Work'));
-      [...W.document.querySelectorAll('.sui-dlg .sui-btn')].find((b) => b.textContent === 'Save here').click();
+      await waitFor(() => live('.hub-crumbs').textContent.includes('Work'));
+      [...live('.sui-dlg').querySelectorAll('.sui-btn')].find((b) => b.textContent === 'Save here').click();
       const id2 = await p2;
       expect((await H.getFolder((await H.get(id2)).folderId)).name).toBe('Work');
       const p3 = H.pickFolder({});
-      await waitFor(() => W.document.querySelector('.hub-rows'));
-      W.document.querySelector('.sui-dlg .sui-x').click();
+      await waitFor(() => live('.hub-rows'));
+      live('.sui-dlg .sui-x').click();
       expect(await p3).toBe(undefined);
     });
   });
