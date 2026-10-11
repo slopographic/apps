@@ -35,14 +35,19 @@
    * Get more button after it (the button is the second child of the returned span). */
   function fontSel(group, get, set, label) {
     var s = h('select', { class: 'sel', 'aria-label': label, title: label });
-    var pick = window.SlopFonts.attach(s, { legacy: Object.keys(SV.FONTS), onPick: function (f) { set(f); } });
+    // The shared picker is stripped from the offline build; there the standard list stays.
+    var pick = window.SlopFonts ? window.SlopFonts.attach(s, { legacy: Object.keys(SV.FONTS), onPick: function (f) { set(f); } }) : null;
+    if (!pick) {
+      Object.keys(SV.FONTS).forEach(function (f) { s.appendChild(h('option', { value: f, text: f })); });
+      s.addEventListener('change', function () { set(s.value); });
+    }
     bind(group, function () {
       var v = get();
       if (document.activeElement === s) return;
       if (v && !Array.prototype.some.call(s.options, function (o) { return o.value === v; })) s.add(new Option(v, v));
       s.value = v == null ? '' : String(v);
     });
-    return h('span', { class: 'font-pick' }, [s, pick.button]);
+    return h('span', { class: 'font-pick' }, [s, pick ? pick.button : null]);
   }
   function seg(group, items, get, set, label) {
     var wrap = h('div', { class: 'seg', role: 'group', 'aria-label': label });

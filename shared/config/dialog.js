@@ -90,7 +90,8 @@
         { label: 'Cancel' },
         { label: 'Export', primary: true, act: () => {
           try {
-            const file = C.exportFile(sel.value, app, `${app}-${sel.value}-template`, C.exampleValue(sel.value, app),
+            const example = o.example && o.example.kind === sel.value ? o.example.value : C.exampleValue(sel.value, app);
+            const file = C.exportFile(sel.value, app, `${app}-${sel.value}-template`, example,
               { description: 'Template: replace the example values and keep every key' });
             UI().download(file, file.name);
           } catch (e) { note(`Could not export: ${e.message}`); return false; }
@@ -99,6 +100,7 @@
     });
   }
 
+  /** o.example = { kind, value }: a hand-made example for one kind (an app can show its own shape). */
   /** Drag and drop: a .slop.json file dropped anywhere on the page is checked and imported. The drop is taken only when
    * it holds such a file; other drops reach the app as usual. Bound once per page, in the capture phase. */
   let dropBound = false;

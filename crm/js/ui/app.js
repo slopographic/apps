@@ -5,23 +5,26 @@
   const S = g.SlopData;
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const $ = (id) => document.getElementById(id);
-  const TABS = ['pipeline', 'customers', 'followups'];
+  const TABS = ['customers', 'pipeline', 'followups'];   // the list comes first, and is the start screen
   const VIEWS = [...TABS, 'customer'];
-  let timer = 0, lastTab = 'pipeline';
+  let timer = 0, lastTab = 'customers';
   const WIDE = g.matchMedia ? g.matchMedia('(min-width: 960px)') : null;
-  NS.state = { view: 'pipeline', current: null, split: false, settings: { defaultCurrency: 'USD', locale: 'en-US' } };
+  const isWide = () => !!(WIDE && WIDE.matches);
+  NS.state = { view: 'customers', current: null, split: false, settings: { defaultCurrency: 'USD', locale: 'en-US' } };
 
   /**
-   * Shows one view. `customer` opens the detail panel for the id in arg. Tabs keep their place while it is open.
-   * On wide screens the Customers list and the detail panel share the screen (the panel is sticky on the right);
-   * narrower screens show one view at a time.
+   * Shows one view. `customer` opens the detail for the id in arg. On a wide screen the detail sits beside the
+   * Customers list (right pane) once a customer is picked, and the list stays full width until then. Narrower
+   * screens show one view at a time: the detail is a full page with Back.
    */
   function show(name, arg) {
     if (!VIEWS.includes(name)) return;
     NS.state.view = name;
-    if (name === 'customer') NS.state.current = arg || null;
-    else { lastTab = name; if (location.hash !== `#${name}`) history.replaceState(null, '', `#${name}`); }
-    const split = !!(WIDE && WIDE.matches) && (name === 'customers' || (name === 'customer' && lastTab === 'customers'));
+    if (name === 'customer') {
+      NS.state.current = arg || null;
+      if (isWide()) lastTab = 'customers';
+    } else { lastTab = name; if (location.hash !== `#${name}`) history.replaceState(null, '', `#${name}`); }
+    const split = isWide() && !!NS.state.current && (name === 'customers' || name === 'customer');
     NS.state.split = split;
     const shown = split ? ['customers', 'customer'] : [name];
     for (const v of VIEWS) $(`view-${v}`).hidden = !shown.includes(v);
@@ -56,17 +59,23 @@
     for (const v of Object.values(NS.views)) if (v.mount) v.mount();
     NS.commands.init();
     for (const t of document.querySelectorAll('.tab')) t.addEventListener('click', () => show(t.dataset.view));
-    $('dBack').addEventListener('click', () => show(lastTab));
+    $('dBack').addEventListener('click', () => close());
     S.store.subscribe(() => refreshSoon());
     if (WIDE && WIDE.addEventListener) WIDE.addEventListener('change', () => show(NS.state.view, NS.state.current));
     addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h)) show(h); });
     try { if (g.SlopHub) g.SlopHub.register('crm'); } catch (e) { /* no hub: the app still works */ }
-    const start = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'pipeline';
+    const start = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'customers';
     await show(start);
     $('boot').hidden = true;
   }
 
-  NS.app = { show, render, refreshSoon, boot };
+  /** Closes the customer detail: back to the list on a wide screen, to the tab it was opened from otherwise. */
+  function close() {
+    NS.state.current = null;
+    return show(lastTab);
+  }
+
+  NS.app = { show, render, refreshSoon, boot, close };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })(typeof window !== 'undefined' ? window : globalThis);

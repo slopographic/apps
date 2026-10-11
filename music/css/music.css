@@ -1,21 +1,21 @@
 /* Slop Music. Tokens on :root (dark by default, light when the system asks), no horizontal scroll at 390 px. */
 :root {
   --mu-bg: #0e0e10; --mu-bg2: #17171a; --mu-panel: #1f1f24; --mu-line: #34343b; --mu-fg: #f1ede4; --mu-dim: #b3ada0;
-  --mu-faint: #7d786e; --mu-accent: #d4ff3a; --mu-accent-ink: #10180a; --mu-hover: #2a2a31; --mu-danger: #ff6b7f;
+  --mu-faint: #938e83; --mu-accent: #d4ff3a; --mu-accent-ink: #10180a; --mu-hover: #2a2a31; --mu-danger: #ff6b7f;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     --mu-bg: #f6f4ef; --mu-bg2: #ffffff; --mu-panel: #ecE9e1; --mu-line: #cfc9bd; --mu-fg: #1a1a1a; --mu-dim: #55514a;
-    --mu-faint: #8a857b; --mu-accent: #4c7a00; --mu-accent-ink: #ffffff; --mu-hover: #e4e0d6; --mu-danger: #b3263b;
+    --mu-faint: #6b665c; --mu-accent: #4c7a00; --mu-accent-ink: #ffffff; --mu-hover: #e4e0d6; --mu-danger: #b3263b;
     color-scheme: light;
   }
 }
 :root[data-theme="light"] {
   --mu-bg: #f6f4ef; --mu-bg2: #ffffff; --mu-panel: #ecE9e1; --mu-line: #cfc9bd; --mu-fg: #1a1a1a; --mu-dim: #55514a;
-  --mu-faint: #8a857b; --mu-accent: #4c7a00; --mu-accent-ink: #ffffff; --mu-hover: #e4e0d6; --mu-danger: #b3263b; color-scheme: light;
+  --mu-faint: #6b665c; --mu-accent: #4c7a00; --mu-accent-ink: #ffffff; --mu-hover: #e4e0d6; --mu-danger: #b3263b; color-scheme: light;
 }
-:root[data-theme="dark"] { --mu-bg: #0e0e10; --mu-bg2: #17171a; --mu-panel: #1f1f24; --mu-line: #34343b; --mu-fg: #f1ede4; --mu-dim: #b3ada0; --mu-faint: #7d786e; --mu-accent: #d4ff3a; --mu-accent-ink: #10180a; --mu-hover: #2a2a31; --mu-danger: #ff6b7f; color-scheme: dark; }
+:root[data-theme="dark"] { --mu-bg: #0e0e10; --mu-bg2: #17171a; --mu-panel: #1f1f24; --mu-line: #34343b; --mu-fg: #f1ede4; --mu-dim: #b3ada0; --mu-faint: #938e83; --mu-accent: #d4ff3a; --mu-accent-ink: #10180a; --mu-hover: #2a2a31; --mu-danger: #ff6b7f; color-scheme: dark; }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { background: var(--mu-bg); color: var(--mu-fg); font: 14px/1.45 "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100vh; overflow-x: hidden; }

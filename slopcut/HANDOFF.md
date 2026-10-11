@@ -118,6 +118,35 @@ timeline clip; with fewer clips than slots, clips repeat inside one cut; drag wo
   (adds, moves, edits and resets a key in the inspector; presets; Reset all; the effect layer's pixels, seed rule and reset; a
   decoded MP4 export that has a key and a vignette).
 
+## Clip masks
+
+A clip can have one mask (`clip.mask`, `null` when none). It is saved with the project and each change is one undo
+step (`SE.change`; slider drags coalesce per field). The mask is in clip space: project pixels from the clip's centre at
+scale 1, so it moves, scales and rotates with the clip (keyframed masks are not done).
+
+- **Shapes:** rectangle, ellipse, rounded rectangle (`r`), or a path of anchors with bezier handles (`pts`: `x, y` plus
+  handle offsets `ix, iy` in and `ox, oy` out). Freehand strokes are simplified (Ramer–Douglas–Peucker) to anchors with no handles.
+- **Fields:** `feather` (px, soft edge, 0–500), `expand` (px, + grows / − shrinks), `invert` (keep outside instead).
+- **Geometry** (`js/core/mask.js`, no DOM): `ops` (outline), `flatten`, `inside`, `dist`, `covered` (expansion applied
+  as distance to the outline, then invert), `bounds`, `clean` (sanitises loaded values), `simplify`.
+- **Raster** (`js/render/mask-draw.js`): the compositor (`compositor.js`, `drawLayer`) draws a masked clip into a scratch
+  layer, then keeps the covered pixels (destination-in). Coverage is the shape with a canvas stroke for expansion and a
+  blur for feather. Preview, snapshot, export, GIF and the recorder all call the same compositor, so they match.
+- **Monitor** (`js/render/mask-view.js` draws the outline and handles; `js/render/mask-input.js` is the pointer side):
+  the selected clip's mask outline shows in the monitor (dashed when inverted). Edit shape shows handles: corners resize
+  (opposite corner fixed), the round handle sets the corner radius, path anchors and handles drag, and dragging inside
+  moves the mask. Draw tools (`SE.maskInput.setTool`, Clip ▸ Mask ▸ Freehand / Bezier path): freehand drags a path; pen
+  clicks anchors (drag for a curve), closes on the first point, on double-click or Enter; Esc cancels. A new mask opens
+  in edit mode.
+- **UI:** Inspector ▸ Mask (shape, centre, size, radius, feather, expansion, Keep inside / outside, Edit shape, Remove);
+  Clip menu ▸ Mask and the timeline clip context menu ▸ Mask (`SE.maskMenu()`); commands `mask.add.rect|ellipse|rrect`,
+  `mask.draw.free|pen`, `mask.remove`, `mask.invert`, `mask.edit` (SlopCmd, rebindable).
+- **Limits:** no keyframes on masks; no mask on effect layers, audio or nested clips; a path needs three points; the
+  raster feather is a canvas blur (its profile is not the geometric one that `covered` uses, which ignores feather).
+- **Tests:** `tests/node/slopcut-mask.test.mjs` (geometry, expansion, invert, clean, simplify) and
+  `tests/slopcut/slopedit.spec-mask.js` (a mask changes the frame pixels, feather and expansion pixels, one undo step per
+  change, saved with the project, the inspector section, the draw tool and the corner-handle drag, all through pointer events).
+
 ## Tests
 `node tests/run.mjs slopedit` → `tests/slopcut/slopedit.test.html` (63 tests with the node file, all green, ~40 s). `slopedit.spec-video.js` covers the Layout lane (a 1x1 then 1x3 switch, add/move/delete with undo), the middle-button pan and export presets. `tests/node/slopedit-video-core.test.mjs` tests `shared/video` in Node. `slopedit.spec-tpl.js`
 covers templates (region data, apply, re-flow, swap, drop) and the random edit (seeded plan, length, slots, no repeats,

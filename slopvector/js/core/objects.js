@@ -54,11 +54,13 @@
   }
   SV.localSubs = localSubs;
   function docSubs(o) {
+    if (o.type === 'group' && o.clip && o.children.length) return docSubs(o.children[o.children.length - 1]); // a clipping mask: its clip shape's area
     if (o.type === 'group') { var out = []; o.children.forEach(function (c) { if (!c.hidden) out = out.concat(docSubs(c)); }); return out; }
     return G.transformSubs(localSubs(o), o.m);
   }
   SV.docSubs = docSubs;
   function objBBox(o) {
+    if (o.type === 'group' && o.clip && o.children.length) return objBBox(o.children[o.children.length - 1]);
     if (o.type === 'group') {
       var b = null; o.children.forEach(function (c) { if (!c.hidden) b = G.unionBox(b, objBBox(c)); }); return b;
     }

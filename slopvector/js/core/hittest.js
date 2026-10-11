@@ -24,7 +24,13 @@
   function hitObj(o, p, tol) {
     if (o.hidden || o.locked) return null;
     if (o.type === 'group') {
-      for (var i = o.children.length - 1; i >= 0; i--) { var r = hitObj(o.children[i], p, tol); if (r) return r; }
+      var n = o.children.length;
+      if (o.clip && n) { // a clipping mask: its content is hit only inside the clip shape
+        var sh = o.children[n - 1];
+        if (!G.pointInPolys(flatPolys(sh), p, sh.style && sh.style.rule)) return null;
+        n--;
+      }
+      for (var i = n - 1; i >= 0; i--) { var r = hitObj(o.children[i], p, tol); if (r) return r; }
       return null;
     }
     if (o.type === 'text' || o.type === 'image') {

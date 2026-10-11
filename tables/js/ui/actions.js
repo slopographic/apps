@@ -4,6 +4,7 @@ import { S, sheet, range, redraw, toast } from './state.js';
 import { transact } from './history.js';
 import { effStyle } from './grid.js';
 import { parseCsv } from '../io/csv.js';
+import { pasteBuffer } from './buffer.js';
 import { format } from '../engine/index.js';
 import { MAX_ROWS, MAX_COLS } from '../engine/refs.js';
 
@@ -64,6 +65,7 @@ export function copySel(cut = false, dt = null) {
 /** Paste from the browser clipboard text. Our own copy is pasted with its formulas shifted. */
 export function paste(text) {
   if (S.clip && (text === undefined || text === S.clip.text)) return pasteClip();
+  if (pasteBuffer()) return;
   if (text) pasteTsv(text);
 }
 

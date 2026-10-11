@@ -1,5 +1,6 @@
-// The customer detail panel: contact details, pipeline stage, follow-up date, categories, dated notes, and the
-// orders and invoices of this customer (read from the shared collections). Re-drawn whenever the store changes.
+// The customer detail panel: photo and name, contact details (every phone, email and address with its label), tags and
+// groups, pipeline stage and follow-up, categories, dated notes, and the orders and invoices of this customer (read from
+// the shared collections). Re-drawn whenever the store changes.
 (function (g) {
   'use strict';
   const NS = (g.SlopCrm = g.SlopCrm || {});
@@ -8,20 +9,41 @@
   const $ = (id) => document.getElementById(id);
   const money = (minor, cur, loc) => NS.util.money(minor, cur, loc);
   const sect = (title, ...kids) => el('section', { class: 'd-sec' }, el('h3', { class: 'h3' }, title), ...kids);
+  const kv = (k, v) => el('div', { class: 'kv' }, el('dt', null, k), el('dd', null, v));
+  const cap = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
+  const webHref = (w) => (/^https?:\/\//i.test(w) ? w : `https://${w}`);
 
   function header(c) {
-    return el('div', { class: 'd-head' }, el('h2', { class: 'h2' }, c.name), el('span', { class: `stage s-${c.stage}` }, NS.stageLabel(c.stage)));
+    return el('div', { class: 'd-head' }, NS.parts.avatar(c, 'av av-lg'),
+      el('div', { class: 'd-title' }, el('h2', { class: 'h2' }, c.name), el('span', { class: `stage s-${c.stage}` }, NS.stageLabel(c.stage))),
+      el('button', { type: 'button', class: 'd-close', 'aria-label': 'Close details', title: 'Close', onclick: () => NS.app.close() }, '×'));
   }
 
+  /** Every phone, email and address with its label, then the company facts and the website. */
   function contact(c) {
-    const line = (k, v) => (v ? el('div', { class: 'kv' }, el('dt', null, k), el('dd', null, v)) : null);
+    const F = NS.fields;
+    const lines = (kind, link) => F.rowsOf(c, kind).filter((r) => r.value).map((r) => kv(cap(r.label),
+      link ? el('a', { href: `${link}:${r.value}` }, r.value) : r.value));
+    const phones = lines('phone', 'tel'), emails = lines('email', 'mailto'), addresses = lines('address', null);
+    const facts = [['Company', c.company], ['Department', c.department], ['Job title', c.title]].filter(([, v]) => v).map(([k, v]) => kv(k, v));
+    const web = c.website ? [kv('Website', el('a', { href: webHref(c.website), rel: 'noopener' }, c.website))] : [];
+    const any = phones.length || emails.length || addresses.length || facts.length || web.length;
     return sect('Contact details',
-      el('dl', { class: 'kvs' },
-        c.email ? el('div', { class: 'kv' }, el('dt', null, 'Email'), el('dd', null, el('a', { href: `mailto:${c.email}` }, c.email))) : null,
-        c.phone ? el('div', { class: 'kv' }, el('dt', null, 'Phone'), el('dd', null, el('a', { href: `tel:${c.phone}` }, c.phone))) : null,
-        line('Address', c.address),
-        c.contactId ? line('Source', 'Imported from Slop Contacts') : null,
-        !c.email && !c.phone && !c.address ? el('p', { class: 'note' }, 'No contact details yet. Use Edit to add them.') : null));
+      el('dl', { class: 'kvs' }, phones, emails, addresses, facts, web,
+        c.contactId ? kv('Source', 'Imported from Slop Contacts') : null),
+      any ? null : el('p', { class: 'note' }, 'No contact details yet. Use Edit to add them.'));
+  }
+
+  /** Tags and groups: each change is saved at once. */
+  function tagsAndGroups(c) {
+    const save = (field) => async (ids) => {
+      const r = await NS.customers.save(c.id, { [field]: ids });
+      if (!r.ok) UI.toast(NS.util.refusal(r));
+    };
+    return sect('Tags and groups',
+      el('p', { class: 'note' }, 'Tags are coloured labels shared by all customers. Groups are named sets used to filter the list.'),
+      el('h4', { class: 'sub-t' }, 'Tags'), NS.parts.labelPicker('tag', c.tagIds, save('tagIds')),
+      el('h4', { class: 'sub-t' }, 'Groups'), NS.parts.labelPicker('group', c.groupIds, save('groupIds')));
   }
 
   function pipeline(c) {
@@ -43,7 +65,7 @@
   function categories(c) {
     const input = el('input', { type: 'text', id: 'dCats', value: (c.categories || []).join(', '), maxlength: 400, 'aria-label': 'Categories, comma separated' });
     return sect('Categories',
-      el('p', { class: 'note' }, 'Tags such as “wholesale” or “repeat”, separated by commas.'),
+      el('p', { class: 'note' }, 'Free text, separated by commas, on this customer only. Tags above are the coloured ones.'),
       el('div', { class: 'inline' }, input, el('button', { type: 'button', class: 'btn', onclick: async () => {
         const r = await NS.customers.save(c.id, { categories: NS.util.tags(input.value) });
         UI.toast(r.ok ? 'Categories saved' : NS.util.refusal(r));
@@ -83,7 +105,7 @@
     const c = r.value, cur = NS.state.settings;
     const h = await NS.history.of(id);
     if (!h.ok) { body.replaceChildren(el('p', { class: 'msg', role: 'alert' }, NS.util.refusal(h))); return; }
-    body.replaceChildren(header(c), pipeline(c), contact(c), categories(c), notes(c, cur.locale),
+    body.replaceChildren(header(c), contact(c), tagsAndGroups(c), pipeline(c), categories(c), notes(c, cur.locale),
       sect('Orders', docList(h.value.orders, cur, cur.locale, 'Orders', 'No orders for this customer yet.')),
       sect('Invoices', docList(h.value.invoices, cur, cur.locale, 'Invoices', 'No invoices for this customer yet.')),
       el('div', { class: 'd-actions' },

@@ -19,6 +19,7 @@
     cmd('file.md', 'Download Markdown (.md)', 'File', [], () => S.download('md'), { keywords: ['export'] }),
     cmd('file.txt', 'Download plain text (.txt)', 'File', [], () => S.download('txt'), { keywords: ['export'] }),
     cmd('edit.undo', 'Undo', 'Edit', ['Mod+Z'], () => A().undo(), { when: () => S.canUndo() }),
+    cmd('edit.copyBuffer', 'Copy to buffer', 'Edit', [], () => A().copyToBuffer(), { when: hasText }),
     cmd('edit.redo', 'Redo', 'Edit', ['Shift+Mod+Z', 'Mod+Y'], () => A().redo(), { when: () => S.canRedo() }),
     cmd('edit.selectAll', 'Select all', 'Edit', ['Mod+A'], () => A().selectAll(), { when: hasText }),
     cmd('format.bold', 'Bold', 'Format', ['Mod+B'], () => A().toggle('b'), { keywords: ['strong'] }),
