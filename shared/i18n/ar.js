@@ -42,7 +42,7 @@
     'settings.defaults': 'الافتراضات',
     'settings.exchange_rates': 'أسعار الصرف',
     'settings.app_settings': 'إعدادات التطبيقات',
-    'settings.donate': 'تبرّع',
+    'settings.donate': 'صندوق البقشيش',
 
     'settings.language': 'اللغة',
     'settings.language_saved': 'تم الحفظ. اللغة المختارة لنص التطبيق: {name}.',
@@ -57,7 +57,7 @@
     'support.title': 'ادعم Slopographic',
     'support.text': 'صنعت Sloppo هذا مجاناً. إذا أفادك، فالتبرع يُبقيه مستمراً.',
     'support.fine': 'التحليلات والإعلانات متوقفة افتراضياً.',
-    'support.donate': 'تبرّع',
+    'support.donate': 'صندوق البقشيش',
     'support.no_thanks': 'لا، شكراً',
     'support.close_aria': 'الإغلاق الآن',
     'support.ads': 'الإعلانات',

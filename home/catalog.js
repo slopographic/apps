@@ -23,7 +23,17 @@
     for (const c of kids) if (c != null) n.append(c);
     return n;
   };
-  const html = (tag, attrs, inner) => { const n = el(tag, attrs); n.innerHTML = inner; return n; };
+  /** An SVG-namespace <svg> holding the badge. Created with createElementNS so the markup parses as SVG (not HTML). */
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const svgEl = (inner, cls, attrs) => {
+    const s = document.createElementNS(SVG_NS, 'svg');
+    s.setAttribute('viewBox', '0 0 48 48');
+    s.setAttribute('class', cls);
+    s.setAttribute('aria-hidden', 'true');
+    for (const k in attrs || {}) s.setAttribute(k, attrs[k]);
+    s.innerHTML = inner; // innerHTML on an SVG element parses in SVG context
+    return s;
+  };
   /** The status badge. Live tiles stay unbadged; app cards always show their status. */
   const badge = (a, always) => (a.status === 'live' && !always ? null : el('span', { class: 'badge ' + a.status }, STATUS[a.status]));
 
@@ -32,7 +42,7 @@
     const box = el('div', { class: 'shot', 'data-id': a.id, 'aria-hidden': 'true' });
     const ph = el('div', { class: 'shot-ph' }, el('b', null, a.name));
     const glyph = (window.SLOP_ICONS && window.SLOP_ICONS[a.id]) || ICONS[a.icon];
-    if (glyph) ph.prepend(html('svg', { viewBox: '0 0 48 48', class: 'shot-icon', 'data-icon': a.id }, window.SLOP_ICON_BADGE ? window.SLOP_ICON_BADGE(glyph) : glyph));
+    if (glyph) ph.prepend(svgEl(window.SLOP_ICON_BADGE ? window.SLOP_ICON_BADGE(glyph) : glyph, 'shot-icon', { 'data-icon': a.id }));
     box.append(ph);
     if (a.shot) {
       const img = el('img', { alt: '', loading: 'lazy', decoding: 'async', src: a.shot });
@@ -136,7 +146,6 @@
   // Folders that have a guided tour. Keep in step with TOURS in shared/tour/mount.js.
   const TOUR_DIRS = new Set(['photoslop', 'slopvector', 'slopcut', 'remix', 'slopisolate', 'drive', 'orders', 'invoices', 'crm', 'calendar', 'todo', 'notes', 'paste', 'resize', 'upscale', 'aitools', '3d', 'img3d', 'effects', 'docs', 'slides', 'tables', 'label', 'gallery', 'hex', 'code']);
   const CAROUSEL_MS = 7000;
-  const svgEl = (inner, cls) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 48 48'); s.setAttribute('class', cls); s.setAttribute('aria-hidden', 'true'); s.innerHTML = inner; return s; };
   const carouselApps = () => {
     const byName = new Map(APPS.map((a) => [a.name, a]));
     const top = CAROUSEL_TOP.map((n) => byName.get(n)).filter(Boolean);
@@ -148,16 +157,17 @@
     const hash = a.path.startsWith('#');
     const feats = (a.features || []).slice(0, 3);
     const tour = TOUR_DIRS.has(a.path.replace(/\/$/, ''));
+    // 50/50 on wide screens (text left, badge right); on phones the badge sits above the text (CSS order).
+    const visual = glyph ? el('div', { class: 'car-visual' }, svgEl(window.SLOP_ICON_BADGE ? window.SLOP_ICON_BADGE(glyph) : glyph, 'car-icon')) : null;
     return el('div', { class: 'car-slide', role: 'group', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${n}: ${a.name}`, 'data-id': a.id },
-      el('div', { class: 'car-main' },
-        el('div', { class: 'car-head' },
-          glyph ? svgEl(window.SLOP_ICON_BADGE ? window.SLOP_ICON_BADGE(glyph) : glyph, 'car-icon') : null,
-          el('h3', null, a.name), badge(a, true)),
-        el('p', { class: 'car-tag' }, a.tagline)),
-      feats.length ? el('ul', { class: 'car-feats' }, ...feats.map((f) => el('li', null, f))) : null,
-      el('div', { class: 'car-actions' },
-        el('a', { class: 'btn primary', href: a.path, ...(hash ? { 'data-view': a.path.slice(1) } : {}) }, 'Open', el('span', { class: 'sr' }, ' ' + a.name)),
-        tour ? el('a', { class: 'btn', href: a.path + '?tour=1' }, 'Tour', el('span', { class: 'sr' }, ' ' + a.name + ' tour')) : null));
+      el('div', { class: 'car-text' },
+        el('div', { class: 'car-head' }, el('h3', null, a.name), badge(a, true)),
+        el('p', { class: 'car-tag' }, a.tagline),
+        feats.length ? el('ul', { class: 'car-feats' }, ...feats.map((f) => el('li', null, f))) : null,
+        el('div', { class: 'car-actions' },
+          el('a', { class: 'btn primary', href: a.path, ...(hash ? { 'data-view': a.path.slice(1) } : {}) }, 'Open', el('span', { class: 'sr' }, ' ' + a.name)),
+          tour ? el('a', { class: 'btn', href: a.path + '?tour=1' }, 'Tour', el('span', { class: 'sr' }, ' ' + a.name + ' tour')) : null)),
+      visual);
   }
   /** The carousel: slides, previous and next, dots, a pause control, a live region, swipe and arrow keys. */
   function carousel(list) {
@@ -169,19 +179,39 @@
     const live = el('p', { class: 'sr', 'aria-live': 'off' });
     const count = el('span', { class: 'car-count', 'aria-hidden': 'true' });
     const button = (cls, label, text, fn) => { const b = el('button', { type: 'button', class: cls, 'aria-label': label, 'aria-controls': 'car-track' }, text); b.addEventListener('click', fn); return b; };
-    const dots = list.map((a, i) => button('car-dot', `Show ${a.name}`, '', () => user(() => show(i))));
+    // One dot per slide, built once (so a focused dot is never replaced); paintDots() shows only the nearby ones.
+    const dots = list.map((a, i) => { const d = button('car-dot', `Show ${a.name}`, '', () => user(() => show(i))); d.dataset.slide = i; return d; });
+    const strip = el('div', { class: 'car-dots', role: 'group', 'aria-label': 'Choose a slide' }, ...dots);
     const prev = button('btn car-btn car-prev', 'Previous app', '‹', () => user(() => show(cur - 1)));
     const next = button('btn car-btn car-next', 'Next app', '›', () => user(() => show(cur + 1)));
     const pause = button('btn ghost car-pause', 'Pause the slides', 'Pause', () => { stopped = true; schedule(); });
     const viewport = el('div', { class: 'car-viewport' }, track);
     region.append(viewport,
-      el('div', { class: 'car-bar' }, prev, el('div', { class: 'car-dots', role: 'group', 'aria-label': 'Choose a slide' }, ...dots), next, count, pause), live);
+      el('div', { class: 'car-bar' }, prev, count, next, strip, pause), live);
     let cur = 0, timer = 0, stopped = false, hover = false, focus = false;
     const playing = () => !stopped && !hover && !focus && !reduced();
+    /** The slides the strip shows: five around the current one, plus the first and last (at most seven). */
+    function nearby() {
+      if (n <= 7) return new Set(list.map((_, k) => k));
+      const start = Math.min(Math.max(cur - 2, 0), n - 5);
+      const s = new Set([0, n - 1]);
+      for (let k = start; k < start + 5; k++) s.add(k);
+      return s;
+    }
+    function paintDots() {
+      const shown = nearby();
+      dots.forEach((d, k) => {
+        const on = shown.has(k);
+        d.hidden = !on;
+        d.classList.toggle('gap-after', on && k + 1 < n && !shown.has(k + 1)); // a wider gap where slides are skipped
+        d.classList.toggle('is-current', k === cur);
+        if (k === cur) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
+      });
+    }
     function show(i) {
       cur = (i + n) % n;
       slides.forEach((s, k) => { s.classList.toggle('is-current', k === cur); s.toggleAttribute('inert', k !== cur); });
-      dots.forEach((d, k) => { d.classList.toggle('is-current', k === cur); if (k === cur) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
+      paintDots();
       track.style.transform = `translateX(${-cur * 100}%)`;
       count.textContent = `${cur + 1} / ${n}`;
       live.textContent = `Slide ${cur + 1} of ${n}: ${list[cur].name}`;

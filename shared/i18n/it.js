@@ -41,7 +41,7 @@
     'settings.defaults': 'Predefiniti',
     'settings.exchange_rates': 'Tassi di cambio',
     'settings.app_settings': 'Impostazioni delle app',
-    'settings.donate': 'Dona',
+    'settings.donate': 'Barattolo delle mance',
 
     'settings.language': 'Lingua',
     'settings.language_saved': 'Salvato. {name} è la lingua del testo dell’app.',
@@ -56,7 +56,7 @@
     'support.title': 'Sostieni Slopographic',
     'support.text': 'Sloppo ha reso questo strumento gratuito. Se ti è stato utile, una donazione lo mantiene attivo.',
     'support.fine': 'Analisi e pubblicità sono disattivate per impostazione predefinita.',
-    'support.donate': 'Dona',
+    'support.donate': 'Barattolo delle mance',
     'support.no_thanks': 'No, grazie',
     'support.close_aria': 'Chiudi per ora',
     'support.ads': 'Pubblicità',

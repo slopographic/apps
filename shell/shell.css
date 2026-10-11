@@ -17,12 +17,12 @@
 }
 .sh-back[hidden], .sh-dr[hidden], .sh-dr-folder[hidden], .sn-panel[hidden], .sn-perm[hidden], .sn-count[hidden] { display: none !important; }
 button { font: inherit; }
-.sh-hdr { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; position: relative; flex: none; }
+.sh-hdr { display: inline-flex; align-items: center; gap: 6px; margin-inline-start: 8px; position: relative; flex: none; }
 .sh-hbtn { position: relative; height: 30px; min-width: 30px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: transparent; color: inherit; border: 1px solid var(--sh-line); border-radius: 8px; cursor: pointer; }
 .sh-hbtn:hover { background: var(--sh-sel); }
 .sh-hbtn:focus-visible, .sh-tile:focus-visible, .sh-opt:focus-visible, .sh-dr-close:focus-visible, .sh-dr button:focus-visible, .sn-toast button:focus-visible, .sn-panel button:focus-visible { outline: 2px solid var(--sh-accent); outline-offset: 1px; }
 .sh-hbtn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.sh-fab { position: fixed; top: 10px; right: 10px; margin: 0; z-index: 800; }
+.sh-fab { position: fixed; top: 10px; inset-inline-end: 10px; margin: 0; z-index: 800; }
 .sh-kbd { font: 11px var(--sui-mono, ui-monospace, monospace); color: var(--sh-dim); border: 1px solid var(--sh-line); border-radius: 5px; padding: 1px 6px; }
 .sh-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .sh-badge { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 7px; background: hsl(var(--h, 200) 50% 40%); color: #fff; font-weight: 700; font-size: 13px; }
@@ -35,7 +35,7 @@ button { font: inherit; }
 .sh-q:focus { border-color: var(--sh-accent); }
 .sh-list { flex: 1; overflow-y: auto; padding: 6px; overscroll-behavior: contain; }
 .sh-sec { padding: 10px 8px 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--sh-dim); }
-.sh-opt { width: 100%; display: flex; align-items: center; gap: 10px; padding: 7px 8px; background: none; border: 0; border-radius: 8px; color: var(--sh-fg); text-align: left; cursor: pointer; }
+.sh-opt { width: 100%; display: flex; align-items: center; gap: 10px; padding: 7px 8px; background: none; border: 0; border-radius: 8px; color: var(--sh-fg); text-align: start; cursor: pointer; }
 .sh-opt.sh-on { background: var(--sh-sel); }
 .sh-opt-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .sh-opt-name, .sh-opt-sub, .sh-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -96,7 +96,7 @@ button { font: inherit; }
 
 @media (max-width: 560px) {
   .sh-hbtn-txt { display: none; }
-  .sh-hdr { gap: 4px; margin-left: 4px; }
+  .sh-hdr { gap: 4px; margin-inline-start: 4px; }
   .sh-hbtn { min-width: 28px; height: 28px; padding: 0 6px; }
   .sh-back { padding-top: 8px; }
   .sh-sw { max-height: 86vh; }

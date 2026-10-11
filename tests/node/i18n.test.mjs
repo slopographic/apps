@@ -2,7 +2,7 @@
 // DOM, and every data-i18n key on the homepage and Settings existing in English. Run: node --test tests/node/i18n.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadInto, plain } from './fx-env.mjs';
@@ -174,17 +174,87 @@ test('every key in English has a translation in each other language, with the sa
   }
 });
 
-test('Spanish is the second language in the list, complete, left to right, and its table loads on the page', async () => {
+/** The languages in the picker, in order: code, the name each language gives itself, and its text direction. */
+const LANG_ORDER = [
+  ['en', 'English', 'ltr'],
+  ['es', 'Español', 'ltr'],
+  ['fr', 'Français', 'ltr'],
+  ['de', 'Deutsch', 'ltr'],
+  ['pt-BR', 'Português (Brasil)', 'ltr'],
+  ['it', 'Italiano', 'ltr'],
+  ['ar', 'العربية', 'rtl'],
+];
+
+test('the picker lists every language by its own name, English first, and only Arabic is right to left', async () => {
   const { I } = await global();
   const list = plain(I.LANGS);
-  assert.deepEqual(list.map((l) => l.code), ['en', 'es']);
-  assert.equal(list[1].name, 'Español');
-  assert.equal(list[1].dir, 'ltr');
-  assert.equal(list[1].complete, true);
+  assert.deepEqual(list.map((l) => [l.code, l.name, l.dir]), LANG_ORDER);
+  for (const l of list) assert.equal(l.complete, true, `${l.code} is complete`);
+});
+
+test('each language has one file, named by its code, that adds its strings under that code', async () => {
+  const files = (await readdir(path.join(ROOT, 'shared', 'i18n'))).filter((f) => f.endsWith('.js') && !['i18n.js', 'strings.js'].includes(f));
+  const codes = LANG_ORDER.map(([c]) => c).filter((c) => c !== 'en');
+  assert.deepEqual(files.map((f) => f.slice(0, -3)).sort(), [...codes].sort(), 'one file per language, and no stray file');
+  for (const code of codes) {
+    const src = await readFile(path.join(ROOT, 'shared', 'i18n', `${code}.js`), 'utf8');
+    const adds = [...src.matchAll(/SlopI18n\.add\('([\w-]+)'/g)].map((m) => m[1]);
+    assert.deepEqual(adds, [code], `${code}.js adds its strings under '${code}'`);
+  }
+});
+
+test('every language file is loaded by the shell, the homepage and Settings, so the chosen language applies on every page', async () => {
+  const loaders = { 'shell/shell.js': await readFile(path.join(ROOT, 'shell', 'shell.js'), 'utf8'), 'index.html': await readFile(path.join(ROOT, 'index.html'), 'utf8'), 'settings/index.html': await readFile(path.join(ROOT, 'settings', 'index.html'), 'utf8') };
+  const codes = LANG_ORDER.map(([c]) => c).filter((c) => c !== 'en');
+  for (const [f, src] of Object.entries(loaders)) {
+    for (const code of codes) assert.match(src, new RegExp(`i18n/${code.replace('-', '\\-')}\\.js`), `${f} loads ${code}.js`);
+    assert.match(src, /i18n\/strings\.js/, `${f} loads strings.js`);
+  }
+});
+
+test('each language file loads on its own after strings.js, and the chosen language is in effect at boot', async () => {
+  for (const [code, name, dir] of LANG_ORDER.filter(([c]) => c !== 'en')) {
+    const storage = memStorage({ 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: code } } }) });
+    const ctx = await loadInto(['profile/profile.js', 'i18n/i18n.js', 'i18n/strings.js', `i18n/${code}.js`], { localStorage: storage });
+    assert.equal(ctx.SlopI18n.get(), code, `${name} is the chosen language`);
+    assert.notEqual(ctx.SlopI18n.t('nav.apps'), 'nav.apps', `${name} has its strings`);
+    assert.equal(ctx.SlopI18n.LANGS.find((l) => l.code === code).dir, dir, `${name} direction`);
+  }
   const storage = memStorage({ 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: 'es' } } }) });
   const ctx = await loadInto(['profile/profile.js', 'i18n/i18n.js', 'i18n/strings.js', 'i18n/es.js'], { localStorage: storage });
   assert.equal(ctx.SlopI18n.t('nav.apps'), 'Aplicaciones');
   assert.equal(ctx.SlopI18n.t('nav.profile'), 'Perfil');
+});
+
+test('a right-to-left language sets lang and dir="rtl" on the root; a left-to-right one sets dir="ltr"', async () => {
+  const LIST = [TWO[0], { code: 'ar', name: 'العربية', dir: 'rtl', complete: true }, { code: 'fr', name: 'Français', dir: 'ltr', complete: true }];
+  for (const [code, dir] of [['ar', 'rtl'], ['fr', 'ltr'], ['en', 'ltr']]) {
+    const root = fakeEl('html');
+    const document = { documentElement: root, querySelectorAll: () => [] };
+    const I = base.SlopI18n.create({ languages: LIST, storage: memStorage({ 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: code } } }) }), document });
+    I.add('en', EN);
+    I.apply();
+    assert.equal(root.attrs.lang, code);
+    assert.equal(root.attrs.dir, dir, `${code} direction`);
+  }
+});
+
+test('the shared chrome CSS uses logical properties (inline start and end), so the layout mirrors for right-to-left languages', async () => {
+  const banner = await readFile(path.join(ROOT, 'shared', 'consent', 'banner.css'), 'utf8');
+  const support = await readFile(path.join(ROOT, 'shared', 'support', 'support.css'), 'utf8');
+  const physical = /\b(left|right)\s*:|margin-(left|right)\s*:|text-align:\s*(left|right)\b/;
+  assert.doesNotMatch(banner, physical, 'consent strip');
+  assert.doesNotMatch(support, physical, 'support card');
+  const shell = await readFile(path.join(ROOT, 'shell', 'shell.css'), 'utf8');
+  const header = shell.split('\n').filter((l) => /^\s*\.sh-(hdr|fab|opt|hbtn|sw)\b/.test(l));
+  assert.ok(header.length >= 4, 'the header and switcher rules are read');
+  for (const l of header) assert.doesNotMatch(l, physical, `shell.css: ${l.trim().slice(0, 60)}`);
+});
+
+test('the Arabic table is right to left in the language list and the rule is written in HANDOFF.md', async () => {
+  const handoff = await readFile(path.join(ROOT, 'shared', 'i18n', 'HANDOFF.md'), 'utf8');
+  assert.match(handoff, /dir: 'rtl'/);
+  assert.match(handoff, /margin-inline-start/);
 });
 
 test('every shared-chrome key used by the shell, the consent strip, the support card and the homepage and Settings exists in English', async () => {

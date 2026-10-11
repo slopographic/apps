@@ -12,6 +12,11 @@
   var LANGS = Object.freeze([
     Object.freeze({ code: 'en', name: 'English', dir: 'ltr', complete: true }),
     Object.freeze({ code: 'es', name: 'Español', dir: 'ltr', complete: true }),
+    Object.freeze({ code: 'fr', name: 'Français', dir: 'ltr', complete: true }),
+    Object.freeze({ code: 'de', name: 'Deutsch', dir: 'ltr', complete: true }),
+    Object.freeze({ code: 'pt-BR', name: 'Português (Brasil)', dir: 'ltr', complete: true }),
+    Object.freeze({ code: 'it', name: 'Italiano', dir: 'ltr', complete: true }),
+    Object.freeze({ code: 'ar', name: 'العربية', dir: 'rtl', complete: true }),
   ]);
   var DEFAULT = 'en';
   var KEY_RE = /\{(\w+)\}/g;

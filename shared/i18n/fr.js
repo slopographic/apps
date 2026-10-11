@@ -41,7 +41,7 @@
     'settings.defaults': 'Valeurs par défaut',
     'settings.exchange_rates': 'Taux de change',
     'settings.app_settings': 'Réglages des applications',
-    'settings.donate': 'Faire un don',
+    'settings.donate': 'Pot à pourboires',
 
     'settings.language': 'Langue',
     'settings.language_saved': 'Enregistré. {name} est la langue du texte de l’application.',
@@ -56,7 +56,7 @@
     'support.title': 'Soutenir Slopographic',
     'support.text': 'Sloppo a rendu ceci gratuit. Si cela vous a aidé, un don permet de le faire vivre.',
     'support.fine': 'Les statistiques et les publicités sont désactivées par défaut.',
-    'support.donate': 'Faire un don',
+    'support.donate': 'Pot à pourboires',
     'support.no_thanks': 'Non merci',
     'support.close_aria': 'Fermer pour l’instant',
     'support.ads': 'Publicités',
