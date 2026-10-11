@@ -84,7 +84,7 @@
       if (!li || !e.dataTransfer) return;
       e.dataTransfer.setData(MIME, JSON.stringify(dragIds(li.dataset.id)));
       e.dataTransfer.setData('text/plain', dragIds(li.dataset.id).length + ' contacts');
-      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.effectAllowed = 'copyMove';
     });
     rows.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); move(e.key === 'ArrowDown' ? 1 : -1); }

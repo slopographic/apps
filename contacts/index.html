@@ -75,6 +75,8 @@
   <link rel="stylesheet" href="css/contacts-list.css" data-src="contacts/css/contacts-list.css">
   <link rel="stylesheet" href="css/contacts-card.css" data-src="contacts/css/contacts-card.css">
   <link rel="stylesheet" href="css/contacts-ui.css" data-src="contacts/css/contacts-ui.css">
+  <link rel="stylesheet" href="css/contacts-panel.css" data-src="contacts/css/contacts-panel.css">
+  <link rel="stylesheet" href="css/contacts-table.css" data-src="contacts/css/contacts-table.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -99,6 +101,7 @@
     <div class="cols" id="shell">
       <aside class="col col-groups" id="colGroups" aria-label="Groups">
         <div id="groups" class="groups"></div>
+        <div id="filters" class="filters"></div>
       </aside>
       <div class="scrim" id="scrim"></div>
 
@@ -107,11 +110,16 @@
           <div class="list-bar">
             <button type="button" class="icon-btn narrow-only" id="btnGroups" aria-label="Groups" aria-expanded="false" title="Groups">☰</button>
             <h1 class="list-title" id="listTitle">All Contacts</h1>
+            <div class="seg" role="group" aria-label="View">
+              <button type="button" class="seg-btn" data-view="cards" aria-pressed="true">Cards</button>
+              <button type="button" class="seg-btn" data-view="table" aria-pressed="false">Table</button>
+            </div>
             <button type="button" class="text-btn" id="btnSelect" aria-pressed="false">Select</button>
             <button type="button" class="icon-btn" id="btnNew" aria-label="New contact" title="New contact (Cmd+N)">+</button>
           </div>
           <label class="search"><span class="sr">Search contacts</span>
             <input id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false"></label>
+          <div class="chips" id="chips" hidden></div>
           <p class="list-count" id="listCount" aria-live="polite"></p>
           <div class="bulkbar" id="bulkBar" hidden>
             <span id="bulkCount" class="bulk-n"></span>
@@ -121,6 +129,18 @@
             <button type="button" class="text-btn" data-cmd="contacts.clearSel">Done</button>
           </div>
         </div>
+        <section class="table-view" id="tableView" aria-label="Contacts table" hidden>
+          <div class="tbl-bar" id="tblBar" hidden>
+            <span id="tblCount" class="bulk-n"></span>
+            <button type="button" class="text-btn" data-cmd="groups.add">Add to group</button>
+            <button type="button" class="text-btn" data-cmd="groups.remove">Remove from group</button>
+            <button type="button" class="text-btn" data-cmd="export.open">Export</button>
+            <button type="button" class="text-btn danger" data-cmd="contacts.delete">Delete</button>
+            <button type="button" class="text-btn" data-cmd="contacts.clearSel">Done</button>
+          </div>
+          <div class="tbl-scroll"><table class="tbl" id="tbl" aria-label="Contacts"></table></div>
+          <p class="empty" id="tblEmpty" hidden></p>
+        </section>
         <div class="list-scroll" id="listScroll">
           <div id="rows" class="rows-wrap" tabindex="0" aria-label="Contacts list"></div>
           <p id="noMatch" class="empty" hidden></p>
@@ -134,6 +154,8 @@
           </div>
         </div>
       </section>
+
+      <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" aria-label="Resize the contact list" aria-valuemin="260" aria-valuenow="340" tabindex="0" title="Drag to resize. Double-click to reset."></div>
 
       <section class="col col-card" id="card" aria-label="Contact">
         <div id="cardBody" class="card-body"></div>
@@ -167,6 +189,7 @@
   <script src="../shared/hub.js" data-src="shared/hub.js"></script>
   <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.topbar'));</script>
+  <script src="../shared/urlstate/urlstate.js" data-src="shared/urlstate/urlstate.js"></script>
   <script src="js/core/text.js" data-src="contacts/js/core/text.js"></script>
   <script src="js/core/photo.js" data-src="contacts/js/core/photo.js"></script>
   <script src="js/core/model.js" data-src="contacts/js/core/model.js"></script>
@@ -177,10 +200,14 @@
   <script src="js/core/vcard-write.js" data-src="contacts/js/core/vcard-write.js"></script>
   <script src="js/core/csv-read.js" data-src="contacts/js/core/csv-read.js"></script>
   <script src="js/core/csv-write.js" data-src="contacts/js/core/csv-write.js"></script>
+  <script src="js/core/csv-map.js" data-src="contacts/js/core/csv-map.js"></script>
+  <script src="js/core/import-plan.js" data-src="contacts/js/core/import-plan.js"></script>
+  <script src="js/core/table-model.js" data-src="contacts/js/core/table-model.js"></script>
   <script src="js/core/dedupe.js" data-src="contacts/js/core/dedupe.js"></script>
   <script src="js/core/bulk.js" data-src="contacts/js/core/bulk.js"></script>
   <script src="js/core/zip.js" data-src="contacts/js/core/zip.js"></script>
   <script src="js/core/format.js" data-src="contacts/js/core/format.js"></script>
+  <script src="js/core/filters.js" data-src="contacts/js/core/filters.js"></script>
   <script src="js/app/state.js" data-src="contacts/js/app/state.js"></script>
   <script src="js/app/records.js" data-src="contacts/js/app/records.js"></script>
   <script src="js/app/photo-ui.js" data-src="contacts/js/app/photo-ui.js"></script>
@@ -191,9 +218,14 @@
   <script src="js/app/card-edit.js" data-src="contacts/js/app/card-edit.js"></script>
   <script src="js/app/card.js" data-src="contacts/js/app/card.js"></script>
   <script src="js/app/new-contact.js" data-src="contacts/js/app/new-contact.js"></script>
-  <script src="../shared/drop/rules.js" data-src="shared/drop/rules.js"></script>
-  <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
-  <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
+  <script src="js/app/import-map.js" data-src="contacts/js/app/import-map.js"></script>
+  <script src="js/app/import-preview.js" data-src="contacts/js/app/import-preview.js"></script>
+  <script src="js/app/import-flow.js" data-src="contacts/js/app/import-flow.js"></script>
+  <script src="js/app/table.js" data-src="contacts/js/app/table.js"></script>
+  <script src="js/app/layout.js" data-src="contacts/js/app/layout.js"></script>
+  <script src="js/app/filter-panel.js" data-src="contacts/js/app/filter-panel.js"></script>
+  <script src="js/app/url-place.js" data-src="contacts/js/app/url-place.js"></script>
+  <script src="js/app/drop-import.js" data-src="contacts/js/app/drop-import.js"></script>
   <script src="js/app/io-dialogs.js" data-src="contacts/js/app/io-dialogs.js"></script>
   <script src="js/app/tools-dialogs.js" data-src="contacts/js/app/tools-dialogs.js"></script>
   <script src="js/app/keys.js" data-src="contacts/js/app/keys.js"></script>

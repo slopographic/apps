@@ -27,12 +27,19 @@
     SC.select.mount();
     SC.groups.mount();
     SC.card.mount();
+    SC.table.mount();
+    SC.layout.mount();
+    SC.filterPanel.mount();
+    SC.urlPlace.mount();
+    SC.dropImport.mount();
     SC.keys.mount();
     SC.commands.init();
     $('btnNew').addEventListener('click', () => SC.newContact.open());
     $('btnGroups').setAttribute('aria-expanded', 'false');
     const ok = await SC.records.init();
+    const place = SC.urlPlace.peek(); // read before the session's place is applied, so the URL wins when it names one
     if (ok) { await launch(); await SC.viewState.restore(); } // js/app/view-state.js: the group, search, open card and selection
+    SC.urlPlace.apply(place);
     S.ready = true;
     SC.ready = true;
     S.emit('render');

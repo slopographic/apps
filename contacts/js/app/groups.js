@@ -1,5 +1,5 @@
 /* Slop Contacts: the left column. Library (All Contacts, Recent), Groups (the categories, with counts; a contact
- * dragged onto one joins it), and Pipeline (the CRM stages, with counts). On a narrow screen the column is a sheet
+ * dragged onto one moves there, or copies with Alt or Ctrl), and Pipeline (the CRM stages, with counts). On a narrow screen the column is a sheet
  * opened from the list. Renders from SlopContacts.state. Adds SlopContacts.groups. */
 (function () {
   'use strict';
@@ -28,15 +28,23 @@
   /** Shows or hides the sheet (narrow screens only; wide screens always show the column). */
   function sheet(open) { document.body.classList.toggle('groups-open', !!open); $('btnGroups').setAttribute('aria-expanded', String(!!open)); }
 
-  /** Adds the dropped contacts to a group. */
+  /** Alt or Ctrl held copies; otherwise the contacts move: they leave the group that is open (when it is a group) and
+   *  join the target. Dropped from All, Recent or a pipeline stage, they are added. */
+  const copying = (e) => !!(e.altKey || e.ctrlKey);
   function drop(e, name) {
     const raw = e.dataTransfer && e.dataTransfer.getData(SC.select.MIME);
     if (!raw) return;
     let ids = [];
     try { ids = JSON.parse(raw); } catch (err) { return; }
-    const r = SC.bulk.addGroup(S.list, new Set(ids), name);
-    if (r.changed) S.setList(r.list);
-    UI.toast(`Added ${r.changed} to “${name}”`);
+    const set = new Set(ids), from = S.group && S.group.startsWith('cat:') ? S.group.slice(4) : null;
+    let r = SC.bulk.addGroup(S.list, set, name), moved = 0;
+    if (!copying(e) && from && from !== name) {
+      const out = SC.bulk.removeGroup(r.list, set, from);
+      r = { list: out.list, changed: r.changed };
+      moved = out.changed;
+    }
+    if (r.changed || moved) S.setList(r.list);
+    UI.toast(moved ? `Moved ${r.changed} to “${name}”` : `Added ${r.changed} to “${name}”`);
   }
 
   function mount() {
@@ -52,7 +60,7 @@
     box.addEventListener('dragover', (e) => {
       const b = e.target.closest && e.target.closest('.is-drop');
       if (!b || !e.dataTransfer || !e.dataTransfer.types.includes(SC.select.MIME)) return;
-      e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
+      e.preventDefault(); e.dataTransfer.dropEffect = copying(e) ? 'copy' : 'move';
       b.classList.add('drop-on');
     });
     box.addEventListener('dragleave', (e) => { const b = e.target.closest && e.target.closest('.drop-on'); if (b) b.classList.remove('drop-on'); });
