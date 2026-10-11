@@ -31,7 +31,7 @@
     var items = [];
     if (txt) items.push({ label: 'Edit Text', act: function () { SV.startTextEdit(txt, null); } }, '-');
     items.push(mi('edit.undo'), mi('edit.redo'), '-');
-    if (any) items.push(mi('edit.cut'), mi('edit.copy'));
+    if (any) items.push(mi('edit.cut'), mi('edit.copy'), mi('edit.copyBuffer'));
     if (S.clipboard) items.push(mi('edit.paste'), mi('edit.pasteFront'));
     if (any) {
       items.push(mi('edit.duplicate'), mi('edit.clear'), '-', mi('object.group'), mi('object.ungroup'),

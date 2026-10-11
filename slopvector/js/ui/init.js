@@ -37,7 +37,7 @@
     document.getElementById('panelsToggle').addEventListener('click', function () { togglePanels(); });
     document.addEventListener('click', function (e) { var b = e.target && e.target.closest ? e.target.closest('button') : null; if (b && e.detail > 0 && !b.closest('.sui-dlg')) setTimeout(function () { if (document.activeElement === b) b.blur(); }, 0); }, true);
     D.textEditor.addEventListener('input', SV.onEditorInput);
-    SV.bindStage(); SV.bindKeys(); SV.wireCommands(); IO.bindDrop(); bindContextMenus();
+    SV.bindStage(); SV.bindKeys(); SV.wireCommands(); IO.bindDrop(); SV.buffer.bindDrop(); if (window.SlopBuffer) SlopBuffer.tray(document.body); bindContextMenus();
     var saved = SV.loadAutosave(), recovered = false;
     if (saved) { try { SV.loadDoc(saved.doc, { fit: true }); S.fileName = saved.fileName || null; recovered = true; } catch (e) { recovered = false; } }
     if (!recovered) SV.loadDoc(SV.sampleDoc(), { fit: true });

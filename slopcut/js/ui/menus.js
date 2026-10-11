@@ -30,6 +30,7 @@
       { label: 'Apply template', sub: SE.templates.list.map((t) => it('tpl.apply.' + t.id, t.name)) },
       { label: 'Add transition', sub: SE.model.TRANSITIONS.map(([t]) => it('tr.' + t, C.get('tr.' + t).title.replace('Add transition: ', ''))).concat(['-', it('tr.remove')]) },
       it('clip.fadeIn'), it('clip.fadeOut'), it('clip.speed'), it('clip.volKey'), '-',
+      { label: 'Mask', sub: SE.maskMenu() }, '-',
       it('edit.nudgeL'), it('edit.nudgeR'), it('clip.reset')
     ],
     Sequence: () => [

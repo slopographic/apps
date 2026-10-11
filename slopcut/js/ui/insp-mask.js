@@ -3,7 +3,7 @@
    while a slider is dragged). Drawing and handles: render/mask-input.js. */
 (function () {
   'use strict';
-  const SE = window.SE, U = SE.util, M = SE.model, MK = SE.mask, F = SE.fields, I = SE.inspector, C = SE.cmd, A = SE.app;
+  const SE = window.SE, U = SE.util, M = SE.model, MK = SE.mask, F = SE.fields, I = SE.inspector, C = SE.cmd;
   const h = U.h;
   const body = () => document.querySelector('#insp .insp-body');
   const maskOf = (id) => { const c = M.clip(SE.doc, id); return c ? c.mask : null; };
@@ -30,10 +30,10 @@
       }))];
     body().append(F.section('Mask', 'mask',
       ...shapeRows,
-      t(F.pair('Centre', { label: 'Centre X (px)', get: mg(id, (x) => x.x), set: (v) => ms(id, 'x', 'Mask position', (x, n) => { x.x = Math.round(n); })(v) },
-        { label: 'Centre Y (px)', get: mg(id, (x) => x.y), set: (v) => ms(id, 'y', 'Mask position', (x, n) => { x.y = Math.round(n); })(v) })),
-      isPath ? null : t(F.pair('Size', { label: 'Width (px)', get: mg(id, (x) => x.w), set: (v) => ms(id, 'w', 'Mask size', (x, n) => { x.w = Math.max(0, Math.round(n)); })(v) },
-        { label: 'Height (px)', get: mg(id, (x) => x.h), set: (v) => ms(id, 'h', 'Mask size', (x, n) => { x.h = Math.max(0, Math.round(n)); })(v) })),
+      t(F.pair('Centre', { label: 'Centre X (px)', get: mg(id, (x) => x.x), set: ms(id, 'x', 'Mask position', (x, n) => { x.x = Math.round(n); }) },
+        { label: 'Centre Y (px)', get: mg(id, (x) => x.y), set: ms(id, 'y', 'Mask position', (x, n) => { x.y = Math.round(n); }) })),
+      isPath ? null : t(F.pair('Size', { label: 'Width (px)', get: mg(id, (x) => x.w), set: ms(id, 'w', 'Mask size', (x, n) => { x.w = Math.max(0, Math.round(n)); }) },
+        { label: 'Height (px)', get: mg(id, (x) => x.h), set: ms(id, 'h', 'Mask size', (x, n) => { x.h = Math.max(0, Math.round(n)); }) })),
       !isPath && m.shape === 'rrect' ? t(F.slider('Corner radius', mg(id, (x) => x.r), ms(id, 'r', 'Mask radius', (x, v) => { x.r = v; }), { min: 0, max: 400, step: 1, unit: 'px', reset: 0, hardMin: 0 })) : null,
       t(F.slider('Feather', mg(id, (x) => x.feather), ms(id, 'feather', 'Mask feather', (x, v) => { x.feather = v; }), { min: 0, max: 200, step: 1, unit: 'px', reset: 0, hardMin: 0 })),
       t(F.slider('Expansion', mg(id, (x) => x.expand), ms(id, 'expand', 'Mask expansion', (x, v) => { x.expand = v; }), { min: -200, max: 200, step: 1, unit: 'px', reset: 0 })),
@@ -45,14 +45,12 @@
         h('button', { type: 'button', class: 'btn sm', onclick: () => SE.act.maskRemove() }, 'Remove mask'))));
   };
 
-  /** Mask items for a menu: add (sub-menu), remove, invert and edit. c is the clip (or null). */
-  SE.maskMenu = function (c) {
-    void c;
+  /** Mask items for a menu: add (sub-menu), remove, invert and edit. Disabled items follow the selection. */
+  SE.maskMenu = function () {
     return [
       { label: 'Add mask', sub: MK.SHAPES.filter(([s]) => s !== 'path').map(([s, l]) => ({ label: l, act: () => SE.act.maskAdd(s) }))
         .concat(['-', { label: 'Freehand path', act: () => SE.act.maskTool('free') }, { label: 'Bezier path (pen)', act: () => SE.act.maskTool('pen') }]) },
       C.item('mask.remove'), C.item('mask.invert'), C.item('mask.edit')
     ];
   };
-  void A;
 })();

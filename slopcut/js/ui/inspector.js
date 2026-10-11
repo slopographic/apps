@@ -52,6 +52,7 @@
       c.media && c.kind !== 'image' ? track(F.slider('Speed', I.clipGet(id, 'speed', 1), (v) => SE.change('Speed', (d) => SE.edit.setSpeed(d, id, v), { key: 'insp:speed' + id }), { min: 10, max: 400, step: 5, scale: 100, unit: '%', reset: 1 })) : null));
     if (c.kind !== 'audio' && c.kind !== 'effect') I.visualSections(c);
     if (c.kind !== 'audio' && c.kind !== 'effect') body.append(I.animSection(c));
+    if (c.kind === 'video' || c.kind === 'image' || c.kind === 'title' || c.kind === 'color') I.maskSection(c);
     if (c.kind === 'effect') body.append(I.effectSection(c));
     if (c.kind === 'title') I.textSection(c);
     if (c.kind === 'color') body.append(F.section('Matte', 'color', track(F.color('Colour', I.clipGet(id, 'color'), I.clipSet(id, 'color', 'Matte colour')))));
@@ -65,7 +66,7 @@
   I.render = function () {
     if (!root) return;
     const c = SE.app.primary();
-    const key = c ? c.id + ':' + c.kind + ':' + (c.trIn ? 1 : 0) + ':' + SE.app.selectedIds().length + ':' + (c.keys ? c.keys.length : 0) : 'seq:' + SE.doc.clips.length;
+    const key = c ? c.id + ':' + c.kind + ':' + (c.trIn ? 1 : 0) + ':' + SE.app.selectedIds().length + ':' + (c.keys ? c.keys.length : 0) + ':' + (c.mask ? 1 : 0) : 'seq:' + SE.doc.clips.length;
     if (key === shownKey) { I.fields.forEach((f) => f.sync()); return; }
     shownKey = key;
     I.fields = [];
