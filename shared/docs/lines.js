@@ -1,13 +1,32 @@
-// Line cards for an order: product, description, quantity, unit price, tax %, discount %, line total, and the
-// totals box (computed by SlopData.money through SlopDocs.model). Edits go to the editor through onEdit(i, patch).
+// Line cards for an order or an invoice: product, description, quantity, unit price, tax %, discount %, line total,
+// and the totals box (computed by SlopData.money through SlopDocs.model). Edits go to the app's editor through
+// onEdit(i, patch). Shared by Slop Orders and Slop Invoices. Classic script. Exposes window.SlopDocs.lines.
 (function (g) {
   'use strict';
-  const NS = (g.SlopOrders = g.SlopOrders || {});
-  const U = NS.util;
-  const M = g.SlopDocs.model;
-  const h = U.h;
+  const S = g.SlopData;
+  const NS = (g.SlopDocs = g.SlopDocs || {});
+  const M = NS.model;
 
-  const money = (minor, o) => U.money(minor, o.currency, o.locale);
+  /** Small DOM builder: h('a', { class, href, onclick, dataset }, 'text', child). Text children are escaped by the DOM. */
+  function h(tag, attrs, ...kids) {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === false || v === null || v === undefined) continue;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+      else if (k === 'dataset') Object.assign(e.dataset, v);
+      else if (v === true) e.setAttribute(k, '');
+      else e.setAttribute(k, String(v));
+    }
+    for (const c of kids.flat()) {
+      if (c === null || c === undefined || c === false) continue;
+      e.append(c instanceof Node ? c : document.createTextNode(String(c)));
+    }
+    return e;
+  }
+
+  const money = (minor, o) => S.money.formatMinor(minor, o.currency, o.locale);
 
   /** Reads one typed field into a line value; null when the text is not valid (the card then says why). */
   function parseField(field, text, currency) {

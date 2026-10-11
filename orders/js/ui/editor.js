@@ -85,7 +85,7 @@
 
   const lineOpts = () => ({
     products: st.products, currency: st.currency, locale: st.locale, readOnly: locked(),
-    onEdit: (i, patch) => { st.lines[i] = { ...st.lines[i], ...patch }; setDirty(true); NS.lines.drawTotals($('eTotals'), st.lines, lineOpts()); },
+    onEdit: (i, patch) => { st.lines[i] = { ...st.lines[i], ...patch }; setDirty(true); SlopDocs.lines.drawTotals($('eTotals'), st.lines, lineOpts()); },
     onProduct: (i, p) => {
       const cur = st.lines[i];
       if (p) {
@@ -141,8 +141,8 @@
     $('eNotes').value = st.notes;
     const ro = locked();
     for (const el of [$('eCustomer'), $('eNewCustomer'), $('eDate'), $('eNotes'), $('eAddLine')]) el.disabled = ro;
-    NS.lines.draw($('eLines'), st.lines, lineOpts());
-    NS.lines.drawTotals($('eTotals'), st.lines, lineOpts());
+    SlopDocs.lines.draw($('eLines'), st.lines, lineOpts());
+    SlopDocs.lines.drawTotals($('eTotals'), st.lines, lineOpts());
     paintInvoice();
     paintActions();
   }
@@ -230,7 +230,7 @@
     $('eDate').addEventListener('input', (e) => { st.date = e.target.value; setDirty(true); });
     $('eNotes').addEventListener('input', (e) => { st.notes = e.target.value; setDirty(true); });
     $('eCustomer').addEventListener('change', (e) => { st.customerId = e.target.value; setDirty(true); });
-    $('eNewCustomer').addEventListener('click', () => NS.customerDialog.open(async (rec) => {
+    $('eNewCustomer').addEventListener('click', () => SlopDocs.customerDialog.open(async (rec) => {
       const cs = await NS.orders.customers();
       if (cs.ok) st.customers = cs.value;
       st.customerId = rec.id;

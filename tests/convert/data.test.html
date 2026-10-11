@@ -30,7 +30,7 @@ describe('CSV and JSON', () => {
     expect(parseCsv(back)).toEqual(parseCsv(csv));
   });
   it('round-trips a simple CSV exactly', () => {
-    const simple = 'a,b\n1,two\n3,"x;y"\n';
+    const simple = 'a,b\n1,two\n3,"x,y"\n';
     expect(jsonToCsv(csvToJson(simple).json)).toBe(simple);
   });
   it('turns plain numbers into JSON numbers only when they round-trip', () => {

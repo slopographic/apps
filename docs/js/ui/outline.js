@@ -151,12 +151,22 @@ function moveAtCaret(dir) {
   if (b < 0) { if (window.SlopUI) SlopUI.toast('The caret is not in a section'); return; }
   A.move(b, dir);
 }
+/** Alt+Up and Alt+Down are read here, not by SlopCmd: SlopCmd skips Alt-only shortcuts while the caret is typing. */
+function onAltArrow(e) {
+  if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.isComposing) return;
+  if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+  if (!st.app.contains(e.target) || !S.doc || document.querySelector('.sui-back')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  moveAtCaret(e.key === 'ArrowUp' ? -1 : 1);
+}
 function registerKeys() {
+  window.addEventListener('keydown', onAltArrow, true);
   if (!window.SlopCmd) return;
   SlopCmd.register([
     { id: 'outline.toggle', title: 'Show or hide the outline', group: 'Outline', keys: ['Shift+Mod+O'], run: () => setOpen(!isOpen()) },
-    { id: 'outline.up', title: 'Move section up', group: 'Outline', keys: ['Alt+ArrowUp'], run: () => moveAtCaret(-1) },
-    { id: 'outline.down', title: 'Move section down', group: 'Outline', keys: ['Alt+ArrowDown'], run: () => moveAtCaret(1) },
+    { id: 'outline.up', title: 'Move section up (Alt+Up)', group: 'Outline', keys: [], run: () => moveAtCaret(-1) },
+    { id: 'outline.down', title: 'Move section down (Alt+Down)', group: 'Outline', keys: [], run: () => moveAtCaret(1) },
     { id: 'outline.add', title: 'Add section', group: 'Outline', keys: [], run: () => A.add() },
   ]);
 }
