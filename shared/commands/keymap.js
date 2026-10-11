@@ -81,6 +81,7 @@
       }
       const all = C.allConflicts(), groups = new Map();
       for (const c of cmds) { const g = c.group || 'Commands'; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(c); }
+      if (groups.has('Help')) { const h = groups.get('Help'); groups.delete('Help'); groups.set('Help', h); }
       const scroll = list.scrollTop;
       list.textContent = '';
       for (const [g, items] of groups) {
