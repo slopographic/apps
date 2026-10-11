@@ -6,7 +6,7 @@
 (function () {
   'use strict';
   if (window.HexTabs) return;
-  let api = null, hooks = { activate() {}, deactivate() {}, refresh() {} };
+  let api = null, session = null, hooks = { activate() {}, deactivate() {}, refresh() {} };
 
   /** A tab for a HexDoc. version counts this file's saved versions (Save version). */
   function makeT(doc, opts = {}) {
@@ -40,9 +40,12 @@
       hooks = Object.assign(hooks, h || {});
       api = SlopDocTabs.mount(host, adapter, { appId: 'hex' });
       api.on(() => hooks.refresh());
-      return SlopDocTabs.session('hex', api, { notice: (m) => { if (window.SlopUI) SlopUI.toast(m, 4200); } });
+      session = SlopDocTabs.session('hex', api, { notice: (m) => { if (window.SlopUI) SlopUI.toast(m, 4200); } });
+      return session;
     },
     api: () => api,
+    /** Writes the open tabs to this device now. */
+    flush: () => (session ? session.flush() : Promise.resolve(false)),
     current: () => (api ? api.current() : null),
     makeT,
     newDoc,
