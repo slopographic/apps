@@ -139,13 +139,15 @@
       pointer('pointermove', 2, m.x + 75, m.y);
       pointer('pointermove', 1, m.x - 75, m.y);
       pointer('pointermove', 2, m.x + 100, m.y);
-      pointer('pointermove', 1, m.x - 100, m.y);
+      pointer('pointermove', 1, m.x - 100 + 40, m.y); // the fingers end 40 px to the right of where they began
+      pointer('pointermove', 2, m.x + 100 + 40, m.y);
       expect(S.view.zoom).toBeCloseTo(z0 * 2, 6);
-      const after = docAt(m.x, m.y);
-      expect(after.x).toBeCloseTo(before.x, 6);
-      expect(after.y).toBeCloseTo(before.y, 6);
-      pointer('pointerup', 1, m.x - 100, m.y);
-      pointer('pointerup', 2, m.x + 100, m.y);
+      // The point under the starting midpoint stays under the fingers' midpoint, which is now 40 px to the right.
+      const s = SV.toScreen(before.x, before.y);
+      expect(s.x).toBeCloseTo(m.x + 40, 4);
+      expect(s.y).toBeCloseTo(m.y, 4);
+      pointer('pointerup', 1, m.x - 60, m.y);
+      pointer('pointerup', 2, m.x + 140, m.y);
     });
   });
   run({ name: 'Slop Vector · zoom' });

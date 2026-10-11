@@ -109,7 +109,9 @@
       if (!pinch || touches.size !== 2) return;
       e.stopImmediatePropagation();
       const b = cfg(), m = pinchMid();
-      if (b.pinch === 'zoom' && pinch.d > 0 && m.d > 0) adapter.zoomAt(m.d / pinch.d, m.x, m.y, true);
+      // Zoom about the midpoint where the fingers were, then pan by how far it moved: the content under the
+      // fingers stays under them, with no extra slide from the midpoint moving.
+      if (b.pinch === 'zoom' && pinch.d > 0 && m.d > 0) adapter.zoomAt(m.d / pinch.d, pinch.mx, pinch.my, true);
       if (b.touchPan) adapter.panBy(m.x - pinch.mx, m.y - pinch.my);
       if (b.pinch === 'zoom' || b.touchPan) emit({ type: 'pinch', factor: m.d / (pinch.d || 1), via: 'touch' });
       pinch.d = m.d; pinch.mx = m.x; pinch.my = m.y;
