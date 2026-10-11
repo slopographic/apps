@@ -57,10 +57,12 @@ export function headerFooter(B, v, sch, bw) {
     if (v.header === 'title') return B.P(title, 'Normal', { after: 0, borderBottom: { w: 0.5, color: sch.rule } }, mark);
     return B.P(`${v.company}\t${title}`, 'Normal', { after: 0, tabs: rightTab, borderBottom: { w: 0.5, color: sch.rule } }, mark);
   };
+  /** A paragraph with the given runs (a fresh id each time). */
+  const line = (runs, props) => ({ ...B.P('', 'Normal', props), runs });
   const footerLine = () => {
-    if (v.footer === 'page-of') return B.P('', 'Normal', { after: 0, align: 'right' }, mark).runs.length ? null : { ...B.P('', 'Normal', { after: 0, align: 'right' }), runs: [B.run('Page ', mark), B.field('page'), B.run(' of ', mark), B.field('pages')] };
-    if (v.footer === 'page') return { ...B.P('', 'Normal', { after: 0, align: 'right' }), runs: [B.run('Page ', mark), B.field('page')] };
-    return { ...B.P('', 'Normal', { after: 0, tabs: rightTab }), runs: [B.run(`${v.company}\tPage `, mark), B.field('page')] };
+    if (v.footer === 'page-of') return line([B.run('Page ', mark), B.field('page'), B.run(' of ', mark), B.field('pages')], { after: 0, align: 'right' });
+    if (v.footer === 'page') return line([B.run('Page ', mark), B.field('page')], { after: 0, align: 'right' });
+    return line([B.run(`${v.company}\tPage `, mark), B.field('page')], { after: 0, tabs: rightTab });
   };
   const header = { default: [headerLine()], first: [] };
   const footer = { default: [footerLine()], first: [] };

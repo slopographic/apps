@@ -20,6 +20,7 @@
     return f.contentWindow;
   }
 
+  const DBG = [];
   describe('PhotoSLOP saved view', () => {
     it('keeps the zoom and hidden panels after leaving for Slop Drive and coming back', async () => {
       // Start from an empty PhotoSLOP store: tabs left by earlier runs would also count as unsaved work.
@@ -31,15 +32,16 @@
       W.dirty();
       W.document.body.classList.add('no-panels');
       await sleep(400);
-      console.error('DBG pre ' + JSON.stringify([W.eval('DOCS.map(d=>[d.id, d.state && d.state.dirty, d.state && d.state.idx])'), W.eval('D.dirty'), W.eval('Hist.idx')]));
+      
       f.src = '../drive/frame.html';
-      for (let i = 0; i < 4; i++) { await sleep(1000); const w = f.contentWindow; console.error('DBG loc ' + (w && w.location.href) + ' ' + (w && w.document.readyState)); }
+      for (let i = 0; i < 4; i++) { await sleep(1000); const w = f.contentWindow; DBG.push('loc ' + (w && w.location.pathname) + ' ' + (w && w.document.readyState)); }
       await open('../drive/frame.html');
       await sleep(60);
-      for (let i = 0; i < 3; i++) { await sleep(1500); const w = f.contentWindow; console.error('DBG drive ' + w.location.pathname + ' ' + w.document.readyState); }
+      for (let i = 0; i < 3; i++) { await sleep(1500); const w = f.contentWindow; DBG.push('drive ' + w.location.pathname + ' ' + w.document.readyState); }
       f.src = '../../photoslop/index.html';
-      for (let i = 0; i < 6; i++) { await sleep(2000); const w = f.contentWindow; console.error('DBG ps ' + w.location.pathname + ' ' + w.document.readyState + ' cls=' + w.document.body.className + ' zoom=' + (w.V && w.V.zoom)); }
+      for (let i = 0; i < 6; i++) { await sleep(2000); const w = f.contentWindow; DBG.push('ps ' + (w.location && w.location.pathname) + ' ' + (w.document && w.document.readyState) + ' cls=' + (w.document && w.document.body && w.document.body.className) + ' zoom=' + (w.V && w.V.zoom)); }
       W = f.contentWindow;
+      expect(DBG.join(' | ')).toBe('x');
       expect(W.V.zoom).toBeCloseTo(2, 1e-6);
       expect(W.document.body.classList.contains('no-panels')).toBe(true);
     }, { timeout: 90000 });
