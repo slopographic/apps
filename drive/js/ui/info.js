@@ -66,7 +66,7 @@
       ['Location', loc], ['Added', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], ['Opened', r.opened ? DR.fmtFull(r.opened) : 'Never'], r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null]);
     if (['image', 'video', 'pdf'].includes(DR.kindOf(r))) facts.append(el('dt', null, DR.kindOf(r) === 'pdf' ? 'Pages' : 'Dimensions'), dd);
     faceRow(r, facts);
-    return [head, DR.previewOf(r), actions(r), facts, tagBox(r)];
+    return [head, DR.previewOf(r), DR.pvGrip(), actions(r), facts, tagBox(r)];
   }
   /** A file's tags: a chip per tag with a remove button, and a box that adds more (Enter or a comma). */
   function tagBox(r) {

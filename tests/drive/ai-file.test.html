@@ -46,12 +46,12 @@
       const thumb = await DR.makeThumb({ name: 'bare.ai', type: 'application/illustrator', size: blob.size, blob });
       expect(thumb.info.kind).toBe('card');
     });
-    it('shows up in the Open with list of Slop Vector', async () => {
+    it('shows up in the Open with list of SlopVector', async () => {
       const r = { name: 'poster.ai', type: 'application/illustrator', size: 10, blob: aiFile(true) };
       const ids = DR.appsFor(r).map((a) => a.id);
       expect(ids).toContain('vector');
       const vector = W.SlopHub.appById('vector');
-      expect(vector.name).toBe('Slop Vector');
+      expect(vector.name).toBe('SlopVector');
     });
   });
   </script>

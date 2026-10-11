@@ -54,7 +54,7 @@
       expect(ids).toContain('vector');
       expect(ids).toContain('pdf');
       expect(ids).not.toContain('tables');
-      expect(DR.openInRows(r)[0].label).toBe('PhotoSLOP (default)');
+      expect(DR.openInRows(r)[0].label).toBe('PhotoSlop (default)');
     });
 
     it('right-click on a .png shows an Open in submenu with the matching apps', async () => {
@@ -62,8 +62,8 @@
       expect(labels()).toContain('Open with');
       hover(rowNamed('Open with'));
       await waitFor(() => labels(1).length > 0, { timeout: 3000 });
-      expect(labels(1)).toContain('Slop Vector');
-      expect(labels(1)).toContain('PhotoSLOP (default)');
+      expect(labels(1)).toContain('SlopVector');
+      expect(labels(1)).toContain('PhotoSlop (default)');
       closeMenus();
     });
 
@@ -82,7 +82,7 @@
       rightClick(itemEl(png));
       hover(rowNamed('Open with'));
       await waitFor(() => labels(1).length > 0, { timeout: 3000 });
-      rowNamed('Slop Vector', 1).click();
+      rowNamed('SlopVector', 1).click();
       await waitFor(() => opened.length === 1, { timeout: 5000 });
       expect(opened[0]).toContain('/slopvector/?drive=' + png);
       expect(JSON.parse(localStorage.getItem('slop-drive.openIn'))).toEqual({ png: 'vector' });
@@ -92,7 +92,7 @@
       stubOpen();
       const r = await H.get(png);
       expect(DR.defaultAppFor(r).id).toBe('vector');
-      expect(DR.openInRows(r)[0].label).toBe('Slop Vector (default)');
+      expect(DR.openInRows(r)[0].label).toBe('SlopVector (default)');
       DR.open(r);
       await waitFor(() => opened.length === 1, { timeout: 5000 });
       expect(opened[0]).toContain('/slopvector/?drive=' + png);
@@ -115,7 +115,7 @@
       DR.toggleInfo(true);
       DR.renderInfo(true);
       const acts = [...W.document.querySelectorAll('#info .acts button')].map((b) => b.textContent);
-      expect(acts[0]).toBe('Open in Slop Vector');
+      expect(acts[0]).toBe('Open in SlopVector');
       expect(acts).toContain('Open in…');
       DR.select([]);
     });
