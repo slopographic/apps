@@ -62,6 +62,7 @@
       folder ? { label: 'Open', key: 'Enter', act: () => DR.open(folder) } : null,
       file ? { label: DR.defaultAppFor(file) ? `Open in ${DR.defaultAppFor(file).name}` : 'Open', key: 'Enter', act: () => DR.open(file) } : null,
       file ? { label: 'Open with', sub: DR.openInRows(file) } : null,
+      ...DR.cleanRows(items),
       file ? { label: 'Quick look', key: 'Space', act: () => DR.quickLook(file) } : null,
       one && (S.section !== 'folder' || DR.searching()) ? { label: 'Show in folder', act: () => DR.reveal(one) } : null,
       '-',

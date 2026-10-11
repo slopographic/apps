@@ -1,6 +1,7 @@
 /* Slop Clean test fixtures: builds metadata-laden files in code (no binary files are committed). Classic script,
  * sets window.CleanFixtures. Needs the core (window.SlopClean) for CRC-32 only.
- *   buildTiff({ le, entries, strip })     entries: [{ tag, type, value }] or [{ tag, child: { entries } }]
+ *   buildTiff({ le, entries, strip, thumb })   entries: [{ tag, type, value }] or [{ tag, child: { entries } }];
+ *                                         strip / thumb: picture bytes (IFD0 strip, and an IFD1 thumbnail)
  *   exifOf(tiff)                          the APP1/eXIf payload prefix (Exif\0\0 + TIFF) for JPEG
  *   jpegWith(...) / pngChunk / webpChunk  small byte builders for hand-made files */
 (function () {
@@ -22,47 +23,53 @@
   /** A TIFF file. spec.entries become IFD0; a { child } entry is a pointer to a sub-IFD (EXIF, GPS). spec.strip adds one picture strip. */
   function buildTiff(spec) {
     const le = spec.le !== false;
-    const nodes = [];
+    const nodes = [], blobs = [];
     const makeNode = (entries) => {
-      const node = { entries: [], off: 0 };
+      const node = { entries: [], off: 0, next: null };
       nodes.push(node);
       for (const e of entries) {
         if (e.child) node.entries.push({ tag: e.tag, child: makeNode(e.child.entries), bytes: null });
+        else if (e.blob) { node.entries.push({ tag: e.tag, bytes: null, blob: e.blob, count: 1, type: 4 }); }
         else node.entries.push({ tag: e.tag, bytes: encode(e.type, e.value, le), type: e.type, count: e.type === 2 ? e.value.length + 1 : e.value.length });
       }
+      node.entries.sort((a, b) => a.tag - b.tag);
       return node;
     };
     const main = makeNode(spec.entries.slice());
     if (spec.strip) {
-      main.entries.push({ tag: 0x111, type: 4, count: 1, bytes: null, strip: true });
+      main.entries.push({ tag: 0x111, type: 4, count: 1, bytes: null, blob: spec.strip });
       main.entries.push({ tag: 0x117, type: 4, count: 1, bytes: encode(4, [spec.strip.length], le) });
       main.entries.sort((a, b) => a.tag - b.tag);
+    }
+    if (spec.thumb) {
+      main.next = makeNode([{ tag: 0x100, type: 3, value: [16] }, { tag: 0x101, type: 3, value: [12] }, { tag: 0x103, type: 3, value: [6] },
+        { tag: 0x201, blob: spec.thumb }, { tag: 0x202, type: 4, value: [spec.thumb.length] }]);
     }
     let pos = 8;
     for (const n of nodes) { n.off = pos; pos += 2 + 12 * n.entries.length + 4; }
     for (const n of nodes) for (const e of n.entries) {
-      if (e.child || e.strip) continue;
+      if (e.child) continue;
+      if (e.blob) { blobs.push({ e, at: 0 }); continue; }
       if (e.bytes.length > 4) { e.ext = pos; pos += e.bytes.length + (e.bytes.length & 1); }
     }
-    let stripAt = 0;
-    if (spec.strip) { stripAt = pos; pos += spec.strip.length; }
+    for (const b of blobs) { b.at = pos; pos += b.e.blob.length; }
     const out = new Uint8Array(pos), dv = new DataView(out.buffer);
     out.set(le ? [0x49, 0x49, 42, 0] : [0x4d, 0x4d, 0, 42], 0);
     dv.setUint32(4, 8, le);
+    for (const b of blobs) b.e.bytes = encode(4, [b.at], le);
     for (const n of nodes) {
       dv.setUint16(n.off, n.entries.length, le);
       n.entries.forEach((e, i) => {
         const eo = n.off + 2 + 12 * i;
         dv.setUint16(eo, e.tag, le);
         if (e.child) { dv.setUint16(eo + 2, 4, le); dv.setUint32(eo + 4, 1, le); dv.setUint32(eo + 8, e.child.off, le); return; }
-        if (e.strip) { e.bytes = encode(4, [stripAt], le); }
         dv.setUint16(eo + 2, e.type, le); dv.setUint32(eo + 4, e.count, le);
         if (e.bytes.length <= 4) out.set(e.bytes, eo + 8);
         else { dv.setUint32(eo + 8, e.ext, le); out.set(e.bytes, e.ext); }
       });
-      dv.setUint32(n.off + 2 + 12 * n.entries.length, 0, le);
+      dv.setUint32(n.off + 2 + 12 * n.entries.length, n.next ? n.next.off : 0, le);
     }
-    if (spec.strip) out.set(spec.strip, stripAt);
+    for (const b of blobs) out.set(b.e.blob, b.at);
     return out;
   }
   const cat = (...parts) => { const n = parts.reduce((s, p) => s + p.length, 0), out = new Uint8Array(n); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; } return out; };
@@ -92,7 +99,7 @@
   }
   /** A RIFF WEBP file from chunks, with the size field set correctly. */
   function riffWebp(chunks) {
-    const body = cat(ASCII('WEBP'), ...chunks), head = new Uint8Array(8), dv = new DataView(head.buffer);
+    const body = cat(ASCII('WEBP').subarray(0, 4), ...chunks), head = new Uint8Array(8), dv = new DataView(head.buffer);
     head.set(ASCII('RIFF').subarray(0, 4), 0); dv.setUint32(4, body.length, true);
     return cat(head, body);
   }

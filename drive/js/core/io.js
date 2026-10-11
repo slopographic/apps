@@ -94,7 +94,7 @@
     const rank = (a) => {
       if ((a.creates || []).some((c) => c.mime === r.type || (!!e && c.ext === e))) return 3;
       let best = 0;
-      for (const p of a.accepts || []) if (H().matches(r.type, p)) best = Math.max(best, p.includes('*') ? 1 : 2);
+      for (const p of a.accepts || []) if (H().matches(r.type, p)) best = Math.max(best, p.includes('*') || a.tool ? 1 : 2); // tools never become the default app
       return best;
     };
     const own = DR.creatorOf ? DR.creatorOf(r) : null;
