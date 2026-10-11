@@ -3,7 +3,8 @@
 // takes the chaos token and returns true if it did something.
 import { M, reduced, sleep, rand, clamp, setMood, navH } from './state.js';
 import * as P from './perches.js';
-import { hopTo } from './motion.js';
+import { hopTo, fall } from './motion.js';
+import { launch } from './bodies.js';
 import { size } from './look.js';
 import { record, keepStyle } from './journal.js';
 import { crumbs, say, gooSVG } from './fx.js';
@@ -13,7 +14,7 @@ import { line } from './lines.js';
 
 export const ok = (tok) => tok === M.token && M.mode === 'perched';
 export const wait = (ms) => sleep(reduced() ? 0 : ms);
-export const isCard = (el) => el.dataset.perch === 'card';
+export const isCard = (el) => el.dataset.perch === 'card' && !P.fallen.has(el);
 
 /** Hop onto a perch chosen by filter (or stay if already there). */
 export async function goTo(filter, tok) {
@@ -35,7 +36,9 @@ export async function bite(tok) {
     if (!ok(tok)) return false;
     M.squash = 0.6;
     const r = p.el.getBoundingClientRect(), R = size() * 0.27;
-    const x = clamp(M.x - scrollX - r.left + (i ? rand(-22, 22) : 0), R, r.width - R);
+    // He leans over and bites beside his feet (a bite under them would drop him through the card).
+    const side = M.x - scrollX - r.left < r.width / 2 ? 1 : -1;
+    const x = clamp(M.x - scrollX - r.left + side * R * (1.9 + i * 0.9), R, r.width - R);
     punch(p.el, [{ x, y: R * 0.2, r: R }, { x: x - R * 0.85, y: R * 0.45, r: R * 0.5 }, { x: x + R * 0.85, y: R * 0.45, r: R * 0.5 }]);
     crumbs(r.left + scrollX + x, r.top + scrollY + R * 0.4, '#1d1d1d');
     await wait(260);
@@ -91,29 +94,20 @@ export async function knock(tok) {
   return true;
 }
 /** Mark a card gone (no longer a perch) and record how to bring it back. */
-export function vanish(card) {
+export function vanish(card, gone = true) {
   keepStyle(card);
-  P.gone.add(card);
-  record(() => P.gone.delete(card));
+  const set = gone ? P.gone : P.fallen;   // gone: swallowed for good; fallen: a rigid body, still a perch
+  set.add(card);
+  record(() => set.delete(card));
   Object.assign(card.style, { pointerEvents: 'none', transition: 'none', position: 'relative', zIndex: '14' });
 }
 function topple(card) {
-  vanish(card);
+  vanish(card, false);
+  if (M.perch && M.perch.el === card) fall(0, -120, true);    // the floor just left
   if (reduced()) { card.style.visibility = 'hidden'; return; }
-  const r = card.getBoundingClientRect(), top0 = r.top + scrollY;
-  let x = 0, y = 0, rot = 0, last = performance.now();
-  const vx = rand(60, 220) * (M.x < r.left + scrollX + r.width / 2 ? 1 : -1), vr = vx * rand(0.15, 0.35);
-  let vy = -rand(280, 420);
-  const tick = (t) => {
-    if (!P.gone.has(card)) return;                     // restored mid-fall
-    const dt = Math.min(0.05, (t - last) / 1000);
-    last = t;
-    vy += 2200 * dt; x += vx * dt; y += vy * dt; rot += vr * dt;
-    if (top0 + y > scrollY + innerHeight + 60) { card.style.transform = ''; card.style.visibility = 'hidden'; return; }
-    card.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${rot.toFixed(1)}deg)`;
-    requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
+  const r = card.getBoundingClientRect();
+  const vx = rand(60, 220) * (M.x < r.left + scrollX + r.width / 2 ? 1 : -1);
+  record(launch(card, { vx, vy: -rand(280, 420), vr: vx * rand(0.15, 0.35) }));
 }
 
 /* ---------- spit goo ---------- */

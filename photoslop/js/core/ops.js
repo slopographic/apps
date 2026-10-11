@@ -3,7 +3,7 @@
 
 /* ---------- document ops ---------- */
 function newDocument(w, hh, bg = '#ffffff', name = 'Untitled') {
-  D.w = w; D.h = hh; D.name = name; D.sel = null; live = null;
+  D.w = w; D.h = hh; D.name = name; D.sel = null; D.guides = []; live = null;
   const L = newLayerRecord({ name: 'Background' });
   if (bg && bg !== 'transparent') { const g = cx(L.canvas); g.fillStyle = bg; g.fillRect(0, 0, w, hh); }
   D.layers = [L]; D.activeId = L.id;
@@ -94,7 +94,7 @@ function rasterizeText(L, quiet) { const R = patchLayer(L.id, { text: null }); i
 function resizeCanvas(w, hh, dx, dy, label = 'Canvas Size') {
   D.layers = D.layers.map((L) => Object.assign({}, L, { x: L.x + dx, y: L.y + dy, mask: L.mask && Object.assign({}, L.mask, { x: L.mask.x + dx, y: L.mask.y + dy }), text: L.text && Object.assign({}, L.text, { x: L.text.x + dx, y: L.text.y + dy }) }));
   D.w = Math.round(w); D.h = Math.round(hh);
-  D.sel = null;
+  D.sel = null; remapGuides((g) => ({ o: g.o, pos: g.pos + (g.o === 'v' ? dx : dy) }));
   commit(label);
 }
 function resampleCanvas(c, w, hh) {
@@ -116,6 +116,7 @@ function imageSize(w, hh, smooth = true) {
     if (mask) mask = Object.assign({}, mask, { canvas: resampleCanvas(mask.canvas, Math.max(1, Math.round(mask.canvas.width * sx)), Math.max(1, Math.round(mask.canvas.height * sy))), x: Math.round(mask.x * sx), y: Math.round(mask.y * sy) });
     return Object.assign({}, L, { canvas: c, x: Math.round(L.x * sx), y: Math.round(L.y * sy), mask, text: L.text && Object.assign({}, L.text, { x: L.text.x * sx, y: L.text.y * sy, size: L.text.size * Math.sqrt(sx * sy) }) });
   });
+  remapGuides((g) => ({ o: g.o, pos: g.pos * (g.o === 'v' ? sx : sy) }));
   D.w = Math.round(w); D.h = Math.round(hh); D.sel = null;
   commit('Image Size');
 }
@@ -140,6 +141,7 @@ function transformCanvas(kind) {
     if (mask) { const m = tf(mask.canvas, mask.x, mask.y); mask = Object.assign({}, mask, { canvas: m.c, x: m.x, y: m.y }); }
     return Object.assign({}, L, { canvas: r.c, x: r.x, y: r.y, mask, text: null });
   });
+  remapGuides((g) => (kind === 'flipH' ? (g.o === 'v' ? { o: 'v', pos: ow - g.pos } : g) : kind === 'flipV' ? (g.o === 'h' ? { o: 'h', pos: oh - g.pos } : g) : kind === '180' ? { o: g.o, pos: (g.o === 'v' ? ow : oh) - g.pos } : kind === 'cw' ? (g.o === 'v' ? { o: 'h', pos: g.pos } : { o: 'v', pos: oh - g.pos }) : g.o === 'v' ? { o: 'h', pos: ow - g.pos } : { o: 'v', pos: g.pos }));
   if (swap) { D.w = oh; D.h = ow; }
   D.sel = null;
   commit({ cw: 'Rotate 90° CW', ccw: 'Rotate 90° CCW', 180: 'Rotate 180°', flipH: 'Flip Canvas Horizontal', flipV: 'Flip Canvas Vertical' }[kind]);
@@ -154,7 +156,7 @@ function cropTo(r, deletePixels = true) {
       if (mask) { const m = mkCanvas(r.w, r.h), g = cx(m); if (mask.def) { g.fillStyle = '#000'; g.fillRect(0, 0, r.w, r.h); g.clearRect(mask.x - r.x, mask.y - r.y, mask.canvas.width, mask.canvas.height); } g.drawImage(mask.canvas, mask.x - r.x, mask.y - r.y); mask = Object.assign({}, mask, { canvas: m, x: 0, y: 0 }); }
       return Object.assign({}, L, { canvas: c, x: 0, y: 0, mask, text: L.text && Object.assign({}, L.text, { x: L.text.x - r.x, y: L.text.y - r.y }) });
     });
-    D.w = r.w; D.h = r.h; D.sel = null;
+    D.w = r.w; D.h = r.h; D.sel = null; remapGuides((g) => ({ o: g.o, pos: g.pos - (g.o === 'v' ? r.x : r.y) }));
     commit('Crop');
   } else resizeCanvas(r.w, r.h, -r.x, -r.y, 'Crop');
 }

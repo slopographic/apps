@@ -26,7 +26,7 @@ function spiral(dx, dy, base = '') {
 function victims(x, y) {
   const spans = [], cards = [];
   for (const el of document.querySelectorAll('h1[data-perch], h2[data-perch], [data-perch="card"]')) {
-    if (P.gone.has(el)) continue;
+    if (P.gone.has(el) || P.fallen.has(el)) continue;
     const b = el.getBoundingClientRect();
     if (!b.width) continue;
     const cx = b.left + scrollX + b.width / 2, cy = b.top + scrollY + b.height / 2;

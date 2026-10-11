@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Homepage · Sloppo physics</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="boot.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  let win, doc, S, M;
+  const ready = HomeTest.openHome().then(async (w) => {
+    win = w; doc = w.document; S = w.SlopMascot; M = S.M;
+    doc.documentElement.style.scrollBehavior = 'auto';
+    await HomeTest.settled(win);
+  });
+  const calm = () => { M.nextIdle = performance.now() + 1e7; };   // no idle hops during a test
+  async function standOn(el, frac = 0.5) {
+    win.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + win.scrollY - 260));
+    await sleep(60);
+    calm();
+    expect(await S.hopTo({ el, frac })).toBe(true);
+    calm();
+    expect(M.perch.el).toBe(el);
+  }
+  const landed = () => waitFor(() => M.mode === 'perched', { timeout: 8000 });
+
+  describe('falling when the floor goes away', () => {
+    it('removing the element under him makes him fall and land lower', async () => {
+      await ready;
+      const h = doc.getElementById('games-title'), parent = h.parentNode, next = h.nextSibling;
+      await standOn(h);
+      const y0 = M.y;
+      h.remove();
+      await sleep(40);
+      expect(M.mode).toBe('air');
+      expect(S.face()).toEqual(['normal', 'o']);
+      await landed();
+      expect(M.y).toBeGreaterThan(y0);
+      expect(M.perch === null || M.perch.el !== h).toBe(true);
+      parent.insertBefore(h, next);
+    });
+    it('a blast hole under his feet drops him through the card', async () => {
+      await ready;
+      const card = doc.querySelector('.app-card');
+      await standOn(card, 0.5);
+      const y0 = M.y, blast = await win.eval('import("./home/mascot/blast.js")');
+      const rnd = win.Math.random;
+      win.Math.random = () => 0.9;               // a burn hole, not just a crack
+      try { blast.impact(card, M.x, M.y + 3); } finally { win.Math.random = rnd; }
+      await sleep(40);
+      expect(M.mode).toBe('air');
+      await landed();
+      expect(M.y).toBeGreaterThan(y0);
+    });
+    it('Restore page puts him back on solid ground', async () => {
+      await ready;
+      S.restore();
+      await landed();
+      const pt = S.perches.point(M.perch);
+      expect(!!pt).toBe(true);
+      expect(S.perches.solidAt(M.perch.el, pt.x)).toBe(true);
+      expect(S.journal).toBe(0);
+    });
+    it('eating the letters under his feet makes him fall', async () => {
+      await ready;
+      const h = doc.getElementById('apps-title');
+      await standOn(h, 0.5);
+      for (let i = 0; i < 4 && M.mode === 'perched' && M.perch.el === h; i++) await S.act('eat');
+      // Either he fell through a gap, or the letters under him are still there.
+      if (M.mode === 'perched' && M.perch && M.perch.el === h) expect(S.perches.solidAt(h, M.x)).toBe(true);
+      else await landed();
+      S.restore();
+      await landed();
+    }, { timeout: 25000 });
+  });
+
+  describe('knocked cards are rigid bodies', () => {
+    it('fall, bounce, come to rest on the page bottom, and can be ridden', async () => {
+      await ready;
+      const card = doc.querySelector('.app-card');
+      await standOn(card, 0.5);
+      expect(await S.act('knock')).toBe(true);
+      expect(S.bodies()).toBe(1);
+      expect(M.mode).toBe('air');                // he loses his footing too
+      const bottom = () => card.getBoundingClientRect().bottom + win.scrollY;
+      const floor = doc.body.offsetHeight - 2;
+      await waitFor(() => Math.abs(bottom() - floor) < 30, { timeout: 8000 });
+      await sleep(600);
+      expect(Math.abs(bottom() - floor)).toBeLessThan(30);
+      win.scrollTo(0, floor - win.innerHeight + 40);
+      await sleep(60);
+      calm();
+      expect(await S.hopTo({ el: card, frac: 0.5 })).toBe(true);
+      expect(M.perch.el).toBe(card);
+      S.restore();
+      await sleep(60);
+      expect(S.bodies()).toBe(0);
+      expect(card.hasAttribute('style')).toBe(false);
+      await landed();
+    }, { timeout: 25000 });
+    it('two knocked cards collide instead of overlapping', async () => {
+      await ready;
+      const [a, b] = doc.querySelectorAll('.app-card');
+      await standOn(a, 0.5);
+      await S.act('knock');
+      await landed();
+      await standOn(b, 0.5);
+      await S.act('knock');
+      await sleep(2500);
+      const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+      const ox = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left), oy = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
+      expect(ox > 20 && oy > 20).toBe(false);
+      S.restore();
+      await landed();
+    }, { timeout: 30000 });
+  });
+
+  ready.then(() => sleep(100)).then(() => run());
+  </script>
+</body>
+</html>

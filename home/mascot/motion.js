@@ -60,7 +60,7 @@ function stepHop(dt) {
 }
 
 function land(p, impact) {
-  Object.assign(M, { perch: p, mode: 'perched', vx: 0, vy: 0, rot: 0, vr: 0, sqv: 0, offSince: 0 });
+  Object.assign(M, { perch: p, mode: 'perched', vx: 0, vy: 0, rot: 0, vr: 0, sqv: 0, offSince: 0, flail: false });
   const pt = p && P.point(p);
   if (pt) { M.x = pt.x; M.y = pt.y; pin(p); }
   M.squash = clamp(impact / 2200, 0.25, 0.75);

@@ -79,7 +79,7 @@ async function handleFiles(files, place) {
     try {
       const doc = await readAnyFile(f);
       if (place) pasteCanvas(doc.layers.length === 1 && !doc.layers[0].x && !doc.layers[0].y ? doc.layers[0].canvas : flattenDocLayers(doc), null, null, name);
-      else { openDocTab(doc.w, doc.h, doc.layers, name); opened++; }
+      else { openDocTab(doc.w, doc.h, doc.layers, name); if (doc.guides) adoptGuides(doc.guides); opened++; }
     } catch (e) { console.warn(e); toast(`Couldn't open ${f.name}: ${e.message || e}`, 4200); }
   }
   if (opened) toast(opened === 1 ? `Opened ${files[0].name}` : `Opened ${opened} files in tabs`);
@@ -88,7 +88,7 @@ async function handleFiles(files, place) {
 function openDocument(w, hh, layers, name) {
   if (TE.el) endTypeEdit(true);
   if (TRANSFORM.active) cancelTransform();
-  D.w = w; D.h = hh; D.name = name || 'Untitled'; D.sel = null; live = null; UI.editMask = false;
+  D.w = w; D.h = hh; D.name = name || 'Untitled'; D.sel = null; D.guides = []; live = null; UI.editMask = false;
   D.layers = layers.map((l) => newLayerRecord(l));
   D.activeId = D.layers[D.layers.length - 1].id;
   histReset('Open');

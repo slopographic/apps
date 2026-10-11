@@ -124,3 +124,4 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .tz { display: inline-flex; align-items: center; gap: 8px; }
 .tz-range { width: 140px; height: 18px; margin: 0; accent-color: var(--accent-line); cursor: pointer; }
 .tz-full .ic { width: 16px; height: 16px; }
+@media (max-width: 560px) { .tz-range { width: 96px; } }

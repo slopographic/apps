@@ -133,9 +133,10 @@ const MENUS = [
     { label: 'Fit on Screen', key: 'Ctrl+0', act: () => fitView() },
     { label: '100%', key: 'Ctrl+1', act: () => actualPixels() },
     '-',
-    { label: 'Grid', key: "Ctrl+'", check: () => store.get('grid', false), act: () => { store.set('grid', !store.get('grid', false)); dirty(); } },
     { label: 'Pixel Grid', check: () => store.get('pixelGrid', true), act: () => { store.set('pixelGrid', !store.get('pixelGrid', true)); dirty(); } },
     { label: 'Layer Bounds', check: () => store.get('showBounds', true), act: () => { store.set('showBounds', !store.get('showBounds', true)); dirty(); } },
+    '-',
+    ...guidesMenuItems(),
     '-',
     { label: 'Theme', sub: [
       { label: 'Pro (dark)', check: () => theme() === 'pro', act: () => setTheme('pro') },

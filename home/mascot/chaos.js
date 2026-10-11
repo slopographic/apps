@@ -7,6 +7,8 @@ import { restoreAll } from './journal.js';
 import { say } from './fx.js';
 import { line } from './lines.js';
 import { bindChaos, calmRage } from './rage.js';
+import * as P from './perches.js';
+import { leapIn } from './motion.js';
 
 export const ACTS = { bite, eat, knock, goo, blast, blackhole };
 const CALM = { bite: 3, eat: 3, knock: 1.4, goo: 1.5, blast: 2, blackhole: 0.8 };
@@ -58,6 +60,9 @@ export function restore() {
   for (const n of M.layer.querySelectorAll('.sloppo-letter, .sloppo-goo, .sloppo-ball, .sloppo-hole')) n.remove();
   // Shaken elements can be left with an empty style attribute; drop it so the markup is exactly as before.
   for (const n of document.querySelectorAll('main [style=""]')) n.removeAttribute('style');
+  // Back onto solid ground: if his perch is gone or he is mid-air, he hops onto a real perch.
+  const pt = M.perch && P.point(M.perch);
+  if (M.mode === 'air' || (M.mode === 'perched' && (!pt || !P.solidAt(M.perch.el, pt.x)))) leapIn();
   say(line('restore'), 1200);
 }
 

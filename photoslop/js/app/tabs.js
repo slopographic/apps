@@ -16,13 +16,13 @@ function finishPendingWork() {
 function stashCurrent() {
   if (!CUR) return;
   CUR.state = {
-    w: D.w, h: D.h, name: D.name, layers: D.layers, activeId: D.activeId, sel: D.sel, dirty: D.dirty,
+    w: D.w, h: D.h, name: D.name, layers: D.layers, activeId: D.activeId, sel: D.sel, dirty: D.dirty, guides: D.guides,
     states: Hist.states, idx: Hist.idx, zoom: V.zoom, ox: V.ox, oy: V.oy,
   };
 }
 function restoreDoc(rec) {
   const s = rec.state;
-  Object.assign(D, { w: s.w, h: s.h, name: s.name, layers: s.layers, activeId: s.activeId, sel: s.sel, dirty: s.dirty });
+  Object.assign(D, { w: s.w, h: s.h, name: s.name, layers: s.layers, activeId: s.activeId, sel: s.sel, dirty: s.dirty, guides: s.guides || [] });
   Hist.states = s.states; Hist.idx = s.idx;
   V.zoom = s.zoom; V.ox = s.ox; V.oy = s.oy;
   UI.editMask = false; live = null;
@@ -116,6 +116,8 @@ function windowMenuItems() {
   return [
     { label: 'Next Document', key: 'Ctrl+Tab', act: () => cycleDoc(1), en: () => DOCS.length > 1 },
     { label: 'Previous Document', key: 'Shift+Ctrl+Tab', act: () => cycleDoc(-1), en: () => DOCS.length > 1 },
+    '-',
+    { label: 'Guides', check: () => !!SlopGuides.panel, act: () => openGuidesPanel() },
     '-',
     ...DOCS.map((rec, i) => ({ label: `${i + 1}  ${docName(rec)}`, check: () => rec === CUR, act: () => switchToDoc(rec), key: i < 9 ? `Alt+${i + 1}` : undefined })),
   ];

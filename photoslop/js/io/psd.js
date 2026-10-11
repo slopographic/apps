@@ -48,6 +48,7 @@ function writePSD() {
   const endRes = W.lenMark();
   W.ascii('8BIM'); W.u16(1005); W.u16(0); W.u32(16);
   W.u32(72 << 16); W.u16(1); W.u16(1); W.u32(72 << 16); W.u16(1); W.u16(1);
+  psdWriteGuides(W);
   endRes();
   // Layer and mask information
   const endLM = W.lenMark();
@@ -223,7 +224,7 @@ async function readPSD(buf) {
   if (![8, 16, 32].includes(depth)) throw new Error(`${depth}-bit PSDs are not supported`);
   if (![1, 3, 4].includes(mode)) throw new Error('Only RGB, Grayscale and CMYK PSDs are supported');
   R.skip(R.u32()); // colour mode data
-  R.skip(R.u32()); // image resources
+  const resLen = R.u32(), guides = psdReadGuides(R, R.p + resLen); // image resources: only guides are used
   const lmLen = R.u32(), lmEnd = R.p + lmLen;
   let info = null;
   if (lmLen > 0) {
@@ -286,5 +287,5 @@ async function readPSD(buf) {
     if (!(info && info.mergedAlpha) && channels <= (mode === 1 ? 1 : mode === 4 ? 4 : 3)) delete planes[-1];
     layers.push({ name: 'Background', canvas: planesToCanvas(w, hh, mode, planes), x: 0, y: 0, visible: true, opacity: 1, blend: 'normal', locked: false, mask: null });
   }
-  return { w, h: hh, layers };
+  return { w, h: hh, layers, guides };
 }

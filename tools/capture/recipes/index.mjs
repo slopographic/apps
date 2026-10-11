@@ -8,7 +8,7 @@ import apps from './apps.mjs';
 import experiments from './experiments.mjs';
 
 const ALL = { ...games, ...apps, ...experiments };
-export const wait = (page, ms) => page.waitForTimeout(ms);
+
 
 /** Generic fallback for apps without a recipe yet (new apps): let it load, then film it. */
 const generic = {

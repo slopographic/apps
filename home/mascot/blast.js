@@ -12,7 +12,7 @@ import { wait, spit } from './acts.js';
 function targets() {
   const out = [];
   for (const el of document.querySelectorAll('[data-perch="card"], h1[data-perch], h2[data-perch]')) {
-    if (P.gone.has(el) || holeCount(el) > 24) continue;
+    if (P.gone.has(el) || P.fallen.has(el) || holeCount(el) > 24) continue;
     const r = P.rectOf(el);
     if (!r) continue;
     const b = el.getBoundingClientRect();

@@ -35,8 +35,8 @@
         if (lk === 'd') { e.preventDefault(); if (A.mode === 'page') { if (Ed.getSelected()) Ed.duplicateSelected(); } else A.duplicate(A.targetIds()); return; }
         if (A.mode === 'page' && lk === 'c') { if (Ed.copy()) e.preventDefault(); return; }
         if (A.mode === 'page' && lk === 'v') { if (Ed.paste()) e.preventDefault(); return; }
-        if (k === '=' || k === '+') { e.preventDefault(); if (A.mode === 'page') Ed.zoomBy(1.25); return; }
-        if (k === '-') { e.preventDefault(); if (A.mode === 'page') Ed.zoomBy(0.8); return; }
+        if (k === '=' || k === '+') { e.preventDefault(); if (A.mode === 'page') Ed.zoomBy(1.25); else O.zoomBy(1.25); return; }
+        if (k === '-') { e.preventDefault(); if (A.mode === 'page') Ed.zoomBy(0.8); else O.zoomBy(0.8); return; }
         return;
       }
       if (typing) return;

@@ -89,7 +89,12 @@ const TRANSFORM_TOOL = {
   down(p) { const t = TRANSFORM; t.drag = { h: this.handleAt(p), start: p, tx: t.tx, ty: t.ty, sx: t.sx, sy: t.sy, rot: t.rot, a0: Math.atan2(p.y - (t.cy + t.ty), p.x - (t.cx + t.tx)) }; },
   move(p, e) {
     const t = TRANSFORM, d = t.drag; if (!d) return;
-    if (d.h.move) { t.tx = d.tx + p.x - d.start.x; t.ty = d.ty + p.y - d.start.y; }
+    if (d.h.move) {
+      const cs = tfCorners(), dx0 = t.tx - d.tx, dy0 = t.ty - d.ty, xs = cs.map((q) => q.x - dx0), ys = cs.map((q) => q.y - dy0);
+      const box = { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+      const sn = snapDelta(box, p.x - d.start.x, p.y - d.start.y);
+      t.tx = d.tx + sn.dx; t.ty = d.ty + sn.dy;
+    }
     else if (d.h.rotate) { let a = d.rot + Math.atan2(p.y - (t.cy + t.ty), p.x - (t.cx + t.tx)) - d.a0; if (e.shiftKey) a = Math.round(a / (Math.PI / 12)) * (Math.PI / 12); t.rot = a; }
     else {
       const { hx, hy } = d.h, c = Math.cos(d.rot), s = Math.sin(d.rot);

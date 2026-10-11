@@ -30,7 +30,7 @@ const BLEND_OP = Object.fromEntries(BLENDS.map((b) => [b[0], b[2]]));
 const BLEND_PSD = Object.fromEntries(BLENDS.map((b) => [b[0], b[3]]));
 const PSD_BLEND = Object.fromEntries(BLENDS.map((b) => [b[3], b[0]]));
 
-const D = { w: 1200, h: 800, name: 'Untitled', layers: [], activeId: 0, sel: null, dirty: false, fileHandleName: null };
+const D = { w: 1200, h: 800, name: 'Untitled', layers: [], activeId: 0, sel: null, dirty: false, fileHandleName: null, guides: [] };
 const Hist = { states: [], idx: -1 };
 /** Live (uncommitted) edit shown in previews: brush strokes, filter previews, transforms. */
 let live = null;
@@ -73,9 +73,9 @@ function coverDoc(L) {
 }
 
 /* ---------- history ---------- */
-function snapshot(label) { return { label, w: D.w, h: D.h, layers: D.layers.slice(), activeId: D.activeId, sel: D.sel }; }
+function snapshot(label) { return { label, w: D.w, h: D.h, layers: D.layers.slice(), activeId: D.activeId, sel: D.sel, guides: D.guides || [] }; }
 function restore(s) {
-  D.w = s.w; D.h = s.h; D.layers = s.layers.slice(); D.activeId = s.activeId; D.sel = s.sel;
+  D.w = s.w; D.h = s.h; D.layers = s.layers.slice(); D.activeId = s.activeId; D.sel = s.sel; D.guides = s.guides || [];
   live = null; emit('doc');
 }
 function histReset(label) { Hist.states = [snapshot(label)]; Hist.idx = 0; D.dirty = false; emit('history'); emit('doc'); }

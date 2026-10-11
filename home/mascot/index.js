@@ -12,6 +12,7 @@ import { setChaos, restore, act } from './chaos.js';
 import { gain } from './levels.js';
 import { say, placeBubble } from './fx.js';
 import { count } from './journal.js';
+import { count as bodyCount } from './bodies.js';
 import { line } from './lines.js';
 import { tickRage, hardLanding, enrage, calmRage } from './rage.js';
 
@@ -134,7 +135,7 @@ function boot() {
   setTimeout(spawn, reduced() ? 0 : 500);
   // Debug and test hook.
   window.SlopMascot = {
-    M, pet, gain, act, restore, leapIn, hopTo, face, perches: P,
+    M, pet, gain, act, restore, leapIn, hopTo, face, perches: P, bodies: () => bodyCount(),
     unleash: () => setChaos(true), calm: () => setChaos(false), bonk: hardLanding, enrage, calmRage, set3d,
     get level() { return M.level; }, get xp() { return M.xp; }, get hat() { return M.hat; }, get journal() { return count(); },
   };

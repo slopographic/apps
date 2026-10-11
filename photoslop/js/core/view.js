@@ -119,8 +119,7 @@ function draw() {
     g.stroke();
   }
   g.restore();
-  // Guides / grid
-  if (store.get('grid', false)) drawGrid(g);
+  drawGuidesLayer(g);
   // Selection
   if (D.sel && !(live && live.hideSel)) drawAnts(g);
   const t = currentTool();
@@ -142,14 +141,7 @@ function draw() {
     g.beginPath(); g.arc(s.x, s.y, Math.max(0.5, r - 1), 0, Math.PI * 2); g.strokeStyle = 'rgba(255,255,255,.85)'; g.stroke();
     if (r < 4) { g.fillStyle = '#fff'; g.fillRect(s.x - 0.5, s.y - 4, 1, 8); g.fillRect(s.x - 4, s.y - 0.5, 8, 1); }
   }
-}
-function drawGrid(g) {
-  const step = store.get('gridSize', 50), z = V.zoom;
-  if (step * z < 6) return;
-  g.save(); g.beginPath(); g.strokeStyle = 'rgba(0, 170, 255, .35)'; g.lineWidth = 1;
-  for (let x = 0; x <= D.w; x += step) { const sx = Math.round(V.ox + x * z) + 0.5; g.moveTo(sx, V.oy); g.lineTo(sx, V.oy + D.h * z); }
-  for (let y = 0; y <= D.h; y += step) { const sy = Math.round(V.oy + y * z) + 0.5; g.moveTo(V.ox, sy); g.lineTo(V.ox + D.w * z, sy); }
-  g.stroke(); g.restore();
+  drawTopOverlays(g);
 }
 /** Outline of the selection mask (alpha ≥ 128) as a Path2D in document space. */
 function selectionPath(sel) {
@@ -210,7 +202,7 @@ function onPointerDown(e) {
   if (isMac && e.ctrlKey && !e.metaKey) return; // Ctrl-click = context menu on a Mac
   if (document.activeElement && document.activeElement.blur && document.activeElement !== document.body && !document.activeElement.closest('.type-edit')) document.activeElement.blur();
   const t = currentTool();
-  const p = toDoc(e);
+  const p = snapP(toDoc(e), t);
   V.cursor = p;
   // Shift-drag with a brush: left/right = size, up/down = hardness (with Alt: opacity).
   // A Shift-click without dragging still draws a straight line from the last point.
@@ -243,7 +235,7 @@ function onPointerMove(e) {
       return;
     }
   }
-  const p = toDoc(e);
+  const p = V.op ? snapP(toDoc(e), V.op.tool) : toDoc(e);
   V.cursor = p; V.cursorIn = true;
   emit('cursor');
   if (V.pan) { V.ox = V.pan.ox + e.clientX - V.pan.x; V.oy = V.pan.oy + e.clientY - V.pan.y; dirty(); return; }
@@ -279,7 +271,7 @@ function onPointerUp(e) {
   }
   if (V.op && V.op.id === e.pointerId) {
     const t = V.op.tool; V.op = null;
-    if (t.up) t.up(toDoc(e), e);
+    if (t.up) t.up(snapP(toDoc(e), t), e);
     dirty();
   }
 }

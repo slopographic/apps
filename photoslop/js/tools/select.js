@@ -25,7 +25,7 @@ defTool({ id: 'move', name: 'Move Tool', key: 'V', icon: ICON('M12 2v20M2 12h20M
     let L = activeLayer();
     if (T.move.auto || e.ctrlKey || e.metaKey) { const hit = layerAt(p); if (hit) { L = hit; D.activeId = hit.id; emit('doc'); } }
     if (!L || L.locked) { if (L) toast('That layer is locked'); this.s = null; return; }
-    const s = this.s = { L, start: p, dx: 0, dy: 0 };
+    const s = this.s = { L, start: p, dx: 0, dy: 0, box: D.sel ? D.sel.bounds : layerBoundsDoc(L) };
     if (D.sel && !e.altKey) {
       // Lift the selected pixels and float them.
       if (L.text) s.L = L = rasterizeText(L, true);
@@ -42,6 +42,7 @@ defTool({ id: 'move', name: 'Move Tool', key: 'V', icon: ICON('M12 2v20M2 12h20M
     const s = this.s; if (!s) return;
     s.dx = p.x - s.start.x; s.dy = p.y - s.start.y;
     if (e.shiftKey) { if (Math.abs(s.dx) > Math.abs(s.dy)) s.dy = 0; else s.dx = 0; }
+    const sn = snapDelta(s.box, Math.round(s.dx), Math.round(s.dy)); if (!e.shiftKey || s.dy === 0) s.dx = sn.dx; if (!e.shiftKey || s.dx === 0) s.dy = sn.dy;
     dirty(true);
   },
   up() { const s = this.s; this.s = null; if (!s) return; live = null; moveBy(s, Math.round(s.dx), Math.round(s.dy)); },
@@ -106,7 +107,7 @@ function selectionTool(def) {
     },
     move(p, e) {
       const s = this.s; if (!s) return;
-      if (s.moveSel) { s.dx = Math.round(p.x - s.start.x); s.dy = Math.round(p.y - s.start.y); return; }
+      if (s.moveSel) { const sn = snapDelta(s.sel.bounds, Math.round(p.x - s.start.x), Math.round(p.y - s.start.y)); s.dx = Math.round(sn.dx); s.dy = Math.round(sn.dy); return; }
       s.cur = p; s.e = e; if (this.freehand) s.pts.push(p);
     },
     up(p, e) {

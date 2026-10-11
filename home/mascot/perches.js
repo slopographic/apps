@@ -5,6 +5,8 @@ import { holesOf, isEaten } from './dom.js';
 
 /** Cards knocked off the page: no longer perches until the page is restored. */
 export const gone = new WeakSet();
+/** Cards knocked off and tumbling as rigid bodies (bodies.js): still perches, no longer chaos targets. */
+export const fallen = new WeakSet();
 const isHeading = (el) => /^H[1-6]$/.test(el.tagName);
 
 /** The perch's top edge in viewport coordinates, or null when it is hidden. Headings use the top of their first line of text. */
