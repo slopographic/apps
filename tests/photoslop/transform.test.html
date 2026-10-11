@@ -211,8 +211,10 @@
       W.draw();
       const ctx = W.V.canvas.getContext('2d', { willReadFrequently: true });
       // Sampled 2 px in from each centre, clear of the rotate knob's stem and the box outline.
-      const got = pts.map((q) => [Math.round(q.x), Math.round(q.y), W.V.dpr, ...ctx.getImageData(Math.round(q.x + 2), Math.round(q.y + 2), 1, 1).data].join(','));
-      expect(got).toEqual(pts.map(() => 'x'));
+      // Each handle has a blue outline on its top edge (the handles are white on the white page), and the knob is white.
+      const rgb = (x, y) => [...ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data];
+      for (const q of pts.slice(0, 8)) { const [r, , b] = rgb(q.x, q.y - 4); expect(b - r > 150).toBe(true); }
+      expect(rgb(pts[8].x + 2, pts[8].y + 2).slice(0, 3)).toEqual([255, 255, 255]);
       W.selectTool('brush');
       expect(W.idleBoxPoints().length).toBe(0);
       W.selectTool('move');
