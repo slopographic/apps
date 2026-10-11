@@ -19,6 +19,8 @@ async function page() {
   const ctx = await loadInto([...CONSENT, ...DATA_FILES.map((f) => `data/${f}`)], {
     localStorage: storage, document: { currentScript: null }, location: { href: 'https://slopographic.com/settings/' },
     URL, fetch: fetchStub,
+    // No DOM here: the tag loader is stubbed so granting analytics or ads does not touch document.
+    SLOP_CONSENT_LOADER: () => {},
   });
   const D = ctx.SlopData;
   const tx = fakeTx(D);

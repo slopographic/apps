@@ -21,7 +21,8 @@ async function profile(storage = memStorage()) {
   const ctx = await loadInto(['profile/profile.js'], { localStorage: storage, SLOP_APP_OPTIONS: OPTIONS });
   return { P: ctx.SlopProfile, storage, ctx };
 }
-const stored = (s) => JSON.parse(s.m.get('slop-profile') || 'null');
+// The stored envelope is { v: 1, data: { <appId>: { ... } } }: the tests look at the data inside it.
+const stored = (s) => JSON.parse(s.m.get('slop-profile') || 'null')?.data ?? null;
 
 test('get gives the declared default when nothing is stored, or the app fallback when given', async () => {
   const { P } = await profile();
