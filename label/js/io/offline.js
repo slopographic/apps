@@ -33,7 +33,9 @@ function buildOfflineHTML(sources) {
   }
   const blob = escJSONForHTML(JSON.stringify({ app: 'sloplabel', v: 1, files }));
   const tag = `<script type="application/json" id="app-src">${blob}</script>\n`;
-  return html.replace(/<\/body>/i, (m) => tag + m);
+  // insert before the page's own </body>: the last one, since inlined code may contain the text "</body>" too
+  const at = html.toLowerCase().lastIndexOf('</body>');
+  return at < 0 ? html + tag : html.slice(0, at) + tag + html.slice(at);
 }
 /** Read the embedded sources back out of a built page (a Document or HTML string). */
 function extractOfflineSources(docOrHTML) {

@@ -212,7 +212,7 @@
     });
     it('builds an offline page whose embedded sources survive tricky code', () => {
       const index = '<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="a.css"></head><body><p>x</p><script src="b.js"></script></body></html>';
-      const js = 'var s = "</script><!-- $& $$ $1"; var u = " ";';
+      const js = 'var s = "</script><!-- $& $$ $1 </body></html>"; var u = " ";';
       const src = { 'index.html': index, 'a.css': 'b::after { content: "</style>"; }', 'b.js': js };
       const html = W.buildOfflineHTML(src);
       expect(html).toContain('<meta name="sloplabel-build" content="offline">');
