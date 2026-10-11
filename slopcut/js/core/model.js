@@ -15,7 +15,7 @@
     x: 0, y: 0, scale: 1, rot: 0, opacity: 1, cropL: 0, cropT: 0, cropR: 0, cropB: 0,
     bright: 0, contrast: 0, sat: 0, temp: 0, fadeIn: 0, fadeOut: 0, trIn: null,
     vol: 1, keys: null, afIn: 0, afOut: 0, color: '#1b1b22', text: null,
-    anim: null, fx: null
+    anim: null, fx: null, mask: null
   };
   /** Random effect layer defaults (kind 'effect'). Reset restores these; a new layer gets a random seed. */
   M.FX_DEFAULT = { seed: 1, every: 1, intensity: 0.6, types: ['grain', 'colour', 'glitch', 'zoom', 'vignette'] };
@@ -41,6 +41,7 @@
     const c = Object.assign({}, M.CLIP, o, { id: o.id || U.uid('c') });
     if (c.kind === 'title') c.text = Object.assign({}, M.TEXT, o.text || {});
     if (c.kind === 'effect' && !c.fx) c.fx = M.fxDefault();
+    c.mask = SE.mask ? SE.mask.clean(c.mask) : c.mask; // clip mask (core/mask.js), sanitised on load
     return c;
   };
 

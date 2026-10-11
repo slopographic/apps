@@ -16,7 +16,7 @@
       it('file.import'), it('file.drive'), '-',
       it('file.new'), it('file.open'), it('file.save'), it('file.saveDrive'), it('file.download'), '-',
       it('file.export'), it('file.gif'), it('file.snapshot'), sendSub(), '-',
-      it('file.sample'), it('file.offline'),
+      it('file.sample'), it('file.offline'), { label: 'Config', sub: SE.config ? SE.config.menu() : [] }, '-',
       { label: 'Autosave project in this browser', check: U.store.get('autosave', true), act: () => { const v = !U.store.get('autosave', true); U.store.set('autosave', v); if (!v) U.idb.del('project').catch(() => null); SlopUI.toast(v ? 'Autosave on (stored only in this browser)' : 'Autosave off; saved project deleted'); } }
     ],
     Edit: () => [

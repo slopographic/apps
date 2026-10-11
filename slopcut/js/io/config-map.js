@@ -170,9 +170,12 @@
       mute: !!t.mute, solo: !!t.solo, lock: !!t.lock, hide: !!t.hide,
       clips: M.clipsOn(p, t.id).map(clipOut).filter(Boolean),
     }));
+    // the length of what the file holds (a title that is left out does not count)
+    let end = 0;
+    for (const t of tracks) for (const c of t.clips) end = Math.max(end, c.start + (c.out - c.in) / (c.speed || 1));
     const data = {
       dims: { width: p.w, height: p.h, fps: p.fps },
-      duration: r6(M.duration(p)),
+      duration: r6(end),
       markers: p.markers.map((m) => ({ time: r6(m.t), name: m.name || '' })),
       tracks,
     };
