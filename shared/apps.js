@@ -28,7 +28,7 @@
     A('sloppo-bird', 'game', 'Sloppo Bird', 'games/sloppo-bird/', 'Tap to bloop. Do not touch the pipes.', { shot: 'assets/shots/sloppo-bird.jpg' }),
     A('runner', 'game', 'Sloppo Run', 'games/runner/', 'Endless running through the slopverse.', { shot: 'assets/shots/runner.jpg', status: 'building' }),
     A('star-defender', 'game', 'Star Defender', 'games/star-defender/', 'Defend the galaxy from the Slop Bots.', { shot: 'assets/shots/star-defender.jpg', status: 'beta' }),
-    A('tower-defense', 'game', 'Goo Pool Defense', 'games/tower-defense/', 'Build Sloppo towers. Hold the line.', { shot: 'assets/shots/tower-defense.jpg', status: 'building' }),
+    A('tower-defense', 'game', 'Goo Pool Defense', 'games/tower-defense/', 'Build Sloppo towers. Hold the line.', { shot: 'assets/shots/tower-defense.jpg' }),
     A('shots', 'game', 'Slop Shots', 'cards/', 'Holographic Sloppo cards. Collect all 60.', { shot: 'assets/shots/shots.jpg' }),
     A('2100', 'experiment', 'WWW 2100', '2100/', 'Browse the web as it will be in the year 2100.', { shot: 'assets/shots/2100.jpg', status: 'building' }),
     A('tank', 'experiment', 'Slop Tank', 'fluid/', 'A real-time fluid you can stir.', { shot: 'assets/shots/tank.jpg' }),
