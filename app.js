@@ -1,5 +1,4 @@
-/* Slopographic UI: routing, the live counter and the
- * Authenticator. The home film lives in scenes.js; text engine in slop/.
+/* Slopographic UI: routing and the Authenticator. The home film lives in scenes.js; text engine in slop/.
  */
 (() => {
   'use strict';
@@ -33,21 +32,10 @@
     }
   }
 
-  // ------------------------------------------------------------ counter
-
-  let served = Math.floor(((Date.now() - Date.UTC(2025, 0, 1)) / 1000) * 2.7);
-  const counterEl = $('#counter');
-  const bump = (n) => {
-    served += n;
-    counterEl.textContent = served.toLocaleString('en-US');
-  };
-  bump(0);
-  setInterval(() => bump(Math.floor(Math.random() * 7)), 180);
-
   // ------------------------------------------------- shared with scenes
 
   const randSeed = () => (Math.random() * 2 ** 31) >>> 0;
-  window.SlopUI = { randSeed, served: () => served };
+  window.SlopUI = { randSeed };
 
   // ------------------------------------------------------ authenticator
 

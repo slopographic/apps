@@ -14,10 +14,12 @@
   const ready = HomeTest.openHome().then((w) => { win = w; doc = w.document; });
 
   describe('catalog', () => {
-    it('renders every SLOP_APPS entry in its shelf', async () => {
+    it('renders every app in the Apps shelf and no games or experiments shelves', async () => {
       await ready;
-      const apps = win.SLOP_APPS;
+      const apps = win.SLOP_APPS.filter((a) => a.kind === 'app');
       expect(apps.length).toBeGreaterThan(5);
+      expect(doc.querySelector('[data-list="game"]')).toBe(null);
+      expect(doc.querySelector('[data-list="experiment"]')).toBe(null);
       for (const a of apps) {
         const list = doc.querySelector(`[data-list="${a.kind}"]`);
         expect(!!list).toBe(true);
@@ -53,7 +55,7 @@
   });
 
   describe('navigation', () => {
-    for (const id of ['apps', 'games', 'experiments', 'status']) {
+    for (const id of ['apps', 'status']) {
       it(`the ${id} tab jumps to its section`, async () => {
         await ready;
         win.scrollTo(0, 0);
@@ -79,9 +81,9 @@
       await ready;
       doc.querySelector('.tabs [data-view="detector"]').click();
       await waitFor(() => doc.getElementById('view-home').hidden);
-      doc.querySelector('.tabs a[data-jump][href="#games"]').click();
+      doc.querySelector('.tabs a[data-jump][href="#apps"]').click();
       await waitFor(() => !doc.getElementById('view-home').hidden);
-      await waitFor(() => Math.abs(doc.getElementById('games').getBoundingClientRect().top) < 120, { timeout: 5000 });
+      await waitFor(() => Math.abs(doc.getElementById('apps').getBoundingClientRect().top) < 120, { timeout: 5000 });
     });
     it('the Authenticator certifies pasted slop', async () => {
       await ready;
