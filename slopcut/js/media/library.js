@@ -51,13 +51,36 @@
     L.items.set(id, it);
     return it;
   }
-  /** Import File/Blob objects into the bin. Returns the new metadata records (ready). */
+  /** A bin record that a config named but no file came with yet (status 'missing'). Clips already point at its id. */
+  L.addMissing = function (meta) {
+    const it = register(meta.id, new Blob([]), meta);
+    it.status = 'missing';
+    it.error = 'Missing: add the file ' + meta.name + ' to match it';
+    notify(it);
+    return it;
+  };
+  /** The missing record a file matches by name, or null. */
+  function missingFor(name) {
+    for (const it of L.items.values()) if (it.status === 'missing' && it.meta.name === name) return it;
+    return null;
+  }
+  /** Import File/Blob objects into the bin. Returns the new metadata records (ready). A file that matches a missing
+   *  record by name fills that record instead (its id stays, so the clips that name it come alive). */
   L.importFiles = async function (files, { from = 'file' } = {}) {
     const out = [];
     const jobs = [];
     for (const f of files) {
       const kind = A.kindOf(f);
       if (!kind) { SlopUI.toast('Skipped ' + f.name + ': not a video, audio or image file'); continue; }
+      const miss = missingFor(f.name);
+      if (miss) {
+        const meta = miss.meta;
+        Object.assign(meta, { kind, type: f.type || '', size: f.size, from, hasAudio: kind === 'audio' });
+        const it = register(meta.id, f, meta);
+        U.idb.putMedia({ id: meta.id, name: meta.name, type: meta.type, blob: f }).catch(() => null);
+        jobs.push(analyse(it).then(() => { if (it.status === 'ready') out.push(meta); else SlopUI.toast(meta.name + ': ' + it.error, 4000); }));
+        continue;
+      }
       const id = U.uid('m');
       const meta = { id, name: f.name || 'media', kind, type: f.type || '', size: f.size, dur: NaN, w: 0, h: 0, hasAudio: kind === 'audio', from };
       const it = register(id, f, meta);

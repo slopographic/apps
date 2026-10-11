@@ -50,9 +50,9 @@ listeners.add((w) => { if (w === 'color' && !typeColorSync && UI.tool === 'type'
 function typeControls(full) {
   const wrap = h('div', { class: full ? 'char-panel' : 'type-opts' }), sync = [];
   const lab = (text, ...kids) => h('label', { class: 'opt' }, text ? h('span', null, text) : null, ...kids);
-  const font = h('select', { 'aria-label': 'Font family', 'data-k': 'font' }, TYPE_FONTS.map((f) => h('option', { value: f }, f)));
-  font.addEventListener('change', () => setTypeProps({ font: font.value }));
-  sync.push((s) => { font.value = s.font; });
+  const font = h('select', { 'aria-label': 'Font family', 'data-k': 'font' });
+  const fontPick = SlopFonts.attach(font, { legacy: TYPE_FONTS, onPick: (f) => setTypeProps({ font: f }) });
+  sync.push((s) => { if (![...font.options].some((o) => o.value === s.font)) font.add(new Option(s.font, s.font)); font.value = s.font; });
   const style = h('select', { 'aria-label': 'Font style', 'data-k': 'style' }, [['0', 'Regular'], ['1', 'Bold'], ['2', 'Italic'], ['3', 'Bold Italic']].map(([v, l]) => h('option', { value: v }, l)));
   style.addEventListener('change', () => setTypeProps({ bold: !!(+style.value & 1), italic: !!(+style.value & 2) }));
   sync.push((s) => { style.value = String((s.bold ? 1 : 0) + (s.italic ? 2 : 0)); });
@@ -81,7 +81,7 @@ function typeControls(full) {
   sync.push((s) => { aa.value = s.aa || 'smooth'; });
   const warp = h('button', { type: 'button', class: 'btn', title: 'Warp Text…', 'data-k': 'warp' }, 'Warp');
   warp.addEventListener('click', dlgWarpText);
-  wrap.append(lab('', font), lab('', style), num('Size', 'size', 1, 1296, 'px'));
+  wrap.append(lab('', font, fontPick.button), lab('', style), num('Size', 'size', 1, 1296, 'px'));
   if (!full) wrap.append(sizeR);
   else wrap.append(num('Tracking', 'tracking', -1000, 1000, '‰'), num('Leading', 'leading', 50, 400, '%'));
   wrap.append(lab('Colour', color), align, lab('AA', aa), warp);

@@ -85,7 +85,7 @@
     }
     if (hasType) {
       cb.appendChild(h('span', { class: 'cb-sep' }));
-      cb.appendChild(selIn(g, Object.keys(SV.FONTS).map(function (f) { return [f, f]; }), function () { return curFont().family; }, function (v) { SV.applyFont('family', v); }, 'Font family'));
+      cb.appendChild($.fontSel(g, function () { return curFont().family; }, function (v) { SV.applyFont('family', v); }, 'Font family'));
       cb.appendChild(selIn(g, [[300, 'Light'], [400, 'Regular'], [500, 'Medium'], [600, 'Semibold'], [700, 'Bold'], [800, 'ExtraBold'], [900, 'Black']], function () { return curFont().weight; }, function (v) { SV.applyFont('weight', +v); }, 'Font weight'));
       cb.appendChild(numIn(g, { label: 'Font size', min: 1, max: 2000, get: function () { return curFont().size; }, set: function (v) { SV.applyFont('size', v); }, cls: 'w52' }));
       cb.appendChild(h('span', { class: 'fu', text: 'px' }));

@@ -31,6 +31,19 @@
     bind(group, function () { var v = get(); if (document.activeElement !== s) s.value = v == null ? '' : String(v); });
     return s;
   }
+  /** Font family select backed by the shared picker: standard names, bundled and downloaded families, and a
+   * Get more button after it (the button is the second child of the returned span). */
+  function fontSel(group, get, set, label) {
+    var s = h('select', { class: 'sel', 'aria-label': label, title: label });
+    var pick = window.SlopFonts.attach(s, { legacy: Object.keys(SV.FONTS), onPick: function (f) { set(f); } });
+    bind(group, function () {
+      var v = get();
+      if (document.activeElement === s) return;
+      if (v && !Array.prototype.some.call(s.options, function (o) { return o.value === v; })) s.add(new Option(v, v));
+      s.value = v == null ? '' : String(v);
+    });
+    return h('span', { class: 'font-pick' }, [s, pick.button]);
+  }
   function seg(group, items, get, set, label) {
     var wrap = h('div', { class: 'seg', role: 'group', 'aria-label': label });
     items.forEach(function (it) {
@@ -109,5 +122,5 @@
     });
   }
 
-  $.bind = bind; $.binds = binds; $.btn = btn; $.buildToolbar = buildToolbar; $.chip = chip; $.curStyle = curStyle; $.field = field; $.firstOfType = firstOfType; $.ibtn = ibtn; $.numIn = numIn; $.runBinds = runBinds; $.seg = seg; $.selIn = selIn; $.selLabel = selLabel; $.setVal = setVal;
+  $.fontSel = fontSel; $.bind = bind; $.binds = binds; $.btn = btn; $.buildToolbar = buildToolbar; $.chip = chip; $.curStyle = curStyle; $.field = field; $.firstOfType = firstOfType; $.ibtn = ibtn; $.numIn = numIn; $.runBinds = runBinds; $.seg = seg; $.selIn = selIn; $.selLabel = selLabel; $.setVal = setVal;
 })();
