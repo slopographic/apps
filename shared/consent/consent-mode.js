@@ -52,6 +52,8 @@
     if (gaTagOnPage(cfg.ga4MeasurementId)) {
       // The tag and its config are already on the page: only the consent state changes.
       gtag('consent', 'update', { analytics_storage: 'granted' });
+      // The page view was sent while consent was denied, so it was not counted. Send this one now.
+      gtag('event', 'page_view', { page_location: location.href, page_title: document.title });
       return;
     }
     api.loadScript(GA_SRC + '?id=' + encodeURIComponent(cfg.ga4MeasurementId));

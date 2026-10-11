@@ -78,6 +78,7 @@
 
   const queue = [];
   if (!window.SLOP_APPS) queue.push(['shared/apps.js']);
+  if (!window.SLOP_ICONS) queue.push(['shared/app-icons.js']); // before brand.js, which puts the app's icon in the header brand
   if (!window.SlopBrand) queue.push(['brand/brand.js', { brandSrc: (me && me.dataset.brandSrc) || '' }]);
   if (!window.SlopUI) { addCss('shared/slopui.css'); queue.push(['shared/slopui.js']); }
   if (!window.SlopI18n) queue.push(['shared/i18n/i18n.js'], ['shared/i18n/strings.js'], ['shared/i18n/es.js']);

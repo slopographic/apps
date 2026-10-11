@@ -18,6 +18,7 @@
   }
 
   function mount() {
+    if (window.SlopBrand && window.SlopBrand.appMark) window.SlopBrand.appMark(); // the app's icon in the header brand (brand/brand.js)
     const box = document.createElement('div');
     box.className = 'sh-hdr';
     sw = document.createElement('button');
