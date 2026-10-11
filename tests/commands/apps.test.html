@@ -8,7 +8,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
-  // Slop Tank, Slop Lighter, Unsubscribe and Slop Paint Classic each load SlopCmd and register their actions.
+  // Slop Paint Classic loads SlopCmd and registers its actions (the experiments moved to games.slopographic.com).
   const { describe, it, expect, waitFor } = SlopTest;
   async function load(src, id) {
     const f = document.createElement('iframe');
@@ -21,42 +21,6 @@
     return { f, w, C: w.SlopCmd, key, $: (s) => w.document.querySelector(s) };
   }
   describe('single-file apps', () => {
-    it('Slop Tank: keys press the panel buttons and follow rebinding', async () => {
-      const { f, C, key, $ } = await load('../../tank/index.html', 'tank.pause');
-      expect(C.app).toBe('tank');
-      key('p'); expect($('#b-pause').getAttribute('aria-pressed')).toBe('true');
-      C.setKeys('tank.pause', ['Shift+P']);
-      key('p'); expect($('#b-pause').getAttribute('aria-pressed')).toBe('true');
-      key('P', { shiftKey: true }); expect($('#b-pause').getAttribute('aria-pressed')).toBe('false');
-      await new Promise((r) => setTimeout(r, 10));
-      expect($('#b-pause kbd').textContent).toBe('Shift+P');
-      $('#b-cmds').click();
-      await waitFor(() => C.isOpen);
-      C.close(); C.resetKeys(); f.remove();
-    }, { timeout: 30000 });
-    it('Slop Lighter: lid, flames and search button', async () => {
-      const { f, C, key, $ } = await load('../../lighter/index.html', 'lighter.lid');
-      expect(C.app).toBe('lighter');
-      key('o'); expect($('#lighter').dataset.open).toBe('true');
-      key('3'); expect($('.chip[data-mode="2"]').classList.contains('on')).toBe(true);
-      expect($('#cmdBtn').hidden).toBe(false);
-      $('#cmdBtn').click();
-      await waitFor(() => C.isOpen);
-      C.close(); f.remove();
-    }, { timeout: 30000 });
-    it('Unsubscribe: a light touch, with the floating search button', async () => {
-      const { f, w, C, $ } = await load('../../unsubscribe/index.html', 'unsub.now');
-      expect(C.app).toBe('unsubscribe');
-      expect(C.list().filter((c) => c.id.startsWith('unsub.')).length).toBe(4);
-      expect(C.list().find((c) => c.id === 'unsub.skip').enabled).toBe(false);
-      const fab = await waitFor(() => $('.scmd-fab'));
-      fab.click();
-      await waitFor(() => C.isOpen);
-      C.close();
-      C.run('unsub.now');
-      await waitFor(() => w.document.querySelector('.sui-toast.sui-show'));
-      f.remove();
-    }, { timeout: 30000 });
     it('Slop Paint Classic: menu actions, tools, Win98 palette and Help entries', async () => {
       const { f, w, C, key, $ } = await load('../../photoslop/classic/index.html', 'paint.invert');
       expect(C.app).toBe('paint-classic');

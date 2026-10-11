@@ -1,6 +1,6 @@
 /* The Slopographic app registry: the single source of truth for every app, game and experiment.
  * Used by the homepage, the cross-app "Send to…" menus (hub.js) and the status board.
- * Classic script: sets window.SLOP_APPS. Paths are relative to the site root.
+ * Classic script: sets window.SLOP_APPS. Paths are relative to the site root; games and experiments live on https://games.slopographic.com/ (private repo slopographic/games).
  *   kind:    app | game | experiment
  *   status:  live | beta | building
  *   accepts: MIME patterns the app can open from Slop Drive (for "Send to…") */
@@ -59,17 +59,17 @@
       accepts: ['*'],
       features: ['Folders, stars, Trash & search', 'Grid, list, columns, node graph & disk usage', 'Duplicate finder', 'One-file backup & restore'],
       shot: 'assets/shots/drive.jpg', icon: 'folder', status: 'beta' }),
-    A('platformer', 'game', 'Sloppo Land', 'games/platformer/', 'A 3D platformer across goo-soaked worlds.', { shot: 'assets/shots/platformer.jpg', status: 'beta' }),
-    A('sloppo-bird', 'game', 'Sloppo Bird', 'games/sloppo-bird/', 'Tap to bloop. Do not touch the pipes.', { shot: 'assets/shots/sloppo-bird.jpg' }),
-    A('runner', 'game', 'Sloppo Run', 'games/runner/', 'Endless running through the slopverse.', { shot: 'assets/shots/runner.jpg', status: 'beta' }),
-    A('star-defender', 'game', 'Star Defender', 'games/star-defender/', 'Defend the galaxy from the Slop Bots.', { shot: 'assets/shots/star-defender.jpg', status: 'beta' }),
-    A('tower-defense', 'game', 'Goo Pool Defense', 'games/tower-defense/', 'Build Sloppo towers. Hold the line.', { shot: 'assets/shots/tower-defense.jpg' }),
-    A('shots', 'game', 'Slop Shots', 'shots/', 'Holographic Sloppo cards. Collect all 60.', { shot: 'assets/shots/shots.jpg' }),
-    A('2100', 'experiment', 'WWW 2100', '2100/', 'Browse the web as it will be in the year 2100.', { shot: 'assets/shots/2100.jpg' }),
-    A('tank', 'experiment', 'Slop Tank', 'tank/', 'A real-time fluid you can stir.', { shot: 'assets/shots/tank.jpg' }),
-    A('lighter', 'experiment', 'Slop Lighter', 'lighter/', 'Flick it. Strike it. Slop flames.', { shot: 'assets/shots/lighter.jpg' }),
-    A('reel', 'experiment', 'Sloppo Reel', 'reel/', 'The 3D showreel. Feed Sloppo, level him up.', { shot: 'assets/shots/reel.jpg' }),
-    A('unsubscribe', 'experiment', 'Unsubscribe', 'unsubscribe/', 'Every dark pattern on the internet, in one form.', { shot: 'assets/shots/unsubscribe.jpg' }),
+    A('platformer', 'game', 'Sloppo Land', 'https://games.slopographic.com/games/platformer/', 'A 3D platformer across goo-soaked worlds.', { shot: 'assets/shots/platformer.jpg', status: 'beta' }),
+    A('sloppo-bird', 'game', 'Sloppo Bird', 'https://games.slopographic.com/games/sloppo-bird/', 'Tap to bloop. Do not touch the pipes.', { shot: 'assets/shots/sloppo-bird.jpg' }),
+    A('runner', 'game', 'Sloppo Run', 'https://games.slopographic.com/games/runner/', 'Endless running through the slopverse.', { shot: 'assets/shots/runner.jpg', status: 'beta' }),
+    A('star-defender', 'game', 'Star Defender', 'https://games.slopographic.com/games/star-defender/', 'Defend the galaxy from the Slop Bots.', { shot: 'assets/shots/star-defender.jpg', status: 'beta' }),
+    A('tower-defense', 'game', 'Goo Pool Defense', 'https://games.slopographic.com/games/tower-defense/', 'Build Sloppo towers. Hold the line.', { shot: 'assets/shots/tower-defense.jpg' }),
+    A('shots', 'game', 'Slop Shots', 'https://games.slopographic.com/shots/', 'Holographic Sloppo cards. Collect all 60.', { shot: 'assets/shots/shots.jpg' }),
+    A('2100', 'experiment', 'WWW 2100', 'https://games.slopographic.com/2100/', 'Browse the web as it will be in the year 2100.', { shot: 'assets/shots/2100.jpg' }),
+    A('tank', 'experiment', 'Slop Tank', 'https://games.slopographic.com/tank/', 'A real-time fluid you can stir.', { shot: 'assets/shots/tank.jpg' }),
+    A('lighter', 'experiment', 'Slop Lighter', 'https://games.slopographic.com/lighter/', 'Flick it. Strike it. Slop flames.', { shot: 'assets/shots/lighter.jpg' }),
+    A('reel', 'experiment', 'Sloppo Reel', 'https://games.slopographic.com/reel/', 'The 3D showreel. Feed Sloppo, level him up.', { shot: 'assets/shots/reel.jpg' }),
+    A('unsubscribe', 'experiment', 'Unsubscribe', 'https://games.slopographic.com/unsubscribe/', 'Every dark pattern on the internet, in one form.', { shot: 'assets/shots/unsubscribe.jpg' }),
     A('authenticator', 'experiment', 'The Authenticator', '#detector', 'Is your text secretly slop? Get it certified.', { shot: 'assets/shots/authenticator.jpg' }),
     A('paint-classic', 'experiment', 'Slop Paint Classic', 'photoslop/classic/', 'The 1998 experience. Every MS Paint tool.', { shot: 'assets/shots/paint-classic.jpg' }),
   ];

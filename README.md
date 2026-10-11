@@ -2,31 +2,24 @@
 
 A 3D studio for slop. Live at **[slopographic.com](https://slopographic.com)**.
 
-Everything is static files: no backend, no accounts, no build step. Each room is its own folder.
+Creative apps that run 100% in your browser: no installs, no accounts, no uploads, no watermarks. Static files, no backend, no build step. Each app is its own folder and can be downloaded as one offline `.html` file.
 
-| Page | What it is |
+| Path | App |
 |---|---|
-| `/` | **The reel**: a real-time three.js showreel starring **Sloppo**, a glossy slime creature living half-sunk in a pool of goo. Chrome 3D letters rise dripping out of the pool, stretch to SLOOOOOOP and get gulped. It loops on a GSAP timeline with a player bar. Poke Sloppo to make him squish and giggle; stroke the pool to make ripples. Below the reel is a grid of the rooms. |
-| `/paint/` | **Slop Shop**: a layered, Photoshop-style editor. Layers with masks and 17 blend modes, 20 tools (brush with pen pressure, clone stamp, smudge, magic wand, Free Transform…), 50+ adjustments and filters, real `.psd` open/save, PNG/JPEG/WebP export, autosave, and a one-click download of the whole app as a single offline `.html`. Themes: Pro, Light and Paint ’98. |
-| `/paint/classic/` | **Slop Paint Classic**: the original MS Paint clone, all 16 classic tools plus a Slop Brush. |
-| `/vector/` | **Slop Vector**: an Illustrator-style vector editor: pen tool, shapes, type, layers, pathfinder, gradients; SVG, PNG and PDF export. |
-| `/fluid/` | **Slop Tank**: a real-time GPU fluid simulation of glossy slime. Stir it, splat it, Space to pour, switch palettes, save a snapshot. |
-| `/cards/` | **Slop Shots**: a holographic card game. 60 cards with fractal art, five rarities, pack reveals, crafting, achievements and a parody $SLOP market. Progress saves in the browser. |
-| `/annoying/` | **Unsubscribe**: 11 stages of dark patterns, each with a fair way through and an always-visible exit. |
-| `/#detector` | **The Authenticator**: paste any text and get a slop certificate with a score, verdict and highlighted tells. |
+| `/photoslop/` | **PhotoSLOP**: Photoshop-style editor (layers, masks, PSD, filters, brushes, guides). Classic MS Paint clone at `/photoslop/classic/` |
+| `/vector/` | **Slop Vector**: Illustrator-style vector editor (pen, shapes, type, pathfinder; SVG/PNG/PDF) |
+| `/pdf/` | **Slop PDF**: organise, annotate, fill, sign and truly redact PDFs |
+| `/label/` | **SlopLabel**: barcode label designer (ZPL/EPL/TSPL, data merge, PDF) |
+| `/press/` | **Slop Press**: InDesign-style layout with print-ready PDF |
+| `/slopedit/` | **SlopEdit**: multi-track video editor with WebCodecs export |
+| `/drive/` | **Slop Drive**: the local drive every app shares, with one-file backup |
+| `/ai/` | **Slop AI**: chat with a model running on your own GPU |
+| `/cutout/`, `/docs/`, `/tables/`, `/slides/` | In development: background remover, word processor, spreadsheet, presentations |
+| `/#detector` | **The Authenticator**: get any text certified as slop |
 
-## Files (home page)
+Games and experiments live at **[games.slopographic.com](https://games.slopographic.com)** (separate private repo).
 
-| File | What it does |
-|---|---|
-| `index.html` | Page shell, nav, reel overlay, rooms grid, Authenticator |
-| `style.css` | Styles |
-| `reel.js` | The 3D reel (ES module): Sloppo, the goo pool shader with ripples, chrome letters, drops, timeline, interaction |
-| `app.js` | Routing (`#detector`), the live counter and the Authenticator |
-| `slop.js` | Text generators and the slop-detector rules (no DOM; also runs in Node) |
-| `motion.js` | Small site-wide effects (stamp slam, footer fill) |
-| `vendor/` | third-party libraries (three.js, pdf.js, pdf-lib, bwip-js, onnxruntime-web, web-llm), each with its own license file |
-| `CNAME` | Custom domain for GitHub Pages |
+The shared kit (`shared/`), status of every app and how to continue are in [`HANDOFF.md`](HANDOFF.md). Tests: `npm test`.
 
 ## Run locally
 
