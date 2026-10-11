@@ -27,7 +27,7 @@
     if (ids.length) {
       let n = 0;
       SE.change('Apply template', (p) => { n = L.apply(p, id, ids); return n ? undefined : false; });
-      if (n) { A.status(tpl.name + ': ' + n + ' clip' + (n > 1 ? 's' : '') + ' placed'); if (n < tpl.slots.length) A.status(tpl.name + ': ' + n + ' of ' + tpl.slots.length + ' slots filled'); }
+      if (n) A.status(tpl.name + ': ' + n + ' of ' + tpl.slots.length + ' slot' + (tpl.slots.length > 1 ? 's' : '') + ' filled');
       return;
     }
     const metas = R.picked();
