@@ -39,7 +39,7 @@
       const r = L.getBoundingClientRect(), x0 = e.clientX, t0 = cur().anim[prop][idx].t, step = 1 / fps();
       let last = t0;
       dragging = true;
-      if (b.setPointerCapture) b.setPointerCapture(e.pointerId);
+      try { b.setPointerCapture(e.pointerId); } catch (err) { /* synthetic event: no active pointer */ }
       const move = (ev) => {
         const t = Math.round((t0 + ((ev.clientX - x0) / r.width) * dur) / step) * step;
         if (Math.abs(t - last) < 1e-9) return;

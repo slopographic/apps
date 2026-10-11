@@ -143,6 +143,8 @@
     if (entry) {
       if (obj.data === undefined) err('data', 'is required');
       else checkSpec(entry.schema, obj.data, 'data', err, 0);
+      // kind-specific rules the schema cannot say (for example out > in): run only when the shape is right
+      if (!errors.length && entry.check) for (const e of entry.check(obj.data) || []) err(e.path, e.message);
     }
     if (!json) {
       try { json = JSON.stringify(obj); } catch (e) { err('', 'the file cannot be read as JSON'); return fail(errors); }

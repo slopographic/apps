@@ -138,6 +138,14 @@
     }
   }
 
+  /** The example value of a kind's data: every required key, with a valid example. Used for plain templates. */
+  function exampleValue(kind, app) {
+    const e = C.getKind(kind, app);
+    if (!e) throw new Error(`no kind "${kind}" for app "${app}"`);
+    return sample(e.schema);
+  }
+
   C.buildPrompt = buildPrompt;
+  C.exampleValue = exampleValue;
   C.parseAiReply = parseAiReply;
 })(typeof window !== 'undefined' ? window : globalThis);
