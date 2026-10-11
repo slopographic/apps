@@ -41,11 +41,11 @@ export async function bite(tok) {
   return true;
 }
 function biteAt(card, clientX) {
-  const r = card.getBoundingClientRect(), R = size() * 0.24;
+  const r = card.getBoundingClientRect(), R = size() * 0.27;
   const x = clamp(clientX - r.left, R, r.width - R);
   const list = bites.get(card) || [];
   const hole = (cx, cy, rr) => `radial-gradient(circle at ${cx.toFixed(1)}px ${cy.toFixed(1)}px, transparent ${rr.toFixed(1)}px, #000 ${(rr + 0.8).toFixed(1)}px)`;
-  const layers = [hole(x, -R * 0.15, R), hole(x - R * 0.85, R * 0.1, R * 0.5), hole(x + R * 0.85, R * 0.1, R * 0.5)];
+  const layers = [hole(x, R * 0.2, R), hole(x - R * 0.85, R * 0.45, R * 0.5), hole(x + R * 0.85, R * 0.45, R * 0.5)];
   keepStyle(card);
   list.push(...layers);
   bites.set(card, list);
