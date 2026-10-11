@@ -104,3 +104,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .crm-form { display: grid; gap: 10px; min-width: min(360px, 80vw); }
 .crm-form label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--mute); }
 .crm-form textarea { resize: vertical; }
+.sel-head { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; color: var(--mute); font-size: 13px; }
+.sel-head input, .row-check { margin: 0; width: 16px; height: 16px; flex: none; accent-color: var(--accent); }
+.bulk { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--panel); border: 1px solid var(--accent); border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; }
+.bulk-count { font-weight: 600; margin-right: 4px; }
+.bulk select, .bulk input[type="date"] { width: auto; }
+.bulk-date { display: inline-flex; gap: 6px; align-items: center; }
+.btn.danger:hover { border-color: var(--danger); }
+.main.split { max-width: 1320px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.main.split > .view#view-customers { min-width: 0; }
+.main.split > .view#view-customer { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; min-width: 0; }
+.main.split > .view#view-customer > .toolbar { display: none; }

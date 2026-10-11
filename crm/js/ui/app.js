@@ -8,15 +8,24 @@
   const TABS = ['pipeline', 'customers', 'followups'];
   const VIEWS = [...TABS, 'customer'];
   let timer = 0, lastTab = 'pipeline';
-  NS.state = { view: 'pipeline', current: null, settings: { defaultCurrency: 'USD', locale: 'en-US' } };
+  const WIDE = g.matchMedia ? g.matchMedia('(min-width: 960px)') : null;
+  NS.state = { view: 'pipeline', current: null, split: false, settings: { defaultCurrency: 'USD', locale: 'en-US' } };
 
-  /** Shows one view. `customer` opens the detail panel for the id in arg. Tabs keep their place while it is open. */
+  /**
+   * Shows one view. `customer` opens the detail panel for the id in arg. Tabs keep their place while it is open.
+   * On wide screens the Customers list and the detail panel share the screen (the panel is sticky on the right);
+   * narrower screens show one view at a time.
+   */
   function show(name, arg) {
     if (!VIEWS.includes(name)) return;
     NS.state.view = name;
     if (name === 'customer') NS.state.current = arg || null;
     else { lastTab = name; if (location.hash !== `#${name}`) history.replaceState(null, '', `#${name}`); }
-    for (const v of VIEWS) $(`view-${v}`).hidden = v !== name;
+    const split = !!(WIDE && WIDE.matches) && (name === 'customers' || (name === 'customer' && lastTab === 'customers'));
+    NS.state.split = split;
+    const shown = split ? ['customers', 'customer'] : [name];
+    for (const v of VIEWS) $(`view-${v}`).hidden = !shown.includes(v);
+    $('main').classList.toggle('split', split);
     for (const t of TABS) {
       const b = $(`tab-${t}`);
       const on = t === (name === 'customer' ? lastTab : name);
@@ -26,11 +35,14 @@
     return render();
   }
 
-  /** Redraws the open view (and reloads the settings it formats money and dates with). */
+  /** Redraws the open view(s) and reloads the settings they format money and dates with. */
   async function render() {
     NS.state.settings = await NS.util.settings();
-    const v = NS.views[NS.state.view];
-    if (v && v.render) await v.render();
+    const names = NS.state.split ? ['customers', 'customer'] : [NS.state.view];
+    for (const n of names) {
+      const v = NS.views[n];
+      if (v && v.render) await v.render();
+    }
   }
 
   const refreshSoon = () => { clearTimeout(timer); timer = setTimeout(render, 40); };
@@ -46,6 +58,7 @@
     for (const t of document.querySelectorAll('.tab')) t.addEventListener('click', () => show(t.dataset.view));
     $('dBack').addEventListener('click', () => show(lastTab));
     S.store.subscribe(() => refreshSoon());
+    if (WIDE && WIDE.addEventListener) WIDE.addEventListener('change', () => show(NS.state.view, NS.state.current));
     addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h)) show(h); });
     try { if (g.SlopHub) g.SlopHub.register('crm'); } catch (e) { /* no hub: the app still works */ }
     const start = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'pipeline';
