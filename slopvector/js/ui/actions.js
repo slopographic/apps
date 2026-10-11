@@ -89,6 +89,8 @@
   act('object.expand', 'Expand Shape to Path', [], function () { C.expand(); }, { enabled: hasSel });
   act('compound.make', 'Make Compound Path', ['mod+8'], function () { C.makeCompound(); }, { enabled: hasSel });
   act('compound.release', 'Release Compound Path', ['mod+alt+shift+8'], function () { C.releaseCompound(); }, { enabled: hasSel });
+  act('clip.make', 'Make Clipping Mask', ['mod+7'], function () { C.makeClip(); }, { enabled: function () { return C.canMakeClip(); } });
+  act('clip.release', 'Release Clipping Mask', ['mod+alt+7'], function () { C.releaseClip(); }, { enabled: function () { return C.canReleaseClip(); } });
   act('pf.unite', 'Unite', [], function () { C.pathfinder('union'); }, { enabled: hasMulti });
   act('pf.minus', 'Minus Front', [], function () { C.pathfinder('minus'); }, { enabled: hasMulti });
   act('pf.intersect', 'Intersect', [], function () { C.pathfinder('intersect'); }, { enabled: hasMulti });
