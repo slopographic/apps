@@ -98,6 +98,45 @@ Cross-realm gotcha: arrays/typed arrays passed into the iframe's pdf-lib/pdf.js 
 - Closed mobile panel peeked 10 px above the bottom edge; rail labels wrapped and clipped in Classic.
 - Removed the dead pre-split `js/engine.js` / `js/util.js` (944/318 lines, not loaded anywhere).
 
+## Blank-page / lost-edits investigation (owner report: "adding stuff renders a blank white page") — IN PROGRESS
+Stopped early (usage limits). **No app code changed yet.** Findings so far:
+- Repro harness (scratch, not in repo): drives the real app in Playwright (sample-like 3-page all-green
+  fixture so any white = blank), takes CDP screenshots every ~57 ms (fastest achievable headless; the
+  `--use-angle=swiftshader` launch flags make screenshots ~380 ms, so leave them off) plus an in-page
+  per-rAF DOM probe (does `.pv-canvas` hold the current page's bitmap; SVG annot count vs model; empty
+  thumbnails in view). Covered: text, pen, rect, highlighter, whiteout, image, signature, move, resize,
+  delete, undo/redo, zoom (buttons, Ctrl+wheel, fit), rotate, next/prev page, grid, thumb size L/S,
+  grid rotate/duplicate/move/undo, back to page.
+- Result at 1280x800 headless: **no white frames and no lost annotations** in page view for any annotation
+  edit, undo/redo, zoom or rotate (white fraction stays ≤ 0.007; annotations present in every frame after
+  each commit). The architecture already matches the target for annotations: `editor/view.js` renders
+  pdf.js into an offscreen canvas and copies it in only when complete; annotations are an SVG overlay
+  (`ui/sheet.js` `V.paintAnnots`); the raster key (`file:page:formKey@zoom`) does not change on annotation
+  edits; zoom CSS-stretches the old bitmap until the sharp one lands; no pdf-lib reload while editing.
+- Real defects found:
+  1. **Page switch shows the PREVIOUS page's bitmap** (stretched to the new page size) for ~150 ms until the
+     new render lands (`Ed.show` → `layout(true)` → `scheduleRaster`; view.js ~line 81-104). 9/7 frames on
+     next/prev. Fix: on page change, immediately paint the cached thumbnail raster for the new page
+     (`E.thumbURL` cache) into the canvas, or hide the stale canvas behind a page-coloured placeholder.
+  2. **First open of page view**: `.pv-page` is `background:#fff` with an empty canvas until pdf.js
+     finishes (2 frames) — white flash. Same fix as 1 (seed from thumbnail cache).
+  3. **Grid**: a newly created thumbnail element (duplicate, thumb size change re-bucket) has an empty
+     `<img>` for 2-3 frames even when the raster is cached (`V.loadRaster` waits on a promise + async
+     decode). Fix: synchronous cache lookup in `E.thumbURL` (return url directly when resolved) and
+     `img.decode()` before swapping; keep the old src until the new one decodes.
+  4. Latency (dispatch → next frame): nudge ~10-13 ms, prop change ~11-12 ms, add ~16-20 ms, undo 11-70 ms
+     (undo cost is `O.render()` of the whole grid + `JSON.parse` snapshot; could skip grid render while in
+     page view and re-render lazily).
+- Not reproduced: the owner's "blank page after adding stuff". Candidates still to check: real-GPU
+  browsers with high devicePixelRatio (16 MP cap in `S.renderRaster` → large canvas copies), form-field
+  PDFs (`E.formKey` is in the raster key, so every form edit re-renders — and `renderToCanvas` on a form
+  PDF re-renders, which is the only key that changes during editing), and mobile Safari canvas memory
+  limits (a canvas over the limit renders white). Test with the sample PDF (it has a form) next.
+- Next steps, in order: (a) re-run the repro with the sample PDF and with form fields filled;
+  (b) fix 1-3 above; (c) add `tests/pdf/pdf.spec-render.js` sampling canvas pixels per rAF during
+  edit/zoom/undo/page switch (assert non-blank and annotation SVG nodes present), keep placement tests green;
+  (d) smoke-test desktop + 390x844.
+
 ## Offline build note
 Site-only scripts in `index.html` (fonts.css, `shared/guard.js`) carry `data-offline="strip"` so the offline
 file stays self-contained; the guard/backup cannot work from file:// anyway.
