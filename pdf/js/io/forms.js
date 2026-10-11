@@ -47,8 +47,7 @@
         else st.setValue(w.id, { value: v == null ? '' : String(v) });
       });
     });
-  }
-;
+  };
   E.fillForm = function (src, vals, flatten) {
     var L = PDFLib, form;
     try { form = src.getForm(); } catch (e) { return; }
@@ -65,7 +64,5 @@
     });
     try { form.updateFieldAppearances(); } catch (e) { console.warn('Slop PDF: field appearance update failed', e); }
     if (flatten) { try { form.flatten({ updateFieldAppearances: false }); } catch (e) { console.warn('Slop PDF: flatten failed', e); } }
-  }
-  /* Strip /P back-pointers and park internal link targets as page numbers, so copyPages
-     does not drag the donor's whole page tree along. Fixed up again after copying. */;
+  };
 })();

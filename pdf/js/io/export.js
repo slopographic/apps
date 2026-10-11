@@ -83,6 +83,8 @@
     return 'M' + U.round(p2[0] + ux * w * 0.5, 2) + ' ' + U.round(p2[1] + uy * w * 0.5, 2) + ' L' + U.round(bx - uy * hw, 2) + ' ' + U.round(by + ux * hw, 2) + ' L' + U.round(bx + uy * hw, 2) + ' ' + U.round(by - ux * hw, 2) + ' Z';
   };
 
+  /* Strip /P back-pointers and park internal link targets as page numbers, so copyPages
+     does not drag the donor's whole page tree along. Fixed up again after copying. */
   function prepareLinks(src) {
     var L = PDFLib, pages = src.getPages(), idx = new Map();
     pages.forEach(function (pg, i) { idx.set(pg.ref.toString(), i); });
@@ -166,9 +168,9 @@
       else if (o instanceof L.PDFStream) o.dict.entries().forEach(function (e) { push(e[1]); });
     }
     ctx.enumerateIndirectObjects().forEach(function (e) { if (!keep.has(e[0].toString())) ctx.delete(e[0]); });
-  }
+  };
 
-  /** Builds the output PDF. opts: {pages, stamps (default true), meta (default true), onProgress} → Uint8Array */;
+  /** Builds the output PDF. opts: {pages, stamps (default true), meta (default true), onProgress} → Uint8Array */
   E.build = async function (opts) {
     opts = opts || {};
     var L = PDFLib, st = E.state, pages = opts.pages || st.pages;

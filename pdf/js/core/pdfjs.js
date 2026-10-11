@@ -5,7 +5,7 @@
 
   /* ------------------------------------------------------------------ pdf.js */
   var libP = null;
-  // Resolve vendor/ relative to this script (pdf/js/engine.js), so tests and other pages can load it too.
+  // Resolve vendor/ relative to this script (pdf/js/core/pdfjs.js), so tests and other pages can load it too.
   var SCRIPT_SRC = (document.currentScript && document.currentScript.src) || '';
   E.vendorBase = function () { return SP.vendorBase || new URL(SCRIPT_SRC ? '../../../vendor/pdfjs/' : '../vendor/pdfjs/', SCRIPT_SRC || document.baseURI).href; };
   E.pdfjs = function () {
