@@ -45,7 +45,11 @@
       expect(sw.OFFLINE).toBe('/offline.html');
     });
     it('every precache entry exists on disk', async () => {
-      const results = await Promise.all(sw.PRECACHE.map((p) => fetch(p).then((r) => [p, r.status])));
+      // Batches: about 1,400 paths at once exhaust the browser's connections and fail with "Failed to fetch".
+      const results = [];
+      for (let i = 0; i < sw.PRECACHE.length; i += 32) {
+        results.push(...(await Promise.all(sw.PRECACHE.slice(i, i + 32).map((p) => fetch(p).then((r) => [p, r.status])))));
+      }
       expect(results.filter(([, s]) => s !== 200)).toEqual([]);
     });
     it('the precache list has no duplicates and includes the boot pages', async () => {

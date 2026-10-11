@@ -13,7 +13,9 @@ import { ROOT } from './storage-env.mjs';
 
 const SKIP_DIRS = new Set(['node_modules', 'vendor', 'tests', '.git', 'storage']);
 // Generic openers: the version comes from the caller (backup restore), and they never create or migrate data.
-const GENERIC_OPEN = new Set(['shared/backup/core.js', 'shared/backup/central-idb.js']);
+// shared/cache/regen.js opens the caches with no version on purpose: it only empties stores that already exist, and a
+// fixed version would fail with VersionError on a database the app has already upgraded (and clear nothing).
+const GENERIC_OPEN = new Set(['shared/backup/core.js', 'shared/backup/central-idb.js', 'shared/cache/regen.js']);
 // Whole-database deletes that are explicit user or test actions on a database the app owns.
 const ERASE_OK = new Set(['shared/data/store.js', 'gallery/js/core/db.js', 'shared/backup/core.js']);
 

@@ -130,8 +130,8 @@
       expect(W.SlopHub.self.app).toBe('label');
       const labels = W.sendToItems().filter((i) => i.label).map((i) => i.label);
       expect(labels).toContain('Send to Slop PDF (PDF)');
-      expect(labels).toContain('Send to PhotoSLOP (PNG)');
-      expect(labels).toContain('Send to Slop Vector (PNG)');
+      expect(labels).toContain('Send to PhotoSlop (PNG)');
+      expect(labels).toContain('Send to SlopVector (PNG)');
       expect(labels.some((l) => /Slop PDF \(PNG\)/.test(l))).toBe(false);
     });
     it('opens every menu', async () => {

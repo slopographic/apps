@@ -4,7 +4,7 @@
  * Only same-origin GET requests are handled. Other origins are never cached or intercepted. */
 'use strict';
 
-const VERSION = 'v12';
+const VERSION = 'v13';
 const CACHE = 'slopographic-' + VERSION;
 const OFFLINE = '/offline.html';
 const STATIC = /\.(m?js|css|woff2?|ttf|otf|png|jpe?g|webp|gif|svg|ico|wasm|json|glb|bcmap|pfb)$/i;
@@ -300,7 +300,8 @@ const cacheable = (res) => !!res && res.ok && res.type === 'basic';
 async function networkFirst(req, url) {
   const cache = await caches.open(CACHE);
   try {
-    const res = await fetch(req);
+    // no-cache: revalidate with the server, so the browser HTTP cache cannot serve an old page.
+    const res = await fetch(req, { cache: 'no-cache' });
     if (cacheable(res)) cache.put(pageKey(url), res.clone());
     return res;
   } catch (err) {
@@ -313,7 +314,8 @@ async function networkFirst(req, url) {
 async function networkFirstStatic(req) {
   const cache = await caches.open(CACHE);
   try {
-    const res = await fetch(req);
+    // no-cache: a changed CSS or script is fetched again on the next visit, never served from the HTTP cache.
+    const res = await fetch(req, { cache: 'no-cache' });
     if (cacheable(res)) cache.put(req.url, res.clone());
     return res;
   } catch (err) {

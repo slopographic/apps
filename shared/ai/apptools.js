@@ -95,7 +95,7 @@
     const findApp = (id) => apps().find((x) => x.id === id || x.name.toLowerCase() === String(id).toLowerCase()) || null;
     const appFor = (id) => { const app = findApp(id); if (!app) throw new Error(`No app "${id}". Use list_apps to see the ids.`); return app; };
     const tools = [
-      { name: 'list_apps', description: 'List the Slopographic apps, games and experiments (id, name, what it does).', params: {},
+      { name: 'list_apps', description: 'List the Slopographic apps, games and experiments (id, name, what it does).', params: {}, maxChars: 12000,
         run: () => apps().map((a) => ({ id: a.id, name: a.name, kind: a.kind, does: a.tagline, status: a.status })) },
       { name: 'open_app', description: ws
         ? 'Open a Slopographic app beside this chat in the workspace, by its id (for example "photoslop", "vector", "pdf", "drive"), or focus it if it is already open. Pass a web address (https://…) as the id to open a website in a new browser tab instead; websites never open inside the workspace. With "file", the app opens that Slop Drive file in a new tab.'
