@@ -13,7 +13,6 @@ const add = (a, b) => norm(a.n * b.d + b.n * a.d, a.d * b.d);
 const neg = (a) => ({ n: -a.n, d: a.d });
 const mul = (a, b) => norm(a.n * b.n, a.d * b.d);
 const div = (a, b) => norm(a.n * b.d, a.d * b.n);
-const R = (n) => ({ n: BigInt(n), d: 1n });
 
 /** Parse a decimal string ("12", "-0.5", "1e3", "2.50") into an exact rational. Throws on anything else. */
 export function parseDecimal(text) {

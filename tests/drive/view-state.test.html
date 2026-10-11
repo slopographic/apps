@@ -26,7 +26,7 @@
       const pics = await H.createFolder('Pictures');
       await H.put(DT.text('one'), { name: 'alpha.txt', folderId: pics });
       await H.put(DT.text('two'), { name: 'beta.txt', folderId: pics });
-      await waitFor(() => DR.S.folders.has(pics));
+      await DR.refresh();
       DR.go(pics);
       const search = DR.$('search');
       search.value = 'alp'; search.dispatchEvent(new W.Event('input'));
@@ -44,7 +44,7 @@
       let W = await DT.frame('../../drive/', ready);
       const H = W.SlopHub, DR = W.DR;
       const gone = await H.createFolder('Gone soon');
-      await waitFor(() => DR.S.folders.has(gone));
+      await DR.refresh();
       DR.go(gone);
       await sleep(400);
       await H.clear();
