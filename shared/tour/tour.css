@@ -1,6 +1,6 @@
 /* SlopTour: spotlight, tip, step panel, header button and the homepage Tours menu. Themed through the same
  * --sui-* tokens as SlopUI (falling back to common app tokens, then the dark brand look). */
-.stour-panel, .stour-hole, .stour-tip, .stour-menu, .stour-btn {
+.stour-panel, .stour-hole, .stour-tip, .stour-btn {
   --c-bg: var(--sui-bg, var(--panel, #232323));
   --c-bg2: var(--sui-bg2, var(--panel-2, #2c2c2c));
   --c-line: var(--sui-line, var(--line-2, #3d3d3d));
@@ -42,20 +42,13 @@
 .stour-q.is-done .stour-mark { background: var(--c-accent); border-color: transparent; color: var(--c-accent-ink); }
 .stour-foot { display: flex; align-items: center; gap: 8px; padding: 8px 12px 12px; border-top: 1px solid var(--c-line); }
 .stour-spacer { flex: 1; }
-.stour-foot button, .stour-btn, .stour-menu a { font: inherit; }
+.stour-foot button, .stour-btn { font: inherit; }
 .stour-foot button { min-height: 36px; padding: 7px 12px; border: 1px solid var(--c-line); border-radius: 6px; background: var(--c-bg2); color: var(--c-fg); cursor: pointer; }
 .stour-foot button:disabled { opacity: .4; cursor: default; }
 .stour-next { border-color: transparent !important; background: var(--c-accent) !important; color: var(--c-accent-ink) !important; font-weight: 650 !important; }
 .stour-restart { border-color: transparent !important; background: transparent !important; color: var(--c-dim) !important; }
-.stour-x:focus-visible, .stour-q:focus-visible, .stour-foot button:focus-visible, .stour-btn:focus-visible, .stour-menu a:focus-visible, .stour-queue summary:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+.stour-x:focus-visible, .stour-q:focus-visible, .stour-foot button:focus-visible, .stour-btn:focus-visible, .stour-queue summary:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
 .stour-btn { min-height: 28px; padding: 4px 10px; border: 1px solid var(--c-line); border-radius: 6px; background: transparent; color: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.stour-menu { width: min(440px, calc(100vw - 32px)); max-height: 80vh; padding: 0; border: 1px solid var(--c-line); border-radius: var(--c-radius); background: var(--c-bg); color: var(--c-fg); box-shadow: var(--c-shadow); }
-.stour-menu::backdrop { background: rgba(0, 0, 0, .45); }
-.stour-menu h2 { margin: 0; padding: 14px 16px 8px; font-size: 15px; }
-.stour-menu ul { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin: 0; padding: 0 8px 12px; list-style: none; overflow: auto; }
-.stour-menu a { display: block; padding: 8px 10px; border-radius: 6px; color: inherit; text-decoration: none; }
-.stour-menu a:hover { background: var(--c-hover); }
 @media (max-width: 640px) {
   .stour-panel { left: 0; right: 0; bottom: 0; width: 100%; max-height: 62vh; transform: none; border-radius: 14px 14px 0 0; padding-bottom: env(safe-area-inset-bottom, 0); }
-  .stour-menu ul { grid-template-columns: 1fr; }
 }

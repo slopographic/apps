@@ -4,12 +4,16 @@
   'use strict';
   var cfg = window.SLOP_CONSENT_CONFIG;
 
-  /** Fills one [data-donate] container with the link (or hides it when there is no URL). */
+  /** Fills one [data-donate] container with the link (or hides it when there is no URL). Only the link it made before
+   * is replaced: the container may also hold a heading and text (Settings does), and those stay. */
   function render(el) {
     if (!el) return false;
-    while (el.firstChild) el.removeChild(el.firstChild);
+    for (var i = el.children.length - 1; i >= 0; i--) {
+      if (el.children[i].hasAttribute('data-donate-link')) el.removeChild(el.children[i]);
+    }
     if (!cfg.patreonUrl) { el.hidden = true; return false; }
     var a = document.createElement('a');
+    a.setAttribute('data-donate-link', '');
     a.className = 'btn';
     a.href = cfg.patreonUrl;
     a.target = '_blank';

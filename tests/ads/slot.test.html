@@ -33,10 +33,10 @@
     frame = f;
     return new Promise((r) => f.addEventListener('load', () => r(f.contentWindow), { once: true }));
   }
-  const adsScripts = (w) => w.__adsLoads.filter((s) => /googlesyndication/.test(s));
+  const adsScripts = () => window.__adsLoads.filter((s) => /googlesyndication/.test(s));
   const slot = (w, id) => w.document.querySelector(`[data-slop-ad="${id}"]`);
   const ins = (w, id) => slot(w, id).querySelector('ins.adsbygoogle');
-  /** The slot list is read with a short fetch-free hook, so mounting is synchronous; this waits for the page to settle. */
+  /** Short wait so the iframe's scripts and the consent event have run. */
   const settle = () => sleep(50);
 
   describe('ad slots', () => {
@@ -56,7 +56,7 @@
       await settle();
       expect(slot(w, 'home-footer').hidden).toBe(true);
       expect(ins(w, 'home-footer')).toBe(null);
-      expect(adsScripts(w).length).toBe(0);
+      expect(adsScripts().length).toBe(0);
     });
 
     it('show the unit once ads are accepted, with reserved size, and load AdSense through the one loader', async () => {
@@ -71,7 +71,7 @@
       expect(unit.getAttribute('data-ad-client')).toBe(w.SLOP_CONSENT_CONFIG.adsensePublisherId);
       expect(el.style.minHeight).toBe('90px');
       expect(el.style.aspectRatio).toBe('728 / 90');
-      expect(adsScripts(w).length).toBe(1);
+      expect(adsScripts().length).toBe(1);
     });
 
     it('does not ask AdSense again for a repeat change that keeps ads on', async () => {
@@ -83,7 +83,7 @@
       w.SlopConsent.setChoices({ analytics: true, ads: true });
       await settle();
       expect(ins(w, 'home-footer')).toBe(first);
-      expect(adsScripts(w).length).toBe(1);
+      expect(adsScripts().length).toBe(1);
     });
 
     it('shows on load when the visitor already accepted ads', async () => {

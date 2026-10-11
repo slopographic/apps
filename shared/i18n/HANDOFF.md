@@ -1,21 +1,24 @@
 # Language switcher (shared/i18n)
 
-Two languages: English (`en`, the default and the fallback) and Spanish (`es`, a full table, second in the picker).
-The switch works on the homepage, on Settings, and on every page that loads the shell (`shell/shell.js`). Only shared
-chrome is translated so far; each app's own text stays English (see "Still English" below).
+Seven languages, each with a full table of the shared chrome: English (`en`, the default and the fallback), Spanish
+(`es`), French (`fr`), German (`de`), Portuguese (`pt-BR`), Italian (`it`) and Arabic (`ar`, right to left). The picker
+lists them in `LANGS` order, each by its own name. The switch works on the homepage, on Settings, and on every page
+that loads the shell (`shell/shell.js`). Only shared chrome is translated so far; each app's own text stays English
+(see "Still English" below).
 
 ## Files
 - `i18n.js`: `window.SlopI18n`. The language list (`LANGS`), `t(key, vars)`, `get()`, `set(code)`, `apply()`,
   `add(code, dict)`, `langs()`, and `create(opts)` for an independent instance (tests).
 - `strings.js`: the English table: the top bar and home link, the Apps button and switcher, the Settings labels, the
   homepage footer, the consent strip, the support card, and the common menu words.
-- `es.js`: the Spanish table. It must hold every key in `strings.js`, with the same `{placeholders}`.
+- `es.js`, `fr.js`, `de.js`, `pt-BR.js`, `it.js`, `ar.js`: one table per language. Each must hold every key in
+  `strings.js`, with the same `{placeholders}`, and keep the brand names (Sloppo, Slopographic, the app names).
 - `settings/language.js`: the Language picker in Settings > Appearance (lists `LANGS` in order).
 
 ## Loading
-- `shell/shell.js` loads `i18n.js`, `strings.js` and `es.js` when the page has no `SlopI18n`, then calls `apply()` once
-  the header is in. So every shell page shows the chosen language at boot, with no tag in its own HTML.
-- The homepage and Settings load the three files in their `<head>`, after `shared/profile/profile.js` and
+- `shell/shell.js` loads `i18n.js`, `strings.js` and every language file when the page has no `SlopI18n`, then calls
+  `apply()` once the header is in. So every shell page shows the chosen language at boot, with no tag in its own HTML.
+- The homepage and Settings load all of them in their `<head>`, after `shared/profile/profile.js` and
   `shared/theme/theme.js`, so their text is translated before first paint of the body.
 
 ## Storage
@@ -34,12 +37,18 @@ A change in another tab re-applies on `storage`.
    or changes a placeholder.
 
 ## Right-to-left (rule)
-- `apply()` sets `dir` on `<html>` from the language's `dir` in `LANGS`. Set `dir: 'rtl'` for an RTL language (Arabic,
-  Hebrew, Persian, Urdu) and the page turns right to left at once.
-- No RTL language is in the list yet. Before one is added, the shell and app CSS must be checked in RTL: the layout
-  uses physical left and right in places (margins, `left:`/`right:`, the switcher and consent strip). Use logical
-  properties (`margin-inline-start`, `inset-inline-end`) where the layout changes, and do not mark the language
-  `complete` until the pages look right mirrored.
+- `apply()` sets `lang` and `dir` on `<html>` from the language's entry in `LANGS`. An entry with `dir: 'rtl'` (Arabic
+  today; Hebrew, Persian, Urdu later) turns the page right to left at once; every other entry sets `dir="ltr"`.
+- The shared chrome uses logical properties, so it mirrors with `dir`: the header (`shell/shell.css`: `.sh-hdr`,
+  `.sh-fab`, `.sh-opt`), the switcher, the consent strip (`shared/consent/banner.css`: `inset-inline`) and the support
+  card (`shared/support/support.css`: `inset-inline-end`). Write new chrome CSS the same way: `margin-inline-start`,
+  `inset-inline-end`, `text-align: start`, never `left`, `right` or `text-align: left` in those files.
+  `tests/node/i18n.test.mjs` fails when a physical side returns to those rules.
+- The notification panel and bell (`.sn-*`), the app drawer (`.sh-dr`) and drag markers (`.sh-drop-*`) still use
+  physical sides. They are not mirrored yet, so change them the same way before a right-to-left page relies on them.
+- An app's own CSS is not checked here. Before an app is shown in Arabic, check it mirrored in a browser.
+- The Arabic table is `complete`: it has every key. The shared chrome was checked mirrored in a browser (the header,
+  the cookie strip, the Ledger header); `tests/i18n/rtl.test.html` checks the attribute, the header and its margin.
 
 ## Adding strings
 1. Add the English text to `strings.js` (shared chrome) or to the app's own table (an app-specific `<app>.*` table).
@@ -62,17 +71,23 @@ A change in another tab re-applies on `storage`.
 5. Call `SlopI18n.apply()` again after you render text from JavaScript into a marked element.
 
 ## Tests
-- `node tests/run.mjs i18n` (or `node --test tests/node/i18n.test.mjs`): the language list, `t()` fallback and vars, the
-  stored choice, `apply()` on a fake DOM, every language table having every English key with the same placeholders,
-  Spanish being second and complete, and every shared-chrome key used by the shell, the consent strip, the support card,
-  and the homepage and Settings existing in English.
-- `tests/i18n/switch.test.html`: in a browser, the Settings picker lists `en` then `es`; choosing Spanish changes the
+- `node tests/run.mjs i18n` (or `node --test tests/node/i18n.test.mjs`): the language list (names, codes, directions,
+  English first), one file per language and each adding under its own code, every language loaded by the shell, the
+  homepage and Settings, `t()` fallback and vars, the stored choice, `apply()` on a fake DOM (including `dir="rtl"` for
+  Arabic), every language table having every English key with the same placeholders, the logical-property CSS, and
+  every shared-chrome key used by the shell, the consent strip, the support card, and the homepage and Settings
+  existing in English.
+- `tests/i18n/switch.test.html`: in a browser, the Settings picker lists all seven codes; choosing Spanish changes the
   homepage nav text; a reload keeps it; a shell page (Ledger) shows it at boot; switching back restores English.
+- `tests/i18n/rtl.test.html`: the picker shows each language by its own name; choosing Arabic sets `lang="ar"` and
+  `dir="rtl"`, the header's Apps button shows and is on screen, and the header's start margin is on the right; a shell
+  page shows it at boot; choosing English puts `dir="ltr"` back.
 
 ## Storage and offline
-- `service-worker.js` precaches `shared/theme/theme.js` by an explicit list and does not list `shared/i18n/*`. The
-  i18n files are not in the offline cache until that list is updated. Offline, a page with no cached i18n file shows its
-  English HTML, since the script never loads. (The service worker is not edited here.)
+- `service-worker.js` precaches `shared/theme/theme.js` by an explicit list. Its i18n entries are `i18n.js`,
+  `strings.js` and `es.js` only, so `fr.js`, `de.js`, `pt-BR.js`, `it.js` and `ar.js` are not in the offline cache until
+  that list is updated. Offline, a page in one of those languages falls back to English, since its script never loads.
+  (The service worker is not edited here; add the five files to its list in a separate change.)
 
 ## Still English
 - **Every app** (each app page that loads `shell/shell.js`, the registry in `shared/apps.js`): the app's own top bar and home link, menus and
@@ -83,6 +98,8 @@ A change in another tab re-applies on `storage`.
 - **Homepage and Settings**: the marked text (header tabs, footer, Settings labels and the language picker) is
   translated. Unmarked paragraphs and switches (privacy and analytics explanations, the exchange-rate and defaults
   bodies, the donate text) stay English until they are marked.
-- **Menu words** (File, Edit, View, Help, Save, Open, Export, Print, Cancel, OK, Close) are in `strings.js` and
-  `es.js`, but no app's own menus are marked yet. An app marks its menus with `menu.*` keys.
-- **Notifications** (`shell/notify.js`, the bell and its panel) and the navigation drawer (`shell/drawer.js`) are English.
+- **Menu words** (File, Edit, View, Help, Save, Open, Export, Print, Cancel, OK, Close) are in `strings.js` and in
+  every language file, but no app's own menus are marked yet. An app marks its menus with `menu.*` keys.
+- **Notifications** (`shell/notify.js`, the bell and its panel) and the navigation drawer (`shell/drawer.js`) are English,
+  and their CSS is not mirrored yet (see Right-to-left).
+- **Every app's own text** is English in all seven languages (see the first bullet above).

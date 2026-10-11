@@ -144,9 +144,16 @@
     const names = () => slides().map((s) => s.querySelector('h3').textContent);
     const cur = () => slides().findIndex((s) => s.classList.contains('is-current'));
     const dots = () => [...doc.querySelectorAll('.carousel .car-dot')];
+    const visible = () => dots().filter((d) => !d.hidden);
     const slideNamed = (n) => slides().find((s) => s.querySelector('h3').textContent === n);
     // A dot is a control: it jumps and stops the auto-advance, so the tests below are not raced by the timer.
-    const goto = (k) => dots()[k].click();
+    // The strip shows only nearby dots, so a far slide is reached by its visible dot or by stepping with next/previous.
+    const goto = (k) => {
+      const d = doc.querySelector(`.carousel .car-dot[data-slide="${k}"]:not([hidden])`);
+      if (d) return d.click();
+      while (cur() < k) doc.querySelector('.carousel .car-next').click();
+      while (cur() > k) doc.querySelector('.carousel .car-prev').click();
+    };
 
     it('slides render in the order the top list gives, then the rest of the registry', async () => {
       await ready;
@@ -155,6 +162,28 @@
       expect(names()).toEqual(want);
       expect(slides().length).toBe(win.SLOP_APPS.length);
       expect(dots().length).toBe(win.SLOP_APPS.length);
+    });
+    it('each card and slide icon is an SVG-namespace svg with the badge rect and glyph group as direct children', async () => {
+      await ready;
+      const SVG = 'http://www.w3.org/2000/svg';
+      const icons = [...doc.querySelectorAll('[data-list] .shot-icon'), ...doc.querySelectorAll('.carousel .car-icon')];
+      expect(icons.length).toBeGreaterThan(win.SLOP_APPS.length);
+      for (const svg of icons) {
+        expect(svg.namespaceURI).toBe(SVG);
+        expect(svg.getAttribute('viewBox')).toBe('0 0 48 48');
+        const rect = svg.querySelector(':scope > rect');
+        if (!rect) throw new Error('no badge rect as a direct child of ' + svg.getAttribute('class'));
+        expect(rect.namespaceURI).toBe(SVG);
+        expect(rect.getAttribute('fill')).toBe('#d4ff3a');
+        expect(svg.querySelector(':scope > ellipse').namespaceURI).toBe(SVG);
+        expect(svg.querySelector(':scope > g').namespaceURI).toBe(SVG);
+      }
+    });
+    it('the carousel icon sits in its own visual column, after the text on wide screens', async () => {
+      await ready;
+      const s = slides()[0];
+      expect(s.querySelector('.car-text svg')).toBe(null);
+      expect(!!s.querySelector('.car-visual svg.car-icon')).toBe(true);
     });
     it('each slide shows the badge icon, the registry tagline, up to three features and a real Open link', async () => {
       await ready;
@@ -204,6 +233,23 @@
       expect(cur()).toBe(5);
       expect(dots()[5].getAttribute('aria-current')).toBe('true');
       expect(dots()[1].hasAttribute('aria-current')).toBe(false);
+      visible().find((x) => x.dataset.slide === '6').click();
+      expect(cur()).toBe(6);
+    });
+    it('the pager shows the counter and at most seven dots, always including the first and last slide', async () => {
+      await ready;
+      const n = slides().length;
+      for (const k of [0, 1, 3, Math.floor(n / 2), n - 2, n - 1]) {
+        goto(k);
+        expect(doc.querySelector('.carousel .car-count').textContent).toBe(`${k + 1} / ${n}`);
+        const shown = visible().map((d) => +d.dataset.slide);
+        expect(shown.length).toBeLessThanOrEqual(7);
+        expect(shown).toContain(0);
+        expect(shown).toContain(n - 1);
+        expect(shown).toContain(k);
+      }
+      expect(doc.querySelectorAll('.carousel .car-pause').length).toBe(1);
+      expect(doc.querySelectorAll('.carousel .car-prev, .carousel .car-next').length).toBe(2);
     });
     it('the arrow keys move the carousel when focus is inside it', async () => {
       await ready;

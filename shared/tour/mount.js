@@ -72,22 +72,75 @@
     }]);
     if (window.SlopCmd) reg(); else script(BASE + '../commands/commands.js').then(reg, () => {});
   }
+  /** The registry entry (window.SLOP_APPS) for a tour. Matched by path: the tour id can differ from the registry id (slopcut is slopedit). */
+  function registryEntry(app) {
+    const list = window.SLOP_APPS || [];
+    return list.find((a) => a.path === app + '/') || list.find((a) => a.id === app) || null;
+  }
+  /** The app's Sloppo badge as an SVG-namespace <svg>, or null when the icon scripts are missing. */
+  function badgeSvg(id) {
+    const glyph = window.SLOP_ICONS && window.SLOP_ICONS[id];
+    if (!glyph || !window.SLOP_ICON_BADGE) return null;
+    const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('viewBox', '0 0 48 48'); s.setAttribute('class', 'stour-icon'); s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = window.SLOP_ICON_BADGE(glyph); // innerHTML on an SVG element parses in SVG context
+    return s;
+  }
+  /** The homepage Tours menu: a modal dialog (showModal, so centred with a backdrop) with a search box and a card per tour. */
   function homeMenu() {
     const nav = document.querySelector('header.nav') || document.querySelector('header');
     if (!nav) return;
     const dlg = document.createElement('dialog');
-    dlg.className = 'stour-menu'; dlg.setAttribute('aria-label', 'Guided tours');
-    const h = document.createElement('h2'); h.textContent = 'Guided tours';
-    const ul = document.createElement('ul');
-    for (const [app, name] of TOURS) {
-      const li = document.createElement('li'), a = document.createElement('a');
-      a.href = app + '/?tour=1'; a.textContent = name;
-      li.append(a); ul.append(li);
-    }
-    dlg.append(h, ul);
+    dlg.className = 'stour-menu'; dlg.setAttribute('aria-labelledby', 'stour-menu-title');
+    const head = document.createElement('div'); head.className = 'stour-menu-head';
+    const h = document.createElement('h2'); h.id = 'stour-menu-title'; h.textContent = 'Guided tours';
+    const x = document.createElement('button');
+    x.type = 'button'; x.className = 'stour-menu-x'; x.textContent = '×';
+    x.setAttribute('aria-label', 'Close guided tours'); x.addEventListener('click', () => dlg.close());
+    head.append(h, x);
+    const lede = document.createElement('p'); lede.className = 'stour-menu-lede';
+    lede.textContent = 'Pick an app to start its guided tour. You can stop at any step.';
+    const search = document.createElement('input');
+    search.type = 'search'; search.className = 'stour-search'; search.placeholder = 'Search tours';
+    search.setAttribute('aria-label', 'Search tours'); search.autocomplete = 'off';
+    const ul = document.createElement('ul'); ul.className = 'stour-grid';
+    const items = TOURS.map(([app, fallback]) => {
+      const entry = registryEntry(app);
+      const name = entry ? entry.name : fallback;
+      const li = document.createElement('li'); li.dataset.app = app;
+      const a = document.createElement('a'); a.className = 'stour-card'; a.href = app + '/?tour=1';
+      const icon = entry && badgeSvg(entry.id);
+      if (icon) a.append(icon);
+      const text = document.createElement('span'); text.className = 'stour-card-text';
+      const strong = document.createElement('strong'); strong.textContent = name;
+      text.append(strong);
+      if (entry && entry.tagline) {
+        const desc = document.createElement('span'); desc.className = 'stour-card-desc'; desc.textContent = entry.tagline;
+        text.append(desc);
+      }
+      a.append(text); li.append(a); ul.append(li);
+      return { li, key: name.toLowerCase() };
+    });
+    const empty = document.createElement('p'); empty.className = 'stour-empty'; empty.hidden = true;
+    empty.textContent = 'No tour matches that name.';
+    const filter = () => {
+      const q = search.value.trim().toLowerCase();
+      let shown = 0;
+      for (const it of items) { const on = !q || it.key.includes(q); it.li.hidden = !on; if (on) shown++; }
+      empty.hidden = shown > 0;
+    };
+    search.addEventListener('input', filter);
+    dlg.append(head, lede, search, ul, empty);
     dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    let opener = null;
+    const tours = button('Tours', 'Guided tours for each app', () => {
+      opener = tours; search.value = ''; filter();
+      dlg.showModal();
+    });
+    tours.setAttribute('aria-haspopup', 'dialog');
+    dlg.addEventListener('close', () => { if (opener) opener.focus(); opener = null; });
     document.body.append(dlg);
-    nav.append(button('Tours', 'Guided tours for each app', () => dlg.showModal()));
+    nav.append(tours);
   }
   function init() {
     if (HOME) { homeMenu(); return; }
