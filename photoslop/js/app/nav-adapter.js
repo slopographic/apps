@@ -20,11 +20,11 @@
     title: 'PhotoSlop',
     host,
     adapter: {
-      zoomAt: (f, x, y) => setZoom(V.zoom * f, { x, y }),
-      panBy: (dx, dy) => { V.ox += dx; V.oy += dy; dirty(); },
+      zoomAt: (f, x, y) => setZoom(V.zoom * f, viewPt(x, y)), // x, y are viewport points
+      panBy: (dx, dy) => { const d = viewDelta(dx, dy); V.ox += d.x; V.oy += d.y; dirty(); },
       fit: () => fitView(),
       actual: () => actualPixels(),
-      zoomStep: (dir, x, y) => zoomStep(dir, { x, y }),
+      zoomStep: (dir, x, y) => zoomStep(dir, viewPt(x, y)),
       // A second finger takes over from a stroke the first finger started.
       cancelStroke: () => { if (V.op) { const t = V.op.tool; if (t.cancel) t.cancel(); V.op = null; dirty(); } },
     },

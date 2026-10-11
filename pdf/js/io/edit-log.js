@@ -34,14 +34,16 @@
     if (!Object.keys(ch).length && !ord && !Object.keys(top).length) return { touches: touches };
     return { touches: touches, entry: { label: c.label, ch: ch, ord: ord, top: top, scope: { file: fid, blank: primary } } };
   }
-  /** Per logged file: its entries (oldest first). The first logged file also keeps document-level changes. */
+  /** Per logged file: its entries (oldest first). The first logged file also keeps document-level changes.
+      A step that cannot be replayed (Apply redactions) drops the file's whole log, so a reopened file never
+      comes back without its redactions while the edits before them do. */
   function build() {
     var out = [];
     Array.from(E.files.values()).filter(loggable).forEach(function (f, k) {
       var entries = [], started = false, primary = k === 0;
       for (var c of H.entries()) {
         var r = restrict(c, f, primary, started);
-        if (r.stop) break;
+        if (r.stop) { entries = []; break; }
         started = started || r.touches;
         if (r.entry) entries.push(r.entry);
       }

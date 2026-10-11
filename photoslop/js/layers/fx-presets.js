@@ -34,17 +34,24 @@ function fxPresetEffects(L) {
   }
   return { effects, skipped };
 }
+/** What a preset adds to a layer's stack: the new entries and how many of its effects PhotoSlop skips. Changes nothing. */
+function fxPresetPlan(preset) {
+  const add = [];
+  let skipped = 0;
+  for (const e of preset.params.effects) {
+    const m = PRESET_FX[e.type];
+    if (!m || !FX_BY_ID[m[0]]) { skipped++; continue; }
+    add.push({ id: uid(), type: m[0], on: e.on !== false, p: Object.assign(fxDefaults(m[0]), m[1](e.p)) });
+  }
+  return { add, skipped };
+}
 /** Adds a preset's effects to a layer's stack, as one history step. Returns { added, skipped }. */
 function fxPresetApply(layerId, preset) {
   const L = D.layers.find((l) => l.id === layerId);
   const out = { added: 0, skipped: 0 };
   if (!L || !preset || preset.kind !== 'effect') return out;
-  const add = [];
-  for (const e of preset.params.effects) {
-    const m = PRESET_FX[e.type];
-    if (!m || !FX_BY_ID[m[0]]) { out.skipped++; continue; }
-    add.push({ id: uid(), type: m[0], on: e.on !== false, p: Object.assign(fxDefaults(m[0]), m[1](e.p)) });
-  }
+  const { add, skipped } = fxPresetPlan(preset);
+  out.skipped = skipped;
   if (!add.length) return out;
   setFxStack(layerId, (L.fx || []).concat(add), 'Apply Preset: ' + preset.label);
   out.added = add.length;
@@ -59,16 +66,8 @@ async function fxPresetSave(layerId, label, description) {
 }
 
 /* ---------- dialogs (menu items on a layer) ---------- */
-function fxPresetPick(layerId) {
-  SlopPresets.openPicker({
-    kind: 'effect', app: 'photoslop', title: 'Apply effect preset',
-    onApply: (p) => {
-      const r = fxPresetApply(layerId, p);
-      if (!r.added) { SlopUI.toast('Nothing in “' + p.label + '” can apply to a layer here'); return false; }
-      SlopUI.toast('Applied “' + p.label + '”' + (r.skipped ? ` (${r.skipped} effect${r.skipped > 1 ? 's' : ''} skipped)` : ''));
-    },
-  });
-}
+/** Layer ▸ Apply Effect Preset… : the picker previews and applies (fx-preset-picker.js). */
+function fxPresetPick(layerId) { openFxPresetPicker(layerId); }
 function fxPresetSaveDialog(layerId) {
   const L = D.layers.find((l) => l.id === layerId);
   if (!L || !(L.fx && L.fx.length)) { SlopUI.toast('Add an effect to this layer first'); return; }

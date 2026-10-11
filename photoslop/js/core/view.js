@@ -44,7 +44,8 @@ function resizeView() {
   dirty();
 }
 function dirty(comp) { V.needDraw = true; if (comp) V.needComp = true; }
-const toDoc = (e) => { const r = V.el.getBoundingClientRect(); return { x: (e.clientX - r.left - V.ox) / V.zoom, y: (e.clientY - r.top - V.oy) / V.zoom, pressure: e.pointerType === 'pen' ? e.pressure || 0.5 : 1, pen: e.pointerType === 'pen' }; };
+// Pointer → document goes through the view rotation (view-rot.js); with no rotation viewLocal is the plain viewport offset.
+const toDoc = (e) => { const s = viewLocal(e); return { x: (s.x - V.ox) / V.zoom, y: (s.y - V.oy) / V.zoom, pressure: e.pointerType === 'pen' ? e.pressure || 0.5 : 1, pen: e.pointerType === 'pen' }; };
 const toScreen = (x, y) => ({ x: x * V.zoom + V.ox, y: y * V.zoom + V.oy });
 
 function fitView(capAt100) {
@@ -105,6 +106,7 @@ function draw() {
     V.needComp = !!live;
   }
   const x0 = V.ox, y0 = V.oy, w = D.w * z, hh = D.h * z;
+  g.save(); rotateCtx(g); // the view rotation: everything up to the brush cursor draws in unrotated view space
   // drop shadow around the page
   g.save(); g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 18; g.shadowOffsetY = 4; g.fillStyle = '#fff'; g.fillRect(x0, y0, w, hh); g.restore();
   g.save(); g.beginPath(); g.rect(x0, y0, w, hh); g.clip();
@@ -126,17 +128,7 @@ function draw() {
   const t = currentTool();
   if (t.overlay) { g.save(); t.overlay(g); g.restore(); }
   drawIdleBox(g);
-  if (V.resize && V.resize.moved) {
-    // live brush preview while Shift-dragging
-    const R = V.resize, r = V.el.getBoundingClientRect(), cxp = R.sx - r.left, cyp = R.sy - r.top, rad = Math.max(1, (R.o.size * V.zoom) / 2);
-    const hd = R.o.hardness != null ? R.o.hardness : 1, gr = g.createRadialGradient(cxp, cyp, 0, cxp, cyp, rad);
-    gr.addColorStop(0, 'rgba(212,255,58,.55)'); gr.addColorStop(clamp(hd, 0, 0.98), 'rgba(212,255,58,.55)'); gr.addColorStop(1, 'rgba(212,255,58,0)');
-    g.fillStyle = gr; g.beginPath(); g.arc(cxp, cyp, rad, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke();
-    const label = `${R.o.size}px · ${R.alt ? 'opacity ' + Math.round((R.o.opacity || 1) * 100) : 'hardness ' + Math.round(hd * 100)}%`;
-    g.font = '600 12px "JetBrains Mono", monospace'; const tw = g.measureText(label).width;
-    g.fillStyle = 'rgba(0,0,0,.75)'; g.fillRect(cxp - tw / 2 - 8, cyp + rad + 10, tw + 16, 22); g.fillStyle = '#fff'; g.fillText(label, cxp - tw / 2, cyp + rad + 25);
-  } else if (V.cursorIn && V.cursor && t.brushCursor && !V.pan) {
+  if (!(V.resize && V.resize.moved) && V.cursorIn && V.cursor && t.brushCursor && !V.pan) {
     const r = Math.max(0.5, (t.brushCursor() * z) / 2), s = toScreen(V.cursor.x, V.cursor.y);
     g.beginPath(); g.arc(s.x, s.y, r, 0, Math.PI * 2);
     g.lineWidth = 1; g.strokeStyle = 'rgba(0,0,0,.8)'; g.stroke();
@@ -144,6 +136,8 @@ function draw() {
     if (r < 4) { g.fillStyle = '#fff'; g.fillRect(s.x - 0.5, s.y - 4, 1, 8); g.fillRect(s.x - 4, s.y - 0.5, 8, 1); }
   }
   drawTopOverlays(g);
+  g.restore();
+  if (V.resize && V.resize.moved) drawResizePreview(g); // a Shift-drag brush preview lives in screen space, not the rotated view
 }
 /** Outline of the selection mask (alpha ≥ 128) as a Path2D in document space. */
 function selectionPath(sel) {
@@ -231,12 +225,12 @@ function onPointerMove(e) {
   if (e.pointerType === 'touch' && V.touches.has(e.pointerId)) {
     V.touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (V.pinch && V.touches.size === 2) {
-      const [a, b] = [...V.touches.values()], r = V.el.getBoundingClientRect();
+      const [a, b] = [...V.touches.values()];
       const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
       const z = clamp((V.pinch.z * d) / V.pinch.d, 0.01, 64);
-      const ax = V.pinch.mx - r.left, ay = V.pinch.my - r.top;
-      const docX = (ax - V.pinch.ox) / V.pinch.z, docY = (ay - V.pinch.oy) / V.pinch.z;
-      V.zoom = z; V.ox = mx - r.left - docX * z; V.oy = my - r.top - docY * z;
+      const m0 = viewLocal({ clientX: V.pinch.mx, clientY: V.pinch.my }), m1 = viewLocal({ clientX: mx, clientY: my });
+      const docX = (m0.x - V.pinch.ox) / V.pinch.z, docY = (m0.y - V.pinch.oy) / V.pinch.z;
+      V.zoom = z; V.ox = m1.x - docX * z; V.oy = m1.y - docY * z;
       emit('zoom'); dirty();
       return;
     }
@@ -244,7 +238,7 @@ function onPointerMove(e) {
   const p = V.op ? snapP(toDoc(e), V.op.tool) : toDoc(e);
   V.cursor = p; V.cursorIn = true;
   emit('cursor');
-  if (V.pan) { V.ox = V.pan.ox + e.clientX - V.pan.x; V.oy = V.pan.oy + e.clientY - V.pan.y; dirty(); return; }
+  if (V.pan) { const d = viewDelta(e.clientX - V.pan.x, e.clientY - V.pan.y); V.ox = V.pan.ox + d.x; V.oy = V.pan.oy + d.y; dirty(); return; }
   if (V.resize && V.resize.id === e.pointerId) {
     const R = V.resize, dx = e.clientX - R.sx, dy = e.clientY - R.sy;
     if (!R.moved && Math.hypot(dx, dy) > 4) R.moved = true;
@@ -291,9 +285,8 @@ function onPointerCancel(e) {
 }
 function onWheel(e) {
   e.preventDefault();
-  const r = V.el.getBoundingClientRect(), a = { x: e.clientX - r.left, y: e.clientY - r.top };
+  const a = viewLocal(e);
   const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY, dx = e.deltaMode === 1 ? e.deltaX * 16 : e.deltaX;
   if (e.ctrlKey || e.metaKey || e.altKey) setZoom(V.zoom * Math.exp(-dy * (e.ctrlKey && !e.metaKey && Math.abs(dy) < 50 ? 0.01 : 0.002)), a);
-  else if (e.shiftKey) { V.ox -= dy || dx; dirty(); }
-  else { V.ox -= dx; V.oy -= dy; dirty(); }
+  else { const d = e.shiftKey ? viewDelta(dy || dx, 0) : viewDelta(dx, dy); V.ox -= d.x; V.oy -= d.y; dirty(); }
 }

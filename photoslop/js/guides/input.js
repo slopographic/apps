@@ -3,8 +3,9 @@
  * to type its position. These capture-phase listeners run before the tools and stop the event when they use it. */
 'use strict';
 
-function screenPt(e) { const r = V.el.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
-function inRuler(s) { return GUIDE_PREFS.rulers && (s.x < RULER || s.y < RULER) ? (s.x < RULER && s.y < RULER ? 'corner' : s.y < RULER ? 'top' : 'left') : null; }
+/** Pointer position in unrotated view space (the space the guides and V.ox/V.oy use); equals screen space at 0°. */
+function screenPt(e) { return viewLocal(e); }
+function inRuler(s) { return rulersShown() && (s.x < RULER || s.y < RULER) ? (s.x < RULER && s.y < RULER ? 'corner' : s.y < RULER ? 'top' : 'left') : null; }
 /** The guide under a screen point (index into D.guides), or -1. */
 function guideAt(s, tol = 4) {
   if (!GUIDE_PREFS.show || !D.guides) return -1;
@@ -57,7 +58,7 @@ function onGuidePointerMove(e) {
   d.moved = true;
   d.pos = guidePos(d.o, e);
   const r = V.el.getBoundingClientRect();
-  d.out = e.clientX < r.left || e.clientY < r.top || e.clientX > r.right || e.clientY > r.bottom || (GUIDE_PREFS.rulers && (d.o === 'h' ? s.y < RULER : s.x < RULER));
+  d.out = e.clientX < r.left || e.clientY < r.top || e.clientX > r.right || e.clientY > r.bottom || (rulersShown() && (d.o === 'h' ? s.y < RULER : s.x < RULER));
   V.cursor = toDoc(e); emit('cursor');
   dirty();
 }

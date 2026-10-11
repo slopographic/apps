@@ -33,13 +33,19 @@ function fxPad(list) {
   for (const e of list) pad = Math.max(pad, Math.ceil((+e.p.dist || 0) + (+e.p.size || 0) + (+e.p.spread || 0)) + 2);
   return Math.min(pad, FX_PAD_MAX);
 }
-/** A layer surface {canvas, x, y, w?} with the enabled effects applied in list order. */
-function renderFx(s, list) {
+/** The layer's Fill (0 to 1, layer.fillOp; 1 when unset). Fill scales the layer's own pixels, not its effects. */
+const fillOf = (L) => (L.fillOp == null ? 1 : L.fillOp);
+/** True when the layer has an effect switched on that PhotoSlop renders. */
+const fxOn = (L) => (L.fx || []).some((e) => e.on !== false && FX_BY_ID[e.type]);
+/** The alpha a layer is composited with: its opacity, and its fill too when no effect draws (then fill is pixel opacity). */
+const layerAlpha = (L) => L.opacity * (fxOn(L) ? 1 : fillOf(L));
+/** A layer surface {canvas, x, y, w?} with the enabled effects applied in list order. fill (0 to 1) scales the pixels first. */
+function renderFx(s, list, fill = 1) {
   const on = list.filter((e) => e.on !== false && FX_BY_ID[e.type]);
   if (!on.length) return s;
   const w = s.w || s.canvas.width, hh = s.h || s.canvas.height, pad = fxPad(on);
   let c = mkCanvas(w + 2 * pad, hh + 2 * pad);
-  cx(c).drawImage(s.canvas, 0, 0, w, hh, pad, pad, w, hh);
+  cx(c).globalAlpha = fill; cx(c).drawImage(s.canvas, 0, 0, w, hh, pad, pad, w, hh); cx(c).globalAlpha = 1;
   const env = { fg: C.fg, bg: C.bg };
   for (const e of on) c = FX_BY_ID[e.type].fn(c, fxClone(e.p), env);
   return { canvas: c, x: s.x - pad, y: s.y - pad, w: c.width, h: c.height };
@@ -48,12 +54,12 @@ function renderFx(s, list) {
 const fxCache = new WeakMap();
 /** The layer surface s (from layerSurface) with its effects. Live edits are never cached. */
 function fxSurface(L, s) {
-  if (!L.fx || !L.fx.length) return s;
-  if (live && live.layerId === L.id) return renderFx(s, L.fx);
-  const e = fxCache.get(L.canvas);
-  if (e && e.fx === L.fx && e.mask === L.mask && e.x === L.x && e.y === L.y) return e.out;
-  const out = renderFx(s, L.fx);
-  fxCache.set(L.canvas, { fx: L.fx, mask: L.mask, x: L.x, y: L.y, out });
+  if (!fxOn(L)) return s;
+  if (live && live.layerId === L.id) return renderFx(s, L.fx, fillOf(L));
+  const e = fxCache.get(L.canvas), fill = fillOf(L);
+  if (e && e.fx === L.fx && e.mask === L.mask && e.x === L.x && e.y === L.y && e.fill === fill) return e.out;
+  const out = renderFx(s, L.fx, fill);
+  fxCache.set(L.canvas, { fx: L.fx, mask: L.mask, x: L.x, y: L.y, fill, out });
   return out;
 }
 

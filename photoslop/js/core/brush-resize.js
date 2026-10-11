@@ -24,3 +24,14 @@ function brushRightEnd(R) {
   if (R.moved) { V.rightDragged = !R.menu; saveToolOptions(); buildOptions(); } // a drag: no menu after it
   else if (R.menu) openContextMenu(V.el, R.e.clientX, R.e.clientY);             // macOS click: the menu was held back
 }
+/** The live brush circle and its label while a Shift-drag resizes the brush (drawn in screen space, after the view rotation). */
+function drawResizePreview(g) {
+  const R = V.resize, r = V.el.getBoundingClientRect(), cxp = R.sx - r.left, cyp = R.sy - r.top, rad = Math.max(1, (R.o.size * V.zoom) / 2);
+  const hd = R.o.hardness != null ? R.o.hardness : 1, gr = g.createRadialGradient(cxp, cyp, 0, cxp, cyp, rad);
+  gr.addColorStop(0, 'rgba(212,255,58,.55)'); gr.addColorStop(clamp(hd, 0, 0.98), 'rgba(212,255,58,.55)'); gr.addColorStop(1, 'rgba(212,255,58,0)');
+  g.fillStyle = gr; g.beginPath(); g.arc(cxp, cyp, rad, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke();
+  const label = `${R.o.size}px · ${R.alt ? 'opacity ' + Math.round((R.o.opacity || 1) * 100) : 'hardness ' + Math.round(hd * 100)}%`;
+  g.font = '600 12px "JetBrains Mono", monospace'; const tw = g.measureText(label).width;
+  g.fillStyle = 'rgba(0,0,0,.75)'; g.fillRect(cxp - tw / 2 - 8, cyp + rad + 10, tw + 16, 22); g.fillStyle = '#fff'; g.fillText(label, cxp - tw / 2, cyp + rad + 25);
+}

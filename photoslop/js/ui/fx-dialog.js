@@ -3,9 +3,6 @@
  * the stack as it was, with no history step. */
 'use strict';
 
-/** Layer ▸ Layer Style ▸ <effect>: adds that effect to the active layer. */
-function addStyleEffect(typeId) { const L = activeLayer(); if (L) openFxDialog(L.id, null, typeId); }
-
 function openFxDialog(layerId, fxId, typeId) {
   const L0 = D.layers.find((l) => l.id === layerId); if (!L0) return;
   const orig = L0.fx || null, base = orig || [];

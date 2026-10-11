@@ -17,14 +17,14 @@ function stashCurrent() {
   if (!CUR) return;
   CUR.state = {
     w: D.w, h: D.h, name: D.name, layers: D.layers, activeId: D.activeId, sel: D.sel, dirty: D.dirty, guides: D.guides,
-    states: Hist.states, idx: Hist.idx, zoom: V.zoom, ox: V.ox, oy: V.oy,
+    states: Hist.states, idx: Hist.idx, zoom: V.zoom, ox: V.ox, oy: V.oy, rot: V.rot,
   };
 }
 function restoreDoc(rec) {
   const s = rec.state;
   Object.assign(D, { w: s.w, h: s.h, name: s.name, layers: s.layers, activeId: s.activeId, sel: s.sel, dirty: s.dirty, guides: s.guides || [] });
   Hist.states = s.states; Hist.idx = s.idx;
-  V.zoom = s.zoom; V.ox = s.ox; V.oy = s.oy;
+  V.zoom = s.zoom; V.ox = s.ox; V.oy = s.oy; V.rot = s.rot || 0;
   UI.editMask = false; live = null;
   if (UI.tool === 'crop' && TOOL.crop.activate) TOOL.crop.activate();
   V.needComp = true;
@@ -39,6 +39,7 @@ function openInNewTab(setup, id) {
   const at = CUR ? DOCS.indexOf(CUR) + 1 : DOCS.length;
   DOCS.splice(at, 0, rec);
   CUR = rec;
+  V.rot = 0; // a new tab opens unrotated (the angle is per tab)
   setup();
   stashCurrent();
   renderTabs();
