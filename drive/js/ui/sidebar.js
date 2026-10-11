@@ -36,6 +36,19 @@
     if (!box.children.length) box.append(el('p', { class: 'tree-empty' }, 'No folders yet.'));
   };
 
+  /** Tags: every tag on a live file, with how many files carry it. Click one to filter the drive by it. */
+  DR.renderTags = function () {
+    const box = $('tags'); if (!box) return;
+    const counts = DR.tagCounts();
+    box.replaceChildren(...(counts.length ? counts.map(([t, n]) => {
+      const on = S.tag === t;
+      const b = el('button', { type: 'button', class: 'place tagx' + (on ? ' on' : ''), 'data-tag': t, 'aria-pressed': String(on), title: `Files tagged ${t}` },
+        el('span', { class: 'hash', 'aria-hidden': 'true' }, '#'), el('span', null, t), el('small', null, String(n)));
+      b.addEventListener('click', () => { DR.setTagFilter(t); closeDrawer(); });
+      return b;
+    }) : [el('p', { class: 'tree-empty' }, 'No tags yet. Add one in the details panel.')]));
+  };
+
   /* ---------- storage ---------- */
   let persisted = null;
   DR.requestPersist = async function (loud) {

@@ -26,7 +26,11 @@
     el.addEventListener('dragstart', (e) => { e.dataTransfer.setData('application/x-slopedit-media', meta.id); e.dataTransfer.effectAllowed = 'copy'; SE.timeline && SE.timeline.dragMedia(meta.id); });
     el.addEventListener('dragend', () => SE.timeline && SE.timeline.dragMedia(null));
     el.addEventListener('dblclick', () => addAtPlayhead(meta));
-    el.addEventListener('keydown', (e) => { if (e.key === 'Enter') addAtPlayhead(meta); else if (e.key === 'Delete' || e.key === 'Backspace') { e.stopPropagation(); removeItem(meta); } });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addAtPlayhead(meta);
+      else if (e.key === 'Delete' || e.key === 'Backspace') { e.stopPropagation(); removeItem(meta); }
+      else if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) { e.preventDefault(); const r = el.getBoundingClientRect(); itemMenu(meta, r.left + 16, r.top + 16); }
+    });
     el.addEventListener('contextmenu', (e) => { e.preventDefault(); itemMenu(meta, e.clientX, e.clientY); });
     let lp = 0;
     el.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') lp = setTimeout(() => itemMenu(meta, e.clientX, e.clientY), 550); });

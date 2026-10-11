@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Gallery — Slopographic</title>
+  <meta name="description" content="Slop Gallery: a photo library that runs 100% in your browser. Timeline, albums, tags, duplicates and backups. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slopographic">
+  <meta property="og:title" content="Slop Gallery — Slopographic">
+  <meta property="og:description" content="A photo library that runs in your browser. Nothing is uploaded.">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-gallery.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
+  <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
+  <link rel="stylesheet" href="css/gallery.css" data-src="gallery/css/gallery.css">
+  <link rel="stylesheet" href="css/viewer.css" data-src="gallery/css/viewer.css">
+  <script src="../shared/guard.js" defer data-offline="strip"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop Gallery</b><a class="home-link" href="../">slopographic</a></div>
+      <button type="button" class="tb-btn tb-filters" id="btnFilters" aria-expanded="false" aria-controls="side">Filters</button>
+      <div class="tb-group">
+        <button type="button" class="tb-btn primary" id="topImport" title="Import photos (Ctrl+O)">Import</button>
+        <button type="button" class="tb-btn" id="topSort" title="Sort photos (Alt+S)">Sort</button>
+        <button type="button" class="tb-btn" id="btnSelectMode" aria-pressed="false" title="Select photos with a click">Select</button>
+      </div>
+      <span class="tb-flex"></span>
+      <span class="local-badge" title="Your photos are processed on this device. Nothing is uploaded."><span>100% local</span></span>
+    </header>
+
+    <div class="body">
+      <aside class="side" id="side" aria-label="Library">
+        <button type="button" class="drawer-close" id="btnDrawerClose" aria-label="Close filters">×</button>
+        <nav class="nav" aria-label="Views">
+          <button type="button" class="nav-item" data-view="photos"><span class="nav-l">Photos</span><span class="nav-n" id="cntAll">0</span></button>
+          <button type="button" class="nav-item" data-view="favourites"><span class="nav-l">Favourites</span><span class="nav-n" id="cntFav">0</span></button>
+          <button type="button" class="nav-item" data-view="dupes"><span class="nav-l">Duplicates</span><span class="nav-n" id="cntDupes"></span></button>
+        </nav>
+
+        <div class="side-sec">
+          <div class="side-h"><h2>Albums</h2><button type="button" class="link" id="btnNewAlbum">New album</button></div>
+          <ul class="albums" id="albumList"></ul>
+          <p class="muted" id="albumEmpty">No albums yet. An album links to photos; it never copies them.</p>
+        </div>
+
+        <div class="side-sec">
+          <h2>Filters</h2>
+          <label class="fld"><span>Name</span><input id="fText" type="search" placeholder="Search by file name" autocomplete="off"></label>
+          <label class="fld"><span>Year</span><select id="fYear"><option value="">All years</option></select></label>
+          <label class="fld"><span>Month</span><select id="fMonth"></select></label>
+          <label class="fld"><span>Camera</span><select id="fCamera"><option value="">All cameras</option></select></label>
+          <label class="fld"><span>Tag</span><select id="fTag">
+            <option value="">Any tag</option><option value="liked">Liked only</option><option value="disliked">Disliked only</option><option value="untagged">Untagged only</option>
+          </select></label>
+          <button type="button" class="link" id="btnClearFilters">Clear filters</button>
+        </div>
+
+        <div class="side-sec">
+          <h2>Library</h2>
+          <button type="button" class="side-btn" id="btnImport">Import photos…</button>
+          <button type="button" class="side-btn" id="btnFolder">Import a folder…</button>
+          <button type="button" class="side-btn" id="btnDrive">From Slop Drive…</button>
+          <label class="check"><input type="checkbox" id="keepDup"><span>Keep exact duplicates on import</span></label>
+          <button type="button" class="side-btn" id="btnSort">Sort photos (swipe deck)</button>
+          <button type="button" class="side-btn" id="btnDupes">Find duplicates…</button>
+          <button type="button" class="side-btn" id="btnBackup">Back up the whole library</button>
+          <button type="button" class="side-btn" id="btnRestore">Restore from a backup…</button>
+        </div>
+      </aside>
+
+      <main class="grid-area">
+        <div class="grid" id="grid" tabindex="0" aria-label="Photos, newest first">
+          <div class="sticky" id="sticky" hidden><span class="sticky-l"></span><span class="sticky-n"></span></div>
+          <div class="tl-content" id="tlContent"></div>
+          <div class="empty" id="empty" hidden>
+            <p data-empty-text></p>
+            <button type="button" class="tb-btn primary" id="emptyImport">Import photos</button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <footer class="statusbar"><span id="status" aria-live="polite"></span><span class="busy" id="busy" hidden></span></footer>
+  </div>
+  <div class="drop-hint" aria-hidden="true">Drop photos or folders to import</div>
+
+  <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js" data-src="shared/ctxmenu.js"></script>
+  <script src="../shared/apps.js" data-src="shared/apps.js"></script>
+  <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
+  <script src="../shared/hub.js" data-src="shared/hub.js"></script>
+  <script src="js/io/hash.js" data-src="gallery/js/io/hash.js"></script>
+  <script src="js/io/exif.js" data-src="gallery/js/io/exif.js"></script>
+  <script src="js/io/zip.js" data-src="gallery/js/io/zip.js"></script>
+  <script src="js/io/source.js" data-src="gallery/js/io/source.js"></script>
+  <script src="js/io/backup.js" data-src="gallery/js/io/backup.js"></script>
+  <script src="js/io/export.js" data-src="gallery/js/io/export.js"></script>
+  <script src="js/core/db.js" data-src="gallery/js/core/db.js"></script>
+  <script src="js/core/thumb.js" data-src="gallery/js/core/thumb.js"></script>
+  <script src="js/core/library.js" data-src="gallery/js/core/library.js"></script>
+  <script src="js/core/import.js" data-src="gallery/js/core/import.js"></script>
+  <script src="js/core/query.js" data-src="gallery/js/core/query.js"></script>
+  <script src="js/core/sort.js" data-src="gallery/js/core/sort.js"></script>
+  <script src="js/core/urls.js" data-src="gallery/js/core/urls.js"></script>
+  <script src="js/ui/state.js" data-src="gallery/js/ui/state.js"></script>
+  <script src="js/ui/vlist.js" data-src="gallery/js/ui/vlist.js"></script>
+  <script src="js/ui/rows.js" data-src="gallery/js/ui/rows.js"></script>
+  <script src="js/ui/timeline.js" data-src="gallery/js/ui/timeline.js"></script>
+  <script src="js/ui/viewer.js" data-src="gallery/js/ui/viewer.js"></script>
+  <script src="js/ui/sortmode.js" data-src="gallery/js/ui/sortmode.js"></script>
+  <script src="js/ui/actions.js" data-src="gallery/js/ui/actions.js"></script>
+  <script src="js/ui/albums.js" data-src="gallery/js/ui/albums.js"></script>
+  <script src="js/ui/dupes.js" data-src="gallery/js/ui/dupes.js"></script>
+  <script src="js/ui/menus.js" data-src="gallery/js/ui/menus.js"></script>
+  <script src="js/ui/commands.js" data-src="gallery/js/ui/commands.js"></script>
+  <script src="js/ui/sidebar.js" data-src="gallery/js/ui/sidebar.js"></script>
+  <script src="js/ui/main.js" data-src="gallery/js/ui/main.js"></script>
+</body>
+</html>

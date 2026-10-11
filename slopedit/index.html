@@ -50,7 +50,7 @@
     <aside class="pane bin" id="bin" aria-label="Project media and effects"></aside>
 
     <main class="monitor" id="monitor" aria-label="Program monitor">
-      <div class="mon-stage" id="monStage">
+      <div class="mon-stage" id="monStage" tabindex="0" aria-label="Program monitor. Shift+F10 opens its menu">
         <canvas id="preview" width="1280" height="720" aria-label="Preview"></canvas>
         <canvas id="overlay" class="mon-overlay" width="1280" height="720" aria-hidden="true"></canvas>
         <div class="mon-msg" id="monMsg" hidden></div>
@@ -66,7 +66,7 @@
       <div class="tl-body" id="tlBody">
         <div class="tl-heads" id="tlHeads"></div>
         <div class="tl-lanes" id="tlLanes" tabindex="0" aria-label="Timeline tracks. Space plays, S splits, arrows step frames.">
-          <canvas id="tlCanvas"></canvas>
+          <canvas id="tlCanvas" tabindex="0" aria-label="Timeline. Shift+F10 opens the menu for the selected clip"></canvas>
         </div>
       </div>
     </section>
@@ -137,6 +137,7 @@
   <script src="js/ui/export-dialog.js" data-src="slopedit/js/ui/export-dialog.js"></script>
   <script src="js/io/session.js" data-src="slopedit/js/io/session.js"></script>
   <script src="js/ui/menus.js" data-src="slopedit/js/ui/menus.js"></script>
+  <script src="js/ui/context.js" data-src="slopedit/js/ui/context.js"></script>
   <script src="js/ui/main.js" data-src="slopedit/js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
 </body>

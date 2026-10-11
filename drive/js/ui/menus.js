@@ -10,8 +10,16 @@
     if (!items.length) { S.clip = null; return; }
     if (S.clip.cut) { await DR.move(items, into); S.clip = null; DR.render(); } else await DR.copy(items, into);
   };
-  const sortSub = () => [['name', 'Name'], ['kind', 'Kind'], ['size', 'Size'], ['modified', 'Modified'], ['app', 'App']]
-    .map(([k, l]) => ({ label: l, check: S.sort.key === k, act: () => { S.sort = { key: k, dir: S.sort.key === k ? -S.sort.dir : 1 }; DR.savePrefs(); DR.render(); } }));
+  /** The sort menu: each key (the active one with its direction arrow), then the reverse. Alt+S opens it. */
+  DR.sortRows = () => [
+    ...DR.SORT_KEYS.map(([k, l]) => { const on = S.sort.key === k; return { label: on ? `${l} ${S.sort.dir > 0 ? '▲' : '▼'}` : l, check: on, act: () => DR.sortClick(k) }; }),
+    '-',
+    { label: S.sort.dir > 0 ? 'Descending' : 'Ascending', act: () => DR.setSort(S.sort.key, -S.sort.dir) },
+  ];
+  DR.openSortMenu = function () {
+    const r = DR.$('btnSort').getBoundingClientRect();
+    window.SlopUI.menu(DR.sortRows(), r.left, r.bottom + 4);
+  };
 
   /** The target kind decides the menu: 'empty' (the folder's background), 'trash' (items in Trash), 'folder' or 'file'. */
   DR.targetKind = function (items) {
@@ -27,7 +35,7 @@
     '-',
     { label: 'Select all', key: DR.keyLabel('selectAll'), act: () => DR.selectAll() },
     { label: 'View', sub: DR.VIEWS.map(([v, l, k]) => ({ label: l, key: k, check: S.view === v, act: () => DR.setView(v) })) },
-    { label: 'Sort by', sub: sortSub() },
+    { label: 'Sort by', sub: DR.sortRows() },
     S.section === 'trash' ? '-' : null,
     S.section === 'trash' ? { label: 'Empty Trash…', act: () => DR.emptyTrash() } : null,
   ];
@@ -55,6 +63,7 @@
       { label: items.length === 1 && file ? 'Download' : 'Download as .zip', act: () => DR.download(items) },
       { label: allStarred ? 'Remove star' : 'Add star', key: DR.keyLabel('star'), act: () => DR.setStar(items, !allStarred) },
       one ? { label: 'Rename…', key: DR.keyLabel('rename'), act: () => DR.rename(one) } : null,
+      items.some((i) => !i.isFolder && !i.trashedAt) ? { label: 'Add tags…', act: () => DR.tagPrompt(items) } : null,
       '-',
       { label: 'Copy', key: DR.keyLabel('copy'), act: () => DR.clipCopy(false) },
       { label: 'Cut', key: DR.keyLabel('cut'), act: () => DR.clipCopy(true) },

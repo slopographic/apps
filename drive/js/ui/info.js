@@ -1,5 +1,5 @@
 /* Slop Drive — ui/info: the details panel (right side on desktop, a bottom sheet on phones): a live preview
- * plus size, kind, type, dates, the app that made it, location and dimensions. */
+ * plus size, kind, type, dates, the app that made it, location, dimensions and tags. The grip and the width: info-width.js. */
 'use strict';
 (function (DR) {
   const S = DR.S, el = DR.el, $ = DR.$;
@@ -63,7 +63,24 @@
     const facts = rows([['Kind', DR.kindLabel(r)], ['Type', r.type], ['Size', `${DR.fmtSize(r.size)} (${(r.size || 0).toLocaleString()} bytes)`], ['Made by', DR.appName(r.from)],
       ['Location', loc], ['Added', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], ['Opened', r.opened ? DR.fmtFull(r.opened) : 'Never'], r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null]);
     if (['image', 'video', 'pdf'].includes(DR.kindOf(r))) facts.append(el('dt', null, DR.kindOf(r) === 'pdf' ? 'Pages' : 'Dimensions'), dd);
-    return [head, DR.previewOf(r), actions(r), facts];
+    return [head, DR.previewOf(r), actions(r), facts, tagBox(r)];
+  }
+  /** A file's tags: a chip per tag with a remove button, and a box that adds more (Enter or a comma). */
+  function tagBox(r) {
+    const focusTags = () => { const i = DR.$('info') && DR.$('info').querySelector('.tag-in'); if (i) i.focus(); };
+    const chips = DR.tagsOf(r).map((t) => {
+      const x = el('button', { type: 'button', class: 'tag-x', title: `Remove ${t}`, 'aria-label': `Remove tag ${t}` }, DR.icon('x'));
+      x.addEventListener('click', async () => { await DR.removeTag([r], t); focusTags(); });
+      return el('span', { class: 'tag' }, t, x);
+    });
+    const input = el('input', { type: 'text', class: 'tag-in', placeholder: 'Add a tag', 'aria-label': 'Add a tag', autocomplete: 'off', maxlength: '200' });
+    input.addEventListener('keydown', async (e) => {
+      if (e.key !== 'Enter' && e.key !== ',') return;
+      e.preventDefault();
+      if (input.value.trim()) { await DR.addTags([r], input.value); focusTags(); }
+    });
+    return el('div', { class: 'tags-box' }, el('h3', { class: 'tags-h' }, 'Tags'),
+      el('div', { class: 'tag-chips' }, ...(chips.length ? chips : [el('span', { class: 'muted' }, 'No tags yet')])), input);
   }
   function many(items) {
     const by = new Map();
@@ -90,7 +107,7 @@
     shownKey = key; free();
     const close = el('button', { type: 'button', class: 'tb info-x', 'aria-label': 'Close details' }, DR.icon('x'));
     close.addEventListener('click', () => { if (document.body.classList.contains('sheet-open')) DR.sheet(false); else DR.toggleInfo(false); });
-    box.replaceChildren(close, ...(items.length === 1 ? single(items[0]) : items.length ? many(items) : place()));
+    box.replaceChildren(DR.$('infoGrip'), close, ...(items.length === 1 ? single(items[0]) : items.length ? many(items) : place()));
   };
   /** Phones: the details panel as a bottom sheet. */
   DR.sheet = function (open) {

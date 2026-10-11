@@ -38,6 +38,8 @@
       <nav class="places" id="places"></nav>
       <div class="tree-h">Folders</div>
       <div class="tree" id="tree" role="tree"></div>
+      <div class="tree-h">Tags</div>
+      <nav class="tags" id="tags" aria-label="Filter by tag"></nav>
       <div class="meter" id="meter"></div>
     </aside>
     <div class="scrim" id="scrim" hidden></div>
@@ -47,6 +49,7 @@
         <div class="bar-tools">
           <select id="kind" class="inp" aria-label="Filter by kind"></select>
           <div class="seg" id="views" role="group" aria-label="View"></div>
+          <button type="button" class="tb" id="btnSort" title="Sort (Alt+S)" aria-label="Sort" aria-haspopup="menu"><svg class="ic" viewBox="0 0 24 24"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3"/></svg></button>
           <button type="button" class="tb" id="btnInfo" title="Info panel (I)" aria-label="Info panel" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
         </div>
       </div>
@@ -54,7 +57,7 @@
       <section class="pane" id="pane" tabindex="0" aria-label="Files"></section>
       <footer class="status" id="status" role="status"></footer>
     </main>
-    <aside class="info" id="info" aria-label="Details" hidden></aside>
+    <aside class="info" id="info" aria-label="Details" hidden><div class="info-grip" id="infoGrip" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset"></div></aside>
     <div class="dropzone" id="dropzone" hidden><div><b>Drop to upload</b><span>Files and folders go into the open folder.</span></div></div>
   </div>
   <script src="../shared/apps.js"></script>
@@ -69,6 +72,7 @@
   <script src="js/core/kinds.js"></script>
   <script src="js/core/store.js"></script>
   <script src="js/core/ops.js"></script>
+  <script src="js/core/tags.js"></script>
   <script src="js/core/io.js"></script>
   <script src="js/core/thumbs.js"></script>
   <script src="js/core/dupes.js"></script>
@@ -77,6 +81,7 @@
   <script src="js/ui/items.js"></script>
   <script src="js/ui/view-files.js"></script>
   <script src="js/ui/view-columns.js"></script>
+  <script src="js/ui/list-cols.js"></script>
   <script src="js/ui/view-nodes.js"></script>
   <script src="js/ui/view-usage.js"></script>
   <script src="js/ui/select.js"></script>
@@ -86,6 +91,7 @@
   <script src="js/ui/ctxmenu.js"></script>
   <script src="js/ui/commands.js"></script>
   <script src="js/ui/info.js"></script>
+  <script src="js/ui/info-width.js"></script>
   <script src="js/ui/quicklook.js"></script>
   <script src="js/ui/dupes-ui.js"></script>
   <script src="js/ui/keys.js"></script>

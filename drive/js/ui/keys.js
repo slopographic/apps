@@ -22,6 +22,7 @@
         if (sec) return run(() => DR.goSection(sec));
         if (k.toLowerCase() === 'd' || k.toLowerCase() === 'h') return run(() => DR.go(null));
       }
+      if (e.altKey && !mod && k.toLowerCase() === 's') return run(() => DR.openSortMenu());
       if (mod && k.toLowerCase() === 'a') return run(() => DR.selectAll());
       if (mod && k.toLowerCase() === 'c' && !e.shiftKey) return run(() => DR.clipCopy(false));
       if (mod && k.toLowerCase() === 'x') return run(() => DR.clipCopy(true));

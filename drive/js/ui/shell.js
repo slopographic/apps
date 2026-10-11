@@ -6,7 +6,7 @@
   DR.VIEWS = [['grid', 'Grid', '1'], ['list', 'List', '2'], ['compact', 'Compact', '3'], ['columns', 'Columns', '4'], ['nodes', 'Nodes', '5'], ['usage', 'Disk usage', '6']];
   DR.THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic 98']];
 
-  DR.setView = function (v) { if (!DR.VIEWS.some((x) => x[0] === v)) return; S.view = v; DR.savePrefs(); DR.render(); };
+  DR.setView = function (v) { if (!DR.VIEWS.some((x) => x[0] === v)) return; S.view = v; S.sort = S.sorts[v] || { key: 'name', dir: 1 }; DR.savePrefs(); DR.render(); };
   DR.setTheme = function (t) { document.documentElement.setAttribute('data-theme', t); try { localStorage.setItem('slop-drive.theme', JSON.stringify(t)); } catch (e) { /* blocked */ } };
 
   DR.renderCrumbs = function () {
@@ -89,6 +89,7 @@
       { label: 'View', sub: DR.VIEWS.map(([v, l, k]) => ({ label: l, key: k, check: S.view === v, act: () => DR.setView(v) })) },
       { label: 'Theme', sub: DR.THEMES.map(([t, l]) => ({ label: l, check: theme === t, act: () => DR.setTheme(t) })) },
       { label: 'Info panel', key: DR.keyLabel('info'), check: S.info, act: () => DR.toggleInfo() },
+      ...(S.view === 'list' ? [{ label: 'List columns', sub: DR.columnRows() }] : []),
       '-',
       { label: 'Keep storage (ask the browser)', act: () => DR.requestPersist(true) },
       { label: 'Empty Trash…', act: () => DR.emptyTrash() },

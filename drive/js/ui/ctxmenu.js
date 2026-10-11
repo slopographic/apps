@@ -8,6 +8,7 @@
 
   function resolve(target, ev) {
     if (!target || !target.closest) return null;
+    if (ev && target.closest('.lhead')) return DR.columnRows(); // the List header: its columns menu
     const item = target.closest('[data-key]');
     if (ev) {
       if (target.closest('input, textarea')) return null;

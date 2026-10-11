@@ -6,7 +6,7 @@
 
   DR.render = function () {
     if (!S.ready) return;
-    DR.renderPlaces(); DR.renderTree(); DR.renderCrumbs(); DR.renderTools();
+    DR.renderPlaces(); DR.renderTree(); DR.renderTags(); DR.renderCrumbs(); DR.renderTools();
     const pane = $('pane'), view = DR.viewNow(), list = DR.visible();
     DR.lastVisible = list;
     const keep = pane.dataset.view === view && pane.dataset.place === S.section + ':' + S.cwd ? pane.scrollTop : 0;
@@ -17,7 +17,7 @@
     else if (view === 'columns') DR.renderColumns(pane);
     else if (view === 'nodes') DR.renderNodes(pane);
     else if (view === 'usage') DR.renderUsage(pane);
-    else if (!list.length) pane.append(DR.emptyState(S.query.trim() || S.kind !== 'all' ? 'search' : S.section === 'folder' ? 'folder' : S.section));
+    else if (!list.length) pane.append(DR.emptyState(S.query.trim() || S.tag || S.kind !== 'all' ? 'search' : S.section === 'folder' ? 'folder' : S.section));
     else DR.renderFiles(pane, list, view);
     pane.scrollTop = keep;
     document.title = (S.section === 'folder' && !S.cwd ? '' : DR.placeName() + ' — ') + 'Slop Drive — Slopographic';
@@ -33,11 +33,12 @@
     $('btnMore').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); DR.moreMenu(r.right - 220, r.bottom + 4); });
     $('btnBackup').addEventListener('click', () => DR.backupDialog());
     $('btnInfo').addEventListener('click', () => { if (DR.isMobile()) DR.sheet(!document.body.classList.contains('sheet-open')); else DR.toggleInfo(); });
+    $('btnSort').addEventListener('click', () => DR.openSortMenu());
     $('btnSide').addEventListener('click', () => DR.drawer(!document.body.classList.contains('drawer-open')));
     $('scrim').addEventListener('click', () => { DR.drawer(false); DR.sheet(false); });
     DR.wireCommands(); DR.wireSelect(); DR.wireDrag(); DR.wireDropUpload(); DR.wireKeys(); DR.wireCtxMenu();
     $('btnCmd').addEventListener('click', () => DR.openPalette());
-    addEventListener('resize', DR.debounce(() => { if (['usage', 'nodes'].includes(DR.viewNow())) DR.render(); }, 200));
+    addEventListener('resize', DR.debounce(() => { DR.clampInfoWidth(); if (['usage', 'nodes', 'list'].includes(DR.viewNow())) DR.render(); }, 200));
   }
   // Other tabs and apps change the Drive too (Send to…, saves, a restore): follow along.
   const outside = DR.debounce(async () => { await DR.refresh(); DR.render(); }, 150);
