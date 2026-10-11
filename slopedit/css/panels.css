@@ -67,7 +67,7 @@
 .ins-sec { border-bottom: 1px solid var(--line); padding: 8px 0 10px; }
 .ins-sec > h3 { display: flex; align-items: center; gap: 6px; margin: 2px 0 8px; font: 700 10.5px var(--font-ui); text-transform: uppercase; letter-spacing: .08em; color: var(--faint); }
 .ins-sec > h3 .ic { width: 14px; height: 14px; }
-.ins-row { display: grid; grid-template-columns: 82px minmax(0, 1fr) 52px; align-items: center; gap: 6px; min-height: 28px; color: var(--dim); }
+.ins-row { display: grid; grid-template-columns: 82px minmax(0, 1fr) 60px; align-items: center; gap: 6px; min-height: 28px; color: var(--dim); }
 .ins-row.two { grid-template-columns: 82px minmax(0, 1fr) minmax(0, 1fr); }
 .ins-row .inp { width: 100%; }
 .ins-row > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
