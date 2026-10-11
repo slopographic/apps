@@ -29,6 +29,12 @@ export const LINES = {
   idle: ['no watermarks. ever. slop is free.', 'slop.', 'is it lunch', '…', 'hmm.', 'nice website', 'drag me. I dare you.', 'I could eat a heading'],
   level: ['LEVEL UP', 'stronger slop', 'I feel taller'],
   restore: ['All better.', 'good as new', 'I didn\'t do it'],
+  poke: ['STOP POKING ME', 'ow. poke. poke. POKE.', 'you poke too much', 'hey! ouch-ish', 'quit it'],
+  offpage: ['you threw me OFF the page', 'that was NOT a landing', 'off the page AGAIN?!'],
+  askcandy: ['i am angry. candy please?', 'make me a sweet. i will calm down.', 'angry slop needs candy', 'bring candy. or make some.'],
+  candymade: ['candy! drag it on me.', 'gimme the sweet.', 'put it on me. gently.'],
+  candyyes: ['sweet! i am calm.', 'ok. candy works.', 'mmm candy. we good.'],
+  repair: ['I fixed it. sorry.', 'good as new. sorry about that.', 'tidying up. I was happy, so.', 'the page is back. i feel better.'],
 };
 
 let last = '';
