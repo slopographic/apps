@@ -118,7 +118,7 @@ function updateKeyTitles() {
 function initCommands() {
   if (!window.SlopCmd) return false;
   SlopCmd.init({ app: 'label' });
-  SlopCmd.register(labelCommands());
+  SlopCmd.register(labelCommands().concat(window.SlopConfigDialog ? SlopConfigDialog.commands({ app: 'label', prefix: 'label' }) : []));
   SlopCmd.on('change', updateKeyTitles);
   const b = $('btnCmd');
   if (b) b.addEventListener('click', () => SlopCmd.open());

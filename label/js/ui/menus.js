@@ -13,6 +13,7 @@ function menuFile() {
   const hub = hubAvailable(), send = sendToItems();
   return [
     { label: 'New…', act: templatesDialog }, { label: 'Open…', key: K('open'), act: openFilesDialog }, { label: 'Import ZPL…', act: importZPLDialog },
+    { label: 'Config', sub: window.SlopConfigDialog ? SlopConfigDialog.menuItems({ app: 'label' }) : [] },
     { label: 'Save', key: K('save'), act: saveProject }, { label: 'Download project (.sloplabel)', act: downloadProject }, '-',
     hub ? { label: 'Open project from Slop Drive…', act: openProjectDrive } : null,
     hub ? { label: 'Insert image from Slop Drive…', act: imageFromDrive } : null, hub ? { label: 'Data from Slop Drive…', act: dataFromDrive } : null, hub ? '-' : null,
