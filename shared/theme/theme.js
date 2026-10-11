@@ -62,12 +62,17 @@
    * and Settings take the background and border too. --sl-on-accent is the ink or white that reads on the accent. */
   var CSS = [
     'html:root[data-slop-theme]{--panel:var(--sl-surface);--surface:var(--sl-surface);--fg:var(--sl-text);--text:var(--sl-text);',
-    '--accent:var(--sl-accent);--accent-ink:var(--sl-on-accent)}',
+    '--accent:var(--sl-accent);--accent-ink:var(--sl-on-accent);',
+    '--dim:color-mix(in srgb,var(--sl-text) 78%,transparent);--mute:color-mix(in srgb,var(--sl-text) 78%,transparent);',
+    '--faint:color-mix(in srgb,var(--sl-text) 62%,transparent);--fg-faint:color-mix(in srgb,var(--sl-text) 62%,transparent)}',
     'html:root[data-slop-theme][data-slop-app=home],html:root[data-slop-theme][data-slop-app=settings]{',
-    '--bg:var(--sl-background);--ink:var(--sl-background);--ink-2:var(--sl-surface);--ink-3:var(--sl-surface);',
-    '--bone:var(--sl-text);--bone-dim:color-mix(in srgb,var(--sl-text) 62%,transparent);',
-    '--bone-faint:color-mix(in srgb,var(--sl-text) 38%,transparent);--line:var(--sl-border);',
-    '--slop:var(--sl-accent);--slop-deep:var(--sl-accent)}',
+    '--bg:var(--sl-background);--ink-2:var(--sl-surface);--ink-3:var(--sl-surface);',
+    '--bone-dim:color-mix(in srgb,var(--sl-text) 62%,transparent);',
+    '--bone-faint:color-mix(in srgb,var(--sl-text) 62%,transparent);--line:var(--sl-border)}',
+    /* The brand script (brand/brand.js, on the homepage) sets --ink, --bone and --slop inline. !important keeps the chosen theme. */
+    'html:root[data-slop-theme][data-slop-app=home],html:root[data-slop-theme][data-slop-app=settings]{',
+    '--ink:var(--sl-background) !important;--bone:var(--sl-text) !important;--slop:var(--sl-accent) !important;',
+    '--slop-deep:var(--sl-accent) !important}',
   ].join('');
 
   var prof = g.SlopProfile && typeof g.SlopProfile.create === 'function'
