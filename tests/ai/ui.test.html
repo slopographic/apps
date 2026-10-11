@@ -88,14 +88,17 @@
       expect($$('.chat-main .msg.user .att').pop().textContent).toContain('notes.txt');
       expect($$('.chat-main .msg.bot').pop().textContent).toContain('notes.txt');
     });
-    it('Control apps: the model opens an app through a tool call', async () => {
+    it('Control apps: the model opens an app beside the chat through a tool call', async () => {
       AI.newChat();
       $('#btnTools').click();
       expect($('#btnTools').getAttribute('aria-pressed')).toBe('true');
       await AI.chat.send('Please open Slop Vector');
-      expect(W.__opened.pop()).toMatch(/\/vector\/$/);
+      await waitFor(() => $('.ws-frame'));
+      expect($('.ws-frame').getAttribute('src')).toMatch(/\/vector\/$/);
+      expect(W.__opened.length).toBe(0);
       expect($('.chat-main .msg.tool').textContent).toContain('open_app');
       expect($$('.chat-main .msg.bot').pop().textContent).toContain('Done!');
+      W.SlopWorkspace.close('vector');
     });
     it('the settings dialog edits persona, temperature and max tokens', async () => {
       $('#btnPersona').click();

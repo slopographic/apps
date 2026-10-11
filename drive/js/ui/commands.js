@@ -41,6 +41,8 @@
       C('view.treemap', 'Disk usage: treemap', 'View', [], () => { S.usageMode = 'treemap'; DR.savePrefs(); DR.setView('usage'); }, { checked: () => S.view === 'usage' && S.usageMode === 'treemap' }),
       C('view.sunburst', 'Disk usage: sunburst', 'View', [], () => { S.usageMode = 'sunburst'; DR.savePrefs(); DR.setView('usage'); }, { checked: () => S.view === 'usage' && S.usageMode === 'sunburst' }),
       C('info', 'Info panel', 'View', ['I'], () => DR.toggleInfo(), { checked: () => !!S.info, keywords: ['details', 'properties'] }),
+      C('sort', 'Sort menu…', 'View', ['Alt+S'], () => DR.openSortMenu(), { keywords: ['order', 'arrange', 'sort by'] }),
+      C('tags', 'Add tags to selection…', 'Edit', [], () => DR.tagPrompt(live().filter((i) => !i.isFolder)), { when: () => live().some((i) => !i.isFolder), keywords: ['label', 'tag'] }),
       ...DR.THEMES.map(([t, label]) => C('theme.' + t, 'Theme: ' + label, 'View', [], () => DR.setTheme(t), { checked: () => document.documentElement.getAttribute('data-theme') === t })),
       C('dupes', 'Find duplicates…', 'Tools', [], () => DR.dupesDialog(), { keywords: ['duplicate', 'same', 'space', 'clean'] }),
       C('backup', 'Backup & restore…', 'Tools', [], () => DR.backupDialog(), { keywords: ['import', 'export'] }),

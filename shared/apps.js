@@ -64,6 +64,10 @@
       accepts: ['*'],
       features: ['Folders, stars, Trash & search', 'Grid, list, columns, node graph & disk usage', 'Duplicate finder', 'One-file backup & restore'],
       shot: 'assets/shots/drive.jpg', icon: 'folder', status: 'beta' }),
+    A('gallery', 'app', 'Slop Gallery', 'gallery/', 'Your photo library, on this device.', { group: 'creative',
+      accepts: ['image/*'],
+      features: ['Timeline, albums & favourites', 'Sort mode: like, dislike and tag', 'Exact duplicate finder', 'One-file backup & restore'],
+      icon: 'brush', status: 'building' }),
     A('authenticator', 'experiment', 'The Authenticator', '#detector', 'Is your text secretly slop? Get it certified.', { shot: 'assets/shots/authenticator.jpg' }),
     A('paint-classic', 'experiment', 'Slop Paint Classic', 'photoslop/classic/', 'The 1998 experience. Every MS Paint tool.', { shot: 'assets/shots/paint-classic.jpg' }),
   ];

@@ -92,6 +92,15 @@
       expect(menuText().length).toBeGreaterThan(0);
       closeMenus();
     });
+    it('the Menu key on a focused swatch opens the swatch menu', async () => {
+      PR.actions.run('window.swatches');
+      await waitFor(() => [...W.document.querySelectorAll('.sw')].length > 0);
+      const sw = [...W.document.querySelectorAll('.sw')].pop();
+      sw.focus();
+      menuKey(sw, 'ContextMenu', {});
+      expect(menuText()[0]).toMatch(/^Edit /);
+      closeMenus();
+    });
   });
   SlopTest.run({ name: 'Slop Press · context menus' });
   </script>

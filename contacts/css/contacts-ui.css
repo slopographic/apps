@@ -30,7 +30,11 @@
 .ed-sec { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px 10px; margin: 0; min-width: 0; }
 .ed-sec legend { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--mute); padding: 0 4px; }
 .ed-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; min-width: 0; }
-.ed-grid .sui-field, .ed-sec > .sui-field { min-width: 0; }
+/* labels sit above their inputs in the editor, so the inputs have room */
+.ed .sui-field { grid-template-columns: minmax(0, 1fr); gap: 3px; margin-bottom: 0; min-width: 0; }
+.ed .sui-field > .sui-input, .ed .sui-field > textarea { width: 100%; }
+.ed .sui-input { height: 32px; }
+.ed .ed-note { height: auto; }
 .ed-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; min-width: 0; }
 .ed-row { display: grid; grid-template-columns: minmax(96px, 130px) minmax(0, 1fr) 34px; gap: 6px; align-items: center; min-width: 0; }
 .ed-adr { display: grid; grid-template-columns: minmax(96px, 120px) minmax(0, 1fr) minmax(0, 1fr); gap: 6px; padding: 6px; border: 1px dashed var(--line); border-radius: 8px; position: relative; min-width: 0; }

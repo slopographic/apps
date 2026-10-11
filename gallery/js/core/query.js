@@ -54,12 +54,13 @@
       cameras: [...cameras].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
     };
   }
-  /** Groups of exact duplicates (same SHA-256), 2+ each. Inside a group the oldest photo comes first (the default keeper). */
+  /** Groups of exact duplicates (same SHA-256), 2+ each. Inside a group the oldest photo comes first (the default keeper);
+ * a stable sort keeps import order when two were added in the same millisecond. */
   function dupeGroups(list) {
     const by = new Map();
     for (const m of list) { if (!by.has(m.sha)) by.set(m.sha, []); by.get(m.sha).push(m); }
     const groups = [];
-    for (const [sha, items] of by) if (items.length > 1) groups.push({ sha, items: items.slice().sort((a, b) => ((a.addedAt || 0) - (b.addedAt || 0)) || (a.id < b.id ? -1 : 1)) });
+    for (const [sha, items] of by) if (items.length > 1) groups.push({ sha, items: items.slice().sort((a, b) => (a.addedAt || 0) - (b.addedAt || 0)) });
     return groups.sort((a, b) => (b.items.length - a.items.length) || (a.sha < b.sha ? -1 : 1));
   }
 

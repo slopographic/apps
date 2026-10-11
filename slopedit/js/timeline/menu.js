@@ -15,6 +15,8 @@
       const c = h.clip;
       if (!A.sel.has(c.id)) A.select([...E.group(SE.doc, [c.id])]);
       SlopUI.menu([
+        c.kind === 'title' ? { label: 'Edit title text…', act: () => { A.select([c.id]); if (SE.inspector) SE.inspector.focusText(); } } : null,
+        c.kind === 'title' ? '-' : null,
         it('edit.cut'), it('edit.copy'), it('edit.paste'), it('edit.duplicate'), '-',
         { label: 'Split here', act: () => SE.act.splitAt(TL.snapT(h.t), [c.id]) },
         it('edit.split', 'Split at playhead'),

@@ -83,7 +83,7 @@
         }
         return DR.clickItem(it.dataset.key, e);
       }
-      if (!e.target.closest('button, a, input, select, svg.viz, .usage, .nodes') && !marqueeMoved && !(e.ctrlKey || e.metaKey || e.shiftKey)) DR.select([]);
+      if (!e.target.closest('button, a, input, select, svg.viz, .usage, .nodes, .lhead') && !marqueeMoved && !(e.ctrlKey || e.metaKey || e.shiftKey)) DR.select([]);
     });
     pane.addEventListener('dblclick', (e) => { const it = e.target.closest('[data-key]'); if (it && !e.target.closest('.no-open')) DR.open(DR.item(it.dataset.key)); });
     let lp = 0;

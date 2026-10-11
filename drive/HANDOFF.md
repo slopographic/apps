@@ -5,7 +5,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 **Status: beta** (registered in `shared/apps.js` as `drive`, `accepts: ['*']`, so "Send to Slop Drive" appears in every app's Send to menu).
 
 ## Tests
-`node tests/run.mjs drive` runs 73 tests on 8 pages, all green:
+`node tests/run.mjs drive` runs 117 tests on 13 pages, all green:
 
 | Page | What it covers |
 |---|---|
@@ -17,6 +17,10 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 | `commands.test.html` | the command list, registering with SlopCmd (a stub), handing shortcuts over, the files provider |
 | `newmenu.test.html` | the New ▸ submenu (toolbar and right-click), creating `Untitled document.sdoc` etc. in the open folder, unique names, opening in the creating app |
 | `mobile.test.html` | 390×844: no sideways scroll in any view, drawer, tap to open, details sheet, long-press menu |
+| `panel.test.html` | details panel width: 260 px to 60% clamp, rail under 300 px, arrow keys and Home/End on the grip, drag, double-click reset, stored width across a reload |
+| `sort.test.html` | each sort key ascending and descending with folders first, default directions, header and Alt+S menu arrows, a sort per view, kept across a reload |
+| `tags.test.html` | add (lowercase, unique, modified date kept), remove, the details panel chips, tags across a reload, sidebar tag counts and the drive-wide tag filter, the Tags column |
+| `columns.test.html` | list columns: header menu, drag to reorder, edge and keyboard resize (min clamp), order and widths across a reload, reset |
 
 The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Drive database name and `?foreign=1` mimics the homepage. Helpers are in `tests/drive/util.js`.
 
@@ -81,6 +85,8 @@ The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Dr
     - Interaction: `select.js` (click, Shift, Ctrl, marquee, touch), `dnd.js` (pointer drag onto any `[data-drop]`; Alt or Ctrl copies; file and folder drops from the computer; dropping a `.slop` file offers a restore).
     - Panels and dialogs: `menus.js`, `info.js` (details panel or phone sheet, previews), `quicklook.js`, `dupes-ui.js`.
     - `keys.js`, and `empty.js` (Sloppo empty states via `shared/sloppo`).
+    - `list-cols.js`: the List columns (choose, reorder, resize; persisted in `S.cols`). `info-width.js`: the details panel grip, clamp and rail.
+  - `js/core/tags.js`: tags live in `meta.tags` on each file, so backups and copies keep them. Sorting is per view (`S.sorts`, set through `DR.setSort`).
   - `js/app/main.js`: render and boot.
 - **CSS:** `base.css` (tokens for Pro/Light/Classic 98), `views.css`, `panels.css`, `viz.css` and `mobile.css`.
 - **Item keys:** `d:<folderId>` and `f:<fileId>`.

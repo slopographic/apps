@@ -1,0 +1,88 @@
+/* Slop Gallery: the side panel. Views (all photos, favourites, duplicates), albums (with right-click), filters (name,
+ * year, month, camera, tag: liked, disliked or untagged), and the library tools (import, backup, restore, sort).
+ * On a phone the panel folds into a drawer (the Filters button in the top bar). Exposes window.SlopGallery.sidebar.init(el). */
+(function () {
+  'use strict';
+  const G = (window.SlopGallery = window.SlopGallery || {});
+  const $ = (id) => document.getElementById(id);
+  const MONTH_NAMES = G.query.MONTHS;
+
+  function fillSelect(sel, options, keep) {
+    const cur = keep != null ? String(keep) : sel.value;
+    sel.innerHTML = '';
+    for (const [v, label] of options) { const o = document.createElement('option'); o.value = v; o.textContent = label; sel.append(o); }
+    sel.value = [...sel.options].some((o) => o.value === cur) ? cur : '';
+  }
+  function renderFacets() {
+    const L = G.library, list = L.list();
+    const f = G.query.facets(list), st = G.state.state.query;
+    fillSelect($('fYear'), [['', 'All years'], ...f.years.map((y) => [String(y), String(y)])], st.year);
+    fillSelect($('fCamera'), [['', 'All cameras'], ...f.cameras.map((c) => [c, c])], st.camera);
+    const dupes = G.query.dupeGroups(list).reduce((n, g) => n + g.items.length - 1, 0);
+    $('cntAll').textContent = String(list.length);
+    $('cntFav').textContent = String(list.filter((m) => m.fav).length);
+    $('cntDupes').textContent = dupes ? String(dupes) : '';
+    const albums = $('albumList');
+    albums.innerHTML = '';
+    for (const a of L.albums()) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'nav-item' + (G.state.state.view === 'album' && st.album === a.id ? ' on' : '');
+      b.dataset.album = a.id;
+      b.innerHTML = '<span class="nav-l"></span><span class="nav-n"></span>';
+      b.firstChild.textContent = a.name; b.lastChild.textContent = String(a.photoIds.length);
+      b.addEventListener('click', () => G.state.setView('album', a.id));
+      li.append(b); albums.append(li);
+    }
+    $('albumEmpty').hidden = L.albums().length > 0;
+  }
+  function syncViewButtons() {
+    const v = G.state.state.view;
+    for (const b of document.querySelectorAll('[data-view]')) b.classList.toggle('on', b.dataset.view === v);
+    const t = $('fTag'), q = G.state.state.query;
+    if (t.value !== q.tag) t.value = q.tag;
+    if ($('fText').value !== q.text) $('fText').value = q.text;
+    $('fMonth').value = q.month === '' ? '' : String(q.month);
+    $('fYear').value = q.year || '';
+    $('fCamera').value = q.camera || '';
+  }
+
+  function bindControls() {
+    for (const b of document.querySelectorAll('[data-view]')) b.addEventListener('click', () => {
+      G.state.setView(b.dataset.view);
+      closeDrawer();
+    });
+    $('fText').addEventListener('input', (e) => G.state.setQuery({ text: e.target.value }));
+    $('fYear').addEventListener('change', (e) => G.state.setQuery({ year: e.target.value }));
+    $('fMonth').addEventListener('change', (e) => G.state.setQuery({ month: e.target.value }));
+    $('fCamera').addEventListener('change', (e) => G.state.setQuery({ camera: e.target.value }));
+    $('fTag').addEventListener('change', (e) => G.state.setQuery({ tag: e.target.value }));
+    $('fMonth').replaceChildren(...[['', 'Any month'], ...MONTH_NAMES.map((n, i) => [String(i), n])].map(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; return o; }));
+    $('btnNewAlbum').addEventListener('click', () => G.albums.create());
+    $('btnClearFilters').addEventListener('click', () => G.state.setQuery({ text: '', year: '', month: '', camera: '', tag: '' }));
+    $('btnDupes').addEventListener('click', () => G.actions.dupes());
+    $('btnImport').addEventListener('click', () => G.actions.importFiles());
+    $('btnFolder').addEventListener('click', () => G.actions.importFolder());
+    $('btnDrive').addEventListener('click', () => G.actions.importDrive());
+    $('btnBackup').addEventListener('click', () => G.actions.backup());
+    $('btnRestore').addEventListener('click', () => G.actions.restoreBackup());
+    $('btnSort').addEventListener('click', () => G.actions.sortIds(G.state.selected.length ? G.state.selected : []));
+    $('btnFilters').addEventListener('click', () => toggleDrawer());
+    $('btnDrawerClose').addEventListener('click', () => closeDrawer());
+    if (!window.showDirectoryPicker) $('btnFolder').hidden = true;
+    if (!window.SlopHub) $('btnDrive').hidden = true;
+  }
+  function toggleDrawer() { const open = !document.body.classList.contains('drawer-open'); document.body.classList.toggle('drawer-open', open); $('btnFilters').setAttribute('aria-expanded', String(open)); }
+  function closeDrawer() { document.body.classList.remove('drawer-open'); $('btnFilters').setAttribute('aria-expanded', 'false'); }
+
+  function init(side) {
+    bindControls();
+    G.menus.bind(side);
+    const refresh = () => { renderFacets(); syncViewButtons(); };
+    G.library.on(refresh);
+    G.state.subscribe(() => { syncViewButtons(); renderFacets(); });
+    refresh();
+  }
+
+  G.sidebar = { init, closeDrawer, renderFacets };
+})();
