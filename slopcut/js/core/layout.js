@@ -5,7 +5,7 @@
    call them inside SE.change. Changing the template keeps the clips and re-flows them. */
 (function () {
   'use strict';
-  const SE = window.SE, SV = window.SlopVideo, M = SE.model, E = SE.edit, T = SV.templates;
+  const SE = window.SE, SV = window.SlopVideo, M = SE.model, E = SE.edit, T = SV.templates, S = SV.slots;
   const L = SE.layout = {};
   SE.templates = SV.templates; SE.seed = SV.seed; // the shared modules, under their old names
 
@@ -51,6 +51,7 @@
   L.reflow = function (p) {
     const lay = p.layout;
     if (!lay || !T.get(lay.tpl)) return;
+    for (let i = 0; i < lay.slots.length; i++) L.ensureTrack(p, 'video', i); // one track row per slot, even when empty
     const placed = [], all = new Set();
     lay.slots.forEach((id, i) => {
       if (!id || i >= T.get(lay.tpl).slots.length) return;
@@ -74,12 +75,21 @@
     L.reflow(p);
     return used.length;
   };
+  /** A layout with every slot empty, starting at start (its tracks are created). Clips are added by dragging. */
+  L.empty = function (p, tplId, start, dur) {
+    const tpl = T.get(tplId);
+    if (!tpl) return false;
+    if (tpl.aspect) L.setAspect(p, tpl.aspect);
+    p.layout = { tpl: tpl.id, start: SE.util.round(start, 6), dur: SE.util.round(dur || tpl.dur, 6), slots: S.empty(tpl.id) };
+    L.reflow(p);
+    return true;
+  };
   /** Change the template of the current layout; clips stay, extra ones leave the layout. */
   L.setTemplate = function (p, tplId) {
     const tpl = T.get(tplId);
     if (!p.layout || !tpl) return false;
     p.layout.tpl = tpl.id;
-    p.layout.slots = tpl.slots.map((_, i) => p.layout.slots[i] || null);
+    p.layout.slots = S.resize(p.layout.slots, tpl.slots.length);
     if (tpl.aspect) L.setAspect(p, tpl.aspect);
     L.reflow(p);
     return true;
@@ -87,7 +97,7 @@
   L.swap = function (p, i, j) {
     const lay = p.layout;
     if (!lay || i === j || i >= lay.slots.length || j >= lay.slots.length) return false;
-    [lay.slots[i], lay.slots[j]] = [lay.slots[j], lay.slots[i]];
+    lay.slots = S.swap(lay.slots, i, j);
     L.reflow(p);
     return true;
   };
@@ -95,9 +105,7 @@
   L.put = function (p, i, id) {
     const lay = p.layout, c = M.clip(p, id);
     if (!lay || !c || c.kind === 'audio' || i >= lay.slots.length) return false;
-    const k = lay.slots.indexOf(id);
-    if (k >= 0) return L.swap(p, i, k);
-    lay.slots[i] = id;
+    lay.slots = S.fill(lay.slots, i, id);
     L.reflow(p);
     return true;
   };
@@ -115,12 +123,12 @@
   /** Put a bin item into slot i of the current layout (a new clip at the layout start). */
   L.placeMedia = function (p, i, meta) {
     const lay = p.layout;
-    if (!lay || i >= lay.slots.length) return false;
-    lay.slots[i] = L.createMedia(p, meta, lay.start, lay.dur);
+    if (!lay || i >= lay.slots.length || !meta) return false;
+    lay.slots = S.fill(lay.slots, i, L.createMedia(p, meta, lay.start, lay.dur));
     L.reflow(p);
     return true;
   };
   /** Empty slot i (its clip stays on the timeline, where it is). */
-  L.free = function (p, i) { if (p.layout && i < p.layout.slots.length) p.layout.slots[i] = null; };
+  L.free = function (p, i) { if (p.layout && i < p.layout.slots.length) p.layout.slots = S.free(p.layout.slots, i); };
   L.clear = function (p) { p.layout = null; };
 })();

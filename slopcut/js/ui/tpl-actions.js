@@ -1,6 +1,6 @@
 /* SlopCut: template and random-edit actions (SE.act.*), run by commands and menus.
    Templates apply to the selected timeline clips, else to the media picked in the bin (placed at the
-   playhead). With a layout already on, choosing a template re-flows that layout instead. */
+   playhead), else give an empty layout at the playhead. With a layout already on, choosing a template re-flows it. */
 (function () {
   'use strict';
   const SE = window.SE, U = SE.util, T = SE.templates, L = SE.layout, R = SE.random, S = SE.seed, A = SE.app, act = SE.act;
@@ -41,7 +41,10 @@
       A.status(tpl.name + ': ' + n + ' item' + (n > 1 ? 's' : '') + ' placed at the playhead');
       return;
     }
-    A.status('Select clips on the timeline, or media in the bin (Ctrl-click), first');
+    // Nothing chosen: an empty layout at the playhead, one track and one cell per slot. Drag bin items into the cells.
+    const t0 = U.snapFrame(SE.player ? SE.player.time : 0, SE.doc.fps);
+    SE.change('Add layout', (p) => L.empty(p, id, t0));
+    A.status(tpl.name + ': ' + tpl.slots.length + ' empty slots at the playhead. Drag bin items into them (or onto the monitor cells)');
   };
   act.clearLayout = function () {
     if (!SE.doc.layout) return;

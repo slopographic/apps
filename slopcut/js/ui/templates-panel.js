@@ -1,12 +1,19 @@
-/* SlopCut: the Templates tab of the bin. Template tiles (click to apply or re-flow), the slots of the
-   current layout (drag a clip into a slot, drag a slot onto another to swap, or use the selects), and
-   the clips on the timeline as draggable chips. Renders into the bin's list element. */
+/* SlopCut: the Templates tab of the bin. The layout picker (labels are columns × rows: 3×1 is three columns, 1×3 three
+   rows), the slots of the current layout (drag a bin item or a clip into a slot, drag a slot onto another to swap, drag a
+   slot onto the clip list to clear it, or use the selects), the layout lane and the clips on the timeline as chips.
+   Renders into the bin's list element. */
 (function () {
   'use strict';
   const SE = window.SE, U = SE.util, M = SE.model, T = SE.templates, L = SE.layout, h = U.h, SV = window.SlopVideo, G = SV.grid;
   const P = SE.tplPanel = {};
-  const MIME_SLOT = 'application/x-slopedit-slot', MIME_CLIP = 'application/x-slopedit-clip';
+  const MIME_SLOT = 'application/x-slopedit-slot', MIME_CLIP = 'application/x-slopedit-clip', MIME_MEDIA = 'application/x-slopedit-media';
   const dragHas = (e, type) => !!e.dataTransfer && [...(e.dataTransfer.types || [])].includes(type);
+  /** The picker, in order: [template id, label (columns × rows), description]. Grids are made on demand (grid.js). */
+  P.PICK = [
+    ['split-v', '1×2', 'Two rows'], ['split-h', '2×1', 'Two columns'], ['three-up', '3×1', 'Three columns'], ['grid-3x1', '1×3', 'Three rows'],
+    ['grid2', '2×2', 'Four cells'], ['grid3', '3×3', 'Nine cells'], ['pip', 'PIP', 'Picture-in-picture'], ['title-two', 'Title + 2', 'Title band over two clips'],
+    ['single', '1×1', 'One full frame'], ['reel', '9:16', 'Vertical reel, two stacked']
+  ];
 
   /** A miniature of a template, drawn from its region data. */
   function thumb(tpl) {
@@ -14,15 +21,17 @@
     tpl.slots.forEach((r, i) => box.append(h('span', { class: 'tp-reg', style: { left: r.x * 100 + '%', top: r.y * 100 + '%', width: r.w * 100 + '%', height: r.h * 100 + '%' } }, String(i + 1))));
     return box;
   }
-  function tile(tpl) {
+  function tile(id, label, desc) {
+    const tpl = T.get(id);
+    if (!tpl) return null;
     const cur = !!SE.doc.layout && SE.doc.layout.tpl === tpl.id;
-    return h('button', { type: 'button', class: 'tp-tile' + (cur ? ' on' : ''), 'aria-pressed': cur ? 'true' : 'false', title: tpl.name + ' — ' + tpl.desc, onclick: () => SE.act.applyTemplate(tpl.id) },
-      thumb(tpl), h('b', null, tpl.name), h('small', null, tpl.desc));
+    return h('button', { type: 'button', class: 'tp-tile' + (cur ? ' on' : ''), 'aria-pressed': cur ? 'true' : 'false', title: label + ' · ' + desc, onclick: () => SE.act.applyTemplate(tpl.id) },
+      thumb(tpl), h('b', null, label), h('small', null, desc));
   }
   /** Custom grid…: columns and rows (1 to 4 each), applied like a template (equal cells). */
   function customTile() {
     return h('button', { type: 'button', class: 'tp-tile tp-custom', title: 'Custom grid: choose columns and rows', onclick: () => customDialog() },
-      h('span', { class: 'tp-thumb tp-cgrid', 'aria-hidden': 'true' }, '+'), h('b', null, 'Custom grid…'), h('small', null, 'Columns and rows'));
+      h('span', { class: 'tp-thumb tp-cgrid', 'aria-hidden': 'true' }, '+'), h('b', null, 'Custom…'), h('small', null, 'Columns and rows'));
   }
   function customDialog() {
     const cols = SlopUI.number(3, 1, G.MAX, 1), rows = SlopUI.number(2, 1, G.MAX, 1);
@@ -41,17 +50,18 @@
 
   function slotCard(i) {
     const lay = SE.doc.layout, id = lay.slots[i], c = id && M.clip(SE.doc, id);
-    const card = h('div', { class: 'tp-slot' + (c ? '' : ' empty') + (i === 0 ? ' main' : ''), dataset: { slot: String(i) }, draggable: c ? 'true' : 'false', title: 'Slot ' + (i + 1) + (c ? ': ' + clipLabel(c) : ': empty. Drop a clip here') },
+    const card = h('div', { class: 'tp-slot' + (c ? '' : ' empty') + (i === 0 ? ' main' : ''), dataset: { slot: String(i) }, draggable: c ? 'true' : 'false', title: 'Slot ' + (i + 1) + (c ? ': ' + clipLabel(c) : ': empty. Drop a bin item or a clip here') },
       h('span', { class: 'tp-num' }, String(i + 1)),
       h('span', { class: 'tp-name' }, c ? M.label(SE.doc, c) : 'Empty'));
     card.addEventListener('dragstart', (e) => { if (!c) return; e.dataTransfer.setData(MIME_SLOT, String(i)); e.dataTransfer.effectAllowed = 'move'; });
-    card.addEventListener('dragover', (e) => { if (dragHas(e, MIME_SLOT) || dragHas(e, MIME_CLIP)) { e.preventDefault(); card.classList.add('over'); } });
+    card.addEventListener('dragover', (e) => { if (dragHas(e, MIME_SLOT) || dragHas(e, MIME_CLIP) || dragHas(e, MIME_MEDIA)) { e.preventDefault(); card.classList.add('over'); } });
     card.addEventListener('dragleave', () => card.classList.remove('over'));
     card.addEventListener('drop', (e) => {
       e.preventDefault(); card.classList.remove('over');
-      const from = e.dataTransfer.getData(MIME_SLOT), clip = e.dataTransfer.getData(MIME_CLIP);
+      const from = e.dataTransfer.getData(MIME_SLOT), clip = e.dataTransfer.getData(MIME_CLIP), media = e.dataTransfer.getData(MIME_MEDIA);
       if (from !== '') SE.change('Swap slots', (p) => L.swap(p, i, +from));
       else if (clip) SE.change('Put clip in slot', (p) => L.put(p, i, clip));
+      else if (media && SE.media.ready(media)) SE.change('Put media in slot', (p) => L.placeMedia(p, i, M.media(p, media)));
     });
     return card;
   }
@@ -67,9 +77,22 @@
     const free = h('button', { type: 'button', class: 'btn sm', disabled: !lay.slots[i], title: 'Empty this slot (the clip stays)', onclick: () => SE.change('Free slot', (p) => L.free(p, i)) }, 'Free');
     return h('div', { class: 'tp-ctl' }, choose, swap, free);
   }
+  /** Dropping a slot on the clip list empties it (the clip stays on the timeline). */
+  function clearZone(el) {
+    el.addEventListener('dragover', (e) => { if (dragHas(e, MIME_SLOT)) { e.preventDefault(); el.classList.add('over'); } });
+    el.addEventListener('dragleave', () => el.classList.remove('over'));
+    el.addEventListener('drop', (e) => {
+      const from = e.dataTransfer.getData(MIME_SLOT);
+      el.classList.remove('over');
+      if (from === '') return;
+      e.preventDefault();
+      SE.change('Clear slot', (p) => L.free(p, +from));
+    });
+    return el;
+  }
   function chip(c) {
     const b = h('button', { type: 'button', class: 'tp-chip', draggable: 'true', title: clipLabel(c) + ' (drag into a slot)', dataset: { clip: c.id }, onclick: () => SE.app.select([c.id]) },
-      SE.icon(c.kind === 'image' ? 'image' : c.kind === 'title' ? 'text' : 'film'), h('span', null, M.label(SE.doc, c)));
+      SE.icon(c.kind === 'image' ? 'image' : c.kind === 'title' ? 'text' : c.kind === 'graphic' ? 'sparkle' : 'film'), h('span', null, M.label(SE.doc, c)));
     b.addEventListener('dragstart', (e) => { e.dataTransfer.setData(MIME_CLIP, c.id); e.dataTransfer.effectAllowed = 'move'; });
     return b;
   }
@@ -78,12 +101,12 @@
     const p = SE.doc, lay = p.layout, tpl = lay && T.get(lay.tpl);
     const kids = [
       h('h4', { class: 'fx-h' }, 'Layouts'),
-      h('p', { class: 'tp-note' }, lay ? 'Choose another template to re-flow this layout. The clips stay.' : 'Select clips on the timeline (Ctrl/Shift-click for several), or media in the bin, then choose a layout. Each slot gets a track.'),
-      h('div', { class: 'tp-grid' }, T.list.map(tile), customTile())
+      h('p', { class: 'tp-note' }, lay ? 'Choose another layout to re-flow this one. The clips stay.' : 'Choose a layout: each slot gets its own track on the timeline and a cell in the monitor. Then drag bin items into the cells.'),
+      h('div', { class: 'tp-grid' }, P.PICK.map(([id, label, desc]) => tile(id, label, desc)), customTile())
     ];
     if (tpl) {
       kids.push(h('h4', { class: 'fx-h' }, 'Slots · ' + tpl.name));
-      kids.push(h('p', { class: 'tp-note' }, 'Drag a clip from the list below into a slot, or drag a slot onto another to swap. Empty slots take the next clip you choose.'));
+      kids.push(h('p', { class: 'tp-note' }, 'Drag a bin item or a clip into a slot (or onto its cell in the monitor). Drag a slot onto another to swap, or onto the clip list to clear it.'));
       kids.push(h('div', { class: 'tp-slots' + (tpl.aspect ? ' portrait' : '') }, tpl.slots.map((_, i) => slotCard(i))));
       kids.push(h('div', { class: 'tp-slotctl' }, tpl.slots.map((_, i) => h('div', { class: 'tp-row' }, h('span', { class: 'tp-lbl' }, 'Slot ' + (i + 1)), slotControls(i)))));
       kids.push(h('div', { class: 'tp-actions' }, h('button', { type: 'button', class: 'btn sm', onclick: () => SE.act.clearLayout() }, 'Clear layout (keeps clips)')));
@@ -92,7 +115,7 @@
     kids.push(SE.laneUI.element());
     const vis = visual();
     kids.push(h('h4', { class: 'fx-h' }, 'Clips on the timeline'));
-    kids.push(vis.length ? h('div', { class: 'tp-chips' }, vis.map(chip)) : h('p', { class: 'tp-note' }, 'No video or image clips yet.'));
+    kids.push(clearZone(vis.length ? h('div', { class: 'tp-chips tp-drop' }, vis.map(chip)) : h('div', { class: 'tp-drop' }, h('p', { class: 'tp-note' }, 'No video, image or title clips yet.'))));
     if (p.random) {
       const r = p.random;
       kids.push(h('h4', { class: 'fx-h' }, 'Last random edit'));

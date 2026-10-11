@@ -106,6 +106,11 @@
     SE.change('Add title', (p) => { const id = E.addGenerated(p, 'title', freeVideoTrack(p, t, 4), t, 4, preset || {}); A.select([id]); });
     if (SE.inspector) SE.inspector.focusText();
   };
+  /** A graphic from the library at the playhead (gfx: { id, color, size, anim }). */
+  act.addGraphic = function (gfx) {
+    const t = U.snapFrame(now(), fps());
+    SE.change('Add graphic', (p) => { const id = E.addGenerated(p, 'graphic', freeVideoTrack(p, t, 3), t, 3, { gfx: Object.assign({}, gfx) }); A.select([id]); });
+  };
   act.addColor = function (color) {
     const t = U.snapFrame(now(), fps());
     SE.change('Add colour matte', (p) => { const id = E.addGenerated(p, 'color', M.videoTracks(p)[0].id, t, 5, { color: color || '#1b1b22' }); A.select([id]); });
@@ -124,7 +129,7 @@
     } else if (c.kind === 'audio') { const v = M.linked(SE.doc, c).find((x) => x.kind !== 'audio'); if (v) c = v; }
     if (!c) { A.status('Select a clip (or put the playhead near a cut) to add a transition'); return; }
     const id = c.id;
-    SE.change('Add transition', (p) => E.setTransition(p, id, type, 1));
+    SE.change('Add transition', (p) => E.setTransition(p, id, type, SE.transitions.dur));
     A.select([id]);
   };
   act.fade = function (which) {
