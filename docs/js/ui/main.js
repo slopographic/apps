@@ -43,7 +43,7 @@
     wireChrome();
     fitZoom();
     // The open tabs come back first (ui/tabs.js and shared/doctabs/session.js); a blank tab opens when none were stored.
-    const session = S.mountTabs();
+    const session = S.session = S.mountTabs();
     try { await session.restore(); } catch (e) { console.warn('Slop Docs: restore failed', e); }
     if (!S.tabsApi().current()) S.newDoc();
     let launch = null;

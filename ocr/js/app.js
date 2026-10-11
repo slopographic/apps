@@ -101,7 +101,7 @@ async function readAll() {
           say(q.stage === 'detect' ? `Finding text lines in ${p.label}…` : `Reading line ${q.done + 1} of ${q.total} in ${p.label}…`);
         });
       } catch (e) {
-        Object.assign(p, { lines: [], text: '', done: true, error: e.message });
+        p.error = e.message; // the page stays unread, so Read text tries it again
       }
       if (i === state.cur) await paint();
       refresh();

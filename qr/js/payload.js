@@ -100,6 +100,7 @@
     const full = [first, last].filter(Boolean).join(' ') || org;
     const lines = ['BEGIN:VCARD', 'VERSION:3.0', 'N:' + textEsc(last) + ';' + textEsc(first) + ';;;', 'FN:' + textEsc(full)];
     if (org) lines.push('ORG:' + textEsc(org));
+    if (trim(v.title)) lines.push('TITLE:' + textEsc(trim(v.title)));
     if (trim(v.phone)) lines.push('TEL;TYPE=CELL:' + trim(v.phone));
     if (email) lines.push('EMAIL;TYPE=INTERNET:' + email);
     if (trim(v.url)) lines.push('URL:' + trim(v.url));
