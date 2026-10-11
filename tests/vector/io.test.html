@@ -100,7 +100,7 @@
       expect(/<script[^>]*\ssrc=/.test(built)).toBe(false);
       expect(/<link[^>]*stylesheet/.test(built)).toBe(false);
       ['window.SlopUI = {', 'window.SLOP_APPS = [', 'window.SlopHub = {', '.sui-dlg', 'name="slop-vector-build" content="offline"'].forEach((s) => expect(built).toContain(s));
-      expect(built).not.toContain('fonts.googleapis.com');
+      expect(built).not.toContain('shared/fonts/');
       expect(IO.normalizeHTML(built)).toBe(built);
     }, { timeout: 30000 });
     it('the offline copy boots and re-serialises itself byte-identically', async () => {
