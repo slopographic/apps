@@ -37,6 +37,14 @@ Decoded with `createImageBitmap` (`imageOrientation: 'from-image'`), an `<img>` 
 WebP or AVIF, only the types `format.imageSupport()` confirms (it checks the MIME type that comes back). A file
 size limit binary-searches the quality (0.05 to the chosen quality, 7 steps) for JPEG, WebP and AVIF; PNG cannot
 be made smaller by quality, so the note says so.
+Shrinking halves in steps (each step 2×2 averaged) until the drawn size is within 2×, then one smooth draw. The
+Resampling choice 'nearest' skips the steps and keeps hard pixels (pixel art). Transparency: PNG, WebP and AVIF keep
+it (nothing is painted behind the picture unless a background colour is chosen). JPEG has no alpha, so Transparent
+is switched off and explained in the panel; the transparent parts are filled with the Background colour (white by
+default), and a note says so when the picture really had transparency.
+Keep aspect ratio: the other side follows the first picture in the list (its real width ÷ height). It is derived from
+the typed value only (settings.js `follow`, geometry in size.js `lockSide`), so editing does not drift. Without a
+picture there is no ratio, and the lock does nothing.
 
 ## Videos
 Needs WebCodecs (`VideoEncoder`, `VideoFrame`, `AudioEncoder`) and the vendored muxers. Without them the panel
@@ -78,6 +86,9 @@ Offline: `service-worker.js` precaches each app's files explicitly, so the `resi
 ## Tests
 - `tests/node/resize-size.test.mjs` (`node --test`): fit, cover (with anchors), stretch, within, one-side ratios,
   scale, long edge, even rounding (video), within never growing, limits, normalize, presets, names.
+- `tests/resize/resize-fixes.test.html` (browser): shrinking is smooth (and nearest is hard, so the check can fail),
+  enlargement, PNG/WebP transparency kept, JPEG filled white or with the chosen colour and noted, the aspect lock in
+  the real panel (in an iframe), and the output of a locked width.
 - `tests/resize/resize.test.html` (browser): a generated 1000×500 PNG to 500×500 cover is 500×500, the left of the
   output is the red half and the right the blue (cover crops the middle); JPEG; probe; the file limit; the format
   and video probes; the queue end to end; a non-picture file is an error.

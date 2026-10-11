@@ -163,3 +163,19 @@ test('output names and sizes read clearly', () => {
   assert.equal(F.bytes(5 * 1048576), '5.00 MB');
   assert.equal(F.bytes(20 * 1048576), '20.0 MB');
 });
+
+test('the keep-ratio lock derives the other side from the typed value only, and even rounds it', () => {
+  const r = 2; // a 1000 × 500 picture
+  assert.equal(S.lockSide('w', 500, r, false), 250);
+  assert.equal(S.lockSide('h', 333, r, false), 666);
+  assert.equal(S.lockSide('w', 1001, r, false), 501); // 500.5 rounds up, once
+  assert.equal(S.lockSide('w', 1001, r, true), 500); // even: 500 (not 501)
+  assert.equal(S.lockSide('w', 0, r, false), 0); // nothing typed: nothing to derive
+  assert.equal(S.lockSide('w', 500, 0, false), 0); // no picture: no ratio
+});
+
+test('resample is best by default, and nearest only when asked', () => {
+  assert.equal(S.normalize({}).resample, 'best');
+  assert.equal(S.normalize({ resample: 'nearest' }).resample, 'nearest');
+  assert.equal(S.normalize({ resample: 'bogus' }).resample, 'best');
+});
