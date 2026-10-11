@@ -21,7 +21,7 @@
         var head = t.header && q.r === 0, fill = q.cell.fill ? TH.color(theme, q.cell.fill) : head ? acc : (t.banded && q.r % 2 === (t.header ? 0 : 1) ? band : null);
         if (fill) nodes.push({ k: 'path', path: SH.rect(q.w, q.h).map(function (c) { return c.map(function (v, i) { return i ? v + (i % 2 ? q.x : q.y) : v; }); }), fill: { type: 'solid', color: fill, alpha: 1 } });
         var st = Object.assign({}, t.style, { color: head ? headText : (t.style.color || 'text'), bold: head || !!t.style.bold });
-        var lay = X.layout({ w: q.w, h: q.h, style: st, text: Object.assign({ valign: 'middle', inset: [8, 4, 8, 4] }, q.cell.text) }, theme);
+        var lay = X.layout({ w: q.w, h: q.h, style: st, text: Object.assign({}, q.cell.text, { valign: q.cell.valign || 'middle', inset: [8, 4, 8, 4] }) }, theme);
         nodes.push({ k: 'group', m: U.mat.translate(q.x, q.y), children: SS.scene.textNodes(lay) });
       });
       // grid lines

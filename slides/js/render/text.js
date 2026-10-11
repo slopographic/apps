@@ -34,7 +34,7 @@
   }
 
   function layoutAt(o, theme, k, W) {
-    var st = o.style || {}, tx = o.text, lines = [], bullets = [], y = 0, nums = {};
+    var st = o.style || {}, tx = o.text, lines = [], bullets = [], y = 0, nums = {}, broke = false;
     var lh = st.lineHeight || 1.2, align0 = st.align || 'l';
     tx.paras.forEach(function (p, pi) {
       var styled = p.runs.map(function (r) { return runStyle(theme, st, p, r, k); });
@@ -52,6 +52,7 @@
         var sty = styled[pc.ri], w = F.measure(sty.face, pc.t, sty.size, sty.ls), trimmed = pc.t.replace(/\s+$/, ''), tw = F.measure(sty.face, trimmed, sty.size, sty.ls);
         if (cur.length && curW + tw > avail + 0.01) flush();
         if (!cur.length && tw > avail && trimmed.length > 1) {
+          broke = true;
           // a word wider than the box: break it by characters
           var chunk = '';
           for (var i = 0; i < pc.t.length; i++) {
@@ -98,7 +99,7 @@
         y += lineH;
       });
     });
-    return { lines: lines, bullets: bullets, height: y };
+    return { lines: lines, bullets: bullets, height: y, broke: broke };
   }
 
   /** Lays out a text-bearing object. Returns { lines, bullets, height, scale, inset, box } in object-local points. */
@@ -108,9 +109,9 @@
     var W = Math.max(1, o.w - ins[0] - ins[2]), H = Math.max(1, o.h - ins[1] - ins[3]);
     if (!tx || !tx.paras) return { lines: [], bullets: [], height: 0, scale: 1, inset: ins };
     var k = 1, res = layoutAt(o, theme, 1, W);
-    if (tx.autofit === 'shrink' && res.height > H + 0.5) {
+    if (tx.autofit === 'shrink' && (res.height > H + 0.5 || res.broke)) {
       var lo = 0.25, hi = 1;
-      for (var i = 0; i < 12; i++) { var mid = (lo + hi) / 2, r = layoutAt(o, theme, mid, W); if (r.height > H) hi = mid; else lo = mid; }
+      for (var i = 0; i < 12; i++) { var mid = (lo + hi) / 2, r = layoutAt(o, theme, mid, W); if (r.height > H || r.broke) hi = mid; else lo = mid; }
       k = lo; res = layoutAt(o, theme, k, W);
     }
     var va = tx.valign || 'top', off = ins[1];

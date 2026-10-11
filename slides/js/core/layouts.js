@@ -6,7 +6,7 @@
   var L = SS.layouts = {};
   function ph(type, x, y, w, h, style, prompt) { return { ph: type, x: x, y: y, w: w, h: h, style: style || {}, prompt: prompt }; }
   var TITLE = { font: 'heading', size: 44, bold: 'theme', color: 'text', valign: 'bottom' };
-  var BODY = { font: 'body', size: 24, color: 'text', bullets: true, valign: 'top' };
+  var BODY = { font: 'body', size: 28, color: 'text', bullets: true, valign: 'top' };
 
   L.list = [
     { id: 'title', name: 'Title', phs: [
