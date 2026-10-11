@@ -110,8 +110,4 @@
     c.anim[prop] = [{ t: 0, value: from(W, H), ease }, { t: clampT(c, D), value: neutral, ease: 'linear' }].concat(keys);
     return true;
   };
-  /** Keys in clip-time order for the inspector: { prop, idx, t, value, ease } for every key. */
-  A.allKeys = (c) => A.KEYS.flatMap((prop) => ((c.anim && c.anim[prop]) || []).map((k, idx) => ({ prop, idx, t: k.t, value: k.value, ease: k.ease || 'linear' })));
-  /** Resets keys of one clip. */
-  A.reset = (c) => A.clear(c);
 })();
