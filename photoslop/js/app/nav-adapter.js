@@ -6,6 +6,16 @@
   const host = document.getElementById('viewport');
   if (!window.SlopNav || !host) return;
   const APP = 'photoslop';
+  // The engine's capture listeners run before the app's Space handler (commands.js), and a preset may swallow Space
+  // for its own pan. Mirror Space into the app's state here, first, so V.space (read by view.js and the guides) is
+  // set under every preset. Keyup needs nothing: main.js's keyup handler clears V.space and is not stopped.
+  window.addEventListener('keydown', (e) => {
+    if (e.code !== 'Space' || e.repeat || e.ctrlKey || e.metaKey) return;
+    if (window.SlopUI && SlopUI.openDialogs) return;
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || '')) return;
+    if (e.target && e.target.isContentEditable) return;
+    V.space = true; V.el.classList.add('space');
+  }, true);
   SlopNav.attach(APP, {
     title: 'PhotoSLOP',
     host,

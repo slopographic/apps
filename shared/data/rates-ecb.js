@@ -1,13 +1,14 @@
 // Opt-in ECB reference rates. Nothing is fetched unless the 'rates' consent category is on, and the check
 // runs on every call. Nothing runs in the background: updateRates() is started by the Settings button, and
 // updateOnOpen() only runs when the person also ticked "Update on open" (a setting in the record).
-// The XML is parsed with DOMParser and never evaluated. Rows are EUR-based, one per currency, source 'ecb'.
+// The source is the ECB data API (SDMX, CSV, daily EUR reference rates). It sends CORS headers, unlike the
+// old XML file. The CSV is read by hand and never evaluated. Rows are EUR-based, one per currency, source 'ecb'.
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
   const { ok, fail } = ns.result;
-  const ECB_URL = 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml';
-  const ECB_HOST = 'www.ecb.europa.eu';
+  const ECB_URL = 'https://data-api.ecb.europa.eu/service/data/EXR/D..EUR.SP00.A?lastNObservations=1&format=csvdata';
+  const ECB_HOST = 'data-api.ecb.europa.eu';
   const ECB_BASE = 'EUR';
 
   /** True when the visitor has turned on the 'rates' category in Settings. Missing consent state means off. */
@@ -15,26 +16,56 @@
     try { return !!(g.SlopConsentState && g.SlopConsentState.current().rates); } catch (e) { return false; }
   }
 
-  /** Pure given a DOMParser: { date (the ECB reference day), rates: [{ quote, rate }] } with rate scaled by 1e6. */
-  function parseEcb(text, Parser) {
-    if (typeof text !== 'string' || !text.trim()) return fail('invalid', 'The file from the ECB is empty.');
-    if (typeof Parser !== 'function') return fail('unavailable', 'This browser cannot read XML, so no rates were read.');
-    let doc = null;
-    try { doc = new Parser().parseFromString(text, 'application/xml'); } catch (e) { doc = null; }
-    if (!doc || doc.getElementsByTagName('parsererror').length) return fail('invalid', 'The file from the ECB could not be read.');
-    const cubes = Array.from(doc.getElementsByTagName('Cube'));
-    const dateCube = cubes.find((c) => c.getAttribute('time'));
-    const date = dateCube ? dateCube.getAttribute('time') : '';
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail('invalid', 'The file from the ECB has no reference date.');
-    const rates = [];
-    for (const c of cubes) {
-      const quote = c.getAttribute('currency');
-      if (!quote) continue;
-      const rate = ns.locale.parseRate(c.getAttribute('rate'));
-      if (!ns.locale.isCurrency(quote) || rate === null) return fail('invalid', `The file from the ECB has a bad rate for ${quote}.`);
-      rates.push({ quote, rate });
+  /** Splits CSV text into rows of cells. Handles quoted cells, doubled quotes, CRLF and LF. Blank lines are dropped. */
+  function csvRows(text) {
+    const rows = [];
+    let row = [];
+    let cell = '';
+    let quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (quoted) {
+        if (ch !== '"') cell += ch;
+        else if (text[i + 1] === '"') { cell += '"'; i++; }
+        else quoted = false;
+      } else if (ch === '"') quoted = true;
+      else if (ch === ',') { row.push(cell); cell = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); rows.push(row); row = []; cell = '';
+      } else cell += ch;
     }
-    return rates.length ? ok({ date, rates }) : fail('invalid', 'The file from the ECB has no rates.');
+    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+    return rows.filter((r) => r.length > 1 || r[0] !== '');
+  }
+
+  /** Pure: CSV text from the ECB data API to { date (the newest ECB reference day), rates: [{ quote, rate }] },
+   *  with rate scaled by 1e6. Rows with an empty OBS_VALUE are skipped. The API returns the last observation of
+   *  every series, so discontinued currencies carry old dates: only rows on the newest day are kept. */
+  function parseEcb(text) {
+    if (typeof text !== 'string' || !text.trim()) return fail('invalid', 'The file from the ECB is empty.');
+    const rows = csvRows(text.replace(/^﻿/, ''));
+    const [head, ...body] = rows;
+    const col = (name) => (head ? head.findIndex((h) => h.trim() === name) : -1);
+    const iCur = col('CURRENCY');
+    const iTime = col('TIME_PERIOD');
+    const iObs = col('OBS_VALUE');
+    if (iCur < 0 || iTime < 0 || iObs < 0) return fail('invalid', 'The file from the ECB has no CURRENCY, TIME_PERIOD or OBS_VALUE column.');
+    const obs = [];
+    for (const r of body) {
+      const value = (r[iObs] || '').trim();
+      if (!value) continue;
+      const quote = (r[iCur] || '').trim();
+      const date = (r[iTime] || '').trim();
+      const rate = ns.locale.parseRate(value);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail('invalid', 'The file from the ECB has no reference date.');
+      if (!ns.locale.isCurrency(quote) || rate === null) return fail('invalid', `The file from the ECB has a bad rate for ${quote}.`);
+      obs.push({ quote, date, rate });
+    }
+    if (!obs.length) return fail('invalid', 'The file from the ECB has no rates.');
+    const date = obs.map((o) => o.date).sort().pop();
+    const rates = obs.filter((o) => o.date === date).map(({ quote, rate }) => ({ quote, rate }));
+    return ok({ date, rates });
   }
 
   /** Stores one row per quote for `today` inside one transaction. A same-day row with the same rate is left alone. */
@@ -55,7 +86,7 @@
     });
   }
 
-  /** Downloads and stores the ECB rates. opts (for tests): fetch, allowed, DOMParser, today.
+  /** Downloads and stores the ECB rates. opts (for tests): fetch, allowed, today.
    *  Nothing is fetched while consent is off. A failed download stores nothing and says so. */
   async function updateRates(opts = {}) {
     if (!(opts.allowed || consentAllowed)()) return fail('consent_off', 'Exchange rate updates are off. Turn on Exchange rates in Settings first.');
@@ -69,7 +100,7 @@
     } catch (e) {
       return fail('network', 'Could not reach the European Central Bank. No rates were stored.');
     }
-    const parsed = parseEcb(text, opts.DOMParser || g.DOMParser);
+    const parsed = parseEcb(text);
     if (!parsed.ok) return fail(parsed.code, `${parsed.message} No rates were stored.`);
     return storeToday(parsed.value, opts.today || ns.ledger.today());
   }
