@@ -31,9 +31,28 @@
         list.push(fld);
       });
     } catch (e) { console.warn('Slop PDF: could not read form fields', e); }
+    await radioLabels(f, list);
     f.fields = list;
     return list;
   };
+  /* Radio groups with an /Opt array (pdf-lib, Acrobat) name their widgets' on-states "0", "1", …;
+     pdf-lib's getOptions() gives the real labels in widget order, which is also what fillForm selects. */
+  async function radioLabels(f, list) {
+    var radios = list.filter(function (x) { return x.type === 'radiobutton'; });
+    radios.forEach(function (fld) { fld.widgets.forEach(function (w) { w.option = w.exportValue; }); });
+    if (!radios.length || !window.PDFLib) return;
+    try {
+      var form = (await PDFLib.PDFDocument.load(f.bytes, { ignoreEncryption: true, updateMetadata: false, throwOnInvalidObject: false })).getForm();
+      radios.forEach(function (fld) {
+        var opts; try { opts = form.getRadioGroup(fld.name).getOptions(); } catch (e) { return; }
+        if (!opts || opts.length !== fld.widgets.length) return;
+        var cur = fld.widgets.filter(function (w) { return w.exportValue === fld.value; })[0];
+        fld.widgets.forEach(function (w, k) { w.option = opts[k]; });
+        fld.options = opts.slice();
+        fld.value = cur ? cur.option : '';
+      });
+    } catch (e) { console.warn('Slop PDF: could not read radio labels', e); }
+  }
   E.formKey = function (fid) { var v = E.state.forms[fid]; return v && Object.keys(v).length ? JSON.stringify(v) : ''; };
   E.syncStorage = function (f) {
     if (!f.fields || !f.fields.length) return;
@@ -42,7 +61,7 @@
       var has = Object.prototype.hasOwnProperty.call(vals, fld.name), v = has ? vals[fld.name] : fld.value;
       fld.widgets.forEach(function (w) {
         if (fld.type === 'checkbox') st.setValue(w.id, { value: !!v });
-        else if (fld.type === 'radiobutton') st.setValue(w.id, { value: v === w.exportValue });
+        else if (fld.type === 'radiobutton') st.setValue(w.id, { value: v === (w.option || w.exportValue) });
         else if (fld.type === 'listbox') st.setValue(w.id, { value: v ? [v] : [] });
         else st.setValue(w.id, { value: v == null ? '' : String(v) });
       });

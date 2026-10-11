@@ -11,7 +11,7 @@
 
   /** App scripts in load order (paths relative to the site root). */
   B.SCRIPTS = ['pdf/js/core/util.js', 'pdf/js/core/zip.js', 'pdf/js/ui/icons.js', 'pdf/js/io/decrypt.js', 'pdf/js/core/model.js', 'pdf/js/core/text.js', 'pdf/js/core/pdfjs.js', 'pdf/js/io/forms.js', 'pdf/js/io/export.js', 'pdf/js/io/convert.js', 'pdf/js/io/sample.js', 'pdf/js/io/session.js', 'pdf/js/ui/sheet.js', 'pdf/js/organize/grid.js', 'pdf/js/organize/drag.js', 'pdf/js/organize/keys.js', 'pdf/js/editor/view.js', 'pdf/js/editor/annots.js', 'pdf/js/editor/pointer.js', 'pdf/js/editor/text.js', 'pdf/js/tools/sign.js', 'pdf/js/ui/panel-kit.js', 'pdf/js/tools/organize-panel.js', 'pdf/js/tools/edit-panel.js', 'pdf/js/tools/stamp-panels.js', 'pdf/js/tools/doc-panels.js', 'pdf/js/ui/app.js', 'pdf/js/ui/ctxbars.js', 'pdf/js/ui/actions.js', 'pdf/js/ui/exports.js', 'pdf/js/ui/menus.js', 'pdf/js/ui/input.js', 'pdf/js/ui/main.js'];
-  B.TEXT = ['pdf/index.html', 'pdf/css/base.css', 'pdf/css/workspace.css', 'pdf/css/panels.css', 'pdf/css/themes.css', 'shared/slopui.css', 'shared/slopui.js', 'shared/apps.js', 'shared/hub.js', 'favicon.svg', 'vendor/pdf-lib/pdf-lib.min.js', 'vendor/pdfjs/pdf.min.js', 'vendor/pdfjs/pdf.worker.min.js', 'pdf/js/io/build.js'].concat(B.SCRIPTS);
+  B.TEXT = ['pdf/index.html', 'pdf/css/base.css', 'pdf/css/workspace.css', 'pdf/css/panels.css', 'pdf/css/themes.css', 'shared/slopui.css', 'shared/slopui.js', 'shared/apps.js', 'favicon.svg', 'vendor/pdf-lib/pdf-lib.min.js', 'vendor/pdfjs/pdf.min.js', 'vendor/pdfjs/pdf.worker.min.js', 'pdf/js/io/build.js'].concat(B.SCRIPTS);
   /** Small binary assets (base64): the two symbol fonts pdf.js cannot take from the system. */
   B.BINARY = ['vendor/pdfjs/standard_fonts/FoxitSymbol.pfb', 'vendor/pdfjs/standard_fonts/FoxitDingbats.pfb'];
 
@@ -69,7 +69,7 @@
     SP.offline.FontFactory = FontFactory;
     run(S['shared/slopui.js'], 'slopui.js');
     run(S['shared/apps.js'], 'apps.js');
-    run(S['shared/hub.js'], 'hub.js');
+    // No Slop Hub offline: Slop Drive lives with the website's origin, not with a local file.
     run(S['vendor/pdf-lib/pdf-lib.min.js'], 'pdf-lib.min.js');
     run(B.toClassic(S['vendor/pdfjs/pdf.min.js'], 'pdfjsLib'), 'pdf.min.js');
     var wsrc = B.toClassic(S['vendor/pdfjs/pdf.worker.min.js'], 'pdfjsWorker');

@@ -8,8 +8,10 @@
   /** Loads pdf/index.html (plus an optional query) into the iframe #app and waits for boot. */
   PT.boot = async function (query = '', frameId = 'app') {
     const fr = document.getElementById(frameId);
+    fr.src = 'about:blank';
+    await waitFor(() => fr.contentWindow && fr.contentWindow.location.href === 'about:blank' && !fr.contentWindow.SP);
     fr.src = '../../pdf/index.html' + query;
-    await waitFor(() => fr.contentWindow && fr.contentWindow.document.documentElement.classList.contains('ready') && fr.contentWindow.SP && fr.contentWindow.SP.app, { timeout: 30000 });
+    await waitFor(() => fr.contentWindow && fr.contentWindow.document.documentElement?.classList.contains('ready') && fr.contentWindow.SP && fr.contentWindow.SP.app, { timeout: 30000 });
     const win = fr.contentWindow;
     await win.SP.engine.pdfjs();
     await win.SP.engine.initFonts();
@@ -25,7 +27,7 @@
     const L = PT.win.PDFLib, doc = await L.PDFDocument.create();
     const font = await doc.embedFont(L.StandardFonts.Helvetica);
     for (const p of pages) {
-      const pg = doc.addPage([p.w || 300, p.h || 200]);
+      const pg = doc.addPage(PT.win.Array.of(p.w || 300, p.h || 200));
       if (p.box) pg.setMediaBox(p.box[0], p.box[1], p.box[2] - p.box[0], p.box[3] - p.box[1]);
       const ox = p.box ? p.box[0] : 0, oy = p.box ? p.box[1] : 0;
       if (p.text) pg.drawText(p.text, { x: ox + 20, y: oy + 20, size: 18, font });

@@ -64,16 +64,16 @@
         st.stamps.pageNumbers = { format: 'page-of', position: 'bottom-right', size: 10 };
         st.stamps.watermark = { text: 'DRAFT', size: 40, opacity: 0.3 };
       });
-      const bytes = await E.build(), out = await PT.read(bytes);
+      const bytes = await E.build(), out = await PT.read(bytes), bare = await E.build({ stamps: false });
       expect(out.pages[0].text).toContain('Hello goo');
       expect(out.pages[0].text).toContain('Page 1 of 2');
       expect(out.pages[1].text).toContain('Page 2 of 2');
       expect(out.pages[1].text).toContain('DRAFT');
-      const c1 = await PT.render(bytes, 1, 1), blue = PT.px(c1, 150, 100);
+      const c1 = await PT.render(bare, 1, 1), blue = PT.px(c1, 150, 100);
       expect(blue[2] > 200 && blue[0] < 60).toBe(true);
-      const c0 = await PT.render(bytes, 0, 1);
+      const c0 = await PT.render(bare, 0, 1);
       expect(PT.isRed(PT.px(c0, 240, 150))).toBe(true);
-      const plain = await PT.read(await E.build({ stamps: false }));
+      const plain = await PT.read(bare);
       expect(plain.pages[0].text).not.toContain('Page 1');
     });
 
@@ -103,7 +103,7 @@
       const p = pages[0];
       form.createTextField('name').addToPage(p, { x: 20, y: 300, width: 200, height: 24 });
       form.createCheckBox('agree').addToPage(p, { x: 20, y: 250, width: 18, height: 18 });
-      const dd = form.createDropdown('color'); dd.addOptions(['Red', 'Green']); dd.addToPage(p, { x: 20, y: 200, width: 120, height: 22 });
+      const dd = form.createDropdown('color'); dd.addOptions(PT.win.Array.of('Red', 'Green')); dd.addToPage(p, { x: 20, y: 200, width: 120, height: 22 });
       const rg = form.createRadioGroup('size'); rg.addOptionToPage('S', p, { x: 20, y: 150, width: 16, height: 16 }); rg.addOptionToPage('M', p, { x: 60, y: 150, width: 16, height: 16 });
     } });
     it('lists fields, shows them in the Forms panel and keeps them editable with the values set', async () => {
@@ -111,15 +111,17 @@
       const E = PT.E, f = await PT.open(await makeForm(), 'form.pdf');
       const fields = await E.loadFields(f);
       expect(fields.map((x) => x.name + ':' + x.type).sort()).toEqual(['agree:checkbox', 'color:combobox', 'name:text', 'size:radiobutton']);
+      expect(fields.find((x) => x.name === 'size').options).toEqual(['S', 'M']);
       PT.A.setTool('forms');
       await waitFor(() => PT.win.document.querySelectorAll('#props .form-field').length === 4);
       E.commit('Fill', (st) => { st.forms[f.id] = { name: 'Sloppo', agree: true, color: 'Green', size: 'M' }; });
       const out = await PT.read(await E.build());
-      const val = (n) => out.fields[n][0].value;
+      const val = (n) => out.fields[n].find((w) => w.type).value;
       expect(val('name')).toBe('Sloppo');
       expect(val('agree') !== 'Off' && !!val('agree')).toBe(true);
       expect(String(val('color'))).toBe('Green');
-      expect(out.fields.size.some((w) => w.value === 'M')).toBe(true);
+      const sz = out.fields.size.filter((w) => w.type);
+      expect(sz.findIndex((w) => w.exportValues === w.value)).toBe(1);
       PT.A.setTool('organize');
     });
     it('flattens forms into page content', async () => {
