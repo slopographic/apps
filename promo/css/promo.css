@@ -45,3 +45,11 @@ body { font-family: 'Inter Tight', system-ui, sans-serif; }
 .ui a { color: var(--bone); font: 12px var(--mono); text-decoration: none; white-space: nowrap; }
 .ui a:hover { color: var(--lime); }
 @media (max-width: 520px) { .ui .home { display: none; } }
+.cover { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 11; display: flex; align-items: center; gap: 18px; padding: 14px 30px 14px 14px; border: 0; border-radius: 99px;
+  background: var(--ink); color: var(--bone); font: 600 20px 'Inter Tight', system-ui, sans-serif; cursor: pointer; box-shadow: 0 0 0 2px var(--lime), 0 20px 60px rgba(0, 0, 0, .6); }
+.cover small { display: block; font: 12px var(--mono); color: var(--dim); text-align: left; margin-top: 2px; }
+.cover-i { width: 56px; height: 56px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; }
+.cover-i svg { width: 24px; height: 24px; fill: var(--ink); }
+.cover:hover .cover-i { transform: scale(1.06); }
+.cover:focus-visible { outline: 3px solid var(--bone); outline-offset: 4px; }
+.started .cover, .render .cover { display: none; }

@@ -1,0 +1,64 @@
+/* SlopEdit: .slopedit project files. A store-only zip with project.json and every media file under
+   media/<id>.<ext>, so a project moves between browsers and machines with its footage. */
+(function () {
+  'use strict';
+  const SE = window.SE, U = SE.util, M = SE.model;
+  const PJ = SE.project = {};
+  PJ.MIME = 'application/x-slopedit';
+
+  PJ.toBlob = async function (p = SE.doc) {
+    const doc = M.snapshot(p);
+    const entries = [{ name: 'project.json', data: new TextEncoder().encode(JSON.stringify({ app: 'slopedit', version: 1, saved: new Date().toISOString(), project: doc }, null, 1)) }];
+    for (const m of p.media) {
+      const it = SE.media.get(m.id);
+      if (it && it.blob && it.blob.size) entries.push({ name: 'media/' + m.id + '.' + (U.ext(m.name) || 'bin'), data: it.blob });
+    }
+    return new Blob([await SE.zip.write(entries)], { type: PJ.MIME });
+  };
+  PJ.fileName = () => (U.baseName(SE.doc.name).replace(/[\\/:*?"<>|]+/g, '-') || 'project') + '.slopedit';
+  /** Load a .slopedit Blob/File as the current project. */
+  PJ.load = async function (blob) {
+    const files = await SE.zip.read(blob);
+    const j = files.get('project.json');
+    if (!j) throw new Error('This file has no project.json');
+    const data = JSON.parse(await j.text());
+    if (!data || data.app !== 'slopedit' || !data.project) throw new Error('Not a SlopEdit project');
+    const doc = M.normalize(data.project);
+    for (const m of doc.media) if (m.kind === 'image' && m.dur == null) m.dur = Infinity;
+    const blobs = new Map();
+    for (const [name, b] of files) {
+      const mm = /^media\/([^.]+)\./.exec(name);
+      if (mm) { const meta = doc.media.find((x) => x.id === mm[1]); blobs.set(mm[1], new File([b], meta ? meta.name : name, { type: meta ? meta.type : '' })); }
+    }
+    if (SE.player) SE.player.pause();
+    SE.media.clear();
+    SE.setDoc(doc);
+    await SE.media.restore(doc.media, blobs);
+    SE.app.select([]);
+    SE.emit('change', { label: 'Open project', history: true });
+    SE.emit('settings', {});
+    await SE.session.save();
+    return doc;
+  };
+  PJ.openFile = async function (file) {
+    if (SE.doc.clips.length && !(await SlopUI.confirm('Open project', 'Replace the current project with “' + file.name + '”?', 'Open'))) return;
+    const dlg = SE.progress.open('Opening ' + file.name, { cancel: false });
+    try { await PJ.load(file); SE.app.status('Opened ' + file.name); }
+    catch (e) { console.error(e); SlopUI.alert('Open project', 'Could not open this project: ' + e.message); }
+    finally { dlg.close(); }
+  };
+  SE.act.openProject = async function () {
+    const files = await SlopUI.pickFiles({ accept: '.slopedit,application/zip,' + PJ.MIME });
+    if (files[0]) PJ.openFile(files[0]);
+  };
+  SE.act.saveProject = async function () {
+    const dlg = SE.progress.open('Saving project', { cancel: false });
+    try { dlg.set(0.3, 'Packing media…'); SlopUI.download(await PJ.toBlob(), PJ.fileName()); SE.app.status('Saved ' + PJ.fileName()); }
+    catch (e) { SlopUI.alert('Save project', 'Could not save: ' + e.message); }
+    finally { dlg.close(); }
+  };
+  SE.act.saveProjectDrive = async function () {
+    if (!window.SlopHub) return;
+    try { await SlopHub.saveToDrive(await PJ.toBlob(), PJ.fileName()); } catch (e) { SlopUI.toast('Could not save: ' + e.message); }
+  };
+})();

@@ -106,3 +106,5 @@
 .meter { position: relative; width: 44px; height: 6px; border-radius: 3px; background: var(--input); overflow: hidden; margin: 0 6px; flex: none; }
 .meter i { position: absolute; inset: 0 auto 0 0; width: calc(var(--lvl, 0) * 100%); background: linear-gradient(90deg, #3ddc84, #d4ff3a 70%, #ffc94a 88%, #ff4d5e); transition: width .06s; }
 .meter.hot i { box-shadow: 0 0 6px #ff4d5e; }
+.exp-dlg { width: min(480px, 100%); }
+.exp-media { display: block; width: 100%; max-height: 42vh; margin-bottom: 10px; border-radius: 8px; background: #000; object-fit: contain; }

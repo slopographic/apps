@@ -116,11 +116,11 @@
     },
     refresh: function () { refs.forEach(function (fn) { try { fn(); } catch (e) { /* ignore */ } }); }
   });
-  var sig = '';
   function soon() {
-    var s2 = (S.text ? 'T' : 'S' + S.sel.join(',')) + (S.doc && S.doc.unit);
-    if (s2 !== sig) { sig = s2; UI.panels.props.refresh = null; UI.refreshPanels('props'); UI.panels.props.refresh = function () { refs.forEach(function (fn) { try { fn(); } catch (e) { /* ignore */ } }); }; }
-    else UI.refreshPanels('props');
+    var p = UI.panels.props, ae = document.activeElement;
+    var typing = p.body && ae && p.body.contains(ae) && /^(INPUT|SELECT)$/.test(ae.tagName);
+    if (typing) { p.refresh && p.refresh(); return; }
+    var keep = p.refresh; p.refresh = null; UI.refreshPanels('props'); p.refresh = keep;
   }
   var later = U.debounce(soon, 60);
   ['select', 'textsel', 'commit', 'doc', 'tool'].forEach(function (e) { PR.on(e, later); });

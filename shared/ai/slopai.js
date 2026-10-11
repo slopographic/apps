@@ -17,9 +17,10 @@
   const me = document.currentScript && document.currentScript.src;
   K.base = K.base || (me ? new URL('./', me).href : new URL('../shared/ai/', location.href).href);
   const pending = {};
+  const FLAG = { engines: 'Engine', powerup: 'powerUp', apptools: 'appTools', webllm: 'WebLLMEngine' }; // what each file defines on SlopAIKit
   K.load = function (names) {
     return names.reduce((p, n) => p.then(() => (pending[n] = pending[n] || new Promise((res, rej) => {
-      if (document.querySelector(`script[data-slopai="${n}"]`) || (n === 'engines' && K.Engine) || (n === 'tools' && K.tools) || (n === 'bridge' && K.bridge) || (n === 'powerup' && K.powerUp)) return res();
+      if (document.querySelector(`script[data-slopai="${n}"]`) || K[FLAG[n] || n]) return res();
       const s = document.createElement('script'); s.src = K.base + n + '.js'; s.dataset.slopai = n; s.async = false;
       s.onload = () => res(); s.onerror = () => rej(new Error('Could not load shared/ai/' + n + '.js'));
       document.head.append(s);

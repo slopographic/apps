@@ -50,7 +50,8 @@ for (const seg of plan.segs) {
 }
 for (const s of scenes) stage.append(s.el);
 
-let now = 0;
+let now = 0, started = false;
+export const POSTER_T = 4.2; // SLOPOGRAPHIC fully on screen
 function frame(t) {
   now = t;
   for (const s of scenes) {
@@ -93,8 +94,10 @@ async function getAudio() {
   if (!audioBuf) audioBuf = await renderScore(plan);
   return audioBuf;
 }
-async function play(from = now >= plan.total - 0.05 ? 0 : now) {
+async function play(from = !started || now >= plan.total - 0.05 ? 0 : now) {
   if (playing) return;
+  started = true;
+  document.documentElement.classList.add('started');
   playing = true;
   document.documentElement.classList.add('playing');
   const buf = await getAudio();
@@ -131,7 +134,8 @@ function fit() {
 addEventListener('resize', fit); fit();
 if (ui && !rendering) {
   btn.addEventListener('click', () => (playing ? pause() : play()));
-  bar.addEventListener('input', () => { const t = bar.value / 1000 * plan.total; const was = playing; if (was) pause(); frame(t); syncVideos(true); if (was) play(t); });
+  document.getElementById('cover').addEventListener('click', () => play(0));
+  bar.addEventListener('input', () => { const t = bar.value / 1000 * plan.total; started = true; document.documentElement.classList.add('started'); const was = playing; if (was) pause(); frame(t); syncVideos(true); if (was) play(t); });
   addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); btn.click(); } });
   document.getElementById('vLink').href = vertical ? './' : './?v=1';
   document.getElementById('vLink').textContent = vertical ? '16:9' : '9:16';
@@ -142,6 +146,6 @@ async function wav() { const blob = wavBlob(await getAudio()); const b = new Uin
 
 window.__promo = { ready: false, duration: plan.total, size: { W, H }, beat: BEAT, plan, seek, play, pause, wav, get t() { return now; } };
 (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
-  const start = q.has('t') ? parseFloat(q.get('t')) || 0 : 0.0;
+  const start = q.has('t') ? parseFloat(q.get('t')) || 0 : rendering ? 0 : POSTER_T;
   return seek(start);
 }).then(() => { window.__promo.ready = true; updateUI(now); });

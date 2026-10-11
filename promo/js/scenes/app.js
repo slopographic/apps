@@ -49,11 +49,11 @@ export function makeApp(seg, ctx) {
   wrap.append(d.dev);
   el.append(num, wrap, txt);
   let fitted = false;
-  const D = seg.dur, beat = ctx.plan.segs[0] ? 0.5 : 0.5;
+  const D = seg.dur;
   const s = { el, pre: 0.35, post: 0.35 };
   s.hide = () => { if (d.video) ctx.setTime(d.video, 0, false); };
   s.render = (lt) => {
-    if (!fitted) { fitted = true; let fs = V ? 150 : 150; name.style.fontSize = fs + 'px'; while ((name.scrollWidth > name.clientWidth + 2 || name.offsetHeight > fs * 0.9 * 2.05) && fs > 60) { fs -= 6; name.style.fontSize = fs + 'px'; } }
+    if (!fitted) { fitted = true; let fs = V ? 130 : 150; name.style.fontSize = fs + 'px'; while ((name.scrollWidth > name.clientWidth + 2 || name.offsetHeight > fs * 0.9 * 2.05) && fs > 60) { fs -= 6; name.style.fontSize = fs + 'px'; } }
     const dir = flip ? -1 : 1;
     const inP = k(lt, -0.35, 0.35, E.outExpo);
     const outP = k(lt, D - 0.2, D + 0.35, E.inExpo);

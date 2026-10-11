@@ -9,9 +9,9 @@
   <script src="../harness.js"></script>
   <script src="boot.js"></script>
   <script type="module">
-  import { levelFor, xpFor, hatsFor, scaleFor, HAT_ORDER } from '../../home/mascot/store.js';
-  import { HATS } from '../../shared/sloppo/index.js';
-  import { LINES, line } from '../../home/mascot/lines.js';
+  import { levelFor, xpFor, hatsFor, scaleFor, HAT_ORDER } from '../../shared/buddy/store.js';
+  import { HAT_SVG as HATS } from '../../shared/buddy/hats.js';
+  import { LINES, line } from '../../shared/buddy/lines.js';
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   let win, S, M;
   const ready = HomeTest.openHome().then((w) => { win = w; S = w.SlopMascot; M = S.M; });
@@ -22,7 +22,7 @@
       for (let lv = 1; lv < 12; lv++) { expect(levelFor(xpFor(lv))).toBe(lv); expect(levelFor(xpFor(lv) - 1)).toBe(Math.max(1, lv - 1)); }
     });
     it('unlocks one real hat per level and grows a little', () => {
-      for (const h of HAT_ORDER) expect(typeof HATS[h]).toBe('function');
+      for (const h of HAT_ORDER) expect(typeof HATS[h]).toBe('string');
       expect(hatsFor(1)).toEqual([]);
       expect(hatsFor(3)).toEqual(HAT_ORDER.slice(0, 2));
       expect(scaleFor(2)).toBeGreaterThan(scaleFor(1));
