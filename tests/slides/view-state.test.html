@@ -24,7 +24,8 @@
       await new Promise((res) => { const q = indexedDB.deleteDatabase('slop-slides'); q.onsuccess = q.onerror = q.onblocked = () => res(); });
       let W = await open('../../slides/index.html');
       const A = W.SS.app;
-      W.SS.model.addSlide(A.deck, A.deck.slides[0].layout || undefined, A.deck.slides.length);
+      A.change('Add slide', function () { W.SS.model.addSlide(A.deck, A.deck.slides[0].layout || undefined, A.deck.slides.length); }); // through the change pipeline, so the draft has it
+      await sleep(1600);
       A.go(1);
       await sleep(200);
       W.document.body.click(); // a user gesture: the place is saved on input

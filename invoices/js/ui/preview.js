@@ -39,7 +39,7 @@
         h('thead', null, h('tr', null, h('th', { text: 'Description' }), h('th', { class: 'n', text: 'Qty' }), h('th', { class: 'n', text: 'Unit price' }),
           h('th', { class: 'n', text: 'Disc.' }), h('th', { class: 'n', text: 'Net' }), h('th', { class: 'n', text: 'Tax' }), h('th', { class: 'n', text: 'Total' }))),
         h('tbody', null, rows)),
-      h('dl', { class: 'sheet-sums' }, sums.map(([k, v]) => [h('dt', { text: k, class: k === 'Total' ? 'grand' : '' }), h('dd', { text: v, class: k === 'Total' ? 'grand' : '' })])),
+      h('dl', { class: 'sheet-sums' }, sums.flatMap(([k, v]) => [h('dt', { text: k, class: k === 'Total' || k === 'Balance due' ? 'grand' : '' }), h('dd', { text: v, class: k === 'Total' || k === 'Balance due' ? 'grand' : '' })])),
       inv.notes ? h('p', { class: 'sheet-notes', text: inv.notes }) : null);
   }
 
