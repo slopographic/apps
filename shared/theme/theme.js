@@ -54,7 +54,7 @@
     '3d': { key: 'slop-3d.theme', fmt: 'json', native: NO_CLASSIC },
     inventory: { key: 'slop-inventory.theme', fmt: 'json', native: NO_CLASSIC },
     vector: { key: 'slopvector.theme', fmt: 'raw', native: STD },
-    label: { key: null, native: STD },
+    label: { key: 'sloplabel-theme', fmt: 'raw', native: STD },
     contacts: { key: null, native: DARK_CSS },
   };
 
@@ -143,11 +143,19 @@
     return lum > 0.6 ? '#0a0a0a' : '#ffffff';
   }
 
+  /** The theme whose colours a page is painted with. An app whose own look is dark (its native value maps back to a dark
+   * theme) takes the dark colours where the choice is light, so Classic 98 never puts light surfaces under its dark text. */
+  function tokenTheme(e, id) {
+    if (!e || e.identity) return byId[id];
+    var back = fromNative(e, e.native[id]);
+    return back && byId[back] && (byId[back].scheme === 'dark') !== (byId[id].scheme === 'dark') ? byId[back] : byId[id];
+  }
+
   /** Paints a choice on this page: data-theme (for the apps that use it), the --sl-* variables and the colour scheme. */
   function paint(choice) {
-    var id = resolve(choice), t = byId[id], root = doc && doc.documentElement;
+    var id = resolve(choice), root = doc && doc.documentElement;
     if (!root) return id;
-    var e = APPS[page.app];
+    var e = APPS[page.app], t = tokenTheme(e, id);
     root.setAttribute('data-slop-theme', id);
     if (e) root.setAttribute('data-theme', native(e, id));
     var tk = t.tokens;
