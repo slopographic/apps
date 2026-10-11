@@ -11,7 +11,7 @@ import { setLanguage } from './editor.js';
 import { askLanguage } from './dialogs.js';
 
 const INFO = {
-  formatter: { title: 'Formatter', desc: 'Format document (Shift+Alt+F). Re-indents JSON, JavaScript, TypeScript and CSS, and removes trailing spaces.', button: 'Format document' },
+  formatter: { title: 'Formatter', desc: 'Format document (Ctrl+Shift+F). Re-indents JSON, JavaScript, TypeScript and CSS, and removes trailing spaces.', button: 'Format document' },
   languageMode: { title: 'Language mode switcher', desc: 'Change the language of the open file, for highlighting and completion. The file name stays.', button: 'Set language…' },
   snippets: { title: 'Snippets', desc: 'Snippet completions with Ctrl+Space, for example log, fn, html5, flex, def and table.' },
 };
