@@ -59,6 +59,8 @@ async function boot() {
   $('#themeToggle').addEventListener('click', () => setTheme(theme() === 'pro' ? 'light' : theme() === 'light' ? 'paint' : 'pro'));
   $('#exportBtn').addEventListener('click', () => dlgExport());
   selectTool(TOOL[store.get('tool', 'brush')] ? store.get('tool', 'brush') : 'brush');
+  wireCommands();
+  $('#cmdBtn').addEventListener('click', () => openCommandPalette());
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
   window.addEventListener('keydown', (e) => { pasteInPlace = e.shiftKey; }, true);

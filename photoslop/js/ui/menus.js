@@ -147,7 +147,8 @@ const MENUS = [
   ]],
   ['Window', () => windowMenuItems()],
   ['Help', [
-    { label: 'Keyboard Shortcuts…', act: () => dlgShortcuts() },
+    { label: 'Search Commands…', cmdId: 'cmd.palette', act: () => openCommandPalette() },
+    { label: 'Keyboard Shortcuts…', cmdId: 'cmd.keymap', act: () => openKeymap() },
     { label: 'About PhotoSLOP', act: () => dlgAbout() },
     '-',
     { label: 'Open Slop Paint Classic (MS Paint)', act: () => { location.href = 'classic/'; } },

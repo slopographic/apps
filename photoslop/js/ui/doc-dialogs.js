@@ -68,6 +68,7 @@ function dlgColorRange() {
     } }] });
 }
 function dlgShortcuts() {
+  if (CMD_ON) { SlopCmd.openKeymap(); return; }
   const rows = [];
   const walk = (items, path) => { for (const it of items) { if (it === '-' || !it) continue; if (it.sub) walk(it.sub, path + ' › ' + it.label); else if (it.key) rows.push([path + ' › ' + it.label, it.key]); } };
   MENUS.forEach(([n, items]) => walk(typeof items === 'function' ? items() : items, n));
@@ -94,6 +95,7 @@ const TOOL_KEYS = {};
 for (const t of TOOLS) (TOOL_KEYS[t.key] = TOOL_KEYS[t.key] || []).push(t.id);
 function onKeyDown(e) {
   if (SlopUI.openDialogs || isTyping(e.target)) return;
+  if (CMD_ON) { const c = comboOf(e); if (c === 'Ctrl+V' || c === 'Shift+Ctrl+V') armPasteCatcher(); return; } // SlopCmd handles the rest
   if (e.code === 'Space' && !e.repeat) { V.space = true; V.el.classList.add('space'); e.preventDefault(); return; }
   const combo = comboOf(e);
   const t = currentTool();

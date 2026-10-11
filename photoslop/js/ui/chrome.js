@@ -28,7 +28,7 @@ function renderMenu(items, x, y, level) {
     const row = h('button', { class: 'menu-row' + (it.sub ? ' has-sub' : ''), type: 'button', role: 'menuitem', disabled: !en },
       h('span', { class: 'menu-check' }, it.check ? (it.check() ? '✓' : '') : ''),
       h('span', { class: 'menu-label' }, it.dyn ? it.dyn() : it.label),
-      h('span', { class: 'menu-key' }, it.sub ? '▸' : it.key ? keyLabel(it.key) : ''));
+      h('span', { class: 'menu-key' }, it.sub ? '▸' : menuKey(it)));
     if (it.sub) {
       const openSub = () => {
         $$('.menu').filter((mm) => +mm.dataset.level > level).forEach((mm) => mm.remove());

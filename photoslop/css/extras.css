@@ -172,3 +172,4 @@ body.no-panels .main { grid-template-columns: 1fr; }
 .bs-v { font: 11px var(--mono); text-align: right; color: var(--fg); }
 .bs-checks { display: flex; gap: 18px; flex-wrap: wrap; }
 @media (max-width: 640px) { .bs-grid { grid-template-columns: 1fr; } }
+.top-btn[hidden] { display: none; }
