@@ -40,46 +40,55 @@
         </div>
       </section>
       <div class="up-stage" id="up-stage" hidden></div>
-      <progress class="up-bar" id="up-bar" max="1" value="0" hidden></progress>
-      <p class="up-status" id="up-status" role="status" aria-live="polite"></p>
+      <div class="up-output" aria-label="Result">
+        <h2 class="up-h">Result</h2>
+        <progress class="up-bar" id="up-bar" max="1" value="0" hidden></progress>
+        <p class="up-status" id="up-status" role="status" aria-live="polite"></p>
+      </div>
     </section>
 
     <aside class="up-panel" aria-label="Upscale settings">
-      <h2 class="up-h">Size</h2>
-      <div class="up-seg" role="group" aria-label="Scale">
-        <button type="button" class="sui-btn" id="up-scale-2" aria-pressed="true">2×</button>
-        <button type="button" class="sui-btn" id="up-scale-4" aria-pressed="false">4×</button>
+      <div class="up-group">
+        <h2 class="up-h">Size</h2>
+        <div class="up-seg" role="group" aria-label="Scale">
+          <button type="button" class="sui-btn" id="up-scale-2" aria-pressed="true">2×</button>
+          <button type="button" class="sui-btn" id="up-scale-4" aria-pressed="false">4×</button>
+        </div>
       </div>
 
-      <h2 class="up-h">Model</h2>
-      <label class="up-field">Model
-        <select id="up-model">
-          <option value="fast">Fast (FSRCNN, bundled)</option>
-          <option value="quality">Quality (Real-ESRGAN, not installed)</option>
-          <option value="lanczos">Lanczos only (no AI)</option>
-        </select>
-      </label>
-      <p class="up-note" id="up-model-note"></p>
-      <button type="button" class="sui-btn" id="up-get-more">Get more…</button>
+      <div class="up-group">
+        <h2 class="up-h">Model</h2>
+        <label class="up-field"><span class="up-lab">Model</span>
+          <select id="up-model">
+            <option value="fast">Fast (FSRCNN, bundled)</option>
+            <option value="quality">Quality (Real-ESRGAN, not installed)</option>
+            <option value="lanczos">Lanczos only (no AI)</option>
+          </select>
+        </label>
+        <p class="up-note" id="up-model-note"></p>
+        <button type="button" class="sui-btn" id="up-get-more">Get more…</button>
+      </div>
 
-      <h2 class="up-h">Output</h2>
-      <label class="up-field">Format
-        <select id="up-format">
-          <option value="png">PNG (lossless)</option>
-          <option value="jpeg">JPEG</option>
-          <option value="webp">WebP</option>
-        </select>
-      </label>
-      <div class="up-field" id="up-quality-wrap" hidden>
-        <label for="up-quality">Quality <span id="up-quality-val">92</span></label>
-        <input type="range" id="up-quality" min="50" max="100" value="92">
+      <div class="up-group">
+        <h2 class="up-h">Output</h2>
+        <label class="up-field"><span class="up-lab">Format</span>
+          <select id="up-format">
+            <option value="png">PNG (lossless)</option>
+            <option value="jpeg">JPEG</option>
+            <option value="webp">WebP</option>
+          </select>
+        </label>
+        <div class="up-field" id="up-quality-wrap" hidden>
+          <label class="up-lab" for="up-quality">Quality <span class="up-val" id="up-quality-val">92</span></label>
+          <input type="range" class="up-quality-range" id="up-quality" min="50" max="100" value="92">
+        </div>
+        <div class="up-field" id="up-fps-wrap" hidden>
+          <label class="up-lab" for="up-fps">Video frame rate</label>
+          <select id="up-fps"><option value="24">24 fps</option><option value="30">30 fps</option></select>
+          <p class="up-note">Video keeps pictures only (no sound). Frames are upscaled one by one, so a clip takes a while.</p>
+        </div>
+        <p class="up-fine">Results are copies. Save them to Slop Drive, in the Slop Upscale folder. Keys: Ctrl+Enter upscale, Esc cancel.</p>
       </div>
-      <div class="up-field" id="up-fps-wrap" hidden>
-        <label for="up-fps">Video frame rate</label>
-        <select id="up-fps"><option value="24">24 fps</option><option value="30">30 fps</option></select>
-        <p class="up-note">Video keeps pictures only (no sound). Frames are upscaled one by one, so a clip takes a while.</p>
-      </div>
-      <p class="up-fine">Results are copies. Save them to Slop Drive, in the Slop Upscale folder. Keys: Ctrl+Enter upscale, Esc cancel.</p>
     </aside>
   </main>
 
