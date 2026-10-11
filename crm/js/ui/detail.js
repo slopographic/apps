@@ -76,7 +76,8 @@
   async function render() {
     const body = $('dBody');
     const id = NS.state.current;
-    const r = id ? await NS.customers.get(id) : { ok: true, value: null };
+    if (!id) { body.replaceChildren(el('p', { class: 'empty' }, 'Select a customer to see details')); return; }
+    const r = await NS.customers.get(id);
     if (!r.ok) { body.replaceChildren(el('p', { class: 'msg', role: 'alert' }, NS.util.refusal(r))); return; }
     if (!r.value) { body.replaceChildren(el('p', { class: 'empty' }, 'This customer is not here any more.')); return; }
     const c = r.value, cur = NS.state.settings;

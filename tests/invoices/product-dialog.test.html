@@ -3,20 +3,23 @@
 <head>
   <meta charset="utf-8">
   <title>Invoices · New product from a line</title>
-  <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; display: block; }</style>
+  <style>body { margin: 0; background: #111; }</style>
 </head>
 <body>
   <!-- The real invoices app runs in a same-origin iframe; the test drives its line card and the product dialog. -->
-  <iframe id="app"></iframe>
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, run } = SlopTest;
-  const frame = document.getElementById('app');
+  let frame = null;
 
-  /** Loads the invoices app on a new invoice and waits until its first line card is drawn. */
+  /** Loads the invoices app on a new invoice in a fresh iframe and waits until its first line card is drawn. */
   async function openNewInvoice() {
+    if (frame) frame.remove();   // a fresh frame each time: the editor's unsaved-changes guard blocks reloads
+    frame = document.createElement('iframe');
+    frame.style.cssText = 'width:1280px;height:760px;border:0;display:block';
     const loaded = new Promise((res) => frame.addEventListener('load', res, { once: true }));
     frame.src = `../../invoices/index.html?t=${Date.now()}#new`;
+    document.body.append(frame);
     await loaded;
     await waitFor(() => {
       const W = frame.contentWindow;
