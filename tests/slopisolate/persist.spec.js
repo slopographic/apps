@@ -41,6 +41,7 @@
       await waitFor(() => w.CO.state.items.length === 1 && w.CO.state.items[0].status === 'done' && w.CO.process.active && w.CO.process.active.mask, { timeout: 60000, polling: 100 });
       expect(w.CO.state.items[0].name).toBe('sloppo-sample.png');
       expect(fingerprint(w.CO.process.active)).toEqual(before);
+      expect(w.CO.state.items[0].timings).toBe(null); // restored, not segmented again
     }, { timeout: 300000 });
 
     it('clearing the saved work empties the queue, and it stays empty on the next visit', async () => {
