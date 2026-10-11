@@ -1,6 +1,6 @@
 // Moving around: perching, hopping between perches, falling with physics, drag and throw,
 // and leaping back into view when his perch scrolls away.
-import { M, reduced, now, rand, clamp, setMood, navH, pageW, pageH } from './state.js';
+import { M, reduced, now, rand, clamp, setMood, navH, pageW, pageH, touchOnly } from './state.js';
 import * as P from './perches.js';
 import { size } from './look.js';
 import { dust } from './fx.js';
@@ -9,6 +9,7 @@ import { stepBodies } from './bodies.js';
 import { say } from './fx.js';
 import { line } from './lines.js';
 import { TIMING } from './timing.js';
+import { stepGlide, rememberSpot } from './glide.js';
 
 const GRAVITY = 2600, OFFSCREEN_MS = 1500;
 let dazeTok = 0;
@@ -65,7 +66,7 @@ function land(p, impact) {
   const leftPage = !p && M.thrown;   // a throw that ended on the page floor
   Object.assign(M, { perch: p, mode: 'perched', vx: 0, vy: 0, rot: 0, vr: 0, sqv: 0, offSince: 0, flail: false, thrown: false });
   const pt = p && P.point(p);
-  if (pt) { M.x = pt.x; M.y = pt.y; pin(p); }
+  if (pt) { M.x = pt.x; M.y = pt.y; pin(p); rememberSpot(); }
   M.squash = clamp(impact / 2200, 0.25, 0.75);
   M.nextIdle = now() + rand(3500, 8000);
   if (M.hard || impact > 2000) hardLanding();
@@ -142,7 +143,19 @@ function stepPerched(t) {
   if (vis) M.offSince = 0;
   else if (!M.offSince) M.offSince = t;
   else if (t - M.offSince > OFFSCREEN_MS) { M.offSince = t; leapIn(); return; }
-  if (vis && !M.chaos && !reduced() && !M.hover && t > M.nextIdle) idleHop();
+  if (vis && !M.chaos && !reduced() && !M.hover && !touchOnly() && t > M.nextIdle) idleHop();
+}
+
+/** Floating in the open (after a glide aside): he waits there, then goes back to a perch. Off screen for a moment, he leaps back. */
+function stepFloat(t) {
+  const vis = M.y > scrollY + navH() + 6 && M.y - size() * 0.7 < scrollY + innerHeight;
+  if (!vis) {
+    if (!M.offSince) M.offSince = t;
+    else if (t - M.offSince > OFFSCREEN_MS) { M.offSince = 0; leapIn(); }
+    return;
+  }
+  M.offSince = 0;
+  if (!M.chaos && !reduced() && !M.hover && !touchOnly() && t > M.nextIdle) idleHop();
 }
 
 function idleHop() {
@@ -197,7 +210,7 @@ export function release(t, cancel = false) {
 /** One simulation step. */
 export function step(dt, t) {
   if (reduced()) { M.squash = 0; M.sqv = 0; }
-  else if (M.mode !== 'hop') {
+  else if (M.mode !== 'hop' && M.mode !== 'glide') {
     M.sqv += (-340 * M.squash - 11 * M.sqv) * dt;               // wobbly jelly spring
     M.squash += M.sqv * dt;
   }
@@ -205,4 +218,6 @@ export function step(dt, t) {
   if (M.mode === 'perched') stepPerched(t);
   else if (M.mode === 'hop') stepHop(dt);
   else if (M.mode === 'air') stepAir(dt);
+  else if (M.mode === 'glide') stepGlide(dt);
+  else if (M.mode === 'float') stepFloat(t);
 }
