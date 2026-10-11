@@ -22,7 +22,7 @@
     NS.state.view = name;
     if (name === 'customer') {
       NS.state.current = arg || null;
-      if (isWide()) lastTab = 'customers';
+      if (isWide()) { lastTab = 'customers'; if (location.hash !== '#customers') history.replaceState(null, '', '#customers'); }
     } else { lastTab = name; if (location.hash !== `#${name}`) history.replaceState(null, '', `#${name}`); }
     const split = isWide() && !!NS.state.current && (name === 'customers' || name === 'customer');
     NS.state.split = split;
