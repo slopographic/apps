@@ -30,7 +30,7 @@
   /** rec = { deck, driveId, name }. Stored as JSON text so large decks cost one clone. */
   DR.save = function (rec) {
     var entry = { json: JSON.stringify(rec.deck), driveId: rec.driveId || null, name: rec.name || '', savedAt: Date.now() };
-    return run('readwrite', function (s) { return s.put(entry, KEY); }).then(function () { return entry; }, function () { return null; });
+    return run('readwrite', function (s) { return s.put(entry, KEY); }).then(function () { return entry; }, function (e) { try { window.SlopStorage && SlopStorage.handle(e, { once: 'slides-draft' }); } catch (x) { /* no dialog on this page */ }; return null; });
   };
   DR.load = function () {
     return run('readonly', function (s) { return s.get(KEY); }).then(function (e) {

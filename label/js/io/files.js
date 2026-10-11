@@ -42,7 +42,7 @@ function idb() {
 }
 async function kvSet(key, val) { const d = await idb(); return new Promise((res, rej) => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').put(val, key); t.oncomplete = () => res(true); t.onerror = () => rej(t.error); }); }
 async function kvGet(key) { const d = await idb(); return new Promise((res, rej) => { const t = d.transaction('kv', 'readonly'), r = t.objectStore('kv').get(key); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
-function autosave(doc) { return kvSet('autosave', { time: Date.now(), json: serializeProject(pruneAssets(deepClone(doc))) }).catch(() => false); }
+function autosave(doc) { return kvSet('autosave', { time: Date.now(), json: serializeProject(pruneAssets(deepClone(doc))) }).catch((e) => { try { window.SlopStorage && SlopStorage.handle(e, { once: 'label-autosave' }); } catch (x) { /* no dialog on this page */ }; return false; }); }
 async function loadAutosave() { try { const r = await kvGet('autosave'); return r && r.json ? { doc: parseProject(r.json), time: r.time } : null; } catch (e) { return null; } }
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } }

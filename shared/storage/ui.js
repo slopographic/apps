@@ -2,6 +2,7 @@
  * site is full, names what is using the space and offers the fixes. Any other error is left to the caller (returns false).
  *   opts.app    the app's name for the message, e.g. 'Notes' (default: the page title)
  *   opts.what   what did not save, e.g. 'this note' (optional)
+ *   opts.once   a key: after the first dialog for it, later quota errors with the same key are not shown again (autosave)
  *   opts.retry  async function that saves again. "Try again" runs it and closes the dialog when it resolves.
  *               The content stays in the editor meanwhile: a failed save must never clear the form, canvas or text.
  * Returns true when the error was a quota error (the person has been told), false otherwise.
@@ -39,6 +40,7 @@
     ].filter(Boolean);
   }
 
+  const told = new Set();
   let showing = false; // one dialog at a time: several failed writes in a row show one dialog
   /** The app's name from the page title ("Slop Notes: ..." -> "Slop Notes"), when the caller gives none. */
   const titleApp = () => String((g.document && g.document.title) || '').split(/[:|·—–]/)[0].trim() || 'This app';
@@ -83,6 +85,7 @@
     if (!SS.classify(err).quota) return false;
     const app = opts.app || titleApp();
     if (showing) return true;
+    if (opts.once) { if (told.has(opts.once)) return true; told.add(opts.once); } // autosaves tell the person once per page
     if (!g.SlopUI || !g.SlopUI.dialog) {
       g.alert && g.alert(`${app}: this site’s storage is full. Your changes were not saved. Free space in Settings, Storage, then save again.`);
       return true;

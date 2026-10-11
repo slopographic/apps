@@ -167,9 +167,19 @@
   }
 
   /** Saves the draft. Returns true on success. */
-  async function save() {
+  /** The save in flight, if any. A second save waits for it, so two saves never race (a new invoice would get two drafts). */
+  let inflight = null;
+
+  function save() {
+    if (inflight) return inflight.then(() => save());
+    inflight = doSave().finally(() => { inflight = null; });
+    return inflight;
+  }
+
+  async function doSave() {
     const c = collect();
     if (c.error) { setMsg(c.error, true); return false; }
+    setMsg('Saving…');
     const created = isNew();
     const r = await NS.invoices.saveDraft(c.form);
     if (!r.ok) { setMsg(U.refusal(r), true); return false; }
@@ -180,8 +190,9 @@
     return true;
   }
 
-  /** Runs fn after saving when there are changes or the invoice is new. */
+  /** Runs fn after saving when there are changes or the invoice is new. A save in flight is waited for first. */
   async function saveThen(fn) {
+    if (inflight) { setMsg('Waiting for the save to finish…'); if (!(await inflight)) return; }
     if (st.dirty || isNew()) { if (!(await save())) return; }
     return fn();
   }

@@ -24,6 +24,7 @@
     }
   }
   const button = (text) => $$('button').find((b) => b.textContent.trim() === text);
+  const saveButton = () => button('Save') || button('Save draft');
   const enter = (el) => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
   /** Types into the input the paper just opened for a field, and presses Enter (the same as a person would). */
   async function editOnPage(sel, text) {
@@ -99,6 +100,60 @@
       } finally {
         W().URL.createObjectURL = make;
       }
+    });
+
+    it('Export PDF clicked while a save is in flight waits for the save, then downloads a PDF of the saved invoice', async () => {
+      const NSI = W().SlopInvoices;
+      await until(() => !NSI.editor.isDirty() && NSI.editor.id() && button('Export PDF'), 'the saved invoice');
+      await editOnPage('#ePage .pe[data-edit="description"][data-index="0"]', 'Gizmo');
+      expect(NSI.editor.isDirty()).toBeTruthy();
+      const realSave = NSI.invoices.saveDraft;
+      let saves = 0;
+      NSI.invoices.saveDraft = async (form) => { saves++; await sleep(900); return realSave(form); };   // a slow save in flight
+      const blobs = [];
+      const make = W().URL.createObjectURL;
+      W().URL.createObjectURL = (b) => { blobs.push(b); return make.call(W().URL, b); };
+      try {
+        saveButton().click();
+        await until(() => $('#eMsg').textContent === 'Saving…', 'the saving status');
+        button('Export PDF').click();
+        await until(() => $('#eMsg').textContent.includes('Waiting for the save'), 'the waiting status');
+        expect(blobs.length).toBe(0);                       // nothing downloads before the save is done
+        const blob = await until(() => blobs[0], 'the PDF download', 15000);
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        expect(String.fromCharCode(...bytes.slice(0, 5))).toBe('%PDF-');
+        expect(saves).toBe(1);                              // the export did not start a second save
+        const stored = (await W().SlopData.store.list('invoices')).value.find((r) => r.id === NSI.editor.id());
+        expect(stored.lines[0].description).toBe('Gizmo');  // the PDF is of the saved invoice
+        expect(NSI.editor.isDirty()).toBeFalsy();
+      } finally {
+        NSI.invoices.saveDraft = realSave;
+        W().URL.createObjectURL = make;
+      }
+    });
+
+    it('a new invoice clicked Save twice while the first save is in flight makes one draft, not two', async () => {
+      const NSI = W().SlopInvoices;
+      const before = (await W().SlopData.store.list('invoices')).value.length;
+      const realSave = NSI.invoices.saveDraft;
+      NSI.invoices.saveDraft = async (form) => { await sleep(700); return realSave(form); };
+      try {
+        NSI.views.edit.onShow(null);
+        await until(() => $('#ePage .paper') && saveButton(), 'the new invoice page');
+        await until(() => $('#ePage .pe[data-edit="customer"]'), 'the customer on the page');
+        $('#ePage .pe[data-edit="customer"]').click();
+        const sel = await until(() => $('#ePage select.pe-input'), 'the customer select');
+        sel.value = customerId;
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+        await sleep(60);
+        saveButton().click();
+        saveButton().click();
+        await sleep(2500);
+      } finally {
+        NSI.invoices.saveDraft = realSave;
+      }
+      const after = (await W().SlopData.store.list('invoices')).value.length;
+      expect(after - before).toBe(1);
     });
   });
 

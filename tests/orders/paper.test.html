@@ -85,6 +85,37 @@
         W().URL.createObjectURL = make;
       }
     });
+
+    it('Export PDF clicked while a save is in flight waits for the save, then downloads a PDF of the saved order', async () => {
+      const NSO = W().SlopOrders;
+      await until(() => !NSO.editor.isDirty() && NSO.editor.id() && button('Export PDF'), 'the saved order');
+      await editOnPage('#ePage .pe[data-edit="description"][data-index="0"]', 'Gizmo');
+      expect(NSO.editor.isDirty()).toBeTruthy();
+      const realSave = NSO.orders.save;
+      let saves = 0;
+      NSO.orders.save = async (form) => { saves++; await sleep(900); return realSave(form); };   // a slow save in flight
+      const blobs = [];
+      const make = W().URL.createObjectURL;
+      W().URL.createObjectURL = (b) => { blobs.push(b); return make.call(W().URL, b); };
+      try {
+        button('Save').click();
+        await until(() => $('#eMsg').textContent === 'Saving…', 'the saving status');
+        button('Export PDF').click();
+        await until(() => $('#eMsg').textContent.includes('Waiting for the save'), 'the waiting status');
+        expect(blobs.length).toBe(0);                       // nothing downloads before the save is done
+        const blob = await until(() => blobs[0], 'the PDF download', 15000);
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        expect(String.fromCharCode(...bytes.slice(0, 5))).toBe('%PDF-');
+        expect(saves).toBe(1);                              // the export did not start a second save
+        const stored = (await W().SlopData.store.list('orders')).value.find((r) => r.id === NSO.editor.id());
+        expect(stored.lines[0].description).toBe('Gizmo');  // the PDF is of the saved order
+        expect(NSO.editor.isDirty()).toBeFalsy();
+        await until(() => $('#eMsg').textContent === 'PDF downloaded.', 'the done status');
+      } finally {
+        NSO.orders.save = realSave;
+        W().URL.createObjectURL = make;
+      }
+    });
   });
 
   run({ name: 'Slop Orders · paper' });

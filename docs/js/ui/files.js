@@ -38,7 +38,7 @@
   }
   const draftKey = (id) => (id ? 'd:' + id : 'untitled');
   S.draftGet = (key) => store('readonly', (s) => s.get(key)).catch(() => null);
-  S.draftPut = (key, rec) => store('readwrite', (s) => s.put(Object.assign({ key }, rec))).catch(() => null);
+  S.draftPut = (key, rec) => store('readwrite', (s) => s.put(Object.assign({ key }, rec))).catch((e) => { try { window.SlopStorage && SlopStorage.handle(e, { once: 'docs-draft' }); } catch (x) { /* no dialog on this page */ }; return null; });
   S.draftDel = (key) => store('readwrite', (s) => s.delete(key)).catch(() => null);
   /** My templates (IndexedDB 'slop-docs', store 'templates'): the same database as the drafts. */
   S.tplStore = (mode, fn) => store(mode, fn, 'templates');
