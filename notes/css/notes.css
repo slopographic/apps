@@ -142,3 +142,14 @@ button, input, textarea { font: inherit; color: inherit; }
   .nt-panes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .nt-panes[data-mode="write"], .nt-panes[data-mode="preview"] { grid-template-columns: minmax(0, 1fr); }
 }
+/* Blocks: tables, callouts (a quote with a [!NOTE] marker, and the video card) and the dialog form. */
+.md .md-table { overflow-x: auto; margin: .8em 0; }
+.md table { border-collapse: collapse; }
+.md th, .md td { border: 1px solid var(--nt-line); padding: 6px 10px; vertical-align: top; }
+.md th { background: var(--nt-panel); text-align: left; }
+.md-callout { border-left: 4px solid var(--nt-accent); background: var(--nt-panel); padding: 8px 14px; border-radius: 6px; margin: .8em 0; }
+.md-callout .md-callout-title { font-weight: 600; margin: 0 0 .3em; }
+.md-callout > p, .md-callout > ul, .md-callout > ol { margin: .3em 0; }
+.md-warning { border-left-color: #b26a00; }
+.md-video { border-left-color: #1d4f91; }
+.nt-form { display: grid; gap: 10px; min-width: min(360px, 80vw); }

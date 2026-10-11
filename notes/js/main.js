@@ -6,7 +6,8 @@ import * as A from './actions.js';
 import { renderSide } from './side.js';
 import { renderList } from './list.js';
 import { renderEditor, wireEditor } from './editor.js';
-import { resolveMenu, exportMenu } from './menus.js';
+import { resolveMenu, exportMenu, renameFocused } from './menus.js';
+import { blockItems } from './blocks.js';
 import { registerCommands } from './commands.js';
 import { $ } from './dom.js';
 
@@ -26,6 +27,11 @@ function wire() {
   on('nt-side-btn', () => A.setPane('side'));
   on('nt-del', () => { const n = curNote(); if (n) A.remove(n); });
   on('nt-cmd', () => { if (window.SlopCmd && SlopCmd.open) SlopCmd.open(); });
+  $('nt-insert').addEventListener('click', (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    SlopUI.menu(blockItems(), r.left, r.bottom + 4);
+  });
+  $('nt-app').addEventListener('keydown', (e) => { if (e.key === 'F2' && renameFocused(e.target)) e.preventDefault(); });
   $('nt-export').addEventListener('click', (e) => {
     const items = exportMenu();
     if (!items) return;
