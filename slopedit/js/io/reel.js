@@ -45,6 +45,12 @@
   }
   /** Lays the photos out with the random edit. Returns a summary string for the status line. */
   function place(m, photos, links) {
+    if (m.remix) { // a Reel Remix project: the same options, so the same seed gives the same edit (shared/video plan)
+      const plan = SE.random.plan(m.remix, photos);
+      if (!plan) { A.appendToTimeline(photos); return 'added in order'; }
+      SE.change('Make reel', (p) => { SE.random.build(p, plan); });
+      return 'Reel Remix, ' + Math.round(plan.total) + ' s';
+    }
     const tplId = Object.prototype.hasOwnProperty.call(R.TPL, m.template) ? R.TPL[m.template] : null;
     const tpl = tplId && SE.templates ? SE.templates.get(tplId) : null;
     const plan = SE.random && SE.random.plan({ target: m.length, pace: m.pace, aspect: m.aspect, tpl: tpl ? tpl.id : null }, photos);
