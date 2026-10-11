@@ -35,7 +35,8 @@
     $('btnInfo').addEventListener('click', () => { if (DR.isMobile()) DR.sheet(!document.body.classList.contains('sheet-open')); else DR.toggleInfo(); });
     $('btnSide').addEventListener('click', () => DR.drawer(!document.body.classList.contains('drawer-open')));
     $('scrim').addEventListener('click', () => { DR.drawer(false); DR.sheet(false); });
-    DR.wireSelect(); DR.wireDrag(); DR.wireDropUpload(); DR.wireKeys();
+    DR.wireCommands(); DR.wireSelect(); DR.wireDrag(); DR.wireDropUpload(); DR.wireKeys();
+    $('btnCmd').addEventListener('click', () => DR.openPalette());
     addEventListener('resize', DR.debounce(() => { if (['usage', 'nodes'].includes(DR.viewNow())) DR.render(); }, 200));
   }
   // Other tabs and apps change the Drive too (Send to…, saves, a restore): follow along.

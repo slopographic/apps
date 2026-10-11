@@ -13,6 +13,7 @@
     try { var t = JSON.parse(localStorage.getItem('slop-drive.theme')); if (t === 'light' || t === 'classic' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
   </script>
   <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/views.css">
   <link rel="stylesheet" href="css/panels.css">
@@ -28,6 +29,7 @@
       <label class="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg><input id="search" type="search" placeholder="Search Slop Drive" aria-label="Search Slop Drive" autocomplete="off"></label>
       <div class="tb-group">
         <button type="button" class="btn primary" id="btnNew"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>New</span></button>
+        <button type="button" class="tb" id="btnCmd" title="Search commands (⌘K)" aria-label="Search commands" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></svg></button>
         <button type="button" class="tb" id="btnBackup" title="Backup & restore" aria-label="Backup and restore"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/></svg></button>
         <button type="button" class="tb" id="btnMore" title="More" aria-label="More"><svg class="ic" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
       </div>
@@ -57,6 +59,7 @@
   </div>
   <script src="../shared/apps.js"></script>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/commands/commands.js"></script>
   <script src="../shared/hub.js"></script>
   <script src="../shared/guard.js" defer></script>
   <script src="../shared/backup/zip.js"></script>
@@ -78,6 +81,7 @@
   <script src="js/ui/select.js"></script>
   <script src="js/ui/dnd.js"></script>
   <script src="js/ui/menus.js"></script>
+  <script src="js/ui/commands.js"></script>
   <script src="js/ui/info.js"></script>
   <script src="js/ui/quicklook.js"></script>
   <script src="js/ui/dupes-ui.js"></script>

@@ -14,6 +14,8 @@
         return;
       }
       const run = (fn) => { e.preventDefault(); fn(); };
+      // With the shared command palette, SlopCmd owns the shortcuts (people can rebind them); we keep navigation here.
+      if (DR.cmdActive && !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'Enter', ' ', 'Escape'].includes(k)) return;
       if (gPending && Date.now() - gPending < 1200 && !mod) {
         gPending = 0;
         const sec = { r: 'recent', s: 'starred', t: 'trash' }[k.toLowerCase()];

@@ -18,11 +18,11 @@
     let m;
     if (!items.length) {
       m = [
-        { label: 'New folder', key: 'Ctrl+Shift+N', act: () => DR.newFolder(DR.dest()), disabled: !DR.canAddHere() },
-        { label: 'Upload files…', key: 'Ctrl+U', act: () => DR.uploadPicker(false) },
-        { label: 'Paste', key: 'Ctrl+V', act: () => DR.paste(), disabled: !S.clip || !DR.canAddHere() },
+        { label: 'New folder', key: DR.keyLabel('newFolder'), act: () => DR.newFolder(DR.dest()), disabled: !DR.canAddHere() },
+        { label: 'Upload files…', key: DR.keyLabel('upload'), act: () => DR.uploadPicker(false) },
+        { label: 'Paste', key: DR.keyLabel('paste'), act: () => DR.paste(), disabled: !S.clip || !DR.canAddHere() },
         '-',
-        { label: 'Select all', key: 'Ctrl+A', act: () => DR.selectAll() },
+        { label: 'Select all', key: DR.keyLabel('selectAll'), act: () => DR.selectAll() },
         { label: 'View', sub: DR.VIEWS.map(([v, l, k]) => ({ label: l, key: k, check: S.view === v, act: () => DR.setView(v) })) },
         { label: 'Sort by', sub: sortSub() },
       ];
@@ -49,19 +49,19 @@
         one && (S.section !== 'folder' || DR.searching()) ? { label: 'Show in folder', act: () => DR.reveal(one) } : null,
         '-',
         { label: items.length === 1 && file ? 'Download' : 'Download as .zip', act: () => DR.download(items) },
-        { label: allStarred ? 'Remove star' : 'Add star', key: 'S', act: () => DR.setStar(items, !allStarred) },
-        one ? { label: 'Rename…', key: 'F2', act: () => DR.rename(one) } : null,
+        { label: allStarred ? 'Remove star' : 'Add star', key: DR.keyLabel('star'), act: () => DR.setStar(items, !allStarred) },
+        one ? { label: 'Rename…', key: DR.keyLabel('rename'), act: () => DR.rename(one) } : null,
         '-',
-        { label: 'Copy', key: 'Ctrl+C', act: () => DR.clipCopy(false) },
-        { label: 'Cut', key: 'Ctrl+X', act: () => DR.clipCopy(true) },
-        folder ? { label: 'Paste into folder', key: 'Ctrl+V', act: () => DR.paste(folder.id), disabled: !S.clip } : null,
-        { label: 'Duplicate', key: 'Ctrl+D', act: () => DR.duplicate(items) },
-        { label: 'Move to…', key: 'Ctrl+M', act: () => DR.moveDialog(items) },
+        { label: 'Copy', key: DR.keyLabel('copy'), act: () => DR.clipCopy(false) },
+        { label: 'Cut', key: DR.keyLabel('cut'), act: () => DR.clipCopy(true) },
+        folder ? { label: 'Paste into folder', key: DR.keyLabel('paste'), act: () => DR.paste(folder.id), disabled: !S.clip } : null,
+        { label: 'Duplicate', key: DR.keyLabel('duplicate'), act: () => DR.duplicate(items) },
+        { label: 'Move to…', key: DR.keyLabel('move'), act: () => DR.moveDialog(items) },
         { label: 'Copy to…', act: () => DR.moveDialog(items, true) },
         folder ? { label: 'New folder inside', act: () => DR.newFolder(folder.id) } : null,
         '-',
-        { label: 'Info', key: 'I', act: () => { DR.toggleInfo(true); if (DR.isMobile()) DR.sheet(true); } },
-        { label: 'Move to Trash', key: 'Del', act: () => DR.trash(items) },
+        { label: 'Info', key: DR.keyLabel('info'), act: () => { DR.toggleInfo(true); if (DR.isMobile()) DR.sheet(true); } },
+        { label: 'Move to Trash', key: DR.keyLabel('trash'), act: () => DR.trash(items) },
       ];
     }
     UI.menu(m.filter((x, i, a) => x && !(x === '-' && (i === 0 || a[i - 1] === '-'))), x, y);
@@ -76,6 +76,7 @@
     ['G then R / S / T / D', 'Go to Recent, Starred, Trash, Slop Drive'], ['?', 'This list'],
   ];
   DR.shortcutsDialog = function () {
+    if (window.SlopCmd && window.SlopCmd.openKeymap) return window.SlopCmd.openKeymap();
     const el = DR.el;
     window.SlopUI.dialog({ title: 'Keyboard shortcuts', cls: 'keys-dlg', body: el('div', { class: 'keys' }, DR.SHORTCUTS.map(([k, d]) => el('div', { class: 'krow' }, el('kbd', null, k), el('span', null, d)))), buttons: [{ label: 'Close', primary: true }] });
   };

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SlopEdit — Slopographic</title>
+  <meta name="description" content="SlopEdit: a free video editor that runs 100% in your browser. Multi-track timeline, trim, split, transitions, titles, colour and audio mixing, MP4 export with WebCodecs. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://slopographic.com/slopedit/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slopographic">
+  <meta property="og:title" content="SlopEdit — Slopographic">
+  <meta property="og:description" content="A video editor that never uploads your footage: cut, trim, add titles and transitions, and export MP4 right in your browser.">
+  <meta property="og:url" content="https://slopographic.com/slopedit/">
+  <meta property="og:image" content="https://slopographic.com/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slopedit.theme')); if (t === 'light' || t === 'classic' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" data-offline="strip">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin data-offline="strip">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500..900&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Caveat:wght@600&display=swap" rel="stylesheet" data-offline="strip">
+  <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css" data-optional>
+  <link rel="stylesheet" href="css/base.css" data-src="slopedit/css/base.css">
+  <link rel="stylesheet" href="css/panels.css" data-src="slopedit/css/panels.css">
+  <link rel="stylesheet" href="css/timeline.css" data-src="slopedit/css/timeline.css">
+  <link rel="stylesheet" href="css/themes.css" data-src="slopedit/css/themes.css">
+</head>
+<body>
+  <div class="app" id="app" data-pane="media">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>SlopEdit</b><a class="home-link" href="../">slopographic</a></div>
+      <nav class="menus" id="menus" aria-label="Main menu"></nav>
+      <div class="tb-group">
+        <button type="button" class="tb" id="btnUndo" aria-label="Undo" title="Undo" disabled></button>
+        <button type="button" class="tb" id="btnRedo" aria-label="Redo" title="Redo" disabled></button>
+        <button type="button" class="tb" id="btnSearch" aria-label="Search commands" title="Search commands (Ctrl+K)"></button>
+      </div>
+      <span class="tb-flex"></span>
+      <span class="local-badge" title="Your footage is processed on this device. Nothing is uploaded."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>100% local · nothing uploaded</span></span>
+      <label class="fname"><span class="sr">Project name</span><input id="projName" type="text" value="Untitled project" spellcheck="false" autocomplete="off" aria-label="Project name"></label>
+      <button type="button" class="btn primary" id="btnExport"></button>
+      <button type="button" class="tb" id="btnMore" aria-label="Menu" title="Menu"></button>
+    </header>
+
+    <aside class="pane bin" id="bin" aria-label="Project media and effects"></aside>
+
+    <main class="monitor" id="monitor" aria-label="Program monitor">
+      <div class="mon-stage" id="monStage">
+        <canvas id="preview" width="1280" height="720" aria-label="Preview"></canvas>
+        <canvas id="overlay" class="mon-overlay" width="1280" height="720" aria-hidden="true"></canvas>
+        <div class="mon-msg" id="monMsg" hidden></div>
+      </div>
+      <div class="transport" id="transport" role="toolbar" aria-label="Playback"></div>
+    </main>
+
+    <aside class="pane insp" id="insp" aria-label="Inspector"></aside>
+
+    <section class="timeline" id="timeline" aria-label="Timeline">
+      <div class="tl-split" id="tlSplit" title="Drag to resize" aria-hidden="true"></div>
+      <div class="tl-bar" id="tlBar" role="toolbar" aria-label="Timeline tools"></div>
+      <div class="tl-body" id="tlBody">
+        <div class="tl-heads" id="tlHeads"></div>
+        <div class="tl-lanes" id="tlLanes" tabindex="0" aria-label="Timeline tracks. Space plays, S splits, arrows step frames.">
+          <canvas id="tlCanvas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <nav class="mtabs" id="mtabs" aria-label="Panels"></nav>
+    <footer class="statusbar" id="status">
+      <span id="statusLeft">Ready</span>
+      <span id="statusMsg" class="st-msg" aria-live="polite"></span>
+      <span class="tb-flex"></span>
+      <span id="statusCaps"></span>
+      <span class="st-local"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Local only</span>
+    </footer>
+  </div>
+  <div class="drop-overlay" id="dropOverlay" hidden><div><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg><b>Drop to import</b><span>Video, audio and images · processed locally</span></div></div>
+  <noscript><p class="noscript">SlopEdit needs JavaScript. It runs entirely in your browser — nothing is uploaded.</p></noscript>
+
+  <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/apps.js" data-src="shared/apps.js"></script>
+  <script src="../shared/hub.js" data-src="shared/hub.js"></script>
+  <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js" data-optional></script>
+  <script src="../vendor/mp4-muxer/mp4-muxer.js" data-src="vendor/mp4-muxer/mp4-muxer.js"></script>
+  <script src="../vendor/webm-muxer/webm-muxer.js" data-src="vendor/webm-muxer/webm-muxer.js"></script>
+  <script src="js/core/util.js" data-src="slopedit/js/core/util.js"></script>
+  <script src="js/ui/icons.js" data-src="slopedit/js/ui/icons.js"></script>
+  <script src="js/core/model.js" data-src="slopedit/js/core/model.js"></script>
+  <script src="js/core/history.js" data-src="slopedit/js/core/history.js"></script>
+  <script src="js/core/edit.js" data-src="slopedit/js/core/edit.js"></script>
+  <script src="js/core/zip.js" data-src="slopedit/js/core/zip.js"></script>
+  <script src="js/media/analyze.js" data-src="slopedit/js/media/analyze.js"></script>
+  <script src="js/media/library.js" data-src="slopedit/js/media/library.js"></script>
+  <script src="js/media/demux.js" data-src="slopedit/js/media/demux.js"></script>
+  <script src="js/media/frames.js" data-src="slopedit/js/media/frames.js"></script>
+  <script src="js/render/grade.js" data-src="slopedit/js/render/grade.js"></script>
+  <script src="js/render/text.js" data-src="slopedit/js/render/text.js"></script>
+  <script src="js/render/compositor.js" data-src="slopedit/js/render/compositor.js"></script>
+  <script src="js/render/audiomix.js" data-src="slopedit/js/render/audiomix.js"></script>
+  <script src="js/render/player.js" data-src="slopedit/js/render/player.js"></script>
+  <script src="js/timeline/view.js" data-src="slopedit/js/timeline/view.js"></script>
+  <script src="js/timeline/draw.js" data-src="slopedit/js/timeline/draw.js"></script>
+  <script src="js/timeline/input.js" data-src="slopedit/js/timeline/input.js"></script>
+  <script src="js/timeline/heads.js" data-src="slopedit/js/timeline/heads.js"></script>
+  <script src="js/io/encode.js" data-src="slopedit/js/io/encode.js"></script>
+  <script src="js/io/recorder.js" data-src="slopedit/js/io/recorder.js"></script>
+  <script src="js/io/gif.js" data-src="slopedit/js/io/gif.js"></script>
+  <script src="js/io/project.js" data-src="slopedit/js/io/project.js"></script>
+  <script src="js/io/sample.js" data-src="slopedit/js/io/sample.js"></script>
+  <script src="js/io/build.js" data-src="slopedit/js/io/build.js"></script>
+  <script src="js/ui/app.js" data-src="slopedit/js/ui/app.js"></script>
+  <script src="js/ui/bin.js" data-src="slopedit/js/ui/bin.js"></script>
+  <script src="js/ui/effects.js" data-src="slopedit/js/ui/effects.js"></script>
+  <script src="js/ui/inspector.js" data-src="slopedit/js/ui/inspector.js"></script>
+  <script src="js/ui/insp-fields.js" data-src="slopedit/js/ui/insp-fields.js"></script>
+  <script src="js/ui/transport.js" data-src="slopedit/js/ui/transport.js"></script>
+  <script src="js/ui/export-dialog.js" data-src="slopedit/js/ui/export-dialog.js"></script>
+  <script src="js/ui/commands.js" data-src="slopedit/js/ui/commands.js"></script>
+  <script src="js/ui/menus.js" data-src="slopedit/js/ui/menus.js"></script>
+  <script src="js/ui/main.js" data-src="slopedit/js/ui/main.js"></script>
+</body>
+</html>

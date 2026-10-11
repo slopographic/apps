@@ -25,7 +25,8 @@
       // stylesheets
       html = html.replace(/<link\b[^>]*>/gi, function (tag) {
         var href = (/href="([^"]+)"/i.exec(tag) || [])[1] || '';
-        if (/fonts\.(googleapis|gstatic)\.com/.test(href) || /rel="preconnect"/i.test(tag)) return '';
+        // Web fonts (data-offline="strip") stay online-only: offline, the fallback font stack is used.
+        if (/fonts\.(googleapis|gstatic)\.com/.test(href) || /rel="preconnect"|data-offline="strip"/i.test(tag)) return '';
         if (/rel="stylesheet"/i.test(tag) && !/^https?:/i.test(href)) { var k = '@@CSS' + jobs.length + '@@'; jobs.push({ k: k, url: href, kind: 'css' }); return k; }
         if (/rel="icon"/i.test(tag) && !/^https?:|^data:/i.test(href)) { var k2 = '@@ICON' + jobs.length + '@@'; jobs.push({ k: k2, url: href, kind: 'icon' }); return k2; }
         return tag;

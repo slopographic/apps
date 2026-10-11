@@ -71,9 +71,9 @@
   DR.newMenu = function (x, y) {
     const here = DR.canAddHere();
     window.SlopUI.menu([
-      { label: 'New folder', key: 'Ctrl+Shift+N', act: () => DR.newFolder(DR.dest()), disabled: !here && S.section !== 'recent' && S.section !== 'starred' },
+      { label: 'New folder', key: DR.keyLabel('newFolder'), act: () => DR.newFolder(DR.dest()), disabled: !here && S.section !== 'recent' && S.section !== 'starred' },
       '-',
-      { label: 'Upload files…', key: 'Ctrl+U', act: () => DR.uploadPicker(false) },
+      { label: 'Upload files…', key: DR.keyLabel('upload'), act: () => DR.uploadPicker(false) },
       { label: 'Upload a folder…', act: () => DR.uploadPicker(true) },
       '-',
       { label: 'New text file', act: async () => { const n = await window.SlopUI.prompt('New text file', 'Name', 'Notes.txt', { ok: 'Create' }); if (n) await DR.importFiles([{ file: new File([''], n, { type: 'text/plain' }), path: n }], DR.dest()); } },
@@ -87,12 +87,13 @@
       '-',
       { label: 'View', sub: DR.VIEWS.map(([v, l, k]) => ({ label: l, key: k, check: S.view === v, act: () => DR.setView(v) })) },
       { label: 'Theme', sub: DR.THEMES.map(([t, l]) => ({ label: l, check: theme === t, act: () => DR.setTheme(t) })) },
-      { label: 'Info panel', key: 'I', check: S.info, act: () => DR.toggleInfo() },
+      { label: 'Info panel', key: DR.keyLabel('info'), check: S.info, act: () => DR.toggleInfo() },
       '-',
       { label: 'Keep storage (ask the browser)', act: () => DR.requestPersist(true) },
       { label: 'Empty Trash…', act: () => DR.emptyTrash() },
       '-',
-      { label: 'Keyboard shortcuts', key: '?', act: () => DR.shortcutsDialog() },
+      { label: 'Search commands…', key: window.SlopCmd ? '⌘K'.replace('⌘', /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+') : undefined, act: () => DR.openPalette() },
+      { label: 'Help', sub: [{ label: 'Keyboard shortcuts…', key: '?', act: () => DR.shortcutsDialog() }, { label: 'Search commands… (⌘K)', act: () => DR.openPalette() }] },
     ], x, y);
   };
   DR.backupDialog = () => window.SlopBackup.openDialog({ onRestored: () => DR.done() });
