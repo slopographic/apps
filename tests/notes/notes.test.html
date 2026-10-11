@@ -107,8 +107,8 @@
       item.dispatchEvent(new (W().MouseEvent)('contextmenu', { bubbles: true, cancelable: true, clientX: 300, clientY: 200, button: 2 }));
       await waitFor(() => W().document.querySelector('.sui-menu'), { timeout: 2000 });
       const labels = qa('.sui-menu .sui-lbl').map((x) => x.textContent);
-      expect(labels).toContain('Export as Markdown (.md)');
-      expect(labels).toContain('Export as HTML (.html)');
+      expect(labels).toContain('Export');
+      expect(labels).toContain('Rename…');
       expect(labels).toContain('Move to Trash…');
       W().SlopUI.closeMenu();
     });

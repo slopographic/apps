@@ -36,7 +36,7 @@ export function bindInput(hit) {
   let P = null;
   hit.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    if (e.pointerType !== 'mouse' && controlAt(e.clientX, e.clientY)) return;   // a control under him gets the tap
+    if (e.pointerType !== 'mouse' && controlAt(e.clientX, e.clientY)) return;   // over a control under him: no pet (see HANDOFF: touch can't pass through)
     e.preventDefault();
     try { hit.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
     P = { id: e.pointerId, sx: e.clientX, sy: e.clientY, ox: M.x - e.pageX, oy: M.y - e.pageY, drag: false };
