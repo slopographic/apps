@@ -89,7 +89,7 @@
     const labels = () => [...doc().querySelectorAll('.sui-menu .sui-lbl')].map((x) => x.textContent);
     const clickItem = (label) => { const row = [...doc().querySelectorAll('.sui-menu .sui-row')].find((r) => r.querySelector('.sui-lbl').textContent === label); expect(!!row).toBe(true); row.click(); };
     const key = (el, k, shiftKey = false) => el.dispatchEvent(new W.KeyboardEvent('keydown', { key: k, shiftKey, bubbles: true, cancelable: true }));
-    const rowOf = (id) => doc().querySelector('.lrow[data-id="' + id + '"]');
+    const rowOf = (id) => { UI.update(); return doc().querySelector('.lrow[data-id="' + id + '"]'); };
     it('layer rows open the layer menu, and its items act', () => {
       blank(); W.SlopUI.closeMenu();
       const L = SV.state.doc.layers[0];
@@ -106,7 +106,8 @@
     });
     it('a group row offers Select Group Contents', () => {
       blank(); W.SlopUI.closeMenu();
-      const L = SV.state.doc.layers[0];
+      SV.loadDoc(SV.sampleDoc(), { fit: false }); SV.resetHistory();
+      const L = SV.state.doc.layers.find((l) => l.children.length >= 2);
       SV.select(L.children.slice(0, 2).map((o) => o.id)); SV.runAction('object.group');
       const g = L.children.find((o) => o.type === 'group');
       expect(!!g).toBe(true);
@@ -116,11 +117,10 @@
     });
     it('swatches: right-click, then Delete Swatch removes it', () => {
       W.SlopUI.closeMenu();
-      const before = SV.swatches ? SV.swatches().length : null;
-      const sw = doc().querySelector('#swgrid .sw');
+      const sw = doc().querySelector('#swgrid .sw'), before = doc().querySelectorAll('#swgrid .sw').length;
       expect(ctxAt(sw)).toBe(true);
       expect(labels()).toContain('Apply as Fill'); expect(labels()).toContain('Delete Swatch');
-      clickItem('Delete Swatch');
+      clickItem('Delete Swatch'); UI.update();
       expect(doc().querySelectorAll('#swgrid .sw').length).toBe(before - 1);
     });
     it('dock tabs: the Collapse Group item collapses and expands the group', () => {
@@ -132,6 +132,7 @@
       expect(ctxAt(tab)).toBe(true);
       clickItem('Expand Group');
       expect(!!UI.st.collapsed[gid]).toBe(false);
+      W.SlopUI.closeMenu();
     });
     it('the Menu key opens the focused layer row menu', () => {
       W.SlopUI.closeMenu();
