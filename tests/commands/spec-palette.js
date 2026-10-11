@@ -25,9 +25,9 @@
     });
     it('moves with arrows, skips disabled items, runs on Enter and restores focus', async () => {
       T.fresh();
-      const a = T.spy({ id: 't.a', title: 'Zap alpha' }), b = T.spy({ id: 't.b', title: 'Zap beta', when: () => false }), c = T.spy({ id: 't.c', title: 'Zap gamma' });
+      const a = T.spy({ id: 't.a', title: 'Frob alpha' }), b = T.spy({ id: 't.b', title: 'Frob beta', when: () => false }), c = T.spy({ id: 't.c', title: 'Frob gamma' });
       const btn = document.getElementById('btn'); btn.focus();
-      await SlopCmd.open('zap');
+      await SlopCmd.open('frob');
       const s = st();
       expect(s.items.map((x) => x.id)).toEqual(['t.a', 't.c', 't.b']);
       expect(s.list.querySelector('[data-id="t.b"]').getAttribute('aria-disabled')).toBe('true');

@@ -22,7 +22,8 @@
       expect(w.document.getElementById('set-analytics').checked).toBe(false);
       expect(w.document.getElementById('set-ads').checked).toBe(false);
       expect(w.document.getElementById('slopc-banner')).toBe(null);
-      expect(w.document.getElementById('donate').hidden).toBe(true);
+      // The Patreon URL is set in shared/consent/config.js, so the Donate section is shown (it is hidden only when the URL is empty).
+      expect(w.document.getElementById('donate').hidden).toBe(false);
     });
     it('the switches read and write the same record as the banner', async () => {
       const w = await page();

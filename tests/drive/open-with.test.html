@@ -22,7 +22,7 @@
       W = await DT.frame('../../drive/', (w) => w.document.body.classList.contains('ready'));
       DR = W.DR; H = W.SlopHub;
       await H.clear(); await DR.refresh(); DR.render();
-      sdoc = await H.put(DT.text('{}', 'application/x-slop-doc'), { name: 'Letter.sdoc', from: 'docs' });
+      sdoc = await H.put(DT.text('{}', 'application/x-slop-doc'), { name: 'Letter.sdoc', from: 'upload' });
       contacts = await H.put(DT.text('BEGIN:VCARD\nEND:VCARD', 'text/vcard'), { name: 'team.scontacts', from: 'upload' });
       png = await H.put(await DT.png(), { name: 'pic.png', from: 'upload' });
       unknown = await H.put(DT.text('???', 'application/octet-stream'), { name: 'data.xyz', from: 'upload' });

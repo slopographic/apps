@@ -77,6 +77,7 @@
       expect(menuText()[0]).toBe('Fill');
       const fill = menuRows().find((r) => r.querySelector('.sui-lbl').textContent === 'Fill');
       fill.dispatchEvent(new WIN.PointerEvent('pointerenter', { bubbles: false }));
+      await waitFor(() => menuText().includes('Black')); // the flyout opens after a short hover delay
       clickItem('Black');
       expect(W.objById('o-box').fill).toBe('black');
       closeMenus();

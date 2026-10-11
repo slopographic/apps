@@ -59,7 +59,7 @@
       const prefs = edit.find((x) => x && x.label === 'Preferences');
       expect(!!prefs).toBe(true);
       expect(prefs.sub.some((x) => x.label === 'Navigation…')).toBe(true);
-      expect(N.apps.photoslop.title).toBe('PhotoSLOP');
+      expect(N.apps.photoslop.title).toBe('PhotoSlop');
       expect(win.SlopCmd.get('ps.nav-preset')).toBeTruthy();
       N.openModal('photoslop');
       await waitFor(dialogUp);

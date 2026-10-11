@@ -23,9 +23,9 @@
       const opened = [];
       const r = await K.tools.dispatch({ name: 'open_app', arguments: { id: 'vector', file: 'poster.svg' } }, toolsWith(opened));
       expect(r.ok).toBe(true);
-      expect(opened[0]).toMatch(/\/vector\/\?drive=/);
+      expect(opened[0]).toMatch(/\/slopvector\/\?drive=/);
       expect(opened[0]).toContain(id);
-      expect(r.result).toBe('Opened Slop Vector with poster.svg.');
+      expect(r.result).toBe('Opened SlopVector with poster.svg.');
     });
     it('open_app with "file" takes a Drive id, and warns when the app does not take that type', async () => {
       const id = await H.put(blob('hello', 'text/plain'), { name: 'notes.txt', from: 'ai' }); ids.push(id);
@@ -78,8 +78,8 @@
       expect(rows.map((r) => r.dataset.app)).toEqual(want.map((a) => a.id));
       const link = $('#appsLaunch .app-row[data-app="vector"] a.app-link');
       expect(link.target).toBe('_blank');
-      expect(link.getAttribute('href')).toMatch(/\/vector\/$/);
-      expect($('#appsLaunch .app-row[data-app="vector"] b').textContent).toBe('Slop Vector');
+      expect(link.getAttribute('href')).toMatch(/\/slopvector\/$/);
+      expect($('#appsLaunch .app-row[data-app="vector"] b').textContent).toBe('SlopVector');
     });
     it('the Apps menu opens an app in a new tab, and can open a Drive file in it', async () => {
       W.__opened.length = 0;
@@ -117,12 +117,12 @@
         await waitFor(() => $('#modelChip').textContent.includes('Qwen2.5 0.5B'));
       } finally { localStorage.removeItem('slop-ai.fake-cache'); W.SlopUI.closeMenu(); }
     });
-    it('"Open Slop Vector with poster.svg" lets the model open the app on that Drive file', async () => {
+    it('"Open SlopVector with poster.svg" lets the model open the app on that Drive file', async () => {
       const id = await W.SlopHub.put(new Blob(['<svg/>'], { type: 'image/svg+xml' }), { name: 'poster.svg', from: 'ai' });
       try {
         AI.newChat(); $('#btnTools').click();
         W.__opened.length = 0;
-        await AI.chat.send('Open Slop Vector with poster.svg');
+        await AI.chat.send('Open SlopVector with poster.svg');
         await waitFor(() => W.__opened.length);
         expect(W.__opened[0]).toContain('/slopvector/?drive=' + id);
         expect($('.chat-main .msg.tool').textContent).toContain('open_app');

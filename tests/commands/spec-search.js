@@ -52,7 +52,7 @@
       let url = '';
       S().navigate = (u) => { url = u; };
       S().goTo(flat('vector').find((x) => x.id === 'go.vector').go);
-      expect(url).toMatch(/\/vector\/$/);
+      expect(url).toMatch(/\/slopvector\/$/);
     });
     it('adds results from providers (e.g. files) under their own heading', () => {
       T.fresh();

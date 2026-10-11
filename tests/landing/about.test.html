@@ -20,10 +20,10 @@
   /* One entry per app's about page. The app link is found by its "Open ..." text. */
   const PAGES = [
     { app: 'label', path: 'label/about/', column: 'Slop Label' },
-    { app: 'photoslop', path: 'photoslop/about/', column: 'PhotoSLOP' },
-    { app: 'vector', path: 'slopvector/about/', column: 'Slop Vector' },
+    { app: 'photoslop', path: 'photoslop/about/', column: 'PhotoSlop' },
+    { app: 'vector', path: 'slopvector/about/', column: 'SlopVector' },
     { app: 'pdf', path: 'pdf/about/', column: 'Slop PDF' },
-    { app: 'cutout', path: 'slopisolate/about/', column: 'Slop Cutout' },
+    { app: 'cutout', path: 'slopisolate/about/', column: 'SlopIsolate' },
   ];
 
   const ROOT = new URL('../../', location.href);
@@ -97,7 +97,7 @@
         expect(link).toBeTruthy();
         const r = await resolves(link.getAttribute('href'), url);
         expect(r.ok).toBe(true);
-        expect(r.url.pathname).toBe(new URL(p.app + '/', ROOT).pathname);
+        expect(r.url.pathname).toBe(new URL(p.path.replace(/about\/$/, ''), ROOT).pathname);
       });
 
       it('the homepage and Settings links in the footer resolve', async () => {

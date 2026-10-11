@@ -69,7 +69,8 @@
     return { text: rest.replace(/\n{3,}/g, '\n\n').trim(), calls };
   }
 
-  const clip = (s, n = 4000) => (s.length > n ? s.slice(0, n) + `… (${s.length - n} more characters)` : s);
+  // A tool may set maxChars when its whole answer must arrive (list_apps is JSON that the model parses).
+  const clip = (s, n = 4000) => (s.length > (n || 4000) ? s.slice(0, n || 4000) + `… (${s.length - (n || 4000)} more characters)` : s);
   async function dispatch(call, tools, env = {}) {
     const t = tools.find((x) => x.name === call.name);
     if (!t) return { ok: false, error: `Unknown tool "${call.name}". Available: ${tools.map((x) => x.name).join(', ')}` };
@@ -83,7 +84,7 @@
     }
     try {
       const r = await t.run(args, env);
-      return { ok: true, result: clip(typeof r === 'string' ? r : JSON.stringify(r == null ? 'ok' : r)) };
+      return { ok: true, result: clip(typeof r === 'string' ? r : JSON.stringify(r == null ? 'ok' : r), t.maxChars) };
     } catch (e) { return { ok: false, error: String((e && e.message) || e) }; }
   }
 
