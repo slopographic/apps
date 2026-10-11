@@ -96,6 +96,22 @@
       await waitFor(() => P.SE.doc.media.some((m) => m.name === 'from-drive.wav'));
       expect(P.location.search).toBe('');
     }, { timeout: 40000 });
+    it('builds a self-contained offline .html that boots', async () => {
+      const html = await ST.SE.build.make();
+      expect(html).toContain('window.SE = { offline: true }');
+      expect(/^\s*<script[^>]*\ssrc=/m.test(html)).toBe(false);
+      expect(/^\s*<link[^>]+stylesheet[^>]+href=/m.test(html)).toBe(false);
+      const fr = document.getElementById('phone');
+      fr.src = 'about:blank';
+      await waitFor(() => fr.contentWindow.location.href === 'about:blank');
+      fr.src = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+      await waitFor(() => { const w = fr.contentWindow; return w && w.SE && w.document.body && w.document.body.classList.contains('ready'); }, { timeout: 30000 });
+      const w = fr.contentWindow;
+      expect(!!w.SE.offline).toBe(true);
+      expect(!!w.SlopHub).toBe(false);
+      expect(w.SE.cmd.list.length).toBeGreaterThan(60);
+      expect(typeof w.Mp4Muxer.Muxer).toBe('function');
+    }, { timeout: 40000 });
     it('reports no script errors', () => { expect(ST.errors).toEqual([]); });
   });
 })();
