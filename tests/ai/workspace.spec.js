@@ -2,7 +2,7 @@
  * framed app only through its SlopCmd registry (ids, guarded by permission and destructive confirmations). */
 (function () {
   'use strict';
-  const { describe, it, expect } = SlopTest;
+  const { describe, it, expect, afterEach } = SlopTest;
   const K = SlopAIKit, T = K.tools, W = SlopWorkspace;
   const tools = () => K.appTools.build({ workspace: W, hub: null, open: () => {} });
   const call = (name, args, env) => T.dispatch({ name, arguments: args }, tools(), env);
@@ -42,14 +42,21 @@
       } finally { window.open = real; }
     });
 
-    it('unknown apps are rejected, and so are apps outside the registry', async () => {
+    it('unknown apps are rejected, and so are experiments that are not apps', async () => {
       const r = await call('open_app', { id: 'nope' }, env());
       expect(r.ok).toBe(false);
       expect(r.error).toMatch(/No app "nope"/);
       const c = await call('app_command', { appId: 'nope', commandId: 'x' }, env());
       expect(c.error).toMatch(/No app "nope"/);
-      await expect(W.open('contacts')).rejects(/No app "contacts"/);
+      await expect(W.open('paint-classic')).rejects(/cannot be opened beside the chat/);
     });
+
+    it('the open_app reply says whether the framed app can be driven (its SlopCmd registry)', async () => {
+      const r = await call('open_app', { id: 'contacts' }, env());
+      expect(r.ok).toBe(true);
+      expect(r.result).toContain('Slop Contacts is open beside the chat');
+      expect(r.result.includes('app_command')).toBe(!!frameOf('contacts').contentWindow.SlopCmd);
+    }, LONG);
 
     it('a command on an app that is not open is refused, with the next step', async () => {
       const r = await call('app_command', { appId: 'pdf', commandId: 'pdf.x' }, env());
