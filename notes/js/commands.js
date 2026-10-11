@@ -4,6 +4,7 @@ import * as A from './actions.js';
 import { S, curNote } from './state.js';
 import { $ } from './dom.js';
 import { setMode } from './editor.js';
+import * as tabs from './tabs.js';
 
 const MODES = ['split', 'write', 'preview'];
 
@@ -12,6 +13,7 @@ export function commandList() {
   const C = (id, title, group, keys, extra = {}) => Object.assign({ id: 'notes.' + id, title, group, keys, run: () => {} }, extra);
   return [
     C('new', 'New note', 'File', ['Mod+Alt+N'], { keywords: ['create', 'write'], run: () => A.newNote() }),
+    C('save', 'Save note to Slop Drive', 'File', ['Mod+S'], { keywords: ['store', 'drive'], when: has, run: () => tabs.saveCurrent() }),
     C('notebook', 'New notebook…', 'File', [], { keywords: ['folder', 'book'], run: () => A.newNotebook() }),
     C('folder', 'New folder…', 'File', [], { keywords: ['subfolder'], run: () => A.newFolder() }),
     C('md', 'Export note as Markdown', 'File', [], { keywords: ['download', '.md'], when: has, run: () => A.exportNote(curNote(), 'md') }),

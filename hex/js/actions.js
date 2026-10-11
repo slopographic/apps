@@ -1,11 +1,15 @@
-/* Slop Hex: the app state and actions (open, save, find, copy, go to, undo). Classic script; exposes window.HexApp.
- * The DOM is read only inside functions, because this script runs before the page body exists. */
+/* Slop Hex: the app actions (open, save, find, copy, go to, undo). Classic script; exposes window.HexApp.
+ * The open file is the current tab (js/tabs.js): app.doc and app.cur follow it. The DOM is read only inside functions,
+ * because this script runs before the page body exists. */
 (function () {
   'use strict';
   if (window.HexApp) return;
   const $ = (id) => document.getElementById(id);
   const HB = () => window.HexBytes;
-  const app = { doc: null, grid: null, driveId: null, version: 1, shaStale: false, shaTok: 0, findTok: 0, typeTok: 0 };
+  const tabs = () => window.HexTabs;
+  const app = { doc: null, cur: null, grid: null, shaTok: 0, findTok: 0, typeTok: 0 };
+  /** The Drive file the open tab is linked to (kept by the strip). */
+  Object.defineProperty(app, 'driveId', { get: () => (app.cur && tabs().api() ? tabs().api().driveIdOf(app.cur) : null) });
   const MB = 1 << 20;
 
   function status(msg) { const el = $('hx-status'); if (el) el.textContent = msg || ''; }
@@ -26,9 +30,9 @@
     return n === 1 ? `${HB().formatOffset(lo, d.size)} (1 byte)` : `${HB().formatOffset(lo, d.size)} to ${HB().formatOffset(hi, d.size)} (${plural(n, 'byte')})`;
   }
 
-  /** Redraw everything that depends on the document: name, info strip, buttons, the unsaved-changes guard. */
+  /** Redraw everything that depends on the open file: name, info strip, buttons, the unsaved-changes guard. */
   function refresh() {
-    const d = app.doc, has = !!d;
+    const d = app.doc, T = app.cur, has = !!d;
     $('hx-empty').hidden = has;
     $('hx-scroll').hidden = !has;
     $('hx-info').hidden = !has;
@@ -40,9 +44,9 @@
     $('hx-size').textContent = sizeText(d.size);
     $('hx-sel').textContent = selText();
     const sha = $('hx-sha');
-    sha.textContent = app.shaBusy ? 'Computing…' : sha.dataset.value ? sha.dataset.value + (app.shaStale ? ' (before your edits)' : '') : '';
-    $('hx-sha-btn').hidden = !app.shaStale;
-    if (window.SlopGuard) SlopGuard.setUnsaved('hex', d.dirty());
+    sha.textContent = T.shaBusy ? 'Computing…' : T.sha ? T.sha + (T.shaStale ? ' (before your edits)' : '') : '';
+    $('hx-sha-btn').hidden = !T.shaStale;
+    if (window.SlopGuard) SlopGuard.setUnsaved('hex', tabs().anyDirty());
     updateType();
   }
 
@@ -53,31 +57,49 @@
     if (tok === app.typeTok && app.doc === d) $('hx-type').textContent = HB().guessType(head);
   }
 
+  /** The hash of the open file. Each tab keeps its own, so switching back shows the last one. */
   async function computeSha() {
-    const d = app.doc; if (!d) return;
-    const tok = ++app.shaTok, sha = $('hx-sha');
-    sha.dataset.value = ''; app.shaBusy = true; refresh();
+    const T = app.cur; if (!T) return;
+    const tok = ++app.shaTok;
+    T.shaBusy = true; refresh();
     try {
-      const h = await d.sha256();
-      if (tok !== app.shaTok || app.doc !== d) return;
-      sha.dataset.value = h; app.shaStale = false;
-    } catch (e) { if (tok === app.shaTok) sha.textContent = 'Could not compute: ' + e.message; }
-    if (tok === app.shaTok) { app.shaBusy = false; refresh(); }
+      const h = await T.doc.sha256();
+      T.sha = h; T.shaStale = false;
+    } catch (e) { if (tok === app.shaTok) $('hx-sha').textContent = 'Could not compute: ' + e.message; }
+    T.shaBusy = false;
+    refresh();
   }
 
-  /** Any byte change: the hash is out of date until it is recalculated. */
-  function changed() { app.shaStale = true; refresh(); }
-
-  async function openBlob(blob, { name = 'untitled.bin', driveId = null, version = 1 } = {}) {
-    if (app.doc && app.doc.dirty() && !(await SlopUI.confirm('Discard unsaved changes?', 'This file has edits that are not saved to Slop Drive. Open the new file anyway?', 'Open anyway', { danger: true }))) return false;
-    const d = HexDoc.create(blob, { name, type: blob.type, crypto: window.crypto });
-    app.doc = d; app.driveId = driveId; app.version = version; app.shaStale = false;
-    $('hx-sha').dataset.value = '';
-    app.grid.setDoc(d);
+  /** Any byte change: the hash is out of date until it is recalculated, and the strip marks the tab. */
+  function changed() {
+    if (app.cur) app.cur.shaStale = true;
+    tabs().changed(app.cur);
     refresh();
-    computeSha();
+  }
+
+  /** The strip showed a tab: its file is on screen, with its own selection. */
+  function activate(T) {
+    app.cur = T; app.doc = T.doc;
+    app.grid.setDoc(T.doc);
+    if (T.sel && T.sel.anchor !== null && T.sel.cursor !== null) app.grid.select(T.sel.anchor, T.sel.cursor);
     app.grid.focus();
-    status(d.size ? `Opened ${name}` : `${name} is empty`);
+    refresh();
+    if (!T.sha && !T.shaBusy) computeSha();
+  }
+  function deactivate(T) {
+    if (app.grid && T) T.sel = app.grid.sel();
+  }
+
+  /** Opens a file in a new tab. A file already open from the same Drive record is shown instead. */
+  async function openBlob(blob, { name = 'untitled.bin', driveId = null, version = 1 } = {}) {
+    if (driveId && tabs().api()) {
+      const open = tabs().api().tabs().find((t) => t.driveId === driveId);
+      if (open) { tabs().api().activate(open.doc); return true; }
+    }
+    const pristine = tabs().current() && tabs().current().doc.size === 0 && !tabs().current().doc.dirty() && !(tabs().api().driveIdOf(tabs().current())) ? tabs().current() : null;
+    tabs().open(blob, name, driveId, version);
+    if (pristine && tabs().current() !== pristine) tabs().api().close(pristine);
+    status(blob.size ? `Opened ${name}` : `${name} is empty`);
     return true;
   }
 
@@ -85,9 +107,10 @@
     const files = await SlopUI.pickFiles({ multiple: false });
     if (files && files[0]) await openBlob(files[0], { name: files[0].name });
   }
+  /** Open from Slop Drive, through the strip (drive.js): the file opens in a new tab linked to its Drive record. */
   async function pickDrive() {
-    const r = await SlopHub.pickFromDrive({ title: 'Open in Slop Hex' });
-    if (r && r.blob) await openBlob(r.blob, { name: r.name, driveId: r.id });
+    const doc = await tabs().api().openFromDrive({ title: 'Open in Slop Hex' });
+    if (doc) status(`Opened ${app.doc ? app.doc.name : 'the file'}`);
   }
 
   /** "photo.bin" -> "photo (v2).bin": the version goes before the extension, and an old version tag is replaced. */
@@ -98,26 +121,31 @@
     return `${base} (v${n})${ext}`;
   }
 
-  /** A new version is a new Drive file beside the one it came from, so nothing is overwritten. */
+  /** A new version is a new Drive file beside the one it came from, so nothing is overwritten (this is not the strip's
+   * in-place save, which would overwrite the linked file). The tab then follows the new version. */
   async function saveVersion() {
-    const d = app.doc; if (!d) return;
+    const T = app.cur; if (!T) return;
     if (!app.driveId) return saveAs();
-    const n = app.version + 1, name = versionName(d.name, n);
+    const d = T.doc, n = T.version + 1, name = versionName(d.name, n);
     let folderId;
     const prev = await SlopHub.get(app.driveId).catch(() => null);
     if (prev) folderId = prev.folderId;
     const id = await SlopHub.put(d.toBlob(), { name, from: 'hex', folderId, meta: { versionOf: app.driveId, version: n } });
-    app.driveId = id; app.version = n; d.name = name; d.markSaved();
+    tabs().api().setDriveId(T, id);
+    T.version = n; d.name = name; d.markSaved();
+    tabs().changed(T);
     refresh();
     SlopUI.toast(`Saved ${name} to Slop Drive`);
   }
 
-  /** Save as a new file in a Drive folder the person picks. */
+  /** Save as new file: the strip's Save as a new Drive file (drive.js picks the folder). A cancel keeps the link. */
   async function saveAs() {
-    const d = app.doc; if (!d) return;
-    const id = await SlopHub.saveToDrive(d.toBlob(), d.name, { from: 'hex', title: `Save “${d.name}” to Slop Drive` });
-    if (!id) return;
-    app.driveId = id; app.version = 1; d.markSaved();
+    const T = app.cur; if (!T) return;
+    const api = tabs().api(), prev = api.driveIdOf(T);
+    api.setDriveId(T, null);
+    const id = await api.saveToDrive(T);
+    if (!id) { api.setDriveId(T, prev); return; }
+    T.version = 1;
     refresh();
   }
 
@@ -181,7 +209,7 @@
 
   window.HexApp = {
     app, status, refresh, changed, openBlob, pickComputer, pickDrive, saveVersion, saveAs, download, copySel,
-    gotoOffset, find, undo, redo, computeSha, selRange, versionName,
+    gotoOffset, find, undo, redo, computeSha, selRange, versionName, activate, deactivate,
     doc: () => app.doc, grid: () => app.grid,
   };
 })();

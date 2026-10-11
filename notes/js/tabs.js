@@ -7,7 +7,7 @@ import * as store from './store.js';
 import { S, byId } from './state.js';
 
 const MD = 'text/markdown';
-let api = null, redraw = () => {}, restoring = false, quiet = 0;
+let api = null, session = null, redraw = () => {}, restoring = false, quiet = 0;
 
 const toast = (m) => { if (window.SlopUI) SlopUI.toast(m); };
 const noteOf = (T) => (T && T.id ? byId(S.notes, T.id) : null);
@@ -83,7 +83,12 @@ export function init(opts = {}) {
   redraw = opts.redraw || redraw;
   api = SlopDocTabs.mount(document.getElementById('nt-tabs'), adapter, { appId: 'notes' });
   api.on(() => { if (window.SlopGuard) SlopGuard.setUnsaved('notes', store.hasPending()); });
-  return SlopDocTabs.session('notes', api, { notice: toast });
+  session = SlopDocTabs.session('notes', api, { notice: toast });
+  return session;
+}
+/** Writes the open tabs to this device now (called once a save has reached Slop Drive, so a reload finds them). */
+export function flush() {
+  return session ? session.flush() : Promise.resolve(false);
 }
 /** Reopens the notes that were open last. Blank tabs are not given a note. */
 export async function restore(session) {
@@ -106,7 +111,10 @@ export function openNote(id) {
 /** New note: a new Drive record in a new tab. */
 export function newNoteTab() {
   if (!api) return null;
-  return api.newTab();
+  const blank = api.current() && isBlank(api.current()) ? api.current() : null;
+  const entry = api.newTab();
+  if (blank) quietly(() => api.close(blank));
+  return entry;
 }
 /** Notes moved to the Trash: their tabs close without asking (store.forget already dropped their pending writes). */
 export function dropNotes(ids) {

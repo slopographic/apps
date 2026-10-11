@@ -3,7 +3,8 @@
  *   { id, name: {prefix, given, additional, family, suffix}, fn, org, dept, title,
  *     phones: [{value, types}], emails: [{value, types}], adr: [{types, po, ext, street, locality, region, postal, country}],
  *     bday ('YYYY-MM-DD' or '--MM-DD'), url, note, groups: [string], photo ('' | data: URI | https link),
- *     stage ('lead' | 'contacted' | 'customer' | 'lost'), followUp ('YYYY-MM-DD') when set } */
+ *     stage ('lead' | 'contacted' | 'customer' | 'lost'), followUp ('YYYY-MM-DD') when set,
+ *     tagIds: [id] (the shared CRM tags; read-only here, kept when a contact is saved) } */
 (function () {
   'use strict';
   const SC = (window.SlopContacts = window.SlopContacts || {});
@@ -46,6 +47,7 @@
       bday: normBday(s.bday), url: T.tidy(s.url), note: T.tidyNote(s.note),
       groups: T.uniq(list(s.groups).map((g) => T.tidy(g)).filter(Boolean)),
       photo: SC.photo.normPhoto(s.photo),
+      tagIds: T.uniq(list(s.tagIds).map((t) => T.tidy(t)).filter(Boolean)),
     };
     // CRM fields, kept when present (the shared customer record carries them): pipeline stage and follow-up date.
     if (s.stage) c.stage = T.tidy(s.stage);

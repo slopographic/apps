@@ -23,7 +23,13 @@
     group: null,              // null = all, 'recent', 'cat:<name>' or 'stage:<stage>'
     open: null,               // id of the contact in the card
     mode: 'view',             // card: 'view', 'edit' (in place) or 'new'
-    touched: new Map(),       // id -> updatedAt (ms), for Recent
+    touched: new Map(),       // id -> updatedAt (ms), for Recent and the updated-date filter
+    created: new Map(),       // id -> createdAt (ms), for the created-date filter
+    tags: [],                 // the shared CRM tags: { id, name, color }
+    view: 'cards',            // middle column: 'cards' (the list) or 'table'
+    sort: { id: null, dir: 'asc' }, // table sort column and direction
+    filters: SC.filters.clean({}), // the sidebar facets (core/filters.js)
+    rev: 0,                   // counts changes made by the person (not reloads); the import undo checks it
     cc: readCc(),             // default country code for E.164 (per viewer)
     ready: false,
     persist: null,            // set by records.js: (prev, next) => writes the difference
@@ -47,6 +53,7 @@
         const st = g.slice(6);
         list = list.filter((c) => c.stage === st);
       }
+      list = SC.filters.apply(list, S.filters, { created: S.created, updated: S.touched });
       const words = S.query.trim().toLowerCase().split(/\s+/).filter(Boolean);
       if (words.length) list = list.filter((c) => { const hay = SC.model.haystack(c); return words.every((w) => hay.includes(w)); });
       return list;
@@ -71,6 +78,7 @@
       S.sel = new Set([...S.sel].filter((id) => ids.has(id)));
       if (S.open && !ids.has(S.open)) { S.open = null; S.mode = 'view'; }
       if (S.focus && !ids.has(S.focus)) S.focus = null;
+      if (write) S.rev++;
       S.emit('change');
       S.emit('render');
       if (write && S.persist) S.persist(prev, S.list);

@@ -1,7 +1,7 @@
 /* Slop Contacts: write CSV in the Google Contacts and Outlook layouts. UTF-8 with a byte-order mark (so Excel
  * reads accents), CRLF line ends, fields quoted when they hold a comma, quote or line break.
  * Outlook has fixed slots, so extra phones, e-mails and addresses beyond them are not written (see HANDOFF.md).
- * Classic script. Adds SlopContacts.csv.googleCsv(contacts) and SlopContacts.csv.outlookCsv(contacts). */
+ * Classic script. Adds SlopContacts.csv.googleCsv, outlookCsv, genericCsv(contacts) and sheetOf(contacts) (XLSX rows). */
 (function () {
   'use strict';
   const SC = (window.SlopContacts = window.SlopContacts || {});
@@ -83,5 +83,41 @@
     return table(OUTLOOK_HEAD, rows);
   }
 
-  SC.csv = Object.assign(SC.csv || {}, { googleCsv, outlookCsv, OUTLOOK_HEAD });
+  const STAGE_LABEL = { lead: 'Lead', contacted: 'Contacted', customer: 'Customer', lost: 'Lost' };
+  /** The plain layout: one column per e-mail and phone (numbered, so a re-import maps them), the address on one line,
+   *  groups separated by semicolons, the pipeline stage. Reads back through the CSV column mapping. */
+  function genericCsv(contacts) {
+    const list = (contacts || []).map((c) => SC.model.normalise(c));
+    const nE = Math.max(1, ...list.map((c) => c.emails.length)), nP = Math.max(1, ...list.map((c) => c.phones.length));
+    const head = ['Name', 'First name', 'Last name', 'Company', 'Job title'];
+    for (let i = 1; i <= nE; i++) head.push('E-mail ' + i);
+    for (let i = 1; i <= nP; i++) head.push('Phone ' + i);
+    head.push('Address', 'Groups', 'Birthday', 'Website', 'Notes', 'Pipeline');
+    const rows = list.map((c) => {
+      const n = c.name, r = [c.fn, n.given, n.family, c.org, c.title];
+      for (let i = 0; i < nE; i++) r.push(c.emails[i] ? c.emails[i].value : '');
+      for (let i = 0; i < nP; i++) r.push(c.phones[i] ? c.phones[i].value : '');
+      r.push(c.adr.map((a) => [a.po, a.ext, a.street, a.locality, a.region, a.postal, a.country].filter(Boolean).join(', ')).join('; '),
+        c.groups.join(';'), c.bday, c.url, c.note, c.stage ? STAGE_LABEL[c.stage] || c.stage : '');
+      return r;
+    });
+    return table(head, rows);
+  }
+
+  /** The worksheet for an .xlsx export, in the shape shared/sheets/write.js takes: { name, rows, fmt, bold }. One row per
+   *  contact; several e-mails or phones share a cell, separated by semicolons. The header row is bold. */
+  const SHEET_HEAD = ['Name', 'Organisation', 'Job title', 'E-mail', 'Phone', 'Groups', 'Notes', 'Birthday', 'Website', 'Pipeline'];
+  function sheetOf(contacts, name = 'Contacts') {
+    const rows = [SHEET_HEAD.slice()];
+    for (const x of contacts || []) {
+      const c = SC.model.normalise(x);
+      const cell = (v) => (v === '' || v == null ? null : v);
+      rows.push([c.fn, c.org, c.title, c.emails.map((e) => e.value).join('; '), c.phones.map((p) => p.value).join('; '),
+        c.groups.join('; '), cell(c.note), cell(c.bday), cell(c.url), c.stage ? STAGE_LABEL[c.stage] || c.stage : null]);
+    }
+    const bold = new Set(SHEET_HEAD.map((_, i) => i));
+    return { name, rows, fmt: new Map(), bold };
+  }
+
+  SC.csv = Object.assign(SC.csv || {}, { googleCsv, outlookCsv, genericCsv, sheetOf, OUTLOOK_HEAD });
 })();

@@ -71,6 +71,7 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="css/notes.css">
+  <link rel="stylesheet" href="../shared/doctabs/doctabs.css" data-src="shared/doctabs/doctabs.css">
   <script src="../shared/apps.js"></script>
   <script src="../shared/slopui.js"></script>
   <script src="../shared/hub.js"></script>
@@ -82,11 +83,15 @@
   <script src="../shared/guard.js" defer></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="../shared/session/session.js"></script>
+  <script src="../shared/doctabs/tabs.js"></script>
+  <script src="../shared/doctabs/drive.js"></script>
+  <script src="../shared/doctabs/session.js"></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body>
   <div class="nt-app" id="nt-app" data-pane="list">
     <header class="nt-top">
+      <div id="nt-tabs" class="doctabs-host"></div>
       <button type="button" class="sui-btn nt-narrow" id="nt-side-btn" aria-label="Show notebooks">Notebooks</button>
       <div class="nt-brand"><span class="nt-logo" aria-hidden="true"></span><h1>Slop Notes</h1></div>
       <span class="nt-save" id="nt-save" role="status" aria-live="polite"></span>
