@@ -3,10 +3,10 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="slopedit" data-src="shared/theme/theme.js"></script>
-<script src="../shared/consent/config.js"></script>
-<script src="../shared/consent/state.js"></script>
-<script src="../shared/consent/consent-mode.js"></script>
-<script src="../shared/consent/banner.js"></script>
+<script src="../shared/consent/config.js" data-offline="strip"></script>
+<script src="../shared/consent/state.js" data-offline="strip"></script>
+<script src="../shared/consent/consent-mode.js" data-offline="strip"></script>
+<script src="../shared/consent/banner.js" data-offline="strip"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>SlopCut — Slopographic</title>
@@ -170,6 +170,6 @@
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js" data-offline="strip"></script>
   <script>window.SlopPWA && SlopPWA.mount();</script>
-  <script src="../shell/shell.js"></script>
+  <script src="../shell/shell.js" data-offline="strip"></script>
 </body>
 </html>

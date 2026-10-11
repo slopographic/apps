@@ -34,12 +34,14 @@
       html = html.replace(/<script\b([^>]*)\ssrc="([^"]+)"([^>]*)><\/script>/gi, function (m, a, src) {
         if (/^https?:/i.test(src)) return m;
         if (/shared\/guard\.js$/.test(src) || /data-offline="strip"/i.test(m)) return ''; // hosted-site-only scripts (reload guard, Sloppo buddy)
-        var k = '@@JS' + jobs.length + '@@'; jobs.push({ k: k, url: src, kind: 'js' }); return k;
+        var k = '@@JS' + jobs.length + '@@'; jobs.push({ k: k, url: src, kind: 'js', app: (/\sdata-app="([^"]+)"/.exec(m) || [])[1] }); return k;
       });
       return Promise.all(jobs.map(function (j) { return fetchText(j.url).then(function (t) { j.text = t; }); })).then(function () {
         jobs.forEach(function (j) {
           var rep;
           if (j.kind === 'css' || j.kind === 'js') rep = IO.inlineTag(j.kind === 'css' ? 'style' : 'script', j.text);
+          // keep data-app on the inlined theme.js, so the offline copy follows the app's own theme key
+          if (j.app) rep = rep.replace('<script>', '<script data-app="' + j.app + '">');
           else rep = '<link rel="icon" href="data:image/svg+xml,' + encodeURIComponent(j.text) + '" type="image/svg+xml">';
           html = html.split(j.k).join(rep);
         });

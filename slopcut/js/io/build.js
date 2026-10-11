@@ -19,7 +19,8 @@
     html = html.replace(/<link\b[^>]*\bdata-src="([^"]+)"[^>]*>/g, (m, p) => '<style data-src="' + p + '">\n' + esc(files.get(p) || '') + '\n</style>');
     html = html.replace(/<script\b[^>]*\bdata-src="([^"]+)"[^>]*><\/script>/g, (m, p) => {
       if (p === 'shared/hub.js') return '';
-      let out = '<script data-src="' + p + '">\n' + esc(files.get(p) || '') + '\n</script>';
+      const app = (/\sdata-app="([^"]+)"/.exec(m) || [])[1];   // theme.js reads its app id from this attribute
+      let out = '<script data-src="' + p + '"' + (app ? ' data-app="' + app + '"' : '') + '>\n' + esc(files.get(p) || '') + '\n</script>';
       if (p === 'shared/slopui.js') out = '<script>window.SE = { offline: true };</script>\n' + out;
       return out;
     });
