@@ -146,7 +146,7 @@
   <script src="js/ui/export-dialogs.js" data-src="press/js/ui/export-dialogs.js"></script>
   <script src="js/ui/main.js" data-src="press/js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
-  <script src="../shared/pwa.js"></script>
-  <script>SlopPWA.mount();</script>
+  <script src="../shared/pwa.js" data-offline="strip"></script>
+  <script>window.SlopPWA && SlopPWA.mount();</script>
 </body>
 </html>

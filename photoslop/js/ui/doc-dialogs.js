@@ -19,28 +19,6 @@ function dlgNew() {
       newDocTab(clamp(+w.value || 1, 1, 12000), clamp(+hh.value || 1, 1, 12000), b, name.value || 'Untitled');
     } }] });
 }
-function anchorGrid(state) {
-  const g = h('div', { class: 'anchor', role: 'group', 'aria-label': 'Anchor' });
-  for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
-    const b = h('button', { type: 'button', class: 'anchor-b' + (state.ax === i && state.ay === j ? ' on' : ''), 'aria-label': `Anchor ${['top', 'middle', 'bottom'][j]} ${['left', 'centre', 'right'][i]}` });
-    b.addEventListener('click', () => { state.ax = i; state.ay = j; $$('.anchor-b', g).forEach((x) => x.classList.remove('on')); b.classList.add('on'); });
-    g.append(b);
-  }
-  return g;
-}
-function dlgCanvasSize() {
-  const w = numInput(D.w, 1, 12000), hh = numInput(D.h, 1, 12000), st = { ax: 1, ay: 1 };
-  dialog({ title: 'Canvas Size', body: h('div', { class: 'form' }, h('p', { class: 'dlg-p' }, `Current size: ${D.w} × ${D.h} px`), field('Width', w, 'px'), field('Height', hh, 'px'), h('div', { class: 'field' }, h('span', { class: 'field-l' }, 'Anchor'), anchorGrid(st))),
-    buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true, act: () => { const nw = clamp(+w.value || 1, 1, 12000), nh = clamp(+hh.value || 1, 1, 12000); resizeCanvas(nw, nh, Math.round(((nw - D.w) * st.ax) / 2), Math.round(((nh - D.h) * st.ay) / 2)); fitView(); } }] });
-}
-function dlgImageSize() {
-  const w = numInput(D.w, 1, 12000), hh = numInput(D.h, 1, 12000), lock = h('input', { type: 'checkbox', checked: true }), smooth = h('select', null, h('option', { value: '1' }, 'Bicubic (smooth)'), h('option', { value: '0' }, 'Nearest Neighbor (hard edges)'));
-  const ratio = D.w / D.h;
-  w.addEventListener('input', () => { if (lock.checked) hh.value = Math.max(1, Math.round(+w.value / ratio)); });
-  hh.addEventListener('input', () => { if (lock.checked) w.value = Math.max(1, Math.round(+hh.value * ratio)); });
-  dialog({ title: 'Image Size', body: h('div', { class: 'form' }, field('Width', w, 'px'), field('Height', hh, 'px'), h('label', { class: 'field opt-check' }, lock, h('span', null, 'Constrain proportions')), field('Resample', smooth)),
-    buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true, act: () => { imageSize(clamp(+w.value || 1, 1, 12000), clamp(+hh.value || 1, 1, 12000), smooth.value === '1'); fitView(); } }] });
-}
 function dlgLayerProps() {
   const L = activeLayer(); if (!L) return;
   const name = h('input', { type: 'text', value: L.name });

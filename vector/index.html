@@ -172,7 +172,7 @@
   <script src="js/ui/sample.js"></script>
   <script src="js/ui/init.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
-  <script src="../shared/pwa.js"></script>
-  <script>SlopPWA.mount();</script>
+  <script src="../shared/pwa.js" data-offline="strip"></script>
+  <script>window.SlopPWA && SlopPWA.mount();</script>
 </body>
 </html>
