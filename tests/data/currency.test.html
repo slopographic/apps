@@ -22,7 +22,10 @@
   const { describe, it, expect, beforeEach, run } = SlopTest;
   const S = window.SlopData;
   const st = S.store;
-  const FIXTURE = '<?xml version="1.0"?><gesmes:Envelope xmlns:gesmes="x"><Cube><Cube time="2026-10-09"><Cube currency="USD" rate="1.1600"/><Cube currency="JPY" rate="180.25"/></Cube></Cube></gesmes:Envelope>';
+  const FIXTURE = 'KEY,FREQ,CURRENCY,CURRENCY_DENOM,EXR_TYPE,EXR_SUFFIX,TIME_PERIOD,OBS_VALUE,OBS_STATUS,TITLE\n' +
+    'EXR.D.USD.EUR.SP00.A,D,USD,EUR,SP00,A,2026-10-09,1.1600,A,US dollar/Euro\n' +
+    'EXR.D.JPY.EUR.SP00.A,D,JPY,EUR,SP00,A,2026-10-09,180.25,A,Japanese yen/Euro\n' +
+    'EXR.D.ARS.EUR.SP00.A,D,ARS,EUR,SP00,A,2020-10-30,91.5953,A,Argentine peso/Euro\n';
   const fresh = async () => { const r = await st.erase(); if (!r.ok) throw new Error(r.message); const q = await st.ready(); if (!q.ok) throw new Error(q.message); };
   const settings = async () => (await st.get('settings', 'main')).value;
   const line = (o = {}) => ({ description: 'Bolt', qty: 2, unitPrice: 1050, taxRate: 2000, ...o });
@@ -91,12 +94,14 @@
 
   describe('ECB rates', () => {
     beforeEach(fresh);
-    it('the real DOMParser reads the fixture: date and rates scaled by 1e6', () => {
-      const r = S.rates.parseEcb(FIXTURE, window.DOMParser);
+    it('the CSV parser reads the fixture: newest date, rates scaled by 1e6, stale rows skipped', () => {
+      const r = S.rates.parseEcb(FIXTURE);
       expect(r.ok).toBe(true);
       expect(r.value.date).toBe('2026-10-09');
       expect(r.value.rates[0].quote).toBe('USD');
       expect(r.value.rates[0].rate).toBe(1160000);
+      expect(r.value.rates.length).toBe(2);
+      expect(S.rates.ECB_URL.startsWith('https://data-api.ecb.europa.eu/service/data/EXR/D..EUR.SP00.A?')).toBe(true);
     });
     it('with the rates category off, the button path fetches nothing and stores nothing', async () => {
       let calls = 0;
