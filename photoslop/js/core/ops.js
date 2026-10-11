@@ -114,7 +114,7 @@ function transformCanvas(kind) {
   remapGuides((g) => (kind === 'flipH' ? (g.o === 'v' ? { o: 'v', pos: ow - g.pos } : g) : kind === 'flipV' ? (g.o === 'h' ? { o: 'h', pos: oh - g.pos } : g) : kind === '180' ? { o: g.o, pos: (g.o === 'v' ? ow : oh) - g.pos } : kind === 'cw' ? (g.o === 'v' ? { o: 'h', pos: g.pos } : { o: 'v', pos: oh - g.pos }) : g.o === 'v' ? { o: 'h', pos: ow - g.pos } : { o: 'v', pos: g.pos }));
   if (swap) { D.w = oh; D.h = ow; }
   D.sel = null;
-  commit({ cw: 'Rotate 90° CW', ccw: 'Rotate 90° CCW', 180: 'Rotate 180°', flipH: 'Flip Canvas Horizontal', flipV: 'Flip Canvas Vertical' }[kind]);
+  commit({ cw: 'Rotate 90° Clockwise', ccw: 'Rotate 90° Counter Clockwise', 180: 'Rotate 180°', flipH: 'Flip Horizontal', flipV: 'Flip Vertical' }[kind]);
 }
 /** Trim the document to the selection bounds (or a given rect). */
 function cropTo(r, deletePixels = true) {

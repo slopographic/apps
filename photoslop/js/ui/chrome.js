@@ -86,8 +86,10 @@ function buildToolbox() {
   const bg = h('button', { class: 'sw-bg', type: 'button', title: 'Set background colour', 'aria-label': 'Background colour' });
   const swap = h('button', { class: 'sw-swap', type: 'button', title: 'Swap colours (X)', 'aria-label': 'Swap colours', html: '<svg viewBox="0 0 12 12"><path d="M2 4h6l-2-2M10 8H4l2 2"/></svg>' });
   const def = h('button', { class: 'sw-def', type: 'button', title: 'Default colours (D)', 'aria-label': 'Default colours' }, h('i'), h('i'));
-  fg.addEventListener('click', async () => { const c = await pickColorDialog('Color Picker (Foreground Color)', C.fg); if (c) setColor('fg', c); });
-  bg.addEventListener('click', async () => { const c = await pickColorDialog('Color Picker (Background Color)', C.bg); if (c) setColor('bg', c); });
+  for (const [b, which] of [[fg, 'fg'], [bg, 'bg']]) {
+    b.addEventListener('click', () => editSwatch(which));
+    b.addEventListener('contextmenu', (e) => { e.preventDefault(); editSwatch(which); });
+  }
   swap.addEventListener('click', swapColors);
   def.addEventListener('click', defaultColors);
   box.append(grid, h('div', { class: 'swatches-fgbg' }, bg, fg, swap, def));
@@ -170,7 +172,7 @@ function buildOptions() {
     case 'type': buildTypeOptions(add); break;
     case 'move': add(optCheck('Auto-select layer', T.move, 'auto'), h('span', { class: 'opt-hint' }, 'Drag to move · arrow keys nudge · Ctrl+T to transform')); break;
     case 'crop': add(optCheck('Delete cropped pixels', T.crop, 'del'), h('span', { class: 'opt-spacer' }), h('button', { class: 'btn', type: 'button', onclick: () => { TOOL.crop.activate(); dirty(); } }, 'Reset'), h('button', { class: 'btn primary', type: 'button', onclick: () => TOOL.crop.apply() }, 'Crop')); break;
-    case 'eyedropper': add(optSelect('Sample size', T.eyedrop, 'size', [[1, 'Point'], [3, '3 × 3 average'], [5, '5 × 5 average'], [11, '11 × 11 average']].map(([v, l]) => [String(v), l])), optCheck('All layers', T.eyedrop, 'all')); break;
+    case 'eyedropper': add(optSelect('Sample size', T.eyedrop, 'size', [[1, 'Point'], [3, '3 × 3 average'], [5, '5 × 5 average'], [11, '11 × 11 average']].map(([v, l]) => [String(v), l])), sampleSourceOpt()); break;
     case 'hand': case 'zoom': add(h('button', { class: 'btn', type: 'button', onclick: () => actualPixels() }, '100%'), h('button', { class: 'btn', type: 'button', onclick: () => fitView() }, 'Fit Screen')); break;
   }
   if (t.id === 'eyedropper') { const s = bar.querySelector('select'); s.value = String(T.eyedrop.size); s.onchange = () => { T.eyedrop.size = +s.value; saveToolOptions(); }; }

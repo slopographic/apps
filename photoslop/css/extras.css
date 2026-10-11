@@ -38,10 +38,17 @@
 .fp-curvebox .dlg-row { margin-top: 0; }
 .fp-help { color: var(--fg-faint); font-size: 11px; margin: 0; }
 .cp-dlg { display: grid; gap: 10px; }
-.cp-dlg .cp-sv { height: 170px; }
+.cp-dlg .scp-sv { height: 170px; }
 .cp-compare { display: grid; grid-template-columns: auto 1fr 1fr auto; align-items: center; gap: 6px; color: var(--fg-faint); font-size: 11px; }
 .cp-preview { height: 26px; border: 1px solid var(--line-2); border-radius: 3px; }
 .cp-preview.old { cursor: pointer; }
+/* Colour dialog: a bottom sheet on phones, so the whole picker fits 390 px wide with no page scroll. */
+.sui-dlg.cp-sheet { width: min(340px, 100%); }
+@media (max-width: 600px) {
+  .sui-back:has(> .cp-sheet) { place-items: end stretch; padding: 0; }
+  .sui-dlg.cp-sheet { width: 100%; max-width: 100%; max-height: 88vh; overflow-y: auto; border-radius: 14px 14px 0 0; }
+  .cp-dlg .scp-sv { height: 150px; }
+}
 .keys-wrap { display: grid; grid-template-columns: 1fr 1.3fr; gap: 22px; }
 .keys-wrap h4 { margin: 0 0 6px; font-size: 12px; color: var(--fg); }
 .keys { width: 100%; border-collapse: collapse; margin-bottom: 14px; }

@@ -44,13 +44,3 @@ function editableLayer(forPixels = true) {
 function maskTarget(L) { return UI.editMask && L.mask; }
 function docCanvasOf(L) { const c = mkCanvas(D.w, D.h); cx(c).drawImage(L.canvas, L.x, L.y); return c; }
 function sampleSource(all) { return all ? flattenCanvas() : docCanvasOf(activeLayer()); }
-function pickColor(p, all, size = 1) {
-  const src = sampleSource(all), x = Math.floor(p.x), y = Math.floor(p.y);
-  if (x < 0 || y < 0 || x >= D.w || y >= D.h) return null;
-  const r = Math.floor(size / 2), x0 = clamp(x - r, 0, D.w - 1), y0 = clamp(y - r, 0, D.h - 1), w = Math.min(size, D.w - x0), hh = Math.min(size, D.h - y0);
-  const d = cxr(src).getImageData(x0, y0, w, hh).data;
-  let R0 = 0, G = 0, B = 0, A = 0;
-  for (let i = 0; i < d.length; i += 4) { R0 += d[i] * d[i + 3]; G += d[i + 1] * d[i + 3]; B += d[i + 2] * d[i + 3]; A += d[i + 3]; }
-  if (!A) return null;
-  return rgbToHex(R0 / A, G / A, B / A);
-}

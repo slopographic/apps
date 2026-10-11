@@ -25,7 +25,7 @@
     { label: 'Type', items: [{ label: 'Font', dyn: 'fonts' }, { label: 'Size', dyn: 'sizes' }, { label: 'Weight', dyn: 'weights' }, '-', 'type.alignLeft', 'type.alignCenter', 'type.alignRight', '-', { label: 'Change Case', items: ['type.upper', 'type.lower', 'type.title'] }, 'type.ipsum'] },
     { label: 'Select', items: ['select.all', 'select.none', 'select.inverse', '-', { label: 'Same', items: ['select.sameFill', 'select.sameStroke'] }, 'select.layer'] },
     { label: 'View', items: ['view.outline', '-', 'view.zoomIn', 'view.zoomOut', 'view.fit', 'view.actual', '-', 'view.rulers', 'view.grid', 'view.snapGrid', 'view.smart', '-', 'view.guides', 'view.lockGuides', 'view.snapGuides', 'view.clearGuides', 'view.newGuide', 'view.guideLayout', 'view.guidesFromSel', '-', { label: 'Theme', items: ['theme.pro', 'theme.light', 'theme.classic'] }] },
-    { label: 'Window', items: PANEL_IDS.map(function (p) { return 'window.' + p; }).concat(['-', 'view.guideLayout', '-', 'window.togglePanels', 'window.reset']) },
+    { label: 'Window', items: PANEL_IDS.map(function (p) { return 'window.' + p; }).concat(['-', 'window.fillColor', 'window.strokeColor', '-', 'view.guideLayout', '-', 'window.togglePanels', 'window.reset']) },
     { label: 'Help', items: ['help.commands', 'help.shortcuts', 'help.about', '-', 'file.home'] }
   ];
   function dynItems(kind) {

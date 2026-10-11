@@ -20,19 +20,6 @@ kbd { font-family: var(--mono); font-size: 10.5px; background: var(--bg-input); 
 /* ---------- colour picker ---------- */
 .picker { position: fixed; z-index: 1200; width: 244px; background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 8px; box-shadow: var(--shadow), var(--bevel-out); padding: 0 10px 10px; display: flex; flex-direction: column; gap: 9px; }
 .picker-head { display: flex; align-items: center; justify-content: space-between; height: 30px; margin: 0 -10px; padding: 0 6px 0 10px; font-weight: 700; background: var(--title-bg); color: var(--title-fg); border-bottom: 1px solid var(--border-dark); border-radius: 8px 8px 0 0; }
-.pk-sv { position: relative; height: 140px; border-radius: 4px; cursor: crosshair; touch-action: none; }
-.pk-dot { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0, 0, 0, .6); pointer-events: none; }
-.pk-hue { position: relative; height: 12px; border-radius: 6px; background: linear-gradient(90deg, red, #ff0, lime, cyan, blue, #f0f, red); cursor: ew-resize; touch-action: none; }
-.pk-hdot { position: absolute; top: -2px; width: 8px; height: 16px; margin-left: -4px; border: 2px solid #fff; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0, 0, 0, .6); pointer-events: none; }
-.pk-row { display: flex; align-items: center; gap: 4px; }
-.pk-prev { width: 22px; height: 22px; border-radius: 3px; border: 1px solid var(--border); flex: 0 0 auto; }
-.pk-l { display: inline-flex; align-items: center; gap: 2px; color: var(--text-faint); font-size: 10px; }
-.pk-l input { height: 22px; width: 34px; padding: 0 3px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 3px; font-size: 10.5px; -moz-appearance: textfield; appearance: textfield; box-shadow: var(--bevel-in); }
-.pk-l input::-webkit-inner-spin-button { -webkit-appearance: none; }
-.pk-l .pk-hex { width: 58px; text-transform: uppercase; }
-.pk-swatches { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
-.pk-sw { aspect-ratio: 1; border: 1px solid rgba(127, 127, 127, .5); border-radius: 2px; padding: 0; }
-.pk-sw:hover { transform: scale(1.15); }
 .pk-foot { display: flex; gap: 6px; align-items: center; }
 
 .noscript { position: fixed; inset: 0; display: grid; place-items: center; background: var(--ink); color: var(--bone); margin: 0; }

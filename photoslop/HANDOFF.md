@@ -3,12 +3,20 @@
 A layered, Photoshop-style image editor at `/photoslop/` (`/paint/` redirects here; `paint/classic/` is the separate MS Paint clone, still served from `photoslop/classic/`, leave it alone). Plain classic scripts loaded in order from `index.html`, sharing top-level names. Every file is at most 300 lines.
 
 ## Layout
-- `js/core/`: helpers (`util.js`), document model and history (`model.js`: `D`, `Hist`, `commit`, `undo`), compositing, document ops (`ops.js`), the viewport (`view.js`: zoom/pan, drawing, pointer routing).
+- `js/core/`: helpers (`util.js`), document model and history (`model.js`: `D`, `Hist`, `commit`, `undo`), compositing, document ops (`ops.js`), image and canvas size with resampling (`size.js`), the viewport (`view.js`: zoom/pan, drawing, pointer routing).
 - `js/tools/`: tool registry and selection/move/crop (`select.js`), painting, fills/shapes/type, free transform.
 - `js/guides/`: rulers, guides, grid and snapping (see below).
 - `js/brushes/`, `js/filters/`, `js/io/` (PSD, ORA, other formats, autosave in IndexedDB, offline single-file build, Slop Hub).
-- `js/ui/`: menus (`menus.js`: `MENUS`), menubar/toolbox/options (`chrome.js`), panels, dialogs, keyboard (`doc-dialogs.js`).
+- `js/ui/`: menus (`menus.js`: `MENUS`), menubar/toolbox/options (`chrome.js`), panels, dialogs, keyboard (`doc-dialogs.js`), Image Size and Canvas Size (`size-dialogs.js`).
 - `js/app/`: tabs (multiple documents), `commands.js` (SlopCmd), `main.js` (boot).
+
+## Transform (`js/core/size.js`, `js/ui/size-dialogs.js`, `js/tools/transform.js`)
+- **Image ▸ Image Size…** (Ctrl+Alt+I): width and height in px or %, a link toggle that keeps the aspect ratio, resampling (nearest, bilinear, bicubic) and a live preview with the new size. One step (`Image Size`). `imageSize(w, h, mode)` scales every layer, mask and text model; bicubic steps down in halves first.
+- **Image ▸ Canvas Size…** (Ctrl+Alt+C): new width and height with the nine-position anchor grid. The new area is transparent, the background or foreground colour, white or black. A coloured area is one new bottom layer, `Canvas Fill`, that covers only the new area (other layers are untouched). `resizeCanvas(w, h, dx, dy, label, fill)`.
+- **Rotate and Flip.** Image ▸ Rotate 90° Clockwise / Counter Clockwise, Rotate 180°, Flip Horizontal, Flip Vertical act on the whole document (`transformCanvas`, guides move with the pixels). Layer ▸ Rotate and Flip, Edit ▸ Transform and the layer right-click menu act on the active layer through `transformLayerQuick`, which uses nearest neighbour so pixels stay exact. Each is one undo step, named after the command.
+- **Free Transform** (Ctrl+T, `TRANSFORM` in `tools/transform.js`): the box with eight scale handles, a rotate handle, drag inside to move, Shift keeps proportions, Alt scales from the centre, Enter applies, Escape cancels. The options bar shows X, Y (centre), W and H (%), the angle and Interpolation (`TRANSFORM.interp`, kept between transforms), with Commit and Cancel. The pixels are drawn once with the matrix on commit (`transformSurface` → `setInterp`); apply is one step, `Free Transform`.
+- **Arrow keys** nudge the layer 1 px, Shift+arrow 10 px, while the Move tool is active. Every item above is a SlopCmd command (menus register them automatically), so it can be rebound and found with ⌘K.
+- **Not done:** Lanczos (the canvas offers only low and high quality, so bilinear and bicubic are the browser's two filters); physical units (cm, in), since documents have no print resolution, so the document unit is px; skew, perspective and warp; quick rotate or flip of a selection moves only the selected pixels; a Free Transform on a type layer rasterises it, as before.
 
 ## Type (`js/type/`, loaded right after `tools/fill.js`)
 - **Bug fixed:** changing colour/font/size etc. never reached an existing type layer. The options bar only wrote `T.type` (tool defaults), the colour picker only wrote `C.fg`, and only the old textarea editor was ever restyled.
@@ -39,8 +47,9 @@ A layered, Photoshop-style image editor at `/photoslop/` (`/paint/` redirects he
 - `onEarlyKey` (capture, registered before SlopCmd) keeps Space-to-pan and tool keys (Enter/Esc/Backspace in transform, crop, lassos) ahead of shortcuts. The legacy `onKeyDown` then only arms the paste catcher for Ctrl+V (the native paste event carries images), or does everything when SlopCmd is missing.
 - Help ▸ Search Commands… (⌘K), Help/Edit ▸ Keyboard Shortcuts… (SlopCmd's editor), and a search button in the top bar.
 
-## Tests (`node tests/run.mjs photoslop`): 95 green across 6 pages
+## Tests (`node tests/run.mjs photoslop`): 107 green across 7 pages
 - `repair.test.html` (7): the healing brush on a flat grey patch with a dark spot (surroundings within 6 levels, texture added, untouched outside the brush, one undo step), spot healing on a uniform background, the red-eye tool (pure red pupil darkened, catchlight unchanged, one step) and filter (selection only), Auto Enhance on a low-contrast image (values reported, widened range, Reset to auto, one step), and the menu entries.
+- `transform.test.html` (12): Image Size (200×100 halved to 100×50 through the dialog, percent with the link off, one step), Canvas Size anchored bottom-right (transparent space left and top) and with a white extension (one bottom layer), Image ▸ Rotate 90° CW (200×100 → 100×200, pixels moved), Flip Horizontal (a marked pixel mirrored), Layer ▸ Rotate and Flip (one undo), Free Transform (a drag to 50 % then Escape leaves the layer as it was; Enter applies and one undo restores), arrow nudge 1 px and 10 px, and the command and menu wiring.
 - `type.test.html` (21): each property (font, size, bold, italic, colour, alignment, tracking, leading, AA, warp) on the whole layer and the six character properties on a selected range: canvas changes, one undo step, PSD and autosave round trips; colour picker drag = one step; options bar, Character panel and editing; size slider preview; Warp cancel.
 - `photoslop.test.html` 'opens a file another app sent with ?drive=' is timing-sensitive when the machine is loaded; it passes on rerun.
 - `photoslop.test.html` (27), `guides.test.html` (11: panel → 12 columns → undo, Replace/Clear, ruler drag/move/delete, lock, marquee + move snapping, Snap and Show toggles via keys, New Guide with %, grid snapping, crop/rotate remap, tab switch, PSD round-trip), `commands.test.html` (6).
