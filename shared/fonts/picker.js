@@ -109,7 +109,7 @@
   function render(sel, legacy, extra, current) {
     const want = sel.value || current || '';
     const groups = [['Standard', []], ['Bundled (offline)', []], ['Downloaded', []]];
-    const seen = new Set(), known = new Set(legacy.map((l) => (Array.isArray(l) ? l[0] : l)));
+    const seen = new Set();
     for (const l of legacy) { const [v, text] = Array.isArray(l) ? l : [l, l]; if (!seen.has(v)) { seen.add(v); groups[0][1].push([v, text]); } }
     for (const f of BUNDLED.map((name) => ({ name, source: 'bundled' })).concat(extra)) {
       if (seen.has(f.name)) continue;
@@ -122,7 +122,6 @@
       return og;
     }));
     sel.value = want;
-    return known;
   }
 
   /** Connects a <select> to the picker. opts: { value, legacy: [names], onPick(family), getMore: true }.
