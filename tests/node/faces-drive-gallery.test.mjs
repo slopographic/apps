@@ -14,7 +14,12 @@ const read = (rel) => readFileSync(path.join(ROOT, rel), 'utf8');
 
 /** A fresh classic-script global with the given files run in order. */
 function load(files, { storage = memoryStorage() } = {}) {
-  const sandbox = { console, localStorage: storage };
+  const et = new EventTarget(); // the scripts fire and listen for events on their window
+  const sandbox = {
+    console, localStorage: storage, CustomEvent,
+    addEventListener: (...a) => et.addEventListener(...a),
+    dispatchEvent: (e) => et.dispatchEvent(e),
+  };
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   for (const f of files) vm.runInContext(read(f), sandbox, { filename: f });

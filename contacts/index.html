@@ -34,9 +34,9 @@
         <button type="button" class="tb-btn" data-cmd="contacts.new">New contact</button>
         <button type="button" class="tb-btn" data-cmd="import.files">Import</button>
         <button type="button" class="tb-btn" data-cmd="export.open">Export</button>
-        <button type="button" class="tb-btn" data-cmd="contacts.dupes">Duplicates</button>
-        <button type="button" class="tb-btn" data-cmd="contacts.clean">Clean up</button>
-        <button type="button" class="tb-btn" data-cmd="settings.country" title="Default country code for phone numbers">Country code</button>
+        <button type="button" class="tb-btn wide-only" data-cmd="contacts.dupes">Duplicates</button>
+        <button type="button" class="tb-btn wide-only" data-cmd="contacts.clean">Clean up</button>
+        <button type="button" class="tb-btn wide-only" data-cmd="settings.country" title="Default country code for phone numbers">Country code</button>
       </div>
       <span class="local-badge" title="Your customers stay in this browser. Nothing is uploaded."><span>100% local</span></span>
     </header>
@@ -52,12 +52,12 @@
           <div class="list-bar">
             <button type="button" class="icon-btn narrow-only" id="btnGroups" aria-label="Groups" aria-expanded="false" title="Groups">☰</button>
             <h1 class="list-title" id="listTitle">All Contacts</h1>
-            <span class="list-count" id="listCount" aria-live="polite"></span>
             <button type="button" class="text-btn" id="btnSelect" aria-pressed="false">Select</button>
             <button type="button" class="icon-btn" id="btnNew" aria-label="New contact" title="New contact (Cmd+N)">+</button>
           </div>
           <label class="search"><span class="sr">Search contacts</span>
             <input id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false"></label>
+          <p class="list-count" id="listCount" aria-live="polite"></p>
           <div class="bulkbar" id="bulkBar" hidden>
             <span id="bulkCount" class="bulk-n"></span>
             <button type="button" class="text-btn" data-cmd="groups.add">Add to group</button>
