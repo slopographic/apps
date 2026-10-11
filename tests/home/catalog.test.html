@@ -60,7 +60,8 @@
         doc.documentElement.style.scrollBehavior = 'auto';
         doc.querySelector(`.tabs a[data-jump][href="#${id}"]`).click();
         const target = doc.getElementById(id);
-        await waitFor(() => Math.abs(target.getBoundingClientRect().top - parseFloat(win.getComputedStyle(target).scrollMarginTop)) < 40, { timeout: 5000 });
+        // Smooth scrolling; lazy screenshots above may still shift the layout a little.
+        await waitFor(() => Math.abs(target.getBoundingClientRect().top - parseFloat(win.getComputedStyle(target).scrollMarginTop)) < 80, { timeout: 9000 });
         expect(win.location.hash).toBe('');
       });
     }

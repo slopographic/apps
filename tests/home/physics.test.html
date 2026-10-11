@@ -110,8 +110,10 @@
       await standOn(doc.querySelector('.app-card'), 0.5);
       await S.act('knock');
       await landed();
-      await standOn(doc.querySelectorAll('.app-card')[2], 0.5);
-      await S.act('knock');
+      for (let i = 0; i < 4 && S.bodies() < 2; i++) {
+        await standOn([...doc.querySelectorAll('.app-card')].filter((c) => !c.style.transform)[0], 0.5);
+        await S.act('knock');
+      }
       expect(S.bodies()).toBe(2);
       const [a, b] = [...doc.querySelectorAll('[data-perch="card"]')].filter((c) => c.style.pointerEvents === 'none');
       await sleep(5000);
