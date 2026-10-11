@@ -42,7 +42,7 @@
     });
     it('auto-merges exact copies only', () => {
       const same = (id) => CT.make({ id, name: { given: 'Dup' }, phones: [{ value: '+1 555 0111', types: ['CELL'] }] });
-      const list = [same('x1'), same('x2'), CT.make({ id: 'y', name: { given: 'Dup' }, org: 'Other', phones: [{ value: '+1 555 0111' }] })];
+      const list = [same('x1'), same('x2'), CT.make({ id: 'y', name: { given: 'Dup' }, org: 'Other', phones: [{ value: '+1 555 0999' }] })];
       const r = SC().dedupe.autoMergeExact(list, '');
       expect(r.merged).toBe(1);
       expect(r.list.map((c) => c.id)).toEqual(['x1', 'y']);
@@ -56,12 +56,13 @@
       const b = CT.make({ id: 'm2', name: { given: 'Ann' }, phones: [{ value: '07700 900123', types: ['WORK'] }, { value: '020 7946 0000', types: ['WORK'] }],
         emails: [{ value: 'ANN@example.com', types: ['WORK'] }, { value: 'ann.lee@work.example', types: ['WORK'] }], groups: ['Club', 'Work'], org: 'Acme' });
       const m = SC().dedupe.mergeGroup([b, a], '44');
-      expect(m.id).toBe('m1');
+      expect(m.id).toBe('m2');
       expect(m.name.family).toBe('Lee');
       expect(m.org).toBe('Acme');
-      expect(m.phones).toEqual([{ value: '+44 7700 900123', types: ['CELL', 'WORK'] }, { value: '020 7946 0000', types: ['WORK'] }]);
-      expect(m.emails.map((e) => e.value)).toEqual(['ann@example.com', 'ann.lee@work.example']);
-      expect(m.groups).toEqual(['Work', 'Club']);
+      expect(m.phones).toEqual([{ value: '+44 7700 900123', types: ['WORK', 'CELL'] }, { value: '020 7946 0000', types: ['WORK'] }]);
+      expect(m.emails.map((e) => e.value)).toEqual(['ANN@example.com', 'ann.lee@work.example']);
+      expect(m.emails[0].types).toEqual(['WORK', 'HOME']);
+      expect(m.groups).toEqual(['Club', 'Work']);
     });
     it('applyMerges puts the merged contact where its first member was', () => {
       const list = [CT.make({ id: 'q1', name: { given: 'Q' }, emails: [{ value: 'q@x.io' }] }), CT.make({ id: 'z', name: { given: 'Z' } }),

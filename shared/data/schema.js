@@ -247,7 +247,7 @@
       out[k] = v;
     }
     derive(out);
-    errors.push(...validate(name, out, opts));
+    errors.push(...validate(name, out, { ...opts, skipKey: true }));   // the store assigns the key before saving
     return { ok: errors.length === 0, value: out, errors };
   }
 

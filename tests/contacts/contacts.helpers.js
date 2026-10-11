@@ -12,7 +12,7 @@
     'ORG:Acme' + BS + '; Ltd;Sales', 'TITLE:Head of sales', 'TEL;TYPE=CELL:+49 170 1234567', 'TEL;TYPE=WORK,VOICE:+49 30 555 0100',
     'EMAIL;TYPE=WORK:jose@example.com', 'ADR;TYPE=HOME:;;Long Street 1' + BS + 'nApt 2;Berlin;;10115;Germany',
     'BDAY:1980-02-29', 'NOTE:Line one' + BS + 'nline two' + BS + ', with a comma' + BS + '; and a backslash ' + BS + BS + ' end',
-    ' this continues the note (folded)', 'CATEGORIES:Friends,Work' + BS + ', Club', 'UID:abc-123', 'END:VCARD',
+    '  this continues the note (folded)', 'CATEGORIES:Friends,Work' + BS + ', Club', 'UID:abc-123', 'END:VCARD',
   ].join('\r\n') + '\r\n';
 
   /** vCard 2.1 with quoted-printable names, a QP note with a soft break, and bare TYPE words. */

@@ -9,10 +9,12 @@
   const PHONE_TYPES = ['CELL', 'HOME', 'WORK', 'MAIN', 'FAX', 'HOME,FAX', 'WORK,FAX', 'PAGER', 'CAR', 'OTHER'];
   const MAIL_TYPES = ['', 'HOME', 'WORK', 'OTHER'];
 
+  const TYPE_LABEL = { '': '(no type)', CELL: 'Mobile', HOME: 'Home', WORK: 'Work', MAIN: 'Main', FAX: 'Fax', 'HOME,FAX': 'Home fax',
+    'WORK,FAX': 'Work fax', PAGER: 'Pager', CAR: 'Car', OTHER: 'Other' };
   /** Select options for a list of type values, keeping the current value even when it is unusual. */
   function typeOptions(list, current) {
     const all = list.includes(current) ? list : [current, ...list];
-    return all.map((v) => [v, v ? v.replace(/,/g, ' + ').toLowerCase() : '(no type)']);
+    return all.map((v) => [v, TYPE_LABEL[v] || v.charAt(0) + v.slice(1).toLowerCase()]);
   }
   const input = (value, label, type = 'text', ph = '') => el('input', { class: 'sui-input', type, value: value || '', 'aria-label': label, placeholder: ph || null, autocomplete: 'off' });
   const removeBtn = (label, row) => { const b = el('button', { type: 'button', class: 'sui-btn ed-rm', 'aria-label': label, title: label }, '×'); b.addEventListener('click', () => row.remove()); return b; };
@@ -50,7 +52,7 @@
       prefix: input(n.prefix, 'Prefix'), given: input(n.given, 'Given name'), additional: input(n.additional, 'Middle name'),
       family: input(n.family, 'Family name'), suffix: input(n.suffix, 'Suffix'),
       fn: input(c.fn, 'Display name'), org: input(c.org, 'Organisation'), dept: input(c.dept, 'Department'),
-      title: input(c.title, 'Job title'), bday: input(c.bday, 'Birthday', 'text', 'YYYY-MM-DD'), url: input(c.url, 'Website', 'url', 'https://'),
+      title: input(c.title, 'Job title'), bday: input(c.bday, 'Birthday', 'text', 'YYYY-MM-DD'), url: input(c.url, 'Website', 'url', 'example.com'),
       groups: input(c.groups.join(', '), 'Groups, comma separated'),
     };
     const note = el('textarea', { class: 'sui-input ed-note', rows: 3, 'aria-label': 'Note' }, c.note);

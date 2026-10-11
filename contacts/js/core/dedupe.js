@@ -48,8 +48,11 @@
     const out = new Map();
     for (const e of entries) {
       const k = key(e);
-      if (!out.has(k)) out.set(k, { ...e, types: [...(e.types || [])] });
-      else { const t = out.get(k); t.types = [...new Set([...t.types, ...(e.types || [])])]; }
+      if (!out.has(k)) { out.set(k, { ...e, types: [...(e.types || [])] }); continue; }
+      const t = out.get(k);
+      t.types = [...new Set([...t.types, ...(e.types || [])])];
+      // the international form of a number wins over a national one
+      if (e.value && e.value.startsWith('+') && !t.value.startsWith('+')) t.value = e.value;
     }
     return [...out.values()];
   }
