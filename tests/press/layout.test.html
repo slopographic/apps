@@ -107,6 +107,17 @@
       expect(E.overset(frame)).toBe(false);
     });
   });
+  describe('keep options', () => {
+    it('keep all lines together moves a short paragraph instead of splitting it', async () => {
+      const { doc, frame, page } = await textDoc({ text: 'One.\n' + LOREM, w: 200, h: 60, composer: 'greedy' });
+      const f2 = M.item('text', 300, 40, 200, 400); f2.layer = doc.layers[0].id; page.items.push(f2);
+      PR.items.link(doc, frame.id, f2.id);
+      doc.stories[frame.story].paras[1].ov = { keepLines: true };
+      PR.styles.invalidate(); PR.touch();
+      expect(E.frame(frame).lines.every((l) => l.k === 0)).toBe(true);
+      expect(E.frame(f2).lines[0].k).toBe(1);
+    });
+  });
   SlopTest.run();
   </script>
 </body>

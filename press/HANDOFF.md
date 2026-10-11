@@ -23,10 +23,14 @@ Items: `text | image | rect | ellipse | line | polygon` with `x,y,w,h,rot,fill,s
 - Export: hand-written PDF 1.6 with subset TrueType (Type0/Identity-H + ToUnicode), CFF OpenType embedded whole, TJ-positioned glyphs so PDF = layout, exact Media/Crop/Bleed/TrimBox, crop/bleed/registration marks in the Registration (Separation /All) colour, slug page info, JPEG passthrough and Flate images with soft masks. PNG/JPEG per page (zip for several), browser print at real size, `.slpress` (zip: `document.json`, `assets/*`, `manifest.json`).
 - Shared kit: SlopUI dialogs/menus/toasts, SlopCmd palette + keymap (every command registered; `PR.actions` falls back to its own dispatcher if SlopCmd is missing), SlopHub (`register('press')`, `?drive=`, Open/Place from Slop Drive, Save to Drive, Send PDF/PNG to other apps), IndexedDB autosave (restored on load; `?fresh` skips it), offline single file (File ▸ Download App).
 
-## Tests (`node tests/run.mjs tests/press`): 49 green
+## Tests (`node tests/run.mjs tests/press`): 50 green
 - `layout.test.html` (breaker, hyphenation, justification, threads/overset, columns, wrap, autoflow), `model.test.html` (units, spreads, pages, stories, style cascade, masters/page numbers, drop caps, grid, caret), `ui.test.html` (commands/menus, dialogs, typing incl. IME composition, styles, shapes, threading, pages/masters, templates), `pdf.test.html` (page count + sizes, text extraction with pdf.js, subset embedding, boxes and marks, CMYK), `io.test.html` (.slpress round trip, zip, PNG size, text autoflow, TTF subset loads as a FontFace, offline single file boots and exports, Slop Drive launch).
 - `boot.js` boots the app in an iframe with `?fresh` and disables autosave; `layout-helpers.js` is for script-only pages.
 - Gotcha: under the test runner's SwiftShader GPU, reading back GPU canvases is very slow; export/thumbnail canvases use `willReadFrequently: true`.
+
+## Half-done / next steps (in order)
+1. Keep with next: `js/text/layout.js` (the `prev.keepNext` backtrack near the end of `layoutStory`) did not move a heading into the next frame in a quick test (heading frame 44 pt tall, see the removed test idea in `tests/press/layout.test.html` › keep options). Keep-lines-together works and is tested. Debug that branch and add the test back.
+2. Recommended next features: tab stops, objects spanning a spread, tables.
 
 ## Known limits / next ideas
 - Items belong to one page (no objects spanning a spread); text wrap ignores rotated text frames; KP composer is used only without wrap obstacles in the frame.
