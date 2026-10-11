@@ -25,6 +25,14 @@ Access API), `sync.js` (public API, `window.SlopSync`), `ui.js` (the "Cloud back
   segment, up to 200 characters. Subfolders are one level (`opts.folder`). `list` returns plain files only.
   Forgetting the folder deletes nothing in it.
 
+## Settings: the Local folder section (`settings/folder.js`)
+
+- The same folder as Slop Drive's (one handle in `slop-sync-local` / `handles`). Connect in either place and the other shows it.
+- Section "Local folder" in `settings/index.html`: Connect folder, Allow access (when the browser asks again), Save config, Load config, Disconnect. Load lists the changes and applies only after Apply. The question after connecting is inline ("Save config" / "Not now").
+- Config logic is `window.SlopConfigFolder` in `shared/config/folder.js` (`save`, `preview`, `apply`), shared with Drive. The file is `slopographic.slop.json` at the folder root, kind `settings`, app `slop`.
+- `providers/local.js` gained `permission()` (query only, returns `none`, `prompt`, `granted` or `denied`) and `allow()` (request, needs a press). Both read the handle and never prompt on their own.
+- Settings loads `shared/config/{schema,validate,io,kinds,folder}.js` and `shared/sync/providers/local.js` after the data scripts. Nothing is fetched. Tests: `tests/node/sync-folder-config.test.mjs`, run by `node tests/run.mjs sync`.
+
 ## Privacy behaviour
 
 - Nothing is sent in the background. There are no timers, and nothing is requested at page load unless the
