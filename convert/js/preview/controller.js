@@ -53,9 +53,7 @@ export class PreviewPanel {
     if (!items.some((i) => i.pasted) && ta.value !== '') ta.value = '';
     const fileInput = items.some((i) => !i.pasted);
     ta.disabled = fileInput;
-    this.view.ta.setAttribute('aria-describedby', 'cv-pv-text-hint');
-    const hint = document.getElementById('cv-pv-text-hint');
-    if (hint) hint.textContent = fileInput ? 'A file is the input. Remove it to type text instead.' : 'Type or paste text. The output below updates as you type. Nothing is uploaded.';
+    this.view.taHint.textContent = fileInput ? 'A file is the input. Remove it to type text instead.' : 'Type or paste text. The output below updates as you type. Nothing is uploaded.';
   }
 
   async update() {
