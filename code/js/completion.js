@@ -4,7 +4,7 @@
  * and word completion from the open document. Ctrl+Space opens the list, Enter or Tab accepts. */
 import { EditorState, Prec } from '@codemirror/state';
 import { keymap } from '@codemirror/view';
-import { autocompletion, acceptCompletion, startCompletion, completeAnyWord, ifNotIn, completeFromList } from '@codemirror/autocomplete';
+import { autocompletion, acceptCompletion, startCompletion, completeAnyWord, ifNotIn } from '@codemirror/autocomplete';
 import { javascriptLanguage, typescriptLanguage } from '@codemirror/lang-javascript';
 import { jsonLanguage } from '@codemirror/lang-json';
 
@@ -45,10 +45,17 @@ const globalsSource = (ctx) => {
   return { from: w.from, options: globalOptions(), validFor: /^[\w$]*$/ };
 };
 const jsGlobals = (lang) => lang.data.of({ autocomplete: ifNotIn(['LineComment', 'BlockComment', 'String', 'TemplateString'], globalsSource) });
-const jsonLiterals = jsonLanguage.data.of({
-  autocomplete: ifNotIn(['String', 'PropertyName', 'LineComment', 'BlockComment'],
-    completeFromList(['true', 'false', 'null'].map((label) => ({ label, type: 'keyword' })))),
-});
+const JSON_LITERALS = ['true', 'false', 'null'].map((label) => ({ label, type: 'keyword' }));
+/** Literals complete only outside a string: an odd count of quotes before the cursor on this line means inside one
+ * (this also covers a string that is not closed yet, which the parser may not report as a String node). */
+const jsonSource = (ctx) => {
+  const w = ctx.matchBefore(/\w*/);
+  if (!w || (w.from === w.to && !ctx.explicit)) return null;
+  const line = ctx.state.doc.lineAt(ctx.pos);
+  if ((ctx.state.sliceDoc(line.from, ctx.pos).match(/"/g) || []).length % 2) return null;
+  return { from: w.from, options: JSON_LITERALS, validFor: /^\w*$/ };
+};
+const jsonLiterals = jsonLanguage.data.of({ autocomplete: ifNotIn(['String', 'PropertyName', 'LineComment', 'BlockComment'], jsonSource) });
 
 /** The extra completion for a language id (see lang.js). */
 export function languageCompletion(id) {

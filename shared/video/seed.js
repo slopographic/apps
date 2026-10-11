@@ -1,9 +1,11 @@
-/* SlopEdit: seeded randomness for the random edit. mulberry32 is small, fast and good enough for
-   shuffling clips. A seed is a uint32 shown as 8 hex digits; anything typed in is hashed to one. */
+/* Shared video core (window.SlopVideo.seed): seeded randomness for the random edit. mulberry32 is small,
+   fast and good enough for shuffling clips. A seed is a uint32 shown as 8 hex digits; anything typed in is
+   hashed to one. Loaded by SlopEdit and Reel Remix; pure, no DOM. */
 (function () {
   'use strict';
-  const SE = window.SE;
-  const S = SE.seed = {};
+  const root = typeof window !== 'undefined' ? window : globalThis;
+  const SV = (root.SlopVideo = root.SlopVideo || {});
+  const S = (SV.seed = {});
 
   /** A deterministic generator: rng() returns floats in [0, 1). */
   S.rng = function (seed) {
@@ -18,7 +20,7 @@
   /** A fresh random seed (uint32). */
   S.make = function () {
     const b = new Uint32Array(1);
-    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(b); else b[0] = Math.floor(Math.random() * 4294967296);
+    if (root.crypto && root.crypto.getRandomValues) root.crypto.getRandomValues(b); else b[0] = Math.floor(Math.random() * 4294967296);
     return b[0];
   };
   /** FNV-1a hash of a string, so any text works as a seed. */
