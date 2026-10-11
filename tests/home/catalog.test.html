@@ -93,6 +93,8 @@
     it('clicks on the mascot do not count as navigation', async () => {
       await ready;
       await HomeTest.settled(win);
+      doc.documentElement.style.scrollBehavior = 'auto';
+      await sleep(800);                        // let earlier smooth scrolls finish
       win.scrollTo(0, 300);
       await sleep(50);
       win.SlopMascot.M.hit.click();

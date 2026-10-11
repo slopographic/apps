@@ -135,7 +135,7 @@ function boot() {
   setTimeout(spawn, reduced() ? 0 : 500);
   // Debug and test hook.
   window.SlopMascot = {
-    M, pet, gain, act, restore, leapIn, hopTo, perches: P,
+    M, pet, gain, act, restore, leapIn, hopTo, face, perches: P,
     unleash: () => setChaos(true), calm: () => setChaos(false), bonk: hardLanding, enrage, calmRage, set3d,
     get level() { return M.level; }, get xp() { return M.xp; }, get hat() { return M.hat; }, get journal() { return count(); },
   };

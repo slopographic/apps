@@ -84,21 +84,24 @@
       ev('pointerup');
       expect(M.mode).toBe('air');
       expect(M.vx).toBeGreaterThan(100);
+      expect(S.face()).toEqual(['normal', 'o']);
       await HomeTest.settled(win);
     });
     it('makes the o face in the air and spiral eyes after a hard landing', async () => {
       await ready;
-      const look = await import('../../home/mascot/look.js');
-      expect(look.face()[1]).not.toBe('o');
+      await HomeTest.settled(win);
+      expect(S.face()[1]).not.toBe('o');
       S.bonk();
       expect(M.mood).toBe('dizzy');
-      expect(look.face()).toEqual(['spiral', 'wavy']);
+      expect(S.face()).toEqual(['spiral', 'wavy']);
       expect(M.bubble.textContent.length).toBeGreaterThan(0);
     });
     it('leaps back into view when his perch scrolls away', async () => {
       await ready;
       await HomeTest.settled(win);
+      win.document.documentElement.style.scrollBehavior = 'auto';
       win.scrollTo(0, win.document.getElementById('status').offsetTop);
+      expect(M.y < win.scrollY).toBe(true);
       await waitFor(() => M.y > win.scrollY && M.y < win.scrollY + win.innerHeight && M.mode === 'perched', { timeout: 6000 });
     });
     it('moves to a visible perch when the view changes', async () => {
