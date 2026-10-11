@@ -1,6 +1,6 @@
 /* SlopStorage.handle(err, opts): call it in a save's catch. A quota error opens one dialog that says the disk for this
  * site is full, names what is using the space and offers the fixes. Any other error is left to the caller (returns false).
- *   opts.app    the app's name for the message, e.g. 'Notes'
+ *   opts.app    the app's name for the message, e.g. 'Notes' (default: the page title)
  *   opts.what   what did not save, e.g. 'this note' (optional)
  *   opts.retry  async function that saves again. "Try again" runs it and closes the dialog when it resolves.
  *               The content stays in the editor meanwhile: a failed save must never clear the form, canvas or text.
@@ -39,6 +39,10 @@
     ].filter(Boolean);
   }
 
+  let showing = false; // one dialog at a time: several failed writes in a row show one dialog
+  /** The app's name from the page title ("Slop Notes: ..." -> "Slop Notes"), when the caller gives none. */
+  const titleApp = () => String((g.document && g.document.title) || '').split(/[:|·—–]/)[0].trim() || 'This app';
+
   function show(app, what, retry) {
     const el = g.SlopUI.el;
     const holder = el('div', { class: 'storage-full' });
@@ -60,22 +64,25 @@
     };
     paint({ usage: null, quota: null, percent: 0, parts: [] }, 'Reading the storage…');
     refresh(null).catch(() => {});
+    showing = true;
     g.SlopUI.dialog({
       title: 'This site’s storage is full',
       body: holder,
+      onClose: () => { showing = false; },
       buttons: [
-        { label: 'Keep editing' },
+        { label: retry ? 'Keep editing' : 'Close' },
         { label: 'Clear thumbnails and previews', act: clearThumbs },
         { label: 'Storage in Settings', act: openElsewhere('/settings/#storage') },
         { label: 'Connect a folder', act: openElsewhere('/drive/') },
-        { label: 'Try again', primary: true, act: tryAgain },
-      ],
+        retry ? { label: 'Try again', primary: true, act: tryAgain } : null,
+      ].filter(Boolean),
     });
   }
 
   SS.handle = function (err, opts = {}) {
     if (!SS.classify(err).quota) return false;
-    const app = opts.app || 'This app';
+    const app = opts.app || titleApp();
+    if (showing) return true;
     if (!g.SlopUI || !g.SlopUI.dialog) {
       g.alert && g.alert(`${app}: this site’s storage is full. Your changes were not saved. Free space in Settings, Storage, then save again.`);
       return true;
