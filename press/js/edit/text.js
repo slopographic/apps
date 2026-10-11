@@ -143,7 +143,7 @@
     var r = TE.range(); if (r[0] === r[1]) return;
     var frag = ST.slice(s, r[0], r[1]);
     styledClip = { text: frag.text, frag: frag };
-    e.clipboardData.setData('text/plain', frag.text.split(M.PAGE_NUM).join('#').replace(/ /g, '\n'));
+    e.clipboardData.setData('text/plain', frag.text.split(M.PAGE_NUM).join('#').replace(/\u2028/g, '\n'));
     e.preventDefault();
     if (cut) TE.deleteDir(-1);
   };
@@ -151,7 +151,7 @@
     var s = TE.story(); if (!s) return;
     e.preventDefault();
     var t = e.clipboardData.getData('text/plain');
-    if (styledClip && styledClip.frag.text.replace(/ /g, '\n').split(M.PAGE_NUM).join('#') === t) {
+    if (styledClip && styledClip.frag.text.replace(/\u2028/g, '\n').split(M.PAGE_NUM).join('#') === t) {
       var r = TE.range(); if (r[0] !== r[1]) ST.remove(s, r[0], r[1]);
       var o = ST.insertFragment(s, r[0], PR.util.clone(styledClip.frag));
       S.text.caret = S.text.anchor = o; H.commit('Paste'); TE.changed(); return;

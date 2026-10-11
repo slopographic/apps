@@ -54,9 +54,9 @@
     { id: 'type.pageNumber', title: 'Insert Current Page Number', group: 'Type', keys: ['Alt+Shift+Mod+N'], keywords: ['special character', 'folio', 'marker'], when: function () { return !!S.text; }, run: special(M.PAGE_NUM, 'Page number') },
     { id: 'type.emDash', title: 'Insert Em Dash', group: 'Type', keys: ['Alt+Shift+-'], keywords: ['special character'], when: function () { return !!S.text; }, run: special('—', 'Em dash') },
     { id: 'type.enDash', title: 'Insert En Dash', group: 'Type', keys: ['Alt+-'], keywords: ['special character'], when: function () { return !!S.text; }, run: special('–', 'En dash') },
-    { id: 'type.nbsp', title: 'Insert Nonbreaking Space', group: 'Type', keys: ['Alt+Mod+X'], keywords: ['special character', 'white space'], when: function () { return !!S.text; }, run: special(' ', 'Nonbreaking space') },
-    { id: 'type.softHyphen', title: 'Insert Discretionary Hyphen', group: 'Type', keys: ['Shift+Mod+-'], keywords: ['special character'], when: function () { return !!S.text; }, run: special('­', 'Discretionary hyphen') },
-    { id: 'type.lineBreak', title: 'Insert Forced Line Break', group: 'Type', keywords: ['special character', 'shift enter'], when: function () { return !!S.text; }, run: special(' ', 'Line break') },
+    { id: 'type.nbsp', title: 'Insert Nonbreaking Space', group: 'Type', keys: ['Alt+Mod+X'], keywords: ['special character', 'white space'], when: function () { return !!S.text; }, run: special('\u00A0', 'Nonbreaking space') },
+    { id: 'type.softHyphen', title: 'Insert Discretionary Hyphen', group: 'Type', keys: ['Shift+Mod+-'], keywords: ['special character'], when: function () { return !!S.text; }, run: special('\u00AD', 'Discretionary hyphen') },
+    { id: 'type.lineBreak', title: 'Insert Forced Line Break', group: 'Type', keywords: ['special character', 'shift enter'], when: function () { return !!S.text; }, run: special('\u2028', 'Line break') },
     { id: 'type.bullet', title: 'Insert Bullet •', group: 'Type', keywords: ['special character'], when: function () { return !!S.text; }, run: special('•', 'Bullet') },
     { id: 'type.copyright', title: 'Insert Copyright ©', group: 'Type', keywords: ['special character'], when: function () { return !!S.text; }, run: special('©', 'Copyright') },
     { id: 'type.placeholder', title: 'Fill with Placeholder Text', group: 'Type', keywords: ['lorem ipsum'], when: function () { return PR.selected().some(function (it) { return it.type === 'text'; }) || !!S.text; }, run: function () { ui().fillPlaceholder(); } },

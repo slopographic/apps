@@ -85,11 +85,11 @@
         var g = gs[i];
         if (g.hidden || g.nl || (g.trail && g.c === ' ') || g.c === '\t') { i++; continue; }
         // group glyphs that sit at their natural advance with the same style
-        var j = i + 1, str = g.c === ' ' ? ' ' : g.c, x1 = g.x + g.w;
+        var j = i + 1, str = g.c === '\u00A0' ? ' ' : g.c, x1 = g.x + g.w;
         while (j < gs.length) {
           var h = gs[j];
           if (h.s !== g.s || h.size !== g.size || h.hidden || h.nl || h.drop || g.drop || h.trail || Math.abs(h.x - x1) > 0.01 || h.c === '\t') break;
-          str += h.c === ' ' ? ' ' : h.c; x1 = h.x + h.w; j++;
+          str += h.c === '\u00A0' ? ' ' : h.c; x1 = h.x + h.w; j++;
         }
         var y = ln.y + (g.by || 0) - (g.s.baselineShift || 0);
         if (o.greek || g.size * zoom < 3) { ctx.fillStyle = 'rgba(120,120,120,.35)'; ctx.fillRect(g.x, y - g.size * 0.5, x1 - g.x, g.size * 0.45); }

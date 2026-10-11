@@ -9,7 +9,9 @@
 
   /** Surfaces: the page rectangles currently shown. Each: { key, x, y, w, h, side, pageIdx | null, master, mside, items, guides }. */
   V.surfaces = function () {
-    var doc = S.doc, out = [], y = 0, w = doc.size.w, h = doc.size.h;
+    var doc = S.doc, out = [], y = 0;
+    if (!doc) return out;
+    var w = doc.size.w, h = doc.size.h;
     if (S.editMaster) {
       var m = M.findMaster(doc, S.editMaster.id);
       if (m) {
@@ -49,7 +51,8 @@
     return best;
   };
   V.bounds = function () {
-    var ss = V.surfaces(), x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    var ss = V.surfaces(); if (!ss.length) return { x: 0, y: 0, w: 1, h: 1 };
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     ss.forEach(function (s) { x0 = Math.min(x0, s.x); y0 = Math.min(y0, s.y); x1 = Math.max(x1, s.x + s.w); y1 = Math.max(y1, s.y + s.h); });
     return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
   };

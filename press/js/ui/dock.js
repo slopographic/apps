@@ -44,6 +44,7 @@
     grp.body.innerHTML = ''; grp.foot.innerHTML = '';
     var p = panels[id]; if (!p) return;
     p.body = grp.body; p.footEl = grp.foot;
+    if (!PR.state.doc) return; p.footEl = grp.foot;
     p.build(grp.body, grp.foot);
     grp.foot.hidden = !grp.foot.childNodes.length;
   }
@@ -51,7 +52,7 @@
   UI.refreshPanels = function (which) {
     groups.forEach(function (g) {
       var p = panels[g.cur];
-      if (!p || g.el.classList.contains('collapsed') || (which && which !== g.cur)) return;
+      if (!p || !PR.state.doc || g.el.classList.contains('collapsed') || (which && which !== g.cur)) return;
       if (p.refresh) p.refresh(); else { g.body.innerHTML = ''; g.foot.innerHTML = ''; p.build(g.body, g.foot); g.foot.hidden = !g.foot.childNodes.length; }
     });
   };
