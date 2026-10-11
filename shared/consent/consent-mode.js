@@ -28,10 +28,11 @@
       ad_storage: ads, ad_user_data: ads, ad_personalization: ads
     };
   }
-  function defaultLoad(src) {
+  function defaultLoad(src, crossOrigin) {
     var s = document.createElement('script');
     s.async = true;
     s.src = src;
+    if (crossOrigin) s.crossOrigin = crossOrigin;
     (document.head || document.documentElement).appendChild(s);
     return s;
   }
@@ -61,10 +62,17 @@
     gtag('js', new Date());
     gtag('config', cfg.ga4MeasurementId);
   }
+  /** Loads AdSense only after the visitor accepts ads, then turns on Auto ads (page-level) for every page. */
   function loadAds() {
     if (loaded.ads || !cfg.adsensePublisherId) return;
     loaded.ads = true;
-    api.loadScript(ADS_SRC + '?client=' + encodeURIComponent(cfg.adsensePublisherId));
+    api.loadScript(ADS_SRC + '?client=' + encodeURIComponent(cfg.adsensePublisherId), 'anonymous');
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: cfg.adsensePublisherId,
+        enable_page_level_ads: true
+      });
+    } catch (e) { /* script blocked: no Auto ads, nothing else changes */ }
   }
 
   /** Makes the consent state match the stored record and loads whatever is allowed. */
