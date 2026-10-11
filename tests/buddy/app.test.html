@@ -82,7 +82,8 @@
       await waitFor(() => !S.M.layer.classList.contains('is-ghost'), { timeout: 2000 });
       const tb = doc.getElementById('tool-a').getBoundingClientRect();
       expect(doc.elementFromPoint(tb.left + 5, tb.top + 5).id).toBe('tool-a');
-      expect(doc.querySelector('.sloppo-hud').hidden).toBe(true);    // folded away until asked for
+      expect(doc.querySelector('.sloppo-hud').hidden).toBe(false);   // the collapsed toggle is there
+      expect(doc.querySelector('.sh-panel').hidden).toBe(true);      // and the card stays folded until asked for
     });
     it('rage does not start chaos by itself in apps', async () => {
       const win = await openApp();
@@ -100,12 +101,56 @@
       for (const a of ['bite', 'blast', 'goo', 'eat']) if (await S.act(a)) n++;
       expect(n).toBeGreaterThan(1);
       expect(S.journal).toBeGreaterThan(0);
-      expect(doc.querySelector('.sloppo-hud').hidden).toBe(false);   // Restore is reachable
+      S.toggleHud(true);                                              // Restore is in the card
+      expect(doc.querySelector('.sh-restore').hidden).toBe(false);
       doc.querySelector('.sh-restore').click();
       await sleep(80);
       expect(S.journal).toBe(0);
       expect(strip(doc)).toBe(before);
     }, { timeout: 25000 });
+  });
+
+  describe('HUD card', () => {
+    const key = (win, k) => win.document.body.dispatchEvent(new win.KeyboardEvent('keydown', { key: k, bubbles: true }));
+    it('is a small toggle with his level; H opens the card, Escape closes it', async () => {
+      const win = await openApp('', { clear: true });
+      const S = await turnOn(win), doc = win.document;
+      const tog = doc.querySelector('.sloppo-hud .sh-toggle');
+      expect(tog.textContent.trim()).toBe('Lv ' + S.level);
+      expect(doc.querySelector('.sh-panel').hidden).toBe(true);
+      key(win, 'h');
+      expect(doc.querySelector('.sh-panel').hidden).toBe(false);
+      expect(tog.getAttribute('aria-expanded')).toBe('true');
+      key(win, 'Escape');
+      expect(doc.querySelector('.sh-panel').hidden).toBe(true);
+    });
+    it('the Give section opens only when pressed, and a click outside closes the card', async () => {
+      const win = await openApp('', { clear: true });
+      const S = await turnOn(win), doc = win.document;
+      doc.querySelector('.sloppo-hud .sh-toggle').click();
+      expect(doc.querySelector('.sh-panel').hidden).toBe(false);
+      S.M.rage = 1.2; S.care.tick(0, 0);
+      await sleep(300);
+      expect(doc.querySelector('.sh-give').hidden).toBe(false);
+      expect(doc.querySelector('.sh-give-body').hidden).toBe(true);
+      doc.querySelector('.sh-give-l').click();
+      expect(doc.querySelector('.sh-give-body').hidden).toBe(false);
+      doc.body.dispatchEvent(new win.PointerEvent('pointerdown', { bubbles: true, pointerId: 4, clientX: 5, clientY: 5 }));
+      expect(doc.querySelector('.sh-panel').hidden).toBe(true);
+      S.M.rage = 0; S.care.tick(0, 0);
+    });
+    it('the collapsed toggle fades after 6 quiet seconds, and comes back on hover', async () => {
+      const win = await openApp('', { clear: true });
+      await turnOn(win);
+      const doc = win.document, hud = doc.querySelector('.sloppo-hud'), tog = hud.querySelector('.sh-toggle');
+      await SlopTest.waitFor(() => hud.classList.contains('is-faded'), { timeout: 9000 });
+      await sleep(700);
+      expect(win.getComputedStyle(tog).opacity).toBe('0.4');
+      hud.dispatchEvent(new win.PointerEvent('pointerenter'));
+      expect(hud.classList.contains('is-faded')).toBe(false);
+      await sleep(700);
+      expect(win.getComputedStyle(tog).opacity).toBe('1');
+    }, { timeout: 15000 });
   });
 
   run();
