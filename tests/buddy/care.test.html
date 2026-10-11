@@ -87,6 +87,8 @@
       M.rage = 1.2; M.fav = 'juice'; M.hate = 'plush';
       await sleep(300);
       expect(tray.hidden).toBe(false);
+      expect(tray.querySelector('.sh-give-body').hidden).toBe(true);   // the section opens only when pressed
+      tray.querySelector('.sh-give-l').click();
       const btn = tray.querySelector('[data-item="cookie"]');
       btn.click();
       expect(S.treats.list().length).toBe(1);

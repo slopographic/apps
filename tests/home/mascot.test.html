@@ -72,6 +72,7 @@
       expect(S.hat).toBe('sprout');
       await waitFor(() => M.svg.querySelector('.m-hat').children.length > 0, { timeout: 2000 });
       expect(parseFloat(M.hit.style.width)).toBeGreaterThan(hitW);
+      S.toggleHud(true);                           // the card is collapsed by default: open it for the hat button
       const hud = win.document.querySelector('.sloppo-hud');
       expect(hud.querySelector('.sh-lv b').textContent).toBe('2');
       expect(hud.querySelector('.sh-hat').hidden).toBe(false);
@@ -124,6 +125,7 @@
       await ready;
       const loaded = () => performance.getEntriesByType('resource').concat(win.performance.getEntriesByType('resource')).some((e) => e.name.includes('three.module'));
       expect(loaded()).toBe(false);
+      S.toggleHud(true);
       win.document.querySelector('.sh-3d').click();
       await waitFor(() => !win.document.querySelector('.sh-3d').disabled && (M.is3d || win.document.querySelector('.sh-3d').getAttribute('aria-pressed') === 'false'), { timeout: 8000 });
       await sleep(300);
