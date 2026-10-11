@@ -11,8 +11,8 @@
 
   B.KINDS = ['vector', 'image', 'text', 'table', 'clip'];
   B.MIME = ['image/png', 'image/svg+xml', 'text/html', 'text/plain', 'text/csv'];
-  /** The formats each kind is kept in without loss. Any other format of a kind is a simplification for the target. */
-  B.NATIVE = { vector: ['image/svg+xml'], image: ['image/png'], text: ['text/html', 'text/plain'], table: ['text/csv'], clip: [] };
+  /** Richest first. A copy that holds several formats is sent to a target in the first of these it accepts. */
+  B.RANK = ['image/svg+xml', 'image/png', 'text/html', 'text/csv', 'text/plain'];
 
   /** The kind a set of formats implies, when the copying app does not say. */
   B.inferKind = function (formats) {
@@ -48,18 +48,20 @@
   };
 
   /** Picks the first format a target accepts (in the target's order). Returns null when none matches, else
-   *  { type, data, simplified, note }. simplified is true when the format is not the kind's native one, so the target
-   *  got a converted copy and the app should say so. */
+   *  { type, data, simplified, note }. simplified is true when the target gets a poorer format than the copy holds
+   *  (say text/plain for a copy that also has text/html, or a PNG for a copy that is a vector), so the app can say so. */
   B.choose = function (record, accepts) {
     if (!record || !record.formats) return null;
+    var best = B.RANK.filter(function (t) { return record.formats[t] != null; })[0];
     for (var i = 0; i < accepts.length; i++) {
       var type = accepts[i], data = record.formats[type];
       if (data == null) continue;
-      var native = (B.NATIVE[record.kind] || []).indexOf(type) >= 0;
-      return { type: type, data: data, simplified: !native, note: native ? '' : 'Converted from ' + (record.kind === 'vector' ? 'a vector' : record.kind) + ' to ' + type.replace(/^.*\//, '').toUpperCase() };
+      var simplified = type !== best;
+      return { type: type, data: data, simplified: simplified, note: simplified ? 'Simplified: sent as ' + label(type) + ', the copy also holds ' + label(best) : '' };
     }
     return null;
   };
+  function label(type) { return type.replace(/^.*\//, '').replace('svg+xml', 'SVG').toUpperCase(); }
 
   /** RFC 4180 CSV to rows of strings. Quoted fields may hold commas, quotes and line breaks. */
   B.parseCsv = function (text, delim) {

@@ -93,6 +93,31 @@ timeline clip; with fewer clips than slots, clips repeat inside one cut; drag wo
   left-drag is unchanged. Test: "a middle-button drag changes the timeline scroll position and does not move a clip".
 - Reel Remix sends a manifest with a `remix` object of the same plan options; `io/reel.js` replays it with `SE.random.plan`.
 
+## Keyframes and the random effect layer
+
+- **Keyframes** (`js/core/anim.js`, inspector section "Animation" in `js/ui/insp-anim.js`): `clip.anim = { x, y, scale, rot,
+  opacity }`, each a `shared/motion/track` of `{ t, value, ease }` (t in seconds from the clip start). X, Y and rotation keys
+  add to the clip's own transform; scale and opacity keys multiply it, so the neutral key is 0 / 0 / 1 / 0 / 1 and a key past
+  the last one holds its value. Easing per key (linear, ease in, ease out, ease in-out: the segment that starts at the key).
+  Key at playhead (one key per property, at its current value), drag a diamond along its track, click the lane to move the
+  playhead, edit value/time/easing of the selected key, delete it. Animate-in presets (fade in, slide from left/right/top/bottom,
+  zoom in) write keys over the first 0.5 s. Reset keyframes clears them.
+- The compositor (`js/render/compositor.js`) reads keys through `SE.anim.combine` for layers, the monitor overlay and the
+  hit-test (`CMP.bounds(p, c, t)`); export and preview use the same `CMP.render`, so both show them.
+- **Random effect layer**: a clip of kind `effect` on a video track (Timeline ▸ Add random effect layer, Effects tab, or
+  `tl.effect` in the palette). It applies to the tracks below its own track; put it above the clips it should affect.
+  `fx = { seed, every, intensity, types }`: `every` is the change interval (0 = one effect for the whole layer), `intensity`
+  0–100 %, `types` the enabled effects of grain, colour shift, glitch, zoom pulse and vignette. Each cut draws one effect
+  with `SlopVideo.seed` (`js/core/fx-random.js`, pure: the same seed, cut and settings always give the same pick). Drawing
+  (`js/render/fx-draw.js`) works on a copy of the frame drawn so far; grain and glitch use the seed and the time.
+  New layers get a random seed; New seed reshuffles; Reset effect restores the defaults (seed 1, all five, 60 %, every 1 s).
+- **Reset all** (`clip.reset`) restores a clip's transform, crop, colour, fades, transition, volume, keyframes and effect
+  settings to their defaults. It keeps media, timing, speed, title text, colour matte colour and links.
+- Colour shift uses `ctx.filter`; where the browser has none it is skipped (the other effects still draw).
+- Tests: `tests/node/slopcut-core.test.mjs` (interpolation, easing, presets, seeded pick); `tests/slopcut/slopedit.spec-anim.js`
+  (adds, moves, edits and resets a key in the inspector; presets; Reset all; the effect layer's pixels, seed rule and reset; a
+  decoded MP4 export that has a key and a vignette).
+
 ## Tests
 `node tests/run.mjs slopedit` → `tests/slopcut/slopedit.test.html` (63 tests with the node file, all green, ~40 s). `slopedit.spec-video.js` covers the Layout lane (a 1x1 then 1x3 switch, add/move/delete with undo), the middle-button pan and export presets. `tests/node/slopedit-video-core.test.mjs` tests `shared/video` in Node. `slopedit.spec-tpl.js`
 covers templates (region data, apply, re-flow, swap, drop) and the random edit (seeded plan, length, slots, no repeats,
@@ -110,7 +135,7 @@ Note: Playwright's Chromium has no H.264/AAC, so tests exercise VP9/Opus in MP4;
 - Audio is decoded whole into memory (≈380 KB per second of footage); very long files (> ~40 min) are heavy.
 - Preview playback relies on `<video>` seeking/playing; reverse shuttle is silent; speed changes pitch the sound.
 - Only MP4/MOV get the frame-exact decoder path (fragmented MP4 and WebM inputs use the seek fallback).
-- No nested sequences, multicam, keyframed transforms, LUTs or audio effects beyond volume.
+- No nested sequences, multicam, LUTs or audio effects beyond volume. Keys cover position, scale, rotation and opacity only (not crop or colour).
 - The MediaRecorder fallback could not be verified in headless Chromium (canvas captureStream records 0 bytes
   there); it is only used when WebCodecs is missing (old Firefox/Safari). Check it by hand in such a browser.
 - Offline .html has no Slop Drive (by design) and uses fallback fonts (shared/fonts is stripped like other apps).

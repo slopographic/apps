@@ -69,6 +69,10 @@
     }
     if (c.kind === 'title') { const a = SE.text.animAt(c, L.u); alpha *= a.alpha; dy = a.dy * H; sc = a.scale; L.blur = a.blur; }
     if (alpha <= 0.002 && !overlay) return;
+    if (c.mask && !L.flat) { // masked clip: draw it alone, then keep only what the mask covers (mask-draw.js)
+      const T = { x: W / 2 + xf.x * k + dx, y: H / 2 + xf.y * k + dy, rot: xf.rot, s: Math.max(1e-6, xf.scale * sc * k) };
+      return SE.maskDraw.layer(g, W, H, (lg) => drawLayer(lg, p, Object.assign({}, L, { flat: true }), src, W, H, k), c.mask, T);
+    }
     g.save();
     if (clip) { g.beginPath(); g.rect(clip[0], clip[1], clip[2], clip[3]); g.clip(); }
     if (src && alpha > 0.002) {
