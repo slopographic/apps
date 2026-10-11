@@ -1,7 +1,8 @@
 /* Slop Contacts: the link to the shared customer records (SlopData 'customers'). Reads every live customer into the
  * list. Each change to the list is written as one transaction: changed contacts are put (merged over the stored record,
  * so fields the screen does not show are kept), removed contacts are soft-deleted. Writes run one after another, and
- * the list is reloaded when another tab or app changes a customer while nothing is pending. Adds SlopContacts.records. */
+ * the list is reloaded when another tab or app changes a customer while nothing is pending. Also reads the created dates
+ * and the CRM tags (customerTags) for the filters. Adds SlopContacts.records. */
 (function () {
   'use strict';
   const SC = window.SlopContacts;
@@ -15,6 +16,10 @@
     const r = await D.store.list('customers');
     if (!r.ok) { UI.toast(r.message || 'Could not read your customers.'); return false; }
     S.touched = new Map(r.value.map((x) => [x.id, x.updatedAt || 0]));
+    S.created = new Map(r.value.map((x) => [x.id, x.createdAt || 0]));
+    const t = await D.store.list('customerTags'); // the CRM's tags, for the tag filter (read only here)
+    if (t.ok) S.tags = t.value.map((x) => ({ id: x.id, name: String(x.name || ''), color: x.color || 'blue' }))
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
     S.setList(r.value.map((rec) => SC.customerMap.toContact(rec)), { write: false });
     return true;
   }

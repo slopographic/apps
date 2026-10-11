@@ -1,7 +1,9 @@
 /* Slop Contacts: read vCard 2.1, 3.0 and 4.0 (.vcf). Handles folded lines, quoted-printable (2.1),
  * escaped characters, several TEL/EMAIL/ADR with TYPE, Apple itemN.X-ABLabel, CATEGORIES as groups and PHOTO
  * (base64 JPEG or PNG, or a URL kept as text).
- * Classic script. Adds SlopContacts.vcard.read(text) -> contacts (normalised). */
+ * Versions 2.1, 3.0 and 4.0 are read the same way (4.0 has no ENCODING/CHARSET, and its TEL and EMAIL values may be
+ * tel: and mailto: URIs, which are stripped).
+ * Classic script. Adds SlopContacts.vcard.read(text, opts) -> contacts (normalised). */
 (function () {
   'use strict';
   const SC = (window.SlopContacts = window.SlopContacts || {});
@@ -66,7 +68,7 @@
   function propValue(p) { return isQP(p.params) ? T.qpDecode(p.value, charsetOf(p.params)) : p.value; }
 
   /** Build a contact from its property records (one BEGIN:VCARD … END:VCARD block). */
-  function contactFrom(props) {
+  function contactFrom(props, opts = {}) {
     const c = SC.model.blank(), labels = {};
     for (const p of props) if (p.name === 'X-ABLABEL' && p.group) labels[p.group] = propValue(p);
     const typesOf = (p) => { const t = cleanTypes(p.params.TYPE); return t.length || !labels[p.group] ? t : labelTypes(labels[p.group]); };
@@ -93,18 +95,19 @@
         case 'NOTE': c.note = c.note ? c.note + '\n' + u : u; break;
         case 'CATEGORIES': c.groups.push(...T.splitUnescaped(raw, ',').map(T.unescVal)); break;
         case 'UID': if (u.trim()) c.id = u.trim(); break;
-        case 'PHOTO': if (!c.photo) c.photo = SC.photo.fromVcard(p.value, p.params); break;
+        case 'PHOTO': if (!c.photo && opts.photos !== false) c.photo = SC.photo.fromVcard(p.value, p.params); break;
         default: break;
       }
     }
     return c;
   }
 
-  /** Parse every vCard in the text. Returns an array of normalised contacts (empty cards are skipped). */
-  function read(text) {
+  /** Parse every vCard in the text. Returns an array of normalised contacts (empty cards are skipped).
+   *  opts.photos false skips PHOTO properties (the import dialog does this). */
+  function read(text, opts = {}) {
     const lines = logicalLines(text), out = [];
     let cur = null;
-    const flush = () => { const c = contactFrom(cur); if (SC.model.hasContent(c)) out.push(SC.model.normalise(c)); cur = null; };
+    const flush = () => { const c = contactFrom(cur, opts); if (SC.model.hasContent(c)) out.push(SC.model.normalise(c)); cur = null; };
     for (let i = 0; i < lines.length; i++) {
       const p = parseLine(lines[i]);
       if (!p) continue;

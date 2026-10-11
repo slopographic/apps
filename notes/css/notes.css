@@ -152,3 +152,5 @@ button, input, textarea { font: inherit; color: inherit; }
 .md-warning { border-left-color: #b26a00; }
 .md-video { border-left-color: #1d4f91; }
 .nt-form { display: grid; gap: 10px; min-width: min(360px, 80vw); }
+/* the open-note tabs sit on their own line under the title and tools */
+.nt-top > .doctabs-host { order: 2; flex: 1 0 100%; min-width: 0; }

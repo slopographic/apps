@@ -53,6 +53,7 @@ function wireSaves() {
     t.textContent = state === 'saving' ? 'Saving…' : state === 'saved' ? 'Saved to Slop Drive' : 'Not saved: ' + ((err && err.message) || 'Slop Drive is unavailable');
     if (window.SlopGuard) SlopGuard.setUnsaved('notes', store.hasPending());
     tabs.refresh();
+    if (state === 'saved') tabs.flush();
   });
   addEventListener('pagehide', () => { store.flush(); });
 }

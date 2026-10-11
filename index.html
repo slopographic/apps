@@ -344,6 +344,7 @@
   <link rel="stylesheet" href="style/detector.css">
   <link rel="stylesheet" href="style/footer.css">
   <link rel="stylesheet" href="home/home.css">
+  <link rel="stylesheet" href="shared/finder/finder.css">
   <link rel="stylesheet" href="shared/buddy/buddy.css">
   <link rel="stylesheet" href="shared/buddy/extras.css">
   <link rel="manifest" href="/manifest.webmanifest">
@@ -364,6 +365,9 @@
 
   <main>
     <section id="view-home" class="view home" hidden>
+      <section class="finder-top" aria-label="Find an app">
+        <div id="app-finder" class="finder-host"></div>
+      </section>
       <div id="app-carousel" class="showcase"></div>
       <div class="stage-ledge" data-perch="stage" aria-hidden="true"></div>
       <section class="intro" aria-labelledby="intro-title">
@@ -372,8 +376,8 @@
           <h1 id="intro-title" class="intro-title" data-perch>Office and creative software for businesses, <em>offline, free and no subscription.</em></h1>
           <p class="intro-lede">Documents, spreadsheets, slides, PDFs, contacts, stock and labels, in one suite where your files stay on your device.</p>
           <div class="intro-cta">
-            <a class="btn primary" href="#slop-365" data-jump>Open Slop 365</a>
-            <a class="btn" href="#creative" data-jump>Explore Creative Slop</a>
+            <a class="btn primary" href="#business" data-jump>Open Business apps</a>
+            <a class="btn" href="#creative" data-jump>Explore Creative and media</a>
           </div>
           <ul class="intro-facts" aria-label="Terms">
             <li>Free to use</li>
@@ -383,6 +387,8 @@
           </ul>
         </div>
       </section>
+
+      <nav class="jump-links" id="jump-links" aria-label="Jump to a section"></nav>
 
       <section class="workspaces" aria-labelledby="ws-title">
         <h2 id="ws-title" class="ws-title">Choose a workspace</h2>
@@ -406,21 +412,7 @@
       </section>
 
       <section id="apps" class="apps-wrap" aria-label="Apps">
-        <section id="slop-365" class="shelf" aria-labelledby="business-title">
-          <header class="shelf-head">
-            <h2 id="business-title" data-perch data-group-label="business">Slop 365</h2>
-            <p>Office and business tools. They share one local drive, so work moves between them.</p>
-          </header>
-          <div class="app-grid" data-list="business" aria-labelledby="business-title"></div>
-        </section>
-
-        <section id="creative" class="shelf" aria-labelledby="creative-title">
-          <header class="shelf-head">
-            <h2 id="creative-title" data-perch data-group-label="creative">Creative Slop</h2>
-            <p>Photo, vector, video and 3D tools for making things.</p>
-          </header>
-          <div class="app-grid" data-list="creative" aria-labelledby="creative-title"></div>
-        </section>
+        <div id="app-sections"></div>
       </section>
 
       <section id="status" class="shelf status" aria-labelledby="status-title">
@@ -510,7 +502,13 @@
   <script src="slop/detect.js"></script>
   <script src="app.js"></script>
   <script src="shared/app-icons.js"></script>
+  <script src="shared/urlstate/urlstate.js"></script>
+  <script src="shared/finder/model.js"></script>
+  <script src="shared/finder/finder.js"></script>
+  <script src="shared/finder/app-search.js"></script>
+  <script src="home/sections.js"></script>
   <script src="home/catalog.js"></script>
+  <script src="home/browse.js"></script>
   <script src="motion.js"></script>
   <script src="brand/brand.js"></script>
   <script type="module" src="home/mascot/index.js"></script>

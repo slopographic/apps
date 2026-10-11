@@ -23,17 +23,23 @@
   const textBlob = (text, type) => new Blob([text], { type });
 
   /** One zip entry per contact, named after its display name (duplicates get " (2)"). */
-  function zipOf(list) {
-    const files = list.map((c) => ({ name: safe(M.displayName(c)) + '.vcf', data: enc.encode(SC.vcard.one(M.normalise(c))) }));
+  function zipOf(list, version) {
+    const files = list.map((c) => ({ name: safe(M.displayName(c)) + '.vcf', data: enc.encode(SC.vcard.one(M.normalise(c), version)) }));
     return new Blob([SC.zip.store(files)], { type: 'application/zip' });
   }
 
-  /** The export table. base is the list name without extension. */
+  /** The export table. base is the list name without extension. XLSX is not here: it is built by the app (async). */
   const FORMATS = [
     { id: 'vcf', label: 'vCard 3.0 (.vcf), one file for iOS and Android', ext: 'vcf',
-      build: (list, base) => ({ blob: textBlob(SC.vcard.write(list), 'text/vcard'), name: `${safe(base)}.vcf` }) },
-    { id: 'zip', label: 'vCard per contact (.zip)', ext: 'zip',
-      build: (list, base) => ({ blob: zipOf(list), name: `${safe(base)} vcards.zip` }) },
+      build: (list, base) => ({ blob: textBlob(SC.vcard.write(list, '3.0'), 'text/vcard'), name: `${safe(base)}.vcf` }) },
+    { id: 'vcf40', label: 'vCard 4.0 (.vcf), one file', ext: 'vcf',
+      build: (list, base) => ({ blob: textBlob(SC.vcard.write(list, '4.0'), 'text/vcard'), name: `${safe(base)} (4.0).vcf` }) },
+    { id: 'zip', label: 'vCard 3.0, one file per contact (.zip)', ext: 'zip',
+      build: (list, base) => ({ blob: zipOf(list, '3.0'), name: `${safe(base)} vcards.zip` }) },
+    { id: 'zip40', label: 'vCard 4.0, one file per contact (.zip)', ext: 'zip',
+      build: (list, base) => ({ blob: zipOf(list, '4.0'), name: `${safe(base)} vcards 4.0.zip` }) },
+    { id: 'csv', label: 'CSV (.csv), one column per e-mail and phone', ext: 'csv',
+      build: (list, base) => ({ blob: textBlob(SC.csv.genericCsv(list), 'text/csv'), name: `${safe(base)}.csv` }) },
     { id: 'google', label: 'Google Contacts CSV', ext: 'csv',
       build: (list, base) => ({ blob: textBlob(SC.csv.googleCsv(list), 'text/csv'), name: `${safe(base)} (Google).csv` }) },
     { id: 'outlook', label: 'Outlook CSV', ext: 'csv',

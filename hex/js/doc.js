@@ -2,6 +2,7 @@
  * opens without loading it all. Edits are an overlay of changed bytes; undo and redo work on groups of byte changes.
  * Saving builds a new Blob from the original slices and the changed runs, so the file is never copied whole.
  * Classic script, no DOM. Exposes window.HexDoc.create(blob, { name, type, crypto }).
+ *   create(blob, { name, type, crypto, dirty })  dirty: the content is not known to be saved (a restored unsaved tab)
  *   load(offset, len)            async: make sure the pages under that range are in memory
  *   has(offset, len)             are those pages in memory?
  *   byte(i)                      the current value (edits applied), or undefined when its page is not loaded
@@ -22,7 +23,8 @@
     const cr = opts.crypto || window.crypto;
     const st = {
       blob, size: blob.size, name: opts.name || 'untitled.bin', type: opts.type || blob.type || 'application/octet-stream',
-      pages: new Map(), loading: new Map(), edits: new Map(), undo: [], redo: [], idSeq: 0, savedId: 0,
+      pages: new Map(), loading: new Map(), edits: new Map(), undo: [], redo: [], idSeq: 0,
+      savedId: opts.dirty ? -1 : 0, // dirty: a restored unsaved file differs from its saved copy, which is unknown
     };
     const top = () => (st.undo.length ? st.undo[st.undo.length - 1] : null);
 

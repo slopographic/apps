@@ -1,5 +1,6 @@
 /* Slop Hex: boot. Registers the app with Slop Drive, wires the toolbar, the Go to and Find bars, drag and drop, the
- * right-click menu and the commands, and opens the file launched with ?drive=<id> (the way Paste and Code launch).
+ * right-click menu and the commands. The open files come back as tabs (js/tabs.js); a file launched with ?drive=<id> (the way
+ * Paste and Code launch) opens in a tab of its own.
  * Classic script, runs once the page is parsed. */
 (function () {
   'use strict';
@@ -49,9 +50,14 @@
     A().app.grid = grid;
     wire();
     window.HexCommands.register();
+    // The launch is read before the tabs come back: showing a tab rewrites the address bar (its ?drive= id).
+    let launch = null;
+    try { launch = await SlopHub.consumeLaunch(); } catch (e) { launch = null; }
+    const session = HexTabs.mount($('hx-tabs'), { activate: A().activate, deactivate: A().deactivate, refresh: A().refresh });
+    try { await session.restore(); } catch (e) { console.warn('Slop Hex: restore failed', e); }
+    if (!HexTabs.current()) HexTabs.api().newTab();
     A().refresh();
     try {
-      const launch = await SlopHub.consumeLaunch();
       if (launch && launch.blob) await A().openBlob(launch.blob, { name: launch.name, driveId: launch.id });
     } catch (e) {
       SlopUI.toast('Could not open that file: ' + e.message);

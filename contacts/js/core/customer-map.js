@@ -56,7 +56,7 @@
     return M.normalise({
       id: rec.id, name: splitName(rec.name), fn: rec.name, org: rec.company, dept: rec.department, title: rec.title,
       phones, emails, adr, bday: rec.birthday, url: rec.website, note: rec.notes, groups: rec.categories,
-      photo: rec.photo, stage: rec.stage, followUp: rec.followUp,
+      photo: rec.photo, stage: rec.stage, followUp: rec.followUp, tagIds: rec.tagIds,
     });
   }
 

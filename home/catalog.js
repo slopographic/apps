@@ -97,6 +97,7 @@
     let best = null, bd = Infinity;
     const mid = innerHeight / 2;
     for (const s of seen) {
+      if (!s.isConnected) { seen.delete(s); continue; }
       if (!s.dataset.clip) continue;
       const r = s.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - mid);
       if (r.top >= -r.height * 0.2 && r.bottom <= innerHeight + r.height * 0.2 && d < bd) { bd = d; best = s; }
@@ -106,22 +107,25 @@
     current = best;
     if (best) play(best);
   }
+  let io = null;
+  const watchShots = () => { if (io) document.querySelectorAll('.shot').forEach((s) => io.observe(s)); };
   if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => {
+    io = new IntersectionObserver((entries) => {
       for (const en of entries) { if (en.intersectionRatio >= 0.6) seen.add(en.target); else { seen.delete(en.target); if (en.target === current) { stop(current); current = null; } } }
       pickCentre();
     }, { threshold: [0, 0.6, 1] });
-    queueMicrotask(() => document.querySelectorAll('[data-list] .shot').forEach((s) => io.observe(s)));
+    queueMicrotask(watchShots);
     let raf = 0;
     addEventListener('scroll', () => { if (!raf && seen.size) raf = requestAnimationFrame(() => { raf = 0; pickCentre(); }); }, { passive: true });
   }
+  window.SlopHomeCards = { appCard, tile, watch: watchShots };
   /* A compact card: thumbnail, name, status badge, one line of what it does, and the link. */
-  function appCard(a) {
+  function appCard(a, line) {
     return el('a', { class: 'app-card', href: a.path, 'data-perch': 'card', 'data-id': a.id },
       shot(a),
       el('div', { class: 'app-body' },
         el('div', { class: 'app-name' }, el('h3', null, a.name), badge(a, true)),
-        el('p', { class: 'app-tag' }, a.tagline),
+        el('p', { class: 'app-tag' }, line || a.tagline),
         el('span', { class: 'go' }, a.status === 'building' ? 'Preview →' : 'Open →')));
   }
   function tile(a) {
@@ -129,22 +133,11 @@
       shot(a),
       el('div', { class: 'tile-body' }, el('div', { class: 'app-name' }, el('h3', null, a.name), badge(a)), el('p', null, a.tagline)));
   }
-  // Apps are grouped (business, creative) on the homepage; experiments keep their own tile shelf.
-  // Group headings come from GROUP_LABELS in shared/apps.js (one source of truth).
-  const GROUPS = ['business', 'creative'];
-  const LABELS = window.SLOP_GROUP_LABELS || {};
-  for (const h of document.querySelectorAll('[data-group-label]')) if (LABELS[h.dataset.groupLabel]) h.textContent = LABELS[h.dataset.groupLabel];
-  for (const list of document.querySelectorAll('[data-list]')) {
-    const kind = list.dataset.list;
-    const pick = GROUPS.includes(kind) ? (a) => a.group === kind : (a) => a.kind === kind;
-    list.append(...APPS.filter(pick).map(kind === 'app' || GROUPS.includes(kind) ? appCard : tile));
-  }
-
   /* ---------- app carousel: the top of the homepage, one slide per app ---------- */
   // Names the carousel leads with, in this order; every other registry entry follows in registry order.
   const CAROUSEL_TOP = ['PhotoSlop', 'SlopCut', 'SlopIsolate', 'SlopVector', 'Reel Remix', 'Slop Image to 3D', 'Slop Upscale', 'Slop Resize', 'Slop Docs', 'Slop Orders', 'Slop Invoices', 'Slop CRM', 'Slop Calendar', 'Slop Drive'];
   // Folders that have a guided tour. Keep in step with TOURS in shared/tour/mount.js.
-  const TOUR_DIRS = new Set(['photoslop', 'slopvector', 'slopcut', 'remix', 'slopisolate', 'drive', 'orders', 'invoices', 'crm', 'calendar', 'todo', 'notes', 'paste', 'resize', 'upscale', 'aitools', '3d', 'img3d', 'effects', 'docs', 'slides', 'tables', 'label', 'gallery', 'hex', 'code']);
+  const TOUR_DIRS = window.SlopHomeSections.TOUR_DIRS;
   const CAROUSEL_MS = 7000;
   const carouselApps = () => {
     const byName = new Map(APPS.map((a) => [a.name, a]));
