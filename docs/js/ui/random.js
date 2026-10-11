@@ -74,7 +74,8 @@
     const seedIn = el('input', { type: 'text', class: 'sui-input tpl-seed', id: 'tplSeed', 'aria-label': 'Seed', spellcheck: 'false', autocomplete: 'off' });
     const thumb = el('div', { class: 'tpl-thumb', id: 'tplPreview', role: 'button', tabindex: '0', 'aria-label': 'Preview, open full size', title: 'Open the preview full size' });
     const info = el('p', { class: 'tpl-info', id: 'tplInfo' });
-    seedIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); regenerate(seedIn.value.trim() || E().TPL.newSeed()); } });
+    // Enter regenerates; stopPropagation keeps SlopUI from pressing the primary button (Use this template) for it
+    seedIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); regenerate(seedIn.value.trim() || E().TPL.newSeed()); } });
     thumb.addEventListener('click', openFull);
     thumb.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFull(); } });
     const body = el('div', { class: 'tpl-body' }, [SlopUI.field('Seed', seedIn, 'Enter to regenerate'), thumb, info]);

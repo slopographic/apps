@@ -97,25 +97,38 @@
     };
   }
 
-  /** The loaded detector, loading it on first use. Shares one load between callers. */
+  /** The loaded detector, loading it on first use. Shares one load between callers. A load that finishes after the
+   * setting was turned off is dropped. */
   function ensure() {
     if (backend) return Promise.resolve(backend);
     if (!loading) {
       state = 'loading';
-      loading = loadModel().then((b) => { backend = b; state = 'ready'; lastError = ''; return b; },
-        (e) => { state = 'unavailable'; lastError = (e && e.message) || String(e); loading = null; throw e; });
+      const p = loadModel().then((b) => {
+        if (loading !== p) return b; // turned off (or stubbed) while loading
+        backend = b; state = 'ready'; lastError = '';
+        return b;
+      }, (e) => {
+        if (loading === p) { state = 'unavailable'; loading = null; }
+        throw e;
+      });
+      loading = p;
     }
     return loading;
+  }
+  /** Boxes from the detector. Null when off or the source is empty. Throws when the model fails (analyse() relies on
+   * that, so a failure is never stored as "no faces"). */
+  async function detectRaw(source) {
+    if (!F.enabled() || !source) return null;
+    const b = backend || await ensure();
+    return b.detect(source);
   }
 
   /** Faces in a picture (an ImageBitmap, canvas, image or video frame). [] when the opt-in is off, the picture is
    * empty or anything fails: the caller never has to catch. */
   F.detect = async function (source) {
     try {
-      if (!F.enabled() || !source) return [];
-      const b = backend || await ensure();
-      const boxes = await b.detect(source);
-      return boxes.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, score: f.score }));
+      const boxes = await detectRaw(source);
+      return boxes ? boxes.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, score: f.score })) : [];
     } catch (e) { lastError = (e && e.message) || String(e); return []; }
   };
 
@@ -129,8 +142,9 @@
       if (!g.createImageBitmap) return null;
       const bmp = await g.createImageBitmap(blob);
       let faces;
-      try { faces = await F.detect(bmp); } finally { if (bmp.close) bmp.close(); }
-      const res = { w: bmp.width, h: bmp.height, faces };
+      try { faces = await detectRaw(bmp); } finally { if (bmp.close) bmp.close(); }
+      if (!faces) return null;
+      const res = { w: bmp.width, h: bmp.height, faces: faces.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, score: f.score })) };
       await F.cache.put(scope, id, stamp, res);
       return Object.assign({ cached: false }, res);
     } catch (e) { lastError = (e && e.message) || String(e); return null; }
