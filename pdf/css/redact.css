@@ -23,4 +23,4 @@
 .rd-x .ic { width: 14px; height: 14px; }
 .rd-list-warn { margin: 6px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; }
 .rd-list-warn li { margin: 4px 0; }
-:root[data-theme="classic"] .thumb-redact, :root[data-theme="classic"] .pv-page.is-redacted::after { border-radius: 0; }
+:root[data-slop-theme="classic"] .thumb-redact, :root[data-slop-theme="classic"] .pv-page.is-redacted::after { border-radius: 0; }
