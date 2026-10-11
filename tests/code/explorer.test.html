@@ -43,6 +43,8 @@
     });
 
     it('a folder cannot be dropped into itself or into one of its own folders', async () => {
+      if (!row('d:' + inner)) row('d:' + src).click();
+      await waitFor(() => row('d:' + inner), { timeout: 3000 });
       drag('d:' + src, 'd:' + src);
       drag('d:' + src, 'd:' + inner);
       await sleep(150);
@@ -69,7 +71,7 @@
       const pick = w.SlopHub.pickFolder;
       w.SlopHub.pickFolder = async () => inner;
       try {
-        rightClick(row('f:' + b) || row('d:' + src));
+        rightClick(row('f:' + b));
         await waitFor(() => menuItem('Move to…'), { timeout: 3000 });
         menuItem('Move to…').click();
         await waitFor(async () => (await H().get(b)).folderId === inner, { timeout: 5000 });

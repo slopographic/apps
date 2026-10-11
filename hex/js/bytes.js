@@ -71,7 +71,7 @@
     if (!b || !b.length) return 'Empty file';
     if (b.length >= 12 && at(b, 0, [0x52, 0x49, 0x46, 0x46]) && at(b, 8, [0x57, 0x45, 0x42, 0x50])) return 'WebP image';
     if (b.length >= 12 && at(b, 0, [0x52, 0x49, 0x46, 0x46]) && at(b, 8, [0x57, 0x41, 0x56, 0x45])) return 'WAV audio';
-    if (b.length >= 12 && at(b, 4, [0x66, 0x74, 0x79, 0x70])) return 'MP4 or QuickTime media (ISO base media)';
+    if (b.length >= 8 && at(b, 4, [0x66, 0x74, 0x79, 0x70])) return 'MP4 or QuickTime media (ISO base media)';
     for (const [sig, label] of MAGIC) if (b.length >= sig.length && at(b, 0, sig)) return label;
     const n = Math.min(b.length, 1024);
     let text = 0;
