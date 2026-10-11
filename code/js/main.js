@@ -2,7 +2,9 @@
  * opens the file given by ?drive=<id> (Send to, or Open with). */
 import * as docs from './docs.js';
 import { newView, makeState, setHooks, setWrap, isWrap, showFind } from './editor.js';
-import { initTree, refresh as refreshTree, selectedFolder, revealFolder } from './tree.js';
+import { initTree, refresh as refreshTree, selectedFolder, revealFolder, newFolder } from './tree.js';
+import { initLayout, expandSection } from './explorer.js';
+import { renderExtensions, formatDoc, chooseLanguage } from './extensions.js';
 import { $, env, setHandlers, renderChrome, setStatus, setTreeOpen, treeOpen, setPreview, toast } from './ui.js';
 import { openRecord, saveDoc, saveAs, newFile, closeDoc, onEdit, showDoc, restoreTabs } from './ops.js';
 import { runDoc, attachPreview, canRun } from './run.js';
@@ -25,6 +27,13 @@ function toggleWrap() {
   toast(`Line wrap ${isWrap() ? 'on' : 'off'}`);
 }
 const toggleFiles = () => setTreeOpen(!treeOpen());
+/** Show the sidebar with the Extensions section open, and put focus on the first helper. */
+function showExtensions() {
+  setTreeOpen(true);
+  expandSection('ext');
+  const first = document.getElementById('cd-ext-formatter');
+  if (first) first.focus();
+}
 
 /** The actions the commands and buttons call. */
 const ACTIONS = {
@@ -38,6 +47,10 @@ const ACTIONS = {
   wrap: toggleWrap,
   files: toggleFiles,
   run: runCurrent,
+  newFolder: () => newFolder(selectedFolder()),
+  format: formatDoc,
+  language: chooseLanguage,
+  extensions: showExtensions,
 };
 
 function wireButtons() {
@@ -48,12 +61,14 @@ function wireButtons() {
   on('cd-run', runCurrent);
   on('cd-cmd', () => (window.SlopCmd && SlopCmd.open ? SlopCmd.open() : toast('Commands are not loaded')));
   on('cd-files', toggleFiles);
+  on('cd-tree-folder', () => newFolder(selectedFolder()));
   on('cd-scrim', () => setTreeOpen(false));
   on('cd-pv-close', () => setPreview(false));
 }
 
 async function boot() {
   SlopHub.register('code');
+  initLayout();
   const view = newView($('cd-editor'), makeState('', 'untitled.txt'));
   env.view = view;
   docs.attachView(view);
@@ -64,8 +79,10 @@ async function boot() {
     onOpen: (rec) => { openRecord(rec); setTreeOpen(false); },
     onNew: (folderId) => newFile(folderId),
     onRenamed: (rec) => { docs.rename(rec.id, rec.name); renderChrome(); },
+    onMoved: (rec) => { docs.rename(rec.id, rec.name); const d = docs.find(rec.id); if (d) d.folderId = rec.folderId ?? null; renderChrome(); },
     onTrashed: () => {},
   });
+  renderExtensions($('cd-ext-list'));
   wireButtons();
   registerCommands(ACTIONS);
   await refreshTree();
