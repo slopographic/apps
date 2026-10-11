@@ -40,14 +40,16 @@
     }).join(' ');
   }
   A.keyFor = function (id) {
-    if (A.bound && window.SlopCmd && window.SlopCmd.keyFor) { try { var k = window.SlopCmd.keyFor(id); if (k != null) return k; } catch (e) { /* fall back */ } }
+    if (A.bound && window.SlopCmd && window.SlopCmd.keyFor) { try { var k = window.SlopCmd.keyFor(OWN[id] || id); if (k != null) return k; } catch (e) { /* fall back */ } }
     var c = A.defs[id]; return c && c.keys && c.keys.length ? label(c.keys[0]) : '';
   };
 
   /* ---------- SlopCmd ---------- */
+  // the palette and keymap commands belong to SlopCmd itself
+  var OWN = { 'help.search': 'cmd.palette', 'help.shortcuts': 'cmd.keymap' };
   function toSlopCmd(list) {
     try {
-      window.SlopCmd.register([].concat(list).map(function (c) {
+      window.SlopCmd.register([].concat(list).filter(function (c) { return c && !OWN[c.id]; }).map(function (c) {
         return { id: c.id, title: c.title, group: c.group, keys: c.keys || [], keywords: c.keywords, icon: c.icon,
           when: function () { return A.enabled(c.id); }, checked: c.checked ? function () { return A.checked(c.id); } : undefined,
           run: function () { return A.run(c.id); } };

@@ -31,9 +31,12 @@
     }
     preset.addEventListener('change', applyPreset);
     [bleed, crop, bm, reg, info].forEach(function (c) { c.input.addEventListener('change', function () { preset.value = 'custom'; }); });
-    var over = PR.engine.oversetStories().length;
+    var over = PR.engine.oversetStories().length, STD = { Helvetica: 1, Arial: 1, Times: 1, Courier: 1 };
+    var subs = {}; PR.pdfDraw.fontKeys(S.doc, S.doc.pages.map(function (p, i) { return i; })).forEach(function (k) { var f = k.split('|')[0]; if (!STD[f] && PR.fonts.substituted(f)) subs[f] = PR.fonts.family(f).std || 'Helvetica'; });
+    var subList = Object.keys(subs).map(function (f) { return f + ' → ' + subs[f]; }).join(', ');
     var body = h('div', { class: 'pr-form' }, SU().field('Preset', preset), rg.els, h('h4', null, 'Marks & bleed'), h('div', { class: 'pr-cols' }, bleed.el, crop.el, bm.el, reg.el, info.el, emb.el),
       h('p', { class: 'sui-p' }, 'TrimBox = page size, BleedBox = page + bleed, MediaBox grows to fit the marks. Process (CMYK) swatches are written as CMYK; marks use the Registration colour.'),
+      subList ? h('p', { class: 'sui-p' }, 'ⓘ No font file to embed for: ' + subList + '. Text positions stay exact; load a .ttf/.otf (File ▸ Load Font File) to embed the real design.') : null,
       over ? h('p', { class: 'sui-p', style: { color: '#ff6b6b' } }, '⚠ ' + over + ' stor' + (over === 1 ? 'y has' : 'ies have') + ' overset text that will not be exported.') : null);
     SU().dialog({ title: 'Export PDF', body: body, cls: 'sui-wide', buttons: [{ label: 'Cancel' }, { label: 'Export', primary: true, act: function () {
       var o = { preset: preset.value, bleed: bleed.input.checked, cropMarks: crop.input.checked, bleedMarks: bm.input.checked, regMarks: reg.input.checked, pageInfo: info.input.checked, embed: emb.input.checked };

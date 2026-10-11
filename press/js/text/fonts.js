@@ -24,8 +24,18 @@
     'Palatino': { css: '"Palatino Linotype", Palatino, "Book Antiqua", "URW Palladio L", serif', std: 'Times' },
     'Garamond': { css: 'Garamond, "EB Garamond", "Times New Roman", serif', std: 'Times' },
     'Courier': { css: '"Courier New", Courier, "Liberation Mono", monospace', std: 'Courier' },
-    'Impact': { css: 'Impact, "Arial Black", "Liberation Sans", sans-serif', std: 'Helvetica', bold: true }
+    'Impact': { css: 'Impact, "Arial Black", "Liberation Sans", sans-serif', std: 'Helvetica', bold: true },
+    // self-hosted OFL web fonts (shared/fonts): on screen as designed; PDF export substitutes a standard font
+    'Archivo': { css: '"Archivo", "Liberation Sans", sans-serif', std: 'Helvetica', web: true },
+    'Inter Tight': { css: '"Inter Tight", "Liberation Sans", sans-serif', std: 'Helvetica', web: true },
+    'Instrument Serif': { css: '"Instrument Serif", Georgia, serif', std: 'Times', web: true },
+    'JetBrains Mono': { css: '"JetBrains Mono", "Courier New", monospace', std: 'Courier', web: true },
+    'Caveat': { css: '"Caveat", cursive', std: 'Times', web: true },
+    'Dancing Script': { css: '"Dancing Script", cursive', std: 'Times', web: true },
+    'Great Vibes': { css: '"Great Vibes", cursive', std: 'Times', web: true }
   };
+  /** Families whose PDF output is a substitute (no font file to embed). */
+  F.substituted = function (name) { var f = F.family(name); return !f.bundled && !(F.user[name]); };
   /** User fonts: family → { style → { asset, face } } (from doc.fonts). */
   F.user = {};
   F.isBold = function (style) { return /bold|black|heavy/i.test(style || ''); };

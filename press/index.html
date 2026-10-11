@@ -19,7 +19,10 @@
   <script>
     try { var t = localStorage.getItem('slop.press.theme'); t = t && JSON.parse(t); if (t === 'light' || t === 'classic' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
   </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
+  <link rel="stylesheet" href="../shared/guides/guides.css" data-src="shared/guides/guides.css">
   <link rel="stylesheet" href="css/themes.css" data-src="press/css/themes.css">
   <link rel="stylesheet" href="css/chrome.css" data-src="press/css/chrome.css">
   <link rel="stylesheet" href="css/canvas.css" data-src="press/css/canvas.css">
@@ -63,6 +66,16 @@
   <div id="printRoot" class="print-root" aria-hidden="true"></div>
   <noscript><p class="noscript">Slop Press needs JavaScript. It runs entirely in your browser; nothing is uploaded.</p></noscript>
   <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
+  <script src="../shared/commands/search.js" data-src="shared/commands/search.js"></script>
+  <script src="../shared/commands/palette.js" data-src="shared/commands/palette.js"></script>
+  <script src="../shared/commands/recorder.js" data-src="shared/commands/recorder.js"></script>
+  <script src="../shared/commands/keymap.js" data-src="shared/commands/keymap.js"></script>
+  <script src="../shared/guides/engine.js" data-src="shared/guides/engine.js"></script>
+  <script src="../shared/guides/notation.js" data-src="shared/guides/notation.js"></script>
+  <script src="../shared/guides/presets.js" data-src="shared/guides/presets.js"></script>
+  <script src="../shared/guides/panel-tabs.js" data-src="shared/guides/panel-tabs.js"></script>
+  <script src="../shared/guides/panel.js" data-src="shared/guides/panel.js"></script>
   <script src="../shared/apps.js" data-src="shared/apps.js"></script>
   <script src="../shared/hub.js" data-src="shared/hub.js" data-offline="strip"></script>
   <script src="js/core/util.js" data-src="press/js/core/util.js"></script>
@@ -123,6 +136,7 @@
   <script src="js/ui/swatches-panel.js" data-src="press/js/ui/swatches-panel.js"></script>
   <script src="js/ui/status.js" data-src="press/js/ui/status.js"></script>
   <script src="js/ui/dialogs.js" data-src="press/js/ui/dialogs.js"></script>
+  <script src="js/ui/guides.js" data-src="press/js/ui/guides.js"></script>
   <script src="js/ui/style-editor.js" data-src="press/js/ui/style-editor.js"></script>
   <script src="js/ui/help.js" data-src="press/js/ui/help.js"></script>
   <script src="js/ui/export-dialogs.js" data-src="press/js/ui/export-dialogs.js"></script>
