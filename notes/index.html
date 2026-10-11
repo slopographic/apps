@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Notes</title>
+  <meta name="description" content="Slop Notes: notebooks and Markdown notes with a live preview, saved to Slop Drive. Nothing uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/notes.css">
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/guard.js" defer></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="../shared/session/session.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <div class="nt-app" id="nt-app" data-pane="list">
+    <header class="nt-top">
+      <button type="button" class="sui-btn nt-narrow" id="nt-side-btn" aria-label="Show notebooks">Notebooks</button>
+      <div class="nt-brand"><span class="nt-logo" aria-hidden="true"></span><h1>Slop Notes</h1></div>
+      <span class="nt-save" id="nt-save" role="status" aria-live="polite"></span>
+      <div class="nt-tools" role="toolbar" aria-label="Notes">
+        <button type="button" class="sui-btn sui-primary" id="nt-new" title="New note (Ctrl+Alt+N)">New note</button>
+        <button type="button" class="sui-btn nt-cmd" id="nt-cmd" aria-label="Commands (search every command)">Commands</button>
+      </div>
+    </header>
+
+    <aside class="nt-side" id="nt-side" aria-label="Notebooks">
+      <div class="nt-head"><span>Notebooks</span><button type="button" class="sui-btn nt-mini" id="nt-nb-new">New</button></div>
+      <div class="nt-books" id="nt-books"></div>
+      <div class="nt-head"><span>Folders</span><button type="button" class="sui-btn nt-mini" id="nt-fd-new">New</button></div>
+      <div class="nt-folders" id="nt-folders"></div>
+      <div class="nt-head"><span>Tags</span></div>
+      <div class="nt-tags" id="nt-tags"></div>
+    </aside>
+
+    <section class="nt-list" id="nt-list" aria-label="Notes">
+      <div class="nt-search"><input type="search" id="nt-q" placeholder="Search title, text and tags" aria-label="Search notes"></div>
+      <p class="nt-crumb" id="nt-crumb"></p>
+      <div class="nt-notes" id="nt-notes"></div>
+      <p class="nt-none" id="nt-none" hidden></p>
+    </section>
+
+    <main class="nt-main" id="nt-main">
+      <p class="nt-empty" id="nt-empty-note">Pick a note, or use New note to start one.</p>
+      <div class="nt-note" id="nt-note" hidden>
+        <div class="nt-bar">
+          <button type="button" class="sui-btn nt-narrow" id="nt-back">Back</button>
+          <button type="button" class="sui-btn" id="nt-pin">Pin</button>
+          <div class="nt-seg" role="group" aria-label="View">
+            <button type="button" class="sui-btn" data-mode="write">Write</button>
+            <button type="button" class="sui-btn" data-mode="split">Split</button>
+            <button type="button" class="sui-btn" data-mode="preview">Preview</button>
+          </div>
+          <button type="button" class="sui-btn" id="nt-export">Export</button>
+          <button type="button" class="sui-btn nt-danger" id="nt-del">Trash</button>
+        </div>
+        <input type="text" class="nt-title" id="nt-title" placeholder="Untitled" aria-label="Note title">
+        <input type="text" class="nt-tagsin" id="nt-tags-in" placeholder="Tags, separated by commas" aria-label="Tags">
+        <div class="nt-panes" id="nt-panes" data-mode="split">
+          <textarea class="nt-body" id="nt-body" spellcheck="true" aria-label="Markdown source"></textarea>
+          <article class="nt-preview md" id="nt-preview" aria-label="Preview"></article>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
