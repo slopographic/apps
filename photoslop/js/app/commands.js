@@ -1,4 +1,4 @@
-/* PhotoSLOP: every menu item, tool and canvas key as a SlopCmd command (shared/commands), so the
+/* PhotoSlop: every menu item, tool and canvas key as a SlopCmd command (shared/commands), so the
  * Spotlight palette (⌘K) finds them and the person can rebind any shortcut. Without SlopCmd the
  * legacy keyboard handler in ui/doc-dialogs.js keeps working. */
 'use strict';

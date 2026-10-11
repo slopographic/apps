@@ -1,4 +1,4 @@
-/* PhotoSLOP: right-button drag on the canvas resizes the brush live. Across = size, down = hardness
+/* PhotoSlop: right-button drag on the canvas resizes the brush live. Across = size, down = hardness
  * (the same as Shift-drag, minus Alt for opacity). No history step: the value goes straight into the
  * brush settings (BRUSH_OPTS) and is stored with the other tool options. A right-click without a drag
  * still opens the canvas menu (ui/context.js). Windows and Linux send the menu event after the release,

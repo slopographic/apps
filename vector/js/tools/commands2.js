@@ -1,4 +1,4 @@
-/* Slop Vector — tools: object commands (compound, pathfinder, slopify, align, styles) */
+/* SlopVector — tools: object commands (compound, pathfinder, slopify, align, styles) */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom;

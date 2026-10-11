@@ -1,4 +1,4 @@
-/* PhotoSLOP: Photoshop .psd writer and reader, written from the Adobe file format spec.
+/* PhotoSlop: Photoshop .psd writer and reader, written from the Adobe file format spec.
  * Writes 8-bit RGB with transparency: real layers (names, opacity, blend modes,
  * visibility, layer masks) plus a merged composite, RLE (PackBits) compressed.
  * Reads 8/16-bit RGB, Grayscale and CMYK; raw, RLE and ZIP channels; groups are flattened into plain layers. */

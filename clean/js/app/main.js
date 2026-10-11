@@ -1,4 +1,4 @@
-/* Slop Clean: the controller. Opens pictures (button, drop, Slop Drive ?drive=<id>), cleans them with the chosen
+/* SlopClean: the controller. Opens pictures (button, drop, Slop Drive ?drive=<id>), cleans them with the chosen
  * categories, and hands out the results: a download (one file, or a zip through the shared SlopZip), a copy saved to
  * Slop Drive, or (only for a picture opened from Drive, after a confirmation) a replaced original. Classic script. */
 (function () {

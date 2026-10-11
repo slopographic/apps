@@ -1,4 +1,4 @@
-/* PhotoSLOP core: image size, canvas size and resampling (one history step each) */
+/* PhotoSlop core: image size, canvas size and resampling (one history step each) */
 'use strict';
 
 /** Resampling choices shared by Image Size and Free Transform. */

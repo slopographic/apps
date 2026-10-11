@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: the Layer Style dialog. Edits one effect of a layer, or adds a new one, with live
+/* PhotoSlop UI: the Layer Style dialog. Edits one effect of a layer, or adds a new one, with live
  * preview: each change patches the layer's stack at once. OK is one history step; Cancel restores
  * the stack as it was, with no history step. */
 'use strict';

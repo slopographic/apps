@@ -1,4 +1,4 @@
-/* Slop Cutout — app state: the image list, per-image settings, tool/view state and a tiny event bus.
+/* SlopIsolate — app state: the image list, per-image settings, tool/view state and a tiny event bus.
  * Light per-image data lives on the item (file, base mask, brush edits, settings). The heavy data of the
  * image on screen (decoded bitmap, pixels, cutout canvas, worker job) lives in CO.active (io/process.js). */
 (function () {

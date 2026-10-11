@@ -1,4 +1,4 @@
-/* Slop Clean core: byte helpers shared by the format parsers. Classic script, no dependencies.
+/* SlopClean core: byte helpers shared by the format parsers. Classic script, no dependencies.
  * Sets window.SlopClean.bytes (or globalThis.SlopClean in Node, where the tests load these files). */
 (function (root) {
   'use strict';

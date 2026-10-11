@@ -1,4 +1,4 @@
-/* Slop Clean: the "What to remove" panel. One checkbox per category, with how many were found across all pictures.
+/* SlopClean: the "What to remove" panel. One checkbox per category, with how many were found across all pictures.
  * A change re-runs the cleaning (the controller passes onChange). Classic script; sets window.CL.choices. */
 (function () {
   'use strict';

@@ -1,6 +1,6 @@
 /* Shared video core (window.SlopVideo.seed): seeded randomness for the random edit. mulberry32 is small,
    fast and good enough for shuffling clips. A seed is a uint32 shown as 8 hex digits; anything typed in is
-   hashed to one. Loaded by SlopEdit and Reel Remix; pure, no DOM. */
+   hashed to one. Loaded by SlopCut and Reel Remix; pure, no DOM. */
 (function () {
   'use strict';
   const root = typeof window !== 'undefined' ? window : globalThis;

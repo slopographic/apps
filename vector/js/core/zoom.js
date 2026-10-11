@@ -1,4 +1,4 @@
-/* Slop Vector — core/zoom: the artboard view. Zoom limits (1%–3200%), eased zoom, fit, 100%, pan.
+/* SlopVector — core/zoom: the artboard view. Zoom limits (1%–3200%), eased zoom, fit, 100%, pan.
  * A wheel step, a keyboard step, the status field, fit and 100% ease to their target over ZOOM_MS. A wheel step is
  * anchored at the pointer: the document point under it stays under it on every frame. Steps build on the target zoom,
  * so a burst of wheel events adds up. Live zoom (touch and trackpad pinch) is SV.setZoom: no easing, so it follows

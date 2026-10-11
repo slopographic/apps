@@ -1,4 +1,4 @@
-/* Slop Cutout — context menus. The queue thumbnail (open, retry, export, remove) and the canvas (undo, tools,
+/* SlopIsolate — context menus. The queue thumbnail (open, retry, export, remove) and the canvas (undo, tools,
  * view, zoom, clear edits, or open/sample when empty). Every item calls the shared action it names: CO.menus.act,
  * CO.queue.open, CO.process and CO.export, so a menu item, a key and a palette row run the same code. */
 (function () {

@@ -1,4 +1,4 @@
-/* Slop Vector — tools: icons, tool list, cursors, tool switching */
+/* SlopVector — tools: icons, tool list, cursors, tool switching */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom;

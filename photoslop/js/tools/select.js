@@ -1,4 +1,4 @@
-/* PhotoSLOP tools: tool registry, move, selection, crop and eyedropper */
+/* PhotoSlop tools: tool registry, move, selection, crop and eyedropper */
 'use strict';
 
 /* ---------- tool definitions ---------- */

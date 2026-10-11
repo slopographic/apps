@@ -176,7 +176,7 @@
     if (newTab) { const w = window.open(url, '_blank'); if (!w) location.href = url; } else location.href = url;
     return fid;
   }
-  /** Menu items (for SlopUI.menu or an app menu): "Send to PhotoSLOP", … getBlob() may be async.
+  /** Menu items (for SlopUI.menu or an app menu): "Send to PhotoSlop", … getBlob() may be async.
    * opts.folder: also add "Save to Slop Drive…", which asks for a folder first. */
   function sendMenuItems(getBlob, name, type, opts = {}) {
     const nm = () => (typeof name === 'function' ? name() : name);

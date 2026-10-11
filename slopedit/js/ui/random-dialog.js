@@ -1,4 +1,4 @@
-/* SlopEdit: the Random edit dialog. Target length, pace, frame size (a preset), the layout (none, a template,
+/* SlopCut: the Random edit dialog. Target length, pace, frame size (a preset), the layout (none, a template,
    or a random grid from the list), optional random switches over time, and the seed. The cut list is planned
    live from the same seed Build uses, so what you see is what gets built. Reshuffle draws a new seed and keeps
    the dialog open. Build replaces the timeline in one undoable step. */

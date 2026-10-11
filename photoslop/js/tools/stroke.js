@@ -1,4 +1,4 @@
-/* PhotoSLOP tools: brush dabs, stroke buffers and shape helpers */
+/* PhotoSlop tools: brush dabs, stroke buffers and shape helpers */
 'use strict';
 
 const dabCache = new Map();

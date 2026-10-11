@@ -1,4 +1,4 @@
-/* Slop Vector — ui: panel dock and tab groups */
+/* SlopVector — ui: panel dock and tab groups */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;

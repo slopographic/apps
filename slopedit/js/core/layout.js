@@ -1,4 +1,4 @@
-/* SlopEdit: layouts on the project. The geometry and templates come from shared/video (SlopVideo.layout,
+/* SlopCut: layouts on the project. The geometry and templates come from shared/video (SlopVideo.layout,
    .templates, .presets). Here: the project operations. p.layout = { tpl, start, dur, slots[] } where slot i
    holds a clip id (or null). Slot i lives on video track V(i+1) (its linked audio on A(i+1)), all starting at
    layout.start and lasting layout.dur (or less when the source is shorter). Pure functions over a project p;

@@ -40,7 +40,7 @@
   RM.reshuffle = function () { RM.state.seed = S.make(); return RM.remix(); };
   /** The lane's layout choices (named templates, then grids), as [id, label]. */
   RM.layoutChoices = () => T.list.map((t) => [t.id, t.name]).concat(RM.GRIDS.map((id) => [id, T.get(id).name]));
-  /** The Slop Drive manifest that SlopEdit opens (format slop-reel, with the remix options). Ids are Drive ids in play order. */
+  /** The Slop Drive manifest that SlopCut opens (format slop-reel, with the remix options). Ids are Drive ids in play order. */
   RM.manifest = function (ids) {
     const o = RM.options();
     return {

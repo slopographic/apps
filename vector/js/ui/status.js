@@ -1,4 +1,4 @@
-/* Slop Vector — ui: status bar and rulers */
+/* SlopVector — ui: status bar and rulers */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;
@@ -43,7 +43,7 @@
       var title = S.doc.name + (dirty ? ' •' : '');
       document.getElementById('docTab').innerHTML = '<span class="dt-name">' + esc(S.doc.name) + '.svg</span><span class="dt-meta mono">@ ' + (Math.round(S.view.zoom * 1000) / 10) + '% (RGB/' + (S.prefs.outline ? 'Outline' : 'Preview') + ')</span>' + (dirty ? '<span class="dt-dirty" title="Unsaved changes">●</span>' : '');
       document.getElementById('docTitle').textContent = title;
-      document.title = (dirty ? '• ' : '') + 'Slop Vector — Slopographic';
+      document.title = (dirty ? '• ' : '') + 'SlopVector — Slopographic';
     });
   }
 

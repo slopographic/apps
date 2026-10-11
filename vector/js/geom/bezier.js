@@ -1,4 +1,4 @@
-/* Slop Vector — geometry: cubic beziers, exact bounds, primitive shapes as subpaths */
+/* SlopVector — geometry: cubic beziers, exact bounds, primitive shapes as subpaths */
 (function () {
   'use strict';
   var G = window.SVGeom = window.SVGeom || {};

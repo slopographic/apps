@@ -1,4 +1,4 @@
-/* PhotoSLOP brushes: brush packs, .abr import and presets */
+/* PhotoSlop brushes: brush packs, .abr import and presets */
 'use strict';
 
 /* ---------- packs ---------- */

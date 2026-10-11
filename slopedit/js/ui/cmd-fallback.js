@@ -1,4 +1,4 @@
-/* SlopEdit: a minimal built-in shortcut dispatcher, command palette and shortcut list, used only while
+/* SlopCut: a minimal built-in shortcut dispatcher, command palette and shortcut list, used only while
    the shared SlopCmd package (shared/commands/) is not available, e.g. in the offline .html. */
 (function () {
   'use strict';

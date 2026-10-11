@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: menubar, toolbox and options bar */
+/* PhotoSlop UI: menubar, toolbox and options bar */
 'use strict';
 
 let openMenu = null;

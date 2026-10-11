@@ -1,4 +1,4 @@
-/* Slop Clean core: the entry point. detect() names the format from its first bytes; inspect() lists what the file
+/* SlopClean core: the entry point. detect() names the format from its first bytes; inspect() lists what the file
  * holds (plain findings: category, label, value, where); strip() returns a copy with the chosen categories removed
  * and re-checks it. Formats: JPEG, PNG, WebP and TIFF. HEIC/HEIF/AVIF and RAW are reported as unsupported.
  * Classic script, no dependencies. Sets window.SlopClean (Node: globalThis.SlopClean):

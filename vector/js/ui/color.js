@@ -1,4 +1,4 @@
-/* Slop Vector — ui: paint swatches and the colour picker */
+/* SlopVector — ui: paint swatches and the colour picker */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;

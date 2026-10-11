@@ -1,4 +1,4 @@
-/* SlopEdit: timeline pointer input. Scrub, select (click, shift, marquee), move across tracks,
+/* SlopCut: timeline pointer input. Scrub, select (click, shift, marquee), move across tracks,
    trim (normal / ripple with the B tool or Ctrl), razor, fades, transition length, volume and keyframes,
    wheel zoom/scroll and two-finger pinch. Every drag is one undo step. */
 (function () {

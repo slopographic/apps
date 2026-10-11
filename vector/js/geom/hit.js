@@ -1,4 +1,4 @@
-/* Slop Vector — geometry: flattening, winding, hit testing, nearest point, segment split */
+/* SlopVector — geometry: flattening, winding, hit testing, nearest point, segment split */
 (function () {
   'use strict';
   var G = window.SVGeom = window.SVGeom || {};

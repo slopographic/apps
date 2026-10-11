@@ -1,4 +1,4 @@
-/* Slop Clean: reading pictures, previews, decode checks and copy names. Classic script; sets window.CL.io.
+/* SlopClean: reading pictures, previews, decode checks and copy names. Classic script; sets window.CL.io.
  * An item is one picture: { id, name, size, blob, bytes, driveId, format, label, findings, out, error, thumb }. */
 (function () {
   'use strict';

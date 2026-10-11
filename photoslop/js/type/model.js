@@ -1,4 +1,4 @@
-/* PhotoSLOP type: the text model and its renderer.
+/* PhotoSlop type: the text model and its renderer.
  * A type layer keeps L.text = { str, x, y, font, size, bold, italic, color, tracking, align, leading, aa, warp, runs }.
  * The character keys on the record are the base style; runs = [{ s, e, o }] override them for a range of
  * characters (rich text). align/leading/aa/warp are paragraph properties of the whole layer. */

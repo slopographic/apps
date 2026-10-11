@@ -1,4 +1,4 @@
-/* PhotoSLOP guides: pointer input. Drag guides out of the rulers; with the Move tool (or Ctrl/⌘ held)
+/* PhotoSlop guides: pointer input. Drag guides out of the rulers; with the Move tool (or Ctrl/⌘ held)
  * drag a guide to move it, drop it on a ruler or outside the canvas area to delete it; double-click one
  * to type its position. These capture-phase listeners run before the tools and stop the event when they use it. */
 'use strict';

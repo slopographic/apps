@@ -1,4 +1,4 @@
-/* Slop Vector — ui: the Sloppo sample document */
+/* SlopVector — ui: the Sloppo sample document */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;

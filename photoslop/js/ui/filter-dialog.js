@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: filter dialogs with live preview, curves */
+/* PhotoSlop UI: filter dialogs with live preview, curves */
 'use strict';
 
 /* ---------- filters ---------- */

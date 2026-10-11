@@ -1,4 +1,4 @@
-/* PhotoSLOP document: document and layer operations */
+/* PhotoSlop document: document and layer operations */
 'use strict';
 
 /* ---------- document ops ---------- */

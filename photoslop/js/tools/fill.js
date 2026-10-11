@@ -1,4 +1,4 @@
-/* PhotoSLOP tools: gradient, bucket, type, shape and navigation tools */
+/* PhotoSlop tools: gradient, bucket, type, shape and navigation tools */
 'use strict';
 
 /* Fill tools */

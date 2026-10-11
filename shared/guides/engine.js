@@ -156,7 +156,7 @@
     return finish(out, opts.snap || 'off');
   }
 
-  /** Convert between a guide list and Slop Vector's { h: [y…], v: [x…] }. */
+  /** Convert between a guide list and SlopVector's { h: [y…], v: [x…] }. */
   function toHV(list) { const o = { h: [], v: [] }; for (const g of normalize(list)) o[g.o].push(g.pos); return o; }
   function fromHV(hv) { const out = []; for (const k of ['v', 'h']) for (const pos of (hv && hv[k]) || []) out.push({ o: k, pos }); return normalize(out); }
 

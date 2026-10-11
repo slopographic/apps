@@ -1,4 +1,4 @@
-/* Slop Vector — core: object geometry, text layout, bounds, transforms */
+/* SlopVector — core: object geometry, text layout, bounds, transforms */
 (function () {
   'use strict';
   var G = window.SVGeom;

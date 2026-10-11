@@ -1,4 +1,4 @@
-/* SlopEdit: inspector sections for clips: transform, crop, colour, fades, transition (visual),
+/* SlopCut: inspector sections for clips: transform, crop, colour, fades, transition (visual),
    text (titles) and audio (volume, fades, keyframes). */
 (function () {
   'use strict';

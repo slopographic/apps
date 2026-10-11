@@ -1,4 +1,4 @@
-/* PhotoSLOP layer effects: the non-destructive effect stack (L.fx).
+/* PhotoSlop layer effects: the non-destructive effect stack (L.fx).
  * L.fx is an immutable list of { id, type, on, p }. type is a 'style' entry of FILTERS (Drop Shadow,
  * Outer Glow, Stroke, Color Overlay, Bevel & Emboss), p its parameters and on the eye toggle.
  * The same definitions and renderers as the old baked styles run here, in list order, over the

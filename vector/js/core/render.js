@@ -1,4 +1,4 @@
-/* Slop Vector — core: view, zoom and incremental document rendering */
+/* SlopVector — core: view, zoom and incremental document rendering */
 (function () {
   'use strict';
   var G = window.SVGeom;

@@ -1,4 +1,4 @@
-/* Slop Vector — geometry: vector helpers, affine matrices, anchors and subpaths */
+/* SlopVector — geometry: vector helpers, affine matrices, anchors and subpaths */
 (function () {
   'use strict';
   var G = window.SVGeom = window.SVGeom || {};

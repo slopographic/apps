@@ -1,6 +1,6 @@
 /* Slop Gallery: "Make reel". The Make reel dialog (template, target length, pace, aspect, order, Cut out subjects first),
  * then run(): photos go into a Slop Drive folder, optional cut-outs follow (cancellable, rolled back on cancel), a manifest
- * is written and SlopEdit opens on it (?drive=<manifest id>). See HANDOFF.md for the flow and the manifest format.
+ * is written and SlopCut opens on it (?drive=<manifest id>). See HANDOFF.md for the flow and the manifest format.
  * Entry points: init(button) for the toolbar button, open(ids) for menus and the command palette.
  * Exposes window.SlopGallery.reel. */
 (function () {
@@ -12,18 +12,18 @@
   const STAGE = { runtime: 'loading the runtime', model: 'downloading the model', init: 'starting', infer: 'finding the subject', refine: 'refining the edges' };
   class Cancelled extends Error { constructor() { super('Cancelled'); this.cancelled = true; } }
 
-  /** Opens a tab for SlopEdit inside the click (browsers allow that), filled in when the reel is ready. */
+  /** Opens a tab for SlopCut inside the click (browsers allow that), filled in when the reel is ready. */
   function openTab() {
     try {
       const w = window.open('', '_blank');
-      if (w) w.document.write('<!doctype html><title>SlopEdit</title><p style="font:16px system-ui;padding:24px">Making your reel…</p>');
+      if (w) w.document.write('<!doctype html><title>SlopCut</title><p style="font:16px system-ui;padding:24px">Making your reel…</p>');
       return w;
     } catch (e) { return null; }
   }
   function editorUrl(manifestId) {
     return SlopHub.urlOf(SlopHub.appById('slopedit'), { drive: manifestId });
   }
-  /** Points the tab from openTab() at SlopEdit (or this tab, when no tab could be opened). */
+  /** Points the tab from openTab() at SlopCut (or this tab, when no tab could be opened). */
   function openEditor(manifestId, win) {
     const url = editorUrl(manifestId);
     if (win && !win.closed) { try { win.location.href = url; return; } catch (e) { /* fall through */ } }
@@ -116,7 +116,7 @@
     tpl.addEventListener('change', () => { if (tpl.value === 'reel') aspect.value = '9:16'; check(); });
     for (const x of [len, pace, aspect, order]) { x.addEventListener('input', check); x.addEventListener('change', check); }
     const body = el('div', { class: 'reel-form' },
-      el('p', { class: 'sui-p' }, `${n} photo${n === 1 ? '' : 's'} selected. The reel is made in Slop Drive and opens in SlopEdit.`),
+      el('p', { class: 'sui-p' }, `${n} photo${n === 1 ? '' : 's'} selected. The reel is made in Slop Drive and opens in SlopCut.`),
       SlopUI.field('Template', tpl), SlopUI.field('Target length', len, 'seconds'), SlopUI.field('Pace', pace),
       SlopUI.field('Aspect', aspect), SlopUI.field('Order', order), cut.el, err);
     SlopUI.dialog({

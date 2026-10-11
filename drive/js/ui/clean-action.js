@@ -1,7 +1,7 @@
-/* Slop Drive: "Remove metadata" for pictures. The menu and the details panel open Slop Clean on the file (Open in,
+/* Slop Drive: "Remove metadata" for pictures. The menu and the details panel open SlopClean on the file (Open in,
  * with ?drive=<id>). "Remove metadata now" reads what the picture holds, asks with a list of what will be removed,
  * then writes a cleaned copy next to the original as "<name> (clean).<ext>". The original is never changed here.
- * Loads the Slop Clean core (clean/js/core) on first use. Classic script; adds to window.DR. */
+ * Loads the SlopClean core (clean/js/core) on first use. Classic script; adds to window.DR. */
 'use strict';
 (function (DR) {
   const H = () => window.SlopHub;
@@ -9,11 +9,11 @@
   const CORE = ['bytes', 'tags', 'xmp', 'tiff', 'jpeg', 'png', 'webp', 'index'].map((n) => `clean/js/core/${n}.js`);
   let coreP = null;
 
-  /** A picture Slop Clean can open: by type, or by a picture extension when the type is generic. */
+  /** A picture SlopClean can open: by type, or by a picture extension when the type is generic. */
   DR.isCleanable = (r) => !!r && !r.isFolder && !r.trashedAt &&
     (TYPES.includes((r.type || '').toLowerCase()) || /\.(jpe?g|png|webp|tiff?)$/i.test(r.name || ''));
 
-  /** The Slop Clean core, loaded once. */
+  /** The SlopClean core, loaded once. */
   function loadCore() {
     if (window.SlopClean && window.SlopClean.strip) return Promise.resolve(window.SlopClean);
     if (!coreP) {
@@ -48,12 +48,12 @@
     const files = items.filter(DR.isCleanable);
     if (!files.length) return DR.toast('Pick a picture (JPEG, PNG, WebP or TIFF) to remove its metadata');
     let C;
-    try { C = await loadCore(); } catch (e) { return DR.toast('Slop Clean is not available right now'); }
+    try { C = await loadCore(); } catch (e) { return DR.toast('SlopClean is not available right now'); }
     const plans = [], skipped = [];
     for (const r of files) {
       const bytes = new Uint8Array(await r.blob.arrayBuffer());
       const ins = C.inspect(bytes);
-      if (!ins.supported) { skipped.push(`${r.name}: ${ins.format ? ins.label + ' is not supported' : 'not a picture Slop Clean reads'}`); continue; }
+      if (!ins.supported) { skipped.push(`${r.name}: ${ins.format ? ins.label + ' is not supported' : 'not a picture SlopClean reads'}`); continue; }
       const res = C.strip(bytes);
       plans.push({ r, res, before: res.before, remove: C.resolve(), name: copyName(r.name) });
     }
@@ -71,7 +71,7 @@
     DR.toast(plans.length === 1 ? `Saved “${plans[0].name}”` : `Saved ${plans.length} cleaned copies`);
   };
 
-  /** Opens Slop Clean on the file (the same path as Open in). */
+  /** Opens SlopClean on the file (the same path as Open in). */
   DR.openInClean = (r) => { if (DR.isCleanable(r)) return DR.openWith(r, 'clean', { remember: false }); };
   DR.cleanRows = (items) => {
     const files = items.filter(DR.isCleanable);

@@ -1,4 +1,4 @@
-/* Slop Vector — ui: the action registry (menus, shortcuts, context menus) */
+/* SlopVector — ui: the action registry (menus, shortcuts, context menus) */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;
@@ -139,7 +139,7 @@
   act('window.strokeColor', 'Stroke Colour…', [], function () { editChip('stroke'); });
 
   act('help.shortcuts', 'Keyboard Shortcuts', ['mod+/'], function () { shortcutsDialog(); }, { keyText: 'F1' });
-  act('help.about', 'About Slop Vector', [], function () { aboutDialog(); });
+  act('help.about', 'About SlopVector', [], function () { aboutDialog(); });
 
   SV.runAction = function (id) {
     var a = A[id]; if (!a) return;

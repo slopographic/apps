@@ -1,4 +1,4 @@
-/* SlopEdit: ui/context — right-click and keyboard (Menu key / Shift+F10) menus for the program monitor:
+/* SlopCut: ui/context — right-click and keyboard (Menu key / Shift+F10) menus for the program monitor:
    a clip under the pointer (element, title clips included) or the frame itself. Clips on the timeline,
    markers and lanes use timeline/menu.js; media in the bin uses ui/bin.js; track headers use
    timeline/heads.js. This file only chooses the target and reuses those menus and the SlopCmd commands. */

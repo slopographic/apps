@@ -1,4 +1,4 @@
-/* Slop Vector — ui: corner radius controls, shared by the control bar and the Properties panel.
+/* SlopVector — ui: corner radius controls, shared by the control bar and the Properties panel.
  * Linked (default): one field sets every corner. Unlinked: four fields (TL, TR, BR, BL), one per corner.
  * The link button switches between them. Both panels use the same state (S.shape.cornerLink). */
 (function () {

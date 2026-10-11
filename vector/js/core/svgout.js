@@ -1,4 +1,4 @@
-/* Slop Vector — core: objects and paints to SVG markup (live render + export) */
+/* SlopVector — core: objects and paints to SVG markup (live render + export) */
 (function () {
   'use strict';
   var G = window.SVGeom;

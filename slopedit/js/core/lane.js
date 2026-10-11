@@ -1,4 +1,4 @@
-/* SlopEdit: the Layout lane. p.segments is a list of layout switches { start, layout } (shared/video segments).
+/* SlopCut: the Layout lane. p.segments is a list of layout switches { start, layout } (shared/video segments).
    Each switch holds until the next one. applyLane() refits every video clip to the slot region of the layout
    active at its start: a clip on track V(i+1) takes slot i. Clips past a layout's slot count are left as they are.
    The single-layout path (p.layout, templates in layout.js) is separate and unchanged. Call inside SE.change. */

@@ -1,4 +1,4 @@
-/* SlopEdit: utilities (DOM helpers, time formatting, events, localStorage, a tiny IndexedDB wrapper).
+/* SlopCut: utilities (DOM helpers, time formatting, events, localStorage, a tiny IndexedDB wrapper).
    Classic script; everything hangs off window.SE. No network access. */
 (function () {
   'use strict';

@@ -1,4 +1,4 @@
-/* Slop Vector — ui: app boot */
+/* SlopVector — ui: app boot */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state, D = SV.dom, IO = SV.io, C = SV.cmd;

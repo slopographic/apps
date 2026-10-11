@@ -1,4 +1,4 @@
-/* SlopEdit: the Effects tab. Transitions, title presets, colour mattes and colour looks.
+/* SlopCut: the Effects tab. Transitions, title presets, colour mattes and colour looks.
    Click to apply at the playhead / to the selection, or drag onto the timeline. Also the
    Speed/Duration and Sequence settings dialogs. */
 (function () {

@@ -1,4 +1,4 @@
-/* SlopEdit: inspector field widgets. Each returns { el, sync() }; sync() refreshes from the model
+/* SlopCut: inspector field widgets. Each returns { el, sync() }; sync() refreshes from the model
    without disturbing a field that has focus. set(v) runs inside SE.change with a coalescing key. */
 (function () {
   'use strict';

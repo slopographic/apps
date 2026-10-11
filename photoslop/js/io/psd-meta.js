@@ -1,5 +1,5 @@
-/* PhotoSLOP: its own non-pixel layer data in PSDs, as an extra layer block 'SLmd' (UTF-8 JSON).
- * Photoshop skips blocks it does not know; PhotoSLOP reads them back, so type stays editable and
+/* PhotoSlop: its own non-pixel layer data in PSDs, as an extra layer block 'SLmd' (UTF-8 JSON).
+ * Photoshop skips blocks it does not know; PhotoSlop reads them back, so type stays editable and
  * layer styles, fill/adjustment/shape layers and colour labels survive a save and reopen.
  * The pixels written for each layer are its own (styles are not baked); the merged image shows the full result. */
 'use strict';

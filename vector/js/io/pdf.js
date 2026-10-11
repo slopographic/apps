@@ -1,4 +1,4 @@
-/* Slop Vector — io: hand-made PDF 1.4 writer */
+/* SlopVector — io: hand-made PDF 1.4 writer */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;
@@ -189,7 +189,7 @@
       function add(o) { objs.push(o); return objs.length; }
       var catalog = add(null), pages = add(null), page = add(null);
       var contentObj = add({ dict: zc ? '<< /Filter /FlateDecode' : '<<', stream: zc || latin1Bytes(contentStr) });
-      var info = add({ dict: '<< /Producer (Slop Vector - slopographic.com) /Creator (Slop Vector) /Title ' + pdfStr(toWinAnsi(doc.name)) + ' /CreationDate (D:' + new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14) + 'Z) >>' });
+      var info = add({ dict: '<< /Producer (SlopVector - slopographic.com) /Creator (SlopVector) /Title ' + pdfStr(toWinAnsi(doc.name)) + ' /CreationDate (D:' + new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14) + 'Z) >>' });
       var xobj = [];
       images.forEach(function (im) {
         if (im.failed) return;

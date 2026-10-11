@@ -1,5 +1,5 @@
-/* PhotoSLOP UI: the colour picker dialog (foreground / background swatches, filter and type colours) and the side panel.
- * The body is shared with Slop Vector (shared/color/picker.js). The colour itself lives in C (tools/state.js). */
+/* PhotoSlop UI: the colour picker dialog (foreground / background swatches, filter and type colours) and the side panel.
+ * The body is shared with SlopVector (shared/color/picker.js). The colour itself lives in C (tools/state.js). */
 'use strict';
 
 /** Recent colours, most recent first, kept in the person's store (up to 12). */

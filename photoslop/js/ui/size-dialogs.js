@@ -1,4 +1,4 @@
-/* PhotoSLOP UI: Image Size and Canvas Size dialogs (the work is in core/size.js) */
+/* PhotoSlop UI: Image Size and Canvas Size dialogs (the work is in core/size.js) */
 'use strict';
 
 const SZ_MAX = 12000;

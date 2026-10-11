@@ -1,4 +1,4 @@
-/* Slop Gallery: "Cut out subjects first" for a reel. Runs one photo through Slop Cutout's engine (shared/cutout/cutout.js,
+/* Slop Gallery: "Cut out subjects first" for a reel. Runs one photo through SlopIsolate's engine (shared/cutout/cutout.js,
  * loaded on first use) with the Fast model, as it is, and returns a PNG with alpha. Nothing is re-implemented here.
  * Exposes window.SlopGallery.reelCutout.cutOut(blob, { signal, onProgress }) -> Promise<Blob> (image/png). */
 (function () {
@@ -11,7 +11,7 @@
       if (!window.SlopHub || !SlopHub.loadScript) throw new Error('Slop Hub is not available');
       await SlopHub.loadScript('shared/cutout/cutout.js');
     }
-    if (!window.SlopCutout) throw new Error('Slop Cutout did not start');
+    if (!window.SlopCutout) throw new Error('SlopIsolate did not start');
     return window.SlopCutout;
   }
 
