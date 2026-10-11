@@ -59,7 +59,8 @@ async function openInTables() {
   const sheet = store.sheet();
   const name = `${d.name}${d.sheets.length > 1 ? ' - ' + sheet.name : ''}.csv`;
   try {
-    await window.SlopHub.sendTo('tables', csvBlob(sheet), name);
+    // No byte-order mark: Slop Tables reads the text as it is, and a BOM would sit in cell A1.
+    await window.SlopHub.sendTo('tables', csvBlob(sheet, null, ',', { bom: false }), name);
     toast('Opened in Slop Table');
   } catch (e) {
     toast('Could not send to Slop Table: ' + e.message);

@@ -24,7 +24,7 @@
   const closeAll = async () => { for (const x of document.querySelectorAll('.sui-back:not(.sui-out) .sui-x')) x.click(); await waitFor(() => U.openDialogs === 0); await sleep(180); };
   /** Waits for the preview iframe to load its srcdoc and returns its document. */
   const previewDoc = () => waitFor(() => { const d = preview() && preview().contentDocument; return d && d.querySelector('.sp-root') && d; });
-  const pageRules = (doc) => [...doc.styleSheets].flatMap((s) => [...s.cssRules]).filter((r) => r instanceof CSSPageRule);
+  const pageRules = (doc) => [...doc.styleSheets].flatMap((s) => [...s.cssRules]).filter((r) => r instanceof doc.defaultView.CSSPageRule);
 
   describe('open()', () => {
     beforeEach(closeAll);
@@ -49,7 +49,8 @@
       const rule = pageRules(doc).pop();
       expect(rule).toBeTruthy();
       expect(rule.cssText).toContain('letter landscape');
-      expect(rule.style.getPropertyValue('--sp-pages').trim()).toBe('"1-3, 5"');
+      expect(doc.documentElement.dataset.spPages).toBe('1-3, 5');
+      expect(preview().srcdoc).toContain('@page{size:letter landscape;margin:15mm;/* pages: 1-3, 5 */}');
     });
     it('updates the @page rule when the paper size changes', async () => {
       P.open({ title: 'Report', html: '<p>Hi</p>', paper: 'A4' });

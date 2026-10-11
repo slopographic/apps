@@ -60,11 +60,12 @@
     const land = o.orientation === 'landscape';
     const pw = land ? h : w, ph = land ? w : h;
     const m = MARGIN_MM[o.margin];
-    const page = `@page{size:${CSS_PAPER[o.paper]} ${o.orientation};margin:${m}mm;--sp-pages:${JSON.stringify(o.pages || 'all')}}`;
+    const pages = o.pages || 'all'; // validated text: digits, commas and hyphens only
+    const page = `@page{size:${CSS_PAPER[o.paper]} ${o.orientation};margin:${m}mm;/* pages: ${pages} */}`;
     const fit = o.scale === 'fit' ? '.sp-root img,.sp-root svg,.sp-root video,.sp-root canvas,.sp-root table,.sp-root pre{max-width:100%}' : '';
     const base = 'html,body{margin:0!important;background:#fff!important;color:#111!important}' + fit;
     const preview = mode === 'preview' ? `html{overflow:hidden;background:#8a8a8a!important}.sp-root{box-sizing:border-box;width:${pw}mm;height:${ph}mm;padding:${m}mm;background:#fff;overflow:hidden}` : '';
-    const root = Object.entries(job.root || {}).map(([k, v]) => ` ${k}="${esc(v)}"`).join('');
+    const root = Object.entries(job.root || {}).map(([k, v]) => ` ${k}="${esc(v)}"`).join('') + ` data-sp-pages="${esc(pages)}"`;
     return '<!doctype html><html lang="en"' + root + '><head><meta charset="utf-8">' +
       `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; style-src 'unsafe-inline' data: blob:; font-src data: blob:">` +
       `<title>${esc(job.title)}</title><style>${job.css}</style><style>${page}${base}${preview}</style></head>` +
