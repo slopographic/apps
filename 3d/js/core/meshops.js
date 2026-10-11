@@ -144,7 +144,7 @@
     const faces = m.faces.map((f, fi) => ({ v: F.has(fi) ? f.v.slice().reverse() : f.v.slice(), hide: f.hide }));
     return finish({ pos: m.pos, faces }, { mode: 'face', ids: F });
   }
-  /** A face from a single closed loop of selected vertices or edges. Its normal follows the faces beside it. */
+  /** A face from a single closed loop of selected vertices or edges, wound to match the faces beside it. */
   function fill(m, sel) {
     let edges;
     if (sel.mode === 'edge') edges = [...sel.ids];
@@ -166,12 +166,22 @@
       cur = nx;
     }
     if (cyc.length !== adj.size) return { error: 'Fill needs one closed loop of edges or vertices.' };
-    const n = MH.areaVec(m.pos, cyc), em = MH.edgeMap(m);
-    let side = 0;
-    for (const k of MH.keysOf(cyc)) for (const f of (em.get(k) || { faces: [] }).faces) {
-      if (!m.faces[f].hide) side += MH.dot(MH.areaVec(m.pos, m.faces[f].v), n);
-    }
-    const loopV = side < 0 ? cyc.slice().reverse() : cyc;
+    // Orientation: a neighbour already walks each shared edge one way, so the new face walks it the other way.
+    const em = MH.edgeMap(m);
+    let same = 0, opp = 0;
+    cyc.forEach((x, i) => {
+      const y = cyc[(i + 1) % cyc.length];
+      for (const f of (em.get(MH.key(x, y)) || { faces: [] }).faces) {
+        if (m.faces[f].hide) continue;
+        const v = m.faces[f].v;
+        v.forEach((a, k) => {
+          const b = v[(k + 1) % v.length];
+          if (a === x && b === y) same++;
+          else if (a === y && b === x) opp++;
+        });
+      }
+    });
+    const loopV = same > opp ? cyc.slice().reverse() : cyc;
     const faces = m.faces.map((f) => ({ v: f.v.slice(), hide: f.hide }));
     faces.push({ v: loopV, hide: false });
     return finish({ pos: m.pos, faces }, { mode: 'face', ids: new Set([faces.length - 1]) });

@@ -130,8 +130,8 @@ test('rotation about a pivot keeps the pivot in place', () => {
   const c = MX.centre(r, new Set([0, 1, 2, 3]));
   near(c[0], pivot[0]);
   near(c[1], pivot[1]);
-  near(r.pos[1][0], 0.5, 1e-9);   // (1,0) turned 90 degrees about the centre (0.5,0.5)
-  near(r.pos[1][1], 0.5 + 0.5, 1e-9);
+  near(r.pos[1][0], 1, 1e-9);   // (1,0) turned 90 degrees about the centre (0.5,0.5) lands on (1,1)
+  near(r.pos[1][1], 1, 1e-9);
 });
 
 test('the .s3d round trip keeps an edited mesh exactly, with its faces and hidden faces', () => {
