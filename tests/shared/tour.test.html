@@ -20,6 +20,7 @@
   const panel = () => { const p = q('.stour-panel'); return p && !p.hidden ? p : null; };
   const counter = () => q('.stour-count').textContent;
   const stored = () => { try { return JSON.parse(win().localStorage.getItem('slop.tour.' + APP)); } catch (e) { return null; } };
+  const press = (key) => doc().body.dispatchEvent(new (win().KeyboardEvent)('keydown', { key, bubbles: true }));
   const sleepBlink = () => sleep(320); // the spotlight eases to its new place over .18s
 
   describe('PhotoSlop tour', () => {
@@ -90,11 +91,11 @@
       await waitFor(panel, { timeout: 20000 });
       const tour = await win().SlopTour.load(APP);
       doc().activeElement && doc().activeElement.blur();
-      doc().body.dispatchEvent(new win().KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      press('ArrowRight');
       await waitFor(() => counter() === '2 of ' + tour.steps.length);
-      doc().body.dispatchEvent(new win().KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      press('ArrowRight');
       await waitFor(() => counter() === '3 of ' + tour.steps.length);
-      doc().body.dispatchEvent(new win().KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      press('Escape');
       await waitFor(() => !panel());
       expect(win().SlopTour.isOpen()).toBeFalsy();
       expect(q('.stour-hole').hidden).toBeTruthy();

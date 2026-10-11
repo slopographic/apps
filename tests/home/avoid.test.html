@@ -83,7 +83,7 @@
       mouse('pointermove', c.x, c.y);            // no free spot anywhere: he stays put
       expect(M.mode).toBe(mode);
       expect(M.x).toBe(x0);
-      expect(String([M.hit.style.pointerEvents, win.document.elementFromPoint(c.x, c.y).tagName, win.document.elementFromPoint(c.x, c.y).id, M.mode, M.visible, c.x, c.y])).toBe('none');
+      expect(JSON.stringify([M.x, M.y, win.scrollX, win.scrollY, M.hit.getBoundingClientRect().toJSON(), M.hit.style.left, M.hit.style.top, M.hit.style.width, M.hit.style.height, M.hit.style.pointerEvents, M.mode])).toBe('x');
       mouse('pointermove', 4, 4);                // leaving him gives his hit box back
       expect(M.hit.style.pointerEvents).toBe('');
       cover.remove();
