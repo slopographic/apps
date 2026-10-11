@@ -52,10 +52,7 @@
   }
   function updateNote() {
     const c = choice();
-    const q = S.model === 'quality' && S.scale === 4 && !S.installed;
     $('up-model-note').textContent = c.note || (S.model === 'quality' && S.scale !== 4 ? 'Quality is 4× only.' : '');
-    $('up-get-more').hidden = !q && S.installed;
-    $('up-get-more').textContent = q ? 'Get more…' : 'Get more…';
   }
 
   async function libBytes() {
@@ -99,7 +96,7 @@
     $('up-empty').hidden = true;
     $('up-stage').hidden = false;
     showBefore();
-    setStatus(kind === 'video' && !V.MAX_SECONDS ? '' : 'Choose 2× or 4×, then Upscale.');
+    setStatus('Choose 2× or 4×, then Upscale.');
     updateInfo();
     updateButtons();
   }
@@ -130,10 +127,8 @@
     const it = S.item;
     if (!it || S.busy) return;
     const c = choice();
-    if (!c.id && S.model !== 'lanczos' && S.model !== 'quality') { /* unreachable: fast always has an id */ }
     S.busy = true; S.cancel = { cancelled: false };
     updateButtons();
-    const frameNo = { n: 0 };
     try {
       const bytes = c.id === QUALITY_ID && !E().isLoaded(QUALITY_ID) ? await libBytes() : null;
       if (it.kind === 'image') {
@@ -145,7 +140,7 @@
       } else {
         setStatus(`Starting ${c.label} for video…`, 0);
         const r = await V.run(it.file, { scale: S.scale, model: c.id, bytes, fps: S.fps, signal: S.cancel,
-          progress: (d, t) => { frameNo.n = d; setStatus(`Frame ${d} of ${t} with ${c.label}`, d / t); } });
+          progress: (d, t) => setStatus(`Frame ${d} of ${t} with ${c.label}`, d / t) });
         it.outBlob = r.blob; it.outName = IO.outName(it.name, S.scale, r.ext);
         it.out = { w: r.w, h: r.h };
         showAfterVideo();
