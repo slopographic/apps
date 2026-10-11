@@ -94,6 +94,11 @@
           <div class="toolbar"><button type="button" class="btn primary" id="dBackup">Download full backup</button></div>
         </div>
         <div class="card">
+          <h2 class="h3">Everything in one file</h2>
+          <p class="note">Every app in the suite in one .slop-backup.json file: Slop Data, Slop Drive, Gallery, Music playlists, templates and profile settings. Secrets and caches are never in it.</p>
+          <div class="toolbar"><button type="button" class="btn" id="dEverything">Export or import everything…</button></div>
+        </div>
+        <div class="card">
           <h2 class="h3">Restore</h2>
           <p class="note">The whole file is checked first. A bad file changes nothing. A good one replaces every record here.</p>
           <label>Backup file <input id="dRestore" type="file" accept="application/json,.json"></label>
@@ -137,6 +142,7 @@
   <script src="../shared/data/export.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/hub.js"></script>
+  <script src="../shared/backup/index.js"></script>
   <script src="../shared/slopui.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="js/core/util.js"></script>
