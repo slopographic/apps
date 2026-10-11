@@ -9,7 +9,7 @@
   const ENUM = {
     stage: ['lead', 'contacted', 'customer', 'lost'],
     invoiceStatus: ['draft', 'issued', 'paid', 'void'],
-    orderStatus: ['open', 'fulfilled', 'cancelled'],
+    orderStatus: ['draft', 'open', 'fulfilled', 'cancelled'],   // open = confirmed
     accountType: ['asset', 'liability', 'equity', 'revenue', 'expense'],
     payMethod: ['cash', 'bank', 'card', 'other'],
     stockReason: ['receipt', 'sale', 'adjustment', 'transfer', 'count', 'return'],
@@ -25,7 +25,7 @@
   const DEFAULT_SETTINGS = { id: 'main', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30, ratesUpdateOnOpen: false };
   const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }];
   const INVOICE_NEXT = { draft: ['issued'], issued: ['paid', 'void'], paid: [], void: [] };
-  const ORDER_NEXT = { open: ['fulfilled', 'cancelled'], fulfilled: [], cancelled: [] };
+  const ORDER_NEXT = { draft: ['open', 'cancelled'], open: ['fulfilled', 'cancelled'], fulfilled: [], cancelled: [] };
   const RX = { currency: /^[A-Z]{3}$/, locale: /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/ };
 
   // Field specs. t = type; req = required; def = default; min/max/values/pattern/itemMax as named.
@@ -46,6 +46,7 @@
   const LINE = {
     productId: F.id(), sku: F.str({ max: 80 }), description: F.str({ req: true, max: 300 }),
     qty: F.int({ req: true, min: 1, max: 1e6 }), unitPrice: F.mny({ req: true }), taxRate: F.rate({ req: true }),
+    discount: F.int({ min: 0, max: 10000 }),   // basis points off the line net (absent = none)
     net: F.mny(), tax: F.mny(), total: F.mny(),
   };
   // debit and credit are base-currency minor units. origDebit and origCredit are the original amounts of a foreign posting.
@@ -122,7 +123,7 @@
       noRemove: 'orders cannot be deleted; cancel them instead',
       indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), currency: F.cur({}),
-      status: F.en(ENUM.orderStatus, { def: 'open' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
+      status: F.en(ENUM.orderStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       notes: F.text({}), invoiceId: F.id({}) } },
     invoices: { key: 'id', softDelete: true, derive: true, unique: ['number'], check: invoiceCheck, docCurrency: true,
       autoNumber: { seq: 'invoice', when: (r) => r.status !== 'draft' },

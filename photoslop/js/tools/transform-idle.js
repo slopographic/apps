@@ -77,7 +77,8 @@ function drawIdleBox(g) {
 }
 /** Listeners that need the viewport element: double-click starts Free Transform, handles show their cursor. */
 function initBoxTool() {
-  V.el.addEventListener('dblclick', (e) => { if (boxShown() && idleHit(pointerScreen(e))) startTransform(); });
+  // A tool with its own double-click (Polygonal Lasso closes its shape) keeps it.
+  V.el.addEventListener('dblclick', (e) => { if (!currentTool().dblclick && boxShown() && idleHit(pointerScreen(e))) startTransform(); });
   let cursorSet = false;
   V.el.addEventListener('pointermove', (e) => {
     const hit = !V.op && boxShown() ? idleHit(pointerScreen(e)) : null;
