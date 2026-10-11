@@ -101,7 +101,7 @@
       const on = all.filter((x) => cur.includes(x.id));
       const free = all.filter((x) => !cur.includes(x.id));
       const pick = el('select', { 'aria-label': `Add a ${word}`, disabled: !free.length },
-        el('option', { value: '' }, free.length ? `Add a ${word}…` : `No more ${word}s to add`), free.map((x) => el('option', { value: x.id }, x.name)));
+        el('option', { value: '' }, free.length ? `Add a ${word}…` : 'None left'), free.map((x) => el('option', { value: x.id }, x.name)));
       box.replaceChildren(
         on.length ? el('div', { class: 'chips' }, on.map((x) => chip(kind, x, () => set(cur.filter((i) => i !== x.id))))) : el('p', { class: 'note' }, `None yet.`),
         el('div', { class: 'inline' }, pick,
