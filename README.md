@@ -7,7 +7,9 @@ Everything is static files: no backend, no accounts, no build step. Each room is
 | Page | What it is |
 |---|---|
 | `/` | **The reel**: a real-time three.js showreel starring **Sloppo**, a glossy slime creature living half-sunk in a pool of goo. Chrome 3D letters rise dripping out of the pool, stretch to SLOOOOOOP and get gulped. It loops on a GSAP timeline with a player bar. Poke Sloppo to make him squish and giggle; stroke the pool to make ripples. Below the reel is a grid of the rooms. |
-| `/paint/` | **Slop Paint**: an MS Paint clone with all 16 classic tools, menus, undo/redo, open/save PNG and touch support, plus a Slop Brush, emoji stamps and SLOPIFY. |
+| `/paint/` | **Slop Shop**: a layered, Photoshop-style editor. Layers with masks and 17 blend modes, 20 tools (brush with pen pressure, clone stamp, smudge, magic wand, Free Transform…), 50+ adjustments and filters, real `.psd` open/save, PNG/JPEG/WebP export, autosave, and a one-click download of the whole app as a single offline `.html`. Themes: Pro, Light and Paint ’98. |
+| `/paint/classic/` | **Slop Paint Classic**: the original MS Paint clone, all 16 classic tools plus a Slop Brush. |
+| `/vector/` | **Slop Vector**: an Illustrator-style vector editor: pen tool, shapes, type, layers, pathfinder, gradients; SVG, PNG and PDF export. |
 | `/fluid/` | **Slop Tank**: a real-time GPU fluid simulation of glossy slime. Stir it, splat it, Space to pour, switch palettes, save a snapshot. |
 | `/cards/` | **Slop Shots**: a holographic card game. 60 cards with fractal art, five rarities, pack reveals, crafting, achievements and a parody $SLOP market. Progress saves in the browser. |
 | `/annoying/` | **Unsubscribe**: 11 stages of dark patterns, each with a fair way through and an always-visible exit. |

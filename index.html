@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Slopographic — 3D Slop Studio</title>
-  <meta name="description" content="Slopographic: a 3D motion showreel of glossy slime, plus Slop Paint, Slop Tank, Slop Shots and the Authenticator.">
+  <meta name="description" content="Slopographic: a 3D motion showreel of glossy slime, plus Slop Shop, Slop Vector, Slop Tank, Slop Shots and the Authenticator.">
   <meta name="theme-color" content="#0a0a0a">
   <meta name="color-scheme" content="dark">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
   <meta property="og:title" content="Slopographic — 3D Slop Studio">
-  <meta property="og:description" content="A real-time 3D slime showreel you can poke, plus Slop Paint, Slop Tank, Slop Shots and the Authenticator.">
+  <meta property="og:description" content="A real-time 3D slime showreel you can poke, plus Slop Shop, Slop Vector, Slop Tank, Slop Shots and the Authenticator.">
   <meta property="og:url" content="https://slopographic.com/">
   <meta property="og:image" content="https://slopographic.com/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
@@ -32,7 +32,8 @@
     </a>
     <nav class="tabs" aria-label="Sections">
       <button class="tab" data-view="home" aria-current="page">Reel</button>
-      <a class="tab" href="paint/">Paint</a>
+      <a class="tab" href="paint/">Shop</a>
+      <a class="tab" href="vector/">Vector</a>
       <a class="tab" href="fluid/">Tank</a>
       <a class="tab" href="cards/">Shots</a>
       <button class="tab" data-view="detector">Authenticator</button>
@@ -74,29 +75,33 @@
       <!-- Rooms -->
       <section class="rooms" aria-labelledby="rooms-title">
         <div class="rooms-head">
-          <p class="kicker"><span>Slopographic</span><span>Five rooms</span></p>
+          <p class="kicker"><span>Slopographic</span><span>Six rooms</span></p>
           <h2 id="rooms-title">Rooms</h2>
         </div>
         <div class="rooms-grid">
           <a class="room" href="paint/">
-            <div class="room-art art-paint" aria-hidden="true"><div class="ra-win"><div class="ra-title"><span>untitled - Slop Paint</span><i></i></div><svg viewBox="0 0 200 130" class="ra-draw"><path d="M18 96 C 40 20, 70 20, 82 70 S 130 120, 150 50 S 185 30, 188 90" /><circle cx="60" cy="98" r="14"/><rect x="120" y="82" width="40" height="28"/></svg></div></div>
-            <div class="room-cap"><span class="room-no">Room 01</span><b>Slop Paint</b><span class="room-desc">MS Paint, rebuilt for the browser. Every tool works.</span><span class="room-go">Open →</span></div>
+            <div class="room-art art-shop" aria-hidden="true"><div class="ra-ps"><div class="ra-ps-tools"><i></i><i></i><i></i><i></i><i></i><i></i></div><svg class="ra-ps-canvas" viewBox="0 0 160 110"><defs><radialGradient id="ra-ps-g" cx=".5" cy=".7" r=".7"><stop offset="0" stop-color="#2e5a06"/><stop offset="1" stop-color="#0b1204"/></radialGradient></defs><rect width="160" height="110" fill="url(#ra-ps-g)"/><path class="ra-ps-blob" d="M50 96C48 60 62 40 80 40s32 20 30 56z"/><circle cx="72" cy="66" r="4"/><circle cx="88" cy="66" r="4"/><path class="ra-ps-stroke" d="M14 30C44 8 70 44 96 22s40-4 52 10"/><rect class="ra-ps-marq" x="38" y="34" width="84" height="66"/></svg><div class="ra-ps-layers"><b></b><b></b><b></b><b></b></div></div></div>
+            <div class="room-cap"><span class="room-no">Room 01</span><b>Slop Shop</b><span class="room-desc">Photoshop, rebuilt for the browser. Layers, masks, filters, real PSDs.</span><span class="room-go">Open →</span></div>
+          </a>
+          <a class="room" href="vector/">
+            <div class="room-art art-vector" aria-hidden="true"><svg class="ra-vec" viewBox="0 0 200 150"><rect class="ra-vec-board" x="18" y="14" width="164" height="122"/><path class="ra-vec-fill" d="M40 112C52 40 112 30 104 82s58 44 62-46"/><path class="ra-vec-path" d="M40 112C52 40 112 30 104 82s58 44 62-46"/><g class="ra-vec-h"><line x1="40" y1="112" x2="52" y2="40"/><line x1="104" y1="82" x2="112" y2="30"/><line x1="104" y1="82" x2="96" y2="134"/><line x1="166" y1="36" x2="164" y2="78"/></g><g class="ra-vec-a"><rect x="36" y="108" width="8" height="8"/><rect x="100" y="78" width="8" height="8"/><rect x="162" y="32" width="8" height="8"/></g><g class="ra-vec-k"><circle cx="52" cy="40" r="3.5"/><circle cx="112" cy="30" r="3.5"/><circle cx="96" cy="134" r="3.5"/><circle cx="164" cy="78" r="3.5"/></g><path class="ra-vec-pen" d="M0 0l10 4-4 2-2 4z"/></svg></div>
+            <div class="room-cap"><span class="room-no">Room 02</span><b>Slop Vector</b><span class="room-desc">Illustrator, rebuilt for the browser. Pen tool, pathfinder, SVG and PDF.</span><span class="room-go">Open →</span></div>
           </a>
           <a class="room" href="fluid/">
             <div class="room-art art-tank" aria-hidden="true"><div class="ra-tank"><i></i><i></i><i></i><i></i></div></div>
-            <div class="room-cap"><span class="room-no">Room 02</span><b>Slop Tank</b><span class="room-desc">A real-time fluid simulation. Stir it with your hands.</span><span class="room-go">Open →</span></div>
+            <div class="room-cap"><span class="room-no">Room 03</span><b>Slop Tank</b><span class="room-desc">A real-time fluid simulation. Stir it with your hands.</span><span class="room-go">Open →</span></div>
           </a>
           <a class="room" href="cards/">
             <div class="room-art art-cards" aria-hidden="true"><div class="ra-card"><div class="ra-holo"></div><span>MYTHIC</span><b>Shrimp Christ, Ascended</b><em>#0042 / 1,000,000,000</em></div></div>
-            <div class="room-cap"><span class="room-no">Room 03</span><b>Slop Shots</b><span class="room-desc">Holographic fractal cards. You own nothing. It’s beautiful.</span><span class="room-go">Open →</span></div>
+            <div class="room-cap"><span class="room-no">Room 04</span><b>Slop Shots</b><span class="room-desc">Holographic fractal cards. You own nothing. It’s beautiful.</span><span class="room-go">Open →</span></div>
           </a>
           <a class="room" href="annoying/">
             <div class="room-art art-unsub" aria-hidden="true"><div class="ra-unsub"><p>Are you sure you want to leave?</p><button tabindex="-1">Unsubscribe</button><button tabindex="-1" class="keep">Keep my slop</button></div></div>
-            <div class="room-cap"><span class="room-no">Room 04</span><b>Unsubscribe</b><span class="room-desc">Every dark pattern on the internet, in one form.</span><span class="room-go">Open →</span></div>
+            <div class="room-cap"><span class="room-no">Room 05</span><b>Unsubscribe</b><span class="room-desc">Every dark pattern on the internet, in one form.</span><span class="room-go">Open →</span></div>
           </a>
           <a class="room" href="#detector">
             <div class="room-art art-auth" aria-hidden="true"><div class="ra-auth"><span>Genuine<br>Slop</span></div></div>
-            <div class="room-cap"><span class="room-no">Room 05</span><b>Authenticator</b><span class="room-desc">Is your text secretly slop? Get it certified.</span><span class="room-go">Open →</span></div>
+            <div class="room-cap"><span class="room-no">Room 06</span><b>Authenticator</b><span class="room-desc">Is your text secretly slop? Get it certified.</span><span class="room-go">Open →</span></div>
           </a>
         </div>
       </section>

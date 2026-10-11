@@ -469,7 +469,9 @@ mark { background: var(--slop); color: var(--ink); padding: 0 2px; cursor: help;
   line-height: 0.82;
   text-transform: uppercase;
 }
-.rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
+.rooms-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 900px) { .rooms-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .rooms-grid { grid-template-columns: 1fr; } }
 .rooms-grid .room { width: auto; box-shadow: none; transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.2, 1), border-color 0.2s; }
 .rooms-grid .room:hover { transform: translateY(-8px); }
 
@@ -502,17 +504,37 @@ mark { background: var(--slop); color: var(--ink); padding: 0 2px; cursor: help;
 .room-go { margin-top: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
 .room:hover .room-go { color: var(--slop); }
 
-.art-paint { background: #008080; }
-.ra-win { width: 82%; background: #c0c0c0; border: 2px solid; border-color: #fff #404040 #404040 #fff; box-shadow: 1px 1px 0 #000; }
-.ra-title { display: flex; justify-content: space-between; align-items: center; padding: 3px 5px; background: linear-gradient(90deg, #d4ff3a, #9fcc00); color: #0a0a0a; font: 700 11px Tahoma, "Segoe UI", sans-serif; }
-.ra-title i { width: 12px; height: 10px; background: #c0c0c0; border: 1px solid; border-color: #fff #404040 #404040 #fff; }
-.ra-draw { display: block; width: calc(100% - 8px); margin: 4px; background: #fff; }
-.ra-draw path { fill: none; stroke: #ff2bd6; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 520; animation: paint-draw 3.2s ease-in-out infinite; }
-.ra-draw circle { fill: #d4ff3a; stroke: #000; stroke-width: 2; animation: pop 3.2s infinite; transform-origin: 60px 98px; }
-.ra-draw rect { fill: #3a7bff; stroke: #000; stroke-width: 2; animation: pop 3.2s 0.4s infinite; transform-origin: 140px 96px; }
-@keyframes paint-draw { 0% { stroke-dashoffset: 520; } 60%, 100% { stroke-dashoffset: 0; } }
-@keyframes pop { 0%, 40% { transform: scale(0); } 55% { transform: scale(1.2); } 65%, 100% { transform: scale(1); } }
 
+.art-shop { background: radial-gradient(circle at 50% 30%, #2a2a2a, #111 75%); }
+.ra-ps { width: 86%; display: grid; grid-template-columns: 9px 1fr 30%; gap: 5px; padding: 6px; background: #262626; border: 1px solid #3a3a3a; border-radius: 5px; box-shadow: 0 18px 40px rgba(0,0,0,.5); }
+.ra-ps-tools { display: grid; gap: 3px; align-content: start; }
+.ra-ps-tools i { width: 9px; height: 9px; border-radius: 2px; background: #4a4a4a; }
+.ra-ps-tools i:nth-child(3) { background: #d4ff3a; }
+.ra-ps-canvas { display: block; width: 100%; border-radius: 2px; }
+.ra-ps-canvas circle { fill: #0b1300; }
+.ra-ps-blob { fill: #9be40a; }
+.ra-ps-stroke { fill: none; stroke: #ff6f8e; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 160; animation: ps-stroke 3.6s ease-in-out infinite; }
+.ra-ps-marq { fill: none; stroke: #fff; stroke-width: 1; stroke-dasharray: 3 3; animation: ants 0.6s linear infinite; }
+.ra-ps-layers { display: grid; gap: 4px; align-content: start; }
+.ra-ps-layers b { height: 15px; border-radius: 2px; background: #333; animation: ps-layer 4.8s infinite; }
+.ra-ps-layers b:nth-child(2) { animation-delay: -3.6s; } .ra-ps-layers b:nth-child(3) { animation-delay: -2.4s; } .ra-ps-layers b:nth-child(4) { animation-delay: -1.2s; }
+@keyframes ps-stroke { 0% { stroke-dashoffset: 160; } 55%, 100% { stroke-dashoffset: 0; } }
+@keyframes ants { to { stroke-dashoffset: -6; } }
+@keyframes ps-layer { 0%, 24% { background: #1f4a7a; } 25%, 100% { background: #333; } }
+.art-vector { background: #d9d9d9; }
+.ra-vec { width: 88%; overflow: visible; }
+.ra-vec-board { fill: #fff; filter: drop-shadow(0 6px 14px rgba(0,0,0,.18)); }
+.ra-vec-fill { fill: #d4ff3a; opacity: 0; animation: vec-fill 4.4s ease-in-out infinite; }
+.ra-vec-path { fill: none; stroke: #0a0a0a; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 300; animation: vec-draw 4.4s ease-in-out infinite; }
+.ra-vec-h line { stroke: #2f80ff; stroke-width: 1; }
+.ra-vec-a rect { fill: #fff; stroke: #2f80ff; stroke-width: 1.5; }
+.ra-vec-k circle { fill: #2f80ff; }
+.ra-vec-h, .ra-vec-a, .ra-vec-k { animation: vec-ui 4.4s ease-in-out infinite; }
+.ra-vec-pen { fill: #0a0a0a; offset-path: path("M40 112C52 40 112 30 104 82s58 44 62-46"); animation: vec-pen 4.4s ease-in-out infinite; }
+@keyframes vec-draw { 0% { stroke-dashoffset: 300; } 55%, 100% { stroke-dashoffset: 0; } }
+@keyframes vec-fill { 0%, 60% { opacity: 0; } 72%, 92% { opacity: .9; } 100% { opacity: 0; } }
+@keyframes vec-ui { 0%, 10% { opacity: 0; } 25%, 85% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes vec-pen { 0% { offset-distance: 0%; } 55%, 100% { offset-distance: 100%; } }
 .art-tank { background: radial-gradient(circle at 50% 120%, #2a3a00, #0a0a0a 70%); }
 .ra-tank { position: absolute; inset: 0; }
 .ra-tank i { position: absolute; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fbffe6, var(--slop) 40%, var(--slop-deep)); animation: goo-morph 5s ease-in-out infinite; }
