@@ -25,6 +25,7 @@ import * as tips from './tips.js';
 import * as power from './power.js';
 import * as care from './care.js';
 import * as treats from './treats.js';
+import { bindAvoid, restoreSpot } from './avoid.js';
 
 function el(tag, cls, attrs = {}) {
   const n = document.createElement(tag);
@@ -115,11 +116,18 @@ function frame(t) {
 
 /** Appear: onto the intro ledge or the title on the homepage, any visible perch in apps. */
 function spawn() {
+  M.el.hidden = false;
+  if (!restoreSpot()) arrive();              // back where he rested on this page, or a fresh arrival
+  setTimeout(() => say(M.xp ? line('hello') : 'Hi! Pet me.', 2200), 900);
+  if (!CFG.home) setTimeout(() => tips.maybeTip(true), 6000);
+}
+
+/** A fresh arrival: hop onto the intro ledge or title (homepage) or any visible perch. */
+function arrive() {
   const first = (CFG.home ? ['.stage-ledge', '#intro-title', '.page-title'] : [])
     .map((s) => document.querySelector(s))
     .find((n) => { const r = n && P.rectOf(n); return r && P.inView(r); });
   const p = first ? { el: first, frac: 0.35 + Math.random() * 0.3 } : P.pick({ near: false });
-  M.el.hidden = false;
   if (!p) {                                   // nothing to sit on: the bottom of the window
     Object.assign(M, { mode: 'air', perch: null, x: innerWidth - 120 + scrollX, y: scrollY + innerHeight - 140, vx: 0, vy: 0 });
   } else if (reduced()) place(p);
@@ -127,8 +135,6 @@ function spawn() {
     const pt = P.point(p);
     hopTo(p, { from: { x: pt.x + rand(-60, 60), y: scrollY + navH() - 10 }, high: 20 });
   }
-  setTimeout(() => say(M.xp ? line('hello') : 'Hi! Pet me.', 2200), 900);
-  if (!CFG.home) setTimeout(() => tips.maybeTip(true), 6000);
 }
 
 let started = false, hud = null;
@@ -142,6 +148,7 @@ export function start(opts = {}) {
   build();
   fit();
   bindInput(M.hit);
+  bindAvoid();
   listeners.add(fit);
   hud = mountHud({ onUnleash: () => setChaos(!M.chaos), onRestore: restore, on3d: () => set3d(!M.is3d), onAsk: () => power.ask() });
   care.mount(hud);
