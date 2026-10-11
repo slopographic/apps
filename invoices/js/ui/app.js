@@ -64,6 +64,7 @@
     $('boot').hidden = true;
     for (const name of VIEWS) if (NS.views[name] && NS.views[name].mount) NS.views[name].mount();
     NS.commands.init();
+    if (g.SlopHub) { try { SlopHub.register('invoices'); } catch (e) { /* the hub is optional */ } }
     for (const t of document.querySelectorAll('.tab')) {
       t.addEventListener('click', () => go(t.dataset.view === 'edit' ? NS.editor.route() : t.dataset.view));
     }
