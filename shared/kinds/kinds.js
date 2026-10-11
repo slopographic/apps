@@ -7,7 +7,7 @@
  *   label(kind)               → 'Code and text', '3D', …
  *   chipMatch(kind, chipId)   → true if the kind is in that chip
  *   chipsMatching(kind)       → every chip id the kind belongs to
- *   countChips(items, key)    → { chipId: n } for items (each item's kind from kindOf(item.name, item.type)) */
+ *   countChips(items)         → { chipId: n } for items (each item's kind from kindOf(item.name, item.type)) */
 (function () {
   'use strict';
   const words = (s) => s.split(' ');
