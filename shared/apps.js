@@ -33,9 +33,9 @@
       features: ['Local models via WebGPU, works offline', 'System check: what can your PC run?', 'Drives every Slopographic app', 'Builds mini-apps for you'],
       shot: 'assets/shots/ai.jpg', icon: 'spark', status: 'beta' }),
     A('docs', 'app', 'Slop Docs', 'docs/', 'Word and Google Docs, rebuilt for the browser.', {
-      accepts: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.oasis.opendocument.text', 'text/markdown', 'text/plain', 'text/html'],
+      accepts: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/markdown', 'text/plain', 'text/html'],
       creates: [{ label: 'Document', ext: 'sdoc', mime: 'application/x-slop-doc' }],
-      features: ['Real pages, headers & footers', 'Opens & saves DOCX and ODT', 'PDF that matches what you see', 'Offline .html'],
+      features: ['Real pages, headers & footers', 'Opens & saves DOCX and Markdown', 'PDF that matches what you see', 'Offline .html'],
       shot: 'assets/shots/docs.jpg', icon: 'page', status: 'building' }),
     A('tables', 'app', 'Slop Tables', 'tables/', 'Excel and Google Sheets, rebuilt for the browser.', {
       accepts: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'text/tab-separated-values'],
