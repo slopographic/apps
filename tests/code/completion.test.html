@@ -26,6 +26,7 @@
   async function complete() {
     key(w, ' ', { ctrl: true });
     await waitFor(() => popup() && labels().length > 0, { timeout: 5000 });
+    await sleep(250); // the list on screen may be the typing one; let Ctrl+Space's own results land
     return labels();
   }
 
@@ -86,6 +87,10 @@
       await open('data.json', '{"a": 1}\n');
       await typeText(w, '[tr');
       expect(await complete()).toContain('true');
+      key(w, 'Escape');
+      await typeText(w, '"tr');
+      await sleep(400);
+      expect(labels()).not.toContain('true'); // inside a string: no literal completion
       key(w, 'Escape');
     });
 

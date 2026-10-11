@@ -69,9 +69,8 @@
       if (axis) {
         const origin = editOn() ? S.edit.pivot() : (() => { const W = M.worldMatrix(s.doc, st.primary()); return [W[12], W[13], W[14]]; })();
         const dir = gizmo.dirOf(axis), r = rayFrom(ndc);
-        const t0 = closestParam(origin, dir, r);
-        if (t0 !== null) {
-          const sess = editOn() ? S.edit.begin() : null;
+        const t0 = closestParam(origin, dir, r), sess = editOn() ? S.edit.begin() : null;
+        if (t0 !== null && (sess || !editOn())) {
           drag = { mode: 'axis', origin, dir, t0, applied: 0, key: A.beginDrag(), sess, x: e.clientX, y: e.clientY };
           gizmo.highlight(axis);
           canvas.style.cursor = 'grabbing';

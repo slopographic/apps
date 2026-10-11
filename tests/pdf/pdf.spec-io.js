@@ -139,6 +139,10 @@
       expect(B.buildHTML(S) === html).toBe(true);
     });
     it('boots from a blob URL, opens a PDF and exports it', async () => {
+      // The offline copy shares this origin's storage, so it would restore the session left by earlier tests.
+      // Turn autosave off and clear the session for this boot; the setting is put back afterwards.
+      PT.U.store.set('autosave', false);
+      await PT.U.idb.del('session');
       const fr = document.getElementById('app2');
       fr.src = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
       await waitFor(() => fr.contentWindow.SP && fr.contentWindow.SP.offline && fr.contentWindow.document.documentElement.classList.contains('ready'), { timeout: 30000 });
@@ -151,6 +155,7 @@
       expect((await PT.read(out)).pages[0].text).toBe('Offline ok');
       await sleep(10);
       fr.src = 'about:blank';
+      PT.U.store.set('autosave', true);
     }, { timeout: 40000 });
   });
 })();

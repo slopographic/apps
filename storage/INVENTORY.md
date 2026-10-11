@@ -1,52 +1,138 @@
 # Browser storage inventory
 
-Built for the "Export everything" work (shared/backup/central*.js). The storage audit agent's file was not in the
-repo when this was written, so this list was made from a grep of the code (`indexedDB.open`, `localStorage` keys,
-the store and key constants). Names marked "not read" were found by grep only and were not opened in detail.
+Every place the site keeps the person's data in their browser: IndexedDB databases and object stores, and
+localStorage keys. Each app's own autosave, drafts and preferences are included. Rules for changing any of
+them are in [HANDOFF.md](HANDOFF.md). "Unknown" means the code was not read far enough to name it.
 
-Status: **in** = in the one-file export (`apps` or `settings`), **excluded** = never exported (secret or cache),
-**out** = not in this format yet (own autosave or library of one app; still in that app).
+Totals at the time of writing (2026-10-11, working tree):
 
-## IndexedDB
+- 19 IndexedDB databases with 36 object stores (the app databases), plus one generic opener in
+  `shared/backup/core.js` (opens the databases named in a backup) and the third-party WebLLM model cache
+  (`vendor/web-llm`, not app data).
+- 48 localStorage rows below: 38 single keys (18 of them theme keys) and 10 key families (a prefix or an `<app>` suffix).
+- Contacts drafts: `contacts/js/store/drafts.js` (database `slop-contacts-drafts`, store `drafts`, key `current`)
+  was deleted in commit c94e877. No code opens it now. A device that still has that database keeps it
+  untouched; nothing reads it. Listed under "Retired" at the end.
 
-| Database | Stores | Owner (file) | Status | Export app id |
-|---|---|---|---|---|
-| slop-data | settings, customers, products, orders, invoices, payments, accounts, journal, exchangeRates, stockMovements, stockCounts, numbering | shared/data/store.js | in | data (replace) |
-| slop-drive | files, folders | shared/hub.js | in | drive |
-| slop-drive-thumbs | thumbs | drive/js/core/thumb-cache.js | excluded: cache | |
-| slop-gallery | photos, originals, thumbs, albums | gallery/js/core/db.js | in | gallery |
-| slop-music | playlists | music/js/core/store.js | in | music (playlists only) |
-| slop-music | analysis | music/js/core/store.js | excluded: cache of tags and waveforms | |
-| slop-tables-templates | templates | tables/js/ui/template-store.js | in | tables |
-| slop-tables-drafts | drafts | tables/js/ui/drafts.js | out: autosave | |
-| slop-slides-templates | templates | slides/js/io/template-store.js | in | slides |
-| slides draft DB (name in slides/js/io/draft.js) | draft store | slides/js/io/draft.js | out: autosave | |
-| slop-docs | templates | docs/js/ui/files.js | in | docs (templates only) |
-| slop-docs | drafts | docs/js/ui/files.js | out: autosave | |
-| slop-session | kv | shared/session/session.js | in, optional (checkbox) | session |
-| slop-sync | kv (tokens, encrypted) | shared/sync/tokens.js | excluded: secrets | |
-| slop-sync-local | (local provider) | shared/sync/providers/local.js | excluded: sync, not read | |
-| slop-code | drafts | code/js/drafts.js | out: autosave | |
-| slop-ai | convs | ai/js/core/store.js | out: chat history of one app (not read in detail) | |
-| slop-ai-bridge | (not read) | shared/ai/bridge.js | out (not read) | |
-| slop-faces | results | shared/faces/cache.js | out: cache | |
-| slop-pdf, sloplabel, slopshop, slopedit, press (name in its store.js) | kv, media, docs | pdf, label, photoslop, slopedit, press | out: each app's own files and autosave | |
+Versions: "v" is the value passed to `indexedDB.open` (IndexedDB), or the envelope version `v` (localStorage).
 
-## localStorage
+## IndexedDB: SlopData (`slop-data`, shared/data)
 
-| Key | Owner | Status |
+Version 2. The v1 to v2 step adds `exchangeRates`. SlopData's collections are listed in `schema-defs.js`.
+
+| Owner | Store | Version | Record format | Read by | Upgrade |
+|---|---|---|---|---|---|
+| shared/data | settings (key `id`, singleton `main`) | 2 | record; base currency is `defaultCurrency` (v1 called it `currency`) | shared/data, invoices, orders, ledger, inventory, crm, settings | v1 `currency` moved once in `seedDefaults`; tested |
+| shared/data | customers | 2 | record with stage, categories, phones, emails, addresses | shared/data, contacts, crm, invoices, orders | create-only upgrade; tested |
+| shared/data | products | 2 | record with sku, ean, prices | shared/data, inventory, invoices, orders | create-only upgrade |
+| shared/data | orders | 2 | record with lines, status | shared/data, orders | create-only upgrade |
+| shared/data | invoices | 2 | record with lines, status, payments | shared/data, invoices, ledger | create-only upgrade |
+| shared/data | payments | 2 | record | shared/data, invoices | create-only upgrade |
+| shared/data | accounts (key `code`) | 2 | chart of accounts record | shared/data, ledger | create-only upgrade; default chart seeded if missing |
+| shared/data | journal | 2 | ledger entry with lines, currency, rate | shared/data, ledger | create-only upgrade |
+| shared/data | exchangeRates | 2 | rate row (base, quote, date, rate); added in v2 | shared/data (fx), ledger | new in v2; created on upgrade |
+| shared/data | stockMovements | 2 | stock movement record | shared/data, inventory | create-only upgrade |
+| shared/data | stockCounts | 2 | count record | shared/data, inventory | create-only upgrade |
+| shared/data | numbering (key `id`) | 2 | sequence record | shared/data (numbering) | create-only upgrade; default sequences seeded if missing |
+
+## IndexedDB: other databases
+
+| Owner | Database / store | Version | Record format | Read by | Upgrade |
+|---|---|---|---|---|---|
+| shared/hub.js (Slop Drive) | `slop-drive` / files | 2 | file record `{ id, name, type, size, from, time, folderId, starred, trashedAt, meta, blob }` | every app through SlopHub, Slop Drive | v1 to v2 normalises each record with a cursor (no test yet) |
+| shared/hub.js (Slop Drive) | `slop-drive` / folders | 2 | folder record `{ id, name, parentId, ... }` | Slop Drive, SlopHub | created if missing |
+| drive/js/core/thumb-cache.js | `slop-drive-thumbs` / thumbs | 1 | cached thumbnail by file id | Slop Drive | create-if-missing |
+| shared/session/session.js | `slop-session` / kv | 1 | session values (large values only here; small ones mirrored to localStorage) | shared/session, apps that save sessions | create-if-missing |
+| shared/sync/tokens.js | `slop-sync` / kv | 1 | cloud sync tokens | shared/sync | create-if-missing |
+| shared/sync/providers/local.js | `slop-sync-local` / handles (key `dir`) | 1 | folder handle for local sync | shared/sync | create-if-missing |
+| shared/cutout/loader.js | `slop-cutout` / files | 1 | model file bytes (fallback when the Cache API is unavailable) | Slop Cutout, shared/cutout | create-if-missing |
+| ai/js/core/store.js | `slop-ai` / convs | 1 | chat conversation `{ id, title, updated, messages }` | Slop AI | create-if-missing; index `updated` |
+| tables/js/ui/template-store.js | `slop-tables-templates` / templates | 1 | template `{ id, ... }` | Slop Tables | create-if-missing |
+| tables/js/ui/drafts.js | `slop-tables-drafts` / drafts (key `current`) | 1 | autosaved workbook | Slop Tables | create-if-missing |
+| slopedit/js/core/util.js | `slopedit` / kv | 1 | autosaved project | Slop Edit | create-if-missing |
+| slopedit/js/core/util.js | `slopedit` / media | 1 | imported files as Blobs (keyPath `id`) | Slop Edit | create-if-missing |
+| label/js/io/files.js | `sloplabel` / kv | 1 | label design autosave | Slop Label | create-if-missing |
+| press/js/core/store.js | `slop-press` / docs (key `autosave`) | 1 | autosaved layout project | Slop Press | create-if-missing |
+| slides/js/io/draft.js | `slop-slides` / drafts (key `last`) | 1 | autosaved deck | Slop Slides | create-if-missing |
+| slides/js/io/template-store.js | `slop-slides-templates` / templates | 1 | saved slide template | Slop Slides | create-if-missing |
+| gallery/js/core/db.js | `slop-gallery` / photos | 1 | photo record `{ id, name, type, size, sha, w, h, takenAt, fav, liked, tags, addedAt, driveId }` | Slop Gallery (library.js) | create-if-missing; indexes `sha`, `takenAt`; a record with no `tags` loads as `[]` (tested) |
+| gallery/js/core/db.js | `slop-gallery` / originals | 1 | `{ id, blob }` original bytes | Slop Gallery | create-if-missing |
+| gallery/js/core/db.js | `slop-gallery` / thumbs | 1 | `{ id, blob }` JPEG, long edge 320 px | Slop Gallery | create-if-missing |
+| gallery/js/core/db.js | `slop-gallery` / albums | 1 | `{ id, name, photoIds, time }` | Slop Gallery | create-if-missing |
+| photoslop/js/io/save.js | `slopshop` / kv | 1 | saved document (Photoslop) | Photoslop | create-if-missing |
+| docs/js/ui/files.js | `slop-docs` / drafts (keyPath `key`, `d:<id>` or `untitled`) | 2 | `{ key, ...draft }` autosave | Slop Docs | v1 had drafts only; v2 adds templates only when `oldVersion < 2` |
+| docs/js/ui/files.js | `slop-docs` / templates | 2 | template `{ id, ... }` | Slop Docs | added in v2 |
+| pdf/js/core/util.js | `slop-pdf` / kv | 1 | autosaved PDF session | Slop PDF | create-if-missing |
+| shared/backup/core.js | any database named in a backup (generic) | caller | whatever the database holds | Backup and restore | opens by name, with a version from the backup manifest; creates an empty shell only when it has no stores |
+
+## localStorage: shared (shared/)
+
+Keys marked "unversioned" have no envelope. Their readers accept a missing or partial object (defaults).
+
+| Owner | Key | Version | Record format | Read by | Upgrade |
+|---|---|---|---|---|---|
+| shared/profile | `slop-profile` | envelope v1 | `{ v: 1, data: { <app>: { <key>: value } } }` | every app through SlopProfile; Settings | v1 envelope; the flat object before it is still read (tested) |
+| shared/consent | `slop-consent` | record `version` = policy version (config.js, now 2) | `{ version, timestamp, categories: { necessary, analytics, ads, rates } }` | consent banner, Settings, rates-ecb, ledger rates | old policy records are kept; they are asked again and shown as the default (tested) |
+| shared/nav | `slop-nav` | envelope v1 | `{ v: 1, apps: { <app>: { preset, custom: { from, bindings } \| null } } }` | every app through SlopNav.store; Settings | v1; unknown preset ids fall back to Slop without rewriting (tested) |
+| shared/sync/config.js | `slop-sync` | unversioned | `{ <provider>: { clientId, lastSync } }` | shared/sync | unversioned; missing fields take defaults |
+| shared/backup/index.js | `slop-backup-last` | unversioned scalar | ms timestamp string | Backup | unversioned scalar |
+| shared/pwa.js | `slop-pwa.persist` | unversioned scalar | `granted` or `denied` | PWA storage prompt | unversioned scalar |
+| shared/guard.js | `slop-guard-off` | unversioned scalar | `'1'` or absent | Guard (keep-my-files) | unversioned scalar |
+| shared/session/session.js | `slop-session.<key>` (prefix) | unversioned | JSON value mirrored from IndexedDB (under 200,000 characters) | shared/session | unversioned; IndexedDB is the source |
+| shared/ai/webllm.js | `slop-ai.local-models` | unversioned | JSON array of local model entries | Slop AI | unversioned array |
+| shared/buddy/prefs.js | `slop.buddy` | unversioned | `{ apps: { <app>: bool } }` plus global switches | Buddy | unversioned; `apps` defaults to `{}` |
+| shared/buddy/store.js | `slop.mascot.v1` | key suffix v1 | `{ xp, hats, ... }` | Buddy (XP and levels) | key suffix v1 |
+| shared/commands/keymap.js | `slop.keys.<app>` | unversioned | shortcut map per app (format not read in full) | every app's keyboard map | unversioned; a missing binding takes the default |
+| shared/guides/presets.js | `slopguides.presets.v1` | key suffix v1 | custom guide presets, each `{ name, tab, form? \| notation? \| intervals?, unit?, snap? }` | Guides panel | key suffix v1 |
+| shared/guides | `slopguides.state` and `slopguides.state.<app>` | unversioned | guide panel state | Guides panel | unversioned; `deepAssign` onto defaults |
+
+## localStorage: apps
+
+| Owner | Key | Version | Record format | Read by | Upgrade |
+|---|---|---|---|---|---|
+| drive/js/core/util.js | `slop-drive.prefs` | envelope v1 | `{ v: 1, data: { view, usageMode, sorts, cols, info, tree, collapsed } }` | Slop Drive | v1 envelope; the flat object from before envelope (and before `sorts`, `cols`) still loads (tested) |
+| drive/js/core/io.js | `slop-drive.openIn` | unversioned | map from file type to remembered app id | Slop Drive "open with" | unversioned map |
+| drive/js/ui/info-width.js | `slop-drive.info-width` | unversioned scalar | width in px | Slop Drive info panel | unversioned scalar |
+| drive/js/ui/shell.js and drive/index.html | `slop-drive.theme` | unversioned (JSON string) | `'light'`, `'classic'` or `'pro'` | Slop Drive, first paint | unversioned; unknown values fall back |
+| shared/ai/panel.js, ai/js/core/util.js | `slop-ai.prefs` | unversioned | JSON object `{ theme, ... }` | Slop AI, first paint | unversioned; `load()` returns `{}` on error |
+| ai/js/core/engine.js | `slop-ai.fake-cache` | unversioned | JSON cache object | Slop AI (test sandbox) | unversioned; reads `{}` on error |
+| ai/index.html | `slop-ai.theme` (inside `slop-ai.prefs`) | unversioned | see above | first paint | see `slop-ai.prefs` |
+| admin/index.html | `slop-admin.theme` | unversioned (JSON string) | `'light'` or `'pro'` | Admin | unversioned |
+| cutout/js/core/util.js | `slop-cutout.<key>` (prefix: panel, model, brush, look, export) | unversioned | JSON per key | Slop Cutout | unversioned; `U.store.get` returns the default on error |
+| cutout/index.html | `slop-cutout.theme` | unversioned (JSON string) | theme name | Slop Cutout, first paint | unversioned |
+| slopedit/js/core/util.js | `slopedit.<key>` (prefix) | unversioned | JSON per key (export options etc.) | Slop Edit | unversioned |
+| slopedit/index.html | `slopedit.theme` | unversioned (JSON string) | theme name | Slop Edit, first paint | unversioned |
+| photoslop/js/core/util.js | `slopshop.<key>` (prefix) | unversioned | JSON per key | Photoslop | unversioned |
+| slides/js/core/util.js | `slop-slides.<key>` (prefix) | unversioned | JSON per key | Slop Slides | unversioned |
+| pdf/js/core/util.js | `slop-pdf.<key>` (prefix; includes `signatures`) | unversioned | JSON per key; saved signatures are an array | Slop PDF, Sign | unversioned; signature list defaults to `[]` |
+| pdf/index.html | `slop-pdf.theme` | unversioned (JSON string) | theme name | Slop PDF, first paint | unversioned |
+| docs/js/ui/outline.js | `slop-docs.outline` | unversioned | outline open state | Slop Docs | unversioned |
+| docs/index.html | `slop-docs.theme` | unversioned (JSON string) | theme name | Slop Docs, first paint | unversioned |
+| tables/index.html | `slop-tables.theme` | unversioned (JSON string) | theme name | Slop Tables, first paint | unversioned |
+| crm/index.html | `slop-crm.theme` | unversioned (JSON string) | theme name | Slop CRM, first paint | unversioned |
+| invoices/index.html | `slop-invoices.theme` | unversioned (JSON string) | theme name | Slop Invoices, first paint | unversioned |
+| orders/index.html | `slop-orders.theme` | unversioned (JSON string) | theme name | Slop Orders, first paint | unversioned |
+| contacts/index.html | `slop-contacts.theme` | unversioned (JSON string) | theme name | Slop Contacts, first paint | unversioned |
+| contacts/js/app/state.js | `slop-contacts.cc` | unversioned scalar | default country code for phone numbers (E.164), per viewer | Slop Contacts | unversioned scalar; `''` on error |
+| ledger/index.html | `slop-ledger.theme` | unversioned (JSON string) | theme name | Slop Ledger, first paint | unversioned |
+| press/index.html | `slop.press.theme` | unversioned (JSON string) | theme name | Slop Press, first paint | unversioned |
+| press/js/core/store.js | `slop.press.<key>` (prefix) | unversioned | JSON prefs | Slop Press | unversioned |
+| gallery/index.html | `slop-gallery.theme` | unversioned (JSON string) | theme name | Slop Gallery, first paint | unversioned |
+| 3d/index.html | `slop-3d.theme` | unversioned (JSON string) | theme name | Slop 3D, first paint | unversioned |
+| inventory/index.html | `slop-inventory.theme` | unversioned (JSON string) | theme name | Slop Inventory, first paint | unversioned |
+| vector/index.html | `slopvector.theme` | unversioned scalar | theme name | Slop Vector, first paint | unversioned |
+| vector/js/ui/color.js | `slopvector.recentColors` | unversioned | JSON array of recent hex colours | Slop Vector colour picker | unversioned array; `[]` on error |
+| vector/js/core/state.js | `slopvector.*` (other keys) | unknown | not enumerated | Slop Vector | unknown |
+| label/js/io/files.js, label/js/ui/view-state.js | label prefs keys (passed to `lsGet`/`lsSet`) | unknown | not enumerated | Slop Label | unknown |
+
+## Retired
+
+| Owner | Name | Notes |
 |---|---|---|
-| slop-profile | shared/profile/profile.js | in (settings, profile) |
-| slop-consent | shared/consent/state.js | excluded: consent record and tokens |
-| slop-sync, slop-sync-pending | shared/sync/config.js, sync.js | excluded: sync settings and queue |
-| slop-backup-last | shared/backup/index.js | out (timestamp only) |
-| slop-session.* | shared/session/session.js (mirror of the kv store) | covered by the session app through IndexedDB |
-| slop-music.*, slop-drive.*, slop-docs.outline, slop-contacts.cc, slop-code.open-folders, slop-ai.*, slop-nav, slop-pwa.persist, slop-guard-off, slopedit.*, slopshop.*, slop-slides.*, slop-pdf.*, slopvector.autosave.v1, slopguides.presets.v1, slop.mascot.v1, slop.buddy, orders-editor | the apps listed | out: preferences and autosaves of each app |
+| contacts (commit c94e877) | `slop-contacts-drafts` / drafts (key `current`) | File `contacts/js/store/drafts.js` deleted. No open in code. Data on a device stays put; nothing reads it. A reader for it would need the old name. |
 
-## Known problems found while reading
+## Renamed keys
 
-- shared/sync/sync.js and shared/sync/ui.js call `SlopData.exportAll()`, which does not exist. Cloud sync's backup
-  therefore reports "Backup is not available in this app yet." This was there before the export work and is not fixed here.
-- The Contacts app keeps its records in SlopData's `customers` collection (contacts/js/app/records.js). They are
-  exported with the `data` app, not separately.
-- The Music app has no export for its analysis cache on purpose (it is rebuilt from the tracks).
+| Old | New | Status |
+|---|---|---|
+| SlopData settings `currency` | `defaultCurrency` | Read once in `seedDefaults` and moved; `fx.baseIn` also falls back to `currency` (tested) |
