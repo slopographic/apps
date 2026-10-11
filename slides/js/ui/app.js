@@ -3,7 +3,7 @@
    the inspector. Exposes window.SS.app (A). */
 (function () {
   'use strict';
-  var SS = window.SS, U = SS.util, M = SS.model, O = SS.objects;
+  var SS = window.SS, M = SS.model, O = SS.objects;
   var A = SS.app = {
     deck: null, cur: null, sel: [], editing: null, zoom: 'fit', dirty: false, file: null, selSlides: [],
     listeners: { render: [], select: [], slide: [], deck: [] }
@@ -73,20 +73,20 @@
     var i = A.slideIndex();
     var cur = A.slide(), lay = layout || (cur && cur.layout === 'title' ? 'title-content' : cur ? cur.layout : 'title-content');
     var s = A.change('New slide', function () { return M.addSlide(A.deck, lay, i + 1); });
-    A.goto(s.id);
+    A.emit('deck'); A.goto(s.id);
     return s;
   };
   A.duplicateSlides = function (ids) {
     ids = ids || A.selSlides;
     var last = null;
     A.change('Duplicate slide', function () { ids.slice().reverse().forEach(function (id) { var d = M.duplicateSlide(A.deck, id); if (!last) last = d; }); });
-    if (last) A.goto(last.id);
+    A.emit('deck'); if (last) A.goto(last.id);
   };
   A.deleteSlides = function (ids) {
     ids = ids || A.selSlides;
     var i = A.slideIndex();
     A.change('Delete slide', function () { M.deleteSlides(A.deck, ids); });
-    A.goto(A.deck.slides[Math.min(i, A.deck.slides.length - 1)].id);
+    A.emit('deck'); A.goto(A.deck.slides[Math.min(i, A.deck.slides.length - 1)].id);
   };
   A.moveSlides = function (ids, to) { A.change('Move slide', function () { M.moveSlides(A.deck, ids, to); }); A.emit('deck'); A.invalidate('all'); };
 
@@ -141,5 +141,4 @@
   A.nudge = function (dx, dy) { A.each('Nudge', function (o) { o.x += dx; o.y += dy; }, 'nudge'); };
   A.toast = function (msg) { if (window.SlopUI) window.SlopUI.toast(msg); };
   A.isMobile = function () { return window.matchMedia('(max-width: 760px)').matches; };
-  void U;
 })();
