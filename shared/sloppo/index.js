@@ -1,5 +1,5 @@
 // Sloppo, painted: the single source of truth for the 2D Sloppo painter.
-// Used by Slop Shots (cards/), the games and the homepage mascot.
+// The 2D Sloppo painter.
 //   drawSloppo(ctx, W, H, look, t)  look = { body, eyes, mouth, hat, prop, fx, back, seed, scale, baseY, eyeDY, mustache, noCurl, capeColor, noGlow }
 //   BODIES                          body colour table
 export { drawSloppo } from './draw.js';

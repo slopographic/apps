@@ -1,4 +1,4 @@
-// Sloppo, drawn the way WWW 2100 draws him: metaball circles through an SVG goo filter.
+// Sloppo, metaball circles through an SVG goo filter.
 // sloppo() returns { el, pose(t, o) }: pose is a pure function of time.
 import { h } from './ease.js';
 

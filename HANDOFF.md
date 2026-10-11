@@ -3,7 +3,6 @@
 ## The goal
 slopographic.com is a **studio of professional creative apps that run 100% in the browser**: no installs, no accounts, no uploads, **no watermarks**, and each app can be downloaded as one offline `.html` file. All apps share one local file drive (Slop Drive) and can send work to each other. Sloppo™ (the goo mascot) can ride along in every app, Clippy-style.
 
-The **games and experiments** (Sloppo Land, Sloppo Bird, Sloppo Run, Star Defender, Goo Pool Defense, Slop Shots, WWW 2100, Slop Tank, Slop Lighter, Sloppo Reel, Unsubscribe) moved on 2026-10-11 to the **private repo `slopographic/games`**, served at **games.slopographic.com**. They are not in this repo's history. Their registry entries here point there, and the old paths (`/games/*`, `/shots/`, `/cards/`, `/tank/`, `/fluid/`, `/lighter/`, `/reel/`, `/unsubscribe/`, `/annoying/`, `/2100/`) are redirect stubs.
 
 ## Where things are
 - **Repo:** `slopographic/tools` (fresh repo with clean history; the old `slopographic/slopographic` repo is to be deleted). Static site, no build step. GitHub Pages from `main` / root, CNAME `slopographic.com`.
@@ -35,7 +34,6 @@ The **games and experiments** (Sloppo Land, Sloppo Bird, Sloppo Run, Star Defend
 | `office/` | zip/xml/units | Shared OOXML/ODF helpers for Docs/Tables/Slides |
 | `ai/` | `SlopAI` | Local LLM (WebLLM) engine, sysinfo, side panel |
 | `cutout/` | `SlopCutout` | On-device background removal (ONNX Runtime Web, Apache-2.0 models in `vendor/models/`) |
-| `rewards/` | `SlopRewards` | Slop Tokens wallet (used by the games repo; a copy lives there) |
 | `sloppo/` | `drawSloppo` | 2D Sloppo painter (art, see LICENSE-ART) |
 
 ## Status
@@ -60,7 +58,7 @@ The **games and experiments** (Sloppo Land, Sloppo Bird, Sloppo Run, Star Defend
 1. Finish the `building` apps from their HANDOFFs: Cutout UI, then Docs, Tables, Slides.
 2. PhotoSLOP/Vector follow-ups listed in their HANDOFFs.
 3. Slop PDF flash fixes, then a frame-sampling regression test.
-4. Render the promo video and capture missing screenshots (`tools/capture/HANDOFF.md`); game recipes now need the games.slopographic.com base URL or removal.
+4. Render the promo video and capture missing screenshots (`tools/capture/HANDOFF.md`).
 5. README refresh as apps land.
 
 ## How to continue in a new session

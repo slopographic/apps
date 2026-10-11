@@ -48,11 +48,6 @@ Dispatch rules:
 
 ## Integrated apps (tests green)
 - **label**: every tool and menu action (~100), Help entries and a toolbar Search button; it is also in the offline build. 69 tests.
-- **games/sloppo-bird**: 34 tests.
-- **games/star-defender**: 34 tests.
-- **games/tower-defense**: 54 tests.
-- **games/runner**: 57 tests.
-- **games/platformer**: pause, mute and recenter go through `input.press`; also restart, map, show, levels and settings. 137 tests.
 - **shots**: `tests/shots/commands.test.html`.
 - **tank**, **lighter**, **unsubscribe** (light touch) and **photoslop/classic** (Win98 skin, Help entries): `tests/commands/apps.test.html`.
 - **2100**: `/` stays the search shortcut through `paletteKeys`. Its own 38 tests passed; a palette page test is still to do.

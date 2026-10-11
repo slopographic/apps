@@ -76,7 +76,7 @@
       const f = await H.createFolder('Saves'), sub = await H.createFolder('Deep', f);
       await H.put(await DT.png(), { name: 'pic.png', from: 'photoslop', folderId: sub });
       await H.put(DT.text('notes'), { name: 'n.txt', from: 'upload' });
-      W.localStorage.setItem('sloppo-bird.best', '42'); W.localStorage.setItem('slop-pdf.theme', '"light"');
+      W.localStorage.setItem('photoslop.recent', '42'); W.localStorage.setItem('slop-pdf.theme', '"light"');
       await seedApp('dt-app', { kv: [['autosave', { layers: [new W.Uint8Array([1, 2, 3])], when: new W.Date(5) }]], docs: [{ by: 'me', blob: new W.Blob(['doc'], { type: 'text/plain' }) }] });
       const { blob, name, manifest } = await B().exportAll();
       file = blob;
@@ -91,7 +91,7 @@
       await DT.delDb('dt-app');
       const r = await B().importBackup(file, { mode: 'replace' });
       expect(r.errors).toEqual([]);
-      expect(W.localStorage.getItem('sloppo-bird.best')).toBe('42');
+      expect(W.localStorage.getItem('photoslop.recent')).toBe('42');
       expect(W.localStorage.getItem('stray')).toBe(null);
       const files = await H.list(), folders = await H.listFolders();
       expect(files.map((x) => x.name).sort()).toEqual(['n.txt', 'pic.png']);
@@ -108,11 +108,11 @@
       expect(await app.docs[0].blob.text()).toBe('doc');
     });
     it('merge: keeps local-only things and lets the backup win on conflicts', async () => {
-      W.localStorage.setItem('sloppo-bird.best', '99'); W.localStorage.setItem('local-only', 'yes');
+      W.localStorage.setItem('photoslop.recent', '99'); W.localStorage.setItem('local-only', 'yes');
       const extra = await H.put(DT.text('new'), { name: 'only-here.txt' });
       const r = await B().importBackup(file, { mode: 'merge' });
       expect(r.errors).toEqual([]);
-      expect(W.localStorage.getItem('sloppo-bird.best')).toBe('42');
+      expect(W.localStorage.getItem('photoslop.recent')).toBe('42');
       expect(W.localStorage.getItem('local-only')).toBe('yes');
       const names = (await H.list()).map((x) => x.name).sort();
       expect(names).toEqual(['n.txt', 'only-here.txt', 'pic.png']);

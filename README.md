@@ -17,8 +17,6 @@ Creative apps that run 100% in your browser: no installs, no accounts, no upload
 | `/cutout/`, `/docs/`, `/tables/`, `/slides/` | In development: background remover, word processor, spreadsheet, presentations |
 | `/#detector` | **The Authenticator**: get any text certified as slop |
 
-Games and experiments live at **[games.slopographic.com](https://games.slopographic.com)** (separate private repo).
-
 The shared kit (`shared/`), status of every app and how to continue are in [`HANDOFF.md`](HANDOFF.md). Tests: `npm test`.
 
 ## Run locally

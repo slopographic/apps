@@ -25,7 +25,7 @@
     it('shows the screenshot when it exists and keeps the generated tile when it does not', async () => {
       const { f, box } = await open();
       await waitFor(() => box('a').classList.contains('has-img'));
-      expect(box('a').dataset.clip).toBe('../../assets/clips/sloppo-bird');
+      expect(box('a').dataset.clip).toBe('../../assets/clips/photoslop');
       await waitFor(() => !box('b').querySelector('img'));
       expect(box('b').classList.contains('has-img')).toBe(false);
       expect(box('b').querySelector('.shot-ph b').textContent).toBe('Missing media');
@@ -41,7 +41,7 @@
       const v = box('a').querySelector('video');
       expect(v.muted && v.loop && v.hasAttribute('playsinline')).toBe(true);
       expect(v.getAttribute('preload')).toBe('none');
-      expect(v.getAttribute('poster')).toBe('../../assets/shots/sloppo-bird.jpg');
+      expect(v.getAttribute('poster')).toBe('../../assets/shots/photoslop.jpg');
       expect([...v.querySelectorAll('source')].map((s) => s.type)).toEqual(['video/webm', 'video/mp4']);
       await waitFor(() => box('a').classList.contains('playing'), { timeout: 8000 });
       unhover(w, card);

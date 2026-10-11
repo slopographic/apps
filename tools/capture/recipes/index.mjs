@@ -3,11 +3,10 @@
 // frame(page, i, t) (frames mode, before each captured frame), play(page, seconds) (video mode) }.
 //   frames: the virtual clock (clock.js) is frozen after setup and stepped 1/30 s per captured frame.
 //   video:  Playwright records the page in real time while play() interacts with it.
-import games from './games.mjs';
 import apps from './apps.mjs';
 import experiments from './experiments.mjs';
 
-const ALL = { ...games, ...apps, ...experiments };
+const ALL = { ...apps, ...experiments };
 
 
 /** Generic fallback for apps without a recipe yet (new apps): let it load, then film it. */

@@ -30,12 +30,6 @@ export const TIPS = {
   slopedit: [{ text: "It looks like you're editing a video! Add a title?", cmd: 'title' }],
   drive: [{ text: "It looks like you're organising files! A new folder, maybe?", cmd: 'folder' }],
   ai: [{ text: "It looks like you're talking to an AI. I am also an AI. Sort of.", cmd: null }],
-  platformer: [{ text: 'You call that a jump?' }, { text: 'I could do this level blindfolded. I have no eyelids.' }],
-  'sloppo-bird': [{ text: 'flap harder.' }, { text: 'the pipes are winning.' }],
-  runner: [{ text: 'run faster. the slop is catching up.' }, { text: 'jump. JUMP. ok too late.' }],
-  'star-defender': [{ text: 'pew pew. miss miss.' }, { text: 'the Slop Bots say hi.' }],
-  'tower-defense': [{ text: 'more towers. MORE.' }, { text: 'goo pool status: leaking.' }],
-  shots: [{ text: 'open another pack. you know you want to.' }],
   default: [{ text: 'Psst: Ctrl+K finds every command.', cmd: null }, { text: 'Everything here runs in your browser. No uploads. No watermarks.' }],
 };
 

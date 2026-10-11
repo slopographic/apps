@@ -15,11 +15,11 @@
   const bubble = (S) => S.M.bubble;
 
   describe('tips per app', () => {
-    it('has tips for every app and game in the registry (or the default set)', () => {
+    it('has tips for every app in the registry (or the default set)', () => {
       expect(tipsFor('label')[0].text).toContain('label');
       expect(tipsFor('pdf')[0].text).toContain('redacting a PDF');
       expect(tipsFor('photoslop').some((t) => /Guides panel/.test(t.text))).toBe(true);
-      expect(tipsFor('sloppo-bird').length).toBeGreaterThan(0);
+      expect(tipsFor('drive').length).toBeGreaterThan(0);
       expect(tipsFor('no-such-app')).toBe(TIPS.default);
     });
     it('shows a tip with a button that runs the app command, plus an opt-out', async () => {

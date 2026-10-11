@@ -16,14 +16,14 @@ Any page: `<script type="module" src="(../)shared/buddy/boot.js"></script>`.
 
 **Not done:** adding the loader line to every app's `index.html` (the one-line edits were refused by the session's
 permission policy because those files belong to other agents). Each app owner adds one line before `</body>`:
-`<script type="module" src="../shared/buddy/boot.js"></script>` (`../../` for `games/*` and `photoslop/classic/`).
+`<script type="module" src="../shared/buddy/boot.js"></script>` (`../../` for `photoslop/classic/`).
 
 ## Modules
 | Area | Files |
 |---|---|
 | Loader, settings | `boot.js`, `prefs.js`, `config.js` (HOME vs APP options: perch/card/heading selectors, floor, z-index, autoChaos, tips) |
 | Engine | `engine.js` (build, frame loop, spawn, show/hide, ghost mode in apps, game pause), `state.js` (shared state `M`) |
-| Look (art) | `look.js` (the WWW 2100 SVG goo look: lumps + goo filter, moods by swapping face parts, blush only in love), `hats.js` (18 hats + the AI brain), `three3d.js` + `view3d.js` (3D metaball version) |
+| Look (art) | `look.js` (the SVG goo look: lumps + goo filter, moods by swapping face parts, blush only in love), `hats.js` (18 hats + the AI brain), `three3d.js` + `view3d.js` (3D metaball version) |
 | Moving | `perches.js` (live perch geometry, solid-at-x with eaten letters and holes), `motion.js` (hops, falls, drag and throw, leap back into view), `bodies.js` (knocked cards as rigid bodies) |
 | Input, HUD | `input.js`, `hud.js`, `fx.js` (particles, speech bubble with buttons/streaming) |
 | Levels, lines | `store.js`, `levels.js`, `lines.js` (pools per mood, no back-to-back repeats) |

@@ -1,4 +1,4 @@
-// The 2D Sloppo: the WWW 2100 SVG look (a lime gradient body of goo lumps merged by a blur +
+// The 2D Sloppo: the SVG goo look (a lime gradient body of goo lumps merged by a blur +
 // colour-matrix "goo" filter, dark ellipse eyes, a simple mouth and a shine). Moods swap face parts.
 import { M, now, reduced, moodIs } from './state.js';
 import { scaleFor } from './store.js';
