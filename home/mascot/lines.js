@@ -1,6 +1,6 @@
 // What Sloppo says. One pool per mood; the same line never comes up twice in a row.
 export const LINES = {
-  hello: ['Hi! Pet me.', 'oh hi. slop.', 'I am Sloppo. Hello.', 'pet the slop.'],
+  hello: ['Hi! Pet me.', 'oh hi. slop.', 'no watermarks. ever. slop is free.', 'I am Sloppo. Hello.', 'pet the slop.'],
   pet: ['hehe', 'more slop pls', 'purr…', 'squish!', 'HAHAHHEHEHE', 'best day', 'slop.', 'again again', 'i am jelly happy', '<3'],
   thrown: ['Wheee!', 'Yeet!', 'AAAAAA', 'I CAN FLY', 'slop in flight', 'weeeeeee'],
   ouch: ['OUCH!', 'ouch…', 'my goo!', 'oof.', 'that was my face'],
@@ -14,7 +14,7 @@ export const LINES = {
   knock: ['Oops.', 'Mine.', 'Bye!', 'Down you go.', 'gravity test'],
   blast: ['PEW', 'GOO BLAST', 'BLORP!', 'ka-SPLAT', 'eat goo'],
   hole: ['behold: the void', 'black hole go brrr', 'it hungers', 'into the slop dimension'],
-  idle: ['slop.', 'is it lunch', '…', 'hmm.', 'nice website', 'drag me. I dare you.', 'I could eat a heading'],
+  idle: ['no watermarks. ever. slop is free.', 'slop.', 'is it lunch', '…', 'hmm.', 'nice website', 'drag me. I dare you.', 'I could eat a heading'],
   level: ['LEVEL UP', 'stronger slop', 'I feel taller'],
   restore: ['All better.', 'good as new', 'I didn\'t do it'],
 };
