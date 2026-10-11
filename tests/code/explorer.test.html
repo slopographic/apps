@@ -53,7 +53,7 @@
     });
 
     it('drop on the empty list moves a file to the root', async () => {
-      row('d:' + src).click();
+      if (!row('f:' + b)) row('d:' + src).click(); // open Src, unless the tree already shows it open
       await waitFor(() => row('f:' + b), { timeout: 3000 });
       drag('f:' + b, null);
       await waitFor(async () => (await H().get(b)).folderId === null, { timeout: 5000 });

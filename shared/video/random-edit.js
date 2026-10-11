@@ -9,7 +9,7 @@
   const root = typeof window !== 'undefined' ? window : globalThis;
   const SV = (root.SlopVideo = root.SlopVideo || {});
   const R = (SV.random = {});
-  const S = SV.seed, T = SV.templates, P = SV.presets, SEG = SV.segments, O = SV.orient;
+  const S = SV.seed, T = SV.templates, P = SV.presets, SEG = SV.segments, O = SV.orient, TM = SV.timing, LK = SV.locks, AU = SV.audio;
   const round = (v, k = 2) => { const f = Math.pow(10, k); return Math.round(v * f) / f; };
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
@@ -41,6 +41,9 @@
       tpl: o.tpl === 'random' ? 'random' : T.get(o.tpl) ? T.get(o.tpl).id : null, // 'random': a grid drawn from the list
       switches: !!o.switches, layouts: [...new Set(layouts)],
       fill: O.FILLS.includes(o.fill) ? o.fill : 'auto',
+      timing: TM.MODES.some(([v]) => v === o.timing) ? o.timing : 'same', video: o.video === 'random' ? 'random' : 'through',
+      min: +o.min || TM.LEN.min, max: +o.max || TM.LEN.max, stagger: +o.stagger >= 0 ? +o.stagger : TM.LEN.stagger,
+      locks: Array.isArray(o.locks) ? o.locks.slice() : [], audio: o.audio || { mode: 'off', track: null },
       segments: Array.isArray(o.segments) && o.segments.length ? o.segments : null
     };
   };
@@ -118,17 +121,15 @@
       const picks = O.assign(take(seg.slots), cellRatios(seg, opt.size));
       d = round(Math.min(d, ...picks.map((m) => (m.kind === 'image' ? Infinity : m.dur))), 2); // a source may be shorter
       if (d < 0.01) { t = round(t + Math.max(0.01, toEnd), 2); continue; }
-      cuts.push(picks.map((m, slot) => {
-        const room = m.kind === 'image' ? Infinity : m.dur - d;
-        const inPt = isFinite(room) && room > 0 ? round(rng() * room, 2) : 0;
-        return { media: m.id, slot, start: round(t, 2), dur: d, in: inPt };
-      }));
+      cuts.push(TM.apply(picks, round(t, 2), d, opt, rng).map((it) => Object.assign(it, { dur: it.dur }))); // per-slot timing
       t = round(t + d, 2);
     }
+    TM.holds(cuts, t, segs);
     const used = new Set(cuts.flat().map((x) => x.media));
+    if (opt.locks && opt.locks.length) LK.apply({ cuts }, opt.locks, pool);
     return Object.assign(opt, {
       seedHex: S.hex(opt.seed), slots: SEG.maxSlots(segs), segments: segs, cuts, total: t, clips: pool.length, used: used.size,
-      mixed: O.mixed(pool)
+      mixed: O.mixed(pool), audio: AU.choose(opt.audio, opt.seed, pool)
     });
   };
   /** Region (fractions of the frame) of a cut item in a plan, from the layout active at its start. Null for none. */

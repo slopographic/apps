@@ -42,7 +42,8 @@ body { background: var(--hx-bg); color: var(--hx-fg); font: 14px/1.4 system-ui, 
 .hx-scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow: auto; font: 13px/22px var(--hx-mono); outline: none; -webkit-overflow-scrolling: touch; }
 .hx-scroll:focus-visible { box-shadow: inset 0 0 0 2px var(--hx-accent); }
 .hx-spacer { position: absolute; left: 0; top: 0; width: 1px; }
-.hx-rows { position: absolute; left: 0; width: max-content; overflow: hidden; user-select: none; touch-action: pan-x pan-y; }
+/* The rows are absolutely placed, so they add no width of their own: the width is set here, for the sideways scroll. */
+.hx-rows { position: absolute; left: 0; width: calc(81ch + 48px); overflow: hidden; user-select: none; touch-action: pan-x pan-y; }
 .hx-row { position: absolute; left: 0; height: 22px; white-space: pre; display: flex; align-items: center; }
 .hx-off { width: 12ch; padding: 0 14px 0 12px; color: var(--hx-off); cursor: pointer; }
 .hx-hex { display: inline-flex; }

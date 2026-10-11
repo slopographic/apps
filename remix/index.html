@@ -40,6 +40,7 @@
         <input id="rm-scrub" type="range" min="0" max="0" step="0.01" value="0" aria-label="Playhead">
         <span id="rm-time">0:00.0 / 0:00.0</span>
       </div>
+      <div id="rm-slots" class="rm-slots" aria-label="Slots at the playhead"></div>
       <div id="rm-lanehost" class="rm-lane"></div>
       <p id="rm-total" class="rm-total"></p>
       <ol id="rm-cuts" class="rm-cuts" aria-label="Cuts in order"></ol>
@@ -50,6 +51,16 @@
       <label class="rm-f">Pace<select id="rm-pace"></select></label>
       <label class="rm-f">Export preset<select id="rm-preset"></select></label>
       <label class="rm-f">Fill<select id="rm-fill" title="How a clip fills its cell"></select></label>
+      <label class="rm-f">Timing<select id="rm-timing" title="When each slot switches"></select></label>
+      <label class="rm-f">Video in cells<select id="rm-vtiming"></select></label>
+      <div class="rm-row">
+        <label class="rm-f">Min length (s)<input id="rm-lmin" type="number" min="0.2" max="60" step="0.1" value="1"></label>
+        <label class="rm-f">Max length (s)<input id="rm-lmax" type="number" min="0.2" max="60" step="0.1" value="3"></label>
+      </div>
+      <label class="rm-f">Stagger up to (s)<input id="rm-stagger" type="number" min="0" max="30" step="0.1" value="1"></label>
+      <label class="rm-f">Audio<select id="rm-audio"></select></label>
+      <label class="rm-f">Music track<select id="rm-track"></select></label>
+      <div class="rm-row"><label class="rm-btn">Pick music file<input id="rm-music" type="file" accept="audio/*,video/*" hidden></label><span id="rm-music-name" class="rm-size"></span></div>
       <div id="rm-custom" class="rm-custom" hidden>
         <label class="rm-f">Width<input id="rm-cw" type="number" min="16" max="7680" step="2" value="1080"></label>
         <label class="rm-f">Height<input id="rm-ch" type="number" min="16" max="4320" step="2" value="1920"></label>
@@ -74,6 +85,9 @@
   <script src="../shared/video/templates.js"></script>
   <script src="../shared/video/layout.js"></script>
   <script src="../shared/video/segments.js"></script>
+  <script src="../shared/video/timing.js"></script>
+  <script src="../shared/video/locks.js"></script>
+  <script src="../shared/video/audio.js"></script>
   <script src="../shared/video/orient.js"></script>
   <script src="../shared/video/random-edit.js"></script>
   <script src="../shared/video/lane-view.js"></script>
@@ -82,6 +96,7 @@
   <script src="js/items.js"></script>
   <script src="js/preview.js"></script>
   <script src="js/drop.js"></script>
+  <script src="js/audio.js"></script>
   <script src="js/export.js"></script>
   <script src="js/send.js"></script>
   <script src="js/ui.js"></script>

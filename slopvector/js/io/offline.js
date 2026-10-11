@@ -39,10 +39,11 @@
       return Promise.all(jobs.map(function (j) { return fetchText(j.url).then(function (t) { j.text = t; }); })).then(function () {
         jobs.forEach(function (j) {
           var rep;
-          if (j.kind === 'css' || j.kind === 'js') rep = IO.inlineTag(j.kind === 'css' ? 'style' : 'script', j.text);
-          // keep data-app on the inlined theme.js, so the offline copy follows the app's own theme key
-          if (j.app) rep = rep.replace('<script>', '<script data-app="' + j.app + '">');
-          else rep = '<link rel="icon" href="data:image/svg+xml,' + encodeURIComponent(j.text) + '" type="image/svg+xml">';
+          if (j.kind === 'css' || j.kind === 'js') {
+            rep = IO.inlineTag(j.kind === 'css' ? 'style' : 'script', j.text);
+            // keep data-app on the inlined theme.js, so the offline copy follows the app's own theme key
+            if (j.app) rep = rep.replace('<script>', '<script data-app="' + j.app + '">');
+          } else rep = '<link rel="icon" href="data:image/svg+xml,' + encodeURIComponent(j.text) + '" type="image/svg+xml">';
           html = html.split(j.k).join(rep);
         });
         html = html.replace(/<meta charset="utf-8">/i, '<meta charset="utf-8">\n  <meta name="slop-vector-build" content="offline">');
