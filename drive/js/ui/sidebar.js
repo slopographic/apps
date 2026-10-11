@@ -23,9 +23,11 @@
       const kids = DR.children(parent).folders.sort(DR.SORTS.name);
       for (const f of kids) {
         const open = S.tree.has(f.id), has = DR.hasSubfolders(f.id), on = S.section === 'folder' && S.cwd === f.id;
+        const app = DR.appOfFolder(f);
         const tw = el('span', { class: 'twisty' + (has ? '' : ' none') + (open ? ' open' : ''), 'aria-hidden': 'true' }, DR.icon('chev'));
-        const b = el('button', { type: 'button', class: 'node' + (on ? ' on' : ''), role: 'treeitem', 'aria-expanded': has ? String(open) : null, 'aria-selected': String(on),
-          'data-drop': f.id, 'data-key': 'd:' + f.id, style: `--d:${depth}`, title: f.name }, tw, DR.icon('folder'), el('span', { class: 'nm' }, f.name), f.starred ? DR.icon('star', 'ic st') : '');
+        const b = el('button', { type: 'button', class: 'node' + (on ? ' on' : '') + (app ? ' app' : ''), role: 'treeitem', 'aria-expanded': has ? String(open) : null, 'aria-selected': String(on),
+          'data-drop': f.id, 'data-key': 'd:' + f.id, 'data-app': app ? app.id : null, style: `--d:${depth}`, title: app ? `${f.name} (${app.name} keeps its files here)` : f.name },
+          tw, DR.icon('folder'), el('span', { class: 'nm' }, f.name), f.starred ? DR.icon('star', 'ic st') : '');
         tw.addEventListener('click', (e) => { e.stopPropagation(); if (open) S.tree.delete(f.id); else S.tree.add(f.id); DR.savePrefs(); DR.renderTree(); });
         b.addEventListener('click', () => { DR.go(f.id); closeDrawer(); });
         box.append(b);

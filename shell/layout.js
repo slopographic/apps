@@ -105,6 +105,14 @@
     return out;
   }
 
+  /** Dissolve a folder: its apps take its place at the top level. */
+  function ungroup(items, folderId) {
+    const out = clone(items);
+    const f = out.findIndex((it) => it.k === 'folder' && it.id === folderId);
+    if (f >= 0) out.splice(f, 1, ...out[f].apps.map((id) => ({ k: 'app', id })));
+    return out;
+  }
+
   function rename(items, folderId, name) {
     const out = clone(items);
     const f = out.find((it) => it.k === 'folder' && it.id === folderId);
@@ -125,5 +133,5 @@
     try { localStorage.setItem(KEY, JSON.stringify({ v: 1, data: { items: clone(items) } })); return true; } catch (e) { return false; }
   }
 
-  window.SlopLayout = { KEY, keyOf, defaults, normalize, combine, reorder, moveOut, rename, lift, read, write, newId, clone };
+  window.SlopLayout = { KEY, keyOf, defaults, normalize, combine, reorder, moveOut, rename, ungroup, lift, read, write, newId, clone };
 })();
