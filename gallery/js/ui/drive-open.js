@@ -2,8 +2,8 @@
  *  image, video     → the Gallery viewer for Drive files (ui/drive-viewer.js)
  *  audio            → the audio strip under the grid, which plays the file in place
  *  model3d          → Slop 3D (SlopHub.sendTo, the file's Drive id)
- *  document, code   → the app that takes the file: the registry's accepts (SlopHub.appsAccepting), a specific MIME
- *                     pattern before a wildcard, tools never. A code or text file with no app of its own opens as text/plain.
+ *  document, code   → the app that takes the file, by the Drive's rule: the registry's accepts (SlopHub.appsAccepting), a
+ *                     specific MIME pattern before a wildcard, tools never (so a .js file goes to the app that takes text/*).
  *  archive, other   → the same app rule; if no app takes the file, a note says so.
  * Apps open the file from Slop Drive by id (SlopHub.sendTo), so nothing is copied. sendTo runs before any await, so the
  * new tab opens inside the click. Exposes window.SlopGallery.driveOpen. */
@@ -30,8 +30,7 @@
   /** Opens a file in the app that takes it. */
   function inApp(item) {
     if (!item || !H()) return;
-    let app = appFor(item.type);
-    if (!app && item.kind === 'code') app = appFor('text/plain');
+    const app = appFor(item.type);
     if (!app) {
       const ext = window.SlopKinds.extOf(item.name);
       toast(`No Slop app opens ${ext ? '.' + ext : 'this kind of'} files. Open it in Slop Drive.`);

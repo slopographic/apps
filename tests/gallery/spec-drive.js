@@ -163,10 +163,10 @@
       await useDrive(LIST);
       D.querySelector('.dtile[data-id="img1"]').click();
       await waitFor(() => !D.querySelector('.dviewer').hidden && D.querySelector('.dviewer .spv'), { timeout: 8000 });
-      expect(D.querySelector('.dviewer .v-count').textContent).toMatch(/^1 \/ 2 · holiday\.png$/);
+      expect(D.querySelector('.dviewer .v-count').textContent).toMatch(/^2 \/ 2 · holiday\.png$/);
       D.querySelector('.dviewer [data-act="next"]').click();
       await waitFor(() => D.querySelector('.dviewer video'), { timeout: 8000 });
-      expect(D.querySelector('.dviewer .v-count').textContent).toMatch(/^2 \/ 2 · clip\.mp4$/);
+      expect(D.querySelector('.dviewer .v-count').textContent).toMatch(/^1 \/ 2 · clip\.mp4$/);
       D.querySelector('.dviewer [data-act="close"]').click();
       expect(D.querySelector('.dviewer').hidden).toBe(true);
     });
@@ -186,11 +186,11 @@
       D.querySelector('.dtile[data-id="doc1"]').click();
       expect(sent).toEqual([{ appId: 'pdf', name: 'invoice.pdf', id: 'doc1' }]);
     });
-    it('a .js file opens as text, in the app that takes plain text', async () => {
+    it('a .js file opens in the app the Drive rule picks (Slop AI takes text/*)', async () => {
       await boot();
       await useDrive(LIST);
       D.querySelector('.dtile[data-id="js1"]').click();
-      expect(sent).toEqual([{ appId: 'docs', name: 'app.js', id: 'js1' }]);
+      expect(sent).toEqual([{ appId: 'ai', name: 'app.js', id: 'js1' }]);
     });
     it('a .glb opens in Slop 3D', async () => {
       await boot();
