@@ -28,23 +28,22 @@ function build() {
   const m = el('div', 'sloppo', { hidden: '' });
   m.style.width = CW + 'px';
   m.style.height = CH + 'px';
-  const canvas = el('canvas', 'sloppo-canvas', { 'aria-hidden': 'true' });
   const stars = el('div', 'sloppo-stars', { 'aria-hidden': 'true' });
   stars.innerHTML = '<i>✦</i><i>✦</i><i>✦</i>';
   const bubble = el('div', 'sloppo-say', { role: 'status', 'aria-live': 'polite' });
   const hit = el('div', 'sloppo-hit', { role: 'button', tabindex: '0', 'aria-label': 'Sloppo the mascot. Press to pet him, or drag to throw him.' });
-  m.append(canvas, stars, bubble, hit);
+  const svg = setup(m);
+  m.append(stars, bubble, hit);
   layer.append(m);
   document.body.append(layer);
-  Object.assign(M, { layer, el: m, canvas, hit, bubble, stars });
-  setup(canvas);
+  Object.assign(M, { layer, el: m, svg, hit, bubble, stars });
 }
 
 /** Size the hit box and dizzy stars to his body (he grows with each level). */
 function fit() {
   const s = size();
-  Object.assign(M.hit.style, { left: CW / 2 - s * 0.62 + 'px', top: BASE - s * 1.02 + 'px', width: s * 1.24 + 'px', height: s * 1.08 + 'px' });
-  Object.assign(M.stars.style, { top: BASE - s * 1.05 + 'px', width: s * 1.1 + 'px', marginLeft: -s * 0.55 + 'px' });
+  Object.assign(M.hit.style, { left: CW / 2 - s * 0.62 + 'px', top: BASE - s * 1.16 + 'px', width: s * 1.24 + 'px', height: s * 1.18 + 'px' });
+  Object.assign(M.stars.style, { top: BASE - s * 1.2 + 'px', width: s * 1.1 + 'px', marginLeft: -s * 0.55 + 'px' });
 }
 
 /* ---------- idle chatter ---------- */

@@ -12,7 +12,7 @@ export const M = {
   rage: 0, raging: 0, rageChaos: false, // rage meter (0..3) and when RAGE ends (ms)
   is3d: false,
   xp: 0, level: 1, hat: null,
-  layer: null, el: null, canvas: null, hit: null, bubble: null,
+  layer: null, el: null, svg: null, hit: null, bubble: null,
 };
 
 const mq = matchMedia('(prefers-reduced-motion: reduce)');

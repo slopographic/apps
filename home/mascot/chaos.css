@@ -1,8 +1,8 @@
 /* Sloppo's chaos and rage effects (home/mascot/). Loaded after mascot.css. */
 
 /* RAGE: red tint, shaking, steam */
-.sloppo.is-rage .sloppo-canvas {
-  filter: hue-rotate(-88deg) saturate(1.8) drop-shadow(0 0 12px rgba(255, 40, 40, .85));
+.sloppo.is-rage .sloppo-svg {
+  filter: drop-shadow(0 0 12px rgba(255, 40, 40, .85));
   animation: sloppo-shake .09s linear infinite;
 }
 .sloppo.is-rage .sloppo-3d { animation: sloppo-shake .09s linear infinite; }
@@ -20,7 +20,7 @@
 
 /* 3D mode: the WebGL canvas replaces the painted one */
 .sloppo-3d { position: absolute; inset: 0; pointer-events: none; }
-.sloppo.is-3d .sloppo-canvas { display: none; }
+.sloppo.is-3d .sloppo-svg { display: none; }
 
 /* goo blasts */
 .sloppo-ball {
@@ -62,5 +62,5 @@
 .sh-3d[aria-pressed="true"] { background: var(--bone); color: var(--ink); border-color: var(--bone); }
 
 @media (prefers-reduced-motion: reduce) {
-  .sloppo.is-rage .sloppo-canvas, .sloppo.is-rage .sloppo-3d, .sloppo-burn, .sloppo-hole .bh-ring, .sh-rage.full i { animation: none; }
+  .sloppo.is-rage .sloppo-svg, .sloppo.is-rage .sloppo-3d, .sloppo-burn, .sloppo-hole .bh-ring, .sh-rage.full i { animation: none; }
 }

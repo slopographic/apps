@@ -175,6 +175,8 @@
     opts = opts || {};
     var L = PDFLib, st = E.state, pages = opts.pages || st.pages;
     if (!pages.length) throw new Error('There are no pages to export.');
+    var pend = SP.redact ? SP.redact.pending(pages).length : 0;
+    if (pend) throw new Error(pend + ' area' + (pend === 1 ? ' is' : 's are') + ' marked for redaction but not redacted yet. Open Redact and choose “Apply redactions”, or remove the marks.');
     await E.initFonts();
     var out = await L.PDFDocument.create({ updateMetadata: false });
     var need = new Map();
@@ -211,6 +213,8 @@
       if (opts.onProgress && k % 8 === 0) { opts.onProgress(++step / steps); await U.sleep(0); }
     }
     placed.forEach(function (x) { fixLinks(out, x[0], x[1], firstOut); });
+    var redacted = pages.some(function (p) { return p.redacted; });
+    out.getPages().forEach(function (pg) { E.stripPageExtras(pg); if (redacted) E.pruneXObjects(out, pg); });
     if (!st.flattenForms) rebuildAcroForm(out, srcDocs);
     if (opts.meta !== false) E.applyMeta(out);
     E._gc(out);
