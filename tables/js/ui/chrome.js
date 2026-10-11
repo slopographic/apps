@@ -1,5 +1,5 @@
 /* The parts around the grid: toolbar state, name box, formula bar, status bar and the file name. */
-import { S, $, range, redraw, toast } from './state.js';
+import { S, $, range, redraw, toast, changed } from './state.js';
 import { canUndo, canRedo } from './history.js';
 import { activeStyle, stats } from './actions.js';
 import { syncBar } from './editor.js';
@@ -23,7 +23,7 @@ export function init() {
   const nf = $('nf');
   nf.replaceChildren(...NUMBER_FORMATS.map(([label, code]) => new Option(label, code)));
   const title = $('fileName');
-  title.addEventListener('change', () => { S.file.name = title.value.trim() || 'Untitled spreadsheet'; S.file.dirty = true; redraw(); });
+  title.addEventListener('change', () => { S.file.name = title.value.trim() || 'Untitled spreadsheet'; changed(); }); // the tab takes the new name
   title.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); title.blur(); } });
 }
 

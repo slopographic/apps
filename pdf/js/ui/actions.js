@@ -125,13 +125,14 @@
       var at = opts.at == null ? E.state.pages.length : opts.at, wasEmpty = !E.state.pages.length;
       if (wasEmpty && firstFile) { var md = await E.readMeta(firstFile); if (md) E.state.meta = md; }
       E.commit(wasEmpty ? 'Open ' + (files.length > 1 ? files.length + ' files' : files[0].name) : 'Add pages', function (st) { E.ops.insert(st, at, newPages); });
-      for (var oi = 0; oi < opened.length; oi++) await SP.editLog.offer(opened[oi]); // saved edits from an earlier session
       if (!S.fileNameTouched) S.els.fileName.value = E.files.size > 1 ? 'merged.pdf' : U.safeName(U.baseName(firstFile.name) + '-edited', 'pdf');
       if (!wasEmpty) { O.setSelection(newPages.map(function (p) { return p.id; }), newPages[0].id); O.reveal(newPages[0].id); }
       A.announce('Added ' + newPages.length + ' page' + (newPages.length === 1 ? '' : 's'));
       S.els.restore.hidden = true;
     }
     if (errors.length) SlopUI.alert(errors.length > 1 ? 'Some files could not be opened' : 'Could not open file', h('div', null, errors.map(function (e) { return h('p', { class: 'sui-p' }, e); })));
+    // saved edits from an earlier session, asked once the files are open
+    for (var oi = 0; oi < opened.length; oi++) await SP.editLog.offer(opened[oi]);
   };
   A.loadSample = async function () {
     S.busy('Mixing a fresh batch of goo…', 0.3);

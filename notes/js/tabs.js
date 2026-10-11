@@ -7,7 +7,7 @@ import * as store from './store.js';
 import { S, byId } from './state.js';
 
 const MD = 'text/markdown';
-let api = null, session = null, redraw = () => {}, restoring = false, quiet = 0;
+let api = null, session = null, redraw = () => {}, restoring = false, quiet = 0, wantNew = 0;
 
 const toast = (m) => { if (window.SlopUI) SlopUI.toast(m); };
 const noteOf = (T) => (T && T.id ? byId(S.notes, T.id) : null);
@@ -39,8 +39,9 @@ function quietly(fn) {
 
 const adapter = {
   newDoc() {
+    // Only New note creates a Drive record. A blank tab from + or from closing the last note tab stays empty.
     const T = { id: null, creating: false, ready: null };
-    if (restoring || quiet) return T;
+    if (restoring || quiet || !wantNew) return T;
     T.creating = true;
     T.ready = newRecord().then((n) => {
       T.id = n.id;
@@ -108,11 +109,13 @@ export function openNote(id) {
   api.openDoc({ id, creating: false, ready: null }, { driveId: id });
   if (blank) quietly(() => api.close(blank));
 }
-/** New note: a new Drive record in a new tab. */
+/** New note: a new Drive record in a new tab (a blank tab it replaces is closed). */
 export function newNoteTab() {
   if (!api) return null;
   const blank = api.current() && isBlank(api.current()) ? api.current() : null;
-  const entry = api.newTab();
+  wantNew++;
+  let entry;
+  try { entry = api.newTab(); } finally { wantNew--; }
   if (blank) quietly(() => api.close(blank));
   return entry;
 }
