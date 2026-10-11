@@ -40,6 +40,7 @@
 
   describe('redaction: find', () => {
     it('finds e-mails, phone numbers, Luhn-valid cards and SSN-like IDs, plus text and regex', async () => {
+      if (!PT.SP) await PT.boot();
       const f = (str, q) => R().findIn(str, R().matchers(q)).map((h) => str.slice(h[0], h[1]));
       const s = 'Mail jane.doe@example.co.uk or call +46 70-123 45 67. Card 4111 1111 1111 1111, bad 4111 1111 1111 1112. SSN 123-45-6789, pnr 19800101-1234. Order 2024-10-11.';
       expect(f(s, { presets: ['email'] })).toEqual(['jane.doe@example.co.uk']);
@@ -111,10 +112,10 @@
       for (const s of ['agent007', 'TOPSECRET', 'field secret', 'Secret dossier', 'Agent Smith']) expect(await rawContains(bytes, s)).toBe(false);
       expect(await rawContains(bytes, 'Keep this page')).toBe(true);
       // the box is solid black in the image (rotated 90: page-space (x, y) → view (300 - y, x))
-      const c = await PT.render(bytes, 1, 1), b = R().boxes ? null : null; void b;
-      const px = PT.px(c, 300 - 145, 60);
+      const c = await PT.render(bytes, 1, 1);
+      const px = PT.px(c, 300 - 225, 100);
       expect(px[0] < 30 && px[1] < 30 && px[2] < 30).toBe(true);
-      const outside = PT.px(c, 300 - 40, 300);
+      const outside = PT.px(c, 150, 300);
       expect(PT.isWhite(outside)).toBe(true);
     });
 

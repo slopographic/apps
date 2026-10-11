@@ -1,7 +1,7 @@
 // XP, levels and hats. XP lives in localStorage; level = 1 + floor(sqrt(xp / 8)).
 const KEY = 'slop.mascot.v1';
 
-/** One new hat per level, in unlock order (names from shared/sloppo/hats.js). */
+/** One new hat per level, in unlock order (drawn in hats.js). */
 export const HAT_ORDER = ['sprout', 'party', 'beanie', 'bow', 'headphones', 'cowboy', 'chef', 'pirate', 'tophat',
   'viking', 'wizard', 'ninja', 'knight', 'gradcap', 'propeller', 'catears', 'halo', 'crown'];
 const LABEL = {

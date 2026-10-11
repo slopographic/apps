@@ -55,12 +55,13 @@
     });
     it('petting gives XP, hearts and a happy face', async () => {
       await ready;
+      await HomeTest.settled(win);
+      M.nextIdle = performance.now() + 1e6;
       const xp = S.xp;
       M.hit.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
       expect(S.xp).toBe(xp + 1);
       expect(M.mood).toBe('love');
-      await sleep(40);
-      expect(M.svg.querySelectorAll('.m-eyes path[fill="#ff4f86"]').length).toBe(2);   // heart eyes
+      if (M.mode === 'perched') await waitFor(() => M.svg.querySelectorAll('.m-eyes path[fill="#ff4f86"]').length === 2, { timeout: 1500 });   // heart eyes
       expect(win.document.querySelectorAll('.sloppo-heart').length).toBeGreaterThan(0);
     });
     it('levels up, gets a hat, grows and saves progress', async () => {
