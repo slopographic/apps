@@ -139,15 +139,17 @@
       NSI.invoices.saveDraft = async (form) => { await sleep(700); return realSave(form); };
       try {
         NSI.views.edit.onShow(null);
-        await until(() => $('#ePage .paper') && saveButton(), 'the new invoice page');
+        await until(() => button('Save draft'), 'the new invoice page');   // a new invoice has no number yet, so its button says Save draft
         await until(() => $('#ePage .pe[data-edit="customer"]'), 'the customer on the page');
         $('#ePage .pe[data-edit="customer"]').click();
         const sel = await until(() => $('#ePage select.pe-input'), 'the customer select');
         sel.value = customerId;
         sel.dispatchEvent(new Event('change', { bubbles: true }));
         await sleep(60);
-        saveButton().click();
-        saveButton().click();
+        await editOnPage('#ePage .pe[data-edit="description"][data-index="0"]', 'Sprocket');
+        await editOnPage('#ePage .pe[data-edit="unitPrice"][data-index="0"]', '5.00');
+        button('Save draft').click();
+        button('Save draft').click();
         await sleep(2500);
       } finally {
         NSI.invoices.saveDraft = realSave;

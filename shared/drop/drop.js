@@ -42,9 +42,10 @@
     if (!zone) return null; // the page has no drop zone: nothing to attach, and no error
     o = o || {};
     const rules = o.accept || {};
-    // A target that is missing from this page (a page without that element) is skipped, never an error.
-    const targets = ((o.targets && o.targets.length ? o.targets : [zone]) || []).filter(Boolean);
-    if (!targets.length) return;
+    // A target that is missing from this page (a page without that element, a null from $('id')) is skipped, never an
+    // error. When none is left, the zone itself takes the drops, so the zone still works.
+    const listed = (o.targets || []).filter(Boolean);
+    const targets = listed.length ? listed : [zone];
     const limit = o.limit || Infinity;
     const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint, compact: o.compact });
     const input = o.input || doc.createElement('input');
