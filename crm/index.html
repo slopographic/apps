@@ -62,6 +62,8 @@
           <button type="button" class="btn" id="cImport">Import from Slop Contacts</button>
         </div>
         <p class="note" id="cSummary" role="status"></p>
+        <div class="bulk" id="cBulk" role="region" aria-label="Bulk actions" hidden></div>
+        <label class="sel-head"><input type="checkbox" id="cSelAll"> <span>Select all shown</span></label>
         <ul class="list" id="cRows" role="list" aria-label="Customers"></ul>
         <p class="empty" id="cEmpty" hidden></p>
       </section>
@@ -103,6 +105,7 @@
   <script src="js/core/contacts-import.js"></script>
   <script src="js/ui/menu.js"></script>
   <script src="js/ui/board.js"></script>
+  <script src="js/ui/bulk.js"></script>
   <script src="js/ui/list.js"></script>
   <script src="js/ui/detail.js"></script>
   <script src="js/ui/form.js"></script>

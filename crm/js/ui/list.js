@@ -16,6 +16,8 @@
   function row(c) {
     const sub = [c.email, c.phone].filter(Boolean).join(' · ') || 'No contact details';
     return el('li', { class: 'row', role: 'listitem', 'data-id': c.id, 'data-name': c.name, 'data-stage': c.stage },
+      el('input', { type: 'checkbox', class: 'row-check', 'data-id': c.id, 'aria-label': `Select ${c.name}`,
+        checked: NS.selection.has(c.id), onchange: (e) => NS.bulk.toggle(c.id, e.target.checked) }),
       el('button', { type: 'button', class: 'row-open', onclick: () => NS.app.show('customer', c.id) },
         el('b', null, c.name), el('span', { class: 'row-sub' }, sub),
         c.categories && c.categories.length ? el('span', { class: 'chips' }, c.categories.map((t) => el('span', { class: 'chip' }, t))) : null),
@@ -38,12 +40,14 @@
     fillCategories($('cCat'), NS.customers.categoriesOf(all));
     const list = filter(all, { q: $('cSearch').value, stage: $('cStage').value, cat: $('cCat').value });
     $('cRows').replaceChildren(...list.map(row));
+    NS.bulk.update(all, list);
     $('cEmpty').hidden = list.length > 0;
     $('cEmpty').textContent = all.length ? 'No customers match these filters.' : 'No customers yet. Add one, or import your contacts from Slop Contacts.';
     $('cSummary').textContent = `${list.length} of ${all.length} customer${all.length === 1 ? '' : 's'}`;
   }
 
   function mount() {
+    NS.bulk.mount();
     for (const id of ['cSearch']) $(id).addEventListener('input', render);
     for (const id of ['cStage', 'cCat']) $(id).addEventListener('change', render);
     $('cStage').replaceChildren(el('option', { value: '' }, 'All stages'), ...NS.STAGES.map((s) => el('option', { value: s }, NS.stageLabel(s))));
