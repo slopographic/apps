@@ -100,3 +100,50 @@ snapshots), `bridge-frame.html`, `panel-page.html` (a pretend app with a stub Sl
 ## Slop Drive (shared storage)
 
 - **Save chat to Slop Drive (Ctrl+S)** writes the conversation JSON (the Import format) back to the Drive file it was opened from (`conv.driveId`, via `SlopHub.update`). The first save asks for a folder. `More ▸ Open a chat from Slop Drive…` opens a JSON chat and links it. Attach ▸ From Slop Drive and the `?drive=` launch (text attached to a chat) are unchanged. Code: `js/ui/drive.js`.
+
+## Workspace (apps beside the chat)
+
+Control apps can open a Slopographic app in a **panel beside the chat** (`js/ui/workspace.js`, `css/workspace.css`,
+`window.SlopWorkspace`). The chat is the left column; each open app gets a tab (switch, × to close, "Open in new tab ↗").
+Hiding the panel (×) keeps the frames loaded. On a phone (≤ 760 px) the panel covers the chat. The panel is mounted by
+`js/app/main.js`, and the chat's tool set gets it through `AI.toolsFor` (`settings.js`). Without it (other callers of
+`K.appTools.build`) `open_app` opens a new tab as before.
+
+**Tools** (`shared/ai/apptools.js`, with `env.workspace`):
+- `open_app(id)`: opens the app in a frame, or focuses it. Only registry apps of kind `app`, same origin, and not Slop AI
+  itself are framed. A web address (`https://…`) as the id opens a new tab and is never framed. With `file`, the app
+  opens that Slop Drive file in a new tab, as before (frames do not take files).
+- `app_search(appId, query)`: up to ten commands of the app matching the words: `{ id, title, group, enabled }`.
+- `app_command(appId, commandId, args?)`: runs one command with `SlopCmd.run(id, { source: 'ai', args })` in the frame.
+  Returns `Ran “…” in …` or an error. `SlopCmd.run` returns only whether the command ran, not its own return value, and
+  SlopCmd catches errors inside a command (a toast in the frame), so a reply says "ran", not what it produced.
+- `app_state(appId)`: title, `drivable`, command count, and `state` when the app exposes the documented hook
+  `window.SlopAppState()` (it must return a plain object, e.g. `{ document: 'poster.svg', selection: 3 }`). No app
+  implements the hook yet, so the state is the title and command count, and the reply says so.
+
+**Guards**: unknown app → error. App not open → error ("call open_app first"). Frame still loading, or the app has no
+SlopCmd registry → wait up to 5 s, then error. Unknown command → error listing the nearest ids. Disabled command
+(its `when()` is false) → error. The model never gets a way to run JavaScript in a frame, and there is no DOM read.
+
+**Permissions**: the first command in each app asks once per page session (`SlopUI.confirm`, "Allow"). The answer is
+kept in memory only, so a reload asks again. Commands whose id or title contains delete, remove, clear, empty, reset,
+overwrite, purge, discard, erase or wipe always ask (the tool's `destructive` flag, through `K.tools.dispatch`).
+
+**Drivable apps** (checked at runtime: `SlopCmd.list()` without SlopCmd's own `cmd.*` entries): photoslop 236, vector 129,
+pdf 79, label 100, cutout 21, docs 27, tables 29, slides 37, press 154, slopedit 79, drive 48, contacts 26 commands.
+Every registry app except Slop AI itself can be driven. An app with no SlopCmd is only opened, and the reply says so.
+
+**Limits**
+- Cross-origin pages cannot be scripted. Websites are only opened in a new tab, never framed or driven.
+- Frames are same origin and have no `sandbox`, so the app runs as it does on its own page. The workspace does not add
+  a sandbox because the registry apps need same-origin access to their SlopCmd.
+- Apps without SlopCmd can only be opened, not driven. Adding a `window.SlopAppState` hook to an app gives the
+  assistant its document name and selection count without other changes.
+- Not yet: state summaries for the apps (no hook is implemented), files handed into a frame, a typed address bar in
+  the panel (the assistant opens websites for the person).
+
+**Tests**: `tests/ai/workspace.test.html` with `workspace.spec.js` (11 tests): the registry path for a frame, websites
+in a new tab and never framed (`window.open` stubbed), unknown apps rejected, a real command on Drive and its result,
+the first-command permission asked once, a no that is not remembered, the nearest ids for an unknown command, a
+destructive command asking every time (and not running on no), app_search and app_state, and a frame with no registry
+failing after the wait. `tests/ai/ui.test.html` now expects the Control apps tool to open the frame beside the chat.
