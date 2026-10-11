@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="en" data-theme="pro">
 <head>
+  <script>window.__SV_HTML_ATTRS = Array.prototype.map.call(document.documentElement.attributes, function (a) { return [a.name, a.value]; });</script>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="vector" data-src="shared/theme/theme.js"></script>
-<script src="../shared/consent/config.js"></script>
-<script src="../shared/consent/state.js"></script>
-<script src="../shared/consent/consent-mode.js"></script>
-<script src="../shared/consent/banner.js"></script>
+<script src="../shared/consent/config.js" data-offline="strip"></script>
+<script src="../shared/consent/state.js" data-offline="strip"></script>
+<script src="../shared/consent/consent-mode.js" data-offline="strip"></script>
+<script src="../shared/consent/banner.js" data-offline="strip"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>SlopVector — Slopographic</title>
@@ -26,14 +27,15 @@
     /* Keep a pristine copy of this page when running as the offline single-file build,
        so "Download App" can re-serialise itself without fetching anything. */
     window.__SV_PRISTINE = null;
-    window.__SV_THEME0 = document.documentElement.getAttribute('data-theme');
     document.addEventListener('DOMContentLoaded', function () {
       try {
         if (location.protocol === 'file:' || document.querySelector('meta[name="slop-vector-build"]')) {
           var c = document.documentElement.cloneNode(true);
-          c.setAttribute('data-theme', window.__SV_THEME0 || 'pro');
-          // drop nodes injected by scripts at load (Slop Hub's picker styles) so the copy is pristine
-          Array.prototype.forEach.call(c.querySelectorAll('head > style'), function (st) { if (/^\.hub-/.test(st.textContent)) st.remove(); });
+          // <html> gets the attributes it shipped with (theme.js sets its own on load, see __SV_HTML_ATTRS above)
+          Array.prototype.slice.call(c.attributes).forEach(function (a) { c.removeAttribute(a.name); });
+          (window.__SV_HTML_ATTRS || []).forEach(function (a) { c.setAttribute(a[0], a[1]); });
+          // drop nodes injected by scripts at load (theme styles, Slop Hub's picker styles) so the copy is pristine
+          Array.prototype.forEach.call(c.querySelectorAll('head > style'), function (st) { if (st.id === 'slop-theme-style' || /^\.hub-/.test(st.textContent)) st.remove(); });
           window.__SV_PRISTINE = '<!doctype html>\n' + c.outerHTML;
         }
       } catch (e) { /* ignore */ }
@@ -190,6 +192,6 @@
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js" data-offline="strip"></script>
   <script>window.SlopPWA && SlopPWA.mount();</script>
-  <script src="../shell/shell.js"></script>
+  <script src="../shell/shell.js" data-offline="strip"></script>
 </body>
 </html>

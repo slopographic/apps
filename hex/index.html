@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
+  <script src="../shared/theme/theme.js" data-app="hex" data-src="shared/theme/theme.js"></script>
+<script src="../shared/consent/config.js"></script>
+<script src="../shared/consent/state.js"></script>
+<script src="../shared/consent/consent-mode.js"></script>
+<script src="../shared/consent/banner.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Hex</title>
+  <meta name="description" content="Slop Hex: view and edit any file as bytes. Open from your computer or Slop Drive, save back to Slop Drive. Nothing uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/hex.css">
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/guard.js" defer></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="js/bytes.js"></script>
+  <script src="js/doc.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/actions.js"></script>
+  <script src="js/commands.js"></script>
+  <script src="js/main.js"></script>
+</head>
+<body>
+  <div class="hx-app" id="hx-app">
+    <header class="hx-top">
+      <div class="hx-brand"><span class="hx-logo" aria-hidden="true"></span><h1>Slop Hex</h1></div>
+      <div class="hx-name" id="hx-name" aria-live="polite"></div>
+      <div class="hx-tools" role="toolbar" aria-label="File">
+        <button type="button" class="sui-btn sui-primary" id="hx-open" title="Open a file from this computer (Ctrl+O)">Open</button>
+        <button type="button" class="sui-btn" id="hx-drive" title="Open a file from Slop Drive">Open from Drive</button>
+        <button type="button" class="sui-btn" id="hx-save" title="Save a new version to Slop Drive (Ctrl+S)">Save version</button>
+        <button type="button" class="sui-btn" id="hx-saveas" title="Save to Slop Drive as a new file">Save as new</button>
+        <button type="button" class="sui-btn" id="hx-dl" title="Download to this computer">Download</button>
+        <button type="button" class="sui-btn" id="hx-cmd" aria-label="Commands (search every command)">Commands</button>
+        <button type="button" class="sui-btn" id="hx-menu" aria-haspopup="menu">Menu</button>
+      </div>
+    </header>
+
+    <div class="hx-bar" role="toolbar" aria-label="Go to and find">
+      <form class="hx-go" id="hx-goform">
+        <input type="text" id="hx-goto" placeholder="Offset: 1234 or 0x4D2" aria-label="Go to offset" autocomplete="off" spellcheck="false">
+        <button type="submit" class="sui-btn">Go</button>
+      </form>
+      <form class="hx-find" id="hx-findform">
+        <select id="hx-mode" aria-label="Find as">
+          <option value="hex">Hex bytes</option>
+          <option value="text">Text</option>
+        </select>
+        <input type="text" id="hx-q" placeholder="4D 5A  or  text" aria-label="Find" autocomplete="off" spellcheck="false">
+        <button type="button" class="sui-btn" id="hx-prev" title="Find previous (Shift+F3)">Prev</button>
+        <button type="submit" class="sui-btn" id="hx-next" title="Find next (F3)">Next</button>
+      </form>
+      <span class="hx-status" id="hx-status" role="status" aria-live="polite"></span>
+    </div>
+
+    <dl class="hx-info" id="hx-info" hidden>
+      <div><dt>Size</dt><dd id="hx-size"></dd></div>
+      <div><dt>Type</dt><dd id="hx-type"></dd></div>
+      <div class="hx-wide"><dt>SHA-256</dt><dd><span id="hx-sha" class="hx-mono"></span> <button type="button" class="sui-btn hx-mini" id="hx-sha-btn" hidden>Recalculate</button></dd></div>
+      <div><dt>Selection</dt><dd id="hx-sel"></dd></div>
+    </dl>
+
+    <main class="hx-main" id="hx-main">
+      <div class="hx-empty" id="hx-empty">
+        <p class="hx-empty-t">Open any file to see its bytes.</p>
+        <p class="hx-empty-s">Drop a file here, open one from this computer, or pick one from Slop Drive. Nothing is uploaded.</p>
+        <div class="hx-empty-b">
+          <button type="button" class="sui-btn sui-primary" id="hx-open2">Open a file</button>
+          <button type="button" class="sui-btn" id="hx-drive2">Open from Slop Drive</button>
+        </div>
+      </div>
+      <div class="hx-scroll" id="hx-scroll" tabindex="0" role="region" aria-label="File bytes" hidden>
+        <div class="hx-spacer" id="hx-spacer"></div>
+        <div class="hx-rows" id="hx-rows"></div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
