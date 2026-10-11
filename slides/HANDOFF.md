@@ -1,6 +1,6 @@
 # Slop Slides: handoff
 
-Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the first version works end to end: you can make a deck, edit it, save it to Slop Drive, reopen it, present it, export PPTX, and keep decks as templates. `node tests/run.mjs slides` is green (97 tests, 6 pages).
+Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the first version works end to end: you can make a deck, edit it, save it to Slop Drive, reopen it, present it, export PPTX, and keep decks as templates. `node tests/run.mjs slides` is green (98 tests, 7 pages).
 
 ## Architecture
 - Classic scripts under `window.SS`. The load order is `js/manifest.js` (`SS_MANIFEST`: core, render, anim, io, ui). `index.html` writes its script tags from that list, so the manifest is the only list. Tests and the future offline build use it too.

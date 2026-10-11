@@ -60,6 +60,7 @@
       items.push({ label: 'Issue…', act: async () => { if (await UI.confirm('Issue invoice', 'Issue this invoice? It gets the next invoice number and is posted to the ledger. Issued invoices cannot be edited.', 'Issue')) run(NS.invoices.issue(x.id), 'Invoice issued'); } });
       items.push({ label: 'Delete draft…', act: async () => { if (await UI.confirm('Delete draft', 'Delete this draft? It has no number yet, so nothing else changes.', 'Delete', { danger: true })) run(NS.invoices.removeDraft(x.id), 'Draft deleted'); } });
     }
+    items.push({ label: 'Export PDF', act: () => NS.preview.pdf(x.id) });
     if (x.status === 'issued') {
       items.push({ label: 'Record payment…', act: () => NS.paymentDialog.open(x.id, () => draw()) });
       if (!x.paid) items.push({ label: 'Void…', act: async () => { if (await UI.confirm('Void invoice', `Void ${x.number}? The journal entry is reversed. The number stays used.`, 'Void', { danger: true })) run(NS.invoices.voidInvoice(x.id), `${x.number} voided`); } });
