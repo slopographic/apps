@@ -103,7 +103,7 @@
 }
 @media (prefers-reduced-motion: reduce) { .scmd-back, .scmd-pal, .scmd-recording { animation: none; } }
 
-/* Windows 98 (PhotoSLOP Classic "paint", Classic 98 "classic") */
+/* Windows 98 (PhotoSlop Classic "paint", Classic 98 "classic") */
 [data-theme="paint"] .scmd-back, [data-theme="classic"] .scmd-back { background: transparent; font: 11px Tahoma, "MS Sans Serif", sans-serif; color: #000; }
 [data-theme="paint"] .scmd-pal, [data-theme="classic"] .scmd-pal { background: #c0c0c0; color: #000; border: 0; border-radius: 0; padding: 3px; animation: none; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf, 2px 2px 0 rgba(0, 0, 0, .4); }
 [data-theme="paint"] .scmd-bar, [data-theme="classic"] .scmd-bar { margin: 2px 2px 4px; padding: 0 6px; background: #fff; border: 0; box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }

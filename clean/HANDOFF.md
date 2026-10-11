@@ -88,7 +88,7 @@ image editor before you share a picture.
 - On a picture in Slop Drive, the right-click menu has "Remove metadata…" (opens Slop Clean on the file through the usual Open in
   path, with `?drive=<id>`) and "Remove metadata now" (asks, listing what goes, then writes `<name> (clean).<ext>` next to the
   original). The details panel has a "Remove metadata…" button.
-- Slop Clean is a tool, not a default app: it never replaces Slop PhotoSLOP as the app that opens a picture by default.
+- Slop Clean is a tool, not a default app: it never replaces Slop PhotoSlop as the app that opens a picture by default.
   (`tool: true` in `shared/apps.js`; `drive/js/core/io.js` ranks tools below the exact-type apps.)
 
 ## Tests

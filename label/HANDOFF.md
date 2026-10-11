@@ -37,7 +37,7 @@ Status: **beta.** The designer works end to end in the browser: design, data mer
 | export.js | `jobScenes`, project open/save, `openFiles` (dispatch by type), PNG/SVG/PDF/ZPL quick export, ZPL import dialog, `zplPreviewCanvas` |
 | printdlg.js | Prompt values, Print dialog (records, quantity, copies, sheet start, page preview, all outputs), ZPL preview dialog |
 | form.js | Print-form mode (`#form=` + `encodeDocHash`) and "Share print form link…" |
-| hub.js | `SlopHub.register('label')`, `consumeLaunch` (image → placed; CSV/xlsx → data; .sloplabel/.zpl → opened), Slop Drive pickers, File → Send to (PDF to Slop PDF; PNG to PhotoSLOP and Slop Vector). Hidden under `file:` and in the offline build |
+| hub.js | `SlopHub.register('label')`, `consumeLaunch` (image → placed; CSV/xlsx → data; .sloplabel/.zpl → opened), Slop Drive pickers, File → Send to (PDF to Slop PDF; PNG to PhotoSlop and SlopVector). Hidden under `file:` and in the offline build |
 | menus.js | Menu bar: File, Edit, Insert, Object, Data, View (themes), Help |
 | boot.js | Toolbox, chrome wiring, drag and drop, boot order (form link → autosave → starter template → hub launch), adds `body.ready` |
 

@@ -6,12 +6,12 @@ Creative apps that run 100% in your browser: no installs, no accounts, no upload
 
 | Path | App |
 |---|---|
-| `/photoslop/` | **PhotoSLOP**: Photoshop-style editor (layers, masks, PSD, filters, brushes, guides). Classic MS Paint clone at `/photoslop/classic/` |
-| `/slopvector/` | **Slop Vector**: Illustrator-style vector editor (pen, shapes, type, pathfinder; SVG/PNG/PDF) |
+| `/photoslop/` | **PhotoSlop**: Photoshop-style editor (layers, masks, PSD, filters, brushes, guides). Classic MS Paint clone at `/photoslop/classic/` |
+| `/slopvector/` | **SlopVector**: Illustrator-style vector editor (pen, shapes, type, pathfinder; SVG/PNG/PDF) |
 | `/pdf/` | **Slop PDF**: organise, annotate, fill, sign and truly redact PDFs |
 | `/label/` | **SlopLabel**: barcode label designer (ZPL/EPL/TSPL, data merge, PDF) |
 | `/press/` | **Slop Press**: InDesign-style layout with print-ready PDF |
-| `/slopcut/` | **SlopEdit**: multi-track video editor with WebCodecs export |
+| `/slopcut/` | **SlopCut**: multi-track video editor with WebCodecs export |
 | `/drive/` | **Slop Drive**: the local drive every app shares, with one-file backup |
 | `/ai/` | **Slop AI**: chat with a model running on your own GPU |
 | `/slopisolate/`, `/docs/`, `/tables/`, `/slides/` | In development: background remover, word processor, spreadsheet, presentations |

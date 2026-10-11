@@ -1,4 +1,4 @@
-/* Slop Vector — menus, dialog bodies, colour picker */
+/* SlopVector — menus, dialog bodies, colour picker */
 /* ---------- menus: dropdowns and context menus are SlopUI menus (../shared/slopui.css) ---------- */
 .sui-menu.sv-dropdown { border-radius: 0 0 var(--radius) var(--radius); min-width: 236px; }
 

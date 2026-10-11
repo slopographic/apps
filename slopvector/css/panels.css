@@ -1,4 +1,4 @@
-/* Slop Vector — dock, panels, layers, swatches, gradient, status bar */
+/* SlopVector — dock, panels, layers, swatches, gradient, status bar */
 /* ---------- dock & panels ---------- */
 .dock { background: var(--bg-panel); border-left: 1px solid var(--border-dark); display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
 .dock-head { display: none; }

@@ -1,4 +1,4 @@
-/* Slop Vector — tools panel, document tabs, rulers, stage and overlay */
+/* SlopVector — tools panel, document tabs, rulers, stage and overlay */
 /* ---------- toolbar ---------- */
 .toolbar { background: var(--bg-panel); border-right: 1px solid var(--border-dark); display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 10px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; min-height: 0; }
 .tools { display: grid; grid-template-columns: repeat(2, 28px); gap: 2px; }

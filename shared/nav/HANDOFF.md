@@ -63,13 +63,13 @@ through untouched. Typing in an input, or a dialog being open, is never taken.
 
 `SlopNav.shortcutsFrom({ fit: 'Fit on Screen', ... })` reads the app's commands from SlopCmd by title. The
 modal reports a preset key that another command uses for a different action. The preset still wins while
-it is active. Same-action keys are not clashes (PhotoSLOP's Ctrl+0 and the Photoshop preset's Ctrl/⌘ 0).
+it is active. Same-action keys are not clashes (PhotoSlop's Ctrl+0 and the Photoshop preset's Ctrl/⌘ 0).
 
 ## Adoption
 
-- PhotoSLOP: `photoslop/js/app/nav-adapter.js` (attaches itself; `view.js` is unchanged). Edit ▸ Preferences ▸ Navigation…, command palette "Navigation preset…". Script tags and the stylesheet are in `photoslop/index.html`.
-- Slop Vector: `slopvector/js/ui/nav-adapter.js`. Edit ▸ Preferences ▸ Navigation…, and the command palette ("Navigation…", action `edit.nav`).
-- Not yet: Slop 3D, Cutout, Gallery viewer, Slides canvas, Label canvas, Press canvas, SlopEdit monitor, and Slop Paint Classic. Each needs one adapter file and its script tags.
+- PhotoSlop: `photoslop/js/app/nav-adapter.js` (attaches itself; `view.js` is unchanged). Edit ▸ Preferences ▸ Navigation…, command palette "Navigation preset…". Script tags and the stylesheet are in `photoslop/index.html`.
+- SlopVector: `slopvector/js/ui/nav-adapter.js`. Edit ▸ Preferences ▸ Navigation…, and the command palette ("Navigation…", action `edit.nav`).
+- Not yet: Slop 3D, Cutout, Gallery viewer, Slides canvas, Label canvas, Press canvas, SlopCut monitor, and Slop Paint Classic. Each needs one adapter file and its script tags.
 
 ## Store API (for the profile page)
 
@@ -85,6 +85,6 @@ The Settings page section should read and change presets through `SlopNav.store`
 
 - Profile hook: the per-app section under `shared/profile/` (SlopProfile) should call `SlopNav.store` (`get`, `setPreset`, `setCustom`) to show and change the preset, and `SlopNav.openModal(app)` for the full dialog.
 - Other apps listed under Adoption are not wired.
-- Touch pinch on PhotoSLOP and Vector runs through the engine only when `pinch` or `touchPan` is on. Other apps have not been tested on a touch screen.
+- Touch pinch on PhotoSlop and Vector runs through the engine only when `pinch` or `touchPan` is on. Other apps have not been tested on a touch screen.
 - The clash list compares the preset's keys with the keys the app's commands report through SlopCmd. Keys the app handles outside SlopCmd (e.g. raw key handlers) are not in that list.
 - Trackpad pinch is detected as a wheel event with Ctrl, which is how Chrome, Edge and Firefox report it. Safari's gesture events are not used.

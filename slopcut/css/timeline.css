@@ -1,4 +1,4 @@
-/* SlopEdit — timeline: toolbar, track headers, lanes canvas, splitter. */
+/* SlopCut — timeline: toolbar, track headers, lanes canvas, splitter. */
 .timeline { position: relative; display: flex; flex-direction: column; min-height: 0; background: var(--panel); border-top: 1px solid var(--line); }
 .tl-split { position: absolute; left: 0; right: 0; top: -4px; height: 8px; cursor: ns-resize; z-index: 3; touch-action: none; }
 .tl-split:hover { background: linear-gradient(transparent 3px, var(--accent-line) 3px, var(--accent-line) 5px, transparent 5px); }

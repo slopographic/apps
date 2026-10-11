@@ -1,4 +1,4 @@
-/* SlopEdit — tokens for the three themes (Pro, Light, Classic 98), base, layout, top bar and buttons. */
+/* SlopCut — tokens for the three themes (Pro, Light, Classic 98), base, layout, top bar and buttons. */
 :root {
   --ink: #0a0a0a; --bone: #f1ede4; --lime: #d4ff3a;
   --font-ui: 'Inter Tight', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;

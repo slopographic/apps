@@ -29,9 +29,9 @@ node tools/capture/render-promo.mjs --only h --from 0 --to 10   # a quick test r
   - After it, `__cap.tick(dt)` is the only thing that moves time: rAF callbacks, `performance.now`, `Date.now` and every Web Animation / CSS animation advance by exactly `dt`.
   - So a WebGL game on a slow software GPU still gives a smooth 30 fps clip. `setTimeout` still runs on real time.
 - A recipe (`recipes/games.mjs`, `apps.mjs`, `experiments.mjs`; helpers in `util.mjs`, Drive seed in `seed.mjs`) says how to drive one app:
-  - `mode: 'frames'` (default): `setup` → freeze → `warm` → still → per frame `frame(page, i)` + tick + screenshot. Used for games, canvases and anything slow to paint (PhotoSLOP's brush takes ~0.5 s per pointer move here, so strokes are drawn a point per frame with `strokeFrames`).
+  - `mode: 'frames'` (default): `setup` → freeze → `warm` → still → per frame `frame(page, i)` + tick + screenshot. Used for games, canvases and anything slow to paint (PhotoSlop's brush takes ~0.5 s per pointer move here, so strokes are drawn a point per frame with `strokeFrames`).
   - `mode: 'video'`: Playwright records the page in real time while `play(page, seconds)` works in it; the recording is trimmed to the play window. Used for DOM apps that run on timers (PDF, Label, Drive, the Authenticator).
-  - `shotAfter: true` takes the still after the clip (e.g. PhotoSLOP after the stroke is painted).
+  - `shotAfter: true` takes the still after the clip (e.g. PhotoSlop after the stroke is painted).
   - Apps without a recipe get `generic` (load, wait, film).
 - Clips: 5.6 s are captured and the last 0.6 s are cross-faded into the start (`xfade`), so the loop has no visible jump.
 
@@ -62,7 +62,7 @@ node tools/capture/render-promo.mjs --only h --from 0 --to 10   # a quick test r
   - `/promo/` plays live with sound, `?t=`, `?v=1` and `__promo.seek()`. Frames for both cuts were checked by eye.
 - **Half done.**
   - No shot or clip yet for 2100 and the Authenticator: the screenshot timed out while other jobs loaded the CPU, so re-run them alone. Also missing for tank, lighter, reel and paint-classic (the run was stopped), and for cutout, docs, tables and slides (no page yet).
-  - Re-capture `photoslop`, `vector`, `label` and `drive`. Their recipes were improved after the last run: smaller vector shapes, the PhotoSLOP still taken after the stroke, label drags, Drive thumbnails and real PDFs.
+  - Re-capture `photoslop`, `vector`, `label` and `drive`. Their recipes were improved after the last run: smaller vector shapes, the PhotoSlop still taken after the stroke, label drags, Drive thumbnails and real PDFs.
   - The promo has **not been rendered to MP4 yet**, so `assets/promo/` is empty. `render-promo.mjs` is written but has only been tried through single-frame peeks.
 - **Next steps, in order.**
   1. Recapture the missing and improved apps, alone on the machine (the video-mode recipes record in real time and need the CPU):
