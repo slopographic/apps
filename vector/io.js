@@ -736,6 +736,11 @@
 
   /* ================= offline self-download ================= */
   function fetchText(url) { return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(url + ' → HTTP ' + r.status); return r.text(); }); }
+  // Wrap code in an inline <style>/<script>, neutralising any closing tag inside it so the element can't end early.
+  IO.inlineTag = function (tag, code) {
+    var re = new RegExp('<\\/(' + tag + ')', 'gi');
+    return '<' + tag + '>\n' + String(code).replace(re, '<\\/$1') + '\n</' + tag + '>';
+  };
   IO.buildOfflineHTML = function () {
     var offline = location.protocol === 'file:' || !!document.querySelector('meta[name="slop-vector-build"]');
     if (offline) {
@@ -759,8 +764,7 @@
       return Promise.all(jobs.map(function (j) { return fetchText(j.url).then(function (t) { j.text = t; }); })).then(function () {
         jobs.forEach(function (j) {
           var rep;
-          if (j.kind === 'css') rep = '<style>\n' + j.text.replace(/<\/style/gi, '<\\/style') + '\n</style>';
-          else if (j.kind === 'js') rep = '<script>\n' + j.text.replace(/<\/script/gi, '<\\/script') + '\n</' + 'script>';
+          if (j.kind === 'css' || j.kind === 'js') rep = IO.inlineTag(j.kind === 'css' ? 'style' : 'script', j.text);
           else rep = '<link rel="icon" href="data:image/svg+xml,' + encodeURIComponent(j.text) + '" type="image/svg+xml">';
           html = html.split(j.k).join(rep);
         });

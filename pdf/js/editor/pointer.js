@@ -1,0 +1,161 @@
+/* Slop PDF — editor pointer input: drawing new annotations with each tool, and moving,
+   resizing or re-pointing existing ones (all committed as single undo steps). */
+(function () {
+  'use strict';
+  var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._;
+  /* ---------------------------------------------------------- interaction */
+  S.viewPt = function (e) { var r = S.pageEl.getBoundingClientRect(); return [(e.clientX - r.left) / Ed.zoom, (e.clientY - r.top) / Ed.zoom]; }
+  S.pagePt = function (e) { var c = S.ctx(), v = S.viewPt(e); return E.toPage(c.R, c.W, c.H, v[0], v[1]); }
+  Ed.cancelInteraction = function () {
+    if (S.act && S.act.orig) { var a = S.findAnnot(S.act.id); if (a) { Object.keys(a).forEach(function (k) { delete a[k]; }); Object.assign(a, S.act.orig); } }
+    S.act = null; S.draft = null; Ed.paint();
+  };
+  S.onDown = function (e) {
+    if (S.pinch || e.button > 0) return;
+    if (S.editing) { if (e.target === S.ta) return; S.finishText(true); }
+    var p = Ed.page(); if (!p) return;
+    var handle = e.target.closest('.handle'), hitG = e.target.closest('.annots [data-aid]');
+    var t = Ed.tool;
+    if (t === 'select') {
+      if (handle && Ed.selId) { e.preventDefault(); S.startEdit(e, handle.dataset.h); return; }
+      if (hitG) {
+        e.preventDefault();
+        var hid = hitG.getAttribute('data-aid'), now = Date.now();
+        // own double-click/double-tap detection (pointer capture swallows native dblclick)
+        if (S.lastTap && S.lastTap.id === hid && now - S.lastTap.t < 450) { S.lastTap = null; var ta0 = S.findAnnot(hid); if (ta0 && ta0.type === 'text') { Ed.select(hid); S.editing = { id: hid, isNew: false, before: ta0.text }; S.openTextEditor(ta0); return; } }
+        S.lastTap = { id: hid, t: now };
+        Ed.select(hid); S.startEdit(e, 'move'); return;
+      }
+      Ed.select(null);
+      S.startPan(e);
+      return;
+    }
+    e.preventDefault();
+    S.pageEl.setPointerCapture(e.pointerId);
+    var c = S.ctx(), d = Ed.defaults[t] || {}, pt = S.pagePt(e), vp = S.viewPt(e);
+    if (t === 'text') {
+      var a = Object.assign({ type: 'text', text: '', rot: c.R, cx: 0, cy: 0, w: 10, h: 10 }, Ed.defaults.text);
+      a.id = U.uid('a');
+      var tl = E.textLayout(Object.assign({}, a, { text: 'M' }));
+      E.setAnnotViewRect(a, { x: vp[0] - tl.pad, y: vp[1] - tl.h / 2, w: tl.w, h: tl.h }, c.R, c.W, c.H);
+      p.annots.push(a); // temporary until text is committed
+      S.editing = { id: a.id, isNew: true };
+      S.openTextEditor(a);
+      return;
+    }
+    if (t === 'pen' || t === 'marker') {
+      S.draft = Object.assign({ id: 'draft', type: t, pts: [pt] }, d);
+      S.act = { kind: 'draw', pid: e.pointerId };
+    } else if (t === 'line' || t === 'arrow') {
+      S.draft = Object.assign({ id: 'draft', type: t, pts: [pt, pt.slice()] }, d);
+      S.act = { kind: 'line', pid: e.pointerId };
+    } else {
+      S.draft = Object.assign({ id: 'draft', type: t, rot: c.R, cx: pt[0], cy: pt[1], w: 1, h: 1 }, d);
+      S.act = { kind: 'box', start: vp, pid: e.pointerId };
+    }
+    Ed.paint();
+    S.pageEl.addEventListener('pointermove', S.onMove);
+    S.pageEl.addEventListener('pointerup', S.onUp);
+    S.pageEl.addEventListener('pointercancel', S.onUp);
+  }
+  S.onMove = function (e) {
+    if (!S.act || S.pinch) return;
+    var c = S.ctx();
+    if (S.act.kind === 'draw') {
+      var pt = S.pagePt(e), last = S.draft.pts[S.draft.pts.length - 1];
+      if (Math.hypot(pt[0] - last[0], pt[1] - last[1]) * c.z > 1.5) S.draft.pts.push([U.round(pt[0], 2), U.round(pt[1], 2)]);
+    } else if (S.act.kind === 'line') {
+      var q = S.pagePt(e);
+      if (e.shiftKey) { var v0 = E.toView(c.R, c.W, c.H, S.draft.pts[0][0], S.draft.pts[0][1]), v1 = S.viewPt(e), ang = Math.round(Math.atan2(v1[1] - v0[1], v1[0] - v0[0]) / (Math.PI / 4)) * Math.PI / 4, len = Math.hypot(v1[0] - v0[0], v1[1] - v0[1]); q = E.toPage(c.R, c.W, c.H, v0[0] + Math.cos(ang) * len, v0[1] + Math.sin(ang) * len); }
+      S.draft.pts[1] = q;
+    } else if (S.act.kind === 'box') {
+      var v = S.viewPt(e), s = S.act.start, w = v[0] - s[0], h = v[1] - s[1];
+      if (e.shiftKey) { var m = Math.max(Math.abs(w), Math.abs(h)); w = Math.sign(w || 1) * m; h = Math.sign(h || 1) * m; }
+      E.setAnnotViewRect(S.draft, { x: Math.min(s[0], s[0] + w), y: Math.min(s[1], s[1] + h), w: Math.abs(w), h: Math.abs(h) }, c.R, c.W, c.H);
+    }
+    Ed.paint();
+  }
+  S.onUp = function () {
+    S.pageEl.removeEventListener('pointermove', S.onMove);
+    S.pageEl.removeEventListener('pointerup', S.onUp);
+    S.pageEl.removeEventListener('pointercancel', S.onUp);
+    if (!S.act || !S.draft) { S.act = null; S.draft = null; return; }
+    var a = S.draft, kind = S.act.kind; S.draft = null; S.act = null;
+    var c = S.ctx();
+    if (kind === 'box') {
+      var r = E.annotViewRect(a, c.R, c.W, c.H);
+      if (r.w < 4 && r.h < 4) { var dw = a.type === 'whiteout' || a.type === 'hlbox' ? 140 : 120, dh = a.type === 'whiteout' || a.type === 'hlbox' ? 28 : 80; E.setAnnotViewRect(a, { x: r.x - dw / 2, y: r.y - dh / 2, w: dw, h: dh }, c.R, c.W, c.H); }
+    }
+    if (kind === 'line') {
+      var l = Math.hypot(a.pts[1][0] - a.pts[0][0], a.pts[1][1] - a.pts[0][1]);
+      if (l < 3) { var v0 = E.toView(c.R, c.W, c.H, a.pts[0][0], a.pts[0][1]); a.pts[1] = E.toPage(c.R, c.W, c.H, v0[0] + 100, v0[1]); }
+    }
+    a.id = U.uid('a');
+    var names = { pen: 'Draw', marker: 'Highlight', rect: 'Add rectangle', ellipse: 'Add ellipse', line: 'Add line', arrow: 'Add arrow', whiteout: 'Add whiteout', hlbox: 'Add highlight' };
+    Ed.addAnnot(a, names[a.type]);
+    if (a.type === 'pen' || a.type === 'marker') { Ed.selId = null; Ed.paint(); }
+    else if (!(a.type === 'whiteout' || a.type === 'hlbox')) { Ed.tool = 'select'; S.pageEl.dataset.tool = 'select'; if (SP.app) SP.app.toolChanged(); }
+  }
+
+  /* move / resize / endpoints */
+  S.startEdit = function (e, h) {
+    var a = Ed.getSelected(); if (!a) return;
+    var c = S.ctx();
+    S.act = { kind: 'edit', h: h, id: a.id, orig: JSON.parse(JSON.stringify(a)), start: S.viewPt(e), r0: E.annotViewRect(a, c.R, c.W, c.H), moved: false };
+    S.pageEl.setPointerCapture(e.pointerId);
+    function mv(ev) {
+      if (!S.act || S.pinch) return;
+      var v = S.viewPt(ev), dx = v[0] - S.act.start[0], dy = v[1] - S.act.start[1];
+      if (!S.act.moved && Math.hypot(dx, dy) * c.z < 2) return;
+      S.act.moved = true;
+      var x = S.findAnnot(S.act.id); if (!x) return;
+      Object.keys(x).forEach(function (k) { delete x[k]; }); Object.assign(x, JSON.parse(JSON.stringify(S.act.orig)));
+      var r = S.act.r0, n = { x: r.x, y: r.y, w: r.w, h: r.h };
+      if (S.act.h === 'move') { n.x += dx; n.y += dy; E.setAnnotViewRect(x, n, c.R, c.W, c.H); }
+      else if (S.act.h === 'p1' || S.act.h === 'p2') { var k = S.act.h === 'p1' ? 0 : x.pts.length - 1; x.pts[k] = E.toPage(c.R, c.W, c.H, v[0], v[1]); }
+      else {
+        var hh = S.act.h;
+        if (/w/.test(hh)) { n.x = r.x + dx; n.w = r.w - dx; }
+        if (/e/.test(hh)) n.w = r.w + dx;
+        if (/n/.test(hh)) { n.y = r.y + dy; n.h = r.h - dy; }
+        if (/s/.test(hh)) n.h = r.h + dy;
+        var keep = x.type === 'text' || x.type === 'image' || ev.shiftKey;
+        if (keep && hh.length === 2) {
+          var k2 = Math.max(n.w / r.w, n.h / r.h, 0.05);
+          n.w = r.w * k2; n.h = r.h * k2;
+          if (/w/.test(hh)) n.x = r.x + r.w - n.w;
+          if (/n/.test(hh)) n.y = r.y + r.h - n.h;
+        }
+        if (n.w < 0) { n.x += n.w; n.w = -n.w; } if (n.h < 0) { n.y += n.h; n.h = -n.h; }
+        n.w = Math.max(n.w, 2); n.h = Math.max(n.h, 2);
+        if (x.type === 'text') {
+          var k3 = n.h / r.h; x.size = U.clamp(U.round(S.act.orig.size * k3, 1), 4, 400);
+          var t = E.textLayout(x), va = (((c.R - (x.rot || 0)) % 360) + 360) % 360;
+          var tw = va % 180 ? t.h : t.w, th = va % 180 ? t.w : t.h;
+          n = { x: /w/.test(hh) ? r.x + r.w - tw : r.x, y: /n/.test(hh) ? r.y + r.h - th : r.y, w: tw, h: th };
+        }
+        E.setAnnotViewRect(x, n, c.R, c.W, c.H);
+      }
+      Ed.paint();
+    }
+    function up() {
+      S.pageEl.removeEventListener('pointermove', mv); S.pageEl.removeEventListener('pointerup', up); S.pageEl.removeEventListener('pointercancel', up);
+      if (!S.act) return;
+      var x = S.findAnnot(S.act.id), A = S.act; S.act = null;
+      if (!x || !A.moved) { Ed.paint(); return; }
+      var fin = JSON.parse(JSON.stringify(x));
+      Object.keys(x).forEach(function (k) { delete x[k]; }); Object.assign(x, A.orig);
+      S.commitPage(A.h === 'move' ? 'Move annotation' : 'Resize annotation', function (p) { p.annots = p.annots.map(function (y) { return y.id === fin.id ? fin : y; }); });
+    }
+    S.pageEl.addEventListener('pointermove', mv); S.pageEl.addEventListener('pointerup', up); S.pageEl.addEventListener('pointercancel', up);
+  }
+  S.onDbl = function (e) {
+    // with pointer capture the dblclick targets the page, so fall back to the selection
+    var g = e.target.closest('.annots [data-aid]'), id = g ? g.getAttribute('data-aid') : Ed.selId;
+    if (!id || Ed.tool !== 'select') return;
+    var a = S.findAnnot(id);
+    if (a && a.type === 'text') { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); }
+  }
+  Ed.editSelectedText = function () { var a = Ed.getSelected(); if (a && a.type === 'text') { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); return true; } return false; };
+
+})();

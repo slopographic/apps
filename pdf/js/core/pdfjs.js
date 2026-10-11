@@ -1,0 +1,145 @@
+/* Slop PDF — pdf.js loading, opening (with password prompts), source-file registry and the thumbnail render queue. */
+(function () {
+  'use strict';
+  var SP = window.SP, U = SP.util, E = SP.engine;
+
+  /* ------------------------------------------------------------------ pdf.js */
+  var libP = null;
+  // Resolve vendor/ relative to this script (pdf/js/engine.js), so tests and other pages can load it too.
+  var SCRIPT_SRC = (document.currentScript && document.currentScript.src) || '';
+  E.vendorBase = function () { return SP.vendorBase || new URL(SCRIPT_SRC ? '../../../vendor/pdfjs/' : '../vendor/pdfjs/', SCRIPT_SRC || document.baseURI).href; };
+  E.pdfjs = function () {
+    if (!libP) {
+      libP = (async function () {
+        if (window.pdfjsLib) return window.pdfjsLib; // offline single-file build injects it
+        var base = E.vendorBase();
+        var lib = await import(base + 'pdf.min.js');
+        lib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js';
+        window.pdfjsLib = lib;
+        return lib;
+      })();
+      libP.catch(function () { libP = null; });
+    }
+    return libP;
+  };
+  E.docParams = function (data, password) {
+    var p = { data: data, isEvalSupported: false, enableXfa: false, useSystemFonts: true, verbosity: 0 };
+    if (password != null) p.password = password;
+    if (SP.offline) {
+      p.useWorkerFetch = false;
+      if (SP.offline.FontFactory) p.StandardFontDataFactory = SP.offline.FontFactory;
+    } else {
+      var base = E.vendorBase();
+      p.cMapUrl = base + 'cmaps/'; p.cMapPacked = true; p.standardFontDataUrl = base + 'standard_fonts/';
+    }
+    return p;
+  };
+  /** Opens bytes with pdf.js. askPassword(name, wrong) → Promise<string|null>. Resolves {doc, password}. */
+  E.openPdfjs = function (bytes, name, askPassword) {
+    return E.pdfjs().then(function (lib) {
+      return new Promise(function (resolve, reject) {
+        var last = '', task = lib.getDocument(E.docParams(bytes.slice()));
+        task.onPassword = function (update, reason) {
+          if (!askPassword) { var e0 = new Error('This PDF needs a password.'); e0.code = 'password'; task.destroy(); reject(e0); return; }
+          askPassword(name, reason === lib.PasswordResponses.INCORRECT_PASSWORD).then(function (pw) {
+            if (pw == null) { var e = new Error('Password entry cancelled.'); e.code = 'cancelled'; task.destroy(); reject(e); return; }
+            last = pw; update(pw);
+          });
+        };
+        task.promise.then(function (doc) { resolve({ doc: doc, password: last }); }, reject);
+      });
+    });
+  };
+  E.friendlyError = function (e, name) {
+    var n = e && e.name, msg = (e && e.message) || String(e);
+    if (e && e.code === 'cancelled') return null;
+    if (n === 'InvalidPDFException') return '“' + name + '” is not a valid PDF, or it is damaged beyond repair.';
+    if (n === 'MissingPDFException') return '“' + name + '” is empty.';
+    if (n === 'PasswordException') return '“' + name + '” needs the correct password.';
+    return '“' + name + '” could not be opened: ' + msg;
+  };
+
+  /* --------------------------------------------------------------- files */
+  /** Registers PDF bytes as a source file. Decrypts protected PDFs so they can be rewritten. */
+  E.registerPdf = async function (bytes, name, askPassword, opts) {
+    opts = opts || {};
+    var r = await E.openPdfjs(bytes, name, askPassword), doc = r.doc, finalBytes = bytes, locked = null, decrypted = false;
+    if (SP.decrypt.isEncrypted(bytes)) {
+      try {
+        var dec = await SP.decrypt.decryptPdf(bytes, r.password);
+        if (dec) {
+          var r2 = await E.openPdfjs(dec, name, null);
+          await doc.destroy(); doc = r2.doc; finalBytes = dec; decrypted = true;
+        }
+      } catch (e) { locked = e.message || 'Unsupported encryption'; console.warn('Slop PDF: could not remove encryption', e); }
+    }
+    var f = { id: opts.id || U.uid('f'), name: name, bytes: finalBytes, doc: doc, numPages: doc.numPages, color: opts.color || E.COLORS[E._colorIdx++ % E.COLORS.length], info: [], decrypted: decrypted, locked: locked, fields: undefined };
+    var n = doc.numPages, next = 0;
+    async function worker() {
+      while (next < n) { var i = next++; var pg = await doc.getPage(i + 1); f.info[i] = { view: pg.view.slice(), rotate: ((pg.rotate % 360) + 360) % 360 }; }
+    }
+    await Promise.all([worker(), worker(), worker(), worker()]);
+    E.files.set(f.id, f);
+    if (!opts.silent) E.emit('files');
+    return f;
+  };
+  E.readMeta = async function (f) {
+    try {
+      var md = await f.doc.getMetadata(), inf = (md && md.info) || {};
+      return { title: inf.Title || '', author: inf.Author || '', subject: inf.Subject || '', keywords: inf.Keywords || '' };
+    } catch (e) { return null; }
+  };
+
+  /* ---------------------------------------------------------- rendering */
+  var cache = new Map(), MAXCACHE = 600, queue = [], active = 0;
+  function pump() {
+    while (active < 3 && queue.length) {
+      var job = queue.pop(); // LIFO: most recently requested (visible) first
+      active++;
+      job.run().then(job.res, job.rej).finally(function () { active--; pump(); });
+    }
+  }
+  function schedule(run) { return new Promise(function (res, rej) { queue.push({ run: run, res: res, rej: rej }); pump(); }); }
+  E.renderToCanvas = async function (f, i, scale, canvas) {
+    var lib = await E.pdfjs(), pg = await f.doc.getPage(i + 1);
+    if (f.fields && f.fields.length) E.syncStorage(f);
+    var vp = pg.getViewport({ scale: scale, rotation: 0 });
+    canvas = canvas || document.createElement('canvas');
+    canvas.width = Math.max(1, Math.floor(vp.width)); canvas.height = Math.max(1, Math.floor(vp.height));
+    var ctx = canvas.getContext('2d', { alpha: false });
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    var task = pg.render({ canvasContext: ctx, viewport: vp, annotationMode: lib.AnnotationMode.ENABLE_STORAGE, annotationStorage: f.doc.annotationStorage });
+    canvas._task = task;
+    await task.promise;
+    return canvas;
+  };
+  E.bucket = function (px) { return px <= 200 ? 200 : px <= 320 ? 320 : px <= 480 ? 480 : px <= 720 ? 720 : 1000; };
+  /** Cached thumbnail object-URL for a page (unrotated raster). px = longest side in device px. */
+  E.thumbURL = function (p, px) {
+    if (p.blank) return Promise.resolve(null);
+    var f = E.files.get(p.f); if (!f) return Promise.resolve(null);
+    var b = E.bucket(px);
+    var key = f.id + ':' + p.i + ':' + b + ':' + E.formKey(f.id);
+    var hit = cache.get(key);
+    if (hit) { cache.delete(key); cache.set(key, hit); return hit.p; }
+    var g = E.geom(p), scale = b / Math.max(g.W, g.H);
+    var entry = { url: null };
+    entry.p = schedule(async function () {
+      var c = await E.renderToCanvas(f, p.i, scale);
+      var blob = await U.canvasToBlob(c, 'image/png');
+      entry.url = URL.createObjectURL(blob);
+      c.width = c.height = 0;
+      return entry.url;
+    });
+    entry.p.catch(function () { cache.delete(key); });
+    cache.set(key, entry);
+    while (cache.size > MAXCACHE) {
+      var k0 = cache.keys().next().value, e0 = cache.get(k0); cache.delete(k0);
+      if (e0 && e0.url) setTimeout(function (u) { URL.revokeObjectURL(u); }.bind(null, e0.url), 30000);
+    }
+    return entry.p;
+  };
+  E.dropCache = function (fid) {
+    Array.from(cache.keys()).forEach(function (k) { if (!fid || k.indexOf(fid + ':') === 0) { var e = cache.get(k); cache.delete(k); if (e && e.url) URL.revokeObjectURL(e.url); } });
+  };
+})();
