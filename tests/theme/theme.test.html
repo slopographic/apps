@@ -56,7 +56,7 @@
         expect(localStorage.getItem('slop-tables.theme')).toBe('"pro"');
         const home = await open('../../index.html');
         expect(attr(home, 'data-theme')).toBe('classic');
-        const vector = await open('../../vector/index.html');
+        const vector = await open('../../slopvector/index.html');
         expect(attr(vector, 'data-theme')).toBe('classic');
       } finally { closeAll(); clearStore(); }
     });

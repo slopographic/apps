@@ -55,7 +55,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 
 `files` are in play order. `overlays` may be empty.
 
-**SlopEdit side** (`slopedit/js/io/reel.js`, reached from `io/session.js` when the launch record is a manifest):
+**SlopEdit side** (`slopcut/js/io/reel.js`, reached from `io/session.js` when the launch record is a manifest):
 
 - Asks before replacing an open project, then starts a new project.
 - Imports the files one at a time, so the bin lists them in the manifest's order.
