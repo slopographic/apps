@@ -18,7 +18,7 @@
     rowsById = new Map(r.value.map((x) => [x.id, x]));
     $('oRows').replaceChildren(...r.value.map((x) => row(x, s)));
     $('oEmpty').hidden = r.value.length > 0;
-    $('oSummary').textContent = `${U.plural ? '' : ''}${r.value.length} order${r.value.length === 1 ? '' : 's'}`;
+    $('oSummary').textContent = `${r.value.length} order${r.value.length === 1 ? '' : 's'}`;
   }
 
   function row(x, s) {
