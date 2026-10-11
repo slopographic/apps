@@ -71,12 +71,13 @@
       key('i', { ctrlKey: true, code: 'KeyI' });
       expect(P.undoDepth()).toBe(0);
       expect(w.document.documentElement.dataset.theme).toBe('paint');
-      [...w.document.querySelectorAll('.mb-item')].find((b) => b.textContent === 'Help').click();
+      const openMenu = (name) => [...w.document.querySelectorAll('.mb-item')].find((b) => b.textContent === name).dispatchEvent(new w.PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 }));
+      openMenu('Help');
       const labels = [...w.document.querySelectorAll('.menu .mi')].map((b) => b.textContent);
       expect(labels.some((t) => t.startsWith('Search Commands'))).toBe(true);
       expect(labels.some((t) => t.startsWith('Keyboard Shortcuts'))).toBe(true);
       key('Escape');
-      [...w.document.querySelectorAll('.mb-item')].find((b) => b.textContent === 'Image').click();
+      openMenu('Image');
       expect([...w.document.querySelectorAll('.menu .mi')].find((b) => b.textContent.startsWith('Invert')).textContent).toContain('Ctrl+Shift+I');
       key('Escape');
       C.resetKeys(); f.remove();
