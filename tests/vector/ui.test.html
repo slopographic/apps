@@ -84,6 +84,67 @@
     });
   });
 
+  describe('context menus (Vector)', () => {
+    const ctxAt = (el) => { const r = el.getBoundingClientRect(); const ev = new W.MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 }); el.dispatchEvent(ev); return ev.defaultPrevented; };
+    const labels = () => [...doc().querySelectorAll('.sui-menu .sui-lbl')].map((x) => x.textContent);
+    const clickItem = (label) => { const row = [...doc().querySelectorAll('.sui-menu .sui-row')].find((r) => r.querySelector('.sui-lbl').textContent === label); expect(!!row).toBe(true); row.click(); };
+    const key = (el, k, shiftKey = false) => el.dispatchEvent(new W.KeyboardEvent('keydown', { key: k, shiftKey, bubbles: true, cancelable: true }));
+    const rowOf = (id) => doc().querySelector('.lrow[data-id="' + id + '"]');
+    it('layer rows open the layer menu, and its items act', () => {
+      blank(); W.SlopUI.closeMenu();
+      const L = SV.state.doc.layers[0];
+      expect(ctxAt(rowOf(L.id))).toBe(true);
+      expect(labels()).toContain('Rename…'); expect(labels()).toContain('Delete Layer');
+      const n = SV.state.doc.layers.length;
+      clickItem('New Layer');
+      expect(SV.state.doc.layers.length).toBe(n + 1);
+    });
+    it('Paste is not offered without a clipboard', () => {
+      W.SlopUI.closeMenu(); const saved = SV.state.clipboard; SV.state.clipboard = null;
+      try { UI.canvasMenu(200, 200); expect(labels()).not.toContain('Paste'); W.SlopUI.closeMenu(); }
+      finally { SV.state.clipboard = saved; }
+    });
+    it('a group row offers Select Group Contents', () => {
+      blank(); W.SlopUI.closeMenu();
+      const L = SV.state.doc.layers[0];
+      SV.select(L.children.slice(0, 2).map((o) => o.id)); SV.runAction('object.group');
+      const g = L.children.find((o) => o.type === 'group');
+      expect(!!g).toBe(true);
+      expect(ctxAt(rowOf(g.id))).toBe(true);
+      clickItem('Select Group Contents');
+      expect(SV.state.sel.length).toBe(2);
+    });
+    it('swatches: right-click, then Delete Swatch removes it', () => {
+      W.SlopUI.closeMenu();
+      const before = SV.swatches ? SV.swatches().length : null;
+      const sw = doc().querySelector('#swgrid .sw');
+      expect(ctxAt(sw)).toBe(true);
+      expect(labels()).toContain('Apply as Fill'); expect(labels()).toContain('Delete Swatch');
+      clickItem('Delete Swatch');
+      expect(doc().querySelectorAll('#swgrid .sw').length).toBe(before - 1);
+    });
+    it('dock tabs: the Collapse Group item collapses and expands the group', () => {
+      W.SlopUI.closeMenu();
+      const tab = doc().querySelector('.dock-tab'), gid = tab.parentNode.parentNode.id.replace(/^dg-/, '');
+      expect(ctxAt(tab)).toBe(true);
+      clickItem('Collapse Group');
+      expect(!!UI.st.collapsed[gid]).toBe(true);
+      expect(ctxAt(tab)).toBe(true);
+      clickItem('Expand Group');
+      expect(!!UI.st.collapsed[gid]).toBe(false);
+    });
+    it('the Menu key opens the focused layer row menu', () => {
+      W.SlopUI.closeMenu();
+      const eye = rowOf(SV.state.doc.layers[0].id).querySelector('.leye'); eye.focus();
+      key(eye, 'ContextMenu');
+      expect(labels()).toContain('Rename…');
+      W.SlopUI.closeMenu();
+      key(eye, 'F10', true);
+      expect(labels()).toContain('Lock');
+      W.SlopUI.closeMenu();
+    });
+  });
+
   describe('Slop Hub', () => {
     it('registers as "vector" against the shared app registry', () => {
       expect(W.SLOP_APPS.find((a) => a.id === 'vector').path).toBe('vector/');
