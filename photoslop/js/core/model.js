@@ -38,6 +38,9 @@ const listeners = new Set();
 function emit(what) { for (const f of listeners) f(what); }
 
 /* ---------- layers ---------- */
+/** Non-pixel layer data saved by autosave and in PSDs (block 'SLmd'): type, styles, fill/adjustment/shape layers, labels, clipping. */
+const LAYER_META = ['text', 'fx', 'fill', 'adj', 'shape', 'label', 'clip'];
+const layerMeta = (L) => { const o = {}; for (const k of LAYER_META) if (L[k] != null && L[k] !== false) o[k] = L[k]; return o; };
 function newLayerRecord(props) {
   return Object.assign({ id: uid(), name: 'Layer', canvas: mkCanvas(D.w, D.h), x: 0, y: 0, visible: true, opacity: 1, blend: 'normal', locked: false, mask: null, text: null }, props);
 }

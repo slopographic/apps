@@ -7,29 +7,25 @@ async function boxOf(page, sel, fb = { x: 200, y: 150, width: 800, height: 500 }
   const b = await page.locator(sel).first().boundingBox().catch(() => null);
   return b && b.width > 20 ? b : fb;
 }
+const rest = (page, s, t) => wait(page, Math.max(0, s * 1000 - (Date.now() - t)));
 const QUIET = ['.toast', '.toasts', '#toast', '.slop-toast', '.sui-toast', '.toast-wrap'];
 
 export default {
   photoslop: {
-    len: 5,
+    len: 5, shotAfter: true,
     async setup(page) {
       await until(page, () => document.body.classList.contains('ready'), null, 30000);
       await hide(page, QUIET);
       await wait(page, 800);
       await page.keyboard.press('b');
-      for (let i = 0; i < 6; i++) await page.keyboard.press(']');
-      const sw = page.locator('.swatch-grid .swatch:not(.add)');
-      await sw.nth(17).click();
-      await drag(page, curve(200, 420, 70, 90, 1.5, 14, 0.5, 0.6), { steps: 1 });
-      await sw.nth(22).click();
-      await drag(page, curve(860, 400, 60, 80, 1.5, 14, 2.5, 0.6), { steps: 1 });
-      await sw.nth(12).click();
+      for (let i = 0; i < 5; i++) await page.keyboard.press(']');
+      await page.locator('.swatch-grid .swatch:not(.add)').nth(12).click();
       await page.mouse.move(1270, 790);
     },
     frame: strokeFrames([{ at: 8, pts: wave(130, 930, 690, 22, 120, 2.5) }]),
   },
   vector: {
-    len: 5,
+    len: 5, shotAfter: true,
     async setup(page) {
       await until(page, () => document.getElementById('app')?.classList.contains('ready') && window.SV, null, 30000);
       await hide(page, QUIET);
@@ -37,9 +33,9 @@ export default {
       await page.keyboard.press('Escape');
     },
     frame: strokeFrames([
-      { at: 6, pts: wave(250, 420, 230, 0, 30, 0).map(([x], i) => [x, 200 + i * 5]), before: (p) => p.keyboard.press('l') },
-      { at: 50, pts: wave(860, 1000, 520, 0, 30, 0).map(([x], i) => [x, 500 + i * 4]), before: (p) => p.keyboard.press('Shift+S') },
-      { at: 95, pts: Array.from({ length: 40 }, (_, i) => [300 + i * 6, 640 - Math.sin(i / 39 * Math.PI) * 120]), before: (p) => p.keyboard.press('b') },
+      { at: 6, pts: Array.from({ length: 24 }, (_, i) => [180 + i * 3.4, 560 + i * 3.4]), before: (p) => p.keyboard.press('l') },
+      { at: 45, pts: Array.from({ length: 24 }, (_, i) => [800 + i * 3, 560 + i * 3]), before: (p) => p.keyboard.press('Shift+S') },
+      { at: 85, pts: wave(560, 900, 690, 10, 50, 1.5), before: (p) => p.keyboard.press('b') },
     ]),
   },
   pdf: {
@@ -63,12 +59,15 @@ export default {
     mode: 'video', len: 5,
     async setup(page) { await wait(page, 2500); await hide(page, QUIET); },
     async play(page, s) {
-      const c = await boxOf(page, '.label-page, .paper, #canvas, main canvas, main svg');
       const t = Date.now();
-      const pts = [[0.2, 0.2], [0.5, 0.5], [0.3, 0.8], [0.8, 0.3]];
-      for (const [fx, fy] of pts) { await page.mouse.move(c.x + c.width * fx, c.y + c.height * fy, { steps: 15 }); await page.mouse.click(c.x + c.width * fx, c.y + c.height * fy); await wait(page, 400); }
+      for (const [x, y, dx] of [[800, 570, -40], [320, 500, 30], [480, 240, 0]]) {
+        await page.mouse.move(x - 120, y + 60, { steps: 10 });
+        await page.mouse.move(x, y, { steps: 12 });
+        await page.mouse.down(); await page.mouse.move(x + dx, y, { steps: 10 }); await page.mouse.move(x, y, { steps: 10 }); await page.mouse.up();
+        await wait(page, 500);
+      }
       await page.keyboard.press('Escape');
-      await wait(page, Math.max(0, s * 1000 - (Date.now() - t)));
+      await rest(page, s, t);
     },
   },
   drive: {

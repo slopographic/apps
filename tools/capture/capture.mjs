@@ -77,7 +77,8 @@ async function capture(app) {
     await page.evaluate(() => window.__cap.freeze());
     await r.warm?.(page);
   }
-  if (!opt.flags.has('no-shots')) { await r.beforeShot?.(page); await saveShot(page, app.id); }
+  const shoot = async () => { if (!opt.flags.has('no-shots')) { await r.beforeShot?.(page); await saveShot(page, app.id); } };
+  if (!r.shotAfter || !wantClip) await shoot();
   if (wantClip && mode === 'frames') {
     const dir = path.join(TMP, app.id + '-frames');
     await rm(dir, { recursive: true, force: true }); await mkdir(dir, { recursive: true });
@@ -87,11 +88,13 @@ async function capture(app) {
       await page.evaluate((dt) => window.__cap.tick(dt), 1 / FPS);
       await page.screenshot({ path: path.join(dir, String(i).padStart(4, '0') + '.jpg'), type: 'jpeg', quality: 92, timeout: 180000 });
     }
+    if (r.shotAfter) await shoot();
     encodeClip(['-framerate', String(FPS), '-i', path.join(dir, '%04d.jpg')], app.id, len);
     if (!opt.flags.has('keep')) await rm(dir, { recursive: true, force: true });
   } else if (wantClip) {
     const start = (Date.now() - t0) / 1000;
     await r.play?.(page, len + FADE);
+    if (r.shotAfter) await shoot();
     await ctx.close();
     const vid = (await readdir(vdir)).find((f) => f.endsWith('.webm'));
     encodeClip(['-i', path.join(vdir, vid)], app.id, len, { start });
@@ -105,6 +108,7 @@ async function capture(app) {
 for (const app of apps) {
   const t = Date.now();
   let out;
+  console.log(`${app.id}…`);
   try { out = await capture(app); } catch (e) { out = { id: app.id, failed: e.message.split('\n')[0] }; }
   const sizes = [];
   for (const f of [`shots/${app.id}.jpg`, `clips/${app.id}.webm`, `clips/${app.id}.mp4`]) {

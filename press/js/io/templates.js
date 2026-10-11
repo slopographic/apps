@@ -12,7 +12,12 @@
     try { return fn(); } finally { S.doc = prev; S.rev = rev + 1; PR.engine.clear(); }
   };
   /** Procedural artwork (no network): soft gradient blobs, returned as a JPEG data URL. */
+  var artCache = {};
   TP.art = function (w, h, palette, seed) {
+    var key = [w, h, seed].concat(palette).join(',');
+    return artCache[key] || (artCache[key] = drawArt(w, h, palette, seed));
+  };
+  function drawArt(w, h, palette, seed) {
     var c = document.createElement('canvas'); c.width = w; c.height = h;
     var x = c.getContext('2d'), rnd = function () { seed = (seed * 16807 + 11) % 2147483647; return seed / 2147483647; };
     var g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, palette[0]); g.addColorStop(1, palette[1]);
@@ -31,7 +36,7 @@
     [[-0.35, 0.05], [0.35, 0.05]].forEach(function (e) { x.beginPath(); x.ellipse(bx + e[0] * s, by + e[1] * s, s * 0.11, s * 0.16, 0, 0, Math.PI * 2); x.fill(); });
     x.lineWidth = s * 0.06; x.strokeStyle = '#0a0a0a'; x.beginPath(); x.arc(bx, by + s * 0.3, s * 0.25, 0.15 * Math.PI, 0.85 * Math.PI); x.stroke();
     return c.toDataURL('image/jpeg', 0.86);
-  };
+  }
   /** Helpers used by every template. */
   TP.text = function (doc, items, x, y, w, h, text, ps, extra) { var f = M.item('text', x, y, w, h, extra); I.add(doc, items, f, { text: text, ps: ps, layer: doc.layers[doc.layers.length - 1].id }); return f; };
   TP.shape = function (doc, items, type, x, y, w, h, extra) { var s = M.item(type, x, y, w, h, extra); I.add(doc, items, s, { layer: doc.layers[0].id }); return s; };
@@ -67,7 +72,7 @@
     // cover (page 1, no master)
     doc.pages[0].master = null;
     var p1 = doc.pages[0].items, b = doc.bleed.top;
-    TP.image(doc, p1, -b, -b, W + 2 * b, H + 2 * b, TP.art(900, 1270, ['#2f1d6b', '#0f8a8a', '#e0245e', '#f5a623', '#3b82f6'], 7));
+    TP.image(doc, p1, -b, -b, W + 2 * b, H + 2 * b, TP.art(720, 1016, ['#2f1d6b', '#0f8a8a', '#e0245e', '#f5a623', '#3b82f6'], 7));
     TP.text(doc, p1, 14 * mm, 20 * mm, W - 28 * mm, 90 * mm, 'SLOP\nMONTHLY', 'Cover Title');
     TP.text(doc, p1, 14 * mm, H - 70 * mm, 90 * mm, 50 * mm, 'The browser is the new print shop\nThreads, masters & styles explained\nWhy your PDF needs crop marks', 'Cover Line');
     // feature spread (pages 2–3)

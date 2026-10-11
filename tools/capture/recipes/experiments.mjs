@@ -87,7 +87,7 @@ export default {
     },
   },
   'paint-classic': {
-    len: 5,
+    len: 5, shotAfter: true,
     async setup(page) {
       await wait(page, 1500);
       const c = await page.locator('canvas').first().boundingBox();

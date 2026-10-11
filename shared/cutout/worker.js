@@ -104,7 +104,7 @@ async function infer(modelId, rgba, W, H, progress) {
 
 /* ---------- handlers ---------- */
 const handlers = {
-  ping: (d) => ({ pong: d && d.value, time: Date.now() }),
+  ping(d, progress) { for (let i = 1; i <= ((d && d.steps) || 0); i++) progress({ phase: 'ping', loaded: i, total: d.steps }); return { pong: d && d.value, time: Date.now() }; },
   fail: (d) => { throw new Error((d && d.message) || 'Requested failure'); },
   init(d) { Object.assign(cfg, d || {}); return { ok: true }; },
   async info() { return { backend, gpu: !!(self.navigator && navigator.gpu), loaded: [...sessions.keys()], jobs: jobs.size }; },

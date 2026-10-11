@@ -232,6 +232,7 @@
     overrides = ls.get(keyStore()) || {};
     recents = ls.get(recStore()) || {};
     attach(o.target || window);
+    if (o.paletteKeys) { const pc = cmds.get('cmd.palette'); pc.keys = [].concat(o.paletteKeys).filter((k) => parse(k)); }
     changed();
     const pre = () => setTimeout(() => withUI((p) => { if (o.fab && p.palette.fab) p.palette.fab(o.fab); }), 0);
     if (document.readyState === 'complete') pre(); else addEventListener('load', pre, { once: true });

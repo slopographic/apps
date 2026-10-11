@@ -73,7 +73,7 @@ function writePSD() {
     W.u16(chans.length);
     for (const c of chans) { W.i16(c.id); W.u32(c.len); }
     W.ascii('8BIM'); W.ascii(BLEND_PSD[L.blend] || 'norm');
-    W.u8(Math.round(clamp(L.opacity, 0, 1) * 255)); W.u8(0);
+    W.u8(Math.round(clamp(L.opacity, 0, 1) * 255)); W.u8(L.clip ? 1 : 0);
     W.u8((L.visible ? 0 : 2) | (L.locked ? 1 : 0)); W.u8(0);
     const endExtra = W.lenMark();
     if (P.mask) {
@@ -89,6 +89,7 @@ function writePSD() {
     const endU = W.lenMark();
     W.u32(L.name.length); for (let i = 0; i < L.name.length; i++) W.u16(L.name.charCodeAt(i));
     endU(4);
+    psdWriteMeta(W, L);
     endExtra();
   }
   for (const P of prepared) {
@@ -193,6 +194,7 @@ async function readLayerInfo(R, end, depth, mode) {
       const key = R.ascii(4), len = R.u32(), dEnd = R.p + len;
       if (key === 'luni') { const n = R.u32(); let s = ''; for (let k = 0; k < n && R.p + 2 <= dEnd; k++) s += String.fromCharCode(R.u16()); r.name = s.replace(/\0+$/, ''); }
       else if (key === 'lsct' || key === 'lsdk') r.section = R.u32();
+      else if (key === 'SLmd') r.meta = psdReadMeta(R, dEnd);
       R.p = dEnd;
     }
     R.p = exEnd;
@@ -256,7 +258,8 @@ async function readPSD(buf) {
         (stack.length ? stack[stack.length - 1] : layers).push(...kids);
         continue;
       }
-      const L = { name: r.name || 'Layer', canvas: r.canvas || mkCanvas(1, 1), x: r.canvas ? r.left : 0, y: r.canvas ? r.top : 0, visible: !(r.flags & 2), opacity: r.opacity, blend: PSD_BLEND[r.blend] || 'normal', locked: false, mask: null };
+      const L = { name: r.name || 'Layer', canvas: r.canvas || mkCanvas(1, 1), x: r.canvas ? r.left : 0, y: r.canvas ? r.top : 0, visible: !(r.flags & 2), opacity: r.opacity, blend: PSD_BLEND[r.blend] || 'normal', locked: false, mask: null, clip: !!r.clip };
+      if (r.meta) Object.assign(L, r.meta);
       if (!r.canvas) cx(L.canvas).clearRect(0, 0, 1, 1);
       if (r.mask && r.maskPlane && r.mask.right > r.mask.left) {
         L.mask = { canvas: grayToMask(r.mask.right - r.mask.left, r.mask.bottom - r.mask.top, r.maskPlane), x: r.mask.left, y: r.mask.top, def: r.mask.def === 0, enabled: !(r.mask.flags & 2) };

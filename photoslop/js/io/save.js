@@ -27,7 +27,7 @@ async function autosave() {
   try {
     const layers = [];
     for (const L of snap.layers) {
-      layers.push({ name: L.name, x: L.x, y: L.y, visible: L.visible, opacity: L.opacity, blend: L.blend, locked: L.locked, text: L.text,
+      layers.push({ name: L.name, x: L.x, y: L.y, visible: L.visible, opacity: L.opacity, blend: L.blend, locked: L.locked, meta: layerMeta(L), text: L.text,
         png: await pngOf(L.canvas), mask: L.mask && { png: await pngOf(L.mask.canvas), x: L.mask.x, y: L.mask.y, def: L.mask.def, enabled: L.mask.enabled } });
     }
     if (!DOCS.some((d) => d.id === snap.id)) return; // closed meanwhile
@@ -43,7 +43,7 @@ async function docFromSaved(d) {
     const canvas = await blobToCanvasExact(l.png);
     let mask = null;
     if (l.mask) mask = { canvas: await blobToCanvasExact(l.mask.png), x: l.mask.x, y: l.mask.y, def: l.mask.def, enabled: l.mask.enabled };
-    layers.push({ name: l.name, canvas, x: l.x, y: l.y, visible: l.visible, opacity: l.opacity, blend: l.blend, locked: l.locked, text: l.text, mask });
+    layers.push(Object.assign({ name: l.name, canvas, x: l.x, y: l.y, visible: l.visible, opacity: l.opacity, blend: l.blend, locked: l.locked, text: l.text, mask }, l.meta));
   }
   return layers;
 }
