@@ -115,3 +115,19 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 - `js/ui/drive-view.js`, `drive-bar.js`, `drive-open.js`, `drive-viewer.js`: the Drive grid and switch, its bar, the open rules and the Drive viewer
 - `js/ui/`: `state.js`, `vlist.js`, `rows.js`, `timeline.js`, `viewer.js`, `sortmode.js`, `actions.js`, `albums.js`, `dupes.js`, `menus.js`, `commands.js`, `sidebar.js`, `reel.js` (Make reel dialog and run), `main.js`
 - Tests: `tests/gallery/` (`gallery.test.html`, `app.test.html`, `reel.test.html`, `helpers.js`, `spec-io.js`, `spec-core.js`, `spec-app.js`, `spec-reel.js`, `viewer.test.html`, `spec-viewer.js`)
+
+## People (face counts, opt-in, `shared/faces/`)
+- **Off by default.** Turn it on in Profile (the Gallery section, "Find faces on this device"), or the first time you open
+  the People view (the same dialog as Slop Drive). Nothing is uploaded and no one is identified.
+- **People view** (`data-view="people"`): photos grouped as **One face**, **Two or more faces** and **No faces**. Empty groups
+  are left out. Photos not checked yet are not shown; the bar says how many are checked.
+- **Background scan** (`core/people.js`): when the setting is on, every photo without a result is checked, newest first, one
+  at a time, with idle time between photos. A photo added later is checked too. The bar (`ui/people.js`) shows the
+  progress, with **Stop** (and **Resume**). Turning the setting off stops the scan after the photo in hand and hides the groups.
+- **Results:** `SlopFaces.analyse('gallery', photo id, photo SHA-256, original)`, kept in IndexedDB `slop-faces`. They are
+  derived data and are not in the Gallery backup.
+- **Viewer:** the face boxes are drawn over the photo (`G.people.overlay`) while the setting is on.
+- **View state:** `people` is restored by `ui/view-state.js` (the view list).
+- **No identity:** groups are counts of faces only. Nothing is named, matched or recognised.
+- **Tests:** `tests/gallery/faces.test.html` (stubbed detector: the picture's width sets its faces), and the Node file
+  `tests/node/faces-drive-gallery.test.mjs`. `node tests/run.mjs gallery` runs them with the rest of the suite, all green at the time of this change.
