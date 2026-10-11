@@ -16,7 +16,16 @@ export { newView, setHooks };
 /** Open a document. `text` is what the editor shows (a draft, or the saved text); `saved` is the Drive text. */
 export function openDoc(rec, text, saved) {
   const doc = { id: rec.id, name: rec.name, folderId: rec.folderId ?? null, savedText: saved, dirty: text !== saved,
-    state: makeState(text, rec.name), scroll: 0, langId: null }; // langId: set by the mode switcher (session only)
+    state: makeState(text, rec.name), scroll: 0, langId: null, kind: 'text', preview: false }; // langId: set by the mode switcher (session only)
+  docs.push(doc);
+  return doc;
+}
+
+/** Open a tab that shows the file rather than edits it: 'image', 'audio', 'video', 'pdf' or 'binary'. `url` is the
+ * object URL of the blob (the caller frees it on close). Its editor state stays empty and it is never dirty. */
+export function openView(rec, kind, url) {
+  const doc = { id: rec.id, name: rec.name, folderId: rec.folderId ?? null, savedText: '', dirty: false,
+    state: makeState('', rec.name), scroll: 0, langId: null, kind, url, preview: false };
   docs.push(doc);
   return doc;
 }
