@@ -77,6 +77,7 @@
     var c = commonAttrs(o, ctx), s, lb;
     switch (o.type) {
       case 'group':
+        if (ctx.clipping) return o.children.map(function (ch) { return objToSVG(ch, ctx); }).join(''); // <g> is not allowed in a clipPath: its shapes go in directly
         if (o.clip && o.children.length) { // clipping mask: a <clipPath> in defs, the clipped objects inside a clip-path group
           var cl = SV.clipMask.svg('sv-clip-' + o.id, objToSVG(o.children[o.children.length - 1], Object.assign({}, ctx, { clipping: true })),
             o.children.slice(0, -1).map(function (ch) { return objToSVG(ch, ctx); }).join(''), c);

@@ -26,6 +26,9 @@
   }
 
   function onDown(e) {
+    // Buttons and fields on the stage (the empty-state actions, the message bar) keep their own clicks:
+    // capturing the pointer here would send the click to the stage instead.
+    if (e.target.closest && e.target.closest('button, a, input, select, textarea, label, .empty, .busy')) return;
     const act = P.active, [sx, sy] = local(e);
     if (S.view === 'split' && act && e.target.closest && e.target.closest('#split')) drag = { kind: 'split' };
     else if (e.button === 1 || (e.button === 0 && (S.tool === 'pan' || space))) drag = { kind: 'pan', x: sx, y: sy };

@@ -73,7 +73,7 @@
       expect(v.names.includes('exchangeRates')).toBe(false);
     });
 
-    it('opens as v2 and keeps every record that was there', async () => {
+    it('opens at the current version and keeps every record that was there', async () => {
       const r = await st.ready();
       expect(r.ok).toBe(true);
       const c = await st.get('customers', 'c1');
@@ -81,8 +81,10 @@
       expect(c.value.name).toBe('Ada');
       expect(c.value.categories).toEqual(['vip']);
       const v = await versionNow();
-      expect(v.v).toBe(2);
+      expect(v.v).toBe(3);   // 2 added exchangeRates, 3 added the CRM groups and tags stores
       expect(v.names.includes('exchangeRates')).toBe(true);
+      expect(v.names.includes('customerGroups')).toBe(true);
+      expect(v.names.includes('customerTags')).toBe(true);
     });
 
     it('moves the v1 currency field to defaultCurrency and keeps the other settings', async () => {
