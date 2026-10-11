@@ -121,16 +121,11 @@
     } }] });
   }
 
-  /** Delete the selected contacts after a confirm. */
+  /** Delete the selected contacts after a confirm (the same dialog as the Delete key). */
   async function deleteSelected() {
     if (!S.sel.size) { UI.toast('Select contacts first'); return; }
     const n = S.sel.size;
-    const ok = await UI.confirm(`Delete ${n} contact${n === 1 ? '' : 's'}?`, 'They are removed from this list. Save to Slop Drive to keep the list; an unsaved removal cannot be undone.', 'Delete', { danger: true });
-    if (!ok) return;
-    const r = SC.bulk.removeContacts(S.list, S.scope());
-    S.setSel([]);
-    S.setList(r.list);
-    UI.toast(`Deleted ${r.changed}`);
+    if (await SC.select.remove(new Set(S.sel))) UI.toast(`Deleted ${n}`);
   }
 
   /** The default country code for E.164 (per viewer, kept in the draft). */
