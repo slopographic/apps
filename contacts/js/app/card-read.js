@@ -130,5 +130,5 @@
     if (box && c && S.mode === 'view') history(c.id, box);
   }
 
-  SC.cardRead = { render, refreshHistory, dateText, details };
+  SC.cardRead = { render, refreshHistory, dateText, details, duplicate };
 })();
