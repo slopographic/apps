@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Homepage · catalog and navigation</title>
+  <title>Homepage · catalog, carousel and navigation</title>
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
 <body>
@@ -135,6 +135,108 @@
       await sleep(50);
       expect(win.scrollY).toBe(300);
     });
+  });
+
+  describe('app carousel', () => {
+    // The names the carousel leads with. "Slop Image to 3D" is not in the registry yet, so it has no slide.
+    const TOP = ['PhotoSlop', 'SlopCut', 'SlopIsolate', 'SlopVector', 'Reel Remix', 'Slop Image to 3D', 'Slop Upscale', 'Slop Resize', 'Slop Docs', 'Slop Orders', 'Slop Invoices', 'Slop CRM', 'Slop Calendar', 'Slop Drive'];
+    const slides = () => [...doc.querySelectorAll('.carousel .car-slide')];
+    const names = () => slides().map((s) => s.querySelector('h3').textContent);
+    const cur = () => slides().findIndex((s) => s.classList.contains('is-current'));
+    const dots = () => [...doc.querySelectorAll('.carousel .car-dot')];
+    const slideNamed = (n) => slides().find((s) => s.querySelector('h3').textContent === n);
+    // A dot is a control: it jumps and stops the auto-advance, so the tests below are not raced by the timer.
+    const goto = (k) => dots()[k].click();
+
+    it('slides render in the order the top list gives, then the rest of the registry', async () => {
+      await ready;
+      const want = TOP.filter((n) => win.SLOP_APPS.some((a) => a.name === n))
+        .concat(win.SLOP_APPS.filter((a) => !TOP.includes(a.name)).map((a) => a.name));
+      expect(names()).toEqual(want);
+      expect(names().slice(0, 13)).toEqual(TOP.filter((n) => n !== 'Slop Image to 3D'));
+      expect(slides().length).toBe(win.SLOP_APPS.length);
+      expect(dots().length).toBe(win.SLOP_APPS.length);
+    });
+    it('each slide shows the badge icon, the registry tagline, up to three features and a real Open link', async () => {
+      await ready;
+      for (const s of slides()) {
+        const a = win.SLOP_APPS.find((x) => x.name === s.querySelector('h3').textContent);
+        expect(s.querySelector('svg.car-icon rect').getAttribute('fill')).toBe('#d4ff3a');
+        expect(s.querySelector('.car-tag').textContent).toBe(a.tagline);
+        const feats = s.querySelectorAll('.car-feats li');
+        expect(feats.length).toBe(Math.min(3, (a.features || []).length));
+        const open = s.querySelector('a.btn.primary');
+        expect(open.tagName).toBe('A');
+        expect(open.getAttribute('href')).toBe(a.path);
+      }
+    });
+    it('the Tour button appears only for apps that have a tour', async () => {
+      await ready;
+      expect(!!slideNamed('PhotoSlop').querySelector('a[href="photoslop/?tour=1"]')).toBe(true);
+      expect(!!slideNamed('SlopCut').querySelector('a[href="slopcut/?tour=1"]')).toBe(true);
+      expect(!!slideNamed('The Authenticator').querySelector('a[href$="?tour=1"]')).toBe(false);
+      expect(!!slideNamed('Slop Music').querySelector('a[href$="?tour=1"]')).toBe(false);
+    });
+    it('next and previous move one slide, and wrap at either end', async () => {
+      await ready;
+      goto(0);
+      expect(cur()).toBe(0);
+      doc.querySelector('.carousel .car-next').click();
+      expect(cur()).toBe(1);
+      expect(slides()[1].hasAttribute('inert')).toBe(false);
+      expect(slides()[0].hasAttribute('inert')).toBe(true);
+      doc.querySelector('.carousel .car-prev').click();
+      expect(cur()).toBe(0);
+      doc.querySelector('.carousel .car-prev').click();
+      expect(cur()).toBe(slides().length - 1);
+      doc.querySelector('.carousel .car-next').click();
+      expect(cur()).toBe(0);
+    });
+    it('the dots reflect the current slide, and a dot jumps to its slide', async () => {
+      await ready;
+      goto(0);
+      doc.querySelector('.carousel .car-next').click();
+      const d = dots();
+      expect(d[1].classList.contains('is-current')).toBe(true);
+      expect(d[1].getAttribute('aria-current')).toBe('true');
+      expect(d.filter((x) => x.classList.contains('is-current')).length).toBe(1);
+      expect(d[0].hasAttribute('aria-current')).toBe(false);
+      goto(5);
+      expect(cur()).toBe(5);
+      expect(dots()[5].getAttribute('aria-current')).toBe('true');
+      expect(dots()[1].hasAttribute('aria-current')).toBe(false);
+    });
+    it('the arrow keys move the carousel when focus is inside it', async () => {
+      await ready;
+      goto(0);
+      const region = doc.querySelector('.carousel');
+      region.querySelector('.car-next').focus();
+      region.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      expect(cur()).toBe(1);
+      region.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+      expect(cur()).toBe(0);
+    });
+    it('the live region announces the current slide', async () => {
+      await ready;
+      goto(0);
+      doc.querySelector('.carousel .car-next').click();
+      const live = doc.querySelector('.carousel [aria-live]');
+      expect(live.textContent).toBe(`Slide 2 of ${slides().length}: ${names()[1]}`);
+    });
+    it('auto-advances every 7 seconds, pauses on hover, and stops for good once a control is used', async () => {
+      const w = await HomeTest.openHome();     // a fresh page: nothing has been clicked yet
+      const d = w.document, region = d.querySelector('.carousel');
+      const idx = () => [...d.querySelectorAll('.carousel .car-slide')].findIndex((s) => s.classList.contains('is-current'));
+      region.dispatchEvent(new w.Event('pointerenter'));
+      await sleep(7600);
+      expect(idx()).toBe(0);
+      region.dispatchEvent(new w.Event('pointerleave'));
+      await waitFor(() => idx() === 1, { timeout: 9000 });
+      d.querySelector('.carousel .car-next').click();
+      expect(idx()).toBe(2);
+      await sleep(7600);
+      expect(idx()).toBe(2);
+    }, { timeout: 40000 });
   });
 
   ready.then(() => sleep(100)).then(() => run());
