@@ -74,7 +74,7 @@
           orientation: F.enum(['portrait', 'landscape'], { desc: 'orientation' }),
         }, { required: true, desc: 'the label size' }),
         unit: F.enum(['mm', 'in', 'dots'], { required: true, desc: 'units of every size in the file' }),
-        dpi: F.enum(['152', '203', '300', '600'].map(Number).map(String), { desc: 'print resolution' }),
+        dpi: F.enum([152, 203, 300, 600], { desc: 'print resolution in dots per inch' }),
         stock: F.obj({ id: F.str({ max: 60, desc: 'stock id from the built-in list, e.g. roll-4x6' }), name: F.str({ max: 120, desc: 'stock name' }) }),
         objects: F.list(obj, { max: 1000, desc: 'objects, bottom first' }),
       },
