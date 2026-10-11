@@ -88,7 +88,7 @@
       await waitFor(() => w.SlopCmd && w.document.readyState === 'complete');
       await w.SlopCmd.open('hello');
       const pal = w.document.querySelector('.scmd-pal');
-      expect(Math.round(pal.getBoundingClientRect().width)).toBe(390);
+      expect(pal.offsetWidth).toBe(390);
       const opt = w.document.querySelector('.scmd-opt');
       expect(opt.getBoundingClientRect().height).toBeGreaterThanOrEqual(44);
       w.document.querySelector('.scmd-opt').click();

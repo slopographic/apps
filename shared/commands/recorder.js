@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const C = window.SlopCmd;
-  if (!C || C._parts.recorder) return;
+  if (!C || !C._parts || C._parts.recorder) return;
 
   /**
    * Record the next key combination. While recording, app shortcuts are suspended and every key is

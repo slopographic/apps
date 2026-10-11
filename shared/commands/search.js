@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const C = window.SlopCmd;
-  if (!C || C._parts.search) return;
+  if (!C || !C._parts || C._parts.search) return;
   const FIELD_WEIGHT = { title: 1, keywords: 0.8, group: 0.55, id: 0.45 };
   const isWordStart = (s, i) => i === 0 || /[\s\-_./:()…]/.test(s[i - 1]) || (s[i - 1] === s[i - 1].toLowerCase() && s[i] !== s[i].toLowerCase());
 
@@ -21,16 +21,17 @@
       return v;
     }
     // subsequence, preferring word starts (so "nl" finds "New Label")
-    let v = 0, j = 0, prev = -2, firstAt = -1;
+    let v = 0, j = 0, prev = -2, firstAt = -1, acro = 0;
     for (let i = 0; i < s.length && j < t.length; i++) {
       if (s[i] !== t[j]) continue;
       if (firstAt < 0) firstAt = i;
       v += 2;
       if (i === prev + 1) v += 5;
-      if (isWordStart(raw, i)) v += 8;
+      if (isWordStart(raw, i)) { v += 8; acro++; }
       prev = i; j++;
     }
     if (j < t.length) return -1;
+    if (acro === t.length) v += 100; // every letter starts a word: an acronym
     return v - Math.min(firstAt, 10) - (s.length - t.length) * 0.1;
   }
   /** Best weighted score over an item's fields for one token; -1 when no field matches. */
@@ -77,8 +78,15 @@
     const cmds = C.list().filter((c) => !c.hidden);
     const q = String(query || '').trim();
     if (q) {
-      const ranked = rank(q, cmds.concat(appItems())).slice(0, 60);
-      return [{ title: '', items: ranked }];
+      const out = [{ title: '', items: rank(q, cmds).slice(0, 50) }];
+      for (const p of C.providers()) {
+        let got = [];
+        try { got = (p.search(q) || []).slice(0, 20); } catch (err) { console.warn(err); }
+        if (got.length) out.push({ title: p.title || p.id, items: got.map((r) => ({ id: r.id, title: r.title, group: r.group || '', icon: r.icon || '', keywords: r.keywords || [], keys: [], enabled: true, provided: r.run })) });
+      }
+      const go = rank(q, appItems()).slice(0, 8);
+      if (go.length) out.push({ title: 'Go to', items: go });
+      return out;
     }
     const sections = [], byId = new Map(cmds.map((c) => [c.id, c]));
     const rec = C.recent(5).map((id) => byId.get(id)).filter((c) => c && c.enabled);

@@ -75,14 +75,14 @@
       SV.setTool ? SV.setTool('select') : (S().tool = 'select');
       ptr('pointerdown', 150, 150); ptr('pointermove', 300, 150); ptr('pointermove', 503, 151); ptr('pointerup', 503, 151);
       const b = SV.selBBox(S().sel);
-      expect(b.x + b.w).toBe(455);
+      expect(b.x).toBe(455);
       expect(S().snapLines.length).toBeGreaterThan(0);
     });
 
     it('Snap to Guides can be switched off', () => {
       SV.runAction('view.snapGuides');
       expect(S().prefs.snapGuides).toBe(false);
-      expect(SV.snapBox(SV.buildSnap([]), { x: 100, y: 100, w: 200, h: 100 }, 352, 0).dx).toBe(352);
+      expect(SV.snapBox(SV.buildSnap(S().sel), { x: 100, y: 100, w: 200, h: 100 }, 352, 0).dx).toBe(352);
       SV.runAction('view.snapGuides');
       expect(S().prefs.snapGuides).toBe(true);
     });

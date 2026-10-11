@@ -7,7 +7,7 @@
   function fresh(app) {
     for (const id of made.splice(0)) SlopCmd.unregister(id);
     SlopCmd.close();
-    document.querySelectorAll('.sui-back').forEach((b) => b.remove());
+    document.querySelectorAll('.sui-dlg .sui-x').forEach((x) => x.click());
     SlopCmd.mac = false;
     const name = app || 'test-' + Date.now() + '-' + (++n);
     try { localStorage.removeItem('slop.keys.' + name); localStorage.removeItem('slop.cmd.recent.' + name); } catch (e) { /* ignore */ }

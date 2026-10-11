@@ -37,7 +37,7 @@
       mods.add(md === 'Ctrl' && !m ? 'Mod' : md === 'Meta' && m ? 'Mod' : md);
     });
     if (bad) return '';
-    if (!key) return '';
+    if (!key || (key.length > 1 && !/^[A-Z][A-Za-z0-9]*$/.test(key))) return '';
     return ORDER.filter((x) => mods.has(x)).concat(key).join('+');
   }
   /** "Mod+K Mod+S" → ['Mod+K', 'Mod+S'], or null when invalid. */
@@ -81,7 +81,7 @@
     if (e.altKey) mods.push('Alt');
     const head = ORDER.filter((x) => mods.includes(x));
     const out = [head.concat(e.shiftKey ? ['Shift', key] : [key]).join('+')];
-    const sym = k.length === 1 && !/[a-z0-9 ]/i.test(k) ? normKey(k) : null;
+    const sym = k.length === 1 && !/[\p{L}\p{N}\s]/u.test(k) ? normKey(k) : null;
     if (sym) { const alt = head.concat(sym).join('+'); if (alt !== out[0]) out.push(alt); }
     return out;
   }
@@ -89,7 +89,7 @@
 
   /* ---------- storage ---------- */
   const ls = { get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } } };
-  let app = 'default', overrides = {}, recents = {};
+  let app = 'default', overrides = {}, recents = {}, stamp = 0;
   const keyStore = () => 'slop.keys.' + app, recStore = () => 'slop.cmd.recent.' + app;
 
   /* ---------- registry ---------- */
@@ -120,7 +120,7 @@
   function run(id, ctx = {}) {
     const c = cmds.get(id);
     if (!c || !enabled(c)) return false;
-    if (ctx.record !== false && !c.noRecent) { const r = recents[id] || [0, 0]; recents[id] = [r[0] + 1, Date.now()]; trimRecents(); ls.set(recStore(), recents); }
+    if (ctx.record !== false && !c.noRecent) { const r = recents[id] || [0, 0]; stamp = Math.max(Date.now(), stamp + 1); recents[id] = [r[0] + 1, stamp]; trimRecents(); ls.set(recStore(), recents); }
     try { c.run(Object.assign({ id, source: 'api' }, ctx)); } catch (err) { console.error(err); if (window.SlopUI) SlopUI.toast((c.title || id) + ' failed: ' + err.message); }
     emit('run', { id, source: ctx.source || 'api' });
     return true;
@@ -129,6 +129,10 @@
   /** Frecency: use count weighted by how recently it was used (half-life about a day). */
   function frecency(id, now = Date.now()) { const r = recents[id]; if (!r) return 0; return r[0] * Math.pow(0.5, (now - r[1]) / 864e5) + 1 / (1 + (now - r[1]) / 6e4); }
   function recent(n = 6) { return Object.keys(recents).filter((i) => cmds.has(i)).sort((a, b) => recents[b][1] - recents[a][1]).slice(0, n); }
+
+  /** Extra palette results: addProvider({ id, title, search(query) → [{ id, title, group?, icon?, keywords?, run }] }). */
+  const providers = new Map();
+  function addProvider(p) { if (p && p.id && typeof p.search === 'function') providers.set(p.id, p); return () => providers.delete(p.id); }
 
   /* ---------- overrides ---------- */
   function setKeys(id, keys) {
@@ -236,7 +240,8 @@
   ]);
   const api = {
     init, register, unregister, run, list, on, off, parse, canon, format, eventSteps, isTyping, conflicts, allConflicts,
-    setKeys, resetKeys, exportKeys, importKeys, recent, frecency, ensureUI, bindings, _parts: parts,
+    setKeys, resetKeys, exportKeys, importKeys, recent, frecency, ensureUI, bindings, addProvider, _parts: parts,
+    providers: () => [...providers.values()], removeProvider: (id) => providers.delete(id),
     get: (id) => cmds.get(id) || null,
     keyFor: (id) => { const b = bindings(id); return b.length ? format(b[0]) : ''; },
     keysFor: (id) => bindings(id).map((b) => format(b)),

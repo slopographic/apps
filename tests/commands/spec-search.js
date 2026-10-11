@@ -72,7 +72,7 @@
       T.fresh();
       SlopCmd.run('cmd.keymap');
       SlopCmd.close();
-      document.querySelectorAll('.sui-back').forEach((b) => b.remove());
+      document.querySelectorAll('.sui-dlg .sui-x').forEach((x) => x.click());
       expect(SlopCmd.recent()).toEqual([]);
     });
   });

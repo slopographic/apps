@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   const C = window.SlopCmd;
-  if (!C || C._parts.palette) return;
+  if (!C || !C._parts || C._parts.palette) return;
   const ICON_SEARCH = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   function el(tag, attrs, ...kids) {
     const n = document.createElement(tag);
@@ -55,7 +55,7 @@
         const dis = it.enabled === false;
         const opt = el('div', { role: 'option', id: S.id + '-o' + i, class: 'scmd-opt' + (dis ? ' scmd-dis' : ''), 'data-i': i, 'data-id': it.id, 'aria-selected': 'false', 'aria-disabled': dis ? 'true' : null },
           iconOf(it), el('span', { class: 'scmd-title' }, it.title, it.checked ? el('span', { class: 'scmd-check', 'aria-label': ' (on)' }, ' ✓') : null),
-          !sec.title || sec.title === 'Recent' ? (it.group ? el('span', { class: 'scmd-grp' }, it.group) : null) : null,
+          !sec.title || sec.title === 'Recent' || it.provided ? (it.group ? el('span', { class: 'scmd-grp' }, it.group) : null) : null,
           it.keys && it.keys.length ? kbd(it.keys[0]) : null);
         grp.append(opt);
       }
@@ -84,6 +84,7 @@
     if (it.enabled === false) { if (window.SlopUI) SlopUI.toast(it.title + ' is not available right now'); return; }
     closePalette(true);
     if (it.go) { C._parts.search.goTo(it.go); return; }
+    if (it.provided) { try { it.provided({ source: 'palette' }); } catch (err) { console.error(err); } return; }
     C.run(it.id, { source: 'palette' });
   }
   function focusables() { return [...S.box.querySelectorAll('input, button')].filter((x) => !x.disabled && x.offsetParent !== null); }

@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   const C = window.SlopCmd;
-  if (!C || C._parts.keymap) return;
+  if (!C || !C._parts || C._parts.keymap) return;
   const el = (tag, attrs, ...kids) => {
     const n = document.createElement(tag);
     for (const k in attrs || {}) { const v = attrs[k]; if (v == null || v === false) continue; if (k === 'class') n.className = v; else n.setAttribute(k, v === true ? '' : v); }
@@ -16,7 +16,7 @@
   let cur = null;
 
   function open() {
-    if (cur) { cur.search.focus(); return cur; }
+    if (cur && cur.dlg.box.isConnected) { cur.search.focus(); return cur; }
     if (!window.SlopUI) throw new Error('SlopCmd.openKeymap needs shared/slopui.js');
     const R = C._parts.recorder;
     const search = el('input', { class: 'sui-input scmd-km-search', type: 'search', placeholder: 'Search shortcuts', 'aria-label': 'Search shortcuts', autocomplete: 'off', spellcheck: 'false' });
