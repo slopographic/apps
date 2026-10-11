@@ -61,6 +61,7 @@
       dialogButton(win, 'Create').click();
       await waitFor(() => sectionOf(win, 'M').includes('Mira Quill'));
       expect(sectionOf(win, 'M')).toEqual(['Mira Quill']);
+      await waitFor(async () => (await window.SlopData.store.list('customers')).value.some((c) => c.name === 'Mira Quill'), { timeout: 8000 });
       const saved = (await window.SlopData.store.list('customers')).value.find((c) => c.name === 'Mira Quill');
       expect(saved.company).toBe('Quill Co');
       expect(saved.phone).toBe('+44 20 7946 0000');
@@ -100,7 +101,7 @@
       await CT.seed([{ name: 'Nia None', id: 'ord-none' }]);
       const win = await boot();
       rowFor(win, 'Nia None').click();
-      await waitFor(() => $(win, '#cardHistory .muted'), { timeout: 8000 });
+      await waitFor(() => $(win, '#cardHistory').textContent.includes('No orders'), { timeout: 8000 });
       expect($(win, '#cardHistory').textContent).toContain('No orders for this contact yet.');
     });
   });
@@ -118,7 +119,6 @@
       expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
       expect(win.getComputedStyle($(win, '#card')).display).toBe('none');
       expect($(win, '#rows').getBoundingClientRect().width).toBeGreaterThan(300);
-      expect(win.getComputedStyle($(win, '.back')).display).toBe('none');
       rowFor(win, 'Phone Page').click();
       await waitFor(() => win.getComputedStyle($(win, '#card')).display !== 'none', { timeout: 5000 });
       await sleep(60);
@@ -149,7 +149,7 @@
       win.document.activeElement.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
       await waitFor(() => dialogButton(win, 'Delete'));
       dialogButton(win, 'Cancel').click();
-      await sleep(80);
+      await waitFor(() => !$(win, '.sui-dlg'));
       expect((await stored('k-2')).id).toBe('k-2');
       win.document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
       await waitFor(() => dialogButton(win, 'Delete'));

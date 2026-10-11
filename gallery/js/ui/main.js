@@ -36,6 +36,7 @@
       scroller: $('grid'), content: $('tlContent'), sticky: $('sticky'), empty: $('empty'), status: $('status'),
     });
     G.sidebar.init($('side'));
+    G.peopleBar.init(); // the People bar (ui/people.js); the scan starts from core/people.js
     G.menus.bind($('grid'));
     $('topImport').addEventListener('click', () => G.actions.importFiles());
     $('emptyImport').addEventListener('click', () => G.actions.importFiles());

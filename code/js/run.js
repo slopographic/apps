@@ -46,11 +46,9 @@ export async function runDoc(doc, text, openText) {
   } else {
     const files = await projectFiles(doc.folderId);
     for (const [path, rec] of files) {
-      const t = openText(rec.id);
-      if (t !== undefined) files.set(path, { text: async () => t, blob: rec.blob });
-      else files.set(path, { text: () => rec.blob.text(), blob: rec.blob });
+      const open = openText(rec.id); // an open tab's text, unsaved edits included
+      files.set(path, { blob: rec.blob, text: open !== undefined ? async () => open : () => rec.blob.text() });
     }
-    files.delete(doc.name);
     html = await htmlPreview(text, files, runs);
   }
   frame.srcdoc = html;
