@@ -179,17 +179,27 @@ export function leapIn() {
 }
 
 /* ---------- drag and throw ---------- */
+/** Seconds for him to close most of the gap to the pointer (about 95% after one second): he lags behind your hand. */
+const DRAG_LAG = 0.33;
 export function startDrag() {
   cancelHop();
-  Object.assign(M, { mode: 'drag', perch: null, samples: [], vx: 0, vy: 0, vr: 0 });
+  Object.assign(M, { mode: 'drag', perch: null, samples: [], vx: 0, vy: 0, vr: 0, tx: M.x, ty: M.y });
 }
+/** Records where the pointer is. He does not jump there: followDrag eases him over (see DRAG_LAG). */
 export function dragTo(x, y, t) {
   const s = M.samples;
   if (s.length) { const [t0, x0] = s[s.length - 1]; const v = (x - x0) / Math.max(8, t - t0) * 1000; M.rot += (clamp(v * 0.00035, -0.45, 0.45) - M.rot) * 0.3; }
-  M.x = x;
-  M.y = y;
+  M.tx = x;
+  M.ty = y;
   s.push([t, x, y]);
   while (s.length > 2 && t - s[0][0] > 90) s.shift();
+}
+/** Each frame while carried: ease his position towards the pointer, so he trails behind the hand. */
+export function followDrag(dt) {
+  if (M.mode !== 'drag' || M.tx === undefined) return;
+  const k = 1 - Math.exp(-dt / DRAG_LAG);
+  M.x += (M.tx - M.x) * k;
+  M.y += (M.ty - M.y) * k;
 }
 /** Release a drag: throw with the pointer's recent velocity. Returns the throw speed. */
 export function release(t, cancel = false) {

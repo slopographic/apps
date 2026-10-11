@@ -4,7 +4,7 @@
 import { M, reduced, rand, listeners, navH, changed, now, pageH, cheer } from './state.js';
 import { load, levelFor } from './store.js';
 import { setup, draw, size, face, CW, CH, BASE } from './look.js';
-import { step, place, hopTo, leapIn, fall } from './motion.js';
+import { step, place, hopTo, leapIn, fall, followDrag } from './motion.js';
 import * as P from './perches.js';
 import { bindInput, pet } from './input.js';
 import { mountHud, placeHud } from './hud.js';
@@ -94,6 +94,7 @@ function frame(t) {
     const hold = paused(t);
     M.layer.classList.toggle('is-ghost', !CFG.home && (M.ghost || hold));
     if (!hold) {
+      followDrag(dt);
       step(dt, t);
       tickRage(dt, t);
       tickMood(dt, t);
