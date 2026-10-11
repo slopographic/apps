@@ -29,7 +29,7 @@
       ? 'The browser did not say how full the disk for this site is.'
       : `The disk for this site: ${SS.bytes(est.usage)} of ${SS.bytes(est.quota)} used (${Math.round(est.percent)}%).`;
     return [
-      el('p', { class: 'sui-p' }, `${app} could not save ${what || 'your work'}, because this site’s storage is full. Your changes are still in the editor and nothing was lost. Free some space, then press Try again.`),
+      el('p', { class: 'sui-p' }, `${app} could not save ${what || 'your work'}, because this site’s storage is full. Your changes are still in the editor and nothing was lost. Free some space, then save again.`),
       el('p', { class: 'sui-p' }, usage),
       el('p', { class: 'sui-p' }, list.length ? 'Using the most space:' : 'Nothing measurable is using the space. The browser may share the disk with other sites.'),
       list.length ? el('ul', { class: 'sui-list' }, list.map((p) => el('li', null, `${p.label}: ${SS.bytes(p.bytes)}`))) : null,
@@ -50,7 +50,7 @@
     const refresh = async (msg) => paint(await SS.estimate(), msg);
     const clearThumbs = async () => {
       const r = await SS.clear('thumbs');
-      await refresh(`Thumbnails and previews cleared: ${r.removed} removed. Press Try again.`);
+      await refresh(`Thumbnails and previews cleared: ${r.removed} removed. Save again.`);
       return false; // stay open so the person can see the change
     };
     const openElsewhere = (href) => () => { g.open(href, '_blank', 'noopener'); return false; };
@@ -58,7 +58,7 @@
       if (!retry) return true;
       try { await retry(); return true; } catch (e) {
         const still = SS.classify(e).quota;
-        await refresh(still ? 'Still full. Free more space, then press Try again.' : 'The save failed for another reason: ' + ((e && e.message) || e));
+        await refresh(still ? 'Still full. Free more space, then save again.' : 'The save failed for another reason: ' + ((e && e.message) || e));
         return false;
       }
     };
