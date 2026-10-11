@@ -5,6 +5,7 @@
 (function () {
   'use strict';
   const C = window.SlopCentral, B = window.SlopBackup;
+  if (C.apps) return; // registered once per page
   const DATA_FILES = ['money.js', 'barcode.js', 'schema-defs.js', 'schema.js', 'currency.js', 'store.js', 'numbering.js',
     'fx.js', 'ledger.js', 'stock.js', 'billing.js', 'bundle-check.js', 'export.js'];
   const PROFILE_KEY = 'slop-profile';

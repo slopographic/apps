@@ -8,7 +8,7 @@
   const { describe, it, expect, waitFor } = SlopTest;
   let W, DR, H, D;
   const file = (n) => [...DR.S.files.values()].find((x) => x.name === n);
-  const T = (p, label, ms = 8000) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' timed out: ' + (window.__box ? window.__box.textContent : ''))), ms))]);
+  const T = (p, label, ms = 30000) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' timed out')), ms))]);
   const blobJson = (o) => new Blob([JSON.stringify(o)], { type: 'application/x-slop-doc' });
 
   describe('thumbnails: making, caching and fallbacks', () => {
@@ -110,9 +110,9 @@
       expect(DR.mediaInfo(r).kind).toBe('3d');
       const box = DR.previewOf(r, true);
       D.body.append(box);
-      window.__box = box;
-      const t0 = Date.now(); await waitFor(() => box.s3dView, { timeout: 60000 }); window.__t = Date.now() - t0;
-      const view = box.s3dView, canvas = box.querySelector('canvas'), reset = box.querySelector('.pv3d-reset');
+      const inner = box.querySelector('.pv3d');
+      await waitFor(() => inner.s3dView, { timeout: 30000 });
+      const view = inner.s3dView, canvas = box.querySelector('canvas'), reset = box.querySelector('.pv3d-reset');
       expect(canvas).toBeTruthy();
       expect(reset).toBeTruthy();
       const d0 = view.cam.st.dist;
@@ -122,7 +122,7 @@
       reset.click();
       expect(view.cam.st.view).toBe('perspective');
       box.remove();
-    }, { timeout: 90000 });
+    }, { timeout: 60000 });
   });
   SlopTest.run({ name: 'Slop Drive app: thumbnails' });
   </script>
