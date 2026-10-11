@@ -33,7 +33,8 @@
   function validPoint(pt) { return !!pt && Number.isInteger(pt.b) && pt.b >= 0 && pt.b < S.doc.blocks.length && Number.isInteger(pt.o) && pt.o >= 0; }
   function applyPlace(p) {
     if (S.doc && p.sel && validPoint(p.sel.a) && validPoint(p.sel.f)) S.select(p.sel.a, p.sel.f);
-    if (p.zoom > 0 && p.zoom <= 4) {
+    // On a phone the page is fitted to the screen width at boot (ui/main.js fitZoom); a zoom saved on a desktop would overflow it.
+    if (p.zoom > 0 && p.zoom <= 4 && window.innerWidth >= 700) {
       S.zoom = p.zoom;
       const sel = document.getElementById('zoomSel');
       if (sel) {

@@ -52,9 +52,13 @@
   const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   const changed = (what, data) => { emit('drive:' + what, data); emit('drive:change', { what, ...data }); };
 
-  async function put(blob, { name = 'Untitled', from = 'unknown', meta = {}, folderId = null, id } = {}) {
+  /** Save blob as a Drive file. New files go into the app's own folder (app, or else from, when it is a registered app
+   * id; see appFolderId). folderId is only used when given. An existing record (id) keeps its folder. */
+  async function put(blob, { name = 'Untitled', from = 'unknown', meta = {}, folderId, id, app } = {}) {
     const now = Date.now();
-    const rec = { id: id || newId(), name, type: blob.type || 'application/octet-stream', size: blob.size, from, time: now, modified: now, opened: 0, folderId, starred: false, trashedAt: null, meta, blob };
+    const prev = id ? await get(id) : null;
+    if (folderId === undefined) folderId = prev ? prev.folderId : await appFolderId(app || from);
+    const rec = { id: id || newId(), name, type: blob.type || 'application/octet-stream', size: blob.size, from, time: now, modified: now, opened: 0, folderId: folderId || null, starred: false, trashedAt: null, meta, blob };
     await tx('readwrite', (s) => s.put(rec));
     changed('put', { id: rec.id, name, type: rec.type, from, folderId });
     return rec.id;
@@ -78,8 +82,9 @@
   const touch = (id) => update(id, { opened: Date.now() }, { touch: false }).catch(() => null);
 
   /* ---------- Slop Drive: folders ---------- */
-  async function createFolder(name = 'New folder', parentId = null, { id } = {}) {
+  async function createFolder(name = 'New folder', parentId = null, { id, app } = {}) {
     const now = Date.now(), f = { id: id || newId(), name, parentId, time: now, modified: now, starred: false, trashedAt: null };
+    if (app) f.app = app;
     await tx('readwrite', (s) => s.put(f), 'folders');
     changed('folder', { id: f.id, parentId });
     return f.id;
@@ -97,6 +102,26 @@
     return out;
   }
   async function removeFolder(id) { await tx('readwrite', (s) => s.delete(id), 'folders'); changed('folder', { id, removed: true }); }
+  /* ---------- Slop Drive: app folders ----------
+   * Each registered app keeps the files it makes in one root folder named after it (SLOP_APPS name), made on first
+   * use and tagged app: <id> so Drive lists it as that app's folder. A person can rename or move it; the tag stays. */
+  const making = new Map();
+  /** The id of an app's folder, created on first use. Resolves with null for an unknown app id. */
+  function appFolderId(appId) {
+    const app = appId && appById(appId);
+    if (!app) return Promise.resolve(null);
+    if (!making.has(appId)) making.set(appId, (async () => {
+      try {
+        const mine = (await listFolders()).find((f) => f.app === appId && !f.trashedAt);
+        if (mine) return mine.id;
+        const taken = new Set((await listFolders({ parentId: null })).map((f) => f.name));
+        let name = app.name;
+        for (let n = 2; taken.has(name); n++) name = `${app.name} (${n})`;
+        return await createFolder(name, null, { app: appId });
+      } finally { making.delete(appId); }
+    })());
+    return making.get(appId);
+  }
   /** Folders from the root down to id (excluding the root itself). */
   async function folderPath(id) {
     const all = new Map((await listFolders()).map((f) => [f.id, f])), out = [];
@@ -137,7 +162,7 @@
   /* ---------- Send to / open from ---------- */
   function appsAccepting(type) { return apps().filter((a) => a.kind === 'app' && a.id !== self.app && (a.accepts || []).some((p) => matches(type, p))); }
   /** Put blob in the Drive (root unless folderId) and open appId on it. Pass { id } to open an existing Drive file instead. */
-  async function sendTo(appId, blob, name, { newTab = true, from = self.app, folderId = null, id } = {}) {
+  async function sendTo(appId, blob, name, { newTab = true, from = self.app, folderId, id } = {}) {
     const app = appById(appId); if (!app) throw new Error('Unknown app ' + appId);
     const fid = id || await put(blob, { name, from, folderId });
     const url = urlOf(app, { drive: fid });
@@ -175,16 +200,14 @@
   const pickFromDrive = (opts = {}) => picker().then((p) => p.pickFile(opts)).catch((e) => { console.warn(e); if (window.SlopUI) SlopUI.toast('Slop Drive is not available'); return null; });
   /** Choose a Drive folder. Resolves with a folder id, null for the root, or undefined if cancelled. */
   const pickFolder = (opts = {}) => picker().then((p) => p.pickFolder(opts));
-  /** Ask for a folder, then put blob there. Resolves with the new file id, or null if cancelled. */
-  async function saveToDrive(blob, name, { from = self.app || 'unknown', title } = {}) {
-    const folderId = await pickFolder({ title: title || `Save “${name}” to Slop Drive` });
-    if (folderId === undefined) return null;
-    const id = await put(blob, { name, from, folderId });
+  /** Save blob to the app's folder in Slop Drive (see put). Resolves with the new file id. The person can move it. */
+  async function saveToDrive(blob, name, { from = self.app || 'unknown', app } = {}) {
+    const id = await put(blob, { name, from, app });
     if (window.SlopUI) SlopUI.toast('Saved to Slop Drive');
     return id;
   }
 
-  window.SlopHub = { apps, appById, urlOf, put, get, list, update, remove, clear, touch, createFolder, getFolder, listFolders, updateFolder, removeFolder, folderPath, inTrash,
+  window.SlopHub = { apps, appById, urlOf, put, get, list, update, remove, clear, touch, createFolder, getFolder, listFolders, updateFolder, removeFolder, folderPath, inTrash, appFolderId,
     on, emit, register, openApps, appsAccepting, sendTo, sendMenuItems, consumeLaunch, pickFromDrive, pickFolder, saveToDrive, matches, fmtSize, loadScript, self,
     driveTx: tx, normFile, normFolder, ROOT, DB_NAME };
 })();

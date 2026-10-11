@@ -37,7 +37,7 @@ function labelCommands() {
   add('Edit', 'paste', 'Paste', () => pasteClip() || SlopUI.toast('Nothing to paste'), { keywords: ['clipboard'] });
   add('Edit', 'duplicate', 'Duplicate', () => duplicateSel(), { keys: ['Mod+D'], when: hasSel });
   add('Edit', 'delete', 'Delete', deleteSel, { keys: ['Delete', 'Backspace'], when: hasSel, keywords: ['remove'] });
-  add('Edit', 'selectAll', 'Select all', selectAll, { keys: ['Mod+A'] });
+  add('Edit', 'selectAll', 'Select all', selectAll, { keys: ['Mod+A'], when: () => !isTyping(document.activeElement) }); // in a field Ctrl+A selects its text
   add('Edit', 'deselect', 'Deselect', () => { if (Drag) return; deselect(); setTool('select'); }, { keys: ['Escape'], keywords: ['select none'] });
   add('Edit', 'editContent', 'Edit content', focusContent, { keys: ['Enter'], when: () => App.sel.length === 1, keywords: ['text', 'value'] });
   /* Tools */
