@@ -5,7 +5,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 **Status: beta** (registered in `shared/apps.js` as `drive`, `accepts: ['*']`, so "Send to Slop Drive" appears in every app's Send to menu).
 
 ## Tests
-`node tests/run.mjs drive` runs 69 tests on 7 pages, all green:
+`node tests/run.mjs drive` runs 73 tests on 8 pages, all green:
 
 | Page | What it covers |
 |---|---|
@@ -15,6 +15,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 | `backup.test.html` | zip round trip (stored and deflated), the codec (Blob, File, typed arrays, Map/Set/Date/RegExp, NaN, -0, BigInt, `$` keys), export, replace, merge, rejecting non-backups, the dialog |
 | `guard.test.html` | Ctrl+Shift+R, Ctrl+F5 and Cmd+Shift+R are caught (plain Ctrl+R is not), the dialog text and buttons, Export backup, Reload anyway, "Don't show again", the `beforeunload` prompt only while work is unsaved, pages with a foreign `window.SlopUI` (the homepage), the folder-aware picker, `saveToDrive` |
 | `commands.test.html` | the command list, registering with SlopCmd (a stub), handing shortcuts over, the files provider |
+| `newmenu.test.html` | the New ▸ submenu (toolbar and right-click), creating `Untitled document.sdoc` etc. in the open folder, unique names, opening in the creating app |
 | `mobile.test.html` | 390×844: no sideways scroll in any view, drawer, tap to open, details sheet, long-press menu |
 
 The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Drive database name and `?foreign=1` mimics the homepage. Helpers are in `tests/drive/util.js`.
@@ -91,6 +92,15 @@ The shared frame `tests/drive/frame.html` loads the bare kit. `?db=` sets the Dr
 - **Launch:** `?drive=<id>` reveals that file. This is what "Send to Slop Drive" uses.
 - **Storage:** the meter uses `navigator.storage.estimate()`. `persist()` is requested after the first upload and from the sidebar and the More menu.
 - **Shortcuts:** see `DR.SHORTCUTS` or press `?` in the app.
+
+## New ▸ documents (`js/ui/newdoc.js`)
+- `DR.creatables()` lists every `SLOP_APPS` app with `creates: [{ label, ext, mime }]` (Docs, Tables, Slides).
+- The toolbar New button and the right-click menu (empty space, or a folder) have a "New ▸" submenu.
+  `DR.createNew(c | appId, folder)` puts an empty blob of that mime named `Untitled <label>.<ext>`
+  (made unique) into the folder and opens it with `SlopHub.sendTo(app, null, name, { id })`.
+  Apps treat a zero-byte native file as a new blank document.
+- `DR.appsFor` lists the creating app first for its own native type, even if `accepts` leaves it out.
+- Commands `drive.new.<appId>` ("New document (Slop Docs)" …) are in the palette.
 
 ## Command palette (SlopCmd)
 - `js/ui/commands.js` describes every action as a command (`DR.commands()`, ids `drive.*`, groups File, Edit, Go, View, Tools and Help). Each command has default keys.

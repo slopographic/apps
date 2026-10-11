@@ -18,6 +18,8 @@
     });
     it('registers with SlopCmd when present and hands the shortcuts over', async () => {
       const got = { reg: [], prov: null, init: null, opened: 0, keymap: 0 };
+      // The real SlopCmd (shared/commands) is loaded at boot; clear its bindings so only the stub is live.
+      const real = W.SlopCmd; if (real && real.unregister && real.list) real.unregister(real.list().map((c) => c.id));
       W.SlopCmd = { init: (o) => { got.init = o; }, register: (l) => got.reg.push(...l), addProvider: (p) => { got.prov = p; }, keyFor: (id) => (id === 'drive.rename' ? 'F2' : ''), open: () => got.opened++, openKeymap: () => got.keymap++ };
       expect(DR.wireCommands()).toBe(true);
       expect(got.init.app).toBe('drive');
