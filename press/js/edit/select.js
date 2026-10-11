@@ -170,7 +170,10 @@
       if (hd && hd.h) c = { n: 'ns', s: 'ns', e: 'ew', w: 'ew', nw: 'nwse', se: 'nwse', ne: 'nesw', sw: 'nesw' }[hd.h] + '-resize';
       else if (hd && hd.port) c = 'pointer';
       else if (SEL.guideAt(w)) c = 'move';
-      else if (T.hit(w.x, w.y)) c = 'move';
+      var hv = T.hit(w.x, w.y);
+      if (hv) c = 'move';
+      var hid = hv && S.sel.indexOf(hv.it.id) < 0 ? hv.it.id : null;
+      if (hid !== T.hover) { T.hover = hid; V.request(); }
       V.canvas.style.cursor = SEL.loaded ? 'copy' : c;
     }
   });

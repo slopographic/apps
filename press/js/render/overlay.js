@@ -42,6 +42,9 @@
         ctx.restore();
       });
     });
+    // hover highlight (Selection tool)
+    var hv = PR.tools.hover && S.tool === 'select' && !PR.tools.drag ? M.findItem(doc, PR.tools.hover) : null;
+    if (hv) { var hs0 = PT.surfaceOf(hv.item); if (hs0) { ctx.save(); itemSpace(ctx, hs0, hv.item); ctx.strokeStyle = layerColor(hv.item); ctx.lineWidth = 1.5 * px; I.tracePath(ctx, hv.item.type === 'line' ? I.path(hv.item) : [['M', 0, 0], ['L', hv.item.w, 0], ['L', hv.item.w, hv.item.h], ['L', 0, hv.item.h], ['Z']]); ctx.stroke(); ctx.restore(); } }
     // text selection + caret
     if (S.text) drawText(ctx);
     // selection

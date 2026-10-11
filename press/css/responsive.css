@@ -18,7 +18,9 @@
 @media (max-width: 560px) {
   :root { --ruler: 0px; --toolbar-w: 0px; }
   .ruler, .ruler-corner { display: none; }
-  .toolbar { display: none; }
+  .toolbar { position: fixed; left: 0; right: 0; bottom: var(--sb-h); height: 42px; z-index: 30; flex-direction: row; justify-content: flex-start; padding: 0 6px; gap: 2px; overflow-x: auto; overflow-y: hidden; border-right: 0; border-top: 1px solid var(--border-dark); }
+  .tool-sep { width: 1px; height: 24px; margin: 0 4px; }
+  .paint-chips { margin-top: 0; }
   .main { grid-template-columns: minmax(0, 1fr) !important; }
   .sb-hint, .sb-pos { display: none; }
   .statusbar { gap: 6px; }
@@ -64,3 +66,4 @@
 .pr-pal-list button.on, .pr-pal-list button:hover { background: var(--sui-hover); }
 .pr-pal-list small { color: var(--sui-faint); }
 @media (max-width: 560px) { .pr-form .sui-field { grid-template-columns: 96px minmax(0, 1fr) 24px; } .pr-cols { grid-template-columns: 1fr; } }
+.sui-dlg.pr-mid { width: min(620px, 100%); }

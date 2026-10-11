@@ -56,7 +56,7 @@
   UI.newDocument = function () {
     var proto = M.create({ pages: 4, facing: true });
     var f = setupForm(proto, true);
-    SU().dialog({ title: 'New Document', body: f.body, cls: 'sui-wide', buttons: [{ label: 'Templates…', act: function () { setTimeout(UI.templates, 160); } }, { label: 'Cancel' }, { label: 'Create', primary: true, act: function () {
+    SU().dialog({ title: 'New Document', body: f.body, cls: 'pr-mid', buttons: [{ label: 'Templates…', act: function () { setTimeout(UI.templates, 160); } }, { label: 'Cancel' }, { label: 'Create', primary: true, act: function () {
       var o = f.read(), doc = M.create({ name: 'Untitled', w: o.w, h: o.h, unit: o.unit, facing: o.facing, pages: o.pages, margins: o.margins, columns: o.columns, bleed: o.bleed, startPage: o.startPage });
       doc.slug = o.slug; doc.baseline = o.baseline;
       PR.setDoc(doc); PR.view.fitPage(); U.toast('New document');
@@ -64,7 +64,7 @@
   };
   UI.docSetup = function (tab) {
     var d = S.doc, f = setupForm(d, false, tab);
-    SU().dialog({ title: tab === 'margins' ? 'Margins and Columns' : 'Document Setup', body: f.body, cls: 'sui-wide', buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true, act: function () {
+    SU().dialog({ title: tab === 'margins' ? 'Margins and Columns' : 'Document Setup', body: f.body, cls: 'pr-mid', buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true, act: function () {
       var o = f.read();
       d.unit = o.unit; d.size = { w: o.w, h: o.h }; d.startPage = o.startPage; d.margins = o.margins; d.bleed = o.bleed; d.slug = o.slug; d.columns = o.columns; d.baseline = o.baseline;
       if (d.facing !== o.facing) { d.facing = o.facing; d.masters.forEach(function (m) { if (o.facing && m.pages.length === 1) m.pages.push(U.clone(m.pages[0])); if (!o.facing && m.pages.length === 2) m.pages = [m.pages[1]]; }); }

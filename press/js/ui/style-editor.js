@@ -78,7 +78,7 @@
         textDecoration: (v.underline ? 'underline ' : '') + (v.strike ? 'line-through' : ''), textIndent: (v.indentFirst || 0) + 'px', lineHeight: v.leading && v.leading !== 'auto' ? (v.leading / (v.size || 12)) : 1.2 });
     }
     body.addEventListener('input', renderPreview); body.addEventListener('change', renderPreview); renderPreview();
-    SU().dialog({ title: (isNew ? 'New ' : 'Edit ') + (kind === 'para' ? 'Paragraph' : 'Character') + ' Style', body: body, cls: 'sui-wide', buttons: [{ label: 'Cancel' }, { label: isNew ? 'Create' : 'OK', primary: true, act: function () {
+    SU().dialog({ title: (isNew ? 'New ' : 'Edit ') + (kind === 'para' ? 'Paragraph' : 'Character') + ' Style', body: body, cls: 'pr-mid', buttons: [{ label: 'Cancel' }, { label: isNew ? 'Create' : 'OK', primary: true, act: function () {
       var nm = (nameIn.value || '').trim(); if (!nm) return false;
       if (nm !== name && table[nm]) { U.toast('A style named “' + nm + '” exists'); return false; }
       var v = collect(), parent = kind === 'para' ? parentEff(based.value) : (based.value ? STY.char(doc, based.value) : {}), out = {};

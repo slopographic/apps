@@ -3,7 +3,7 @@
   'use strict';
   var PR = window.PR, U = PR.util, h = U.h, S = PR.state, P = PR.pages, M = PR.model, H = PR.history, R = PR.render;
   var UI = PR.ui = PR.ui || {};
-  var picked = [], thumbW = 54;
+  var picked = [], thumbW = 44;
 
   function masterChip(m) {
     var on = S.editMaster && S.editMaster.id === (m && m.id);

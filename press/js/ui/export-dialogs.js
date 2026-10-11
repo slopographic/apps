@@ -38,7 +38,7 @@
       h('p', { class: 'sui-p' }, 'TrimBox = page size, BleedBox = page + bleed, MediaBox grows to fit the marks. Process (CMYK) swatches are written as CMYK; marks use the Registration colour.'),
       subList ? h('p', { class: 'sui-p' }, 'ⓘ No font file to embed for: ' + subList + '. Text positions stay exact; load a .ttf/.otf (File ▸ Load Font File) to embed the real design.') : null,
       over ? h('p', { class: 'sui-p', style: { color: '#ff6b6b' } }, '⚠ ' + over + ' stor' + (over === 1 ? 'y has' : 'ies have') + ' overset text that will not be exported.') : null);
-    SU().dialog({ title: 'Export PDF', body: body, cls: 'sui-wide', buttons: [{ label: 'Cancel' }, { label: 'Export', primary: true, act: function () {
+    SU().dialog({ title: 'Export PDF', body: body, cls: 'pr-mid', buttons: [{ label: 'Cancel' }, { label: 'Export', primary: true, act: function () {
       var o = { preset: preset.value, bleed: bleed.input.checked, cropMarks: crop.input.checked, bleedMarks: bm.input.checked, regMarks: reg.input.checked, pageInfo: info.input.checked, embed: emb.input.checked };
       ST.pref('pdfopts', o);
       busy('Exporting PDF', PR.pdf.download(U.assign({ pages: rg.pages() }, o)));
