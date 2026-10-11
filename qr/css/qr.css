@@ -1,0 +1,48 @@
+/* QR SLOP: layout only. Colours come from the --sl-* tokens that shared/theme/theme.js sets on every page, so the app follows
+ * the chosen theme. The two columns stack below 720 px, and nothing scrolls sideways at phone width. */
+[hidden] { display: none !important; }
+html, body { margin: 0; min-height: 100%; }
+body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.qr-app { max-width: 1100px; margin: 0 auto; padding: 0 16px 32px; box-sizing: border-box; min-width: 0; }
+.qr-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 12px 0; border-bottom: 1px solid var(--sl-border); }
+.qr-brand { display: flex; align-items: center; gap: 8px; }
+.qr-brand h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: .01em; }
+.qr-logo { width: 14px; height: 14px; border-radius: 3px; background: var(--sl-accent); }
+.qr-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.qr-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 18px; padding: 14px 0; }
+.qr-modes { display: flex; gap: 6px; }
+.qr-modes [aria-pressed="true"] { background: var(--sl-accent); color: var(--sl-on-accent); border-color: var(--sl-accent); }
+.qr-opts { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; min-width: 0; }
+.qr-opts .sui-field { min-width: 0; }
+.qr-opts input[type="color"] { width: 44px; height: 32px; padding: 2px; border: 1px solid var(--sl-border); border-radius: 6px; background: var(--sl-surface); }
+.qr-opts input[type="color"]:disabled { opacity: .45; }
+.qr-single { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.qr-panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 16px; box-sizing: border-box; background: var(--sl-surface); border: 1px solid var(--sl-border); border-radius: 10px; }
+.qr-form { display: grid; gap: 10px; min-width: 0; }
+.qr-form .sui-field, .qr-panel > .sui-field { min-width: 0; }
+.qr-label { font-size: 13px; color: color-mix(in srgb, var(--sl-text) 72%, transparent); }
+.qr-err { min-height: 1.4em; margin: 0; font-weight: 600; }
+.qr-err:not(:empty) { border-left: 3px solid var(--sl-accent); padding-left: 8px; }
+.qr-payload { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.qr-pre { margin: 0; max-height: 140px; overflow: auto; padding: 8px 10px; border: 1px solid var(--sl-border); border-radius: 6px; background: var(--sl-background); font: 12px/1.45 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.qr-pre:empty::before { content: "Nothing to encode yet."; color: color-mix(in srgb, var(--sl-text) 60%, transparent); }
+.qr-out { align-items: stretch; }
+.qr-preview { display: grid; place-items: center; min-height: 300px; padding: 12px; box-sizing: border-box; border: 1px dashed var(--sl-border); border-radius: 8px; background: var(--sl-background); }
+.qr-preview svg { display: block; width: min(100%, 420px); height: auto; max-width: 100%; }
+.qr-off { margin: 0; color: color-mix(in srgb, var(--sl-text) 60%, transparent); text-align: center; }
+.qr-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.qr-note { color: color-mix(in srgb, var(--sl-text) 72%, transparent); font-size: 13px; }
+.qr-batch { display: flex; flex-direction: column; gap: 16px; }
+.qr-batch-in { width: 100%; box-sizing: border-box; font: 13px/1.45 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; resize: vertical; }
+.qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.qr-card { display: flex; flex-direction: column; gap: 8px; margin: 0; min-width: 0; padding: 10px; box-sizing: border-box; background: var(--sl-surface); border: 1px solid var(--sl-border); border-radius: 10px; }
+.qr-card-art { display: grid; place-items: center; background: var(--sl-background); border-radius: 6px; padding: 8px; }
+.qr-card-art svg { display: block; width: 100%; height: auto; }
+.qr-card-bad { min-height: 120px; padding: 10px; font-size: 12px; text-align: center; }
+.qr-card-cap { font-size: 12px; color: color-mix(in srgb, var(--sl-text) 72%, transparent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.qr-card-btns { display: flex; gap: 6px; }
+@media (max-width: 720px) {
+  .qr-single { grid-template-columns: minmax(0, 1fr); }
+  .qr-app { padding: 0 16px 24px; }
+  .qr-preview { min-height: 240px; }
+}
