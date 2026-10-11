@@ -15,7 +15,7 @@
       await H.clear(); await DR.refresh(); DR.render();
       sent = [];
       H.sendTo = async (app, blob, name, o) => { sent.push({ app, name, id: o && o.id }); return o && o.id; };
-      const want = W.SLOP_APPS.filter((a) => a.creates).map((a) => a.id);
+      const want = W.SLOP_APPS.filter((a) => Array.isArray(a.creates) && a.creates.length).map((a) => a.id);
       expect(want).toContain('docs');
       expect(DR.creatables().map((c) => c.app.id)).toEqual(want);
       expect(DR.newItems().map((i) => i.label)).toContain('Document (Slop Docs)');
