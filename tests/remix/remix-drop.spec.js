@@ -79,7 +79,7 @@
       const notes = new (win().File)(['hello'], 'notes.txt', { type: 'text/plain' });
       const dt = dataTransfer([notes, await picture('beside.png')]);
       ev('drop', dt, $('rm-bin'));
-      await waitFor(() => toast().indexOf('Added') === 0, { timeout: 20000 });
+      await waitFor(() => toast() === 'Added 1 file, 1 skipped: notes.txt is not a picture or video', { timeout: 20000 });
       expect(toast()).toBe('Added 1 file, 1 skipped: notes.txt is not a picture or video');
       expect(RM().state.items.length).toBe(before + 1);
       const refused = rows().find((r) => r.querySelector('.sd-name').textContent === 'notes.txt');

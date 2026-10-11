@@ -31,11 +31,13 @@
    *     value }], skipped: [{ name, reason }] }. reveal(summary)?: returns the element to scroll into view and flash.
    *   targets?: elements that take drops (default: the zone). They are outlined while a file drag is over the window.
    *   input?: an existing <input type=file> to use for Choose files (its change event runs the same batch).
-   *   label?, hint?: text for the zone. toast?: false to hide the toast. multiple?: default true.
+   *   limit?: most files taken in one drop (the rest are refused with a reason). label?, hint?: text for the zone.
+   *   toast?: false to hide the toast. multiple?: default true.
    *  Returns { choose(), run(files), destroy() }. */
   SD.attach = function (zone, o) {
     const rules = o.accept || {};
     const targets = o.targets && o.targets.length ? o.targets : [zone];
+    const limit = o.limit || Infinity;
     const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint });
     const input = o.input || doc.createElement('input');
     input.type = 'file';
@@ -59,9 +61,10 @@
       const take = [], added = [], skipped = [];
       for (const f of files) {
         const c = R.check(f, rules);
-        if (c.ok) { take.push(f); continue; }
-        skipped.push({ name: f.name, reason: c.reason });
-        PN.row(ui.list, f.name, R.size(f.size)).set('error', c.reason);
+        const reason = !c.ok ? c.reason : take.length >= limit ? f.name + ' is not taken: ' + (limit === 1 ? 'only one file at a time' : 'only ' + limit + ' files at a time') : '';
+        if (!reason) { take.push(f); continue; }
+        skipped.push({ name: f.name, reason });
+        PN.row(ui.list, f.name, R.size(f.size)).set('error', reason);
       }
       if (o.begin && take.length) { try { o.begin(take); } catch (err) { console.error('SlopDrop begin', err); } }
       for (const f of take) {

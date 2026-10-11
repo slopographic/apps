@@ -62,3 +62,9 @@ h2 small { font-weight: 400; text-transform: none; }
 .rm-kkey { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; padding: 0; border-radius: 50%; border: 2px solid var(--rm-accent); background: var(--rm-panel); cursor: ew-resize; touch-action: none; }
 .rm-kkey.on { background: var(--rm-accent); }
 .rm-fxrow { list-style: none; margin-top: 6px; color: var(--rm-text); }
+/* Moving clips and cuts */
+.rm-ghost { position: fixed; width: 120px; height: 120px; border: 2px solid var(--rm-accent); border-radius: 6px; pointer-events: none; z-index: 50; display: none; opacity: .9; }
+.rm-hl { position: fixed; pointer-events: none; z-index: 40; border: 3px solid var(--rm-accent); background: rgba(124, 147, 255, .18); display: none; }
+.rm-cuts li[data-drop=before] { box-shadow: inset 0 2px 0 var(--rm-accent); }
+.rm-cuts li[data-drop=after] { box-shadow: inset 0 -2px 0 var(--rm-accent); }
+.rm-cuts li[draggable=true] { cursor: grab; }

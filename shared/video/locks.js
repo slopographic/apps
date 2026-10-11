@@ -13,14 +13,14 @@
     const list = (locks || []).slice();
     const i = list.findIndex((l) => l.cut === cut && l.slot === slot);
     if (i >= 0) list.splice(i, 1);
-    else if (item) list.push({ cut, slot, media: item.media, in: item.in || 0, fill: item.fill || 'auto' });
+    else if (item) list.push({ cut, slot, media: item.media, in: item.in || 0, fill: item.fill || 'auto', pan: item.pan });
     return list;
   };
   /** Locks for every slot of cut (all locked, or all unlocked when every slot already is). */
   LK.toggleCut = function (locks, cut, beat) {
     const all = beat.every((it) => LK.has(locks, cut, it.slot));
     let list = (locks || []).filter((l) => l.cut !== cut);
-    if (!all) for (const it of beat) list = list.concat([{ cut, slot: it.slot, media: it.media, in: it.in || 0, fill: it.fill || 'auto' }]);
+    if (!all) for (const it of beat) list = list.concat([{ cut, slot: it.slot, media: it.media, in: it.in || 0, fill: it.fill || 'auto', pan: it.pan }]);
     return list;
   };
   /**
@@ -36,6 +36,7 @@
       it.media = m.id;
       it.in = m.kind === 'image' ? 0 : Math.max(0, Math.min(l.in || 0, m.dur - it.dur));
       it.fill = l.fill || 'auto';
+      if (l.pan) it.pan = l.pan;
     }
     return plan;
   };

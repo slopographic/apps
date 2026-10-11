@@ -26,8 +26,8 @@
     { id: 'image-edit', category: 'image', name: 'Image editing', apps: ['photoslop'],
       panels: {
         canvas: { show: true, side: 'center', size: null },
-        tools: { show: true, side: 'left', size: 56 },
-        panels: { show: true, side: 'right', size: 300 },
+        tools: { show: true, side: 'left', size: 62 },
+        panels: { show: true, side: 'right', size: 280 },
       } },
     { id: '3d-view', category: '3d', name: '3D', apps: ['3d'],
       panels: {
