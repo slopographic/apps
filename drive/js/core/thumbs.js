@@ -90,7 +90,7 @@
   /** Fill an element with the thumbnail when ready. */
   DR.fillThumb = function (box, r) {
     DR.thumb(r).then((url) => {
-      if (!url || !box.isConnected && box.dataset.wait !== '1') return;
+      if (!url) return;
       const img = DR.el('img', { src: url, alt: '', draggable: 'false', decoding: 'async' });
       box.replaceChildren(img); box.classList.add('has-img');
     });
