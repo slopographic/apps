@@ -33,7 +33,7 @@
     A('2100', 'experiment', 'WWW 2100', '2100/', 'Browse the web as it will be in the year 2100.', { shot: 'assets/shots/2100.jpg', status: 'building' }),
     A('tank', 'experiment', 'Slop Tank', 'fluid/', 'A real-time fluid you can stir.', { shot: 'assets/shots/tank.jpg' }),
     A('lighter', 'experiment', 'Slop Lighter', 'lighter/', 'Flick it. Strike it. Slop flames.', { shot: 'assets/shots/lighter.jpg' }),
-    A('reel', 'experiment', 'Sloppo Reel', 'reel/', 'The 3D showreel. Feed Sloppo, level him up.', { shot: 'assets/shots/reel.jpg', status: 'building' }),
+    A('reel', 'experiment', 'Sloppo Reel', 'reel/', 'The 3D showreel. Feed Sloppo, level him up.', { shot: 'assets/shots/reel.jpg' }),
     A('unsubscribe', 'experiment', 'Unsubscribe', 'annoying/', 'Every dark pattern on the internet, in one form.', { shot: 'assets/shots/unsubscribe.jpg' }),
     A('authenticator', 'experiment', 'The Authenticator', '#detector', 'Is your text secretly slop? Get it certified.', { shot: 'assets/shots/authenticator.jpg' }),
     A('paint-classic', 'experiment', 'Slop Paint Classic', 'paint/classic/', 'The 1998 experience. Every MS Paint tool.', { shot: 'assets/shots/paint-classic.jpg' }),
