@@ -4,7 +4,7 @@ A photo library that runs entirely in the browser. Classic scripts, no build ste
 
 ## What works (tested)
 
-Run `node tests/run.mjs gallery`: 53 checks in `tests/gallery/` (library and I/O page, an app page that boots the real UI in an iframe, and `reel.test.html`, which runs the gallery and SlopEdit in iframes for Make reel).
+Run `node tests/run.mjs gallery`: 56 checks in `tests/gallery/` (library and I/O page, an app page that boots the real UI in an iframe, and `reel.test.html`, which runs the gallery and SlopEdit in iframes for Make reel).
 
 ## Make reel (Gallery to SlopEdit)
 
