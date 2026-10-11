@@ -114,12 +114,15 @@ const filterMenu = (group) => FILTERS.filter((f) => f.menu === group || (f.sep =
 function filterSub(name) { return { label: name, sub: filterMenu(name) }; }
 const MENUS = [
   ['File', [
-    { label: 'New…', key: 'Ctrl+N', act: () => dlgNew() },
+    { label: 'New…', key: 'Ctrl+N', alt: ['Alt+Ctrl+N'], act: () => dlgNew() },
     { label: 'Open…', key: 'Ctrl+O', act: () => openFilePicker(false) },
+    { label: 'Close', key: 'Alt+Ctrl+W', act: () => closeDoc() },
+    { label: 'Close Others', act: async () => { for (const r of DOCS.filter((d) => d !== CUR)) await closeDoc(r); }, en: () => DOCS.length > 1 },
     { label: 'Place Image as Layer…', key: 'Shift+Ctrl+P', act: () => openFilePicker(true) },
     { label: 'New from Clipboard', key: 'Alt+Shift+Ctrl+N', act: () => newFromClipboard() },
     '-',
     { label: 'Save as Photoshop (.psd)', key: 'Ctrl+S', act: () => savePSD() },
+    { label: 'Save as OpenRaster (.ora)', act: () => saveORA() },
     { label: 'Export As…', key: 'Alt+Shift+Ctrl+W', act: () => dlgExport() },
     { label: 'Quick Export as PNG', key: 'Alt+Shift+Ctrl+S', act: () => quickExport() },
     { label: 'Export Layers as PNGs', act: () => exportLayers() },
@@ -142,7 +145,7 @@ const MENUS = [
     { label: 'Fill with Background', key: 'Ctrl+Backspace', act: () => fillSelection(C.bg, 'Fill'), need: 'layer' },
     { label: 'Stroke Selection…', act: () => dlgStroke(), en: () => !!D.sel },
     '-',
-    { label: 'Free Transform', key: 'Ctrl+T', act: () => startTransform(), need: 'layer' },
+    { label: 'Free Transform', key: 'Ctrl+T', alt: ['Alt+Ctrl+T'], act: () => startTransform(), need: 'layer' },
     { label: 'Transform', sub: [
       { label: 'Rotate 180°', act: () => transformLayerQuick('180') },
       { label: 'Rotate 90° Clockwise', act: () => transformLayerQuick('cw') },
@@ -243,6 +246,7 @@ const MENUS = [
     ] },
     { label: 'Show / Hide Panels', key: 'Tab', act: () => document.body.classList.toggle('no-panels') },
   ]],
+  ['Window', () => windowMenuItems()],
   ['Help', [
     { label: 'Keyboard Shortcuts…', act: () => dlgShortcuts() },
     { label: 'About Slop Shop', act: () => dlgAbout() },
@@ -252,17 +256,20 @@ const MENUS = [
   ]],
 ];
 const SHORTCUTS = new Map();
-function collectShortcuts(items) { for (const it of items) { if (it === '-' || !it) continue; if (it.sub) collectShortcuts(it.sub); if (it.key) SHORTCUTS.set(normCombo(it.key), it); } }
-MENUS.forEach(([, items]) => collectShortcuts(items));
+function collectShortcuts(items) { for (const it of items) { if (it === '-' || !it) continue; if (it.sub) collectShortcuts(it.sub); if (it.key) SHORTCUTS.set(normCombo(it.key), it); for (const k of it.alt || []) SHORTCUTS.set(normCombo(k), it); } }
+MENUS.forEach(([, items]) => { if (Array.isArray(items)) collectShortcuts(items); });
+SHORTCUTS.set(normCombo('Ctrl+Tab'), { act: () => cycleDoc(1) });
+SHORTCUTS.set(normCombo('Shift+Ctrl+Tab'), { act: () => cycleDoc(-1) });
 
 let openMenu = null;
 function buildMenubar() {
   const bar = $('#menubar');
   for (const [name, items] of MENUS) {
     const btn = h('button', { class: 'mb-item', type: 'button', 'aria-haspopup': 'true' }, name);
-    btn.addEventListener('pointerdown', (e) => { e.preventDefault(); if (openMenu && openMenu.btn === btn) closeMenus(); else showMenu(btn, items); });
-    btn.addEventListener('pointerenter', () => { if (openMenu && openMenu.btn !== btn) showMenu(btn, items); });
-    btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); showMenu(btn, items, true); } });
+    const list = () => (typeof items === 'function' ? items() : items);
+    btn.addEventListener('pointerdown', (e) => { e.preventDefault(); if (openMenu && openMenu.btn === btn) closeMenus(); else showMenu(btn, list()); });
+    btn.addEventListener('pointerenter', () => { if (openMenu && openMenu.btn !== btn) showMenu(btn, list()); });
+    btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); showMenu(btn, list(), true); } });
     bar.append(btn);
   }
   document.addEventListener('pointerdown', (e) => { if (openMenu && !e.target.closest('.menu, .mb-item')) closeMenus(); });
@@ -753,11 +760,9 @@ function dlgNew() {
   const bg = h('select', null, [['#ffffff', 'White'], ['#000000', 'Black'], ['fg', 'Foreground colour'], ['bg', 'Background colour'], ['transparent', 'Transparent']].map(([v, l]) => h('option', { value: v }, l)));
   const name = h('input', { type: 'text', value: 'Untitled' });
   dialog({ title: 'New Document', body: h('div', { class: 'form' }, field('Name', name), field('Preset', preset), field('Width', w, 'px'), field('Height', hh, 'px'), field('Background', bg)),
-    buttons: [{ label: 'Cancel' }, { label: 'Create', primary: true, act: async () => {
-      if (D.dirty && !(await confirmDlg('Discard changes?', 'Your current document has unsaved changes. Create a new one anyway?', 'Discard'))) return false;
+    buttons: [{ label: 'Cancel' }, { label: 'Create', primary: true, act: () => {
       const b = bg.value === 'fg' ? C.fg : bg.value === 'bg' ? C.bg : bg.value;
-      newDocument(clamp(+w.value || 1, 1, 12000), clamp(+hh.value || 1, 1, 12000), b, name.value || 'Untitled');
-      fitView(); scheduleAutosave();
+      newDocTab(clamp(+w.value || 1, 1, 12000), clamp(+hh.value || 1, 1, 12000), b, name.value || 'Untitled');
     } }] });
 }
 function anchorGrid(state) {
@@ -811,7 +816,7 @@ function dlgColorRange() {
 function dlgShortcuts() {
   const rows = [];
   const walk = (items, path) => { for (const it of items) { if (it === '-' || !it) continue; if (it.sub) walk(it.sub, path + ' › ' + it.label); else if (it.key) rows.push([path + ' › ' + it.label, it.key]); } };
-  MENUS.forEach(([n, items]) => walk(items, n));
+  MENUS.forEach(([n, items]) => walk(typeof items === 'function' ? items() : items, n));
   const toolRows = TOOLS.map((t) => [t.name, t.key + (TOOLS.filter((x) => x.key === t.key).length > 1 ? ' (Shift+' + t.key + ' cycles)' : '')]);
   const extra = [['Pan', 'Space + drag · middle mouse · two fingers'], ['Zoom', 'Ctrl/⌘ + wheel · pinch'], ['Brush size', '[ and ]'], ['Brush hardness', 'Shift+[ and Shift+]'], ['Tool opacity', '1 … 0'], ['Swap colours', 'X'], ['Default colours', 'D'], ['Nudge layer (Move tool)', 'Arrow keys · Shift = 10px'], ['Commit / cancel (Transform, Crop, Type)', 'Enter / Esc']];
   const table = (list) => h('table', { class: 'keys' }, list.map(([a, b]) => h('tr', null, h('td', null, a), h('td', null, h('kbd', null, keyLabel(b))))));
@@ -848,6 +853,7 @@ function onKeyDown(e) {
     if (!menuEnabled(item)) { e.preventDefault(); return; }
     e.preventDefault(); closeMenus(); item.act(); return;
   }
+  if (e.altKey && !e.ctrlKey && !e.metaKey && /^Digit[1-9]$/.test(e.code)) { const r = DOCS[+e.code.slice(5) - 1]; if (r) { e.preventDefault(); switchToDoc(r); } return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const k = combo.replace('Shift+', '');
   if (TOOL_KEYS[k] && !e.repeat) {
@@ -1006,8 +1012,7 @@ async function newFromClipboard() {
   try { const blob = await clipboardImage(); if (blob) c = await fileToCanvas(blob); } catch (e) { /* fall through */ }
   if (!c && CLIP.canvas) c = copyCanvas(CLIP.canvas);
   if (!c) { toast('The clipboard has no image'); return; }
-  if (!(await okToDiscard())) return;
-  openDocument(c.width, c.height, [{ name: 'Background', canvas: c }], 'Pasted image');
+  openDocTab(c.width, c.height, [{ name: 'Background', canvas: c }], 'Pasted image');
 }
 
 function brushPickerButton() {

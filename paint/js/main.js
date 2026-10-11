@@ -58,14 +58,14 @@ async function boot() {
   window.addEventListener('keydown', (e) => { pasteInPlace = e.shiftKey; }, true);
   window.addEventListener('blur', () => { V.space = false; V.el.classList.remove('space'); });
   document.addEventListener('paste', onPaste);
-  document.addEventListener('dragover', (e) => { e.preventDefault(); document.body.classList.add('dropping'); });
-  document.addEventListener('dragleave', (e) => { if (!e.relatedTarget) document.body.classList.remove('dropping'); });
-  document.addEventListener('drop', onDrop);
-  window.addEventListener('beforeunload', (e) => { if (D.dirty && Hist.idx > 0) { autosave(); e.preventDefault(); e.returnValue = ''; } });
+  document.addEventListener('dragover', onDragOver);
+  document.addEventListener('dragleave', (e) => { if (!e.relatedTarget || !document.contains(e.relatedTarget)) document.body.classList.remove('dropping'); });
+  document.addEventListener('drop', onDropFiles);
+  window.addEventListener('beforeunload', (e) => { flushAutosave(); if (DOCS.some(docIsDirty)) { e.preventDefault(); e.returnValue = ''; } });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && D.dirty) autosave(); });
   listeners.add((w) => { if (w === 'history' && Hist.idx > 0) scheduleAutosave(); });
   const restored = await loadAutosave();
-  if (!restored) await sampleDocument();
+  if (!restored) { let done; openInNewTab(() => { done = sampleDocument(); }); await done; renderTabs(); }
   emit('docname');
   document.body.classList.add('ready');
   if (!store.get('welcomed', false)) { store.set('welcomed', true); setTimeout(() => toast('Welcome to Slop Shop. Everything stays on your device.', 3600), 400); }

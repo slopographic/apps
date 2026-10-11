@@ -66,32 +66,24 @@ async function fileToCanvas(file) {
 const isPSD = (f) => /\.ps[db]$/i.test(f.name) || f.type === 'image/vnd.adobe.photoshop';
 function openFilePicker(place) {
   const inp = $('#fileIn');
-  inp.accept = 'image/*,.psd'; inp.multiple = !!place; inp.value = '';
+  inp.accept = OPENABLE; inp.multiple = true; inp.value = '';
   inp.onchange = () => { if (inp.files.length) handleFiles([...inp.files], place); };
   inp.click();
 }
+/** Open each file in its own tab, or (place) add them to the current document as layers. */
 async function handleFiles(files, place) {
   document.body.classList.add('busy');
-  try {
-    for (const f of files) {
-      const name = f.name.replace(/\.[^.]+$/, '');
-      if (isPSD(f)) {
-        const doc = await readPSD(await f.arrayBuffer());
-        if (place) { const c = mkCanvas(doc.w, doc.h), g = cx(c); for (const L of doc.layers) { if (!L.visible) continue; g.globalAlpha = L.opacity; g.globalCompositeOperation = BLEND_OP[L.blend]; g.drawImage(L.canvas, L.x, L.y); } pasteCanvas(c, null, null, name); }
-        else { if (!(await okToDiscard())) return; openDocument(doc.w, doc.h, doc.layers, name); toast(`Opened ${f.name}: ${doc.layers.length} layer${doc.layers.length === 1 ? '' : 's'}`); }
-      } else if (f.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|svg|avif|ico)$/i.test(f.name)) {
-        const c = await fileToCanvas(f);
-        if (place) pasteCanvas(c, null, null, name);
-        else { if (!(await okToDiscard())) return; openDocument(c.width, c.height, [{ name: 'Background', canvas: c, x: 0, y: 0 }], name); toast(`Opened ${f.name}`); }
-      } else toast(`Can't open ${f.name}`);
-      place = true; // further files in the same drop become layers
-    }
-  } catch (e) { console.warn(e); alertDlg('Could not open that file', e.message || String(e)); }
-  finally { document.body.classList.remove('busy'); }
-}
-async function okToDiscard() {
-  if (!D.dirty || Hist.idx === 0) return true;
-  return confirmDlg('Discard changes?', 'Opening a file replaces the current document. Your unsaved changes will be lost.', 'Discard and open');
+  let opened = 0;
+  for (const f of files) {
+    const name = (f.name || 'Untitled').replace(/\.[^.]+$/, '') || 'Untitled';
+    try {
+      const doc = await readAnyFile(f);
+      if (place) pasteCanvas(doc.layers.length === 1 && !doc.layers[0].x && !doc.layers[0].y ? doc.layers[0].canvas : flattenDocLayers(doc), null, null, name);
+      else { openDocTab(doc.w, doc.h, doc.layers, name); opened++; }
+    } catch (e) { console.warn(e); toast(`Couldn't open ${f.name}: ${e.message || e}`, 4200); }
+  }
+  if (opened) toast(opened === 1 ? `Opened ${files[0].name}` : `Opened ${opened} files in tabs`);
+  document.body.classList.remove('busy');
 }
 function openDocument(w, hh, layers, name) {
   if (TE.el) endTypeEdit(true);
@@ -104,15 +96,6 @@ function openDocument(w, hh, layers, name) {
   emit('docname');
   scheduleAutosave();
 }
-function onDrop(e) {
-  e.preventDefault();
-  document.body.classList.remove('dropping');
-  const files = [...(e.dataTransfer.files || [])];
-  if (!files.length) return;
-  const fresh = Hist.idx === 0 && !D.dirty;
-  handleFiles(files, !fresh);
-}
-
 /* ---------- saving & export ---------- */
 const safeName = () => (D.name || 'Untitled').replace(/[\\/:*?"<>|]+/g, '-').trim() || 'Untitled';
 async function savePSD() {
@@ -203,41 +186,62 @@ function idb() {
   });
 }
 async function idbDo(mode, fn) { const db = await idb(); return new Promise((res, rej) => { const tx = db.transaction('kv', mode), st = tx.objectStore('kv'), r = fn(st); tx.oncomplete = () => res(r && r.result); tx.onerror = () => rej(tx.error); }); }
-let autosaveTimer = 0, autosaving = false;
+let autosaveTimer = 0;
+const pngCache = new WeakMap(); // canvases are immutable once in a document, so their PNGs can be reused
+async function pngOf(c) { let p = pngCache.get(c); if (!p) { p = canvasToBlob(c); pngCache.set(c, p); } return p; }
 function scheduleAutosave() { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(autosave, 1500); }
+function flushAutosave() { if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = 0; autosave(); } }
+function saveTabsIndex() { if (!CUR) return; idbDo('readwrite', (st) => st.put({ ids: DOCS.map((d) => d.id), active: CUR.id }, 'tabs')).catch(() => {}); }
 async function autosave() {
-  if (live || V.op || autosaving) { scheduleAutosave(); return; }
-  autosaving = true;
+  autosaveTimer = 0;
+  if (!CUR) return;
+  if (live || V.op) { scheduleAutosave(); return; }
+  // Capture synchronously: the user may switch tabs while PNGs encode.
+  const snap = { id: CUR.id, w: D.w, h: D.h, name: D.name, active: layerIndex(D.activeId), layers: D.layers.slice() };
   try {
     const layers = [];
-    for (const L of D.layers) {
+    for (const L of snap.layers) {
       layers.push({ name: L.name, x: L.x, y: L.y, visible: L.visible, opacity: L.opacity, blend: L.blend, locked: L.locked, text: L.text,
-        png: await canvasToBlob(L.canvas), mask: L.mask && { png: await canvasToBlob(L.mask.canvas), x: L.mask.x, y: L.mask.y, def: L.mask.def, enabled: L.mask.enabled } });
+        png: await pngOf(L.canvas), mask: L.mask && { png: await pngOf(L.mask.canvas), x: L.mask.x, y: L.mask.y, def: L.mask.def, enabled: L.mask.enabled } });
     }
-    await idbDo('readwrite', (st) => st.put({ v: 1, w: D.w, h: D.h, name: D.name, active: layerIndex(D.activeId), layers, time: Date.now() }, 'doc'));
+    if (!DOCS.some((d) => d.id === snap.id)) return; // closed meanwhile
+    await idbDo('readwrite', (st) => st.put({ v: 2, w: snap.w, h: snap.h, name: snap.name, active: snap.active, layers, time: Date.now() }, 'doc:' + snap.id));
+    saveTabsIndex();
     const s = $('#sbSaved'); if (s) { s.textContent = 'Saved on this device'; s.title = 'Recovered automatically if you close the tab. Never uploaded.'; }
   } catch (e) { const s = $('#sbSaved'); if (s) s.textContent = 'Recovery off'; }
-  autosaving = false;
 }
 async function blobToCanvasExact(b) { const u = URL.createObjectURL(b); try { const i = await loadImage(u); const c = mkCanvas(i.width, i.height); cx(c).drawImage(i, 0, 0); return c; } finally { URL.revokeObjectURL(u); } }
+async function docFromSaved(d) {
+  const layers = [];
+  for (const l of d.layers) {
+    const canvas = await blobToCanvasExact(l.png);
+    let mask = null;
+    if (l.mask) mask = { canvas: await blobToCanvasExact(l.mask.png), x: l.mask.x, y: l.mask.y, def: l.mask.def, enabled: l.mask.enabled };
+    layers.push({ name: l.name, canvas, x: l.x, y: l.y, visible: l.visible, opacity: l.opacity, blend: l.blend, locked: l.locked, text: l.text, mask });
+  }
+  return layers;
+}
 async function loadAutosave() {
   try {
-    const d = await idbDo('readonly', (st) => st.get('doc'));
-    if (!d || !d.layers || !d.layers.length) return false;
-    const layers = [];
-    for (const l of d.layers) {
-      const canvas = await blobToCanvasExact(l.png);
-      let mask = null;
-      if (l.mask) mask = { canvas: await blobToCanvasExact(l.mask.png), x: l.mask.x, y: l.mask.y, def: l.mask.def, enabled: l.mask.enabled };
-      layers.push({ name: l.name, canvas, x: l.x, y: l.y, visible: l.visible, opacity: l.opacity, blend: l.blend, locked: l.locked, text: l.text, mask });
+    const idx = await idbDo('readonly', (st) => st.get('tabs'));
+    const saved = [];
+    if (idx && idx.ids) for (const id of idx.ids) { const d = await idbDo('readonly', (st) => st.get('doc:' + id)); if (d && d.layers && d.layers.length) saved.push([id, d]); }
+    else { const d = await idbDo('readonly', (st) => st.get('doc')); if (d && d.layers && d.layers.length) saved.push([1, d]); }
+    if (!saved.length) return false;
+    let activeRec = null;
+    for (const [id, d] of saved) {
+      const layers = await docFromSaved(d);
+      const rec = openInNewTab(() => { openDocument(d.w, d.h, layers, d.name); if (d.active >= 0 && D.layers[d.active]) D.activeId = D.layers[d.active].id; }, id);
+      if (idx && idx.active === id) activeRec = rec;
     }
-    openDocument(d.w, d.h, layers, d.name);
-    if (d.active >= 0 && D.layers[d.active]) { D.activeId = D.layers[d.active].id; emit('doc'); }
-    toast('Recovered your last session (saved only on this device)', 3200);
+    if (activeRec) switchToDoc(activeRec);
+    toast(saved.length > 1 ? `Recovered ${saved.length} documents (saved only on this device)` : 'Recovered your last session (saved only on this device)', 3200);
     return true;
   } catch (e) { return false; }
 }
-async function clearAutosave() { try { await idbDo('readwrite', (st) => st.delete('doc')); toast('Recovery data cleared'); } catch (e) { toast('Nothing to clear'); } }
+async function clearAutosave() {
+  try { await idbDo('readwrite', (st) => st.clear()); toast('Recovery data cleared'); } catch (e) { toast('Nothing to clear'); }
+}
 
 /* ---------- offline single-file build ---------- */
 async function appSources() {

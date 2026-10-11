@@ -41,16 +41,22 @@
     <div class="options" id="options" role="toolbar" aria-label="Tool options"></div>
     <div class="main">
       <aside class="toolbox" id="toolbox" aria-label="Tools"></aside>
-      <div class="viewport" id="viewport">
-        <canvas id="view" aria-label="Image canvas"></canvas>
-        <div class="drop-hint" aria-hidden="true"><span>Drop images or PSDs to open or add as layers</span></div>
+      <div class="docarea">
+        <div class="tabs" id="tabs" role="tablist" aria-label="Open documents"></div>
+        <div class="viewport" id="viewport">
+          <canvas id="view" aria-label="Image canvas"></canvas>
+        </div>
+        <div class="drop-zones" aria-hidden="true">
+          <div class="dz dz-open" data-zone="open"><b>Open as new tabs</b><span>PSD, PNG, JPEG, WebP, GIF, SVG, TIFF, BMP, AVIF, ORA, KRA…</span></div>
+          <div class="dz dz-place" data-zone="place"><b>Place as layers</b><span>into <em class="dz-doc">this document</em></span></div>
+        </div>
       </div>
       <aside class="panels" id="panels" aria-label="Panels"></aside>
     </div>
     <footer class="status" id="status" aria-label="Status"></footer>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <input type="file" id="fileIn" hidden>
+  <input type="file" id="fileIn" multiple hidden>
   <noscript><p class="noscript">Slop Shop needs JavaScript to run. Nothing is uploaded: it all runs on your device.</p></noscript>
 
   <script src="js/util.js"></script>
@@ -61,6 +67,8 @@
   <script src="js/tools.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/io.js"></script>
+  <script src="js/formats.js"></script>
+  <script src="js/tabs.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
