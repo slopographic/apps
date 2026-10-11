@@ -18,7 +18,9 @@
   const vals = (kind = S.kind) => (S.values[kind] = S.values[kind] || {});
   /** Any edit to the form ends the raw override: the form is the source again. */
   function setValue(k, v) { vals()[k] = v; S.raw = null; }
-  function setKind(kind) { if (P.TYPES.includes(kind)) S.kind = kind; }
+  function setKind(kind) { if (P.TYPES.includes(kind)) { S.kind = kind; S.raw = null; } }
+  function setLabel(v) { S.label = String(v == null ? '' : v).slice(0, 80); }
+  function clearRaw() { S.raw = null; }
 
   /** The text to encode and whether there is one. Raw text is encoded exactly as typed. */
   function encodedText() {
@@ -86,6 +88,6 @@
   }
 
   g.QRState = Object.freeze({
-    S, DEFAULT_STYLE, SHAPES, vals, setValue, setKind, encodedText, renderOpts, setRaw, applyTemplate, snapshot, restore, reset,
+    S, DEFAULT_STYLE, SHAPES, vals, setValue, setKind, setLabel, clearRaw, encodedText, renderOpts, setRaw, applyTemplate, snapshot, restore, reset,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
