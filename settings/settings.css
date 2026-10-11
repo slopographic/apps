@@ -79,3 +79,15 @@
 .folder-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
 .folder-ask { display: grid; gap: 8px; margin: 8px 0; }
 .folder-changes { margin: 0; padding-left: 20px; }
+
+/* Storage section (settings/storage.js) */
+.storage-box { display: grid; gap: 10px; margin: 12px 0; }
+.storage-box .meter-h { display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: 13px; }
+.storage-parts { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.storage-parts li { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.storage-parts small { font-family: var(--mono); color: var(--bone-faint); text-align: right; }
+.storage-acts { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.storage-act { display: grid; gap: 6px; align-content: start; }
+.storage-act .btn { justify-self: start; }
+.meter-bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.meter-bar i { display: block; height: 100%; background: var(--slop); }
