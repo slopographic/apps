@@ -1,53 +1,74 @@
 # Slop Slides: handoff
 
-Keynote/PowerPoint alternative at `/slides/`. Status: **building** (no `index.html` yet; the model and renderer are done and tested, the editor UI is half-written).
+Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the first version works end to end: you can make a deck, edit it, save it to Slop Drive, reopen it, present it, and export PPTX. `node tests/run.mjs slides` is green (46 tests, 2 pages).
 
 ## Architecture
-- Classic scripts under the namespace `window.SS`. Load order is in `js/manifest.js` (`SS_MANIFEST`: core, render, anim, io, ui). The tests and the future `index.html` and offline build should all follow it.
-- The model unit is points: 16:9 is 960×540 and 4:3 is 720×540, so the PDF needs no conversion.
-- A deck is JSON with `size`, a full copy of `theme`, `master` (footer, showNumber), `slides[]` and `media{id:{mime,data}}`. For the object shapes, see the header comments in `js/core/model.js` and `js/core/objects.js`.
-- **Print parity:** `js/render/scene.js` turns a slide into a display list, which `js/render/canvas.js` draws. The PDF writer (not written yet) must draw the same display list.
-  - Text layout (`js/render/text.js`) measures with TTF metrics (`js/render/ttf.js`), not the browser.
-  - The canvas draws with the same TTF files and kerning off. This is verified to match within 1 px.
-- **Fonts:** `fonts/*.ttf` are static instances made from `shared/fonts` with `fonts/mkfonts.py` (fonttools + brotli). They cover latin and latin-ext, with GSUB and GPOS removed. OFL licenses are in the same folder.
-  - `SS.fonts` registers each file twice: as `SSF-<file>` for the canvas and as `SSG-<Family>` with weight/style descriptors for DOM text.
-  - `ttf.js` has a glyf subsetter for PDF embedding (keeps glyph ids, so use CIDToGIDMap Identity).
-- **Themes:** 8 themes in `js/core/themes.js`, including the Slopographic lime/dark theme `slop`. Colours can be theme refs (`accent1`, `text`, `accent1/60`).
-- **Layouts:** 9 layouts with placeholders in `js/core/layouts.js`. `layouts.apply` re-maps placeholders when a slide's layout changes.
-- **Templates:** pitch deck, photo album, lesson and quarterly report (`js/io/templates*.js`). They include builds, transitions and Magic Move slides as data.
+- Classic scripts under `window.SS`. The load order is `js/manifest.js` (`SS_MANIFEST`: core, render, anim, io, ui). `index.html` writes its script tags from that list, so the manifest is the only list. Tests and the future offline build use it too.
+- The model is in points: 16:9 is 960×540, 4:3 is 720×540.
+- A deck is JSON: `size`, a full copy of `theme`, `master` (footer, showNumber), `slides[]` and `media{id:{mime,data}}`. The shapes are documented in the header comments of `js/core/model.js` and `js/core/objects.js`.
+- **One display list for every output.** `js/render/scene.js` builds it, `js/render/canvas.js` draws it. The editor, thumbnails, Present mode and PNG export all use it.
+- **Editing goes through one function:** `SS.app.change(label, fn, key)` (`js/ui/app.js`). It records an undo step before `fn` runs, marks the deck unsaved and schedules an autosave. `A.touch()` is the same without an undo step (used during a drag). `A.hist` is `core/history.js`.
+- Views subscribe with `A.on(event, fn)`: `load`, `deck` (undo/redo replaced the deck object, so re-read it), `change`, `select`, `slide`, `render`, `mode`.
+- **Storage** (`js/io/`):
+  - `native.js`: `.sslide` read/write. Mime `application/x-slop-slides`.
+  - `draft.js`: the autosave draft in IndexedDB (`slop-slides`, store `drafts`, key `last`).
+  - `pptx.js`: PPTX writer on `shared/office/zip.js`.
 
-## Done (step 1, committed; `node tests/run.mjs slides` is 16/16 green)
-- Model:
-  - slides: add, duplicate, delete, move, hide; sections; size change with scaling
-  - media dedupe and garbage collection; z-order; align and distribute
-  - group and ungroup (PPTX-style `ch` child frame)
-  - undo/redo snapshots (`js/core/history.js`, with media kept out of snapshots)
-- Rendering:
-  - shapes, gradients, shadows, images with crop and mask, tables, bar/line/pie charts, media posters
-  - bullets and levels, autofit shrink, footer and slide numbers
+## Files
+| File | Job |
+| --- | --- |
+| `index.html`, `css/app.css` | page; desktop three columns, phones one column (canvas, slide strip, inspector) |
+| `js/ui/app.js` | state, `change`, history, selection, slide index, draft and guard hooks |
+| `js/ui/canvas-view.js` | canvas sizing, painting (coalesced per frame), screen ↔ slide mapping |
+| `js/ui/overlay.js` | selection outline, resize handles, hit testing, resize maths |
+| `js/ui/snap.js` | smart guides while moving |
+| `js/ui/pointer.js` | select, move, resize, Shift-toggle, double-click/double-tap to edit text |
+| `js/ui/textedit.js`, `textedit-parse.js` | overlay textarea over a text box or shape; maps lines back to paragraphs |
+| `js/ui/ops.js` | insert text/shape/picture, delete, duplicate, copy/paste, arrange, nudge, slide add/duplicate/delete/move, layout, theme, title |
+| `js/ui/sorter.js`, `sorter-drag.js` | slide strip: thumbnails, click to select, drag to reorder (desktop) |
+| `js/ui/inspector.js` | slide (layout, hidden, notes), document (footer, numbers), selection (position, size, rotation, opacity, fill, outline, font, size, bold, italic, align, colour, arrange) |
+| `js/ui/toolbar.js` | top bar; File menu (new, new from template, open, save, download, export) |
+| `js/ui/files.js` | Drive open/save, `?drive=` launch, zero-byte New file, picture and foreign files, `.sslide` download, PPTX and PNG export, boot and draft restore |
+| `js/ui/present.js` | Present mode |
+| `js/ui/commands.js` | every shortcut and palette command (SlopCmd, app `slides`) |
+| `js/ui/main.js` | boot; adds `body.ready` |
 
-## Half-done (step 2, editor UI)
-These files are written but not loaded anywhere and not tested. `SS_MANIFEST.ui` is still empty.
-- `js/ui/dom.js`, `js/ui/app.js` (state, `A.change`, events), `js/ui/canvas-view.js`, `js/ui/overlay.js`, `js/ui/snap.js`, `js/ui/pointer.js`
-- `js/ui/textedit.js` and `js/ui/textedit-parse.js`
-- `js/ui/sorter.js` and `js/ui/sorter-drag.js`
-- `js/ui/inspector.js` (tab shell and control kit; no tabs registered yet)
+## Works
+- **Boot:** fonts load, `SlopHub.register('slides')`, `consumeLaunch()`, then the launched file, else the last draft, else a blank deck.
+- **Slides:** add, duplicate, delete (never leaves zero), move up/down (buttons and drag), layout change (re-maps placeholders), hidden slides, notes, footer, slide numbers, theme choice, new deck from one of the four templates.
+- **Objects:** text boxes, rectangles, ellipses, pictures (file picker, scaled to 60% of the slide), move (with smart guides), resize from 8 handles (unrotated objects), rotation and opacity by field, copy/paste/duplicate, delete, arrange, arrow nudge (Shift for 10 pt), groups are drawn and flattened on export.
+- **Text:** double-click or double-tap, or Enter, opens an overlay textarea with the object's font, size, colour and alignment. Commit on blur, Escape or Ctrl/Cmd+Enter. Unchanged lines keep their runs; a changed line keeps the formatting of a one-run paragraph.
+- **Undo/redo:** every edit (`Mod+Z`, `Shift+Mod+Z`, `Mod+Y`); a drag is one step; a press that does not move adds no step; repeated field edits merge.
+- **Storage:**
+  - Ctrl+S saves to the same Drive id with `SlopHub.put` (keeps folder, star and trash state). The first save asks for a folder with `saveToDrive`. Save as a new file is in the File menu.
+  - `?drive=<id>` reopens; the address bar keeps the id.
+  - A zero-byte `.sslide` (Drive's New menu, "Untitled Presentation.sslide") opens as a blank deck linked to that file.
+  - A picture opens as a one-slide deck with no link. Other formats open as a blank deck with no link. A damaged `.sslide` is reported and never overwritten. In all three cases Save makes a new file, so nothing is overwritten.
+  - Autosave draft in IndexedDB about 1 s after each edit. It is restored at boot and cleared once the deck is saved. Unsaved state is reported to `SlopGuard`.
+- **Present:** full screen (Fullscreen API where allowed), Right/Down/PageDown/Space/Enter advance, Left/Up/PageUp/Backspace go back, Home/End jump, a click advances (left third goes back), B blacks out, Escape returns to the slide you were on, hidden slides are skipped, editing commands are off during the show.
+- **Export:** `.sslide` JSON download. PowerPoint `.pptx` (text with runs, bullets, alignment, shapes with fill and outline and rotation, pictures PNG/JPEG/GIF, backgrounds as solid colour). PNG of the current slide at 1920 px.
+- **Mobile:** at 390×844 there is no horizontal page scroll. The canvas, slide strip and inspector stack in one column. The top bar wraps.
+- **Shortcuts and palette:** SlopCmd (Mod+K, the keymap). Keys: Mod+N, Mod+O, Mod+S, Mod+Z, Shift+Mod+Z, Mod+Y, Mod+C, Mod+V, Mod+D, Mod+A, Delete, Escape, Enter, T (text box), Shift+Mod+Enter (new slide), PageUp/PageDown, F5 (Present), Arrow keys.
 
-These files are referenced but missing:
-- `SS.menus` (`objectMenu`, `slideMenu`, `sectionMenu`)
-- `SS.insert.pickImageFor`
-- `SS.chartData.open`
-- `SS.play`
+## Tests
+- `tests/slides/model.test.html` (existing): model, layouts, text layout, history, templates.
+- `tests/slides/app.test.html`: runs the real editor in iframes (`frame.js` helpers, `spec-boot.js`, `spec-storage.js`, `spec-present.js`). Covers boot, slides, text boxes and dragging, undo, double-click editing, inspector fields, picture insert, template, 390×844 layout, Ctrl+S to the same Drive id and reopen by `?drive=`, folder and star kept, zero-byte, picture, PowerPoint, damaged, draft restore, PPTX package, Present key handling.
+- PPTX was loaded with python-pptx (slide size, text, picture and shape positions). **Not yet opened in Microsoft PowerPoint.**
+
+## Missing (in rough order of value)
+1. **PDF export** from the display list (subset fonts via `js/render/ttf.js`). Not started. Stretch goal not done.
+2. **Transitions, builds and Magic Move** (`anim/` is empty). Builds and transitions are stored on slides but not played.
+3. **Presenter window** (second window with notes and timer, via BroadcastChannel), laser pointer.
+4. **PowerPoint and ODP import.** A `.pptx` or `.odp` from Drive opens as a blank deck with no link, so it is never overwritten.
+5. **PPTX export gaps:** tables, charts, video and audio are left out (the result says how many); speaker notes; footer and slide numbers; transitions.
+6. **Editing gaps:** no rotation handle (use the Rotation field), no marquee selection, no group/ungroup or align/distribute buttons (the model has them), no table or chart editing, no image crop or mask, no slide-size change, no per-run formatting controls (only the object's default style).
+7. **Text:** the overlay edits plain text. Whole-line changes in multi-run paragraphs lose run formatting.
+8. **Drag reorder** works with the mouse (HTML5 drag). On phones use the Move up and Move down buttons.
+9. **Offline build** (copy `pdf/js/io/build.js`) is not written.
 
 ## Next steps, in order
-1. Write the inspector tabs: `insp-format.js` (fill, stroke, shadow, image, table, chart), `insp-text.js` (text: font, size, B/I/U, colour, align, bullets; uses `SS.textEdit.applyRun` while editing), `insp-arrange.js`, `insp-animate.js` and `insp-document.js` (size, theme, footer).
-2. Write `menus.js`, `commands.js` (SlopCmd, app id `slides`), `insert.js`, `clipboard.js`, `chartdata.js`, `notes.js` and `welcome.js` (theme/template picker).
-3. Write `index.html` and `css/` (copy the head/OG/theme pattern from `pdf/`; add the ui list to the manifest).
-4. Write `io/native.js`: `.sslide` JSON with mime `application/x-slop-slides`, Drive `?drive=` save-back, and IndexedDB autosave.
-5. Build `js/anim/`: builds (appear, fade, fly, scale, wipe, typewriter; click/after/with), transitions, and Magic Move (match by name, then id; tween x/y/w/h/rot/colour/opacity). The scene already supports per-object `state(o) → {opacity, m, clip, reveal}`, and the canvas supports `typewriter`.
-6. Write the play mode and the presenter window (BroadcastChannel), including laser pointer, B/W screen and rehearse timer.
-7. Add import/export:
-   - PPTX and ODP, both reading and writing, using `shared/office/zip.js` (`readZip`/`writeZip`), which did not exist yet when this was written.
-   - PDF from the display list, with subset fonts, notes pages and handouts.
-   - PNG/JPG per slide, and WebM.
-8. Write the tests (Magic Move, round trips, PDF via pdf.js, presenter sync, UI smoke at desktop and 390×844) and the offline build (copy `pdf/js/io/build.js`).
+1. Open a PPTX that the export wrote in PowerPoint and Keynote, and fix whatever they flag.
+2. Add PDF export from the display list, and an export test that reads the PDF back.
+3. Add `anim/` (builds and transitions) and play them in Present mode.
+4. Import PPTX (`shared/office/zip.js` + `ppt/slides/*.xml`).
+5. Presenter window and notes.

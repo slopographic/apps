@@ -1,76 +1,73 @@
-/* Slop Slides: the editing canvas. The slide is drawn into a <canvas> sized to slide × zoom × devicePixelRatio;
-   an SVG overlay on top carries selection handles and smart guides. Zoom: 'fit' or a factor (wheel+Ctrl, pinch). */
+/* Slop Slides: the editing canvas. The current slide is painted with the same display list the PDF and the presenter
+   use (SS.scene + SS.canvasRender), scaled to fit the stage, with the selection drawn on top (overlay.js). Repaints
+   are coalesced to one per animation frame. Exposes window.SS.stage. */
 (function () {
   'use strict';
-  var SS = window.SS, A = SS.app, D = SS.dom, R = SS.canvasRender;
-  var V = SS.view = { k: 1 };
+  var SS = window.SS, A = SS.app, S = SS.scene, R = SS.canvasRender;
+  var St = SS.stage = { k: 1, ox: 0, oy: 0, dpr: 1, cv: null, wrap: null };
+  var queued = false, BG = '#16161a';
 
-  V.init = function (stage) {
-    V.stage = stage;
-    V.board = D.h('div', { class: 'board', id: 'board' });
-    V.canvas = D.h('canvas', { class: 'slide-canvas', 'aria-label': 'Slide canvas', role: 'img' });
-    V.overlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    V.overlay.setAttribute('class', 'overlay');
-    V.board.append(V.canvas, V.overlay);
-    stage.append(V.board);
-    new ResizeObserver(function () { V.layout(); A.invalidate(A.cur); }).observe(stage);
-    stage.addEventListener('wheel', function (e) {
-      if (!(e.ctrlKey || e.metaKey)) return;
-      e.preventDefault();
-      V.setZoom(V.k * Math.exp(-e.deltaY * 0.0022), { x: e.clientX, y: e.clientY });
-    }, { passive: false });
-    A.on('render', function (p) { if (p.all || p.slides[A.cur]) V.draw(); });
-    A.on('slide', function () { V.layout(); });
+  St.mount = function (wrap, cv) {
+    St.wrap = wrap; St.cv = cv;
+    if (window.ResizeObserver) new ResizeObserver(function () { St.fit(); St.redraw(); }).observe(wrap);
+    ['change', 'deck', 'select', 'slide', 'render', 'load', 'mode'].forEach(function (ev) { A.on(ev, St.redraw); });
+    St.fit();
   };
-  V.fitK = function () {
-    var r = V.stage.getBoundingClientRect(), pad = A.isMobile() ? 16 : 56;
-    return Math.max(0.05, Math.min((r.width - pad * 2) / A.deck.size.w, (r.height - pad * 2) / A.deck.size.h));
+  /** Sizes the canvas to the stage and works out the scale (css px per slide point) and the centring offset. */
+  St.fit = function () {
+    if (!St.wrap || !A.deck) return;
+    var W = Math.max(1, St.wrap.clientWidth), H = Math.max(1, St.wrap.clientHeight), d = A.deck, pad = W < 500 ? 10 : 28;
+    var sig = [W, H, d.size.w, d.size.h, window.devicePixelRatio || 1].join(',');
+    if (sig === St.sig) return;
+    St.sig = sig;
+    var k = Math.min((W - 2 * pad) / d.size.w, (H - 2 * pad) / d.size.h);
+    St.k = k > 0 ? k : 0.1;
+    St.ox = (W - d.size.w * St.k) / 2;
+    St.oy = (H - d.size.h * St.k) / 2;
+    St.dpr = window.devicePixelRatio || 1;
+    St.cv.style.width = W + 'px';
+    St.cv.style.height = H + 'px';
+    St.cv.width = Math.round(W * St.dpr);
+    St.cv.height = Math.round(H * St.dpr);
   };
-  V.layout = function () {
-    if (!A.deck) return;
-    var k = A.zoom === 'fit' ? V.fitK() : A.zoom;
-    V.k = k;
-    var w = A.deck.size.w * k, h = A.deck.size.h * k, r = V.stage.getBoundingClientRect();
-    V.board.style.width = w + 'px'; V.board.style.height = h + 'px';
-    var mx = Math.max(24, (r.width - w) / 2), my = Math.max(24, (r.height - h) / 2);
-    V.board.style.margin = my + 'px ' + mx + 'px';
-    V.overlay.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-    V.overlay.setAttribute('width', w); V.overlay.setAttribute('height', h);
-    A.emit('zoom', k);
+  St.redraw = function () {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; St.paint(); });
   };
-  V.setZoom = function (z, at) {
-    var before = at && V.toSlide(at.x, at.y);
-    A.zoom = z === 'fit' ? 'fit' : Math.max(0.1, Math.min(8, z));
-    V.layout(); V.draw();
-    if (before && A.zoom !== 'fit') {
-      var b = V.board.getBoundingClientRect();
-      V.stage.scrollLeft += b.left + before.x * V.k - at.x;
-      V.stage.scrollTop += b.top + before.y * V.k - at.y;
-    }
+  function hideMap() {
+    var id = SS.textEdit && SS.textEdit.editing;
+    if (!id) return null;
+    var h = {}; h[id] = true; return h;
+  }
+  /** Paints now (use St.redraw for the coalesced version). Waits for the fonts: text layout needs them. */
+  St.paint = function () {
+    var cv = St.cv, d = A.deck;
+    if (!cv || !d || !SS.fonts.isReady()) return;
+    St.fit();
+    var ctx = cv.getContext('2d'), s = A.slide(), k = St.k * St.dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    if (!s) return;
+    ctx.setTransform(k, 0, 0, k, St.ox * St.dpr, St.oy * St.dpr);
+    var scene = S.slide(d, s, { editor: A.mode === 'edit', index: A.idx, hide: hideMap() });
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, d.size.w, d.size.h); ctx.clip();
+    R.draw(ctx, scene, { deck: d, onImage: St.redraw });
+    ctx.restore();
+    ctx.lineWidth = 1 / St.k;
+    ctx.strokeStyle = 'rgba(160,160,170,.45)';
+    ctx.strokeRect(0, 0, d.size.w, d.size.h);
+    if (A.mode === 'edit' && SS.overlay) SS.overlay.draw(ctx);
   };
-  V.zoomStep = function (dir) {
-    var steps = [0.25, 0.33, 0.5, 0.67, 0.75, 1, 1.25, 1.5, 2, 3, 4], k = V.k;
-    var next = dir > 0 ? steps.filter(function (s) { return s > k + 0.01; })[0] : steps.filter(function (s) { return s < k - 0.01; }).pop();
-    V.setZoom(next || k);
+  /** Client (viewport) pixels to slide points, and back. */
+  St.toSlide = function (cx, cy) {
+    var r = St.cv.getBoundingClientRect();
+    return { x: (cx - r.left - St.ox) / St.k, y: (cy - r.top - St.oy) / St.k };
   };
-  /** Client (CSS px) → slide points. */
-  V.toSlide = function (cx, cy) { var b = V.board.getBoundingClientRect(); return { x: (cx - b.left) / V.k, y: (cy - b.top) / V.k }; };
-  V.toClient = function (x, y) { var b = V.board.getBoundingClientRect(); return { x: b.left + x * V.k, y: b.top + y * V.k }; };
-
-  V.draw = function () {
-    if (!A.deck) return;
-    var k = V.k, dpr = Math.min(window.devicePixelRatio || 1, 2.5), w = A.deck.size.w, h = A.deck.size.h;
-    var cw = Math.round(w * k * dpr), ch = Math.round(h * k * dpr);
-    if (V.canvas.width !== cw || V.canvas.height !== ch) { V.canvas.width = cw; V.canvas.height = ch; }
-    V.canvas.style.width = w * k + 'px'; V.canvas.style.height = h * k + 'px';
-    var ctx = V.canvas.getContext('2d');
-    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cw, ch);
-    ctx.setTransform(k * dpr, 0, 0, k * dpr, 0, 0);
-    var hide = {};
-    if (A.editing) hide[A.editing.id] = true;
-    var scene = SS.scene.slide(A.deck, A.slide(), { editor: true, hide: hide, index: A.slideIndex() });
-    R.draw(ctx, scene, { deck: A.deck, onImage: function () { A.invalidate('all'); } });
-    V.scene = scene;
-    A.emit('drawn');
+  St.toClient = function (x, y) {
+    var r = St.cv.getBoundingClientRect();
+    return { x: r.left + St.ox + x * St.k, y: r.top + St.oy + y * St.k };
   };
 })();

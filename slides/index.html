@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Slides — Slopographic</title>
+  <meta name="description" content="Slop Slides: a presentation editor that runs in your browser. Themes, layouts, text, shapes and pictures, presenter-ready Present mode, PowerPoint export. Saved to Slop Drive on this device.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://slopographic.com/slides/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slopographic">
+  <meta property="og:title" content="Slop Slides — Slopographic">
+  <meta property="og:description" content="Keynote and PowerPoint, rebuilt for the browser. Nothing is uploaded.">
+  <meta property="og:url" content="https://slopographic.com/slides/">
+  <meta property="og:image" content="https://slopographic.com/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
+  <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
+  <link rel="stylesheet" href="css/app.css" data-src="slides/css/app.css">
+  <script src="../shared/guard.js" defer data-offline="strip"></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="top">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg>
+      </a>
+      <div class="appname"><b>Slop Slides</b></div>
+      <label class="doc-title"><span class="sr">Presentation title</span><input id="title" type="text" spellcheck="false" autocomplete="off" value="Untitled presentation"></label>
+      <div class="tb-group">
+        <button type="button" class="tb-btn" id="btnFile" aria-haspopup="menu">File</button>
+        <button type="button" class="tb-btn icon" id="btnUndo" aria-label="Undo" disabled>&#8630;</button>
+        <button type="button" class="tb-btn icon" id="btnRedo" aria-label="Redo" disabled>&#8631;</button>
+      </div>
+      <div class="tb-group" role="toolbar" aria-label="Insert">
+        <button type="button" class="tb-btn" id="insText">Text</button>
+        <button type="button" class="tb-btn" id="insRect">Rectangle</button>
+        <button type="button" class="tb-btn" id="insEllipse">Ellipse</button>
+        <button type="button" class="tb-btn" id="insImage">Picture</button>
+      </div>
+      <div class="tb-group">
+        <label class="sel">Layout <select id="selLayout" aria-label="Layout of this slide"></select></label>
+        <label class="sel">Theme <select id="selTheme" aria-label="Theme"></select></label>
+      </div>
+      <span class="tb-flex"></span>
+      <span class="save-state" id="saveState" aria-live="polite"></span>
+      <button type="button" class="tb-btn primary" id="btnSave">Save</button>
+      <button type="button" class="tb-btn" id="btnPresent">Present</button>
+      <button type="button" class="tb-btn icon" id="btnPalette" aria-label="Search commands" title="Search commands" hidden>&#8984;K</button>
+    </header>
+
+    <div class="body">
+      <aside class="slides-pane" aria-label="Slides">
+        <ul class="slides-list" id="slides-list" aria-label="Slides"></ul>
+        <div class="slide-tools" role="toolbar" aria-label="Slide actions">
+          <button type="button" id="slNew" title="New slide">+ Slide</button>
+          <button type="button" id="slDup" title="Duplicate slide">Duplicate</button>
+          <button type="button" id="slDel" title="Delete slide">Delete</button>
+          <button type="button" id="slUp" title="Move slide up" aria-label="Move slide up">&#8593;</button>
+          <button type="button" id="slDown" title="Move slide down" aria-label="Move slide down">&#8595;</button>
+        </div>
+      </aside>
+
+      <main class="stage" id="stage" aria-label="Slide">
+        <canvas id="canvas" role="img" aria-label="Current slide"></canvas>
+        <textarea id="editor" class="editor" hidden aria-label="Edit text" spellcheck="true"></textarea>
+      </main>
+
+      <aside class="inspector" id="inspector" aria-label="Properties"></aside>
+    </div>
+
+    <footer class="status">
+      <span id="statusSlide"></span>
+      <span id="statusSel"></span>
+      <span class="tb-flex"></span>
+      <span class="local">Local to this browser. Nothing is uploaded.</span>
+    </footer>
+  </div>
+
+  <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/apps.js" data-src="shared/apps.js"></script>
+  <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
+  <script src="../shared/commands/search.js" data-src="shared/commands/search.js"></script>
+  <script src="../shared/commands/palette.js" data-src="shared/commands/palette.js"></script>
+  <script src="../shared/commands/recorder.js" data-src="shared/commands/recorder.js"></script>
+  <script src="../shared/commands/keymap.js" data-src="shared/commands/keymap.js"></script>
+  <script src="../shared/hub.js" data-src="shared/hub.js"></script>
+  <script src="js/manifest.js" data-src="slides/js/manifest.js"></script>
+  <script>
+    // Every app script, in the order js/manifest.js gives. The manifest is the one list (tests and the offline build use it too).
+    (function () {
+      var M = window.SS_MANIFEST;
+      ['core', 'render', 'anim', 'io', 'ui'].forEach(function (g) {
+        M[g].forEach(function (p) { document.write('<script src="../' + p + '"><\/script>'); });
+      });
+    })();
+  </script>
+</body>
+</html>

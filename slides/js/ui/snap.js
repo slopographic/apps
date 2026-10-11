@@ -1,62 +1,31 @@
-/* Slop Slides: smart guides. Snaps the moving box's edges and centre to other objects' edges/centres and to
-   the slide's edges and centre lines, and reports the guide lines to draw. Equal spacing between neighbours
-   in a row is offered as well (Keynote's spacing guides). */
+/* Slop Slides: smart guides for moving. The moving selection's left, centre and right (and top, middle, bottom) snap
+   to the slide's edges and centre lines and to the other objects' edges and centres, within 5 screen pixels.
+   SS.snap.guides holds the lines to draw while a move is in progress. Exposes window.SS.snap. */
 (function () {
   'use strict';
-  var SS = window.SS, A = SS.app, V = SS.view, O = SS.objects;
-  var S = SS.snap = { enabled: true };
+  var SS = window.SS, A = SS.app, St = SS.stage;
+  var SN = SS.snap = { TOL: 5, guides: [] };
 
-  S.targets = function (exclude) {
-    var W = A.deck.size.w, H = A.deck.size.h, boxes = [{ x: 0, y: 0, w: W, h: H, slide: true }];
-    A.slide().objects.forEach(function (o) { if (exclude.indexOf(o) < 0) boxes.push(O.bounds(o)); });
-    return boxes;
-  };
-  function axis(b, boxes, X, Wd, Y, Hd, thr) {
-    var mine = [b[X], b[X] + b[Wd] / 2, b[X] + b[Wd]], best = null;
-    boxes.forEach(function (t) {
-      var theirs = [t[X], t[X] + t[Wd] / 2, t[X] + t[Wd]];
-      mine.forEach(function (m, mi) {
-        theirs.forEach(function (v, ti) {
-          if (t.slide && ti !== 1 && mi === 1) return;
-          var d = v - m;
-          if (Math.abs(d) <= thr && (!best || Math.abs(d) < Math.abs(best.d) - 0.01)) best = { d: d, pos: v, boxes: [t], center: mi === 1 && ti === 1 };
-          else if (best && Math.abs(d - best.d) < 0.01 && Math.abs(v - best.pos) < 0.01) best.boxes.push(t);
-        });
+  function best(cands, targets, tol) {
+    var out = null;
+    cands.forEach(function (c) {
+      targets.forEach(function (t) {
+        var d = t - c;
+        if (Math.abs(d) <= tol && (!out || Math.abs(d) < Math.abs(out.d))) out = { d: d, t: t };
       });
     });
-    if (!best) return null;
-    var from = b[Y], to = b[Y] + b[Hd];
-    best.boxes.forEach(function (t) { from = Math.min(from, t[Y]); to = Math.max(to, t[Y] + t[Hd]); });
-    return { d: best.d, guide: { axis: X, pos: best.pos, from: from, to: to, center: best.center } };
+    return out;
   }
-  /** Equal gaps: if the box sits between two neighbours in the same row/column, centre it in the gap. */
-  function spacing(b, boxes, X, Wd, Y, Hd, thr) {
-    var row = boxes.filter(function (t) { return !t.slide && t[Y] < b[Y] + b[Hd] && t[Y] + t[Hd] > b[Y]; });
-    var left = row.filter(function (t) { return t[X] + t[Wd] <= b[X] + thr; }).sort(function (p, q) { return (q[X] + q[Wd]) - (p[X] + p[Wd]); })[0];
-    var right = row.filter(function (t) { return t[X] >= b[X] + b[Wd] - thr; }).sort(function (p, q) { return p[X] - q[X]; })[0];
-    if (!left || !right) return null;
-    var gap = (right[X] - (left[X] + left[Wd]) - b[Wd]) / 2, want = left[X] + left[Wd] + gap, d = want - b[X];
-    if (gap < 0 || Math.abs(d) > thr) return null;
-    var y = b[Y] + b[Hd] / 2;
-    return { d: d, gap: [{ axis: X === 'x' ? 'y' : 'x', pos: y, from: left[X] + left[Wd], to: want, gap: true }, { axis: X === 'x' ? 'y' : 'x', pos: y, from: want + b[Wd], to: right[X], gap: true }] };
-  }
-  /** Returns { dx, dy, guides } that snap box b (slide coords). */
-  S.move = function (b, exclude, opts) {
-    if (!S.enabled || (opts && opts.off)) return { dx: 0, dy: 0, guides: [] };
-    var thr = 6 / V.k, boxes = S.targets(exclude), guides = [];
-    var sx = axis(b, boxes, 'x', 'w', 'y', 'h', thr), sy = axis(b, boxes, 'y', 'h', 'x', 'w', thr);
-    var gx = !sx && spacing(b, boxes, 'x', 'w', 'y', 'h', thr), gy = !sy && spacing(b, boxes, 'y', 'h', 'x', 'w', thr);
-    if (sx) guides.push(sx.guide); if (sy) guides.push(sy.guide);
-    if (gx) guides = guides.concat(gx.gap); if (gy) guides = guides.concat(gy.gap);
-    return { dx: sx ? sx.d : gx ? gx.d : 0, dy: sy ? sy.d : gy ? gy.d : 0, guides: guides };
+  /** box: union bounds of the moving objects (before this move); others: bounds of the objects not moving. */
+  SN.move = function (box, others, dx, dy) {
+    var d = A.deck, tol = SN.TOL / St.k, tx = [0, d.size.w / 2, d.size.w], ty = [0, d.size.h / 2, d.size.h];
+    others.forEach(function (b) { tx.push(b.x, b.x + b.w / 2, b.x + b.w); ty.push(b.y, b.y + b.h / 2, b.y + b.h); });
+    var mx = [box.x + dx, box.x + dx + box.w / 2, box.x + dx + box.w], my = [box.y + dy, box.y + dy + box.h / 2, box.y + dy + box.h];
+    var bx = best(mx, tx, tol), by = best(my, ty, tol), guides = [];
+    if (bx) { dx += bx.d; guides.push({ x1: bx.t, y1: 0, x2: bx.t, y2: d.size.h }); }
+    if (by) { dy += by.d; guides.push({ x1: 0, y1: by.t, x2: d.size.w, y2: by.t }); }
+    SN.guides = guides;
+    return { dx: dx, dy: dy };
   };
-  /** Snaps one edge coordinate (resize). axisName 'x' | 'y'. */
-  S.edge = function (v, axisName, exclude) {
-    if (!S.enabled) return { v: v, guide: null };
-    var thr = 6 / V.k, best = null, Wd = axisName === 'x' ? 'w' : 'h';
-    S.targets(exclude).forEach(function (t) { [t[axisName], t[axisName] + t[Wd] / 2, t[axisName] + t[Wd]].forEach(function (c) { var d = c - v; if (Math.abs(d) <= thr && (!best || Math.abs(d) < Math.abs(best))) best = d; }); });
-    if (best == null) return { v: v, guide: null };
-    var other = axisName === 'x' ? A.deck.size.h : A.deck.size.w;
-    return { v: v + best, guide: { axis: axisName, pos: v + best, from: 0, to: other } };
-  };
+  SN.clear = function () { SN.guides = []; };
 })();
