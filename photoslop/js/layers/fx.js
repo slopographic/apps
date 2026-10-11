@@ -40,7 +40,7 @@ function renderFx(s, list) {
   cx(c).drawImage(s.canvas, 0, 0, w, hh, pad, pad, w, hh);
   const env = { fg: C.fg, bg: C.bg };
   for (const e of on) c = FX_BY_ID[e.type].fn(c, fxClone(e.p), env);
-  return { canvas: c, x: s.x - pad, y: s.y - pad };
+  return { canvas: c, x: s.x - pad, y: s.y - pad, w: c.width, h: c.height };
 }
 /** Cache per layer canvas: rebuilt only when the stack, mask or position changes. */
 const fxCache = new WeakMap();
