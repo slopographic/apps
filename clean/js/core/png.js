@@ -61,10 +61,10 @@
     return { kind: 'struct' };
   }
 
+  /** A whole chunk (length, type, data, CRC) with a CRC over the type and data. */
   function makeChunk(type, data) {
-    const head = B.concat([B.be32(data.length), Uint8Array.from(type, (c) => c.charCodeAt(0))]);
-    const body = B.concat([head.subarray(4), data]);
-    return B.concat([head.subarray(0, 4), data, B.be32(B.crc32(body))]);
+    const t = Uint8Array.from(type, (c) => c.charCodeAt(0));
+    return B.concat([B.be32(data.length), t, data, B.be32(B.crc32(B.concat([t, data])))]);
   }
 
   function analyse(u8) {

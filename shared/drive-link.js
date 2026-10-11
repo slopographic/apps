@@ -9,14 +9,21 @@
   'use strict';
   if (window.SlopDriveLink) return;
   const self = document.currentScript;
-  const ROOT = self && self.src ? new URL('../', self.src).href : new URL('/', location.href).href;
+  // The site root: from this script's URL, else from the page. A blob: or about: page (an offline file run inline)
+  // has no usable base, so the root is null and no link is made; the throw would otherwise stop the whole script.
+  function rootUrl() {
+    try { return self && self.src ? new URL('../', self.src).href : new URL('/', location.href).href; } catch (e) { return null; }
+  }
+  const ROOT = rootUrl();
   const ICON = '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>';
   const CSS = '.sdl{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;margin-left:4px;border-radius:6px;' +
     'color:inherit;font:inherit;font-size:13px;line-height:1;text-decoration:none;white-space:nowrap;opacity:.85;flex:none}' +
     '.sdl:hover,.sdl:focus-visible{opacity:1;background:rgba(127,127,127,.16);outline:none}' +
     '.sdl svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}';
 
+  /** The absolute Drive URL, or null when the page has no site root. */
   function href() {
+    if (!ROOT) return null;
     const app = (window.SLOP_APPS || []).find((a) => a.id === 'drive');
     return new URL(app ? app.path : 'drive/', ROOT).href;
   }
