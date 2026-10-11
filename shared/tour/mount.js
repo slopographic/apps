@@ -59,10 +59,10 @@
     return b;
   }
   function headerButton() {
-    const host = document.querySelector('.top-actions') || document.querySelector('header.topbar') || document.querySelector('header');
-    if (!host || host.querySelector('.stour-btn')) return;
+    const host = document.querySelector('.top-actions') || document.querySelector('header.topbar') || document.querySelector('header') || document.querySelector('main') || document.body;
+    if (host.querySelector('.stour-btn')) return;
     const b = button('Tour', 'Start the ' + NAME[APP] + ' tour', () => startTour(APP));
-    if (host.classList.contains('top-actions')) host.prepend(b); else host.append(b);
+    if (host.matches('.top-actions, main, body')) host.prepend(b); else host.append(b);
   }
   function paletteCommand() {
     const reg = () => window.SlopCmd && SlopCmd.register && SlopCmd.register([{

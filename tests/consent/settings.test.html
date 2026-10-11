@@ -36,6 +36,30 @@
       a.dispatchEvent(new w.Event('change'));
       expect(record().categories.analytics).toBe(false);
     });
+    it('has a Storage section: usage bar, per-part list, persist button and the clear actions', async () => {
+      const w = await page();
+      const box = w.document.getElementById('storage-box');
+      await waitFor(() => box.querySelector('.meter-bar') && box.querySelector('.storage-parts'));
+      expect(box.querySelector('.meter-bar').getAttribute('role')).toBe('meter');
+      expect(box.querySelector('.storage-parts').textContent).toContain('localStorage');
+      expect(box.querySelector('[data-act="persist"]')).toBeTruthy();
+      const acts = [...box.querySelectorAll('.storage-acts .btn')].map((b) => b.textContent);
+      expect(acts.length).toBe(4);
+      expect(acts[3]).toContain('never deletes your files');
+      expect(box.textContent).toContain('Drive makes thumbnails');
+    });
+    it('the Storage clear actions ask first and do nothing when the person says no', async () => {
+      const w = await page();
+      const box = w.document.getElementById('storage-box');
+      await waitFor(() => box.querySelector('.storage-acts .btn'));
+      const before = w.document.querySelectorAll('.sui-dlg').length;
+      box.querySelector('.storage-acts .btn').click();
+      await waitFor(() => w.document.querySelectorAll('.sui-dlg').length > before);
+      const dlg = [...w.document.querySelectorAll('.sui-dlg')].pop();
+      expect(dlg.textContent).toContain('Your Drive files, documents and saved projects are not deleted.');
+      dlg.querySelector('.sui-x').click();
+      await waitFor(() => w.document.querySelectorAll('.sui-dlg').length === before);
+    });
     it('shows the privacy sentence', async () => {
       const w = await page();
       expect(w.document.querySelector('.privacy').textContent).toContain('never leave your device');
