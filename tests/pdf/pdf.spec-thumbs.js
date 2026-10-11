@@ -26,9 +26,10 @@
       // one page per row
       const tops = [...d.querySelectorAll('#grid .thumb')].map((t) => Math.round(t.getBoundingClientRect().top));
       expect(new Set(tops).size).toBe(3);
-      await waitFor(() => PT.win.localStorage.getItem('slop-pdf.thumbSize') === String(O.maxSize()), { timeout: 3000 }).catch((e) => { let er = ''; try { PT.win.localStorage.setItem('x', '1'); } catch (e2) { er = String(e2); } throw new Error(er + ' keys ' + Object.keys(PT.win.localStorage).map((k) => k + ':' + PT.win.localStorage.getItem(k).length).join(',') + ' store ' + PT.win.localStorage.getItem('slop-pdf.thumbSize') + ' max ' + O.maxSize() + ' size ' + O.getSize()); });
+      expect(PT.win.localStorage.getItem('slop-pdf.thumbSize')).toBe(String(O.getSize()));
       // re-rendered sharp: the visible raster is at least as wide as it is shown
       const img = d.querySelector('#grid .thumb .sheet-img');
+      img.closest('.thumb').scrollIntoView({ block: 'start' });
       await waitFor(() => img.naturalWidth >= img.getBoundingClientRect().width * 0.95, { timeout: 15000 });
       expect(PT.E.bucket(2500)).toBe(2800);
       expect(PT.E.bucket(150)).toBe(200);

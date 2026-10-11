@@ -42,13 +42,13 @@
     var cs = getComputedStyle(grid), w = (scroller || grid).clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     return w > 0 ? Math.max(O.MIN + 40, Math.floor(w)) : 4000; // hidden grid: no limit yet
   };
-  var saveSize = U.debounce(function () { U.store.set('thumbSize', size); }, 300), sizeFns = [];
+  var sizeFns = [];
   O.onSize = function (fn) { sizeFns.push(fn); };
   /** Sets the thumbnail size in CSS px (clamped to MIN..maxSize). Rasters follow once zooming settles. */
   O.setSize = function (px) {
     px = Math.round(U.clamp(px, O.MIN, O.maxSize()));
     if (px === size && grid.style.getPropertyValue('--thumb')) return;
-    size = px; saveSize();
+    size = px; U.store.set('thumbSize', px);
     grid.style.setProperty('--thumb', px + 'px');
     S.zooming = true; O.render(); settle();
     sizeFns.forEach(function (fn) { fn(px); });

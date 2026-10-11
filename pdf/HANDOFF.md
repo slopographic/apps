@@ -21,6 +21,12 @@ both vendored in `/vendor/`).
 - Themes Pro/Light/Classic 98, shared SlopUI dialogs/menus, Slop Hub (register, ?drive= launch,
   File ▸ Open from Slop Drive, File ▸ Send to, page context menu ▸ Send page as image to).
 - Code split into packages; every non-vendor file ≤ 300 lines.
+- **Thumbnail size** (`js/organize/zoom.js`): S/M/L presets + a continuous slider from 80 px up to the grid's
+  inner width (one page per row, "fit" button), Ctrl/⌘ + wheel, two-finger pinch (touch events, cancels a
+  pending long-press drag), Ctrl +/− and View ▸ Zoom in grid mode. Saved as `slop-pdf.thumbSize`; a resize
+  clamps it. While zooming only CSS sizes change; rasters load once it settles (160 ms). Render cache buckets go
+  up to 2800 px (JPEG above 1000 px, PNG below) with a ~190 MB byte budget, and zooming out keeps the sharper
+  raster already shown.
 - **True redaction** (`js/redact/`, `css/redact.css`, rail tool "Redact", page tool X):
   - Marks are box annotations of type `redact` (hatched red, movable/resizable like other boxes). Drawn with
     the Redact tool, or added by **Find & redact** (`find.js`): plain text / regex / match case and presets
@@ -43,7 +49,7 @@ both vendored in `/vendor/`).
     Invisible OCR text on redacted pages is lost too (they become pure images).
 
 ## Tests
-`node tests/run.mjs pdf` runs `tests/pdf/pdf.test.html` (41 tests, ~45 s, all green). The real app runs in
+`node tests/run.mjs pdf` runs `tests/pdf/pdf.test.html` (43 tests, ~85 s, all green). The real app runs in
 an iframe; `tests/pdf/pdf.helpers.js` (`window.PT`) boots it, makes fixture PDFs with the app's own pdf-lib,
 opens them through `A.addFiles`, captures downloads and reads output back with pdf.js. Specs:
 - `pdf.spec-core.js`: ranges, zip/CRC, sniffing, geometry, page ops, undo/redo/coalescing, page-number text,
@@ -59,6 +65,8 @@ opens them through `A.addFiles`, captures downloads and reads output back with p
   e-mail, text, form field and drawn box gone from pdf.js text extraction AND from every decoded stream/string;
   untouched pages keep text; rotation/size kept; metadata gone; link outside kept; black pixels), shared
   XObject resources not leaking, confirm dialog, download prompt and undo.
+- `pdf.spec-thumbs.js`: presets + slider up to one page per row, clamping, localStorage, sharp raster at full
+  width, Ctrl+wheel and pinch (synthetic TouchEvents).
 Cross-realm gotcha: arrays/typed arrays passed into the iframe's pdf-lib/pdf.js must be made with
 `PT.win.Array`/`PT.win.Uint8Array`.
 
@@ -78,6 +86,10 @@ Cross-realm gotcha: arrays/typed arrays passed into the iframe's pdf-lib/pdf.js 
 - Touch long-press on an unselected page dragged the previously tapped page along too.
 - Closed mobile panel peeked 10 px above the bottom edge; rail labels wrapped and clipped in Classic.
 - Removed the dead pre-split `js/engine.js` / `js/util.js` (944/318 lines, not loaded anywhere).
+
+## Offline build note
+Site-only scripts in `index.html` (fonts.css, `shared/guard.js`) carry `data-offline="strip"` so the offline
+file stays self-contained; the guard/backup cannot work from file:// anyway.
 
 ## Known limitations
 - Bookmarks/outlines and tagged structure are not carried over; non-WinAnsi text (CJK, emoji) in added text
