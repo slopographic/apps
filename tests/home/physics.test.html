@@ -67,7 +67,7 @@
     });
     it('eating the letters under his feet makes him fall', async () => {
       await ready;
-      const h = doc.getElementById('apps-title');
+      const h = doc.getElementById('business-title');   // the Slop 365 heading (was "Apps")
       await standOn(h, 0.5);
       for (let i = 0; i < 4 && M.mode === 'perched' && M.perch.el === h; i++) await S.act('eat');
       // Either he fell through a gap, or the letters under him are still there.

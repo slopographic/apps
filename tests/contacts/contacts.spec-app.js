@@ -132,17 +132,18 @@
       fr.style.width = '1280px';
       expect(overflow).toBeLessThanOrEqual(1);
     });
-    it('the editor dialog opens and saves a new phone', async () => {
+    it('the editor form in the detail panel opens and saves a new phone', async () => {
       const win = document.getElementById('app').contentWindow;
       win.SlopContacts.editor.open(win.SlopContacts.state.list[0].id);
       await sleep(120);
-      const dlg = win.document.querySelector('.sui-dlg.ed-dlg');
-      expect(dlg).toBeTruthy();
+      const dlg = win.document.getElementById('detail');
+      expect(dlg.hidden).toBeFalsy();
+      expect(dlg.querySelector('.ed')).toBeTruthy();
       dlg.querySelector('.ed-add').click();
       const rows = dlg.querySelectorAll('.ed-phone');
       const input = rows[rows.length - 1].querySelector('input');
       input.value = '+49 151 000 111';
-      [...dlg.querySelectorAll('.sui-btn.sui-primary')].find((b) => b.textContent === 'Save').click();
+      [...dlg.querySelectorAll('.detail-foot button')].find((b) => b.textContent === 'Save').click();
       await sleep(260);
       const first = win.SlopContacts.state.list[0];
       expect(first.phones.some((p) => p.value === '+49 151 000 111')).toBeTruthy();
