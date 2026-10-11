@@ -50,7 +50,7 @@
 
     <main class="workspace" id="workspace" aria-label="Workspace">
       <div class="ctxbar" id="ctxbar" role="toolbar" aria-label="Tools"></div>
-      <div class="stage" id="stage">
+      <div class="stage" id="stage" tabindex="0" aria-label="Image canvas">
         <canvas class="view" id="view" aria-label="Image preview"></canvas>
         <div class="split" id="split" hidden><span class="split-knob" aria-hidden="true"></span><span class="split-l">Before</span><span class="split-r">After</span></div>
         <div class="brush-cursor" id="brushCursor" hidden></div>
@@ -85,6 +85,7 @@
   <noscript><p class="noscript">Slop Cutout needs JavaScript. The AI runs entirely in your browser; nothing is uploaded.</p></noscript>
 
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/hub.js"></script>
   <script src="../shared/guard.js"></script>
@@ -111,6 +112,7 @@
   <script src="js/ui/pointer.js"></script>
   <script src="js/ui/menus.js"></script>
   <script src="js/ui/commands.js"></script>
+  <script src="js/ui/ctxmenu.js"></script>
   <script src="js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
 </body>

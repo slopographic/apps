@@ -117,7 +117,13 @@
   /* ---------- context menu ---------- */
   // items: [{ label, key, act, disabled, check, sub: [...] } | '-']
   let menuEl = null;
-  function closeMenu() { document.querySelectorAll('.sui-menu').forEach((m) => m.remove()); menuEl = null; }
+  let menuReturn = null; // the element that had focus before the menu opened: focus goes back to it on close
+  function closeMenu() {
+    document.querySelectorAll('.sui-menu').forEach((m) => m.remove());
+    menuEl = null;
+    const back = menuReturn; menuReturn = null;
+    if (back && back.isConnected) { try { back.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
+  }
   function keyLabel(k) { return isMac ? k.replace(/Ctrl\+/g, '⌘').replace(/Alt\+/g, '⌥').replace(/Shift\+/g, '⇧') : k; }
   function menu(items, x, y, level = 0) {
     if (!level) closeMenu();
@@ -146,7 +152,7 @@
       else if (e.key === 'ArrowUp') { e.preventDefault(); (rows[i - 1] || rows[rows.length - 1]).focus(); }
       else if (e.key === 'Escape') { e.preventDefault(); closeMenu(); }
     });
-    if (!level) { menuEl = m; const f = m.querySelector('.sui-row:not([disabled])'); if (f) f.focus({ preventScroll: true }); }
+    if (!level) { menuEl = m; menuReturn = document.activeElement && document.activeElement !== document.body ? document.activeElement : null; const f = m.querySelector('.sui-row:not([disabled])'); if (f) f.focus({ preventScroll: true }); }
     return m;
   }
   document.addEventListener('pointerdown', (e) => { if (menuEl && !e.target.closest('.sui-menu')) closeMenu(); }, true);
