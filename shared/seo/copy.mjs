@@ -84,6 +84,8 @@ export const APPS = {
     description: 'A photo library that stays on this device, with a timeline, albums, favourites, a sort mode, an exact duplicate finder and backup.' },
   '3d': { title: 'Slop 3D: a 3D editor for simple models and scenes | Slopographic', category: 'DesignApplication',
     description: 'Build simple 3D models and scenes in your browser with primitives, materials, lights and snapping. Imports OBJ and glTF, exports OBJ and PNG.' },
+  img3d: { title: 'Slop Image to 3D: turn a picture into a 3D model | Slopographic', category: 'DesignApplication',
+    description: 'Turn a picture into a 3D height-field mesh, a point cloud or a splat render, on your device. Nothing is uploaded, and you can export OBJ or GLB.' },
   music: { title: 'Slop Music: play the audio in your Slop Drive | Slopographic', category: 'MultimediaApplication',
     description: 'Play the audio in your Slop Drive from a searchable library, with playlists, waveform seek, shuffle, repeat and lock-screen controls.' },
   'paint-classic': { title: 'Slop Paint Classic: the 1998 paint program in your browser | Slopographic', category: 'MultimediaApplication',
