@@ -1,6 +1,6 @@
 # shared/video: the video core (window.SlopVideo)
 
-One copy of the pure layout and random-edit logic, used by SlopEdit (`slopedit/`) and Reel Remix (`remix/`).
+One copy of the pure layout and random-edit logic, used by SlopEdit (`slopcut/`) and Reel Remix (`remix/`).
 Classic scripts, no DOM except the lane widget, no fetch, no storage. Each file attaches to `window.SlopVideo`.
 
 ## Files and load order

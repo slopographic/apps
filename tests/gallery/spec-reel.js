@@ -47,7 +47,7 @@
     const fr = document.getElementById('editor');
     fr.src = 'about:blank';
     await sleep(40);
-    fr.src = '../../slopedit/index.html?drive=' + manifestId;
+    fr.src = '../../slopcut/index.html?drive=' + manifestId;
     const replace = () => {
       const d = fr.contentDocument;
       const b = d && [...d.querySelectorAll('.sui-dlg .sui-primary')].find((x) => /Replace/.test(x.textContent));

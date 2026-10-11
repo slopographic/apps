@@ -110,13 +110,13 @@
 
   describe('install and activate', () => {
     it('precaches every entry and skips a file that fails', async () => {
-      const w = load({ fetchImpl: (req) => (req.includes('vector/index.html') ? { ok: false, status: 404, type: 'basic' } : { ok: true, status: 200, type: 'basic', clone() { return this; } }) });
+      const w = load({ fetchImpl: (req) => (req.includes('slopvector/index.html') ? { ok: false, status: 404, type: 'basic' } : { ok: true, status: 200, type: 'basic', clone() { return this; } }) });
       let pending = null;
       w.listeners.install({ waitUntil: (p) => { pending = p; } });
       await pending;
       const stored = w.caches.stores[w.CACHE];
       expect(stored.size).toBe(w.PRECACHE.length - 1);
-      expect(stored.has(ORIGIN + '/vector/index.html')).toBe(false);
+      expect(stored.has(ORIGIN + '/slopvector/index.html')).toBe(false);
       expect(stored.has(ORIGIN + '/index.html')).toBe(true);
     });
     it('deletes older slopographic caches on activate and leaves other caches alone', async () => {
