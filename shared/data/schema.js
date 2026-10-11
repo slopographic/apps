@@ -51,6 +51,7 @@
       case 'ts': if (!Number.isSafeInteger(v) || v < 0) bad('must be a timestamp in milliseconds'); break;
       case 'enum': if (!s.values.includes(v)) bad(`must be one of ${s.values.join(', ')}`); break;
       case 'ean': if (!ns.barcode.isValidEan(v)) bad('must be an EAN-8, UPC-A, EAN-13 or GTIN-14 with a valid check digit'); break;
+      case 'entries': if (!Array.isArray(v) || v.length > s.max || v.some((e) => !isObj(e) || typeof e.value !== 'string' || !e.value || e.value.length > s.valMax || (e.label !== undefined && (typeof e.label !== 'string' || e.label.length > 40)))) bad(`must be up to ${s.max} labelled values of at most ${s.valMax} characters`); break;
       case 'strings': if (!Array.isArray(v) || v.length > s.max || v.some((x) => typeof x !== 'string' || !x || x.length > s.itemMax)) bad(`must be up to ${s.max} tags of up to ${s.itemMax} characters`); break;
       case 'lines': case 'jlines': case 'countLines': checkList(s, v, field, errors); break;
     }

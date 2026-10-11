@@ -108,6 +108,14 @@ function setUrl(id) {
   history.replaceState(null, '', u.pathname + u.search + u.hash);
 }
 
+/** Open wb as a new, unsaved workbook (a template). Asks first when the current workbook has unsaved changes. */
+export async function useWorkbook(wb, name) {
+  if (!(await confirmDiscard())) return false;
+  install(wb, { name: name || 'Untitled spreadsheet' });
+  setUrl(null);
+  return true;
+}
+
 export const downloadNative = () => window.SlopUI.download(toBlob(S.wb), fileName());
 export const downloadCsv = () => window.SlopUI.download(new Blob([toCsv(sheet())], { type: 'text/csv' }), fileName('csv'));
 export async function downloadXlsx() { window.SlopUI.download(await toXlsx(S.wb), fileName('xlsx')); }

@@ -42,6 +42,7 @@
     en: (values, o) => ({ t: 'enum', values, ...o }),
     cur: (o) => ({ t: 'currency', ...o }),
     bool: (o) => ({ t: 'bool', ...o }),
+    entries: (o) => ({ t: 'entries', max: 10, valMax: 200, ...o }),
   };
   const LINE = {
     productId: F.id(), sku: F.str({ max: 80 }), description: F.str({ req: true, max: 300 }),
@@ -111,10 +112,16 @@
       id: F.id({ req: true, def: 'main' }), companyName: F.str({}), address: F.text({ max: 1000 }), taxNumber: F.str({ max: 60 }),
       defaultCurrency: F.cur({ def: 'USD' }), locale: { t: 'locale', def: 'en-US' }, defaultTaxRate: F.rate({ def: 0 }),
       paymentTermsDays: F.int({ min: 0, max: 365, def: 30 }), ratesUpdateOnOpen: F.bool({ def: false }) } },
+    // The first phone, e-mail and address are kept in phone, email and address (other apps read them). Each has a
+    // label (mobile, work, home, other ...). Further values are in phones, emails and addresses ({ label, value }).
     customers: { key: 'id', softDelete: true, indexes: [{ name: 'name', key: 'name' }, { name: 'stage', key: 'stage' }, { name: 'categories', key: 'categories', multi: true }], fields: {
       id: F.id({ req: true }), name: F.str({ req: true }), email: F.str({ max: 200 }), phone: F.str({ max: 60 }), address: F.text({ max: 1000 }),
       categories: { t: 'strings', max: 20, itemMax: 40, def: [] }, stage: F.en(ENUM.stage, { def: 'lead' }), notes: F.text({}),
-      contactId: F.str({ max: 80 }), followUp: F.date({}) } },
+      contactId: F.str({ max: 80 }), followUp: F.date({}),
+      company: F.str({ max: 200 }), department: F.str({ max: 200 }), title: F.str({ max: 200 }), website: F.str({ max: 300 }),
+      birthday: F.str({ max: 20 }), photo: F.str({ max: 400000 }),
+      phoneLabel: F.str({ max: 40 }), emailLabel: F.str({ max: 40 }), addressLabel: F.str({ max: 40 }),
+      phones: F.entries({ max: 10, valMax: 60 }), emails: F.entries({ max: 10, valMax: 200 }), addresses: F.entries({ max: 10, valMax: 1000 }) } },
     products: { key: 'id', unique: ['sku', 'ean'], refs: [{ collection: 'stockMovements', index: 'productId' }],
       indexes: [{ name: 'sku', key: 'sku', unique: true }, { name: 'ean', key: 'ean', unique: true }, { name: 'name', key: 'name' }], fields: {
       id: F.id({ req: true }), sku: F.str({ req: true, max: 80, pattern: /^\S+$/ }), ean: { t: 'ean' }, name: F.str({ req: true }),

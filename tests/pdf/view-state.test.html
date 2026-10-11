@@ -20,13 +20,12 @@
       A.setTool('edit');
       A.openPage(pid);
       SP.editor.zoomMode = 'num'; SP.editor.zoom = 1.5; SP.editor.layout();
-      document.getElementById('app').contentDocument.body.dispatchEvent(new (document.getElementById('app').contentWindow.MouseEvent)('click', { bubbles: true })); // a user gesture, as the app saves on input
+      PT.win.document.body.click(); // a user gesture, as the app saves on input
       await sleep(1600); // the session autosave is debounced by about a second
+      PT.win.__pdfTouch(); await sleep(700); expect(JSON.stringify([await PT.win.SlopSession.load('pdf', 'view', 'none'), PT.win.localStorage.getItem('slop-session.pdf\u0001view')])).toBe('x');
       const fr = document.getElementById('app');
       fr.src = '../drive/frame.html';
       await sleep(1500);
-      const pre = await PT.win.SlopSession.load('pdf', 'view', 'none');
-      expect(JSON.stringify(pre)).toBe('x');
       await PT.boot('', 'app');
       await sleep(300);
       const sv = await PT.win.SlopSession.load('pdf', 'view', null);

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" data-theme="pro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Slop Ledger — Slopographic</title>
+  <meta name="description" content="Slop Ledger: a double-entry ledger with a chart of accounts, journal entries, general ledger, trial balance, reversals and exchange rates. Nothing is uploaded.">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('slop-ledger.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
+  </script>
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="css/ledger.css">
+  <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
+      </a>
+      <div class="appname"><b>Slop Ledger</b><a class="home-link" href="../">slopographic</a></div>
+      <span class="local-badge" title="The ledger stays in this browser. Nothing is uploaded."><span>100% local</span></span>
+      <span class="base" id="baseLabel">Base currency</span>
+      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Ledger sections">
+      <button type="button" role="tab" class="tab" id="tab-journal" data-view="journal" aria-controls="view-journal" aria-selected="true">Journal</button>
+      <button type="button" role="tab" class="tab" id="tab-gl" data-view="gl" aria-controls="view-gl" aria-selected="false">General ledger</button>
+      <button type="button" role="tab" class="tab" id="tab-trial" data-view="trial" aria-controls="view-trial" aria-selected="false">Trial balance</button>
+      <button type="button" role="tab" class="tab" id="tab-accounts" data-view="accounts" aria-controls="view-accounts" aria-selected="false">Accounts</button>
+      <button type="button" role="tab" class="tab" id="tab-rates" data-view="rates" aria-controls="view-rates" aria-selected="false">Rates</button>
+    </nav>
+
+    <main class="main" id="main">
+      <div id="boot" class="boot" role="status">Opening your ledger…</div>
+
+      <section class="view" id="view-journal" role="tabpanel" aria-labelledby="tab-journal" hidden>
+        <form class="card" id="jForm" novalidate onsubmit="return false">
+          <h2 class="h2">New journal entry</h2>
+          <p class="note">Each line is a debit or a credit. Debits must equal credits. A posted entry cannot be changed; reverse it instead.</p>
+          <div class="grid3">
+            <label>Date <input id="jDate" type="date" required></label>
+            <label>Currency <input id="jCur" type="text" maxlength="3" autocomplete="off" spellcheck="false" aria-describedby="jCurHint"></label>
+            <label class="grow">Memo <input id="jMemo" type="text" maxlength="300" autocomplete="off"></label>
+          </div>
+          <p class="note" id="jCurHint">Amounts are in this currency. A currency other than the base is converted at the stored rate on the date.</p>
+          <div id="jLines" class="lines" aria-label="Entry lines"></div>
+          <div class="toolbar">
+            <button type="button" class="btn" id="jAddLine">Add line</button>
+            <button type="button" class="btn primary" id="jPost">Post entry</button>
+          </div>
+          <p class="totals" id="jTotals" role="status" aria-live="polite"></p>
+          <p class="msg" id="jMsg" role="alert"></p>
+          <input id="jLocale" type="hidden" value="en-US">
+          <datalist id="jCurList"></datalist>
+        </form>
+        <div class="toolbar">
+          <h2 class="h2 grow">Posted entries <span class="count" id="jCount"></span></h2>
+          <button type="button" class="btn" id="jExport">Export journal (CSV)</button>
+        </div>
+        <div id="jRows" class="entries"></div>
+        <p class="empty" id="jEmpty" hidden>No entries yet. Post one above.</p>
+      </section>
+
+      <section class="view" id="view-gl" role="tabpanel" aria-labelledby="tab-gl" hidden>
+        <div class="toolbar">
+          <label class="grow">Account <select id="gAcct"></select></label>
+        </div>
+        <p class="note" id="gSummary" role="status"></p>
+        <div class="tablewrap">
+          <table class="grid-t">
+            <thead><tr><th>Date</th><th>Memo</th><th class="num">Debit</th><th class="num">Credit</th><th class="num">Original</th><th class="num">Balance</th></tr></thead>
+            <tbody id="gRows"></tbody>
+          </table>
+        </div>
+        <p class="empty" id="gEmpty" hidden>No lines on this account yet.</p>
+      </section>
+
+      <section class="view" id="view-trial" role="tabpanel" aria-labelledby="tab-trial" hidden>
+        <div class="toolbar">
+          <p class="note grow" id="tCheck" role="status"></p>
+          <button type="button" class="btn" id="tExport">Export trial balance (CSV)</button>
+        </div>
+        <div class="tablewrap">
+          <table class="grid-t">
+            <thead><tr><th>Code</th><th>Account</th><th class="num">Debit</th><th class="num">Credit</th><th class="num">Balance</th></tr></thead>
+            <tbody id="tRows"></tbody>
+            <tfoot><tr><th colspan="2">Totals (base)</th><th class="num" id="tDr"></th><th class="num" id="tCr"></th><th></th></tr></tfoot>
+          </table>
+        </div>
+        <section class="card" id="tForeign" hidden>
+          <h2 class="h3">Foreign totals (original amounts, not added to the base)</h2>
+          <ul class="plain" id="tForeignRows"></ul>
+        </section>
+      </section>
+
+      <section class="view" id="view-accounts" role="tabpanel" aria-labelledby="tab-accounts" hidden>
+        <div class="tablewrap">
+          <table class="grid-t">
+            <thead><tr><th>Code</th><th>Name</th><th>Type</th><th></th></tr></thead>
+            <tbody id="aRows"></tbody>
+          </table>
+        </div>
+        <form class="card" id="aForm" novalidate onsubmit="return false">
+          <h2 class="h3">Add an account</h2>
+          <div class="grid3">
+            <label>Code <input id="aCode" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="1500"></label>
+            <label>Name <input id="aName" type="text" maxlength="200" autocomplete="off"></label>
+            <label>Type <select id="aType"></select></label>
+          </div>
+          <div class="toolbar"><button type="button" class="btn primary" id="aAdd">Add account</button></div>
+          <p class="msg" id="aMsg" role="alert"></p>
+        </form>
+        <p class="note">Codes and types cannot change, and accounts are never deleted. You can rename an account.</p>
+      </section>
+
+      <section class="view" id="view-rates" role="tabpanel" aria-labelledby="tab-rates" hidden>
+        <form class="card" id="rForm" novalidate onsubmit="return false">
+          <h2 class="h3">Add a rate by hand</h2>
+          <p class="note">Enter how many units of the base currency one unit of the foreign currency is worth on that date.</p>
+          <div class="grid3">
+            <label>Foreign currency <input id="rForeign" type="text" list="rCurList" maxlength="3" autocomplete="off" placeholder="EUR"></label>
+            <label>Rate <input id="rRate" type="text" inputmode="decimal" maxlength="20" autocomplete="off" placeholder="1.0842"></label>
+            <label>Date <input id="rDate" type="date"></label>
+          </div>
+          <label>Note <input id="rNote" type="text" maxlength="300" autocomplete="off"></label>
+          <div class="toolbar"><button type="button" class="btn primary" id="rAdd">Add rate</button></div>
+          <p class="msg" id="rMsg" role="alert"></p>
+          <datalist id="rCurList"></datalist>
+        </form>
+        <div class="card">
+          <h2 class="h3">Online rates (ECB)</h2>
+          <p class="note">Off unless you tick the box. When on, a button asks the European Central Bank for today’s reference rates for the base currency. Nothing is fetched otherwise.</p>
+          <label class="check"><input id="rOnline" type="checkbox"> Allow online rate updates</label>
+          <div class="toolbar"><button type="button" class="btn" id="rFetch">Update from the ECB</button></div>
+        </div>
+        <h2 class="h3">Stored rates (base <span id="rBase"></span>)</h2>
+        <div class="tablewrap">
+          <table class="grid-t">
+            <thead><tr><th>Date</th><th>Rate</th><th>Source</th><th>Note</th></tr></thead>
+            <tbody id="rRows"></tbody>
+          </table>
+        </div>
+        <p class="empty" id="rEmpty" hidden>No rates yet. A foreign entry needs a rate on or before its date.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="../shared/data/money.js"></script>
+  <script src="../shared/data/barcode.js"></script>
+  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema.js"></script>
+  <script src="../shared/data/currency.js"></script>
+  <script src="../shared/data/store.js"></script>
+  <script src="../shared/data/numbering.js"></script>
+  <script src="../shared/data/fx.js"></script>
+  <script src="../shared/data/ledger.js"></script>
+  <script src="../shared/data/stock.js"></script>
+  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/data/bundle-check.js"></script>
+  <script src="../shared/data/export.js"></script>
+  <script src="../shared/data/rates-ecb.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/consent/config.js"></script>
+  <script src="../shared/consent/state.js"></script>
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/ctxmenu.js"></script>
+  <script src="../shared/commands/commands.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/journal.js"></script>
+  <script src="js/core/accounts.js"></script>
+  <script src="js/core/csv.js"></script>
+  <script src="js/core/rates.js"></script>
+  <script src="js/ui/journal.js"></script>
+  <script src="js/ui/gl.js"></script>
+  <script src="js/ui/trial.js"></script>
+  <script src="js/ui/accounts.js"></script>
+  <script src="js/ui/rates.js"></script>
+  <script src="js/ui/commands.js"></script>
+  <script src="js/ui/app.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
+</body>
+</html>
