@@ -7,7 +7,7 @@
   var defaults = {
     ga4MeasurementId: 'G-HW6FWQVFK3', // Empty: the gtag script never loads. Loads only after the visitor opts in.
     adsensePublisherId: 'ca-pub-9263973145335219', // Empty: the AdSense script never loads. Loads only after the visitor opts in to ads.
-    patreonUrl: '',         // e.g. 'https://www.patreon.com/yourname'. Empty: the donate link is hidden.
+    patreonUrl: 'https://www.patreon.com/c/Slopographic?vanity=user',         // e.g. 'https://www.patreon.com/yourname'. Empty: the donate link is hidden.
     policyVersion: 2        // Consent policy version. A change makes every stored record outdated (2 adds the 'rates' category).
   };
   // Test hook only: test pages set window.SLOP_CONSENT_OVERRIDES before this file loads. Nothing in the app sets it.
