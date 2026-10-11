@@ -54,6 +54,8 @@ Note: Playwright's Chromium has no H.264/AAC, so tests exercise VP9/Opus in MP4;
 - Preview playback relies on `<video>` seeking/playing; reverse shuttle is silent; speed changes pitch the sound.
 - Only MP4/MOV get the frame-exact decoder path (fragmented MP4 and WebM inputs use the seek fallback).
 - No nested sequences, multicam, keyframed transforms, LUTs or audio effects beyond volume.
+- The MediaRecorder fallback could not be verified in headless Chromium (canvas captureStream records 0 bytes
+  there); it is only used when WebCodecs is missing (old Firefox/Safari). Check it by hand in such a browser.
 - Offline .html has no Slop Drive (by design) and uses fallback fonts (shared/fonts is stripped like other apps).
 
 ## Recommended registry status

@@ -136,7 +136,9 @@
     if (e.button === 2) return;
     el.setPointerCapture(e.pointerId);
     SE.app.els.tlLanes.focus({ preventScroll: true });
-    const pt = local(e), h = TL.hit(pt.x, pt.y), touch = e.pointerType === 'touch';
+    const touch = e.pointerType === 'touch';
+    TL.EDGE = touch ? 16 : 7; // bigger trim handles for fingers
+    const pt = local(e), h = TL.hit(pt.x, pt.y);
     if (h.area === 'ruler') return startScrub(e, pt);
     if (h.area === 'markers') return h.marker ? startMarker(e, pt, h.marker) : startScrub(e, pt);
     if (h.area === 'clip') {
