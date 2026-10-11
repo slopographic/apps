@@ -143,7 +143,7 @@ function buildOptions() {
     const tf = TRANSFORM;
     const n = (label, get, set, unit) => { const i = h('input', { type: 'number', class: 'opt-num wide', value: get(), step: 0.1 }); i.addEventListener('change', () => { set(+i.value); dirty(true); }); listeners.add((w) => { if (w === 'transform' && document.activeElement !== i) i.value = get(); }); return h('label', { class: 'opt' }, h('span', null, label), i, unit ? h('span', { class: 'opt-u' }, unit) : null); };
     add(n('X', () => Math.round(tf.cx + tf.tx), (v) => { tf.tx = v - tf.cx; }, 'px'), n('Y', () => Math.round(tf.cy + tf.ty), (v) => { tf.ty = v - tf.cy; }, 'px'),
-      n('W', () => Math.round(tf.sx * 1000) / 10, (v) => { tf.sx = v / 100; }, '%'), n('H', () => Math.round(tf.sy * 1000) / 10, (v) => { tf.sy = v / 100; }, '%'),
+      n('W', () => Math.round(tf.sx * 1000) / 10, (v) => tfScale('x', v), '%'), lockButton(), n('H', () => Math.round(tf.sy * 1000) / 10, (v) => tfScale('y', v), '%'),
       n('∠', () => Math.round((tf.rot * 180) / Math.PI * 10) / 10, (v) => { tf.rot = (v * Math.PI) / 180; }, '°'),
       optSelect('Interpolation', tf, 'interp', RESAMPLE_MODES, () => dirty(true)),
       h('span', { class: 'opt-spacer' }),

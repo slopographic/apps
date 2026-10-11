@@ -70,6 +70,21 @@ function commitTransform(label) {
   emit('tool');
 }
 function cancelTransform() { if (!TRANSFORM.active) return; TRANSFORM.active = false; live = null; emit('tool'); dirty(true); }
+/** The proportion lock as a chain-link toggle for the options bars (Move and Free Transform). Shows the session setting. */
+function lockButton() {
+  const b = h('button', { class: 'btn', type: 'button', 'aria-label': 'Proportion lock', html: LINK_ICON });
+  const show = () => { b.classList.toggle('primary', TRANSFORM.lock); b.setAttribute('aria-pressed', String(TRANSFORM.lock)); b.title = 'Proportion lock ' + (TRANSFORM.lock ? 'on' : 'off') + ' (Shift inverts it for one drag)'; };
+  b.addEventListener('click', () => { TRANSFORM.lock = !TRANSFORM.lock; show(); });
+  show();
+  return b;
+}
+/** Sets W (axis 'x') or H ('y') from a percentage in the Free Transform bar. With the lock on, the other side follows. */
+function tfScale(axis, pct) {
+  const t = TRANSFORM, f = Math.max(0.002, (Number.isFinite(pct) ? pct : 100) / 100);
+  if (axis === 'x' || t.lock) t.sx = f;
+  if (axis === 'y' || t.lock) t.sy = f;
+  emit('transform'); dirty(true);
+}
 function transformLayerQuick(kind) {
   // Flip / rotate the active layer (or selection) about its centre, committed immediately.
   startTransform(); if (!TRANSFORM.active) return;
