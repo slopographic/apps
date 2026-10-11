@@ -17,6 +17,7 @@
     if (it.status === 'error' || it.status === 'missing') thumb.append(h('span', { class: 'bi-err', title: it.error || 'Error' }, '!'));
     const dur = meta.kind === 'image' ? 'Still' : U.dur(meta.dur);
     thumb.append(h('span', { class: 'bi-dur' }, dur));
+    if (it.status === 'ready') thumb.append(h('button', { type: 'button', class: 'bi-add', title: 'Add at playhead', 'aria-label': 'Add ' + meta.name + ' at the playhead', onclick: (e) => { e.stopPropagation(); addAtPlayhead(meta); } }, SE.icon('plus')));
     const used = SE.doc.clips.some((c) => c.media === meta.id);
     const el = h('div', {
       class: 'bi' + (used ? ' used' : ''), role: 'option', tabindex: '0', draggable: it.status === 'ready' ? 'true' : 'false', dataset: { id: meta.id },

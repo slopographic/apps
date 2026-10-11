@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Slop AI: phone (390×844)</title></head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="util.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  let W, AI, D;
+  const $ = (s) => D.querySelector(s);
+  const noSideways = () => D.documentElement.scrollWidth <= 390 && D.body.scrollWidth <= 390;
+  const inView = (n) => { const r = n.getBoundingClientRect(); return r.width > 0 && r.left >= -1 && r.right <= 391 && r.top >= -1 && r.bottom <= 845; };
+  describe('390×844', () => {
+    it('every tab fits without sideways scrolling', async () => {
+      W = await AT.app('', { width: 390, height: 844 }); AI = W.AI; D = W.document;
+      AI.sysMock = AT.SYS.laptop; await AI.runCheck();
+      for (const t of ['chat', 'build', 'models', 'sys']) { AI.setTab(t); await sleep(60); expect(noSideways()).toBe(true); }
+      for (const id of ['tab-chat', 'tab-models', 'modelChip', 'sloppo', 'btnMore']) expect(inView(D.getElementById(id))).toBe(true);
+    });
+    it('the chat list is a drawer', async () => {
+      AI.setTab('chat');
+      const side = $('#convs');
+      expect(side.getBoundingClientRect().right).toBeLessThanOrEqual(1);
+      $('.chat-bar .only-mobile').click();
+      await waitFor(() => inView(side), { timeout: 3000 });
+      $('.chat-view .scrim').click();
+      await waitFor(() => side.getBoundingClientRect().right <= 1, { timeout: 3000 });
+    });
+    it('chatting works and the composer stays on screen', async () => {
+      await AI.E.load('Qwen2.5-0.5B-Instruct-q4f16_1-MLC');
+      await AI.chat.send('Hello from a phone');
+      expect(D.querySelectorAll('.chat-main .msg.bot').length).toBe(1);
+      expect(inView($('.chat-main .send'))).toBe(true);
+      expect(noSideways()).toBe(true);
+    });
+    it('Build shows chat first, preview on demand', async () => {
+      AI.setTab('build');
+      D.querySelector('[data-tpl="game"]').click();
+      await waitFor(() => AI.builder.conv && AI.builder.conv.html);
+      expect($('.build-preview').getBoundingClientRect().width).toBe(0);
+      $('#btnShowPreview').click();
+      await waitFor(() => inView($('#preview')), { timeout: 3000 });
+      if (!noSideways()) throw new Error([D.documentElement.scrollWidth, D.body.scrollWidth, [...D.querySelectorAll('*')].filter((n) => n.getBoundingClientRect().right > 391).slice(0, 4).map((n) => n.tagName + '.' + n.className + '#' + n.id + ' ' + n.getBoundingClientRect().right)].join(' '));
+      expect(noSideways()).toBe(true);
+    });
+  });
+  SlopTest.run({ name: 'Slop AI: phone (390×844)' });
+  </script>
+</body>
+</html>

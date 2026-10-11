@@ -108,3 +108,7 @@
 .meter.hot i { box-shadow: 0 0 6px #ff4d5e; }
 .exp-dlg { width: min(480px, 100%); }
 .exp-media { display: block; width: 100%; max-height: 42vh; margin-bottom: 10px; border-radius: 8px; background: #000; object-fit: contain; }
+.bi-add { position: absolute; right: 4px; top: 4px; width: 26px; height: 26px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: var(--accent); color: var(--accent-ink); opacity: 0; transition: opacity .12s; }
+.bi-add .ic { width: 15px; height: 15px; stroke-width: 2.4; }
+.bi:hover .bi-add, .bi:focus-within .bi-add { opacity: 1; }
+@media (hover: none) { .bi-add { opacity: 1; } }

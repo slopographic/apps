@@ -1,5 +1,5 @@
 // Recipes for the experiments (and Paint Classic).
-import { wait, until, run, drag, curve, hide } from './util.mjs';
+import { wait, until, run, drag, curve, hide, strokeFrames, wave } from './util.mjs';
 
 const rest = (page, s, t) => wait(page, Math.max(0, s * 1000 - (Date.now() - t)));
 
@@ -87,30 +87,30 @@ export default {
     },
   },
   'paint-classic': {
-    mode: 'video', len: 5,
+    len: 5,
     async setup(page) {
       await wait(page, 1500);
       const c = await page.locator('canvas').first().boundingBox();
-      this.P = (fx, fy) => [c.x + c.width * fx, c.y + c.height * fy];
+      const P = (fx, fy) => [c.x + c.width * fx, c.y + c.height * fy];
+      this.P = P;
       await page.click('[data-tool="ellipse"]').catch(() => {});
       await page.locator('#palette > *').nth(11).click().catch(() => {});
-      await drag(page, [this.P(0.1, 0.15), this.P(0.45, 0.85)]);
+      await drag(page, [P(0.08, 0.12), P(0.42, 0.82)], { steps: 4 });
       await page.click('[data-tool="fill"]').catch(() => {});
       await page.locator('#palette > *').nth(4).click().catch(() => {});
-      await page.mouse.click(...this.P(0.28, 0.5));
-      await page.click('[data-tool="brush"]').catch(() => {});
+      await page.mouse.click(...P(0.25, 0.47));
+      await page.click('[data-tool="rect"]').catch(() => {});
       await page.locator('#palette > *').nth(5).click().catch(() => {});
-      await drag(page, curve(0.72, 0.4, 0.15, 0.25, 1.4, 40, 0, 0.6).map(([x, y]) => this.P(x, y)), { steps: 3 });
+      await drag(page, [P(0.55, 0.15), P(0.9, 0.45)], { steps: 4 });
+      await page.mouse.move(1270, 790);
     },
-    async play(page, s) {
-      const t = Date.now();
-      await page.click('[data-tool="slop"]').catch(() => {});
-      const pts = []; for (let i = 0; i <= 40; i++) pts.push(this.P(0.1 + i * 0.02, 0.92 - Math.sin(i / 6) * 0.05));
-      await drag(page, pts, { steps: 4 });
-      await page.click('[data-tool="stamp"]').catch(() => {});
-      for (const [x, y] of [[0.6, 0.8], [0.75, 0.75], [0.9, 0.85]]) { await page.mouse.click(...this.P(x, y)); await wait(page, 250); }
-      await page.mouse.move(1270, 790, { steps: 10 });
-      await rest(page, s, t);
+    get frame() {
+      const P = (fx, fy) => (this.P ? this.P(fx, fy) : [fx * 800 + 90, fy * 500 + 64]);
+      const self = this;
+      return async (page, i) => strokeFrames([
+        { at: 4, pts: curve(0.72, 0.68, 0.12, 0.16, 1.3, 50, 0, 0.5).map(([x, y]) => P(x, y)), before: (p) => p.click('[data-tool="brush"]').then(() => p.locator('#palette > *').nth(9).click()).catch(() => {}) },
+        { at: 70, pts: wave(0.06, 0.94, 0.92, 0.03, 70, 3).map(([x, y]) => P(x, y)), before: (p) => p.click('[data-tool="slop"]').catch(() => {}) },
+      ])(page, i, self);
     },
   },
 };

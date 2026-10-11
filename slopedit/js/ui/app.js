@@ -38,6 +38,7 @@
       A.appendToTimeline(metas);
       if (v) A.status('Sequence set to ' + SE.doc.w + '×' + SE.doc.h + ' to match ' + v.name);
       SE.emit('settings', {});
+      if (A.isPhone()) A.setPane('timeline');
     } else A.status('Imported ' + metas.length + ' item' + (metas.length > 1 ? 's' : '') + ' into the bin');
     return metas;
   };

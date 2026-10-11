@@ -9,7 +9,11 @@
   .topbar { gap: 6px; padding: 0 8px; }
   .appname { display: none; }
   .tabs { margin-left: 0; }
-  .chip { max-width: 112px; padding: 0 8px; }
+  .chip { max-width: 104px; min-width: 32px; flex-shrink: 1; padding: 0 8px; }
+  .tab { padding: 0 8px; }
+  .tb-group { min-width: 0; }
+  #btnCmd { display: none !important; }
+  .sloppo, .sloppo canvas { width: 40px; height: 40px; }
   .chip .bar { display: none; }
   .tb-group { gap: 2px; }
   #btnTheme { display: none; }

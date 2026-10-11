@@ -34,7 +34,7 @@
     box.append(ph);
     if (a.shot) {
       const img = el('img', { alt: '', loading: 'lazy', decoding: 'async', src: a.shot });
-      img.addEventListener('load', () => { box.classList.add('has-img'); if (!stillOnly()) box.dataset.clip = a.shot.replace('/shots/', '/clips/').replace(/\.jpe?g$/, ''); });
+      img.addEventListener('load', () => { box.classList.add('has-img'); if (!stillOnly()) { box.dataset.clip = a.shot.replace('/shots/', '/clips/').replace(/\.jpe?g$/, ''); pickCentre(); } });
       img.addEventListener('error', () => img.remove());
       box.append(img);
     }

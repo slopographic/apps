@@ -77,7 +77,7 @@ export function petAllowed() {
 }
 
 /* ---------- shaking ---------- */
-let samples = [], lastTier = 0;
+let samples = [], lastTier = 0, lastLevel = 0;
 /**
  * Shake intensity over the last second of drag samples [[t, x, y], …]:
  * direction reversals (of fast moves) × mean speed / 1000. Gentle wiggles score under 2;
@@ -113,10 +113,13 @@ export function onDrag(t, x, y) {
   samples.push([t, x, y]);
   while (samples.length && t - samples[0][0] > 1000) samples.shift();
   const sc = shakeScore(samples);
-  if (t - lastTier < 1300) return sc;
-  if (sc >= SHAKE.mad) { lastTier = t; samples = []; setMood('woozy', 1800); slosh(); addRage(1, 'shake'); }
-  else if (sc >= SHAKE.woozy) { lastTier = t; setMood('woozy', 1500); slosh(); say(line('woozy'), 1000); }
-  else if (sc >= SHAKE.giggle) { lastTier = t; say(line('giggle'), 900); }
+  const tier = sc >= SHAKE.mad ? 3 : sc >= SHAKE.woozy ? 2 : sc >= SHAKE.giggle ? 1 : 0;
+  if (!tier || (tier <= lastLevel && t - lastTier < 1300)) return sc;   // escalating always reacts
+  lastTier = t;
+  lastLevel = tier;
+  if (tier === 3) { samples = []; setMood('woozy', 1800); slosh(); addRage(1, 'shake'); }
+  else if (tier === 2) { setMood('woozy', 1500); slosh(); say(line('woozy'), 1000); }
+  else say(line('giggle'), 900);
   return sc;
 }
 export const dragEnded = () => { samples = []; };

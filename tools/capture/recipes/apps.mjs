@@ -1,5 +1,5 @@
 // Recipes for the creative apps: filmed in real time (video mode) while the recipe works in them.
-import { wait, until, drag, curve, hide } from './util.mjs';
+import { wait, until, drag, curve, hide, strokeFrames, wave } from './util.mjs';
 import { seedDrive } from './seed.mjs';
 
 /** Box of the first visible element matching sel, or a fallback rectangle. */
@@ -11,60 +11,36 @@ const QUIET = ['.toast', '.toasts', '#toast', '.slop-toast', '.sui-toast', '.toa
 
 export default {
   photoslop: {
-    mode: 'video', len: 5,
+    len: 5,
     async setup(page) {
       await until(page, () => document.body.classList.contains('ready'), null, 30000);
       await hide(page, QUIET);
       await wait(page, 800);
-      const c = await boxOf(page, '#stage canvas, .canvas-wrap canvas, main canvas');
-      const P = (fx, fy) => [c.x + c.width * fx, c.y + c.height * fy];
       await page.keyboard.press('b');
-      await page.keyboard.press('Shift+Control+n').catch(() => {});
-      await page.keyboard.press('Escape');
+      for (let i = 0; i < 6; i++) await page.keyboard.press(']');
       const sw = page.locator('.swatch-grid .swatch:not(.add)');
-      const n = await sw.count();
-      const strokes = [[0.13, 0.25, 0.08, 0.1], [0.86, 0.72, 0.07, 0.12], [0.85, 0.24, 0.05, 0.08]];
-      for (let i = 0; i < strokes.length; i++) {
-        if (n) await sw.nth([5, 9, 13, 3][i % 4] % n).click();
-        const [fx, fy, rx, ry] = strokes[i];
-        await drag(page, curve(fx, fy, rx, ry, 1.6, 36, i, 0.5).map(([x, y]) => P(x, y)), { steps: 3 });
-      }
+      await sw.nth(17).click();
+      await drag(page, curve(200, 420, 70, 90, 1.5, 14, 0.5, 0.6), { steps: 1 });
+      await sw.nth(22).click();
+      await drag(page, curve(860, 400, 60, 80, 1.5, 14, 2.5, 0.6), { steps: 1 });
+      await sw.nth(12).click();
       await page.mouse.move(1270, 790);
-      this.P = P; this.sw = sw; this.n = n;
     },
-    async play(page, s) {
-      const t = Date.now();
-      if (this.n) await this.sw.nth(7 % this.n).click();
-      const pts = [];
-      for (let i = 0; i <= 60; i++) pts.push(this.P(0.1 + i / 60 * 0.8, 0.88 + Math.sin(i / 5) * 0.04));
-      await drag(page, pts, { steps: 4 });
-      await page.mouse.move(1270, 790, { steps: 10 });
-      await wait(page, Math.max(0, s * 1000 - (Date.now() - t)));
-    },
+    frame: strokeFrames([{ at: 8, pts: wave(130, 930, 690, 22, 120, 2.5) }]),
   },
   vector: {
-    mode: 'video', len: 5,
+    len: 5,
     async setup(page) {
       await until(page, () => document.getElementById('app')?.classList.contains('ready') && window.SV, null, 30000);
       await hide(page, QUIET);
       await wait(page, 800);
-      this.c = await boxOf(page, '#canvas, #stage, svg#doc, .stage svg, main svg');
-    },
-    async play(page, s) {
-      const c = this.c, t = Date.now();
-      const P = (fx, fy) => [c.x + c.width * fx, c.y + c.height * fy];
-      await page.keyboard.press('v');
-      await page.mouse.click(...P(0.4, 0.55));
-      await wait(page, 500);
       await page.keyboard.press('Escape');
-      await page.keyboard.press('l');
-      await drag(page, [P(0.75, 0.2), P(0.8, 0.28), P(0.86, 0.34)], { steps: 12 });
-      await page.keyboard.press('m');
-      await drag(page, [P(0.08, 0.68), P(0.13, 0.76), P(0.2, 0.86)], { steps: 12 });
-      await page.keyboard.press('v');
-      await page.mouse.move(1270, 790, { steps: 8 });
-      await wait(page, Math.max(0, s * 1000 - (Date.now() - t)));
     },
+    frame: strokeFrames([
+      { at: 6, pts: wave(250, 420, 230, 0, 30, 0).map(([x], i) => [x, 200 + i * 5]), before: (p) => p.keyboard.press('l') },
+      { at: 50, pts: wave(860, 1000, 520, 0, 30, 0).map(([x], i) => [x, 500 + i * 4]), before: (p) => p.keyboard.press('Shift+S') },
+      { at: 95, pts: Array.from({ length: 40 }, (_, i) => [300 + i * 6, 640 - Math.sin(i / 39 * Math.PI) * 120]), before: (p) => p.keyboard.press('b') },
+    ]),
   },
   pdf: {
     mode: 'video', len: 5,

@@ -84,6 +84,7 @@
   };
   TL.zoomBy = (f, ax) => TL.setZoom(TL.pps * f, ax);
   TL.fit = function () {
+    if (TL.w < 50) return;
     const d = Math.max(M.duration(SE.doc), 5);
     TL.pps = U.clamp((TL.w - 40) / d, 2, 2400); TL.scrollX = 0;
     TL.clampScroll(); TL.dirty(); U.store.set('pps', TL.pps); SE.emit('zoom', {});
@@ -110,9 +111,11 @@
     const el = SE.app.els.tlLanes, cv = SE.app.els.tlCanvas;
     const r = el.getBoundingClientRect();
     TL.dpr = Math.min(2, window.devicePixelRatio || 1);
+    const wasHidden = TL.w < 50;
     TL.w = Math.max(1, r.width); TL.h = Math.max(1, r.height);
     cv.width = Math.round(TL.w * TL.dpr); cv.height = Math.round(TL.h * TL.dpr);
     cv.style.width = TL.w + 'px'; cv.style.height = TL.h + 'px';
+    if (wasHidden && TL.w >= 50 && SE.doc.clips.length) { TL.fit(); return; }
     TL.clampScroll(); TL.dirty();
     if (TL.syncHeads) TL.syncHeads();
   };

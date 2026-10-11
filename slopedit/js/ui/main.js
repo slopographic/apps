@@ -34,6 +34,7 @@
     try { restored = await SE.session.restore(); } catch (e) { console.warn(e); }
     if (restored) A.status('Restored your last project');
     await SE.session.launch().catch((e) => console.warn(e));
+    if (A.isPhone()) A.setPane(SE.doc.clips.length ? 'timeline' : 'media');
     SE.emit('change', { label: 'boot', history: true });
     SE.emit('layout', {});
     document.body.classList.add('ready');

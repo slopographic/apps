@@ -22,3 +22,22 @@ export function curve(cx, cy, rx, ry, turns = 1, n = 40, a0 = 0, shrink = 0) {
 }
 /** Hide anything matching these selectors (toasts, cookie-ish banners, hints). */
 export const hide = (page, sels) => page.addStyleTag({ content: sels.join(',') + '{visibility:hidden!important}' }).catch(() => null);
+/**
+ * A frame hook (frames mode) that draws strokes a little per captured frame, so the clip shows
+ * the stroke being painted. strokes: [{ at: frame, pts: [[x,y],...], before?(page) }].
+ */
+export function strokeFrames(strokes) {
+  return async (page, i) => {
+    for (const s of strokes) {
+      const j = i - s.at;
+      if (j < 0 || j > s.pts.length) continue;
+      if (j === 0) { await s.before?.(page); await page.mouse.move(...s.pts[0]); await page.mouse.down(); }
+      else if (j < s.pts.length) await page.mouse.move(...s.pts[j]);
+      else await page.mouse.up();
+    }
+  };
+}
+/** Points along a gentle wave from (x0,y) to (x1,y). */
+export function wave(x0, x1, y, amp, n, waves = 2) {
+  return Array.from({ length: n }, (_, i) => [x0 + (x1 - x0) * i / (n - 1), y + Math.sin(i / (n - 1) * Math.PI * 2 * waves) * amp]);
+}
