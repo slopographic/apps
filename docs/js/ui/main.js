@@ -1,5 +1,5 @@
 /* Slop Docs — ui/main: boot. Waits for the engine, registers with the hub, opens the document the page was
- * launched with (?drive=<id>, from Slop Drive's New ▸ menu or "Send to…") or the untitled draft, or a blank page.
+ * launched with (?drive=<id>, from Slop Drive's New ▸ menu or "Send to…") in a new tab. The open tabs are restored first.
  * Classic script, runs last. */
 (function () {
   'use strict';

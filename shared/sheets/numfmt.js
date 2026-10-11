@@ -1,6 +1,6 @@
 /* Slop Sheets: Excel number formats. Turns a serial number and a format code into the text a cell shows, and tells
  * date formats from number formats. Covers General, 0 and 0.00, grouping, percent, scientific, text (@), literal text
- * in quotes, [colour] and [$...] blocks (ignored), date and time codes (y m d h s, AM/PM, [h] [m] [s] totals) and the
+ * in quotes, [colour] blocks (dropped) and [$...] currency symbols (kept), date and time codes (y m d h s, AM/PM, [h] [m] [s] totals) and the
  * built-in ids of the OOXML standard. Not covered: fractions (# ?/?), conditions like [>100], other calendars.
  *   BUILTIN_FORMATS[id] → code     isDateCode(code) → boolean     excelDate(serial) → Date (UTC)
  *   serialOf(date) → serial        formatNumber(value, code) → string                                    */

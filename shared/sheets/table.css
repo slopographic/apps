@@ -51,7 +51,6 @@
 .ss-grid[data-style="grid"] .ss-cell { box-shadow: inset -1px 0 var(--ss-line), inset 0 -1px var(--ss-line); }
 .ss-grid[data-style="grid"] .ss-rn { box-shadow: inset -1px 0 var(--ss-line), inset 0 -1px var(--ss-line); }
 .ss-grid[data-style="striped"] .ss-alt .ss-cell { background: var(--ss-alt); }
-.ss-grid[data-style="striped"] .ss-alt .ss-cell.ss-blank { background: var(--ss-alt); }
 .ss-grid[data-style="compact"] { font-size: 12px; }
 .ss-grid[data-style="compact"] .ss-cell { padding: 0 4px; }
 

@@ -1,7 +1,7 @@
 /* Slop Sheets: CSV and TSV. RFC 4180 quoting (doubled quotes, quoted line breaks), a UTF-8 BOM, CRLF, LF or CR
  * line ends, and text that is not UTF-8 read as Latin-1 (windows-1252, the browser's "latin1").
  *   decodeText(bytes) → string          parseDelimited(text, ',' | '\t') → string[][]
- *   sheetFromGrid(name, grid) → sheet    csvBlob(sheetLike, rowOrder?, delim) → Blob (UTF-8 with BOM)
+ *   sheetFromGrid(name, grid) → sheet    csvBlob(sheet, rowOrder?, delim, { bom }) → Blob (UTF-8, BOM by default)
  * A sheet is { name, rows, text, width, height, fmt, bold }: rows hold typed values (number, string, boolean, Date
  * or null), text holds what each cell shows, fmt maps a cell key to its number format and bold is a set of cell keys.
  * Cell key = row * 16384 + column. Values that look like plain numbers become numbers, so columns sort as numbers. */
