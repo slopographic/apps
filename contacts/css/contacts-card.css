@@ -2,6 +2,7 @@
 .card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .card-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); min-height: 52px; flex: none; }
 .card-bar-t { font-weight: 600; }
+.card-bar [data-act="edit"] { margin-left: auto; }
 .back { display: none; }
 .card-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 22px 40px; }
 .card-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 14px 0 12px; }
@@ -9,7 +10,7 @@
 .card-sub { margin: 0; color: var(--mute); font-size: 15px; }
 .card-fields { border-top: 1px solid var(--line); margin-top: 6px; }
 .field { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
-.field-k { color: var(--mute); font-size: 13px; }
+.field-k { color: var(--mute); font-size: 13px; text-transform: capitalize; }
 .field-v { overflow-wrap: anywhere; }
 .field-v a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
 .card-groups { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 0 0; }
