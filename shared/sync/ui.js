@@ -10,6 +10,12 @@
     'Nothing is sent in the background, and cloud backup stays off until you connect a provider.';
   const RESTORE_WARNING = 'Restore from cloud replaces everything on this device with the last cloud backup. ' +
     'Anything changed since that backup is lost. Press "Back up now" first if you want to keep the current data.';
+  const LOCAL_HELP = 'Browsers cannot connect to SMB, NFS or WebDAV shares. For a NAS or network drive, first mount it ' +
+    'in your operating system (Windows: map the network drive; macOS: Finder, Go, Connect to Server; Linux: mount the share), ' +
+    'then choose the mounted folder here. This needs Chrome or Edge. The backup is written to that folder only; ' +
+    'nothing is sent over the network.';
+  const FALLBACK = 'This browser cannot choose a folder (it needs Chrome or Edge). Download a backup file and keep it, ' +
+    'or upload a backup file to restore it.';
 
   const btn = (label, onclick, cls = '') => U().el('button', { type: 'button', class: 'sui-btn ' + cls, onclick }, label);
   const when = (ts) => (ts ? new Date(ts).toLocaleString() : 'never');
@@ -35,8 +41,9 @@
 
   async function connect(id) {
     const r = await S().connect(id);
-    if (!r.ok) await U().alert('Could not connect', r.error);
-    // on success the page is now leaving for the provider's sign-in
+    if (r.ok && r.folder) U().toast('Folder chosen: ' + r.folder + '.');
+    else if (!r.ok && !r.cancelled) await U().alert('Could not connect', r.error);
+    // on a cloud sign-in success the page is now leaving for the provider's sign-in
   }
 
   async function backUp(id) {
@@ -57,13 +64,42 @@
 
   async function disconnect(id) {
     const p = CF().provider(id);
-    const yes = await U().confirm('Disconnect ' + p.label + '?', 'This forgets the sign-in on this device. Your cloud files are not deleted.', 'Disconnect');
+    const text = p.local ? 'This forgets the folder on this device. Files in the folder are not deleted.'
+      : 'This forgets the sign-in on this device. Your cloud files are not deleted.';
+    const yes = await U().confirm('Disconnect ' + p.label + '?', text, 'Disconnect');
     if (!yes) return;
     const r = await S().disconnect(id);
     await U().alert('Disconnected', r.ok ? r.note : r.error);
   }
 
-  async function section(id) {
+  // Fallback without a folder: save the backup as a file the person keeps. A local download, no network.
+  async function downloadFile() {
+    if (!window.SlopData || typeof window.SlopData.exportAll !== 'function') throw new Error('Backup is not available in this app yet.');
+    const blob = await window.SlopData.exportAll();
+    const url = URL.createObjectURL(blob);
+    const a = U().el('a', { href: url, download: S().BACKUP_NAME });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    U().toast('Backup file saved.');
+  }
+
+  // Fallback: restore from a backup file the person chose. Same warning as a cloud restore.
+  async function restoreFile(file) {
+    if (!window.SlopData || typeof window.SlopData.importAll !== 'function') { U().toast('Restore is not available in this app yet.'); return; }
+    const warn = U().el('div', null, U().el('p', null, RESTORE_WARNING));
+    const yes = await U().confirm('Restore from this file?', warn, 'Replace local data', { danger: true, cancel: 'Keep local data' });
+    if (!yes) return;
+    try { await window.SlopData.importAll(file); } catch (e) { U().toast(String((e && e.message) || 'The file could not be restored.')); return; }
+    await U().alert('Restored', 'The backup file is now on this device. The page will reload to show it.');
+    window.location.reload();
+  }
+  function uploadFile() {
+    const input = U().el('input', { type: 'file', accept: '.json,application/json' });
+    input.addEventListener('change', () => { const f = input.files && input.files[0]; if (f) restoreFile(f); });
+    input.click();
+  }
+
+  async function cloudSection(id) {
     const p = CF().provider(id);
     const st = await S().status(id);
     const wrap = U().el('section', { class: 'sui-sync-section' }, U().el('h3', null, p.label));
@@ -83,6 +119,32 @@
     }
     return wrap;
   }
+
+  // The local or network folder: no client ID and no sign-in, just a folder the browser is allowed to use.
+  async function localSection(id) {
+    const p = CF().provider(id);
+    const st = await S().status(id);
+    const wrap = U().el('section', { class: 'sui-sync-section' }, U().el('h3', null, p.label),
+      U().el('p', { class: 'sui-sync-note' }, LOCAL_HELP));
+    if (st.error) wrap.append(U().el('p', { class: 'sui-sync-note' }, st.error));
+    if (!st.supported) {
+      wrap.append(U().el('p', null, FALLBACK), U().el('div', { class: 'sui-sync-actions' },
+        btn('Download backup file', () => run(downloadFile), 'sui-primary'),
+        btn('Upload backup file…', uploadFile)));
+    } else if (!st.connected) {
+      wrap.append(btn('Choose folder…', () => run(() => connect(id)), 'sui-primary'));
+    } else {
+      wrap.append(U().el('p', null, 'Folder: ' + st.folder + '. Last backup: ' + when(st.lastSync) + '.'));
+      wrap.append(U().el('div', { class: 'sui-sync-actions' },
+        btn('Back up now', () => run(() => backUp(id)), 'sui-primary'),
+        btn('Restore from folder', () => run(() => restore(id)), 'sui-danger'),
+        btn('Choose another folder', () => run(() => connect(id))),
+        btn('Forget folder', () => run(() => disconnect(id)))));
+    }
+    return wrap;
+  }
+
+  const section = (id) => (CF().provider(id).local ? localSection(id) : cloudSection(id));
 
   async function render() {
     if (!body) return;

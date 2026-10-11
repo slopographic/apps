@@ -51,6 +51,11 @@
     } catch (e) { return null; }
   }
 
+  // What the provider call receives: a token for the cloud providers, nothing for the local folder.
+  async function authFor(id) {
+    return C().provider(id).local ? {} : { token: await validToken(id) };
+  }
+
   // Returns a usable access token, refreshing it when needed. Throws when not connected.
   async function validToken(id) {
     const rec = await T().load(id);
@@ -81,6 +86,7 @@
     // Stores the person's OAuth client ID. No network.
     configure(id, opts = {}) {
       if (!C().provider(id)) return fail('Unknown cloud provider.');
+      if (C().provider(id).local) return fail('This option has no client ID. Choose a folder instead.');
       return C().setClientId(id, opts.clientId);
     },
 
@@ -88,6 +94,10 @@
     async connect(id) {
       try {
         if (!C().provider(id)) return fail('Unknown cloud provider.');
+        if (C().provider(id).local) {
+          const r = await PR().local.pick();
+          return r.ok ? { ok: true, folder: r.name } : fail(r.error, { cancelled: !!r.cancelled, unsupported: !!r.unsupported });
+        }
         const clientId = C().getClientId(id);
         if (!clientId) return fail('Add your OAuth client ID first. Open the Cloud backup panel to paste it.');
         const pk = await P().create();
@@ -126,10 +136,15 @@
       const p = C().provider(id);
       const base = {
         label: p ? p.label : '',
-        configured: !!C().getClientId(id),
+        configured: p && p.local ? true : !!C().getClientId(id),
         lastSync: C().getLastSync(id) || null
       };
       try {
+        if (p && p.local) {
+          const lm = PR().local;
+          const c = lm ? await lm.chosen() : null;
+          return Object.assign(base, { connected: !!c, folder: c ? c.name : '', supported: !!(lm && lm.supported()) });
+        }
         const rec = await T().load(id);
         return Object.assign(base, { connected: !!rec });
       } catch (e) {
@@ -141,9 +156,9 @@
     async pushBackup(id) {
       try {
         const mod = providerModule(id);
-        const token = await validToken(id);
+        const auth = await authFor(id);
         const blob = await exportBlob();
-        await mod.upload({ token }, BACKUP_NAME, blob);
+        await mod.upload(auth, BACKUP_NAME, blob);
         const at = Date.now();
         C().setLastSync(id, at);
         return { ok: true, at, bytes: blob.size };
@@ -157,8 +172,8 @@
         if (opts.confirmed !== true) return fail('Restoring replaces your local data. Confirm first.');
         const mod = providerModule(id);
         if (!window.SlopData || typeof window.SlopData.importAll !== 'function') return fail('Restore is not available in this app yet.');
-        const token = await validToken(id);
-        const blob = await mod.download({ token }, BACKUP_NAME);
+        const auth = await authFor(id);
+        const blob = await mod.download(auth, BACKUP_NAME);
         if (!blob) return fail('No cloud backup found yet. Back up first.');
         await window.SlopData.importAll(blob);
         return { ok: true, bytes: blob.size };
@@ -170,8 +185,8 @@
       try {
         const mod = providerModule(id);
         if (!blob || typeof blob.size !== 'number') throw new Error('No file to upload.');
-        const token = await validToken(id);
-        const out = await mod.upload({ token }, safeName(name), blob, { folder: APPS_FOLDER });
+        const auth = await authFor(id);
+        const out = await mod.upload(auth, safeName(name), blob, { folder: APPS_FOLDER });
         return { ok: true, name: out.name || name, bytes: blob.size };
       } catch (e) { return fail(msg(e)); }
     },
@@ -180,8 +195,8 @@
     async pullAppFile(id, name) {
       try {
         const mod = providerModule(id);
-        const token = await validToken(id);
-        const blob = await mod.download({ token }, safeName(name), { folder: APPS_FOLDER });
+        const auth = await authFor(id);
+        const blob = await mod.download(auth, safeName(name), { folder: APPS_FOLDER });
         if (!blob) return fail('That file is not in the Apps folder.');
         return { ok: true, blob };
       } catch (e) { return fail(msg(e)); }
@@ -192,6 +207,11 @@
     async disconnect(id) {
       try {
         if (!C().provider(id)) return fail('Unknown cloud provider.');
+        if (C().provider(id).local) {
+          await PR().local.forget();
+          C().setLastSync(id, 0);
+          return { ok: true, note: 'Forgot the folder on this device. Files in the folder are not deleted.' };
+        }
         await T().clear(id);
         C().setLastSync(id, 0);
         return { ok: true, note: 'Disconnected on this device. To revoke access completely, remove this app in your Google Account or Dropbox settings.' };
