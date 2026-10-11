@@ -28,7 +28,9 @@
     { kind: ['thumbs'], label: 'Clear thumbnails and previews (files kept)', text: 'Drive makes thumbnails and previews again when you open a folder.' },
     { kind: ['models', 'cutout'], label: 'Remove downloaded models (files kept)', text: 'Downloaded AI and cut-out models are removed. Each one downloads again the next time you use it.' },
     { kind: ['oldCaches'], label: 'Remove old offline caches (files kept)', text: 'Offline files from earlier releases are removed. The current release’s offline files are kept.' },
-    { kind: ['thumbs', 'faces', 'models', 'cutout', 'oldCaches'], label: 'Clear all downloaded extras (never deletes your files)', text: 'Removes thumbnails, previews, face results, downloaded models and old offline caches. Each is made again when it is needed.' },
+    { kind: ['packs'], label: 'Remove downloaded library packs (files kept)', text: 'Packs from the library are removed. Each one downloads again the next time you pick it.' },
+    { kind: ['aitools'], label: 'Remove AI Tools models (files kept)', text: 'Models installed from the AI Tools Get more page are removed. Download them again there; you confirm the licence again.' },
+    { kind: ['thumbs', 'faces', 'models', 'cutout', 'packs', 'aitools', 'oldCaches'], label: 'Clear all downloaded extras (never deletes your files)', text: 'Removes thumbnails, previews, face results, downloaded models, library packs, AI Tools models and old offline caches. Each is made again or downloaded again when it is needed.' },
   ];
   function run(action) {
     var ask = window.SlopUI.confirm(action.label.replace(/ \(.*\)$/, '') + '?', action.text + ' ' + NOT_DELETED, 'Clear', { cancel: 'Keep it' });
