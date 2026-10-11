@@ -7,6 +7,8 @@
 (function (root) {
   'use strict';
   const MEAN = [0.485, 0.456, 0.406], STD = [0.229, 0.224, 0.225];
+  /** PaddleOCR's models were trained on OpenCV BGR images, so the channels go in B, G, R order. */
+  const BGR = [2, 1, 0];
 
   /** Scaled RGBA of the page with sides at most 960 and multiples of 32. */
   function fitDet(bitmap, w, h) {
@@ -19,7 +21,7 @@
   /** NCHW float tensor data from RGBA, ImageNet-normalised. */
   function toDetInput(img) {
     const { w, h, data } = img, out = new Float32Array(3 * w * h), n = w * h;
-    for (let i = 0; i < n; i++) for (let c = 0; c < 3; c++) out[c * n + i] = (data[i * 4 + c] / 255 - MEAN[c]) / STD[c];
+    for (let i = 0; i < n; i++) for (let c = 0; c < 3; c++) out[c * n + i] = (data[i * 4 + BGR[c]] / 255 - MEAN[c]) / STD[c];
     return out;
   }
   /** Connected blobs (4-neighbour) of the thresholded map as boxes in map pixels, with mean probability. */
@@ -70,7 +72,7 @@
     const c = new OffscreenCanvas(tw, 48), g = c.getContext('2d', { willReadFrequently: true });
     g.drawImage(page.bitmap, box.x0, box.y0, cw, ch, 0, 0, tw, 48);
     const d = g.getImageData(0, 0, tw, 48).data, out = new Float32Array(3 * 48 * tw), n = 48 * tw;
-    for (let i = 0; i < n; i++) for (let c2 = 0; c2 < 3; c2++) out[c2 * n + i] = (d[i * 4 + c2] / 255 - 0.5) / 0.5;
+    for (let i = 0; i < n; i++) for (let c2 = 0; c2 < 3; c2++) out[c2 * n + i] = (d[i * 4 + BGR[c2]] / 255 - 0.5) / 0.5;
     return { data: out, w: tw };
   }
   /** CTC greedy decode: argmax per step, drop blanks and repeats. Returns { text, score }. */
