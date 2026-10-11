@@ -6,7 +6,7 @@ export const HOME = {
   cards: '[data-perch="card"]',                     // chaos can bite, knock and blast these
   headings: 'h1[data-perch], h2[data-perch]',       // chaos can eat letters from these
   floor: 'body > footer',                           // knocked cards pile up on top of this
-  z: 15, hudOpen: true, tips: false,
+  z: 15, tips: false,
 };
 export const APP = {
   app: 'app', kind: 'app', home: false,
@@ -16,7 +16,7 @@ export const APP = {
   cards: '[data-perch="card"], .panel, .card, .sui-dlg',
   headings: 'h1, h2, .sui-title',
   floor: null,
-  z: 900, hudOpen: false, tips: true,
+  z: 900, tips: true,
 };
 export const CFG = { ...HOME };
 export function configure(o) { Object.assign(CFG, o); }

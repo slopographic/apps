@@ -7,7 +7,7 @@ import { setup, draw, size, face, CW, CH, BASE } from './look.js';
 import { step, place, hopTo, leapIn, fall } from './motion.js';
 import * as P from './perches.js';
 import { bindInput, pet } from './input.js';
-import { mountHud } from './hud.js';
+import { mountHud, placeHud } from './hud.js';
 import { setChaos, restore, act } from './chaos.js';
 import { TIMING } from './timing.js';
 import { tickMood, askForCandy } from './mood.js';
@@ -108,6 +108,7 @@ function frame(t) {
     M.el.classList.toggle('is-dizzy', M.mood === 'dizzy' && t < M.moodUntil);
     M.el.classList.toggle('is-held', M.mode === 'drag');
     placeBubble();
+    placeHud();
   }
   requestAnimationFrame(frame);
 }

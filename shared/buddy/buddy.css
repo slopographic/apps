@@ -64,18 +64,35 @@
 .sloppo-goo .goo-shine { fill: rgba(255, 255, 255, .55); }
 @keyframes sloppo-drip { from { transform: scaleY(.1); } to { transform: none; } }
 
-/* HUD */
-.sloppo-hud {
-  position: fixed; left: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 25;
-  display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: calc(100vw - 84px); /* room for the toggle */
-  padding: 5px 5px 5px 12px; border-radius: 18px; border: 1px solid var(--line);
-  background: rgba(17, 17, 17, .88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  font: 600 11px var(--mono); color: var(--bone); box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+/* HUD: a round level toggle beside him; the card opens next to him (a bottom sheet on phones) */
+.sloppo-hud { position: fixed; left: 0; top: 0; z-index: 25; font: 600 11px var(--mono); color: var(--bone); }
+.sloppo-hud.is-away { display: none; }
+.sh-toggle {
+  display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border-radius: 50%;
+  border: 1px solid var(--line); background: rgba(17, 17, 17, .9); color: inherit; font: inherit; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35); transition: opacity .6s ease, transform .2s, border-color .2s;
 }
+.sh-toggle:hover { border-color: var(--slop); transform: scale(1.06); }
+.sh-toggle:focus-visible { outline: 2px solid var(--slop); outline-offset: 2px; }
 .sh-lv { white-space: nowrap; }
 .sh-lv b { color: var(--slop); }
-.sh-bar { width: 52px; height: 6px; border-radius: 3px; background: rgba(241, 237, 228, .14); overflow: hidden; }
+.sloppo-hud.is-open .sh-toggle { border-color: var(--slop); }
+.sloppo-hud.is-angry .sh-toggle { border-color: rgba(255, 79, 110, .6); }
+.sloppo-hud.is-faded:not(.is-open) .sh-toggle { opacity: .4; }
+.sloppo-hud.is-faded:not(.is-open):hover .sh-toggle, .sloppo-hud.is-faded:not(.is-open):focus-within .sh-toggle { opacity: 1; }
+.sh-panel {
+  position: absolute; left: calc(100% + 8px); top: -6px; width: 252px; max-width: calc(100vw - 24px);
+  display: grid; gap: 8px; padding: 10px; border-radius: 16px; border: 1px solid var(--line);
+  background: rgba(17, 17, 17, .92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+}
+.sh-panel.flip { left: auto; right: calc(100% + 8px); }
+.sh-panel[hidden] { display: none; }
+.sh-grip { display: none; }
+.sh-meters { display: flex; align-items: center; gap: 8px; }
+.sh-bar { flex: 1; height: 6px; border-radius: 3px; background: rgba(241, 237, 228, .14); overflow: hidden; }
 .sh-bar i { display: block; height: 100%; width: 0; background: var(--slop); border-radius: 3px; transition: width .35s; }
+.sh-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .sh-btn {
   min-height: 30px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: transparent;
   color: inherit; font: inherit; cursor: pointer; white-space: nowrap;
@@ -89,10 +106,21 @@
   .sh-hat-n { display: none; }
   .sh-hat-s { display: inline; }
 }
+@media (max-width: 600px) {
+  .sloppo-hud .sh-panel {
+    position: fixed !important; left: 0 !important; right: 0 !important; top: auto !important; bottom: 0 !important;
+    width: auto; max-width: none; max-height: 56vh; overflow: auto; border-radius: 18px 18px 0 0;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  .sh-grip {
+    display: block; justify-self: center; width: 48px; height: 22px; margin: -4px 0 0; padding: 0; border: 0; background: none; cursor: pointer;
+  }
+  .sh-grip::before { content: ""; display: block; width: 40px; height: 4px; margin: 0 auto; border-radius: 2px; background: rgba(241, 237, 228, .35); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .sloppo-stars i, .sloppo-goo .drip { animation: none; }
-  .sloppo-say, .sh-bar i { transition: none; }
+  .sloppo-say, .sh-bar i, .sh-toggle { transition: none; }
 }
 
 /* Sloppo's chaos and rage effects (home/mascot/). Loaded after mascot.css. */

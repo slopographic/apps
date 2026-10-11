@@ -2,7 +2,8 @@
 // (click, or the H key), it is a compact card beside him (a bottom sheet on phones) with the XP and
 // rage bars, the everyday actions, the hat and RAGE buttons, and a "Give…" section that opens only
 // when pressed. Escape, a click outside or the grip closes it. Idle for a while, the toggle fades.
-import { M, listeners, clamp } from './state.js';
+import { M, listeners, changed, clamp } from './state.js';
+import { CFG } from './config.js';
 import { xpFor, hatLabel } from './store.js';
 import { count } from './journal.js';
 import { cycleHat } from './levels.js';
@@ -17,7 +18,7 @@ let idleT = 0, hovered = false, focused = false, wasOpen = false, lastX = NaN, l
 export function mountHud({ onUnleash, onRestore, on3d, onAsk }) {
   hud = document.createElement('div');
   hud.className = 'sloppo-hud';
-  hud.style.zIndex = M.z || '';
+  hud.style.zIndex = CFG.z + 1;
   hud.hidden = true;
   hud.setAttribute('role', 'group');
   hud.setAttribute('aria-label', 'Sloppo the mascot');
@@ -113,7 +114,7 @@ export function mountHud({ onUnleash, onRestore, on3d, onAsk }) {
 }
 
 /** Open or close the card (M.hudOpen; every listener follows). */
-export function setOpen(v) { M.hudOpen = !!v; listeners.forEach((f) => f()); }
+export function setOpen(v) { M.hudOpen = !!v; changed(); }
 
 function typing(t) { return !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)); }
 function restartIdle() { clearTimeout(idleT); idleT = setTimeout(fade, IDLE_MS); }

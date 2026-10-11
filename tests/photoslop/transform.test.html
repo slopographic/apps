@@ -211,7 +211,8 @@
       W.draw();
       const ctx = W.V.canvas.getContext('2d', { willReadFrequently: true });
       // Sampled 2 px in from each centre, clear of the rotate knob's stem and the box outline.
-      for (const q of pts) expect([...ctx.getImageData(Math.round(q.x + 2), Math.round(q.y + 2), 1, 1).data]).toEqual([255, 255, 255, 255]);
+      const got = pts.map((q) => [Math.round(q.x), Math.round(q.y), W.V.dpr, ...ctx.getImageData(Math.round(q.x + 2), Math.round(q.y + 2), 1, 1).data].join(','));
+      expect(got).toEqual(pts.map(() => 'x'));
       W.selectTool('brush');
       expect(W.idleBoxPoints().length).toBe(0);
       W.selectTool('move');

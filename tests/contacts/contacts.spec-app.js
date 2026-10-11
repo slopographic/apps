@@ -9,9 +9,9 @@
   async function boot(query = '', frameId = 'app') {
     const fr = document.getElementById(frameId);
     fr.src = 'about:blank';
-    await sleep(60);
+    await waitFor(() => fr.contentWindow && fr.contentWindow.location.href === 'about:blank', { timeout: 5000 });
     fr.src = '../../contacts/index.html' + query;
-    await waitFor(() => fr.contentWindow && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
+    await waitFor(() => fr.contentWindow && fr.contentWindow.location.pathname.endsWith('/contacts/index.html') && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
     return fr.contentWindow;
   }
   const driveRecords = async (win) => (await win.SlopHub.list({ trashed: 'any' }));

@@ -127,20 +127,30 @@ export function onDrag(t, x, y) {
 export const dragEnded = () => { samples = []; };
 function slosh() { if (!reduced()) crumbs(M.x, M.y - size() * 0.5, '#a6ee14', 7); }
 
-/* ---------- the "Give…" tray ---------- */
-let tray = null, candyBtn = null;
-export function mount(hud) {
+/* ---------- the 'Give…' section (opens only when pressed; the tray shows while he is angry) ---------- */
+let tray = null, giveBtn = null, giveBody = null, candyBtn = null, giveOpen = false;
+export function mount(panel) {
   tastes();
-  tray = document.createElement('span');
+  tray = document.createElement('div');
   tray.className = 'sh-give';
-  tray.innerHTML = '<span class="sh-give-l">Give…</span>';
+  tray.hidden = true;
+  giveBtn = document.createElement('button');
+  giveBtn.type = 'button';
+  giveBtn.className = 'sh-give-l';
+  giveBtn.textContent = 'Give…';
+  giveBtn.setAttribute('aria-controls', 'sh-give-body');
+  giveBtn.addEventListener('click', () => { giveOpen = !giveOpen; render(); });
+  giveBody = document.createElement('div');
+  giveBody.className = 'sh-give-body';
+  giveBody.id = 'sh-give-body';
+  giveBody.hidden = true;
   candyBtn = document.createElement('button');
   candyBtn.type = 'button';
   candyBtn.className = 'sh-mk';
   candyBtn.textContent = 'Make candy';
   candyBtn.title = 'Make a candy: drag it onto Sloppo to calm him';
   candyBtn.addEventListener('click', () => makeCandy());
-  tray.append(candyBtn);
+  giveBody.append(candyBtn);
   for (const it of ITEMS) {
     const b = document.createElement('button');
     b.type = 'button';
@@ -150,9 +160,10 @@ export function mount(hud) {
     b.title = `Give him a ${it.name}`;
     b.setAttribute('aria-label', `Give Sloppo a ${it.name}`);
     b.addEventListener('click', () => { if (take(it.id)) offer(it.id); });
-    tray.append(b);
+    giveBody.append(b);
   }
-  hud.append(tray);
+  tray.append(giveBtn, giveBody);
+  panel.append(tray);
   listeners.add(render);                   // the candy button follows changes at once
   render();
 }
@@ -161,8 +172,11 @@ function render() {
   if (!tray) return;
   const t = Date.now();
   tray.hidden = !(M.rage >= 1 || M.raging);
+  if (tray.hidden || !M.hudOpen) giveOpen = false;
+  giveBody.hidden = !giveOpen;
+  giveBtn.setAttribute('aria-expanded', String(giveOpen));
   candyBtn.disabled = candyOut();
-  for (const b of tray.querySelectorAll('.sh-item')) {
+  for (const b of giveBody.querySelectorAll('.sh-item')) {
     const it = byId[b.dataset.item];
     b.hidden = it.level > M.level;
     b.disabled = !ready(it.id, t);
