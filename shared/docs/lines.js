@@ -26,6 +26,8 @@
     return e;
   }
 
+  const NEW_PRODUCT = '__new__';
+
   const money = (minor, o) => S.money.formatMinor(minor, o.currency, o.locale);
 
   /** Reads one typed field into a line value; null when the text is not valid (the card then says why). */
@@ -39,7 +41,8 @@
   function productSelect(line, o) {
     const sel = h('select', { 'aria-label': 'Product', disabled: o.readOnly, dataset: { f: 'product' } },
       h('option', { value: '', text: 'Custom line (no product)' }),
-      ...o.products.map((p) => h('option', { value: p.id, selected: p.id === line.productId, text: `${p.sku} · ${p.name} · ${money(p.price, o)}` })));
+      ...o.products.map((p) => h('option', { value: p.id, selected: p.id === line.productId, text: `${p.sku} · ${p.name} · ${money(p.price, o)}` })),
+      h('option', { value: NEW_PRODUCT, text: '+ New product…' }));
     return sel;
   }
 
@@ -69,7 +72,7 @@
     c.classList.toggle('bad', errs.length > 0);
   }
 
-  /** Draws every line card into box. o: { products, currency, locale, readOnly, onEdit(i, patch), onProduct(i, product), onRemove(i) }. */
+  /** Draws every line card into box. o: { products, currency, locale, readOnly, onEdit(i, patch), onProduct(i, product), onNewProduct(i), onRemove(i) }. */
   function draw(box, lines, o) {
     box.replaceChildren(...lines.map((l, i) => card(l, i, o)));
     if (!lines.length) box.append(h('p', { class: 'empty', text: 'No lines yet. Add one.' }));
@@ -88,6 +91,11 @@
       const c = e.target.closest('.line-card');
       if (!c || e.target.dataset.f !== 'product') return;
       const id = e.target.value;
+      if (id === NEW_PRODUCT) {
+        e.target.value = '';
+        if (box.__o.onNewProduct) box.__o.onNewProduct(Number(c.dataset.i));
+        return;
+      }
       box.__o.onProduct(Number(c.dataset.i), id ? box.__o.products.find((p) => p.id === id) : null);
     });
     box.addEventListener('click', (e) => {
