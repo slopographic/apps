@@ -1,0 +1,80 @@
+/* Slop Code: boot. Wires the editor, the tabs, the Slop Drive tree, Run, the drawer and the commands, then
+ * opens the file given by ?drive=<id> (Send to, or Open with). */
+import * as docs from './docs.js';
+import { newView, makeState, setHooks, setWrap, isWrap, showFind } from './editor.js';
+import { initTree, refresh as refreshTree, selectedFolder, revealFolder } from './tree.js';
+import { $, env, setHandlers, renderChrome, setStatus, setTreeOpen, treeOpen, setPreview, toast } from './ui.js';
+import { openRecord, saveDoc, saveAs, newFile, closeDoc, onEdit, showDoc, restoreTabs } from './ops.js';
+import { runDoc, attachPreview, canRun } from './run.js';
+import { registerCommands } from './commands.js';
+
+async function openPicker() {
+  const rec = await SlopHub.pickFromDrive({ title: 'Open from Slop Drive' });
+  if (rec) openRecord(rec);
+}
+async function runCurrent() {
+  const d = docs.current();
+  if (!d) { toast('Open a file first'); return; }
+  if (!canRun(d.name)) { toast('Run works on HTML and JavaScript files'); return; }
+  setPreview(true);
+  await runDoc(d, docs.textOf(d), (id) => { const o = docs.find(id); return o ? docs.textOf(o) : undefined; });
+}
+function toggleWrap() {
+  setWrap(env.view, !isWrap());
+  setStatus();
+  toast(`Line wrap ${isWrap() ? 'on' : 'off'}`);
+}
+const toggleFiles = () => setTreeOpen(!treeOpen());
+
+/** The actions the commands and buttons call. */
+const ACTIONS = {
+  open: openPicker,
+  new: () => newFile(selectedFolder()),
+  save: () => saveDoc(),
+  saveAs: () => saveAs(),
+  close: () => closeDoc(),
+  find: () => env.view && showFind(env.view, false),
+  replace: () => env.view && showFind(env.view, true),
+  wrap: toggleWrap,
+  files: toggleFiles,
+  run: runCurrent,
+};
+
+function wireButtons() {
+  const on = (id, fn) => $(id).addEventListener('click', fn);
+  on('cd-open', openPicker); on('cd-empty-open', openPicker);
+  on('cd-new', () => ACTIONS.new()); on('cd-empty-new', () => ACTIONS.new()); on('cd-tree-new', () => ACTIONS.new());
+  on('cd-save', () => saveDoc()); on('cd-saveas', () => saveAs());
+  on('cd-run', runCurrent);
+  on('cd-cmd', () => (window.SlopCmd && SlopCmd.open ? SlopCmd.open() : toast('Commands are not loaded')));
+  on('cd-files', toggleFiles);
+  on('cd-scrim', () => setTreeOpen(false));
+  on('cd-pv-close', () => setPreview(false));
+}
+
+async function boot() {
+  SlopHub.register('code');
+  const view = newView($('cd-editor'), makeState('', 'untitled.txt'));
+  env.view = view;
+  docs.attachView(view);
+  setHooks({ change: () => onEdit(), select: () => setStatus() });
+  setHandlers({ select: (d) => showDoc(d), close: (d) => closeDoc(d) });
+  attachPreview($('cd-frame'), $('cd-console'));
+  initTree($('cd-tree-list'), {
+    onOpen: (rec) => { openRecord(rec); setTreeOpen(false); },
+    onNew: (folderId) => newFile(folderId),
+    onRenamed: (rec) => { docs.rename(rec.id, rec.name); renderChrome(); },
+    onTrashed: () => {},
+  });
+  wireButtons();
+  registerCommands(ACTIONS);
+  await refreshTree();
+  await restoreTabs();
+  const launch = await SlopHub.consumeLaunch();
+  if (launch) { if (launch.folderId) revealFolder(launch.folderId); await openRecord(launch); }
+  renderChrome();
+  document.body.classList.add('ready');
+}
+
+window.SlopCode = { view: () => env.view, docs, openRecord, saveDoc, saveAs, newFile, closeDoc, runCurrent, refreshTree, actions: ACTIONS };
+boot().catch((e) => { console.error(e); toast('Slop Code could not start: ' + e.message); document.body.classList.add('ready'); });

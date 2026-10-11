@@ -71,9 +71,9 @@ export function setWrap(view, on) {
   prefs.wrap = !!on;
   view.dispatch({ effects: wrapCompartment.reconfigure(prefs.wrap ? EditorView.lineWrapping : []) });
 }
-/** Find and replace: the search panel has both fields. */
-export function showFind(view) {
+/** Find (Ctrl+F) or replace (Ctrl+H): the same search panel, with the chosen field focused. */
+export function showFind(view, replace = false) {
   openSearchPanel(view);
-  const r = view.dom.querySelector('.cm-search input[name=replace]') || view.dom.querySelector('.cm-search input[name=search]');
-  if (r) r.focus();
+  const r = view.dom.querySelector(replace ? '.cm-search input[name=replace]' : '.cm-search input[name=search]');
+  if (r) { r.focus(); if (r.select) r.select(); }
 }
