@@ -20,6 +20,7 @@
         it('edit.cut'), it('edit.copy'), it('edit.paste'), it('edit.duplicate'), '-',
         { label: 'Split here', act: () => SE.act.splitAt(TL.snapT(h.t), [c.id]) },
         it('edit.split', 'Split at playhead'),
+        { label: 'Bring to front', act: () => SE.order.front(A.selectedIds()) }, { label: 'Send to back', act: () => SE.order.back(A.selectedIds()) }, '-',
         it('edit.delete'), it('edit.rippleDelete'), '-',
         c.kind !== 'audio' ? { label: 'Transition in', sub: M.TRANSITIONS.map(([t, l]) => ({ label: l, check: c.trIn && c.trIn.type === t, act: () => { SE.change('Add transition', (p) => E.setTransition(p, c.id, t, (c.trIn && c.trIn.dur) || 1)); } })).concat(['-', { label: 'None', disabled: !c.trIn, act: () => SE.change('Remove transition', (p) => E.setTransition(p, c.id, null)) }]) } : null,
         it('clip.fadeIn'), it('clip.fadeOut'), it('clip.speed'),
