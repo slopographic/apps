@@ -52,7 +52,7 @@
 
     var top = E('div', 'scp-top', [prev, field('#', hexIn)]);
     var rgbRow = E('div', 'scp-row', [field('R', rIn), field('G', gIn), field('B', bIn)]);
-    var hsbRow = E('div', 'scp-row', [field('H', hIn), field('S', sIn), field('B', vIn)]);
+    var hsbRow = E('div', 'scp-row', [field('H', hIn), field('S', sIn), field('Bri', vIn)]);
     var recentRow = E('div', 'scp-swatches'), paletteRow = E('div', 'scp-swatches');
     var sections = [E('div', 'scp-sec', [E('span', 'scp-fl', ['Recent']), recentRow])];
     if (opts.palette && opts.palette.length) sections.push(E('div', 'scp-sec', [paletteRow]));
