@@ -119,43 +119,125 @@
 
   /* ---------- context menu ---------- */
   // items: [{ label, key, act, disabled, check, sub: [...] } | '-']
+  // A submenu opens beside its row: to the right of the menu, or to the left when there is no room.
+  // It opens on hover after a short delay, or at once on click, Enter or ArrowRight. Escape or ArrowLeft
+  // closes it. On a narrow screen (phones) it opens in place, as an indented list inside the menu.
+  const SUB_DELAY = 180;
   let menuEl = null;
   let menuReturn = null; // the element that had focus before the menu opened: focus goes back to it on close
+  let subTimer = 0;
   function closeMenu() {
+    clearTimeout(subTimer);
     document.querySelectorAll('.sui-menu').forEach((m) => m.remove());
     menuEl = null;
     const back = menuReturn; menuReturn = null;
     if (back && back.isConnected) { try { back.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
   }
   function keyLabel(k) { return isMac ? k.replace(/Ctrl\+/g, '⌘').replace(/Alt\+/g, '⌥').replace(/Shift\+/g, '⇧') : k; }
-  function menu(items, x, y, level = 0) {
-    if (!level) closeMenu();
-    const m = el('div', { class: 'sui-menu', role: 'menu' });
-    m.style.zIndex = String(++z);
+  const narrow = () => innerWidth <= 640;
+  /** Puts a flyout beside its row: right of the parent menu, left when there is no room, inside the viewport. */
+  function placeFlyout(sub, row) {
+    const pr = row.closest('.sui-menu, .menu').getBoundingClientRect(), rr = row.getBoundingClientRect();
+    const w = sub.offsetWidth, h = sub.offsetHeight;
+    let x = pr.right + 2;
+    if (x + w > innerWidth - 4) x = pr.left - w - 2;
+    sub.style.left = clamp(x, 4, innerWidth - w - 4) + 'px';
+    sub.style.top = clamp(rr.top - 4, 4, innerHeight - h - 4) + 'px';
+  }
+  /** Removes the flyouts deeper than a level, except one (keep). */
+  function closeDeeper(level, keep) { document.querySelectorAll('.sui-menu').forEach((mm) => { if (+mm.dataset.level > level && mm !== keep) mm.remove(); }); }
+  function focusFirst(m) { const f = m.querySelector('.sui-row:not([disabled])'); if (f) f.focus({ preventScroll: true }); }
+  /** Closes one flyout (and any deeper), focusing the row that opened it. */
+  function closeFlyout(m) {
+    closeDeeper(+m.dataset.level - 1);
+    const row = m.ownerRow;
+    if (row) { row.subEl = null; row.setAttribute('aria-expanded', 'false'); if (row.isConnected) { try { row.focus({ preventScroll: true }); } catch (e) { /* ignore */ } } }
+  }
+  function openFlyout(row, items, level, focus) {
+    closeDeeper(level, row.subEl);
+    if (!(row.subEl && row.subEl.isConnected)) {
+      const sub = makeMenu(items, level + 1);
+      sub.ownerRow = row;
+      sub.style.zIndex = String(++z);
+      document.body.append(sub);
+      placeFlyout(sub, row);
+      row.subEl = sub;
+    }
+    row.setAttribute('aria-expanded', 'true');
+    if (focus) focusFirst(row.subEl);
+  }
+  /** Phone: the submenu's rows open in place under their parent row. */
+  function toggleInline(row, items, level) {
+    const wasOpen = row.classList.contains('sui-open');
+    row.closest('.sui-menu').querySelectorAll('.sui-row.sui-open').forEach(collapseInline);
+    if (wasOpen) return;
+    const grp = el('div', { class: 'sui-inline' });
+    fill(grp, items, level);
+    row.after(grp);
+    row.classList.add('sui-open'); row.setAttribute('aria-expanded', 'true');
+    row.inlineEl = grp;
+  }
+  function collapseInline(row) {
+    row.classList.remove('sui-open'); row.setAttribute('aria-expanded', 'false');
+    if (row.inlineEl) { row.inlineEl.remove(); row.inlineEl = null; }
+  }
+  function subRow(row, items, level) {
+    row.addEventListener('pointerenter', (e) => {
+      clearTimeout(subTimer);
+      if (e.pointerType === 'touch' || narrow() || (row.subEl && row.subEl.isConnected)) return;
+      subTimer = setTimeout(() => openFlyout(row, items, level, false), SUB_DELAY);
+    });
+    row.addEventListener('click', () => { clearTimeout(subTimer); if (narrow()) toggleInline(row, items, level); else openFlyout(row, items, level, false); });
+    row.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'Enter') return;
+      e.preventDefault(); e.stopPropagation(); clearTimeout(subTimer);
+      if (narrow()) { if (!row.classList.contains('sui-open')) toggleInline(row, items, level); if (row.inlineEl) focusFirst(row.inlineEl); }
+      else openFlyout(row, items, level, true);
+    });
+  }
+  function fill(host, items, level) {
     for (const it of items) {
       if (!it) continue;
-      if (it === '-') { m.append(el('div', { class: 'sui-sep', role: 'separator' })); continue; }
-      const row = el('button', { class: 'sui-row' + (it.sub ? ' sui-has-sub' : ''), type: 'button', role: 'menuitem', disabled: !!it.disabled },
+      if (it === '-') { host.append(el('div', { class: 'sui-sep', role: 'separator' })); continue; }
+      const row = el('button', { class: 'sui-row' + (it.sub ? ' sui-has-sub' : ''), type: 'button', role: 'menuitem', disabled: !!it.disabled, 'aria-haspopup': it.sub ? 'menu' : null, 'aria-expanded': it.sub ? 'false' : null },
         el('span', { class: 'sui-chk' }, it.check ? '✓' : ''), el('span', { class: 'sui-lbl' }, it.label), el('span', { class: 'sui-key' }, it.sub ? '▸' : it.key ? keyLabel(it.key) : ''));
-      if (it.sub) row.addEventListener('pointerenter', () => { document.querySelectorAll('.sui-menu').forEach((mm) => { if (+mm.dataset.level > level) mm.remove(); }); const r = row.getBoundingClientRect(); menu(it.sub, r.right - 2, r.top - 4, level + 1); });
+      if (it.sub) subRow(row, it.sub, level);
       else {
-        row.addEventListener('pointerenter', () => document.querySelectorAll('.sui-menu').forEach((mm) => { if (+mm.dataset.level > level) mm.remove(); }));
+        row.addEventListener('pointerenter', () => { clearTimeout(subTimer); closeDeeper(level); });
         row.addEventListener('click', () => { closeMenu(); if (!it.disabled && it.act) it.act(); });
       }
-      m.append(row);
+      host.append(row);
     }
+  }
+  function makeMenu(items, level) {
+    const m = el('div', { class: 'sui-menu', role: 'menu' });
     m.dataset.level = level;
+    fill(m, items, level);
+    m.addEventListener('keydown', (e) => {
+      const cur = document.activeElement, rows = [...m.querySelectorAll('.sui-row:not([disabled])')], i = rows.indexOf(cur);
+      if (e.key === 'ArrowDown') { e.preventDefault(); (rows[i + 1] || rows[0]).focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); (rows[i - 1] || rows[rows.length - 1]).focus(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'Escape') {
+        e.preventDefault(); e.stopPropagation();
+        const grp = cur && cur.closest ? cur.closest('.sui-inline') : null;
+        if (grp) { const p = grp.previousElementSibling; collapseInline(p); p.focus({ preventScroll: true }); }
+        else if (+m.dataset.level > 0) closeFlyout(m);
+        else if (e.key === 'Escape') closeMenu();
+      }
+    });
+    return m;
+  }
+  function menu(items, x, y) {
+    closeMenu();
+    const m = makeMenu(items, 0);
+    m.style.zIndex = String(++z);
     document.body.append(m);
     const r = m.getBoundingClientRect();
     m.style.left = clamp(x, 4, innerWidth - r.width - 4) + 'px';
     m.style.top = clamp(y, 4, innerHeight - r.height - 4) + 'px';
-    m.addEventListener('keydown', (e) => {
-      const rows = [...m.querySelectorAll('.sui-row:not([disabled])')], i = rows.indexOf(document.activeElement);
-      if (e.key === 'ArrowDown') { e.preventDefault(); (rows[i + 1] || rows[0]).focus(); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); (rows[i - 1] || rows[rows.length - 1]).focus(); }
-      else if (e.key === 'Escape') { e.preventDefault(); closeMenu(); }
-    });
-    if (!level) { menuEl = m; menuReturn = document.activeElement && document.activeElement !== document.body ? document.activeElement : null; const f = m.querySelector('.sui-row:not([disabled])'); if (f) f.focus({ preventScroll: true }); }
+    menuEl = m;
+    menuReturn = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+    focusFirst(m);
     return m;
   }
   document.addEventListener('pointerdown', (e) => { if (menuEl && !e.target.closest('.sui-menu')) closeMenu(); }, true);
@@ -175,5 +257,5 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }
 
-  window.SlopUI = { el, dialog, alert, confirm, prompt, field, number, select, check, toast, menu, closeMenu, pickFiles, download, get openDialogs() { return open; } };
+  window.SlopUI = { el, dialog, alert, confirm, prompt, field, number, select, check, toast, menu, closeMenu, placeFlyout, narrow, pickFiles, download, get openDialogs() { return open; } };
 })();

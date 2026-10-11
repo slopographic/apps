@@ -25,17 +25,43 @@
     cur.style.transform = `translate(${sx - d / 2}px, ${sy - d / 2}px)`;
   }
 
+  /** Right-button drag: across = size, down = hardness (shared/brush/resize.js). A plain click still opens the menu. */
+  let suppressMenu = false, readout = null;
+  function showReadout(on, text, sx, sy) {
+    if (!readout) { readout = U.h('div', { class: 'brush-readout', hidden: '' }); stage.append(readout); }
+    readout.hidden = !on;
+    if (on) { readout.textContent = text; readout.style.transform = `translate(${sx + 16}px, ${sy + 16}px)`; }
+  }
+  function startResize(e, sx, sy) {
+    drag = { kind: 'resize', id: e.pointerId, sx, sy, start: { size: S.brush.size, hardness: S.brush.hardness }, moved: false };
+  }
+  function moveResize(e, sx, sy) {
+    const SBR = window.SlopBrushResize, dx = sx - drag.sx, dy = sy - drag.sy;
+    if (!drag.moved && !SBR.isDrag(dx, dy)) return;
+    drag.moved = true;
+    const v = SBR.apply(drag.start, dx, dy);
+    S.setBrush(v);
+    showReadout(true, SBR.readout(v.size, v.hardness), sx, sy);
+    hover(sx, sy);
+  }
+  // macOS sends the menu on the press (held here, see onUp); Windows/Linux send it after the release (suppressed after a drag).
+  window.addEventListener('contextmenu', (e) => {
+    if (suppressMenu) { suppressMenu = false; e.preventDefault(); e.stopImmediatePropagation(); return; }
+    if (drag && drag.kind === 'resize') { drag.menu = { x: e.clientX, y: e.clientY }; e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
+
   function onDown(e) {
     // Buttons and fields on the stage (the empty-state actions, the message bar) keep their own clicks:
     // capturing the pointer here would send the click to the stage instead.
     if (e.target.closest && e.target.closest('button, a, input, select, textarea, label, .empty, .busy')) return;
     const act = P.active, [sx, sy] = local(e);
+    if (e.button === 2 && isBrush() && act) { startResize(e, sx, sy); stage.setPointerCapture(e.pointerId); return; }
     if (S.view === 'split' && act && e.target.closest && e.target.closest('#split')) drag = { kind: 'split' };
     else if (e.button === 1 || (e.button === 0 && (S.tool === 'pan' || space))) drag = { kind: 'pan', x: sx, y: sy };
     else if (e.button === 0 && act && isBrush()) {
       const it = act.item, p = CO.view.toImage(sx, sy), { r, h } = brushArgs();
       const st = CO.brush.begin(it, S.tool);
-      CO.brush.line(st, p.x, p.y, p.x, p.y, r, h);
+      CO.process.live(it, CO.brush.line(st, p.x, p.y, p.x, p.y, r, h));
       drag = { kind: 'brush', it, st, x: p.x, y: p.y };
     } else return;
     e.preventDefault();
@@ -47,6 +73,7 @@
   function onMove(e) {
     const [sx, sy] = local(e);
     if (!drag) { hover(sx, sy); return; }
+    if (drag.kind === 'resize') { moveResize(e, sx, sy); return; }
     if (drag.kind === 'pan') {
       CO.view.panBy(sx - drag.x, sy - drag.y);
       drag.x = sx; drag.y = sy;
@@ -55,15 +82,20 @@
       CO.view.draw();
     } else {
       const p = CO.view.toImage(sx, sy), { r, h } = brushArgs();
-      CO.brush.line(drag.st, drag.x, drag.y, p.x, p.y, r, h);
+      CO.process.live(drag.it, CO.brush.line(drag.st, drag.x, drag.y, p.x, p.y, r, h));
       drag.x = p.x; drag.y = p.y;
-      CO.process.refreshSoon(drag.it);
       hover(sx, sy);
     }
   }
 
   function onUp() {
     if (!drag) return;
+    if (drag.kind === 'resize') {
+      const r = drag; drag = null; showReadout(false); if (cur) cur.hidden = true;
+      if (r.moved) suppressMenu = !r.menu; // a drag never opens the menu
+      else if (r.menu) stage.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.menu.x, clientY: r.menu.y })); // a plain click (macOS)
+      return;
+    }
     if (drag.kind === 'brush') {
       const en = CO.brush.end(drag.st);
       if (en) CO.history.push(drag.it, en);
