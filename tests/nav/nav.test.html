@@ -48,6 +48,7 @@
   async function applyDialog() {
     const b = [...dlg().querySelectorAll('.sui-btn')].find((x) => x.textContent === 'Apply');
     b.click();
+    window.__dbg = JSON.stringify({ sync: N.store.get('photoslop').preset, dlgs: win.document.querySelectorAll('.nav-dlg').length, err: (dlg() && dlg().querySelector('.nav-err').textContent), tab: (dlg() && [...dlg().querySelectorAll('.nav-tab')].map((t) => t.getAttribute('aria-selected')).join(',')) });
     await waitFor(() => !dialogUp(), { timeout: 3000 });
     await sleep(200);
   }
@@ -140,6 +141,7 @@
       sel.value = 'alt';
       sel.dispatchEvent(new win.Event('change'));
       await applyDialog();
+      expect(window.__dbg).toBe('x');
       expect(N.store.resolve('photoslop').id).toBe('custom');
       expect(N.store.resolve('photoslop').bindings.zoomWheel).toBe('alt');
       await reload();
