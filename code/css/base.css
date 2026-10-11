@@ -18,6 +18,12 @@
   --cd-attr: #8a4b00; --cd-prop: #0d5f7d; --cd-type: #6a2fb5; --cd-op: #3c3a35; --cd-err: #b3261e;
   color-scheme: light;
 }
+/* SlopUI dialogs, menus and toasts follow the Code tokens (the shared --s-* fallbacks are fixed greys) */
+:root {
+  --sui-bg: var(--cd-panel); --sui-bg2: var(--cd-bg); --sui-input: var(--cd-bg); --sui-line: var(--cd-line);
+  --sui-fg: var(--cd-fg); --sui-dim: var(--cd-dim); --sui-faint: var(--cd-faint); --sui-hover: var(--cd-hover);
+  --sui-sel: var(--cd-on); --sui-accent: var(--cd-accent); --sui-accent-ink: var(--cd-ink);
+}
 [hidden] { display: none !important; }
 html, body { height: 100%; margin: 0; }
 body { background: var(--cd-bg); color: var(--cd-fg); font: 14px/1.4 var(--cd-sans); overflow: hidden; }
