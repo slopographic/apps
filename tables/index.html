@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/tables.css" data-src="tables/css/tables.css">
   <link rel="stylesheet" href="css/templates.css" data-src="tables/css/templates.css">
+  <link rel="stylesheet" href="css/sidebar.css" data-src="tables/css/sidebar.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -54,6 +55,28 @@
       <input id="fx" class="fx" type="text" spellcheck="false" autocomplete="off" aria-label="Formula bar">
     </div>
 
+    <div class="mid">
+      <aside class="side" id="side" aria-label="Sidebar">
+        <button type="button" class="side-toggle" id="sideToggle" aria-controls="sideBody" aria-expanded="true" aria-label="Hide sidebar" title="Hide sidebar">‹</button>
+        <div class="side-body" id="sideBody">
+          <section class="side-sec" aria-labelledby="secSheets">
+            <h2 class="side-h" id="secSheets">Sheets</h2>
+            <ul class="side-list" id="sideSheets"></ul>
+            <button type="button" class="side-act" id="sideAddSheet">+ Add sheet</button>
+          </section>
+          <section class="side-sec" aria-labelledby="secTpl">
+            <h2 class="side-h" id="secTpl">Templates</h2>
+            <button type="button" class="side-act" id="sideFromTpl">From template…</button>
+            <h3 class="side-sub">My templates</h3>
+            <ul class="side-list" id="sideMine"></ul>
+          </section>
+          <section class="side-sec" aria-labelledby="secFn">
+            <h2 class="side-h" id="secFn">Functions</h2>
+            <input id="fnFilter" class="side-search" type="search" placeholder="Filter functions" aria-label="Filter functions" autocomplete="off" spellcheck="false">
+            <ul class="side-list side-fns" id="sideFns"></ul>
+          </section>
+        </div>
+      </aside>
     <main class="grid" id="grid" tabindex="0" aria-label="Spreadsheet grid" aria-multiselectable="true">
       <div class="corner" id="corner"></div>
       <div class="colhead" id="colhead"></div>
@@ -66,6 +89,7 @@
         <input id="editor" class="editor" type="text" spellcheck="false" autocomplete="off" aria-label="Cell editor">
       </div>
     </main>
+    </div>
 
     <div class="bottombar">
       <div class="tabs" id="tabs" role="tablist" aria-label="Sheets"></div>
