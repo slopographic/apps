@@ -19,7 +19,9 @@ export function plainText(pages) {
 /** Escapes what Markdown would read as formatting, and a leading list, heading or quote marker. */
 export function mdLine(line) {
   const s = line.replace(/[\\`*_[\]<>|]/g, '\\$&');
-  return s.replace(/^(\s*)(#{1,6}|[+\-*>]|\d+[.)])(?=\s|$)/, '$1\\$2');
+  return s
+    .replace(/^(\s*)(#{1,6}|[+\-*>])(?=\s|$)/, '$1\\$2')
+    .replace(/^(\s*)(\d+)([.)])(?=\s|$)/, '$1$2\\$3');
 }
 
 export function markdownText(pages) {

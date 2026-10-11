@@ -14,7 +14,7 @@
   <script src="../../shared/print/print.js"></script>
   <div id="source"><h1 class="title">Quarterly report</h1><p>Total: 42</p><script>window.__ran = true</script><img src="https://example.com/x.png" alt="remote"><a href="https://example.com/" onclick="x()">link</a></div>
   <script>
-  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  const { describe, it, beforeEach, expect, waitFor, sleep, run } = SlopTest;
   const U = window.SlopUI;
   const P = window.SlopPrint;
   const dlg = () => [...document.querySelectorAll('.sui-back:not(.sui-out) .sui-dlg')].pop();
