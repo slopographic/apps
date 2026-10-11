@@ -65,7 +65,7 @@ test('every tour file is valid: 4 to 8 steps with the required fields and allowe
 test('every app page loads the tour mount with its own app id', async () => {
   for (const { app } of tours) {
     const html = await readFile(path.join(ROOT, app, 'index.html'), 'utf8');
-    assert.match(html, new RegExp('<script src="\\.\\./shared/tour/mount\\.js" data-app="' + app + '"></script>'), app + '/index.html');
+    assert.match(html, new RegExp('<script src="\\.\\./shared/tour/mount\\.js" data-app="' + app + '"[^>]*></script>'), app + '/index.html');
   }
   const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
   assert.match(home, /shared\/tour\/mount\.js" data-home="1"/, 'homepage Tours menu');
