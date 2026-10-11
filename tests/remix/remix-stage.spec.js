@@ -12,11 +12,13 @@
   const change = (el) => el.dispatchEvent(new (win().Event)('change', { bubbles: true }));
 
   async function ready() { await waitFor(() => win() && win().RM && win().RM.ready, { timeout: 20000 }); }
+  // Every still gets its own colour (a counter, not the index), so two clips never look the same to the frame checks.
+  let stillSeq = 0;
   async function still(i) {
     const c = doc().createElement('canvas');
     c.width = 320; c.height = 180;
     const g = c.getContext('2d');
-    g.fillStyle = 'hsl(' + i * 60 + ' 70% 45%)'; g.fillRect(0, 0, 320, 180);
+    g.fillStyle = 'hsl(' + ((stillSeq++ * 47) % 360) + ' 70% 45%)'; g.fillRect(0, 0, 320, 180);
     const blob = await new Promise((r) => c.toBlob(r, 'image/png'));
     return new (win().File)([blob], 'still-' + i + '.png', { type: 'image/png' });
   }

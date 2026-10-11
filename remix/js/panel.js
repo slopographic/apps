@@ -57,7 +57,8 @@
     slots.replaceChildren(...beat.map((x) => new Option('Slot ' + (x.slot + 1), String(x.slot))));
     if (cur) slots.value = String(cur.item.slot);
     const on = !!cur;
-    ['rm-kslot', 'rm-kease', 'rm-kadd', 'rm-kdel', 'rm-kpreset', 'rm-kanim', 'rm-kreset', 'rm-ksave'].forEach((id) => { $(id).disabled = !on; });
+    // rm-ksave is made in the setup code below, so it may not exist yet when the first render runs.
+    ['rm-kslot', 'rm-kease', 'rm-kadd', 'rm-kdel', 'rm-kpreset', 'rm-kanim', 'rm-kreset', 'rm-ksave'].forEach((id) => { const el = $(id); if (el) el.disabled = !on; });
     $('rm-ktrack').classList.toggle('off', !on);
     if (!on) { $('rm-ktrack').replaceChildren(); $('rm-kinfo').textContent = plan ? 'The playhead is outside the cuts.' : 'Press Remix to plan the reel, then add keys.'; return; }
     markers(cur);
