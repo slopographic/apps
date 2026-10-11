@@ -34,4 +34,4 @@ every card (`data-perch="card"`, which chaos may bite, knock or blast), the stat
 
 ## Next
 - Screenshots/clips for the cards are being done by another agent (`assets/shots`, `assets/clips`).
-- README rewrite (root HANDOFF step 6) is still open.
+- README refresh as apps land.
