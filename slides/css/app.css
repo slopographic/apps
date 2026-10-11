@@ -4,6 +4,11 @@
   --bg: #0e0e10; --panel: #16161a; --panel2: #1e1e24; --line: #2a2a31; --line2: #3a3a44;
   --text: #f1ede4; --dim: #a29e95; --acc: #d4ff3a; --acc-ink: #0e0e10; --danger: #ff6b86; --focus: #5ad1ff;
 }
+/* Light, for the Light theme (theme.js sets data-theme light; Classic 98 and the dark themes keep the dark palette above). */
+:root[data-theme="light"] {
+  --bg: #ebe7de; --panel: #f8f6f1; --panel2: #efebe3; --line: #dcd6c9; --line2: #c9c2b3;
+  --text: #0a0a0a; --dim: #55514a; --acc: #4f6c00; --acc-ink: #ffffff;
+}
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); overflow-x: hidden; }
 body { font: 14px/1.4 "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; }

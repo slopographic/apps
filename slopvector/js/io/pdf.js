@@ -112,6 +112,11 @@
     function emit(o, alpha, blend) {
       if (o.hidden) return;
       var st = o.style || {}, a = alpha * (st.opacity == null ? 1 : st.opacity), bl = (st.blend && st.blend !== 'normal') ? st.blend : blend;
+      if (o.type === 'group' && o.clip && o.children.length) { // clipping mask: the clipped objects, clipped to the shape's path
+        content.push('q', SV.clipMask.pdfClip(pathOps(SV.docSubs(o.children[o.children.length - 1]))));
+        o.children.slice(0, -1).forEach(function (c) { emit(c, a, bl); });
+        content.push('Q'); return;
+      }
       if (o.type === 'group') { o.children.forEach(function (c) { emit(c, a, bl); }); return; }
       content.push('q');
       if (!G.isIdentity(o.m)) content.push(o.m.map(fmt).join(' ') + ' cm');
