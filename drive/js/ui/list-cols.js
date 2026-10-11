@@ -44,7 +44,7 @@
   };
   const where = (it) => (it.parent ? DR.pathOf(it.parent).map((f) => f.name).join(' / ') : 'Slop Drive');
   const CELL = {
-    name: (it) => [DR.badge(it, 'badge sm'), el('span', { class: 'nm' }, it.name), it.starred ? DR.icon('star', 'ic st') : ''],
+    name: (it) => [DR.iconOf(it, 'badge sm'), el('span', { class: 'nm' }, it.name), it.starred ? DR.icon('star', 'ic st') : ''],
     type: (it) => DR.kindLabel(it),
     size: (it) => DR.fmtSize(DR.sizeOf(it)),
     modified: (it) => DR.fmtDate(it.modified || it.time),

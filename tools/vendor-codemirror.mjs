@@ -25,7 +25,8 @@ const PINNED = {
 };
 const fileName = (name) => name.replace(/^@/, '').replace('/', '-') + '.js';
 const text = async (url) => { const r = await globalThis.fetch(url); if (!r.ok) throw new Error(`${r.status} ${url}`); return r.text(); };
-const bareImports = (src) => [...src.matchAll(/(?<![.\w$])(?:from|import)\s*\(?\s*["']([^"'\n]+)["']/g)].map((m) => m[1]).filter((x) => /^(@[\w-]+\/[\w.-]+|[a-z][\w.-]*|\.{1,2}\/.*|\/.*)$/.test(x));
+// Top-level import/export statements only (the dist files are not minified).
+const bareImports = (src) => [...src.matchAll(/^\s*(?:import|export)\b[^;]*?\bfrom\s*["']([^"'\n]+)["']|^\s*import\s*["']([^"'\n]+)["']/gm)].map((m) => m[1] || m[2]);
 
 await rm(OUT, { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
