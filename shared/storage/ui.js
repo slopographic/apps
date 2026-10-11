@@ -41,7 +41,8 @@
   }
 
   const told = new Set();
-  let showing = false; // one dialog at a time: several failed writes in a row show one dialog
+  let shownBox = null; // the open dialog: several failed writes in a row show one dialog, not a stack
+  const showing = () => !!(shownBox && g.document.body.contains(shownBox) && !shownBox.classList.contains('sui-out'));
   /** The app's name from the page title ("Slop Notes: ..." -> "Slop Notes"), when the caller gives none. */
   const titleApp = () => String((g.document && g.document.title) || '').split(/[:|·—–]/)[0].trim() || 'This app';
 
@@ -66,11 +67,9 @@
     };
     paint({ usage: null, quota: null, percent: 0, parts: [] }, 'Reading the storage…');
     refresh(null).catch(() => {});
-    showing = true;
-    g.SlopUI.dialog({
+    const d = g.SlopUI.dialog({
       title: 'This site’s storage is full',
       body: holder,
-      onClose: () => { showing = false; },
       buttons: [
         { label: retry ? 'Keep editing' : 'Close' },
         { label: 'Clear thumbnails and previews', act: clearThumbs },
@@ -79,12 +78,13 @@
         retry ? { label: 'Try again', primary: true, act: tryAgain } : null,
       ].filter(Boolean),
     });
+    shownBox = d && d.box;
   }
 
   SS.handle = function (err, opts = {}) {
     if (!SS.classify(err).quota) return false;
     const app = opts.app || titleApp();
-    if (showing) return true;
+    if (showing()) return true;
     if (opts.once) { if (told.has(opts.once)) return true; told.add(opts.once); } // autosaves tell the person once per page
     if (!g.SlopUI || !g.SlopUI.dialog) {
       g.alert && g.alert(`${app}: this site’s storage is full. Your changes were not saved. Free space in Settings, Storage, then save again.`);

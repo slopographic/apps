@@ -30,7 +30,7 @@
   const QUOTA = () => new DOMException("Failed to execute 'put' on 'IDBObjectStore': the current transaction exceeded its quota limitations.", 'QuotaExceededError');
   const dialogs = () => [...document.querySelectorAll('.sui-dlg')];
   const dialogText = () => dialogs().map((d) => d.textContent).join(' ');
-  const closeAll = () => document.querySelectorAll('.sui-back').forEach((b) => b.remove());
+  const closeAll = async () => { document.querySelectorAll('.sui-x').forEach((b) => b.click()); await waitFor(() => dialogs().length === 0); };
   const realPut = IDBObjectStore.prototype.put;
   const forceQuota = (on) => {
     IDBObjectStore.prototype.put = on ? function () { throw QUOTA(); } : realPut;
@@ -53,7 +53,7 @@
       expect(dialogText()).toContain('Clear thumbnails and previews');
       expect(dialogText()).toContain('Connect a folder');
       expect(editor.value).toBe(before);
-      closeAll();
+      await closeAll();
     });
 
     it('a second failing save while the dialog is open does not stack a second dialog', async () => {
@@ -64,7 +64,7 @@
       } finally { forceQuota(false); }
       await waitFor(() => dialogs().length > 0);
       expect(dialogs().length).toBe(1);
-      closeAll();
+      await closeAll();
     });
 
     it('Try again runs the save again and closes the dialog once it succeeds', async () => {
@@ -81,7 +81,7 @@
       [...document.querySelectorAll('.sui-btn')].find((b) => b.textContent === 'Try again').click();
       await waitFor(() => calls === 2);
       await waitFor(() => dialogs().length === 0);
-      closeAll();
+      await closeAll();
     });
 
     it('an error that is not a quota error opens no dialog and is left to the caller', async () => {

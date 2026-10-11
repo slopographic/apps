@@ -9,7 +9,9 @@
  *   document.title           the word "Slopographic" in the title is replaced by the name
  *   [data-brand-name]        text: name (also header .brand-name)
  *   [data-brand-tagline]     text: tagline
- *   [data-brand-logo]        the logo image (or the first svg in header .brand)
+ *   [data-brand-logo]        the logo image (or the badge mark in header .brand)
+ *   header a.brand (app pages)  the app's own icon (SLOP_ICONS, keyed by data-app on the page's script tag),
+ *                            with the Slopographic mark moved in as a small corner badge. See appMark().
  *   [data-brand-home], header a.brand (app pages)  href: home, when home is set
  *   [data-brand-footer]      text: footer line
  *   [data-brand-link=patreon|support|reddit|x|tiktok|gumroad]  href; hidden when empty
@@ -69,9 +71,49 @@
   let appliedName = DEFAULTS.name;
   const setText = (sel, text) => document.querySelectorAll(sel).forEach((n) => { n.textContent = text; });
 
+  const MARK_PATH = 'M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z';
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  /** The app id of this page: data-app on its script tag (theme.js carries it on every app page). */
+  const pageAppId = () => { const s = document.querySelector('script[data-app]'); return s ? String(s.dataset.app || '') : ''; };
+
+  /** Header brand links on app pages show the app's own icon (SLOP_ICONS[data-app]) at full size, and the
+   * Slopographic mark as a small corner badge. The badge is the page's existing mark (moved), or a new one.
+   * Pages whose app has no icon keep the Slopographic mark. Safe to call again (shell/header.js calls it too). */
+  function appMark() {
+    const id = pageAppId();
+    const icons = window.SLOP_ICONS || {};
+    if (!id || !Object.prototype.hasOwnProperty.call(icons, id) || typeof icons[id] !== 'string') return;
+    document.querySelectorAll('header a.brand').forEach((a) => {
+      if (a.querySelector(':scope > .brand-tile')) return;
+      const tile = document.createElement('span');
+      tile.className = 'brand-tile';
+      const app = document.createElementNS(SVG_NS, 'svg');
+      app.setAttribute('class', 'brand-app');
+      app.setAttribute('viewBox', '0 0 48 48');
+      app.setAttribute('fill', 'none');
+      app.setAttribute('stroke', 'currentColor');
+      app.setAttribute('stroke-width', '2.6');
+      app.setAttribute('stroke-linecap', 'round');
+      app.setAttribute('stroke-linejoin', 'round');
+      app.setAttribute('aria-hidden', 'true');
+      app.innerHTML = icons[id];
+      let badge = a.querySelector(':scope > svg.brand-mark, :scope > .brand-dot');
+      if (badge) badge.classList.add('brand-badge');
+      else {
+        badge = document.createElementNS(SVG_NS, 'svg');
+        badge.setAttribute('class', 'brand-mark brand-badge');
+        badge.setAttribute('viewBox', '0 0 32 32');
+        badge.setAttribute('aria-hidden', 'true');
+        badge.innerHTML = '<path d="' + MARK_PATH + '"/>';
+      }
+      tile.append(app, badge);
+      a.prepend(tile);
+    });
+  }
+
   function applyLogo(src) {
     const targets = [...document.querySelectorAll('[data-brand-logo]')];
-    if (!targets.length) document.querySelectorAll('header .brand').forEach((a) => { const s = a.querySelector('svg'); if (s) targets.push(s); });
+    if (!targets.length) document.querySelectorAll('header .brand').forEach((a) => { const s = a.querySelector('.brand-badge, svg:not(.brand-app)'); if (s) targets.push(s); });
     for (const t of targets) {
       const cls = t.getAttribute('class') || '';
       if (!src) { if (t.tagName.toLowerCase() === 'img') t.hidden = true; continue; }
@@ -111,6 +153,7 @@
       const url = current.links[a.dataset.brandLink] || '';
       if (url) { a.setAttribute('href', url); a.hidden = false; } else a.hidden = true;
     });
+    appMark();
     applyLogo(current.logo);
     window.SlopBrand.config = current;
     window.SlopBrand.order = current.appOrder;
@@ -118,7 +161,7 @@
     return current;
   }
 
-  window.SlopBrand = { config: current, order: [], apply, normalize, DEFAULTS, ROOT, ready: null };
+  window.SlopBrand = { config: current, order: [], apply, appMark, normalize, DEFAULTS, ROOT, ready: null };
   const src = (self && self.dataset.brandSrc) || 'brand/brand.json';
   window.SlopBrand.ready = fetch(new URL(src, ROOT), { cache: 'no-cache' })
     .then((r) => { if (!r.ok) throw new Error('brand ' + r.status); return r.json(); })
