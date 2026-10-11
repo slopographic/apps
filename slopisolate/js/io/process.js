@@ -133,6 +133,28 @@
     CO.emit('list', S.items);
   };
 
+  /** Live brush preview: recompute the matte and the cut-out alpha for one dirty rect on the main thread, so the
+   * picture follows the brush at every stroke step (no worker round-trip). Same maths as P.matte + P.applyEdit;
+   * feather and decontamination are applied by the worker when the stroke ends. */
+  P.live = function (it, rect) {
+    const act = P.active;
+    if (!act || act.item !== it || !it.base || !act.mask || !rect) return;
+    const W = act.w, s = it.s || {}, th = s.threshold == null ? 0.5 : s.threshold, sf = s.softness == null ? 1 : s.softness;
+    const lo = (th - sf / 2) * 255, hi = (th + sf / 2) * 255, hard = hi - lo < 1, k = hard ? 0 : 255 / (hi - lo);
+    const base = it.base, ed = it.edit, m = act.mask, cut = act.cutout.data;
+    for (let y = rect.y; y < rect.y1; y++) {
+      for (let x = rect.x; x < rect.x1; x++) {
+        const i = y * W + x;
+        let a = hard ? (base[i] >= th * 255 ? 255 : 0) : (base[i] - lo) * k;
+        const e = ed ? ed[i] : 128;
+        if (e > 128) a = a + (255 - a) * (e - 128) / 127; else if (e < 128) a = a * e / 128;
+        m[i] = a; cut[i * 4 + 3] = a;
+      }
+    }
+    act.rev++; act.cut = null;
+    CO.emit('active', act);
+  };
+
   P.pending = () => queue.length + (running ? 1 : 0);
   CO.on('look', (it) => P.refreshSoon(it));
   CO.on('history', ({ it }) => { if (it.edit || it.s) P.refreshSoon(it); });

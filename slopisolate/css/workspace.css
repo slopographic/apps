@@ -83,3 +83,7 @@
 .drop-overlay > div { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 40px; border-radius: 18px; border: 2px dashed var(--accent-line); background: var(--panel); color: var(--fg); }
 .drop-overlay .ic { width: 34px; height: 34px; color: var(--accent-line); }
 .drop-overlay span { color: var(--dim); font-size: 12px; }
+
+/* right-button brush resize readout (ui/pointer.js) */
+.brush-readout { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 5; padding: 3px 8px; border-radius: 6px; font: 600 12px/1.2 system-ui, sans-serif; background: rgba(20, 20, 20, .86); color: #fff; white-space: nowrap; }
+.brush-readout[hidden] { display: none; }

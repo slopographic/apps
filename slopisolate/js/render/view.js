@@ -62,6 +62,16 @@
     }
     put(c, b.x, b.y, b.w, b.h);
   }
+  /** Brush tools: the removed part is tinted so the matte can be seen on the picture while painting. */
+  function drawTint(act) {
+    const c = cached('tint', act, act.rev, () => {
+      const t = U.canvas(act.w, act.h), g = t.getContext('2d'), img = g.createImageData(act.w, act.h), d = img.data, m = act.mask;
+      for (let i = 0, n = act.w * act.h; i < n; i++) { d[i * 4] = 255; d[i * 4 + 1] = 40; d[i * 4 + 2] = 120; d[i * 4 + 3] = Math.round((255 - m[i]) * 0.5); }
+      g.putImageData(img, 0, 0);
+      return t;
+    });
+    put(c, 0, 0, act.w, act.h);
+  }
   function drawMask(act) {
     const it = act.item, b = C.boxOf(it, act);
     put(cached('mask', act, act.rev + '|' + JSON.stringify(it.crop), () => C.maskCanvas(it, act)), b.x, b.y, b.w, b.h);
@@ -93,7 +103,7 @@
     const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; V.draw(); }); };
     if (window.ResizeObserver && $('#stage')) new ResizeObserver(schedule).observe($('#stage'));
     else window.addEventListener('resize', schedule);
-    for (const t of ['active', 'activeItem', 'look', 'view', 'history', 'list']) CO.on(t, schedule);
+    for (const t of ['active', 'activeItem', 'look', 'view', 'history', 'list', 'tool']) CO.on(t, schedule);
     CO.on('item', (it) => { if (P.active && P.active.item === it) schedule(); });
     V.draw();
   };
@@ -125,7 +135,7 @@
     } else {
       if (S.view === 'before') put(act.bitmap, 0, 0, act.w, act.h);
       else if (S.view === 'mask') drawMask(act);
-      else drawResult(act);
+      else { drawResult(act); if (S.tool === 'keep' || S.tool === 'remove') drawTint(act); }
       placeSplit(false);
     }
   };
