@@ -63,6 +63,7 @@
       file ? { label: DR.defaultAppFor(file) ? `Open in ${DR.defaultAppFor(file).name}` : 'Open', key: 'Enter', act: () => DR.open(file) } : null,
       file ? { label: 'Open with', sub: DR.openInRows(file) } : null,
       ...DR.cleanRows(items),
+      items.some(DR.isFaceable) ? { label: 'Find faces', act: () => DR.findFaces(items) } : null,
       file ? { label: 'Quick look', key: 'Space', act: () => DR.quickLook(file) } : null,
       one && (S.section !== 'folder' || DR.searching()) ? { label: 'Show in folder', act: () => DR.reveal(one) } : null,
       '-',

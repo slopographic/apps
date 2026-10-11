@@ -16,7 +16,7 @@
     const kind = DR.kindOf(r), box = el('div', { class: 'pv pv-' + kind });
     if (kind === 'image' || kind === 'pdf') box.append(DR.viewerFor(r, big, sink).el);
     else if (kind === 'model' && DR.ext(r.name) === 's3d') box.append(DR.preview3d(r, big));
-    else if (kind === 'audio') box.append(el('audio', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata' }));
+    else if (kind === 'audio') box.append(DR.audioView(r, big));
     else if (kind === 'video') box.append(el('video', { src: objUrl(r.blob, sink), controls: true, preload: 'metadata', playsinline: true }));
     else if (kind === 'text' && ['csv', 'tsv'].includes(DR.ext(r.name))) box.append(DR.csvPreview(r, big));
     else if (kind === 'text') box.append(DR.textPreview(r, big));

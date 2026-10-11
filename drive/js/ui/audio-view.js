@@ -61,8 +61,9 @@
       if (!box.isConnected) { unsub(); return; }
       const cur = isCur(), a = P.audio, dur = durNow();
       if (pending != null && cur && isFinite(a.duration)) { P.seek(pending * a.duration); pending = null; }
-      play.textContent = cur && !a.paused ? '❚❚' : '▶';
-      play.title = play.getAttribute('aria-label') === '' ? '' : (cur && !a.paused ? 'Pause' : 'Play');
+      const playing = cur && !a.paused;
+      play.textContent = playing ? '❚❚' : '▶';
+      play.title = playing ? 'Pause' : 'Play';
       play.setAttribute('aria-label', play.title);
       time.textContent = `${clock(cur ? a.currentTime : 0)} / ${clock(dur)}`;
       rate.value = String(P.rate);
