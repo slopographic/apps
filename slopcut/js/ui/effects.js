@@ -1,4 +1,5 @@
-/* SlopCut: the Effects tab. Transitions, title presets, colour mattes and colour looks.
+/* SlopCut: the Effects tab. Transitions (ui/tr-preview.js), title presets, graphics (ui/graphics-panel.js),
+   colour mattes and colour looks.
    Click to apply at the playhead / to the selection, or drag onto the timeline. Also the
    Speed/Duration and Sequence settings dialogs. */
 (function () {
@@ -14,7 +15,8 @@
     ['Subtitle', { str: 'Subtitles go here', size: 0.045, anim: 'fade', bg: '#000000a0', bold: false, shadow: false }, 0.4],
     ['Typewriter', { str: 'Once upon a time…', size: 0.07, anim: 'type', font: 'JetBrains Mono', bold: false }, 0],
     ['Handwritten', { str: 'with love', size: 0.11, anim: 'rise', font: 'Caveat', color: '#d4ff3a', bold: false }, 0],
-    ['Outline', { str: 'OUTLINE', size: 0.14, anim: 'fade', color: '#ffffff', stroke: '#0a0a0a', strokeW: 6, font: 'Archivo' }, 0]
+    ['Outline', { str: 'OUTLINE', size: 0.14, anim: 'fade', color: '#ffffff', stroke: '#0a0a0a', strokeW: 6, font: 'Archivo' }, 0],
+    ['Caption', { str: 'Caption text', size: 0.035, anim: 'fade', out: 'fade', align: 'center', bg: '#000000b0', bold: false, shadow: false }, 0.42]
   ];
   FX.MATTES = [['Black', '#000000'], ['White', '#ffffff'], ['Lime', '#d4ff3a'], ['Ink', '#1b1b22'], ['Sunset', '#ff6b4a'], ['Ocean', '#1f6feb']];
   FX.LOOKS = [['Warm', { temp: 35, sat: 10 }], ['Cool', { temp: -35 }], ['Punchy', { contrast: 25, sat: 30 }], ['B&W', { sat: -100, contrast: 15 }], ['Faded', { contrast: -25, bright: 8, sat: -20 }], ['Night', { bright: -25, temp: -40, sat: -30 }]];
@@ -33,10 +35,10 @@
   }
   FX.render = function (list) {
     list.replaceChildren(
-      h('h4', { class: 'fx-h' }, 'Transitions'),
-      h('div', { class: 'fx-grid' }, M.TRANSITIONS.map(([t, l]) => tile(l, 'transition', () => ({ kind: 'transition', type: t }), () => SE.act.addTransition(t)))),
+      ...SE.trPanel.nodes(),
       h('h4', { class: 'fx-h' }, 'Titles'),
       h('div', { class: 'fx-grid' }, FX.TITLES.map((pr) => tile(pr[0], 'text', () => ({ kind: 'title', preset: FX.titlePreset(pr) }), () => SE.act.addTitle(FX.titlePreset(pr))))),
+      ...SE.gfxPanel.nodes(),
       h('h4', { class: 'fx-h' }, 'Colour mattes'),
       h('div', { class: 'fx-grid' }, FX.MATTES.map(([l, c]) => tile(l, null, () => ({ kind: 'color', color: c }), () => SE.act.addColor(c), c))),
       h('h4', { class: 'fx-h' }, 'Effect layer'),

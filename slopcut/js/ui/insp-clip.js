@@ -46,13 +46,19 @@
       c.scale = U.round(cover / fit, 4);
     });
   }
+  /** Font choices: the standard list, then the bundled and downloaded families of shared/fonts (when the picker loaded). */
+  function fontOptions() {
+    const names = [...M.FONTS];
+    if (window.SlopFonts) for (const n of SlopFonts.names()) if (!names.includes(n)) names.push(n);
+    return names.map((f) => [f, f]);
+  }
   I.textSection = function (c) {
     const id = c.id, t = I.track;
     const tg = (k) => () => { const cc = M.clip(SE.doc, id); return cc ? cc.text[k] : ''; };
     const ts = (k, l) => F.setter(l || 'Text', id + ':text.' + k, (p, v) => { const cc = M.clip(p, id); if (cc) cc.text = Object.assign({}, cc.text, { [k]: v }); });
     const tb = t(F.text('Text', tg('str'), ts('str'), { multiline: true }));
     body().append(F.section('Text', 'text', tb,
-      t(F.select('Font', M.FONTS.map((f) => [f, f]), tg('font'), ts('font', 'Font'))),
+      t(F.select('Font', fontOptions(), tg('font'), (v) => { ts('font', 'Font')(v); if (window.SlopFonts) SlopFonts.load(v).then(() => SE.emit('frame', {})); })),
       t(F.slider('Size', tg('size'), ts('size', 'Text size'), { min: 8, max: 400, step: 1, unit: 'px', hardMin: 4 })),
       t(F.chips('Style', [['b', 'Bold'], ['i', 'Italic'], ['s', 'Shadow']], () => { const x = M.clip(SE.doc, id); return x ? [x.text.bold && 'b', x.text.italic && 'i', x.text.shadow && 's'].filter(Boolean) : []; },
         (v) => { const k = { b: 'bold', i: 'italic', s: 'shadow' }[v]; ts(k, 'Text style')(!M.clip(SE.doc, id).text[k]); SE.history.breakCoalescing(); })),
@@ -61,7 +67,8 @@
       t(F.color('Outline', tg('stroke'), ts('stroke', 'Outline colour'))),
       t(F.slider('Outline width', tg('strokeW'), ts('strokeW', 'Outline width'), { min: 0, max: 20, step: 0.5, unit: 'px', hardMin: 0 })),
       t(F.chips('Box', [['', 'None'], ['#000000b0', 'Dark'], ['#ffffffd0', 'Light'], ['#d4ff3a', 'Lime']], tg('bg'), (v) => { ts('bg', 'Text box')(v); SE.history.breakCoalescing(); })),
-      t(F.chips('Animation', SE.text.ANIMS, tg('anim'), (v) => { ts('anim', 'Text animation')(v); SE.history.breakCoalescing(); }))));
+      t(F.chips('Animation in', SE.text.ANIMS, tg('anim'), (v) => { ts('anim', 'Text animation')(v); SE.history.breakCoalescing(); })),
+      t(F.chips('Animation out', SE.text.OUTS, () => { const x = M.clip(SE.doc, id); return x && x.text.out ? x.text.out : 'same'; }, (v) => { ts('out', 'Text exit')(v); SE.history.breakCoalescing(); }))));
     I.textInput = tb.input;
   };
   I.audioSection = function (c) {

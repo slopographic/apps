@@ -11,7 +11,7 @@
   /** Default length (s) for a transition added from the Effects tab or by click; the duration slider sets it. */
   TR.DUR = { min: 0.2, max: 3, step: 0.1 };
   TR.dur = U.clamp(+U.store.get('trDur', 1) || 1, TR.DUR.min, TR.DUR.max);
-  TR.setDur = (v) => { TR.dur = U.clamp(+v || 1, TR.DUR.min, TR.DUR.max); U.store.set('trDur', TR.dur); };
+  TR.setDur = (v) => { const n = +v; TR.dur = U.clamp(isFinite(n) ? n : 1, TR.DUR.min, TR.DUR.max); U.store.set('trDur', TR.dur); };
   TR.list = () => M.TRANSITIONS;
   TR.label = (type) => ((M.TRANSITIONS.find((x) => x[0] === type) || [null, type || ''])[1]);
 

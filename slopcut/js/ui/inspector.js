@@ -54,6 +54,7 @@
     if (c.kind !== 'audio' && c.kind !== 'effect') body.append(I.animSection(c));
     if (c.kind === 'video' || c.kind === 'image' || c.kind === 'title' || c.kind === 'color') I.maskSection(c);
     if (c.kind === 'effect') body.append(I.effectSection(c));
+    if (c.kind === 'graphic') I.graphicSection(c);
     if (c.kind === 'title') I.textSection(c);
     if (c.kind === 'color') body.append(F.section('Matte', 'color', track(F.color('Colour', I.clipGet(id, 'color'), I.clipSet(id, 'color', 'Matte colour')))));
     if (c.kind === 'audio') I.audioSection(c);
