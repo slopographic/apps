@@ -24,6 +24,14 @@
       accepts: ['image/*', 'text/csv'],
       features: ['Barcodes & QR, GS1', 'Data merge from CSV & Excel', 'Zebra ZPL export & import', 'Sheets & thermal rolls'],
       shot: 'assets/shots/label.jpg', icon: 'tag', status: 'beta' }),
+    A('press', 'app', 'Slop Press', 'press/', 'InDesign, rebuilt for the browser.', {
+      accepts: ['image/*', 'application/pdf', 'text/plain'],
+      features: ['Master pages & threaded text frames', 'Paragraph & character styles', 'Print-ready PDF export', 'Offline .html'],
+      shot: 'assets/shots/press.jpg', icon: 'layout', status: 'building' }),
+    A('slopedit', 'app', 'SlopEdit', 'slopedit/', 'A video editor that never uploads your footage.', {
+      accepts: ['video/*', 'audio/*', 'image/*'],
+      features: ['Multi-track timeline', 'Trim, split, transitions & titles', 'Hardware MP4 export (WebCodecs)', 'Offline .html'],
+      shot: 'assets/shots/slopedit.jpg', icon: 'film', status: 'building' }),
     A('platformer', 'game', 'Sloppo Land', 'games/platformer/', 'A 3D platformer across goo-soaked worlds.', { shot: 'assets/shots/platformer.jpg', status: 'beta' }),
     A('sloppo-bird', 'game', 'Sloppo Bird', 'games/sloppo-bird/', 'Tap to bloop. Do not touch the pipes.', { shot: 'assets/shots/sloppo-bird.jpg' }),
     A('runner', 'game', 'Sloppo Run', 'games/runner/', 'Endless running through the slopverse.', { shot: 'assets/shots/runner.jpg', status: 'beta' }),
