@@ -4,7 +4,7 @@
 //   node tests/run.mjs paint      only pages whose path contains "paint"
 // Serves the repo root on a local port (no dependencies), opens each page, waits for
 // window.__SLOPTEST__ (see tests/harness.js) and prints a report. Exit code 1 on failure.
-// Also runs Node-only tests (tests/node/*.test.mjs) with `node --test`.
+// Also runs Node-only tests (tests/node/*.test.mjs and tests/seo/*.test.mjs) with `node --test`.
 import http from 'node:http';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
@@ -49,8 +49,8 @@ async function loadPlaywright() {
 const c = { g: (s) => `\x1b[32m${s}\x1b[0m`, r: (s) => `\x1b[31m${s}\x1b[0m`, d: (s) => `\x1b[2m${s}\x1b[0m`, b: (s) => `\x1b[1m${s}\x1b[0m` };
 let failed = 0, passed = 0;
 
-const nodeDir = path.join(ROOT, 'tests', 'node');
-const nodeTests = (await readdir(nodeDir).catch(() => [])).filter((f) => f.endsWith('.test.mjs') && f.includes(filter)).map((f) => path.join(nodeDir, f));
+const nodeDirs = [path.join(ROOT, 'tests', 'node'), path.join(ROOT, 'tests', 'seo')];
+const nodeTests = (await Promise.all(nodeDirs.map(async (d) => (await readdir(d).catch(() => [])).filter((f) => f.endsWith('.test.mjs') && f.includes(filter)).map((f) => path.join(d, f))))).flat();
 if (nodeTests.length) {
   console.log(c.b('\nNode tests'));
   const r = spawnSync(process.execPath, ['--test', ...nodeTests], { stdio: 'inherit' });

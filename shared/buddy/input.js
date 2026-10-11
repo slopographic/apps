@@ -7,6 +7,7 @@ import { line } from './lines.js';
 import { petAllowed, onDrag, dragEnded } from './care.js';
 import { addRage } from './rage.js';
 import { TIMING } from './timing.js';
+import { controlAt } from './avoid.js';
 
 /** Too many pokes in a few seconds: a bad moment (mood.js keeps the count). */
 export function pokedTooOften(t) {
@@ -35,13 +36,14 @@ export function bindInput(hit) {
   let P = null;
   hit.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.pointerType !== 'mouse' && controlAt(e.clientX, e.clientY)) return;   // a control under him gets the tap
     e.preventDefault();
     try { hit.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
     P = { id: e.pointerId, sx: e.clientX, sy: e.clientY, ox: M.x - e.pageX, oy: M.y - e.pageY, drag: false };
   });
   hit.addEventListener('pointermove', (e) => {
     if (!P || e.pointerId !== P.id) return;
-    if (!P.drag && Math.hypot(e.clientX - P.sx, e.clientY - P.sy) > 6) {
+    if (!P.drag && e.pointerType !== 'touch' && Math.hypot(e.clientX - P.sx, e.clientY - P.sy) > 6) {   // touch never drags him
       P.drag = true;
       startDrag();
       hit.classList.add('grabbing');

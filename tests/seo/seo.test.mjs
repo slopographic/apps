@@ -139,7 +139,6 @@ test('every app in the registry is in the sitemap (anchor apps through the homep
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   assert.equal(new Set(locs).size, locs.length, 'sitemap has duplicate entries');
   for (const p of pages) assert.ok(locs.includes(p.url), `sitemap is missing ${p.url}`);
-  for (const a of anchorApps) assert.ok(!locs.some((l) => l.includes(a.path)) || true, `${a.id}: ${a.path} is on the homepage`);
   for (const l of locs) {
     const rel = l.slice(SITE.length);
     const file = rel.endsWith('/') ? `${rel}index.html` : rel;
