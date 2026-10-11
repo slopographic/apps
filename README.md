@@ -17,7 +17,7 @@ Creative apps that run 100% in your browser: no installs, no accounts, no upload
 | `/cutout/`, `/docs/`, `/tables/`, `/slides/` | In development: background remover, word processor, spreadsheet, presentations |
 | `/#detector` | **The Authenticator**: get any text certified as slop |
 
-The shared kit (`shared/`), status of every app and how to continue are in [`HANDOFF.md`](HANDOFF.md). Tests: `npm test`.
+Each folder has its own `HANDOFF.md`. Tests: `npm test`.
 
 ## Run locally
 
