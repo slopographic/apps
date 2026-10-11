@@ -48,14 +48,11 @@
     SlopUI.dialog({ title: 'Preview: ' + cur.doc.meta.title, body: box, cls: 'tpl-full-dlg', buttons: [{ label: 'Close', primary: true }] });
   }
 
-  /** Open a new document from a design (a template record's doc, or the current preview). */
+  /** Open a new document from a design (a template record's doc, or the current preview), in a new tab. */
   S.random.useDoc = async function (doc) {
-    if (!(await S.confirmDiscard())) return false;
     const d = E().M.normalizeDoc(JSON.parse(JSON.stringify(doc)));
     d.meta = Object.assign({}, d.meta, { created: Date.now(), modified: Date.now() });
-    S.draftDel('untitled');
-    S.setDoc(d, { file: { id: null, name: (d.meta.title || 'Untitled document') + '.sdoc', dirty: false } });
-    S.setUrl(null);
+    S.openNew(d, { id: null, name: (d.meta.title || 'Untitled document') + '.sdoc', dirty: false });
     toast('New document from a template');
     return true;
   };
