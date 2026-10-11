@@ -27,14 +27,16 @@
     const declared = () => (opts.options !== undefined ? opts.options : (g.SLOP_APP_OPTIONS || {}));
     const denied = { ok: false, error: 'Could not save: browser storage is blocked.' };
 
+    // Envelope { v: 1, data: { <appId>: { <key>: value } } }. The unversioned shape written before v1 is still read.
     function readAll() {
       try {
         const o = JSON.parse(store.getItem(KEY) || 'null');
-        return o && typeof o === 'object' && !Array.isArray(o) ? o : {};
+        const d = o && o.v === 1 && o.data !== undefined ? o.data : o;
+        return d && typeof d === 'object' && !Array.isArray(d) ? d : {};
       } catch (e) { return {}; }
     }
     function writeAll(o) {
-      try { store.setItem(KEY, JSON.stringify(o)); return { ok: true }; } catch (e) { return denied; }
+      try { store.setItem(KEY, JSON.stringify({ v: 1, data: o })); return { ok: true }; } catch (e) { return denied; }
     }
     function optionsOf(appId) {
       const d = declared();

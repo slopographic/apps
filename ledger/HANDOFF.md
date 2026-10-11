@@ -6,8 +6,8 @@ balance, reversals, and exchange rates. Browser only, local only. All rules live
 
 ## What works
 - **Journal**: a manual entry with a date, memo, currency and two or more lines. Each line has one debit or one
-  credit. Live totals show the balance while you type. A line that is missing, duplicated or unbalanced is refused
-  with a message, and nothing is posted (`Not posted. Debits (…) and credits (…) do not balance…`).
+  credit. Live totals show the balance while you type. A line with no account, a line with both or neither side, fewer
+  than two lines, or unbalanced totals is refused with a message, and nothing is posted (`Not posted. Debits (…) and credits (…) do not balance…`).
 - **Foreign currency**: enter the amounts in the entry's currency. The shared module converts at the stored rate on the
   entry date and keeps the original amounts. Posted entries show the original and the base amount side by side.
 - **Reverse**: each posted entry has a Reverse button (also in its right-click menu). The reversal is a new entry

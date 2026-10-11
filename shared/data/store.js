@@ -7,20 +7,13 @@
   const ns = (g.SlopData = g.SlopData || {});
   const { ok, fail, isResult } = ns.result;
   const DB_NAME = 'slop-data';
-  const DB_VERSION = 2; // 2 adds the exchangeRates store (createStores creates missing stores on upgrade)
+  const DB_VERSION = 2; // 2 adds the exchangeRates store. Every version needs an entry in UPGRADES below.
   const subs = new Set();
   let dbH = null, dbP = null, readyP = null, bc = null;
   const all = () => ns.schema.COLLECTIONS;
 
-  const codeOf = (e) => {
-    if (e && e.code) return e.code;
-    switch (e && e.name) {
-      case 'QuotaExceededError': return 'quota';
-      case 'ConstraintError': return 'conflict';
-      case 'InvalidStateError': case 'NotFoundError': return 'unavailable';
-      default: return 'idb';
-    }
-  };
+  const ERR_CODES = { QuotaExceededError: 'quota', ConstraintError: 'conflict', InvalidStateError: 'unavailable', NotFoundError: 'unavailable' };
+  const codeOf = (e) => (e && e.code) || ERR_CODES[e && e.name] || 'idb';
   const errOf = (e) => fail(codeOf(e), (e && e.message) || String(e));
   const req = (r) => new Promise((res, rej) => {
     r.onsuccess = () => res(r.result);
@@ -42,6 +35,7 @@
     return undefined;
   }
 
+  /** Adds every collection that is missing. Never deletes or rewrites records, so a v1 database keeps all of its data. */
   function createStores(db) {
     for (const name of all()) {
       if (db.objectStoreNames.contains(name)) continue;
@@ -50,6 +44,8 @@
       for (const ix of d.indexes || []) st.createIndex(ix.name, ix.key, { unique: !!ix.unique, multiEntry: !!ix.multi });
     }
   }
+  /** Upgrade steps keyed by the version they reach. v1 -> v2 adds exchangeRates. Records are migrated in seedDefaults. */
+  const UPGRADES = { 1: createStores, 2: createStores };
 
   function openDb() {
     if (dbH) return Promise.resolve(dbH);
@@ -58,7 +54,7 @@
         if (!g.indexedDB) { const e = new Error('IndexedDB is not available in this browser'); e.code = 'unavailable'; return reject(e); }
         let rq;
         try { rq = g.indexedDB.open(DB_NAME, DB_VERSION); } catch (e) { return reject(e); }
-        rq.onupgradeneeded = () => createStores(rq.result);
+        rq.onupgradeneeded = (e) => { for (let v = (e.oldVersion || 0) + 1; v <= DB_VERSION; v++) UPGRADES[v](rq.result); };
         rq.onsuccess = () => {
           dbH = rq.result;
           dbH.onversionchange = () => { dbH.close(); dbH = null; dbP = null; readyP = null; };
