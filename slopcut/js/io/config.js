@@ -41,15 +41,13 @@
     const p = SE.doc, created = [];
     const parts = CM.fromData(d, resolver(p, created));
     for (const m of created) L.addMissing(m);
-    const used = new Set();
-    for (const t of parts.tracks) void t;
     SE.change('Import config', (doc) => {
       Object.assign(doc, { w: parts.w, h: parts.h, fps: parts.fps, tracks: parts.tracks, clips: parts.clips, markers: parts.markers });
       for (const m of created) doc.media.push(m);
-      for (const c of parts.clips) if (c.media) used.add(c.media);
     });
     SE.app.select([]);
     // every file the timeline uses that is not ready yet: listed so the person can add it
+    const used = new Set(parts.clips.map((c) => c.media).filter(Boolean));
     const missing = SE.doc.media.filter((m) => used.has(m.id) && (!L.get(m.id) || L.get(m.id).status !== 'ready'));
     askForMedia(missing);
   }
