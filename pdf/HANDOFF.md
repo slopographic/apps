@@ -21,6 +21,15 @@ both vendored in `/vendor/`).
 - Themes Pro/Light/Classic 98, shared SlopUI dialogs/menus, Slop Hub (register, ?drive= launch,
   File ▸ Open from Slop Drive, File ▸ Send to, page context menu ▸ Send page as image to).
 - Code split into packages; every non-vendor file ≤ 300 lines.
+- **Commands & shortcuts (SlopCmd)** (`js/ui/commands.js`): every tool, panel, page operation and menu action is
+  registered with the shared `shared/commands/` package (app id `pdf`); all global keys go through it (the old
+  keydown handler in `ui/input.js` is gone). `when()` guards keep keys mode-aware: letters are annotation tools
+  only in page view, R / Shift+R / Del act on the selected or focused pages in the grid, arrows nudge a
+  selected annotation or turn pages, everything is off while a menu is open or a field has focus.
+  `organize/keys.js` keeps only the grid's listbox navigation (arrows, Home/End, Space, Enter, Alt+arrows,
+  context menu). Menus show `A.key(id)` (= `SlopCmd.keyFor`), so user remaps show up. Help ▸ Search
+  commands… (Mod+K, also the magnifier button in the top bar) and Help ▸ Keyboard shortcuts… (`?` opens the
+  shared shortcut editor). The offline build inlines commands.css and runs the five SlopCmd scripts (B.CMD).
 - **Thumbnail size** (`js/organize/zoom.js`): S/M/L presets + a continuous slider from 80 px up to the grid's
   inner width (one page per row, "fit" button), Ctrl/⌘ + wheel, two-finger pinch (touch events, cancels a
   pending long-press drag), Ctrl +/− and View ▸ Zoom in grid mode. Saved as `slop-pdf.thumbSize`; a resize
@@ -49,7 +58,7 @@ both vendored in `/vendor/`).
     Invisible OCR text on redacted pages is lost too (they become pure images).
 
 ## Tests
-`node tests/run.mjs pdf` runs `tests/pdf/pdf.test.html` (43 tests, ~85 s, all green). The real app runs in
+`node tests/run.mjs pdf` runs `tests/pdf/pdf.test.html` (46 tests, ~80 s, all green). The real app runs in
 an iframe; `tests/pdf/pdf.helpers.js` (`window.PT`) boots it, makes fixture PDFs with the app's own pdf-lib,
 opens them through `A.addFiles`, captures downloads and reads output back with pdf.js. Specs:
 - `pdf.spec-core.js`: ranges, zip/CRC, sniffing, geometry, page ops, undo/redo/coalescing, page-number text,
@@ -65,6 +74,8 @@ opens them through `A.addFiles`, captures downloads and reads output back with p
   e-mail, text, form field and drawn box gone from pdf.js text extraction AND from every decoded stream/string;
   untouched pages keep text; rotation/size kept; metadata gone; link outside kept; black pixels), shared
   XObject resources not leaking, confirm dialog, download prompt and undo.
+- `pdf.spec-cmds.js`: registered ids/keys, mode-aware dispatch (R rotate, Shift+R, Mod+Z, T/X tools, Esc), menu
+  key labels follow remaps, palette and shortcut editor open.
 - `pdf.spec-thumbs.js`: presets + slider up to one page per row, clamping, localStorage, sharp raster at full
   width, Ctrl+wheel and pinch (synthetic TouchEvents).
 Cross-realm gotcha: arrays/typed arrays passed into the iframe's pdf-lib/pdf.js must be made with

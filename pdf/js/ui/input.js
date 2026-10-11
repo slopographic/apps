@@ -1,4 +1,4 @@
-/* Slop PDF — file drag & drop, global keyboard shortcuts and IndexedDB session autosave. */
+/* Slop PDF — file drag & drop and IndexedDB session autosave. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, O = SP.organizer, Ed = SP.editor, PN = SP.panels, A = SP.app, S = A._;
@@ -18,51 +18,7 @@
     });
   }
 
-  /* --------------------------------------------------------- keyboard */
-  S.setupKeys = function () {
-    document.addEventListener('keydown', function (e) {
-      if (SlopUI.openDialogs > 0 || document.querySelector('.sui-menu')) return;
-      var t = e.target, typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
-      var mod = e.ctrlKey || e.metaKey, k = e.key;
-      if (mod && !e.altKey) {
-        var lk = k.toLowerCase();
-        if (lk === 'z' && !typing) { e.preventDefault(); if (e.shiftKey) A.redo(); else A.undo(); return; }
-        if (lk === 'y' && !typing) { e.preventDefault(); A.redo(); return; }
-        if (lk === 'o') { e.preventDefault(); A.openDialog(); return; }
-        if (lk === 's') { e.preventDefault(); A.download(); return; }
-        if (typing) return;
-        if (lk === 'a' && A.mode === 'grid') { e.preventDefault(); O.selectAll(); return; }
-        if (lk === 'd') { e.preventDefault(); if (A.mode === 'page') { if (Ed.getSelected()) Ed.duplicateSelected(); } else A.duplicate(A.targetIds()); return; }
-        if (A.mode === 'page' && lk === 'c') { if (Ed.copy()) e.preventDefault(); return; }
-        if (A.mode === 'page' && lk === 'v') { if (Ed.paste()) e.preventDefault(); return; }
-        if (k === '=' || k === '+') { e.preventDefault(); if (A.mode === 'page') Ed.zoomBy(1.25); else O.zoomBy(1.25); return; }
-        if (k === '-') { e.preventDefault(); if (A.mode === 'page') Ed.zoomBy(0.8); else O.zoomBy(0.8); return; }
-        return;
-      }
-      if (typing) return;
-      if (k === '?') { S.showKeys(); return; }
-      if (A.mode === 'page' && E.state.pages.length) {
-        var sel = Ed.getSelected();
-        if (k === 'Escape') { e.preventDefault(); if (sel) Ed.select(null); else if (Ed.tool !== 'select') Ed.setTool('select'); else A.showGrid(); return; }
-        if ((k === 'Delete' || k === 'Backspace') && sel) { e.preventDefault(); Ed.deleteSelected(); return; }
-        if (k.indexOf('Arrow') === 0 && sel) { e.preventDefault(); var d = e.shiftKey ? 10 : 1; Ed.nudgeSelected(k === 'ArrowLeft' ? -d : k === 'ArrowRight' ? d : 0, k === 'ArrowUp' ? -d : k === 'ArrowDown' ? d : 0); return; }
-        if (k === 'PageDown' || (k === 'ArrowRight' && !sel) || (k === 'ArrowDown' && !sel && t === document.body)) { e.preventDefault(); A.gotoPage(1); return; }
-        if (k === 'PageUp' || (k === 'ArrowLeft' && !sel) || (k === 'ArrowUp' && !sel && t === document.body)) { e.preventDefault(); A.gotoPage(-1); return; }
-        if (k === '+' || k === '=') { Ed.zoomBy(1.25); return; }
-        if (k === '-') { Ed.zoomBy(0.8); return; }
-        if (k === '0') { Ed.fit('fit'); return; }
-        if (k === 'Enter' && sel && sel.type === 'text') { e.preventDefault(); Ed.editSelectedText(); return; }
-        var map = { v: 'select', t: 'text', p: 'pen', h: 'marker', r: 'rect', e: 'ellipse', l: 'line', a: 'arrow', w: 'whiteout', x: 'redact', b: 'hlbox', i: 'image', s: 'signature' };
-        if (!e.altKey && map[k.toLowerCase()] && !e.shiftKey) { e.preventDefault(); Ed.setTool(map[k.toLowerCase()]); return; }
-        return;
-      }
-      if (A.mode === 'grid' && E.state.pages.length && !t.closest('.thumb')) {
-        if (k === 'Delete' && O.sel.size) { e.preventDefault(); A.remove(O.selected()); return; }
-        if (k === 'Escape' && O.sel.size) { O.setSelection([]); return; }
-        if (k.indexOf('Arrow') === 0 && !t.closest('#props, .topbar, .rail')) { e.preventDefault(); O.focus(O.focusId || E.state.pages[0].id); return; }
-      }
-    });
-  }
+  /* Keyboard shortcuts: ui/commands.js (SlopCmd). */
 
   /* ---------------------------------------------------------- session */
   S.autosave = U.debounce(function () {

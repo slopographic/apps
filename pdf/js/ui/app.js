@@ -13,6 +13,7 @@
     ['forms', 'Forms', 'forms'], ['compress', 'Compress', 'compress'], ['convert', 'Convert', 'convert'], ['split', 'Split', 'split'], ['metadata', 'Metadata', 'info']];
 
   var PAGE_TOOLS = { edit: 1, sign: 1, redact: 1 };
+  S.RAIL = RAIL;
 
   /* ---------------------------------------------------------------- boot */
   A.boot = function () {

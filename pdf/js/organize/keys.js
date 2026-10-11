@@ -1,5 +1,5 @@
 /* Slop PDF — organizer keyboard: arrows move focus (Shift extends), Alt+arrows reorder,
-   Space toggles, R rotates, Del deletes, Enter opens the page view. */
+   Space toggles, Enter opens the page view. R / Del are SlopCmd commands (ui/commands.js). */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, O = SP.organizer, S = O._;
@@ -42,8 +42,6 @@
     }
     if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); if (mod) S.toggle(t.dataset.id); else if (O.sel.has(t.dataset.id) && O.sel.size === 1) S.toggle(t.dataset.id); else S.toggle(t.dataset.id); return; }
     if (e.key === 'Enter') { e.preventDefault(); SP.app.openPage(t.dataset.id); return; }
-    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); var ids2 = O.sel.size ? O.selected() : [t.dataset.id]; SP.app.remove(ids2); return; }
-    if ((e.key === 'r' || e.key === 'R') && !mod) { e.preventDefault(); SP.app.rotate(O.sel.size ? O.selected() : [t.dataset.id], e.shiftKey ? -90 : 90); return; }
     if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) { e.preventDefault(); var r = t.getBoundingClientRect(); if (!O.sel.has(t.dataset.id)) O.setSelection([t.dataset.id], t.dataset.id); SlopUI.menu(SP.app.pageMenuItems(), r.left + 20, r.top + 20); }
   }
   S.onKey = onKey;

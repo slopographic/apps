@@ -25,12 +25,12 @@
   S.fileMenu = function () {
     var has = E.state.pages.length > 0;
     return [
-      { label: 'Open PDFs or images…', key: 'Ctrl+O', act: A.openDialog },
+      { label: 'Open PDFs or images…', key: A.key('file.open'), act: A.openDialog },
       window.SlopHub ? { label: 'Open from Slop Drive…', act: A.openFromDrive } : null,
       { label: 'Try the sample PDF', act: A.loadSample },
       S.savedSession && !has ? { label: 'Restore last session', act: A.restoreSession } : null,
       '-',
-      { label: 'Download PDF', key: 'Ctrl+S', act: A.download, disabled: !has },
+      { label: 'Download PDF', key: A.key('file.download'), act: A.download, disabled: !has },
       { label: 'Download selected pages', act: A.extract, disabled: !O.sel.size },
       { label: 'Extract text…', act: A.extractText, disabled: !has },
       { label: 'Pages to images…', act: function () { A.setTool('convert'); }, disabled: !has },
@@ -46,16 +46,16 @@
   S.editMenu = function () {
     var has = E.state.pages.length > 0, pg = A.mode === 'page';
     return [
-      { label: E.canUndo() ? 'Undo ' + E.undoLabel() : 'Undo', key: 'Ctrl+Z', act: A.undo, disabled: !E.canUndo() },
-      { label: E.canRedo() ? 'Redo ' + E.redoLabel() : 'Redo', key: 'Ctrl+Shift+Z', act: A.redo, disabled: !E.canRedo() },
+      { label: E.canUndo() ? 'Undo ' + E.undoLabel() : 'Undo', key: A.key('edit.undo'), act: A.undo, disabled: !E.canUndo() },
+      { label: E.canRedo() ? 'Redo ' + E.redoLabel() : 'Redo', key: A.key('edit.redo'), act: A.redo, disabled: !E.canRedo() },
       '-',
-      { label: 'Select all pages', key: 'Ctrl+A', act: function () { O.selectAll(); }, disabled: !has },
+      { label: 'Select all pages', key: A.key('edit.selectAll'), act: function () { O.selectAll(); }, disabled: !has },
       { label: 'Select none', act: function () { O.setSelection([]); }, disabled: !O.sel.size },
       '-',
-      { label: 'Rotate right', key: 'R', act: function () { A.rotate(pg ? [Ed.pid] : A.targetIds(), 90); }, disabled: !has },
-      { label: 'Rotate left', key: 'Shift+R', act: function () { A.rotate(pg ? [Ed.pid] : A.targetIds(), -90); }, disabled: !has },
-      { label: 'Duplicate pages', key: 'Ctrl+D', act: function () { A.duplicate(A.targetIds()); }, disabled: !has },
-      { label: 'Delete pages', key: 'Del', act: function () { A.remove(pg ? [Ed.pid] : A.targetIds()); }, disabled: !has },
+      { label: 'Rotate right', key: A.key('pages.rotateRight'), act: function () { A.rotate(pg ? [Ed.pid] : A.targetIds(), 90); }, disabled: !has },
+      { label: 'Rotate left', key: A.key('pages.rotateLeft'), act: function () { A.rotate(pg ? [Ed.pid] : A.targetIds(), -90); }, disabled: !has },
+      { label: 'Duplicate pages', key: A.key('edit.duplicate'), act: function () { A.duplicate(A.targetIds()); }, disabled: !has },
+      { label: 'Delete pages', key: A.key('edit.delete'), act: function () { A.remove(pg ? [Ed.pid] : A.targetIds()); }, disabled: !has },
       { label: 'Reverse order', act: A.reverse, disabled: !has },
       { label: 'Insert blank page', act: A.insertBlank, disabled: !has },
       { label: 'Insert pages from file…', act: A.insertFromFile, disabled: !has }
@@ -67,9 +67,9 @@
       { label: 'All pages (organizer)', act: function () { A.showGrid(); }, check: A.mode === 'grid' },
       { label: 'Page view', act: function () { A.ensurePage(); }, check: A.mode === 'page', disabled: !E.state.pages.length },
       '-',
-      { label: 'Zoom in', key: '+', act: function () { if (A.mode === 'page') Ed.zoomBy(1.25); else O.zoomBy(1.25); } },
-      { label: 'Zoom out', key: '-', act: function () { if (A.mode === 'page') Ed.zoomBy(0.8); else O.zoomBy(0.8); } },
-      { label: 'Fit page', key: '0', act: function () { Ed.fit('fit'); }, disabled: A.mode !== 'page' },
+      { label: 'Zoom in', key: A.key('view.zoomIn'), act: function () { if (A.mode === 'page') Ed.zoomBy(1.25); else O.zoomBy(1.25); } },
+      { label: 'Zoom out', key: A.key('view.zoomOut'), act: function () { if (A.mode === 'page') Ed.zoomBy(0.8); else O.zoomBy(0.8); } },
+      { label: 'Fit page', key: A.key('view.fit'), act: function () { Ed.fit('fit'); }, disabled: A.mode !== 'page' },
       '-',
       { label: 'Theme', sub: THEMES.map(function (t) { return { label: t[1], check: theme === t[0], act: function () { A.setTheme(t[0]); } }; }) },
       { label: 'Properties panel', check: !S.els.app.classList.contains('no-panel'), act: function () { A.togglePanel(); } }
@@ -77,18 +77,15 @@
   }
   S.helpMenu = function () {
     return [
-      { label: 'Keyboard shortcuts', key: '?', act: S.showKeys },
+      { label: 'Search commands…', key: A.key('cmd.palette'), act: function () { if (window.SlopCmd) SlopCmd.open(); }, disabled: !window.SlopCmd },
+      { label: 'Keyboard shortcuts…', key: A.key('cmd.keymap'), act: S.showKeys },
       { label: 'About Slop PDF & privacy', act: S.showAbout },
       '-',
       { label: 'Slopographic home', act: function () { location.href = SP.offline ? 'https://slopographic.com/' : '../'; } }
     ];
   }
-  S.showKeys = function () {
-    var rows = [['Ctrl/⌘ O', 'Open files'], ['Ctrl/⌘ S', 'Download PDF'], ['Ctrl/⌘ Z / Shift Z', 'Undo / redo'], ['Ctrl/⌘ A', 'Select all pages'], ['Arrows', 'Move focus between pages'], ['Alt + arrows', 'Move selected pages'], ['Space', 'Toggle page selection'],
-      ['R / Shift R', 'Rotate right / left'], ['Del', 'Delete pages or annotation'], ['Enter', 'Open page view'], ['Esc', 'Back to all pages'], ['PgUp / PgDn', 'Previous / next page'], ['+ / − / 0', 'Zoom in / out / fit'],
-      ['V T P H', 'Select, Text, Draw, Highlighter'], ['R E L A', 'Rectangle, Ellipse, Line, Arrow (page view)'], ['W B I S', 'Whiteout, Highlight box, Image, Signature'], ['Ctrl/⌘ D, C, V', 'Duplicate, copy, paste annotation']];
-    SlopUI.dialog({ title: 'Keyboard shortcuts', body: h('dl', { class: 'keys keys-dlg' }, rows.map(function (r) { return [h('dt', null, r[0]), h('dd', null, r[1])]; })), buttons: [{ label: 'Close', primary: true }] });
-  }
+  /** The shared shortcut editor (search, record, conflicts, reset, export/import). */
+  S.showKeys = function () { if (window.SlopCmd) SlopCmd.openKeymap(); };
   S.showAbout = function () {
     SlopUI.dialog({ title: 'About Slop PDF', body: h('div', null,
       h('p', { class: 'sui-p' }, 'Slop PDF is a free PDF editor that runs entirely in your browser. Your files are never uploaded: they are read, edited and written on this device.'),

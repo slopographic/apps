@@ -28,6 +28,7 @@
   };
   var clip = null;
   Ed.copy = function () { var a = Ed.getSelected(); if (a) { clip = JSON.parse(JSON.stringify(a)); return true; } return false; };
+  Ed.canPaste = function () { return !!clip; };
   Ed.paste = function () { if (!clip || !Ed.page()) return false; var c = JSON.parse(JSON.stringify(clip)); c.id = U.uid('a'); S.nudge(c, 12, 12); Ed.addAnnot(c, 'Paste annotation'); clip = c; return true; };
   S.nudge = function (a, dx, dy) {
     var c = S.ctx(), r = E.annotViewRect(a, c.R, c.W, c.H);
