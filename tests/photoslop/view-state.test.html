@@ -36,8 +36,10 @@
       for (let i = 0; i < 4; i++) { await sleep(1000); const w = f.contentWindow; console.error('DBG loc ' + (w && w.location.href) + ' ' + (w && w.document.readyState)); }
       await open('../drive/frame.html');
       await sleep(60);
-      W = await open('../../photoslop/index.html');
-      await waitFor(() => W.V && W.V.zoom > 0);
+      for (let i = 0; i < 3; i++) { await sleep(1500); const w = f.contentWindow; console.error('DBG drive ' + w.location.pathname + ' ' + w.document.readyState); }
+      f.src = '../../photoslop/index.html';
+      for (let i = 0; i < 6; i++) { await sleep(2000); const w = f.contentWindow; console.error('DBG ps ' + w.location.pathname + ' ' + w.document.readyState + ' cls=' + w.document.body.className + ' zoom=' + (w.V && w.V.zoom)); }
+      W = f.contentWindow;
       expect(W.V.zoom).toBeCloseTo(2, 1e-6);
       expect(W.document.body.classList.contains('no-panels')).toBe(true);
     }, { timeout: 90000 });

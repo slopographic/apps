@@ -89,7 +89,7 @@ input, select, textarea { background: var(--panel-2); border: 1px solid var(--li
 .totals dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0; }
 .totals dt { color: var(--mute); }
 .totals dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-.totals .grand dt, .totals .grand dd { font-weight: 700; color: var(--ink); border-top: 1px solid var(--line); padding-top: 6px; }
+.totals dt.grand, .totals dd.grand { font-weight: 700; color: var(--ink); border-top: 1px solid var(--line); padding-top: 6px; }
 .actions .btn { margin-right: 4px; }
 .file { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; color: var(--mute); font-size: 12.5px; }
 .report { list-style: none; padding: 0; margin: 8px 0 0; font-size: 13px; }

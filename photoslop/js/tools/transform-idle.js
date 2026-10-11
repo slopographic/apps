@@ -95,8 +95,12 @@ function applyBoxField(key, v) {
   const t = TRANSFORM;
   if (key === 'x') t.tx = v - t.x;
   else if (key === 'y') t.ty = v - t.y;
-  else if (key === 'w') { const s = Math.max(1, v) / t.w; t.tx = (t.x - t.cx) * (1 - s); t.sx = s; }
-  else if (key === 'h') { const s = Math.max(1, v) / t.h; t.ty = (t.y - t.cy) * (1 - s); t.sy = s; }
+  else if (key === 'w' || key === 'h') {
+    // The left and top edges stay put. With the proportion lock on, the other side scales by the same factor.
+    const s = Math.max(1, v) / (key === 'w' ? t.w : t.h);
+    if (key === 'w' || t.lock) { t.sx = s; t.tx = (t.x - t.cx) * (1 - s); }
+    if (key === 'h' || t.lock) { t.sy = s; t.ty = (t.y - t.cy) * (1 - s); }
+  }
   else t.rot = (v * Math.PI) / 180;
   if (!t.tx && !t.ty && t.sx === 1 && t.sy === 1 && !t.rot) { cancelTransform(); return; }
   commitTransform('Free Transform');
@@ -110,7 +114,7 @@ function boxField(key, label, unit, step) {
 /** The Move options' transform controls: Transform (Ctrl+T) and the layer's X, Y, W, H and rotation. */
 function moveBoxOptions() {
   const els = [h('button', { class: 'btn', type: 'button', onclick: startTransform, title: 'Free Transform (Ctrl+T)' }, 'Transform'),
-    boxField('x', 'X', 'px', 1), boxField('y', 'Y', 'px', 1), boxField('w', 'W', 'px', 1), boxField('h', 'H', 'px', 1), boxField('rot', '∠', '°', 0.1)];
+    boxField('x', 'X', 'px', 1), boxField('y', 'Y', 'px', 1), boxField('w', 'W', 'px', 1), lockButton(), boxField('h', 'H', 'px', 1), boxField('rot', '∠', '°', 0.1)];
   syncBoxFields();
   return els;
 }

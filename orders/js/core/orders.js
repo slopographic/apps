@@ -44,7 +44,8 @@
   /** Saves the editor's form. form: { id?, customerId, date, currency?, notes, lines (stored shape) }.
    *  New orders start as drafts and take a number. Existing orders keep their status unless one is given. */
   async function save(form, status) {
-    const base = { customerId: form.customerId, date: form.date, notes: form.notes, currency: form.currency, lines: form.lines };
+    const base = { customerId: form.customerId, date: form.date, notes: form.notes, lines: form.lines };
+    if (form.currency) base.currency = form.currency;   // an absent currency keeps the stored one (or takes the base)
     if (!form.id) return S.store.put('orders', { ...base, status: status || 'draft' });
     const cur = await S.store.get('orders', form.id);
     if (!cur.ok) return cur;
