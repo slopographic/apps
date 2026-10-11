@@ -35,17 +35,19 @@
 .car-bar [hidden] { display: none !important; }
 .car-btn { display: inline-grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0; font-size: 22px; line-height: 1; flex: 0 0 auto; }
 .car-dots { flex: 1; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; min-width: 0; }
+.car-dots [hidden] { display: none !important; }
 .car-dot { width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer; position: relative; }
+.car-dot.gap-after { margin-right: 10px; }
 .car-dot::before { content: ""; position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--bone-faint); transition: background .2s; }
 .car-dot.is-current::before { background: var(--slop); }
 .car-dot:focus-visible, .car-btn:focus-visible, .car-pause:focus-visible { outline: 2px solid var(--slop); outline-offset: 2px; }
-.car-count { font: 600 12px var(--mono); color: var(--bone-faint); white-space: nowrap; }
+.car-count { font: 600 12px var(--mono); color: var(--bone-faint); white-space: nowrap; min-width: 6ch; text-align: center; }
 .car-pause { min-height: 36px; font-size: 13px; }
 @media (min-width: 761px) {
-  .car-slide { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; column-gap: 40px; }
-  .car-main { grid-column: 1; grid-row: 1 / span 2; }
-  .car-feats { grid-column: 2; grid-row: 1; }
-  .car-actions { grid-column: 2; grid-row: 2; }
+  .car-slide { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; column-gap: 48px; }
+  .car-text { grid-column: 1; grid-row: 1; }
+  .car-visual { grid-column: 2; grid-row: 1; order: 0; }
+  .car-icon { width: min(100%, 340px); }
 }
 @media (prefers-reduced-motion: reduce) { .car-track, .car-dot::before { transition: none; } }
 
@@ -111,13 +113,14 @@
   .intro { padding-bottom: 36px; }
   .car-bar { flex-wrap: wrap; }
   .car-dots { order: 3; flex-basis: 100%; }
+  .car-count { min-width: 0; }
   .status-row { grid-template-columns: 14px 1fr auto; }
   .status-row .kind, .status-row .tagline { display: none; }
 }
 @media (max-width: 420px) {
   .app-card .shot { flex-basis: 76px; width: 76px; }
   .car-slide { padding: 18px 16px; }
-  .car-icon { width: 44px; height: 44px; }
+  .car-icon { width: min(100%, 128px); }
 }
 
 /* Choose a workspace: a row of layout presets, each opens its app with ?layout= set. */
