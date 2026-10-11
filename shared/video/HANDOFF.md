@@ -19,10 +19,14 @@ Classic scripts, no DOM except the lane widget, no fetch, no storage. Each file 
 | `audio.js` | `SlopVideo.audio` | The reel's audio choice (`choose`): off, original, or music (a bin video's sound by seed, or a picked file). |
 | `random-edit.js` | `SlopVideo.random` | `plan(opts, media)` (pure), `norm`, `usable`, `switches`, `regionFor(plan, item)`. |
 | `lane-view.js` | `SlopVideo.laneView` | The Layout lane widget: `mount(host, {label, onCommit, onSeek})` returns `update({duration, switches, layouts, playhead})`. |
+| `keys.js` | `SlopVideo.keys` | Keyframes of one slot: a key is a pose (`x`, `y`, `scale`, `rot`, `opacity`) at a time from the slot's start, with an ease. `pose(keys, t)` samples through `SlopMotion.track` (needs `shared/motion/easing.js` and `track.js`). `make`, `sort`, `get`, `put`, `prune`, `addAt`, `move`, `remove`, `setEase`, `animateIn(keys, name, dur)` (fade, slides, zoom over the first 0.5 s). Pure. |
+| `effects.js` | `SlopVideo.effects` | The random effect layer: `KINDS`, `PICKS`, `CHANGE`, `DEFAULT`, `norm`, `plan(o, cuts, seed)` (one `{ kind, seed }` per cut, from the seed with its own salt) and `at(effect, ci)`. Pure; the drawing is in `remix/js/fx.js`. |
 | `lane.css` | | Styles for the lane (uses `--sui-*` tokens when present). |
 
 Load order matters: `presets.js` precedes `templates.js`; `segments.js`, `timing.js`, `locks.js`, `audio.js` and `orient.js` precede
-`random-edit.js` (it reads them at load). SlopCut, Remix and the video-core test load the same list.
+`random-edit.js` (it reads them at load). `keys.js` and `effects.js` need no load order (keys reads SlopMotion when called).
+`random-edit.js` reads `SlopVideo.effects` when it plans, not at load: a page without `effects.js` (SlopCut) gets `plan.effect === null`.
+Remix loads `shared/motion/easing.js` and `track.js` before the video files.
 
 ## Layout notation
 
@@ -55,6 +59,8 @@ beats; a beat is a list of `{ media, slot, start, dur, in, hold, fill? }`: the s
 - Timing (`timing`, `min`, `max`, `stagger`, `video`): drawn from the plan's rng, so the seed still decides.
 - Locks (`locks`): applied after the cuts are drawn; the other cuts keep the seed's picks.
 - Audio (`audio: { mode, track }`): `plan.audio` is the choice (`audio.choose`), seeded.
+- Effects (`effect: { kind, intensity, change }`): `plan.effect` is `effects.plan` over the cuts, with its own seed salt, so the
+  cuts do not change with the effect options.
 
 - Layout source, in order: `opts.segments` (manual switches), else `opts.switches` (random switch points drawn from
   `opts.layouts`, lengths from the pace: fast 2–4 s, medium 4–8 s, slow 6–12 s, never the same layout twice in a row when
@@ -85,5 +91,6 @@ Keep the signatures stable: SlopCut's `io/reel.js` and the Remix manifest replay
 
 ## Limits
 
-No audio, no transitions, no keyframes: the core only decides cuts, slots, regions and sizes. Clip durations come from the
+No audio rendering, no transitions: the core decides cuts, slots, regions, sizes, the effect picks and the keys' maths. Keyframes
+are drawn by the app (Remix), not here. Clip durations come from the
 app (`dur` on each media item; stills use `Infinity`). The lane widget needs `document` and is not loaded in Node.
