@@ -7,11 +7,13 @@
   --fs: 13px; --fs-s: 11.5px;
   --top-h: 52px; --rail-w: 76px; --props-w: 304px; --status-h: 26px; --ctx-h: 46px;
   --radius: 8px; --radius-s: 6px;
-  /* Pro (dark) */
-  --bg: #0e0e10; --panel: #151518; --panel-2: #1d1d22; --surface: #0a0a0c; --dots: rgba(255, 255, 255, .045);
-  --line: #24242a; --line-2: #33333b; --fg: #ececef; --dim: #a3a3ad; --faint: #6c6c76;
-  --accent: #d4ff3a; --accent-ink: #0a0a0a; --accent-line: #d4ff3a; --accent-soft: rgba(212, 255, 58, .12);
-  --hover: #24242b; --active: #2e2e36; --input: #0f0f12; --sel-bg: rgba(212, 255, 58, .09);
+  /* Colours follow the shared Slop theme (--sl-*, set by shared/theme/theme.js). The value after each var() is the Pro fallback. */
+  --bg: var(--sl-background, #0e0e10); --panel: var(--sl-surface, #151518); --surface: var(--bg);
+  --panel-2: color-mix(in srgb, var(--panel) 96%, var(--fg)); --dots: color-mix(in srgb, var(--fg) 5%, transparent);
+  --line: var(--sl-border, #24242a); --line-2: color-mix(in srgb, var(--line) 85%, var(--fg));
+  --fg: var(--sl-text, #ececef); --dim: color-mix(in srgb, var(--fg) 74%, transparent); --faint: color-mix(in srgb, var(--fg) 60%, transparent);
+  --accent: var(--sl-accent, #d4ff3a); --accent-ink: var(--sl-on-accent, #0a0a0a); --accent-line: var(--accent); --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --hover: color-mix(in srgb, var(--fg) 8%, var(--panel)); --active: color-mix(in srgb, var(--fg) 16%, var(--panel)); --input: var(--sl-surface, #0f0f12); --sel-bg: color-mix(in srgb, var(--accent) 16%, transparent);
   --danger: #ff5a6e; --ok: #9fe03a; --warn: #ffc94a;
   --shadow: 0 18px 50px rgba(0, 0, 0, .55), 0 2px 8px rgba(0, 0, 0, .35);
   --sheet-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 8px 24px rgba(0, 0, 0, .45);
@@ -21,10 +23,7 @@
   color-scheme: dark;
 }
 :root[data-theme="light"] {
-  --bg: #ebe7de; --panel: #f8f6f1; --panel-2: #efebe3; --surface: #e2ded3; --dots: rgba(10, 10, 10, .06);
-  --line: #dcd6c9; --line-2: #c9c2b3; --fg: #0a0a0a; --dim: #55514a; --faint: #8f897d;
-  --accent: #d4ff3a; --accent-ink: #0a0a0a; --accent-line: #5f7d00; --accent-soft: rgba(140, 180, 0, .16);
-  --hover: #ebe6db; --active: #e0dacb; --input: #ffffff; --sel-bg: rgba(150, 200, 0, .16);
+  --accent-line: var(--sl-accent, #5f7d00);
   --danger: #d0263f; --ok: #4d7a00; --warn: #a66b00;
   --shadow: 0 16px 44px rgba(40, 30, 10, .2), 0 2px 6px rgba(40, 30, 10, .12);
   --sheet-shadow: 0 1px 2px rgba(40, 30, 10, .18), 0 6px 18px rgba(40, 30, 10, .16);
@@ -35,14 +34,11 @@
   --font-display: Tahoma, 'MS Sans Serif', Verdana, sans-serif;
   --mono: 'Lucida Console', 'Courier New', monospace;
   --fs: 11px; --fs-s: 11px; --radius: 0; --radius-s: 0; --top-h: 40px;
-  --bg: #c0c0c0; --panel: #c0c0c0; --panel-2: #c0c0c0; --surface: #008080; --dots: transparent;
-  --line: #808080; --line-2: #808080; --fg: #000; --dim: #222; --faint: #6d6d6d;
-  --accent: #000080; --accent-ink: #fff; --accent-line: #000080; --accent-soft: rgba(0, 0, 128, .12);
-  --hover: #d4d0c8; --active: #000080; --input: #fff; --sel-bg: rgba(0, 0, 128, .22);
+  --dots: transparent; --line-2: var(--line); --active: var(--accent); --hover: color-mix(in srgb, var(--bg) 60%, var(--input));
   --danger: #a00000; --ok: #006000; --warn: #805000;
-  --shadow: 2px 2px 0 rgba(0, 0, 0, .55); --sheet-shadow: 2px 2px 0 #000;
-  --bevel: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
-  --bevel-in: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080;
+  --shadow: 2px 2px 0 rgba(0, 0, 0, .55); --sheet-shadow: 2px 2px 0 var(--fg);
+  --bevel: inset -1px -1px var(--fg), inset 1px 1px var(--input), inset -2px -2px var(--line), inset 2px 2px color-mix(in srgb, var(--bg) 45%, var(--input));
+  --bevel-in: inset -1px -1px var(--input), inset 1px 1px var(--fg), inset -2px -2px color-mix(in srgb, var(--bg) 45%, var(--input)), inset 2px 2px var(--line);
   --sui-radius: 0;
   color-scheme: light;
 }
