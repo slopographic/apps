@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="css/gallery.css" data-src="gallery/css/gallery.css">
   <link rel="stylesheet" href="css/viewer.css" data-src="gallery/css/viewer.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app">
@@ -134,5 +135,7 @@
   <script src="js/ui/commands.js" data-src="gallery/js/ui/commands.js"></script>
   <script src="js/ui/sidebar.js" data-src="gallery/js/ui/sidebar.js"></script>
   <script src="js/ui/main.js" data-src="gallery/js/ui/main.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

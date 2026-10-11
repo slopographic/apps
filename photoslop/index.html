@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="../shared/guides/guides.css">
   <link rel="stylesheet" href="css/guides.css">
   <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app" id="app">
@@ -142,5 +143,7 @@
   <script src="js/app/nav-adapter.js"></script>
   <script src="js/app/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

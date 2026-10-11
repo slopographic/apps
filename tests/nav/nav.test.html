@@ -39,14 +39,17 @@
     win.document.body.dispatchEvent(e);
     return e;
   };
-  const closeDialog = () => { const b = [...win.document.querySelectorAll('.sui-btn')].find((x) => x.textContent === 'Cancel'); if (b) b.click(); };
-  const dialogUp = () => !!win.document.querySelector('.nav-dlg');
+  // Always act on the newest dialog: a closing one can still be in the DOM for a moment.
+  const dlg = () => [...win.document.querySelectorAll('.nav-dlg')].pop() || null;
+  const closeDialog = () => { const d = dlg(); const b = d && [...d.querySelectorAll('.sui-btn')].find((x) => x.textContent === 'Cancel'); if (b) b.click(); };
+  const dialogUp = () => !!dlg();
   const cancelAll = () => { [...win.document.querySelectorAll('.sui-btn')].filter((x) => x.textContent === 'Cancel').forEach((b) => b.click()); };
-  const tab = (name) => [...win.document.querySelectorAll('.nav-tab')].find((x) => x.textContent === name);
+  const tab = (name) => [...dlg().querySelectorAll('.nav-tab')].find((x) => x.textContent === name);
   async function applyDialog() {
-    const b = [...win.document.querySelectorAll('.sui-btn')].find((x) => x.textContent === 'Apply');
+    const b = [...dlg().querySelectorAll('.sui-btn')].find((x) => x.textContent === 'Apply');
     b.click();
     await waitFor(() => !dialogUp(), { timeout: 3000 });
+    await sleep(200);
   }
 
   describe('navigation modal', () => {
@@ -60,9 +63,9 @@
       expect(win.SlopCmd.get('ps.nav-preset')).toBeTruthy();
       N.openModal('photoslop');
       await waitFor(dialogUp);
-      const radios = [...win.document.querySelectorAll('.nav-card input')].map((x) => x.value);
+      const radios = [...dlg().querySelectorAll('.nav-card input')].map((x) => x.value);
       expect(radios).toEqual(['slop', 'photoshop', 'illustrator', 'figma', 'custom']);
-      expect(win.document.querySelector('.nav-what').textContent).toContain('Wheel zooms around the pointer');
+      expect(dlg().querySelector('.nav-what').textContent).toContain('Wheel zooms around the pointer');
       closeDialog();
       await waitFor(() => !dialogUp());
     });
@@ -70,10 +73,10 @@
     it('shows a clash for Illustrator-style H (the Hand Tool key) and says the preset wins', async () => {
       N.openModal('photoslop');
       await waitFor(dialogUp);
-      const illu = [...win.document.querySelectorAll('.nav-card input')].find((x) => x.value === 'illustrator');
+      const illu = [...dlg().querySelectorAll('.nav-card input')].find((x) => x.value === 'illustrator');
       illu.click();
       await sleep(20);
-      const clash = win.document.querySelector('.nav-clash-box').textContent;
+      const clash = dlg().querySelector('.nav-clash-box').textContent;
       expect(clash).toContain('Hand Tool');
       expect(clash).toContain('wins');
       closeDialog();
@@ -132,7 +135,7 @@
       await waitFor(dialogUp);
       tab('Customise').click();
       await sleep(30);
-      const row = [...win.document.querySelectorAll('.nav-row')].find((x) => x.textContent.includes('Wheel zoom'));
+      const row = [...dlg().querySelectorAll('.nav-row')].find((x) => x.textContent.includes('Wheel zoom'));
       const sel = row.querySelector('select');
       sel.value = 'alt';
       sel.dispatchEvent(new win.Event('change'));
@@ -157,7 +160,7 @@
       await waitFor(dialogUp);
       tab('Customise').click();
       await sleep(30);
-      const row = [...win.document.querySelectorAll('.nav-row')].find((x) => x.textContent.includes('Wheel zoom'));
+      const row = [...dlg().querySelectorAll('.nav-row')].find((x) => x.textContent.includes('Wheel zoom'));
       row.querySelector('select').value = 'ctrl';
       row.querySelector('select').dispatchEvent(new win.Event('change'));
       expect(row.querySelector('select').value).toBe('ctrl');

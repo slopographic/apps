@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="css/canvas.css" data-src="press/css/canvas.css">
   <link rel="stylesheet" href="css/panels.css" data-src="press/css/panels.css">
   <link rel="stylesheet" href="css/responsive.css" data-src="press/css/responsive.css">
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div id="app" class="app">
@@ -145,5 +146,7 @@
   <script src="js/ui/export-dialogs.js" data-src="press/js/ui/export-dialogs.js"></script>
   <script src="js/ui/main.js" data-src="press/js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

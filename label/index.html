@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="css/classic.css">
   <link rel="stylesheet" href="css/mobile.css">
   <script src="../shared/guard.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app" id="app">
@@ -116,5 +117,7 @@
   <script src="js/ui/context.js"></script>
   <script src="js/ui/boot.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>

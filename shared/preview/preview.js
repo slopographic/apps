@@ -41,31 +41,32 @@
       if (!v.w || !v.h || W < 30 || H < 30) return 1;
       return clamp(Math.min(1, (W - 24) / v.w, (H - 24) / v.h), MIN, MAX);
     };
-    /** Lay the content out: centred when it is smaller than the view, otherwise panned but kept inside the edges. */
-    function place() {
+    /** Lay the content out. centre: a smaller picture is centred (fit, the buttons, keys, resize). Without it (pointer zoom,
+     * pinch, pan) a smaller picture keeps the position the anchor gave it, kept inside the view, so the point under the pointer holds. */
+    function place(centre = false) {
       const { W, H } = size(), w = v.w * v.s, h = v.h * v.s;
-      v.x = w <= W ? (W - w) / 2 : clamp(v.x, W - w, 0);
-      v.y = h <= H ? (H - h) / 2 : clamp(v.y, H - h, 0);
+      v.x = w <= W ? (centre ? (W - w) / 2 : clamp(v.x, 0, W - w)) : clamp(v.x, W - w, 0);
+      v.y = h <= H ? (centre ? (H - h) / 2 : clamp(v.y, 0, H - h)) : clamp(v.y, H - h, 0);
       content.style.width = v.w + 'px';
       content.style.height = v.h + 'px';
       content.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.s})`;
       pct.textContent = Math.round(v.s * 100) + '%';
     }
     /** Zoom to target (clamped) keeping the stage point (px, py) where it is. */
-    function zoomAt(px, py, target) {
+    function zoomAt(px, py, target, centre = false) {
       const ns = clamp(target, MIN, MAX), cx = (px - v.x) / v.s, cy = (py - v.y) / v.s;
       v.s = ns; v.fit = false;
       v.x = px - cx * ns; v.y = py - cy * ns;
-      place();
+      place(centre);
       return ns;
     }
-    function fit() { v.fit = true; v.s = fitScale(); place(); return v.s; }
+    function fit() { v.fit = true; v.s = fitScale(); place(true); return v.s; }
     function zoomTo(scale) {
       if (!isFinite(scale)) return v.s;
       const c = center();
-      return zoomAt(c.x, c.y, Number(scale));
+      return zoomAt(c.x, c.y, Number(scale), true);
     }
-    const zoomBy = (f) => { const c = center(); return zoomAt(c.x, c.y, v.s * f); };
+    const zoomBy = (f) => { const c = center(); return zoomAt(c.x, c.y, v.s * f, true); };
 
     // The toolbar. Its readout is updated by place().
     const { bar, pct } = SP.bar({
@@ -76,7 +77,7 @@
       share: navigator.share && o.blobUrl ? () => { SP.share(o.blobUrl, o.title).catch(() => {}); } : null,
     });
 
-    function setSize(w, h) { v.w = w; v.h = h; if (v.fit) v.s = fitScale(); place(); }
+    function setSize(w, h) { v.w = w; v.h = h; if (v.fit) v.s = fitScale(); place(true); }
     function notice(text, mid) {
       if (!note) { note = SP.el('div', 'spv-note'); stage.append(note); }
       note.classList.toggle('spv-mid', !!mid);
@@ -163,10 +164,10 @@
       if (e.ctrlKey || e.metaKey) return;
       const k = e.key, c = center();
       let used = true;
-      if (zoomable && (k === '+' || k === '=')) zoomAt(c.x, c.y, v.s * STEP);
-      else if (zoomable && (k === '-' || k === '_')) zoomAt(c.x, c.y, v.s / STEP);
+      if (zoomable && (k === '+' || k === '=')) zoomAt(c.x, c.y, v.s * STEP, true);
+      else if (zoomable && (k === '-' || k === '_')) zoomAt(c.x, c.y, v.s / STEP, true);
       else if (zoomable && k === '0') fit();
-      else if (zoomable && k === '1') zoomAt(c.x, c.y, 1);
+      else if (zoomable && k === '1') zoomAt(c.x, c.y, 1, true);
       else if (k === 'Escape' && o.onClose) close();
       else if ((k === 'ArrowLeft' || k === 'ArrowUp') && o.onPrev) o.onPrev();
       else if ((k === 'ArrowRight' || k === 'ArrowDown') && o.onNext) o.onNext();
@@ -210,7 +211,7 @@
         if (!root.isConnected) { if (wasAttached) ro.disconnect(); return; }
         wasAttached = true;
         if (!v.w) return;
-        if (v.fit) fit(); else place();
+        if (v.fit) fit(); else place(true);
       });
       ro.observe(stage);
     }

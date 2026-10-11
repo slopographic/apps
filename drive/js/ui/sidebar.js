@@ -76,9 +76,10 @@
     keep.addEventListener('click', () => DR.requestPersist(true));
     const bk = el('button', { type: 'button', class: 'linkish' }, 'Backup & restore…');
     bk.addEventListener('click', () => DR.backupDialog());
+    const note = state ? el('p', { class: 'meter-note persist-note', 'data-state': state }, window.SlopPWA.persistMessage(state)) : null;
     box.replaceChildren(
       el('div', { class: 'meter-h' }, el('b', null, 'Storage'), el('span', null, usage != null ? `${DR.fmtSize(usage)} of ${DR.fmtSize(quota)}` : 'Unknown')), bar,
-      el('div', { class: 'meter-note' }, `Slop Drive: ${DR.fmtSize(drive)}. Everything stays in this browser.`), keep, bk);
+      el('div', { class: 'meter-note' }, `Slop Drive: ${DR.fmtSize(drive)}. Everything stays in this browser.`), ...(note ? [note] : []), keep, bk);
   };
 
   /** Mobile: the sidebar is a drawer. */

@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="css/contacts.css" data-src="contacts/css/contacts.css">
   <link rel="stylesheet" href="css/contacts-ui.css" data-src="contacts/css/contacts-ui.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app">
@@ -113,5 +114,7 @@
   <script src="js/app/storage.js" data-src="contacts/js/app/storage.js"></script>
   <script src="js/app/commands.js" data-src="contacts/js/app/commands.js"></script>
   <script src="js/app/main.js" data-src="contacts/js/app/main.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script>SlopPWA.mount();</script>
 </body>
 </html>
