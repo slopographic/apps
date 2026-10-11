@@ -28,6 +28,7 @@
     pdf: '<path d="M12 6h17l9 9v27H12z"/><path d="M29 6v9h9"/><path d="M16 32h4a3 3 0 0 0 0-6h-4v10M26 26h3a4 4 0 0 1 0 8h-3zM34 36v-10h4"/>',
     label: '<path d="M6 8h18l18 18-16 16L8 24z"/><circle cx="15" cy="16" r="3"/>',
     cutout: '<rect x="6" y="6" width="36" height="36" rx="3" stroke-dasharray="4 3"/><circle cx="24" cy="18" r="5"/><path d="M15 38c0-6 4-10 9-10s9 4 9 10"/>',
+    ocr: '<rect x="9" y="6" width="30" height="36" rx="3"/><path d="M15 15h11M15 21h18M15 27h7"/><path d="M31 25v12M28 25h6M28 37h6"/>',
     clean: '<path d="M24 6 8 12v12c0 10 7 17 16 18 9-1 16-8 16-18V12z"/><path d="m17 24 5 5 9-10"/>',
     ai: '<path d="M24 6l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/><path d="M38 6v6M35 9h6"/>',
     docs: '<path d="M12 6h17l9 9v27H12z"/><path d="M29 6v9h9M17 24h14M17 30h14M17 36h9"/>',

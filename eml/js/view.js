@@ -100,12 +100,16 @@
     list.replaceChildren();
     atts.forEach((a, i) => {
       const li = el('li', 'em-att');
-      const info = el('div', 'em-att-info');
+      const info = el('button', 'em-att-info');
+      info.type = 'button';
+      info.title = 'Preview ' + a.name;
+      info.setAttribute('aria-label', 'Preview ' + a.name);
       info.append(el('span', 'em-att-name', a.name));
       const meta = [a.type, size(a.size)];
       if (a.inline) meta.push('inline');
       if (a.malformed) meta.push('could not be read in full');
       info.append(el('span', 'em-att-meta', meta.join(' · ')));
+      info.addEventListener('click', () => window.EmlPreview.open(doc, i));
       const save = el('button', 'sui-btn em-att-save', 'Save');
       save.type = 'button';
       save.setAttribute('aria-label', 'Save ' + a.name);

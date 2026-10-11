@@ -16,7 +16,7 @@
     if (!data || data.v !== 1) return false;
     for (var i = 0; i < data.files.length; i++) {
       var fd = data.files[i];
-      try { await E.registerPdf(fd.bytes instanceof Uint8Array ? fd.bytes : new Uint8Array(fd.bytes), fd.name, null, { id: fd.id, color: fd.color, silent: true }); }
+      try { var rf = await E.registerPdf(fd.bytes instanceof Uint8Array ? fd.bytes : new Uint8Array(fd.bytes), fd.name, null, { id: fd.id, color: fd.color, silent: true }); rf.noLog = true; /* the autosave holds these edits */ }
       catch (e) { console.warn('Slop PDF: could not restore', fd.name, e); }
     }
     (data.assets || []).forEach(function (a) { E.assets.set(a.id, a); });
@@ -30,6 +30,7 @@
     return true;
   };
   E.closeAll = function () {
+    if (SP.editLog) SP.editLog.flush(); // keep this session's edits before the history is cleared
     E.files.forEach(function (f) { try { f.doc.destroy(); } catch (e) { /* ignore */ } });
     E.files.clear(); E.assets.clear(); E.dropCache();
     E.state = E.blankState(); E.resetHistory(); E._colorIdx = 0;

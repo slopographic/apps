@@ -22,6 +22,8 @@ export const APPS = {
     description: 'Remove a photo background with AI that runs on your own device. Refine the edges with a brush, replace with colour, blur or an image. No uploads.' },
   aitools: { title: 'Slop AI Tools: OCR, transcription and denoise on your device | Slopographic', category: 'MultimediaApplication',
     description: 'OCR for images and scanned PDFs, speech to text with .srt export, denoise with a before and after slider and portrait blur. Runs on your device.' },
+  ocr: { title: 'Slop OCR: read text from images and PDFs on your device | Slopographic', category: 'BusinessApplication',
+    description: 'Read text from photos and scanned PDFs on your device. Edit it, then save as TXT, Markdown, Word or a searchable PDF. Nothing is uploaded.' },
   clean: { title: 'SlopClean: see and remove hidden photo data | Slopographic', category: 'UtilitiesApplication',
     description: 'SlopClean shows the GPS, camera, serial and date fields hidden in a photo and removes them without re-encoding the picture. Nothing is uploaded.' },
   ai: { title: 'Slop AI: chat with a model on your own computer | Slopographic', category: 'BusinessApplication',

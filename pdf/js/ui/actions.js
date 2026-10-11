@@ -88,7 +88,7 @@
   /** Adds PDFs/images. opts.at = insertion index (default end). */
   A.addFiles = async function (files, opts) {
     opts = opts || {};
-    var newPages = [], errors = [], imgs = [], firstFile = null, total = files.length, k = 0;
+    var newPages = [], errors = [], imgs = [], firstFile = null, opened = [], total = files.length, k = 0;
     S.busy('Opening ' + (total > 1 ? total + ' files' : '“' + files[0].name + '”') + '…', 0);
     async function flushImages() {
       if (!imgs.length) return;
@@ -96,6 +96,7 @@
       try {
         var pdf = await E.imagesToPdf(imgs, { size: 'fit' });
         var f = await E.registerPdf(pdf, name.replace(/\.(png|jpe?g|webp|gif)$/i, '') + '.pdf', null);
+        f.noLog = true; // generated from images
         firstFile = firstFile || f; newPages = newPages.concat(E.pagesForFile(f));
       } catch (e) { errors.push('Images could not be converted: ' + (e.message || e)); }
       imgs = [];
@@ -112,7 +113,7 @@
           try {
             var f = await E.registerPdf(bytes, file.name, A.askPassword);
             if (f.locked) errors.push('“' + file.name + '” opened, but its encryption could not be removed (' + f.locked + '). Its pages can be viewed but not exported.');
-            firstFile = firstFile || f; newPages = newPages.concat(E.pagesForFile(f));
+            firstFile = firstFile || f; opened.push(f); newPages = newPages.concat(E.pagesForFile(f));
           } catch (e) { var msg = E.friendlyError(e, file.name); if (msg) errors.push(msg); }
         } else if (kind === 'png' || kind === 'jpeg' || kind === 'webp' || kind === 'gif' || kind === 'bmp') {
           imgs.push({ bytes: bytes, kind: kind, name: file.name });
@@ -124,6 +125,7 @@
       var at = opts.at == null ? E.state.pages.length : opts.at, wasEmpty = !E.state.pages.length;
       if (wasEmpty && firstFile) { var md = await E.readMeta(firstFile); if (md) E.state.meta = md; }
       E.commit(wasEmpty ? 'Open ' + (files.length > 1 ? files.length + ' files' : files[0].name) : 'Add pages', function (st) { E.ops.insert(st, at, newPages); });
+      for (var oi = 0; oi < opened.length; oi++) await SP.editLog.offer(opened[oi]); // saved edits from an earlier session
       if (!S.fileNameTouched) S.els.fileName.value = E.files.size > 1 ? 'merged.pdf' : U.safeName(U.baseName(firstFile.name) + '-edited', 'pdf');
       if (!wasEmpty) { O.setSelection(newPages.map(function (p) { return p.id; }), newPages[0].id); O.reveal(newPages[0].id); }
       A.announce('Added ' + newPages.length + ' page' + (newPages.length === 1 ? '' : 's'));
@@ -136,6 +138,7 @@
     try {
       var bytes = await E.makeSample();
       var f = await E.registerPdf(bytes, "Sloppo's Guide to Goo.pdf", null);
+      f.noLog = true; // random every time: nothing to replay
       var wasEmpty = !E.state.pages.length;
       if (wasEmpty) { var md = await E.readMeta(f); if (md) E.state.meta = md; }
       E.commit('Open sample', function (st) { E.ops.insert(st, st.pages.length, E.pagesForFile(f)); });

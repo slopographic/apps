@@ -36,8 +36,8 @@
     add('co.zoom-out', 'Zoom out', 'View', ['-'], () => a.zoom(0.8), { when: hasItem });
     add('co.panel', 'Show or hide settings panel', 'View', [], () => a.panel());
 
-    for (const [v, l] of [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic']]) {
-      add('co.theme-' + v, 'Theme: ' + l, 'View', [], () => a.theme(v), { checked: () => document.documentElement.dataset.theme === v });
+    for (const [v, l, s] of [['pro', 'Pro (dark)', 'dark'], ['light', 'Light', 'light'], ['classic', 'Classic', 'classic']]) {
+      add('co.theme-' + v, 'Theme: ' + l, 'View', [], () => a.theme(v), { checked: () => !!window.SlopTheme && SlopTheme.get() === s });
     }
     return C;
   }

@@ -1,4 +1,4 @@
-/* Slop PDF — document model: state, geometry (view <-> page space), undo/redo and page operations.
+/* Slop PDF — document model: state, geometry (view <-> page space) and page operations (undo/redo: core/history.js).
    Annotation geometry lives in the page's unrotated user space measured from the top-left of the
    visible box (pdf.js page.view), in PDF points. Box kinds (text, rect, ellipse, image, whiteout,
    hlbox, redact) have cx, cy, w, h, rot; path kinds (pen, marker, line, arrow) have pts [[u,v],...]. */
@@ -19,7 +19,7 @@
   E.blankState = blank;
   E.pagesForFile = function (f) {
     var out = [];
-    for (var i = 0; i < f.numPages; i++) out.push({ id: U.uid('p'), f: f.id, i: i, rot: 0, annots: [] });
+    for (var i = 0; i < f.numPages; i++) out.push({ id: f.id + '.' + i, f: f.id, i: i, rot: 0, annots: [] }); // stable ids: the saved log refers to them
     return out;
   };
   E.fileOfPage = function (p) { return p && p.f ? E.files.get(p.f) : null; };
@@ -79,41 +79,6 @@
     return a;
   };
 
-  /* ---------------------------------------------------------- undo / redo */
-  var undoS = [], redoS = [], lastKey = null, lastT = 0;
-  E.commit = function (label, fn, coalesce) {
-    var now = Date.now();
-    if (!(coalesce && coalesce === lastKey && now - lastT < 1500)) {
-      undoS.push({ label: label, snap: JSON.stringify(E.state) });
-      if (undoS.length > 300) undoS.shift();
-      redoS.length = 0;
-    }
-    lastKey = coalesce || null; lastT = now;
-    var r = fn(E.state);
-    E.emit('change', { label: label });
-    return r;
-  };
-  E.undo = function () {
-    var u = undoS.pop(); if (!u) return null;
-    redoS.push({ label: u.label, snap: JSON.stringify(E.state) });
-    E.state = JSON.parse(u.snap); lastKey = null;
-    E.emit('change', { label: 'Undo ' + u.label, history: true });
-    return u.label;
-  };
-  E.redo = function () {
-    var r = redoS.pop(); if (!r) return null;
-    undoS.push({ label: r.label, snap: JSON.stringify(E.state) });
-    E.state = JSON.parse(r.snap); lastKey = null;
-    E.emit('change', { label: 'Redo ' + r.label, history: true });
-    return r.label;
-  };
-  E.canUndo = function () { return undoS.length > 0; };
-  E.canRedo = function () { return redoS.length > 0; };
-  E.undoLabel = function () { return undoS.length ? undoS[undoS.length - 1].label : ''; };
-  E.redoLabel = function () { return redoS.length ? redoS[redoS.length - 1].label : ''; };
-  E.resetHistory = function () { undoS = []; redoS = []; lastKey = null; };
-  E.endCoalesce = function () { lastKey = null; };
-
   /* --------------------------------------------------- organizer operations */
   function idSet(ids) { var s = new Set(); ids.forEach(function (i) { s.add(i); }); return s; }
   E.ops = {
@@ -124,7 +89,7 @@
       st.pages.forEach(function (p) {
         out.push(p);
         if (s.has(p.id)) {
-          var c = JSON.parse(JSON.stringify(p)); c.id = U.uid('p');
+          var c = JSON.parse(JSON.stringify(p)); c.id = p.id + '#' + U.uid('p');
           c.annots.forEach(function (a) { a.id = U.uid('a'); });
           out.push(c); added.push(c.id);
         }

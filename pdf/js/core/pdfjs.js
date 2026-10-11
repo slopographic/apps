@@ -63,6 +63,7 @@
   /** Registers PDF bytes as a source file. Decrypts protected PDFs so they can be rewritten. */
   E.registerPdf = async function (bytes, name, askPassword, opts) {
     opts = opts || {};
+    var fp = await SP.editLog.fingerprint(bytes); // SHA-256 of the original bytes (null when unavailable)
     var r = await E.openPdfjs(bytes, name, askPassword), doc = r.doc, finalBytes = bytes, locked = null, decrypted = false;
     if (SP.decrypt.isEncrypted(bytes)) {
       try {
@@ -73,7 +74,11 @@
         }
       } catch (e) { locked = e.message || 'Unsupported encryption'; console.warn('Slop PDF: could not remove encryption', e); }
     }
-    var f = { id: opts.id || U.uid('f'), name: name, bytes: finalBytes, doc: doc, numPages: doc.numPages, color: opts.color || E.COLORS[E._colorIdx++ % E.COLORS.length], info: [], decrypted: decrypted, locked: locked, fields: undefined };
+    // A file's id comes from its fingerprint, so its pages and its saved edits line up when it is opened again.
+    // A second copy of the same file in one session gets a random id and is not logged.
+    var stable = fp ? 'f' + fp.slice(0, 16) : null;
+    var id = opts.id || (stable && !E.files.has(stable) ? stable : U.uid('f'));
+    var f = { id: id, name: name, bytes: finalBytes, doc: doc, numPages: doc.numPages, color: opts.color || E.COLORS[E._colorIdx++ % E.COLORS.length], info: [], decrypted: decrypted, locked: locked, fields: undefined, fp: fp, noLog: false };
     var n = doc.numPages, next = 0;
     async function worker() {
       while (next < n) { var i = next++; var pg = await doc.getPage(i + 1); f.info[i] = { view: pg.view.slice(), rotate: ((pg.rotate % 360) + 360) % 360 }; }
