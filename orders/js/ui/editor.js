@@ -170,10 +170,20 @@
     return { form: { id: st.id, customerId: st.customerId, date: st.date, notes: st.notes, currency: st.currency, lines: st.lines.map(M.cleanLine), pdfSeed: st.pdfSeed, pdfLayout: st.pdfLayout } };
   }
 
+  /** The save in flight, if any. A second save waits for it, so two saves never race (a new order would get two numbers). */
+  let inflight = null;
+
   /** Saves the form. A new order is a draft; an existing one keeps its status. */
-  async function save() {
+  function save() {
+    if (inflight) return inflight.then(() => save());
+    inflight = doSave().finally(() => { inflight = null; });
+    return inflight;
+  }
+
+  async function doSave() {
     const c = collect();
     if (c.error) { setMsg(c.error, true); return false; }
+    setMsg('Saving…');
     const r = await NS.orders.save(c.form);
     if (!r.ok) { setMsg(U.refusal(r), true); return false; }
     const created = !st.id;
@@ -185,8 +195,9 @@
     return true;
   }
 
-  /** Saves first when there are changes (or it is new), so an action always acts on what is on screen. */
+  /** Saves first when there are changes (or it is new), so an action always acts on what is on screen. Waits for a save in flight. */
   async function saveIfNeeded() {
+    if (inflight) { setMsg('Waiting for the save to finish…'); if (!(await inflight)) return false; }
     return !st.dirty && st.id ? true : save();
   }
 
@@ -220,10 +231,12 @@
     UI.toast(`${st.number} cancelled`);
   }
 
-  /** Saves first when there are changes, then downloads the order's PDF (the page's template and fields are what it shows). */
+  /** Saves first when there are changes, or waits for a save in flight, then downloads the order's PDF (the page's template and fields are what it shows). */
   async function exportPdf() {
     if (!(await saveIfNeeded())) return;
-    NS.page.exportPdf(st.id);
+    setMsg('Making the PDF…');
+    const done = await NS.page.exportPdf(st.id);
+    setMsg(done ? 'PDF downloaded.' : 'The PDF was not made.', !done);
   }
 
   async function convert() {

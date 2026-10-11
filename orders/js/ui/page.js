@@ -62,12 +62,14 @@
   }
 
   /** Downloads the order's PDF as <number>.pdf. A refusal says why. */
+  /** Downloads the order's PDF. Resolves true when it was made. */
   async function exportPdf(id) {
     const r = await NS.pdf.orderPdf(id);
-    if (!r.ok) { g.SlopUI.alert('PDF not made', `The PDF was not made: ${r.message || U.refusal(r)}.`); return; }
+    if (!r.ok) { g.SlopUI.alert('PDF not made', `The PDF was not made: ${r.message || U.refusal(r)}.`); return false; }
     const o = await NS.orders.get(id);
     g.SlopUI.download(new Blob([r.value], { type: 'application/pdf' }), `${o.value ? o.value.number : 'order'}.pdf`);
     g.SlopUI.toast('PDF downloaded');
+    return true;
   }
 
   function mount() {
