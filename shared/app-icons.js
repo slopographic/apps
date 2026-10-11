@@ -68,5 +68,6 @@
     reminders: '<path d="M13 34V22a11 11 0 0 1 22 0v12l3 4H10z"/><path d="M20 42h8"/><circle cx="24" cy="8" r="2"/>',
     sheetview: '<rect x="6" y="6" width="22" height="22" rx="2"/><path d="M6 14h22M6 22h22M14 6v22M22 6v22"/><circle cx="33" cy="33" r="6"/><path d="M37.5 37.5 41 41"/>',
     img3d: '<rect x="8" y="8" width="32" height="32" rx="3"/><path d="M8 32l10-10 6 6 6-8 10 12"/><circle cx="32" cy="16" r="3"/>',
+    html2pdf: '<path d="M12 6h17l9 9v27H12z"/><path d="M29 6v9h9"/><path d="M24 20v13M19 28l5 5 5-5"/><rect x="30" y="33" width="4" height="4"/>',
   });
 })();

@@ -19,7 +19,7 @@
       F('hidden', 'Hidden network', { kind: 'check' }),
     ],
     vcard: [
-      F('first', 'First name'), F('last', 'Last name'), F('org', 'Organisation'),
+      F('first', 'First name'), F('last', 'Last name'), F('org', 'Organisation'), F('title', 'Job title'),
       F('phone', 'Phone', { kind: 'tel' }), F('email', 'Email', { kind: 'email' }), F('url', 'Website', { kind: 'url' }),
       F('street', 'Street'), F('city', 'City'), F('postal', 'Postal code'), F('country', 'Country'),
     ],

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slop HTML to PDF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e0e10">
+  <meta name="color-scheme" content="dark light">
+  <script src="../shared/theme/theme.js" data-app="html2pdf" data-src="shared/theme/theme.js"></script>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../shared/fonts/fonts.css">
+  <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="h2p-app">
+    <header class="sl-appbar">
+      <div class="sl-appbar-brand"><span class="sl-appbar-logo" aria-hidden="true"></span><h1>Slop HTML to PDF</h1><span class="sl-appbar-tag">Nothing is uploaded.</span></div>
+      <div class="sl-appbar-actions">
+        <button type="button" class="sui-btn" id="h2p-open">Open HTML…</button>
+        <button type="button" class="sui-btn sui-primary" id="h2p-print" disabled>Print or save as PDF…</button>
+      </div>
+    </header>
+    <input type="file" id="h2p-file" accept=".html,.htm,text/html" hidden>
+
+    <main class="h2p-main">
+      <aside class="h2p-side" aria-label="Options">
+        <section class="h2p-group" aria-labelledby="h2p-h-source">
+          <h2 id="h2p-h-source">Source</h2>
+          <p class="h2p-note">Remote images and fonts do not load. Images inside the file (data: and blob:) do. For pictures next to the file, attach them below by file name.</p>
+          <label class="h2p-field">Paste HTML
+            <textarea class="h2p-input" id="h2p-paste" rows="5" spellcheck="false" placeholder="<h1>Paste HTML here</h1>"></textarea>
+          </label>
+          <button type="button" class="sui-btn" id="h2p-use-paste">Use pasted HTML</button>
+          <label class="h2p-field">Local images
+            <input type="file" id="h2p-images" class="h2p-input" accept="image/*" multiple>
+          </label>
+          <p class="h2p-note" id="h2p-image-list">No local images attached.</p>
+        </section>
+
+        <section class="h2p-group" aria-labelledby="h2p-h-paper">
+          <h2 id="h2p-h-paper">Paper</h2>
+          <label class="h2p-field">Paper size
+            <select class="h2p-input" id="h2p-paper">
+              <option value="A4" selected>A4</option>
+              <option value="Letter">Letter</option>
+              <option value="A5">A5</option>
+              <option value="Legal">Legal</option>
+            </select>
+          </label>
+          <label class="h2p-field">Orientation
+            <select class="h2p-input" id="h2p-orient">
+              <option value="portrait" selected>Portrait</option>
+              <option value="landscape">Landscape</option>
+            </select>
+          </label>
+          <label class="h2p-field">Margins
+            <select class="h2p-input" id="h2p-margin">
+              <option value="normal" selected>Normal (15 mm)</option>
+              <option value="narrow">Narrow (6 mm)</option>
+              <option value="none">None</option>
+            </select>
+          </label>
+          <label class="h2p-field">Scale
+            <select class="h2p-input" id="h2p-scale">
+              <option value="fit" selected>Fit to width</option>
+              <option value="100">100 percent</option>
+            </select>
+          </label>
+          <label class="h2p-check"><input type="checkbox" id="h2p-bg"> Background graphics</label>
+        </section>
+
+        <section class="h2p-group" aria-labelledby="h2p-h-header">
+          <h2 id="h2p-h-header">Page header</h2>
+          <label class="h2p-check"><input type="checkbox" id="h2p-header" checked> Show on every page</label>
+          <label class="h2p-field">QR code shows
+            <select class="h2p-input" id="h2p-qr-mode">
+              <option value="file" selected>The file name</option>
+              <option value="url">A URL I type</option>
+              <option value="text">Custom text</option>
+            </select>
+          </label>
+          <label class="h2p-field"><span id="h2p-qr-label">Custom text</span>
+            <input type="text" class="h2p-input" id="h2p-qr-text" autocomplete="off" disabled>
+          </label>
+        </section>
+      </aside>
+
+      <section class="h2p-stage" id="h2p-stage" aria-label="Preview">
+        <div class="h2p-empty" id="h2p-empty">
+          <h2>Drop an HTML file here</h2>
+          <p>Or open one, or paste HTML on the left. The file is read in this browser and never uploaded.</p>
+          <button type="button" class="sui-btn sui-primary" id="h2p-open-empty">Open HTML…</button>
+        </div>
+        <div class="h2p-paper-box" id="h2p-paper-box" hidden>
+          <iframe class="h2p-paper" id="h2p-paper-frame" title="Print preview" sandbox="allow-same-origin"></iframe>
+        </div>
+      </section>
+    </main>
+
+    <p class="h2p-status" id="h2p-status" role="status" aria-live="polite"></p>
+  </div>
+
+  <script src="../shared/slopui.js"></script>
+  <script src="../shared/apps.js"></script>
+  <script src="../vendor/bwip-js/bwip-js-min.js"></script>
+  <script src="../shared/print/print.js"></script>
+  <script src="js/sheet.js"></script>
+  <script src="js/source.js"></script>
+  <script src="js/qr.js"></script>
+  <script src="js/print-path.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
