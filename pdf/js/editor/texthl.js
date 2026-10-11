@@ -19,11 +19,12 @@
     var all = measure(str, fam);
     return all > 0 ? measure(str.slice(0, k), fam) / all : k / str.length;
   }
-  /** Page-space box of text-space x range [x0, x1] of an item (glyph band from below the baseline to the ascender). */
+  /** Page-space box of the item's user-space x range [x0, x1] (glyph band from below the baseline to the ascender). */
   function box(t, x0, x1, fs, view) {
+    var sx = Math.hypot(t[0], t[1]) || 1, dx = t[0] / sx, dy = t[1] / sx, ux = t[2] / fs, uy = t[3] / fs;
     var us = [], vs = [];
     [[x0, -0.22 * fs], [x0, 0.8 * fs], [x1, -0.22 * fs], [x1, 0.8 * fs]].forEach(function (c) {
-      var X = t[0] * c[0] + t[2] * c[1] + t[4], Y = t[1] * c[0] + t[3] * c[1] + t[5];
+      var X = t[4] + dx * c[0] + ux * c[1], Y = t[5] + dy * c[0] + uy * c[1];
       us.push(X - view[0]); vs.push(view[3] - Y);
     });
     return { x0: Math.min.apply(null, us), x1: Math.max.apply(null, us), top: Math.min.apply(null, vs), bottom: Math.max.apply(null, vs) };

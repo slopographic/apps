@@ -1,5 +1,6 @@
-// (In tests/contacts so the node tests in tests/node can import it.) Loads the Slop Contacts core (classic scripts, no DOM) into this Node process, so the codec tests run the same code
-// the page runs. window is set to globalThis; each file is evaluated in the global scope, in the order the page loads them.
+// Loads the Slop Contacts core (classic scripts, no DOM) into this Node process, so the codec tests run the same code the
+// page runs. window is set to globalThis; each file is evaluated in the global scope, in the order the page loads them.
+// It lives here (not in tests/node) so the node tests in tests/node can import it.
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import path from 'node:path';

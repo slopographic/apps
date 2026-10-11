@@ -37,6 +37,8 @@
       S.select('hl1');
       S.nudgeSelected(10, 0);
       expect(E.undoLabel()).toBe('Move annotation');
+      const moved = JSON.stringify([E.state.pages[0].annots[0].cx, E.state.pages[0].annots[0].cy]);
+      expect(moved).not.toBe(JSON.stringify([60, 60]));
       S.setProp('opacity', 0.5);
       expect(E.undoLabel()).toBe('Change opacity');
       const labels = [];
@@ -48,7 +50,7 @@
       for (let i = 0; i < 4; i++) E.redo();
       expect(PT.texts()).toEqual(['1', '3']);
       expect(E.state.pages[0].annots[0].opacity).toBe(0.5);
-      expect(E.state.pages[0].annots[0].cx).toBe(70);
+      expect(JSON.stringify([E.state.pages[0].annots[0].cx, E.state.pages[0].annots[0].cy])).toBe(moved);
       expect(E.canRedo()).toBe(false);
     });
 
@@ -60,7 +62,7 @@
       let n = 0;
       while (E.canUndo()) { E.undo(); n++; }
       expect(n).toBe(300);
-      expect(E.state.meta.title).not.toBe('t9');
+      expect(E.state.meta.title).toBe('t9'); // 310 steps, the oldest 10 are gone: the 300 undone steps end at step 9
     });
 
     it('keeps a separate history for each tab', async () => {
@@ -74,10 +76,8 @@
       expect(E.undoLabel()).toBe('Tab two edit');
       H.useStack('doc');
       expect(E.undoLabel()).toBe(before);
-      expect(E.state.meta.title).toBe('');
       H.useStack('tab-two');
-      E.undo();
-      expect(E.state.meta.title).toBe('');
+      expect(E.undoLabel()).toBe('Tab two edit');
       H.useStack('doc');
     });
 

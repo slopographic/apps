@@ -11,7 +11,7 @@
 .tbl-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 8px 14px 0; padding: 6px 8px; border-radius: 9px; background: var(--sl-accent-soft); font-size: 13px; }
 .tbl-bar .bulk-n { font-weight: 600; margin-right: auto; }
 .tbl-bar .text-btn { color: var(--sl-text); }
-.tbl-bar .text-btn.danger { color: var(--danger); }
+.tbl-bar .text-btn.danger { color: var(--sl-danger); }
 .tbl-scroll { flex: 1; min-height: 0; overflow: auto; margin-top: 8px; border-top: 1px solid var(--sl-border); }
 .tbl { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 760px; font-size: 14px; }
 .tbl th { position: sticky; top: 0; z-index: 1; text-align: left; padding: 6px 10px; background: var(--sl-surface); border-bottom: 1px solid var(--sl-border); font-size: 12px; font-weight: 600; color: var(--sl-text-muted); white-space: nowrap; }

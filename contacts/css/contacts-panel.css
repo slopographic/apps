@@ -3,7 +3,7 @@
 :root {
   --sl-background: var(--bg); --sl-surface: var(--panel); --sl-surface-2: var(--panel-2); --sl-text: var(--ink);
   --sl-text-muted: var(--mute); --sl-border: var(--line); --sl-accent: var(--accent); --sl-accent-soft: var(--accent-soft);
-  --sl-on-accent: var(--accent-ink);
+  --sl-on-accent: var(--accent-ink); --sl-danger: var(--danger);
 }
 
 /* Filter section (left column, under Pipeline) */
@@ -35,7 +35,7 @@
 .imp-dlg { width: min(680px, 94vw); }
 .imp-wrap { max-height: 46vh; overflow: auto; border: 1px solid var(--sl-border); border-radius: 8px; }
 .imp-sum { font-weight: 600; margin: 0 0 10px; }
-.imp-warn { color: var(--danger); }
+.imp-warn { color: var(--sl-danger); }
 .imp-list { list-style: none; margin: 0; padding: 0; }
 .imp-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px; align-items: baseline; padding: 7px 10px; border-bottom: 1px solid var(--sl-border); font-size: 13px; }
 .imp-row.is-dup { background: var(--sl-surface-2); }

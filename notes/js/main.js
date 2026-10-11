@@ -41,7 +41,7 @@ function wire() {
     SlopUI.menu(items, r.left, r.bottom + 4);
   });
   $('nt-q').addEventListener('input', (e) => { S.query = e.target.value; renderList(); });
-  wireEditor({ list: renderList, side: renderSide });
+  wireEditor({ list: () => { renderList(); tabs.refresh(); }, side: renderSide }); // a typed title also renames the tab
   if (window.SlopCtx) SlopCtx.bind($('nt-app'), resolveMenu);
 }
 
