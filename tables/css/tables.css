@@ -54,24 +54,35 @@ body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); o
 .fx:focus, .namebox:focus, .fname input:focus, .editor:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 
 /* grid */
-.grid { position: relative; flex: 1; min-height: 0; overflow: hidden; background: var(--surface); outline: none; user-select: none; cursor: default; }
-.corner { position: absolute; left: 0; top: 0; width: 46px; height: 22px; background: var(--head-bg); border-right: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); z-index: 3; }
-.colhead { position: absolute; left: 46px; top: 0; right: 0; height: 22px; overflow: hidden; background: var(--head-bg); border-bottom: 1px solid var(--line-2); z-index: 3; }
-.rowhead { position: absolute; left: 0; top: 22px; bottom: 0; width: 46px; overflow: hidden; background: var(--head-bg); border-right: 1px solid var(--line-2); z-index: 3; }
-.ch, .rh { position: absolute; box-sizing: border-box; color: var(--dim); font: 11px/22px var(--font-ui); text-align: center; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; }
+/* Grid colours come from the shared theme's --sl-* tokens (set on <html> by shared/theme/theme.js). Each has a fallback
+   to this app's own palette, and the grid line falls back to a mid grey so the cells keep visible borders. */
+.grid {
+  --g-surface: var(--sl-surface, var(--surface));
+  --g-text: var(--sl-text, var(--fg));
+  --g-line: var(--sl-border, #8e8b82);
+  --g-accent: var(--sl-accent, var(--accent));
+  --g-head: color-mix(in srgb, var(--g-surface) 86%, var(--g-text));
+  --g-head-on: color-mix(in srgb, var(--g-accent) 30%, var(--g-surface));
+  --g-sel: color-mix(in srgb, var(--g-accent) 14%, transparent);
+  position: relative; flex: 1; min-height: 0; overflow: hidden; background: var(--g-surface); color: var(--g-text); outline: none; user-select: none; cursor: default;
+}
+.corner { position: absolute; left: 0; top: 0; width: 46px; height: 22px; background: var(--g-head); border-right: 1px solid var(--g-line); border-bottom: 1px solid var(--g-line); z-index: 3; }
+.colhead { position: absolute; left: 46px; top: 0; right: 0; height: 22px; overflow: hidden; background: var(--g-head); border-bottom: 1px solid var(--g-line); z-index: 3; }
+.rowhead { position: absolute; left: 0; top: 22px; bottom: 0; width: 46px; overflow: hidden; background: var(--g-head); border-right: 1px solid var(--g-line); z-index: 3; }
+.ch, .rh { position: absolute; box-sizing: border-box; color: var(--g-text); font: 11px/22px var(--font-ui); text-align: center; border-right: 1px solid var(--g-line); border-bottom: 1px solid var(--g-line); overflow: hidden; }
 .ch { top: 0; height: 22px; }
 .rh { left: 0; width: 46px; text-align: right; padding-right: 6px; line-height: inherit; }
-.ch.on, .rh.on { background: var(--head-on); color: var(--fg); }
+.ch.on, .rh.on { background: var(--g-head-on); color: var(--g-text); }
 .vp { position: absolute; left: 46px; top: 22px; right: 0; bottom: 0; overflow: auto; z-index: 1; }
 .sizer { position: relative; }
 .plane { position: absolute; left: 46px; top: 22px; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 2; }
-.cell { position: absolute; box-sizing: border-box; padding: 0 5px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--fg); }
+.cell { position: absolute; box-sizing: border-box; padding: 0 5px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; background: var(--g-surface); border-right: 1px solid var(--g-line); border-bottom: 1px solid var(--g-line); color: var(--g-text); }
 .cell.a-l { text-align: left; } .cell.a-r { text-align: right; } .cell.a-c { text-align: center; }
 .cell.b { font-weight: 700; } .cell.i { font-style: italic; }
 .cell.err { color: var(--danger); }
-.selrect { position: absolute; box-sizing: border-box; border: 1px solid var(--accent); background: var(--sel-bg); }
-.cursor { position: absolute; box-sizing: border-box; border: 2px solid var(--accent); }
-.editor { position: absolute; box-sizing: border-box; visibility: hidden; pointer-events: auto; z-index: 4; font: 13px var(--font-ui); color: var(--fg); background: var(--input); border: 2px solid var(--accent); padding: 0 5px; margin: 0; border-radius: 0; }
+.selrect { position: absolute; box-sizing: border-box; border: 1px solid var(--g-accent); background: var(--g-sel); }
+.cursor { position: absolute; box-sizing: border-box; border: 2px solid var(--g-accent); }
+.editor { position: absolute; box-sizing: border-box; visibility: hidden; pointer-events: auto; z-index: 4; font: 13px var(--font-ui); color: var(--g-text); background: var(--g-surface); border: 2px solid var(--g-accent); padding: 0 5px; margin: 0; border-radius: 0; }
 
 /* sheet tabs and status */
 .bottombar { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 6px; background: var(--panel); border-top: 1px solid var(--line); flex: none; }
