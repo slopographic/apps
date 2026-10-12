@@ -14,25 +14,43 @@
   const { reset } = ConsentTest;
 
   describe('the mascot never covers the consent buttons', () => {
-    it('while he is perched, the Accept button is the element under its centre, at every scroll position', async () => {
+    it('while he is perched, the Accept button is the element under its centre', async () => {
       reset();
       const w = await HomeTest.openHome();
       const doc = w.document, S = w.SlopMascot;
       const strip = () => doc.getElementById('slopc-banner');
       const accept = () => strip().querySelector('[data-act="accept"]');
+      const stripTop = () => strip().getBoundingClientRect().top;
       const hitsAccept = () => {
         const b = accept().getBoundingClientRect();
         const hit = doc.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
         return !!hit && accept().contains(hit);
       };
+      const perchedNow = () => waitFor(() => S.M.mode === 'perched', { timeout: 4000 }).then(() => true, () => false);
       await waitFor(() => strip() && accept());
       const max = Math.max(0, doc.documentElement.scrollHeight - w.innerHeight);
+
+      // The hard case: a perch whose top edge sits just inside the strip. He would stand with his body over the buttons.
+      let target = null;
+      for (const el of doc.querySelectorAll('[data-perch]')) {
+        const r = el.getBoundingClientRect();
+        const want = w.scrollY + r.top - (stripTop() + 6);
+        if (r.width < 40 || want < 0 || want > max) continue;
+        w.scrollTo(0, want);
+        await sleep(50);
+        if (Math.abs(el.getBoundingClientRect().top - (stripTop() + 6)) < 2) { target = el; break; }
+      }
+      expect(target).toBeTruthy();
+      S.hopTo({ el: target, frac: 0.5 });
+      await sleep(400);
+      if (await perchedNow()) expect(hitsAccept()).toBe(true);
+
+      // And at other scroll positions, whenever he is perched.
       let checked = 0;
       for (const f of [0, 0.25, 0.5, 0.75, 1]) {
         w.scrollTo(0, Math.round(max * f));
         await sleep(250);
-        const perched = await waitFor(() => S.M.mode === 'perched', { timeout: 4000 }).then(() => true, () => false);
-        if (!perched) continue;
+        if (!(await perchedNow())) continue;
         checked++;
         expect(hitsAccept()).toBe(true);
       }
