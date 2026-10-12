@@ -14,7 +14,9 @@
   F.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ESC[c]);
 
   F.bodyHtml = function (msg, withCids) {
-    const h = String(msg.html || '').replace(/<meta\b[^>]*http-equiv\s*=\s*["']?refresh[^>]*>/gi, '');
+    let h = String(msg.html || '').replace(/<meta\b[^>]*http-equiv\s*=\s*["']?refresh[^>]*>/gi, '');
+    // Scripts never run here (the frame has no allow-scripts), so they are removed rather than left to be blocked.
+    h = h.replace(/<script\b[\s\S]*?<\/script\s*>/gi, '').replace(/<script\b[^>]*>/gi, '');
     return withCids ? M.embedCids(h, msg.cids).html : h;
   };
 
