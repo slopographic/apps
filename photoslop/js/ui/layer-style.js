@@ -116,9 +116,3 @@ function addStyleEffect(typeId) {
   if (lsHasSection(typeId)) openLayerStyle(L.id, typeId); else openFxDialog(L.id, null, typeId);
 }
 
-/** Edits one stack entry: its section in the Layer Style dialog, or its own dialog for the effects without one. */
-function editFxEntry(layerId, fxId) {
-  const e = fxOf(layerId).find((x) => x.id === fxId);
-  if (!e) return;
-  if (lsHasSection(e.type)) openLayerStyle(layerId, e.type); else openFxDialog(layerId, fxId);
-}

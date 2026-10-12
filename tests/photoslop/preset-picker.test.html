@@ -83,8 +83,10 @@
       await waitFor(() => q(`.sp-row[data-id="${saved.id}"]`));
       q(`.sp-row[data-id="${saved.id}"]`).click(); await sleep(30);
       q('.sp-tools .sui-danger').click();
-      await waitFor(() => win.document.querySelector('.sui-back:not(.sui-out) .sui-danger'), { timeout: 3000 });
-      win.document.querySelector('.sui-back:not(.sui-out) .sui-danger').click();
+      // The confirm dialog is the top one (the picker is underneath it).
+      await waitFor(() => win.document.querySelectorAll('.sui-back:not(.sui-out)').length >= 2, { timeout: 3000 });
+      const top = [...win.document.querySelectorAll('.sui-back:not(.sui-out)')].pop();
+      top.querySelector('.sui-danger').click();
       await waitFor(() => !W.SlopPresets.get(saved.id), { timeout: 5000 });
       await closeWithX();
       expect(types(layer(id))).toEqual([]);
