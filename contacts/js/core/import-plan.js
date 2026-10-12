@@ -28,13 +28,14 @@
   }
   const label = (k) => (k.startsWith('p:') ? 'phone +' + k.slice(2) : 'e-mail ' + k.slice(2));
 
-  /** One row per incoming contact: { c, match (the first existing contact sharing a key, or null), why: ['phone …'] }. */
+  /** One row per incoming contact: { c, match (the first existing contact sharing a key, or null), why: ['phone …'] }.
+   *  A contact with the same id (an X-SLOP-ID from the Drive bundle) is a match first. */
   function plan(existing, incoming, cc) {
-    const index = new Map();
+    const index = new Map(), byId = new Map(existing.map((e) => [e.id, e]));
     for (const e of existing) for (const k of new Set(matchKeys(e, cc))) if (!index.has(k)) index.set(k, e);
     return (incoming || []).map((c) => {
-      let match = null;
-      const why = [];
+      let match = byId.get(c.id) || null;
+      const why = match ? ['the same id'] : [];
       for (const k of new Set(matchKeys(c, cc))) {
         const e = index.get(k);
         if (!e) continue;
