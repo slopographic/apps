@@ -17,7 +17,7 @@
 
   /* ---------------------------------------------------------------- boot */
   A.boot = function () {
-    ['app', 'rail', 'stage', 'grid', 'viewer', 'empty', 'props', 'ctxGrid', 'ctxPage', 'status', 'fileName', 'btnDownload', 'btnUndo', 'btnRedo', 'menus', 'btnMore', 'btnPanel', 'live', 'busy', 'dropOverlay', 'restore', 'gridWrap']
+    ['app', 'rail', 'stage', 'grid', 'viewer', 'empty', 'props', 'ctxGrid', 'ctxPage', 'status', 'fileName', 'btnDownload', 'btnConvert', 'btnUndo', 'btnRedo', 'menus', 'btnMore', 'btnPanel', 'live', 'busy', 'dropOverlay', 'restore', 'gridWrap']
       .forEach(function (id) { S.els[id] = document.getElementById(id); });
     S.buildRail(); S.buildMenus(); S.buildCtxBars();
     O.init(S.els.grid, S.els.gridWrap);
@@ -30,7 +30,7 @@
     S.els.btnRedo.addEventListener('click', function () { A.redo(); });
     S.els.btnPanel.addEventListener('click', function () { A.togglePanel(); });
     S.els.fileName.addEventListener('input', function () { S.fileNameTouched = true; });
-    S.els.fileName.addEventListener('change', function () { S.els.fileName.value = U.safeName(S.els.fileName.value, 'pdf'); });
+    S.els.fileName.addEventListener('change', function () { var v = S.els.fileName.value; A.rename(String(v).trim() ? v : 'document.pdf'); });
     $('#emptyOpen').addEventListener('click', function () { A.openDialog(); });
     $('#emptySample').addEventListener('click', function () { A.loadSample(); });
     S.els.restore.addEventListener('click', function () { A.restoreSession(); });
@@ -41,9 +41,9 @@
     E.initFonts().catch(function (e) { console.warn(e); });
     // warm up pdf.js so the first open is snappy
     E.pdfjs().catch(function (e) { A.status('Could not load the PDF engine: ' + e.message, 'err'); });
-    A.restoreView(); // ui/view-state.js: the saved session (autosave) and the view it was left in
+    A.startTabs(); // ui/doc-tabs.js: the strip, and the tabs stored on this device (the document on screen opens first)
+    A.restoreView(); // ui/view-state.js: the view the open tab was left in, once the tabs are open
     if (SP.offline) document.documentElement.classList.add('is-offline');
-    document.documentElement.classList.add('ready');
   };
 
   /* ---------------------------------------------------------------- rail */
@@ -115,6 +115,7 @@
     S.els.ctxPage.hidden = !has || A.mode !== 'page';
     if (A.mode === 'page') { var n = $('#pvNum'); if (n) n.textContent = (E.indexOf(Ed.pid) + 1) + ' / ' + E.state.pages.length; }
     S.els.btnDownload.disabled = !has;
+    if (S.els.btnConvert) S.els.btnConvert.disabled = !has;
     A.toolChanged();
     S.updateUndo(); S.updateStatus();
   }

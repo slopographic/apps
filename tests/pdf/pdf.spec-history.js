@@ -69,16 +69,17 @@
       PT.reset();
       const E = PT.E, H = PT.SP.history;
       await PT.open(await PT.makePdf([{ text: 'x' }]), 'tabs.pdf');
-      const before = E.undoLabel();
+      // each open tab has its own stack, keyed by the tab's document (the key of the document on screen is H.stackKey())
+      const home = H.stackKey(), before = E.undoLabel();
       H.useStack('tab-two');
       expect(E.canUndo()).toBe(false);
       E.commit('Tab two edit', (st) => { st.meta.title = 'two'; });
       expect(E.undoLabel()).toBe('Tab two edit');
-      H.useStack('doc');
+      H.useStack(home);
       expect(E.undoLabel()).toBe(before);
       H.useStack('tab-two');
       expect(E.undoLabel()).toBe('Tab two edit');
-      H.useStack('doc');
+      H.useStack(home);
     });
 
     it('Ctrl+Z undoes, Ctrl+Shift+Z and Ctrl+Y redo', async () => {

@@ -75,16 +75,18 @@
       } catch (e) { locked = e.message || 'Unsupported encryption'; console.warn('Slop PDF: could not remove encryption', e); }
     }
     // A file's id comes from its fingerprint, so its pages and its saved edits line up when it is opened again.
-    // A second copy of the same file in one session gets a random id and is not logged.
+    // A second copy of the same file in one session (or in another open tab) gets a random id and is not logged.
+    // opts.files is the file map of a tab that is not on screen (io/doc-state.js); the default is the open document.
+    var files = opts.files || E.files;
     var stable = fp ? 'f' + fp.slice(0, 16) : null;
-    var id = opts.id || (stable && !E.files.has(stable) ? stable : U.uid('f'));
+    var id = opts.id || (stable && !files.has(stable) && !E.fileIdTaken(stable, files) ? stable : U.uid('f'));
     var f = { id: id, name: name, bytes: finalBytes, doc: doc, numPages: doc.numPages, color: opts.color || E.COLORS[E._colorIdx++ % E.COLORS.length], info: [], decrypted: decrypted, locked: locked, fields: undefined, fp: fp, noLog: false };
     var n = doc.numPages, next = 0;
     async function worker() {
       while (next < n) { var i = next++; var pg = await doc.getPage(i + 1); f.info[i] = { view: pg.view.slice(), rotate: ((pg.rotate % 360) + 360) % 360 }; }
     }
     await Promise.all([worker(), worker(), worker(), worker()]);
-    E.files.set(f.id, f);
+    files.set(f.id, f);
     if (!opts.silent) E.emit('files');
     return f;
   };

@@ -250,7 +250,33 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   layouts. Drifting to the left was not reproduced. Pan: drag empty space, Space+drag, middle drag, scrollbars.
 - Tests: `tests/pdf/find.test.html`, `replace.test.html`, `edit.test.html`, `pages.test.html`;
   `tests/node/pdf-find.test.mjs`. Offline build lists and `pdf/css/find.css`, `page-acts.css` updated.
-- **Not done**: document tabs with SlopDocTabs and drop-to-open / drop-to-add-pages (the app holds one document in
-  `E.files`/`E.state` and its own autosave; per-tab state needs a swap of those globals and history stacks).
+- **Document tabs** (`js/ui/doc-tabs.js`, `js/io/doc-state.js`): every open document is a tab of the shared strip
+  (`shared/doctabs`, unchanged). The editor still works on the globals `E.files`/`E.assets`/`E.state`; a tab's record
+  (`SP.docs.make`) takes them over when the tab is shown and keeps them when it is left (`swapIn`/`swapOut`): files, state,
+  view (`A.viewNow`/`A.applyView`: tool, mode, page, zoom, layout, scroll), file name, undo stack (`H.useStack` keyed by the
+  record id) and edit log (`SP.editLog.flush` before and after the swap). A stored tab is only its saved form until it is
+  shown (`D.load` reads the files with pdf.js into its own maps; no live state is touched). A file already open in another
+  tab gets a random id and is not logged (`E.fileIdTaken`), so the edit log and thumbnail cache keys never collide.
+  `A.driveId` is a view of the open tab's Drive link; rename goes through the strip (`SP.tabs.rename`), which keeps the tab,
+  the top-bar name and a Drive-linked file in step. Storage: the strip's own (`slop.doctabs.pdf.v1`, IndexedDB `slop-doctabs`);
+  `session` in IndexedDB is a mirror of the open document without file bytes (the tests and the old readers use it).
+  Autosave off stores nothing (`serialize` throws, the strip keeps no content) and deletes the stored tabs.
+- **Drops** (`js/ui/doc-drop.js`, routed from `ui/input.js`): on the strip each file opens in a new tab; a PDF already
+  open in a tab asks first. On the document (or anywhere else while one is open) the pages are added at a position the
+  person picks (start, end or after page N) as one `addFiles` commit (one undo step); a PDF already in the document asks
+  first. With no document open a drop just opens the files. While a file opens or a tab loads, the strip and its keys are
+  locked (`html.is-locked`) so the pages cannot land in another tab. `A.dropHint` changes the overlay text.
+- **Convert** (`shared/convert/dialog.js`, `targets.js`, `dialog.css`; `window.SlopConvert.open({ file, drive })`): the
+  toolbar button and File ▸ Convert… pass the open document (as a PDF, edits included). The targets are the converters of
+  `convert/js/core/catalog.js` that take every open file (`targetsFor`); PDF to PNG and PDF to JPG are the one "PDF to
+  images" converter with the format set, and PDF to text is added in `targets.js` (no converter in convert/js yet; no
+  PDF to HTML). Merge needs two files: "Add files…" in the dialog picks more. Options are the converter's own. Results:
+  Download, Download all as ZIP, and Save to Slop Drive when the document is linked. Not in the offline file (the module
+  script is `data-offline="strip"`; the button and menu item are hidden there).
+- **Still to do**: the service worker precache does not list the new files yet (run `node tools/pwa-precache.mjs` and
+  bump VERSION, see below); a PDF to HTML target; Drive open into a tab from the strip (only File ▸ Open from Slop Drive).
+- Tests: `tests/pdf/tabs.test.html` (two tabs and their state, strip drop and its duplicate prompt, page drop with the
+  position and undo, reload, the Convert button); `tests/convert/dialog.test.html` (targets for a PDF, PNG, PDF to text,
+  a second file for Merge). `pdf.spec-history.js` now takes the home stack key from `H.stackKey()` (the key of a tab).
 - After any change to script or CSS lists, run `node tools/pwa-precache.mjs` and bump VERSION in `service-worker.js`
   (the new files are not in the precache until it is run).

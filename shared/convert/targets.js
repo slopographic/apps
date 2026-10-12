@@ -1,0 +1,54 @@
+/* The conversions the Convert dialog offers. Every target is a converter from convert/js/core/catalog.js (its run and options are
+ * reused as they are), except two things added here: a PDF converter presented once per output (PDF to PNG, PDF to JPG, from
+ * the one "PDF to images" converter), and PDF to text, which no converter in convert/js has yet. A target says which kinds it
+ * takes (from), how many files it needs (min) and its options. Classic conventions, ES module. */
+import { CONVERSIONS } from '../../convert/js/core/catalog.js';
+import { openPdf } from '../../convert/js/core/pdf-raster.js';
+import { parseRange } from '../../convert/js/core/range.js';
+
+/** A converter with some options fixed (PDF to PNG is "PDF to images" with the format set and the format choice hidden). */
+function preset(base, id, label, fixed, hide) {
+  return { ...base, id, label, options: base.options.filter((o) => !hide.includes(o.key)), run: (files, o) => base.run(files, { ...o, ...fixed }) };
+}
+
+/** PDF to text: the text layer of each page, pages in order, separated by a blank line. */
+async function pdfToText(files, o) {
+  const f = files[0];
+  const stem = String(f.name).replace(/\.[^.]+$/, '') || 'document';
+  const pdf = await openPdf(new Uint8Array(await f.file.arrayBuffer()));
+  try {
+    const pages = parseRange(o.pages, pdf.numPages);
+    const parts = [];
+    for (const n of pages) {
+      const tc = await (await pdf.getPage(n)).getTextContent();
+      let text = '';
+      for (const item of tc.items) text += item.str + (item.hasEOL ? '\n' : ' ');
+      parts.push(text.replace(/[ \t]+\n/g, '\n').trim());
+    }
+    return [{ name: `${stem}.txt`, blob: new Blob([parts.join('\n\n')], { type: 'text/plain' }) }];
+  } finally {
+    pdf.destroy();
+  }
+}
+const PDF_TEXT = {
+  id: 'pdf-to-text', label: 'PDF to text', group: 'PDF', from: ['pdf'], mode: 'each', options: [
+    { key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page. Scanned pages have no text unless they were OCR’d.' },
+  ], run: pdfToText,
+};
+
+export const TARGETS = CONVERSIONS.flatMap((c) => {
+  if (c.id === 'pdf-to-images') {
+    return [
+      preset(c, 'pdf-to-png', 'PDF to PNG', { format: 'png' }, ['format', 'quality']),
+      preset(c, 'pdf-to-jpg', 'PDF to JPG', { format: 'jpg' }, ['format']),
+      PDF_TEXT,
+    ];
+  }
+  if (c.id === 'merge-pdf') return [{ ...c, min: 2 }];
+  return [c];
+});
+
+/** The targets every one of the given kinds can take, for `count` files. */
+export function targetsFor(kinds, count) {
+  return TARGETS.filter((t) => count >= (t.min || 1) && kinds.every((k) => t.from.includes('*') || t.from.includes(k)));
+}
