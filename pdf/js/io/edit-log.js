@@ -57,6 +57,11 @@
       Object.keys(en.ch).forEach(function (id) {
         [0, 1].forEach(function (s) { ((en.ch[id][s] || {}).annots || []).forEach(function (a) { if (a.asset && !seen[a.asset] && E.assets.get(a.asset)) { seen[a.asset] = 1; assets.push(E.assets.get(a.asset)); } }); });
       });
+      // logos of watermark layers (document-level stamps)
+      [0, 1].forEach(function (s) {
+        var st = (en.top && en.top.stamps && en.top.stamps[s]) || null;
+        if (st && st.watermarks) SlopPdfWm.assetIds(st.watermarks).forEach(function (id) { if (!seen[id] && E.assets.get(id)) { seen[id] = 1; assets.push(E.assets.get(id)); } });
+      });
     });
     return { v: 1, fid: r.f.id, fp: r.f.fp, name: r.f.name, primary: r.primary, savedAt: Date.now(), entries: r.entries, assets: assets };
   }

@@ -39,7 +39,7 @@
     var set = function (k) { return function (v) { Ed.setProp(k, v); }; };
     var kids = [];
     if (type === 'select' && !a) { box.appendChild(section('Selection', [note('Click an annotation to select it. Drag to move, use the handles to resize, double-click text to edit. Drag empty space to pan; Ctrl/⌘ + wheel or pinch to zoom.')])); return; }
-    if (type === 'text') {
+    if (type === 'text' || type === 'callout') {
       kids.push(row('Font', select([['Helvetica', 'Helvetica (sans)'], ['Times', 'Times (serif)'], ['Courier', 'Courier (mono)']], d.font, set('font'))));
       kids.push(row('Size', num(d.size || 16, 4, 400, 1, set('size')), 'pt'));
       kids.push(h('div', { class: 'btn-row' },
@@ -52,6 +52,11 @@
     }
     if (type === 'rect' || type === 'ellipse') kids.push(row('Fill', colorPicker(d.fill || 'none', set('fill'), true)));
     if (type === 'texthl') kids.push(row('Colour', colorPicker(d.color, set('color'))));
+    if (type === 'callout') {
+      kids.push(row('Border', slider(d.borderW == null ? 1.2 : d.borderW, 0, 8, 0.2, set('borderW'), function (v) { return v + ' pt'; })));
+      kids.push(row('Border colour', colorPicker(d.borderC, set('borderC'))));
+    }
+    if (type === 'note') { box.appendChild(a ? noteSection(a) : section('New comment', [note('Choose the Comment tool and click on a page. Type the comment in the popup, then Save.')])); return; }
     if (type === 'whiteout' || type === 'hlbox') kids.push(row(type === 'whiteout' ? 'Cover colour' : 'Colour', colorPicker(d.fill, set('fill'))));
     if (type === 'redact') { box.appendChild(section(a ? 'Selected: Redaction mark' : 'New redaction mark', [note('Drag over anything that must be removed. Marks are hatched red until you apply them in the Redact panel; applying replaces the page with an image and removes the content for good.', 'warn'), h('div', { class: 'btn-row' }, btn('Open Redact panel', 'redact', function () { SP.app.setTool('redact'); }), a ? btn('Delete', 'trash', function () { Ed.deleteSelected(); }, 'danger-text') : null)])); return; }
     if (type !== 'whiteout') kids.push(row('Opacity', slider(Math.round((d.opacity == null ? 1 : d.opacity) * 100), 5, 100, 1, function (v) { Ed.setProp('opacity', v / 100); }, function (v) { return v + '%'; })));
@@ -60,12 +65,21 @@
     box.appendChild(section((a ? 'Selected: ' : 'New ') + (names[type] || type), kids));
     if (a) {
       box.appendChild(section(null, [h('div', { class: 'btn-grid' },
-        a.type === 'text' ? btn('Edit text', 'text', function () { Ed.editSelectedText(); }) : null,
+        a.type === 'text' || a.type === 'callout' ? btn('Edit text', 'text', function () { Ed.editSelectedText(); }) : null,
         btn('Duplicate', 'copy', function () { Ed.duplicateSelected(); }),
         btn('Bring to front', 'plus', function () { zorder(a.id, 1); }),
         btn('Send to back', 'reverse', function () { zorder(a.id, -1); }),
         btn('Delete', 'trash', function () { Ed.deleteSelected(); }, 'danger-text'))]));
     }
+  }
+  /** A selected comment: who wrote it, how many replies, and the actions (the thread itself is the popup). */
+  function noteSection(a) {
+    var n = (a.replies || []).length;
+    return section(a ? 'Selected: Comment' : 'Comment', [note((a.author || 'Unnamed') + ' · ' + (n ? n + ' repl' + (n === 1 ? 'y' : 'ies') : 'no replies') + (a.resolved ? ' · resolved' : '') + '. Click the icon to open the thread; hover to preview it. Comments are saved as PDF annotations on download.'),
+      h('div', { class: 'btn-grid' },
+        btn('Open thread', 'comments', function () { Ed.noteUI.open(a.id); }),
+        btn(a.resolved ? 'Reopen' : 'Resolve', 'check', function () { Ed.setNoteResolved(a.id, !a.resolved); }),
+        btn('Delete', 'trash', function () { Ed.deleteNote(a.id); }, 'danger-text'))]);
   }
   function zorder(id, dir) {
     var pid = SP.editor.pid;

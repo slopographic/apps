@@ -75,6 +75,7 @@
   <link rel="stylesheet" href="css/panels.css" data-src="pdf/css/panels.css">
   <link rel="stylesheet" href="css/redact.css" data-src="pdf/css/redact.css">
   <link rel="stylesheet" href="css/assets.css" data-src="pdf/css/assets.css">
+  <link rel="stylesheet" href="css/notes.css" data-src="pdf/css/notes.css">
   <link rel="stylesheet" href="css/themes.css" data-src="pdf/css/themes.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
@@ -176,9 +177,13 @@
   <script src="js/core/model.js" data-src="pdf/js/core/model.js"></script>
   <script src="js/core/history.js" data-src="pdf/js/core/history.js"></script>
   <script src="js/core/text.js" data-src="pdf/js/core/text.js"></script>
+  <script src="js/core/watermark.js" data-src="pdf/js/core/watermark.js"></script>
+  <script src="js/core/watermark-annots.js" data-src="pdf/js/core/watermark-annots.js"></script>
   <script src="js/core/pdfjs.js" data-src="pdf/js/core/pdfjs.js"></script>
   <script src="js/io/forms.js" data-src="pdf/js/io/forms.js"></script>
   <script src="js/io/export.js" data-src="pdf/js/io/export.js"></script>
+  <script src="js/io/export-notes.js" data-src="pdf/js/io/export-notes.js"></script>
+  <script src="js/io/export-callout.js" data-src="pdf/js/io/export-callout.js"></script>
   <script src="js/redact/find.js" data-src="pdf/js/redact/find.js"></script>
   <script src="js/redact/apply.js" data-src="pdf/js/redact/apply.js"></script>
   <script src="js/io/convert.js" data-src="pdf/js/io/convert.js"></script>
@@ -202,11 +207,16 @@
   <script src="js/editor/pointer.js" data-src="pdf/js/editor/pointer.js"></script>
   <script src="js/editor/text.js" data-src="pdf/js/editor/text.js"></script>
   <script src="js/editor/texthl.js" data-src="pdf/js/editor/texthl.js"></script>
+  <script src="js/editor/notes.js" data-src="pdf/js/editor/notes.js"></script>
+  <script src="js/editor/notes-view.js" data-src="pdf/js/editor/notes-view.js"></script>
+  <script src="js/editor/callout.js" data-src="pdf/js/editor/callout.js"></script>
   <script src="js/tools/sign.js" data-src="pdf/js/tools/sign.js"></script>
   <script src="js/ui/panel-kit.js" data-src="pdf/js/ui/panel-kit.js"></script>
   <script src="js/tools/organize-panel.js" data-src="pdf/js/tools/organize-panel.js"></script>
   <script src="js/tools/edit-panel.js" data-src="pdf/js/tools/edit-panel.js"></script>
   <script src="js/tools/stamp-panels.js" data-src="pdf/js/tools/stamp-panels.js"></script>
+  <script src="js/tools/watermark-panel.js" data-src="pdf/js/tools/watermark-panel.js"></script>
+  <script src="js/tools/comments-panel.js" data-src="pdf/js/tools/comments-panel.js"></script>
   <script src="js/tools/doc-panels.js" data-src="pdf/js/tools/doc-panels.js"></script>
   <script src="js/ui/app.js" data-src="pdf/js/ui/app.js"></script>
   <script src="js/ui/ctxbars.js" data-src="pdf/js/ui/ctxbars.js"></script>
@@ -218,6 +228,7 @@
   <script src="js/ui/commands.js" data-src="pdf/js/ui/commands.js"></script>
   <script src="js/ui/context.js" data-src="pdf/js/ui/context.js"></script>
   <script src="js/ui/input.js" data-src="pdf/js/ui/input.js"></script>
+  <script src="js/ui/rename.js" data-src="pdf/js/ui/rename.js"></script>
   <script src="js/ui/view-state.js" data-src="pdf/js/ui/view-state.js"></script>
   <script src="js/ui/main.js" data-src="pdf/js/ui/main.js"></script>
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>

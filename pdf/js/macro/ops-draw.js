@@ -59,23 +59,46 @@
     return { bytes: await doc.save(), message: 'Numbered ' + count(idx.length, 'page') + ' (' + s.position + ').', warn: false };
   };
 
+  /** Watermark layers, bottom first (core/watermark.js). Each layer that applies to a page is drawn on top of what is
+      there: text in its font, or a logo, rotated about its centre, at its opacity. */
   OPS.addWatermark = async function (bytes, s, ctx) {
-    var L = P.lib(), doc = await P.load(bytes), n = doc.getPageCount(), idx = M.parsePages(s.pages, n);
-    var font = await P.font(doc, 'Helvetica'), col = P.rgb(s.colour), unsupported = 0;
-    idx.forEach(function (i) {
-      var page = doc.getPage(i), fr = P.frame(page), text = tokens(s.text, i, n, ctx);
-      if (P.hasUnsupported(font, text)) unsupported++;
-      text = P.safeText(font, text);
-      if (!text) return;
-      var w = font.widthOfTextAtSize(text, s.size), theta = fr.rot + Number(s.angle);
-      var c = fr.pt(fr.VW / 2, fr.VH / 2), ux = Math.cos(theta * RAD), uy = Math.sin(theta * RAD);
-      var vxn = -uy, vyn = ux, hh = s.size * 0.36; // text box centre: half the cap height above the baseline
-      page.drawText(text, {
-        x: c[0] - (w / 2) * ux - hh * vxn, y: c[1] - (w / 2) * uy - hh * vyn,
-        size: s.size, font: font, color: col, opacity: s.opacity, rotate: L.degrees(((theta % 360) + 360) % 360)
-      });
-    });
-    return { bytes: await doc.save(), message: 'Watermarked ' + count(idx.length, 'page') + '.' + (unsupported ? ' Some characters were written as “?”.' : ''), warn: !!unsupported };
+    var L = P.lib(), WM = window.SlopPdfWm, doc = await P.load(bytes), n = doc.getPageCount();
+    var layers = M.layersOf(s), fonts = {}, images = {}, unsupported = 0, touched = new Set();
+    async function fontFor(name) { if (!fonts[name]) fonts[name] = await P.font(doc, name); return fonts[name]; }
+    async function imageFor(id) {
+      if (!images[id]) { var raw = dataBytes(id); images[id] = /^data:image\/png/.test(id) ? await doc.embedPng(raw) : await doc.embedJpg(raw); }
+      return images[id];
+    }
+    for (var i = 0; i < n; i++) {
+      var page = doc.getPage(i), fr = P.frame(page);
+      for (var k = 0; k < layers.length; k++) {
+        var Ly = layers[k];
+        if (!WM.appliesTo(Ly, i, n)) continue;
+        var font = null, img = null, text = '', content;
+        if (Ly.kind === 'image') {
+          img = await imageFor(Ly.asset);
+          content = { w: Ly.size, h: Ly.size * img.height / img.width };
+        } else {
+          font = await fontFor(Ly.font);
+          text = tokens(Ly.text, i, n, ctx);
+          if (P.hasUnsupported(font, text)) unsupported++;
+          text = P.safeText(font, text);
+          if (!text) continue;
+          content = { w: font.widthOfTextAtSize(text, Ly.size), h: Ly.size * 1.2 };
+        }
+        var b = WM.box(Ly, fr.VW, fr.VH, content), c = fr.pt(b.cx, b.cy), theta = fr.rot + Ly.rot;
+        var rad = theta * RAD, ux = Math.cos(rad), uy = Math.sin(rad), vx = -uy, vy = ux, deg = L.degrees(((theta % 360) + 360) % 360);
+        if (img) {
+          // bottom-left corner of the logo: the centre less half its width and half its height along the box axes
+          page.drawImage(img, { x: c[0] - (content.w / 2) * ux - (content.h / 2) * vx, y: c[1] - (content.w / 2) * uy - (content.h / 2) * vy, width: content.w, height: content.h, rotate: deg, opacity: Ly.opacity });
+        } else {
+          var hh = Ly.size * 0.36; // the baseline sits half a cap height below the centre
+          page.drawText(text, { x: c[0] - (content.w / 2) * ux - hh * vx, y: c[1] - (content.w / 2) * uy - hh * vy, size: Ly.size, font: font, color: P.rgb(Ly.colour), opacity: Ly.opacity, rotate: deg });
+        }
+        touched.add(i);
+      }
+    }
+    return { bytes: await doc.save(), message: 'Added ' + count(layers.length, 'watermark layer') + ' on ' + count(touched.size, 'page') + '.' + (unsupported ? ' Some characters were written as “?”.' : ''), warn: !!unsupported };
   };
 
   OPS.stamp = async function (bytes, s, ctx) {

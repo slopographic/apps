@@ -31,6 +31,8 @@
   V.annotNode = function (a) {
     var g, op = 'opacity' in a ? a.opacity : 1;
     if (a.type === 'texthl') return a.pts && a.pts.length ? V.texthlNode(a) : null;
+    if (a.type === 'note') return V.noteNode(a);
+    if (a.type === 'callout') return V.calloutNode(a);
     if (!E.isBox(a)) {
       if (!a.pts || !a.pts.length) return null;
       g = U.s('g', { 'data-aid': a.id, class: 'an an-' + a.type });

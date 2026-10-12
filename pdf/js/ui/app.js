@@ -9,10 +9,10 @@
   A.insertOpts = { size: 'a4', orient: 'portrait', where: 'after' };
   var $ = U.$, h = U.h;
   var S = A._ = { els: {}, fileNameTouched: false, savedSession: null }; // shared by ui/*.js
-  var RAIL = [['organize', 'Organize', 'organize'], ['edit', 'Edit page', 'edit'], ['sign', 'Sign', 'sign'], ['redact', 'Redact', 'redact'], ['numbers', 'Page numbers', 'numbers'], ['watermark', 'Watermark', 'watermark'],
+  var RAIL = [['organize', 'Organize', 'organize'], ['edit', 'Edit page', 'edit'], ['sign', 'Sign', 'sign'], ['redact', 'Redact', 'redact'], ['numbers', 'Page numbers', 'numbers'], ['watermark', 'Watermark', 'watermark'], ['comments', 'Comments', 'comments'],
     ['forms', 'Forms', 'forms'], ['compress', 'Compress', 'compress'], ['convert', 'Convert', 'convert'], ['split', 'Split', 'split'], ['metadata', 'Metadata', 'info']];
 
-  var PAGE_TOOLS = { edit: 1, sign: 1, redact: 1 };
+  var PAGE_TOOLS = { edit: 1, sign: 1, redact: 1, comments: 1 };
   S.RAIL = RAIL;
 
   /* ---------------------------------------------------------------- boot */
