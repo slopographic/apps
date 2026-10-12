@@ -117,5 +117,7 @@
     CO.on('item', (it) => { if (current() && current().id === it.id) refresh(); });
     CO.on('list', refresh);
     CO.on('export', () => {});
+    // A hidden tab stops its frame loop and the video: nothing is decoded or drawn while nobody can see it.
+    document.addEventListener('visibilitychange', () => { if (document.hidden && vid) vid.pause(); });
   };
 })();

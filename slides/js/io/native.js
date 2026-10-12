@@ -60,11 +60,11 @@
    * Reads a Drive record's blob. Resolves with { deck, kind } where kind is 'deck' | 'blank' | 'image' | 'foreign'.
    * Rejects only when a native file is damaged (the caller then opens nothing over it).
    */
-  N.read = async function (blob, type) {
+  N.read = async function (blob, type, name) {
     type = type || (blob && blob.type) || '';
     if (!blob || blob.size === 0) return { deck: N.blank(), kind: 'blank' };
     if (type === N.MIME || /json/.test(type)) return { deck: N.parse(await blob.text()), kind: 'deck' };
-    if (/^image\//.test(type)) return { deck: await N.fromImage(await U.blobToDataUrl(blob), 'Picture'), kind: 'image' };
+    if (/^image\//.test(type)) return { deck: await N.fromImage(await U.blobToDataUrl(blob), name || 'Picture'), kind: 'image' };
     return { deck: N.blank(), kind: 'foreign', type: type };
   };
 
