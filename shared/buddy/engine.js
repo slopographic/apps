@@ -86,7 +86,7 @@ function guard() {
 const paused = (t) => CFG.kind === 'game' && t < (M.busyUntil || 0);
 
 let last = 0, lastDraw = -Infinity, visible = false;
-const DRAW_MS = 1000 / 30;
+const DRAW_MS = 1000 / 12;
 function frame(t) {
   const dt = Math.min(0.05, Math.max(0, (t - last) / 1000));
   last = t;
