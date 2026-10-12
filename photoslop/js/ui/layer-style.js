@@ -28,12 +28,16 @@ function openLayerStyle(layerId, section = 'blend') {
   const orig = { fx: L0.fx || null, blend: L0.blend, opacity: L0.opacity, fillOp: L0.fillOp };
   const w = { fx: fxClone(orig.fx || []), blend: L0.blend, opacity: L0.opacity, fillOp: fillOf(L0) };
   const origSig = lsSig(Object.assign({}, orig, { fx: orig.fx || [] }));
+  const origIds = new Set((orig.fx || []).map((e) => e.id));
+  // An effect added here and switched off again is not kept: only the effects the layer had, or ones that are on, are written.
+  const kept = () => w.fx.filter((e) => e.on !== false || origIds.has(e.id));
   let preview = true, current = section;
   const at = (type) => w.fx.find((e) => e.type === type);
 
   /** Writes the working style to the layer (no history step). */
   const applyDoc = () => {
-    patchLayer(layerId, { fx: w.fx.length ? fxClone(w.fx) : null, blend: w.blend, opacity: w.opacity, fillOp: w.fillOp < 1 ? w.fillOp : null });
+    const fx = kept();
+    patchLayer(layerId, { fx: fx.length ? fxClone(fx) : null, blend: w.blend, opacity: w.opacity, fillOp: w.fillOp < 1 ? w.fillOp : null });
     emit('doc');
   };
   const restoreDoc = () => { patchLayer(layerId, { fx: orig.fx, blend: orig.blend, opacity: orig.opacity, fillOp: orig.fillOp }); emit('doc'); };
@@ -47,10 +51,10 @@ function openLayerStyle(layerId, section = 'blend') {
     if (!L) return;
     const sc = Math.min(prev.width / D.w, prev.height / D.h), fx0 = (prev.width - D.w * sc) / 2, fy0 = (prev.height - D.h * sc) / 2;
     g.fillStyle = g.createPattern(checker, 'repeat'); g.fillRect(fx0, fy0, D.w * sc, D.h * sc);
-    const out = renderFx(layerSurface(L), w.fx, w.fillOp);
+    const out = renderFx(layerSurface(L), kept(), w.fillOp);
     const ow = out.w || out.canvas.width, oh = out.h || out.canvas.height;
     g.save();
-    g.globalAlpha = w.opacity * (fxOn({ fx: w.fx }) ? 1 : w.fillOp);
+    g.globalAlpha = w.opacity * (fxOn({ fx: kept() }) ? 1 : w.fillOp);
     g.globalCompositeOperation = BLEND_OP[w.blend] || 'source-over';
     g.drawImage(out.canvas, 0, 0, ow, oh, fx0 + out.x * sc, fy0 + out.y * sc, ow * sc, oh * sc);
     g.restore();
@@ -97,6 +101,7 @@ function openLayerStyle(layerId, section = 'blend') {
     ],
     onClose: (ok) => {
       if (!ok) { restoreDoc(); return; }
+      w.fx = kept();
       const changedStyle = lsSig(w) !== origSig;
       applyDoc();
       if (changedStyle) commit('Layer Style'); else emit('doc');
