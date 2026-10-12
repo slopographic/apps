@@ -140,7 +140,7 @@ class Dialog {
   paint() {
     const focused = this.dlg.contains(document.activeElement) ? document.activeElement.getAttribute('data-k') : null;
     const t = this.target();
-    const parts = [this.filesSection(), this.targetSection(), t && t.options.length ? this.optionsSection(t) : null, this.runSection(t), this.resultSection()];
+    const parts = [this.filesSection(), this.targetSection(), t && t.note ? note(t.note, 'sl-cvt-note sl-cvt-hint') : null, t && t.options.length ? this.optionsSection(t) : null, this.runSection(t), this.resultSection()];
     this.body.replaceChildren(...parts.filter((x) => x != null));
     if (focused) { const n = [...this.body.querySelectorAll('[data-k]')].find((x) => x.getAttribute('data-k') === focused); if (n && !n.disabled) n.focus(); }
   }

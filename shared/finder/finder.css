@@ -53,6 +53,7 @@
 .sf-row b { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .sf-row-sec { font-size: 13px; color: color-mix(in srgb, var(--sl-text) 70%, transparent); }
 .sf-row-tag { grid-column: 1 / -1; font-size: 14px; color: color-mix(in srgb, var(--sl-text) 80%, transparent); }
+.sf-row-types { font-size: 13px; min-width: 0; overflow-wrap: anywhere; color: color-mix(in srgb, var(--sl-text) 70%, transparent); }
 .sf-row-open { justify-self: start; min-height: 36px; display: inline-flex; align-items: center; color: var(--sl-accent); font-weight: 600; text-decoration: none; }
 .sf-tablewrap { width: 100%; overflow-x: auto; border: 1px solid var(--sl-border); border-radius: 14px; }
 .sf-table { width: 100%; border-collapse: collapse; font-size: 14px; }
