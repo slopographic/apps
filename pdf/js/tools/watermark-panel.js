@@ -3,7 +3,7 @@
    change is one undo step (E.commit). The layer maths is core/watermark.js; drawing is core/watermark-annots.js. */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, A = SP.app, h = U.h, P = SP.panels, PANELS = P.PANELS, K = P.helpers;
+  var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, h = U.h, P = SP.panels, PANELS = P.PANELS, K = P.helpers;
   var WM = window.SlopPdfWm;
   var section = K.section, row = K.row, btn = K.btn, seg = K.seg, select = K.select, num = K.num, text = K.text, slider = K.slider,
     colorPicker = K.colorPicker, check = K.check, note = K.note, needPages = K.needPages, onRefresh = K.onRefresh;
@@ -130,7 +130,7 @@
         e.preventDefault(); e.stopPropagation();
         var files = Array.prototype.slice.call(e.dataTransfer.files || []);
         var img = files.filter(function (f) { return /^image\/(png|jpeg|webp|gif)$/.test(f.type); })[0];
-        if (img) addLogo(img); else if (files.length) A.addFiles(files);
+        if (img) addLogo(img); else if (files.length) SP.app.addFiles(files); // SP.app is set by ui/app.js
       });
       onRefresh(function (reason) {
         var all = list();

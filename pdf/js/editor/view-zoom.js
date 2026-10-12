@@ -34,7 +34,7 @@
   }
   /** Eased zoom to zt from the zoom on screen now (a move in flight is continued); mode is kept after it lands. */
   function easeTo(zt, ax, ay, mode) {
-    if (!Ed.page()) return;
+    if (!Ed.page() || S.restoring) return;
     S.stopEase();
     ease = { z0: Ed.zoom, zt: U.clamp(zt, ZMIN, ZMAX), t0: performance.now(), ax: ax, ay: ay, mode: mode || null };
     easeRaf = requestAnimationFrame(frame);

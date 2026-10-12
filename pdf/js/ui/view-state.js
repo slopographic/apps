@@ -41,6 +41,10 @@
   };
 
   function applyView(v) {
+    var Es = SP.editor._;
+    // while the saved view is applied, no eased zoom may land on top of it and scroll-follow must not change the page
+    if (Es.stopEase) Es.stopEase();
+    Es.restoring = true;
     if (v.noPanel && window.innerWidth > 900) A.togglePanel(false);
     if (v.tool && typeof v.tool === 'string') A.setTool(v.tool);
     if (v.mode === 'page' && v.pid && E.pageById(v.pid)) {
@@ -50,5 +54,8 @@
     var sc = v.scroll || {};
     if (S.els.grid && sc.grid) S.els.grid.scrollTop = sc.grid;
     if (S.els.viewer) { if (sc.viewer) S.els.viewer.scrollTop = sc.viewer; if (sc.viewerLeft) S.els.viewer.scrollLeft = sc.viewerLeft; }
+    if (Es.stopEase) Es.stopEase();
+    // scroll events arrive a frame or two later: the restore ends after them
+    requestAnimationFrame(function () { requestAnimationFrame(function () { Es.restoring = false; }); });
   }
 })();

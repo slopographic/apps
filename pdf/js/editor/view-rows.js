@@ -109,7 +109,7 @@
   };
   /** The page in view changes the active page while the view scrolls (not during a press, not in single page). */
   S.onScroll = function () {
-    if (followRaf || S.pressing || Ed.layoutMode === 'single' || !Ed.pid) return;
+    if (followRaf || S.pressing || S.restoring || Ed.layoutMode === 'single' || !Ed.pid) return;
     followRaf = requestAnimationFrame(function () {
       followRaf = 0;
       var s = mostVisible();

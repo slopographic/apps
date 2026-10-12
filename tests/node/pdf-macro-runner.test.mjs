@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 const toDataUrl = (s) => 'data:text/javascript;base64,' + Buffer.from(s).toString('base64');
-const MACRO_FILES = ['pattern', 'model', 'frame', 'text', 'ops-edit', 'ops-draw', 'runner'].map((n) => `pdf/js/macro/${n}.js`);
+const MACRO_FILES = ['core/watermark', 'macro/pattern', 'macro/model', 'macro/frame', 'macro/text', 'macro/ops-edit', 'macro/ops-draw', 'macro/runner'].map((n) => `pdf/js/${n}.js`);
 
 // pdf.js runs in this realm (its fake worker is the handler module); pdf-lib and the macro code run in the vm realm.
 globalThis.pdfjsWorker = { WorkerMessageHandler: (await import(toDataUrl(read('vendor/pdfjs/pdf.worker.min.js')))).WorkerMessageHandler };
@@ -44,7 +44,11 @@ async function load() {
   return ctx;
 }
 const M = (ctx) => ctx.SlopPdfMacro;
-const macro = (ctx, steps, extra) => Object.assign({ id: 'test', name: 'Test', pattern: '', auto: 'off', steps: steps.map((s) => Object.assign(M(ctx).newStep(s.type), s)) }, extra || {});
+const macro = (ctx, steps, extra) => Object.assign({ id: 'test', name: 'Test', pattern: '', auto: 'off', steps: steps.map((s) => {
+  const st = M(ctx).newStep(s.type);
+  if (s.type === 'addWatermark' && !s.layers) delete st.layers; // a flat watermark step: its own fields are the layer
+  return Object.assign(st, s);
+}) }, extra || {});
 
 /** pdf.js text items of every page of a PDF (plain copies, so node assertions can use them). */
 async function items(bytes) {

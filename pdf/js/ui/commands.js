@@ -37,6 +37,7 @@
       cmd('file.text', 'Extract text…', 'File', [], function () { A.extractText(); }, has),
       cmd('file.images', 'Pages to images…', 'File', [], function () { A.setTool('convert'); }, has, { keywords: ['png', 'jpeg', 'convert'] }),
       cmd('file.app', 'Download app (offline .html)', 'File', [], function () { A.downloadApp(); }),
+      cmd('file.rename', 'Rename…', 'File', [], function () { A.rename(null); }, null, { keywords: ['name', 'title'] }),
       cmd('file.closeAll', 'Close all', 'File', [], function () { A.closeAll(); }, has),
       cmd('edit.undo', 'Undo', 'Edit', ['Mod+Z'], function () { A.undo(); }, function () { return E.canUndo() && !inField() && noMenu(); }),
       cmd('edit.redo', 'Redo', 'Edit', ['Shift+Mod+Z', 'Mod+Y'], function () { A.redo(); }, function () { return E.canRedo() && !inField() && noMenu(); }),

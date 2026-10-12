@@ -31,12 +31,14 @@
       F('colour', 'colour', 'Colour', { def: '#555555' }),
       F('pages', 'pages', 'Pages', { def: '' })] },
     addWatermark: { label: 'Watermark', fields: [
-      F('text', 'text', 'Text', { req: true, max: 200, def: 'DRAFT' }),
-      F('opacity', 'num', 'Opacity (0 to 1)', { def: 0.2, min: 0.02, max: 1 }),
-      F('angle', 'num', 'Angle (degrees)', { def: 45, min: -360, max: 360 }),
-      F('size', 'num', 'Size (pt)', { def: 72, min: 8, max: 400 }),
-      F('colour', 'colour', 'Colour', { def: '#888888' }),
-      F('pages', 'pages', 'Pages', { def: '' })] },
+      // the flat fields are the layer a step had before layers: still checked, used when there are no layers, not shown
+      F('text', 'text', 'Text', { req: true, max: 200, def: 'DRAFT', legacy: true }),
+      F('opacity', 'num', 'Opacity (0 to 1)', { def: 0.2, min: 0.02, max: 1, legacy: true }),
+      F('angle', 'num', 'Angle (degrees)', { def: 45, min: -360, max: 360, legacy: true }),
+      F('size', 'num', 'Size (pt)', { def: 72, min: 8, max: 400, legacy: true }),
+      F('colour', 'colour', 'Colour', { def: '#888888', legacy: true }),
+      F('pages', 'pages', 'Pages', { def: '', legacy: true }),
+      F('layers', 'layers', 'Layers, bottom first', { def: [] })] },
     addPageNumbers: { label: 'Page numbers', fields: [
       F('format', 'select', 'Format', { def: 'n-of', opts: [['n', '1'], ['page', 'Page 1'], ['n-of', '1 / 5'], ['page-of', 'Page 1 of 5'], ['dash', '– 1 –']] }),
       F('position', 'select', 'Position', { def: 'bottom-center', opts: POSITIONS }),
@@ -61,6 +63,21 @@
   };
   M.TYPE_ORDER = ['replaceText', 'addHeaderFooter', 'addWatermark', 'addPageNumbers', 'rotate', 'deletePages', 'extractPages', 'stamp'];
   var IMG = /^data:image\/(png|jpeg);base64,[a-z0-9+/=]+$/i;
+
+  /** One watermark layer (core/watermark.js) checked for the macro: text needs text, a logo needs a PNG or JPEG. */
+  function layerOf(raw) {
+    var WM = window.SlopPdfWm, L = WM.normalize(raw || {});
+    if (L.kind === 'text' && !L.text.trim()) return { err: 'needs text.' };
+    if (L.kind === 'image' && !IMG.test(L.asset)) return { err: 'needs a PNG or JPEG logo.' };
+    try { WM.parsePages(L.pages, Infinity); } catch (e) { return { err: 'has a page range that cannot be read: ' + e.message }; }
+    return { v: L };
+  }
+  /** The layers a watermark step draws: its layers, or the one layer its flat fields describe. */
+  M.layersOf = function (s) {
+    var WM = window.SlopPdfWm;
+    if (Array.isArray(s.layers) && s.layers.length) return s.layers.map(function (x) { return WM.normalize(x); });
+    return [WM.normalize({ kind: 'text', text: s.text, size: s.size, opacity: s.opacity, rot: s.angle, colour: s.colour, pages: s.pages })];
+  };
 
   function coerce(f, v) {
     switch (f.t) {
@@ -91,6 +108,15 @@
         var p = String(v == null ? '' : v);
         try { M.parsePages(p, Infinity); return { v: p.trim() }; } catch (e) { return { err: e.message }; }
       }
+      case 'layers': {
+        var arr = Array.isArray(v) ? v : [], outL = [];
+        for (var li = 0; li < arr.length; li++) {
+          var lr = layerOf(arr[li]);
+          if (lr.err) return { err: 'layer ' + (li + 1) + ' ' + lr.err };
+          outL.push(lr.v);
+        }
+        return { v: outL };
+      }
       case 'image': {
         var u = String(v || '');
         if (!u) return { v: '' };
@@ -112,6 +138,10 @@
       if (r.err) { errors.push(def.label + ': ' + f.label + ' ' + r.err); out[f.k] = v; }
       else out[f.k] = r.v;
     });
+    if (raw.type === 'addWatermark') {
+      if (Array.isArray(raw.layers) && !raw.layers.length) errors.push('Watermark: add at least one layer.');
+      out.layers = M.layersOf(out); // a step without layers draws the one layer its flat fields describe
+    }
     if (def.check && !errors.length) { var ce = def.check(out); if (ce) errors.push(def.label + ': ' + ce); }
     return { step: out, errors: errors };
   };
@@ -125,7 +155,7 @@
     switch (s.type) {
       case 'replaceText': return 'Replace ' + q(s.find) + ' with ' + q(s.replace);
       case 'addHeaderFooter': return (s.position === 'header' ? 'Header' : 'Footer') + ' ' + q(s.text);
-      case 'addWatermark': return 'Watermark ' + q(s.text);
+      case 'addWatermark': { var L0 = M.layersOf(s)[0]; return 'Watermark ' + (L0.kind === 'image' ? 'logo' : q(L0.text)) + (M.layersOf(s).length > 1 ? ' + ' + (M.layersOf(s).length - 1) + ' more' : ''); }
       case 'addPageNumbers': return 'Page numbers, ' + s.position;
       case 'rotate': return 'Rotate ' + s.angle + '°' + (s.pages ? ' (' + s.pages + ')' : '');
       case 'deletePages': return 'Delete pages ' + (s.pages || 'all');
