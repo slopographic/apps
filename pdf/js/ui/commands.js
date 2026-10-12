@@ -8,6 +8,8 @@
   function noMenu() { return !document.querySelector('.sui-menu'); }
   function inField() { var a = document.activeElement; return !!(a && a.closest && a.closest('input, select, textarea, [contenteditable="true"]')); }
   function idle() { return noMenu() && !inField(); }
+  /** The text selection bar is up: Escape belongs to it (sel-bar.js), not to the page. */
+  function selBarOpen() { return !!(window.SlopSelBar && SlopSelBar.isOpen()); }
   function has() { return E.state.pages.length > 0; }
   function pg() { return A.mode === 'page' && has(); }
   function grid() { return A.mode !== 'page' && has(); }
@@ -52,7 +54,7 @@
       cmd('edit.escape', 'Back / deselect', 'View', ['Escape'], function () {
         if (!pg()) { O.setSelection([]); return; }
         if (Ed.getSelected()) Ed.select(null); else if (Ed.tool !== 'select') Ed.setTool('select'); else A.showGrid();
-      }, function () { return idle() && (pg() || (grid() && O.sel.size > 0)); }, { hidden: true }),
+      }, function () { return idle() && !selBarOpen() && (pg() || (grid() && O.sel.size > 0)); }, { hidden: true }),
       cmd('pages.rotateRight', 'Rotate right', 'Pages', ['R'], function () { A.rotate(grid() ? gridIds() : [Ed.pid], 90); }, function () { return idle() && (grid() ? gridIds().length > 0 : false); }),
       cmd('pages.rotateLeft', 'Rotate left', 'Pages', ['Shift+R'], function () { A.rotate(grid() ? gridIds() : [Ed.pid], -90); }, function () { return idle() && grid() && gridIds().length > 0; }),
       cmd('pages.rotateAllRight', 'Rotate pages right', 'Pages', [], function () { A.rotate(pageIds(), 90); }, has),
