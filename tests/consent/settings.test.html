@@ -48,7 +48,7 @@
       expect(acts[5]).toContain('never deletes your files');
       expect(box.textContent).toContain('Drive makes thumbnails');
     });
-    it('the Storage clear actions ask first and do nothing when the person says no', async () => {
+    it('the Storage clear actions list the parts first and do nothing when the person says no', async () => {
       const w = await page();
       const box = w.document.getElementById('storage-box');
       await waitFor(() => box.querySelector('.storage-acts .btn'));
@@ -57,8 +57,52 @@
       await waitFor(() => w.document.querySelectorAll('.sui-dlg').length > before);
       const dlg = [...w.document.querySelectorAll('.sui-dlg')].pop();
       expect(dlg.textContent).toContain('Your Drive files, documents and saved projects are not deleted.');
+      // the first button covers one part: thumbnails, listed with its item count, and checked
+      const rows = [...dlg.querySelectorAll('.sr-row')];
+      expect(rows.length).toBe(1);
+      expect(rows[0].querySelector('b').textContent).toBe('Drive thumbnails and previews');
+      expect(rows[0].querySelector('input').checked).toBe(true);
+      expect(rows[0].querySelector('small').textContent).toContain('made again when you open a folder');
       dlg.querySelector('.sui-x').click();
       await waitFor(() => w.document.querySelectorAll('.sui-dlg').length === before);
+    });
+    it('Clear all lists every part checked, and clears only the parts left checked', async () => {
+      const w = await page();
+      const box = w.document.getElementById('storage-box');
+      await waitFor(() => box.querySelector('.storage-acts .btn'));
+      const cleared = [];
+      const real = w.SlopStorage.clear;
+      w.SlopStorage.clear = async (kind) => { cleared.push(kind); return { kind, removed: 0 }; };
+      try {
+        const before = w.document.querySelectorAll('.sui-dlg').length;
+        box.querySelectorAll('.storage-acts .btn')[5].click();
+        await waitFor(() => w.document.querySelectorAll('.sui-dlg').length > before);
+        const dlg = [...w.document.querySelectorAll('.sui-dlg')].pop();
+        await waitFor(() => dlg.querySelectorAll('.sr-row').length === 7);
+        const rows = [...dlg.querySelectorAll('.sr-row')];
+        expect(rows.map((r) => r.querySelector('b').textContent)).toEqual(['Drive thumbnails and previews', 'Face-detection results',
+          'Downloaded AI models', 'Cut-out model', 'Downloaded library packs', 'AI Tools models', 'Old offline caches']);
+        expect(rows.every((r) => r.querySelector('input').checked)).toBe(true);
+        // untick the cut-out model, then clear
+        rows[3].querySelector('input').click();
+        dlg.querySelector('.sui-foot .sui-primary').click();
+        await waitFor(() => cleared.length === 6);
+        expect(cleared).toEqual(['thumbs', 'faces', 'models', 'packs', 'aitools', 'oldCaches']);
+        await waitFor(() => !w.document.querySelector('.sui-back:not(.sui-out) .sr-dlg'));
+      } finally { w.SlopStorage.clear = real; }
+    });
+    it('SlopStorage.measure sizes a part from its records and removes nothing', async () => {
+      const w = await page();
+      const db = await w.SlopDb.open('slop-drive-thumbs', { version: 1, stores: { thumbs: { keyPath: 'id' } } });
+      await db.put('thumbs', { id: 'm-1', blob: new Blob([new Uint8Array(1000)]) });
+      await db.put('thumbs', { id: 'm-2', blob: new Blob([new Uint8Array(500)]) });
+      db.close();
+      const m = await w.SlopStorage.measure(['thumbs', 'faces']);
+      expect(m.thumbs.count).toBe(2);
+      expect(m.thumbs.bytes).toBeGreaterThanOrEqual(1500);
+      expect(m.faces.count).toBe(0);
+      const again = await w.SlopStorage.measure(['thumbs']);
+      expect(again.thumbs.count).toBe(2);
     });
     it('shows the privacy sentence', async () => {
       const w = await page();

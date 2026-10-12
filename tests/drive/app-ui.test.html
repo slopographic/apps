@@ -219,10 +219,32 @@
       expect(res.wasted).toBe(file('one.png').size);
       await DR.dupesDialog({ near: true });
       const box = await waitFor(() => q('.sui-back:not(.sui-out) [data-dupes] .dgroup'));
-      W.SlopUI.confirm = async () => true;
+      // "Keep newest everywhere" opens the list first: the older copy is checked, the newest one is not
       [...q('.sui-back:not(.sui-out) [data-dupes]').querySelectorAll('.sui-btn')].find((b) => b.textContent === 'Keep newest everywhere').click();
+      const list = await waitFor(() => [...D.querySelectorAll('.sui-back:not(.sui-out) .sr-dlg')].pop());
+      const rows = [...list.querySelectorAll('.sr-row')];
+      expect(rows.length).toBe(2);
+      const checked = rows.filter((r) => r.querySelector('input').checked).map((r) => r.querySelector('b').textContent);
+      const older = res.groups[0].files.slice().sort((a, b) => (a.modified || a.time) - (b.modified || b.time))[0].name;
+      expect(checked).toEqual([older]);
+      expect(list.querySelector('.sui-foot .sui-primary').textContent).toBe('Trash 1 file');
+      list.querySelector('.sui-foot .sui-primary').click();
       await waitFor(() => DR.liveFiles().filter((r) => /one|renamed/.test(r.name)).length === 1);
       expect(DR.hamming(0b1011n, 0b0001n)).toBe(2);
+      q('.sui-back:not(.sui-out) [data-dupes]').querySelector('.sui-x').click();
+    });
+    it('cancelling the list trashes nothing', async () => {
+      // the first test trashed one of the pair: bring it back so there is a duplicate to list
+      for (const r of [...DR.S.files.values()].filter((x) => /one|renamed/.test(x.name) && x.trashedAt)) await H.update(r.id, { trashedAt: null });
+      await DR.refresh();
+      const before = DR.liveFiles().length;
+      await DR.dupesDialog({ near: false });
+      await waitFor(() => q('.sui-back:not(.sui-out) [data-dupes] .dgroup'));
+      q('.sui-back:not(.sui-out) [data-dupes] .dgroup .sui-btn').click();
+      const list = await waitFor(() => [...D.querySelectorAll('.sui-back:not(.sui-out) .sr-dlg')].pop());
+      list.querySelector('.sui-x').click();
+      await sleep(200);
+      expect(DR.liveFiles().length).toBe(before);
       q('.sui-back:not(.sui-out) [data-dupes]').querySelector('.sui-x').click();
     });
   });
