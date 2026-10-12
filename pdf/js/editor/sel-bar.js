@@ -65,7 +65,7 @@
   }
 
   /** Tab from a selection moves into the bar; Escape anywhere with the bar up dismisses it. */
-  function onDocKey(e) {
+  function onDocKey(e) { console.error('DBG onDocKey ' + e.key + ' tgt=' + (e.target && e.target.nodeName) + ' hidden=' + (bar && bar.hidden));
     if (!bar || bar.hidden || bar.contains(e.target) || editable(e.target)) return;
     if (e.key === 'Tab' && !e.shiftKey) {
       var first = row.querySelector('button');
@@ -73,13 +73,13 @@
     } else if (e.key === 'Escape') { T.dismiss(); }
   }
   /** Leaves the bar: the selection stays, the bar hides until the selection changes, and focus goes back to the page. */
-  function leave() {
+  function leave() { console.error('DBG leave active=' + (document.activeElement && document.activeElement.className) + ' snap=' + !!T.snap);
     if (bar.contains(document.activeElement)) document.activeElement.blur();
     T.dismiss();
   }
 
   /** Shows the bar for the current snapshot, or hides it. Runs on every selection change (sel-track.js). */
-  function render() {
+  function render() { console.error('DBG render shown=' + T.shown() + ' snap=' + !!T.snap + ' dismissed=' + (T.dismissedKey===(T.snap&&T.snap.key)));
     if (!bar) { if (!T.shown()) return; build(); }
     if (!T.shown()) { closePop(false); bar.hidden = true; return; }
     colour();
