@@ -28,27 +28,30 @@
       };
       const perchedNow = () => waitFor(() => S.M.mode === 'perched', { timeout: 4000 }).then(() => true, () => false);
       await waitFor(() => strip() && accept());
+      await HomeTest.settled(w);   // he has arrived and is standing somewhere
       const max = Math.max(0, doc.documentElement.scrollHeight - w.innerHeight);
 
-      // The hard case: a perch whose top edge sits just inside the strip. He would stand with his body over the buttons.
+      // The hard case: a perch under the strip, with his feet at the buttons' height and his body over the Accept button.
+      const acc = accept().getBoundingClientRect(), cx = acc.left + acc.width / 2;
       let target = null;
       for (const el of doc.querySelectorAll('[data-perch]')) {
         const r = el.getBoundingClientRect();
-        const want = w.scrollY + r.top - (stripTop() + 6);
-        if (r.width < 40 || want < 0 || want > max) continue;
-        w.scrollTo(0, want);
+        const want = w.scrollY + r.top - (stripTop() + 30);
+        if (r.width < 40 || r.left + 30 > cx || r.right - 30 < cx || want < 0 || want > max) continue;
+        w.scrollTo({ top: want, behavior: 'instant' });
         await sleep(50);
-        if (Math.abs(el.getBoundingClientRect().top - (stripTop() + 6)) < 2) { target = el; break; }
+        if (Math.abs(el.getBoundingClientRect().top - (stripTop() + 30)) < 2) { target = el; break; }
       }
       expect(target).toBeTruthy();
-      S.hopTo({ el: target, frac: 0.5 });
+      // Stand him there (the model's own perch state), then let a few frames run.
+      Object.assign(S.M, { perch: { el: target, frac: 0.5, off: cx - target.getBoundingClientRect().left }, mode: 'perched', hop: null, vx: 0, vy: 0 });
       await sleep(400);
       if (await perchedNow()) expect(hitsAccept()).toBe(true);
 
       // And at other scroll positions, whenever he is perched.
       let checked = 0;
       for (const f of [0, 0.25, 0.5, 0.75, 1]) {
-        w.scrollTo(0, Math.round(max * f));
+        w.scrollTo({ top: Math.round(max * f), behavior: "instant" });
         await sleep(250);
         if (!(await perchedNow())) continue;
         checked++;
