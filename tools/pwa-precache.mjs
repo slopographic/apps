@@ -1,23 +1,27 @@
 #!/usr/bin/env node
-// Rebuilds the PRECACHE list in service-worker.js from the boot files of every app page.
-//   node tools/pwa-precache.mjs            rewrite the PRECACHE list in service-worker.js
+// Rebuilds the PRECACHE list in sw-precache.js from the boot files of every app page.
+// service-worker.js loads that file with importScripts('/sw-precache.js'); this tool checks the import is there.
+//   node tools/pwa-precache.mjs            rewrite the PRECACHE list in sw-precache.js
 //   node tools/pwa-precache.mjs --dry-run  print the count only, write nothing
 // Walks each page's static <script src>, stylesheet <link href>, ES module imports (not dynamic
 // import()) and CSS url()/@import, so the list follows what a page needs to boot offline.
 // shell/shell.js loads its parts at run time (brand, registry, SlopUI, shell/*.js, CSS), so its
 // quoted .js/.css paths are followed too.
 // Entries that do not exist on disk are reported and left out. Bump VERSION in service-worker.js
-// after running this; the browser only updates the worker when its bytes change.
+// after running this; the browser only updates the worker when its bytes change (sw-precache.js is
+// imported, so its bytes count too, but the worker's own cache name only changes with VERSION).
 import { readFile, writeFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SW = path.join(ROOT, 'service-worker.js');
+const PRECACHE_FILE = path.join(ROOT, 'sw-precache.js');
+const SW_IMPORT = "importScripts('/sw-precache.js');";
 const exists = (p) => stat(path.join(ROOT, p)).then((s) => s, () => null);
 const resolveRef = (from, ref) => path.posix.normalize(path.posix.join(path.posix.dirname(from), ref));
 const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'shared/pwa.js',
-  'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo.svg'];
+  'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo.svg', 'sw-precache.js'];
 const DRY = process.argv.includes('--dry-run');
 
 // shell/shell.js loads its parts with addScript()/addCss(), so static refs miss them. Its paths are
@@ -100,9 +104,11 @@ for (const f of list) {
 }
 if (line.trim()) lines.push(line.trimEnd());
 
-const src = await readFile(SW, 'utf8');
+const swSrc = await readFile(SW, 'utf8');
+if (!swSrc.includes(SW_IMPORT)) throw new Error(`service-worker.js must load the list with ${SW_IMPORT}`);
+const src = await readFile(PRECACHE_FILE, 'utf8');
 const block = `// BEGIN PRECACHE\nconst PRECACHE = [\n${lines.join('\n')}\n];\n// END PRECACHE`;
 const next = src.replace(/\/\/ BEGIN PRECACHE[\s\S]*?\/\/ END PRECACHE/, block);
-if (next === src && !src.includes(block)) throw new Error('PRECACHE markers not found in service-worker.js');
-if (!DRY) await writeFile(SW, next);
+if (next === src && !src.includes(block)) throw new Error('PRECACHE markers not found in sw-precache.js');
+if (!DRY) await writeFile(PRECACHE_FILE, next);
 console.log(`PRECACHE: ${list.length} files, ${roots.length} roots, ${missing.size} missing${DRY ? ' (dry run, nothing written)' : ''}`);
