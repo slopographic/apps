@@ -85,6 +85,18 @@
       expect(banner(w)).toBe(null);
       expect(w.__errors).toEqual([]);
     });
+    it('the page keeps room under the strip: bottom padding and --consent-h are at least its height, and go back after a choice', async () => {
+      const w = await open({ cfg: IDS });
+      await waitFor(() => banner(w));
+      const padding = () => parseFloat(w.getComputedStyle(w.document.body).paddingBottom) || 0;
+      const h = banner(w).getBoundingClientRect().height;
+      await waitFor(() => padding() >= h - 0.5, { timeout: 2000 });
+      expect(padding()).toBeGreaterThanOrEqual(h - 0.5);
+      expect(parseFloat(w.document.documentElement.style.getPropertyValue('--consent-h'))).toBeGreaterThanOrEqual(h - 1);
+      banner(w).querySelector('[data-act="reject"]').click();
+      expect(padding()).toBe(0);
+      expect(w.document.documentElement.classList.contains('slopc-on')).toBe(false);
+    });
     it('the banner fits a 390 px phone width without horizontal scroll', async () => {
       const w = await open({ cfg: IDS });
       await waitFor(() => banner(w));

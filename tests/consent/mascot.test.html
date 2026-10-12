@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Consent · the mascot and the Accept button</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="frames.js"></script>
+  <script src="../home/boot.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  const { reset } = ConsentTest;
+
+  describe('the mascot never covers the consent buttons', () => {
+    it('while he is perched, the Accept button is the element under its centre, at every scroll position', async () => {
+      reset();
+      const w = await HomeTest.openHome();
+      const doc = w.document, S = w.SlopMascot;
+      const strip = () => doc.getElementById('slopc-banner');
+      const accept = () => strip().querySelector('[data-act="accept"]');
+      const hitsAccept = () => {
+        const b = accept().getBoundingClientRect();
+        const hit = doc.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+        return !!hit && accept().contains(hit);
+      };
+      await waitFor(() => strip() && accept());
+      const max = Math.max(0, doc.documentElement.scrollHeight - w.innerHeight);
+      let checked = 0;
+      for (const f of [0, 0.25, 0.5, 0.75, 1]) {
+        w.scrollTo(0, Math.round(max * f));
+        await sleep(250);
+        const perched = await waitFor(() => S.M.mode === 'perched', { timeout: 4000 }).then(() => true, () => false);
+        if (!perched) continue;
+        checked++;
+        expect(hitsAccept()).toBe(true);
+      }
+      expect(checked).toBeGreaterThan(0);
+    });
+  });
+
+  run({ name: 'Consent and the mascot' });
+  </script>
+</body>
+</html>

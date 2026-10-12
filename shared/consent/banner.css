@@ -58,3 +58,7 @@
 .slopc-btn.primary { background: var(--slopc-accent); border-color: var(--slopc-accent); color: var(--slopc-accent-ink); }
 .slopc-btn.x { padding: 2px 9px; border: 0; font-size: 16px; line-height: 1; }
 .slopc-btn:focus-visible { outline: 2px solid var(--slopc-fg); outline-offset: 2px; }
+
+/* While the strip is up, the page's bottom padding grows by the strip's height (set in banner.js), so nothing at the end
+ * of the page can scroll under it. --slopc-base-pb is the page's own bottom padding, kept. */
+html.slopc-on body { padding-bottom: calc(var(--consent-h, 0px) + var(--slopc-base-pb, 0px)); }

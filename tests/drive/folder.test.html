@@ -122,8 +122,10 @@
       expect(boxBtns()).toContain('Allow access to Config');
       expect(boxBtns()).not.toContain('Load config');
       clickBtn(box(), 'Allow access to Config');
-      await waitFor(() => DR.folderState.perm === 'granted', { timeout: 5000 });
-      expect(boxBtns()).toContain('Load config');
+      // The box re-renders last, after the folder is refreshed and mirrored; wait for that render, not for the state flag.
+      await waitFor(() => boxBtns().includes('Load config'), { timeout: 10000 });
+      expect(DR.folderState.perm).toBe('granted');
+      expect(boxBtns()).not.toContain('Allow access to Config');
     });
 
     it('Disconnect forgets the folder and deletes nothing in it', async () => {
@@ -131,8 +133,15 @@
       expect(DR.folderState.name).toBe(null);
       expect(dir.items.has('slopographic.slop.json')).toBe(true);
       expect(dir.items.get('Slop Drive').items.has('Hello note.txt')).toBe(true);
-      await H.put(new Blob(['later'], { type: 'text/plain' }), { name: 'After.txt', from: 'upload' });
-      await new Promise((r) => setTimeout(r, 900));
+      // Count every write the provider receives from here on. With no folder connected, the write queue is never
+      // armed (enqueue returns before its 400ms debounce is scheduled), so the count is final once put() resolves.
+      let writes = 0;
+      const upload = L.upload.bind(L);
+      L.upload = async (...a) => { writes++; return upload(...a); };
+      try {
+        await H.put(new Blob(['later'], { type: 'text/plain' }), { name: 'After.txt', from: 'upload' });
+      } finally { L.upload = upload; }
+      expect(writes).toBe(0);
       expect(dir.items.get('Slop Drive').items.has('After.txt')).toBe(false);
     });
   });
