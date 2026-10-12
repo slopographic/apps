@@ -20,7 +20,7 @@
     const dr = api.adapter.drive || {};
     let ext = dr.ext || '';
     if (ext && !ext.startsWith('.')) ext = '.' + ext;
-    const base = String(api.adapter.title(doc) || 'Untitled').replace(/\s+/g, ' ').trim() || 'Untitled';
+    const base = String(api.nameOf(doc) || 'Untitled').replace(/\s+/g, ' ').trim() || 'Untitled';
     return ext && !base.toLowerCase().endsWith(ext.toLowerCase()) ? base + ext : base;
   }
 
@@ -63,7 +63,7 @@
       toast(api, `Could not open ${rec.name}: ${e.message || e}`);
       return null;
     }
-    api.openDoc(doc, { driveId: rec.id });
+    api.openDoc(doc, { driveId: rec.id, origName: rec.name });
     return doc;
   }
 

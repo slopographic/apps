@@ -15,6 +15,7 @@
       cmd('file.new', 'New presentation', 'File', ['Mod+N'], function () { SS.files.newDeck(); }, function () { return A.mode === 'edit'; }),
       cmd('file.open', 'Open from Slop Drive…', 'File', ['Mod+O'], function () { SS.files.openDrive(); }, editing, { keywords: ['import'] }),
       cmd('file.save', 'Save to Slop Drive', 'File', ['Mod+S'], function () { SS.files.save(false); }, editing, { keywords: ['store'] }),
+      cmd('file.rename', 'Rename…', 'File', [], function () { SlopDocTabs.rename(null); }, null, { keywords: ['name', 'title'] }),
       cmd('file.saveAs', 'Save as a new Drive file…', 'File', [], function () { SS.files.save(true); }, editing),
       cmd('file.download', 'Download .sslide', 'File', [], function () { SS.files.download(); }),
       cmd('file.newTemplate', 'New from template…', 'File', [], function () { SS.templatesUI.openNew(); }, function () { return A.mode === 'edit'; }, { keywords: ['template', 'import'] }),

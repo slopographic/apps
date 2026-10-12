@@ -81,7 +81,7 @@
     function writeIndex() {
       const tabs = api.tabs();
       const act = tabs.find((t) => t.active);
-      lsSet(KEY, { v: 1, data: { tabs: tabs.map((t) => ({ id: t.id, title: t.title })), active: act ? act.id : null } });
+      lsSet(KEY, { v: 1, data: { tabs: tabs.map((t) => ({ id: t.id, title: t.title, name: t.name, orig: t.original })), active: act ? act.id : null } });
     }
 
     async function flush() {
@@ -131,7 +131,7 @@
           let doc = null;
           if (value !== undefined) { try { doc = api.adapter.restore(value); } catch (e) { console.warn('SlopDocTabs: restore failed', e); } }
           if (doc) count++; else { blanks++; doc = api.adapter.newDoc(); }
-          const t = api.openDoc(doc, { id: item.id, driveId: link && link.id || null, activate: false, append: true });
+          const t = api.openDoc(doc, { id: item.id, driveId: link && link.id || null, name: item.name || null, origName: item.orig || null, activate: false, append: true });
           if (env.data.active === item.id) active = t;
         }
         const first = api.tabs()[0];

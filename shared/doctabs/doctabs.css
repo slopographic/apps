@@ -45,6 +45,10 @@
 }
 .sl-doctab:focus-visible { outline: 2px solid var(--sl-tab-accent); outline-offset: -2px; }
 .sl-doctab-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sl-doctab-edit {
+  flex: 1 1 auto; min-width: 0; width: 100%; font: inherit; color: var(--sl-text, inherit);
+  background: var(--sl-surface, #fff); border: 1px solid var(--sl-accent, #36c); border-radius: 3px; padding: 0 3px;
+}
 .sl-doctab-dot {
   flex: 0 0 auto;
   width: 7px; height: 7px;
