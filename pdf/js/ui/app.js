@@ -93,6 +93,12 @@
     if (j !== i) { Ed.show(E.state.pages[j].id); O.setSelection([E.state.pages[j].id], E.state.pages[j].id); S.updateChrome(); PN.refresh(); }
   };
 
+  /** The active page changed (a scroll or a press in the continuous view): the page number, panel and selection follow. */
+  A.pageChanged = function () {
+    if (A.mode !== 'page' || !Ed.pid) return;
+    O.setSelection([Ed.pid], Ed.pid);
+    S.updateChrome(); PN.refresh('page');
+  };
   A.zoomChanged = function (z) { var l = $('#zoomLbl'); if (l) l.textContent = Math.round(z * 72 / 96 * 100) + '%'; S.updateStatus(); };
   A.toolChanged = function () {
     U.$$('.pv-tools .tb', S.els.ctxPage).forEach(function (b) { b.classList.toggle('on', b.dataset.tool === Ed.tool); });

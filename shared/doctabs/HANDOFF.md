@@ -46,9 +46,12 @@ nodes or canvases; encode canvases as PNG Blobs and decode them in `restore`.
 
 ## The API that mount returns
 
-- `openDoc(doc, { id, driveId, activate = true, append = false })`: open a doc as a new tab after the active one.
+- `openDoc(doc, { id, driveId, origName, name, activate = true, append = false })`: open a doc as a new tab after the active one.
+  `origName` is the file's original name (for example `invoice-2026.pdf`): set it when a file is opened or imported, never by a save.
+  A rename sets the display name (`name`) and, when linked, the Drive file's name; `origName` is never changed.
 - `newTab()`, `activate(doc)`, `close(doc = current)` (async, resolves true when closed; a dirty tab asks first).
 - `current()`, `tabs()` (`[{ id, doc, title, dirty, active, driveId }]`), `tabOf(doc)`, `driveIdOf(doc)`.
+- `rename(doc, name)`: renames the tab (trimmed, 120 characters max; empty is refused). No name = edit in place. `nameOf(doc)`, `originalNameOf(doc)`.
 - `changed(doc)`: call after every edit or rename. It redraws the title and the dirty dot and tells the session to save.
 - `markSaved(doc)`, `setDriveId(doc, id)`, `on(fn)` (events: `open`, `close`, `activate`, `reorder`, `content`, `drive`),
   `overflowVisible()`, `destroy()`.
@@ -84,3 +87,10 @@ nodes or canvases; encode canvases as PNG Blobs and decode them in `restore`.
 - Every storage access is wrapped and never throws. With storage blocked, the strip still works; saving is off.
 - A tab whose content is missing (cleared site data, another browser) comes back as a blank doc, with a notice.
 - Writes are debounced (about 0.8 s after the last change, and on pagehide). `session.flush()` writes now.
+
+## Rename
+
+- In place: double-click a tab, or F2 on the active tab. Enter or blur saves, Escape cancels. Empty names are refused (old name kept).
+- `SlopDocTabs.rename(tabId, name)` renames from code (`tabId` null = the active tab; no name = edit in place). Each app's File menu calls it with null.
+- A Drive-linked tab renames its Drive file through `SlopHub.update(id, { name })` (extension kept). If that fails, the tab keeps the new name and a toast says the Drive copy still has the old name.
+- The original name is shown in the tab tooltip (`Original name: ...`). The session stores `name` and `orig` per tab, so both survive a reload.
