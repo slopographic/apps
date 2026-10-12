@@ -47,7 +47,7 @@
   function field(c) {
     let photo = c.photo || '';
     const box = el('span', { class: 'avatar av-big' });
-    const note = el('span', { class: 'ed-hint' });
+    const note = el('span', { class: 'ed-hint ed-photo-note' });
     const choose = el('button', { type: 'button', class: 'sui-btn' }, 'Choose photo…');
     const drop = el('button', { type: 'button', class: 'sui-btn' }, 'Remove photo');
     const paint = () => {
@@ -63,7 +63,7 @@
     });
     drop.addEventListener('click', () => { photo = ''; paint(); });
     paint();
-    return { el: el('div', { class: 'ed-photo' }, box, el('div', { class: 'ed-photo-acts' }, choose, drop, note)), get: () => photo };
+    return { el: el('div', { class: 'ed-photo' }, box, el('div', { class: 'ed-photo-acts' }, choose, drop), note), get: () => photo };
   }
 
   SC.photoUi = { MAX, toJpegDataUri, avatarHtml, field };
