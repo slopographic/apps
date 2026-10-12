@@ -27,6 +27,12 @@
     await settle();
     return Ed;
   }
+  /** Waits until the fit has followed the viewer's new width. A border change reaches the page view through its
+      ResizeObserver, a frame or more later, so a probe taken straight after it would read the old layout. */
+  async function followWidth() {
+    await waitFor(() => { const v = viewer(); return Math.abs(v.querySelector('.pv-page').getBoundingClientRect().width - (v.clientWidth - 48)) < 1.5; }, { timeout: 8000 });
+    await sleep(60);
+  }
   /** Checks one step: the document point at the centre has not moved (within a pixel) and the page is centred. */
   function expectCentred(Ed, base, now, label) {
     const drift = Math.hypot((now.docX - base.docX) * now.zoom, (now.docY - base.docY) * now.zoom);
@@ -40,7 +46,7 @@
       const v = viewer();
       v.style.borderRight = '16px solid transparent';
       try {
-        await sleep(100);
+        await followWidth();
         const base = probe(Ed);
         expect(Math.abs(base.pageDx)).toBeLessThanOrEqual(1);
         for (let i = 0; i < 3; i++) {
@@ -62,7 +68,7 @@
       const v = viewer();
       v.style.borderRight = '16px solid transparent';
       try {
-        await sleep(100);
+        await followWidth();
         const base = probe(Ed);
         for (const pct of [150, 200, 120]) {
           Ed.setZoom(PT.win.SlopPdfZoom.fromPercent(pct));
