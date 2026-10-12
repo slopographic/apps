@@ -67,8 +67,9 @@ The bindings are fixed for Slop PDF (`NAV` in `js/editor/view.js`), so the Navig
   `skip` hands every key and Space to SlopCmd outside page view, so Ctrl/⌘ + in the grid still resizes thumbnails.
 - Space drag and middle drag pan. Touch: two-finger pinch zooms (immediate) and two-finger drag pans. A single-finger
   drag on the empty viewer pans from `S.startPan`, which `cancelStroke` stops when a second finger lands.
-- Zoom limits are 10% to 800% as the status bar shows them. The status bar is `Ed.zoom × 72/96` (1 is 75%), so the
-  internal limits are `Ed.ZOOM_MIN` / `Ed.ZOOM_MAX` (0.133 to 10.67). `Ed.easing()` tells tests when an ease has landed.
+- Zoom limits are 25% to 800% as the status bar shows them. The status bar is `Ed.zoom × 72/96` (1 is 75%), so the
+  internal limits are `Ed.ZOOM_MIN` / `Ed.ZOOM_MAX` (0.333 to 10.67). The pointer arithmetic is `editor/zoom-math.js`
+  (`SlopPdfZoom`, shared by the page view and `tests/node/pdf-zoom.test.mjs`); the anchor is the page under the pointer. `Ed.easing()` tells tests when an ease has landed.
 - Anchoring: each eased frame keeps the page point under the pointer in place (`setRaw`). A page smaller than the
   viewer cannot scroll, so the rest of the move becomes a `left`/`top` offset on the page; the next layout clears it.
   The viewer sets `overflow-anchor: none`, so the browser does not also move the scroll.
@@ -201,3 +202,23 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   `getTextContent`; the annotation keeps its quads in `pts` (four per line) and exports as filled multiply quads.
 - Tests: `tests/pdf/pdf.spec-history.js`. Fixtures carry a unique creation date (pdf-lib dates have one-second
   resolution, and identical files would share a saved log).
+
+## Page layouts, lazy pages and Extract assets
+- **Layouts** (`editor/view.js`, `view-rows.js`): continuous scroll (default), Single page and Two pages side by side, from
+  View ▸ Page layout or the commands `view.continuous|single|two`. The choice is kept in `slop-pdf.pageLayout` (try/catch).
+  The page in view (most of its area in the viewer, the middle on a tie, the last page at the end) is the active page;
+  the page indicator, the properties panel and the grid selection follow it. A press on another page makes it active
+  first, so the tools act on the page under the pointer. Previous/next and the page commands scroll to the page.
+- **Pages** (`editor/view-pages.js`): one element per page with its own raster and annotation SVG. An
+  IntersectionObserver (one viewport margin) rasters only the pages near the view and gives the raster back when they
+  leave; the active page is never released. Renders run one at a time, active page first. The overlay and the text box
+  move to the active page's element; they are not moved on every layout, so a text box keeps its focus.
+- **Extract assets** (File ▸ Extract assets…, `ui/assets.js`): `io/assets-scan.js` reads the images and fonts of the
+  pages still in the document with pdf-lib (pdf.js does not expose the stored stream or the object reference of an
+  image or font, so it cannot give the JPEG bytes). `io/assets-model.js` is pure (classification, PNG predictors, pixels,
+  list rows, zip order; `tests/node/pdf-assets.test.mjs`). `io/assets-save.js`: DCTDecode images as stored (JPEG), other
+  8-bit images decoded and encoded as PNG through a canvas, fonts as the embedded file (FontFile/2/3). Skipped items
+  (JPEG 2000, JBIG2, CCITT, CMYK, 1-bit, other filters) are listed with the reason. Output: one zip through
+  `shared/office/zip.js` (loaded on demand; offline it falls back to the app's store-only zip) or one file each, or
+  Slop Drive in a folder named after the PDF (`SlopHub.appSubfolderId('pdf', name)`, "PDF assets" without a name).
+  Not listed: inline images in content streams.
