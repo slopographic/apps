@@ -18,7 +18,7 @@ const SKIP_TOP = new Set(['storage']); // the docs folder at the site root (not 
 // fixed version would fail with VersionError on a database the app has already upgraded (and clear nothing).
 // shared/storage/storage.js lists the databases this site has and counts their records: it opens them with no version and
 // aborts the open if one is missing, so it never creates or upgrades anything.
-const GENERIC_OPEN = new Set(['shared/backup/core.js', 'shared/backup/central-idb.js', 'shared/cache/regen.js', 'shared/storage/storage.js']);
+const GENERIC_OPEN = new Set(['shared/backup/core.js', 'shared/backup/central-idb.js', 'shared/cache/regen.js', 'shared/storage/storage.js', 'shared/db/db.js']);
 // Whole-database deletes that are explicit user or test actions on a database the app owns.
 const ERASE_OK = new Set(['shared/data/store.js', 'gallery/js/core/db.js', 'shared/backup/core.js']);
 
