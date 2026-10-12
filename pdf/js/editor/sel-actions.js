@@ -123,7 +123,7 @@
       'Undo works while this document is open. A downloaded file keeps the text removed.', 'Remove text', { danger: true });
     if (!ok) return;
     var dpi = +U.store.get('redactDpi', 200) || 200;
-    return S.guarded('Removing text…', async function (prog) {
+    return SP.app._.guarded('Removing text…', async function (prog) {
       var r = await E.applyRedactions({ dpi: dpi, extra: extra, onProgress: function (f) { prog(f, 'Removing text… ' + Math.round(f * 100) + '%'); } });
       SlopUI.toast('Text removed (' + r.marks + ' area' + (r.marks === 1 ? '' : 's') + '). Download to save the file without it.');
       return r;
