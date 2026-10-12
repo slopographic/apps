@@ -9,7 +9,7 @@ const CACHE = 'slopographic-' + VERSION;
 const OFFLINE = '/offline.html';
 const STATIC = /\.(m?js|css|woff2?|ttf|otf|png|jpe?g|webp|gif|svg|ico|wasm|json|glb|bcmap|pfb)$/i;
 
-importScripts('/sw-precache.js');
+importScripts('/sw-precache.js', '/sw-precache-2.js');
 
 const absolute = (p) => new URL(p, self.location.origin).href;
 // A folder navigation ("/drive/") is stored under the file it serves.
