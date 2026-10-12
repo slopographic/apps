@@ -22,8 +22,7 @@ async function hubBoot() {
 async function openProjectFromDrive(rec) {
   const f = driveFile(rec), text = await f.text();
   if (!/"app"\s*:\s*"sloplabel"/.test(text.slice(0, 400))) return openFiles([f]);
-  if (!(await confirmDiscard())) return;
-  try { setDoc(parseProject(text)); App.driveId = rec.id; status('Opened ' + f.name, '', 2500); }
+  try { openDocTab(parseProject(text), { origName: f.name, driveId: rec.id }); status('Opened ' + f.name, '', 2500); }
   catch (e) { SlopUI.alert('Could not open ' + f.name, e.message || String(e)); }
 }
 async function openProjectDrive() {
@@ -34,9 +33,9 @@ async function openProjectDrive() {
 /** File ▸ Save: writes the project back to the linked Drive file, or asks for a folder the first time. */
 async function saveProjectToDrive() {
   const name = safeName(App.doc.name, '.sloplabel'), blob = projectBlob(App.doc);
-  if (!App.driveId) { const id = await SlopHub.saveToDrive(blob, name, { from: 'label' }); if (!id) return; App.driveId = id; }
+  if (!App.driveId) { const id = await SlopHub.saveToDrive(blob, name, { from: 'label' }); if (!id) return; linkDrive(id); }
   else if (!(await SlopHub.update(App.driveId, { blob, name, type: blob.type }))) await SlopHub.put(blob, { id: App.driveId, name, from: 'label' });
-  App.dirty = false;
+  markSaved();
   status('Saved ' + name + ' to Slop Drive', '', 2500);
 }
 async function imageFromDrive() {

@@ -71,11 +71,13 @@
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="../shared/doctabs/doctabs.css">
   <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/panels.css">
   <link rel="stylesheet" href="css/classic.css">
   <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/tabs.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -91,6 +93,7 @@
       <button type="button" class="btn primary" id="btnPrint" title="Print (Ctrl+P)">Print…</button>
       <button type="button" class="btn ghost only-narrow" id="btnDock" aria-label="Show panels" title="Panels">☰</button>
     </header>
+    <div class="lb-tabs" id="tabs" aria-label="Open labels"></div>
     <div class="ctrlbar" id="ctrlbar">
       <button type="button" class="chip" id="cbLabel" title="Label setup"></button>
       <span class="sep"></span>
@@ -139,9 +142,14 @@
   <script src="../shared/data/barcode.js"></script>
   <script src="../shared/data/examples.js"></script>
   <script src="../shared/ui/form-reset.js"></script>
+  <script src="../shared/doctabs/tabs.js"></script>
+  <script src="../shared/doctabs/drive.js"></script>
+  <script src="../shared/doctabs/session.js"></script>
   <script src="js/core/units.js"></script>
   <script src="js/core/stocks.js"></script>
   <script src="js/core/model.js"></script>
+  <script src="js/core/configs.js"></script>
+  <script src="js/core/presets.js"></script>
   <script src="js/barcode/symbols.js"></script>
   <script src="js/barcode/code128.js"></script>
   <script src="js/barcode/geometry.js"></script>
@@ -159,6 +167,8 @@
   <script src="js/print/epl.js"></script>
   <script src="js/io/zplimport.js"></script>
   <script src="js/io/files.js"></script>
+  <script src="js/io/tabstate.js"></script>
+  <script src="js/io/configs-store.js"></script>
   <script src="js/io/offline.js"></script>
   <script src="js/io/examples.js"></script>
   <script src="js/templates/gallery.js"></script>
@@ -184,6 +194,8 @@
   <script src="js/ui/props-reset.js"></script>
   <script src="js/ui/panels.js"></script>
   <script src="js/ui/dialogs.js"></script>
+  <script src="js/ui/configs-dlg.js"></script>
+  <script src="js/ui/presets-dlg.js"></script>
   <script src="js/ui/datadlg.js"></script>
   <script src="js/ui/export.js"></script>
   <script src="js/ui/printdlg.js"></script>
@@ -192,7 +204,7 @@
   <script src="js/ui/hub.js"></script>
   <script src="js/ui/menus.js"></script>
   <script src="js/ui/context.js"></script>
-  <script src="js/ui/view-state.js"></script>
+  <script src="js/ui/tabs.js"></script>
   <script src="../shared/drop/rules.js" data-src="shared/drop/rules.js"></script>
   <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
   <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>

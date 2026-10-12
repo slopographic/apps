@@ -21,6 +21,14 @@
     if (!E.isBox(a)) {
       if (!a.pts || !a.pts.length) return;
       if (a.type === 'texthl') {
+        if (a.style === 'underline' || a.style === 'strike') {
+          // a line along the bottom (underline) or through the middle (strike) of each text line
+          for (var u = 0; u + 3 < a.pts.length; u += 4) {
+            var ml = window.SlopPdfSel.markLine(a.pts.slice(u, u + 4), a.style);
+            page.drawSvgPath('M' + ml.x0 + ' ' + ml.y + ' L' + ml.x1 + ' ' + ml.y, { x: g.x0, y: g.y0 + g.H, borderColor: rgb(a.color || '#ffe14d'), borderWidth: ml.w, borderOpacity: op });
+          }
+          return;
+        }
         // one filled quad per text line, multiplied onto the page like the other highlights
         for (var q = 0; q + 3 < a.pts.length; q += 4) {
           var qd = '';
