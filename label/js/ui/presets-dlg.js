@@ -18,12 +18,13 @@ function presetsDialog() {
     const b = p.body, slots = presetSlots(b);
     const preview = mk('span', { class: 'tp' });
     preview.innerHTML = presetPreviewSvg(b, p.name); // numbers and the escaped name only (core/presets.js)
-    const meta = `${b.stock.kind === 'sheet' ? `${slots} per sheet · ` : ''}${num(b.label.w, 1)} × ${num(b.label.h, 1)} mm${b.label.radius ? ' · round' : ''}`;
+    const round = b.label.radius >= Math.min(b.label.w, b.label.h) / 2 - 0.01; // a round label, not just rounded corners
+    const meta = [b.stock.kind === 'sheet' ? `${slots} per sheet` : null, round ? 'round' : null].filter(Boolean).join(' · ');
     const acts = mk('div', { class: 'cfg-acts' },
       fBtn('New tab', () => { dlg.close(true); presetChoice(p, 'tab'); }, { cls: 'primary' }),
       fBtn('This tab', () => { dlg.close(true); presetChoice(p, 'apply'); }),
       mine ? fBtn('Remove', async () => { if (!(await SlopUI.confirm('Remove this preset?', `“${p.name}” is removed from this browser.`, 'Remove', { danger: true }))) return; LabelConfigs.removePreset(p.id); dlg.close(true); presetsDialog(); }) : null);
-    return mk('div', { class: 'tpl pst' }, preview, mk('b', null, p.name), mk('small', null, (p.desc ? p.desc + ' · ' : '') + meta), acts);
+    return mk('div', { class: 'tpl pst' }, preview, mk('b', null, p.name), mk('small', null, [p.desc, meta].filter(Boolean).join(' · ')), acts);
   };
   const groups = PRESET_GROUPS.map((g) => mk('div', { class: 'pst-group' }, mk('h4', { class: 'sec-h' }, g),
     mk('div', { class: 'tpl-grid' }, ...PRESETS.filter((p) => p.group === g).map((p) => tile(p, false)))));

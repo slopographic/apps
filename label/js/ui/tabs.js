@@ -55,10 +55,10 @@ function tabChanged() {
 }
 /** Strip events: a rename renames the label; a Drive link is kept on the tab. */
 function onTabEvent(why, t) {
-  const T = t.doc;
-  if (why === 'content' && t.name && T.name !== t.name) {
-    T.name = t.name;
-    if (T === App.doc) { document.title = T.name + ' — SlopLabel'; updateChrome(); }
+  const T = t.doc; // the tab record; T.doc is the label
+  if (why === 'content' && t.name && T.doc.name !== t.name) {
+    T.doc.name = t.name;
+    if (T === App.T) { document.title = T.doc.name + ' — SlopLabel'; updateChrome(); }
   }
   if (why === 'drive' || why === 'open') {
     T.driveId = t.driveId;

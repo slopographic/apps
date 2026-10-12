@@ -11,6 +11,8 @@ Status: **beta.** The designer works end to end in the browser: design, data mer
 | core/units.js | mm/in/dots/pt conversion, `num`, `fmtLen`, `clamp`, `round`, `uid`, `escHTML` |
 | core/stocks.js | `STOCKS` library (thermal rolls, Avery Letter/A4, Herma A4), `stockOf`, `sheetPositions` |
 | core/model.js | `newDoc`, `applyStock`, `setOrientation`, `makeObject`, `History` (snapshot undo/redo with coalescing), align/distribute/reorder/group, `parseProject`/`normalizeDoc` |
+| core/configs.js | Label configs: `configFromDoc`, `validateConfig` (a zero or negative size, a sheet grid that does not fit or overlaps are refused), `applyConfigToDoc`, `docFromConfig`, `styleProps` (the default text and shape style of new objects) |
+| core/presets.js | Built-in presets as configs: `PRESETS` (Avery L7651, L7159, L7160 on A4; 4×6 in shipping, 62×29 mm address, 40×30 mm product, file folder, round 50 mm), `presetFits`, `presetPreviewSvg` |
 | barcode/symbols.js | `SYMBOLOGIES`, `gs1Check`, UPC-E expansion, Code 39 mod 43, GS1 AI table, `parseGS1`, `gs1Raw`, `gs1FromRaw` |
 | barcode/code128.js | Code 128 auto-subset encoder, `normalizeBarcode` (readable errors, automatic check digits) |
 | barcode/geometry.js | `barcodeGeometry`: mm rects and HR text. Most linear and all 2D codes go through `bwipjs.raw` |
@@ -20,13 +22,18 @@ Status: **beta.** The designer works end to end in the browser: design, data mer
 | print/job.js, html.js, pdf.js | Jobs (records, quantity column, copies, sheet start; `records: 'only'` with a list of indexes for ticked rows), `@page` print HTML, hand-written PDF 1.4 |
 | print/zplgfx.js, zpl.js, epl.js | ^GFA compression, ZPL II, EPL2, TSPL |
 | io/zplimport.js, files.js, offline.js | ZPL → document, projects/autosave/form-link hashing, offline single-file builder |
+| io/tabstate.js | One tab as plain data (`tabRecord`, `tabToState`, `stateToTab`): the label, its undo history (last 100 steps), selection, record, prompts, unsaved flag and view |
+| io/configs-store.js | `makeConfigStore(storage)`: configs and user presets in the versioned localStorage envelope `slop.label.configs.v1` (try/catch; a newer or corrupt file is read as empty and never overwritten); export and import of `sloplabel-configs` JSON |
 | io/examples.js | Example CSV (text from `SlopExamples`) and a sample product-label `.sloplabel` template, built in the browser |
 | templates/gallery.js | 6 starter templates (shipping 4×6, product EAN-13, SSCC pallet, asset QR, badge, Avery 5160 merge) |
 
 ### UI (`js/ui/`)
 | File | What it does |
 |---|---|
-| app.js | `App` state, `commit`/`editSel`/`undo`/`redo`/`setDoc`, selection, `refresh` (one frame later; `App.stale` makes `itemOf`/`boxOf` rebuild the scene when they are called before then), status bar, theme, dock |
+| app.js | `App` state (`App.T` is the current tab), `commit`/`editSel`/`undo`/`redo`/`setDoc` (replaces the current tab's label), selection, `refresh` (one frame later; `App.stale` makes `itemOf`/`boxOf` rebuild the scene when they are called before then), status bar, theme, dock |
+| tabs.js | The label tabs on the shared strip (`shared/doctabs`): `LabelTabs`, `startTabs`, `openDocTab` (a new tab), `syncIn`/`syncOut` (App ⇄ tab record), `tabChanged`, rename and Drive link per tab |
+| configs-dlg.js | File ▸ Save as config…, File ▸ Configs… (apply as one undo step, rename, duplicate, save as preset, delete, export all, import) |
+| presets-dlg.js | File ▸ Presets… gallery with a preview of each page; **New tab** or **This tab** (one undo step); the user's own presets under “Your presets” |
 | view.js | Canvas viewport (screen = pan + mm × zoom), label/grid/margins, selection handles, smart guides, rulers |
 | interact.js | `TOOLS`, hit testing, move/resize (grid snap, smart guides, Alt disables), click or drag to create, image placing, marquee, pan (Space, middle button, Hand, one finger on empty canvas), wheel and pinch zoom |
 | commands.js | Every tool and menu action registered with the shared command palette (`shared/commands`, `SlopCmd`): Ctrl/⌘+K search, all shortcuts rebindable (Help ▸ Keyboard shortcuts…, stored in `slop.keys.label`). `K(id)` gives menu key labels; `updateKeyTitles` refreshes tooltips after a rebind. Nothing runs from the keyboard in print-form mode |
@@ -43,9 +50,14 @@ Status: **beta.** The designer works end to end in the browser: design, data mer
 | form.js | Print-form mode (`#form=` + `encodeDocHash`) and "Share print form link…" |
 | hub.js | `SlopHub.register('label')`, `consumeLaunch` (image → placed; CSV/xlsx → data; .sloplabel/.zpl → opened), Slop Drive pickers, File → Send to (PDF to Slop PDF; PNG to PhotoSlop and SlopVector). Hidden under `file:` and in the offline build |
 | menus.js | Menu bar: File, Edit, Insert, Object, Data, View (themes), Help |
-| boot.js | Toolbox, chrome wiring, drag and drop, boot order (form link → autosave → starter template → hub launch), adds `body.ready` |
+| boot.js | Toolbox, chrome wiring, drag and drop, boot order (form link → the tabs come back, or the starter label → hub launch), adds `body.ready` |
 
 CSS (`css/`): themes.css (tokens for Pro, Light and Classic 98, mapped onto `--sui-*`), layout.css, panels.css, classic.css, mobile.css (≤760 px: tools along the bottom, panels in a slide-up sheet opened with ☰).
+
+## Tabs, configs and presets
+- **Tabs.** Each label is a tab on the shared strip (`#tabs`, `shared/doctabs`). New tab (Ctrl+T, File ▸ New tab), close (Ctrl+W, with a dirty check), switch (click, Ctrl+Tab), reorder (drag), rename (double-click; renames the label). Opening a `.sloplabel` file, a JSON project, a ZPL file, a template, a preset or a form link opens a new tab. A tab keeps its label, undo history, selection, record, prompts, unsaved flag, Drive link, tool, zoom and pan; the strip's session writes them to this browser (IndexedDB and a small localStorage index) and they come back after a reload. The old single autosave is read once, when no tab was saved.
+- **Configs.** A config holds the label size and stock (a sheet's columns, rows, pitch and margins included), units, resolution, the margin, the printer settings, the default style (font, text ink, shape fill, line width for new objects, set in Label setup) and the data columns with their field mapping. No rows or objects. Applying one to the open label is one undo step. Saved configs live in `slop.label.configs.v1`; export and import use `sloplabel-configs` JSON, and a file dropped on the app is imported the same way.
+- **Presets.** Built-in presets are configs. Sheet sizes and grids come from the stock library (`core/stocks.js`), which is the printer standard used here; the Avery codes shown are the ones the library names. The round label is a roll with a corner radius of half its side.
 
 ## Forms: Reset and examples
 - Every Label form has a **Reset** button that puts back the values the form had when it opened (the property panel: the selection when it was selected; dialogs: the values when the dialog opened). With edits, it asks first (SlopUI confirm). Dialogs use `SlopFormReset.dialogButton(body)` from `shared/ui/form-reset.js`: label setup, variable editor, Print, Print values, map columns, paste data, ZPL import and ZPL preview. The stock picker list in label setup is not a form field, so Reset restores its size and printer fields but not the stock chosen.
@@ -53,6 +65,9 @@ CSS (`css/`): themes.css (tokens for Pro, Light and Classic 98, mapped onto `--s
 - The ZPL import dialog has no example file yet.
 
 ## Tests
+- `tests/label/tabs-configs.test.html`: two extra label tabs, a config saved and applied to another tab (one undo step), a preset in a new tab and applied to this tab, a file dropped on the strip, a refused negative size in an imported file, and a reload that brings back the tabs, undo and configs.
+- node: `tests/node/label-configs.test.mjs`, `label-presets.test.mjs` (every preset valid and its grid on its sheet, label counts 21/24/65), `label-tabstate.test.mjs`. They load the real scripts through `tests/node/label-env.mjs`.
+- `tests/label/view-state.test.html` now checks the tool, zoom and pan of the tab (through `flushTabs()`), not the old SlopSession view store.
 `tests/label/sloplabel.test.html` loads the app in two same-origin iframes (1280 px and 390 px) and reaches its globals with `win.eval`:
 - engine.test.js: units, check digits, Code 128 values (`ABC123` gives `[104,33,34,35,17,18,19,67,106]`), barcode validation, GS1, variables, CSV, JSON, and xlsx (generated by a small zip writer in the test).
 - output.test.js: Avery 5160 positions, sheet start offsets, `pageCSS`, jobs, History, scene errors, ZPL snapshot and round trip, ^PQ merging, ^FH escaping, ^GFA, ZPL import (^FN/^SN/GS1/QR), GS1 DataMatrix, EPL/TSPL, PDF xref offsets and resources, projects, form-link hashes, offline builder escaping.
