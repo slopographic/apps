@@ -9,7 +9,8 @@
   Ed.ZOOM_MIN = ZMIN; Ed.ZOOM_MAX = ZMAX;
   Ed.percent = Z.percent;
   S.stopEase = function () { if (easeRaf) cancelAnimationFrame(easeRaf); easeRaf = 0; ease = null; };
-  function centre() { var vr = S.viewer.getBoundingClientRect(); return { x: vr.left + vr.width / 2, y: vr.top + vr.height / 2 }; }
+  /** The workspace centre the zoom buttons, menus and typed values zoom about: the centre of the visible area (no scrollbar gutter). */
+  function centre() { var v = S.viewer; return Z.viewerCentre(v.getBoundingClientRect(), { left: v.clientLeft, top: v.clientTop, width: v.clientWidth, height: v.clientHeight }); }
   /** Zoom now to z, keeping the document point under client (ax, ay) in place (the arithmetic is in zoom-math.js). */
   function setRaw(z, ax, ay) {
     var pt = { x: ax, y: ay }, hit = S.slotAt(ax, ay);
