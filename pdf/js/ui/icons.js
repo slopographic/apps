@@ -34,6 +34,8 @@
     zoomout: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h6"/>',
     fit: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
     prev: '<path d="m15 18-6-6 6-6"/>',
+    up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+    down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
     next: '<path d="m9 18 6-6-6-6"/>',
     close: '<path d="M6 6l12 12M18 6 6 18"/>',
     check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',

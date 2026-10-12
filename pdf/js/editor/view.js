@@ -62,6 +62,7 @@
     if (Ed.pid !== pid) { S.finishText(true); Ed.selId = null; if (Ed.noteUI) Ed.noteUI.close(); }
     S.stopEase();
     Ed.pid = pid; Ed.fitPid = pid;
+    if (SP.organizer && SP.organizer.markCurrent) SP.organizer.markCurrent();
     Ed.layout(true);
     S.reveal(pid);
   };

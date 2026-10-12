@@ -222,3 +222,35 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   `shared/office/zip.js` (loaded on demand; offline it falls back to the app's store-only zip) or one file each, or
   Slop Drive in a folder named after the PDF (`SlopHub.appSubfolderId('pdf', name)`, "PDF assets" without a name).
   Not listed: inline images in content streams.
+
+## Find, Replace, text selection, Edit text, page actions (this pass)
+- **Find (Ctrl+F)** (`js/find/`): `bar.js` (query, Match case, Whole word, "3 of 12", Next/Previous with Enter/Shift+Enter,
+  the result list behind List, Escape closes). `search.js` runs the same locator as Replace text (`macro/text.js`,
+  `T.find`), so the count, the highlights and the replacements agree; `paint.js` draws one SVG rect per match box in
+  each page's layer (current match stronger). Pure helpers (`step`, `label`, `context`) are in `search.js`
+  (`tests/node/pdf-find.test.mjs`). Matches inside one text item are highlighted by measured glyph widths; a match whose
+  position is not exact is still counted and highlighted but is not replaced.
+- **Replace all** (`js/find/replace-ui.js`, `replace.js`): the dialog lists every match with a checkbox (page, the text
+  around it). Replace checked writes each replacement as a white whiteout over the old run plus the new text in the
+  standard font, one undo step each (edit log included). Geometry is `M.coverPlan` in `macro/ops-edit.js`, shared with
+  the Replace text macro (pdf-lib path). Unplaceable matches are listed as not replaced.
+- **Selectable text** (`js/editor/textlayer.js`): pdf.js `TextLayer` per rasterised page, in the page layer under the
+  annotations and over the find highlights; `--scale-factor` must be the zoom or the spans are misplaced. The select tool
+  lets a press on a span select text (no pan); the annotation SVG has `pointer-events: none` (its marks keep theirs).
+- **Edit text (Ctrl+E)** (`js/editor/edit-text.js`): click a run, type, Enter applies (Escape cancels). The old run is
+  covered and the new text drawn at the same baseline, size and bold/italic, in the standard font of its family. The
+  colour is the darkest ink in the run on the rendered page. The info line names the font and "embedded"/"not embedded".
+  NOT DONE: reusing an embedded font for the new text, and "Use a font file…": pdf-lib needs `@pdf-lib/fontkit` to embed
+  TTF/OTF, which is not vendored (`vendor/` was out of scope), so the new text is always a standard font.
+- **Page actions** (`js/ui/page-acts.js`, `organize/grid.js`): each thumbnail has rotate left/right, open, duplicate,
+  move up, move down, extract this page, delete; the focused thumbnail's buttons are in the Tab order. Each is one undo
+  step. The current page has a border on its thumbnail and its canvas (`css/page-acts.css`).
+- **Zoom**: the zoom keeps the point under the anchor (workspace centre for the buttons, pointer for Ctrl+wheel). A
+  regression test (`tests/pdf/pdf.spec-pages.js`) checks the anchor at 60% to 300% in continuous, single and two-page
+  layouts. Drifting to the left was not reproduced. Pan: drag empty space, Space+drag, middle drag, scrollbars.
+- Tests: `tests/pdf/find.test.html`, `replace.test.html`, `edit.test.html`, `pages.test.html`;
+  `tests/node/pdf-find.test.mjs`. Offline build lists and `pdf/css/find.css`, `page-acts.css` updated.
+- **Not done**: document tabs with SlopDocTabs and drop-to-open / drop-to-add-pages (the app holds one document in
+  `E.files`/`E.state` and its own autosave; per-tab state needs a swap of those globals and history stacks).
+- After any change to script or CSS lists, run `node tools/pwa-precache.mjs` and bump VERSION in `service-worker.js`
+  (the new files are not in the precache until it is run).

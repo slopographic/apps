@@ -27,6 +27,7 @@
   S.release = function (s) {
     if (s.pid === Ed.pid) return;
     s.canvas.width = 0; s.canvas.height = 0; s.key = null; s.el.classList.remove('loaded');
+    S.dropTextLayer(s);
   };
   /** Sets a slot's size and layer transform for the current zoom and rotation. */
   S.sizePage = function (s) {
@@ -49,7 +50,9 @@
   /** Paints one page's annotations (the active page gets the editing state too). */
   S.paintSlot = function (s) {
     var p = E.pageById(s.pid); if (!p) return;
+    s.el.classList.toggle('is-current', s.pid === Ed.pid); // the current-page border on the canvas
     var active = s.pid === Ed.pid;
+    if (window.SlopPdfFind) window.SlopPdfFind.paintSlot(s); // find highlights (find/paint.js)
     V.paintAnnots(s.svg, p, E.indexOf(p.id), E.state.pages.length, active ? { hide: S.editing ? S.editing.id : null, draft: S.draft } : {});
   };
   /** Repaints the annotations of the active page and of the rasterised pages near the view. */
@@ -109,6 +112,7 @@
     s.key = key;
     s.el.classList.add('loaded');
     S.paintSlot(s);
+    S.buildTextLayer(s).catch(function (e) { console.warn('Slop PDF: text layer failed', e); });
   };
   S.rasterObserver = null;
   S.observe = function (s) { if (S.rasterObserver) S.rasterObserver.observe(s.el); };

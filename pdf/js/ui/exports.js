@@ -42,14 +42,15 @@
       return bytes;
     });
   };
-  A.extract = function () {
-    var ids = O.selected();
+  A.extract = function (idList) {
+    var ids = idList || O.selected();
     if (!ids.length) { SlopUI.toast('Select the pages to extract first.'); return; }
     return S.guarded('Extracting pages…', async function (prog) {
       var set = new Set(ids), pages = E.state.pages.filter(function (p) { return set.has(p.id); });
       var bytes = await E.build({ pages: pages, onProgress: prog });
       await E.validate(bytes, pages.length);
-      var name = S.outName('pages-' + U.describeIdx(O.selectedIndices()).replace(/[–, ]+/g, function (m) { return m.indexOf(',') >= 0 ? '_' : '-'; }));
+      var shown = E.state.pages.map(function (p, i) { return set.has(p.id) ? i : -1; }).filter(function (i) { return i >= 0; });
+      var name = S.outName('pages-' + U.describeIdx(shown).replace(/[–, ]+/g, function (m) { return m.indexOf(',') >= 0 ? '_' : '-'; }));
       U.download(bytes, name, 'application/pdf');
       A.status('Extracted ' + pages.length + ' pages to ' + name, 'ok');
       return bytes;
