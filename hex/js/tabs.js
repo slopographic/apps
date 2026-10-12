@@ -52,7 +52,7 @@
     /** Opens a file in a new tab (or brings up the tab that shows this Drive file). */
     open(blob, name, driveId, version) {
       const T = makeT(window.HexDoc.create(blob, { name, type: blob.type, crypto: window.crypto }), { type: blob.type, version });
-      api.openDoc(T, { driveId: driveId || null });
+      api.openDoc(T, { driveId: driveId || null, origName: name || null });
       return T;
     },
     /** Tells the strip that the open file changed (a byte, an undo): the tab's unsaved dot and the session save follow. */

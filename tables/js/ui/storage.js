@@ -40,10 +40,10 @@ export async function openRecord(rec) {
     return false;
   }
   // A CSV is imported as a new, unsaved workbook: its Drive record must not be overwritten with .stab data.
-  if (isCsv(rec)) { tabs.open(wb, { name, dirty: true }, null); return true; }
+  if (isCsv(rec)) { tabs.open(wb, { name, dirty: true, origName: rec.name }, null); return true; }
   const open = tabs.tabFor(rec.id);
   if (open) tabs.api().activate(open.doc);
-  else tabs.open(wb, { name, folderId: rec.folderId }, rec.id);
+  else tabs.open(wb, { name, folderId: rec.folderId, origName: rec.name }, rec.id);
   return true;
 }
 

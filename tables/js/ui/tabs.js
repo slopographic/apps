@@ -107,7 +107,7 @@ export const tabs = {
   /** A new blank workbook in a new tab (File ▸ New workbook, + on the strip). */
   newTab: () => api.newTab(),
   /** A workbook in a new tab. driveId links it to a Drive record; without it the tab is an unsaved workbook. */
-  open(wb, file = {}, driveId = null) { return api.openDoc(makeT(wb, file), { driveId }); },
+  open(wb, file = {}, driveId = null) { return api.openDoc(makeT(wb, file), { driveId, origName: file.origName || null }); },
   /** The tab that shows this Drive record, if one is open. */
   tabFor: (driveId) => api.tabs().find((t) => t.driveId === driveId) || null,
   /** A tab nobody has edited and that is not linked to a file: a launch may replace it. */
