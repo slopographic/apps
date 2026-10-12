@@ -153,7 +153,7 @@
   S.refreshAll = function () { O.render(); PN.refresh(); S.updateChrome(); }
 
   /* --------------------------------------------------------- undo/redo */
-  A.undo = function () { if (Ed.isEditingText()) { Ed.commitText(); } var l = E.undo(); if (l) A.announce('Undid: ' + l); };
+  A.undo = function () { if (Ed.isEditingText()) { Ed.commitText(); } var l = E.undo(); if (l) A.announce('Undid: ' + l); return l; };
   A.redo = function () { var l = E.redo(); if (l) A.announce('Redid: ' + l); };
 
 })();
