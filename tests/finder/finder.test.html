@@ -113,19 +113,19 @@
   describe('finder: views and table', () => {
     it('the list view shows every matching item, and the table view its columns', () => {
       const f = mountIt();
-      $('.sf-view[data-view="list"]').click();
+      $('.sf-view[data-sf-view="list"]').click();
       expect($$('.sf-row').length).toBe(4);
-      expect($('.sf-view[data-view="list"]').getAttribute('aria-pressed')).toBe('true');
+      expect($('.sf-view[data-sf-view="list"]').getAttribute('aria-pressed')).toBe('true');
       typeIn('pdf');
       expect($$('.sf-row').map((r) => r.dataset.id)).toEqual(['pdf']);
-      $('.sf-view[data-view="table"]').click();
+      $('.sf-view[data-sf-view="table"]').click();
       expect($$('.sf-table th').map((th) => th.textContent.trim())).toEqual(['App', 'Section', 'Open']);
       expect($$('.sf-table tbody tr').length).toBe(1);
       f.destroy();
     });
     it('the table sorts by a column: ascending, then descending, and shows aria-sort', () => {
       const f = mountIt({ columns: SPEC.columns });
-      $('.sf-view[data-view="table"]').click();
+      $('.sf-view[data-sf-view="table"]').click();
       const names = () => $$('.sf-table tbody tr td:first-child').map((td) => td.textContent);
       expect(names()).toEqual(['PDF', 'Invoices', 'Slop Isolate', 'Café Notes']);
       $$('.sf-sort').find((b) => b.textContent.startsWith('App')).click();
@@ -139,7 +139,7 @@
     });
     it('a column with sortable: false has no sort button', () => {
       const f = mountIt({ columns: SPEC.columns });
-      $('.sf-view[data-view="table"]').click();
+      $('.sf-view[data-sf-view="table"]').click();
       expect($$('.sf-table th')[2].querySelector('button')).toBe(null);
       f.destroy();
     });
@@ -164,14 +164,14 @@
       const f = mountIt({ urlPrefix: 'ftest' });
       typeIn('notes');
       expect(location.search).toContain('ftest.q=notes');
-      $('.sf-view[data-view="list"]').click();
+      $('.sf-view[data-sf-view="list"]').click();
       expect(location.search).toContain('ftest.view=list');
       f.destroy();
       const g = mountIt({ urlPrefix: 'ftest' });
       expect($('.sf-input').value).toBe('notes');
       expect(g.getFilter().view).toBe('list');
       g.clear();
-      $('.sf-view[data-view="cards"]').click();
+      $('.sf-view[data-sf-view="cards"]').click();
       expect(location.search).not.toContain('ftest.');
       g.destroy();
     });

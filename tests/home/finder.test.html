@@ -85,16 +85,16 @@
     it('the table has name, section, file types and open columns, and no status column', async () => {
       await ready;
       clearAll();
-      doc.querySelector('#app-finder .sf-view[data-view="table"]').click();
+      doc.querySelector('#app-finder .sf-view[data-sf-view="table"]').click();
       const heads = [...doc.querySelectorAll('#app-finder .sf-table th')].map((th) => th.textContent.trim());
       expect(heads).toEqual(['App', 'Section', 'File types', 'Open']);
       expect(doc.querySelector('#app-finder .sf-table').textContent.includes('In development')).toBe(false);
       clearAll();
-      doc.querySelector('#app-finder .sf-view[data-view="cards"]').click();
+      doc.querySelector('#app-finder .sf-view[data-sf-view="cards"]').click();
     });
     it('the table sorts by name: ascending, then descending', async () => {
       await ready;
-      doc.querySelector('#app-finder .sf-view[data-view="table"]').click();
+      doc.querySelector('#app-finder .sf-view[data-sf-view="table"]').click();
       type('music');
       const sort = () => [...doc.querySelectorAll('#app-finder .sf-sort')].find((b) => b.textContent.trim().startsWith('App'));
       sort().click();
@@ -105,19 +105,19 @@
       sort().click();
       expect([...names()].reverse()).toEqual(asc);
       clearAll();
-      doc.querySelector('#app-finder .sf-view[data-view="cards"]').click();
+      doc.querySelector('#app-finder .sf-view[data-sf-view="cards"]').click();
     });
     it('the list view shows every visible app, once each', async () => {
       await ready;
       type('pdf');
-      doc.querySelector('#app-finder .sf-view[data-view="list"]').click();
+      doc.querySelector('#app-finder .sf-view[data-sf-view="list"]').click();
       const rows = [...doc.querySelectorAll('#app-finder .sf-row')].map((r) => r.dataset.id);
       expect(new Set(rows).size).toBe(rows.length);
       const sectionIds = [...new Set([...doc.querySelectorAll('#app-sections [data-perch="card"]')].map((c) => c.dataset.id))].filter((id) => id !== 'print');
       expect(rows.length).toBe(sectionIds.length);
       expect(rows.sort()).toEqual(sectionIds.sort());
       clearAll();
-      doc.querySelector('#app-finder .sf-view[data-view="cards"]').click();
+      doc.querySelector('#app-finder .sf-view[data-sf-view="cards"]').click();
     });
     it('a filter is kept in the URL, under hp.', async () => {
       await ready;

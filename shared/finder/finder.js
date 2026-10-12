@@ -49,7 +49,8 @@
       'aria-autocomplete': opts.suggest ? 'list' : null, 'aria-expanded': opts.suggest ? 'false' : null, 'aria-controls': opts.suggest ? id + '-list' : null });
     search.value = st.q;
     const suggest = opts.suggest ? el('ul', { class: 'sf-suggest', id: id + '-list', role: 'listbox', hidden: true, 'aria-label': 'Matching apps' }) : null;
-    const views = M.VIEWS.map((v) => el('button', { type: 'button', class: 'sf-view', 'data-view': v, 'aria-pressed': 'false',
+    // The attribute is data-sf-view, not data-view: app.js routes every click on [data-view] to a page view, which hid the homepage.
+  const views = M.VIEWS.map((v) => el('button', { type: 'button', class: 'sf-view', 'data-sf-view': v, 'aria-pressed': 'false',
       onclick: () => { st = { ...st, view: v }; update(); } }, VIEW_LABELS[v]));
     const facetBox = el('div', { class: 'sf-facets' });
     const facetWrap = opts.facetsCollapsed ? el('details', { class: 'sf-more' }, el('summary', { class: 'sf-more-sum' }, 'Filter by'), facetBox) : facetBox;
@@ -139,7 +140,7 @@
       paintFacets(M.facetCounts(items, st, spec));
       paintChips();
       paintSuggest();
-      for (const b of views) b.setAttribute('aria-pressed', String(b.dataset.view === st.view)), b.classList.toggle('is-on', b.dataset.view === st.view);
+      for (const b of views) b.setAttribute('aria-pressed', String(b.dataset.sfView === st.view)), b.classList.toggle('is-on', b.dataset.sfView === st.view);
       count.textContent = M.isFiltered(st) ? `${matched.length} of ${items.length} ${opts.noun || 'items'} match` : `${items.length} ${opts.noun || 'items'}`;
       empty.hidden = matched.length > 0;
       paintResults();

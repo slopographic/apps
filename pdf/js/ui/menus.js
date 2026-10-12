@@ -20,9 +20,16 @@
     });
     S.els.btnMore.addEventListener('click', function (e) {
       e.stopPropagation(); var r = S.els.btnMore.getBoundingClientRect();
-      SlopUI.menu([{ label: 'File', sub: S.fileMenu() }, { label: 'Edit', sub: S.editMenu() }, { label: 'View', sub: S.viewMenu() }, { label: 'Help', sub: S.helpMenu() }], r.right - 220, r.bottom + 4);
+      SlopUI.menu(S.moreMenu(), r.right - 220, r.bottom + 4);
     });
   }
+  /* The overflow (More) menu, shown at 900 px and below where the toolbar has no room: Convert is listed here directly
+     (the toolbar button is hidden at that width) and the four top-bar menus follow. */
+  S.moreMenu = function () {
+    var has = E.state.pages.length > 0;
+    var convert = window.SlopConvert && !SP.offline ? [{ label: 'Convert this document…', act: A.openConvert, disabled: !has }, '-'] : [];
+    return convert.concat([{ label: 'File', sub: S.fileMenu() }, { label: 'Edit', sub: S.editMenu() }, { label: 'View', sub: S.viewMenu() }, { label: 'Help', sub: S.helpMenu() }]);
+  };
   S.fileMenu = function () {
     var has = E.state.pages.length > 0;
     return [

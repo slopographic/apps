@@ -8,5 +8,5 @@
 .doctabs-host.is-drop { outline: 2px dashed var(--sl-accent, #d4ff3a); outline-offset: -2px; }
 /* a file is opening or a tab is loading: the strip waits (ui/doc-tabs.js lock) */
 html.is-locked .doctabs-host { pointer-events: none; opacity: .6; }
-/* On phones the top bar is full: File > Convert… does the same (the button is for wider screens). */
+/* At 900 px and below the top bar is full: the More menu lists Convert… instead (the button is for wider screens). */
 @media (max-width: 900px) { #btnConvert { display: none; } }

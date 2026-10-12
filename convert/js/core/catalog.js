@@ -4,6 +4,7 @@
 import { convertImage, imageForPdf } from './image.js';
 import { imagesToPdf } from './pdf-images.js';
 import { pdfToImages } from './pdf-raster.js';
+import { pdfToHtml } from './pdf-html.js';
 import { mergePdfs, extractPages, splitPages } from './pdf-ops.js';
 import { csvToJson, jsonToCsv, parseCsv } from './csv.js';
 import { rowsToXlsx } from './xlsx.js';
@@ -58,6 +59,14 @@ export const CONVERSIONS = [
     const pages = await pdfToImages(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages, scale: o.scale, format: o.format, quality: (o.quality ?? 92) / 100 });
     return pages.map((p) => ({ name: `${base(f.name)}-page-${p.pageNo}.${o.format === 'jpg' ? 'jpg' : 'png'}`, blob: p.blob }));
   } },
+  { id: 'pdf-to-html', label: 'PDF to HTML', group: 'PDF', from: ['pdf'], ext: 'html', mode: 'each',
+    note: 'A close copy, not an identical one. Each page’s text and images stay where they were, in reading order. Vector drawing, colours and the exact fonts are not kept.',
+    options: [{ key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' }],
+    run: async (files, o) => {
+      const f = files[0];
+      const html = await pdfToHtml(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages, title: base(f.name) });
+      return [out(`${base(f.name)}.html`, html, 'text/html')];
+    } },
   { id: 'merge-pdf', label: 'Merge PDFs', group: 'PDF', from: ['pdf'], mode: 'combine', options: [], run: async (files) => {
     const bytes = await mergePdfs(await Promise.all(files.map(async (f) => new Uint8Array(await f.file.arrayBuffer()))));
     return [{ name: 'merged.pdf', blob: new Blob([bytes], { type: 'application/pdf' }) }];
