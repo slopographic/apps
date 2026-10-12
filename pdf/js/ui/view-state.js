@@ -10,7 +10,7 @@
   function viewNow() {
     var grid = S.els.grid, viewer = S.els.viewer;
     return {
-      tool: A.tool, mode: A.mode, pid: Ed.pid || null, zoomMode: Ed.zoomMode, zoom: Ed.zoom,
+      tool: A.tool, mode: A.mode, pid: Ed.pid || null, zoomMode: Ed.zoomMode, zoom: Ed.zoom, layout: Ed.layoutMode || null,
       noPanel: S.els.app.classList.contains('no-panel'),
       scroll: { grid: grid ? grid.scrollTop : 0, viewer: viewer ? viewer.scrollTop : 0, viewerLeft: viewer ? viewer.scrollLeft : 0 },
     };
@@ -22,23 +22,18 @@
   ['pointerup', 'click', 'keyup'].forEach(function (t) { window.addEventListener(t, touch, true); });
   window.addEventListener('wheel', touch, { capture: true, passive: true });
 
-  /** Boot: bring back the saved session (when autosave is on), then the view. */
+  /** Boot: once the stored tabs are open (ui/doc-tabs.js), the view the page was left in is applied to the tab on screen.
+   * A Slop Drive launch (?drive=<id>) opens its own file in a new tab, so the saved view is not put back over it. */
   A.restoreView = async function () {
-    // A Slop Drive launch (?drive=<id>) opens its own file, so the autosaved session is not put back over it.
     var launching = /[?&]drive=/.test(location.search);
-    var s = U.store.get('autosave', true) && !launching ? await U.idb.get('session').catch(function () { return null; }) : null;
-    if (s && s.state && s.state.pages && s.state.pages.length && !E.state.pages.length) {
-      try {
-        await E.restore(s);
-        if (s.fileName) { S.els.fileName.value = s.fileName; S.fileNameTouched = true; }
-        S.savedSession = null; S.els.restore.hidden = true;
-        A.announce('Session restored: ' + E.state.pages.length + ' pages');
-      } catch (e) { console.warn('Slop PDF: restore failed', e); }
-    }
+    await (A.tabsReady || Promise.resolve()).catch(function () {}); // the page is ready once the stored tabs are open
     var v = await window.SlopSession.load(APP, 'view', null).catch(function () { return null; });
-    if (v && typeof v === 'object' && E.state.pages.length) applyView(v);
+    if (v && typeof v === 'object' && E.state.pages.length && !launching) applyView(v);
     ready = true;
+    document.documentElement.classList.add('ready');
   };
+  A.viewNow = viewNow;
+  A.applyView = function (v) { applyView(v); };
 
   function applyView(v) {
     var Es = SP.editor._;
@@ -51,6 +46,7 @@
       A.openPage(v.pid, true);
       if (v.zoomMode === 'num' && v.zoom > 0) { Ed.zoomMode = 'num'; Ed.zoom = v.zoom; Ed.layout(); }
     }
+    if (v.layout && Ed.setLayout && v.layout !== Ed.layoutMode) Ed.setLayout(v.layout);
     var sc = v.scroll || {};
     if (S.els.grid && sc.grid) S.els.grid.scrollTop = sc.grid;
     if (S.els.viewer) { if (sc.viewer) S.els.viewer.scrollTop = sc.viewer; if (sc.viewerLeft) S.els.viewer.scrollLeft = sc.viewerLeft; }

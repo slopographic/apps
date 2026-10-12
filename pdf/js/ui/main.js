@@ -69,7 +69,12 @@
     try { H.register('pdf'); } catch (e) { console.warn('Slop PDF: hub register failed', e); }
     var rec = null;
     try { rec = await H.consumeLaunch(); } catch (e) { rec = null; }
-    if (rec && rec.blob) { await openDriveRecord(rec); SlopUI.toast('Opened “' + (rec.name || 'file') + '” from Slop Drive'); }
+    if (rec && rec.blob) {
+      await A.tabsReady; // the stored tabs are open first; the launched file gets a tab of its own
+      A.newTab();
+      await openDriveRecord(rec);
+      SlopUI.toast('Opened “' + (rec.name || 'file') + '” from Slop Drive');
+    }
   }
   function start() { A.boot(); launch(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

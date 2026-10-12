@@ -29,6 +29,8 @@
       { label: 'Open PDFs or images…', key: A.key('file.open'), act: A.openDialog },
       window.SlopHub ? { label: 'Open from Slop Drive…', act: A.openFromDrive } : null,
       { label: 'Try the sample PDF', act: A.loadSample },
+      { label: 'New tab', key: 'Ctrl+T', act: function () { A.newTab(); } },
+      { label: 'Close tab', key: 'Ctrl+W', act: function () { A.closeTab(); } },
       S.savedSession && !has ? { label: 'Restore last session', act: A.restoreSession } : null,
       '-',
       { label: 'Rename…', key: A.key('file.rename'), act: function () { A.rename(null); } },
@@ -39,11 +41,12 @@
       { label: 'Extract text…', act: A.extractText, disabled: !has },
       { label: 'Extract assets…', act: A.extractAssets, disabled: !has },
       { label: 'Pages to images…', act: function () { A.setTool('convert'); }, disabled: !has },
+      window.SlopConvert && !SP.offline ? { label: 'Convert…', act: A.openConvert, disabled: !has } : null,
       '-',
       sendSub(A.sendItems(), 'Send to', 'No other app opens PDFs yet'),
       window.SlopHub && !SP.offline && has ? '-' : null,
       { label: 'Download app (offline .html)', act: A.downloadApp },
-      { label: 'Autosave session in this browser', check: U.store.get('autosave', true), act: function () { var v = !U.store.get('autosave', true); U.store.set('autosave', v); if (!v) U.idb.del('session'); SlopUI.toast(v ? 'Autosave on (stored only in this browser)' : 'Autosave off; saved session deleted'); } },
+      { label: 'Autosave session in this browser', check: U.store.get('autosave', true), act: function () { var v = !U.store.get('autosave', true); U.store.set('autosave', v); A.setAutosave(v); if (!v) U.idb.del('session'); SlopUI.toast(v ? 'Autosave on (stored only in this browser)' : 'Autosave off; saved session deleted'); } },
       '-',
       { label: 'Close all', act: A.closeAll, disabled: !has }
     ];

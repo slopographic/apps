@@ -1,0 +1,48 @@
+/* Slop Convert dialog (shared/convert/dialog.js). Colours are --sl-* tokens (set on :root by shared/theme) with plain fallbacks. */
+.sl-cvt-back { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, .55); }
+.sl-cvt-dlg {
+  width: min(560px, 100%); max-height: min(86vh, 800px); display: flex; flex-direction: column;
+  background: var(--sl-surface, #1d1d1b); color: var(--sl-text, #f1ede4);
+  border: 1px solid var(--sl-border, #3a3a35); border-radius: 12px; box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+  font: 14px/1.45 system-ui, sans-serif;
+}
+.sl-cvt-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--sl-border, #3a3a35); }
+.sl-cvt-head h2 { margin: 0; font-size: 17px; }
+.sl-cvt-body { display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow: auto; padding: 14px 18px; }
+.sl-cvt-sec { display: flex; flex-direction: column; gap: 8px; margin: 0; }
+.sl-cvt-sec h3 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--sl-text-muted, #a7a296); }
+.sl-cvt-files { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.sl-cvt-file {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px;
+  padding: 6px 8px; border: 1px solid var(--sl-border, #3a3a35); border-radius: 8px;
+}
+.sl-cvt-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sl-cvt-meta { font-size: 12px; white-space: nowrap; color: var(--sl-text-muted, #a7a296); }
+.sl-cvt-targets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; margin: 0; padding: 0; border: 0; }
+.sl-cvt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.sl-cvt-target {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer;
+  border: 1px solid var(--sl-border, #3a3a35); border-radius: 8px;
+}
+.sl-cvt-target:has(input:checked) { border-color: var(--sl-accent, #d4ff3a); }
+.sl-cvt-opt { display: grid; grid-template-columns: minmax(120px, 40%) 1fr; gap: 4px 10px; align-items: center; }
+.sl-cvt-opt .sl-cvt-hint { grid-column: 2; }
+.sl-cvt-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sl-cvt-btn {
+  font: inherit; padding: 7px 12px; cursor: pointer; color: inherit; background: transparent;
+  border: 1px solid var(--sl-border, #3a3a35); border-radius: 8px;
+}
+.sl-cvt-btn.primary { background: var(--sl-accent, #d4ff3a); color: var(--sl-on-accent, #111); border-color: transparent; font-weight: 600; }
+.sl-cvt-btn:disabled, .sl-cvt-x:disabled { opacity: .5; cursor: default; }
+.sl-cvt-x { padding: 0 6px; font-size: 20px; line-height: 1; cursor: pointer; color: inherit; background: none; border: 0; }
+.sl-cvt-bar { height: 6px; overflow: hidden; border-radius: 3px; background: var(--sl-border, #3a3a35); }
+.sl-cvt-bar i { display: block; height: 100%; background: var(--sl-accent, #d4ff3a); transition: width .2s; }
+.sl-cvt-status { font-size: 13px; color: var(--sl-text-muted, #a7a296); }
+.sl-cvt-note { margin: 0; color: var(--sl-text-muted, #a7a296); }
+.sl-cvt-hint { font-size: 12px; color: var(--sl-text-muted, #a7a296); }
+.sl-cvt-err { color: #ff8a7a; }
+.sl-cvt-foot { margin: 0; padding: 10px 18px; font-size: 12px; color: var(--sl-text-muted, #a7a296); border-top: 1px solid var(--sl-border, #3a3a35); }
+@media (max-width: 520px) {
+  .sl-cvt-opt { grid-template-columns: 1fr; }
+  .sl-cvt-opt .sl-cvt-hint { grid-column: 1; }
+}

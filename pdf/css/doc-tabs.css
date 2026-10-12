@@ -1,0 +1,12 @@
+/* Slop PDF: the document tab strip above the workspace. The strip itself is shared/doctabs/doctabs.css. */
+.doctabs-host {
+  flex: none;
+  min-width: 0;
+  border-bottom: 1px solid var(--sl-border, #3a3a35);
+}
+/* a file is dragged over the strip: it will open in a new tab */
+.doctabs-host.is-drop { outline: 2px dashed var(--sl-accent, #d4ff3a); outline-offset: -2px; }
+/* a file is opening or a tab is loading: the strip waits (ui/doc-tabs.js lock) */
+html.is-locked .doctabs-host { pointer-events: none; opacity: .6; }
+/* On phones the top bar is full: File > Convert… does the same (the button is for wider screens). */
+@media (max-width: 900px) { #btnConvert { display: none; } }

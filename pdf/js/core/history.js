@@ -97,12 +97,17 @@
   var stacks = {}, curKey = 'doc';
   H.useStack = function (key) {
     if (key === curKey) return;
-    stacks[curKey] = { u: undoS, r: redoS };
+    if (undoS.length || redoS.length) stacks[curKey] = { u: undoS, r: redoS }; else delete stacks[curKey];
     var s = stacks[key] || { u: [], r: [] };
     undoS = s.u; redoS = s.r; lastKey = null; curKey = key;
-    E.emit('change', { label: 'Switch tab', history: true });
   };
   H.stackKey = function () { return curKey; };
+  /** Undo steps under a key: the open tab's own stack, or a stored one. */
+  H.depth = function (key) { return key === curKey ? undoS.length : (stacks[key] ? stacks[key].u.length : 0); };
+  /** Forgets the stored stack of a closed tab. */
+  H.dropStack = function (key) {
+    if (key === curKey) { undoS = []; redoS = []; lastKey = null; } else delete stacks[key];
+  };
   /** The applied commands, oldest first (read-only use). */
   H.entries = function () { return undoS.slice(); };
 })();
