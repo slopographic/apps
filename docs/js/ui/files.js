@@ -82,7 +82,7 @@
     if (open) S.tabsApi().activate(open.doc);
     else {
       const file = { folderId: rec.folderId == null ? null : rec.folderId, name: r.native ? rec.name : baseName(rec.name) + '.sdoc', dirty: false, saved: 0 };
-      S.tabsApi().openDoc(S.makeTab(r.doc, file), { driveId });
+      S.tabsApi().openDoc(S.makeTab(r.doc, file), { driveId, origName: rec.name });
     }
     if (!silent) toast(r.native ? `Opened ${baseName(rec.name)}` : `Opened ${rec.name} as a new Slop Docs file`);
     return r;
@@ -94,7 +94,7 @@
     if (!rec) return;
     try {
       const r = await readRecord(rec);
-      S.tabsApi().openDoc(S.makeTab(r.doc, { name: baseName(rec.name) + '.sdoc' }));
+      S.tabsApi().openDoc(S.makeTab(r.doc, { name: baseName(rec.name) + '.sdoc' }), { origName: rec.name });
       toast(`Opened ${rec.name} as a new Slop Docs file`);
     } catch (e) { toast('Could not open: ' + e.message); }
   };

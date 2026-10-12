@@ -45,15 +45,15 @@
     catch (e) { D.toast('Could not open ' + full.name + ': ' + e.message); return false; }
     var named = N.fileName(res.deck.title);
     if (res.kind === 'foreign') {
-      SS.tabs.open(res.deck, { name: named });
+      SS.tabs.open(res.deck, { name: named, origName: full.name });
       D.toast((res.type || 'This') + ' files cannot be opened in Slop Slides yet. Opened a blank presentation.', 4200);
     } else if (res.kind === 'image') {
-      SS.tabs.open(res.deck, { name: named });
+      SS.tabs.open(res.deck, { name: named, origName: full.name });
       D.toast('Picture added to a new presentation');
     } else {
       var open = api().tabs().find(function (t) { return t.driveId === full.id; });
       if (open) api().activate(open.doc);
-      else SS.tabs.open(res.deck, { name: full.name }, full.id);
+      else SS.tabs.open(res.deck, { name: full.name, origName: full.name }, full.id);
     }
     return true;
   };

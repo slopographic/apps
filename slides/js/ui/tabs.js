@@ -112,7 +112,7 @@
     /** A blank presentation in a new tab. */
     newTab: function () { return tabs.newTab(); },
     /** A presentation in a new tab; driveId links it to a Drive file. */
-    open: function (deck, doc, driveId) { return tabs.openDoc(makeT(deck, doc), { driveId: driveId || null }); },
+    open: function (deck, doc, driveId) { return tabs.openDoc(makeT(deck, doc), { driveId: driveId || null, origName: (doc && doc.origName) || null }); },
     /** A tab nobody has edited and that is not linked to a file (a new one): a launch may replace it. */
     isPristine: function (T) { return !!T && !!T.untouched && !tabs.driveIdOf(T); },
     /** The open presentation's fields are written into its tab (before a save or a close). */
