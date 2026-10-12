@@ -10,7 +10,7 @@
   --z-mascot: 15;     /* Sloppo, his speech bubble (shared/buddy) */
   --z-toast: 30;      /* the short toast at the bottom (style/footer.css) */
   --z-header: 40;     /* the sticky header (style/base.css) */
-  --consent-h: 0px;   /* the consent strip's measured height, set by home/consent-space.js */
+  --consent-h: 0px;   /* the consent strip's measured height, set by shared/consent/banner.js */
 }
 /* Room for the strip: the page's end clears it, and a control scrolled into view (jump link, focus) lands above it
  * and below the sticky header. Both are 0 while no strip is shown. */
