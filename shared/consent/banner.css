@@ -31,7 +31,7 @@
   position: fixed;
   inset-inline: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: var(--z-consent, 1000);
   display: flex;
   flex-wrap: wrap;
   align-items: center;

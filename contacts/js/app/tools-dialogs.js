@@ -20,9 +20,13 @@
     return { el: el('div', { class: 'ed-scope' }, mk('sel', `Selected (${S.sel.size})`), mk('all', `All (${S.list.length})`)), value: () => v };
   }
 
-  /** Duplicate review: a list of groups, each with Merge, and Merge all. Exact copies are already merged on import. */
+  /** Duplicate review: a list of groups, each with Merge, and Merge all. Exact copies are already merged on import.
+   * Merge and Merge all open a review list first (one line per proposed merge, checked), and only the checked merges
+   * are applied. The toast after a merge can undo it. */
   function dupesDialog() {
     const cc = S.cc;
+    const RV = window.SlopReview;
+    const key = (g) => g.map((c) => c.id).join('|');
     let groups = SC.dedupe.findGroups(S.list, cc);
     if (!groups.length) { UI.alert('No duplicates', 'No two contacts share a phone number, an e-mail address, or a name and organisation.'); return; }
     const box = el('div', { class: 'dupes' });
@@ -37,12 +41,27 @@
         const names = g.map((c) => SC.model.displayName(c)).join(' + ');
         const why = SC.dedupe.reasonsOf(g, cc).join(', ');
         const mergeBtn = el('button', { type: 'button', class: 'sui-btn sui-primary' }, 'Merge');
-        mergeBtn.addEventListener('click', () => { S.setList(SC.dedupe.applyMerges(S.list, [g], cc)); paint(); });
+        mergeBtn.addEventListener('click', () => reviewMerge([g], 'Merge this group?'));
         return el('div', { class: 'dupe' }, el('div', { class: 'dn' }, names), el('div', { class: 'dr' }, why || 'matching details'), mergeBtn);
       }));
     };
+    /** Lists the proposed merges, then applies the ones left checked. */
+    async function reviewMerge(gs, title) {
+      const items = gs.map((g) => ({ id: key(g), label: g.map((c) => SC.model.displayName(c)).join(' + '),
+        detail: SC.dedupe.reasonsOf(g, cc).join(', ') || 'matching details', checked: true }));
+      const ids = await RV.open({ title, items, intro: 'Each line is one proposed merge. Untick a merge to leave those contacts as they are.',
+        confirmLabel: (n) => 'Merge ' + RV.model.plural(n, 'group') });
+      if (!ids) return;
+      const want = new Set(ids);
+      const apply = gs.filter((g) => want.has(key(g)));
+      if (!apply.length) return;
+      const before = S.list;
+      S.setList(SC.dedupe.applyMerges(S.list, apply, cc));
+      paint();
+      UI.toast(`Merged ${RV.model.plural(apply.length, 'group')}`, 6000, { label: 'Undo', run: () => { S.setList(before); paint(); } });
+    }
     paint();
-    const all = { label: 'Merge all', act: () => { S.setList(SC.dedupe.applyMerges(S.list, groups, cc)); paint(); return false; } };
+    const all = { label: 'Merge all', act: () => { reviewMerge(groups, 'Merge all duplicates?'); return false; } };
     UI.dialog({ title: 'Find duplicates', cls: 'dupe-dlg', body: el('div', null, head, box), buttons: [{ label: 'Close' }, all] });
   }
 
