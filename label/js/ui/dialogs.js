@@ -14,6 +14,9 @@ function labelSetupDialog(target) {
   const name = dInp(d.name), W = dInp(cv(d.label.w), 'number', { step: 'any', min: 1 }), H = dInp(cv(d.label.h), 'number', { step: 'any', min: 1 });
   const gap = dInp(num(d.label.gap, 2), 'number', { step: 'any', min: 0 }), rad = dInp(num(d.label.radius || 0, 2), 'number', { step: 'any', min: 0 });
   const unit = dSel([['mm', 'Millimetres'], ['in', 'Inches'], ['dots', 'Printer dots']], u), dpi = dSel([[152, '152 dpi'], [203, '203 dpi'], [300, '300 dpi'], [600, '600 dpi']], d.dpi);
+  const S0 = Object.assign({}, DEFAULT_STYLE, d.style); // the defaults a new text or shape gets (core/configs.js styleProps)
+  const sFont = dSel([['sans', 'Sans'], ['serif', 'Serif'], ['mono', 'Mono']], S0.font), sInk = dSel([['black', 'Black text'], ['white', 'White text (reversed)']], S0.colour);
+  const sFill = dSel([['none', 'No fill'], ['black', 'Black'], ['white', 'White']], S0.fill), sStroke = dInp(num(S0.stroke, 2), 'number', { step: 'any', min: 0, max: 20 });
   const dark = dInp(P.darkness, 'number', { min: 0, max: 30, step: 1 }), speed = dInp(P.speed, 'number', { min: 1, max: 14, step: 1 });
   const media = dSel([['gap', 'Gap / notch'], ['mark', 'Black mark'], ['continuous', 'Continuous']], P.media), method = dSel([['direct', 'Direct thermal'], ['transfer', 'Thermal transfer (ribbon)']], P.method);
   const rot = dChk('Print upside down (rotate 180°)', P.rotate180);
@@ -42,7 +45,8 @@ function labelSetupDialog(target) {
   const body = mk('div', { class: 'dlg-cols' },
     mk('div', null, mk('div', { class: 'sec-h' }, 'Stock'), list, info),
     mk('div', { class: 'dlg-form' }, mk('div', { class: 'sec-h' }, 'Label'), dRow('Name', name), dRow('Units', unit), dRow('Width', W), dRow('Height', H), dRow('Gap (mm)', gap), dRow('Corners (mm)', rad),
-      mk('div', { class: 'sec-h' }, 'Printer'), dRow('Resolution', dpi), dRow('Darkness 0–30', dark), dRow('Speed (ips)', speed), dRow('Media', media), dRow('Method', method), rot.el));
+      mk('div', { class: 'sec-h' }, 'Printer'), dRow('Resolution', dpi), dRow('Darkness 0–30', dark), dRow('Speed (ips)', speed), dRow('Media', media), dRow('Method', method), rot.el,
+      mk('div', { class: 'sec-h' }, 'New objects'), dRow('Text font', sFont), dRow('Text ink', sInk), dRow('Shape fill', sFill), dRow('Line width (mm)', sStroke)));
   SlopFormReset.snapshot(body);
   return new Promise((res) => SlopUI.dialog({ title: 'Label setup', cls: 'sl-wide', body, onClose: (ok) => res(ok),
     buttons: [{ label: 'Cancel' }, SlopFormReset.dialogButton(body), { label: 'Apply', primary: true, act: () => {
@@ -53,6 +57,7 @@ function labelSetupDialog(target) {
         x.name = name.value.trim() || x.name; x.unit = unit.value; x.dpi = +dpi.value;
         x.label.gap = Math.max(0, +gap.value || 0); x.label.radius = Math.max(0, +rad.value || 0);
         Object.assign(x.printer, { darkness: clamp(+dark.value | 0, 0, 30), speed: clamp(+speed.value | 0, 1, 14), media: media.value, method: method.value, rotate180: rot.input.checked });
+        x.style = { font: sFont.value, colour: sInk.value, fill: sFill.value, stroke: clamp(+sStroke.value || 0, 0, 20) };
       };
       if (target) apply(target); else { editDoc(apply, 'Label setup'); document.title = App.doc.name + ' — SlopLabel'; syncTabName(); fitView(); }
     } }] }));

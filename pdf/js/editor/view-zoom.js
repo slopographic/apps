@@ -11,17 +11,18 @@
   S.stopEase = function () { if (easeRaf) cancelAnimationFrame(easeRaf); easeRaf = 0; ease = null; };
   /** The workspace centre the zoom buttons, menus and typed values zoom about: the centre of the visible area (no scrollbar gutter). */
   function centre() { var v = S.viewer; return Z.viewerCentre(v.getBoundingClientRect(), { left: v.clientLeft, top: v.clientTop, width: v.clientWidth, height: v.clientHeight }); }
-  /** Zoom now to z, keeping the document point under client (ax, ay) in place (the arithmetic is in zoom-math.js). */
-  function setRaw(z, ax, ay) {
-    var pt = { x: ax, y: ay }, hit = S.slotAt(ax, ay);
+  /** Zoom now to z, keeping the document point under anchor (client coordinates) in place. A null anchor is the
+      workspace centre, measured again after the layout: a scrollbar that comes or goes with the new size moves it. */
+  function setRaw(z, anchor) {
+    var a = anchor || centre(), hit = S.slotAt(a.x, a.y);
     if (!hit) { Ed.zoomMode = 'num'; Ed.zoom = U.clamp(z, ZMIN, ZMAX); Ed.layout(); return; }
-    var r = hit.el.getBoundingClientRect(), doc = Z.docPoint(pt, { x: r.left, y: r.top }, Ed.zoom);
+    var r = hit.el.getBoundingClientRect(), doc = Z.docPoint(a, { x: r.left, y: r.top }, Ed.zoom);
     Ed.zoomMode = 'num'; Ed.zoom = Z.clamp(z, ZMIN, ZMAX); Ed.layout(); // the layout centres the rows again
-    var r2 = hit.el.getBoundingClientRect();
-    S.viewer.scrollLeft += (r2.left + doc.x * Ed.zoom) - ax;
-    S.viewer.scrollTop += (r2.top + doc.y * Ed.zoom) - ay;
+    var t = anchor || centre(), r2 = hit.el.getBoundingClientRect();
+    S.viewer.scrollLeft += (r2.left + doc.x * Ed.zoom) - t.x;
+    S.viewer.scrollTop += (r2.top + doc.y * Ed.zoom) - t.y;
     // A stack smaller than the viewer cannot scroll, so what is left of the move is an offset on the pad itself.
-    var r3 = hit.el.getBoundingClientRect(), o = Z.originFor(pt, doc, Ed.zoom);
+    var r3 = hit.el.getBoundingClientRect(), o = Z.originFor(t, doc, Ed.zoom);
     S.pad.style.left = (o.x - r3.left) + 'px';
     S.pad.style.top = (o.y - r3.top) + 'px';
   }
@@ -29,15 +30,16 @@
     easeRaf = 0;
     var a = ease; if (!a) return;
     var t = U.clamp(((now == null ? performance.now() : now) - a.t0) / ZOOM_MS, 0, 1), k = 1 - Math.pow(1 - t, 3);
-    if (t >= 1) { S.stopEase(); setRaw(a.zt, a.ax, a.ay); if (a.mode) { Ed.zoomMode = a.mode; Ed.layout(); } return; }
-    setRaw(a.z0 + (a.zt - a.z0) * k, a.ax, a.ay);
+    if (t >= 1) { S.stopEase(); setRaw(a.zt, a.anchor); if (a.mode) { Ed.zoomMode = a.mode; Ed.layout(); } return; }
+    setRaw(a.z0 + (a.zt - a.z0) * k, a.anchor);
     easeRaf = requestAnimationFrame(frame);
   }
-  /** Eased zoom to zt from the zoom on screen now (a move in flight is continued); mode is kept after it lands. */
-  function easeTo(zt, ax, ay, mode) {
+  /** Eased zoom to zt from the zoom on screen now (a move in flight is continued). anchor is a client point, or null for
+      the workspace centre; mode is kept after it lands. */
+  function easeTo(zt, anchor, mode) {
     if (!Ed.page() || S.restoring) return;
     S.stopEase();
-    ease = { z0: Ed.zoom, zt: U.clamp(zt, ZMIN, ZMAX), t0: performance.now(), ax: ax, ay: ay, mode: mode || null };
+    ease = { z0: Ed.zoom, zt: U.clamp(zt, ZMIN, ZMAX), t0: performance.now(), anchor: anchor || null, mode: mode || null };
     easeRaf = requestAnimationFrame(frame);
   }
   /** The zoom the view is heading to (the current one when nothing moves). Wheel and key steps build on it. */
@@ -45,18 +47,18 @@
   /** True while an eased zoom is running (tests wait for it to land). */
   Ed.easing = function () { return !!ease; };
   /** Immediate zoom (the zoom menu's entries, pinch). anchor is client coordinates; the centre when omitted. */
-  Ed.setZoom = function (z, anchor) { S.stopEase(); var c = anchor || centre(); setRaw(z, c.x, c.y); };
+  Ed.setZoom = function (z, anchor) { S.stopEase(); setRaw(z, anchor || null); };
   /** Eased zoom by a factor of the target zoom, about anchor (client coordinates) or the centre. */
-  Ed.zoomBy = function (k, anchor) { var c = anchor || centre(); easeTo(Ed.targetZoom() * k, c.x, c.y, null); };
+  Ed.zoomBy = function (k, anchor) { easeTo(Ed.targetZoom() * k, anchor || null, null); };
   /** Fit: 'fit' (the whole page) or 'width' (Ctrl/⌘ 0). It keeps following the window size after it lands. */
   Ed.fit = function (mode) {
     mode = mode || 'fit';
     if (!Ed.page()) { Ed.zoomMode = mode; return; }
     Ed.fitPid = Ed.pid;
-    var c = centre(); easeTo(S.fitZoom(mode), c.x, c.y, mode);
+    easeTo(S.fitZoom(mode), null, mode);
   };
   /** 100%: 1 pt per CSS pixel is 96/72 layout units (Ed.zoom 4/3). */
-  Ed.actual = function () { var c = centre(); easeTo(96 / 72, c.x, c.y, null); };
+  Ed.actual = function () { easeTo(96 / 72, null, null); };
 
   /* Navigation: the wheel, Space or middle drag, keys and touch are shared/nav's engine on this viewer, with these
      fixed bindings (not the Navigation preset): Ctrl/⌘ + wheel zooms about the pointer, the plain wheel scrolls
@@ -65,11 +67,11 @@
   /** The engine's adapter: its coordinates are relative to the viewer, so they are converted to client ones here. */
   function atViewer(x, y) { var r = S.viewer.getBoundingClientRect(); return { x: r.left + x, y: r.top + y }; }
   Ed.nav = {
-    zoomAt: function (f, x, y, live) { var c = atViewer(x, y); if (live) Ed.setZoom(Ed.zoom * f, c); else easeTo(Ed.targetZoom() * f, c.x, c.y, null); },
+    zoomAt: function (f, x, y, live) { var c = atViewer(x, y); if (live) Ed.setZoom(Ed.zoom * f, c); else easeTo(Ed.targetZoom() * f, c, null); },
     panBy: function (dx, dy) { S.viewer.scrollLeft -= dx; S.viewer.scrollTop -= dy; },
     fit: function () { Ed.fit('width'); },
     actual: function () { Ed.actual(); },
-    zoomStep: function (dir, x, y) { var c = atViewer(x, y); easeTo(Ed.targetZoom() * (dir > 0 ? 1.25 : 0.8), c.x, c.y, null); },
+    zoomStep: function (dir, x, y) { easeTo(Ed.targetZoom() * (dir > 0 ? 1.25 : 0.8), atViewer(x, y), null); },
     cancelStroke: function () { if (Ed.cancelInteraction) Ed.cancelInteraction(); if (S.cancelPan) S.cancelPan(); },
   };
   /** Attaches the engine to the viewer. Keys and Space are left to the app outside page view (grid). */
