@@ -41,6 +41,8 @@
       await ready;
       await HomeTest.settled(win);
       expect(M.el.hidden).toBe(false);
+      // He lands on a perch after a fall, which takes longer when the machine is busy: wait for it rather than sample once.
+      await waitFor(() => M.perch && M.perch.el.hasAttribute('data-perch'), { timeout: 8000 });
       expect(!!M.perch && M.perch.el.hasAttribute('data-perch')).toBe(true);
       // The 2100 look: lime gradient goo lumps under a goo filter, with ids unique to the mascot.
       const svg = M.svg;
