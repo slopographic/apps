@@ -35,8 +35,10 @@ function serve() {
 }
 
 test('the homepage and Slop Drive open offline after the service worker has precached', async (t) => {
-  const sw = await readFile(path.join(ROOT, 'sw-precache.js'), 'utf8');  // the PRECACHE list, loaded by service-worker.js
-  const expected = [...sw.match(/const PRECACHE = \[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].length;
+  // The PRECACHE list: every sw-precache*.js part that service-worker.js imports, in order.
+  const swMain = await readFile(path.join(ROOT, 'service-worker.js'), 'utf8');
+  const sw = (await Promise.all([...swMain.matchAll(/'\/(sw-precache[^']*\.js)'/g)].map((m) => readFile(path.join(ROOT, m[1]), 'utf8')))).join('\n');
+  const expected = [...sw.matchAll(/'\/[^']+'/g)].length;
   assert.ok(expected > 100, 'precache list was not read');
 
   const { chromium } = await loadPlaywright();

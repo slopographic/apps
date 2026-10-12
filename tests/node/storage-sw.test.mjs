@@ -25,7 +25,7 @@ async function swWith(cacheNames) {
     open: async () => ({ addAll: async () => {}, put: async () => {}, match: async () => undefined }),
     match: async () => undefined,
   };
-  // importScripts runs the precache list (sw-precache.js) in the same context, as a browser does.
+  // importScripts runs each precache part (sw-precache*.js) in the same context, as a browser does.
   const importScripts = (...urls) => { for (const u of urls) vm.runInContext(readFileSync(path.join(ROOT, u), 'utf8'), ctx, { filename: u }); };
   const ctx = { self, caches, console, URL, Promise, Set, Map, Object, Array, JSON, Math, Date, Response: class {}, Request: class {}, Headers: class {}, fetch: async () => { throw new Error('no network'); }, importScripts };
   ctx.globalThis = ctx;
