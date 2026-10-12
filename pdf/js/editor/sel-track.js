@@ -54,8 +54,11 @@
   }
   function update() {
     pending = false;
-    var snap = read();
-    if (!snap) T.dismissedKey = null; // a cleared selection starts afresh: the same text selected again shows the bar
+    var snap = read(), sel = window.getSelection ? window.getSelection() : null;
+    var range = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+    // a cleared selection, or a new Range object (the same text selected again, even within one frame), starts afresh
+    if (!snap || range !== T.range) T.dismissedKey = null;
+    T.range = range;
     T.snap = snap;
     T.emit();
   }
