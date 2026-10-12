@@ -20,6 +20,7 @@ export const COMMANDS = [
   { id: 'file.open', title: 'Open from Slop Drive…', group: 'File', keys: ['Mod+O'], run: F.openFromDrive, when: () => !!window.SlopHub },
   { id: 'file.save', title: 'Save', group: 'File', keys: ['Mod+S'], run: () => F.save() },
   { id: 'file.saveAs', title: 'Save to Slop Drive…', group: 'File', run: () => F.save({ as: true }), when: () => !!window.SlopHub },
+  { id: 'file.rename', title: 'Rename…', group: 'File', run: () => window.SlopDocTabs.rename(null) },
   { id: 'file.stab', title: 'Download .stab file', group: 'File', run: F.downloadNative },
   { id: 'file.csv', title: 'Download CSV (active sheet)', group: 'File', run: F.downloadCsv },
   { id: 'file.xlsx', title: 'Download XLSX', group: 'File', run: F.downloadXlsx },

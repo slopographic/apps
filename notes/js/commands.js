@@ -14,6 +14,7 @@ export function commandList() {
   return [
     C('new', 'New note', 'File', ['Mod+Alt+N'], { keywords: ['create', 'write'], run: () => A.newNote() }),
     C('save', 'Save note to Slop Drive', 'File', ['Mod+S'], { keywords: ['store', 'drive'], when: has, run: () => tabs.saveCurrent() }),
+    C('rename', 'Rename…', 'File', [], { keywords: ['name', 'title'], when: has, run: () => window.SlopDocTabs.rename(null) }),
     C('notebook', 'New notebook…', 'File', [], { keywords: ['folder', 'book'], run: () => A.newNotebook() }),
     C('folder', 'New folder…', 'File', [], { keywords: ['subfolder'], run: () => A.newFolder() }),
     C('md', 'Export note as Markdown', 'File', [], { keywords: ['download', '.md'], when: has, run: () => A.exportNote(curNote(), 'md') }),

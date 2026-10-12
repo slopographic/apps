@@ -1,6 +1,8 @@
 /* SlopDocTabs: the document tab strip that every document app shares. Classic script, no network, no storage.
  * SlopDocTabs.mount(hostEl, adapter, opts) -> api. The adapter contract and the steps to use it are in HANDOFF.md.
  * Each tab keeps its own doc object. Switching calls adapter.deactivate(old) and then adapter.activate(new).
+ * Rename: double-click a tab (or F2 on the active tab) edits the name in place; SlopDocTabs.rename(tabId, name) does it from code.
+ * Each tab also keeps its original file name (set when a file is opened); a rename never changes it.
  * Load order: tabs.js, drive.js, session.js (drive and session attach themselves to window.SlopDocTabs). */
 (function () {
   'use strict';
@@ -10,6 +12,8 @@
   let seq = 0;
   /** A tab id, unique across reloads too: session.js names the stored content with it. */
   const newId = () => 't' + Date.now().toString(36) + '-' + (seq++).toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+  const MAX_NAME = 120;
+  const mounts = new Set(); // every mounted strip, so SlopDocTabs.rename(tabId) finds the tab
 
   /** A DOM element from a tag, attributes (false, null and undefined are skipped, true is a bare attribute) and children. */
   function make(d, tag, attrs, kids) {
@@ -29,9 +33,9 @@
     if (!host || !adapter) throw new Error('SlopDocTabs.mount needs a host element and an adapter');
     const d = host.ownerDocument, win = d.defaultView;
     const confirmFn = opts.confirm || defaultConfirm, toastFn = opts.toast || defaultToast;
-    const tabs = []; // { id, doc, driveId }
+    const tabs = []; // { id, doc, driveId, name (a display name set by a rename, else null), orig (original file name, else null) }
     const listeners = new Set();
-    let cur = null, dragId = null, menuOpen = false;
+    let cur = null, dragId = null, menuOpen = false, edit = null; // edit = { id, value, input } while a tab name is being typed
 
     const strip = make(d, 'div', { class: 'sl-doctabs-strip' });
     const plus = make(d, 'button', { type: 'button', class: 'sl-doctabs-new', title: 'New document (Ctrl+T)', 'aria-label': 'New document' }, ['+']);
@@ -43,7 +47,7 @@
 
     const call = (name, ...a) => (typeof adapter[name] === 'function' ? adapter[name](...a) : undefined);
     const find = (doc) => tabs.find((t) => t.doc === doc) || null;
-    const titleOf = (t) => call('title', t.doc) || 'Untitled';
+    const titleOf = (t) => t.name || call('title', t.doc) || 'Untitled';
     const dirtyOf = (t) => !!call('dirty', t.doc);
     const emit = (why, t, other) => { for (const fn of [...listeners]) { try { fn(why, t, api, other); } catch (e) { console.warn(e); } } };
 
@@ -62,12 +66,15 @@
       const on = t === cur, name = titleOf(t);
       const x = make(d, 'button', { type: 'button', class: 'sl-doctab-x', title: 'Close (Ctrl+W)', 'aria-label': 'Close ' + name }, ['×']);
       x.addEventListener('click', (e) => { e.stopPropagation(); close(t.doc); });
-      const n = make(d, 'div', { class: 'sl-doctab' + (on ? ' active' : ''), role: 'tab', 'aria-selected': on ? 'true' : 'false', tabindex: on ? '0' : '-1', title: name, draggable: 'true', 'data-id': t.id }, [
-        make(d, 'span', { class: 'sl-doctab-name' }, [name]),
+      const editing = edit && edit.id === t.id;
+      const label = editing ? editor(t) : make(d, 'span', { class: 'sl-doctab-name' }, [name]);
+      const n = make(d, 'div', { class: 'sl-doctab' + (on ? ' active' : ''), role: 'tab', 'aria-selected': on ? 'true' : 'false', tabindex: on ? '0' : '-1', title: t.orig ? name + '\nOriginal name: ' + t.orig : name, draggable: 'true', 'data-id': t.id }, [
+        label,
         dirtyOf(t) ? make(d, 'i', { class: 'sl-doctab-dot', 'aria-label': 'unsaved changes' }) : null,
         x,
       ]);
       n.addEventListener('click', (e) => { if (e.button === 0 && !e.target.closest('.sl-doctab-x')) activate(t.doc); });
+      n.addEventListener('dblclick', (e) => { if (!e.target.closest('.sl-doctab-x')) startEdit(t); });
       n.addEventListener('auxclick', (e) => { if (e.button === 1) { e.preventDefault(); close(t.doc); } });
       n.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); step(e.key === 'ArrowRight' ? 1 : -1); } });
       n.addEventListener('dragstart', (e) => { dragId = t.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('application/x-sl-doctab', t.id); });
@@ -82,6 +89,56 @@
       });
       return n;
     }
+
+    /* ----- rename in place ----- */
+    /** The text field that replaces a tab's name. Enter or blur saves, Escape cancels. */
+    function editor(t) {
+      const inp = make(d, 'input', { type: 'text', class: 'sl-doctab-edit', maxlength: MAX_NAME, 'aria-label': 'Document name', autocomplete: 'off', spellcheck: 'false' });
+      inp.value = edit.value;
+      edit.input = inp;
+      inp.addEventListener('input', () => { edit.value = inp.value; });
+      inp.addEventListener('keydown', (e) => {
+        e.stopPropagation(); // the tab's arrow keys and the strip's shortcuts do not run while typing
+        if (e.key === 'Enter') { e.preventDefault(); endEdit(true); }
+        else if (e.key === 'Escape') { e.preventDefault(); endEdit(false); }
+      });
+      inp.addEventListener('blur', () => endEdit(true));
+      inp.addEventListener('click', (e) => e.stopPropagation());
+      inp.addEventListener('dblclick', (e) => e.stopPropagation());
+      inp.addEventListener('dragstart', (e) => e.preventDefault());
+      return inp;
+    }
+    function startEdit(t) {
+      if (!t || (edit && edit.id === t.id)) return;
+      if (edit) endEdit(true);
+      edit = { id: t.id, value: titleOf(t), input: null };
+      render();
+      if (edit && edit.input) { edit.input.focus(); edit.input.select(); }
+    }
+    function endEdit(commit) {
+      const e = edit;
+      if (!e) return; // already ended (the blur after Enter, for one)
+      edit = null;
+      const t = tabs.find((x) => x.id === e.id);
+      if (commit && t) renameTab(t, e.value); else render();
+    }
+    /** Set a tab's display name (the original file name is not touched). Empty names are refused and the old name is kept.
+     * The Drive file, when the tab is linked to one, is renamed to match, keeping its extension. Resolves true when renamed. */
+    async function renameTab(t, raw) {
+      const name = String(raw == null ? '' : raw).trim().slice(0, MAX_NAME).trim();
+      if (!name) { toastFn('A document needs a name, so the old name was kept.'); render(); return false; }
+      if (name === titleOf(t)) { render(); return true; }
+      t.name = name;
+      changed(t.doc); // redraws the tab and tells the session to save the new name
+      if (t.driveId) {
+        const H = window.SlopHub;
+        const fileName = NS.drive ? NS.drive.fileName(api, t.doc) : name;
+        const out = H ? await Promise.resolve().then(() => H.update(t.driveId, { name: fileName })).catch(() => null) : null;
+        if (!out) toastFn(`Renamed to ${name}. The Drive copy still has the old name.`);
+      }
+      return true;
+    }
+
     function reorder(id, to) {
       const from = tabs.findIndex((t) => t.id === id);
       if (from < 0) return;
@@ -110,9 +167,10 @@
       activate(tabs[(i + dir + tabs.length) % tabs.length].doc);
     }
 
-    /** Open a document as a tab. opts: { id, driveId, activate = true, append = false }. The new tab goes after the active one. */
+    /** Open a document as a tab. opts: { id, driveId, origName, name, activate = true, append = false }.
+     * origName is the file's original name (kept as is); name is a display name set by an earlier rename. */
     function openDoc(doc, o = {}) {
-      const t = { id: o.id || newId(), doc, driveId: o.driveId || null };
+      const t = { id: o.id || newId(), doc, driveId: o.driveId || null, name: o.name || null, orig: o.origName || null };
       tabs.splice(o.append || !cur ? tabs.length : tabs.indexOf(cur) + 1, 0, t);
       if (o.activate === false && cur) { render(); emit('open', t); return t; }
       switchTo(t);
@@ -161,7 +219,10 @@
       if (menuOpen && !menu.contains(e.target) && e.target !== more) setMenu(false);
     };
     const onKey = (e) => {
+      if (edit) return; // typing a name: the field handles its own keys
       if (e.key === 'Escape' && menuOpen) { setMenu(false); return; }
+      const a = d.activeElement;
+      if (e.key === 'F2' && cur && (!a || a === d.body || strip.contains(a)) && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); startEdit(cur); return; }
       if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
       const k = e.key.toLowerCase();
       if (e.key === 'Tab') { e.preventDefault(); step(e.shiftKey ? -1 : 1); }
@@ -179,10 +240,22 @@
       adapter,
       newTab, openDoc, activate, close, changed, step, reorder,
       current: () => (cur ? cur.doc : null),
-      /** Snapshot of the strip, in order: [{ id, doc, title, dirty, active, driveId }]. */
-      tabs: () => tabs.map((t) => ({ id: t.id, doc: t.doc, title: titleOf(t), dirty: dirtyOf(t), active: t === cur, driveId: t.driveId })),
+      /** Snapshot of the strip, in order: [{ id, doc, title, dirty, active, driveId, name, original }].
+       * title is the display name; name is the renamed name (null when the adapter's title is used); original is the file name. */
+      tabs: () => tabs.map((t) => ({ id: t.id, doc: t.doc, title: titleOf(t), dirty: dirtyOf(t), active: t === cur, driveId: t.driveId, name: t.name, original: t.orig })),
       tabOf: (doc) => { const t = find(doc); return t ? t.id : null; },
       driveIdOf: (doc) => { const t = find(doc); return t ? t.driveId : null; },
+      /** The display name of a doc (the renamed name, else the adapter's title). */
+      nameOf: (doc) => { const t = find(doc); return t ? titleOf(t) : (call('title', doc) || 'Untitled'); },
+      /** The original file name of a doc (for example invoice-2026.pdf), or null for a new blank document. */
+      originalNameOf: (doc) => { const t = find(doc); return t ? t.orig : null; },
+      /** rename(doc, name): renames the tab (see renameTab). rename(doc) with no name edits the name in place. */
+      rename: (doc, name) => {
+        const t = find(doc);
+        if (!t) return Promise.resolve(false);
+        if (name === undefined) { startEdit(t); return Promise.resolve(null); }
+        return renameTab(t, name);
+      },
       /** Record the Slop Drive file a tab is linked to (kept across reloads by session.js). */
       setDriveId(doc, id) { const t = find(doc); if (t) { t.driveId = id || null; emit('drive', t); } },
       /** After a save: the adapter's saved(doc) runs (clears the dirty state), then the strip is redrawn. */
@@ -197,15 +270,27 @@
         d.removeEventListener('pointerdown', onClick, true);
         d.removeEventListener('keydown', onKey, true);
         win.removeEventListener('resize', checkOverflow);
-        listeners.clear(); tabs.length = 0; cur = null;
+        listeners.clear(); tabs.length = 0; cur = null; edit = null; mounts.delete(api);
         strip.remove(); plus.remove(); more.remove(); menu.remove();
         host.classList.remove('sl-doctabs');
       },
     };
+    mounts.add(api);
     render();
     return api;
   }
 
+  /** SlopDocTabs.rename(tabId, name): renames a tab in whichever strip holds it. tabId null = the active tab.
+   * No name = edit the name in place (the File menu item uses this). Resolves true when renamed, false when refused or not found. */
+  function rename(tabId, name) {
+    for (const m of mounts) {
+      const doc = tabId == null ? m.current() : (m.tabs().find((t) => t.id === tabId) || {}).doc;
+      if (doc) return m.rename(doc, name);
+    }
+    return Promise.resolve(false);
+  }
+
   NS.mount = mount;
   NS.newId = newId;
+  NS.rename = rename;
 })();
