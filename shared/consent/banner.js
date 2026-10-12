@@ -33,9 +33,30 @@
     var link = text('link', { id: 'slopc-css', rel: 'stylesheet', href: S.base + 'shared/consent/banner.css' });
     (document.head || document.documentElement).append(link);
   }
+  /* Room for the strip: while it is up, <html> gets class slopc-on and --consent-h (the strip's measured height, kept
+   * current by a ResizeObserver). banner.css adds that height to the page's bottom padding, so the end of the page
+   * scrolls clear of the strip. The page's own bottom padding is kept in --slopc-base-pb. */
+  var root = document.documentElement;
+  var ro = null;
+  function reserve(el) {
+    if (!root.classList.contains('slopc-on')) {
+      root.style.setProperty('--slopc-base-pb', getComputedStyle(document.body).paddingBottom);
+      root.classList.add('slopc-on');
+    }
+    var measure = function () { root.style.setProperty('--consent-h', Math.ceil(el.getBoundingClientRect().height) + 'px'); };
+    measure();
+    if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(measure); ro.observe(el); }
+  }
+  function unreserve() {
+    if (ro) { ro.disconnect(); ro = null; }
+    root.classList.remove('slopc-on');
+    root.style.removeProperty('--consent-h');
+    root.style.removeProperty('--slopc-base-pb');
+  }
   function remove() {
     var el = document.getElementById(ID);
     if (el) el.remove();
+    unreserve();
   }
   function choose(next) {
     if (C) C.setChoices(next);
@@ -69,7 +90,9 @@
     if (document.body && document.body.getAttribute('data-consent') === 'off') return false;
     if (!S.needsChoice() || document.getElementById(ID) || !document.body) return false;
     injectCss();
-    document.body.append(build());
+    var el = build();
+    document.body.append(el);
+    reserve(el);
     return true;
   }
   window.SlopBanner = { mount: mount, remove: remove };

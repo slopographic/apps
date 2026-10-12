@@ -129,9 +129,10 @@ function stepPerched(t) {
   if (t < M.daze) { M.rot = Math.sin(t / 110) * 0.2; return; }   // dizzy: wobbling, no hops yet
   if (M.perch) {
     const pt = P.point(M.perch);
-    if (!pt) {
-      // A removed or swallowed perch drops him; a hidden one (view switch) sends him somewhere visible.
-      if (P.gone.has(M.perch.el) || !M.perch.el.isConnected) fall(0, 0, true);
+    if (!pt || P.underStrip(pt)) {
+      // A removed or swallowed perch drops him; a hidden one (view switch) sends him somewhere visible;
+      // one that scrolled under the consent strip (its buttons must stay clickable) is left for a clear spot.
+      if (!pt && (P.gone.has(M.perch.el) || !M.perch.el.isConnected)) fall(0, 0, true);
       else { M.perch = null; if (!leapIn()) M.offSince = t; }
       return;
     }

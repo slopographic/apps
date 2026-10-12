@@ -62,8 +62,16 @@ export function all() {
   return out;
 }
 
-/** Is this perch top comfortably inside the viewport (with room for him above it)? */
-export const inView = (r) => r.top > navH() + 60 && r.top < innerHeight - 8 && r.right > 40 && r.left < innerWidth - 40;
+/** Viewport y of the consent strip's top edge (the window bottom when no strip is shown). */
+export function floorY() {
+  const strip = document.getElementById('slopc-banner');   // shared/consent/banner.js
+  return Math.min(innerHeight, strip ? strip.getBoundingClientRect().top : innerHeight);
+}
+/** Is his feet point (from point()) under the consent strip? He would then stand on its buttons. */
+export const underStrip = (pt) => pt.y - scrollY > floorY() - 4;
+
+/** Is this perch top comfortably inside the viewport, above the consent strip (with room for him above it)? */
+export const inView = (r) => r.top > navH() + 60 && r.top < floorY() - 8 && r.right > 40 && r.left < innerWidth - 40;
 
 /** Page coordinates of a spot on a perch, or null if the perch is hidden. */
 export function point(p) {

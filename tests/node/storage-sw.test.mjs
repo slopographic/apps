@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { ROOT } from './storage-env.mjs';
 import path from 'node:path';
@@ -24,7 +25,9 @@ async function swWith(cacheNames) {
     open: async () => ({ addAll: async () => {}, put: async () => {}, match: async () => undefined }),
     match: async () => undefined,
   };
-  const ctx = { self, caches, console, URL, Promise, Set, Map, Object, Array, JSON, Math, Date, Response: class {}, Request: class {}, Headers: class {}, fetch: async () => { throw new Error('no network'); } };
+  // importScripts runs the precache list (sw-precache.js) in the same context, as a browser does.
+  const importScripts = (...urls) => { for (const u of urls) vm.runInContext(readFileSync(path.join(ROOT, u), 'utf8'), ctx, { filename: u }); };
+  const ctx = { self, caches, console, URL, Promise, Set, Map, Object, Array, JSON, Math, Date, Response: class {}, Request: class {}, Headers: class {}, fetch: async () => { throw new Error('no network'); }, importScripts };
   ctx.globalThis = ctx;
   vm.createContext(ctx);
   const src = await readFile(path.join(ROOT, 'service-worker.js'), 'utf8');

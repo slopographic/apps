@@ -35,7 +35,7 @@ function serve() {
 }
 
 test('the homepage and Slop Drive open offline after the service worker has precached', async (t) => {
-  const sw = await readFile(path.join(ROOT, 'service-worker.js'), 'utf8');
+  const sw = await readFile(path.join(ROOT, 'sw-precache.js'), 'utf8');  // the PRECACHE list, loaded by service-worker.js
   const expected = [...sw.match(/const PRECACHE = \[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].length;
   assert.ok(expected > 100, 'precache list was not read');
 
