@@ -73,10 +73,8 @@
 .ed-rows { display: flex; flex-direction: column; gap: 8px; }
 .ed-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) 72px; gap: 8px; align-items: start; }
 .ed-rm { justify-self: end; min-height: 38px; display: inline-flex; align-items: center; }
-.ed-grid + .ed-grid, .ed-sub + .ed-grid { margin-top: 12px; }
+.ed-sub + .ed-grid { margin-top: 14px; }
 .ed-sub + .ed-sub { margin-top: 14px; }
-.ed-sec .ed-grid + .ed-hint, .ed-sec .ed-f + .ed-hint { margin-top: 8px; }
-.ed-sec .ed-rows:empty + * { margin-top: 0; }
 @media (max-width: 959px) {
   .back { display: inline-flex; }
   .card-scroll { padding: 6px 16px 40px; }
