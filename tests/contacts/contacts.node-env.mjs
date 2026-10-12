@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const CORE = ['text', 'photo', 'model', 'phone', 'activity', 'customer-map', 'vcard-read', 'vcard-write', 'csv-read', 'csv-write',
+const CORE = ['text', 'photo', 'model', 'phone', 'activity', 'customer-map', 'vcard-read', 'vcard-write', 'bundle', 'csv-read', 'csv-write',
   'csv-map', 'dedupe', 'bulk', 'zip', 'format', 'filters', 'table-model', 'import-plan'];
 
 export function loadContacts() {

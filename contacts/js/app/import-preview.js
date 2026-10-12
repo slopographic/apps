@@ -25,10 +25,13 @@
   const subOf = (c) => c.org || (c.emails[0] && c.emails[0].value) || (c.phones[0] && c.phones[0].value) || '';
 
   /** The preview for incoming contacts. sourceLabel names the files; errors lists files that could not be read.
-   *  Resolves with true when the import was applied. */
-  function show(incoming, sourceLabel, errors = []) {
+   *  opts.keepIds: an added contact keeps its incoming id when no contact in the list has it (the Drive bundle, whose
+   *  X-SLOP-ID makes a later import a match). Resolves with true when the import was applied. */
+  function show(incoming, sourceLabel, errors = [], { keepIds = false } = {}) {
     return new Promise((resolve) => {
       const cc = S.cc, rows = SC.importPlan.plan(S.list, incoming, cc);
+      const taken = new Set(S.list.map((c) => c.id));
+      const idFor = (c) => { const id = keepIds && c.id && !taken.has(c.id) ? c.id : SC.records.newId(); taken.add(id); return id; };
       const dups = rows.filter((r) => r.match).length, fresh = rows.length - dups;
       let choice = 'skip', applied = false;
       const summary = el('p', { class: 'sui-p imp-sum', 'aria-live': 'polite' });
@@ -63,7 +66,7 @@
         if (applied) return false;
         applied = true;
         const before = S.list;
-        const res = SC.importPlan.apply(before, rows, choice, () => SC.records.newId(), cc);
+        const res = SC.importPlan.apply(before, rows, choice, idFor, cc);
         S.setList(res.list);
         const bits = [];
         if (res.added) bits.push(`${res.added} added`);

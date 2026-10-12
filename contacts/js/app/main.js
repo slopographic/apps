@@ -6,6 +6,7 @@
   const S = SC.state;
   const $ = (id) => document.getElementById(id);
 
+  /** Opens a file handed over from Slop Drive. Resolves with true when one was handed over. */
   async function launch() {
     const h = window.SlopHub || null;
     if (h) { try { h.register('contacts'); } catch (e) { /* hub without register */ } }
@@ -16,6 +17,7 @@
       SC.io.importFiles([{ name: rec.name || 'contacts.scontacts', text: () => rec.blob.text() }])
         .catch((e) => window.SlopUI.toast(`Could not import: ${e.message}`));
     }
+    return !!(rec && rec.blob);
   }
 
   async function boot() {
@@ -39,8 +41,13 @@
     $('btnNew').addEventListener('click', () => SC.newContact.open());
     $('btnGroups').setAttribute('aria-expanded', 'false');
     const ok = await SC.records.init();
+    SC.drive.init(); // the Slop Drive copy: the Save button, the status line and the save after each change
     const place = SC.urlPlace.peek(); // read before the session's place is applied, so the URL wins when it names one
-    if (ok) { await launch(); await SC.viewState.restore(); } // js/app/view-state.js: the group, search, open card and selection
+    if (ok) {
+      const handed = await launch();
+      await SC.viewState.restore(); // js/app/view-state.js: the group, search, open card and selection
+      if (!handed) SC.driveLoad.offerAtStart().catch(() => {}); // an empty list is offered contacts.vcf from Slop Drive
+    }
     SC.urlPlace.apply(place);
     S.ready = true;
     SC.ready = true;

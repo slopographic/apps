@@ -91,10 +91,12 @@
         <button type="button" class="tb-btn" data-cmd="contacts.new">New contact</button>
         <button type="button" class="tb-btn" data-cmd="import.files">Import</button>
         <button type="button" class="tb-btn" data-cmd="export.open">Export</button>
+        <button type="button" class="tb-btn" id="btnDriveSave" data-cmd="drive.save" title="Save the contacts to Slop Drive now" hidden>Save</button>
         <button type="button" class="tb-btn wide-only" data-cmd="contacts.dupes">Duplicates</button>
         <button type="button" class="tb-btn wide-only" data-cmd="contacts.clean">Clean up</button>
         <button type="button" class="tb-btn wide-only" data-cmd="settings.country" title="Default country code for phone numbers">Country code</button>
       </div>
+      <span class="drive-status" id="driveStatus" role="status" aria-live="polite" hidden></span>
       <span class="local-badge" title="Your customers stay in this browser. Nothing is uploaded."><span>100% local</span></span>
     </header>
 
@@ -198,6 +200,7 @@
   <script src="js/core/customer-map.js" data-src="contacts/js/core/customer-map.js"></script>
   <script src="js/core/vcard-read.js" data-src="contacts/js/core/vcard-read.js"></script>
   <script src="js/core/vcard-write.js" data-src="contacts/js/core/vcard-write.js"></script>
+  <script src="js/core/bundle.js" data-src="contacts/js/core/bundle.js"></script>
   <script src="js/core/csv-read.js" data-src="contacts/js/core/csv-read.js"></script>
   <script src="js/core/csv-write.js" data-src="contacts/js/core/csv-write.js"></script>
   <script src="js/core/csv-map.js" data-src="contacts/js/core/csv-map.js"></script>
@@ -227,6 +230,8 @@
   <script src="js/app/url-place.js" data-src="contacts/js/app/url-place.js"></script>
   <script src="js/app/drop-import.js" data-src="contacts/js/app/drop-import.js"></script>
   <script src="js/app/io-dialogs.js" data-src="contacts/js/app/io-dialogs.js"></script>
+  <script src="js/app/drive-save.js" data-src="contacts/js/app/drive-save.js"></script>
+  <script src="js/app/drive-load.js" data-src="contacts/js/app/drive-load.js"></script>
   <script src="js/app/tools-dialogs.js" data-src="contacts/js/app/tools-dialogs.js"></script>
   <script src="js/app/keys.js" data-src="contacts/js/app/keys.js"></script>
   <script src="js/app/commands.js" data-src="contacts/js/app/commands.js"></script>

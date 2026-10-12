@@ -47,13 +47,13 @@
   }
 
   /** Applies the rows. choice: 'skip' | 'merge' | 'add' (for matches only; new contacts are always added).
-   *  newId() gives an id for each added contact. Returns { list, added, merged, skipped }. */
+   *  newId(incoming) gives the id for each added contact (the caller may keep the incoming id). Returns { list, added, merged, skipped }. */
   function apply(existing, rows, choice, newId, cc) {
     const list = existing.slice(), pos = new Map(list.map((c, i) => [c.id, i]));
     const out = { added: 0, merged: 0, skipped: 0 };
     for (const r of rows) {
       if (r.match && choice === 'skip') { out.skipped++; continue; }
-      if (!r.match || choice === 'add') { list.push(M.normalise({ ...r.c, id: newId() })); out.added++; continue; }
+      if (!r.match || choice === 'add') { list.push(M.normalise({ ...r.c, id: newId(r.c) })); out.added++; continue; }
       const i = pos.get(r.match.id), cur = list[i];
       const m = SC.dedupe.mergeGroup([cur, r.c], cc);
       list[i] = M.normalise({ ...m, id: cur.id });
