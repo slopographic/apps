@@ -64,11 +64,14 @@
     return { text: text, owner: owner, off: off, items: items, styles: (tc && tc.styles) || {} };
   };
 
-  /** Regular expression for a find string. Literal text is escaped. */
+  /** Regular expression for a find string. Literal text is escaped. wholeWord (literal text only) needs a letter,
+   *  digit or underscore on neither side of the match, in any script. */
   T.regex = function (find, opts, global) {
     opts = opts || {};
     var src = opts.regex ? String(find) : String(find).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return new RegExp(src, (global ? 'g' : '') + (opts.caseSensitive ? '' : 'i'));
+    var flags = (global ? 'g' : '') + (opts.caseSensitive ? '' : 'i');
+    if (opts.wholeWord && !opts.regex) { src = '(?<![\\p{L}\\p{N}_])' + src + '(?![\\p{L}\\p{N}_])'; flags += 'u'; }
+    return new RegExp(src, flags);
   };
 
   /** Where one piece of an item sits. Returns { x0, x1, y, fs, located }. measure(family, str, size) gives widths. */

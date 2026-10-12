@@ -39,6 +39,8 @@
       cmd('file.app', 'Download app (offline .html)', 'File', [], function () { A.downloadApp(); }),
       cmd('file.rename', 'Rename…', 'File', [], function () { A.rename(null); }, null, { keywords: ['name', 'title'] }),
       cmd('file.closeAll', 'Close all', 'File', [], function () { A.closeAll(); }, has),
+      cmd('edit.text', 'Edit text in place', 'Edit', ['Mod+E'], function () { Ed.toggleEditText(); }, pg, { keywords: ['replace', 'change', 'type over'] }),
+      cmd('edit.find', 'Find in document…', 'Edit', ['Mod+F'], function () { SlopPdfFind.open(); }, function () { return has() && noMenu(); }, { keywords: ['search', 'highlight', 'text'] }),
       cmd('edit.undo', 'Undo', 'Edit', ['Mod+Z'], function () { A.undo(); }, function () { return E.canUndo() && !inField() && noMenu(); }),
       cmd('edit.redo', 'Redo', 'Edit', ['Shift+Mod+Z', 'Mod+Y'], function () { A.redo(); }, function () { return E.canRedo() && !inField() && noMenu(); }),
       cmd('edit.selectAll', 'Select all pages', 'Edit', ['Mod+A'], function () { O.selectAll(); }, function () { return grid() && idle(); }),

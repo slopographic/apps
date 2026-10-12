@@ -33,6 +33,7 @@
       else if (act === 'rotr') SP.app.rotate(ids, 90);
       else if (act === 'del') SP.app.remove(ids);
       else if (act === 'view') SP.app.openPage(id);
+      else SP.app.pageAct(act, ids);
     });
   };
   O.MIN = 80;
@@ -70,6 +71,10 @@
         U.h('button', { type: 'button', 'data-act': 'rotl', tabindex: '-1', title: 'Rotate left', 'aria-label': 'Rotate left', html: U.icon('rotl') }),
         U.h('button', { type: 'button', 'data-act': 'rotr', tabindex: '-1', title: 'Rotate right', 'aria-label': 'Rotate right', html: U.icon('rotr') }),
         U.h('button', { type: 'button', 'data-act': 'view', tabindex: '-1', title: 'Open page', 'aria-label': 'Open page', html: U.icon('zoomin') }),
+        U.h('button', { type: 'button', 'data-act': 'dup', tabindex: '-1', title: 'Duplicate', 'aria-label': 'Duplicate page', html: U.icon('copy') }),
+        U.h('button', { type: 'button', 'data-act': 'up', tabindex: '-1', title: 'Move up', 'aria-label': 'Move page up', html: U.icon('up') }),
+        U.h('button', { type: 'button', 'data-act': 'down', tabindex: '-1', title: 'Move down', 'aria-label': 'Move page down', html: U.icon('down') }),
+        U.h('button', { type: 'button', 'data-act': 'ext', tabindex: '-1', title: 'Extract this page', 'aria-label': 'Extract this page', html: U.icon('download') }),
         U.h('button', { type: 'button', 'data-act': 'del', tabindex: '-1', title: 'Delete', 'aria-label': 'Delete page', class: 'danger', html: U.icon('trash') })),
       U.h('div', { class: 'thumb-grip', 'aria-hidden': 'true', html: U.icon('grip') }),
       U.h('div', { class: 'thumb-cap' }, U.h('span', { class: 'fdot' }), U.h('span', { class: 'pnum' }), U.h('span', { class: 'psrc' })),
@@ -122,13 +127,24 @@
   function syncSel() {
     els.forEach(function (el, id) { var on = O.sel.has(id); el.classList.toggle('selected', on); el.setAttribute('aria-selected', on ? 'true' : 'false'); });
     var fid = O.focusId && els.has(O.focusId) ? O.focusId : (E.state.pages[0] && E.state.pages[0].id);
-    els.forEach(function (el, id) { el.tabIndex = id === fid ? 0 : -1; });
+    els.forEach(function (el, id) { setTab(el, id === fid ? 0 : -1); });
+    O.markCurrent();
     if (SP.app) SP.app.selectionChanged();
   }
+  /** Tab order: the focused thumbnail and its action buttons are reachable with Tab; the others are not (arrows move). */
+  function setTab(el, t) {
+    el.tabIndex = t;
+    el.querySelectorAll('.thumb-tools button').forEach(function (b) { b.tabIndex = t; });
+  }
+  /** The active page (page view) gets the current-page border in the thumbnails. */
+  O.markCurrent = function () {
+    var cur = SP.editor && SP.editor.pid;
+    els.forEach(function (el, id) { el.classList.toggle('is-current', id === cur); });
+  };
   O.focus = function (id, scroll) {
     var el = els.get(id); if (!el) return;
     O.focusId = id;
-    els.forEach(function (e2, i2) { e2.tabIndex = i2 === id ? 0 : -1; });
+    els.forEach(function (e2, i2) { setTab(e2, i2 === id ? 0 : -1); });
     el.focus({ preventScroll: true });
     if (scroll !== false) el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   };

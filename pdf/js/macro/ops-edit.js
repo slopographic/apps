@@ -6,6 +6,19 @@
   var P = M.pdf, OPS = M.ops = M.ops || {};
   function count(n, word, plural) { return n + ' ' + (n === 1 ? word : (plural || word + 's')); }
 
+  /** The geometry of one located match's cover-and-replace, in PDF user space (y up), with no drawing: the boxes that
+   *  cover the old characters, and the replacement's baseline position. rep is already safe for the font. measure(text,
+   *  size) gives a width. Shared by this macro (pdf-lib) and the in-app Replace all (find/replace.js). */
+  M.coverPlan = function (m, rep, measure) {
+    var first = m.segs[0], last = m.segs[m.segs.length - 1], covers = [];
+    m.segs.forEach(function (sg) {
+      if (!(sg.x1 > sg.x0)) return;
+      covers.push({ x: sg.x0 - 0.4, y: sg.y - 0.24 * sg.fs, w: sg.x1 - sg.x0 + 0.8, h: 1.04 * sg.fs });
+    });
+    var text = rep ? { text: rep, x: first.x0, y: first.y, size: first.fs } : null;
+    return { covers: covers, text: text, wide: !!rep && measure(rep, first.fs) > last.x1 - first.x0 + 0.5 };
+  };
+
   /** Covers each located match with a box, then draws the replacement in the standard font. The original
    *  characters stay in the file under the box (copy and search still find them); Redact removes them. */
   OPS.replaceText = async function (bytes, s, ctx) {
@@ -27,15 +40,10 @@
             : String(s.replace || '');
           if (P.hasUnsupported(font, rep)) unsupported++;
           rep = P.safeText(font, rep);
-          var first = m.segs[0], last = m.segs[m.segs.length - 1];
-          m.segs.forEach(function (sg) {
-            if (!(sg.x1 > sg.x0)) return;
-            page.drawRectangle({ x: sg.x0 - 0.4, y: sg.y - 0.24 * sg.fs, width: sg.x1 - sg.x0 + 0.8, height: 1.04 * sg.fs, color: cover, borderWidth: 0 });
-          });
-          if (rep) {
-            page.drawText(rep, { x: first.x0, y: first.y, size: first.fs, font: font, color: black });
-            if (font.widthOfTextAtSize(rep, first.fs) > last.x1 - first.x0 + 0.5) wide++;
-          }
+          var plan = M.coverPlan(m, rep, function (t, sz) { return font.widthOfTextAtSize(t, sz); });
+          plan.covers.forEach(function (c) { page.drawRectangle({ x: c.x, y: c.y, width: c.w, height: c.h, color: cover, borderWidth: 0 }); });
+          if (plan.text) page.drawText(plan.text.text, { x: plan.text.x, y: plan.text.y, size: plan.text.size, font: font, color: black });
+          if (plan.wide) wide++;
           done++; pagesHit.add(i);
         }
       }

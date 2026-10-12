@@ -16,6 +16,9 @@
     if (S.callDraft) { e.preventDefault(); S.calloutClick(e); return; } // a callout's box is placed: this click sets its tip
     if (S.editing) { if (e.target === S.ta) return; S.finishText(true); }
     var p = Ed.page(); if (!p) return;
+    if (S.runEdit && e.target === S.runEdit.input) return; // typing in the run being edited
+    if (S.runEdit) S.commitRun();
+    if (Ed.editText && Ed.tool === 'select') { e.preventDefault(); S.runDown(e, p); return; } // Edit text mode (editor/edit-text.js)
     var handle = e.target.closest('.handle'), hitG = e.target.closest('.annots [data-aid]');
     var t = Ed.tool;
     if (t === 'select') {
@@ -29,6 +32,7 @@
         Ed.select(hid); S.startEdit(e, 'move'); return;
       }
       Ed.select(null);
+      if (e.target.closest && e.target.closest('.pv-textlayer span')) return; // text: the browser selects it (no pan, no preventDefault)
       if (Ed.noteUI) Ed.noteUI.close();
       S.startPan(e);
       return;
