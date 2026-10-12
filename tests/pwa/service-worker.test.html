@@ -52,7 +52,7 @@
         results.push(...(await Promise.all(sw.PRECACHE.slice(i, i + 32).map((p) => fetch(p).then((r) => [p, r.status])))));
       }
       expect(results.filter(([, s]) => s !== 200)).toEqual([]);
-    });
+    }, { timeout: 60000 }); // about 1,600 files now; 15 s was too tight when the machine is busy
     it('the precache list has no duplicates and includes the boot pages', async () => {
       expect(new Set(sw.PRECACHE).size).toBe(sw.PRECACHE.length);
       for (const p of ['/index.html', '/drive/index.html', '/offline.html', '/manifest.webmanifest', '/shared/pwa.js', '/favicon.svg']) expect(sw.PRECACHE).toContain(p);
