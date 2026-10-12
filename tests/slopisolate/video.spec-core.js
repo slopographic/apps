@@ -103,6 +103,7 @@
       expect(out.blob.size > 1000).toBeTruthy();
       const head = new Uint8Array(await out.blob.slice(4, 8).arrayBuffer());
       expect(String.fromCharCode(...head)).toBe('ftyp');
+      src.close();                                 // last use: release the decoder and the object URL
     }, LONG);
   });
 })();

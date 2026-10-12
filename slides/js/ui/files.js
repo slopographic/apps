@@ -41,7 +41,7 @@
     var full = rec.blob !== undefined ? rec : await hub().get(rec.id);
     if (!full) { D.toast('That file is no longer in Slop Drive'); return false; }
     var res;
-    try { res = await N.read(full.blob, full.type); }
+    try { res = await N.read(full.blob, full.type, full.name); }
     catch (e) { D.toast('Could not open ' + full.name + ': ' + e.message); return false; }
     var named = N.fileName(res.deck.title);
     if (res.kind === 'foreign') {

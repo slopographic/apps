@@ -43,8 +43,8 @@
         if (Math.abs(el.getBoundingClientRect().top - (stripTop() + 30)) < 2) { target = el; break; }
       }
       expect(target).toBeTruthy();
-      // Stand him there (the model's own perch state), then let a few frames run.
-      Object.assign(S.M, { perch: { el: target, frac: 0.5, off: cx - target.getBoundingClientRect().left }, mode: 'perched', hop: null, vx: 0, vy: 0 });
+      // Stand him there (the model's own perch state), no idle hops, then let a few frames run.
+      Object.assign(S.M, { perch: { el: target, frac: 0.5, off: cx - target.getBoundingClientRect().left }, mode: 'perched', hop: null, vx: 0, vy: 0, nextIdle: Infinity });
       await sleep(400);
       if (await perchedNow()) expect(hitsAccept()).toBe(true);
 
