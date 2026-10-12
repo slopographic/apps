@@ -72,6 +72,7 @@
       { label: 'Zoom in', key: A.key('view.zoomIn'), act: function () { if (A.mode === 'page') Ed.zoomBy(1.25); else O.zoomBy(1.25); } },
       { label: 'Zoom out', key: A.key('view.zoomOut'), act: function () { if (A.mode === 'page') Ed.zoomBy(0.8); else O.zoomBy(0.8); } },
       { label: 'Fit page', key: A.key('view.fit'), act: function () { Ed.fit('fit'); }, disabled: A.mode !== 'page' },
+      { label: 'Page layout', disabled: A.mode !== 'page', sub: [['continuous', 'Continuous scroll'], ['single', 'Single page'], ['two', 'Two pages side by side']].map(function (m) { return { label: m[1], check: Ed.layoutMode === m[0], act: function () { Ed.setLayout(m[0]); } }; }) },
       '-',
       { label: 'Theme', sub: THEMES.map(function (t) { return { label: t[1], check: theme === t[2], act: function () { A.setTheme(t[0]); } }; }) },
       { label: 'Properties panel', check: !S.els.app.classList.contains('no-panel'), act: function () { A.togglePanel(); } }
