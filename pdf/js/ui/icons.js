@@ -60,6 +60,9 @@
     panel: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',
     sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>',
     keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>',
+    note: '<path d="M4 4h16v12l-4 4H4z"/><path d="M16 16v4l4-4"/><path d="M8 9h8M8 12.5h5"/>',
+    callout: '<rect x="3" y="4" width="11" height="8" rx="1.2"/><path d="M14 12 20 20"/><circle cx="20" cy="20" r="1"/>',
+    comments: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
     selectall: '<rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="3 2.5"/><path d="m8.5 12 2.5 2.5 4.5-5"/>'
   };
   U.icon = function (name, cls) {

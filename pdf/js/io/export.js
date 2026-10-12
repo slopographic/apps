@@ -218,7 +218,12 @@
       var g = E.geom(p);
       page.setRotation(L.degrees(E.rotation(p)));
       var list = (p.annots || []).concat(stamps ? E.stampAnnots(p, k, pages.length, stamps) : []);
-      for (var j = 0; j < list.length; j++) await drawAnnot(out, page, list[j], g, ctx);
+      for (var j = 0; j < list.length; j++) {
+        var an = list[j];
+        if (an.type === 'note') E.noteAnnot(out, page, an, g); // comments stay PDF annotations
+        else if (an.type === 'callout') await E.drawCallout(out, page, an, g, ctx);
+        else await drawAnnot(out, page, an, g, ctx);
+      }
       if (opts.onProgress && k % 8 === 0) { opts.onProgress(++step / steps); await U.sleep(0); }
     }
     placed.forEach(function (x) { fixLinks(out, x[0], x[1], firstOut); });

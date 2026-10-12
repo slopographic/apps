@@ -12,6 +12,8 @@
   };
   S.onDown = function (e) {
     if (e.button > 0) return;
+    if (e.target.closest && e.target.closest('.note-pop')) return; // a comment popup handles its own clicks
+    if (S.callDraft) { e.preventDefault(); S.calloutClick(e); return; } // a callout's box is placed: this click sets its tip
     if (S.editing) { if (e.target === S.ta) return; S.finishText(true); }
     var p = Ed.page(); if (!p) return;
     var handle = e.target.closest('.handle'), hitG = e.target.closest('.annots [data-aid]');
@@ -22,11 +24,12 @@
         e.preventDefault();
         var hid = hitG.getAttribute('data-aid'), now = Date.now();
         // own double-click/double-tap detection (pointer capture swallows native dblclick)
-        if (S.lastTap && S.lastTap.id === hid && now - S.lastTap.t < 450) { S.lastTap = null; var ta0 = S.findAnnot(hid); if (ta0 && ta0.type === 'text') { Ed.select(hid); S.editing = { id: hid, isNew: false, before: ta0.text }; S.openTextEditor(ta0); return; } }
+        if (S.lastTap && S.lastTap.id === hid && now - S.lastTap.t < 450) { S.lastTap = null; var ta0 = S.findAnnot(hid); if (ta0 && (ta0.type === 'text' || ta0.type === 'callout')) { Ed.select(hid); S.editing = { id: hid, isNew: false, before: ta0.text }; S.openTextEditor(ta0); return; } }
         S.lastTap = { id: hid, t: now };
         Ed.select(hid); S.startEdit(e, 'move'); return;
       }
       Ed.select(null);
+      if (Ed.noteUI) Ed.noteUI.close();
       S.startPan(e);
       return;
     }
@@ -34,6 +37,7 @@
     S.pageEl.setPointerCapture(e.pointerId);
     var c = S.ctx(), d = Ed.defaults[t] || {}, pt = S.pagePt(e), vp = S.viewPt(e);
     if (t === 'texthl') { S.texthlDown(e, p, pt); return; }
+    if (t === 'note') { S.noteDown(e, p, pt); return; }
     if (t === 'text') {
       var a = Object.assign({ type: 'text', text: '', rot: c.R, cx: 0, cy: 0, w: 10, h: 10 }, Ed.defaults.text);
       a.id = U.uid('a');
@@ -89,6 +93,7 @@
       var r = E.annotViewRect(a, c.R, c.W, c.H);
       if (r.w < 4 && r.h < 4) { var wide = /^(whiteout|hlbox|redact)$/.test(a.type), dw = wide ? 140 : 120, dh = wide ? 28 : 80; E.setAnnotViewRect(a, { x: r.x - dw / 2, y: r.y - dh / 2, w: dw, h: dh }, c.R, c.W, c.H); }
     }
+    if (kind === 'box' && a.type === 'callout') { S.calloutPlaced(a); return; }
     if (kind === 'line') {
       var l = Math.hypot(a.pts[1][0] - a.pts[0][0], a.pts[1][1] - a.pts[0][1]);
       if (l < 3) { var v0 = E.toView(c.R, c.W, c.H, a.pts[0][0], a.pts[0][1]); a.pts[1] = E.toPage(c.R, c.W, c.H, v0[0] + 100, v0[1]); }
@@ -115,6 +120,7 @@
       Object.keys(x).forEach(function (k) { delete x[k]; }); Object.assign(x, JSON.parse(JSON.stringify(S.act.orig)));
       var r = S.act.r0, n = { x: r.x, y: r.y, w: r.w, h: r.h };
       if (S.act.h === 'move') { n.x += dx; n.y += dy; E.setAnnotViewRect(x, n, c.R, c.W, c.H); }
+      else if (S.act.h === 'tip') { x.tip = E.toPage(c.R, c.W, c.H, v[0], v[1]); }
       else if (S.act.h === 'p1' || S.act.h === 'p2') { var k = S.act.h === 'p1' ? 0 : x.pts.length - 1; x.pts[k] = E.toPage(c.R, c.W, c.H, v[0], v[1]); }
       else {
         var hh = S.act.h;
@@ -145,10 +151,10 @@
       S.pageEl.removeEventListener('pointermove', mv); S.pageEl.removeEventListener('pointerup', up); S.pageEl.removeEventListener('pointercancel', up);
       if (!S.act) return;
       var x = S.findAnnot(S.act.id), A = S.act; S.act = null;
-      if (!x || !A.moved) { Ed.paint(); return; }
+      if (!x || !A.moved) { if (x && x.type === 'note') Ed.noteUI.open(x.id); Ed.paint(); return; }
       var fin = JSON.parse(JSON.stringify(x));
       Object.keys(x).forEach(function (k) { delete x[k]; }); Object.assign(x, A.orig);
-      S.commitPage(A.h === 'move' ? 'Move annotation' : 'Resize annotation', function (p) { p.annots = p.annots.map(function (y) { return y.id === fin.id ? fin : y; }); });
+      S.commitPage(A.h === 'move' ? 'Move annotation' : A.h === 'tip' ? 'Move callout pointer' : 'Resize annotation', function (p) { p.annots = p.annots.map(function (y) { return y.id === fin.id ? fin : y; }); });
     }
     S.pageEl.addEventListener('pointermove', mv); S.pageEl.addEventListener('pointerup', up); S.pageEl.addEventListener('pointercancel', up);
   }
@@ -157,8 +163,8 @@
     var g = e.target.closest('.annots [data-aid]'), id = g ? g.getAttribute('data-aid') : Ed.selId;
     if (!id || Ed.tool !== 'select') return;
     var a = S.findAnnot(id);
-    if (a && a.type === 'text') { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); }
+    if (a && (a.type === 'text' || a.type === 'callout')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); }
   }
-  Ed.editSelectedText = function () { var a = Ed.getSelected(); if (a && a.type === 'text') { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); return true; } return false; };
+  Ed.editSelectedText = function () { var a = Ed.getSelected(); if (a && (a.type === 'text' || a.type === 'callout')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); return true; } return false; };
 
 })();

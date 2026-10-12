@@ -1,7 +1,7 @@
 /* Slop PDF — document model: state, geometry (view <-> page space) and page operations (undo/redo: core/history.js).
    Annotation geometry lives in the page's unrotated user space measured from the top-left of the
    visible box (pdf.js page.view), in PDF points. Box kinds (text, rect, ellipse, image, whiteout,
-   hlbox, redact) have cx, cy, w, h, rot; path kinds (pen, marker, line, arrow) have pts [[u,v],...]. */
+   hlbox, redact, note, callout) have cx, cy, w, h, rot (a callout also has tip, its leader-line end); path kinds (pen, marker, line, arrow) have pts [[u,v],...]. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util;
@@ -47,7 +47,7 @@
     if (R === 270) return [W - y, x];
     return [x, y];
   };
-  E.BOX = { text: 1, rect: 1, ellipse: 1, image: 1, whiteout: 1, hlbox: 1, redact: 1 };
+  E.BOX = { text: 1, rect: 1, ellipse: 1, image: 1, whiteout: 1, hlbox: 1, redact: 1, note: 1, callout: 1 };
   E.isBox = function (a) { return !!E.BOX[a.type]; };
   /** Axis-aligned rectangle of an annotation in view space (points) for a page at rotation R. */
   E.annotViewRect = function (a, R, W, H) {
