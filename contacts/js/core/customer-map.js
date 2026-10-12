@@ -80,6 +80,7 @@
     const [af, ...ar] = a;
     return {
       ...(cur || {}),
+      id: c.id, // a new contact keeps its list id (the store would otherwise pick another); the same id as cur for a saved one
       name: clip(c.fn, 200) || 'No name', company: clip(c.org, 200) || undefined, department: clip(c.dept, 200) || undefined,
       title: clip(c.title, 200) || undefined, birthday: clip(c.bday, 20) || undefined, website: clip(c.url, 300) || undefined,
       notes: String(c.note || '').trim().slice(0, LIMIT.notes) || undefined, photo: c.photo && c.photo.length <= LIMIT.photo ? c.photo : undefined,
