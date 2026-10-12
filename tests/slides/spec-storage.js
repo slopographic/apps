@@ -77,6 +77,17 @@
       ST.close(a);
     }, { timeout: 30000 });
 
+    it('a picture opens under its own file name (brackets and parentheses intact), not "Picture"', async () => {
+      const w = await ST.open('../../slides/');
+      const png = await ST.png(w);
+      const id = await w.SlopHub.put(png, { name: 'card (1) [x].png' });
+      ST.close(w);
+      const a = await ST.open('../../slides/?drive=' + id);
+      expect(a.SS.app.deck.title).toBe('card (1) [x]');
+      expect(a.SS.app.doc.name).toBe('card (1) [x].sslide');
+      ST.close(a);
+    }, { timeout: 30000 });
+
     it('a PowerPoint file is not overwritten: the editor opens a blank deck with no link', async () => {
       const w = await ST.open('../../slides/');
       const id = await w.SlopHub.put(new w.Blob(['PK-not-really'], { type: PPTX }), { name: 'Deck.pptx' });

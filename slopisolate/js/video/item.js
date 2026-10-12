@@ -10,15 +10,14 @@
 
   /** A poster frame (the first picture) as an object URL, for the queue tile. */
   async function poster(file, src) {
+    const el = document.createElement('video');
     try {
-      const el = document.createElement('video');
       el.muted = true; el.playsInline = true; el.src = src.url;
       await new Promise((ok, no) => { el.onloadeddata = ok; el.onerror = no; });
       const c = U.canvas(160, Math.round(160 * src.h / src.w)), g = c.getContext('2d');
       g.drawImage(el, 0, 0, c.width, c.height);
-      el.removeAttribute('src'); el.load();
       return URL.createObjectURL(await new Promise((ok) => c.toBlob(ok, 'image/png')));
-    } catch (e) { return ''; }
+    } catch (e) { return ''; } finally { el.removeAttribute('src'); el.load(); }   // release the decoder on every path
   }
 
   /** Add one video to the queue: probe it, check the limits, select it when nothing is selected. */

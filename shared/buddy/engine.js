@@ -85,7 +85,8 @@ function guard() {
 }
 const paused = (t) => CFG.kind === 'game' && t < (M.busyUntil || 0);
 
-let last = 0, visible = false;
+let last = 0, lastDraw = -Infinity, visible = false;
+const DRAW_MS = 1000 / 30;
 function frame(t) {
   const dt = Math.min(0.05, Math.max(0, (t - last) / 1000));
   last = t;
@@ -102,7 +103,10 @@ function frame(t) {
       chatter(t);
     }
     M.el.style.transform = `translate3d(${(M.x - CW / 2).toFixed(1)}px, ${(M.y - BASE).toFixed(1)}px, 0)`;
-    if (M.y + 40 > scrollY && M.y - CH < scrollY + innerHeight) {
+    // The goo filter re-rasterises his SVG on every change, the costliest per-frame work on the page. Redraw the
+    // pose at 30 fps (his breathing and wobble are slow, so no change is visible); the movement itself is per frame.
+    if (t - lastDraw >= DRAW_MS && M.y + 40 > scrollY && M.y - CH < scrollY + innerHeight) {
+      lastDraw = t;
       const r3d = renderer3d();
       if (r3d) r3d.render(M, size(), face(t), t, reduced());
       else draw(t);

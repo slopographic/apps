@@ -35,6 +35,12 @@
     return info;
   }
 
+  /** Drops a <video> element's source and decoder (an element keeps one decoder alive while it has a source). */
+  function releaseEl(el) {
+    if (!el) return;
+    try { el.pause(); el.removeAttribute('src'); el.load(); } catch (e) { /* already released */ }
+  }
+
   /** Open a video file for frame access. */
   V.open = async function (file) {
     const url = URL.createObjectURL(file);
@@ -47,6 +53,7 @@
       try { track = await mp4Track(file); } catch (e) { track = null; }
       if (track) duration = track.duration || duration;
     }
+    if (track) { releaseEl(info.el); info.el = null; }   // WebCodecs decodes; the probe element is not needed
     const maxSec = Math.min(duration || L.maxSec(), L.maxSec());
     const fps = Math.min(L.MAX_FPS, track ? track.fps : 30);
     const count = Math.max(1, Math.floor(maxSec * fps + 1e-6));
@@ -54,9 +61,9 @@
     const src = {
       w: info.w, h: info.h, out, duration: maxSec, fps, count, mode: track ? 'webcodecs' : 'element', file,
       each: (fn, opts = {}) => (track ? eachDecoded(file, track, src, fn, opts) : eachSeek(info.el, src, fn, opts)),
-      close() { info.el.removeAttribute('src'); info.el.load(); URL.revokeObjectURL(url); },
+      close() { releaseEl(info.el); info.el = null; URL.revokeObjectURL(url); },
     };
-    if (!track) info.el.muted = true;
+    if (info.el) info.el.muted = true;
     src.url = url;
     return src;
   };
