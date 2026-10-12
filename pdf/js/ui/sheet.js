@@ -17,10 +17,16 @@
   function fmt(v) { return String(U.round(v, 3)); }
   var hatchSeq = 0;
 
-  /** Text highlight: one filled quad per text line (pts hold four points per line). */
+  /** Text highlight: one filled quad per text line (pts hold four points per line). Style underline or strike draws a
+      line along the bottom or through the middle of each line instead (sel-geom.js markLine, shared with the export). */
   V.texthlNode = function (a) {
     var g = U.s('g', { 'data-aid': a.id, class: 'an an-texthl' }), op = 'opacity' in a ? a.opacity : 1;
     for (var k = 0; k + 3 < a.pts.length; k += 4) {
+      if (a.style === 'underline' || a.style === 'strike') {
+        var ml = window.SlopPdfSel.markLine(a.pts.slice(k, k + 4), a.style);
+        g.appendChild(U.s('line', { x1: fmt(ml.x0), y1: fmt(ml.y), x2: fmt(ml.x1), y2: fmt(ml.y), stroke: a.color || '#ffe14d', 'stroke-width': fmt(ml.w), 'stroke-opacity': op }));
+        continue;
+      }
       var q = a.pts.slice(k, k + 4).map(function (p) { return fmt(p[0]) + ',' + fmt(p[1]); }).join(' ');
       g.appendChild(U.s('polygon', { points: q, fill: a.color || '#ffe14d', 'fill-opacity': op, style: 'mix-blend-mode:multiply' }));
     }

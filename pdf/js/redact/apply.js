@@ -70,15 +70,18 @@
     return out;
   }
 
-  /** Applies every pending mark. opts {dpi, stripMeta, onProgress}. Resolves {pages, marks}. */
+  /** Applies every pending mark. opts {dpi, stripMeta, onProgress, extra: [{p, box}]}. Resolves {pages, marks}. */
   E.applyRedactions = async function (opts) {
     opts = opts || {};
-    var L = PDFLib, pend = R.pending(), byPage = new Map();
+    var L = PDFLib, pend = R.pending(), extra = opts.extra || [], byPage = new Map();
     pend.forEach(function (x) { byPage.set(x.p.id, x.p); });
+    extra.forEach(function (x) { byPage.set(x.p.id, x.p); });
     if (!byPage.size) return { pages: 0, marks: 0 };
+    // page-space boxes of a page: its marks plus the extra boxes (sel-actions.js Remove), which are never stored as marks
+    var boxesOf = function (p) { return R.boxes(p).concat(extra.filter(function (x) { return x.p.id === p.id; }).map(function (x) { return x.box; })); };
     var out = await L.PDFDocument.create({ updateMetadata: false }), map = new Map(), srcs = new Map(), k = 0, done = 0;
     for (var entry of byPage) {
-      var p = entry[1], boxes = R.boxes(p);
+      var p = entry[1], boxes = boxesOf(p);
       if (!p.blank) {
         var g = E.geom(p), img = await R.rasterPage(p, boxes, opts.dpi);
         var page = out.addPage([g.W, g.H]);
@@ -102,7 +105,7 @@
     E.commit('Apply redactions', function (st) {
       st.pages.forEach(function (p) {
         if (!byPage.has(p.id)) return;
-        var boxes = R.boxes(p), g = E.geom(p);
+        var boxes = boxesOf(p), g = E.geom(p);
         // drop the marks, and any annotation that touches a redacted area
         p.annots = p.annots.filter(function (a) { return a.type !== 'redact' && !boxes.some(function (b) { return hit(b, E.annotViewRect(a, 0, g.W, g.H)); }); });
         if (map.has(p.id)) { p.f = file.id; p.i = map.get(p.id); }
@@ -110,7 +113,7 @@
       });
       if (opts.stripMeta) st.meta = { title: '', author: '', subject: '', keywords: '' };
     });
-    return { pages: byPage.size, marks: pend.length };
+    return { pages: byPage.size, marks: pend.length + extra.length };
   };
 
   /* --------------------------------------------- export-time clean-up */

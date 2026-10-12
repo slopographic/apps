@@ -26,6 +26,11 @@ function labelCommands() {
   add('File', 'exportZPL', 'Export ZPL (Zebra)', exportZPLQuick, { keywords: ['zebra', 'printer'] });
   add('File', 'shareForm', 'Share print form link…', shareFormLink, { keywords: ['link', 'url', 'form'] });
   add('File', 'setup', 'Label setup…', () => labelSetupDialog(), { keywords: ['size', 'stock', 'avery', 'roll', 'printer', 'dpi'] });
+  add('File', 'tab.new', 'New tab', newBlankTab, { keywords: ['tab', 'blank', 'document', 'label'] });
+  add('File', 'tab.close', 'Close tab', closeCurrentTab, { keywords: ['tab', 'close', 'document'] });
+  add('File', 'presets', 'Presets…', presetsDialog, { keywords: ['preset', 'avery', 'sheet', 'size', 'gallery', 'template'] });
+  add('File', 'saveConfig', 'Save as config…', saveConfigDialog, { keywords: ['config', 'save', 'setup', 'reuse'] });
+  add('File', 'configs', 'Configs…', configsDialog, { keywords: ['config', 'list', 'apply', 'rename', 'export', 'import'] });
   add('File', 'imageFromDrive', 'Insert image from Slop Drive…', imageFromDrive, { when: hubAvailable, keywords: ['hub'] });
   add('File', 'dataFromDrive', 'Data from Slop Drive…', dataFromDrive, { when: hubAvailable, keywords: ['hub', 'csv'] });
   add('File', 'offline', 'Download app (offline .html)', async () => { try { const n = await downloadOfflineApp(); SlopUI.toast(`Saved sloplabel.html (${Math.round(n / 1024)} KB)`); } catch (e) { SlopUI.alert('Could not build the offline app', e.message); } }, { keywords: ['offline', 'single file'] });

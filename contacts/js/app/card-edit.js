@@ -122,7 +122,7 @@
           el('div', { class: 'ed-sub' }, el('div', { class: 'ed-sub-top' }, el('span', { class: 'ed-k' }, 'E-mail'), addBtn('+ Add e-mail', f.emails.add)), f.emails.el),
           el('div', { class: 'ed-grid' }, field('Birthday', f.bday), field('Website', f.url))),
         section('ed-h-address', 'Address', addBtn('+ Add address', f.addrs.add), f.addrs.el),
-        section('ed-h-notes', 'Notes', null, field('Notes', f.notes),
+        section('ed-h-notes', 'Notes', null, el('label', { class: 'ed-f' }, f.notes),
           el('p', { class: 'ed-hint' }, 'Dated notes are kept as they are. Add them in Activity on the card.')),
         section('ed-h-groups', 'Pipeline and groups', null,
           field('Groups (comma separated)', f.groups),

@@ -2,8 +2,8 @@
 .app {
   height: 100%; display: grid;
   grid-template-columns: var(--toolbox-w) minmax(0, 1fr) var(--dock-w);
-  grid-template-rows: var(--menubar-h) var(--cb-h) minmax(0, 1fr) var(--sb-h);
-  grid-template-areas: 'menu menu menu' 'ctrl ctrl ctrl' 'tools work dock' 'status status status';
+  grid-template-rows: var(--menubar-h) auto var(--cb-h) minmax(0, 1fr) var(--sb-h);
+  grid-template-areas: 'menu menu menu' 'tabs tabs tabs' 'ctrl ctrl ctrl' 'tools work dock' 'status status status';
 }
 .menubar { grid-area: menu; display: flex; align-items: center; gap: 4px; padding: 0 8px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); min-width: 0; }
 .brand { display: flex; align-items: center; gap: 7px; font-weight: 700; letter-spacing: -.01em; color: var(--text); text-decoration: none; padding: 0 8px 0 2px; white-space: nowrap; }

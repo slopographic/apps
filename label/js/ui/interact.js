@@ -197,7 +197,7 @@ async function createFromDrag(D0) {
   }
   setTool('select');
   if (type === 'image') { await insertImageFile(null, props); return; }
-  addObject(makeObject(type, props));
+  addObject(makeObject(type, Object.assign(styleProps(App.doc, type), props)));
   if (type === 'text' || type === 'para') focusContent();
 }
 /** Pick (or take) an image file and place it as an object. props may give x/y/w/h. */

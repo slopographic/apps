@@ -44,7 +44,7 @@ async function maybeFormMode() {
   const act = (fn) => async () => { const J = job(); if (J) try { await fn(J); } catch (e) { SlopUI.alert('Output failed', e.message); } };
   const btn = (l, f, cls = '') => fBtn(l, act(f), { cls });
   const designer = mk('a', { href: location.pathname, class: 'btn ghost', style: 'font-size:12px' }, 'Open in designer');
-  designer.addEventListener('click', async (e) => { e.preventDefault(); history.replaceState(null, '', location.pathname); document.body.classList.remove('form-mode'); $('pform').remove(); setDoc(doc, 'Open form'); resizeView(); });
+  designer.addEventListener('click', async (e) => { e.preventDefault(); history.replaceState(null, '', location.pathname); document.body.classList.remove('form-mode'); $('pform').remove(); await startTabs(); openDocTab(doc, { label: 'Open form' }); resizeView(); });
   const card = mk('div', { class: 'pf-card' }, prev, ...inputs, dRow(n ? 'Labels per record' : 'Quantity', qty), err,
     mk('div', { class: 'pf-actions' }, designer, mk('span', { class: 'grow' }),
       btn('ZPL', (J) => downloadBytes(buildZPL(doc, J.scenes, { keys: J.keys }), safeName(doc.name, '.zpl'), 'text/plain')),

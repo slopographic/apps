@@ -41,7 +41,7 @@ function saveProject() {
 }
 function downloadProject() {
   SlopUI.download(projectBlob(App.doc), safeName(App.doc.name, '.sloplabel'));
-  App.dirty = false;
+  markSaved();
   status('Saved ' + safeName(App.doc.name, '.sloplabel'), '', 2500);
 }
 const OPEN_ACCEPT = '.sloplabel,.json,.zpl,.prn,.txt,.csv,.tsv,.xlsx,image/*,.svg';
@@ -51,14 +51,15 @@ async function openFiles(files) {
   for (const f of files) {
     const n = (f.name || '').toLowerCase();
     try {
-      if (/\.sloplabel$/.test(n)) { if (await confirmDiscard()) { setDoc(parseProject(await f.text())); status('Opened ' + f.name, '', 2500); } }
+      if (/\.sloplabel$/.test(n)) { openDocTab(parseProject(await f.text()), { origName: f.name }); status('Opened ' + f.name, '', 2500); }
       else if (/\.(zpl|prn)$/.test(n)) await importZPLText(await f.text(), f.name);
       else if (/\.webm$/.test(n) || /^video\//.test(f.type)) SlopUI.alert('WebM is video', 'SlopLabel places pictures and does not play video. Export a still image (PNG, JPEG or WebP) instead.');
       else if (/^image\//.test(f.type) || /\.(png|jpe?g|gif|webp|avif|svg|bmp)$/.test(n)) await insertImageFile(f);
       else if (/\.(csv|tsv|tab|xlsx)$/.test(n) || /csv|spreadsheet/.test(f.type)) await importDataDialog(f);
       else if (/\.(json|txt)$/.test(n)) {
         const t = await f.text();
-        if (/"app"\s*:\s*"sloplabel"/.test(t.slice(0, 400))) { if (await confirmDiscard()) setDoc(parseProject(t)); }
+        if (/"app"\s*:\s*"sloplabel"/.test(t.slice(0, 400))) openDocTab(parseProject(t), { origName: f.name });
+        else if (/"format"\s*:\s*"sloplabel-configs"/.test(t.slice(0, 400))) importConfigsText(t);
         else if (/\^XA/.test(t)) await importZPLText(t, f.name);
         else await importDataDialog(f);
       } else SlopUI.toast('Unsupported file: ' + f.name);
@@ -67,13 +68,12 @@ async function openFiles(files) {
 }
 
 /* ---------------- ZPL import ---------------- */
-async function importZPLText(text, name) {
-  if (!(await confirmDiscard())) return false;
+/** ZPL text → a new tab (the open label is kept). dpi defaults to the open label's. */
+async function importZPLText(text, name, dpi = App.doc.dpi) {
   try {
-    const d = await importZPL(text, { dpi: App.doc.dpi });
+    const d = await importZPL(text, { dpi });
     if (name) d.name = name.replace(/\.[^.]+$/, '');
-    setDoc(d, 'Import ZPL');
-    await preloadImages(App.doc); refresh();
+    openDocTab(d, { label: 'Import ZPL', origName: name || null, dirty: true });
     SlopUI.toast(`Imported ${d.objects.length} objects${d.vars.length ? ` and ${d.vars.length} variables` : ''} from ZPL`);
     return true;
   } catch (e) { SlopUI.alert('Could not import ZPL', e.message || String(e)); return false; }
@@ -87,9 +87,7 @@ function importZPLDialog() {
     buttons: [{ label: 'Open file…', act: async () => { const f = (await SlopUI.pickFiles({ accept: '.zpl,.prn,.txt' }))[0]; if (f) ta.value = await f.text(); return false; } }, SlopFormReset.dialogButton(zbody), { label: 'Cancel' },
       { label: 'Import', primary: true, act: async () => {
         if (!/\^XA/i.test(ta.value)) { SlopUI.toast('No ^XA … ^XZ format found'); return false; }
-        const old = App.doc.dpi; App.doc.dpi = +dpi.value;
-        const ok = await importZPLText(ta.value);
-        if (!ok) App.doc.dpi = old;
+        await importZPLText(ta.value, undefined, +dpi.value);
       } }] });
 }
 /** Render ZPL as a picture (for checking exported or third-party ZPL). */

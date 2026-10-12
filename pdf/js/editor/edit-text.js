@@ -110,6 +110,20 @@
     if (!best || bestSum > 600) return '#000000'; // nothing dark: keep black
     return '#' + best.map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
   }
+  /** Edit text on the run under a selection (sel-bar.js): the run that overlaps the rect {x0, y0, x1, y1} most. */
+  Ed.editSelectionRun = function (p, rect) {
+    return runsOf(p).then(function (r) {
+      var best = null, bestA = 0;
+      r.runs.forEach(function (run) {
+        var b = run.box, ox = Math.min(b.x + b.w, rect.x1) - Math.max(b.x, rect.x0), oy = Math.min(b.y + b.h, rect.y1) - Math.max(b.y, rect.y0);
+        if (ox > 0 && oy > 0 && ox * oy > bestA) { best = run; bestA = ox * oy; }
+      });
+      if (!best) { SlopUI.toast('No text to edit there.'); return false; }
+      if (!Ed.editText) Ed.toggleEditText();
+      S.openRun(p, best);
+      return true;
+    }, function () { SlopUI.toast('This page has no text to edit.'); return false; });
+  };
   /** Applies the edited run as one undo step: cover the old run, draw the new text on its baseline. */
   S.commitRun = function () {
     var r = S.runEdit; if (!r || r.done) return;

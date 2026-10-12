@@ -1,0 +1,17 @@
+/* Slop PDF — the text selection bar (editor/sel-bar.js). Colours are the shared --sl-* tokens with fallbacks. The bar is
+   fixed to the viewport; its row scrolls sideways on a phone, and the colour popover sits outside that scroll area. */
+.selbar { position: fixed; left: 0; top: 0; z-index: 60; box-sizing: border-box; max-width: calc(100vw - 16px); padding: 4px; border-radius: 10px; background: var(--sl-surface, #1d1d21); color: var(--sl-text, #f2f2f2); border: 1px solid var(--sl-border, #3a3a41); box-shadow: 0 8px 26px rgba(0, 0, 0, .38); font: 13px/1.2 system-ui, sans-serif; }
+.selbar[hidden], .selbar-pop[hidden] { display: none; }
+.selbar-row { display: flex; align-items: center; gap: 2px; overflow-x: auto; scrollbar-width: thin; }
+.selbar-btn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 9px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: inherit; font: inherit; white-space: nowrap; cursor: pointer; }
+.selbar-btn:hover { background: var(--sl-hover, rgba(255, 255, 255, .08)); }
+.selbar-btn:focus-visible, .selbar-sw:focus-visible { outline: 2px solid var(--sl-accent, #d4ff3a); outline-offset: 1px; }
+.selbar-btn.is-danger { color: var(--sl-danger, #ff6b6b); }
+.selbar-btn[aria-expanded="true"] { background: var(--sl-accent-soft, rgba(212, 255, 58, .18)); border-color: var(--sl-accent, #d4ff3a); }
+.selbar-dot { width: 12px; height: 12px; flex: 0 0 auto; border-radius: 50%; border: 1px solid var(--sl-border, #3a3a41); }
+.selbar-sep { flex: 0 0 1px; align-self: stretch; margin: 5px 3px; background: var(--sl-border, #3a3a41); }
+.selbar-pop { position: absolute; left: 4px; top: calc(100% + 6px); z-index: 1; display: flex; gap: 6px; padding: 7px; border-radius: 9px; background: var(--sl-surface, #1d1d21); border: 1px solid var(--sl-border, #3a3a41); box-shadow: 0 8px 22px rgba(0, 0, 0, .35); }
+.selbar.pop-below .selbar-pop { top: auto; bottom: calc(100% + 6px); }
+.selbar-sw { width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 2px solid var(--sl-border, #3a3a41); cursor: pointer; }
+.selbar-sw[aria-pressed="true"] { border-color: var(--sl-text, #f2f2f2); box-shadow: 0 0 0 2px var(--sl-surface, #1d1d21) inset; }
+@media (max-width: 900px) { .selbar-btn { padding: 0 7px; } }

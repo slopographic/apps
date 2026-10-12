@@ -1,5 +1,5 @@
 /* SlopLabel — ui/boot: builds the toolbox, wires the chrome (buttons, drag and drop, resize) and
- * starts the app: print-form link, file sent from another app, autosave, or a starter template. */
+ * starts the app: print-form link, the open label tabs (ui/tabs.js), a file sent from another app, or the starter label. */
 'use strict';
 
 function buildToolbox() {
@@ -48,7 +48,6 @@ function wireChrome() {
       return file.name;
     },
   });
-  addEventListener('beforeunload', () => { if (App.doc && App.dirty) autosave(App.doc); });
   matchMedia('(max-width: 760px)').addEventListener('change', () => { hideDock(); setTimeout(fitView, 50); });
 }
 /** The label people see on first visit: the product label template. */
@@ -57,16 +56,14 @@ function starterDoc() { return TEMPLATES.find((t) => t.id === 'product').build()
 async function boot() {
   applyTheme(document.documentElement.dataset.theme); // theme.js has painted the shared choice before this runs
   if (lsGet('sloplabel-rulers') === '0') $('workspace').classList.add('no-rulers');
-  App.doc = starterDoc();
+  App.doc = starterDoc(); // until the tabs are up (startTabs)
   App.hist.reset(App.doc);
   buildToolbox(); initMenus(); initView(); initInteract(); initKeys(); initCommands(); wireChrome();
   onImageReady = () => refresh({ keepProps: true });
   if (await maybeFormMode()) return;
-  const saved = await loadAutosave();
-  if (saved && saved.doc) { App.doc = saved.doc; App.hist.reset(App.doc, 'Restore'); document.title = App.doc.name + ' — SlopLabel'; await preloadImages(App.doc); }
   rebuildScene(); fitView(); refreshNow();
-  await applyView(!!saved); // ui/view-state.js: the tool, and the zoom and pan of a restored label
-  status(saved ? 'Restored your last label' : 'Ready', '', 3000);
+  await startTabs(); // ui/tabs.js: the open labels come back, each with its tool, view and undo history
+  status('Ready', '', 3000);
   await hubBoot().catch((e) => console.warn(e));
   document.body.classList.add('ready');
 }

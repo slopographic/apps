@@ -1,4 +1,4 @@
-/* SlopLabel — io/files: .sloplabel projects, image assets, IndexedDB autosave, and the compact
+/* SlopLabel — io/files: .sloplabel projects, image assets, the old IndexedDB autosave (read once, to bring it into the tabs), and the compact
  * URL-hash encoding used by shareable Print-form links. */
 'use strict';
 
@@ -29,7 +29,7 @@ function pruneAssets(doc) { const used = new Set(doc.objects.filter((o) => o.ass
 function projectBlob(doc) { const d = deepClone(doc); pruneAssets(d); return new Blob([serializeProject(d)], { type: 'application/json' }); }
 function safeName(s, ext) { return (String(s || 'label').replace(/[\\/:*?"<>|]+/g, '-').trim() || 'label') + ext; }
 
-/* ---------------- autosave (IndexedDB) ---------------- */
+/* ---------------- the old autosave (IndexedDB), read only: the tabs (ui/tabs.js) save now ---------------- */
 let idbP = null;
 function idb() {
   if (!idbP) idbP = new Promise((res, rej) => {
@@ -40,9 +40,7 @@ function idb() {
   });
   return idbP;
 }
-async function kvSet(key, val) { const d = await idb(); return new Promise((res, rej) => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').put(val, key); t.oncomplete = () => res(true); t.onerror = () => rej(t.error); }); }
 async function kvGet(key) { const d = await idb(); return new Promise((res, rej) => { const t = d.transaction('kv', 'readonly'), r = t.objectStore('kv').get(key); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
-function autosave(doc) { return kvSet('autosave', { time: Date.now(), json: serializeProject(pruneAssets(deepClone(doc))) }).catch((e) => { try { window.SlopStorage && SlopStorage.handle(e, { once: 'label-autosave' }); } catch (x) { /* no dialog on this page */ }; return false; }); }
 async function loadAutosave() { try { const r = await kvGet('autosave'); return r && r.json ? { doc: parseProject(r.json), time: r.time } : null; } catch (e) { return null; } }
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } }

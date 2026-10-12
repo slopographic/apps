@@ -74,7 +74,7 @@
         x0 = Math.min(x0, c.x0); x1 = Math.max(x1, c.x1);
       });
       if (x0 >= x1) return;
-      [[x0, ln.top], [x1, ln.top], [x1, ln.bottom], [x0, ln.bottom]].forEach(function (q) { out.push([U.round(q[0], 2), U.round(q[1], 2)]); });
+      window.SlopPdfSel.lineQuad(ln, x0, x1).forEach(function (q) { out.push(q); }); // shared with the selection bar (sel-geom.js)
     });
     return out;
   };

@@ -1,10 +1,11 @@
-/* SlopLabel — ui/app: application state, commit/undo history, selection, theme, status and autosave. */
+/* SlopLabel — ui/app: application state, commit/undo history, selection, theme and status. The open label is App.doc; the tabs
+ * (ui/tabs.js) keep each label's state and save it. */
 'use strict';
 
 const $ = (id) => document.getElementById(id);
 const mk = (...a) => SlopUI.el(...a);
 const App = {
-  doc: null, hist: new History(), tool: 'select',
+  doc: null, T: null, hist: new History(), tool: 'select',
   zoom: 4, panX: 40, panY: 40, rec: 0, prompts: {}, scene: [],
   dirty: false, clip: null, tab: 'props', guides: [], hover: null, marquee: null, ghost: null,
 };
@@ -48,12 +49,8 @@ function selectAll() { App.sel = App.doc.objects.filter((o) => !o.locked && !o.h
 function deselect() { if (App.sel.length) { App.sel = []; refresh(); } }
 
 /* ---------------- history ---------------- */
-let autosaveT = 0;
 function commit(label = 'Edit', coalesce = '', opts = {}) {
-  if (App.hist.push(App.doc, label, coalesce)) {
-    App.dirty = true;
-    clearTimeout(autosaveT); autosaveT = setTimeout(() => autosave(App.doc), 900);
-  }
+  if (App.hist.push(App.doc, label, coalesce)) { App.dirty = true; tabChanged(); }
   refresh(opts);
 }
 /** Mutate the selected objects, re-fit auto-sized ones and commit. */
@@ -67,25 +64,21 @@ function restore(d) {
   App.doc = d;
   App.sel = App.sel.filter((id) => objById(id));
   App.rec = Math.min(App.rec, Math.max(0, recordCount(d) - 1));
-  clearTimeout(autosaveT); autosaveT = setTimeout(() => autosave(App.doc), 900);
+  tabChanged();
   refresh();
 }
 function undo() { const d = App.hist.undo(App.doc); if (d) { restore(d); status('Undo ' + App.hist.redoLabel); } }
 function redo() { const d = App.hist.redo(App.doc); if (d) { restore(d); status('Redo ' + App.hist.undoLabel); } }
-/** Replace the whole document (open, new, template). */
+/** Replace the document of the current tab (config import, the starter label). New labels open in a new tab: openDocTab. */
 function setDoc(doc, label = 'Open') {
   App.doc = normalizeDoc(doc);
-  App.hist.reset(App.doc, label);
+  App.hist = new History(); App.hist.reset(App.doc, label);
   App.sel = []; App.rec = 0; App.prompts = {}; App.dirty = false; App.driveId = null; // a new label is no longer linked to a Drive file
   document.title = App.doc.name + ' — SlopLabel';
   rebuildScene();
   if (typeof fitView === 'function') fitView();
   refresh();
-  autosave(App.doc);
-}
-async function confirmDiscard() {
-  if (!App.dirty || !App.doc.objects.length) return true;
-  return SlopUI.confirm('Replace this label?', 'Your current label is autosaved in this browser, but it will be replaced. Save it first (File → Save) if you want to keep a copy.', 'Replace');
+  tabChanged();
 }
 
 /* ---------------- add / remove objects ---------------- */

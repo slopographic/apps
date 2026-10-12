@@ -54,7 +54,7 @@ function labelSetupDialog(target) {
         x.label.gap = Math.max(0, +gap.value || 0); x.label.radius = Math.max(0, +rad.value || 0);
         Object.assign(x.printer, { darkness: clamp(+dark.value | 0, 0, 30), speed: clamp(+speed.value | 0, 1, 14), media: media.value, method: method.value, rotate180: rot.input.checked });
       };
-      if (target) apply(target); else { editDoc(apply, 'Label setup'); document.title = App.doc.name + ' — SlopLabel'; fitView(); }
+      if (target) apply(target); else { editDoc(apply, 'Label setup'); document.title = App.doc.name + ' — SlopLabel'; syncTabName(); fitView(); }
     } }] }));
 }
 
@@ -114,12 +114,12 @@ function templateThumb(doc) {
 function templatesDialog() {
   const grid = mk('div', { class: 'tpl-grid' });
   let dlg;
-  const tile = (title, desc, thumb, act) => { const b = mk('button', { type: 'button', class: 'tpl' }, mk('span', { class: 'tp' }, thumb), mk('b', null, title), mk('small', null, desc)); b.addEventListener('click', async () => { if (!(await confirmDiscard())) return; dlg.close(true); act(); }); return b; };
+  const tile = (title, desc, thumb, act) => { const b = mk('button', { type: 'button', class: 'tpl' }, mk('span', { class: 'tp' }, thumb), mk('b', null, title), mk('small', null, desc)); b.addEventListener('click', () => { dlg.close(true); act(); }); return b; };
   grid.append(tile('Blank label', 'Choose a roll or sheet size, then design from scratch', mk('span', { class: 'mono', style: 'font-size:28px;color:#999' }, '+'), async () => {
     const d = newDoc({ stock: stockById('roll-4x2') }); d.unit = 'mm';
-    if (await labelSetupDialog(d)) setDoc(d, 'New label');
+    if (await labelSetupDialog(d)) openDocTab(d, { label: 'New label' });
   }));
-  for (const t of TEMPLATES) { const d = t.build(); grid.append(tile(t.name, t.desc, templateThumb(d), () => { setDoc(t.build(), 'New from template'); status('Started from “' + t.name + '”', '', 3000); })); }
+  for (const t of TEMPLATES) { const d = t.build(); grid.append(tile(t.name, t.desc, templateThumb(d), () => { openDocTab(t.build(), { label: 'New from template', dirty: true }); status('Started from “' + t.name + '”', '', 3000); })); }
   dlg = SlopUI.dialog({ title: 'New label', cls: 'sl-wide', body: mk('div', null, mk('p', { class: 'sui-p' }, 'Start blank or from a ready-made label. Your current label stays in the browser until you start a new one.'), grid), buttons: [{ label: 'Cancel' }] });
   return dlg;
 }

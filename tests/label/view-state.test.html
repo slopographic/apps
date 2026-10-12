@@ -20,12 +20,11 @@
   }
 
   describe('SlopLabel saved view', () => {
-    it('keeps the tool, zoom and pan after leaving for Slop Drive and coming back', async () => {
+    it('keeps the tool, zoom and pan of the tab after leaving for Slop Drive and coming back', async () => {
       let W = await open('../../label/index.html');
-      W.eval("setTool('hand'); App.zoom = 2.5; App.panX = 33; App.panY = 21;");
-      await W.eval('autosave(App.doc)');
-      W.document.body.click(); // a user gesture: the view is saved on input
-      await sleep(500);
+      W.eval("setTool('hand'); App.zoom = 2.5; App.panX = 33; App.panY = 21; tabChanged();");
+      await W.eval('flushTabs()'); // the tab (its view included) is written to this browser
+      await sleep(200);
       await open('../drive/frame.html');
       await sleep(60);
       W = await open('../../label/index.html');

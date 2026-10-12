@@ -71,7 +71,7 @@ async function onPaste(e) {
   if (pasteClip()) return;
   const text = e.clipboardData && e.clipboardData.getData('text/plain');
   if (text && /^\s*\^XA/.test(text)) { await importZPLText(text); return; }
-  if (text) addObject(makeObject(text.length > 40 || text.includes('\n') ? 'para' : 'text', { content: text.slice(0, 2000), x: 4, y: 4 }));
+  if (text) { const kind = text.length > 40 || text.includes('\n') ? 'para' : 'text'; addObject(makeObject(kind, Object.assign(styleProps(App.doc, kind), { content: text.slice(0, 2000), x: 4, y: 4 }))); }
 }
 
 /* ---------------- keyboard: Space-to-pan (held); the rest lives in ui/commands.js ---------------- */

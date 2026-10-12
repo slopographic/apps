@@ -3,7 +3,7 @@
 
 /** Add an object centred on the label (menu inserts). */
 function insertCentered(type, props = {}) {
-  const L = App.doc.label, o = makeObject(type, props);
+  const L = App.doc.label, o = makeObject(type, Object.assign(styleProps(App.doc, type), props));
   syncAutoSize(App.doc, o, previewGet());
   o.x = round(Math.max(0, (L.w - o.w) / 2), 2); o.y = round(Math.max(0, (L.h - o.h) / 2), 2);
   addObject(o);
@@ -12,7 +12,8 @@ function insertCentered(type, props = {}) {
 function menuFile() {
   const hub = hubAvailable(), send = sendToItems();
   return [
-    { label: 'New…', act: templatesDialog }, { label: 'Open…', key: K('open'), act: openFilesDialog }, { label: 'Import ZPL…', act: importZPLDialog },
+    { label: 'New…', act: templatesDialog }, { label: 'New tab', act: newBlankTab }, { label: 'Close tab', act: closeCurrentTab },
+    { label: 'Open…', key: K('open'), act: openFilesDialog }, { label: 'Import ZPL…', act: importZPLDialog },
     { label: 'Config', sub: window.SlopConfigDialog ? SlopConfigDialog.menuItems({ app: 'label' }) : [] },
     { label: 'Save', key: K('save'), act: saveProject }, { label: 'Download project (.sloplabel)', act: downloadProject }, '-',
     hub ? { label: 'Open project from Slop Drive…', act: openProjectDrive } : null,
@@ -21,6 +22,7 @@ function menuFile() {
     { label: 'Export', sub: [{ label: 'PDF', act: exportPDFQuick }, { label: 'PNG (current label)', act: exportPNG }, { label: 'SVG (current label)', act: exportSVG }, { label: 'ZPL (Zebra)', act: exportZPLQuick }, '-', { label: 'More formats and options…', act: openPrintDialog }] },
     send.length ? { label: 'Send to', sub: send } : null,
     { label: 'Share print form link…', act: shareFormLink }, '-',
+    { label: 'Presets…', act: presetsDialog }, { label: 'Save as config…', act: saveConfigDialog }, { label: 'Configs…', act: configsDialog }, '-',
     { label: 'Label setup…', act: () => labelSetupDialog() },
     { label: 'Download app (offline .html)', act: async () => { try { const n = await downloadOfflineApp(); SlopUI.toast(`Saved sloplabel.html (${Math.round(n / 1024)} KB)`); } catch (e) { SlopUI.alert('Could not build the offline app', e.message); } } },
   ];

@@ -25,9 +25,12 @@ uploaded.
   (stage picker and next follow-up date, saved at once); Orders and Invoices (read from the shared `orders` and
   `invoices` collections, with links to `../orders/#o/<id>` and `../invoices/#i/<id>`); Activity (dated notes, with a
   form to add one); Duplicate and Delete at the foot.
-- **The card, edit:** Edit turns the card into a form in place (photo, name, company, department, title, phones,
-  e-mails, addresses each with a label, birthday, website, groups, notes). Save writes it; Cancel asks first when
-  something changed.
+- **The card, edit:** Edit turns the card into a form in place, in a fixed frame: a header with the title, a body that
+  scrolls (sections: Name with the photo, Contact details with the phone and e-mail rows and birthday and website,
+  Address, Notes, Pipeline and groups), and a footer with Cancel and Save that is always in view. Each add button sits at
+  the top of its section, so it does not move as rows appear; a new row takes the focus and is scrolled into view only if
+  needed. Enter saves; Cmd or Ctrl+Enter saves from notes; Escape cancels (asks first when something changed). The first
+  field has the focus. The scrollbar gutter is reserved, so a scrollbar does not change the width.
 - **390 px (below 960):** the list is the screen. A contact opens the card as a full page with a back button. Groups
   open as a sheet from the ☰ button at the top of the list. The top bar keeps New, Import and Export. A test checks there
   is no horizontal scroll.
@@ -161,6 +164,9 @@ uploaded.
   and in the CRM's Customers; the orders and invoices of a customer from the shared collections with links; a contact
   with no orders; the 390 px layout (no horizontal scroll, list first, full-page card with back); arrows, Enter, Delete
   asking first; Cmd+N.
+- `tests/contacts/form.test.html` (`contacts.spec-form.js`): the edit form at 390 and 1280 px: its box, the content width
+  and the fields above the rows do not move while two phone rows and an address row are added (for a new and an existing
+  contact); Save and Cancel are on screen and not covered; the first field has the focus; Escape cancels; Cmd+Enter saves.
 - `contacts.spec-card.js`: edit in place (CRM-only fields kept); Cancel asks; stage and follow-up saved at once; a dated
   note in Activity with the plain notes kept; shift, Cmd click and the bulk stage; drag onto a group; duplicate; a vCard
   import becomes customer records (labelled phones and e-mails, birthday, groups).

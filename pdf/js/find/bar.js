@@ -86,12 +86,15 @@
     var cur = el.ol.querySelector('.is-current'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest' });
   }
 
-  /** Opens the bar (Ctrl+F): focuses the query, with the last query selected. */
-  F.open = function () {
+  /** Opens the bar (Ctrl+F): focuses the query, with the last query selected. A string q (the selected text, from the
+      selection bar) becomes the query and searches from its first match. */
+  F.open = function (q) {
     if (!bar) build();
     st.open = true; bar.hidden = false;
+    var fresh = typeof q === 'string' && q.length > 0;
+    if (fresh) { st.q = q; el.input.value = q; }
     el.input.focus(); el.input.select();
-    if (st.q) run(false);
+    if (st.q) run(fresh);
   };
   /** Closes the bar and removes the highlights. The query is kept for the next time. */
   F.close = function () {
