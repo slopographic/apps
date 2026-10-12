@@ -10,7 +10,8 @@
   Ed.TOOLS = [
     ['select', 'Select & move', 'select', 'V'], ['text', 'Text', 'text', 'T'], ['pen', 'Draw', 'pen', 'P'], ['marker', 'Highlighter', 'marker', 'H'],
     ['rect', 'Rectangle', 'rect', 'R'], ['ellipse', 'Ellipse', 'ellipse', 'E'], ['line', 'Line', 'line', 'L'], ['arrow', 'Arrow', 'arrow', 'A'],
-    ['whiteout', 'Whiteout (cover content)', 'whiteout', 'W'], ['redact', 'Redact (remove content)', 'redact', 'X'], ['hlbox', 'Highlight box', 'hlbox', 'B'], ['texthl', 'Text highlight', 'texthl', 'U'], ['image', 'Image', 'image', 'I'], ['signature', 'Signature', 'sign', 'S']
+    ['whiteout', 'Whiteout (cover content)', 'whiteout', 'W'], ['redact', 'Redact (remove content)', 'redact', 'X'], ['hlbox', 'Highlight box', 'hlbox', 'B'], ['texthl', 'Text highlight', 'texthl', 'U'], ['image', 'Image', 'image', 'I'], ['signature', 'Signature', 'sign', 'S'],
+    ['note', 'Comment', 'note', 'N'], ['callout', 'Callout', 'callout', 'C']
   ];
   var DEF = {
     text: { color: '#111111', font: 'Helvetica', size: 16, bold: false, italic: false, opacity: 1 },
@@ -24,7 +25,9 @@
     hlbox: { fill: '#ffe14d', opacity: 0.4 },
     texthl: { color: '#ffe14d', opacity: 0.4 },
     redact: {},
-    image: { opacity: 1 }
+    image: { opacity: 1 },
+    note: {},
+    callout: { color: '#111111', font: 'Helvetica', size: 14, bold: false, italic: false, borderC: '#e0245e', borderW: 1.2, opacity: 1 }
   };
   Ed.DEF = DEF;
   Ed.defaults = U.store.get('toolDefaults', null) || JSON.parse(JSON.stringify(DEF));
@@ -32,6 +35,7 @@
 
   Ed.init = function (viewerEl) {
     S.viewer = viewerEl;
+    if (Ed.noteUI) Ed.noteUI.wire(viewerEl);
     S.pad = U.h('div', { class: 'pv-pad' });
     S.overlay = U.h('div', { class: 'pv-overlay' }); // moves to the active page element (placeTools)
     S.ta = U.h('textarea', { class: 'pv-text', spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Edit text', wrap: 'off', hidden: true });
@@ -55,7 +59,7 @@
   Ed.page = function () { return Ed.pid ? E.pageById(Ed.pid) : null; };
   /** Shows a page: in continuous and two-page layouts it is scrolled to the top of the view; in single page it is the page. */
   Ed.show = function (pid) {
-    if (Ed.pid !== pid) { S.finishText(true); Ed.selId = null; }
+    if (Ed.pid !== pid) { S.finishText(true); Ed.selId = null; if (Ed.noteUI) Ed.noteUI.close(); }
     S.stopEase();
     Ed.pid = pid; Ed.fitPid = pid;
     Ed.layout(true);
@@ -98,6 +102,7 @@
   S.ctx = function () { var p = Ed.page(), g = E.geom(p); return { p: p, g: g, R: E.rotation(p), W: g.W, H: g.H, z: Ed.zoom }; };
   S.drawSelection = function () {
     S.overlay.innerHTML = '';
+    if (Ed.noteUI) Ed.noteUI.reattach(); // an open comment stays on top of the overlay
     var a = Ed.getSelected(); if (!a || (S.editing && S.editing.id === a.id)) return;
     var c = S.ctx(), r = E.annotViewRect(a, c.R, c.W, c.H), z = c.z;
     var box = U.h('div', { class: 'sel-box' + (a.type === 'line' || a.type === 'arrow' ? ' is-line' : '') });
@@ -113,7 +118,12 @@
       });
       return;
     }
-    hs = (a.type === 'text' || a.type === 'image') ? ['nw', 'ne', 'se', 'sw'] : ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+    hs = a.type === 'note' ? [] : (a.type === 'text' || a.type === 'image' || a.type === 'callout') ? ['nw', 'ne', 'se', 'sw'] : ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+    if (a.type === 'callout' && a.tip) { // the leader line's end: dragged on its own
+      var tq = E.toView(c.R, c.W, c.H, a.tip[0], a.tip[1]), th = U.h('div', { class: 'handle h-pt', 'data-h': 'tip' });
+      th.style.left = (tq[0] * z) + 'px'; th.style.top = (tq[1] * z) + 'px';
+      S.overlay.appendChild(th);
+    }
     hs.forEach(function (h) {
       var el = U.h('div', { class: 'handle h-' + h, 'data-h': h });
       el.style.left = ((r.x + (/w/.test(h) ? 0 : /e/.test(h) ? r.w : r.w / 2)) * z) + 'px';

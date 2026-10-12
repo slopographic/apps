@@ -47,7 +47,7 @@
     S.commitPage('Change ' + key, function (p) {
       p.annots.forEach(function (x) {
         if (x.id !== id) return;
-        if (x.type === 'text' && (key === 'size' || key === 'font' || key === 'bold' || key === 'italic')) {
+        if ((x.type === 'text' || x.type === 'callout') && (key === 'size' || key === 'font' || key === 'bold' || key === 'italic')) {
           var c = S.ctx(), r = E.annotViewRect(x, c.R, c.W, c.H);
           x[key] = val; var t = E.textLayout(x);
           var va = (((c.R - (x.rot || 0)) % 360) + 360) % 360;
@@ -58,6 +58,7 @@
   };
   Ed.setTool = function (t) {
     S.finishText(true);
+    S.callCancel(); if (Ed.noteUI) Ed.noteUI.close();
     if (t === 'image') { Ed.pickImage(); return; }
     if (t === 'signature') { SP.sign.open(function (asset) { Ed.placeImage(asset, 'Add signature'); }); return; }
     Ed.tool = t; if (S.pageEl) S.pageEl.dataset.tool = t;

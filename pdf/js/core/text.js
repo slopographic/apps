@@ -1,4 +1,4 @@
-/* Slop PDF — standard-14 fonts, text sanitising/measuring, the shared text layout, page-number and watermark stamps. */
+/* Slop PDF — standard-14 fonts, text sanitising/measuring, the shared text layout, page-number stamps (watermark layers: core/watermark*.js). */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine;
@@ -68,13 +68,6 @@
       a.cx = c[0]; a.cy = c[1]; a.w = t.w; a.h = t.h;
       out.push(a);
     }
-    var wm = stamps && stamps.watermark;
-    if (wm && wm.text) {
-      var b = { id: 'wm', type: 'text', text: wm.text, font: wm.font || 'Helvetica', bold: wm.bold !== false, size: wm.size || 60, color: wm.color || '#ff3b6b', opacity: wm.opacity == null ? 0.25 : wm.opacity, rot: R + (wm.angle == null ? 45 : wm.angle) };
-      var tb = E.textLayout(b), cc = E.toPage(R, g.W, g.H, vs.w / 2, vs.h / 2);
-      b.cx = cc[0]; b.cy = cc[1]; b.w = tb.w; b.h = tb.h;
-      out.push(b);
-    }
-    return out;
+    return out.concat(E.watermarkAnnots(p, index, total, stamps));
   };
 })();
