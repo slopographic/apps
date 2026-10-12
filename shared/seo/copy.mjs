@@ -24,6 +24,8 @@ export const APPS = {
     description: 'OCR for images and scanned PDFs, speech to text with .srt export, denoise with a before and after slider and portrait blur. Runs on your device.' },
   ocr: { title: 'Slop OCR: read text from images and PDFs on your device | Slopographic', category: 'BusinessApplication',
     description: 'Read text from photos and scanned PDFs on your device. Edit it, then save as TXT, Markdown, Word or a searchable PDF. Nothing is uploaded.' },
+  reports: { title: 'Slop Reports: unpaid invoices, groups and follow-ups | Slopographic', category: 'BusinessApplication',
+    description: 'Reports across your contacts, invoices and CRM: unpaid invoices, contacts by group, leads by stage and follow-ups. Read-only, with saved reports and CSV.' },
   html2pdf: { title: 'Slop HTML to PDF: print HTML with a header and QR code | Slopographic', category: 'BusinessApplication',
     description: 'Turn an HTML file into a PDF in your browser, with a page header on every page: file name, date and a QR code. Nothing is uploaded.' },
   clean: { title: 'SlopClean: see and remove hidden photo data | Slopographic', category: 'UtilitiesApplication',

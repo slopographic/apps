@@ -52,13 +52,13 @@
   const dialogButton = (win, label) => $$(win, '.sui-dlg button').find((b) => b.textContent.trim() === label);
   const dialogTitle = (win) => { const d = $(win, '.sui-dlg'); return d ? d.getAttribute('aria-label') : ''; };
   const stored = (id) => window.SlopData.store.get('customers', id).then((r) => r.value);
-  const seedAda = () => CT.seed([{ id: 'dv-1', name: 'Ada Vance', stage: 'customer', followUp: '2026-11-05',
+  const seedAda = (id) => CT.seed([{ id, name: 'Ada Vance', stage: 'customer', followUp: '2026-11-05',
     categories: ['Friends', 'VIP'], email: 'ada@example.com', emailLabel: 'work', phone: '0700 111', phoneLabel: 'mobile' }]);
 
   describe('save to Slop Drive', () => {
     it('a change is saved as contacts.vcf after a short delay, with the status line and the X-SLOP fields', async () => {
       await CT.resetCustomers();
-      await seedAda();
+      await seedAda('save-ada-1');
       const hub = stubHub();
       const win = await boot(hub);
       const S = win.SlopContacts.state;
@@ -68,7 +68,7 @@
       expect(status(win).startsWith('Saved to Slop Drive at ')).toBe(true);
       const body = await hub.files.get(hub.puts[0].id).blob.text();
       expect(body).toContain('VERSION:4.0');
-      expect(body).toContain('X-SLOP-ID:dv-1');
+      expect(body).toContain('X-SLOP-ID:save-ada-1');
       expect(body).toContain('X-SLOP-GROUP:Club');
       expect(body).toContain('X-SLOP-STAGE:customer');
       expect(body).toContain('X-SLOP-FOLLOWUP:2026-11-05');
@@ -76,7 +76,7 @@
 
     it('Save writes at once, as a new version of the same file, never a second file', async () => {
       await CT.resetCustomers();
-      await seedAda();
+      await seedAda(undefined);
       const hub = stubHub();
       const win = await boot(hub);
       const S = win.SlopContacts.state;
@@ -95,7 +95,7 @@
 
     it('a failed save says why; the next Save writes the list', async () => {
       await CT.resetCustomers();
-      await seedAda();
+      await seedAda(undefined);
       const hub = stubHub();
       const win = await boot(hub);
       hub.fail = 'Drive is full';

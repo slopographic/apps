@@ -1,0 +1,54 @@
+/* Slop Reports. Colours come from the --sl-* theme tokens (shared/theme/theme.js), with plain fallbacks. */
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--sl-background, #f6f4ee);
+  color: var(--sl-text, #1d1d1b);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.rp-top, .rp-main { max-width: 1100px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
+.rp-top h1 { margin: 4px 0 2px; font-size: 26px; }
+.rp-home { color: var(--sl-text-muted, #6b675c); text-decoration: none; font-size: 13px; }
+.rp-lead, .rp-sub { color: var(--sl-text-muted, #6b675c); margin: 4px 0 12px; }
+.rp-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.rp-bar label { font-weight: 600; }
+select, textarea, button { font: inherit; }
+select, textarea {
+  background: var(--sl-surface, #fff);
+  color: var(--sl-text, #1d1d1b);
+  border: 1px solid var(--sl-border, #cfcac0);
+  border-radius: 6px;
+  padding: 6px 8px;
+  max-width: 100%;
+}
+button {
+  background: var(--sl-surface, #fff);
+  color: var(--sl-text, #1d1d1b);
+  border: 1px solid var(--sl-border, #cfcac0);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--sl-accent, #6b8f00); }
+button:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--sl-accent, #6b8f00); outline-offset: 2px; }
+.rp-note {
+  background: var(--sl-surface-2, #ece9e0);
+  border-left: 4px solid var(--sl-accent, #6b8f00);
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+.rp-editor { margin: 8px 0 12px; display: grid; gap: 6px; }
+#json { width: 100%; box-sizing: border-box; font: 13px/1.4 ui-monospace, Menlo, Consolas, monospace; }
+.rp-err { color: var(--sl-danger, #b3261e); margin: 0; min-height: 1em; }
+.rp-empty { color: var(--sl-text-muted, #6b675c); }
+.rp-tablewrap { overflow-x: auto; }
+.rp-table { border-collapse: collapse; width: 100%; background: var(--sl-surface, #fff); }
+.rp-table th, .rp-table td { padding: 6px 10px; border-bottom: 1px solid var(--sl-border, #cfcac0); text-align: left; vertical-align: top; }
+.rp-table th { font-weight: 600; background: var(--sl-surface-2, #ece9e0); }
+.rp-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rp-line { padding: 4px 0; }
+@media (max-width: 600px) {
+  .rp-top, .rp-main { padding: 16px; }
+  .rp-bar button, .rp-bar select { flex: 1 1 auto; }
+}

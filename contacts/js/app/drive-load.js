@@ -18,7 +18,7 @@
     for (const c of contacts) {
       if (inList.has(c.id) || !c.id) continue;
       const r = await window.SlopData.store.get('customers', c.id, { includeDeleted: true });
-      if (r.ok && r.value) c.id = SC.model.uid();
+      if (r.ok && r.value) c.id = SC.records.newId();
     }
     return contacts;
   }

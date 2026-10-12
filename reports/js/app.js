@@ -1,0 +1,211 @@
+/* Slop Reports: the page. Lists the built-in and saved reports, runs the chosen one over the data in this browser (read-only),
+ * and shows the rows with the sort and filter header of SlopFinder (the one Slop Sheets uses), or a plain table without it.
+ * Saved definitions are checked by the engine before they are kept. Classic script. */
+(function (g) {
+  'use strict';
+  const R = g.SlopReports;
+  const E = R.engine;
+  const $ = (id) => g.document.getElementById(id);
+  const el = (tag, cls, text) => {
+    const n = g.document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  };
+  const dom = {
+    select: $('report'), dataNote: $('data-note'), reportNote: $('report-note'), results: $('results'),
+    editor: $('editor'), json: $('json'), err: $('err'), edit: $('edit'), del: $('delete'), save: $('save'),
+  };
+  const S = { def: null, saved: false, result: null, shown: null, finder: null, ctx: {}, seq: 0 };
+
+  const option = (value, text) => { const o = el('option', null, text); o.value = value; return o; };
+
+  /** Fills the picker: the built-in reports, then the saved ones. */
+  function fillPicker() {
+    dom.select.replaceChildren();
+    const built = el('optgroup'); built.label = 'Built-in';
+    for (const d of R.BUILTIN) built.append(option(d.id, d.title));
+    dom.select.append(built);
+    const saved = R.saved.list();
+    if (saved.length) {
+      const mine = el('optgroup'); mine.label = 'Saved';
+      for (const d of saved) mine.append(option(d.id, d.title));
+      dom.select.append(mine);
+    }
+  }
+
+  /** The definition with this id: a built-in, or a saved one. */
+  function findDef(id) {
+    const built = R.BUILTIN.find((d) => d.id === id);
+    if (built) return { def: built, saved: false };
+    const mine = R.saved.list().find((d) => d.id === id);
+    return mine ? { def: mine, saved: true } : null;
+  }
+
+  function choose(id) {
+    const hit = findDef(id) || { def: R.BUILTIN[0], saved: false };
+    S.def = hit.def;
+    S.saved = hit.saved;
+    dom.select.value = hit.def.id;
+    dom.edit.textContent = hit.saved ? 'Edit' : 'Copy and edit';
+    dom.del.hidden = !hit.saved;
+    closeEditor();
+    run();
+  }
+
+  /** Says what the data state means for the person: no records yet, or the report's own note. */
+  function showNotes(loaded) {
+    const empty = !loaded.found || !R.hasData(loaded.counts);
+    dom.dataNote.hidden = !empty;
+    dom.dataNote.textContent = empty
+      ? 'No data yet. Slop Contacts, Slop Invoices and Slop CRM have no records in this browser, so these reports have nothing to show. Add records in those apps and this page fills in.'
+      : '';
+    dom.reportNote.textContent = S.def.note || '';
+  }
+
+  async function run() {
+    const seq = ++S.seq;
+    const loaded = await R.loadData();
+    if (seq !== S.seq) return;
+    S.ctx = { baseCurrency: loaded.baseCurrency, locale: loaded.locale };
+    showNotes(loaded);
+    const res = E.run(S.def, loaded.data, S.ctx);
+    S.result = res;
+    if (!res.ok) { showErrors(res.errors); return; }
+    S.shown = res.rows;
+    render(res);
+  }
+
+  function showErrors(errors) {
+    dropFinder();
+    dom.results.replaceChildren(el('p', 'rp-err', `This report cannot run: ${errors.join('; ')}`));
+  }
+
+  function dropFinder() {
+    if (S.finder) { S.finder.destroy(); S.finder = null; }
+  }
+
+  function render(res) {
+    dropFinder();
+    dom.results.replaceChildren();
+    if (g.SlopFinder && g.SlopFinderModel) mountFinder(res); else plainTable(res);
+  }
+
+  const cellOf = (r, c) => E.cellText(r, c, S.ctx);
+  const rawOf = (r, c) => { const v = r[c.field]; return v === undefined || v === null ? '' : v; };
+
+  /** The Slop Sheets header: search, filters, sortable column headers, in a table view. */
+  function mountFinder(res) {
+    const cols = res.columns;
+    const distinct = (c) => new Set(res.rows.map((r) => cellOf(r, c))).size;
+    const facetCols = cols.filter((c) => c.type === 'text' && res.rows.length > 1 && distinct(c) <= 25);
+    const line = (r) => el('div', 'rp-line', cols.map((c) => cellOf(r, c)).filter(Boolean).join(' · '));
+    S.finder = g.SlopFinder.mount(dom.results, {
+      items: res.rows,
+      fields: cols.map((c) => ({ key: c.field, label: c.label, get: (r) => cellOf(r, c) })),
+      searchKeys: cols.map((c) => c.field),
+      facets: facetCols.map((c) => ({ key: c.field, label: c.label, values: (r) => [cellOf(r, c)] })),
+      columns: cols.map((c) => ({ key: c.field, label: c.label, get: (r) => rawOf(r, c), render: (r) => cellOf(r, c) })),
+      card: line,
+      row: line,
+      placeholder: 'Search this report',
+      searchLabel: 'Search this report',
+      noun: 'rows',
+      emptyText: 'No rows match the filters.',
+      onChange: (shown) => { S.shown = shown; },
+    });
+    const table = dom.results.querySelector('[data-view="table"]');
+    if (table) table.click();
+  }
+
+  /** The plain table, when the Finder is not loaded. */
+  function plainTable(res) {
+    const cols = res.columns;
+    if (!res.rows.length) { dom.results.append(el('p', 'rp-empty', 'No rows to show yet.')); return; }
+    const head = el('tr');
+    for (const c of cols) { const th = el('th', c.type === 'money' || c.type === 'number' ? 'rp-num' : null, c.label); th.scope = 'col'; head.append(th); }
+    const body = el('tbody');
+    for (const r of res.rows) {
+      const tr = el('tr');
+      for (const c of cols) tr.append(el('td', c.type === 'money' || c.type === 'number' ? 'rp-num' : null, cellOf(r, c)));
+      body.append(tr);
+    }
+    const table = el('table', 'rp-table');
+    table.append(el('thead'), body);
+    table.querySelector('thead').append(head);
+    const wrap = el('div', 'rp-tablewrap');
+    wrap.append(table);
+    dom.results.append(wrap);
+    S.shown = res.rows;
+  }
+
+  function exportCsv() {
+    if (!S.result || !S.result.ok) return;
+    const text = E.toCsv(S.result.columns, S.shown || S.result.rows, S.ctx);
+    const blob = new g.Blob(['﻿', text], { type: 'text/csv;charset=utf-8' });
+    const a = el('a');
+    a.href = g.URL.createObjectURL(blob);
+    a.download = `${S.def.id}.csv`;
+    g.document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => g.URL.revokeObjectURL(a.href), 1000);
+  }
+
+  function openEditor(def) {
+    dom.json.value = JSON.stringify(def, null, 2);
+    dom.err.textContent = '';
+    dom.editor.hidden = false;
+    dom.json.focus();
+  }
+
+  function closeEditor() {
+    dom.editor.hidden = true;
+    dom.err.textContent = '';
+  }
+
+  /** Checks the JSON, then keeps it as a saved report. A built-in id is refused by the store. */
+  function saveEditor() {
+    let def;
+    try { def = JSON.parse(dom.json.value); } catch (e) { dom.err.textContent = `Not valid JSON: ${e.message}`; return; }
+    const errors = E.validate(def);
+    if (errors.length) { dom.err.textContent = errors.join('. '); return; }
+    const res = R.saved.save(def);
+    if (!res.ok) { dom.err.textContent = res.error; return; }
+    fillPicker();
+    choose(def.id);
+  }
+
+  function removeSaved() {
+    if (!S.saved || !g.confirm(`Delete the saved report "${S.def.title}"?`)) return;
+    R.saved.remove(S.def.id);
+    fillPicker();
+    choose(R.BUILTIN[0].id);
+  }
+
+  function newReport() {
+    openEditor({
+      id: `report-${Date.now().toString(36)}`, title: 'My report', from: 'customers',
+      columns: [{ field: 'name', label: 'Name' }, { field: 'email', label: 'Email' }],
+    });
+  }
+
+  function editReport() {
+    if (S.saved) { openEditor(S.def); return; }
+    openEditor({ ...S.def, id: `${S.def.id}-copy`, title: `${S.def.title} (copy)` });
+  }
+
+  function init() {
+    fillPicker();
+    dom.select.addEventListener('change', () => choose(dom.select.value));
+    $('new').addEventListener('click', newReport);
+    dom.edit.addEventListener('click', editReport);
+    dom.del.addEventListener('click', removeSaved);
+    $('csv').addEventListener('click', exportCsv);
+    dom.save.addEventListener('click', saveEditor);
+    $('cancel').addEventListener('click', closeEditor);
+    choose(R.BUILTIN[0].id);
+  }
+
+  init();
+})(window);

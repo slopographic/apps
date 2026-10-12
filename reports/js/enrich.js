@@ -16,12 +16,18 @@
         return { ...r, paid: got, balance: r.status === 'issued' ? Math.max(0, num(r.total) - got) : 0 };
       });
     },
-    /** Customers: value, the total of their issued and paid invoices in the base currency (amountBase where the invoice keeps one). */
+    /** Customers: value, the total of their issued and paid invoices in the base currency. An invoice in another currency
+     * counts only with its amountBase; one with neither is left out, since it cannot be converted. */
     customerValue(rows, data) {
+      const main = (data.settings || []).find((s) => s.id === 'main') || {};
+      const baseCur = main.defaultCurrency || 'USD';
       const value = new Map();
       for (const inv of data.invoices || []) {
         if (inv.status !== 'issued' && inv.status !== 'paid') continue;
-        const base = typeof inv.amountBase === 'number' ? inv.amountBase : num(inv.total);
+        let base;
+        if (typeof inv.amountBase === 'number') base = inv.amountBase;
+        else if (!inv.currency || inv.currency === baseCur) base = num(inv.total);
+        else continue;
         value.set(inv.customerId, (value.get(inv.customerId) || 0) + base);
       }
       return rows.map((r) => ({ ...r, value: value.get(r.id) || 0 }));

@@ -40,7 +40,7 @@ uploaded.
   search, bulk bar), `css/contacts-card.css` (the card and the edit form), `css/contacts-ui.css` (the SlopUI dialogs),
   `css/contacts-panel.css` (filters, chips, splitter, import dialogs; `--sl-*` tokens), `css/contacts-table.css` (the
   switch and the table).
-- `js/core/` (pure, no DOM, under `SlopContacts.*`):
+- `js/core/` (also `bundle.js`: the Slop Drive copy, see "Slop Drive copy") (pure, no DOM, under `SlopContacts.*`):
   - `text.js`, `model.js` (the contact shape the codecs use; `stage`, `followUp` and `tagIds` pass through),
     `photo.js`, `phone.js`, `vcard-read.js`, `vcard-write.js` (3.0 or 4.0), `csv-read.js`, `csv-write.js` (Google,
     Outlook, the plain layout and the XLSX rows), `csv-map.js` (the column guess and the mapping), `import-plan.js`
@@ -98,8 +98,30 @@ uploaded.
 - **Export:** vCard 3.0 or 4.0 as one `.vcf`, or one vCard per contact in a `.zip`; CSV (one column per e-mail and
   phone); Excel `.xlsx` (one sheet, bold header; written by the shared writer, `shared/sheets/write.js`, loaded when
   used); Google or Outlook CSV; or `.scontacts`. The scope is the selection when there is one, otherwise every contact.
-  Downloads only; nothing is saved to Slop Drive by this app.
+  Downloads, except the Slop Drive copy (below).
 - `.scontacts` stays a file format for import and export. It is not the storage any more.
+
+## Slop Drive copy
+- The whole list is one file, `contacts.vcf` (vCard 4.0, UTF-8, CRLF; `core/bundle.js`), in the app's own Drive folder
+  (Slop Contacts). Each contact is one VCARD block with the standard properties (N, FN, ORG, TITLE, TEL, EMAIL, ADR, BDAY,
+  URL, NOTE) and these custom ones, which other apps ignore: `X-SLOP-ID` (the stable id), `X-SLOP-GROUP` (one line per
+  group), `X-SLOP-STAGE`, `X-SLOP-FOLLOWUP` (ISO date), `X-SLOP-TAGS` (one line, comma separated). Photos are not written.
+  The file is the Drive copy's source of truth; the local records are the same contacts as the CRM sees them.
+- **Save** (`app/drive-save.js`): each change the person makes marks the list dirty, and a save follows after about 3
+  seconds. Save (toolbar, File menu, palette) writes at once. A save is a new version of the same Drive record, never a
+  second file. Saves run one at a time, and a change made during one is saved after it. The status line (`#driveStatus`)
+  says Saving, Saved to Slop Drive at a time, or Could not save with the reason. Without Slop Drive (file:, offline build)
+  the Save button and the status line are hidden.
+- **Open** (`app/drive-load.js`): at start-up, an empty list is offered `contacts.vcf`. File > Open contacts from Slop
+  Drive does the same, and asks before merging into a list that has contacts. Either way the file goes to the import
+  preview (`importPreview.show` with `keepIds`, the same plan and apply as a dropped .vcf).
+- **Matching**: an incoming contact matches an existing one on `X-SLOP-ID` first, then on phone or e-mail, as for any
+  import. A new contact from the bundle keeps its id, unless a record with that id exists in the store (a deleted one
+  cannot be written over), in which case it gets a new one. `customerMap.toRecord` now writes the list id into the
+  record, so a new contact keeps the id it shows.
+- A second import of the same file changes nothing (every contact matches by id; skip or merge leave it as it was).
+- `X-SLOP` values are read by the vCard reader too, so a bundle dropped on the list works like any .vcf. A stage that is not
+  a pipeline stage, or a follow-up that is not a date, is dropped on read.
 
 ## Filters
 - Six facets in the Filter section, combined with AND: **group** (every group chosen), **organisation** (exact, ignoring
@@ -128,8 +150,13 @@ uploaded.
   bar); a drag onto a group that moves (and copies with Alt); an organisation filter chip in the URL; the splitter by
   keyboard and its width after a reload; the XLSX and vCard 4.0 exports read back.
 - `node --test tests/node/contacts-*.test.mjs`: the vCard reader and writer (`contacts-vcard`), the CSV parser, the
-  column guess, the mapping and the plain CSV round trip (`contacts-csv`), and the import plan, the filters and the table
-  model (`contacts-model`). They load the core through `tests/contacts/contacts.node-env.mjs`.
+  column guess, the mapping and the plain CSV round trip (`contacts-csv`), the import plan, the filters and the table
+  model (`contacts-model`), and the Slop Drive bundle (`contacts-bundle`: every field and X-SLOP property round trips,
+  the file layout, a second import changes nothing). They load the core through `tests/contacts/contacts.node-env.mjs`.
+- `tests/contacts/drive.test.html` (`contacts.spec-drive.js`): the app runs with a stubbed SlopHub (set on the iframe
+  after boot). A change is saved after the delay, Save writes at once as a new version, a failed save shows its reason,
+  an empty list is offered the file and Import brings back the id, groups, stage and follow-up, and a non-empty list is
+  asked before a merge.
 - `contacts.spec-app.js`: letter headers in order with # last; a row's second line; a new contact in its letter section
   and in the CRM's Customers; the orders and invoices of a customer from the shared collections with links; a contact
   with no orders; the 390 px layout (no horizontal scroll, list first, full-page card with back); arrows, Enter, Delete
@@ -170,6 +197,9 @@ uploaded.
 - **Not verified in the real apps**: exported files were not imported into iOS, Android, Google Contacts or Outlook here.
 
 ## Not done
+- `service-worker.js` precaches the app's scripts by an explicit list. It does not yet list `contacts/js/core/bundle.js`,
+  `contacts/js/app/drive-save.js` and `contacts/js/app/drive-load.js`; add them there (outside this change's scope).
+- Photos are not in the Drive file (the bundle skips them), so a photo does not survive a save-and-open round trip.
 - Undo and redo for bulk changes.
 - Column choice in the table; a per-field merge chooser; "keep these two separate" for duplicates.
 - A per-contact duplicate choice in the import preview (the choice is one for every duplicate in the file).
