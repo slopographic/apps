@@ -70,17 +70,21 @@
     }
     return best;
   };
-  /** The visible page with the most of its area in the viewer. The active page keeps its place on a near tie. */
+  /** The visible page with the most of its area in the viewer; a tie goes to the page nearest the viewer's middle, and at
+      the very end of the stack the last visible page. The active page keeps its place on a near tie. */
   function mostVisible() {
-    var vr = S.viewer.getBoundingClientRect(), best = null, ba = -1, active = 0;
+    var vr = S.viewer.getBoundingClientRect(), mid = vr.top + vr.height / 2, best = null, ba = -1, bd = Infinity, active = 0, last = null;
+    var atEnd = S.viewer.scrollTop + S.viewer.clientHeight >= S.viewer.scrollHeight - 2;
     S.visible.forEach(function (s) {
       var r = s.el.getBoundingClientRect();
       var h = Math.min(r.bottom, vr.bottom) - Math.max(r.top, vr.top), w = Math.min(r.right, vr.right) - Math.max(r.left, vr.left);
       if (h <= 0 || w <= 0) return;
-      var a = w * h;
+      var a = w * h, d = Math.abs((r.top + r.bottom) / 2 - mid);
       if (s.pid === Ed.pid) active = a;
-      if (a > ba) { ba = a; best = s; }
+      last = s;
+      if (a > ba + 0.5 || (Math.abs(a - ba) <= 0.5 && d < bd)) { ba = a; bd = d; best = s; }
     });
+    if (atEnd && last) return last;
     return best && active >= ba * 0.99 ? S.slotFor(Ed.pid) : best;
   }
   /** Makes a page the active one: the annotation overlay and the text box move to it, and the tools use it. */

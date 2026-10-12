@@ -5,24 +5,24 @@
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._;
-  var ZOOM_MS = 120, ZMIN = 0.25 * 96 / 72, ZMAX = 8 * 96 / 72, ease = null, easeRaf = 0;
+  var Z = SP.zoom = window.SlopPdfZoom, ZOOM_MS = 120, ZMIN = Z.fromPercent(25), ZMAX = Z.fromPercent(800), ease = null, easeRaf = 0;
   Ed.ZOOM_MIN = ZMIN; Ed.ZOOM_MAX = ZMAX;
-  Ed.percent = function (z) { return Math.round(z * 72 / 96 * 100); };
+  Ed.percent = Z.percent;
   S.stopEase = function () { if (easeRaf) cancelAnimationFrame(easeRaf); easeRaf = 0; ease = null; };
   function centre() { var vr = S.viewer.getBoundingClientRect(); return { x: vr.left + vr.width / 2, y: vr.top + vr.height / 2 }; }
-  /** Zoom now to z, keeping the document point under client (ax, ay) in place. */
+  /** Zoom now to z, keeping the document point under client (ax, ay) in place (the arithmetic is in zoom-math.js). */
   function setRaw(z, ax, ay) {
-    var hit = S.slotAt(ax, ay);
+    var pt = { x: ax, y: ay }, hit = S.slotAt(ax, ay);
     if (!hit) { Ed.zoomMode = 'num'; Ed.zoom = U.clamp(z, ZMIN, ZMAX); Ed.layout(); return; }
-    var old = Ed.zoom, r = hit.el.getBoundingClientRect(), fx = (ax - r.left) / old, fy = (ay - r.top) / old;
-    Ed.zoomMode = 'num'; Ed.zoom = U.clamp(z, ZMIN, ZMAX); Ed.layout(); // the layout centres the rows again
+    var r = hit.el.getBoundingClientRect(), doc = Z.docPoint(pt, { x: r.left, y: r.top }, Ed.zoom);
+    Ed.zoomMode = 'num'; Ed.zoom = Z.clamp(z, ZMIN, ZMAX); Ed.layout(); // the layout centres the rows again
     var r2 = hit.el.getBoundingClientRect();
-    S.viewer.scrollLeft += (r2.left + fx * Ed.zoom) - ax;
-    S.viewer.scrollTop += (r2.top + fy * Ed.zoom) - ay;
+    S.viewer.scrollLeft += (r2.left + doc.x * Ed.zoom) - ax;
+    S.viewer.scrollTop += (r2.top + doc.y * Ed.zoom) - ay;
     // A stack smaller than the viewer cannot scroll, so what is left of the move is an offset on the pad itself.
-    var r3 = hit.el.getBoundingClientRect();
-    S.pad.style.left = ((ax - fx * Ed.zoom) - r3.left) + 'px';
-    S.pad.style.top = ((ay - fy * Ed.zoom) - r3.top) + 'px';
+    var r3 = hit.el.getBoundingClientRect(), o = Z.originFor(pt, doc, Ed.zoom);
+    S.pad.style.left = (o.x - r3.left) + 'px';
+    S.pad.style.top = (o.y - r3.top) + 'px';
   }
   function frame(now) {
     easeRaf = 0;

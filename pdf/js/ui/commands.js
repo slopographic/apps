@@ -30,6 +30,7 @@
       cmd('file.open', 'Open PDFs or images…', 'File', ['Mod+O'], function () { A.openDialog(); }, noMenu, { keywords: ['add', 'import', 'merge'] }),
       cmd('file.drive', 'Open from Slop Drive…', 'File', [], function () { A.openFromDrive(); }, function () { return !!window.SlopHub && !SP.offline; }),
       cmd('file.sample', 'Try the sample PDF', 'File', [], function () { A.loadSample(); }),
+      cmd('file.extractAssets', 'Extract assets…', 'File', [], function () { A.extractAssets(); }, has, { keywords: ['images', 'fonts', 'save', 'export'] }),
       cmd('file.save', 'Save', 'File', ['Mod+S'], function () { if (window.SlopHub && !SP.offline) A.saveToDrive(); else A.download(); }, function () { return has() && noMenu(); }, { keywords: ['save', 'drive'] }),
       cmd('file.download', 'Download PDF', 'File', [], function () { A.download(); }, function () { return has() && noMenu(); }, { keywords: ['save', 'export'] }),
       cmd('file.extract', 'Download selected pages', 'File', [], function () { A.extract(); }, function () { return O.sel.size > 0; }),

@@ -1,6 +1,6 @@
 /* Slop PDF: navigation on the page view, through shared/nav's engine. Ctrl/⌘ + wheel zooms about the pointer
    and eases over 120 ms, the plain wheel is left to the page, Shift + wheel scrolls sideways, the zoom is limited
-   to 10%–800% (the status bar's figure), Ctrl/⌘ 0 fits the width, and the zoom comes back after a reload. */
+   to 25%–800% (the status bar's figure), Ctrl/⌘ 0 fits the width, and the zoom comes back after a reload. */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -54,7 +54,7 @@
       expect(Ed.zoom).toBe(z1);
     });
 
-    it('Shift+wheel scrolls sideways, the limits are 10% and 800%, and Ctrl/⌘ 0 fits the width', async () => {
+    it('Shift+wheel scrolls sideways, the limits are 25% and 800%, and Ctrl/⌘ 0 fits the width', async () => {
       const Ed = await openAt(5);
       const v = viewer(), r = page().getBoundingClientRect();
       const x = r.left + r.width / 2, y = r.top + r.height / 2;
@@ -68,7 +68,7 @@
       expect(Ed.zoom).toBeCloseTo(Ed.ZOOM_MAX, 1e-9);
       for (let i = 0; i < 80; i++) wheel(page(), { deltaY: 300, ctrlKey: true, clientX: x, clientY: y });
       await settle();
-      expect(Ed.percent(Ed.zoom)).toBe(10);
+      expect(Ed.percent(Ed.zoom)).toBe(25);
       expect(Ed.zoom).toBeCloseTo(Ed.ZOOM_MIN, 1e-9);
       PT.win.document.body.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: '0', code: 'Digit0', ctrlKey: true, bubbles: true, cancelable: true }));
       await settle();

@@ -35,6 +35,7 @@
       { label: 'Download PDF', key: A.key('file.download'), act: A.download, disabled: !has },
       { label: 'Download selected pages', act: A.extract, disabled: !O.sel.size },
       { label: 'Extract text…', act: A.extractText, disabled: !has },
+      { label: 'Extract assets…', act: A.extractAssets, disabled: !has },
       { label: 'Pages to images…', act: function () { A.setTool('convert'); }, disabled: !has },
       '-',
       sendSub(A.sendItems(), 'Send to', 'No other app opens PDFs yet'),
