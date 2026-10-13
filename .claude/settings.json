@@ -1,0 +1,18 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && git config user.name slopographic && git config user.email 340656300+slopographic@users.noreply.github.com"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+name: Commit authors
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject Claude authorship
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          elif [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
+            RANGE="${{ github.sha }}"
+          else
+            RANGE="${{ github.event.before }}..${{ github.sha }}"
+          fi
+          echo "Checking $RANGE"
+          bad=$(git log "$RANGE" --format='%h %an <%ae> | %cn <%ce>' | grep -iE '(^| )claude |noreply@anthropic\.com|noreply@slopographic\.com' || true)
+          trailers=$(git log "$RANGE" --format='%h%n%B' | grep -iE '^(co-authored-by: claude|claude-session:|.*generated with \[?claude)' || true)
+          if [ -n "$bad$trailers" ]; then
+            echo "::error::Commits with Claude authorship or trailers found"
+            echo "$bad"; echo "$trailers"
+            exit 1
+          fi
+          echo "All commit authors OK"
