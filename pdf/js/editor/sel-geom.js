@@ -50,4 +50,37 @@
   };
   /** The page-space rectangle of a box {x, y, w, h}, as the rects above. */
   G.rectOfBox = function (b) { return { x0: b.x, y0: b.y, x1: b.x + b.w, y1: b.y + b.h }; };
+  /** Rectangles {x0, y0, x1, y1} for a flat list of points, four per quad (the bounding box of each quad). */
+  G.rectsOf = function (pts) {
+    var out = [];
+    for (var k = 0; k + 3 < pts.length; k += 4) {
+      var xs = [pts[k][0], pts[k + 1][0], pts[k + 2][0], pts[k + 3][0]], ys = [pts[k][1], pts[k + 1][1], pts[k + 2][1], pts[k + 3][1]];
+      out.push({ x0: Math.min.apply(null, xs), x1: Math.max.apply(null, xs), y0: Math.min.apply(null, ys), y1: Math.max.apply(null, ys) });
+    }
+    return out;
+  };
+  /** The four points of a rectangle, in the quad order the markup uses (top-left, top-right, bottom-right, bottom-left). */
+  G.rectQuad = function (r) { return [[r.x0, r.y0], [r.x1, r.y0], [r.x1, r.y1], [r.x0, r.y1]].map(function (q) { return [r2(q[0]), r2(q[1])]; }); };
+  /** Total area of rectangles (overlaps counted once per rectangle). */
+  G.rectsArea = function (rects) { return rects.reduce(function (s, r) { return s + (r.x1 - r.x0) * (r.y1 - r.y0); }, 0); };
+  /** The parts of the rectangles not covered by any of the cut rectangles: the rectangles left after cutting. */
+  G.rectsMinus = function (rects, cuts) {
+    var out = [];
+    rects.forEach(function (a) {
+      var pieces = [a];
+      cuts.forEach(function (c) { pieces = pieces.reduce(function (acc, p) { return acc.concat(cut(p, c)); }, []); });
+      out = out.concat(pieces);
+    });
+    return out;
+  };
+  /** Rectangle a with rectangle c removed: up to four pieces (the bands above and below c, and the sides beside it). */
+  function cut(a, c) {
+    if (c.x1 <= a.x0 || c.x0 >= a.x1 || c.y1 <= a.y0 || c.y0 >= a.y1) return [a];
+    var out = [], my0 = Math.max(a.y0, c.y0), my1 = Math.min(a.y1, c.y1);
+    if (c.y0 > a.y0) out.push({ x0: a.x0, x1: a.x1, y0: a.y0, y1: c.y0 });
+    if (c.y1 < a.y1) out.push({ x0: a.x0, x1: a.x1, y0: c.y1, y1: a.y1 });
+    if (c.x0 > a.x0) out.push({ x0: a.x0, x1: c.x0, y0: my0, y1: my1 });
+    if (c.x1 < a.x1) out.push({ x0: c.x1, x1: a.x1, y0: my0, y1: my1 });
+    return out;
+  }
 })();
