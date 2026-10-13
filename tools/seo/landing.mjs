@@ -3,6 +3,7 @@
 // rows, with status and file types), the file types it opens, a button to the app, and related apps.
 // Only registry facts are written. Called by tools/seo/write.mjs, which adds the SEO head block to each page.
 import { isPage } from './site.mjs';
+import OFFLINE_APPS from '../../shared/offline/manifest.js';
 
 /** Slop 365 tools, in the order the hub lists them. Each id must be an app in the registry. */
 export const SLOP365 = ['invoices', 'orders', 'contacts', 'inventory', 'crm', 'ledger', 'reports', 'tables', 'docs', 'notes'];
@@ -83,6 +84,10 @@ ${body}
 
 const cardList = (items) => `<ul class="cards">${items.map((b) => `<li><a href="/apps/${esc(b.id)}/">${esc(b.name)}</a><br><span class="note">${esc(statusOf(b))}</span><br>${esc(b.tagline)}</li>`).join('')}</ul>`;
 
+/** The offline download link, for an app with a shared offline build (shared/offline/manifest.js). */
+const offlineLink = (app) => (OFFLINE_APPS[app.id] && OFFLINE_APPS[app.id].entry
+  ? `\n<p class="note"><a href="/downloads/${esc(app.id)}.html" download>Download offline (.html)</a>: one file that opens from disk and works without a connection.</p>`
+  : '');
 /** Body of one app's landing page. */
 function appBody(app, apps) {
   const feats = app.features || [];
@@ -94,7 +99,7 @@ function appBody(app, apps) {
   return `<p class="eyebrow">${esc(app.name)} · ${esc(statusOf(app))}</p>
 <h1>${esc(app.title || app.name)}</h1>
 <p class="lead">${esc(app.tagline)}</p>
-<p><a class="btn" href="/${esc(app.path)}" aria-label="Open now: ${esc(app.name)}">Open now</a></p>
+<p><a class="btn" href="/${esc(app.path)}" aria-label="Open now: ${esc(app.name)}">Open now</a></p>${offlineLink(app)}
 <p>${esc(app.name)} ${feats.length ? `has these main features: ${esc(feats.slice(0, 2).join('; '))}.` : 'is listed below with its file types.'}${types.length ? ` It opens ${esc(types.join(', '))}.` : ''}</p>
 ${note ? `<p class="note">${esc(note)}</p>` : ''}
 <h2>Feature matrix</h2>

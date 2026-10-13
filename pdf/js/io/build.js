@@ -1,26 +1,23 @@
-/* Slop PDF — "Download app (offline .html)": builds one self-contained HTML file with the
-   CSS, the app scripts, pdf.js (+ its worker, started from a Blob URL) and pdf-lib inlined.
-   All source files are also embedded verbatim as JSON in <script id="app-src">, so the
-   offline copy can rebuild itself byte-for-byte. Standalone: no dependency on other modules
-   at load time, because the offline bootstrap runs this file first. */
+/* Slop PDF — "Download app (offline .html)". The bundle is built by the shared builder (shared/offline/build.js)
+   from this app's entry in shared/offline/manifest.js. What stays here is PDF-only: the boot that starts the offline
+   copy (pdf.js and its worker from a Blob URL, the standard fonts) and the ES-module-to-script conversion for pdf.js.
+   The offline copy embeds the builder and the manifest as well, so it rebuilds itself byte for byte. */
 (function () {
   'use strict';
   var SP = window.SP = window.SP || {};
   var B = SP.build = {};
-  var SCRIPT_SRC = (document.currentScript && document.currentScript.src) || '';
+  var manifest = function () { return window.SLOP_OFFLINE.pdf; };
 
-  /** App scripts in load order (paths relative to the site root). */
-  B.SCRIPTS = ['shared/session/session.js', 'shared/doctabs/tabs.js', 'shared/doctabs/drive.js', 'shared/doctabs/session.js', 'shared/nav/presets.js', 'shared/nav/validate.js', 'shared/nav/logic.js', 'shared/nav/engine.js', 'shared/urlstate/urlstate.js', 'shared/router/router.js', 'shared/viewmode/viewmode.js', 'pdf/js/core/util.js', 'pdf/js/core/zip.js', 'pdf/js/ui/icons.js', 'pdf/js/io/decrypt.js', 'pdf/js/core/model.js', 'pdf/js/core/history.js', 'pdf/js/core/layers.js', 'pdf/js/core/text.js', 'pdf/js/core/fonts-custom.js', 'pdf/js/core/watermark.js', 'pdf/js/core/watermark-annots.js', 'pdf/js/core/pdfjs.js', 'pdf/js/io/forms.js', 'pdf/js/io/export.js', 'pdf/js/io/export-notes.js', 'pdf/js/io/export-callout.js', 'pdf/js/redact/find.js', 'pdf/js/redact/apply.js', 'pdf/js/io/convert.js', 'pdf/js/io/assets-model.js', 'pdf/js/io/assets-scan.js', 'pdf/js/io/assets-save.js', 'pdf/js/io/sample.js', 'pdf/js/io/session.js', 'pdf/js/io/edit-log.js', 'pdf/js/io/doc-changes.js', 'pdf/js/io/drive-docs.js', 'pdf/js/io/doc-state.js', 'pdf/js/ui/sheet.js', 'pdf/js/organize/grid.js', 'pdf/js/organize/drag.js', 'pdf/js/organize/keys.js', 'pdf/js/organize/zoom.js', 'pdf/js/editor/view.js', 'pdf/js/editor/zoom-math.js', 'pdf/js/editor/view-zoom.js', 'pdf/js/editor/view-pages.js', 'pdf/js/editor/view-rows.js', 'pdf/js/editor/annots.js', 'pdf/js/editor/layers-ops.js', 'pdf/js/editor/pointer.js', 'pdf/js/editor/text.js', 'pdf/js/editor/texthl.js', 'pdf/js/macro/text.js', 'pdf/js/editor/textlayer.js', 'pdf/js/find/search.js', 'pdf/js/find/paint.js', 'pdf/js/find/bar.js', 'pdf/js/find/replace.js', 'pdf/js/find/replace-ui.js', 'pdf/js/macro/ops-edit.js', 'pdf/js/editor/font-check.js', 'pdf/js/editor/edit-text.js', 'pdf/js/editor/notes.js', 'pdf/js/editor/notes-view.js', 'pdf/js/editor/callout.js', 'pdf/js/editor/sel-geom.js', 'pdf/js/editor/sel-track.js', 'pdf/js/editor/sel-actions.js', 'pdf/js/editor/sel-bar.js', 'pdf/js/tools/sign.js', 'pdf/js/ui/panel-kit.js', 'pdf/js/ui/dock.js', 'pdf/js/tools/organize-panel.js', 'pdf/js/tools/edit-panel.js', 'pdf/js/tools/stamp-panels.js', 'pdf/js/tools/watermark-panel.js', 'pdf/js/tools/comments-panel.js', 'pdf/js/tools/doc-panels.js', 'pdf/js/ui/app.js', 'pdf/js/tools/layers-panel.js', 'pdf/js/tools/history-panel.js', 'pdf/js/ui/ctxbars.js', 'pdf/js/ui/actions.js', 'pdf/js/ui/versions.js', 'pdf/js/ui/fonts.js', 'pdf/js/ui/export-menu.js', 'pdf/js/ui/exports.js', 'pdf/js/ui/page-acts.js', 'pdf/js/ui/assets.js', 'pdf/js/redact/panel.js', 'pdf/js/ui/menus.js', 'pdf/js/ui/commands.js', 'pdf/js/ui/context.js', 'pdf/js/ui/input.js', 'pdf/js/ui/rename.js', 'shared/drop/rules.js', 'shared/drop/panel.js', 'shared/drop/drop.js', 'shared/drop/choice.js', 'pdf/js/ui/drop.js', 'pdf/js/ui/doc-tabs.js', 'pdf/js/ui/open-convert.js', 'pdf/js/ui/view-state.js', 'pdf/js/ui/route.js', 'pdf/js/ui/main.js'];
-  /** Shared SlopCmd (command palette + shortcuts), run in this order. */
-  B.CMD = ['shared/commands/commands.js', 'shared/commands/search.js', 'shared/commands/palette.js', 'shared/commands/recorder.js', 'shared/commands/keymap.js'];
-  B.TEXT = ['pdf/index.html', 'shared/session/session.js', 'pdf/css/base.css', 'pdf/css/workspace.css', 'pdf/css/panels.css', 'pdf/css/redact.css', 'pdf/css/page-acts.css', 'pdf/css/find.css', 'pdf/css/selbar.css', 'pdf/css/assets.css', 'pdf/css/notes.css', 'pdf/css/dock.css', 'pdf/css/themes.css', 'shared/doctabs/doctabs.css', 'pdf/css/doc-tabs.css', 'shared/convert/dialog.css', 'shared/slopui.css', 'shared/slopui.js', 'shared/apps.js', 'shared/commands/commands.css'].concat(B.CMD, ['favicon.svg', 'vendor/pdf-lib/pdf-lib.min.js', 'vendor/pdfjs/pdf.min.js', 'vendor/pdfjs/pdf.worker.min.js', 'pdf/js/io/build.js'].concat(B.SCRIPTS));
-  /** Small binary assets (base64): the two symbol fonts pdf.js cannot take from the system. */
-  B.BINARY = ['vendor/pdfjs/standard_fonts/FoxitSymbol.pfb', 'vendor/pdfjs/standard_fonts/FoxitDingbats.pfb'];
-
-  /** JSON safe to place inside a <script> element. */
-  B.escapeJSON = function (obj) {
-    return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  /** Resolves with the shared builder; online, the builder and the manifest are loaded from the site on first use. */
+  B.ready = function () {
+    if (window.SlopOffline && window.SLOP_OFFLINE) return Promise.resolve(window.SlopOffline);
+    return SlopHub.loadScript('shared/offline/manifest.js')
+      .then(function () { return SlopHub.loadScript('shared/offline/build.js'); })
+      .then(function () { return window.SlopOffline; });
   };
+  if (window.SlopOffline || window.SlopHub) B.ready().catch(function () { /* the download reports the error */ });
+
+  B.escapeJSON = function (obj) { return window.SlopOffline.escapeJSON(obj); };
   /** Turns an ES module bundle (pdf.js) into a classic script that sets globalThis[name] to its exports. */
   B.toClassic = function (src, name) {
     var m = /export\s*\{([^}]*)\}\s*;?\s*$/.exec(src);
@@ -32,34 +29,17 @@
     body = body.split('import.meta.url').join('"about:blank"');
     return '(function(){"use strict";\n' + body + '\nglobalThis[' + JSON.stringify(name) + ']={' + props.join(',') + '};\n})();';
   };
-
-  function b64(str) { return btoa(unescape(encodeURIComponent(str))); }
   /** Builds the offline HTML from a {path: text | 'base64:…'} source map (pure, deterministic). */
-  B.buildHTML = function (S) {
-    var html = S['pdf/index.html'];
-    if (!html) throw new Error('index.html missing from sources');
-    html = html.replace(/^[^\n]*data-offline="strip"[^\n]*\n/gm, function () { return ''; });
-    html = html.replace(/<link\b[^>]*\bdata-src="([^"]+)"[^>]*>/g, function (m, p) {
-      var css = S[p]; if (css == null) throw new Error('Missing ' + p);
-      return '<style data-src="' + p + '">\n' + css.replace(/<\/style/gi, function () { return '<\\/style'; }) + '\n</style>';
-    });
-    html = html.replace(/[ \t]*<script\b[^>]*\bdata-src="[^"]+"[^>]*><\/script>\n?/g, function () { return ''; });
-    html = html.replace(/href="\.\.\/favicon\.svg"/g, function () { return 'href="data:image/svg+xml;base64,' + b64(S['favicon.svg'] || '') + '"'; });
-    html = html.replace(/href="\.\.\/"/g, function () { return 'href="https://slopographic.com/"'; });
-    html = html.replace(/<head>/, function () { return '<head>\n  <meta name="slop-pdf-build" content="offline">'; });
-    var boot = '(' + BOOT.toString() + ')();';
-    html = html.replace(/<\/body>/, function () {
-      return '<script type="application/json" id="app-src">' + B.escapeJSON(S) + '</script>\n<script>' + boot + '</script>\n</body>';
-    });
-    return html;
-  };
+  B.buildHTML = function (S) { return window.SlopOffline.bundle(manifest(), S, { boot: BOOT }); };
 
   /* Runs inside the offline file. Must stay self-contained (it is serialised with toString). */
-  function BOOT() {
+  function BOOT(scripts) {
     var S = JSON.parse(document.getElementById('app-src').textContent);
     var SP = window.SP = window.SP || {};
     function run(code, name) { var s = document.createElement('script'); s.textContent = code + '\n//# sourceURL=' + name; document.body.appendChild(s); }
     function bytes(b64s) { var bin = atob(b64s), o = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) o[i] = bin.charCodeAt(i); return o; }
+    run(S['shared/offline/manifest.js'], 'manifest.js');
+    run(S['shared/offline/build.js'], 'build.js');
     run(S['pdf/js/io/build.js'], 'build.js');
     var B = SP.build;
     SP.offline = { sources: S };
@@ -82,26 +62,14 @@
     } catch (e) {
       run(wsrc, 'pdf.worker.min.js'); // fall back to pdf.js's main-thread "fake worker"
     }
-    B.SCRIPTS.forEach(function (p) { run(S[p], p.split('/').pop()); });
+    scripts.forEach(function (p) { run(S[p], p.split('/').pop()); });
   }
+  B.BOOT = BOOT;
 
-  /** Collects the sources: from the embedded JSON when offline, otherwise from the site. */
-  B.collect = async function () {
-    if (SP.offline && SP.offline.sources) return SP.offline.sources;
-    var root = new URL(SCRIPT_SRC ? '../../../' : '../', SCRIPT_SRC || document.baseURI).href, S = {};
-    for (var i = 0; i < B.TEXT.length; i++) {
-      var r = await fetch(root + B.TEXT[i], { cache: 'no-cache' });
-      if (!r.ok) throw new Error('Could not read ' + B.TEXT[i] + ' (' + r.status + ')');
-      S[B.TEXT[i]] = await r.text();
-    }
-    for (var j = 0; j < B.BINARY.length; j++) {
-      var rb = await fetch(root + B.BINARY[j]);
-      if (!rb.ok) continue;
-      var u8 = new Uint8Array(await rb.arrayBuffer()), s = '';
-      for (var k = 0; k < u8.length; k += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(k, k + 0x8000));
-      S[B.BINARY[j]] = 'base64:' + btoa(s);
-    }
-    return S;
+  /** The source map: from the embedded JSON when offline, otherwise read from the site. */
+  B.collect = function () {
+    if (SP.offline && SP.offline.sources) return Promise.resolve(SP.offline.sources);
+    return B.ready().then(function (SO) { return SO.collect(manifest(), SO.fromSite(SlopHub.ROOT)); });
   };
-  B.make = async function () { return B.buildHTML(await B.collect()); };
+  B.make = function () { return B.collect().then(B.buildHTML); };
 })();

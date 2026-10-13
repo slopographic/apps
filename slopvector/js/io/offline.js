@@ -1,4 +1,5 @@
-/* SlopVector — io: offline single-file self-download */
+/* SlopVector — io: offline single-file self-download. The bundle comes from the shared builder
+   (shared/offline/build.js) and this app's entry in shared/offline/manifest.js. */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;
@@ -8,48 +9,17 @@
   var $ = SV._io = SV._io || {};
 
   /* ================= offline self-download ================= */
-  function fetchText(url) { return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(url + ' → HTTP ' + r.status); return r.text(); }); }
-  // Wrap code in an inline <style>/<script>, neutralising any closing tag inside it so the element can't end early.
-  IO.inlineTag = function (tag, code) {
-    var re = new RegExp('<\\/(' + tag + ')', 'gi');
-    return '<' + tag + '>\n' + String(code).replace(re, '<\\/$1') + '\n</' + tag + '>';
-  };
+  // The bundle is built by the shared builder (shared/offline/build.js) from this app's manifest entry.
   IO.buildOfflineHTML = function () {
     var offline = location.protocol === 'file:' || !!document.querySelector('meta[name="slop-vector-build"]');
     if (offline) {
       if (window.__SV_PRISTINE) return Promise.resolve(window.__SV_PRISTINE);
       return Promise.reject(new Error('No pristine copy available'));
     }
-    return fetchText('index.html').then(function (html) {
-      var jobs = [];
-      // stylesheets
-      html = html.replace(/<link\b[^>]*>/gi, function (tag) {
-        var href = (/href="([^"]+)"/i.exec(tag) || [])[1] || '';
-        // Web fonts (data-offline="strip") stay online-only: offline, the fallback font stack is used.
-        if (/fonts\.(googleapis|gstatic)\.com/.test(href) || /rel="preconnect"|data-offline="strip"/i.test(tag)) return '';
-        if (/rel="stylesheet"/i.test(tag) && !/^https?:/i.test(href)) { var k = '@@CSS' + jobs.length + '@@'; jobs.push({ k: k, url: href, kind: 'css' }); return k; }
-        if (/rel="icon"/i.test(tag) && !/^https?:|^data:/i.test(href)) { var k2 = '@@ICON' + jobs.length + '@@'; jobs.push({ k: k2, url: href, kind: 'icon' }); return k2; }
-        return tag;
-      });
-      html = html.replace(/<script\b([^>]*)\ssrc="([^"]+)"([^>]*)><\/script>/gi, function (m, a, src) {
-        if (/^https?:/i.test(src)) return m;
-        if (/shared\/guard\.js$/.test(src) || /data-offline="strip"/i.test(m)) return ''; // hosted-site-only scripts (reload guard, Sloppo buddy)
-        var k = '@@JS' + jobs.length + '@@'; jobs.push({ k: k, url: src, kind: 'js', app: (/\sdata-app="([^"]+)"/.exec(m) || [])[1] }); return k;
-      });
-      return Promise.all(jobs.map(function (j) { return fetchText(j.url).then(function (t) { j.text = t; }); })).then(function () {
-        jobs.forEach(function (j) {
-          var rep;
-          if (j.kind === 'css' || j.kind === 'js') {
-            rep = IO.inlineTag(j.kind === 'css' ? 'style' : 'script', j.text);
-            // keep data-app on the inlined theme.js, so the offline copy follows the app's own theme key
-            if (j.app) rep = rep.replace('<script>', '<script data-app="' + j.app + '">');
-          } else rep = '<link rel="icon" href="data:image/svg+xml,' + encodeURIComponent(j.text) + '" type="image/svg+xml">';
-          html = html.split(j.k).join(rep);
-        });
-        html = html.replace(/<meta charset="utf-8">/i, '<meta charset="utf-8">\n  <meta name="slop-vector-build" content="offline">');
-        return IO.normalizeHTML(html);
-      });
-    });
+    return SlopHub.loadScript('shared/offline/manifest.js')
+      .then(function () { return SlopHub.loadScript('shared/offline/build.js'); })
+      .then(function () { return window.SlopOffline.make(window.SLOP_OFFLINE.vector, window.SlopOffline.fromSite(SlopHub.ROOT)); })
+      .then(IO.normalizeHTML);
   };
   // Serialise through the HTML parser so the first offline build is byte-identical to the copy the
   // offline app later re-serialises from its own DOM (see the capture script in index.html).

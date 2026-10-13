@@ -88,13 +88,6 @@
 
   describe('offline builder', () => {
     let built;
-    it('neutralises closing tags inside inlined code', () => {
-      const s = IO.inlineTag('script', 'var x = "<\/script><b>"; var y = "<\/SCRIPT >";');
-      expect(s.startsWith('<script>\n')).toBe(true);
-      expect(s.slice(9, -10).toLowerCase()).not.toContain('<\/script');
-      expect(s.endsWith('\n<\/script>')).toBe(true);
-      expect(IO.inlineTag('style', 'a{}</style>')).toContain('<\\/style>');
-    });
     it('inlines the app, its CSS and the shared SlopUI / apps / hub scripts into one file', async () => {
       built = await IO.buildOfflineHTML();
       expect(/<script[^>]*\ssrc=/.test(built)).toBe(false);
