@@ -18,6 +18,7 @@
     watermark: '<path d="M12 3s-6 6.5-6 11a6 6 0 0 0 12 0c0-4.5-6-11-6-11z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/>',
     forms: '<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M7 9h4M7 14h4"/><rect x="13" y="7.5" width="4.5" height="3" rx=".6"/><rect x="13" y="12.5" width="4.5" height="3" rx=".6"/>',
     compress: '<path d="M8 3v5H3M16 3v5h5M8 21v-5H3M16 21v-5h5"/>',
+    ocr: '<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 9h8M8 12h6M8 15h4"/>',
     convert: '<rect x="3" y="3" width="11" height="14" rx="1.5"/><path d="M14 9h5a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-2"/><path d="m11 14 2.5-3 3 4 1.5-1.5"/>',
     split: '<path d="M6 4v5M18 4v5M6 15v5M18 15v5"/><path d="M3 12h3M9 12h2M13 12h2M18 12h3"/>',
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',

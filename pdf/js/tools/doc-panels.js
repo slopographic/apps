@@ -59,6 +59,19 @@
   };
 
   /* ------------------------------------------------------------ convert */
+  /* OCR: reads the text of scanned pages into an invisible text layer (ocr/recognise.js). */
+  PANELS.ocr = {
+    title: 'OCR', icon: 'ocr', build: function (b) {
+      var off = SP.offline || !window.SlopAITools;
+      var note = h('p', { class: 'hint' }, off ? 'Text recognition needs the OCR model, which is available when the app is online.' : 'Reads the text of scanned pages so you can select, search and edit it. Runs on this device.');
+      b.appendChild(note);
+      b.appendChild(section('Recognise text', [
+        row('', btn('Run OCR on this page', 'ocr', function () { A.recognisePage(); })),
+        row('', btn('Run OCR on document', 'ocr', function () { A.recogniseAll(); }))
+      ]));
+    }
+  };
+
   PANELS.convert = {
     title: 'Convert', icon: 'convert', build: function (b) {
       var o = { format: 'png', dpi: 150, quality: 0.9, which: 'all' };

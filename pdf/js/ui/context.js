@@ -20,6 +20,8 @@
         { label: 'Rotate page right', key: KEY('pages.rotateRight'), act: function () { A.rotate([pid], 90); } },
         { label: 'Rotate page left', key: KEY('pages.rotateLeft'), act: function () { A.rotate([pid], -90); } },
         { label: 'Duplicate page', key: KEY('pages.duplicate'), act: function () { A.duplicate([pid]); } },
+        !SP.offline && window.SlopAITools ? { label: 'Run OCR on this page', act: function () { A.recognisePage(); } } : null,
+        !SP.offline && window.SlopAITools ? { label: 'Run OCR on document', act: function () { A.recogniseAll(); } } : null,
         '-',
         { label: 'Back to all pages', act: function () { A.showGrid(); } },
         { label: 'Delete page', key: KEY('pages.delete'), act: function () { A.remove([pid]); } }

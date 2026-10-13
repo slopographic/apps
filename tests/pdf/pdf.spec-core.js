@@ -7,7 +7,7 @@
     it('loads the app with its engine, rail and empty state', async () => {
       await PT.boot();
       expect(typeof PT.E.build).toBe('function');
-      expect(PT.win.document.querySelectorAll('.rail-b').length).toBe(12);
+      expect(PT.win.document.querySelectorAll('.rail-b').length).toBe(13);
       expect(PT.win.document.getElementById('empty').hidden).toBe(false);
       expect(PT.win.document.title).toContain('Slop PDF');
     }, { timeout: 40000 });
