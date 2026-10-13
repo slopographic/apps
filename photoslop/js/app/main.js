@@ -49,6 +49,9 @@ function wireMobile() {
   $('#viewport').addEventListener('pointerdown', () => { if (document.body.classList.contains('panels-open') && innerWidth < 900) { document.body.classList.remove('panels-open'); toggle.setAttribute('aria-expanded', 'false'); } });
 }
 
+let domLoaded = false; // set by a listener registered while this script parses, so it runs before any other DOMContentLoaded handler
+document.addEventListener('DOMContentLoaded', () => { domLoaded = true; }, { once: true });
+
 async function boot() {
   if (!window.SlopTheme) setTheme(store.get('theme', 'pro')); // the shared script has already painted the choice
   initView();
@@ -84,6 +87,10 @@ async function boot() {
   if (!restored && !launched) newBlankTab();
   await restoreView(restored && !launched);
   emit('docname');
+  // 'ready' promises the page is fully set up. The boot awaits above can finish while the page is still parsing,
+  // before DOMContentLoaded handlers run (the Tour button is mounted there), so wait for them first.
+  // A timer tick runs after DOMContentLoaded and all its handlers (the Tour button mounts in one of them).
+  await new Promise((r) => (domLoaded ? setTimeout(r, 0) : document.addEventListener('DOMContentLoaded', () => setTimeout(r, 0), { once: true })));
   document.body.classList.add('ready');
   if (!store.get('welcomed', false)) { store.set('welcomed', true); setTimeout(() => toast('Welcome to PhotoSlop. Everything stays on your device.', 3600), 400); }
 }
