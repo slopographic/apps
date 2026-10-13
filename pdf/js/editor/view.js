@@ -104,7 +104,7 @@
   S.drawSelection = function () {
     S.overlay.innerHTML = '';
     if (Ed.noteUI) Ed.noteUI.reattach(); // an open comment stays on top of the overlay
-    var a = Ed.getSelected(); if (!a || (S.editing && S.editing.id === a.id)) return;
+    var a = Ed.getSelected(); if (!a || a.hidden || (S.editing && S.editing.id === a.id)) return;
     var c = S.ctx(), r = E.annotViewRect(a, c.R, c.W, c.H), z = c.z;
     var box = U.h('div', { class: 'sel-box' + (a.type === 'line' || a.type === 'arrow' ? ' is-line' : '') });
     box.style.left = (r.x * z) + 'px'; box.style.top = (r.y * z) + 'px'; box.style.width = (r.w * z) + 'px'; box.style.height = (r.h * z) + 'px';

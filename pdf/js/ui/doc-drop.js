@@ -1,6 +1,8 @@
-/* Slop PDF — files dropped on the window. On the tab strip each file opens in a new tab. On the open document, its pages
-   are added at a place the person picks (the start, the end, or after page N), as one undo step. A PDF that is already
-   open asks first. With no document open, a drop simply opens the files. Classic script. */
+/* Slop PDF — files dropped on the window. On the tab strip each file opens in a new tab. On the open document, the
+   person chooses (shared/drop/choice.js, the same two choices as PhotoSlop): "Add to current" adds the pages at a
+   place they pick, as one undo step; "Create new" opens each file in a new tab. With no document open, a drop simply
+   opens the files. Files that cannot be opened are routed to Convert (ui/drop-route.js), never dropped silently. A PDF
+   that is already open asks first. Classic script. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._, D = SP.docs;
@@ -13,13 +15,25 @@
   }
 
   /** The one entry point for a drop (ui/input.js). */
-  A.dropFiles = function (files, target) {
+  A.dropFiles = async function (files, target) {
+    files = Array.prototype.slice.call(files || []);
     if (!files.length) return;
     if (A.isLocked()) { A.status('Wait for the current open to finish, then drop again.', 'err'); return; }
-    if (onTabs(target)) return openInTabs(files);
-    if (!E.state.pages.length) return A.addFiles(files);
-    return addToDocument(files);
+    var r = SP.dropRoute.split(files);
+    if (r.open.length) {
+      if (onTabs(target)) await openInTabs(r.open);
+      else if (!E.state.pages.length) await A.addFiles(r.open);
+      else await chooseAndAdd(r.open);
+    }
+    SP.dropRoute.notice(r);
   };
+
+  /** A drop on the open document: Add to current or Create new (shared/drop/choice.js). Cancel adds nothing. */
+  async function chooseAndAdd(files) {
+    var where = window.SlopDropChoice ? await SlopDropChoice.ask({ files: files, hasDocument: true }) : 'current';
+    if (where === 'new') return openInTabs(files);
+    if (where === 'current') return addToDocument(files);
+  }
 
   /** Each file opens in its own new tab. A PDF that is open in another tab asks first. */
   async function openInTabs(files) {
