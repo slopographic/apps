@@ -9,6 +9,9 @@ opt-in "Get more" that downloads third-party font packs. Both feed one shared fo
 | --- | --- |
 | `shared/fonts/library/` | Bundled WOFF2 faces, one `LICENSE` per family (SIL OFL 1.1 text), and `index.json` (family, style, weight, file, licence, source URL). About 4.1 MB. |
 | `shared/fonts/picker.js` | `window.SlopFonts`: lists families, loads a family with `FontFace`, and `attach(select)` fills a `<select>` and adds the Get more button. |
+| `shared/fonts/catalog.js` | `window.SlopFontCatalog`: every family the app can use (bundled from `index.json`, plus installed packs and the person's own files), faces by weight and style, PostScript name parsing, the closest bundled family, and `addUserFile` (a font file the person owns). |
+| `shared/fonts/missing.js` | `window.SlopFontCheck.ask(needs, uses)`: the asset prompt for a font that is not installed (download from the library, drop a file, or use the closest font). |
+| `vendor/fontkit/fontkit.min.js` | `@pdf-lib/fontkit` 1.1.1 (MIT), bundled for browsers and loaded on first use by `SlopFontCatalog.fontkit()`. pdf-lib needs this build: fontkit 2.x has a different subset API. |
 | `shared/library/packs.json` | The one config file for packs: the allowed download hosts and the pack list (empty today). |
 | `shared/library/manifest.js` | Pack rules and the SHA-256 and size check (`window.SlopLibraryManifest`, also `module.exports` for Node tests). |
 | `shared/library/store.js` | IndexedDB store `slop-library` (`window.SlopLibraryStore`). |
@@ -27,6 +30,25 @@ To rebuild: download each file from `https://raw.githubusercontent.com/google/fo
 Latin and Latin Extended with `fontTools` (`subset.Subsetter`, `flavor = "woff2"`), write the entries to
 `index.json` with a `category` (`sans`, `serif` or `mono`), and keep the family names equal to the `BUNDLED` list
 in `picker.js` (the Node test checks this).
+
+## Fonts for every app: the catalogue, the asset prompt, your own files
+
+One font list: `index.json` (bundled) plus the installed packs in IndexedDB. Nothing else lists families.
+
+- **Missing fonts.** An app that is about to edit text with a font it does not have calls
+  `SlopFontCheck.ask(needs, uses)` with `needs = [{ family, closest, pack }]`. The prompt names each family and offers
+  three answers: **Download from the library** (opens Get more on that pack's confirmation; nothing downloads until the
+  person confirms there, and it needs the pack in `packs.json`), **Drop your own file…** (or drop it on the row), and
+  **Use the closest font instead** (`SlopFontCatalog.closestFamily`: Source Sans 3 for sans, Merriweather for serif,
+  Space Mono for mono). `ask` resolves a `Map` of family to `{ family, how }`, or `null` when the person cancels the edit.
+- **Your own files.** `SlopFontCatalog.addUserFile(file)` reads a TTF, OTF or WOFF with fontkit and stores it in
+  IndexedDB like a pack (`kind: 'font'`, `licence: 'user'`, id `user-<family>-<sha8>`). Once stored it appears in every
+  font picker. WOFF2 is refused for files you add: fontkit cannot subset it, so a PDF could not embed it.
+- **Embedding.** A face is embedded in a saved PDF only as TTF, OTF or WOFF. A bundled family therefore names its
+  embeddable copy in `index.json` (`"pdf"`): Source Sans 3, Merriweather and Space Mono today (Regular, Latin subsets,
+  instanced from the Google Fonts variable files with fontTools). Bundled WOFF2 faces remain the screen copies.
+- **Barlow.** `packs.json` lists "Barlow and Barlow Condensed": eight static TTFs from `google/fonts` (`main` branch),
+  each with its SHA-256. A file that changes upstream is refused and nothing is stored.
 
 ## Rules for "Get more"
 
@@ -59,6 +81,9 @@ With no packs listed, the picker button reads "Get more (no packs listed)" and t
 
 ## Where the picker is used
 
+- **Slop PDF**: the asset check before the first text edit of a document (`pdf/js/editor/font-check.js`). New text is set
+  in an installed family (or the answer given), never in the document's own subset. The offline single-file build keeps
+  the standard fonts only, because its shared font scripts are stripped.
 - **PhotoSlop**: type layer font (`js/type/props.js`).
 - **SlopVector**: control bar, Character panel and the Type menu (`js/ui/binds.js` `fontSel`, `js/ui/menus.js`).
 - **SlopLabel**: text Family and barcode text font (`js/ui/props-types.js` `familySelect`). Library families render
@@ -79,4 +104,5 @@ With no packs listed, the picker button reads "Get more (no packs listed)" and t
 
 ```
 node tests/run.mjs font-library        # Node tests and the browser test page
+node tests/run.mjs pdf.test            # includes the PDF edit-text font tests (tests/pdf/pdf.spec-edit-fonts.js)
 ```

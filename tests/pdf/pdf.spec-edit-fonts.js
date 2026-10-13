@@ -9,6 +9,7 @@
 
   /** A one-page PDF with "text" set in a subset of Barlow Regular (the way the test document embeds its fonts). */
   async function barlowPdf(text) {
+    if (!PT.SP) await PT.boot();
     const L = PT.win.PDFLib, kit = await PT.win.SlopFontCatalog.fontkit();
     const d = await L.PDFDocument.create();
     d.registerFontkit(kit);
@@ -24,10 +25,17 @@
     await PT.open(bytes, name);
     PT.A.openPage(PT.E.state.pages[0].id);
     await waitFor(() => doc().querySelector('.pv-textlayer span'), { timeout: 8000 });
-    PT.SP.editor.toggleEditText();
-    const el = PT.SP.editor._.slots.get(PT.E.state.pages[0].id).el, z = PT.SP.editor.zoom, r = el.getBoundingClientRect();
+    return editMode(PT.SP.editor._.slots.get(PT.E.state.pages[0].id).el);
+  }
+  /** Edit text on with the select tool (an earlier spec may have left it on), and the first line's point on the page. */
+  function editMode(el) {
+    PT.SP.editor.setTool('select');
+    if (!PT.SP.editor.editText) PT.SP.editor.toggleEditText();
+    const z = PT.SP.editor.zoom, r = el.getBoundingClientRect();
     return { el, x: r.left + 60 * z, y: r.top + (200 - 20 - 6) * z };
   }
+  /** Turns edit text off again (only if it is on). */
+  function editOff() { if (PT.SP.editor.editText) PT.SP.editor.toggleEditText(); }
   const press = (at, id) => at.el.dispatchEvent(new PT.win.PointerEvent('pointerdown', { clientX: at.x, clientY: at.y, button: 0, bubbles: true, cancelable: true, pointerId: id, pointerType: 'mouse', isPrimary: true }));
   const enter = (input) => input.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
   const clickText = (sel, text) => [...doc().querySelectorAll(sel)].find((b) => b.textContent.trim() === text).click();
@@ -39,9 +47,12 @@
     const item = (await pg.getTextContent()).items.find((i) => i.str === text);
     return item ? pg.commonObjs.get(item.fontName).name : null;
   }
+  /** The font store of the app, once its library scripts are on the page. */
+  async function store() { if (!PT.SP) await PT.boot(); await PT.win.SlopFonts.ready(); return PT.win.SlopLibraryStore; }
   /** Removes the "drop your own file" fonts the test installed, so later tests start with Barlow missing. */
   async function removeUserFonts() {
-    for (const p of await PT.win.SlopLibraryStore.listPacks()) if (p.id.startsWith('user-barlow')) await PT.win.SlopLibraryStore.removePack(p.id);
+    const s = await store();
+    for (const p of await s.listPacks()) if (p.id.startsWith('user-barlow')) await s.removePack(p.id);
   }
 
   describe('Slop PDF edit text: fonts of the document', () => {
@@ -68,7 +79,7 @@
       const name = await savedFontOf('goodbye');
       expect(!!name && !/Barlow/.test(name)).toBe(true, 'saved font ' + name);
       expect(/SourceSans3/.test(name)).toBe(true, 'saved font ' + name);
-      PT.SP.editor.toggleEditText();
+      editOff();
     });
 
     it('Download from the library opens the pack confirmation only; nothing is stored until it is confirmed', async () => {
@@ -77,7 +88,7 @@
       await waitFor(() => doc().querySelector('.sf-ov'), { timeout: 8000 });
       clickText('.sf-row button', 'Download from the library');
       await waitFor(() => doc().querySelector('.slop-lib') && /Download Barlow and Barlow Condensed\?/.test(doc().querySelector('.slop-lib').textContent), { timeout: 8000 });
-      expect((await PT.win.SlopLibraryStore.listPacks()).some((p) => p.id === 'barlow')).toBe(false, 'nothing is stored before the confirmation');
+      expect((await (await store()).listPacks()).some((p) => p.id === 'barlow')).toBe(false, 'nothing is stored before the confirmation');
       clickText('.slop-lib button', 'Cancel');
       doc().querySelector('.slop-lib header button').click();
       expect(doc().querySelector('.slop-lib')).toBe(null);
@@ -85,7 +96,7 @@
       expect(doc().querySelector('.sf-ov')).toBe(null);
       expect(doc().querySelector('.edit-run')).toBe(null);
       expect(PT.E.state.pages[0].annots.length).toBe(0, 'a cancelled edit changes nothing');
-      PT.SP.editor.toggleEditText();
+      editOff();
     });
 
     it('a font file the person drops is stored on the device and used for the new text, with no prompt for it next time', async () => {
@@ -98,10 +109,9 @@
       dt.items.add(new PT.win.File([await PT.fixture('Barlow-Regular.ttf')], 'Barlow-Regular.ttf', { type: 'font/ttf' }));
       input.files = dt.files;
       input.dispatchEvent(new PT.win.Event('change'));
-      await waitFor(() => /Using Barlow from your file/.test(doc().querySelector('.sf-row [role="status"]').textContent), { timeout: 8000 });
-      expect((await PT.win.SlopLibraryStore.listPacks()).some((p) => p.id.startsWith('user-barlow'))).toBe(true, 'the file is stored');
-      doc().querySelectorAll('.sf-row [data-how="closest"]').forEach((b) => b.click());
       await waitFor(() => doc().querySelector('.edit-run'), { timeout: 8000 });
+      expect((await (await store()).listPacks()).some((p) => p.id.startsWith('user-barlow'))).toBe(true, 'the file is stored');
+      expect(doc().querySelector('.sf-ov')).toBe(null, 'the one family is answered by the file');
       expect(/new text in Barlow 400 \(installed\)/.test(doc().querySelector('.edit-info').textContent)).toBe(true, doc().querySelector('.edit-info').textContent);
       const run = doc().querySelector('.edit-run');
       run.value = 'goodbye';
@@ -111,17 +121,17 @@
       expect(annot && annot.font).toBe('Barlow');
       const name = await savedFontOf('goodbye');
       expect(!!name && /Barlow-Regular/.test(name)).toBe(true, 'saved font ' + name);
-      PT.SP.editor.toggleEditText();
+      editOff();
       await removeUserFonts();
     });
 
     it('a double press on a run opens one editor, and a standard font needs no prompt', async () => {
+      if (!PT.SP) await PT.boot();
+      PT.reset();
       await PT.open(await PT.makePdf([{ text: 'hello world', w: 300, h: 200 }]), 'double.pdf');
       PT.A.openPage(PT.E.state.pages[0].id);
       await waitFor(() => doc().querySelector('.pv-textlayer span'), { timeout: 8000 });
-      PT.SP.editor.toggleEditText();
-      const el = PT.SP.editor._.slots.get(PT.E.state.pages[0].id).el, z = PT.SP.editor.zoom, r = el.getBoundingClientRect();
-      const at = { el, x: r.left + 60 * z, y: r.top + (200 - 20 - 6) * z };
+      const at = editMode(PT.SP.editor._.slots.get(PT.E.state.pages[0].id).el);
       press(at, 14); press(at, 15);
       await waitFor(() => doc().querySelector('.edit-run'), { timeout: 8000 });
       await sleep(150);
@@ -131,7 +141,7 @@
       doc().querySelector('.edit-run').dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
       await sleep(60);
       expect(doc().querySelector('.edit-run')).toBe(null);
-      PT.SP.editor.toggleEditText();
+      editOff();
     });
   });
 })();
