@@ -261,11 +261,12 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   the top-bar name and a Drive-linked file in step. Storage: the strip's own (`slop.doctabs.pdf.v1`, IndexedDB `slop-doctabs`);
   `session` in IndexedDB is a mirror of the open document without file bytes (the tests and the old readers use it).
   Autosave off stores nothing (`serialize` throws, the strip keeps no content) and deletes the stored tabs.
-- **Drops** (`js/ui/doc-drop.js`, routed from `ui/input.js`): on the strip each file opens in a new tab; a PDF already
+- **Drops** (`js/ui/drop.js`, SlopDrop with the empty page's zone `#pdfDrop`; the targets are the stage and the tab strip,
+  so the outlines and "Drop to add N files" label show over them, not the whole window): on the strip each file opens in a new tab; a PDF already
   open in a tab asks first. On the document (or anywhere else while one is open) the pages are added at a position the
   person picks (start, end or after page N) as one `addFiles` commit (one undo step); a PDF already in the document asks
   first. With no document open a drop just opens the files. While a file opens or a tab loads, the strip and its keys are
-  locked (`html.is-locked`) so the pages cannot land in another tab. `A.dropHint` changes the overlay text.
+  locked (`html.is-locked`) so the pages cannot land in another tab.
 - **Convert** (`shared/convert/dialog.js`, `targets.js`, `dialog.css`; `window.SlopConvert.open({ file, drive })`): the
   toolbar button and File ▸ Convert… pass the open document (as a PDF, edits included). The targets are the converters of
   `convert/js/core/catalog.js` that take every open file (`targetsFor`); PDF to PNG and PDF to JPG are the one "PDF to
@@ -282,10 +283,10 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   (the new files are not in the precache until it is run).
 
 ## Drop choice, drop routing, layers, sidebar dock
-- **Drops on the open document** (`js/ui/doc-drop.js`): `SlopDropChoice.ask` (shared/drop/choice.js, the PhotoSlop dialog)
+- **Drops on the open document** (`js/ui/drop.js`): `SlopDropChoice.ask` (shared/drop/choice.js, the PhotoSlop dialog)
   offers Add to current (the position dialog, then one undo step) or Create new (each file in a new tab). Cancel adds nothing.
   No document open: the files open as before. A drop on the tab strip still opens new tabs.
-- **Files the app cannot open** (`js/ui/drop-route.js`): PDF, PNG, JPEG, WebP, GIF and BMP open; SVG is offered Convert to PDF
+- **Files the app cannot open** (`js/ui/drop.js`, `notice`): PDF, PNG, JPEG, WebP, GIF and BMP open; SVG is offered Convert to PDF
   (`A.convertFiles`, the Convert dialog with the file, Images to PDF among its targets); every other type is named in a dialog
   and the status line ("Not supported"). CSV, TXT, MD, HTML, JSON, XLSX, DOCX, ODT, ODS and PPTX have no PDF converter.
 - **Layers** (`js/core/layers.js`, `js/editor/layers-ops.js`, `js/tools/layers-panel.js`): each annotation is a layer item; the
