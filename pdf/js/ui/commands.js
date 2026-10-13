@@ -96,6 +96,9 @@
         L.push(cmd('annot.nudge' + d[2] + (s[0] > 1 ? '10' : ''), 'Nudge annotation ' + d[2].toLowerCase() + (s[0] > 1 ? ' (10 pt)' : ''), 'Annotation', [s[1] + 'Arrow' + d[2]], function () { Ed.nudgeSelected(d[0] * s[0], d[1] * s[0]); }, function () { return pg() && idle() && !!Ed.getSelected(); }, { repeat: true, hidden: true }));
       });
     });
+    if (!SP.offline && window.SlopAITools) L.push(
+      cmd('tools.ocrPage', 'Recognise text on this page', 'Tools', [], function () { A.recognisePage(); }, has, { keywords: ['ocr', 'scan', 'read text'] }),
+      cmd('tools.ocrAll', 'Recognise text on all pages', 'Tools', [], function () { A.recogniseAll(); }, has, { keywords: ['ocr', 'scan', 'read text'] }));
     S.RAIL.forEach(function (r) { L.push(cmd('panel.' + r[0], r[1], 'Panels', [], function () { A.setTool(r[0]); }, null, { icon: U.icon(r[2]), keywords: ['tool', 'panel'] })); });
     return L;
   }

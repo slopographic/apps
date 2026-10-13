@@ -47,6 +47,8 @@
       { label: 'Download PDF', key: A.key('file.download'), act: A.download, disabled: !has },
       { label: 'Download selected pages', act: A.extract, disabled: !O.sel.size },
       { label: 'Extract text…', act: A.extractText, disabled: !has },
+      !SP.offline && window.SlopAITools ? { label: 'Recognise text on this page', act: function () { A.recognisePage(); }, disabled: !has } : null,
+      !SP.offline && window.SlopAITools ? { label: 'Recognise text on all pages', act: function () { A.recogniseAll(); }, disabled: !has } : null,
       { label: 'Extract assets…', act: A.extractAssets, disabled: !has },
       { label: 'Pages to images…', act: function () { A.setTool('convert'); }, disabled: !has },
       window.SlopConvert && !SP.offline ? { label: 'Export as', sub: A.exportItems(), disabled: !has } : null,
