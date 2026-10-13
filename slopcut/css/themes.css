@@ -31,7 +31,14 @@
 :root[data-slop-theme="classic"] .mtab.on { background: var(--input); color: var(--accent); box-shadow: var(--bevel-in); }
 
 /* ---------------------------------------------------------------- responsive */
-@media (max-width: 1280px) { :root { --bin-w: 260px; --insp-w: 280px; } .local-badge span { display: none; } .local-badge { padding: 0 6px; } }
+@media (max-width: 1280px) { :root { --bin-w: 260px; --insp-w: 280px; } .local-badge span { display: none; } .local-badge { padding: 0 6px; }
+  /* The view-mode bar (218 px of fixed-width labels) does not fit the top bar here: glyphs, as on phones. Scoped to
+     .topbar because viewmode.css is appended at run time and would otherwise win on source order. */
+  .topbar .slopvm-btn .slopvm-txt { display: none; }
+  .topbar .slopvm-btn { width: 34px; padding: 2px 6px; }
+  .topbar .slopvm-btn::before { content: '\25E7'; }
+  .topbar .slopvm-reveal { width: 28px; padding: 2px 6px; font-size: 0; }
+  .topbar .slopvm-reveal::before { content: '\25C9'; font-size: 12px; } }
 @media (max-width: 1020px) { :root { --bin-w: 220px; --insp-w: 250px; } .fname input { width: 130px; } .menu-b { padding: 0 6px; } }
 @media (max-width: 860px) and (min-width: 761px) { .menus { display: none; } #btnMore { display: inline-flex; } }
 
@@ -50,6 +57,10 @@
   #btnExport { padding: 0 10px; }
   .topbar { gap: 4px; padding: 0 6px; }
   .appname { margin: 0 2px; }
+  /* The top bar must fit 390 px: the name goes (the logo links home) and so does the Show-panels control; the mode
+     button stays, and it returns to Full. */
+  .topbar .appname { display: none; }
+  .topbar .slopvm-reveal { display: none; }
   .mtabs { grid-area: tabs; display: flex; background: var(--panel); border-top: 1px solid var(--line); padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); }
   .mtab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 0; border-radius: 10px; background: none; color: var(--dim); font-size: 10.5px; font-weight: 600; }
   .mtab .ic { width: 20px; height: 20px; }
