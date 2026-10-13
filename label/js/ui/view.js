@@ -12,11 +12,11 @@ function readViewColors() {
 function initView() {
   V.cv = $('cv'); V.g = V.cv.getContext('2d');
   readViewColors();
-  new ResizeObserver(() => { resizeView(); }).observe($('stage'));
+  new ResizeObserver(() => { resizeView(); }).observe($('stageView'));
   resizeView();
 }
 function resizeView() {
-  const st = $('stage'), r = st.getBoundingClientRect();
+  const st = $('stageView'), r = st.getBoundingClientRect(); // the canvas area, above the drop strip
   V.dpr = Math.min(3, window.devicePixelRatio || 1);
   V.w = Math.max(1, Math.round(r.width)); V.h = Math.max(1, Math.round(r.height));
   V.cv.width = Math.round(V.w * V.dpr); V.cv.height = Math.round(V.h * V.dpr);
