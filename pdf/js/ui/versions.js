@@ -8,7 +8,7 @@
 
   /** The File ▸ Versions submenu. Every item needs the open document to be linked to Slop Drive. */
   A.versionItems = function () {
-    var linked = !!A.driveId && D.linked(), has = E.state.pages.length > 0;
+    var has = E.state.pages.length > 0, linked = !!A.driveId && D.linked() && has; // an empty tab has no document in Drive
     return [
       { label: 'Open the original', act: function () { A.openVersion('original'); }, disabled: !linked },
       { label: 'Open the edited copy', act: function () { A.openVersion('edited'); }, disabled: !linked },

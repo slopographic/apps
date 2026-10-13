@@ -174,13 +174,16 @@
   }
   const CSS = '.slopvm-off{display:none!important}' +
     '.slopvm-peek{outline:1px dashed var(--sl-accent,#888);outline-offset:-1px}' +
-    '.slopvm-btn{font:inherit;font-size:12px;line-height:1.2;padding:2px 8px;margin-left:6px;border:1px solid var(--sl-border,#8886);' +
-    'border-radius:4px;background:transparent;color:var(--sl-text,inherit);cursor:pointer;white-space:nowrap}' +
+    // Out of the page flow (position: fixed), so the button never adds a line or width to the app's top bar. It keeps its
+    // host's place in the DOM, so it hides with the top bar in Focus and Content.
+    '.slopvm-btn{position:fixed;top:10px;right:10px;z-index:9000;margin:0;font:inherit;font-size:12px;line-height:1.2;padding:2px 8px;' +
+    'border:1px solid var(--sl-border,#8886);border-radius:4px;background:var(--sl-surface,transparent);color:var(--sl-text,inherit);' +
+    'cursor:pointer;white-space:nowrap}' +
     '.slopvm-btn:focus-visible{outline:2px solid var(--sl-accent,#06c);outline-offset:2px}' +
     // Narrow screens: the button leaves the top bar and floats in the corner (position: fixed), so it takes no width
     // from the page and stays reachable when a toolbar is hidden.
-    '@media (max-width:760px){.slopvm-btn{position:fixed;right:10px;bottom:10px;z-index:9000;margin:0;padding:6px 10px;' +
-    'border-radius:16px;background:var(--sl-surface,#1b1b1f);box-shadow:0 2px 8px #0005}.slopvm-btn .slopvm-txt{display:none}}';
+    '@media (max-width:760px){.slopvm-btn{top:auto;bottom:10px;padding:6px 10px;border-radius:16px;box-shadow:0 2px 8px #0005}' +
+    '.slopvm-btn .slopvm-txt{display:none}}';
 
   win.SlopViewMode = {
     register, mode: () => mode, set: setMode, cycle, saveLayout,

@@ -7,7 +7,8 @@
   const { describe, it, expect, waitFor } = SlopTest;
   const doc = () => PT.win.document;
   const rowOf = (family) => doc().querySelector(`.sf-row[data-family="${family}"]`);
-  const closePanel = () => { const b = doc().querySelector('.sf-box button.pri'); if (b) b.click(); };
+  // the footer's Close (a missing family's "Download from the library" is a primary button too, and comes first)
+  const closePanel = () => { const b = Array.from(doc().querySelectorAll('.sf-box .sf-foot button.pri')).find((x) => x.textContent === 'Close'); if (b) b.click(); };
   async function openDoc(bytes, name) {
     if (!PT.SP) await PT.boot();
     PT.reset();

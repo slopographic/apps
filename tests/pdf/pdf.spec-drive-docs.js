@@ -89,7 +89,7 @@
       const before = (await H().list({ trashed: 'any' })).length;
       await PT.A.openVersion('edited');
       expect(PT.A.driveId).toBe(id);
-      expect(PT.E.state.pages[0].rot).toBe(90);
+      expect(PT.E.rotation(PT.E.state.pages[0])).toBe(90); // the copy is rotated in its own file: the page turn stays 0
       expect((await H().list({ trashed: 'any' })).length).toBe(before);
     });
 

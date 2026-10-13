@@ -13,6 +13,9 @@
   /** The facts of a PostScript font name from the catalogue: { family, weight, italic, subset, name, std }. */
   S.fontFacts = function (ps) {
     var d = window.SlopFontCatalog.parseName(ps);
+    // A subset is marked by its ABCDEF+ prefix. The catalogue also takes a -NNN suffix as a subset mark, but pdf-lib adds
+    // that suffix to fonts embedded in full too (Barlow-Regular-9742), so only the prefix counts here.
+    d.subset = /^[A-Z]{6}\+/.test(String(ps || ''));
     d.std = S.stdFamilyOf(d.family);
     return d;
   };
@@ -26,6 +29,9 @@
     var seen = new Map();
     for (var i = 1; i <= f.doc.numPages; i++) {
       var pg = await f.doc.getPage(i), tc = await pg.getTextContent();
+      // pdf.js loads a page's fonts into commonObjs only while it parses the page's operators: without this the
+      // fonts are not there yet on a first look, and a document would be taken for one that embeds no fonts
+      await pg.getOperatorList();
       tc.items.forEach(function (it) {
         if (typeof it.str !== 'string' || !it.str.trim()) return;
         var ps = S.embeddedName(pg, it.fontName);

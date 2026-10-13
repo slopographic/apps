@@ -41,7 +41,11 @@
   C.replayOn = function (f, changes) {
     var rec = (changes.log || []).find(function (r) { return r.fp && r.fp === f.fp; });
     if (!rec || !rec.entries || !rec.entries.length) return 0;
-    SP.editLog.replay(rec);
+    // The log names its pages by the file's stable id ('f' + fingerprint). Another open tab holds that id, so this copy
+    // gets a random one (pdfjs.js registerPdf); its pages are then named by that id instead.
+    var stable = 'f' + f.fp.slice(0, 16);
+    var entries = f.id === stable ? rec.entries : JSON.parse(JSON.stringify(rec.entries).replace(new RegExp('"' + stable + '(?=[."])', 'g'), '"' + f.id));
+    SP.editLog.replay(Object.assign({}, rec, { entries: entries }));
     E.emit('change', { label: 'Replay saved changes' });
     return rec.entries.length;
   };

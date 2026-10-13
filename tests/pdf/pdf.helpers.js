@@ -29,7 +29,9 @@
     const L = PT.win.PDFLib, kit = await PT.win.SlopFontCatalog.fontkit();
     const d = await L.PDFDocument.create();
     d.registerFontkit(kit);
-    const font = await d.embedFont(await PT.fixture('Barlow-Regular.ttf'), { subset });
+    // a subset carries the PDF subset tag (ABCDEF+) as real writers add it; pdf-lib adds only a random -NNNN suffix,
+    // which it adds to fonts embedded in full as well
+    const font = await d.embedFont(await PT.fixture('Barlow-Regular.ttf'), subset ? { subset: true, customName: 'ABCDEF+Barlow-Regular' } : { subset: false });
     d.addPage(PT.win.Array.of(300, 200)).drawText(text, { x: 20, y: 20, size: 18, font });
     d.setCreationDate(new PT.win.Date(PT.win.Date.UTC(2021, 0, 1) + (++PT._nonce) * 1000));
     return d.save();
