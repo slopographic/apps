@@ -1,8 +1,9 @@
-/* Text layout for the PDF to Word and PDF to Excel converters. A page's text items (pdf.js getTextContent) become lines
+/* Text layout for the PDF to Word and PDF to Excel converters. A page's text items (one per show operation, pdf-text-items.js;
+ * getTextContent as a fallback) become lines
  * (same baseline), each line becomes cells (a gap wider than a fifth of the text height starts a new cell), and runs of
  * lines with the same cell starts become tables. Text only: a page with no text layer (a scan) has no lines.
  * gridOf(lines) → [[string]] one row per line, one column per cell start of the page.
- * readPages(bytes, spec) → [{ pageNo, w, h, lines: [{ y, cells: [{ x, text }] }] }]   browser only (pdf.js via convert/)
+ * readPages(bytes, spec, { textContent }) → [{ pageNo, w, h, lines: [{ y, cells: [{ x, text }] }] }]   browser only (pdf.js via convert/)
  * blocksOf(lines) → [{ type: 'para', text } | { type: 'table', rows: [[string]] }] in reading order. Classic ES module. */
 import { openPdf, pdfjs } from '../../convert/js/core/pdf-raster.js';
 import { parseRange } from '../../convert/js/core/range.js';
