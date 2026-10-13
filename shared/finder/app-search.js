@@ -51,6 +51,7 @@
     '3d': { desc: 'Build simple 3D models and scenes with primitives, materials and lights, and render PNG images.', keywords: ['3d', '3d editor', 'model', 'blender', 'render', 'scene', 'obj', 'gltf'] },
     music: { desc: 'Play the audio in your Slop Drive, with playlists, waveform seek, shuffle and repeat.', keywords: ['music', 'audio', 'player', 'mp3', 'playlist', 'songs', 'listen', 'itunes'] },
     authenticator: { desc: 'Paste any text and find out whether it reads as genuine slop or a cheap human counterfeit.', keywords: ['authenticator', 'ai detector', 'detector', 'certificate', 'slop', 'text check', 'fun', 'verify'] },
+    watermark: { desc: 'Watermark many pictures at once with your logo or text, then download them all as a ZIP. Nothing uploaded.', keywords: ['watermark', 'logo', 'bulk', 'batch', 'stamp', 'copyright', 'images', 'zip'] },
     'paint-classic': { desc: 'The 1998 experience: every MS Paint tool, in a window that feels like it.', keywords: ['paint', 'ms paint', 'classic', 'retro', '1998', 'drawing', 'pixels', 'nostalgia'] },
   });
 })();
