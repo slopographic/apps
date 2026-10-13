@@ -1,3 +1,4 @@
+@import url("dialog.css");
 /* Slop AI Tools: shared styles for the hub and the tool pages. Colours are tokens on :root, with dark mode. */
 /* The colours come from the shared theme (--sl-* on data-slop-theme, set by shared/theme/theme.js), so AI Tools
  * follows the same theme switcher as every other app. The fallbacks are the light theme for a page without the script. */
@@ -15,26 +16,16 @@ a { color: var(--focus); } :focus-visible { outline: 2px solid var(--focus); out
 .ai-row, .ai-act { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 .ai-model { display: flex; gap: 12px; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; }
 .ai-models-list { display: grid; gap: 0; }
-.ai-pill { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
-.ai-ready { color: var(--ok); } .ai-needs-download { color: var(--warn); } .ai-unsupported { color: var(--bad); }
 button, .ai-btn { font: inherit; display: inline-block; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; text-decoration: none; }
 button:disabled { opacity: .5; cursor: default; }
 button.ai-pri, a.ai-pri { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .ai-card .ai-btn { margin-top: 8px; }
-.ai-ov { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
-.ai-dlg { background: var(--card); color: var(--fg); border-radius: 12px; width: min(560px, 100%); max-height: 84vh; display: flex; flex-direction: column; border: 1px solid var(--line); }
-.ai-dlg header, .ai-dlg footer { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 12px 16px; }
-.ai-dlg h2 { margin: 0; font-size: 17px; } .ai-body { padding: 0 16px 8px; overflow: auto; }
-.ai-body p { margin: 8px 0; }
-.ai-err { color: var(--bad); min-height: 1em; }
-.ai-field { display: grid; gap: 4px; margin: 10px 0; } .ai-field label { color: var(--muted); font-size: 13px; }
 select, input[type="range"] { font: inherit; max-width: 100%; }
 .ai-tool { max-width: 880px; margin: 0 auto; padding: 16px 16px 48px; }
 .ai-tool .ai-bar { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 12px; }
 .ai-drop { border: 2px dashed var(--line); border-radius: 12px; padding: 24px 16px; text-align: center; color: var(--muted); }
 .ai-grid2 { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
 @media (max-width: 640px) { .ai-grid2 { grid-template-columns: 1fr; } h1 { font-size: 22px; } }
-.ai-progress { width: 100%; height: 8px; accent-color: var(--accent); }
 .ai-out { width: 100%; min-height: 160px; font: 14px/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
 .ai-img { max-width: 100%; height: auto; border-radius: 8px; display: block; }
 .ai-stack { display: grid; gap: 12px; }
