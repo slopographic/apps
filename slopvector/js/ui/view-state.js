@@ -25,6 +25,7 @@
         if (typeof v.tool === 'string' && SV.TOOL_LIST.some(function (t) { return t.id === v.tool; })) SV.setTool(v.tool);
       }
       ready = true;
+      SV.viewRestored = true; // the URL route (js/ui/route.js) waits for this, so a link's tool wins over the saved one
     });
   };
 })();

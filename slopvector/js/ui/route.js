@@ -11,7 +11,7 @@
   function init() {
     const tools = window.SV && SV.TOOL_LIST ? SV.TOOL_LIST.map((t) => t.id) : [];
     const R = SlopRoute.register('vector', {
-      ready: () => document.getElementById('app').classList.contains('ready'),
+      ready: () => document.getElementById('app').classList.contains('ready') && !!(window.SV && SV.viewRestored),
       params: {
         tool: { values: tools, def: '' },
         panel: { values: PANELS, def: '' },

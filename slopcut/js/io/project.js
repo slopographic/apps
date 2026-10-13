@@ -34,7 +34,7 @@
     SE.media.clear();
     SE.setDoc(doc);
     // Titles that use a font the app does not have: asked about once per opened project (the Fonts panel stays available).
-    if (window.SlopFonts) SlopFonts.askOnce({}, [...new Set(doc.clips.filter((c) => c.kind === 'title').map((c) => c.text.font))], { standard: M.FONTS }).catch(() => {});
+    if (window.SlopFonts) { const names = [...new Set(doc.clips.filter((c) => c.kind === 'title').map((c) => c.text.font))]; SlopFonts.ready().then(() => SlopFonts.askOnce({}, names, { standard: M.FONTS })).catch(() => {}); }
     await SE.media.restore(doc.media, blobs);
     SE.app.select([]);
     SE.emit('change', { label: 'Open project', history: true });
