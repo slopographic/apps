@@ -128,42 +128,50 @@ function windowMenuItems() {
   ];
 }
 
-/* ---------- drag & drop: open as tabs, or place as layers ---------- */
-function dropZoneOf(e) { const z = e.target && e.target.closest && e.target.closest('.dz'); return z ? z.dataset.zone : 'open'; }
-let hotZone = 'open'; // the zone under the pointer at the last dragover (the drop reads it: the zone class is gone by then)
+/* ---------- drag & drop: open as tabs, or place as layers ----------
+   Files: SlopDrop (shared/drop) takes a drop anywhere on the document area (the tabs and the viewport, as a whole). The
+   zones (SlopDropChoice) show while a file is over it, and the zone a drop lands on decides "place" (layers) or "open"
+   (tabs). That is read from the drop's own event, so a later Choose files pick never inherits an earlier hover. The strip
+   at the foot of the viewport shows progress and the Choose files button, and is not a drop target. */
+const DROP_LABELS = {
+  new: 'Open as new tabs', current: 'Place as layers',
+  newHint: 'PSD, PNG, JPEG, WebP, GIF, SVG, TIFF, BMP, AVIF, ORA, KRA…',
+  currentHint: () => 'into ' + (D.name || 'this document'),
+};
+let fileZones = null; // SlopDropChoice.zones on the document area (made in bindFileDrop)
+const placeFile = new WeakMap(); // File -> true when its drop landed on "Place as layers"
+const hasDragType = (e, names) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).some((t) => names.includes(t));
 function onDragOver(e) {
+  // An image dragged from another web page arrives as a URL: that drag must be allowed to drop anywhere on the page.
   if (dragTab) return;
-  const types = e.dataTransfer ? [...e.dataTransfer.types] : [];
-  if (!types.includes('Files') && !types.includes('text/uri-list')) return;
-  e.preventDefault();
-  document.body.classList.add('dropping');
-  const place = $('.dz-place .dz-doc'); if (place) place.textContent = D.name || 'this document';
-  hotZone = dropZoneOf(e);
-  $$('.dz').forEach((z) => z.classList.toggle('hot', z.dataset.zone === hotZone));
+  if (hasDragType(e, ['text/uri-list'])) e.preventDefault();
 }
-/* Files: SlopDrop (shared/drop) takes them anywhere on the page, a strip at the foot of the viewport shows progress. */
 function bindFileDrop() {
-  const strip = $('#psDrop');
-  window.SlopDrop.attach(strip, {
+  const area = $('.docarea');
+  fileZones = window.SlopDropChoice.zones(area, { labels: DROP_LABELS, accept: (e) => hasDragType(e, ['Files', 'text/uri-list']) });
+  window.SlopDrop.attach($('#psDrop'), {
     accept: { types: ['image/*'], exts: ['.psd', '.psb', '.ora', '.kra', '.tif', '.tiff', '.svg', '.avif', '.bmp', '.gif'], noun: 'a picture or a document' },
     compact: true, overlay: false,
-    targets: [document.body],
+    targets: [area],
+    files: (dt, e) => {
+      const list = Array.from(dt.files || []), place = fileZones.at(e) === 'current';
+      for (const f of list) placeFile.set(f, place);
+      return list;
+    },
     process: async (file) => {
-      const failed = await handleFiles([file], hotZone === 'place');
+      const failed = await handleFiles([file], placeFile.get(file) === true);
       if (failed.length) throw new Error(failed[0]);
       return file.name;
     },
   });
-  strip.addEventListener('pointerdown', (e) => e.stopPropagation());
+  $('#psDrop').addEventListener('pointerdown', (e) => e.stopPropagation());
 }
 async function onDropFiles(e) {
   if (dragTab) return;
   e.preventDefault();
-  document.body.classList.remove('dropping');
-  const place = dropZoneOf(e) === 'place';
-  const files = [...(e.dataTransfer.files || [])];
-  if (files.length) return; // files go through SlopDrop (bindFileDrop)
+  if (e.dataTransfer.files && e.dataTransfer.files.length) return; // files go through SlopDrop (bindFileDrop)
   // An image dragged straight from another web page.
+  const place = fileZones.at(e) === 'current';
   const url = (e.dataTransfer.getData('text/uri-list') || '').split('\n').find((l) => l && !l.startsWith('#'));
   if (!url) return;
   try {

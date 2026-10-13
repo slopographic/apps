@@ -142,13 +142,6 @@ input[type=checkbox] { accent-color: var(--accent); margin: 0; }
 [data-theme="paint"] .doctab { background: var(--panel-2); box-shadow: var(--bevel-out); color: var(--fg); border: 0; }
 [data-theme="paint"] .doctab.active { background: var(--panel-3); box-shadow: var(--bevel-in); }
 [data-theme="paint"] .doctab.active::before { background: var(--accent); }
-.drop-zones { position: absolute; inset: 30px 0 0; display: none; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px; background: color-mix(in srgb, var(--app) 60%, transparent); z-index: 20; }
-body.dropping .drop-zones { display: grid; }
-.dz { border: 2px dashed color-mix(in srgb, var(--fg) 45%, transparent); border-radius: 12px; display: grid; place-content: center; text-align: center; gap: 8px; padding: 16px; color: var(--fg); background: color-mix(in srgb, var(--chrome) 75%, transparent); transition: background .12s, border-color .12s, transform .12s; }
-.dz b { font: 800 22px/1.1 "Archivo", var(--ui); font-stretch: 85%; }
-.dz span { font-size: 12px; opacity: .8; max-width: 260px; }
-.dz em { font-style: normal; color: var(--accent); }
-.dz.hot { border-color: var(--accent); border-style: solid; background: color-mix(in srgb, var(--accent) 16%, transparent); transform: scale(1.01); }
 .type-edit { position: absolute; z-index: 5; margin: 0; padding: 0; border: 1px dashed var(--focus); background: color-mix(in srgb, var(--focus) 6%, transparent); resize: none; overflow: hidden; white-space: pre; outline: none; min-height: 1em; caret-color: currentColor; }
 
 /* ---------- panels ---------- */

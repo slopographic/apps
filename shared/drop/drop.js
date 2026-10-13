@@ -30,7 +30,8 @@
    *     ctx: { at: { x, y } client point of a drop (null from Choose files), index: the file's place among the added ones }.
    *   begin(files)?: before the first file is read. done(summary)?: after the last one, summary = { added: [{ name,
    *     value }], skipped: [{ name, reason }] }. reveal(summary)?: returns the element to scroll into view and flash.
-   *   files?(dataTransfer) → File[] (or a Promise of one): the files of a drop, when the app reads them itself (folders).
+   *   files?(dataTransfer, event) → File[] (or a Promise of one): the files of a drop, when the app reads them itself
+   *     (folders). Called inside the drop event, so the event's own target is still the one the drop landed on.
    *   targets?: elements that take drops (default: the zone). A null in the list (a missing element) is skipped; with none
    *     left, the zone takes the drops. They are outlined while a file drag is over the window.
    *   input?: an existing <input type=file> to use for Choose files (its change event runs the same batch).
@@ -123,7 +124,7 @@
       e.sdHandled = true;
       hide();
       // o.files(dataTransfer) is read now, inside the drop event (folder entries must be), and may resolve later.
-      const list = o.files ? o.files(e.dataTransfer) : Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+      const list = o.files ? o.files(e.dataTransfer, e) : Array.from((e.dataTransfer && e.dataTransfer.files) || []);
       run(list, { x: e.clientX, y: e.clientY });
     };
     const win = root;
