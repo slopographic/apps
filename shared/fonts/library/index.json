@@ -197,7 +197,8 @@
       "source": "https://github.com/google/fonts/tree/main/ofl/merriweather",
       "sourceFile": "https://raw.githubusercontent.com/google/fonts/main/ofl/merriweather/Merriweather%5Bopsz%2Cwdth%2Cwght%5D.ttf",
       "subset": "latin, latin-ext",
-      "category": "serif"
+      "category": "serif",
+      "pdf": "merriweather/merriweather-400-normal.ttf"
     },
     {
       "family": "Merriweather",
@@ -236,7 +237,8 @@
       "source": "https://github.com/google/fonts/tree/main/ofl/sourcesans3",
       "sourceFile": "https://raw.githubusercontent.com/google/fonts/main/ofl/sourcesans3/SourceSans3%5Bwght%5D.ttf",
       "subset": "latin, latin-ext",
-      "category": "sans"
+      "category": "sans",
+      "pdf": "source-sans-3/source-sans-3-400-normal.ttf"
     },
     {
       "family": "Source Sans 3",
@@ -314,7 +316,8 @@
       "source": "https://github.com/google/fonts/tree/main/ofl/spacemono",
       "sourceFile": "https://raw.githubusercontent.com/google/fonts/main/ofl/spacemono/SpaceMono-Regular.ttf",
       "subset": "latin, latin-ext",
-      "category": "mono"
+      "category": "mono",
+      "pdf": "space-mono/space-mono-400-normal.ttf"
     },
     {
       "family": "Space Mono",

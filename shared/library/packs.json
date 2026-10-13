@@ -1,7 +1,92 @@
 {
   "note": "Packs offered by Get more (shared/library/get-more.js): font packs (kind \"font\", the default) and AI model packs (kind \"model\", one .onnx file, used by Slop Upscale). Nothing downloads until a person clicks Download and confirms the licence and size. Each file needs an https URL on one of the hosts below, its exact size in bytes and its lowercase SHA-256. See shared/fonts/HANDOFF.md and upscale/HANDOFF.md.",
-  "hosts": ["raw.githubusercontent.com", "cdn.jsdelivr.net"],
+  "hosts": [
+    "raw.githubusercontent.com",
+    "cdn.jsdelivr.net"
+  ],
   "packs": [
+    {
+      "id": "barlow",
+      "name": "Barlow and Barlow Condensed",
+      "licence": "OFL-1.1",
+      "licenceUrl": "https://openfontlicense.org",
+      "description": "Barlow and Barlow Condensed, static Regular to Bold, from google/fonts (SIL Open Font License 1.1).",
+      "size": 849352,
+      "files": [
+        {
+          "name": "Barlow-Regular.ttf",
+          "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlow/Barlow-Regular.ttf",
+          "size": 104068,
+          "sha256": "95aa02c7c43096e0dd44d787ba6216864a67157e402adab59b35572e0c1577ea",
+          "family": "Barlow",
+          "weight": "400",
+          "style": "normal"
+        },
+        {
+          "name": "Barlow-Medium.ttf",
+          "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlow/Barlow-Medium.ttf",
+          "size": 103536,
+          "sha256": "f8906f762cb73dca441da034bc363b2d8e2e68bc10d5c05e58717646c20cc4b4",
+          "family": "Barlow",
+          "weight": "500",
+          "style": "normal"
+        },
+        {
+          "name": "Barlow-SemiBold.ttf",
+          "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlow/Barlow-SemiBold.ttf",
+          "size": 108348,
+          "sha256": "86577cb32f8abe3673db53ca0f4221e6856751a4f6730c867e00f720f8bb1fc5",
+          "family": "Barlow",
+          "weight": "600",
+          "style": "normal"
+        },
+        {
+          "name": "Barlow-Bold.ttf",
+          "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlow/Barlow-Bold.ttf",
+          "size": 108220,
+          "sha256": "84e6a4d61e7c3e21f3c50ea6a4f7e5303a3467864c038be6ea3759bab8d547f9",
+          "family": "Barlow",
+          "weight": "700",
+          "style": "normal"
+        },
+        {
+          "name": "BarlowCondensed-Regular.ttf",
+          "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowcondensed/BarlowCondensed-Regular.ttf",
+          "size": 102480,
+          "sha256": "583cec5da3b84bc4dc7c9c72e2a565c94d34e431518b19d7e250b7830ad5f996",
+          "family": "Barlow Condensed",
+          "weight": "400",
+          "style": "normal"
+        },
+        {
+          "name": "BarlowCondensed-Medium.ttf",
+          "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowcondensed/BarlowCondensed-Medium.ttf",
+          "size": 103360,
+          "sha256": "262bd143292ce479ee0cd09a42b47ab173fca8e9c6eb5ed0b5c8a845bc371d17",
+          "family": "Barlow Condensed",
+          "weight": "500",
+          "style": "normal"
+        },
+        {
+          "name": "BarlowCondensed-SemiBold.ttf",
+          "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowcondensed/BarlowCondensed-SemiBold.ttf",
+          "size": 109428,
+          "sha256": "7b619d14bc2327509a9ef32b0890f709626f7ecc9ff61191c2a4314c5499d2d9",
+          "family": "Barlow Condensed",
+          "weight": "600",
+          "style": "normal"
+        },
+        {
+          "name": "BarlowCondensed-Bold.ttf",
+          "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowcondensed/BarlowCondensed-Bold.ttf",
+          "size": 109912,
+          "sha256": "e476562ec9c1e16cf16475895b511f08c804f438cc9a9f80a44ea50a0eeb5b65",
+          "family": "Barlow Condensed",
+          "weight": "700",
+          "style": "normal"
+        }
+      ]
+    },
     {
       "id": "realesrgan-x4plus",
       "kind": "model",

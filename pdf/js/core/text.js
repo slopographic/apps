@@ -24,18 +24,20 @@
     });
   };
   E.sanitize = function (text, fontName) {
-    var cs = charsets[fontName] || charsets.Helvetica, out = '';
+    var face = E.face(fontName), cs = face ? face.cs : (charsets[fontName] || charsets.Helvetica), out = '';
     text = String(text == null ? '' : text).replace(/\r\n?/g, '\n').replace(/\t/g, '    ');
     for (var ch of text) { var cp = ch.codePointAt(0); out += (ch === '\n' || !cs || cs.has(cp)) ? ch : (cp === 0x2011 ? '-' : '?'); }
     return out;
   };
   E.measure = function (text, fontName, size) {
+    var face = E.face(fontName);
+    if (face) return E.faceWidth(face, E.sanitize(text, fontName), size);
     var f = mfonts[fontName] || mfonts.Helvetica;
     try { return f.widthOfTextAtSize(E.sanitize(text, fontName), size); } catch (e) { return text.length * size * 0.55; }
   };
-  /** Text layout shared by the on-screen SVG and the pdf-lib export. */
+  /** Text layout shared by the on-screen SVG and the pdf-lib export. Its font is E.fontKey(a) (fonts-custom.js). */
   E.textLayout = function (a) {
-    var fn = E.stdFontName(a), s = a.size || 14, lines = E.sanitize(a.text || '', fn).split('\n');
+    var fn = E.fontKey(a), s = a.size || 14, lines = E.sanitize(a.text || '', fn).split('\n');
     var pad = s * 0.2, lh = s * 1.2, maxW = 0;
     lines.forEach(function (l) { maxW = Math.max(maxW, E.measure(l, fn, s)); });
     return { lines: lines, font: fn, size: s, pad: pad, lh: lh, w: Math.max(maxW, s * 0.5) + pad * 2, h: lines.length * lh + pad * 2, base: function (i) { return pad + i * lh + s * 0.9; } };
