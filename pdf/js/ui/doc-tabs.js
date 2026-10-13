@@ -17,6 +17,11 @@
     set: function (v) { if (shown && api) api.setDriveId(shown, v || null); else driveVal = v || null; },
   });
 
+  /* The Drive file of a given tab (its record), not of the tab on screen: an async result (a Drive answer) goes here. */
+  A.setDriveIdOf = function (doc, id) {
+    if (doc && api) api.setDriveId(doc, id || null); else A.driveId = id || null;
+  };
+
   /* A file that is opening (or a tab that is loading) must not land in another tab: the strip waits meanwhile. */
   function lock(d) { locks = Math.max(0, locks + d); document.documentElement.classList.toggle('is-locked', locks > 0); }
   A.isLocked = function () { return locks > 0; };

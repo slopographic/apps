@@ -41,12 +41,14 @@
    * the first file is its link (A.driveId). Without Drive the work stays on this device, and the person is told so. */
   A.autosaveOpened = async function (sources, linkFirst) {
     if (!SP.driveDocs.enabled()) return;
+    // The link goes to the tab these files were opened into, even if the person has switched tabs by the time Drive answers
+    var owner = SP.tabs && SP.tabs.current ? SP.tabs.current() : null;
     var reused = false;
     for (var k = 0; k < sources.length; k++) {
       var r = null;
       try { r = await SP.driveDocs.keepOriginal(sources[k].bytes, sources[k].name); }
       catch (e) { console.warn('Slop PDF: Slop Drive is not available', e); SlopUI.toast('Slop Drive is not available. This document is kept on this device only.'); return; }
-      if (k === 0 && linkFirst) A.driveId = r.id;
+      if (k === 0 && linkFirst) A.setDriveIdOf(owner, r.id);
       reused = reused || r.reused;
     }
     SlopUI.toast(reused ? 'Already in Slop Drive: linked, no copy made' : 'Saved the original to Slop Drive');
