@@ -213,3 +213,8 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 
 /* The switch above the app sections: shows "Slop" in the app names. */
 .names-switch { display: inline-flex; align-items: center; gap: .5em; margin: 0 0 1.2em; font-size: .92rem; cursor: pointer; }
+
+/* The carousel and the finder are filled in by script after the first paint: reserve their height so the sections below do not jump. */
+.showcase { min-height: 505px; }
+.finder-host { min-height: 211px; }
+@media (max-width: 720px) { .showcase { min-height: 620px; } }

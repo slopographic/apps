@@ -6,6 +6,7 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});
   </script>
+  <script>document.documentElement.dataset.view = location.hash === '#detector' ? 'detector' : 'home';</script>
   <script src="shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="shared/theme/theme.js" data-app="home" data-src="shared/theme/theme.js"></script>
   <script src="shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
@@ -371,7 +372,7 @@
   </header>
 
   <main>
-    <section id="view-home" class="view home" hidden>
+    <section id="view-home" class="view home">
       <section class="finder-top" aria-label="Find an app">
         <div id="app-finder" class="finder-host"></div>
       </section>
