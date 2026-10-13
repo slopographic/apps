@@ -8,9 +8,10 @@ opt-in "Get more" that downloads third-party font packs. Both feed one shared fo
 | Path | Role |
 | --- | --- |
 | `shared/fonts/library/` | Bundled WOFF2 faces, one `LICENSE` per family (SIL OFL 1.1 text), and `index.json` (family, style, weight, file, licence, source URL). About 4.1 MB. |
-| `shared/fonts/picker.js` | `window.SlopFonts`: lists families, loads a family with `FontFace`, and `attach(select)` fills a `<select>` and adds the Get more button. |
-| `shared/fonts/catalog.js` | `window.SlopFontCatalog`: every family the app can use (bundled from `index.json`, plus installed packs and the person's own files), faces by weight and style, PostScript name parsing, the closest bundled family, and `addUserFile` (a font file the person owns). |
-| `shared/fonts/missing.js` | `window.SlopFontCheck.ask(needs, uses)`: the asset prompt for a font that is not installed (download from the library, drop a file, or use the closest font). |
+| `shared/fonts/picker.js` | `window.SlopFonts`: the one reader of `index.json` (`bundledIndex`), loads a family with `FontFace`, `attach(select)` fills a `<select>` and adds the **Get more…** and **Fonts…** buttons, and `el` (the DOM helper the panel uses). |
+| `shared/fonts/catalog.js` | `window.SlopFontCatalog`: every family the app can use (bundled, downloaded, and the person's own files, `source: 'own'`), faces by weight and style, PostScript name parsing, the closest bundled family, and `addUserFile` (a font file the person owns). |
+| `shared/fonts/panel.js` | `SlopFonts.openPanel`, `SlopFonts.check`, `SlopFonts.askOnce`: the Fonts panel and the missing-font check (adds to `window.SlopFonts`; loaded by the picker on first use). |
+| `shared/fonts/missing.js` | `window.SlopFontCheck.ask(needs, uses)`: a thin shim over the panel, kept for the PDF editor's prompt (same buttons, same answers). |
 | `vendor/fontkit/fontkit.min.js` | `@pdf-lib/fontkit` 1.1.1 (MIT), bundled for browsers and loaded on first use by `SlopFontCatalog.fontkit()`. pdf-lib needs this build: fontkit 2.x has a different subset API. |
 | `shared/library/packs.json` | The one config file for packs: the allowed download hosts and the pack list (empty today). |
 | `shared/library/manifest.js` | Pack rules and the SHA-256 and size check (`window.SlopLibraryManifest`, also `module.exports` for Node tests). |
@@ -18,6 +19,9 @@ opt-in "Get more" that downloads third-party font packs. Both feed one shared fo
 | `shared/library/get-more.js` | The Get more dialog (`window.SlopLibrary`). |
 | `tests/node/font-library.test.mjs` | Manifest, hash, licence, and bundled-font checks. |
 | `tests/shared/font-library.test.html` | Browser test: bundled families in the picker, licence shown before any download (network mocked). |
+| `tests/fonts/font-panel.test.html` | Browser test: the panel's rows and statuses, drop a TTF, use the closest font, the picker's Fonts… entry, reopen after Close or Escape. |
+| `tests/fonts/font-check.test.html` | Browser test: `check` (the missing list and packs), Download from the library (nothing until confirmed), `askOnce` once per document, and the `SlopFontCheck.ask` contract. |
+| `tests/fonts/mock.js` | Test helper: `packs.json` from memory with one test pack, counted pack downloads, `FontTest` (a Barlow file from the PDF fixtures, drop and pick, removal of the person's own fonts). |
 
 ## Bundled fonts
 
@@ -31,19 +35,37 @@ Latin and Latin Extended with `fontTools` (`subset.Subsetter`, `flavor = "woff2"
 `index.json` with a `category` (`sans`, `serif` or `mono`), and keep the family names equal to the `BUNDLED` list
 in `picker.js` (the Node test checks this).
 
-## Fonts for every app: the catalogue, the asset prompt, your own files
+## Fonts for every app: one list, the Fonts panel, the missing-font check
 
-One font list: `index.json` (bundled) plus the installed packs in IndexedDB. Nothing else lists families.
+One font list: `index.json` (bundled, read only by `SlopFonts.bundledIndex()`) plus the installed packs and the person's
+own files in IndexedDB. `SlopFontCatalog.families()` is the list; the picker and the panel read it. The picker has no family
+names of its own (a Node test checks this). The one exception is the closest family per category (`CLOSEST` in
+`catalog.js`: Source Sans 3, Merriweather, Space Mono), which must be a bundled family.
 
-- **Missing fonts.** An app that is about to edit text with a font it does not have calls
-  `SlopFontCheck.ask(needs, uses)` with `needs = [{ family, closest, pack }]`. The prompt names each family and offers
-  three answers: **Download from the library** (opens Get more on that pack's confirmation; nothing downloads until the
-  person confirms there, and it needs the pack in `packs.json`), **Drop your own file…** (or drop it on the row), and
-  **Use the closest font instead** (`SlopFontCatalog.closestFamily`: Source Sans 3 for sans, Merriweather for serif,
-  Space Mono for mono). `ask` resolves a `Map` of family to `{ family, how }`, or `null` when the person cancels the edit.
-- **Your own files.** `SlopFontCatalog.addUserFile(file)` reads a TTF, OTF or WOFF with fontkit and stores it in
-  IndexedDB like a pack (`kind: 'font'`, `licence: 'user'`, id `user-<family>-<sha8>`). Once stored it appears in every
-  font picker. WOFF2 is refused for files you add: fontkit cannot subset it, so a PDF could not embed it.
+- **`SlopFonts.openPanel({ fonts, standard, title, note, closeLabel, library, onUse, onAdd, onClose })`** opens the Fonts panel
+  and returns `{ close(notify) }`. `fonts` are the names the document uses (listed first, each with a status: *Built in*,
+  *Bundled*, *Downloaded*, *Your own file*, or *Missing*). `standard` names are built in and never missing. Below them the
+  library lists every family the app can use. Per missing family: **Download from the library** (opens Get more on that
+  pack's confirmation; nothing downloads until confirmed there), **Drop your own font…** (on the row, or the footer; TTF,
+  OTF or WOFF, stored like a pack, `licence: 'user'`), and **Use the closest font instead** (`onUse({ family, use })`).
+  `onAdd({ family, how, row })` fires when a font is installed (`how`: `'library'` or `'file'`; `row` is the missing family
+  it answers). `onClose()` fires when the person dismisses it. The panel reopens at any time, after Close, Escape or a
+  click outside it. One panel is open at a time.
+- **`SlopFonts.check(names, { standard })`** resolves the names that are neither built in nor installed, as
+  `[{ family, closest, pack, category }]` (`pack` is `{ id, name }` or `null`). A name is listed once.
+- **`SlopFonts.askOnce(documentObject, names, opts)`** opens the panel the first time a document object is checked and a
+  family is missing; a second call for the same object does nothing. Pass a fresh `{}` per opened document (not the
+  document that undo replaces). The app's **Fonts…** entry always opens the panel.
+- **Picker entries.** `SlopFonts.attach(select, opts)` returns `{ button, fontsButton, refresh, set }`: **Get more…** and
+  **Fonts…**. `opts.docFonts()` gives the document's names to the panel (default: the select's value). The buttons are
+  inserted after the select when it is in the page; otherwise the app places `button` and `fontsButton` itself.
+- **`SlopFontCheck.ask(needs, uses)`** (`missing.js`) keeps the PDF editor's prompt: a Map of family to `{ family, how }`, or
+  `null` when the edit is cancelled. It is a shim over `openPanel`.
+- **Your own files.** `SlopFontCatalog.addUserFile(file)` reads a TTF, OTF or WOFF with fontkit and stores it in IndexedDB
+  like a pack (`kind: 'font'`, `licence: 'user'`, id `user-<family>-<sha8>`). It then appears in every panel and picker as
+  *Your own file*. WOFF2 is refused for files you add: fontkit cannot subset it, so a PDF could not embed it.
+- **Closest family.** `SlopFontCatalog.closestFamily(name)` by category (`guessCategory`): Source Sans 3 for sans,
+  Merriweather for serif, Space Mono for mono.
 - **Embedding.** A face is embedded in a saved PDF only as TTF, OTF or WOFF. A bundled family therefore names its
   embeddable copy in `index.json` (`"pdf"`): Source Sans 3, Merriweather and Space Mono today (Regular, Latin subsets,
   instanced from the Google Fonts variable files with fontTools). Bundled WOFF2 faces remain the screen copies.
@@ -81,28 +103,31 @@ With no packs listed, the picker button reads "Get more (no packs listed)" and t
 
 ## Where the picker is used
 
-- **Slop PDF**: the asset check before the first text edit of a document (`pdf/js/editor/font-check.js`). New text is set
-  in an installed family (or the answer given), never in the document's own subset. The offline single-file build keeps
-  the standard fonts only, because its shared font scripts are stripped.
-- **PhotoSlop**: type layer font (`js/type/props.js`).
-- **SlopVector**: control bar, Character panel and the Type menu (`js/ui/binds.js` `fontSel`, `js/ui/menus.js`).
-- **SlopLabel**: text Family and barcode text font (`js/ui/props-types.js` `familySelect`). Library families render
-  on screen. PDF and ZPL output use the Sans base-14 faces because the library faces are not embedded there.
-- **Slop Docs and Slop Slides: not wired.** Their layout engines measure and embed TrueType bytes (`.ttf`) and
-  cannot use WOFF2 faces. Wiring them needs TTF copies of the families (about 8 MB more) or a WOFF2 decoder.
-  Decide that before adding them to the picker.
+- **PhotoSlop**: type layer font (`photoslop/js/type/props.js`): Fonts… next to Get more…. The once-per-document check is
+  not wired (its text does not load picker fonts yet).
+- **SlopVector**: control bar and Type menu (`js/ui/binds.js` `fontSel`, `js/ui/menus.js`): Fonts… in both.
+- **SlopCut**: title font (`js/ui/insp-clip.js`): Fonts… next to the select. Opening a project asks once about its title fonts
+  that are missing (`js/io/project.js` `PJ.load`; standard names come from `M.FONTS`).
+- **SlopLabel**: text Family and barcode text font (`js/ui/props-types.js` `familySelect`): Fonts… next to the select. Library
+  families render on screen; PDF and ZPL output use the Sans base-14 faces because the library faces are not embedded there.
+- **Effects**: text layer font (`js/ui/props.js`): Get more… and Fonts… (inserted by `attach`).
+- **Slop Docs, Slop Slides, Slop Press: not wired.** Their layout engines measure and embed TrueType bytes (`.ttf`) and
+  cannot use WOFF2 faces; Press also has its own font list and its own "Load Font File". A Download would give a face these
+  apps cannot embed. Decide the TTF copies (about 8 MB more) or a WOFF2 decoder first, then move Press's list onto the catalogue.
+- **Slop Tables and Slop Notes: no font UI** to wire.
 
 ## Offline builds and the service worker
 
 - The picker tag carries `data-offline="strip"`. The single-file offline build drops it, and each app keeps its
   plain font list there.
-- `tools/pwa-precache.mjs` now lists the picker, the library scripts, `index.json`, `packs.json` and every bundled
-  file. Run `node tools/pwa-precache.mjs` and bump `VERSION` in `service-worker.js` to refresh the precache. This
+- `tools/pwa-precache.mjs` lists the picker, the catalogue, `panel.js`, `missing.js`, the library scripts, `index.json`,
+  `packs.json` and every bundled file. Run `node tools/pwa-precache.mjs` and bump `VERSION` in `service-worker.js` to refresh the precache. This
   handoff does not edit `service-worker.js`.
 
 ## Tests
 
 ```
-node tests/run.mjs font-library        # Node tests and the browser test page
-node tests/run.mjs pdf.test            # includes the PDF edit-text font tests (tests/pdf/pdf.spec-edit-fonts.js)
+node tests/run.mjs font-library        # Node tests and the shared browser test page
+node tests/run.mjs fonts/              # the Fonts panel and the missing-font check (tests/fonts/)
+node tests/run.mjs pdf/pdf.test        # includes the PDF edit-text font tests (tests/pdf/pdf.spec-edit-fonts.js)
 ```
