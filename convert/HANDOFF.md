@@ -1,16 +1,20 @@
-# Slop Convert: handoff
+# File convert: handoff
 
-Slop Convert (`convert/`) converts files in the browser. Nothing is uploaded: every conversion
+File convert (`convert/`) converts files in the browser. Nothing is uploaded: every conversion
 runs on the device. Status is `building` in `shared/apps.js`.
+
+**Scope: files only.** Conversions that are not about files (units, currency, time, number bases) do not belong
+here. They are in the calculator (`calculator/`, the Convert panel). The text converters (Base64, URL encode and
+decode, line endings) stay because they also take uploaded files.
 
 ## Layout
 
-- `index.html`: the hub (generated, see "SEO pages" below). Drop zone, target picker, batch, zip, units.
+- `index.html`: the hub (generated, see "SEO pages" below). Drop zone, target picker, batch, zip.
 - `<slug>/index.html`: one static page per converter, with the same tool embedded.
 - `css/convert.css`: tokens on `:root`, dark by default, light via `prefers-color-scheme` or `data-theme`.
 - `js/core/`: pure converters. `catalog.js` lists them; `pages.js` lists the SEO pages.
-- `js/ui/`: the tool controller (`tool.js`), its markup (`markup.js`), options, batch runner, units widget and `mount.js`.
-- `js/preview/`: the live preview (see below). `mount.js` is its entry point; `controller.js` debounces and runs the actions; `model.js` runs the converter for the preview; `view.js` draws the block; `units.js` is the unit converter's preview; `diff.js` and `spec.js` hold the line diff and the limits.
+- `js/ui/`: the tool controller (`tool.js`), its markup (`markup.js`), options, batch runner and `mount.js`.
+- `js/preview/`: the live preview (see below). `mount.js` is its entry point; `controller.js` debounces and runs the actions; `model.js` runs the converter for the preview; `view.js` draws the block; `diff.js` and `spec.js` hold the line diff and the limits.
 - `js/io/`: file helpers, and `zip.js`, a re-export of `shared/office/zip.js` (ZIP writer and reader, shared with the other apps).
 
 ## Converters and their limits
@@ -34,7 +38,6 @@ runs on the device. Status is `building` in `shared/apps.js`.
 | Base64 encode / decode | any / text | .base64.txt / original bytes | Decode detects PNG, JPG, PDF and other signatures to pick the extension. |
 | URL encode / decode | text | text | Encode everything by default, or keep URL punctuation. A bad % sequence is reported. |
 | Line endings | text | text | LF, CRLF or CR. |
-| Unit converter | numbers | numbers | Length, weight, time, data size, temperature. Exact when the answer terminates; otherwise rounded to 12 places and marked ≈. |
 
 Browser support: anything the browser cannot decode or encode (for example WebP output in some Safari versions) reports a plain error on that file; the rest of the batch still runs.
 
@@ -62,8 +65,7 @@ Every converter page and the hub's converter card has a preview block below the 
 <script type="module" src="../../convert/js/preview/mount.js"></script>
 ```
 
-The unit converter uses `data-convert-preview="units"`. `js/preview/mount.js` loads after `js/ui/mount.js` and
-attaches to the root's `ConvertTool` (`root.convertTool`). The tool emits `cv:change` on its root whenever files,
+`js/preview/mount.js` loads after `js/ui/mount.js` and attaches to the root's `ConvertTool` (`root.convertTool`). The tool emits `cv:change` on its root whenever files,
 typed text, the target or an option changes. The preview debounces that by 150 ms and drops stale results.
 
 - **Before and after panels.** Pictures show the original and the converted picture with file size and pixel size
@@ -80,8 +82,7 @@ typed text, the target or an option changes. The preview debounces that by 150 m
   drawn at 1200 px wide. PDF previews render page 1 only, and `pdf-to-images` and `split-pdf` run page 1 unless a
   page range is typed. Whenever a preview ran only part of the job, Download, Copy and Swap run the full conversion.
 
-**Rule:** when you add a converter with a page, give the page the block and the script above (the hub and the
-units page differ as noted). Keep the block out of the page's text and metadata. `tests/convert/preview.test.html`
+**Rule:** when you add a converter with a page, give the page the block and the script above. Keep the block out of the page's text and metadata. `tests/convert/preview.test.html`
 covers PNG to JPG and JSON to CSV.
 
 **Not done here:** `service-worker.js` has a precache list of convert files. The `js/preview/` files are not in it
@@ -94,7 +95,6 @@ yet, so offline use of the preview needs them added there (that file is owned el
 - `image.test.html`: PNG to JPG (JPEG bytes, same size, background fill, resize), BMP and ICO headers, EXIF orientation, kind detection.
 - `pdf.test.html`: image to PDF page count (`/Type /Page` count) and `%PDF` header, A4/Letter, merge, extract, split, PDF to PNG and JPG.
 - `data.test.html`: CSV to JSON round trip, JSON to CSV, XLSX parts, Base64 round trip, URL, line endings, Markdown, HTML to text.
-- `units.test.html`: exact conversions and the approximate flag.
 - `seo.test.html`: sitemap, robots, each page's h1, canonical, JSON-LD and embedded tool.
 - `ui.test.html`: target picker validity, preset limits, keyboard drop zone, labels, safe file names.
 - `preview.test.html`: the preview shows the PNG to JPG output and follows a new input; the JSON to CSV preview updates as text is typed and shows invalid JSON in place.

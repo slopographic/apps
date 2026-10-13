@@ -1,4 +1,4 @@
-/* Slop Convert dialog (shared/convert/dialog.js). Colours are --sl-* tokens (set on :root by shared/theme) with plain fallbacks. */
+/* File convert dialog (shared/convert/dialog.js). Colours are --sl-* tokens (set on :root by shared/theme) with plain fallbacks. */
 .sl-cvt-back { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, .55); }
 .sl-cvt-dlg {
   width: min(560px, 100%); max-height: min(86vh, 800px); display: flex; flex-direction: column;

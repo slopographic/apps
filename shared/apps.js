@@ -130,7 +130,7 @@
     A('qr', 'app', 'QR SLOP', 'qr/', 'QR codes for links, Wi-Fi, contacts and more. Nothing uploaded.', { title: 'QR code generator', group: 'business', tool: true,
       features: ['Text, links, email, phone, SMS, Wi-Fi, vCard, location and events', 'Colours, error correction and a transparent background', 'Download as SVG or PNG, or copy the text', 'Batch: one code per line'],
       icon: 'grid', status: 'building' }),
-    A('convert', 'app', 'Slop Convert', 'convert/', 'Images, PDFs, data and text, converted on your device.', { title: 'File converter', group: 'business', tool: true,
+    A('convert', 'app', 'File convert', 'convert/', 'Images, PDFs, data and text, converted on your device.', { title: 'File converter', group: 'business', tool: true,
       accepts: ['image/*', 'application/pdf', 'text/csv', 'application/json', 'text/markdown', 'text/plain'],
       features: ['Images to PNG, JPG, WebP, BMP, ICO and PDF', 'PDF to images, merge and split', 'CSV, JSON, XLSX, Markdown and Base64', 'Batch convert, download as zip'],
       icon: 'doc', status: 'building' }),
