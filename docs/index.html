@@ -74,6 +74,7 @@
     try { var t = JSON.parse(localStorage.getItem('slop-docs.theme')); if (t === 'light' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
   </script>
   <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
+  <script src="../shared/fonts/picker.js" data-offline="strip"></script>
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/app.css" data-src="docs/css/app.css">
@@ -115,6 +116,7 @@
         <option value="Code">Code</option>
       </select>
       <select id="selFont" class="sel font-sel" aria-label="Font" title="Font"></select>
+      <button type="button" class="tb" id="tbFonts" aria-label="Fonts" title="Fonts: the fonts this document uses, and your own font file">Fonts…</button>
       <button type="button" class="tb" id="tbSmaller" aria-label="Smaller text" title="Smaller text">A<sup>−</sup></button>
       <input id="selSize" class="size-in" type="number" min="6" max="96" step="1" value="11" aria-label="Font size" title="Font size">
       <button type="button" class="tb" id="tbBigger" aria-label="Larger text" title="Larger text">A<sup>+</sup></button>

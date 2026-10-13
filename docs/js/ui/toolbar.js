@@ -11,6 +11,24 @@
     const names = (E().FAMILIES || []).map((f) => f.name);
     sel.replaceChildren(...names.map((n) => { const o = document.createElement('option'); o.value = n; o.textContent = n; return o; }));
   }
+  /** Fonts…: the shared Fonts panel for the fonts this document uses. Slop Docs embeds only the TrueType families it ships,
+   * so the panel has no library download here; it offers the closest shipped family (and a font file the person owns). */
+  async function openFonts() {
+    const S_ = window.SlopDocs, M = E().M, S2 = E().S;
+    if (!window.SlopFonts || !S_.doc) return;
+    await SlopFonts.ready();
+    const used = new Set();
+    for (const b of M.docBlocks(S_.doc)) if (b.type === 'p') for (const r of b.runs || []) if (!r.obj) used.add(S2.runMarks(S_.doc, b, r).font);
+    // a name the engine ships (a family name or a Word alias such as Calibri, in any case) is built in, not missing
+    const shipped = new Set(E().FAMILIES.flatMap((f) => [f.name, ...f.aliases]).map((s) => s.toLowerCase()));
+    const standard = [...used].filter((n) => shipped.has(String(n).trim().toLowerCase()));
+    SlopFonts.openPanel({
+      fonts: [...used], standard, title: 'Fonts', library: false,
+      note: 'Downloads from the library are off in Slop Docs: its engine embeds only the TrueType families it ships. Use the closest family, or add your own TTF, OTF or WOFF file.',
+      closest: { sans: 'Carlito', serif: 'Tinos', mono: 'Cousine' },
+      onUse: ({ use }) => { S_.A.setFont(use); S_.focusIme(); },
+    });
+  }
   /** Keep focus in the hidden input when a toolbar button is pressed. */
   function keepFocus(root) {
     root.addEventListener('mousedown', (e) => { if (e.target.closest('button')) e.preventDefault(); });
@@ -31,6 +49,7 @@
     for (const b of document.querySelectorAll('[data-align]')) b.addEventListener('click', go(() => A().setAlign(b.dataset.align)));
     $('selStyle').addEventListener('change', (e) => { A().setStyle(e.target.value); S.focusIme(); });
     $('selFont').addEventListener('change', (e) => { A().setFont(e.target.value); S.focusIme(); });
+    $('tbFonts').addEventListener('click', () => openFonts());
     $('selSize').addEventListener('change', (e) => { A().setSize(e.target.value); S.focusIme(); });
     $('selSize').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); A().setSize(e.target.value); S.focusIme(); } });
     $('zoomSel').addEventListener('change', (e) => { S.zoom = Number(e.target.value) || 1; S.R.render(); S.R.reveal(); S.focusIme(); });

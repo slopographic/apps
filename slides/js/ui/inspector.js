@@ -53,6 +53,27 @@
     return field(label, type, function () { var o = A.selObjs()[0]; return o ? get(o) : ''; },
       function (v) { edit(label, function () { A.selObjs().forEach(function (o) { put(o, v); }); }); }, opts);
   }
+  /** Fonts…: the shared Fonts panel for the fonts the deck and the selection use. Slop Slides embeds only the TrueType
+   * families it ships, so the panel has no library download; it offers the closest shipped family. */
+  function openFonts() {
+    if (!window.SlopFonts || !A.deck) return;
+    SlopFonts.ready().then(function () {
+      var th = SS.themes.of(A.deck) || {}, tf = th.fonts || {}, o = A.selObjs()[0];
+      var names = [tf.body, tf.heading, o && o.style && o.style.font].filter(function (n) { return n && n !== 'body' && n !== 'heading'; });
+      SlopFonts.openPanel({
+        fonts: names, standard: F.LIST, title: 'Fonts', library: false,
+        note: 'Downloads from the library are off in Slop Slides: its engine embeds only the TrueType families it ships. Use the closest family, or add your own TTF, OTF or WOFF file.',
+        closest: { sans: 'Inter Tight', serif: 'Instrument Serif', mono: 'JetBrains Mono' },
+        onUse: function (r) {
+          edit('Font', function () {
+            var t = A.deck.theme;
+            if (t && t.fonts) ['body', 'heading'].forEach(function (k) { if (t.fonts[k] === r.family) t.fonts[k] = r.use; });
+            A.selObjs().forEach(function (x) { if (x.style && x.style.font === r.family) x.style = Object.assign({}, x.style, { font: r.use }); });
+          });
+        }
+      });
+    });
+  }
   function fillOf(o) { return o.fill && o.fill.type === 'solid' ? o.fill : null; }
   function textOf(o) { return SS.textEdit.canEdit(o); }
 
@@ -71,7 +92,8 @@
     if (s) kids.push(SS.animPanel.transitionSection(s));
     kids.push(section('Document', [
       field('Footer', 'text', function () { return A.deck.master.footer || ''; }, function (v) { edit('Footer', function () { A.deck.master.footer = v; }); }),
-      field('Slide numbers', 'check', function () { return !!A.deck.master.showNumber; }, function (v) { edit('Slide numbers', function () { A.deck.master.showNumber = v; }); })
+      field('Slide numbers', 'check', function () { return !!A.deck.master.showNumber; }, function (v) { edit('Slide numbers', function () { A.deck.master.showNumber = v; }); }),
+      D.el('button', { type: 'button', onclick: openFonts }, 'Fonts…')
     ]));
     kids.push(SS.animPanel.presentSection());
     if (o) {

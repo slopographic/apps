@@ -12,12 +12,27 @@
       h('p', { class: 'sui-p' }, 'Nothing is uploaded. Work is autosaved in this browser; save .slpress files to keep them. Fonts: the bundled Liberation Sans (embedded in PDFs), your system fonts, and any .ttf/.otf you load.'),
       h('p', { class: 'sui-p' }, 'Press ', h('b', null, A.keyFor('help.search') || 'Ctrl+K'), ' to search every command.')), buttons: [{ label: 'OK', primary: true }] });
   };
-  UI.loadFont = function () {
-    SU().pickFiles({ accept: '.ttf,.otf,font/ttf,font/otf', multiple: true }).then(function (fs) {
-      return fs.reduce(function (p, f) { return p.then(function () { return PR.fonts.addFile(S.doc, f).then(function (fam) { U.toast('Font loaded: ' + fam); }); }); }, Promise.resolve())
-        .then(function () { if (fs.length) { H.commit('Load font'); PR.emit('fonts'); } });
-    }).catch(function (e) { U.toast('Could not load font: ' + e.message); });
+  /** The shared Fonts panel (shared/fonts/panel.js) for this document: its fonts, your own TTF or OTF (kept in the document,
+   * so PDF export embeds it), and the closest family Press embeds. No library download: Press embeds Liberation Sans and the
+   * font files the document holds, not the library's WOFF2 faces. */
+  UI.openFonts = function (fonts) {
+    if (!window.SlopFonts) return;
+    SlopFonts.ready().then(function () {
+      SlopFonts.openPanel({
+        fonts: fonts || [], standard: PR.fonts.list(), title: 'Fonts', library: false,
+        note: 'Downloads from the library are off in Slop Press: it embeds Liberation Sans and the font files you load into the document. Use the closest family, or add your own TTF or OTF file.',
+        closest: { sans: 'Liberation Sans', serif: 'Liberation Sans', mono: 'Liberation Sans' },
+        addFile: addFontFile,
+        onUse: function (r) { PR.format.char({ font: r.use }, 'Use the closest font'); }
+      });
+    });
   };
+  /** Adds a TTF or OTF file to the document (what the panel's "Your own file" drop and File ▸ Load Font File use). */
+  function addFontFile(file) {
+    if (!/\.(ttf|otf)$/i.test(file.name)) return Promise.reject(new Error('Choose a TTF or OTF file.'));
+    return PR.fonts.addFile(S.doc, file).then(function (fam) { H.commit('Load font'); PR.emit('fonts'); return fam; });
+  }
+  UI.loadFont = function () { UI.openFonts([]); };
   var IPSUM = ['Slop Press sets type the old-fashioned way: every line is measured, broken and justified by the composer, then hyphenated where the measure demands it.',
     'Good typography is invisible. The reader never notices the even colour of a well-set column, only that the reading felt easy and the page looked calm.',
     'Threaded frames carry a story from page to page; when the last frame fills up, a small red plus sign tells you the text is overset.',

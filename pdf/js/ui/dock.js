@@ -27,10 +27,8 @@
     var head = h('button', { type: 'button', class: 'pp-dock-h', 'aria-expanded': s.open ? 'true' : 'false', 'aria-controls': 'dock-' + s.id },
       h('span', { class: 'pp-dock-chev', 'aria-hidden': 'true' }), h('span', { class: 'pp-dock-t' }, s.title), meta);
     head.addEventListener('click', function () {
-      s.open = !s.open;
-      head.setAttribute('aria-expanded', s.open ? 'true' : 'false');
-      body.hidden = !s.open;
-      renderOne(s);
+      D.setOpen(s.id, !s.open);
+      if (D.onToggle) D.onToggle(s.id, s.open);
     });
     var wrap = h('section', { class: 'pp-dock-sec', 'data-dock': s.id }, head, body);
     host.appendChild(wrap);
@@ -54,6 +52,15 @@
     var el = Array.prototype.find.call(body.querySelectorAll('[data-key]'), function (x) { return x.getAttribute('data-key') === key; });
     if (el && !el.disabled) el.focus({ preventScroll: true });
   }
+  /** Opens or closes a section by id (a link's ?panel=). Returns false when there is no such section. */
+  D.setOpen = function (id, on) {
+    var s = sections.filter(function (x) { return x.id === id; })[0];
+    if (!s) return false;
+    s.open = !!on;
+    if (s.el) { s.el.head.setAttribute('aria-expanded', s.open ? 'true' : 'false'); s.el.body.hidden = !s.open; }
+    renderOne(s);
+    return true;
+  };
   /** Re-renders the open sections (called on every change through SP.panels.refresh). */
   D.refresh = function () { sections.forEach(renderOne); };
 })();

@@ -13,6 +13,8 @@
   const doc = root.document, C = () => root.SlopFontCatalog, L = () => root.SlopLibrary;
   let cur = null;     // the open panel's handle
   const asked = new WeakSet();
+  /** The family a missing name falls back to: the app's own closest map (opts.closest: { sans, serif, mono }) or the catalogue's. */
+  const closestOf = (n, opts) => (opts && opts.closest && opts.closest[C().guessCategory(n)]) || C().closestFamily(n);
 
   function el(tag, attrs, ...kids) {
     const n = doc.createElement(tag);
@@ -47,14 +49,17 @@
       if (!n || seen.has(n) || standard.has(n)) continue;
       seen.add(n);
       if (await C().hasFamily(n)) continue;
-      out.push({ family: n, closest: C().closestFamily(n), pack: await C().packFor(n), category: C().guessCategory(n) });
+      out.push({ family: n, closest: closestOf(n, opts), pack: await C().packFor(n), category: C().guessCategory(n) });
     }
     return out;
   }
 
   /** Opens the Fonts panel. Resolves nothing; returns a handle { close(notify) } (notify false: no onClose).
    * opts: fonts (the names the document uses, listed first), standard (built-in names, never missing), title, note (text or
-   * array), closeLabel, library (show the library list; default true), onUse({ family, use }) when the closest font is
+   * array), closeLabel, library (false hides the library list, Get more and the Download action on each missing row; the
+   * person's own files and the closest font stay), closest ({ sans, serif, mono } families the app embeds; default the
+   * catalogue's), addFile(file) (stores a dropped font in the app and resolves its family name; default the catalogue),
+   * onUse({ family, use }) when the closest font is
    * chosen for a missing family, onAdd({ family, how, row }) when a font is installed: how 'library' or 'file'; row is the
    * missing family it answers (or undefined), onClose() when the person dismisses the panel. */
   function openPanel(opts = {}) {
@@ -92,7 +97,7 @@
       await root.SlopFonts.ready();
       const all = new Map((await C().families()).map((f) => [f.name, f]));
       const rows = [];
-      for (const n of names) rows.push({ n, info: all.get(n), pack: !standard.has(n) && !all.has(n) ? await C().packFor(n) : null });
+      for (const n of names) rows.push({ n, info: all.get(n), pack: opts.library !== false && !standard.has(n) && !all.has(n) ? await C().packFor(n) : null });
       if (closed || g !== gen) return;
       const kids = [];
       for (const t of [].concat(opts.note || [])) kids.push(el('p', { class: 'sf-meta' }, t));
@@ -123,7 +128,7 @@
       if (standard.has(n)) { row.append(el('p', null, n + ' · Built in.')); return row; }
       if (a) { row.append(el('p', null, n + ' · ' + describe(n, a))); return row; }
       if (info) { row.append(el('p', null, n + ' · ' + sourceText(info) + '.')); return row; }
-      const closest = C().closestFamily(n);
+      const closest = closestOf(n, opts);
       const fileIn = el('input', { type: 'file', accept: '.ttf,.otf,.woff,.woff2', hidden: '' });
       fileIn.addEventListener('change', () => { if (fileIn.files[0]) dropFile(n, fileIn.files[0], msg); fileIn.value = ''; });
       const btns = [];
@@ -132,7 +137,8 @@
       btns.push(el('button', { type: 'button', 'data-how': 'closest', on: { click: () => useClosest(n, closest) } }, `Use the closest font instead (${closest})`));
       row.addEventListener('dragover', (e) => e.preventDefault());
       row.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) dropFile(n, e.dataTransfer.files[0], msg); });
-      row.append(el('p', null, `${n} · Missing. It is not installed.`), pack ? null : el('p', { class: 'sf-meta' }, `${n} is not in the font library, so it cannot be downloaded here.`),
+      const why = pack || opts.library === false ? null : el('p', { class: 'sf-meta' }, `${n} is not in the font library, so it cannot be downloaded here.`);
+      row.append(el('p', null, `${n} · Missing. It is not installed.`), why,
         el('div', { class: 'sf-btns' }, ...btns), fileIn, msg);
       return row;
     }
@@ -146,9 +152,9 @@
       if (closed) return;
       if (msg) msg.textContent = 'Checking ' + file.name + '…';
       try {
-        const r = await C().addUserFile(file);
+        const fam = opts.addFile ? await opts.addFile(file) : (await C().addUserFile(file)).family;
         if (closed) return;
-        installed(r.family, 'file', n || undefined);
+        installed(fam, 'file', n || undefined);
         await render();
       } catch (e) { if (msg) msg.textContent = e.message; else if (!closed) body.prepend(el('p', { class: 'sf-meta', role: 'status' }, e.message)); }
     }

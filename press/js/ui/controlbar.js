@@ -17,6 +17,7 @@
     cs.title = 'Character style';
     reg(ps, function () { ps.value = cur().ps; }); reg(cs, function () { cs.value = cur().cs; });
     var fam = K.select(F.list(), cur().char.font, function (v) { FM.char({ font: v }); }, 'wide'); fam.title = 'Font family';
+    var fonts = h('button', { type: 'button', class: 'btn small', title: 'Fonts: this document\'s fonts, and your own font file', onclick: function () { UI.openFonts([cur().char.font]); } }, 'Fonts…');
     var sty = K.select(F.STYLES, cur().char.fontStyle, function (v) { FM.char({ fontStyle: v }); }); sty.title = 'Font style';
     reg(fam, function () { fam.value = cur().char.font; }); reg(sty, function () { sty.value = cur().char.fontStyle || 'Regular'; });
     var size = reg(K.num({ unit: 'pt', cls: 'w48', title: 'Font size (pt)', get: function () { return cur().char.size; }, set: function (v) { FM.char({ size: Math.max(1, v) }); }, min: 1 }));
@@ -30,7 +31,7 @@
     var sb = reg(K.num({ unit: 'pt', cls: 'w48', title: 'Space before', get: function () { return cur().para.spaceBefore || 0; }, set: function (v) { FM.para({ spaceBefore: v }); } }));
     var sa = reg(K.num({ unit: 'pt', cls: 'w48', title: 'Space after', get: function () { return cur().para.spaceAfter || 0; }, set: function (v) { FM.para({ spaceAfter: v }); } }));
     var fi = reg(K.num({ unit: 'doc', cls: 'w48', title: 'First-line indent', get: function () { return cur().para.indentFirst || 0; }, set: function (v) { FM.para({ indentFirst: v }); } }));
-    bar.append(h('span', { class: 'cb-label' }, '¶'), ps, cs, sep(), fam, sty, K.field('Size', size), K.field('Lead', lead), K.field('Track', track), color, sep(), aligns, sep(),
+    bar.append(h('span', { class: 'cb-label' }, '¶'), ps, cs, sep(), fam, fonts, sty, K.field('Size', size), K.field('Lead', lead), K.field('Track', track), color, sep(), aligns, sep(),
       K.field('Before', sb), K.field('After', sa), K.field('Indent', fi));
   }
   function objControls(bar, its) {

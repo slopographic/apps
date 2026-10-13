@@ -71,6 +71,7 @@
     try { var t = localStorage.getItem('slop.press.theme'); t = t && JSON.parse(t); if (t === 'light' || t === 'classic' || t === 'pro') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage blocked */ }
   </script>
   <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
+  <script src="../shared/fonts/picker.js" data-offline="strip"></script>
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/guides/guides.css" data-src="shared/guides/guides.css">
