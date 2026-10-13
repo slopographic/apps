@@ -24,8 +24,9 @@ export function buildTool(root, preset) {
   const results = h('section', { class: 'cv-results', 'aria-labelledby': id('res-h'), hidden: true },
     h('div', { class: 'cv-res-head' }, h('h2', { id: id('res-h') }, 'Converted'), zip), outList);
   const picked = preset ? h('p', { class: 'cv-page-note' }, preset.note || '') : null;
+  // replaceChildren turns null into the text "null", so an absent note is left out.
   root.replaceChildren(
-    picked,
+    ...(picked ? [picked] : []),
     drop, input,
     h('section', { class: 'cv-section', 'aria-label': 'Files' }, list),
     form, status, results);

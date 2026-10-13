@@ -50,9 +50,9 @@
 }</script>
   <!-- seo:end -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>:root{--bg:#fff;--fg:#1b1b1f;--mut:#5f6368;--line:#d9dadf;--acc:#3450c9}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#8fa3ff}}
-:root[data-theme="dark"]{--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#8fa3ff}
+  <style>:root{--bg:#fbfbf7;--fg:#1b1b1f;--mut:#5f6368;--line:#dcdcd2;--acc:#4f6c00;--on:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}}
+:root[data-theme="dark"]{--bg:#0a0a0a;--fg:#f1ede4;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
 .top,.foot{max-width:860px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
 main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
@@ -61,12 +61,21 @@ h2{font-size:1.2rem;margin:2rem 0 .6rem}
 a{color:var(--acc)}
 .eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
 .lead{font-size:1.1rem}
-.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:#fff;text-decoration:none;font-weight:600}
+.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:var(--on);text-decoration:none;font-weight:600}
 .wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:15px}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:0;list-style:none}
-.cards li{border:1px solid var(--line);border-radius:8px;padding:12px}</style>
+.cards li{border:1px solid var(--line);border-radius:10px;padding:12px;overflow:hidden}
+.cards .thumb{display:block;width:100%;height:auto;border-radius:6px;margin:0 0 8px;aspect-ratio:16/10;object-fit:cover;background:var(--line)}
+.media{display:grid;gap:16px;margin:1.4rem 0}
+.shot{margin:0}
+.shot img,.clip{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--line)}
+.demo{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
+.demo img{width:200px;max-width:40%;height:auto;border-radius:8px;flex:0 0 auto}
+.demo span{font-size:15px}
+.demo b{color:var(--acc)}
+@media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}</style>
 </head>
 <body>
 <header class="top"><a href="/">Slopographic</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
@@ -75,7 +84,7 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <h1>Creative Slop Pro: free browser apps for photo, vector and video editing</h1>
 <p class="lead">A free browser alternative to Photoshop-style photo editing, Illustrator-style vector drawing and video editing.</p>
 <p>Three Slopographic apps cover those jobs. They run in a web browser, so no account or install is needed.</p>
-<ul class="cards"><li><a href="/apps/photoslop/">PhotoSlop</a><br><span class="note">Live</span><br>Photoshop, rebuilt for the browser.</li><li><a href="/apps/vector/">SlopVector</a><br><span class="note">Live</span><br>Illustrator, rebuilt for the browser.</li><li><a href="/apps/slopedit/">SlopCut</a><br><span class="note">Beta</span><br>A video editor that never uploads your footage.</li></ul>
+<ul class="cards"><li><img class="thumb" src="/assets/shots/photoslop.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/photoslop/">PhotoSlop</a><br><span class="note">Live</span><br>Photoshop, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/vector.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/vector/">SlopVector</a><br><span class="note">Live</span><br>Illustrator, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/slopedit.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/slopedit/">SlopCut</a><br><span class="note">Beta</span><br>A video editor that never uploads your footage.</li></ul>
 <h2>What these apps are not</h2>
 <ul>
 <li>They are not Adobe products. Slopographic is not affiliated with, endorsed by or sponsored by Adobe. Photoshop, Illustrator and Premiere are trademarks of Adobe Inc.</li>
