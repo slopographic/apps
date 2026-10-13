@@ -15,10 +15,11 @@
     });
   };
 
-  /** Dropped files the app cannot open (SVG, ui/drop.js): the Convert dialog takes them, Images to PDF among its targets. */
+  /** Dropped files that are not PDFs or images (ui/drop.js): the Convert dialog opens with them, its target set to PDF
+   *  (Images to PDF, for images and SVG). The PDF it makes comes back here, to open in a new tab (A.openConverted). */
   A.convertFiles = function (files) {
     if (!window.SlopConvert) { SlopUI.toast('Convert is not in the offline file. Use the online Slop PDF.'); return; }
-    window.SlopConvert.open({ files: files });
+    window.SlopConvert.open({ files: files, target: 'images-to-pdf', onPdf: function (outs, names) { A.openConverted(outs, names); } });
   };
 
   var btn = document.getElementById('btnConvert');

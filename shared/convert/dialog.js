@@ -1,6 +1,8 @@
 /* File convert dialog: converts files on this device with the converters in convert/js, from any Slop app.
- *   const ctl = SlopConvert.open({ file, files, drive })   // file / files: File or Blob with a name; drive: the document is
- *                                                         // linked to a Slop Drive file, so results can be saved there too
+ *   const ctl = SlopConvert.open({ file, files, drive, target, onPdf })
+ *                                // file / files: File or Blob with a name; drive: the document is linked to a Slop Drive file,
+ *                                // so results can be saved there too; target: the target id to preselect; onPdf(outputs, names):
+ *                                // the PDF made from the files is handed to the app, which then gets the dialog closed
  *   ctl.close(); ctl.results() -> [{ name, blob }]; ctl.targets() -> target ids; ctl.done -> resolves when the dialog closes.
  * The targets (targets.js) list only what every open file can become. Each converter's own options are shown; the work is
  * convertAll() from convert/js/ui/run.js. Nothing is uploaded. Self-contained: no SlopUI, its own styles (dialog.css). */
@@ -12,6 +14,7 @@ import { targetsFor } from './targets.js';
 
 const ACCEPT = '.pdf,.png,.jpg,.jpeg,.webp,.bmp,.gif,.svg,.csv,.json,.txt,.md,.html,.htm,application/pdf,image/*,text/*,application/json';
 const UNSUPPORTED = ['bin'];
+const PDF_TARGET = 'images-to-pdf'; // the one conversion that makes a PDF (images and SVG to PDF)
 let uid = 0;
 
 /** A DOM element: attributes (false, null and undefined skipped, true is a bare attribute; on* are listeners), then children. */
@@ -51,7 +54,7 @@ function optionField(t, o, value, set) {
 
 class Dialog {
   constructor(opts) {
-    this.items = []; this.targetId = opts.target || null; this.vals = {}; this.outputs = []; this.errors = [];
+    this.opts = opts; this.items = []; this.targetId = opts.target || null; this.vals = {}; this.outputs = []; this.errors = [];
     this.saved = {}; this.status = ''; this.busy = false; this.progress = 0; this.drive = !!opts.drive;
     this.opener = document.activeElement;
     this.group = 'sl-cvt-target-' + ++uid;
@@ -121,6 +124,13 @@ class Dialog {
     } finally {
       this.busy = false; this.paint();
     }
+    if (this.opts.onPdf && t.id === PDF_TARGET && this.outputs.length && !this.errors.length) this.handOff();
+  }
+  /** The PDF goes to the app that asked (onPdf), and the dialog closes. */
+  handOff() {
+    const names = this.items.map((i) => i.name), outs = this.outputs.map((o) => ({ name: o.name, blob: o.blob }));
+    this.close();
+    this.opts.onPdf(outs, names);
   }
   async saveDrive(i) {
     const o = this.outputs[i], H = window.SlopHub;
@@ -140,7 +150,7 @@ class Dialog {
   paint() {
     const focused = this.dlg.contains(document.activeElement) ? document.activeElement.getAttribute('data-k') : null;
     const t = this.target();
-    const parts = [this.filesSection(), this.targetSection(), t && t.note ? note(t.note, 'sl-cvt-note sl-cvt-hint') : null, t && t.options.length ? this.optionsSection(t) : null, this.runSection(t), this.resultSection()];
+    const parts = [this.filesSection(), this.targetSection(), this.pdfNote(), t && t.note ? note(t.note, 'sl-cvt-note sl-cvt-hint') : null, t && t.options.length ? this.optionsSection(t) : null, this.runSection(t), this.resultSection()];
     this.body.replaceChildren(...parts.filter((x) => x != null));
     if (focused) { const n = [...this.body.querySelectorAll('[data-k]')].find((x) => x.getAttribute('data-k') === focused); if (n && !n.disabled) n.focus(); }
   }
@@ -168,6 +178,13 @@ class Dialog {
           el('span', { text: t.label })))) : note('No conversion takes these files together.'),
       locked.length ? note(`Add more files to unlock ${locked.map((t) => t.label).join(', ')}.`, 'sl-cvt-hint') : null,
       count > 1 && !list.length ? note('Try converting one file at a time.', 'sl-cvt-hint') : null);
+  }
+  /** With onPdf: names the files that cannot become the PDF here (only images and SVG make one). */
+  pdfNote() {
+    if (!this.opts.onPdf) return null;
+    const bad = this.items.filter((i) => !targetsFor([i.kind], 1).some((t) => t.id === PDF_TARGET));
+    if (!bad.length) return null;
+    return note(`${bad.map((i) => '“' + i.name + '”').join(', ')} cannot be converted to PDF here. Only images and SVG files make a PDF.`, 'sl-cvt-note sl-cvt-err');
   }
   optionsSection(t) {
     return el('section', { class: 'sl-cvt-sec' }, el('h3', { text: 'Options' }),

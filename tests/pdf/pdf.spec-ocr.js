@@ -295,7 +295,7 @@
         [...dlg.querySelectorAll('.sui-foot .sui-btn')].find((b) => b.textContent === 'Run on document').click();
         await SlopTest.waitFor(() => runs === 1, { timeout: 3000 });
         expect(runs).toBe(1);
-        expect(PT.win.document.querySelector('.ocr-ask')).toBe(null);
+        await SlopTest.waitFor(() => !PT.win.document.querySelector('.ocr-ask'), { timeout: 3000 }); // removed after its fade
       } finally {
         A.recogniseAll = savedAll;
         if (G) PT.win.SlopAIGetMore = G; else delete PT.win.SlopAIGetMore;

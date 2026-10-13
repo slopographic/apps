@@ -54,7 +54,11 @@
 }
 
 /* ---------------------------------------------------------------- responsive */
-@media (max-width: 1180px) { .local-badge span { display: none; } .local-badge { padding: 0 6px; } :root { --props-w: 280px; } }
+@media (max-width: 1440px) { .local-badge span { display: none; } .local-badge { padding: 0 6px; } }
+/* The top bar's items must fit the window, so the view-mode slot (last in the bar) stays on screen. */
+@media (max-width: 1180px) { :root { --props-w: 280px; } }
+@media (max-width: 1000px) { .tb-group, .local-badge { display: none; } }
+@media (max-width: 1200px) { .menus { display: none; } #btnMore { display: inline-flex; } .btn.dl span { display: none; } .btn.dl { padding: 0 10px; } }
 @media (max-width: 900px) {
   :root { --rail-w: 0px; --status-h: 0px; }
   .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--top-h) minmax(0, 1fr) 62px; grid-template-areas: "top" "work" "rail"; }

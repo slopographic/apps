@@ -1,19 +1,24 @@
-/* SlopViewMode: the look of the mode controls. Loaded by viewmode.js; the layout itself is set by paint() in viewmode.js. */
-.slopvm-bar { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; flex: none; }
+/* SlopViewMode: the look of the mode controls. Loaded by viewmode.js; the layout itself is set by paint() in viewmode.js.
+ * The controls are a fixed slot at the end of the host toolbar: order keeps it last (after any item another script appends,
+ * such as the shell's Apps button or the Drive link), and the fixed widths keep it in the same place in every mode and
+ * when the label changes. The reveal button keeps its space in Full too (visibility, not display), so nothing shifts. */
+.slopvm-bar { display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; height: 26px; margin-left: auto; flex: none; order: 999; }
 .slopvm-btn, .slopvm-reveal {
   font: inherit; font-size: 12px; line-height: 1.2; margin: 0; padding: 2px 8px; white-space: nowrap; cursor: pointer;
   border: 1px solid var(--sl-border, #8886); border-radius: 4px;
   background: var(--sl-surface, transparent); color: var(--sl-text, inherit);
 }
-.slopvm-reveal { display: none; }
-html[data-slopvm="focus"] .slopvm-reveal, html[data-slopvm="content"] .slopvm-reveal { display: inline-block; }
+.slopvm-btn { width: 118px; text-align: center; }
+.slopvm-reveal { width: 96px; text-align: center; visibility: hidden; }
+html[data-slopvm="focus"] .slopvm-reveal, html[data-slopvm="content"] .slopvm-reveal { visibility: visible; }
 .slopvm-btn:focus-visible, .slopvm-reveal:focus-visible { outline: 2px solid var(--sl-accent, #06c); outline-offset: 2px; }
 .slopvm-peek { outline: 1px dashed var(--sl-accent, #888); outline-offset: -1px; }
 /* Narrow screens: the controls are glyphs, so they take little room in the toolbar (the title says what they do). */
 @media (max-width: 760px) {
   .slopvm-btn .slopvm-txt { display: none; }
+  .slopvm-btn { width: 34px; }
   .slopvm-btn::before { content: '\25E7'; }
   .slopvm-btn, .slopvm-reveal { padding: 2px 6px; }
-  .slopvm-reveal { font-size: 0; }
+  .slopvm-reveal { width: 28px; font-size: 0; }
   .slopvm-reveal::before { content: '\25C9'; font-size: 12px; }
 }

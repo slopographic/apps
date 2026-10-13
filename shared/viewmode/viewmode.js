@@ -238,7 +238,7 @@
     reveal.className = 'slopvm-reveal';
     reveal.title = 'Show every hidden panel and toolbar (Ctrl+Shift+L)';
     reveal.addEventListener('click', revealAll);
-    bar.append(b, reveal);
+    bar.append(reveal, b);   // the reveal sits left of the mode button, so the button stays put when it shows
     host.appendChild(bar);
     e.buttons.push(b); e.reveal.push(reveal); e.bar = bar;
   }

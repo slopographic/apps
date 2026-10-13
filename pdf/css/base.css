@@ -56,7 +56,12 @@ button:disabled { cursor: default; opacity: .4; }
 .noscript { padding: 40px; text-align: center; }
 
 /* ---------------------------------------------------------------- layout */
-.app { display: grid; height: 100vh; height: 100dvh; grid-template-columns: var(--rail-w) minmax(0, 1fr) var(--props-w); grid-template-rows: var(--top-h) minmax(0, 1fr) var(--status-h);
+/* The live region for screen readers sits after .app in the body; fixed, it adds no scrollable overflow. */
+body > .sr { position: fixed !important; }
+/* The app is exactly one screen. overflow: clip keeps anything wider or taller (the top bar's right-hand items, a focused
+   control) from making the document scroll: body overflow:hidden still scrolls when a focus or scrollIntoView asks, and that
+   pushed the top bar up or sideways. */
+.app { display: grid; height: 100vh; height: 100dvh; overflow: clip; grid-template-columns: var(--rail-w) minmax(0, 1fr) var(--props-w); grid-template-rows: var(--top-h) minmax(0, 1fr) var(--status-h);
   grid-template-areas: "top top top" "rail work props" "status status status"; }
 .app.no-panel { grid-template-columns: var(--rail-w) minmax(0, 1fr) 0; }
 .app.no-panel .props { display: none; }
@@ -84,7 +89,8 @@ button:disabled { cursor: default; opacity: .4; }
 .tb-sep { width: 1px; height: 22px; background: var(--line-2); margin: 0 4px; flex: none; }
 .local-badge { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent-line); font: 600 11px/1 var(--mono); letter-spacing: .01em; white-space: nowrap; flex: none; }
 .local-badge .ic { width: 14px; height: 14px; }
-.fname input { width: 190px; height: 32px; padding: 0 10px; border-radius: var(--radius-s); border: 1px solid var(--line-2); background: var(--input); color: var(--fg); font: 500 12px var(--mono); }
+.fname { flex: 0 1 190px; min-width: 60px; }
+.fname input { width: 100%; min-width: 0; height: 32px; padding: 0 10px; border-radius: var(--radius-s); border: 1px solid var(--line-2); background: var(--input); color: var(--fg); font: 500 12px var(--mono); }
 .fname input:focus { outline: none; border-color: var(--accent-line); }
 #btnPanel { display: none; }
 #btnMore { display: none; }

@@ -1,5 +1,6 @@
 /* Slop PDF: a drop on the open document asks Add to current or Create new (shared/drop/choice.js, the same dialog as
-   PhotoSlop); a file the app cannot open (XLSX, DOCX, CSV, SVG…) is named and refused, and SVG is offered Convert to PDF. */
+   PhotoSlop); a file that is not a PDF or an image (SVG, XLSX, DOCX, HTML, CSV…) opens in the Convert dialog, and the PDF
+   the dialog makes (SVG, images) opens in a new tab. */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor } = SlopTest;
@@ -79,51 +80,65 @@
     }, { timeout: 60000 });
   });
 
-  describe('files the app cannot open', () => {
-    it('an XLSX (or CSV) drop is named and refused, and nothing is added', async () => {
+  describe('files that are not PDFs or images go to the Convert dialog', () => {
+    const cvtDialog = () => doc().querySelector('.sl-cvt-dlg');
+    const cvtText = () => (cvtDialog() ? cvtDialog().textContent : '');
+    const toastText = () => (doc().querySelector('.sui-toast') || {}).textContent || '';
+    const SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="60"><rect width="120" height="60" fill="#c33"/></svg>';
+
+    it('an XLSX drop opens the converter with the file, which says it cannot become a PDF; nothing is added', async () => {
       if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'base4.pdf');
-      drop([file('budget.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')]);
-      await waitFor(() => suiTitles().includes('File not supported'), { timeout: 15000 });
-      const text = [...doc().querySelectorAll('.sui-dlg')].map((d) => d.textContent).join(' ');
-      expect(text).toContain('budget.xlsx');
-      expect(text).toContain('Not supported, not added');
-      expect(text).toContain('XLSX');
-      expect([...doc().querySelectorAll('.sui-dlg .sui-btn')].map((b) => b.textContent)).toEqual(['OK']);
-      expect(doc().getElementById('statusMsg').textContent).toContain('not supported');
-      clickSui('OK');
-      await waitFor(() => !doc().querySelector('.sui-dlg'));
+      drop([file('budget.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', new PT.win.Uint8Array([80, 75, 3, 4, 0, 0]))]);
+      await waitFor(() => cvtDialog() && cvtText().includes('budget.xlsx'), { timeout: 30000 });
+      expect(cvtText()).toContain('cannot be converted to PDF here');
+      expect(suiTitles()).toEqual([]);
       expect(PT.E.state.pages.length).toBe(1);
-      expect(choiceDialog()).toBe(null);
+      doc().querySelector('.sl-cvt-x').click();
+      await waitFor(() => !cvtDialog());
     }, { timeout: 60000 });
 
-    it('an SVG is offered Convert to PDF, which opens the converter with the file', async () => {
+    it('an HTML drop opens the converter with the file, and a text or CSV drop opens it too', async () => {
       if (!PT.SP) await PT.boot();
       PT.reset();
-      drop([file('logo.svg', 'image/svg+xml', new PT.win.Uint8Array([60, 115, 118, 103, 62]))]);
-      await waitFor(() => suiTitles().includes('Convert to PDF?'), { timeout: 15000 });
-      const text = [...doc().querySelectorAll('.sui-dlg')].map((d) => d.textContent).join(' ');
-      expect(text).toContain('logo.svg');
-      expect(text).toContain('Can be converted to PDF');
-      await waitFor(() => PT.win.SlopConvert, { timeout: 30000 });
-      clickSui('Convert to PDF');
-      await waitFor(() => doc().querySelector('.sl-cvt-dlg'), { timeout: 30000 });
-      await waitFor(() => doc().querySelector('.sl-cvt-dlg').textContent.includes('logo.svg'), { timeout: 15000 });
+      drop([file('page.html', 'text/html', new PT.win.TextEncoder().encode('<p>hi</p>'))]);
+      await waitFor(() => cvtDialog() && cvtText().includes('page.html'), { timeout: 30000 });
+      expect(cvtText()).toContain('cannot be converted to PDF here');
       doc().querySelector('.sl-cvt-x').click();
-      await waitFor(() => !doc().querySelector('.sl-cvt-dlg'));
+      await waitFor(() => !cvtDialog());
+      drop([file('data.csv', 'text/csv', new PT.win.TextEncoder().encode('a,b\n1,2\n'))]);
+      await waitFor(() => cvtDialog() && cvtText().includes('data.csv'), { timeout: 30000 });
+      expect(cvtText()).toContain('CSV');
+      doc().querySelector('.sl-cvt-x').click();
+      await waitFor(() => !cvtDialog());
+      expect(PT.E.state.pages.length).toBe(0);
     }, { timeout: 90000 });
 
-    it('a mixed drop opens the PDF and names the file that was refused', async () => {
+    it('an SVG drop opens the converter set to PDF; converting it opens the PDF in a new tab and closes the converter', async () => {
       if (!PT.SP) await PT.boot();
       PT.reset();
-      drop([file('ok.pdf', 'application/pdf', await PT.makePdf([{ text: 'x' }])), file('notes.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')]);
-      await waitFor(() => PT.E.state.pages.length === 1 && suiTitles().includes('File not supported'), { timeout: 30000 });
-      const text = [...doc().querySelectorAll('.sui-dlg')].map((d) => d.textContent).join(' ');
-      expect(text).toContain('notes.docx');
-      expect(text).not.toContain('ok.pdf');
-      clickSui('OK');
-      await waitFor(() => !doc().querySelector('.sui-dlg'));
+      await PT.open(await PT.makePdf([{ text: 'a' }]), 'base5.pdf');
+      const before = openTabs();
+      drop([file('logo.svg', 'image/svg+xml', new PT.win.TextEncoder().encode(SVG))]);
+      await waitFor(() => cvtDialog() && cvtText().includes('logo.svg'), { timeout: 30000 });
+      const pdfRadio = () => cvtDialog().querySelector('input[data-target="images-to-pdf"]');
+      await waitFor(() => pdfRadio() && pdfRadio().checked, { timeout: 15000 });
+      cvtDialog().querySelector('[data-k="run"]').click();
+      await waitFor(() => !cvtDialog(), { timeout: 60000 });
+      await waitFor(() => openTabs() === before + 1 && PT.E.state.pages.length === 1, { timeout: 60000 });
+      expect(toastText()).toContain('Converted logo.svg to PDF');
+      expect(choiceDialog()).toBe(null);
+    }, { timeout: 120000 });
+
+    it('a mixed drop opens the PDF and sends the other file to the converter', async () => {
+      if (!PT.SP) await PT.boot();
+      PT.reset();
+      drop([file('ok.pdf', 'application/pdf', await PT.makePdf([{ text: 'x' }])), file('notes.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', new PT.win.Uint8Array([80, 75, 3, 4, 0, 0]))]);
+      await waitFor(() => PT.E.state.pages.length === 1 && cvtDialog() && cvtText().includes('notes.docx'), { timeout: 30000 });
+      expect(cvtText()).not.toContain('ok.pdf');
+      doc().querySelector('.sl-cvt-x').click();
+      await waitFor(() => !cvtDialog());
     }, { timeout: 60000 });
   });
 })();
