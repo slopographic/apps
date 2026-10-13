@@ -19,6 +19,8 @@
     var div = U.h('div', { class: 'pv-textlayer textLayer' });
     div.style.setProperty('--scale-factor', String(Ed.zoom)); // pdf.js sizes and places its spans with this (the viewport scale)
     div.style.setProperty('--total-scale-factor', String(Ed.zoom));
+    // pdf.js 5 sizes the layer with round(down, ..., var(--scale-round-x)): a whole pixel, as its viewer sets it
+    div.style.setProperty('--scale-round-x', '1px'); div.style.setProperty('--scale-round-y', '1px');
     s.layer.insertBefore(div, s.svg);
     var tl = new lib.TextLayer({ textContentSource: tc, container: div, viewport: vp });
     await tl.render();

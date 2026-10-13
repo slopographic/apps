@@ -1,6 +1,6 @@
 # pdf.js (vendored)
 
-Mozilla pdf.js **4.10.38** (`pdfjs-dist`, legacy build), Apache-2.0 — see `LICENSE`.
+Mozilla pdf.js **5.7.284** (`pdfjs-dist`, legacy build), Apache-2.0 — see `LICENSE`.
 
 | File | What |
 |---|---|
