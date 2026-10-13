@@ -49,6 +49,9 @@
       expect(tabs().length).toBe(n0 + 1);
       expect(tabNamed('beta').getAttribute('aria-selected')).toBe('true');
       expect(await texts()).toEqual(['Beta 1']);
+      // a PDF opened into an empty tab is kept in Slop Drive at once and the tab is linked to that copy (main.js)
+      const betaLink = await waitFor(() => PT.A.driveId, { timeout: 15000 });
+      expect((await PT.win.SlopHub.get(betaLink)).name).toBe('beta.pdf');
       // the alpha tab: a name, a Drive link and the page view on page 1 are its own; they come back when it is shown again
       tabNamed('alpha').click();
       await waitFor(() => PT.E.state.pages.length === 2);
@@ -59,7 +62,7 @@
       tabNamed('beta').click();
       await waitFor(() => PT.E.state.pages.length === 1);
       expect(PT.A.mode).toBe('grid');
-      expect(PT.A.driveId).toBe(null);
+      expect(PT.A.driveId).toBe(betaLink); // beta's own copy, not alpha's link
       expect(PT.E.undoLabel()).not.toBe('Rotate page');
       tabNamed('alpha').click();
       await waitFor(() => PT.E.state.pages.length === 2);
