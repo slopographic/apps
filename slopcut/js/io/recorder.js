@@ -27,6 +27,7 @@
     rec.ondataavailable = (e) => { if (e.data.size) parts.push(e.data); };
     const stopped = new Promise((r) => { rec.onstop = r; });
     // prime the first frame, then run in real time on the audio clock
+    if (SE.watermark) await SE.watermark.ready(p);
     P.pause(); P.seek(a);
     await U.sleep(300);
     SE.compositor.render(g, p, a, { W: w, H: h, source: SE.preview.source });

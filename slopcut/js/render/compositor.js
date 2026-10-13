@@ -120,6 +120,7 @@
       }
       drawLayer(g, p, L, src, W, H, k);
     }
+    if (SE.watermark) SE.watermark.apply(g, W, H, p); // the watermark module (js/watermark): monitor, snapshot and every export
     g.restore();
     return layers;
   };

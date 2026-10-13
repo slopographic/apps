@@ -81,6 +81,7 @@
       }
     }
     await SE.text.ready(p);
+    if (SE.watermark) await SE.watermark.ready(p);
     const cv = typeof OffscreenCanvas === 'function' ? new OffscreenCanvas(w, h) : U.canvas(w, h);
     const g = cv.getContext('2d', { alpha: false });
     const src = SE.frames.exporter(p, { forceSeek: !!o.forceSeek });

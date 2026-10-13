@@ -113,6 +113,7 @@ function draw() {
   g.fillStyle = g.createPattern(checker, 'repeat'); g.fillRect(x0, y0, w, hh);
   g.imageSmoothingEnabled = z < 2; g.imageSmoothingQuality = 'high';
   g.drawImage(V.comp, x0, y0, w, hh);
+  wmPreviewView(g, x0, y0, w, hh);
   if (z >= 8 && store.get('pixelGrid', true)) {
     g.beginPath(); g.strokeStyle = 'rgba(128,128,128,.35)'; g.lineWidth = 1;
     const ix0 = Math.max(0, Math.floor(-x0 / z)), ix1 = Math.min(D.w, Math.ceil((V.W - x0) / z)), iy0 = Math.max(0, Math.floor(-y0 / z)), iy1 = Math.min(D.h, Math.ceil((V.H - y0) / z));

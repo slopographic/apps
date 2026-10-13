@@ -3,7 +3,7 @@
 
 /* ---------- document ops ---------- */
 function newDocument(w, hh, bg = '#ffffff', name = 'Untitled') {
-  D.w = w; D.h = hh; D.name = name; D.sel = null; D.guides = []; live = null;
+  D.w = w; D.h = hh; D.name = name; D.sel = null; D.guides = []; D.wm = null; live = null;
   const L = newLayerRecord({ name: 'Background' });
   if (bg && bg !== 'transparent') { const g = cx(L.canvas); g.fillStyle = bg; g.fillRect(0, 0, w, hh); }
   D.layers = [L]; D.activeId = L.id;

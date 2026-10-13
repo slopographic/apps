@@ -81,6 +81,7 @@
   PV.frameCanvas = async function (t = SE.player.time) {
     const p = SE.doc, out = U.canvas(p.w, p.h);
     await SE.text.ready(p);
+    if (SE.watermark) await SE.watermark.ready(p);
     const src = SE.frames ? SE.frames.preview() : null;
     if (src) { await src.prepare(t); CMP.render(out.getContext('2d'), p, t, { W: p.w, H: p.h, source: src.get }); src.close(); }
     else CMP.render(out.getContext('2d'), p, t, { W: p.w, H: p.h, source: PV.source });

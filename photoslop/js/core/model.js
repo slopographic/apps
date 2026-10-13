@@ -30,7 +30,7 @@ const BLEND_OP = Object.fromEntries(BLENDS.map((b) => [b[0], b[2]]));
 const BLEND_PSD = Object.fromEntries(BLENDS.map((b) => [b[0], b[3]]));
 const PSD_BLEND = Object.fromEntries(BLENDS.map((b) => [b[3], b[0]]));
 
-const D = { w: 1200, h: 800, name: 'Untitled', layers: [], activeId: 0, sel: null, dirty: false, fileHandleName: null, guides: [] };
+const D = { w: 1200, h: 800, name: 'Untitled', layers: [], activeId: 0, sel: null, dirty: false, fileHandleName: null, guides: [], wm: null };
 const Hist = { states: [], idx: -1 };
 /** Live (uncommitted) edit shown in previews: brush strokes, filter previews, transforms. */
 let live = null;

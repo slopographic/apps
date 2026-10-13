@@ -98,6 +98,8 @@
     { id: 'mask.remove', title: 'Remove mask', group: 'Clip', keywords: ['mask', 'clear', 'delete'], when: hasMask, run: run('maskRemove') },
     { id: 'mask.invert', title: 'Invert mask', group: 'Clip', keywords: ['mask', 'outside', 'flip'], checked: () => { const c = SE.app.primary(); return !!(c && c.mask && c.mask.invert); }, when: hasMask, run: run('maskInvert') },
     { id: 'mask.edit', title: 'Edit mask shape (monitor handles)', group: 'Clip', keywords: ['mask', 'handles', 'points'], checked: () => { const c = SE.app.primary(); return !!(c && SE.maskInput && SE.maskInput.edit === c.id); }, when: hasMask, run: run('maskEdit') },
+    // Watermark (js/watermark; the command exists only when that module is loaded)
+    ...(SE.watermark ? [{ id: 'wm.panel', title: 'Watermark panel', group: 'Sequence', keywords: ['logo', 'copyright', 'mark', 'overlay', 'text', 'export'], run: run('openWatermark') }] : []),
     // Templates and random edit
     { id: 'tpl.panel', title: 'Templates panel', group: 'Sequence', keys: ['Shift+G'], keywords: ['layout', 'split', 'grid', 'picture in picture', 'slots'], run: run('openTemplates') },
     { id: 'tpl.random', title: 'Random edit…', group: 'Sequence', keys: ['Shift+R'], keywords: ['shuffle', 'auto edit', 'montage', 'seed', 'build'], run: run('randomDialog') },

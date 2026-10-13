@@ -81,7 +81,7 @@ async function handleFiles(files, place) {
     try {
       const doc = await readAnyFile(f);
       if (place) pasteCanvas(doc.layers.length === 1 && !doc.layers[0].x && !doc.layers[0].y ? doc.layers[0].canvas : flattenDocLayers(doc), null, null, name);
-      else { openDocTab(doc.w, doc.h, doc.layers, name); if (doc.guides) adoptGuides(doc.guides); opened++; }
+      else { openDocTab(doc.w, doc.h, doc.layers, name); if (doc.guides) adoptGuides(doc.guides); if (doc.wm) adoptWatermark(doc.wm); opened++; }
     } catch (e) { console.warn(e); failed.push(`Couldn't open ${f.name}: ${e.message || e}`); toast(`Couldn't open ${f.name}: ${e.message || e}`, 4200); }
   }
   if (opened) toast(opened === 1 ? `Opened ${files[0].name}` : `Opened ${opened} files in tabs`);
@@ -91,7 +91,7 @@ async function handleFiles(files, place) {
 function openDocument(w, hh, layers, name) {
   if (TE.el) endTypeEdit(true);
   if (TRANSFORM.active) cancelTransform();
-  D.w = w; D.h = hh; D.name = name || 'Untitled'; D.sel = null; D.guides = []; live = null; UI.editMask = false;
+  D.w = w; D.h = hh; D.name = name || 'Untitled'; D.sel = null; D.guides = []; D.wm = null; live = null; UI.editMask = false;
   D.layers = layers.map((l) => newLayerRecord(l));
   D.activeId = D.layers[D.layers.length - 1].id;
   histReset('Open');
@@ -115,7 +115,7 @@ async function savePSD() {
   document.body.classList.remove('busy');
 }
 async function renderExport(fmt, scale, bg) {
-  let c = flattenCanvas(fmt === 'image/png' && !bg ? null : bg || '#ffffff');
+  let c = wmApplyExport(flattenCanvas(fmt === 'image/png' && !bg ? null : bg || '#ffffff'));
   if (scale !== 1) c = resampleCanvas(c, Math.max(1, Math.round(D.w * scale)), Math.max(1, Math.round(D.h * scale)));
   return c;
 }
@@ -136,7 +136,7 @@ function dlgExport() {
     if (my === tok) info.textContent = `${c.width} × ${c.height} px · ${b ? (b.size / 1024 < 1024 ? Math.round(b.size / 1024) + ' KB' : (b.size / 1048576).toFixed(2) + ' MB') : '?'}`;
   };
   [fmt, q, scale, transparent].forEach((el) => el.addEventListener('input', update));
-  dialog({ title: 'Export As', body: h('div', { class: 'form' }, field('Format', fmt), qRow, field('Size', scale), tRow, info),
+  dialog({ title: 'Export As', body: h('div', { class: 'form' }, field('Format', fmt), qRow, field('Size', scale), tRow, h('p', { class: 'dlg-p' }, wmOn() ? 'Watermark on: it is added to this export.' : 'No watermark: the watermark is off.'), info),
     buttons: [{ label: 'Cancel' }, { label: 'Export', primary: true, act: async () => {
       const f = fmt.value, c = await renderExport(f, +scale.value, f === 'image/png' && transparent.checked ? null : '#ffffff');
       const b = await canvasToBlob(c, f, +q.value / 100);

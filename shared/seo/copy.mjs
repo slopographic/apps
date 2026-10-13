@@ -48,6 +48,8 @@ export const APPS = {
     description: 'Resize pictures and videos to exact pixels, a percentage or a file size limit, with social and 4K presets. Video exports to MP4 or WebM.' },
   upscale: { title: 'Slop Upscale: 2x and 4x sharper pictures on your device | Slopographic', category: 'MultimediaApplication',
     description: 'Make pictures and short videos 2x or 4x bigger with AI that runs on your device. Fast or Quality mode, tiled, with a before and after slider.' },
+  watermark: { title: 'Slop Watermark: stamp many photos with your logo | Slopographic', category: 'MultimediaApplication',
+    description: 'Watermark many pictures at once with your logo or text, in nine positions, with tiling, opacity and shadow. Download each file or a ZIP. Nothing is uploaded.' },
   contacts: { title: 'Slop Contacts: vCard and CSV address book | Slopographic', category: 'BusinessApplication',
     description: 'An address book for your browser. Import vCard 2.1, 3.0 and 4.0 or CSV, merge duplicates, and export for iOS, Android, Google and Outlook.' },
   inventory: { title: 'Slop Inventory: stock, barcodes and reorder alerts | Slopographic', category: 'BusinessApplication',
@@ -135,6 +137,7 @@ export const ABOUT = {
 // Landing pages (/apps/<id>/, /slop-365/, /creative-slop-pro/, /compare/). Written by tools/seo/landing.mjs,
 // with the head block from this copy. Descriptions use only facts from each app's registry entry.
 export const LANDING = {
+  watermark: { title: 'Free bulk watermark tool for pictures and logos | Slopographic', description: 'Slop Watermark adds your logo or text to many pictures at once in your browser. Preview it, apply it to all, and download a ZIP. Nothing is uploaded.' },
   photoslop: { title: 'Free PhotoSlop photo editor with layers, masks and PSD | Slopographic', description: 'PhotoSlop is a free photo editor that runs in your browser. It has layers, masks, 17 blend modes, real PSD open and save, filters and brushes.' },
   vector: { title: 'Free SlopVector drawing app: pen, shapes and SVG export | Slopographic', description: 'SlopVector is a free vector editor that runs in your browser. It has pen and shape tools, type, layers, pathfinder booleans and SVG, PNG, PDF and .ai export.' },
   pdf: { title: 'Slop PDF: free PDF tools to merge, split and sign | Slopographic', description: 'Slop PDF lets you reorder, merge and split PDFs, add text and signatures, fill forms and watermarks, and compress or convert. Nothing is uploaded.' },

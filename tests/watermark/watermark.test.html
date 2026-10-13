@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slop Watermark tests</title>
+  <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 800px; border: 0; display: block; }</style>
+</head>
+<body>
+  <!-- The real page runs in the iframe. Each test drives it with the drops, clicks and input events a person makes,
+       then reads the page's own DOM and canvases through the frame's window. -->
+  <iframe id="app" src="about:blank"></iframe>
+  <script src="../harness.js"></script>
+  <script src="../../shared/backup/zip.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  const f = document.getElementById('app');
+  const W = () => f.contentWindow;
+  const q = (sel) => W().document.querySelector(sel);
+  const qa = (sel) => [...W().document.querySelectorAll(sel)];
+  const KEY = 'slopwatermark.setup';
+  const ev = (name) => new (W().Event)(name, { bubbles: true });
+
+  /** Loads the page fresh and waits for its boot (body.ready). fresh: forget the saved setup first. */
+  async function open({ fresh = true } = {}) {
+    if (fresh) localStorage.removeItem(KEY);
+    f.src = 'about:blank';
+    await waitFor(() => f.contentWindow && f.contentWindow.location.href === 'about:blank', { timeout: 5000 });
+    f.src = '../../watermark/index.html';
+    await waitFor(() => { const w = f.contentWindow; return w && w.location.pathname.endsWith('/watermark/index.html') && w.document.body && w.document.body.classList.contains('ready'); }, { timeout: 20000 });
+    await sleep(60);
+    return W();
+  }
+  /** A PNG (with a transparent corner) or a JPEG of a gradient, so a watermark shows against it. */
+  async function picture(name, type, w, h, hue) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d'), grad = g.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, 'hsl(' + hue + ',70%,40%)'); grad.addColorStop(1, 'hsl(' + (hue + 120) + ',60%,70%)');
+    g.fillStyle = grad; g.fillRect(0, 0, w, h);
+    if (type === 'image/png') { g.clearRect(0, 0, 12, 12); }
+    const blob = await new Promise((r) => c.toBlob(r, type, 0.9));
+    return new File([blob], name, { type });
+  }
+  async function logoFile(name = 'logo.png') {
+    const c = document.createElement('canvas'); c.width = 160; c.height = 80;
+    const g = c.getContext('2d'); g.fillStyle = '#e02020'; g.fillRect(0, 0, 160, 80); g.fillStyle = '#ffffff'; g.fillRect(20, 20, 40, 40);
+    return new File([await new Promise((r) => c.toBlob(r, 'image/png'))], name, { type: 'image/png' });
+  }
+  /** Drops files on the drop zone, as a person does. */
+  function drop(files) {
+    const dt = new (W().DataTransfer)();
+    for (const file of files) dt.items.add(file);
+    q('#wm-drop').dispatchEvent(new (W().DragEvent)('drop', { bubbles: true, cancelable: true, dataTransfer: dt, clientX: 20, clientY: 20 }));
+  }
+  /** Types or picks a value the way a person does: set it, then fire input and change. */
+  function set(id, value) {
+    const el = q('#' + id);
+    if (el.type === 'checkbox') el.checked = value; else el.value = value;
+    el.dispatchEvent(ev('input')); el.dispatchEvent(ev('change'));
+  }
+  function uploadLogo(file) {
+    const input = q('#wm-logo-file'), dt = new (W().DataTransfer)();
+    dt.items.add(file); input.files = dt.files;
+    input.dispatchEvent(ev('change'));
+  }
+  const rows = () => qa('#wm-list .wm-row');
+  const snap = () => { const c = q('#wm-preview'); return c.getContext('2d').getImageData(0, 0, c.width, c.height).data.slice(); };
+  /** How many bytes differ between two snapshots (same size, else every byte counts). */
+  function differs(a, b) {
+    if (!a || !b || a.length !== b.length) return 1;
+    let n = 0; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) n++;
+    return n;
+  }
+  const previewShown = () => { const c = q('#wm-preview'); return !c.hidden && c.width > 0; };
+  async function applyAll() {
+    q('#wm-bar [data-id="apply"]').click();
+    await waitFor(() => qa('#wm-list [data-act="dl"]:not([disabled])').length === rows().length && rows().length > 0, { timeout: 30000 });
+  }
+  /** Catches the blob that Download all creates (SlopUI.download makes an object URL for it). */
+  async function captureZip() {
+    const Wd = W(), orig = Wd.URL.createObjectURL, got = [];
+    Wd.URL.createObjectURL = function (b) { if (b && b.type === 'application/zip') got.push(b); return orig.apply(this, arguments); };
+    try {
+      q('#wm-bar [data-id="zip"]').click();
+      await waitFor(() => got.length > 0, { timeout: 20000 });
+    } finally { Wd.URL.createObjectURL = orig; }
+    return got[0];
+  }
+
+  describe('Slop Watermark page', () => {
+    it('the header, drop zone and setup form render with the text watermark selected', async () => {
+      await open();
+      expect(q('#wm-bar .sab-name').textContent).toBe('Slop Watermark');
+      expect(q('#wm-drop .sd-msg, #wm-drop')).toBeTruthy();
+      expect(q('#wm-kind').value).toBe('text');
+      expect(q('#wm-text').value).toBe('© Your name');
+      expect(q('#wm-grid [data-pos="br"]').getAttribute('aria-pressed')).toBe('true');
+      expect(q('#wm-bar [data-id="apply"]').disabled).toBe(true);
+    });
+
+    it('dropping two pictures lists both with their sizes and shows the first one in the preview', async () => {
+      await open();
+      drop([await picture('one.png', 'image/png', 300, 200, 200), await picture('two.jpg', 'image/jpeg', 240, 160, 20)]);
+      await waitFor(() => rows().length === 2, { timeout: 20000 });
+      expect(rows()[0].querySelector('.wm-name').textContent).toBe('one.png');
+      expect(rows()[1].querySelector('.wm-dim').textContent).toContain('240 × 160 px');
+      expect(q('#wm-count').textContent).toBe('2 pictures');
+      await waitFor(() => previewShown(), { timeout: 10000 });
+      expect(q('#wm-preview').width).toBe(300);
+    });
+
+    it('a text watermark changes the preview canvas', async () => {
+      await open();
+      drop([await picture('one.png', 'image/png', 300, 200, 200), await picture('two.jpg', 'image/jpeg', 240, 160, 20)]);
+      await waitFor(() => rows().length === 2 && previewShown(), { timeout: 20000 });
+      set('wm-text', '');
+      await waitFor(() => q('#wm-preview-note').textContent.includes('Type some text'), { timeout: 5000 });
+      await sleep(80);
+      const before = snap();
+      set('wm-text', 'SLOP TEST');
+      set('wm-opacity', 100);
+      await waitFor(() => differs(before, snap()) > 0, { timeout: 5000 });
+      expect(differs(before, snap())).toBeGreaterThan(0);
+      expect(q('#wm-preview-note').textContent).toBe('');
+    });
+
+    it('uploading a logo draws it on the preview', async () => {
+      await open();
+      drop([await picture('one.png', 'image/png', 300, 200, 200)]);
+      await waitFor(() => rows().length === 1 && previewShown(), { timeout: 20000 });
+      set('wm-kind', 'logo');
+      await waitFor(() => q('#wm-preview-note').textContent.includes('Upload a logo'), { timeout: 5000 });
+      await sleep(80);
+      const before = snap();
+      uploadLogo(await logoFile());
+      await waitFor(() => q('#wm-logo-name').textContent === 'logo.png', { timeout: 10000 });
+      await waitFor(() => differs(before, snap()) > 0, { timeout: 5000 });
+      expect(differs(before, snap())).toBeGreaterThan(0);
+      expect(q('#wm-text').disabled).toBe(true);
+    });
+
+    it('apply to all makes one watermarked output per picture', async () => {
+      await open();
+      drop([await picture('one.png', 'image/png', 300, 200, 200), await picture('two.jpg', 'image/jpeg', 240, 160, 20)]);
+      await waitFor(() => rows().length === 2, { timeout: 20000 });
+      await applyAll();
+      expect(q('#wm-run-note').textContent.startsWith('Done: 2 pictures')).toBeTruthy();
+      expect(qa('#wm-list .wm-state.is-done').length).toBe(2);
+      expect(q('#wm-bar [data-id="zip"]').disabled).toBe(false);
+    });
+
+    it('Download all gives a ZIP with two entries, the same format and the original size', async () => {
+      await open();
+      drop([await picture('one.png', 'image/png', 300, 200, 200), await picture('two.jpg', 'image/jpeg', 240, 160, 20)]);
+      await waitFor(() => rows().length === 2, { timeout: 20000 });
+      await applyAll();
+      const zip = await captureZip();
+      const entries = (await SlopZip.unzip(zip)).filter((e) => !e.dir);
+      expect(entries.length).toBe(2);
+      const names = entries.map((e) => e.name).sort();
+      expect(names).toEqual(['one-watermarked.png', 'two-watermarked.jpg']);
+      const png = entries.find((e) => e.name.endsWith('.png')).bytes;
+      expect(png[0]).toBe(0x89);
+      expect(new DataView(png.buffer, png.byteOffset).getUint32(16)).toBe(300);
+      const jpg = entries.find((e) => e.name.endsWith('.jpg')).bytes;
+      expect(jpg[0]).toBe(0xff); expect(jpg[1]).toBe(0xd8);
+    });
+
+    it('changing the setup after applying drops the results until they are applied again', async () => {
+      await open();
+      drop([await picture('one.png', 'image/png', 300, 200, 200)]);
+      await waitFor(() => rows().length === 1, { timeout: 20000 });
+      await applyAll();
+      set('wm-rotate', 15);
+      await waitFor(() => q('#wm-run-note').textContent.includes('Apply to all again'), { timeout: 5000 });
+      expect(q('#wm-bar [data-id="zip"]').disabled).toBe(true);
+      expect(qa('#wm-list [data-act="dl"]:not([disabled])').length).toBe(0);
+    });
+
+    it('the setup is kept on this device and comes back on the next visit', async () => {
+      await open();
+      set('wm-text', 'Kept here');
+      q('#wm-grid [data-pos="tl"]').click();
+      await waitFor(() => { const s = localStorage.getItem(KEY); return s && JSON.parse(s).data.cfg.text === 'Kept here'; }, { timeout: 5000 });
+      await open({ fresh: false });
+      expect(q('#wm-text').value).toBe('Kept here');
+      expect(q('#wm-grid [data-pos="tl"]').getAttribute('aria-pressed')).toBe('true');
+      expect(q('#wm-saved').textContent).toBe('Saved on this device.');
+    });
+
+    it('a logo under 500 KB is kept with the setup, so it comes back too', async () => {
+      await open();
+      uploadLogo(await logoFile('brand.png'));
+      await waitFor(() => { const s = localStorage.getItem(KEY); return s && JSON.parse(s).data.logo; }, { timeout: 10000 });
+      expect(JSON.parse(localStorage.getItem(KEY)).data.logo.dataUrl.startsWith('data:image/png')).toBe(true);
+      await open({ fresh: false });
+      await waitFor(() => q('#wm-logo-name').textContent === 'brand.png', { timeout: 10000 });
+      expect(!!W().WMSettings.logo()).toBe(true);
+      expect(q('#wm-saved').textContent).toBe('Saved on this device, with the logo.');
+    });
+  });
+  run({ name: 'Slop Watermark' });
+  </script>
+</body>
+</html>

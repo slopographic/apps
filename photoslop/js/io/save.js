@@ -23,7 +23,7 @@ async function autosave() {
   if (!CUR) return;
   if (live || V.op) { scheduleAutosave(); return; }
   // Capture synchronously: the user may switch tabs while PNGs encode.
-  const snap = { id: CUR.id, w: D.w, h: D.h, name: D.name, active: layerIndex(D.activeId), layers: D.layers.slice(), guides: D.guides || [] };
+  const snap = { id: CUR.id, w: D.w, h: D.h, name: D.name, active: layerIndex(D.activeId), layers: D.layers.slice(), guides: D.guides || [], wm: D.wm };
   try {
     const layers = [];
     for (const L of snap.layers) {
@@ -31,7 +31,7 @@ async function autosave() {
         png: await pngOf(L.canvas), mask: L.mask && { png: await pngOf(L.mask.canvas), x: L.mask.x, y: L.mask.y, def: L.mask.def, enabled: L.mask.enabled } });
     }
     if (!DOCS.some((d) => d.id === snap.id)) return; // closed meanwhile
-    await idbDo('readwrite', (st) => st.put({ v: 2, w: snap.w, h: snap.h, name: snap.name, active: snap.active, layers, guides: snap.guides, time: Date.now() }, 'doc:' + snap.id));
+    await idbDo('readwrite', (st) => st.put({ v: 2, w: snap.w, h: snap.h, name: snap.name, active: snap.active, layers, guides: snap.guides, wm: snap.wm && { on: snap.wm.on, cfg: snap.wm.cfg }, time: Date.now() }, 'doc:' + snap.id));
     saveTabsIndex();
     const s = $('#sbSaved'); if (s) { s.textContent = 'Saved on this device'; s.title = 'Recovered automatically if you close the tab. Never uploaded.'; }
   } catch (e) { const s = $('#sbSaved'); if (s) s.textContent = 'Recovery off'; try { window.SlopStorage && SlopStorage.handle(e, { once: 'photoslop-recovery' }); } catch (x) { /* no dialog on this page */ }; }
@@ -57,7 +57,7 @@ async function loadAutosave() {
     let activeRec = null;
     for (const [id, d] of saved) {
       const layers = await docFromSaved(d);
-      const rec = openInNewTab(() => { openDocument(d.w, d.h, layers, d.name); if (d.active >= 0 && D.layers[d.active]) D.activeId = D.layers[d.active].id; if (d.guides) adoptGuides(d.guides); }, id);
+      const rec = openInNewTab(() => { openDocument(d.w, d.h, layers, d.name); if (d.active >= 0 && D.layers[d.active]) D.activeId = D.layers[d.active].id; if (d.guides) adoptGuides(d.guides); if (d.wm) adoptWatermark(d.wm); }, id);
       if (idx && idx.active === id) activeRec = rec;
     }
     if (activeRec) switchToDoc(activeRec);

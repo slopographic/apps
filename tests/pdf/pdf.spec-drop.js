@@ -92,10 +92,8 @@
       await converterReady();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'base4.pdf');
-      window.__dbg = []; const spyCv = PT.A.convertFiles, spyLog = []; PT.A.convertFiles = function (f) { spyLog.push('cf:' + f.map((x) => x.name)); try { return spyCv.apply(this, arguments); } catch (e) { spyLog.push('err:' + e.message); throw e; } }; PT.win.__spyLog = spyLog;
       drop([file('budget.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', new PT.win.Uint8Array([80, 75, 3, 4, 0, 0]))]);
-      await new Promise((r) => setTimeout(r, 3000));
-      throw new Error('DBG cvt=' + doc().querySelectorAll('.sl-cvt-dlg').length + ' sui=' + [...doc().querySelectorAll('.sui-dlg')].map((d) => d.textContent).join('|') + ' status=' + doc().getElementById('statusMsg').textContent + ' toast=' + ((doc().querySelector('.sui-toast')||{}).textContent) + ' locked=' + PT.A.isLocked() + ' SC=' + !!PT.win.SlopConvert + ' cf=' + typeof PT.A.convertFiles + ' oc=' + typeof PT.A.openConverted + ' drop=' + typeof PT.A.addFiles + ' dropEl=' + !!doc().getElementById('viewer') + ' ev=' + (PT.win.__spyLog||[]).join(',') + ' od=' + (PT.win.__odrop||[]).join(';'));
+      await waitFor(() => cvtDialog() && cvtText().includes('budget.xlsx'), { timeout: 30000 });
       expect(cvtText()).toContain('cannot be converted to PDF here');
       expect(suiTitles()).toEqual([]);
       expect(PT.E.state.pages.length).toBe(1);

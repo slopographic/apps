@@ -74,6 +74,7 @@ const MENUS = [
     '-',
     { label: 'Image Size…', key: 'Alt+Ctrl+I', act: () => dlgImageSize() },
     { label: 'Canvas Size…', key: 'Alt+Ctrl+C', act: () => dlgCanvasSize() },
+    { label: 'Watermark', dyn: () => (wmOn() ? 'Turn Watermark Off' : 'Turn Watermark On'), act: () => wmToggle() },
     '-',
     { label: 'Rotate 90° Clockwise', act: () => transformCanvas('cw') },
     { label: 'Rotate 90° Counter Clockwise', act: () => transformCanvas('ccw') },

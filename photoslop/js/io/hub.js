@@ -12,7 +12,7 @@ async function finishPending() {
 async function docBlob(type) {
   await finishPending();
   if (type === 'image/vnd.adobe.photoshop') return new Blob([writePSD()], { type });
-  return canvasToBlob(flattenCanvas(type === 'image/jpeg' ? '#fff' : null), type, 0.92);
+  return canvasToBlob(wmApplyExport(flattenCanvas(type === 'image/jpeg' ? '#fff' : null)), type, 0.92);
 }
 function recordToFile(rec) { return new File([rec.blob], rec.name || 'Untitled', { type: rec.type }); }
 // A tab opened from Slop Drive remembers its record (CUR.driveId), so Save writes back to that same file.

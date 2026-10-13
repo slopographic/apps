@@ -44,6 +44,7 @@ function buildPanels() {
   side.append(panel('swatches', 'Swatches', sw));
   side.append(panel('brushes', 'Brushes', buildBrushesPanel()));
   side.append(panel('character', 'Character', buildCharPanel()));
+  side.append(panel('watermark', 'Watermark', buildWatermarkPanel()));
   // Layers
   side.append(panel('layers', 'Layers', buildLayersPanel()));
   // History

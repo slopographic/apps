@@ -90,6 +90,7 @@
     const cv = SE.util.canvas(w, h), g = cv.getContext('2d', { willReadFrequently: true });
     const src = SE.frames.exporter(p);
     await SE.text.ready(p);
+    if (SE.watermark) await SE.watermark.ready(p);
     try {
       for (let i = 0; i < n; i++) {
         if (signal.cancelled) throw new DOMException('Export cancelled', 'AbortError');

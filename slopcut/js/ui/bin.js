@@ -81,6 +81,7 @@
     root.dataset.tab = B.tab;
     if (B.tab === 'effects') { if (SE.effectsPanel) SE.effectsPanel.render(list); return; }
     if (B.tab === 'templates') { if (SE.tplPanel) SE.tplPanel.render(list); info.textContent = ''; return; }
+    if (B.tab === 'watermark' && SE.watermark) { SE.watermark.panel.render(list); info.textContent = ''; return; }
     list.replaceChildren();
     const q = B.filter.toLowerCase();
     const items = SE.doc.media.filter((m) => !q || m.name.toLowerCase().includes(q));
@@ -105,6 +106,7 @@
       h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'media' }, onclick: () => { B.tab = 'media'; B.render(); } }, 'Media'),
       h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'effects' }, onclick: () => { B.tab = 'effects'; B.render(); } }, 'Effects'),
       h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'templates' }, onclick: () => { B.tab = 'templates'; B.render(); } }, 'Templates'),
+      SE.watermark ? h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'watermark' }, onclick: () => { B.tab = 'watermark'; B.render(); } }, 'Watermark') : null,
       h('span', { class: 'tb-flex' }), info);
     const tools = h('div', { class: 'bin-tools' },
       h('button', { type: 'button', class: 'btn sm', title: 'Import files (Ctrl+I)', onclick: A.openDialog }, SE.icon('plus'), 'Import'),
