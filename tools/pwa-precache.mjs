@@ -84,7 +84,7 @@ async function visit(p) {
 
 // The offline font library and font packs: the picker and the font catalogue load these at run time (not by a static src),
 // so they are listed here. Every WOFF2 named in shared/fonts/library/index.json is included, and each embeddable copy ("pdf").
-const LIBRARY = ['shared/fonts/picker.js', 'shared/fonts/catalog.js', 'shared/fonts/missing.js', 'shared/fonts/library/index.json',
+const LIBRARY = ['shared/fonts/picker.js', 'shared/fonts/catalog.js', 'shared/fonts/missing.js', 'shared/fonts/panel.js', 'shared/fonts/library/index.json',
   'shared/library/manifest.js', 'shared/library/store.js', 'shared/library/get-more.js', 'shared/library/packs.json',
   'vendor/fontkit/fontkit.min.js', 'vendor/fontkit/LICENSE'];
 const libraryFiles = JSON.parse(await readFile(path.join(ROOT, 'shared/fonts/library/index.json'), 'utf8')).fonts

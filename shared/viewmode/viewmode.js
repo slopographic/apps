@@ -7,7 +7,7 @@
  *   back; it hides again when the pointer has been away for 0.7 s.
  *
  *   const V = SlopViewMode.register('hex', {
- *     regions: { toolbar: '.hx-top', sidebar: '#side', panels: '#panels' },  // selector or element; a missing one is skipped
+ *     regions: { toolbar: ['.hx-top', '.hx-bar'], sidebar: '#side', panels: '#panels' },  // selector, element or a list; a missing one is skipped
  *     edges:   { toolbar: 'top', sidebar: 'left', panels: 'right' },         // which window edge reveals it (defaults shown)
  *     hides:   { focus: ['toolbar', 'sidebar'], content: ['toolbar', 'sidebar', 'panels'] },  // the defaults
  *     mount:   '.hx-top',                                                    // where the mode button goes (optional)
@@ -137,8 +137,10 @@
     const edges = Object.assign({}, DEFAULT_EDGE, spec.edges || {});
     const e = { app, spec, buttons: [], hides: Object.assign({}, DEFAULT_HIDES, spec.hides || {}), regions: [] };
     for (const name of Object.keys(spec.regions || {})) {
-      const node = el(spec.regions[name]);
-      if (node) e.regions.push({ app, name, el: node, edge: edges[name] || 'top', peek: false, off: false, lastIn: 0 });
+      for (const sel of [].concat(spec.regions[name])) {   // a region may be several elements (a menu bar and a control bar)
+        const node = el(sel);
+        if (node) e.regions.push({ app, name, el: node, edge: edges[name] || 'top', peek: false, off: false, lastIn: 0 });
+      }
     }
     apps.set(app, e);
     mountButton(e);

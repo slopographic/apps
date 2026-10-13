@@ -14,7 +14,7 @@ function familySelect(o, key, label, flag) {
   const s = mk('select', { class: 'inp' });
   ensureFont(o[key]);
   const pick = SlopFonts.attach(s, { value: o[key], legacy: FONT_OPTS, onPick: (f) => { ensureFont(f); setProp(key, f, label, flag); } });
-  return mk('span', { class: 'font-pick' }, s, pick.button);
+  return mk('span', { class: 'font-pick' }, s, pick.button, pick.fontsButton);
 }
 function symOptions() {
   const g1 = SYMBOLOGIES.filter((s) => s.kind === '1d'), g2 = SYMBOLOGIES.filter((s) => s.kind === '2d');

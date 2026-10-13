@@ -77,6 +77,10 @@
   E.on('change', function () { schedule(); });
   /** Writes now (before the document is closed). */
   L.flush = function () { schedule.flush(); save(); };
+  /** The logs of the open document as they are saved (records, not stored): the change list of a Drive copy. */
+  L.snapshot = function () { return build().map(record); };
+  /** Deletes the saved log of a file (by fingerprint), e.g. when the document is reverted to its original. */
+  L.discard = function (fp) { try { return U.idb.del(KEY + fp); } catch (e) { return null; } };
 
   /** Applies a saved log on top of the open file (every step goes on the undo stack). */
   L.replay = function (rec) {

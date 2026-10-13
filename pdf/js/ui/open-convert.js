@@ -5,13 +5,13 @@
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._;
 
-  A.openConvert = function () {
+  A.openConvert = function (target) {
     if (!window.SlopConvert) { SlopUI.toast('Convert is not in the offline file. Use the online Slop PDF.'); return; }
     if (!E.state.pages.length) return;
     return S.guarded('Preparing the document…', function () { return A.currentPdfBlob(); }).then(function (blob) {
       if (!blob) return;
       var name = U.safeName(S.els.fileName.value || 'document.pdf', 'pdf');
-      window.SlopConvert.open({ file: new File([blob], name, { type: 'application/pdf' }), drive: !!A.driveId });
+      window.SlopConvert.open({ file: new File([blob], name, { type: 'application/pdf' }), drive: !!A.driveId, target: typeof target === 'string' ? target : null });
     });
   };
 

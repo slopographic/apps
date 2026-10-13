@@ -119,9 +119,10 @@ test('bundled index: every file exists, is WOFF2, has its family licence, and ma
     assert.ok(existsSync(lic), f.licenceFile);
     assert.match(readFileSync(lic, 'utf8'), /SIL OPEN FONT LICENSE Version 1\.1/);
   }
+  // One font list: the picker has no family names of its own; it reads the index (the one list) and nothing else.
   const picker = readFileSync(path.join(ROOT, 'shared/fonts/picker.js'), 'utf8');
-  const listed = picker.match(/const BUNDLED = \[([^\]]+)\]/)[1].split(',').map((s) => s.trim().slice(1, -1));
-  assert.deepEqual([...families].sort(), listed.slice().sort());
+  assert.ok(!/BUNDLED|'Inter'|'Roboto'/.test(picker), 'no second list of bundled families in the picker');
+  assert.ok(picker.includes("'index.json'"), 'the picker reads library/index.json');
   assert.equal(families.size, 12);
 });
 

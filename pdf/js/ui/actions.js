@@ -88,7 +88,8 @@
   /** Adds PDFs/images. opts.at = insertion index (default end). */
   A.addFiles = async function (files, opts) {
     opts = opts || {};
-    var newPages = [], errors = [], imgs = [], firstFile = null, opened = [], total = files.length, k = 0;
+    var newPages = [], errors = [], imgs = [], firstFile = null, opened = [], sources = [], total = files.length, k = 0;
+    var wasEmptyOpen = !E.state.pages.length;
     S.busy('Opening ' + (total > 1 ? total + ' files' : '“' + files[0].name + '”') + '…', 0);
     async function flushImages() {
       if (!imgs.length) return;
@@ -112,6 +113,8 @@
           await flushImages();
           try {
             var f = await E.registerPdf(bytes, file.name, A.askPassword);
+            if (opts.drive && !opts.drive.log) f.noLog = true; // a Drive version: its saved log is not used
+            sources.push({ bytes: bytes, name: file.name });
             if (f.locked) errors.push('“' + file.name + '” opened, but its encryption could not be removed (' + f.locked + '). Its pages can be viewed but not exported.');
             firstFile = firstFile || f; opened.push(f); newPages = newPages.concat(E.pagesForFile(f));
           } catch (e) { var msg = E.friendlyError(e, file.name); if (msg) errors.push(msg); }
@@ -131,6 +134,11 @@
       S.els.restore.hidden = true;
     }
     if (errors.length) SlopUI.alert(errors.length > 1 ? 'Some files could not be opened' : 'Could not open file', h('div', null, errors.map(function (e) { return h('p', { class: 'sui-p' }, e); })));
+    // Slop Drive: a version opened from Drive is linked to its document; other PDFs are kept there at once
+    if (sources.length && newPages.length) {
+      if (opts.drive) { if (wasEmptyOpen) A.driveId = opts.drive.link; }
+      else await A.autosaveOpened(sources, wasEmptyOpen);
+    }
     // saved edits from an earlier session, asked once the files are open
     for (var oi = 0; oi < opened.length; oi++) await SP.editLog.offer(opened[oi]);
   };
