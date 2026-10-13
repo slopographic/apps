@@ -10,7 +10,7 @@
     const R = SlopRoute.register('label', {
       ready: () => document.body.classList.contains('ready'),
       params: { panel: { values: TABS, def: '' } },
-      apply(s) { if (R.has('panel') && s.panel && typeof showDock === 'function') showDock(s.panel); },
+      apply(s) { console.log('LBLDBG apply ' + JSON.stringify(s) + ' has=' + R.has('panel') + ' tab=' + (typeof App !== 'undefined' && App.tab) + ' ready=' + document.body.classList.contains('ready')); if (R.has('panel') && s.panel && typeof showDock === 'function') showDock(s.panel); },
     });
     // A dock tab picked by the person is written to the URL (a replace, not a new history entry).
     $('dockTabs').addEventListener('click', () => setTimeout(() => {
