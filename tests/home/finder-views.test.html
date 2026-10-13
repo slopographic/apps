@@ -46,7 +46,7 @@
         for (const row of rows) {
           const a = apps.find((x) => x.id === row.dataset.id);
           expect(!!a).toBe(true);
-          expect(row.querySelector('b').textContent).toBe(a.name);
+          expect(row.querySelector('b').textContent).toBe(win.slopAppLabel(a, false));
           expect(row.querySelector('.sf-row-sec').textContent.trim() !== '').toBe(true);
           expect(row.querySelector('.sf-row-types').textContent.trim() !== '').toBe(true);
           expect(row.querySelector('a.sf-row-open').getAttribute('href')).toBe(a.path);
@@ -66,7 +66,7 @@
         const trs = [...doc.querySelectorAll('#app-finder .sf-table tbody tr')];
         expect(trs.length).toBe(apps.length);
         for (const tr of trs) {
-          const a = apps.find((x) => x.name === tr.querySelector('td[data-col="name"]').textContent);
+          const a = apps.find((x) => win.slopAppLabel(x, false) === tr.querySelector('td[data-col="name"]').textContent);
           expect(!!a).toBe(true);
           expect(tr.querySelector('td[data-col="section"]').textContent.trim() !== '').toBe(true);
           expect(tr.querySelector('td[data-col="types"]').textContent.trim() !== '').toBe(true);

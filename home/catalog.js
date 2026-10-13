@@ -23,6 +23,15 @@
     for (const c of kids) if (c != null) n.append(c);
     return n;
   };
+  /* The name shown for an app (see shared/apps.js). The switch relabels the names already on the page. */
+  const label = (a) => window.slopAppLabel(a, window.slopBrandNamesOn());
+  function relabel() {
+    const withSlop = window.slopBrandNamesOn();
+    document.querySelectorAll('.app-title[data-id]').forEach((n) => {
+      const a = APPS.find((x) => x.id === n.dataset.id);
+      if (a) n.textContent = window.slopAppLabel(a, withSlop);
+    });
+  }
   /** An SVG-namespace <svg> holding the badge. Created with createElementNS so the markup parses as SVG (not HTML). */
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const svgEl = (inner, cls, attrs) => {
@@ -40,7 +49,7 @@
   /** A screenshot, or (until one exists) a generated tile in the app's colours. */
   function shot(a) {
     const box = el('div', { class: 'shot', 'data-id': a.id, 'aria-hidden': 'true' });
-    const ph = el('div', { class: 'shot-ph' }, el('b', null, a.name));
+    const ph = el('div', { class: 'shot-ph' }, el('b', null, label(a)));
     const glyph = (window.SLOP_ICONS && window.SLOP_ICONS[a.id]) || ICONS[a.icon];
     if (glyph) ph.prepend(svgEl(window.SLOP_ICON_BADGE ? window.SLOP_ICON_BADGE(glyph) : glyph, 'shot-icon', { 'data-icon': a.id }));
     box.append(ph);
@@ -124,14 +133,14 @@
     return el('a', { class: 'app-card', href: a.path, 'data-perch': 'card', 'data-id': a.id },
       shot(a),
       el('div', { class: 'app-body' },
-        el('div', { class: 'app-name' }, el('h3', null, a.name), badge(a, true)),
+        el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a, true)),
         el('p', { class: 'app-tag' }, line || a.tagline),
         el('span', { class: 'go' }, a.status === 'building' ? 'Preview →' : 'Open →')));
   }
   function tile(a) {
     return el('a', { class: 'tile', href: a.path, 'data-perch': 'card', 'data-id': a.id, ...(a.path.startsWith('#') ? { 'data-view': a.path.slice(1) } : {}) },
       shot(a),
-      el('div', { class: 'tile-body' }, el('div', { class: 'app-name' }, el('h3', null, a.name), badge(a)), el('p', null, a.tagline)));
+      el('div', { class: 'tile-body' }, el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a)), el('p', null, a.tagline)));
   }
   /* ---------- app carousel: the top of the homepage, one slide per app ---------- */
   // Names the carousel leads with, in this order; every other registry entry follows in registry order.
@@ -152,14 +161,14 @@
     const tour = TOUR_DIRS.has(a.path.replace(/\/$/, ''));
     // 50/50 on wide screens (text left, badge right); on phones the badge sits above the text (CSS order).
     const visual = glyph ? el('div', { class: 'car-visual' }, svgEl(window.SLOP_ICON_BADGE ? window.SLOP_ICON_BADGE(glyph) : glyph, 'car-icon')) : null;
-    return el('div', { class: 'car-slide', role: 'group', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${n}: ${a.name}`, 'data-id': a.id },
+    return el('div', { class: 'car-slide', role: 'group', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${n}: ${label(a)}`, 'data-id': a.id },
       el('div', { class: 'car-text' },
-        el('div', { class: 'car-head' }, el('h3', null, a.name), badge(a, true)),
+        el('div', { class: 'car-head' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a, true)),
         el('p', { class: 'car-tag' }, a.tagline),
         feats.length ? el('ul', { class: 'car-feats' }, ...feats.map((f) => el('li', null, f))) : null,
         el('div', { class: 'car-actions' },
-          el('a', { class: 'btn primary', href: a.path, ...(hash ? { 'data-view': a.path.slice(1) } : {}) }, 'Open', el('span', { class: 'sr' }, ' ' + a.name)),
-          tour ? el('a', { class: 'btn', href: a.path + '?tour=1' }, 'Tour', el('span', { class: 'sr' }, ' ' + a.name + ' tour')) : null)),
+          el('a', { class: 'btn primary', href: a.path, ...(hash ? { 'data-view': a.path.slice(1) } : {}) }, 'Open', el('span', { class: 'sr' }, ' ' + label(a))),
+          tour ? el('a', { class: 'btn', href: a.path + '?tour=1' }, 'Tour', el('span', { class: 'sr' }, ' ' + label(a) + ' tour')) : null)),
       visual);
   }
   /** The carousel: slides, previous and next, dots, a pause control, a live region, swipe and arrow keys. */
@@ -173,7 +182,7 @@
     const count = el('span', { class: 'car-count', 'aria-hidden': 'true' });
     const button = (cls, label, text, fn) => { const b = el('button', { type: 'button', class: cls, 'aria-label': label, 'aria-controls': 'car-track' }, text); b.addEventListener('click', fn); return b; };
     // One dot per slide, built once (so a focused dot is never replaced); paintDots() shows only the nearby ones.
-    const dots = list.map((a, i) => { const d = button('car-dot', `Show ${a.name}`, '', () => user(() => show(i))); d.dataset.slide = i; return d; });
+    const dots = list.map((a, i) => { const d = button('car-dot', `Show ${label(a)}`, '', () => user(() => show(i))); d.dataset.slide = i; return d; });
     const strip = el('div', { class: 'car-dots', role: 'group', 'aria-label': 'Choose a slide' }, ...dots);
     const prev = button('btn car-btn car-prev', 'Previous app', '‹', () => user(() => show(cur - 1)));
     const next = button('btn car-btn car-next', 'Next app', '›', () => user(() => show(cur + 1)));
@@ -207,7 +216,7 @@
       paintDots();
       track.style.transform = `translateX(${-cur * 100}%)`;
       count.textContent = `${cur + 1} / ${n}`;
-      live.textContent = `Slide ${cur + 1} of ${n}: ${list[cur].name}`;
+      live.textContent = `Slide ${cur + 1} of ${n}: ${label(list[cur])}`;
       schedule();
     }
     /** Auto-advance runs only while the person is not on the carousel, has not used a control, and motion is allowed. */
@@ -255,11 +264,18 @@
     [...APPS].sort((a, b) => order[a.status] - order[b.status] || a.name.localeCompare(b.name)).forEach((a) => {
       board.append(el('a', { class: 'status-row', href: a.path, role: 'row', ...(a.path.startsWith('#') ? { 'data-view': a.path.slice(1) } : {}) },
         el('span', { class: 'dot ' + a.status, role: 'cell', 'aria-label': STATUS[a.status] }),
-        el('b', { role: 'cell' }, a.name),
+        el('b', { role: 'cell', class: 'app-title', 'data-id': a.id }, label(a)),
         el('span', { class: 'kind', role: 'cell' }, kinds[a.kind]),
         el('span', { class: 'state', role: 'cell' }, STATUS[a.status]),
         el('span', { class: 'tagline', role: 'cell' }, a.tagline)));
     });
+  }
+
+  /* ---------- the Slop-in-names switch ---------- */
+  const names = document.getElementById('slop-names');
+  if (names) {
+    names.checked = window.slopBrandNamesOn();
+    names.addEventListener('change', () => { window.slopSetBrandNames(names.checked); relabel(); });
   }
 
   /* ---------- section links: work from either view, and scroll smoothly ---------- */

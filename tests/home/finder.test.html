@@ -46,7 +46,7 @@
       await ready;
       type('calendar');
       const first = doc.querySelector('#app-finder .sf-suggest li');
-      expect(first.textContent).toContain('Slop Calendar');
+      expect(first.textContent).toContain('Calendar');
       expect(first.textContent).toContain('Business');
       expect(input().getAttribute('aria-activedescendant')).toBe('');
       clearAll();
