@@ -24,5 +24,5 @@ export const REVERSE = {
 
 /** True when a conversion takes typed text (any text kind, or any file for Base64 encode). */
 export function acceptsText(conv) {
-  return !!conv && (conv.from.includes('*') || conv.from.some((k) => ['csv', 'json', 'md', 'txt', 'html'].includes(k)));
+  return !!conv && (conv.from.includes('*') || conv.from.some((k) => ['csv', 'json', 'md', 'txt', 'html', 'vcf'].includes(k)));
 }

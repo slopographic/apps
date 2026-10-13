@@ -194,7 +194,7 @@ export class ConvertTool {
     const taken = new Set();
     this.outputs = res.outputs.map((o) => ({ name: uniqueName(o.name, taken), blob: o.blob, url: URL.createObjectURL(o.blob) }));
     this.busy = false;
-    this.setStatus(this.summary(res));
+    this.setStatus([this.summary(res), ...res.info].filter(Boolean).join(' '));
     this.render();
     this.renderResults();
   }

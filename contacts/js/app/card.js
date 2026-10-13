@@ -17,11 +17,7 @@
 
   /** Draws the card for the current state. */
   function render() {
-    document.body.classList.toggle('card-open', !!S.open || S.mode === 'new');
-    if (S.mode === 'new') {
-      if (key !== 'new') { key = 'new'; SC.cardEdit.render(null); }
-      return;
-    }
+    document.body.classList.toggle('card-open', !!S.open);
     const c = S.open ? S.byId(S.open) : null;
     if (!c) {
       key = ''; json = '';
@@ -39,9 +35,22 @@
     SC.cardRead.render(c);
   }
 
+  /** Controls, links and the forms in the card keep their own clicks; everything else on the card opens the form. */
+  const KEEP = 'a, button, input, select, textarea, label, .card-bar, .act-form, .docs, .pipe';
+  /** A single click on the card's text (the name, a field, an empty area) opens the contact's form in place. */
+  function onBodyClick(e) {
+    if (S.mode !== 'view' || !S.open) return;
+    const t = e.target;
+    if (!(t instanceof Element) || t.closest(KEEP)) return;
+    if (window.getSelection && !window.getSelection().isCollapsed) return; // selecting text is not a click
+    S.mode = 'edit';
+    S.emit('render');
+  }
+
   function mount() {
     S.on('render', render);
     S.on('change', render);
+    document.getElementById('cardBody').addEventListener('click', onBodyClick);
     D.store.subscribe(() => { if (!SC.records.pending()) SC.cardRead.refreshHistory(); });
   }
 

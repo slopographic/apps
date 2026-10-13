@@ -11,7 +11,7 @@
   const el = UI.el;
   const LABELS = ['mobile', 'work', 'home', 'other'];
   const DATE_RX = /^(\d{4}-\d{2}-\d{2}|--\d{2}-\d{2})$/;
-  let snapshot = '';
+  let snapshot = '', cancelNow = null;
 
   /** Text field with a caption. */
   const field = (label, input) => el('label', { class: 'ed-f' }, el('span', { class: 'ed-k' }, label), input);
@@ -50,9 +50,9 @@
   /** The form's values as a contact. */
   function collect(c, f) {
     const tags = [...new Set(f.groups.value.split(',').map((s) => s.trim()).filter(Boolean))];
-    const act = SC.activity.split(c ? c.note : '').activity;
+    const act = SC.activity.split(c.note).activity;
     return SC.model.normalise({
-      ...(c || {}), id: c ? c.id : undefined, stage: c ? c.stage : 'lead', followUp: c ? c.followUp : '',
+      ...c,
       name: { prefix: '', given: '', additional: '', family: '', suffix: '' }, fn: f.name.value.trim(),
       org: f.org.value.trim(), dept: f.dept.value.trim(), title: f.title.value.trim(), bday: f.bday.value.trim(),
       url: f.url.value.trim(), groups: tags, photo: f.photo.get(), phones: f.phones.get(), emails: f.emails.get(), adr: f.addrs.get(),
@@ -70,50 +70,41 @@
   }
   const addBtn = (label, fn) => el('button', { type: 'button', class: 'text-btn ed-add', onclick: fn }, label);
 
-  /** Draws the form for c (null = a new contact). */
+  /** Draws the form for contact c. */
   function render(c) {
     const body = document.getElementById('cardBody');
-    const base = c || SC.model.blank();
-    const plain = SC.activity.split(c ? c.note : '').plain;
-    const photo = SC.photoUi.field(base);
+    const plain = SC.activity.split(c.note).plain;
+    const photo = SC.photoUi.field(c);
     const f = {
       photo,
-      name: text(base.fn === 'No name' && !c ? '' : base.fn, { 'aria-label': 'Name', required: false }),
-      org: text(base.org, { 'aria-label': 'Company' }), dept: text(base.dept, { 'aria-label': 'Department' }), title: text(base.title, { 'aria-label': 'Job title' }),
-      phones: multi('phone', base.phones), emails: multi('email', base.emails), addrs: multi('address', base.adr),
-      bday: text(base.bday, { 'aria-label': 'Birthday', placeholder: 'YYYY-MM-DD or --MM-DD' }),
-      url: text(base.url, { 'aria-label': 'Website', type: 'url' }),
-      groups: text(base.groups.join(', '), { 'aria-label': 'Groups, comma separated', maxlength: 600 }),
+      name: text(c.fn, { 'aria-label': 'Name', required: false }),
+      org: text(c.org, { 'aria-label': 'Company' }), dept: text(c.dept, { 'aria-label': 'Department' }), title: text(c.title, { 'aria-label': 'Job title' }),
+      phones: multi('phone', c.phones), emails: multi('email', c.emails), addrs: multi('address', c.adr),
+      bday: text(c.bday, { 'aria-label': 'Birthday', placeholder: 'YYYY-MM-DD or --MM-DD' }),
+      url: text(c.url, { 'aria-label': 'Website', type: 'url' }),
+      groups: text(c.groups.join(', '), { 'aria-label': 'Groups, comma separated', maxlength: 600 }),
       notes: el('textarea', { rows: 4, maxlength: 5000, 'aria-label': 'Notes' }, plain),
     };
     const msg = el('p', { class: 'ed-msg', role: 'alert' });
     const save = () => {
       const bday = f.bday.value.trim();
       if (bday && !DATE_RX.test(bday)) { msg.textContent = 'Birthday: use YYYY-MM-DD, or --MM-DD when the year is not known.'; return; }
-      const next = collect(c, f);
-      if (!c) {
-        if (!next.fn && !next.org && !next.phones.length && !next.emails.length) { msg.textContent = 'Give the contact a name, company, phone or e-mail.'; return; }
-        next.id = SC.records.newId();
-        S.setList([...S.list, next]);
-        S.open = next.id;
-      } else {
-        S.replaceMany([next]);
-      }
+      S.replaceMany([collect(c, f)]);
       S.mode = 'view';
       S.emit('render');
     };
     const cancel = async () => {
       if (values(f) !== snapshot && !(await UI.confirm('Discard changes?', 'This contact has changes that are not saved. Discard them?', 'Discard', { danger: true }))) return;
-      if (!c) S.open = null;
       S.mode = 'view';
       S.emit('render');
     };
+    cancelNow = cancel;
     const onKey = (e) => {
       if (e.key === 'Escape') { e.preventDefault(); cancel(); }
       else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); save(); }
     };
     const form = el('form', { class: 'ed-form', novalidate: true, onsubmit: (e) => { e.preventDefault(); save(); }, onkeydown: onKey },
-      el('header', { class: 'ed-head' }, el('h2', { class: 'ed-title' }, c ? 'Edit contact' : 'New contact')),
+      el('header', { class: 'ed-head' }, el('h2', { class: 'ed-title' }, 'Edit contact')),
       el('div', { class: 'ed-body' }, el('div', { class: 'ed-in' },
         section('ed-h-name', 'Name', null, photo.el,
           el('div', { class: 'ed-grid' }, field('Name', f.name), field('Company', f.org), field('Department', f.dept), field('Job title', f.title))),
@@ -136,5 +127,6 @@
     setTimeout(() => f.name.focus({ preventScroll: true }), 30);
   }
 
-  SC.cardEdit = { render };
+  /** Leaves edit mode the way Escape does (asks first when there are unsaved changes). */
+  SC.cardEdit = { render, cancel: () => cancelNow && cancelNow() };
 })();

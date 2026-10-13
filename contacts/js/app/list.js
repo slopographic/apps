@@ -46,13 +46,16 @@
     $('btnSelect').setAttribute('aria-pressed', String(S.selectMode));
     $('btnSelect').classList.toggle('on', S.selectMode);
     const flat = S.group === 'recent';
-    const html = flat
+    const draft = !!S.draft;
+    const refocus = SC.newContact.hasFocus();
+    const html = SC.newContact.rowHtml() + (flat
       ? `<ul class="rows" role="list" aria-label="Recent">${list.map(rowHtml).join('')}</ul>`
       : sectionsOf(list).map(([k, items]) => `<section class="letter-sec" aria-labelledby="letter-${k === '#' ? 'hash' : k}">`
-        + `<h2 class="letter" id="letter-${k === '#' ? 'hash' : k}">${k}</h2><ul class="rows" role="list">${items.map(rowHtml).join('')}</ul></section>`).join('');
+        + `<h2 class="letter" id="letter-${k === '#' ? 'hash' : k}">${k}</h2><ul class="rows" role="list">${items.map(rowHtml).join('')}</ul></section>`).join(''));
     $('rows').innerHTML = html;
-    $('rows').hidden = !total || !n;
-    $('empty').hidden = !!total;
+    SC.newContact.bind($('rows'), refocus);
+    $('rows').hidden = !draft && (!total || !n);
+    $('empty').hidden = !!total || draft;
     $('noMatch').hidden = !total || !!n;
     $('noMatch').textContent = S.group && !S.query.trim() ? `No contacts in ${titleOf(S.group)} yet.` : 'No contact matches that search.';
   }

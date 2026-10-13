@@ -1,35 +1,63 @@
-/* Slop Contacts: the quick form for a new contact (name, phone, e-mail, company). It makes the contact, opens it in
- * the card and leaves the full form for the rest. Adds SlopContacts.newContact. */
+/* Slop Contacts: New contact, in the list. A row with a focused name field appears at the top of the sidebar; it is not
+ * in the list until it is created (S.draft). Enter, or leaving the field with a name, creates the contact and opens it
+ * in the card. Escape, or leaving the field empty, discards it. list.js draws the row (rowHtml) and wires it (bind).
+ * Adds SlopContacts.newContact. */
 (function () {
   'use strict';
   const SC = window.SlopContacts;
   const S = SC.state;
-  const UI = window.SlopUI;
-  const el = UI.el;
+  const INPUT = '.row-new-input';
 
-  function open() {
-    const f = {
-      name: el('input', { type: 'text', maxlength: 200, autocomplete: 'off', 'aria-label': 'Name' }),
-      phone: el('input', { type: 'tel', maxlength: 60, autocomplete: 'off', 'aria-label': 'Phone' }),
-      email: el('input', { type: 'email', maxlength: 200, autocomplete: 'off', 'aria-label': 'E-mail' }),
-      org: el('input', { type: 'text', maxlength: 200, autocomplete: 'off', 'aria-label': 'Company' }),
-    };
-    const msg = el('p', { class: 'sui-p msg', role: 'alert' });
-    UI.dialog({ title: 'New contact', body: el('form', { class: 'quick-form', novalidate: true, onsubmit: (e) => e.preventDefault() },
-      UI.field('Name', f.name), UI.field('Phone', f.phone), UI.field('E-mail', f.email), UI.field('Company', f.org), msg),
-    buttons: [{ label: 'Cancel' }, { label: 'Create', primary: true, act: () => {
-      const phone = f.phone.value.trim(), email = f.email.value.trim();
-      const c = SC.model.normalise({ id: SC.records.newId(), fn: f.name.value.trim(), org: f.org.value.trim(), stage: 'lead',
-        phones: phone ? [{ value: phone, types: ['CELL'] }] : [], emails: email ? [{ value: email, types: ['WORK'] }] : [] });
-      if (!f.name.value.trim() && !c.org && !phone && !email) { msg.textContent = 'Give the contact a name, company, phone or e-mail.'; return false; }
-      S.setList([...S.list, c]);
-      S.setSel([]);
-      S.open = c.id; S.mode = 'view';
-      S.emit('render');
-      return true;
-    } }] });
-    setTimeout(() => f.name.focus(), 30);
+  /** The draft row, or nothing when no contact is being added. */
+  function rowHtml() {
+    if (!S.draft) return '';
+    return `<ul class="rows rows-new" role="list"><li class="row-new" role="listitem">`
+      + `<input type="text" class="row-new-input" maxlength="200" autocomplete="off" placeholder="Name" aria-label="Name of the new contact"></li></ul>`;
   }
 
-  SC.newContact = { open };
+  /** Whether the draft's name field has the focus (read before the list is redrawn). */
+  const hasFocus = () => !!(document.activeElement && document.activeElement.classList.contains('row-new-input'));
+
+  /** Ends the draft: creates the contact (when it has a name and save is true), or discards it. */
+  function finish(save) {
+    const d = S.draft;
+    if (!d) return;
+    S.draft = null;
+    const name = d.fn.trim();
+    if (save && name) {
+      const c = SC.model.normalise({ id: d.id, fn: name, stage: 'lead' });
+      S.setList([...S.list, c]);
+      S.open = c.id; S.mode = 'view';
+    }
+    S.emit('render');
+  }
+
+  /** Wires the draft row after the list is drawn. The field keeps the focus when it had it. */
+  function bind(rows, refocus) {
+    const input = rows.querySelector(INPUT);
+    const d = S.draft;
+    if (!input || !d) return;
+    input.value = d.fn;
+    input.addEventListener('input', () => { d.fn = input.value; });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(false); }
+    });
+    // Deferred: a redraw removes the field, which must not end the draft.
+    input.addEventListener('blur', () => setTimeout(() => { if (input.isConnected && S.draft === d) finish(true); }, 0));
+    if (refocus) input.focus();
+  }
+
+  /** Starts a new contact at the top of the list (Cards view), with the name field focused. */
+  function open() {
+    if (!S.draft) {
+      if (S.view === 'table') SC.layout.setView('cards');
+      S.draft = { id: SC.records.newId(), fn: '' };
+      S.emit('render');
+    }
+    const input = document.querySelector(`#rows ${INPUT}`);
+    if (input) input.focus();
+  }
+
+  SC.newContact = { open, rowHtml, bind, hasFocus };
 })();

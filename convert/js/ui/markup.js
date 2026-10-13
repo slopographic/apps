@@ -6,7 +6,7 @@ export function buildTool(root, preset) {
   const id = (s) => `cv-${s}`;
   // The drop zone's content (message, Choose files button, progress) is drawn by SlopDrop (shared/drop) in tool.js.
   const drop = h('div', { class: 'cv-drop', id: id('drop') });
-  const input = h('input', { type: 'file', multiple: true, id: id('input'), class: 'cv-sr', tabindex: -1, 'aria-hidden': 'true', accept: preset && preset.accept ? preset.accept : 'image/*,application/pdf,.csv,.tsv,.json,.md,.markdown,.txt,.html,.htm,text/csv,application/json,text/markdown,text/plain,text/html' });
+  const input = h('input', { type: 'file', multiple: true, id: id('input'), class: 'cv-sr', tabindex: -1, 'aria-hidden': 'true', accept: preset && preset.accept ? preset.accept : 'image/*,application/pdf,.csv,.tsv,.vcf,.vcard,.xlsx,.json,.md,.markdown,.txt,.html,.htm,text/csv,application/json,text/markdown,text/plain,text/html' });
   const list = h('ul', { class: 'cv-files', id: id('list'), 'aria-label': 'Files to convert' });
   const target = h('select', { id: id('target') });
   const opts = h('div', { id: id('opts-body'), class: 'cv-opts-body' });

@@ -1,5 +1,6 @@
 // Slop Calendar commands for SlopCmd (the palette and remappable keys). Plain letters work outside text fields. The keys
-// are: arrows to move, t today, m, w, d, a for the views, n a new event, k to show or hide to-dos. Exposes window.SlopCal.commands.
+// are: arrows to move, t today, y, m, w, d, s, a for the views, n a new event, k to show or hide to-dos. Ctrl+Z undoes a move
+// (app.js handles it, so it works only outside text fields). Exposes window.SlopCal.commands.
 (function (g) {
   'use strict';
   const NS = (g.SlopCal = g.SlopCal || {});
@@ -8,7 +9,10 @@
     { id: 'cal.prev', title: 'Calendar: previous period', group: 'Calendar', keys: ['ArrowLeft'], keywords: ['back', 'earlier'], run: () => A().step(-1) },
     { id: 'cal.next', title: 'Calendar: next period', group: 'Calendar', keys: ['ArrowRight'], keywords: ['forward', 'later'], run: () => A().step(1) },
     { id: 'cal.today', title: 'Calendar: go to today', group: 'Calendar', keys: ['t'], run: () => A().goToday() },
+    { id: 'cal.year', title: 'Calendar: year view', group: 'Calendar', keys: ['y'], run: () => A().setView('year') },
     { id: 'cal.month', title: 'Calendar: month view', group: 'Calendar', keys: ['m'], run: () => A().setView('month') },
+    { id: 'cal.split', title: 'Calendar: split view', group: 'Calendar', keys: ['s'], keywords: ['two', 'panes', 'side'], run: () => A().setView('split') },
+    { id: 'cal.undo', title: 'Calendar: undo last move', group: 'Calendar', keys: [], keywords: ['back', 'revert', 'drag'], run: () => A().undo() },
     { id: 'cal.week', title: 'Calendar: week view', group: 'Calendar', keys: ['w'], run: () => A().setView('week') },
     { id: 'cal.day', title: 'Calendar: day view', group: 'Calendar', keys: ['d'], run: () => A().setView('day') },
     { id: 'cal.agenda', title: 'Calendar: agenda', group: 'Calendar', keys: ['a'], run: () => A().setView('agenda') },

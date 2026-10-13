@@ -14,6 +14,7 @@ import { markdownToHtml } from './markdown.js';
 import { htmlToText } from './html-text.js';
 import { bytesToBase64, base64ToBytes, urlEncode, urlDecode, setLineEndings, decodeText, EOLS } from './text.js';
 import { detectKind, EXT_OF_KIND } from './detect.js';
+import { csvToVcf, xlsxToVcf, vcfToCsv, vcfToXlsx, vcfToJson } from './vcf.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg'];
 const base = (name) => String(name).replace(/\.[^.]+$/, '') || 'file';
@@ -117,6 +118,11 @@ export const CONVERSIONS = [
     const rows = parseCsv(decodeText(new Uint8Array(await files[0].file.arrayBuffer())), { delimiter: o.delimiter === 'auto' ? undefined : o.delimiter });
     return [{ name: `${base(files[0].name)}.xlsx`, blob: await rowsToXlsx(rows) }];
   } },
+  { id: 'csv-to-vcf', label: 'CSV to vCard', group: 'Data', from: ['csv', 'txt'], ext: 'vcf', mode: 'each', options: [DELIM], run: csvToVcf },
+  { id: 'xlsx-to-vcf', label: 'XLSX to vCard', group: 'Data', from: ['xlsx'], ext: 'vcf', mode: 'each', options: [], run: xlsxToVcf },
+  { id: 'vcf-to-csv', label: 'vCard to CSV', group: 'Data', from: ['vcf'], ext: 'csv', mode: 'each', options: [], run: vcfToCsv },
+  { id: 'vcf-to-xlsx', label: 'vCard to XLSX', group: 'Data', from: ['vcf'], ext: 'xlsx', mode: 'each', options: [], run: vcfToXlsx },
+  { id: 'vcf-to-json', label: 'vCard to JSON', group: 'Data', from: ['vcf'], ext: 'json', mode: 'each', options: [], run: vcfToJson },
   { id: 'md-to-html', label: 'Markdown to HTML', group: 'Text', from: ['md', 'txt'], ext: 'html', mode: 'each', options: [
     { key: 'standalone', type: 'checkbox', label: 'Full web page (not just the fragment)', value: true },
   ], run: async (files, o) => {

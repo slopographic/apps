@@ -141,7 +141,11 @@ export async function build({ date }) {
   for (const [slug, copy] of Object.entries(PAGES)) {
     const url = `${SITE}/${slug}/`;
     const crumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: copy.crumb, item: url }] };
-    const web = { '@context': 'https://schema.org', '@type': 'WebPage', name: copy.title, description: copy.description, url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } };
+    // A tool page (copy has a category) is a SoftwareApplication, like the app pages; other pages are a WebPage.
+    const web = copy.category
+      ? { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: copy.crumb, applicationCategory: copy.category, operatingSystem: OS,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description: copy.description, url, author: AUTHOR }
+      : { '@context': 'https://schema.org', '@type': 'WebPage', name: copy.title, description: copy.description, url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } };
     pages.push({ file: path.join(ROOT, slug, 'index.html'), url, block: { title: copy.title, description: copy.description, url, image: DEFAULT_IMAGE, jsonld: [web, crumb] } });
   }
   pages.push({ file: path.join(ROOT, 'index.html'), url: `${SITE}/`, block: { title: HOME.title, description: HOME.description, url: `${SITE}/`, image: DEFAULT_IMAGE, jsonld: homeJsonLd(apps) } });

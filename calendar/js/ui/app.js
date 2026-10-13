@@ -1,38 +1,25 @@
-// Slop Calendar boot: opens the shared store, keeps the period, view, viewer zone and task layer, draws the chosen view
-// from the model, and redraws when the store changes (this tab or another). On a phone the week and day views show the
-// agenda. Starts the reminder engine so due reminders pop up while this tab is open. Exposes window.SlopCal.app.
+// Slop Calendar boot: opens the shared store, keeps the period, view, split pair, viewer zone and task layer, draws the
+// chosen view from the model, and redraws when the store changes (this tab or another). A drag that moves or resizes an
+// event is one undo step (the toast's Undo, or Ctrl+Z). On a phone the week, day and split views show the agenda. Starts
+// the reminder engine so due reminders pop up while this tab is open. Exposes window.SlopCal.app.
 (function (g) {
   'use strict';
-  const S = g.SlopData, T = g.SlopTime, NS = (g.SlopCal = g.SlopCal || {}), UI = g.SlopUI, el = UI.el;
+  const S = g.SlopData, T = g.SlopTime, NS = (g.SlopCal = g.SlopCal || {}), UI = g.SlopUI;
   const $ = (id) => document.getElementById(id);
-  const KEY = { zone: 'slop-calendar.zone', tasks: 'slop-calendar.tasks', view: 'slop-calendar.view' };
-  const VIEWS = ['month', 'week', 'day', 'agenda'];
+  const KEY = { zone: 'slop-calendar.zone', tasks: 'slop-calendar.tasks', view: 'slop-calendar.view', split: 'slop-calendar.split' };
+  const VIEWS = ['year', 'month', 'week', 'day', 'split', 'agenda'];
+  const PHONE_AGENDA = ['week', 'day', 'split'];
   const NARROW = g.matchMedia ? g.matchMedia('(max-width: 640px)') : null;
   const get = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
   const put = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked: the setting lasts this visit */ } };
   let timer = 0;
-  const state = { view: 'month', anchor: '', zone: T.deviceZone(), showTasks: true, locale: undefined, today: '', seq: 0 };
+  const state = { view: 'month', anchor: '', zone: T.deviceZone(), showTasks: true, locale: undefined, today: '', seq: 0, pair: null };
   NS.state = state;
 
   const narrow = () => !!(NARROW && NARROW.matches);
-  /** The view drawn: on a phone the week and day views show the agenda. */
-  const effective = () => (narrow() && (state.view === 'week' || state.view === 'day') ? 'agenda' : state.view);
-
-  /** First and last viewer day for the view. */
-  function rangeOf(view) {
-    if (view === 'month') { const days = NS.month.gridDays(state.anchor); return [days[0], days[41]]; }
-    if (view === 'week') { const s = T.weekStart(state.anchor); return [s, T.addDays(s, 6)]; }
-    if (view === 'day') return [state.anchor, state.anchor];
-    return [state.anchor, T.addDays(state.anchor, NS.agenda.SPAN - 1)];
-  }
-
-  function titleOf(view) {
-    const loc = state.locale;
-    if (view === 'month') return T.dayText(state.anchor, loc, { month: 'long', year: 'numeric' });
-    if (view === 'week') { const [a, b] = rangeOf('week'); return `${T.dayText(a, loc, { day: 'numeric', month: 'short' })} – ${T.dayText(b, loc, { day: 'numeric', month: 'short', year: 'numeric' })}`; }
-    if (view === 'day') return T.dayText(state.anchor, loc, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    return `Next ${NS.agenda.SPAN} days from ${T.dayText(state.anchor, loc, { day: 'numeric', month: 'short' })}`;
-  }
+  /** The view drawn: on a phone the week, day and split views show the agenda. */
+  const effective = () => (narrow() && PHONE_AGENDA.includes(state.view) ? 'agenda' : state.view);
+  const titleOf = (view) => NS.periods.titleOf(view, state.anchor, state.locale, state.pair);
 
   /** Opens an item: an event in the editor, a task in To-do. */
   function open(it) {
@@ -45,9 +32,25 @@
     if (!r.ok) UI.toast(r.message || 'Could not update the task.');
   }
 
-  async function commit(it, change) {
+  /**
+   * Saves a drag's change to an event. The values it replaces are kept, so the move is one undo step, and the toast offers
+   * Undo for it.
+   */
+  async function commit(it, change, what) {
+    const cur = await S.store.get('events', it.id);
+    if (!cur.ok || !cur.value) { UI.toast('That event no longer exists.'); return; }
+    const before = {};
+    for (const k of Object.keys(change)) before[k] = cur.value[k];
     const r = await g.SlopEvents.patch(it.id, change);
-    if (!r.ok) UI.toast(r.message || 'Could not move the event.');
+    if (!r.ok) { UI.toast(r.message || 'Could not move the event.'); return; }
+    NS.history.push(what, () => g.SlopEvents.patch(it.id, before));
+    UI.toast(`${what}.`, 6000, { label: 'Undo', run: undo });
+  }
+
+  /** Undoes the newest move and says what was undone. */
+  async function undo() {
+    const r = await NS.history.undo();
+    UI.toast(r.ok ? `Undone: ${r.label}.` : r.message);
   }
 
   function newAt(day, minutes) { NS.editor.open({ day, minutes, zone: state.zone }); }
@@ -57,34 +60,34 @@
     const seq = ++state.seq;
     state.today = T.todayIn(state.zone);
     const view = effective();
-    const [a, b] = rangeOf(view);
+    const [a, b] = NS.periods.rangeOf(view, state.anchor, state.pair);
     const r = await NS.model.load(a, b, state.zone, { showTasks: state.showTasks });
     if (seq !== state.seq) return;
     const root = $('cView');
-    if (!r.ok) { root.replaceChildren(el('p', { class: 'msg', role: 'alert' }, r.message || 'Could not read the calendar.')); return; }
+    if (!r.ok) { root.replaceChildren(UI.el('p', { class: 'msg', role: 'alert' }, r.message || 'Could not read the calendar.')); return; }
     const ctx = { zone: state.zone, locale: state.locale, items: r.value, today: state.today, open, complete, commit, newAt,
-      dayView: (d) => setView('day', d) };
-    if (view === 'month') NS.month.render(root, state.anchor, ctx);
-    else if (view === 'week') NS.timegrid.render(root, Array.from({ length: 7 }, (_, i) => T.addDays(a, i)), ctx);
-    else if (view === 'day') NS.timegrid.render(root, [state.anchor], ctx);
+      pair: state.pair, select, openMonth: (d) => setView('month', d),
+      dayView: (d) => (state.view === 'split' ? select(d) : setView('day', d)) };
+    if (view === 'year') NS.year.render(root, state.anchor, ctx);
+    else if (view === 'month') NS.month.render(root, state.anchor, ctx);
+    else if (view === 'split') NS.split.render(root, state.anchor, ctx);
+    else if (view === 'week' || view === 'day') NS.timegrid.render(root, NS.periods.daysOf(view, state.anchor), ctx);
     else NS.agenda.render(root, state.anchor, ctx);
     $('cTitle').textContent = titleOf(view);
     for (const btn of document.querySelectorAll('[data-view]')) {
-      const on = btn.dataset.view === state.view;
-      btn.setAttribute('aria-pressed', String(on));
-      btn.hidden = narrow() && (btn.dataset.view === 'week' || btn.dataset.view === 'day');
+      btn.setAttribute('aria-pressed', String(btn.dataset.view === state.view));
+      btn.hidden = narrow() && PHONE_AGENDA.includes(btn.dataset.view);
     }
+    $('cSplit').hidden = state.view !== 'split';
+    $('cSplit').value = state.pair.key;
     $('cTasks').checked = state.showTasks;
     $('cNote').textContent = `Times are in ${state.zone}${T.zoneLabel(Date.now(), state.zone) ? ` (${T.zoneLabel(Date.now(), state.zone)})` : ''}. Events show their own zone too.`;
   }
   const refreshSoon = () => { clearTimeout(timer); timer = setTimeout(render, 40); };
 
-  /** Moves the period: a month, a week, a day or the agenda span. dir is -1 or 1. */
+  /** Moves the period by one step of the view (a month, a year, a week, a day, the agenda span). dir is -1 or 1. */
   function step(dir) {
-    const v = effective();
-    const days = v === 'month' ? null : v === 'week' ? 7 : v === 'day' ? 1 : NS.agenda.SPAN;
-    if (v === 'month') state.anchor = `${T.addDays(state.anchor.slice(0, 8) + '01', dir > 0 ? 32 : -1).slice(0, 8)}01`;
-    else state.anchor = T.addDays(state.anchor, dir * days);
+    state.anchor = NS.periods.stepAnchor(effective(), state.anchor, dir, state.pair);
     return render();
   }
 
@@ -93,6 +96,15 @@
     state.view = view;
     if (day) state.anchor = day;
     put(KEY.view, view);
+    return render();
+  }
+
+  /** Makes a day the anchor: the split view's left pane picks it, and the right pane shows it. */
+  function select(day) { state.anchor = day; return render(); }
+
+  function setSplit(key) {
+    state.pair = NS.periods.pairOf(key);
+    put(KEY.split, state.pair.key);
     return render();
   }
 
@@ -114,7 +126,7 @@
   /** The zone list: every zone the browser knows, with the viewer's zone first. */
   function fillZones() {
     const sel = $('cZone');
-    sel.replaceChildren(...NS.editor.zoneChoices(state.zone).map((z) => el('option', { value: z, selected: z === state.zone }, z)));
+    sel.replaceChildren(...NS.editor.zoneChoices(state.zone).map((z) => UI.el('option', { value: z, selected: z === state.zone }, z)));
   }
 
   async function importIcs() {
@@ -128,17 +140,29 @@
     UI.menu(items, r.left, r.bottom + 4);
   }
 
+  /** Ctrl+Z (Cmd+Z) undoes the last move, unless a text field or a dialog has the focus. */
+  function onUndoKey(e) {
+    if ((e.key || '').toLowerCase() !== 'z' || !(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    if (document.querySelector('.sui-dlg') || !NS.history.size) return;
+    e.preventDefault();
+    undo();
+  }
+
   function wire() {
     for (const btn of document.querySelectorAll('[data-view]')) btn.addEventListener('click', () => setView(btn.dataset.view));
     $('cPrev').addEventListener('click', () => step(-1));
     $('cNext').addEventListener('click', () => step(1));
     $('cToday').addEventListener('click', goToday);
     $('cNew').addEventListener('click', () => newAt(state.anchor, 9 * 60));
+    $('cSplit').addEventListener('change', (e) => setSplit(e.target.value));
     $('cTasks').addEventListener('change', (e) => toggleTasks(e.target.checked));
     $('cZone').addEventListener('change', (e) => setZone(e.target.value));
     $('cExport').addEventListener('click', () => NS.ics.exportIcs());
     $('cImport').addEventListener('click', importIcs);
     $('cConfig').addEventListener('click', configMenu);
+    document.addEventListener('keydown', onUndoKey);
     if (NARROW && NARROW.addEventListener) NARROW.addEventListener('change', () => render());
     addEventListener('hashchange', () => { const h = location.hash.slice(1); if (VIEWS.includes(h)) setView(h); });
   }
@@ -151,6 +175,7 @@
     const zone = get(KEY.zone, '');
     if (T.isZone(zone)) state.zone = zone;
     state.showTasks = get(KEY.tasks, '1') !== '0';
+    state.pair = NS.periods.pairOf(get(KEY.split, ''));
     const v = location.hash.slice(1) || get(KEY.view, narrow() ? 'agenda' : 'month');
     state.view = VIEWS.includes(v) ? v : 'month';
     state.anchor = T.todayIn(state.zone);
@@ -164,7 +189,7 @@
     $('cBoot').hidden = true;
   }
 
-  NS.app = { boot, render, step, setView, goToday, toggleTasks, setZone, newAt, importIcs, open };
+  NS.app = { boot, render, step, setView, select, setSplit, goToday, toggleTasks, setZone, newAt, importIcs, open, undo };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })(typeof window !== 'undefined' ? window : globalThis);

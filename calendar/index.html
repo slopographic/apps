@@ -70,6 +70,7 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="css/calendar.css">
+  <link rel="stylesheet" href="css/views.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -90,11 +91,18 @@
       <button type="button" class="btn" id="cNext" aria-label="Next period" title="Next (Right arrow)">›</button>
       <h2 id="cTitle" aria-live="polite"></h2>
       <div class="seg" role="group" aria-label="View">
+        <button type="button" data-view="year" aria-pressed="false" title="Year (Y)">Year</button>
         <button type="button" data-view="month" aria-pressed="true" title="Month (M)">Month</button>
         <button type="button" data-view="week" aria-pressed="false" title="Week (W)">Week</button>
         <button type="button" data-view="day" aria-pressed="false" title="Day (D)">Day</button>
+        <button type="button" data-view="split" aria-pressed="false" title="Split (S)">Split</button>
         <button type="button" data-view="agenda" aria-pressed="false" title="Agenda (A)">Agenda</button>
       </div>
+      <select id="cSplit" hidden aria-label="Panes in the split view" title="The two panes of the split view">
+        <option value="month-day">Month and day</option>
+        <option value="month-week">Month and week</option>
+        <option value="week-day">Week and day</option>
+      </select>
       <label><input type="checkbox" id="cTasks"> To-dos</label>
       <label>Show times in <select id="cZone" aria-label="Show times in this time zone"></select></label>
       <button type="button" class="btn primary" id="cNew" title="New event (N)">New event</button>
@@ -149,11 +157,15 @@
   <script src="../shared/reminders/core.js"></script>
   <script src="../shared/reminders/engine.js"></script>
   <script src="js/core/model.js"></script>
+  <script src="js/core/periods.js"></script>
+  <script src="js/core/history.js"></script>
   <script src="js/config.js"></script>
   <script src="js/ui/chip.js"></script>
   <script src="js/ui/drag.js"></script>
   <script src="js/ui/timegrid.js"></script>
   <script src="js/ui/month.js"></script>
+  <script src="js/ui/year.js"></script>
+  <script src="js/ui/split.js"></script>
   <script src="js/ui/agenda.js"></script>
   <script src="js/ui/editor.js"></script>
   <script src="js/ui/ics-ui.js"></script>

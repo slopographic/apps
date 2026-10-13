@@ -12,7 +12,7 @@ decode, line endings) stay because they also take uploaded files.
 - `index.html`: the hub (generated, see "SEO pages" below). Drop zone, target picker, batch, zip.
 - `<slug>/index.html`: one static page per converter, with the same tool embedded.
 - `css/convert.css`: tokens on `:root`, dark by default, light via `prefers-color-scheme` or `data-theme`.
-- `js/core/`: pure converters. `catalog.js` lists them; `pages.js` lists the SEO pages.
+- `js/core/`: pure converters. `catalog.js` lists them; `pages.js` lists the SEO pages. `vcf.js` runs the vCard pairs and loads the Contacts vCard code (`contacts/js/core/`) into the page; `vcf-map.js` holds their header rule.
 - `js/ui/`: the tool controller (`tool.js`), its markup (`markup.js`), options, batch runner and `mount.js`.
 - `js/preview/`: the live preview (see below). `mount.js` is its entry point; `controller.js` debounces and runs the actions; `model.js` runs the converter for the preview; `view.js` draws the block; `diff.js` and `spec.js` hold the line diff and the limits.
 - `js/io/`: file helpers, and `zip.js`, a re-export of `shared/office/zip.js` (ZIP writer and reader, shared with the other apps).
@@ -33,6 +33,11 @@ decode, line endings) stay because they also take uploaded files.
 | CSV to JSON | CSV | JSON array of objects (or arrays) | RFC 4180 quoting. Numbers stay text unless "numbers" is ticked and round-trips exactly. |
 | JSON to CSV | JSON | CSV | Array of objects (union of keys), arrays, or one value per row. Nested values as JSON text. |
 | CSV to XLSX | CSV | one-sheet XLSX | Values only (no formatting or formulas). Numbers that would lose precision are text. |
+| CSV to vCard | CSV | vCard 3.0 (.vcf), one card per row | Header names are matched case-insensitively (see `js/core/vcf-map.js`). The status line lists the recognised columns. Photos are not in CSV. |
+| XLSX to vCard | XLSX | vCard 3.0 (.vcf) | First sheet only; the first row holds the column names. Formulas are not calculated. |
+| vCard to CSV | vCard (.vcf, 2.1, 3.0 or 4.0) | CSV: Name, First name, Last name, Organisation, Job title, E-mail, Phone, Address, Website, Note | Read by the Contacts vCard code. Photos are left out. Several values in a cell are joined with "; ". |
+| vCard to XLSX | vCard | one-sheet XLSX, same columns as vCard to CSV | Values only. Photos are left out. |
+| vCard to JSON | vCard | JSON array, one object per contact | Field names follow the Contacts model (fn, name, emails, phones, adr, org, title, url, note). Photos are left out. |
 | Markdown to HTML | Markdown | HTML page or fragment | No tables, nested lists or footnotes. Raw HTML is escaped (shown as text). |
 | HTML to text | HTML | plain text | Visible text only; scripts and styles removed. |
 | Base64 encode / decode | any / text | .base64.txt / original bytes | Decode detects PNG, JPG, PDF and other signatures to pick the extension. |

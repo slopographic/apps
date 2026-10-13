@@ -9,16 +9,17 @@ const MAGIC = [
 const EXT = {
   png: 'png', jpg: 'jpg', jpeg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg',
   pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', markdown: 'md', txt: 'txt', text: 'txt',
-  html: 'html', htm: 'html',
+  html: 'html', htm: 'html', vcf: 'vcf', vcard: 'vcf', xlsx: 'xlsx',
 };
 const MIME = {
   'image/png': 'png', 'image/jpeg': 'jpg', 'image/pjpeg': 'jpg', 'image/webp': 'webp', 'image/bmp': 'bmp', 'image/x-ms-bmp': 'bmp',
   'image/gif': 'gif', 'image/svg+xml': 'svg', 'application/pdf': 'pdf', 'text/csv': 'csv', 'application/json': 'json',
-  'text/markdown': 'md', 'text/plain': 'txt', 'text/html': 'html',
+  'text/markdown': 'md', 'text/plain': 'txt', 'text/html': 'html', 'text/vcard': 'vcf', 'text/x-vcard': 'vcf',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
 };
 /** Extension used when a file of this kind is saved. */
-export const EXT_OF_KIND = { png: 'png', jpg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg', pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', txt: 'txt', html: 'html', bin: 'bin' };
-export const TEXT_KINDS = ['csv', 'json', 'md', 'txt', 'html'];
+export const EXT_OF_KIND = { png: 'png', jpg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg', pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', txt: 'txt', html: 'html', vcf: 'vcf', xlsx: 'xlsx', bin: 'bin' };
+export const TEXT_KINDS = ['csv', 'json', 'md', 'txt', 'html', 'vcf'];
 
 const startsWith = (head, sig) => sig.every((b, i) => head[i] === b);
 const ascii = (head, from, len) => String.fromCharCode(...head.subarray(from, from + len));
@@ -59,4 +60,4 @@ export function detectKind(name = '', type = '', head = null) {
 }
 
 /** Human label for a kind. */
-export const KIND_LABEL = { png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', bin: 'Binary file' };
+export const KIND_LABEL = { png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', vcf: 'vCard', xlsx: 'Excel (XLSX)', bin: 'Binary file' };

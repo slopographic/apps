@@ -52,3 +52,10 @@
   .imp-row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .imp-sub, .imp-status { white-space: normal; }
 }
+
+/* vCard tools (Groups column, under the filters): a plain disclosure with links to the vCard converter pages */
+.vcard-tools { margin: 18px 12px 0; font-size: 12px; color: var(--sl-text-muted); }
+.vcard-tools summary { cursor: pointer; font-weight: 600; color: var(--sl-text); }
+.vcard-tools p { margin: 8px 0; line-height: 1.45; }
+.vcard-tools ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.vcard-tools a { color: var(--sl-accent); }

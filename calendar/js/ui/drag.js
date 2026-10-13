@@ -1,71 +1,109 @@
-// Drag to move or resize a timed event in the time grid. Moves snap to 15 minutes and may cross days. The move is
-// worked out on the viewer's wall clock (so a move across a daylight saving change keeps the reading) and saved as an
-// instant in the event's own zone. A repeating event moves or resizes as a whole series. A press without movement
-// counts as a click. Exposes window.SlopCal.drag.
+// Pointer drag for the calendar views. track() follows a press on a chip or block: move while the pointer is down, drop on
+// release, and a press that never moved is a click. The helpers work out what a drop changes, and return the change to
+// save on the event record. Times are worked out on the viewer's wall clock and saved as instants in the event's zone.
+// A repeating event moves or resizes as a whole series, by the same amount as the occurrence. Moves land on the half
+// hour, resizes move in 15-minute steps. Exposes window.SlopCal.drag.
 (function (g) {
   'use strict';
   const T = g.SlopTime;
   const NS = (g.SlopCal = g.SlopCal || {});
-  const SNAP = 15, MIN = 60000, THRESH = 4;
+  const MIN = 60000, DAY = 1440, THRESH = 4;
+  const MOVE_SNAP = 30, RESIZE_SNAP = 15;
 
   /**
-   * Starts a drag from a pointer press on a block. mode 'move' or 'resize'. opts: { pxPerHour, zone, onCommit({ start, end }),
-   * onClick() }. The block moves with the pointer; nothing is saved until the pointer is released.
+   * Follows a drag that starts with a press on node. h: { start(p), move(p), drop(p), end(), click() }, where p is
+   * { x, y, dx, dy } in viewport pixels from the press. drop runs only after a real move; end runs after every drag.
    */
-  function begin(e, node, it, mode, opts) {
+  function track(e, node, h) {
     if (e.button !== undefined && e.button !== 0) return;
-    const x0 = e.clientX, y0 = e.clientY, pxMin = opts.pxPerHour / 60;
-    const colWidth = node.parentElement ? node.parentElement.getBoundingClientRect().width : 0;
-    const baseH = node.offsetHeight;
-    let moved = false, dOff = 0, dMin = 0;
-    try { node.setPointerCapture(e.pointerId); } catch (err) { /* not supported: the drag still works while over the block */ }
-
+    const x0 = e.clientX, y0 = e.clientY;
+    let moved = false;
+    const at = (ev) => ({ x: ev.clientX, y: ev.clientY, dx: ev.clientX - x0, dy: ev.clientY - y0 });
+    const off = () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onCancel);
+    };
+    const finish = () => { off(); node.classList.remove('dragging'); if (h.end) h.end(); };
     const onMove = (ev) => {
-      const dx = ev.clientX - x0, dy = ev.clientY - y0;
-      if (!moved && Math.hypot(dx, dy) < THRESH) return;
-      moved = true;
-      node.classList.add('dragging');
-      dMin = Math.round(dy / pxMin / SNAP) * SNAP;
-      if (mode === 'move') {
-        dOff = colWidth ? Math.round(dx / colWidth) : 0;
-        node.style.transform = `translate(${dOff * colWidth}px, ${dMin * pxMin}px)`;
-      } else {
-        node.style.height = `${Math.max(SNAP * pxMin, baseH + dMin * pxMin)}px`;
+      const p = at(ev);
+      if (!moved) {
+        if (Math.hypot(p.dx, p.dy) < THRESH) return;
+        moved = true;
+        node.classList.add('dragging');
+        if (h.start) h.start(p);
       }
+      if (h.move) h.move(p);
     };
-
-    const finish = (ev) => {
-      node.removeEventListener('pointermove', onMove);
-      node.removeEventListener('pointerup', finish);
-      node.removeEventListener('pointercancel', cancel);
-      try { node.releasePointerCapture(ev.pointerId); } catch (err) { /* already released */ }
-      node.classList.remove('dragging');
-      node.style.transform = '';
-      node.style.height = '';
-      if (!moved) { if (opts.onClick) opts.onClick(); return; }
-      const change = compute(it, mode, dOff, dMin, opts.zone);
-      if (change && opts.onCommit) opts.onCommit(change);
+    const onUp = (ev) => {
+      const p = at(ev), was = moved;
+      finish();
+      if (!was) { if (h.click) h.click(); return; }
+      stopClick();
+      if (h.drop) h.drop(p);
     };
-    const cancel = () => { node.style.transform = ''; node.style.height = ''; node.classList.remove('dragging'); moved = false; };
-    node.addEventListener('pointermove', onMove);
-    node.addEventListener('pointerup', finish);
-    node.addEventListener('pointercancel', cancel);
+    const onCancel = () => finish();
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onCancel);
   }
 
-  /** The new { start, end } for a move or resize, or null when nothing changed. */
-  function compute(it, mode, dOff, dMin, zone) {
-    if (mode === 'resize') {
-      const end = it.end + dMin * MIN;
-      const min = it.start + SNAP * MIN;
-      const next = Math.max(min, end);
-      return next === it.end ? null : { start: it.start, end: next };
-    }
-    if (!dOff && !dMin) return null;
+  /** The click that follows a drop is swallowed, so releasing a chip does not open it. */
+  function stopClick() {
+    const stop = (c) => { c.stopPropagation(); c.preventDefault(); };
+    document.addEventListener('click', stop, { capture: true, once: true });
+    setTimeout(() => document.removeEventListener('click', stop, { capture: true }), 300);
+  }
+
+  /** The minute of the day (0 to 1439) a timed item starts, in the viewer's zone. */
+  function minuteOf(it, zone) { const p = T.parts(it.start, zone); return p.h * 60 + p.mi; }
+
+  /** The instant of a wall-clock reading (given as a UTC Date value) in zone. */
+  function instantOf(wall, zone) {
+    const w = new Date(wall);
+    return T.wallToUtc(w.getUTCFullYear(), w.getUTCMonth() + 1, w.getUTCDate(), w.getUTCHours(), w.getUTCMinutes(), zone);
+  }
+
+  /**
+   * A timed event moved dayShift days, and started at toMin (minute of that day) when given, else at its own time.
+   * Returns { start, end, change } for the occurrence and the record, or null when nothing changes.
+   */
+  function timedMove(it, dayShift, toMin, zone) {
     const p = T.parts(it.start, zone);
-    const wall = new Date(Date.UTC(p.y, p.mo - 1, p.d, p.h, p.mi) + (dOff * 1440 + dMin) * MIN);
-    const start = T.wallToUtc(wall.getUTCFullYear(), wall.getUTCMonth() + 1, wall.getUTCDate(), wall.getUTCHours(), wall.getUTCMinutes(), zone);
-    return { start, end: start + (it.end - it.start) };
+    const origMin = p.h * 60 + p.mi, minute = toMin === undefined ? origMin : toMin;
+    if (!dayShift && minute === origMin) return null;
+    const start = instantOf(Date.UTC(p.y, p.mo - 1, p.d + dayShift, 0, minute), zone);
+    const delta = start - it.start;
+    if (!delta) return null;
+    return { start, end: it.end + delta, change: { start: it.rec.start + delta, end: it.rec.end + delta } };
   }
 
-  NS.drag = { begin, compute, SNAP };
+  /** An all-day event moved n days. Returns { change } or null. */
+  function dayMove(it, n) {
+    if (!n) return null;
+    const r = it.rec;
+    return { change: { startDay: T.addDays(r.startDay, n), endDay: T.addDays(r.endDay || r.startDay, n) } };
+  }
+
+  /** A timed event's end moved by dyMin minutes (in 15-minute steps, never shorter than one step). Returns { end, change } or null. */
+  function resizeEnd(it, dyMin) {
+    const step = Math.round(dyMin / RESIZE_SNAP) * RESIZE_SNAP;
+    if (!step) return null;
+    const end = Math.max(it.start + RESIZE_SNAP * MIN, it.end + step * MIN);
+    const delta = end - it.end;
+    if (!delta) return null;
+    return { end, change: { end: it.rec.end + delta } };
+  }
+
+  /** A small label that follows the pointer while dragging, with the new day and time. */
+  let tipEl = null;
+  function tip(text, x, y) {
+    if (!tipEl) { tipEl = document.createElement('div'); tipEl.className = 'dr-tip'; tipEl.setAttribute('aria-hidden', 'true'); document.body.append(tipEl); }
+    tipEl.textContent = text;
+    tipEl.style.left = `${x + 14}px`;
+    tipEl.style.top = `${y - 34}px`;
+  }
+  function tipHide() { if (tipEl) tipEl.remove(); tipEl = null; }
+
+  NS.drag = { track, timedMove, dayMove, resizeEnd, minuteOf, tip, tipHide, MOVE_SNAP, RESIZE_SNAP };
 })(typeof window !== 'undefined' ? window : globalThis);

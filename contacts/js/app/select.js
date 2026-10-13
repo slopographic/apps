@@ -87,6 +87,7 @@
       e.dataTransfer.effectAllowed = 'copyMove';
     });
     rows.addEventListener('keydown', (e) => {
+      if (e.target.closest('input, textarea')) return; // the New contact name field has its own keys
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); move(e.key === 'ArrowDown' ? 1 : -1); }
       else if (e.key === 'Enter' && S.focus) { e.preventDefault(); open(S.focus); }
       else if (e.key === ' ' && S.focus) {

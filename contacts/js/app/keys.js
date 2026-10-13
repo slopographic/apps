@@ -29,6 +29,7 @@
       return;
     }
     if (k === 'Escape') {
+      if (S.mode === 'edit' && S.open) { SC.cardEdit.cancel(); return; }
       if (S.sel.size) { S.setSel([]); return; }
       if (document.body.classList.contains('groups-open')) { SC.groups.sheet(false); return; }
       if (S.mode === 'view' && S.open) { S.open = null; S.emit('render'); }
