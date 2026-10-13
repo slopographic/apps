@@ -4,7 +4,8 @@
    the run's family when that family is installed (shared/fonts), else in the family the person chose in the asset check
    (font-check.js), else in the closest bundled family; standard families (Helvetica, Times, Courier) stay standard. The info
    line says which font the run uses and what the new text is set in. Words of a recognised page (the invisible OCR layer,
-   ocr/layer.js) are not covered: their characters are replaced in the page's content, so the old word leaves the file. */
+   ocr/layer.js) are not covered by a box: their characters are replaced in the page's content, the picture under them is
+   painted over with the paper colour, and the new text is drawn in Helvetica there, so the page looks edited. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._, M = window.SlopPdfMacro, F = window.SlopPdfFind;
@@ -144,6 +145,26 @@
     if (!best || bestSum > 600) return '#000000'; // nothing dark: keep black
     return '#' + best.map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
   }
+  /** The paper colour round the run on the rendered page: the median of the ring of pixels just outside its box, as
+   * [r, g, b] in 0..1. White when the page is not rendered. */
+  function surroundColour(s, run) {
+    var c = s && s.canvas, g = c && c.width ? E.geom(E.pageById(s.pid)) : null;
+    if (!g || !g.W) return [1, 1, 1];
+    var k = c.width / g.W, b = run.box, pad = 3, ctx = c.getContext('2d');
+    var x0 = Math.max(0, Math.floor((b.x - pad) * k)), y0 = Math.max(0, Math.floor((b.y - pad) * k));
+    var x1 = Math.min(c.width, Math.ceil((b.x + b.w + pad) * k)), y1 = Math.min(c.height, Math.ceil((b.y + b.h + pad) * k));
+    if (x1 <= x0 || y1 <= y0) return [1, 1, 1];
+    var d = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data, ix0 = b.x * k, iy0 = b.y * k, ix1 = (b.x + b.w) * k, iy1 = (b.y + b.h) * k;
+    var ch = [[], [], []];
+    for (var y = y0; y < y1; y++) for (var x = x0; x < x1; x++) {
+      if (x >= ix0 && x < ix1 && y >= iy0 && y < iy1) continue; // the run's own box is not the paper
+      var i = ((y - y0) * (x1 - x0) + (x - x0)) * 4;
+      if (d[i + 3] < 128) continue;
+      ch[0].push(d[i]); ch[1].push(d[i + 1]); ch[2].push(d[i + 2]);
+    }
+    if (!ch[0].length) return [1, 1, 1];
+    return ch.map(function (a) { a.sort(function (p, q) { return p - q; }); return a[a.length >> 1] / 255; });
+  }
   /** Edit text on the run under a selection (sel-bar.js): the run that overlaps the rect {x0, y0, x1, y1} most. */
   Ed.editSelectionRun = function (p, rect) {
     return runsOf(p).then(function (r) {
@@ -185,7 +206,7 @@
    * step; the page gets a copy of its file, as recognise does). A word that cannot be found is covered as ordinary text. */
   S.replaceOcrRun = function (p, run, text, s, font) {
     (async function () {
-      var f = E.fileOfPage(p), bytes = await SP.ocrLayer.replaceWord(f.bytes, p.i, run, text);
+      var f = E.fileOfPage(p), bytes = await SP.ocrLayer.replaceWord(f.bytes, p.i, run, text, surroundColour(s, run));
       if (!bytes) { S.coverRun(p, run, font, text, s); return; }
       var made = await E.registerPdf(bytes, f.name, null);
       made.noLog = true; made.ocr = true; // generated: its bytes cannot be replayed from the edit log

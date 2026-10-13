@@ -72,6 +72,8 @@
      matrix `sx 0 0 1 x y Tm`, then `<hex> Tj`, so the words are found in the page's decoded content by that pattern. */
   var WORD = /\/SlopOCR[-\w]*\s+[-+.\w]+\s+Tf\s+((?:[-+.\w]+\s+){5}[-+.\w]+)\s+Tm\s+<([0-9A-Fa-f]*)>\s*Tj/g;
 
+  /** A number as content-stream text (fixed point, so no exponent form). */
+  function num(v) { return (+v).toFixed(3); }
   function latin1(b) {
     var s = '';
     for (var i = 0; i < b.length; i += 8192) s += String.fromCharCode.apply(null, b.subarray(i, i + 8192));
@@ -117,19 +119,26 @@
 
   /**
    * Replaces the text of an invisible OCR run in a copy of the file. index: the page (0-based); at: the run as the editor
-   * lists it ({ str, x0, y, width }). pdf.js can join several layer words into one run (a line, or a few words on it):
-   * the run's words are found in the content, the first takes `text` and the rest are emptied, so their place stays and
-   * the old characters are gone. Resolves to the new bytes, or null when the run's words are not found as listed.
+   * lists it ({ str, x0, y, width, fs }); bg: [r, g, b] in 0..1, the paper colour round the word (the editor samples it).
+   * pdf.js can join several layer words into one run (a line, or a few words on it): the run's old words are emptied in
+   * place, so the old characters leave the file. The picture under the run is painted over with the paper colour, and
+   * the new text is drawn in Helvetica at the run's baseline, size and left edge, as visible text (the new words stay
+   * recognised: they are found by wordsAll, so a later edit replaces them too). Both are appended to the page's content.
+   * Resolves to the new bytes, or null when the run's words are not found as listed.
    */
-  OL.replaceWord = async function (bytes, index, at, text) {
+  OL.replaceWord = async function (bytes, index, at, text, bg) {
     var L = window.PDFLib, doc = await load(bytes), page = doc.getPage(index), c = contentOf(doc, page);
     var words = wordsIn(c.text).filter(function (w) {
       return w.str !== '' && Math.abs(w.y - at.y) < 0.05 && w.x > at.x0 - 0.05 && w.x < at.x0 + at.width + 0.05;
     });
     if (!words.length || Math.abs(words[0].x - at.x0) > 0.05 || words.map(function (w) { return w.str; }).join(' ') !== at.str) return null;
-    var font = await doc.embedFont(L.StandardFonts.Helvetica);
-    var hex = font.encodeText(drawable(font, text)).toString().slice(1, -1), out = c.text;
-    for (var i = words.length - 1; i >= 0; i--) out = out.slice(0, words[i].start) + (i ? '' : hex) + out.slice(words[i].end);
+    var font = await doc.embedFont(L.StandardFonts.Helvetica), name = page.node.newFontDictionary('SlopOCR', font.ref).toString();
+    var hex = font.encodeText(drawable(font, text)).toString().slice(1, -1), out = c.text, fs = at.fs, col = bg || [1, 1, 1];
+    for (var i = words.length - 1; i >= 0; i--) out = out.slice(0, words[i].start) + out.slice(words[i].end);
+    // the paint: from the descender to above the capitals (a little more than the glyphs, not reaching the next line)
+    var box = [at.x0 - 0.5, at.y - 0.25 * fs, at.width + 1, 1.2 * fs].map(num);
+    out += '\nq ' + col.map(num).join(' ') + ' rg ' + box.join(' ') + ' re f Q\n' +
+      'q BT 0 Tr 0 g ' + name + ' ' + num(fs) + ' Tf 1 0 0 1 ' + num(at.x0) + ' ' + num(at.y) + ' Tm <' + hex + '> Tj ET Q\n';
     // one content stream replaces the old ones, which are deleted so the old characters are not left in the file
     var ref = doc.context.register(doc.context.flateStream(bytesOf(out)));
     c.refs.forEach(function (r) { doc.context.delete(r); });
