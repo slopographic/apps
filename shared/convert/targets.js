@@ -4,6 +4,7 @@
  * takes (from), how many files it needs (min) and its options. Classic conventions, ES module. */
 import { CONVERSIONS } from '../../convert/js/core/catalog.js';
 import { readPages } from './pdf-layout.js';
+import { htmlToPdf } from './html-pdf.js';
 
 /** A converter with some options fixed (PDF to PNG is "PDF to images" with the format set and the format choice hidden). */
 function preset(base, id, label, fixed, hide) {
@@ -24,7 +25,18 @@ const PDF_TEXT = {
   ], run: pdfToText,
 };
 
-export const TARGETS = CONVERSIONS.flatMap((c) => {
+/** HTML to a picture PDF (html-pdf.js): the page is drawn as pictures, so its text is not selectable. */
+const HTML_PDF = {
+  id: 'html-to-pdf', label: 'Picture PDF (HTML)', group: 'PDF', from: ['html'], mode: 'each', options: [],
+  note: 'Picture PDF: text is not selectable or searchable. Scripts do not run; remote images, fonts and links are not loaded.',
+  run: async (files) => {
+    const f = files[0];
+    const stem = String(f.name).replace(/\.[^.]+$/, '') || 'document';
+    return [{ name: `${stem}.pdf`, blob: await htmlToPdf(f.file) }];
+  },
+};
+
+export const TARGETS = [...CONVERSIONS.flatMap((c) => {
   if (c.id === 'pdf-to-images') {
     return [
       preset(c, 'pdf-to-png', 'PDF to PNG', { format: 'png' }, ['format', 'quality']),
@@ -34,7 +46,7 @@ export const TARGETS = CONVERSIONS.flatMap((c) => {
   }
   if (c.id === 'merge-pdf') return [{ ...c, min: 2 }];
   return [c];
-});
+}), HTML_PDF];
 
 /** The targets every one of the given kinds can take, for `count` files. */
 export function targetsFor(kinds, count) {

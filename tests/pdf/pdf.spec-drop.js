@@ -107,7 +107,9 @@
       PT.reset();
       drop([file('page.html', 'text/html', new PT.win.TextEncoder().encode('<p>hi</p>'))]);
       await waitFor(() => cvtDialog() && cvtText().includes('page.html'), { timeout: 30000 });
-      expect(cvtText()).toContain('cannot be converted to PDF here');
+      await waitFor(() => cvtDialog().querySelector('input[data-target="html-to-pdf"]'), { timeout: 15000 });
+      expect(cvtDialog().querySelector('input[data-target="html-to-pdf"]').checked).toBe(true);
+      expect(cvtText()).not.toContain('cannot be converted to PDF here');
       doc().querySelector('.sl-cvt-x').click();
       await waitFor(() => !cvtDialog());
       drop([file('data.csv', 'text/csv', new PT.win.TextEncoder().encode('a,b\n1,2\n'))]);
@@ -134,6 +136,20 @@
       await waitFor(() => toastText().includes('Converted logo.svg to PDF'), { timeout: 15000 });
       expect(choiceDialog()).toBe(null);
     }, { timeout: 120000 });
+
+    it('an HTML file converts to a picture PDF, which opens in a new tab; the converter closes', async () => {
+      await converterReady();
+      PT.reset();
+      await PT.open(await PT.makePdf([{ text: 'a' }]), 'base6.pdf');
+      const before = openTabs();
+      drop([file('report.html', 'text/html', new PT.win.TextEncoder().encode('<!doctype html><html><head><style>h1{color:#c33}</style><script>document.title="x"</script></head><body><h1>Hello</h1><p>A small page.</p><img src="https://example.invalid/x.png"></body></html>'))]);
+      await waitFor(() => cvtDialog() && cvtText().includes('report.html'), { timeout: 30000 });
+      await waitFor(() => cvtDialog().querySelector('input[data-target="html-to-pdf"]').checked, { timeout: 15000 });
+      cvtDialog().querySelector('[data-k="run"]').click();
+      await waitFor(() => !cvtDialog(), { timeout: 90000 });
+      await waitFor(() => openTabs() === before + 1 && PT.E.state.pages.length === 1, { timeout: 90000 });
+      await waitFor(() => toastText().includes('Converted report.html to PDF'), { timeout: 15000 });
+    }, { timeout: 150000 });
 
     it('a mixed drop opens the PDF and sends the other file to the converter', async () => {
       if (!PT.SP) await PT.boot();

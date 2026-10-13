@@ -14,7 +14,7 @@ import { targetsFor } from './targets.js';
 
 const ACCEPT = '.pdf,.png,.jpg,.jpeg,.webp,.bmp,.gif,.svg,.csv,.json,.txt,.md,.html,.htm,application/pdf,image/*,text/*,application/json';
 const UNSUPPORTED = ['bin'];
-const PDF_TARGET = 'images-to-pdf'; // the one conversion that makes a PDF (images and SVG to PDF)
+const PDF_TARGETS = ['images-to-pdf', 'html-to-pdf']; // the conversions that make a PDF (images and SVG; HTML as pictures)
 let uid = 0;
 
 /** A DOM element: attributes (false, null and undefined skipped, true is a bare attribute; on* are listeners), then children. */
@@ -92,7 +92,13 @@ class Dialog {
     return targetsFor(this.items.map((i) => i.kind), this.items.length);
   }
   target() { return this.targets().find((t) => t.id === this.targetId) || null; }
-  ensureTarget() { const list = this.targets(); if (!list.some((t) => t.id === this.targetId)) this.targetId = list[0] ? list[0].id : null; }
+  /** Keeps the target when it still applies; otherwise a PDF target when the app asked for one (onPdf), else the first. */
+  ensureTarget() {
+    const list = this.targets();
+    if (list.some((t) => t.id === this.targetId)) return;
+    const pdf = list.find((t) => this.opts.onPdf && PDF_TARGETS.includes(t.id));
+    this.targetId = pdf ? pdf.id : list[0] ? list[0].id : null;
+  }
 
   /* ----- values and the run ----- */
   val(t, o) { const k = t.id + '.' + o.key; return k in this.vals ? this.vals[k] : o.value; }
@@ -124,7 +130,7 @@ class Dialog {
     } finally {
       this.busy = false; this.paint();
     }
-    if (this.opts.onPdf && t.id === PDF_TARGET && this.outputs.length && !this.errors.length) this.handOff();
+    if (this.opts.onPdf && PDF_TARGETS.includes(t.id) && this.outputs.length && !this.errors.length) this.handOff();
   }
   /** The PDF goes to the app that asked (onPdf), and the dialog closes. */
   handOff() {
@@ -182,9 +188,9 @@ class Dialog {
   /** With onPdf: names the files that cannot become the PDF here (only images and SVG make one). */
   pdfNote() {
     if (!this.opts.onPdf) return null;
-    const bad = this.items.filter((i) => !targetsFor([i.kind], 1).some((t) => t.id === PDF_TARGET));
+    const bad = this.items.filter((i) => !targetsFor([i.kind], 1).some((t) => PDF_TARGETS.includes(t.id)));
     if (!bad.length) return null;
-    return note(`${bad.map((i) => '“' + i.name + '”').join(', ')} cannot be converted to PDF here. Only images and SVG files make a PDF.`, 'sl-cvt-note sl-cvt-err');
+    return note(`${bad.map((i) => '“' + i.name + '”').join(', ')} cannot be converted to PDF here. Only images, SVG and HTML files make a PDF.`, 'sl-cvt-note sl-cvt-err');
   }
   optionsSection(t) {
     return el('section', { class: 'sl-cvt-sec' }, el('h3', { text: 'Options' }),
