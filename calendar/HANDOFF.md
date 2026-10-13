@@ -1,15 +1,19 @@
 # Slop Calendar: handoff
 
-Month, week, day and agenda views over the shared store. Events, the To-do tasks layer, repeats, time zones, reminders,
+Year, month, week, day, split and agenda views over the shared store. Events, the To-do tasks layer, repeats, time zones, reminders,
 .ics import and export, a config kind, and CRM links. Nothing is uploaded. Registry id `calendar` (shared/apps.js).
 
 ## Files
 - `index.html`, `css/calendar.css`: the page. Every script is loaded in dependency order at the bottom.
 - `js/core/model.js` (`SlopCal.model`): loads events (repeats expanded) and open tasks for a range of viewer days.
   Each item keeps its own zone, so the view can show the viewer's time and the event's time.
-- `js/ui/app.js` (`SlopCal.app`): period, view, viewer zone (saved in localStorage), task toggle, redraw on store changes.
-  On a phone (640 px or less) the week and day views show the agenda.
-- `js/ui/month.js`, `timegrid.js` (week and day), `agenda.js`, `chip.js` (blocks and column layout), `drag.js` (move and resize).
+- `js/core/periods.js` (`SlopCal.periods`): the days each view needs, its title, and how far Previous and Next move. Pure.
+- `js/core/history.js` (`SlopCal.history`): undo steps for drag moves (in memory, most recent 50).
+- `js/ui/app.js` (`SlopCal.app`): view, split pair, period, viewer zone (saved in localStorage), task toggle, redraw on store
+  changes, the undo command (Ctrl+Z and the toast's Undo). On a phone (640 px or less) the week, day and split views show the agenda.
+- `js/ui/year.js` (twelve mini months with a dot on busy days), `month.js`, `timegrid.js` (week and day), `split.js` (two panes),
+  `agenda.js`, `chip.js` (blocks and column layout), `drag.js` (the pointer drag and the change each drop makes).
+- `css/views.css`: the year, split and drag feedback styles. Loaded after `calendar.css`.
 - `js/ui/editor.js` (the event dialog), `ics-ui.js` (export, and import with a preview), `commands.js` (SlopCmd), `js/config.js`.
 - Shared, pure and node-testable: `shared/calendar/tz.js` (SlopTime), `rrule.js` (SlopRecur), `ics.js` (SlopIcs),
   `store.js` (SlopEvents: form to record, record to form, save, patch, remove).
@@ -28,10 +32,30 @@ Month, week, day and agenda views over the shared store. Events, the To-do tasks
 - A timed event is saved as an instant plus its zone. The editor shows the start in the event's zone and in the viewer's zone.
   A drag works out the new time on the viewer's wall clock, then saves the instant in the event's zone.
 
+## Views and keys
+- Year (`Y`): twelve mini months. A day with something on it has a dot. A click on a month name or a day opens that month.
+- Month (`M`), Week (`W`), Day (`D`): as before. The title reads "March 2026", "3 to 9 March 2026" or the day.
+- Split (`S`): two panes for one anchor day. The pair (Month and day, Month and week, Week and day) is chosen in the toolbar and
+  saved per device (`slop-calendar.split`). A click on a day in the left pane makes it the anchor, so the right pane shows it.
+  Previous and Next move the right pane by a day or a week.
+- Agenda (`A`): the list of the next 60 days.
+- Arrows move the period, `T` goes to today, `N` adds an event, `K` shows or hides to-dos, Ctrl+Z undoes the last move.
+- The view is saved per device (`slop-calendar.view`). A `#year`, `#month`, `#week`, `#day`, `#split` or `#agenda` hash wins.
+
+## Drag (`js/ui/drag.js`)
+- Month: an event chip dragged onto another day moves there. The day under the pointer is highlighted and named. All-day events
+  shift their days, timed events keep their times.
+- Week and day: a timed block moves to another time, and in a week to another day column. The drop lands on the half hour, and the
+  new day and time show in a label while dragging. The bottom edge resizes in 15-minute steps.
+- A drop on the same place changes nothing and adds no undo step. A press that does not move opens the event as a click does.
+- A move is one undo step. The toast offers Undo for ten seconds, and Ctrl+Z undoes the newest step (not while a text field has the focus).
+- A repeating event moves or resizes as a whole series, by the amount the dragged occurrence moved.
+
 ## Repeats (`shared/calendar/rrule.js`)
 - Daily, weekly, monthly, yearly, with an inclusive end day. Dates step on the event's own wall clock, so a 09:00 weekly event
   stays at 09:00 across daylight saving. Monthly and yearly repeats skip dates that do not exist (31 February, 29 February).
 - Dragging or resizing a repeating event changes the whole series. Single-occurrence exceptions are not supported.
+  A series that moves across a daylight saving change moves by the instant difference.
 
 ## .ics (RFC 5545 subset, `shared/calendar/ics.js`)
 - Written: VEVENT with UID, DTSTAMP, DTSTART, DTEND, SUMMARY, LOCATION, DESCRIPTION, RRULE (FREQ with UNTIL), VALARM (DISPLAY,
@@ -55,16 +79,21 @@ Month, week, day and agenda views over the shared store. Events, the To-do tasks
 - Follow-ups: lists the next 60 days of linked events (repeats expanded), and open linked tasks (`crm/js/ui/followups.js`).
 
 ## Keys and commands (SlopCmd)
-- Left and Right arrows move the period. `t` today, `m`, `w`, `d`, `a` for the views, `n` new event, `k` shows or hides to-dos.
+- Left and Right arrows move the period. `t` today, `y`, `m`, `w`, `d`, `s`, `a` for the views, `n` new event, `k` shows or hides to-dos.
+  Undo of the last move is in the palette (Ctrl+K) too.
 - Palette (Ctrl+K) lists every command, including "Go to Slop To-do", "Go to Slop Reminders" and "Go to Slop CRM".
 - Keys are plain letters, so they work outside text fields only (SlopCmd rules).
 
 ## Tests
 - `node tests/run.mjs calendar`: `tests/node/calendar-recurrence.test.mjs` (recurrence, .ics round trip and import warnings,
-  time zone conversion, fixed dates) and `tests/calendar/calendar.test.html` (a weekly event made in the editor, linked to a
-  customer, repeats four times in the week view, and shows in the CRM follow-ups).
+  time zone conversion, fixed dates), and in the browser `tests/calendar/calendar.test.html` (a weekly event made in the editor,
+  linked to a customer, repeats four times in the week view, and shows in the CRM follow-ups), `reminders.test.html`,
+  `views.test.html` (each view renders, the segmented control and keys, split shows a clicked day, year opens a month) and
+  `drag.test.html` (a month move changes its date, a week drop changes its time, a same-place drop does nothing, Undo and
+  Ctrl+Z restore a move, resize snaps to 15 minutes).
 
 ## Not done or not checked
-- Drag and resize have no automated test. They were not checked by hand on a phone.
+- Drag is mouse and pen only in the tests (synthetic pointer events). Touch dragging was not checked on a phone, and the
+  time grid has no drag on phones, where the agenda shows.
 - Deleting an event leaves its reminder rows behind (harmless, but they are not swept).
 - Reminders show only while a tab is open. There is no background scheduling.

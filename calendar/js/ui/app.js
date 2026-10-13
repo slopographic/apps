@@ -75,10 +75,10 @@
     else NS.agenda.render(root, state.anchor, ctx);
     $('cTitle').textContent = titleOf(view);
     for (const btn of document.querySelectorAll('[data-view]')) {
-      btn.setAttribute('aria-pressed', String(btn.dataset.view === state.view));
+      btn.setAttribute('aria-pressed', String(btn.dataset.view === view));
       btn.hidden = narrow() && PHONE_AGENDA.includes(btn.dataset.view);
     }
-    $('cSplit').hidden = state.view !== 'split';
+    $('cSplit').hidden = view !== 'split';
     $('cSplit').value = state.pair.key;
     $('cTasks').checked = state.showTasks;
     $('cNote').textContent = `Times are in ${state.zone}${T.zoneLabel(Date.now(), state.zone) ? ` (${T.zoneLabel(Date.now(), state.zone)})` : ''}. Events show their own zone too.`;
