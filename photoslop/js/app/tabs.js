@@ -48,6 +48,8 @@ function openInNewTab(setup, id) {
 }
 function openDocTab(w, hh, layers, name) { return openInNewTab(() => openDocument(w, hh, layers, name)); }
 function newDocTab(w, hh, bg, name) { return openInNewTab(() => { newDocument(w, hh, bg, name); fitView(true); emit('docname'); scheduleAutosave(); }); }
+/** The empty document PhotoSlop starts with: transparent, default size. New… (File, the + tab, the top bar) makes others. */
+function newBlankTab() { return newDocTab(1600, 1000, 'transparent', 'Untitled'); }
 function switchToDoc(rec) {
   if (!rec || rec === CUR) return;
   flushAutosave(); finishPendingWork(); stashCurrent();
@@ -65,7 +67,7 @@ async function closeDoc(rec = CUR) {
   idbDo('readwrite', (st) => st.delete('doc:' + rec.id)).catch(() => {});
   if (rec === CUR) {
     CUR = null;
-    if (!DOCS.length) { newDocTab(1600, 1000, '#ffffff', 'Untitled'); return; }
+    if (!DOCS.length) { newBlankTab(); return; }
     CUR = DOCS[Math.min(i, DOCS.length - 1)];
     finishPendingWork();
     restoreDoc(CUR);

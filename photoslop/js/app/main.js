@@ -62,6 +62,7 @@ async function boot() {
   $('#viewport').before(buildViewBar()); // the viewport toolbar (view rotation), above the canvas
   $('#themeToggle').addEventListener('click', () => setTheme(theme() === 'pro' ? 'light' : theme() === 'light' ? 'paint' : 'pro'));
   $('#exportBtn').addEventListener('click', () => dlgExport());
+  $('#newBtn').addEventListener('click', () => dlgNew());
   selectTool(TOOL[store.get('tool', 'brush')] ? store.get('tool', 'brush') : 'brush');
   wireCommands();
   $('#cmdBtn').addEventListener('click', () => openCommandPalette());
@@ -80,7 +81,7 @@ async function boot() {
   await loadBrushPacks();
   const restored = await loadAutosave();
   const launched = await hubBoot().catch((e) => { console.warn(e); return false; });
-  if (!restored && !launched) { let done; openInNewTab(() => { done = sampleDocument(); }); await done; renderTabs(); }
+  if (!restored && !launched) newBlankTab();
   await restoreView(restored && !launched);
   emit('docname');
   document.body.classList.add('ready');
