@@ -56,8 +56,8 @@
 
   /** Opens the Fonts panel. Resolves nothing; returns a handle { close(notify) } (notify false: no onClose).
    * opts: fonts (the names the document uses, listed first), standard (built-in names, never missing), title, note (text or
-   * array), closeLabel, library (false hides the library list, Get more and the Download action on each missing row; the
-   * person's own files and the closest font stay), closest ({ sans, serif, mono } families the app embeds; default the
+   * array), closeLabel, library (false hides the library list and Get more), download (false hides the Download action on each
+   * missing row; the person's own files and the closest font stay), closest ({ sans, serif, mono } families the app embeds; default the
    * catalogue's), addFile(file) (stores a dropped font in the app and resolves its family name; default the catalogue),
    * onUse({ family, use }) when the closest font is
    * chosen for a missing family, onAdd({ family, how, row }) when a font is installed: how 'library' or 'file'; row is the
@@ -97,7 +97,7 @@
       await root.SlopFonts.ready();
       const all = new Map((await C().families()).map((f) => [f.name, f]));
       const rows = [];
-      for (const n of names) rows.push({ n, info: all.get(n), pack: opts.library !== false && !standard.has(n) && !all.has(n) ? await C().packFor(n) : null });
+      for (const n of names) rows.push({ n, info: all.get(n), pack: opts.download !== false && !standard.has(n) && !all.has(n) ? await C().packFor(n) : null });
       if (closed || g !== gen) return;
       const kids = [];
       for (const t of [].concat(opts.note || [])) kids.push(el('p', { class: 'sf-meta' }, t));
@@ -137,7 +137,7 @@
       btns.push(el('button', { type: 'button', 'data-how': 'closest', on: { click: () => useClosest(n, closest) } }, `Use the closest font instead (${closest})`));
       row.addEventListener('dragover', (e) => e.preventDefault());
       row.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) dropFile(n, e.dataTransfer.files[0], msg); });
-      const why = pack || opts.library === false ? null : el('p', { class: 'sf-meta' }, `${n} is not in the font library, so it cannot be downloaded here.`);
+      const why = pack || opts.download === false ? null : el('p', { class: 'sf-meta' }, `${n} is not in the font library, so it cannot be downloaded here.`);
       row.append(el('p', null, `${n} · Missing. It is not installed.`), why,
         el('div', { class: 'sf-btns' }, ...btns), fileIn, msg);
       return row;

@@ -61,7 +61,7 @@
       var th = SS.themes.of(A.deck) || {}, tf = th.fonts || {}, o = A.selObjs()[0];
       var names = [tf.body, tf.heading, o && o.style && o.style.font].filter(function (n) { return n && n !== 'body' && n !== 'heading'; });
       SlopFonts.openPanel({
-        fonts: names, standard: F.LIST, title: 'Fonts', library: false,
+        fonts: names, standard: F.LIST, title: 'Fonts', library: false, download: false,
         note: 'Downloads from the library are off in Slop Slides: its engine embeds only the TrueType families it ships. Use the closest family, or add your own TTF, OTF or WOFF file.',
         closest: { sans: 'Inter Tight', serif: 'Instrument Serif', mono: 'JetBrains Mono' },
         onUse: function (r) {

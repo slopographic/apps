@@ -23,7 +23,7 @@
     const shipped = new Set(E().FAMILIES.flatMap((f) => [f.name, ...f.aliases]).map((s) => s.toLowerCase()));
     const standard = [...used].filter((n) => shipped.has(String(n).trim().toLowerCase()));
     SlopFonts.openPanel({
-      fonts: [...used], standard, title: 'Fonts', library: false,
+      fonts: [...used], standard, title: 'Fonts', library: false, download: false,
       note: 'Downloads from the library are off in Slop Docs: its engine embeds only the TrueType families it ships. Use the closest family, or add your own TTF, OTF or WOFF file.',
       closest: { sans: 'Carlito', serif: 'Tinos', mono: 'Cousine' },
       onUse: ({ use }) => { S_.A.setFont(use); S_.focusIme(); },

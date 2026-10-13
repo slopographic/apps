@@ -19,7 +19,7 @@
     if (!window.SlopFonts) return;
     SlopFonts.ready().then(function () {
       SlopFonts.openPanel({
-        fonts: fonts || [], standard: PR.fonts.list(), title: 'Fonts', library: false,
+        fonts: fonts || [], standard: PR.fonts.list(), title: 'Fonts', library: false, download: false,
         note: 'Downloads from the library are off in Slop Press: it embeds Liberation Sans and the font files you load into the document. Use the closest family, or add your own TTF or OTF file.',
         closest: { sans: 'Liberation Sans', serif: 'Liberation Sans', mono: 'Liberation Sans' },
         addFile: addFontFile,
