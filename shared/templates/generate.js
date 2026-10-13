@@ -91,7 +91,9 @@ export function generateTemplate(seed) {
   const s = String(seed);
   const r = rng(s);
   const v = drawVars(s, r);
-  return { seed: s, vars: summaryOf(v), doc: buildDoc(v, r) };
+  // names: the drawn names and title, so a package can reuse them in its other files (table, slides)
+  const names = { title: v.docTitle, company: v.company, client: v.client, recipient: v.recipient, person: v.person, role: v.role };
+  return { seed: s, vars: summaryOf(v), doc: buildDoc(v, r), names };
 }
 
 /** A new random seed: six characters of base 36. The caller supplies rand (Math.random by default). */
