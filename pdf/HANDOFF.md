@@ -350,6 +350,9 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   formats or images.
 - **PDF to PowerPoint (PPTX)**: one slide per page, the page drawn as a picture at 144 dpi, fitted to 16:9. The text is not
   editable in the deck. Not yet checked in Microsoft PowerPoint.
+- **Limit**: pdf.js joins text on one baseline into a single item unless the font changes, so a table whose cells share a
+  font and baseline can come out as one cell ("Item Qty Price"). Cells split by a font change or a separate text object are
+  split by the gap rule. The converters cannot see the gap inside a joined item.
 - **PDF to text** reads through the same `pdf-layout.js`.
 - Each target's fidelity is its `note`, shown in the dialog.
 - Tests: `tests/pdf/pdf.spec-office.js`.

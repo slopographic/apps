@@ -10,10 +10,13 @@
     if (!PT.SP) await PT.boot();
     const L = PT.win.PDFLib, d = await L.PDFDocument.create();
     const font = await d.embedFont(L.StandardFonts.Helvetica);
+    const bold = await d.embedFont(L.StandardFonts.HelveticaBold);
     const p = d.addPage(PT.win.Array.of(400, 300));
     p.drawText('Hello world', { x: 40, y: 260, size: 11, font });
+    // pdf.js joins text on one baseline into one item unless the font changes, so each column uses a
+    // different face here (the converter cannot split an item it was given whole; see HANDOFF).
     [['Item', 'Qty', 'Price'], ['Pen', '3', '4.50'], ['Cup', '1', '12.00']].forEach((row, r) =>
-      row.forEach((t, c) => p.drawText(t, { x: 40 + c * 120, y: 200 - r * 20, size: 11, font })));
+      row.forEach((t, c) => p.drawText(t, { x: 40 + c * 120, y: 200 - r * 20, size: 11, font: c === 1 ? bold : font })));
     d.addPage(PT.win.Array.of(400, 300));
     return new Uint8Array(await d.save());
   }

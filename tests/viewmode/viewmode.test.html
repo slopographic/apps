@@ -85,9 +85,9 @@
       V.register('vm-a', { regions: { toolbar: '#top' }, mount: '#top' });
       const b = $('top').querySelector('.slopvm-btn');
       expect(b).toBeTruthy();
-      expect(b.textContent).toBe('View: Full');
+      expect(b.querySelector('.slopvm-txt').textContent).toBe('View: Full');
       b.click();
-      expect(b.textContent).toBe('View: Focus');
+      expect(b.querySelector('.slopvm-txt').textContent).toBe('View: Focus');
       reset();
     });
 
