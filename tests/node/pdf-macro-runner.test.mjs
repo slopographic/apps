@@ -14,6 +14,12 @@ const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 const toDataUrl = (s) => 'data:text/javascript;base64,' + Buffer.from(s).toString('base64');
 const MACRO_FILES = ['core/watermark', 'macro/pattern', 'macro/model', 'macro/frame', 'macro/text', 'macro/ops-edit', 'macro/ops-draw', 'macro/runner'].map((n) => `pdf/js/${n}.js`);
 
+// pdf.js 5 reads a few browser geometry classes when it loads. Node has none, so give it minimal stand-ins: the text
+// positions here come from pdf.js's own transform helpers, not from these classes.
+if (!globalThis.DOMMatrix) globalThis.DOMMatrix = class DOMMatrix { constructor(init) { [this.a, this.b, this.c, this.d, this.e, this.f] = Array.isArray(init) ? init : [1, 0, 0, 1, 0, 0]; } };
+if (!globalThis.ImageData) globalThis.ImageData = class ImageData { constructor(w, h) { this.width = w; this.height = h; this.data = new Uint8ClampedArray(w * h * 4); } };
+if (!globalThis.Path2D) globalThis.Path2D = class Path2D {};
+
 // pdf.js runs in this realm (its fake worker is the handler module); pdf-lib and the macro code run in the vm realm.
 globalThis.pdfjsWorker = { WorkerMessageHandler: (await import(toDataUrl(read('vendor/pdfjs/pdf.worker.min.js')))).WorkerMessageHandler };
 const pdfjs = await import(toDataUrl(read('vendor/pdfjs/pdf.min.js')));
