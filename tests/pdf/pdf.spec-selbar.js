@@ -36,6 +36,8 @@
   }
   const key = (target, k, init = {}) => target.dispatchEvent(new PT.win.KeyboardEvent('keydown', Object.assign({ key: k, bubbles: true, cancelable: true }, init)));
 
+  PT.selbar = { fixture, select, act, bar, shown, texthls, spanFor }; // shared with pdf.spec-markup-toggle.js
+
   describe('Slop PDF text selection bar', () => {
     it('selecting a line shows the bar beside it, on screen; clearing the selection hides it', async () => {
       await fixture([{ text: 'Hello world', w: 300, h: 200 }]);
