@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SlopIsolate drop zone layout tests</title>
+  <style>body { margin: 0; background: #111; } iframe { border: 0; display: block; } #wide { width: 1280px; height: 800px; } #phone { width: 390px; height: 844px; }</style>
+</head>
+<body>
+  <!-- The drop zone is part of the workspace column: it must sit above the stage, never over the preview or the canvas,
+       in the empty state and once images are in, at desktop and phone widths. -->
+  <iframe id="wide" src="../../slopisolate/index.html"></iframe>
+  <iframe id="phone" src="../../slopisolate/index.html"></iframe>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor } = SlopTest;
+  const overlaps = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  const boxOf = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height }; };
+  const frames = {};
+  async function bootFrame(id) {
+    const frame = document.getElementById(id);
+    const win = frame.contentWindow;
+    await waitFor(() => win.document && win.document.getElementById('isoDrop') && win.document.querySelector('#isoDrop .sd-choose'), { timeout: 30000 });
+    // the phone frame sits below the fold: bring it into view so its layout runs
+    frame.scrollIntoView({ block: 'start' });
+    return { win, doc: win.document, id };
+  }
+  const getFrame = async (id) => frames[id] || (frames[id] = await bootFrame(id));
+  const expectNoOverlap = (f) => {
+    const drop = boxOf(f.doc.getElementById('isoDrop'));
+    expect(drop.height > 0).toBe(true);
+    expect(overlaps(drop, boxOf(f.doc.getElementById('stage')))).toBe(false);
+    expect(overlaps(drop, boxOf(f.doc.getElementById('view')))).toBe(false);
+    expect(drop.bottom <= boxOf(f.doc.getElementById('stage')).top + 0.5).toBe(true);
+  };
+  const layoutCase = (label, id) => describe(`drop zone at ${label}`, () => {
+    it(`does not overlap the preview or the canvas in the empty state at ${label}`, async () => {
+      const f = await getFrame(id);
+      expect(f.doc.getElementById('app').dataset.mode).toBe('empty');
+      expectNoOverlap(f);
+    }, { timeout: 40000 });
+    it(`is a normal block in the workspace column, not absolutely positioned, at ${label}`, async () => {
+      const f = await getFrame(id);
+      const drop = f.doc.getElementById('isoDrop');
+      expect(f.win.getComputedStyle(drop).position).not.toBe('absolute');
+      expect(drop.parentElement.id).toBe('workspace');
+      expect(boxOf(drop).left >= 0).toBe(true);
+      expect(boxOf(drop).right <= f.win.innerWidth).toBe(true);
+    }, { timeout: 40000 });
+    it(`does not overlap the preview or the canvas once an image is in at ${label}`, async () => {
+      const f = await getFrame(id);
+      f.doc.getElementById('emptySample').click();
+      await waitFor(() => f.doc.getElementById('app').dataset.mode !== 'empty', { timeout: 30000 });
+      expectNoOverlap(f);
+    }, { timeout: 40000 });
+    it(`takes only a compact height once images are in, and a long file list scrolls at ${label}`, async () => {
+      const f = await getFrame(id);
+      const drop = f.doc.getElementById('isoDrop');
+      const list = drop.querySelector('.sd-list');
+      for (let i = 0; i < 12; i++) { const li = f.doc.createElement('li'); li.className = 'sd-row'; li.textContent = 'file-' + i + '.png'; list.append(li); }
+      await waitFor(() => list.getBoundingClientRect().height > 0, { timeout: 5000 });
+      expect(boxOf(drop).height <= 140).toBe(true);
+      expect(list.getBoundingClientRect().height <= 60).toBe(true);
+      expectNoOverlap(f);
+      list.replaceChildren();
+    }, { timeout: 40000 });
+  });
+  layoutCase('1280 px', 'wide');
+  layoutCase('390 px', 'phone');
+  </script>
+  <script>SlopTest.run({ name: 'SlopIsolate drop zone layout' });</script>
+</body>
+</html>

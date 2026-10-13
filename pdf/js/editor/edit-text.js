@@ -179,6 +179,15 @@
       return true;
     }, function () { SlopUI.toast('This page has no text to edit.'); return false; });
   };
+  /** The text runs of a page that a selection's rectangles {x0, y0, x1, y1} overlap (Remove, sel-actions.js). */
+  Ed.runsUnder = function (p, rects) {
+    return runsOf(p).then(function (r) {
+      return r.runs.filter(function (run) {
+        var b = run.box;
+        return rects.some(function (q) { return Math.min(b.x + b.w, q.x1) > Math.max(b.x, q.x0) && Math.min(b.y + b.h, q.y1) > Math.max(b.y, q.y0); });
+      });
+    }, function () { return []; });
+  };
   /** Applies the edited run as one undo step: cover the old run, draw the new text on its baseline. */
   S.commitRun = function () {
     var r = S.runEdit; if (!r || r.done) return;

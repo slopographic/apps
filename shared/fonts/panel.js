@@ -139,8 +139,8 @@
       row.addEventListener('dragover', (e) => e.preventDefault());
       row.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) dropFile(n, e.dataTransfer.files[0], msg); });
       const why = pack || opts.download === false ? null : el('p', { class: 'sf-meta' }, `${n} is not in the font library, so it cannot be downloaded here.`);
-      row.append(el('p', null, `${n} · Missing. It is not installed.`), why,
-        el('div', { class: 'sf-btns' }, ...btns), fileIn, msg);
+      // append() turns null into the text "null", so only real nodes are appended.
+      for (const k of [el('p', null, `${n} · Missing. It is not installed.`), why, el('div', { class: 'sf-btns' }, ...btns), fileIn, msg]) if (k) row.append(k);
       return row;
     }
     /** Opens the library (Get more) on one pack's confirmation, or the list. Nothing downloads until the person confirms there. */

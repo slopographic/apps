@@ -1,8 +1,9 @@
 /* Slop PDF — the text selection actions (the buttons of sel-bar.js). Highlight, Underline and Strikethrough add text-markup
    annotations (type texthl, style highlight | underline | strike) as one undo step each, in the edit log; a press on text
    already marked in that style removes the markup instead (a toggle). Colour sets the
-   colour of the next markup and recolours the markup under the selection. Remove redacts the selected text through the
-   redaction code (redact/apply.js), behind a confirmation. Copy, Comment, Edit text, Replace and Find use the same snapshot. */
+   colour of the next markup and recolours the markup under the selection. Remove hides the selected text the way Edit text
+   clears it (white covers, OCR words emptied; no rasterizing, one undo step). Redact marks the selected text for the Redact
+   tool, which applies it. Copy, Comment, Edit text, Replace and Find use the same snapshot. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._, T = S.sel, R = SP.redact, G = window.SlopPdfSel;
@@ -19,7 +20,7 @@
     for (var k = 0; k < snap.parts.length; k++) {
       var part = snap.parts[k], lines = await E.pageTextLines(part.p);
       var quads = G.selectionQuads(lines, part.rects);
-      if (quads.length) out.push({ pid: part.pid, p: part.p, quads: quads, boxes: G.selectionBoxes(lines, part.rects, 1) });
+      if (quads.length) out.push({ pid: part.pid, p: part.p, quads: quads, rects: part.rects, boxes: G.selectionBoxes(lines, part.rects, 1) });
     }
     return out;
   }
@@ -158,25 +159,73 @@
     window.SlopPdfFind.openReplace(snap.text.slice(0, 200), { caseSensitive: false, wholeWord: false });
   };
 
-  /** Remove: the selected text's lines become redaction boxes, applied at once (the same burn-in as Apply redactions),
-      behind a confirmation. One undo step. The other pending marks in the document are applied with it. */
+  /** A white cover over one selected line (page space, top-left origin): the whiteout Edit text makes for cleared text. */
+  function coverOf(b) { return { id: U.uid('a'), type: 'whiteout', cx: b.x + b.w / 2, cy: b.y + b.h / 2, w: b.w, h: b.h, rot: 0, fill: '#ffffff', opacity: 1 }; }
+  /** OCR words under the selection are emptied in the page's content (OL.replaceWord), one new file per document file
+      touched. Returns [{file, pids}] for the commit; a word that cannot be found keeps only its cover. */
+  async function emptyOcrWords(geo) {
+    var files = new Map();
+    geo.forEach(function (g) {
+      var f = E.fileOfPage(g.p); if (!f) return;
+      if (!files.has(f.id)) files.set(f.id, { f: f, bytes: f.bytes, pids: [], changed: false });
+      files.get(f.id).pids.push(g.pid);
+    });
+    var out = [];
+    for (const [fid, job] of files) {
+      for (const g of geo.filter(function (x) { return x.p.f === fid && job.f.ocr; })) {
+        var runs = (await Ed.runsUnder(g.p, g.rects)).filter(function (r) { return r.ocr; });
+        for (const run of runs) {
+          var next = await SP.ocrLayer.replaceWord(job.bytes, g.p.i, run, '', null);
+          if (next) { job.bytes = next; job.changed = true; }
+        }
+      }
+      if (job.changed) {
+        var made = await E.registerPdf(job.bytes, job.f.name, null);
+        made.noLog = true; made.ocr = true; // generated: its bytes cannot be replayed from the edit log
+        out.push({ to: made.id, pids: job.pids });
+      }
+    }
+    return out;
+  }
+
+  /** Remove: the selected text leaves the page the way Edit text clears it: each selected line gets a white cover, and the
+      OCR words under it are emptied in the content. No page image is rebuilt and nothing asks first. One undo step. */
   A.remove = async function () {
     var snap = T.snap; if (!snap) return;
-    var geo = await geometry(snap), extra = [];
-    geo.forEach(function (g) { g.boxes.forEach(function (b) { extra.push({ p: g.p, box: b }); }); });
-    if (!extra.length) { SlopUI.toast('No text under the selection.'); return; }
-    var others = R.pending().length;
-    var ok = await SlopUI.confirm('Remove the selected text from the file?',
-      'The selected text is removed from the file, not just covered. Its whole page is rebuilt as an image, as with Apply redactions, ' +
-      'so the rest of that page\'s text also stops being selectable, searchable and copyable. ' +
-      (others ? others + ' other pending redaction mark' + (others === 1 ? ' is' : 's are') + ' in this document are applied too. ' : '') +
-      'Undo works while this document is open. A downloaded file keeps the text removed.', 'Remove text', { danger: true });
-    if (!ok) return;
-    var dpi = +U.store.get('redactDpi', 200) || 200;
-    return SP.app._.guarded('Removing text…', async function (prog) {
-      var r = await E.applyRedactions({ dpi: dpi, extra: extra, onProgress: function (f) { prog(f, 'Removing text… ' + Math.round(f * 100) + '%'); } });
-      SlopUI.toast('Text removed (' + r.marks + ' area' + (r.marks === 1 ? '' : 's') + '). Download to save the file without it.');
-      return r;
+    var geo = await geometry(snap);
+    if (!geo.length) { SlopUI.toast('No text under the selection.'); return; }
+    var covers = [];
+    geo.forEach(function (g) { g.boxes.forEach(function (b) { covers.push({ pid: g.pid, a: coverOf(b) }); }); });
+    var files = await emptyOcrWords(geo);
+    E.commit('Remove text', function (st) {
+      covers.forEach(function (c) {
+        var q = st.pages.filter(function (x) { return x.id === c.pid; })[0];
+        if (q) q.annots.push(JSON.parse(JSON.stringify(c.a)));
+      });
+      files.forEach(function (fl) {
+        fl.pids.forEach(function (pid) { var q = st.pages.filter(function (x) { return x.id === pid; })[0]; if (q) q.f = fl.to; });
+      });
     });
+    Ed.selId = null; Ed.paint();
+    SlopUI.toast('Text removed. Undo brings it back.');
+    T.emit();
+  };
+
+  /** Redact: the selected lines become redaction marks (R.mark, the Redact tool's marks). Nothing is applied: the marks are
+      burned in by Apply redactions in the Redact tool. One undo step. */
+  A.redact = async function () {
+    var snap = T.snap; if (!snap) return;
+    var geo = await geometry(snap), made = [];
+    geo.forEach(function (g) { g.boxes.forEach(function (b) { made.push({ pid: g.pid, a: R.mark(b, snap.text.slice(0, 40)) }); }); });
+    if (!made.length) { SlopUI.toast('No text under the selection.'); return; }
+    E.commit('Mark for redaction', function (st) {
+      made.forEach(function (m) {
+        var q = st.pages.filter(function (x) { return x.id === m.pid; })[0];
+        if (q) q.annots.push(JSON.parse(JSON.stringify(m.a)));
+      });
+    });
+    Ed.selId = null; Ed.paint();
+    SlopUI.toast(made.length + ' area' + (made.length === 1 ? '' : 's') + ' marked for redaction. Apply them in the Redact tool.');
+    T.emit();
   };
 })();

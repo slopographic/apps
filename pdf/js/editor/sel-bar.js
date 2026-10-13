@@ -1,5 +1,5 @@
 /* Slop PDF — the text selection bar: a floating row of actions beside a text selection in page view. Highlight, Underline,
-   Strikethrough, Copy, Comment, Edit text, Colour (a popover), Remove, Replace and Find. It is placed from the selection's
+   Strikethrough, Copy, Comment, Edit text, Colour (a popover), Remove, Redact, Replace and Find. It is placed from the selection's
    box on screen: above it, below when there is no room above, kept inside the viewport, and hidden when the selection
    scrolls out of the viewer or is cleared. Keyboard: Tab from the selection moves into the bar, Escape dismisses it and
    returns focus to the page. The actions are in sel-actions.js, the snapshot in sel-track.js, the styles in css/selbar.css. */
@@ -19,6 +19,7 @@
     ['comment', 'Comment', function () { return A.comment(); }, 2],
     ['edit', 'Edit text', function () { return A.editText(); }, 2],
     ['remove', 'Remove', function () { return A.remove(); }, 3],
+    ['redact', 'Redact', function () { return A.redact(); }, 3],
     ['replace', 'Replace', function () { return A.replace(); }, 4],
     ['find', 'Find', function () { return A.find(); }, 4]
   ];
@@ -40,7 +41,7 @@
         return;
       }
       var isMark = MARKS.indexOf(b[0]) >= 0;
-      var btn = h('button', { type: 'button', class: 'selbar-btn' + (b[0] === 'remove' ? ' is-danger' : ''), 'data-act': b[0], 'aria-label': b[1], title: b[1], 'aria-pressed': isMark ? 'false' : null }, b[1]);
+      var btn = h('button', { type: 'button', class: 'selbar-btn', 'data-act': b[0], 'aria-label': b[1], title: b[1], 'aria-pressed': isMark ? 'false' : null }, b[1]);
       if (isMark) markBtns[b[0]] = btn;
       btn.addEventListener('click', function () { run(b[2]); });
       row.appendChild(btn);

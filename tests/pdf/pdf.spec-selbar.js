@@ -1,7 +1,7 @@
 /* Slop PDF text selection bar: selecting a line of text shows the bar beside it, on screen, and it hides when the selection
    is cleared. Highlight adds one highlight over the line (one undo step). Escape dismisses the bar and Tab moves into it.
-   Edit text, Find and Comment open their tools on the selection; Colour recolours the markup under it; Remove redacts the
-   selected text (it is gone from the extracted text after apply, and the other page keeps its text) and can be undone. */
+   Edit text, Find and Comment open their tools on the selection; Colour recolours the markup under it; Remove hides the
+   selected text without rebuilding the page, and Redact marks it for the Redact tool. Both can be undone. */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor } = SlopTest;
@@ -45,7 +45,7 @@
       const r = bar().getBoundingClientRect(), s = span.getBoundingClientRect();
       expect(r.top >= 0 && r.bottom <= PT.win.innerHeight && r.left >= 0 && r.right <= PT.win.innerWidth).toBe(true);
       expect(r.bottom <= s.top + 1 || r.top >= s.bottom - 1).toBe(true);
-      for (const id of ['highlight', 'underline', 'strike', 'copy', 'comment', 'edit', 'remove', 'replace', 'find']) expect(!!act(id)).toBe(true);
+      for (const id of ['highlight', 'underline', 'strike', 'copy', 'comment', 'edit', 'remove', 'redact', 'replace', 'find']) expect(!!act(id)).toBe(true);
       PT.win.getSelection().removeAllRanges();
       await waitFor(() => !shown(), { timeout: 3000 });
     });
@@ -134,20 +134,37 @@
       expect(texthls()[0].color).not.toBe('#e0102f');
     });
 
-    it('Remove redacts the selected text: it is gone from the file after apply, the other page keeps its text, and undo brings the page back', async () => {
+    it('Remove hides the selected text without rebuilding the page: no confirmation, the page file and image are unchanged, and undo brings the cover back', async () => {
       await fixture([{ text: 'Hello world', w: 300, h: 200 }, { text: 'Keep me', w: 300, h: 200 }]);
-      const E = PT.E;
+      const E = PT.E, pg = () => E.state.pages[0], whites = () => pg().annots.filter((a) => a.type === 'whiteout').length;
+      const fileBefore = pg().f, orig = E.applyRedactions;
+      let applied = 0;
+      E.applyRedactions = async (...args) => { applied++; return orig.apply(E, args); };
+      try {
+        await select('Hello world');
+        const before = whites();
+        act('remove').click();
+        await waitFor(() => whites() > before, { timeout: 5000 });
+        expect(doc().querySelector('.sui-dlg')).toBe(null);
+        expect(applied).toBe(0);
+        expect(!!pg().redacted).toBe(false);
+        expect(pg().f).toBe(fileBefore);
+        expect(PT.A.undo() != null).toBe(true);
+        expect(whites()).toBe(before);
+        expect(pg().f).toBe(fileBefore);
+      } finally { E.applyRedactions = orig; }
+    });
+
+    it('Redact marks the selected text for the Redact tool without applying it, and undo removes the mark', async () => {
+      await fixture([{ text: 'Hello world', w: 300, h: 200 }]);
+      const E = PT.E, marks = () => E.state.pages[0].annots.filter((a) => a.type === 'redact').length;
       await select('Hello world');
-      act('remove').click();
-      await waitFor(() => doc().querySelector('.sui-dlg'), { timeout: 5000 });
-      expect(doc().querySelector('.sui-dlg').textContent).toContain('removed from the file');
-      doc().querySelector('.sui-dlg .sui-danger').click();
-      await waitFor(() => E.state.pages[0].redacted, { timeout: 20000 });
-      const out = await PT.read(await E.build());
-      expect(out.pages[0].text.includes('Hello world')).toBe(false);
-      expect(out.pages[1].text).toContain('Keep me');
-      PT.A.undo();
+      act('redact').click();
+      await waitFor(() => marks() === 1, { timeout: 5000 });
+      expect(PT.SP.redact.pending().length).toBe(1);
       expect(!!E.state.pages[0].redacted).toBe(false);
+      expect(PT.A.undo() != null).toBe(true);
+      expect(marks()).toBe(0);
     });
   });
 })();
