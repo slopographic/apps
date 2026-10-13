@@ -63,7 +63,7 @@
     page.pushOperators(L.pushGraphicsState(), L.concatTransformationMatrix(cs, -sn, sn, cs, e, f));
     if (a.type === 'text') {
       var t = E.textLayout(a);
-      var font = ctx.fonts[t.font] || (ctx.fonts[t.font] = out.embedStandardFont(t.font));
+      var font = await E.embedTextFont(out, t.font, ctx.fonts);
       t.lines.forEach(function (line, i) {
         if (!line) return;
         page.drawText(line, { x: t.pad, y: h - t.base(i), size: t.size, font: font, color: rgb(a.color || '#000'), opacity: op });
@@ -195,6 +195,7 @@
     var pend = SP.redact ? SP.redact.pending(pages).length : 0;
     if (pend) throw new Error(pend + ' area' + (pend === 1 ? ' is' : 's are') + ' marked for redaction but not redacted yet. Open Redact and choose “Apply redactions”, or remove the marks.');
     await E.initFonts();
+    await E.prepareAnnotFonts(pages);
     var out = await L.PDFDocument.create({ updateMetadata: false });
     var need = new Map();
     pages.forEach(function (p) { if (!p.blank) { if (!need.has(p.f)) need.set(p.f, []); need.get(p.f).push(p.i); } });

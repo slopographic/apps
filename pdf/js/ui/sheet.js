@@ -57,7 +57,7 @@
     g.appendChild(U.s('rect', { x: 0, y: 0, width: fmt(a.w), height: fmt(a.h), fill: 'transparent', class: 'an-hit' }));
     if (a.type === 'text') {
       var t = E.textLayout(a);
-      var txt = U.s('text', { 'font-family': E.CSSFONT[a.font] || E.CSSFONT.Helvetica, 'font-size': fmt(t.size), fill: a.color || '#000', 'fill-opacity': op, 'font-weight': a.bold ? '700' : '400', 'font-style': a.italic ? 'italic' : 'normal', 'xml:space': 'preserve', style: 'white-space:pre' });
+      var txt = U.s('text', { 'font-family': E.cssFont(a), 'font-size': fmt(t.size), fill: a.color || '#000', 'fill-opacity': op, 'font-weight': E.cssWeight(a), 'font-style': a.italic ? 'italic' : 'normal', 'xml:space': 'preserve', style: 'white-space:pre' });
       t.lines.forEach(function (line, i) { txt.appendChild(U.s('tspan', { x: fmt(t.pad), y: fmt(t.base(i)) }, line || ' ')); });
       g.appendChild(txt);
     } else if (a.type === 'redact') {

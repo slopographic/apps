@@ -62,7 +62,8 @@
 `));
   }
 
-  /** Opens the dialog. opts.onInstalled(pack) runs after a pack is stored. */
+  /** Opens the dialog. opts.onInstalled(pack) runs after a pack is stored. opts.packId opens that pack's confirmation
+   * straight away (still no download until the person confirms there). */
   function open(opts = {}) {
     onDone = opts.onInstalled || null;
     css();
@@ -72,8 +73,17 @@
     host.append(dialog);
     doc.body.append(host);
     doc.addEventListener('keydown', onKey, true);
-    showList();
+    if (opts.packId) showPack(opts.packId); else showList();
     return { close };
+  }
+  /** The confirmation of one listed pack, or the list when the pack is missing or already installed. */
+  async function showPack(id) {
+    frame('Confirm download', el('p', { class: 'meta' }, 'Loading the pack…'), null);
+    const m = await loadManifest(), p = m.packs.find((x) => x.id === id), inst = await installedMap();
+    if (!dialog) return;
+    if (!p) { showList('That pack is not listed.'); return; }
+    if (inst[id]) { showList(`${p.name} is already installed.`); return; }
+    showConfirm(p);
   }
   function onKey(e) { if (e.key === 'Escape' && host) { e.stopPropagation(); close(); } }
   function close() {

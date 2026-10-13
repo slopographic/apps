@@ -1,15 +1,16 @@
 /* Slop PDF — Edit text in place (Ctrl+E). Click a line of text on the page and type over it: the old run is covered with
    a white box and the new text is drawn at the same baseline, size and colour (the darkest ink in the run on the rendered
-   page). The new text is set in the standard font of the run's family (Helvetica, Times or Courier, bold and italic where
-   the run has them). The info line says whether the run's font is embedded in the file. Reusing an embedded font is not
-   done: pdf-lib needs fontkit to embed one, and fontkit is not vendored, so the new text is always a standard font. */
+   page). The new text is never written into the document's own subset font (that holds only the old glyphs). It is set in
+   the run's family when that family is installed (shared/fonts), else in the family the person chose in the asset check
+   (font-check.js), else in the closest bundled family; standard families (Helvetica, Times, Courier) stay standard. The info
+   line says which font the run uses and what the new text is set in. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._, M = window.SlopPdfMacro, F = window.SlopPdfFind;
   var cache = new Map(); // file page → Promise of { pg, runs }
   Ed.editText = false;
 
-  /** Text runs of a page: one per pdf.js text item, with its box in page space and its PDF baseline and font. */
+  /** Text runs of a page: one per pdf.js text item, with its box in page space, its PDF baseline and its font. */
   function runsOf(p) {
     var key = p.f + ':' + p.i;
     if (!cache.has(key)) {
@@ -19,10 +20,13 @@
           var runs = [];
           tc.items.forEach(function (it) {
             if (typeof it.str !== 'string' || !it.str.trim()) return;
-            var t = it.transform, st = tc.styles[it.fontName] || {}, name = (st.fontFamily || '') + ' ' + it.fontName;
-            var fs = Math.hypot(t[2], t[3]) || it.height || 10, fam = M.text.family(st) || 'Helvetica';
+            var t = it.transform, st = tc.styles[it.fontName] || {}, ps = S.embeddedName(pg, it.fontName);
+            var facts = ps && window.SlopFontCatalog ? S.fontFacts(ps) : null;
+            var label = (pg.commonObjs.has(it.fontName) && pg.commonObjs.get(it.fontName).name) || st.fontFamily || it.fontName;
+            var fs = Math.hypot(t[2], t[3]) || it.height || 10, fam = (facts && facts.std) || M.text.family(st) || 'Helvetica';
             runs.push({
-              str: it.str, fs: fs, fam: fam, fontName: it.fontName, bold: /bold|black|heavy|semibold/i.test(name), italic: /italic|oblique/i.test(name),
+              str: it.str, fs: fs, fam: fam, fontName: it.fontName, label: label, ps: ps, facts: facts, embedded: !!ps,
+              bold: /bold|black|heavy|semibold/i.test(label), italic: /italic|oblique/i.test(label),
               x0: t[4], y: t[5], width: it.width || 0, box: SP.redact.itemBox(it, 0, it.str.length, view, st.fontFamily), pg: pg
             });
           });
@@ -58,20 +62,33 @@
     runsOf(p).then(function (r) {
       var run = pick(r.runs, pt);
       if (!run) { SlopUI.toast('No text there. Click on a line of text.'); return; }
-      S.openRun(p, run);
+      S.beginRun(p, run);
     }, function () { SlopUI.toast('This page has no text to edit.'); });
   };
-  S.openRun = function (p, run) {
+  /** Opens a run: the document's fonts are checked first (once per document), then the new text's font is set up. A press
+   * that has been overtaken by a later one (a double click) opens nothing. */
+  S.beginRun = async function (p, run) {
+    var token = S.runToken = (S.runToken || 0) + 1, f = E.fileOfPage(p);
+    try {
+      if (!(await S.fontsReady(f)) || token !== S.runToken) return;
+      var font = await S.runFont(f, run);
+      if (token === S.runToken) S.openRun(p, run, font);
+    } catch (err) {
+      if (token === S.runToken) { SlopUI.toast('The font could not be set up: ' + (err && err.message || err)); S.openRun(p, run, { font: run.fam, bold: run.bold, italic: run.italic, std: true }); }
+    }
+  };
+  S.openRun = function (p, run, font) {
     var s = S.slots.get(p.id); if (!s) return;
+    if (S.runEdit) S.closeRun(); // one editor at a time
     var z = Ed.zoom, b = run.box;
     var input = U.h('input', { type: 'text', class: 'edit-run', value: run.str, 'aria-label': 'Edit text' });
     input.style.left = (b.x * z) + 'px'; input.style.top = (b.y * z) + 'px';
     input.style.width = ((b.w + 6) * z) + 'px'; input.style.height = (b.h * z + 2) + 'px';
-    input.style.fontSize = (run.fs * z) + 'px'; input.style.fontFamily = E.CSSFONT[run.fam] || E.CSSFONT.Helvetica;
+    input.style.fontSize = (run.fs * z) + 'px'; input.style.fontFamily = E.cssFont(font); input.style.fontWeight = E.cssWeight(font);
     var info = U.h('div', { class: 'edit-info' }, 'Checking the font…');
     info.style.left = (b.x * z) + 'px'; info.style.top = ((b.y + b.h) * z + 4) + 'px';
     s.layer.append(input, info);
-    S.runEdit = { p: p, run: run, input: input, info: info, done: false };
+    S.runEdit = { p: p, run: run, font: font, input: input, info: info, done: false };
     input.addEventListener('keydown', function (e) {
       e.stopPropagation();
       if (e.key === 'Enter') { e.preventDefault(); S.commitRun(); }
@@ -79,15 +96,18 @@
     });
     input.addEventListener('blur', function () { if (S.runEdit && S.runEdit.input === input) S.commitRun(); });
     input.focus(); input.select();
-    showFontInfo(run, info);
+    showFontInfo(run, info, font);
   };
-  /** The info line: the font's name and whether the file embeds it, and what the new text is set in. */
-  function showFontInfo(run, info) {
-    var ok = run.pg.commonObjs && run.pg.commonObjs.has(run.fontName), fo = ok ? run.pg.commonObjs.get(run.fontName) : null;
-    var name = (fo && fo.name) || run.fontName, embedded = !!fo && !fo.missingFile;
-    var set = E.stdFontName({ font: run.fam, bold: run.bold, italic: run.italic });
-    info.textContent = name + (ok ? (embedded ? ' · embedded' : ' · not embedded') : '') + ' · new text in ' + set +
-      (embedded ? ' (an embedded font cannot be reused yet)' : '');
+  /** The info line: the run's font and whether the file embeds it, and what the new text is set in. */
+  function showFontInfo(run, info, font) {
+    var fx = run.facts;
+    if (!font.std && fx) {
+      info.textContent = fx.family + ' ' + fx.weight + (fx.subset ? ' · subset in the file' : ' · embedded in full') + ' · new text in ' + font.font + ' ' + font.weight +
+        (font.font === fx.family ? ' (installed)' : ' (the closest font the app has; the file’s subset is not reused)');
+      return;
+    }
+    var embedded = !!run.ps, set = E.stdFontName({ font: font.font, bold: font.bold, italic: font.italic });
+    info.textContent = run.label + (embedded ? ' · embedded' : ' · not embedded') + ' · new text in ' + set + (embedded ? ' (an embedded font cannot be reused yet)' : '');
   }
   S.closeRun = function () {
     var r = S.runEdit; if (!r) return;
@@ -120,21 +140,21 @@
       });
       if (!best) { SlopUI.toast('No text to edit there.'); return false; }
       if (!Ed.editText) Ed.toggleEditText();
-      S.openRun(p, best);
+      S.beginRun(p, best);
       return true;
     }, function () { SlopUI.toast('This page has no text to edit.'); return false; });
   };
   /** Applies the edited run as one undo step: cover the old run, draw the new text on its baseline. */
   S.commitRun = function () {
     var r = S.runEdit; if (!r || r.done) return;
-    var text = r.input.value, run = r.run, p = r.p, s = S.slots.get(p.id);
+    var text = r.input.value, run = r.run, font = r.font, p = r.p, s = S.slots.get(p.id);
     S.closeRun();
     if (text === run.str) return;
-    var color = s ? inkColour(s, run) : '#000000';
+    var color = s ? inkColour(s, run) : '#000000', key = E.fontKey(font);
     var m = { segs: [{ x0: run.x0, x1: run.x0 + run.width, y: run.y, fs: run.fs }] };
-    var plan = M.coverPlan(m, E.sanitize(text, E.stdFontName({ font: run.fam, bold: run.bold, italic: run.italic })), function (t, sz) { return E.measure(t, run.fam, sz); });
+    var plan = M.coverPlan(m, E.sanitize(text, key), function (t, sz) { return E.measure(t, key, sz); });
     var annots = plan.covers.map(function (c) { return F.coverAnnot(p, c); });
-    if (plan.text) annots.push(F.textAnnot(p, run.x0, run.y, run.fs, plan.text.text, { font: run.fam, bold: run.bold, italic: run.italic, color: color }));
+    if (plan.text) annots.push(F.textAnnot(p, run.x0, run.y, run.fs, plan.text.text, { font: font.font, bold: font.bold, italic: font.italic, weight: font.weight, color: color }));
     E.commit('Edit text', function (st) {
       var q = st.pages.filter(function (x) { return x.id === p.id; })[0];
       if (q) annots.forEach(function (a) { q.annots.push(JSON.parse(JSON.stringify(a))); });

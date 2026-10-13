@@ -12,7 +12,7 @@
     var e = g.x0 + a.cx - (w / 2) * cs - (h / 2) * sn, f = g.y0 + g.H - a.cy + (w / 2) * sn - (h / 2) * cs;
     page.pushOperators(L.pushGraphicsState(), L.concatTransformationMatrix(cs, -sn, sn, cs, e, f));
     if (bw > 0) page.drawRectangle({ x: bw / 2, y: bw / 2, width: Math.max(0.1, w - bw), height: Math.max(0.1, h - bw), borderColor: rgb(bc), borderWidth: bw, borderOpacity: op });
-    var t = E.textLayout(a), font = ctx.fonts[t.font] || (ctx.fonts[t.font] = out.embedStandardFont(t.font));
+    var t = E.textLayout(a), font = await E.embedTextFont(out, t.font, ctx.fonts);
     t.lines.forEach(function (line, i) {
       if (!line) return;
       page.drawText(line, { x: t.pad, y: h - t.base(i), size: t.size, font: font, color: rgb(a.color || '#000'), opacity: op });
