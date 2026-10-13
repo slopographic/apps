@@ -98,7 +98,7 @@
     var sg = U.s('g', { class: 'stamps' });
     stamps.forEach(function (a) { var n = V.annotNode(a); if (n) sg.appendChild(n); });
     var ag = U.s('g', { class: 'annots' });
-    (p.annots || []).forEach(function (a) { if (opts.hide && opts.hide === a.id) return; var n = V.annotNode(a); if (n) ag.appendChild(n); });
+    (p.annots || []).forEach(function (a) { if (a.hidden || (opts.hide && opts.hide === a.id)) return; var n = V.annotNode(a); if (n) ag.appendChild(n); });
     if (opts.draft) { var d = V.annotNode(opts.draft); if (d) { d.classList.add('draft'); ag.appendChild(d); } }
     svg.appendChild(ag); svg.appendChild(sg);
   };

@@ -16,33 +16,33 @@
     return a;
   };
   Ed.deleteSelected = function () {
-    var id = Ed.selId; if (!id) return;
+    var id = Ed.selId, a = Ed.getSelected(); if (!id || (a && SP.layers.isLocked(a))) return;
     S.commitPage('Delete annotation', function (p) { p.annots = p.annots.filter(function (a) { return a.id !== id; }); });
     Ed.select(null);
   };
   Ed.duplicateSelected = function () {
     var a = Ed.getSelected(); if (!a) return;
-    var c = JSON.parse(JSON.stringify(a)); c.id = U.uid('a');
+    var c = JSON.parse(JSON.stringify(a)); c.id = U.uid('a'); delete c.hidden; delete c.locked;
     S.nudge(c, 12, 12);
     Ed.addAnnot(c, 'Duplicate annotation');
   };
   var clip = null;
   Ed.copy = function () { var a = Ed.getSelected(); if (a) { clip = JSON.parse(JSON.stringify(a)); return true; } return false; };
   Ed.canPaste = function () { return !!clip; };
-  Ed.paste = function () { if (!clip || !Ed.page()) return false; var c = JSON.parse(JSON.stringify(clip)); c.id = U.uid('a'); S.nudge(c, 12, 12); Ed.addAnnot(c, 'Paste annotation'); clip = c; return true; };
+  Ed.paste = function () { if (!clip || !Ed.page()) return false; var c = JSON.parse(JSON.stringify(clip)); c.id = U.uid('a'); delete c.hidden; delete c.locked; S.nudge(c, 12, 12); Ed.addAnnot(c, 'Paste annotation'); clip = c; return true; };
   S.nudge = function (a, dx, dy) {
     var c = S.ctx(), r = E.annotViewRect(a, c.R, c.W, c.H);
     E.setAnnotViewRect(a, { x: r.x + dx, y: r.y + dy, w: r.w, h: r.h }, c.R, c.W, c.H);
   }
   Ed.nudgeSelected = function (dx, dy) {
-    var id = Ed.selId; if (!id) return;
+    var id = Ed.selId, a = Ed.getSelected(); if (!id || (a && SP.layers.isLocked(a))) return;
     S.commitPage('Move annotation', function (p) { p.annots.forEach(function (a) { if (a.id === id) S.nudge(a, dx, dy); }); }, 'nudge:' + id);
   };
   /** Updates a property on the selection (and on the tool default). */
   Ed.setProp = function (key, val) {
     var a = Ed.getSelected(), type = a ? a.type : Ed.tool;
     if (Ed.DEF[type]) { Ed.defaults[type][key] = val; U.store.set('toolDefaults', Ed.defaults); }
-    if (!a) return;
+    if (!a || SP.layers.isLocked(a)) return;
     var id = a.id;
     S.commitPage('Change ' + key, function (p) {
       p.annots.forEach(function (x) {

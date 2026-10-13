@@ -226,7 +226,7 @@
       }
       var g = E.geom(p);
       page.setRotation(L.degrees(E.rotation(p)));
-      var list = (p.annots || []).concat(stamps ? E.stampAnnots(p, k, pages.length, stamps) : []);
+      var list = (p.annots || []).filter(function (a) { return !a.hidden; }).concat(stamps ? E.stampAnnots(p, k, pages.length, stamps) : []);
       for (var j = 0; j < list.length; j++) {
         var an = list[j];
         if (an.type === 'note') E.noteAnnot(out, page, an, g); // comments stay PDF annotations
