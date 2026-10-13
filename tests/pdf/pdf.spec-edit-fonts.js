@@ -52,8 +52,8 @@
       press(at, 11);
       await waitFor(() => doc().querySelector('.sf-ov'), { timeout: 8000 });
       const prompt = doc().querySelector('.sf-ov').textContent;
-      expect(/This document uses Barlow, which is not installed\. Download it to edit the text as it looks\?/.test(prompt)).toBe(true, prompt);
-      expect(/Drop your own file/.test(prompt) && /Use the closest font instead \(Source Sans 3\)/.test(prompt)).toBe(true, prompt);
+      expect(/This document uses: Barlow \(subset\) · not installed\./.test(prompt) && /Barlow · Missing\. It is not installed\./.test(prompt)).toBe(true, prompt);
+      expect(/Drop your own font/.test(prompt) && /Use the closest font instead \(Source Sans 3\)/.test(prompt)).toBe(true, prompt);
       expect(doc().querySelector('.edit-run')).toBe(null);
       doc().querySelectorAll('.sf-row [data-how="closest"]').forEach((b) => b.click());
       await waitFor(() => doc().querySelector('.edit-run'), { timeout: 8000 });
