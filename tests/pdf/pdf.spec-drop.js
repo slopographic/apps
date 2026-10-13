@@ -92,8 +92,10 @@
       await converterReady();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'base4.pdf');
+      window.__dbg = []; 
       drop([file('budget.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', new PT.win.Uint8Array([80, 75, 3, 4, 0, 0]))]);
-      await waitFor(() => cvtDialog() && cvtText().includes('budget.xlsx'), { timeout: 30000 });
+      await new Promise((r) => setTimeout(r, 3000));
+      throw new Error('DBG cvt=' + doc().querySelectorAll('.sl-cvt-dlg').length + ' sui=' + [...doc().querySelectorAll('.sui-dlg')].map((d) => d.textContent).join('|') + ' status=' + doc().getElementById('statusMsg').textContent + ' toast=' + ((doc().querySelector('.sui-toast')||{}).textContent) + ' locked=' + PT.A.isLocked() + ' SC=' + !!PT.win.SlopConvert + ' onTabs');
       expect(cvtText()).toContain('cannot be converted to PDF here');
       expect(suiTitles()).toEqual([]);
       expect(PT.E.state.pages.length).toBe(1);
