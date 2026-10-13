@@ -1,0 +1,7 @@
+#!/bin/sh
+# Refuses a commit message that names Claude as author or co-author.
+if grep -i -E "co-authored-by:.*claude|generated with .*claude|claude-session:" "$1" >/dev/null 2>&1; then
+  echo "commit-msg: remove the Claude attribution lines. Commits are by Slopographic." >&2
+  exit 1
+fi
+exit 0
