@@ -28,7 +28,7 @@
       expect(cardIn(W).textContent).toContain('Analytics and ads are off by default.');
       W.document.querySelector('.slopsup-x').click();
       await sleep(20);
-      W.quickExport();
+      await W.quickExport(); // wait for the whole export (its PNG encode and the support check), so nothing from it lands in the next test
       await sleep(300);
       expect(cardIn(W)).toBe(null);
     });
