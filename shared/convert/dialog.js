@@ -51,7 +51,7 @@ function optionField(t, o, value, set) {
 
 class Dialog {
   constructor(opts) {
-    this.items = []; this.targetId = null; this.vals = {}; this.outputs = []; this.errors = [];
+    this.items = []; this.targetId = opts.target || null; this.vals = {}; this.outputs = []; this.errors = [];
     this.saved = {}; this.status = ''; this.busy = false; this.progress = 0; this.drive = !!opts.drive;
     this.opener = document.activeElement;
     this.group = 'sl-cvt-target-' + ++uid;
