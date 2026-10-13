@@ -121,7 +121,7 @@
         noun: 'a video, audio, picture or project',
       },
       compact: true,
-      targets: [document.body],
+      targets: [document.getElementById('app')],
       process: async (file) => {
         const metas = await A.importFiles([file]);
         if (!metas.length && !/\.slopedit$/i.test(file.name)) throw new Error('could not be imported');

@@ -16,7 +16,7 @@
         noun: 'a photo',
       },
       compact: true,
-      targets: [document.body],
+      targets: [document.querySelector('main.grid-area') || document.body],
       files: async (dt) => (await G.source.fromDrop(dt)).map((it) => it.file),
       process: async (file) => {
         await G.actions.importItems([{ file, name: file.name }]);

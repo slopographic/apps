@@ -2,6 +2,9 @@
 <html lang="en">
 <head><meta charset="utf-8"><title>File convert: controller</title></head>
 <body>
+<script src="../../shared/drop/rules.js"></script>
+<script src="../../shared/drop/panel.js"></script>
+<script src="../../shared/drop/drop.js"></script>
 <script src="../harness.js"></script>
 <script type="module">
 import { ConvertTool } from '../../convert/js/ui/tool.js';
@@ -79,15 +82,17 @@ describe('preset converter pages', () => {
 });
 
 describe('accessibility and safety', () => {
-  it('the drop zone is a keyboard button that opens the file picker', () => {
+  it('the drop zone has one Choose files button, and only that button opens the file picker', () => {
     const t = mount();
     const drop = t.ui.drop;
-    expect(drop.getAttribute('role')).toBe('button');
-    expect(drop.tabIndex).toBe(0);
-    let opened = false;
-    t.ui.input.click = () => { opened = true; };
-    drop.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-    expect(opened).toBeTruthy();
+    expect(drop.getAttribute('role')).toBe(null);
+    let opened = 0;
+    t.ui.input.click = () => { opened++; };
+    drop.click();
+    drop.querySelector('.sd-msg').click();
+    expect(opened).toBe(0);
+    drop.querySelector('.sd-choose').click();
+    expect(opened).toBe(1);
   });
   it('every form control has a label', () => {
     const t = mount();

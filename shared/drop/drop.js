@@ -121,6 +121,8 @@
     const onTargetDrop = (e) => {
       if (!isFiles(e)) return;
       e.preventDefault();
+      // A nearer target (a lane, a list) took this drop: the outer target must not import it again.
+      if (e.sdHandled) return;
       e.sdHandled = true;
       hide();
       // o.files(dataTransfer) is read now, inside the drop event (folder entries must be), and may resolve later.

@@ -151,7 +151,7 @@ function wireDrop() {
     accept: { types: MIME, exts: ['.xlsx', '.xlsm', '.csv', '.tsv', '.xls', '.ods'], noun: 'a spreadsheet' },
     limit: 20,
     compact: true,
-    targets: [document.body],
+    targets: [document.querySelector('.sv-app')],
     process: async (file) => openFile(file),
   });
 }
