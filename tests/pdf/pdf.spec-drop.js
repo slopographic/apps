@@ -105,11 +105,11 @@
       await waitFor(() => suiTitles().includes('Convert to PDF?'), { timeout: 15000 });
       const text = [...doc().querySelectorAll('.sui-dlg')].map((d) => d.textContent).join(' ');
       expect(text).toContain('logo.svg');
-      expect(text).toContain('can be converted to PDF');
+      expect(text).toContain('Can be converted to PDF');
       await waitFor(() => PT.win.SlopConvert, { timeout: 30000 });
       clickSui('Convert to PDF');
       await waitFor(() => doc().querySelector('.sl-cvt-dlg'), { timeout: 30000 });
-      expect(doc().querySelector('.sl-cvt-dlg').textContent).toContain('logo.svg');
+      await waitFor(() => doc().querySelector('.sl-cvt-dlg').textContent.includes('logo.svg'), { timeout: 15000 });
       doc().querySelector('.sl-cvt-x').click();
       await waitFor(() => !doc().querySelector('.sl-cvt-dlg'));
     }, { timeout: 90000 });

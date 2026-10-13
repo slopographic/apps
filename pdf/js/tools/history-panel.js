@@ -17,8 +17,8 @@
     H.goTo(at);
   }
   function render(body) {
-    if (!E.state.pages.length) { body.appendChild(h('p', { class: 'pp-note' }, 'Open a PDF. Each change is a step here; click a step to go back to it.')); return; }
     var r = rows();
+    if (r.list.length === 1 && !E.state.pages.length) { body.appendChild(h('p', { class: 'pp-note' }, 'Open a PDF. Each change is a step here; click a step to go back to it.')); return; }
     body.appendChild(h('p', { class: 'pp-hint' }, 'Click a step to return to the document as it was after it.'));
     var list = h('ol', { class: 'hist-list', 'aria-label': 'History, oldest first' });
     r.list.forEach(function (x) {
