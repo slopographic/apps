@@ -35,7 +35,7 @@ export function familyOf(name) {
   return byLower.get(DEFAULT_FAMILY.toLowerCase());
 }
 export const cssFamily = (fam) => `SD ${fam.name}`;
-export const faceKey = (fam, b, i) => `${fam.dir}-${(b ? 1 : 0) + (i ? 2 : 0)}`;
+export const faceKey = (fam, b, i) => fam.user ? `${fam.dir}-0` : `${fam.dir}-${(b ? 1 : 0) + (i ? 2 : 0)}`;
 
 const faces = new Map(); // key → face | Promise
 const listeners = new Set();
@@ -52,11 +52,12 @@ export function face(name, b = false, i = false) {
 /** Load (once) one face; resolves to the face. */
 export function loadFace(fam, b = false, i = false) {
   if (typeof fam !== 'object') fam = familyOf(fam);
+  if (fam.user) { b = false; i = false; } // a font the person owns is one face: bold and italic are synthesised by the browser
   const k = faceKey(fam, b, i);
   if (faces.has(k)) return Promise.resolve(faces.get(k));
   const file = `${fam.stem}-${STYLE[(b ? 1 : 0) + (i ? 2 : 0)]}.ttf`;
   const p = (async () => {
-    const buf = fetcher ? await fetcher(fam.dir, file) : await fetch(`${BASE}${fam.dir}/ttf/${file}`).then((r) => { if (!r.ok) throw new Error('Font ' + file + ' ' + r.status); return r.arrayBuffer(); });
+    const buf = fam.user ? fam.bytes : fetcher ? await fetcher(fam.dir, file) : await fetch(`${BASE}${fam.dir}/ttf/${file}`).then((r) => { if (!r.ok) throw new Error('Font ' + file + ' ' + r.status); return r.arrayBuffer(); });
     const bytes = new Uint8Array(buf), ttf = parseTTF(bytes);
     const css = cssFamily(fam);
     if (typeof FontFace !== 'undefined' && typeof document !== 'undefined') {
@@ -71,6 +72,24 @@ export function loadFace(fam, b = false, i = false) {
   faces.set(k, p);
   p.catch(() => faces.delete(k));
   return p;
+}
+let userN = 0;
+/** Adds a font the person owns as a family (TrueType bytes, one face) and returns it. A name a built-in family or alias uses is
+ * refused. Adding a name again replaces the earlier file. The bytes are parsed now, so a file the engine cannot read throws here. */
+export function addUserFamily(name, bytes) {
+  const label = String(name || '').trim(), key = label.toLowerCase();
+  if (!label) throw new Error('That font has no family name.');
+  let fam = byLower.get(key);
+  if (fam && !fam.user) throw new Error(`${label} is a built-in family`);
+  parseTTF(bytes);
+  if (!fam) {
+    fam = { name: label, dir: 'own' + (++userN), stem: label.replace(/\W+/g, ''), cat: 'sans-serif', aliases: [], user: true };
+    FAMILIES.push(fam); byLower.set(key, fam);
+  }
+  fam.bytes = new Uint8Array(bytes);
+  for (const k of [...faces.keys()]) if (k.startsWith(fam.dir + '-')) faces.delete(k);
+  loadFace(fam).catch((e) => console.warn(e.message));
+  return fam;
 }
 /** Load every face a list of { font, b, i } needs (plus the default regular). */
 export async function ensureFaces(list) {

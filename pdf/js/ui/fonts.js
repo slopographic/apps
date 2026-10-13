@@ -28,11 +28,11 @@
   A.openFonts = async function () {
     if (SP.offline || !E.state.pages.length) return;
     var got = await gather();
-    if (!got.names.length) { SlopUI.toast('This document embeds no fonts. Its text uses the standard fonts.'); return; }
+    if (!got.names.length && !got.standard.length) { SlopUI.toast('This document has no text fonts to list.'); return; }
     await window.SlopFonts.ready();
     window.SlopFonts.openPanel({
       title: 'Fonts',
-      note: 'Fonts this document embeds as a subset. A missing one is needed to edit its text as it looks.',
+      note: got.names.length ? 'Fonts this document embeds as a subset. A missing one is needed to edit its text as it looks.' : 'This document uses only standard fonts (Helvetica, Times, Courier). Every PDF viewer has them, so nothing is missing.',
       fonts: got.names,
       standard: got.standard,
       onUse: function (ans) {

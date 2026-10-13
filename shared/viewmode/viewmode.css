@@ -1,0 +1,11 @@
+/* SlopViewMode: the look of the mode controls. Loaded by viewmode.js; the layout itself is set by paint() in viewmode.js. */
+.slopvm-bar { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; flex: none; }
+.slopvm-btn, .slopvm-reveal {
+  font: inherit; font-size: 12px; line-height: 1.2; margin: 0; padding: 2px 8px; white-space: nowrap; cursor: pointer;
+  border: 1px solid var(--sl-border, #8886); border-radius: 4px;
+  background: var(--sl-surface, transparent); color: var(--sl-text, inherit);
+}
+.slopvm-reveal { display: none; }
+html[data-slopvm="focus"] .slopvm-reveal, html[data-slopvm="content"] .slopvm-reveal { display: inline-block; }
+.slopvm-btn:focus-visible, .slopvm-reveal:focus-visible { outline: 2px solid var(--sl-accent, #06c); outline-offset: 2px; }
+.slopvm-peek { outline: 1px dashed var(--sl-accent, #888); outline-offset: -1px; }

@@ -6,7 +6,8 @@ import { makeCanvas, canvasToBlob } from './image.js';
 
 const MAX_PIXELS = 40e6;
 let libPromise = null;
-function pdfjs() {
+/** The pdf.js module (vendor/pdfjs), loaded once; OPS and the other exports are on it. */
+export function pdfjs() {
   if (!libPromise) {
     libPromise = import(PDFJS_URL).then((lib) => {
       lib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_URL;

@@ -24,9 +24,19 @@
   function bundled() {
     return root.SlopFonts.bundledIndex().then((fs) => fs.map((f) => ({ family: f.family, weight: String(f.weight), style: f.style || 'normal', category: f.category || 'sans', source: 'bundled', url: LIB + f.file, embed: f.pdf ? LIB + f.pdf : null })));
   }
-  /** Every face the app can load: bundled faces, then installed ones. A face has family, weight (a number or "min max"), style. */
+  /** The open document's own fonts (kept in the document file by Slop Docs, Slop Slides and Slop Press): [{ family, weight,
+   * italic, bytes }]. They are listed as "own" (source 'own'), the same as the person's own files. */
+  let docFaces = [], docOnly = false;
+  /** With opts.only, the app's list is its own engine fonts plus these (the person's files from other apps are not listed). */
+  function setDocumentFonts(list, opts) {
+    docFaces = (list || []).map((f) => ({ family: f.family, weight: String(f.weight || 400), style: f.italic ? 'italic' : 'normal', category: guessCategory(f.family), source: 'own', user: true, key: 'doc/' + f.family, bytes: f.bytes, embed: true }));
+    docOnly = !!(opts && opts.only);
+  }
+  /** Every face the app can load: bundled faces, the document's own, then installed ones. A face has family, weight (a number or
+   * "min max"), style. */
   async function faces() {
-    const list = (await bundled()).slice();
+    if (docOnly) return docFaces.slice();
+    const list = (await bundled()).concat(docFaces);
     try {
       await ready();
       const store = root.SlopLibraryStore;
@@ -63,6 +73,7 @@
   }
   /** The file bytes of a face for embedding: fetched for a bundled face, read from IndexedDB for an installed one. */
   async function bytesOf(face) {
+    if (face.bytes) return face.bytes;
     if (face.source === 'bundled') {
       const r = await fetch(face.embed, { cache: 'force-cache' });
       if (!r.ok) throw new Error(`${face.embed}: HTTP ${r.status}`);
@@ -117,6 +128,35 @@
     });
     return fkP;
   }
+  /** Family name, weight and italic flag of a font file (fontkit). Throws a message for a file it cannot read. */
+  async function fontNames(bytes) {
+    let f;
+    try { const fk = await fontkit(); f = fk.create(bytes); if (f.fonts) f = f.fonts[0]; } catch (e) { throw new Error('That file is not a font this app can read.'); }
+    const family = String(f.familyName || '').trim();
+    if (!family) throw new Error('That font file has no family name.');
+    return { family, weight: (f['OS/2'] && f['OS/2'].usWeightClass) || 400, italic: /italic|oblique/i.test(f.subfamilyName || '') };
+  }
+  /** Reads a font file the person chose for one app (app: its name, for the message): { family, weight, italic, bytes, ext }.
+   * Only TTF and OTF: WOFF and WOFF2 are refused with a message, because the apps' engines read the sfnt tables of a file. */
+  async function readFontFile(file, app) {
+    const ext = (String(file.name).split('.').pop() || '').toLowerCase();
+    if (ext === 'woff' || ext === 'woff2') throw new Error(`${ext.toUpperCase()} fonts cannot be used in ${app} yet. Use the TTF or OTF file of this font.`);
+    if (ext !== 'ttf' && ext !== 'otf') throw new Error('Choose a font file: TTF or OTF.');
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    if (bytes.length > 20 * 1024 * 1024) throw new Error('That font file is larger than 20 MB.');
+    return { ...(await fontNames(bytes)), bytes, ext };
+  }
+  /** A font file as a data URL (what a document keeps in its file) and back. */
+  function toDataURL(bytes) {
+    let s = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return 'data:font/ttf;base64,' + btoa(s);
+  }
+  function fromDataURL(url) {
+    const b = atob(String(url).slice(String(url).indexOf(',') + 1)), u = new Uint8Array(b.length);
+    for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+    return u;
+  }
   /** Adds a font file the person owns (TTF, OTF, WOFF or WOFF2). fontkit must read it; it is then stored in IndexedDB the
    * same way a pack is (one pack per file, marked as the person's own). Resolves { family, weight, italic }. */
   async function addUserFile(file) {
@@ -128,11 +168,7 @@
     await ready();
     const store = root.SlopLibraryStore;
     if (!store || !(await store.available())) throw new Error('This browser cannot keep fonts on the device (IndexedDB is unavailable).');
-    let f;
-    try { const fk = await fontkit(); f = fk.create(bytes); if (f.fonts) f = f.fonts[0]; } catch (e) { throw new Error('That file is not a font this app can read.'); }
-    const family = String(f.familyName || '').trim();
-    if (!family) throw new Error('That font file has no family name.');
-    const w = (f['OS/2'] && f['OS/2'].usWeightClass) || 400, italic = /italic|oblique/i.test(f.subfamilyName || '');
+    const { family, weight: w, italic } = await fontNames(bytes);
     const sha = await root.SlopLibraryManifest.sha256Hex(bytes), id = 'user-' + family.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + sha.slice(0, 8);
     const name = 'font.' + ext, style = italic ? 'italic' : 'normal';
     const pack = { id, kind: 'font', name: family + ' (your file)', licence: 'user', licenceUrl: '', description: 'A font file added on this device. Nothing is uploaded.', size: bytes.length,
@@ -141,5 +177,5 @@
     return { family, weight: w, italic, id };
   }
 
-  root.SlopFontCatalog = { ready, faces, families, hasFamily, pickFace, bytesOf, parseName, guessCategory, closestFamily, packFor, fontkit, addUserFile, range };
+  root.SlopFontCatalog = { ready, faces, families, hasFamily, pickFace, bytesOf, parseName, guessCategory, closestFamily, packFor, fontkit, addUserFile, readFontFile, setDocumentFonts, toDataURL, fromDataURL, range };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -4,8 +4,9 @@
  * gridOf(lines) → [[string]] one row per line, one column per cell start of the page.
  * readPages(bytes, spec) → [{ pageNo, w, h, lines: [{ y, cells: [{ x, text }] }] }]   browser only (pdf.js via convert/)
  * blocksOf(lines) → [{ type: 'para', text } | { type: 'table', rows: [[string]] }] in reading order. Classic ES module. */
-import { openPdf } from '../../convert/js/core/pdf-raster.js';
+import { openPdf, pdfjs } from '../../convert/js/core/pdf-raster.js';
 import { parseRange } from '../../convert/js/core/range.js';
+import { opItems } from './pdf-text-items.js';
 
 const SAME_LINE = 0.5;   // baselines closer than half a text height are one line
 const CELL_GAP = 0.2;    // a horizontal gap of a fifth of the text height ends a cell
@@ -94,15 +95,20 @@ export function gridOf(lines) {
   });
 }
 
-/** Reads the requested pages (1-based spec, blank for all) into lines. w and h are the page size in points. */
-export async function readPages(bytes, spec = '') {
+/** Reads the requested pages (1-based spec, blank for all) into lines. w and h are the page size in points. Items come from
+ * the page's operator list (pdf-text-items.js), so cells drawn as separate show operations stay apart. If the operator list
+ * is unavailable, or textContent is set, pdf.js getTextContent is used instead, which joins text on one baseline. */
+export async function readPages(bytes, spec = '', { textContent = false } = {}) {
   const pdf = await openPdf(bytes);
+  const OPS = textContent ? null : (await pdfjs()).OPS;
   try {
     const out = [];
     for (const n of parseRange(spec, pdf.numPages)) {
       const page = await pdf.getPage(n), vp = page.getViewport({ scale: 1 });
-      const tc = await page.getTextContent();
-      out.push({ pageNo: n, w: vp.width, h: vp.height, lines: linesOf(tc.items) });
+      let items = null;
+      if (OPS) { try { items = await opItems(page, OPS); } catch (e) { items = null; } }
+      if (!items) items = (await page.getTextContent()).items;
+      out.push({ pageNo: n, w: vp.width, h: vp.height, lines: linesOf(items) });
     }
     return out;
   } finally {
