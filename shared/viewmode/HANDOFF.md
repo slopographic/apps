@@ -16,6 +16,8 @@ button in the top bar. Load order on a page: `router.js` is independent; `viewmo
 - In Focus and Content, move the pointer to a region's window edge (6 px: top for toolbars, left for sidebars, right
   or bottom for panels, unless the app names another edge) and the region comes back. It hides again 0.7 s after the
   pointer leaves it.
+- The button is out of the page flow (`position: fixed`): top-right on wide screens, bottom-right at 760 px and below (text
+  hidden, glyph only). It never adds a line or width to an app's top bar; it hides with its top bar in Focus and Content.
 - The chosen mode is saved in `localStorage` key `slop.viewmode` and shared by every app. Storage is read and written
   inside try/catch, so a blocked store only means nothing is remembered.
 
@@ -38,7 +40,8 @@ SlopViewMode.shortcuts  // { cycle: 'Ctrl+Shift+F', reveal: 'Ctrl+Shift+L' }
   when a panel opens or closes. Apps that already keep their panels' open state in their own store (PhotoSlop's
   per-panel `collapsed.<id>`, SlopVector's prefs, Tables' sidebar key, Docs' outline key) do not need a second copy, so they
   pass no `layout`. The other apps have no layout hook yet.
-- Focus and Content change the window's layout, so the module fires a window `resize` after each change. Apps that
+- Focus and Content change the window's layout, so the module fires a window `resize` after each mode or peek change (not on
+  registration, when an app may not have its data yet). Apps that
   measure on resize (canvases, grids, editors) follow it without extra code.
 - The page's `<html>` gets `data-slopvm="<mode>"`, so a style can react to the mode.
 - A region that a page does not have is skipped. An app with no toolbar still gets the modes for its other regions.
