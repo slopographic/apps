@@ -37,6 +37,8 @@ decode, line endings) stay because they also take uploaded files.
 | XLSX to vCard | XLSX | vCard 3.0 (.vcf) | First sheet only; the first row holds the column names. Formulas are not calculated. |
 | vCard to CSV | vCard (.vcf, 2.1, 3.0 or 4.0) | CSV: Name, First name, Last name, Organisation, Job title, E-mail, Phone, Address, Website, Note | Read by the Contacts vCard code. Photos are left out. Several values in a cell are joined with "; ". |
 | vCard to XLSX | vCard | one-sheet XLSX, same columns as vCard to CSV | Values only. Photos are left out. |
+| Video or audio to WAV | MP4, WebM, MOV, M4A, MP3, WAV, OGG, FLAC | 16-bit PCM WAV at 44.1 kHz, stereo or mono as the source | Decoded by the browser (`OfflineAudioContext.decodeAudioData`), so AAC needs a browser that plays it. Silent files say so. |
+| Video or audio to MP3 | same as above | MP3 at 128, 192 or 320 kbps | Encoded with lamejs (`vendor/lamejs`, LGPL-3.0), loaded on first use. |
 | vCard to JSON | vCard | JSON array, one object per contact | Field names follow the Contacts model (fn, name, emails, phones, adr, org, title, url, note). Photos are left out. |
 | Markdown to HTML | Markdown | HTML page or fragment | No tables, nested lists or footnotes. Raw HTML is escaped (shown as text). |
 | HTML to text | HTML | plain text | Visible text only; scripts and styles removed. |

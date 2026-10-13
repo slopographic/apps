@@ -20,7 +20,8 @@ const SW_IMPORT = "importScripts('/sw-precache.js');";
 const exists = (p) => stat(path.join(ROOT, p)).then((s) => s, () => null);
 const resolveRef = (from, ref) => path.posix.normalize(path.posix.join(path.posix.dirname(from), ref));
 const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'shared/pwa.js',
-  'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo.svg'];
+  'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo.svg',
+  'vendor/lamejs/lame.min.js', 'vendor/lamejs/LICENSE']; // the MP3 encoder, loaded on demand by convert/js/core/audio.js
 const DRY = process.argv.includes('--dry-run');
 
 // shell/shell.js loads its parts with addScript()/addCss(), so static refs miss them. Its paths are

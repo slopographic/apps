@@ -16,6 +16,7 @@ import { bytesToBase64, base64ToBytes, urlEncode, urlDecode, setLineEndings, dec
 import { detectKind, EXT_OF_KIND } from './detect.js';
 import { csvToVcf, xlsxToVcf, vcfToCsv, vcfToXlsx, vcfToJson } from './vcf.js';
 import { stemOf as base } from '../io/files.js';
+import { decodeAudio, channelsOf, encodeWav, encodeMp3, loadLame } from './audio.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg'];
 const SIZE = [
@@ -34,10 +35,25 @@ function imageTo(to) {
     return [{ name: `${base(f.name)}.${r.ext}`, blob: r.blob }];
   };
 }
+const AUDIO_IN = ['mp4', 'webm', 'mov', 'm4a', 'mp3', 'wav', 'ogg', 'flac'];
+const BITRATE = { key: 'bitrate', type: 'select', label: 'Bitrate', value: '128', options: [['128', '128 kbps'], ['192', '192 kbps'], ['320', '320 kbps']] };
+/** The sound of a video or audio file, as WAV or MP3. Video files give their audio track only. */
+function audioTo(to) {
+  return async (files, o) => {
+    const f = files[0];
+    const buf = await decodeAudio(new Uint8Array(await f.file.arrayBuffer()));
+    const chans = channelsOf(buf);
+    if (to === 'wav') return [{ name: `${base(f.name)}.wav`, blob: new Blob([encodeWav(chans, buf.sampleRate)], { type: 'audio/wav' }) }];
+    const lame = await loadLame();
+    return [{ name: `${base(f.name)}.mp3`, blob: encodeMp3(lame, chans, buf.sampleRate, Number(o.bitrate) || 128) }];
+  };
+}
 const text = (blob) => blob.text();
 const out = (name, data, type) => ({ name, blob: new Blob([data], { type }) });
 
 export const CONVERSIONS = [
+  { id: 'to-wav', label: 'To WAV', group: 'Audio and video', from: AUDIO_IN, ext: 'wav', mode: 'each', options: [], run: audioTo('wav') },
+  { id: 'to-mp3', label: 'To MP3', group: 'Audio and video', from: AUDIO_IN, ext: 'mp3', mode: 'each', options: [BITRATE], run: audioTo('mp3') },
   { id: 'to-png', label: 'To PNG', group: 'Images', from: ['jpg', 'webp', 'bmp', 'gif', 'svg'], ext: 'png', mode: 'each', options: [...SIZE], run: imageTo('png') },
   { id: 'to-jpg', label: 'To JPG', group: 'Images', from: ['png', 'webp', 'bmp', 'gif', 'svg'], ext: 'jpg', mode: 'each', options: [...SIZE, QUALITY, BACKGROUND], run: imageTo('jpg') },
   { id: 'to-webp', label: 'To WebP', group: 'Images', from: ['png', 'jpg', 'bmp', 'gif', 'svg'], ext: 'webp', mode: 'each', options: [...SIZE, QUALITY], run: imageTo('webp') },

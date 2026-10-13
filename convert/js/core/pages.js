@@ -2,6 +2,18 @@
  * the SEO test all read this list, so a page is added here and in sitemap.xml (see convert/HANDOFF.md).
  * conv: a catalog id. from: input kinds the page accepts. */
 export const PAGES = [
+  { slug: 'video-to-mp3', conv: 'to-mp3', from: ['mp4', 'webm', 'mov'], label: 'Video to MP3', pair: ['VIDEO', 'MP3'], cat: 'Audio and video', summary: 'Pull the sound out of a video as an MP3. Nothing is uploaded.', h1: 'Video to MP3 converter',
+    title: 'Video to MP3 converter, free, runs on your device | File convert',
+    description: 'Extract the audio from MP4, WebM and MOV videos as MP3, at 128, 192 or 320 kbps. Runs in your browser, so the video never leaves your device.',
+    lead: 'Take the sound out of a video and save it as an MP3 file, for a podcast, a voiceover or a song.',
+    how: ['The video is read in this browser and its audio track is decoded. The picture is not used.', 'The sound is encoded as an MP3 at the bitrate you choose. Stereo videos stay stereo, mono stays mono.'],
+    faq: [['Does the video need a sound track?', 'Yes. A video with no sound track gives a clear message instead of an empty file.'], ['Which bitrate should I pick?', '128 kbps is fine for speech. 192 or 320 kbps keeps more detail in music.'], ['Are video files uploaded?', 'No. The decoding and the MP3 encoding both run in your browser. Large videos take longer and use more memory, since the sound is decoded in one go.']] },
+  { slug: 'video-to-wav', conv: 'to-wav', from: ['mp4', 'webm', 'mov'], label: 'Video to WAV', pair: ['VIDEO', 'WAV'], cat: 'Audio and video', summary: 'Take the sound out of a video as an uncompressed WAV file.', h1: 'Video to WAV converter',
+    title: 'Video to WAV converter, free, runs on your device | File convert',
+    description: 'Extract the audio from MP4, WebM and MOV videos as an uncompressed 16-bit WAV file. Runs in your browser, so the video is never uploaded.',
+    lead: 'Take the sound out of a video as a WAV file: uncompressed, with no loss, ready for editing.',
+    how: ['The video is read in this browser and its audio track is decoded. The picture is not used.', 'The sound is written as 16-bit PCM WAV at 44.1 kHz, keeping stereo or mono as the video has it.'],
+    faq: [['Why is the WAV file so large?', 'WAV stores the sound uncompressed. About 10 MB is a minute of stereo sound. Use MP3 if size matters more than the last bit of quality.'], ['Is the sample rate kept?', 'The sound is resampled to 44.1 kHz, the usual rate for music and speech.'], ['Are video files uploaded?', 'No. Everything runs in your browser, on this device.']] },
   { slug: 'png-to-jpg', conv: 'to-jpg', from: ['png'], label: 'PNG to JPG', pair: ['PNG', 'JPG'], cat: 'Images', summary: 'Make a flat JPG copy of a PNG. Transparent areas get the background colour you choose.', h1: 'PNG to JPG converter',
     title: 'PNG to JPG converter, free, in your browser | File convert',
     description: 'Convert PNG to JPG in your browser. Choose the quality and the background colour for transparent areas. Your files are never uploaded.',

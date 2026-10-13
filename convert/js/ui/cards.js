@@ -4,7 +4,7 @@
 import { PAGES } from '../core/pages.js';
 import { h } from './dom.js';
 
-export const CATEGORIES = ['Documents', 'Images', 'Data', 'Text & code'];
+export const CATEGORIES = ['Documents', 'Images', 'Audio and video', 'Data', 'Text & code'];
 
 const accepts = (p) => (p.from.length ? p.from.map((k) => k.toUpperCase()).join(', ') : 'Any file');
 
