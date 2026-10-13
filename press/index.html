@@ -107,7 +107,7 @@
           <div class="stage" id="stage">
             <canvas id="view" class="view" data-tool="select" aria-label="Pages"></canvas>
             <textarea id="textInput" class="text-input" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Edit text"></textarea>
-            <div class="drop-hint" aria-hidden="true"><span>Drop images, text or a .slpress file</span></div>
+            <div class="press-drop" id="pressDrop"></div>
           </div>
         </div>
       </section>
@@ -118,6 +118,9 @@
   <div id="printRoot" class="print-root" aria-hidden="true"></div>
   <noscript><p class="noscript">Slop Press needs JavaScript. It runs entirely in your browser; nothing is uploaded.</p></noscript>
   <script src="../shared/slopui.js" data-src="shared/slopui.js"></script>
+  <script src="../shared/drop/rules.js" data-src="shared/drop/rules.js"></script>
+  <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script>
   <script src="../shared/commands/search.js" data-src="shared/commands/search.js"></script>
   <script src="../shared/commands/palette.js" data-src="shared/commands/palette.js"></script>

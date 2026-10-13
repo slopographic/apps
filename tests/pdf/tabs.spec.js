@@ -26,6 +26,15 @@
   const clickIn = (root, label) => [...root.querySelectorAll('button')].find((b) => b.textContent.trim() === label).click();
   const texts = async () => (await PT.read(await PT.E.build())).pages.map((p) => p.text);
   const field = () => doc().getElementById('fileName');
+  /** A drop on an open document shows the shared Add to current / Create new dialog first (shared/drop/choice.js). */
+  async function chooseHere(label, name) {
+    const d = await waitFor(() => doc().querySelector('.sdc-dialog'), { timeout: 15000 });
+    expect(d.textContent.includes(name)).toBe(true);
+    const buttons = [...d.querySelectorAll('.sdc-btn')];
+    expect(buttons.map((b) => b.textContent)).toEqual(['Cancel', 'Create new', 'Add to current']);
+    buttons.find((b) => b.textContent === label).click();
+    await waitFor(() => !doc().querySelector('.sdc-dialog'));
+  }
 
   describe('document tabs', () => {
     it('two PDFs open as two tabs, and switching brings each one back as it was', async () => {
@@ -104,6 +113,7 @@
       const page = doc().getElementById('gridWrap');
       // at the start
       drop(page, [file(await PT.makePdf([{ text: 'Extra 1' }, { text: 'Extra 2' }]), 'extra.pdf')]);
+      await chooseHere('Add to current', 'extra.pdf');
       const ask = await waitFor(() => dialogTitled('Add pages'));
       ask.querySelector('select').value = 'start';
       clickIn(ask, 'Add pages');
@@ -113,6 +123,7 @@
       expect(await texts()).toEqual(['Base 1', 'Base 2']);
       // after page 1
       drop(page, [file(await PT.makePdf([{ text: 'Mid 1' }]), 'mid.pdf')]);
+      await chooseHere('Add to current', 'mid.pdf');
       const ask2 = await waitFor(() => dialogTitled('Add pages'));
       ask2.querySelector('select').value = 'after:1';
       clickIn(ask2, 'Add pages');
@@ -122,6 +133,7 @@
       expect(await texts()).toEqual(['Base 1', 'Base 2']);
       // a PDF already in the document asks first; cancelling adds nothing
       drop(page, [file(baseBytes, 'base.pdf')]);
+      await chooseHere('Add to current', 'base.pdf');
       clickIn(await waitFor(() => dialogTitled('Already in this document')), 'Cancel');
       await sleep(200);
       expect(PT.E.state.pages.length).toBe(2);

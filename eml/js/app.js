@@ -13,6 +13,9 @@
   const current = () => find(curId);
 
   /** Reads one .eml file and opens it. Resolves with the doc. Throws when the file cannot be read at all. */
+  /** Is a message of this name and size open? (The same file again is not opened twice.) */
+  function isOpen(name, size) { return docs.some((d) => d.name === name && d.size === size); }
+
   async function openFile(file) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const msg = M.parse(bytes);
@@ -67,7 +70,7 @@
 
   window.EmlApp = {
     docs: () => docs.slice(),
-    current, find, openFile, openFiles, select, close, step, setView, toggleCids, attachmentBlob,
+    current, find, isOpen, openFile, openFiles, select, close, step, setView, toggleCids, attachmentBlob,
     subscribe(fn) { listeners.push(fn); },
     /** The file name of a doc without .eml, for the PDF and the print title. */
     baseName(doc) { return String(doc.name || 'message').replace(/\.(eml|mail|msg)$/i, '') || 'message'; },
