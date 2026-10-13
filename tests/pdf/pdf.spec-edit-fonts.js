@@ -8,16 +8,7 @@
   const doc = () => PT.win.document;
 
   /** A one-page PDF with "text" set in a subset of Barlow Regular (the way the test document embeds its fonts). */
-  async function barlowPdf(text) {
-    if (!PT.SP) await PT.boot();
-    const L = PT.win.PDFLib, kit = await PT.win.SlopFontCatalog.fontkit();
-    const d = await L.PDFDocument.create();
-    d.registerFontkit(kit);
-    const font = await d.embedFont(await PT.fixture('Barlow-Regular.ttf'), { subset: true });
-    d.addPage(PT.win.Array.of(300, 200)).drawText(text, { x: 20, y: 20, size: 18, font });
-    d.setCreationDate(new PT.win.Date(PT.win.Date.UTC(2021, 0, 1) + (++PT._nonce) * 1000));
-    return d.save();
-  }
+  const barlowPdf = (text) => PT.barlowPdf(text, { subset: true });
   /** Opens bytes, turns edit text on, and returns where the first line of text is on screen (baseline 20 pt). */
   async function startEdit(bytes, name) {
     if (!PT.SP) await PT.boot();

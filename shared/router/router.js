@@ -9,12 +9,15 @@
  *       page: { int: true, min: 1, max: 999, def: 1 },                           // a whole number
  *       q:    { def: '', max: 120 },                                             // text, cut to max characters
  *     },
- *     apply(state, why) { ... },            // why: 'load' (on register) or 'popstate' (back and forward)
+ *     ready: () => document.body.classList.contains('ready'),  // optional: apply on load once this is true (the app has booted)
+ *     apply(state, why) { ... },            // why: 'load' (on register or ready) or 'popstate' (back and forward)
  *     hash: (h) => ({ view: 'diff' }),      // optional: map an old #hash link to parameters
  *   });
  *   R.get('view')                  the current value (typed: a number for int)
+ *   R.has('view')                  true when the URL carries the parameter (a link named it), not just its default
  *   R.state()                      every current value, defaults filled in
- *   R.set({ view: 'text' })        replaceState (default). { push: true } pushes one history entry (a navigation).
+ *   R.set({ view: 'text' })        replaceState (default). { push: true } pushes one history entry (a navigation);
+ *                                  { push: true, state } also stores state on that entry.
  *                                  A value equal to its default removes the parameter, so plain links stay short.
  *   R.link()                       the absolute URL of the current state
  *   SlopRoute.describe(app?)       printable lines: each parameter, its values and default. No app: every app.
@@ -53,7 +56,7 @@
   function norm(name, p) {
     const out = { name, values: p.values || null, pattern: p.pattern || null, int: !!p.int, min: p.min, max: p.max,
       def: p.def === undefined ? (p.int ? 0 : '') : p.def, legacy: p.legacy || [] };
-    if (out.values && !out.values.includes(String(out.def))) out.def = out.values[0];
+    if (out.values && out.def !== '' && !out.values.includes(String(out.def))) out.def = out.values[0];   // '' = none
     return out;
   }
   /** The parameters of one app as they are in the URL now, defaults filled in. The hash (an old link) is read on load only. */
@@ -84,6 +87,11 @@
     return {
       get(name) { return readState(entry, false)[name]; },
       state() { return readState(entry, false); },
+      /** Does the URL carry this parameter (or one of its old names)? */
+      has(name) {
+        const p = byName.get(name);
+        return !!p && [p.name, ...p.legacy].some((k) => safe(() => U.get(k, null), null) !== null);
+      },
       set(patch, opts) {
         if (!patch || typeof patch !== 'object') return false;
         const changes = {};
@@ -93,7 +101,9 @@
           changes[k] = text(p, coerce(p, patch[k] === null || patch[k] === undefined ? null : String(patch[k])));
           for (const old of p.legacy) changes[old] = null;
         }
-        return U.set(changes, { replace: !(opts && opts.push) });
+        const o = { replace: !(opts && opts.push) };
+        if (opts && 'state' in opts) o.state = opts.state;   // a history state for the entry (Drive keeps the folder in it)
+        return U.set(changes, o);
       },
       link() { return safe(() => U.link(), ''); },
     };
@@ -114,8 +124,17 @@
     entry.hashed = hashed(entry);
     apps.set(app, entry);
     wire();
-    run(entry, 'load');
+    whenReady(entry, () => run(entry, 'load'));
     return entry.handle;
+  }
+  /** Runs fn once the app reports ready (spec.ready() is true), polling every 40 ms for at most 15 s, then anyway. */
+  function whenReady(entry, fn) {
+    const ready = entry.spec.ready;
+    if (typeof ready !== 'function') return fn();
+    const ok = () => safe(() => !!ready(), false);
+    if (ok()) return fn();
+    const t0 = Date.now();
+    const id = win.setInterval(() => { if (ok() || Date.now() - t0 > 15000) { win.clearInterval(id); fn(); } }, 40);
   }
 
   /** The parameters of an app as data, with what each one reads now. */
