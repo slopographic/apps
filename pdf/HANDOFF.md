@@ -280,3 +280,21 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   a second file for Merge). `pdf.spec-history.js` now takes the home stack key from `H.stackKey()` (the key of a tab).
 - After any change to script or CSS lists, run `node tools/pwa-precache.mjs` and bump VERSION in `service-worker.js`
   (the new files are not in the precache until it is run).
+
+## Drop choice, drop routing, layers, sidebar dock
+- **Drops on the open document** (`js/ui/doc-drop.js`): `SlopDropChoice.ask` (shared/drop/choice.js, the PhotoSlop dialog)
+  offers Add to current (the position dialog, then one undo step) or Create new (each file in a new tab). Cancel adds nothing.
+  No document open: the files open as before. A drop on the tab strip still opens new tabs.
+- **Files the app cannot open** (`js/ui/drop-route.js`): PDF, PNG, JPEG, WebP, GIF and BMP open; SVG is offered Convert to PDF
+  (`A.convertFiles`, the Convert dialog with the file, Images to PDF among its targets); every other type is named in a dialog
+  and the status line ("Not supported"). CSV, TXT, MD, HTML, JSON, XLSX, DOCX, ODT, ODS and PPTX have no PDF converter.
+- **Layers** (`js/core/layers.js`, `js/editor/layers-ops.js`, `js/tools/layers-panel.js`): each annotation is a layer item; the
+  page's annots array is the stack. `hidden` (not drawn in the page view or thumbnails, not exported, a hidden redaction mark
+  is not burned in) and `locked` (drawn and exported, but not moved, resized, edited, nudged, deleted or given new props) are
+  flags on the item. Move up/down reorders the stack. Each change is one undoable step. Duplicate and paste clear both flags.
+  Not done: renaming a layer, drag-to-reorder, grouping, layers for stamps (page numbers, watermark) or form fields.
+- **Sidebar dock** (`js/ui/dock.js`, `css/dock.css`): sections under the tool panel (`#props .pp-dock`). Layers starts open,
+  History starts collapsed; open state is kept for the session only. The tool panels themselves are not collapsible.
+- **History** (`js/tools/history-panel.js`, `H.steps()` and `H.goTo(n)` in `core/history.js`): applied steps oldest first, then
+  undone steps greyed; a click goes to that state by undo or redo.
+- Tests: `tests/pdf/pdf.spec-drop.js`, `pdf.spec-layers.js`, `pdf.spec-sidebar.js` (in `pdf.test.html`).

@@ -110,4 +110,14 @@
   };
   /** The applied commands, oldest first (read-only use). */
   H.entries = function () { return undoS.slice(); };
+  /** The steps for the History panel: the labels of the applied steps (oldest first) and of the undone ones (the next
+      redo first). */
+  H.steps = function () {
+    return { past: undoS.map(function (c) { return c.label; }), future: redoS.slice().reverse().map(function (c) { return c.label; }) };
+  };
+  /** Moves the document to the state after n applied steps (0 is the state before the first one) by undoing or redoing. */
+  H.goTo = function (n) {
+    while (undoS.length > n && E.undo()) { /* each undo emits a change */ }
+    while (undoS.length < n && redoS.length && E.redo()) { /* each redo emits a change */ }
+  };
 })();

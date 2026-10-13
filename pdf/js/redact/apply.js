@@ -14,7 +14,7 @@
   /** Page-space boxes (unrotated, top-left origin) of a page's redaction marks. */
   R.boxes = function (p) {
     var g = E.geom(p);
-    return (p.annots || []).filter(function (a) { return a.type === 'redact'; }).map(function (a) { return E.annotViewRect(a, 0, g.W, g.H); });
+    return (p.annots || []).filter(function (a) { return a.type === 'redact' && !a.hidden; }).map(function (a) { return E.annotViewRect(a, 0, g.W, g.H); });
   };
 
   async function deflate(u8) {

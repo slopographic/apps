@@ -4,7 +4,7 @@
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, h = U.h;
   var P = SP.panels = {};
-  var root, current = null, refreshers = [];
+  var root, main, current = null, refreshers = [];
 
   /* ------------------------------------------------------------ helpers */
   function section(title, kids, opts) {
@@ -81,18 +81,19 @@
   P.helpers = { section: section, row: row, btn: btn, seg: seg, select: select, num: num, text: text, slider: slider, colorPicker: colorPicker, check: check, note: note, needPages: needPages, onRefresh: function (fn) { onRefresh(fn); } };
 
   /* -------------------------------------------------------------- core */
-  P.init = function (el) { root = el; };
+  /** The sidebar: the tool's panel (main, rebuilt on each show) above the dock (ui/dock.js: Layers, History). */
+  P.init = function (el) { root = el; main = h('div', { class: 'pp-main' }); root.appendChild(main); if (SP.dock) SP.dock.mount(root); };
   P.show = function (tool) {
     current = tool; refreshers = [];
-    root.innerHTML = '';
+    main.innerHTML = '';
     var def = PANELS[tool] || PANELS.organize;
-    root.appendChild(h('div', { class: 'pp-title' }, h('span', { html: U.icon(def.icon) }), h('h2', null, def.title)));
+    main.appendChild(h('div', { class: 'pp-title' }, h('span', { html: U.icon(def.icon) }), h('h2', null, def.title)));
     var body = h('div', { class: 'pp-body' });
-    root.appendChild(body);
+    main.appendChild(body);
     def.build(body);
   };
   /** Called on state changes; panels register small refreshers instead of rebuilding (keeps focus). */
-  P.refresh = function (reason) { refreshers.forEach(function (fn) { try { fn(reason); } catch (e) { console.warn(e); } }); };
+  P.refresh = function (reason) { refreshers.forEach(function (fn) { try { fn(reason); } catch (e) { console.warn(e); } }); if (SP.dock) SP.dock.refresh(); };
   P.rebuild = function () { if (current) P.show(current); };
   function onRefresh(fn) { refreshers.push(fn); fn(); }
 
