@@ -53,7 +53,7 @@
   const facesOf = (name) => [...document.fonts].filter((f) => f.family.replace(/"/g, '') === name);
   const dialog = () => document.querySelector('.slop-lib');
   const btnIn = (root, text) => [...root.querySelectorAll('button')].find((b) => b.textContent.trim().startsWith(text));
-  const picker = SlopFonts.attach(sel, { value: 'Inter', legacy: ['Georgia', 'Arial'] });
+  const picker = SlopFonts.attach(sel, { value: 'Georgia', legacy: ['Georgia', 'Arial'] }); // a standard name: no bundled face loads until one is picked
   const getMore = picker.button;
 
   describe('Bundled fonts in the picker', () => {
