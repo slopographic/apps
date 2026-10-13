@@ -4,6 +4,7 @@
 import { parseCsv, rowsToCsv } from './csv.js';
 import { rowsToXlsx } from './xlsx.js';
 import { decodeText } from './text.js';
+import { stemOf as base } from '../io/files.js';
 import { readXlsx } from '../../../shared/sheets/xlsx.js';
 import { contactsFromTable, contactsToTable } from './vcf-map.js';
 
@@ -33,7 +34,6 @@ export function vcardCore() {
   return loading;
 }
 
-const base = (name) => String(name).replace(/\.[^.]+$/, '') || 'file';
 const bytesOf = async (file) => new Uint8Array(await file.arrayBuffer());
 const nonBlank = (rows) => rows.filter((r) => r.some((v) => String(v == null ? '' : v).trim() !== ''));
 

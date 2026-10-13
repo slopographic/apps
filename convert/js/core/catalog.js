@@ -15,9 +15,9 @@ import { htmlToText } from './html-text.js';
 import { bytesToBase64, base64ToBytes, urlEncode, urlDecode, setLineEndings, decodeText, EOLS } from './text.js';
 import { detectKind, EXT_OF_KIND } from './detect.js';
 import { csvToVcf, xlsxToVcf, vcfToCsv, vcfToXlsx, vcfToJson } from './vcf.js';
+import { stemOf as base } from '../io/files.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg'];
-const base = (name) => String(name).replace(/\.[^.]+$/, '') || 'file';
 const SIZE = [
   { key: 'width', type: 'number', label: 'Width (px)', min: 1, max: 10000, hint: 'Leave blank to keep the original size. Height follows the proportions.' },
   { key: 'height', type: 'number', label: 'Height (px)', min: 1, max: 10000 },

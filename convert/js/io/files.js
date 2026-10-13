@@ -5,6 +5,9 @@ export async function readHead(file) {
   return new Uint8Array(await file.slice(0, HEAD_BYTES).arrayBuffer());
 }
 
+/** The file name without its extension ("photo.final.png" to "photo.final"), or 'file' when nothing is left. */
+export const stemOf = (name) => String(name).replace(/\.[^.]+$/, '') || 'file';
+
 export function fmtSize(n) {
   if (n < 1000) return `${n} B`;
   const units = ['KB', 'MB', 'GB'];
