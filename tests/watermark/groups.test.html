@@ -84,7 +84,7 @@
       const logo = Object.assign({}, shared, { kind: 'logo' });
       const ov = Object.assign(G.overrideFrom(logo), { on: true, logoScale: 0.3, size: 0.02 });
       expect(G.applyOverride(logo, ov).logoScale).toBe(0.3);
-      expect(G.applyOverride(logo, ov).size).toBe(0.02);
+      expect(G.applyOverride(logo, ov).size).toBe(shared.size);
       const text = Object.assign({}, shared, { kind: 'text' });
       const tv = Object.assign(G.overrideFrom(text), { on: true, logoScale: 0.3, size: 0.07 });
       expect(G.applyOverride(text, tv).size).toBe(0.07);

@@ -74,10 +74,12 @@
   /** Each finished output by its name, as bytes. */
   async function outputs() {
     const out = {};
-    for (const x of W().WMItems.all()) out[x.name] = new Uint8Array(await x.out.blob.arrayBuffer());
+    for (const x of W().WMItems.all()) out[x.out.name] = new Uint8Array(await x.out.blob.arrayBuffer());
     return out;
   }
   const sameBytes = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+  /** The text font is loaded on first draw; wait for it so the outputs compare with the same font. */
+  const fontReady = () => W().document.fonts.load('600 16px "Inter Tight"');
   const snap = () => { const c = q('#wm-preview'); return c.getContext('2d').getImageData(0, 0, c.width, c.height).data.slice(); };
   /** How many bytes differ between two snapshots (same size, else every byte counts). */
   function differs(a, b) {
@@ -244,6 +246,7 @@
       drop([await picture('p1.png', 'image/png', 120, 160, 30), await picture('p2.jpg', 'image/jpeg', 300, 400, 30),
         await picture('l1.jpg', 'image/jpeg', 240, 160, 60)]);
       await waitFor(() => rows().length === 3, { timeout: 20000 });
+      await fontReady();
       await applyAll();
       const before = await outputs();
       setEl(groupCtl('portrait', 'on'), true);
@@ -261,6 +264,7 @@
       drop([await picture('p1.png', 'image/png', 120, 160, 30), await picture('l1.jpg', 'image/jpeg', 240, 160, 60)]);
       await waitFor(() => rows().length === 2, { timeout: 20000 });
       set('wm-rotate', 10);
+      await fontReady();
       await applyAll();
       for (const x of W().WMItems.all()) {
         const r = await W().WMRender.renderItem(x, W().WMSettings.cfg(), null);
