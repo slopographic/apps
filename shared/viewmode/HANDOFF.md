@@ -16,8 +16,13 @@ button in the top bar. Load order on a page: `router.js` is independent; `viewmo
 - In Focus and Content, move the pointer to a region's window edge (6 px: top for toolbars, left for sidebars, right
   or bottom for panels, unless the app names another edge) and the region comes back. It hides again 0.7 s after the
   pointer leaves it.
-- The button is out of the page flow (`position: fixed`): top-right on wide screens, bottom-right at 760 px and below (text
-  hidden, glyph only). It never adds a line or width to an app's top bar; it hides with its top bar in Focus and Content.
+- The controls are in the app's own toolbar (the `mount` element), never over the page: the mode button, and in Focus and
+  Content a "Show panels" button (Ctrl+Shift+L toggles the same thing). A toolbar that is hidden stays on screen as a strip
+  that holds only those controls, so there is always a visible way back.
+- Escape returns to Full (not while a dialog is open or a text field has focus).
+- The layout changes with the mode: a hidden region gives its grid tracks back, so the workspace takes the freed space.
+  A grid with named areas keeps the hidden track at 0 px; an auto-placed grid drops it. A workspace that is a fixed-size
+  card (no fill track) has no space to take; it only loses the chrome around it.
 - The chosen mode is saved in `localStorage` key `slop.viewmode` and shared by every app. Storage is read and written
   inside try/catch, so a blocked store only means nothing is remembered.
 
@@ -59,13 +64,14 @@ SlopViewMode.shortcuts  // { cycle: 'Ctrl+Shift+F', reveal: 'Ctrl+Shift+L' }
 | `press` | `/press/` | `#menubar`, `#controlbar` | `#toolbar` | `#dock` | `#menubar` |
 | `contacts` | `/contacts/` | `.topbar` | `#colGroups` | `#card` | `.topbar` |
 | `drive` | `/drive/` | `.topbar` | `#side` | `#info` | `.topbar` |
-| `label` | `/label/` | `#menubar`, `#ctrlbar` | `#toolbox` | `#dock` | `#menubar` |
+| `label` | `/label/` | `#menubar`, `#ctrlbar` | `#toolbox` | `#dock` | `#ctrlbar` |
 | `ocr` | `/ocr/` | `.ocr-top` | | `.ocr-help` (bottom) | `.ocr-top` |
 | `convert` | `/convert/` | `.cv-top` | | `.cv-explain`, `.cv-card` (bottom) | `.cv-top` |
 | `calc` | `/calculator/` | `.sc-top` | `.sc-side` | | `.sc-top` |
 | `eml` | `/eml/` | `.em-top` | | | `.em-top` |
 | `hex` | `/hex/` | `.hx-top`, `.hx-bar` | | `#hx-info` (top) | `.hx-top` |
 
-PDF (`/pdf/`) is not wired here; the PDF agent's page is wired by the lead.
+| `pdf` | `/pdf/` | `.topbar` | `#rail` | `#props` | `.topbar` |
 
-Tests: `tests/viewmode/viewmode.test.html` (`node tests/run.mjs viewmode`).
+Tests: `tests/viewmode/viewmode.test.html` checks the module; one page per app (`<app>.test.html`) loads the app in an
+iframe and checks the layout, the controls and the shortcuts (`node tests/run.mjs viewmode`). Shared checks: `app-modes.js`.

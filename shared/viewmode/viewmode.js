@@ -69,11 +69,7 @@
   }
   /** The track the freed space goes to: the one under the largest shown item that is not given back. */
   function fillTrack(list, kids, axis, zero, fillEl) {
-    let best = fillEl || null, bestArea = 0;
-    for (const k of kids) {
-      const area = k.width * k.height;
-      if (!fillEl && area > bestArea) { bestArea = area; best = k; }
-    }
+    const best = fillEl || kids.reduce((m, k) => (!m || k.width * k.height > m.width * m.height ? k : m), null);
     if (!best) return -1;
     const mid = axis === 'x' ? best.left + best.width / 2 : best.top + best.height / 2;
     const i = list.findIndex((t) => mid >= t.a && mid <= t.b);
@@ -132,8 +128,10 @@
       shells.add(P);
       watch(P);
     }
-    for (const e of apps.values()) for (const b of e.buttons) b.querySelector('.slopvm-txt').textContent = 'View: ' + LABEL[mode];
-    for (const e of apps.values()) for (const b of e.reveal) b.textContent = peekAll ? 'Hide panels' : 'Show panels';
+    for (const e of apps.values()) {
+      for (const b of e.buttons) b.querySelector('.slopvm-txt').textContent = 'View: ' + LABEL[mode];
+      for (const b of e.reveal) b.textContent = peekAll ? 'Hide panels' : 'Show panels';
+    }
     if (doc.documentElement) doc.documentElement.dataset.slopvm = mode;
     if (watcher) watcher.takeRecords();   // our own class changes are not an app change
     painting = false;

@@ -19,7 +19,7 @@
     SlopViewMode.register('label', {
       regions: { toolbar: ['#menubar', '#ctrlbar'], sidebar: '#toolbox', panels: '#dock' },
       edges: { sidebar: 'left', panels: 'right' },
-      mount: '#menubar',
+      mount: '#ctrlbar',   // the control bar has room at a phone width; the menu bar is full there
       layout: {
         get: () => ({ dock: document.getElementById('app').classList.contains('dock-open') }),
         set: (o) => { if (o.dock && typeof showDock === 'function') showDock(window.App && App.tab || 'props'); },
