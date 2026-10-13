@@ -55,7 +55,7 @@ describe('hub: one card per catalogue pair', () => {
       expect(hub.doc.querySelector('.cv-cat[data-cat="Data"]').hidden).toBe(true);
 
       await typeIn(hub.doc, 'pdf png');
-      expect(visibleCards(hub.doc).map((c) => c.dataset.pair)).toEqual(['pdf-to-png']);
+      expect(visibleCards(hub.doc).map((c) => c.dataset.pair).sort()).toEqual(['pdf-to-png', 'png-to-pdf']);
 
       await typeIn(hub.doc, 'no such format');
       expect(visibleCards(hub.doc).length).toBe(0);
@@ -81,6 +81,8 @@ describe('hub: one card per catalogue pair', () => {
     } finally { hub.close(); }
   });
 });
+
+SlopTest.run({ name: 'File convert: hub cards' });
 </script>
 </body>
 </html>
