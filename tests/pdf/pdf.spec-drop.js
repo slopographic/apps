@@ -27,6 +27,7 @@
 
   describe('drop on the open document', () => {
     it('asks Add to current or Create new when a PDF is dropped on an open document', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }, { text: 'b' }]), 'base.pdf');
       const bytes = await PT.makePdf([{ text: 'x' }]);
@@ -43,6 +44,7 @@
     }, { timeout: 60000 });
 
     it('Add to current adds the pages to this document, at the place chosen', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }, { text: 'b' }]), 'base2.pdf');
       drop([file('more.pdf', 'application/pdf', await PT.makePdf([{ text: 'x' }]))]);
@@ -56,6 +58,7 @@
     }, { timeout: 90000 });
 
     it('Create new opens the dropped file in a new tab and leaves this document as it was', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }, { text: 'b' }]), 'base3.pdf');
       const before = openTabs();
@@ -68,6 +71,7 @@
     }, { timeout: 90000 });
 
     it('with no document open, the file opens without a choice', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       drop([file('solo.pdf', 'application/pdf', await PT.makePdf([{ text: 'x' }, { text: 'y' }]))]);
       await waitFor(() => PT.E.state.pages.length === 2, { timeout: 30000 });
@@ -77,6 +81,7 @@
 
   describe('files the app cannot open', () => {
     it('an XLSX (or CSV) drop is named and refused, and nothing is added', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'base4.pdf');
       drop([file('budget.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')]);
@@ -94,6 +99,7 @@
     }, { timeout: 60000 });
 
     it('an SVG is offered Convert to PDF, which opens the converter with the file', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       drop([file('logo.svg', 'image/svg+xml', new PT.win.Uint8Array([60, 115, 118, 103, 62]))]);
       await waitFor(() => suiTitles().includes('Convert to PDF?'), { timeout: 15000 });
@@ -109,6 +115,7 @@
     }, { timeout: 90000 });
 
     it('a mixed drop opens the PDF and names the file that was refused', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       drop([file('ok.pdf', 'application/pdf', await PT.makePdf([{ text: 'x' }])), file('notes.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')]);
       await waitFor(() => PT.E.state.pages.length === 1 && suiTitles().includes('File not supported'), { timeout: 30000 });

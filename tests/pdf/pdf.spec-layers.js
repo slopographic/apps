@@ -20,6 +20,7 @@
 
   describe('layers', () => {
     it('lists the page\'s layers top first, with the type and a number, and shows an edit as a new layer', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'layers1.pdf');
       await openPage(page().id);
@@ -33,6 +34,7 @@
     }, { timeout: 60000 });
 
     it('hide takes the layer off the page view and out of the export; show puts it back', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'layers2.pdf');
       await openPage(page().id);
@@ -51,6 +53,7 @@
     }, { timeout: 60000 });
 
     it('hiding the selected layer clears the selection', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'layers3.pdf');
       await openPage(page().id);
@@ -62,6 +65,7 @@
     }, { timeout: 60000 });
 
     it('lock: a locked layer is drawn and exported but cannot be moved, deleted or edited; unlock restores that', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       const E = PT.E, Ed = PT.SP.editor;
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'layers4.pdf');
@@ -86,6 +90,7 @@
     }, { timeout: 60000 });
 
     it('move up and down reorder the stack, and the top layer cannot move further up', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'layers5.pdf');
       await openPage(page().id);
@@ -103,6 +108,7 @@
     }, { timeout: 60000 });
 
     it('delete removes the layer as one undoable step', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'layers6.pdf');
       await openPage(page().id);
@@ -117,6 +123,7 @@
     }, { timeout: 60000 });
 
     it('a duplicate of a hidden or locked layer is a visible, unlocked layer', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       const Ed = PT.SP.editor;
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'layers7.pdf');
