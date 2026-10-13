@@ -131,9 +131,14 @@
 
   function paintForm() {
     $('eTitle').textContent = st.id ? st.number || 'Draft invoice' : 'New invoice';
+    const label = st.status === 'issued' && st.balance <= 0 ? 'Paid' : NS.preview.STATUS[st.status];
     const chip = $('eStatus');
-    chip.textContent = st.status === 'issued' && st.balance <= 0 ? 'Paid' : NS.preview.STATUS[st.status];
+    chip.textContent = label;
     chip.className = `chip ${st.status}`;
+    $('tbNum').textContent = st.id ? st.number || 'No number yet' : 'New invoice';
+    $('tbStatus').textContent = label;
+    $('tbStatus').className = `chip ${st.status}`;
+    document.querySelector('.app').dataset.docStatus = st.status;
     const sel = $('eCustomer');
     sel.replaceChildren(h('option', { value: '', text: 'Choose a customer…' }), ...st.customers.map((c) => h('option', { value: c.id, text: c.name })));
     sel.value = st.customerId || '';

@@ -13,6 +13,7 @@
   function show(name, arg) {
     if (!VIEWS.includes(name)) return undefined;
     NS.state.view = name;
+    document.querySelector('.app').dataset.view = name;
     for (const v of VIEWS) {
       const el = $(`view-${v}`);
       if (el) el.hidden = v !== name;
@@ -23,7 +24,10 @@
   if (window.SlopLayouts) SlopLayouts.refresh('invoices');
     $('tab-print').hidden = name !== 'print';
     const view = NS.views[name];
-    return view && view.onShow ? view.onShow(arg) : undefined;
+    const out = view && view.onShow ? view.onShow(arg) : undefined;
+    // The list beside an open invoice marks that invoice's row: redraw once the invoice has opened.
+    if (NS.views.list && !$('view-list').hidden) Promise.resolve(out).then(() => NS.views.list.refresh());
+    return out;
   }
 
   /** The route for the current hash: list, new, i/<id>, p/<id> or data. */
@@ -51,9 +55,17 @@
     show(t.view, t.arg);
   }
 
+  /** Redraws the list when it is on screen: the list view, or the workspace list beside an open invoice. */
   function redrawList() {
     clearTimeout(timer);
-    timer = setTimeout(() => { if (NS.state.view === 'list' && NS.views.list) NS.views.list.refresh(); }, 40);
+    timer = setTimeout(() => { if (NS.views.list && !$('view-list').hidden) NS.views.list.refresh(); }, 40);
+  }
+
+  /** The top bar's actions: New invoice (list), Save (a draft open) and Print (an invoice open or its print view). */
+  function mountTopbar() {
+    $('tbNew').addEventListener('click', () => go('new'));
+    $('tbSave').addEventListener('click', () => NS.editor.save());
+    $('tbPrint').addEventListener('click', () => (NS.state.view === 'edit' ? NS.editor.preview() : window.print()));
   }
 
   async function boot() {
@@ -65,6 +77,7 @@
     $('boot').hidden = true;
     for (const name of VIEWS) if (NS.views[name] && NS.views[name].mount) NS.views[name].mount();
     NS.commands.init();
+    mountTopbar();
     if (g.SlopHub) { try { SlopHub.register('invoices'); } catch (e) { /* the hub is optional */ } }
     for (const t of document.querySelectorAll('.tab')) {
       t.addEventListener('click', () => go(t.dataset.view === 'edit' ? NS.editor.route() : t.dataset.view));

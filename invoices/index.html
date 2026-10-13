@@ -76,6 +76,7 @@
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/docs/paper.css">
   <link rel="stylesheet" href="css/invoices.css">
+  <link rel="stylesheet" href="css/workspace.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -85,9 +86,15 @@
       <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
         <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
       </a>
-      <div class="appname"><b>Slop Invoices</b><a class="home-link" href="../">slopographic</a> · <a class="home-link" href="about/">About</a></div>
+      <div class="appname"><b>Slop Invoices</b><span class="appname-links"><a class="home-link" href="../">slopographic</a> · <a class="home-link" href="about/">About</a></span></div>
+      <div class="tb-doc" aria-live="polite"><b class="tb-num" id="tbNum"></b><span class="chip" id="tbStatus"></span></div>
       <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+      <div class="tb-actions">
+        <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+        <button type="button" class="btn primary" id="tbNew" title="New invoice">New invoice</button>
+        <button type="button" class="btn primary" id="tbSave" title="Save the draft">Save</button>
+        <button type="button" class="btn" id="tbPrint" title="Preview and print the invoice">Print</button>
+      </div>
     </header>
 
     <nav class="tabs no-print" role="tablist" aria-label="Invoice sections">
@@ -119,10 +126,14 @@
         <h2 class="h2">Invoices</h2>
         <p class="note" id="iSummary" role="status"></p>
         <div class="table" role="table" aria-label="Invoices"><div id="iRows" role="rowgroup"></div></div>
-        <p class="empty" id="iEmpty" hidden>No invoices match. Start one with New invoice, or from an order.</p>
+        <div class="empty-state" id="iEmpty" hidden>
+          <p>No invoices match. Start one with New invoice, or from an order.</p>
+          <button type="button" class="btn primary" id="iEmptyNew">New invoice</button>
+        </div>
       </section>
 
       <section class="view" id="view-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
+        <div class="ws-stage">
         <div class="head-row no-print">
           <button type="button" class="btn small" id="eBack">← Invoices</button>
           <h2 class="h2" id="eTitle">New invoice</h2>
@@ -132,6 +143,8 @@
         <div class="toolbar no-print" id="eModes"></div>
         <div class="toolbar no-print" id="eLayout"></div>
         <div id="ePage" class="page-wrap"></div>
+        </div>
+        <aside class="ws-panel" aria-label="Invoice details">
         <form class="card" id="eForm" novalidate data-form-only>
           <div class="form-grid">
             <label class="wide">Customer
@@ -152,6 +165,7 @@
         <h2 class="h2">Payments</h2>
         <div id="ePayments"></div>
         <div class="toolbar actions" id="eActions"></div>
+        </aside>
       </section>
 
       <section class="view" id="view-print" role="tabpanel" aria-labelledby="tab-print" hidden>

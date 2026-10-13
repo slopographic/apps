@@ -18,17 +18,18 @@
     if (!r.ok) { $('iSummary').textContent = U.refusal(r); return; }
     const all = await NS.invoices.list({});
     rowsById = new Map(r.value.map((x) => [x.id, x]));
-    $('iRows').replaceChildren(...r.value.map((x) => row(x, s)));
+    const openId = NS.state.view === 'edit' ? NS.editor.id() : null;
+    $('iRows').replaceChildren(...r.value.map((x) => row(x, s, x.id === openId)));
     $('iEmpty').hidden = r.value.length > 0;
     $('iSummary').textContent = `${r.value.length} invoice${r.value.length === 1 ? '' : 's'}`;
     const due = all.ok ? NS.invoices.outstanding(all.value) : [];
     $('iOutstanding').replaceChildren(...(due.length ? due.map((d) => outRow(d, s)) : [h('p', { class: 'empty', text: 'Nothing is owed. Every issued invoice is paid or void.' })]));
   }
 
-  function row(x, s) {
-    const cls = x.overdue ? 'orow overdue' : 'orow';
+  function row(x, s, open) {
+    const cls = `orow${x.overdue ? ' overdue' : ''}${open ? ' sel' : ''}`;
     const label = x.overdue ? 'Overdue' : NS.preview.STATUS[x.status];
-    return h('div', { class: cls, role: 'row', tabindex: 0, dataset: { id: x.id } },
+    return h('div', { class: cls, role: 'row', tabindex: 0, dataset: { id: x.id }, 'aria-selected': open ? 'true' : null },
       h('span', { class: 'who', text: `${x.number || 'draft'} · ${x.customerName}` }),
       h('span', { class: 'amt num', text: U.money(x.total, x.currency || s.currency, s.locale) }),
       h('div', { class: 'meta' },
@@ -101,6 +102,7 @@
     $('iSearch').addEventListener('input', draw);
     $('iStatus').addEventListener('change', draw);
     $('iNew').addEventListener('click', () => NS.app.go('new'));
+    $('iEmptyNew').addEventListener('click', () => NS.app.go('new'));
     $('iFromOrder').addEventListener('click', fromOrder);
     NS.sampleActions.mount();
     const box = $('iRows');

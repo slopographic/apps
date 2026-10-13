@@ -105,3 +105,25 @@ output { color: var(--muted); font-weight: 500; }
 .cv-pv-note { color: var(--muted); font-size: .9rem; margin: 10px 0 0; }
 .cv-pv-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 @media (max-width: 640px) { .cv-pv-grid { grid-template-columns: 1fr; } }
+
+/* Hub conversion cards (js/ui/cards.js): grouped by category, one column on phones, the same tokens and radii as the rest. */
+.cv-catalog { background: none; border: 0; padding: 0; font-family: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; }
+.cv-catalog-lead { color: var(--muted); margin: 0 0 14px; max-width: 64ch; }
+.cv-search { display: grid; gap: 6px; margin: 0 0 18px; }
+.cv-search label { font-weight: 600; font-size: 15px; }
+.cv-search input[type="search"] { width: 100%; min-height: 44px; padding: 8px 12px; font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+.cv-cat { margin: 0 0 26px; }
+.cv-cat-h { font-size: 1rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+.cv-pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.cv-pair { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.cv-pair:hover { border-color: var(--accent); }
+.cv-pair-path { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.cv-badge { display: inline-block; min-width: 3.2ch; padding: 6px 10px; font-weight: 700; font-size: 1.5rem; line-height: 1.1; text-align: center; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; letter-spacing: .02em; }
+.cv-badge-to { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.cv-arrow { font-size: 1.4rem; color: var(--muted); }
+.cv-pair-title { font-size: 1.05rem; margin: 0; }
+.cv-pair-desc, .cv-pair-accepts { margin: 0; color: var(--muted); }
+.cv-pair-accepts { font-size: 14px; }
+.cv-pair-accepts span { color: var(--ink); font-weight: 600; }
+.cv-pair-go { margin-top: auto; align-self: flex-start; }
+.cv-cards-empty { color: var(--muted); }
