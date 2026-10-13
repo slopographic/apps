@@ -94,6 +94,7 @@
   <script src="../shared/calendar/rrule.js"></script>
   <script src="../shared/calendar/store.js"></script>
   <script src="js/lexer.js"></script>
+  <script src="js/exact.js"></script>
   <script src="js/units.js"></script>
   <script src="js/dates.js"></script>
   <script src="js/parser.js"></script>
@@ -106,6 +107,7 @@
   <script src="js/calendar.js"></script>
   <script src="js/app.js"></script>
   <script src="js/commands.js"></script>
+  <script src="js/convert.js"></script>
 </head>
 <body>
   <div class="sc-app">
@@ -166,6 +168,23 @@
           <input id="sc-hq" class="sc-search" type="search" placeholder="Search history">
           <ul class="sc-hist" id="sc-history"></ul>
           <p class="sc-none" id="sc-history-none" hidden></p>
+        </section>
+
+        <section class="sc-panel" aria-labelledby="sc-conv-h">
+          <h2 id="sc-conv-h">Convert</h2>
+          <form class="sc-conv" id="sc-conv-form" aria-label="Convert units">
+            <label class="sc-label" for="sc-conv-value">Value</label>
+            <input id="sc-conv-value" class="sc-expr sc-conv-value" type="text" inputmode="decimal" value="1" autocomplete="off">
+            <label class="sc-label" for="sc-conv-cat">Category</label>
+            <select id="sc-conv-cat" class="sc-select"></select>
+            <div class="sc-conv-pair">
+              <div><label class="sc-label" for="sc-conv-from">From</label><select id="sc-conv-from" class="sc-select"></select></div>
+              <button type="button" class="sc-btn sc-small" id="sc-conv-swap">Swap</button>
+              <div><label class="sc-label" for="sc-conv-to">To</label><select id="sc-conv-to" class="sc-select"></select></div>
+            </div>
+          </form>
+          <p class="sc-preview sc-conv-out" id="sc-conv-out" role="status" aria-live="polite"></p>
+          <p class="sc-note">Exact when the answer terminates. Otherwise rounded to 12 places and marked ≈.</p>
         </section>
 
         <details class="sc-panel sc-rates" id="sc-rates">

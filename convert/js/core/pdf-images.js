@@ -14,8 +14,8 @@ export async function imagesToPdf(items, { page = 'a4', margin = 36 } = {}) {
   if (!items.length) throw new Error('Add at least one image.');
   const { PDFDocument } = await loadPdfLib();
   const doc = await PDFDocument.create();
-  doc.setProducer('Slop Convert');
-  doc.setCreator('Slop Convert');
+  doc.setProducer('File convert');
+  doc.setCreator('File convert');
   for (const it of items) {
     const img = it.mime === 'image/png' ? await doc.embedPng(it.bytes) : await doc.embedJpg(it.bytes);
     const m = Math.max(0, Number(margin) || 0);

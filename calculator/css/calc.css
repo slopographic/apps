@@ -78,3 +78,10 @@ code { font-family: var(--sc-mono); font-size: 12px; }
 .sc-rate-form label { display: flex; align-items: center; gap: 4px; }
 .sc-rate-form input { width: 80px; padding: 7px 8px; background: var(--sc-bg); border: 1px solid var(--sc-line); border-radius: 8px; }
 .sc-rate-form p { width: 100%; margin: 0; }
+.sc-conv { display: grid; gap: 6px; }
+.sc-conv-value { width: 100%; box-sizing: border-box; }
+.sc-select { width: 100%; box-sizing: border-box; min-height: 40px; padding: 7px 8px; background: var(--sc-bg); border: 1px solid var(--sc-line); border-radius: 8px; }
+.sc-conv-pair { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: end; }
+.sc-conv-pair .sc-label { margin-bottom: 4px; }
+.sc-conv-out { margin: 12px 2px 4px; font-size: 20px; overflow-wrap: anywhere; }
+.sc-conv-out.sc-error { font-size: 14px; }

@@ -1,4 +1,4 @@
-/* Slop Convert dialog: converts files on this device with the converters in convert/js, from any Slop app.
+/* File convert dialog: converts files on this device with the converters in convert/js, from any Slop app.
  *   const ctl = SlopConvert.open({ file, files, drive })   // file / files: File or Blob with a name; drive: the document is
  *                                                         // linked to a Slop Drive file, so results can be saved there too
  *   ctl.close(); ctl.results() -> [{ name, blob }]; ctl.targets() -> target ids; ctl.done -> resolves when the dialog closes.

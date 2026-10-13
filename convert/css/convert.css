@@ -1,4 +1,4 @@
-/* Slop Convert: hub and converter pages. Colours are tokens on :root; dark is the default. */
+/* File convert: hub and converter pages. Colours are tokens on :root; dark is the default. */
 :root {
   --bg: #0a0a0a; --panel: #161618; --panel-2: #1f1f23; --ink: #f1ede4; --muted: #b3ada3;
   --line: #3a3a40; --accent: #d4ff3a; --accent-ink: #0a0a0a; --danger: #ff8a9b; --focus: #ffffff;
@@ -74,12 +74,6 @@ output { color: var(--muted); font-weight: 500; }
 .cv-results { margin-top: 18px; }
 .cv-out-item { grid-template-columns: minmax(0, 1fr) auto auto; }
 
-.cv-units { display: grid; gap: 14px; }
-.cv-unit-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
-.cv-unit-row > .cv-opt { flex: 1 1 180px; min-width: 0; }
-.cv-result { display: grid; gap: 4px; padding: 14px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); }
-.cv-result-label { color: var(--muted); font-size: 14px; }
-.cv-u-out { font-size: clamp(1.4rem, 4vw, 1.9rem); font-weight: 700; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 
 @media (max-width: 480px) {
   .cv-wrap { padding: 18px 16px 44px; }
