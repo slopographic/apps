@@ -40,6 +40,12 @@
       input.dispatchEvent(new W.Event('change'));
       await waitFor(() => rowOf(W, 'Gill Sans') && rowOf(W, 'Gill Sans').textContent.includes('Installed from your file'), { timeout: 15000 });
       expect(PR.fonts.list().includes('Gill Sans')).toBe(true);
+      // a text frame set in the font, so the PDF has to embed it
+      const doc = S.doc, fr = PR.model.item('text', 60, 60, 300, 300);
+      PR.items.add(doc, doc.pages[0].items, fr, { text: 'Set in a font the app does not ship.', ps: '[Basic Paragraph]' });
+      const st = doc.stories[fr.story];
+      PR.story.formatChars(st, 0, st.text.length, { font: 'Gill Sans' });
+      PR.engine.clear(); PR.touch();
       expect(S.doc.fonts.length).toBe(1);
       expect(PR.fonts.substituted('Gill Sans')).toBe(false);
       const bytes = await PR.fonts.bytes(S.doc, 'Gill Sans', 'Regular');

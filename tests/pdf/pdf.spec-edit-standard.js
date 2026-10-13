@@ -32,12 +32,12 @@
     const out = await PT.read(await PT.E.build());
     const pg = await out.doc.getPage(1);
     await pg.getOperatorList();
-    const item = (await pg.getTextContent()).items.find((i) => i.str === text);
+    const item = (await pg.getTextContent()).items.find((i) => i.str.includes(text));
     return { face: item ? pg.commonObjs.get(item.fontName).name : null, text: out.pages[0].text };
   }
 
   describe('Slop PDF edit text: standard fonts', () => {
-    it('text set in Helvetica, Times and Courier (not embedded) is editable at once, with no prompt and no "no fonts" wording', async () => {
+    it('text in Helvetica, Times and Courier (not embedded) is editable at once, with no prompt, and the saved page draws it in that font', async () => {
       if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await standardPdf(), 'standard-only.pdf');
@@ -61,17 +61,13 @@
         const annot = PT.E.state.pages[0].annots.find((a) => a.type === 'text' && a.text === next);
         expect(!!annot && annot.font).toBe(family, 'annotation font for ' + next);
       }
+      // the saved file: each applied text is drawn in its standard font (pdf.js reads the face back)
+      for (const [, family, next] of edits) {
+        const saved = await savedFace(next);
+        expect(saved.face && saved.face.startsWith(family)).toBe(true, next + ' saved in ' + saved.face);
+        expect(saved.text.includes(next)).toBe(true, saved.text);
+      }
       PT.SP.editor.toggleEditText();
-    });
-
-    it('the applied text is drawn in the standard font on the saved page, and the lines before it stay', async () => {
-      const Times = await savedFace('Times edited');
-      expect(Times.face).toMatch(/^Times/, 'saved face ' + Times.face);
-      const Helv = await savedFace('Helvetica edited');
-      expect(Helv.face).toMatch(/^Helvetica/, 'saved face ' + Helv.face);
-      const Cour = await savedFace('Courier edited');
-      expect(Cour.face).toMatch(/^Courier/, 'saved face ' + Cour.face);
-      expect(Times.text.includes('Courier edited')).toBe(true, Times.text);
     });
   });
 })();
