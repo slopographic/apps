@@ -4,7 +4,7 @@
 .pane-title { font: 700 11px var(--font-ui); text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
 
 /* ---------------------------------------------------------------- bin */
-.bin-tabs { display: flex; align-items: center; gap: 2px; width: 100%; }
+.bin-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; width: 100%; }
 .bin-tab { height: 26px; padding: 0 10px; border: 0; border-radius: var(--radius-s); background: none; color: var(--dim); font-weight: 600; }
 .bin-tab.on { background: var(--active); color: var(--fg); }
 .bin-tab:hover:not(.on) { background: var(--hover); }

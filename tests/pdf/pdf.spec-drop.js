@@ -140,8 +140,8 @@
       await converterReady();
       PT.reset();
       drop([file('ok.pdf', 'application/pdf', await PT.makePdf([{ text: 'x' }])), file('notes.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', new PT.win.Uint8Array([80, 75, 3, 4, 0, 0]))]);
-      await new Promise((r) => setTimeout(r, 3000));
-      throw new Error('DBG pages=' + PT.E.state.pages.length + ' cvt=' + doc().querySelectorAll('.sl-cvt-dlg').length + ' txt=' + cvtText().slice(0,200) + ' status=' + doc().getElementById('statusMsg').textContent + ' toast=' + toastText() + ' locked=' + PT.A.isLocked());
+      await waitFor(() => cvtDialog() && cvtText().includes('notes.docx'), { timeout: 30000 });
+      await waitFor(() => PT.E.state.pages.length === 1, { timeout: 30000 });
       expect(cvtText()).not.toContain('ok.pdf');
       doc().querySelector('.sl-cvt-x').click();
       await waitFor(() => !cvtDialog());
