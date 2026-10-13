@@ -289,9 +289,8 @@
     });
     safe(() => { const s = doc.createElement('style'); s.id = 'slopvm-style'; s.textContent = CRITICAL; doc.head.appendChild(s); });
   }
-  // The rules a hidden region or strip needs before viewmode.css has loaded. The rest of the look is in viewmode.css.
-  const CRITICAL = '.slopvm-off{display:none!important}' +
-    '.slopvm-strip>:not(.slopvm-bar){display:none!important}';
+  // Before viewmode.css loads: a hidden region, and a strip showing only its controls. The rest is in viewmode.css.
+  const CRITICAL = '.slopvm-off{display:none!important}.slopvm-strip>:not(.slopvm-bar){display:none!important}';
 
   win.SlopViewMode = {
     register, mode: () => mode, set: setMode, cycle, saveLayout,
