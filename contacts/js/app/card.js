@@ -35,24 +35,28 @@
     SC.cardRead.render(c);
   }
 
-  /** Controls, links and the forms in the card keep their own clicks; everything else on the card opens the form. */
-  const KEEP = 'a, button, input, select, textarea, label, .card-bar, .act-form, .docs, .pipe';
-  /** A single click on the card's text (the name, a field, an empty area) opens the contact's form in place. */
-  function onBodyClick(e) {
-    if (S.mode !== 'view' || !S.open) return;
-    const t = e.target;
-    if (!(t instanceof Element) || t.closest(KEEP)) return;
-    if (window.getSelection && !window.getSelection().isCollapsed) return; // selecting text is not a click
-    S.mode = 'edit';
-    S.emit('render');
+  /** The View / Edit switch on the card (shown in both modes). The chosen mode is remembered per device (state.js). */
+  function modeSwitch(mode) {
+    const t = document.createElement('template');
+    const b = (m, label) => `<button type="button" class="mode-btn${mode === m ? ' on' : ''}" data-act="${m}" aria-pressed="${mode === m}">${label}</button>`;
+    t.innerHTML = `<div class="mode-switch" role="group" aria-label="Card mode">${b('view', 'View')}${b('edit', 'Edit')}</div>`;
+    return t.content.firstElementChild;
+  }
+
+  /** The switch: View leaves edit mode (asks first when there are unsaved changes); Edit opens the form. */
+  function onSwitch(e) {
+    const b = e.target.closest && e.target.closest('.mode-switch [data-act]');
+    if (!b || !S.open) return;
+    if (b.dataset.act === 'edit') { S.mode = 'edit'; S.emit('render'); }
+    else if (S.mode === 'edit') SC.cardEdit.cancel();
   }
 
   function mount() {
     S.on('render', render);
     S.on('change', render);
-    document.getElementById('cardBody').addEventListener('click', onBodyClick);
+    document.getElementById('cardBody').addEventListener('click', onSwitch);
     D.store.subscribe(() => { if (!SC.records.pending()) SC.cardRead.refreshHistory(); });
   }
 
-  SC.card = { mount, render };
+  SC.card = { mount, render, modeSwitch };
 })();

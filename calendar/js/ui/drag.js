@@ -16,6 +16,7 @@
    */
   function track(e, node, h) {
     if (e.button !== undefined && e.button !== 0) return;
+    if (e.cancelable) e.preventDefault();   // no text selection while the pointer is held down on a chip
     const x0 = e.clientX, y0 = e.clientY;
     let moved = false;
     const at = (ev) => ({ x: ev.clientX, y: ev.clientY, dx: ev.clientX - x0, dy: ev.clientY - y0 });
@@ -48,11 +49,11 @@
     document.addEventListener('pointercancel', onCancel);
   }
 
-  /** The click that follows a drop is swallowed, so releasing a chip does not open it. */
+  /** The click the browser sends after a drop (in the same task as the release) is swallowed, so letting go of a chip does not open it. */
   function stopClick() {
     const stop = (c) => { c.stopPropagation(); c.preventDefault(); };
     document.addEventListener('click', stop, { capture: true, once: true });
-    setTimeout(() => document.removeEventListener('click', stop, { capture: true }), 300);
+    setTimeout(() => document.removeEventListener('click', stop, { capture: true }), 0);
   }
 
   /** The minute of the day (0 to 1439) a timed item starts, in the viewer's zone. */

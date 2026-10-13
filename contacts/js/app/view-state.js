@@ -27,7 +27,6 @@
         if (search) search.value = S.query;
         S.sel = new Set(Array.isArray(p.sel) ? p.sel.filter(function (id) { return !!S.byId(id); }) : []);
         S.open = S.byId(p.open) ? p.open : null;
-        S.mode = 'view';
         S.emit('render');
         if (rows() && p.scroll > 0) requestAnimationFrame(function () { rows().scrollTop = p.scroll; });
       }

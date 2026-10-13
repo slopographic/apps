@@ -1,5 +1,5 @@
 /* Slop Contacts keyboard: Cmd+N new contact, Cmd+F search, Cmd+A select all shown, Delete or Backspace asks before
- * deleting the selection (or the open contact), Escape clears the selection, then closes the card or the groups sheet.
+ * deleting the selection (or the open contact), Escape leaves edit mode, then clears the selection, then closes the groups sheet or the card.
  * Arrow keys, Enter and Space work in the list (select.js). Nothing fires while a field or a dialog has the focus.
  * Adds SlopContacts.keys. */
 (function () {

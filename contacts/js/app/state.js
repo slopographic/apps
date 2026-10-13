@@ -10,6 +10,10 @@
   const RECENT = 25;
   const STAGES = ['lead', 'contacted', 'customer', 'lost'];
   const readCc = () => { try { return localStorage.getItem(CC_KEY) || ''; } catch (e) { return ''; } };
+  const MODE_KEY = 'slop-contacts.mode';
+  const readMode = () => { try { return localStorage.getItem(MODE_KEY) === 'edit' ? 'edit' : 'view'; } catch (e) { return 'view'; } };
+  const writeMode = (m) => { try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* blocked */ } };
+  let mode = readMode();     // the card's mode, remembered per device
   const subs = {};
   const byName = (a, b) => String(a.fn).localeCompare(String(b.fn), undefined, { sensitivity: 'base' }) || (a.id < b.id ? -1 : 1);
 
@@ -22,7 +26,10 @@
     query: '',                // search text
     group: null,              // null = all, 'recent', 'cat:<name>' or 'stage:<stage>'
     open: null,               // id of the contact in the card
-    mode: 'view',             // card: 'view', 'edit' (in place) or 'new'
+    draft: null,              // the New contact row in the list ({ id, fn }) until it is created (new-contact.js)
+    // card mode: 'view' (read-only) or 'edit' (the form). Remembered per device; set through the card's View / Edit switch.
+    get mode() { return mode; },
+    set mode(v) { mode = v === 'edit' ? 'edit' : 'view'; writeMode(mode); },
     touched: new Map(),       // id -> updatedAt (ms), for Recent and the updated-date filter
     created: new Map(),       // id -> createdAt (ms), for the created-date filter
     tags: [],                 // the shared CRM tags: { id, name, color }

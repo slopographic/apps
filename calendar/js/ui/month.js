@@ -78,7 +78,6 @@
         if (res) ctx.commit(it, res.change, `Moved "${it.title}"`);
       },
       end() { cells.forEach((c) => c.classList.remove('is-drop')); NS.drag.tipHide(); },
-      click() { ctx.open(it); },
     });
   }
 

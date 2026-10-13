@@ -12,6 +12,7 @@
     fr.style.width = width + 'px';
     fr.src = 'about:blank';
     await waitFor(() => fr.contentWindow && fr.contentWindow.location.href === 'about:blank', { timeout: 5000 });
+    try { localStorage.removeItem('slop-contacts.mode'); } catch (e) { /* blocked: the app reads the mode when it loads */ }
     fr.src = '../../contacts/index.html';
     await waitFor(() => fr.contentWindow && fr.contentWindow.location.pathname.includes('contacts/index.html') && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
     const win = fr.contentWindow;
@@ -24,19 +25,18 @@
   const $$ = (win, sel) => [...win.document.querySelectorAll(sel)];
   const btn = (win, label) => $$(win, 'button').find((b) => b.textContent.trim() === label);
   const rowFor = (win, name) => $$(win, '#rows .row').find((r) => r.querySelector('.row-name').textContent === name);
-  const dialogButton = (win, label) => $$(win, '.sui-dlg button').find((b) => b.textContent.trim() === label);
   const stored = (id) => window.SlopData.store.get('customers', id).then((r) => r.value);
   const round = (b) => ({ x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.w), h: Math.round(b.h) });
   const box = (win, sel) => { const r = $(win, sel).getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; };
 
-  /** Adds a contact through the quick form (New contact), then opens the full form with Edit. */
+  /** Adds a contact with New contact (a name in the list), then opens the full form with Edit. */
   async function newForm(win) {
     $(win, '#btnNew').click();
-    await waitFor(() => $(win, '.sui-dlg input[aria-label="Name"]'));
-    $(win, '.sui-dlg input[aria-label="Name"]').value = 'Ada Lovelace';
-    dialogButton(win, 'Create').click();
+    await waitFor(() => $(win, '#rows .row-new-input'));
+    $(win, '#rows .row-new-input').value = 'Ada Lovelace';
+    $(win, '#rows .row-new-input').dispatchEvent(new win.Event('input', { bubbles: true }));
+    $(win, '#rows .row-new-input').dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     await waitFor(() => $(win, '[data-act="edit"]'));
-    await waitFor(() => !$(win, '.sui-back'), { timeout: 3000 }); // the quick form's backdrop fades out first
     $(win, '[data-act="edit"]').click();
     await waitFor(() => $(win, '.ed-form'));
     await sleep(80);

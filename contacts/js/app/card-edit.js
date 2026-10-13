@@ -100,11 +100,11 @@
     };
     cancelNow = cancel;
     const onKey = (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cancel(); } // leaves edit mode; the card stays
       else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); save(); }
     };
     const form = el('form', { class: 'ed-form', novalidate: true, onsubmit: (e) => { e.preventDefault(); save(); }, onkeydown: onKey },
-      el('header', { class: 'ed-head' }, el('h2', { class: 'ed-title' }, 'Edit contact')),
+      el('header', { class: 'ed-head' }, el('h2', { class: 'ed-title' }, 'Edit contact'), SC.card.modeSwitch('edit')),
       el('div', { class: 'ed-body' }, el('div', { class: 'ed-in' },
         section('ed-h-name', 'Name', null, photo.el,
           el('div', { class: 'ed-grid' }, field('Name', f.name), field('Company', f.org), field('Department', f.dept), field('Job title', f.title))),

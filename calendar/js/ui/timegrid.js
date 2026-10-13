@@ -111,7 +111,6 @@
         if (r && r.res) ctx.commit(it, r.res.change, `Moved "${it.title}"`);
       },
       end() { block.style.transform = ''; NS.drag.tipHide(); },
-      click() { ctx.open(it); },
     });
   }
 

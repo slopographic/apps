@@ -28,6 +28,8 @@
   };
   const rowFor = (win, name) => $$(win, '#rows .row').find((r) => r.querySelector('.row-name').textContent === name);
   const dialogButton = (win, label) => $$(win, '.sui-dlg button').find((b) => b.textContent.trim() === label);
+  const typeIn = (win, el, value) => { el.value = value; el.dispatchEvent(new win.Event('input', { bubbles: true })); };
+  const key = (win, el, k) => el.dispatchEvent(new win.KeyboardEvent('keydown', { key: k, bubbles: true }));
   const stored = (id) => window.SlopData.store.get('customers', id).then((r) => r.value);
 
   describe('letters and rows', () => {
@@ -54,14 +56,20 @@
       await CT.resetCustomers();
       const win = await boot();
       $(win, '#btnNew').click();
-      await waitFor(() => dialogButton(win, 'Create'));
-      $(win, '.quick-form input[aria-label="Name"]').value = 'Mira Quill';
-      $(win, '.quick-form input[aria-label="Phone"]').value = '+44 20 7946 0000';
-      $(win, '.quick-form input[aria-label="Company"]').value = 'Quill Co';
-      dialogButton(win, 'Create').click();
+      await waitFor(() => $(win, '#rows .row-new-input'));
+      expect($(win, '.sui-dlg')).toBeFalsy();
+      typeIn(win, $(win, '#rows .row-new-input'), 'Mira Quill');
+      key(win, $(win, '#rows .row-new-input'), 'Enter');
       await waitFor(() => sectionOf(win, 'M').includes('Mira Quill'));
       expect(sectionOf(win, 'M')).toEqual(['Mira Quill']);
-      await waitFor(async () => (await window.SlopData.store.list('customers')).value.some((c) => c.name === 'Mira Quill'), { timeout: 8000 });
+      // Company and phone are added on the card, in its form.
+      $(win, '[data-act="edit"]').click();
+      await waitFor(() => $(win, '.ed-form'));
+      typeIn(win, $(win, 'input[aria-label="Company"]'), 'Quill Co');
+      $$(win, '.ed-sub-top button').find((b) => b.textContent.trim() === '+ Add phone').click();
+      typeIn(win, $(win, 'input[aria-label="phone"]'), '+44 20 7946 0000');
+      $(win, 'form.ed-form').dispatchEvent(new win.Event('submit', { cancelable: true, bubbles: true }));
+      await waitFor(async () => (await window.SlopData.store.list('customers')).value.some((c) => c.name === 'Mira Quill' && c.company === 'Quill Co'), { timeout: 8000 });
       const saved = (await window.SlopData.store.list('customers')).value.find((c) => c.name === 'Mira Quill');
       expect(saved.company).toBe('Quill Co');
       expect(saved.phone).toBe('+44 20 7946 0000');
@@ -159,12 +167,12 @@
       await waitFor(() => !rowNames(win).includes('Key Bea'), { timeout: 5000 });
     });
 
-    it('Cmd+N opens the quick form for a new contact', async () => {
+    it('Cmd+N starts a new contact in the list (no dialog)', async () => {
       const win = await boot();
       win.document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'n', metaKey: true, bubbles: true }));
-      await waitFor(() => $(win, '.quick-form'), { timeout: 3000 });
-      expect($(win, '.quick-form')).toBeTruthy();
-      dialogButton(win, 'Cancel').click();
+      await waitFor(() => $(win, '#rows .row-new-input'), { timeout: 3000 });
+      expect($(win, '.sui-dlg')).toBeFalsy();
+      key(win, $(win, '#rows .row-new-input'), 'Escape');
     });
   });
 })();

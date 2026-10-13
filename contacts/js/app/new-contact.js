@@ -27,7 +27,7 @@
     if (save && name) {
       const c = SC.model.normalise({ id: d.id, fn: name, stage: 'lead' });
       S.setList([...S.list, c]);
-      S.open = c.id; S.mode = 'view';
+      S.open = c.id;
     }
     S.emit('render');
   }

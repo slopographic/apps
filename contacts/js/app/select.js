@@ -12,7 +12,7 @@
 
   /** Opens one contact in the card (view mode) and makes it the keyboard position and the anchor. */
   function open(id) {
-    S.open = id; S.mode = 'view'; S.focus = id; S.anchor = id;
+    S.open = id; S.focus = id; S.anchor = id;
     S.emit('render');
   }
   /** Ids between the anchor and id, in the order they are shown. */

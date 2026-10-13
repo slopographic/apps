@@ -2,7 +2,10 @@
 .card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .card-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); min-height: 52px; flex: none; }
 .card-bar-t { font-weight: 600; }
-.card-bar [data-act="edit"] { margin-left: auto; }
+.mode-switch { display: inline-flex; margin-left: auto; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex: none; }
+.mode-btn { font: inherit; font-size: 13px; padding: 5px 12px; border: 0; background: none; color: var(--mute); cursor: pointer; }
+.mode-btn + .mode-btn { border-left: 1px solid var(--line); }
+.mode-btn.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
 .back { display: none; }
 .card-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 22px 40px; }
 .card-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 14px 0 12px; }
@@ -42,7 +45,7 @@
 /* Edit mode: the card is a form in a fixed frame. Header (title), body (scrolls; the gutter is reserved so a scrollbar
  * never changes the width), footer (Cancel and Save, always in view). The content is one fixed-width column. */
 .ed-form { display: flex; flex-direction: column; flex: 1; min-height: 0; background: var(--sl-surface); }
-.ed-head { flex: none; padding: 12px 22px; border-bottom: 1px solid var(--sl-border); min-height: 52px; display: flex; align-items: center; }
+.ed-head { flex: none; padding: 12px 22px; border-bottom: 1px solid var(--sl-border); min-height: 52px; display: flex; align-items: center; gap: 8px; }
 .ed-title { font-size: 16px; font-weight: 700; margin: 0; }
 .ed-body { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
 .ed-in { width: 100%; max-width: 640px; margin: 0 auto; padding: 4px 22px 28px; }
