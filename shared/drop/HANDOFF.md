@@ -90,7 +90,8 @@ Loads after `drop.js`. Two parts:
   `files(dt, e)` hook); it looks at that event's target, so a drop never inherits an earlier hover. Returns
   `{ at, hide, destroy }`. `labels`: `{ new, current, newHint, currentHint }` (a hint may be a function).
 
-PhotoSlop uses `zones` (its Place as layers and Open as new tabs zones); `ask` has no caller yet.
+PhotoSlop uses `zones` (its Place as layers and Open as new tabs zones). Slop PDF uses `ask` (a drop on the open
+document: Add to current or Create new, `pdf/js/ui/doc-drop.js`); with no document open it is not shown.
 
 ## Missing elements (why a call can fail)
 
