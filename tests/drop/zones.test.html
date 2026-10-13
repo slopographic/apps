@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SlopDrop zones in the apps</title>
+  <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 800px; border: 0; display: block; }</style>
+</head>
+<body>
+  <!-- Every app with a SlopDrop zone, one real page each in a same-origin iframe. For each app: (a) one dropped file opens
+       once (one batch: one "Added 1 file" toast, counted through SlopDrop.panel.toast), (b) a click on the zone or its
+       message opens the picker zero times and Choose files opens it once, (c) the zone is not over a menu or toolbar. -->
+  <iframe id="app" src="about:blank"></iframe>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor } = SlopTest;
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  const APPS = [
+    { name: 'Slop Convert', src: '../../convert/png-to-jpg/index.html', zone: '#cv-drop', file: ['picture.png', 'image/png'],
+      ready: (w) => !!w.document.querySelector('#cv-drop .sd-choose') },
+    { name: 'Slop OCR', src: '../../ocr/index.html', zone: '#drop', file: ['picture.png', 'image/png'],
+      ready: (w) => !!w.document.querySelector('#drop .sd-choose') },
+    { name: 'Slop Sheets', src: '../../sheetview/index.html', zone: '#sv-drop', file: ['sheet.csv', 'text/csv'],
+      ready: (w) => !!w.document.querySelector('#sv-drop .sd-choose') },
+    { name: 'Slop Label', src: '../../label/index.html', zone: '#lbDrop', file: ['picture.png', 'image/png'],
+      ready: (w) => !!w.document.querySelector('#lbDrop .sd-choose') },
+    { name: 'Slop Gallery', src: '../../gallery/index.html', zone: '#gDrop', file: ['picture.png', 'image/png'],
+      ready: (w) => !!w.document.querySelector('#gDrop .sd-choose') },
+    { name: 'Slop Drive', src: '../../drive/index.html', zone: '#drvDrop', file: ['picture.png', 'image/png'],
+      ready: (w) => !!w.document.querySelector('#drvDrop .sd-choose') && !!w.DR && !!w.DR.S },
+  ];
+
+  /** Loads one app in the iframe and waits until its zone is drawn. */
+  async function openApp(app) {
+    const frame = document.getElementById('app');
+    const old = frame.contentDocument; // a new page is a new Document (the WindowProxy stays the same)
+    frame.src = app.src;
+    await waitFor(() => frame.contentDocument && frame.contentDocument !== old && frame.contentDocument.readyState === 'complete' && app.ready(frame.contentWindow), { timeout: 45000 });
+    return frame.contentWindow;
+  }
+  /** A file of the app's own realm: a PNG drawn on a canvas, or a text file. */
+  async function fileOf(w, [name, type]) {
+    if (type === 'image/png') {
+      const c = w.document.createElement('canvas'); c.width = 32; c.height = 24;
+      const g = c.getContext('2d'); g.fillStyle = '#d4ff3a'; g.fillRect(0, 0, 32, 24);
+      const blob = await new Promise((r) => c.toBlob(r, 'image/png'));
+      return new w.File([blob], name, { type });
+    }
+    return new w.File(['a,b\n1,2\n'], name, { type });
+  }
+  const centre = (el) => { const r = el.getBoundingClientRect(); return { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 }; };
+  const fire = (w, el, type, dt) => el.dispatchEvent(new w.DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: dt, ...centre(el) }));
+  /** Enter, over and drop on one element, as a real drag does. */
+  function dropOn(w, el, file) {
+    const dt = new w.DataTransfer(); dt.items.add(file);
+    fire(w, el, 'dragenter', dt); fire(w, el, 'dragover', dt); fire(w, el, 'drop', dt);
+  }
+  /** Counts the batches SlopDrop reports (one toast per batch) and the picker's opens (its click is counted, not run). */
+  function spy(w) {
+    const s = { batches: [], picks: 0 };
+    const panel = w.SlopDrop.panel, toast = panel.toast;
+    panel.toast = function (text, kind) { s.batches.push(text); return toast.call(this, text, kind); };
+    const realClick = w.HTMLInputElement.prototype.click;
+    w.HTMLInputElement.prototype.click = function () { if (this.type === 'file') { s.picks++; return undefined; } return realClick.call(this); };
+    return s;
+  }
+  /** The bars a zone must not sit over: menus, toolbars and headers of the page (not the zone's own ancestors). */
+  const BARS = 'header, nav, [role=toolbar], [role=menubar], .topbar, .menubar, .toolbar, .sv-top';
+  const overlaps = (a, b) => { const x = a.getBoundingClientRect(), y = b.getBoundingClientRect(); return x.left < y.right && y.left < x.right && x.top < y.bottom && y.top < x.bottom; };
+
+  for (const app of APPS) {
+    describe(app.name + ': the drop zone', () => {
+      it('one file dropped opens once (one batch, one "Added 1 file" toast)', async () => {
+        const w = await openApp(app);
+        const s = spy(w);
+        dropOn(w, w.document.querySelector(app.zone), await fileOf(w, app.file));
+        await waitFor(() => s.batches.length >= 1, { timeout: 30000 });
+        await sleep(800);
+        expect(s.batches).toEqual(['Added 1 file']);
+      }, { timeout: 60000 });
+
+      it('a click on the zone or its message opens the picker zero times; Choose files opens it once', async () => {
+        const w = await openApp(app);
+        const s = spy(w);
+        w.document.querySelector(app.zone).click();
+        w.document.querySelector(app.zone + ' .sd-msg').click();
+        expect(s.picks).toBe(0);
+        w.document.querySelector(app.zone + ' .sd-choose').click();
+        expect(s.picks).toBe(1);
+      }, { timeout: 60000 });
+
+      it('the zone is not positioned over a menu, toolbar or header', async () => {
+        const w = await openApp(app);
+        const zone = w.document.querySelector(app.zone);
+        const hit = Array.from(w.document.querySelectorAll(BARS)).filter((b) => !b.contains(zone) && overlaps(zone, b));
+        expect(hit.map((b) => b.tagName + '.' + b.className)).toEqual([]);
+      }, { timeout: 60000 });
+    });
+  }
+
+  SlopTest.run({ name: 'SlopDrop zones in the apps' });
+  </script>
+</body>
+</html>

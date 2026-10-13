@@ -21,14 +21,17 @@ export class ConvertTool {
     this.busy = false;
     this.ui = buildTool(root, preset);
     const ui = this.ui;
-    ui.drop.addEventListener('click', () => ui.input.click());
-    ui.drop.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ui.input.click(); }
+    // The drop zone is SlopDrop (shared/drop): drops and the Choose files button (the only thing that opens the picker)
+    // read each file through addFiles. The page's own picker input keeps its accept list.
+    const accept = ui.input.getAttribute('accept');
+    window.SlopDrop.attach(ui.drop, {
+      accept: { any: true, noun: 'a file' },
+      input: ui.input,
+      label: 'Drop files here, or choose files',
+      hint: 'Several at once is fine. Files are read on this device and never uploaded.',
+      process: async (file) => { await this.addFiles([file]); return file.name; },
     });
-    for (const t of ['dragenter', 'dragover']) ui.drop.addEventListener(t, (e) => { e.preventDefault(); ui.drop.classList.add('cv-over'); });
-    for (const t of ['dragleave', 'dragend']) ui.drop.addEventListener(t, () => ui.drop.classList.remove('cv-over'));
-    ui.drop.addEventListener('drop', (e) => { e.preventDefault(); ui.drop.classList.remove('cv-over'); this.addFiles(e.dataTransfer.files); });
-    ui.input.addEventListener('change', () => { this.addFiles(ui.input.files); ui.input.value = ''; });
+    ui.input.setAttribute('accept', accept);
     ui.target.addEventListener('change', () => this.showOptions());
     ui.opts.addEventListener('input', () => this.emit());
     ui.opts.addEventListener('change', () => this.emit());

@@ -47,8 +47,8 @@ Returns `{ choose(), run(files), destroy() }`. `run` takes a file list (or a Pro
 ## Drop events between apps
 
 - The module ignores drags without files, so item drags (a bin clip, a tree row) are untouched.
-- A target that takes files itself sets `e.sdHandled = true` on the drop event. SlopDrop then skips the drop (and does
-  not toast "Drop files on the highlighted area"). Slop Cut's timeline uses this for its own batch.
+- A target that takes files itself sets `e.sdHandled = true` on the drop event. An outer target (the app area) then skips
+  the drop (no second batch), and SlopDrop does not toast "Drop files on the highlighted area". Slop Cut's timeline uses this.
 - A file drop outside every target (with `window` on) gets the toast "Drop files on the highlighted area".
 
 ## Where it is used
@@ -58,7 +58,7 @@ Each row is one `attach` call (plus the three script tags in the page):
 | App | Where | What the file goes to |
 |---|---|---|
 | Reel Remix (`remix/js/ui.js` wireDrop) | bin and stage | `RM.addFiles` per file; Choose files is `#rm-file` |
-| Slop Cut (`slopcut/js/ui/app.js` wireDrop) | window; a strip over the monitor | `A.importFiles` per file (timeline lanes keep their batch) |
+| Slop Cut (`slopcut/js/ui/app.js` wireDrop) | the app (`#app`); a strip at the top of the monitor | `A.importFiles` per file (a timeline lane takes the drop itself, sets `sdHandled`, and SlopDrop skips it) |
 | PhotoSlop (`photoslop/js/app/tabs.js` bindFileDrop) | the document area (tabs and viewport); the strip only shows progress | open as tabs, or place as layers: the zone the drop itself lands on (`SlopDropChoice.zones`, `files(dt, e)`) |
 | Slop Vector (`slopvector/js/io/files.js` bindDrop) | page; a strip over the stage | `placeFiles` at the drop point |
 | Slop Resize (`resize/js/app/main.js` wireDrop) | a zone above the queue | `NS.queue.add` (an unreadable file is an error row) |
@@ -68,6 +68,8 @@ Each row is one `attach` call (plus the three script tags in the page):
 | Slop Label (`label/js/ui/boot.js`) | page; a strip over the stage | `openFiles` per file; a picture on the stage lands at the drop point |
 | Slop Music (`music/js/ui/library.js`) | a zone above the library | `M.lib.addFiles` per file |
 | Slop Hex (`hex/js/main.js`) | a strip under the header, `limit: 1` | `openBlob` |
+| Slop Convert (`convert/js/ui/tool.js`, every converter page) | the drop zone; `input` is the page's own picker | `addFiles([file])` per file |
+| Slop OCR (`ocr/js/app.js` wire) | the drop zone; `input` is the page's own picker | `addFiles([file])` per file |
 | Slop Drive (`drive/js/ui/dnd.js` wireDropUpload) | a strip above the pane | `files` hook (readDrop; a lone `.slop` asks about the backup); `DR.importFiles` per file into the folder under the pointer |
 | Slop Calendar import (`calendar/js/ui/ics-ui.js` pick) | a dialog with a zone | the file goes to the preview as before (no picker when SlopDrop is there) |
 | Slop Contacts import (`contacts/js/app/io-dialogs.js` importPick) | a zone in the import dialog | `importFiles([file])` per file |
