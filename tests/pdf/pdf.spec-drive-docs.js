@@ -139,5 +139,23 @@
         expect(await countSame(bytes)).toBe(before);
       } finally { PT.U.store.set('driveAutosave', true); }
     });
+    it('a double click on text over a PDF that was just opened puts no Slop Drive text over the page', async () => {
+      const bytes = await PT.makePdf([{ text: 'Double click ' + uid() }]);
+      PT.win.document.querySelectorAll('.sui-toast').forEach((n) => n.classList.remove('sui-show')); // an earlier test's toast
+      await openFresh(bytes, 'dbl-' + uid() + '.pdf'); // the background save is silent: no toast over the page
+      const pid = PT.E.state.pages[0].id;
+      PT.A.openPage(pid);
+      await waitFor(() => PT.win.document.querySelector('.pv-textlayer span') && PT.SP.editor.pid === pid, { timeout: 8000 });
+      const el = PT.SP.editor._.slots.get(pid).el, z = PT.SP.editor.zoom, r = el.getBoundingClientRect();
+      const at = { clientX: r.left + 60 * z, clientY: r.top + (200 - 26) * z, button: 0, bubbles: true, cancelable: true, pointerType: 'mouse', isPrimary: true };
+      el.dispatchEvent(new PT.win.PointerEvent('pointerdown', { ...at, pointerId: 7, isPrimary: true }));
+      el.dispatchEvent(new PT.win.PointerEvent('pointerup', { ...at, pointerId: 7, isPrimary: true }));
+      el.dispatchEvent(new PT.win.PointerEvent('pointerdown', { ...at, pointerId: 8, isPrimary: true }));
+      el.dispatchEvent(new PT.win.MouseEvent('dblclick', { ...at, detail: 2 }));
+      await SlopTest.sleep(300);
+      const doc = PT.win.document;
+      const overlays = [...doc.querySelectorAll('.pv-page, .sui-toast.sui-show, .sui-toast.sui-show *')].filter((n) => /Slop Drive/.test(n.textContent));
+      expect(overlays.length).toBe(0);
+    });
   });
 })();

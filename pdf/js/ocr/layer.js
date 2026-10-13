@@ -68,4 +68,72 @@
     });
     return doc.save({ useObjectStreams: true });
   };
+  /* Reading and replacing the layer's words. The writer above draws each word as `/SlopOCR<suffix> size Tf`, then the text
+     matrix `sx 0 0 1 x y Tm`, then `<hex> Tj`, so the words are found in the page's decoded content by that pattern. */
+  var WORD = /\/SlopOCR[-\w]*\s+[-+.\w]+\s+Tf\s+((?:[-+.\w]+\s+){5}[-+.\w]+)\s+Tm\s+<([0-9A-Fa-f]*)>\s*Tj/g;
+
+  function latin1(b) {
+    var s = '';
+    for (var i = 0; i < b.length; i += 8192) s += String.fromCharCode.apply(null, b.subarray(i, i + 8192));
+    return s;
+  }
+  function bytesOf(s) {
+    var u = new Uint8Array(s.length);
+    for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i) & 255;
+    return u;
+  }
+  /** The content streams of a page (refs) and their decoded text, streams joined by a newline. */
+  function contentOf(doc, page) {
+    var L = window.PDFLib, c = page.node.Contents(), refs = !c ? [] : c instanceof L.PDFArray ? c.asArray() : [c];
+    var text = refs.map(function (r) {
+      var s = doc.context.lookup(r);
+      return latin1(s instanceof L.PDFRawStream ? L.decodePDFRawStream(s).decode() : s.getUnencodedContents());
+    }).join('\n');
+    return { refs: refs, text: text };
+  }
+  /** The layer's words in a decoded content: [{ str, x, y, start, end }], start and end bounding the hex string. */
+  function wordsIn(content) {
+    var out = [], re = new RegExp(WORD.source, 'g'), m;
+    while ((m = re.exec(content))) {
+      var t = m[1].trim().split(/\s+/), hexAt = m.index + m[0].indexOf('<', m[0].indexOf('Tm')) + 1, str = '';
+      for (var i = 0; i + 1 < m[2].length; i += 2) str += String.fromCharCode(parseInt(m[2].substr(i, 2), 16));
+      out.push({ str: str, x: parseFloat(t[4]), y: parseFloat(t[5]), start: hexAt, end: hexAt + m[2].length });
+    }
+    return out;
+  }
+  function load(bytes) {
+    return window.PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false, throwOnInvalidObject: false });
+  }
+
+  /** The layer's words of every page of a file's bytes: an array per page index, of { str, x0, y } (the editor's run
+   * fields: text, origin x and baseline y in points). */
+  OL.wordsAll = async function (bytes) {
+    var doc = await load(bytes), out = [];
+    for (var i = 0; i < doc.getPageCount(); i++) {
+      out.push(wordsIn(contentOf(doc, doc.getPage(i)).text).map(function (w) { return { str: w.str, x0: w.x, y: w.y }; }));
+    }
+    return out;
+  };
+
+  /**
+   * Replaces the text of an invisible OCR run in a copy of the file. index: the page (0-based); at: the run as the editor
+   * lists it ({ str, x0, y, width }). pdf.js can join several layer words into one run (a line, or a few words on it):
+   * the run's words are found in the content, the first takes `text` and the rest are emptied, so their place stays and
+   * the old characters are gone. Resolves to the new bytes, or null when the run's words are not found as listed.
+   */
+  OL.replaceWord = async function (bytes, index, at, text) {
+    var L = window.PDFLib, doc = await load(bytes), page = doc.getPage(index), c = contentOf(doc, page);
+    var words = wordsIn(c.text).filter(function (w) {
+      return w.str !== '' && Math.abs(w.y - at.y) < 0.05 && w.x > at.x0 - 0.05 && w.x < at.x0 + at.width + 0.05;
+    });
+    if (!words.length || Math.abs(words[0].x - at.x0) > 0.05 || words.map(function (w) { return w.str; }).join(' ') !== at.str) return null;
+    var font = await doc.embedFont(L.StandardFonts.Helvetica);
+    var hex = font.encodeText(drawable(font, text)).toString().slice(1, -1), out = c.text;
+    for (var i = words.length - 1; i >= 0; i--) out = out.slice(0, words[i].start) + (i ? '' : hex) + out.slice(words[i].end);
+    // one content stream replaces the old ones, which are deleted so the old characters are not left in the file
+    var ref = doc.context.register(doc.context.flateStream(bytesOf(out)));
+    c.refs.forEach(function (r) { doc.context.delete(r); });
+    page.node.set(L.PDFName.of('Contents'), ref);
+    return doc.save({ useObjectStreams: true });
+  };
 })();

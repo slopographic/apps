@@ -168,6 +168,44 @@
     });
   });
 
+  describe('OCR text layer: editing a recognised word', () => {
+    it('an edit replaces the word in the page content: the old word is gone from the text, the new one is there', async () => {
+      PT.reset();
+      await withEngine(async () => {
+        const file = await PT.open(await scanPdf([PAGE_ONE]), 'scan-edit.pdf');
+        const first = PT.E.state.pages.filter((p) => p.f === file.id)[0];
+        stubEngine([PAGE_ONE]);
+        expect(await PT.A.recognise([first.id])).toBe(1);
+        PT.A.openPage(first.id);
+        await SlopTest.waitFor(() => PT.win.document.querySelector('.pv-textlayer span') && PT.SP.editor.pid === first.id, { timeout: 8000 });
+        PT.SP.editor.setTool('select'); // an earlier test may have left another tool or edit mode on
+        if (PT.SP.editor.editText) PT.SP.editor.toggleEditText();
+        PT.SP.editor.toggleEditText();
+        const el = PT.SP.editor._.slots.get(first.id).el, z = PT.SP.editor.zoom, r = el.getBoundingClientRect();
+        // the word "Invoice" starts 40 pt from the left, on the first line (30 to 52 pt from the top)
+        el.dispatchEvent(new PT.win.PointerEvent('pointerdown', { clientX: r.left + 60 * z, clientY: r.top + 42 * z, button: 0, bubbles: true, cancelable: true, pointerId: 5, pointerType: 'mouse', isPrimary: true }));
+        await SlopTest.waitFor(() => PT.win.document.querySelector('.edit-run'), { timeout: 5000 });
+        const input = PT.win.document.querySelector('.edit-run');
+        expect(input.value).toBe('Invoice 2026-0042');
+        input.value = input.value.replace('Invoice', 'Receipt'); // the run is the line's text, so the word is edited in it
+        input.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+        for (let i = 0; i < 50 && !(await textOf(PT.E.pageById(first.id))).includes('Receipt'); i++) await SlopTest.sleep(100);
+        const words = await textOf(PT.E.pageById(first.id));
+        expect(words).not.toContain('Invoice');
+        expect(words).toContain('Receipt');
+        expect(words).toContain('2026-0042'); // the other words are kept
+        expect(PT.E.pageById(first.id).annots.length).toBe(0); // replaced, not covered
+        const content = await contentOf(PT.E.fileOfPage(PT.E.pageById(first.id)).bytes);
+        expect(/\b3 Tr\b/.test(content)).toBe(true); // still invisible
+        expect(/496E766F696365/i.test(content)).toBe(false); // no hex of "Invoice" left in the content
+        PT.A.undo();
+        await SlopTest.sleep(150);
+        expect(await textOf(PT.E.pageById(first.id))).toContain('Invoice');
+        PT.SP.editor.toggleEditText();
+      });
+    });
+  });
+
   describe('OCR text layer: commands', () => {
     it('File menu and command palette list the two recognise commands', async () => {
       if (!PT.SP) await PT.boot();

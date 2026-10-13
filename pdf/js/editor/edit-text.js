@@ -3,13 +3,27 @@
    page). The new text is never written into the document's own subset font (that holds only the old glyphs). It is set in
    the run's family when that family is installed (shared/fonts), else in the family the person chose in the asset check
    (font-check.js), else in the closest bundled family; standard families (Helvetica, Times, Courier) stay standard. The info
-   line says which font the run uses and what the new text is set in. */
+   line says which font the run uses and what the new text is set in. Words of a recognised page (the invisible OCR layer,
+   ocr/layer.js) are not covered: their characters are replaced in the page's content, so the old word leaves the file. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._, M = window.SlopPdfMacro, F = window.SlopPdfFind;
   var cache = new Map(); // file page → Promise of { pg, runs }
   Ed.editText = false;
 
+  /** The invisible OCR layer's words of a file (ocr/layer.js), read once per file. Only files the OCR wrote have any. */
+  function fileWords(f) {
+    if (!f.ocrWords) f.ocrWords = SP.ocrLayer.wordsAll(f.bytes);
+    return f.ocrWords;
+  }
+  /** Marks the runs that are OCR layer words (run.ocr): an edit to them replaces the word in the content. */
+  async function markOcr(f, p, runs) {
+    if (!f.ocr || !SP.ocrLayer) return;
+    var ws = (await fileWords(f))[p.i] || [];
+    runs.forEach(function (r) {
+      r.ocr = ws.some(function (w) { return w.str !== '' && Math.abs(w.x0 - r.x0) < 0.05 && Math.abs(w.y - r.y) < 0.05; });
+    });
+  }
   /** Text runs of a page: one per pdf.js text item, with its box in page space, its PDF baseline and its font. */
   function runsOf(p) {
     var key = p.f + ':' + p.i;
@@ -30,7 +44,7 @@
               x0: t[4], y: t[5], width: it.width || 0, box: SP.redact.itemBox(it, 0, it.str.length, view, st.fontFamily), pg: pg
             });
           });
-          return { pg: pg, runs: runs };
+          return markOcr(f, p, runs).then(function () { return { pg: pg, runs: runs }; });
         });
       });
       pr.catch(function () { cache.delete(key); });
@@ -150,6 +164,11 @@
     var text = r.input.value, run = r.run, font = r.font, p = r.p, s = S.slots.get(p.id);
     S.closeRun();
     if (text === run.str) return;
+    if (run.ocr) { S.replaceOcrRun(p, run, text, s, font); return; }
+    S.coverRun(p, run, font, text, s);
+  };
+  /** Ordinary text: the old run is covered and the new text drawn over it, as one undo step. */
+  S.coverRun = function (p, run, font, text, s) {
     var color = s ? inkColour(s, run) : '#000000', key = E.fontKey(font);
     var m = { segs: [{ x0: run.x0, x1: run.x0 + run.width, y: run.y, fs: run.fs }] };
     var plan = M.coverPlan(m, E.sanitize(text, key), function (t, sz) { return E.measure(t, key, sz); });
@@ -161,5 +180,21 @@
     });
     if (F.refresh) F.refresh();
     Ed.paint();
+  };
+  /** Invisible OCR text: the word is replaced in the page's content, so the old word is no longer in the file (one undo
+   * step; the page gets a copy of its file, as recognise does). A word that cannot be found is covered as ordinary text. */
+  S.replaceOcrRun = function (p, run, text, s, font) {
+    (async function () {
+      var f = E.fileOfPage(p), bytes = await SP.ocrLayer.replaceWord(f.bytes, p.i, run, text);
+      if (!bytes) { S.coverRun(p, run, font, text, s); return; }
+      var made = await E.registerPdf(bytes, f.name, null);
+      made.noLog = true; made.ocr = true; // generated: its bytes cannot be replayed from the edit log
+      E.commit('Edit text', function (st) {
+        var q = st.pages.filter(function (x) { return x.id === p.id; })[0];
+        if (q) q.f = made.id;
+      });
+      if (F.refresh) F.refresh();
+      Ed.paint();
+    })().catch(function (e) { SlopUI.toast('The text could not be changed: ' + (e && e.message || e)); });
   };
 })();

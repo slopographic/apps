@@ -109,6 +109,7 @@
       var bytes = await SP.ocrLayer.write(f.bytes, rs.map(function (r) { return { index: r.i, lines: r.lines, g: r.g, px: r.px }; }));
       var made = await E.registerPdf(bytes, 'Recognised text.pdf', null);
       made.noLog = true; // generated: its bytes cannot be replayed from the edit log
+      made.ocr = true; // the file has the layer: edits to its words replace them (editor/edit-text.js)
       newFile.set(entry[0], made.id);
     }
     results.forEach(function (r) {
