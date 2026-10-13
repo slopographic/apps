@@ -44,7 +44,7 @@
     var box = U.s('g', { transform: V.boxTransform(a) });
     box.appendChild(U.s('rect', { x: 0, y: 0, width: fmt(a.w), height: fmt(a.h), fill: 'transparent', class: 'an-hit' }));
     if (bw > 0) box.appendChild(U.s('rect', { x: fmt(bw / 2), y: fmt(bw / 2), width: fmt(Math.max(0.1, a.w - bw)), height: fmt(Math.max(0.1, a.h - bw)), fill: 'none', stroke: bc, 'stroke-width': bw }));
-    var t = E.textLayout(a), txt = U.s('text', { 'font-family': E.CSSFONT[a.font] || E.CSSFONT.Helvetica, 'font-size': fmt(t.size), fill: a.color || '#000', 'font-weight': a.bold ? '700' : '400', 'font-style': a.italic ? 'italic' : 'normal', 'xml:space': 'preserve', style: 'white-space:pre' });
+    var t = E.textLayout(a), txt = U.s('text', { 'font-family': E.cssFont(a), 'font-size': fmt(t.size), fill: a.color || '#000', 'font-weight': E.cssWeight(a), 'font-style': a.italic ? 'italic' : 'normal', 'xml:space': 'preserve', style: 'white-space:pre' });
     t.lines.forEach(function (line, i) { txt.appendChild(U.s('tspan', { x: fmt(t.pad), y: fmt(t.base(i)) }, line || ' ')); });
     box.appendChild(txt);
     g.appendChild(box);

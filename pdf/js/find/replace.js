@@ -22,6 +22,7 @@
   F.textAnnot = function (p, x, y, size, text, opts) {
     opts = opts || {};
     var a = { id: U.uid('a'), type: 'text', text: text, font: opts.font || FONT, bold: !!opts.bold, italic: !!opts.italic, size: size, color: opts.color || '#000000', opacity: 1, rot: 0 };
+    if (opts.weight) a.weight = opts.weight; // a face of an installed family (core/fonts-custom.js)
     var t = E.textLayout(a), g = E.geom(p), top = g.H + g.y0;
     var left = x - g.x0 - t.pad, boxTop = top - y - (t.pad + 0.9 * size);
     a.cx = left + t.w / 2; a.cy = boxTop + t.h / 2; a.w = t.w; a.h = t.h;

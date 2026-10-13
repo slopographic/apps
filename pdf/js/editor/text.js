@@ -8,9 +8,9 @@
     var c = S.ctx(), z = c.z, t = E.textLayout(Object.assign({}, a, { text: a.text || 'M' }));
     Ed.selId = a.id; Ed.paint();
     S.ta.hidden = false; S.ta.value = a.text || '';
-    S.ta.style.fontFamily = E.CSSFONT[a.font] || E.CSSFONT.Helvetica;
+    S.ta.style.fontFamily = E.cssFont(a);
     S.ta.style.fontSize = (t.size * z) + 'px'; S.ta.style.lineHeight = (t.lh * z) + 'px';
-    S.ta.style.fontWeight = a.bold ? '700' : '400'; S.ta.style.fontStyle = a.italic ? 'italic' : 'normal';
+    S.ta.style.fontWeight = E.cssWeight(a); S.ta.style.fontStyle = a.italic ? 'italic' : 'normal';
     S.ta.style.color = a.color || '#000';
     S.ta.style.padding = (t.pad * z) + 'px';
     S.placeTA(a);

@@ -82,12 +82,13 @@ async function visit(p) {
   for (const r of refsOf(p, await readFile(path.join(ROOT, p), 'utf8'))) await visit(r);
 }
 
-// The offline font library and font packs: the picker loads these at run time (not by a static src), so they are listed
-// here. Every WOFF2 named in shared/fonts/library/index.json is included.
-const LIBRARY = ['shared/fonts/picker.js', 'shared/fonts/library/index.json', 'shared/library/manifest.js', 'shared/library/store.js',
-  'shared/library/get-more.js', 'shared/library/packs.json'];
+// The offline font library and font packs: the picker and the font catalogue load these at run time (not by a static src),
+// so they are listed here. Every WOFF2 named in shared/fonts/library/index.json is included, and each embeddable copy ("pdf").
+const LIBRARY = ['shared/fonts/picker.js', 'shared/fonts/catalog.js', 'shared/fonts/missing.js', 'shared/fonts/library/index.json',
+  'shared/library/manifest.js', 'shared/library/store.js', 'shared/library/get-more.js', 'shared/library/packs.json',
+  'vendor/fontkit/fontkit.min.js', 'vendor/fontkit/LICENSE'];
 const libraryFiles = JSON.parse(await readFile(path.join(ROOT, 'shared/fonts/library/index.json'), 'utf8')).fonts
-  .flatMap((f) => [`shared/fonts/library/${f.file}`, `shared/fonts/library/${f.licenceFile}`]);
+  .flatMap((f) => [`shared/fonts/library/${f.file}`, `shared/fonts/library/${f.licenceFile}`, ...(f.pdf ? [`shared/fonts/library/${f.pdf}`] : [])]);
 const roots = [...(await pageRoots()), ...EXTRA, ...LIBRARY, ...new Set(libraryFiles)];
 for (const r of roots) await visit(r);
 const list = [...files].sort();
