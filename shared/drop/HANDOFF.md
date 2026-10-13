@@ -67,10 +67,14 @@ Each row is one `attach` call (plus the three script tags in the page):
 | Slop Gallery (`gallery/js/ui/main.js` bindDrop) | a strip above the grid | `files` hook = `G.source.fromDrop` (folders); `importItems` per file |
 | Slop Label (`label/js/ui/boot.js`) | page; a strip over the stage | `openFiles` per file; a picture on the stage lands at the drop point |
 | Slop Music (`music/js/ui/library.js`) | a zone above the library | `M.lib.addFiles` per file |
-| Slop Hex (`hex/js/main.js`) | a strip under the header, `limit: 1` | `openBlob` |
 | Slop Convert (`convert/js/ui/tool.js`, every converter page) | the drop zone; `input` is the page's own picker | `addFiles([file])` per file |
 | Slop OCR (`ocr/js/app.js` wire) | the drop zone; `input` is the page's own picker | `addFiles([file])` per file |
-| Slop Drive (`drive/js/ui/dnd.js` wireDropUpload) | a strip above the pane | `files` hook (readDrop; a lone `.slop` asks about the backup); `DR.importFiles` per file into the folder under the pointer |
+| Slop Drive (`drive/js/ui/dnd.js` wireDropUpload) | a strip above the pane; targets the main area and the tree | `files` hook (readDrop; a lone `.slop` asks about the backup); `DR.importFiles` per file into the folder the drop lands on |
+| Slop PDF (`pdf/js/ui/drop.js` S.setupDrop) | the empty page's zone; targets the stage and the tab strip | a tab per file on the strip; on the document `SlopDropChoice.ask` (Add to current, one undo step, or Create new); SVG offered Convert |
+| Slop Press (`press/js/ui/main.js` dropSetup) | a compact zone over the foot of the stage; target the stage | `PR.place.files([file], { frame })` per file; the frame is the image under the drop point |
+| Slop Contacts (`contacts/js/app/drop-import.js`) | a zone at the head of the contact list; target the column | vCard and CSV files gathered in `process`, then `importFlow.run` once in `done` (one preview) |
+| Slop EML (`eml/js/main.js`) | the strip under the header; targets the strip and the message area | `EmlApp.openFile` per file; a file already open is refused with its reason |
+| Slop Hex (`hex/js/main.js`) | the strip under the tabs; targets the tabs, the strip and the main area; `limit: 1` | `openBlob` per file; a file already open is refused with its reason |
 | Slop Calendar import (`calendar/js/ui/ics-ui.js` pick) | a dialog with a zone | the file goes to the preview as before (no picker when SlopDrop is there) |
 | Slop Contacts import (`contacts/js/app/io-dialogs.js` importPick) | a zone in the import dialog | `importFiles([file])` per file |
 | Config import (`shared/config/dialog.js` importZone) | a zone in the import dialog (`window: false`) | `C.importFile`; the page-wide drop of a `.slop.json` is unchanged |
@@ -93,7 +97,7 @@ Loads after `drop.js`. Two parts:
   `{ at, hide, destroy }`. `labels`: `{ new, current, newHint, currentHint }` (a hint may be a function).
 
 PhotoSlop uses `zones` (its Place as layers and Open as new tabs zones). Slop PDF uses `ask` (a drop on the open
-document: Add to current or Create new, `pdf/js/ui/doc-drop.js`); with no document open it is not shown.
+document: Add to current or Create new, `pdf/js/ui/drop.js`); with no document open it is not shown.
 
 ## Missing elements (why a call can fail)
 
@@ -106,6 +110,8 @@ zones exist (or are created) before attach, and attach runs after DOMContentLoad
 
 ## Tests
 
+- `tests/drop/zones.test.html` (every migrated app's zone: one drop opens once, a file dropped on the bare page is not taken,
+  the zone is not over a bar; EML and Hex refuse a file that is already open).
 - `node tests/run.mjs drop`: `tests/node/drop.test.mjs` (a refused file and a limit through a drop, a reader error as a row,
   `attach` with a missing zone (null, no throw) and with a missing target (skipped; the zone takes drops when none is left),
   destroy, the drag label for `any: true`), `tests/node/drop-rules.test.mjs` (accept and refuse rules, drag-time labels, toast words, sizes)
