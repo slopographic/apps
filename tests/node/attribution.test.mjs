@@ -11,8 +11,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const git = (...args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
 // The commit that set the repo identity to Slopographic; every commit after it must be by Slopographic.
-const ATTRIBUTION_COMMIT = '5b27ecb';
-const IDENTITY = { name: 'Slopographic', email: 'noreply@slopographic.com' };
+const ATTRIBUTION_COMMIT = '57253f2';
+const IDENTITY = { name: 'slopographic', email: '340656300+slopographic@users.noreply.github.com' };
 
 test('the repo identity is Slopographic', () => {
   assert.equal(git('config', 'user.name'), IDENTITY.name);
