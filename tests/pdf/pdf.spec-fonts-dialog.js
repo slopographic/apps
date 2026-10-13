@@ -85,7 +85,8 @@
       const text = box.textContent;
       expect(text.includes('This document uses only standard fonts (Helvetica, Times, Courier). Every PDF viewer has them, so nothing is missing.')).toBe(true, text);
       expect(/no fonts/i.test(text)).toBe(false, text);
-      expect(rowOf('Helvetica').textContent).toBe('Helvetica · Built in.');
+      expect(/Missing/.test(text)).toBe(false, 'nothing is missing');
+      expect(rowOf('Helvetica')).toBe(null, 'a built-in font is not listed as a subset row');
       closePanel();
       await waitFor(() => !doc().querySelector('.sf-ov'), { timeout: 3000 });
     });

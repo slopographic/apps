@@ -46,6 +46,10 @@
       const st = doc.stories[fr.story];
       PR.story.formatChars(st, 0, st.text.length, { font: 'Gill Sans' });
       PR.engine.clear(); PR.touch();
+      // the family menu shows in text mode: select the frame and use the text tool
+      S.tool = 'text'; PR.select([fr.id]); PR.ui.refreshControlBar(true);
+      await waitFor(() => hasOption(W, 'Gill Sans'), { timeout: 5000 });
+      expect(hasOption(W, 'Gill Sans')).toBe(true);
       expect(S.doc.fonts.length).toBe(1);
       expect(PR.fonts.substituted('Gill Sans')).toBe(false);
       const bytes = await PR.fonts.bytes(S.doc, 'Gill Sans', 'Regular');
@@ -66,16 +70,17 @@
     it('a WOFF file is refused with a message that says WOFF is not supported in Slop Press', async () => {
       const W = await open();
       const PR = W.PR, S = PR.state;
-      PR.ui.openFonts(['Gill Sans']);
-      await waitFor(() => rowOf(W, 'Gill Sans'), { timeout: 10000 });
-      const input = rowOf(W, 'Gill Sans').querySelector('input[type=file]');
+      const before = (S.doc.fonts || []).length;
+      PR.ui.openFonts(['Gill Serif']);
+      await waitFor(() => rowOf(W, 'Gill Serif'), { timeout: 10000 });
+      const input = rowOf(W, 'Gill Serif').querySelector('input[type=file]');
       const dt = new W.DataTransfer();
       dt.items.add(new W.File([new Uint8Array([119, 79, 70, 70])], 'Gill.woff', { type: 'font/woff' }));
       input.files = dt.files;
       input.dispatchEvent(new W.Event('change'));
-      await waitFor(() => rowOf(W, 'Gill Sans').textContent.includes('WOFF fonts cannot be used in Slop Press'), { timeout: 10000 });
+      await waitFor(() => rowOf(W, 'Gill Serif').textContent.includes('WOFF fonts cannot be used in Slop Press'), { timeout: 10000 });
       expect((S.doc.fonts || []).length).toBe(0);
-      expect(hasOption(W, 'Gill Sans')).toBe(false);
+      expect(hasOption(W, 'Gill Serif')).toBe(false);
     });
   });
   run({ name: 'Slop Press · own fonts' });

@@ -44,7 +44,7 @@
       expect(everyShown(C.sidebar) && everyShown(C.panels)).toBe(true);
       V.set('content'); await settle();
       const content = wsArea();
-      expect(content).toBeGreaterThan(full * 1.01);
+      if (C.grow !== false) expect(content).toBeGreaterThan(full * 1.01);   // a fixed-size card (grow: false) has no free space to take
       expect(everyHidden(C.sidebar)).toBe(true);
       expect(everyHidden(C.panels)).toBe(true);
     });

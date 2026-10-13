@@ -1,23 +1,8 @@
-/* SlopViewMode — shared/viewmode: one set of view modes for every app. Classic script, no dependencies.
- * Sets window.SlopViewMode. See HANDOFF.md for each app's regions and shortcuts.
- *
- *   Modes: full (everything), focus (toolbars and sidebars hidden), content (only the content: every region hidden).
- *   The controls live in the app's own toolbar (the mount element), never over the page: the mode button, and in
- *   focus and content a "Show panels" button. A toolbar that is hidden stays as a strip that holds those controls.
- *   Ctrl+Shift+F cycles the mode. Ctrl+Shift+L shows every hidden region until pressed again. Escape returns to Full.
- *   Hidden regions give their grid tracks back: the workspace grows into the freed space (see paint()).
- *
- *   const V = SlopViewMode.register('hex', {
- *     regions: { toolbar: ['.hx-top', '.hx-bar'], sidebar: '#side', panels: '#panels' },  // selector, element or a list
- *     edges:   { toolbar: 'top', sidebar: 'left', panels: 'right' },         // which window edge reveals it (defaults)
- *     hides:   { focus: ['toolbar', 'sidebar'], content: ['toolbar', 'sidebar', 'panels'] },  // the defaults
- *     mount:   '.hx-top',                                                    // the app's toolbar that holds the controls
- *     layout:  { get: () => ({ panel: 'history' }), set: (o) => {...} },     // which panels are open, per app (optional)
- *   });
- *   V.mode()   V.set('focus')   V.cycle()   V.saveLayout()
- *
- * Saved in localStorage through try/catch: 'slop.viewmode' (the mode, shared by all apps) and
- * 'slop.viewmode.layout.<app>' (that app's layout). A blocked or full store just means nothing is remembered. */
+/* SlopViewMode: one set of view modes for every app. Classic script, no dependencies. Sets window.SlopViewMode.
+ * Modes: full, focus (toolbars and sidebars hidden), content (every region hidden). Ctrl+Shift+F cycles, Ctrl+Shift+L
+ * shows every hidden region, Escape returns to Full. The controls sit in the app's toolbar (the mount element): the mode
+ * button and "Show panels". Hidden tracks of the app's grid are given back, so the workspace grows. HANDOFF.md has the API.
+ * Saved in localStorage through try/catch: 'slop.viewmode' and 'slop.viewmode.layout.<app>'. */
 (function (win) {
   'use strict';
   if (win.SlopViewMode) return;
@@ -74,12 +59,20 @@
     });
     return out;
   }
+  /** Is this grid placed by flow (no named areas, no explicit lines) with one item per track on this axis? */
+  function flowGrid(P, trackCount) {
+    const cs = win.getComputedStyle(P);
+    if (cs.gridTemplateAreas !== 'none') return false;
+    const kids = [...P.children].filter(shown);   // display:none items take no track
+    if (!trackCount || kids.length !== trackCount) return false;
+    return !kids.some((c) => { const k = win.getComputedStyle(c); return k.gridColumnStart !== 'auto' || k.gridRowStart !== 'auto'; });
+  }
   /** The track the freed space goes to: the one under the largest shown item that is not given back. */
-  function fillTrack(list, kids, axis, zero) {
-    let best = null, bestArea = 0;
+  function fillTrack(list, kids, axis, zero, fillEl) {
+    let best = fillEl || null, bestArea = 0;
     for (const k of kids) {
       const area = k.width * k.height;
-      if (area > bestArea) { bestArea = area; best = k; }
+      if (!fillEl && area > bestArea) { bestArea = area; best = k; }
     }
     if (!best) return -1;
     const mid = axis === 'x' ? best.left + best.width / 2 : best.top + best.height / 2;
@@ -105,11 +98,20 @@
       const rr = r.el.getBoundingClientRect();
       const others = [...P.children].filter((c) => c !== r.el && !gone(c) && shown(c)).map((c) => c.getBoundingClientRect());
       const cols = tracks(P, 'col'), rows = tracks(P, 'row');
-      const p = plan.get(P) || { cols: new Set(), rows: new Set(), colSizes: cols, rowSizes: rows, kids: [] };
+      const p = plan.get(P) || { cols: new Set(), rows: new Set(), colSizes: cols, rowSizes: rows, kids: [], flowX: flowGrid(P, cols.length), flowY: flowGrid(P, rows.length) };
       giveBack(cols, rr.left, rr.right, others, 'x').forEach((i) => p.cols.add(i));
       giveBack(rows, rr.top, rr.bottom, others, 'y').forEach((i) => p.rows.add(i));
       p.kids = [...P.children].filter((c) => !gone(c) && shown(c)).map((c) => c.getBoundingClientRect());
       plan.set(P, p);
+    }
+    // A grid whose item shrinks (a planned grid inside it) must give that item's row the freed height: the item was sized
+    // by its content, and now its content is smaller. The outer grid's row for it becomes the fill row.
+    for (const P of [...plan.keys()]) {
+      const Q = P.parentElement;
+      if (!Q || plan.has(Q) || !isGrid(Q) || !shown(P)) continue;
+      const cols = tracks(Q, 'col'), rows = tracks(Q, 'row');
+      plan.set(Q, { cols: new Set(), rows: new Set(), colSizes: cols, rowSizes: rows, kids: [...Q.children].filter(shown).map((c) => c.getBoundingClientRect()),
+        flowX: flowGrid(Q, cols.length), flowY: flowGrid(Q, rows.length), fillEl: P.getBoundingClientRect() });
     }
     for (const r of all) {
       r.el.classList.toggle('slopvm-off', r.off && !r.strip);
@@ -117,10 +119,16 @@
       r.el.classList.toggle('slopvm-peek', wantHidden(r) && r.peek && !peekAll);
     }
     for (const [P, p] of plan) {
-      if (!p.cols.size && !p.rows.size) continue;
-      const fmt = (list, zero, fill) => list.map((t, i) => (zero.has(i) ? '0px' : i === fill ? 'minmax(0, 1fr)' : (t.b - t.a) + 'px')).join(' ');
-      if (p.colSizes.length) P.style.gridTemplateColumns = fmt(p.colSizes, p.cols, fillTrack(p.colSizes, p.kids, 'x', p.cols));
-      if (p.rowSizes.length) P.style.gridTemplateRows = fmt(p.rowSizes, p.rows, fillTrack(p.rowSizes, p.kids, 'y', p.rows));
+      const setX = p.cols.size > 0, setY = p.rows.size > 0 || !!p.fillEl;
+      if (!setX && !setY) continue;
+      // A named-area grid keeps the hidden track at 0px (its areas name it). An auto-placed grid drops the track: the
+      // items after a hidden one move up into its place, so their tracks must move up too.
+      const fmt = (list, zero, fill, flow) => list.map((t, i) => {
+        if (zero.has(i)) return flow ? null : '0px';
+        return i === fill ? 'minmax(0, 1fr)' : (t.b - t.a) + 'px';
+      }).filter((v) => v !== null).join(' ');
+      if (setX && p.colSizes.length) P.style.gridTemplateColumns = fmt(p.colSizes, p.cols, fillTrack(p.colSizes, p.kids, 'x', p.cols), p.flowX);
+      if (setY && p.rowSizes.length) P.style.gridTemplateRows = fmt(p.rowSizes, p.rows, fillTrack(p.rowSizes, p.kids, 'y', p.rows, p.fillEl), p.flowY);
       shells.add(P);
       watch(P);
     }
@@ -132,18 +140,17 @@
     // A changed layout needs a re-measure: apps listen for resize (canvases, editors, grids).
     if (notify && win.requestAnimationFrame) win.requestAnimationFrame(() => fire());
   }
-  /** Dispatch a resize for the app to re-measure; paint() ignores the resize this sends. */
+  /** A resize for the app to re-measure; paint() ignores the resize this sends. */
   let firing = false;
   function fire() { firing = true; try { win.dispatchEvent(new Event('resize')); } finally { firing = false; } }
 
-  /** An app that changes its own shell's classes (a panel toggled inside the app) gets the layout re-measured. */
+  /** An app that toggles a class on a grid shell (a panel) gets the layout re-measured. */
   let watcher = null;
   function watch(P) {
     if (!win.MutationObserver) return;
     if (!watcher) watcher = new win.MutationObserver(() => { if (!painting && !firing) paint(false); });
     watcher.observe(P, { attributes: true, attributeFilter: ['class'] });
   }
-
   function setMode(next) {
     if (!MODES.includes(next) || next === mode) return mode;
     mode = next; peekAll = false;
@@ -215,8 +222,7 @@
     store.set(LAYOUT + app, safe(() => JSON.stringify(obj), '{}'));
     return true;
   }
-  function span(cls, text) { const n = doc.createElement('span'); n.className = cls; n.setAttribute('aria-hidden', 'true'); n.textContent = text; return n; }
-  /** The mode button and the "Show panels" button, in the app's toolbar (never over the page). */
+  /** The mode button and "Show panels", in the app's toolbar (never over the page). */
   function mountControls(e) {
     const host = el(e.spec.mount);
     if (!host) return;
@@ -227,7 +233,7 @@
     b.className = 'slopvm-btn';
     b.title = 'Change the view (Ctrl+Shift+F). Ctrl+Shift+L shows hidden parts. Escape returns to Full.';
     b.setAttribute('aria-label', 'View mode. Press to change.');
-    b.append(span('slopvm-txt', ''));
+    b.innerHTML = '<span class="slopvm-txt" aria-hidden="true"></span>';
     b.addEventListener('click', cycle);
     const reveal = doc.createElement('button');
     reveal.type = 'button';

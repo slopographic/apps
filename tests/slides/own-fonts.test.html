@@ -61,18 +61,19 @@
     it('a WOFF file is refused with a message that says WOFF is not supported in Slop Slides', async () => {
       const W = await open();
       const A = W.SS.app, TH = W.SS.themes;
-      A.deck.theme = Object.assign({}, TH.of(A.deck), { fonts: { body: 'Gill Sans', heading: 'Inter Tight' } });
+      A.deck.theme = Object.assign({}, TH.of(A.deck), { fonts: { body: 'Gill Serif', heading: 'Inter Tight' } });
       await waitFor(() => fontsButton(W), { timeout: 10000 });
       fontsButton(W).click();
-      await waitFor(() => rowOf(W, 'Gill Sans'), { timeout: 10000 });
-      const input = rowOf(W, 'Gill Sans').querySelector('input[type=file]');
-      if (!input) throw new Error('no file input: ' + rowOf(W, 'Gill Sans').outerHTML.slice(0, 400));
+      await waitFor(() => rowOf(W, 'Gill Serif'), { timeout: 10000 });
+      const before = (A.deck.fonts || []).length;
+      const input = rowOf(W, 'Gill Serif').querySelector('input[type=file]');
+      if (!input) throw new Error('no file input: ' + rowOf(W, 'Gill Serif').outerHTML.slice(0, 400));
       const dt = new W.DataTransfer();
       dt.items.add(new W.File([new Uint8Array([119, 79, 70, 50])], 'Gill.woff2', { type: 'font/woff2' }));
       input.files = dt.files;
       input.dispatchEvent(new W.Event('change'));
-      await waitFor(() => rowOf(W, 'Gill Sans').textContent.includes('WOFF2 fonts cannot be used in Slop Slides'), { timeout: 10000 });
-      expect(A.deck.fonts).toBe(undefined);
+      await waitFor(() => rowOf(W, 'Gill Serif').textContent.includes('WOFF2 fonts cannot be used in Slop Slides'), { timeout: 10000 });
+      expect((A.deck.fonts || []).length).toBe(before);
     });
   });
   run({ name: 'Slop Slides · own fonts' });
