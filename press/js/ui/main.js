@@ -8,20 +8,21 @@
     if (PR.templates && PR.templates.make) { try { return PR.templates.make('magazine'); } catch (e) { console.warn(e); } }
     return PR.model.create({ pages: 4 });
   }
+  /* Files dropped on the stage (or chosen with the zone's button): an image lands in the frame under the drop point, or
+     on a new frame; a .slpress file opens. Each file goes through PR.place.files, one at a time (shared/drop). */
   function dropSetup() {
-    var stage = U.$('#stage'), depth = 0;
-    stage.addEventListener('dragenter', function (e) { if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types, 'Files') >= 0) { depth++; stage.classList.add('dropping'); e.preventDefault(); } });
-    stage.addEventListener('dragover', function (e) { if (stage.classList.contains('dropping')) e.preventDefault(); });
-    stage.addEventListener('dragleave', function () { if (--depth <= 0) { depth = 0; stage.classList.remove('dropping'); } });
-    stage.addEventListener('drop', function (e) {
-      depth = 0; stage.classList.remove('dropping');
-      var fs = Array.prototype.slice.call(e.dataTransfer.files || []); if (!fs.length) return;
-      e.preventDefault();
-      var r = V.canvas.getBoundingClientRect(), w = V.toWorld(e.clientX - r.left, e.clientY - r.top), hit = PR.tools.hit(w.x, w.y);
+    if (!window.SlopDrop) return;
+    function frameAt(f, at) {
+      if (!at) return null;
+      var r = V.canvas.getBoundingClientRect(), w = V.toWorld(at.x - r.left, at.y - r.top), hit = PR.tools.hit(w.x, w.y);
       var s = V.surfaceAt(w.x, w.y); if (s) PR.selectTool.activate(s);
-      if (fs.length === 1 && /\.slpress$/i.test(fs[0].name)) return PR.io.openAny(fs[0]);
-      var frame = hit && /image|rect|ellipse/.test(hit.it.type) && /^image\//.test(fs[0].type) ? hit.it : null;
-      PR.place.files(fs, { frame: frame });
+      return hit && /image|rect|ellipse/.test(hit.it.type) && /^image\//.test(f.type) ? hit.it : null;
+    }
+    SlopDrop.attach(U.$('#pressDrop'), {
+      accept: { types: ['image/*', 'text/*', 'application/pdf', 'font/*', 'application/x-font-ttf', 'application/font-sfnt'], exts: ['.slpress', '.txt', '.md', '.csv', '.pdf', '.ttf', '.otf'], noun: 'an image, text, PDF, font or .slpress file' },
+      compact: true,
+      targets: [U.$('#stage')],
+      process: function (f, progress, ctx) { return PR.place.files([f], { frame: frameAt(f, ctx.at) }); },
     });
   }
   function prefs() {

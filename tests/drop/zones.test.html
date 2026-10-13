@@ -8,7 +8,8 @@
 <body>
   <!-- Every app with a SlopDrop zone, one real page each in a same-origin iframe. For each app: (a) one dropped file opens
        once (one batch: one "Added 1 file" toast, counted through SlopDrop.panel.toast), (b) a click on the zone or its
-       message opens the picker zero times and Choose files opens it once, (c) the zone is not over a menu or toolbar. -->
+       message opens the picker zero times and Choose files opens it once, (c) the zone is not over a menu or toolbar,
+       (d) a file dropped on the bare page (document.body, outside the app's area) is not taken. -->
   <iframe id="app" src="about:blank"></iframe>
   <script src="../harness.js"></script>
   <script>
@@ -28,6 +29,17 @@
       ready: (w) => !!w.document.querySelector('#gDrop .sd-choose') },
     { name: 'Slop Drive', src: '../../drive/index.html', zone: '#drvDrop', file: ['picture.png', 'image/png'],
       ready: (w) => !!w.document.querySelector('#drvDrop .sd-choose') && !!w.DR && !!w.DR.S },
+    { name: 'Slop PDF', src: '../../pdf/index.html', zone: '#pdfDrop', file: ['picture.png', 'image/png'],
+      ready: (w) => !!w.document.querySelector('#pdfDrop .sd-choose') && !!w.SP && !!w.SP.app },
+    { name: 'Slop Press', src: '../../press/index.html', zone: '#pressDrop', file: ['picture.png', 'image/png'],
+      ready: (w) => !!w.document.querySelector('#pressDrop .sd-choose') && !!w.PR && !!w.PR.place },
+    { name: 'Slop Contacts', src: '../../contacts/index.html', zone: '#ctDrop', file: ['people.vcf', 'text/vcard', 'BEGIN:VCARD\nVERSION:3.0\nFN:Ada Test\nEND:VCARD\n'],
+      ready: (w) => !!w.document.querySelector('#ctDrop .sd-choose') },
+    { name: 'Slop EML', src: '../../eml/index.html', zone: '#em-drop', file: ['mail.eml', 'message/rfc822', 'From: a@example.com\nSubject: Hi\n\nHello\n'],
+      tabs: '.em-tab', ready: (w) => !!w.document.querySelector('#em-drop .sd-choose') && !!w.EmlApp },
+    { name: 'Slop Hex', src: '../../hex/index.html', zone: '#hx-drop', file: ['data.bin', 'application/octet-stream', 'MZ\u0000\u0001'],
+      tabs: '#hx-tabs .sl-doctab',
+      ready: (w) => !!w.document.querySelector('#hx-drop .sd-choose') && !!w.HexApp },
   ];
 
   /** Loads one app in the iframe and waits until its zone is drawn. */
@@ -38,15 +50,15 @@
     await waitFor(() => frame.contentDocument && frame.contentDocument !== old && frame.contentDocument.readyState === 'complete' && app.ready(frame.contentWindow), { timeout: 45000 });
     return frame.contentWindow;
   }
-  /** A file of the app's own realm: a PNG drawn on a canvas, or a text file. */
-  async function fileOf(w, [name, type]) {
+  /** A file of the app's own realm: a PNG drawn on a canvas, or a text file (its text, when the entry gives it). */
+  async function fileOf(w, [name, type, text]) {
     if (type === 'image/png') {
       const c = w.document.createElement('canvas'); c.width = 32; c.height = 24;
       const g = c.getContext('2d'); g.fillStyle = '#d4ff3a'; g.fillRect(0, 0, 32, 24);
       const blob = await new Promise((r) => c.toBlob(r, 'image/png'));
       return new w.File([blob], name, { type });
     }
-    return new w.File(['a,b\n1,2\n'], name, { type });
+    return new w.File([text || 'a,b\n1,2\n'], name, { type });
   }
   const centre = (el) => { const r = el.getBoundingClientRect(); return { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 }; };
   const fire = (w, el, type, dt) => el.dispatchEvent(new w.DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: dt, ...centre(el) }));
@@ -87,6 +99,27 @@
         expect(s.picks).toBe(0);
         w.document.querySelector(app.zone + ' .sd-choose').click();
         expect(s.picks).toBe(1);
+      }, { timeout: 60000 });
+
+      it('a file dropped on the bare page is not taken: the toast says where to drop', async () => {
+        const w = await openApp(app);
+        const s = spy(w);
+        dropOn(w, w.document.body, await fileOf(w, app.file));
+        await sleep(800);
+        expect(s.batches).toEqual(['Drop files on the highlighted area']);
+      }, { timeout: 60000 });
+
+      if (app.tabs) it('a file dropped again while it is open is not opened twice', async () => {
+        const w = await openApp(app);
+        const s = spy(w);
+        const tabs = () => w.document.querySelectorAll(app.tabs).length;
+        dropOn(w, w.document.querySelector(app.zone), await fileOf(w, app.file));
+        await waitFor(() => s.batches.length >= 1, { timeout: 30000 });
+        const n = tabs();
+        dropOn(w, w.document.querySelector(app.zone), await fileOf(w, app.file));
+        await waitFor(() => s.batches.length >= 2, { timeout: 30000 });
+        expect(tabs()).toBe(n);
+        expect(s.batches[1].includes('already open')).toBe(true);
       }, { timeout: 60000 });
 
       it('the zone is not positioned over a menu, toolbar or header', async () => {

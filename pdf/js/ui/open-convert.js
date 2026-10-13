@@ -15,7 +15,7 @@
     });
   };
 
-  /** Dropped files the app cannot open (SVG, ui/drop-route.js): the Convert dialog takes them, Images to PDF among its targets. */
+  /** Dropped files the app cannot open (SVG, ui/drop.js): the Convert dialog takes them, Images to PDF among its targets. */
   A.convertFiles = function (files) {
     if (!window.SlopConvert) { SlopUI.toast('Convert is not in the offline file. Use the online Slop PDF.'); return; }
     window.SlopConvert.open({ files: files });

@@ -120,8 +120,8 @@
             <svg class="empty-art" viewBox="0 0 120 120" aria-hidden="true"><rect x="22" y="14" width="62" height="82" rx="6" class="ea-page"/><rect x="36" y="24" width="62" height="82" rx="6" class="ea-page2"/><path d="M67 44s-14 16-14 26a14 14 0 0 0 28 0c0-10-14-26-14-26z" class="ea-goo"/><path d="M60.5 71a6.5 6.5 0 0 0 5 6.3" class="ea-shine"/></svg>
             <h1>Drop PDFs here</h1>
             <p>Merge, split, reorder, rotate, sign and stamp PDFs right in your browser.<br>Images (PNG, JPEG, WebP) become pages.</p>
+            <div class="pdf-drop" id="pdfDrop"></div>
             <div class="empty-actions">
-              <button type="button" class="btn primary lg" id="emptyOpen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5V18a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9.5a2 2 0 0 0-2-2h-7L10 5H5a2 2 0 0 0-2 2.5z"/></svg><span>Choose files</span></button>
               <button type="button" class="btn lg" id="emptySample"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><span>Try a sample</span></button>
             </div>
             <button type="button" class="btn ghost restore" id="restore" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span>Restore last session</span></button>
@@ -154,7 +154,6 @@
       <span class="st-local"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Local only</span>
     </footer>
   </div>
-  <div class="drop-overlay" id="dropOverlay" hidden><div><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg><b>Drop to add pages</b><span>PDFs and images · processed locally</span></div></div>
   <div class="sr" id="live" aria-live="polite"></div>
   <noscript><p class="noscript">Slop PDF needs JavaScript. It runs entirely in your browser — nothing is uploaded.</p></noscript>
 
@@ -266,9 +265,11 @@
   <script src="js/ui/context.js" data-src="pdf/js/ui/context.js"></script>
   <script src="js/ui/input.js" data-src="pdf/js/ui/input.js"></script>
   <script src="js/ui/rename.js" data-src="pdf/js/ui/rename.js"></script>
+  <script src="../shared/drop/rules.js" data-src="shared/drop/rules.js"></script>
+  <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="../shared/drop/choice.js" data-src="shared/drop/choice.js"></script>
-  <script src="js/ui/drop-route.js" data-src="pdf/js/ui/drop-route.js"></script>
-  <script src="js/ui/doc-drop.js" data-src="pdf/js/ui/doc-drop.js"></script>
+  <script src="js/ui/drop.js" data-src="pdf/js/ui/drop.js"></script>
   <script src="js/ui/doc-tabs.js" data-src="pdf/js/ui/doc-tabs.js"></script>
   <script src="js/ui/open-convert.js" data-src="pdf/js/ui/open-convert.js"></script>
   <script src="js/ui/view-state.js" data-src="pdf/js/ui/view-state.js"></script>

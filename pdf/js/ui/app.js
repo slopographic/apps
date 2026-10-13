@@ -17,7 +17,7 @@
 
   /* ---------------------------------------------------------------- boot */
   A.boot = function () {
-    ['app', 'rail', 'stage', 'grid', 'viewer', 'empty', 'props', 'ctxGrid', 'ctxPage', 'status', 'fileName', 'btnDownload', 'btnConvert', 'btnUndo', 'btnRedo', 'menus', 'btnMore', 'btnPanel', 'live', 'busy', 'dropOverlay', 'restore', 'gridWrap']
+    ['app', 'rail', 'stage', 'grid', 'viewer', 'empty', 'props', 'ctxGrid', 'ctxPage', 'status', 'fileName', 'btnDownload', 'btnConvert', 'btnUndo', 'btnRedo', 'menus', 'btnMore', 'btnPanel', 'live', 'busy', 'restore', 'gridWrap']
       .forEach(function (id) { S.els[id] = document.getElementById(id); });
     S.buildRail(); S.buildMenus(); S.buildCtxBars();
     O.init(S.els.grid, S.els.gridWrap);
@@ -31,7 +31,6 @@
     S.els.btnPanel.addEventListener('click', function () { A.togglePanel(); });
     S.els.fileName.addEventListener('input', function () { S.fileNameTouched = true; });
     S.els.fileName.addEventListener('change', function () { var v = S.els.fileName.value; A.rename(String(v).trim() ? v : 'document.pdf'); });
-    $('#emptyOpen').addEventListener('click', function () { A.openDialog(); });
     $('#emptySample').addEventListener('click', function () { A.loadSample(); });
     S.els.restore.addEventListener('click', function () { A.restoreSession(); });
     S.setupDrop(); S.setupKeys();

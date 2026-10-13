@@ -1,44 +1,36 @@
-/* Slop Contacts: drop files on the contact column to import them. Only file drags are taken (a row dragged onto a
- * group is not). .vcf, .vcard and .csv files go to the import flow; other files are named and left out. The column
- * shows a dashed outline while files are over it. Adds SlopContacts.dropImport. */
+/* Slop Contacts: vCards and CSV files dropped on the contact list, or chosen with the zone's button, go to the import
+ * flow together (one preview). Other files are refused with their names (SlopDrop, shared/drop: the column is the drop
+ * target and the zone sits at its head). Adds SlopContacts.dropImport. */
 (function () {
   'use strict';
   const SC = window.SlopContacts;
-  const UI = window.SlopUI;
 
-  const hasFiles = (e) => !!(e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files'));
+  const RULES = {
+    types: ['text/vcard', 'text/x-vcard', 'text/csv', 'application/csv', 'text/comma-separated-values', 'text/plain'],
+    exts: ['.vcf', '.vcard', '.csv'],
+    noun: 'a vCard (.vcf, .vcard) or a CSV (.csv) file',
+  };
+  let pending = []; // the accepted files of the batch, read by the import flow once the batch is done
 
-  /** Imports the dropped files that the import takes; names the rest. */
-  function handle(files) {
-    const ok = files.filter((f) => SC.importPlan.DROPPABLE.test(f.name || ''));
-    const skipped = files.filter((f) => !SC.importPlan.DROPPABLE.test(f.name || ''));
-    if (!ok.length) {
-      UI.alert('Nothing to import', `Drop a vCard (.vcf or .vcard) or a CSV (.csv) file. Not taken: ${skipped.map((f) => f.name).join(', ')}.`);
-      return;
-    }
-    if (skipped.length) UI.toast(`Not taken: ${skipped.map((f) => f.name).join(', ')}`);
-    SC.importFlow.run(ok);
+  /** One accepted file. A name the import does not read (a .txt with a text type) is refused here, by name. */
+  function process(file) {
+    if (!SC.importPlan.DROPPABLE.test(file.name || '')) throw new Error('is not a vCard or CSV file');
+    pending.push(file);
+    return file.name;
+  }
+  /** After the batch: the files go to the import flow together, so the preview lists them all. */
+  function done() {
+    const list = pending;
+    pending = [];
+    if (list.length) SC.importFlow.run(list);
   }
 
   function mount() {
-    const target = document.querySelector('.col-list');
-    if (!target) return;
-    target.addEventListener('dragenter', (e) => { if (hasFiles(e)) { e.preventDefault(); target.classList.add('is-dropping'); } });
-    target.addEventListener('dragover', (e) => {
-      if (!hasFiles(e)) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'copy';
-    });
-    target.addEventListener('dragleave', (e) => {
-      if (hasFiles(e) && !target.contains(e.relatedTarget)) target.classList.remove('is-dropping');
-    });
-    target.addEventListener('drop', (e) => {
-      if (!hasFiles(e)) return;
-      e.preventDefault();
-      target.classList.remove('is-dropping');
-      handle(Array.from(e.dataTransfer.files || []));
-    });
+    const column = document.querySelector('.col-list');
+    const zone = document.getElementById('ctDrop');
+    if (!column || !zone || !window.SlopDrop) return;
+    SlopDrop.attach(zone, { accept: RULES, compact: true, label: 'Drop vCards or CSV files here', targets: [column], process, done });
   }
 
-  SC.dropImport = { mount, handle };
+  SC.dropImport = { mount };
 })();
