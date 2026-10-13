@@ -5,6 +5,8 @@ import { convertImage, imageForPdf } from './image.js';
 import { imagesToPdf } from './pdf-images.js';
 import { pdfToImages } from './pdf-raster.js';
 import { pdfToHtml } from './pdf-html.js';
+import { pdfToDocx, pdfToXlsx } from '../../../shared/convert/pdf-office.js';
+import { pdfToPptx } from '../../../shared/convert/pdf-pptx.js';
 import { mergePdfs, extractPages, splitPages } from './pdf-ops.js';
 import { csvToJson, jsonToCsv, parseCsv } from './csv.js';
 import { rowsToXlsx } from './xlsx.js';
@@ -66,6 +68,24 @@ export const CONVERSIONS = [
       const f = files[0];
       const html = await pdfToHtml(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages, title: base(f.name) });
       return [out(`${base(f.name)}.html`, html, 'text/html')];
+    } },
+  { id: 'pdf-to-docx', label: 'PDF to Word (DOCX)', group: 'PDF', from: ['pdf'], ext: 'docx', mode: 'each',
+    note: 'Text-based. Paragraphs and column-aligned tables are kept as Word text and tables. Images, drawings, colours and fonts are not. Pages with no text layer are marked.',
+    options: [{ key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' }], run: async (files, o) => {
+      const f = files[0];
+      return [{ name: `${base(f.name)}.docx`, blob: await pdfToDocx(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages, title: base(f.name) }) }];
+    } },
+  { id: 'pdf-to-xlsx', label: 'PDF to Excel (XLSX)', group: 'PDF', from: ['pdf'], ext: 'xlsx', mode: 'each',
+    note: 'Text-based. Each line goes to a row and each column of text to a column, so tables aligned in columns become a grid. Numbers become numbers. No images, formulas or formats.',
+    options: [{ key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' }], run: async (files, o) => {
+      const f = files[0];
+      return [{ name: `${base(f.name)}.xlsx`, blob: await pdfToXlsx(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages }) }];
+    } },
+  { id: 'pdf-to-pptx', label: 'PDF to PowerPoint (PPTX)', group: 'PDF', from: ['pdf'], ext: 'pptx', mode: 'each',
+    note: 'One slide per page, each page a picture at 144 dpi. The text is not editable in the deck.',
+    options: [{ key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' }], run: async (files, o) => {
+      const f = files[0];
+      return [{ name: `${base(f.name)}.pptx`, blob: await pdfToPptx(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages }) }];
     } },
   { id: 'merge-pdf', label: 'Merge PDFs', group: 'PDF', from: ['pdf'], mode: 'combine', options: [], run: async (files) => {
     const bytes = await mergePdfs(await Promise.all(files.map(async (f) => new Uint8Array(await f.file.arrayBuffer()))));
