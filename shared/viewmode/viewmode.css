@@ -2,7 +2,7 @@
  * The controls are a fixed slot at the end of the host toolbar: order keeps it last (after any item another script appends,
  * such as the shell's Apps button or the Drive link), and the fixed widths keep it in the same place in every mode and
  * when the label changes. The reveal button keeps its space in Full too (visibility, not display), so nothing shifts. */
-.slopvm-bar { display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; height: 26px; margin-left: auto; flex: none; order: 999; }
+.slopvm-bar { display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; margin-left: auto; flex: none; order: 999; }
 .slopvm-btn, .slopvm-reveal {
   font: inherit; font-size: 12px; line-height: 1.2; margin: 0; padding: 2px 8px; white-space: nowrap; cursor: pointer;
   border: 1px solid var(--sl-border, #8886); border-radius: 4px;

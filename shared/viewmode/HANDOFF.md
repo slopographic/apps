@@ -16,7 +16,7 @@ button in the top bar. Load order on a page: `router.js` is independent; `viewmo
 - In Focus and Content, move the pointer to a region's window edge (6 px: top for toolbars, left for sidebars, right
   or bottom for panels, unless the app names another edge) and the region comes back. It hides again 0.7 s after the
   pointer leaves it.
-- The controls are in the app's own toolbar (the `mount` element), never over the page: the mode button, and in Focus and
+- The controls are in a fixed slot at the end of the app's own toolbar (the `mount` element; CSS `order` keeps it last, after any item another script appends, and fixed widths keep it in one place in every mode), never over the page: the mode button, and in Focus and
   Content a "Show panels" button (Ctrl+Shift+L toggles the same thing). A toolbar that is hidden stays on screen as a strip
   that holds only those controls, so there is always a visible way back.
 - Escape returns to Full (not while a dialog is open or a text field has focus).

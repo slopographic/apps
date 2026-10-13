@@ -83,11 +83,13 @@
   describe('files that are not PDFs or images go to the Convert dialog', () => {
     const cvtDialog = () => doc().querySelector('.sl-cvt-dlg');
     const cvtText = () => (cvtDialog() ? cvtDialog().textContent : '');
+    const converterReady = () => waitFor(() => PT.win.SlopConvert, { timeout: 30000 }); // a module: loads after the page
     const toastText = () => (doc().querySelector('.sui-toast') || {}).textContent || '';
     const SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="60"><rect width="120" height="60" fill="#c33"/></svg>';
 
     it('an XLSX drop opens the converter with the file, which says it cannot become a PDF; nothing is added', async () => {
       if (!PT.SP) await PT.boot();
+      await converterReady();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'base4.pdf');
       drop([file('budget.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', new PT.win.Uint8Array([80, 75, 3, 4, 0, 0]))]);
@@ -101,6 +103,7 @@
 
     it('an HTML drop opens the converter with the file, and a text or CSV drop opens it too', async () => {
       if (!PT.SP) await PT.boot();
+      await converterReady();
       PT.reset();
       drop([file('page.html', 'text/html', new PT.win.TextEncoder().encode('<p>hi</p>'))]);
       await waitFor(() => cvtDialog() && cvtText().includes('page.html'), { timeout: 30000 });
@@ -117,6 +120,7 @@
 
     it('an SVG drop opens the converter set to PDF; converting it opens the PDF in a new tab and closes the converter', async () => {
       if (!PT.SP) await PT.boot();
+      await converterReady();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'base5.pdf');
       const before = openTabs();
@@ -133,6 +137,7 @@
 
     it('a mixed drop opens the PDF and sends the other file to the converter', async () => {
       if (!PT.SP) await PT.boot();
+      await converterReady();
       PT.reset();
       drop([file('ok.pdf', 'application/pdf', await PT.makePdf([{ text: 'x' }])), file('notes.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', new PT.win.Uint8Array([80, 75, 3, 4, 0, 0]))]);
       await waitFor(() => PT.E.state.pages.length === 1 && cvtDialog() && cvtText().includes('notes.docx'), { timeout: 30000 });
