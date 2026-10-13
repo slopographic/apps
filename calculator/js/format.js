@@ -28,7 +28,7 @@
   }
 
   function fmtQuantity(q) {
-    if (q.dim === 'time') return fmtDuration(units.toBase('time', q.unit, q.v));
+    if (q.dim === 'time' && (q.unit === 'min' || q.unit === 'h')) return fmtDuration(units.toBase('time', q.unit, q.v));
     if (q.dim === 'currency') return `${fmtMoney(q.v)} ${q.unit}`;
     const label = (units.lookup(q.unit) || { label: q.unit }).label;
     if (q.dim === 'calendar') {

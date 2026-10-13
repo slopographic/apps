@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const JS = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'calculator', 'js');
-export const CALC_FILES = ['lexer.js', 'units.js', 'dates.js', 'parser.js', 'evaluate.js', 'format.js', 'calc.js'];
+export const CALC_FILES = ['lexer.js', 'exact.js', 'units.js', 'dates.js', 'parser.js', 'evaluate.js', 'format.js', 'calc.js'];
 
 /** Returns window.SlopCalc from a fresh context. */
 export async function loadCalc() {

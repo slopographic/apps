@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Slop Convert: SEO pages, sitemap, robots</title></head>
+<head><meta charset="utf-8"><title>File convert: SEO pages, sitemap, robots</title></head>
 <body>
 <script src="../harness.js"></script>
 <script type="module">
@@ -52,7 +52,7 @@ describe('each converter page', () => {
       const ld = [...doc.querySelectorAll('script[type="application/ld+json"]')].map((s) => JSON.parse(s.textContent));
       expect(ld.some((o) => o['@type'] === 'SoftwareApplication' && o.url === pageUrl(p.slug))).toBeTruthy();
       expect(doc.querySelector('[data-convert-root]')).toBeTruthy();
-      if (p.conv !== 'units') expect(doc.querySelector('[data-convert-root]').dataset.preset).toBe(p.conv);
+      expect(doc.querySelector('[data-convert-root]').dataset.preset).toBe(p.conv);
       expect(html).toContain('Your files stay on this device');
       expect(html).toContain('../../convert/js/ui/mount.js');
     });
@@ -64,11 +64,11 @@ describe('the hub', () => {
     const doc = parse(await text('../../convert/index.html'));
     expect(doc.querySelectorAll('h1').length).toBe(1);
     expect(doc.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(`${SITE}/convert/`);
-    expect(doc.querySelectorAll('[data-convert-root]').length).toBe(2);
+    expect(doc.querySelectorAll('[data-convert-root]').length).toBe(1);
   });
 });
 
-SlopTest.run({ name: 'Slop Convert: SEO' });
+SlopTest.run({ name: 'File convert: SEO' });
 </script>
 </body>
 </html>

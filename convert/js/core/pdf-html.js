@@ -71,7 +71,7 @@ export async function pdfToHtml(bytes, { pages = '', title = 'Document' } = {}) 
   try {
     const sections = [];
     for (const n of parseRange(pages, doc.numPages)) sections.push(await pageSection(await doc.getPage(n), n, lib));
-    return `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<meta name="generator" content="Slop Convert">\n<title>${esc(title)}</title>\n<style>\n${STYLE}\n</style>\n</head>\n<body>\n<main>\n${sections.join('\n')}\n</main>\n</body>\n</html>\n`;
+    return `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<meta name="generator" content="File convert">\n<title>${esc(title)}</title>\n<style>\n${STYLE}\n</style>\n</head>\n<body>\n<main>\n${sections.join('\n')}\n</main>\n</body>\n</html>\n`;
   } finally {
     await doc.destroy();
   }
