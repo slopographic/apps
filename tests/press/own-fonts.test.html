@@ -46,7 +46,7 @@
       expect(bytes.byteLength).toBe(file.byteLength);
       // the PDF embeds the file (a subset of it, under its PostScript name), not a standard font
       const pdf = asText(await PR.pdf.export({}));
-      expect(/\/FontFile2/.test(pdf) && /\+Barlow-Regular/.test(pdf)).toBe(true);
+      if (!(/\/FontFile2/.test(pdf) && /\+Barlow-Regular/.test(pdf))) throw new Error('PDF: ' + pdf.length + ' ' + (pdf.match(/\/BaseFont[^\n]{0,60}/g) || []).join(' | ') + ' ' + (pdf.match(/\/FontFile\d?/g) || []).join(','));
       // kept with the document: a fresh page that opens the saved copy registers the font again
       const saved = JSON.stringify({ fonts: S.doc.fonts, assets: S.doc.assets });
       S.dirty = false; // the page is left on purpose: no unsaved-changes prompt
@@ -68,7 +68,7 @@
       input.files = dt.files;
       input.dispatchEvent(new W.Event('change'));
       await waitFor(() => rowOf(W, 'Gill Sans').textContent.includes('WOFF fonts cannot be used in Slop Press'), { timeout: 10000 });
-      expect(S.doc.fonts).toBe(undefined);
+      expect((S.doc.fonts || []).length).toBe(0);
       expect(hasOption(W, 'Gill Sans')).toBe(false);
     });
   });
