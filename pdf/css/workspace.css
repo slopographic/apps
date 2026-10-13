@@ -28,6 +28,7 @@
 .ea-shine { fill: none; stroke: #fff; stroke-width: 2.4; stroke-linecap: round; }
 .drop-card h1 { margin: 0 0 8px; font: 800 clamp(26px, 5vw, 38px)/1.05 var(--font-display); letter-spacing: -.02em; }
 .drop-card p { margin: 0 auto 20px; max-width: 460px; color: var(--dim); font-size: 14px; line-height: 1.5; }
+.pdf-drop { width: min(460px, 100%); margin: 0 auto 18px; }
 .empty-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .restore { margin-top: 12px; }
 .empty-privacy { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 18px 0 0 !important; font-size: 12px !important; color: var(--faint) !important; }
@@ -116,11 +117,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 @keyframes indet { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
 .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid var(--line-2); border-top-color: var(--lime); animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.drop-overlay { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; background: rgba(10, 10, 10, .55); backdrop-filter: blur(3px); pointer-events: none; }
-.drop-overlay > div { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 36px 48px; border: 3px dashed var(--lime); border-radius: 24px; background: color-mix(in srgb, var(--panel) 88%, transparent); color: var(--fg); }
-.drop-overlay .ic { width: 36px; height: 36px; color: var(--lime); }
-.drop-overlay b { font: 800 22px var(--font-display); }
-.drop-overlay span { color: var(--dim); }
 
 .tz { display: inline-flex; align-items: center; gap: 8px; }
 .tz-range { width: 140px; height: 18px; margin: 0; accent-color: var(--accent-line); cursor: pointer; }

@@ -18,12 +18,17 @@
     $('em-v-html').addEventListener('click', () => window.EmlApp.setView('html'));
     $('em-v-text').addEventListener('click', () => window.EmlApp.setView('text'));
     $('em-cid').addEventListener('click', () => window.EmlApp.toggleCids());
-    /* Drop an .eml file anywhere on the page (SlopDrop: refusals say why). Several files are opened in turn. */
+    /* .eml files dropped on the strip or the message area open in turn (SlopDrop: refusals say why). A file that is already
+       open is not opened again. */
     window.SlopDrop.attach($('em-drop'), {
       accept: { types: ['message/rfc822'], exts: ['.eml'], noun: 'an email file (.eml)' },
-      targets: [document.body],
+      targets: [$('em-drop'), $('em-main')],
       compact: true,
-      process: async (file) => { await window.EmlApp.openFile(file); return file.name; },
+      process: async (file) => {
+        if (window.EmlApp.isOpen(file.name, file.size)) throw new Error('is already open');
+        await window.EmlApp.openFile(file);
+        return file.name;
+      },
     });
   }
 

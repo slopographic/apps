@@ -91,6 +91,10 @@
   }
 
   /** Opens a file in a new tab. A file already open from the same Drive record is shown instead. */
+  /** Is a file of this name and size open in a tab? (A drop of the same file again is not opened twice.) */
+  function isOpen(file) {
+    return !!(tabs().api() && tabs().api().tabs().some((t) => t.doc && t.doc.name === file.name && t.doc.size === file.size));
+  }
   async function openBlob(blob, { name = 'untitled.bin', driveId = null, version = 1 } = {}) {
     if (driveId && tabs().api()) {
       const open = tabs().api().tabs().find((t) => t.driveId === driveId);
@@ -208,7 +212,7 @@
   }
 
   window.HexApp = {
-    app, status, refresh, changed, openBlob, pickComputer, pickDrive, saveVersion, saveAs, download, copySel,
+    app, status, refresh, changed, isOpen, openBlob, pickComputer, pickDrive, saveVersion, saveAs, download, copySel,
     gotoOffset, find, undo, redo, computeSha, selRange, versionName, activate, deactivate,
     doc: () => app.doc, grid: () => app.grid,
   };

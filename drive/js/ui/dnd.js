@@ -74,25 +74,30 @@
   // Files and folders go to the folder under the pointer (or the open folder). SlopDrop (shared/drop) takes the drop,
   // shows the progress strip above the pane, and uploads each file; a lone Slop backup opens in Backup & restore.
   DR.wireDropUpload = function () {
-    let hover = null; // the data-drop target under the pointer at the last dragover (the drop reads it)
     const hasFiles = (e) => e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files');
+    const isFolder = (t) => t && t.dataset.drop !== 'trash' && t.dataset.drop !== 'star';
+    // The folder under the pointer lights up while files are dragged over it (the drop lands on the same element).
     addEventListener('dragover', (e) => {
       if (!hasFiles(e)) return;
       document.querySelectorAll('.drop').forEach((n) => n.classList.remove('drop'));
-      const d = document.elementFromPoint(e.clientX, e.clientY);
-      const t = d && d.closest('[data-drop]');
-      hover = t && t.dataset.drop !== 'trash' && t.dataset.drop !== 'star' ? t : null;
-      if (hover) hover.classList.add('drop');
+      const d = document.elementFromPoint(e.clientX, e.clientY), t = d && d.closest('[data-drop]');
+      if (isFolder(t)) t.classList.add('drop');
     });
+    // The folder a drop lands in: the data-drop element it was dropped on, else the open folder.
+    const dropDest = (e) => {
+      const t = e && e.target && e.target.closest ? e.target.closest('[data-drop]') : null;
+      if (!isFolder(t)) return DR.dest();
+      return t.dataset.drop === 'root' ? null : t.dataset.drop;
+    };
     let batchDest = null;
-    const dest = () => (hover ? (hover.dataset.drop === 'root' ? null : hover.dataset.drop) : DR.dest());
+    // SlopDrop (shared/drop): the zone is the strip above the pane; the drops are taken by the pane and the tree.
     window.SlopDrop.attach(document.getElementById('drvDrop'), {
       accept: { any: true, allowEmpty: true, noun: 'a file' },
       compact: true,
-      targets: [document.body],
-      files: async (dt) => {
+      targets: [document.getElementById('main'), document.getElementById('tree')],
+      files: async (dt, e) => {
         document.querySelectorAll('.drop').forEach((n) => n.classList.remove('drop'));
-        batchDest = dest();
+        batchDest = dropDest(e);
         const list = await DR.readDrop(dt);
         if (DR.isPvTarget(batchDest)) { await DR.uploadToProvider(list, batchDest); return []; }
         if (list.length === 1 && /\.slop$/i.test(list[0].file.name)) {
