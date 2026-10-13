@@ -63,6 +63,21 @@
     input.dispatchEvent(ev('change'));
   }
   const rows = () => qa('#wm-list .wm-row');
+  /** A group's row in the groups list, and a control inside it (by its data-f name). */
+  const groupRow = (kind) => q('#wm-group-list .wm-group[data-kind="' + kind + '"]');
+  const groupCtl = (kind, f) => groupRow(kind).querySelector('[data-f="' + f + '"]');
+  /** Sets a control the way a person does (value, then input and change), by element. */
+  function setEl(el, value) {
+    if (el.type === 'checkbox') el.checked = value; else el.value = value;
+    el.dispatchEvent(ev('input')); el.dispatchEvent(ev('change'));
+  }
+  /** Each finished output by its name, as bytes. */
+  async function outputs() {
+    const out = {};
+    for (const x of W().WMItems.all()) out[x.name] = new Uint8Array(await x.out.blob.arrayBuffer());
+    return out;
+  }
+  const sameBytes = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
   const snap = () => { const c = q('#wm-preview'); return c.getContext('2d').getImageData(0, 0, c.width, c.height).data.slice(); };
   /** How many bytes differ between two snapshots (same size, else every byte counts). */
   function differs(a, b) {
@@ -196,6 +211,74 @@
       await waitFor(() => q('#wm-logo-name').textContent === 'brand.png', { timeout: 10000 });
       expect(!!W().WMSettings.logo()).toBe(true);
       expect(q('#wm-saved').textContent).toBe('Saved on this device, with the logo.');
+    });
+
+    it('pictures are sorted into shape groups, each listed with a thumbnail, count and size range', async () => {
+      await open();
+      drop([await picture('p1.png', 'image/png', 120, 160, 30), await picture('l1.jpg', 'image/jpeg', 240, 160, 60),
+        await picture('s1.png', 'image/png', 200, 200, 90), await picture('p2.jpg', 'image/jpeg', 300, 400, 30)]);
+      await waitFor(() => rows().length === 4, { timeout: 20000 });
+      expect(q('#wm-groups').hidden).toBe(false);
+      expect(qa('#wm-group-list .wm-group').length).toBe(3);
+      expect(groupRow('portrait').querySelector('.wm-gname').textContent).toBe('Portrait, 2 pictures, 120 to 300 px');
+      expect(groupRow('landscape').querySelector('.wm-gname').textContent).toBe('Landscape, 1 picture, 160 px');
+      expect(groupRow('square').querySelector('.wm-gname').textContent).toBe('Square, 1 picture, 200 px');
+      expect(groupRow('portrait').querySelector('.wm-thumb').src.startsWith('blob:')).toBe(true);
+    });
+
+    it('a group setting is off until it is turned on, and turning it on starts from the shared setup', async () => {
+      await open();
+      drop([await picture('p1.png', 'image/png', 120, 160, 30)]);
+      await waitFor(() => rows().length === 1, { timeout: 20000 });
+      expect(groupCtl('portrait', 'on').checked).toBe(false);
+      expect(groupCtl('portrait', 'position').disabled).toBe(true);
+      setEl(groupCtl('portrait', 'on'), true);
+      expect(groupCtl('portrait', 'position').disabled).toBe(false);
+      expect(groupCtl('portrait', 'position').value).toBe(W().WMSettings.cfg().position);
+      setEl(groupCtl('portrait', 'on'), false);
+      expect(W().WMSettings.group('portrait').on).toBe(false);
+    });
+
+    it('an override changes the output of its own group only', async () => {
+      await open();
+      drop([await picture('p1.png', 'image/png', 120, 160, 30), await picture('p2.jpg', 'image/jpeg', 300, 400, 30),
+        await picture('l1.jpg', 'image/jpeg', 240, 160, 60)]);
+      await waitFor(() => rows().length === 3, { timeout: 20000 });
+      await applyAll();
+      const before = await outputs();
+      setEl(groupCtl('portrait', 'on'), true);
+      setEl(groupCtl('portrait', 'position'), 'tl');
+      setEl(groupCtl('portrait', 'opacity'), 100);
+      await applyAll();
+      const after = await outputs();
+      expect(sameBytes(before['p1-watermarked.png'], after['p1-watermarked.png'])).toBe(false);
+      expect(sameBytes(before['p2-watermarked.jpg'], after['p2-watermarked.jpg'])).toBe(false);
+      expect(sameBytes(before['l1-watermarked.jpg'], after['l1-watermarked.jpg'])).toBe(true);
+    });
+
+    it('with no group settings, every group is drawn with the shared setup', async () => {
+      await open();
+      drop([await picture('p1.png', 'image/png', 120, 160, 30), await picture('l1.jpg', 'image/jpeg', 240, 160, 60)]);
+      await waitFor(() => rows().length === 2, { timeout: 20000 });
+      set('wm-rotate', 10);
+      await applyAll();
+      for (const x of W().WMItems.all()) {
+        const r = await W().WMRender.renderItem(x, W().WMSettings.cfg(), null);
+        expect(sameBytes(new Uint8Array(await r.blob.arrayBuffer()), new Uint8Array(await x.out.blob.arrayBuffer()))).toBe(true);
+      }
+    });
+
+    it('group settings are saved with the setup and come back on the next visit', async () => {
+      await open();
+      drop([await picture('p1.png', 'image/png', 120, 160, 30)]);
+      await waitFor(() => rows().length === 1, { timeout: 20000 });
+      setEl(groupCtl('portrait', 'on'), true);
+      setEl(groupCtl('portrait', 'position'), 'tl');
+      await waitFor(() => { const s = localStorage.getItem(KEY); return s && JSON.parse(s).data.groups && JSON.parse(s).data.groups.portrait; }, { timeout: 5000 });
+      await open({ fresh: false });
+      await waitFor(() => W().WMSettings.group('portrait').on === true, { timeout: 5000 });
+      expect(W().WMSettings.group('portrait').position).toBe('tl');
+      expect(W().WMSettings.group('landscape').on).toBe(false);
     });
   });
   run({ name: 'Slop Watermark' });

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slop Watermark shape groups tests</title>
+</head>
+<body>
+  <!-- Pure functions of watermark/js/groups.js: the shape thresholds, grouping a mixed set, and the per-group override. -->
+  <script src="../../shared/watermark/core.js"></script>
+  <script src="../../watermark/js/groups.js"></script>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, run } = SlopTest;
+  const G = window.WMGroups;
+  const cfg = window.SlopWatermark.defaults();
+  /** A picture as the page keeps it: its size and its group. */
+  const pic = (w, h) => ({ w, h, group: G.classify(w, h) });
+
+  describe('Shape thresholds', () => {
+    it('a picture within 10 percent of square is a square, including exactly 10 percent', () => {
+      expect(G.classify(1000, 1000)).toBe('square');
+      expect(G.classify(1000, 1100)).toBe('square');
+      expect(G.classify(1100, 1000)).toBe('square');
+      expect(G.classify(1200, 1200)).toBe('square');
+    });
+    it('a side more than 10 percent longer makes the picture portrait or landscape', () => {
+      expect(G.classify(1000, 1101)).toBe('portrait');
+      expect(G.classify(1101, 1000)).toBe('landscape');
+      expect(G.classify(3000, 4000)).toBe('portrait');
+      expect(G.classify(4000, 3000)).toBe('landscape');
+    });
+    it('a width-to-height ratio above 2.2 or below 0.45 is a panorama, whatever the shape', () => {
+      expect(G.classify(2300, 1000)).toBe('panorama');
+      expect(G.classify(2200, 1000)).toBe('landscape');
+      expect(G.classify(1000, 2250)).toBe('panorama');
+      expect(G.classify(1000, 2200)).toBe('portrait');
+    });
+    it('a picture with no size is a square, so the thresholds never divide by zero', () => {
+      expect(G.classify(0, 0)).toBe('square');
+      expect(G.classify(500, 0)).toBe('square');
+    });
+    it('the thresholds are one constant with the values the spec asks for', () => {
+      expect(G.THRESHOLDS).toEqual({ tol: 0.10, panoramaMax: 2.2, panoramaMin: 0.45 });
+    });
+  });
+
+  describe('Grouping a mixed set', () => {
+    it('a mixed set makes four groups in order, with counts and the size range of the shorter side', () => {
+      const items = [pic(1200, 1600), pic(4000, 3000), pic(3000, 800), pic(2000, 2000), pic(3000, 4000), pic(1600, 1200), pic(5000, 2000)];
+      const groups = G.summarise(items);
+      expect(groups.map((g) => g.kind)).toEqual(['portrait', 'landscape', 'square', 'panorama']);
+      expect(groups.map((g) => g.text)).toEqual([
+        'Portrait, 2 pictures, 1200 to 3000 px',
+        'Landscape, 2 pictures, 1200 to 3000 px',
+        'Square, 1 picture, 2000 px',
+        'Panorama, 2 pictures, 800 to 2000 px',
+      ]);
+      expect(groups[0].first).toBe(items[0]);
+    });
+    it('a group with no pictures is not listed, and nothing is listed for an empty set', () => {
+      expect(G.summarise([pic(900, 600)]).map((g) => g.kind)).toEqual(['landscape']);
+      expect(G.summarise([])).toEqual([]);
+    });
+  });
+
+  describe('Per-group override', () => {
+    const shared = Object.assign({}, cfg, { position: 'tc', opacity: 0.4 });
+    it('an override that is on changes only the position, opacity and size of its own group', () => {
+      const ov = Object.assign(G.overrideFrom(shared), { on: true, position: 'tl', opacity: 0.9, size: 0.1 });
+      const portrait = G.applyOverride(shared, ov);
+      expect(portrait.position).toBe('tl');
+      expect(portrait.opacity).toBe(0.9);
+      expect(portrait.size).toBe(0.1);
+      expect(portrait.margin).toBe(shared.margin);
+      expect(portrait.colour).toBe(shared.colour);
+      const landscape = G.applyOverride(shared, undefined);
+      expect(landscape).toBe(shared);
+    });
+    it('an override that is off changes nothing', () => {
+      const off = Object.assign(G.overrideFrom(shared), { position: 'tl', opacity: 0.9 });
+      expect(G.applyOverride(shared, off)).toBe(shared);
+    });
+    it('a logo override sets the logo scale, and a text override sets the text size', () => {
+      const logo = Object.assign({}, shared, { kind: 'logo' });
+      const ov = Object.assign(G.overrideFrom(logo), { on: true, logoScale: 0.3, size: 0.02 });
+      expect(G.applyOverride(logo, ov).logoScale).toBe(0.3);
+      expect(G.applyOverride(logo, ov).size).toBe(0.02);
+      const text = Object.assign({}, shared, { kind: 'text' });
+      const tv = Object.assign(G.overrideFrom(text), { on: true, logoScale: 0.3, size: 0.07 });
+      expect(G.applyOverride(text, tv).size).toBe(0.07);
+      expect(G.applyOverride(text, tv).logoScale).toBe(shared.logoScale);
+    });
+    it('a saved override is kept only when it is on, and a bad field falls back to the shared setup', () => {
+      expect(G.clean(null, shared)).toBe(null);
+      expect(G.clean({ on: false, position: 'tl' }, shared)).toBe(null);
+      const bad = G.clean({ on: true, position: 'zz', opacity: 5, size: 'x' }, shared);
+      expect(bad.position).toBe('tc');
+      expect(bad.opacity).toBe(1);
+      expect(bad.size).toBe(shared.size);
+    });
+  });
+
+  describe('The shared setting applies to every group', () => {
+    const shared = Object.assign({}, cfg, { position: 'tc', opacity: 0.2, rotate: 15 });
+    it('with no overrides every group is drawn with the shared setup', () => {
+      for (const kind of G.KINDS) {
+        expect(G.applyOverride(shared, undefined)).toBe(shared);
+        expect(G.applyOverride(shared, { on: false, position: 'tl' })).toBe(shared);
+      }
+      expect(G.summarise([pic(900, 600), pic(600, 900), pic(900, 900)]).map((g) => G.applyOverride(shared, undefined).position)).toEqual(['tc', 'tc', 'tc']);
+    });
+    it('a change to the shared setup reaches every group that has no override of its own', () => {
+      const moved = Object.assign({}, shared, { opacity: 0.8 });
+      const ov = Object.assign(G.overrideFrom(shared), { on: true, opacity: 0.1 });
+      expect(G.applyOverride(moved, undefined).opacity).toBe(0.8);
+      expect(G.applyOverride(moved, ov).opacity).toBe(0.1);
+      expect(G.applyOverride(moved, ov).rotate).toBe(15);
+    });
+  });
+  run({ name: 'Slop Watermark shape groups' });
+  </script>
+</body>
+</html>
