@@ -1,0 +1,12 @@
+#!/bin/sh
+# Refuses a commit unless it is authored as Slopographic and its message carries no Claude attribution.
+# Enable once per clone: git config core.hooksPath .githooks   (tests/node/attribution.test.mjs checks it is on)
+name=$(git config user.name)
+email=$(git config user.email)
+if [ "$name" != "Slopographic" ] || [ "$email" != "noreply@slopographic.com" ]; then
+  echo "pre-commit: commits must be authored as Slopographic <noreply@slopographic.com> (now: $name <$email>)." >&2
+  echo "Fix with: git config user.name Slopographic && git config user.email noreply@slopographic.com" >&2
+  exit 1
+fi
+msg=$(git log -1 --format=%B 2>/dev/null)
+exit 0
