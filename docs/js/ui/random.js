@@ -6,7 +6,6 @@
   'use strict';
   const S = window.SlopDocs;
   const E = () => window.SlopDocEngine;
-  const THUMB = 220;                      // preview width in px
   const toast = (m) => { if (window.SlopUI) SlopUI.toast(m); };
   const el = (tag, attrs = {}, kids = []) => {
     const n = document.createElement(tag);
@@ -15,6 +14,7 @@
     return n;
   };
   let cur = null;   // { seed, vars, doc } for the open dialog
+  const PREVIEW_W = 300, PREVIEW_H = 400;  // the preview box in px: pages of any shape fit inside it
   let view = null;  // { seedIn, thumb, info, pg } while the dialog is open
   let run = 0;      // a late preview never overwrites a newer one
 
@@ -33,7 +33,9 @@
     if (!view || mine !== run) return;
     const pg = E().layoutDoc(doc).pages[0];
     view.pg = pg;
-    view.thumb.replaceChildren(S.R.pageEl(pg, 0, THUMB / pg.w));
+    // Fit the page into a fixed box, so the dialog keeps its size for every paper size and orientation.
+    const scale = Math.min(PREVIEW_W / pg.w, PREVIEW_H / pg.h);
+    view.thumb.replaceChildren(S.R.pageEl(pg, 0, scale));
   }
   function regenerate(seed) {
     cur = E().TPL.generateTemplate(seed);
