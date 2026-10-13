@@ -12,6 +12,7 @@
 
   describe('sidebar dock', () => {
     it('Layers starts open, History starts collapsed, and the header toggles each', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'dock1.pdf');
       expect(doc().querySelector('#props .pp-dock')).toBeTruthy();
@@ -28,6 +29,7 @@
     }, { timeout: 60000 });
 
     it('the dock stays under the tool panel when the tool changes', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       PT.A.setTool('metadata');
       expect(doc().querySelector('#props .pp-main .pp-title h2').textContent).toBe('Metadata');
@@ -37,6 +39,7 @@
     }, { timeout: 30000 });
 
     it('History lists each step, and a click on a step goes back to the document as it was after it', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       const E = PT.E;
       await PT.open(await PT.makePdf([{ text: 'a' }, { text: 'b' }]), 'dock2.pdf');
@@ -64,6 +67,7 @@
     }, { timeout: 60000 });
 
     it('History is empty without a document, and the step count shows in its header', async () => {
+      if (!PT.SP) await PT.boot();
       PT.reset();
       header('history').click();
       expect(doc().querySelector('#dock-history').textContent).toContain('Open a PDF');
