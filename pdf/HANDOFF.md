@@ -325,17 +325,17 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   originals. The offline file has no Drive, so none of this runs there.
 - Tests: `tests/pdf/pdf.spec-drive-docs.js`.
 
-## Fonts (`ui/fonts-dialog.js`)
-- File ▸ Fonts…, the top-bar "Aa" button and the command palette ("Fonts…"). It reopens any time.
-- Lists the families the open file embeds (`S.scanFonts`, from `editor/font-check.js`), one row each, with a status:
-  **Embedded** (the whole font is in the file), **Available** (the device has the family, it is a standard font, or a
-  closest font was chosen), **Missing** (a subset whose family this device lacks).
-- Missing rows offer **Download** (only when `shared/library` lists the family: it opens the Get more confirmation, nothing
-  downloads before), **Drop your own** (TTF, OTF or WOFF, stored on this device through `SlopFontCatalog.addUserFile`) and
-  **Use closest font** (the bundled family from `SlopFontCatalog.closestFamily`, kept as `f.fontMap`).
-- The answers are shared with the first-edit prompt: `check()` skips a family that already has an answer, and still asks
-  for any missing family that has none.
-- Limit: only fonts the file embeds are listed. A font that is not embedded has no file for pdf.js to give.
+## Fonts (`ui/fonts.js`, the shared panel)
+- File ▸ Fonts…, the top-bar "Aa" button and the command palette ("Fonts…"). It opens the shared Fonts panel
+  (`shared/fonts/panel.js`, `SlopFonts.openPanel`) and can be reopened at any time.
+- The panel is given the families the open file embeds as a subset, and the standard ones. A family in the file as a
+  full embed needs no answer and is not listed. If nothing is listed, a notice says the document has no subset fonts.
+- The panel shows each family's status: built in (a standard name), bundled, downloaded, your own file, or missing.
+  A missing family offers Download from the library (only when `shared/library` lists it; nothing downloads before the
+  confirmation), Drop your own font… (stored on this device), and Use the closest font instead.
+- A closest font chosen there is kept on each open file that uses the family (`f.fontMap`). The first-edit prompt
+  (`editor/font-check.js`, through `SlopFontCheck.ask`, now a shim over the same panel) skips a family that has an answer and
+  still asks for any missing family that has none.
 - Tests: `tests/pdf/pdf.spec-fonts-dialog.js`.
 
 ## Export as (`ui/export-menu.js`, `shared/convert/pdf-office.js`, `pdf-pptx.js`, `pdf-layout.js`)
@@ -350,9 +350,10 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   formats or images.
 - **PDF to PowerPoint (PPTX)**: one slide per page, the page drawn as a picture at 144 dpi, fitted to 16:9. The text is not
   editable in the deck. Not yet checked in Microsoft PowerPoint.
-- **Limit**: pdf.js joins text on one baseline into a single item unless the font changes, so a table whose cells share a
-  font and baseline can come out as one cell ("Item Qty Price"). Cells split by a font change or a separate text object are
-  split by the gap rule. The converters cannot see the gap inside a joined item.
+- **Limit (documented)**: pdf.js joins text on one baseline into a single item (the vendored pdf.js 5.7 has no option to stop
+  this). The gap rule only splits cells that pdf.js gives as separate items. So a table row whose cells share a baseline and
+  font comes out as one cell ("Item Qty Price"), and tables are recognised only where the cells are positioned apart. The
+  table logic is tested on lines with separate cells (`tests/pdf/pdf.spec-office.js`).
 - **PDF to text** reads through the same `pdf-layout.js`.
 - Each target's fidelity is its `note`, shown in the dialog.
 - Tests: `tests/pdf/pdf.spec-office.js`.

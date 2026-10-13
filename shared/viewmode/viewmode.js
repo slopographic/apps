@@ -42,7 +42,8 @@
   const el = (sel) => (typeof sel === 'string' ? safe(() => doc.querySelector(sel), null) : sel || null);
 
   /** Put the classes on every region for the current mode, and label every mode button. */
-  function paint() {
+  /** notify: a mode change tells the app to re-measure; a registration does not (an app may not have its data yet). */
+  function paint(notify) {
     for (const r of regions()) {
       const wanted = (apps.get(r.app).hides[mode] || []).includes(r.name);
       r.off = wanted && !(r.peek || peekAll);
@@ -52,14 +53,14 @@
     for (const e of apps.values()) for (const b of e.buttons) b.querySelector('.slopvm-txt').textContent = 'View: ' + LABEL[mode];
     if (doc.documentElement) doc.documentElement.dataset.slopvm = mode;
     // A changed layout needs a re-measure: apps listen for resize (canvases, editors, grids).
-    if (win.requestAnimationFrame) win.requestAnimationFrame(() => win.dispatchEvent(new Event('resize')));
+    if (notify && win.requestAnimationFrame) win.requestAnimationFrame(() => win.dispatchEvent(new Event('resize')));
   }
   function setMode(next) {
     if (!MODES.includes(next) || next === mode) return mode;
     mode = next; peekAll = false;
     for (const r of regions()) r.peek = false;
     store.set(KEY, mode);
-    paint();
+    paint(true);
     return mode;
   }
   const cycle = () => setMode(MODES[(MODES.indexOf(mode) + 1) % MODES.length]);
@@ -81,7 +82,7 @@
       if (r.off && inZone(r, e.clientX, e.clientY)) { r.peek = true; r.lastIn = now; changed = true; }
       else if (r.peek && (r.el.contains(e.target) || inZone(r, e.clientX, e.clientY))) r.lastIn = now;
     }
-    if (changed) paint();
+    if (changed) paint(true);
     if (regions().some((r) => r.peek)) startSweep();
   }
   /** Hide a peeked region again once the pointer has been away from it for LEAVE_MS. */
@@ -90,7 +91,7 @@
     sweep = win.setInterval(() => {
       const now = Date.now(); let changed = false;
       for (const r of regions()) if (r.peek && now - r.lastIn > LEAVE_MS) { r.peek = false; changed = true; }
-      if (changed) paint();
+      if (changed) paint(true);
       if (!regions().some((r) => r.peek)) { win.clearInterval(sweep); sweep = null; }
     }, 200);
   }
@@ -98,7 +99,7 @@
     if (!(e.ctrlKey || e.metaKey) || !e.shiftKey || e.altKey) return;
     const k = String(e.key || '').toLowerCase();
     if (k === 'f') { e.preventDefault(); e.stopImmediatePropagation(); cycle(); }
-    else if (k === 'l') { e.preventDefault(); e.stopImmediatePropagation(); peekAll = !peekAll; paint(); }
+    else if (k === 'l') { e.preventDefault(); e.stopImmediatePropagation(); peekAll = !peekAll; paint(true); }
   }
 
   /** Put the saved layout back into the app. A bad saved value is ignored. */

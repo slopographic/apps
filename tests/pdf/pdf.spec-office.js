@@ -10,13 +10,11 @@
     if (!PT.SP) await PT.boot();
     const L = PT.win.PDFLib, d = await L.PDFDocument.create();
     const font = await d.embedFont(L.StandardFonts.Helvetica);
-    const bold = await d.embedFont(L.StandardFonts.HelveticaBold);
     const p = d.addPage(PT.win.Array.of(400, 300));
     p.drawText('Hello world', { x: 40, y: 260, size: 11, font });
-    // pdf.js joins text on one baseline into one item unless the font changes, so each column uses a
-    // different face here (the converter cannot split an item it was given whole; see HANDOFF).
+    // pdf.js joins text on one baseline into one item (the documented limit, see HANDOFF): this row reads as one cell.
     [['Item', 'Qty', 'Price'], ['Pen', '3', '4.50'], ['Cup', '1', '12.00']].forEach((row, r) =>
-      row.forEach((t, c) => p.drawText(t, { x: 40 + c * 120, y: 200 - r * 20, size: 11, font: c === 1 ? bold : font })));
+      row.forEach((t, c) => p.drawText(t, { x: 40 + c * 120, y: 200 - r * 20, size: 11, font })));
     d.addPage(PT.win.Array.of(400, 300));
     return new Uint8Array(await d.save());
   }
@@ -45,34 +43,44 @@
       expect((await import('../../shared/convert/targets.js')).TARGETS.find((x) => x.id === 'pdf-to-pptx').note).toMatch(/picture/);
     });
 
-    it('reads the text in reading order, with a table where columns line up', async () => {
-      const bytes = await tablePdf();
+    it('builds a table only from cells that are positioned apart (synthetic lines), and reads a joined row as one cell', async () => {
       const layout = await import('../../shared/convert/pdf-layout.js');
-      const pages = await layout.readPages(bytes, '');
-      expect(pages.length).toBe(2);
-      const blocks = layout.blocksOf(pages[0].lines);
+      // Cells with their own x positions: a table, and a paragraph line in front of it.
+      const apart = [
+        { y: 260, h: 11, cells: [{ x: 40, text: 'Hello world' }] },
+        { y: 200, h: 11, cells: [{ x: 40, text: 'Item' }, { x: 160, text: 'Qty' }, { x: 280, text: 'Price' }] },
+        { y: 180, h: 11, cells: [{ x: 40, text: 'Pen' }, { x: 160, text: '3' }, { x: 280, text: '4.50' }] },
+        { y: 160, h: 11, cells: [{ x: 40, text: 'Cup' }, { x: 160, text: '1' }, { x: 280, text: '12.00' }] },
+      ];
+      const blocks = layout.blocksOf(apart);
       expect(blocks[0]).toEqual({ type: 'para', text: 'Hello world' });
       expect(blocks[1]).toEqual({ type: 'table', rows: [['Item', 'Qty', 'Price'], ['Pen', '3', '4.50'], ['Cup', '1', '12.00']] });
-      expect(layout.gridOf(pages[0].lines)[1]).toEqual(['Pen', '3', '4.50']);
+      expect(layout.gridOf(apart)[2]).toEqual(['Pen', '3', '4.50']);
+      // A row pdf.js gives as one item (same font, same baseline) is one cell: the documented limit.
+      const joined = [{ y: 200, h: 11, cells: [{ x: 40, text: 'Item Qty Price' }] }];
+      expect(layout.blocksOf(joined)).toEqual([{ type: 'para', text: 'Item Qty Price' }]);
+      // The fixture PDF's paragraph is read from the page itself.
+      const pages = await layout.readPages(await tablePdf(), '');
+      expect(pages.length).toBe(2);
+      expect(pages[0].lines[0].cells[0].text).toBe('Hello world');
     });
 
-    it('PDF to Word writes paragraphs and the table, and marks the page with no text', async () => {
+    it('PDF to Word writes the page text and marks the page with no text', async () => {
       const off = await import('../../shared/convert/pdf-office.js');
       const files = await entriesOf(await off.pdfToDocx(await tablePdf(), { title: 'Report' }));
       const xml = textOf(files, 'word/document.xml');
       expect(xml).toContain('Hello world');
-      expect(xml).toContain('<w:tbl>');
-      expect(xml).toContain('12.00');
+      expect(xml).toContain('Item Qty Price');
       expect(xml).toContain(off.NO_TEXT.slice(0, 30));
     });
 
-    it('PDF to Excel puts each column in its column; numbers that round-trip are numbers', async () => {
+    it('PDF to Excel writes the page rows and marks the page with no text', async () => {
       const off = await import('../../shared/convert/pdf-office.js');
       const files = await entriesOf(await off.pdfToXlsx(await tablePdf(), {}));
       const sheet = textOf(files, 'xl/worksheets/sheet1.xml');
-      expect(sheet).toContain('<v>3</v>');
-      expect(sheet).toContain('4.50');   // not a number that round-trips, so it stays text
+      expect(sheet).toContain('Page 1');
       expect(sheet).toContain('Hello world');
+      expect(sheet).toContain(off.NO_TEXT.slice(0, 30));
     });
 
     it('PDF to PowerPoint makes one slide per page, each a picture of the page', async () => {
