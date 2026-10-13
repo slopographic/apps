@@ -152,12 +152,16 @@ function setExporting(on, text) {
 }
 
 function wire() {
-  const drop = $('drop');
-  $('file').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
-  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('is-over'); });
-  drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
-  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('is-over'); addFiles(e.dataTransfer.files); });
-  drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('file').click(); } });
+  // The drop zone is SlopDrop (shared/drop): drops and the Choose files button (the only thing that opens the picker)
+  // go through addFiles, one file at a time. The page's own picker input keeps its accept list.
+  const file = $('file'), accept = file.getAttribute('accept');
+  window.SlopDrop.attach($('drop'), {
+    accept: { any: true, noun: 'an image or a PDF' },
+    input: file,
+    label: 'Drop images or PDFs here, or choose files',
+    process: async (f) => { await addFiles([f]); return f.name; },
+  });
+  file.setAttribute('accept', accept);
   $('read').addEventListener('click', readAll);
   $('prev').addEventListener('click', () => show(state.cur - 1));
   $('next').addEventListener('click', () => show(state.cur + 1));

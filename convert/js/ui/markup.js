@@ -4,9 +4,8 @@ import { h } from './dom.js';
 
 export function buildTool(root, preset) {
   const id = (s) => `cv-${s}`;
-  const drop = h('div', { class: 'cv-drop', id: id('drop'), role: 'button', tabindex: 0, 'aria-describedby': id('hint') },
-    h('span', { class: 'cv-drop-title' }, preset ? 'Drop files here, or press Enter to choose' : 'Drop files here, or press Enter to choose them'),
-    h('span', { class: 'cv-hint', id: id('hint') }, 'Several at once is fine. Files are read on this device and never uploaded.'));
+  // The drop zone's content (message, Choose files button, progress) is drawn by SlopDrop (shared/drop) in tool.js.
+  const drop = h('div', { class: 'cv-drop', id: id('drop') });
   const input = h('input', { type: 'file', multiple: true, id: id('input'), class: 'cv-sr', tabindex: -1, 'aria-hidden': 'true', accept: preset && preset.accept ? preset.accept : 'image/*,application/pdf,.csv,.tsv,.json,.md,.markdown,.txt,.html,.htm,text/csv,application/json,text/markdown,text/plain,text/html' });
   const list = h('ul', { class: 'cv-files', id: id('list'), 'aria-label': 'Files to convert' });
   const target = h('select', { id: id('target') });

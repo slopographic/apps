@@ -112,6 +112,15 @@
       expect(layers()).toBe(1); // the new tab is one picture, not a layer placed into the document that was open
     });
 
+    it('the strip is not positioned over the menu bar, the top bar or the tool options', () => {
+      const strip = $('#psDrop').getBoundingClientRect();
+      const hit = ['header.topbar', '#menubar', '#options'].filter((sel) => {
+        const r = $(sel).getBoundingClientRect();
+        return strip.left < r.right && r.left < strip.right && strip.top < r.bottom && r.top < strip.bottom;
+      });
+      expect(hit).toEqual([]);
+    });
+
     it('Choose files is the only thing that opens the picker', async () => {
       picks = 0;
       $('#psDrop .sd-choose').click();
