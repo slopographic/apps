@@ -27,7 +27,25 @@
   };
   /** Opens the Get more dialog for the model (nothing downloads until the person confirms there). */
   OCR.getModel = function () {
-    if (window.SlopAIGetMore) window.SlopAIGetMore.open(MODEL, { onInstalled: function () { SlopUI.toast('The OCR model is on this device. Choose Recognise text again.'); } });
+    if (window.SlopAIGetMore) window.SlopAIGetMore.open(MODEL, { onInstalled: OCR.installed });
+  };
+  /** Runs after the model is stored (the Get more dialog has closed). Asks whether to read the text now. "Run on this
+   * page" is the primary button, so Enter never starts a whole-document run by accident. */
+  OCR.installed = function () {
+    var pick = null;
+    SlopUI.dialog({
+      title: 'Run text recognition now?', cls: 'sui-narrow ocr-ask',
+      body: 'The OCR model is on this device. The text is read here, and the words are added as an invisible layer you can find and copy.',
+      buttons: [
+        { label: 'Not now' },
+        { label: 'Run on document', act: function () { pick = 'doc'; } },
+        { label: 'Run on this page', primary: true, act: function () { pick = 'page'; } }
+      ],
+      onClose: function () {
+        if (pick === 'page') A.recognisePage();
+        else if (pick === 'doc') A.recogniseAll();
+      }
+    });
   };
   /** Reads one picture (a canvas of the page). Resolves to lines [{ text, score, box: { x, y, w, h } }] in canvas pixels. */
   OCR.read = async function (canvas, onProgress) {

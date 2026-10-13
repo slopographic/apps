@@ -275,6 +275,34 @@
     });
   });
 
+  describe('OCR model installed: ask to run', () => {
+    it('after the model is stored, the install callback asks with three buttons, and Run on document runs recognition', async () => {
+      PT.reset();
+      if (!PT.SP) await PT.boot();
+      const O = PT.SP.ocr, A = PT.A, G = PT.win.SlopAIGetMore, savedAll = A.recogniseAll;
+      let installed = null, runs = 0;
+      try {
+        // the Get more dialog is stubbed: it "stores" the model and calls back, as it does after a download
+        PT.win.SlopAIGetMore = { open: (id, opts) => { installed = opts.onInstalled; } };
+        O.getModel();
+        expect(typeof installed).toBe('function');
+        A.recogniseAll = async () => { runs++; };
+        installed();
+        const dlg = await SlopTest.waitFor(() => PT.win.document.querySelector('.ocr-ask'), { timeout: 3000 });
+        expect(dlg.querySelector('.sui-title').textContent).toBe('Run text recognition now?');
+        const labels = [...dlg.querySelectorAll('.sui-foot .sui-btn')].map((b) => b.textContent);
+        expect(labels).toEqual(['Not now', 'Run on document', 'Run on this page']);
+        [...dlg.querySelectorAll('.sui-foot .sui-btn')].find((b) => b.textContent === 'Run on document').click();
+        await SlopTest.waitFor(() => runs === 1, { timeout: 3000 });
+        expect(runs).toBe(1);
+        expect(PT.win.document.querySelector('.ocr-ask')).toBe(null);
+      } finally {
+        A.recogniseAll = savedAll;
+        if (G) PT.win.SlopAIGetMore = G; else delete PT.win.SlopAIGetMore;
+      }
+    });
+  });
+
   describe('OCR text layer: commands', () => {
     it('File menu and command palette list the two recognise commands', async () => {
       if (!PT.SP) await PT.boot();
