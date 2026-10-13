@@ -71,7 +71,6 @@ async function boot() {
   window.addEventListener('blur', () => { V.space = false; V.el.classList.remove('space'); });
   document.addEventListener('paste', onPaste);
   document.addEventListener('dragover', onDragOver);
-  document.addEventListener('dragleave', (e) => { if (!e.relatedTarget || !document.contains(e.relatedTarget)) document.body.classList.remove('dropping'); });
   document.addEventListener('drop', onDropFiles);
   bindBufferDrop();
   bindFileDrop();
