@@ -100,6 +100,7 @@
   /** The drop (SlopDrop's files hook, read inside the drop event). Returns the files SlopDrop should open one by one. */
   async function onDrop(dt, e) {
     var list = Array.prototype.slice.call((dt && dt.files) || []);
+    (window.__odrop = window.__odrop || []).push('list:' + list.map(function (f) { return f.name; }) + ' locked:' + A.isLocked());
     if (A.isLocked()) { A.status('Wait for the current open to finish, then drop again.', 'err'); return []; }
     var r = split(list);
     if (r.convert.length) A.convertFiles(r.convert);
