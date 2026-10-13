@@ -7,6 +7,7 @@
   'use strict';
   var SP = window.SP, U = SP.util, Ed = SP.editor, S = Ed._, T = S.sel, A = S.selAct;
   var h = U.h, bar = null, row = null, pop = null, colBtn = null, dot = null, popOpen = false, raf = 0;
+  var MARKS = ['highlight', 'underline', 'strike'], markBtns = {}, markSeq = 0; // markSeq: the token of the newest markState
   var COLOURS = [['#ffe14d', 'Yellow'], ['#34c759', 'Green'], ['#0a84ff', 'Blue'], ['#ff2d92', 'Pink'], ['#ff9500', 'Orange'], ['#e0102f', 'Red'], ['#111111', 'Black']];
   // [id, label, action or null for the colour button, group] in the order shown
   var BUTTONS = [
@@ -38,7 +39,9 @@
         row.appendChild(colBtn);
         return;
       }
-      var btn = h('button', { type: 'button', class: 'selbar-btn' + (b[0] === 'remove' ? ' is-danger' : ''), 'data-act': b[0], 'aria-label': b[1], title: b[1] }, b[1]);
+      var isMark = MARKS.indexOf(b[0]) >= 0;
+      var btn = h('button', { type: 'button', class: 'selbar-btn' + (b[0] === 'remove' ? ' is-danger' : ''), 'data-act': b[0], 'aria-label': b[1], title: b[1], 'aria-pressed': isMark ? 'false' : null }, b[1]);
+      if (isMark) markBtns[b[0]] = btn;
       btn.addEventListener('click', function () { run(b[2]); });
       row.appendChild(btn);
     });
@@ -81,9 +84,26 @@
   /** Shows the bar for the current snapshot, or hides it. Runs on every selection change (sel-track.js). */
   function render() {
     if (!bar) { if (!T.shown()) return; build(); }
-    if (!T.shown()) { closePop(false); bar.hidden = true; return; }
+    if (!T.shown()) { closePop(false); bar.hidden = true; markSeq++; setPressed(null); return; }
     colour();
     place();
+    markState();
+  }
+  /** Shows which markup the selection already has: the markup buttons are pressed (aria-pressed, is-on) for those styles.
+      The answer is async, so a token drops any answer that a newer selection has overtaken. */
+  function markState() {
+    var token = ++markSeq, snap = T.snap;
+    A.markedStyles(snap).then(function (set) { if (token === markSeq) setPressed(set); },
+      function () { if (token === markSeq) setPressed(null); });
+  }
+  /** Sets the pressed state of each markup button from a Set of styles (null clears them all). */
+  function setPressed(set) {
+    MARKS.forEach(function (s) {
+      var btn = markBtns[s], on = !!(set && set.has(s));
+      if (!btn) return;
+      btn.classList.toggle('is-on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
   }
   /** Puts the bar above the selection, below it when there is no room above, inside the viewport. */
   function place() {

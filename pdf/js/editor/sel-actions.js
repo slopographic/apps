@@ -9,6 +9,7 @@
   var A = S.selAct = {};
   var LABELS = { highlight: 'Highlight text', underline: 'Underline text', strike: 'Strike through text' };
   var NAME = { highlight: 'highlight', underline: 'underline', strike: 'strikethrough' };
+  var STYLES = ['highlight', 'underline', 'strike'];
   var MATCH = 0.6; // the share of the selection's area that existing markup of the style must cover for a press to remove it
   var colour = null;
 
@@ -84,6 +85,7 @@
     });
     Ed.selId = null; Ed.paint();
     SlopUI.toast('Removed the ' + NAME[style] + '.');
+    T.emit();
   }
 
   /** Adds highlight, underline or strikethrough over the selected text, one annotation per page, one undo step. Text
@@ -102,6 +104,15 @@
       });
     });
     Ed.selId = null; Ed.paint();
+    T.emit();
+  };
+
+  /** The styles the selection is already marked in, by the toggle's own rule (alreadyMarked): a Set of 'highlight',
+      'underline' and 'strike'. Empty when there is no text under the selection. sel-bar.js shows it as pressed buttons. */
+  A.markedStyles = async function (snap) {
+    var out = new Set(), geo = snap ? await geometry(snap) : [];
+    if (geo.length) STYLES.forEach(function (s) { if (alreadyMarked(geo, s)) out.add(s); });
+    return out;
   };
 
   /** Copies the selected text (line breaks kept, as the browser gives them). */

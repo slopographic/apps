@@ -7,6 +7,7 @@
 .selbar-btn:hover { background: var(--sl-hover, rgba(255, 255, 255, .08)); }
 .selbar-btn:focus-visible, .selbar-sw:focus-visible { outline: 2px solid var(--sl-accent, #d4ff3a); outline-offset: 1px; }
 .selbar-btn.is-danger { color: var(--sl-danger, #ff6b6b); }
+.selbar-btn.is-on, .selbar-btn[aria-pressed="true"] { background: var(--sl-accent-soft, rgba(212, 255, 58, .18)); border-color: var(--sl-accent, #d4ff3a); }
 .selbar-btn[aria-expanded="true"] { background: var(--sl-accent-soft, rgba(212, 255, 58, .18)); border-color: var(--sl-accent, #d4ff3a); }
 .selbar-dot { width: 12px; height: 12px; flex: 0 0 auto; border-radius: 50%; border: 1px solid var(--sl-border, #3a3a41); }
 .selbar-sep { flex: 0 0 1px; align-self: stretch; margin: 5px 3px; background: var(--sl-border, #3a3a41); }

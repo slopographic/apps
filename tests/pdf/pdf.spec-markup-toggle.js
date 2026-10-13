@@ -6,6 +6,8 @@
   const { describe, it, expect, waitFor } = SlopTest;
   const { fixture, select, act, shown, texthls, spanFor } = PT.selbar;
   const doc = () => PT.win.document;
+  /** Whether a markup button shows pressed: aria-pressed="true" and the is-on class together. */
+  const pressed = (id) => act(id).getAttribute('aria-pressed') === 'true' && act(id).classList.contains('is-on');
   const TEXT = 'Hello world';
   const hasToast = (words) => waitFor(() => doc().body.textContent.includes(words), { timeout: 3000 });
 
@@ -79,6 +81,36 @@
       expect(texthls()[0].pts.length).toBe(4);
       expect(Math.abs(Math.min(...xs) - helloEnd()) < 1.5).toBe(true);
       expect(Math.abs(Math.max(...xs) - fullEnd()) < 1.5).toBe(true);
+    });
+
+    it('the markup button is pressed while the selection is already marked, and clears when the selection moves away', async () => {
+      await fixture([{ text: TEXT, w: 300, h: 200 }, { text: 'Other line', w: 300, h: 200 }]);
+      await select(TEXT);
+      expect(act('highlight').getAttribute('aria-pressed')).toBe('false');
+      act('highlight').click();
+      await waitFor(() => texthls().length === 1, { timeout: 5000 });
+      await select(TEXT);
+      await waitFor(() => pressed('highlight'), { timeout: 3000 });
+      expect(act('underline').getAttribute('aria-pressed')).toBe('false');
+      PT.A.openPage(PT.E.state.pages[1].id);
+      await waitFor(() => spanFor('Other line'), { timeout: 8000 });
+      await select('Other line');
+      await waitFor(() => !pressed('highlight'), { timeout: 3000 });
+      expect(act('highlight').getAttribute('aria-pressed')).toBe('false');
+      expect(act('highlight').classList.contains('is-on')).toBe(false);
+    });
+
+    it('pressing the pressed Highlight removes the markup and clears its pressed state', async () => {
+      await fixture([{ text: TEXT, w: 300, h: 200 }]);
+      await select(TEXT);
+      act('highlight').click();
+      await waitFor(() => texthls().length === 1, { timeout: 5000 });
+      await select(TEXT);
+      await waitFor(() => pressed('highlight'), { timeout: 3000 });
+      act('highlight').click();
+      await waitFor(() => texthls().length === 0, { timeout: 5000 });
+      await waitFor(() => !pressed('highlight'), { timeout: 3000 });
+      expect(act('highlight').getAttribute('aria-pressed')).toBe('false');
     });
   });
 })();
