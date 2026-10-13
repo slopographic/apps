@@ -131,7 +131,7 @@
       cvtDialog().querySelector('[data-k="run"]').click();
       await waitFor(() => !cvtDialog(), { timeout: 60000 });
       await waitFor(() => openTabs() === before + 1 && PT.E.state.pages.length === 1, { timeout: 60000 });
-      expect(toastText()).toContain('Converted logo.svg to PDF');
+      await waitFor(() => toastText().includes('Converted logo.svg to PDF'), { timeout: 15000 });
       expect(choiceDialog()).toBe(null);
     }, { timeout: 120000 });
 
@@ -140,8 +140,8 @@
       await converterReady();
       PT.reset();
       drop([file('ok.pdf', 'application/pdf', await PT.makePdf([{ text: 'x' }])), file('notes.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', new PT.win.Uint8Array([80, 75, 3, 4, 0, 0]))]);
-      const log = []; for (let i = 0; i < 25; i++) { log.push(PT.E.state.pages.length + '/' + (cvtDialog() ? cvtText().includes('notes.docx') : 'none')); await new Promise((r) => setTimeout(r, 200)); }
-      throw new Error('DBG ' + log.join(' '));
+      await waitFor(() => cvtDialog() && cvtText().includes('notes.docx'), { timeout: 30000 });
+      await waitFor(() => PT.E.state.pages.length === 1, { timeout: 30000 });
       expect(cvtText()).not.toContain('ok.pdf');
       doc().querySelector('.sl-cvt-x').click();
       await waitFor(() => !cvtDialog());
