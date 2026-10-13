@@ -24,6 +24,17 @@ function deleteLayer(id = D.activeId) {
   D.activeId = D.layers[Math.max(0, i - 1)].id;
   commit('Delete Layer');
 }
+/** Removes every layer and leaves one empty layer (a document always has one). Asks twice; one undo step. */
+async function removeAllLayers() {
+  const n = D.layers.length;
+  if (!n) return;
+  const count = `${n} layer${n === 1 ? '' : 's'}`;
+  if (!(await confirmDlg('Remove all layers?', `This removes ${count} from “${D.name}”. The document keeps one empty layer.`, 'Continue'))) return;
+  if (!(await confirmDlg('Remove all layers?', `This removes ${count}. You can undo it with Ctrl+Z. Remove all?`, 'Remove all', { danger: true }))) return;
+  D.layers = [newLayerRecord({ name: nextName('Layer') })];
+  D.activeId = D.layers[0].id;
+  commit('Remove All Layers');
+}
 function duplicateLayer(id = D.activeId) {
   const i = layerIndex(id); if (i < 0) return;
   const S = D.layers[i];

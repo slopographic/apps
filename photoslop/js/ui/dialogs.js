@@ -31,4 +31,4 @@ function dialog({ title, body, buttons = [], onClose, cls = '' }) {
 function field(label, input, unit) { return h('label', { class: 'field' }, h('span', { class: 'field-l' }, label), input, unit ? h('span', { class: 'field-u' }, unit) : null); }
 function numInput(v, min, max, step = 1) { return h('input', { type: 'number', value: v, min, max, step, inputmode: 'decimal' }); }
 const alertDlg = (title, msg) => SlopUI.alert(title, msg);
-const confirmDlg = (title, msg, ok = 'OK') => SlopUI.confirm(title, msg, ok);
+const confirmDlg = (title, msg, ok = 'OK', opts) => SlopUI.confirm(title, msg, ok, opts);

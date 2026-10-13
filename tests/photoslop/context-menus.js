@@ -15,8 +15,13 @@ function contextMenuTests({ describe, it, expect, getW }) {
       closeAll();
       expect(ctxAt(activeRow())).toBe(true);
       const labels = menuLabels();
-      for (const l of ['Layer Properties…', 'Duplicate Layer', 'Delete Layer', 'Merge Down', 'Flatten Image']) expect(labels).toContain(l);
+      for (const l of ['Layer Properties…', 'Duplicate Layer', 'Delete', 'Merge Down', 'Flatten Image']) expect(labels).toContain(l);
       expect(win().document.querySelectorAll('.sui-menu').length).toBe(1);
+      // Delete is a submenu: Delete Layer and Remove All Layers
+      const del = [...win().document.querySelectorAll('.sui-menu .sui-row')].find((r) => r.querySelector('.sui-lbl').textContent === 'Delete');
+      del.click();
+      const flyout = [...win().document.querySelectorAll('.sui-menu')].pop();
+      expect([...flyout.querySelectorAll('.sui-lbl')].map((x) => x.textContent)).toEqual(['Delete Layer', 'Remove All Layers']);
       closeAll();
     });
     it('clicking a layer menu item performs its action', () => {
@@ -64,7 +69,7 @@ function contextMenuTests({ describe, it, expect, getW }) {
       expect(menuLabels()).toContain('Layer Properties…');
       closeAll();
       key(eye, 'F10', true);
-      expect(menuLabels()).toContain('Delete Layer');
+      expect(menuLabels()).toContain('Delete');
       closeAll();
     });
     it('the Menu key opens the canvas menu when nothing else has focus', () => {

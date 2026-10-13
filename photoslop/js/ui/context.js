@@ -96,7 +96,7 @@ function selectLayerPixels(L) { const c = mkCanvas(D.w, D.h); cx(c).drawImage(ba
 function activateLayer(L) { if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); } }
 function layerItems(L) {
   activateLayer(L);
-  return [M('Edit', 'Free Transform'), '-', M('Layer', 'Layer Properties…'), M('Layer', 'Duplicate Layer'), M('Layer', 'Delete Layer'), { label: 'Isolate Subject…', act: () => isolateSubject(L.id) }, '-',
+  return [M('Edit', 'Free Transform'), '-', M('Layer', 'Layer Properties…'), M('Layer', 'Duplicate Layer'), M('Layer', 'Delete'), { label: 'Isolate Subject…', act: () => isolateSubject(L.id) }, '-',
     { label: 'Select Pixels', act: () => selectLayerPixels(L) }, (hasMask() ? M('Layer', 'Mask') : { label: 'Add layer mask', sub: maskAddItems() }), M('Layer', 'Layer Style'), { label: 'Apply Effect Preset…', act: () => fxPresetPick(L.id) }, { label: 'Save Effects as Preset…', act: () => fxPresetSaveDialog(L.id), en: () => !!(L.fx && L.fx.length) },{ label: L.clip ? 'Release Clipping Mask' : 'Create Clipping Mask', act: () => setClipping(L.id, !L.clip) }, '-',
     M('Layer', 'Rotate and Flip'), '-',
     M('Layer', 'Lock / Unlock Layer'), { label: L.visible ? 'Hide Layer' : 'Show Layer', act: () => setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer') }, '-',
