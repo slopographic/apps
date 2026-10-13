@@ -24,6 +24,12 @@
     var fo = pg.commonObjs.has(fontName) ? pg.commonObjs.get(fontName) : null;
     return fo && !fo.missingFile && fo.name ? fo.name : null;
   };
+  /** The name of a standard font the file does not embed (Helvetica, Times, Courier: pdf.js marks it missingFile), or null.
+   * jsPDF and most writers use these: they are text fonts too, listed as built in. */
+  S.standardName = function (pg, fontName) {
+    var fo = pg.commonObjs.has(fontName) ? pg.commonObjs.get(fontName) : null;
+    return fo && fo.missingFile && fo.name && S.stdFamilyOf(fo.name) ? fo.name : null;
+  };
   /** The embedded fonts a file's text uses: a Map of PostScript name to facts. */
   async function scan(f) {
     var seen = new Map();
@@ -34,7 +40,7 @@
       await pg.getOperatorList();
       tc.items.forEach(function (it) {
         if (typeof it.str !== 'string' || !it.str.trim()) return;
-        var ps = S.embeddedName(pg, it.fontName);
+        var ps = S.embeddedName(pg, it.fontName) || S.standardName(pg, it.fontName);
         if (ps && !seen.has(ps)) seen.set(ps, S.fontFacts(ps));
       });
     }

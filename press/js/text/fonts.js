@@ -36,7 +36,7 @@
   };
   /** Families whose PDF output is a substitute (no font file to embed). */
   F.substituted = function (name) { var f = F.family(name); return !f.bundled && !(F.user[name]); };
-  /** User fonts: family → { style → { asset, face } } (from doc.fonts). */
+  /** User fonts: family → { style → { asset, face } } (from doc.fonts). Built-in families are F.FAMILIES only. */
   F.user = {};
   F.isBold = function (style) { return /bold|black|heavy/i.test(style || ''); };
   F.isItalic = function (style) { return /italic|oblique/i.test(style || ''); };
@@ -99,11 +99,11 @@
     return addFace(rec.family, rec.style, bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength));
   };
   F.registerDoc = function (doc) { return Promise.all((doc.fonts || []).map(function (r) { return F.registerUser(doc, r); })); };
-  /** Reads a font file and adds it to the document. Returns the family name. */
-  F.addFile = function (doc, file) {
+  /** Reads a font file and adds it to the document (as the family name given, when a font is dropped on a missing family). Returns the family name. */
+  F.addFile = function (doc, file, name) {
     return file.arrayBuffer().then(function (buf) {
       var info = PR.ttf ? PR.ttf.names(new Uint8Array(buf)) : null;
-      var family = (info && info.family) || file.name.replace(/\.[^.]+$/, '').replace(/[-_](Regular|Bold|Italic|BoldItalic)$/i, '');
+      var family = name || (info && info.family) || file.name.replace(/\.[^.]+$/, '').replace(/[-_](Regular|Bold|Italic|BoldItalic)$/i, '');
       var sub = (info && info.subfamily) || 'Regular', style = F.isBold(sub) ? (F.isItalic(sub) ? 'Bold Italic' : 'Bold') : F.isItalic(sub) ? 'Italic' : 'Regular';
       var asset = U.uid('A');
       doc.assets[asset] = U.bytesToDataURL(new Uint8Array(buf), /otf$/i.test(file.name) ? 'font/otf' : 'font/ttf');

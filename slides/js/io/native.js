@@ -18,6 +18,8 @@
   N.normalize = function (d) {
     SS.deckCheck.run(d);   // version check, migration of version 1 files, structure
     d.media = d.media || {};
+    d.fonts = (Array.isArray(d.fonts) ? d.fonts : []).filter(function (r) { return r && typeof r.family === 'string' && /^data:/.test(r.data); });
+    if (SS.fonts && SS.fonts.registerDeck) SS.fonts.registerDeck(d);   // the fonts the person added to this deck
     d.master = Object.assign({ footer: '', showNumber: false }, d.master);
     if (!d.theme || !d.theme.colors) d.theme = U.clone(SS.themes.byId(typeof d.theme === 'string' ? d.theme : 'slop'));
     d.slides.forEach(function (s) {

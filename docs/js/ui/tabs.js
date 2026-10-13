@@ -59,6 +59,7 @@
         copyIn(T);
         T.file.id = tabs.driveIdOf(T);
         if (S.setUrl) S.setUrl(T.file.id || null);
+        S.registerOwnFonts(T.doc);
         S.relayout();
         E().ensureDocFonts(T.doc).catch(() => {});
         S.emit('doc');

@@ -350,13 +350,14 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   formats or images.
 - **PDF to PowerPoint (PPTX)**: one slide per page, the page drawn as a picture at 144 dpi, fitted to 16:9. The text is not
   editable in the deck. Not yet checked in Microsoft PowerPoint.
-- **Limit (documented)**: pdf.js joins text on one baseline into a single item (the vendored pdf.js 5.7 has no option to stop
-  this). The gap rule only splits cells that pdf.js gives as separate items. So a table row whose cells share a baseline and
-  font comes out as one cell ("Item Qty Price"), and tables are recognised only where the cells are positioned apart. The
-  table logic is tested on lines with separate cells (`tests/pdf/pdf.spec-office.js`).
+- **Cells**: `shared/convert/pdf-text-items.js` builds the text items from the page's operator list (pdf.js
+  `getOperatorList`, text state operators, Tm/Td/TJ/'/" advances and widths), one item per show operation, so each cell
+  drawn as its own Tj keeps its own x. A TJ kerning gap wider than a fifth of an em is read as a space. The old
+  `getTextContent` path (which joins text on one baseline) is the fallback when the operator list is unavailable, and
+  `readPages(bytes, spec, { textContent: true })` forces it.
 - **PDF to text** reads through the same `pdf-layout.js`.
 - Each target's fidelity is its `note`, shown in the dialog.
-- Tests: `tests/pdf/pdf.spec-office.js`.
+- Tests: `tests/pdf/pdf.spec-office.js` (a generated table with cells on one baseline splits into a Word table).
 
 ## Still to do
 - The service worker precache does not list the new files until `node tools/pwa-precache.mjs` runs and VERSION is bumped.

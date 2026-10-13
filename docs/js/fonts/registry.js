@@ -34,7 +34,7 @@ export function familyOf(name) {
   if (/serif|times|roman|garamond|georgia|book|minion|baskerville/.test(k) && !/sans/.test(k)) return byLower.get('tinos');
   return byLower.get(DEFAULT_FAMILY.toLowerCase());
 }
-export const cssFamily = (fam) => `SD ${fam.name}`;
+export const cssFamily = (fam) => `SD ${fam.user ? fam.dir : fam.name}`; // a font the person owns has a plain CSS name
 export const faceKey = (fam, b, i) => fam.user ? `${fam.dir}-0` : `${fam.dir}-${(b ? 1 : 0) + (i ? 2 : 0)}`;
 
 const faces = new Map(); // key → face | Promise

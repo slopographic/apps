@@ -59,16 +59,32 @@
   }
   const overlap = (a1, b1, a2, b2) => Math.min(b1, b2) - Math.max(a1, a2);
 
-  /** Which tracks a hidden region gives back: the ones it alone covers on that axis (not the ones other shown items use). */
+  /** Which tracks a hidden region gives back: the ones it alone covers on that axis. An item that spans the whole axis
+   *  (a full-width toolbar) is not in the way: it simply gets narrower with the track. */
   function giveBack(list, a, b, others, axis) {
     const lo = axis === 'x' ? 'left' : 'top', hi = axis === 'x' ? 'right' : 'bottom';
-    const covered = list.map((t) => overlap(t.a, t.b, a, b) > 1);
     const out = new Set();
-    if (!list.length || covered.every(Boolean)) return out;   // spans the whole axis: nothing to give back
+    if (!list.length) return out;
+    const first = list[0].a, last = list[list.length - 1].b;
+    const covered = list.map((t) => overlap(t.a, t.b, a, b) > 1);
+    if (covered.every(Boolean)) return out;   // the hidden region spans the whole axis: nothing to give back
+    const blockers = others.filter((o) => !(o[lo] <= first + 1 && o[hi] >= last - 1));
     list.forEach((t, i) => {
-      if (covered[i] && !others.some((o) => overlap(t.a, t.b, o[lo], o[hi]) > 1)) out.add(i);
+      if (covered[i] && !blockers.some((o) => overlap(t.a, t.b, o[lo], o[hi]) > 1)) out.add(i);
     });
     return out;
+  }
+  /** The track the freed space goes to: the one under the largest shown item that is not given back. */
+  function fillTrack(list, kids, axis, zero) {
+    let best = null, bestArea = 0;
+    for (const k of kids) {
+      const area = k.width * k.height;
+      if (area > bestArea) { bestArea = area; best = k; }
+    }
+    if (!best) return -1;
+    const mid = axis === 'x' ? best.left + best.width / 2 : best.top + best.height / 2;
+    const i = list.findIndex((t) => mid >= t.a && mid <= t.b);
+    return i >= 0 && !zero.has(i) ? i : -1;
   }
 
   /** Put the classes on every region for the current mode, give hidden tracks back to the grid, and label the buttons.
@@ -89,9 +105,10 @@
       const rr = r.el.getBoundingClientRect();
       const others = [...P.children].filter((c) => c !== r.el && !gone(c) && shown(c)).map((c) => c.getBoundingClientRect());
       const cols = tracks(P, 'col'), rows = tracks(P, 'row');
-      const p = plan.get(P) || { cols: new Set(), rows: new Set(), colSizes: cols, rowSizes: rows };
+      const p = plan.get(P) || { cols: new Set(), rows: new Set(), colSizes: cols, rowSizes: rows, kids: [] };
       giveBack(cols, rr.left, rr.right, others, 'x').forEach((i) => p.cols.add(i));
       giveBack(rows, rr.top, rr.bottom, others, 'y').forEach((i) => p.rows.add(i));
+      p.kids = [...P.children].filter((c) => !gone(c) && shown(c)).map((c) => c.getBoundingClientRect());
       plan.set(P, p);
     }
     for (const r of all) {
@@ -101,9 +118,9 @@
     }
     for (const [P, p] of plan) {
       if (!p.cols.size && !p.rows.size) continue;
-      const fmt = (list, zero) => list.map((t, i) => (zero.has(i) ? '0px' : (t.b - t.a) + 'px')).join(' ');
-      if (p.colSizes.length) P.style.gridTemplateColumns = fmt(p.colSizes, p.cols);
-      if (p.rowSizes.length) P.style.gridTemplateRows = fmt(p.rowSizes, p.rows);
+      const fmt = (list, zero, fill) => list.map((t, i) => (zero.has(i) ? '0px' : i === fill ? 'minmax(0, 1fr)' : (t.b - t.a) + 'px')).join(' ');
+      if (p.colSizes.length) P.style.gridTemplateColumns = fmt(p.colSizes, p.cols, fillTrack(p.colSizes, p.kids, 'x', p.cols));
+      if (p.rowSizes.length) P.style.gridTemplateRows = fmt(p.rowSizes, p.rows, fillTrack(p.rowSizes, p.kids, 'y', p.rows));
       shells.add(P);
       watch(P);
     }
@@ -176,7 +193,7 @@
   }
   /** Escape returns to Full, unless an app is using Escape (a dialog, a text field, or a key the app already handled). */
   function onEscape(e) {
-    if (e.key !== 'Escape' || mode === 'full' || e.defaultPrevented) return;
+    if (e.key !== 'Escape' || mode === 'full') return;
     const t = e.target, tag = t && t.tagName;
     if (t && (t.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT')) return;
     if (doc.querySelector('dialog[open], [aria-modal="true"]')) return;
@@ -247,11 +264,13 @@
       saveLayout: () => saveLayout(app),
     };
   }
+  // The key and pointer listeners are set up when this script loads, before the app's own scripts, so the shortcuts
+  // come first. Escape is checked before the app too: it returns to Full unless a dialog is open or a field has focus.
+  win.addEventListener('keydown', onKey, true);
+  win.addEventListener('keydown', onEscape, true);
+  doc.addEventListener('pointermove', onPointer, { passive: true });
   function wire() {
     wired = true;
-    doc.addEventListener('keydown', onKey, true);
-    doc.addEventListener('keydown', onEscape);
-    doc.addEventListener('pointermove', onPointer, { passive: true });
     // A window resize re-measures a locked layout (its tracks are fixed to the sizes measured in paint()).
     win.addEventListener('resize', () => { if (!firing && shells.size) paint(false); });
     win.addEventListener('pagehide', () => { for (const a of apps.keys()) saveLayout(a); });

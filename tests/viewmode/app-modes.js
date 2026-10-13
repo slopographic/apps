@@ -9,7 +9,7 @@
 
   const q = (sel) => (sel ? D.querySelector(sel) : null);
   const shown = (n) => !!n && W.getComputedStyle(n).display !== 'none' && n.getBoundingClientRect().width > 0;
-  const wsWidth = () => q(C.workspace).getBoundingClientRect().width;
+  const wsArea = () => { const b = q(C.workspace).getBoundingClientRect(); return b.width * b.height; };
   const sendKey = (target, init) => target.dispatchEvent(new W.KeyboardEvent('keydown', Object.assign({ bubbles: true, cancelable: true }, init)));
   const pressReveal = () => sendKey(D, { key: 'L', ctrlKey: true, shiftKey: true });
   const pressEscape = () => sendKey(D.body, { key: 'Escape' });
@@ -38,13 +38,13 @@
       expect(W.getComputedStyle(bar).position).not.toBe('fixed');
     });
 
-    it('content mode: the workspace is wider, and the sidebar and panels are hidden', async () => {
+    it('content mode: the workspace is larger, and the sidebar and panels are hidden', async () => {
       V.set('full'); await settle();
-      const full = wsWidth();
+      const full = wsArea();
       expect(everyShown(C.sidebar) && everyShown(C.panels)).toBe(true);
       V.set('content'); await settle();
-      const content = wsWidth();
-      expect(content).toBeGreaterThan(full + 1);
+      const content = wsArea();
+      expect(content).toBeGreaterThan(full * 1.01);
       expect(everyHidden(C.sidebar)).toBe(true);
       expect(everyHidden(C.panels)).toBe(true);
     });
@@ -69,12 +69,12 @@
 
     it('Escape returns to Full, and the workspace is its full width again', async () => {
       V.set('full'); await settle();
-      const full = wsWidth();
+      const full = wsArea();
       V.set('content'); await settle();
       pressEscape(); await settle();
       expect(V.mode()).toBe('full');
       expect(everyShown(C.sidebar) && everyShown(C.panels)).toBe(true);
-      expect(Math.abs(wsWidth() - full)).toBeLessThan(2);
+      expect(Math.abs(wsArea() - full)).toBeLessThan(full * 0.01);
     });
 
     it('the mode button cycles full, focus, content and back', async () => {

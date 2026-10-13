@@ -8,8 +8,9 @@
   /** Fill the font list from the engine's families (names a Word user knows, plus the built-in ones). */
   function fillFonts() {
     const sel = $('selFont');
-    const names = (E().FAMILIES || []).map((f) => f.name);
+    const names = (E().FAMILIES || []).map((f) => f.name); // built-in families, then the document's own fonts
     sel.replaceChildren(...names.map((n) => { const o = document.createElement('option'); o.value = n; o.textContent = n; return o; }));
+    refresh();
   }
   /** Fonts…: the shared Fonts panel for the fonts this document uses. Slop Docs embeds only the TrueType families it ships,
    * so the panel has no library download here; it offers the closest shipped family (and a font file the person owns). */
@@ -20,12 +21,13 @@
     const used = new Set();
     for (const b of M.docBlocks(S_.doc)) if (b.type === 'p') for (const r of b.runs || []) if (!r.obj) used.add(S2.runMarks(S_.doc, b, r).font);
     // a name the engine ships (a family name or a Word alias such as Calibri, in any case) is built in, not missing
-    const shipped = new Set(E().FAMILIES.flatMap((f) => [f.name, ...f.aliases]).map((s) => s.toLowerCase()));
+    const shipped = new Set(E().FAMILIES.filter((f) => !f.user).flatMap((f) => [f.name, ...f.aliases]).map((s) => s.toLowerCase()));
     const standard = [...used].filter((n) => shipped.has(String(n).trim().toLowerCase()));
     SlopFonts.openPanel({
       fonts: [...used], standard, title: 'Fonts', library: false, download: false,
-      note: 'Downloads from the library are off in Slop Docs: its engine embeds only the TrueType families it ships. Use the closest family, or add your own TTF, OTF or WOFF file.',
+      note: 'Downloads from the library are off in Slop Docs: its engine embeds only the TrueType families it ships. Use the closest family, or add your own TTF or OTF file (WOFF is not supported yet).',
       closest: { sans: 'Carlito', serif: 'Tinos', mono: 'Cousine' },
+      addFile: (file, forName) => S.addOwnFont(file, forName),
       onUse: ({ use }) => { S_.A.setFont(use); S_.focusIme(); },
     });
   }
@@ -56,6 +58,7 @@
     $('tbRandom').addEventListener('click', () => S.random.open());
     keepFocus($('toolbar'));
     fillFonts();
+    S.on('doc', fillFonts);
   }
   /** Reflect the caret's formatting in the toolbar and status bar. */
   function refresh() {

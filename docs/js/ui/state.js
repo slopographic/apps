@@ -30,9 +30,35 @@
     S.pending = null; S.goalX = null;
     if (!keepHistory) { S.undoStack = []; S.redoStack = []; S.lastKind = ''; }
     S.file = Object.assign({ id: null, folderId: null, name: 'Untitled document', dirty: false, saved: 0 }, file || {});
+    S.registerOwnFonts(doc);
     S.relayout();
     E().ensureDocFonts(doc).catch(() => {});
     S.emit('doc');
+  };
+  /** The document's own fonts (doc.fonts: { family, weight, italic, file, data }) are registered with the engine and listed in the
+   * shared catalogue as "own". Re-lays out when they are in place. */
+  S.registerOwnFonts = async function (doc) {
+    if (window.SlopFonts) await SlopFonts.ready();
+    const C = window.SlopFontCatalog, own = [];
+    for (const r of (doc && doc.fonts) || []) {
+      try { const bytes = C.fromDataURL(r.data); E().F.addUserFamily(r.family, bytes); own.push({ family: r.family, weight: r.weight, italic: r.italic, bytes }); }
+      catch (e) { console.warn('Slop Docs: ' + r.family + ' is not used: ' + e.message); }
+    }
+    if (C) C.setDocumentFonts(own, { only: true });
+    if (doc && doc === S.doc && own.length) { S.relayout(); S.emit('doc'); }
+  };
+  /** Adds a font file the person owns to the open document: a TrueType file, named as the missing family it answers (forName) or by
+   * its own family name. Kept in the document, so it is saved with it. Resolves the family name. */
+  S.addOwnFont = async function (file, forName) {
+    await SlopFonts.ready();
+    const C = window.SlopFontCatalog, f = await C.readFontFile(file, 'Slop Docs'), name = forName || f.family, doc = S.doc;
+    try { E().F.addUserFamily(name, f.bytes); } catch (e) {
+      throw new Error(e.message === 'Not a TrueType font' ? 'Slop Docs reads TrueType outlines only. Use the TTF file of this font.' : e.message);
+    }
+    doc.fonts = (doc.fonts || []).filter((r) => r.family !== name).concat({ family: name, weight: f.weight, italic: f.italic, file: file.name, data: C.toDataURL(f.bytes) });
+    S.file.dirty = true;
+    await S.registerOwnFonts(doc);
+    return name;
   };
   S.relayout = function () {
     if (!S.doc) return;

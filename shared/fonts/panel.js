@@ -58,7 +58,8 @@
    * opts: fonts (the names the document uses, listed first), standard (built-in names, never missing), title, note (text or
    * array), closeLabel, library (false hides the library list and Get more), download (false hides the Download action on each
    * missing row; the person's own files and the closest font stay), closest ({ sans, serif, mono } families the app embeds; default the
-   * catalogue's), addFile(file) (stores a dropped font in the app and resolves its family name; default the catalogue),
+   * catalogue's), addFile(file, forName) (stores a dropped font in the app and resolves its family name; forName is the missing family the file
+   * was dropped on, or undefined; default the catalogue),
    * onUse({ family, use }) when the closest font is
    * chosen for a missing family, onAdd({ family, how, row }) when a font is installed: how 'library' or 'file'; row is the
    * missing family it answers (or undefined), onClose() when the person dismisses the panel. */
@@ -152,7 +153,7 @@
       if (closed) return;
       if (msg) msg.textContent = 'Checking ' + file.name + '…';
       try {
-        const fam = opts.addFile ? await opts.addFile(file) : (await C().addUserFile(file)).family;
+        const fam = opts.addFile ? await opts.addFile(file, n || undefined) : (await C().addUserFile(file)).family;
         if (closed) return;
         installed(fam, 'file', n || undefined);
         await render();

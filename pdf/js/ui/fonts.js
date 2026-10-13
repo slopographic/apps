@@ -10,25 +10,29 @@
 
   /** The families of the open files: names (subset or standard), the standard ones, and the files that use each. */
   async function gather() {
-    var names = [], standard = [], filesOf = new Map();
+    var names = [], standard = [], filesOf = new Map(), any = false;
     for (var f of E.files.values()) {
       if (!f.doc) continue;
       for (var facts of (await S.scanFonts(f)).values()) {
-        if (facts.std) { if (standard.indexOf(facts.family) < 0) standard.push(facts.family); }
-        else if (!facts.subset) continue;
+        any = true;
+        if (facts.std) { if (standard.indexOf(facts.family) < 0) standard.push(facts.family); continue; }
+        if (!facts.subset) continue;
         if (names.indexOf(facts.family) < 0) names.push(facts.family);
         if (!filesOf.has(facts.family)) filesOf.set(facts.family, []);
         if (filesOf.get(facts.family).indexOf(f) < 0) filesOf.get(facts.family).push(f);
       }
     }
-    return { names: names, standard: standard, filesOf: filesOf };
+    return { names: names, standard: standard, filesOf: filesOf, any: any };
   }
 
   /** File ▸ Fonts…: opens the shared panel for this document. */
   A.openFonts = async function () {
     if (SP.offline || !E.state.pages.length) return;
     var got = await gather();
-    if (!got.names.length && !got.standard.length) { SlopUI.toast('This document has no text fonts to list.'); return; }
+    if (!got.names.length && !got.standard.length) {
+      SlopUI.toast(got.any ? 'Every font in this document is embedded in full, so none needs an answer.' : 'This document has no text, so there are no fonts to list.');
+      return;
+    }
     await window.SlopFonts.ready();
     window.SlopFonts.openPanel({
       title: 'Fonts',

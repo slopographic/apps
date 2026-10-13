@@ -18,19 +18,26 @@
   UI.openFonts = function (fonts) {
     if (!window.SlopFonts) return;
     SlopFonts.ready().then(function () {
+      // the font files the document holds are the document's own fonts (listed as "your own file" in the panel)
+      SlopFontCatalog.setDocumentFonts(Object.keys(PR.fonts.user).map(function (fam) {
+        var rec = (S.doc.fonts || []).filter(function (r) { return r.family === fam; })[0];
+        return { family: fam, bytes: rec && S.doc.assets[rec.asset] ? U.dataURLToBytes(S.doc.assets[rec.asset]).bytes : null };
+      }).filter(function (f) { return f.bytes; }), { only: true });
       SlopFonts.openPanel({
-        fonts: fonts || [], standard: PR.fonts.list(), title: 'Fonts', library: false, download: false,
-        note: 'Downloads from the library are off in Slop Press: it embeds Liberation Sans and the font files you load into the document. Use the closest family, or add your own TTF or OTF file.',
+        fonts: fonts || [], standard: Object.keys(PR.fonts.FAMILIES), title: 'Fonts', library: false, download: false,
+        note: 'Downloads from the library are off in Slop Press: it embeds Liberation Sans and the font files you load into the document. Use the closest family, or add your own TTF or OTF file (WOFF is not supported yet).',
         closest: { sans: 'Liberation Sans', serif: 'Liberation Sans', mono: 'Liberation Sans' },
         addFile: addFontFile,
         onUse: function (r) { PR.format.char({ font: r.use }, 'Use the closest font'); }
       });
     });
   };
-  /** Adds a TTF or OTF file to the document (what the panel's "Your own file" drop and File ▸ Load Font File use). */
-  function addFontFile(file) {
-    if (!/\.(ttf|otf)$/i.test(file.name)) return Promise.reject(new Error('Choose a TTF or OTF file.'));
-    return PR.fonts.addFile(S.doc, file).then(function (fam) { H.commit('Load font'); PR.emit('fonts'); return fam; });
+  /** Adds a TTF or OTF file to the document (what the panel's "Your own file" drop and File ▸ Load Font File use). forName: the
+   * missing family the file is dropped on (the file is then used for it). WOFF and WOFF2 are refused with a message. */
+  function addFontFile(file, forName) {
+    return SlopFonts.ready().then(function () { return SlopFontCatalog.readFontFile(file, 'Slop Press'); }).then(function () {
+      return PR.fonts.addFile(S.doc, file, forName);
+    }).then(function (fam) { H.commit('Load font'); PR.emit('fonts'); return fam; });
   }
   UI.loadFont = function () { UI.openFonts([]); };
   var IPSUM = ['Slop Press sets type the old-fashioned way: every line is measured, broken and justified by the composer, then hyphenated where the measure demands it.',

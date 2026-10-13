@@ -60,10 +60,12 @@
     SlopFonts.ready().then(function () {
       var th = SS.themes.of(A.deck) || {}, tf = th.fonts || {}, o = A.selObjs()[0];
       var names = [tf.body, tf.heading, o && o.style && o.style.font].filter(function (n) { return n && n !== 'body' && n !== 'heading'; });
+      SlopFontCatalog.setDocumentFonts((A.deck.fonts || []).map(function (r) { return { family: r.family, bytes: SS.util.dataUrlToU8(r.data) }; }), { only: true });
       SlopFonts.openPanel({
-        fonts: names, standard: F.LIST, title: 'Fonts', library: false, download: false,
-        note: 'Downloads from the library are off in Slop Slides: its engine embeds only the TrueType families it ships. Use the closest family, or add your own TTF, OTF or WOFF file.',
+        fonts: names, standard: F.LIST.filter(function (n) { return !F.FAMILIES[n].user; }), title: 'Fonts', library: false, download: false,
+        note: 'Downloads from the library are off in Slop Slides: its engine embeds only the TrueType families it ships. Use the closest family, or add your own TTF or OTF file (WOFF is not supported yet).',
         closest: { sans: 'Inter Tight', serif: 'Instrument Serif', mono: 'JetBrains Mono' },
+        addFile: function (file, forName) { return addOwnFont(file, forName); },
         onUse: function (r) {
           edit('Font', function () {
             var t = A.deck.theme;
@@ -72,6 +74,18 @@
           });
         }
       });
+    });
+  }
+  /** Adds a font file the person owns to the deck (it is saved with the deck). Resolves the family name. */
+  function addOwnFont(file, forName) {
+    return SlopFonts.ready().then(function () { return SlopFontCatalog.readFontFile(file, 'Slop Slides'); }).then(function (f) {
+      var name = forName || f.family, data = SS.util.u8ToDataUrl(f.bytes, 'font/ttf');
+      try { F.addUser(name, f.bytes, data); } catch (e) {
+        throw new Error(e.message === 'Only TrueType (glyf) fonts are supported' ? 'Slop Slides reads TrueType outlines only. Use the TTF file of this font.' : e.message);
+      }
+      A.deck.fonts = (A.deck.fonts || []).filter(function (r) { return r.family !== name; }).concat([{ family: name, file: file.name, data: data }]);
+      A.touch();
+      return name;
     });
   }
   function fillOf(o) { return o.fill && o.fill.type === 'solid' ? o.fill : null; }

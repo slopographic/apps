@@ -35,6 +35,32 @@
   };
   F.isReady = function () { return ready; };
 
+  /** Adds a font the person owns to the deck's fonts: TrueType bytes (one face: bold and italic are synthesised). Parsed first, so a
+   * file the engine cannot read throws before anything changes. A name a shipped family uses is refused; adding a name again
+   * replaces its file. The face is registered with the browser in the background, and the canvas is redrawn when it is loaded. */
+  var ownN = 0;
+  F.addUser = function (name, u8, data) {
+    var label = String(name || '').trim();
+    if (!label) throw new Error('That font has no family name.');
+    if (F.FAMILIES[label] && !F.FAMILIES[label].user) throw new Error(label + ' is a built-in family');
+    var font = T.parse(u8);
+    if (!F.FAMILIES[label]) F.LIST.push(label);
+    var key = 'own-' + (++ownN), d = F.FAMILIES[label] = { regular: key, kind: 'sans', user: true, data: data || null };
+    faces[key] = { key: key, u8: u8, font: font };
+    var ff = new FontFace('SSF-' + key, u8.slice().buffer), gf = new FontFace('SSG-' + key, u8.slice().buffer);
+    document.fonts.add(ff); document.fonts.add(gf);
+    return Promise.all([ff.load(), gf.load()]).then(function () { if (SS.app) SS.app.emit('render'); }, function (e) { console.warn('Slop Slides: ' + label + ' did not load', e); });
+  };
+  /** Registers the fonts a deck keeps in its file (deck.fonts: [{ family, file, data }]). A font already registered from the same data is
+   * left alone, so a deck that is read again costs nothing. */
+  F.registerDeck = function (deck) {
+    (deck.fonts || []).forEach(function (r) {
+      var have = F.FAMILIES[r.family];
+      if (have && have.user && have.data === r.data) return;
+      try { F.addUser(r.family, SS.util.dataUrlToU8(r.data), r.data); } catch (e) { console.warn('Slop Slides: ' + r.family + ' is not used: ' + e.message); }
+    });
+  };
+
   /** Loads every face. `src(key)` may supply bytes (the offline build does); otherwise they are fetched. */
   F.load = function (src) {
     if (loading) return loading;
@@ -84,6 +110,6 @@
   };
   /** CSS font string for canvas. Sizes are in canvas units (the caller scales the context). */
   /** CSS font-family for DOM text in a family (bold/italic come from font-weight/font-style). */
-  F.domFamily = function (family) { var f = F.family(family); return '"SSG-' + f + '", ' + (F.FAMILIES[f].kind === 'serif' ? 'serif' : F.FAMILIES[f].kind === 'mono' ? 'monospace' : 'sans-serif'); };
+  F.domFamily = function (family) { var f = F.family(family), d = F.FAMILIES[f]; return '"SSG-' + (d.user ? d.regular : f) + '", ' + (d.kind === 'serif' ? 'serif' : d.kind === 'mono' ? 'monospace' : 'sans-serif'); };
   F.css = function (face, size) { return size + 'px "' + face.css + '", sans-serif'; };
 })();
