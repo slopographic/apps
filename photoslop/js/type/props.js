@@ -83,7 +83,7 @@ function typeControls(full) {
   sync.push((s) => { aa.value = s.aa || 'smooth'; });
   const warp = h('button', { type: 'button', class: 'btn', title: 'Warp Text…', 'data-k': 'warp' }, 'Warp');
   warp.addEventListener('click', dlgWarpText);
-  wrap.append(lab('', font, ...(fontPick ? [fontPick.button] : [])), lab('', style), num('Size', 'size', 1, 1296, 'px'));
+  wrap.append(lab('', font, ...(fontPick ? [fontPick.button, fontPick.fontsButton] : [])), lab('', style), num('Size', 'size', 1, 1296, 'px'));
   if (!full) wrap.append(sizeR);
   else wrap.append(num('Tracking', 'tracking', -1000, 1000, '‰'), num('Leading', 'leading', 50, 400, '%'));
   wrap.append(lab('Colour', color), align, lab('AA', aa), warp);

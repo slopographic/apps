@@ -34,10 +34,11 @@
     }
     return seen;
   }
-  /** Lists the fonts, asks about the missing subset ones, and records the answers on the file. False when cancelled. */
+  /** Lists the fonts, asks about the missing subset ones, and records the answers on the file. False when cancelled.
+   * Families already answered (here or in the Fonts dialog, fonts-dialog.js) are not asked again. */
   async function check(f) {
     var C = window.SlopFontCatalog, ask = window.SlopFontCheck;
-    f.fontMap = new Map();
+    f.fontMap = f.fontMap || new Map();
     if (!C || !ask) return true;
     var needs = [], uses = [], listed = new Set();
     for (var facts of (await scan(f)).values()) {
@@ -45,7 +46,7 @@
       listed.add(facts.family);
       var installed = await C.hasFamily(facts.family);
       uses.push(facts.family + (facts.subset ? ' (subset)' : ' (full)') + (installed ? '' : ' · not installed'));
-      if (facts.subset && !installed) needs.push({ family: facts.family, closest: C.closestFamily(facts.family), pack: await C.packFor(facts.family) });
+      if (facts.subset && !installed && !f.fontMap.has(facts.family)) needs.push({ family: facts.family, closest: C.closestFamily(facts.family), pack: await C.packFor(facts.family) });
     }
     if (!needs.length) return true;
     var answers = await ask.ask(needs, uses);
@@ -53,6 +54,7 @@
     answers.forEach(function (v, fam) { f.fontMap.set(fam, v.family); });
     return true;
   }
+  S.scanFonts = scan;
   /** Resolves true when the file's text may be edited: the check has run (once) and the person did not cancel it. */
   S.fontsReady = function (f) {
     if (!f.fontCheck) {

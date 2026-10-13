@@ -32,7 +32,7 @@
     return s;
   }
   /** Font family select backed by the shared picker: standard names, bundled and downloaded families, and a
-   * Get more button after it (the button is the second child of the returned span). */
+   * Get more and Fonts buttons after it (the second and third children of the returned span). */
   function fontSel(group, get, set, label) {
     var s = h('select', { class: 'sel', 'aria-label': label, title: label });
     // The shared picker is stripped from the offline build; there the standard list stays.
@@ -47,7 +47,7 @@
       if (v && !Array.prototype.some.call(s.options, function (o) { return o.value === v; })) s.add(new Option(v, v));
       s.value = v == null ? '' : String(v);
     });
-    return h('span', { class: 'font-pick' }, [s, pick ? pick.button : null]);
+    return h('span', { class: 'font-pick' }, [s, pick ? pick.button : null, pick ? pick.fontsButton : null]);
   }
   function seg(group, items, get, set, label) {
     var wrap = h('div', { class: 'seg', role: 'group', 'aria-label': label });

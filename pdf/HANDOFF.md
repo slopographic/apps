@@ -299,3 +299,62 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
 - **History** (`js/tools/history-panel.js`, `H.steps()` and `H.goTo(n)` in `core/history.js`): applied steps oldest first, then
   undone steps greyed; a click goes to that state by undo or redo.
 - Tests: `tests/pdf/pdf.spec-drop.js`, `pdf.spec-layers.js`, `pdf.spec-sidebar.js` (in `pdf.test.html`).
+
+## Slop Drive: originals, saved copies and versions (`io/drive-docs.js`, `io/doc-changes.js`, `ui/versions.js`)
+- **The original is kept at once.** Opening a PDF (drop, File ▸ Open, Add pages, Open from Drive into an empty document)
+  stores its untouched bytes as a Drive file before anything else happens. An encrypted PDF is stored encrypted. The
+  original is never written again. Images opened as pages are not stored (no original file exists for them).
+- **Duplicates are linked, not copied.** The SHA-256 of the bytes (`SP.editLog.fingerprint`) finds a Drive PDF with the same
+  bytes: sizes are compared first, and each PDF's hash is cached in its record (`meta.sha256`). A plain PDF another app put
+  in Drive is adopted as the original. An edited copy links back to its original, so opening it finds the same document.
+- **Save** (File ▸ Save to Slop Drive, Ctrl+S) writes two more Drive files beside the original: the edited PDF (`meta.pdf`
+  role `edited`) and `<name>.changes.json` (role `changes`). Later saves update those two; the original is not overwritten.
+  Behaviour change: Save used to write back to the Drive file the document came from, which is now the untouched original.
+- **Change list** (`slop-pdf-changes`, version 1, `io/doc-changes.js`): `original` and `edited` (name, sha256, size),
+  `layers` (each page's annotations as numbers, booleans, short strings and number lists, with the hidden and locked
+  flags), and `log` (the edit-log records of the open document: the commands that replay on the original, assets as data
+  URLs). Replaying `log` on the original gives the edited document (checked in `pdf.spec-drive-docs.js`).
+  The change list does not contain the original bytes.
+- **File ▸ Versions**: Open the original; Open the edited copy (a new tab, linked to the original, no new Drive copy); Open the
+  original with the saved changes (replays `log` on it); Revert to the original (asks first; drops the edits in this tab and
+  the device's saved edits for that file; the saved edited copy stays in Drive); Download the change list (JSON).
+- **Without Slop Drive** (offline file, no hub, or a storage error) nothing is written. The document opens and works here,
+  and a message says it is kept on this device only. File ▸ "Save opened PDFs to Slop Drive" (`slop-pdf.driveAutosave`)
+  turns the automatic save off; Save and Versions still work once a document is in Drive.
+- **Limits.** A document built from several files is linked to its first file; the other files are stored as their own
+  originals. The offline file has no Drive, so none of this runs there.
+- Tests: `tests/pdf/pdf.spec-drive-docs.js`.
+
+## Fonts (`ui/fonts-dialog.js`)
+- File ▸ Fonts…, the top-bar "Aa" button and the command palette ("Fonts…"). It reopens any time.
+- Lists the families the open file embeds (`S.scanFonts`, from `editor/font-check.js`), one row each, with a status:
+  **Embedded** (the whole font is in the file), **Available** (the device has the family, it is a standard font, or a
+  closest font was chosen), **Missing** (a subset whose family this device lacks).
+- Missing rows offer **Download** (only when `shared/library` lists the family: it opens the Get more confirmation, nothing
+  downloads before), **Drop your own** (TTF, OTF or WOFF, stored on this device through `SlopFontCatalog.addUserFile`) and
+  **Use closest font** (the bundled family from `SlopFontCatalog.closestFamily`, kept as `f.fontMap`).
+- The answers are shared with the first-edit prompt: `check()` skips a family that already has an answer, and still asks
+  for any missing family that has none.
+- Limit: only fonts the file embeds are listed. A font that is not embedded has no file for pdf.js to give.
+- Tests: `tests/pdf/pdf.spec-fonts-dialog.js`.
+
+## Export as (`ui/export-menu.js`, `shared/convert/pdf-office.js`, `pdf-pptx.js`, `pdf-layout.js`)
+- File ▸ Export as ▸ Word, Excel, PowerPoint, PNG, JPG, or Other formats… (the Convert dialog with that target chosen).
+  The three new targets live in `convert/js/core/catalog.js`, so the Convert app offers them too.
+- **PDF to Word (DOCX)**: text-based. `pdf-layout.js` groups the text into lines and cells (a gap of a fifth of the text
+  height starts a cell); consecutive lines with the same column starts become a Word table, other lines are paragraphs.
+  The page size is Letter or A4, whichever is closer. Images, drawings, colours and fonts are not kept. A page with no text
+  layer gets a line saying so.
+- **PDF to Excel (XLSX)**: one sheet. Each page starts with a "Page n" row; each line goes into the column its text starts
+  in (columns are the text start positions of the page). Values that round-trip as numbers are numbers. No formulas,
+  formats or images.
+- **PDF to PowerPoint (PPTX)**: one slide per page, the page drawn as a picture at 144 dpi, fitted to 16:9. The text is not
+  editable in the deck. Not yet checked in Microsoft PowerPoint.
+- **PDF to text** reads through the same `pdf-layout.js`.
+- Each target's fidelity is its `note`, shown in the dialog.
+- Tests: `tests/pdf/pdf.spec-office.js`.
+
+## Still to do
+- The service worker precache does not list the new files until `node tools/pwa-precache.mjs` runs and VERSION is bumped.
+- Tables are found from text alignment only: no ruled-line detection, no merged cells.
+- Scanned pages are marked, not OCR'd, in Word and Excel (PowerPoint keeps them as pictures).

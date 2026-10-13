@@ -1,5 +1,5 @@
 /* Slopographic font catalogue (window.SlopFontCatalog), for every app. One answer to "which families can this app use":
- * - the bundled library, read from shared/fonts/library/index.json (the one font list; picker.js and the tests agree with it);
+ * - the bundled library, from SlopFonts.bundledIndex() (shared/fonts/library/index.json, the one font list);
  * - the fonts installed from "Get more" packs and the font files the person added, both in IndexedDB (shared/library/store.js).
  * It also reads PostScript font names ("ABCDEF+Barlow-SemiBold"), picks a face by weight and style, names the closest bundled
  * family for a font that is not installed, and checks a font file the person owns with fontkit (vendor/fontkit) before storing it.
@@ -16,19 +16,13 @@
   const WEIGHTS = { thin: 100, extralight: 200, ultralight: 200, light: 300, regular: 400, normal: 400, book: 400, medium: 500, semibold: 600, demibold: 600, bold: 700, extrabold: 800, ultrabold: 800, black: 900, heavy: 900 };
   const WEIGHT_WORDS = Object.keys(WEIGHTS).sort((a, b) => b.length - a.length);
   const SUBSET = /^[A-Z]{6}\+/;
-  let indexP = null, fkP = null;
+  let fkP = null;
 
   /** Resolves once the picker's library scripts (store, manifest, Get more) are on the page. */
   function ready() { return root.SlopFonts ? root.SlopFonts.ready() : Promise.resolve(); }
-  /** The bundled font index: the one list of bundled faces. Resolves [] when it cannot be read. */
+  /** The bundled faces, from the picker's index reader (the one place that reads index.json). */
   function bundled() {
-    if (!indexP) {
-      indexP = fetch(LIB + 'index.json', { cache: 'no-cache' })
-        .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then((j) => (j.fonts || []).map((f) => ({ family: f.family, weight: String(f.weight), style: f.style || 'normal', category: f.category || 'sans', source: 'bundled', url: LIB + f.file, embed: f.pdf ? LIB + f.pdf : null })))
-        .catch(() => []);
-    }
-    return indexP;
+    return root.SlopFonts.bundledIndex().then((fs) => fs.map((f) => ({ family: f.family, weight: String(f.weight), style: f.style || 'normal', category: f.category || 'sans', source: 'bundled', url: LIB + f.file, embed: f.pdf ? LIB + f.pdf : null })));
   }
   /** Every face the app can load: bundled faces, then installed ones. A face has family, weight (a number or "min max"), style. */
   async function faces() {
@@ -39,15 +33,15 @@
       if (!store) return list;
       for (const p of await store.listPacks()) {
         if (p.kind === 'model') continue; // AI models are not fonts
-        for (const f of p.files) list.push({ family: f.family, weight: String(f.weight), style: f.style || 'normal', category: guessCategory(f.family), source: 'installed', key: `${p.id}/${f.name}`, embed: !/\.woff2$/i.test(f.name) });
+        for (const f of p.files) list.push({ family: f.family, weight: String(f.weight), style: f.style || 'normal', category: guessCategory(f.family), source: 'installed', user: p.licence === 'user', key: `${p.id}/${f.name}`, embed: !/\.woff2$/i.test(f.name) });
       }
     } catch (e) { /* storage unavailable: bundled faces only */ }
     return list;
   }
-  /** Families the app can use: name, category and where they come from (bundled or installed). */
+  /** Families the app can use: name, category and source ('bundled', 'installed', or 'own' for a font file the person added). */
   async function families() {
     const seen = new Map();
-    for (const f of await faces()) if (!seen.has(f.family)) seen.set(f.family, { name: f.family, category: f.category, source: f.source });
+    for (const f of await faces()) if (!seen.has(f.family)) seen.set(f.family, { name: f.family, category: f.category, source: f.user ? 'own' : f.source });
     return [...seen.values()];
   }
   /** Whether a family (exact name) has at least one face installed or bundled. */

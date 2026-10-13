@@ -22,6 +22,19 @@
   /** Fresh empty document (no confirm dialog). */
   PT.reset = function () { PT.A.showGrid(true); PT.E.closeAll(); PT.SP.organizer.setSelection([]); };
 
+  /** A one-page PDF with `text` set in Barlow Regular (installed nowhere in the tests): subset (as most documents embed)
+   * or the whole font. Built with the app's pdf-lib and fontkit. */
+  PT.barlowPdf = async function (text, { subset = true } = {}) {
+    if (!PT.SP) await PT.boot();
+    const L = PT.win.PDFLib, kit = await PT.win.SlopFontCatalog.fontkit();
+    const d = await L.PDFDocument.create();
+    d.registerFontkit(kit);
+    const font = await d.embedFont(await PT.fixture('Barlow-Regular.ttf'), { subset });
+    d.addPage(PT.win.Array.of(300, 200)).drawText(text, { x: 20, y: 20, size: 18, font });
+    d.setCreationDate(new PT.win.Date(PT.win.Date.UTC(2021, 0, 1) + (++PT._nonce) * 1000));
+    return d.save();
+  };
+
   /** pages: [{w, h, text, rotate, box:[x0,y0,x1,y1]}] → Uint8Array, made with pdf-lib. */
   PT.makePdf = async function (pages, opts = {}) {
     const L = PT.win.PDFLib, doc = await L.PDFDocument.create();

@@ -24,19 +24,32 @@
     var orig = A[k]; if (!orig) return;
     A[k] = function () { A.driveId = null; return orig.apply(this, arguments); };
   });
-  /** File ▸ Save: the PDF goes back to the linked Drive file, or a folder is asked for the first time. */
+  /** File ▸ Save: the edited PDF and its change list go to Slop Drive beside the original (io/drive-docs.js). A document
+   * that is not in Drive yet asks for a folder, and that first copy is then the document's original. */
   A.saveToDrive = function () {
     var H = hub(); if (!H || !E.state.pages.length) return Promise.resolve(null);
     return S.guarded('Saving to Slop Drive…', function () { return A.currentPdfBlob(); }).then(function (blob) {
       var name = U.safeName(S.els.fileName.value || 'document.pdf', 'pdf');
       S.els.fileName.value = name;
-      if (!A.driveId) return H.saveToDrive(blob, name, { from: 'pdf' }).then(function (id) { if (id) A.driveId = id; return id; });
-      return H.update(A.driveId, { blob: blob, name: name, type: blob.type }).then(function (rec) {
-        if (!rec) return H.put(blob, { id: A.driveId, name: name, from: 'pdf' });
-        SlopUI.toast('Saved ' + name + ' to Slop Drive');
-        return A.driveId;
+      return SP.driveDocs.save(A.driveId, blob, name).then(function (r) {
+        if (r) { SlopUI.toast('Saved ' + name + ' to Slop Drive. The original is kept.'); return r.editedId; }
+        return H.saveToDrive(blob, name, { from: 'pdf' }).then(function (id) { if (id) A.driveId = id; return id; });
       });
-    });
+    }).catch(function (e) { SlopUI.toast('Could not save to Slop Drive: ' + (e.message || e)); return null; });
+  };
+  /** Opened PDFs go to Slop Drive at once (their original bytes, or the copy already there). When the document was empty
+   * the first file is its link (A.driveId). Without Drive the work stays on this device, and the person is told so. */
+  A.autosaveOpened = async function (sources, linkFirst) {
+    if (!SP.driveDocs.enabled()) return;
+    var reused = false;
+    for (var k = 0; k < sources.length; k++) {
+      var r = null;
+      try { r = await SP.driveDocs.keepOriginal(sources[k].bytes, sources[k].name); }
+      catch (e) { console.warn('Slop PDF: Slop Drive is not available', e); SlopUI.toast('Slop Drive is not available. This document is kept on this device only.'); return; }
+      if (k === 0 && linkFirst) A.driveId = r.id;
+      reused = reused || r.reused;
+    }
+    SlopUI.toast(reused ? 'Already in Slop Drive: linked, no copy made' : 'Saved the original to Slop Drive');
   };
   /** The current document as a validated PDF blob. */
   A.currentPdfBlob = async function () {
