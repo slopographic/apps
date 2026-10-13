@@ -1,16 +1,13 @@
-/* Slop PDF Fonts (File ▸ Fonts…, the top-bar button): the fonts the document embeds with a status (embedded, available,
-   missing); a missing font offers Drop your own and Use closest font (Download only when the library lists the family);
-   an answer is kept on the file, the dialog reopens after it is dismissed, the first-edit prompt does not ask again for an
-   answered family, and it still asks for an unanswered one. Barlow is not installed in the tests, so its subset is missing. */
+/* Slop PDF File ▸ Fonts…, the top-bar button: opens the shared Fonts panel (shared/fonts/panel.js) with the subset fonts of
+   the document. A missing one offers Drop your own font and Use the closest font (Download only when the library lists the
+   family). A closest font chosen there is kept on the file (f.fontMap), the first-edit prompt does not ask again for it, the
+   panel reopens after it is dismissed, and a document with no subset fonts says so. Barlow is not installed in the tests. */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor } = SlopTest;
   const doc = () => PT.win.document;
-  const rowOf = (family) => doc().querySelector(`.pf-row[data-family="${family}"]`);
-  const buttonIn = (el, label) => [...el.querySelectorAll('button')].find((b) => b.textContent.trim() === label);
-  /** Closes the open dialog with its Close button. */
-  const closeDialog = () => { const b = [...doc().querySelectorAll('.sui-dlg button')].find((x) => x.textContent.trim() === 'Close'); if (b) b.click(); };
-  /** Opens a document with these bytes in an empty document. */
+  const rowOf = (family) => doc().querySelector(`.sf-row[data-family="${family}"]`);
+  const closePanel = () => { const b = doc().querySelector('.sf-box button.pri'); if (b) b.click(); };
   async function openDoc(bytes, name) {
     if (!PT.SP) await PT.boot();
     PT.reset();
@@ -26,45 +23,43 @@
   }
 
   describe('Slop PDF fonts', () => {
-    it('is on the top bar and reopens after it is dismissed', async () => {
+    it('is on the top bar, and the panel reopens after it is dismissed', async () => {
       await openDoc(await PT.barlowPdf('Fonts one'), 'fonts-reopen.pdf');
       expect(!!doc().getElementById('btnFonts')).toBe(true);
       doc().getElementById('btnFonts').click();
       await waitFor(() => rowOf('Barlow'), { timeout: 8000 });
-      closeDialog();
-      await waitFor(() => !doc().querySelector('.pf-dlg'), { timeout: 3000 });
+      closePanel();
+      await waitFor(() => !doc().querySelector('.sf-ov'), { timeout: 3000 });
       doc().getElementById('btnFonts').click();
       await waitFor(() => rowOf('Barlow'), { timeout: 8000 });
+      closePanel();
     });
 
-    it('lists a subset the device lacks as missing, with Drop your own and Use closest font', async () => {
+    it('lists a subset the device lacks as missing, with Drop your own font and Use the closest font', async () => {
       await openDoc(await PT.barlowPdf('Fonts two'), 'fonts-missing.pdf');
       PT.A.openFonts();
       const row = await waitFor(() => rowOf('Barlow'), { timeout: 8000 });
-      expect(row.dataset.status).toBe('missing');
-      expect(!!buttonIn(row, 'Drop your own')).toBe(true);
-      expect(!!buttonIn(row, 'Use closest font')).toBe(true);
-      expect(row.querySelector('.pf-status').textContent).toBe('Missing');
-      closeDialog();
+      expect(row.textContent).toContain('Missing. It is not installed.');
+      expect(!!row.querySelector('[data-how="file"]')).toBe(true);
+      expect(!!row.querySelector('[data-how="closest"]')).toBe(true);
+      closePanel();
     });
 
-    it('a font embedded in full is embedded, with no actions', async () => {
+    it('a font embedded in full needs no answer, so the document is said to have no subset fonts', async () => {
       await openDoc(await PT.barlowPdf('Fonts three', { subset: false }), 'fonts-full.pdf');
       PT.A.openFonts();
-      const row = await waitFor(() => rowOf('Barlow'), { timeout: 8000 });
-      expect(row.dataset.status).toBe('embedded');
-      expect(row.querySelectorAll('.pf-actions button').length).toBe(0);
-      closeDialog();
+      await waitFor(() => doc().body.textContent.includes("embeds no fonts"), { timeout: 8000 });
+      expect(rowOf('Barlow')).toBe(null);
     });
 
-    it('Use closest font keeps the answer: the row is available, and the first edit does not ask again', async () => {
+    it('Use the closest font keeps the answer: the row is done, and the first edit does not ask again', async () => {
       await openDoc(await PT.barlowPdf('Fonts four'), 'fonts-closest.pdf');
       PT.A.openFonts();
       const row = await waitFor(() => rowOf('Barlow'), { timeout: 8000 });
-      buttonIn(row, 'Use closest font').click();
-      await waitFor(() => rowOf('Barlow') && rowOf('Barlow').dataset.status === 'available', { timeout: 4000 });
+      row.querySelector('[data-how="closest"]').click();
+      await waitFor(() => rowOf('Barlow') && rowOf('Barlow').classList.contains('done'), { timeout: 4000 });
       expect(firstFile().fontMap.get('Barlow')).toBe(PT.win.SlopFontCatalog.closestFamily('Barlow'));
-      closeDialog();
+      closePanel();
       const asked = await withPromptSpy(new PT.win.Map(), async () => {
         expect(await PT.SP.editor._.fontsReady(firstFile())).toBe(true);
       });
@@ -80,11 +75,10 @@
       expect(asked[0]).toEqual(['Barlow']);
     });
 
-    it('a document with no embedded fonts says so', async () => {
+    it('a document with no subset fonts says so', async () => {
       await openDoc(await PT.makePdf([{ text: 'Standard only' }]), 'fonts-none.pdf');
       PT.A.openFonts();
-      await waitFor(() => [...doc().querySelectorAll('.pf-list p')].some((p) => p.textContent.includes('embeds no fonts')), { timeout: 8000 });
-      closeDialog();
+      await waitFor(() => doc().body.textContent.includes('embeds no fonts'), { timeout: 8000 });
     });
   });
 })();

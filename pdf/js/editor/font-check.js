@@ -35,7 +35,7 @@
     return seen;
   }
   /** Lists the fonts, asks about the missing subset ones, and records the answers on the file. False when cancelled.
-   * Families already answered (here or in the Fonts dialog, fonts-dialog.js) are not asked again. */
+   * Families already answered (here or in File ▸ Fonts, ui/fonts.js) are not asked again. */
   async function check(f) {
     var C = window.SlopFontCatalog, ask = window.SlopFontCheck;
     f.fontMap = f.fontMap || new Map();

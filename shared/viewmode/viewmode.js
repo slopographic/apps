@@ -118,8 +118,7 @@
   }
   function span(cls, text) { const n = doc.createElement('span'); n.className = cls; n.setAttribute('aria-hidden', 'true'); n.textContent = text; return n; }
   function mountButton(e) {
-    const host = el(e.spec.mount);
-    if (!host) return;
+    if (!el(e.spec.mount)) return;
     const b = doc.createElement('button');
     b.type = 'button';
     b.className = 'slopvm-btn';
@@ -127,8 +126,15 @@
     b.setAttribute('aria-label', 'View mode. Press to change.');
     b.append(span('slopvm-ico', '\u25E7'), span('slopvm-txt', ''));   // the glyph alone on a narrow screen
     b.addEventListener('click', cycle);
-    host.appendChild(b);
     e.buttons.push(b);
+    placeButton(e, b);
+  }
+  const NARROW = win.matchMedia ? win.matchMedia('(max-width: 760px)') : null;
+  /** The button sits in the app's top bar, or in the body on a narrow screen (see the CSS). */
+  function placeButton(e, b) {
+    const host = el(e.spec.mount);
+    const target = NARROW && NARROW.matches ? doc.body : host;
+    if (target && b.parentNode !== target) target.appendChild(b);
   }
 
   /** Register an app. Returns its handle. Regions the page does not have are skipped. */
@@ -162,6 +168,7 @@
     doc.addEventListener('keydown', onKey, true);
     doc.addEventListener('pointermove', onPointer, { passive: true });
     win.addEventListener('pagehide', () => { for (const a of apps.keys()) saveLayout(a); });
+    if (NARROW && NARROW.addEventListener) NARROW.addEventListener('change', () => { for (const e of apps.values()) for (const b of e.buttons) placeButton(e, b); });
     safe(() => { const s = doc.createElement('style'); s.id = 'slopvm-style'; s.textContent = CSS; doc.head.appendChild(s); });
   }
   const CSS = '.slopvm-off{display:none!important}' +
@@ -169,7 +176,10 @@
     '.slopvm-btn{font:inherit;font-size:12px;line-height:1.2;padding:2px 8px;margin-left:6px;border:1px solid var(--sl-border,#8886);' +
     'border-radius:4px;background:transparent;color:var(--sl-text,inherit);cursor:pointer;white-space:nowrap}' +
     '.slopvm-btn:focus-visible{outline:2px solid var(--sl-accent,#06c);outline-offset:2px}' +
-    '@media (max-width:760px){.slopvm-btn .slopvm-txt{display:none}.slopvm-btn{padding:2px 6px}}';
+    // Narrow screens: the button leaves the top bar and floats in the corner (position: fixed), so it takes no width
+    // from the page and stays reachable when a toolbar is hidden.
+    '@media (max-width:760px){.slopvm-btn{position:fixed;right:10px;bottom:10px;z-index:9000;margin:0;padding:6px 10px;' +
+    'border-radius:16px;background:var(--sl-surface,#1b1b1f);box-shadow:0 2px 8px #0005}.slopvm-btn .slopvm-txt{display:none}}';
 
   win.SlopViewMode = {
     register, mode: () => mode, set: setMode, cycle, saveLayout,
