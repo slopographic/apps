@@ -154,6 +154,9 @@
     $('sc-clear').addEventListener('click', clearInput);
     el.tapeClear.addEventListener('click', clearTape);
     document.querySelectorAll('[data-ins]').forEach((b) => b.addEventListener('click', () => insert(b.dataset.ins)));
+    // Published only now, with the listeners attached: this script sits in the <head>, so boot() waits for
+    // DOMContentLoaded, and a caller that sees SlopCalcApp earlier would click controls that do nothing yet.
+    window.SlopCalcApp = { commit, copyResult, saveDrive, clearInput, clearTape, insert, focus: () => el.expr.focus(), copyText };
     P.init({
       pick: (expr) => { el.expr.value = expr; schedulePreview(); el.expr.focus(); },
       history: () => S.history,
@@ -168,6 +171,5 @@
     el.expr.focus();
   }
 
-  window.SlopCalcApp = { commit, copyResult, saveDrive, clearInput, clearTape, insert, focus: () => el.expr.focus(), copyText };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
