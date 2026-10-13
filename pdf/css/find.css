@@ -4,6 +4,9 @@
 .pv-textlayer { position: absolute; left: 0; top: 0; overflow: hidden; line-height: 1; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; pointer-events: none; z-index: 1; }
 .pv-textlayer span, .pv-textlayer br { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; pointer-events: auto; }
 .pv-textlayer ::selection { background: var(--sl-select, rgba(40, 110, 255, .32)); }
+/* pdf.js 5 sets each span's size and stretch as variables (--font-height, --scale-x) and leaves the sizing to the viewer CSS */
+.pv-textlayer { --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); }
+.pv-textlayer > span { --font-height: 0; font-size: calc(var(--text-scale-factor) * var(--font-height)); --scale-x: 1; --rotate: 0deg; transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv)); }
 .pv-page:not([data-tool="select"]) .pv-textlayer span { pointer-events: none; }
 /* The annotation overlay passes presses to the text and canvas beneath; its marks keep their own hit areas. */
 .pv-svg { pointer-events: none; }

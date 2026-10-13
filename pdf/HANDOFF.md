@@ -1,6 +1,6 @@
 # Slop PDF — handoff
 
-In-browser PDF editor at `/pdf/` (pdf.js 4.10.38 for parsing/rendering, pdf-lib 1.17.1 for writing,
+In-browser PDF editor at `/pdf/` (pdf.js 5.7.284 for parsing/rendering, pdf-lib 1.17.1 for writing,
 both vendored in `/vendor/`).
 
 ## What works (verified with Playwright e2e scripts + poppler)
