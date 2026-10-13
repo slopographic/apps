@@ -79,11 +79,13 @@
     return new Uint8Array(await blob.arrayBuffer());
   }
   /** A PostScript font name as { family, weight, italic, subset, name }. "ABCDEF+BarlowCondensed-SemiBold" is the subset
-   * "Barlow Condensed", weight 600. A name with no style part is Regular. */
+   * "Barlow Condensed", weight 600. A name with no style part is Regular. A subset is marked by its six-letter tag (most
+   * writers) or by a numeric suffix ("Barlow-Regular-9742", pdf-lib). */
   function parseName(ps) {
     let s = String(ps || '');
-    const subset = SUBSET.test(s);
+    let subset = SUBSET.test(s);
     if (subset) s = s.slice(7);
+    if (/-\d{3,}$/.test(s)) { subset = true; s = s.replace(/-\d{3,}$/, ''); }
     const dash = s.indexOf('-');
     const base = dash < 0 ? s : s.slice(0, dash), style = (dash < 0 ? '' : s.slice(dash + 1)).toLowerCase().replace(/[\s_]/g, '');
     let weight = 400;
@@ -121,10 +123,6 @@
     });
     return fkP;
   }
-  async function digest(bytes) {
-    const h = await root.SlopLibraryManifest.sha256Hex(bytes);
-    return h;
-  }
   /** Adds a font file the person owns (TTF, OTF, WOFF or WOFF2). fontkit must read it; it is then stored in IndexedDB the
    * same way a pack is (one pack per file, marked as the person's own). Resolves { family, weight, italic }. */
   async function addUserFile(file) {
@@ -141,7 +139,7 @@
     const family = String(f.familyName || '').trim();
     if (!family) throw new Error('That font file has no family name.');
     const w = (f['OS/2'] && f['OS/2'].usWeightClass) || 400, italic = /italic|oblique/i.test(f.subfamilyName || '');
-    const sha = await digest(bytes), id = 'user-' + family.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + sha.slice(0, 8);
+    const sha = await root.SlopLibraryManifest.sha256Hex(bytes), id = 'user-' + family.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + sha.slice(0, 8);
     const name = 'font.' + ext, style = italic ? 'italic' : 'normal';
     const pack = { id, kind: 'font', name: family + ' (your file)', licence: 'user', licenceUrl: '', description: 'A font file added on this device. Nothing is uploaded.', size: bytes.length,
       files: [{ name, url: '', size: bytes.length, sha256: sha, family, weight: String(w), style }] };
