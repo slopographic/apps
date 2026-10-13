@@ -5,29 +5,20 @@
 //   node tools/seo/write.mjs --date=2026-10-11   lastmod date (default: today)
 // Copy comes from shared/seo/copy.mjs, the app list from shared/apps.js. Each page gets one block between
 // <!-- seo:start --> and <!-- seo:end -->, placed after its charset tag. Read shared/seo/HANDOFF.md first.
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import vm from 'node:vm';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { ROOT, SITE, loadRegistry, isPage, pageUrl } from './site.mjs';
+import { landingPages } from './landing.mjs';
 
-export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-export const SITE = 'https://slopographic.com';
+export { ROOT, SITE, loadRegistry, isPage, pageUrl };
 const DEFAULT_IMAGE = `${SITE}/og-share.png`;
 const DESC_MIN = 120, DESC_MAX = 160;
 const TITLE_SUFFIX = ' | Slopographic';
 const OS = 'Any (runs in a web browser)';
 const AUTHOR = { '@type': 'Organization', name: 'Slopographic', url: `${SITE}/` };
 
-/** The app registry, read the way the browser reads it (a classic script that sets window.SLOP_APPS). */
-export async function loadRegistry() {
-  const src = await readFile(path.join(ROOT, 'shared', 'apps.js'), 'utf8');
-  const win = {};
-  vm.runInNewContext(src, { window: win });
-  return win.SLOP_APPS;
-}
-export const isPage = (app) => !!app.path && !app.path.startsWith('#');
-export const pageUrl = (app) => `${SITE}/${app.path}`;
 /** Open Graph image: the app's shot when the file exists, else the site image. */
 export const imageFor = (app) => (app.shot && existsSync(path.join(ROOT, app.shot)) ? `${SITE}/${app.shot}` : DEFAULT_IMAGE);
 const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
