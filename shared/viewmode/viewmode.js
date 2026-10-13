@@ -49,7 +49,7 @@
       r.el.classList.toggle('slopvm-off', r.off);
       r.el.classList.toggle('slopvm-peek', wanted && r.peek && !peekAll);
     }
-    for (const e of apps.values()) for (const b of e.buttons) b.textContent = 'View: ' + LABEL[mode];
+    for (const e of apps.values()) for (const b of e.buttons) b.querySelector('.slopvm-txt').textContent = 'View: ' + LABEL[mode];
     if (doc.documentElement) doc.documentElement.dataset.slopvm = mode;
     // A changed layout needs a re-measure: apps listen for resize (canvases, editors, grids).
     if (win.requestAnimationFrame) win.requestAnimationFrame(() => win.dispatchEvent(new Event('resize')));
@@ -116,6 +116,7 @@
     store.set(LAYOUT + app, safe(() => JSON.stringify(obj), '{}'));
     return true;
   }
+  function span(cls, text) { const n = doc.createElement('span'); n.className = cls; n.setAttribute('aria-hidden', 'true'); n.textContent = text; return n; }
   function mountButton(e) {
     const host = el(e.spec.mount);
     if (!host) return;
@@ -124,6 +125,7 @@
     b.className = 'slopvm-btn';
     b.title = 'Change the view (Ctrl+Shift+F). Ctrl+Shift+L shows hidden parts.';
     b.setAttribute('aria-label', 'View mode. Press to change.');
+    b.append(span('slopvm-ico', '\u25E7'), span('slopvm-txt', ''));   // the glyph alone on a narrow screen
     b.addEventListener('click', cycle);
     host.appendChild(b);
     e.buttons.push(b);
@@ -166,7 +168,8 @@
     '.slopvm-peek{outline:1px dashed var(--sl-accent,#888);outline-offset:-1px}' +
     '.slopvm-btn{font:inherit;font-size:12px;line-height:1.2;padding:2px 8px;margin-left:6px;border:1px solid var(--sl-border,#8886);' +
     'border-radius:4px;background:transparent;color:var(--sl-text,inherit);cursor:pointer;white-space:nowrap}' +
-    '.slopvm-btn:focus-visible{outline:2px solid var(--sl-accent,#06c);outline-offset:2px}';
+    '.slopvm-btn:focus-visible{outline:2px solid var(--sl-accent,#06c);outline-offset:2px}' +
+    '@media (max-width:760px){.slopvm-btn .slopvm-txt{display:none}.slopvm-btn{padding:2px 6px}}';
 
   win.SlopViewMode = {
     register, mode: () => mode, set: setMode, cycle, saveLayout,
