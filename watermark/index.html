@@ -85,6 +85,11 @@
 
       <div class="wm-drop" id="wm-drop"></div>
 
+      <section class="wm-groups" id="wm-groups" aria-label="Groups by shape" hidden>
+        <p class="wm-count">Groups by shape. Each group uses the shared setting unless you turn on its own.</p>
+        <ol class="wm-group-list" id="wm-group-list"></ol>
+      </section>
+
       <div class="wm-list-wrap" id="wm-list-wrap" hidden>
         <p class="wm-count" id="wm-count" aria-live="polite"></p>
         <ol class="wm-list" id="wm-list" aria-label="Pictures"></ol>
@@ -183,12 +188,14 @@
   <script src="../shared/drop/drop.js"></script>
   <script src="../shared/watermark/core.js"></script>
   <script src="js/util.js"></script>
+  <script src="js/groups.js"></script>
   <script src="js/decode.js"></script>
   <script src="js/render.js"></script>
   <script src="js/items.js"></script>
   <script src="js/export.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/list.js"></script>
+  <script src="js/groups-ui.js"></script>
   <script src="js/main.js"></script>
   <script src="../shell/shell.js"></script>
 </body>

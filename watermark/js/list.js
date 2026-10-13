@@ -20,13 +20,14 @@
         el('button', { type: 'button', class: 'sui-btn', 'data-act': 'dl', disabled: !item.out, 'aria-label': 'Download ' + item.name }, 'Download'),
         el('button', { type: 'button', class: 'sui-btn', 'data-act': 'rm', 'aria-label': 'Remove ' + item.name }, 'Remove')));
   }
-  /** Rebuilds the list and the count line from the items. */
+  /** Rebuilds the list, the count line and the groups list from the items. */
   function render() {
     const items = window.WMItems.all(), n = items.length, done = window.WMItems.outCount();
     $('wm-list').replaceChildren(...items.map(row));
     $('wm-list-wrap').hidden = !n;
     $('wm-count').textContent = n ? n + (n === 1 ? ' picture' : ' pictures') + (done ? ' · ' + done + ' watermarked' : '') : '';
     document.body.classList.toggle('has-items', n > 0);
+    window.WMGroupsUI.render();
   }
 
   /** Clicks on Download and Remove, one handler for the whole list. */
@@ -45,7 +46,7 @@
   async function show() {
     const my = ++seq;
     const first = window.WMItems.first(), cv = $('wm-preview'), off = $('wm-off');
-    const cfg = window.WMSettings.cfg(), logo = window.WMSettings.logo();
+    const cfg = window.WMSettings.cfgFor(first && first.group), logo = window.WMSettings.logo();
     $('wm-preview-note').textContent = !first ? '' : cfg.kind === 'logo' && !logo ? 'Upload a logo to see it on the picture.'
       : cfg.kind === 'text' && !cfg.text ? 'Type some text to see it on the picture.' : '';
     if (!first) { cv.hidden = true; off.hidden = false; return; }

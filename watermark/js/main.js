@@ -37,10 +37,10 @@
   async function applyAll() {
     if (busy || !window.WMItems.count() || !readyToApply()) return;
     busy = true; cancelRun = false; syncBar(); showRun(true);
-    const cfg = window.WMSettings.cfg(), logo = window.WMSettings.logo();
+    const logo = window.WMSettings.logo();
     const pbar = $('wm-prog-bar');
     try {
-      const res = await window.WMExport.applyAll(window.WMItems.all(), cfg, logo && logo.bitmap,
+      const res = await window.WMExport.applyAll(window.WMItems.all(), (item) => window.WMSettings.cfgFor(item.group), logo && logo.bitmap,
         (done, total, name) => { pbar.max = total; pbar.value = done; $('wm-prog-text').textContent = 'Writing ' + (done + 1) + ' of ' + total + ': ' + name; },
         () => cancelRun);
       $('wm-run-note').textContent = res.stopped ? 'Stopped. ' + res.done + ' written.'

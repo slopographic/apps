@@ -1,4 +1,5 @@
-/* Slop Watermark: the list of pictures in this visit. Each item: { id, file, name, type, url, w, h, out, error }.
+/* Slop Watermark: the list of pictures in this visit. Each item: { id, file, name, type, url, w, h, group, out, error }.
+ * group is the shape group from WMGroups.classify, worked out when the picture is added.
  * out = { blob, name } after Apply to all. The picture is read again when it is drawn, so the list keeps no decoded
  * pictures in memory (only object URLs). Classic script. Exposes window.WMItems. */
 (function () {
@@ -15,7 +16,8 @@
     try {
       const img = await window.WMDecode.loadPicture(url);
       const { w, h } = await window.WMDecode.sizeOf(img, file);
-      const item = { id: 'wm' + (++seq), file, name: file.name, type, url, w, h, out: null, error: '' };
+      const group = window.WMGroups.classify(w, h);
+      const item = { id: 'wm' + (++seq), file, name: file.name, type, url, w, h, group, out: null, error: '' };
       list.push(item);
       return item;
     } catch (err) { URL.revokeObjectURL(url); throw err; }

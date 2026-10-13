@@ -1,17 +1,20 @@
-/* Slop Watermark: the watermark setup (the form and the saved copy in this browser) and the logo. Classic script.
- * Exposes window.WMSettings. The saved copy is one localStorage record, { v: 1, cfg, logo }; the logo is kept as a
- * data URL only when it is under 500 KB. Every storage call is in try/catch: without storage the page still works.
- *   init({ onChange }) ; restore() → Promise ; cfg() ; logo() → { name, bitmap, dataUrl } | null ; setLogo(blob, name) → Promise */
+/* Slop Watermark: the watermark setup (the form and the saved copy in this browser), the logo, and the per-group
+ * overrides. Classic script. Exposes window.WMSettings. The saved copy is one localStorage record,
+ * { v: 1, data: { cfg, logo, groups } }; the logo is kept as a data URL only when it is under 500 KB.
+ * Every storage call is in try/catch: without storage the page still works.
+ *   init({ onChange }) ; restore() → Promise ; cfg() ; logo() → { name, bitmap, dataUrl } | null ; setLogo(blob, name) → Promise
+ *   group(kind) → the override of a shape group (off, from the shared setup, unless it is on) ; setGroup(kind, patch)
+ *   cfgFor(kind) → the setup a picture of that group is drawn with (WMGroups.applyOverride) */
 (function () {
   'use strict';
   const KEY = 'slopwatermark.setup', VERSION = 1, LOGO_LIMIT = 500 * 1024;
   const $ = window.WMUtil.$;
+  const G = window.WMGroups;
   const TEXT_ONLY = ['wm-text', 'wm-font', 'wm-colour', 'wm-shadow'];
   const DEFAULTS = window.SlopWatermark.defaults();
-  const state = { cfg: Object.assign({}, DEFAULTS), logo: null };
+  const state = { cfg: Object.assign({}, DEFAULTS), logo: null, groups: {} };
   let onChange = () => {}, saveTimer = 0, restoring = false;
 
-  const sizeKey = (kind) => (kind === 'logo' ? 'logoScale' : 'size');
   const num = (id) => parseFloat($(id).value) || 0;
 
   /** Reads every control except the size slider (write() keeps that one in step with the kind). */
@@ -33,9 +36,9 @@
     $('wm-kind').value = c.kind;
     $('wm-text').value = c.text;
     $('wm-font').value = c.font;
-    const size = $('wm-size');
-    size.min = logoKind ? 2 : 0.5; size.max = logoKind ? 80 : 20; size.step = logoKind ? 1 : 0.5;
-    size.value = c[sizeKey(c.kind)] * 100;
+    const size = $('wm-size'), range = G.scaleRange(c.kind);
+    size.min = range.min; size.max = range.max; size.step = range.step;
+    size.value = c[G.scaleKey(c.kind)] * 100;
     $('wm-size-label').textContent = logoKind ? 'Logo size (% of the shorter side)' : 'Text size (% of the shorter side)';
     $('wm-opacity').value = Math.round(c.opacity * 100);
     $('wm-rotate').value = c.rotate;
@@ -45,7 +48,7 @@
     $('wm-shadow').checked = !!c.shadow;
     for (const b of document.querySelectorAll('#wm-grid [data-pos]')) b.setAttribute('aria-pressed', String(b.dataset.pos === c.position));
     for (const id of TEXT_ONLY) $(id).disabled = logoKind;
-    $('wm-size-out').textContent = (+size.value).toFixed(size.step === '1' ? 0 : 1) + '%';
+    $('wm-size-out').textContent = G.fmtScale(c.kind, c[G.scaleKey(c.kind)]);
     $('wm-opacity-out').textContent = Math.round(c.opacity * 100) + '%';
     $('wm-rotate-out').textContent = c.rotate + '°';
     $('wm-margin-out').textContent = (c.margin * 100).toFixed(1).replace(/\.0$/, '') + '%';
@@ -67,7 +70,8 @@
   function saveNow() {
     const L = state.logo;
     try {
-      localStorage.setItem(KEY, JSON.stringify({ v: VERSION, data: { cfg: state.cfg, logo: L && L.dataUrl ? { name: L.name, dataUrl: L.dataUrl } : null } }));
+      const logo = L && L.dataUrl ? { name: L.name, dataUrl: L.dataUrl } : null;
+      localStorage.setItem(KEY, JSON.stringify({ v: VERSION, data: { cfg: state.cfg, logo, groups: state.groups } }));
       setStatus(!L ? 'Saved on this device.' : L.dataUrl ? 'Saved on this device, with the logo.'
         : 'Saved on this device. The logo is 500 KB or more, so it is not kept: upload it again next time.');
     } catch (e) { setStatus('This browser would not save the setup. It still works for this visit.'); }
@@ -98,7 +102,7 @@
 
   function onInput(e) {
     if (e.target.type === 'file') return; // the logo inputs have their own handlers
-    if (e.target.id === 'wm-size') state.cfg[sizeKey(state.cfg.kind)] = num('wm-size') / 100;
+    if (e.target.id === 'wm-size') state.cfg[G.scaleKey(state.cfg.kind)] = num('wm-size') / 100;
     else pull();
     changed();
   }
@@ -114,12 +118,21 @@
     try { await setLogo(file, file.name); }
     catch (err) { window.SlopUI.toast(file.name + ' could not be read'); }
   }
+  /** Back to the shared defaults; the groups' own settings are turned off too. The logo is kept. */
   function resetDefaults() {
     const keepLogo = state.logo;
     state.cfg = Object.assign({}, DEFAULTS);
     state.logo = keepLogo;
+    state.groups = {};
     changed();
   }
+  /** A group's override. Turning it on copies the shared setup; turning it off drops it, so the group follows the shared setup again. */
+  function setGroup(kind, patch) {
+    const next = Object.assign({}, group(kind), patch);
+    if (next.on) state.groups[kind] = next; else delete state.groups[kind];
+    changed();
+  }
+  function group(kind) { return state.groups[kind] || G.overrideFrom(state.cfg); }
 
   function init(opts) {
     onChange = (opts && opts.onChange) || onChange;
@@ -144,6 +157,7 @@
     restoring = true;
     try {
       for (const k of Object.keys(DEFAULTS)) if (k in data.cfg) state.cfg[k] = data.cfg[k];
+      for (const k of G.KINDS) { const ov = G.clean(data.groups && data.groups[k], state.cfg); if (ov) state.groups[k] = ov; }
       write();
       if (data.logo && data.logo.dataUrl) {
         try { await setLogo(await (await fetch(data.logo.dataUrl)).blob(), String(data.logo.name || 'logo')); }
@@ -155,8 +169,9 @@
   }
 
   window.WMSettings = {
-    init, restore, setLogo, clearLogo,
+    init, restore, setLogo, clearLogo, setGroup, group,
     cfg: () => state.cfg,
     logo: () => state.logo,
+    cfgFor: (kind) => G.applyOverride(state.cfg, state.groups[kind]),
   };
 })();

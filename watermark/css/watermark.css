@@ -20,6 +20,16 @@ p, h2 { margin: 0; }
 .wm-note:empty { display: none; }
 .wm-drop { min-height: 0; }
 .wm-list-wrap { display: grid; gap: 8px; }
+.wm-groups { display: grid; gap: 8px; }
+.wm-group-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.wm-group { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px;
+  border: 1px solid var(--wm-line); border-radius: var(--wm-radius); background: var(--wm-panel); min-width: 0; }
+.wm-gname { font-weight: 600; overflow-wrap: anywhere; }
+.wm-gset { display: grid; gap: 8px; margin-top: 6px; }
+.wm-gset.is-off { opacity: .5; }
+.wm-gset select { width: 100%; }
+.wm-gset .wm-field { color: var(--wm-dim); }
+.wm-gset .wm-range input:disabled, .wm-gset select:disabled { opacity: .5; }
 .wm-count { color: var(--wm-dim); font-size: 13px; }
 .wm-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .wm-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 8px;
