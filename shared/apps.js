@@ -91,7 +91,7 @@
       features: ['2× and 4×, Fast (bundled) or Quality (Real-ESRGAN)', 'Tiled with progress and cancel', 'Before and after slider, PNG, JPEG or WebP', 'Sends from Slop Resize, saves to Slop Drive'],
       icon: 'spark', status: 'beta' }),
     A('watermark', 'app', 'Slop Watermark', 'watermark/', 'Watermark many pictures at once with your logo or text. Nothing uploaded.', { title: 'Bulk image watermark', group: 'creative',
-      accepts: ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml'],
+      accepts: ['image/*'],
       features: ['Many pictures at once: PNG, JPEG, WebP, GIF and SVG', 'Your logo or text, nine positions, tiling and rotation', 'Live preview of the first picture, then apply to all', 'Each picture keeps its size; download each file or a ZIP'],
       icon: 'tag', status: 'beta' }),
     A('contacts', 'app', 'Slop Contacts', 'contacts/', 'Address book: vCard and CSV in and out, duplicates merged.', { title: 'Contacts (address book)', group: 'business',
