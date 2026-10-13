@@ -3,7 +3,8 @@
 
 /* ---------- panels ---------- */
 function panel(id, title, body, extra) {
-  const collapsed = store.get('collapsed.' + id, false);
+  // Every panel starts collapsed except Layers. A saved choice (per panel, in localStorage) wins.
+  const collapsed = store.get('collapsed.' + id, id !== 'layers');
   const p = h('section', { class: 'panel' + (collapsed ? ' collapsed' : ''), id: 'panel-' + id },
     h('button', { class: 'panel-head', type: 'button', 'aria-expanded': String(!collapsed) }, h('span', null, title), extra || null), h('div', { class: 'panel-body' }, body));
   p.firstChild.addEventListener('click', (e) => { if (e.target.closest('.panel-extra')) return; setPanelCollapsed(p, !p.classList.contains('collapsed')); });

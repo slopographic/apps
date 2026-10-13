@@ -88,7 +88,10 @@ const MENUS = [
   ['Layer', [
     { label: 'New Layer', key: 'Shift+Ctrl+N', act: () => addLayer() },
     { label: 'Duplicate Layer', act: () => duplicateLayer() },
-    { label: 'Delete Layer', act: () => deleteLayer() },
+    { label: 'Delete', sub: [
+      { label: 'Delete Layer', act: () => deleteLayer() },
+      { label: 'Remove All Layers', act: () => removeAllLayers(), en: () => D.layers.length > 0 },
+    ] },
     { label: 'Layer Properties…', act: () => dlgLayerProps() },
     '-',
     { label: 'Layer via Copy', key: 'Ctrl+J', act: () => layerViaCopy(false) },
