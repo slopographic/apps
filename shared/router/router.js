@@ -132,7 +132,8 @@
     const ready = entry.spec.ready;
     if (typeof ready !== 'function') return fn();
     const ok = () => safe(() => !!ready(), false);
-    if (ok()) return fn();
+    // Always after this call returns: the app's own const for the handle must exist before apply reads it.
+    if (ok()) return win.setTimeout(fn, 0);
     const t0 = Date.now();
     const id = win.setInterval(() => { if (ok() || Date.now() - t0 > 15000) { win.clearInterval(id); fn(); } }, 40);
   }
