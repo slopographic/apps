@@ -1,10 +1,10 @@
 /* SlopDocTabs strip. Colours come from --sl-* tokens (set them on :root in the app); the fallbacks are plain values.
  * The host element gets .sl-doctabs; the strip scrolls nothing, the overflow button opens the full list instead. */
 .sl-doctabs {
-  --sl-tab-bg: var(--sl-surface-2, #1b1b19);
-  --sl-tab-active: var(--sl-surface, #2a2a27);
+  --sl-tab-bg: var(--sl-background, #f4f1ea);
+  --sl-tab-active: var(--sl-surface, #ffffff);
   --sl-tab-text: var(--sl-text, #f1ede4);
-  --sl-tab-muted: var(--sl-text-muted, #a7a296);
+  --sl-tab-muted: color-mix(in srgb, var(--sl-text, #141414) 68%, transparent);
   --sl-tab-accent: var(--sl-accent, #d4ff3a);
   --sl-tab-line: var(--sl-border, #3a3a35);
   position: relative;
