@@ -99,7 +99,7 @@ export function validateCopy(entries) {
 
 /** Builds every page's new content. Returns [{ file, html }] for pages and sitemap, plus the list of problems. */
 export async function build({ date }) {
-  const { HOME, APPS, ABOUT, LANDING } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'copy.mjs')).href);
+  const { HOME, APPS, ABOUT, LANDING, PAGES = {} } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'copy.mjs')).href);
   const apps = await loadRegistry();
   const pages = [];
   const copyEntries = [['home', HOME]];
@@ -116,6 +116,7 @@ export async function build({ date }) {
   }
   const landing = landingPages(apps, SITE, LANDING);
   for (const p of landing) copyEntries.push([`${p.key} landing`, LANDING[p.key]]);
+  for (const slug of Object.keys(PAGES)) copyEntries.push([`${slug} page`, PAGES[slug]]);
   validateCopy(copyEntries);
 
   for (const app of apps) {
@@ -136,6 +137,13 @@ export async function build({ date }) {
       { '@type': 'ListItem', position: 3, name: 'About', item: url }] }];
     pages.push({ file, url, block: { title: ABOUT[id].title, description: ABOUT[id].description, url, image: imageFor(app), jsonld: crumbs } });
   }
+  // Pages outside the registry (shared/seo/copy.mjs PAGES): a WebPage and its breadcrumb.
+  for (const [slug, copy] of Object.entries(PAGES)) {
+    const url = `${SITE}/${slug}/`;
+    const crumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: copy.crumb, item: url }] };
+    const web = { '@context': 'https://schema.org', '@type': 'WebPage', name: copy.title, description: copy.description, url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } };
+    pages.push({ file: path.join(ROOT, slug, 'index.html'), url, block: { title: copy.title, description: copy.description, url, image: DEFAULT_IMAGE, jsonld: [web, crumb] } });
+  }
   pages.push({ file: path.join(ROOT, 'index.html'), url: `${SITE}/`, block: { title: HOME.title, description: HOME.description, url: `${SITE}/`, image: DEFAULT_IMAGE, jsonld: homeJsonLd(apps) } });
 
   const out = [];
@@ -154,7 +162,7 @@ export async function build({ date }) {
         { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: p.crumb, item: p.url }] }] };
     out.push({ file, html: injectHead(p.html, headBlock(block)), before });
   }
-  out.push(await sitemap(apps, date, landing.map((p) => p.url)));
+  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
   return out;
 }
 

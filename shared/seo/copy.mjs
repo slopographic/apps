@@ -134,6 +134,12 @@ export const ABOUT = {
     description: 'About Slop Orders, which keeps customers, products and orders, takes stock out when you fulfil, and turns an order into an invoice draft.' },
 };
 
+/** Pages that are not apps and have no registry entry, keyed by folder (the URL is /<folder>/). Written by write.mjs. */
+export const PAGES = {
+  'how-it-works': { title: 'How Slopographic works: local files, storage and network | Slopographic', crumb: 'How it works',
+    description: 'How the Slopographic apps work: files stay on your device, which browser APIs they use, every network request, and how to check it yourself.' },
+};
+
 // Landing pages (/apps/<id>/, /slop-365/, /creative-slop-pro/, /compare/). Written by tools/seo/landing.mjs,
 // with the head block from this copy. Descriptions use only facts from each app's registry entry.
 export const LANDING = {

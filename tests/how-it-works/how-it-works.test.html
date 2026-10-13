@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>How it works · audit page</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, run } = SlopTest;
+
+  /* The audit page at /how-it-works/ is fetched from the server and parsed, then checked: one H1, the API table
+   * with its rows, and a link to each specification the page names. Run: node tests/run.mjs how-it-works */
+  const ROOT = new URL('../../', location.href);
+  const SPECS = [
+    'https://wicg.github.io/file-system-access/',
+    'https://www.w3.org/TR/IndexedDB/',
+    'https://html.spec.whatwg.org/multipage/webstorage.html',
+    'https://www.w3.org/TR/service-workers/',
+    'https://w3c.github.io/ServiceWorker/#cache-objects',
+    'https://webassembly.github.io/spec/core/',
+    'https://www.w3.org/TR/webgpu/',
+    'https://registry.khronos.org/webgl/specs/latest/2.0/',
+  ];
+  const APIS = ['showDirectoryPicker', 'IndexedDB', 'localStorage', 'Service Workers', 'Cache Storage', 'WebAssembly', 'WebGPU', 'Web Workers'];
+
+  let doc = null;
+  async function page() {
+    if (!doc) {
+      const url = new URL('how-it-works/', ROOT).href;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`${url} answered HTTP ${res.status}`);
+      doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+    }
+    return doc;
+  }
+
+  describe('/how-it-works/ audit page', () => {
+    it('is served and has exactly one H1', async () => {
+      const d = await page();
+      expect(d.querySelectorAll('h1').length).toBe(1);
+      expect(d.querySelector('h1').textContent.trim().length > 0).toBeTruthy();
+    });
+
+    it('has a table of browser APIs with a row for each API the page names', async () => {
+      const d = await page();
+      const tables = [...d.querySelectorAll('table')];
+      const apiTable = tables.find((t) => /Browser API/i.test(t.querySelector('th') ? t.querySelector('th').textContent : ''));
+      expect(!!apiTable).toBeTruthy();
+      const text = [...apiTable.querySelectorAll('tbody tr')].map((r) => r.textContent).join('\n');
+      for (const api of APIS) expect(text.includes(api)).toBeTruthy();
+    });
+
+    it('has a network table and a storage table', async () => {
+      const d = await page();
+      const captions = [...d.querySelectorAll('table caption')].map((c) => c.textContent);
+      expect(captions.some((c) => /outbound|requests/i.test(c))).toBeTruthy();
+      expect(captions.some((c) => /storage/i.test(c))).toBeTruthy();
+    });
+
+    it('links to each official specification it names', async () => {
+      const d = await page();
+      const hrefs = [...d.querySelectorAll('a[href]')].map((a) => a.getAttribute('href'));
+      for (const spec of SPECS) expect(hrefs.includes(spec)).toBeTruthy();
+    });
+
+    it('has a description of 120 to 160 characters', async () => {
+      const d = await page();
+      const desc = d.querySelector('meta[name="description"]');
+      expect(!!desc).toBeTruthy();
+      const n = desc.getAttribute('content').length;
+      expect(n >= 120 && n <= 160).toBeTruthy();
+    });
+  });
+
+  run();
+  </script>
+</body>
+</html>

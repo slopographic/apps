@@ -16,7 +16,10 @@
   DR.localDrivesHelp = function () {
     window.SlopUI.dialog({
       title: 'About local drives', cls: 'pv-help-dlg',
-      body: el('div', { class: 'pv-help' }, DR.LOCAL_DRIVES_HELP.map((t) => el('p', { class: 'sui-p' }, t))),
+      body: el('div', { class: 'pv-help' }, DR.LOCAL_DRIVES_HELP.map((t) => el('p', { class: 'sui-p' }, t)), el('p', { class: 'sui-p' },
+        el('a', { href: '/how-it-works/' }, 'How this works, and the browser specs behind it'),
+        ': the official spec for local folders is the ',
+        el('a', { href: 'https://wicg.github.io/file-system-access/', rel: 'noopener', target: '_blank' }, 'File System Access API'), '.')),
       buttons: [{ label: 'Close', primary: true }],
     });
   };
