@@ -76,6 +76,14 @@
     title: 'Convert', icon: 'convert', build: function (b) {
       var o = { format: 'png', dpi: 150, quality: 0.9, which: 'all' };
       if (E.state.pages.length) {
+        b.appendChild(section('To Word, Excel or PowerPoint', [
+          h('div', { class: 'btn-row' },
+            btn('Word (.docx)', 'convert', function () { A.openConvert('pdf-to-docx'); }),
+            btn('Excel (.xlsx)', 'convert', function () { A.openConvert('pdf-to-xlsx'); }),
+            btn('PowerPoint (.pptx)', 'convert', function () { A.openConvert('pdf-to-pptx'); }))
+        ]));
+      }
+      if (E.state.pages.length) {
         b.appendChild(section('PDF pages → images', [
           row('Format', seg([['png', 'PNG'], ['jpeg', 'JPEG']], o.format, function (v) { o.format = v; }, 'Image format')),
           row('Resolution', select([['72', '72 dpi (screen)'], ['150', '150 dpi'], ['300', '300 dpi (print)'], ['600', '600 dpi']], o.dpi, function (v) { o.dpi = +v; })),
