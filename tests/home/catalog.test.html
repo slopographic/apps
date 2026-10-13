@@ -22,7 +22,7 @@
         const card = doc.querySelector(`[data-section] > [data-perch="card"][data-id="${a.id}"]`);
         if (!card) throw new Error('missing card for ' + a.id);
         expect(card.getAttribute('href')).toBe(a.path);
-        expect(card.querySelector('h3').textContent).toBe(a.name);
+        expect(card.querySelector('h3').textContent).toBe(win.slopAppLabel(a, false));
       }
       expect(doc.querySelectorAll('[data-section] > [data-perch="card"]').length).toBeGreaterThan(apps.length);
     });
@@ -126,7 +126,8 @@
     const cur = () => slides().findIndex((s) => s.classList.contains('is-current'));
     const dots = () => [...doc.querySelectorAll('.carousel .car-dot')];
     const visible = () => dots().filter((d) => !d.hidden);
-    const slideNamed = (n) => slides().find((s) => s.querySelector('h3').textContent === n);
+    const shown = (n) => { const a = win.SLOP_APPS.find((x) => x.name === n); return a ? win.slopAppLabel(a, false) : n; };
+    const slideNamed = (n) => slides().find((s) => s.querySelector('h3').textContent === shown(n));
     // A dot is a control: it jumps and stops the auto-advance, so the tests below are not raced by the timer.
     // The strip shows only nearby dots, so a far slide is reached by its visible dot or by stepping with next/previous.
     const goto = (k) => {
@@ -139,7 +140,7 @@
     it('slides render in the order the top list gives, then the rest of the registry', async () => {
       await ready;
       const want = TOP.filter((n) => win.SLOP_APPS.some((a) => a.name === n))
-        .concat(win.SLOP_APPS.filter((a) => !TOP.includes(a.name)).map((a) => a.name));
+        .concat(win.SLOP_APPS.filter((a) => !TOP.includes(a.name)).map((a) => a.name)).map(shown);
       expect(names()).toEqual(want);
       expect(slides().length).toBe(win.SLOP_APPS.length);
       expect(dots().length).toBe(win.SLOP_APPS.length);
@@ -169,7 +170,7 @@
     it('each slide shows the badge icon, the registry tagline, up to three features and a real Open link', async () => {
       await ready;
       for (const s of slides()) {
-        const a = win.SLOP_APPS.find((x) => x.name === s.querySelector('h3').textContent);
+        const a = win.SLOP_APPS.find((x) => win.slopAppLabel(x, false) === s.querySelector('h3').textContent);
         expect(s.querySelector('svg.car-icon rect').getAttribute('fill')).toBe('#d4ff3a');
         expect(s.querySelector('.car-tag').textContent).toBe(a.tagline);
         const feats = s.querySelectorAll('.car-feats li');

@@ -210,3 +210,6 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 /* Sloppo's toggle (shared/buddy/boot.js) is a fixed button at the bottom right, where the strip's buttons are. While the
  * strip shows, lift it by the strip's height (translate leaves its saved position alone). */
 .buddy-toggle { translate: 0 calc(var(--consent-h, 0px) * -1); }
+
+/* The switch above the app sections: shows "Slop" in the app names. */
+.names-switch { display: inline-flex; align-items: center; gap: .5em; margin: 0 0 1.2em; font-size: .92rem; cursor: pointer; }

@@ -6,6 +6,8 @@
   const APPS = window.SLOP_APPS || [];
   const H = window.SlopHomeSections, C = window.SlopHomeCards, M = window.SlopFinderModel, SF = window.SlopFinder;
   const SEARCH = window.SLOP_APP_SEARCH || {};
+  /* The name shown for an app (see shared/apps.js). */
+  const shown = (a) => window.slopAppLabel(a, window.slopBrandNamesOn());
   if (!H || !C) return;
   const el = (tag, attrs, ...kids) => {
     const n = document.createElement(tag);
@@ -74,12 +76,12 @@
         { key: 'tour', label: 'Guided tour', values: (a) => [H.TOUR_DIRS.has(folder(a)) ? 'Has a tour' : 'No tour'] },
       ],
       columns: [
-        { key: 'name', label: 'App', get: (a) => a.name },
+        { key: 'name', label: 'App', get: (a) => shown(a) },
         { key: 'section', label: 'Section', get: sectionsText },
         { key: 'types', label: 'File types', get: (a) => H.typeKinds(a.accepts).join(', ') },
         { key: 'open', label: 'Open', sortable: false, get: () => '', render: (a) => el('a', { href: a.path }, 'Open →') },
       ],
-      row: (a) => el('div', { class: 'sf-row', 'data-id': a.id }, el('b', null, a.name), el('span', { class: 'sf-row-sec' }, sectionsText(a)),
+      row: (a) => el('div', { class: 'sf-row', 'data-id': a.id }, el('b', { class: 'app-title', 'data-id': a.id }, shown(a)), el('span', { class: 'sf-row-sec' }, sectionsText(a)),
         el('span', { class: 'sf-row-tag' }, a.tagline), el('span', { class: 'sf-row-types' }, H.typeKinds(a.accepts).join(', ')),
         el('a', { class: 'sf-row-open', href: a.path }, 'Open →')),
       card: (a) => C.appCard(a),
@@ -90,7 +92,7 @@
       emptyText: 'No apps match these filters.',
       resultsWhen: 'filtered',
       facetsCollapsed: true,
-      suggest: { max: 8, href: (a) => a.path, label: (a) => a.name, hint: sectionsText },
+      suggest: { max: 8, href: (a) => a.path, label: (a) => shown(a), hint: sectionsText },
       autofocus: desktop(),
       onChange: (list, st) => render(list, M.isFiltered(st)),
     });
