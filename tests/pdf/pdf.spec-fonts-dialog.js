@@ -1,7 +1,8 @@
 /* Slop PDF File ▸ Fonts…, the top-bar button: opens the shared Fonts panel (shared/fonts/panel.js) with the subset fonts of
    the document. A missing one offers Drop your own font and Use the closest font (Download only when the library lists the
    family). A closest font chosen there is kept on the file (f.fontMap), the first-edit prompt does not ask again for it, the
-   panel reopens after it is dismissed, and a document with no subset fonts says so. Barlow is not installed in the tests. */
+   panel reopens after it is dismissed, and a document that uses only standard fonts (Helvetica, Times, Courier: not embedded, as jsPDF writes them)
+   opens the panel with the built-in note. Barlow is not installed in the tests. */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor } = SlopTest;
@@ -46,11 +47,12 @@
       closePanel();
     });
 
-    it('a font embedded in full needs no answer, so the document is said to have no subset fonts', async () => {
+    it('a font embedded in full needs no answer, so nothing is listed and the toast says so', async () => {
       await openDoc(await PT.barlowPdf('Fonts three', { subset: false }), 'fonts-full.pdf');
       PT.A.openFonts();
-      await waitFor(() => doc().body.textContent.includes("embeds no fonts"), { timeout: 8000 });
+      await waitFor(() => doc().body.textContent.includes('Every font in this document is embedded in full, so none needs an answer.'), { timeout: 8000 });
       expect(rowOf('Barlow')).toBe(null);
+      expect(!!doc().querySelector('.sf-ov')).toBe(false);
     });
 
     it('Use the closest font keeps the answer: the row is done, and the first edit does not ask again', async () => {
@@ -76,10 +78,16 @@
       expect(asked[0]).toEqual(['Barlow']);
     });
 
-    it('a document with no subset fonts says so', async () => {
+    it('a document that uses only standard fonts opens the panel with the built-in note, and does not say it has no fonts', async () => {
       await openDoc(await PT.makePdf([{ text: 'Standard only' }]), 'fonts-none.pdf');
       PT.A.openFonts();
-      await waitFor(() => doc().body.textContent.includes('embeds no fonts'), { timeout: 8000 });
+      const box = await waitFor(() => doc().querySelector('.sf-ov'), { timeout: 8000 });
+      const text = box.textContent;
+      expect(text.includes('This document uses only standard fonts (Helvetica, Times, Courier). Every PDF viewer has them, so nothing is missing.')).toBe(true, text);
+      expect(/no fonts/i.test(text)).toBe(false, text);
+      expect(rowOf('Helvetica').textContent).toBe('Helvetica · Built in.');
+      closePanel();
+      await waitFor(() => !doc().querySelector('.sf-ov'), { timeout: 3000 });
     });
   });
 })();
