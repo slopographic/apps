@@ -23,7 +23,7 @@ PRECACHE.push(
   '/shared/faces/cache.js', '/shared/faces/consent.js', '/shared/faces/copy.js', '/shared/faces/crops.js', '/shared/faces/decode.js',
   '/shared/faces/faces.css', '/shared/faces/groups.js', '/shared/faces/index.js', '/shared/faces/overlay.js', '/shared/faces/panel.js',
   '/shared/faces/people.js', '/shared/faces/recognize.js', '/shared/faces/view.js', '/shared/finder/app-search.js', '/shared/finder/finder.css',
-  '/shared/finder/finder.js', '/shared/finder/model.js', '/shared/fonts/archivo/archivo-var-italic-latin-ext.woff2',
+  '/shared/finder/finder.js', '/shared/finder/model.js', '/shared/firstrun/notice.js', '/shared/fonts/archivo/archivo-var-italic-latin-ext.woff2',
   '/shared/fonts/archivo/archivo-var-italic-latin.woff2', '/shared/fonts/archivo/archivo-var-normal-latin-ext.woff2',
   '/shared/fonts/archivo/archivo-var-normal-latin.woff2', '/shared/fonts/catalog.js', '/shared/fonts/caveat/caveat-normal-latin-ext.woff2',
   '/shared/fonts/caveat/caveat-normal-latin.woff2', '/shared/fonts/dancing-script/dancing-script-normal-latin-ext.woff2',

@@ -7,9 +7,20 @@
   const toast = (msg) => { if (window.SlopUI) SlopUI.toast(msg); };
 
   /** Hand files to the queue. Non-image files are skipped; tell the user when nothing was usable. */
-  function take(files) {
+  /** The first-use notice: shown once, the first time files are given to the app. */
+  const NOTICE = {
+    title: 'Remove backgrounds on this device',
+    lines: ['Slop Isolate removes the background from a picture with an AI model that runs in your browser.'],
+    downloads: [
+      { name: 'Fast model (U²-Netp)', bytes: 4574105 },
+      { name: 'Quality model (IS-Net)', bytes: 46535524 },
+      { name: 'Portrait model (MODNet)', bytes: 25888640 },
+    ],
+  };
+  async function take(files) {
     const list = [...(files || [])];
     if (!list.length) return [];
+    if (window.SlopFirstRun && !(await SlopFirstRun.once('slopisolate', NOTICE))) return [];
     const items = CO.process.add(list);
     if (!items.length) toast('Those files are not images');
     return items;
@@ -36,7 +47,16 @@
   };
   /** One dropped file into the queue. Resolves with the item id once it is cut out (or the video is open), so the
    *  drop list shows the decode as progress; rejects with the reason when the file cannot be used. */
+  let firstUse = null;
+  /** One notice for a whole drop: every file in it waits on the same choice. Cancelling asks again next time. */
+  function gateFirstUse() {
+    if (!firstUse) firstUse = window.SlopFirstRun ? SlopFirstRun.once('slopisolate', NOTICE) : Promise.resolve(true);
+    return firstUse.then((ok) => { if (!ok) { firstUse = null; throw new Error('cancelled'); } return true; });
+  }
   function ingest(file, progress) {
+    return gateFirstUse().then(() => ingestNow(file, progress));
+  }
+  function ingestNow(file, progress) {
     if (CO.video && CO.video.isVideo(file)) {
       return CO.video.addItem(file).then(() => {
         const it = S().items.slice().reverse().find((x) => x.name === file.name);
