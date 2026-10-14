@@ -31,6 +31,8 @@
   };
   const kindOk = (it) => S.kind === 'all' || (S.kind === 'folder' ? it.isFolder : !it.isFolder && DR.kindOf(it) === S.kind);
   const queryOk = (it, q) => !q || it.name.toLowerCase().includes(q) || (!it.isFolder && (DR.appName(it.from).toLowerCase().includes(q) || DR.kindLabel(it).toLowerCase().includes(q)));
+  /** The edited copy and the change list of a PDF are versions of its original (shown in its preview), not files of their own. */
+  DR.isCompanion = (it) => !!(it && it.meta && it.meta.pdf && (it.meta.pdf.role === 'edited' || it.meta.pdf.role === 'changes'));
   /** The items for the current view, already filtered and sorted. */
   DR.visible = function () {
     const q = S.query.trim().toLowerCase();
@@ -40,7 +42,7 @@
     else if (S.section === 'starred') list = [...DR.liveFolders(), ...DR.liveFiles()].filter((it) => it.starred);
     else if (q || S.tag) list = [...DR.liveFolders(), ...DR.liveFiles()];
     else { const c = DR.children(S.cwd); list = [...c.folders, ...c.files]; }
-    list = list.filter((it) => kindOk(it) && queryOk(it, q) && DR.tagOk(it));
+    list = list.filter((it) => !DR.isCompanion(it) && kindOk(it) && queryOk(it, q) && DR.tagOk(it));
     if (S.section === 'recent') return list.sort((a, b) => recency(b) - recency(a)).slice(0, 200);
     if (S.section === 'trash' && S.sort.key === 'name' && !q) return list.sort((a, b) => b.trashedAt - a.trashedAt);
     return DR.sortItems(list);

@@ -8,6 +8,62 @@
   /** A viewer for a file (image or PDF). big: Quick look (every page, up to 20); otherwise the first page only.
    * sink: the array that keeps the object URL (the caller frees it). */
   DR.viewerFor = function (r, big, sink) {
+    const versions = versionsOf(r);
+    if (versions.length > 1) return versionTabs(versions, big, sink);
+    return plainViewer(r, big, sink);
+  };
+  /** The original of a PDF and the versions saved beside it in Slop Drive (its edited copy and change list), in tab order. */
+  function versionsOf(r) {
+    const p = r && r.meta && r.meta.pdf;
+    if (!p || p.role === 'edited' || p.role === 'changes' || DR.kindOf(r) !== 'pdf') return [{ label: 'Original', rec: r }];
+    const out = [{ label: 'Original', rec: r }];
+    const ed = p.edited && DR.item('f:' + p.edited);
+    if (ed && ed.blob) out.push({ label: 'Edited copy', rec: ed });
+    const ch = p.changes && DR.item('f:' + p.changes);
+    if (ch && ch.blob) out.push({ label: 'Change list', rec: ch, changes: true });
+    return out;
+  }
+  /** The tabs above a PDF's preview: one tab per version. The change list shows its edits in a list. */
+  function versionTabs(versions, big, sink) {
+    const wrap = document.createElement('div'), bar = document.createElement('div'), body = document.createElement('div');
+    wrap.className = 'pv-versions';
+    bar.className = 'pv-tabs'; bar.setAttribute('role', 'tablist');
+    body.className = 'pv-version-body';
+    const tabs = versions.map((v, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'pv-tab'; b.setAttribute('role', 'tab'); b.textContent = v.label;
+      b.addEventListener('click', () => show(i));
+      bar.append(b);
+      return b;
+    });
+    const show = async (i) => {
+      tabs.forEach((t, j) => t.setAttribute('aria-selected', j === i ? 'true' : 'false'));
+      body.replaceChildren(document.createTextNode('Loading…'));
+      const v = versions[i];
+      if (v.changes) body.replaceChildren(await changeList(v.rec));
+      else body.replaceChildren(plainViewer(v.rec, big, sink).el);
+    };
+    wrap.append(bar, body);
+    show(0);
+    return { el: wrap };
+  }
+  /** The change list of a document as a readable list (each change: what, from, to). */
+  async function changeList(rec) {
+    let items = [];
+    try { items = JSON.parse(await rec.blob.text()); } catch (e) { items = []; }
+    if (!Array.isArray(items) || !items.length) {
+      const pre = document.createElement('pre'); pre.className = 'pv-changes-raw'; pre.textContent = 'No changes saved.';
+      return pre;
+    }
+    const ul = document.createElement('ul'); ul.className = 'pv-changes';
+    for (const c of items.slice(0, 200)) {
+      const li = document.createElement('li');
+      li.textContent = c && c.label ? `${c.label}: ${c.from ?? ''} → ${c.to ?? ''}` : JSON.stringify(c);
+      ul.append(li);
+    }
+    return ul;
+  }
+  function plainViewer(r, big, sink) {
     const kind = DR.isAi(r) ? 'pdf' : DR.kindOf(r), blobUrl = URL.createObjectURL(r.blob); // an .ai file shows its PDF page
     sink.push(blobUrl);
     const o = { title: r.name, blobUrl, kind, chrome: false };

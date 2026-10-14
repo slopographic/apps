@@ -108,3 +108,10 @@ kbd { font: 11px var(--s-mono); color: var(--s-fg); }
 .ghost { position: fixed; left: 0; top: 0; z-index: 2000; display: flex; align-items: center; gap: 7px; padding: 5px 10px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--accent-line); box-shadow: var(--shadow); pointer-events: none; font-size: var(--fs-s); max-width: 260px; white-space: nowrap; overflow: hidden; }
 .ghost.copy::after { content: '+'; font-weight: 700; color: var(--accent-line); }
 body.dragging, body.dragging * { cursor: grabbing !important; }
+
+/* A PDF with saved versions: the original, the edited copy and the change list, as tabs above the preview. */
+.pv-versions { display: grid; gap: 8px; width: 100%; }
+.pv-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.pv-tab { min-height: 28px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--line-2); background: transparent; color: inherit; font: inherit; font-size: 12.5px; cursor: pointer; }
+.pv-tab[aria-selected="true"] { background: var(--accent-soft, var(--panel-2)); border-color: var(--accent, var(--line-2)); font-weight: 600; }
+.pv-changes { margin: 0; padding: 0 0 0 18px; font-size: 13px; line-height: 1.5; max-height: 260px; overflow: auto; }
