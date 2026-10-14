@@ -78,7 +78,7 @@ names of its own (a Node test checks this). The one exception is the closest fam
    only after its Download button and then the confirmation button. The confirmation shows the licence and size
    and the hosts. Nothing downloads on load, on a timer, or when a font is picked.
 2. **Hosts.** A pack file must be `https://` on a host in `packs.json` `hosts`. The list today is
-   `raw.githubusercontent.com` and `cdn.jsdelivr.net`. Exact host match only (no wildcard, no sub-domains). A
+   `raw.githubusercontent.com` (the Slopographic cdn repository and Google Fonts). Exact host match only (no wildcard, no sub-domains). A
    redirect that ends on another host is refused. Add a host here only after review, and only for a project that
    publishes its font files openly.
 3. **Licences.** A pack declares one of `OFL-1.1`, `Apache-2.0`, `MIT`, `CC0-1.0`. Anything else is dropped before

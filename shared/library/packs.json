@@ -1,8 +1,7 @@
 {
   "note": "Packs offered by Get more (shared/library/get-more.js): font packs (kind \"font\", the default) and AI model packs (kind \"model\", one .onnx file, used by Slop Upscale). Nothing downloads until a person clicks Download and confirms the licence and size. Each file needs an https URL on one of the hosts below, its exact size in bytes and its lowercase SHA-256. See shared/fonts/HANDOFF.md and upscale/HANDOFF.md.",
   "hosts": [
-    "raw.githubusercontent.com",
-    "cdn.jsdelivr.net"
+    "raw.githubusercontent.com"
   ],
   "packs": [
     {

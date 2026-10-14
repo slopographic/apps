@@ -7,7 +7,6 @@
 export const CORE_VERSION = '0.12.10';
 /** The cdn repository at a fixed commit (so a later change to the repo cannot change the file the site runs). */
 const CDN_BASE = 'https://raw.githubusercontent.com/slopographic/cdn/3fef2eab53fd8bbc406e99ca0efa1a2d2e3e98f6/engines/ffmpeg/0.12.10/';
-const FALLBACK_BASE = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${CORE_VERSION}/dist/esm/`;
 /** The checksums of the two files (also in the cdn repo's manifest.json). */
 const CORE_FILES = {
   'ffmpeg-core.js': '67a48f11645f85439f3fde4f2119042c16b374b910206b7a7a24f342e28dcae3',
@@ -16,10 +15,10 @@ const CORE_FILES = {
 /** Larger inputs are refused before any work: the whole file must fit in the browser's memory for ffmpeg. */
 export const MAX_INPUT_BYTES = 400 * 1024 * 1024;
 
-/** Downloads one core file from the cdn (or the fallback) and checks its SHA-256. Returns a blob URL for ffmpeg. */
+/** Downloads one core file from the cdn and checks its SHA-256. Returns a blob URL for ffmpeg. */
 async function fetchCoreFile(name) {
   let lastErr = null;
-  for (const base of [CDN_BASE, FALLBACK_BASE]) {
+  for (const base of [CDN_BASE]) {
     try {
       const r = await fetch(base + name, { cache: 'force-cache' });
       if (!r.ok) throw new Error('HTTP ' + r.status);
