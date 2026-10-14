@@ -111,6 +111,9 @@
 
     it('a PDF dropped on the page adds its pages where the person picks, as one undo step', async () => {
       await boot();
+      // the app is shared by the tests in this file: let the last test's open finish before a new tab starts
+      await wait('earlier work to finish', () => !PT.A.isLocked(), { timeout: 30000 });
+      await new Promise((r) => setTimeout(r, 300));
       PT.A.newTab();
       const baseBytes = await PT.makePdf([{ text: 'Base 1' }, { text: 'Base 2' }]);
       await PT.open(baseBytes, 'base.pdf');
