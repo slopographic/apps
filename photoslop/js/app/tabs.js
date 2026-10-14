@@ -79,6 +79,8 @@ function cycleDoc(dir) { if (DOCS.length > 1) switchToDoc(DOCS[(DOCS.indexOf(CUR
 /* ---------- tab strip ---------- */
 let dragTab = null;
 function renderTabs() {
+  // The drop strip covers the canvas, so it shows only while no document is open (the empty state); with a document open, drop on the canvas.
+  const strip = $('#psDrop'); if (strip) strip.hidden = DOCS.length > 0;
   const bar = $('#tabs'); if (!bar) return;
   bar.textContent = '';
   for (const rec of DOCS) {
