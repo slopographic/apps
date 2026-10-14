@@ -17,6 +17,7 @@ import { detectKind, EXT_OF_KIND } from './detect.js';
 import { csvToVcf, xlsxToVcf, vcfToCsv, vcfToXlsx, vcfToJson } from './vcf.js';
 import { stemOf as base } from '../io/files.js';
 import { decodeAudio, channelsOf, encodeWav, encodeMp3, loadLame } from './audio.js';
+import { convertVideo } from './ffmpeg-engine.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg'];
 const SIZE = [
@@ -48,10 +49,59 @@ function audioTo(to) {
     return [{ name: `${base(f.name)}.mp3`, blob: encodeMp3(lame, chans, buf.sampleRate, Number(o.bitrate) || 128) }];
   };
 }
+const VIDEO_IN = ['mp4', 'webm', 'mov'];
+const CRF = { key: 'crf', type: 'range', label: 'Quality (lower is better)', min: 18, max: 40, value: 23 };
+const TIME = { key: 'time', type: 'number', label: 'Time (seconds)', min: 0, max: 36000, value: 1, hint: 'The moment to take the picture from. Past the end, the last frame is used.' };
+const GIF_WIDTH = { key: 'width', type: 'number', label: 'Width (px)', min: 16, max: 1920, value: 480, hint: 'Height follows the picture proportions.' };
+const GIF_FPS = { key: 'fps', type: 'number', label: 'Frames per second', min: 1, max: 30, value: 10 };
+/** Video conversions with ffmpeg.wasm. Where the codecs already fit the new container, the streams are copied (no quality loss). */
+function videoTo(to) {
+  return async (files, o) => {
+    const f = files[0];
+    const base_ = base(f.name);
+    const q = Number(o.crf ?? 23);
+    if (to === 'mp4') return [await convertVideo(f.file, {
+      name: base_, output: 'mp4',
+      args: (i, out) => ['-i', i, '-c', 'copy', '-movflags', '+faststart', out],
+      fallback: (i, out) => ['-i', i, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', String(q), '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', out],
+    })];
+    if (to === 'mov') return [await convertVideo(f.file, {
+      name: base_, output: 'mov',
+      args: (i, out) => ['-i', i, '-c', 'copy', '-f', 'mov', out],
+      fallback: (i, out) => ['-i', i, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', String(q), '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', '-f', 'mov', out],
+    })];
+    if (to === 'webm') return [await convertVideo(f.file, {
+      name: base_, output: 'webm',
+      args: (i, out) => ['-i', i, '-c:v', 'libvpx', '-b:v', '1M', '-c:a', 'libvorbis', '-b:a', '96k', out],
+    })];
+    if (to === 'gif') {
+      const w = Math.max(16, Math.round(Number(o.width) || 480)), fps = Math.max(1, Math.min(30, Math.round(Number(o.fps) || 10)));
+      return [await convertVideo(f.file, {
+        name: base_, output: 'gif',
+        args: (i, out) => ['-i', i, '-vf', `fps=${fps},scale=${w}:-2:flags=lanczos`, '-loop', '0', out],
+      })];
+    }
+    // a single frame as a picture: webp, png or jpg
+    const t = Math.max(0, Number(o.time) || 0);
+    const extra = to === 'webp' ? ['-quality', '85'] : to === 'jpg' ? ['-q:v', '3'] : [];
+    return [await convertVideo(f.file, {
+      name: base_, output: to,
+      args: (i, out) => ['-ss', String(t), '-i', i, '-frames:v', '1', ...extra, out],
+    })];
+  };
+}
+
 const text = (blob) => blob.text();
 const out = (name, data, type) => ({ name, blob: new Blob([data], { type }) });
 
 export const CONVERSIONS = [
+  { id: 'to-mp4', label: 'To MP4', group: 'Audio and video', from: ['webm', 'mov'], ext: 'mp4', mode: 'each', options: [CRF], run: videoTo('mp4') },
+  { id: 'to-mov', label: 'To MOV', group: 'Audio and video', from: ['mp4', 'webm'], ext: 'mov', mode: 'each', options: [CRF], run: videoTo('mov') },
+  { id: 'to-webm', label: 'To WebM', group: 'Audio and video', from: VIDEO_IN, ext: 'webm', mode: 'each', options: [], run: videoTo('webm') },
+  { id: 'video-to-gif', label: 'To GIF', group: 'Audio and video', from: VIDEO_IN, ext: 'gif', mode: 'each', options: [GIF_WIDTH, GIF_FPS], run: videoTo('gif') },
+  { id: 'frame-to-webp', label: 'Frame to WebP', group: 'Audio and video', from: VIDEO_IN, ext: 'webp', mode: 'each', options: [TIME], run: videoTo('webp') },
+  { id: 'frame-to-png', label: 'Frame to PNG', group: 'Audio and video', from: VIDEO_IN, ext: 'png', mode: 'each', options: [TIME], run: videoTo('png') },
+  { id: 'frame-to-jpg', label: 'Frame to JPG', group: 'Audio and video', from: VIDEO_IN, ext: 'jpg', mode: 'each', options: [TIME], run: videoTo('jpg') },
   { id: 'to-wav', label: 'To WAV', group: 'Audio and video', from: AUDIO_IN, ext: 'wav', mode: 'each', options: [], run: audioTo('wav') },
   { id: 'to-mp3', label: 'To MP3', group: 'Audio and video', from: AUDIO_IN, ext: 'mp3', mode: 'each', options: [BITRATE], run: audioTo('mp3') },
   { id: 'to-png', label: 'To PNG', group: 'Images', from: ['jpg', 'webp', 'bmp', 'gif', 'svg'], ext: 'png', mode: 'each', options: [...SIZE], run: imageTo('png') },

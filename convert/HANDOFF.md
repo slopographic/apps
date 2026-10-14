@@ -39,6 +39,10 @@ decode, line endings) stay because they also take uploaded files.
 | vCard to XLSX | vCard | one-sheet XLSX, same columns as vCard to CSV | Values only. Photos are left out. |
 | Video or audio to WAV | MP4, WebM, MOV, M4A, MP3, WAV, OGG, FLAC | 16-bit PCM WAV at 44.1 kHz, stereo or mono as the source | Decoded by the browser (`OfflineAudioContext.decodeAudioData`), so AAC needs a browser that plays it. Silent files say so. |
 | Video or audio to MP3 | same as above | MP3 at 128, 192 or 320 kbps | Encoded with lamejs (`vendor/lamejs`, LGPL-3.0), loaded on first use. |
+| MOV to MP4 | MOV | MP4 | Streams copied when they fit (no loss), otherwise re-encoded with H.264 and AAC. ffmpeg.wasm. |
+| Video to WebM | MP4, WebM, MOV | WebM (VP8 and Vorbis) | Re-encoded. ffmpeg.wasm. |
+| Video to GIF | MP4, WebM, MOV | GIF, width and frame rate chosen | ffmpeg.wasm. |
+| Video frame to WebP, PNG or JPG | MP4, WebM, MOV | one picture at the chosen time | ffmpeg.wasm. |
 | vCard to JSON | vCard | JSON array, one object per contact | Field names follow the Contacts model (fn, name, emails, phones, adr, org, title, url, note). Photos are left out. |
 | Markdown to HTML | Markdown | HTML page or fragment | No tables, nested lists or footnotes. Raw HTML is escaped (shown as text). |
 | HTML to text | HTML | plain text | Visible text only; scripts and styles removed. |
@@ -112,3 +116,8 @@ yet, so offline use of the preview needs them added there (that file is owned el
 2. Add an entry to `CONVERSIONS` in `convert/js/core/catalog.js` with `from` kinds, `options` and `run`.
 3. Add a test to `tests/convert/`.
 4. If it deserves a page, add it to `pages.js`, create the page and add it to `sitemap.xml`.
+
+
+## Video engine (ffmpeg.wasm)
+
+`convert/js/core/ffmpeg-engine.js` runs ffmpeg in the browser. The JavaScript is vendored in `vendor/ffmpeg` (MIT). The core (about 30 MB of WebAssembly, GPL-2.0-or-later) is loaded from jsDelivr on first use, pinned to `CORE_VERSION`. One job runs at a time; a runtime error restarts the engine and retries once. WebM audio is Vorbis: the Opus encoder in this build fails with video. Inputs over 400 MB are refused.

@@ -142,10 +142,11 @@ PRECACHE.push(
   '/todo/css/todo.css', '/todo/index.html', '/todo/js/config.js', '/todo/js/ui/app.js', '/todo/js/ui/commands.js', '/todo/js/ui/editor.js',
   '/todo/js/ui/list.js', '/upscale/css/upscale.css', '/upscale/index.html', '/upscale/js/app/drive.js', '/upscale/js/app/io.js', '/upscale/js/app/main.js',
   '/upscale/js/app/slider.js', '/upscale/js/core/lanczos.js', '/upscale/js/core/models.js', '/upscale/js/core/tiling.js', '/upscale/js/engine/engine.js',
-  '/upscale/js/engine/pipeline.js', '/upscale/js/video/run.js', '/vendor/bwip-js/bwip-js-min.js', '/vendor/fontkit/LICENSE', '/vendor/fontkit/fontkit.min.js',
-  '/vendor/lamejs/LICENSE', '/vendor/lamejs/lame.min.js', '/vendor/mp4-muxer/mp4-muxer.js', '/vendor/pdf-lib/pdf-lib.min.js',
-  '/vendor/webm-muxer/webm-muxer.js', '/watermark/css/watermark.css', '/watermark/index.html', '/watermark/js/decode.js', '/watermark/js/export.js',
-  '/watermark/js/groups-ui.js', '/watermark/js/groups.js', '/watermark/js/items.js', '/watermark/js/list.js', '/watermark/js/main.js',
-  '/watermark/js/render.js', '/watermark/js/settings.js', '/watermark/js/util.js',
+  '/upscale/js/engine/pipeline.js', '/upscale/js/video/run.js', '/vendor/bwip-js/bwip-js-min.js', '/vendor/ffmpeg/LICENSE', '/vendor/ffmpeg/classes.js',
+  '/vendor/ffmpeg/const.js', '/vendor/ffmpeg/errors.js', '/vendor/ffmpeg/index.js', '/vendor/ffmpeg/types.js', '/vendor/ffmpeg/utils.js',
+  '/vendor/ffmpeg/worker.js', '/vendor/fontkit/LICENSE', '/vendor/fontkit/fontkit.min.js', '/vendor/lamejs/LICENSE', '/vendor/lamejs/lame.min.js',
+  '/vendor/mp4-muxer/mp4-muxer.js', '/vendor/pdf-lib/pdf-lib.min.js', '/vendor/webm-muxer/webm-muxer.js', '/watermark/css/watermark.css',
+  '/watermark/index.html', '/watermark/js/decode.js', '/watermark/js/export.js', '/watermark/js/groups-ui.js', '/watermark/js/groups.js',
+  '/watermark/js/items.js', '/watermark/js/list.js', '/watermark/js/main.js', '/watermark/js/render.js', '/watermark/js/settings.js', '/watermark/js/util.js',
 );
 // END PRECACHE

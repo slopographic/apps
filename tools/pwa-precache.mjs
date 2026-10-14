@@ -21,7 +21,9 @@ const exists = (p) => stat(path.join(ROOT, p)).then((s) => s, () => null);
 const resolveRef = (from, ref) => path.posix.normalize(path.posix.join(path.posix.dirname(from), ref));
 const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'shared/pwa.js',
   'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo.svg',
-  'vendor/lamejs/lame.min.js', 'vendor/lamejs/LICENSE']; // the MP3 encoder, loaded on demand by convert/js/core/audio.js
+  'vendor/lamejs/lame.min.js', 'vendor/lamejs/LICENSE',
+  // the video engine's JavaScript (the ffmpeg core itself is loaded from jsDelivr on first use)
+  'vendor/ffmpeg/index.js', 'vendor/ffmpeg/classes.js', 'vendor/ffmpeg/const.js', 'vendor/ffmpeg/errors.js', 'vendor/ffmpeg/types.js', 'vendor/ffmpeg/utils.js', 'vendor/ffmpeg/worker.js', 'vendor/ffmpeg/LICENSE']; // the MP3 encoder and the video engine, loaded on demand
 const DRY = process.argv.includes('--dry-run');
 
 // shell/shell.js loads its parts with addScript()/addCss(), so static refs miss them. Its paths are
