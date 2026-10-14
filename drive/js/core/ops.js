@@ -92,10 +92,10 @@
     for (const it of items) {
       if (it.isFolder) {
         const { folders, files } = DR.descendants(it.id);
-        for (const r of files) await H().remove(r.id);
+        for (const r of files) { await window.SlopVersions.removeAll(H(), r); await H().remove(r.id); }
         for (const f of folders) await H().removeFolder(f.id);
         await H().removeFolder(it.id);
-      } else await H().remove(it.id);
+      } else { await window.SlopVersions.removeAll(H(), it); await H().remove(it.id); }
     }
     S.sel.clear();
     await done(`Deleted ${describe(items)}`);

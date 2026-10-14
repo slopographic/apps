@@ -44,17 +44,32 @@
       bar.append(b);
       return b;
     });
+    const useBtn = document.createElement('button');
+    useBtn.type = 'button'; useBtn.className = 'pv-tab'; useBtn.textContent = 'Use this version';
+    useBtn.addEventListener('click', async () => {
+      const t = tabs[current];
+      useBtn.disabled = true;
+      try {
+        const orig = await window.SlopHub.get(tabs[0].rec.id);
+        const done = await window.SlopVersions.restore(window.SlopHub, orig, t.rec.id);
+        if (window.DR && DR.toast) DR.toast(`${t.label.split(' · ')[0]} is now the current version (saved again as Version ${done.version}).`);
+      } catch (e) {
+        if (window.DR && DR.toast) DR.toast(e.message || 'Could not restore that version.');
+      } finally { useBtn.disabled = false; }
+    });
     const previewBtn = document.createElement('button'), changesBtn = document.createElement('button');
     previewBtn.type = changesBtn.type = 'button'; previewBtn.className = changesBtn.className = 'pv-tab';
     previewBtn.textContent = 'Preview'; changesBtn.textContent = 'Changes';
     previewBtn.addEventListener('click', () => { view = 'preview'; show(); });
     changesBtn.addEventListener('click', () => { view = 'changes'; show(); });
-    mode.append(previewBtn, changesBtn);
+    mode.append(previewBtn, changesBtn, useBtn);
     const show = async () => {
       tabEls.forEach((b, j) => b.setAttribute('aria-selected', j === current ? 'true' : 'false'));
       const t = tabs[current];
       const hasChanges = !!t.changes;
-      mode.hidden = !hasChanges;
+      mode.hidden = false;
+      changesBtn.hidden = !hasChanges;
+      useBtn.hidden = current < 2; // the newest version (1) is already current; the Original is not a version
       if (!hasChanges) view = 'preview';
       previewBtn.setAttribute('aria-selected', view === 'preview' ? 'true' : 'false');
       changesBtn.setAttribute('aria-selected', view === 'changes' ? 'true' : 'false');
