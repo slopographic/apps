@@ -119,6 +119,12 @@
   async function readAll(id) {
     const m = R.byId(id);
     if (!m) throw new Error('Unknown model ' + id);
+    const remote = R.remoteFiles(m);
+    if (remote.length && window.SlopFirstRun && !(await SlopFirstRun.once('aitools', {
+      title: 'Run this AI tool on this device',
+      lines: ['This tool runs its model in your browser. The model is downloaded once and kept by this browser for next time.'],
+      downloads: remote.map((f) => ({ name: f.name, bytes: f.bytes || 0 })),
+    }))) throw new Error('cancelled');
     const out = {};
     for (const f of m.files) {
       if (f.path) out[f.name] = (await bundled(f)).slice(0); // a copy: the worker takes ownership of what it is sent

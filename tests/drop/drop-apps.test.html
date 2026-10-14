@@ -8,6 +8,7 @@
 <body>
   <!-- Each test loads the real app in its own same-origin iframe and drops a picture on it (a simulated DataTransfer
        drop). The app's own reader adds the file; the tests check the highlight, the progress row, the toast and the item. -->
+  <script>try { localStorage.setItem('slop-firstrun:img3d', '1'); } catch (e) { /* private window */ } try { localStorage.setItem('slop-firstrun:upscale', '1'); } catch (e) { /* private window */ }</script>
   <script src="../harness.js"></script>
   <script>
   (function () {

@@ -73,7 +73,14 @@
     updateButtons();
   }
 
+  /** The first-use notice: the fast models come with the app; the quality model is downloaded once, when it is first chosen. */
+  const FIRST_USE = {
+    title: 'Sharpen pictures on this device',
+    lines: ['Slop Upscale enlarges pictures with models that run in your browser.'],
+    downloads: [{ name: 'Quality model (Real-ESRGAN x4plus), only if you choose it', bytes: 67051618 }],
+  };
   async function open(file, o = {}) {
+    if (window.SlopFirstRun && !(await SlopFirstRun.once('upscale', FIRST_USE))) return;
     const kind = IO.kind(file);
     if (!kind) { toast('That is not a picture or a video'); return false; }
     if (S.busy) { toast('Wait for the run to finish, or cancel it'); return false; }

@@ -11,6 +11,18 @@ import { convertAll } from './run.js';
 
 let seq = 0;
 
+/** The first-use notice: one per drop (or pick), shown once. The video engine is downloaded only when a video is converted. */
+const FIRST_USE = {
+  title: 'Convert files on this device',
+  lines: ['Conversions run in your browser. Files are read on this device and never uploaded.'],
+  downloads: [{ name: 'Video engine (ffmpeg.wasm), only when a video is converted', bytes: 32344223 }],
+};
+let firstUse = null;
+/** Resolves true when the work may go on. Cancelling clears the gate, so the next drop asks again. */
+function firstUseGate() {
+  if (!firstUse) firstUse = window.SlopFirstRun ? SlopFirstRun.once('convert', FIRST_USE) : Promise.resolve(true);
+  return firstUse.then((ok) => { if (!ok) firstUse = null; return ok; });
+}
 export class ConvertTool {
   /** preset: null for the hub, or { conv, from, defaults, note } for a converter page. */
   constructor(root, preset = null) {
@@ -49,6 +61,7 @@ export class ConvertTool {
   async addFiles(list) {
     const files = Array.from(list || []);
     if (!files.length) return;
+    if (!(await firstUseGate())) return;
     this.items = this.items.filter((i) => !i.pasted);
     this.setStatus(`Reading ${files.length} file${files.length === 1 ? '' : 's'}…`);
     for (const file of files) {

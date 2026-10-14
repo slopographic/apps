@@ -8,6 +8,7 @@
 <body>
   <!-- The pure core and the viewport run in this page; the spec builds a 64×64 test picture and checks its mesh. -->
   <div id="stage"></div>
+  <script>try { localStorage.setItem('slop-firstrun:img3d', '1'); } catch (e) { /* private window */ }</script>
   <script src="../harness.js"></script>
   <script src="../../img3d/js/core/hfmesh.js"></script>
   <script src="../../img3d/js/core/prepare.js"></script>

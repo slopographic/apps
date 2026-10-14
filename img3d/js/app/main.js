@@ -118,7 +118,14 @@
     return hf.heightField(S.prep, opts());
   }
 
+  /** The first-use notice: the depth model is downloaded the first time a picture is opened. */
+  const FIRST_USE = {
+    title: 'Make a 3D model on this device',
+    lines: ['Slop Image to 3D estimates depth with a model that runs in your browser.'],
+    downloads: [{ name: 'Depth model (Depth Anything v2 small)', bytes: 27258801 }],
+  };
   async function openBlob(blob, name) {
+    if (window.SlopFirstRun && !(await SlopFirstRun.once('img3d', FIRST_USE))) return;
     try {
       say('Reading the picture…');
       const img = await ns.image.decode(blob, name);

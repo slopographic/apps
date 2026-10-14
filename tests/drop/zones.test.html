@@ -11,7 +11,8 @@
        message opens the picker zero times and Choose files opens it once, (c) the zone is not over a menu or toolbar,
        (d) a file dropped on the bare page (document.body, outside the app's area) is not taken. -->
   <iframe id="app" src="about:blank"></iframe>
-  <script src="../harness.js"></script>
+    <script>try { localStorage.setItem('slop-firstrun:convert', '1'); } catch (e) { /* private window */ }</script>
+<script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
