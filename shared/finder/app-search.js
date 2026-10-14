@@ -35,6 +35,7 @@
     sheetview: { desc: 'Open and browse spreadsheets on this device: sort and filter columns, and export what you see.', keywords: ['spreadsheet viewer', 'excel viewer', 'csv viewer', 'open xlsx', 'sheets', 'tsv', 'view csv', 'table viewer'] },
     hex: { desc: 'A hex editor: view and change any file as bytes, with find, offsets and large-file paging.', keywords: ['hex', 'hex editor', 'bytes', 'binary', 'ascii', 'debug file', 'raw file', 'offset'] },
     eml: { desc: 'Preview email files (.eml), print them, or save them to PDF. Remote images are blocked.', keywords: ['eml', 'email', 'mail', 'message', 'outlook', 'pdf', 'print email', 'attachments'] },
+    checksum: { desc: 'Compute SHA-256, SHA-1, SHA-384 or SHA-512 hashes for any file on this device, and check a file against a published hash.', keywords: ['checksum', 'hash', 'sha256', 'sha-256', 'sha1', 'verify', 'integrity', 'file hash'] },
     qr: { desc: 'Make QR codes for links, Wi-Fi, contacts, events and more, in colour, as SVG or PNG, or in batches.', keywords: ['qr', 'qr code', 'barcode', 'wifi', 'wi-fi', 'vcard', 'link code', 'generate'] },
     convert: { desc: 'Convert images, PDFs, CSV, JSON, Markdown and Base64, in batch, on your device.', keywords: ['convert', 'converter', 'image converter', 'pdf to png', 'png to jpg', 'webp', 'csv to json', 'base64'] },
     calculator: { desc: 'A calculator with a paper tape, units, currencies, dates and times, and saved calculations.', keywords: ['calculator', 'maths', 'math', 'units', 'currency', 'percent', 'tape', 'date calculator'] },

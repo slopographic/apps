@@ -60,6 +60,7 @@
     effects: '<path d="M18 14v20l16-10z"/><path d="M6 14h7M6 24h7M6 34h7"/>',
     hex: '<path d="M16 8h-6v32h6M32 8h6v32h-6"/><path d="M18 24h2M23 24h2M28 24h2"/>',
     eml: '<rect x="6" y="11" width="36" height="26" rx="3"/><path d="M7 14l17 13 17-13"/><path d="M10 33h8M30 33h8"/>',
+    checksum: '<path d="M17 7 13 41M35 7 31 41M7 18h34M6 30h34"/>',
     qr: '<rect x="6" y="6" width="14" height="14" rx="1.5"/><rect x="11" y="11" width="4" height="4"/><rect x="28" y="6" width="14" height="14" rx="1.5"/><rect x="33" y="11" width="4" height="4"/><rect x="6" y="28" width="14" height="14" rx="1.5"/><rect x="11" y="33" width="4" height="4"/><path d="M28 28h4v4h-4zM36 28h6M28 36v6h4M36 36h6v6h-6z"/>',
     calculator: '<rect x="10" y="6" width="28" height="36" rx="3"/><rect x="15" y="11" width="18" height="7" rx="1"/><path d="M15 26h3M22 26h3M29 26h3M15 33h3M22 33h3M29 33h3"/>',
     time: '<circle cx="24" cy="24" r="16"/><path d="M24 14v10l7 5"/>',
