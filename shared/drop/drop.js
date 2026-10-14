@@ -60,6 +60,9 @@
     input.addEventListener('change', onPick);
 
     let chain = Promise.resolve();
+    let tidy = null;
+    /** After a batch with no problems the file rows and the status line go, so the strip is its plain prompt again. */
+    const tidyLater = () => { clearTimeout(tidy); tidy = setTimeout(() => { ui.list.replaceChildren(); ui.status.textContent = ''; }, 3000); };
     /** Runs one batch after the previous one (drops during a batch queue up). */
     function run(list, at) {
       chain = chain.then(() => batch(list, at)).catch((err) => console.error('SlopDrop', err));
@@ -69,6 +72,7 @@
       let files;
       try { files = Array.from((await list) || []); } catch (err) { PN.toast('Could not read the dropped files', 'warn'); return; }
       if (!files.length) return;
+      clearTimeout(tidy);
       ui.list.replaceChildren();
       const take = [], added = [], skipped = [];
       for (const f of files) {
@@ -95,6 +99,7 @@
       const summary = { added, skipped };
       const text = R.describe(summary);
       ui.status.textContent = text;
+      if (!skipped.length) tidyLater();
       if (o.done) { try { o.done(summary); } catch (err) { console.error('SlopDrop done', err); } }
       if (added.length && o.reveal) { try { reveal(o.reveal(summary)); } catch (err) { console.error('SlopDrop reveal', err); } }
       if (o.toast !== false) PN.toast(text, added.length ? '' : 'warn');
