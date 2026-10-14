@@ -90,17 +90,17 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 .app-card:hover, .tile:hover, .app-card:focus-visible, .tile:focus-visible { border-color: var(--slop); transform: translateY(-2px); }
 
 /* Compact card: a small thumbnail (screenshot, clip or tile), then name, badge, one line and the link. */
-.shot { position: relative; aspect-ratio: 16 / 10; background: radial-gradient(120% 90% at 30% 20%, #1f2a0a, var(--ink-3) 70%); overflow: hidden; }
+.shot { position: relative; aspect-ratio: 16 / 10; background: color-mix(in srgb, var(--sl-text, #f1ede4) 7%, var(--sl-surface, #17171b)); overflow: hidden; }
 .shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .shot video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .25s; pointer-events: none; }
 .shot.playing video { opacity: 1; }
-.shot-ph { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; color: var(--bone-faint); }
+.shot-ph { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; color: var(--sl-text, var(--bone-faint)); }
 .shot.has-img .shot-ph { display: none; }
-.shot-ph b { font-family: var(--cond); font-size: 22px; color: var(--bone-dim); }
+.shot-ph b { font-family: var(--cond); font-size: 22px; color: color-mix(in srgb, var(--sl-text, #f1ede4) 78%, transparent); }
 .shot-icon { width: 48px; height: 48px; fill: none; stroke: var(--slop); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .app-card .shot { flex: 0 0 92px; width: 92px; aspect-ratio: auto; align-self: stretch; }
 .app-card .shot-ph { padding: 8px; text-align: center; gap: 6px; }
-.app-card .shot-ph b { font-size: 13px; line-height: 1.2; color: var(--bone-dim); }
+.app-card .shot-ph b { font-size: 13px; line-height: 1.2; color: color-mix(in srgb, var(--sl-text, #f1ede4) 78%, transparent); }
 .app-card .shot-icon { width: 30px; height: 30px; }
 .app-body, .tile-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
 .app-name { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }

@@ -66,7 +66,10 @@
 @keyframes sloppo-drip { from { transform: scaleY(.1); } to { transform: none; } }
 
 /* HUD: a round level toggle beside him; the card opens next to him (a bottom sheet on phones) */
-.sloppo-hud { position: fixed; left: 0; top: 0; z-index: 25; font: 600 11px var(--mono); color: var(--bone); }
+.sloppo-hud { position: fixed; left: 0; top: 0; z-index: 25; font: 600 11px var(--mono); color: var(--hud-ink);
+  /* The HUD follows the site theme (light or dark), not the fixed homepage palette. */
+  --hud-bg: var(--sl-surface, #17171b); --hud-ink: var(--sl-text, #f1ede4); --hud-line: var(--sl-border, #2b2b33);
+  --hud-accent: var(--sl-accent, #d4ff3a); --hud-on: var(--sl-on-accent, #0e0e10); }
 .sloppo-hud.is-away { display: none; }
 .sh-toggle {
   display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border-radius: 50%;
@@ -76,33 +79,33 @@
 .sh-toggle:hover { border-color: var(--slop); transform: scale(1.06); }
 .sh-toggle:focus-visible { outline: 2px solid var(--slop); outline-offset: 2px; }
 .sh-lv { white-space: nowrap; }
-.sh-lv b { color: var(--slop); }
-.sloppo-hud.is-open .sh-toggle { border-color: var(--slop); }
+.sh-lv b { color: var(--hud-accent); }
+.sloppo-hud.is-open .sh-toggle { border-color: var(--hud-accent); }
 .sloppo-hud.is-angry .sh-toggle { border-color: rgba(255, 79, 110, .6); }
 .sloppo-hud.is-faded:not(.is-open) .sh-toggle { opacity: .4; }
 .sloppo-hud.is-faded:not(.is-open):hover .sh-toggle, .sloppo-hud.is-faded:not(.is-open):focus-within .sh-toggle { opacity: 1; }
 .sh-panel {
   position: absolute; left: calc(100% + 8px); top: -6px; width: 252px; max-width: calc(100vw - 24px);
-  display: grid; gap: 8px; padding: 10px; border-radius: 16px; border: 1px solid var(--line);
-  background: rgba(17, 17, 17, .92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  display: grid; gap: 8px; padding: 10px; border-radius: 16px; border: 1px solid var(--hud-line);
+  background: color-mix(in srgb, var(--hud-bg) 92%, transparent); color: var(--hud-ink); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
 }
 .sh-panel.flip { left: auto; right: calc(100% + 8px); }
 .sh-panel[hidden] { display: none; }
 .sh-grip { display: none; }
 .sh-meters { display: flex; align-items: center; gap: 8px; }
-.sh-bar { flex: 1; height: 6px; border-radius: 3px; background: rgba(241, 237, 228, .14); overflow: hidden; }
-.sh-bar i { display: block; height: 100%; width: 0; background: var(--slop); border-radius: 3px; transition: width .35s; }
+.sh-bar { flex: 1; height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--hud-ink) 14%, transparent); overflow: hidden; }
+.sh-bar i { display: block; height: 100%; width: 0; background: var(--hud-accent); border-radius: 3px; transition: width .35s; }
 .sh-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .sh-btn {
-  min-height: 30px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: transparent;
-  color: inherit; font: inherit; cursor: pointer; white-space: nowrap;
+  min-height: 30px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--hud-line); background: transparent;
+  color: var(--hud-ink); font: inherit; cursor: pointer; white-space: nowrap;
 }
-.sh-btn:hover { border-color: var(--slop); }
+.sh-btn:hover { border-color: var(--hud-accent); }
 .sh-btn[hidden] { display: none; }
 .sh-hat-s { display: none; }
-.sh-unleash[aria-pressed="true"] { background: #ff4f6e; border-color: #ff4f6e; color: var(--ink); }
-.sh-restore { background: var(--slop); border-color: var(--slop); color: var(--ink); }
+.sh-unleash[aria-pressed="true"] { background: #ff4f6e; border-color: #ff4f6e; color: #0a0a0a; }
+.sh-restore { background: var(--hud-accent); border-color: var(--hud-accent); color: var(--hud-on); }
 @media (max-width: 520px) {
   .sh-hat-n { display: none; }
   .sh-hat-s { display: inline; }
@@ -185,7 +188,7 @@
 .sh-rage i { display: block; height: 100%; width: 0; background: #ff4f6e; transition: width .3s; }
 .sh-rage.full i { animation: sloppo-blink .3s steps(2) infinite; }
 @keyframes sloppo-blink { 50% { opacity: .3; } }
-.sh-3d[aria-pressed="true"] { background: var(--bone); color: var(--ink); border-color: var(--bone); }
+.sh-3d[aria-pressed="true"] { background: var(--hud-ink); color: var(--hud-bg); border-color: var(--hud-ink); }
 
 @media (prefers-reduced-motion: reduce) {
   .sloppo.is-rage .sloppo-svg, .sloppo.is-rage .sloppo-3d, .sloppo-burn, .sloppo-hole .bh-ring, .sh-rage.full i { animation: none; }
