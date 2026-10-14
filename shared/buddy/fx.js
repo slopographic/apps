@@ -126,7 +126,11 @@ export function placeBubble() {
   const left = CW / 2 - w / 2, pageLeft = M.x - CW / 2 + left;
   const fix = clamp(pageLeft, 8, pageW() - 8 - w) - pageLeft;
   b.style.left = left + fix + 'px';
-  b.style.top = BASE - s * (M.hat ? 1.55 : 1.25) - b.offsetHeight + 'px';
+  // Above his head when there is room; below when he is near the top of the window, so the bubble is never cut off.
+  const above = BASE - s * (M.hat ? 1.55 : 1.25) - b.offsetHeight;
+  const flip = M.el.getBoundingClientRect().top + above < 8;
+  b.classList.toggle('below', flip);
+  b.style.top = (flip ? BASE + s * 0.45 : above) + 'px';
   b.style.setProperty('--tail', clamp(w / 2 - fix, 14, w - 14) + 'px');
 }
 

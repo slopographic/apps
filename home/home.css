@@ -218,3 +218,9 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 .showcase { min-height: 505px; }
 .finder-host { min-height: 211px; }
 @media (max-width: 720px) { .showcase { min-height: 620px; } }
+
+/* The hero video: a thumbnail kept on this site (assets/video), linking to the video on YouTube. Sized so it never shifts the page. */
+.hero-video { display: flex; gap: 12px; align-items: center; margin-top: 22px; max-width: 440px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; color: inherit; text-decoration: none; }
+.hero-video img { width: 170px; max-width: 40%; height: auto; border-radius: 8px; flex: 0 0 auto; }
+.hero-video b { color: var(--slop); }
+.hero-video span { font-size: 15px; }
