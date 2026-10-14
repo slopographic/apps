@@ -195,5 +195,29 @@
       await waitFor(() => !doc().querySelector('.sl-cvt-dlg'));
       PT.A.driveId = null;
     }, { timeout: 90000 });
+
+    it('each save adds a numbered version: the original keeps them newest last, each with its change list, and versionList returns them newest first', async () => {
+      await boot();
+      PT.A.newTab();
+      const H = PT.win.SlopHub, D = PT.SP.driveDocs, mk = (t) => new PT.win.Blob([t], { type: 'application/pdf' });
+      const base = await PT.makePdf([{ text: 'Version base' }]);
+      const orig = await H.put(new PT.win.Blob([base], { type: 'application/pdf' }), { name: 'versions.pdf', from: 'pdf', meta: { pdf: { role: 'original' } } });
+      await PT.open(base, 'versions.pdf');
+      PT.A.driveId = orig;
+      const first = await D.save(orig, mk(await PT.makePdf([{ text: 'First edit' }])), 'versions.pdf');
+      const second = await D.save(orig, mk(await PT.makePdf([{ text: 'Second edit' }])), 'versions.pdf');
+      expect(first.version).toBe(1);
+      expect(second.version).toBe(2);
+      const rec = await H.get(orig);
+      expect(rec.meta.pdf.versions.length).toBe(2);
+      expect(rec.meta.pdf.edited).toBe(second.editedId);
+      const list = await D.versionList(orig);
+      expect(list.length).toBe(2);
+      expect(list[0].n).toBe(2);
+      expect(list[1].n).toBe(1);
+      expect(list[0].edited.id).toBe(second.editedId);
+      expect(list[1].edited.id).toBe(first.editedId);
+      expect(!!list[0].changes && !!list[1].changes).toBe(true);
+    }, { timeout: 60000 });
   });
 })();

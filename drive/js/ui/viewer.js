@@ -7,44 +7,63 @@
   const pageWidth = () => Math.min(900, innerWidth - 80);
   /** A viewer for a file (image or PDF). big: Quick look (every page, up to 20); otherwise the first page only.
    * sink: the array that keeps the object URL (the caller frees it). */
+  /** The tabs of a PDF: its original, then each saved version (newest first). Each version has its PDF and its change list.
+   * A document saved before versions existed has its one edited copy as a single version. */
+  function tabsOf(r) {
+    const p = r && r.meta && r.meta.pdf;
+    if (!p || p.role === 'edited' || p.role === 'changes' || DR.kindOf(r) !== 'pdf') return [];
+    let list = (p.versions && p.versions.length ? p.versions.slice() : (p.edited ? [{ edited: p.edited, changes: p.changes || null }] : []));
+    const out = [];
+    list.forEach((v, i) => {
+      const ed = v.edited && DR.item('f:' + v.edited);
+      if (!ed || !ed.blob) return;
+      const ch = v.changes && DR.item('f:' + v.changes);
+      const n = v.n || i + 1, when = v.at ? DR.fmtDate(v.at) : '';
+      out.push({ label: `Version ${n}${when ? ' · ' + when : ''}`, rec: ed, changes: ch && ch.blob ? ch : null, n });
+    });
+    out.reverse(); // newest first, after the original
+    return [{ label: 'Original', rec: r, changes: null }, ...out];
+  }
   DR.viewerFor = function (r, big, sink) {
-    const versions = versionsOf(r);
-    if (versions.length > 1) return versionTabs(versions, big, sink);
+    const tabs = tabsOf(r);
+    if (tabs.length > 1) return versionTabs(tabs, big, sink);
     return plainViewer(r, big, sink);
   };
-  /** The original of a PDF and the versions saved beside it in Slop Drive (its edited copy and change list), in tab order. */
-  function versionsOf(r) {
-    const p = r && r.meta && r.meta.pdf;
-    if (!p || p.role === 'edited' || p.role === 'changes' || DR.kindOf(r) !== 'pdf') return [{ label: 'Original', rec: r }];
-    const out = [{ label: 'Original', rec: r }];
-    const ed = p.edited && DR.item('f:' + p.edited);
-    if (ed && ed.blob) out.push({ label: 'Edited copy', rec: ed });
-    const ch = p.changes && DR.item('f:' + p.changes);
-    if (ch && ch.blob) out.push({ label: 'Change list', rec: ch, changes: true });
-    return out;
-  }
-  /** The tabs above a PDF's preview: one tab per version. The change list shows its edits in a list. */
-  function versionTabs(versions, big, sink) {
-    const wrap = document.createElement('div'), bar = document.createElement('div'), body = document.createElement('div');
+  /** The tabs above a PDF's preview. A version with a change list also has a Preview | Changes switch. */
+  function versionTabs(tabs, big, sink) {
+    const wrap = document.createElement('div'), bar = document.createElement('div'), mode = document.createElement('div'), body = document.createElement('div');
     wrap.className = 'pv-versions';
     bar.className = 'pv-tabs'; bar.setAttribute('role', 'tablist');
+    mode.className = 'pv-tabs pv-mode'; mode.setAttribute('role', 'tablist');
     body.className = 'pv-version-body';
-    const tabs = versions.map((v, i) => {
+    let current = 0, view = 'preview';
+    const tabEls = tabs.map((t, i) => {
       const b = document.createElement('button');
-      b.type = 'button'; b.className = 'pv-tab'; b.setAttribute('role', 'tab'); b.textContent = v.label;
-      b.addEventListener('click', () => show(i));
+      b.type = 'button'; b.className = 'pv-tab'; b.setAttribute('role', 'tab'); b.textContent = t.label;
+      b.addEventListener('click', () => { current = i; view = 'preview'; show(); });
       bar.append(b);
       return b;
     });
-    const show = async (i) => {
-      tabs.forEach((t, j) => t.setAttribute('aria-selected', j === i ? 'true' : 'false'));
+    const previewBtn = document.createElement('button'), changesBtn = document.createElement('button');
+    previewBtn.type = changesBtn.type = 'button'; previewBtn.className = changesBtn.className = 'pv-tab';
+    previewBtn.textContent = 'Preview'; changesBtn.textContent = 'Changes';
+    previewBtn.addEventListener('click', () => { view = 'preview'; show(); });
+    changesBtn.addEventListener('click', () => { view = 'changes'; show(); });
+    mode.append(previewBtn, changesBtn);
+    const show = async () => {
+      tabEls.forEach((b, j) => b.setAttribute('aria-selected', j === current ? 'true' : 'false'));
+      const t = tabs[current];
+      const hasChanges = !!t.changes;
+      mode.hidden = !hasChanges;
+      if (!hasChanges) view = 'preview';
+      previewBtn.setAttribute('aria-selected', view === 'preview' ? 'true' : 'false');
+      changesBtn.setAttribute('aria-selected', view === 'changes' ? 'true' : 'false');
       body.replaceChildren(document.createTextNode('Loading…'));
-      const v = versions[i];
-      if (v.changes) body.replaceChildren(await changeList(v.rec));
-      else body.replaceChildren(plainViewer(v.rec, big, sink).el);
+      if (view === 'changes' && t.changes) body.replaceChildren(await changeList(t.changes));
+      else body.replaceChildren(plainViewer(t.rec, big, sink).el);
     };
-    wrap.append(bar, body);
-    show(0);
+    wrap.append(bar, mode, body);
+    show();
     return { el: wrap };
   }
   /** The change list of a document as a readable list (each change: what, from, to). */
