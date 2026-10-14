@@ -28,7 +28,7 @@
     'vendor/pdf-lib/pdf-lib.min.js', 'vendor/pdfjs/pdf.min.js', 'vendor/pdfjs/pdf.worker.min.js',
     'shared/doctabs/tabs.js', 'shared/doctabs/drive.js', 'shared/doctabs/session.js', 'shared/nav/presets.js',
     'shared/nav/validate.js', 'shared/nav/logic.js', 'shared/nav/engine.js', 'shared/urlstate/urlstate.js',
-    'shared/router/router.js', 'shared/viewmode/viewmode.js', 'pdf/js/core/util.js', 'pdf/js/core/zip.js',
+    'shared/router/router.js', 'shared/viewmode/viewmode.js', 'shared/versions/versions.js', 'pdf/js/core/util.js', 'pdf/js/core/zip.js',
     'pdf/js/ui/icons.js', 'pdf/js/io/decrypt.js', 'pdf/js/core/model.js', 'pdf/js/core/history.js',
     'pdf/js/core/layers.js', 'pdf/js/core/text.js', 'pdf/js/core/fonts-custom.js', 'pdf/js/core/watermark.js',
     'pdf/js/core/watermark-annots.js', 'pdf/js/core/pdfjs.js', 'pdf/js/io/forms.js', 'pdf/js/io/export.js',
@@ -62,7 +62,7 @@
     scripts: [
     'shared/session/session.js', 'shared/doctabs/tabs.js', 'shared/doctabs/drive.js', 'shared/doctabs/session.js',
     'shared/nav/presets.js', 'shared/nav/validate.js', 'shared/nav/logic.js', 'shared/nav/engine.js',
-    'shared/urlstate/urlstate.js', 'shared/router/router.js', 'shared/viewmode/viewmode.js', 'pdf/js/core/util.js',
+    'shared/urlstate/urlstate.js', 'shared/router/router.js', 'shared/viewmode/viewmode.js', 'shared/versions/versions.js', 'pdf/js/core/util.js',
     'pdf/js/core/zip.js', 'pdf/js/ui/icons.js', 'pdf/js/io/decrypt.js', 'pdf/js/core/model.js',
     'pdf/js/core/history.js', 'pdf/js/core/layers.js', 'pdf/js/core/text.js', 'pdf/js/core/fonts-custom.js',
     'pdf/js/core/watermark.js', 'pdf/js/core/watermark-annots.js', 'pdf/js/core/pdfjs.js', 'pdf/js/io/forms.js',
