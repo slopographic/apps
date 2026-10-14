@@ -10,7 +10,8 @@
   const root = here ? here.slice(0, here.indexOf('shared/spotlight/spotlight.js')) : '/';
 
   const css = `
-  .sps-pill{position:fixed;left:12px;bottom:12px;z-index:60;display:flex;gap:6px;align-items:center;padding:6px 10px;border-radius:99px;
+  .sps-dock{position:fixed;left:12px;bottom:12px;z-index:60;display:flex;gap:6px}
+  .sps-pill{display:flex;gap:6px;align-items:center;padding:6px 10px;border-radius:99px;
     border:1px solid rgba(127,127,140,.45);background:rgba(20,20,24,.82);color:#f1ede4;font:600 12px system-ui,sans-serif;text-decoration:none;cursor:pointer;
     -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
   .sps-pill:focus-visible{outline:2px solid #d4ff3a;outline-offset:2px}
@@ -102,9 +103,10 @@
     const home = document.createElement('a');
     home.className = 'sps-pill';
     home.href = root;
-    home.style.left = 'auto';
-    home.style.right = '12px';
-    home.textContent = 'Slopographic home';
+    home.textContent = 'Home';
+    const dock = document.createElement('div');
+    dock.className = 'sps-dock';
+    dock.append(home, pill);
     back = document.createElement('div');
     back.className = 'sps-back';
     back.innerHTML = '<div class="sps-box" role="dialog" aria-label="All apps"><input class="sps-in" type="search" placeholder="Find an app" aria-label="Find an app" autocomplete="off"><ul class="sps-list" role="listbox"></ul></div>';
@@ -118,7 +120,7 @@
       else if (e.key === 'Escape') { close(); }
     });
     back.addEventListener('mousedown', (e) => { if (e.target === back) close(); });
-    document.body.append(pill, home, back);
+    document.body.append(dock, back);
     document.addEventListener('keydown', (e) => {
       if (!window.SlopCmd && (e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); open(); }
       else if (e.key === 'Escape' && back.classList.contains('on')) close();
