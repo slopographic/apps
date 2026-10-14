@@ -7,7 +7,8 @@
 </head>
 <body>
   <iframe id="app" src="about:blank"></iframe>
-  <script src="../harness.js"></script>
+    <script>try { localStorage.setItem('slop-firstrun:slopisolate', '1'); } catch (e) { /* private window */ }</script>
+<script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const f = document.getElementById('app');

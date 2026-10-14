@@ -62,7 +62,8 @@
       items.push(it);
       queue.push(it);
     }
-    if (items.length && !S.activeId) S.activeId = items[0].id;
+    // the newest image opens straight away: it becomes the active one, and the old view is dropped (it selects when it is done)
+    if (items.length) { S.activeId = items[0].id; P.drop(); }
     CO.emit('list', S.items);
     if (items.length) { run(); CO.emit('activeItem', S.current()); }
     return items;

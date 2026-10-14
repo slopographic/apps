@@ -9,7 +9,8 @@
   <!-- PhotoSlop sends a layer to SlopIsolate (Layer ▸ Isolate Subject), the mask is refined there and sent back. -->
   <iframe id="ps" src="../../photoslop/index.html"></iframe>
   <iframe id="iso" src="about:blank"></iframe>
-  <script src="../harness.js"></script>
+    <script>try { localStorage.setItem('slop-firstrun:slopisolate', '1'); } catch (e) { /* private window */ }</script>
+<script src="../harness.js"></script>
   <script src="isolate.spec-roundtrip.js"></script>
   <script>SlopTest.run({ name: 'PhotoSlop ↔ SlopIsolate' });</script>
 </body>

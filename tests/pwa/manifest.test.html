@@ -6,7 +6,8 @@
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
 <body>
-  <script src="../harness.js"></script>
+    <script>try { localStorage.setItem('slop-firstrun:slopisolate', '1'); } catch (e) { /* private window */ }</script>
+<script src="../harness.js"></script>
   <script>
   const { describe, it, expect } = SlopTest;
   const APPS = ['photoslop/', 'slopvector/', 'pdf/', 'label/', 'slopisolate/', 'ai/', 'docs/', 'tables/', 'slides/', 'press/', 'slopcut/', 'contacts/', 'gallery/', '3d/', 'drive/'];
