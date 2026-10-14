@@ -37,6 +37,7 @@
   }
 
   describe('document tabs', () => {
+  const wait = (label, fn, o) => waitFor(fn, o).catch(() => { const st = doc().getElementById('status'); throw new Error('timed out waiting for ' + label + ' (pages ' + (PT.E.state.pages || []).length + ', locked ' + PT.A.isLocked() + ', status ' + (st && st.textContent) + ')'); });
     it('two PDFs open as two tabs, and switching brings each one back as it was', async () => {
       await boot();
       PT.A.newTab();
@@ -115,29 +116,35 @@
       await PT.open(baseBytes, 'base.pdf');
       const page = doc().getElementById('gridWrap');
       // at the start
+      // a drop is refused while the last open or add is still finishing: wait for it to settle first
+      await wait('step 1', () => !PT.A.isLocked(), { timeout: 15000 });
       drop(page, [file(await PT.makePdf([{ text: 'Extra 1' }, { text: 'Extra 2' }]), 'extra.pdf')]);
       await chooseHere('Add to current', 'extra.pdf');
-      const ask = await waitFor(() => dialogTitled('Add pages'));
+      const ask = await wait('step 2', () => dialogTitled('Add pages'), { timeout: 30000 });
       ask.querySelector('select').value = 'start';
       clickIn(ask, 'Add pages');
-      await waitFor(() => PT.E.state.pages.length === 4);
+      await wait('step 3', () => PT.E.state.pages.length === 4, { timeout: 30000 });
       expect(await texts()).toEqual(['Extra 1', 'Extra 2', 'Base 1', 'Base 2']);
       PT.A.undo();
       expect(await texts()).toEqual(['Base 1', 'Base 2']);
       // after page 1
+      // a drop is refused while the last open or add is still finishing: wait for it to settle first
+      await wait('step 4', () => !PT.A.isLocked(), { timeout: 15000 });
       drop(page, [file(await PT.makePdf([{ text: 'Mid 1' }]), 'mid.pdf')]);
       await chooseHere('Add to current', 'mid.pdf');
-      const ask2 = await waitFor(() => dialogTitled('Add pages'));
+      const ask2 = await wait('step 5', () => dialogTitled('Add pages'), { timeout: 30000 });
       ask2.querySelector('select').value = 'after:1';
       clickIn(ask2, 'Add pages');
-      await waitFor(() => PT.E.state.pages.length === 3);
+      await wait('step 6', () => PT.E.state.pages.length === 3, { timeout: 30000 });
       expect(await texts()).toEqual(['Base 1', 'Mid 1', 'Base 2']);
       PT.A.undo();
       expect(await texts()).toEqual(['Base 1', 'Base 2']);
       // a PDF already in the document asks first; cancelling adds nothing
+      // a drop is refused while the last open or add is still finishing: wait for it to settle first
+      await wait('step 7', () => !PT.A.isLocked(), { timeout: 15000 });
       drop(page, [file(baseBytes, 'base.pdf')]);
       await chooseHere('Add to current', 'base.pdf');
-      clickIn(await waitFor(() => dialogTitled('Already in this document')), 'Cancel');
+      clickIn(await wait('step 8', () => dialogTitled('Already in this document'), { timeout: 30000 }), 'Cancel');
       await sleep(200);
       expect(PT.E.state.pages.length).toBe(2);
       expect(dialogTitled('Add pages')).toBe(undefined);
