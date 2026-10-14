@@ -29,6 +29,12 @@
     if (tabs.length > 1) return versionTabs(tabs, big, sink);
     return plainViewer(r, big, sink);
   };
+  /** How many saved versions a PDF has (0 for anything else, and for the copies that are versions themselves). */
+  DR.versionCount = function (r) {
+    const p = r && r.meta && r.meta.pdf;
+    if (!p || p.role === 'edited' || p.role === 'changes' || DR.kindOf(r) !== 'pdf') return 0;
+    return p.versions && p.versions.length ? p.versions.length : (p.edited ? 1 : 0);
+  };
   /** The tabs above a PDF's preview. A version with a change list also has a Preview | Changes switch. */
   function versionTabs(tabs, big, sink) {
     const wrap = document.createElement('div'), bar = document.createElement('div'), mode = document.createElement('div'), body = document.createElement('div');

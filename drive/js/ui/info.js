@@ -70,8 +70,10 @@
     }
     const dd = el('dd', { class: 'dims' }, dims(r) || '—');
     if (!dims(r)) DR.thumb(r).then(() => { const v = dims(r); dd.textContent = v || '—'; });
+    const nv = DR.versionCount(r);
     const facts = rows([['Kind', DR.kindLabel(r)], ['Type', r.type], ['Size', `${DR.fmtSize(r.size)} (${(r.size || 0).toLocaleString()} bytes)`], ['Made by', DR.appName(r.from)],
-      ['Location', loc], ['Added', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], ['Opened', r.opened ? DR.fmtFull(r.opened) : 'Never'], r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null]);
+      ['Location', loc], ['Added', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], ['Opened', r.opened ? DR.fmtFull(r.opened) : 'Never'],
+      nv ? ['Versions', `${nv} saved. Switch between them in the preview above.`] : null, r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null]);
     if (['image', 'video', 'pdf'].includes(DR.kindOf(r))) facts.append(el('dt', null, DR.kindOf(r) === 'pdf' ? 'Pages' : 'Dimensions'), dd);
     const pv = DR.previewOf(r);
     faceRow(r, facts, pv);
