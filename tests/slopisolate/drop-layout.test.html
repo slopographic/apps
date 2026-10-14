@@ -47,22 +47,21 @@
       expect(boxOf(drop).left >= 0).toBe(true);
       expect(boxOf(drop).right <= f.win.innerWidth).toBe(true);
     }, { timeout: 40000 });
-    it(`does not overlap the preview or the canvas once an image is in at ${label}`, async () => {
+    it(`hides the strip once images are in, so the stage has the room, at ${label}`, async () => {
       const f = await getFrame(id);
-      f.doc.getElementById('emptySample').click();
+      if (f.doc.getElementById('app').dataset.mode === 'empty') { f.doc.getElementById('emptySample').click(); }
       await waitFor(() => f.doc.getElementById('app').dataset.mode !== 'empty', { timeout: 30000 });
-      expectNoOverlap(f);
+      expect(f.win.getComputedStyle(f.doc.getElementById('isoDrop')).display).toBe('none');
+      expect(boxOf(f.doc.getElementById('stage')).height > 0).toBe(true);
     }, { timeout: 40000 });
-    it(`takes only a compact height once images are in, and a long file list scrolls at ${label}`, async () => {
+    it(`the queue sidebar takes a dropped file once images are in, at ${label}`, async () => {
       const f = await getFrame(id);
-      const drop = f.doc.getElementById('isoDrop');
-      const list = drop.querySelector('.sd-list');
-      for (let i = 0; i < 12; i++) { const li = f.doc.createElement('li'); li.className = 'sd-row'; li.textContent = 'file-' + i + '.png'; list.append(li); }
-      await waitFor(() => list.getBoundingClientRect().height > 0, { timeout: 5000 });
-      expect(boxOf(drop).height <= 140).toBe(true);
-      expect(list.getBoundingClientRect().height <= 60).toBe(true);
-      expectNoOverlap(f);
-      list.replaceChildren();
+      const before = f.win.CO.state.items.length;
+      const dt = new f.win.DataTransfer();
+      dt.items.add(new f.win.File([new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])], 'dropped-on-sidebar.png', { type: 'image/png' }));
+      f.doc.getElementById('queue').dispatchEvent(new f.win.DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+      await waitFor(() => f.win.CO.state.items.length > before, { timeout: 10000 });
+      expect(f.win.CO.state.items.length > before).toBe(true);
     }, { timeout: 40000 });
   });
   layoutCase('1280 px', 'wide');

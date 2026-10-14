@@ -33,6 +33,11 @@
     return take(files);
   };
 
+  /** Add files that were dropped or pasted elsewhere (the queue sidebar): the same route as the picker and the drop strip. */
+  F.addFiles = function (list) {
+    return take(list);
+  };
+
   /** Add the built-in sample image (a generated Sloppo goo on a busy background). */
   F.sample = async function () {
     const file = await CO.sample.make();

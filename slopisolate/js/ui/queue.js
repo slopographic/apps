@@ -75,6 +75,10 @@
     addBtn = h('button', { type: 'button', class: 'q-add', 'aria-label': 'Add images', title: 'Add images' });
     addBtn.innerHTML = U.icon('plus');
     addBtn.addEventListener('click', () => CO.files.open());
+    // drop images on the sidebar too: the same route as the drop strip and the picker
+    root.addEventListener('dragover', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); root.classList.add('is-drop'); } });
+    root.addEventListener('dragleave', () => root.classList.remove('is-drop'));
+    root.addEventListener('drop', (e) => { e.preventDefault(); root.classList.remove('is-drop'); if (e.dataTransfer && e.dataTransfer.files.length) CO.files.addFiles(e.dataTransfer.files); });
     CO.on('list', render);
     CO.on('activeItem', render);
     CO.on('item', (it) => {

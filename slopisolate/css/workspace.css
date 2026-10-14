@@ -113,6 +113,8 @@
    list scrolls instead of growing, and once images are in it keeps a one-row height so the work keeps the room. */
 .iso-drop { flex: 0 1 auto; min-height: 0; max-height: 35%; overflow: auto; margin: 8px 12px 0; padding: 8px 12px; border: 1px dashed var(--line, #c8c8d0); border-radius: 8px; background: var(--panel, transparent); }
 .iso-drop .sd-list { max-height: 84px; overflow: auto; }
-.app:not([data-mode="empty"]) .iso-drop { margin-top: 6px; padding: 4px 10px; }
+/* With images loaded the strip is hidden: the queue sidebar takes drops and has Add images, and the whole window still takes drops. */
+.app:not([data-mode="empty"]) .iso-drop { display: none; }
+#queue.is-drop { outline: 2px dashed var(--accent, #6b5cff); outline-offset: -4px; }
 .app:not([data-mode="empty"]) .iso-drop .sd-msg { font-size: 12px; }
 .app:not([data-mode="empty"]) .iso-drop .sd-list { max-height: 56px; }
