@@ -62,7 +62,14 @@
     let chain = Promise.resolve();
     let tidy = null;
     /** After a batch with no problems the file rows and the status line go, so the strip is its plain prompt again. */
-    const tidyLater = () => { clearTimeout(tidy); tidy = setTimeout(() => { ui.list.replaceChildren(); ui.status.textContent = ''; }, 3000); };
+    /** The timers are optional: a host without them (a test sandbox) just keeps the rows. */
+    const cancelTidy = () => { if (tidy && typeof clearTimeout === 'function') clearTimeout(tidy); tidy = null; };
+    const tidyLater = () => {
+      cancelTidy();
+      if (typeof setTimeout !== 'function') return;
+      tidy = setTimeout(() => { ui.list.replaceChildren(); ui.status.textContent = ''; }, 3000);
+      if (tidy && tidy.unref) tidy.unref(); // a node test does not wait on this tidy-up
+    };
     /** Runs one batch after the previous one (drops during a batch queue up). */
     function run(list, at) {
       chain = chain.then(() => batch(list, at)).catch((err) => console.error('SlopDrop', err));
@@ -72,7 +79,7 @@
       let files;
       try { files = Array.from((await list) || []); } catch (err) { PN.toast('Could not read the dropped files', 'warn'); return; }
       if (!files.length) return;
-      clearTimeout(tidy);
+      cancelTidy();
       ui.list.replaceChildren();
       const take = [], added = [], skipped = [];
       for (const f of files) {
