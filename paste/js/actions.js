@@ -28,7 +28,9 @@ export function openLink(pasteId) {
 }
 
 export async function newPaste(o = {}) {
-  const p = await store.create(o);
+  let p;
+  try { p = await store.create(o); }
+  catch (e) { toast('Could not start a paste: ' + ((e && e.message) || 'Slop Drive is unavailable')); return null; }
   S.pastes.unshift(p);
   S.id = p.id;
   S.pane = 'editor';
@@ -54,6 +56,15 @@ export async function onPaste(e) {
   const text = e.clipboardData && e.clipboardData.getData('text/plain');
   if (!typing && text) {
     e.preventDefault();
+    // The open paste is still blank (for example the one opened on the first visit): fill it, rather than add an empty one.
+    const cur = byId(S.id);
+    if (cur && cur.kind === 'text' && !cur.body && !cur.title) {
+      cur.body = text;
+      store.touch(cur);
+      refresh();
+      toast('Pasted into the open paste');
+      return;
+    }
     await newPaste({ kind: 'text', body: text });
     toast('Pasted as a new paste');
   }

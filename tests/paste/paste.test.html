@@ -46,7 +46,8 @@
   describe('Slop Pastebin: paste, list and highlight', () => {
     it('pastes text anywhere on the page and lists it with its title line', async () => {
       await open();
-      expect(q('#pb-editor').hidden).toBe(true);
+      // a first visit opens a new, blank paste in the editor; pasting fills it
+      expect(q('#pb-editor').hidden).toBe(false);
       pasteText(CODE);
       await waitFor(() => qa('#pb-items .pb-item').length === 1, { timeout: 4000 });
       expect(q('.pb-item-snip').textContent).toBe('const total = 42; // the answer');

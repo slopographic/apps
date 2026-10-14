@@ -111,7 +111,7 @@
     A('notes', 'app', 'Slop Notes', 'notes/', 'Notebooks and Markdown notes, saved to Slop Drive.', { title: 'Notes', group: 'business',
       features: ['Notebooks, folders, tags and pinned notes', 'Markdown with a live preview', 'Search across every note', 'Export as .md or standalone .html'],
       icon: 'page', status: 'building' }),
-    A('paste', 'app', 'Paste', 'paste/', 'Paste text, code or images, and share a link. Nothing uploaded.', { title: 'Paste bin', group: 'business',
+    A('paste', 'app', 'Paste', 'paste/', 'Paste text, code or images, and share a link. Nothing uploaded.', { title: 'Paste', group: 'business',
       features: ['Text, code and image pastes', 'Highlighting for six languages', 'Random link IDs and expiry labels', 'Copy, download and a local share link'],
       icon: 'doc', status: 'building' }),
     A('effects', 'app', 'Slop Effects', 'effects/', 'Motion design in the browser. Nothing uploaded.', { title: 'Motion graphics editor', group: 'creative', accepts: ['application/json', 'image/*', 'video/*'], features: ['Layers, keyframes and easing', 'Graph editor and seeded random motion', 'Blur, glow, shadow, colour, grain, vignette, glitch', 'WebM, MP4 and PNG sequence'], icon: 'film', status: 'beta' }),

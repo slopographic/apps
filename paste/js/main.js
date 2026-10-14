@@ -48,6 +48,8 @@ async function boot() {
   try {
     S.pastes = await store.load();
     await openStart();
+    // First visit (nothing saved yet): open a new paste straight away, so the editor is ready to type in.
+    if (!S.pastes.length && !S.id) await A.newPaste({ kind: 'text' });
   } catch (e) {
     SlopUI.toast('Could not read Slop Drive: ' + e.message);
   }
