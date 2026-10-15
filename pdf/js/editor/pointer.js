@@ -21,6 +21,7 @@
     if (Ed.editText && Ed.tool === 'select') { e.preventDefault(); S.runDown(e, p); return; } // Edit text mode (editor/edit-text.js)
     var handle = e.target.closest('.handle'), hitG = e.target.closest('.annots [data-aid]');
     var t = Ed.tool;
+    if (t === 'block') { e.preventDefault(); S.blockDown(e, p); return; } // block copy (editor/block-copy.js)
     if (t === 'select') {
       if (handle && Ed.selId) { e.preventDefault(); S.startEdit(e, handle.dataset.h); return; }
       if (hitG) {

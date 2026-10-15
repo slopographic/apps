@@ -8,7 +8,7 @@
   var S = Ed._ = {}; // DOM + interaction state shared by the editor/*.js files
   Ed.pid = null; Ed.tool = 'select'; Ed.selId = null; Ed.zoomMode = 'fit'; Ed.zoom = 1; Ed.fitPid = null;
   Ed.TOOLS = [
-    ['select', 'Select & move', 'select', 'V'], ['text', 'Text', 'text', 'T'], ['pen', 'Draw', 'pen', 'P'], ['marker', 'Highlighter', 'marker', 'H'],
+    ['select', 'Select & move', 'select', 'V'], ['block', 'Block copy: drag a box, copy its text', 'block', 'K'], ['text', 'Text', 'text', 'T'], ['pen', 'Draw', 'pen', 'P'], ['marker', 'Highlighter', 'marker', 'H'],
     ['rect', 'Rectangle', 'rect', 'R'], ['ellipse', 'Ellipse', 'ellipse', 'E'], ['line', 'Line', 'line', 'L'], ['arrow', 'Arrow', 'arrow', 'A'],
     ['whiteout', 'Whiteout (cover content)', 'whiteout', 'W'], ['redact', 'Redact (remove content)', 'redact', 'X'], ['hlbox', 'Highlight box', 'hlbox', 'B'], ['texthl', 'Text highlight', 'texthl', 'U'], ['image', 'Image', 'image', 'I'], ['signature', 'Signature', 'sign', 'S'],
     ['note', 'Comment', 'note', 'N'], ['callout', 'Callout', 'callout', 'C']

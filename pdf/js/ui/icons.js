@@ -41,6 +41,7 @@
     close: '<path d="M6 6l12 12M18 6 6 18"/>',
     check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
     select: '<path d="M5 3l14 8-6 1.8L10 19z"/>',
+    block: '<rect x="4" y="4" width="16" height="16" rx="1.5" stroke-dasharray="3 2.5"/><path d="M8 9h8M8 12.5h5M8 16h6.5"/>',
     text: '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>',
     pen: '<path d="M3 21c2-5 4-6 6-8l7-7a2.1 2.1 0 0 1 3 3l-7 7c-2 2-3 4-8 6"/>',
     marker: '<path d="m9 15 9.5-9.5a2.1 2.1 0 0 0-3-3L6 12l-1 4z"/><path d="M4 21h9" stroke-width="3" opacity=".55"/>',
