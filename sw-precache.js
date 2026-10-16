@@ -201,7 +201,7 @@ PRECACHE.push(
   '/reports/js/engine.js', '/reports/js/enrich.js', '/reports/js/saved.js', '/resize/css/resize.css', '/resize/index.html', '/resize/js/app/commands.js',
   '/resize/js/app/drive.js', '/resize/js/app/list.js', '/resize/js/app/main.js', '/resize/js/app/presets.js', '/resize/js/app/queue.js',
   '/resize/js/app/settings.js', '/resize/js/core/format.js', '/resize/js/core/size.js', '/resize/js/image/image.js', '/resize/js/video/audio.js',
-  '/resize/js/video/encode.js', '/resize/js/video/probe.js', '/resize/js/video/run.js', '/shared/ads/ads.js', '/shared/ai/apptools.js', '/shared/ai/bench.js',
-  '/shared/ai/bridge.js', '/shared/ai/catalog.js', '/shared/ai/engines.js', '/shared/ai/md.js', '/shared/ai/powerup.js', '/shared/ai/slopai.js',
+  '/resize/js/video/encode.js', '/resize/js/video/probe.js', '/resize/js/video/run.js', '/serials/css/serials.css', '/serials/index.html',
+  '/serials/js/app.js', '/serials/js/extract.js', '/shared/ads/ads.js', '/shared/ai/apptools.js', '/shared/ai/bench.js', '/shared/ai/bridge.js',
 );
 // END PRECACHE
