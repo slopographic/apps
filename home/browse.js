@@ -58,7 +58,18 @@
   const search = (a) => SEARCH[a.id] || { desc: '', keywords: [] };
   const finderHost = document.getElementById('app-finder');
   if (SF && M && finderHost) {
+    const norm = (s) => String(s == null ? '' : s).normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().trim();
+    // Featured apps lead, and an app whose name starts with or contains the search leads above them all.
+    const rank = (a, q) => {
+      const t = norm(q), n = norm(a.name);
+      return (a.featured ? 50 : 0) + (t && n.includes(t) ? 100 : 0) + (t && n.startsWith(t) ? 20 : 0);
+    };
+    // Wide screens keep the facets open in their column on the left; phones keep them behind "Filter by".
+    const wide = window.matchMedia && matchMedia('(min-width: 900px)').matches;
     SF.mount(finderHost, {
+      layout: 'faucet',
+      facetsCollapsed: !wide,
+      rank,
       items: APPS,
       fields: [
         { key: 'name', label: 'Name', get: (a) => a.name },
@@ -90,8 +101,7 @@
       searchLabel: 'Search apps',
       noun: 'apps',
       emptyText: 'No apps match these filters.',
-      resultsWhen: 'filtered',
-      facetsCollapsed: true,
+      view: 'list',
       suggest: { max: 8, href: (a) => a.path, label: (a) => shown(a), hint: sectionsText },
       autofocus: desktop(),
       onChange: (list, st) => render(list, M.isFiltered(st)),

@@ -17,7 +17,7 @@
   const type = (text) => { const i = input(); i.focus(); i.value = text; i.dispatchEvent(new win.Event('input', { bubbles: true })); };
   const cardIds = () => [...new Set([...doc.querySelectorAll('#app-sections [data-perch="card"]')].map((c) => c.dataset.id))];
   const visibleSections = () => [...doc.querySelectorAll('#app-sections > section.shelf')].filter((s) => !s.hidden).map((s) => s.id);
-  const resultCards = () => [...doc.querySelectorAll('#app-finder .sf-cards > [data-id]')].map((c) => c.dataset.id);
+  const resultCards = () => [...doc.querySelectorAll('#app-finder .sf-cards > [data-id], #app-finder .sf-list > [data-id]')].map((c) => c.dataset.id);
   const clearAll = () => { const b = [...doc.querySelectorAll('#app-finder .sf-link')].find((x) => x.textContent === 'Clear all'); if (b) b.click(); else type(''); };
 
   describe('homepage search at the top', () => {
@@ -69,7 +69,8 @@
     it('a facet narrows the results and the shelves, and counts show on each value', async () => {
       await ready;
       clearAll();
-      doc.querySelector('#app-finder .sf-more-sum').click();
+      const more = doc.querySelector('#app-finder .sf-more-sum');
+      if (more) more.click(); // the facets are collapsed on phones only
       const readyOpt = [...doc.querySelectorAll('#app-finder .sf-opt')].find((b) => b.textContent.startsWith('Ready'));
       expect(readyOpt.querySelector('.sf-n').textContent.trim() !== '').toBe(true);
       const building = [...doc.querySelectorAll('#app-finder .sf-opt')].find((b) => b.textContent.startsWith('In development'));

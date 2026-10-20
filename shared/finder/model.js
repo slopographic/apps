@@ -63,7 +63,7 @@
 
   /** The state with defaults: no search, no facets, cards, the spec's initial sort. */
   function defaultState(spec) {
-    return { q: '', facets: {}, view: 'cards', sort: spec.sort ? { key: spec.sort.key, dir: spec.sort.dir || 'asc' } : null };
+    return { q: '', facets: {}, view: spec.view || 'cards', sort: spec.sort ? { key: spec.sort.key, dir: spec.sort.dir || 'asc' } : null };
   }
   /** Whatever came in (a URL, a saved state) cleaned up: unknown views and columns are dropped, facets kept as text lists. */
   function normalizeState(raw, spec) {
@@ -112,7 +112,16 @@
   /** A header click: a new column sorts ascending, the same column flips its direction. */
   const nextSort = (sort, key) => (sort && sort.key === key ? { key, dir: sort.dir === 'desc' ? 'asc' : 'desc' } : { key, dir: 'asc' });
 
-  const M = { VIEWS, fold, words, matchesSearch, filter, facetCounts, sortItems, defaultState, normalizeState,
+  /** Items in rank order, highest first; a stable sort. spec.rank(item, q) gives each item its number. Without a rank
+   *  function the order is kept. Used when no column sort is chosen, so featured items and search matches lead. */
+  function rankItems(items, q, spec) {
+    if (!spec.rank) return items.slice();
+    return items.map((it, i) => ({ it, i, r: Number(spec.rank(it, q)) || 0 }))
+      .sort((a, b) => b.r - a.r || a.i - b.i)
+      .map((x) => x.it);
+  }
+
+  const M = { VIEWS, fold, words, matchesSearch, filter, facetCounts, sortItems, rankItems, defaultState, normalizeState,
     isFiltered, toggleFacet, removeFacet, clearFilters, chips, nextSort };
   if (typeof window !== 'undefined') window.SlopFinderModel = M;
   if (typeof module !== 'undefined' && module.exports) module.exports = M;

@@ -5,7 +5,10 @@
  *   card(item), row(item), sort {key,dir}, urlPrefix (keys in SlopUrlState as "<prefix>.q", ".view", ...),
  *   placeholder, searchLabel, noun, emptyText, resultsWhen ('filtered': cards view is hidden until a filter or search),
  *   facetsCollapsed (facets sit in a <details>), suggest {max, href(item), label(item), hint(item)} (a listbox under the
- *   search box; Enter opens the first one), autofocus (focuses the search box on mount), onChange(shown, filter).
+ *   search box; Enter opens the first one), autofocus (focuses the search box on mount), onChange(shown, filter),
+ *   layout ('faucet': facets in a column on the left, the results on the right; stacked on narrow screens),
+ *   rank(item, q) (a number; higher lists first when no column sort is chosen), view ('cards', 'list' or 'table': the view
+ *   shown first, before the reader picks another).
  *   Returns { setItems, getFilter, clear, focus, destroy }. */
 (function (win) {
   'use strict';
@@ -28,7 +31,7 @@
   const scopeFor = (prefix) => (prefix && win.SlopUrlState && win.SlopUrlState.scope ? win.SlopUrlState.scope(prefix) : null);
   function readUrl(scope) {
     const sort = scope.get('sort', '');
-    return { q: scope.get('q', ''), view: scope.get('view', 'cards'), facets: scope.get('facets', {}),
+    return { q: scope.get('q', ''), view: scope.get('view', '') || undefined, facets: scope.get('facets', {}),
       sort: sort ? { key: sort, dir: scope.get('dir', 'asc') } : undefined };
   }
   function writeUrl(scope, st) {
@@ -37,7 +40,7 @@
   }
 
   function mount(host, opts) {
-    const spec = { fields: opts.fields || [], searchKeys: opts.searchKeys, facets: opts.facets || [], columns: opts.columns || [], sort: opts.sort };
+    const spec = { fields: opts.fields || [], searchKeys: opts.searchKeys, facets: opts.facets || [], columns: opts.columns || [], sort: opts.sort, rank: opts.rank, view: opts.view };
     const scope = scopeFor(opts.urlPrefix);
     const id = 'sf' + (++seq);
     let items = (opts.items || []).slice();
@@ -61,7 +64,7 @@
       el('button', { type: 'button', class: 'sf-btn', onclick: () => clear() }, 'Clear filters'));
     const bar = el('div', { class: 'sf-bar' }, el('div', { class: 'sf-search' }, el('label', { class: 'sf-sr', for: id + '-q' }, opts.searchLabel || 'Search'), search, suggest),
       el('div', { class: 'sf-views', role: 'group', 'aria-label': 'View' }, views));
-    host.replaceChildren(el('div', { class: 'sf' + (opts.suggest ? ' sf-big' : '') }, bar, facetWrap, chipBox, count, results, empty));
+    host.replaceChildren(el('div', { class: 'sf' + (opts.suggest ? ' sf-big' : '') + (opts.layout === 'faucet' ? ' sf-faucet' : '') }, bar, facetWrap, chipBox, count, results, empty));
 
     /* ---------- suggestions: as you type, Enter opens the first match, arrows move through them ---------- */
     function paintSuggest() {
@@ -136,7 +139,7 @@
     function update() {
       if (destroyed) return;
       const matched = M.filter(items, st, spec);
-      shown = M.sortItems(matched, spec.columns, st.sort);
+      shown = st.sort ? M.sortItems(matched, spec.columns, st.sort) : M.rankItems(matched, st.q, spec);
       paintFacets(M.facetCounts(items, st, spec));
       paintChips();
       paintSuggest();

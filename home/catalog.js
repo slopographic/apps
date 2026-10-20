@@ -144,7 +144,7 @@
   }
   /* ---------- app carousel: the top of the homepage, one slide per app ---------- */
   // Names the carousel leads with, in this order; every other registry entry follows in registry order.
-  const CAROUSEL_TOP = ['PhotoSlop', 'SlopCut', 'SlopIsolate', 'SlopVector', 'Reel Remix', 'Slop Image to 3D', 'Slop Upscale', 'Slop Resize', 'Slop Docs', 'Slop Orders', 'Slop Invoices', 'Slop CRM', 'Slop Calendar', 'Slop Drive'];
+  const CAROUSEL_TOP = ['Slop PDF', 'Slop EML', 'PhotoSlop', 'SlopCut', 'SlopIsolate', 'SlopVector', 'Reel Remix', 'Slop Image to 3D', 'Slop Upscale', 'Slop Resize', 'Slop Docs', 'Slop Orders', 'Slop Invoices', 'Slop CRM', 'Slop Calendar', 'Slop Drive'];
   // Folders that have a guided tour. Keep in step with TOURS in shared/tour/mount.js.
   const TOUR_DIRS = window.SlopHomeSections.TOUR_DIRS;
   const CAROUSEL_MS = 7000;

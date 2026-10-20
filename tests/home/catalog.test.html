@@ -121,7 +121,7 @@
 
   describe('app carousel', () => {
     // The names the carousel leads with, in order. Any that the registry lacks are skipped.
-    const TOP = ['PhotoSlop', 'SlopCut', 'SlopIsolate', 'SlopVector', 'Reel Remix', 'Slop Image to 3D', 'Slop Upscale', 'Slop Resize', 'Slop Docs', 'Slop Orders', 'Slop Invoices', 'Slop CRM', 'Slop Calendar', 'Slop Drive'];
+    const TOP = ['Slop PDF', 'Slop EML', 'PhotoSlop', 'SlopCut', 'SlopIsolate', 'SlopVector', 'Reel Remix', 'Slop Image to 3D', 'Slop Upscale', 'Slop Resize', 'Slop Docs', 'Slop Orders', 'Slop Invoices', 'Slop CRM', 'Slop Calendar', 'Slop Drive'];
     const slides = () => [...doc.querySelectorAll('.carousel .car-slide')];
     const names = () => slides().map((s) => s.querySelector('h3').textContent);
     const cur = () => slides().findIndex((s) => s.classList.contains('is-current'));

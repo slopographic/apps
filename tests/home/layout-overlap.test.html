@@ -154,6 +154,7 @@
     await waitFor(() => !M.M.el.hidden && rendered(M.M.el, win), { timeout: 30000 }); // a slow machine can take a while to spawn him
     M.say('Hi! Pet me.', 60000, { force: true });
     await waitFor(() => M.M.bubble.classList.contains('show') && win.getComputedStyle(M.M.bubble).opacity === '1', { timeout: 20000 });
+    await waitFor(() => M.M.mode === 'perched', { timeout: 20000 }); // let him land before the bubble is measured
     M.M.el.scrollIntoView({ block: 'center', inline: 'nearest' });
     const bubble = M.M.bubble, was = bubble.style.pointerEvents;
     bubble.style.pointerEvents = 'auto';

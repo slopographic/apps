@@ -116,3 +116,11 @@ test('chips list the search and each facet value, and removing one drops only th
   st = M.removeFacet(st, 'section', null);
   assert.deepEqual(st.facets, {});
 });
+
+test('ranking lists higher numbers first, keeps the order among equals, and keeps the order when there is no rank', () => {
+  const items = [{ name: 'Alpha' }, { name: 'Beta', f: 1 }, { name: 'Gamma' }, { name: 'Delta', f: 1 }];
+  const rank = (x, q) => (x.f ? 50 : 0) + (q && x.name.toLowerCase().includes(q) ? 100 : 0);
+  assert.deepEqual(M.rankItems(items, '', { rank }).map((x) => x.name), ['Beta', 'Delta', 'Alpha', 'Gamma']);
+  assert.deepEqual(M.rankItems(items, 'gam', { rank }).map((x) => x.name), ['Gamma', 'Beta', 'Delta', 'Alpha']);
+  assert.deepEqual(M.rankItems(items, '', {}).map((x) => x.name), ['Alpha', 'Beta', 'Gamma', 'Delta']);
+});

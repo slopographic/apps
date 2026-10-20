@@ -224,3 +224,7 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 .hero-video img { width: 170px; max-width: 40%; height: auto; border-radius: 8px; flex: 0 0 auto; }
 .hero-video b { color: var(--slop); }
 .hero-video span { font-size: 15px; }
+
+/* The hero: the app carousel at the top of the homepage, with the featured apps first. */
+.hero-slides { padding-top: clamp(12px, 2vw, 24px); }
+.hero-slides .carousel { background: radial-gradient(120% 90% at 85% 0%, color-mix(in srgb, var(--sl-accent, #6b5cff) 22%, transparent), transparent 60%), var(--ink-2); }

@@ -67,3 +67,16 @@
   .sf-cards { grid-template-columns: minmax(0, 1fr); }
   .sf-table th, .sf-table td { padding: 8px; font-size: 13px; }
 }
+
+/* Faucet layout: facets in a column on the left, the results on the right. Stacked on narrow screens (the default rules). */
+@media (min-width: 900px) {
+  .sf-faucet { grid-template-columns: 250px minmax(0, 1fr); grid-template-areas: "bar bar" "facets count" "facets chips" "facets results" "facets empty";
+    column-gap: 26px; row-gap: 12px; align-items: start; }
+  .sf-faucet > .sf-bar { grid-area: bar; }
+  .sf-faucet > .sf-facets, .sf-faucet > .sf-more { grid-area: facets; grid-template-columns: 1fr; padding: 0; position: sticky; top: 84px;
+    max-height: calc(100vh - 100px); overflow: auto; }
+  .sf-faucet > .sf-count { grid-area: count; }
+  .sf-faucet > .sf-chips { grid-area: chips; }
+  .sf-faucet > .sf-results { grid-area: results; min-width: 0; max-height: calc(100vh - 170px); overflow: auto; overscroll-behavior: contain; }
+  .sf-faucet > .sf-empty { grid-area: empty; }
+}

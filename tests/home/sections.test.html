@@ -27,13 +27,13 @@
         expect(sec.querySelector('header p').textContent.length).toBeGreaterThan(20);
       }
     });
-    it('the search and finder come first, above the carousel, and the jump links sit under the hero', async () => {
+    it('the hero carousel comes first, then the search and finder, and the jump links sit under the hero', async () => {
       await ready;
       const finder = doc.getElementById('app-finder');
       const carousel = doc.getElementById('app-carousel');
       const jump = doc.getElementById('jump-links');
       const intro = doc.querySelector('.intro');
-      expect(!!(finder.compareDocumentPosition(carousel) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+      expect(!!(carousel.compareDocumentPosition(finder) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
       expect(!!(intro.compareDocumentPosition(jump) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
       expect(!!(carousel.compareDocumentPosition(intro) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
       expect(finder.querySelector('input[type="search"]') !== null).toBe(true);
