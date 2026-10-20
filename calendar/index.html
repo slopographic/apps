@@ -76,16 +76,14 @@
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
-        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg>
-      </a>
-      <div class="appname"><b>Slop Calendar</b><a class="home-link" href="../">slopographic</a> · <a class="home-link" href="about/">About</a></div>
-      <span class="local-badge" title="Your calendar stays in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
-    </header>
+    <div class="smb-hold" hidden>
+      <a id="cAbout" href="about/">About</a>
+      <button type="button" class="tb-btn" id="cCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+    </div>
+
 
     <div class="toolbar" role="toolbar" aria-label="Calendar">
+      <span class="local-badge" title="Your calendar stays in this browser. Nothing is uploaded."><span>100% local</span></span>
       <button type="button" class="btn" id="cPrev" aria-label="Previous period" title="Previous (Left arrow)">‹</button>
       <button type="button" class="btn" id="cToday" title="Today (T)">Today</button>
       <button type="button" class="btn" id="cNext" aria-label="Next period" title="Next (Right arrow)">›</button>
@@ -176,7 +174,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Calendar", "menus": {"File": ["#cNew", "#cImport", "#cExport", "#cConfig"], "View": ["#cPrev", "#cToday", "#cNext"]}});</script>
+<script>SlopMenuBar.mount({"app": "Calendar", "menus": {"File": ["#cNew", "#cImport", "#cExport", "#cConfig"], "View": ["#cPrev", "#cToday", "#cNext"], "Help": ["#cAbout", "#cCmd"]}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="calendar"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

@@ -227,7 +227,7 @@
         await sleep(150);
         const doc = W().document;
         expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(390);
-        expect(q('.em-top').getBoundingClientRect().height).toBeGreaterThan(40);
+        expect(q('.smb-bar').getBoundingClientRect().height).toBeGreaterThan(40);
       } finally { f.style.width = '1280px'; }
     });
   });

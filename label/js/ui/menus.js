@@ -1,4 +1,4 @@
-/* SlopLabel — ui/menus: the menu bar (File, Edit, Insert, Object, Data, View, Help) on SlopUI menus. */
+/* SlopLabel — ui/menus: the menus (File, Edit, Insert, Object, Data, View, Help). The shared menu bar (SlopMenuBar) opens them. */
 'use strict';
 
 /** Add an object centred on the label (menu inserts). */
@@ -89,22 +89,4 @@ function menuHelp() {
     C ? { label: 'Search commands…', key: C.keyFor('cmd.palette'), act: () => C.open() } : null, C ? { label: 'Keyboard shortcuts…', key: C.keyFor('cmd.keymap'), act: () => C.openKeymap() } : null, C ? '-' : null,
     { label: 'About SlopLabel', act: aboutDialog }, { label: 'Start from a template…', act: templatesDialog }, '-', { label: 'Slopographic home', act: () => { location.href = '../'; } },
   ];
-}
-const MENUS = [['File', menuFile], ['Edit', menuEdit], ['Insert', menuInsert], ['Object', menuObject], ['Data', menuData], ['View', menuView], ['Help', menuHelp]];
-function initMenus() {
-  const nav = $('menus');
-  let openBtn = null;
-  const openMenu = (b, fn) => {
-    const r = b.getBoundingClientRect();
-    document.querySelectorAll('.mb.open').forEach((x) => x.classList.remove('open'));
-    b.classList.add('open'); openBtn = b;
-    const m = SlopUI.menu(fn(), r.left, r.bottom + 1);
-    new MutationObserver((_, obs) => { if (!m.isConnected) { b.classList.remove('open'); if (openBtn === b) openBtn = null; obs.disconnect(); } }).observe(document.body, { childList: true });
-  };
-  for (const [name, fn] of MENUS) {
-    const b = mk('button', { type: 'button', class: 'mb', 'aria-haspopup': 'menu' }, name);
-    b.addEventListener('click', () => { if (openBtn === b) { SlopUI.closeMenu(); return; } openMenu(b, fn); });
-    b.addEventListener('pointerenter', () => { if (openBtn && openBtn !== b && document.querySelector('.sui-menu')) openMenu(b, fn); });
-    nav.append(b);
-  }
 }

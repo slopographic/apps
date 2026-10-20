@@ -58,7 +58,7 @@ async function boot() {
   if (lsGet('sloplabel-rulers') === '0') $('workspace').classList.add('no-rulers');
   App.doc = starterDoc(); // until the tabs are up (startTabs)
   App.hist.reset(App.doc);
-  buildToolbox(); initMenus(); initView(); initInteract(); initKeys(); initCommands(); wireChrome();
+  buildToolbox(); initView(); initInteract(); initKeys(); initCommands(); wireChrome();
   onImageReady = () => refresh({ keepProps: true });
   if (await maybeFormMode()) return;
   rebuildScene(); fitView(); refreshNow();

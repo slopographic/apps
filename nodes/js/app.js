@@ -278,7 +278,7 @@
     $('sn-save').addEventListener('click', () => saveProject(false));
     document.addEventListener('keydown', onKey);
     document.addEventListener('focusout', (e) => { if (e.target.matches && e.target.matches('.sn-expr, .sn-name, .sn-note')) S.typing = false; });
-    if (window.SlopMenuBar) SlopMenuBar.mount({ app: 'Slopnodes', menus: {
+    if (window.SlopMenuBar) SlopMenuBar.mount({ app: 'Slopnodes', tools: ['#sn-add-value', '#sn-add-formula', '#sn-add-output', '#sn-add-note', '#sn-save'], menus: {
       File: [{ label: 'New graph', act: newGraph }, { label: 'Open project…', act: openProject }, '-', { label: 'Save to Slop Drive', act: () => saveProject(false), keys: 'Ctrl+S' }, { label: 'Save a copy…', act: () => saveProject(true) }, '-', { label: 'Load the example', act: example }],
       Edit: [{ label: 'Undo', act: undo, keys: 'Ctrl+Z', disabled: () => !S.undo.length }, { label: 'Redo', act: redo, keys: 'Ctrl+Y', disabled: () => !S.redo.length }, '-',
         { label: 'Copy node', act: copySel, keys: 'Ctrl+C' }, { label: 'Paste node', act: () => pasteAt(), keys: 'Ctrl+V', disabled: () => !S.clip }, { label: 'Duplicate node', act: () => S.sel.kind === 'node' && duplicate(S.sel.id), keys: 'Ctrl+D' }, '-',

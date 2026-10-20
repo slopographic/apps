@@ -68,13 +68,11 @@
 </head>
 <body>
   <div class="ocr-app">
-    <header class="ocr-top">
-      <div class="ocr-brand">
-        <h1>Slop OCR</h1>
-        <p class="ocr-tag">Text from images and PDFs. Read on your device, nothing uploaded.</p>
-      </div>
-      <a class="ocr-link" href="../aitools/">Slop AI Tools</a>
-    </header>
+    <div class="smb-hold" hidden>
+      <a id="ocrAi" href="../aitools/">Slop AI Tools</a>
+    </div>
+    <p class="ocr-tag">Text from images and PDFs. Read on your device, nothing uploaded.</p>
+
 
     <div id="gate" class="ocr-gate" aria-live="polite"></div>
 
@@ -144,7 +142,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "OCR", "menus": {"File": ["#read", "#dlTxt", "#dlMd", "#dlDocx", "#dlPdf"], "Edit": ["#copy", "#clear"]}});</script>
+<script>SlopMenuBar.mount({"app": "OCR", "menus": {"File": ["#read", "#dlTxt", "#dlMd", "#dlDocx", "#dlPdf"], "Edit": ["#copy", "#clear"], "Help": ["#ocrAi"]}});</script>
   <script src="../shell/shell.js"></script>
 </body>
 </html>

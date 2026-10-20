@@ -99,19 +99,17 @@
 </head>
 <body>
   <div class="hx-app" id="hx-app">
-    <header class="hx-top">
-      <div class="hx-brand"><span class="hx-logo" aria-hidden="true"></span><h1>Slop Hex</h1></div>
-      <div class="hx-name" id="hx-name" aria-live="polite"></div>
-      <div class="hx-tools" role="toolbar" aria-label="File">
-        <button type="button" class="sui-btn sui-primary" id="hx-open" title="Open a file from this computer (Ctrl+O)">Open</button>
-        <button type="button" class="sui-btn" id="hx-drive" title="Open a file from Slop Drive">Open from Drive</button>
-        <button type="button" class="sui-btn" id="hx-save" title="Save a new version to Slop Drive (Ctrl+S)">Save version</button>
-        <button type="button" class="sui-btn" id="hx-saveas" title="Save to Slop Drive as a new file">Save as new</button>
-        <button type="button" class="sui-btn" id="hx-dl" title="Download to this computer">Download</button>
-        <button type="button" class="sui-btn" id="hx-cmd" aria-label="Commands (search every command)">Commands</button>
-        <button type="button" class="sui-btn" id="hx-menu" aria-haspopup="menu">Menu</button>
-      </div>
-    </header>
+    <div class="smb-hold" hidden>
+      <button type="button" class="sui-btn sui-primary" id="hx-open" title="Open a file from this computer (Ctrl+O)">Open</button>
+      <button type="button" class="sui-btn" id="hx-drive" title="Open a file from Slop Drive">Open from Drive</button>
+      <button type="button" class="sui-btn" id="hx-save" title="Save a new version to Slop Drive (Ctrl+S)">Save version</button>
+      <button type="button" class="sui-btn" id="hx-saveas" title="Save to Slop Drive as a new file">Save as new</button>
+      <button type="button" class="sui-btn" id="hx-dl" title="Download to this computer">Download</button>
+      <button type="button" class="sui-btn" id="hx-cmd" aria-label="Commands (search every command)">Commands</button>
+      <button type="button" class="sui-btn" id="hx-menu" aria-haspopup="menu">Menu</button>
+    </div>
+    <div class="hx-name" id="hx-name" aria-live="polite"></div>
+
     <div id="hx-tabs" class="doctabs-host"></div>
     <div id="hx-drop" class="hx-dropstrip"></div>
 
@@ -162,7 +160,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Slop Hex", "menus": {"File": ["#hx-open", "#hx-save", "#hx-saveas", "#hx-dl"], "Edit": ["#hx-prev", "#hx-next", "#hx-sha-btn"], "Help": ["#hx-cmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Slop Hex", "tools": ["#hx-open", "#hx-save", "#hx-dl"], "menus": {"File": ["#hx-open", "#hx-drive", "#hx-save", "#hx-saveas", "#hx-dl"], "Edit": ["#hx-prev", "#hx-next", "#hx-sha-btn"], "Help": ["#hx-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
 </body>
 </html>

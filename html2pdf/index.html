@@ -68,13 +68,12 @@
 </head>
 <body>
   <div class="h2p-app">
-    <header class="sl-appbar">
-      <div class="sl-appbar-brand"><span class="sl-appbar-logo" aria-hidden="true"></span><h1>Slop HTML to PDF</h1><span class="sl-appbar-tag">Nothing is uploaded.</span></div>
-      <div class="sl-appbar-actions">
-        <button type="button" class="sui-btn" id="h2p-open">Open HTML…</button>
-        <button type="button" class="sui-btn sui-primary" id="h2p-print" disabled>Print or save as PDF…</button>
-      </div>
-    </header>
+    <div class="smb-hold" hidden>
+      <button type="button" class="sui-btn" id="h2p-open">Open HTML…</button>
+      <button type="button" class="sui-btn sui-primary" id="h2p-print" disabled>Print or save as PDF…</button>
+    </div>
+    <p class="h2p-note">Nothing is uploaded.</p>
+
     <input type="file" id="h2p-file" accept=".html,.htm,text/html" hidden>
 
     <main class="h2p-main">
@@ -167,7 +166,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "HTML to PDF", "menus": {"File": ["#h2p-open", "#h2p-print", "#h2p-open-empty"]}});</script>
+<script>SlopMenuBar.mount({"app": "HTML to PDF", "tools": ["#h2p-open", "#h2p-print"], "menus": {"File": ["#h2p-open", "#h2p-print"]}});</script>
   <script src="../shell/shell.js"></script>
 </body>
 </html>

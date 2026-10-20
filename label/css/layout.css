@@ -6,6 +6,9 @@
   grid-template-areas: 'menu menu menu' 'tabs tabs tabs' 'ctrl ctrl ctrl' 'tools work dock' 'status status status';
 }
 .menubar { grid-area: menu; display: flex; align-items: center; gap: 4px; padding: 0 8px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); min-width: 0; }
+/* The shared menu bar fills this row (see shared/menubar): it keeps the row's height and sits in the grid, not above it. */
+.menubar.smb-bar { position: static; min-height: 0; height: var(--menubar-h); padding: 0 8px; border-bottom: 1px solid var(--border-dark); }
+.menubar .smb-menu-b, .menubar .smb-tool { min-height: 26px; }
 .brand { display: flex; align-items: center; gap: 7px; font-weight: 700; letter-spacing: -.01em; color: var(--text); text-decoration: none; padding: 0 8px 0 2px; white-space: nowrap; }
 .brand-dot { width: 13px; height: 13px; border-radius: 50% 50% 46% 54% / 60% 60% 40% 40%; background: var(--accent); box-shadow: inset -2px -2px 0 rgba(0, 0, 0, .18); }
 .menus { display: flex; gap: 1px; min-width: 0; overflow-x: auto; scrollbar-width: none; }

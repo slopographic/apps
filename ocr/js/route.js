@@ -32,10 +32,10 @@
     $('next').addEventListener('click', note);
     $('boxes').addEventListener('change', () => R.set({ boxes: $('boxes').checked ? '1' : '0' }));
     SlopViewMode.register('ocr', {
-      regions: { toolbar: '.ocr-top', panels: '.ocr-help' },
+      regions: { toolbar: '.smb-bar', panels: '.ocr-help' },
       edges: { panels: 'bottom' },
       hides: { focus: ['toolbar'], content: ['toolbar', 'panels'] },
-      mount: '.ocr-top',
+      mount: '.smb-bar',
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

@@ -12,10 +12,10 @@
     });
     if (sel) sel.addEventListener('change', () => R.set({ find: sel.value }));
     SlopViewMode.register('hex', {
-      regions: { toolbar: ['.hx-top', '.hx-bar'], panels: '#hx-info' },
+      regions: { toolbar: ['.smb-bar', '.hx-bar'], panels: '#hx-info' },
       edges: { panels: 'top' },
       hides: { focus: ['toolbar'], content: ['toolbar', 'panels'] },
-      mount: '.hx-top',
+      mount: '.smb-bar',
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

@@ -199,7 +199,7 @@
         const doc = W().document;
         expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(390);
         expect(q('#hx-scroll').scrollWidth).toBeGreaterThan(q('#hx-scroll').clientWidth);
-        expect(q('.hx-top').getBoundingClientRect().height).toBeGreaterThan(50);
+        expect(q('.smb-bar').getBoundingClientRect().right).toBeLessThanOrEqual(390);
       } finally { f.style.width = '1280px'; }
     });
   });

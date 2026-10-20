@@ -91,16 +91,14 @@
 </head>
 <body>
   <div class="nt-app" id="nt-app" data-pane="list">
-    <header class="nt-top">
-      <div id="nt-tabs" class="doctabs-host"></div>
+    <div id="nt-tabs" class="doctabs-host"></div>
+    <span class="nt-save" id="nt-save" role="status" aria-live="polite"></span>
+    <div class="smb-hold" hidden>
       <button type="button" class="sui-btn nt-narrow" id="nt-side-btn" aria-label="Show notebooks">Notebooks</button>
-      <div class="nt-brand"><span class="nt-logo" aria-hidden="true"></span><h1>Slop Notes</h1></div>
-      <span class="nt-save" id="nt-save" role="status" aria-live="polite"></span>
-      <div class="nt-tools" role="toolbar" aria-label="Notes">
-        <button type="button" class="sui-btn sui-primary" id="nt-new" title="New note (Ctrl+Alt+N)">New note</button>
-        <button type="button" class="sui-btn nt-cmd" id="nt-cmd" aria-label="Commands (search every command)">Commands</button>
-      </div>
-    </header>
+      <button type="button" class="sui-btn sui-primary" id="nt-new" title="New note (Ctrl+Alt+N)">New note</button>
+      <button type="button" class="sui-btn nt-cmd" id="nt-cmd" aria-label="Commands (search every command)">Commands</button>
+    </div>
+
 
     <aside class="nt-side" id="nt-side" aria-label="Notebooks">
       <div class="nt-head"><span>Notebooks</span><button type="button" class="sui-btn nt-mini" id="nt-nb-new">New</button></div>
@@ -146,7 +144,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Notes", "menus": {"File": ["#nt-new", "#nt-nb-new", "#nt-fd-new", "#nt-export"], "Edit": ["#nt-pin", "#nt-insert", "#nt-del"], "Help": ["#nt-cmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Notes", "tools": ["#nt-new"], "menus": {"File": ["#nt-new", "#nt-nb-new", "#nt-fd-new", "#nt-export"], "Edit": ["#nt-pin", "#nt-insert", "#nt-del"], "View": ["#nt-side-btn"], "Help": ["#nt-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
 </body>
 </html>

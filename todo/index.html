@@ -75,18 +75,16 @@
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
-        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg>
-      </a>
-      <div class="appname"><b>Slop To-do</b><a class="home-link" href="../">slopographic</a> · <a class="home-link" href="about/">About</a></div>
-      <span class="local-badge" title="Your tasks stay in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
-    </header>
+    <div class="smb-hold" hidden>
+      <a id="tAbout" href="about/">About</a>
+      <button type="button" class="tb-btn" id="tCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+    </div>
+
 
     <div class="layout">
       <aside class="side" id="tSide" aria-label="Views and lists"></aside>
       <main class="main" id="main">
+        <span class="local-badge" title="Your tasks stay in this browser. Nothing is uploaded."><span>100% local</span></span>
         <div class="head">
           <h2 id="tTitle" class="h2"></h2>
           <div class="head-tools">
@@ -155,7 +153,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "To-do", "menus": {"File": ["#tNew", "#tAddBtn", "#tConfig"]}});</script>
+<script>SlopMenuBar.mount({"app": "To-do", "menus": {"File": ["#tNew", "#tAddBtn", "#tConfig"], "Help": ["#tAbout", "#tCmd"]}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="todo"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

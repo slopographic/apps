@@ -20,7 +20,7 @@ body { background: var(--hx-bg); color: var(--hx-fg); font: 14px/1.4 system-ui, 
 .hx-brand { display: flex; align-items: center; gap: 8px; }
 .hx-brand h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: .01em; }
 .hx-logo { width: 14px; height: 14px; border-radius: 3px; background: var(--hx-accent); }
-.hx-name { flex: 1 1 160px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--hx-dim); font-size: 13px; }
+.hx-name { flex: none; min-width: 0; padding: 6px 14px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--hx-dim); font-size: 13px; }
 .hx-tools { display: flex; flex-wrap: wrap; gap: 6px; }
 .hx-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 8px 14px; border-bottom: 1px solid var(--hx-line); }
 .hx-go, .hx-find { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0; }
@@ -58,7 +58,6 @@ body { background: var(--hx-bg); color: var(--hx-fg); font: 14px/1.4 system-ui, 
 .hx-row:hover .hx-b:not(.hx-sel) { background: var(--hx-hover); }
 @media (max-width: 600px) {
   .hx-top { padding: 8px 10px; }
-  .hx-name { flex-basis: 100%; order: 3; }
   .hx-tools { width: 100%; }
   .hx-tools .sui-btn { flex: 1 1 auto; }
   .hx-bar { padding: 8px 10px; }

@@ -97,16 +97,13 @@
 <body>
   <noscript><p class="em-noscript">Slop EML needs JavaScript. It runs entirely in your browser, and nothing is uploaded.</p></noscript>
   <div class="em-app" id="em-app">
-    <header class="em-top">
-      <div class="em-brand"><span class="em-logo" aria-hidden="true"></span><h1>Slop EML</h1></div>
-      <div class="em-tools" role="toolbar" aria-label="Message">
-        <button type="button" class="sui-btn sui-primary" id="em-open" title="Open .eml files from this computer (Ctrl+O)">Open</button>
-        <button type="button" class="sui-btn" id="em-print" title="Print the headers and the body">Print</button>
-        <button type="button" class="sui-btn" id="em-pdf" title="Save the message as a PDF">Convert to PDF</button>
-        <button type="button" class="sui-btn" id="em-cmd" aria-label="Commands (search every command)">Commands</button>
-        <button type="button" class="sui-btn" id="em-menu" aria-haspopup="menu">Menu</button>
-      </div>
-    </header>
+    <div class="smb-hold" hidden>
+      <button type="button" class="sui-btn sui-primary" id="em-open" title="Open .eml files from this computer (Ctrl+O)">Open</button>
+      <button type="button" class="sui-btn" id="em-print" title="Print the headers and the body">Print</button>
+      <button type="button" class="sui-btn" id="em-pdf" title="Save the message as a PDF">Convert to PDF</button>
+      <button type="button" class="sui-btn" id="em-cmd" aria-label="Commands (search every command)">Commands</button>
+      <button type="button" class="sui-btn" id="em-menu" aria-haspopup="menu">Menu</button>
+    </div>
     <div id="em-drop" class="em-dropstrip"></div>
     <nav class="em-tabs" id="em-tabs" aria-label="Open messages" hidden></nav>
 
@@ -158,7 +155,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Slop EML", "menus": {"File": ["#em-open", "#em-print", "#em-pdf"], "View": ["#em-v-html", "#em-v-text", "#em-cid"], "Help": ["#em-cmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Slop EML", "tools": ["#em-open", "#em-pdf", "#em-print"], "menus": {"File": ["#em-open", "#em-print", "#em-pdf"], "View": ["#em-v-html", "#em-v-text", "#em-cid"], "Help": ["#em-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
 </body>
 </html>

@@ -29,7 +29,7 @@ h2:first-child { margin-top: 0; }
 h3 { font-size: 15px; margin: 0; }
 .st-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.st-app { max-width: 1000px; margin: 0 auto; padding: 0 16px 40px; box-sizing: border-box; }
+.st-app { width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 16px 40px; box-sizing: border-box; }
 .st-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; padding: 14px 0 8px; }
 .st-brand { display: flex; align-items: center; gap: 8px; }
 .st-brand h1 { margin: 0; font-size: 17px; }

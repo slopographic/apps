@@ -19,8 +19,8 @@
     $('em-v-html').addEventListener('click', () => R.set({ view: 'html' }));
     $('em-v-text').addEventListener('click', () => R.set({ view: 'text' }));
     SlopViewMode.register('eml', {
-      regions: { toolbar: '.em-top' },
-      mount: '.em-top',
+      regions: { toolbar: '.smb-bar' },
+      mount: '.smb-bar',
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

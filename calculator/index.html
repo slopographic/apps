@@ -111,11 +111,11 @@
 </head>
 <body>
   <div class="sc-app">
-    <header class="sc-top">
-      <div class="sc-brand"><span class="sc-logo" aria-hidden="true"></span><h1>Slopculator</h1></div>
-      <a href="about/">About Slopculator</a>
-      <p class="sc-status" id="sc-status" role="status" aria-live="polite"></p>
-    </header>
+    <div class="smb-hold" hidden>
+      <a id="sc-about" href="about/">About Slopculator</a>
+    </div>
+    <p class="sc-status" id="sc-status" role="status" aria-live="polite"></p>
+
 
     <main class="sc-main">
       <section class="sc-entry" aria-labelledby="sc-entry-h">
@@ -216,7 +216,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Slopculator", "menus": {"File": ["#sc-copy", "#sc-save", "#sc-cal"], "Edit": ["#sc-clear", "#sc-tape-clear", "#sc-vars-clear", "#sc-history-clear"]}, "tools": ["#sc-enter"]});</script>
+<script>SlopMenuBar.mount({"app": "Slopculator", "menus": {"File": ["#sc-copy", "#sc-save", "#sc-cal"], "Edit": ["#sc-clear", "#sc-tape-clear", "#sc-vars-clear", "#sc-history-clear"], "Help": ["#sc-about"]}});</script>
   <script src="../shell/shell.js"></script>
 </body>
 </html>

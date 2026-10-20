@@ -25,7 +25,8 @@
       expect(W.document.title).toContain('SlopLabel');
       expect(W.App.doc.objects.length).toBeGreaterThan(0);
       expect(W.document.querySelectorAll('.tool').length).toBe(11);
-      expect(W.document.querySelectorAll('.mb').length).toBe(7);
+      expect(W.document.querySelectorAll('.menubar.smb-bar .smb-menu-b').length).toBe(7);
+      expect(W.document.querySelectorAll('header').length).toBe(1);
       expect(W.document.querySelectorAll('.tab').length).toBe(4);
       expect(typeof W.bwipjs.raw).toBe('function');
     }, { timeout: 40000 });

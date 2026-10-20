@@ -83,16 +83,14 @@
 </head>
 <body>
   <div class="app" id="app">
-    <header class="menubar" id="menubar">
-      <a class="brand" href="../" title="Slopographic home"><span class="brand-dot"></span>SlopLabel</a>
-      <nav class="menus" id="menus" aria-label="Main menu"></nav>
-      <span class="grow"></span>
+    <div class="smb-hold" hidden>
       <button type="button" class="btn ghost cmd-btn" id="btnCmd" title="Search commands" aria-label="Search commands"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="only-wide">Search</span></button>
       <button type="button" class="btn ghost only-wide" id="btnUndo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
       <button type="button" class="btn ghost only-wide" id="btnRedo" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button>
       <button type="button" class="btn primary" id="btnPrint" title="Print (Ctrl+P)">Print…</button>
       <button type="button" class="btn ghost only-narrow" id="btnDock" aria-label="Show panels" title="Panels">☰</button>
-    </header>
+    </div>
+    <header class="menubar" id="menubar"></header>
     <div class="lb-tabs" id="tabs" aria-label="Open labels"></div>
     <div class="ctrlbar" id="ctrlbar">
       <button type="button" class="chip" id="cbLabel" title="Label setup"></button>
@@ -215,7 +213,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Labels", "menus": {"File": ["#btnPrint"], "Edit": ["#btnUndo", "#btnRedo"], "View": ["#zoomIn", "#zoomOut"], "Help": ["#btnCmd"]}});</script>
+<script>SlopMenuBar.mount({app: 'SlopLabel', host: '#menubar', tools: ['#btnPrint', '#btnDock'], menus: {File: menuFile, Edit: menuEdit, Insert: menuInsert, Object: menuObject, Data: menuData, View: menuView, Help: menuHelp}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="label"></script>
   <script src="../shared/urlstate/urlstate.js" data-src="shared/urlstate/urlstate.js"></script>

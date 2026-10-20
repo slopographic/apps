@@ -82,20 +82,16 @@
 </head>
 <body>
   <div class="app">
-    <header class="topbar no-print">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
-        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
-      </a>
-      <div class="appname"><b>Slop Invoices</b><span class="appname-links"><a class="home-link" href="../">slopographic</a> · <a class="home-link" href="about/">About</a></span></div>
-      <div class="tb-doc" aria-live="polite"><b class="tb-num" id="tbNum"></b><span class="chip" id="tbStatus"></span></div>
-      <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <div class="tb-actions">
-        <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
-        <button type="button" class="btn primary" id="tbNew" title="New invoice">New invoice</button>
-        <button type="button" class="btn primary" id="tbSave" title="Save the draft">Save</button>
-        <button type="button" class="btn" id="tbPrint" title="Preview and print the invoice">Print</button>
-      </div>
-    </header>
+    <div class="smb-hold" hidden>
+      <a id="tbAbout" href="about/">About</a>
+      <button type="button" class="tb-btn" id="tbCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+      <button type="button" class="btn primary" id="tbNew" title="New invoice">New invoice</button>
+      <button type="button" class="btn primary" id="tbSave" title="Save the draft">Save</button>
+      <button type="button" class="btn" id="tbPrint" title="Preview and print the invoice">Print</button>
+    </div>
+    <div class="tb-doc no-print" aria-live="polite"><b class="tb-num" id="tbNum"></b><span class="chip" id="tbStatus"></span>
+      <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded."><span>100% local</span></span></div>
+
 
     <nav class="tabs no-print" role="tablist" aria-label="Invoice sections">
       <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Invoices</button>
@@ -247,7 +243,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Invoices", "menus": {"File": ["#tbNew", "#tbSave", "#tbPrint"]}});</script>
+<script>SlopMenuBar.mount({"app": "Invoices", "tools": ["#tbNew", "#tbSave", "#tbPrint"], "menus": {"File": ["#tbNew", "#tbSave", "#tbPrint"], "Help": ["#tbAbout", "#tbCmd"]}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="invoices"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

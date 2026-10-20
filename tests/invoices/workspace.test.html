@@ -59,7 +59,7 @@
     it('an open invoice has a top bar, the list on the left, the sheet in the centre and the details on the right', async () => {
       const W = await openApp(1280, 'new', 'edit');
       const D = W.document;
-      const bar = D.querySelector('header.topbar');
+      const bar = D.querySelector('header.smb-bar');
       expect(!!bar).toBe(true);
       expect(shown(D.getElementById('tbNum'))).toBe(true);
       expect(shown(D.getElementById('tbSave'))).toBe(true);
@@ -102,7 +102,7 @@
     it('an open invoice stacks: the sheet, then the details, and the page does not scroll sideways', async () => {
       const W = await openApp(390, 'new', 'edit');
       const D = W.document;
-      expect(!!D.querySelector('header.topbar')).toBe(true);
+      expect(!!D.querySelector('header.smb-bar')).toBe(true);
       expect(shown(D.querySelector('.tabs'))).toBe(true);
       expect(D.documentElement.scrollWidth <= 390).toBe(true);
       expect(D.body.scrollWidth <= 390).toBe(true);

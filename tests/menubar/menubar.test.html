@@ -9,6 +9,8 @@
 <script src="../../shared/menubar/menubar.js"></script>
 <script>
   const { describe, it, expect, run } = SlopTest;
+  // mount() does nothing when a bar is already on the page, so each test that mounts again clears the page first.
+  const reset = () => document.querySelectorAll('.smb-bar').forEach((b) => b.remove());
   describe('SlopMenuBar', () => {
     it('mounts a bar with a menu per title, items labelled from their buttons, and a home link', () => {
       SlopMenuBar.mount({ app: 'Test app', home: '../', menus: { File: ['#go', '-', '#off'], Help: [{ label: 'About', act: () => {} }] } });
@@ -37,6 +39,40 @@
       expect(fileBtn.getAttribute('aria-expanded')).toBe('true');
       document.body.click();
       expect(fileBtn.getAttribute('aria-expanded')).toBe('false');
+    });
+    it('a button named in tools is moved into the bar and keeps its listener', () => {
+      reset();
+      const own = document.createElement('button');
+      own.id = 'own'; own.textContent = 'Own'; document.body.append(own);
+      let hits = 0; own.addEventListener('click', () => hits++);
+      SlopMenuBar.mount({ app: 'Tools test', tools: ['#own'], menus: {} });
+      expect(!!document.querySelector('.smb-tools #own')).toBe(true);
+      document.getElementById('own').click();
+      expect(hits).toBe(1);
+    });
+    it('host: the bar fills the element the app already has, instead of adding one at the top', () => {
+      reset();
+      const host = document.createElement('div');
+      host.id = 'host'; host.textContent = 'old';
+      document.body.append(host);
+      SlopMenuBar.mount({ app: 'Host test', host: '#host', menus: { File: ['#go'] } });
+      expect(document.getElementById('host').classList.contains('smb-bar')).toBe(true);
+      expect(document.getElementById('host').textContent.includes('old')).toBe(false);
+      expect(document.body.firstElementChild.id).not.toBe('host');
+      host.remove();
+    });
+    it('a menu given as a function is built when it opens, and a submenu opens from its item', () => {
+      reset();
+      let calls = 0;
+      SlopMenuBar.mount({ app: 'Lazy', menus: { Insert: () => { calls++; return [{ label: 'More', sub: [{ label: 'Deep', act: () => {} }] }]; } } });
+      expect(calls).toBe(0);
+      const menu = [...document.querySelectorAll('.smb-menu-b')].find((b) => b.textContent === 'Insert');
+      menu.click();
+      expect(calls).toBe(1);
+      const more = [...document.querySelectorAll('.smb-item.smb-has-sub')].find((b) => b.textContent.startsWith('More'));
+      more.click();
+      const deep = [...document.querySelectorAll('.smb-item')].find((b) => b.textContent === 'Deep');
+      expect(!!deep && !deep.disabled).toBe(true);
     });
   });
   run({ name: 'SlopMenuBar' });

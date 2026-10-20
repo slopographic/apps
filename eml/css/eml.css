@@ -92,7 +92,7 @@ button.em-att-info:focus-visible { outline: 2px solid var(--sl-accent); outline-
 /* Print: headers and body only, no toolbar, tabs, notices or dialogs. Printing from this page uses these fixed colours. */
 @media print {
   html, body { height: auto; overflow: visible; background: #fff; color: #000; }
-  .em-top, .em-dropstrip, .em-tabs, .em-bar, .em-notice, .em-warn, .em-atts, .em-empty, .sui-toast, .sui-back { display: none !important; }
+  .smb-bar, .em-dropstrip, .em-tabs, .em-bar, .em-notice, .em-warn, .em-atts, .em-empty, .sui-toast, .sui-back { display: none !important; }
   .em-app, .em-main, .em-msg, .em-body { display: block; height: auto; min-height: 0; overflow: visible; padding: 0; border: 0; }
   .em-msg { display: block; }
   .em-head dt, .em-head dd, .em-subject { color: #000; }
