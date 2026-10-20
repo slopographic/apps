@@ -51,6 +51,9 @@ body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 
 .em-warn summary { cursor: pointer; color: color-mix(in srgb, var(--sl-text) 80%, transparent); }
 .em-warn ul { margin: 6px 0 0; padding-left: 20px; overflow-wrap: anywhere; }
 .em-atts-h { margin: 6px 0 8px; font-size: 15px; }
+.em-atts-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; }
+.em-atts-all { display: inline-flex; align-items: center; gap: 6px; margin-right: 4px; }
+.em-att-pick { flex: 0 0 auto; margin: 0 2px 0 0; }
 .em-att-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .em-att { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; padding: 8px 10px; border: 1px solid var(--sl-border); border-radius: 8px; }
 .em-att-info { display: flex; flex-direction: column; min-width: 0; }

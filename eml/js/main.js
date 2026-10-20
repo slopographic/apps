@@ -18,6 +18,9 @@
     $('em-v-html').addEventListener('click', () => window.EmlApp.setView('html'));
     $('em-v-text').addEventListener('click', () => window.EmlApp.setView('text'));
     $('em-cid').addEventListener('click', () => window.EmlApp.toggleCids());
+    $('em-atts-all').addEventListener('change', (e) => window.EmlView.setAllAtts(e.target.checked));
+    $('em-atts-get').addEventListener('click', () => window.EmlView.downloadPicked());
+    $('em-atts-all-get').addEventListener('click', () => window.EmlView.downloadAll());
     /* .eml files dropped on the strip or the message area open in turn (SlopDrop: refusals say why). A file that is already
        open is not opened again. */
     window.SlopDrop.attach($('em-drop'), {

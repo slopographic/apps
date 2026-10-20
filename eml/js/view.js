@@ -92,14 +92,21 @@
     $('em-cid').setAttribute('aria-pressed', String(!!doc.cids));
   }
 
+  /** Each message keeps its ticked attachments in doc.picked (a Set of indexes). */
   function drawAtts(doc) {
     const list = $('em-atts-list');
     const atts = doc.msg.attachments;
     $('em-atts').hidden = atts.length === 0;
     $('em-atts-count').textContent = String(atts.length);
+    doc.picked = new Set([...(doc.picked || [])].filter((i) => i < atts.length));
     list.replaceChildren();
     atts.forEach((a, i) => {
       const li = el('li', 'em-att');
+      const pick = el('input', 'em-att-pick');
+      pick.type = 'checkbox';
+      pick.checked = doc.picked.has(i);
+      pick.setAttribute('aria-label', 'Select ' + a.name);
+      pick.addEventListener('change', () => { if (pick.checked) doc.picked.add(i); else doc.picked.delete(i); drawAttsBar(doc); });
       const info = el('button', 'em-att-info');
       info.type = 'button';
       info.title = 'Preview ' + a.name;
@@ -114,9 +121,20 @@
       save.type = 'button';
       save.setAttribute('aria-label', 'Save ' + a.name);
       save.addEventListener('click', () => V.saveAttachment(doc, i));
-      li.append(info, save);
+      li.append(pick, info, save);
       list.append(li);
     });
+    drawAttsBar(doc);
+  }
+
+  /** The toolbar: how many are ticked, and the Select all box (blank when only some are). */
+  function drawAttsBar(doc) {
+    const n = doc.msg.attachments.length, k = doc.picked.size;
+    $('em-atts-all').checked = n > 0 && k === n;
+    $('em-atts-all').indeterminate = k > 0 && k < n;
+    $('em-atts-get').disabled = k === 0;
+    $('em-atts-get').textContent = k ? 'Download selected (' + k + ')' : 'Download selected';
+    $('em-atts-all-get').textContent = 'Download all (' + n + ')';
   }
 
   function drawWarn(doc) {
@@ -130,6 +148,26 @@
   V.saveAttachment = function (doc, index) {
     const got = window.EmlApp.attachmentBlob(doc, index);
     if (got) window.SlopUI.download(got.blob, got.name);
+  };
+
+  /** Saves several attachments: one as it is, more in one ZIP. */
+  V.downloadAtts = async function (doc, indexes) {
+    const got = await window.EmlAttachments.packageOf(doc, indexes);
+    if (got) window.SlopUI.download(got.blob, got.name);
+  };
+  V.setAllAtts = function (on) {
+    const doc = window.EmlApp.current();
+    if (!doc) return;
+    doc.picked = new Set(on ? doc.msg.attachments.map((_, i) => i) : []);
+    drawAtts(doc);
+  };
+  V.downloadPicked = function () {
+    const doc = window.EmlApp.current();
+    if (doc && doc.picked.size) V.downloadAtts(doc, [...doc.picked].sort((a, b) => a - b));
+  };
+  V.downloadAll = function () {
+    const doc = window.EmlApp.current();
+    if (doc) V.downloadAtts(doc, doc.msg.attachments.map((_, i) => i));
   };
 
   /** Redraws the whole page from the app's state. */

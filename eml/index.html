@@ -86,6 +86,8 @@
   <script src="js/pdf.js"></script>
   <script src="js/app.js"></script>
   <script src="js/preview.js"></script>
+  <script src="../shared/backup/zip.js"></script>
+  <script src="js/attachments.js"></script>
   <script src="js/view.js"></script>
   <script src="js/actions.js"></script>
   <script src="js/commands.js"></script>
@@ -136,6 +138,11 @@
         </details>
         <section class="em-atts" id="em-atts" aria-labelledby="em-atts-h" hidden>
           <h2 class="em-atts-h" id="em-atts-h">Attachments (<span id="em-atts-count">0</span>)</h2>
+          <div class="em-atts-bar">
+            <label class="em-atts-all"><input type="checkbox" id="em-atts-all"> Select all</label>
+            <button type="button" class="sui-btn" id="em-atts-get" disabled>Download selected</button>
+            <button type="button" class="sui-btn" id="em-atts-all-get">Download all</button>
+          </div>
           <ul class="em-att-list" id="em-atts-list"></ul>
         </section>
       </article>
