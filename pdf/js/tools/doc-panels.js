@@ -84,6 +84,13 @@
         ]));
       }
       if (E.state.pages.length) {
+        // The full converter, with every format (the Office buttons above open it with one preselected).
+        b.appendChild(section('All conversions', [
+          h('div', { class: 'btn-row' }, btn('All formats…', 'convert', function () { A.openConvert(); })),
+          note('Every format the converter can make from this document, in one dialog.')
+        ]));
+      }
+      if (E.state.pages.length) {
         b.appendChild(section('PDF pages → images', [
           row('Format', seg([['png', 'PNG'], ['jpeg', 'JPEG']], o.format, function (v) { o.format = v; }, 'Image format')),
           row('Resolution', select([['72', '72 dpi (screen)'], ['150', '150 dpi'], ['300', '300 dpi (print)'], ['600', '600 dpi']], o.dpi, function (v) { o.dpi = +v; })),
