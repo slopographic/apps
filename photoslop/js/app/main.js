@@ -73,6 +73,15 @@ async function boot() {
   window.addEventListener('keyup', onKeyUp);
   window.addEventListener('keydown', (e) => { pasteInPlace = e.shiftKey; }, true);
   window.addEventListener('blur', () => { V.space = false; V.el.classList.remove('space'); });
+  // Pasted images and PSD files go through the shared intake (add to the open document, or open as new). It is attached
+  // before onPaste, so a paste it takes is marked prevented and onPaste returns. Our own buffer copies stay with onPaste.
+  SlopIntake.attach({
+    accept: (f) => (f.type.startsWith('image/') || isPSD(f)) && !SlopBuffer.isSystemCopyOf(f),
+    hasOpen: () => D.layers.length > 0,
+    openName: () => D.name || 'the open document',
+    onAdd: (files) => handleFiles(files, true),
+    onNew: (files) => handleFiles(files, false),
+  });
   document.addEventListener('paste', onPaste);
   document.addEventListener('dragover', onDragOver);
   document.addEventListener('drop', onDropFiles);

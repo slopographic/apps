@@ -28,6 +28,18 @@
       await new Promise((res) => PT.win.requestAnimationFrame(() => res()));
       const after = box.getBoundingClientRect().top - page.getBoundingClientRect().top;
       expect(Math.round(after)).toBe(Math.round(before));
+      // The box sits exactly under the drag, also when the page is zoomed in.
+      Ed.zoomMode = 'num'; Ed.zoom = 1.5; Ed.layout();
+      await new Promise((res) => setTimeout(res, 50));
+      const r2 = page.getBoundingClientRect();
+      const x0 = r2.left + 40, y0 = r2.top + 40, x1 = r2.left + 200, y1 = r2.top + 110;
+      page.dispatchEvent(ev('pointerdown', x0, y0));
+      win.dispatchEvent(ev('pointermove', x1, y1));
+      win.dispatchEvent(ev('pointerup', x1, y1));
+      const b2 = page.querySelector('.pv-blockbox').getBoundingClientRect();
+      expect(Math.abs(b2.left - x0) < 1.5 && Math.abs(b2.top - y0) < 1.5).toBeTruthy();
+      expect(Math.abs(b2.right - x1) < 1.5 && Math.abs(b2.bottom - y1) < 1.5).toBeTruthy();
+      Ed.zoomMode = 'fit'; Ed.layout();
       // A tool change removes the box.
       Ed.setTool('select');
       await new Promise((res) => setTimeout(res, 0)); // the tool change is seen after the page's attribute changes

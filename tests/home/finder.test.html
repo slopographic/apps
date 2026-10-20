@@ -59,7 +59,7 @@
       const empty = doc.querySelector('#app-finder .sf-empty');
       expect(empty.hidden).toBe(false);
       expect(empty.textContent).toContain('No apps match');
-      expect(visibleSections().length).toBe(0);
+      expect(visibleSections().length).toBe(7); // the shelves below always show every app; only the faucet is empty
       empty.querySelector('.sf-btn').click();
       expect(input().value).toBe('');
       expect(visibleSections().length).toBe(7);
@@ -114,9 +114,9 @@
       doc.querySelector('#app-finder .sf-view[data-sf-view="list"]').click();
       const rows = [...doc.querySelectorAll('#app-finder .sf-row')].map((r) => r.dataset.id);
       expect(new Set(rows).size).toBe(rows.length);
+      expect(rows.length > 0 && rows.length < 50).toBeTruthy(); // the faucet shows only the matches
       const sectionIds = [...new Set([...doc.querySelectorAll('#app-sections [data-perch="card"]')].map((c) => c.dataset.id))].filter((id) => id !== 'print');
-      expect(rows.length).toBe(sectionIds.length);
-      expect(rows.sort()).toEqual(sectionIds.sort());
+      expect(rows.every((id) => sectionIds.includes(id))).toBeTruthy();
       clearAll();
       doc.querySelector('#app-finder .sf-view[data-sf-view="cards"]').click();
     });

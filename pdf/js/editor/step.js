@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._, V = SP.view;
-  var D = 28; // circle diameter in page points
+  var D = 28; // default circle diameter in page points (the tool settings can change it)
   function fmt(v) { return String(U.round(v, 3)); }
 
   /** One more than the highest step number in the document, so the numbers run on across pages. */
@@ -16,8 +16,9 @@
   };
   /** A step at page point pt (unrotated page space), its circle centred on the point. */
   E.newStep = function (pt) {
-    return { id: U.uid('a'), type: 'step', n: E.nextStepNumber(), cx: U.round(pt[0], 2), cy: U.round(pt[1], 2), w: D, h: D, rot: 0,
-      text: '', color: '#111111', fill: '#e0245e' };
+    var d = Ed.defaults.step || {}, size = d.size || D;
+    return { id: U.uid('a'), type: 'step', n: E.nextStepNumber(), cx: U.round(pt[0], 2), cy: U.round(pt[1], 2), w: size, h: size, rot: 0,
+      text: '', color: d.color || '#111111', fill: d.fill || '#e0245e', opacity: d.opacity == null ? 1 : d.opacity };
   };
   /** A click with the step tool: place the next step. The tool stays on for the next one. */
   S.stepDown = function (e, p, pt) {

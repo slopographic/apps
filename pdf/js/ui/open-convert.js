@@ -22,9 +22,4 @@
     window.SlopConvert.open({ files: files, target: 'images-to-pdf', onPdf: function (outs, names) { A.openConverted(outs, names); } });
   };
 
-  var btn = document.getElementById('btnConvert');
-  if (btn) {
-    btn.addEventListener('click', function () { A.openConvert(); });
-    if (SP.offline) btn.hidden = true;
-  }
 })();

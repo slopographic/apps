@@ -34,3 +34,9 @@
 .hist.on .hist-b { background: color-mix(in srgb, var(--accent-line) 18%, transparent); font-weight: 600; }
 .hist.is-undone .hist-b { color: var(--faint); }
 .lyr-b:focus-visible, .lyr-name:focus-visible, .hist-b:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 1px; }
+/* Layers: This page / All pages */
+.lyr-scope { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--line, #d9d9de); border-radius: 8px; margin: 0 0 8px; }
+.lyr-scope-b { min-height: 28px; padding: 4px 10px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; cursor: pointer; }
+.lyr-scope-b.on { background: var(--accent, #1b1b1f); color: var(--accent-fg, #fff); }
+.lyr-group { display: grid; gap: 4px; margin: 0 0 10px; }
+.lyr-group-h { margin: 6px 0 2px; font-size: 11px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--muted, #6b6b73); }

@@ -33,15 +33,43 @@
       act('down:' + id, 'Move ' + it.name + ' down', 'down', function () { L.moveLayer(pid, id, -1); }, { disabled: n === it.count - 1 }),
       act('del:' + id, 'Delete ' + it.name, 'trash', function () { L.deleteLayer(pid, id); }, { cls: 'lyr-del' }));
   }
-  function render(body) {
-    var pid = pageId(), p = pid && E.pageById(pid);
-    if (!p) { body.appendChild(h('p', { class: 'pp-note' }, 'Open a PDF to see its layers.')); return; }
+  /** Which layers the section lists: 'page' (the page in view) or 'all' (every page, one group each). Kept for the session. */
+  var scope = 'page';
+  function scopeTabs() {
+    var bar = h('div', { class: 'lyr-scope', role: 'tablist', 'aria-label': 'Layers shown' });
+    [['page', 'This page'], ['all', 'All pages']].forEach(function (t) {
+      var b = h('button', { type: 'button', role: 'tab', class: 'lyr-scope-b' + (scope === t[0] ? ' on' : ''), 'aria-selected': scope === t[0] ? 'true' : 'false' }, t[1]);
+      b.addEventListener('click', function () { scope = t[0]; D.refresh(); });
+      bar.appendChild(b);
+    });
+    return bar;
+  }
+  /** The rows of one page, top layer first. */
+  function pageRows(body, p) {
     var items = L.items(p);
-    body.appendChild(h('p', { class: 'pp-note' }, 'Page ' + (E.indexOf(p.id) + 1) + (items.length ? ' · ' + items.length + (items.length === 1 ? ' layer' : ' layers') : '')));
-    if (!items.length) { body.appendChild(h('p', { class: 'pp-note' }, 'No layers on this page. Text, shapes, highlights and images you add become layers, top first.')); return; }
-    var list = h('ul', { class: 'lyr-list', 'aria-label': 'Layers, top first' });
+    if (!items.length) { body.appendChild(h('p', { class: 'pp-note' }, 'No layers on this page yet.')); return; }
+    var list = h('ul', { class: 'lyr-list', 'aria-label': 'Layers on page ' + (E.indexOf(p.id) + 1) + ', top first' });
     items.forEach(function (it, k) { it.count = items.length; list.appendChild(row(p.id, it, k)); });
     body.appendChild(list);
+  }
+  function render(body) {
+    body.appendChild(scopeTabs());
+    if (scope === 'all') {
+      var withLayers = E.state.pages.filter(function (p) { return (p.annots || []).length; });
+      if (!withLayers.length) { body.appendChild(h('p', { class: 'pp-note' }, 'No layers in this document yet. Text, shapes, highlights and images you add become layers, top first.')); return; }
+      body.appendChild(h('p', { class: 'pp-note' }, withLayers.length + (withLayers.length === 1 ? ' page' : ' pages') + ' with layers'));
+      E.state.pages.forEach(function (p) {
+        if (!(p.annots || []).length) return;
+        var group = h('div', { class: 'lyr-group' }, h('h4', { class: 'lyr-group-h' }, 'Page ' + (E.indexOf(p.id) + 1) + ' · ' + p.annots.length + (p.annots.length === 1 ? ' layer' : ' layers')));
+        body.appendChild(group);
+        pageRows(group, p);
+      });
+    } else {
+      var pid = pageId(), p = pid && E.pageById(pid);
+      if (!p) { body.appendChild(h('p', { class: 'pp-note' }, 'Open a PDF to see its layers.')); return; }
+      body.appendChild(h('p', { class: 'pp-note' }, 'Page ' + (E.indexOf(p.id) + 1) + ((p.annots || []).length ? ' · ' + p.annots.length + (p.annots.length === 1 ? ' layer' : ' layers') : '')));
+      pageRows(body, p);
+    }
     body.appendChild(h('p', { class: 'pp-hint lyr-hint' }, 'Hidden layers are not drawn or exported. Locked layers cannot be moved, edited or deleted.'));
   }
   D.add({

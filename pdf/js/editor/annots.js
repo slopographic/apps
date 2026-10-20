@@ -52,7 +52,8 @@
           x[key] = val; var t = E.textLayout(x);
           var va = (((c.R - (x.rot || 0)) % 360) + 360) % 360;
           E.setAnnotViewRect(x, { x: r.x, y: r.y, w: va % 180 ? t.h : t.w, h: va % 180 ? t.w : t.h }, c.R, c.W, c.H);
-        } else x[key] = val;
+        } else if (x.type === 'step' && key === 'size') { x.w = x.h = val; }
+        else x[key] = val;
       });
     }, 'prop:' + id + ':' + key);
   };
@@ -71,9 +72,7 @@
     SlopUI.pickFiles({ accept: 'image/png,image/jpeg,image/webp,image/gif' }).then(async function (files) {
       if (!files || !files[0]) return;
       try {
-        var bytes = await U.readFile(files[0]), im = await E.prepareImage(bytes);
-        var asset = E.addAsset({ mime: im.mime, url: U.bytesToDataURL(im.bytes, im.mime), w: im.w, h: im.h, name: files[0].name });
-        Ed.placeImage(asset, 'Add image');
+        await Ed.addImageFile(files[0]);
       } catch (e) { SlopUI.alert('Image not added', 'That image could not be read: ' + (e.message || e)); }
     });
   };

@@ -228,3 +228,19 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 /* The hero: the app carousel at the top of the homepage, with the featured apps first. */
 .hero-slides { padding-top: clamp(12px, 2vw, 24px); }
 .hero-slides .carousel { background: radial-gradient(120% 90% at 85% 0%, color-mix(in srgb, var(--sl-accent, #6b5cff) 22%, transparent), transparent 60%), var(--ink-2); }
+
+/* Header: the section tabs and the tools sit at the right, each with its icon (a mask in the text colour, so they follow the theme). */
+.nav .tabs { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.nav .tab { display: inline-flex; align-items: center; gap: 7px; }
+.nav .tab::before, .nav .top-btn::before { content: ''; width: 16px; height: 16px; flex: 0 0 auto; background: currentColor; }
+.nav .tab[href="#apps"]::before { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect x=%223%22 y=%223%22 width=%227%22 height=%227%22 rx=%221.5%22/%3E%3Crect x=%2214%22 y=%223%22 width=%227%22 height=%227%22 rx=%221.5%22/%3E%3Crect x=%223%22 y=%2214%22 width=%227%22 height=%227%22 rx=%221.5%22/%3E%3Crect x=%2214%22 y=%2214%22 width=%227%22 height=%227%22 rx=%221.5%22/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect x=%223%22 y=%223%22 width=%227%22 height=%227%22 rx=%221.5%22/%3E%3Crect x=%2214%22 y=%223%22 width=%227%22 height=%227%22 rx=%221.5%22/%3E%3Crect x=%223%22 y=%2214%22 width=%227%22 height=%227%22 rx=%221.5%22/%3E%3Crect x=%2214%22 y=%2214%22 width=%227%22 height=%227%22 rx=%221.5%22/%3E%3C/svg%3E") center / contain no-repeat; }
+.nav .tab[href="#status"]::before { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M2 12h4l2.5-6 4.5 12 2.5-6H22%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222.2%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M2 12h4l2.5-6 4.5 12 2.5-6H22%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222.2%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") center / contain no-repeat; }
+.nav .tab[href^="settings"]::before { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%228%22 r=%224%22 fill=%22%23000%22/%3E%3Cpath d=%22M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z%22 fill=%22%23000%22/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%228%22 r=%224%22 fill=%22%23000%22/%3E%3Cpath d=%22M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z%22 fill=%22%23000%22/%3E%3C/svg%3E") center / contain no-repeat; }
+.nav .top-btn { display: inline-flex; align-items: center; gap: 7px; }
+.nav .top-btn::before { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M7 4.5v15l13-7.5z%22 fill=%22%23000%22/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M7 4.5v15l13-7.5z%22 fill=%22%23000%22/%3E%3C/svg%3E") center / contain no-repeat; }
+
+/* Phones: the tabs take a row of their own under the brand, spread across the width. */
+@media (max-width: 720px) {
+  .nav { flex-wrap: wrap; row-gap: 8px; }
+  .nav .tabs { order: 3; width: 100%; margin-left: 0; justify-content: space-between; }
+}

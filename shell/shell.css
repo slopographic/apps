@@ -1,9 +1,9 @@
 /* Slopographic shell: switcher, app drawer, notifications and the header buttons.
  * Shares SlopUI's look (shared/slopui.css) and takes its colours from the brand (--brand-*). */
 .sh-back, .sh-dr, .sh-dr-folder, .sh-hdr, .sh-ghost, .sn-stack, .sn-panel {
-  --sh-bg: var(--sui-bg, var(--panel, #1c1c1c));
+  --sh-bg: var(--sl-surface, var(--sui-bg, var(--panel, #1c1c1c)));
   --sh-page: var(--sui-page, #0d0d0d);
-  --sh-fg: var(--sui-fg, var(--brand-paper, #f1ede4));
+  --sh-fg: var(--sl-text, var(--sui-fg, var(--brand-paper, #f1ede4)));
   --sh-dim: var(--sui-dim, rgba(241, 237, 228, .62));
   --sh-faint: rgba(241, 237, 228, .42);
   --sh-line: var(--sui-line, rgba(241, 237, 228, .14));
@@ -31,7 +31,7 @@ button { font: inherit; }
 .sh-back { position: fixed; inset: 0; z-index: 800; display: grid; justify-items: center; align-items: start; padding: min(12vh, 90px) 8px 8px; background: rgba(0, 0, 0, .42); }
 .sh-sw { width: min(560px, 100%); max-height: 72vh; display: flex; flex-direction: column; background: var(--sh-bg); border: 1px solid var(--sh-line); border-radius: 12px; box-shadow: var(--sh-shadow); overflow: hidden; }
 .sh-sw-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--sh-line); }
-.sh-q { flex: 1; min-width: 0; height: 40px; padding: 0 10px; font-size: 16px; color: var(--sh-fg); background: rgba(0, 0, 0, .25); border: 1px solid var(--sh-line); border-radius: 8px; outline: none; }
+.sh-q { flex: 1; min-width: 0; height: 40px; padding: 0 10px; font-size: 16px; color: var(--sh-fg); background: color-mix(in srgb, var(--sh-fg) 8%, transparent); border: 1px solid var(--sh-line); border-radius: 8px; outline: none; }
 .sh-q:focus { border-color: var(--sh-accent); }
 .sh-list { flex: 1; overflow-y: auto; padding: 6px; overscroll-behavior: contain; }
 .sh-sec { padding: 10px 8px 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--sh-dim); }

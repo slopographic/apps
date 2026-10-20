@@ -17,7 +17,7 @@
 
   /* ---------------------------------------------------------------- boot */
   A.boot = function () {
-    ['app', 'rail', 'stage', 'grid', 'viewer', 'empty', 'props', 'ctxGrid', 'ctxPage', 'status', 'fileName', 'btnDownload', 'btnConvert', 'btnFonts', 'btnUndo', 'btnRedo', 'menus', 'btnMore', 'btnPanel', 'live', 'busy', 'restore', 'gridWrap']
+    ['app', 'rail', 'stage', 'grid', 'viewer', 'empty', 'props', 'ctxGrid', 'ctxPage', 'status', 'fileName', 'btnDownload', 'btnFonts', 'btnUndo', 'btnRedo', 'menus', 'btnMore', 'btnPanel', 'live', 'busy', 'restore', 'gridWrap']
       .forEach(function (id) { S.els[id] = document.getElementById(id); });
     S.buildRail(); S.buildMenus(); S.buildCtxBars();
     O.init(S.els.grid, S.els.gridWrap);
@@ -114,7 +114,6 @@
     S.els.ctxPage.hidden = !has || A.mode !== 'page';
     if (A.mode === 'page') { var n = $('#pvNum'); if (n) n.textContent = (E.indexOf(Ed.pid) + 1) + ' / ' + E.state.pages.length; }
     S.els.btnDownload.disabled = !has;
-    if (S.els.btnConvert) S.els.btnConvert.disabled = !has;
     if (S.els.btnFonts) S.els.btnFonts.disabled = !has;
     A.toolChanged();
     S.updateUndo(); S.updateStatus();

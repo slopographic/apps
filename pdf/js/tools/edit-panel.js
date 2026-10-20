@@ -28,7 +28,7 @@
         if (p) {
           var n = p.annots.length;
           pageSec.appendChild(section('This page', [note('Page ' + (E.indexOf(p.id) + 1) + ' of ' + E.state.pages.length + ' · ' + (n ? n + ' annotation' + (n > 1 ? 's' : '') : 'no annotations yet') + '. Annotations are flattened into the page when you download.'),
-            n ? h('div', { class: 'btn-row' }, btn('Clear page annotations', 'trash', function () { E.commit('Clear annotations', function (st) { st.pages.forEach(function (x) { if (x.id === p.id) x.annots = []; }); }); }, 'danger-text')) : null]));
+            n ? h('div', { class: 'btn-row' }, btn('Clear page annotations', 'trash', function () { SlopUI.confirm('Clear annotations', 'Remove every annotation on this page? Undo brings them back.', 'Clear', { danger: true }).then(function (ok) { if (ok) E.commit('Clear annotations', function (st) { st.pages.forEach(function (x) { if (x.id === p.id) x.annots = []; }); }); }); }, 'danger-text')) : null]));
         }
       });
     }
@@ -52,6 +52,11 @@
     }
     if (type === 'rect' || type === 'ellipse') kids.push(row('Fill', colorPicker(d.fill || 'none', set('fill'), true)));
     if (type === 'texthl') kids.push(row('Colour', colorPicker(d.color, set('color'))));
+    if (type === 'step') {
+      kids.push(row('Circle', colorPicker(d.fill, set('fill'))));
+      kids.push(row('Comment', colorPicker(d.color, set('color'))));
+      kids.push(row('Size', slider(d.size || 28, 16, 64, 1, set('size'), function (v) { return v + ' pt'; })));
+    }
     if (type === 'callout') {
       kids.push(row('Border', slider(d.borderW == null ? 1.2 : d.borderW, 0, 8, 0.2, set('borderW'), function (v) { return v + ' pt'; })));
       kids.push(row('Border colour', colorPicker(d.borderC, set('borderC'))));

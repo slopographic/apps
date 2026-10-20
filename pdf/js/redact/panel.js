@@ -124,7 +124,7 @@
           var del = h('button', { type: 'button', class: 'rd-x', title: 'Remove this mark', 'aria-label': 'Remove mark on page ' + (x.index + 1), html: U.icon('close') });
           del.addEventListener('click', function () { A.removeMarks(x.p.id, x.a.id); });
           return h('div', { class: 'rd-item' }, go, del);
-        })), h('div', { class: 'btn-row' }, btn('Remove all marks', 'trash', function () { A.removeMarks(null, null); }, 'danger-text')));
+        })), h('div', { class: 'btn-row' }, btn('Remove all marks', 'trash', function () { SlopUI.confirm('Remove all marks', 'Remove every redaction mark in this document? Undo brings them back.', 'Remove', { danger: true }).then(function (ok) { if (ok) A.removeMarks(null, null); }); }, 'danger-text')));
       });
     }
   };

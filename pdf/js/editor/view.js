@@ -27,7 +27,8 @@
     redact: {},
     image: { opacity: 1 },
     note: {},
-    callout: { color: '#111111', font: 'Helvetica', size: 14, bold: false, italic: false, borderC: '#e0245e', borderW: 1.2, opacity: 1 }
+    callout: { color: '#111111', font: 'Helvetica', size: 14, bold: false, italic: false, borderC: '#e0245e', borderW: 1.2, opacity: 1 },
+    step: { fill: '#e0245e', color: '#111111', size: 28, opacity: 1 }
   };
   Ed.DEF = DEF;
   Ed.defaults = U.store.get('toolDefaults', null) || JSON.parse(JSON.stringify(DEF));

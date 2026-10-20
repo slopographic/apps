@@ -31,7 +31,7 @@
         btn('Rotate left', 'rotl', function () { SP.app.rotate(SP.app.targetIds(), -90); }),
         btn('Rotate right', 'rotr', function () { SP.app.rotate(SP.app.targetIds(), 90); }),
         btn('Duplicate', 'copy', function () { SP.app.duplicate(SP.app.targetIds()); }),
-        btn('Delete', 'trash', function () { SP.app.remove(SP.app.targetIds()); }, 'danger-text'),
+        btn('Delete', 'trash', function () { var ids = SP.app.targetIds(); SlopUI.confirm('Delete pages', 'Delete ' + ids.length + ' page' + (ids.length === 1 ? '' : 's') + '? Undo brings them back.', 'Delete', { danger: true }).then(function (ok) { if (ok) SP.app.remove(ids); }); }, 'danger-text'),
         btn('Extract to PDF', 'extract', function () { SP.app.extract(); }),
         btn('Select all', 'selectall', function () { SP.organizer.selectAll(); }))]));
       onRefresh(function () {

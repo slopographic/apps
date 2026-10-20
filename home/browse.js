@@ -51,6 +51,13 @@
     C.watch();
   }
 
+  /** A list row opens its app from anywhere on the row; a click on the Open link itself is left to the link. */
+  function rowLink(a, row) {
+    row.classList.add('is-link');
+    row.addEventListener('click', (e) => { if (!e.target.closest('a')) window.location.href = a.path; });
+    return row;
+  }
+
   /* ---------- the finder: search at the top, facets, views, and the matches (SlopFinder over the registry) ---------- */
   const folder = (a) => a.path.replace(/\/$/, '');
   const sectionsText = (a) => [...new Set(H.placements(a).map((p) => H.titleOf(p.section)))].join(', ');
@@ -92,9 +99,9 @@
         { key: 'types', label: 'File types', get: (a) => H.typeKinds(a.accepts).join(', ') },
         { key: 'open', label: 'Open', sortable: false, get: () => '', render: (a) => el('a', { href: a.path }, 'Open →') },
       ],
-      row: (a) => el('div', { class: 'sf-row has-icon', 'data-id': a.id }, C.icon(a, 'sf-row-icon'), el('b', { class: 'app-title', 'data-id': a.id }, shown(a)), el('span', { class: 'sf-row-sec' }, sectionsText(a)),
+      row: (a) => rowLink(a, el('div', { class: 'sf-row has-icon', 'data-id': a.id }, C.icon(a, 'sf-row-icon'), el('b', { class: 'app-title', 'data-id': a.id }, shown(a)), el('span', { class: 'sf-row-sec' }, sectionsText(a)),
         el('span', { class: 'sf-row-tag' }, a.tagline), el('span', { class: 'sf-row-types' }, H.typeKinds(a.accepts).join(', ')),
-        el('a', { class: 'sf-row-open', href: a.path }, 'Open →')),
+        el('a', { class: 'sf-row-open', href: a.path }, 'Open →'))),
       card: (a) => C.appCard(a),
       urlPrefix: 'hp',
       placeholder: 'Search apps by name, job, file type or feature',
@@ -104,7 +111,7 @@
       view: 'list',
       big: true, // the large search box; the results filter live below it, so there is no dropdown
       autofocus: desktop(),
-      onChange: (list, st) => render(list, M.isFiltered(st)),
+      onChange: () => render(APPS, false), // the faucet filters its own list; the shelves below always show every app
     });
   } else {
     render(APPS, false);

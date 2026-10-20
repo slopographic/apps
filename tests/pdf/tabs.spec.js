@@ -180,7 +180,9 @@
       await PT.open(await PT.makePdf([{ text: 'Convert me' }]), 'to-convert.pdf');
       expect(PT.A._.fileMenu().some((x) => x && x.label === 'Convert…')).toBe(true);
       PT.A.driveId = 'drive-convert';
-      doc().getElementById('btnConvert').click();
+      doc().querySelector('.rail-b[data-tool="convert"]').click(); // the rail's Convert is the one entry: it selects the tool
+      expect(doc().querySelector('.rail-b[data-tool="convert"]').getAttribute('aria-selected')).toBe('true');
+      PT.A._.fileMenu().find((x) => x && x.label === 'Convert…').act(); // File > Convert opens the dialog on the open document
       const dlg = await waitFor(() => doc().querySelector('.sl-cvt-dlg'), { timeout: 20000 });
       await waitFor(() => dlg.querySelector('input[name]'), { timeout: 20000 });
       const ids = [...dlg.querySelectorAll('input[name]')].map((i) => i.dataset.target);

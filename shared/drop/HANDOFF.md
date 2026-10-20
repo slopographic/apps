@@ -137,3 +137,9 @@ zones exist (or are created) before attach, and attach runs after DOMContentLoad
   not edited here). Offline, these scripts are missing until the list is updated.
 - Progress is per file while the app's reader reports it (`progress` in `process`). Isolate reports the cut-out's progress;
   the others show motion.
+
+## Paste
+
+A paste of a file the rules accept goes through the same batch as a drop, via `shared/intake` (SlopIntake). See
+`shared/intake/HANDOFF.md`. Set `paste: false` in the options to turn that off for an app; `paste: { hasOpen, openName, onAdd }`
+to ask Add or New when something is open.

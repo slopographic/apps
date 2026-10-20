@@ -75,6 +75,19 @@
       chain = chain.then(() => batch(list, at)).catch((err) => console.error('SlopDrop', err));
       return chain;
     }
+    // Paste is the same batch as a drop: a copied file (or a picture copied from a web page) that the rules accept goes
+    // through o.process like a dropped one. o.paste may give hasOpen/openName (then pasting asks Add or New document) and
+    // onAdd (the app's own add path; by default the batch runs as usual). Needs shared/intake (SlopIntake) on the page.
+    if (root.SlopIntake && o.paste !== false) {
+      const P = o.paste || {};
+      root.SlopIntake.attach({
+        accept: (f) => R.check(f, rules).ok,
+        hasOpen: P.hasOpen,
+        openName: P.openName,
+        onAdd: P.onAdd ? (files) => P.onAdd(files) : (files) => run(files),
+        onNew: (files) => run(files),
+      });
+    }
     async function batch(list, at) {
       let files;
       try { files = Array.from((await list) || []); } catch (err) { PN.toast('Could not read the dropped files', 'warn'); return; }

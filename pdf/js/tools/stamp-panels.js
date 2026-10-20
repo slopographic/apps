@@ -29,7 +29,7 @@
       b.appendChild(section(null, [acts, note('Numbers follow the final page order and each page’s rotation, and are drawn into the PDF on download.')]));
       onRefresh(function () {
         acts.innerHTML = '';
-        if (E.state.stamps.pageNumbers) acts.append(btn('Remove page numbers', 'trash', function () { E.commit('Remove page numbers', function (st) { st.stamps.pageNumbers = null; }); }, 'danger-text'));
+        if (E.state.stamps.pageNumbers) acts.append(btn('Remove page numbers', 'trash', function () { SlopUI.confirm('Remove page numbers', 'Take the page numbers off this document? Undo brings them back.', 'Remove', { danger: true }).then(function (ok) { if (ok) E.commit('Remove page numbers', function (st) { st.stamps.pageNumbers = null; }); }); }, 'danger-text'));
         else acts.append(btn('Add page numbers', 'numbers', function () { U.store.set('pnOpts', o); E.commit('Add page numbers', function (st) { st.stamps.pageNumbers = Object.assign({}, o); }); }, 'primary wide'));
       });
     }

@@ -36,6 +36,26 @@
       expect(E.nextStepNumber()).toBe(4);
       Ed.setTool('select');
     });
+    it('the tool settings set the next steps: circle size and colour come from the defaults', async () => {
+      PT.reset();
+      if (!PT.SP) await PT.boot();
+      await PT.open(await PT.makePdf([{ text: 'settings' }]), 'step-settings.pdf');
+      const Ed = PT.SP.editor, S = Ed._, win = PT.win, E = PT.E;
+      const pid = E.state.pages[0].id;
+      PT.A.openPage(pid);
+      await waitFor(() => PT.win.document.querySelector('.pv-textlayer span') && Ed.pid === pid, { timeout: 8000 });
+      Ed.setTool('step');
+      Ed.setProp('size', 40);
+      Ed.setProp('fill', '#1155ff');
+      const page = S.pageEl, r = page.getBoundingClientRect();
+      const ev = (type, x, y) => new win.PointerEvent(type, { clientX: x, clientY: y, bubbles: true, cancelable: true, pointerId: 1, button: 0 });
+      page.dispatchEvent(ev('pointerdown', r.left + 80, r.top + 80));
+      win.dispatchEvent(ev('pointerup', r.left + 80, r.top + 80));
+      const made = E.state.pages[0].annots.filter((a) => a.type === 'step').pop();
+      expect(made.w).toBe(40);
+      expect(made.fill).toBe('#1155ff');
+      Ed.setTool('select');
+    });
   });
   SlopTest.run ? null : null;
 })();

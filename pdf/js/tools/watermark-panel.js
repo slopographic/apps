@@ -109,7 +109,7 @@
     up.title = 'Move the layer up the stack (drawn later, over the others)'; down.title = 'Move the layer down the stack';
     return h('div', { class: 'btn-grid wm-stack' }, up, down,
       btn('Duplicate', 'copy', function () { var copy = WM.duplicate(all, L.id); selId = copy[i + 1].id; setList('Duplicate layer', copy); }),
-      btn('Remove', 'trash', function () { selId = null; setList('Remove layer', WM.remove(all, L.id)); }, 'danger-text'));
+      btn('Remove', 'trash', function () { SlopUI.confirm('Remove watermark', 'Remove this watermark layer? Undo brings it back.', 'Remove', { danger: true }).then(function (ok) { if (ok) { selId = null; setList('Remove layer', WM.remove(all, L.id)); } }); }, 'danger-text'));
   }
 
   PANELS.watermark = {

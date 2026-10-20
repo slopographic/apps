@@ -37,7 +37,7 @@
       it('at 390 px the toolbar button is hidden, and Convert opens from the More menu', async () => {
         const win = await PT.boot('', 'app');
         expect(win.innerWidth).toBe(390);
-        expect(getComputedStyle(win.document.getElementById('btnConvert')).display).toBe('none');
+        expect(win.document.getElementById('btnConvert')).toBe(null); // one Convert entry: the rail's
         PT.reset();
         await PT.open(await PT.makePdf([{ text: 'Narrow phone' }]), 'narrow.pdf');
         const dlg = await convertFromMore(win);

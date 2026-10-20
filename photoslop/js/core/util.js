@@ -22,7 +22,7 @@ const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
 const uid = (() => { let n = 1; return () => n++; })();
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
-const isTyping = (t) => !!(t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]'));
+const isTyping = (t) => !!(t && t.closest && t.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])'));
 
 /* ---------- canvas ---------- */
 function mkCanvas(w, hh) { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(hh)); return c; }

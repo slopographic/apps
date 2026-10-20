@@ -30,10 +30,11 @@
     watcher.observe(S.pageEl, { attributes: true, attributeFilter: ['data-tool'] });
     function place(x1, y1) {
       var r = { left: Math.min(x0, x1), top: Math.min(y0, y1), right: Math.max(x0, x1), bottom: Math.max(y0, y1) };
-      var pr = S.pageEl.getBoundingClientRect(), z = Ed.zoom || 1;
+      // The page is laid out at its zoomed size, so screen pixels are the page's own CSS pixels: no division by the zoom.
+      var pr = S.pageEl.getBoundingClientRect();
       Object.assign(box.style, {
-        left: (r.left - pr.left) / z + 'px', top: (r.top - pr.top) / z + 'px',
-        width: (r.right - r.left) / z + 'px', height: (r.bottom - r.top) / z + 'px'
+        left: (r.left - pr.left) + 'px', top: (r.top - pr.top) + 'px',
+        width: (r.right - r.left) + 'px', height: (r.bottom - r.top) + 'px'
       });
       return r;
     }

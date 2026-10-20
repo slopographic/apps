@@ -33,6 +33,7 @@ function pasteInternal(inPlace) {
   pasteCanvas(copyCanvas(CLIP.canvas), inPlace ? CLIP.x : null, inPlace ? CLIP.y : null, 'Layer');
 }
 async function onPaste(e) {
+  if (e.defaultPrevented) return; // taken by SlopIntake (shared/intake)
   const fromCatcher = e.target && e.target.classList && e.target.classList.contains('paste-catcher');
   if ((!fromCatcher && isTyping(e.target)) || SlopUI.openDialogs) return;
   if (fromCatcher) e.target.blur();
