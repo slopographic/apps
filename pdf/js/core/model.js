@@ -47,7 +47,7 @@
     if (R === 270) return [W - y, x];
     return [x, y];
   };
-  E.BOX = { text: 1, rect: 1, ellipse: 1, image: 1, whiteout: 1, hlbox: 1, redact: 1, note: 1, callout: 1 };
+  E.BOX = { text: 1, rect: 1, ellipse: 1, image: 1, whiteout: 1, hlbox: 1, redact: 1, note: 1, callout: 1, step: 1 };
   E.isBox = function (a) { return !!E.BOX[a.type]; };
   /** Axis-aligned rectangle of an annotation in view space (points) for a page at rotation R. */
   E.annotViewRect = function (a, R, W, H) {

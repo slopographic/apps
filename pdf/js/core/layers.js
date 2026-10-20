@@ -9,7 +9,7 @@
   var NAMES = {
     text: 'Text', callout: 'Callout', note: 'Comment', rect: 'Rectangle', ellipse: 'Ellipse', line: 'Line', arrow: 'Arrow',
     pen: 'Drawing', marker: 'Highlighter', hlbox: 'Highlight', texthl: 'Text highlight', whiteout: 'Whiteout', image: 'Image',
-    redact: 'Redaction',
+    redact: 'Redaction', step: 'Step',
   };
 
   L.isHidden = function (a) { return !!(a && a.hidden); };
@@ -22,7 +22,7 @@
     var all = (p && p.annots) || [], seen = {}, names = all.map(function (a) {
       var b = baseName(a);
       seen[b] = (seen[b] || 0) + 1;
-      return b + ' ' + seen[b];
+      return a.type === 'step' ? 'Step ' + a.n : b + ' ' + seen[b];
     });
     return all.map(function (a, i) { return { a: a, index: i, name: names[i] }; }).reverse();
   };

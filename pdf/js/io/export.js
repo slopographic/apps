@@ -231,6 +231,7 @@
         var an = list[j];
         if (an.type === 'note') E.noteAnnot(out, page, an, g); // comments stay PDF annotations
         else if (an.type === 'callout') await E.drawCallout(out, page, an, g, ctx);
+        else if (an.type === 'step') await E.drawStep(out, page, an, g, ctx);
         else await drawAnnot(out, page, an, g, ctx);
       }
       if (opts.onProgress && k % 8 === 0) { opts.onProgress(++step / steps); await U.sleep(0); }

@@ -65,7 +65,7 @@
     box.appendChild(section((a ? 'Selected: ' : 'New ') + (names[type] || type), kids));
     if (a) {
       box.appendChild(section(null, [h('div', { class: 'btn-grid' },
-        a.type === 'text' || a.type === 'callout' ? btn('Edit text', 'text', function () { Ed.editSelectedText(); }) : null,
+        a.type === 'text' || a.type === 'callout' || a.type === 'step' ? btn('Edit text', 'text', function () { Ed.editSelectedText(); }) : null,
         btn('Duplicate', 'copy', function () { Ed.duplicateSelected(); }),
         btn('Bring to front', 'plus', function () { zorder(a.id, 1); }),
         btn('Send to back', 'reverse', function () { zorder(a.id, -1); }),

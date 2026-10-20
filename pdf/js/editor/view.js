@@ -11,7 +11,7 @@
     ['select', 'Select & move', 'select', 'V'], ['block', 'Block copy: drag a box, copy its text', 'block', 'K'], ['text', 'Text', 'text', 'T'], ['pen', 'Draw', 'pen', 'P'], ['marker', 'Highlighter', 'marker', 'H'],
     ['rect', 'Rectangle', 'rect', 'R'], ['ellipse', 'Ellipse', 'ellipse', 'E'], ['line', 'Line', 'line', 'L'], ['arrow', 'Arrow', 'arrow', 'A'],
     ['whiteout', 'Whiteout (cover content)', 'whiteout', 'W'], ['redact', 'Redact (remove content)', 'redact', 'X'], ['hlbox', 'Highlight box', 'hlbox', 'B'], ['texthl', 'Text highlight', 'texthl', 'U'], ['image', 'Image', 'image', 'I'], ['signature', 'Signature', 'sign', 'S'],
-    ['note', 'Comment', 'note', 'N'], ['callout', 'Callout', 'callout', 'C']
+    ['note', 'Comment', 'note', 'N'], ['callout', 'Callout', 'callout', 'C'], ['step', 'Step (numbered, click to add)', 'step', 'G']
   ];
   var DEF = {
     text: { color: '#111111', font: 'Helvetica', size: 16, bold: false, italic: false, opacity: 1 },

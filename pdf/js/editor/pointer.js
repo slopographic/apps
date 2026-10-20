@@ -28,7 +28,7 @@
         e.preventDefault();
         var hid = hitG.getAttribute('data-aid'), now = Date.now();
         // own double-click/double-tap detection (pointer capture swallows native dblclick)
-        if (S.lastTap && S.lastTap.id === hid && now - S.lastTap.t < 450) { S.lastTap = null; var ta0 = S.findAnnot(hid); if (ta0 && !ta0.locked && (ta0.type === 'text' || ta0.type === 'callout')) { Ed.select(hid); S.editing = { id: hid, isNew: false, before: ta0.text }; S.openTextEditor(ta0); return; } }
+        if (S.lastTap && S.lastTap.id === hid && now - S.lastTap.t < 450) { S.lastTap = null; var ta0 = S.findAnnot(hid); if (ta0 && !ta0.locked && (ta0.type === 'text' || ta0.type === 'callout' || ta0.type === 'step')) { Ed.select(hid); S.editing = { id: hid, isNew: false, before: ta0.text }; S.openTextEditor(ta0); return; } }
         S.lastTap = { id: hid, t: now };
         Ed.select(hid); S.startEdit(e, 'move'); return;
       }
@@ -43,6 +43,7 @@
     var c = S.ctx(), d = Ed.defaults[t] || {}, pt = S.pagePt(e), vp = S.viewPt(e);
     if (t === 'texthl') { S.texthlDown(e, p, pt); return; }
     if (t === 'note') { S.noteDown(e, p, pt); return; }
+    if (t === 'step') { S.stepDown(e, p, pt); return; }
     if (t === 'text') {
       var a = Object.assign({ type: 'text', text: '', rot: c.R, cx: 0, cy: 0, w: 10, h: 10 }, Ed.defaults.text);
       a.id = U.uid('a');
@@ -168,8 +169,8 @@
     var g = e.target.closest('.annots [data-aid]'), id = g ? g.getAttribute('data-aid') : Ed.selId;
     if (!id || Ed.tool !== 'select') return;
     var a = S.findAnnot(id);
-    if (a && !a.locked && (a.type === 'text' || a.type === 'callout')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); }
+    if (a && !a.locked && (a.type === 'text' || a.type === 'callout' || a.type === 'step')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); }
   }
-  Ed.editSelectedText = function () { var a = Ed.getSelected(); if (a && !a.locked && (a.type === 'text' || a.type === 'callout')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); return true; } return false; };
+  Ed.editSelectedText = function () { var a = Ed.getSelected(); if (a && !a.locked && (a.type === 'text' || a.type === 'callout' || a.type === 'step')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); return true; } return false; };
 
 })();

@@ -39,6 +39,7 @@
     if (a.type === 'texthl') return a.pts && a.pts.length ? V.texthlNode(a) : null;
     if (a.type === 'note') return V.noteNode(a);
     if (a.type === 'callout') return V.calloutNode(a);
+    if (a.type === 'step') return V.stepNode(a);
     if (!E.isBox(a)) {
       if (!a.pts || !a.pts.length) return null;
       g = U.s('g', { 'data-aid': a.id, class: 'an an-' + a.type });
