@@ -44,6 +44,17 @@
   const mountIt = (extra = {}) => { host().replaceChildren(); return SlopFinder.mount(host(), { ...SPEC, items: ITEMS, noun: 'apps', ...extra }); };
   const $ = (s) => host().querySelector(s);
   const $$ = (s) => [...host().querySelectorAll(s)];
+  /** Ticks exactly the values named (the finder's facets are tick lists). The list is redrawn on every tick, so each
+   *  checkbox is looked up again before it is clicked. */
+  function onlyTicked(label, ...keep) {
+    const fieldset = () => $$('fieldset.sf-facet').find((f) => f.querySelector('legend').textContent.trim().startsWith(label));
+    const names = [...fieldset().querySelectorAll('.sf-check-text')].map((x) => x.textContent);
+    for (const name of names) {
+      const row = () => [...fieldset().querySelectorAll('.sf-check')].find((l) => l.querySelector('.sf-check-text').textContent === name);
+      const want = keep.some((k) => name.startsWith(k));
+      if (row().querySelector('input').checked !== want) row().querySelector('input').click();
+    }
+  }
   const typeIn = (text) => { const i = $('.sf-input'); i.value = text; i.dispatchEvent(new Event('input', { bubbles: true })); };
   const shownIds = () => $$('.sf-cards > [data-id]').map((c) => c.dataset.id);
 
@@ -73,9 +84,10 @@
   describe('finder: facets and chips', () => {
     it('a facet narrows the list, shows counts, and its value becomes a removable chip', () => {
       const f = mountIt();
-      const docs = $$('.sf-opt').find((b) => b.textContent.startsWith('Documents'));
-      expect(docs.textContent.trim()).toBe('Documents 2');
-      docs.click();
+      const docs = $$('.sf-check').find((l) => l.textContent.startsWith('Documents'));
+      expect(docs.querySelector('.sf-n').textContent.trim()).toBe('2');
+      expect(docs.querySelector('input').checked).toBe(true); // every value is ticked by default
+      onlyTicked('Section', 'Documents');
       expect(shownIds()).toEqual(['pdf', 'cafe']);
       expect($$('.sf-chip').length).toBe(1);
       expect($('.sf-chip').textContent).toContain('Section: Documents');
@@ -87,13 +99,12 @@
     });
     it('values inside one facet combine with OR, facets combine with AND', () => {
       const f = mountIt();
-      $$('.sf-opt').find((b) => b.textContent.startsWith('Documents')).click();
-      $$('.sf-opt').find((b) => b.textContent.startsWith('Business')).click();
+      onlyTicked('Section', 'Documents', 'Business');
       expect(shownIds()).toEqual(['pdf', 'inv', 'cafe']);
-      $$('.sf-opt').find((b) => b.textContent.startsWith('Ready')).click();
+      onlyTicked('Status', 'Ready');
       expect(shownIds()).toEqual(['pdf', 'cafe']);
-      const images = $$('.sf-opt').find((b) => b.textContent.startsWith('Images'));
-      expect(images.disabled).toBe(true);
+      const images = $$('.sf-check').find((l) => l.textContent.startsWith('Images'));
+      expect(images.querySelector('.sf-n').textContent.trim()).toBe('0');
       expect($$('.sf-chip').length).toBe(3);
       f.destroy();
     });

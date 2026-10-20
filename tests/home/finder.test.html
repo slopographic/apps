@@ -35,7 +35,8 @@
     it('the search matches keywords and the longer description, not only names', async () => {
       await ready;
       type('isolate');
-      expect(doc.querySelector('#app-finder .sf-suggest li a').getAttribute('href')).toBe('slopisolate/');
+      expect(doc.querySelector('#app-finder .sf-list a[href="slopisolate/"]') !== null).toBe(true);
+      expect(doc.querySelector('#app-finder .sf-suggest')).toBe(null); // the results filter live; no dropdown
       expect(resultCards().includes('cutout')).toBe(true);
       type('invoice');
       expect(resultCards().includes('invoices')).toBe(true);
@@ -43,13 +44,13 @@
       expect(resultCards().includes('cutout')).toBe(true);
       clearAll();
     });
-    it('as you type, a list of matches shows the section of each; Enter would open the first', async () => {
+    it('as you type, the list filters live and shows the section of each match', async () => {
       await ready;
       type('calendar');
-      const first = doc.querySelector('#app-finder .sf-suggest li');
-      expect(first.textContent).toContain('Calendar');
-      expect(first.textContent).toContain('Business');
-      expect(input().getAttribute('aria-activedescendant')).toBe('');
+      const row = doc.querySelector('#app-finder .sf-list [data-id="calendar"]');
+      expect(row.textContent).toContain('Calendar');
+      expect(row.textContent).toContain('Business');
+      expect(doc.querySelectorAll('#app-finder .sf-list > .sf-row').length).toBeLessThan(5);
       clearAll();
     });
     it('the empty result says no apps match, with a Clear button that brings them back', async () => {
@@ -71,17 +72,15 @@
       clearAll();
       const more = doc.querySelector('#app-finder .sf-more-sum');
       if (more) more.click(); // the facets are collapsed on phones only
-      const readyOpt = [...doc.querySelectorAll('#app-finder .sf-opt')].find((b) => b.textContent.startsWith('Ready'));
-      expect(readyOpt.querySelector('.sf-n').textContent.trim() !== '').toBe(true);
-      const building = [...doc.querySelectorAll('#app-finder .sf-opt')].find((b) => b.textContent.startsWith('In development'));
-      building.click();
+      const value = (text) => [...doc.querySelectorAll('#app-finder .sf-check')].find((l) => l.querySelector('.sf-check-text').textContent.startsWith(text));
+      expect(value('Ready').querySelector('.sf-n').textContent.trim() !== '').toBe(true);
+      expect(value('In development').querySelector('input').checked).toBe(true); // every value is ticked by default
+      value('Ready').querySelector('input').click(); // untick Ready: only the apps in development stay
       const cards = resultCards();
       expect(cards.length).toBeGreaterThan(3);
       expect(cards.includes('pdf')).toBe(false);
       expect(visibleSections().includes('tools')).toBe(true);
-      // The facet buttons are repainted on every change, so look the button up again.
-      const pressed = [...doc.querySelectorAll('#app-finder .sf-opt')].find((b) => b.textContent.startsWith('In development'));
-      expect(pressed.getAttribute('aria-pressed')).toBe('true');
+      expect(value('In development').querySelector('input').checked).toBe(true);
       clearAll();
     });
     it('the table has name, section, file types and open columns, and no status column', async () => {

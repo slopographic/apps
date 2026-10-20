@@ -6,6 +6,7 @@
  *   placeholder, searchLabel, noun, emptyText, resultsWhen ('filtered': cards view is hidden until a filter or search),
  *   facetsCollapsed (facets sit in a <details>), suggest {max, href(item), label(item), hint(item)} (a listbox under the
  *   search box; Enter opens the first one), autofocus (focuses the search box on mount), onChange(shown, filter),
+ *   big (the large search box, without suggestions),
  *   layout ('faucet': facets in a column on the left, the results on the right; stacked on narrow screens),
  *   rank(item, q) (a number; higher lists first when no column sort is chosen), view ('cards', 'list' or 'table': the view
  *   shown first, before the reader picks another).
@@ -64,7 +65,7 @@
       el('button', { type: 'button', class: 'sf-btn', onclick: () => clear() }, 'Clear filters'));
     const bar = el('div', { class: 'sf-bar' }, el('div', { class: 'sf-search' }, el('label', { class: 'sf-sr', for: id + '-q' }, opts.searchLabel || 'Search'), search, suggest),
       el('div', { class: 'sf-views', role: 'group', 'aria-label': 'View' }, views));
-    host.replaceChildren(el('div', { class: 'sf' + (opts.suggest ? ' sf-big' : '') + (opts.layout === 'faucet' ? ' sf-faucet' : '') }, bar, facetWrap, chipBox, count, results, empty));
+    host.replaceChildren(el('div', { class: 'sf' + (opts.suggest || opts.big ? ' sf-big' : '') + (opts.layout === 'faucet' ? ' sf-faucet' : '') }, bar, facetWrap, chipBox, count, results, empty));
 
     /* ---------- suggestions: as you type, Enter opens the first match, arrows move through them ---------- */
     function paintSuggest() {
@@ -98,13 +99,22 @@
     search.addEventListener('input', () => { st = { ...st, q: search.value }; active = -1; update(); });
 
     /* ---------- painting ---------- */
+    /** A facet is a list of ticks. All ticked is the default (no filter); "All" puts the facet back to that. */
     function paintFacets(counts) {
-      const option = (f, o) => el('button', { type: 'button', class: 'sf-opt' + (o.selected ? ' is-on' : ''),
-        'aria-pressed': o.selected ? 'true' : 'false', disabled: o.count === 0 && !o.selected ? true : null,
-        onclick: () => { st = M.toggleFacet(st, f.key, o.value); update(); } },
-      f.format ? f.format(o.value) : o.value, el('span', { class: 'sf-n' }, ' ' + o.count));
-      const group = (f) => el('fieldset', { class: 'sf-facet' }, el('legend', null, f.label),
-        el('div', { class: 'sf-opts' }, (counts[f.key] || []).map((o) => option(f, o))));
+      const check = (f, all, o) => {
+        const sel = st.facets && st.facets[f.key];
+        const box = el('input', { type: 'checkbox', checked: !sel || sel.includes(o.value) ? true : null });
+        box.addEventListener('change', () => { st = M.setFacetValue(st, f.key, o.value, box.checked, all); update(); });
+        return el('label', { class: 'sf-check' }, box, el('span', { class: 'sf-check-text' }, f.format ? f.format(o.value) : o.value),
+          el('span', { class: 'sf-n' }, String(o.count)));
+      };
+      const group = (f) => {
+        const list = counts[f.key] || [], all = list.map((o) => o.value), filtered = !!(st.facets && st.facets[f.key]);
+        const reset = filtered ? el('button', { type: 'button', class: 'sf-link', onclick: () => {
+          const facets = { ...st.facets }; delete facets[f.key]; st = { ...st, facets }; update(); } }, 'All') : null;
+        return el('fieldset', { class: 'sf-facet' }, el('legend', null, f.label, reset ? ' ' : null, reset),
+          el('div', { class: 'sf-checks' }, list.map((o) => check(f, all, o))));
+      };
       facetBox.replaceChildren(...spec.facets.map(group));
       if (opts.facetsCollapsed) facetWrap.open = M.isFiltered(st) || facetWrap.open;
     }

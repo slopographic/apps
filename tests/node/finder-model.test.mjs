@@ -124,3 +124,16 @@ test('ranking lists higher numbers first, keeps the order among equals, and keep
   assert.deepEqual(M.rankItems(items, 'gam', { rank }).map((x) => x.name), ['Gamma', 'Beta', 'Delta', 'Alpha']);
   assert.deepEqual(M.rankItems(items, '', {}).map((x) => x.name), ['Alpha', 'Beta', 'Gamma', 'Delta']);
 });
+
+test('a facet is a selection list: all ticked by default, unticking narrows, all ticked again clears it, the last one stays', () => {
+  const all = ['Audio', 'Images', 'PDF'];
+  let st = { q: '', facets: {}, view: 'list', sort: null };
+  st = M.setFacetValue(st, 'type', 'Audio', false, all);
+  assert.deepEqual(st.facets.type, ['Images', 'PDF']);
+  st = M.setFacetValue(st, 'type', 'PDF', false, all);
+  assert.deepEqual(st.facets.type, ['Images']);
+  assert.equal(M.setFacetValue(st, 'type', 'Images', false, all), st, 'the last ticked value cannot be unticked');
+  st = M.setFacetValue(st, 'type', 'Audio', true, all);
+  st = M.setFacetValue(st, 'type', 'PDF', true, all);
+  assert.equal(st.facets.type, undefined, 'all ticked again means no filter');
+});

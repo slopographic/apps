@@ -127,7 +127,12 @@
     let raf = 0;
     addEventListener('scroll', () => { if (!raf && seen.size) raf = requestAnimationFrame(() => { raf = 0; pickCentre(); }); }, { passive: true });
   }
-  window.SlopHomeCards = { appCard, tile, watch: watchShots };
+  /** The app's icon as a small badge (for the finder's list rows), in the same style as the cards. */
+  function appIcon(a, cls) {
+    const glyph = (window.SLOP_ICONS && window.SLOP_ICONS[a.id]) || ICONS[a.icon];
+    return glyph ? svgEl(window.SLOP_ICON_BADGE ? window.SLOP_ICON_BADGE(glyph) : glyph, cls, { 'data-icon': a.id }) : null;
+  }
+  window.SlopHomeCards = { appCard, tile, watch: watchShots, icon: appIcon };
   /* A compact card: thumbnail, name, status badge, one line of what it does, and the link. */
   function appCard(a, line) {
     return el('a', { class: 'app-card', href: a.path, 'data-perch': 'card', 'data-id': a.id },

@@ -89,6 +89,19 @@
     if (next.length) facets[key] = next; else delete facets[key];
     return { ...st, facets };
   }
+  /** A facet as a selection list: every value is ticked by default (no entry in the state means no filter). Ticking or
+   *  unticking one value sets the facet to the ticked values; all ticked again removes the entry; the last value cannot
+   *  be unticked (that would hide everything). `all` is every value the facet has. */
+  function setFacetValue(st, key, value, checked, all) {
+    const cur = (st.facets && st.facets[key]) || all;
+    const set = new Set(cur);
+    if (checked) set.add(value); else set.delete(value);
+    if (!set.size) return st;
+    const facets = { ...st.facets };
+    if (all.every((v) => set.has(v))) delete facets[key];
+    else facets[key] = all.filter((v) => set.has(v));
+    return { ...st, facets };
+  }
   /** Drops one facet value (or the whole facet when value is null); an empty facet is removed from the state. */
   function removeFacet(st, key, value) {
     const facets = { ...st.facets };
@@ -122,7 +135,7 @@
   }
 
   const M = { VIEWS, fold, words, matchesSearch, filter, facetCounts, sortItems, rankItems, defaultState, normalizeState,
-    isFiltered, toggleFacet, removeFacet, clearFilters, chips, nextSort };
+    isFiltered, toggleFacet, setFacetValue, removeFacet, clearFilters, chips, nextSort };
   if (typeof window !== 'undefined') window.SlopFinderModel = M;
   if (typeof module !== 'undefined' && module.exports) module.exports = M;
 })();
