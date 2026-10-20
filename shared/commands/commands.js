@@ -122,7 +122,7 @@
   const list = () => [...cmds.values()].map(view);
   function run(id, ctx = {}) {
     const c = cmds.get(id);
-    if (!c || !enabled(c)) return false;
+    if (!c || !enabled(c)) { if (c && window.SlopUI && ctx.source !== 'palette') SlopUI.toast(c.why || (c.title || id) + ' is not available right now.'); return false; }
     if (ctx.record !== false && !c.noRecent) { const r = recents[id] || [0, 0]; stamp = Math.max(Date.now(), stamp + 1); recents[id] = [r[0] + 1, stamp]; trimRecents(); ls.set(recStore(), recents); }
     try { c.run(Object.assign({ id, source: 'api' }, ctx)); } catch (err) { console.error(err); if (window.SlopUI) SlopUI.toast((c.title || id) + ' failed: ' + err.message); }
     emit('run', { id, source: ctx.source || 'api' });
