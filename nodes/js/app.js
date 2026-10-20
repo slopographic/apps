@@ -1,128 +1,294 @@
-/* Slopnodes: a node calculator. A node is a name and a formula. A name that another node's formula uses is a wire from
- * that node: change a value and every node downstream updates while you type. The engine is shared/calc (graph.js);
- * the boxes are drawn by graph-view.js. Classic script. The graph is kept on this device (SlopCalcKeep). */
+/* Slopnodes page: the controller. It holds the graph (model.js), works out every result (shared/calc/graph.js), draws it
+ * (view.js), and answers the menus, the context menus, the keys, undo and redo, and Slop Drive projects (projects.js).
+ * Classic script, last on the page. The working graph is kept on this device; a project is saved to Slop Drive. */
 (function () {
   'use strict';
-  const C = window.SlopCalc, G = C.graph, K = window.SlopCalcKeep, R = window.SlopCalcRates, V = window.SlopNodesView;
+  const C = window.SlopCalc, G = C.graph, M = window.SlopNodesModel, V = window.SlopNodesView, CM = window.SlopNodesMenu;
+  const P = window.SlopNodesProjects, K = window.SlopCalcKeep, R = window.SlopCalcRates;
   const $ = (id) => document.getElementById(id);
-  const KEY = 'slopnodes.graph', SAVE_MS = 300;
-  const SAMPLE = [
-    { id: 'a', name: 'price', expr: '19.99 USD', x: 40, y: 60 },
-    { id: 'b', name: 'qty', expr: '3', x: 40, y: 220 },
-    { id: 'c', name: 'subtotal', expr: 'price * qty', x: 330, y: 140 },
-    { id: 'd', name: 'total', expr: 'tax(subtotal, 8)', x: 610, y: 140 },
-    { id: 'e', name: 'vat', expr: 'total - subtotal', x: 610, y: 320 },
-  ];
-  const S = { nodes: [], res: new Map(), cycles: new Set(), timer: 0, seq: 0 };
+  const KEY = 'slopnodes.graph', KIND_NAME = { value: 'Value', formula: 'Formula', output: 'Output', note: 'Note' };
+  const S = { g: null, res: new Map(), cycles: new Set(), undo: [], redo: [], sel: { kind: null, id: null }, typing: false,
+    moveSnap: null, timer: 0, clip: null, last: { x: 80, y: 80 }, project: { driveId: null, name: 'Untitled project' } };
 
   const status = (msg) => { $('sn-status').textContent = msg; };
   const today = () => C.dates.localIso();
-  const uid = () => 'n' + Math.random().toString(36).slice(2, 9);
-  const others = (id) => S.nodes.filter((n) => n.id !== id).map((n) => G.cleanName(n.name));
+  const node = (id) => S.g.nodes.find((n) => n.id === id) || null;
 
-  /** Works out every node's result and the wires, then paints them. */
+  /** Every result, the cycles and the counts; then the drawing. */
   function compute() {
-    const r = G.evaluate(S.nodes, { today: today(), rate: R.factor });
+    const r = G.evaluate(S.g.nodes, { links: S.g.links, today: today(), rate: R.factor });
     S.res = r.results; S.cycles = r.cycles;
-    const edges = [];
-    for (const n of S.nodes) {
-      for (const name of G.namesIn(n.expr)) {
-        const src = S.nodes.find((m) => G.cleanName(m.name) === name);
-        if (src) edges.push({ from: src.id, to: n.id, bad: r.cycles.has(n.id) && r.cycles.has(src.id) });
-      }
-    }
-    V.paint(S.nodes, S.res, S.cycles);
-    V.wires(S.nodes, edges);
-    const total = S.nodes.length, bad = S.cycles.size, errs = [...S.res.values()].filter((x) => !x.ok).length - bad;
-    $('sn-count').textContent = total + (total === 1 ? ' node' : ' nodes') + (bad ? ' · ' + bad + ' in a cycle' : '') + (errs > 0 ? ' · ' + errs + ' with errors' : '');
+    V.paint(S.res, S.cycles);
+    const shown = S.g.nodes.filter((n) => n.type !== 'note').length, errs = [...S.res.values()].filter((x) => !x.ok).length;
+    $('sn-count').textContent = S.g.nodes.length + (S.g.nodes.length === 1 ? ' node' : ' nodes') + ' · ' + S.g.links.length + (S.g.links.length === 1 ? ' wire' : ' wires') +
+      (S.cycles.size ? ' · ' + S.cycles.size + ' in a loop' : '') + (errs && shown ? ' · ' + errs + ' with errors' : '');
   }
-  function save() {
+  function persist() {
     clearTimeout(S.timer);
-    S.timer = setTimeout(() => K.write(KEY, { nodes: S.nodes.map((n) => ({ id: n.id, name: n.name, expr: n.expr, x: n.x, y: n.y })) }), SAVE_MS);
+    S.timer = setTimeout(() => K.write(KEY, M.save(S.g)), 250);
   }
-  function refresh(full) {
-    if (full) V.sync(S.nodes);
+  /** A change to the graph: redraw the boxes and wires (when they changed), recompute, save the working copy. */
+  function changed(redraw) {
+    if (redraw) V.sync(S.g);
     compute();
-    save();
+    persist();
   }
 
-  const handlers = {
-    /** The formula changed: recompute everything at once; the box keeps its focus. */
-    formula(id, text) {
-      const n = S.nodes.find((m) => m.id === id);
-      if (n) { n.expr = text; refresh(false); }
-    },
-    /** A name typed: kept only when it is a valid, unused name. A bad one is shown and not kept. */
-    renameLive(id, text) {
-      const n = S.nodes.find((m) => m.id === id);
-      const problem = G.nameProblem(text, others(id));
-      status(problem ? problem : 'Name set.');
-      if (!problem && n) { n.name = G.cleanName(text); refresh(false); }
-    },
-    rename(id, text, revert) {
-      const n = S.nodes.find((m) => m.id === id);
-      if (G.nameProblem(text, others(id))) { revert(); return; }
-      if (n) { n.name = G.cleanName(text); refresh(true); }
-    },
-    async remove(id) {
-      const n = S.nodes.find((m) => m.id === id);
+  // ---- undo and redo: a snapshot is taken before each change; typing in one box is one step ----
+  const snapshot = () => JSON.stringify(M.save(S.g));
+  function pushUndo(snap) { S.undo.push(snap); if (S.undo.length > 100) S.undo.shift(); S.redo = []; }
+  function beginTyping() { if (!S.typing) { pushUndo(snapshot()); S.typing = true; } }
+  function restore(snap) { S.g = M.load(JSON.parse(snap)); S.sel = { kind: null, id: null }; V.select(null, null); changed(true); }
+  function undo() { if (!S.undo.length) return status('Nothing to undo.'); S.redo.push(snapshot()); restore(S.undo.pop()); status('Undone.'); }
+  function redo() { if (!S.redo.length) return status('Nothing to redo.'); const next = S.redo.pop(); S.undo.push(snapshot()); restore(next); status('Redone.'); }
+
+  // ---- the canvas handlers ----
+  const H = {
+    move(id, x, y, done) {
+      const n = node(id);
       if (!n) return;
-      const used = S.nodes.some((m) => m.id !== id && G.namesIn(m.expr).includes(G.cleanName(n.name)));
-      const ok = await SlopUI.confirm('Delete ' + n.name, used ? 'Other formulas use “' + n.name + '”. They will show an error until you change them.' : 'Remove this node?', 'Delete', { danger: true });
-      if (!ok) return;
-      S.nodes = S.nodes.filter((m) => m.id !== id);
-      refresh(true);
-      status('Deleted ' + n.name + '.');
+      n.x = x; n.y = y;
+      if (!done) { if (!S.moveSnap) S.moveSnap = snapshot(); return; }
+      if (S.moveSnap) { pushUndo(S.moveSnap); S.moveSnap = null; }
+      V.drawWires(S.g);
+      persist();
     },
-    moving() { V.wires(S.nodes, edgesNow()); },
-    moved() { save(); },
+    formula(id, text) { beginTyping(); M.setExpr(S.g, id, text); changed(false); },
+    rename(id, text) {
+      beginTyping();
+      const problem = M.rename(S.g, id, text);
+      status(problem || 'Name set.');
+      changed(false);
+    },
+    connect(from, to) {
+      pushUndo(snapshot());
+      const problem = M.connect(S.g, from, to);
+      if (problem) { S.undo.pop(); status(problem); return; }
+      changed(true); status('Connected.');
+    },
+    detach(linkId, to) {
+      pushUndo(snapshot());
+      if (to) {
+        const problem = M.reconnect(S.g, linkId, to);
+        if (problem) { S.undo.pop(); status(problem); return; }
+        changed(true); status('Wire moved.');
+      } else { M.disconnect(S.g, linkId); changed(true); status('Wire removed.'); }
+    },
+    linksInto: (id) => S.g.links.filter((l) => l.to === id),
+    nodeOf: (id) => node(id),
+    select(kind, id) { S.sel = { kind, id }; },
+    changed() { persist(); },
+    context(x, y, kind, id) { openMenu(x, y, kind, id); },
   };
 
-  function edgesNow() {
-    const edges = [];
-    for (const n of S.nodes) for (const name of G.namesIn(n.expr)) {
-      const src = S.nodes.find((m) => G.cleanName(m.name) === name);
-      if (src) edges.push({ from: src.id, to: n.id, bad: S.cycles.has(n.id) && S.cycles.has(src.id) });
-    }
-    return edges;
+  /** World point under the pointer (the zoom and the scroll of the stage are taken into account). */
+  function worldAt(clientX, clientY) {
+    const r = $('sn-world').getBoundingClientRect(), z = V.zoomNow();
+    return { x: Math.max(0, Math.round((clientX - r.left) / z)), y: Math.max(0, Math.round((clientY - r.top) / z)) };
   }
-
-  function add() {
-    let k = S.nodes.length + 1, name = 'value' + k;
-    while (G.nameProblem(name, others(null))) { k++; name = 'value' + k; }
-    const at = { x: 40 + ((S.nodes.length * 60) % 600), y: 40 + ((S.nodes.length * 80) % 480) };
-    const n = { id: uid(), name, expr: '0', x: at.x, y: at.y };
-    S.nodes.push(n);
-    refresh(true);
-    const box = V.node(n.id);
-    if (box) box._expr.focus();
-    status('Added ' + name + '. Type a value or a formula.');
+  function addAt(type, pt) {
+    pushUndo(snapshot());
+    const id = M.addNode(S.g, type, pt);
+    S.sel = { kind: 'node', id };
+    changed(true);
+    const box = document.querySelector('.sn-node[data-id="' + id + '"] .sn-name');
+    if (box) box.focus();
+    status('Added a ' + KIND_NAME[type].toLowerCase() + '. Name it and type its formula.');
+    return id;
   }
-
-  async function clearAll() {
-    if (!S.nodes.length) return;
-    const ok = await SlopUI.confirm('Clear the graph', 'Delete all ' + S.nodes.length + ' nodes? This cannot be undone.', 'Clear', { danger: true });
+  function addCenter(type) {
+    const st = $('sn-stage'), z = V.zoomNow();
+    return addAt(type, { x: Math.round((st.scrollLeft + 80) / z), y: Math.round((st.scrollTop + 80) / z) });
+  }
+  function duplicate(id) {
+    const n = node(id);
+    if (!n) return;
+    pushUndo(snapshot());
+    const nid = M.addNode(S.g, n.type, { x: n.x + 36, y: n.y + 36 });
+    const copy = node(nid);
+    copy.expr = n.expr;
+    if (n.type !== 'note') { copy.name = M.uniqueName(S.g, n.type); }
+    S.sel = { kind: 'node', id: nid };
+    changed(true); status('Duplicated ' + n.name + '.');
+  }
+  function copySel() {
+    const n = S.sel.kind === 'node' ? node(S.sel.id) : null;
+    if (!n) return status('Select a node to copy.');
+    S.clip = { type: n.type, expr: n.expr };
+    status('Copied ' + (n.name || KIND_NAME[n.type]) + '. Right-click the canvas to paste.');
+  }
+  function pasteAt(pt) {
+    if (!S.clip) return status('Nothing copied yet.');
+    pushUndo(snapshot());
+    const id = M.addNode(S.g, S.clip.type, pt || { x: S.last.x + 30, y: S.last.y + 30 });
+    node(id).expr = S.clip.expr;
+    S.sel = { kind: 'node', id };
+    changed(true); status('Pasted.');
+  }
+  async function deleteNode(id) {
+    const n = node(id);
+    if (!n) return;
+    const usedBy = S.g.links.filter((l) => l.from === id).length;
+    const ok = await SlopUI.confirm('Delete ' + (n.name || 'this node'), usedBy ? 'Its ' + usedBy + ' wire' + (usedBy === 1 ? ' is' : 's are') + ' removed too. Undo brings it back.' : 'Remove this node? Undo brings it back.', 'Delete', { danger: true });
     if (!ok) return;
-    S.nodes = []; refresh(true); status('Graph cleared.');
+    pushUndo(snapshot());
+    M.removeNode(S.g, id);
+    S.sel = { kind: null, id: null };
+    changed(true); status('Deleted.');
+  }
+  function deleteSel() {
+    if (S.sel.kind === 'link') { pushUndo(snapshot()); M.disconnect(S.g, S.sel.id); S.sel = { kind: null, id: null }; changed(true); return status('Wire removed.'); }
+    if (S.sel.kind === 'node') return deleteNode(S.sel.id);
+    status('Select a node or a wire first.');
+  }
+
+  function openMenu(x, y, kind, id) {
+    S.last = worldAt(x, y);
+    if (kind === 'canvas') {
+      const items = [
+        { label: 'Add a value', act: () => addAt('value', S.last) },
+        { label: 'Add a formula', act: () => addAt('formula', S.last) },
+        { label: 'Add an output', act: () => addAt('output', S.last) },
+        { label: 'Add a note', act: () => addAt('note', S.last) },
+      ];
+      if (S.clip) items.push('-', { label: 'Paste node', act: () => pasteAt(S.last) });
+      return CM.open(x, y, items);
+    }
+    if (kind === 'link') {
+      return CM.open(x, y, [{ label: 'Delete wire', act: () => { S.sel = { kind: 'link', id }; deleteSel(); } }]);
+    }
+    const n = node(id);
+    if (!n) return;
+    const others = KIND_NAME, items = [
+      { label: 'Rename…', act: () => { const b = document.querySelector('.sn-node[data-id="' + id + '"] .sn-name'); if (b) b.focus(); } },
+      { label: 'Change type', sub: Object.keys(others).map((t) => ({ label: others[t], disabled: t === n.type, act: () => { pushUndo(snapshot()); M.setType(S.g, id, t); changed(true); status('Now a ' + others[t].toLowerCase() + '.'); } })) },
+      { label: 'Duplicate', keys: 'Ctrl+D', act: () => duplicate(id) },
+      { label: 'Copy', keys: 'Ctrl+C', act: () => { S.sel = { kind: 'node', id }; copySel(); } },
+    ];
+    if (S.g.links.some((l) => l.from === id || l.to === id)) items.push({ label: 'Disconnect all wires', act: () => { pushUndo(snapshot()); S.g.links = S.g.links.filter((l) => l.from !== id && l.to !== id); changed(true); status('Wires removed.'); } });
+    items.push('-', { label: 'Delete', keys: 'Del', act: () => deleteNode(id) });
+    CM.open(x, y, items);
+  }
+
+  // ---- projects in Slop Drive ----
+  async function saveProject(asNew) {
+    try {
+      let name = S.project.name;
+      if (asNew || !S.project.driveId) {
+        name = await SlopUI.prompt(asNew ? 'Save a copy' : 'Save project', 'Project name', name, { ok: 'Save' });
+        if (!name) return;
+        name = String(name).trim().slice(0, 80) || 'Untitled project';
+      }
+      const id = await P.save({ driveId: asNew ? null : S.project.driveId, name, graph: M.save(S.g) });
+      S.project = { driveId: id, name };
+      $('sn-project').textContent = name;
+      status('Saved “' + name + '” to Slop Drive.');
+    } catch (e) { status('Not saved: ' + (e.message || e)); }
+  }
+  async function openProject() {
+    let list;
+    try { list = await P.list(); } catch (e) { return status(e.message || 'Slop Drive is not available.'); }
+    const body = document.createElement('div');
+    body.className = 'sn-projects';
+    if (!list.length) body.append(Object.assign(document.createElement('p'), { textContent: 'No saved projects yet. Use Save to Slop Drive to keep this graph.' }));
+    for (const p of list) {
+      const row = document.createElement('div'); row.className = 'sn-proj';
+      const info = document.createElement('span');
+      info.textContent = p.name + ' · ' + p.nodes + ' nodes, ' + p.links + ' wires · ' + new Date(p.modified).toLocaleDateString();
+      const go = document.createElement('button'); go.type = 'button'; go.className = 'sui-btn'; go.textContent = 'Open';
+      go.addEventListener('click', async () => { SlopUI.closeDialogs && SlopUI.closeDialogs(); await loadProject(p.id); });
+      row.append(info, go);
+      body.append(row);
+    }
+    SlopUI.dialog({ title: 'Open a project', body, buttons: [{ label: 'Close' }] });
+  }
+  async function loadProject(id) {
+    try {
+      const pr = await P.open(id);
+      pushUndo(snapshot());
+      S.g = M.load(pr.graph);
+      S.project = { driveId: id, name: pr.name };
+      $('sn-project').textContent = pr.name;
+      changed(true);
+      status('Opened “' + pr.name + '”. Undo brings back the graph you had.');
+    } catch (e) { status(e.message || 'Not opened.'); }
+  }
+  async function newGraph() {
+    if (S.g.nodes.length) {
+      const ok = await SlopUI.confirm('New graph', 'Start an empty graph? Undo brings this one back.', 'New', { danger: true });
+      if (!ok) return;
+    }
+    pushUndo(snapshot());
+    S.g = M.newGraph(); S.project = { driveId: null, name: 'Untitled project' };
+    $('sn-project').textContent = S.project.name;
+    changed(true); status('New graph. Add a node to start.');
+  }
+  async function example() {
+    if (S.g.nodes.length) {
+      const ok = await SlopUI.confirm('Load the example', 'Replace the graph with the example? Undo brings it back.', 'Load', { danger: true });
+      if (!ok) return;
+    }
+    pushUndo(snapshot());
+    S.g = sample();
+    changed(true); status('The example: change a price or a quantity and watch the total follow.');
   }
   function sample() {
-    S.nodes = SAMPLE.map((n) => Object.assign({}, n, { id: uid() }));
-    refresh(true);
+    const g = M.newGraph();
+    const pos = (x, y) => ({ x, y });
+    const price = M.addNode(g, 'value', pos(40, 60)), qty = M.addNode(g, 'value', pos(40, 230));
+    const sub = M.addNode(g, 'formula', pos(330, 140)), total = M.addNode(g, 'output', pos(610, 140)), vat = M.addNode(g, 'formula', pos(610, 330));
+    const set = (id, name, expr) => { M.rename(g, id, name); M.setExpr(g, id, expr); };
+    set(price, 'price', '19.99 USD'); set(qty, 'qty', '3');
+    set(sub, 'subtotal', 'price * qty'); set(total, 'total', 'tax(subtotal, 8)'); set(vat, 'vat', 'total - subtotal');
+    M.connect(g, price, sub); M.connect(g, qty, sub); M.connect(g, sub, total); M.connect(g, sub, vat); M.connect(g, total, vat);
+    const note = M.addNode(g, 'note', pos(40, 380)); M.setExpr(g, note, 'Drag from a node’s right dot to another node’s left dot to connect them.');
+    return g;
+  }
+
+  // ---- keys ----
+  function onKey(e) {
+    const inField = e.target.closest && e.target.closest('input, textarea');
+    if (e.key === 'Escape') { if (!inField) V.select(null, null); S.sel = { kind: null, id: null }; return; }
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) { if (!inField) { e.preventDefault(); undo(); } return; }
+    if (mod && ((e.key === 'z' || e.key === 'Z') && e.shiftKey || e.key === 'y')) { if (!inField) { e.preventDefault(); redo(); } return; }
+    if (inField) return;
+    if (mod && (e.key === 'd' || e.key === 'D')) { e.preventDefault(); if (S.sel.kind === 'node') duplicate(S.sel.id); return; }
+    if (mod && (e.key === 'c' || e.key === 'C')) { e.preventDefault(); copySel(); return; }
+    if (mod && (e.key === 'v' || e.key === 'V')) { e.preventDefault(); pasteAt(); return; }
+    if (mod && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveProject(false); return; }
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSel(); }
   }
 
   function boot() {
-    V.mount($('sn-canvas'), handlers);
+    V.mount($('sn-stage'), $('sn-world'), H);
     const saved = K.read(KEY, null);
-    S.nodes = saved && Array.isArray(saved.nodes) && saved.nodes.length ? saved.nodes : SAMPLE.map((n) => Object.assign({}, n, { id: uid() }));
-    $('sn-add').addEventListener('click', add);
-    $('sn-clear').addEventListener('click', clearAll);
-    $('sn-sample').addEventListener('click', async () => {
-      const ok = await SlopUI.confirm('Load the example', 'Replace the graph with the example? The current nodes are removed.', 'Load', { danger: true });
-      if (ok) sample();
-    });
-    refresh(true);
-    status(S.nodes.length ? 'Change a formula: every node that uses it updates.' : 'Add a node to start.');
+    S.g = saved && Array.isArray(saved.nodes) && saved.nodes.length ? M.load(saved) : sample();
+    V.zoom(1);
+    V.sync(S.g);
+    compute();
+    $('sn-project').textContent = S.project.name;
+    $('sn-add-value').addEventListener('click', () => addCenter('value'));
+    $('sn-add-formula').addEventListener('click', () => addCenter('formula'));
+    $('sn-add-output').addEventListener('click', () => addCenter('output'));
+    $('sn-add-note').addEventListener('click', () => addCenter('note'));
+    $('sn-zin').addEventListener('click', () => V.zoom(V.zoomNow() * 1.2));
+    $('sn-zout').addEventListener('click', () => V.zoom(V.zoomNow() / 1.2));
+    $('sn-zreset').addEventListener('click', () => V.zoom(1));
+    $('sn-save').addEventListener('click', () => saveProject(false));
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('focusout', (e) => { if (e.target.matches && e.target.matches('.sn-expr, .sn-name, .sn-note')) S.typing = false; });
+    if (window.SlopMenuBar) SlopMenuBar.mount({ app: 'Slopnodes', menus: {
+      File: [{ label: 'New graph', act: newGraph }, { label: 'Open project…', act: openProject }, '-', { label: 'Save to Slop Drive', act: () => saveProject(false), keys: 'Ctrl+S' }, { label: 'Save a copy…', act: () => saveProject(true) }, '-', { label: 'Load the example', act: example }],
+      Edit: [{ label: 'Undo', act: undo, keys: 'Ctrl+Z', disabled: () => !S.undo.length }, { label: 'Redo', act: redo, keys: 'Ctrl+Y', disabled: () => !S.redo.length }, '-',
+        { label: 'Copy node', act: copySel, keys: 'Ctrl+C' }, { label: 'Paste node', act: () => pasteAt(), keys: 'Ctrl+V', disabled: () => !S.clip }, { label: 'Duplicate node', act: () => S.sel.kind === 'node' && duplicate(S.sel.id), keys: 'Ctrl+D' }, '-',
+        { label: 'Delete selection', act: deleteSel, keys: 'Del' }],
+      Insert: [{ label: 'Value', act: () => addCenter('value') }, { label: 'Formula', act: () => addCenter('formula') }, { label: 'Output', act: () => addCenter('output') }, { label: 'Note', act: () => addCenter('note') }],
+      View: [{ label: 'Zoom in', act: () => V.zoom(V.zoomNow() * 1.2) }, { label: 'Zoom out', act: () => V.zoom(V.zoomNow() / 1.2) }, { label: 'Actual size', act: () => V.zoom(1) }],
+      Help: [{ label: 'Keyboard shortcuts', act: () => SlopUI.alert('Keyboard shortcuts', 'Ctrl+Z undo · Ctrl+Y or Ctrl+Shift+Z redo · Ctrl+D duplicate · Ctrl+C copy · Ctrl+V paste · Ctrl+S save to Slop Drive · Del delete the selected node or wire · Esc clear the selection · Ctrl+wheel zoom. Right-click a node, a wire or the canvas for more.') }],
+    } });
+    status(S.g.nodes.length ? 'Drag from a node’s right dot to another node’s left dot to connect them.' : 'Add a node to start.');
   }
   document.addEventListener('DOMContentLoaded', boot);
-  window.SlopNodesApp = { compute: () => compute(), nodes: () => S.nodes.slice() };
+  window.SlopNodesApp = { compute, graph: () => S.g };
 })();

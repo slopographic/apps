@@ -1,8 +1,11 @@
-/* Slopnodes engine: a graph of named formulas. A node has an id, a name and an expression. A name that another node's
- * expression uses is a wire from that node into this one. evaluate(nodes, opts) → { results, order, cycles }:
- *   results  Map id → { ok, value, text, error, needs: [names] }     a node with an error keeps the error, its dependents say why
- *   order    ids in the order they were worked out (a node after the nodes it needs)
- *   cycles   Set of ids that depend on themselves (directly or through others); they get a cycle error
+/* Slopnodes engine: a graph of formulas joined by links. A node has an id, a name, a type and an expression. A link runs
+ * from a source node to a node that uses the source's name in its expression.
+ *   types: value, formula and output are worked out; note is text only and is left out of the graph.
+ * evaluate(nodes, { links, today, rate }) → { results, order, cycles }
+ *   links    [{ from, to }] node ids. When not given, links are read from the names the formulas use (older graphs).
+ *   results  Map id → { ok, value, text, error, needs: [names] }
+ *   order    ids in the order they were worked out (a node after the nodes it uses)
+ *   cycles   Set of ids that depend on themselves (directly or through others)
  * Pure, classic script, after calc.js. Exposes window.SlopCalc.graph. */
 (function (g) {
   'use strict';
@@ -10,6 +13,7 @@
   const NAME = /^[a-z_][a-z0-9_]*$/;
   const cleanName = (s) => String(s == null ? '' : s).trim().toLowerCase();
   const RESERVED = ns.RESERVED_NAMES || [];
+  const TYPES = ['value', 'formula', 'output', 'note'];
 
   /** The names a formula uses (lower case); a formula that does not tokenise uses none. */
   function namesIn(expr) {
@@ -24,47 +28,74 @@
     if (others && others.includes(n)) return 'Another node already has the name “' + n + '”';
     return null;
   }
+  /** Links implied by the names: a formula that uses another node's name is linked to it (for graphs saved without links). */
+  function impliedLinks(nodes) {
+    const byName = new Map();
+    for (const n of nodes) { const k = cleanName(n.name); if (k && !byName.has(k)) byName.set(k, n); }
+    const links = [];
+    for (const n of nodes) for (const name of new Set(namesIn(n.expr))) {
+      const src = byName.get(name);
+      if (src) links.push({ from: src.id, to: n.id });
+    }
+    return links;
+  }
 
   function evaluate(nodes, opts) {
     const o = opts || {};
+    const live = nodes.filter((n) => TYPES.includes(n.type || 'formula') && n.type !== 'note');
+    const byId = new Map(live.map((n) => [n.id, n]));
     const byName = new Map(), dupes = new Set();
-    for (const n of nodes) {
+    for (const n of live) {
       const name = cleanName(n.name);
       if (!name) continue;
       if (byName.has(name)) dupes.add(n.id); else byName.set(name, n);
     }
-    const needs = new Map(nodes.map((n) => [n.id, [...new Set(namesIn(n.expr).filter((x) => byName.has(x)))]]));
+    const links = Array.isArray(o.links) ? o.links : impliedLinks(live);
+    const sources = new Map(live.map((n) => [n.id, []]));
+    for (const l of links) if (byId.has(l.from) && byId.has(l.to)) sources.get(l.to).push(byId.get(l.from));
+    for (const n of live) sources.set(n.id, [...new Map(sources.get(n.id).map((s) => [s.id, s])).values()]);
 
-    // Order: depth-first from each node; meeting a node that is still open means a cycle.
+    // Order: depth-first over the sources; meeting a node that is still open means a cycle.
     const state = new Map(), order = [], cycles = new Set();
     const visit = (node, path) => {
       const st = state.get(node.id);
       if (st === 2) return;
       if (st === 1) { for (let k = path.indexOf(node.id); k >= 0 && k < path.length; k++) cycles.add(path[k]); return; }
       state.set(node.id, 1);
-      for (const name of needs.get(node.id)) visit(byName.get(name), path.concat(node.id));
+      for (const s of sources.get(node.id)) visit(s, path.concat(node.id));
       state.set(node.id, 2);
       order.push(node.id);
     };
-    for (const n of nodes) visit(n, []);
+    for (const n of live) visit(n, []);
 
     const results = new Map();
-    const byId = new Map(nodes.map((n) => [n.id, n]));
     for (const id of order) {
-      const node = byId.get(id), used = needs.get(id);
-      if (dupes.has(id)) { results.set(id, { ok: false, error: { code: 'name', message: 'Another node already has this name' }, needs: used }); continue; }
-      if (cycles.has(id)) { results.set(id, { ok: false, error: { code: 'cycle', message: 'This formula depends on itself' }, needs: used }); continue; }
-      const blocked = used.find((x) => !results.get(byName.get(x).id).ok);
-      if (blocked) { results.set(id, { ok: false, error: { code: 'needs', message: 'Waiting on ' + blocked }, needs: used }); continue; }
+      const node = byId.get(id), srcs = sources.get(id), needs = srcs.map((s) => cleanName(s.name));
+      if (dupes.has(id)) { results.set(id, { ok: false, error: { code: 'name', message: 'Another node already has this name' }, needs }); continue; }
+      if (cycles.has(id)) { results.set(id, { ok: false, error: { code: 'cycle', message: 'This formula depends on itself' }, needs }); continue; }
+      const bad = srcs.find((s) => !results.get(s.id).ok);
+      if (bad) { results.set(id, { ok: false, error: { code: 'needs', message: 'Waiting on ' + cleanName(bad.name) }, needs }); continue; }
       const scope = {};
-      for (const x of used) scope[x] = results.get(byName.get(x).id).value;
-      const st = ns.parseStatement(String(node.expr || '').trim() || '0');
-      if (st.name) { results.set(id, { ok: false, error: { code: 'syntax', message: 'Give the name in the name box, not in the formula' }, needs: used }); continue; }
-      const r = ns.calc(node.expr, { today: o.today, rate: o.rate, vars: scope });
-      results.set(id, r.ok ? { ok: true, value: r.value, text: r.text, needs: used } : { ok: false, error: r.error, needs: used });
+      for (const s of srcs) scope[cleanName(s.name)] = results.get(s.id).value;
+      const expr = String(node.expr || '').trim() || '0';
+      if (ns.parseStatement(expr).name) { results.set(id, { ok: false, error: { code: 'syntax', message: 'Give the name in the name box, not in the formula' }, needs }); continue; }
+      const r = ns.calc(expr, { today: o.today, rate: o.rate, vars: scope });
+      if (r.ok) { results.set(id, { ok: true, value: r.value, text: r.text, needs }); continue; }
+      let error = r.error;
+      if (error.code === 'name') {
+        const loose = namesIn(expr).find((w) => byName.has(w) && !(w in scope));
+        if (loose) error = { code: 'link', message: 'Connect “' + loose + '” to this node with a wire' };
+      }
+      results.set(id, { ok: false, error, needs });
     }
     return { results, order, cycles };
   }
 
-  ns.graph = { evaluate, namesIn, nameProblem, cleanName };
+  /** A new node of a type, at a place; the defaults a fresh node starts with. */
+  function newNode(type, at) {
+    const t = TYPES.includes(type) ? type : 'formula';
+    return { type: t, name: '', expr: t === 'note' ? 'Note' : '0', x: at.x, y: at.y };
+  }
+
+  ns.graph = { evaluate, namesIn, nameProblem, cleanName, impliedLinks, newNode, TYPES };
 })(typeof window !== 'undefined' ? window : globalThis);

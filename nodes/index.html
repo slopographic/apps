@@ -62,22 +62,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/menubar/menubar.css">
   <link rel="stylesheet" href="css/nodes.css">
 </head>
 <body>
   <header class="sn-top">
-    <div class="sn-brand"><h1>Slopnodes</h1><span class="sn-sub">node calculator</span></div>
-    <div class="sn-tools" role="toolbar" aria-label="Graph">
-      <button type="button" class="sui-btn sui-primary" id="sn-add">Add node</button>
-      <button type="button" class="sui-btn" id="sn-sample">Load the example</button>
-      <button type="button" class="sui-btn" id="sn-clear">Clear graph</button>
+    <div class="sn-brand"><h1>Slopnodes</h1><span class="sn-project" id="sn-project"></span></div>
+    <div class="sn-tools" role="toolbar" aria-label="Insert and view">
+      <button type="button" class="sn-add sn-v" id="sn-add-value" title="Add a value node">+ Value</button>
+      <button type="button" class="sn-add sn-f" id="sn-add-formula" title="Add a formula node">+ Formula</button>
+      <button type="button" class="sn-add sn-o" id="sn-add-output" title="Add an output node">+ Output</button>
+      <button type="button" class="sn-add sn-n" id="sn-add-note" title="Add a note">+ Note</button>
+      <span class="sn-sep" aria-hidden="true"></span>
+      <button type="button" class="sui-btn" id="sn-zout" aria-label="Zoom out">−</button>
+      <button type="button" class="sui-btn" id="sn-zreset" aria-label="Actual size">100%</button>
+      <button type="button" class="sui-btn" id="sn-zin" aria-label="Zoom in">+</button>
+      <span class="sn-sep" aria-hidden="true"></span>
+      <button type="button" class="sui-btn sui-primary" id="sn-save">Save to Slop Drive</button>
     </div>
     <p class="sn-status" id="sn-status" role="status" aria-live="polite"></p>
     <p class="sn-count" id="sn-count"></p>
   </header>
-  <p class="sn-help">A node is a name and a formula. Use another node's name in a formula and a wire joins them: change a value and everything downstream updates. Drag a node by its title bar. Formulas use the same language as Slopculator, with units, currency and dates.</p>
-  <main class="sn-stage" aria-label="Graph">
-    <div class="sn-canvas" id="sn-canvas"></div>
+  <main class="sn-stage" id="sn-stage" aria-label="Graph canvas">
+    <div class="sn-sizer">
+      <div class="sn-world" id="sn-world"></div>
+    </div>
   </main>
 
   <script src="../shared/apps.js"></script>
@@ -93,11 +102,13 @@
   <script src="../shared/calc/graph.js"></script>
   <script src="../shared/calc/keep.js"></script>
   <script src="../shared/calc/rates.js"></script>
-  <script src="js/graph-view.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/menubar/menubar.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/view.js"></script>
+  <script src="js/projects.js"></script>
   <script src="js/app.js"></script>
-<link rel="stylesheet" href="../shared/menubar/menubar.css">
-<script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Slopnodes", "menus": {"File": ["#sn-add", "-", "#sn-sample", "#sn-clear"]}});</script>
   <script src="../shell/shell.js"></script>
 </body>
 </html>

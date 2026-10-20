@@ -72,3 +72,35 @@ test('names are checked: built-in names and duplicates are refused', () => {
   assert.equal(C.graph.nameProblem('total_2', ['other']), null);
   assert.match(C.graph.nameProblem('2total', []), /starts with a letter/);
 });
+
+test('with explicit links, a formula sees only the nodes it is wired to; a name it is not wired to says to connect it', () => {
+  const nodes = [
+    { id: 'a', name: 'rate', type: 'value', expr: '8' },
+    { id: 'b', name: 'base', type: 'value', expr: '200' },
+    { id: 'c', name: 'tax_amt', type: 'formula', expr: 'base * rate / 100' },
+  ];
+  const linked = C.graph.evaluate(nodes, { links: [{ from: 'a', to: 'c' }, { from: 'b', to: 'c' }] });
+  assert.equal(linked.results.get('c').value.v, 16);
+  const loose = C.graph.evaluate(nodes, { links: [{ from: 'a', to: 'c' }] });
+  assert.equal(loose.results.get('c').ok, false);
+  assert.match(loose.results.get('c').error.message, /Connect “base”/);
+});
+
+test('a note is left out of the graph: a formula cannot use it and it has no result', () => {
+  const nodes = [
+    { id: 'n', name: 'memo', type: 'note', expr: 'just words' },
+    { id: 'f', name: 'x', type: 'formula', expr: '2 + 2' },
+  ];
+  const r = C.graph.evaluate(nodes, { links: [{ from: 'n', to: 'f' }] });
+  assert.equal(r.results.has('n'), false);
+  assert.equal(r.results.get('f').value.v, 4);
+});
+
+test('a value and an output work like formulas, and the kind is kept for the page', () => {
+  const nodes = [
+    { id: 'v', name: 'price', type: 'value', expr: '5' },
+    { id: 'o', name: 'twice', type: 'output', expr: 'price * 2' },
+  ];
+  const r = C.graph.evaluate(nodes, { links: [{ from: 'v', to: 'o' }] });
+  assert.equal(r.results.get('o').value.v, 10);
+});
