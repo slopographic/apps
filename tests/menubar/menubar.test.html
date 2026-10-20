@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Slop menu bar</title></head>
+<body>
+<button id="go" type="button">Go</button>
+<button id="off" type="button" disabled>Off</button>
+<script src="../harness.js"></script>
+<link rel="stylesheet" href="../../shared/menubar/menubar.css">
+<script src="../../shared/menubar/menubar.js"></script>
+<script>
+  const { describe, it, expect, run } = SlopTest;
+  describe('SlopMenuBar', () => {
+    it('mounts a bar with a menu per title, items labelled from their buttons, and a home link', () => {
+      SlopMenuBar.mount({ app: 'Test app', home: '../', menus: { File: ['#go', '-', '#off'], Help: [{ label: 'About', act: () => {} }] } });
+      const bar = document.querySelector('.smb-bar');
+      expect(!!bar).toBeTruthy();
+      expect(bar.querySelector('.smb-app').textContent).toBe('Test app');
+      expect(bar.querySelector('.smb-brand').getAttribute('href')).toBe('../');
+      expect([...bar.querySelectorAll('.smb-menu-b')].map((b) => b.textContent).join(',')).toBe('File,Help');
+      expect([...bar.querySelectorAll('.smb-item')].map((b) => b.textContent).join('|')).toBe('Go|Off|About');
+    });
+    it('a menu item clicks its button; a disabled button is greyed, not clickable', () => {
+      const bar = document.querySelector('.smb-bar');
+      let clicked = 0;
+      document.getElementById('go').addEventListener('click', () => clicked++);
+      [...bar.querySelectorAll('.smb-menu-b')].find((b) => b.textContent === 'File').click();
+      const item = (t) => [...bar.querySelectorAll('.smb-item')].find((b) => b.textContent === t);
+      expect(item('Go').disabled).toBe(false);
+      expect(item('Off').disabled).toBe(true);
+      item('Go').click();
+      expect(clicked).toBe(1);
+    });
+    it('a menu closes on a click elsewhere', () => {
+      const bar = document.querySelector('.smb-bar');
+      const fileBtn = [...bar.querySelectorAll('.smb-menu-b')].find((b) => b.textContent === 'File');
+      fileBtn.click();
+      expect(fileBtn.getAttribute('aria-expanded')).toBe('true');
+      document.body.click();
+      expect(fileBtn.getAttribute('aria-expanded')).toBe('false');
+    });
+  });
+  run({ name: 'SlopMenuBar' });
+</script>
+</body>
+</html>

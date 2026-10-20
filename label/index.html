@@ -213,6 +213,9 @@
   <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
+<link rel="stylesheet" href="../shared/menubar/menubar.css">
+<script src="../shared/menubar/menubar.js"></script>
+<script>SlopMenuBar.mount({"app": "Labels", "menus": {"File": ["#btnPrint"], "Edit": ["#btnUndo", "#btnRedo"], "View": ["#zoomIn", "#zoomOut"], "Help": ["#btnCmd"]}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="label"></script>
   <script src="../shared/urlstate/urlstate.js" data-src="shared/urlstate/urlstate.js"></script>
