@@ -162,7 +162,7 @@ test('syntax errors point at the problem', () => {
   assert.match(bad('2 3', 'syntax').message, /Unexpected/);
   assert.match(bad('', 'syntax').message, /Type an expression/);
   assert.match(bad('2 # 3', 'syntax').message, /Unexpected character/);
-  assert.match(bad('foo', 'syntax').message, /Unknown name/);
+  assert.match(bad('foo', 'name').message, /Unknown name/); // a name the page does not hold: a variable, resolved when evaluated
   bad('max(1, 2)', 'syntax');
 });
 

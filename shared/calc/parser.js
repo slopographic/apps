@@ -137,7 +137,7 @@
       }
       if (w === 'today') return { type: 'today', pos: t.pos };
       if (w === 'pi' || w === 'e' || w === 'ans') return { type: 'const', name: w, pos: t.pos };
-      throw new CalcError(`Unknown name “${t.value}”`, t.pos);
+      return { type: 'var', name: w, raw: t.value, pos: t.pos }; // resolved when evaluated (a variable the page or graph holds)
     }
 
     if (peek().type === 'end') throw new CalcError('Type an expression', 0);
@@ -147,4 +147,15 @@
   }
 
   ns.parse = parse;
+
+  const ASSIGN = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)/;
+  const RESERVED = ['pi', 'e', 'ans', 'today', 'sqrt', 'cbrt', 'abs', 'tax', 'discount', 'markup'];
+  /** A statement: `name = expression` gives { name, tree }; a plain expression gives { name: null, tree }. */
+  function parseStatement(text) {
+    const m = ASSIGN.exec(String(text));
+    if (m && !RESERVED.includes(m[1].toLowerCase())) return { name: m[1].toLowerCase(), tree: parse(String(text).slice(m[0].length)) };
+    return { name: null, tree: parse(text) };
+  }
+  ns.parseStatement = parseStatement;
+  ns.RESERVED_NAMES = RESERVED;
 })(typeof window !== 'undefined' ? window : globalThis);

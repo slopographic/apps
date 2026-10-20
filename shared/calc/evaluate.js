@@ -171,6 +171,11 @@
       case 'today': return { t: 'd', iso: ctx.today };
       case 'tod': return { t: 'tod', min: node.min };
       case 'const': return constant(node, ctx);
+      case 'var': {
+        const vars = ctx.vars || {};
+        if (Object.prototype.hasOwnProperty.call(vars, node.name)) return vars[node.name];
+        throw fail(`Unknown name “${node.raw}”`, node.pos, 'name');
+      }
       case 'neg': {
         const x = evaluate(node.x, ctx);
         if (x.t === 'n' || x.t === 'pct') return { t: x.t, v: -x.v };
@@ -184,6 +189,6 @@
     }
   }
 
-  ns.evaluate = (tree, ctx) => evaluate(tree, Object.assign({ today: dates.localIso(), ans: null, rate: null }, ctx || {}));
+  ns.evaluate = (tree, ctx) => evaluate(tree, Object.assign({ today: dates.localIso(), ans: null, rate: null, vars: null }, ctx || {}));
   ns.plain = plain;
 })(typeof window !== 'undefined' ? window : globalThis);

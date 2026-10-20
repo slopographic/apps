@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slopnodes · live updates</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; } iframe { width: 1280px; height: 800px; border: 0; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <iframe id="app" src="../../nodes/index.html" title="Slopnodes"></iframe>
+  <script>
+  const { describe, it, expect, run } = SlopTest;
+  const frame = document.getElementById('app');
+  const doc = () => frame.contentDocument;
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function until(fn, label, timeout = 12000) {
+    const t0 = Date.now();
+    for (;;) {
+      try { const v = fn(); if (v) return v; } catch (e) { /* not yet */ }
+      if (Date.now() - t0 > timeout) throw new Error(`timed out waiting for ${label}`);
+      await sleep(40);
+    }
+  }
+  const box = (name) => [...doc().querySelectorAll('.sn-node')].find((b) => b.querySelector('.sn-name').value === name);
+  const typeFormula = (name, text) => {
+    const input = box(name).querySelector('.sn-expr');
+    input.value = text;
+    input.dispatchEvent(new frame.contentWindow.Event('input', { bubbles: true }));
+  };
+  describe('Slopnodes: live updates', () => {
+    it('the example loads: five nodes, five wires, and every result is worked out', async () => {
+      await until(() => doc().querySelectorAll('.sn-node').length === 5, 'the example');
+      expect(doc().querySelectorAll('.sn-wire').length).toBe(5);
+      expect(box('total').querySelector('.sn-res').textContent.startsWith('=')).toBeTruthy();
+      expect(box('total').querySelector('.sn-res').classList.contains('sn-err')).toBe(false);
+    });
+    it('changing one formula updates every node downstream of it', async () => {
+      const before = box('total').querySelector('.sn-res').textContent;
+      typeFormula('price', '10 USD');
+      await sleep(60);
+      expect(box('total').querySelector('.sn-res').textContent).not.toBe(before);
+      expect(box('subtotal').querySelector('.sn-res').textContent).toContain('30');
+    });
+    it('a formula that depends on itself is marked as a cycle', async () => {
+      typeFormula('price', 'total + 1');
+      await sleep(60);
+      expect(box('price').classList.contains('is-cycle')).toBe(true);
+      expect(doc().querySelector('#sn-count').textContent).toContain('in a cycle');
+      typeFormula('price', '19.99 USD');
+      await sleep(60);
+      expect(box('price').classList.contains('is-cycle')).toBe(false);
+    });
+  });
+  run({ name: 'Slopnodes: live updates' });
+  </script>
+</body>
+</html>

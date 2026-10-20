@@ -1,0 +1,33 @@
+/* Slopnodes: the page, the canvas and the node boxes. Colours come from the theme tokens (--sl-*) set by shared/theme. */
+:root { color-scheme: light dark; }
+body { margin: 0; background: var(--sl-background, #f6f6f4); color: var(--sl-text, #1b1b1f); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.sn-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 12px 16px 8px; }
+.sn-brand { display: flex; align-items: baseline; gap: 8px; }
+.sn-brand h1 { margin: 0; font-size: 1.3rem; }
+.sn-sub { color: color-mix(in srgb, var(--sl-text, #1b1b1f) 60%, transparent); font-size: 13px; }
+.sn-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.sn-status { margin: 0; flex: 1 1 260px; color: color-mix(in srgb, var(--sl-text, #1b1b1f) 75%, transparent); }
+.sn-count { margin: 0; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--sl-text, #1b1b1f) 60%, transparent); }
+.sn-help { margin: 0 16px 8px; max-width: 780px; color: color-mix(in srgb, var(--sl-text, #1b1b1f) 75%, transparent); font-size: 13px; }
+.sn-stage { overflow: auto; height: calc(100vh - 150px); min-height: 420px; margin: 0 8px; border: 1px solid var(--sl-border, #d9d9de); border-radius: 12px; background: var(--sl-surface, #fff); }
+.sn-canvas { position: relative; width: 2400px; height: 1600px; background-image: radial-gradient(color-mix(in srgb, var(--sl-text, #1b1b1f) 14%, transparent) 1px, transparent 1px); background-size: 24px 24px; }
+.sn-wires { position: absolute; inset: 0; width: 2400px; height: 1600px; pointer-events: none; overflow: visible; }
+.sn-wire { fill: none; stroke: var(--sl-accent, #2563eb); stroke-width: 2; }
+.sn-wire.is-bad { stroke: #a11d1d; stroke-dasharray: 6 4; }
+.sn-node { position: absolute; width: 220px; box-sizing: border-box; background: var(--sl-surface, #fff); border: 1px solid var(--sl-border, #d9d9de); border-radius: 10px; box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
+.sn-node.is-wired { border-color: color-mix(in srgb, var(--sl-accent, #2563eb) 55%, transparent); }
+.sn-node.is-cycle { border-color: #a11d1d; }
+.sn-node.is-drag { box-shadow: 0 8px 24px rgb(0 0 0 / .2); }
+.sn-head { display: flex; align-items: center; gap: 4px; height: 30px; padding: 0 6px 0 10px; cursor: grab; border-bottom: 1px solid var(--sl-border, #d9d9de); }
+.sn-name { flex: 1; min-width: 0; border: 0; background: transparent; color: inherit; font: 600 13px ui-monospace, Menlo, Consolas, monospace; padding: 2px 0; }
+.sn-name:focus, .sn-expr:focus { outline: 2px solid var(--sl-accent, #2563eb); outline-offset: 1px; border-radius: 4px; }
+.sn-del { border: 0; background: none; color: inherit; font-size: 16px; line-height: 1; padding: 2px 6px; border-radius: 6px; cursor: pointer; opacity: .7; }
+.sn-del:hover { opacity: 1; background: color-mix(in srgb, var(--sl-text, #1b1b1f) 8%, transparent); }
+.sn-expr { display: block; width: calc(100% - 20px); margin: 8px 10px 4px; border: 1px solid var(--sl-border, #d9d9de); border-radius: 6px; padding: 5px 7px; background: transparent; color: inherit; font: 13px ui-monospace, Menlo, Consolas, monospace; }
+.sn-res { margin: 0 10px 9px; min-height: 1.3em; font-variant-numeric: tabular-nums; font-weight: 600; overflow-wrap: anywhere; }
+.sn-res.sn-err { color: #a11d1d; font-weight: 500; font-size: 13px; }
+.sn-port { position: absolute; top: 9px; width: 12px; height: 12px; border-radius: 50%; background: var(--sl-surface, #fff); border: 2px solid var(--sl-accent, #2563eb); }
+.sn-in { left: -7px; }
+.sn-out { right: -7px; }
+.sn-node.is-wired .sn-in { background: var(--sl-accent, #2563eb); }
+@media (max-width: 720px) { .sn-stage { height: calc(100vh - 210px); } }

@@ -1,12 +1,12 @@
-// Loads the classic pure scripts of calculator/js into a vm context, in order. Helper for calc-parser.test.mjs.
+// Loads the classic pure scripts of shared/calc into a vm context, in order. Helper for calc-parser.test.mjs.
 // Not a test file itself.
 import vm from 'node:vm';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
-const JS = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'calculator', 'js');
-export const CALC_FILES = ['lexer.js', 'exact.js', 'units.js', 'dates.js', 'parser.js', 'evaluate.js', 'format.js', 'calc.js'];
+const JS = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'shared', 'calc');
+export const CALC_FILES = ['lexer.js', 'exact.js', 'units.js', 'dates.js', 'parser.js', 'evaluate.js', 'format.js', 'calc.js', 'graph.js'];
 
 /** Returns window.SlopCalc from a fresh context. */
 export async function loadCalc() {

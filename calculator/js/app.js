@@ -6,21 +6,31 @@
   const C = window.SlopCalc, K = window.SlopCalcKeep, R = window.SlopCalcRates, P = window.SlopCalcPanels;
   const $ = (id) => document.getElementById(id);
   const HIST_KEY = 'slopcalc.history', HIST_MAX = 200, TAPE_MAX = 300;
-  const S = { ans: null, tape: [], history: K.read(HIST_KEY, []), recall: -1, seq: 0, last: null, timer: 0 };
+  const VARS_KEY = 'slopcalc.vars';
+  const S = { ans: null, tape: [], history: K.read(HIST_KEY, []), vars: K.read(VARS_KEY, {}), recall: -1, seq: 0, last: null, timer: 0 };
   let el = null; // filled in boot(): this script runs in the <head>, before the page's elements exist
   const today = () => C.dates.localIso();
 
   function setStatus(msg) { el.status.textContent = msg; }
   function toast(msg) { if (window.SlopUI && SlopUI.toast) SlopUI.toast(msg); else setStatus(msg); }
 
-  /** Runs an expression. A currency pair with no rate yet is fetched from Slop Ledger, then the expression runs again. */
-  async function evaluate(src) {
-    let r = null;
+  /** The result of a run of statements in the shape the page shows: { ok, value, text } or { ok:false, error }. */
+  function resultOf(p) {
+    const failed = p.steps.find((s) => !s.ok), done = p.steps.filter((s) => s.ok);
+    if (failed) return { ok: false, error: failed.error };
+    return { ok: true, value: p.value, text: done.length ? done[done.length - 1].text : '' };
+  }
+  /** Runs a line (one or more statements separated by ;). A preview works on a copy of the variables; Calculate keeps
+   *  the names it sets. A currency pair with no rate yet is fetched from Slop Ledger, then the line runs again. */
+  async function evaluate(src, commit) {
+    let p = null;
     for (let i = 0; i < 6; i++) {
-      r = C.calc(src, { ans: S.ans, rate: R.factor, today: today() });
-      if (r.ok || r.error.code !== 'rate') return r;
-      if (!(await R.fetch(r.error.from, r.error.to, today()))) break;
+      p = C.program(src, { ans: S.ans, rate: R.factor, today: today(), vars: commit ? S.vars : Object.assign({}, S.vars) });
+      const bad = p.steps.find((s) => !s.ok);
+      if (p.ok || !bad || bad.error.code !== 'rate') break;
+      if (!(await R.fetch(bad.error.from, bad.error.to, today()))) break;
     }
+    const r = resultOf(p);
     if (!r.ok && r.error.code === 'rate') r.error.message += '. Add a manual rate under Exchange rates.';
     return r;
   }
@@ -33,7 +43,7 @@
     const src = el.expr.value.trim();
     const my = ++S.seq;
     if (!src) { S.last = null; showPreview(null); return; }
-    const r = await evaluate(src);
+    const r = await evaluate(src, false);
     if (my !== S.seq) return;
     S.last = r.ok ? { expr: src, value: r.value, text: r.text } : null;
     showPreview(r);
@@ -45,13 +55,15 @@
     if (!src) return;
     clearTimeout(S.timer);
     const my = ++S.seq;
-    const r = await evaluate(src);
+    const r = await evaluate(src, true);
     if (my !== S.seq) return;
     showPreview(r);
     if (!r.ok) { setStatus('Not calculated: ' + r.error.message); return; }
     S.last = { expr: src, value: r.value, text: r.text };
     el.cal.hidden = !SlopCalcCalendar.formFor(S.last);
     S.ans = r.value;
+    K.write(VARS_KEY, S.vars);
+    renderVars();
     S.tape.push({ expr: src, text: r.text });
     if (S.tape.length > TAPE_MAX) S.tape.splice(0, S.tape.length - TAPE_MAX);
     S.history = [{ expr: src, text: r.text, at: Date.now() }, ...S.history.filter((h) => h.expr !== src)].slice(0, HIST_MAX);
@@ -106,6 +118,28 @@
   function clearInput() { el.expr.value = ''; S.recall = -1; S.last = null; S.seq++; showPreview(null); el.expr.focus(); }
   function clearTape() { S.tape = []; renderTape(); setStatus('Tape cleared. History is kept.'); }
 
+  /** The variables: each name with its value. A click puts the name into the line. */
+  function renderVars() {
+    const names = Object.keys(S.vars).sort();
+    el.vars.replaceChildren(...names.map((name) => {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'sc-var'; b.title = 'Put ' + name + ' into the line';
+      b.textContent = name + ' = ' + C.format(S.vars[name]);
+      b.addEventListener('click', () => { const at = el.expr.selectionStart == null ? el.expr.value.length : el.expr.selectionStart; el.expr.setRangeText(name, at, at, 'end'); el.expr.focus(); schedulePreview(); });
+      li.append(b);
+      return li;
+    }));
+    el.varsNone.hidden = names.length > 0;
+    el.varsClear.disabled = !names.length;
+  }
+  async function clearVars() {
+    if (!Object.keys(S.vars).length) return;
+    const ok = await SlopUI.confirm('Clear variables', 'Forget every name you set (' + Object.keys(S.vars).length + ')? The history and the tape are kept.', 'Clear', { danger: true });
+    if (!ok) return;
+    S.vars = {}; K.write(VARS_KEY, S.vars); renderVars(); setStatus('Variables cleared.'); schedulePreview();
+  }
+
   /** The result as text to paste: a plain number without separators, else the displayed text. */
   function copyText() {
     if (!S.last) return null;
@@ -144,7 +178,7 @@
   }
 
   function boot() {
-    el = { expr: $('sc-expr'), preview: $('sc-preview'), status: $('sc-status'), tape: $('sc-tape'), tapeClear: $('sc-tape-clear'), cal: $('sc-cal') };
+    el = { expr: $('sc-expr'), preview: $('sc-preview'), status: $('sc-status'), tape: $('sc-tape'), tapeClear: $('sc-tape-clear'), cal: $('sc-cal'), vars: $('sc-vars'), varsNone: $('sc-vars-none'), varsClear: $('sc-vars-clear') };
     el.expr.addEventListener('input', () => { S.recall = -1; schedulePreview(); });
     el.expr.addEventListener('keydown', onKey);
     $('sc-enter').addEventListener('click', commit);
@@ -153,6 +187,8 @@
     el.cal.addEventListener('click', addToCalendar);
     $('sc-clear').addEventListener('click', clearInput);
     el.tapeClear.addEventListener('click', clearTape);
+    el.varsClear.addEventListener('click', clearVars);
+    renderVars();
     document.querySelectorAll('[data-ins]').forEach((b) => b.addEventListener('click', () => insert(b.dataset.ins)));
     // Published only now, with the listeners attached: this script sits in the <head>, so boot() waits for
     // DOMContentLoaded, and a caller that sees SlopCalcApp earlier would click controls that do nothing yet.
