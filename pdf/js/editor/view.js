@@ -81,6 +81,7 @@
     S.pad.style.left = ''; S.pad.style.top = ''; // back to centred; the zoom anchor sets its offset again
     S.buildRows();
     S.sizeRows();
+    if (S.blockRedraw) S.blockRedraw();   // a block copy box keeps its words when the page is zoomed (editor/block-copy.js)
     Ed.paint();
     S.scheduleRaster(forceRaster ? 0 : 120);
     if (SP.app) SP.app.zoomChanged(Ed.zoom);

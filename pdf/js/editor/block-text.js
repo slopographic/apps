@@ -1,7 +1,8 @@
 /* Slop PDF — block copy: the text inside a box, one line per row of text. Pure (no DOM), so it can be tested alone.
    spans: [{ text, rect: { left, top, right, bottom } }] in one coordinate space; box: the same space.
    A span counts when its centre is inside the box, so a word cut by the edge of the box is left out rather than half-copied.
-   Words on a line are joined with a space unless they touch (a gap under an eighth of the line height joins them). */
+   Words on a line are joined with a space unless they touch (a gap under an eighth of the line height joins them).
+   units / toPx: a box is kept in layout units, the page's own size, and drawn at the zoom on screen. */
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -40,5 +41,15 @@
     }).join('\n');
   }
 
-  return { extract };
+  /** A drag's box in layout units (the page's own units, which zoom scales): the two corners in any order, as min and max. */
+  function units(a, b) {
+    return { x0: Math.min(a.x, b.x), y0: Math.min(a.y, b.y), x1: Math.max(a.x, b.x), y1: Math.max(a.y, b.y) };
+  }
+
+  /** The same box in the page's pixels at a zoom: left, top, width and height. The box keeps its place on the page at any zoom. */
+  function toPx(u, zoom) {
+    return { left: u.x0 * zoom, top: u.y0 * zoom, width: (u.x1 - u.x0) * zoom, height: (u.y1 - u.y0) * zoom };
+  }
+
+  return { extract, units, toPx };
 });

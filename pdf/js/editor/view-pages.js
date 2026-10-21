@@ -36,6 +36,9 @@
     s.el.style.width = (vs.w * z) + 'px'; s.el.style.height = (vs.h * z) + 'px';
     s.layer.style.width = (g.W * z) + 'px'; s.layer.style.height = (g.H * z) + 'px';
     s.layer.style.transform = V.layerTransform(R, g.W, g.H, z);
+    // The text layer's spans are placed with these variables (pdf.js), so they follow the zoom at once, before it is rebuilt.
+    var tl = s.layer.querySelector('.pv-textlayer');
+    if (tl) { tl.style.setProperty('--scale-factor', String(z)); tl.style.setProperty('--total-scale-factor', String(z)); }
     s.el.dataset.tool = Ed.tool;
     s.el.classList.toggle('is-redacted', !!p.redacted);
   };
