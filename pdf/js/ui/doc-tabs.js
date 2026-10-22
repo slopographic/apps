@@ -75,6 +75,7 @@
     E.emit('change', {});
     if (doc.view) A.applyView(doc.view); else A.setTool('organize');
     S.updateChrome();
+    if (SP.panes) SP.panes.onDocShown(doc);   // a split view's previews take the document that left (ui/panes.js)
   }
   function activate(doc) {
     if (!doc.pending) { swapIn(doc); lastLoad = Promise.resolve(); return; }

@@ -72,6 +72,7 @@
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="css/base.css" data-src="pdf/css/base.css">
   <link rel="stylesheet" href="css/workspace.css" data-src="pdf/css/workspace.css">
+  <link rel="stylesheet" href="../shared/workspace/workspace.css" data-src="shared/workspace/workspace.css">
   <link rel="stylesheet" href="css/panels.css" data-src="pdf/css/panels.css">
   <link rel="stylesheet" href="css/redact.css" data-src="pdf/css/redact.css">
   <link rel="stylesheet" href="css/page-acts.css" data-src="pdf/css/page-acts.css">
@@ -141,6 +142,7 @@
           <div class="grid" id="grid" role="listbox" aria-multiselectable="true" aria-label="Pages. Use arrow keys to move, Space to select, Alt plus arrows to reorder."></div>
         </div>
         <div class="viewer" id="viewer" aria-label="Page view"></div>
+        <div class="sw-host pdf-panes" id="panes" aria-label="Split view" hidden></div>
         <div class="busy" id="busy" hidden role="status" aria-live="polite"><span class="spinner" aria-hidden="true"></span><span class="busy-msg">Working…</span><span class="busy-bar"><i></i></span></div>
       </div>
     </main>
@@ -294,6 +296,9 @@
   <script src="../shared/drop/choice.js" data-src="shared/drop/choice.js"></script>
   <script src="js/ui/drop.js" data-src="pdf/js/ui/drop.js"></script>
   <script src="js/ui/doc-tabs.js" data-src="pdf/js/ui/doc-tabs.js"></script>
+  <script src="../shared/workspace/workspace.js" data-src="shared/workspace/workspace.js"></script>
+  <script src="js/ui/pane-preview.js" data-src="pdf/js/ui/pane-preview.js"></script>
+  <script src="js/ui/panes.js" data-src="pdf/js/ui/panes.js"></script>
   <script src="js/ui/open-convert.js" data-src="pdf/js/ui/open-convert.js"></script>
   <script src="js/ui/view-state.js" data-src="pdf/js/ui/view-state.js"></script>
   <script src="js/ui/route.js" data-src="pdf/js/ui/route.js"></script>

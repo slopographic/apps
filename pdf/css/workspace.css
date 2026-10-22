@@ -128,3 +128,20 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .pv-zf .ic { width: 18px; height: 18px; }
 .pv-zpct { font: 600 12px var(--mono); color: var(--fg); min-width: 46px; text-align: center; }
 @media (max-width: 900px) { .app[data-mode="page"] .pv-zoomfab { display: flex; } }
+
+/* Split view (ui/panes.js): the panes sit over the stage; the page view and the previews fill them. */
+.pdf-panes { position: absolute; inset: 0; }
+.pdf-panes[hidden] { display: none; }
+.app:not([data-mode="page"]) .pdf-panes { display: none; }
+.sw-pane { display: flex; flex-direction: column; }
+.sw-pane > .viewer { position: absolute; inset: 0; }
+.pv-pv { position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; background: var(--panel, #f4f4f6); }
+.pv-pv-head { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-bottom: 1px solid var(--line, #d9d9de); font: 13px/1.2 system-ui, sans-serif; }
+.pv-pv-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.pv-pv-btn { min-width: 28px; min-height: 26px; border: 1px solid var(--line, #d9d9de); border-radius: 6px; background: var(--panel, #fff); color: inherit; cursor: pointer; }
+.pv-pv-pct { min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
+.pv-pv-body { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 16px; box-sizing: border-box; }
+.pv-pv-page { margin: 0 auto 16px; background: #fff; box-shadow: 0 1px 4px rgb(0 0 0 / .18); }
+.pv-pv-canvas { display: block; }
+.pv-pv-note { margin: 0; padding: 4px 8px; font: 12px/1.3 system-ui, sans-serif; color: var(--muted, #666); border-top: 1px solid var(--line, #d9d9de); }
+.sw-pane.is-active .pv-pv-note { display: none; }

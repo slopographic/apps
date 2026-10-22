@@ -87,6 +87,16 @@
     return [
       { label: 'All pages (organizer)', act: function () { A.showGrid(); }, check: A.mode === 'grid' },
       { label: 'Page view', act: function () { A.ensurePage(); }, check: A.mode === 'page', disabled: !E.state.pages.length },
+      { label: 'Split view', disabled: A.mode !== 'page' || E.state.pages.length < 1, sub: [
+        { label: 'One pane', check: SP.panes.count() === 1, act: function () { SP.panes.setLayout('one'); } },
+        { label: 'Two columns', check: SP.panes.count() === 2 && SP.panes.layout() === 'columns2', act: function () { SP.panes.setLayout('columns2'); } },
+        { label: 'Two rows', check: SP.panes.count() === 2 && SP.panes.layout() === 'rows2', act: function () { SP.panes.setLayout('rows2'); } },
+        { label: 'Three columns', check: SP.panes.count() === 3, act: function () { SP.panes.setLayout('columns3'); } },
+        { label: 'Four panes (grid)', check: SP.panes.count() === 4, act: function () { SP.panes.setLayout('grid4'); } },
+        '-',
+        { label: 'Previous pane', key: 'Ctrl+Alt+Left', act: function () { SP.panes.step(-1); } },
+        { label: 'Next pane', key: 'Ctrl+Alt+Right', act: function () { SP.panes.step(1); } },
+      ] },
       '-',
       { label: 'Zoom in', key: A.key('view.zoomIn'), act: function () { if (A.mode === 'page') Ed.zoomBy(1.25); else O.zoomBy(1.25); } },
       { label: 'Zoom out', key: A.key('view.zoomOut'), act: function () { if (A.mode === 'page') Ed.zoomBy(0.8); else O.zoomBy(0.8); } },
