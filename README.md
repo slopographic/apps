@@ -2,22 +2,58 @@
 
 A 3D studio for slop. Live at **[slopographic.com](https://slopographic.com)**.
 
-Creative apps that run 100% in your browser: no installs, no accounts, no uploads, no watermarks. Static files, no backend, no build step. Each app is its own folder and can be downloaded as one offline `.html` file.
+A studio of browser apps for creative work and for running a small business. Live at **[slopographic.com](https://slopographic.com)**.
+
+Everything runs 100% in your browser: no installs, no accounts, no uploads, no watermarks. Static files, no backend, no build step. Each app is its own folder and can be downloaded as one offline `.html` file. Your files stay on your device, or in Slop Drive, the local drive every app shares.
+
+### Creative
 
 | Path | App |
 |---|---|
-| `/photoslop/` | **PhotoSlop**: Photoshop-style editor (layers, masks, PSD, filters, brushes, guides). Classic MS Paint clone at `/photoslop/classic/` |
-| `/slopvector/` | **SlopVector**: Illustrator-style vector editor (pen, shapes, type, pathfinder; SVG/PNG/PDF) |
-| `/pdf/` | **Slop PDF**: organise, annotate, fill, sign and truly redact PDFs |
-| `/label/` | **SlopLabel**: barcode label designer (ZPL/EPL/TSPL, data merge, PDF) |
-| `/press/` | **Slop Press**: InDesign-style layout with print-ready PDF |
+| `/photoslop/` | **PhotoSlop**: layers, masks, filters, brushes and guides; PSD support. Classic MS Paint clone at `/photoslop/classic/` |
+| `/slopvector/` | **SlopVector**: pen, shapes, type and pathfinder; SVG, PNG and PDF export |
+| `/pdf/` | **Slop PDF**: merge, split, sign, annotate, fill and truly redact PDFs |
+| `/press/` | **Slop Press**: page layout and print-ready PDF |
 | `/slopcut/` | **SlopCut**: multi-track video editor with WebCodecs export |
-| `/drive/` | **Slop Drive**: the local drive every app shares, with one-file backup |
-| `/ai/` | **Slop AI**: chat with a model running on your own GPU |
-| `/slopisolate/`, `/docs/`, `/tables/`, `/slides/` | In development: background remover, word processor, spreadsheet, presentations |
+| `/slides/` | **Slop Slides**: presentations in PowerPoint and Keynote style |
+| `/docs/` | **Slop Docs**: word processing, Word and Google Docs style |
+| `/tables/` | **Slop Tables**: spreadsheets, Excel and Sheets style |
+| `/3d/`, `/img3d/` | **Slop 3D**: a 3D editor for simple models and scenes; **Image to 3D** |
+| `/effects/` | **Slop Effects**: motion design |
+| `/slopisolate/`, `/upscale/`, `/resize/`, `/watermark/` | **SlopIsolate** (remove backgrounds), **Upscale** (sharper pictures), **Resize**, **Watermark** |
+| `/label/` | **SlopLabel**: barcode labels, GS1 and ZPL |
+| `/qr/` | **QR SLOP**: QR codes for links, Wi-Fi and contacts |
+| `/remix/` | **Reel Remix**: a random video edit from your clips |
+| `/music/`, `/gallery/` | **Slop Music** and **Slop Gallery**: your audio and photo libraries |
+
+### Business
+
+| Path | App |
+|---|---|
+| `/slop-365/` | **Slop 365**: invoices, orders, CRM and ledger in one place |
+| `/invoices/` | **Slop Invoices**: gapless invoices, payments and a ledger |
+| `/orders/` | **Slop Orders**: orders from draft to fulfilment |
+| `/crm/` | **Slop CRM**: customers, pipeline and follow-ups |
+| `/ledger/` | **Slop Ledger**: double-entry books and trial balance |
+| `/inventory/` | **Slop Inventory**: stock, barcodes and reorder alerts |
+| `/reports/` | **Slop Reports**: unpaid invoices, groups and follow-ups |
+| `/contacts/` | **Slop Contacts**: vCard and CSV address book |
+| `/calendar/`, `/todo/`, `/reminders/`, `/time/` | **Calendar**, **To-do**, **Reminders** and **Time**: schedule, tasks, reminders, world clock and meetings |
+| `/notes/`, `/paste/` | **Slop Notes** (Markdown notebooks) and **Paste** (share text, code and images by link) |
+| `/calculator/`, `/nodes/`, `/serials/` | **Slopculator**, **Slopnodes** and the **Serial counter** |
+| `/ocr/`, `/aitools/`, `/ai/` | **Slop OCR**, **AI Tools** (OCR, transcription, denoise) and **Slop AI** (chat with a model on your own computer) |
+
+### Utilities
+
+| Path | App |
+|---|---|
+| `/drive/` | **Slop Drive**: every file from every app in one drive, with one-file backup |
+| `/convert/` | **File convert**: image, PDF, mail, calendar and data converter |
+| `/eml/`, `/hex/`, `/checksum/`, `/clean/`, `/code/` | **Slop EML** (email files), **Hex**, **Checksum**, **SlopClean** (hidden photo data) and **Slop Code** |
+| `/admin/`, `/settings/`, `/how-it-works/` | Company profile and backup, profile and settings, and how the storage works |
 | `/#detector` | **The Authenticator**: get any text certified as slop |
 
-Each folder has its own `HANDOFF.md`. Tests: `npm test`.
+Each app folder has its own `HANDOFF.md` with notes for whoever works on it. Tests: `npm test`.
 
 ## Run locally
 
