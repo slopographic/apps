@@ -19,7 +19,7 @@
     boot: { file: 'pdf/js/io/build.js', name: 'SP.build.BOOT' },
     drop: ['shared/profile/profile.js', 'shared/theme/theme.js', 'shared/hub.js', 'shared/drive-link.js', 'shared/spotlight/spotlight.js'],
     files: [
-    'shared/session/session.js', 'pdf/css/base.css', 'pdf/css/workspace.css', 'shared/workspace/workspace.css', 'pdf/css/panels.css',
+    'shared/session/session.js', 'pdf/css/base.css', 'pdf/css/workspace.css', 'shared/workspace/workspace.css', 'shared/doctabs/pane-tabs.css', 'pdf/css/panels.css',
     'pdf/css/redact.css', 'pdf/css/page-acts.css', 'pdf/css/find.css', 'pdf/css/selbar.css', 'pdf/css/assets.css',
     'pdf/css/notes.css', 'pdf/css/dock.css', 'pdf/css/themes.css', 'shared/doctabs/doctabs.css',
     'pdf/css/doc-tabs.css', 'shared/convert/dialog.css', 'shared/slopui.css', 'shared/slopui.js', 'shared/intake/intake.js', 'shared/apps.js',
@@ -53,7 +53,7 @@
     'pdf/js/ui/assets.js', 'pdf/js/redact/panel.js', 'pdf/js/ui/menus.js', 'pdf/js/ui/commands.js',
     'pdf/js/ui/context.js', 'pdf/js/ui/input.js', 'pdf/js/ui/rename.js', 'shared/drop/rules.js',
     'shared/drop/panel.js', 'shared/intake/intake.js', 'shared/drop/drop.js', 'shared/drop/choice.js', 'pdf/js/ui/drop.js',
-    'pdf/js/ui/doc-tabs.js', 'shared/workspace/workspace.js', 'pdf/js/ui/pane-preview.js', 'pdf/js/ui/panes.js', 'pdf/js/ui/open-convert.js', 'pdf/js/ui/view-state.js', 'pdf/js/ui/route.js',
+    'pdf/js/ui/doc-tabs.js', 'shared/workspace/workspace.js', 'shared/doctabs/pane-tabs.js', 'pdf/js/ui/pane-preview.js', 'pdf/js/ui/panes.js', 'pdf/js/ui/open-convert.js', 'pdf/js/ui/view-state.js', 'pdf/js/ui/route.js',
     'pdf/js/ui/main.js', 'pdf/js/io/build.js', 'shared/offline/manifest.js', 'shared/offline/build.js',
     ],
     binary: [
@@ -87,7 +87,7 @@
     'pdf/js/ui/assets.js', 'pdf/js/redact/panel.js', 'pdf/js/ui/menus.js', 'pdf/js/ui/commands.js',
     'pdf/js/ui/context.js', 'pdf/js/ui/input.js', 'pdf/js/ui/rename.js', 'shared/drop/rules.js',
     'shared/drop/panel.js', 'shared/intake/intake.js', 'shared/drop/drop.js', 'shared/drop/choice.js', 'pdf/js/ui/drop.js',
-    'pdf/js/ui/doc-tabs.js', 'shared/workspace/workspace.js', 'pdf/js/ui/pane-preview.js', 'pdf/js/ui/panes.js', 'pdf/js/ui/open-convert.js', 'pdf/js/ui/view-state.js', 'pdf/js/ui/route.js',
+    'pdf/js/ui/doc-tabs.js', 'shared/workspace/workspace.js', 'shared/doctabs/pane-tabs.js', 'pdf/js/ui/pane-preview.js', 'pdf/js/ui/panes.js', 'pdf/js/ui/open-convert.js', 'pdf/js/ui/view-state.js', 'pdf/js/ui/route.js',
     'pdf/js/ui/main.js',
     ],
   },

@@ -166,5 +166,23 @@
       expect(labels).toEqual(['Open a file', 'Show an open document']);
       expect(P.shownDocs()[1] === null).toBe(true);
     }));
+
+    it('each pane has its own tab strip, and the strip above the stage is away; a tab picked in a strip shows there', () => inSplit(async ({ docB }) => {
+      const win = PT.win, P = PT.SP.panes;
+      expect(win.document.getElementById('tabs').hidden).toBe(true);
+      const bars = [...win.document.querySelectorAll('.sw-pane .spt-tabs')];
+      expect(bars.length).toBe(2);
+      expect(bars[0].querySelectorAll('.spt-tab').length).toBe(2);
+      expect(bars[1].querySelector('.spt-tab.on .spt-name').title.length > 0).toBe(true);
+      // pane 0 shows docA live; picking docB from its strip (docB is pane 1's preview) moves the focus to pane 1
+      names(bars[0])[1].click();
+      expect(P.focused()).toBe(1);
+      expect(P.shownDocs()[1] === docB).toBe(true);
+      // and the strip of pane 0 now marks docB as the one pane 1 shows; picking docA from pane 1 focuses pane 0
+      names(bars[1])[0].click();
+      expect(P.focused()).toBe(0);
+    }));
   });
+
+  function names(bar) { return [...bar.querySelectorAll('.spt-name')]; }
 })();

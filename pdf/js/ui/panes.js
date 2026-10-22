@@ -10,7 +10,7 @@
   var SP = window.SP, Ed = SP.editor, U = SP.util, DT = SP.tabs, PV = SP.panePreview;
   var LAYOUTS = { one: [1, 'columns'], columns2: [2, 'columns'], rows2: [2, 'rows'], columns3: [3, 'columns'], grid4: [4, 'grid'] };
   var ws = null, host = null, focused = 0, count = 1, layoutKey = 'one', switching = false, subscribed = false;
-  var paneDoc = [], views = [], viewerHome = null, viewerNext = null, lastLive = null;
+  var paneDoc = [], views = [], bars = [], viewerHome = null, viewerNext = null, lastLive = null;
 
   function viewer() { return document.getElementById('viewer'); }
   function api() { return DT.api ? DT.api() : null; }
@@ -18,6 +18,47 @@
   function titleOf(doc) { var hit = openDocs().find(function (t) { return t.doc === doc; }); return hit ? hit.title : 'Document'; }
   function paneEl(i) { return ws.pane(i).el; }
   function relayout() { if (Ed.page && Ed.page()) Ed.layout(); }
+
+  /** Each pane has its own tab strip (shared/doctabs/pane-tabs.js): the open documents, with the one that pane shows marked. */
+  function barItems(i) {
+    return function () {
+      var cur = DT.current();
+      return openDocs().map(function (t) {
+        var shown = i === focused ? t.doc === cur : t.doc === paneDoc[i];
+        return { id: t.doc.id, title: t.title, active: shown };
+      });
+    };
+  }
+  function docById(id) { var hit = openDocs().find(function (t) { return t.doc.id === id; }); return hit ? hit.doc : null; }
+  /** A tab was picked in pane i. A pane that shows the document takes the focus; otherwise the focused pane takes it live,
+   *  or pane i does when it is not the focused one. */
+  function pickTab(i, id) {
+    var doc = docById(id);
+    if (!doc) return;
+    for (var j = 0; j < count; j++) {
+      if (j === focused ? DT.current() === doc : paneDoc[j] === doc) { focusPane(j); return; }
+    }
+    if (i === focused) { if (api()) api().activate(doc); } else openDocIn(i, doc);
+  }
+  function closeTab(id) { var doc = docById(id); if (doc && api()) api().close(doc); }
+  /** Draws every pane's tab strip, and puts the strip above the stage away while the view is split. */
+  function renderBars() {
+    if (!ws) return;
+    var strip = document.getElementById('tabs');
+    if (strip) strip.hidden = true;
+    for (var i = count; i < bars.length; i++) if (bars[i]) { bars[i].destroy(); bars[i] = null; }
+    bars.length = count;
+    for (var j = 0; j < count; j++) {
+      if (!bars[j] || bars[j].el.parentNode !== paneEl(j)) {
+        bars[j] = SlopPaneTabs.mount(paneEl(j), {
+          label: 'Open documents',
+          items: barItems(j),
+          pick: (function (k) { return function (id) { pickTab(k, id); }; })(j),
+          close: closeTab,
+        });
+      } else bars[j].render();
+    }
+  }
 
   /** The viewer goes into the focused pane, or back where it was when the view is not split. */
   function placeViewer() {
@@ -94,6 +135,7 @@
       placeViewer();
       showPreview(f, prev && prev !== doc ? prev : null);
       relayout();
+      renderBars();
     } finally { switching = false; }
   }
 
@@ -105,11 +147,14 @@
 
   /** The strip's events: closing a document frees the pane that showed it. */
   function onStrip(why, t) {
-    if (why !== 'close' || !t || !ws) return;
-    for (var i = 0; i < count; i++) {
-      if (i !== focused && paneDoc[i] === t.doc) showPreview(i, null);
+    if (!ws) return;
+    if (why === 'close' && t) {
+      for (var i = 0; i < count; i++) {
+        if (i !== focused && paneDoc[i] === t.doc) showPreview(i, null);
+      }
+      if (paneDoc[focused] === t.doc) paneDoc[focused] = null;
     }
-    if (paneDoc[focused] === t.doc) paneDoc[focused] = null;
+    renderBars();
   }
   function subscribe() {
     if (subscribed || !api() || !api().on) return;
@@ -153,15 +198,19 @@
     }
     placeViewer();
     relayout();
+    renderBars();
   }
 
   /** One pane again: the viewer goes back to the page, and the previews go. */
   function unsplit() {
     detachViewer();
     for (var i = 0; i < views.length; i++) destroyView(i);
+    bars = [];
     if (ws) { ws.destroy(); ws = null; }
     if (host) { host.hidden = true; delete host.dataset.split; host.replaceChildren(); }
     count = 1; focused = 0; layoutKey = 'one'; paneDoc = [];
+    var strip = document.getElementById('tabs');
+    if (strip) strip.hidden = false;
     placeViewer();
     relayout();
   }
@@ -187,6 +236,7 @@
       placeViewer();
       showPreview(prev, prevDoc);
       relayout();
+      renderBars();
     } finally { switching = false; }
   }
 
@@ -241,6 +291,7 @@
       ws.focus(focused);
       placeViewer();
       relayout();
+      renderBars();
     } finally { switching = false; }
   }
 
