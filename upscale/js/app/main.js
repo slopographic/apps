@@ -10,6 +10,8 @@
   const QUALITY_ID = 'realesrgan-x4plus', QUALITY_FILE = 'model.onnx';
   const S = { item: null, busy: false, cancel: { cancelled: false }, scale: 2, model: 'fast', format: 'png', quality: 0.92, fps: 24, installed: false };
 
+  // The controller's state and helpers, for the output module (app/output.js), which runs later, on a click.
+  U.app = { S, open: (...a) => open(...a), toast: (m) => toast(m), setStatus: (m, f) => setStatus(m, f) };
   const toast = (msg) => { if (g.SlopUI && g.SlopUI.toast) g.SlopUI.toast(msg); };
   const setStatus = (msg, frac) => {
     $('up-status').textContent = msg;
@@ -188,46 +190,6 @@
   }
 
   /* ---------- Results ---------- */
-  async function resultBlob() {
-    const it = S.item;
-    if (!it || !it.out) return null;
-    if (it.kind === 'video') return it.outBlob;
-    return IO.encode(it.out.canvas, S.format, S.quality);
-  }
-  function resultName() {
-    const it = S.item;
-    return it.kind === 'video' ? it.outName : IO.outName(it.name, S.scale, S.format);
-  }
-  async function download() {
-    try {
-      const blob = await resultBlob();
-      if (!blob) return;
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob); a.download = resultName();
-      document.body.append(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    } catch (e) { setStatus(e.message); }
-  }
-  async function saveDrive() {
-    if (!D.available()) { toast('Slop Drive is not available on this page'); return; }
-    try {
-      const blob = await resultBlob();
-      if (!blob) return;
-      const id = await D.save(blob, resultName(), { source: S.item.name, scale: S.scale });
-      S.item.drive = id;
-      toast('Saved to the Slop Upscale folder in Slop Drive');
-    } catch (e) { setStatus('Could not save to Slop Drive: ' + e.message); }
-  }
-  async function openDrive() {
-    if (!D.available()) { toast('Slop Drive is not available on this page'); return; }
-    const rec = await D.pick();
-    if (rec) await openRecord(rec);
-  }
-  async function openRecord(rec) {
-    if (!rec || !rec.blob) return;
-    await open(new File([rec.blob], rec.name || 'Drive file', { type: rec.blob.type || '' }), { drive: rec.id });
-  }
-
   /* ---------- Controls ---------- */
   function updateButtons() {
     const has = !!S.item, done = has && !!S.item.out;
@@ -259,11 +221,11 @@
     const pick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*,video/*'; i.onchange = () => i.files[0] && open(i.files[0]); i.click(); };
     $('up-open').addEventListener('click', pick);
     $('up-open-empty').addEventListener('click', pick);
-    $('up-drive').addEventListener('click', openDrive);
+    $('up-drive').addEventListener('click', U.output.openDrive);
     $('up-run').addEventListener('click', run);
     $('up-cancel').addEventListener('click', cancel);
-    $('up-download').addEventListener('click', download);
-    $('up-save').addEventListener('click', saveDrive);
+    $('up-download').addEventListener('click', U.output.download);
+    $('up-save').addEventListener('click', U.output.saveDrive);
     $('up-clear').addEventListener('click', clear);
     $('up-scale-2').addEventListener('click', () => setScale(2));
     $('up-scale-4').addEventListener('click', () => setScale(4));
@@ -296,7 +258,7 @@
     if (g.SlopLibrary) g.SlopLibrary.onChange(refreshModels);
     if (g.SlopHub) {
       g.SlopHub.register('upscale');
-      if (D.available()) { const rec = await g.SlopHub.consumeLaunch(); if (rec) await openRecord(rec); }
+      if (D.available()) { const rec = await g.SlopHub.consumeLaunch(); if (rec) await U.output.openRecord(rec); }
     }
   }
 
