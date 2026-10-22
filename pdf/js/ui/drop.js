@@ -71,6 +71,7 @@
       if (!first) first = SP.tabs.current();
     }
     SP.panes.placeIn(pane, first, prev);
+    if (first && E.state.pages.length) A.openPage(E.state.pages[0].id, true);
   };
 
   /** Adds the files' pages to the open document. A PDF that is already in it asks first; the position is asked once. */

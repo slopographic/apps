@@ -41,6 +41,13 @@
     if (i === focused) { if (api()) api().activate(doc); } else openDocIn(i, doc);
   }
   function closeTab(id) { var doc = docById(id); if (doc && api()) api().close(doc); }
+  /** The strip's + in pane i: a new empty document, which takes pane i (the focused pane shows it live). */
+  function addInPane(i) {
+    if (!api() || switching) return;
+    var prev = DT.current();
+    var doc = api().newTab().doc;
+    if (i !== focused) placeIn(i, doc, prev);
+  }
   /** Draws every pane's tab strip, and puts the strip above the stage away while the view is split. */
   function renderBars() {
     if (!ws) return;
@@ -55,6 +62,7 @@
           items: barItems(j),
           pick: (function (k) { return function (id) { pickTab(k, id); }; })(j),
           close: closeTab,
+          add: (function (k) { return function () { addInPane(k); }; })(j),
         });
       } else bars[j].render();
     }

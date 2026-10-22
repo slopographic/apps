@@ -7,6 +7,7 @@
  *     items: () => [{ id, title, active, dirty }],  // the app's tabs in order; active = the one this pane shows
  *     pick(id),                       // a tab's name was chosen (click, Enter or Space)
  *     close(id),                      // a tab's close button was pressed, or the tab was middle-clicked
+ *     add(),                          // optional: a + button at the end, for a new document
  *   });
  *   bar.render();                     // call after the app's tabs change
  *   bar.destroy();
@@ -45,9 +46,21 @@
       return t;
     }
 
+    const add = o.add ? document.createElement('button') : null;
+    if (add) {
+      add.type = 'button';
+      add.className = 'spt-add';
+      add.title = 'New document';
+      add.setAttribute('aria-label', 'New document');
+      add.textContent = '+';
+      add.addEventListener('click', () => o.add());
+    }
+
     function render() {
       const items = (o.items && o.items()) || [];
-      bar.replaceChildren(...items.map(tab));
+      const nodes = items.map(tab);
+      if (add) nodes.push(add);
+      bar.replaceChildren(...nodes);
     }
 
     bar.addEventListener('keydown', (e) => {

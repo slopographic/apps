@@ -185,4 +185,32 @@
   });
 
   function names(bar) { return [...bar.querySelectorAll('.spt-name')]; }
+
+  describe('split view: drop and new document in a pane', () => {
+    it('a file dropped on a preview pane opens there, live (a real drop event on the pane)', () => inSplit(async ({ docA }) => {
+      const win = PT.win, P = PT.SP.panes;
+      const bytes = await PT.makePdf([{ text: 'dropped' }]);
+      const dt = new win.DataTransfer();
+      dt.items.add(new win.File([bytes], 'c.pdf', { type: 'application/pdf' }));
+      win.document.querySelector('.sw-pane[data-pane="1"] .pv-pv-body').dispatchEvent(new win.DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+      await waitFor(() => P.focused() === 1 && !PT.A.isLocked(), { timeout: 15000 });
+      const fresh = PT.SP.tabs.current();
+      expect(fresh !== docA).toBe(true);
+      expect(P.shownDocs()[1] === fresh).toBe(true);
+      expect(P.shownDocs()[0] === docA).toBe(true);
+    }));
+
+    it('the + in a pane makes a new document there; the other pane shows the document that was live', () => inSplit(async ({ docA, docB }) => {
+      const win = PT.win, P = PT.SP.panes;
+      const before = PT.SP.tabs.api().tabs().length;
+      win.document.querySelector('.sw-pane[data-pane="1"] .spt-add').click();
+      await settle();
+      expect(PT.SP.tabs.api().tabs().length).toBe(before + 1);
+      expect(P.focused()).toBe(1);
+      const fresh = PT.SP.tabs.current();
+      expect(fresh !== docA && fresh !== docB).toBe(true);
+      expect(P.shownDocs()[1] === fresh).toBe(true);
+      expect(P.shownDocs()[0] === docA).toBe(true);
+    }));
+  });
 })();
