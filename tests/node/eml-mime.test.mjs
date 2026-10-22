@@ -1,4 +1,4 @@
-// Slop EML: the pure MIME layer (eml/js/codec.js and eml/js/mime.js) run as the browser runs them, in one vm context.
+// Slop EML: the pure MIME layer (shared/mail/codec.js and shared/mail/mime.js) run as the browser runs them, in one vm context.
 // Covers unfolded headers, RFC 2047 encoded words, base64 and quoted-printable, nested multiparts, cid images, charsets,
 // RFC 2231 file names and malformed parts. Run: node tests/run.mjs eml-mime
 import { test } from 'node:test';
@@ -8,7 +8,7 @@ import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
-const EML = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'eml', 'js');
+const EML = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'shared', 'mail');
 const ctx = { TextDecoder, btoa, atob, console };
 ctx.window = ctx;
 vm.createContext(ctx);

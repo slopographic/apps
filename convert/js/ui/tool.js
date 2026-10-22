@@ -171,6 +171,9 @@ export class ConvertTool {
     const notes = [];
     if (this.items.length && !act.length) notes.push('None of these files can be converted on this page.');
     else if (act.length && !cands.length) notes.push('These files have no conversion in common. Convert one type at a time.');
+    // A kind with no converter on this site says so by name, rather than leaving an empty target list.
+    const bare = [...new Set(act.map((i) => i.kind))].filter((k) => !conversionsFor([k]).length);
+    for (const k of bare) notes.push(`${KIND_LABEL[k] || k} files have no conversion here yet.`);
     if (act.some((i) => i.kind === 'png') && cands.some((c) => c.id === 'images-to-pdf')) notes.push('PNG transparency is flattened onto white in the PDF.');
     if (act.length > 1 && cands.length) notes.push(`${act.length} files will be converted.`);
     this.ui.note.textContent = notes.join(' ');

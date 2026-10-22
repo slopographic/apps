@@ -18,8 +18,9 @@ import { csvToVcf, xlsxToVcf, vcfToCsv, vcfToXlsx, vcfToJson } from './vcf.js';
 import { stemOf as base } from '../io/files.js';
 import { decodeAudio, channelsOf, encodeWav, encodeMp3, loadLame } from './audio.js';
 import { convertVideo } from './ffmpeg-engine.js';
+import { emlToHtml, emlToText, emlAttachmentsZip, icsToCsv, icsToJson, xmlToJson, unzipEntries, zipFiles } from './mail.js';
 
-const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg'];
+const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'];
 const SIZE = [
   { key: 'width', type: 'number', label: 'Width (px)', min: 1, max: 10000, hint: 'Leave blank to keep the original size. Height follows the proportions.' },
   { key: 'height', type: 'number', label: 'Height (px)', min: 1, max: 10000 },
@@ -104,10 +105,10 @@ export const CONVERSIONS = [
   { id: 'frame-to-jpg', label: 'Frame to JPG', group: 'Audio and video', from: VIDEO_IN, ext: 'jpg', mode: 'each', options: [TIME], run: videoTo('jpg') },
   { id: 'to-wav', label: 'To WAV', group: 'Audio and video', from: AUDIO_IN, ext: 'wav', mode: 'each', options: [], run: audioTo('wav') },
   { id: 'to-mp3', label: 'To MP3', group: 'Audio and video', from: AUDIO_IN, ext: 'mp3', mode: 'each', options: [BITRATE], run: audioTo('mp3') },
-  { id: 'to-png', label: 'To PNG', group: 'Images', from: ['jpg', 'webp', 'bmp', 'gif', 'svg'], ext: 'png', mode: 'each', options: [...SIZE], run: imageTo('png') },
-  { id: 'to-jpg', label: 'To JPG', group: 'Images', from: ['png', 'webp', 'bmp', 'gif', 'svg'], ext: 'jpg', mode: 'each', options: [...SIZE, QUALITY, BACKGROUND], run: imageTo('jpg') },
-  { id: 'to-webp', label: 'To WebP', group: 'Images', from: ['png', 'jpg', 'bmp', 'gif', 'svg'], ext: 'webp', mode: 'each', options: [...SIZE, QUALITY], run: imageTo('webp') },
-  { id: 'to-bmp', label: 'To BMP', group: 'Images', from: ['png', 'jpg', 'webp', 'gif', 'svg'], ext: 'bmp', mode: 'each', options: [...SIZE, BACKGROUND], run: imageTo('bmp') },
+  { id: 'to-png', label: 'To PNG', group: 'Images', from: ['jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'png', mode: 'each', options: [...SIZE], run: imageTo('png') },
+  { id: 'to-jpg', label: 'To JPG', group: 'Images', from: ['png', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'jpg', mode: 'each', options: [...SIZE, QUALITY, BACKGROUND], run: imageTo('jpg') },
+  { id: 'to-webp', label: 'To WebP', group: 'Images', from: ['png', 'jpg', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'webp', mode: 'each', options: [...SIZE, QUALITY], run: imageTo('webp') },
+  { id: 'to-bmp', label: 'To BMP', group: 'Images', from: ['png', 'jpg', 'webp', 'gif', 'svg', 'avif', 'ico'], ext: 'bmp', mode: 'each', options: [...SIZE, BACKGROUND], run: imageTo('bmp') },
   { id: 'to-ico', label: 'To ICO (icon)', group: 'Images', from: IMAGE, ext: 'ico', mode: 'each', options: [{ key: 'icoSize', type: 'select', label: 'Icon size', value: 256, options: [[16, '16 × 16'], [32, '32 × 32'], [48, '48 × 48'], [64, '64 × 64'], [128, '128 × 128'], [256, '256 × 256']] }, BACKGROUND], run: imageTo('ico') },
   { id: 'images-to-pdf', label: 'Images to PDF', group: 'PDF', from: IMAGE, ext: 'pdf', mode: 'combine', options: [
     { key: 'page', type: 'select', label: 'Page size', value: 'a4', options: [['a4', 'A4'], ['letter', 'US Letter'], ['fit', 'Fit to each image']] },
@@ -223,6 +224,15 @@ export const CONVERSIONS = [
     const body = setLineEndings(decodeText(new Uint8Array(await f.file.arrayBuffer())), o.eol);
     return [out(`${base(f.name)}-${o.eol}.${ext}`, body, 'text/plain')];
   } },
+  // Mail, calendar and XML. The readers are the apps' own (shared/mail, shared/calendar); see core/mail.js.
+  { id: 'eml-to-html', label: 'Email to HTML', group: 'Email', from: ['eml'], ext: 'html', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.html`, blob: new Blob([await emlToHtml(new Uint8Array(await f.file.arrayBuffer()))], { type: 'text/html' }) }]; } },
+  { id: 'eml-to-text', label: 'Email to plain text', group: 'Email', from: ['eml'], ext: 'txt', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.txt`, blob: new Blob([await emlToText(new Uint8Array(await f.file.arrayBuffer()))], { type: 'text/plain' }) }]; } },
+  { id: 'eml-attachments', label: 'Email attachments to ZIP', group: 'Email', from: ['eml'], ext: 'zip', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}-attachments.zip`, blob: await emlAttachmentsZip(new Uint8Array(await f.file.arrayBuffer())) }]; } },
+  { id: 'ics-to-csv', label: 'Calendar to CSV', group: 'Calendar', from: ['ics'], ext: 'csv', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.csv`, blob: new Blob([await icsToCsv(await text(f.file))], { type: 'text/csv' }) }]; } },
+  { id: 'ics-to-json', label: 'Calendar to JSON', group: 'Calendar', from: ['ics'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([await icsToJson(await text(f.file))], { type: 'application/json' }) }]; } },
+  { id: 'xml-to-json', label: 'XML to JSON', group: 'Data', from: ['xml'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([xmlToJson(await text(f.file))], { type: 'application/json' }) }]; } },
+  { id: 'unzip', label: 'Unzip', group: 'Archives', from: ['zip'], mode: 'each', options: [], run: async (files) => unzipEntries(files[0].file) },
+  { id: 'zip-files', label: 'Files to ZIP', group: 'Archives', from: ['*'], ext: 'zip', mode: 'combine', options: [], run: async (files) => [{ name: 'files.zip', blob: await zipFiles(files) }] },
 ];
 
 export const conversionById = (id) => CONVERSIONS.find((c) => c.id === id);

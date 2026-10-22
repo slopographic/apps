@@ -40,7 +40,7 @@ describe('target picker offers only valid conversions', () => {
   it('mixed types offer only what all of them share', async () => {
     const t = mount();
     await t.addFiles([await pngFile(), csvFile()]);
-    expect(targets(t)).toEqual(['base64-encode']);
+    expect(targets(t)).toEqual(['base64-encode', 'zip-files']);   // any mix can be zipped, and encoded as text
     const t2 = mount();
     await t2.addFiles([csvFile(), jsonFile()]);
     expect(targets(t2)).toContain('base64-encode');
