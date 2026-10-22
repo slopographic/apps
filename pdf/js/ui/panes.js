@@ -189,15 +189,42 @@
     } finally { switching = false; }
   }
 
+  function setLayout(key) {
+    var spec = LAYOUTS[key];
+    if (!spec) return;
+    if (spec[0] === 1) unsplit(); else split(spec[0], spec[1]);
+  }
+
+  /** The layouts as menu items: the View menu and the header's Split view button show the same list. */
+  function layoutItems() {
+    return [
+      { label: 'One pane', check: count === 1, act: function () { setLayout('one'); } },
+      { label: 'Two columns', check: count === 2 && layoutKey === 'columns2', act: function () { setLayout('columns2'); } },
+      { label: 'Two rows', check: count === 2 && layoutKey === 'rows2', act: function () { setLayout('rows2'); } },
+      { label: 'Three columns', check: count === 3, act: function () { setLayout('columns3'); } },
+      { label: 'Four panes (grid)', check: count === 4, act: function () { setLayout('grid4'); } },
+      '-',
+      { label: 'Previous pane', key: 'Ctrl+Alt+Left', act: function () { step(-1); } },
+      { label: 'Next pane', key: 'Ctrl+Alt+Right', act: function () { step(1); } },
+    ];
+  }
+
+  /** The header's Split view button: the layout list as a menu, in Page view with pages open. */
+  var splitBtn = document.getElementById('btnSplit');
+  if (splitBtn) splitBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var A = SP.app;
+    if (A.mode !== 'page' || !SP.engine.state.pages.length) { SlopUI.toast('Open a document in Page view to split it.'); return; }
+    var r = splitBtn.getBoundingClientRect();
+    SlopUI.menu(layoutItems(), r.left, r.bottom + 4);
+  });
+
   SP.panes = {
     snapshot: snapshot,
     restore: restore,
     split: split,
-    setLayout: function (key) {
-      var spec = LAYOUTS[key];
-      if (!spec) return;
-      if (spec[0] === 1) unsplit(); else split(spec[0], spec[1]);
-    },
+    setLayout: setLayout,
+    items: layoutItems,
     unsplit: unsplit,
     focus: focusPane,
     step: step,

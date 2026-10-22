@@ -58,6 +58,7 @@
 /* The top bar's items must fit the window, so the view-mode slot (last in the bar) stays on screen. */
 @media (max-width: 1180px) { :root { --props-w: 280px; } }
 @media (max-width: 1000px) { .tb-group, .local-badge { display: none; } }
+@media (max-width: 560px) { #btnSplit { display: none; } }
 @media (max-width: 1200px) { .menus { display: none; } #btnMore { display: inline-flex; } .btn.dl span { display: none; } .btn.dl { padding: 0 10px; } }
 @media (max-width: 900px) {
   :root { --rail-w: 0px; --status-h: 0px; }

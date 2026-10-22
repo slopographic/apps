@@ -130,5 +130,18 @@
       expect(win.document.getElementById('viewer').parentNode.id).toBe('stage');
       expect(win.document.getElementById('panes').hidden).toBe(true);
     });
+
+    it('the header Split view button lists the layouts: Two columns splits the view', async () => {
+      await twoDocs();
+      const win = PT.win;
+      try {
+        win.document.getElementById('btnSplit').click();
+        const row = [...win.document.querySelectorAll('.sui-menu .sui-row')].find((r) => r.querySelector('.sui-lbl')?.textContent === 'Two columns');
+        expect(!!row).toBe(true);
+        row.click();
+        expect(PT.SP.panes.layout()).toBe('columns2');
+        expect(PT.SP.panes.count()).toBe(2);
+      } finally { PT.SP.panes.unsplit(); await closeTabs(); }
+    });
   });
 })();
