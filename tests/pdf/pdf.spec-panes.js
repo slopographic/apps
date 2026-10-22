@@ -143,5 +143,28 @@
         expect(PT.SP.panes.count()).toBe(2);
       } finally { PT.SP.panes.unsplit(); await closeTabs(); }
     });
+
+    it('a file opened into a preview pane is live there; the document that was live is previewed in the other pane', () => inSplit(async ({ docA }) => {
+      const P = PT.SP.panes;
+      const bytes = await PT.makePdf([{ text: 'gamma' }]);
+      await PT.A.openFilesInPane(1, [new PT.win.File([bytes], 'c.pdf', { type: 'application/pdf' })]);
+      await settle();
+      const fresh = PT.SP.tabs.current();
+      expect(fresh !== docA).toBe(true);
+      expect(P.focused()).toBe(1);
+      expect(P.shownDocs()[1] === fresh).toBe(true);
+      expect(P.shownDocs()[0] === docA).toBe(true);
+      expect(P.preview(0).doc() === docA).toBe(true);
+    }));
+
+    it('an empty pane offers Open a file and Show an open document', () => inSplit(async ({ docB }) => {
+      const P = PT.SP.panes;
+      await PT.SP.tabs.api().close(docB);
+      const empty = PT.win.document.querySelector('.sw-pane[data-pane="1"] .pv-pv-empty');
+      expect(!!empty).toBe(true);
+      const labels = [...empty.querySelectorAll('button')].map((b) => b.textContent);
+      expect(labels).toEqual(['Open a file', 'Show an open document']);
+      expect(P.shownDocs()[1] === null).toBe(true);
+    }));
   });
 })();

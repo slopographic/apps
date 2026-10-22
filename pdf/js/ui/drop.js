@@ -57,6 +57,22 @@
     SlopUI.toast('Converted ' + (names.length === 1 ? names[0] : names.length + ' files') + ' to PDF');
   };
 
+  /** Files opened into split pane i (a drop on it, or Open a file in its empty state). Each opens in a tab; the first one is
+   *  then shown live in pane i, and the document that was live goes to the pane that held it. */
+  A.openFilesInPane = async function (pane, files) {
+    if (A.isLocked()) { A.status('Wait for the current open to finish, then try again.', 'err'); return; }
+    var conv = files.filter(function (f) { return kind(f) === 'convert'; });
+    if (conv.length) A.convertFiles(conv);
+    var opens = files.filter(function (f) { return kind(f) === 'open'; });
+    if (!opens.length) return;
+    var prev = SP.tabs.current(), first = null;
+    for (var i = 0; i < opens.length; i++) {
+      try { await openInTab(opens[i]); } catch (err) { A.status('“' + opens[i].name + '” ' + err.message, 'err'); continue; }
+      if (!first) first = SP.tabs.current();
+    }
+    SP.panes.placeIn(pane, first, prev);
+  };
+
   /** Adds the files' pages to the open document. A PDF that is already in it asks first; the position is asked once. */
   async function addToDocument(files) {
     var keep = [];
@@ -106,6 +122,8 @@
     if (r.convert.length) A.convertFiles(r.convert);
     var opens = r.open;
     if (!opens.length) return [];
+    var pane = SP.panes.paneAt(e && e.target);
+    if (pane >= 0 && pane !== SP.panes.focused()) { await A.openFilesInPane(pane, opens); return []; }
     if (onTabs(e && e.target) || !E.state.pages.length) {
       // on the strip, or with no document open: each file opens in a tab (the strip) or the first file opens here
       if (onTabs(e && e.target)) opens.forEach(function (f) { dest.set(f, 'tab'); });

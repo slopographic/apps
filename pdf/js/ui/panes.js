@@ -44,8 +44,63 @@
   function showPreview(i, doc) {
     if (i === focused || !ws || !ws.pane(i)) return;
     paneDoc[i] = doc || null;
-    if (!views[i]) views[i] = PV.create(paneEl(i), doc || null, { title: doc ? titleOf(doc) : null });
+    if (!views[i]) views[i] = PV.create(paneEl(i), doc || null, { title: doc ? titleOf(doc) : null, empty: function () { return emptyPane(i); } });
     else views[i].setDoc(doc || null, doc ? titleOf(doc) : null);
+  }
+
+  /** What an empty pane offers: open a file in it, or show a document that is open in the strip. */
+  function emptyPane(i) {
+    var box = U.h('div', { class: 'pv-pv-empty' });
+    var open = U.h('button', { type: 'button', class: 'sui-btn sui-primary' }, 'Open a file');
+    var show = U.h('button', { type: 'button', class: 'sui-btn' }, 'Show an open document');
+    open.addEventListener('click', function () {
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/pdf,image/png,image/jpeg,image/webp,image/gif,image/bmp';
+      input.addEventListener('change', function () { if (input.files && input.files[0]) SP.app.openFilesInPane(i, [input.files[0]]); });
+      input.click();
+    });
+    show.addEventListener('click', function () {
+      var r = show.getBoundingClientRect();
+      var items = openDocs().filter(function (t) { return t.doc !== DT.current(); }).map(function (t) {
+        return { label: t.title, act: function () { openDocIn(i, t.doc); } };
+      });
+      SlopUI.menu(items.length ? items : [{ label: 'No other open document', disabled: true }], r.left, r.bottom + 4);
+    });
+    box.append(open, show);
+    return box;
+  }
+
+  /** Makes the document that is open in the strip the live one in pane i (the pane takes the focus, as a click does). */
+  function openDocIn(i, doc) {
+    if (!ws || !ws.pane(i) || !doc) return;
+    paneDoc[i] = doc;
+    focusPane(i);
+  }
+
+  /** A file opened into pane i (not the focused one): the document it opens as is live in pane i, the pane that was live
+   *  shows its document as a preview. Called after the file is open in a tab, which made it the live one. */
+  function placeIn(i, doc, prev) {
+    if (!ws || !ws.pane(i) || i === focused || !doc) return;
+    var f = focused;
+    switching = true;
+    try {
+      if (DT.current() !== doc && api()) api().activate(doc);
+      destroyView(i);
+      focused = i;
+      ws.focus(i);
+      paneDoc[i] = null;
+      lastLive = doc;
+      placeViewer();
+      showPreview(f, prev && prev !== doc ? prev : null);
+      relayout();
+    } finally { switching = false; }
+  }
+
+  /** The pane under a drop, by its index (-1 when the drop is not on a pane). */
+  function paneAt(target) {
+    var el = target && target.closest ? target.closest('.sw-pane') : null;
+    return el && ws ? Number(el.dataset.pane) : -1;
   }
 
   /** The strip's events: closing a document frees the pane that showed it. */
@@ -235,5 +290,8 @@
     /** The document in each pane, in pane order (the focused pane's is the one on screen). */
     shownDocs: function () { var out = []; for (var i = 0; i < count; i++) out.push(i === focused ? DT.current() : paneDoc[i]); return out; },
     preview: function (i) { return views[i] || null; },
+    paneAt: paneAt,
+    placeIn: placeIn,
+    openDocIn: openDocIn,
   };
 })();

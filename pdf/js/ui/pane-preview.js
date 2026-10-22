@@ -140,7 +140,11 @@
       body.replaceChildren();
       pages = [];
       note.textContent = '';
-      if (!cur) { note.textContent = 'Open a document here from the strip, or pick it in the pane list.'; return; }
+      if (!cur) {
+        note.textContent = 'Drop a file here, or open one in this pane.';
+        if (o.empty) body.append(o.empty());
+        return;
+      }
       if (cur.pending) { note.textContent = 'Open this document to see its pages.'; return; }
       pages = pagesOf(cur).map(function (pg) {
         var box = U.h('div', { class: 'pv-pv-page' });
