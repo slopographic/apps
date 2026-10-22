@@ -141,7 +141,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .pv-pv-btn { min-width: 28px; min-height: 26px; border: 1px solid var(--line, #d9d9de); border-radius: 6px; background: var(--panel, #fff); color: inherit; cursor: pointer; }
 .pv-pv-pct { min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
 .pv-pv-body { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 16px; box-sizing: border-box; }
-.pv-pv-page { margin: 0 auto 16px; background: #fff; box-shadow: 0 1px 4px rgb(0 0 0 / .18); }
+.pv-pv-page { position: relative; margin: 0 auto 16px; background: #fff; box-shadow: 0 1px 4px rgb(0 0 0 / .18); }
 .pv-pv-canvas { display: block; }
 .pv-pv-note { margin: 0; padding: 4px 8px; font: 12px/1.3 system-ui, sans-serif; color: var(--muted, #666); border-top: 1px solid var(--line, #d9d9de); }
 .sw-pane.is-active .pv-pv-note { display: none; }

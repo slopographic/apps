@@ -20,7 +20,7 @@
 .smb-caret { color: color-mix(in srgb, var(--sl-text, #1b1b1f) 55%, transparent); }
 .smb-pop-sub { top: -5px; left: calc(100% + 2px); }
 .smb-hold { display: none !important; }
-.smb-tools { margin-left: auto; display: flex; gap: 6px; }
+.smb-tools { margin-left: auto; display: flex; flex: 1 1 auto; flex-wrap: wrap; justify-content: flex-end; gap: 6px; min-width: 0; }
 @media (max-width: 640px) { .smb-app { display: none; } }
 /* The bar is the first thing in the body. An app whose root is 100% high (most mini apps) shares the screen with it: the body
  * is a column, the bar keeps its height and the app takes the rest. */

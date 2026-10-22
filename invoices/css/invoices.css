@@ -136,7 +136,7 @@ input[readonly] { color: var(--mute); }
 /* The printable sheet is the paper view (shared/docs/paper.css): on screen a white page, and in print only the sheet */
 @media print {
   html, body { background: #fff !important; color: #000 !important; }
-  .no-print, .topbar, .smb-bar, .tabs, .toolbar, .note.no-print { display: none !important; }
+  .no-print, .smb-bar, .tabs, .toolbar, .note.no-print { display: none !important; }
   .main { padding: 0 !important; max-width: none !important; }
   .view:not([hidden]) { display: block; }
 }

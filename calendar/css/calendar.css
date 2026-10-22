@@ -21,12 +21,10 @@ body { min-height: 100vh; }
 .btn, .tb-btn, .seg button, .mo-more { background: var(--chip); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; font: inherit; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .btn[hidden], .seg button[hidden] { display: none; }
-.topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
 .brand-mark { width: 26px; height: 26px; fill: var(--accent); }
 .appname b { font-size: 16px; margin-right: 8px; }
 .home-link { color: var(--mute); font-size: 13px; }
 .local-badge { font-size: 12px; color: var(--mute); border: 1px solid var(--line); border-radius: 99px; padding: 2px 8px; }
-.topbar .tb-btn { margin-left: auto; }
 .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 16px; border-bottom: 1px solid var(--line); }
 .toolbar h2 { font-size: 18px; margin: 0 8px 0 4px; flex: 1 1 200px; }
 .toolbar label { font-size: 13px; color: var(--mute); display: inline-flex; gap: 6px; align-items: center; }

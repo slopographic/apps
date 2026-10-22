@@ -67,6 +67,34 @@
       expect(P.preview(0).doc() === docA).toBe(true);     // A is now the preview
     }));
 
+    it('a preview shows the annotations of its page, and its text can be selected', () => inSplit(async ({ docB }) => {
+      const win = PT.win, P = PT.SP.panes;
+      // B's page gets a rectangle, added to the document as the editor would add it
+      docB.state.pages[0].annots.push({ id: 'preview-rect', type: 'rect', cx: 80, cy: 45, w: 120, h: 50, rot: 0, color: '#ff0000', width: 2, fill: 'none', opacity: 1 });
+      P.split(2, 'columns');
+      await waitFor(() => win.document.querySelector('.sw-pane[data-pane="1"] .annots > *'), { timeout: 8000 });
+      expect(win.document.querySelectorAll('.sw-pane[data-pane="1"] .annots > *').length >= 1).toBe(true);
+      await waitFor(() => win.document.querySelector('.sw-pane[data-pane="1"] .pv-textlayer span'), { timeout: 8000 });
+      expect(win.document.querySelector('.sw-pane[data-pane="1"] .pv-textlayer span').textContent.includes('beta')).toBe(true);
+      docB.state.pages[0].annots = docB.state.pages[0].annots.filter((a) => a.id !== 'preview-rect');
+    }));
+
+    it('a saved split comes back: its layout, its focused pane and the documents in each pane', () => inSplit(async ({ docA, docB }) => {
+      const win = PT.win, P = PT.SP.panes;
+      click(win, win.document.querySelector('.sw-pane[data-pane="1"]'));
+      const snap = P.snapshot();
+      expect(snap.layout).toBe('columns2');
+      expect(snap.focused).toBe(1);
+      expect(snap.docs[0] === docA.id && snap.docs[1] === docB.id).toBe(true);
+      P.unsplit();
+      expect(P.count()).toBe(1);
+      P.restore(snap);
+      expect(P.count()).toBe(2);
+      expect(P.layout()).toBe('columns2');
+      expect(P.focused()).toBe(1);
+      expect(P.shownDocs()[0] === docA && P.shownDocs()[1] === docB).toBe(true);
+    }));
+
     it('Ctrl+Alt+arrows move between the panes, and skip an empty one', () => inSplit(async ({ docB }) => {
       const win = PT.win, P = PT.SP.panes;
       win.document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowRight', ctrlKey: true, altKey: true, bubbles: true }));

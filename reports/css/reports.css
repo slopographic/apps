@@ -6,8 +6,7 @@ body {
   color: var(--sl-text, #1d1d1b);
   font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
-.rp-top, .rp-main { max-width: 1100px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
-.rp-top h1 { margin: 4px 0 2px; font-size: 26px; }
+.rp-main { max-width: 1100px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
 .rp-home { color: var(--sl-text-muted, #6b675c); text-decoration: none; font-size: 13px; }
 .rp-lead, .rp-sub { color: var(--sl-text-muted, #6b675c); margin: 4px 0 12px; }
 .rp-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
@@ -49,6 +48,6 @@ button:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2p
 .rp-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .rp-line { padding: 4px 0; }
 @media (max-width: 600px) {
-  .rp-top, .rp-main { padding: 16px; }
+  .rp-main { padding: 16px; }
   .rp-bar button, .rp-bar select { flex: 1 1 auto; }
 }

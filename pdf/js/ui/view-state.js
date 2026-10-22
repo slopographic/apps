@@ -13,6 +13,7 @@
       tool: A.tool, mode: A.mode, pid: Ed.pid || null, zoomMode: Ed.zoomMode, zoom: Ed.zoom, layout: Ed.layoutMode || null,
       noPanel: S.els.app.classList.contains('no-panel'),
       scroll: { grid: grid ? grid.scrollTop : 0, viewer: viewer ? viewer.scrollTop : 0, viewerLeft: viewer ? viewer.scrollLeft : 0 },
+      split: SP.panes ? SP.panes.snapshot() : null,
     };
   }
   var auto = window.SlopSession.autosave(APP, 'view', viewNow, { delay: 300 });
@@ -29,6 +30,7 @@
     await (A.tabsReady || Promise.resolve()).catch(function () {}); // the page is ready once the stored tabs are open
     var v = await window.SlopSession.load(APP, 'view', null).catch(function () { return null; });
     if (v && typeof v === 'object' && E.state.pages.length && !launching) applyView(v);
+    if (v && typeof v === 'object' && v.split && !launching && SP.panes) SP.panes.restore(v.split);
     ready = true;
     document.documentElement.classList.add('ready');
   };

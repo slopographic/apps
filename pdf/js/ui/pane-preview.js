@@ -1,12 +1,14 @@
 /* Slop PDF — a document in a split pane that is not the focused one. It is a read-only preview: the pages are drawn with
- * pdf.js at this pane's own zoom, and it scrolls on its own. Annotations, text and the tools come with the focus: a click
- * on the pane makes it the live editor (ui/panes.js). Pages are drawn when they come into view.
+ * pdf.js at this pane's own zoom, with the page's annotations and its selectable text on top, and it scrolls on its own.
+ * Editing comes with the focus: a click on the pane makes it the live editor (ui/panes.js). Pages are drawn when they come
+ * into view.
  *
- * The engine reads the open document's globals (E.files, E.state) for page sizes. withDoc lends them the preview's document
- * for the moment a size is read, and puts the open document back at once. Classic script; exposes SP.panePreview. */
+ * The engine reads the open document's globals (E.files, E.state) for page sizes and annotations. withDoc lends them the
+ * preview's document for the moment those are read, and puts the open document back at once. Classic script; exposes
+ * SP.panePreview. */
 (function () {
   'use strict';
-  var SP = window.SP, E = SP.engine, U = SP.util;
+  var SP = window.SP, E = SP.engine, U = SP.util, V = SP.view;
   var PV = SP.panePreview = {};
   var ZMIN = 0.2, ZMAX = 8, STEP = 1.25;
 
@@ -18,12 +20,14 @@
   }
   PV.withDoc = withDoc;
 
-  /** The pages of a document as the preview draws them: layout size (points at zoom 1), rotation and the pdf.js page source. */
+  /** The pages of a document as the preview draws them: layout size (points at zoom 1), rotation, the pdf.js page source and
+   *  the page's place in the document (for the annotations that number from it). */
   function pagesOf(doc) {
     return withDoc(doc, function () {
-      return doc.state.pages.map(function (p) {
-        var vs = E.viewSize(p);
-        return { p: p, w: vs.w, h: vs.h, R: E.rotation(p), blank: !!p.blank, file: p.blank ? null : doc.files.get(p.f), index: p.blank ? -1 : p.i };
+      var total = doc.state.pages.length;
+      return doc.state.pages.map(function (p, index) {
+        var g = E.geom(p), vs = E.viewSize(p);
+        return { p: p, index: index, total: total, w: vs.w, h: vs.h, W: g.W, H: g.H, R: E.rotation(p), blank: !!p.blank, file: p.blank ? null : doc.files.get(p.f), page: p.blank ? -1 : p.i };
       });
     });
   }
@@ -54,57 +58,106 @@
       return widest ? cw / widest : 1;
     }
     function show() { pct.textContent = Math.round(zoom * 100 / (96 / 72)) + '%'; }
-    function cancel(entry) { var t = tasks.get(entry); if (t) { try { t.cancel(); } catch (e) { /* already done */ } tasks.delete(entry); } }
-    function drawn(entry) { return entry.zoom === zoom && entry.canvas.dataset.drawn === '1'; }
+    function stop() {
+      gen++;
+      tasks.forEach(function (t) { try { t.cancel(); } catch (e) { /* already done */ } });
+      tasks.clear();
+    }
+    /** The page box, its layer (annotations, text) and its canvas at the zoom. The layer is the editor's: unrotated, then
+     *  turned by the page's rotation. */
+    function size(entry) {
+      var z = zoom;
+      entry.box.style.width = Math.round(entry.p.w * z) + 'px';
+      entry.box.style.height = Math.round(entry.p.h * z) + 'px';
+      entry.layer.style.width = Math.round(entry.p.W * z) + 'px';
+      entry.layer.style.height = Math.round(entry.p.H * z) + 'px';
+      entry.layer.style.transform = V.layerTransform(entry.p.R, entry.p.W, entry.p.H, z);
+    }
 
-    /** One page: its box at the zoom, and its canvas drawn once per zoom when it is near the view. */
+    /** One page's canvas, drawn once per zoom when it is near the view, and its text layer on top. */
     function paint(entry) {
-      if (drawn(entry)) return;
-      cancel(entry);
-      var px = Math.max(1, Math.round(entry.p.w * zoom)), py = Math.max(1, Math.round(entry.p.h * zoom));
+      if (entry.zoom === zoom && entry.canvas.dataset.drawn === '1') return;
+      var mine = gen;
       var c = entry.canvas;
+      var px = Math.max(1, Math.round(entry.p.w * zoom)), py = Math.max(1, Math.round(entry.p.h * zoom));
       c.style.width = px + 'px'; c.style.height = py + 'px';
       c.width = Math.round(px * dpr); c.height = Math.round(py * dpr);
       entry.zoom = zoom; c.dataset.drawn = '0';
       var ctx = c.getContext('2d');
-      var mine = gen;
-      if (entry.p.blank || !entry.p.file || !entry.p.file.doc) { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); c.dataset.drawn = '1'; return; }
-      var pending = entry.p.file.doc.getPage(entry.p.index + 1).then(function (pg) {
-        if (mine !== gen) return;
+      if (entry.p.blank || !entry.p.file || !entry.p.file.doc) {
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        c.dataset.drawn = '1';
+        return;
+      }
+      var pdfPage = entry.p.file.doc.getPage(entry.p.page + 1);
+      pdfPage.then(function (pg) {
+        if (mine !== gen) return null;
         var vp = pg.getViewport({ scale: zoom * dpr, rotation: entry.p.R });
         var task = pg.render({ canvasContext: ctx, viewport: vp });
         tasks.set(entry, task);
-        return task.promise;
-      }).then(function () { if (mine === gen) { c.dataset.drawn = '1'; tasks.delete(entry); } }, function () { tasks.delete(entry); });
-      return pending;
+        return task.promise.then(function () { if (mine === gen) { c.dataset.drawn = '1'; tasks.delete(entry); } });
+      }).then(null, function () { tasks.delete(entry); });
+      textLayer(entry, mine);
+    }
+    /** The page's text, as pdf.js lays it out (selectable, in the page's own layer, unrotated like the editor's). */
+    function textLayer(entry, mine) {
+      if (entry.p.blank || !entry.p.file || !entry.p.file.doc) return;
+      var old = entry.layer.querySelector('.pv-textlayer');
+      if (old) old.remove();
+      E.pdfjs().then(function (lib) {
+        return entry.p.file.doc.getPage(entry.p.page + 1).then(function (pg) {
+          return pg.getTextContent().then(function (tc) {
+            if (mine !== gen || !entry.layer.isConnected) return;
+            var vp = pg.getViewport({ scale: zoom, rotation: 0 });
+            var div = U.h('div', { class: 'pv-textlayer textLayer' });
+            div.style.setProperty('--scale-factor', String(zoom));
+            div.style.setProperty('--total-scale-factor', String(zoom));
+            div.style.setProperty('--scale-round-x', '1px');
+            div.style.setProperty('--scale-round-y', '1px');
+            entry.layer.insertBefore(div, entry.svg);
+            return new lib.TextLayer({ textContentSource: tc, container: div, viewport: vp }).render();
+          });
+        });
+      }).then(null, function () { /* no text layer: the page still shows */ });
+    }
+    /** The annotations of a page, painted from the document they belong to (the editor's own painter). */
+    function annotate(entry) {
+      withDoc(cur, function () { V.paintAnnots(entry.svg, entry.p.p, entry.p.index, entry.p.total, {}); });
     }
     function watch() {
       if (io) io.disconnect();
       io = new IntersectionObserver(function (list) {
-        list.forEach(function (x) { if (x.isIntersecting) paint(x.target.__entry); else cancel(x.target.__entry); });
+        list.forEach(function (x) { if (x.isIntersecting) paint(x.target.__entry); else cancelPage(x.target.__entry); });
       }, { root: body, rootMargin: '400px 0px' });
       pages.forEach(function (e) { io.observe(e.box); });
     }
+    function cancelPage(entry) {
+      var t = tasks.get(entry);
+      if (t) { try { t.cancel(); } catch (e) { /* done */ } tasks.delete(entry); }
+    }
     function build() {
-      gen++;
-      tasks.forEach(function (t) { try { t.cancel(); } catch (e) { /* done */ } }); tasks.clear();
+      stop();
       body.replaceChildren();
       pages = [];
       note.textContent = '';
       if (!cur) { note.textContent = 'Open a document here from the strip, or pick it in the pane list.'; return; }
       if (cur.pending) { note.textContent = 'Open this document to see its pages.'; return; }
       pages = pagesOf(cur).map(function (pg) {
-        var box = U.h('div', { class: 'pv-pv-page' }), canvas = U.h('canvas', { class: 'pv-pv-canvas', 'aria-label': 'Page ' + (pages.length + 1) });
-        box.append(canvas);
+        var box = U.h('div', { class: 'pv-pv-page' });
+        var canvas = U.h('canvas', { class: 'pv-pv-canvas', 'aria-label': 'Page ' + (pg.index + 1) });
+        var layer = U.h('div', { class: 'sheet-layer' });
+        var svg = U.s('svg', { class: 'sheet-svg pv-svg', preserveAspectRatio: 'none' });
+        layer.append(svg);
+        box.append(canvas, layer);
         body.append(box);
-        var entry = { p: pg, box: box, canvas: canvas, zoom: 0 };
+        var entry = { p: pg, box: box, canvas: canvas, layer: layer, svg: svg, zoom: 0 };
         box.__entry = entry;
         return entry;
       });
       if (!pages.length) note.textContent = 'This document has no pages.';
       if (fitting) zoom = fitZoom();
       show();
-      pages.forEach(function (e) { e.box.style.width = Math.round(e.p.w * zoom) + 'px'; e.box.style.height = Math.round(e.p.h * zoom) + 'px'; });
+      pages.forEach(function (e) { size(e); annotate(e); });
       watch();
     }
     function setZoom(z, keepFit) {
@@ -113,12 +166,8 @@
       if (next === zoom && pages.length) return;
       zoom = next;
       show();
-      gen++;   // canvases drawn at the old zoom are stale
-      tasks.forEach(function (t) { try { t.cancel(); } catch (e) { /* done */ } }); tasks.clear();
-      pages.forEach(function (e) {
-        e.box.style.width = Math.round(e.p.w * zoom) + 'px'; e.box.style.height = Math.round(e.p.h * zoom) + 'px';
-        e.canvas.dataset.drawn = '0';
-      });
+      stop();   // canvases and text drawn at the old zoom are stale
+      pages.forEach(function (e) { size(e); e.canvas.dataset.drawn = '0'; });
       watch();
     }
 
@@ -135,18 +184,16 @@
     return {
       el: root,
       doc: function () { return cur; },
-      /** Shows another document (or none) in this pane, with the same zoom where it fits. */
+      /** Shows another document (or none) in this pane. */
       setDoc: function (d, title) {
         cur = d || null;
         if (title) name.textContent = title;
         build();
       },
-      setTitle: function (t) { name.textContent = t; },
       setZoom: function (z) { setZoom(z); },
       zoom: function () { return zoom; },
       destroy: function () {
-        gen++;
-        tasks.forEach(function (t) { try { t.cancel(); } catch (e) { /* done */ } }); tasks.clear();
+        stop();
         if (io) io.disconnect();
         root.remove();
       },

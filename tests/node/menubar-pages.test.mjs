@@ -20,7 +20,8 @@ const walk = (dir, ext, out = []) => {
 const rel = (f) => path.relative(ROOT, f);
 const barPages = walk(ROOT, '.html').filter((f) => /menubar\/menubar\.js/.test(readFileSync(f, 'utf8')));
 // Header classes the bar replaced. A page or script that still uses one of these is looking for a header that is gone.
-const OLD = ['em-top', 'hx-top', 'sc-top', 'st-top', 'rp-top', 'nt-top', 'pb-top', 'ocr-top', 'sl-appbar', 'sn-top', 'topbar', 'menubar'];
+// Notes and Paste keep nt-top and pb-top as the row that holds their tabs and status; label keeps menubar as the bar's host.
+const OLD = ['em-top', 'hx-top', 'sc-top', 'st-top', 'rp-top', 'ocr-top', 'sl-appbar', 'sn-top', 'topbar'];
 
 test('every id the menu bar names is on its page', () => {
   const missing = [];
@@ -57,13 +58,12 @@ test('the view-mode routes of the migrated apps name the bar, not a removed head
   for (const [file, text] of Object.entries(routes)) assert.ok(readFileSync(path.join(ROOT, file), 'utf8').includes(text), file);
 });
 
-test('no script or page in a migrated app still looks up a header class the bar replaced', () => {
+test('no stylesheet, script or page in a migrated app still uses a header class the bar replaced', () => {
   const folders = new Set(barPages.map((p) => path.relative(ROOT, path.dirname(p)).split(path.sep)[0]));
   const hits = [];
   for (const folder of folders) {
     for (const file of [...walk(path.join(ROOT, folder), '.js'), ...walk(path.join(ROOT, folder), '.css'), ...walk(path.join(ROOT, folder), '.html')]) {
       const src = readFileSync(file, 'utf8');
-      if (file.endsWith('.css')) continue;   // dead header rules in stylesheets are listed for cleanup, not enforced here
       for (const cls of OLD) if (new RegExp(`\\.${cls}\\b`).test(src)) hits.push(`${rel(file)} .${cls}`);
     }
   }

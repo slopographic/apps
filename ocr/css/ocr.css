@@ -14,7 +14,6 @@ body { margin: 0; background: var(--ocr-paper); color: var(--ocr-ink); font: 15p
 .ocr-app *, .ocr-app *::before, .ocr-app *::after { box-sizing: border-box; }
 .ocr-app :focus-visible { outline: 2px solid var(--ocr-hi); outline-offset: 2px; }
 
-.ocr-top { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: flex-end; justify-content: space-between; margin-bottom: 14px; }
 .ocr-app h1 { font-size: 26px; margin: 0 0 2px; line-height: 1.2; }
 .ocr-tag, .ocr-meta, .ocr-msg { color: var(--ocr-muted); font-size: 13px; margin: 4px 0; }
 .ocr-link { color: var(--ocr-ink); text-decoration: none; border: 1px solid var(--ocr-edge); border-radius: 8px; padding: 6px 10px; background: var(--ocr-card); }

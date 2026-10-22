@@ -1,7 +1,6 @@
 /* Slopnodes: the page, the canvas and the boxes. Colours come from the theme (--sl-*). Each node type has its own colour. */
 :root { --sn-value: #2563eb; --sn-formula: #7c3aed; --sn-output: #15803d; --sn-note: #ca8a04; --sn-err: #b91c1c; }
 body { margin: 0; background: var(--sl-background, #f6f6f4); color: var(--sl-text, #1b1b1f); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
-.sn-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 10px 14px 8px; }
 .sn-brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
 .sn-brand h1 { margin: 0; font-size: 1.25rem; letter-spacing: -.01em; }
 .sn-project { color: color-mix(in srgb, var(--sl-text, #1b1b1f) 60%, transparent); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }

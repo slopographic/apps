@@ -153,7 +153,9 @@ export async function build({ date }) {
   const out = [];
   for (const p of pages) {
     const before = await readFile(p.file, 'utf8');
-    const addViewport = !/<meta[^>]+name=["']viewport["']/i.test(before);
+    // A viewport tag outside the generated block is the page's own: the block then leaves it alone. A tag inside the block is kept.
+    const outside = before.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, '');
+    const addViewport = !/<meta[^>]+name=["']viewport["']/i.test(outside);
     const after = injectHead(before, headBlock({ ...p.block, viewport: addViewport }));
     out.push({ file: p.file, html: after, before });
   }
@@ -179,7 +181,9 @@ async function sitemap(apps, date, extra) {
   urls.push(...extra);
   // Keep the pages that are not app pages (the convert converters and hub) as they are.
   for (const m of old.matchAll(/<loc>([^<]+)<\/loc>/g)) if (!urls.includes(m[1])) urls.push(m[1]);
-  const body = [...new Set(urls)].map((u) => `  <url><loc>${u}</loc><lastmod>${date}</lastmod></url>`).join('\n');
+  // A URL keeps the date it was last written with; only a new URL gets this run's date, so the file changes when the pages do.
+  const dated = new Map([...old.matchAll(/<loc>([^<]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g)].map((m) => [m[1], m[2]]));
+  const body = [...new Set(urls)].map((u) => `  <url><loc>${u}</loc><lastmod>${dated.get(u) || date}</lastmod></url>`).join('\n');
   const html = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
   return { file, html, before: old };
 }

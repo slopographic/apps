@@ -161,7 +161,37 @@
     step(e.key === 'ArrowLeft' ? -1 : 1);
   });
 
+  /** The split as it is, for the saved view: the layout, the focused pane and the document each pane shows (by its id). */
+  function snapshot() {
+    if (count < 2) return null;
+    var docs = [];
+    for (var i = 0; i < count; i++) { var d = i === focused ? DT.current() : paneDoc[i]; docs.push(d ? d.id : null); }
+    return { layout: layoutKey, focused: focused, docs: docs };
+  }
+  /** Brings a saved split back, once the stored tabs are open. The saved focused document becomes the live one first, so the
+   *  split is built around the pane that holds it; a document that is no longer open leaves its pane empty. */
+  function restore(s) {
+    if (!s || !LAYOUTS[s.layout] || LAYOUTS[s.layout][0] < 2 || !api()) return;
+    var n = LAYOUTS[s.layout][0], kind = LAYOUTS[s.layout][1];
+    var list = openDocs().map(function (t) { return t.doc; });
+    var byId = function (id) { return list.find(function (d) { return d.id === id; }) || null; };
+    var docs = (s.docs || []).map(byId);
+    var want = s.focused > 0 && s.focused < n && docs[s.focused] ? s.focused : 0;
+    switching = true;   // the swaps and the focus below are the restore's own: the focus handler stays out
+    try {
+      if (docs[want] && docs[want] !== DT.current()) api().activate(docs[want]);
+      focused = want;
+      split(n, kind);
+      for (var i = 0; i < count; i++) if (i !== focused && docs[i]) showPreview(i, docs[i]);
+      ws.focus(focused);
+      placeViewer();
+      relayout();
+    } finally { switching = false; }
+  }
+
   SP.panes = {
+    snapshot: snapshot,
+    restore: restore,
     split: split,
     setLayout: function (key) {
       var spec = LAYOUTS[key];

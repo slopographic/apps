@@ -8,16 +8,6 @@
 }
 .h2p-app *, .h2p-app *::before, .h2p-app *::after { box-sizing: border-box; }
 
-/* Header bar (the plain fallback: shared/appbar/ is not in this repo) */
-.sl-appbar {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 10px 16px; background: var(--sl-surface); border-bottom: 1px solid var(--sl-border);
-}
-.sl-appbar h1 { margin: 0; font-size: 17px; font-weight: 650; }
-.sl-appbar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.sl-appbar-logo { width: 22px; height: 22px; border-radius: 6px; background: var(--sl-accent); flex: none; }
-.sl-appbar-tag { font-size: 12px; opacity: .7; }
-.sl-appbar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* Layout: options on the left, preview on the right; one column on a phone */
 .h2p-main { display: grid; grid-template-columns: 300px minmax(0, 1fr); flex: 1; min-height: 0; }
@@ -58,5 +48,4 @@ textarea.h2p-input { resize: vertical; font-family: ui-monospace, Menlo, Consola
   .h2p-main { grid-template-columns: minmax(0, 1fr); }
   .h2p-side { border-right: 0; border-bottom: 1px solid var(--sl-border); }
   .h2p-stage { padding: 16px; }
-  .sl-appbar { padding: 10px 16px; }
 }

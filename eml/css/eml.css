@@ -8,7 +8,6 @@ body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 
 .sui-btn[aria-pressed="true"] { background: var(--sl-accent); color: var(--sl-on-accent); border-color: var(--sl-accent); }
 
 /* Header */
-.em-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 14px; border-bottom: 1px solid var(--sl-border); background: var(--sl-surface); }
 .em-brand { display: flex; align-items: center; gap: 8px; }
 .em-brand h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: .01em; }
 .em-logo { width: 14px; height: 14px; border-radius: 3px; background: var(--sl-accent); }
@@ -81,7 +80,6 @@ button.em-att-info:focus-visible { outline: 2px solid var(--sl-accent); outline-
 
 /* Phone: the header stacks, and the page itself does not scroll sideways */
 @media (max-width: 600px) {
-  .em-top { padding: 8px 10px; }
   .em-tools { margin-left: 0; width: 100%; }
   .em-msg { padding: 10px; }
   .em-head { grid-template-columns: minmax(0, 1fr); }

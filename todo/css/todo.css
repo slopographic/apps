@@ -33,12 +33,10 @@ body { min-height: 100vh; }
 .btn, .tb-btn { background: var(--chip); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; font: inherit; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .btn.small { padding: 4px 8px; font-size: 13px; }
-.topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
 .brand-mark { width: 26px; height: 26px; fill: var(--accent); }
 .appname b { font-size: 16px; margin-right: 8px; }
 .home-link { color: var(--mute); font-size: 13px; }
 .local-badge { font-size: 12px; color: var(--mute); border: 1px solid var(--line); border-radius: 99px; padding: 2px 8px; }
-.topbar .tb-btn { margin-left: auto; }
 .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: calc(100vh - 56px); }
 .side { border-right: 1px solid var(--line); padding: 12px; background: var(--panel); }
 .side-list { list-style: none; padding: 0; margin: 0 0 10px; }
