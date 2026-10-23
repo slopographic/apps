@@ -90,6 +90,8 @@
       if (window.getSelection) window.getSelection().removeAllRanges(); // the text is now the annotation
       Ed.select(d.text.id);
       S.startEdit(e, h);
+      // the movement that lifted the text moves it too: a quick drag may send only this one move before the release
+      S.pageEl.dispatchEvent(new PointerEvent('pointermove', { clientX: ev.clientX, clientY: ev.clientY, pointerId: ev.pointerId, pointerType: ev.pointerType, isPrimary: true, buttons: 1, bubbles: true }));
     }
     S.pageEl.addEventListener('pointermove', mv); S.pageEl.addEventListener('pointerup', cleanup); S.pageEl.addEventListener('pointercancel', cleanup);
   };

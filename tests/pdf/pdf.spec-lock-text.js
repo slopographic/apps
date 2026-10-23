@@ -210,7 +210,13 @@
       click(doc().querySelector('.sel-box.is-text'));
       await sleep(40);
       expect(PT.E.state.pages[0].annots.length).toBe(count);
-      drag(doc().querySelector('.sel-box.is-text'), 40, 0);
+      // the press goes to what is on top at the box's centre, as a mouse's does (the text layer must not take it)
+      const bc = centre(doc().querySelector('.sel-box.is-text')), top = doc().elementFromPoint(bc.clientX, bc.clientY);
+      expect(!!top.closest('.sel-box.is-text')).toBe(true);
+      // one move between the press and the release, as a quick drag (or an automated one) sends: it must still move the text
+      top.dispatchEvent(pe('pointerdown', bc));
+      pageEl().dispatchEvent(pe('pointermove', { clientX: bc.clientX + 40, clientY: bc.clientY }));
+      pageEl().dispatchEvent(pe('pointerup', { clientX: bc.clientX + 40, clientY: bc.clientY, buttons: 0 }));
       await sleep(60);
       const lifted = PT.E.state.pages[0].annots.filter((a) => a.type === 'text' && a.text === 'Hello world');
       expect(lifted.length).toBe(1);
