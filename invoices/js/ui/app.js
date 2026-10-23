@@ -7,22 +7,17 @@
   const UI = g.SlopUI;
   const $ = (id) => document.getElementById(id);
   const VIEWS = ['list', 'edit', 'print', 'data'];
-  let timer = 0;
+  let timer = 0, tabs = null;
 
-  /** Shows one view and marks its tab. The invoice tab exists only while an invoice is open. */
+  /** Shows one view and marks its tab (SlopTabs, shared/ui/tabs.js). The invoice and print tabs exist only while one is open. */
   function show(name, arg) {
     if (!VIEWS.includes(name)) return undefined;
     NS.state.view = name;
     document.querySelector('.app').dataset.view = name;
-    for (const v of VIEWS) {
-      const el = $(`view-${v}`);
-      if (el) el.hidden = v !== name;
-      const t = $(`tab-${v}`);
-      if (t) { t.setAttribute('aria-selected', String(v === name)); t.tabIndex = v === name ? 0 : -1; }
-    }
     $('tab-edit').hidden = name !== 'edit';
-  if (window.SlopLayouts) SlopLayouts.refresh('invoices');
     $('tab-print').hidden = name !== 'print';
+    tabs.show(name);
+    if (window.SlopLayouts) SlopLayouts.refresh('invoices');
     const view = NS.views[name];
     const out = view && view.onShow ? view.onShow(arg) : undefined;
     // The list beside an open invoice marks that invoice's row: redraw once the invoice has opened.
@@ -75,13 +70,13 @@
       return;
     }
     $('boot').hidden = true;
+    // a tab click or the tab keys route through the #hash, which shows the view (route); the print tab stays on its invoice
+    tabs = g.SlopTabs.mount(document.querySelector('.tabs'), {
+      select: (n) => go(n === 'edit' ? NS.editor.route() : n === 'print' ? location.hash.slice(1) : n) });
     for (const name of VIEWS) if (NS.views[name] && NS.views[name].mount) NS.views[name].mount();
     NS.commands.init();
     mountTopbar();
     if (g.SlopHub) { try { SlopHub.register('invoices'); } catch (e) { /* the hub is optional */ } }
-    for (const t of document.querySelectorAll('.tab')) {
-      t.addEventListener('click', () => go(t.dataset.view === 'edit' ? NS.editor.route() : t.dataset.view));
-    }
     S.store.subscribe(redrawList);
     addEventListener('hashchange', route);
     await route();

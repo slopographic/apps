@@ -26,6 +26,7 @@
   <script src="../../vendor/pdf-lib/pdf-lib.min.js"></script>
   <script src="../../shared/docs/pdf-render.js"></script>
   <script src="../../shared/docs/paper.js"></script>
+  <script src="../../shared/biz/biz.js"></script>
   <script src="../../invoices/js/core/util.js"></script>
   <script src="../../invoices/js/core/invoices.js"></script>
   <script src="../../invoices/js/core/context.js"></script>
@@ -141,7 +142,7 @@
       expect(rows).toHaveLength(1);
       expect(rows[0].balance).toBe(2000);
       const due = NS.invoices.outstanding(must(await NS.invoices.list({})));
-      expect(due).toEqual([{ customerName: 'Acme Ltd', currency: 'USD', due: 2000, count: 1, overdue: 2000 }]);
+      expect(due).toEqual([{ key: 'Acme Ltd\u0000USD', customerName: 'Acme Ltd', currency: 'USD', due: 2000, count: 1, overdue: 2000 }]);
     });
     it('an order can be invoiced from the orders data: the draft copies its lines and keeps the link', async () => {
       const c = await customer();

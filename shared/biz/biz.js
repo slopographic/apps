@@ -1,6 +1,6 @@
 // SlopBiz: the helpers every business app needs on top of SlopData (shared/data): one readable line for a refused
 // Result, the settings an app shows (currency, locale, tax, company), money in the person's currency and locale, and the
-// expense accounts of the chart. Orders, Invoices, Inventory and CRM keep copies of refusal(); new apps use this one.
+// expense accounts of the chart, the command wiring and a DOM builder. Every business app uses these (no copies).
 // Classic script, loaded after shared/data. Exposes window.SlopBiz (and module.exports for the Node tests).
 (function (g) {
   'use strict';
@@ -14,7 +14,8 @@
   };
 
   /** One readable line for a failed Result: the field errors when there are any, else the plain words for its code and the
-   *  data layer's message. opts.plain and opts.fields (field id -> label) let an app use its own words. */
+   *  data layer's message. opts.plain and opts.fields (field id -> label) let an app use its own words; opts.brackets puts the
+   *  message in brackets after the words instead of after a colon. */
   function refusal(r, opts = {}) {
     if (!r) return 'Something went wrong';
     const fields = opts.fields || {};
@@ -22,18 +23,19 @@
       return r.errors.map((e) => (e.field ? `${fields[e.field] || e.field} ${e.message}` : e.message)).join('. ');
     }
     const head = (opts.plain || {})[r.code] || PLAIN[r.code];
-    if (head) return r.message ? `${head}: ${r.message}` : head;
+    if (head) return !r.message ? head : opts.brackets ? `${head} (${r.message})` : `${head}: ${r.message}`;
     return r.message || 'Something went wrong';
   }
 
   const data = () => g.SlopData;
 
-  /** The settings an app shows: currency, locale, default tax rate and the company block. Defaults when nothing is stored. */
+  /** The settings an app shows: currency, locale, default tax rate, payment terms and the company block. Defaults when nothing
+   *  is stored. */
   async function settings() {
     const S = data(), r = await S.store.get('settings', 'main');
     const s = r.ok && r.value ? r.value : S.schema.DEFAULT_SETTINGS;
     return { currency: s.defaultCurrency || 'USD', locale: s.locale || 'en-US', defaultTaxRate: s.defaultTaxRate || 0,
-      companyName: s.companyName || '', address: s.address || '', taxNumber: s.taxNumber || '' };
+      paymentTermsDays: s.paymentTermsDays ?? 30, companyName: s.companyName || '', address: s.address || '', taxNumber: s.taxNumber || '' };
   }
 
   /** Minor units as money text in a currency and locale ("€24.00"). */
@@ -71,7 +73,26 @@
     return run;
   }
 
-  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands };
+  /** Small DOM builder: h('a', { class, href, text, dataset, onclick }, 'text', child). Text children are escaped by the DOM. */
+  function h(tag, attrs, ...kids) {
+    const e = g.document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === false || v === null || v === undefined) continue;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+      else if (k === 'dataset') Object.assign(e.dataset, v);
+      else if (v === true) e.setAttribute(k, '');
+      else e.setAttribute(k, String(v));
+    }
+    for (const c of kids.flat()) {
+      if (c === null || c === undefined || c === false) continue;
+      e.append(c instanceof g.Node ? c : g.document.createTextNode(String(c)));
+    }
+    return e;
+  }
+
+  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands, h };
   g.SlopBiz = api;
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

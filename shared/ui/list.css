@@ -12,6 +12,10 @@
   background: var(--sui-chip, var(--chip, rgba(127, 127, 127, .18))); }
 .sl-chip.good { color: var(--sui-ok, var(--ok, #3fa34d)); }
 .sl-chip.warn { color: var(--sui-warn, var(--warn, #c08a00)); }
+.sl-chip.bad { color: var(--sui-danger, var(--danger, #e5484d)); font-weight: 600; }
+.sl-row.is-overdue { box-shadow: inset 3px 0 0 var(--sui-danger, var(--danger, #e5484d)); }
 .sl-chip.void { color: var(--sui-mute, var(--mute, #8a8a8a)); text-decoration: line-through; }
 .sl-row.is-void .sl-title, .sl-row.is-void .sl-amount { color: var(--sui-mute, var(--mute, #8a8a8a)); text-decoration: line-through; }
+.sl-row.is-selected { background: color-mix(in srgb, var(--sui-accent, var(--accent, #d4ff3a)) 14%, transparent); box-shadow: inset 3px 0 0 var(--sui-accent, var(--accent, #d4ff3a)); }
+.sl-list.is-static .sl-row { cursor: default; }
 .sl-empty { margin: 24px 12px; color: var(--sui-mute, var(--mute, #8a8a8a)); }

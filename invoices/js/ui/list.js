@@ -1,5 +1,6 @@
-// Invoices list: status filter (draft, issued, paid, void, overdue), search, overdue rows highlighted, the outstanding
-// balance per customer, and a row menu. "From an order" creates a draft from a confirmed or fulfilled order.
+// Invoices list: status filter (draft, issued, paid, void, overdue), search, overdue rows marked, the outstanding balance
+// per customer, and a row menu; both lists are SlopList (shared/ui/list.js). "From an order" creates a draft from a
+// confirmed or fulfilled order.
 (function (g) {
   'use strict';
   const S = g.SlopData;
@@ -9,43 +10,35 @@
   const UI = g.SlopUI;
   const h = U.h;
   const $ = (id) => document.getElementById(id);
-  let rowsById = new Map();
+  let list = null, owed = null, settings = null, openId = null;
 
   async function draw() {
     if (!$('view-list') || $('view-list').hidden) return;
-    const s = await U.settings();
+    settings = await U.settings();
     const r = await NS.invoices.list({ status: $('iStatus').value, search: $('iSearch').value });
     if (!r.ok) { $('iSummary').textContent = U.refusal(r); return; }
     const all = await NS.invoices.list({});
-    rowsById = new Map(r.value.map((x) => [x.id, x]));
-    const openId = NS.state.view === 'edit' ? NS.editor.id() : null;
-    $('iRows').replaceChildren(...r.value.map((x) => row(x, s, x.id === openId)));
-    $('iEmpty').hidden = r.value.length > 0;
-    $('iSummary').textContent = `${r.value.length} invoice${r.value.length === 1 ? '' : 's'}`;
-    const due = all.ok ? NS.invoices.outstanding(all.value) : [];
-    $('iOutstanding').replaceChildren(...(due.length ? due.map((d) => outRow(d, s)) : [h('p', { class: 'empty', text: 'Nothing is owed. Every issued invoice is paid or void.' })]));
+    openId = NS.state.view === 'edit' ? NS.editor.id() : null;
+    list.set(r.value);
+    owed.set(all.ok ? NS.invoices.outstanding(all.value) : []);
   }
 
-  function row(x, s, open) {
-    const cls = `orow${x.overdue ? ' overdue' : ''}${open ? ' sel' : ''}`;
-    const label = x.overdue ? 'Overdue' : NS.preview.STATUS[x.status];
-    return h('div', { class: cls, role: 'row', tabindex: 0, dataset: { id: x.id }, 'aria-selected': open ? 'true' : null },
-      h('span', { class: 'who', text: `${x.number || 'draft'} · ${x.customerName}` }),
-      h('span', { class: 'amt num', text: U.money(x.total, x.currency || s.currency, s.locale) }),
-      h('div', { class: 'meta' },
-        h('span', { class: `chip ${x.overdue ? 'overdue' : x.status}`, text: label }),
-        h('span', { text: x.dueDate ? `Due ${x.dueDate}` : x.date }),
-        x.status === 'issued' ? h('span', { text: `Balance ${U.money(x.balance, x.currency, s.locale)}` }) : null,
-        x.orderId ? h('span', { text: 'from order' }) : null,
-        x.sample ? h('span', { class: 'chip sample', text: 'Sample' }) : null));
+  /** One invoice as a SlopList row: number and customer, the total, its status (overdue first), due date, balance and links.
+   *  The invoice open beside the list is the selected row. */
+  function row(x) {
+    const s = settings;
+    return { title: `${x.number || 'draft'} · ${x.customerName}`, amount: U.money(x.total, x.currency || s.currency, s.locale),
+      cls: x.overdue ? 'is-overdue' : '', selected: x.id === openId,
+      meta: [{ chip: x.overdue ? 'Overdue' : NS.preview.STATUS[x.status], cls: x.overdue ? 'bad' : { paid: 'good', void: 'void' }[x.status] || '' },
+        x.dueDate ? `Due ${x.dueDate}` : x.date, x.status === 'issued' ? `Balance ${U.money(x.balance, x.currency, s.locale)}` : null,
+        x.orderId ? 'from order' : null, x.sample ? { chip: 'Sample', cls: 'warn' } : null] };
   }
 
-  function outRow(d, s) {
-    return h('div', { class: 'orow', role: 'row' },
-      h('span', { class: 'who', text: d.customerName }),
-      h('span', { class: 'amt num', text: U.money(d.due, d.currency, s.locale) }),
-      h('div', { class: 'meta' }, h('span', { text: `${d.count} invoice${d.count === 1 ? '' : 's'}` }),
-        d.overdue ? h('span', { class: 'bad-text', text: `${U.money(d.overdue, d.currency, s.locale)} overdue` }) : null));
+  /** What one customer owes: the total due, the number of invoices, and the overdue part. */
+  function owedRow(d) {
+    const s = settings;
+    return { title: d.customerName, amount: U.money(d.due, d.currency, s.locale),
+      meta: [`${d.count} invoice${d.count === 1 ? '' : 's'}`, d.overdue ? { chip: `${U.money(d.overdue, d.currency, s.locale)} overdue`, cls: 'bad' } : null] };
   }
 
   async function run(promise, okText) {
@@ -105,19 +98,10 @@
     $('iEmptyNew').addEventListener('click', () => NS.app.go('new'));
     $('iFromOrder').addEventListener('click', fromOrder);
     NS.sampleActions.mount();
-    const box = $('iRows');
-    box.addEventListener('click', (e) => { const r = e.target.closest('[data-id]'); if (r) NS.app.go(`i/${r.dataset.id}`); });
-    box.addEventListener('keydown', (e) => {
-      const r = e.target.closest && e.target.closest('[data-id]');
-      if (r && e.key === 'Enter') NS.app.go(`i/${r.dataset.id}`);
-    });
-    if (g.SlopCtx) {
-      SlopCtx.bind(box, (target) => {
-        const r = target && target.closest ? target.closest('[data-id]') : null;
-        const x = r && rowsById.get(r.dataset.id);
-        return x ? menuFor(x) : null;
-      });
-    }
+    list = g.SlopList.mount($('iRows'), { label: 'Invoices', noun: ['invoice', 'invoices'], summary: $('iSummary'), empty: $('iEmpty'),
+      row, open: (x) => NS.app.go(`i/${x.id}`), menu: menuFor });
+    owed = g.SlopList.mount($('iOutstanding'), { key: 'key', label: 'Outstanding balances', noun: ['customer', 'customers'],
+      empty: 'Nothing is owed. Every issued invoice is paid or void.', row: owedRow });
   }
 
   NS.views = NS.views || {};

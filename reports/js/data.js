@@ -1,11 +1,11 @@
 /* Slop Reports: reads the data the reports need. Read-only: it opens the shared database without creating it and never
- * writes. Contacts, Invoices and CRM keep their records in one database, 'slop-data' (shared/data/store.js, DB_NAME),
+ * writes. Contacts, Invoices, Expenses, the ledger and CRM keep their records in one database, 'slop-data' (shared/data/store.js, DB_NAME),
  * in the stores below. Soft-deleted rows (deletedAt) are dropped here. Classic script: sets window.SlopReports.loadData. */
 (function (g) {
   'use strict';
   const ns = (g.SlopReports = g.SlopReports || {});
   const DB_NAME = 'slop-data';
-  const STORES = ['customers', 'customerGroups', 'customerTags', 'invoices', 'payments', 'settings'];
+  const STORES = ['customers', 'customerGroups', 'customerTags', 'invoices', 'payments', 'expenses', 'accounts', 'journal', 'settings'];
 
   const alive = (rows) => (rows || []).filter((r) => !r.deletedAt);
 
@@ -25,8 +25,8 @@
     }
   }
 
-  /** True when there is at least one contact, invoice or CRM record to report on. */
-  const hasData = (counts) => ['customers', 'invoices'].some((s) => (counts[s] || 0) > 0);
+  /** True when there is at least one contact, invoice, expense, journal entry or CRM record to report on. */
+  const hasData = (counts) => ['customers', 'invoices', 'expenses', 'journal'].some((s) => (counts[s] || 0) > 0);
 
   ns.loadData = loadData;
   ns.hasData = hasData;

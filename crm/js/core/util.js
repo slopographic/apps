@@ -20,13 +20,6 @@
     return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
   }
 
-  /** Base currency and locale from the shared settings record. */
-  async function settings() {
-    const r = await S.store.get('settings', 'main');
-    const v = r.ok && r.value ? r.value : {};
-    return { defaultCurrency: v.defaultCurrency || 'USD', locale: v.locale || 'en-US' };
-  }
-
   /** "a, b ,c" -> ['a', 'b', 'c'] (blanks dropped, duplicates removed). */
   function tags(text) {
     return [...new Set(String(text || '').split(',').map((s) => s.trim()).filter(Boolean))];
@@ -39,7 +32,7 @@
 
   NS.STAGES = STAGES;
   NS.stageLabel = (s) => STAGE_LABEL[s] || s;
-  NS.util = { STAGES, STAGE_LABEL, today, isDate, settings, tags, refusal,
-    money: (minor, cur, loc) => S.money.formatMinor(minor, cur, loc),
+  // Settings (currency, locale) and money are SlopBiz's (shared/biz/biz.js).
+  NS.util = { STAGES, STAGE_LABEL, today, isDate, settings: g.SlopBiz.settings, tags, refusal, money: g.SlopBiz.money,
     date: (iso, loc) => S.locale.formatDate(iso, loc) };
 })(typeof window !== 'undefined' ? window : globalThis);

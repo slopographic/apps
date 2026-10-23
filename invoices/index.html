@@ -39,6 +39,9 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/docs/paper.css">
+  <link rel="stylesheet" href="../shared/biz/app.css">
+  <link rel="stylesheet" href="../shared/ui/list.css">
+  <link rel="stylesheet" href="../shared/docs/lines.css">
   <link rel="stylesheet" href="css/invoices.css">
   <link rel="stylesheet" href="css/workspace.css">
   <script src="../shared/guard.js" defer></script>
@@ -82,10 +85,10 @@
           <button type="button" class="btn danger" id="iDelSamples">Delete all samples</button>
         </div>
         <h2 class="h2">Owed by customer</h2>
-        <div class="table" id="iOutstanding" aria-label="Outstanding balances"></div>
+        <div class="table" id="iOutstanding"></div>
         <h2 class="h2">Invoices</h2>
         <p class="note" id="iSummary" role="status"></p>
-        <div class="table" role="table" aria-label="Invoices"><div id="iRows" role="rowgroup"></div></div>
+        <div class="table" id="iRows"></div>
         <div class="empty-state" id="iEmpty" hidden>
           <p>No invoices match. Start one with New invoice, or from an order.</p>
           <button type="button" class="btn primary" id="iEmptyNew">New invoice</button>
@@ -184,12 +187,15 @@
   <script src="../shared/ctxmenu.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="../vendor/pdf-lib/pdf-lib.min.js"></script>
+  <script src="../shared/biz/biz.js"></script>
   <script src="js/core/util.js"></script>
   <script src="js/core/invoices.js"></script>
   <script src="js/core/context.js"></script>
   <script src="js/core/pdf.js"></script>
   <script src="js/core/samples.js"></script>
   <script src="js/ui/preview.js"></script>
+  <script src="../shared/ui/list.js"></script>
+  <script src="../shared/ui/tabs.js"></script>
   <script src="js/ui/list.js"></script>
   <script src="js/ui/samples.js"></script>
   <script src="js/ui/payment-dialog.js"></script>

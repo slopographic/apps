@@ -1,37 +1,30 @@
-// Orders list: search, status filter, one row per order, and a right-click (or Menu key) menu per row.
-// Every action is a SlopOrders action (core/actions.js, core/fulfil.js), so the list and the editor agree.
+// Orders list: search, status filter, one row per order (SlopList, shared/ui/list.js: click or Enter opens it, the arrows
+// move, right-click or the Menu key opens its menu). Every action is a SlopOrders action (core/actions.js, core/fulfil.js),
+// so the list and the editor agree.
 (function (g) {
   'use strict';
   const NS = (g.SlopOrders = g.SlopOrders || {});
   const U = NS.util;
   const M = g.SlopDocs.model;
   const UI = g.SlopUI;
-  const h = U.h;
   const $ = (id) => document.getElementById(id);
-  let rowsById = new Map();
+  const CHIP = { open: '', fulfilled: 'good', cancelled: 'void' }; // SlopList chip classes per status
+  let list = null, settings = null;
 
   async function draw() {
     if (!$('view-list') || $('view-list').hidden) return;
-    const s = await U.settings();
+    settings = await U.settings();
     const r = await NS.orders.list({ status: $('oStatus').value, search: $('oSearch').value });
     if (!r.ok) { $('oSummary').textContent = U.refusal(r); return; }
-    rowsById = new Map(r.value.map((x) => [x.id, x]));
-    $('oRows').replaceChildren(...r.value.map((x) => row(x, s)));
-    $('oEmpty').hidden = r.value.length > 0;
-    $('oSummary').textContent = `${r.value.length} order${r.value.length === 1 ? '' : 's'}`;
+    list.set(r.value);
   }
 
-  function row(x, s) {
-    const lines = x.lines.length;
-    return h('div', { class: 'orow', role: 'row', tabindex: 0, dataset: { id: x.id } },
-      h('span', { class: 'who', text: `${x.number} · ${x.customerName}` }),
-      h('span', { class: 'amt num', text: U.money(x.total, x.currency || s.currency, s.locale) }),
-      h('div', { class: 'meta' },
-        h('span', { class: `chip ${x.status}`, text: M.STATUS_LABEL[x.status] || x.status }),
-        h('span', { text: x.date }),
-        h('span', { text: `${lines} line${lines === 1 ? '' : 's'}` }),
-        x.invoiceId ? h('span', { text: 'invoiced' }) : null,
-        x.sample ? h('span', { class: 'chip sample', text: 'Sample' }) : null));
+  /** One order as a SlopList row: number and customer, the total, and its status, date, lines and links. */
+  function row(x) {
+    const lines = x.lines.length, s = settings;
+    return { title: `${x.number} · ${x.customerName}`, amount: U.money(x.total, x.currency || s.currency, s.locale),
+      meta: [{ chip: M.STATUS_LABEL[x.status] || x.status, cls: CHIP[x.status] || '' }, x.date, `${lines} line${lines === 1 ? '' : 's'}`,
+        x.invoiceId ? 'invoiced' : null, x.sample ? { chip: 'Sample', cls: 'warn' } : null] };
   }
 
   /** Runs a Result-returning action from the menu: a plain message on refusal, then redraws. */
@@ -69,19 +62,8 @@
     $('oStatus').addEventListener('change', draw);
     $('oNew').addEventListener('click', () => NS.app.go('new'));
     NS.sampleActions.mount();
-    const box = $('oRows');
-    box.addEventListener('click', (e) => { const r = e.target.closest('[data-id]'); if (r) NS.app.go(`o/${r.dataset.id}`); });
-    box.addEventListener('keydown', (e) => {
-      const r = e.target.closest && e.target.closest('[data-id]');
-      if (r && e.key === 'Enter') NS.app.go(`o/${r.dataset.id}`);
-    });
-    if (g.SlopCtx) {
-      SlopCtx.bind(box, (target) => {
-        const r = target && target.closest ? target.closest('[data-id]') : null;
-        const x = r && rowsById.get(r.dataset.id);
-        return x ? menuFor(x) : null;
-      });
-    }
+    list = g.SlopList.mount($('oRows'), { label: 'Orders', noun: ['order', 'orders'], summary: $('oSummary'),
+      empty: 'No orders match. Start one with New order.', row, open: (x) => NS.app.go(`o/${x.id}`), menu: menuFor });
   }
 
   NS.listView = { mount, draw, menuFor };

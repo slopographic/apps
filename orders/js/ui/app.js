@@ -7,19 +7,15 @@
   const UI = g.SlopUI;
   const $ = (id) => document.getElementById(id);
   const VIEWS = ['list', 'edit', 'data'];
-  let timer = 0;
+  let timer = 0, tabs = null;
 
-  /** Shows one view and marks its tab. The edit tab exists only while an order is open. */
+  /** Shows one view and marks its tab (SlopTabs, shared/ui/tabs.js). The edit tab exists only while an order is open. */
   function show(name, arg) {
     if (!VIEWS.includes(name)) return undefined;
     NS.state.view = name;
-    for (const v of VIEWS) {
-      $(`view-${v}`).hidden = v !== name;
-      const t = $(`tab-${v}`);
-      if (t) { t.setAttribute('aria-selected', String(v === name)); t.tabIndex = v === name ? 0 : -1; }
-    }
     $('tab-edit').hidden = name !== 'edit';
-  if (window.SlopLayouts) SlopLayouts.refresh('orders');
+    tabs.show(name);
+    if (window.SlopLayouts) SlopLayouts.refresh('orders');
     const view = NS.views[name];
     return view && view.onShow ? view.onShow(arg) : undefined;
   }
@@ -60,12 +56,11 @@
       return;
     }
     $('boot').hidden = true;
+    // a tab click or the tab keys route through the #hash, which shows the view (route)
+    tabs = g.SlopTabs.mount(document.querySelector('.tabs'), { select: (n) => go(n === 'edit' ? NS.editor.route() : n) });
     for (const name of VIEWS) if (NS.views[name] && NS.views[name].mount) NS.views[name].mount();
     NS.commands.init();
     if (g.SlopHub) { try { SlopHub.register('orders'); } catch (e) { /* the hub is optional */ } }
-    for (const t of document.querySelectorAll('.tab')) {
-      t.addEventListener('click', () => go(t.dataset.view === 'edit' ? NS.editor.route() : t.dataset.view));
-    }
     S.store.subscribe(redrawList);
     addEventListener('hashchange', route);
     await route();

@@ -59,6 +59,12 @@
   const shownIds = () => $$('.sf-cards > [data-id]').map((c) => c.dataset.id);
 
   describe('finder: search', () => {
+    it('noun can be [one, many]: the count reads "1 app" and "N apps"', () => {
+      mountIt({ noun: ['app', 'apps'], items: ITEMS.slice(0, 1) });
+      expect($('.sf-count').textContent).toBe('1 app');
+      mountIt({ noun: ['app', 'apps'] });
+      expect($('.sf-count').textContent).toBe(`${ITEMS.length} apps`);
+    });
     it('matches as you type, ignoring case and accents, and every word must match', () => {
       const f = mountIt();
       expect(shownIds()).toEqual(['pdf', 'inv', 'iso', 'cafe']);

@@ -14,29 +14,11 @@
     { id: 'labels.tags', title: 'Customers: manage tags', group: 'Customers', keywords: ['colour', 'color', 'merge'], run: () => NS.tagManager.open() },
     { id: 'labels.groups', title: 'Customers: manage groups', group: 'Customers', keywords: ['filter', 'segment'], run: () => NS.groupsPanel.open() },
   ];
-  const byId = Object.fromEntries(COMMANDS.map((c) => [c.id, c]));
-
-  /** Runs a command through SlopCmd when it is loaded (recents and remapped keys apply), else directly. */
-  function run(id) {
-    if (g.SlopCmd && g.SlopCmd.get(id)) return g.SlopCmd.run(id);
-    const c = byId[id];
-    if (!c) return false;
-    c.run();
-    return true;
-  }
-
-  function init() {
-    if (g.SlopCmd) {
-      g.SlopCmd.init({ app: 'crm' });
-      g.SlopCmd.register(COMMANDS.map((c) => ({ id: c.id, title: c.title, group: c.group, keywords: c.keywords || [], keys: [], run: () => c.run() })));
-    }
-    document.addEventListener('click', (e) => {
-      const el = e.target.closest && e.target.closest('[data-cmd]');
-      if (!el || el.disabled) return;
-      e.preventDefault();
-      run(el.dataset.cmd);
-    });
-  }
+  let runner = null;
+  /** Registers the commands with SlopCmd and wires [data-cmd] (SlopBiz.commands, shared/biz/biz.js). */
+  function init() { runner = g.SlopBiz.commands('crm', COMMANDS); }
+  /** Runs a command by id (through SlopCmd when it is loaded). */
+  const run = (id) => (runner ? runner(id) : false);
 
   NS.commands = { init, run, list: COMMANDS };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -3,7 +3,7 @@
  * Classic script: SlopFinder.mount(host, options) returns { setItems, getFilter, clear, destroy }. Options:
  *   items, fields [{key,label,get}], searchKeys, facets [{key,label,values(item),format?}], columns [{key,label,get,render?,sortable?}],
  *   card(item), row(item), sort {key,dir}, urlPrefix (keys in SlopUrlState as "<prefix>.q", ".view", ...),
- *   placeholder, searchLabel, noun, emptyText, resultsWhen ('filtered': cards view is hidden until a filter or search),
+ *   placeholder, searchLabel, noun ('items' or ['item', 'items']), emptyText, resultsWhen ('filtered': cards view is hidden until a filter or search),
  *   facetsCollapsed (facets sit in a <details>), suggest {max, href(item), label(item), hint(item)} (a listbox under the
  *   search box; Enter opens the first one), autofocus (focuses the search box on mount), onChange(shown, filter),
  *   big (the large search box, without suggestions),
@@ -41,6 +41,8 @@
   }
 
   function mount(host, opts) {
+    // noun: 'items', or ['item', 'items'] for the right word when there is one.
+    const noun = (n) => (Array.isArray(opts.noun) ? opts.noun[n === 1 ? 0 : 1] : opts.noun || 'items');
     const spec = { fields: opts.fields || [], searchKeys: opts.searchKeys, facets: opts.facets || [], columns: opts.columns || [], sort: opts.sort, rank: opts.rank, view: opts.view };
     const scope = scopeFor(opts.urlPrefix);
     const id = 'sf' + (++seq);
@@ -154,7 +156,7 @@
       paintChips();
       paintSuggest();
       for (const b of views) b.setAttribute('aria-pressed', String(b.dataset.sfView === st.view)), b.classList.toggle('is-on', b.dataset.sfView === st.view);
-      count.textContent = M.isFiltered(st) ? `${matched.length} of ${items.length} ${opts.noun || 'items'} match` : `${items.length} ${opts.noun || 'items'}`;
+      count.textContent = M.isFiltered(st) ? `${matched.length} of ${items.length} ${noun(items.length)} match` : `${items.length} ${noun(items.length)}`;
       empty.hidden = matched.length > 0;
       paintResults();
       if (scope) writeUrl(scope, st);

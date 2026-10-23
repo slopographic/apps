@@ -3,8 +3,9 @@
 // Home and End move between rows; right-click or the Menu key opens the row's menu (SlopCtx when the page has it, else
 // SlopUI.menu). The app gives the rows; the list draws them, the count and the empty message. Styles: shared/ui/list.css.
 // Classic script. Exposes window.SlopList.mount(host, opts) -> { set(rows), rows(), focusRow(i), destroy() }.
-//   opts: { key = 'id', label, noun: ['expense', 'expenses'], empty, summary (an element for the count),
-//           row(rec) -> { title, amount, meta: [string | { chip, cls }], cls }, open(rec), menu(rec) -> SlopUI menu items }
+//   opts: { key = 'id', label, noun: ['expense', 'expenses'], empty (text, or an element such as a message with a button),
+//           summary (an element for the count), open(rec), menu(rec) -> SlopUI menu items,
+//           row(rec) -> { title, amount, meta: [string | { chip, cls }], cls, selected (the record shown beside the list) } }
 (function (g) {
   'use strict';
   const doc = g.document;
@@ -13,8 +14,9 @@
 
   /** One row's element from the app's description of it. */
   function rowEl(rec, d, key) {
-    const r = el('div', 'sl-row' + (d.cls ? ' ' + d.cls : ''));
+    const r = el('div', 'sl-row' + (d.cls ? ' ' + d.cls : '') + (d.selected ? ' is-selected' : ''));
     r.setAttribute('role', 'listitem'); r.tabIndex = -1; r.dataset.key = String(rec[key]);
+    if (d.selected) r.setAttribute('aria-current', 'true');
     r.append(el('span', 'sl-title', d.title || ''));
     if (d.amount != null) r.append(el('span', 'sl-amount', d.amount));
     const meta = (d.meta || []).filter((m) => m != null && m !== '');
@@ -28,7 +30,8 @@
 
   function mount(host, opts = {}) {
     const key = opts.key || 'id', noun = opts.noun || ['item', 'items'];
-    const box = el('div', 'sl-list'), empty = el('p', 'sl-empty', opts.empty || `No ${noun[1]} yet.`);
+    const box = el('div', 'sl-list' + (opts.open ? '' : ' is-static'));
+    const empty = opts.empty && opts.empty.nodeType ? opts.empty : el('p', 'sl-empty', opts.empty || `No ${noun[1]} yet.`);
     box.setAttribute('role', 'list'); if (opts.label) box.setAttribute('aria-label', opts.label);
     empty.hidden = true;
     host.replaceChildren(box, empty);

@@ -112,7 +112,9 @@
   });
 
   describe('selection', () => {
-    it('click, Ctrl+click and Shift+click', () => {
+    it('click, Ctrl+click and Shift+click', async () => {
+      // A click right after a drag ends is swallowed (dnd.js); the nodes test above ends one, so wait that out first.
+      await waitFor(() => !DR.dragJustEnded());
       DR.setView('list'); DR.go(folder('Pictures').id);
       const rows = qa('#pane .row');
       click(rows[1]); expect([...DR.S.sel]).toEqual([rows[1].dataset.key]);
