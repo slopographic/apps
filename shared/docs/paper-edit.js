@@ -8,7 +8,7 @@
   const h = NS.paper.h;
   const SELECT = new Set(['customer']);
   const AREA = new Set(['notes']);
-  const DATE = new Set(['date', 'dueDate']);
+  const DATE = new Set(['date', 'dueDate', 'validUntil']);
   const MAX = { description: 300, notes: 5000, company: 200 };
 
   /** Replaces a button with an input for its field. o: { canEdit(), customers(), commit(field, index, text), refresh() }. */
