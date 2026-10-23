@@ -1,0 +1,77 @@
+// SlopBiz: the helpers every business app needs on top of SlopData (shared/data): one readable line for a refused
+// Result, the settings an app shows (currency, locale, tax, company), money in the person's currency and locale, and the
+// expense accounts of the chart. Orders, Invoices, Inventory and CRM keep copies of refusal(); new apps use this one.
+// Classic script, loaded after shared/data. Exposes window.SlopBiz (and module.exports for the Node tests).
+(function (g) {
+  'use strict';
+  // Plain words for each refusal code; the data layer's own message follows after a colon. Apps add or override words.
+  const PLAIN = {
+    invalid: 'Not saved', invalid_transition: 'That change is not allowed', not_found: 'That record no longer exists',
+    conflict: 'Already done', immutable: 'This record cannot be changed', posting_required: 'This goes through its own rules only',
+    deleted: 'That record was deleted', in_use: 'Still in use', insufficient_stock: 'Not enough stock', overpayment: 'More than is due',
+    has_payments: 'It has payments', unbalanced: 'The entry does not balance', quota: 'The browser storage is full',
+    blocked: 'Blocked by another tab', unavailable: 'Storage is not available in this browser',
+  };
+
+  /** One readable line for a failed Result: the field errors when there are any, else the plain words for its code and the
+   *  data layer's message. opts.plain and opts.fields (field id -> label) let an app use its own words. */
+  function refusal(r, opts = {}) {
+    if (!r) return 'Something went wrong';
+    const fields = opts.fields || {};
+    if (Array.isArray(r.errors) && r.errors.length) {
+      return r.errors.map((e) => (e.field ? `${fields[e.field] || e.field} ${e.message}` : e.message)).join('. ');
+    }
+    const head = (opts.plain || {})[r.code] || PLAIN[r.code];
+    if (head) return r.message ? `${head}: ${r.message}` : head;
+    return r.message || 'Something went wrong';
+  }
+
+  const data = () => g.SlopData;
+
+  /** The settings an app shows: currency, locale, default tax rate and the company block. Defaults when nothing is stored. */
+  async function settings() {
+    const S = data(), r = await S.store.get('settings', 'main');
+    const s = r.ok && r.value ? r.value : S.schema.DEFAULT_SETTINGS;
+    return { currency: s.defaultCurrency || 'USD', locale: s.locale || 'en-US', defaultTaxRate: s.defaultTaxRate || 0,
+      companyName: s.companyName || '', address: s.address || '', taxNumber: s.taxNumber || '' };
+  }
+
+  /** Minor units as money text in a currency and locale ("€24.00"). */
+  const money = (minor, currency, locale) => data().money.formatMinor(minor, currency, locale);
+
+  /** The chart's expense accounts, by code: [{ code, name }]. */
+  async function expenseAccounts() {
+    const r = await data().store.list('accounts', { index: 'type', value: 'expense' });
+    return r.ok ? r.value.map((a) => ({ code: a.code, name: a.name })).sort((a, b) => (a.code < b.code ? -1 : 1)) : [];
+  }
+
+  /** An app's commands: registered with SlopCmd (the palette, remappable keys) when the page loads it, and [data-cmd]
+   *  elements run them on click. list: [{ id, title, group, keywords, when, run }]. Returns run(id) (true when it ran). */
+  function commands(app, list) {
+    const byId = Object.fromEntries(list.map((c) => [c.id, c]));
+    const C = g.SlopCmd;
+    if (C) {
+      C.init({ app });
+      C.register(list.map((c) => ({ id: c.id, title: c.title, group: c.group, keywords: c.keywords || [], keys: [], when: c.when, run: () => c.run() })));
+    }
+    function run(id) {
+      const c = byId[id];
+      if (!c) return false;
+      if (C && C.get(id)) return C.run(id);
+      if (c.when && !c.when()) return false;
+      try { c.run(); } catch (err) { console.error(err); if (g.SlopUI) g.SlopUI.toast(`${c.title} failed: ${err.message}`); }
+      return true;
+    }
+    if (g.document) g.document.addEventListener('click', (e) => {
+      const el = e.target.closest && e.target.closest('[data-cmd]');
+      if (!el || el.disabled || !byId[el.dataset.cmd]) return;
+      e.preventDefault();
+      run(el.dataset.cmd);
+    });
+    return run;
+  }
+
+  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands };
+  g.SlopBiz = api;
+  if (typeof module === 'object' && module.exports) module.exports = api;
+})(typeof window !== 'undefined' ? window : globalThis);
