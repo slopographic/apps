@@ -27,7 +27,11 @@ const filter = argv.find((a) => !a.startsWith('--')) || '';
 const JOBS = Math.max(1, Number(value('jobs') || process.env.SLOPTEST_JOBS || 1) || 1);
 const SHARD = value('shard') ? parseShard(value('shard')) : null;
 const TIMINGS = path.join(ROOT, 'tests', 'timings.json');
-const THIRD_PARTY = /^https:\/\/([a-z0-9-]+\.)*(googlesyndication\.com|googletagmanager\.com|google-analytics\.com|doubleclick\.net)\//;
+// Ad and analytics hosts do not resolve in the test browser: the tests check that the app adds those scripts (their tags and
+// URLs), and the real ones would make results depend on third-party servers (AdSense throws on a test page) and send ad
+// requests. Done in DNS, not with request routing, which made pages that fetch many files at once fail.
+const NO_THIRD_PARTY = '--host-resolver-rules=' + ['googlesyndication.com', 'googletagmanager.com', 'google-analytics.com', 'doubleclick.net']
+  .flatMap((h) => [`MAP ${h} ~NOTFOUND`, `MAP *.${h} ~NOTFOUND`]).join(', ');
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.woff2': 'font/woff2', '.wasm': 'application/wasm', '.pdf': 'application/pdf', '.bcmap': 'application/octet-stream', '.pfb': 'application/octet-stream', '.ttf': 'font/ttf' };
 
 async function findTests(dir, out = []) {
@@ -82,9 +86,6 @@ const took = {};
  *  that run side by side never mix their output). */
 async function runPage(browser, base, p, scale) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
-  // Ad and analytics scripts are answered with an empty script: the tests check that the app adds them (their tags and URLs),
-  // and the real ones would make results depend on third-party servers (AdSense throws on a test page) and send ad requests.
-  await ctx.route(THIRD_PARTY, (r) => r.fulfill({ status: 200, contentType: 'text/javascript', body: '' }));
   const page = await ctx.newPage();
   if (scale > 1) await page.addInitScript((n) => { window.__SLOPTEST_SCALE__ = n; }, scale); // harness timeouts (tests/harness.js)
   const consoleErrors = [];
@@ -113,7 +114,7 @@ if (pages.length) {
   const { chromium } = await loadPlaywright();
   const server = await serve();
   const base = `http://127.0.0.1:${server.address().port}/`;
-  const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'] });
+  const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', NO_THIRD_PARTY] });
   const again = [], alone = [];
   await pool(pages, JOBS, async (p) => {
     const r = await runPage(browser, base, p, Math.min(JOBS, 4));
