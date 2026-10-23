@@ -10,11 +10,12 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DATA = ['money.js', 'barcode.js', 'schema-defs.js', 'schema.js'].map((f) => path.join(ROOT, 'shared', 'data', f));
+const BIZ = [path.join(ROOT, 'shared', 'biz', 'biz.js')];
 const CRM = ['util.js', 'notes.js', 'labels.js', 'customer-fields.js', 'query.js'].map((f) => path.join(ROOT, 'crm', 'js', 'core', f));
 const ctx = {};
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const f of [...DATA, ...CRM]) vm.runInContext(await readFile(f, 'utf8'), ctx, { filename: path.basename(f) });
+for (const f of [...DATA, ...BIZ, ...CRM]) vm.runInContext(await readFile(f, 'utf8'), ctx, { filename: path.basename(f) });
 const D = ctx.SlopData, NS = ctx.SlopCrm;
 const plain = (v) => JSON.parse(JSON.stringify(v));
 const deq = (a, b) => assert.deepEqual(plain(a), plain(b));

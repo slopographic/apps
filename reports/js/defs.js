@@ -50,6 +50,28 @@
         { field: 'contact_name', label: 'Contact name' },
         { field: 'contact_phone', label: 'Contact phone' },
       ] },
+    { id: 'profit-by-month', title: 'Profit by month',
+      note: 'From the ledger: income is what was posted to revenue accounts, expense what was posted to expense accounts (Slop Expenses and any manual entry), in the base currency. A voided invoice or expense cancels itself out.',
+      from: 'journal', enrich: ['profit'], by: ['month'], sum: ['income', 'expense', 'profit'], orderBy: 'month', desc: true,
+      columns: [
+        { field: 'month', label: 'Month' },
+        { field: 'sum_income', label: 'Income', type: 'money', currency: 'base' },
+        { field: 'sum_expense', label: 'Expenses', type: 'money', currency: 'base' },
+        { field: 'sum_profit', label: 'Profit', type: 'money', currency: 'base' },
+      ] },
+    { id: 'expenses-by-category', title: 'Expenses by category',
+      note: 'Recorded expenses that are not void, by expense account, in each expense currency. Amount includes tax.',
+      from: 'expenses', where: [['status', '=', 'posted']],
+      join: { from: 'accounts', on: ['account', 'code'], type: 'left', prefix: 'account_' },
+      by: ['account', 'account_name', 'currency'], count: true, sum: ['amount', 'tax'], orderBy: 'sum_amount', desc: true,
+      columns: [
+        { field: 'account', label: 'Account' },
+        { field: 'account_name', label: 'Category' },
+        { field: 'currency', label: 'Currency' },
+        { field: 'count', label: 'Expenses', type: 'number' },
+        { field: 'sum_amount', label: 'Amount', type: 'money' },
+        { field: 'sum_tax', label: 'Tax', type: 'money' },
+      ] },
   ];
 
   ns.BUILTIN = Object.freeze(BUILTIN.map((r) => Object.freeze(r)));

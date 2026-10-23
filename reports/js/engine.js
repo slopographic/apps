@@ -1,6 +1,7 @@
 /* Slop Reports: the report engine. Pure: no storage and no DOM. A report is a small JSON query:
  *   id, title, note?           the id is text; the title and note are shown above the table
- *   from                       the collection to read: customers | invoices | payments | customerGroups | customerTags
+ *   from                       the collection to read: customers | invoices | payments | customerGroups | customerTags |
+ *                              expenses | accounts | journal
  *   where?                     [[field, op, value]] on the source rows (query.js ops; "$today", "$today+14" are dates)
  *   enrich?                    names from enrich.js added to the source rows first
  *   unwind?                    a list field: one row per item (a row with no item keeps one row with the field empty)
@@ -14,7 +15,7 @@
   'use strict';
   const ns = (g.SlopReports = g.SlopReports || {});
   const Q = g.SlopDbQuery;
-  const SOURCES = ['customers', 'invoices', 'payments', 'customerGroups', 'customerTags'];
+  const SOURCES = ['customers', 'invoices', 'payments', 'customerGroups', 'customerTags', 'expenses', 'accounts', 'journal'];
   const TYPES = ['text', 'number', 'money', 'date'];
   const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
   const pad = (n) => String(n).padStart(2, '0');

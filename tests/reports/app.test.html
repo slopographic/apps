@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slop Reports · the page: empty note, the built-in list and the profit report, at 390 px</title>
+  <!-- Covers: reports/js/app.js, reports/index.html -->
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, run } = SlopTest;
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'width:390px;height:820px;border:0;position:fixed;left:0;top:0;background:#111';
+  frame.src = '../../reports/index.html';
+  document.body.append(frame);
+  const doc = () => frame.contentDocument;
+  const $ = (id) => doc().getElementById(id);
+  const ready = () => doc() && $('report') && $('report').options.length > 0;
+
+  describe('Slop Reports page', () => {
+    it('lists the profit and expense reports among the built-ins', async () => {
+      await waitFor(ready, { timeout: 20000 });
+      const names = [...$('report').options].map((o) => o.textContent);
+      expect(names.includes('Profit by month')).toBe(true);
+      expect(names.includes('Expenses by category')).toBe(true);
+    });
+    it('with no records, the note names every app that feeds the reports, Expenses included', async () => {
+      await waitFor(() => !$('data-note').hidden, { timeout: 10000 });
+      expect($('data-note').textContent.includes('Slop Expenses')).toBe(true);
+    });
+    it('choosing Profit by month shows its note, and the page has no sideways scroll', async () => {
+      const sel = $('report');
+      sel.value = 'profit-by-month';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      await waitFor(() => $('report-note').textContent.includes('revenue accounts'), { timeout: 10000 });
+      expect(doc().documentElement.scrollWidth <= 391).toBe(true);
+    });
+  });
+  run();
+  </script>
+</body>
+</html>
