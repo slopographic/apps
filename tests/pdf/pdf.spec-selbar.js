@@ -2,6 +2,7 @@
    is cleared. Highlight adds one highlight over the line (one undo step). Escape dismisses the bar and Tab moves into it.
    Edit text, Find and Comment open their tools on the selection; Colour recolours the markup under it; Remove hides the
    selected text without rebuilding the page, and Redact marks it for the Redact tool. Both can be undone. */
+// Covers: pdf/js/editor/sel-actions.js
 (function () {
   'use strict';
   const { describe, it, expect, waitFor } = SlopTest;

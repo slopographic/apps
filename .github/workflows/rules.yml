@@ -1,0 +1,39 @@
+name: Rules and tests
+
+# The file rules (tools/check-rules.mjs) and the Node tests, on every push and pull request. The same checks run locally in
+# the pre-commit and pre-push hooks (.githooks).
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Every source file has at most 300 lines
+        run: node tools/check-rules.mjs --all
+      - name: Every changed script has a test that names it
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          elif [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
+            RANGE="${{ github.sha }}~1..${{ github.sha }}"
+          else
+            RANGE="${{ github.event.before }}..${{ github.sha }}"
+          fi
+          echo "Checking $RANGE"
+          node tools/check-rules.mjs --range "$RANGE"
+      - name: Set up the repo as a clone is (identity and hooks; tests/node/attribution.test.mjs checks both)
+        run: |
+          git config user.name slopographic
+          git config user.email 340656300+slopographic@users.noreply.github.com
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Node tests
+        run: node --test tests/node/*.test.mjs tests/seo/*.test.mjs

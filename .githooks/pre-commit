@@ -9,6 +9,10 @@ if [ "$name" != "slopographic" ] || [ "$email" != "340656300+slopographic@users.
   exit 1
 fi
 msg=$(git log -1 --format=%B 2>/dev/null)
+# The file rules (tools/check-rules.mjs): at most 300 lines per source file, and a test that names each staged script.
+if command -v node >/dev/null 2>&1; then
+  node tools/check-rules.mjs --staged >/dev/null || { node tools/check-rules.mjs --staged; echo "pre-commit: fix the files above (rules: tools/check-rules.mjs)." >&2; exit 1; }
+fi
 # Cache bust: the precache list and the service worker VERSION follow the files (tools/pwa-precache.mjs). The commit takes
 # the regenerated files, so a release that changes a cached file always reaches returning visitors.
 if command -v node >/dev/null 2>&1; then

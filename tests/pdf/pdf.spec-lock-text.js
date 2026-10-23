@@ -2,6 +2,7 @@
    restores the drag; with Edit text on, a press on a text annotation moves it (it is not read as a press on the text under it);
    after an edit, the old run under the new text's white cover is not offered, and a double click on the new text edits it;
    a text selection shows a box with the handles, and dragging the box lifts the text into an annotation (one undo step). */
+// Covers: pdf/js/editor/sel-lift.js
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;

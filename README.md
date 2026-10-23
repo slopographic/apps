@@ -79,3 +79,14 @@ Pages serves this branch from the repo root:
 ## Contributing
 
 Run `npm install` once in a clone. Its `prepare` script switches on the commit hooks in `.githooks/`, which refuse commits not authored as Slopographic and commit messages that carry Claude attribution. Check with `node --test tests/node/attribution.test.mjs`.
+
+### Rules for every change
+
+Checked by the hooks (pre-commit on the staged files, pre-push on the pushed commits) and by CI (`.github/workflows/rules.yml`), with `tools/check-rules.mjs`:
+
+1. **At most 300 lines per source file** (`.js`, `.mjs`, `.css`, `.html`). Split a longer file into modules. `vendor/`, minified files and the generated precache lists are exempt.
+2. **Every new or changed script has a test that names it** by its repo path: the test loads it (a script `src` or an `import`), or its header has a `Covers: <path>` line when it tests the file through its app page.
+
+`node tools/check-rules.mjs --all` checks rule 1 on the whole repo; `--staged`, `--range A..B` and `--files <paths>` check both. The pre-push hook also runs the Node tests (Node 20 or later). Tests run on Node 22, as in CI.
+
+Offline copies follow the files: the pre-commit hook regenerates the precache list and the service worker `VERSION` (`tools/pwa-precache.mjs`; see `shared/pwa/HANDOFF.md`).

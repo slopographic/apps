@@ -4,13 +4,14 @@
  * its own zoom and scroll. A click on a pane focuses it; the document strip shows the focused pane's document.
  *
  * Focusing a pane swaps documents the way a tab does (ui/doc-tabs.js): the document on screen is saved in its record and the
- * other one is put on screen, with the view it was left in. Classic script; exposes SP.panes. */
+ * other one is put on screen, with the view it was left in. Each pane's tab strip, an empty pane's buttons, the layout menu
+ * and the keys are in ui/panes-ui.js (SP.panesUI). Classic script; exposes SP.panes. */
 (function () {
   'use strict';
-  var SP = window.SP, Ed = SP.editor, U = SP.util, DT = SP.tabs, PV = SP.panePreview;
+  var SP = window.SP, Ed = SP.editor, DT = SP.tabs, PV = SP.panePreview;
   var LAYOUTS = { one: [1, 'columns'], columns2: [2, 'columns'], rows2: [2, 'rows'], columns3: [3, 'columns'], grid4: [4, 'grid'] };
   var ws = null, host = null, focused = 0, count = 1, layoutKey = 'one', switching = false, subscribed = false;
-  var paneDoc = [], views = [], bars = [], viewerHome = null, viewerNext = null, lastLive = null;
+  var paneDoc = [], views = [], viewerHome = null, viewerNext = null, lastLive = null;
 
   function viewer() { return document.getElementById('viewer'); }
   function api() { return DT.api ? DT.api() : null; }
@@ -19,54 +20,8 @@
   function paneEl(i) { return ws.pane(i).el; }
   function relayout() { if (Ed.page && Ed.page()) Ed.layout(); }
 
-  /** Each pane has its own tab strip (shared/doctabs/pane-tabs.js): the open documents, with the one that pane shows marked. */
-  function barItems(i) {
-    return function () {
-      var cur = DT.current();
-      return openDocs().map(function (t) {
-        var shown = i === focused ? t.doc === cur : t.doc === paneDoc[i];
-        return { id: t.doc.id, title: t.title, active: shown };
-      });
-    };
-  }
-  function docById(id) { var hit = openDocs().find(function (t) { return t.doc.id === id; }); return hit ? hit.doc : null; }
-  /** A tab was picked in pane i. A pane that shows the document takes the focus; otherwise the focused pane takes it live,
-   *  or pane i does when it is not the focused one. */
-  function pickTab(i, id) {
-    var doc = docById(id);
-    if (!doc) return;
-    for (var j = 0; j < count; j++) {
-      if (j === focused ? DT.current() === doc : paneDoc[j] === doc) { focusPane(j); return; }
-    }
-    if (i === focused) { if (api()) api().activate(doc); } else openDocIn(i, doc);
-  }
-  function closeTab(id) { var doc = docById(id); if (doc && api()) api().close(doc); }
-  /** The strip's + in pane i: a new empty document, which takes pane i (the focused pane shows it live). */
-  function addInPane(i) {
-    if (!api() || switching) return;
-    var prev = DT.current();
-    var doc = api().newTab().doc;
-    if (i !== focused) placeIn(i, doc, prev);
-  }
-  /** Draws every pane's tab strip, and puts the strip above the stage away while the view is split. */
-  function renderBars() {
-    if (!ws) return;
-    var strip = document.getElementById('tabs');
-    if (strip) strip.hidden = true;
-    for (var i = count; i < bars.length; i++) if (bars[i]) { bars[i].destroy(); bars[i] = null; }
-    bars.length = count;
-    for (var j = 0; j < count; j++) {
-      if (!bars[j] || bars[j].el.parentNode !== paneEl(j)) {
-        bars[j] = SlopPaneTabs.mount(paneEl(j), {
-          label: 'Open documents',
-          items: barItems(j),
-          pick: (function (k) { return function (id) { pickTab(k, id); }; })(j),
-          close: closeTab,
-          add: (function (k) { return function () { addInPane(k); }; })(j),
-        });
-      } else bars[j].render();
-    }
-  }
+  /** Every pane's tab strip (ui/panes-ui.js). */
+  function renderBars() { if (ws && SP.panesUI) SP.panesUI.renderBars(); }
 
   /** The viewer goes into the focused pane, or back where it was when the view is not split. */
   function placeViewer() {
@@ -100,31 +55,8 @@
   function showPreview(i, doc) {
     if (i === focused || !ws || !ws.pane(i)) return;
     paneDoc[i] = doc || null;
-    if (!views[i]) views[i] = PV.create(paneEl(i), doc || null, { title: doc ? titleOf(doc) : null, empty: function () { return emptyPane(i); } });
+    if (!views[i]) views[i] = PV.create(paneEl(i), doc || null, { title: doc ? titleOf(doc) : null, empty: function () { return SP.panesUI.emptyPane(i); } });
     else views[i].setDoc(doc || null, doc ? titleOf(doc) : null);
-  }
-
-  /** What an empty pane offers: open a file in it, or show a document that is open in the strip. */
-  function emptyPane(i) {
-    var box = U.h('div', { class: 'pv-pv-empty' });
-    var open = U.h('button', { type: 'button', class: 'sui-btn sui-primary' }, 'Open a file');
-    var show = U.h('button', { type: 'button', class: 'sui-btn' }, 'Show an open document');
-    open.addEventListener('click', function () {
-      var input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'application/pdf,image/png,image/jpeg,image/webp,image/gif,image/bmp';
-      input.addEventListener('change', function () { if (input.files && input.files[0]) SP.app.openFilesInPane(i, [input.files[0]]); });
-      input.click();
-    });
-    show.addEventListener('click', function () {
-      var r = show.getBoundingClientRect();
-      var items = openDocs().filter(function (t) { return t.doc !== DT.current(); }).map(function (t) {
-        return { label: t.title, act: function () { openDocIn(i, t.doc); } };
-      });
-      SlopUI.menu(items.length ? items : [{ label: 'No other open document', disabled: true }], r.left, r.bottom + 4);
-    });
-    box.append(open, show);
-    return box;
   }
 
   /** Makes the document that is open in the strip the live one in pane i (the pane takes the focus, as a click does). */
@@ -222,7 +154,7 @@
   function unsplit() {
     detachViewer();
     for (var i = 0; i < views.length; i++) destroyView(i);
-    bars = [];
+    if (SP.panesUI) SP.panesUI.dropBars();
     if (ws) { ws.destroy(); ws = null; }
     if (host) { host.hidden = true; delete host.dataset.split; host.replaceChildren(); }
     count = 1; focused = 0; layoutKey = 'one'; paneDoc = [];
@@ -278,13 +210,6 @@
     }
   }
 
-  // Ctrl+Alt+Left and Ctrl+Alt+Right move between the panes (the View menu shows them).
-  window.addEventListener('keydown', function (e) {
-    if (!e.ctrlKey || !e.altKey || count < 2 || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
-    e.preventDefault();
-    step(e.key === 'ArrowLeft' ? -1 : 1);
-  });
-
   /** The split as it is, for the saved view: the layout, the focused pane and the document each pane shows (by its id). */
   function snapshot() {
     if (count < 2) return null;
@@ -321,36 +246,12 @@
     if (spec[0] === 1) unsplit(); else split(spec[0], spec[1]);
   }
 
-  /** The layouts as menu items: the View menu and the header's Split view button show the same list. */
-  function layoutItems() {
-    return [
-      { label: 'One pane', check: count === 1, act: function () { setLayout('one'); } },
-      { label: 'Two columns', check: count === 2 && layoutKey === 'columns2', act: function () { setLayout('columns2'); } },
-      { label: 'Two rows', check: count === 2 && layoutKey === 'rows2', act: function () { setLayout('rows2'); } },
-      { label: 'Three columns', check: count === 3, act: function () { setLayout('columns3'); } },
-      { label: 'Four panes (grid)', check: count === 4, act: function () { setLayout('grid4'); } },
-      '-',
-      { label: 'Previous pane', key: 'Ctrl+Alt+Left', act: function () { step(-1); } },
-      { label: 'Next pane', key: 'Ctrl+Alt+Right', act: function () { step(1); } },
-    ];
-  }
-
-  /** The header's Split view button: the layout list as a menu, in Page view with pages open. */
-  var splitBtn = document.getElementById('btnSplit');
-  if (splitBtn) splitBtn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    var A = SP.app;
-    if (A.mode !== 'page' || !SP.engine.state.pages.length) { SlopUI.toast('Open a document in Page view to split it.'); return; }
-    var r = splitBtn.getBoundingClientRect();
-    SlopUI.menu(layoutItems(), r.left, r.bottom + 4);
-  });
-
   SP.panes = {
     snapshot: snapshot,
     restore: restore,
     split: split,
     setLayout: setLayout,
-    items: layoutItems,
+    items: function () { return SP.panesUI.layoutItems(); },
     unsplit: unsplit,
     focus: focusPane,
     step: step,
@@ -364,5 +265,8 @@
     paneAt: paneAt,
     placeIn: placeIn,
     openDocIn: openDocIn,
+    /** Pane i's element (for its tab strip), and whether a swap is under way (the strip's + waits for it). */
+    paneEl: paneEl,
+    busy: function () { return switching; },
   };
 })();

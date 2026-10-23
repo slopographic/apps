@@ -1,0 +1,27 @@
+#!/bin/sh
+# Before a push: the file rules (tools/check-rules.mjs) on every file the pushed commits change, then the Node tests.
+# CI (.github/workflows/rules.yml) runs the same checks on GitHub. Enable once per clone: git config core.hooksPath .githooks
+zero=0000000000000000000000000000000000000000
+command -v node >/dev/null 2>&1 || { echo "pre-push: node is not installed; the checks run in CI." >&2; exit 0; }
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue   # a deleted branch has nothing to check
+  if [ "$remote_sha" = "$zero" ] || ! git cat-file -e "$remote_sha" 2>/dev/null; then
+    base=$(git merge-base "$local_sha" origin/main 2>/dev/null) || base=""
+  else
+    base=$remote_sha
+  fi
+  [ -n "$base" ] || continue
+  node tools/check-rules.mjs --range "$base..$local_sha" || { echo "pre-push: fix the files above before pushing." >&2; exit 1; }
+done
+# The Node tests need Node 20 or later (File, crypto and fetch as globals).
+major=$(node -p 'process.versions.node.split(".")[0]')
+if [ "$major" -lt 20 ]; then
+  echo "pre-push: Node $major is too old for the tests (need 20+); CI runs them." >&2
+  exit 0
+fi
+node --test tests/node/*.test.mjs tests/seo/*.test.mjs >/tmp/slop-pre-push.log 2>&1 || {
+  grep -E '^not ok' /tmp/slop-pre-push.log >&2
+  echo "pre-push: the Node tests fail (full log: /tmp/slop-pre-push.log)." >&2
+  exit 1
+}
+exit 0

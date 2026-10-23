@@ -1,6 +1,7 @@
 /* Slop PDF: split view (ui/panes.js). Two documents side by side: the focused one is the live editor, the other a read-only
    preview with its own zoom; a click focuses a pane and moves the tools to its document; closing a document empties the pane
    that showed it; one pane again puts the page view back. Every test restores one pane, even when it fails. */
+// Covers: pdf/js/ui/panes.js, pdf/js/ui/panes-ui.js
 (function () {
   'use strict';
   const { describe, it, expect, waitFor } = SlopTest;
