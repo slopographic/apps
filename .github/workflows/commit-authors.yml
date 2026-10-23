@@ -2,6 +2,7 @@ name: Commit authors
 
 on:
   push:
+    branches: ['**'] # branch pushes only: a tag points at commits that were checked when their branch was pushed
   pull_request:
 
 jobs:
@@ -16,7 +17,7 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
           elif [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
-            RANGE="${{ github.sha }}"
+            RANGE="${{ github.sha }}^!" # a new branch: its own commit (the history before it was checked on its branch)
           else
             RANGE="${{ github.event.before }}..${{ github.sha }}"
           fi

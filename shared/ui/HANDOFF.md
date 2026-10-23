@@ -1,4 +1,45 @@
-# shared/ui: reusable form pieces
+# shared/ui: reusable interface pieces
+
+One source for the pieces many apps need: the record list (`list.js`), the view tabs (`tabs.js`) and form reset
+(`form-reset.js`). Dialogs, menus, toasts and form fields are `SlopUI` (`shared/slopui.js`); right-click and Menu-key
+menus are `SlopCtx` (`shared/ctxmenu.js`). A new app uses these instead of its own copies.
+
+## list.js (`window.SlopList`)
+
+The list of records (orders, invoices, expenses...). One row per record: a title, an amount on the right, and a meta
+line of text and status chips. Click or Enter opens a row; the arrows, Home and End move between rows (one row is
+tabbable); right-click or the Menu key opens the row's menu (through `SlopCtx` when the page loads it).
+
+```html
+<link rel="stylesheet" href="…/shared/ui/list.css">
+<script src="…/shared/slopui.js"></script>
+<script src="…/shared/ctxmenu.js"></script>
+<script src="…/shared/ui/list.js"></script>
+```
+
+```js
+const list = SlopList.mount(host, { label: 'Expenses', noun: ['expense', 'expenses'], summary: countEl, empty: 'No expenses yet.',
+  row: (r) => ({ title: r.supplier, amount: money(r.amount), cls: r.status === 'void' ? 'is-void' : '', meta: [r.date, { chip: 'Void', cls: 'void' }] }),
+  open: (r) => go('e/' + r.id), menu: (r) => [{ label: 'Open', act: () => go('e/' + r.id) }] });
+list.set(records);   // draws the rows, the count ("3 expenses") and the empty message
+```
+
+Chip classes: `good`, `warn`, `void`. A row class `is-void` greys and strikes the title and amount. Tests:
+`tests/shared/list.test.html`.
+
+## tabs.js (`window.SlopTabs`)
+
+The view tabs of a page: a `role="tablist"` of `role="tab"` buttons with `data-view`, and a panel per view
+(`#view-<name>` unless `panel(name)` says otherwise). `show(name)` shows that panel, hides the others and marks the tab
+(`aria-selected`, the only tabbable tab). A click, the arrows, Home and End select a view: through `select(name)` when the
+app routes with a `#hash` (it then calls `show` from its router), else `show` directly. `onShow(name)` runs after a view
+is shown. Hidden tabs are skipped by the keys but can still be shown. Tests: `tests/shared/tabs.test.html`.
+
+```js
+const tabs = SlopTabs.mount(document.querySelector('[role="tablist"]'), { select: (n) => go(n), onShow: (n) => views[n].onShow() });
+tabs.show('list');
+```
+
 
 ## form-reset.js (`window.SlopFormReset`)
 

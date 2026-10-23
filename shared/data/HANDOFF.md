@@ -18,6 +18,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 <script src="…/shared/data/ledger.js"></script>
 <script src="…/shared/data/stock.js"></script>
 <script src="…/shared/data/billing.js"></script>
+<script src="…/shared/data/expenses.js"></script>  <!-- money going out: record and void, posted to the journal -->
 <script src="…/shared/data/bundle-check.js"></script>
 <script src="…/shared/data/export.js"></script>
 <script src="…/shared/data/rates-ecb.js"></script>   <!-- only if the page offers the ECB update -->
@@ -27,9 +28,17 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 `rates-ecb.js` is optional and does nothing until the person turns on the consent category (see below).
 
 Everything hangs off `window.SlopData`: `money`, `barcode`, `schema`, `schemaDefs`, `result`, `locale`, `store`,
-`numbering`, `fx`, `ledger`, `stock`, `billing`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
-files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 2: version 2 added
-`exchangeRates`, and upgrades create missing stores.
+`numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
+files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 5 (see storage/INVENTORY.md for
+what each version added), and upgrades only create the missing stores.
+
+## Expenses
+
+`SlopData.expenses.record({ date, supplier, description, account, amount, tax, currency, method, receiptId, notes })` writes
+a posted expense and its journal entry in one transaction: the expense account (default 5000; it must be an expense account)
+is debited with the amount without tax, the tax account (2100) with the reclaimable tax, and cash (method `cash`) or the bank
+with the total. `voidExpense(id)` marks it void and reverses the entry. `expenseLines(e)` and `totals(list)` are pure.
+Expenses are posting-only: `store.put('expenses', ...)` is refused.
 
 ## Result shape (every async call)
 

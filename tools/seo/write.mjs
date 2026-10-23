@@ -22,7 +22,8 @@ const AUTHOR = { '@type': 'Organization', name: 'Slopographic', url: `${SITE}/` 
 /** Open Graph image: the app's shot when the file exists, else the site image. */
 export const imageFor = (app) => (app.shot && existsSync(path.join(ROOT, app.shot)) ? `${SITE}/${app.shot}` : DEFAULT_IMAGE);
 const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-const ldScript = (obj) => `<script type="application/ld+json">${JSON.stringify(obj, null, 2).replace(/</g, '\\u003c')}</script>`;
+// One line of JSON (crawlers read it the same as indented JSON), so a page with a long ItemList stays within 300 lines.
+const ldScript = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\\u003c')}</script>`;
 
 /** The SoftwareApplication and BreadcrumbList for an app page (about pages get a breadcrumb only). */
 export function appJsonLd(app, copy, url) {

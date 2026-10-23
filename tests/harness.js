@@ -81,5 +81,8 @@
       r.results.map((x) => `<div style="color:${x.status === 'pass' ? '#9fd640' : '#ff4f6e'}">${x.status === 'pass' ? '✓' : '✗'} ${x.suite} › ${x.test} <span style="opacity:.5">${x.ms}ms</span>${x.message ? `<pre style="margin:2px 0 6px 16px;white-space:pre-wrap;color:#ffb3c0">${x.message.replace(/</g, '&lt;')}</pre>` : ''}</div>`).join('');
     document.body.append(box);
   }
-  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor };
+  /** The open SlopUI dialog on top in a document (a closing one, .sui-out, is skipped), or null. Use it rather than the first
+   *  .sui-dlg: under load a dialog that is closing is still in the page, and a test would act on it. */
+  const topDialog = (d = document) => [...d.querySelectorAll('.sui-back:not(.sui-out) .sui-dlg')].pop() || null;
+  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog };
 })();

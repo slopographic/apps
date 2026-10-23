@@ -81,10 +81,8 @@
       expect(c.value.name).toBe('Ada');
       expect(c.value.categories).toEqual(['vip']);
       const v = await versionNow();
-      expect(v.v).toBe(4);   // 2 added exchangeRates, 3 the CRM groups and tags stores, 4 the events, tasks and reminders stores
-      expect(v.names.includes('exchangeRates')).toBe(true);
-      expect(v.names.includes('customerGroups')).toBe(true);
-      expect(v.names.includes('customerTags')).toBe(true);
+      expect(v.v).toBe(SlopData.store.DB_VERSION);   // 2 added exchangeRates, 3 the CRM groups and tags, 4 events, tasks and reminders, 5 expenses
+      for (const name of SlopData.schemaDefs.COLLECTIONS) expect(v.names.includes(name)).toBe(true, 'store ' + name + ' after the upgrade');
     });
 
     it('moves the v1 currency field to defaultCurrency and keeps the other settings', async () => {
