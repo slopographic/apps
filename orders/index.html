@@ -39,6 +39,8 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/docs/paper.css">
+  <link rel="stylesheet" href="../shared/biz/app.css">
+  <link rel="stylesheet" href="../shared/ui/list.css">
   <link rel="stylesheet" href="css/orders.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
@@ -76,10 +78,7 @@
           <button type="button" class="btn danger" id="oDelSamples">Delete all samples</button>
         </div>
         <p class="note" id="oSummary" role="status"></p>
-        <div class="table" role="table" aria-label="Orders">
-          <div id="oRows" role="rowgroup"></div>
-        </div>
-        <p class="empty" id="oEmpty" hidden>No orders match. Start one with New order.</p>
+        <div class="table" id="oRows"></div>
       </section>
 
       <section class="view" id="view-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
@@ -157,12 +156,15 @@
   <script src="../shared/ctxmenu.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="../vendor/pdf-lib/pdf-lib.min.js"></script>
+  <script src="../shared/biz/biz.js"></script>
   <script src="js/core/util.js"></script>
   <script src="js/core/orders.js"></script>
   <script src="js/core/fulfil.js"></script>
   <script src="js/core/actions.js"></script>
   <script src="js/core/samples.js"></script>
   <script src="js/core/pdf.js"></script>
+  <script src="../shared/ui/list.js"></script>
+  <script src="../shared/ui/tabs.js"></script>
   <script src="js/ui/list.js"></script>
   <script src="js/ui/samples.js"></script>
   <script src="js/ui/editor.js"></script>

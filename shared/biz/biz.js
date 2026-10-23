@@ -71,7 +71,26 @@
     return run;
   }
 
-  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands };
+  /** Small DOM builder: h('a', { class, href, text, dataset, onclick }, 'text', child). Text children are escaped by the DOM. */
+  function h(tag, attrs, ...kids) {
+    const e = g.document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === false || v === null || v === undefined) continue;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+      else if (k === 'dataset') Object.assign(e.dataset, v);
+      else if (v === true) e.setAttribute(k, '');
+      else e.setAttribute(k, String(v));
+    }
+    for (const c of kids.flat()) {
+      if (c === null || c === undefined || c === false) continue;
+      e.append(c instanceof g.Node ? c : g.document.createTextNode(String(c)));
+    }
+    return e;
+  }
+
+  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands, h };
   g.SlopBiz = api;
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
