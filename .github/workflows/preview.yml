@@ -3,7 +3,9 @@ name: Preview of testing
 # Every push to the testing branch publishes it to https://slopographic.github.io (the repo
 # slopographic/slopographic.github.io, served by GitHub Pages), so a change can be checked live before a milestone merges it
 # into main (slopographic.com). The copy leaves out CNAME (the live domain stays with main) and .github (this repo's
-# workflows must not run there), and its robots.txt keeps search engines out. The push uses the PREVIEW_TOKEN secret.
+# workflows must not run there). Search engines: every page of the copy says noindex, nofollow, and robots.txt lets crawlers
+# read that (a robots.txt block alone would hide the tag); the pages' canonical links point at slopographic.com, and
+# main's own robots.txt and sitemap are untouched, so the live site is indexed as before. The push uses PREVIEW_TOKEN.
 on:
   push:
     branches: [testing]
@@ -24,8 +26,10 @@ jobs:
           mkdir ../preview
           git archive HEAD | tar -x -C ../preview
           cd ../preview
-          rm -rf CNAME .github .githooks
-          printf 'User-agent: *\nDisallow: /\n' > robots.txt
+          rm -rf CNAME .github .githooks sitemap.xml
+          printf 'User-agent: *\nAllow: /\n' > robots.txt
+          find . -name '*.html' -not -path './tests/*' -print0 | xargs -0 sed -i '0,/<head>/s//<head><meta name="robots" content="noindex, nofollow">/'
+          test "$(grep -rl --include='*.html' 'content="noindex, nofollow"' . | grep -v '^./tests/' | wc -l)" -eq "$(find . -name '*.html' -not -path './tests/*' | wc -l)"
           touch .nojekyll
           printf 'Preview of slopographic/apps at %s (%s). The live site is https://slopographic.com.\n' "${GITHUB_SHA::8}" "$(date -u +%FT%TZ)" > PREVIEW.txt
       - name: Publish to slopographic/slopographic.github.io
