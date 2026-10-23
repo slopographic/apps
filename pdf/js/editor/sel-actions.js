@@ -9,7 +9,9 @@
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._, T = S.sel, R = SP.redact, G = window.SlopPdfSel;
   var A = S.selAct = {};
-  A.coverOf = function (b) { return coverOf(b); }; // sel-lift.js covers the lines it lifts the same way
+  A.coverOf = function (b, fill) { return coverOf(b, fill); }; // sel-lift.js covers the lines it lifts the same way
+  /** The paper colour round a page-space box on a page as rendered, as '#rrggbb' (edit-colours.js; white when not rendered). */
+  A.paperOf = function (pid, b) { return S.paperColour ? S.hex(S.paperColour(S.slots.get(pid), b)) : '#ffffff'; };
   var LABELS = { highlight: 'Highlight text', underline: 'Underline text', strike: 'Strike through text' };
   var NAME = { highlight: 'highlight', underline: 'underline', strike: 'strikethrough' };
   var STYLES = ['highlight', 'underline', 'strike'];
@@ -162,7 +164,7 @@
   };
 
   /** A white cover over one selected line (page space, top-left origin): the whiteout Edit text makes for cleared text. */
-  function coverOf(b) { return { id: U.uid('a'), type: 'whiteout', cx: b.x + b.w / 2, cy: b.y + b.h / 2, w: b.w, h: b.h, rot: 0, fill: '#ffffff', opacity: 1 }; }
+  function coverOf(b, fill) { return { id: U.uid('a'), type: 'whiteout', cx: b.x + b.w / 2, cy: b.y + b.h / 2, w: b.w, h: b.h, rot: 0, fill: fill || '#ffffff', opacity: 1 }; }
   /** OCR words under the selection are emptied in the page's content (OL.replaceWord), one new file per document file
       touched. Returns [{file, pids}] for the commit; a word that cannot be found keeps only its cover. */
   async function emptyOcrWords(geo) {
@@ -197,7 +199,7 @@
     var geo = await geometry(snap);
     if (!geo.length) { SlopUI.toast('No text under the selection.'); return; }
     var covers = [];
-    geo.forEach(function (g) { g.boxes.forEach(function (b) { covers.push({ pid: g.pid, a: coverOf(b) }); }); });
+    geo.forEach(function (g) { g.boxes.forEach(function (b) { covers.push({ pid: g.pid, a: coverOf(b, A.paperOf(g.pid, b)) }); }); });
     var files = await emptyOcrWords(geo);
     E.commit('Remove text', function (st) {
       covers.forEach(function (c) {

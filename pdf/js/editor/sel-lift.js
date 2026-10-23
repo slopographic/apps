@@ -16,11 +16,14 @@
     if (!rows.length) return null;
     var run = runs[0], fam = run && /^(Helvetica|Times|Courier)$/.test(run.fam) ? run.fam : 'Helvetica';
     var size = U.round((rows[0].bottom - rows[0].top) / 1.02, 1); // the glyph band is 1.02 em: 0.8 em above the baseline, 0.22 em below
-    var text = { id: U.uid('a'), type: 'text', text: rows.map(function (r) { return r.text; }).join('\n'), font: fam, bold: !!(run && run.bold), italic: !!(run && run.italic), size: size, color: '#000000', opacity: 1, rot: 0 };
+    // the covers take the paper round each line and the text keeps its ink (light text on a dark band stays light on it)
+    var boxes = G.selectionBoxes(lines, part.rects, 1), slot = S.slots.get(part.pid);
+    var ink = S.inkColour && boxes.length ? S.inkColour(slot, boxes[0], S.paperColour(slot, boxes[0])) : '#000000';
+    var text = { id: U.uid('a'), type: 'text', text: rows.map(function (r) { return r.text; }).join('\n'), font: fam, bold: !!(run && run.bold), italic: !!(run && run.italic), size: size, color: ink, opacity: 1, rot: 0 };
     var t = E.textLayout(text), left = Math.min.apply(null, rows.map(function (r) { return r.x; })) - t.pad;
     var baseline = rows[0].bottom - 0.22 * size, top = baseline - t.base(0); // the layout puts the first baseline at base(0) below the top
     text.w = t.w; text.h = t.h; text.cx = left + t.w / 2; text.cy = top + t.h / 2;
-    var boxes = G.selectionBoxes(lines, part.rects, 1), covers = boxes.map(A.coverOf);
+    var covers = boxes.map(function (b) { return A.coverOf(b, A.paperOf(part.pid, b)); });
     var x0 = Math.min.apply(null, boxes.map(function (b) { return b.x; })), y0 = Math.min.apply(null, boxes.map(function (b) { return b.y; }));
     var x1 = Math.max.apply(null, boxes.map(function (b) { return b.x + b.w; })), y1 = Math.max.apply(null, boxes.map(function (b) { return b.y + b.h; }));
     return { pid: part.pid, box: { x0: x0, y0: y0, x1: x1, y1: y1 }, text: text, annots: covers.concat([text]) };

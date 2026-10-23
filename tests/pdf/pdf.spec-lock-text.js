@@ -2,7 +2,7 @@
    restores the drag; with Edit text on, a press on a text annotation moves it (it is not read as a press on the text under it);
    after an edit, the old run under the new text's white cover is not offered, and a double click on the new text edits it;
    a text selection shows a box with the handles, and dragging the box lifts the text into an annotation (one undo step). */
-// Covers: pdf/js/editor/sel-lift.js, pdf/js/editor/pointer.js, pdf/js/editor/view-pages.js
+// Covers: pdf/js/editor/sel-lift.js, pdf/js/editor/sel-actions.js, pdf/js/editor/pointer.js, pdf/js/editor/view-pages.js
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -171,6 +171,32 @@
       expect(PT.win.getSelection().toString()).toBe('Hello world');
       expect(doc().querySelectorAll('.handle[data-tb]').length).toBe(8);
       PT.win.getSelection().removeAllRanges();
+    }, { timeout: 60000 });
+
+    it('moving text on a coloured band covers the old place in the band colour and keeps the text light', async () => {
+      if (!PT.SP) await PT.boot();
+      PT.reset();
+      PT.win.getSelection().removeAllRanges();
+      const L = PT.win.PDFLib, d = await L.PDFDocument.create(), pg = d.addPage(PT.win.Array.of(300, 200));
+      pg.drawRectangle({ x: 10, y: 140, width: 280, height: 50, color: L.rgb(0.1, 0.3, 0.7) });
+      pg.drawText('On the band', { x: 20, y: 160, size: 18, font: await d.embedFont(L.StandardFonts.Helvetica), color: L.rgb(1, 1, 1) });
+      d.setCreationDate(new PT.win.Date(PT.win.Date.UTC(2025, 0, 1) + (++PT._nonce) * 1000));
+      await PT.open(await d.save(), 'band-move.pdf');
+      PT.A.openPage(PT.E.state.pages[0].id);
+      await waitFor(() => pageEl() && doc().querySelector('.pv-page'), { timeout: 8000 });
+      pageEl().setPointerCapture = () => {}; pageEl().releasePointerCapture = () => {};
+      if (Ed().editText) Ed().toggleEditText();
+      Ed().setTool('select');
+      const span = await waitFor(() => spanFor('On the band'), { timeout: 8000 });
+      const range = doc().createRange(); range.selectNodeContents(span);
+      PT.win.getSelection().removeAllRanges(); PT.win.getSelection().addRange(range);
+      await waitFor(() => doc().querySelector('.sel-box.is-text'), { timeout: 5000 });
+      drag(doc().querySelector('.sel-box.is-text'), 30, 0);
+      await sleep(60);
+      const annots = PT.E.state.pages[0].annots, cover = annots.find((a) => a.type === 'whiteout'), moved = annots.find((a) => a.type === 'text');
+      const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+      expect(rgb(cover.fill)[2] > 150 && rgb(cover.fill)[0] < 80).toBe(true, 'the cover is the band blue: ' + cover.fill);
+      expect(rgb(moved.color).every((v) => v > 200)).toBe(true, 'the moved text stays white: ' + moved.color);
     }, { timeout: 60000 });
 
     it('a text selection shows a box with handles; a press without movement lifts nothing; dragging the box lifts the text into an annotation', async () => {
