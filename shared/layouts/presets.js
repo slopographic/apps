@@ -11,7 +11,7 @@
     { id: 'video', name: 'Video editing', blurb: 'Preview large, timeline along the bottom.', apps: ['slopcut'] },
     { id: 'image', name: 'Image editing', blurb: 'Canvas large, tools left, layers and properties right.', apps: ['photoslop'] },
     { id: '3d', name: '3D', blurb: 'Viewport large, outliner left, inspector right.', apps: ['3d'] },
-    { id: 'business', name: 'Business', blurb: 'The list on the left, the document or record on the right.', apps: ['invoices', 'orders', 'crm'] },
+    { id: 'business', name: 'Business', blurb: 'The list on the left, the document or record on the right.', apps: ['invoices', 'orders', 'quotes', 'crm'] },
     { id: 'writing', name: 'Writing', blurb: 'The document in the centre, its outline on the left.', apps: [] },
   ]);
 
@@ -35,7 +35,7 @@
         outliner: { show: true, side: 'left', size: 230 },
         inspector: { show: true, side: 'right', size: 270 },
       } },
-    { id: 'business-document', category: 'business', name: 'List and document', apps: ['invoices', 'orders'],
+    { id: 'business-document', category: 'business', name: 'List and document', apps: ['invoices', 'orders', 'quotes'],
       panels: {
         list: { show: true, side: 'left', size: 340 },
         document: { show: true, side: 'right', size: null },

@@ -95,13 +95,11 @@
       expect((await S.quotes.toInvoice('nope')).code).toBe('not_found');
       expect((await st.list('orders')).value.length).toBe(0);
     });
-    it('isExpired and validFor', () => {
+    it('isExpired: an open quote past its valid-until day', () => {
       expect(S.quotes.isExpired({ status: 'sent', validUntil: '2026-10-01' }, '2026-10-02')).toBe(true);
       expect(S.quotes.isExpired({ status: 'sent', validUntil: '2026-10-02' }, '2026-10-02')).toBe(false);
       expect(S.quotes.isExpired({ status: 'accepted', validUntil: '2026-10-01' }, '2026-10-02')).toBe(false);
       expect(S.quotes.isExpired({ status: 'draft' }, '2026-10-02')).toBe(false);
-      expect(S.quotes.validFor('2026-10-20')).toBe('2026-11-19');
-      expect(S.quotes.validFor('2026-12-31', 1)).toBe('2027-01-01');
     });
     it('backups: a quote pointing at a missing customer is refused; an export made before quotes and expenses still imports', async () => {
       await quote();

@@ -9,13 +9,6 @@
   /** Pure: true when a quote that is still open (draft or sent) is past its validUntil date on day (YYYY-MM-DD). */
   const isExpired = (q, day) => !!q.validUntil && (q.status === 'draft' || q.status === 'sent') && q.validUntil < day;
 
-  /** Pure: the next valid-until date, days after date (default 30). */
-  function validFor(date, days = 30) {
-    const d = new Date(`${date}T00:00:00Z`);
-    d.setUTCDate(d.getUTCDate() + days);
-    return d.toISOString().slice(0, 10);
-  }
-
   /** Reads a quote that can still be converted: open or accepted, and not already turned into this kind of document. */
   async function convertible(tx, id) {
     const r = await tx.get('quotes', id);
@@ -58,5 +51,5 @@
     });
   }
 
-  ns.quotes = { isExpired, validFor, toOrder, toInvoice };
+  ns.quotes = { isExpired, toOrder, toInvoice };
 })(typeof window !== 'undefined' ? window : globalThis);

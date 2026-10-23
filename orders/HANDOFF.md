@@ -15,12 +15,13 @@ backups. Money is integer minor units; the line maths is `SlopDocs.model` and `S
 - `js/core/fulfil.js`: fulfilment through `SlopData.stock`.
 - `js/core/actions.js`: confirm, convert, fulfil and cancel by id (shared by the list menu and the editor).
 - `js/ui/list.js`: the list, row menu (right-click or Menu key).
-- `js/ui/editor.js`: one order: customer, date, notes, lines, totals, the actions for its status, Export PDF.
-- `js/core/pdf.js`: the order with its customer and company block (`load`), its view (`viewOf`) and the PDF (`orderPdf`).
-- `js/ui/page.js`: the order on the page: the paper view in its template, with in-place editing, the layout pick, and the PDF
-  download. Draft and confirmed orders edit in place; fulfilled and cancelled ones are read only.
-- `js/ui/app.js`, `commands.js`, `data.js`: boot and routes (`#list`, `#new`, `#o/<id>`, `#data`), SlopCmd commands,
-  backup and restore.
+- `js/ui/editor.js`: one order on the shared editor (`shared/docs/doc-editor.js`): the order's statuses, its invoice link,
+  and the actions for its status (confirm, fulfil, cancel, convert). The form, lines, save and leave are the shared editor's.
+- `js/core/pdf.js`: `SlopDocs.docPdf` for orders: `load`, `viewOf` and the PDF (`orderPdf`).
+- `js/ui/page.js`: `SlopDocs.docPage` for orders: the paper view in its template, with in-place editing, the layout pick, and
+  the PDF download. Draft and confirmed orders edit in place; fulfilled and cancelled ones are read only.
+- `js/ui/app.js`, `layout.js`, `commands.js`, `data.js`: `SlopDocs.docApp` (routes `#list`, `#new`, `#o/<id>`, `#data`),
+  `SlopDocs.docLayout`, SlopCmd commands, and `SlopBiz.backup` (backup and restore).
 - `js/core/samples.js`: the io for random samples (no DOM). `js/ui/samples.js`: the list buttons and the editor action.
 - Shared with invoices, in `shared/docs/`: `model.js` (percent and money text, line totals, `addDays`, status names),
   `lines.js` (line cards and totals box), `customer-dialog.js` (New customer), `product-dialog.js`, and the sample generator

@@ -45,7 +45,7 @@ Quotes are ordinary records (`store.put('quotes', ...)`, numbered QUO-0001, neve
 accepted or declined; a sent quote can go back to draft, a declined one can be reopened, an accepted one is final.
 `SlopData.quotes.toOrder(id)` makes a confirmed order and `toInvoice(id, { dueDate })` a draft invoice, in one transaction
 that links both ways (`quoteId` on the new document, `orderId` or `invoiceId` on the quote) and accepts the quote. Nothing is
-posted. `isExpired(q, day)` and `validFor(date, days)` are pure.
+posted. `isExpired(q, day)` is pure.
 
 ## Result shape (every async call)
 
