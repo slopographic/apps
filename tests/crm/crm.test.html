@@ -20,16 +20,19 @@
   const errors = [];
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const S = () => win().SlopData;
-  const field = (label) => [...doc().querySelectorAll('.sui-dlg .fld')]
+  // The open dialog on top: a dialog that is closing (.sui-out, its animation) is still in the page for a moment, and a
+  // helper that took the first .sui-dlg would fill that one under load and leave the new dialog open.
+  const dlg = () => SlopTest.topDialog(doc());
+  const field = (label) => [...dlg().querySelectorAll('.fld')]
     .find((l) => l.querySelector('.fld-t').textContent === label).querySelector('input,select,textarea');
-  const dlgSave = () => doc().querySelector('.sui-dlg .sui-primary');
-  const dlgText = () => (doc().querySelector('.sui-dlg') || { textContent: '' }).textContent;
+  const dlgSave = () => dlg() && dlg().querySelector('.sui-primary');
+  const dlgText = () => (dlg() || { textContent: '' }).textContent;
   const customerNamed = async (name) => (await S().store.list('customers')).value.find((c) => c.name === name);
   const card = (name) => [...doc().querySelectorAll('.card-c')].find((c) => c.querySelector('.c-name').textContent === name);
   const colOf = (stage) => doc().querySelector(`.col[data-stage="${stage}"]`);
   const addCustomer = async (name) => {
     $('pAdd').click();
-    await waitFor(() => doc().querySelector('.sui-dlg'));
+    await waitFor(() => dlg() && dlgText().includes('Add customer'));
     field('Name').value = name;
     dlgSave().click();
     await waitFor(async () => (await customerNamed(name)) || false, { timeout: 8000 });
@@ -96,7 +99,7 @@
       await win().SlopHub.put(list(contacts), { name: 'Contacts.scontacts', from: 'contacts' });
       win().SlopCrm.app.show('customers');
       $('cImport').click();
-      await waitFor(() => doc().querySelector('.sui-dlg') && dlgText().includes('2 new customers'), { timeout: 8000 });
+      await waitFor(() => dlg() && dlgText().includes('2 new customers'), { timeout: 8000 });
       dlgSave().click();
       await waitFor(async () => (await S().store.list('customers')).value.length === 4, { timeout: 8000 });
       const cara = await customerNamed('Cara Vale');
@@ -104,7 +107,7 @@
       expect(cara.categories).toEqual(['wholesale']);
       expect(cara.stage).toBe('lead');
       $('cImport').click();
-      await waitFor(() => doc().querySelector('.sui-dlg') && dlgText().includes('0 new customers'), { timeout: 8000 });
+      await waitFor(() => dlg() && dlgText().includes('0 new customers'), { timeout: 8000 });
       expect(dlgSave()).toBeTruthy();
       expect(dlgSave().disabled).toBe(false);
       dlgSave().click();
