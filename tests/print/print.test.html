@@ -58,7 +58,8 @@
       field('Paper').value = 'Legal';
       field('Paper').dispatchEvent(new Event('change'));
       await waitFor(async () => { const d = await previewDoc(); return pageRules(d).pop().cssText.includes('legal'); });
-      expect(pageRules(await previewDoc()).pop().cssText).toContain('legal portrait');
+      // the rule as written (the browser shortens its own copy: Chromium reads "legal portrait" back as "legal")
+      expect(preview().srcdoc).toContain('@page{size:legal portrait;');
     });
     it('Escape closes the dialog', async () => {
       P.open({ title: 'Esc', html: '<p>x</p>' });
