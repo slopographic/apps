@@ -1,0 +1,41 @@
+name: Preview of testing
+
+# Every push to the testing branch publishes it to https://slopographic.github.io (the repo
+# slopographic/slopographic.github.io, served by GitHub Pages), so a change can be checked live before a milestone merges it
+# into main (slopographic.com). The copy leaves out CNAME (the live domain stays with main) and .github (this repo's
+# workflows must not run there), and its robots.txt keeps search engines out. The push uses the PREVIEW_TOKEN secret.
+on:
+  push:
+    branches: [testing]
+  workflow_dispatch:
+
+concurrency:
+  group: preview
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the preview copy
+        run: |
+          mkdir ../preview
+          git archive HEAD | tar -x -C ../preview
+          cd ../preview
+          rm -rf CNAME .github .githooks
+          printf 'User-agent: *\nDisallow: /\n' > robots.txt
+          touch .nojekyll
+          printf 'Preview of slopographic/apps at %s (%s). The live site is https://slopographic.com.\n' "${GITHUB_SHA::8}" "$(date -u +%FT%TZ)" > PREVIEW.txt
+      - name: Publish to slopographic/slopographic.github.io
+        env:
+          TOKEN: ${{ secrets.PREVIEW_TOKEN }}
+        run: |
+          cd ../preview
+          git init -q -b main
+          git config user.name slopographic
+          git config user.email 340656300+slopographic@users.noreply.github.com
+          git add -A
+          git commit -q -m "Preview of slopographic/apps testing at ${GITHUB_SHA::8}"
+          git push -q --force "https://x-access-token:${TOKEN}@github.com/slopographic/slopographic.github.io.git" main
