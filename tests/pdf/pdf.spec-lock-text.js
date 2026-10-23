@@ -83,18 +83,18 @@
       const a = { id: 'TX', type: 'text', text: 'Note', font: 'Helvetica', bold: false, italic: false, size: 16, color: '#111111', opacity: 1, rot: 0, cx: 90, cy: 176 };
       const t = PT.E.textLayout(a); a.w = t.w; a.h = t.h;
       Ed().addAnnot(a, 'Add text');
-      Ed().toggleEditText();
+      if (!Ed().editText) Ed().toggleEditText(); // on, whatever an earlier spec left it as (toggle flips it)
       await waitFor(() => elOf('TX'), { timeout: 8000 });
       const c = centre(elOf('TX'));
       // the press lands on the annotation's own glyphs (its element is the target)
       const hit = doc().elementFromPoint(c.clientX, c.clientY);
-      expect(!!hit.closest('.annots [data-aid]')).toBe(true);
+      expect(!!hit.closest('.annots [data-aid]')).toBe(true, 'the press lands on the annotation, not ' + hit.className + ' ' + hit.tagName);
       hit.dispatchEvent(pe('pointerdown', c));
       pageEl().dispatchEvent(pe('pointermove', { clientX: c.clientX + 20, clientY: c.clientY }));
       pageEl().dispatchEvent(pe('pointermove', { clientX: c.clientX + 40, clientY: c.clientY }));
       pageEl().dispatchEvent(pe('pointerup', { clientX: c.clientX + 40, clientY: c.clientY, buttons: 0 }));
       await sleep(40);
-      expect(annot('TX').cx > 90).toBe(true);
+      expect(annot('TX').cx > 90).toBe(true, 'moved: cx ' + annot('TX').cx + ', last step ' + PT.E.undoLabel());
       expect(PT.E.undoLabel()).toBe('Move annotation');
       // a press on the page itself, where the page's text lies under the annotation: the annotation still takes it
       // (a pause first: presses on the same annotation close together are a double click)

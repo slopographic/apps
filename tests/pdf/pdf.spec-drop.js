@@ -76,9 +76,18 @@
       PT.reset();
       // a stored tab may still be loading from an earlier test: a drop is refused until the app is idle
       await waitFor(() => !PT.A.isLocked(), { timeout: 20000 });
+      // PT.reset() empties only the tab on screen, and an earlier test's tab would come on screen: a new empty tab is
+      // "no document open" as the person sees it
+      PT.A.newTab();
+      await waitFor(() => PT.E.state.pages.length === 0 && !PT.A.isLocked(), { timeout: 20000 });
       drop([file('solo.pdf', 'application/pdf', await PT.makePdf([{ text: 'x' }, { text: 'y' }]))]);
-      await waitFor(() => PT.E.state.pages.length === 2, { timeout: 30000 });
-      expect(choiceDialog()).toBe(null);
+      try {
+        await waitFor(() => PT.E.state.pages.length === 2 || choiceDialog(), { timeout: 30000 });
+        expect(choiceDialog()).toBe(null);
+        expect(PT.E.state.pages.length).toBe(2);
+      } finally {
+        if (choiceDialog()) clickChoice('Cancel'); // never leave the dialog open for the next test
+      }
     }, { timeout: 60000 });
   });
 
