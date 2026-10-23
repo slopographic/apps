@@ -83,6 +83,13 @@
     var v = viewer();
     if (v && viewerHome && v.parentNode !== viewerHome) viewerHome.insertBefore(v, viewerNext);
   }
+  /** The viewer loses its scroll when it moves to another pane: the live document's saved scroll (from its last swap) goes back. */
+  function keepScroll(doc) {
+    var v = viewer(), sc = doc && doc.view && doc.view.scroll;
+    if (!v || !sc) return;
+    v.scrollTop = sc.viewer || 0;
+    v.scrollLeft = sc.viewerLeft || 0;
+  }
   function rememberViewerHome() {
     var v = viewer();
     if (v && !viewerHome) { viewerHome = v.parentNode; viewerNext = v.nextSibling; }
@@ -143,6 +150,7 @@
       placeViewer();
       showPreview(f, prev && prev !== doc ? prev : null);
       relayout();
+      keepScroll(doc);
       renderBars();
     } finally { switching = false; }
   }
@@ -206,6 +214,7 @@
     }
     placeViewer();
     relayout();
+    keepScroll(DT.current());
     renderBars();
   }
 
@@ -221,6 +230,7 @@
     if (strip) strip.hidden = false;
     placeViewer();
     relayout();
+    keepScroll(DT.current());
   }
 
   /** The workspace reports a focus change (a press on a pane). */
@@ -244,6 +254,7 @@
       placeViewer();
       showPreview(prev, prevDoc);
       relayout();
+      keepScroll(target);
       renderBars();
     } finally { switching = false; }
   }
@@ -299,6 +310,7 @@
       ws.focus(focused);
       placeViewer();
       relayout();
+      keepScroll(DT.current());
       renderBars();
     } finally { switching = false; }
   }

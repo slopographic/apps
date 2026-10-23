@@ -186,6 +186,33 @@
 
   function names(bar) { return [...bar.querySelectorAll('.spt-name')]; }
 
+  describe('split view: each pane keeps its place', () => {
+    it('the live pane and a preview pane keep their scroll and zoom when the focus goes back and forth', () => inSplit(async () => {
+      const win = PT.win, P = PT.SP.panes, v = win.document.getElementById('viewer');
+      const pv = P.preview(1), pb = pv.el.querySelector('.pv-pv-body');
+      try {
+        PT.SP.editor.zoomMode = 'num'; PT.SP.editor.zoom = 2; PT.SP.editor.layout();   // large enough to scroll
+        pv.setZoom(4);
+        await waitFor(() => v.scrollHeight > v.clientHeight + 100 && pb.scrollHeight > pb.clientHeight + 100, { timeout: 8000 }).catch(() => { throw new Error('dims ' + JSON.stringify([v.scrollHeight, v.clientHeight, pb.scrollHeight, pb.clientHeight, P.focused()])); });
+        v.scrollTop = 200;
+        pb.scrollTop = 150;
+        const zoom = pv.zoom();
+        click(win, win.document.querySelector('.sw-pane[data-pane="1"]'));
+        await settle();
+        expect(P.focused()).toBe(1);
+        click(win, win.document.querySelector('.sw-pane[data-pane="0"]'));
+        await settle();
+        expect(P.focused()).toBe(0);
+        expect(Math.abs(v.scrollTop - 200) < 5).toBe(true);
+        const again = P.preview(1);
+        expect(again.zoom()).toBe(zoom);
+        expect(Math.abs(again.el.querySelector('.pv-pv-body').scrollTop - 150) < 5).toBe(true);
+      } finally {
+        PT.SP.editor.zoomMode = 'fit'; PT.SP.editor.layout();
+      }
+    }));
+  });
+
   describe('split view: drop and new document in a pane', () => {
     it('a file dropped on a preview pane opens there, live (a real drop event on the pane)', () => inSplit(async ({ docA }) => {
       const win = PT.win, P = PT.SP.panes;

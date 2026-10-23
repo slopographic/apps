@@ -11,6 +11,8 @@
   var SP = window.SP, E = SP.engine, U = SP.util, V = SP.view;
   var PV = SP.panePreview = {};
   var ZMIN = 0.2, ZMAX = 8, STEP = 1.25;
+  /** Each document's zoom and scroll in the preview pane it was last in (a pane keeps its place when a document comes back). */
+  var memory = new WeakMap();
 
   /** Runs fn with the engine looking at doc's files and pages. Synchronous only: the open document is put back at once. */
   function withDoc(doc, fn) {
@@ -58,6 +60,10 @@
       return widest ? cw / widest : 1;
     }
     function show() { pct.textContent = Math.round(zoom * 100 / (96 / 72)) + '%'; }
+    /** Keeps the document's zoom and scroll for when it comes back to this pane. */
+    function remember() {
+      if (cur) memory.set(cur, { zoom: zoom, fitting: fitting, top: body.scrollTop, left: body.scrollLeft });
+    }
     function stop() {
       gen++;
       tasks.forEach(function (t) { try { t.cancel(); } catch (e) { /* already done */ } });
@@ -159,10 +165,13 @@
         return entry;
       });
       if (!pages.length) note.textContent = 'This document has no pages.';
+      var m = cur ? memory.get(cur) : null;
+      if (m) { zoom = m.zoom; fitting = m.fitting; }
       if (fitting) zoom = fitZoom();
       show();
       pages.forEach(function (e) { size(e); annotate(e); });
       watch();
+      if (m) { body.scrollTop = m.top; body.scrollLeft = m.left; }
     }
     function setZoom(z, keepFit) {
       var next = Math.min(ZMAX, Math.max(ZMIN, z));
@@ -190,6 +199,7 @@
       doc: function () { return cur; },
       /** Shows another document (or none) in this pane. */
       setDoc: function (d, title) {
+        remember();
         cur = d || null;
         if (title) name.textContent = title;
         build();
@@ -197,6 +207,7 @@
       setZoom: function (z) { setZoom(z); },
       zoom: function () { return zoom; },
       destroy: function () {
+        remember();
         stop();
         if (io) io.disconnect();
         root.remove();
