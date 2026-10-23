@@ -90,6 +90,22 @@
     }
     S.pageEl.addEventListener('pointermove', mv); S.pageEl.addEventListener('pointerup', cleanup); S.pageEl.addEventListener('pointercancel', cleanup);
   };
+  /** A single click on the page's own text (select tool, Edit text off): that text item is selected, so its box and handles
+   *  show and a drag on the box moves it. The selection waits a moment, so a double click (edit in place, pointer.js) cancels
+   *  it; a drag that selected text keeps its own selection. */
+  var clickTimer = null;
+  S.onClick = function (e) {
+    clearTimeout(clickTimer);
+    var span = e.target.closest && e.target.closest('.pv-textlayer span'), sel = window.getSelection && window.getSelection();
+    if (!span || !sel || e.detail !== 1 || Ed.tool !== 'select' || Ed.editText || !sel.isCollapsed) return;
+    clickTimer = setTimeout(function () {
+      if (!span.isConnected || !sel.isCollapsed) return;
+      var r = document.createRange();
+      r.selectNodeContents(span);
+      sel.removeAllRanges(); sel.addRange(r);
+    }, 280);
+  };
+  S.cancelClick = function () { clearTimeout(clickTimer); };
   // each selection: its lift is worked out, and the box is drawn (or cleared) on the page in view
   T.onChange(function () { if (T.snap) A.prepare(T.snap); if (S.overlay && Ed.pid) S.drawSelection(); });
 })();

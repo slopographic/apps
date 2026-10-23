@@ -33,11 +33,10 @@
     if (S.runEdit) S.commitRun();
     var handle = e.target.closest('.handle'), hitG = e.target.closest('.annots [data-aid]');
     var t = Ed.tool, tbox = t === 'select' && !Ed.selId && S.textBoxHit ? S.textBoxHit(e) : null; // a text selection's box (sel-actions.js)
-    // Edit text mode (edit-text.js): only a press on the page's own text opens a run. A press on an annotation, its handles or a
-    // text selection's box is the select or move press it is everywhere else (the text under an annotation is not what was pressed).
-    // The text layer's spans lie over the annotations, so a press on an annotation over page text reaches a span: the press is
-    // the annotation's when it is inside its box.
-    if (!hitG && !handle && Ed.editText && t === 'select' && !tbox) hitG = S.annotElAt(e);
+    // The text layer's spans lie over the annotations, so a press on an annotation over page text reaches a span: with the
+    // select tool the press is the annotation's when it is inside its box (select, move, resize), in Edit text mode or not.
+    // Edit text mode (edit-text.js): only a press on the page's own text opens a run.
+    if (!hitG && !handle && t === 'select' && !tbox) hitG = S.annotElAt(e);
     if (Ed.editText && t === 'select' && !handle && !hitG && !tbox) { e.preventDefault(); S.runDown(e, p); return; }
     if (t === 'block') { e.preventDefault(); S.blockDown(e, p); return; } // block copy (editor/block-copy.js)
     if (t === 'select') {
@@ -185,8 +184,12 @@
     S.pageEl.addEventListener('pointermove', mv); S.pageEl.addEventListener('pointerup', up); S.pageEl.addEventListener('pointercancel', up);
   }
   S.onDbl = function (e) {
+    // the text layer lies over the annotations: a double click inside an annotation's box is the annotation's
+    var g = e.target.closest('.annots [data-aid]') || (S.annotElAt ? S.annotElAt(e) : null);
+    // a double click on the page's own text edits that line in place (edit-text.js), without turning Edit text mode on
+    if (!g && Ed.tool === 'select' && !Ed.editText && e.target.closest('.pv-textlayer span') && Ed.page()) { if (S.cancelClick) S.cancelClick(); Ed.editRunAt(e, Ed.page()); return; }
     // with pointer capture the dblclick targets the page, so fall back to the selection
-    var g = e.target.closest('.annots [data-aid]'), id = g ? g.getAttribute('data-aid') : Ed.selId;
+    var id = g ? g.getAttribute('data-aid') : Ed.selId;
     if (!id || Ed.tool !== 'select') return;
     var a = S.findAnnot(id);
     if (a && !a.locked && (a.type === 'text' || a.type === 'callout' || a.type === 'step')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); }

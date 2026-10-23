@@ -20,6 +20,7 @@
     // a press on any page makes it the active page first, so the tool works on the page under the pointer
     el.addEventListener('pointerdown', function (e) { if (Ed.pid !== pid) S.activate(pid); S.pressing = true; S.onDown(e); });
     el.addEventListener('dblclick', function (e) { if (Ed.pid !== pid) S.activate(pid); S.onDbl(e); });
+    el.addEventListener('click', function (e) { if (S.onClick) S.onClick(e); }); // a click on a line selects it (sel-lift.js)
     S.slots.set(pid, s);
     return s;
   };

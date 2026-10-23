@@ -95,6 +95,12 @@
       S.beginRun(p, run);
     }, function () { SlopUI.toast('This page has no text to edit.'); });
   };
+  /** A double click on the page's own text with the select tool (pointer.js): that run opens for editing, as a press does in
+   * Edit text mode, and the mode stays off. The word the double click selected is let go, so the selection bar goes. */
+  Ed.editRunAt = function (e, p) {
+    if (window.getSelection) window.getSelection().removeAllRanges();
+    S.runDown(e, p);
+  };
   /** Opens a run: the document's fonts are checked first (once per document), then the new text's font is set up. A press
    * that has been overtaken by a later one (a double click) opens nothing. */
   S.beginRun = async function (p, run) {
