@@ -100,22 +100,28 @@
     const distinct = (c) => new Set(res.rows.map((r) => cellOf(r, c))).size;
     const facetCols = cols.filter((c) => c.type === 'text' && res.rows.length > 1 && distinct(c) <= 25);
     const line = (r) => el('div', 'rp-line', cols.map((c) => cellOf(r, c)).filter(Boolean).join(' · '));
+    // A card names each value: the first column is its title, the rest read "Label: value".
+    const card = (r) => {
+      const box = el('div', 'rp-card');
+      box.append(el('b', 'rp-card-title', cellOf(r, cols[0]) || '(none)'));
+      for (const c of cols.slice(1)) { const v = cellOf(r, c); if (v) box.append(el('span', 'rp-kv', `${c.label}: ${v}`)); }
+      return box;
+    };
     S.finder = g.SlopFinder.mount(dom.results, {
       items: res.rows,
       fields: cols.map((c) => ({ key: c.field, label: c.label, get: (r) => cellOf(r, c) })),
       searchKeys: cols.map((c) => c.field),
       facets: facetCols.map((c) => ({ key: c.field, label: c.label, values: (r) => [cellOf(r, c)] })),
       columns: cols.map((c) => ({ key: c.field, label: c.label, get: (r) => rawOf(r, c), render: (r) => cellOf(r, c) })),
-      card: line,
+      card,
+      view: 'table',
       row: line,
       placeholder: 'Search this report',
       searchLabel: 'Search this report',
-      noun: 'rows',
+      noun: ['row', 'rows'],
       emptyText: 'No rows match the filters.',
       onChange: (shown) => { S.shown = shown; },
     });
-    const table = dom.results.querySelector('[data-view="table"]');
-    if (table) table.click();
   }
 
   /** The plain table, when the Finder is not loaded. */
