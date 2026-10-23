@@ -75,43 +75,13 @@
     UI.toast(`Exported ${U.plural(r.value.length, 'product')}`);
   }
 
-  /** Downloads every record as one backup file. */
-  async function backup() {
-    const r = await S.exporter.exportFile();
-    if (!r.ok) { UI.alert('Backup failed', U.refusal(r)); return; }
-    UI.download(r.value.blob, r.value.name);
-    UI.toast('Backup downloaded');
-  }
-
-  /** Restores a backup file through the validated import. A bad file changes nothing and lists its errors. */
-  async function restore(file) {
-    const out = $('dRestoreMsg');
-    out.replaceChildren();
-    if (!file) return;
-    const yes = await UI.confirm('Restore this backup?',
-      'This replaces every record in this browser with the contents of the file, including customers and invoices. Download a backup first if you are not sure.',
-      'Restore', { danger: true });
-    if (!yes) { $('dRestore').value = ''; return; }
-    const text = await file.text();
-    const r = await S.exporter.importBundle(text);
-    if (!r.ok) {
-      const errs = (r.errors || [r.message]).slice(0, 20);
-      out.append(h('li', { class: 'rep-error', text: 'The file was not restored. Nothing changed.' }), ...errs.map((e) => h('li', { class: 'rep-error', text: String(e) })));
-      return;
-    }
-    out.append(h('li', { class: 'rep-ok', text: 'Restored. Every record now matches the file.' }));
-    UI.toast('Backup restored');
-    NS.app.refresh();
-  }
-
   function mount() {
     $('dImport').addEventListener('click', openImport);
     $('dExport').addEventListener('click', exportCsv);
-    $('dBackup').addEventListener('click', backup);
-    $('dRestore').addEventListener('change', (e) => restore(e.target.files && e.target.files[0]));
+    g.SlopBiz.backup.mount({ done: () => NS.app.refresh() });   // full backup and restore (shared/biz/backup.js)
   }
 
-  NS.dataActions = { openImport, exportCsv, backup, restore };
+  NS.dataActions = { openImport, exportCsv, backup: () => g.SlopBiz.backup.backup(), restore: (f) => g.SlopBiz.backup.restore(f) };
   NS.views = NS.views || {};
   NS.views.data = { mount, refresh: () => {}, onShow: () => {} };
 })(typeof window !== 'undefined' ? window : globalThis);
