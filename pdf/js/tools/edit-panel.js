@@ -33,6 +33,31 @@
       });
     }
   };
+  /** The font row: every family the shared picker knows (the standard three, bundled, downloaded and the person's own), with
+   *  Get more and Fonts…, and a sample line in the chosen family. Falls back to the standard three without the picker. A family
+   *  with no copy the PDF can embed is still listed and shown on screen, but its new text is saved in Helvetica: a note says so. */
+  var STANDARD_FONTS = [['Helvetica', 'Helvetica (sans)'], ['Times', 'Times (serif)'], ['Courier', 'Courier (mono)']];
+  function fontPicker(value, onPick) {
+    var sel = h('select', { class: 'inp', 'aria-label': 'Font' });
+    var tell = h('div', { class: 'note font-tell', role: 'status' });
+    var wrap = h('div', { class: 'font-pick' }, sel, tell);
+    function saveCheck(f) {
+      tell.textContent = '';
+      if (!window.SlopFonts || !f || STANDARD_FONTS.some(function (s) { return s[0] === f; })) return;
+      SlopFonts.ready().then(function () { return SlopFontCatalog.pickFace(f, 400, false); }).then(function (face) {
+        if (sel.value === f && !face) tell.textContent = f + ' is shown on screen, but new text is saved in Helvetica: this family has no copy a PDF can embed yet.';
+      }, function () { /* the catalogue is not there: nothing to say */ });
+    }
+    if (window.SlopFonts) {
+      SlopFonts.attach(sel, { value: value, legacy: STANDARD_FONTS, preview: true, onPick: function (f) { saveCheck(f); onPick(f); } });
+      saveCheck(sel.value);
+    } else {
+      STANDARD_FONTS.forEach(function (f) { sel.append(h('option', { value: f[0] }, f[1])); });
+      sel.value = value || 'Helvetica';
+      sel.addEventListener('change', function () { onPick(sel.value); });
+    }
+    return wrap;
+  }
   function buildProps(box, a, type) {
     box.innerHTML = '';
     var Ed = SP.editor, d = a || Ed.defaults[type] || {};
@@ -40,7 +65,7 @@
     var kids = [];
     if (type === 'select' && !a) { box.appendChild(section('Selection', [note('Click an annotation to select it. Drag to move, use the handles to resize, double-click text to edit. Drag empty space to pan; Ctrl/⌘ + wheel or pinch to zoom.')])); return; }
     if (type === 'text' || type === 'callout') {
-      kids.push(row('Font', select([['Helvetica', 'Helvetica (sans)'], ['Times', 'Times (serif)'], ['Courier', 'Courier (mono)']], d.font, set('font'))));
+      kids.push(row('Font', fontPicker(d.font, set('font'))));
       kids.push(row('Size', num(d.size || 16, 4, 400, 1, set('size')), 'pt'));
       kids.push(h('div', { class: 'btn-row' },
         toggle('B', 'Bold', d.bold, set('bold'), 'bold'), toggle('I', 'Italic', d.italic, set('italic'), 'italic')));
