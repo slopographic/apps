@@ -187,7 +187,7 @@
     // the text layer lies over the annotations: a double click inside an annotation's box is the annotation's
     var g = e.target.closest('.annots [data-aid]') || (S.annotElAt ? S.annotElAt(e) : null);
     // a double click on the page's own text edits that line in place (edit-text.js), without turning Edit text mode on
-    if (!g && Ed.tool === 'select' && !Ed.editText && e.target.closest('.pv-textlayer span') && Ed.page()) { if (S.cancelClick) S.cancelClick(); Ed.editRunAt(e, Ed.page()); return; }
+    if (!g && Ed.tool === 'select' && !Ed.editText && e.target.closest('.pv-textlayer span, .sel-box.is-text') && Ed.page()) { if (S.cancelClick) S.cancelClick(); Ed.editRunAt(e, Ed.page()); return; }
     // with pointer capture the dblclick targets the page, so fall back to the selection
     var id = g ? g.getAttribute('data-aid') : Ed.selId;
     if (!id || Ed.tool !== 'select') return;
