@@ -1,21 +1,14 @@
-/* Business app base (Slop Expenses first; Orders, Invoices, Ledger and Admin share the same rules): theme tokens (dark by
- * default, data-theme="light", or the system's light scheme), base elements, buttons, view tabs, toolbars, cards, form
+/* Business app base (Slop Expenses first; Orders, Invoices, Ledger and Admin share the same rules): colour tokens taken
+ * from the site theme, base elements, buttons, view tabs, toolbars, cards, form
  * grids, chips, messages and the backup block. An app stylesheet adds only what is its own. Works at 390 px wide. */
 :root {
-  --bg: #0e0e10; --panel: #17171b; --panel-2: #1f1f25; --ink: #f1ede4; --mute: #9a968c; --line: #2b2b33;
-  --accent: #d4ff3a; --accent-ink: #0e0e10; --danger: #ff4f6e; --warn: #ffb547; --ok: #7fdc8a; --chip: #26262e; --focus: #d4ff3a;
-  color-scheme: dark;
-}
-:root[data-theme="light"] {
-  --bg: #f6f4ef; --panel: #ffffff; --panel-2: #efece4; --ink: #17161a; --mute: #6b675e; --line: #d9d4c7;
-  --accent: #2f5bff; --accent-ink: #ffffff; --danger: #c81e44; --warn: #a25b00; --ok: #17803a; --chip: #e7e3d8; --focus: #2f5bff;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="pro"]):not([data-theme="dark"]) {
-    --bg: #f6f4ef; --panel: #ffffff; --panel-2: #efece4; --ink: #17161a; --mute: #6b675e; --line: #d9d4c7;
-    --accent: #2f5bff; --accent-ink: #ffffff; --danger: #c81e44; --warn: #a25b00; --ok: #17803a; --chip: #e7e3d8; --focus: #2f5bff; color-scheme: light;
-  }
+  /* Every colour follows the site theme (shared/theme/theme.js sets --sl-* on each page: Light, Dark, Classic, Lime);
+     the values after the commas are the dark look for a page without it. */
+  --bg: var(--sl-background, #0e0e10); --panel: var(--sl-surface, #17171b); --ink: var(--sl-text, #f1ede4);
+  --line: var(--sl-border, #2b2b33); --accent: var(--sl-accent, #d4ff3a); --accent-ink: var(--sl-on-accent, #0e0e10); --focus: var(--accent);
+  --panel-2: color-mix(in srgb, var(--panel) 90%, var(--ink)); --chip: color-mix(in srgb, var(--panel) 82%, var(--ink));
+  --mute: color-mix(in srgb, var(--ink) 62%, transparent);
+  --danger: #e5484d; --warn: #c98a12; --ok: #3fa34d;
 }
 [hidden] { display: none !important; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); overflow-x: hidden; }

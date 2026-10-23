@@ -95,6 +95,33 @@
     });
   });
 
+  // Relative luminance contrast of two CSS colours (WCAG): rgb(), rgba() or color(srgb ...) as the browser computes them.
+  function rgbOf(c) {
+    const m = /color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)/.exec(c);
+    if (m) return m.slice(1, 4).map((v) => Number(v) * 255);
+    return (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+  }
+  function contrast(a, b) {
+    const L = (c) => { const [r, g, bl] = rgbOf(c).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * bl; };
+    const [x, y] = [L(a), L(b)].sort((p, q) => q - p);
+    return (x + 0.05) / (y + 0.05);
+  }
+  describe('Slop Expenses: the site theme', () => {
+    it('in every theme, the form text and the list text read on their backgrounds (contrast 4.5 or more)', async () => {
+      for (const theme of ['light', 'dark', 'classic', 'lime']) {
+        W.SlopTheme.apply(theme);
+        W.SlopExpenses.app.go('new');
+        await waitFor(() => !$('eForm').hidden);
+        set('eSupplier', 'Contrast check');
+        const cs = W.getComputedStyle($('eSupplier'));
+        const fill = cs.webkitTextFillColor || cs.color;
+        expect(contrast(fill, cs.backgroundColor) >= 4.5).toBe(true, theme + ': input ' + fill + ' on ' + cs.backgroundColor);
+        const body = W.getComputedStyle(D.body);
+        expect(contrast(body.color, body.backgroundColor) >= 4.5).toBe(true, theme + ': page ' + body.color + ' on ' + body.backgroundColor);
+      }
+    });
+  });
+
   run({ name: 'Slop Expenses' });
   </script>
 </body>
