@@ -89,6 +89,19 @@
       await waitFor(() => menuLabels().length);
       expect(menuLabels()[0]).toBe('Open Cloud host');
     });
+    it('a selected row is marked (class and aria-current); empty can be an element; a list without open is static', () => {
+      const msg = document.createElement('div'); msg.className = 'my-empty'; msg.append('Nothing here', document.createElement('button'));
+      const L = SlopList.mount(host, { row: (r) => ({ title: r.who, selected: r.id === 'b' }), empty: msg });
+      L.set(RECS);
+      expect(rows()[1].classList.contains('is-selected')).toBe(true);
+      expect(rows()[1].getAttribute('aria-current')).toBe('true');
+      expect(rows()[0].hasAttribute('aria-current')).toBe(false);
+      expect(host.querySelector('.sl-list').classList.contains('is-static')).toBe(true);
+      L.set([]);
+      expect(host.querySelector('.my-empty').hidden).toBe(false);
+      expect(host.querySelector('.my-empty button')).toBeTruthy();
+      list = make(); list.set(RECS);
+    });
     it('redrawing keeps the focused row where it was', () => {
       rows()[1].focus();
       key(rows()[1], 'ArrowDown');

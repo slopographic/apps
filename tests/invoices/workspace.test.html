@@ -9,6 +9,7 @@
   <!-- The real invoices app runs in a same-origin iframe at a set width; the width sets the media queries it sees. -->
   <script src="../harness.js"></script>
   <script>
+  // Covers: invoices/js/ui/list.js, invoices/js/ui/app.js, invoices/js/ui/commands.js, invoices/js/core/util.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   let frame = null;
 
@@ -81,8 +82,9 @@
       const D = W.document;
       const id = await seedDraft(W);
       W.location.hash = `i/${id}`;
-      await waitFor(() => D.querySelector(`#iRows .orow.sel[data-id="${id}"]`), { timeout: 15000 });
-      expect(D.querySelector(`#iRows .orow.sel[data-id="${id}"]`).getAttribute('aria-selected')).toBe('true');
+      // the list is SlopList (shared/ui/list.js): the open invoice is the selected row, marked with aria-current
+      await waitFor(() => D.querySelector(`#iRows .sl-row.is-selected[data-key="${id}"]`), { timeout: 15000 });
+      expect(D.querySelector(`#iRows .sl-row.is-selected[data-key="${id}"]`).getAttribute('aria-current')).toBe('true');
       expect(shown(D.getElementById('eModes'))).toBe(false);
       expect(shown(D.querySelector('.ws-stage #ePage'))).toBe(true);
       expect(shown(D.querySelector('.ws-panel #eForm'))).toBe(true);

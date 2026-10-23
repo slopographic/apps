@@ -3,7 +3,6 @@
 (function (g) {
   'use strict';
   const NS = (g.SlopInvoices = g.SlopInvoices || {});
-  const UI = g.SlopUI;
   const E = () => NS.editor.state();
 
   const COMMANDS = [
@@ -25,31 +24,11 @@
     { id: 'invoice.pdf', title: 'Invoice: export PDF', group: 'Invoice', when: () => E().open && !E().isNew, run: () => NS.preview.pdf(NS.editor.id()) },
     { id: 'data.backup', title: 'Data: download a full backup', group: 'Data', run: () => NS.dataActions.backup() },
   ];
-  const byId = Object.fromEntries(COMMANDS.map((c) => [c.id, c]));
-
-  /** Runs a command: through SlopCmd when it is loaded (recents and remapped keys apply), else directly. */
-  function run(id) {
-    const c = byId[id];
-    if (!c) return false;
-    if (g.SlopCmd && g.SlopCmd.get(id)) return g.SlopCmd.run(id);
-    if (c.when && !c.when()) return false;
-    try { c.run(); } catch (err) { console.error(err); if (UI) UI.toast(`${c.title} failed: ${err.message}`); }
-    return true;
-  }
-
-  function init() {
-    const C = g.SlopCmd;
-    if (C) {
-      C.init({ app: 'invoices' });
-      C.register(COMMANDS.map((c) => ({ id: c.id, title: c.title, group: c.group, keywords: c.keywords || [], keys: [], when: c.when, run: () => c.run() })));
-    }
-    document.addEventListener('click', (e) => {
-      const el = e.target.closest && e.target.closest('[data-cmd]');
-      if (!el || el.disabled) return;
-      e.preventDefault();
-      run(el.dataset.cmd);
-    });
-  }
+  let runner = null;
+  /** Registers the commands with SlopCmd and wires [data-cmd] (SlopBiz.commands, shared/biz/biz.js). */
+  function init() { runner = g.SlopBiz.commands('invoices', COMMANDS); }
+  /** Runs a command by id (through SlopCmd when it is loaded). */
+  const run = (id) => (runner ? runner(id) : false);
 
   NS.commands = { init, run, list: COMMANDS };
 })(typeof window !== 'undefined' ? window : globalThis);

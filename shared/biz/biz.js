@@ -28,12 +28,13 @@
 
   const data = () => g.SlopData;
 
-  /** The settings an app shows: currency, locale, default tax rate and the company block. Defaults when nothing is stored. */
+  /** The settings an app shows: currency, locale, default tax rate, payment terms and the company block. Defaults when nothing
+   *  is stored. */
   async function settings() {
     const S = data(), r = await S.store.get('settings', 'main');
     const s = r.ok && r.value ? r.value : S.schema.DEFAULT_SETTINGS;
     return { currency: s.defaultCurrency || 'USD', locale: s.locale || 'en-US', defaultTaxRate: s.defaultTaxRate || 0,
-      companyName: s.companyName || '', address: s.address || '', taxNumber: s.taxNumber || '' };
+      paymentTermsDays: s.paymentTermsDays ?? 30, companyName: s.companyName || '', address: s.address || '', taxNumber: s.taxNumber || '' };
   }
 
   /** Minor units as money text in a currency and locale ("€24.00"). */

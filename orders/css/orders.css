@@ -1,36 +1,4 @@
-/* Slop Orders: only what is its own (line cards, totals, the paper view). The base (theme tokens from the site theme,
- * tabs, toolbars, buttons, cards, forms, chips, messages) is shared/biz/app.css; the order rows are SlopList
- * (shared/ui/list.css). Works at 390 px wide: line cards stack, the tab strip scrolls inside itself. */
-.sub { color: var(--mute); font-size: 12px; }
-.empty { color: var(--mute); padding: 10px 0; }
-.sample-progress { display: block; width: 100%; margin-top: 8px; }
+/* Slop Orders: only what is its own. The base (theme tokens, inputs, buttons, chips, tabs, toolbars, cards, forms) is
+ * shared/biz/app.css; the order rows are SlopList (shared/ui/list.css); line cards, totals and the paper view are
+ * shared/docs/lines.css. */
 .view-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-.line-grid label { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; color: var(--mute); min-width: 0; }
-.line-grid .wide { grid-column: 1 / -1; }
-.line-grid input, .line-grid select { color: var(--ink); width: 100%; }
-.inline { display: flex; gap: 6px; }
-.inline select { flex: 1 1 auto; min-width: 0; }
-.lines { display: grid; gap: 10px; }
-.line-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px; min-width: 0; }
-.line-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.line-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-.line-foot .num { font-weight: 600; }
-.line-card.bad { border-color: var(--danger); }
-.line-err { color: var(--danger); font-size: 12.5px; margin: 6px 0 0; }
-.totals dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0; }
-.totals dt { color: var(--mute); }
-.totals dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-.totals dt.grand, .totals dd.grand { font-weight: 700; color: var(--ink); border-top: 1px solid var(--line); padding-top: 6px; }
-
-@media (max-width: 420px) {
-  .line-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-}
-@media (min-width: 720px) {
-  .line-grid { grid-template-columns: 2fr 2fr 1fr 1fr 1fr; }
-  .line-grid .full { grid-column: 1 / -1; }
-}
-
-/* The paper view (shared/docs/paper.js) in the editor; the form-only parts are hidden in Page mode */
-.page-wrap { margin: 4px 0 18px; min-width: 0; }
-.page-wrap[hidden] { display: none !important; }
