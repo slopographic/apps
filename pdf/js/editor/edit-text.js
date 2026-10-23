@@ -107,24 +107,67 @@
       if (token === S.runToken) { SlopUI.toast('The font could not be set up: ' + (err && err.message || err)); S.openRun(p, run, { font: run.fam, bold: run.bold, italic: run.italic, std: true }); }
     }
   };
+  /** The face pdf.js loaded to draw a run's embedded font ({ family, ascent, descent } in em), or null when the file does
+   * not embed it (a standard font) or the face is not in the page's fonts. The editor shows the run in it, so the text looks
+   * the same as on the page; characters the subset lacks fall back to the font the new text is set in. */
+  function pageFace(run) {
+    var fo = run.pg && run.pg.commonObjs.has(run.fontName) ? run.pg.commonObjs.get(run.fontName) : null, found = false;
+    if (!fo || fo.missingFile || !fo.loadedName || !document.fonts) return null;
+    document.fonts.forEach(function (ff) { if (ff.family.replace(/["']/g, '') === fo.loadedName && ff.status === 'loaded') found = true; });
+    return found ? { family: fo.loadedName, ascent: fo.ascent || 0.9, descent: -(fo.descent || -0.25) } : null;
+  }
+  var mctx = null;
+  /** How the browser lays out a CSS font: its ascent and descent (em, the line box it uses) and the width of a text at a size
+   * (px), or null when the browser does not report font metrics (the pdf.js values are used then). */
+  function cssMetrics(css, weight, text, px) {
+    mctx = mctx || document.createElement('canvas').getContext('2d');
+    mctx.font = weight + ' ' + px + 'px ' + css;
+    var m = mctx.measureText(text);
+    if (m.fontBoundingBoxAscent == null) return null;
+    return { ascent: m.fontBoundingBoxAscent / px, descent: m.fontBoundingBoxDescent / px, width: m.width };
+  }
+  /** Opens the editor on a run, in place: same font (the page's own face when the file embeds it), size and baseline, on
+   * the paper colour so the old text does not show through. The box grows to the right as the text gets longer (up to
+   * the page edge). The run box (redact/find.js itemBox) starts 0.12 em left of the text and has its baseline 0.98 em
+   * below its top. */
   S.openRun = function (p, run, font) {
     var s = S.slots.get(p.id); if (!s) return;
     if (S.runEdit) S.closeRun(); // one editor at a time
-    var z = Ed.zoom, b = run.box;
-    var input = U.h('input', { type: 'text', class: 'edit-run', value: run.str, 'aria-label': 'Edit text' });
-    input.style.left = (b.x * z) + 'px'; input.style.top = (b.y * z) + 'px';
-    input.style.width = ((b.w + 6) * z) + 'px'; input.style.height = (b.h * z + 2) + 'px';
-    input.style.fontSize = (run.fs * z) + 'px'; input.style.fontFamily = E.cssFont(font); input.style.fontWeight = E.cssWeight(font);
+    var z = Ed.zoom, b = run.box, fs = run.fs, face = pageFace(run);
+    var css = face ? '"' + face.family + '", ' + E.cssFont(font) : E.cssFont(font), weight = E.cssWeight(font);
+    // the line box the browser draws this font in, so the baseline lands on the run's; and a horizontal scale so the text
+    // is as wide as the PDF draws it (a standard font shows in a system font with other widths; pdf.js scales it the same way)
+    var cm = cssMetrics(css, weight, run.str, fs * z);
+    var asc = cm ? cm.ascent : face ? face.ascent : 0.9, desc = cm ? cm.descent : face ? face.descent : 0.25, lineH = (asc + desc) * fs;
+    var k = cm && cm.width > 0 && run.width > 0 ? run.width * z / cm.width : 1;
+    if (!(k > 0.5 && k < 2) || Math.abs(k - 1) < 0.01) k = 1;
+    var paper = surroundColour(s, run).map(function (v) { return Math.round(v * 255); });
+    var input = U.h('input', { type: 'text', class: 'edit-run', value: run.str, 'aria-label': 'Edit text', spellcheck: 'false' });
+    // widths are in the input's own (unscaled) pixels; scaleX(k) from its left edge makes them page pixels
+    var minW = b.w * z / k, maxW = Math.max(minW, ((s.layer.clientWidth || Infinity) - b.x * z) / k);
+    input.style.left = (b.x * z) + 'px'; input.style.top = ((b.y + 0.98 * fs - asc * fs) * z) + 'px';
+    if (k !== 1) { input.style.transformOrigin = '0 0'; input.style.transform = 'scaleX(' + k + ')'; }
+    input.style.width = minW + 'px'; input.style.height = (lineH * z) + 'px'; input.style.lineHeight = (lineH * z) + 'px';
+    input.style.padding = '0 0 0 ' + (0.12 * fs * z / k) + 'px';
+    input.style.fontSize = (fs * z) + 'px'; input.style.fontWeight = weight; input.style.fontFamily = css;
+    input.style.background = 'rgb(' + paper.join(',') + ')';
+    /** Widens the box to its text (never narrower than the run, never past the page edge). */
+    function fit() {
+      input.style.width = minW + 'px';
+      if (input.scrollWidth > input.clientWidth) input.style.width = Math.min(maxW, input.scrollWidth + 0.12 * fs * z / k + 2) + 'px';
+    }
     var info = U.h('div', { class: 'edit-info' }, 'Checking the font…');
     info.style.left = (b.x * z) + 'px'; info.style.top = ((b.y + b.h) * z + 4) + 'px';
     s.layer.append(input, info);
     S.runEdit = { p: p, run: run, font: font, input: input, info: info, done: false };
+    input.addEventListener('input', fit);
     input.addEventListener('keydown', function (e) {
       e.stopPropagation();
       if (e.key === 'Enter') { e.preventDefault(); S.commitRun(); }
       else if (e.key === 'Escape') { e.preventDefault(); S.closeRun(); }
     });
     input.addEventListener('blur', function () { if (S.runEdit && S.runEdit.input === input) S.commitRun(); });
+    fit();
     input.focus(); input.select();
     showFontInfo(run, info, font);
   };
