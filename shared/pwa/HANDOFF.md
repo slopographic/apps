@@ -19,25 +19,39 @@ persistent storage to Slop Drive. It does not guarantee it: Chrome still decides
     included. The first visit fetches all of it in the background.
   - **HTML navigations**: network first, then the saved copy, then `offline.html`. `/drive/` is
     stored as `/drive/index.html`.
-  - **Static files** (js, css, fonts, images, wasm, json, glb): cache first. Files not seen at
-    install are added on first use.
+  - **Static files** (js, css, fonts, images, wasm, json, glb): network first (`cache: 'no-cache'`), then the saved
+    copy when offline. Files not seen at install are added on first use.
   - Only same-origin GET requests are handled. Other origins and other methods go straight to the
     network and are never cached.
 - Old `slopographic-*` caches are deleted when a new worker activates.
 
 ## Updating
 
-1. Change the site as usual.
-2. If you added, removed or moved a boot file, run `node tools/pwa-precache.mjs`. It rewrites the
-   `PRECACHE` block in `service-worker.js` and warns about any entry that is not on disk.
-3. **Bump `VERSION` in `service-worker.js`** (`'v1'` → `'v2'`) on every release that changes a
-   precached or static file. Without the bump, returning visitors keep the old cached files. The
-   browser also updates the worker only when its bytes change.
+1. Change the site as usual and commit. The pre-commit hook (`.githooks/pre-commit`; enable once per clone with
+   `git config core.hooksPath .githooks`) runs `node tools/pwa-precache.mjs` and stages its output: the `PRECACHE` list
+   (`sw-precache*.js`) and `VERSION` in `service-worker.js`.
+2. **`VERSION` is never edited by hand.** It is `v-` and the first 12 hex digits of a SHA-256 over the worker's code and
+   every precached file (path and bytes). A release that changes a cached file gets a new `VERSION`, so returning visitors
+   get a new cache (the old one is deleted on activate) and the browser installs the new worker. A release that changes no
+   cached file keeps the same `VERSION`, and nobody downloads the precache again.
+3. `node tools/pwa-precache.mjs --check` writes nothing and exits 1 when the list or `VERSION` is out of date.
+   `tests/node/pwa-version.test.mjs` runs it, so a commit made without the hook fails the tests.
 4. Run `node tests/run.mjs pwa`. The offline test checks that the homepage and Slop Drive open
    with the server stopped.
 5. **Run `node tests/run.mjs storage` before publishing.** It opens a real version 1 database and
    old-shape localStorage fixtures against the new code, and checks that the service worker never
    clears IndexedDB or localStorage. Any failure blocks the release. Rules: `storage/HANDOFF.md`.
+
+## Loading the newest release in a browser
+
+- `SlopPWA.refresh()` deletes this site's `slopographic-*` caches, asks the browser for the newest worker
+  (`registration.update()`) and reloads the page without `?fresh`. Files are fetched from the network (the worker uses
+  `cache: 'no-cache'`). IndexedDB and localStorage are not touched: Drive files, documents, settings and downloaded packs
+  stay.
+- **`?fresh` on any page** does the same: `shared/theme/theme.js` (in every app page's head) loads `shared/pwa.js` when the
+  address has `?fresh`, and `pwa.js` runs `refresh()` on load. Example: `https://slopographic.com/pdf/?fresh`.
+- **Settings ▸ Updates** shows the release the worker serves (`SlopPWA.version()`, answered by the worker's `message`
+  handler) and has **Load the latest version** (`settings/updates.js`).
 
 `tools/pwa-icons.mjs` regenerates the PNG icons from `favicon.svg`. Run it only if the icon changes.
 

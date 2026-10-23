@@ -9,4 +9,10 @@ if [ "$name" != "slopographic" ] || [ "$email" != "340656300+slopographic@users.
   exit 1
 fi
 msg=$(git log -1 --format=%B 2>/dev/null)
+# Cache bust: the precache list and the service worker VERSION follow the files (tools/pwa-precache.mjs). The commit takes
+# the regenerated files, so a release that changes a cached file always reaches returning visitors.
+if command -v node >/dev/null 2>&1; then
+  node tools/pwa-precache.mjs >/dev/null || { echo "pre-commit: node tools/pwa-precache.mjs failed." >&2; exit 1; }
+  git add service-worker.js sw-precache*.js
+fi
 exit 0

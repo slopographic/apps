@@ -125,6 +125,13 @@
       <p id="storage-note" class="settings-note" role="status" aria-live="polite"></p>
     </section>
 
+    <section id="updates" aria-labelledby="updates-title">
+      <h2 id="updates-title">Updates</h2>
+      <p>Slopographic checks for a new version each time you open a page. If a page still looks old, load the latest version: the offline copies are fetched again and the page reloads. Your files, documents, settings and downloaded packs are kept. On any page, adding <strong>?fresh</strong> to the address does the same.</p>
+      <p id="updates-version" class="settings-note"></p>
+      <button type="button" class="btn" id="updates-refresh">Load the latest version</button>
+    </section>
+
     <section aria-labelledby="rates-title">
       <h2 id="rates-title" data-i18n="settings.exchange_rates">Exchange rates</h2>
       <p>Rates are entered by you, or downloaded on purpose from the European Central Bank. Nothing is downloaded unless you turn this on and press the button, or tick "Update on open".</p>
@@ -229,6 +236,8 @@
   <script src="rates.js"></script>
   <script src="folder.js"></script>
   <script src="storage.js"></script>
+  <script src="../shared/pwa.js"></script>
+  <script src="updates.js"></script>
   <script src="app-settings.js"></script>
   <script src="../shell/shell.js"></script>
 </body>

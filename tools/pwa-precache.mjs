@@ -7,10 +7,13 @@
 // import()) and CSS url()/@import, so the list follows what a page needs to boot offline.
 // shell/shell.js loads its parts at run time (brand, registry, SlopUI, shell/*.js, CSS), so its
 // quoted .js/.css paths are followed too.
-// Entries that do not exist on disk are reported and left out. Bump VERSION in service-worker.js
-// after running this; the browser only updates the worker when its bytes change (sw-precache.js is
-// imported, so its bytes count too, but the worker's own cache name only changes with VERSION).
+//   node tools/pwa-precache.mjs --check    write nothing; exit 1 when the list or VERSION is out of date
+// Entries that do not exist on disk are reported and left out. VERSION in service-worker.js is set here too: a hash of
+// every precached file and of the worker's own code. It changes exactly when one of them does, so a release that changes
+// a cached file gets a new cache (the old one is deleted on activate) and the browser installs the new worker. The
+// pre-commit hook (.githooks/pre-commit) runs this and stages the result, so nobody bumps VERSION by hand.
 import { readFile, writeFile, stat, rm } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -24,7 +27,8 @@ const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/ic
   'vendor/lamejs/lame.min.js', 'vendor/lamejs/LICENSE',
   // the video engine's JavaScript (the ffmpeg core itself is loaded from jsDelivr on first use)
   'vendor/ffmpeg/index.js', 'vendor/ffmpeg/classes.js', 'vendor/ffmpeg/const.js', 'vendor/ffmpeg/errors.js', 'vendor/ffmpeg/types.js', 'vendor/ffmpeg/utils.js', 'vendor/ffmpeg/worker.js', 'vendor/ffmpeg/LICENSE']; // the MP3 encoder and the video engine, loaded on demand
-const DRY = process.argv.includes('--dry-run');
+const CHECK = process.argv.includes('--check');
+const DRY = process.argv.includes('--dry-run') || CHECK;
 
 // shell/shell.js loads its parts with addScript()/addCss(), so static refs miss them. Its paths are
 // relative to the site root. Follow every quoted .js/.css path, and expand 'shell/' + m + '.js' over its loop list.
@@ -118,7 +122,13 @@ const partSrc = (n, body) => (n === 1
 const swSrc = await readFile(SW, 'utf8');
 if (!/importScripts\([^)]*sw-precache/.test(swSrc)) throw new Error('service-worker.js must load the list with importScripts(\'/sw-precache.js\')');
 const importLine = `importScripts(${parts.map((_, i) => `'/${partFile(i + 1)}'`).join(', ')});`;
-const nextSw = swSrc.replace(/importScripts\([^)]*sw-precache[^)]*\);/, importLine);
+const VERSION_LINE = /^const VERSION = '[^']*';$/m;
+if (!VERSION_LINE.test(swSrc)) throw new Error('service-worker.js must declare const VERSION = \'...\';');
+// The version: the worker's code (with the version line blanked) and every precached file, path and bytes.
+const hash = createHash('sha256').update(swSrc.replace(/importScripts\([^)]*sw-precache[^)]*\);/, importLine).replace(VERSION_LINE, ''));
+for (const f of list) hash.update('\0' + f + '\0').update(await readFile(path.join(ROOT, f)));
+const version = 'v-' + hash.digest('hex').slice(0, 12);
+const nextSw = swSrc.replace(/importScripts\([^)]*sw-precache[^)]*\);/, importLine).replace(VERSION_LINE, `const VERSION = '${version}';`);
 if (!DRY) await writeFile(SW, nextSw);
 for (let i = 0; i < parts.length; i++) {
   const f = path.join(ROOT, partFile(i + 1));
@@ -126,4 +136,10 @@ for (let i = 0; i < parts.length; i++) {
 }
 const written = parts.map((_, i) => partFile(i + 1));
 if (!DRY) for (const f of ['sw-precache.js', 'sw-precache-2.js', 'sw-precache-3.js', 'sw-precache-4.js'].filter((x) => !written.includes(x))) await rm(path.join(ROOT, f), { force: true });
-console.log(`PRECACHE: ${list.length} files, ${roots.length} roots, ${missing.size} missing${DRY ? ' (dry run, nothing written)' : ''}`);
+console.log(`PRECACHE: ${list.length} files, ${roots.length} roots, ${missing.size} missing, VERSION ${version}${DRY ? ' (dry run, nothing written)' : ''}`);
+if (CHECK) {
+  const stale = [nextSw !== swSrc ? 'service-worker.js' : null];
+  for (let i = 0; i < parts.length; i++) stale.push((await readFile(path.join(ROOT, partFile(i + 1)), 'utf8').catch(() => '')) === partSrc(i + 1, parts[i].join('\n')) ? null : partFile(i + 1));
+  const out = stale.filter(Boolean);
+  if (out.length) { console.error(`out of date: ${out.join(', ')}. Run: node tools/pwa-precache.mjs`); process.exit(1); }
+}

@@ -6,9 +6,14 @@
  *   SlopPWA.requestPersist()   asks the browser to keep storage; returns and records the answer.
  *   SlopPWA.persistAnswer()    the recorded answer: 'granted' | 'denied' | 'unsupported' | null.
  *   SlopPWA.persistMessage(a)  plain-words text for an answer (shown in Slop Drive).
- *   SlopPWA.onPersist(fn)      fn(answer) runs whenever an answer is recorded. */
+ *   SlopPWA.onPersist(fn)      fn(answer) runs whenever an answer is recorded.
+ *   SlopPWA.version()          the release the service worker serves ('v-…'), or null when no worker controls the page.
+ *   SlopPWA.refresh()          loads the newest release: deletes the offline caches, fetches the newest worker and
+ *     reloads from the network. Drive files, documents, settings and downloaded packs are kept (they are not in those
+ *     caches). Any page that loads this script does the same when its address has ?fresh (slopographic.com/pdf/?fresh). */
 (function (win) {
   'use strict';
+  if (win.SlopPWA) return; // loaded twice (theme.js adds it for ?fresh): the first copy serves
   const NAV = win.navigator;
   const KEY = 'slop-pwa.persist';
   const STYLE = '.pwa-install{font-size:12px;padding:6px 10px;white-space:nowrap}.pwa-install[hidden]{display:none!important}';
@@ -92,8 +97,36 @@
     return true;
   }
 
+  /** The release the controlling service worker serves, or null (no worker, or no answer within two seconds). */
+  function version() {
+    return new Promise((done) => {
+      const c = NAV && NAV.serviceWorker && NAV.serviceWorker.controller;
+      if (!c || !win.MessageChannel) { done(null); return; }
+      const ch = new win.MessageChannel(), t = win.setTimeout(() => done(null), 2000);
+      ch.port1.onmessage = (e) => { win.clearTimeout(t); done((e.data && e.data.version) || null); };
+      c.postMessage({ type: 'version' }, [ch.port2]);
+    });
+  }
+
+  /** Deletes this site's offline caches, asks the browser for the newest service worker, then reloads the page (without
+   * ?fresh). The worker fetches every file again (network first, no HTTP cache), so the reload shows the newest release. */
+  async function refresh() {
+    try {
+      if (win.caches) for (const k of await win.caches.keys()) if (k.startsWith('slopographic-')) await win.caches.delete(k);
+    } catch (e) { /* caches blocked: the reload still revalidates with the server */ }
+    try {
+      const reg = NAV && NAV.serviceWorker && (await NAV.serviceWorker.getRegistration('/'));
+      if (reg) await reg.update();
+    } catch (e) { /* offline or no worker: reload anyway */ }
+    const u = new URL(win.location.href);
+    u.searchParams.delete('fresh');
+    win.location.replace(u.href);
+  }
+
   win.SlopPWA = {
     mount,
+    version,
+    refresh,
     requestPersist,
     persistAnswer: read,
     persistMessage: (answer) => MESSAGES[answer] || '',
@@ -101,4 +134,5 @@
     canInstall: () => !!deferred,
     onPersist: (fn) => { listeners.push(fn); },
   };
+  if (new URLSearchParams(win.location.search).has('fresh')) refresh();
 })(window);

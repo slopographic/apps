@@ -236,6 +236,14 @@
       doc.head.appendChild(s);
     }
     if (doc && doc.documentElement) doc.documentElement.setAttribute('data-slop-app', page.app);
+    // ?fresh on any page loads the newest release (SlopPWA.refresh in shared/pwa.js, which runs it on load when the address has ?fresh)
+    try {
+      if (self && self.src && !g.SlopPWA && new URLSearchParams(g.location.search).has('fresh')) {
+        var pwa = doc.createElement('script');
+        pwa.src = new URL('../pwa.js', self.src).href;
+        doc.head.appendChild(pwa);
+      }
+    } catch (e) { /* no URL support: ?fresh is ignored */ }
     mirrorMissing();
     refresh();
     watch();
