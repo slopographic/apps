@@ -1,4 +1,5 @@
-// Slop Inventory: shared helpers. Classic script, loaded after shared/data. Exposes window.SlopInv.util.
+// Slop Inventory: shared helpers. Classic script, loaded after shared/data and shared/biz/biz.js (refusal, settings, money
+// and h are SlopBiz's). Exposes window.SlopInv.util.
 // Nothing here stores anything; it formats, parses and explains.
 (function (g) {
   'use strict';
@@ -19,26 +20,9 @@
   };
   const FIELD = { sku: 'SKU', ean: 'EAN', name: 'Name', price: 'Price', taxRate: 'Tax rate', unit: 'Unit', reorderLevel: 'Reorder level', description: 'Description' };
 
-  /** One readable line for a failed Result. */
-  function refusal(r) {
-    if (!r) return 'Something went wrong';
-    if (Array.isArray(r.errors) && r.errors.length) {
-      return r.errors.map((e) => (e.field ? `${FIELD[e.field] || e.field} ${e.message}` : e.message)).join('. ');
-    }
-    const head = PLAIN[r.code];
-    if (head) return r.message ? `${head} (${r.message})` : head;
-    return r.message || 'Something went wrong';
-  }
-
-  /** Store settings the inventory needs: currency, locale and the default tax rate for new products. */
-  async function settings() {
-    const r = await S.store.get('settings', 'main');
-    const s = r.ok && r.value ? r.value : S.schema.DEFAULT_SETTINGS;
-    return { currency: s.defaultCurrency || 'USD', locale: s.locale || 'en-US', defaultTaxRate: s.defaultTaxRate || 0 };
-  }
-
-  /** Money for display only (Intl formatting of an integer amount). */
-  const money = (minor, currency, locale) => S.money.formatMinor(minor, currency, locale);
+  const B = g.SlopBiz;
+  /** One readable line for a failed Result (SlopBiz.refusal with the inventory's words, the message in brackets). */
+  const refusal = (r) => B.refusal(r, { plain: PLAIN, fields: FIELD, brackets: true });
 
   /** Minor units as plain text with the currency's decimals, such as 1250 -> "12.50". Round-trips with parseMinor. */
   function majorText(minor, currency) {
@@ -61,27 +45,8 @@
   /** A location name as typed, or 'main' when blank. */
   const cleanLocation = (v) => String(v ?? '').trim().slice(0, 40) || 'main';
 
-  /** Small DOM builder: h('a', { class, href, onclick, dataset }, 'text', child). Text children are escaped by the DOM. */
-  function h(tag, attrs, ...kids) {
-    const e = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs || {})) {
-      if (v === false || v === null || v === undefined) continue;
-      if (k === 'class') e.className = v;
-      else if (k === 'text') e.textContent = v;
-      else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
-      else if (k === 'dataset') Object.assign(e.dataset, v);
-      else if (v === true) e.setAttribute(k, '');
-      else e.setAttribute(k, String(v));
-    }
-    for (const c of kids.flat()) {
-      if (c === null || c === undefined || c === false) continue;
-      e.append(c instanceof Node ? c : document.createTextNode(String(c)));
-    }
-    return e;
-  }
-
   const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
   const stamp = (ms) => new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-  NS.util = { PLAIN, FIELD, refusal, settings, money, majorText, percentText, wholeOf, cleanLocation, h, plural, stamp, ok: S.result.ok, fail: S.result.fail };
+  NS.util = { PLAIN, FIELD, refusal, settings: B.settings, money: B.money, majorText, percentText, wholeOf, cleanLocation, h: B.h, plural, stamp, ok: S.result.ok, fail: S.result.fail };
 })(typeof window !== 'undefined' ? window : globalThis);

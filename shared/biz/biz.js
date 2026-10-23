@@ -1,6 +1,6 @@
 // SlopBiz: the helpers every business app needs on top of SlopData (shared/data): one readable line for a refused
 // Result, the settings an app shows (currency, locale, tax, company), money in the person's currency and locale, and the
-// expense accounts of the chart. Orders, Invoices, Inventory and CRM keep copies of refusal(); new apps use this one.
+// expense accounts of the chart, the command wiring and a DOM builder. Every business app uses these (no copies).
 // Classic script, loaded after shared/data. Exposes window.SlopBiz (and module.exports for the Node tests).
 (function (g) {
   'use strict';
@@ -14,7 +14,8 @@
   };
 
   /** One readable line for a failed Result: the field errors when there are any, else the plain words for its code and the
-   *  data layer's message. opts.plain and opts.fields (field id -> label) let an app use its own words. */
+   *  data layer's message. opts.plain and opts.fields (field id -> label) let an app use its own words; opts.brackets puts the
+   *  message in brackets after the words instead of after a colon. */
   function refusal(r, opts = {}) {
     if (!r) return 'Something went wrong';
     const fields = opts.fields || {};
@@ -22,7 +23,7 @@
       return r.errors.map((e) => (e.field ? `${fields[e.field] || e.field} ${e.message}` : e.message)).join('. ');
     }
     const head = (opts.plain || {})[r.code] || PLAIN[r.code];
-    if (head) return r.message ? `${head}: ${r.message}` : head;
+    if (head) return !r.message ? head : opts.brackets ? `${head} (${r.message})` : `${head}: ${r.message}`;
     return r.message || 'Something went wrong';
   }
 

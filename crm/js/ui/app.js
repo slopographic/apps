@@ -10,7 +10,7 @@
   let timer = 0, lastTab = 'customers';
   const WIDE = g.matchMedia ? g.matchMedia('(min-width: 960px)') : null;
   const isWide = () => !!(WIDE && WIDE.matches);
-  NS.state = { view: 'customers', current: null, split: false, settings: { defaultCurrency: 'USD', locale: 'en-US' } };
+  NS.state = { view: 'customers', current: null, split: false, settings: { currency: 'USD', locale: 'en-US' } };
 
   /**
    * Shows one view. `customer` opens the detail for the id in arg. On a wide screen the detail sits beside the

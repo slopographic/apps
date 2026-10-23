@@ -58,4 +58,5 @@ test('SlopBiz.refusal: field errors, plain words for the code with the message, 
   assert.equal(B.refusal({ ok: false, code: 'invalid_transition' }, { plain: { invalid_transition: 'Not for a void expense' } }), 'Not for a void expense');
   assert.equal(B.refusal({ ok: false, code: 'weird', message: 'odd' }), 'odd');
   assert.equal(B.refusal(null), 'Something went wrong');
+  assert.equal(B.refusal({ ok: false, code: 'in_use', message: 'it has stock moves' }, { plain: { in_use: 'Cannot delete' }, brackets: true }), 'Cannot delete (it has stock moves)');
 });

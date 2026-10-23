@@ -92,7 +92,7 @@
     if (!rows.length) return el('p', { class: 'empty' }, empty);
     return el('ul', { class: 'docs', 'aria-label': title }, rows.map((d) => el('li', null,
       el('b', null, d.number || 'Draft'), el('span', { class: 'row-sub' }, `${NS.util.date(d.date, loc)} · ${d.status}`),
-      el('span', { class: 'amt' }, money(d.total || 0, d.currency || cur.defaultCurrency, loc)))));
+      el('span', { class: 'amt' }, money(d.total || 0, d.currency || cur.currency, loc)))));
   }
 
   /** Schedules a call or meeting with this customer: an event in Slop Calendar that links to the customer. */
