@@ -99,6 +99,10 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .pv-overlay { position: absolute; inset: 0; pointer-events: none; }
 .sel-box { position: absolute; outline: 1.5px solid #0a0a0a; box-shadow: 0 0 0 3.5px rgba(212, 255, 58, .75); pointer-events: none; }
 .sel-box.is-line { outline: 1px dashed rgba(10, 10, 10, .5); box-shadow: none; }
+.sel-box.is-locked { outline-style: dashed; box-shadow: none; }
+.sel-box.is-text { pointer-events: auto; cursor: move; } /* a text selection's box: pressing it lifts and moves the text (sel-actions.js) */
+.sel-lock { position: absolute; width: 20px; height: 20px; margin: -10px 0 0 -10px; display: grid; place-items: center; border: 1.5px solid var(--line-2); border-radius: 50%; background: var(--panel); color: var(--fg); pointer-events: none; }
+.sel-lock .ic { width: 11px; height: 11px; }
 .handle { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; background: var(--lime); border: 1.5px solid #0a0a0a; border-radius: 3px; pointer-events: auto; touch-action: none; }
 .handle.h-pt { border-radius: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; cursor: move; }
 .h-nw, .h-se { cursor: nwse-resize; } .h-ne, .h-sw { cursor: nesw-resize; } .h-n, .h-s { cursor: ns-resize; } .h-e, .h-w { cursor: ew-resize; }

@@ -70,12 +70,27 @@
     if (S.viewer) S.viewer.classList.toggle('edit-text', Ed.editText);
   };
 
+  /** The runs a press or a selection can open. A run that a white cover (a whiteout) hides is not on the page as the person
+   * sees it any more (an earlier edit, or Remove): it is not offered, so a double click on the new text never opens the old
+   * run underneath. A run is hidden when most of its box (60% or more) is covered. */
+  function visibleRuns(p, runs) {
+    var g = E.geom(p), R = E.rotation(p), G = window.SlopPdfSel;
+    var white = (p.annots || []).filter(function (a) { return a.type === 'whiteout' && !a.hidden; }).map(function (a) {
+      var v = E.annotViewRect(a, R, g.W, g.H), c = [[v.x, v.y], [v.x + v.w, v.y + v.h]].map(function (q) { return E.toPage(R, g.W, g.H, q[0], q[1]); });
+      return { x0: Math.min(c[0][0], c[1][0]), y0: Math.min(c[0][1], c[1][1]), x1: Math.max(c[0][0], c[1][0]), y1: Math.max(c[0][1], c[1][1]) };
+    });
+    if (!white.length) return runs;
+    return runs.filter(function (run) {
+      var area = run.box.w * run.box.h;
+      return area <= 0 || G.rectsArea(G.rectsMinus([G.rectOfBox(run.box)], white)) >= 0.4 * area;
+    });
+  }
   /** A press in edit mode: the run under the pointer opens for editing. */
   S.runDown = function (e, p) {
     var pt = S.pagePt(e);
     if (S.runEdit) { S.commitRun(); }
     runsOf(p).then(function (r) {
-      var run = pick(r.runs, pt);
+      var run = pick(visibleRuns(p, r.runs), pt);
       if (!run) { SlopUI.toast('No text there. Click on a line of text.'); return; }
       S.beginRun(p, run);
     }, function () { SlopUI.toast('This page has no text to edit.'); });
@@ -169,7 +184,7 @@
   Ed.editSelectionRun = function (p, rect) {
     return runsOf(p).then(function (r) {
       var best = null, bestA = 0;
-      r.runs.forEach(function (run) {
+      visibleRuns(p, r.runs).forEach(function (run) {
         var b = run.box, ox = Math.min(b.x + b.w, rect.x1) - Math.max(b.x, rect.x0), oy = Math.min(b.y + b.h, rect.y1) - Math.max(b.y, rect.y0);
         if (ox > 0 && oy > 0 && ox * oy > bestA) { best = run; bestA = ox * oy; }
       });

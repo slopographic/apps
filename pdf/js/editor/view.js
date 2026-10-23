@@ -103,14 +103,24 @@
     if (SP.app) SP.app.editorSelectionChanged();
   };
   S.ctx = function () { var p = Ed.page(), g = E.geom(p); return { p: p, g: g, R: E.rotation(p), W: g.W, H: g.H, z: Ed.zoom }; };
+  /** The lock badge on a locked layer's selection: its top-right corner. */
+  function lockCue(r, z) {
+    var el = U.h('div', { class: 'sel-lock', title: 'Locked: unlock it in Layers to change it', 'aria-label': 'Locked', html: U.icon('lock') });
+    el.style.left = ((r.x + r.w) * z) + 'px'; el.style.top = (r.y * z) + 'px';
+    return el;
+  }
   S.drawSelection = function () {
     S.overlay.innerHTML = '';
     if (Ed.noteUI) Ed.noteUI.reattach(); // an open comment stays on top of the overlay
-    var a = Ed.getSelected(); if (!a || a.hidden || (S.editing && S.editing.id === a.id)) return;
+    var a = Ed.getSelected();
+    if (!a) { if (S.drawTextBox) S.drawTextBox(); return; } // a text selection's box (editor/sel-actions.js)
+    if (a.hidden || (S.editing && S.editing.id === a.id)) return;
     var c = S.ctx(), r = E.annotViewRect(a, c.R, c.W, c.H), z = c.z;
-    var box = U.h('div', { class: 'sel-box' + (a.type === 'line' || a.type === 'arrow' ? ' is-line' : '') });
+    var box = U.h('div', { class: 'sel-box' + (a.type === 'line' || a.type === 'arrow' ? ' is-line' : '') + (a.locked ? ' is-locked' : '') });
     box.style.left = (r.x * z) + 'px'; box.style.top = (r.y * z) + 'px'; box.style.width = (r.w * z) + 'px'; box.style.height = (r.h * z) + 'px';
     S.overlay.appendChild(box);
+    // A locked layer stays selectable (so it can be unlocked) but has no handles and no delete button: it cannot be changed.
+    if (a.locked) { S.overlay.appendChild(lockCue(r, z)); return; }
     var hs;
     if (a.type === 'line' || a.type === 'arrow') {
       [0, a.pts.length - 1].forEach(function (k, n) {

@@ -6,6 +6,19 @@
   /* ---------------------------------------------------------- interaction */
   S.viewPt = function (e) { var r = S.pageEl.getBoundingClientRect(); return [(e.clientX - r.left) / Ed.zoom, (e.clientY - r.top) / Ed.zoom]; }
   S.pagePt = function (e) { var c = S.ctx(), v = S.viewPt(e); return E.toPage(c.R, c.W, c.H, v[0], v[1]); }
+  /** The annotation element (.annots [data-aid]) whose box holds the press, topmost first, or null. Whiteouts and text
+   * highlights are skipped: they sit over page text that Edit text should still reach (the covered run is not offered). */
+  S.annotElAt = function (e) {
+    var p = Ed.page(); if (!p || !S.pageEl) return null;
+    var c = S.ctx(), v = S.viewPt(e);
+    for (var i = p.annots.length - 1; i >= 0; i--) {
+      var a = p.annots[i];
+      if (a.hidden || a.type === 'whiteout' || a.type === 'texthl') continue;
+      var r = E.annotViewRect(a, c.R, c.W, c.H);
+      if (v[0] >= r.x && v[0] <= r.x + r.w && v[1] >= r.y && v[1] <= r.y + r.h) return S.pageEl.querySelector('.annots [data-aid="' + a.id + '"]');
+    }
+    return null;
+  };
   Ed.cancelInteraction = function () {
     if (S.act && S.act.orig) { var a = S.findAnnot(S.act.id); if (a) { Object.keys(a).forEach(function (k) { delete a[k]; }); Object.assign(a, S.act.orig); } }
     S.act = null; S.draft = null; Ed.paint();
@@ -18,11 +31,17 @@
     var p = Ed.page(); if (!p) return;
     if (S.runEdit && e.target === S.runEdit.input) return; // typing in the run being edited
     if (S.runEdit) S.commitRun();
-    if (Ed.editText && Ed.tool === 'select') { e.preventDefault(); S.runDown(e, p); return; } // Edit text mode (editor/edit-text.js)
     var handle = e.target.closest('.handle'), hitG = e.target.closest('.annots [data-aid]');
-    var t = Ed.tool;
+    var t = Ed.tool, tbox = t === 'select' && !Ed.selId && S.textBoxHit ? S.textBoxHit(e) : null; // a text selection's box (sel-actions.js)
+    // Edit text mode (edit-text.js): only a press on the page's own text opens a run. A press on an annotation, its handles or a
+    // text selection's box is the select or move press it is everywhere else (the text under an annotation is not what was pressed).
+    // The text layer's spans lie over the annotations, so a press on an annotation over page text reaches a span: the press is
+    // the annotation's when it is inside its box.
+    if (!hitG && !handle && Ed.editText && t === 'select' && !tbox) hitG = S.annotElAt(e);
+    if (Ed.editText && t === 'select' && !handle && !hitG && !tbox) { e.preventDefault(); S.runDown(e, p); return; }
     if (t === 'block') { e.preventDefault(); S.blockDown(e, p); return; } // block copy (editor/block-copy.js)
     if (t === 'select') {
+      if (tbox) { S.liftEdit(e, tbox); return; } // the selected text becomes an annotation when it is first moved (sel-actions.js)
       if (handle && Ed.selId) { e.preventDefault(); S.startEdit(e, handle.dataset.h); return; }
       if (hitG) {
         e.preventDefault();
@@ -113,6 +132,7 @@
 
   /* move / resize / endpoints */
   S.startEdit = function (e, h) {
+    // a locked layer is selectable but not movable, resizable or re-pointable: no drag starts (Layers unlocks it)
     var a = Ed.getSelected(); if (!a || a.locked) return;
     var c = S.ctx();
     S.act = { kind: 'edit', h: h, id: a.id, orig: JSON.parse(JSON.stringify(a)), start: S.viewPt(e), r0: E.annotViewRect(a, c.R, c.W, c.H), moved: false };
