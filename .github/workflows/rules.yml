@@ -7,12 +7,18 @@ on:
   pull_request:
 
 jobs:
+  # Runs in Playwright's image (Chromium, its libraries and git preinstalled): a few Node tests open pages.
   check:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - name: Let git work in the checkout (the container runs as root; the workspace is the runner's)
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -34,7 +40,6 @@ jobs:
           git config user.name slopographic
           git config user.email 340656300+slopographic@users.noreply.github.com
           npm ci --no-audit --no-fund
-          npx playwright install --with-deps chromium
       - name: Node tests
         run: node --test tests/node/*.test.mjs tests/seo/*.test.mjs
 
@@ -45,6 +50,7 @@ jobs:
   browser:
     name: Browser tests ${{ matrix.shard }}/16
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
     strategy:
