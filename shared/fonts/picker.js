@@ -5,6 +5,7 @@
  * - load(family): registers a family's faces with FontFace when it is needed. Nothing is fetched at start-up.
  * - attach(select, opts): fills a <select> (standard names, then bundled, downloaded and own families) and adds a
  *   "Get more…" button and a "Fonts…" button (the Fonts panel, panel.js). Nothing downloads by itself.
+ *   opts.preview: a sample line (.slop-font-sample) after the buttons, set in the chosen family once its faces load.
  * The catalogue (catalog.js), the Fonts panel and the missing-font check (panel.js) load on first use (deps()).
  * Needs no CDN and no network for bundled fonts after the first load (the service worker caches them). */
 (function (root) {
@@ -99,6 +100,10 @@
     const m = meta.get(family);
     return `"${String(family).replace(/"/g, '')}", ${GENERIC[m ? m.category : 'sans'] || 'sans-serif'}`;
   }
+  /** The standard names (Helvetica, Times, Courier) as CSS stacks: they are not installed families, so the sample uses a
+   *  system face with the same look. */
+  const STANDARD_CSS = { Helvetica: 'Arial, Helvetica, sans-serif', Times: '"Times New Roman", Times, serif', Courier: '"Courier New", Courier, monospace' };
+  function sampleStack(family) { return STANDARD_CSS[family] || stack(family); }
 
   /** Rebuilds the options. Legacy entries are a name or a [value, label] pair. The value in the select (or current) is kept
    * even when that font is not installed, so a saved document still shows it. */
@@ -131,18 +136,28 @@
     const current = opts.value || standard[0] || '';
     if (!cssDone) {
       cssDone = true;
-      doc.head.append(Object.assign(doc.createElement('style'), { textContent: '.slop-getmore{font:inherit;font-size:11px;padding:1px 6px;margin-left:4px;border:1px solid currentColor;border-radius:4px;background:transparent;color:inherit;cursor:pointer;opacity:.85;white-space:nowrap}' }));
+      doc.head.append(Object.assign(doc.createElement('style'), { textContent: '.slop-getmore{font:inherit;font-size:11px;padding:1px 6px;margin-left:4px;border:1px solid currentColor;border-radius:4px;background:transparent;color:inherit;cursor:pointer;opacity:.85;white-space:nowrap}.slop-font-sample{margin:4px 0 0;font-size:16px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' }));
     }
     const refresh = async () => {
       const fams = await families();
       known = fams.map((f) => f.name);
       render(sel, legacy, fams, sel.value || current);
+      showSample(sel.value || current);
     };
+    // The sample line (opts.preview): the family's own face, once it is loaded, so the person sees how the name looks.
+    const sample = doc.createElement('p');
+    sample.className = 'slop-font-sample';
+    sample.setAttribute('aria-hidden', 'true');
+    sample.textContent = opts.sampleText || 'The quick brown fox jumps over 13 lazy dogs';
+    const showSample = (f) => { if (f) sample.style.fontFamily = sampleStack(f); };
     render(sel, legacy, [], current);
-    refresh().then(() => load(sel.value));
+    showSample(sel.value || current);
+    refresh().then(() => load(sel.value)).then(() => showSample(sel.value));
     sel.addEventListener('change', async () => {
       const f = sel.value;
+      showSample(f);
       await load(f);
+      showSample(f);
       if (opts.onPick) opts.onPick(f);
     });
     const button = (text, title, onClick) => {
@@ -171,12 +186,14 @@
         if (!root.SlopLibrary) return;
         const m = await root.SlopLibrary.loadManifest();
         if (!m.packs.length) btn.textContent = 'Get more (no packs listed)';
-        root.SlopLibrary.onChange(async () => { dropDownloaded(); await refresh(); load(sel.value); });
+        // A select that was rebuilt (the PDF text panel rebuilds on each selection) no longer needs the listener.
+        root.SlopLibrary.onChange(async () => { if (!sel.isConnected) return; dropDownloaded(); await refresh(); load(sel.value); });
       });
     }
+    if (opts.preview && sel.parentNode) (opts.getMore !== false ? fbtn : sel).insertAdjacentElement('afterend', sample);
     return {
-      refresh, button: btn, fontsButton: fbtn,
-      set(family) { sel.value = family; return load(family); }
+      refresh, button: btn, fontsButton: fbtn, preview: sample,
+      set(family) { sel.value = family; showSample(family); return load(family).then(() => showSample(family)); }
     };
   }
 

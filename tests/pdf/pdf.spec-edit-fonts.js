@@ -134,5 +134,26 @@
       expect(doc().querySelector('.edit-run')).toBe(null);
       editOff();
     });
+
+    it('the text panel font list has the standard three and the bundled families, with a preview line', async () => {
+      if (!PT.SP) await PT.boot();
+      PT.reset();
+      await PT.open(await PT.makePdf([{ text: 'hello world', w: 300, h: 200 }]), 'text-panel.pdf');
+      PT.A.openPage(PT.E.state.pages[0].id);
+      await waitFor(() => doc().querySelector('.pv-textlayer span'), { timeout: 8000 });
+      PT.A.setTool('edit');
+      PT.SP.editor.setTool('text');
+      const sel = await waitFor(() => doc().querySelector('.pp-body select[aria-label="Font"]'), { timeout: 8000 });
+      const values = await waitFor(() => { const v = [...sel.options].map((o) => o.value); return v.includes('Inter') ? v : null; }, { timeout: 8000 });
+      for (const f of ['Helvetica', 'Times', 'Courier', 'Inter', 'Source Sans 3']) expect(values.includes(f)).toBe(true, 'option ' + f);
+      expect(!!sel.parentNode.querySelector('.slop-font-sample')).toBe(true, 'the preview line is after the select');
+      // a family with an embeddable copy (Source Sans 3) has no note; one without (Inter) says the new text is saved in Helvetica
+      const pick = (f) => { sel.value = f; sel.dispatchEvent(new PT.win.Event('change')); };
+      pick('Inter');
+      await waitFor(() => /saved in Helvetica/.test(sel.parentNode.querySelector('.font-tell').textContent), { timeout: 8000 });
+      pick('Source Sans 3');
+      await waitFor(() => sel.parentNode.querySelector('.font-tell').textContent === '', { timeout: 8000 });
+      PT.SP.editor.setTool('select');
+    });
   });
 })();
