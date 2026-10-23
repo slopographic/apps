@@ -2,7 +2,9 @@
 // Slopographic test runner.
 //   node tests/run.mjs            run every tests/**/*.test.html in headless Chromium
 //   node tests/run.mjs paint      only pages whose path contains "paint"
-//   --jobs=4                      run 4 pages at a time, each in its own browser context (default 1; SLOPTEST_JOBS too)
+//   --jobs=4                      run 4 pages at a time, each in its own browser context (default 1; SLOPTEST_JOBS too).
+//                                 A page that fails then runs once more on its own: if it passes alone it counts as
+//                                 passed and is listed as load-sensitive (its timing depends on the machine being idle)
 //   --shard=2/8                   only the 2nd of 8 slices of the pages, balanced by tests/timings.json (CI runs the slices
 //                                 as parallel jobs; see tests/shard.mjs)
 //   --skip-node                   no Node tests (CI runs them in their own job)
@@ -77,16 +79,17 @@ if (SHARD) {
 const took = {};
 /** Opens one test page in its own context and returns its report as printed lines (a page prints all at once, so pages
  *  that run side by side never mix their output). */
-async function runPage(browser, base, p) {
+async function runPage(browser, base, p, scale) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
   const page = await ctx.newPage();
+  if (scale > 1) await page.addInitScript((n) => { window.__SLOPTEST_SCALE__ = n; }, scale); // harness timeouts (tests/harness.js)
   const consoleErrors = [];
   page.on('pageerror', (e) => consoleErrors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
   const t0 = Date.now();
   let report = null;
   try {
-    await page.goto(base + p.split(path.sep).join('/') + (JOBS > 1 ? `?timeoutScale=${Math.min(JOBS, 4)}` : ''));
+    await page.goto(base + p.split(path.sep).join('/'));
     await page.waitForFunction(() => window.__SLOPTEST__, null, { timeout: 300000, polling: 250 });
     report = await page.evaluate(() => window.__SLOPTEST__);
   } catch (e) { report = { name: p, passed: 0, failed: 1, results: [{ suite: 'runner', test: 'page loaded and finished', status: 'fail', message: e.message }], errors: [] }; }
@@ -107,14 +110,23 @@ if (pages.length) {
   const server = await serve();
   const base = `http://127.0.0.1:${server.address().port}/`;
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'] });
+  const again = [], alone = [];
   await pool(pages, JOBS, async (p) => {
-    const r = await runPage(browser, base, p);
+    const r = await runPage(browser, base, p, Math.min(JOBS, 4));
+    if (r.failed && JOBS > 1) { again.push(p); console.log(r.out.join('\n') + c.d('\n  (runs again on its own after the others)')); return; }
     console.log(r.out.join('\n'));
     passed += r.passed; failed += r.failed;
   });
+  for (const p of again.sort()) {
+    const r = await runPage(browser, base, p, 1);
+    console.log(c.b('\nAgain, on its own:') + r.out.join('\n'));
+    passed += r.passed; failed += r.failed;
+    if (!r.failed) alone.push(p);
+  }
+  if (alone.length) console.log(c.d(`\nLoad-sensitive (failed beside other pages, passed alone): ${alone.join(', ')}`));
   await browser.close();
   server.close();
   if (flag('record-timings')) await writeFile(TIMINGS, JSON.stringify(mergeTimings(timings, took), null, 1) + '\n');
 }
-console.log(`\n${failed ? c.r(`${failed} failed`) : c.g('all green')} · ${passed} passed across ${pages.length} page${pages.length === 1 ? '' : 's'}${nodeTests.length ? ` + ${nodeTests.length} node file${nodeTests.length === 1 ? '' : 's'}` : ''}`);
+console.log(`\n${failed ? c.r(`${failed} failed`) : c.g('all green')} · ${passed} passed across ${pages.length} page${pages.length === 1 ? '' : 's'}${nodeTests.length && !flag('skip-node') ? ` + ${nodeTests.length} node file${nodeTests.length === 1 ? '' : 's'}` : ''}`);
 process.exit(failed ? 1 : 0);

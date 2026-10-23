@@ -86,7 +86,7 @@ The bindings are fixed for Slop PDF (`NAV` in `js/editor/view.js`), so the Navig
   window's origin (PhotoSlop, SlopVector, Slop PDF).
 
 ## Tests
-`node tests/run.mjs pdf` runs `tests/pdf/pdf.test.html` (49 tests, ~120 s) and `tests/pdf/view-state.test.html`. The real app runs in
+`node tests/run.mjs pdf` runs the Slop PDF pages in `tests/pdf/`: the specs are split over `pdf.test.html` (core, I/O, redact, OCR), `pdf-view.test.html`, `pdf-text.test.html` and `pdf-workspace.test.html` (about 40 s each, so they run in parallel), plus `view-state.test.html` and the others. The real app runs in
 an iframe; `tests/pdf/pdf.helpers.js` (`window.PT`) boots it, makes fixture PDFs with the app's own pdf-lib,
 opens them through `A.addFiles`, captures downloads and reads output back with pdf.js. Specs:
 - `pdf.spec-core.js`: ranges, zip/CRC, sniffing, geometry, page ops, undo/redo/coalescing, page-number text,
@@ -298,7 +298,7 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   History starts collapsed; open state is kept for the session only. The tool panels themselves are not collapsible.
 - **History** (`js/tools/history-panel.js`, `H.steps()` and `H.goTo(n)` in `core/history.js`): applied steps oldest first, then
   undone steps greyed; a click goes to that state by undo or redo.
-- Tests: `tests/pdf/pdf.spec-drop.js`, `pdf.spec-layers.js`, `pdf.spec-sidebar.js` (in `pdf.test.html`).
+- Tests: `tests/pdf/pdf.spec-drop.js`, `pdf.spec-layers.js`, `pdf.spec-sidebar.js` (in `pdf-workspace.test.html`).
 
 ## Slop Drive: originals, saved copies and versions (`io/drive-docs.js`, `io/doc-changes.js`, `ui/versions.js`)
 - **The original is kept at once.** Opening a PDF (drop, File ▸ Open, Add pages, Open from Drive into an empty document)

@@ -7,8 +7,9 @@
   'use strict';
   const suites = [];
   let current = null;
-  // Pages that run side by side (tests/run.mjs --jobs) are slower: the runner adds ?timeoutScale=N and every timeout grows N times.
-  const SCALE = Math.max(1, Number(new URLSearchParams(location.search).get('timeoutScale')) || 1);
+  // Pages that run side by side (tests/run.mjs --jobs) are slower: the runner sets window.__SLOPTEST_SCALE__ = N before the
+  // page loads (not in the URL, which some tests read) and every timeout grows N times.
+  const SCALE = Math.max(1, Number(window.__SLOPTEST_SCALE__) || 1);
   function describe(name, fn) { const s = { name, tests: [], before: [], after: [] }; suites.push(s); const prev = current; current = s; try { fn(); } finally { current = prev; } }
   function it(name, fn, { timeout = 15000 } = {}) { (current || describe('(root)', () => {}) || suites[suites.length - 1]).tests.push({ name, fn, timeout }); }
   function beforeEach(fn) { current.before.push(fn); }

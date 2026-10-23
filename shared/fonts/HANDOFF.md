@@ -146,5 +146,5 @@ With no packs listed, the picker button reads "Get more (no packs listed)" and t
 ```
 node tests/run.mjs font-library        # Node tests and the shared browser test page
 node tests/run.mjs fonts/              # the Fonts panel and the missing-font check (tests/fonts/)
-node tests/run.mjs pdf/pdf.test        # includes the PDF edit-text font tests (tests/pdf/pdf.spec-edit-fonts.js)
+node tests/run.mjs pdf/pdf-text       # includes the PDF edit-text font tests (tests/pdf/pdf.spec-edit-fonts.js)
 ```

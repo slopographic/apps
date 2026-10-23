@@ -38,27 +38,21 @@ jobs:
       - name: Node tests
         run: node --test tests/node/*.test.mjs tests/seo/*.test.mjs
 
-  # The browser tests (every tests/**/*.test.html), split into 8 slices that run as parallel jobs, 3 pages at a time in each.
-  # The slices are balanced by tests/timings.json (refresh with: node tests/run.mjs --record-timings).
+  # The browser tests (every tests/**/*.test.html), split into 16 slices that run as parallel jobs, 3 pages at a time in each.
+  # The slices are balanced by tests/timings.json (refresh with: node tests/run.mjs --record-timings). The jobs run in
+  # Playwright's own image, which has Chromium and its system libraries, so a job starts in seconds. Its version must be the
+  # one in package-lock.json (tests/node/ci-config.test.mjs checks it). This is CI only: GitHub Pages serves the files as they are.
   browser:
-    name: Browser tests ${{ matrix.shard }}/8
+    name: Browser tests ${{ matrix.shard }}/16
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
       - run: npm ci --no-audit --no-fund
-      - name: Cache Chromium
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Install Chromium and its system libraries
-        run: npx playwright install --with-deps chromium
-      - name: Browser tests, slice ${{ matrix.shard }} of 8
-        run: node tests/run.mjs --shard=${{ matrix.shard }}/8 --jobs=3 --skip-node
+      - name: Browser tests, slice ${{ matrix.shard }} of 16
+        run: node tests/run.mjs --shard=${{ matrix.shard }}/16 --jobs=3 --skip-node
