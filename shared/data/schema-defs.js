@@ -10,6 +10,7 @@
     stage: ['lead', 'contacted', 'customer', 'lost'],
     invoiceStatus: ['draft', 'issued', 'paid', 'void'],
     orderStatus: ['draft', 'open', 'fulfilled', 'cancelled'],   // open = confirmed
+    quoteStatus: ['draft', 'sent', 'accepted', 'declined'],
     pdfLayout: ['classic', 'modern', 'minimal', 'bold', 'sidebar'],   // PDF and print template (shared/docs/pdf-layouts.js); absent = random from pdfSeed
     accountType: ['asset', 'liability', 'equity', 'revenue', 'expense'],
     payMethod: ['cash', 'bank', 'card', 'other'],
@@ -30,9 +31,11 @@
   ];
   // defaultCurrency is the ledger's base currency. locale is refined from the browser by currency.js at seed time.
   const DEFAULT_SETTINGS = { id: 'main', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30, ratesUpdateOnOpen: false };
-  const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }];
+  const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }, { id: 'quote', prefix: 'QUO-', pad: 4, next: 1 }];
   const INVOICE_NEXT = { draft: ['issued'], issued: ['paid', 'void'], paid: [], void: [] };
   const ORDER_NEXT = { draft: ['open', 'cancelled'], open: ['fulfilled', 'cancelled'], fulfilled: [], cancelled: [] };
+  // A sent quote can go back to draft to be revised; a declined one can be reopened; an accepted one is final.
+  const QUOTE_NEXT = { draft: ['sent', 'accepted', 'declined'], sent: ['draft', 'accepted', 'declined'], accepted: [], declined: ['draft'] };
   const RX = { currency: /^[A-Z]{3}$/, locale: /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/ };
 
   // Field specs. t = type; req = required; def = default; min/max/values/pattern/itemMax as named.
@@ -104,6 +107,7 @@
     return out;
   };
   const orderCheck = (r, o = {}) => (!r.number && !o.deferNumber ? ['an order needs a number'] : []);
+  const quoteCheck = (r, o = {}) => (!r.number && !o.deferNumber ? ['a quote needs a number'] : []);
   const countCheck = (r) => {
     const ids = (r.lines || []).map((l) => l && l.productId);
     const out = new Set(ids).size === ids.length ? [] : ['each product can be counted once per count'];
@@ -164,7 +168,7 @@
       indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), currency: F.cur({}),
       status: F.en(ENUM.orderStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
-      notes: F.text({}), invoiceId: F.id({}), sample: F.bool({}),
+      notes: F.text({}), invoiceId: F.id({}), quoteId: F.id({}), sample: F.bool({}),
       pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     invoices: { key: 'id', softDelete: true, derive: true, unique: ['number'], check: invoiceCheck, docCurrency: true,
       autoNumber: { seq: 'invoice', when: (r) => r.status !== 'draft' },
@@ -173,7 +177,15 @@
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), dueDate: F.date({}),
       currency: F.cur({}), status: F.en(ENUM.invoiceStatus, { def: 'draft' }), lines: { t: 'lines', min: 0, def: [] }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
-      notes: F.text({}), orderId: F.id({}), issuedAt: F.ts({}), sample: F.bool({}),
+      notes: F.text({}), orderId: F.id({}), quoteId: F.id({}), issuedAt: F.ts({}), sample: F.bool({}),
+      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
+    // Quotes (estimates): a priced offer. Nothing is posted; an accepted quote becomes an order or a draft invoice (quotes.js).
+    quotes: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'quote', when: () => true }, check: quoteCheck, docCurrency: true,
+      noRemove: 'quotes cannot be deleted; decline them instead',
+      indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
+      id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), validUntil: F.date({}),
+      currency: F.cur({}), status: F.en(ENUM.quoteStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
+      notes: F.text({}), orderId: F.id({}), invoiceId: F.id({}), sample: F.bool({}),
       pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     payments: { key: 'id', immutable: true, postingOnly: true, indexes: [{ name: 'invoiceId', key: 'invoiceId' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), invoiceId: F.id({ req: true }), amount: F.mny({ req: true, min: 1 }), date: F.date({ req: true }),
@@ -232,7 +244,7 @@
   const COLLECTIONS = Object.keys(DEFS);
 
   ns.schemaDefs = {
-    ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, INVOICE_NEXT, ORDER_NEXT, RX, F, LINE, JLINE, COUNT,
+    ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, INVOICE_NEXT, ORDER_NEXT, QUOTE_NEXT, RX, F, LINE, JLINE, COUNT,
     DEFS, COLLECTIONS, movementError, journalErrors, fxErrors,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

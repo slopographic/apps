@@ -4,7 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
-  const { ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, INVOICE_NEXT, ORDER_NEXT, RX, LINE, JLINE, COUNT, DEFS, COLLECTIONS, movementError, journalErrors, fxErrors } = ns.schemaDefs;
+  const { ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, INVOICE_NEXT, ORDER_NEXT, QUOTE_NEXT, RX, LINE, JLINE, COUNT, DEFS, COLLECTIONS, movementError, journalErrors, fxErrors } = ns.schemaDefs;
   const MAX = 9e12;
   const META = ['createdAt', 'updatedAt', 'version', 'deletedAt'];
   const ok = (value) => ({ ok: true, value }), clone = (v) => (Array.isArray(v) ? v.slice() : v);
@@ -150,6 +150,10 @@
     if (name === 'orders') {
       if (prev.status !== next.status && !ORDER_NEXT[prev.status].includes(next.status)) return `an order cannot go from ${prev.status} to ${next.status}`;
       if (!['draft', 'open'].includes(prev.status) && !same(['customerId', 'date', 'number', 'currency', 'lines', 'notes'])) return 'a closed order cannot be changed';
+    }
+    if (name === 'quotes') {
+      if (prev.status !== next.status && !QUOTE_NEXT[prev.status].includes(next.status)) return `a quote cannot go from ${prev.status} to ${next.status}`;
+      if (prev.status === 'accepted' && !same(['customerId', 'date', 'validUntil', 'number', 'currency', 'lines', 'notes'])) return 'an accepted quote cannot be changed';
     }
     if (name === 'numbering' && next.next < prev.next) return 'a numbering sequence can only move forward';
     return null;
