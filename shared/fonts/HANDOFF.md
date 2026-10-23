@@ -13,7 +13,7 @@ opt-in "Get more" that downloads third-party font packs. Both feed one shared fo
 | `shared/fonts/panel.js` | `SlopFonts.openPanel`, `SlopFonts.check`, `SlopFonts.askOnce`: the Fonts panel and the missing-font check (adds to `window.SlopFonts`; loaded by the picker on first use). |
 | `shared/fonts/missing.js` | `window.SlopFontCheck.ask(needs, uses)`: a thin shim over the panel, kept for the PDF editor's prompt (same buttons, same answers). |
 | `vendor/fontkit/fontkit.min.js` | `@pdf-lib/fontkit` 1.1.1 (MIT), bundled for browsers and loaded on first use by `SlopFontCatalog.fontkit()`. pdf-lib needs this build: fontkit 2.x has a different subset API. |
-| `shared/library/packs.json` | The one config file for packs: the allowed download hosts and the pack list (empty today). |
+| `shared/library/packs.json` | The one config file for packs: the allowed download hosts and the pack list. |
 | `shared/library/manifest.js` | Pack rules and the SHA-256 and size check (`window.SlopLibraryManifest`, also `module.exports` for Node tests). |
 | `shared/library/store.js` | IndexedDB store `slop-library` (`window.SlopLibraryStore`). |
 | `shared/library/get-more.js` | The Get more dialog (`window.SlopLibrary`). |
@@ -40,7 +40,8 @@ in `picker.js` (the Node test checks this).
 One font list: `index.json` (bundled, read only by `SlopFonts.bundledIndex()`) plus the installed packs and the person's
 own files in IndexedDB. `SlopFontCatalog.families()` is the list; the picker and the panel read it. The picker has no family
 names of its own (a Node test checks this). The one exception is the closest family per category (`CLOSEST` in
-`catalog.js`: Source Sans 3, Merriweather, Space Mono), which must be a bundled family.
+`catalog.js`: Source Sans 3, Merriweather, Space Mono, and Oswald for a narrow sans), which must be a bundled family with an
+embeddable copy.
 
 - **`SlopFonts.openPanel({ fonts, standard, title, note, closeLabel, library, onUse, onAdd, onClose })`** opens the Fonts panel
   and returns `{ close(notify) }`. `fonts` are the names the document uses (listed first, each with a status: *Built in*,
@@ -65,12 +66,23 @@ names of its own (a Node test checks this). The one exception is the closest fam
   like a pack (`kind: 'font'`, `licence: 'user'`, id `user-<family>-<sha8>`). It then appears in every panel and picker as
   *Your own file*. WOFF2 is refused for files you add: fontkit cannot subset it, so a PDF could not embed it.
 - **Closest family.** `SlopFontCatalog.closestFamily(name)` by category (`guessCategory`): Source Sans 3 for sans,
-  Merriweather for serif, Space Mono for mono.
+  Merriweather for serif, Space Mono for mono. A sans whose name says condensed, narrow or compressed (Barlow Condensed,
+  Arial Narrow) takes Oswald, so its lines stay about as long. Oswald's embeddable copy is `oswald/oswald-400-normal.ttf`
+  (Regular, instanced from the Google Fonts variable file with fontTools, same Latin subset as the other copies).
 - **Embedding.** A face is embedded in a saved PDF only as TTF, OTF or WOFF. A bundled family therefore names its
-  embeddable copy in `index.json` (`"pdf"`): Source Sans 3, Merriweather and Space Mono today (Regular, Latin subsets,
+  embeddable copy in `index.json` (`"pdf"`): Source Sans 3, Merriweather, Space Mono and Oswald today (Regular, Latin subsets,
   instanced from the Google Fonts variable files with fontTools). Bundled WOFF2 faces remain the screen copies.
 - **Barlow.** `packs.json` lists "Barlow and Barlow Condensed": eight static TTFs from `google/fonts` (`main` branch),
   each with its SHA-256. A file that changes upstream is refused and nothing is stored.
+- **Office-compatible fonts (`metric-compatible`).** Carlito, Caladea, Arimo, Tinos and Cousine, Regular, Bold, Italic and
+  Bold Italic (static TTF, so a PDF embeds the right weight), from `slopographic/cdn` `packs/metric-compatible/v1`. Each file
+  carries `metricFor`: the Office font it has the same character widths as (Calibri, Cambria, Arial, Times New Roman,
+  Courier New). Once the pack is installed, a name in `metricFor` counts as installed and is set in that family:
+  `SlopFontCatalog.standIn('Calibri')` is `'Carlito'`, and `hasFamily`, `pickFace` (so a saved PDF embeds Carlito) and
+  `packFor` use it. `SlopFonts.load('Calibri')` registers Carlito's faces under the name Calibri, so the screen matches. The
+  picker lists the family as "Carlito (Calibri)", a document value of Calibri reads "Calibri (set in Carlito)", and the Fonts
+  panel's Calibri row says it is set in Carlito. Names match without regard to case. Slop Docs keeps its own wider alias list
+  (`docs/js/fonts/registry.js`) for its bundled copies of these families.
 
 ## Rules for "Get more"
 
@@ -84,7 +96,7 @@ names of its own (a Node test checks this). The one exception is the closest fam
 3. **Licences.** A pack declares one of `OFL-1.1`, `Apache-2.0`, `MIT`, `CC0-1.0`. Anything else is dropped before
    the dialog shows it.
 4. **Files.** Only font files (`.woff2`, `.woff`, `.ttf`, `.otf`). Each entry needs its exact byte `size` and its
-   lowercase `sha256`. Every file is verified before anything is stored; a pack is written in one IndexedDB
+   lowercase `sha256`. Optional `metricFor`: one to four font names the file has the same widths as (see the Office-compatible fonts above). Every file is verified before anything is stored; a pack is written in one IndexedDB
    transaction or not at all. Requests carry no credentials.
 5. **Storage.** IndexedDB `slop-library` only (`packs` and `files` stores). Nothing goes into localStorage.
    Remove a pack from the same dialog.

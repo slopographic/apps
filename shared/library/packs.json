@@ -87,6 +87,257 @@
       ]
     },
     {
+      "id": "metric-compatible",
+      "kind": "font",
+      "name": "Office-compatible fonts (Calibri, Cambria, Arial, Times New Roman, Courier New)",
+      "licence": "OFL-1.1",
+      "licenceUrl": "https://openfontlicense.org",
+      "description": "Carlito, Caladea, Arimo, Tinos and Cousine: the same character widths as Calibri, Cambria, Arial, Times New Roman and Courier New, so text that names those fonts keeps its line breaks. Regular, Bold, Italic and Bold Italic (SIL Open Font License 1.1).",
+      "size": 8516432,
+      "files": [
+        {
+          "name": "Carlito-Regular.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/carlito/Carlito-Regular.ttf",
+          "size": 628032,
+          "sha256": "f6418f708baede9789daef5d458c0f53d2a888af9820e8062934e504fedc6595",
+          "family": "Carlito",
+          "weight": "400",
+          "style": "normal",
+          "metricFor": [
+            "Calibri"
+          ]
+        },
+        {
+          "name": "Carlito-Bold.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/carlito/Carlito-Bold.ttf",
+          "size": 682468,
+          "sha256": "bb5d20f79b82599ec72983597437373a80f2d2085fa91fc144fd74e876a594db",
+          "family": "Carlito",
+          "weight": "700",
+          "style": "normal",
+          "metricFor": [
+            "Calibri"
+          ]
+        },
+        {
+          "name": "Carlito-Italic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/carlito/Carlito-Italic.ttf",
+          "size": 615236,
+          "sha256": "0b019225e58d702bfedcbd35c21696769f8ee115cb6343f84c2f240312450d1c",
+          "family": "Carlito",
+          "weight": "400",
+          "style": "italic",
+          "metricFor": [
+            "Calibri"
+          ]
+        },
+        {
+          "name": "Carlito-BoldItalic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/carlito/Carlito-BoldItalic.ttf",
+          "size": 808508,
+          "sha256": "b32928186c119599e03ca6a1ffc680fdcb7fac95772f4b95d989cf6cd3861517",
+          "family": "Carlito",
+          "weight": "700",
+          "style": "italic",
+          "metricFor": [
+            "Calibri"
+          ]
+        },
+        {
+          "name": "Caladea-Regular.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/caladea/Caladea-Regular.ttf",
+          "size": 81600,
+          "sha256": "f1e899278b7b4491aba5b6a8253c4b04c050cc59b21865be5c37559a775153cd",
+          "family": "Caladea",
+          "weight": "400",
+          "style": "normal",
+          "metricFor": [
+            "Cambria"
+          ]
+        },
+        {
+          "name": "Caladea-Bold.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/caladea/Caladea-Bold.ttf",
+          "size": 84492,
+          "sha256": "ae3cb2dcbc925809dd29d2a44e9802211cab66be541bacbfc9c08c74b27c3742",
+          "family": "Caladea",
+          "weight": "700",
+          "style": "normal",
+          "metricFor": [
+            "Cambria"
+          ]
+        },
+        {
+          "name": "Caladea-Italic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/caladea/Caladea-Italic.ttf",
+          "size": 83780,
+          "sha256": "4359a8e24f748b6447b1ff6d7a174febe70961d29f8bb8634b56dacd740a3deb",
+          "family": "Caladea",
+          "weight": "400",
+          "style": "italic",
+          "metricFor": [
+            "Cambria"
+          ]
+        },
+        {
+          "name": "Caladea-BoldItalic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/caladea/Caladea-BoldItalic.ttf",
+          "size": 83356,
+          "sha256": "ccabaa7b7e2fdf253d2b1a5fa699dd8a3df8d835a9eb285ad82631a677eb76c0",
+          "family": "Caladea",
+          "weight": "700",
+          "style": "italic",
+          "metricFor": [
+            "Cambria"
+          ]
+        },
+        {
+          "name": "Arimo-Regular.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/arimo/Arimo-Regular.ttf",
+          "size": 478712,
+          "sha256": "41b22bc8f0b51f932825d37bc55b5eb6ba67dfe599a626e4aff2b43b624f9f8c",
+          "family": "Arimo",
+          "weight": "400",
+          "style": "normal",
+          "metricFor": [
+            "Arial"
+          ]
+        },
+        {
+          "name": "Arimo-Bold.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/arimo/Arimo-Bold.ttf",
+          "size": 485872,
+          "sha256": "d7a8b187cf8444d4cfee102e8eae9e3043682fd5106d5d33ed677fe268a0e2ba",
+          "family": "Arimo",
+          "weight": "700",
+          "style": "normal",
+          "metricFor": [
+            "Arial"
+          ]
+        },
+        {
+          "name": "Arimo-Italic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/arimo/Arimo-Italic.ttf",
+          "size": 502332,
+          "sha256": "ffdf690e4357a392e4edcc3df0b3adb0302920f75e54f2e6eec355afbe7edcba",
+          "family": "Arimo",
+          "weight": "400",
+          "style": "italic",
+          "metricFor": [
+            "Arial"
+          ]
+        },
+        {
+          "name": "Arimo-BoldItalic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/arimo/Arimo-BoldItalic.ttf",
+          "size": 508508,
+          "sha256": "77c967d49d4ef4a63c39fbcd1e27892102e503e35a20983cb058430c4f268b34",
+          "family": "Arimo",
+          "weight": "700",
+          "style": "italic",
+          "metricFor": [
+            "Arial"
+          ]
+        },
+        {
+          "name": "Tinos-Regular.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/tinos/Tinos-Regular.ttf",
+          "size": 521588,
+          "sha256": "60a0e8ef0c04dd5dd69ffe91025fa2ae5836cbd35600a82ba031977557e2cb61",
+          "family": "Tinos",
+          "weight": "400",
+          "style": "normal",
+          "metricFor": [
+            "Times New Roman"
+          ]
+        },
+        {
+          "name": "Tinos-Bold.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/tinos/Tinos-Bold.ttf",
+          "size": 597880,
+          "sha256": "393269dbab8899f938db19783eca5eac92eb431f7ae0ab45b8349ca895f1a06b",
+          "family": "Tinos",
+          "weight": "700",
+          "style": "normal",
+          "metricFor": [
+            "Times New Roman"
+          ]
+        },
+        {
+          "name": "Tinos-Italic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/tinos/Tinos-Italic.ttf",
+          "size": 565016,
+          "sha256": "5942266ed398b155d7dc23e36833e7ec6be988f2439bdbeb8ef1bede808eaa91",
+          "family": "Tinos",
+          "weight": "400",
+          "style": "italic",
+          "metricFor": [
+            "Times New Roman"
+          ]
+        },
+        {
+          "name": "Tinos-BoldItalic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/tinos/Tinos-BoldItalic.ttf",
+          "size": 578976,
+          "sha256": "a5de79f0fe863ea0954757acb3d47b3ccd0a930ce3dd5b97230cd3866790a06e",
+          "family": "Tinos",
+          "weight": "700",
+          "style": "italic",
+          "metricFor": [
+            "Times New Roman"
+          ]
+        },
+        {
+          "name": "Cousine-Regular.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/cousine/Cousine-Regular.ttf",
+          "size": 296856,
+          "sha256": "1da22250675fc4c42fcf3a9736c44bc0570516105331443b663fd5cfbd1412fe",
+          "family": "Cousine",
+          "weight": "400",
+          "style": "normal",
+          "metricFor": [
+            "Courier New"
+          ]
+        },
+        {
+          "name": "Cousine-Bold.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/cousine/Cousine-Bold.ttf",
+          "size": 298048,
+          "sha256": "17c8a7245156d2253531c9e529474937b09d9f641c5ae7695c5e33f22822eef4",
+          "family": "Cousine",
+          "weight": "700",
+          "style": "normal",
+          "metricFor": [
+            "Courier New"
+          ]
+        },
+        {
+          "name": "Cousine-Italic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/cousine/Cousine-Italic.ttf",
+          "size": 306880,
+          "sha256": "ea2a76ae3d0ece9cd59f0d30fdc08dd70e8f5f457beee5b0852a7b50c2286c7c",
+          "family": "Cousine",
+          "weight": "400",
+          "style": "italic",
+          "metricFor": [
+            "Courier New"
+          ]
+        },
+        {
+          "name": "Cousine-BoldItalic.ttf",
+          "url": "https://raw.githubusercontent.com/slopographic/cdn/5f3c4513b8c394fe52e234c32ed1801842198515/packs/metric-compatible/v1/cousine/Cousine-BoldItalic.ttf",
+          "size": 308292,
+          "sha256": "848e858726fee0ae27b754e4cd6a2755209bf1428a8c91f747696d58c33906c3",
+          "family": "Cousine",
+          "weight": "700",
+          "style": "italic",
+          "metricFor": [
+            "Courier New"
+          ]
+        }
+      ]
+    },
+    {
       "id": "realesrgan-x4plus",
       "kind": "model",
       "name": "Real-ESRGAN x4plus (Slop Upscale, 4×)",

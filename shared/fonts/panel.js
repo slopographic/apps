@@ -97,8 +97,13 @@
       const g = ++gen;
       await root.SlopFonts.ready();
       const all = new Map((await C().families()).map((f) => [f.name, f]));
+      const via = new Map();   // lowercase Office name -> the installed family with the same widths (calibri -> Carlito)
+      for (const f of all.values()) for (const m of f.metricFor || []) via.set(m.toLowerCase(), f);
       const rows = [];
-      for (const n of names) rows.push({ n, info: all.get(n), pack: opts.download !== false && !standard.has(n) && !all.has(n) ? await C().packFor(n) : null });
+      for (const n of names) {
+        const stand = all.has(n) ? null : via.get(n.toLowerCase()) || null;
+        rows.push({ n, info: all.get(n), stand, pack: opts.download !== false && !standard.has(n) && !all.has(n) && !stand ? await C().packFor(n) : null });
+      }
       if (closed || g !== gen) return;
       const kids = [];
       for (const t of [].concat(opts.note || [])) kids.push(el('p', { class: 'sf-meta' }, t));
@@ -119,16 +124,17 @@
     }
     function sourceText(f) { return f.source === 'bundled' ? 'Bundled (offline)' : f.source === 'own' ? 'Your own file' : 'Downloaded'; }
     function describe(n, a) {
-      if (a.how === 'library') return 'Installed from the library.';
+      if (a.how === 'library') return a.use === n ? 'Installed from the library.' : `Installed from the library: set in ${a.use}, which has the same character widths.`;
       if (a.how === 'file') return a.use === n ? 'Installed from your file.' : `Using ${a.use} from your file.`;
       return `Using ${a.use} instead.`;
     }
-    function fontRow({ n, info, pack }) {
+    function fontRow({ n, info, stand, pack }) {
       const a = answered.get(n), msg = el('p', { class: 'sf-meta', role: 'status' });
       const row = el('div', { class: 'sf-row' + (a ? ' done' : ''), 'data-family': n });
       if (standard.has(n)) { row.append(el('p', null, n + ' · Built in.')); return row; }
       if (a) { row.append(el('p', null, n + ' · ' + describe(n, a))); return row; }
       if (info) { row.append(el('p', null, n + ' · ' + sourceText(info) + '.')); return row; }
+      if (stand) { row.append(el('p', null, `${n} · Set in ${stand.name} (${sourceText(stand)}), which has the same character widths.`)); return row; }
       const closest = closestOf(n, opts);
       const fileIn = el('input', { type: 'file', accept: '.ttf,.otf,.woff,.woff2', hidden: '' });
       fileIn.addEventListener('change', () => { if (fileIn.files[0]) dropFile(n, fileIn.files[0], msg); fileIn.value = ''; });
@@ -167,7 +173,11 @@
     /** A pack from the library is installed or removed: its families answer the rows they fill. */
     async function libChanged(p) {
       if (closed) return;
-      if (p && p.kind !== 'model') for (const fam of [...new Set(p.files.map((f) => f.family))]) installed(fam, 'library', names.includes(fam) ? fam : undefined);
+      if (p && p.kind !== 'model') {
+        for (const fam of [...new Set(p.files.map((f) => f.family))]) installed(fam, 'library', names.includes(fam) ? fam : undefined);
+        // a row for an Office name (Calibri) is answered by the family with the same widths (Carlito)
+        for (const f of p.files) for (const n of names) if (n !== f.family && !answered.has(n) && (f.metricFor || []).some((m) => m.toLowerCase() === n.toLowerCase())) installed(f.family, 'library', n);
+      }
       await render();
     }
     root.SlopFonts.ready().then(() => {

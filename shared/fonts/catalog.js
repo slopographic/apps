@@ -11,8 +11,10 @@
   const SELF = (doc && doc.currentScript && doc.currentScript.src) || root.location.href;
   const LIB = new URL('library/', SELF).href;
   const FONTKIT = new URL('../../vendor/fontkit/fontkit.min.js', SELF).href;
-  /** The bundled family that stands in for a font the app does not have, by category. */
+  /** The bundled family that stands in for a font the app does not have, by category. A narrow sans (Barlow Condensed, Arial
+   * Narrow) takes the bundled condensed family, so its lines keep about the same length. */
   const CLOSEST = { sans: 'Source Sans 3', serif: 'Merriweather', mono: 'Space Mono' };
+  const CONDENSED = 'Oswald', NARROW = /condensed|narrow|compressed|\bcond\b/i;
   const WEIGHTS = { thin: 100, extralight: 200, ultralight: 200, light: 300, regular: 400, normal: 400, book: 400, medium: 500, semibold: 600, demibold: 600, bold: 700, extrabold: 800, ultrabold: 800, black: 900, heavy: 900 };
   const WEIGHT_WORDS = Object.keys(WEIGHTS).sort((a, b) => b.length - a.length);
   const SUBSET = /^[A-Z]{6}\+/;
@@ -43,25 +45,40 @@
       if (!store) return list;
       for (const p of await store.listPacks()) {
         if (p.kind === 'model') continue; // AI models are not fonts
-        for (const f of p.files) list.push({ family: f.family, weight: String(f.weight), style: f.style || 'normal', category: guessCategory(f.family), source: 'installed', user: p.licence === 'user', key: `${p.id}/${f.name}`, embed: !/\.woff2$/i.test(f.name) });
+        for (const f of p.files) list.push({ family: f.family, weight: String(f.weight), style: f.style || 'normal', category: guessCategory(f.family), source: 'installed', user: p.licence === 'user', key: `${p.id}/${f.name}`, embed: !/\.woff2$/i.test(f.name), metricFor: f.metricFor || [] });
       }
     } catch (e) { /* storage unavailable: bundled faces only */ }
     return list;
   }
-  /** Families the app can use: name, category and source ('bundled', 'installed', or 'own' for a font file the person added). */
+  /** Families the app can use: name, category, source ('bundled', 'installed', or 'own' for a font file the person added) and
+   * metricFor (the fonts it has the same widths as, from its pack: Carlito lists Calibri). */
   async function families() {
     const seen = new Map();
-    for (const f of await faces()) if (!seen.has(f.family)) seen.set(f.family, { name: f.family, category: f.category, source: f.user ? 'own' : f.source });
+    for (const f of await faces()) {
+      if (!seen.has(f.family)) seen.set(f.family, { name: f.family, category: f.category, source: f.user ? 'own' : f.source, metricFor: [] });
+      const r = seen.get(f.family);
+      for (const m of f.metricFor || []) if (!r.metricFor.includes(m)) r.metricFor.push(m);
+    }
     return [...seen.values()];
   }
-  /** Whether a family (exact name) has at least one face installed or bundled. */
-  async function hasFamily(name) { return (await faces()).some((f) => f.family === name); }
+  const same = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
+  /** The family that sets a name: the name itself when it has a face, else an installed family with the same widths (Carlito
+   * for "Calibri"), else null. */
+  async function standIn(name) {
+    const all = await faces();
+    if (all.some((f) => f.family === name)) return name;
+    const hit = all.find((f) => (f.metricFor || []).some((m) => same(m, name)));
+    return hit ? hit.family : null;
+  }
+  /** Whether a name has at least one face installed or bundled: its own, or a family with the same widths. */
+  async function hasFamily(name) { return !!(await standIn(name)); }
   /** The weight range a face covers: [400, 400] for a static face, [100, 900] for a variable one. */
   function range(w) { const n = String(w).trim().split(/\s+/).map(Number); return [n[0], n[1] || n[0]]; }
   /** The embeddable face of a family that best fits a weight (100-900) and style (style counts after weight), or null when
    * the family has no embeddable face. */
   async function pickFace(family, weight, italic) {
     const want = italic ? 'italic' : 'normal', target = Number(weight) || 400;
+    family = (await standIn(family)) || family;
     let best = null, bestD = Infinity;
     for (const f of await faces()) {
       if (f.family !== family || !f.embed) continue;
@@ -105,14 +122,17 @@
     if (/serif|times|georgia|garamond|palatino|cambria|minion|caslon|bodoni|roman/i.test(n) && !/sans/i.test(n)) return 'serif';
     return 'sans';
   }
-  /** The bundled family that stands in for a family the app does not have (same category). */
-  function closestFamily(name) { return CLOSEST[guessCategory(name)]; }
-  /** The "Get more" pack that lists a family: { id, name }, or null when no listed pack has it. */
+  /** The bundled family that stands in for a family the app does not have (same category; condensed for a narrow sans). */
+  function closestFamily(name) {
+    const cat = guessCategory(name);
+    return cat === 'sans' && NARROW.test(parseName(name).family + ' ' + name) ? CONDENSED : CLOSEST[cat];
+  }
+  /** The "Get more" pack that lists a family, or a family with the same widths: { id, name }, or null when no listed pack has it. */
   async function packFor(family) {
     try {
       await ready();
       const m = await root.SlopLibrary.loadManifest();
-      const p = m.packs.find((x) => x.kind !== 'model' && x.files.some((f) => f.family === family));
+      const p = m.packs.find((x) => x.kind !== 'model' && x.files.some((f) => f.family === family || (f.metricFor || []).some((m) => same(m, family))));
       return p ? { id: p.id, name: p.name } : null;
     } catch (e) { return null; }
   }
@@ -177,5 +197,5 @@
     return { family, weight: w, italic, id };
   }
 
-  root.SlopFontCatalog = { ready, faces, families, hasFamily, pickFace, bytesOf, parseName, guessCategory, closestFamily, packFor, fontkit, addUserFile, readFontFile, setDocumentFonts, toDataURL, fromDataURL, range };
+  root.SlopFontCatalog = { ready, faces, families, hasFamily, standIn, pickFace, bytesOf, parseName, guessCategory, closestFamily, packFor, fontkit, addUserFile, readFontFile, setDocumentFonts, toDataURL, fromDataURL, range };
 })(typeof window !== 'undefined' ? window : globalThis);

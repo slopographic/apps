@@ -224,7 +224,8 @@
       "source": "https://github.com/google/fonts/tree/main/ofl/oswald",
       "sourceFile": "https://raw.githubusercontent.com/google/fonts/main/ofl/oswald/Oswald%5Bwght%5D.ttf",
       "subset": "latin, latin-ext",
-      "category": "sans"
+      "category": "sans",
+      "pdf": "oswald/oswald-400-normal.ttf"
     },
     {
       "family": "Source Sans 3",

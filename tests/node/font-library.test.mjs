@@ -80,6 +80,37 @@ test('ids, SHA-256 format and duplicate ids are checked', async () => {
   assert.match(r.errors[0], /duplicate pack id/);
 });
 
+test('metricFor is kept on a file when it is a short list of names, and refused otherwise', async () => {
+  const ok = await sample();
+  ok.packs[0].files[0].metricFor = [' Calibri '];
+  assert.deepEqual(M.validate(ok).packs[0].files[0].metricFor, ['Calibri']);
+  const none = await sample();
+  assert.equal('metricFor' in M.validate(none).packs[0].files[0], false);
+  for (const bad of ['Calibri', [], ['a', 'b', 'c', 'd', 'e'], [''], [7]]) {
+    const m = await sample();
+    m.packs[0].files[0].metricFor = bad;
+    const r = M.validate(m);
+    assert.equal(r.packs.length, 0, JSON.stringify(bad));
+    assert.match(r.errors[0], /metricFor/);
+  }
+});
+
+test('the metric-compatible pack: four static faces per family, each naming the Office font it matches', () => {
+  const p = packs.packs.find((x) => x.id === 'metric-compatible');
+  assert.ok(p, 'listed in packs.json');
+  const want = { Carlito: 'Calibri', Caladea: 'Cambria', Arimo: 'Arial', Tinos: 'Times New Roman', Cousine: 'Courier New' };
+  assert.deepEqual([...new Set(p.files.map((f) => f.family))].sort(), Object.keys(want).sort());
+  for (const [fam, office] of Object.entries(want)) {
+    const fs = p.files.filter((f) => f.family === fam);
+    assert.deepEqual(fs.map((f) => `${f.weight} ${f.style}`).sort(), ['400 italic', '400 normal', '700 italic', '700 normal'], fam);
+    for (const f of fs) {
+      assert.deepEqual(f.metricFor, [office], f.name);
+      assert.match(f.url, /^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/[0-9a-f]{40}\/packs\/metric-compatible\/v1\//, 'pinned to a cdn commit');
+      assert.ok(/\.ttf$/.test(f.name), 'TTF, so a PDF can embed it');
+    }
+  }
+});
+
 test('verifyBytes accepts the exact bytes and refuses changed bytes or a wrong length', async () => {
   const m = await sample();
   const file = m.packs[0].files[0];

@@ -73,11 +73,14 @@
           return true;
         }
         await deps();
-        for (const p of await root.SlopLibraryStore.listPacks()) {
-          for (const f of p.files.filter((x) => x.family === family)) {
-            const blob = await root.SlopLibraryStore.getBlob(`${p.id}/${f.name}`);
-            if (blob) await add(await blob.arrayBuffer(), { weight: f.weight, style: f.style });
-          }
+        const packs = await root.SlopLibraryStore.listPacks();
+        const pick = (match) => packs.flatMap((p) => p.files.filter(match).map((f) => [p, f]));
+        let hits = pick((x) => x.family === family);
+        // a name with no faces of its own (Calibri) draws with an installed family that has the same widths (Carlito)
+        if (!hits.length) hits = pick((x) => (x.metricFor || []).some((m) => m.toLowerCase() === family.toLowerCase()));
+        for (const [p, f] of hits) {
+          const blob = await root.SlopLibraryStore.getBlob(`${p.id}/${f.name}`);
+          if (blob) await add(await blob.arrayBuffer(), { weight: f.weight, style: f.style });
         }
         return rec.faces.length > 0;
       } catch (e) {
@@ -113,8 +116,10 @@
     const slot = { bundled: 1, installed: 2, own: 3 };
     const seen = new Set();
     for (const l of legacy) { const [v, text] = Array.isArray(l) ? l : [l, l]; if (!seen.has(v)) { seen.add(v); groups[0][1].push([v, text]); } }
-    for (const f of fams) if (!seen.has(f.name)) { seen.add(f.name); groups[slot[f.source] || 2][1].push([f.name, f.name]); }
-    if (want && !seen.has(want)) groups[0][1].unshift([want, want + ' (not installed)']);
+    // a family with the same widths as an Office font says so: "Carlito (Calibri)"
+    for (const f of fams) if (!seen.has(f.name)) { seen.add(f.name); groups[slot[f.source] || 2][1].push([f.name, f.metricFor && f.metricFor.length ? `${f.name} (${f.metricFor.join(', ')})` : f.name]); }
+    const via = want && !seen.has(want) && fams.find((f) => (f.metricFor || []).some((m) => m.toLowerCase() === want.toLowerCase()));
+    if (want && !seen.has(want)) groups[0][1].unshift([want, want + (via ? ` (set in ${via.name})` : ' (not installed)')]);
     sel.replaceChildren(...groups.filter((g) => g[1].length).map(([label, items]) => {
       const og = doc.createElement('optgroup'); og.label = label;
       for (const [v, text] of items) { const o = doc.createElement('option'); o.value = v; o.textContent = text; og.append(o); }

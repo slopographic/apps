@@ -64,7 +64,14 @@
       const weight = String(f.weight || '400');
       if (!WEIGHT.test(weight)) return { error: `${who}: ${f.name} weight must be 400 or "100 900"` };
       const style = f.style === 'italic' ? 'italic' : 'normal';
-      files.push({ name: f.name, url: f.url, size: f.size, sha256: f.sha256, family: f.family.trim(), weight, style });
+      const entry = { name: f.name, url: f.url, size: f.size, sha256: f.sha256, family: f.family.trim(), weight, style };
+      // metricFor: the fonts this family has the same character widths as ("Calibri" for Carlito), so a document that names
+      // one of them is set in this family with its line breaks kept
+      if (f.metricFor !== undefined) {
+        if (!Array.isArray(f.metricFor) || !f.metricFor.length || f.metricFor.length > 4 || !f.metricFor.every((n) => typeof n === 'string' && n.trim() && n.length <= 60)) return { error: `${who}: ${f.name} metricFor must be a list of 1 to 4 font names` };
+        entry.metricFor = f.metricFor.map((n) => n.trim());
+      }
+      files.push(entry);
     }
     if (total > (model ? MAX_MODEL_FILE : MAX_PACK)) return { error: `${who}: larger than ${model ? '100' : '40'} MB` };
     if (p.size !== total) return { error: `${who}: declared size ${p.size} does not match the files (${total})` };
