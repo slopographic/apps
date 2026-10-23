@@ -7,6 +7,8 @@
   'use strict';
   const suites = [];
   let current = null;
+  // Pages that run side by side (tests/run.mjs --jobs) are slower: the runner adds ?timeoutScale=N and every timeout grows N times.
+  const SCALE = Math.max(1, Number(new URLSearchParams(location.search).get('timeoutScale')) || 1);
   function describe(name, fn) { const s = { name, tests: [], before: [], after: [] }; suites.push(s); const prev = current; current = s; try { fn(); } finally { current = prev; } }
   function it(name, fn, { timeout = 15000 } = {}) { (current || describe('(root)', () => {}) || suites[suites.length - 1]).tests.push({ name, fn, timeout }); }
   function beforeEach(fn) { current.before.push(fn); }
@@ -48,7 +50,7 @@
   /** Pixel helper: [r,g,b,a] at (x, y) of a canvas. */
   function pixel(canvas, x, y) { return [...canvas.getContext('2d', { willReadFrequently: true }).getImageData(x, y, 1, 1).data]; }
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  async function waitFor(pred, { timeout = 10000, step = 30 } = {}) { const t0 = performance.now(); for (;;) { const v = await pred(); if (v) return v; if (performance.now() - t0 > timeout) throw new AssertionError('waitFor timed out'); await sleep(step); } }
+  async function waitFor(pred, { timeout = 10000, step = 30 } = {}) { const t0 = performance.now(); for (;;) { const v = await pred(); if (v) return v; if (performance.now() - t0 > timeout * SCALE) throw new AssertionError('waitFor timed out'); await sleep(step); } }
 
   async function run({ name = document.title } = {}) {
     const results = [];
@@ -60,7 +62,7 @@
       let status = 'pass', message = '';
       try {
         for (const b of s.before) await b();
-        await Promise.race([Promise.resolve().then(t.fn), new Promise((_, rej) => setTimeout(() => rej(new AssertionError(`timed out after ${t.timeout}ms`)), t.timeout))]);
+        await Promise.race([Promise.resolve().then(t.fn), new Promise((_, rej) => setTimeout(() => rej(new AssertionError(`timed out after ${t.timeout * SCALE}ms`)), t.timeout * SCALE))]);
         for (const a of s.after) await a();
       } catch (e) { status = 'fail'; message = (e && e.message) || String(e); if (!(e instanceof AssertionError) && e && e.stack) message += '\n' + e.stack.split('\n').slice(1, 3).join('\n'); }
       results.push({ suite: s.name, test: t.name, status, message, ms: Math.round(performance.now() - t0) });
