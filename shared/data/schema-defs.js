@@ -20,6 +20,7 @@
     repeatFreq: ['none', 'daily', 'weekly', 'monthly', 'yearly'],
     priority: ['none', 'low', 'high'],
     reminderSource: ['event', 'task', 'custom'],
+    expenseStatus: ['posted', 'void'],
   };
   const ACCT = { CASH: '1000', BANK: '1010', AR: '1200', TAX_PAYABLE: '2100', EQUITY: '3000', REVENUE: '4000', EXPENSES: '5000' };
   const DEFAULT_CHART = [
@@ -215,6 +216,15 @@
       remind: F.int({ min: 0, max: 525600 }), customerId: F.id({}) } },
     // Reminders. Custom reminders are rows of their own (source custom). Event and task reminders are read from the
     // events and tasks; a row here only records what the person did (snoozedUntil, firedAt, dismissedAt) for one of them.
+    // Money going out (shared/data/expenses.js writes them with their journal entry). amount is what was paid, tax included;
+    // tax is the reclaimable part. account is the expense account in the chart.
+    expenses: { key: 'id', postingOnly: true, check: (r) => (r.tax > r.amount ? ['tax cannot be more than the amount paid'] : []),
+      indexes: [{ name: 'date', key: 'date' }, { name: 'supplier', key: 'supplier' }, { name: 'status', key: 'status' }], fields: {
+      id: F.id({ req: true }), date: F.date({ req: true }), supplier: F.str({ req: true, max: 200 }), description: F.str({ max: 300 }),
+      account: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), amount: F.mny({ req: true, min: 1 }), tax: F.mny({ def: 0 }),
+      currency: F.cur({}), rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
+      method: F.en(ENUM.payMethod, { def: 'bank' }), status: F.en(ENUM.expenseStatus, { def: 'posted' }),
+      receiptId: F.str({ max: 200 }), notes: F.text({}), sample: F.bool({}) } },
     reminders: { key: 'id', indexes: [{ name: 'source', key: 'source' }], fields: {
       id: F.id({ req: true }), source: F.en(ENUM.reminderSource, { req: true }), refId: F.id({}), title: F.str({ req: true, max: 200 }),
       at: F.ts({ req: true }), snoozedUntil: F.ts({}), firedAt: F.ts({}), dismissedAt: F.ts({}) } },

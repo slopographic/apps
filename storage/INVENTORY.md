@@ -18,7 +18,10 @@ Versions: "v" is the value passed to `indexedDB.open` (IndexedDB), or the envelo
 
 ## IndexedDB: SlopData (`slop-data`, shared/data)
 
-Version 2. The v1 to v2 step adds `exchangeRates`. SlopData's collections are listed in `schema-defs.js`.
+Version 5 (`DB_VERSION` in `shared/data/store.js`). v2 adds `exchangeRates`, v3 `customerGroups` and `customerTags`, v4
+`events`, `tasks` and `reminders`, v5 `expenses`. Every step only creates the stores that are missing (`createStores`), so a
+database of any earlier version keeps all of its records; `tests/storage/upgrade.test.html` opens a v1 database and checks
+every collection exists after the upgrade. SlopData's collections are listed in `schema-defs.js`.
 
 | Owner | Store | Version | Record format | Read by | Upgrade |
 |---|---|---|---|---|---|
@@ -34,6 +37,9 @@ Version 2. The v1 to v2 step adds `exchangeRates`. SlopData's collections are li
 | shared/data | stockMovements | 2 | stock movement record | shared/data, inventory | create-only upgrade |
 | shared/data | stockCounts | 2 | count record | shared/data, inventory | create-only upgrade |
 | shared/data | numbering (key `id`) | 2 | sequence record | shared/data (numbering) | create-only upgrade; default sequences seeded if missing |
+| shared/data | customerGroups, customerTags | 3 | label records (name, colour) | shared/data, crm, contacts | new in v3; created on upgrade |
+| shared/data | events, tasks, reminders | 4 | calendar event, to-do task and reminder records | shared/data, calendar, todo, reminders, crm | new in v4; created on upgrade |
+| shared/data | expenses | 5 | expense record (date, supplier, account, amount, tax, method, status); posted with its journal entry | shared/data (expenses), expenses, ledger, reports | new in v5; created on upgrade |
 
 ## IndexedDB: other databases
 

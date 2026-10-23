@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data · expenses: record, post, void</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="../../shared/data/money.js"></script>
+  <script src="../../shared/data/barcode.js"></script>
+  <script src="../../shared/data/schema-defs.js"></script>
+  <script src="../../shared/data/schema.js"></script>
+  <script src="../../shared/data/currency.js"></script>
+  <script src="../../shared/data/store.js"></script>
+  <script src="../../shared/data/numbering.js"></script>
+  <script src="../../shared/data/fx.js"></script>
+  <script src="../../shared/data/ledger.js"></script>
+  <script src="../../shared/data/expenses.js"></script>
+  <script>
+  const { describe, it, expect, beforeEach, run } = SlopTest;
+  const S = window.SlopData, st = S.store;
+  const fresh = async () => { const r = await st.erase(); if (!r.ok) throw new Error(r.message); const q = await st.ready(); if (!q.ok) throw new Error(q.message); };
+  const bal = async (code) => { const t = await S.ledger.trialBalance(); const row = t.value.rows.find((r) => r.code === code); return row ? row.balance : 0; };
+  const taxi = (o = {}) => ({ date: '2026-10-20', supplier: 'City Taxi', description: 'Airport', amount: 2400, tax: 400, method: 'bank', ...o });
+
+  describe('expenses', () => {
+    beforeEach(fresh);
+    it('recording an expense posts the net to the expense account, the tax to the tax account, and the total out of the bank', async () => {
+      const r = await S.expenses.record(taxi());
+      expect(r.ok).toBe(true);
+      expect(r.value.status).toBe('posted');
+      expect(r.value.account).toBe('5000');
+      expect(await bal('5000')).toBe(2000);
+      expect(await bal('2100')).toBe(-400);
+      expect(await bal('1010')).toBe(-2400);
+      const t = await S.ledger.trialBalance();
+      expect(t.value.debit).toBe(t.value.credit);
+    });
+    it('a cash expense comes out of cash, and an expense without tax has two journal lines', async () => {
+      const r = await S.expenses.record(taxi({ method: 'cash', tax: 0 }));
+      expect(r.ok).toBe(true);
+      expect(await bal('1000')).toBe(-2400);
+      const j = await st.list('journal', { index: 'source', value: 'expense:' + r.value.id });
+      expect(j.value.length).toBe(1);
+      expect(j.value[0].lines.length).toBe(2);
+    });
+    it('refuses an account that is not an expense account, and tax above the amount; nothing is posted', async () => {
+      const a = await S.expenses.record(taxi({ account: '4000' }));
+      expect(a.ok).toBe(false);
+      expect(a.code).toBe('invalid');
+      const b = await S.expenses.record(taxi({ tax: 3000 }));
+      expect(b.ok).toBe(false);
+      expect((await st.list('expenses')).value.length).toBe(0);
+      expect((await st.list('journal')).value.length).toBe(0);
+    });
+    it('voiding reverses the entry: the books are back where they were, and the expense is kept as void', async () => {
+      const r = await S.expenses.record(taxi());
+      const v = await S.expenses.voidExpense(r.value.id);
+      expect(v.ok).toBe(true);
+      expect(v.value.status).toBe('void');
+      expect(await bal('5000')).toBe(0);
+      expect(await bal('2100')).toBe(0);
+      expect(await bal('1010')).toBe(0);
+      const again = await S.expenses.voidExpense(r.value.id);
+      expect(again.ok).toBe(false);
+      expect(again.code).toBe('invalid_transition');
+    });
+    it('an expense cannot be written around the module (posting only)', async () => {
+      const w = await st.put('expenses', { date: '2026-10-20', supplier: 'X', account: '5000', amount: 100 });
+      expect(w.ok).toBe(false);
+      expect(w.code).toBe('posting_required');
+    });
+  });
+
+  run({ name: 'Data · expenses' });
+  </script>
+</body>
+</html>
