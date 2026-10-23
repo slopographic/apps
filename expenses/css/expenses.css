@@ -9,3 +9,4 @@
 .months thead th { border-top: 0; color: var(--mute); font-weight: 500; }
 .months .num { text-align: right; }
 .table-wrap { overflow-x: auto; }
+.months th[scope="row"] { white-space: nowrap; }
