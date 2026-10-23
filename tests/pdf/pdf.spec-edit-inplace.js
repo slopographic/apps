@@ -2,7 +2,7 @@
    embeds one (pdf.js loaded it to draw the page), on the same baseline and as wide as the PDF draws it, on an opaque paper
    colour so the old text does not show through, and it grows to the right while typing (up to the page edge) instead of
    scrolling inside the old run's box. */
-// Covers: pdf/js/editor/edit-text.js
+// Covers: pdf/js/editor/edit-text.js, pdf/js/editor/edit-colours.js, pdf/js/find/replace.js
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -31,6 +31,50 @@
   }
   const spanOf = (text) => [...doc().querySelectorAll('.pv-textlayer span')].find((s) => s.textContent === text);
   const escape = (input) => input.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+
+  /** One page, 400 x 240: white Helvetica text on a blue band (baseline 170), black text on white paper (baseline 80). */
+  async function bandPdf() {
+    const L = PT.win.PDFLib, d = await L.PDFDocument.create(), hel = await d.embedFont(L.StandardFonts.Helvetica);
+    const pg = d.addPage(PT.win.Array.of(400, 240));
+    pg.drawRectangle({ x: 10, y: 150, width: 380, height: 50, color: L.rgb(0.1, 0.3, 0.7) });
+    pg.drawText('White text on a blue band', { x: 20, y: 170, size: 16, font: hel, color: L.rgb(1, 1, 1) });
+    pg.drawText('Black text on white paper', { x: 20, y: 80, size: 16, font: hel });
+    d.setCreationDate(new PT.win.Date(PT.win.Date.UTC(2024, 0, 1) + (++PT._nonce) * 1000));
+    return d.save();
+  }
+  /** Edits the line at a baseline of a 240 pt page: the text gets " EDITED" and Enter applies it. Returns the new layers. */
+  async function editLine(baseline, id) {
+    const el = PT.SP.editor._.slots.get(PT.E.state.pages[0].id).el, z = PT.SP.editor.zoom, r = el.getBoundingClientRect();
+    el.dispatchEvent(new PT.win.PointerEvent('pointerdown', { clientX: r.left + 60 * z, clientY: r.top + (240 - baseline - 5) * z, button: 0, bubbles: true, cancelable: true, pointerType: 'mouse', isPrimary: true, pointerId: id }));
+    const input = await waitFor(() => doc().querySelector('.edit-run'), { timeout: 8000 });
+    const before = PT.E.state.pages[0].annots.length;
+    input.value += ' EDITED';
+    input.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    await waitFor(() => PT.E.state.pages[0].annots.length > before, { timeout: 8000 });
+    return PT.E.state.pages[0].annots.slice(before);
+  }
+  const close = (hex, rgb) => [1, 3, 5].every((i, k) => Math.abs(parseInt(hex.slice(i, i + 2), 16) - rgb[k]) < 40);
+
+  describe('Slop PDF edit text: the colours of the edited line', () => {
+    it('text on a coloured band keeps its band and its light ink; text on white paper keeps white and black', async () => {
+      if (!PT.SP) await PT.boot();
+      PT.reset();
+      await PT.open(await bandPdf(), 'band.pdf');
+      PT.A.openPage(PT.E.state.pages[0].id);
+      await waitFor(() => spanOf('White text on a blue band'), { timeout: 8000 });
+      PT.SP.editor.setTool('select');
+      if (!PT.SP.editor.editText) PT.SP.editor.toggleEditText();
+      const band = await editLine(170, 51);
+      const bandCover = band.find((a) => a.type === 'whiteout'), bandText = band.find((a) => a.type === 'text');
+      expect(close(bandCover.fill, [26, 77, 178])).toBe(true, 'the cover is the band\'s blue, not white: ' + bandCover.fill);
+      expect(close(bandText.color, [255, 255, 255])).toBe(true, 'the new text is white like the old: ' + bandText.color);
+      await sleep(300);
+      const paper = await editLine(80, 53);
+      expect(paper.find((a) => a.type === 'whiteout').fill).toBe('#ffffff');
+      expect(close(paper.find((a) => a.type === 'text').color, [0, 0, 0])).toBe(true, 'black ink on white paper');
+      PT.SP.editor.toggleEditText();
+    });
+  });
 
   describe('Slop PDF edit text in place', () => {
     it('an embedded run opens in the page\'s own face, on its line, on an opaque background', async () => {

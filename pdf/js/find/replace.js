@@ -12,10 +12,10 @@
     var g = E.geom(p), top = g.H + g.y0;
     return { x: x - g.x0, y: top - (y + h), w: w, h: h };
   }
-  /** A white whiteout over a PDF user-space rect {x, y, w, h}: the annotation that covers old text. */
-  F.coverAnnot = function (p, c) {
+  /** A whiteout over a PDF user-space rect {x, y, w, h}: the annotation that covers old text, in fill (default white). */
+  F.coverAnnot = function (p, c, fill) {
     var r = toPageRect(p, c.x, c.y, c.w, c.h);
-    return { id: U.uid('a'), type: 'whiteout', cx: r.x + r.w / 2, cy: r.y + r.h / 2, w: r.w, h: r.h, rot: 0, fill: '#ffffff', opacity: 1 };
+    return { id: U.uid('a'), type: 'whiteout', cx: r.x + r.w / 2, cy: r.y + r.h / 2, w: r.w, h: r.h, rot: 0, fill: fill || '#ffffff', opacity: 1 };
   };
   /** Text in the standard font with its baseline at PDF (x, y). opts: font, bold, italic, color. The layout puts the
    *  first baseline pad + 0.9 em below the top of the box, so the box is placed to land the baseline on (x, y). */
