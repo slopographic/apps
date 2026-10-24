@@ -6,12 +6,8 @@
   const ns = (root.SlopImg3D = root.SlopImg3D || {});
   const S3D = 'application/x-slop-3d';
 
-  function download(blob, name) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = name;
-    document.body.append(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-  }
+  /** Saves a file: SlopUI.download (shared/slopui.js), the one copy. */
+  function download(blob, name) { window.SlopUI.download(blob, name); }
 
   /** OBJ text of a height-field mesh, written by Slop 3D's writer. */
   function objText(mesh, name) {
