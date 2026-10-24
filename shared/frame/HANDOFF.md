@@ -156,7 +156,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | PhotoSlop | photoslop/ | editor | toolbox left, panels right, Export in the header | done | Export at the panels' foot; the top bar fits the app's width (container query, More ▾) beside the Slop AI panel |
 | SlopVector | slopvector/ | editor | toolbar left, dock right | close | Export into the dock's foot |
 | Slop PDF | pdf/ | editor | rail left, properties right, Download in the header | close | Download into the properties' foot |
-| SlopLabel | label/ | editor | toolbox left, dock right, Print in the header | close | Print into the dock's foot |
+| SlopLabel | label/ | editor | toolbox left, dock right, Print in the header | done | Print at the dock's foot (the shared footer) |
 | SlopCut | slopcut/ | editor | bin left, inspector right, Export in the header | close | Export into the inspector's foot |
 | Slop Press | press/ | editor | toolbar left, dock right | close | Export into the dock's foot |
 | Slop Slides | slides/ | editor | slides left, inspector right, Save in the header | close | Save stays in the header (a document app saves from File) |
