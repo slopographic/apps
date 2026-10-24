@@ -1,27 +1,28 @@
-// The printable and PDF view of one invoice, loaded from SlopData: the invoice, its customer and payments, the
-// balance (from billing), the tax breakdown (SlopData.money) and the company block from settings.
+// One invoice with everything its views need, loaded from SlopData through the shared document loader
+// (shared/docs/doc-pdf.js): the invoice, its customer and company block, its payments, what is paid, the balance (from
+// billing), the totals and money in its currency. The PDF, the print sheet, the payment dialog and the editor read it.
 (function (g) {
   'use strict';
   const S = g.SlopData;
   const NS = (g.SlopInvoices = g.SlopInvoices || {});
-  const { ok, fail } = S.result;
+  const U = NS.util;
 
-  /** Resolves to { invoice, customer, payments, paid, balance, totals, company, money(minor) } or a failed Result. */
-  async function load(id) {
-    const got = await NS.invoices.get(id);
-    if (!got.ok) return got;
-    if (!got.value) return fail('not_found', 'this invoice no longer exists');
-    const s = await NS.util.settings();
-    const { invoice, payments, customer } = got.value;
-    const paid = S.billing.paidOn(payments);
-    const balance = invoice.status === 'issued' ? S.billing.balanceDue(invoice, payments) : invoice.status === 'draft' ? invoice.total : 0;
-    return ok({
-      invoice, customer, payments, paid, balance,
-      totals: S.money.documentTotals(invoice.lines),
-      company: { name: s.companyName, address: s.address, taxNumber: s.taxNumber }, locale: s.locale,
-      money: (minor) => NS.util.money(minor, invoice.currency, s.locale),
-    });
-  }
+  const P = g.SlopDocs.docPdf.create({
+    ns: NS, collection: 'invoices', kind: 'invoice', title: 'Invoice', statusLabel: U.STATUS,
+    /** The payments and balance; a draft's balance is its total. */
+    async more(inv, ctx) {
+      const r = await S.store.list('payments', { index: 'invoiceId', value: inv.id });
+      const payments = r.ok ? r.value : [];
+      const balance = inv.status === 'issued' ? S.billing.balanceDue(inv, payments) : inv.status === 'draft' ? inv.total : 0;
+      return { invoice: inv, payments, paid: S.billing.paidOn(payments), balance, totals: S.money.documentTotals(inv.lines),
+        money: (minor) => U.money(minor, inv.currency, ctx.locale) };
+    },
+    view: (inv, ctx) => ({ dueDate: inv.dueDate || '', paid: ctx.paid || 0,
+      balance: inv.status === 'issued' || inv.status === 'paid' ? ctx.balance : null }),
+  });
 
-  NS.context = { load };
+  /** Resolves to { invoice, customer, payments, paid, balance, totals, company, locale, money(minor) } or a failed Result. */
+  NS.context = { load: P.load };
+  /** The view of a loaded context (the print sheet and the PDF both draw it), and the PDF bytes for one. */
+  NS.pdf = { viewOf: P.viewOf, invoicePdf: async (ctx) => g.SlopDocs.pdf.renderPdf(P.viewOf(ctx)) };
 })(typeof window !== 'undefined' ? window : globalThis);

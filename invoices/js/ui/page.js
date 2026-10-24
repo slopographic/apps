@@ -4,12 +4,12 @@
   'use strict';
   const NS = (g.SlopInvoices = g.SlopInvoices || {});
   NS.page = g.SlopDocs.docPage.create({
-    ns: NS, kind: 'invoice', title: 'Invoice', statusLabel: NS.preview.STATUS,
+    ns: NS, kind: 'invoice', title: 'Invoice', statusLabel: NS.util.STATUS,
     editable: (st) => st.status === 'draft',
     pdf: async (id) => { const c = await NS.context.load(id); return c.ok ? NS.pdf.invoicePdf(c.value) : c; },
     view: (st) => ({
       dueDate: st.dueDate, paid: st.paid, balance: st.status === 'issued' || st.status === 'paid' ? st.balance : null,
-      statusText: st.status === 'issued' && st.balance <= 0 ? 'Paid' : NS.preview.STATUS[st.status] || '',
+      statusText: NS.util.statusText(st.status, st.balance),
     }),
     field: (st, name, value) => { if (name !== 'dueDate') return false; st.dueDate = value; return true; },
   });

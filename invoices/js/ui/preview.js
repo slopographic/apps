@@ -6,7 +6,6 @@
   const NS = (g.SlopInvoices = g.SlopInvoices || {});
   const U = NS.util;
   const UI = g.SlopUI;
-  const STATUS = { draft: 'Draft', issued: 'Issued', paid: 'Paid', void: 'Void' };
 
   /** The sheet as DOM for one context from NS.context.load (read only). */
   function build(ctx) {
@@ -31,5 +30,5 @@
     UI.toast('PDF downloaded');
   }
 
-  NS.preview = { build, show, pdf, STATUS };
+  NS.preview = { build, show, pdf, STATUS: U.STATUS };
 })(typeof window !== 'undefined' ? window : globalThis);

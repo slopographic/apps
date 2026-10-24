@@ -14,8 +14,8 @@ journal in the same transaction); conversion from an order through `SlopData.bil
 - `js/core/util.js`: refusals in plain words, settings (company, terms, currency), money, the DOM builder.
 - `js/core/invoices.js`: list with status and overdue, outstanding per customer and currency, customers, products,
   get with payments, save draft, remove draft, issue, record payment, void.
-- `js/core/context.js`: one invoice for printing and PDF (customer, payments, balance, tax by rate, company block).
-- `js/core/pdf.js`: the invoice's view (`viewOf`) and the PDF (`invoicePdf`), through `SlopDocs.pdf.renderPdf`.
+- `js/core/context.js`: `SlopDocs.docPdf` for invoices: one invoice with its customer, payments, balance, totals and company
+  block (`NS.context.load`), its view (`NS.pdf.viewOf`) and the PDF (`NS.pdf.invoicePdf`).
 - `js/ui/page.js`: `SlopDocs.docPage` (shared/docs/doc-page.js) for an invoice: the paper view with in-place editing, the due
   date, payments and balance. Drafts edit in place; issued invoices are read only. Each change gets the form's own check.
 - `js/ui/list.js`: list, outstanding panel, row menu, "From an order…".

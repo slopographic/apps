@@ -29,7 +29,7 @@
     const s = settings;
     return { title: `${x.number || 'draft'} · ${x.customerName}`, amount: U.money(x.total, x.currency || s.currency, s.locale),
       cls: x.overdue ? 'is-overdue' : '', selected: x.id === openId,
-      meta: [{ chip: x.overdue ? 'Overdue' : NS.preview.STATUS[x.status], cls: x.overdue ? 'bad' : { paid: 'good', void: 'void' }[x.status] || '' },
+      meta: [{ chip: x.overdue ? 'Overdue' : U.STATUS[x.status], cls: x.overdue ? 'bad' : { paid: 'good', void: 'void' }[x.status] || '' },
         x.dueDate ? `Due ${x.dueDate}` : x.date, x.status === 'issued' ? `Balance ${U.money(x.balance, x.currency, s.locale)}` : null,
         x.orderId ? 'from order' : null, x.sample ? { chip: 'Sample', cls: 'warn' } : null] };
   }

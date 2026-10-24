@@ -14,7 +14,7 @@
   let ed = null;
 
   /** The status words: an issued invoice with nothing left to pay reads Paid. */
-  const statusText = (st) => (st.status === 'issued' && st.balance <= 0 ? 'Paid' : NS.preview.STATUS[st.status]);
+  const statusText = (st) => U.statusText(st.status, st.balance);
 
   const extra = {
     blank: (st, s) => Object.assign(st, { dueDate: M.addDays(st.date, s.paymentTermsDays), orderId: null, payments: [], paid: 0, balance: 0 }),
@@ -98,7 +98,7 @@
   ed = g.SlopDocs.docEditor.create({
     ns: NS, noun: 'invoice', title: 'New invoice', route: 'i',
     data: { get: invoiceOnly, save: (f) => NS.invoices.saveDraft(f), customers: () => NS.invoices.customers(), products: () => NS.invoices.products() },
-    statusLabel: NS.preview.STATUS, statusText, locked: (st) => st.status !== 'draft',
+    statusLabel: U.STATUS, statusText, locked: (st) => st.status !== 'draft',
     heading: (st) => (st.id ? st.number || 'Draft invoice' : 'New invoice'), savedText: () => 'Draft saved.',
     dateError: 'Enter the invoice date.', extra, actions,
   });
