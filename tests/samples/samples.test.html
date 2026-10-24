@@ -52,7 +52,9 @@
       const btn = z.querySelector('.sd-sample');
       expect(btn.textContent).toBe('Try 2 sample photos');
       btn.click();
+      expect([btn.disabled, z.querySelector('.sd-status').textContent]).toEqual([true, 'Preparing the sample…']);
       await waitFor(() => got.length === 2);
+      expect(btn.disabled).toBe(false);
       expect(got).toEqual(['Sample sunset.jpg', 'Sample mountains.jpg']);
       await d.sample();
       expect(got.length).toBe(4);

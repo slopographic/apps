@@ -61,7 +61,14 @@
     if (!o.input) { input.hidden = true; zone.append(input); }
     ui.choose.addEventListener('click', () => input.click());
     /** The sample's files, through the same batch as a drop. */
-    const trySample = () => (o.sample ? run(Promise.resolve().then(() => o.sample.files())) : Promise.resolve());
+    /** Making the files can take a moment (recorded clips): the status line says so and the button waits. */
+    const trySample = () => {
+      if (!o.sample) return Promise.resolve();
+      if (ui.sample) ui.sample.disabled = true;
+      ui.status.textContent = 'Preparing the sample…';
+      const files = Promise.resolve().then(() => o.sample.files()).finally(() => { if (ui.sample) ui.sample.disabled = false; });
+      return run(files);
+    };
     if (ui.sample) ui.sample.addEventListener('click', trySample);
     const onPick = () => { const files = Array.from(input.files || []); input.value = ''; if (files.length) run(files); };
     input.addEventListener('change', onPick);
@@ -97,7 +104,7 @@
     }
     async function batch(list, at) {
       let files;
-      try { files = Array.from((await list) || []); } catch (err) { PN.toast('Could not read the dropped files', 'warn'); return; }
+      try { files = Array.from((await list) || []); } catch (err) { ui.status.textContent = ''; PN.toast('Could not read the dropped files', 'warn'); return; }
       if (!files.length) return;
       cancelTidy();
       ui.list.replaceChildren();
