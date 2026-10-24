@@ -57,6 +57,10 @@
       const files = await M.readAll('test-model');
       expect(new TextDecoder().decode(files['a.bin'])).toBe('test model bytes');
       expect(document.querySelector('.sui-dlg')).toBe(null);
+      // the registry changes the model's files (as Whisper's decoder did): the stored model needs downloading again
+      R.byId('test-model').files.push({ name: 'b.bin', size: 1, sha256: sha, url: 'https://huggingface.co/slop-test/model/resolve/main/b.bin' });
+      expect(await M.status('test-model')).toBe('needs-download');
+      R.byId('test-model').files.pop();
       await M.remove('test-model');
       expect(await M.status('test-model')).not.toBe('installed');
     });

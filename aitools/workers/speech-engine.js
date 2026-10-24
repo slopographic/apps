@@ -1,6 +1,7 @@
 /* Slop AI Tools speech engine (classic script for infer.worker.js): Whisper tiny, ONNX, multilingual.
  * Pipeline: 30-second windows of 16 kHz mono audio → log-mel features (80 bins, Slaney filters, as Whisper)
- * → encoder → greedy decoder (no KV cache: the decoder reruns on the growing token list, which is fine for tiny)
+ * → encoder → greedy decoder (the merged decoder with its key/value cache reads one new token per step; the older
+ * plain decoder, if that is what is installed, reruns on the growing token list)
  * → timestamp tokens become segment times. Byte-level BPE is decoded with vocab.json and the GPT-2 byte map.
  * Exposes self.SlopAISpeech = { transcribe(models, files, samples, opts, progress) }. */
 (function (root) {
@@ -106,10 +107,34 @@
     return out;
   }
 
+  /** The merged decoder (decoder_model_merged) keeps a cache of attention keys and values: the first pass reads the prompt
+   *  and the encoder, and each later pass reads one new token. The plain decoder reruns on every token. */
+  const isMerged = (decoder) => decoder.inputNames.includes('use_cache_branch');
+  const HEADS = 6, HEAD_DIM = 64;   // Whisper tiny
+  const ids = (ort, tokens) => new ort.Tensor('int64', BigInt64Array.from(tokens.map((t) => BigInt(t))), [1, tokens.length]);
+  /** One merged-decoder pass. past: the cache from the last pass, or null for the first. Returns the last position's logits
+   *  and the cache to pass next time. */
+  async function step(ort, decoder, tokens, enc, past) {
+    const feeds = { input_ids: ids(ort, tokens), encoder_hidden_states: enc, use_cache_branch: new ort.Tensor('bool', new Uint8Array([past ? 1 : 0]), [1]) };
+    for (const n of decoder.inputNames) {
+      // The first pass ignores the cache (use_cache_branch false), but the web runtime refuses an empty one: one zero step.
+      if (n.startsWith('past_key_values.')) feeds[n] = past ? past[n] : new ort.Tensor('float32', new Float32Array(HEADS * HEAD_DIM), [1, HEADS, 1, HEAD_DIM]);
+    }
+    const out = await decoder.run(feeds);
+    // The encoder's keys and values come out of the first pass only (a cached pass returns them empty): keep those.
+    const next = {};
+    for (const n of decoder.outputNames) {
+      if (!n.startsWith('present.')) continue;
+      const k = 'past_key_values.' + n.slice(8);
+      next[k] = past && k.includes('.encoder.') ? past[k] : out[n];
+    }
+    const t = out.logits, V = t.dims[2];
+    return { logits: { data: t.data, o: (tokens.length - 1) * V, V }, past: next };
+  }
   /** One decoder pass over the tokens so far: the logits of the last position. */
   async function nextLogits(ort, decoder, tokens, enc) {
-    const ids = new ort.Tensor('int64', BigInt64Array.from(tokens.map((t) => BigInt(t))), [1, tokens.length]);
-    const out = await decoder.run({ [decoder.inputNames[0]]: ids, [decoder.inputNames[1]]: enc });
+    if (isMerged(decoder)) return (await step(ort, decoder, tokens, enc, null)).logits;
+    const out = await decoder.run({ [decoder.inputNames[0]]: ids(ort, tokens), [decoder.inputNames[1]]: enc });
     const t = out[decoder.outputNames[0]], V = t.dims[2], o = (tokens.length - 1) * V;
     return { data: t.data, o, V };
   }
@@ -119,19 +144,25 @@
     for (const l of S.langs) { const v = logits.data[logits.o + l.id]; if (v > bv) { bv = v; best = l; } }
     return best;
   }
-  /** Greedy decoding with the prompt, suppressing special tokens other than end and timestamps. */
+  /** The most likely next token, leaving out the special tokens other than end and the timestamps. */
+  function pick(lg, S) {
+    let best = -1, bv = -Infinity;
+    for (let v = 0; v < lg.V; v++) {
+      if (v >= S.eot && v < S.ts0 && v !== S.eot) continue;
+      const x = lg.data[lg.o + v];
+      if (x > bv) { bv = x; best = v; }
+    }
+    return best;
+  }
+  /** Greedy decoding with the prompt. With the merged decoder, each step after the first reads only the newest token. */
   async function decodeWindow(ort, models, S, enc, prompt) {
-    const toks = prompt.slice();
-    for (let step = 0; step < MAX_NEW; step++) {
-      const lg = await nextLogits(ort, models.decoder, toks, enc);
-      let best = -1, bv = -Infinity;
-      for (let v = 0; v < lg.V; v++) {
-        if (v >= S.eot && v < S.ts0 && v !== S.eot) continue;
-        const x = lg.data[lg.o + v];
-        if (x > bv) { bv = x; best = v; }
-      }
+    const toks = prompt.slice(), d = models.decoder, cached = isMerged(d);
+    let r = cached ? await step(ort, d, toks, enc, null) : null;
+    for (let n = 0; n < MAX_NEW; n++) {
+      const best = pick(cached ? r.logits : await nextLogits(ort, d, toks, enc), S);
       if (best === S.eot || best < 0) break;
       toks.push(best);
+      if (cached && n + 1 < MAX_NEW) r = await step(ort, d, [best], enc, r.past);
     }
     return toks.slice(prompt.length);
   }

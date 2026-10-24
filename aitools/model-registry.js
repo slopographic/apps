@@ -30,7 +30,7 @@
       source: HF + 'Xenova/whisper-tiny', sourceNote: 'ONNX export of openai/whisper-tiny (quantised int8). The export page is tagged Apache-2.0; the weights are MIT.',
       files: [
         { name: 'encoder_model_quantized.onnx', size: 10124910, sha256: 'fd9d995b9dcb0520f0dbf6cf68651af639fc385f594d9d876e69ca2802dc438e', url: HF + 'Xenova/whisper-tiny/resolve/main/onnx/encoder_model_quantized.onnx' },
-        { name: 'decoder_model_quantized.onnx', size: 30460101, sha256: 'd1ac41063dd0a01d278dca49214ff8ce1b930cc9e34e2881c56a79a428650534', url: HF + 'Xenova/whisper-tiny/resolve/main/onnx/decoder_model_quantized.onnx' },
+        { name: 'decoder_model_merged_quantized.onnx', size: 30727765, sha256: '6c0c125986b007d2e3734bec84c18bda0152071b90b87fadac6d7764499927a0', url: HF + 'Xenova/whisper-tiny/resolve/main/onnx/decoder_model_merged_quantized.onnx' },
         { name: 'vocab.json', size: 1036584, sha256: '50d6a919f0a0601d56a04eb583c780d18553aa388254ba3158eb6a00f13e2c1a', url: HF + 'Xenova/whisper-tiny/resolve/main/vocab.json' },
         { name: 'added_tokens.json', size: 2082, sha256: 'ce949fe720c14311cb6c446e69cfe340dc669d7b006077a6feed6ae571dd7e88', url: HF + 'Xenova/whisper-tiny/resolve/main/added_tokens.json' },
       ],

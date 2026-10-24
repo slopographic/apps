@@ -55,12 +55,15 @@
   async function record(id) {
     try { return (await request('models', 'readonly', (s) => s.get(id))) || null; } catch (e) { return null; }
   }
-  /** Status: 'bundled' (no download needed), 'installed' (stored and verified), or 'needs-download'. */
+  /** Status: 'bundled' (no download needed), 'installed' (stored and verified), or 'needs-download'. A model stored before
+   *  its files changed (Whisper's decoder became the cached one) needs downloading again: readAll would miss a file. */
   async function status(id) {
     const m = R.byId(id);
     if (!m) return 'unknown';
-    if (!R.remoteFiles(m).length) return 'bundled';
-    return (await record(id)) ? 'installed' : 'needs-download';
+    const remote = R.remoteFiles(m);
+    if (!remote.length) return 'bundled';
+    const rec = await record(id), have = new Set(((rec && rec.files) || []).map((f) => f.name));
+    return rec && remote.every((f) => have.has(f.name)) ? 'installed' : 'needs-download';
   }
   /** One row per model: the index entry, its status and when it was installed. */
   async function list() {
