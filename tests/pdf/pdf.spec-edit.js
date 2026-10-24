@@ -22,20 +22,25 @@
       await waitFor(() => doc().querySelector('.edit-run'), { timeout: 5000 });
       const input = doc().querySelector('.edit-run');
       expect(input.value).toBe('hello world');
+      const file0 = PT.E.state.pages[0].f;
       input.value = 'goodbye';
       input.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-      await sleep(120);
-      expect(doc().querySelector('.edit-run')).toBe(null);
       const texts = () => PT.E.state.pages[0].annots.filter((a) => a.type === 'text' && a.text === 'goodbye');
+      await waitFor(() => texts().length, { timeout: 8000 });
+      expect(doc().querySelector('.edit-run')).toBe(null);
       expect(texts().length).toBe(1);
-      expect(PT.E.state.pages[0].annots.filter((a) => a.type === 'whiteout').length).toBe(1);
+      // the old run is taken out of the page's content (a derived copy of the file), not covered
+      expect(PT.E.state.pages[0].annots.filter((a) => a.type === 'whiteout').length).toBe(0);
+      expect(PT.E.files.get(PT.E.state.pages[0].f).derived.from).toBe(file0);
       const info = doc().querySelector('.edit-info');
       expect(!!info).toBe(false, 'the info line goes with the editor');
       PT.A.undo(); await sleep(80);
       expect(texts().length).toBe(0);
+      expect(PT.E.state.pages[0].f).toBe(file0, 'undo puts the original page back');
       PT.A.redo(); await sleep(80);
       expect(texts().length).toBe(1);
       const r2 = await PT.read(await PT.E.build());
+      expect(r2.pages[0].text).toBe('goodbye', 'the old text is not in the saved file');
       const items = (await r2.doc.getPage(1).then((pg) => pg.getTextContent())).items.filter((it) => it.str === 'goodbye');
       expect(items.length).toBe(1);
       const t = items[0].transform;

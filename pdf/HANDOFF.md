@@ -399,9 +399,10 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   under it is selected; on page text, the block under the press, or every block a drag crosses (one frame, one paragraph
   each). The frame (`.para-frame` in the page layer, focusable) shows at once and its fonts are set up behind it
   (`P.fromBlocks`, `para-model.js`): the font check (`S.fontsReady`), each document font's substitute (`S.runFont`), the
-  ink and paper colours (`edit-colours.js`) and one cover per old line (`M.coverPlan` + `F.coverAnnot`, 0.12 em wider so
-  overhanging glyphs are hidden). Double-click / Enter / F2 edits, a side handle reflows (page space, so rotated pages
-  work), the body moves, Escape lets go. Nothing changes until the first move, resize or edit, which commits the covers
+  ink and paper colours (`edit-colours.js`) and the old lines taken out of the content (`S.strip.take`, see "Taking old
+  text off a page"; one cover per old line only as the fallback and as the drag preview, `M.coverPlan` + `F.coverAnnot`,
+  0.12 em wider so overhanging glyphs are hidden). Double-click / Enter / F2 edits, a side handle reflows (page space, so rotated pages
+  work), the body moves, Escape lets go. Nothing changes until the first move, resize or edit, which commits the removal (or covers)
   and the frame as one undo step (`P.commit`); later changes replace the frame (one step each: Edit / Move / Resize
   paragraph). With the select tool a frame is an ordinary box annotation (`E.BOX.para`): left/right handles reflow it on
   an unrotated page (`S.paraReflow`, `view.js` handles), double-click edits it.
@@ -430,6 +431,36 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   (`para.helpers.js`, `pdf.spec-para.js`, `pdf.spec-para-intl.js`: select a 3-line paragraph, type, the saved lines
   inside the frame one pitch apart, narrower frame → more lines, move, undo, a drag over two paragraphs, justified stays
   justified, Lines mode and the remembered mode, Swedish å ä ö, a Barlow subset reused with ö in the substitute, Arabic).
+
+## Taking old text off a page (`editor/text-strip.js`, `core/content-*.js`)
+- **One path** for Edit text ▸ Lines (`S.coverRun`), Edit text ▸ Paragraphs (`P.fromBlocks` / `P.commit`) and the
+  selection bar's Remove (`A.remove`): `S.strip.take(p, targets)` with targets `{ x0, x1, y (baseline), fs }` in PDF user
+  space (a whole run, or the part of a run a selection crosses). The page's content stream is rewritten
+  (`core/content-strip.js` on the operators of `core/content-lex.js`): every glyph whose centre is in a target on its
+  baseline is dropped; the Tj/TJ/'/" that showed it becomes a TJ that keeps the other glyphs and moves the pen by the
+  dropped advance (Tc, Tw, Tz included), so nothing after it moves, and every other operator stays byte for byte. Widths
+  come from the font dictionaries (Widths/FirstChar, Type 0 Identity-H W/DW, the standard 14 by pdf-lib's AFM metrics).
+  The result is a derived copy of the file (`f.derived = { from, i, targets }`, id `d` + a hash of those, same colour),
+  checked with pdf.js (no text left in the targets, every other item where it was) before the page's `f` points at it in
+  the commit (`S.strip.use`); undo points it back. Nothing is painted over the old text: it is gone from screen, print,
+  search and copy, and from the saved file (the old content stream is deleted unless another page shows it).
+- **Covers are the fallback**, in the colour under the text: text in a Form XObject, invisible text (Tr 3: a scan's words are in its picture), clipping text (Tr 4–7), fonts that
+  cannot be measured (Type 3, CMaps other than Identity-H, a lost pen position), turned text, files over 80 MB, a check
+  that fails, and OCR words (their own path, `ocr/layer.js`). The colour is the rendered page's (`edit-colours.js`), or,
+  when the browser does not let the page read its canvas back (Firefox / Tor Browser with fingerprinting resistance read
+  white: that was the white bar on the beige sample) or the page is not rendered, the colour the content paints there
+  (`core/content-fills.js`: the last filled rectangle under the box, followed into forms; an image, shading, pattern or
+  curved shape there is not flat → white). Replace all and the selection box's lift still use covers (with that colour).
+- **Edit log**: a derived file is replayable: the log keeps its recipe (`rec.derived`) and replay makes it again
+  (`S.strip.build` with the same id) before applying the steps; a step whose copy cannot be made ends the replay there.
+  The status bar counts a derived copy as its file. A paragraph selected and left unchanged lets its copy go
+  (`S.strip.release`).
+- **Remove** lets the selection go (browser selection, snapshot, bar and selection box), so nothing is left where the
+  text was.
+- Tests: `tests/node/pdf-content-strip.test.mjs` (operators dropped or replaced, the rest untouched, positions kept,
+  colours under a box), `tests/pdf/strip.test.html` (`pdf.spec-strip.js`: the beige sample in Lines, Paragraphs and
+  Remove, screen canvas and saved rendering with no bar, old text not extractable, undo, edit-log replay, text over a
+  gradient image, text in a form covered in the paper colour with the canvas unreadable).
 
 ## Fonts (`ui/fonts.js`, the shared panel)
 - File ▸ Fonts…, the top-bar "Aa" button and the command palette ("Fonts…"). It opens the shared Fonts panel

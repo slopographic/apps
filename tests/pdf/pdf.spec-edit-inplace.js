@@ -2,7 +2,7 @@
    embeds one (pdf.js loaded it to draw the page), on the same baseline and as wide as the PDF draws it, on an opaque paper
    colour so the old text does not show through, and it grows to the right while typing (up to the page edge) instead of
    scrolling inside the old run's box. */
-// Covers: pdf/js/editor/pointer.js, pdf/js/editor/edit-text.js, pdf/js/editor/edit-colours.js, pdf/js/find/replace.js
+// Covers: pdf/js/editor/pointer.js, pdf/js/editor/edit-text.js, pdf/js/editor/edit-colours.js, pdf/js/find/replace.js, pdf/js/editor/text-strip.js
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -64,14 +64,19 @@
       await waitFor(() => spanOf('White text on a blue band'), { timeout: 8000 });
       PT.SP.editor.setTool('select');
       if (!PT.SP.editor.editText) PT.SP.editor.toggleEditText();
-      const band = await editLine(170, 51);
-      const bandCover = band.find((a) => a.type === 'whiteout'), bandText = band.find((a) => a.type === 'text');
-      expect(close(bandCover.fill, [26, 77, 178])).toBe(true, 'the cover is the band\'s blue, not white: ' + bandCover.fill);
-      expect(close(bandText.color, [255, 255, 255])).toBe(true, 'the new text is white like the old: ' + bandText.color);
-      await sleep(300);
-      const paper = await editLine(80, 53);
-      expect(paper.find((a) => a.type === 'whiteout').fill).toBe('#ffffff');
-      expect(close(paper.find((a) => a.type === 'text').color, [0, 0, 0])).toBe(true, 'black ink on white paper');
+      // the covers are the fallback for text that cannot be taken out of the content (text-strip.js): force it here
+      const X = PT.SP.editor._.strip, take = X.take;
+      X.take = async () => ({ to: null, paper: [] });
+      try {
+        const band = await editLine(170, 51);
+        const bandCover = band.find((a) => a.type === 'whiteout'), bandText = band.find((a) => a.type === 'text');
+        expect(close(bandCover.fill, [26, 77, 178])).toBe(true, 'the cover is the band\'s blue, not white: ' + bandCover.fill);
+        expect(close(bandText.color, [255, 255, 255])).toBe(true, 'the new text is white like the old: ' + bandText.color);
+        await sleep(300);
+        const paper = await editLine(80, 53);
+        expect(paper.find((a) => a.type === 'whiteout').fill).toBe('#ffffff');
+        expect(close(paper.find((a) => a.type === 'text').color, [0, 0, 0])).toBe(true, 'black ink on white paper');
+      } finally { X.take = take; }
       PT.SP.editor.toggleEditText();
     });
   });

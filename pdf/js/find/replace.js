@@ -1,6 +1,6 @@
 /* Slop PDF find — Replace all, in the open document. Each replacement is the cover-and-replace of the Replace text macro
    (M.coverPlan in macro/ops-edit.js), written as annotations: a white whiteout over the old characters and the new text
-   in the standard font (Helvetica) on the same baseline. Each replacement is one undo step and goes to the edit log.
+   in the standard font (Helvetica) on the same baseline (the whiteout takes the paper colour under it, not always white). Each replacement is one undo step and goes to the edit log.
    A match whose position could not be located exactly is never guessed: it is left alone. Classic script. */
 (function () {
   'use strict';
@@ -31,7 +31,11 @@
   /** Annotations for one match with replacement rep (already safe for the standard font). */
   F.annotsFor = function (p, m, rep) {
     var plan = M.coverPlan(m, rep, function (t, sz) { return E.measure(t, FONT, sz); }), out = [];
-    plan.covers.forEach(function (c) { out.push(F.coverAnnot(p, c)); });
+    // each cover in the paper colour under it (editor/edit-colours.js; white when the editor is not loaded)
+    var S = SP.editor && SP.editor._, slot = S && S.slots ? S.slots.get(p.id) : null;
+    plan.covers.forEach(function (c) {
+      out.push(F.coverAnnot(p, c, S && S.paperColour ? S.hex(S.paperColour(slot, toPageRect(p, c.x, c.y, c.w, c.h))) : null));
+    });
     if (plan.text) out.push(F.textAnnot(p, plan.text.x, plan.text.y, plan.text.size, plan.text.text));
     return { annots: out, wide: plan.wide };
   };

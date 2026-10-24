@@ -8,7 +8,7 @@
   const P1 = ['The quick brown fox jumps over', 'the lazy dog and keeps on', 'running until the end of it.'];
   const NEW = 'Zebras quietly wander across wide golden plains while curious visitors watch them from distant hills every morning.';
   const NEW_RE = new RegExp('\\b(' + NEW.replace(/\./g, '').split(' ').join('|') + ')\\b');
-  /** The saved file's rows of the new text (the old text is still in the file under its covers, on the same baselines). */
+  /** The saved file's rows of the new text. */
   const newRows = async () => PP.rows((await PP.saved()).filter((i) => NEW_RE.test(i.str)));
   /** Two paragraphs: three lines at baselines 280, 265, 250 and two lines under a gap (215, 200), Helvetica 12 at x 40. */
   const twoParas = () => PP.pdf((pg, f) => { PP.lines(pg, f.hel, P1, 40, 280); PP.lines(pg, f.hel, ['A second paragraph sits below', 'after a gap.'], 40, 215); });
@@ -38,7 +38,8 @@
       expect(PP.textOf(a)).toBe(NEW);
       expect(a.lines.length >= 4).toBe(true, 'lines ' + a.lines.length);
       a.lines.forEach((l) => l.segs.forEach((s) => expect(s.x >= -0.01 && s.x + s.w <= a.w + 0.01).toBe(true, JSON.stringify(s))));
-      expect(PT.E.state.pages[0].annots.filter((x) => x.type === 'whiteout').length).toBe(3, 'one cover per old line');
+      expect(PT.E.state.pages[0].annots.filter((x) => x.type === 'whiteout').length).toBe(0, 'the old lines are taken out of the content, not covered');
+      const f0 = PT.E.files.get(PT.E.state.pages[0].f).derived.from;
       const e = PP.edges(a), rows = await newRows();
       expect(rows.length).toBe(a.lines.length);
       rows.forEach((r) => expect(r.x0 >= e.x0 - 0.5 && r.x1 <= e.x1 + 0.5).toBe(true, r.text + ' ' + r.x0 + '..' + r.x1 + ' in ' + e.x0 + '..' + e.x1));
@@ -48,7 +49,8 @@
       expect(words.includes('Zebras quietly wander')).toBe(true, words);
       expect(rows.every((r) => /Helvetica/.test(r.items[0].font))).toBe(true, 'the paragraph keeps its font');
       PT.E.undo();
-      expect(PT.E.state.pages[0].annots.length).toBe(0, 'one undo takes the frame and its covers away');
+      expect(PT.E.state.pages[0].annots.length).toBe(0, 'one undo takes the frame away');
+      expect(PT.E.state.pages[0].f).toBe(f0, 'and puts the old lines back');
       expect(PT.E.undoLabel()).toBe(before);
       PT.E.redo();
       expect(!!PP.para()).toBe(true);

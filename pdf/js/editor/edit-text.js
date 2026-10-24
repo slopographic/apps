@@ -1,6 +1,7 @@
-/* Slop PDF — Edit text in place (Ctrl+E). Click a line of text on the page and type over it: the old run is covered with
-   a white box and the new text is drawn at the same baseline, size and colour (the darkest ink in the run on the rendered
-   page). The new text is never written into the document's own subset font (that holds only the old glyphs). It is set in
+/* Slop PDF — Edit text in place (Ctrl+E). Click a line of text on the page and type over it: the old run is taken off the
+   page (removed from the page's content, text-strip.js; covered in the colour under it only when it cannot be removed) and
+   the new text is drawn at the same baseline, size and colour (the ink of the run on the rendered page). The new text is
+   never written into the document's own subset font (that holds only the old glyphs). It is set in
    the run's family when that family is installed (shared/fonts), else in the family the person chose in the asset check
    (font-check.js), else in the closest bundled family; standard families (Helvetica, Times, Courier) stay standard. The info
    line says which font the run uses and what the new text is set in. Words of a recognised page (the invisible OCR layer,
@@ -45,6 +46,7 @@
               x0: t[4], y: t[5], width: it.width || 0, upright: t[0] > 0 && Math.abs(t[1]) < 0.01 * fs, box: SP.redact.itemBox(it, 0, it.str.length, view, st.fontFamily), pg: pg
             });
           });
+          if (S.strip) S.strip.prefetch(p); // the content's colours, for covers when the screen cannot be read
           return markOcr(f, p, runs).then(function () { return { pg: pg, runs: runs }; });
         });
       });
@@ -229,18 +231,22 @@
     if (E.needsScripts && E.needsScripts(text, key)) { E.ensureScripts(text, key, font.bold).then(function () { S.coverRun(p, run, font, text, s); }); return; }
     S.coverRun(p, run, font, text, s);
   };
-  /** Ordinary text: the old run is covered and the new text drawn over it, as one undo step. */
-  S.coverRun = function (p, run, font, text, s) {
-    // the cover takes the paper colour round the run (not white: text on a coloured band keeps its band), and the new text
+  /** Ordinary text: the old run is taken off the page (text-strip.js: removed from the content, or covered when it cannot
+   * be) and the new text drawn in its place, as one undo step. */
+  S.coverRun = async function (p, run, font, text, s) {
+    var took = run.ocr ? { to: null, paper: [] } : await S.strip.take(p, [S.strip.targetOfRun(run)]); // an OCR word's picture needs a cover
+    // a cover takes the paper colour round the run (not white: text on a coloured band keeps its band), and the new text
     // the run's ink: the colour that stands out most from that paper (light text on a dark band stays light)
-    var paper = s ? S.paperColour(s, run.box) : [1, 1, 1], color = s ? S.inkColour(s, run.box, paper) : '#000000', key = E.fontKey(font);
+    var paper = S.paperColour(s, run.box, took.paper[0]), color = s ? S.inkColour(s, run.box, paper) : '#000000', key = E.fontKey(font);
     var m = { segs: [{ x0: run.x0, x1: run.x0 + run.width, y: run.y, fs: run.fs }] };
     var plan = M.coverPlan(m, E.sanitize(text, key), function (t, sz) { return E.measure(t, key, sz); });
-    var annots = plan.covers.map(function (c) { return F.coverAnnot(p, c, S.hex(paper)); });
+    var annots = took.to ? [] : plan.covers.map(function (c) { return F.coverAnnot(p, c, S.hex(paper)); });
     if (plan.text) annots.push(F.textAnnot(p, run.x0, run.y, run.fs, plan.text.text, { font: font.font, bold: font.bold, italic: font.italic, weight: font.weight, color: color }));
     E.commit('Edit text', function (st) {
       var q = st.pages.filter(function (x) { return x.id === p.id; })[0];
-      if (q) annots.forEach(function (a) { q.annots.push(JSON.parse(JSON.stringify(a))); });
+      if (!q) return;
+      S.strip.use(q, took.to);
+      annots.forEach(function (a) { q.annots.push(JSON.parse(JSON.stringify(a))); });
     });
     if (F.refresh) F.refresh();
     Ed.paint();
