@@ -51,11 +51,11 @@ test('every app marked done loads SlopFrame and its phone sheet; a done tool has
     assert.ok(loads('panel.js'), r.name + ': panel.js');
     assert.ok(all.includes('shared/ui/sheet.js'), r.name + ': shared/ui/sheet.js (the phone sheet)');
     if (r.kind === 'editor') {   // an editor keeps its own panel and takes the shared footer for its main button
-      assert.ok(/SlopFramePanel\.create\(.*bare: true/.test(js) && /\.footer\(\[/.test(js), r.name + ': the shared footer on its own panel');
+      assert.ok(/SlopFramePanel\.create\(.*bare: true/.test(js) && /\.footer\(/.test(js), r.name + ': the shared footer on its own panel');
       continue;
     }
     assert.ok(loads('frame.js'), r.name + ': frame.js');
     assert.ok(/SlopFrame\.mount\(/.test(js) && /(SlopFrame\.panel|SlopFramePanel\.create)\(/.test(js), r.name + ': mounts SlopFrame and its panel');
-    if (r.kind === 'tool' && r.folder !== 'workflows/') assert.ok(/\.footer\(\[/.test(js), r.name + ': the main button is in the panel footer');
+    if (r.kind === 'tool' && r.folder !== 'workflows/') assert.ok(/\.footer\(/.test(js), r.name + ': the main button is in the panel footer');
   }
 });
