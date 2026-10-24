@@ -1,4 +1,5 @@
-/* SlopVector — io: open/import SVG documents */
+/* SlopVector — io: open/import SVG documents. The text is checked by SlopSanitize.xmlText (shared/sanitize) first, so
+   a file whose entities would expand without limit is refused before the XML parser sees it. */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;
@@ -10,7 +11,7 @@
 
   IO.parseSVG = function (text, opts) {
     opts = opts || {};
-    var dom = new DOMParser().parseFromString(text, 'image/svg+xml');
+    var dom = new DOMParser().parseFromString(window.SlopSanitize.xmlText(text), 'image/svg+xml');
     var root = dom.documentElement;
     if (!root || root.localName !== 'svg' || dom.getElementsByTagName('parsererror').length) throw new Error('Not a valid SVG file');
     var meta = dom.getElementById ? dom.getElementById('slopvector-document') : null;

@@ -7,6 +7,10 @@ on:
   pull_request:
 
 # A newer push to the same branch stops the run that is still going (the old commit no longer matters).
+# The GITHUB_TOKEN can only read the repository; a job that needs more says so in its own permissions block.
+permissions:
+  contents: read
+
 concurrency:
   group: rules-${{ github.ref }}
   cancel-in-progress: true

@@ -1,11 +1,16 @@
 /* Conversions for mail, calendar and XML files. The readers are shared with the apps: EmlMime (shared/mail/mime.js) and
  * SlopIcs (shared/calendar/ics.js) are classic scripts the converter page loads first; the ZIP code is shared/office/zip.js.
  * Each function takes bytes or text and returns the converted content; the catalogue (catalog.js) wires them to files.
- * The HTML written from a message blocks scripts and remote loads: the body came from someone else. */
+ * The HTML written from a message blocks scripts and remote loads: the body came from someone else, so it goes through
+ * SlopSanitize (shared/sanitize/sanitize.js, with DOMPurify) and the page carries a CSP. */
 import { writeZip, readZip } from '../../../shared/office/zip.js';
 import { htmlToText } from './html-text.js';
 import { rowsToCsv } from './csv.js';
 import { uniqueName } from '../io/files.js';
+import '../../../shared/sanitize/sanitize.js';
+
+const SAFE = () => globalThis.SlopSanitize;
+const PURIFY = new URL('../../../vendor/dompurify/purify.min.js', import.meta.url).href;
 
 // The shared readers are classic scripts that set a global. They load on first use, from the same folder tree as this
 // module, so every converter page gets them without its own script tags.
@@ -50,9 +55,8 @@ export async function emlToHtml(bytes) {
     .map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
   let body;
   if (msg.html) {
-    const withCids = M.embedCids(msg.html, msg.cids).html;
-    body = withCids.replace(/<script[\s\S]*?<\/script\s*>/gi, '').replace(/<\/?(?:iframe|object|embed|meta|link|base)\b[^>]*>/gi, '')
-      .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+    await SAFE().ready(PURIFY);
+    body = SAFE().html(M.embedCids(msg.html, msg.cids).html, { urls: 'local', whole: true });
   } else {
     body = `<pre>${esc(msg.text || '')}</pre>`;
   }
@@ -107,7 +111,7 @@ export async function icsToJson(text) {
 
 /** An XML document as JSON: each element is { name, attributes?, text?, children? }. Throws when the XML is not well formed. */
 export function xmlToJson(text) {
-  const doc = new DOMParser().parseFromString(String(text), 'application/xml');
+  const doc = new DOMParser().parseFromString(SAFE().xmlText(text), 'application/xml');
   if (doc.getElementsByTagName('parsererror').length) throw new Error('This XML could not be read: check that it is well formed.');
   const node = (el) => {
     const o = { name: el.localName || el.tagName };
