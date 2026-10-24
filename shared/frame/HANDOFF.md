@@ -159,7 +159,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | QR SLOP | qr/ | tool | editor LEFT, preview right, downloads under it | done | Save to Drive, Open from Drive and Copy to buffer stay in its app bar (Drive actions, like Open) |
 | Slop Effects | effects/ | editor | properties right, Render in the header | done | its own panel and SlopSheet, the shared footer (bare) |
 | Checksum | checksum/ | tool | three stacked cards, Copy under the hash | done | |
-| Serial counter | serials/ | tool | one column, bar + actions | to do | bar and exports → right panel |
+| Serial counter | serials/ | tool | one column, bar + actions | done | |
 | Slop Photo Sorter | sorter/ | tool | one column, bar | to do | bar → right panel |
 | File convert | convert/ | tool | tool built in JS, one column | to do | split the tool into view + right panel |
 | Slop AI Tools | aitools/ (+ ocr, speech, denoise, tags, portrait) | tool | each tool one column | to do | five tool pages: view + right panel |
