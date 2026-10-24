@@ -29,10 +29,7 @@
   }
 
   /** Minor units as plain text for an input, such as 1250 -> "12.50" (no thousands separator). */
-  function amountText(minor, currency) {
-    const d = S.money.digits(currency);
-    return (minor / 10 ** d).toFixed(d);
-  }
+  const amountText = (minor, currency) => S.money.plainMinor(minor, currency);
 
   /** A new line, optionally filled from a product (sku, name as description, price and tax rate). */
   function newLine(product, taxRateDefault = 0) {

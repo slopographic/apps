@@ -35,6 +35,15 @@ test('line and document totals come from the lines', () => {
   });
 });
 
+test('plainMinor is exact plain text with the currency digits and round-trips with parseMinor', () => {
+  assert.equal(money.plainMinor(1250, 'USD'), '12.50');
+  assert.equal(money.plainMinor(-5, 'USD'), '-0.05');
+  assert.equal(money.plainMinor(0, 'EUR'), '0.00');
+  assert.equal(money.plainMinor(500, 'JPY'), '500');
+  assert.equal(money.plainMinor(900719925474099, 'USD'), '9007199254740.99');
+  for (const n of [1, 99, 100, 123456789]) assert.equal(money.parseMinor(money.plainMinor(n, 'USD')), n);
+});
+
 test('parseMinor reads plain decimals and refuses extra precision', () => {
   assert.equal(money.parseMinor('12.34'), 1234);
   assert.equal(money.parseMinor('12.3'), 1230);

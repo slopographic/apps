@@ -10,7 +10,7 @@
   let taxTouched = false, cur = null;
 
   const today = () => S.ledger.today();
-  const decimal = (minor, currency) => { const d = S.money.digits(currency); return (minor / 10 ** d).toFixed(d); };
+  const decimal = (minor, currency) => S.money.plainMinor(minor, currency);
   const say = (text, bad) => { $('eMsg').textContent = text || ''; $('eMsg').className = 'msg' + (bad ? ' bad' : text ? ' ok' : ''); };
 
   async function fillAccounts(selected) {

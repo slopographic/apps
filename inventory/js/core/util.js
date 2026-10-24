@@ -24,14 +24,8 @@
   /** One readable line for a failed Result (SlopBiz.refusal with the inventory's words, the message in brackets). */
   const refusal = (r) => B.refusal(r, { plain: PLAIN, fields: FIELD, brackets: true });
 
-  /** Minor units as plain text with the currency's decimals, such as 1250 -> "12.50". Round-trips with parseMinor. */
-  function majorText(minor, currency) {
-    const d = S.money.digits(currency);
-    const neg = minor < 0;
-    const s = String(Math.abs(minor)).padStart(d + 1, '0');
-    const body = d ? `${s.slice(0, -d)}.${s.slice(-d)}` : s;
-    return (neg ? '-' : '') + body;
-  }
+  /** Minor units as plain text with the currency's decimals, such as 1250 -> "12.50" (SlopData.money.plainMinor). */
+  const majorText = (minor, currency) => S.money.plainMinor(minor, currency);
 
   /** A basis-point rate as text: 2000 -> "20.00". */
   const percentText = (bp) => majorText(bp, 'USD');

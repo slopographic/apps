@@ -35,14 +35,8 @@
   /** Money text in a currency, e.g. "$12.34" or "€500.00". */
   const money = (minor, cur, loc) => S.money.formatMinor(minor, cur, loc);
 
-  /** Plain decimal text for CSV: 1234 USD -> "12.34" (no symbol, no grouping). */
-  function decimal(minor, cur) {
-    const d = S.money.digits(cur);
-    const neg = minor < 0;
-    const s = String(Math.abs(minor)).padStart(d + 1, '0');
-    const body = d ? `${s.slice(0, -d)}.${s.slice(-d)}` : s;
-    return (neg ? '-' : '') + body;
-  }
+  /** Plain decimal text for CSV: 1234 USD -> "12.34" (SlopData.money.plainMinor). */
+  const decimal = (minor, cur) => S.money.plainMinor(minor, cur);
 
   /** Text for a failed Result: the first message, which already names the problem. */
   const refusal = (r) => (r && r.message) || 'Nothing was saved.';
