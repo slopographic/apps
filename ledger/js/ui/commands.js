@@ -15,6 +15,7 @@
     { id: 'accounts.new', title: 'Accounts: add an account', group: 'Accounts', run: () => { NS.app.show('accounts'); setTimeout(() => $('aCode').focus(), 40); } },
     { id: 'rates.new', title: 'Rates: add a manual rate', group: 'Rates', run: () => { NS.app.show('rates'); setTimeout(() => $('rForeign').focus(), 40); } },
     { id: 'view.bank', title: 'Go to Bank', group: 'Go to', run: () => NS.app.show('bank') },
+    { id: 'view.fin', title: 'Go to Statements (profit and loss, balance sheet)', group: 'Go to', run: () => NS.app.show('fin') },
     { id: 'bank.import', title: 'Bank: import a statement…', group: 'Bank', run: () => { NS.app.show('bank'); $('bkPick').click(); } },
   ];
   const byId = Object.fromEntries(COMMANDS.map((c) => [c.id, c]));

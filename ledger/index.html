@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/biz/app.css">
+  <link rel="stylesheet" href="../shared/biz/sheet.css">
   <link rel="stylesheet" href="css/ledger.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
@@ -55,6 +56,7 @@
       <button type="button" role="tab" class="tab" id="tab-accounts" data-view="accounts" aria-controls="view-accounts" aria-selected="false">Accounts</button>
       <button type="button" role="tab" class="tab" id="tab-rates" data-view="rates" aria-controls="view-rates" aria-selected="false">Rates</button>
       <button type="button" role="tab" class="tab" id="tab-bank" data-view="bank" aria-controls="view-bank" aria-selected="false">Bank</button>
+      <button type="button" role="tab" class="tab" id="tab-fin" data-view="fin" aria-controls="view-fin" aria-selected="false">Statements</button>
     </nav>
 
     <main class="main" id="main">
@@ -182,6 +184,15 @@
         <div class="tablewrap"><table class="grid-t"><thead><tr><th>Date</th><th>Text</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead><tbody id="bkRows"></tbody></table></div>
         <p class="empty" id="bkEmpty" hidden></p>
       </section>
+
+      <section class="view" id="view-fin" role="tabpanel" aria-labelledby="tab-fin" hidden>
+        <div class="toolbar no-print">
+          <label>Period <select id="fsPeriod"><option value="month">This month</option><option value="quarter">This quarter</option><option value="year" selected>This year</option><option value="last-year">Last year</option><option value="custom">Dates…</option></select></label>
+          <label>From <input id="fsFrom" type="date"></label><label>To <input id="fsTo" type="date"></label>
+          <button type="button" class="btn primary" id="fsPrint">Print…</button><button type="button" class="btn" id="fsCsv">Download CSV</button>
+        </div>
+        <div class="fs-sheets" id="fsSheets"></div>
+      </section>
     </main>
   </div>
 
@@ -215,14 +226,14 @@
   <script src="js/core/journal.js"></script>
   <script src="js/core/accounts.js"></script>
   <script src="js/core/csv.js"></script>
-  <script src="js/core/rates.js"></script><script src="js/core/bank.js"></script>
+  <script src="js/core/rates.js"></script><script src="js/core/bank.js"></script><script src="js/core/statements.js"></script>
   <script src="js/ui/journal.js"></script>
   <script src="js/ui/gl.js"></script>
   <script src="js/ui/trial.js"></script>
   <script src="js/ui/accounts.js"></script>
-  <script src="js/ui/rates.js"></script><script src="js/ui/bank.js"></script>
+  <script src="js/ui/rates.js"></script><script src="js/ui/bank.js"></script><script src="js/ui/statements.js"></script>
   <script src="js/ui/commands.js"></script>
-  <script src="../shared/biz/biz.js"></script>
+  <script src="../shared/biz/biz.js"></script><script src="../shared/biz/sheet.js"></script>
   <script src="../shared/biz/router.js"></script>
   <script src="../shared/ui/tabs.js"></script>
   <script src="js/ui/app.js"></script>
@@ -231,6 +242,6 @@
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Ledger", "tools": ["#baseLabel"], "menus": {"File": ["cmd:journal.new", "cmd:journal.export", "cmd:trial.export", "-", "cmd:accounts.new", "cmd:rates.new", "-", "cmd:bank.import"], "View": ["cmd:view.journal", "cmd:view.gl", "cmd:view.trial", "cmd:view.accounts", "cmd:view.rates", "cmd:view.bank"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"});</script>
+<script>SlopMenuBar.mount({"app": "Ledger", "tools": ["#baseLabel"], "menus": {"File": ["cmd:journal.new", "cmd:journal.export", "cmd:trial.export", "-", "cmd:accounts.new", "cmd:rates.new", "-", "cmd:bank.import"], "View": ["cmd:view.journal", "cmd:view.gl", "cmd:view.trial", "cmd:view.accounts", "cmd:view.rates", "cmd:view.bank", "cmd:view.fin"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"});</script>
 </body>
 </html>
