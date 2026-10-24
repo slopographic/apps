@@ -86,12 +86,8 @@
 
   function boot() {
     bar = window.SlopAppBar.mount($('wm-bar'), {
-      title: 'Slop Watermark', subtitle: 'Watermark many pictures with your logo or text. Nothing is uploaded.', actions: [], menu: [],
+      home: '../', title: 'Slop Watermark', subtitle: 'Watermark many pictures with your logo or text. Nothing is uploaded.', actions: [], menu: [],
     });
-    // The home link leads the header, as in the other apps: brand/brand.js draws the app's icon in it.
-    const home = Object.assign(document.createElement('a'), { className: 'brand', href: '../', title: 'Slopographic home' });
-    home.setAttribute('aria-label', 'Slopographic home');
-    bar.element.querySelector('.sab-brand').prepend(home);
     window.WMSettings.init({ onChange: changed });
     window.WMList.wire((id) => { window.WMItems.remove(id); window.WMList.render(); window.WMPreview.schedule(); syncBar(); });
     $('wm-cancel').addEventListener('click', () => { cancelRun = true; });

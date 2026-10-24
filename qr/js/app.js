@@ -197,12 +197,8 @@
 
   function init() {
     bar = window.SlopAppBar.mount($('qr-bar'), {
-      title: 'QR SLOP', subtitle: 'Codes with logos, templates and a live preview. Nothing is uploaded.', actions: [], menu: [],
+      home: '../', title: 'QR SLOP', subtitle: 'Codes with logos, templates and a live preview. Nothing is uploaded.', actions: [], menu: [],
     });
-    // The home link leads the header, as in the other apps: brand/brand.js draws the app's icon in it.
-    const home = Object.assign(document.createElement('a'), { className: 'brand', href: '../', title: 'Slopographic home' });
-    home.setAttribute('aria-label', 'Slopographic home');
-    bar.element.querySelector('.sab-brand').prepend(home);
     window.QRPreview.init();
     window.QRPanelContent.drawTemplates($('qr-templates'), applyTemplate);
     for (const k of TABS) $('qr-tab-' + k).textContent = NAMES[k];
