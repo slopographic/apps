@@ -33,11 +33,9 @@
       const file = await (await fetch('../pdf/fixtures/Barlow-Regular.ttf')).arrayBuffer();
       PR.ui.openFonts(['Gill Sans']);
       await waitFor(() => rowOf(W, 'Gill Sans'), { timeout: 10000 });
-      const input = rowOf(W, 'Gill Sans').querySelector('input[type=file]');
-      const dt = new W.DataTransfer();
-      dt.items.add(new W.File([file], 'Barlow-Regular.ttf', { type: 'font/ttf' }));
-      input.files = dt.files;
-      input.dispatchEvent(new W.Event('change'));
+      const picked = new W.File([file], 'Barlow-Regular.ttf', { type: 'font/ttf' });
+      W.SlopUI.pickFiles = async () => [picked]; // the row's Drop your own font… is the intake's picker (part fonts.file)
+      [...rowOf(W, 'Gill Sans').querySelectorAll('button')].find((b) => /Drop your own font/.test(b.textContent)).click();
       await waitFor(() => rowOf(W, 'Gill Sans') && rowOf(W, 'Gill Sans').textContent.includes('Installed from your file'), { timeout: 15000 });
       expect(PR.fonts.list().includes('Gill Sans')).toBe(true);
       // a text frame set in the font, so the PDF has to embed it
@@ -73,11 +71,9 @@
       const before = (S.doc.fonts || []).length;
       PR.ui.openFonts(['Gill Serif']);
       await waitFor(() => rowOf(W, 'Gill Serif'), { timeout: 10000 });
-      const input = rowOf(W, 'Gill Serif').querySelector('input[type=file]');
-      const dt = new W.DataTransfer();
-      dt.items.add(new W.File([new Uint8Array([119, 79, 70, 70])], 'Gill.woff', { type: 'font/woff' }));
-      input.files = dt.files;
-      input.dispatchEvent(new W.Event('change'));
+      const picked = new W.File([new Uint8Array([119, 79, 70, 70])], 'Gill.woff', { type: 'font/woff' });
+      W.SlopUI.pickFiles = async () => [picked]; // the row's Drop your own font… is the intake's picker (part fonts.file)
+      [...rowOf(W, 'Gill Serif').querySelectorAll('button')].find((b) => /Drop your own font/.test(b.textContent)).click();
       await waitFor(() => rowOf(W, 'Gill Serif').textContent.includes('WOFF fonts cannot be used in Slop Press'), { timeout: 10000 });
       expect((S.doc.fonts || []).length).toBe(0);
       expect(hasOption(W, 'Gill Serif')).toBe(false);

@@ -326,6 +326,10 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   dialog's zone (`SlopDrop.attach({ intake: 'config' })`) and a .slop.json dropped anywhere on the page (the page-wide
   capture drop is now a source that hands the file to `SlopIntake.take`, `intake-ok`). A page without shared/intake keeps
   the old picker and `SlopConfig.importFromDrive`. `tests/intake/config.test.html`.
+- **The fonts panel** (shared/fonts/panel.js, part `fonts.file`): each missing row's and the foot's "Drop your own font…"
+  are the intake's picker and a drop on a row is `dropTarget` (data: the row's family); the per-row file inputs are gone.
+  A page without shared/intake keeps a file input of its own (`intake-ok`). Covered by the apps' own-fonts tests (Press,
+  Docs, Slides, PDF) and `tests/fonts/font-panel.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -401,12 +405,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] out: Open in/Send to label: `shared/convert/load.js:52`
 - [ ] out: Open in/Send to label: `shared/convert/results.js:50`
-
-### shared/fonts
-
-- [ ] file input: `shared/fonts/panel.js:71`
-- [ ] file input: `shared/fonts/panel.js:139`
-- [ ] drop listener: `shared/fonts/panel.js:146`
 
 ### shared/hub.js
 

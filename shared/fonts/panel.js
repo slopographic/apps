@@ -63,12 +63,26 @@
    * onUse({ family, use }) when the closest font is
    * chosen for a missing family, onAdd({ family, how, row }) when a font is installed: how 'library' or 'file'; row is the
    * missing family it answers (or undefined), onClose() when the person dismisses the panel. */
+  const current = {};   // the open panel's dropFile, for the intake's part 'fonts.file'
   function openPanel(opts = {}) {
     css();
     if (cur) cur.close(false);
     const names = [...new Set(opts.fonts || [])], standard = new Set(opts.standard || []);
     const answered = new Map();   // family -> { how, use }
-    const footInput = el('input', { type: 'file', accept: '.ttf,.otf,.woff,.woff2', hidden: '' });
+    /* A font file comes in one way where the page has the intake (shared/intake): the part 'fonts.file' (a row's or the
+       foot's "Drop your own font…", a drop on a row); its reader stores the file for the row it was given (data.n). */
+    const FONT_ACCEPT = '.ttf,.otf,.woff,.woff2';
+    const SI = root.SlopIntake && root.SlopIntake.part ? root.SlopIntake : null;
+    const fontPart = SI ? SI.part({ id: 'fonts.file', limit: 1, accept: { types: ['font/*', 'application/font-sfnt', 'application/x-font-ttf'], exts: ['.ttf', '.otf', '.woff', '.woff2'], noun: 'a font file' },
+      process: async (f, ctx) => { await (current.dropFile || (() => null))(ctx.data.n, f, ctx.data.msg); return f.name; } }) : null;
+    current.dropFile = (n, f, msg) => dropFile(n, f, msg);
+    /** "Drop your own font…": the intake's picker; a page without shared/intake gets a file input of its own. */
+    function chooseFont(n, msg) {
+      if (SI) { SI.pick({ to: fontPart, multiple: false, data: { n, msg }, accept: FONT_ACCEPT }); return; }
+      const i = el('input', { type: 'file', accept: FONT_ACCEPT, hidden: '' }); // intake-ok: a page without shared/intake
+      i.addEventListener('change', () => { if (i.files[0]) dropFile(n, i.files[0], msg); i.remove(); });
+      doc.body.append(i); i.click();
+    }
     const body = el('div', { role: 'status' }, el('p', { class: 'sf-meta' }, 'Loading…'));
     const box = el('div', { class: 'sf-box', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'sfTitle' },
       el('h2', { id: 'sfTitle' }, opts.title || 'Fonts'), body);
@@ -86,7 +100,6 @@
       if (notify && opts.onClose) opts.onClose();
     }
     cur = handle;
-    footInput.addEventListener('change', () => { if (footInput.files[0]) dropFile(null, footInput.files[0], null); footInput.value = ''; });
 
     /** A family that became installed: answers the rows it fills, then tells the app. */
     function installed(fam, how, row) {
@@ -115,9 +128,8 @@
       }
       kids.push(el('div', { class: 'sf-foot' },
         el('span', { class: 'sf-btns' },
-          el('button', { type: 'button', on: { click: () => footInput.click() } }, 'Drop your own font…'),
-          opts.library !== false ? el('button', { type: 'button', on: { click: () => openLibrary() } }, 'Get more…') : null,
-          footInput),
+          el('button', { type: 'button', on: { click: () => chooseFont(null, null) } }, 'Drop your own font…'),
+          opts.library !== false ? el('button', { type: 'button', on: { click: () => openLibrary() } }, 'Get more…') : null),
         el('button', { type: 'button', class: 'pri', on: { click: () => close(true) } }, opts.closeLabel || 'Close')));
       body.replaceChildren(...kids);
       if (!shown) { shown = true; doc.body.append(host); doc.addEventListener('keydown', onKey, true); }
@@ -136,17 +148,18 @@
       if (info) { row.append(el('p', null, n + ' · ' + sourceText(info) + '.')); return row; }
       if (stand) { row.append(el('p', null, `${n} · Set in ${stand.name} (${sourceText(stand)}), which has the same character widths.`)); return row; }
       const closest = closestOf(n, opts);
-      const fileIn = el('input', { type: 'file', accept: '.ttf,.otf,.woff,.woff2', hidden: '' });
-      fileIn.addEventListener('change', () => { if (fileIn.files[0]) dropFile(n, fileIn.files[0], msg); fileIn.value = ''; });
       const btns = [];
       if (pack) btns.push(el('button', { type: 'button', class: 'pri', 'data-how': 'library', on: { click: () => openLibrary(pack.id) } }, 'Download from the library'));
-      btns.push(el('button', { type: 'button', 'data-how': 'file', on: { click: () => fileIn.click() } }, 'Drop your own font…'));
+      btns.push(el('button', { type: 'button', 'data-how': 'file', on: { click: () => chooseFont(n, msg) } }, 'Drop your own font…'));
       btns.push(el('button', { type: 'button', 'data-how': 'closest', on: { click: () => useClosest(n, closest) } }, `Use the closest font instead (${closest})`));
-      row.addEventListener('dragover', (e) => e.preventDefault());
-      row.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) dropFile(n, e.dataTransfer.files[0], msg); });
+      if (SI) SI.dropTarget(row, { to: fontPart, data: () => ({ n, msg }) });
+      else {
+        row.addEventListener('dragover', (e) => e.preventDefault());
+        row.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) dropFile(n, e.dataTransfer.files[0], msg); }); // intake-ok: a page without shared/intake
+      }
       const why = pack || opts.download === false ? null : el('p', { class: 'sf-meta' }, `${n} is not in the font library, so it cannot be downloaded here.`);
       // append() turns null into the text "null", so only real nodes are appended.
-      for (const k of [el('p', null, `${n} · Missing. It is not installed.`), why, el('div', { class: 'sf-btns' }, ...btns), fileIn, msg]) if (k) row.append(k);
+      for (const k of [el('p', null, `${n} · Missing. It is not installed.`), why, el('div', { class: 'sf-btns' }, ...btns), msg]) if (k) row.append(k);
       return row;
     }
     /** Opens the library (Get more) on one pack's confirmation, or the list. Nothing downloads until the person confirms there. */
