@@ -72,7 +72,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 - **Timeline.** Months, newest first, with a sticky month header. A virtual list renders only the visible rows (the test asserts fewer than 160 tiles in the DOM for 5,000 photos). Arrow keys move between tiles, Enter opens, Space selects.
 - **Albums.** Create, rename, delete. Adding a photo links its id and never copies the bytes (tested).
 - **Favourites, likes and tags.** Liked, disliked and free-text tags live on the photo record. Photos from Slop Drive also have them written to their Drive record under `meta.gallery`, so the tags travel with the Drive file.
-- **Sort mode (swipe deck).** Up likes and moves on. Down dislikes and moves on. Left goes back with no tag. Right skips ahead with no tag. Enter (or any letter or number) opens a tag field under the photo: Enter adds the tag(s), comma-separated, and moves on; Escape cancels. The queue is the timeline's visible list when the deck opens (or the selection). Key rules are in `js/core/sort.js` and tested.
+- **Sort mode (swipe deck).** Up likes and moves on. Down dislikes and moves on. Left goes back with no tag. Right skips ahead with no tag. Enter (or any letter or number) opens a tag field under the photo: Enter adds the tag(s), comma-separated, and moves on; Escape cancels. The queue is the timeline's visible list when the deck opens (or the selection). The deck itself is shared/deck/deck.js (SlopDeck, also used by Slop Photo Sorter); `js/ui/sortmode.js` gives it the library.
 - **Filters.** Name, year, month, camera, favourites, album, and tag (liked only, disliked only, untagged only).
 - **Viewer.** Full screen, on the shared preview. See the Viewer section above.
 - **Export.** One photo downloads as its original file. Several photos download as one store-only zip (`js/io/zip.js`, CRC-32 checked on read). The whole library backs up to one zip with a manifest, originals and thumbnails. Restore validates the manifest and every SHA-256 before writing, then writes in one transaction.
@@ -110,7 +110,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 - `index.html`, `css/gallery.css`, `css/viewer.css`, `css/drive.css`
 - `shared/kinds/kinds.js`: the file-kind table (see Drive source)
 - `js/io/`: `hash.js`, `exif.js`, `zip.js`, `source.js`, `backup.js`, `export.js`, `reel-cutout.js`, `reel-drive.js`
-- `js/core/`: `db.js`, `thumb.js`, `library.js`, `import.js`, `query.js`, `sort.js`, `urls.js`, `reel.js` (reel spec, validation, manifest), `drive-query.js` (Drive search, chips, sort, counts)
+- `js/core/`: `db.js`, `thumb.js`, `library.js`, `import.js`, `query.js`, `urls.js`, `reel.js` (reel spec, validation, manifest), `drive-query.js` (Drive search, chips, sort, counts)
 - `js/io/drive-source.js`: the Drive source, read only (`load`, `thumb`)
 - `js/ui/drive-view.js`, `drive-bar.js`, `drive-open.js`, `drive-viewer.js`: the Drive grid and switch, its bar, the open rules and the Drive viewer
 - `js/ui/`: `state.js`, `vlist.js`, `rows.js`, `timeline.js`, `viewer.js`, `sortmode.js`, `actions.js`, `albums.js`, `dupes.js`, `menus.js`, `commands.js`, `sidebar.js`, `reel.js` (Make reel dialog and run), `main.js`
