@@ -10,3 +10,19 @@
   .main { padding: 0 !important; max-width: none !important; }
   .view:not([hidden]) { display: block; }
 }
+
+/* The customer statement (ui/statement.js): a sheet like the paper view, and in print only the sheet */
+.statement { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.st-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.st-title { text-align: right; }
+.st-title h2 { margin: 0 0 4px; font-size: 22px; }
+.st-to { display: grid; gap: 2px; }
+.st-total { display: flex; justify-content: space-between; align-items: baseline; margin: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--panel-2); }
+.st-total b { font-size: 20px; font-variant-numeric: tabular-nums; }
+.st-scroll { overflow-x: auto; min-width: 0; }   /* on a phone only the table scrolls sideways, never the page */
+.st-table td, .st-table th { white-space: nowrap; }
+.st-age .stat.is-late b { color: var(--danger); }
+@media print {
+  .statement { border: 0; padding: 0; background: #fff; color: #000; }
+  .statement .stat { border-color: #999; background: #fff; }
+}

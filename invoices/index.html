@@ -64,6 +64,7 @@
       <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Invoices</button>
       <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Invoice</button>
       <button type="button" role="tab" class="tab" id="tab-print" data-view="print" aria-controls="view-print" aria-selected="false" hidden>Print</button>
+      <button type="button" role="tab" class="tab" id="tab-statement" data-view="statement" aria-controls="view-statement" aria-selected="false" hidden>Statement</button>
       <button type="button" role="tab" class="tab" id="tab-repeat" data-view="repeat" aria-controls="view-repeat" aria-selected="false">Repeating</button>
       <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
     </nav>
@@ -142,6 +143,20 @@
         <div id="pSheet"></div>
       </section>
 
+      <section class="view" id="view-statement" role="tabpanel" aria-labelledby="tab-statement" hidden>
+        <div class="toolbar no-print">
+          <button type="button" class="btn small" id="stBack">← Invoices</button>
+          <h2 class="h2" id="stTitle">Statement</h2>
+        </div>
+        <div class="toolbar no-print">
+          <label>From (optional) <input id="stFrom" type="date"></label>
+          <label>Currency <select id="stCurrency"></select></label>
+          <button type="button" class="btn primary" id="stPrint">Print…</button>
+          <button type="button" class="btn" id="stCsv">Download CSV</button>
+        </div>
+        <div id="stSheet"></div>
+      </section>
+
       <section class="view" id="view-repeat" role="tabpanel" aria-labelledby="tab-repeat" hidden>
         <div class="toolbar"><p class="note" id="rSummary" role="status"></p>
           <button type="button" class="btn primary" id="rMake" disabled>Nothing due</button></div>
@@ -177,6 +192,7 @@
   <script src="../shared/data/stock.js"></script>
   <script src="../shared/data/billing.js"></script>
   <script src="../shared/data/recurring.js"></script>
+  <script src="../shared/data/statement.js"></script>
   <script src="../shared/data/bundle-check.js"></script>
   <script src="../shared/data/export.js"></script>
   <script src="../shared/docs/model.js"></script>
@@ -217,6 +233,7 @@
   <script src="js/ui/payment-dialog.js"></script>
   <script src="js/ui/repeat-dialog.js"></script>
   <script src="js/ui/repeat.js"></script>
+  <script src="js/ui/statement.js"></script>
   <script src="js/ui/editor.js"></script>
   <script src="js/ui/page.js"></script>
   <script src="js/ui/print.js"></script>
