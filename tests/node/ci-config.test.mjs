@@ -1,6 +1,6 @@
 // The CI workflow (.github/workflows/rules.yml) and the repo agree: the browser jobs run in the Playwright image of the
 // version package-lock.json installs (a newer library in an older image cannot find its browser), and every slice of the
-// matrix is asked for. wip/* branches never run the full suite (browser-changed runs only the changed apps there).
+// slices of the plan are asked for. wip/* branches never run the full suite (tools/ci/plan.mjs decides).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -17,17 +17,41 @@ test('the browser jobs run in the Playwright image of the locked Playwright vers
   assert.equal(image, locked, `image v${image}, package-lock.json ${locked}`);
 });
 
-test('the matrix lists every slice from 1 to n, and the run asks for slices of n', () => {
-  const list = (wf.match(/shard: \[([\d, ]+)\]/) || [])[1].split(',').map(Number);
-  const n = Number((wf.match(/--shard=\$\{\{ matrix\.shard \}\}\/(\d+)/) || [])[1]);
-  assert.deepEqual(list, Array.from({ length: n }, (_, i) => i + 1));
+const job = (name) => (wf.split(/\n  (?=[\w-]+:\n)/).find((b) => b.startsWith(name + ':')) || '');
+
+test('the browser tests run only in the slices the plan job asks for, and tests/run.mjs is run nowhere else', () => {
+  const browser = job('browser');
+  assert.match(browser, /needs: plan/);
+  assert.match(browser, /if: \$\{\{ needs\.plan\.outputs\.count != '0' \}\}/);
+  assert.match(browser, /shard: \$\{\{ fromJSON\(needs\.plan\.outputs\.shards\) \}\}/);
+  assert.match(browser, /SLICE: --shard=\$\{\{ matrix\.shard \}\}\/\$\{\{ needs\.plan\.outputs\.count \}\}/);
+  assert.match(browser, /--pages-file=plan-pages\.txt/);
+  assert.doesNotMatch(browser, /^\s+if: .*github\.ref/m, 'the browser job takes the branch rule from the plan only');
+  assert.match(job('plan'), /run: node tools\/ci\/plan\.mjs/);
+  // every run of the browser suite goes through the plan: no other job calls the runner on its own terms
+  const runners = wf.split(/\n  (?=[\w-]+:\n)/).filter((b) => /node tests\/run\.mjs/.test(b)).map((b) => b.split(':')[0].trim());
+  assert.deepEqual(runners.filter((n) => n !== 'browser' && !/needs: plan/.test(job(n))), []);
 });
 
-test('wip/* branches never run the full browser suite; they run only the changed apps and smoke pages', () => {
-  const job = (name) => (wf.split(/\n  (?=[\w-]+:\n)/).find((b) => b.startsWith(name + ':')) || '');
-  assert.match(job('browser'), /if: \$\{\{ !startsWith\(github\.ref, 'refs\/heads\/wip\/'\) \}\}/);
-  const changed = job('browser-changed');
-  assert.match(changed, /if: \$\{\{ startsWith\(github\.ref, 'refs\/heads\/wip\/'\) \}\}/);
-  assert.doesNotMatch(changed, /--shard=/);
-  assert.equal((wf.match(/--shard=/g) || []).length, 1, 'only the full-suite job splits into shards');
+test('the plan: wip/* and other branches never get the full suite; main skips it only for a merge of a green commit', async () => {
+  const { decide, outputs, FULL_SLICES } = await import('../../tools/ci/plan.mjs');
+  const { MAX_SLICES } = await import('../../tools/ci/affected.mjs');
+  for (const b of ['wip/x', 'wip/faster-tests', 'feature', 'testing-2', 'mainline', '']) {
+    assert.equal(decide(b), 'changed', b);
+    assert.equal(decide(b, { mergeOfGreen: true }), 'changed', b);
+  }
+  assert.equal(decide('testing'), 'full');
+  assert.equal(decide('main'), 'full');
+  assert.equal(decide('main', { mergeOfGreen: true }), 'none');
+  const many = Array.from({ length: 900 }, (_, i) => `tests/p${i}.test.html`);
+  assert.ok(outputs('changed', many).count <= MAX_SLICES && MAX_SLICES < FULL_SLICES);
+  assert.equal(outputs('changed', many).pages.split(' ').length, 900);
+  assert.equal(outputs('full', null).count, FULL_SLICES);
+  assert.equal(outputs('full', null).pages, '');
+  assert.equal(outputs('none', []).count, 0);
+  assert.equal(outputs('none', []).shards, '[]');
+  // the skip on main needs the merged parent's tree and its green run
+  const src = readFileSync(path.join(ROOT, 'tools/ci/plan.mjs'), 'utf8');
+  assert.match(src, /'HEAD\^\{tree\}'\) !== git\('rev-parse', 'HEAD\^2\^\{tree\}'\)/);
+  assert.match(src, /w\.name === 'Rules and tests' && w\.conclusion === 'success'/);
 });

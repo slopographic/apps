@@ -49,15 +49,58 @@ jobs:
         run: node --test tests/node/*.test.mjs tests/seo/*.test.mjs
       - name: Every cdn file answers on jsDelivr (or GitHub when over its limit) with its size (tools/check-cdn.mjs)
         run: node tools/check-cdn.mjs
+      # The files the browser pages download (models, wasm: tests/net-urls.txt), kept between runs; filled here when the list
+      # changed, so the slices below find them (tests/netcache.mjs).
+      - name: Look up the download cache
+        id: netcache
+        if: hashFiles('tests/net-urls.txt') != ''
+        uses: actions/cache@v6
+        with:
+          path: tests/.cache/net
+          key: testnet-${{ hashFiles('tests/net-urls.txt') }}
+          lookup-only: true
+      - name: Fill the download cache
+        if: hashFiles('tests/net-urls.txt') != '' && steps.netcache.outputs.cache-hit != 'true'
+        run: node tests/netcache.mjs --fill
 
-  # The browser tests (every tests/**/*.test.html), split into 16 slices that run as parallel jobs, 3 pages at a time in each.
-  # The slices are balanced by tests/timings.json (refresh with: node tests/run.mjs --record-timings). The jobs run in
-  # Playwright's own image, which has Chromium and its system libraries, so a job starts in seconds. Its version must be the
-  # one in package-lock.json (tests/node/ci-config.test.mjs checks it). This is CI only: GitHub Pages serves the files as they are.
-  # The full suite runs on testing, main and pull requests; never on wip/* branches (see browser-changed below).
+  # What the browser jobs run (tools/ci/plan.mjs; the policy is in README.md, "Rules for every change"): testing runs the
+  # full suite; main skips it for a merge of a commit that already passed (its tree is the merged parent's), else runs it;
+  # wip/* and every other branch run only the test pages their changes need (tools/ci/affected.mjs), never the full suite.
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      suite: ${{ steps.plan.outputs.suite }}
+      count: ${{ steps.plan.outputs.count }}
+      shards: ${{ steps.plan.outputs.shards }}
+      pages: ${{ steps.plan.outputs.pages }}
+      touch: ${{ steps.plan.outputs.touch }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Plan the browser tests
+        id: plan
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PLAN_BASE: ${{ github.event.pull_request.base.sha || 'origin/testing' }}
+        run: node tools/ci/plan.mjs
+
+  # The browser tests (tests/**/*.test.html), in the slices the plan asks for, run as parallel jobs, 3 pages at a time in
+  # each. The slices are balanced by tests/timings.json (refreshed from CI's browser-results artifacts with
+  # node tests/results.mjs). The jobs run in Playwright's own image, which has Chromium and its system libraries. Its version
+  # must be the one in package-lock.json (tests/node/ci-config.test.mjs checks it). This is CI only: GitHub Pages serves the
+  # files as they are.
   browser:
-    name: Browser tests ${{ matrix.shard }}/16
-    if: ${{ !startsWith(github.ref, 'refs/heads/wip/') }}
+    name: Browser tests ${{ matrix.shard }}/${{ needs.plan.outputs.count }}
+    needs: plan
+    if: ${{ needs.plan.outputs.count != '0' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     container:
@@ -65,41 +108,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    env:
+      SLICE: --shard=${{ matrix.shard }}/${{ needs.plan.outputs.count }}${{ needs.plan.outputs.suite == 'changed' && ' --pages-file=plan-pages.txt' || '' }}
     steps:
       - uses: actions/checkout@v7
       - run: npm ci --no-audit --no-fund
-      - name: Browser tests, slice ${{ matrix.shard }} of 16
-        run: node tests/run.mjs --shard=${{ matrix.shard }}/16 --jobs=3 --skip-node
-
-  # wip/* branches (work in progress) never run the full suite: only the test pages of the apps the branch changed, the
-  # test pages it changed, and a few smoke pages. Finished work is merged into testing in batches, where the full suite runs.
-  browser-changed:
-    name: Browser tests of the changed apps
-    if: ${{ startsWith(github.ref, 'refs/heads/wip/') }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 25
-    container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble
-    steps:
-      - uses: actions/checkout@v7
+      - name: The pages of the plan
+        env:
+          PAGES: ${{ needs.plan.outputs.pages }}
+        run: echo "$PAGES" > plan-pages.txt
+      - name: Does a page of this slice download files?
+        id: net
+        run: echo "needs=$(node tests/run.mjs $SLICE --skip-node --needs-net)" >> "$GITHUB_OUTPUT"
+      - name: Restore the download cache
+        if: steps.net.outputs.needs == 'yes'
+        uses: actions/cache/restore@v6
         with:
-          fetch-depth: 0
-      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - run: npm ci --no-audit --no-fund
-      - name: The changed apps' pages and the smoke pages
-        run: |
-          git fetch -q origin testing
-          BASE=$(git merge-base HEAD origin/testing)
-          SETS="home/catalog pdf/pdf.test workflows/run convert/hub photoslop/look"
-          for f in $(git diff --name-only "$BASE"..HEAD); do
-            case "$f" in
-              tests/*.test.html) SETS="$SETS ${f#tests/}" ;;
-              *) d=${f%%/*}; ls tests/"$d"/*.test.html >/dev/null 2>&1 && SETS="$SETS $d/" ;;
-            esac
-          done
-          FAIL=0
-          for s in $(printf '%s\n' $SETS | sort -u); do
-            echo "::group::$s"; node tests/run.mjs "$s" --jobs=3 --skip-node || FAIL=1; echo "::endgroup::"
-          done
-          exit $FAIL
+          path: tests/.cache/net
+          key: testnet-${{ hashFiles('tests/net-urls.txt') }}
+          restore-keys: testnet-
+      - name: Browser tests, slice ${{ matrix.shard }} of ${{ needs.plan.outputs.count }}
+        run: node tests/run.mjs $SLICE --jobs=3 --skip-node --results=browser-results-${{ matrix.shard }}.json
+      # Each page's seconds, test times and downloads: node tests/results.mjs <the artifacts> refreshes tests/timings.json
+      # and tests/net-urls.txt.
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: browser-results-${{ matrix.shard }}
+          path: browser-results-${{ matrix.shard }}.json
+          retention-days: 14
+          if-no-files-found: ignore
