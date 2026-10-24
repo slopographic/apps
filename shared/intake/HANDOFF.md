@@ -185,6 +185,10 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Transcribe** (`transcribe/js/app.js`, spec `transcribe`): the zone and its Choose files (the hidden `#trPick` is
   gone), the sample, a paste (new), a recording (a take with source `record`), ?drive= launch and launchQueue. Nothing
   comes in before the model gate has shown the page. `tests/intake/transcribe.test.html`.
+- **Slop Music** (`music/js/ui/library.js`, spec `music`; part `music.playlist` in `ui/playlists.js`): Add files (the
+  header and the empty library), a drop on the library and its strip, the sample, a paste (new), ?drive= launch (a track
+  the library has plays, `M.playTrack`) and launchQueue (added to Slop Drive). Open a playlist from Slop Drive is the
+  part's `fromDrive`. `tests/intake/music.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -380,14 +384,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] file input: `ledger/index.html:88`
 - [ ] file input: `ledger/index.html:180`
-
-### music
-
-- [ ] ?drive= launch: `music/js/app/main.js:38`
-- [ ] pickFiles: `music/js/ui/library.js:100`
-- [ ] pickFiles: `music/js/ui/library.js:101`
-- [ ] SlopDrop.attach: `music/js/ui/library.js:104`
-- [ ] Drive picker: `music/js/ui/playlists.js:117`
 
 ### notes
 

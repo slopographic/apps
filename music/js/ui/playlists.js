@@ -113,17 +113,22 @@
     const id = await H().saveToDrive(blob, M.plfile.fileName(p.name), { from: 'music', title: 'Save “' + p.name + '” to Slop Drive' });
     if (id) UI().toast('Playlist saved to Slop Drive');
   }
-  async function openFromDrive() {
-    const rec = await H().pickFromDrive({ accept: [M.plfile.MIME] });
-    if (!rec) return;
-    try {
-      const parsed = M.plfile.parse(await rec.blob.text());
-      const p = await M.playlists.create(parsed.name, parsed.trackIds);
-      S.sel = p.id;
-      UI().toast('Playlist opened');
-    } catch (e) { UI().alert('Could not open', e.message || 'This file is not a playlist.'); }
-  }
+  /** Open a playlist from Slop Drive: a part of the intake of its own ('music.playlist'). */
+  const openFromDrive = () => window.SlopIntake.fromDrive({ to: 'music.playlist', title: 'Open a playlist from Slop Drive' });
   function bind() {
+    window.SlopIntake.register({
+      id: 'music.playlist', main: false, paste: false, toast: false, driveAccept: [M.plfile.MIME],
+      accept: { types: [M.plfile.MIME, 'application/json'], exts: [M.plfile.EXT], noun: 'a playlist' },
+      process: async (file) => {
+        try {
+          const parsed = M.plfile.parse(await file.text());
+          const p = await M.playlists.create(parsed.name, parsed.trackIds);
+          S.sel = p.id;
+          UI().toast('Playlist opened');
+          return p.id;
+        } catch (e) { UI().alert('Could not open', e.message || 'This file is not a playlist.'); throw e; }
+      },
+    });
     $('pl-new').addEventListener('click', create);
     $('pl-open').addEventListener('click', openFromDrive);
     M.playlists.subscribe(render);

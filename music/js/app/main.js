@@ -34,13 +34,13 @@
     else if (k === 'n' || k === 'N') eng.next();
     else if (k === 'p' || k === 'P') eng.prev();
   }
-  async function launch() {
-    const rec = await H().consumeLaunch().catch(() => null);
-    if (!rec || !M.lib.track(rec.id)) return;
-    const ids = M.lib.list().map((t) => t.id);
-    M.engine.setQueue(ids, rec.id);
+  /** Plays a track of the library, with the whole library as the queue (the intake's reader, for Open in Slop Music). */
+  M.playTrack = function (id) {
+    M.engine.setQueue(M.lib.list().map((t) => t.id), id);
     setView('now');
-  }
+  };
+  /** What the page was opened with (?drive=<id>, a PWA launch), through the intake (ui/library.js). */
+  const launch = () => window.SlopIntake.launch({ to: 'music' }).catch(() => null);
   function bindTabs() {
     tabs = window.SlopTabs.mount(document.querySelector('.mu-tabs'), { select: (v) => setView(v), panel: (k) => $('v-' + k) });
   }
