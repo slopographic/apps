@@ -54,8 +54,7 @@
       expect([made.status, made.total, made.notes, made.date]).toEqual(['draft', 50000, 'Retainer', S().recurring.step(inv.date, 1, 'month')]);
       const s = (await S().store.list('schedules')).value[0];
       expect([s.made, s.lastInvoiceId]).toEqual([1, made.id]);
-      W.SlopInvoices.repeat.dueNotice();
-      await waitFor(() => $('iDue').hidden);
+      await waitFor(() => $('iDue').hidden);   // the notice goes once the drafts are made
     });
     it('Pause stops a schedule and Resume starts it again, from the row menu', async () => {
       W.SlopInvoices.app.go('repeat');

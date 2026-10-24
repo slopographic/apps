@@ -32,6 +32,7 @@
     const n = r.value.made.length;
     UI.toast(n ? `${n} draft invoice${n === 1 ? '' : 's'} made` : 'Nothing is due yet');
     await draw();
+    await dueNotice();
     if (NS.views.list) NS.views.list.refresh();
   }
 
