@@ -80,6 +80,19 @@
   ['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
   drop.addEventListener('drop', (e) => choose(e.dataTransfer.files[0]));
 
-  // Exposed for the browser test.
-  window.SlopChecksum = { presetOf, hashOf: (alg, f) => { file = f; last = { alg: null, hash: null }; return hashOf(alg); }, clean };
+  // Exposed for the browser test and the assistant's commands (ai-commands.js).
+  window.SlopChecksum = { presetOf, hashOf: (alg, f) => { file = f; last = { alg: null, hash: null }; return hashOf(alg); }, clean,
+    /** Shows a file's hash on the page, checked against expected: { hash, verdict }. */
+    async use(f, alg, expected) { if (alg) $('ck-alg').value = alg; if (expected != null) $('ck-expect').value = expected; file = f; last = { alg: null, hash: null }; await show(); return { hash: last.hash, verdict: $('ck-verdict').textContent }; },
+    current: () => ({ file: file ? file.name : null, algorithm: $('ck-alg').value, hash: last.hash, verdict: $('ck-verdict').textContent }) };
+  // SlopCmd: the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
+  const C = window.SlopCmd;
+  if (C) {
+    C.init({ app: 'checksum' });
+    const HERE = (document.currentScript && document.currentScript.src) || location.href;
+    C.provide({ prepare: () => new Promise((res, rej) => {
+      const s = Object.assign(document.createElement('script'), { src: new URL('ai-commands.js', HERE).href });
+      s.onload = res; s.onerror = () => rej(new Error('Could not load ai-commands.js')); document.head.append(s);
+    }) });
+  }
 })();

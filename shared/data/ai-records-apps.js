@@ -96,6 +96,32 @@
     timesheets: { label: 'Slop Timesheets', collections: ['timeEntries', 'customers'] },
     todo: { label: 'Slop To-do', collections: ['tasks'] },
     calendar: { label: 'Slop Calendar', collections: ['events', 'tasks'] },
+    // a reminder the person adds is 'custom' (events and tasks make their own); the time is ISO text or epoch ms
+    admin: { label: 'Slop Admin', collections: ['settings', 'numbering'], extra(add) {
+      add('set_company', 'Set the company profile', [S('name', 'company name'), S('address', 'postal address', { maxLength: 1000 }), S('tax_number', 'VAT or tax number', { maxLength: 60 }),
+        S('currency', 'default currency, ISO code', { maxLength: 3 }), S('locale', 'language tag such as en-GB', { maxLength: 20 }), S('default_tax_rate', 'percent, like 20')],
+      async (a) => {
+        const before = AI.unwrap(await D().store.get('settings', 'main'), 'Settings') || { id: 'main' }, rec = Object.assign({}, before);
+        const map = { name: 'companyName', address: 'address', tax_number: 'taxNumber', currency: 'defaultCurrency', locale: 'locale' };
+        for (const [k, f] of Object.entries(map)) if (a[k] != null && a[k] !== '') rec[f] = k === 'currency' ? a[k].toUpperCase() : a[k];
+        if (a.default_tax_rate != null && a.default_tax_rate !== '') rec.defaultTaxRate = (await AI.toRecord('settings', { defaultTaxRate: a.default_tax_rate })).defaultTaxRate;
+        AI.unwrap(await D().store.put('settings', rec), 'Save');
+        AI.remember({ kind: 'updated', collection: 'settings', id: 'main', before });
+        return `Company profile saved: ${rec.companyName || '(no name)'}, ${rec.defaultCurrency}, default tax ${(rec.defaultTaxRate || 0) / 100}%.`;
+      });
+      add('set_numbering', 'Set a numbering sequence', [{ name: 'sequence', type: 'enum', values: ['invoice', 'order', 'quote', 'purchase'], required: true }, S('prefix', 'like INV-', { maxLength: 20 }),
+        { name: 'digits', type: 'number', min: 1, max: 12, integer: true }, { name: 'next', type: 'number', min: 1, max: 1e12, integer: true, description: 'can only move forward' }],
+      async (a) => {
+        const before = AI.unwrap(await D().store.get('numbering', a.sequence), 'Numbering'), rec = Object.assign({}, before || { id: a.sequence, next: 1 });
+        if (a.prefix != null) rec.prefix = a.prefix; if (a.digits != null) rec.pad = a.digits; if (a.next != null) rec.next = a.next;
+        AI.unwrap(await D().store.put('numbering', rec), 'Save');
+        AI.remember({ kind: 'updated', collection: 'numbering', id: a.sequence, before });
+        return `The next ${a.sequence} number is ${D().numbering.format(rec, rec.next)}.`;
+      });
+      add('export_backup', 'Export a full backup', [TO], async (a) => { const f = await D().exporter.exportFile(); return AI.save(f.blob, f.name, a.to, 'admin'); },
+        { description: 'Every business record in one JSON file (the same as Data ▸ Backup), to Slop Drive and/or a download.' });
+    } },
+    reminders: { label: 'Slop Reminders', collections: ['reminders'], post: { reminders: (r) => D().store.put('reminders', Object.assign({ source: 'custom' }, r)) } },
     ledger: { label: 'Slop Ledger', collections: ['journal', 'accounts'],
       post: { journal: (r) => D().ledger.postJournal(Object.assign({ source: `manual:${D().store.newId()}` }, r)) }, extra(add) {
         const L = () => g.SlopLedger;

@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 35 of 58 apps.
+Covered: 39 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -39,32 +39,32 @@ Covered: 35 of 58 apps.
 | Slop Expenses (`expenses`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Invoices (`invoices`) | ✓ 2 | ✓ 1 | ✓ 5 | ✓ 2 |  | yes |
 | Slop Notes (`notes`) | ✓ 2 | ✓ 1 | ✓ 2 | ✓ 1 |  | yes |
-| Paste (`paste`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Paste (`paste`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | yes |
 | Slop Effects (`effects`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 | Slop Image to 3D (`img3d`) | ✓ 1 | ✗ | ✓ 1 | ✓ 1 |  | no |
-| Slop Sheets (`sheetview`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Hex (`hex`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop EML (`eml`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Checksum (`checksum`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Sheets (`sheetview`) | ✗ | ✗ | ✓ 5 | ✓ 1 |  | no |
+| Slop Hex (`hex`) | ✓ 1 | ✗ | ✓ 3 | ✓ 2 |  | no |
+| Slop EML (`eml`) | ✓ 1 | ✗ | ✓ 4 | ✓ 1 |  | no |
+| Checksum (`checksum`) | ✗ | ✗ | ✓ 1 | ✓ 1 |  | no |
 | Slopnodes (`nodes`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 2 |  | yes |
-| Serial counter (`serials`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Serial counter (`serials`) | ✗ | ✓ 3 | ✓ 4 | ✓ 1 |  | no |
 | Slop Transcribe (`transcribe`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slopculator (`calculator`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Time (`time`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slopculator (`calculator`) | ✗ | ✓ 1 | ✓ 1 | ✓ 2 |  | no |
+| Slop Time (`time`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop CRM (`crm`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Calendar (`calendar`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop To-do (`todo`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Projects (`projects`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
-| Slop Reminders (`reminders`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Reminders (`reminders`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Ledger (`ledger`) | ✓ 2 | ✓ 2 | ✓ 3 | ✓ 3 |  | yes |
-| Slop Admin (`admin`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Admin (`admin`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 2 |  | yes |
 | Slop Drive (`drive`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 1 |  | yes |
 | Slop Code (`code`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 2 |  | yes |
-| Slop Photo Sorter (`sorter`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Photo Sorter (`sorter`) | ✗ | ✓ 2 | ✓ 3 | ✓ 1 |  | no |
 | Slop Gallery (`gallery`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | yes |
 | Slop 3D (`3d`) | ✓ 2 | ✓ 2 | ✓ 8 | ✓ 1 |  | yes |
 | Slop Music (`music`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
@@ -247,11 +247,40 @@ Covered: 35 of 58 apps.
 - edit: `delete_note`, `set_note`
 - export: `export_note`
 
+### Paste
+
+- create: `new_paste`
+- add: `insert_text`
+- edit: `delete_paste`, `set_paste`
+- export: `export_paste`
+
 ### Slop Image to 3D
 
 - create: `new_from_picture`
 - edit: `set_options`
 - export: `export_model`
+
+### Slop Sheets
+
+- edit: `clear_filters`, `filter_rows`, `open_file`, `select_sheet`, `sort_column`
+- export: `export_rows`
+
+### Slop Hex
+
+- create: `new_file`
+- edit: `find_bytes`, `open_file`, `set_bytes`
+- export: `export_file`, `save_version`
+
+### Slop EML
+
+- create: `new_message`
+- edit: `close_message`, `open_file`, `search_messages`, `select_message`
+- export: `export_messages`
+
+### Checksum
+
+- edit: `hash_file`
+- export: `save_hash`
 
 ### Slopnodes
 
@@ -259,6 +288,12 @@ Covered: 35 of 58 apps.
 - add: `add_node`
 - edit: `connect`, `delete_node`, `disconnect`, `set_node`
 - export: `export_graph`, `save_project`
+
+### Serial counter
+
+- add: `add_photos`, `add_serial`, `add_text`
+- edit: `clear_photos`, `read_photos`, `remove_serial`, `set_pattern`
+- export: `export_serials`
 
 ### Slop Signature
 
@@ -273,6 +308,19 @@ Covered: 35 of 58 apps.
 - add: `add_logo`
 - edit: `remove_logo`, `set_content`, `set_design`
 - export: `export_qr`
+
+### Slopculator
+
+- add: `add_calculation`
+- edit: `clear_tape`
+- export: `export_tape`, `save_calculation`
+
+### Slop Time
+
+- create: `create_meeting`
+- add: `add_city`
+- edit: `convert_time`, `remove_city`, `set_countdown`
+- export: `export_clocks`
 
 ### Slop CRM
 
@@ -295,12 +343,26 @@ Covered: 35 of 58 apps.
 - edit: `delete_record`, `describe_records`, `update_record`
 - export: `export_records`
 
+### Slop Reminders
+
+- create: `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_records`
+
 ### Slop Ledger
 
 - create: `create_journal_entry`, `create_record`
 - add: `add_account`, `create_record`
 - edit: `delete_record`, `describe_records`, `update_record`
 - export: `export_records`, `export_statement`, `export_trial_balance`
+
+### Slop Admin
+
+- create: `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `set_company`, `set_numbering`, `update_record`
+- export: `export_backup`, `export_records`
 
 ### Slop Drive
 
@@ -315,6 +377,12 @@ Covered: 35 of 58 apps.
 - add: `insert_text`
 - edit: `format_document`, `open_file`, `replace_text`, `run_preview`, `set_text`
 - export: `export_file`, `save_file`
+
+### Slop Photo Sorter
+
+- add: `add_photos`, `add_tags`
+- edit: `remove_photos`, `remove_tag`, `set_decision`
+- export: `export_photos`
 
 ### Slop Gallery
 

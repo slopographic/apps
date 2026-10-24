@@ -28,6 +28,8 @@
     if (g.SlopCmd) {
       g.SlopCmd.init({ app: 'admin' });
       g.SlopCmd.register(COMMANDS.map((c) => ({ id: c.id, title: c.title, group: c.group, keywords: [], keys: [], run: () => c.run() })));
+      // the assistant's commands (shared/data/ai-records.js through shared/biz/biz.js), loaded when the AI panel first asks
+      if (g.SlopCmd.provide && g.SlopBiz && g.SlopBiz.assistant) g.SlopCmd.provide({ prepare: () => g.SlopBiz.assistant('admin') });
     }
     document.addEventListener('click', (e) => {
       const el = e.target.closest && e.target.closest('[data-cmd]');

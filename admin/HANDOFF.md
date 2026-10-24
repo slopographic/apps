@@ -32,3 +32,6 @@ restore, storage status, and reset. Browser only, local only. Rules come from `s
 - Reset cannot tell whether the browser blocked the download; the erase happens after the download is started.
 - Admin has no row lists, so there are no row context menus here; its actions are buttons and commands.
 - Tests: `node tests/run.mjs admin` (tests/admin/admin.test.html).
+
+## Assistant commands
+Assistant: `SlopBiz.assistant('admin')` (shared/biz/biz.js) from `js/ui/commands.js`: the record commands of `shared/data/ai-records.js` on settings and numbering, plus `admin.ai.set_company` (name, address, tax_number, currency, locale, default_tax_rate %), `set_numbering` (sequence, prefix, digits, next; forward only) and `export_backup` (the full bundle to Slop Drive and/or a download), in `shared/data/ai-records-apps.js`. Test: `tests/admin/ai-commands.test.html`.

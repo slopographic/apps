@@ -30,10 +30,16 @@
     ];
   }
 
+  const HERE = (document.currentScript && document.currentScript.src) || location.href;
   function register() {
     if (!window.SlopCmd) return;
     SlopCmd.init({ app: 'hex' });
     SlopCmd.register(commandList());
+    // the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
+    if (SlopCmd.provide) SlopCmd.provide({ prepare: () => new Promise((res, rej) => {
+      const s = Object.assign(document.createElement('script'), { src: new URL('ai-commands.js', HERE).href });
+      s.onload = res; s.onerror = () => rej(new Error('Could not load ai-commands.js')); document.head.append(s);
+    }) });
   }
 
   const key = (id) => (window.SlopCtx ? SlopCtx.keyFor('hex.' + id) : '');
