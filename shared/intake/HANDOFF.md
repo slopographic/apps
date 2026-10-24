@@ -274,6 +274,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Pastebin** (`paste/js/actions.js`, spec `paste`, pictures): Add image… (the intake's picker) and a pasted
   picture, also in the text box (`#pb-src` is a `paste-catcher`, so a file pasted there is the intake's too). The page's
   own paste listener is only pasted text. `tests/intake/paste.test.html`.
+- **Slop Notes** (`notes/js/blocks.js`, spec `notes`, a picture up to 2 MB): Insert ▸ Image… (the intake's picker) and
+  a pasted picture outside the text (new). The body's paste listener is only HTML tables (`intake-ok`). The rule test's
+  "not migrated" fixture moved from notes/ to a made-up folder. `tests/intake/notes.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -393,11 +396,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] file input: `ledger/index.html:88`
 - [ ] file input: `ledger/index.html:180`
-
-### notes
-
-- [ ] pickFiles: `notes/js/blocks.js:78`
-- [ ] paste listener: `notes/js/editor.js:97`
 
 ### orders
 
