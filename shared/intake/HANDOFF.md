@@ -207,6 +207,10 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   the sample (`SlopIntake.sample`), a paste (new), ?drive= launch and launchQueue, and the test hook. A file that fails
   is refused with its reason (was an alert per file). Out: Open current sheet in Slop Table is `SlopOuttake.send`.
   `tests/intake/sheetview.test.html`.
+- **Slop Docs** (`docs/js/ui/intake.js`, spec `docs`): Open from Slop Drive (a .sdoc, linked; was the tab strip's own
+  Drive picker), Import Word, Markdown or text from Slop Drive (mode `import`, unlinked), a drop on the page (new),
+  ?drive= launch and launchQueue (the reader waits for the tabs; a launch replaces the blank tab). The hidden input's
+  paste is only text. Out: Send to is `SlopOuttake.items` (the document as DOCX). `tests/intake/docs.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -327,14 +331,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### crm
 
 - [ ] pickFiles: `crm/js/ui/form-parts.js:69`
-
-### docs
-
-- [ ] Drive picker: `docs/js/ui/files.js:93`
-- [ ] out: sendMenuItems: `docs/js/ui/files.js:157`
-- [ ] paste listener: `docs/js/ui/input.js:62`
-- [ ] ?drive= launch: `docs/js/ui/main.js:47`
-- [ ] out: Open in/Send to label: `docs/js/ui/menus.js:35`
 
 ### effects
 
