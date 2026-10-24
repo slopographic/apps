@@ -265,6 +265,12 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Photo Sorter** (`sorter/js/app.js`, spec `sorter`, the whole batch at once): a drop of photos or folders on the
   zone, Choose files and the sample, Choose a folder… (`SlopIntake.pick({ folder: true })`; the two hidden file inputs
   are gone), a paste (new), ?drive= launch (new) and launchQueue. `tests/intake/sorter.test.html`.
+- **QR SLOP** (`qr/js/app.js`, spec `qr`, the logo; part `qr.open` in `save.js`): the logo tab's box (a click: the
+  intake's picker; a drop: `dropTarget`; its own file input and drop listener are gone) and a pasted picture (new).
+  Open from Slop Drive is the part's `fromDrive` (its settings are read from the record's meta).
+  `tests/intake/qr-signature.test.html`.
+- **Slop Signature** (`signature/js/form.js`, spec `signature`, the picture): the button (the intake's picker; was a
+  hidden file input) and a pasted picture (new). `tests/intake/qr-signature.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -417,12 +423,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] file input: `purchases/index.html:121`
 
-### qr
-
-- [ ] file input: `qr/js/panel-design.js:52`
-- [ ] drop listener: `qr/js/panel-design.js:61`
-- [ ] Drive picker: `qr/js/save.js:43`
-
 ### quotes
 
 - [ ] file input: `quotes/index.html:121`
@@ -516,10 +516,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### shell
 
 - [ ] out: Open in/Send to label: `shell/switcher.js:38`
-
-### signature
-
-- [ ] file input: `signature/js/form.js:36`
 
 ### slopcut (done but for its watermark panel's logo, left to wip/watermark-all)
 

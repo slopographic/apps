@@ -40,11 +40,18 @@
 
   /** Opens the Drive picker for a code. Resolves { snapshot, id, name } (snapshot is null when the file has no settings), or null. */
   async function openPicked() {
-    const rec = await H().pickFromDrive({ title: 'Open a QR code from Slop Drive', accept: ['image/png', JSON_TYPE] });
-    if (!rec) return null;
-    let snapshot = null;
-    try { snapshot = await settingsFor(rec); } catch (e) { snapshot = null; }
-    return { snapshot, id: rec.id, name: rec.name };
+    const SI = g.SlopIntake;
+    if (!SI.spec('qr.open')) {
+      SI.register({ id: 'qr.open', main: false, paste: false, toast: false, limit: 1, accept: { types: ['image/png', JSON_TYPE], exts: ['.json'], noun: 'a QR code' },
+        process: async (file, ctx) => {
+          const rec = ctx.drive ? ctx.drive.record : null;
+          let snapshot = null;
+          try { snapshot = rec ? await settingsFor(rec) : null; } catch (e) { snapshot = null; }
+          return { snapshot, id: rec && rec.id, name: file.name };
+        } });
+    }
+    const r = await SI.fromDrive({ to: 'qr.open', title: 'Open a QR code from Slop Drive', accept: ['image/png', JSON_TYPE] });
+    return r && r.added[0] ? r.added[0].value : null;
   }
 
   /** The buffer item for a PNG code. */
