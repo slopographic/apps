@@ -79,6 +79,11 @@
       expect(doc().querySelector('#suggest .ocr-suggest')).toBe(null);   // a chosen language: no suggestion
       expect(win().localStorage.getItem('slop.ocr.language')).toBe(null);   // not pinned unless asked
     }, { timeout: 300000 });
+    it('removes the models it stored (about 40 MB), so the pages after it in this browser have their storage', async () => {
+      const M = win().SlopAIManager;
+      for (const id of ['ppocr-v6-small', 'ppocr-v4']) { await M.remove(id); expect(await M.status(id)).toBe('needs-download'); }
+      expect(await M.usage(['ppocr-v6-small', 'ppocr-v4'])).toBe(0);
+    }, { timeout: 30000 });
   });
   run({ name: 'Slop OCR chooser' });
   </script>
