@@ -39,7 +39,7 @@
     if (Ed.noteUI) Ed.noteUI.wire(viewerEl);
     S.pad = U.h('div', { class: 'pv-pad' });
     S.overlay = U.h('div', { class: 'pv-overlay' }); // moves to the active page element (placeTools)
-    S.ta = U.h('textarea', { class: 'pv-text', spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Edit text', wrap: 'off', hidden: true });
+    S.ta = U.h('textarea', { class: 'pv-text', spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Edit text', wrap: 'off', hidden: true, dir: 'auto' });
     S.pageEl = null;
     S.viewer.appendChild(S.pad);
     S.viewer.addEventListener('pointerdown', function (e) {

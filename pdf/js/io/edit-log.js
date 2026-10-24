@@ -87,7 +87,7 @@
     (rec.assets || []).forEach(function (a) { E.assets.set(a.id, a); });
     rec.entries.forEach(function (en) { var c = H.make(en.label, en); H.apply(E.state, c, 1); H.push(c); });
     // text set in an installed font (core/fonts-custom.js): prepare it so it measures and draws as it will be saved
-    if (E.prepareAnnotFonts) E.prepareAnnotFonts(E.state.pages).then(function () { if (SP.editor && SP.editor.paint) SP.editor.paint(); });
+    if (E.prepareAnnotFonts) E.prepareAnnotFonts(E.state.pages, { ask: false }).then(function () { if (SP.editor && SP.editor.paint) SP.editor.paint(); });
   };
   function ask(f, rec) {
     return new Promise(function (res) {

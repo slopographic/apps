@@ -4,7 +4,8 @@
  * (checked by size and SHA-256, kept in this browser) and resolves true. All packs can also be fetched ahead in Get
  * more. Loads its helpers on first use: shared/fonts/scripts.js, shared/library/manifest.js, store.js and install.js.
  * Classic script; exposes window.SlopFontJIT:
- *   ready(text, covered?, { lang?, ask? }) -> Promise<boolean>   true when every pack the text needs is installed
+ *   ready(text, covered?, { lang?, ask? }) -> Promise<boolean>   true when every pack the text needs is installed;
+ *                                                                ask: false never prompts (false unless automatic)
  *   packFor(cp, text?, lang?) -> pack id or null                  the pack that sets cp (the Chinese pack follows the text)
  *   bytes(packId, { bold }) -> Promise<ArrayBuffer|null>          the font file, Bold when there is one and it is asked
  *   family(packId) -> Promise<string>                              its CSS family name ('Noto Sans Arabic')
@@ -63,7 +64,8 @@
     if (!missing.length) return true;
     const list = (await I.loadManifest()).packs, packs = missing.map((id) => list.find((p) => p.id === id)).filter(Boolean);
     if (packs.length < missing.length) return false;
-    if (!auto() && o.ask !== false && !(await ask(packs, M))) return false;
+    // ask: false (a document being opened, say) uses only what is installed: it never downloads without the person's say
+    if (!auto()) { if (o.ask === false) return false; if (!(await ask(packs, M))) return false; }
     const toast = (t) => { if (root.SlopUI && root.SlopUI.toast) root.SlopUI.toast(t, 4000); };
     try {
       for (const p of packs) { toast(`Downloading the ${p.name.replace(/ \(.*\)$/, '')} font…`); await I.install(p); }
