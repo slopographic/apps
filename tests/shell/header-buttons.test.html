@@ -72,7 +72,9 @@
       b.click();
       const menu = await waitFor(() => D.querySelector('.sui-menu'));
       const labels = [...menu.querySelectorAll('.sui-lbl')].map((n) => n.textContent);
-      expect(labels).toEqual(['System'].concat(W.SlopTheme.THEMES.map((t) => t.name)));
+      // Convert… and AI give up their place in a full header (shared/ui/hbtn.js): the menu then offers them first
+      const moved = [['.sh-ai', 'Ask Slop AI…'], ['.sh-convert', 'Convert files…']].filter(([s]) => D.querySelector(s) && D.querySelector(s).hidden).map(([, l]) => l);
+      expect(labels).toEqual(moved.concat(['System'], W.SlopTheme.THEMES.map((t) => t.name)));
       expect(menu.querySelectorAll('[aria-checked="true"]').length).toBe(1);
       expect(b.getAttribute('aria-expanded')).toBe('true');
       [...menu.querySelectorAll('.sui-row')].find((r) => r.textContent.includes('Dark')).click();
