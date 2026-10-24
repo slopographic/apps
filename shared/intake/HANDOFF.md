@@ -389,63 +389,24 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 ### photoslop
 
-- [ ] Drive picker: `photoslop/classic/hub.js:22`
-- [ ] ?drive= launch: `photoslop/classic/hub.js:37`
-- [ ] file input: `photoslop/classic/index.html:140`
-- [ ] drop listener: `photoslop/classic/paint/17-files.js:59`
-- [ ] paste listener: `photoslop/classic/paint/17-files.js:65`
-- [ ] file input: `photoslop/index.html:93`
+- [ ] the classic Paint edition (`photoslop/classic/`, its own page): Drive picker `classic/hub.js:22`, ?drive= launch
+  `classic/hub.js:37`, the file input `classic/index.html:140`, drop and paste listeners `classic/paint/17-files.js:59,65`.
+  Not done in this pass (the photoslop macro code is being reworked on wip/macros).
+- [ ] `photoslop/index.html:97`: `<input type="file" id="fileIn">` is not read by any script any more (PhotoSlop's ways in
+  are its intake); delete it once wip/macros has landed, so the two branches do not collide on the page.
 
-### shared/buffer
+### Not ways in or out (the grep's false positives, kept here so they are not looked at again)
 
-- [ ] drop listener: `shared/buffer/buffer.js:68`
-
-### shared/convert
-
-- [ ] out: Open in/Send to label: `shared/convert/load.js:52`
-- [ ] out: Open in/Send to label: `shared/convert/results.js:50`
-
-### shared/hub.js
-
-- [ ] out: sendTo: `shared/hub.js:174`
-- [ ] out: Open in/Send to label: `shared/hub.js:185`
-- [ ] ?drive= launch: `shared/hub.js:187`
-- [ ] ?drive= launch: `shared/hub.js:188`
-
-### shared/i18n
-
-- [ ] out: Open in/Send to label: `shared/i18n/strings.js:32`
-
-### shared/presets
-
-- [x] file input: the presets dialog's Import… (`presets.import`).
-- [ ] hub listener: `shared/presets/store.js:52` (a Drive change refreshes the list; not a way in)
-
-### shared/preview
-
-- [ ] out: Open in/Send to label: `shared/preview/chrome.js:95`
-
-### shared/seo
-
-- [ ] out: Open in/Send to label: `shared/seo/guides/creative-2.mjs:74`
-- [ ] out: Open in/Send to label: `shared/seo/guides/documents-2.mjs:118`
-
-### shared/slopui.js
-
-- [ ] pickFiles: `shared/slopui.js:249`
-- [ ] file input: `shared/slopui.js:251`
-
-### shared/sync
-
-- [ ] file input: `shared/sync/ui.js:97`
-
-### shared/tour
-
-- [ ] out: Open in/Send to label: `shared/tour/tours/img3d.js:11`
-
-### shell
-
-- [ ] out: Open in/Send to label: `shell/switcher.js:38`
+- `shared/hub.js` `sendTo`, `consumeLaunch`: the hub itself; SlopOuttake.send and SlopIntake.launch are built on them.
+- `shared/slopui.js` `pickFiles`: the base file dialog that `SlopIntake.pick` opens.
+- `shared/convert/load.js:52`, `shared/convert/results.js:50`: they load and use SlopOuttake (results' Open in… button).
+- `shared/i18n/strings.js:32`, `shared/preview/chrome.js:95`, `shared/tour/tours/img3d.js:11`, `shell/switcher.js:38`,
+  `shared/seo/guides/*.mjs`: words ("Open in a new tab", "Open in Slop 3D"), not lists of apps.
+- `shared/buffer/buffer.js:68`: the drop of a copy-buffer item (not a file) into an app. Mark it `intake-ok` when the file
+  next changes (it has no test page yet to name it).
+- `shared/presets/store.js:52`: a Slop Drive change refreshes the presets list.
+- `shared/sync/ui.js:97`: the cloud backup panel's Upload backup file…; no page loads the panel yet. When one does, make
+  it a part (`SlopIntake.part({ id: 'sync.restore' })`, as shared/backup does).
 
 ### slopcut (done but for its watermark panel's logo, left to wip/watermark-all)
 
