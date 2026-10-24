@@ -12,6 +12,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ROOT, SITE, loadRegistry, isPage, pageUrl } from './site.mjs';
 import { landingPages, siteTop, siteFoot, SITE_HEAD } from './landing.mjs';
 import { taskPages, taskJsonLd, videoJsonLd, hubPage } from './tasks.mjs';
+import { roundupPages, roundupJsonLd, roundupIndex } from './roundups.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
 const DEFAULT_IMAGE = `${SITE}/og-share.png`;
@@ -130,6 +131,10 @@ export async function build({ date }) {
   for (const p of tasks) copyEntries.push([`${p.key} task`, p.task]);
   const hub = hubPage(apps, SITE, TASKS);
   copyEntries.push(['all-tools landing', LANDING['all-tools']]);
+  const { ROUNDUPS } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'roundups', 'index.mjs')).href);
+  const best = roundupPages(apps, SITE, ROUNDUPS), bestIndex = roundupIndex(SITE, ROUNDUPS);
+  for (const p of best) copyEntries.push([`${p.key} roundup`, p.r]);
+  copyEntries.push(['best landing', LANDING.best]);
   for (const slug of Object.keys(PAGES)) copyEntries.push([`${slug} page`, PAGES[slug]]);
   validateCopy(copyEntries);
 
@@ -199,7 +204,14 @@ export async function build({ date }) {
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: 'All tools', item: hub.url }] }];
     out.push({ file, html: injectHead(hub.html, headBlock({ title: copy.title, description: copy.description, url: hub.url, image: DEFAULT_IMAGE, viewport: false, jsonld })), before });
   }
-  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...tasks.map((p) => p.url), hub.url, ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
+  // round-ups (/best/<slug>/) and their index: the same head block, with their own JSON-LD
+  for (const p of [...best, { ...bestIndex, r: null }]) {
+    const file = path.join(ROOT, p.dir, 'index.html'), copy = p.r || LANDING.best;
+    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
+    const jsonld = p.r ? roundupJsonLd(p.r, p.url, SITE) : [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: copy.title, description: copy.description, url: p.url }];
+    out.push({ file, html: injectHead(p.html, headBlock({ title: copy.title, description: copy.description, url: p.url, image: DEFAULT_IMAGE, viewport: false, jsonld })), before });
+  }
+  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...tasks.map((p) => p.url), hub.url, bestIndex.url, ...best.map((p) => p.url), ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
   return out;
 }
 

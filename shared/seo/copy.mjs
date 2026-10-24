@@ -181,6 +181,7 @@ export const PAGES = {
 // Landing pages (/apps/<id>/, /slop-365/, /creative-slop-pro/, /compare/). Written by tools/seo/landing.mjs,
 // with the head block from this copy. Descriptions use only facts from each app's registry entry.
 export const LANDING = {
+  best: { title: 'Free tools compared: PDF, image, video and business apps | Slopographic', description: 'Side-by-side comparisons of free tools for common jobs, with facts checked against each tool\'s own pages and dated. We make one tool on each page and say which.' },
   'all-tools': { title: 'All free online tools: PDF, images, video, business | Slopographic', description: 'Every free tool on Slopographic in one list: PDF, image, video, audio, document and business tasks that run in your browser, with no upload and no account.' },
   watermark: { title: 'Bulk watermark photos with your logo or text, free | Slop Watermark', description: 'Watermark hundreds of photos at once with your logo or text: nine positions, tiling and rotation, a live preview, and a ZIP download. Free, nothing uploaded.' },
   photoslop: { title: 'Free online photo editor with layers, masks and PSD | PhotoSlop', description: 'Free online photo editor in your browser: layers, masks, 17 blend modes, PSD open and save, filters and healing tools. No install, no account, nothing uploaded.' },
