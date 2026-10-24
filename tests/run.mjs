@@ -88,6 +88,9 @@ async function runPage(browser, base, p, scale) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
   const page = await ctx.newPage();
   if (scale > 1) await page.addInitScript((n) => { window.__SLOPTEST_SCALE__ = n; }, scale); // harness timeouts (tests/harness.js)
+  // A script error before the harness starts (a syntax error in the test page) would leave the page waiting for the full
+  // timeout; the page notes the first error so the wait below can end early.
+  await page.addInitScript(() => { addEventListener('error', () => { window.__SLOPTEST_ERR__ = window.__SLOPTEST_ERR__ || performance.now(); }); });
   const consoleErrors = [];
   page.on('pageerror', (e) => consoleErrors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
@@ -95,8 +98,11 @@ async function runPage(browser, base, p, scale) {
   let report = null;
   try {
     await page.goto(base + p.split(path.sep).join('/'));
-    await page.waitForFunction(() => window.__SLOPTEST__, null, { timeout: 300000, polling: 250 });
+    // Done, or dead: an error happened and the harness had still not started 30 s (times the load scale) after it.
+    await page.waitForFunction((grace) => window.__SLOPTEST__ || (window.__SLOPTEST_ERR__ && !window.__SLOPTEST_STARTED__ && performance.now() - window.__SLOPTEST_ERR__ > grace),
+      30000 * Math.max(1, scale), { timeout: 300000, polling: 250 });
     report = await page.evaluate(() => window.__SLOPTEST__);
+    if (!report) throw new Error(`the page stopped before its tests started: ${consoleErrors[0] || 'a script error'}`);
   } catch (e) { report = { name: p, passed: 0, failed: 1, results: [{ suite: 'runner', test: 'page loaded and finished', status: 'fail', message: e.message }], errors: [] }; }
   const secs = (Date.now() - t0) / 1000;
   took[p] = secs;
