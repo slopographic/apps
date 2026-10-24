@@ -31,11 +31,8 @@ function cxr(c) { return c.getContext('2d', { willReadFrequently: true }); }
 function copyCanvas(src) { const c = mkCanvas(src.width, src.height); cx(c).drawImage(src, 0, 0); return c; }
 function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Could not read that image')); i.src = src; }); }
 function canvasToBlob(c, type = 'image/png', q) { return new Promise((res) => c.toBlob(res, type, q)); }
-function download(blob, name) {
-  const a = h('a', { href: URL.createObjectURL(blob), download: name });
-  document.body.append(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-}
+/** Saves a file: SlopUI.download (shared/slopui.js), the one copy. */
+function download(blob, name) { window.SlopUI.download(blob, name); }
 /** Bounding box of non-transparent pixels, or null if empty. */
 function alphaBounds(c) {
   const { width: w, height: hh } = c;

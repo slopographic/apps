@@ -171,13 +171,8 @@ function render() {
   renderTotals(res.totals);
 }
 
-function download(name, text) {
-  const url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
-  const a = el('a');
-  a.href = url; a.download = name;
-  document.body.append(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+/** Saves a CSV: SlopAITools.download (aitools/common.js), the tools' one copy. */
+function download(name, text) { window.SlopAITools.download(name, text, 'text/csv;charset=utf-8'); }
 
 function exportSerials() {
   const { unique } = tally(state.photos, pattern());

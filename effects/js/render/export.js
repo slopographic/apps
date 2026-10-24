@@ -96,14 +96,9 @@
   }
 
   /** Saves a Blob as a download. */
+  /** Saves a file: SlopUI.download (shared/slopui.js), the one copy. */
   function download(blob, name) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    document.body.append(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    window.SlopUI.download(blob, name);
   }
 
   ns.render = { formats, videoType, frameRange, renderPng, renderVideo, download };
