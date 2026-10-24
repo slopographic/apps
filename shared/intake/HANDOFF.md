@@ -294,6 +294,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   `ai.conv`; the model folder fallback (no directory picker) is `ai.model` (`pick({ folder: true })`); the Apps list's
   "Open a file from this computer / a Slop Drive file in it" is `ai.launch`, which sends through `SlopOuttake.send`.
   The page now loads shared/intake. `tests/intake/ai.test.html`.
+- **Slop Projects** (`projects/js/ui/files.js`, spec `projects`, one .json backup): Open a backup, the empty page's zone
+  (a drop, its Choose files, the sample: `SlopIntake.sample`), Try a sample project and a paste (new).
+  `tests/intake/projects.test.html`.
+- **Slop CRM** (`crm/js/ui/form-parts.js`, spec `crm`, the customer's photo, no paste): Add / Change photo is the intake's
+  picker; the page now loads shared/intake. `tests/intake/crm.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -352,10 +357,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] file input: `admin/index.html:134`
 
-### crm
-
-- [ ] pickFiles: `crm/js/ui/form-parts.js:69`
-
 ### expenses
 
 - [ ] file input: `expenses/index.html:88`
@@ -387,11 +388,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] drop listener: `photoslop/classic/paint/17-files.js:59`
 - [ ] paste listener: `photoslop/classic/paint/17-files.js:65`
 - [ ] file input: `photoslop/index.html:93`
-
-### projects
-
-- [ ] pickFiles: `projects/js/ui/files.js:39`
-- [ ] SlopDrop.attach: `projects/js/ui/files.js:56`
 
 ### purchases
 
