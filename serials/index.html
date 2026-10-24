@@ -41,10 +41,9 @@
     <div id="gate" class="sr-gate" aria-live="polite"></div>
 
     <section id="ui" class="sr-ui" hidden>
-      <label id="drop" class="sr-drop">
-        <input id="pick" type="file" accept="image/*" multiple hidden>
+      <button type="button" id="drop" class="sr-drop">
         <span>Drop photos here, or <u>choose photos</u></span>
-      </label>
+      </button>
 
       <div id="work" class="sr-work" hidden>
         <div class="sr-bar">
@@ -85,6 +84,11 @@
   <script src="../aitools/support.js"></script>
   <script src="../aitools/get-more.js"></script>
   <script src="../aitools/common.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="../shared/firstrun/notice.js"></script>
   <script src="../shared/urlstate/urlstate.js"></script>
   <script src="../shared/router/router.js"></script>

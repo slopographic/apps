@@ -255,6 +255,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Checksum** (`checksum/js/checksum.js`, spec `checksum`, one file): the box is a button (the intake's picker; was
   a label with a file input) and a drop target (`dropTarget`), and a paste (new). The page now loads shared/intake.
   `tests/intake/checksum.test.html`.
+- **Serial counter** (`serials/js/app.js`, spec `serials`): the box is a button (the intake's picker; was a label with a
+  file input) and a drop target, and a paste (new; waits for the model gate). The first-use notice is the spec's.
+  `tests/intake/serials.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -422,11 +425,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### quotes
 
 - [ ] file input: `quotes/index.html:121`
-
-### serials
-
-- [ ] file input: `serials/index.html:45`
-- [ ] drop listener: `serials/js/app.js:180`
 
 ### shared/backup
 
