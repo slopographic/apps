@@ -10,7 +10,7 @@
   var IN = PR.intake = {};
   var SI = function () { return window.SlopIntake; };
   IN.RULES = {
-    types: ['image/*', 'text/*', 'application/pdf', 'font/*', 'application/x-font-ttf', 'application/font-sfnt', 'application/x-slop-press'],
+    types: ['image/*', 'text/*', 'application/pdf', 'font/*', 'application/x-font-ttf', 'application/font-sfnt', 'application/x-slop-press', 'application/json', 'application/zip'],
     exts: ['.slpress', '.json', '.txt', '.md', '.csv', '.pdf', '.ttf', '.otf'],
     noun: 'an image, text, PDF, font or .slpress file',
   };

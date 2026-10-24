@@ -147,6 +147,14 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   The app's own paste listener is only its clipboard (items copied in Press) and pasted text. Out: File ▸ Send to is
   `SlopOuttake.items` twice (the PDF with Workflows; the page PNG, apps only) and Press's own Save to Slop Drive.
   `tests/intake/press.test.html`.
+- **SlopLabel** (`label/js/ui/intake.js`, spec `label`; parts `label.replace` (Replace image…), `label.configs` (Configs ▸
+  Import…), `label.zpl-text` (Import ZPL ▸ Open file…)): a drop on the app (a picture on the stage lands where it was
+  dropped), the strip's Choose files, File ▸ Open (Ctrl+O), Insert image (mode `image`, `data.props`), Import CSV / Excel
+  / JSON (mode `data`), Open project / Insert image / Data from Slop Drive, ?drive= launch and launchQueue, a pasted
+  picture. Otherwise `openFiles` decides from the file; a project from Slop Drive stays linked. The accept rules now take
+  text, JSON and spreadsheet types (a dropped .csv or .json was refused before). The app's paste listener is only its
+  clipboard, ZPL and text. Out: File ▸ Send to is `SlopOuttake.items` for the PDF and the PNG.
+  `tests/intake/label.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -350,29 +358,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] file input: `invoices/index.html:177`
 - [ ] out: Open in/Send to label: `invoices/js/ui/reminder.js:23`
-
-### label
-
-- [ ] SlopDrop.attach: `label/js/ui/boot.js:36`
-- [ ] out: Open in/Send to label: `label/js/ui/commands.js:76`
-- [ ] pickFiles: `label/js/ui/configs-dlg.js:69`
-- [ ] pickFiles: `label/js/ui/datadlg.js:6`
-- [ ] pickFiles: `label/js/ui/export.js:48`
-- [ ] pickFiles: `label/js/ui/export.js:87`
-- [ ] out: Open in/Send to label: `label/js/ui/form.js:46`
-- [ ] ?drive= launch: `label/js/ui/hub.js:12`
-- [ ] Drive picker: `label/js/ui/hub.js:30`
-- [ ] Drive picker: `label/js/ui/hub.js:43`
-- [ ] Drive picker: `label/js/ui/hub.js:48`
-- [ ] out: sendMenuItems: `label/js/ui/hub.js:56`
-- [ ] out: sendMenuItems: `label/js/ui/hub.js:57`
-- [ ] pickFiles: `label/js/ui/interact.js:205`
-- [ ] out: Open in/Send to label: `label/js/ui/keys.js:21`
-- [ ] out: Open in/Send to label: `label/js/ui/keys.js:100`
-- [ ] paste listener: `label/js/ui/keys.js:119`
-- [ ] out: Open in/Send to label: `label/js/ui/menus.js:23`
-- [ ] out: Open in/Send to label: `label/js/ui/menus.js:57`
-- [ ] pickFiles: `label/js/ui/props-types.js:90`
 
 ### ledger
 

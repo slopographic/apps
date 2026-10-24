@@ -62,11 +62,10 @@ function pasteClip() {
   return true;
 }
 /** System paste: images become image objects, plain text becomes a text object. */
+// A pasted picture is the intake's (ui/intake.js; its paste listener comes first and takes it); this is the app's own
+// clipboard, ZPL and pasted text.
 async function onPaste(e) {
-  if (isTyping(e.target)) return;
-  const items = [...((e.clipboardData && e.clipboardData.items) || [])];
-  const img = items.find((i) => i.kind === 'file' && /^image\//.test(i.type));
-  if (img) { e.preventDefault(); await insertImageFile(img.getAsFile()); return; }
+  if (e.defaultPrevented || isTyping(e.target)) return;
   e.preventDefault();
   if (pasteClip()) return;
   const text = e.clipboardData && e.clipboardData.getData('text/plain');
@@ -116,7 +115,7 @@ function initKeys() {
   addEventListener('keydown', onKeyDown);
   addEventListener('keyup', onKeyUp);
   addEventListener('blur', () => { spaceDown = false; });
-  document.addEventListener('paste', onPaste);
+  document.addEventListener('paste', onPaste); // intake-ok: the app's own clipboard, ZPL and text (files go to the intake)
   document.addEventListener('copy', (e) => { if (!isTyping(e.target) && copySel()) e.preventDefault(); });
   document.addEventListener('cut', (e) => { if (!isTyping(e.target) && App.sel.length) { e.preventDefault(); cutSel(); } });
 }
