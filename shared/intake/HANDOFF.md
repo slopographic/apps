@@ -243,6 +243,10 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Clean** (`clean/js/app/main.js`, spec `clean`): Open pictures… (Ctrl+O, both buttons), a drop on the page
   (`SlopIntake.dropTarget`; was its own document drop listener), a paste (new), ?drive= launch (the picture keeps its
   Drive record: Replace original) and launchQueue. The page now loads shared/intake. `tests/intake/clean.test.html`.
+- **Slop Image to 3D** (`img3d/js/app/main.js`, spec `img3d`, `limit: 1`): Open image… (now a button; the file input is
+  gone), a drop on the view (`dropTarget`), From Slop Drive…, a paste (new), ?drive= launch and launchQueue. The
+  first-use notice is the spec's `notice` (once per batch); `openBlob` is only the reader. The page now loads
+  shared/intake. Out: Open in Slop 3D is `SlopOuttake.send('3d')`. `tests/intake/img3d.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -366,14 +370,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] file input: `html2pdf/index.html:42`
 - [ ] file input: `html2pdf/index.html:54`
 - [ ] drop listener: `html2pdf/js/app.js:107`
-
-### img3d
-
-- [ ] file input: `img3d/index.html:45`
-- [ ] out: sendTo: `img3d/js/app/export.js:75`
-- [ ] drop listener: `img3d/js/app/main.js:169`
-- [ ] Drive picker: `img3d/js/app/main.js:172`
-- [ ] ?drive= launch: `img3d/js/app/main.js:194`
 
 ### inventory
 

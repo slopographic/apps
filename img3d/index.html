@@ -41,8 +41,7 @@
       <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
       <span class="appname"><b>Slop Image to 3D</b></span>
       <div class="actions">
-        <label class="tb-btn" for="file" title="Open a picture from disk">Open image…</label>
-        <input id="file" type="file" accept="image/*" hidden>
+        <button type="button" class="tb-btn" id="btnOpen" title="Open a picture from disk">Open image…</button>
         <button type="button" class="tb-btn" id="btnDrive">From Slop Drive…</button>
         <button type="button" class="tb-btn" id="btnMore">Get more…</button>
       </div>
@@ -104,6 +103,11 @@
   <script src="../shared/firstrun/notice.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/hub.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="../shared/intake/outtake.js"></script>
   <script src="../shared/ops/entry.js"></script>
   <script src="../shared/storage/classify.js"></script>
