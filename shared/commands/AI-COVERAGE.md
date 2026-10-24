@@ -6,12 +6,12 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 3 of 58 apps.
+Covered: 4 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
 | PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 29 | ✓ 1 |  | yes |
-| SlopVector (`vector`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| SlopVector (`vector`) | ✓ 1 | ✓ 3 | ✓ 10 | ✓ 1 |  | yes |
 | Slop PDF (`pdf`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
 | SlopLabel (`label`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | SlopIsolate (`cutout`) | ✗ | ✗ | ✓ 1 | ✗ |  | no |
@@ -76,6 +76,13 @@ Covered: 3 of 58 apps.
 - create: `new_document`
 - add: `add_svg_layer`, `add_text`, `brush_stroke`, `click_tool`, `draw_shape`, `new_layer`, `use_tool`
 - edit: `add_noise`, `brightness_contrast`, `canvas_size`, `crop`, `crop_to_selection`, `curves`, `delete_layer`, `denoise`, `desaturate`, `duplicate_layer`, `fill`, `filter`, `flip`, `gaussian_blur`, `gradient_fill`, `hue_saturation`, `image_size`, `invert_selection`, `levels`, `motion_blur`, `remove_background`, `rotate`, `select_all`, `select_subject`, `set_layer`, `sharpen`, `transform_layer`, `upscale`, `vignette`
+- export: `export`
+
+### SlopVector
+
+- create: `new_document`
+- add: `add_shape`, `add_svg`, `add_text`
+- edit: `align`, `arrange`, `delete_object`, `distribute`, `group`, `pathfinder`, `select_objects`, `set_style`, `transform`, `ungroup`
 - export: `export`
 
 ### SlopIsolate

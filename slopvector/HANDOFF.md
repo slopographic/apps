@@ -112,3 +112,15 @@ Panels button, Tab and Window ▸ Show/Hide Panels open and close it, Window ▸
 outside and a swipe right close it. The old `dock-open` class and the `.dock-head` bar with its × are gone; the keyboard
 Escape (deselect) skips an Escape the drawer took. `shared/ui/sheet.js` is in the offline manifest. Test:
 `tests/slopvector/phone-dock.test.html`.
+
+## Assistant commands (`js/ui/ai-io.js`, `js/ui/ai-commands.js`)
+Loaded on demand by `SlopCmd.prepare()` (`ui/commands.js` `SV.prepareAI`); all `sv.ai.*`, hidden, one undo step each, through
+the app's own code (`SV.mk`, `SV.insertObj`, `IO.importSVGText`, `SV.cmd`, `SV.commit`). `new_document` (width, height,
+background, name; replaces the drawing, destructive, Undo brings it back), `add_svg` (checked by `SV.ai.checkSvg`: no script,
+foreignObject, on* handlers, javascript: or links other than #ids and data: pictures; imported as editable objects),
+`add_shape` (rect, ellipse, polygon, star, line, path d; fill, stroke, width, opacity), `add_text`, `set_style`, `transform`
+(move, scale, rotate), `select_objects`, `align`, `distribute`, `pathfinder` (union, minus, intersect, xor), `group`,
+`ungroup`, `arrange`, `delete_object` (destructive), `export` (svg/png/jpg/pdf by `IO.exportSVG`/`rasterize`/`buildPDF`, to
+Slop Drive through `shared/commands/sources.js` and/or a download), `undo`. Results give the bounding box and warn when it runs
+past the artboard; `fit: true` shrinks and moves it inside. No headless operation: the writers read the app's own state
+(`SV.state.doc`), so they need the app's page. Test: `tests/slopvector/ai-commands.test.html`.
