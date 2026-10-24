@@ -66,7 +66,7 @@ A CSS glow also works for a DOM-positioned buddy: `filter: drop-shadow(0 0 8px r
 | `panel.js` + `panel.css` | `window.SlopAIPanel` | The embeddable side panel (below). |
 | `panel-run.js` | `K.panel.send` … | The panel's run: tool loop, steps, Stop, "Undo all AI changes". |
 | `picker.js` | `K.picker` | The model choice (WebGPU check with a plain fallback message, models good at app control first, download/use with progress and Cancel) and the download notice (`consent`, the shared first-use notice `shared/firstrun/notice.js` with the real size and licence). Slop AI's own downloads use the same notice. |
-| `cmdtools.js` | `K.cmdTools` | An app's SlopCmd commands as tools: one tool per command with an `args` schema (JSON schema in `definitions(cmd)`), `app_state`, `list_commands`, `run_command`; arguments are checked and clamped (SlopCmd.exec) before a command runs. |
+| `cmdtools.js` | `K.cmdTools` | An app's SlopCmd commands as tools: one tool per command with an `args` schema (JSON schema in `definitions(cmd)`), `app_state`, `list_commands`, `run_command`; arguments are checked and clamped (SlopCmd.exec) before a command runs. `specs(cmd, env)`: the same tools provider-neutral (`inputSchema`, `readOnly`, `mayDestroy`), for cloud engines and WebMCP (`shared/agent/HANDOFF.md`). |
 
 ## The AI button and app control (2026-10)
 - Every app page with the shell header has an **AI** button (`shell/header.js`, `.sh-ai`, same look as Convert…). Nothing
