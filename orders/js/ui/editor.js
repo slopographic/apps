@@ -38,6 +38,7 @@
     }
     if (st.status === 'open') out.push(b('Save changes', () => ed.save()), b('Fulfil…', fulfil, 'btn primary'), b('Cancel order', cancel, 'btn danger'));
     if ((st.status === 'open' || st.status === 'fulfilled') && !st.invoiceId) out.push(b('Convert to invoice', convert));
+    if ((st.status === 'open' || st.status === 'fulfilled') && !ed.isNew()) out.push(b('Delivery note', () => ed.saveIfNeeded().then((ok) => ok && NS.app.go(`d/${ed.id()}`))));
     if (st.status === 'fulfilled') out.push(h('p', { class: 'note', text: 'Fulfilled: stock has been taken out and the order is closed.' }));
     if (st.status === 'cancelled') out.push(h('p', { class: 'note', text: 'Cancelled orders cannot be changed.' }));
     return out;

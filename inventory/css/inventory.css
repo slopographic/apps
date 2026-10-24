@@ -1,7 +1,6 @@
 /* Slop Inventory: only what is its own. The base (theme tokens from the site theme, inputs, buttons, tabs, cards, notes,
  * toolbars, the top bar, form grids) is shared/biz/app.css. Here: the product table, KPIs, stock levels and histories, the
  * scan screen and the forms. At 390 px the product table stacks and nothing scrolls sideways. */
-.mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
 .fhint { color: var(--mute); font-size: 12.5px; margin: 6px 0; }
 .h2 { font-size: 15px; }
 .h3 { font-size: 14px; margin: 0 0 4px; }

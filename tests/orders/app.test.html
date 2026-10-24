@@ -10,6 +10,7 @@
   <script src="../harness.js"></script>
   <script>
   // Covers: orders/js/ui/app.js, orders/js/ui/list.js, orders/js/ui/commands.js, orders/js/core/util.js, shared/biz/app.css
+  // Covers: orders/js/ui/delivery.js, orders/js/core/delivery.js, orders/index.html, shared/biz/sheet.css
   // Covers: shared/docs/doc-editor.js, shared/docs/doc-page.js, shared/docs/doc-app.js, shared/docs/doc-pdf.js, shared/docs/doc-view.js, shared/docs/paper-edit.js, orders/js/ui/editor.js, orders/js/ui/page.js, orders/js/core/pdf.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D;
@@ -22,12 +23,7 @@
     await waitFor(() => f.contentWindow && f.contentWindow.SlopOrders && f.contentWindow.SlopOrders.app && f.contentWindow.document.getElementById('boot').hidden, { timeout: 20000 });
     W = f.contentWindow; D = W.document;
   }
-  function lum(c) {
-    const m = /color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)/.exec(c), v = m ? m.slice(1, 4).map((x) => Number(x) * 255) : (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
-    const [r, g, b] = v.map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; });
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  }
-  const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  const contrast = SlopTest.contrast;
 
   describe('Slop Orders on the shared pieces', () => {
     it('the list is SlopList: an order shows its number and customer, the total, a status chip; the count names orders', async () => {
@@ -68,6 +64,28 @@
       expect(items.map((i) => i.label)).toContain('Confirm order');
       expect(W.SlopOrders.util.refusal({ ok: false, code: 'invalid_transition', message: 'x' })).toBe('That change is not allowed for this order: x');
       expect(W.SlopOrders.util.refusal({ ok: false, code: 'conflict' })).toBe('Already done');
+    });
+    it('a confirmed order has a Delivery note: a printable sheet with the items and quantities, no prices, and a line to sign', async () => {
+      const S = W.SlopData, c = (await S.store.list('customers')).value[0];
+      await S.store.put('customers', { ...c, address: '1 High St\nLeeds' });
+      const p = (await S.store.put('products', { sku: 'PAP-A4', name: 'Copy paper', price: 650, taxRate: 0, unit: 'ream' })).value;
+      const o = (await S.store.put('orders', { customerId: c.id, date: '2026-10-21', notes: 'Leave at reception', lines: [{ productId: p.id, sku: 'PAP-A4', description: 'Copy paper', qty: 5, unitPrice: 650, taxRate: 0 }, { description: 'Delivery', qty: 1, unitPrice: 900, taxRate: 0 }] })).value;
+      await S.store.put('orders', { ...o, status: 'open' });
+      W.SlopOrders.app.go(`o/${o.id}`);
+      await waitFor(() => [...D.querySelectorAll('#eActions button')].some((b) => b.textContent === 'Delivery note'));
+      [...D.querySelectorAll('#eActions button')].find((b) => b.textContent === 'Delivery note').click();
+      await waitFor(() => W.location.hash === `#d/${o.id}` && D.querySelector('#dnSheet .doc-sheet'));
+      const sheet = D.querySelector('#dnSheet');
+      expect(sheet.querySelector('.sheet-title h2').textContent).toBe('Delivery note');
+      expect([...sheet.querySelectorAll('tbody tr')].map((r) => [...r.cells].slice(0, 4).map((x) => x.textContent))).toEqual([['PAP-A4', 'Copy paper', '5', 'ream'], ['', 'Delivery', '1', 'each']]);
+      expect(sheet.querySelector('tfoot').textContent).toContain('6');
+      expect(sheet.textContent).toContain('Leeds');
+      expect(sheet.textContent).toContain('Leave at reception');
+      expect(sheet.textContent.includes('$')).toBe(false);
+      expect(sheet.querySelectorAll('.sheet-sign > div').length).toBe(3);
+      expect($('tab-delivery').hidden).toBe(false);
+      W.SlopOrders.app.go('list');
+      await waitFor(() => $('tab-delivery').hidden);
     });
     it('text reads on its background in every site theme (contrast 4.5 or more)', async () => {
       for (const theme of ['light', 'dark', 'classic', 'lime']) {

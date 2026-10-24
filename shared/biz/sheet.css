@@ -16,3 +16,8 @@
   .doc-sheet { border: 0; padding: 0; background: #fff; color: #000; }
   .doc-sheet .stat { border-color: #999; background: #fff; }
 }
+/* A box to tick and a row of lines to sign (a delivery note) */
+.sheet-box { font-size: 18px; line-height: 1; }
+.sheet-sign { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+.sheet-sign > div { border-top: 1px solid var(--line-strong, #999); padding-top: 4px; font-size: 12px; color: var(--mute); }
+@media (max-width: 480px) { .sheet-sign { grid-template-columns: 1fr; gap: 26px; } }
