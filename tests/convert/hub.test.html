@@ -51,7 +51,7 @@ describe('hub: one card per catalogue pair', () => {
     const hub = await openHub(1024);
     try {
       await typeIn(hub.doc, 'webp');
-      const expected = PAGES.filter((p) => JSON.stringify([p.label, p.pair, p.summary]).toLowerCase().includes('webp')).map((p) => p.slug).sort();
+      const expected = PAGES.filter((p) => JSON.stringify([p.label, p.pair, p.summary, p.from]).toLowerCase().includes('webp')).map((p) => p.slug).sort();
       expect(visibleCards(hub.doc).map((c) => c.dataset.pair).sort()).toEqual(expected);
       expect(hub.doc.getElementById('cv-cards-empty').hidden).toBe(true);
       // A group with no match is hidden, so no empty heading is left on the page.
