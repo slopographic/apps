@@ -1,6 +1,6 @@
 // The Statement view (#s/<customer id>): one customer's account in one currency, as a printable sheet: the company and
 // customer blocks, every issued invoice and payment with a running balance (from a date, or from the start), what is owed
-// now and how late it is (SlopData.statement). Print it, or download it as CSV. Read only.
+// now and how late it is (SlopData.statement). Print it, download it as CSV, or write a payment reminder (ui/reminder.js).
 (function (g) {
   'use strict';
   const S = g.SlopData;
@@ -48,6 +48,7 @@
       h('div', { class: 'stats st-age' }, AGE.map(([k, label]) => h('div', { class: `stat${st.ageing[k] && k !== 'current' ? ' is-late' : ''}` }, h('b', { text: m(st.ageing[k]) }), h('span', { text: label })))),
       st.owed.length ? h('p', { class: 'note', text: `Still open: ${st.owed.map((o) => `${o.ref} ${m(o.left)}${o.late ? ` (${o.late} days late)` : ''}`).join(' · ')}.` }) : h('p', { class: 'note', text: 'Nothing is owed. Thank you.' })));
     $('stTitle').textContent = `${c.name}: statement`;
+    $('stRemind').disabled = st.closing <= 0;
   }
 
   /** Downloads the statement as CSV. */
@@ -69,6 +70,7 @@
     $('stFrom').addEventListener('input', draw);
     $('stPrint').addEventListener('click', () => g.print());
     $('stCsv').addEventListener('click', downloadCsv);
+    $('stRemind').addEventListener('click', () => cur && NS.reminder.open(build(), cur.customer, cur.settings));
     $('stBack').addEventListener('click', () => NS.app.go('list'));
   }
 

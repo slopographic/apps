@@ -59,5 +59,24 @@
     return out.join('\r\n') + '\r\n';
   }
 
-  ns.statement = { currencies, build, csv };
+  /** Pure: a payment reminder for a statement's open invoices: { tone: 'none' | 'friendly' | 'firm' | 'final', subject, body }.
+   *  The tone follows the most overdue invoice: due or up to 30 days late is friendly, up to 60 firm, beyond that final.
+   *  who: { customer, company }; money(minor) formats an amount. Nothing owed: tone none and no text. */
+  function reminder(st, { customer, company }, money) {
+    if (!st.owed.length || st.closing <= 0) return { tone: 'none', subject: '', body: '' };
+    const late = Math.max(...st.owed.map((o) => o.late));
+    const tone = late <= 30 ? 'friendly' : late <= 60 ? 'firm' : 'final';
+    const list = st.owed.map((o) => `- ${o.ref}, due ${o.due}: ${money(o.left)}${o.late ? ` (${o.late} day${o.late === 1 ? '' : 's'} late)` : ''}`).join('\n');
+    const subject = { friendly: `A reminder: ${money(st.closing)} to pay`, firm: `Overdue: ${money(st.closing)} to pay`, final: `Final reminder: ${money(st.closing)} overdue` }[tone];
+    const open = {
+      friendly: 'A friendly reminder that the invoices below are open. If you have already paid, thank you, and please ignore this message.',
+      firm: 'The invoices below are now overdue. Please arrange payment as soon as you can, or let us know if there is a problem with them.',
+      final: 'Despite our earlier reminders, the invoices below are still unpaid and well past their due dates. Please pay the balance within 7 days, or contact us today to agree how it will be paid.',
+    }[tone];
+    const sign = company && company.trim() ? `Thank you,\n${company.trim()}` : 'Thank you.';   // no company name: no name line
+    const body = `Hello ${customer},\n\n${open}\n\n${list}\n\nBalance owed: ${money(st.closing)}\n\n${sign}`;
+    return { tone, subject, body };
+  }
+
+  ns.statement = { currencies, build, csv, reminder };
 })(typeof window !== 'undefined' ? window : globalThis);
