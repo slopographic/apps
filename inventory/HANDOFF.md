@@ -107,3 +107,6 @@ more). A product with no reorder level is never flagged low. `shared/apps.js` ga
     price, scanner burst in the Scan view, unknown EAN creation applies the scan, refused sale, undo, camera fallback,
     Stock tab, count post, reports, no errors.
 - `node tests/run.mjs data` covers the shared data layer, including the new `reorderLevel` field.
+
+- `js/core/pricelist.js` (pure: rows by name with the price with tax, search, CSV) and `js/ui/prices.js`: the Price list tab,
+  a printable business sheet (`shared/biz/sheet.js` and `sheet.css`) with Print and CSV.

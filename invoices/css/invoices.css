@@ -4,26 +4,11 @@
 .table > .empty { padding: 12px; }
 
 /* The printable sheet is the paper view (shared/docs/paper.css): on screen a white page, and in print only the sheet */
+/* (the page-wide print rules are shared/biz/sheet.css) */
 @media print {
-  html, body { background: #fff !important; color: #000 !important; }
-  .no-print, .smb-bar, .tabs, .toolbar, .note.no-print { display: none !important; }
-  .main { padding: 0 !important; max-width: none !important; }
   .view:not([hidden]) { display: block; }
 }
 
-/* The customer statement (ui/statement.js): a sheet like the paper view, and in print only the sheet */
-.statement { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 14px; min-width: 0; }
-.st-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.st-title { text-align: right; }
-.st-title h2 { margin: 0 0 4px; font-size: 22px; }
-.st-to { display: grid; gap: 2px; }
-.st-total { display: flex; justify-content: space-between; align-items: baseline; margin: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--panel-2); }
-.st-total b { font-size: 20px; font-variant-numeric: tabular-nums; }
-.st-scroll { overflow-x: auto; min-width: 0; }   /* on a phone only the table scrolls sideways, never the page */
-.st-table td, .st-table th { white-space: nowrap; }
+/* The customer statement (ui/statement.js) is a business sheet (shared/biz/sheet.css); here only its ageing and the reminder */
 .st-age .stat.is-late b { color: var(--danger); }
 .rem .rem-body { width: 100%; min-height: 220px; font: 13px/1.5 ui-monospace, monospace; }
-@media print {
-  .statement { border: 0; padding: 0; background: #fff; color: #000; }
-  .statement .stat { border-color: #999; background: #fff; }
-}

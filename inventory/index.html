@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/biz/app.css">
+  <link rel="stylesheet" href="../shared/biz/sheet.css">
   <link rel="stylesheet" href="css/inventory.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
@@ -60,6 +61,7 @@
       <button type="button" role="tab" class="tab" id="tab-stock" data-view="stock" aria-controls="view-stock" aria-selected="false">Stock</button>
       <button type="button" role="tab" class="tab" id="tab-count" data-view="count" aria-controls="view-count" aria-selected="false">Count</button>
       <button type="button" role="tab" class="tab" id="tab-reports" data-view="reports" aria-controls="view-reports" aria-selected="false">Reports</button>
+      <button type="button" role="tab" class="tab" id="tab-prices" data-view="prices" aria-controls="view-prices" aria-selected="false">Price list</button>
       <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
     </nav>
 
@@ -211,6 +213,8 @@
         <ul class="levels" id="valueList"></ul>
       </section>
 
+      <section class="view" id="view-prices" role="tabpanel" aria-labelledby="tab-prices" hidden></section>
+
       <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
         <div class="card">
           <h2 class="h2">Products CSV</h2>
@@ -280,6 +284,9 @@
   <script src="js/ui/view-state.js"></script>
   <script src="../shared/biz/router.js"></script>
   <script src="../shared/ui/tabs.js"></script>
+  <script src="../shared/biz/sheet.js"></script>
+  <script src="js/core/pricelist.js"></script>
+  <script src="js/ui/prices.js"></script>
   <script src="js/ui/app.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>

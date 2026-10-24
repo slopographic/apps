@@ -173,6 +173,25 @@
       $('tab-products').click();
       await waitFor(() => [...doc().querySelectorAll('#pRows .chip.ordered')].some((c) => c.textContent === '12 on order'), { timeout: 8000 });
     });
+    it('the Price list tab shows every product with its price with tax as a printable sheet; search and CSV', async () => {
+      // Covers: inventory/js/ui/prices.js, inventory/js/core/pricelist.js, inventory/index.html, shared/biz/sheet.js, shared/biz/sheet.css
+      $('tab-prices').click();
+      await waitFor(() => !$('view-prices').hidden && doc().querySelector('#plSheet .doc-sheet'));
+      const n = (await win().SlopData.store.list('products')).value.length;
+      await waitFor(() => doc().querySelectorAll('#plSheet tbody tr').length === n);
+      expect(doc().querySelector('#plSheet .sheet-title h2').textContent).toBe('Price list');
+      let got = null;
+      win().SlopUI.download = (blob, name) => { got = { blob, name }; };
+      $('plCsv').click();
+      await waitFor(() => !!got);
+      expect((await got.blob.text()).split('\r\n')[0]).toBe('SKU,Name,Unit,Price,Tax %,Price with tax');
+      const search = $('plSearch');
+      search.value = 'no-such-product-xyz'; search.dispatchEvent(new (win().Event)('input'));
+      await waitFor(() => doc().querySelector('#plSheet').textContent.includes('No product matches'));
+      expect($('plCount').textContent).toBe('0 products');
+      search.value = ''; search.dispatchEvent(new (win().Event)('input'));
+      expect(doc().documentElement.scrollWidth).toBeLessThanOrEqual(390);
+    });
   });
 
   run({ name: 'Inventory · the app at 390 px' });
