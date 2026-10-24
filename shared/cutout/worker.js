@@ -11,6 +11,10 @@ const P = self.SlopCutoutPipeline, M = self.SlopCutoutModels, L = self.SlopCutou
 const cfg = { vendor: new URL('../../vendor/onnxruntime-web/', self.location.href).href, models: new URL('../../vendor/models/', self.location.href).href, backend: 'auto', sources: null };
 let ortp = null, backend = null;
 const sessions = new Map(), jobs = new Map();
+/** One model pass at a time in this worker: segment messages are async, so two can be in flight here, and a session
+ *  must not run twice at once (the WebGPU backend's run is asynchronous and shares its buffers between runs). */
+let gate = Promise.resolve();
+function exclusive(fn) { const p = gate.then(fn, fn); gate = p.catch(() => {}); return p; }
 const send = (id, type, data, transfer) => self.postMessage({ id, type, data }, transfer || []);
 
 /* ---------- ONNX Runtime ---------- */
@@ -87,13 +91,13 @@ async function infer(modelId, rgba, W, H, progress) {
   const feed = (sess) => ({ [sess.inputNames.includes(m.input) ? m.input : sess.inputNames[0]]: tensor });
   let t0 = performance.now(), out;
   try {
-    out = await s.run(feed(s));
+    out = await exclusive(() => s.run(feed(s)));
     if (s.backend === 'webgpu') { const d = out[s.outputNames[0]].data; for (let i = 0; i < d.length; i += 97) if (!Number.isFinite(d[i])) throw new Error('non-finite output'); }
   } catch (e) {
     if (s.backend !== 'webgpu') throw e;
     console.warn('SlopCutout: WebGPU run failed, retrying on WebAssembly:', e.message);
     s = await session(m.id, progress, true);
-    t0 = performance.now(); out = await s.run(feed(s));
+    t0 = performance.now(); out = await exclusive(() => s.run(feed(s)));
   }
   const ms = performance.now() - t0;
   const res = out[s.outputNames[0]], dims = res.dims, low = new Float32Array(res.data);

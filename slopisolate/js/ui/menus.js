@@ -29,7 +29,7 @@
     sample: () => CO.files.sample(),
     driveOpen: () => guard(async () => {
       const rec = await hub().pickFromDrive({ accept: ['image/*'], title: 'Open from Slop Drive' });
-      if (rec) CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })]);
+      if (rec) await CO.files.fromDrive(rec);
     }),
     exportOne: (it) => guard(() => CO.export.one(it || needItem())),
     exportAll: () => guard(() => CO.export.all()),

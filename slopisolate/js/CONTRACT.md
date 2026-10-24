@@ -17,9 +17,11 @@ external requests, no attribution text anywhere. Load order is in `slopisolate/i
   Item look fields: `s {threshold, softness, feather, decontaminate, refine}`, `bg {mode:'transparent'|'color'|
   'gradient'|'blur', color, blur, gradA, gradB, angle}`, `shadow {on, opacity, blur, x, y, color}`,
   `crop {mode:'original'|'subject', pad}`. Other item fields: `id, file, name, url (object URL), w, h, status
-  ('queued'|'working'|'done'|'error'), error, progress (0..1 or null), model, modelUsed, base (Uint8ClampedArray),
+  ('queued'|'working'|'done'|'error'), error, progress (0..1 or null), phase (engine progress phase), model (null = follows `S.model`; set only by the bulk
+  bar's Re-run model), modelUsed, base (Uint8ClampedArray),
   edit (Uint8ClampedArray or null), timings, hist {undo[], redo[]}`.
-  `S.defaults` and `S.rememberLook(it)` save the last look for new images.
+  `S.defaults` and `S.rememberLook(it)` save the last look for new images. `S.modelOf(it)` = `it.model || S.model`, read
+  when an image's run starts.
 - `core/brush.js` (`CO.brush`): `begin(it, mode)` with mode 'keep'|'remove'|'restore' → stroke state;
   `line(st, x0, y0, x1, y1, r, hardness)` in IMAGE pixels, r = radius in image px; `dab`; `end(st)` → undo entry or null;
   `swap`; `hasEdits(it)`.
@@ -31,9 +33,12 @@ external requests, no attribution text anywhere. Load order is in `slopisolate/i
 - `render/compose.js` (`CO.compose` = C): `bbox(mask, w, h)`, `cutCanvas(act)`, `boxOf(it, act)` → `{x,y,w,h}` in image
   px (whole image or subject+pad), `render(it, act)` → full-res canvas of the output (background, shadow, crop),
   `maskCanvas(it, act)` → cropped grey mask canvas.
-- `io/process.js` (`CO.process` = P): `add(files)` (creates items, queues segmentation, selects first),
-  `select(it)` (makes it the active image), `refresh(it)`, `refreshSoon(it)` (debounced), `rerun(it)` (new model),
-  `remove(it)`, `drop()`, `build(it)` → record (caller must `SlopCutout.release(record.jobId)`), `pending()`.
+- `io/process.js` (`CO.process` = P): `add(files, opts)` (only `CO.files.take` calls it: creates items, queues them,
+  selects the first; returns the image items with `.videos` promises), a bounded pool (`SlopCutout.poolSize()` images at
+  once, `P.limit` overrides), `followModel()` (re-run every image that follows the app's model and has another),
+  `select(it)` (makes it the active image), `refresh(it)`, `refreshSoon(it)` (debounced), `rerun(it)` (new model; cancels
+  a running pass), `remove(it)` (cancels too), `drop()`, `build(it)` → record (caller must `SlopCutout.release(record.jobId)`),
+  `pending()`, `running()`.
   `P.active` = record `{item, jobId, w, h, bitmap (ImageBitmap of original), mask (Uint8ClampedArray w*h), cutout
   (ImageData), cut (canvas cache), bbox, rev}`. Events emitted: `list` (items), `activeItem` (item or null),
   `active` (record), `progress` `{it, p}`, `look` (it) — emit it after changing a look; process.js reacts.
@@ -49,8 +54,9 @@ external requests, no attribution text anywhere. Load order is in `slopisolate/i
   `S.exportOpts.format` (png|webp|jpg; jpg fills `jpgBg` behind transparency; quality for webp/jpg) and downloads
   `<baseName>-cutout.<ext>` via `SlopUI.download`. `CO.export.all()`: every `done` item → one zip via CO.zip.
   Never add watermarks. Returns Promise.
-- `io/files.js` → `CO.files.open()` (SlopUI.pickFiles, accept 'image/*', multiple), `CO.files.sample()`,
-  `CO.files.init()` (window drop/dragover → `#dropOverlay` visibility, paste of image items; all call `CO.process.add`).
+- `io/files.js` → `CO.files.take(files, { source, driveId, origin })`: THE way files come in (first-use gate once per
+  batch, accept rules, one `CO.process.add`). `open()` (picker), `sample()`, `fromDrive(rec, extra)` (Drive and ?drive=),
+  `init()` (SlopDrop on `#isoDrop`, targets `#workspace` and `#queue`; paste through shared/intake; all call `take`).
 - `io/sample.js` → `CO.sample.make()` → Promise<File>: a busy gradient background with a goo blob ("Sloppo" goo
   shape, lime with ink outline) drawn on canvas; PNG, name `sloppo-sample.png`.
 - `render/view.js` → `CO.view`: `init()` (sizes canvas `#view` to `#stage` with devicePixelRatio, listens to resize),
@@ -75,7 +81,7 @@ external requests, no attribution text anywhere. Load order is in `slopisolate/i
   `swatches({colors, value, onChange})`, `note(text)` (`pp-note`).
 - `ui/panel.js` → `CO.panel.init()`: fills `#props`. Sections: Model (radio list `.models`/`.model` for fast, quality,
   portrait with `.m-size` sizes from the model info and `.cached` when cached, from `SlopCutout.cached()`; a change
-  calls `CO.process.rerun(it)`), Edges (threshold, softness, feather, decontaminate, refine — each a look change with
+  sets `S.model` and calls `CO.process.followModel()`), Edges (threshold, softness, feather, decontaminate, refine — each a look change with
   snapLook/pushLook, `CO.emit('look', it)` on input), Export (format seg png/webp/jpg, quality slider for webp/jpg,
   jpg background colour, `.no-wm` note "No watermarks, ever", Export button → `CO.export.one(it)`, batch button →
   `CO.export.all()`). The panel refreshes its values on `activeItem` and `active`. Disabled (`data-off="1"`) when no item.

@@ -17,13 +17,16 @@ function setLook(a) {
   const it = S.current(), look = toLook(a);
   const into = (t) => { Object.assign(t.bg, look.bg); Object.assign(t.shadow, look.shadow); Object.assign(t.crop, look.crop); };
   into(S.defaults);
-  if (a.model && a.model !== S.model) { S.model = a.model; CO.util.store.set('model', a.model); }
+  const newModel = !!a.model && a.model !== S.model;
+  if (newModel) { S.model = a.model; CO.util.store.set('model', a.model); }
   if (!it) return 'Set the look for the next images.';
   const before = H.snapLook(it);
   into(it);
   S.rememberLook(it);
   H.pushLook(it, before, 'Macro');
-  if (a.model && it.model !== a.model) { it.model = a.model; CO.process.rerun(it); } else CO.emit('look', it);
+  // the model is the app's (an image of its own model follows it again): the images it changes run again
+  if (a.model && it.model && it.model !== a.model) it.model = null;
+  if (newModel || (a.model && it.modelUsed && it.modelUsed !== a.model)) CO.process.followModel(); else CO.emit('look', it);
   if (CO.panel && CO.panel.refresh) CO.panel.refresh();
   return `Set the look of ${it.name || 'the image'}.`;
 }

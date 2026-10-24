@@ -53,7 +53,7 @@
     CO.emit('busy', { on: true, msg: 'Cutting out the video…', progress: 0 });
     try {
       const res = await V.analyze(it.vid.src, {
-        model: it.model, signal: ac.signal,
+        model: S.modelOf(it), signal: ac.signal,
         onProgress: (p) => { if (p.phase === 'frame') { it.progress = p.i / p.n; CO.emit('busy', { on: true, msg: `Frame ${p.i} of ${p.n} · ${Math.round(p.ms / p.i)} ms a frame`, progress: p.i / p.n }); CO.emit('item', it); } },
       });
       if (res.cancelled) { S.setStatus(it, 'ready', { progress: null }); CO.emit('toast', 'Video cut-out cancelled'); return; }

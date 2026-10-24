@@ -9,6 +9,49 @@ models in `vendor/models/`, ONNX Runtime Web in `vendor/onnxruntime-web/`. Modul
 - Tests: `node tests/run.mjs slopisolate` (engine, inference, app, sample, saved session) and
   `node tests/run.mjs mask-transfer` (node). PhotoSlop round trip: `node tests/run.mjs isolate-roundtrip`.
 
+## Batches: one model for all, one way in, a pool (Oct 2026)
+- **Why a batch looked worse.** The Model panel changed only the image on screen (`it.model = id; rerun(it)`); every
+  other image kept the model it was given when it was added. Dropping several photos, seeing the first and choosing
+  Quality left the rest of the batch on Fast, while photos uploaded one at a time after that choice all got Quality.
+  Measured with 4 generated photos (sample + 3 scenes): batch vs one-at-a-time alpha mean difference 1.7 to 4.8 of 255
+  (max 198 to 253), soft edge pixels 2 to 3 times as many, edge gradient 100 to 122 against 180. Everything else was
+  checked and is the same both ways: input size per model, full resolution (no downscale; `U.decode` only shrinks the
+  display bitmap over 50 MP), guided refinement and decontamination (the worker does both for every item), settings.
+- **Fix.** An image has no model of its own (`it.model = null`) and runs with `S.modelOf(it)` = the app's model, read when
+  its run starts. The panel sets `S.model` and `CO.process.followModel()` re-runs every image that follows it and was
+  made (or is being made) with another. Only the bulk bar's Re-run model pins a model on an image. After: MAD 0, max 0.
+  Saved work keeps `model` (null or pinned) and `modelUsed`; older saves restore as following the app's model.
+- **One way in.** `CO.files.take(files, { source, driveId, origin })` is the only caller of `CO.process.add`: the picker,
+  the drop zone and the queue sidebar (SlopDrop targets `#workspace` and `#queue`), paste (SlopDrop registers it with
+  shared/intake), the sample, Open from Slop Drive (File menu and Drive) and a file another app sent (?drive=). One
+  first-use gate per batch (`F.gate`, shared while open), one accept rule (`F.ACCEPT`), one batch into the pool. SlopDrop's
+  `begin(files)` hands the whole drop to take() at once; `process(file)` only reports that file's progress. Shaped like
+  the suite intake (accept, gate, process, after) so moving to SlopIntake.take is a swap. Removed: the drop path's own
+  gate and per-file add, files.js's own paste listener (it added a paste a second time after shared/intake took it),
+  the queue's own drop listener (a drop there also got the "Drop files on the highlighted area" warning).
+- **Pool.** `shared/cutout/cutout.js` runs `removeBackground` calls in up to `SlopCutout.poolSize()` workers at once, each
+  with its own ONNX session (no COOP/COEP, so WebAssembly is single-threaded: separate workers are the only parallelism).
+  poolSize: WebGPU 2 (the GPU serialises model passes; the second worker overlaps decode, refinement and
+  decontamination), WebAssembly one per two cores up to 3, 2 under 4 GB, 1 on iOS or 2 GB. `configure({ workers })`
+  overrides. A separate 'edit' worker holds `createJob` jobs (the image on screen, exports), so sliders and brush strokes
+  never wait behind the batch. A worker runs one model pass at a time (`exclusive` in worker.js). `io/process.js` keeps
+  the app's bounded queue (`running` map of AbortControllers): remove and re-run cancel a running image (the worker
+  finishes the pass, the result is dropped), a failed image does not stop the rest. Queue tiles show the phase
+  (Loading, Starting, Cutting out, Edges); the busy bar shows only for a download. Dropping the image on screen also
+  closes its decoded bitmap. poolSize learns the real backend from the first pass (WebGPU that falls back to WebAssembly
+  on a software adapter then gets the WebAssembly size).
+- **Timings, 10 photos (0.4 to 1.6 MP) dropped at once, Fast, WebAssembly, headless Chromium on a 44-core machine:**
+  before (one at a time, the drop zone waiting on each) 71.8 s, first ready 7.9 s; after: pool 1 60.5 s, pool 2 33.5 s,
+  pool 3 24.9 s, pool 4 20.5 s; first ready about 6.2 s in every case. Main thread: longest stall 60 to 200 ms, a click
+  handled within 1 ms. Quality model, same 10 photos: 297.4 s before, 128.0 s after (auto pool 3; first ready 26 s before,
+  31 s after, as three passes share the CPU). WebAssembly capped at 3 workers for memory (each holds its own session; Quality is the big one).
+  Bench script: tests are in the repo; the timing script was a scratch Playwright run (drop 10, wait for all done).
+- Tests: `tests/slopisolate/batch.test.html` (batch vs one at a time after a model change, pinned model kept; pool of 2:
+  never more than 2 running, all finish, a click runs meanwhile, the image on screen edits while others run; a broken file
+  fails alone; remove mid-run and queued), `tests/slopisolate/intake.test.html` (every route ends in one take and one add
+  of the whole batch, one notice per batch, a notice shared by concurrent batches, a video follows the app's model, no
+  other script calls `process.add` or listens for drop or paste).
+
 ## Manual editing (checked in a browser)
 - Keep / Remove strokes: the brush cursor follows the pointer, the edit map and the result change, the view does not
   move (zoom and pan stay put), undo / redo restore exactly, Clear brush edits is one undo step, export carries the edits.
