@@ -57,8 +57,7 @@
         expect(info.includes('not embedded') && info.includes('new text in ' + family)).toBe(true, info);
         input.value = next;
         input.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-        await sleep(120);
-        const annot = PT.E.state.pages[0].annots.find((a) => a.type === 'text' && a.text === next);
+        const annot = await waitFor(() => PT.E.state.pages[0].annots.find((a) => a.type === 'text' && a.text === next), { timeout: 8000 }); // the old run leaves the content first (text-strip.js)
         expect(!!annot && annot.font).toBe(family, 'annotation font for ' + next);
       }
       // the saved file: each applied text is drawn in its standard font (pdf.js reads the face back)

@@ -6,7 +6,7 @@
 // Covers: pdf/js/editor/sel-actions.js, pdf/js/editor/text-strip.js
 (function () {
   'use strict';
-  const { describe, it, expect, waitFor } = SlopTest;
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
   const doc = () => PT.win.document;
   const bar = () => doc().querySelector('.selbar');
   const shown = () => !!bar() && !bar().hidden;

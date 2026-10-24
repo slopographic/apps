@@ -5,10 +5,10 @@
        fonts(name) → { two (two-byte codes), width(code) → 1/1000 em } or null when the font cannot be measured (then the
        glyphs it shows, and the ones after them up to the next line move, have no known place and are never picked).
      strip(src, fonts, targets) → { text, dropped, first } or null. targets: [{ x0, x1, y, fs }] in user space: a glyph is
-       dropped when its centre is in x0..x1 and its origin on the baseline y. Each text operator that shows a dropped glyph
+       dropped when its centre is in x0..x1 and its origin on the line of baseline y. Each text operator that shows a dropped glyph
        is rewritten as a TJ array that keeps the other glyphs and moves the pen past the dropped ones by their advance
-       (a numeric adjustment), so nothing after it moves; ' and " keep their line move (and their spacing). Every other
-       operator stays byte for byte. null when nothing matched, when a dropped glyph is invisible (render mode 3: the
+       (a numeric adjustment), so nothing after it moves; one left with no glyphs and no kept text after it in its BT
+       goes. ' and " keep their line move (and their spacing). Every other operator stays byte for byte. null when nothing matched, when a dropped glyph is invisible (render mode 3: the
        words a scan shows are in its picture, so removing them would change nothing on the page) or clipping text (modes
        4 to 7: its removal would change what is clipped). Text in Form XObjects is not in the page's stream: not found.
    Text state follows the PDF model: Tc, Tw, Tz, TL, Tf, Ts and Tr are graphics state (q/Q), Tm and Tlm are per BT. */
@@ -108,11 +108,12 @@
     });
     return out;
   }
-  /** Whether a glyph is in a target: its centre within x0..x1 and its baseline on y (a fifth of the size either way). */
+  /** Whether a glyph is in a target: its centre within x0..x1, its origin on the line of baseline y (from 0.3 em below it
+   * to 0.6 em above: a shaped mark or accent placed above the letters is part of the line, the next line is not). */
   function inTarget(g, ts) {
     return g.up && ts.some(function (t) {
-      var tol = Math.max(0.6, 0.2 * (t.fs || g.fs || 10));
-      return Math.abs(g.y - t.y) <= tol && g.cx >= t.x0 - 0.01 && g.cx <= t.x1 + 0.01;
+      var fs = t.fs || g.fs || 10, dy = g.y - t.y;
+      return dy >= -Math.max(0.6, 0.3 * fs) && dy <= Math.max(0.6, 0.6 * fs) && g.cx >= t.x0 - 0.01 && g.cx <= t.x1 + 0.01;
     });
   }
 
@@ -150,13 +151,32 @@
       return adv;
     });
     if (bad) return null;
-    var out = '', at = 0;
+    var out = '', at = 0, parts = new Map();
+    repl.forEach(function (r, k) { var o = ops[k]; parts.set(k, o.op === 'TJ' ? mergeTJ(o.args[o.args.length - 1], r) : r[0]); });
+    var omit = trailing(ops, parts);
     Array.from(repl.keys()).sort(function (a, b) { return a - b; }).forEach(function (k) {
-      var o = ops[k], r = repl.get(k), parts = o.op === 'TJ' ? mergeTJ(o.args[o.args.length - 1], r) : r[0];
-      out += src.slice(at, o.s) + prefix(o) + tj(parts);
+      var o = ops[k];
+      out += src.slice(at, o.s) + (omit.has(k) ? prefix(o).trim() : prefix(o) + tj(parts.get(k)));
       at = o.e;
     });
     return { text: out + src.slice(at), dropped: dropped, first: first };
+  }
+  var SHOW = { Tj: 1, TJ: 1, "'": 1, '"': 1 };
+  /** The rewritten operators left with no glyphs that no kept text follows in their text object: their pen move matters
+   * to nothing, so they go altogether (a lone move would read as a space to text extraction). */
+  function trailing(ops, parts) {
+    var omit = new Set(), shows = [];
+    function close() {
+      for (var i = shows.length - 1; i >= 0; i--) {
+        var p = parts.get(shows[i]);
+        if (!p || p.some(function (x) { return typeof x !== 'number'; })) break;
+        omit.add(shows[i]);
+      }
+      shows = [];
+    }
+    ops.forEach(function (o, k) { if (o.op === 'BT' || o.op === 'ET') close(); else if (SHOW[o.op]) shows.push(k); });
+    close();
+    return omit;
   }
   /** A TJ's new elements: its numbers stay where they were, its strings become their rewritten parts. */
   function mergeTJ(arr, r) {

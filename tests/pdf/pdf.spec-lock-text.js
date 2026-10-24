@@ -121,8 +121,7 @@
       const input = pageEl().querySelector('.edit-run');
       input.value = 'goodbye';
       input.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-      await sleep(120);
-      const text = PT.E.state.pages[0].annots.find((x) => x.type === 'text' && x.text === 'goodbye');
+      const text = await waitFor(() => PT.E.state.pages[0].annots.find((x) => x.type === 'text' && x.text === 'goodbye'), { timeout: 8000 }); // the old run leaves the content first (text-strip.js)
       expect(!!text).toBe(true);
       await waitFor(() => elOf(text.id), { timeout: 8000 });
       // a press on the old words, where the white cover is: the old run is not offered again

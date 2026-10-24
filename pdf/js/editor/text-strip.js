@@ -149,7 +149,14 @@
   /** The derived page reads as the old one without the targets' text: none left in them, the rest in place. */
   X.verify = async function (f, made, i, targets) {
     var before = await items(f, i), after = await items(made, i);
-    var left = after.some(function (it) { return it.s && targets.some(function (t) { return overlap(it, t) > 0.6 * (t.fs || it.fs); }); });
+    // nothing of the old text is left in a target: not a word, and not a lone mark or accent (zero width) either
+    var left = after.some(function (it) {
+      return it.s && targets.some(function (t) {
+        var fs = t.fs || it.fs, dy = it.y - t.y;
+        if (dy < -0.3 * fs || dy > 0.6 * fs) return false;
+        return Math.min(it.x + it.w, t.x1) - Math.max(it.x, t.x0) > 0.6 * fs || (it.x >= t.x0 && it.x <= t.x1);
+      });
+    });
     if (left) return false;
     return before.every(function (it) {
       if (!it.s || targets.some(function (t) { return overlap(it, t) > -0.01; })) return true;

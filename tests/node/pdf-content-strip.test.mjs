@@ -31,12 +31,18 @@ test('the lexer reads operands, strings with escapes, hex, arrays, dictionaries 
 const LINE = 'q BT 0 0 0 rg /F1 10 Tf 1 0 0 1 50 700 Tm ' + hex('Hello') + ' Tj ET Q\n';
 const NEXT = 'q BT /F1 10 Tf 1 0 0 1 50 680 Tm (Other line) Tj ET Q\n';
 
-test('a whole line goes: its Tj becomes a move by its width, every other operator stays byte for byte', () => {
+test('a whole line goes: its Tj leaves the stream, every other operator stays byte for byte', () => {
   const src = '1 0 0 rg 0 0 100 100 re f\n' + LINE + NEXT;
   const r = St.strip(src, fonts, [{ x0: 50, x1: 75, y: 700, fs: 10 }]);
   assert.equal(r.dropped, 5);
-  assert.equal(r.text, src.replace(hex('Hello') + ' Tj', '[-2500] TJ'));
+  assert.equal(r.text, src.replace(hex('Hello') + ' Tj', ''));
   assert.equal(textOf(r.text), 'Other line');
+});
+
+test('text that goes before kept text in the same BT leaves a move by its width; after it, nothing', () => {
+  const src = 'BT /F1 10 Tf 50 700 Td (Hello) Tj (World) Tj ET';
+  assert.equal(St.strip(src, fonts, [{ x0: 50, x1: 75, y: 700, fs: 10 }]).text, 'BT /F1 10 Tf 50 700 Td [-2500] TJ (World) Tj ET');
+  assert.equal(St.strip(src, fonts, [{ x0: 75, x1: 100, y: 700, fs: 10 }]).text, 'BT /F1 10 Tf 50 700 Td (Hello) Tj  ET');
 });
 
 test('part of a line goes and the text after it keeps its place', () => {
