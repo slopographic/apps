@@ -155,6 +155,9 @@
       if (prev.status !== next.status && !QUOTE_NEXT[prev.status].includes(next.status)) return `a quote cannot go from ${prev.status} to ${next.status}`;
       if (prev.status === 'accepted' && !same(['customerId', 'date', 'validUntil', 'number', 'currency', 'lines', 'notes'])) return 'an accepted quote cannot be changed';
     }
+    if (name === 'timeEntries' && prev.invoiceId && prev.invoiceId === next.invoiceId && !same(['date', 'customerId', 'minutes', 'rate', 'currency', 'billable'])) {
+      return 'billed time cannot be changed; void its invoice first';
+    }
     if (name === 'numbering' && next.next < prev.next) return 'a numbering sequence can only move forward';
     return null;
   }

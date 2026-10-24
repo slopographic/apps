@@ -20,6 +20,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 <script src="…/shared/data/billing.js"></script>
 <script src="…/shared/data/expenses.js"></script>  <!-- money going out: record and void, posted to the journal -->
 <script src="…/shared/data/quotes.js"></script>    <!-- quotes: to an order or a draft invoice -->
+<script src="…/shared/data/timesheets.js"></script> <!-- time worked: billed onto a draft invoice -->
 <script src="…/shared/data/bundle-check.js"></script>
 <script src="…/shared/data/export.js"></script>
 <script src="…/shared/data/rates-ecb.js"></script>   <!-- only if the page offers the ECB update -->
@@ -29,7 +30,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 `rates-ecb.js` is optional and does nothing until the person turns on the consent category (see below).
 
 Everything hangs off `window.SlopData`: `money`, `barcode`, `schema`, `schemaDefs`, `result`, `locale`, `store`,
-`numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `quotes`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
+`numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `quotes`, `timesheets`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
 files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 5 (see storage/INVENTORY.md for
 what each version added), and upgrades only create the missing stores.
 
@@ -46,6 +47,12 @@ accepted or declined; a sent quote can go back to draft, a declined one can be r
 `SlopData.quotes.toOrder(id)` makes a confirmed order and `toInvoice(id, { dueDate })` a draft invoice, in one transaction
 that links both ways (`quoteId` on the new document, `orderId` or `invoiceId` on the quote) and accepts the quote. Nothing is
 posted. `isExpired(q, day)` is pure.
+
+Time entries are ordinary records (`store.put('timeEntries', ...)`): minutes (1 to 1440) at an hourly `rate`; billable time
+needs a customer. `SlopData.timesheets.toInvoice(ids, { dueDate, taxRate })` bills open entries of one customer and one
+currency onto one draft invoice (one line per entry, by date) and links them (`invoiceId`). Billed time cannot change its
+date, customer, minutes, rate, currency or billable flag. Time on a void or deleted invoice is open again; `release(id)`
+unlinks it. `amountOf`, `hm`, `isOpen`, `deadInvoice` and `lineOf` are pure.
 
 ## Result shape (every async call)
 

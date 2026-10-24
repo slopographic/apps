@@ -18,8 +18,8 @@ Versions: "v" is the value passed to `indexedDB.open` (IndexedDB), or the envelo
 
 ## IndexedDB: SlopData (`slop-data`, shared/data)
 
-Version 6 (`DB_VERSION` in `shared/data/store.js`). v2 adds `exchangeRates`, v3 `customerGroups` and `customerTags`, v4
-`events`, `tasks` and `reminders`, v5 `expenses`, v6 `quotes`. Every step only creates the stores that are missing (`createStores`), so a
+Version 7 (`DB_VERSION` in `shared/data/store.js`). v2 adds `exchangeRates`, v3 `customerGroups` and `customerTags`, v4
+`events`, `tasks` and `reminders`, v5 `expenses`, v6 `quotes`, v7 `timeEntries`. Every step only creates the stores that are missing (`createStores`), so a
 database of any earlier version keeps all of its records; `tests/storage/upgrade.test.html` opens a v1 database and checks
 every collection exists after the upgrade. SlopData's collections are listed in `schema-defs.js`.
 
@@ -41,6 +41,7 @@ every collection exists after the upgrade. SlopData's collections are listed in 
 | shared/data | events, tasks, reminders | 4 | calendar event, to-do task and reminder records | shared/data, calendar, todo, reminders, crm | new in v4; created on upgrade |
 | shared/data | expenses | 5 | expense record (date, supplier, account, amount, tax, method, status); posted with its journal entry | shared/data (expenses), expenses, ledger, reports | new in v5; created on upgrade |
 | shared/data | quotes | 6 | quote (estimate): customer, date, validUntil, lines and totals, status draft/sent/accepted/declined, links to the order or invoice made from it | shared/data (quotes), quotes, orders, invoices | new in v6; created on upgrade; numbers QUO-0001 |
+| shared/data | timeEntries | 7 | time worked: date, customer, project, description, minutes, hourly rate, billable, the invoice it was billed on | shared/data (timesheets), timesheets, invoices | new in v7; created on upgrade |
 
 ## IndexedDB: other databases
 
