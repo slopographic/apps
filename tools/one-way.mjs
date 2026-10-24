@@ -7,7 +7,7 @@
 //        (use SlopOuttake.items / menu / button, SlopHub.openIn or sendMenuItems)
 // A line that has to stay (a drop that reorders tabs, the app's own clipboard) says why with an "intake-ok:" or
 // "outtake-ok:" comment. Add an app's folder to STRICT once it is migrated (shared/intake/HANDOFF.md has the list).
-export const STRICT = ['pdf/', 'photoslop/js/', 'convert/', 'gallery/', 'resize/', 'slopisolate/', 'press/', 'label/', 'upscale/', 'slopcut/index.html', 'slopcut/js/core/', 'slopcut/js/io/', 'slopcut/js/media/', 'slopcut/js/render/', 'slopcut/js/timeline/', 'slopcut/js/ui/', 'slopvector/', 'ocr/', 'aitools/', 'transcribe/', 'music/', 'drive/', 'tables/', 'sheetview/', 'docs/', 'eml/', 'hex/', 'code/', 'slides/', 'workflows/', 'remix/', 'clean/', 'img3d/', 'contacts/', 'checksum/', 'serials/', 'html2pdf/', 'sorter/', 'qr/', 'signature/', 'paste/', 'notes/', 'calendar/'];
+export const STRICT = ['pdf/', 'photoslop/js/', 'convert/', 'gallery/', 'resize/', 'slopisolate/', 'press/', 'label/', 'upscale/', 'slopcut/index.html', 'slopcut/js/core/', 'slopcut/js/io/', 'slopcut/js/media/', 'slopcut/js/render/', 'slopcut/js/timeline/', 'slopcut/js/ui/', 'slopvector/', 'ocr/', 'aitools/', 'transcribe/', 'music/', 'drive/', 'tables/', 'sheetview/', 'docs/', 'eml/', 'hex/', 'code/', 'slides/', 'workflows/', 'remix/', 'clean/', 'img3d/', 'contacts/', 'checksum/', 'serials/', 'html2pdf/', 'sorter/', 'qr/', 'signature/', 'paste/', 'notes/', 'calendar/', 'effects/'];
 const EXEMPT = /^(shared\/intake\/|shared\/drop\/|vendor\/|tests\/)|\.min\.js$/;
 export const RULES = [
   { re: /addEventListener\(\s*['"](drop|paste)['"]/, why: "a '$1' listener of its own" },

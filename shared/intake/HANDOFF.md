@@ -280,6 +280,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Calendar** (`calendar/js/ui/ics-ui.js`, spec `calendar`, one .ics up to 5 MB, no paste): Import .ics opens a
   dialog whose zone is the intake's (a drop on it, its Choose files); the reader hands the file to the waiting import
   preview. The old fallback picker is the intake's. `tests/intake/calendar.test.html`.
+- **Slop Effects** (`effects/js/app/io.js`, spec `effects`): Add media (this computer, Slop Drive), Relink media (mode
+  `relink`, `data.mediaId`), Open project from Slop Drive (a .json project, linked), a drop on the view (new), a paste
+  (new), ?drive= launch (new: Open in Slop Effects used to do nothing) and launchQueue. `tests/intake/effects.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -368,13 +371,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### crm
 
 - [ ] pickFiles: `crm/js/ui/form-parts.js:69`
-
-### effects
-
-- [ ] pickFiles: `effects/js/app/io.js:27`
-- [ ] Drive picker: `effects/js/app/io.js:39`
-- [ ] pickFiles: `effects/js/app/io.js:53`
-- [ ] Drive picker: `effects/js/app/io.js:133`
 
 ### expenses
 
