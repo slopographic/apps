@@ -134,7 +134,7 @@
     ta.addEventListener('keydown', function (e) { if (PR.textKeys) PR.textKeys(e); });
     ta.addEventListener('copy', function (e) { TE.clip(e, false); });
     ta.addEventListener('cut', function (e) { TE.clip(e, true); });
-    ta.addEventListener('paste', function (e) { TE.paste(e); });
+    ta.addEventListener('paste', function (e) { TE.paste(e); }); // intake-ok: text pasted into the story being edited
     ta.addEventListener('blur', function () { PT.caretOn = false; V.request(); });
   };
   var styledClip = null;

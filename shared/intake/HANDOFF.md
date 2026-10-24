@@ -110,7 +110,7 @@ with the verb "Send to". Use the same items for the toolbar button, the More men
 
 ## Rule 4 (tools/one-way.mjs, run by tools/check-rules.mjs)
 
-In the apps listed in `STRICT` (now `pdf/`, `photoslop/js/`, `convert/`, `gallery/`, `resize/`, `slopisolate/`), app code may not add a
+In the apps listed in `STRICT` (in tools/one-way.mjs: every folder in the Migrated list below), app code may not add a
 `drop` or `paste` listener, call `pickFiles`, make a file input, read ?drive= (`consumeLaunch`) or `launchQueue`, call
 `pickFromDrive`, or build an "Open in"/"Send to" list by hand. A line that must stay (a tab dragged to a new place, text
 pasted into a field) says why with an `// intake-ok: …` comment. When an app below is migrated, add its folder to
@@ -140,6 +140,13 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **SlopIsolate** (`slopisolate/js/io/files.js`, spec `cutout`): see its section below (in is done, out is to do).
 - **Slop Resize** (`resize/js/app/main.js` spec `resize`): a drop on the column or the zone, Choose files, Open
   (Ctrl+O), Open from Slop Drive, ?drive= launch, paste, the sample. Out: Send to Slop Upscale is `SlopOuttake.send`.
+- **Slop Press** (`press/js/io/intake.js`, spec `press`): a drop on the stage or the zone (a picture goes into the frame
+  under the drop point), the zone's Choose files, File ▸ Open (Ctrl+O, mode `new`: opens as a document), File ▸ Place
+  (Ctrl+D) and Place Image into Frame (mode `add`, `data.frame`), Open and Place from Slop Drive, ?drive= launch and
+  launchQueue (mode `new`), a pasted picture. A .slpress always opens; one from Slop Drive stays linked (Save writes back).
+  The app's own paste listener is only its clipboard (items copied in Press) and pasted text. Out: File ▸ Send to is
+  `SlopOuttake.items` twice (the PDF with Workflows; the page PNG, apps only) and Press's own Save to Slop Drive.
+  `tests/intake/press.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -407,22 +414,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] drop listener: `photoslop/classic/paint/17-files.js:59`
 - [ ] paste listener: `photoslop/classic/paint/17-files.js:65`
 - [ ] file input: `photoslop/index.html:93`
-
-### press
-
-- [ ] paste listener: `press/js/edit/clipboard.js:65`
-- [ ] paste listener: `press/js/edit/text.js:137`
-- [ ] Drive picker: `press/js/io/hub.js:18`
-- [ ] Drive picker: `press/js/io/hub.js:22`
-- [ ] out: sendMenuItems: `press/js/io/hub.js:48`
-- [ ] out: sendMenuItems: `press/js/io/hub.js:49`
-- [ ] ?drive= launch: `press/js/io/hub.js:57`
-- [ ] pickFiles: `press/js/io/place.js:86`
-- [ ] pickFiles: `press/js/io/project.js:69`
-- [ ] out: Open in/Send to label: `press/js/ui/commands.js:68`
-- [ ] SlopDrop.attach: `press/js/ui/main.js:21`
-- [ ] out: Open in/Send to label: `press/js/ui/menus.js:9`
-- [ ] drop listener: `press/js/ui/pages-panel.js:54`
 
 ### projects
 

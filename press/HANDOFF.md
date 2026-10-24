@@ -41,7 +41,7 @@ Items: `text | image | rect | ellipse | line | polygon` with `x,y,w,h,rot,fill,s
 
 ## Slop Drive (shared storage)
 
-- **Save (Ctrl+S)** writes the `.slpress` back to the Drive file the document came from (`S.driveId`, set by `HB.openRecord` for project files, cleared by `PR.setDoc`). The first save asks for a folder. `File ▸ Save to Slop Drive…` creates a new Drive file and links to it. Save As and offline builds download as before (the offline build strips the hub).
+- **Save (Ctrl+S)** writes the `.slpress` back to the Drive file the document came from (`S.driveId`, set by the intake (`press/js/io/intake.js`) for project files opened from Slop Drive, cleared by `PR.setDoc`). The first save asks for a folder. `File ▸ Save to Slop Drive…` creates a new Drive file and links to it. Save As and offline builds download as before (the offline build strips the hub).
 - Open/Place from Drive, `?drive=` launch and `register('press')` as before.
 
 ## Phone layout (SlopSheet)
