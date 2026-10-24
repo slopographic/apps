@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Slop Reports: hours by customer (Slop Timesheets) and the duration column</title>
-  <!-- Covers: reports/js/enrich.js, reports/js/defs.js, reports/js/engine.js, reports/js/data.js, reports/js/app.js, reports/index.html, shared/data/timesheets.js -->
+  <!-- Covers: reports/js/app.js, reports/js/enrich.js, reports/js/defs.js, reports/js/engine.js, reports/js/data.js, reports/js/app.js, reports/index.html, shared/data/timesheets.js -->
 </head>
 <body>
   <script src="../harness.js"></script>
@@ -27,6 +27,24 @@
       { id: 't4', minutes: 60, rate: 0, currency: 'USD', billable: false },
     ],
   };
+
+  describe('Quotes won by month', () => {
+    const q = (date, status, total, currency = 'USD') => ({ date, status, total, currency });
+    const QUOTES = { quotes: [q('2026-10-02', 'accepted', 12000), q('2026-10-05', 'declined', 5000), q('2026-10-09', 'accepted', 3000), q('2026-10-20', 'sent', 9000),
+      q('2026-09-11', 'draft', 100), q('2026-09-15', 'declined', 700)] };
+    it('counts, wins, losses, the win rate of the decided quotes and the value won, by month', () => {
+      const res = E.run(R.BUILTIN.find((d) => d.id === 'quote-win-rate'), QUOTES);
+      expect(res.ok).toBe(true);
+      expect(res.rows.map((r) => [r.month, r.count, r.sum_wins, r.sum_losses, Math.round(r.avg_won * 1000) / 1000, r.sum_wonValue])).toEqual([
+        ['2026-10', 4, 2, 1, 0.667, 15000],
+        ['2026-09', 2, 0, 1, 0, 0],
+      ]);
+    });
+    it('a percent cell shows a whole percent, and nothing when no quote was decided; the CSV keeps one decimal', () => {
+      const col = { field: 'r', type: 'percent' };
+      expect([E.cellText({ r: 2 / 3 }, col), E.cellText({ r: null }, col), E.exportText({ r: 2 / 3 }, col)]).toEqual(['67%', '', '66.7']);
+    });
+  });
 
   describe('Hours by customer', () => {
     it('is a valid built-in report; the pure timesheet helpers load without the rest of SlopData', () => {

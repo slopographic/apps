@@ -67,6 +67,12 @@
       }
       return out;
     },
+    /** Quotes: month, wins and losses (1 or 0), won (1 accepted, 0 declined, empty while draft or sent, so the win rate is
+     * the average of the decided ones) and the value won (the total of an accepted quote). */
+    quoteOutcome(rows) {
+      return rows.map((r) => ({ ...r, month: String(r.date || '').slice(0, 7), wins: r.status === 'accepted' ? 1 : 0, losses: r.status === 'declined' ? 1 : 0,
+        won: r.status === 'accepted' ? 1 : r.status === 'declined' ? 0 : null, wonValue: r.status === 'accepted' ? num(r.total) : 0 }));
+    },
     /** Any dated rows: month, the YYYY-MM of their date. */
     month(rows) {
       return rows.map((r) => ({ ...r, month: typeof r.date === 'string' ? r.date.slice(0, 7) : undefined }));
