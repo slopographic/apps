@@ -1,0 +1,39 @@
+/* Slop Signature: the form on the left, the mock email (always white, like most mail) and the actions on the right. */
+:root { --sg-bg: var(--sl-background, #f3f1ec); --sg-card: var(--sl-surface, #fff); --sg-fg: var(--sl-text, #111); --sg-line: var(--sl-border, #d3cfc6);
+  --sg-accent: var(--sl-accent, #4f6c00); --sg-mute: color-mix(in srgb, var(--sg-fg) 62%, transparent); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--sg-bg); color: var(--sg-fg); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.sg-app [hidden] { display: none !important; }
+main.sg-app { max-width: 1240px; margin: 0 auto; padding: 22px 16px 48px; }
+.sg-intro h1 { margin: 0 0 4px; font-size: 26px; }
+.sg-lede { margin: 0 0 16px; color: var(--sg-mute); max-width: 72ch; }
+.sg-work { display: grid; grid-template-columns: minmax(300px, 420px) minmax(0, 1fr); gap: 22px; align-items: start; }
+.sg-right { position: sticky; top: 56px; display: grid; gap: 12px; min-width: 0; }
+.sg-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: end; }
+.sg-top { margin-bottom: 10px; }
+.sg-group { margin: 0 0 12px; padding: 10px 14px 12px; border: 1px solid var(--sg-line); border-radius: 10px; background: var(--sg-card); display: grid; gap: 8px; min-width: 0; }
+.sg-group legend { padding: 0 6px; font-weight: 600; font-size: 14px; }
+.sg-group .sui-field { display: grid; gap: 3px; min-width: 0; }
+.sg-group .sui-input { width: 100%; }
+.sg-group textarea.sui-input { resize: vertical; font: inherit; }
+.sg-group input[type="color"] { width: 64px; height: 34px; padding: 2px; border: 1px solid var(--sg-line); border-radius: 6px; background: var(--sg-card); }
+.sg-group .sg-row .sui-field { flex: 1 1 140px; }
+.sg-check { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.sg-tpls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.sg-tpl { font: inherit; font-size: 14px; padding: 8px; border: 1px solid var(--sg-line); border-radius: 8px; background: var(--sg-card); color: var(--sg-fg); cursor: pointer; }
+.sg-tpl[aria-checked="true"] { border-color: var(--sg-accent); box-shadow: inset 0 0 0 1px var(--sg-accent); font-weight: 600; }
+.sg-tpl:focus-visible { outline: 2px solid var(--sg-accent); outline-offset: 2px; }
+.sg-mail { background: #fff; color: #202124; border: 1px solid var(--sg-line); border-radius: 10px; box-shadow: 0 6px 22px rgba(0, 0, 0, .08); overflow: hidden; }
+.sg-mail-head { display: flex; flex-wrap: wrap; gap: 4px 18px; padding: 10px 16px; border-bottom: 1px solid #e3e3e3; font-size: 13px; color: #5f6368; background: #fafafa; }
+.sg-mail-head b { color: #202124; font-weight: 600; margin-right: 4px; }
+.sg-mail-body { padding: 14px 18px 20px; font: 14px/1.5 Arial, Helvetica, sans-serif; overflow-x: auto; }
+.sg-mail-body > p { margin: 0 0 10px; }
+.sg-sig { margin-top: 6px; }
+.sg-empty { color: #8a8f98; font-style: italic; }
+.sg-problems { margin: 0; padding: 8px 12px 8px 30px; border-left: 3px solid #d29922; background: color-mix(in srgb, #d29922 10%, var(--sg-card)); border-radius: 6px; font-size: 14px; }
+.sg-note { margin: 0; color: var(--sg-mute); font-size: 13px; min-height: 0; }
+.sg-how h2 { font-size: 16px; margin: 6px 0 6px; }
+.sg-how details { border: 1px solid var(--sg-line); border-radius: 8px; background: var(--sg-card); padding: 6px 12px; margin-bottom: 6px; }
+.sg-how summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.sg-how ol { margin: 6px 0 4px; padding-left: 20px; font-size: 14px; }
+@media (max-width: 860px) { .sg-work { grid-template-columns: 1fr; } .sg-right { position: static; order: -1; } }
