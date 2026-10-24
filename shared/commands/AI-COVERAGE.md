@@ -26,7 +26,7 @@ Covered: 35 of 58 apps.
 | Slop Slides (`slides`) | ✓ 2 | ✓ 4 | ✓ 6 | ✓ 1 | 1 | yes |
 | Slop Press (`press`) | ✓ 2 | ✓ 4 | ✓ 5 | ✓ 1 |  | yes |
 | Reel Remix (`remix`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
-| SlopCut (`slopedit`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
+| SlopCut (`slopedit`) | ✗ | ✗ | ✗ | ✗ |  | done (wip/video-ai) |
 | Slop Resize (`resize`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | yes |
 | Slop Upscale (`upscale`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | yes |
 | Slop Watermark (`watermark`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | yes |

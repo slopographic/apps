@@ -21,7 +21,8 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 export const OUT = 'shared/commands/AI-COVERAGE.md';
 export const KINDS = ['create', 'add', 'edit', 'export'];
 // Apps whose AI commands another branch builds: listed as owned, not as gaps.
-export const OWNED = { slopedit: 'wip/video-ai', remix: 'wip/video-ai', effects: 'wip/video-ai', projects: 'wip/video-ai', music: 'wip/video-ai', transcribe: 'wip/video-ai' };
+const VIDEO = 'owned by wip/video-ai';
+export const OWNED = { slopedit: 'done (wip/video-ai)', remix: VIDEO, effects: VIDEO, projects: VIDEO, music: VIDEO, transcribe: VIDEO };
 const READ = /^(list_|get_|app_state|go_to|undo$|redo$|select_layer$|deselect$|clear_filter$)/;
 
 /** Where the files are read from: the working tree under root, or git's index (staged files). */
@@ -117,7 +118,7 @@ export function render(rows) {
     '**Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.', '',
     `Covered: ${rows.filter((r) => r.covered).length} of ${rows.length} apps.`, '',
     '| App | Create | Add | Edit | Export | Operations | Covered |', '|---|---|---|---|---|---|---|'];
-  for (const r of rows) lines.push(`| ${r.name} (\`${r.id}\`) | ${yes(r.by.create)} | ${yes(r.by.add)} | ${yes(r.by.edit)} | ${yes(r.by.export)} | ${r.ops.length || ''} | ${r.covered ? 'yes' : r.owner ? `owned by ${r.owner}` : 'no'} |`);
+  for (const r of rows) lines.push(`| ${r.name} (\`${r.id}\`) | ${yes(r.by.create)} | ${yes(r.by.add)} | ${yes(r.by.edit)} | ${yes(r.by.export)} | ${r.ops.length || ''} | ${r.covered ? 'yes' : r.owner || 'no'} |`);
   lines.push('', '## Commands per app', '');
   for (const r of rows.filter((x) => x.count)) {
     lines.push(`### ${r.name}`, '');
