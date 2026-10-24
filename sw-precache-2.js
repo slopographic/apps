@@ -190,7 +190,7 @@ PRECACHE.push(
   '/slopvector/js/ui/dock.js', '/slopvector/js/ui/guides.js', '/slopvector/js/ui/init.js', '/slopvector/js/ui/layers.js', '/slopvector/js/ui/menus.js',
   '/slopvector/js/ui/nav-adapter.js', '/slopvector/js/ui/paint-panels.js', '/slopvector/js/ui/props.js', '/slopvector/js/ui/route.js',
   '/slopvector/js/ui/sample.js', '/slopvector/js/ui/status.js', '/slopvector/js/ui/view-state.js', '/sorter/css/sorter.css', '/sorter/index.html',
-  '/sorter/js/app.js', '/sorter/js/model.js', '/style/base.css', '/style/detector.css', '/style/footer.css', '/tables/css/objects.css',
+  '/sorter/js/app.js', '/sorter/js/frame.js', '/sorter/js/model.js', '/style/base.css', '/style/detector.css', '/style/footer.css', '/tables/css/objects.css',
   '/tables/css/sidebar.css', '/tables/css/tables.css', '/tables/css/templates.css', '/tables/index.html', '/tables/js/engine/calc.js',
   '/tables/js/engine/datetime.js', '/tables/js/engine/deps.js', '/tables/js/engine/evaluator.js', '/tables/js/engine/index.js', '/tables/js/engine/lexer.js',
   '/tables/js/engine/parser.js', '/tables/js/engine/printer.js', '/tables/js/engine/refs.js', '/tables/js/engine/sheet.js', '/tables/js/engine/values.js',

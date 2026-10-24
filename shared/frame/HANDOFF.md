@@ -160,7 +160,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop Effects | effects/ | editor | properties right, Render in the header | done | its own panel and SlopSheet, the shared footer (bare) |
 | Checksum | checksum/ | tool | three stacked cards, Copy under the hash | done | |
 | Serial counter | serials/ | tool | one column, bar + actions | done | |
-| Slop Photo Sorter | sorter/ | tool | one column, bar | to do | bar → right panel |
+| Slop Photo Sorter | sorter/ | tool | one column, Start and downloads in bars | done | the view filters stay above the photos |
 | File convert | convert/ | tool | tool built in JS, one column | to do | split the tool into view + right panel |
 | Slop AI Tools | aitools/ (+ ocr, speech, denoise, tags, portrait) | tool | each tool one column | to do | five tool pages: view + right panel |
 | Reel Remix | remix/ | editor | bin left, settings right, Remix in the panel | close | phone sheet missing |
