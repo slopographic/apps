@@ -235,6 +235,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   on the zone, Choose files, the sample, a paste, ?drive= launch (Add to a workflow…, Open in) and launchQueue, and the
   tool's `addFiles` (now a take; the dialog's files too). Each batch is added at once. The step cards' drag stays
   (`intake-ok`). Out: a result's Open in is `SlopOuttake.items`. `tests/intake/workflows.test.html`.
+- **Reel Remix** (`remix/js/intake.js`, spec `remix`; part `remix.music`): a drop on the bin or the stage, the zone's Choose
+  files (the hidden `#rm-file` is gone) and sample, Add files… (the config prompt), a paste, ?drive= launch (new: Open in
+  Reel Remix used to do nothing) and launchQueue. Pick music file is now a button (the part's pick). The drags of bin
+  clips and cuts stay (`intake-ok`). Out: Send to SlopCut is `SlopOuttake.send('slopedit', { id })` with the manifest.
+  `tests/intake/remix.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -428,16 +433,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### quotes
 
 - [ ] file input: `quotes/index.html:121`
-
-### remix
-
-- [ ] file input: `remix/index.html:55`
-- [ ] file input: `remix/index.html:123`
-- [ ] drop listener: `remix/js/drop.js:40`
-- [ ] drop listener: `remix/js/drop.js:56`
-- [ ] out: sendTo: `remix/js/send.js:21`
-- [ ] drop listener: `remix/js/ui.js:54`
-- [ ] SlopDrop.attach: `remix/js/ui.js:131`
 
 ### serials
 

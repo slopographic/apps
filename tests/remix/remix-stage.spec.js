@@ -30,8 +30,8 @@
   async function addStills(n) {
     const dt = new (win().DataTransfer)();
     for (const f of await stills(n)) dt.items.add(f);
-    $('rm-file').files = dt.files;
-    change($('rm-file'));
+    win().document.querySelector('#rm-drop input[type=file]').files = dt.files;
+    change(win().document.querySelector('#rm-drop input[type=file]'));
     await waitFor(() => RM().state.items.length >= n, { timeout: 20000 });
   }
   const ev = (name, dt, el) => el.dispatchEvent(new (win().DragEvent)(name, { bubbles: true, cancelable: true, dataTransfer: dt, clientX: 0, clientY: 0 }));
