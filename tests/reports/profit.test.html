@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <title>Slop Reports: profit by month and expenses by category</title>
-  <!-- Covers: reports/js/enrich.js, reports/js/defs.js, reports/js/engine.js, reports/js/data.js -->
+  <!-- Covers: shared/data/schema-defs.js, reports/js/enrich.js, reports/js/defs.js, reports/js/engine.js, reports/js/data.js -->
 </head>
 <body>
   <script src="../harness.js"></script>
   <script src="../../shared/db/query.js"></script>
   <script src="../../shared/db/db.js"></script>
+  <script src="../../shared/data/schema-defs.js"></script>
   <script src="../../reports/js/enrich.js"></script>
   <script src="../../reports/js/defs.js"></script>
   <script src="../../reports/js/engine.js"></script>
@@ -75,6 +76,22 @@
     });
     it('month adds the YYYY-MM of a date', () => {
       expect(R.enrich.month([{ date: '2026-10-08' }, {}]).map((r) => r.month)).toEqual(['2026-10', undefined]);
+    });
+  });
+
+  describe('Cash flow by month', () => {
+    it('money into and out of cash and the bank by month; a move between them and entries without either are left out', () => {
+      const data = { journal: [
+        ...DATA.journal,
+        J('xfer', '2026-10-09', [['1000', 5000, 0], ['1010', 0, 5000]]),
+        J('cashsale', '2026-10-11', [['1000', 2000, 0], ['4000', 0, 2000]]),
+      ] };
+      const res = E.run(def('cash-flow'), data);
+      expect(res.ok).toBe(true);
+      expect(res.rows.map((r) => [r.month, r.sum_cashIn, r.sum_cashOut, r.sum_net, r.count])).toEqual([
+        ['2026-10', 6000, 4800, 1200, 4],
+        ['2026-09', 12000, 1875, 10125, 2],
+      ]);
     });
   });
 

@@ -37,7 +37,7 @@
       features: ['OCR for images and scanned PDF pages', 'Speech to text with .srt and .txt export', 'Denoise with a before and after slider', 'Auto tags saved to Slop Drive, portrait blur'],
       icon: 'spark', status: 'beta' }),
     A('reports', 'app', 'Slop Reports', 'reports/', 'Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.', { title: 'Reports', group: 'business', tool: true,
-      features: ['Unpaid invoices by customer', 'Profit by month and expenses by category', 'Contacts by group and CRM leads by stage', 'Follow-ups due in the next 14 days', 'Saved reports, sorting and CSV export'],
+      features: ['Unpaid invoices by customer', 'Profit and cash flow by month, spend by supplier', 'Contacts by group and CRM leads by stage', 'Follow-ups due in the next 14 days', 'Saved reports, sorting and CSV export'],
       icon: 'grid', status: 'beta' }),
     A('ocr', 'app', 'Slop OCR', 'ocr/', 'Read text from images and scanned PDFs on your device. Nothing uploaded.', { title: 'OCR: read text from images and scans', group: 'business', tool: true,
       accepts: ['image/*', 'application/pdf'],
