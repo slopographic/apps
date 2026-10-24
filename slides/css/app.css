@@ -17,7 +17,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .tb-flex { flex: 1 1 auto; }
 
-.app { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+.app { height: 100%; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; }   /* top bar, document tabs, the editor, status */
 .body { display: grid; grid-template-columns: 200px minmax(0, 1fr) 272px; min-height: 0; }
 
 /* top bar */

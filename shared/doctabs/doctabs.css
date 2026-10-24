@@ -1,5 +1,8 @@
 /* SlopDocTabs strip. Colours come from --sl-* tokens (set them on :root in the app); the fallbacks are plain values.
  * The host element gets .sl-doctabs; the strip scrolls nothing, the overflow button opens the full list instead. */
+/* The host spans every column of an app laid out as a grid (Slop Docs has an outline column; without this the tabs sat in it,
+   232 px wide, and on a phone squeezed to the + button). Ignored where the page is not a grid. */
+.doctabs-host { grid-column: 1 / -1; min-width: 0; }
 .sl-doctabs {
   --sl-tab-bg: var(--sl-background, #f4f1ea);
   --sl-tab-active: var(--sl-surface, #ffffff);
