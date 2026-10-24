@@ -21,6 +21,9 @@ button, input, select { font: inherit; color: inherit; }
 
 .app { height: 100%; display: flex; flex-direction: column; min-width: 0; }
 .topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--panel); }
+/* The shared header buttons (Slop Drive, Tour, Theme, Apps: shared/ui/hbtn.css) in the look of the toolbar's buttons. */
+.topbar { --slop-hbtn-h: 32px; --slop-hbtn-radius: 6px; --slop-hbtn-bg: var(--panel-2); --slop-hbtn-line: var(--line); --slop-hbtn-hover: var(--hover); --slop-hbtn-fs: 13px; }
+.tb-btn { height: 32px; }
 .brand { display: inline-flex; width: 26px; height: 26px; color: var(--accent); }
 .brand-mark { width: 100%; height: 100%; fill: currentColor; }
 .brand-mark .shine { fill: none; stroke: var(--bg); stroke-width: 2; stroke-linecap: round; opacity: .6; }
@@ -91,9 +94,13 @@ body.dragging .drop-hint { display: flex; }
 
 @media (max-width: 700px) {
   .tb-filters { display: inline-block; }
-  .appname .home-link, .local-badge { display: none; }
-  .side { position: fixed; top: 0; bottom: 0; left: 0; width: min(300px, 86vw); z-index: 50; transform: translateX(-100%); transition: transform .18s ease; box-shadow: 0 0 40px rgba(0, 0, 0, .5); }
-  body.drawer-open .side { transform: none; }
+  .appname, .local-badge { display: none; }
+  /* Two rows: the home link, Filters and the shared buttons; then the toolbar on its own row. */
+  .tb-group { order: 10; flex: 1 1 100%; }
+  .tb-group .tb-btn { flex: 1 1 auto; }
+  /* The drawer's shadow only while it is open (closed, it would show along the left edge). */
+  .side { position: fixed; top: 0; bottom: 0; left: 0; width: min(300px, 86vw); z-index: 50; transform: translateX(-100%); transition: transform .18s ease; }
+  body.drawer-open .side { transform: none; box-shadow: 0 0 40px rgba(0, 0, 0, .5); }
   .drawer-close { display: block; }
   .grid { padding: 6px 6px 20px; }
   .tb-group .tb-btn { padding: 6px 8px; }

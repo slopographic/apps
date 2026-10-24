@@ -7,12 +7,14 @@ body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 
 .em-app { display: flex; flex-direction: column; height: 100%; min-height: 0; }
 .sui-btn[aria-pressed="true"] { background: var(--sl-accent); color: var(--sl-on-accent); border-color: var(--sl-accent); }
 
-/* Header */
-.em-brand { display: flex; align-items: center; gap: 8px; }
-.em-brand h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: .01em; }
-.em-logo { width: 14px; height: 14px; border-radius: 3px; background: var(--sl-accent); }
-.em-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
-.em-dropstrip:not(:empty) { padding: 0 14px; }
+/* SlopUI buttons and the menu bar's tools take the theme (the shared --s-* tokens are only set inside dialogs), and the
+ * header tools are as tall as the shared header buttons (shared/ui/hbtn.css). */
+.em-app, .smb-bar { --s-bg2: var(--sl-surface); --s-input: var(--sl-background); --s-line: var(--sl-border); --s-fg: var(--sl-text);
+  --s-hover: color-mix(in srgb, var(--sl-text) 8%, var(--sl-surface)); --s-accent: var(--sl-accent); --s-accent-ink: var(--sl-on-accent); --s-radius: 8px; }
+.smb-tools .sui-btn { height: var(--slop-hbtn-h, 32px); }
+.em-empty-b .sui-btn, .em-msg .sui-btn { height: 32px; }
+/* The drop strip under the header (shared/drop, compact), outlined as in Slop Hex. */
+.em-dropstrip:not(:empty) { margin: 6px 10px 0; padding: 6px 10px; border: 1px dashed var(--sl-border); border-radius: 8px; }
 
 /* Open messages */
 .em-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 8px 14px; border-bottom: 1px solid var(--sl-border); }
@@ -78,9 +80,10 @@ button.em-att-info:focus-visible { outline: 2px solid var(--sl-accent); outline-
 .em-pdfdlg { display: flex; flex-direction: column; gap: 12px; }
 .em-help { margin: 0; }
 
-/* Phone: the header stacks, and the page itself does not scroll sideways */
+/* Phone: the header's Open, Convert to PDF and Print are in its File menu, so the bar keeps to one row; the page itself
+ * does not scroll sideways */
 @media (max-width: 600px) {
-  .em-tools { margin-left: 0; width: 100%; }
+  .smb-tools > .sui-btn { display: none; }
   .em-msg { padding: 10px; }
   .em-head { grid-template-columns: minmax(0, 1fr); }
   .em-head dt { margin-top: 4px; }

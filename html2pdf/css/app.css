@@ -1,6 +1,14 @@
 /* Slop HTML to PDF: the app's own layout. Theme colours come from the --sl-* tokens only.
  * The sheet and header styles are not here: they travel with the markup (html2pdf/js/sheet.js), so the preview and the print match. */
 [hidden] { display: none !important; }
+body { margin: 0; background: var(--sl-background); }
+/* SlopUI buttons and the menu bar's tools take the theme (the shared --s-* tokens are only set inside dialogs); the
+ * header tools are as tall as the shared header buttons (shared/ui/hbtn.css), the page's buttons 32 px too. */
+.h2p-app, .smb-bar { --s-bg2: var(--sl-surface); --s-input: var(--sl-background); --s-line: var(--sl-border); --s-fg: var(--sl-text);
+  --s-hover: color-mix(in srgb, var(--sl-text) 8%, var(--sl-surface)); --s-accent: var(--sl-accent); --s-accent-ink: var(--sl-on-accent); --s-radius: 6px; }
+.smb-tools .sui-btn { height: var(--slop-hbtn-h, 32px); }
+.h2p-app .sui-btn { height: 32px; }
+.h2p-group > .sui-btn { justify-self: start; }
 .h2p-app {
   display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; box-sizing: border-box;
   background: var(--sl-background); color: var(--sl-text);
@@ -43,9 +51,13 @@ textarea.h2p-input { resize: vertical; font-family: ui-monospace, Menlo, Consola
 .h2p-empty p { margin: 0; opacity: .75; }
 
 .h2p-status { margin: 0; padding: 8px 16px; font-size: 12px; border-top: 1px solid var(--sl-border); }
+.h2p-status:empty { padding: 0; border: 0; }
 
 @media (max-width: 800px) {
   .h2p-main { grid-template-columns: minmax(0, 1fr); }
   .h2p-side { border-right: 0; border-bottom: 1px solid var(--sl-border); }
-  .h2p-stage { padding: 16px; }
+  .h2p-stage { padding: 16px; order: -1; }
+  .h2p-side { overflow: visible; }
 }
+/* On a phone Open and Print are in the header's File menu (and Open in the empty preview), so the bar keeps to one row. */
+@media (max-width: 600px) { .smb-tools > .sui-btn { display: none; } }

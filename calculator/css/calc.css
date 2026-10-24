@@ -41,6 +41,7 @@ code { font-family: var(--sc-mono); font-size: 12px; }
 .sc-expr { flex: 1; min-width: 0; padding: 12px 14px; font: 18px/1.3 var(--sc-mono); background: var(--sc-bg); border: 1px solid var(--sc-line); border-radius: 10px; }
 .sc-expr:focus { outline: 2px solid var(--sc-accent); outline-offset: 1px; }
 .sc-preview { min-height: 2.2em; margin: 10px 2px 12px; font: 22px/1.25 var(--sc-mono); overflow-wrap: anywhere; }
+.sc-preview:empty::before { content: 'The result shows here as you type.'; font: 13px/48px var(--sc-sans); color: var(--sc-faint); }
 .sc-preview.sc-error { font-size: 14px; color: var(--sc-danger); }
 .sc-btn { padding: 8px 12px; border: 1px solid var(--sc-line); border-radius: 9px; background: var(--sc-bg); cursor: pointer; min-height: 40px; box-sizing: border-box; }
 .sc-btn:hover:not(:disabled) { background: var(--sc-hover); }

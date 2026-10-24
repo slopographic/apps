@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Slop Serial counter: the look (header, 1440 and 390 wide)</title>
+<style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
+<body>
+  <!-- Covers: serials/index.html -->
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor } = SlopTest;
+  /** The page in a fresh iframe of this width, once the gate has decided and the shell's buttons are in. */
+  async function open(width) {
+    const f = document.createElement('iframe');
+    f.style.width = width + 'px';
+    f.src = '../../serials/index.html';
+    document.body.append(f);
+    await waitFor(() => { const D = f.contentDocument; return D && D.readyState === 'complete' && D.querySelector('.smb-bar .slop-hbtn') && (D.getElementById('gate').children.length || !D.getElementById('ui').hidden); }, { timeout: 30000 });
+    return f.contentDocument;
+  }
+
+  describe('Slop Serial counter: the look', () => {
+    it('one header, with the 100% local badge in it', async () => {
+      const D = await open(1440);
+      expect([...D.querySelectorAll('header')].filter((n) => n.getBoundingClientRect().height).length).toBe(1);
+      expect(D.querySelector('.smb-bar .local-badge').title).toContain('Nothing is uploaded');
+    }, { timeout: 40000 });
+
+    it('at 390px nothing scrolls sideways', async () => {
+      const D = await open(390);
+      expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+    }, { timeout: 40000 });
+  });
+  SlopTest.run({ name: 'Slop Serial counter: the look' });
+  </script>
+</body>
+</html>

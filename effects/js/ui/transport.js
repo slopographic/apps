@@ -54,11 +54,11 @@
 
     playBtn.addEventListener('click', toggle);
     host.append(
-      h('button', { type: 'button', class: 'sui-btn', title: 'Go to start (Home)', 'aria-label': 'Go to start', onclick: start }, '⏮'),
-      h('button', { type: 'button', class: 'sui-btn', title: 'Previous frame (Left)', 'aria-label': 'Previous frame', onclick: () => stepFrames(-1) }, '◀'),
+      h('button', { type: 'button', class: 'sui-btn', title: 'Go to start (Home)', 'aria-label': 'Go to start', onclick: start }, '⇤'),
+      h('button', { type: 'button', class: 'sui-btn', title: 'Previous frame (Left)', 'aria-label': 'Previous frame', onclick: () => stepFrames(-1) }, '◁'),
       playBtn,
-      h('button', { type: 'button', class: 'sui-btn', title: 'Next frame (Right)', 'aria-label': 'Next frame', onclick: () => stepFrames(1) }, '▶|'),
-      h('button', { type: 'button', class: 'sui-btn', title: 'Go to end (End)', 'aria-label': 'Go to end', onclick: end }, '⏭'),
+      h('button', { type: 'button', class: 'sui-btn', title: 'Next frame (Right)', 'aria-label': 'Next frame', onclick: () => stepFrames(1) }, '▷'),
+      h('button', { type: 'button', class: 'sui-btn', title: 'Go to end (End)', 'aria-label': 'Go to end', onclick: end }, '⇥'),
       loopBtn, inBtn, outBtn, rangeBtn, rangeNote, scrub, time,
     );
 

@@ -72,7 +72,6 @@
       <button type="button" class="sui-btn" id="hx-cmd" aria-label="Commands (search every command)">Commands</button>
       <button type="button" class="sui-btn" id="hx-menu" aria-haspopup="menu">Menu</button>
     </div>
-    <div class="hx-name" id="hx-name" aria-live="polite"></div>
 
     <div id="hx-tabs" class="doctabs-host"></div>
     <div id="hx-drop" class="hx-dropstrip"></div>
@@ -95,6 +94,7 @@
     </div>
 
     <dl class="hx-info" id="hx-info" hidden>
+      <div class="hx-file"><dt>File</dt><dd class="hx-name" id="hx-name" aria-live="polite"></dd></div>
       <div><dt>Size</dt><dd id="hx-size"></dd></div>
       <div><dt>Type</dt><dd id="hx-type"></dd></div>
       <div class="hx-wide"><dt>SHA-256</dt><dd><span id="hx-sha" class="hx-mono"></span> <button type="button" class="sui-btn hx-mini" id="hx-sha-btn" hidden>Recalculate</button></dd></div>

@@ -33,9 +33,11 @@
   /** Redraw everything that depends on the open file: name, info strip, buttons, the unsaved-changes guard. */
   function refresh() {
     const d = app.doc, T = app.cur, has = !!d;
-    $('hx-empty').hidden = has;
-    $('hx-scroll').hidden = !has;
-    $('hx-info').hidden = !has;
+    // The blank tab the app opens with (nothing in it yet) shows the empty state, not an empty grid.
+    const blank = has && d.size === 0 && !d.dirty();
+    $('hx-empty').hidden = has && !blank;
+    $('hx-scroll').hidden = !has || blank;
+    $('hx-info').hidden = !has || blank;
     for (const id of ['hx-save', 'hx-saveas', 'hx-dl', 'hx-goto', 'hx-q', 'hx-next', 'hx-prev']) $(id).disabled = !has;
     if (!has) { $('hx-name').textContent = ''; document.title = 'Slop Hex'; if (window.SlopGuard) SlopGuard.setUnsaved('hex', false); return; }
     const changed = d.changed ? ` · ${plural(d.changed, 'byte')} changed` : '';

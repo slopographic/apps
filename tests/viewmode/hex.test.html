@@ -5,7 +5,9 @@
 </head>
 <body>
   <iframe id="app" title="Hex app"></iframe>
-  <script>window.APP_MODES = { name: 'Hex', url: '../../hex/', workspace: '#hx-main', sidebar: [], panels: ['#hx-info'], grow: false };   // the menu bar stays as a strip: it holds the mode controls</script>
+  <script>window.APP_MODES = { name: 'Hex', url: '../../hex/', workspace: '#hx-main', sidebar: [], panels: ['#hx-info'], grow: false,
+    // a blank tab shows the empty state without the info strip, so open a few bytes first (once), then wait for the strip
+    ready: (w, d) => { if (w.HexApp && !w.__opened) { w.__opened = true; w.HexApp.openBlob(new w.Blob([new w.Uint8Array(64)]), { name: 'a.bin' }); } return !!d.getElementById('hx-info') && !d.getElementById('hx-info').hidden; } };   // the menu bar stays as a strip: it holds the mode controls</script>
   <script src="../harness.js"></script>
   <script src="app-modes.js"></script>
 </body>
