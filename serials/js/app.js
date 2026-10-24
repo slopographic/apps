@@ -38,20 +38,8 @@ async function addFiles(list) {
   render();
 }
 
-/** Scales a photo to MAX_SIDE and hands its pixels to the worker. */
-async function bitmapOf(file) {
-  const src = await createImageBitmap(file);
-  const k = Math.min(1, MAX_SIDE / Math.max(src.width, src.height));
-  const w = Math.round(src.width * k), h = Math.round(src.height * k);
-  const c = document.createElement('canvas');
-  c.width = w; c.height = h;
-  c.getContext('2d').drawImage(src, 0, 0, w, h);
-  src.close();
-  return { bitmap: await createImageBitmap(c), w, h };
-}
-
 async function readOne(p, onProgress) {
-  const { bitmap, w, h } = await bitmapOf(p.file);
+  const { bitmap, w, h } = await T.image(p.file, { maxSide: MAX_SIDE });   // scaled in aitools/common.js
   const r = await T.call('ocr', { bitmap, w, h }, { transfer: [bitmap], onProgress });
   p.text = r.lines.map((l) => l.text).join('\n');
   p.read = true;

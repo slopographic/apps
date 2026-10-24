@@ -78,10 +78,17 @@
     return d;
   }
 
-  /** Decodes an image file to an ImageBitmap; { bitmap, w, h }. */
-  async function image(file) {
-    const bitmap = await root.createImageBitmap(file);
-    return { bitmap, w: bitmap.width, h: bitmap.height };
+  /** Decodes an image file to an ImageBitmap; { bitmap, w, h }. maxSide scales a large photo down first (its long side to that
+   *  many pixels): enough for small print, and much quicker to read (Serials, receipts in Expenses). */
+  async function image(file, { maxSide = 0 } = {}) {
+    const src = await root.createImageBitmap(file);
+    const k = maxSide ? Math.min(1, maxSide / Math.max(src.width, src.height)) : 1;
+    if (k === 1) return { bitmap: src, w: src.width, h: src.height };
+    const w = Math.round(src.width * k), h = Math.round(src.height * k), c = doc.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(src, 0, 0, w, h);
+    src.close();
+    return { bitmap: await root.createImageBitmap(c), w, h };
   }
   /** Decodes the audio track of an audio or video file to 16 kHz mono Float32Array. */
   async function audioSamples(file) {

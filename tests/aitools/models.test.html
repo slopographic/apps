@@ -10,8 +10,9 @@
   <script src="../../shared/firstrun/notice.js"></script>
   <script src="../../aitools/model-registry.js"></script>
   <script src="../../aitools/models.js"></script>
+  <script src="../../aitools/get-more.js"></script>
   <script>
-  // Covers: aitools/models.js, shared/firstrun/notice.js
+  // Covers: aitools/models.js, shared/firstrun/notice.js, aitools/get-more.js
   const { describe, it, expect, run } = SlopTest;
   const R = window.SlopAIModels, M = window.SlopAIManager, F = window.SlopFirstRun;
   const BYTES = new TextEncoder().encode('test model bytes');
@@ -63,6 +64,17 @@
       R.byId('test-model').files.pop();
       await M.remove('test-model');
       expect(await M.status('test-model')).not.toBe('installed');
+    });
+    it('Get more: Cancel calls onClose; a finished download calls onInstalled and not onClose', async () => {
+      const G = window.SlopAIGetMore, seen = [];
+      G.open('test-model', { onInstalled: () => seen.push('installed'), onClose: () => seen.push('closed') });
+      [...document.querySelectorAll('.ai-dlg button')].find((b) => b.textContent === 'Cancel').click();
+      expect(seen).toEqual(['closed']);
+      G.open('test-model', { onInstalled: () => seen.push('installed'), onClose: () => seen.push('closed') });
+      [...document.querySelectorAll('.ai-dlg button')].find((b) => b.textContent.startsWith('Download')).click();
+      await SlopTest.waitFor(() => seen.length === 2);
+      expect(seen).toEqual(['closed', 'installed']);
+      await M.remove('test-model');
     });
   });
   run();

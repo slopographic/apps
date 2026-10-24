@@ -37,6 +37,7 @@
   <link rel="stylesheet" href="../shared/biz/app.css">
   <link rel="stylesheet" href="../shared/ui/list.css">
   <link rel="stylesheet" href="css/expenses.css">
+  <link rel="stylesheet" href="../aitools/dialog.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="../shared/slop365/look.css">
@@ -81,6 +82,8 @@
         </div>
         <p class="msg" id="eMsg" role="status"></p>
         <form class="card" id="eForm" novalidate>
+          <div class="toolbar receipt-row"><button type="button" class="btn" id="eReceipt">From a receipt…</button><span class="note">Take or choose a photo of the receipt: it is read on this device and kept in Slop Drive.</span>
+            <input id="eReceiptPick" type="file" accept="image/*" hidden></div>
           <div class="form-grid">
             <label>Date <input id="eDate" type="date" required></label>
             <label>Supplier <input id="eSupplier" list="eSuppliers" maxlength="200" required autocomplete="off"></label>
@@ -135,8 +138,11 @@
   <script src="../shared/biz/router.js"></script><script src="../shared/biz/docbar.js"></script>
   <script src="../shared/ui/list.js"></script>
   <script src="../shared/ui/tabs.js"></script>
-  <script src="js/core/expenses.js"></script>
+  <script src="../aitools/model-registry.js"></script><script src="../aitools/models.js"></script><script src="../aitools/support.js"></script>
+  <script src="../aitools/get-more.js"></script><script src="../aitools/common.js"></script><script src="../shared/firstrun/notice.js"></script>
+  <script src="js/core/expenses.js"></script><script src="js/core/receipt.js"></script>
   <script src="js/ui/list.js"></script>
+  <script src="js/ui/receipt.js"></script>
   <script src="js/ui/editor.js"></script>
   <script src="js/ui/summary.js"></script>
   <script src="js/ui/commands.js"></script>
