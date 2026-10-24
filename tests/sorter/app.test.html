@@ -61,6 +61,15 @@
       q.value = 'beach';
       q.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
       await sleep(80);
+      // Past the last photo: the end card sums up, and the counts at the top agree.
+      const E = A.deck.element;
+      expect(A.deck.state().end).toBe(true);
+      expect(E.querySelector('.s-end-sum').textContent).toBe('You have been through all 3 photos: 1 liked, 1 disliked, 1 not sorted yet.');
+      expect(E.querySelector('[data-act="rest"]').textContent).toBe('Sort the 1 left');
+      expect(E.querySelector('.s-tally').textContent).toBe('♥ 1 · ✕ 1 · 1 left');
+      expect(E.querySelector('.s-count').textContent).toBe('Photo 3 of 3');
+      await key('ArrowLeft');
+      expect(A.deck.state().end).toBe(false);
       await key('Escape');
       expect(A.deck.state().open).toBe(false);
       const cards = [...$('soGrid').children];
@@ -85,9 +94,24 @@
       $('soGrid').children[1].querySelector('.so-thumb').click();
       await waitFor(() => A.deck.state().open);
       expect(A.deck.state().pos).toBe(1);
+      const E = A.deck.element;
+      expect(E.querySelector('.s-mark').textContent).toBe('✕ Disliked');   // the photo's decision shows on it
       await key('ArrowUp');
+      expect(E.querySelector('.s-stamp').textContent).toBe('♥ Liked');
       await key('Escape');
       expect(filter('Liked').textContent).toBe('Liked 2');
+    });
+    it('Sort the ones left: a second round with only the photos not decided', async () => {
+      $('soStart').click();
+      await waitFor(() => A.deck.state().open);
+      expect(A.deck.state().length).toBe(1);
+      await key('ArrowUp');
+      await waitFor(() => A.deck.state().end);
+      const E = A.deck.element;
+      expect(E.querySelector('[data-act="rest"]').hidden).toBe(true);
+      E.querySelector('.s-end .s-big').click();
+      expect(A.deck.state().open).toBe(false);
+      expect(filter('Liked').textContent).toBe('Liked 3');
     });
     it('downloads the liked photos as a ZIP and every decision as CSV', async () => {
       await A.zipLiked();

@@ -177,6 +177,9 @@
       await G.sortmode.press('ArrowRight');
       expect(G.sortmode.state().pos).toBe(2);
       expect(G.library.photo(ids[2]).liked).toBe(null);
+      expect(G.sortmode.state().end).toBe(true);   // past the last photo: the end card
+      await G.sortmode.press('ArrowLeft');         // back to the last photo
+      expect([G.sortmode.state().end, G.sortmode.state().pos]).toEqual([false, 2]);
       await G.sortmode.press('ArrowLeft');
       expect(G.sortmode.state().pos).toBe(1);
       G.sortmode.close();
