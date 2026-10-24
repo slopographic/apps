@@ -15,7 +15,7 @@
   if (window.SlopWatermark && window.SlopWatermark.draw) return;
   const S = window.SlopWatermarkSpec;
   const SCRIPT = document.currentScript;
-  const ROOT = SCRIPT && SCRIPT.src ? new URL('../../', SCRIPT.src).href : new URL('/', location.href).href;
+  const ROOT = (() => { try { return new URL('../../', SCRIPT.src).href; } catch (e) { return new URL('/', location.href).href; } })();   // a script run from a blob (an offline copy) has no folder
   const LOGO_SIDE = 2048, KEEP_BYTES = 1.5 * 1048576, SVG_SIDE = 1024;
   const PDF_CSS = { sans: 'Helvetica, Arial, sans-serif', serif: '"Times New Roman", Times, serif', mono: '"Courier New", Courier, monospace' };
   const logos = new Map(), listeners = new Set();

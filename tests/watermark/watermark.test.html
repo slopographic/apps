@@ -90,7 +90,7 @@
   }
   const previewShown = () => { const c = canvas(); return !!c && !c.hidden && c.width > 0; };
   async function applyAll() {
-    q('#wm-bar [data-id="apply"]').click();
+    q('#wm-apply').click();
     await waitFor(() => qa('#wm-list [data-act="dl"]:not([disabled])').length === rows().length && rows().length > 0, { timeout: 30000 });
   }
   /** Catches the blob that Download all creates (SlopUI.download makes an object URL for it). */
@@ -98,7 +98,7 @@
     const Wd = W(), orig = Wd.URL.createObjectURL, got = [];
     Wd.URL.createObjectURL = function (b) { if (b && b.type === 'application/zip') got.push(b); return orig.apply(this, arguments); };
     try {
-      q('#wm-bar [data-id="zip"]').click();
+      q('#wm-zip').click();
       await waitFor(() => got.length > 0, { timeout: 20000 });
     } finally { Wd.URL.createObjectURL = orig; }
     return got[0];
@@ -112,7 +112,7 @@
       expect(qa('.swp-item').map((b) => b.textContent)).toEqual(['“© Your name”']);
       expect(textBox().value).toBe('© Your name');
       expect(q('.swp-cell[data-pos="br"]').getAttribute('aria-pressed')).toBe('true');
-      expect(q('#wm-bar [data-id="apply"]').disabled).toBe(true);
+      expect(q('#wm-apply').disabled).toBe(true);
     });
 
     it('dropping two pictures lists both with their sizes and shows the first one in the preview', async () => {
@@ -163,7 +163,7 @@
       await applyAll();
       expect(q('#wm-run-note').textContent.startsWith('Done: 2 pictures')).toBeTruthy();
       expect(qa('#wm-list .wm-state.is-done').length).toBe(2);
-      expect(q('#wm-bar [data-id="zip"]').disabled).toBe(false);
+      expect(q('#wm-zip').disabled).toBe(false);
     });
 
     it('Download all gives a ZIP with two entries, the same format and the original size', async () => {
@@ -190,7 +190,7 @@
       await applyAll();
       set(field('rotate'), 15);
       await waitFor(() => q('#wm-run-note').textContent.includes('Apply to all again'), { timeout: 5000 });
-      expect(q('#wm-bar [data-id="zip"]').disabled).toBe(true);
+      expect(q('#wm-zip').disabled).toBe(true);
       expect(qa('#wm-list [data-act="dl"]:not([disabled])').length).toBe(0);
     });
 

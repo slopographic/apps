@@ -14,7 +14,7 @@
   <script src="../harness.js"></script>
   <script src="../../shared/backup/zip.js"></script>
   <script type="module">
-  // Covers: watermark/js/probe.js, watermark/js/list.js, watermark/js/export.js, shared/watermark/preview.js
+  // Covers: watermark/js/probe.js, watermark/js/list.js, watermark/js/export.js, shared/watermark/preview.js, shared/frame/panel.js
   import { loadPdfLib } from '../../convert/js/core/lib.js';
   const { describe, it, expect, waitFor } = SlopTest;
   const f = document.getElementById('app');
@@ -52,6 +52,11 @@
       expect(rows()[2].querySelector('.wm-dim').textContent).toContain('PDF, 2 pages');
       expect(q('#wm-count').textContent).toBe('3 files');
       expect([q('.swp-pages').hidden, q('.swp-time').hidden]).toEqual([false, false]);
+      // List · View · Panel: the files on the left, the preview in the middle, the panel and its main action on the right
+      expect(q('#wm-main').classList.contains('sf-nolist')).toBe(false);
+      const xs = ['#wm-files', '#wm-work', '#wm-panel'].map((s) => q(s).getBoundingClientRect().left);
+      expect(xs[0] < xs[1] && xs[1] < xs[2]).toBe(true);
+      expect(q('#wm-panel .sf-p-foot #wm-apply').textContent).toBe('Watermark 3 files');
     }, { timeout: 60000 });
 
     it('each kind has its own preview: a picture, a video with the watermark over it, and a PDF page with page arrows', async () => {
@@ -68,7 +73,7 @@
     }, { timeout: 60000 });
 
     it('Apply to all writes a PNG, an MP4 and a PDF, and the ZIP holds all three', async () => {
-      q('#wm-bar [data-id="apply"]').click();
+      q('#wm-apply').click();
       await waitFor(() => qa('#wm-list [data-act="dl"]:not([disabled])').length === 3, { timeout: 240000 });
       expect(W().WMItems.all().map((x) => [x.out.name, x.out.blob.type])).toEqual([['photo-watermarked.png', 'image/png'], ['clip-watermarked.mp4', 'video/mp4'], ['paper-watermarked.pdf', 'application/pdf']]);
       expect(q('#wm-run-note').textContent).toBe('Done: 3 files watermarked. Download each one, or all as a ZIP.');

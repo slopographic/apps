@@ -19,7 +19,7 @@
       var np = K.needPages(); if (np) { b.appendChild(np); return; }
       var host = document.createElement('div');
       host.className = 'pdf-wm';
-      b.appendChild(host);
+      b.appendChild(K.section(null, [host]));
       var panel = window.SlopWatermarkPanel.mount(host, {
         value: E.watermarkSpec(), onChange: commit, media: { pages: true, time: false },
         pageCount: function () { return E.state.pages.length; }, currentPage: curPage,

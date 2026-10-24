@@ -55,7 +55,7 @@
       if (act === 'dl') window.WMExport.downloadOne(window.WMItems.get(id));
       else if (act === 'more') { const r = b.getBoundingClientRect(); window.WMExport.moreMenu(window.WMItems.get(id), r.left, r.bottom + 4); }
       else if (act === 'rm') onRemove(id);
-      else if (act === 'pv') { window.WMItems.select(id); render(); show(); }
+      else if (act === 'pv') { window.WMItems.select(id); render(); show(); window.WMMain.view(); }
     });
   }
 

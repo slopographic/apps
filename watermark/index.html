@@ -35,49 +35,52 @@
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/appbar/appbar.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="../shared/watermark/panel.css">
   <link rel="stylesheet" href="css/watermark.css">
 </head>
 <body>
   <div class="wm-bar" id="wm-bar"></div>
   <input type="file" id="wm-open" accept="image/*,video/mp4,video/webm,video/quicktime,application/pdf,.heic,.heif,.mov,.m4v,.pdf" multiple hidden>
-  <main class="wm-main">
-    <section class="wm-work" aria-label="Files and preview">
+  <main class="wm-main" id="wm-main">
+    <section class="wm-files" id="wm-files" aria-label="Files">
+      <div class="wm-list-wrap" id="wm-list-wrap" hidden>
+        <p class="wm-count" id="wm-count" aria-live="polite"></p>
+        <ol class="wm-list" id="wm-list" aria-label="Files"></ol>
+      </div>
+      <section class="wm-groups" id="wm-groups" aria-label="Groups by shape" hidden>
+        <p class="wm-count">Groups by shape. Each group uses the shared watermark unless you turn on its own.</p>
+        <ol class="wm-group-list" id="wm-group-list"></ol>
+      </section>
+    </section>
+
+    <section class="wm-work" id="wm-work" aria-label="Preview">
+      <button type="button" class="sui-btn wm-back" id="wm-back">‹ All files</button>
       <div class="wm-stage" id="wm-preview-box">
         <p class="wm-preview-name" id="wm-preview-name"></p>
         <div class="wm-preview" id="wm-preview" aria-label="Preview of the chosen file with the watermark" hidden></div>
         <p class="wm-off" id="wm-off">Your first file shows here, with the watermark on it.</p>
       </div>
       <p class="wm-note" id="wm-preview-note" aria-live="polite"></p>
-      <button type="button" class="sui-btn wm-panel-open" id="wm-panel-open" aria-controls="wm-panel">Watermark settings</button>
-
-      <div class="wm-drop" id="wm-drop"></div>
-
-      <section class="wm-groups" id="wm-groups" aria-label="Groups by shape" hidden>
-        <p class="wm-count">Groups by shape. Each group uses the shared watermark unless you turn on its own.</p>
-        <ol class="wm-group-list" id="wm-group-list"></ol>
-      </section>
-
-      <div class="wm-list-wrap" id="wm-list-wrap" hidden>
-        <p class="wm-count" id="wm-count" aria-live="polite"></p>
-        <ol class="wm-list" id="wm-list" aria-label="Files"></ol>
-      </div>
-
+      <button type="button" class="sui-btn sui-primary wm-panel-open" id="wm-panel-open" aria-controls="wm-panel">Watermark settings</button>
       <div class="wm-progress" id="wm-progress" hidden>
         <progress id="wm-prog-bar" max="1" value="0"></progress>
         <span id="wm-prog-text" role="status"></span>
         <button type="button" class="sui-btn" id="wm-cancel">Stop</button>
       </div>
       <p class="wm-note" id="wm-run-note" role="status" aria-live="polite"></p>
+      <div class="wm-drop" id="wm-drop"></div>
     </section>
 
-    <aside class="wm-panel" id="wm-panel" aria-label="Watermark settings">
-      <h2 class="wm-h">Watermark</h2>
+    <aside class="wm-panel" id="wm-panel" aria-label="Watermark settings"></aside>
+  </main>
+  <div hidden>
+    <div class="wm-settings-box" id="wm-settings-box">
       <div id="wm-settings"></div>
       <p class="wm-fine" id="wm-saved" role="status"></p>
       <p class="wm-fine">The setup is kept in this browser. Save it in My watermarks to use it in PhotoSlop, SlopCut, Slop PDF and Slop Workflows too.</p>
-    </aside>
-  </main>
+    </div>
+  </div>
 
   <script src="../shared/slopui.js"></script>
   <script src="../shared/apps.js"></script>
@@ -92,6 +95,8 @@
   <script src="../shared/samples/samples.js"></script>
   <script src="../shared/ui/menubutton.js"></script>
   <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
   <script src="../shared/db/query.js"></script>
   <script src="../shared/db/db.js"></script>
   <script src="../shared/watermark/spec.js"></script>

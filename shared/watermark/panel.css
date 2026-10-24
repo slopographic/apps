@@ -13,13 +13,14 @@
 .swp [hidden] { display: none !important; }
 .swp.swp-over { outline: 2px dashed var(--w-accent); outline-offset: 4px; border-radius: 8px; }
 .swp .sui-btn { min-block-size: 32px; }
-.swp .sui-input { inline-size: 100%; box-sizing: border-box; min-block-size: 32px; }
+.swp .sui-input { inline-size: 100%; box-sizing: border-box; min-block-size: 34px; }
 .swp-toggle { display: flex; flex-direction: column; gap: 2px; padding-block-end: 8px; border-block-end: 1px solid var(--w-line); }
 .swp-switch { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
 .swp-switch input { inline-size: 18px; block-size: 18px; accent-color: var(--w-accent); }
 .swp-fine { margin: 0; font-size: 12px; color: var(--w-dim); }
 .swp-warn { color: var(--w-danger); }
 .swp-top { display: flex; flex-wrap: wrap; gap: 6px; }
+.swp-top .sui-btn { padding-inline: 10px; }
 .swp-top .swp-saved { margin-inline-start: auto; }
 .swp-layers { list-style: none; margin: 0; padding: 4px; display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--w-line); border-radius: 8px; max-block-size: 168px; overflow-y: auto; }
 .swp-row { display: flex; align-items: center; gap: 6px; padding: 2px 6px; border-radius: 6px; }
@@ -42,7 +43,7 @@
 .swp-out { font-variant-numeric: tabular-nums; font-size: 12px; }
 .swp-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: end; }
 .swp-range { inline-size: 100%; accent-color: var(--w-accent); margin: 0; min-block-size: 24px; }
-.swp-colour { inline-size: 100%; block-size: 32px; padding: 2px; border: 1px solid var(--w-line); border-radius: 6px; background: transparent; box-sizing: border-box; }
+.swp-colour { inline-size: 100%; block-size: 34px; padding: 2px; border: 1px solid var(--w-line); border-radius: 6px; background: transparent; box-sizing: border-box; }
 .swp-check { display: flex; align-items: center; gap: 8px; cursor: pointer; min-block-size: 28px; }
 .swp-check input { accent-color: var(--w-accent); inline-size: 16px; block-size: 16px; }
 .swp-logo { flex-direction: row; align-items: center; gap: 10px; }
@@ -68,6 +69,7 @@
 .swp-manage small { opacity: .7; }
 @media (pointer: coarse) {
   .swp .sui-btn, .swp .sui-input, .swp-cell { min-block-size: 40px; }
+  .swp-colour { block-size: 40px; }
   .swp-pos { grid-template-columns: repeat(3, 44px); }
   .swp-cell { inline-size: 44px; }
 }
@@ -76,7 +78,7 @@
 .swv { display: flex; flex-direction: column; align-items: center; gap: 6px; inline-size: 100%; }
 .swv-stage { position: relative; display: grid; place-items: center; inline-size: 100%; }
 .swv-canvas { display: block; max-inline-size: 100%; block-size: auto; border-radius: 4px; box-shadow: 0 2px 12px rgba(0, 0, 0, .25); }
-.swv-video { display: block; max-inline-size: 100%; max-block-size: min(70vh, 640px); border-radius: 4px; background: #000; }
+.swv-video { display: block; inline-size: min(100%, 720px); max-block-size: min(70vh, 640px); border-radius: 4px; background: #000; }
 .swv-over { position: absolute; pointer-events: none; }
 .swv-nav { display: flex; align-items: center; gap: 8px; }
 .swv-page { font-variant-numeric: tabular-nums; font-size: 12px; }
