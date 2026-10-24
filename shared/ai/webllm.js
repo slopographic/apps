@@ -1,5 +1,5 @@
 /* SlopAIKit webllm: the real engine (vendor/web-llm, WebGPU) plus model cache management. Classic script;
- * adds SlopAIKit.WebLLMEngine and SlopAIKit.models. The 6.6 MB library is imported only when a model loads.
+ * adds SlopAIKit.WebLLMEngine and SlopAIKit.models. The 6.8 MB library (WebLLM 0.2.86) is imported only when a model loads.
  * Downloads: weights from huggingface.co, kernels (.wasm) from raw.githubusercontent.com, once, into the Cache API
  * (scopes webllm/model, webllm/config, webllm/wasm). Pause = abort the load; finished shards stay cached, so
  * Resume continues where it stopped. */
@@ -23,22 +23,48 @@
   const hfUrl = (id) => cleanUrl('https://huggingface.co/mlc-ai/' + id.replace(/-1k$/, ''));
   const urlFor = (id) => { const l = readLocal().find((r) => r.model_id === id); return l ? cleanUrl(l.model) : hfUrl(id); };
 
+  /** A model library that the GPU driver cannot compile: WebGPU shader or pipeline validation errors. */
+  const SHADER = /ShaderModule|is invalid due to a previous error|validating compute stage|createComputePipeline|GPUValidationError|WGSL|shader-f16/i;
+  const cancelled = () => Object.assign(new Error('Cancelled'), { name: 'AbortError' });
+  async function adapterInfo() {
+    try { const a = navigator.gpu && (await navigator.gpu.requestAdapter()); return a ? (a.info || (a.requestAdapterInfo ? await a.requestAdapterInfo() : {})) : null; } catch (e) { return null; }
+  }
+
   class WebLLMEngine extends K.Engine {
     constructor() { super(); this.kind = 'webllm'; this.engine = null; }
+    /** Loads the model; when the GPU cannot compile its f16 kernels (a shader validation error), loads its q4f32 build
+     * once instead and remembers that for this GPU (catalog.markF16Broken). A failure says what was tried:
+     * err.tried (ids), err.shader (a kernel the driver could not compile). */
     async load(model, onProgress, { signal } = {}) {
+      const want = typeof model === 'string' ? model : model.loadId || model.id;
+      const C = K.catalog, m = C && C.byId(want), f32 = m && m.f32Id && m.f32Id !== want ? m.f32Id : null;
+      const gpu = f32 ? await this._gpu() : null, tried = [];
+      const fail = (e) => { if (signal && signal.aborted) return cancelled(); const x = e instanceof Error ? e : new Error(String(e)); x.tried = tried.slice(); x.shader = SHADER.test(String(x.message)); return x; };
+      const attempt = async (id) => { tried.push(id); await this._reload(id, onProgress, signal); this.loadedId = id; };
+      let id = f32 && gpu && C.f16Broken(gpu) ? f32 : want;
+      try { await attempt(id); } catch (e) {
+        if (!f32 || id === f32 || !SHADER.test(String(e && e.message)) || (signal && signal.aborted)) throw fail(e);
+        if (gpu) C.markF16Broken(gpu);
+        if (onProgress) onProgress({ progress: 0, text: 'This graphics card could not run the f16 version. Trying the f32 version (a separate download)…' });
+        id = f32;
+        try { await attempt(id); } catch (e2) { throw fail(e2); }
+      }
+      this.model = typeof model === 'string' ? { id, name: id } : Object.assign({}, model, { loadId: id }); this.loaded = true;
+    }
+    async _gpu() { return adapterInfo(); }
+    /** One load of one id with WebLLM (replaced in tests). */
+    async _reload(id, onProgress, signal) {
       const w = await lib();
-      const id = typeof model === 'string' ? model : model.loadId || model.id;
       if (this.engine) { try { await this.engine.unload(); } catch (e) { /* ignore */ } }
       const engine = new w.MLCEngine({ appConfig: await appConfig(), initProgressCallback: (p) => onProgress && onProgress({ progress: p.progress, text: p.text }) });
       this.engine = engine;
       const abort = () => engine.unload().catch(() => {});
-      if (signal) { if (signal.aborted) throw Object.assign(new Error('Cancelled'), { name: 'AbortError' }); signal.addEventListener('abort', abort, { once: true }); }
+      if (signal) { if (signal.aborted) throw cancelled(); signal.addEventListener('abort', abort, { once: true }); }
       try { await engine.reload(id); } catch (e) {
         this.engine = null;
-        if (signal && signal.aborted) throw Object.assign(new Error('Cancelled'), { name: 'AbortError' });
+        if (signal && signal.aborted) throw cancelled();
         throw e;
       } finally { if (signal) signal.removeEventListener('abort', abort); }
-      this.model = typeof model === 'string' ? { id, name: id } : model; this.loaded = true;
     }
     async unload() { if (this.engine) await this.engine.unload().catch(() => {}); this.engine = null; this.loaded = false; }
     async *_raw(messages, opts = {}) {
@@ -111,6 +137,6 @@
     return id;
   }
 
-  K.WebLLMEngine = WebLLMEngine;
+  K.WebLLMEngine = WebLLMEngine; K.WebLLMEngine.SHADER = SHADER;
   K.models = { lib, appConfig, status, remove, importFolder, locals: readLocal, urlFor, LIB };
 })();

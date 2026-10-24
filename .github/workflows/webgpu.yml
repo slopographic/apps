@@ -1,0 +1,44 @@
+name: WebGPU check (local models)
+
+# A real WebGPU run of the local models (tools/webgpu-check.mjs): Chromium with WebGPU on SwiftShader loads the vendored
+# WebLLM and Qwen2.5 0.5B, compiles every shader module and pipeline, and generates a few tokens. It catches model
+# libraries that Chrome's WGSL compiler no longer accepts. Heavy (a ~300 MB model, minutes on a software GPU), so it runs
+# nightly, by hand, and when the WebLLM files change; the downloaded model is kept in the Actions cache.
+# SwiftShader has no shader-f16: the q4f16 build is reported as not testable here (the fake-engine tests in
+# tests/ai/shader.test.html cover what the app does when a real GPU cannot compile it).
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'vendor/web-llm/**'
+      - 'shared/ai/catalog.js'
+      - 'shared/ai/webllm.js'
+      - 'tools/webgpu-check.mjs'
+      - '.github/workflows/webgpu.yml'
+
+concurrency:
+  group: webgpu-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  webgpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund
+      - name: The browser profile with the downloaded model (Cache API), kept between runs
+        uses: actions/cache@v6
+        with:
+          path: .webgpu-profile
+          key: webgpu-profile-${{ hashFiles('vendor/web-llm/web-llm.js') }}
+          restore-keys: webgpu-profile-
+      - name: Load the model on WebGPU (SwiftShader) and generate
+        run: node tools/webgpu-check.mjs --profile=.webgpu-profile

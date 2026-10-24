@@ -85,7 +85,7 @@
     const st = new Map(await Promise.all(list.map(async (m) => [m.id, await statusOf(m.id)])));
     const have = list.find((m) => (st.get(m.id) || {}).state === 'ready' && (m.id === p.defaultModel || m.id === p.lastModel)) || list.find((m) => (st.get(m.id) || {}).state === 'ready');
     wrap.append(h('p', null, h('b', null, active ? 'Or a model on this device.' : 'Pick a model to start.'), ' It downloads once and then works offline, on your graphics card.'));
-    const rows = h('div', { class: 'sap-pick-list' });
+    const rows = o.rows = h('div', { class: 'sap-pick-list' });
     for (const m of list.filter((x) => FIT.includes(x.id) || x === have || x.id === p.defaultModel)) rows.append(row(m, st.get(m.id) || {}, m === have, o));
     wrap.append(rows, h('p', { class: 'sap-dim' }, 'Smaller models are faster but follow instructions less well. More models and settings: ', aiLink(), '.'));
     return cloud(more, o);
@@ -112,6 +112,7 @@
       } catch (e) {
         msg.textContent = ctl.signal.aborted ? 'Cancelled. Finished parts stay, so it can resume.' : 'Could not load it: ' + friendly(e);
         msg.classList.add('bad');
+        if (!ctl.signal.aborted && e && e.shader) gpuFailed(msg, m, e, o);
       } finally { go.disabled = false; cancel.hidden = true; ctl = null; }
     });
     const fit = (m.strengths || []).includes('tools');
@@ -119,6 +120,16 @@
       h('div', { class: 'sap-pick-h' }, h('b', null, m.name), fit ? h('span', { class: 'sap-badge' }, 'good at app control') : null, ready ? h('span', { class: 'sap-badge dim' }, 'on this device') : null),
       h('div', { class: 'sap-dim' }, `${ready ? 'Downloaded' : 'Download ' + size(m.sizeMB)} · needs about ${size(m.vramMB)} of GPU memory · ${m.license ? m.license.short || m.license.name : ''}`),
       h('div', { class: 'sap-acts' }, go, cancel), prog, msg);
+  }
+  /** The GPU could not compile the model (webllm.js tried f16, then f32): the plain message, details and two ways on. */
+  async function gpuFailed(msg, m, e, o) {
+    await K.load(['sysinfo', 'gpu-help']);
+    const sys = await K.sysinfo.collect({ bench: false }).catch(() => null);
+    msg.textContent = ''; msg.classList.remove('bad');
+    const smaller = K.catalog.list.filter((x) => x.vramMB < m.vramMB && !(e.tried || []).includes(x.id)).sort((a, b) => b.vramMB - a.vramMB)[0];
+    K.gpuHelp.render(msg, { model: m, error: e, sys,
+      onSmaller: smaller && o.rows ? () => { let b = o.rows.querySelector(`[data-model="${smaller.id}"]`); if (!b) { o.rows.append(row(smaller, {}, false, o)); b = o.rows.querySelector(`[data-model="${smaller.id}"]`); } b.scrollIntoView({ block: 'nearest' }); b.click(); } : null,
+      onCloud: () => { const c = document.querySelector('.sap-cloud'); if (c) { c.open = true; c.scrollIntoView({ block: 'start' }); } } });
   }
   function friendly(e) {
     const s = String((e && e.message) || e);

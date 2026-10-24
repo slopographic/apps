@@ -171,6 +171,19 @@ it and refuses new requests; Stop aborts the request in flight. A key-based engi
   provider in use, the full model choice shows it first and the local models under "Models on this device".
 - Steps show the app's answer as a dimmed line; more than 3 steps in a row fold into "9 steps ✓" (open to see them).
 
+## GPUs that cannot compile a model (2026-10)
+- WebLLM is 0.2.86 (model libraries `v0_2_86/base`, rebuilt by MLC with current compilers); `vendor/web-llm/README.md`.
+- `WebLLMEngine.load`: a shader or pipeline validation error on the f16 build ("Invalid ShaderModule … index_kernel")
+  loads the model's q4f32 build once, and `catalog.markF16Broken(adapter)` remembers it (localStorage
+  `slop-ai.f16-broken`, by vendor/architecture/description), so `catalog.idFor` and later loads go straight to f32. A
+  failure carries `err.tried` and `err.shader`; the model choice then shows `gpu-help.js`: what was tried, browser and
+  GPU (sysinfo), Copy details, Try a smaller model, Use your own AI account. `tests/ai/shader.test.html`.
+- Real WebGPU: `tools/webgpu-check.mjs` + `.github/workflows/webgpu.yml` (nightly, by hand, on WebLLM changes): Chromium
+  with WebGPU on SwiftShader (`--enable-unsafe-webgpu --enable-features=Vulkan --use-webgpu-adapter=swiftshader`, page on
+  http://localhost) loads Qwen2.5 0.5B q4f32 and generates 8 tokens (about 3.5 minutes with a cold cache; the model is
+  kept in the Actions cache). SwiftShader has no shader-f16, so the q4f16 build is reported as not testable there. The
+  tokens SwiftShader produces are gibberish: the check is that every shader compiles and generation runs.
+
 ## Tests
 `node tests/run.mjs ai` covers all of this; see `ai/HANDOFF.md`. Own keys: `tests/node/ai-cloud-formats.test.mjs`
 (request building, streams from documented SSE fixtures, conversion both ways), `tests/node/ai-cloud-engine.test.mjs`
