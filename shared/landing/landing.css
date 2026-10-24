@@ -1,18 +1,19 @@
-/* Slopographic app landing pages (<app>/about/). Shared by every app's about page: hero, sections,
- * the feature matrix and the privacy and limits blocks. Dark only, like the rest of the site.
- * Pages add their own copy and screenshot; the markup for the matrix is the same on every page. */
+/* Slopographic content pages: the apps' about pages (<app>/about/), the landing, task and hub pages written by
+ * tools/seo (landing.mjs, tasks.mjs) and How it works. Hero, sections, the feature matrix, the privacy block, and the
+ * prose of .l-doc pages. The colours follow the chosen theme (the --sl-* tokens shared/theme/theme.js sets on every
+ * page), and the dim and line colours are mixed from them, so the pages read in light and dark themes alike. */
 :root {
-  --ink: #0a0a0a;
-  --ink-2: #111111;
-  --bone: #f1ede4;
-  --bone-dim: rgba(241, 237, 228, 0.7);
-  --bone-faint: rgba(241, 237, 228, 0.45);
-  --line: rgba(241, 237, 228, 0.14);
-  --slop: #d4ff3a;
+  --ink: var(--sl-background, #0a0a0a);
+  --bone: var(--sl-text, #f1ede4);
+  --ink-2: color-mix(in srgb, var(--bone) 5%, var(--ink));
+  --bone-dim: color-mix(in srgb, var(--bone) 72%, var(--ink));
+  --bone-faint: color-mix(in srgb, var(--bone) 50%, var(--ink));
+  --line: color-mix(in srgb, var(--bone) 15%, var(--ink));
+  --slop: var(--sl-accent, #d4ff3a);
   --amber: #f5c26b;
   --sans: "Inter Tight", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
-  color-scheme: dark;
+  color-scheme: light dark;
 }
 
 * { box-sizing: border-box; }
@@ -95,9 +96,43 @@ p { margin: 0 0 12px; }
 .l-foot a:hover { color: var(--bone); }
 .l-fine { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--bone-faint); }
 
+/* .l-doc: the prose of the written pages (landing, task, hub, How it works) */
+.l-doc { padding: 36px 0 24px; }
+.l-doc h1 { font-size: clamp(32px, 6vw, 52px); font-weight: 800; margin: 6px 0 14px; }
+.l-doc h2 { font-size: clamp(22px, 3.4vw, 28px); margin: 40px 0 12px; }
+.l-doc h3 { font-size: 18px; margin: 22px 0 6px; }
+.l-doc p, .l-doc li { color: var(--bone-dim); max-width: 46em; }
+.l-doc strong, .l-doc b { color: var(--bone); }
+.l-doc a { color: var(--bone); text-decoration-color: var(--slop); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.l-doc ul, .l-doc ol { padding-left: 22px; } .l-doc li { margin: 6px 0; }
+.l-doc .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone-faint); margin: 0; }
+.l-doc .eyebrow a { color: inherit; text-decoration: none; } .l-doc .eyebrow a:hover { color: var(--bone); }
+.l-doc .lead { font-size: clamp(18px, 2.6vw, 21px); color: var(--bone-dim); max-width: 36em; }
+.l-doc .note { font-size: 14px; color: var(--bone-faint); }
+.l-doc .btn { display: inline-block; padding: 12px 20px; border-radius: 6px; background: var(--slop); color: var(--ink); text-decoration: none; font-weight: 700; }
+.l-doc .btn:hover { filter: brightness(1.06); }
+.l-doc code { font-family: var(--mono); font-size: .88em; background: var(--ink-2); border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px; word-break: break-word; }
+.l-doc .wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.l-doc table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 10px 0 18px; }
+.l-doc caption { caption-side: top; text-align: left; color: var(--bone-faint); padding: 0 0 10px; font-size: 14px; }
+.l-doc th, .l-doc td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; color: var(--bone-dim); }
+.l-doc thead th { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bone-faint); font-weight: 500; }
+.l-doc .media { display: grid; gap: 16px; margin: 26px 0; }
+.l-doc .shot, .l-doc .clip { margin: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--ink-2); display: block; width: 100%; height: auto; }
+.l-doc .shot img { display: block; width: 100%; height: auto; }
+.l-doc .demo { display: flex; gap: 16px; align-items: center; text-decoration: none; border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--ink-2); }
+.l-doc .demo img { width: 200px; max-width: 40%; height: auto; border-radius: 6px; flex: none; }
+.l-doc .demo b { color: var(--slop); }
+.l-doc .demo span { color: var(--bone-dim); }
+.l-doc .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; padding: 0; list-style: none; }
+.l-doc .cards li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 0; overflow: hidden; background: var(--ink-2); }
+.l-doc .cards .thumb { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 6px; margin: 0 0 8px; background: var(--line); }
+
 /* phones: the matrix turns into one card per feature. Headers stay in the DOM for screen readers. */
 @media (max-width: 640px) {
   .l-hero { padding-top: 36px; }
+  .l-top { flex-wrap: wrap; } .l-top nav { flex-wrap: wrap; gap: 6px 14px; }
+  .l-doc .demo { flex-direction: column; align-items: flex-start; } .l-doc .demo img { width: 100%; max-width: 100%; }
   .l-cta .l-btn { flex: 1 1 auto; text-align: center; }
   .l-matrix-wrap { overflow: visible; }
   .l-matrix, .l-matrix tbody, .l-matrix tr, .l-matrix th, .l-matrix td { display: block; width: 100%; }

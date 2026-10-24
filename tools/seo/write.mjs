@@ -10,7 +10,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ROOT, SITE, loadRegistry, isPage, pageUrl } from './site.mjs';
-import { landingPages } from './landing.mjs';
+import { landingPages, siteTop, siteFoot, SITE_HEAD } from './landing.mjs';
 import { taskPages, taskJsonLd, videoJsonLd, hubPage } from './tasks.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
@@ -99,6 +99,13 @@ export function validateCopy(entries) {
   }
 }
 
+/** Writes the site frame into a hand-made page between its markers: <!-- site:head --> (theme, consent, the content-page
+ *  stylesheet), <!-- site:top --> (the header) and <!-- site:foot --> (the footer). A page without markers is unchanged. */
+export function siteChrome(html) {
+  const put = (name, body) => (h) => h.replace(new RegExp(`<!-- site:${name} -->[\\s\\S]*?<!-- /site:${name} -->`), `<!-- site:${name} -->\n${body}\n<!-- /site:${name} -->`);
+  return [put('head', SITE_HEAD.map((t) => '  ' + t).join('\n')), put('top', siteTop()), put('foot', siteFoot())].reduce((h, f) => f(h), html);
+}
+
 /** Builds every page's new content. Returns [{ file, html }] for pages and sitemap, plus the list of problems. */
 export async function build({ date }) {
   const { HOME, APPS, ABOUT, LANDING, PAGES = {} } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'copy.mjs')).href);
@@ -163,7 +170,7 @@ export async function build({ date }) {
     // A viewport tag outside the generated block is the page's own: the block then leaves it alone. A tag inside the block is kept.
     const outside = before.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, '');
     const addViewport = !/<meta[^>]+name=["']viewport["']/i.test(outside);
-    const after = injectHead(before, headBlock({ ...p.block, viewport: addViewport }));
+    const after = siteChrome(injectHead(before, headBlock({ ...p.block, viewport: addViewport })));
     out.push({ file: p.file, html: after, before });
   }
   // Landing pages: the body comes from landing.mjs, the head block is the same as for every other page.

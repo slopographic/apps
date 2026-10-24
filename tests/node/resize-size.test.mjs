@@ -179,3 +179,27 @@ test('resample is best by default, and nearest only when asked', () => {
   assert.equal(S.normalize({ resample: 'nearest' }).resample, 'nearest');
   assert.equal(S.normalize({ resample: 'bogus' }).resample, 'best');
 });
+
+test('the aspect lock leaves a Fit or Cover box alone and follows the picture for Fit inside and Stretch', () => {
+  assert.equal(S.locksBox('fit'), false);
+  assert.equal(S.locksBox('cover'), false);
+  assert.equal(S.locksBox('within'), true);
+  assert.equal(S.locksBox('stretch'), true);
+});
+
+test('the Square 1080 preset makes exactly 1080 × 1080 from a landscape photo: fit letterboxes, cover crops', () => {
+  const sq = S.applyPreset(S.presetById('sq1080'));
+  const fit = S.dims({ w: 1500, h: 1000 }, sq);
+  assert.deepEqual(fit, { w: 1080, h: 1080, x: 0, y: 180, dw: 1080, dh: 720, fill: 'fit' });
+  const cover = S.dims({ w: 1500, h: 1000 }, { ...sq, fill: 'cover' });
+  assert.deepEqual(cover, { w: 1080, h: 1080, x: -270, y: 0, dw: 1620, dh: 1080, fill: 'cover' });
+  const portrait = S.dims({ w: 1000, h: 1500 }, { ...S.applyPreset(S.presetById('fhd')), fill: 'cover', anchor: 'top' });
+  assert.deepEqual([portrait.w, portrait.h, portrait.y, portrait.dw], [1920, 1080, 0, 1920]);
+});
+
+test('plain keep aspect still scales: one side at 0 follows the picture, Fit inside shrinks to its shape', () => {
+  assert.deepEqual([S.dims({ w: 1500, h: 1000 }, box(750, 0)).w, S.dims({ w: 1500, h: 1000 }, box(750, 0)).h], [750, 500]);
+  assert.deepEqual([S.dims({ w: 1500, h: 1000 }, box(0, 400)).w, S.dims({ w: 1500, h: 1000 }, box(0, 400)).h], [600, 400]);
+  const w = S.dims({ w: 1500, h: 1000 }, box(1080, 1080, { fill: 'within' }));
+  assert.deepEqual([w.w, w.h, w.fill], [1080, 720, 'none']);
+});

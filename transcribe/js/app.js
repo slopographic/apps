@@ -6,6 +6,7 @@ import { createQueue } from './queue.js';
 import { createRecorder } from './record.js';
 import { FORMATS, fileOf, textOf, presetOf } from './exports.js';
 import { drawList, drawTranscript, textFor } from './view.js';
+import { fillLanguages } from './languages.js';
 import '../../shared/ui/flow.js';
 
 const T = window.SlopAITools, $ = (id) => document.getElementById(id);
@@ -13,6 +14,7 @@ const say = (s) => { $('trMsg').textContent = s || ''; };
 let selected = null, times = false;
 const flow = window.SlopFlow.create({ from: 'mp3', to: 'txt', size: 'lg', label: 'Audio or video to text' });
 $('trFlow').append(flow.el);
+fillLanguages($('trLang'));
 $('trSteps').append(window.SlopDrop.panel.preview({ steps: ['Drop audio or video, or press Record', 'Press Transcribe: it runs on this device', 'Correct the text, then save it'] }));
 
 /** The Whisper engine of Slop AI Tools. The model downloads once, after the person agrees (T.gate). */

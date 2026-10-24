@@ -1,10 +1,10 @@
-/* Slop Music: track analysis. Reads ID3 tags (MP3), the duration (WAV header, else one decode) and the
+/* Slop Music: track analysis. Reads ID3 tags (MP3) and Vorbis comments (FLAC, Ogg), the duration (WAV header, else one decode) and the
  * waveform peaks. Results are cached in the 'analysis' store, keyed by Drive id and size, so each file is
  * decoded once. Decoding runs one file at a time. Exposes window.SlopMusic.analyze(rec) -> Promise<analysis>. */
 (function () {
   'use strict';
   const M = (window.SlopMusic = window.SlopMusic || {});
-  const PEAKS = 1000, VERSION = 1;
+  const PEAKS = 1000, VERSION = 2;   // 2: FLAC and Ogg tags (Vorbis comments), track, year, genre
   const inflight = new Map();
   let chain = Promise.resolve();
   let ctx = null;
@@ -39,7 +39,7 @@
   async function compute(rec) {
     const tags = await M.id3.readTags(rec.blob);
     const out = { id: rec.id, rev: rec.size, v: VERSION, title: tags.title, artist: tags.artist, album: tags.album,
-      cover: tags.cover, tagVersion: tags.version, duration: null, rate: 0, channels: 0, peaks: null, error: '' };
+      track: tags.track, year: tags.year, genre: tags.genre, cover: tags.cover, tagVersion: tags.version, duration: null, rate: 0, channels: 0, peaks: null, error: '' };
     const wav = await M.id3.wavInfo(rec.blob).catch(() => null);
     if (wav) { out.duration = wav.duration; out.rate = wav.rate; out.channels = wav.channels; }
     try {

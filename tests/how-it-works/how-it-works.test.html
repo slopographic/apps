@@ -8,6 +8,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
+  // Covers: shared/landing/landing.css, tools/seo/landing.mjs, tools/seo/write.mjs, how-it-works/index.html
   const { describe, it, expect, run } = SlopTest;
 
   /* The audit page at /how-it-works/ is fetched from the server and parsed, then checked: one H1, the API table
@@ -65,6 +66,19 @@
       for (const spec of SPECS) expect(hrefs.includes(spec)).toBeTruthy();
     });
 
+    it('looks like the other pages: the site stylesheet, the shared header and footer, and the shell', async () => {
+      const d = await page();
+      expect(!!d.querySelector('link[rel="stylesheet"][href="/shared/landing/landing.css"]')).toBe(true);
+      expect(d.querySelectorAll('style').length).toBe(0);
+      expect([...d.querySelectorAll('header.l-top nav a')].map((a) => a.getAttribute('href'))).toEqual(['/', '/all-tools/', '/compare/', '/how-it-works/', '/settings/']);
+      expect(!!d.querySelector('footer.l-foot a[href="https://github.com/slopographic/apps"]')).toBe(true);
+      expect(!!d.querySelector('main.l-doc')).toBe(true);
+      expect(!!d.querySelector('script[src*="shell/shell.js"]')).toBe(true);
+    });
+    it('says in plain words where files go, why something downloads, and that it works offline', async () => {
+      const t = (await page()).getElementById('plain').parentElement.textContent;
+      for (const w of ['Where do my files go?', 'Why does an app sometimes download something?', 'Does it work offline?']) expect(t.includes(w)).toBe(true);
+    });
     it('has a description of 120 to 160 characters', async () => {
       const d = await page();
       const desc = d.querySelector('meta[name="description"]');

@@ -52,7 +52,7 @@ const transcribe = [
     body: ['Subtitle files keep the segments exactly as Whisper heard them, with its timing. Corrections typed in the text box go into the Text and Word downloads, not into the subtitles; an SRT file is plain text, so a text editor can fix a line after you download it.'],
     faq: [['What is the difference between SRT and VTT?', 'Both are plain-text subtitle files with a start and end time for each line. SRT is the most widely accepted; WebVTT (.vtt) is the format HTML5 video players read.'],
       ['Can I edit the subtitles here?', 'Not line by line. Corrections in the text box apply to Text and Word only; SRT and VTT keep the timed segments as the model heard them.'],
-      ['Which languages work?', 'Choose one of 16 languages in the Spoken language list, including English, Spanish, French, German, Chinese, Japanese and Arabic, or leave it on Detect. The subtitles are in the spoken language; there is no translation.'],
+      ['Which languages work?', 'Choose one of the 99 languages Whisper knows in the Spoken language list, from Afrikaans to Yoruba, including English, Spanish, French, German, Chinese, Japanese and Arabic, or leave it on Detect. The subtitles are in the spoken language; there is no translation.'],
       ['Is my video uploaded?', NO_UPLOAD_SPEECH]] },
   { app: 'transcribe', slug: 'otter-ai-alternative', crumb: 'Otter.ai alternative',
     title: 'Free Otter.ai alternative that runs in your browser',

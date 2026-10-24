@@ -22,29 +22,23 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://slopographic.com/"},{"@type":"ListItem","position":2,"name":"How it works","item":"https://slopographic.com/how-it-works/"}]}</script>
   <!-- seo:end -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>:root{--bg:#fff;--fg:#1b1b1f;--mut:#5f6368;--line:#d9dadf;--acc:#3450c9;--code:#f3f4f6}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#8fa3ff;--code:#22242b}}
-:root[data-theme="dark"]{--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#8fa3ff;--code:#22242b}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top,.foot{max-width:960px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
-main{max-width:960px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
-h2{font-size:1.25rem;margin:2.2rem 0 .6rem}
-a{color:var(--acc)}
-.eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
-.lead{font-size:1.1rem}
-code{background:var(--code);padding:1px 4px;border-radius:4px;font-size:.9em;word-break:break-word}
-.wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:14.5px;margin:.6rem 0 1rem}
-caption{text-align:left;color:var(--mut);font-size:14px;padding-bottom:6px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-weight:600}
-ol li,ul li{margin:.3rem 0}
-</style>
+  <!-- site:head -->
+  <script src="/shared/profile/profile.js"></script>
+  <script src="/shared/theme/theme.js" data-app="site"></script>
+  <script src="/shared/consent/config.js"></script>
+  <script src="/shared/consent/state.js"></script>
+  <script src="/shared/consent/consent-mode.js"></script>
+  <script src="/shared/consent/banner.js"></script>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/shared/landing/landing.css">
+<!-- /site:head -->
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/settings/">Settings and privacy</a><a href="/compare/">Compare apps</a><a href="https://github.com/slopographic/slopographic" rel="noopener">Source code</a></header>
-<main>
+<div class="l-wrap">
+<!-- site:top -->
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<!-- /site:top -->
+<main class="l-doc">
 <p class="eyebrow">Audit</p>
 <h1>How Slopographic works</h1>
 <p class="lead">The apps run in your browser. This page lists the browser features they use, every network request they can make, and what is kept on your device, so you can check each claim yourself. Every statement here was checked against the source code in the public repository.</p>
@@ -57,6 +51,16 @@ ol li,ul li{margin:.3rem 0}
 <li>Some requests leave the site, but only in the cases listed in <a href="#network">every outbound request</a>: a download you confirm, a cloud backup you connect, the exchange rates you turn on, analytics or ads you accept.</li>
 <li>The homepage loads Google Analytics code on each visit with analytics set to denied. Other pages load it only after you accept analytics. Ads load only after you accept ads.</li>
 </ul>
+
+<h2 id="plain">In plain words</h2>
+<h3>Where do my files go?</h3>
+<p>Nowhere. When you open a photo, a PDF or a spreadsheet, the app reads it inside this browser tab. There is no upload step and no Slopographic server that could receive it. What you save goes to your own disk, or to this browser's storage on this device.</p>
+<h3>Why does an app sometimes download something?</h3>
+<p>Some features need a large file that most people never use: an AI model (to remove a background, read text or transcribe speech), the video engine (to convert a video), or a font for another writing system. These are fetched only when you use the feature, after the app tells you what it is and how big it is, and they are kept in the browser so it happens once. Your own files are never part of that request.</p>
+<h3>Does it work offline?</h3>
+<p>Yes, after the first visit. The site's own files are kept by the browser, so the apps open and work without a connection. Only a download you have not made yet (a model or a font) needs the network.</p>
+<h3>Can I check this myself?</h3>
+<p>Yes. The source code is public, and the sections below list every browser feature the apps use and every request they can make, with the file that makes it. You can also open your browser's developer tools, go to the Network tab and watch: opening and saving your files sends nothing.</p>
 
 <h2 id="apis">Browser APIs, and the specification for each</h2>
 <p class="note">The file paths are the main places each API is used. Search the repository for the API name to find the rest.</p>
@@ -119,7 +123,7 @@ ol li,ul li{margin:.3rem 0}
 <tr><td><code>www.googletagmanager.com</code> (Google Analytics, ID G-HW6FWQVFK3)</td><td>Homepage (<code>index.html</code>); other pages through <code>shared/consent/consent-mode.js</code></td><td>Page-view measurement</td><td>Homepage: on every visit, with analytics set to denied until you accept. Other pages: only after you accept analytics.</td></tr>
 <tr><td><code>pagead2.googlesyndication.com</code> (AdSense)</td><td>Pages with ad slots (<code>shared/ads/ads.js</code>)</td><td>Ads</td><td>Only after you accept ads. Loaded by the one loader in <code>shared/consent/consent-mode.js</code>.</td></tr>
 <tr><td><code>huggingface.co</code>, and its storage hosts <code>hf.co</code> and <code>xethub.hf.co</code></td><td>AI chat (<code>shared/ai/webllm.js</code>, <code>ai/js/core/engine.js</code>); AI Tools and the OCR apps (<code>aitools/model-registry.js</code>, <code>aitools/models.js</code>)</td><td>Model files: speech, OCR (PP-OCRv4), denoise, tags, portrait, and the chat models</td><td>After you press Download, or install a model in Get more, and confirm its size and licence. AI Tools checks each file's SHA-256, and a file must come from a Hugging Face host.</td></tr>
-<tr><td><code>raw.githubusercontent.com</code></td><td>AI chat (<code>shared/ai/webllm.js</code>, the GPU kernels); Get more packs (<code>shared/library/packs.json</code>)</td><td>Kernels for the chat model; font files from github.com/google/fonts (OFL); the Real-ESRGAN 4x model for Slop Upscale and the depth model for Image to 3D, from the slopographic/cdn repository</td><td>Only when you press Download in Get more and confirm, or load a chat model.</td></tr>
+<tr><td><code>raw.githubusercontent.com</code></td><td>AI chat (<code>shared/ai/webllm.js</code>, the GPU kernels); Get more packs (<code>shared/library/packs.json</code>)</td><td>Kernels for the chat model; font files from github.com/google/fonts (OFL); language fonts (Noto, OFL) for writing other scripts such as Arabic, Chinese or Hindi; the Real-ESRGAN 4x model for Slop Upscale and the depth model for Image to 3D, from the slopographic/cdn repository</td><td>When you press Download in Get more and confirm, or load a chat model. A language font also downloads when you write text in a script that needs one (in Slop PDF, for example): the app asks first, unless you chose to download language fonts automatically (<code>shared/fonts/jit.js</code>). Each file is checked against its SHA-256 before it is kept.</td></tr>
 <tr><td><code>accounts.google.com</code>, <code>oauth2.googleapis.com</code>, <code>www.googleapis.com</code></td><td>Cloud sync to your own Google Drive (<code>shared/sync/providers/gdrive.js</code>, <code>pkce.js</code>, <code>config.js</code>)</td><td>Sign-in, then backup and restore of one backup file, in an optional folder. Uses the <code>drive.file</code> scope, which reaches only the files this app creates or that you pick.</td><td>Only when you connect with your own OAuth client ID, and when you press a backup or sync button.</td></tr>
 <tr><td><code>www.dropbox.com</code>, <code>api.dropboxapi.com</code>, <code>content.dropboxapi.com</code></td><td>Cloud sync to Dropbox (<code>shared/sync/providers/dropbox.js</code>)</td><td>Same as Google Drive, for Dropbox</td><td>Only when you connect and press a backup or sync button.</td></tr>
 <tr><td><code>data-api.ecb.europa.eu</code></td><td>Exchange rates (<code>shared/data/rates-ecb.js</code>, opened from Settings, and read by Ledger and Calculator)</td><td>Daily EUR reference rates from the European Central Bank</td><td>Only when the rates category is on and you press Update. Update on open runs only when you also tick it.</td></tr>
@@ -148,11 +152,14 @@ ol li,ul li{margin:.3rem 0}
 <li><strong>Network tab, offline.</strong> In the Network tab, open the throttling menu and choose Offline. Reload, then open a file, edit it and save it. The app should work. Anything that needs a download says so.</li>
 <li><strong>Application tab, storage.</strong> In Chrome or Edge, open the Application tab. Under Storage, see Local storage, Session storage, IndexedDB, Cookies, Cache Storage and Service workers. Compare what you see with the tables on this page.</li>
 <li><strong>Accept or refuse, then compare.</strong> Refuse analytics and ads in the consent strip, reload, and check the Network tab again. Then accept them, and see which requests appear.</li>
-<li><strong>Read the source.</strong> The code is public in the <a href="https://github.com/slopographic/slopographic">slopographic repository on GitHub</a>. Search it for <code>fetch(</code>, <code>indexedDB.open</code>, <code>localStorage</code> or <code>showDirectoryPicker</code> to confirm any row on this page. The consent code is in <code>shared/consent/</code>, cloud sync in <code>shared/sync/</code>, and the download lists in <code>shared/library/</code> and <code>aitools/</code>.</li>
+<li><strong>Read the source.</strong> The code is public in the <a href="https://github.com/slopographic/apps">slopographic repository on GitHub</a>. Search it for <code>fetch(</code>, <code>indexedDB.open</code>, <code>localStorage</code> or <code>showDirectoryPicker</code> to confirm any row on this page. The consent code is in <code>shared/consent/</code>, cloud sync in <code>shared/sync/</code>, and the download lists in <code>shared/library/</code> and <code>aitools/</code>.</li>
 </ol>
 <p class="note">Local folders (the File System Access API) need Chrome or Edge. Firefox and Safari do not offer them, and the apps say so where it applies.</p>
 </main>
-<footer class="foot"><a href="/">Home</a><a href="/settings/">Settings and privacy</a><a href="https://github.com/slopographic/slopographic/blob/main/LICENSE">License</a></footer>
+<!-- site:foot -->
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+<!-- /site:foot -->
+</div>
   <script src="../shell/shell.js"></script>
 </body>
 </html>

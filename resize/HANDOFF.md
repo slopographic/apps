@@ -42,9 +42,13 @@ Resampling choice 'nearest' skips the steps and keeps hard pixels (pixel art). T
 it (nothing is painted behind the picture unless a background colour is chosen). JPEG has no alpha, so Transparent
 is switched off and explained in the panel; the transparent parts are filled with the Background colour (white by
 default), and a note says so when the picture really had transparency.
-Keep aspect ratio: the other side follows the first picture in the list (its real width ÷ height). It is derived from
-the typed value only (settings.js `follow`, geometry in size.js `lockSide`), so editing does not drift. Without a
-picture there is no ratio, and the lock does nothing.
+Keep aspect ratio: with Fill = Fit or Cover the box (a preset, or a typed width and height) is kept exactly; the
+picture keeps its shape inside it (letterbox or crop), and adding a picture never rewrites the box (`size.locksBox`).
+With Fit inside or Stretch the other side follows the first picture in the list (its real width ÷ height), derived
+from the typed value only (settings.js `follow`, geometry in size.js `lockSide`), so editing does not drift. A side
+left at 0 follows the picture in any fill. Without a picture there is no ratio, and the lock does nothing.
+Tests: `tests/resize/box.test.html` (presets and typed boxes, Fit, Cover, Fit inside, a 0 side) and the
+lock cases in `resize-fixes.test.html`.
 
 ## Videos
 Needs WebCodecs (`VideoEncoder`, `VideoFrame`, `AudioEncoder`) and the vendored muxers. Without them the panel

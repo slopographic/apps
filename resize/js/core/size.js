@@ -71,6 +71,11 @@
     return even ? S.even(n) : S.px(n);
   };
 
+  /** Whether the Keep aspect ratio lock rewrites the other side of the box as one is typed. Fit and Cover make exactly
+   *  the box that was asked for (the picture keeps its shape inside it, letterboxed or cropped), so the lock leaves
+   *  their box alone; Fit inside and Stretch follow the picture. A side left at 0 still follows the picture in any fill. */
+  S.locksBox = (fill) => fill !== 'fit' && fill !== 'cover';
+
   /** Output size and picture placement for a source of src = { w, h }. Throws on a size that cannot be made. */
   S.dims = function (src, spec, opts = {}) {
     const sw = num(src && src.w), sh = num(src && src.h);

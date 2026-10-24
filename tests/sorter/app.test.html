@@ -9,7 +9,7 @@
   <iframe id="app" style="width:1280px;height:860px"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: assets/shots/sorter.jpg, sorter/index.html, sorter/js/app.js, sorter/js/model.js, sorter/css/sorter.css, shared/deck/deck.js, shared/deck/deck.css
+  // Covers: assets/shots/sorter.jpg, sorter/index.html, sorter/js/app.js, sorter/js/model.js, shared/drop/folders.js, sorter/css/sorter.css, shared/deck/deck.js, shared/deck/deck.css
   const { describe, it, expect, waitFor, run, sleep } = SlopTest;
   let W, D, A, got;
   const $ = (id) => D.getElementById(id);
@@ -129,6 +129,26 @@
       expect($('soWork').hidden).toBe(true);
       expect(W.getComputedStyle(D.querySelector('#soDrop .sd-preview')).display).toBe('flex');   // the preview is back
       expect(A.set.items.length).toBe(0);
+    });
+    it('a dropped folder is read whole, sub-folders too, and each photo keeps its folder path', async () => {
+      // A fake drop: one folder (Trip, with Day 1 inside, read in two batches) and a loose photo, as webkitGetAsEntry gives them.
+      const fileEntry = (f) => ({ isFile: true, isDirectory: false, name: f.name, file: (ok) => ok(f) });
+      const dirEntry = (name, batches) => ({ isFile: false, isDirectory: true, name, createReader: () => { let i = 0; return { readEntries: (ok) => setTimeout(() => ok(batches[i++] || []), 5) }; } });
+      const day = dirEntry('Day 1', [[fileEntry(await png('a.png', 'red')), fileEntry(new W.File(['x'], 'notes.txt', { type: 'text/plain' }))], [fileEntry(await png('b.png', 'green'))]]);
+      const trip = dirEntry('Trip', [[day, fileEntry(await png('c.png', 'blue'))]]);
+      const loose = await png('loose.png', 'gold');
+      const dt = { types: ['Files'], files: [loose], items: [
+        { kind: 'file', webkitGetAsEntry: () => trip, getAsFile: () => null },
+        { kind: 'file', webkitGetAsEntry: () => fileEntry(loose), getAsFile: () => loose },
+      ] };
+      const ev = new W.Event('drop', { bubbles: true, cancelable: true });
+      Object.defineProperty(ev, 'dataTransfer', { value: dt });
+      $('soDrop').dispatchEvent(ev);
+      await waitFor(() => A.set.items.length === 4, { timeout: 10000 });
+      expect(A.set.items.map((x) => x.path).sort()).toEqual(['Trip/Day 1/a.png', 'Trip/Day 1/b.png', 'Trip/c.png', 'loose.png']);
+      $('soCsv').click();
+      expect(await got[got.length - 1].blob.text()).toContain('Trip/Day 1');
+      $('soClear').click();
     });
     it('the empty page shows what it makes and how, and Try it with sample photos fills it', async () => {
       await boot();

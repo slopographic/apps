@@ -1,6 +1,7 @@
 /* Slop Resize: the settings panel. Reads the form into one settings object, writes one back (presets), shows only the
  * controls that suit the chosen mode, turns the settings into what the queue runs, and keeps the form consistent:
- * Keep aspect ratio locks the other side to the first picture's real ratio, and a format with no transparency (JPEG)
+ * Keep aspect ratio locks the other side to the first picture's real ratio (only for Fit inside and Stretch: Fit and
+ * Cover make exactly the typed or preset box, see size.locksBox), and a format with no transparency (JPEG)
  * turns off the Transparent choice and says what fills the gaps. Classic script; exposes window.SlopResize.settings.
  *   DEFAULTS                 the settings a new session starts with
  *   read() / write(s)        the form <-> settings object (ids rs-*, see index.html)
@@ -54,6 +55,7 @@
     S.alphaUI();
     S.showModes(s.mode);
     S.labels();
+    S.ratioNote();
   };
 
   /** A saved settings object (from Drive or local storage) with only known keys, each of the right type. */
@@ -135,7 +137,7 @@
 
   // The aspect lock. ratio is the first picture's width ÷ height (0 when there is none).
   let ratio = 0;
-  const locked = () => chk('rs-keep') && ratio > 0 && ['size', 'bytes'].includes(val('rs-mode'));
+  const locked = () => chk('rs-keep') && ratio > 0 && ['size', 'bytes'].includes(val('rs-mode')) && NS.size.locksBox(val('rs-fill'));
 
   /** Make the side not typed follow the one that was. from is 'w' or 'h'. Writes the value only, so no event loops. */
   function follow(from) {
@@ -148,20 +150,32 @@
   /** The picture the lock uses. Called with the first picture in the list (or null). A new ratio re-derives the other side. */
   S.setSource = function (src, name) {
     const r = src && src.w > 0 && src.h > 0 ? src.w / src.h : 0;
-    const note = $('rs-ratio-note');
-    if (note) {
-      note.textContent = r
-        ? `Keep aspect ratio follows ${name ? name + ', ' : ''}${src.w} × ${src.h}.`
-        : 'Keep aspect ratio follows the first picture in the list. Add a picture to lock to its shape.';
-    }
+    source = r ? { w: src.w, h: src.h, name: name || '' } : null;
+    S.ratioNote();
     if (r === ratio) return;
     ratio = r;
-    if (num('rs-w') > 0) follow('w'); else follow('h');
+    refollow();
+  };
+  let source = null;
+  const refollow = () => { if (num('rs-w') > 0) follow('w'); else follow('h'); };
+
+  /** The line under Keep aspect ratio: what the lock follows, or that Fit and Cover keep the box. */
+  S.ratioNote = function () {
+    const note = $('rs-ratio-note');
+    if (!note) return;
+    if (chk('rs-keep') && !NS.size.locksBox(val('rs-fill'))) {
+      note.textContent = `${val('rs-fill') === 'cover' ? 'Cover crops' : 'Fit letterboxes'} the picture to exactly this box and keeps its shape. Leave a side at 0 to follow the picture instead.`;
+    } else {
+      note.textContent = source
+        ? `Keep aspect ratio follows ${source.name ? source.name + ', ' : ''}${source.w} × ${source.h}.`
+        : 'Keep aspect ratio follows the first picture in the list. Add a picture to lock to its shape.';
+    }
   };
 
   S.wireLock = function () {
     $('rs-w').addEventListener('input', () => follow('w'));
     $('rs-h').addEventListener('input', () => follow('h'));
-    $('rs-keep').addEventListener('change', () => { if (num('rs-w') > 0) follow('w'); else follow('h'); });
+    $('rs-keep').addEventListener('change', () => { refollow(); S.ratioNote(); });
+    $('rs-fill').addEventListener('change', () => { refollow(); S.ratioNote(); });
   };
 })(typeof window !== 'undefined' ? window : globalThis);

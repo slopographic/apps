@@ -14,7 +14,7 @@
   const titleOf = (t) => t.title || M.id3.titleFromName(t.name);
   function blank(rec) {
     return { id: rec.id, name: rec.name, size: rec.size, type: M.id3.typeOf(rec.name, rec.type), tags: T().of(rec),
-      title: '', artist: '', album: '', duration: null, cover: null, coverUrl: '', error: '', analyzed: false };
+      title: '', artist: '', album: '', track: 0, year: '', genre: '', duration: null, cover: null, coverUrl: '', error: '', analyzed: false };
   }
   function setCover(t, blob) {
     if (t.coverUrl) URL.revokeObjectURL(t.coverUrl);
@@ -23,6 +23,7 @@
   }
   function applyAnalysis(t, a) {
     t.title = a.title || ''; t.artist = a.artist || ''; t.album = a.album || '';
+    t.track = a.track || 0; t.year = a.year || ''; t.genre = a.genre || '';
     if (a.duration != null && t.duration == null) t.duration = a.duration;
     t.error = a.error || ''; t.analyzed = true;
     setCover(t, a.cover);

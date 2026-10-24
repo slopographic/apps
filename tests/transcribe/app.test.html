@@ -39,6 +39,12 @@
       expect(!!bar.querySelector('.local-badge')).toBe(true);
       expect(D.querySelector('#trFlow .sflow').getAttribute('aria-label')).toBe('Audio or video to text');
     });
+    it('the language menu offers Detect then all 99 Whisper languages', async () => {
+      const opts = [...$('trLang').options];
+      expect(opts.length).toBe(100);
+      expect([opts[0].value, opts[0].textContent, $('trLang').value]).toEqual(['auto', 'Detect', 'auto']);
+      expect(opts.some((o) => o.value === 'haw' && o.textContent === 'Hawaiian')).toBe(true);
+    });
     it('added files are listed; Transcribe reads them and shows the text, the language and the word count', async () => {
       W.SlopTranscribe.add([mp3('Board call.mp3'), mp3('Voice note.m4a', 20), new W.File(['x'], 'notes.txt', { type: 'text/plain' })]);
       expect(D.querySelectorAll('#trFiles li').length).toBe(2);
@@ -48,7 +54,7 @@
       await waitFor(() => [...D.querySelectorAll('#trFiles .tr-chip')].every((c) => c.textContent === 'Done'), { timeout: 10000 });
       expect($('trText').value).toBe('Hello from the meeting.\nNext item is the budget.');
       expect($('trText').readOnly).toBe(false);
-      expect($('trPaneMeta').textContent).toContain('language en');
+      expect($('trPaneMeta').textContent).toContain('language English');
       expect($('trPaneMeta').textContent).toContain('9 words');
       expect(D.querySelector('#trFlow .sflow').dataset.state).toBe('done');
     });
@@ -74,6 +80,18 @@
       expect((await got[0].blob.text()).split('\n')[1]).toBe('00:00:00,000 --> 00:00:02,000');
       D.querySelectorAll('#trFiles li')[1].click();
       expect($('trPaneTitle').textContent).toBe('Voice note.m4a');
+    });
+    it('a chosen language reaches the engine as its Whisper code and is named in English', async () => {
+      const seen = [], was = W.SlopTranscribe.engine.transcribe;
+      W.SlopTranscribe.engine.transcribe = (s, language, p) => { seen.push(language); return was(s, language, p); };
+      W.SlopTranscribe.add([mp3('Hula.mp3')]);
+      $('trLang').value = 'haw';
+      $('trRun').click();
+      await waitFor(() => seen.length === 1 && !W.SlopTranscribe.queue.busy, { timeout: 10000 });
+      expect(seen).toEqual(['haw']);
+      D.querySelectorAll('#trFiles li')[2].click();
+      expect($('trPaneMeta').textContent).toContain('language Hawaiian');
+      W.SlopTranscribe.engine.transcribe = was;
     });
     it('at 390 px the page has no sideways scroll and the list stacks above the transcript', async () => {
       await boot(390);

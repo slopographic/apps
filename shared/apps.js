@@ -156,7 +156,7 @@
       icon: 'grid' }),
     A('transcribe', 'app', 'Slop Transcribe', 'transcribe/', 'Voice, MP3 or video to text, on your device. Nothing uploaded.', { title: 'Voice and audio to text', group: 'business', tool: true,
       accepts: ['audio/*', 'video/*'],
-      features: ['Record your voice, or add MP3, WAV, M4A, OGG, FLAC or video files, several at once', 'Whisper speech to text on this device, in 16 languages or detected', 'Correct the text, then save as Text, Word, SRT or WebVTT, or open it in Slop Docs'],
+      features: ['Record your voice, or add MP3, WAV, M4A, OGG, FLAC or video files, several at once', 'Whisper speech to text on this device, in 99 languages or detected', 'Correct the text, then save as Text, Word, SRT or WebVTT, or open it in Slop Docs'],
       icon: 'spark', status: 'beta' }),
     A('signature', 'app', 'Slop Signature', 'signature/', 'An email signature for Gmail, Outlook or Apple Mail. Nothing uploaded.', { title: 'Email signature generator', group: 'business', tool: true,
       features: ['Name, title, company, phone, email, website, address and social links', 'Four templates, your colour and font, a logo or photo', 'Copy into Gmail, Outlook or Apple Mail, or download the HTML'],

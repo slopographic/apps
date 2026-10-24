@@ -13,6 +13,11 @@ files and reports progress.
 - `panel.js`: `SlopDrop.panel`. The DOM: the zone (message, Choose files, progress list, status line), the outlines
   (`showHints`, `placeHints`, `hideHints`), the toast (one at a time, 6 s, click to dismiss). Its CSS is injected once.
 - `drop.js`: `SlopDrop.attach(zone, options)`. Routes the files and runs the batch.
+- `folders.js` (optional, after drop.js): `SlopDrop.folders.read(dataTransfer)` → Promise of Files, whole folders walked
+  (webkitGetAsEntry, every readEntries batch, sub-folders). A file from a folder gets `slopPath` (and `webkitRelativePath`
+  when empty) = its path from the dropped folder, `Trip/Day 1/a.jpg`, as a folder input gives it. Use it as the `files`
+  hook: `files: (dt) => SlopDrop.folders.read(dt)`. `hasFolder(dt)` says whether a drop holds a folder. Tested in
+  `tests/node/drop-folders.test.mjs`. (Gallery and Drive still have their own walkers, which also keep their own shapes.)
 
 ## Use (one call)
 
@@ -74,6 +79,7 @@ Each row is one `attach` call (plus the three script tags in the page):
 | Slop Isolate (`slopisolate/js/io/files.js` F.init) | a strip above the stage | `CO.process.add`, waits for the cut-out; videos `CO.video.addItem` |
 | Slop Gallery (`gallery/js/ui/main.js` bindDrop) | a strip above the grid | `files` hook = `G.source.fromDrop` (folders); `importItems` per file |
 | Slop Label (`label/js/ui/boot.js`) | page; a strip over the stage | `openFiles` per file; a picture on the stage lands at the drop point |
+| Slop Photo Sorter (`sorter/js/app.js` wire) | the drop zone; `input` is `#soPick` | `files` hook = `SlopDrop.folders.read` (folders keep their path); `add([file])` per file |
 | Slop Music (`music/js/ui/library.js`) | a zone above the library | `M.lib.addFiles` per file |
 | Slop Convert (`convert/js/ui/tool.js`, every converter page) | the drop zone; `input` is the page's own picker | `addFiles([file])` per file |
 | Slop OCR (`ocr/js/app.js` wire) | the drop zone; `input` is the page's own picker | `addFiles([file])` per file |

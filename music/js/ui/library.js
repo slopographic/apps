@@ -9,11 +9,12 @@
   let rows, stat, side, empty, scheduled = false;
   const cmp = (x, y) => String(x).localeCompare(String(y), undefined, { numeric: true, sensitivity: 'base' });
   const dash = (a, b) => (a ? 0 : 1) - (b ? 0 : 1);
+  const trk = (a, b) => (a.track || 1e9) - (b.track || 1e9);   // album order: numbered tracks first, in number order
   function sortTracks(list, by) {
     const T = (t) => M.lib.display(t);
     return list.slice().sort((a, b) => {
-      if (by === 'artist') return dash(a.artist, b.artist) || cmp(a.artist || '', b.artist || '') || dash(a.album, b.album) || cmp(a.album || '', b.album || '') || cmp(T(a), T(b));
-      if (by === 'album') return dash(a.album, b.album) || cmp(a.album || '', b.album || '') || cmp(T(a), T(b));
+      if (by === 'artist') return dash(a.artist, b.artist) || cmp(a.artist || '', b.artist || '') || dash(a.album, b.album) || cmp(a.album || '', b.album || '') || trk(a, b) || cmp(T(a), T(b));
+      if (by === 'album') return dash(a.album, b.album) || cmp(a.album || '', b.album || '') || trk(a, b) || cmp(T(a), T(b));
       return cmp(T(a), T(b)) || cmp(a.artist || '', b.artist || '');
     });
   }

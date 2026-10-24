@@ -34,10 +34,11 @@
     const on = await ns.depth.installed(), was = S.depthInstalled;
     if (was && !on) S.depth = null; // removed: the next build uses the fallback
     S.depthInstalled = on;
+    ns.jit.noteInstalled(on);
     if (on !== was && S.img) build(); // installed or removed while a picture is open
     $('depthNote').textContent = on
       ? 'Depth model: Depth Anything V2 Small, on this device.'
-      : 'No depth model: using brightness as depth (brighter reads as nearer). It is a fallback, not real depth. Get more… adds Depth Anything V2 Small (Apache-2.0, 27 MB).';
+      : 'No depth model: using brightness as depth (brighter reads as nearer). It is a fallback, not real depth. It downloads when you open a picture (Depth Anything V2 Small, Apache-2.0, 27 MB), or Get more… adds it.';
   }
 
   function opts() {
@@ -118,21 +119,31 @@
     return hf.heightField(S.prep, opts());
   }
 
-  /** The first-use notice: the depth model is downloaded the first time a picture is opened. */
+  /** The first-use notice: Continue agrees to the depth model download, made the first time a picture is opened
+   *  (js/model/jit.js, through the shared installer). Cancel opens nothing. */
   const FIRST_USE = {
     title: 'Make a 3D model on this device',
-    lines: ['Slop Image to 3D estimates depth with a model that runs in your browser.'],
-    downloads: [{ name: 'Depth model (Depth Anything v2 small)', bytes: 27258801 }],
+    lines: ['Slop Image to 3D estimates depth with a model that runs in your browser.',
+      'Continue downloads the depth model (Depth Anything V2 Small, Apache-2.0) when your first picture opens. Until it is here, or if you remove it in Get more…, brightness stands in for depth.'],
+    downloads: [{ name: 'Depth model (Depth Anything V2 Small)', bytes: 27258801 }],
   };
   async function openBlob(blob, name) {
-    if (window.SlopFirstRun && !(await SlopFirstRun.once('img3d', FIRST_USE))) return;
+    const consent = !!window.SlopFirstRun && (await SlopFirstRun.once('img3d', FIRST_USE));
+    if (window.SlopFirstRun && !consent) return;
     try {
       say('Reading the picture…');
       const img = await ns.image.decode(blob, name);
-      Object.assign(S, { img, depth: null, depthFailed: false, mask: null, prep: null, item: null });
+      Object.assign(S, { img: null, depth: null, depthFailed: false, mask: null, prep: null, item: null });
       $('picName').textContent = `${img.name} · ${img.W}×${img.H} px`;
+      await loadLib();
+      const got = await ns.jit.ensure({ consent, onStatus: say });
+      if (got.reason) toast(got.reason);
+      S.depthInstalled = got.installed || S.depthInstalled;
+      S.img = img;
       for (const id of ['btnObj', 'btnGlb', 'btnSend']) $(id).disabled = false;
       await build();
+      if (got.reason) say(got.reason, true);
+      refreshDepthNote();
     } catch (e) { say(e.message, true); }
   }
 

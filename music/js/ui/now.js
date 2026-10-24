@@ -50,7 +50,7 @@
       paintTags(t);
       $('now-title').textContent = t ? M.lib.display(t) : 'Nothing playing';
       $('now-artist').textContent = t ? t.artist || '' : 'Choose a track in the Library';
-      $('now-album').textContent = t ? t.album || '' : '';
+      $('now-album').textContent = t ? [t.album, t.year, t.genre].filter(Boolean).join(' · ') : '';
       const pb = $('now-play');
       pb.setAttribute('aria-label', s.playing ? 'Pause' : 'Play');
       pb.querySelector('use').setAttribute('href', s.playing ? '#i-pause' : '#i-play');

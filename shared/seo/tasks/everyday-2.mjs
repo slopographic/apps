@@ -128,7 +128,7 @@ const files = [
       'Click a track to play it. Click the waveform to seek; Space pauses and the arrow keys seek 5 seconds.',
       'Make a playlist on Playlists and save it to Slop Drive as a .splaylist file.'],
     faq: [['Which browsers play FLAC?', 'Chrome, Edge and Firefox play FLAC, and so does Safari from version 11. Slop Music has no decoder of its own; it uses the one in your browser.'],
-      ['Does it read FLAC tags?', 'Not yet. Title, artist, album and cover are read from ID3 tags, which FLAC files rarely carry, so most FLAC tracks show their file name as the title.'],
+      ['Does it read FLAC tags?', 'Yes. Title, artist, album, track number, year and genre are read from the Vorbis comments in the FLAC file, and the embedded front cover is shown. Ogg Vorbis and Opus tags are read the same way. A track with no tags shows its file name as the title.'],
       ['Is the sound converted?', 'No. The file is played as it is by your browser\'s own decoder; Slop Music does not re-encode it.']] },
 ];
 
