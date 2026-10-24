@@ -283,6 +283,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Effects** (`effects/js/app/io.js`, spec `effects`): Add media (this computer, Slop Drive), Relink media (mode
   `relink`, `data.mediaId`), Open project from Slop Drive (a .json project, linked), a drop on the view (new), a paste
   (new), ?drive= launch (new: Open in Slop Effects used to do nothing) and launchQueue. `tests/intake/effects.test.html`.
+- **Slop 3D** (`3d/js/app/files.js`, spec `3d`, the whole batch: a model and its companion files): File ▸ Open and Open
+  from Slop Drive (mode `open`, after asking when the scene has changes; a Drive scene stays linked), ?drive= launch and
+  launchQueue (open), File ▸ Import, a drop on the view (new) and a paste (new) add to the scene. The config import's
+  fallback (no shared config dialog) is a part `3d.config`. The outliner's drag stays (`intake-ok`).
+  `tests/intake/3d.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -336,15 +341,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - `{ from: 'cutout', to: 'photoslop', replaces: true, label: 'Send to PhotoSlop as a layer (with its mask)' }`
   (the layer round trip in `slopisolate/js/io/send.js` and `photoslop/js/io/isolate.js`);
 - `{ from: 'cutout', to: 'slopedit', types: ['video/*'], replaces: true, label: 'Send to SlopCut as a colour + matte pair' }`.
-
-### 3d
-
-- [ ] file input: `3d/js/app/configio.js:28`
-- [ ] pickFiles: `3d/js/app/files.js:93`
-- [ ] pickFiles: `3d/js/app/files.js:97`
-- [ ] Drive picker: `3d/js/app/files.js:103`
-- [ ] ?drive= launch: `3d/js/app/files.js:114`
-- [ ] drop listener: `3d/js/app/outliner.js:100`
 
 ### admin
 

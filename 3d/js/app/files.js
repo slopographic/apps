@@ -88,31 +88,29 @@
   }
   /** The file to open among several picked: a scene or a model first; the others are its companions. */
   const mainOf = (list) => list.find((f) => ['s3d', 'json', ...MODELS].includes(extOf(f.name))) || list[0];
-  async function openDialog() {
-    if (!(await confirmDiscard())) return;
-    const list = await SlopUI.pickFiles({ accept: ACCEPT_UI, multiple: true }), f = mainOf(list);
-    if (f) await openBlob(f, f.name, { with: list.filter((x) => x !== f) });
+  /* The one way in (shared/intake, spec '3d', the whole batch: a model and its companions): File ▸ Open and Open from Slop
+     Drive (mode 'open': replaces the scene, after asking when it has changes; a Drive scene stays linked), ?drive=<id> and
+     a PWA launch (open), File ▸ Import, a drop on the view and a paste (they add to the scene). */
+  async function read(files, ctx) {
+    const f = mainOf(files), others = files.filter((x) => x !== f), rec = ctx.drive && ctx.drive.record;
+    const ok = ctx.mode === 'open'
+      ? await openBlob(f, f.name, Object.assign({ with: others }, rec ? { driveId: rec.id, folderId: rec.folderId } : {}))
+      : await importBlob(f, f.name, others);
+    if (!ok) throw new Error('could not be opened');
+    return files.map((x) => x.name);
   }
-  async function importDialog() {
-    const list = await SlopUI.pickFiles({ accept: ACCEPT_UI, multiple: true }), f = mainOf(list);
-    if (f) await importBlob(f, f.name, list.filter((x) => x !== f));
-  }
-  async function openFromDrive() {
-    const h = hub();
-    if (!h) { toast('Slop Drive is not available'); return; }
-    const rec = await h.pickFromDrive({ accept: ACCEPT_DRIVE });
-    if (!rec || !rec.blob) return;
-    if (!(await confirmDiscard())) return;
-    const scene = extOf(rec.name) === 's3d';
-    if (scene) await openBlob(rec.blob, rec.name, { driveId: rec.id, folderId: rec.folderId });
-    else await openBlob(rec.blob, rec.name);
-  }
-  /** Opens the record that launched this page with ?drive=<id>. */
+  window.SlopIntake.register({
+    id: '3d', accept: { any: true, noun: 'a scene, a model or a picture' }, driveAccept: ACCEPT_DRIVE, processAll: read,
+    gate: async (batch) => batch.mode !== 'open' || confirmDiscard(),
+  });
+  const pick = (mode) => window.SlopIntake.pick({ to: '3d', mode, accept: ACCEPT_UI });
+  const openDialog = () => pick('open'), importDialog = () => pick('import');
+  const openFromDrive = () => window.SlopIntake.fromDrive({ to: '3d', mode: 'open' });
+  /** What the page was opened with (?drive=<id>, a PWA launch). The drop target is the viewport. */
   async function launch() {
-    const h = hub();
-    if (!h || !h.consumeLaunch) return;
-    const rec = await h.consumeLaunch();
-    if (rec && rec.blob) await openBlob(rec.blob, rec.name, { driveId: rec.id, folderId: rec.folderId });
+    const view = document.getElementById('view');
+    if (view) window.SlopIntake.dropTarget(view, { to: '3d', mode: () => 'import' });
+    await window.SlopIntake.launch({ to: '3d', mode: 'open' });
   }
 
   const sceneName = () => s.file.name || 'Untitled';
