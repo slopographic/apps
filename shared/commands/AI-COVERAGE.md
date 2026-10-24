@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 29 of 58 apps.
+Covered: 35 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -14,11 +14,11 @@ Covered: 29 of 58 apps.
 | SlopVector (`vector`) | ✓ 1 | ✓ 3 | ✓ 10 | ✓ 1 |  | yes |
 | Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 5 | ✓ 1 | 1 | yes |
 | SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | yes |
-| SlopIsolate (`cutout`) | ✗ | ✗ | ✓ 1 | ✗ |  | no |
+| SlopIsolate (`cutout`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | yes |
 | Slop AI Tools (`aitools`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Reports (`reports`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 1 |  | yes |
-| Slop OCR (`ocr`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
-| Slop HTML to PDF (`html2pdf`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop OCR (`ocr`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | yes |
+| Slop HTML to PDF (`html2pdf`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | yes |
 | SlopClean (`clean`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
 | Slop AI (`ai`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Docs (`docs`) | ✓ 2 | ✓ 6 | ✓ 4 | ✓ 1 | 1 | yes |
@@ -27,9 +27,9 @@ Covered: 29 of 58 apps.
 | Slop Press (`press`) | ✓ 2 | ✓ 4 | ✓ 5 | ✓ 1 |  | yes |
 | Reel Remix (`remix`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 | SlopCut (`slopedit`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
-| Slop Resize (`resize`) | ✗ | ✗ | ✓ 3 | ✗ | 1 | no |
-| Slop Upscale (`upscale`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
-| Slop Watermark (`watermark`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
+| Slop Resize (`resize`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | yes |
+| Slop Upscale (`upscale`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | yes |
+| Slop Watermark (`watermark`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | yes |
 | Slop Contacts (`contacts`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Inventory (`inventory`) | ✓ 1 | ✓ 1 | ✓ 4 | ✓ 1 |  | yes |
 | Slop Orders (`orders`) | ✓ 2 | ✓ 1 | ✓ 3 | ✓ 2 |  | yes |
@@ -102,7 +102,10 @@ Covered: 29 of 58 apps.
 
 ### SlopIsolate
 
+- create: `new_batch`
+- add: `add_images`
 - edit: `look`
+- export: `save_cutouts`
 
 ### Slop Reports
 
@@ -110,6 +113,21 @@ Covered: 29 of 58 apps.
 - add: `add_column`
 - edit: `delete_report`, `describe_sources`, `open_report`, `set_filter`, `set_grouping`
 - export: `export_report`
+
+### Slop OCR
+
+- create: `new_document`
+- add: `add_files`
+- edit: `read_text`, `set_text`
+- export: `export_text`
+- operations: `ocr.read`
+
+### Slop HTML to PDF
+
+- create: `new_document`
+- add: `add_images`
+- edit: `set_page`
+- export: `export_pdf`
 
 ### Slop Docs
 
@@ -144,8 +162,27 @@ Covered: 29 of 58 apps.
 
 ### Slop Resize
 
+- create: `new_batch`
+- add: `add_files`
 - edit: `resize_all`, `set_output_format`, `set_size`
+- export: `save_results`
 - operations: `resize.image`
+
+### Slop Upscale
+
+- create: `new_upscale`
+- add: `add_file`
+- edit: `set_upscale`, `upscale`
+- export: `save_result`
+- operations: `upscale.image`
+
+### Slop Watermark
+
+- create: `new_batch`
+- add: `add_pictures`
+- edit: `apply_watermark`, `set_logo`, `set_watermark`
+- export: `save_results`
+- operations: `watermark.apply`
 
 ### Slop Contacts
 

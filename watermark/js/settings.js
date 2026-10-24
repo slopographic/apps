@@ -2,7 +2,7 @@
  * overrides. Classic script. Exposes window.WMSettings. The saved copy is one localStorage record,
  * { v: 1, data: { cfg, logo, groups } }; the logo is kept as a data URL only when it is under 500 KB.
  * Every storage call is in try/catch: without storage the page still works.
- *   init({ onChange }) ; restore() → Promise ; cfg() ; logo() → { name, bitmap, dataUrl } | null ; setLogo(blob, name) → Promise
+ *   init({ onChange }) ; restore() → Promise ; cfg() ; setCfg(patch) ; logo() → { name, bitmap, dataUrl } | null ; setLogo(blob, name) → Promise
  *   group(kind) → the override of a shape group (off, from the shared setup, unless it is on) ; setGroup(kind, patch)
  *   cfgFor(kind) → the setup a picture of that group is drawn with (WMGroups.applyOverride) */
 (function () {
@@ -171,6 +171,8 @@
   window.WMSettings = {
     init, restore, setLogo, clearLogo, setGroup, group,
     cfg: () => state.cfg,
+    /** Changes part of the setup (the assistant's set_watermark); the page updates as if the form had changed. */
+    setCfg: (patch) => { Object.assign(state.cfg, patch); changed(); return state.cfg; },
     logo: () => state.logo,
     cfgFor: (kind) => G.applyOverride(state.cfg, state.groups[kind]),
   };

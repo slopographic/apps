@@ -111,3 +111,9 @@ Offline: `service-worker.js` precaches each app's files explicitly, so the `resi
 
 ## Camera RAW (uses `shared/raw/`)
 `format.kind` treats RAW extensions as images; `image.probe` measures a RAW from its embedded preview (and gives the list a preview thumbnail) with no engine; `image.load` develops it in full with the camera's white balance (`SlopRaw.image` mode full), or uses the preview and sets `note` when the engine cannot run or is declined. Test: `tests/resize/raw.test.html`.
+
+## Assistant: batches (`js/app/ai-files.js`)
+Loaded by `SlopCmd.prepare()` after `ai-commands.js` (with `shared/commands/sources.js`): `new_batch` (empties the list;
+destructive), `add_files` (`files[]` Slop Drive names or ids, `urls[]` same-site pictures, through `SlopIntake.take` like a
+drop) and `save_results` (`to` drive | download | both: the app's own Save to Slop Drive and Download all). Test:
+`tests/resize/ai-files.test.html`.

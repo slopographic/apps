@@ -103,6 +103,9 @@
       .catch((e) => toast('Could not open Slop Workflows: ' + e.message));
   }
 
+  /** For the commands (commands.js, ai-commands.js): the page's own actions. */
+  window.WMApp = { applyAll, downloadZip, clearAll, busy: () => busy, refresh: () => { window.WMList.render(); window.WMPreview.schedule(); syncBar(); } };
+
   function boot() {
     bar = window.SlopAppBar.mount($('wm-bar'), {
       home: '../', title: 'Slop Watermark', subtitle: 'Watermark many pictures with your logo or text. Nothing is uploaded.', actions: [], menu: [],
