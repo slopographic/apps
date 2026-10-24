@@ -49,7 +49,7 @@
   /** Picks a PNG or JPEG for a stamp. The image is kept as a data URL inside the macro. */
   UI.imageField = function (f, value, set) {
     var thumb = el('img', { class: 'spm-thumb', alt: '', src: value || '', hidden: !value });
-    var file = el('input', { type: 'file', accept: 'image/png,image/jpeg', 'aria-label': f.label });
+    var file = el('input', { type: 'file', accept: 'image/png,image/jpeg', 'aria-label': f.label }); // intake-ok: a macro step's picture field (a value of the step, not a file into the app)
     var clear = el('button', { type: 'button', class: 'spm-btn', disabled: !value }, 'Remove');
     file.addEventListener('change', function () {
       var pick = file.files && file.files[0];
@@ -88,7 +88,7 @@
       typeSel.addEventListener('change', function () { L.kind = typeSel.value; structural(); });
       var body;
       if (L.kind === 'image') {
-        var file = el('input', { type: 'file', accept: 'image/png,image/jpeg', 'aria-label': 'Logo' });
+        var file = el('input', { type: 'file', accept: 'image/png,image/jpeg', 'aria-label': 'Logo' }); // intake-ok: a macro step's logo field (a value of the step, not a file into the app)
         file.addEventListener('change', function () {
           var pick = file.files && file.files[0];
           if (!pick) return;

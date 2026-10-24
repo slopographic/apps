@@ -70,7 +70,6 @@
   /** File ▸ Open from Slop Drive: images and videos become queue items. */
   D.open = async function () {
     if (!D.ready()) return;
-    const rec = await SlopHub.pickFromDrive({ accept: ['image/*', 'video/*'], title: 'Open from Slop Drive' });
-    if (rec) await CO.files.fromDrive(rec);
+    await SlopIntake.fromDrive({ to: 'cutout', title: 'Open from Slop Drive' }); // the intake (io/files.js)
   };
 })();

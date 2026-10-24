@@ -8,7 +8,8 @@ files and reports progress.
 
 ## Files (load in this order, before the app's own scripts)
 
-- `rules.js`: `SlopDrop.rules`. Pure: `check(file, rules)` (accept or refuse, with the reason), `typeOk`, `maybeOk` (drag
+- `shared/intake/rules.js` (moved there; also `SlopDrop.rules`), and the rest of `shared/intake` before panel.js: every
+  file a zone takes goes through `SlopIntake.take` (shared/intake/HANDOFF.md). `rules`: Pure: `check(file, rules)` (accept or refuse, with the reason), `typeOk`, `maybeOk` (drag
   time), `acceptAttr(rules)`, `describe(summary)` (the toast words), `dragLabel(types, rules)`, `size(bytes)`, `ext(name)`.
 - `panel.js`: `SlopDrop.panel`. The DOM: the zone (message, Choose files, progress list, status line), the outlines
   (`showHints`, `placeHints`, `hideHints`), the toast (one at a time, 6 s, click to dismiss). Its CSS is injected once.
@@ -152,8 +153,10 @@ zones exist (or are created) before attach, and attach runs after DOMContentLoad
 - Progress is per file while the app's reader reports it (`progress` in `process`). Isolate reports the cut-out's progress;
   the others show motion.
 
-## Paste
+## On the intake pipeline
 
-A paste of a file the rules accept goes through the same batch as a drop, via `shared/intake` (SlopIntake). See
+SlopDrop is the zone UI and the drop, Choose files and sample source of the one intake (shared/intake). `attach(zone, {
+intake: id, … })` makes the zone the UI of a spec the app registered; without `intake` it registers a spec from the
+options, so the callers below work unchanged. A paste of a file the rules accept goes through the same pipeline. See
 `shared/intake/HANDOFF.md`. Set `paste: false` in the options to turn that off for an app; `paste: { hasOpen, openName, onAdd }`
 to ask Add or New when something is open.

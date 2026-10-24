@@ -43,14 +43,11 @@ export async function addActions(listEl, outputs, { from = 'convert' } = {}) {
       } catch (e) { toast('Could not save to Slop Drive: ' + ((e && e.message) || e)); }
       save.disabled = false;
     });
-    const apps = H.appsAccepting(type);
-    const openIn = apps.length ? button('Open in…', 'sl-cvt-open', () => {
-      const r = openIn.getBoundingClientRect();
-      window.SlopUI.menu(apps.map((a) => ({ label: `Open in ${a.name}`, act: async () => {
-        try { await H.sendTo(a.id, o.blob, o.name, { from }); toast(`Opened in ${a.name}`); } catch (e) { toast('Could not open: ' + ((e && e.message) || e)); }
-      } })), r.left, r.bottom + 4);
-    }) : null;
-    if (openIn) openIn.setAttribute('aria-haspopup', 'menu');
+    // Open in…: the one outbound menu (SlopOuttake, shared/intake/outtake.js): every app that takes the type, and the
+    // handovers and shared items others register. Save to Slop Drive is the button beside it.
+    const O = window.SlopOuttake;
+    const openIn = O && H.appsAccepting(type).length
+      ? O.button({ get: () => o.blob, name: o.name, type, from, folder: false }, { label: 'Open in…', cls: 'cv-btn cv-small sl-cvt-open' }) : null;
     li.append(save, ...(openIn ? [openIn] : []));
   });
 }

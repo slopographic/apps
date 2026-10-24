@@ -11,6 +11,8 @@
   <script src="../../shared/apps.js"></script>
   <script src="../../shared/slopui.js"></script>
   <script src="../../shared/hub.js"></script>
+  <script src="../../shared/intake/outtake.js"></script>
+  <script src="../../shared/ops/entry.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const H = window.SlopHub;
@@ -74,9 +76,10 @@
       } finally { window.open = realOpen; }
       await H.sendTo('nope', blob('x'), 'x').then(() => { throw new Error('should reject'); }, (e) => expect(e.message).toContain('Unknown app'));
     });
-    it('sendMenuItems makes one "Send to" item per accepting app', () => {
+    it('sendMenuItems makes one "Send to" item per accepting app (Slop Workflows through its own entry items)', () => {
       const items = H.sendMenuItems(() => blob('x', 'image/png'), 'pic.png', 'image/png');
-      expect(items.length).toBe(H.appsAccepting('image/png').length);
+      expect(items.filter((i) => !/workflow/.test(i.label)).length).toBe(H.appsAccepting('image/png').filter((a) => a.id !== 'workflows').length);
+      expect(items.map((i) => i.label)).toContain('Add to a workflow…');
       expect(items[0].label.startsWith('Send to ')).toBe(true);
       expect(typeof items[0].act).toBe('function');
     });

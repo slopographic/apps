@@ -62,7 +62,7 @@ const MENUS = [
     '-',
     { label: 'Brush Settings…', key: 'F5', act: () => dlgBrushSettings() },
     { label: 'Define Brush Preset…', act: () => defineBrushFromSelection(), need: 'layer' },
-    { label: 'Import Brushes (.abr, .slopbrush, PNG)…', act: () => SlopUI.pickFiles({ accept: '.abr,.slopbrush,.json,image/*', multiple: true }).then(importBrushFiles) },
+    { label: 'Import Brushes (.abr, .slopbrush, PNG)…', act: () => SlopIntake.pick({ to: 'photoslop.brushes' }) },
     '-',
     { label: 'Preferences', sub: [
       { label: 'Navigation…', act: () => SlopNav.openModal('photoslop') },

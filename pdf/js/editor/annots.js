@@ -69,12 +69,7 @@
 
   /* -------------------------------------------------------------- images */
   Ed.pickImage = function () {
-    SlopUI.pickFiles({ accept: 'image/png,image/jpeg,image/webp,image/gif' }).then(async function (files) {
-      if (!files || !files[0]) return;
-      try {
-        await Ed.addImageFile(files[0]);
-      } catch (e) { SlopUI.alert('Image not added', 'That image could not be read: ' + (e.message || e)); }
-    });
+    return SlopIntake.pick({ to: 'pdf.image', multiple: false, mode: 'add' }); // editor/paste-image.js
   };
   Ed.placeImage = function (asset, label) {
     var p = Ed.page(); if (!p) return;

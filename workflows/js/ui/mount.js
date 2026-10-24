@@ -90,7 +90,9 @@ export function mountWorkflow(host, opts = {}) {
     results: () => runner.results(), resultsZip: () => runner.resultsZip(),
     destroy: () => { if (frame) frame.destroy(); ui.root.remove(); },
   };
+  ctx.R.onMacros(() => ctx.emit('doc', {}));   // an app saved a macro: the step menu and the macro steps see it
   tool.ready = (async () => {
+    await ctx.R.macrosReady;
     const draft = ctx.readDraft();
     if (draft) ctx.setDoc(draft.doc, { id: draft.id, saved: draft.saved });
     if (opts.workflow) lib.load(opts.workflow);

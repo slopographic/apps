@@ -1,9 +1,9 @@
-/* SlopDropChoice: the choice a file drop offers when a document is already open, "Add to current" or "Create new".
-   Attaches to window.SlopDropChoice. Classic script, no network, no storage. Loads after panel.js and drop.js (the
-   drop routing); it needs nothing else. See shared/drop/HANDOFF.md.
+/* SlopDropChoice: the drop zones for "Add to current" or "Create new" over an open document, where the place a file is
+   dropped on decides (a drop's mode for SlopIntake.take). Attaches to window.SlopDropChoice. Classic script, no network,
+   no storage. Loads after drop.js. See shared/drop/HANDOFF.md.
    ask({ files, hasDocument, labels }) -> Promise<'current' | 'new' | null>
-     No file: null. No document open: 'new' at once (nothing to add to). Otherwise a dialog with the two choices, Cancel
-     and Escape; Cancel, Escape and a click on the backdrop resolve null. labels: { title, message, current, new, cancel }.
+     The question itself is the intake's one dialog (SlopIntake.choose, the pipeline's Add or New gate); ask is kept for
+     callers not yet migrated and maps its answer: 'add' -> 'current'.
    zones(host, { labels, accept }) -> { at(e), hide(), destroy() } | null
      The drop-zone helper. While a drag that accept(e) takes (default: a file drag) is over host, it shows two zones over
      host: 'new' (open as a new document) and 'current' (add to the current one). at(e) says which zone an event is over,
@@ -13,7 +13,6 @@
   'use strict';
   const doc = root.document;
   const C = (root.SlopDropChoice = root.SlopDropChoice || {});
-  const DIALOG = { title: 'Add files', message: 'Where should these files go?', current: 'Add to current', new: 'Create new', cancel: 'Cancel' };
   const ZONES = { new: 'Create new', current: 'Add to current', newHint: 'Open as a new document', currentHint: 'Add to the document that is open' };
   const CSS = [
     '.sdc-zones{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px;z-index:20;background:color-mix(in srgb,var(--app,#111) 60%,transparent)}',
@@ -23,14 +22,6 @@
     '.sdc-zone span{font-size:12px;opacity:.8;max-width:260px;justify-self:center}',
     '.sdc-zone.hot{border-color:var(--sui-accent,var(--accent,#3b5bdb));border-style:solid;background:color-mix(in srgb,var(--sui-accent,var(--accent,#3b5bdb)) 16%,transparent);transform:scale(1.01)}',
     '@media (max-width:900px){.sdc-zones{grid-template-columns:1fr}}',
-    '.sdc-back{position:fixed;inset:0;z-index:9500;display:grid;place-items:center;background:rgba(0,0,0,.35)}',
-    '.sdc-dialog{box-sizing:border-box;width:min(380px,calc(100vw - 32px));display:grid;gap:12px;padding:18px;border-radius:10px;background:var(--sui-panel,var(--panel-2,#fff));color:var(--sui-text,var(--fg,#1b1b22));font:13px/1.4 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.3)}',
-    '.sdc-title{margin:0;font-size:15px;font-weight:600}',
-    '.sdc-msg{margin:0;opacity:.85;word-break:break-word}',
-    '.sdc-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}',
-    '.sdc-btn{font:inherit;padding:7px 12px;border-radius:6px;border:1px solid var(--sui-line,#c8c8d0);background:var(--sui-panel,#fff);color:inherit;cursor:pointer}',
-    '.sdc-primary{background:var(--sui-accent,var(--accent,#3b5bdb));border-color:transparent;color:#fff}',
-    '.sdc-btn:focus-visible{outline:2px solid var(--sui-accent,var(--accent,#3b5bdb));outline-offset:2px}',
   ].join('\n');
 
   function style() {
@@ -48,54 +39,17 @@
     return x;
   }
 
-  /** The dialog. Resolves once: 'current', 'new', or null. */
+  /** The intake's question, with the old answers. */
   C.ask = function (o) {
     o = o || {};
     const files = Array.from(o.files || []);
     if (!files.length) return Promise.resolve(null);
-    if (!o.hasDocument || !doc.body) return Promise.resolve('new');
-    style();
-    const L = Object.assign({}, DIALOG, o.labels || {});
-    const names = files.length === 1 ? files[0].name : files.length + ' files';
-    return new Promise((resolve) => {
-      const prev = doc.activeElement;
-      let settled = false;
-      const back = el('div', 'sdc-back');
-      const box = el('div', 'sdc-dialog');
-      box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', L.title);
-      const btn = (label, value, cls) => {
-        const b = el('button', 'sdc-btn' + (cls ? ' ' + cls : ''), label);
-        b.type = 'button';
-        b.addEventListener('click', () => done(value));
-        return b;
-      };
-      const cancel = btn(L.cancel, null, ''), nw = btn(L.new, 'new', ''), cur = btn(L.current, 'current', 'sdc-primary');
-      const row = el('div', 'sdc-btns');
-      row.append(cancel, nw, cur);
-      box.append(el('p', 'sdc-title', L.title), el('p', 'sdc-msg', L.message + ' ' + names), row);
-      back.append(box);
-      function done(value) {
-        if (settled) return;
-        settled = true;
-        doc.removeEventListener('keydown', onKey, true);
-        back.remove();
-        if (prev && prev.focus) prev.focus();
-        resolve(value);
-      }
-      function onKey(e) {
-        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(null); return; }
-        if (e.key !== 'Tab') return;
-        // Tab stays inside the dialog: the three buttons, in order.
-        const items = [cancel, nw, cur], i = items.indexOf(doc.activeElement);
-        e.preventDefault(); e.stopPropagation();
-        const next = e.shiftKey ? (i <= 0 ? items.length - 1 : i - 1) : (i < 0 || i === items.length - 1 ? 0 : i + 1);
-        items[next].focus();
-      }
-      back.addEventListener('click', (e) => { if (e.target === back) done(null); });
-      doc.addEventListener('keydown', onKey, true);
-      doc.body.append(back);
-      cur.focus();
-    });
+    if (!o.hasDocument) return Promise.resolve('new');
+    const SI = root.SlopIntake;
+    if (!SI || !SI.choose) return Promise.resolve('current');
+    const L = Object.assign({ title: 'Add files', message: 'Where should these files go?', current: 'Add to current', new: 'Create new' }, o.labels);
+    return SI.choose({ count: files.length, names: files.map((f) => f.name), labels: { title: L.title, message: L.message, add: L.current, new: L.new, cancel: L.cancel } })
+      .then((p) => (p === 'add' ? 'current' : p));
   };
 
   /** The drop-zone helper: two zones over host while a drag is over it. */

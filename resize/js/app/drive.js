@@ -4,8 +4,7 @@
  *   available()                  whether the hub is on this page
  *   folder()                     Promise<id>  the Slop Resize folder, made on first use
  *   save(blob, name, meta)       Promise<id>  saves a result into the folder
- *   open(id)                     Promise<record | null>  a Drive file with its blob (for ?drive=<id> and the picker)
- *   pick()                       Promise<record | null>  the Drive picker, for pictures and videos
+ *   (opening a Drive file is the intake's: SlopIntake.fromDrive and SlopIntake.launch, in app/main.js)
  *   loadPresets() / savePresets(list)   the saved settings list (null when there is no hub) */
 (function (g) {
   'use strict';
@@ -29,17 +28,6 @@
   D.save = async function (blob, name, meta = {}) {
     const folderId = await D.folder();
     return hub().put(blob, { name, from: APP, folderId, meta });
-  };
-
-  D.open = async function (id) {
-    if (!hub()) return null;
-    return (await hub().get(id)) || null;
-  };
-
-  D.pick = async function () {
-    if (!hub()) return null;
-    const rec = await hub().pickFromDrive({ accept: ['image/*', 'video/*'], title: 'Open from Slop Drive' });
-    return rec ? D.open(rec.id) : null;
   };
 
   /** The saved settings list: [{ id, name, settings }]. [] when the file is missing; null when there is no hub. */

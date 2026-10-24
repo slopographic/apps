@@ -32,16 +32,24 @@ export class ConvertTool {
     this.defaultTarget = null;   // set by ?to= (route.js) or setTarget with no selection: the default for files added later
     this.ui = buildTool(root, preset, { ns: this.ns, compact: !!opts.compact });
     const ui = this.ui;
-    // The drop zone is SlopDrop (shared/drop): drops and the Choose files button (the only thing that opens the picker)
-    // read each file through addFiles. The page's own picker input keeps its accept list.
+    // Files come in one way (shared/intake): the drop zone (SlopDrop: drops and Choose files, the only thing that opens
+    // the picker), a paste, ?drive=<id>, the sample, the Convert dialog's own files and addFiles all go through the
+    // tool's intake spec, and each file is read by readFile. The page's own picker input keeps its accept list.
     const accept = ui.input.getAttribute('accept');
-    this.dropZone = window.SlopDrop.attach(ui.drop, {
+    this.intakeId = this.ns === 'cv' ? 'convert' : 'convert-' + this.ns;
+    this.offIntake = window.SlopIntake.register({
+      id: this.intakeId, main: !opts.compact, paste: !(opts.compact && opts.drop && opts.drop.paste === false),
       accept: { any: true, noun: 'a file' },
+      before: (batch) => { this.items = this.items.filter((i) => !i.pasted); this.setStatus(`Reading ${plural(batch.take.length, 'file')}…`); },
+      process: (file) => this.readFile(file),
+      after: () => { this.wantTarget = null; this.setStatus(''); this.render(); },
+    });
+    this.dropZone = window.SlopDrop.attach(ui.drop, {
+      intake: this.intakeId,
       input: ui.input,
       label: 'Drop files here, or choose files',
       hint: 'Several at once is fine. Files are read on this device and never uploaded.',
       ...(opts.compact ? { compact: true, quiet: false, ...opts.drop } : firstVisit(this)),   // drop: a dialog's own targets
-      process: async (file) => { await this.addFiles([file]); return file.name; },
     });
     ui.input.setAttribute('accept', accept);
     // The flow picture's target tile (PDF → DOCX ▾) opens the menu of what the files can become.
@@ -62,19 +70,20 @@ export class ConvertTool {
    *  this kind cannot take in one step goes by a route (?to=json on an SIE file: SIE to CSV, then CSV to JSON). */
   firstTarget(kind) { return targetFor(kind, this.wantTarget || this.defaultTarget, this.only); }
 
-  /** Adds files (a FileList or array). Each is detected by its first bytes, name and type. */
-  async addFiles(list) {
-    const files = Array.from(list || []);
-    if (!files.length) return;
-    this.items = this.items.filter((i) => !i.pasted);
-    this.setStatus(`Reading ${plural(files.length, 'file')}…`);
-    for (const file of files) {
-      const kind = detectKind(file.name, file.type, await readHead(file));
-      this.items.push({ id: ++seq, file, name: file.name, size: file.size, kind, error: '', target: this.firstTarget(kind), selected: false, refs: needsRefs(kind) ? await readRefs(file) : '' });
-    }
-    this.wantTarget = null;
-    this.setStatus('');
-    this.render();
+  /** Adds files (a FileList or array) through the intake, like a drop. Resolves the intake's summary. */
+  addFiles(list, source = 'api') { return window.SlopIntake.take(Array.from(list || []), { source, to: this.intakeId }); }
+
+  /** The intake's reader: one file, detected by its first bytes, name and type, becomes a row. */
+  async readFile(file) {
+    const kind = detectKind(file.name, file.type, await readHead(file));
+    this.items.push({ id: ++seq, file, name: file.name, size: file.size, kind, error: '', target: this.firstTarget(kind), selected: false, refs: needsRefs(kind) ? await readRefs(file) : '' });
+    return file.name;
+  }
+
+  /** The tool leaves the page (the Convert dialog closes): its drop zone and its intake spec go. */
+  destroy() {
+    try { this.dropZone && this.dropZone.destroy(); } catch (e) { /* already gone */ }
+    if (this.offIntake) this.offIntake();
   }
 
   /** Typed or pasted text is the input as one item named pasted.<kind>. Empty text removes it. */

@@ -97,9 +97,13 @@
       if (errs.length) { showProblems(errs); return false; }
       var src = opts.current ? await opts.current() : null;
       if (!src) {
-        var picked = await S().pickFiles({ accept: 'application/pdf,.pdf' });
-        if (!picked.length) return false;
-        src = { name: picked[0].name, bytes: new Uint8Array(await picked[0].arrayBuffer()) };
+        // the test PDF comes in the one way (shared/intake): a part of its own that hands the file back
+        var picked = null;
+        window.SlopIntake.register({ id: 'pdf.macro-test', main: false, paste: false, limit: 1, toast: false,
+          accept: { types: ['application/pdf'], exts: ['.pdf'], noun: 'a PDF' }, process: function (f) { picked = f; return f.name; } });
+        await window.SlopIntake.pick({ to: 'pdf.macro-test', multiple: false });
+        if (!picked) return false;
+        src = { name: picked.name, bytes: new Uint8Array(await picked.arrayBuffer()) };
       }
       var r = await M.runMacro(draft, src.bytes, { filename: src.name });
       testLog.replaceChildren(UI.logList(r.log));

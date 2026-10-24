@@ -32,27 +32,15 @@ function pasteInternal(inPlace) {
   if (!CLIP.canvas) { toast('Nothing to paste yet'); return; }
   pasteCanvas(copyCanvas(CLIP.canvas), inPlace ? CLIP.x : null, inPlace ? CLIP.y : null, 'Layer');
 }
-async function onPaste(e) {
+/** The app's own clipboard: a paste with no file the intake takes (files go through shared/intake, app/intake.js, which
+ *  marks the paste prevented), or one of our own buffer copies, places the buffer item or the internal copy. */
+function onPaste(e) {
   if (e.defaultPrevented) return; // taken by SlopIntake (shared/intake)
   const fromCatcher = e.target && e.target.classList && e.target.classList.contains('paste-catcher');
   if ((!fromCatcher && isTyping(e.target)) || SlopUI.openDialogs) return;
   if (fromCatcher) e.target.blur();
-  const cd = e.clipboardData, items = cd ? [...cd.items] : [];
-  const img = items.find((i) => i.kind === 'file' && i.type.startsWith('image/'));
-  const file = img ? img.getAsFile() : cd && cd.files && [...cd.files].find((f) => f.type.startsWith('image/') || isPSD(f));
   e.preventDefault();
-  if (file && isPSD(file)) { handleFiles([file], true); return; }
-  if (!file && cd) {
-    // Images copied from some web pages arrive only as HTML.
-    const src = (cd.getData('text/html').match(/<img[^>]+src="([^"]+)"/) || [])[1];
-    if (src && /^data:image\//.test(src)) { const im = await loadImage(src); const c = mkCanvas(im.naturalWidth, im.naturalHeight); cx(c).drawImage(im, 0, 0); pasteCanvas(c, null, null, 'Pasted Image'); return; }
-  }
-  if (file && SlopBuffer.isSystemCopyOf(file) && pasteBuffer()) return; // our own buffer copy: place the buffer item
-  if (file) {
-    const c = await fileToCanvas(file);
-    if (CLIP.canvas && c.width === CLIP.canvas.width && c.height === CLIP.canvas.height) { pasteInternal(pasteInPlace); return; }
-    pasteCanvas(c, null, null, 'Pasted Image');
-  } else if (!pasteBuffer()) pasteInternal(pasteInPlace);
+  if (!pasteBuffer()) pasteInternal(pasteInPlace);
 }
 
 /* ---------- opening ---------- */
@@ -66,12 +54,8 @@ async function fileToCanvas(file) {
   } finally { URL.revokeObjectURL(url); }
 }
 const isPSD = (f) => /\.ps[db]$/i.test(f.name) || f.type === 'image/vnd.adobe.photoshop';
-function openFilePicker(place) {
-  const inp = $('#fileIn');
-  inp.accept = OPENABLE; inp.multiple = true; inp.value = '';
-  inp.onchange = () => { if (inp.files.length) handleFiles([...inp.files], place); };
-  inp.click();
-}
+/** Open… and Place Image as Layer…: the picker is a source of the one intake (app/intake.js). */
+function openFilePicker(place) { return SlopIntake.pick({ to: 'photoslop', accept: OPENABLE, mode: place ? 'add' : 'new' }); }
 /** Open each file in its own tab, or (place) add them to the current document as layers. */
 async function handleFiles(files, place) {
   document.body.classList.add('busy');

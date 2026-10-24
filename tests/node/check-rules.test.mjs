@@ -47,3 +47,17 @@ test('every tracked source file has at most 300 lines (node tools/check-rules.mj
   const r = spawnSync(process.execPath, [path.join(ROOT, 'tools/check-rules.mjs'), '--all'], { cwd: ROOT, encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
 });
+
+// Rule 4 (tools/one-way.mjs): one way in, one way out, in the apps on the shared intake.
+test('a migrated app may not add its own way in or out; other apps, shared/intake and marked lines pass', () => {
+  const read = fake({
+    'pdf/js/x.js': "a.addEventListener('drop', f);\nSlopUI.pickFiles({});\nH.consumeLaunch();\nconst i = h('input', { type: 'file' });\n"
+      + "H.appsAccepting(t).map((a) => ({ label: `Open in ${a.name}` }));\n// SlopUI.pickFiles in a comment\nrow.addEventListener('drop', g); // intake-ok: a row reorder\n",
+    'notes/js/y.js': "a.addEventListener('paste', f);\n",
+    'shared/intake/sources.js': "document.addEventListener('paste', onPaste);\n",
+  });
+  const p = check(['pdf/js/x.js', 'notes/js/y.js', 'shared/intake/sources.js'], { read, size: false });
+  assert.deepEqual(p.map((x) => [x.file, x.rule]), Array(5).fill(['pdf/js/x.js', 'one-way']));
+  assert.match(p[0].message, /pdf\/js\/x\.js:1: a 'drop' listener of its own/);
+  assert.match(p[4].message, /hand-made "Open in"/);
+});

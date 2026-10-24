@@ -12,7 +12,7 @@ export function buildTool(root, preset, { ns = 'cv', compact = false } = {}) {
   const id = (s) => `${ns}-${s}`;
   // The drop zone's content (message, Choose files button, progress) is drawn by SlopDrop (shared/drop) in tool.js.
   const drop = h('div', { class: 'cv-drop', id: id('drop') });
-  const input = h('input', { type: 'file', multiple: true, id: id('input'), class: 'cv-sr', tabindex: -1, 'aria-hidden': 'true', accept: preset && preset.accept ? preset.accept : 'image/*,video/*,audio/*,application/pdf,.heic,.heif,.csv,.tsv,.vcf,.vcard,.xlsx,.ods,.json,.yaml,.yml,.toml,.srt,.vtt,.md,.markdown,.txt,.html,.htm,text/csv,application/json,text/markdown,text/plain,text/html,.se,.si,.sie,.ofx,.qfx,.qif,.sta,.mt940,.940,.xml,.eml,.ics,.zip,.opus,.flac,.m4a,' + globalThis.SlopRawDetect.ACCEPT });
+  const input = h('input', { type: 'file', multiple: true, id: id('input'), class: 'cv-sr', tabindex: -1, 'aria-hidden': 'true', accept: preset && preset.accept ? preset.accept : 'image/*,video/*,audio/*,application/pdf,.heic,.heif,.csv,.tsv,.vcf,.vcard,.xlsx,.ods,.json,.yaml,.yml,.toml,.srt,.vtt,.md,.markdown,.txt,.html,.htm,text/csv,application/json,text/markdown,text/plain,text/html,.se,.si,.sie,.ofx,.qfx,.qif,.sta,.mt940,.940,.xml,.eml,.ics,.zip,.opus,.flac,.m4a,' + globalThis.SlopRawDetect.ACCEPT }); // intake-ok: the drop zone's own Choose files input (SlopDrop.attach input, through the intake)
   const list = h('ul', { class: 'cv-files', id: id('list'), 'aria-label': 'Files to convert' });
   // Select all, and for the selected rows: "N selected · Convert to [..] · Remove" (bulk.js).
   const bulk = h('div', { class: 'cv-bulk', id: id('bulk'), role: 'group', 'aria-label': 'Selected files', hidden: true });

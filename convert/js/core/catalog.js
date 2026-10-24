@@ -29,6 +29,8 @@ import { DOC_OUT } from './doc-out.js';
 import { OFFICE } from './office.js';
 import { PDF_EXTRA } from './pdf-extra.js';
 import { PDF_LOCK } from './pdf-lock.js';
+import { TEXT_MORE, TO_UTF8, DELIM } from './text-more.js';
+import { MEDIA_GEO } from './media-geo.js';
 import { KEYWORDS } from './keywords.js';
 import { CHAIN_FLAGS } from './chain-flags.js';
 import { register } from '../../../shared/ops/registry.js';
@@ -40,7 +42,6 @@ const SIZE = [
 ];
 const QUALITY = { key: 'quality', type: 'range', label: 'Quality', min: 10, max: 100, value: 90 };
 const BACKGROUND = { key: 'background', type: 'color', label: 'Background for transparency', value: '#ffffff' };
-const DELIM = { key: 'delimiter', type: 'select', label: 'Separator', value: 'auto', options: [['auto', 'Detect'], [',', 'Comma'], [';', 'Semicolon'], ['\t', 'Tab'], ['|', 'Pipe']] };
 const EOL = { key: 'eol', type: 'select', label: 'Line endings', value: 'lf', options: [['lf', 'LF (Mac, Linux)'], ['crlf', 'CRLF (Windows)'], ['cr', 'CR (old Mac)']] };
 
 function imageTo(to) {
@@ -191,8 +192,9 @@ export const CONVERSIONS = [
   } },
   { id: 'json-to-csv', label: 'JSON to CSV', group: 'Data', from: ['json', 'txt'], ext: 'csv', mode: 'each', options: [
     { key: 'delimiter', type: 'select', label: 'Separator', value: ',', options: [[',', 'Comma'], [';', 'Semicolon'], ['\t', 'Tab']] }, EOL,
+    { key: 'flatten', type: 'checkbox', label: 'Nested values in their own columns (a.b, tags.0)', value: false },
   ], run: async (files, o) => {
-    const csv = jsonToCsv(decodeText(new Uint8Array(await files[0].file.arrayBuffer())), { delimiter: o.delimiter, eol: EOLS[o.eol] || '\n' });
+    const csv = jsonToCsv(decodeText(new Uint8Array(await files[0].file.arrayBuffer())), { delimiter: o.delimiter, eol: EOLS[o.eol] || '\n', flatten: !!o.flatten });
     return [out(`${base(files[0].name)}.csv`, csv, 'text/csv')];
   } },
   { id: 'csv-to-xlsx', label: 'CSV to XLSX', group: 'Data', from: ['csv', 'txt'], ext: 'xlsx', mode: 'each', options: [DELIM], run: async (files, o) => {
@@ -261,6 +263,9 @@ export const CONVERSIONS = [
   ...THREED,   // 3D models (core/threed.js)
   ...PDF_EXTRA,   // PDF to text, HTML to a picture PDF (core/pdf-extra.js)
   ...PDF_LOCK,   // Protect PDF with a password, Remove PDF password (core/pdf-lock.js, shared/pdf-crypto)
+  ...TEXT_MORE,   // HTML to Markdown, CSV tables, JSON Lines, text to UTF-8, EPUB, ASS and SBV subtitles (core/text-more.js)
+  ...MEDIA_GEO,   // favicon set, cut audio and video, GPX, KML and GeoJSON (core/media-geo.js)
+  TO_UTF8,   // last: any text file, never a kind's default
 ];
 
 for (const c of CONVERSIONS) if (KEYWORDS[c.id]) c.keywords = [...(c.keywords || []), ...KEYWORDS[c.id]];   // the menus' search words

@@ -12,11 +12,14 @@
   'use strict';
   if (g.SlopWorkflowEntry) return;
   const SCRIPT = document.currentScript;
-  const ROOT = SCRIPT && SCRIPT.src ? new URL('../../', SCRIPT.src).href : new URL('/', location.href).href;
+  // An offline copy inlines this script into a blob: page, where there is no site root: the entry then says Workflows
+  // are online only (open() catches it) instead of failing as the page loads.
+  let ROOT = '';
+  try { ROOT = SCRIPT && SCRIPT.src ? new URL('../../', SCRIPT.src).href : new URL('/', location.href).href; } catch (e) { ROOT = ''; }
   const toast = (m) => { if (g.SlopUI && g.SlopUI.toast) g.SlopUI.toast(m); };
 
   function open(o = {}) {
-    return import(new URL('shared/ops/dialog.js', ROOT).href).then((m) => m.open(o)).catch((e) => {
+    return Promise.resolve().then(() => import(new URL('shared/ops/dialog.js', ROOT).href)).then((m) => m.open(o)).catch((e) => {
       console.warn(e);
       toast('Workflows are not available offline. Open the page online once.');
       return null;

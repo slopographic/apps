@@ -29,6 +29,7 @@ async function runFilter(id, presetParams) {
       commit(f.name.replace('…', ''));
       if (wasText) toast('Type layer rasterized');
       LAST_FILTER.id = id; LAST_FILTER.params = params;
+      if (window.SlopMacros) SlopMacros.note('ps.ai.filter', { filter: id, params: JSON.stringify(params) }, f.name.replace('…', ''));   // a macro step (app/macros.js)
     } catch (e) { console.warn(e); toast('That filter failed: ' + e.message); live = null; dirty(true); }
     document.body.classList.remove('busy');
   };
