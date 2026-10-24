@@ -231,6 +231,7 @@
     // Time worked (shared/data/timesheets.js bills it). minutes and rate (per hour, minor units) price it; billable time
     // needs a customer. invoiceId is the invoice it was billed on; time on a void or deleted invoice is open again.
     timeEntries: { key: 'id', check: (r) => (r.billable && !r.customerId ? ['billable time needs a customer'] : []),
+      removeRule: (r) => (r.invoiceId ? 'billed time cannot be deleted; void its invoice first' : null),
       indexes: [{ name: 'date', key: 'date' }, { name: 'customerId', key: 'customerId' }, { name: 'invoiceId', key: 'invoiceId' }], fields: {
       id: F.id({ req: true }), date: F.date({ req: true }), customerId: F.id({}), project: F.str({ max: 80 }), description: F.str({ req: true, max: 300 }),
       minutes: F.int({ req: true, min: 1, max: 1440 }), rate: F.mny({ def: 0 }), currency: F.cur({}), billable: F.bool({ def: true }),

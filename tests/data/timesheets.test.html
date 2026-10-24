@@ -71,6 +71,7 @@
       expect((await st.put('timeEntries', { ...after, minutes: 5 })).code).toBe('invalid_transition');
       expect((await st.put('timeEntries', { ...after, description: 'Design and review' })).ok).toBe(true);
       expect((await T.toInvoice([a.id])).code).toBe('conflict');
+      expect((await st.remove('timeEntries', a.id)).ok).toBe(false);
     });
     it('refused: two customers, non-billable time, nothing chosen, an entry that is gone', async () => {
       const a = await entry(), b = await entry({ customerId: bob.id });
