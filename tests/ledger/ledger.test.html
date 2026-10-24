@@ -165,6 +165,15 @@
       await waitFor(() => win().location.hash === '#gl' && !$('view-gl').hidden);
       expect(doc().activeElement.id).toBe('tab-gl');
     });
+    it('follows the site theme (shared/biz/app.css): text reads on its background in every theme', async () => {
+      // Covers: ledger/css/ledger.css, shared/biz/app.css
+      for (const theme of ['light', 'dark', 'classic', 'lime']) {
+        win().SlopTheme.apply(theme);
+        const inp = win().getComputedStyle($('jMemo')), body = win().getComputedStyle(doc().body);
+        expect(SlopTest.contrast(inp.webkitTextFillColor || inp.color, inp.backgroundColor) >= 4.5).toBe(true, `${theme}: input`);
+        expect(SlopTest.contrast(body.color, body.backgroundColor) >= 4.5).toBe(true, `${theme}: page`);
+      }
+    });
     it('no error reached the page', () => {
       expect(errors).toHaveLength(0);
     });
