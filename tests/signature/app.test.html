@@ -9,14 +9,14 @@
   <iframe id="app" style="width:1280px;height:860px"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: signature/index.html, signature/js/app.js, signature/js/form.js, signature/js/model.js, signature/js/templates.js, signature/css/signature.css, shared/buffer/clipboard.js
+  // Covers: signature/index.html, signature/js/app.js, signature/js/form.js, signature/js/model.js, signature/js/templates.js, signature/css/signature.css, signature/js/layout.js, shared/buffer/clipboard.js
   const { describe, it, expect, waitFor, run, sleep } = SlopTest;
   let W, D, A, copied, got;
   const $ = (id) => D.getElementById(id);
-  async function boot(width = 1280, keep = false) {
+  async function boot(width = 1280, keep = false, height = 860) {
     if (!keep) try { localStorage.removeItem('slop-signature'); } catch (e) { /* none */ }
     const old = document.getElementById('app'), f = document.createElement('iframe');
-    f.id = 'app'; f.style.cssText = `width:${width}px;height:860px`;
+    f.id = 'app'; f.style.cssText = `width:${width}px;height:${height}px`;
     old.replaceWith(f);
     f.src = '../../signature/index.html';
     await waitFor(() => f.contentWindow && f.contentWindow.SlopSignature && f.contentWindow.SlopSignature.app && f.contentWindow.document.querySelector('.smb-bar'), { timeout: 20000 });
@@ -85,10 +85,29 @@
       expect($('sg-name').value).toBe('Kim Park');
       expect($('sgSig').textContent).toContain('Kim Park');
     });
-    it('at 390 px: the email comes first, and nothing scrolls sideways', async () => {
-      await boot(390);
+    it('at 1280 px the form is a panel on the right, Copy signature at its foot copies', async () => {
+      await boot(1280);
+      const p = $('sgPanel').getBoundingClientRect();
+      expect(p.left >= $('sgView').getBoundingClientRect().right - 1).toBe(true);
+      expect(Math.round(p.right)).toBe(1280);
+      expect($('sgPanel').contains($('sgForm'))).toBe(true);
+      expect($('sgCopy').closest('.sf-p-foot').parentNode).toBe($('sgPanel'));
+      expect($('sgCopy').getBoundingClientRect().bottom <= 860).toBe(true);
+      expect([...$('sgPanel').querySelectorAll('.sf-h')].map((n) => n.textContent)).toEqual(['Your details', 'Result']);
+      $('sgCopy').click();
+      await waitFor(() => copied);
+      expect(copied['text/plain']).toContain('Alex Morgan');
+    });
+    it('at 390 px: the email is the page, Copy signature stays at the bottom, Edit opens the form; nothing scrolls sideways', async () => {
+      await boot(390, false, 844);
       expect(D.documentElement.scrollWidth <= 390).toBe(true);
-      expect($('sgSig').getBoundingClientRect().top < $('sgForm').getBoundingClientRect().top).toBe(true);
+      expect($('sgSig').getBoundingClientRect().height > 0).toBe(true);
+      expect($('sgCopy').getBoundingClientRect().top > 700 && $('sgCopy').getBoundingClientRect().bottom <= 844).toBe(true);
+      expect($('sgForm').getBoundingClientRect().height).toBe(0);
+      D.querySelector('.sf-foot-more').click();
+      await waitFor(() => $('sgPanel').classList.contains('ssh-on'));
+      await sleep(300);
+      expect($('sg-name').getBoundingClientRect().height > 0).toBe(true);
     });
   });
   run();

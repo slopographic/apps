@@ -143,7 +143,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | SlopClean | clean/ | tool | choices panel right, Clean all in the header | to do | Clean all into the panel's foot |
 | Slop HTML to PDF | html2pdf/ | tool | settings LEFT, Print in the header | done | |
 | Slop Image to 3D | img3d/ | tool | settings LEFT, Send in the header | done | |
-| Slop Signature | signature/ | tool | form LEFT, preview right, Copy under the preview | to do | form to the right, Copy in the footer |
+| Slop Signature | signature/ | tool | form LEFT, preview right, Copy under the preview | done | |
 | QR SLOP | qr/ | tool | editor LEFT, preview right | to do | editor to the right, Download in the footer |
 | Slop Effects | effects/ | tool | panel right, Render in the header | to do | Render into the panel's foot |
 | Checksum | checksum/ | tool | three stacked cards | to do | pick/check cards → right panel |
