@@ -46,7 +46,8 @@
 
     it('clearing the saved work empties the queue, and it stays empty on the next visit', async () => {
       let w = await openApp();
-      expect(w.CO.state.items.length >= 1).toBe(true);
+      // the saved work comes back from IndexedDB after the page is ready: wait for it rather than read it at once
+      await waitFor(() => w.CO.state.items.length >= 1, { timeout: 30000, polling: 100 });
       w.CO.viewState.clear();
       await waitFor(() => w.CO.state.items.length === 0, { timeout: 10000 });
       await sleep(1200);
