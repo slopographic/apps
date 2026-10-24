@@ -1,12 +1,20 @@
 /* Slop Slides: canvas pointer interactions. A press selects the object under the pointer (Shift toggles), a drag moves
    the selection with smart guides, a drag on a handle resizes one unrotated object, and a second press on the same
    object within 450 ms (double-click or double-tap) opens its text. A gesture is one undo step; a press that does
-   not move drops its step. Exposes window.SS.pointer.bind(canvas). */
+   not move drops its step. On touch the canvas is a touch surface (shared/input: a drag is never a scroll), a handle
+   grabs from 22 px away (12 for a pen), and a long press opens the context menu (the touch layer sends contextmenu).
+   Exposes window.SS.pointer.bind(canvas). */
 (function () {
   'use strict';
   var SS = window.SS, A = SS.app, O = SS.objects, U = SS.util, St = SS.stage, OV = SS.overlay, SN = SS.snap;
   var P = SS.pointer = {};
   var last = null, drag = null;
+  /** How far from a handle (screen px) a press still grabs it: more for a finger and a pen than for a mouse. */
+  function reach(e) {
+    var T = window.SlopTouch;
+    if (T && T.hit) return T.hit(e, 8);
+    return e.pointerType === 'touch' ? 22 : e.pointerType === 'pen' ? 12 : 8;
+  }
   var CUR = { nw: 'nwse-resize', se: 'nwse-resize', ne: 'nesw-resize', sw: 'nesw-resize', n: 'ns-resize', s: 'ns-resize', e: 'ew-resize', w: 'ew-resize' };
 
   function hover(p) {
@@ -40,7 +48,7 @@
     if (A.mode !== 'edit' || !A.slide() || e.button > 0) return;
     if (SS.textEdit.editing) SS.textEdit.commit();
     var p = St.toSlide(e.clientX, e.clientY), now = Date.now();
-    var hit = OV.hit(A.slide(), p), h = OV.handleAt(p, A.selObjs());
+    var hit = OV.hit(A.slide(), p), h = OV.handleAt(p, A.selObjs(), reach(e));
     if (hit && last && last.id === hit.id && now - last.t < 450 && SS.textEdit.canEdit(hit)) {
       last = null;
       // Cancel the press so the browser does not move focus to the canvas after the editor takes it (that blur would
@@ -82,6 +90,7 @@
   }
   /** Wires the pointer events of the editing canvas. */
   P.bind = function (cv) {
+    cv.setAttribute('data-touch-surface', ''); // shared/input/touch.css: touch-action none, no callout, no selection
     cv.addEventListener('pointerdown', down);
     cv.addEventListener('pointermove', move);
     cv.addEventListener('pointerup', up);

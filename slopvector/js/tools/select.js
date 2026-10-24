@@ -18,14 +18,17 @@
   function handleAt(b, sx, sy) {
     var sb = SV.screenBox(b), hp = SV.handlePositions(sb), best = null;
     if (sb.w < 6 && sb.h < 6) return null;
-    SV.HANDLE_NAMES.forEach(function (n) { var d = max(abs(hp[n][0] - sx), abs(hp[n][1] - sy)); if (d <= 6 && (!best || d < best.d)) best = { n: n, d: d }; });
+    // A finger gets a bigger handle (SV.hitPx), but never so big that a small shape's inside is all handle.
+    var r = max(6, min(SV.hitPx(6), max(sb.w, sb.h) / 3));
+    SV.HANDLE_NAMES.forEach(function (n) { var d = max(abs(hp[n][0] - sx), abs(hp[n][1] - sy)); if (d <= r && (!best || d < best.d)) best = { n: n, d: d }; });
     return best && best.n;
   }
   function rotateZone(b, sx, sy) {
     var sb = SV.screenBox(b);
     if (sx >= sb.x && sx <= sb.x + sb.w && sy >= sb.y && sy <= sb.y + sb.h) return false;
     var hp = SV.handlePositions(sb);
-    return ['nw', 'ne', 'se', 'sw'].some(function (n) { var d = hypot(hp[n][0] - sx, hp[n][1] - sy); return d > 5 && d < 22; });
+    var r = SV.hitPx(5);
+    return ['nw', 'ne', 'se', 'sw'].some(function (n) { var d = hypot(hp[n][0] - sx, hp[n][1] - sy); return d > r && d < r + 17; });
   }
   var RESIZE_CURSORS = { n: 'ns-resize', s: 'ns-resize', e: 'ew-resize', w: 'ew-resize', nw: 'nwse-resize', se: 'nwse-resize', ne: 'nesw-resize', sw: 'nesw-resize' };
   function guideAt(ev) {

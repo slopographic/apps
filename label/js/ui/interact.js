@@ -38,9 +38,11 @@ function hitTest(x, y) {
   }
   return null;
 }
-function hitHandle(sx, sy) {
+/** e: the pointer event: a finger gets about 44 px around a handle (SlopTouch.hit), a mouse 3 px. */
+function hitHandle(sx, sy, e) {
   const o = selOne(); if (!o || o.locked) return -1;
-  for (const h of handleRects(boxOf(o))) if (sx >= h.x - 3 && sx <= h.x + h.w + 3 && sy >= h.y - 3 && sy <= h.y + h.h + 3) return h.k;
+  const pad = e && window.SlopTouch ? Math.max(3, SlopTouch.hit(e, 3) - 4) : 3;
+  for (const h of handleRects(boxOf(o))) if (sx >= h.x - pad && sx <= h.x + h.w + pad && sy >= h.y - pad && sy <= h.y + h.h + pad) return h.k;
   return -1;
 }
 const HANDLE_CURSORS = ['nwse-resize', 'ns-resize', 'nesw-resize', 'ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize', 'ew-resize'];
@@ -77,7 +79,7 @@ function onPointerDown(e) {
   if (e.button === 1 || App.tool === 'hand' || spaceDown) { Drag = { mode: 'pan', sx, sy, px: App.panX, py: App.panY }; st.classList.add('panning'); return; }
   if (e.button === 2) return;
   if (tool.create) { Drag = { mode: 'create', x0: x, y0: y, x, y, sx, sy, tool }; return; }
-  const hk = hitHandle(sx, sy);
+  const hk = hitHandle(sx, sy, e);
   if (hk >= 0) { const o = selOne(); Drag = { mode: 'resize', k: hk, o, start: deepClone(o), box: { ...boxOf(o) }, x0: x, y0: y }; return; }
   const hit = hitTest(x, y);
   if (hit) {
@@ -87,7 +89,7 @@ function onPointerDown(e) {
     Drag = { mode: 'move', x0: x, y0: y, objs, starts: objs.map((o) => [o.x, o.y]), box: { ...selBox() }, moved: false };
     return;
   }
-  if (e.pointerType === 'touch') { Drag = { mode: 'pan', sx, sy, px: App.panX, py: App.panY }; return; }
+  if (e.pointerType === 'touch') { Drag = { mode: 'pan', sx, sy, px: App.panX, py: App.panY, tap: true }; return; } // a tap (no pan) clears the selection
   Drag = { mode: 'marquee', x0: x, y0: y, add: e.shiftKey, base: e.shiftKey ? App.sel.slice() : [] };
   if (!e.shiftKey) App.sel = [];
 }
@@ -132,7 +134,7 @@ function onPointerUp(e) {
   App.guides = []; App.marquee = null; App.ghost = null;
   if (!D0) return;
   if (D0.mode === 'pinch') { if (pointers.size < 2) Drag = null; refresh({ keepProps: true }); return; }
-  if (D0.mode === 'pan') { refresh({ keepProps: true }); return; }
+  if (D0.mode === 'pan') { if (D0.tap && e.type === 'pointerup' && Math.hypot(App.panX - D0.px, App.panY - D0.py) < 4 && App.sel.length) { select([]); return; } refresh({ keepProps: true }); return; }
   if (D0.mode === 'marquee') { refresh(); return; }
   if (D0.mode === 'move') { if (D0.moved) commit(D0.objs.length > 1 ? 'Move objects' : 'Move'); else refresh(); return; }
   if (D0.mode === 'resize') { syncAutoSize(App.doc, D0.o, previewGet()); commit('Resize'); return; }
@@ -236,6 +238,7 @@ function movePinch() {
 }
 function initInteract() {
   const st = $('stage');
+  st.setAttribute('data-touch-surface', 'nav'); // a touch surface (shared/input); the pinch above is the stage's own
   st.addEventListener('pointerdown', onPointerDown);
   st.addEventListener('pointermove', onPointerMove);
   st.addEventListener('pointerup', onPointerUp);

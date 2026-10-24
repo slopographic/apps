@@ -76,26 +76,50 @@
   });
 
   /* ---------- pointer ---------- */
+  // A mouse: press places the caret (double: the word, triple: the paragraph), drag selects, Shift extends.
+  // A finger or a pen: the page scrolls under a drag, as on any phone, so the caret moves on the tap (the finger's lift,
+  // unless it moved or a long press opened the menu); a double tap selects the word, a triple tap the paragraph. The
+  // header and footer open on a double tap through the touch layer's dblclick (hf.js).
+  const finger = (e) => e.pointerType === 'touch' || e.pointerType === 'pen';
+  let press = null, taps = { n: 0, t: 0, x: 0, y: 0 };
+  function place(h, count, shift) {
+    const pos = { b: h.b, o: h.o };
+    const p = S.doc.blocks[h.b], t = p && p.type === 'p' ? E().M.paraText(p) : '';
+    let anchor = pos;
+    if (count >= 3) { anchor = { b: h.b, o: 0 }; S.select(anchor, { b: h.b, o: t.length }); }
+    else if (count === 2) { const w = E().O.wordAt(t, h.o); anchor = { b: h.b, o: w.s }; S.select(anchor, { b: h.b, o: w.e }); }
+    else if (shift) { anchor = S.sel.a; S.select(anchor, pos); }
+    else S.select(pos, pos);
+    return anchor;
+  }
+  const fingerDown = (e) => { press = { id: e.pointerId, x: e.clientX, y: e.clientY, t: Date.now(), shift: e.shiftKey }; };
   pages().addEventListener('pointerdown', (e) => {
     if (e.button !== 0) return;
     const h = S.R.hit(e.clientX, e.clientY);
     if (!h) return;
+    if (finger(e)) { fingerDown(e); return; }
     e.preventDefault();
     S.focusIme();
-    const pos = { b: h.b, o: h.o };
-    const p = S.doc.blocks[h.b], t = p && p.type === 'p' ? E().M.paraText(p) : '';
-    let anchor = pos;
-    if (e.detail >= 3) { anchor = { b: h.b, o: 0 }; S.select(anchor, { b: h.b, o: t.length }); }
-    else if (e.detail === 2) { const w = E().O.wordAt(t, h.o); anchor = { b: h.b, o: w.s }; S.select(anchor, { b: h.b, o: w.e }); }
-    else if (e.shiftKey) { anchor = S.sel.a; S.select(anchor, pos); }
-    else S.select(pos, pos);
-    drag = { anchor };
+    drag = { anchor: place(h, e.detail, e.shiftKey) };
   });
+  function tap(e) {
+    const p = press;
+    press = null;
+    if (!p || e.pointerId !== p.id || Date.now() - p.t > 500 || Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10) return;
+    const h = S.R.hit(e.clientX, e.clientY);
+    if (!h) return;
+    const now = Date.now(), near = Math.hypot(e.clientX - taps.x, e.clientY - taps.y) <= 24;
+    taps = { n: near && now - taps.t < 350 ? taps.n % 3 + 1 : 1, t: now, x: e.clientX, y: e.clientY };
+    S.focusIme(); // in the pointerup, a user gesture: iOS shows the keyboard
+    place(h, taps.n, p.shift);
+  }
   window.addEventListener('pointermove', (e) => {
+    if (press && e.pointerId === press.id && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 10) press = null;
     if (!drag) return;
     const h = S.R.hit(e.clientX, e.clientY);
     if (h) S.select(drag.anchor, { b: h.b, o: h.o });
   });
-  window.addEventListener('pointerup', () => { drag = null; });
-  window.addEventListener('pointercancel', () => { drag = null; });
+  window.addEventListener('pointerup', (e) => { drag = null; if (press) tap(e); });
+  window.addEventListener('pointercancel', () => { drag = null; press = null; });
+  window.addEventListener('contextmenu', () => { press = null; }, true); // a long press opened the menu: not a tap
 })();

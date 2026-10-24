@@ -7,6 +7,8 @@
  *                                 events a trackpad would (Ctrl+wheel for pinch, plain wheel for pan), { wheel: 'zoom' }
  *                                 only the pinch, { nav: true } leaves both to the surface's own SlopNav engine.
  *                                 The attribute's value says the same: "wheel", "wheel-zoom", "nav" (or "" for none).
+ *                                 App code that may run before this layer has loaded (the shell loads it) sets the
+ *                                 attribute and, for hooks, the element's touchSurface property ({ zoom, pan }) itself.
  *   SlopTouch.hit(e, r)           a hit radius (CSS px) for a pointer event: at least 22 px for a finger, 12 for a pen.
  *   SlopTouch.coarse()            the main pointer is a finger (the CSS (pointer: coarse)).
  * Classic script; also sets SlopTouch.events (used by touch.js and the tests). */
@@ -27,7 +29,7 @@
   function surfaceOf(t) {
     const el = t && t.closest ? t.closest('[data-touch-surface]') : null;
     if (!el) return null;
-    return { el, o: opts.get(el) || MODES[el.getAttribute('data-touch-surface')] || {} };
+    return { el, o: opts.get(el) || el.touchSurface || MODES[el.getAttribute('data-touch-surface')] || {} };
   }
   const coarse = () => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } };
   function hit(e, r) {
@@ -49,6 +51,7 @@
   }
   function mark(ev) { try { Object.defineProperty(ev, 'slopTouch', { value: true }); } catch (e) { /* frozen */ } return ev; }
   function mouseInit(x, y, extra) {
+    x = Number.isFinite(x) ? x : 0; y = Number.isFinite(y) ? y : 0;
     return Object.assign({ bubbles: true, cancelable: true, composed: true, view: window, clientX: x, clientY: y,
       screenX: x + (window.screenX || 0), screenY: y + (window.screenY || 0) }, extra);
   }

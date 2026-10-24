@@ -61,7 +61,7 @@ body { margin: 0; }
 /* Timeline: a label column and a time area. */
 .fx-tl-grid { position: relative; min-width: 100%; }
 .fx-ruler { position: sticky; top: 0; z-index: 3; height: 30px; background: var(--fx-surface); border-bottom: 1px solid var(--fx-border); }
-.fx-ruler-track { position: absolute; top: 0; bottom: 0; }
+.fx-ruler-track { position: absolute; top: 0; bottom: 0; touch-action: none; } /* a finger scrubs, it does not scroll */
 .fx-tick { position: absolute; top: 0; bottom: 0; border-left: 1px solid color-mix(in srgb, var(--fx-text) 16%, transparent); font: 10px var(--sui-mono, monospace); color: var(--fx-dim); padding: 4px 0 0 3px; }
 .fx-head-cell { position: sticky; left: 0; z-index: 2; background: var(--fx-surface); }
 .fx-lrow { position: relative; display: flex; min-height: 30px; border-bottom: 1px solid color-mix(in srgb, var(--fx-border) 70%, transparent); }
@@ -76,6 +76,8 @@ body { margin: 0; }
 .fx-prow { position: relative; display: flex; min-height: 24px; border-bottom: 1px dashed color-mix(in srgb, var(--fx-border) 60%, transparent); }
 .fx-prow .fx-lcell { font-size: 12px; padding-left: 26px; color: var(--fx-dim); }
 .fx-diamond { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; background: var(--fx-accent); transform: rotate(45deg); border-radius: 2px; cursor: grab; touch-action: none; z-index: 1; }
+/* A finger-sized key: an invisible 44 px square around the diamond under a coarse pointer (--slop-hit: shared/input) */
+.fx-diamond::after { content: ''; position: absolute; left: 50%; top: 50%; width: var(--slop-hit, 0px); height: var(--slop-hit, 0px); transform: translate(-50%, -50%); }
 .fx-diamond.is-sel { background: var(--fx-text); box-shadow: 0 0 0 2px var(--fx-accent); }
 .fx-diamond.is-hold { background: transparent; border: 2px solid var(--fx-accent); }
 .fx-playhead { position: absolute; top: 0; bottom: 0; width: 1px; background: #ff4f6e; z-index: 4; pointer-events: none; }

@@ -30,6 +30,8 @@
   T.last = 'mouse';
   T.penDown = () => pens > 0;
   const now = () => performance.now();
+  /** A finger or a pen, with a place (a mouse, or an event some code made without coordinates, is not ours). */
+  const finger = (e) => (e.pointerType === 'touch' || e.pointerType === 'pen') && Number.isFinite(e.clientX) && Number.isFinite(e.clientY);
   const swallow = (e) => { e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); };
   const sample = (e) => ({ id: e.pointerId, x: e.clientX, y: e.clientY, t: now(), kind: e.pointerType });
 
@@ -85,7 +87,7 @@
 
   function onDown(e) {
     T.last = e.pointerType || 'mouse';
-    if (e.pointerType === 'mouse' || !e.isPrimary && e.pointerType === 'pen' && pens) return;
+    if (!finger(e) || e.slopTouch) return;
     if (e.pointerType === 'pen') {
       pens++;
       if (T.palm) for (const [id, p] of info) if (p.kind === 'touch') { takeFromApp(id); g.cancel({ id }); }
@@ -98,15 +100,14 @@
     run(g.down(sample(e)), e);
   }
   function onMove(e) {
-    if (e.pointerType === 'mouse' || !info.has(e.pointerId)) return;
+    if (!finger(e) || e.slopTouch || !info.has(e.pointerId)) return;
     const p = info.get(e.pointerId);
     p.x = e.clientX; p.y = e.clientY;
-    if (taken.has(e.pointerId) && !e.slopTouch) { if (!g.pinching || p.kind !== 'touch') { swallow(e); return; } }
     run(g.move(sample(e)), e);
-    if (taken.has(e.pointerId) && !e.slopTouch) swallow(e);
+    if (taken.has(e.pointerId)) swallow(e);
   }
   function onEnd(e) {
-    if (e.pointerType === 'mouse' || e.slopTouch || !info.has(e.pointerId)) return;
+    if (!finger(e) || e.slopTouch || !info.has(e.pointerId)) return;
     const p = info.get(e.pointerId);
     if (p.kind === 'pen') { pens = Math.max(0, pens - 1); penUpAt = now(); }
     run(e.type === 'pointerup' ? g.up(sample(e)) : g.cancel(sample(e)), e);
@@ -122,7 +123,11 @@
       const d = pendingDbl;
       clearTimeout(d.timer);
       d.target = e.target;
-      setTimeout(d.fire, 0); // after the app's own click handlers
+      // After the app's own click handlers, still inside the click: a user gesture, so an editor the dblclick opens can
+      // focus and iOS shows the keyboard (it does not for a focus from a timer). If an app stops the click, a moment later.
+      const after = (ev) => { removeEventListener('click', after); if (ev === e) d.fire(); else setTimeout(d.fire, 0); };
+      addEventListener('click', after);
+      d.timer = setTimeout(() => { removeEventListener('click', after); d.fire(); }, 60);
     }
   }
   function onNativeDbl(e) {

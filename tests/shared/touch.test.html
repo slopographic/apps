@@ -31,9 +31,14 @@
   for (const t of ['dblclick', 'contextmenu', 'click', 'wheel', 'pointerdown', 'pointercancel']) for (const el of [$('pad'), $('hooks'), $('plain'), $('text')]) {
     el.addEventListener(t, (e) => { log.push({ t, id: el.id, e }); if (t === 'contextmenu' && el.id !== 'plain') e.preventDefault(); if (t === 'wheel') e.preventDefault(); }, { passive: false });
   }
+  // The dblclick comes inside the second click's dispatch (a user gesture: an editor it opens may focus, and iOS shows the keyboard)
+  let inClick = false, dblInClick = null;
+  $('plain').addEventListener('click', () => { inClick = true; setTimeout(() => { inClick = false; }, 0); });
+  $('plain').addEventListener('dblclick', () => { dblInClick = inClick; });
   const got = (t, id) => log.filter((x) => x.t === t && (!id || x.id === id));
   let zoom = 1, panned = 0;
-  SlopTouch.surface($('hooks'), { zoom(s) { zoom *= s; }, pan(dx, dy) { panned += dx + dy; } });
+  $('hooks').setAttribute('data-touch-surface', ''); $('hooks').touchSurface = { zoom(s) { zoom *= s; }, pan(dx, dy) { panned += dx + dy; } }; // as app code does before the layer loads
+  SlopTouch.surface($('plain').appendChild(document.createElement('div'))).destroy(); // the API too
 
   describe('SlopTouch', () => {
     it('is loaded and marks surfaces so the browser never takes a drag (touch-action, callout, selection, overscroll)', () => {
@@ -53,7 +58,7 @@
       expect(SlopTouch.hit({ pointerType: 'pen' }, 4)).toBe(12);
       expect(SlopTouch.hit({ pointerType: 'mouse' }, 4)).toBe(4);
     });
-    it('a double tap sends exactly one dblclick, after the clicks, at that point', async () => {
+    it('a double tap sends exactly one dblclick, after the clicks and inside the second (a user gesture), at that point', async () => {
       log.length = 0;
       await TouchKit.doubleTap($('plain'));
       await waitFor(() => got('dblclick', 'plain').length);
@@ -64,6 +69,7 @@
       const r = $('plain').getBoundingClientRect(), d = got('dblclick', 'plain')[0].e;
       expect(Math.abs(d.clientX - (r.left + r.width / 2))).toBeLessThan(3);
       expect(d.detail).toBe(2);
+      expect(dblInClick).toBe(true);
     });
     it('a double tap in a text field is the field\'s own (no dblclick from the layer)', async () => {
       log.length = 0;

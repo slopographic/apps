@@ -24,6 +24,10 @@ to 3D, Sheet view) load the three scripts and the CSS themselves.
 
 Every synthetic event has `e.slopTouch === true` (and `isTrusted === false`).
 
+The dblclick is dispatched inside the second tap's click (after the app's own click handlers, in the same dispatch), so
+it runs in a user gesture: an editor it opens can focus and iOS shows the keyboard. iOS does not for a focus from a timer,
+so an app that opens a text field from its own double-tap detection does it in the pointerdown/up (Tables, Slop PDF).
+
 ## Surfaces
 
 An editing surface is anything the person drags on: a canvas, a page view, a timeline, an editor. Mark it:
@@ -47,6 +51,10 @@ fields and contenteditable inside a surface stay selectable. Everything else on 
 | `"nav"` / `{ nav: true }` | left to the surface's SlopNav engine (`shared/nav`), which has its own pinch and pan (PhotoSlop, SlopVector, Slop PDF) |
 | `{ zoom, pan }` | the hooks, in client pixels, scale since the last call |
 
+The shell loads the layer after the page's own scripts may have run, so app code does not wait for it: it sets the
+attribute itself, and for hooks the element's `touchSurface` property (`el.touchSurface = { zoom, pan }`), which the layer
+reads when two fingers land. `SlopTouch.surface(el, opts)` does both, when the layer is there.
+
 Use the hooks when the app's wheel zoom is tuned to mouse notches (a pinch through it would crawl or jump).
 
 ## Hit areas
@@ -56,6 +64,21 @@ Use the hooks when the app's wheel zoom is tuned to mouse notches (a pinch throu
 use its own `::after`), or uses the variable in its CSS (`min-width: var(--slop-hit)`, or a transparent border).
 Handles drawn on a canvas or in SVG use `SlopTouch.hit(e, r)` in their hit test: the radius r for a mouse, at least
 22 px for a finger and 12 for a pen (CSS pixels: divide by the zoom for document units).
+
+## The apps
+
+| app | surface (two fingers) | notes |
+| --- | --- | --- |
+| Slop PDF | `#viewer`, `nav` (SlopNav pinches) | its own double-tap on annotations (pointer.js); handles 44 px (workspace.css); signature pad a surface |
+| PhotoSlop | `#viewport`, `nav` | handles, guides and the curve dialog grab from a finger's reach; a long press opens the canvas menu and drops the stroke; pressure from the pen (core/view.js) |
+| Paint Classic | `#wrap`, hooks stepping its zoom levels | no shell: loads the layer itself; a long press on a swatch is its menu |
+| SlopVector | stage, `nav` | handle and anchor radius by `SlopTouch.hit`; pencil records pressure |
+| Slop Press, Label, Nodes, Slop 3D, Image to 3D, Drive's 3D preview and graph, SlopIsolate | hooks (`touchSurface`) | Label pans with one finger on empty stage |
+| SlopCut, Effects, Projects | timelines are surfaces; pinch zooms, pan scrolls | trim edges and keys 44 px |
+| Slides | slide canvas | handles from 22 px; double tap edits text |
+| Tables | headers and the selection knob only | a finger drag on cells scrolls them (as phone spreadsheets do); the knob extends the selection; double tap edits (in the gesture) |
+| Docs | none on the page (it scrolls) | the caret moves on the tap's lift; header/footer open on a double tap |
+| Drive, Gallery, Music, Calendar, Hex, Code, Contacts | grips, waves and draggable chips only | lists keep scrolling; long press selects and opens the menu (Drive), starts a range (Hex) |
 
 ## Android back
 

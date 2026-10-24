@@ -33,7 +33,7 @@
   }
   /** Keep focus in the hidden input when a toolbar button is pressed. */
   function keepFocus(root) {
-    root.addEventListener('mousedown', (e) => { if (e.target.closest('button')) e.preventDefault(); });
+    root.addEventListener('mousedown', (e) => { if (e.target.closest('button')) e.preventDefault(); }); // touch-ok: only keeps the focus (browsers send it after a tap too)
   }
   function wire() {
     const A = () => S.A;

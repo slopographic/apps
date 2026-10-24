@@ -2,7 +2,8 @@
  * (the same as Shift-drag, minus Alt for opacity). No history step: the value goes straight into the
  * brush settings (BRUSH_OPTS) and is stored with the other tool options. A right-click without a drag
  * still opens the canvas menu (ui/context.js). Windows and Linux send the menu event after the release,
- * macOS sends it on the press; both are handled here. */
+ * macOS sends it on the press; both are handled here. touch-ok: V.el (#viewport) is the canvas touch surface (index.html);
+ * a finger has no right button, so a long press opens the menu instead (shared/input). */
 'use strict';
 
 function brushRightDown(e) {

@@ -57,6 +57,7 @@ function setWidth(w, keep) {
   if (keep) writePref('layout', { width: state.width, collapsed: { ...state.collapsed } });
 }
 
+// The handle has touch-action: none and data-touch-hit (a 44 px hit area for a finger: code/css/explorer.css, shared/input).
 function wireResize() {
   const handle = $('cd-resize');
   if (!handle) return;

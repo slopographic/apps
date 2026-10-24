@@ -1,7 +1,8 @@
 /* Touch input for the test pages of the touch runs (tests/run.mjs --touch; pages marked <meta name="slop-test-touch">).
  * Fingers go through the runner's bridge (window.__slopInput, tests/touch.mjs) as real touches where the engine can
  * (a tap in every engine; any gesture in Chromium, by CDP), else as touch pointer events sent in the page, the way the
- * browser would send them (implicitly captured to the element first touched, a click after a tap).
+ * browser would send them (implicitly captured to the element first touched while it is on the page, a click after a
+ * tap).
  *   TouchKit.tap(t) · doubleTap(t) · longPress(t, ms) · drag(t, dx, dy, steps) · pinch(t, scale, steps) · pan2(t, dx, dy)
  * t is an element (its centre), { el, x, y } (x, y from the element's top left) or { x, y } in the test page. Elements in
  * a same-origin iframe are found through their frame. Each resolves once the gesture is over.
@@ -40,13 +41,31 @@
     }
   }
 
+  /** The page's pointer capture accepts the kit's fingers (a browser refuses a pointer it did not make itself, and the
+   *  app would throw where a real finger works): capturing one of them does nothing, as touch pointers are already
+   *  captured to what they touched. */
+  const kitIds = new Set();
+  function allowCapture(W) {
+    const P = W.Element.prototype;
+    if (P.__touchKit) return;
+    P.__touchKit = true;
+    for (const name of ['setPointerCapture', 'releasePointerCapture']) {
+      const real = P[name];
+      P[name] = function (id) { if (kitIds.has(id)) return undefined; return real.call(this, id); };
+    }
+  }
   /** A synthetic finger: pointer events sent to what it first touched (as touch pointers are captured). */
   function finger(x, y, kind = 'touch', pressure = 0.5) {
     const id = nextId++, start = local(x, y), target = start.el || start.win.document.body;
+    kitIds.add(id);
+    allowCapture(start.win);
     const ox = x - start.lx, oy = y - start.ly; // the frame's offset in the top page
     const send = (type, px, py, extra) => {
       const W = start.win;
-      target.dispatchEvent(new W.PointerEvent(type, { bubbles: true, cancelable: type !== 'pointercancel', composed: true, view: W,
+      // A target the app took off the page (it re-rendered) no longer gets the events: as the browser does, what is
+      // under the finger gets them instead.
+      const to = target.isConnected ? target : W.document.elementFromPoint(px - ox, py - oy) || W.document.body;
+      to.dispatchEvent(new W.PointerEvent(type, { bubbles: true, cancelable: type !== 'pointercancel', composed: true, view: W,
         pointerId: id, pointerType: kind, isPrimary: true, clientX: px - ox, clientY: py - oy, screenX: px, screenY: py,
         button: type === 'pointermove' ? -1 : 0, buttons: type === 'pointerup' || type === 'pointercancel' ? 0 : 1,
         pressure: type === 'pointerup' ? 0 : pressure, width: 8, height: 8, ...extra }));
@@ -56,7 +75,7 @@
       move(px, py) { send('pointermove', px, py); },
       up(px, py, click) {
         send('pointerup', px, py);
-        if (click) target.dispatchEvent(new start.win.MouseEvent('click', { bubbles: true, cancelable: true, view: start.win, clientX: px - ox, clientY: py - oy, detail: 1 }));
+        if (click) (target.isConnected ? target : start.win.document.elementFromPoint(px - ox, py - oy) || start.win.document.body).dispatchEvent(new start.win.MouseEvent('click', { bubbles: true, cancelable: true, view: start.win, clientX: px - ox, clientY: py - oy, detail: 1 }));
       },
       cancel() { send('pointercancel', x, y); },
     };
@@ -73,7 +92,8 @@
     f.up(p.x, p.y, true);
     return sleep(30);
   }
-  async function doubleTap(t) { await tap(t); await sleep(90); await tap(t); return sleep(420); }
+  /** Both taps at the same place, even when the first one makes the app draw the target anew. */
+  async function doubleTap(t) { const p = where(t), at = { x: p.x, y: p.y }; await tap(at); await sleep(90); await tap(at); return sleep(420); }
 
   async function longPress(t, ms = 700) {
     const p = where(t);

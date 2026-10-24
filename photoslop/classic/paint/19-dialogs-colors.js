@@ -80,12 +80,13 @@ function editColorsDialog(initial) {
   fillGrid(q('#ecBasic'), BASIC_COLORS, pickHex);
   const drawCustom = () => fillGrid(q('#ecCustom'), customColors, (c, i) => { customSlot = i; pickHex(c); drawCustom(); }, i => i === customSlot);
   drawCustom();
+  // touch-ok: the spectrum and the luminance bar have touch-action: none (paint-forms.css .ec-spec, .ec-lum)
   const drag = (el, fn) => {
     el.addEventListener('pointerdown', e => {
       el.setPointerCapture(e.pointerId); fn(e);
       const mv = ev => fn(ev);
-      const up = () => { el.removeEventListener('pointermove', mv); el.removeEventListener('pointerup', up); };
-      el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up);
+      const up = () => { el.removeEventListener('pointermove', mv); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); };
+      el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
     });
   };
   drag(q('#ecSpec'), e => {

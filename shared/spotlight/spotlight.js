@@ -68,7 +68,7 @@
       const n = document.createElement('div'); n.className = 'sps-name'; n.textContent = a.name;
       const d = document.createElement('div'); d.className = 'sps-desc'; d.textContent = (window.SLOP_APP_SEARCH || {})[a.id]?.desc || a.tagline || '';
       li.append(n, d);
-      li.addEventListener('mousedown', (e) => { e.preventDefault(); go(a); });
+      li.addEventListener('mousedown', (e) => { e.preventDefault(); go(a); }); // touch-ok: before the field's blur; a tap sends it too
       list.append(li);
     });
   }
@@ -119,7 +119,7 @@
       else if (e.key === 'Enter' && shown[sel]) { e.preventDefault(); go(shown[sel]); }
       else if (e.key === 'Escape') { close(); }
     });
-    back.addEventListener('mousedown', (e) => { if (e.target === back) close(); });
+    back.addEventListener('mousedown', (e) => { if (e.target === back) close(); }); // touch-ok: a tap on the backdrop sends it too
     // A page whose header has the brand (Home) and the shell (Apps) does not need the corner pills: they would repeat them.
     const shell = !!(window.SlopShell || document.querySelector('script[src*="shell/shell.js"]'));
     const header = shell && !!document.querySelector('header a.brand, .smb-brand');

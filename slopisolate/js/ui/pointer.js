@@ -1,5 +1,6 @@
 /* SlopIsolate — pointer input on #stage: pan (pan tool, middle button, or Space), refine brush strokes
- * (keep / remove, in image px), before/after knob drag, wheel zoom, and the brush cursor. */
+ * (keep / remove, in image px), before/after knob drag, wheel zoom, and the brush cursor.
+ * Touch: #stage is a touch surface (shared/input): one finger paints or pans, two fingers pinch-zoom and pan. */
 (function () {
   'use strict';
   const CO = window.CO, U = CO.util, S = CO.state, P = CO.process;
@@ -127,6 +128,11 @@
     cur = U.$('#brushCursor');
     if (!stage) return;
     stage.dataset.tool = S.tool;
+    stage.setAttribute('data-touch-surface', '');
+    stage.touchSurface = { // two fingers (shared/input); the layer cancels the first finger's stroke first
+      zoom: (f, cx, cy) => { if (!P.active) return; const r = stage.getBoundingClientRect(); CO.view.zoomAt(f, cx - r.left, cy - r.top); },
+      pan: (dx, dy) => { if (P.active) CO.view.panBy(dx, dy); },
+    };
     stage.addEventListener('pointerdown', onDown);
     stage.addEventListener('pointermove', onMove);
     stage.addEventListener('pointerup', onUp);

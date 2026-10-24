@@ -15,9 +15,9 @@
   .hdl { width: 10px; height: 10px; }
   .hdl.e { top: calc(50% - 5px); }
   .hdl.s { left: calc(50% - 5px); }
-  .hdl::before { inset: -10px; }
+  .hdl::before { inset: calc((10px - var(--slop-hit, 44px)) / 2); }   /* a 44 px grab area (shared/input/touch.css) */
   .selbox .sh { width: 9px; height: 9px; }
-  .selbox .sh::before { inset: -8px; }
+  .selbox .sh::before { inset: calc((9px - var(--slop-hit, 44px)) / 2); }
 }
 @media (max-width: 700px) {
   .app { inset: 0 !important; padding: 2px; }

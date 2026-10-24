@@ -35,6 +35,7 @@
     handle.setAttribute('aria-valuemin', '0');
     handle.setAttribute('aria-valuemax', '100');
 
+    // touch-ok: .up-cmp has touch-action: pan-y (upscale.css): a sideways finger drags the divider, an upright one scrolls the page
     cmp.addEventListener('pointerdown', (e) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault(); // no text or image selection while dragging

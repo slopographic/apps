@@ -78,3 +78,11 @@
 @media (max-width: 640px) { .tl-scroll { --name: 116px; max-block-size: 62vh; } .tl-name .avatar { display: none; } }
 .plist td.num { text-align: start; }
 html[data-slop-theme="light"] .tl-bar:not(.is-done), html[data-slop-theme="classic"] .tl-bar:not(.is-done) { background: color-mix(in srgb, var(--pc, var(--p-blue)) 78%, #000); }
+/* Finger-sized date edges (--slop-hit: 44 px under a coarse pointer, shared/input/touch.css): an invisible grip that
+   reaches past the bar's end, so a short bar keeps its middle for moving. */
+@media (pointer: coarse) {
+  .tl-h { position: relative; }
+  .tl-h::after { content: ''; position: absolute; top: -7px; bottom: -7px; width: calc(var(--slop-hit) / 2); }
+  .tl-h.s::after { right: 0; }
+  .tl-h.e::after { left: 0; }
+}

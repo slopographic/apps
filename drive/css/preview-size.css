@@ -9,3 +9,5 @@ html.pv-sized #info .pv:not(.pv-folder):not(.pv-audio):not(.pv-text):not(.pv-oth
 html.pv-sized #info .pv img, html.pv-sized #info .pv video { max-height: var(--pv-h); max-width: 100%; width: auto; height: 100%; object-fit: contain; margin: 0 auto; }
 html.pv-sized #info .pv .th { height: 100%; min-height: 0; }
 html.pv-sized #info .pv .th img { max-height: var(--pv-h); }
+/* A finger (pointer: coarse): the grip takes a 44 px band (--slop-hit, shared/input/touch.css); the bar stays small. */
+@media (pointer: coarse) { .pv-grip { position: relative; } .pv-grip::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: var(--slop-hit, 44px); transform: translateY(-50%); } }

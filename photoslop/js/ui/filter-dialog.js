@@ -115,7 +115,7 @@ function paramControl(p, params, base, changed) {
   return h('div');
 }
 function curveEditor(curves, base, changed) {
-  const S = 256, c = h('canvas', { class: 'fp-curve', width: S, height: S, 'aria-label': 'Curve: click to add points, drag them, drag off the graph to remove' });
+  const S = 256, c = h('canvas', { class: 'fp-curve', 'data-touch-surface': '', width: S, height: S, 'aria-label': 'Curve: click to add points, drag them, drag off the graph to remove' });
   let ch = 'rgb', drag = -1;
   const sel = h('select', { 'aria-label': 'Channel' }, [['rgb', 'RGB'], ['r', 'Red'], ['g', 'Green'], ['b', 'Blue']].map(([v, l]) => h('option', { value: v }, l)));
   sel.addEventListener('change', () => { ch = sel.value; draw(); });
@@ -134,7 +134,8 @@ function curveEditor(curves, base, changed) {
   const pt = (e) => { const r = c.getBoundingClientRect(); return [clamp(Math.round(((e.clientX - r.left) / r.width) * 255), 0, 255), clamp(Math.round((1 - (e.clientY - r.top) / r.height) * 255), 0, 255), (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
   c.addEventListener('pointerdown', (e) => {
     const [x, y] = pt(e), pts = curves[ch];
-    drag = pts.findIndex(([px, py]) => Math.abs(px - x) < 10 && Math.abs(py - y) < 10);
+    const tol = Math.max(10, (e.pointerType === 'touch' ? 22 : e.pointerType === 'pen' ? 12 : 0) * 255 / (c.getBoundingClientRect().width || 255)); // a finger's grab
+    drag = pts.findIndex(([px, py]) => Math.abs(px - x) < tol && Math.abs(py - y) < tol);
     if (drag < 0) { pts.push([x, y]); pts.sort((a, b) => a[0] - b[0]); drag = pts.findIndex((p) => p[0] === x && p[1] === y); }
     c.setPointerCapture(e.pointerId); draw(); changed();
   });

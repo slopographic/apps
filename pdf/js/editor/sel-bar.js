@@ -55,14 +55,14 @@
       }));
     bar.append(row, pop);
     // a press on the bar keeps the text selection (the actions need it); inputs in the bar still take focus
-    bar.addEventListener('mousedown', function (e) { if (!e.target.closest('input, textarea')) e.preventDefault(); });
+    bar.addEventListener('mousedown', function (e) { if (!e.target.closest('input, textarea')) e.preventDefault(); }); // touch-ok: only keeps the focus (browsers send it after a tap too)
     bar.addEventListener('keydown', function (e) {
       e.stopPropagation();
       if (e.key === 'Escape') { e.preventDefault(); if (popOpen) closePop(true); else leave(); }
     });
     document.body.appendChild(bar);
     document.addEventListener('keydown', onDocKey, true);
-    document.addEventListener('mousedown', function (e) { if (popOpen && !bar.contains(e.target)) closePop(false); }, true);
+    document.addEventListener('pointerdown', function (e) { if (popOpen && !bar.contains(e.target)) closePop(false); }, true); // a finger too (the page's pointerdown stops the compatibility mousedown)
     var again = function () { if (!raf) raf = requestAnimationFrame(function () { raf = 0; place(); }); };
     window.addEventListener('resize', again);
     document.addEventListener('scroll', function () { T.rebox(); again(); }, true);

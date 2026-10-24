@@ -26,6 +26,7 @@
     root.setAttribute('role', 'group');
     root.setAttribute('aria-label', o.title ? `Preview of ${o.title}` : 'Preview');
     const stage = SP.el('div', zoomable ? 'spv-stage' : 'spv-stage spv-static');
+    stage.setAttribute('data-touch-surface', ''); // a touch surface with its own pinch and pan (shared/input/HANDOFF.md)
     const content = SP.el('div', 'spv-content');
     stage.append(content);
     // s: scale (1 = 100% of the content's size w × h); x, y: the content's top-left in the stage; fit: follow the window.
@@ -142,6 +143,9 @@
     // A press on the picture belongs to the viewer: a host's selection, marquee or click-to-clear handlers do not see it.
     stage.addEventListener('pointerdown', (e) => e.stopPropagation());
     stage.addEventListener('click', (e) => e.stopPropagation());
+    // Its own double tap (tapped, below) zooms: the dblclick a mouse, or the touch layer (shared/input), sends after it is
+    // not the host's (Slop Drive's pane would open the file).
+    stage.addEventListener('dblclick', (e) => e.stopPropagation());
     /** Two taps close together: fit → 2× around the tap, otherwise back to fit. */
     function tapped(at) {
       const p = tap;

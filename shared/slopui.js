@@ -79,7 +79,7 @@
     head.addEventListener('pointerdown', (e) => {
       if (e.target.closest('button')) return;
       const r = box.getBoundingClientRect(), sx = e.clientX - r.left, sy = e.clientY - r.top;
-      head.setPointerCapture(e.pointerId);
+      try { head.setPointerCapture(e.pointerId); } catch (err) { /* synthetic event */ } // touch-ok: .sui-head has touch-action: none (slopui.css)
       const mv = (ev) => { box.classList.add('sui-moved'); box.style.left = clamp(ev.clientX - sx, 0, innerWidth - 60) + 'px'; box.style.top = clamp(ev.clientY - sy, 0, innerHeight - 40) + 'px'; };
       head.addEventListener('pointermove', mv);
       head.addEventListener('pointerup', () => head.removeEventListener('pointermove', mv), { once: true });

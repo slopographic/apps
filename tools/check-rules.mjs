@@ -19,8 +19,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const MAX_LINES = 300;
-/** Rule 3 on every file with --all (off while the apps are being moved over; on since they all pass). */
-const TOUCH_ALL = false;
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE = /\.(m?js|css|html)$/;
 const SCRIPT = /\.m?js$/;
@@ -70,7 +68,7 @@ function main(argv) {
   else if (argv[0] === '--range' && argv[1]) { files = git('diff', '--name-only', '--diff-filter=ACMR', argv[1]); tests = testsText(); }
   else if (argv[0] === '--files') { files = argv.slice(1); tests = testsText(); }
   else { console.error('usage: node tools/check-rules.mjs --all | --staged | --range A..B | --files <paths>'); return 2; }
-  const problems = check(files, { tests, touch: argv[0] !== '--all' || TOUCH_ALL });
+  const problems = check(files, { tests });
   for (const p of problems) console.error(p.message);
   console.log(`check-rules: ${files.length} files, ${problems.length} problem${problems.length === 1 ? '' : 's'}`);
   return problems.length ? 1 : 0;

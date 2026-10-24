@@ -28,7 +28,8 @@ export function chartTheme() {
 function makeBox(id) {
   const el = document.createElement('div');
   el.className = 'chart-box'; el.dataset.id = id;
-  el.innerHTML = '<div class="chart-svg"></div>' + ['nw', 'ne', 'sw', 'se'].map((h) => `<span class="chart-h" data-h="${h}"></span>`).join('') +
+  el.setAttribute('data-touch-surface', ''); // a finger drags the chart, never scrolls under it (shared/input); handles grow to 44 px
+  el.innerHTML = '<div class="chart-svg"></div>' + ['nw', 'ne', 'sw', 'se'].map((h) => `<span class="chart-h" data-h="${h}" data-touch-hit></span>`).join('') +
     '<div class="chart-bar"><button type="button" class="chart-b" data-act="edit" title="Edit chart" aria-label="Edit chart">Edit</button>' +
     '<button type="button" class="chart-b" data-act="delete" title="Delete chart" aria-label="Delete chart">×</button></div>';
   layer.append(el);

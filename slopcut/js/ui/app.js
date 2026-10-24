@@ -136,7 +136,7 @@
     const h0 = U.store.get('tlh', 300);
     document.documentElement.style.setProperty('--tl-h', U.clamp(h0, 160, innerHeight - 220) + 'px');
     s.addEventListener('pointerdown', (e) => {
-      e.preventDefault(); s.setPointerCapture(e.pointerId);
+      e.preventDefault(); s.setPointerCapture(e.pointerId); // touch-ok: .tl-split has touch-action: none (css/timeline.css)
       const y0 = e.clientY, start = A.els.timeline.getBoundingClientRect().height;
       const mv = (ev) => { const h = U.clamp(start - (ev.clientY - y0), 140, innerHeight - 200); document.documentElement.style.setProperty('--tl-h', h + 'px'); U.store.set('tlh', h); SE.emit('layout', {}); };
       s.addEventListener('pointermove', mv);

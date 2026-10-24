@@ -24,7 +24,8 @@
       el('span', { class: 'chip-t' }, `${time}${it.title}`));
     node.addEventListener('click', (e) => { if (e.target.classList.contains('chk')) return; ctx.open(it); });
     node.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); ctx.open(it); } });
-    if (!isTask && ctx.drag) node.addEventListener('pointerdown', (e) => ctx.drag(it, e, node));
+    // can-drag: a finger drag moves the event instead of scrolling the view (calendar.css; shared/input/HANDOFF.md)
+    if (!isTask && ctx.drag) { node.classList.add('can-drag'); node.addEventListener('pointerdown', (e) => ctx.drag(it, e, node)); }
     return node;
   }
 

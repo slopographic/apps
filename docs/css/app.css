@@ -54,6 +54,8 @@ body { background: var(--bg); }
 .size-in { width: 52px; height: 30px; box-sizing: border-box; padding: 0 6px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--input); color: var(--fg); font: 13px var(--font-ui); }
 .stage { flex: 1; min-height: 0; overflow: auto; background: var(--desk); padding: 28px 16px 60px; position: relative; overscroll-behavior: contain; }
 .pages { display: flex; flex-direction: column; align-items: center; gap: 22px; min-width: min-content; }
+/* The app draws its own caret and selection (input.js): a long press is its menu, not the system's text selection or callout */
+.pages { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .page { position: relative; background: var(--paper); color: var(--paper-ink); box-shadow: 0 2px 8px rgba(0, 0, 0, .35); flex: none; overflow: hidden; }
 .page .t { position: absolute; white-space: pre; margin: 0; pointer-events: none; }
 .page .r { position: absolute; pointer-events: none; }
@@ -61,6 +63,8 @@ body { background: var(--bg); }
 .page .caret { position: absolute; width: 2px; background: #1d4ed8; pointer-events: none; animation: blink 1.06s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 .ime { position: fixed; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; resize: none; overflow: hidden; background: transparent; color: transparent; caret-color: transparent; }
+/* It sits at the caret: a tap or a long press there is the page's (input.js), never the hidden field's */
+.ime { pointer-events: none; }
 .statusbar { display: flex; align-items: center; gap: 14px; height: 28px; padding: 0 12px; background: var(--panel); border-top: 1px solid var(--line); color: var(--faint); font-size: 11.5px; flex: none; white-space: nowrap; }
 .st-msg { color: var(--dim); }
 .zoom .sel { height: 22px; font-size: 11.5px; }

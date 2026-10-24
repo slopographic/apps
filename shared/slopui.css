@@ -89,3 +89,9 @@ textarea.sui-input { height: auto; resize: vertical; }
   .sui-menu { max-width: calc(100vw - 16px); min-width: min(240px, calc(100vw - 16px)); }
   .sui-inline { padding-left: 16px; }
 }
+/* A finger (shared/input/touch.css, --slop-hit: 44 px under a coarse pointer): menu rows and the dialog's close button
+   are 44 px tall, so a long-press menu is easy to hit and a tap never takes the row beside it. */
+@media (pointer: coarse) {
+  .sui-row { min-height: var(--slop-hit, 44px); }
+  .sui-x { min-width: var(--slop-hit, 44px); min-height: var(--slop-hit, 44px); }
+}
