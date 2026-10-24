@@ -18,6 +18,8 @@
   };
   const S = { def: null, saved: false, result: null, shown: null, finder: null, ctx: {}, seq: 0 };
 
+  // Number, money and time cells line up on the right.
+  const numCls = (c) => (['money', 'number', 'duration'].includes(c.type) ? 'rp-num' : null);
   const option = (value, text) => { const o = el('option', null, text); o.value = value; return o; };
 
   /** Fills the picker: the built-in reports, then the saved ones. */
@@ -58,7 +60,7 @@
     const empty = !loaded.found || !R.hasData(loaded.counts);
     dom.dataNote.hidden = !empty;
     dom.dataNote.textContent = empty
-      ? 'No data yet. Slop Contacts, Slop Invoices, Slop Expenses and Slop CRM have no records in this browser, so these reports have nothing to show. Add records in those apps and this page fills in.'
+      ? 'No data yet. Slop Contacts, Slop Invoices, Slop Expenses, Slop Timesheets and Slop CRM have no records in this browser, so these reports have nothing to show. Add records in those apps and this page fills in.'
       : '';
     dom.reportNote.textContent = S.def.note || '';
   }
@@ -129,11 +131,11 @@
     const cols = res.columns;
     if (!res.rows.length) { dom.results.append(el('p', 'rp-empty', 'No rows to show yet.')); return; }
     const head = el('tr');
-    for (const c of cols) { const th = el('th', c.type === 'money' || c.type === 'number' ? 'rp-num' : null, c.label); th.scope = 'col'; head.append(th); }
+    for (const c of cols) { const th = el('th', numCls(c), c.label); th.scope = 'col'; head.append(th); }
     const body = el('tbody');
     for (const r of res.rows) {
       const tr = el('tr');
-      for (const c of cols) tr.append(el('td', c.type === 'money' || c.type === 'number' ? 'rp-num' : null, cellOf(r, c)));
+      for (const c of cols) tr.append(el('td', numCls(c), cellOf(r, c)));
       body.append(tr);
     }
     const table = el('table', 'rp-table');

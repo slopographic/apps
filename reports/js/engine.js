@@ -1,22 +1,23 @@
 /* Slop Reports: the report engine. Pure: no storage and no DOM. A report is a small JSON query:
  *   id, title, note?           the id is text; the title and note are shown above the table
  *   from                       the collection to read: customers | invoices | payments | customerGroups | customerTags |
- *                              expenses | accounts | journal
+ *                              expenses | accounts | journal | timeEntries
  *   where?                     [[field, op, value]] on the source rows (query.js ops; "$today", "$today+14" are dates)
  *   enrich?                    names from enrich.js added to the source rows first
  *   unwind?                    a list field: one row per item (a row with no item keeps one row with the field empty)
  *   join?                      { from, on: [sourceField, joinedField], type: inner|left, prefix?, ci?, where? }
  *   by?, count?, sum?, avg?    group and total (by: a field or a list; none = one total row)
  *   orderBy?, desc?, limit?    sort the result rows; a grouped report sorts by its output names (sum_total, count)
- *   columns                    [{ field, label, type?: text|number|money|date, currency?: 'base' }]
+ *   columns                    [{ field, label, type?: text|number|money|date|duration, currency?: 'base' }]
+ *                              duration cells are minutes, shown as h:mm (CSV: decimal hours).
  *                              money cells are minor units; the currency is the row's, or the base currency.
  * Soft-deleted rows are removed by the loader (data.js), not here. Classic script: sets window.SlopReports.engine. */
 (function (g) {
   'use strict';
   const ns = (g.SlopReports = g.SlopReports || {});
   const Q = g.SlopDbQuery;
-  const SOURCES = ['customers', 'invoices', 'payments', 'customerGroups', 'customerTags', 'expenses', 'accounts', 'journal'];
-  const TYPES = ['text', 'number', 'money', 'date'];
+  const SOURCES = ['customers', 'invoices', 'payments', 'customerGroups', 'customerTags', 'expenses', 'accounts', 'journal', 'timeEntries'];
+  const TYPES = ['text', 'number', 'money', 'date', 'duration'];
   const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
   const pad = (n) => String(n).padStart(2, '0');
   const isoDay = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -125,11 +126,13 @@
     const v = row[col.field];
     if (v === undefined || v === null) return col.group ? '(none)' : '';
     if (col.type === 'money') return isNum(v) ? formatMoney(v, currencyOf(row, col, ctx), ctx.locale) : '';
+    if (col.type === 'duration') return isNum(v) ? `${Math.floor(v / 60)}:${String(v % 60).padStart(2, '0')}` : '';
     return String(v);
   }
 
   /** The text of a cell for export: money as a plain decimal, otherwise what the cell shows. */
   function exportText(row, col, ctx = {}) {
+    if (col.type === 'duration') return isNum(row[col.field]) ? (row[col.field] / 60).toFixed(2) : '';
     if (col.type !== 'money') return cellText(row, col, ctx);
     const v = row[col.field];
     if (!isNum(v)) return '';
