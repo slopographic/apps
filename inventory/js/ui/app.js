@@ -1,11 +1,11 @@
 // Slop Inventory boot: the business router (shared/biz/router.js) with one view per tab (products, scan, stock, count,
-// reports, data; #hash). Without a #view it opens the view Inventory was left on (ui/view-state.js), with its scroll. The open
+// reports, prices, data; #hash). Without a #view it opens the view Inventory was left on (ui/view-state.js), with its scroll. The open
 // view is refreshed, with the settings re-read, whenever the store reports a change (from this tab or another one).
 (function (g) {
   'use strict';
   const NS = (g.SlopInv = g.SlopInv || {});
   const U = NS.util;
-  const VIEWS = ['products', 'scan', 'stock', 'count', 'reports', 'data'];
+  const VIEWS = ['products', 'scan', 'stock', 'count', 'reports', 'prices', 'data'];
   let place = null;
 
   NS.state = { settings: { currency: 'USD', locale: 'en-US', defaultTaxRate: 0 }, view: 'products' };

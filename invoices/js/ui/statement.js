@@ -31,15 +31,13 @@
     if (!cur) { $('stSheet').replaceChildren(h('p', { class: 'msg bad', text: 'That customer no longer exists.' })); return; }
     const st = build(), s = cur.settings, c = cur.customer;
     const m = (v) => U.money(v, st.currency, s.locale);
-    const lines = (t) => String(t || '').split('\n').map((x) => x.trim()).filter(Boolean);
+    const lines = g.SlopBiz.sheet.lines;
     const row = (cells, cls) => h('tr', { class: cls }, cells.map((x, i) => h('td', { class: i >= 4 ? 'num' : '' }, x)));
-    $('stSheet').replaceChildren(h('article', { class: 'statement' },
-      h('header', { class: 'st-head' },
-        h('div', null, h('b', { text: s.companyName || 'Your company' }), ...lines(s.address).map((x) => h('div', { text: x })), s.taxNumber ? h('div', { text: `Tax number ${s.taxNumber}` }) : null),
-        h('div', { class: 'st-title' }, h('h2', { text: 'Statement' }), h('div', { text: `Date ${st.today}` }), st.from ? h('div', { text: `From ${st.from}` }) : null)),
-      h('div', { class: 'st-to' }, h('span', { class: 'sub', text: 'To' }), h('b', { text: c.name }), ...[c.email, c.phone, ...lines(c.address)].filter(Boolean).map((x) => h('div', { text: x }))),
-      h('p', { class: 'st-total' }, h('span', { text: 'Balance owed' }), h('b', { text: m(st.closing) })),
-      h('div', { class: 'st-scroll' }, h('table', { class: 'grid-t st-table' },
+    $('stSheet').replaceChildren(h('article', { class: 'doc-sheet statement' },
+      g.SlopBiz.sheet.head(s, 'Statement', [`Date ${st.today}`, st.from ? `From ${st.from}` : null]),
+      h('div', { class: 'sheet-to st-to' }, h('span', { class: 'sub', text: 'To' }), h('b', { text: c.name }), ...[c.email, c.phone, ...lines(c.address)].filter(Boolean).map((x) => h('div', { text: x }))),
+      h('p', { class: 'sheet-total st-total' }, h('span', { text: 'Balance owed' }), h('b', { text: m(st.closing) })),
+      h('div', { class: 'sheet-scroll' }, h('table', { class: 'grid-t st-table' },
         h('thead', null, h('tr', null, ['Date', 'What', 'Invoice', 'Due', 'Charged', 'Paid', 'Balance'].map((x, i) => h('th', { class: i >= 4 ? 'num' : '', text: x })))),
         h('tbody', null, st.from ? row(['', 'Opening balance', '', '', '', '', m(st.opening)], 'st-open') : null,
           st.lines.map((l) => row([l.date, l.kind === 'invoice' ? 'Invoice' : 'Payment, thank you', l.ref, l.due, l.debit ? m(l.debit) : '', l.credit ? m(l.credit) : '', m(l.balance)])),
