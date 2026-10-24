@@ -1,37 +1,28 @@
 /* Video conversion with ffmpeg.wasm (ffmpeg compiled for the browser). Browser only.
  * The small JavaScript part is vendored (vendor/ffmpeg, MIT). The ffmpeg core (about 30 MB of WebAssembly, GPL-2.0-or-later)
- * is fetched the first time a video conversion runs, from the Slopographic cdn repository at a pinned commit, with jsDelivr
- * as the fallback. Both are checked against the SHA-256 below before ffmpeg runs; the licence and source are in the cdn repo
+ * is fetched the first time a video conversion runs, from the Slopographic cdn repository at its release tag (jsDelivr, then
+ * GitHub; shared/cdn/assets.js). Both are checked against the SHA-256 below before ffmpeg runs; the licence and source are in the cdn repo
  * (engines/ffmpeg/0.12.10). Every file is converted in memory: nothing is uploaded. One ffmpeg runs at a time (requests queue). */
 
+import '../../../shared/cdn/assets.js';   // window.SlopCdn: where the cdn files are served from, and the checked download
+
 export const CORE_VERSION = '0.12.10';
-/** The cdn repository at a fixed commit (so a later change to the repo cannot change the file the site runs). */
-const CDN_BASE = 'https://raw.githubusercontent.com/slopographic/cdn/3fef2eab53fd8bbc406e99ca0efa1a2d2e3e98f6/engines/ffmpeg/0.12.10/';
-/** The checksums of the two files (also in the cdn repo's manifest.json). */
-const CORE_FILES = {
-  'ffmpeg-core.js': '67a48f11645f85439f3fde4f2119042c16b374b910206b7a7a24f342e28dcae3',
-  'ffmpeg-core.wasm': '9f57947a5bd530d8f00c5b3f2cb2a3492faa7e5d823315342d6a8656d0a6b7b7',
+/** The core's folder in the cdn repository (the release tag in shared/cdn/assets.js keeps the files fixed). */
+export const CORE_DIR = 'engines/ffmpeg/0.12.10/';
+/** The checksums and sizes of the two files (also in the cdn repo's manifest.json). */
+export const CORE_FILES = {
+  'ffmpeg-core.js': { sha256: '67a48f11645f85439f3fde4f2119042c16b374b910206b7a7a24f342e28dcae3', size: 111804 },
+  'ffmpeg-core.wasm': { sha256: '9f57947a5bd530d8f00c5b3f2cb2a3492faa7e5d823315342d6a8656d0a6b7b7', size: 32232419 },
 };
 /** Larger inputs are refused before any work: the whole file must fit in the browser's memory for ffmpeg. */
 export const MAX_INPUT_BYTES = 400 * 1024 * 1024;
 
-/** Downloads one core file from the cdn and checks its SHA-256. Returns a blob URL for ffmpeg. */
+/** Downloads one core file from the cdn (each of its places in turn) and checks its SHA-256. Returns a blob URL for ffmpeg. */
 async function fetchCoreFile(name) {
-  let lastErr = null;
-  for (const base of [CDN_BASE]) {
-    try {
-      const r = await fetch(base + name, { cache: 'force-cache' });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const buf = await r.arrayBuffer();
-      const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', buf))].map((b) => b.toString(16).padStart(2, '0')).join('');
-      if (digest !== CORE_FILES[name]) throw new Error('checksum does not match');
-      const type = name.endsWith('.wasm') ? 'application/wasm' : 'text/javascript';
-      return URL.createObjectURL(new Blob([buf], { type }));
-    } catch (e) {
-      lastErr = e;
-    }
-  }
-  throw lastErr || new Error('unavailable');
+  const C = globalThis.SlopCdn;
+  const bytes = await C.fetchVerified(C.urls(CORE_DIR + name), { label: name, ...CORE_FILES[name] }, { init: { cache: 'force-cache' } });
+  const type = name.endsWith('.wasm') ? 'application/wasm' : 'text/javascript';
+  return URL.createObjectURL(new Blob([bytes], { type }));
 }
 
 let instance = null;

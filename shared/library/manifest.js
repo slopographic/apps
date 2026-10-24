@@ -2,13 +2,15 @@
  * can load it (module.exports) and the browser gets window.SlopLibraryManifest. Classic script.
  * A pack is one licence, one size and a list of files, each with its own URL and SHA-256. A pack is a font pack
  * (kind "font", the default: font files) or a model pack (kind "model": one .onnx file, for Slop Upscale).
- * Packs whose URL host is not in packs.json "hosts", whose licence is not in LICENCES, or whose
- * numbers do not add up are dropped with a message; the rest still list. */
+ * A file names either "url" (an https URL on a host in packs.json "hosts") or "cdn" (its path in Slopographic's cdn
+ * repository; its URLs come from shared/cdn/assets.js, which must be loaded first in the browser). Packs with a URL on
+ * another host, a licence not in LICENCES, or numbers that do not add up are dropped with a message; the rest still list. */
 (function (root, factory) {
-  const api = factory();
+  const cdn = root.SlopCdn || (typeof module === 'object' && module.exports ? require('../cdn/assets.js') : null);
+  const api = factory(() => cdn || root.SlopCdn || null);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopLibraryManifest = api;
-})(typeof window !== 'undefined' ? window : globalThis, function () {
+})(typeof window !== 'undefined' ? window : globalThis, function (cdnApi) {
   'use strict';
 
   /** Licences a pack may declare. Anything else is refused before the dialog offers it. */
@@ -55,16 +57,20 @@
       if (typeof f.name !== 'string' || !FILE.test(f.name) || !(model ? MODEL_EXT : FONT_EXT).test(f.name)) return { error: `${who}: file name "${f.name}" must be ${model ? 'a model (.onnx)' : 'a font (.woff2, .woff, .ttf, .otf)'}` };
       if (names.has(f.name)) return { error: `${who}: duplicate file ${f.name}` };
       names.add(f.name);
-      if (!allowedUrl(f.url, hosts)) return { error: `${who}: ${f.name} must be an https URL on an allowed host` };
+      const C = f.cdn !== undefined ? cdnApi() : null;
+      if (f.cdn !== undefined && !C) return { error: `${who}: ${f.name} names a cdn path, and shared/cdn/assets.js is not loaded` };
+      if (C && !C.validPath(f.cdn)) return { error: `${who}: ${f.name} cdn path "${f.cdn}" is not a plain path` };
+      const url = C ? C.url(f.cdn) : f.url, at = C ? { cdn: f.cdn, url } : { url };
+      if (!C && !allowedUrl(url, hosts)) return { error: `${who}: ${f.name} must be an https URL on an allowed host` };
       if (!Number.isInteger(f.size) || f.size < 1 || f.size > (model ? MAX_MODEL_FILE : MAX_FILE)) return { error: `${who}: ${f.name} size is out of range` };
       if (typeof f.sha256 !== 'string' || !SHA.test(f.sha256)) return { error: `${who}: ${f.name} needs a lowercase sha256` };
       total += f.size;
-      if (model) { files.push({ name: f.name, url: f.url, size: f.size, sha256: f.sha256 }); continue; }
+      if (model) { files.push({ name: f.name, ...at, size: f.size, sha256: f.sha256 }); continue; }
       if (typeof f.family !== 'string' || !f.family.trim() || f.family.length > 60) return { error: `${who}: ${f.name} needs a family name` };
       const weight = String(f.weight || '400');
       if (!WEIGHT.test(weight)) return { error: `${who}: ${f.name} weight must be 400 or "100 900"` };
       const style = f.style === 'italic' ? 'italic' : 'normal';
-      const entry = { name: f.name, url: f.url, size: f.size, sha256: f.sha256, family: f.family.trim(), weight, style };
+      const entry = { name: f.name, ...at, size: f.size, sha256: f.sha256, family: f.family.trim(), weight, style };
       // metricFor: the fonts this family has the same character widths as ("Calibri" for Carlito), so a document that names
       // one of them is set in this family with its line breaks kept
       if (f.metricFor !== undefined) {

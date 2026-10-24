@@ -9,10 +9,11 @@
   const node = typeof module === 'object' && module.exports;
   const speech = root.SlopSpeechModels || (node ? require('./speech-models.js') : null);
   const ocr = root.SlopOcrModels || (node ? require('./ocr-models.js') : null);   // only on the pages that offer OCR languages
-  const api = factory(speech, ocr);
+  const cdn = root.SlopCdn || (node ? require('../shared/cdn/assets.js') : null);   // the cdn's hosts (shared/cdn/assets.js)
+  const api = factory(speech, ocr, cdn);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopAIModels = api;
-})(typeof window !== 'undefined' ? window : globalThis, function (speech, ocr) {
+})(typeof window !== 'undefined' ? window : globalThis, function (speech, ocr, cdn) {
   'use strict';
 
   /** Licences a model may declare, with the name shown to the person. Anything else is refused. */
@@ -21,13 +22,12 @@
     'Apache-2.0': 'Apache License 2.0',
     'BSD-3-Clause': 'BSD 3-Clause License',
   };
-  /** Hosts a remote file may be served from: Hugging Face and its storage hosts, and the slopographic/cdn repository.
+  /** Hosts a remote file may be served from: Hugging Face and its storage hosts, and the slopographic/cdn repository
+   *  (on jsDelivr or raw.githubusercontent.com, shared/cdn/assets.js isCdnUrl).
    *  Checked on the final URL after redirects. */
   // Hugging Face serves a download from several storage hosts (cdn-lfs-us-1.hf.co, us.aws.cdn.hf.co, transfer.xethub.hf.co …),
   // and the set changes over time. So the rule is the domain family: huggingface.co, or any subdomain of hf.co or xethub.hf.co.
   const HOST_ROOTS = ['huggingface.co', 'hf.co', 'xethub.hf.co'];
-  // Slopographic's own file host: the slopographic/cdn repository on GitHub, nothing else on that host.
-  const CDN_HOST = 'raw.githubusercontent.com', CDN_PATH = '/slopographic/cdn/';
   const HF = 'https://huggingface.co/';
   const SHA = /^[0-9a-f]{64}$/;
   const MAX_PART = 95 * 1000 * 1000;   // GitHub refuses files over 100 MB
@@ -108,12 +108,13 @@
   }
 
   /** True when url is https and its host is HOST_ROOTS itself or a subdomain of one (never a look-alike such as hf.co.evil.com),
-   *  or the slopographic/cdn repository on raw.githubusercontent.com. */
+   *  or the slopographic/cdn repository on its hosts (nothing else on jsDelivr or raw.githubusercontent.com). */
   function allowedUrl(url) {
     try {
       const u = new URL(url);
       if (u.protocol !== 'https:') return false;
-      if (u.hostname === CDN_HOST) return u.pathname.startsWith(CDN_PATH);
+      const C = cdn || globalThis.SlopCdn;
+      if (C && C.isCdnUrl(url)) return true;
       return HOST_ROOTS.some((root) => u.hostname === root || u.hostname.endsWith('.' + root));
     } catch (e) { return false; }
   }
@@ -128,5 +129,5 @@
   /** Adds a family's models loaded after this file (aitools/ocr-models.js on a page that loads it on demand, Slop PDF).
    *  A model already in the index stays as it is. */
   function add(list) { for (const m of list || []) if (!byId(m.id)) MODELS.push(m); }
-  return { MODELS, TOOLS, LICENCES, HOST_ROOTS, CDN_HOST, byId, remoteFiles, urlsOf, downloadBytes, problems, allowedUrl, formatSize, add };
+  return { MODELS, TOOLS, LICENCES, HOST_ROOTS, byId, remoteFiles, urlsOf, downloadBytes, problems, allowedUrl, formatSize, add };
 });
