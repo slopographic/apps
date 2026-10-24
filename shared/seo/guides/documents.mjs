@@ -92,7 +92,7 @@ export const GUIDES = [
         text: ['The text of the page you are on is in the box on the right. You can edit it there before you save it.',
           'Text (.txt), Markdown (.md) and Word (.docx) save all pages in order; the Word file starts each page on a new page. Searchable PDF keeps the picture of each page and puts invisible text on top, so you can search and select it. Copy all text puts it on the clipboard.'],
         image: { src: '/assets/guides/ocr-getting-started-2.jpg', alt: 'A sample receipt read by Slop OCR, with boxes around each line and the recognised text in an editable box' },
-        tip: 'Read the text before you use it. The model reads English and Simplified Chinese, and only horizontal lines. Prices on the right of a line can end up on their own lines.' },
+        tip: 'Read the text before you use it. Choose the language of the text under Language and model (85 languages, one model per script), and only horizontal lines are read. Prices on the right of a line can end up on their own lines.' },
     ] },
 
   // File convert

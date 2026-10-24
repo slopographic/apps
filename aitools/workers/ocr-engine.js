@@ -2,8 +2,12 @@
  * 1. detection (DB): the page is scaled so its long side is at most 960 px and both sides are multiples of 32;
  *    the probability map is thresholded, connected blobs become boxes, and boxes on one text line are merged.
  * 2. recognition (CRNN + CTC): each line is cut from the full-resolution page, scaled to height 48 and read
- *    greedily. Dictionary: vendor/models/ppocr_keys_v1.txt (index 0 is the CTC blank, the last index is a space).
- * Exposes self.SlopAIOcr.run(session pair, pixels, width, height, progress). */
+ *    greedily. Each recognition model has its own dictionary (one character per line; index 0 is the CTC blank, the last
+ *    index is a space): vendor/models/ppocr_keys_v1.txt for the bundled Chinese and English model, and the dictionary next to
+ *    each script's model on the cdn (aitools/ocr-models.js). The detector is the same for every script.
+ * 3. Arabic-script lines come out of the recogniser in visual order (right to left as drawn); logicalOrder turns them
+ *    into the order they are typed, and rows of right-to-left lines read right to left.
+ * Exposes self.SlopAIOcr.run(session pair, chars, page, progress). */
 (function (root) {
   'use strict';
   const MEAN = [0.485, 0.456, 0.406], STD = [0.229, 0.224, 0.225];
@@ -53,8 +57,10 @@
       const hgt = b.y1 - b.y0 + 1;
       const l = lines.find((L) => {
         const ov = Math.min(L.y1, b.y1) - Math.max(L.y0, b.y0) + 1;
-        const gap = b.x0 - L.x1;
-        return ov > 0.5 * Math.min(hgt, L.y1 - L.y0 + 1) && gap < 1.5 * hgt && gap > -hgt;
+        // the gap on either side (negative when they overlap): Arabic words come out of the map right to left, and a
+        // word whose box starts left of the line's must join it as well
+        const gap = Math.max(b.x0 - L.x1, L.x0 - b.x1);
+        return ov > 0.5 * Math.min(hgt, L.y1 - L.y0 + 1) && gap < 1.5 * hgt;
       });
       if (!l) lines.push({ x0: b.x0, y0: b.y0, x1: b.x1, y1: b.y1, n: 1, score: b.score });
       else { l.x0 = Math.min(l.x0, b.x0); l.y0 = Math.min(l.y0, b.y0); l.x1 = Math.max(l.x1, b.x1); l.y1 = Math.max(l.y1, b.y1); l.score = (l.score * l.n + b.score) / (l.n + 1); l.n++; }
@@ -93,7 +99,8 @@
 
   /**
    * Runs OCR. models: { det, rec } sessions; chars: the dictionary as an array (blank and space added here).
-   * page: { bitmap, data (RGBA), w, h }. Resolves to lines in reading order: [{ text, score, box: {x, y, w, h} }].
+   * page: { bitmap, data (RGBA), w, h }. Resolves to lines in reading order: [{ text, score, box: {x, y, w, h} }], with
+   * .skipped: how many found lines read as nothing.
    */
   async function run(models, chars, page, progress) {
     const ort = await root.SlopAIOrt.get();
@@ -105,6 +112,7 @@
     const lines = toPage(mergeLines(blobs(map, det.w, det.h)), page.w / det.w, page.h / det.h, page.w, page.h);
     progress({ stage: 'detect', done: 1, total: 1 });
     const C = chars.length, out = [];
+    let skipped = 0;
     for (let i = 0; i < lines.length; i++) {
       progress({ stage: 'read', done: i, total: lines.length });
       const r = toRecInput(page, lines[i]);
@@ -113,10 +121,14 @@
       const t = rOut[models.rec.outputNames[0]], dims = t.dims;
       if (dims[2] !== C) throw new Error(`The dictionary has ${C} symbols but the model outputs ${dims[2]} classes.`);
       const res = ctc(t.data, dims[1], dims[2], chars);
+      res.text = logicalOrder(res.text);
       if (res.text.trim()) out.push({ text: res.text, score: res.score, box: { x: lines[i].x0, y: lines[i].y0, w: lines[i].x1 - lines[i].x0 + 1, h: lines[i].y1 - lines[i].y0 + 1 } });
+      else skipped++;
     }
     progress({ stage: 'read', done: lines.length, total: lines.length });
-    return readingOrder(out);
+    const ordered = readingOrder(out);
+    ordered.skipped = skipped;   // lines found but read as nothing: a script this model has no letters for (shared/ocr/suggest.js)
+    return ordered;
   }
   /** Lines in reading order: rows top to bottom (pieces whose boxes overlap by over half the smaller height share a
    * row, as a receipt's item and its price do), each row left to right. Sorting by top edge alone let a price whose box
@@ -128,8 +140,30 @@
       const row = rows.find((r) => Math.min(r.y + r.h, b.y + b.h) - Math.max(r.y, b.y) > 0.5 * Math.min(r.h, b.h));
       if (row) row.items.push(l); else rows.push({ y: b.y, h: b.h, items: [l] });
     }
-    return rows.flatMap((r) => r.items.sort((a, b) => a.box.x - b.box.x));
+    return rows.flatMap((r) => {
+      const rtl = r.items.filter((l) => RTL.test(l.text)).length * 2 > r.items.length;
+      return r.items.sort((a, b) => (rtl ? b.box.x - a.box.x : a.box.x - b.box.x));
+    });
+  }
+  /** Right-to-left letters: Hebrew, Arabic, Syriac, Thaana, NKo and the Arabic presentation forms. */
+  const RTL = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
+  /** A line read in visual order into typed (logical) order, as PaddleOCR does for its Arabic models: runs of Latin
+   *  letters, digits and number punctuation keep their order, everything is then reversed. Lines with no right-to-left
+   *  letter come back unchanged. (A run's spaces at its ends are kept apart from it: "2026 ةنس" is "سنة 2026".) */
+  function logicalOrder(text) {
+    if (!RTL.test(text)) return text;
+    const out = [];
+    let run = '';
+    // a run's spaces at either end belong between it and the right-to-left words, so they move with the reversal
+    const flush = () => { if (!run) return; const m = /^(\s*)(.*?)(\s*)$/.exec(run); out.push(m[1], m[2], m[3]); run = ''; };
+    for (const c of text) {
+      if (/[a-zA-Z0-9 :*./%+-]/.test(c)) { run += c; continue; }
+      flush();
+      out.push(c);
+    }
+    flush();
+    return out.reverse().join('').trim();
   }
 
-  root.SlopAIOcr = { run, fitDet, blobs, mergeLines, ctc, toDetInput, readingOrder };
+  root.SlopAIOcr = { run, fitDet, blobs, mergeLines, ctc, toDetInput, readingOrder, logicalOrder };
 })(self);

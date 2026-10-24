@@ -123,7 +123,7 @@ export const TASKS = [
       'Choose Read text. Boxes show each line that was found on the picture.',
       'Correct the text in the box beside the picture where needed.',
       'Choose Copy all text, or save as Text (.txt), Markdown (.md) or Word (.docx).'],
-    faq: [['Which languages can it read?', 'English and Simplified Chinese, with digits, punctuation and some accented letters such as é and ü. Letters like ñ, ç, ö and ß are not in its dictionary and come out wrong or missing.'],
+    faq: [['Which languages can it read?', '85 languages, with one model for each script: Swedish, German, French, Polish and about 50 more in Latin letters with their accents; Russian and other Cyrillic languages; Arabic, Persian and Urdu; Hindi; Chinese, Japanese and Korean; Greek, Thai, Tamil and Telugu. Choose the language under Language and model; without a choice it reads Chinese and English first and suggests the right model.'],
       ['Is the picture uploaded?', 'No. The model is downloaded once and runs in your browser, so the picture is read on your device.'],
       ['Why is some text missing or wrong?', 'Only horizontal lines are read, and blurry, tilted or very small text is harder. Straighten and crop the photo, and always read the result before using it.'],
       ['Can I read many pictures at once?', 'Yes. Add several images and Read text goes through them in order; the saved file has every page.']] },

@@ -58,3 +58,6 @@ body { margin: 0; background: var(--ocr-paper); color: var(--ocr-ink); font: 15p
   .ocr-app { padding: 16px; }
   .ocr-export button { flex: 1 1 100%; }
 }
+/* The line that offers a better model after a first read (shared/ocr/choose.js). */
+.ocr-suggest { margin: 6px 0 0; padding: 8px 10px; border: 1px solid var(--ocr-hi); border-radius: 8px; background: var(--ocr-card); font-size: 14px; }
+.ocr-suggest button { margin-left: 6px; }
