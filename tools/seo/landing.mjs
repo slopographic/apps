@@ -3,6 +3,7 @@
 // rows, with status and file types), the file types it opens, a button to the app, and related apps.
 // Only registry facts are written. Called by tools/seo/write.mjs, which adds the SEO head block to each page.
 import { isPage } from './site.mjs';
+import { compareTables } from './roundups.mjs';
 import OFFLINE_APPS from '../../shared/offline/manifest.js';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -111,7 +112,7 @@ const offlineLink = (app) => (OFFLINE_APPS[app.id] && OFFLINE_APPS[app.id].entry
   ? `\n<p class="note"><a href="/downloads/${esc(app.id)}.html" download>Download offline (.html)</a>: one file that opens from disk and works without a connection.</p>`
   : '');
 /** Body of one app's landing page. */
-function appBody(app, apps, tasks = []) {
+function appBody(app, apps, tasks = [], roundups = []) {
   const feats = app.features || [];
   const types = fileTypeList(app);
   const rows = feats.length
@@ -125,7 +126,7 @@ function appBody(app, apps, tasks = []) {
 ${mediaBlock(app)}
 <p>${esc(app.name)} ${feats.length ? `has these main features: ${esc(feats.slice(0, 2).join('; '))}.` : 'is listed below with its file types.'}${types.length ? ` It opens ${esc(types.join(', '))}.` : ''}</p>
 ${note ? `<p class="note">${esc(note)}</p>` : ''}
-${tasks.length ? `<h2>What you can do with ${esc(app.name)}</h2>\n<ul>${tasks.map((t) => `<li><a href="/${esc(app.path)}${esc(t.slug)}/">${esc(t.h1)}</a></li>`).join('')}</ul>\n` : ''}<h2>Feature matrix</h2>
+${tasks.length ? `<h2>What you can do with ${esc(app.name)}</h2>\n<ul>${tasks.map((t) => `<li><a href="/${esc(app.path)}${esc(t.slug)}/">${esc(t.h1)}</a></li>`).join('')}</ul>\n` : ''}${roundups.map((r) => `<h2>How ${esc(app.name)} compares</h2>\n<p>${esc(app.name)} next to ${esc(r.tools.filter((t) => !t.ours).map((t) => t.name).join(', '))}: facts from each tool's own pages, checked ${esc(r.checked)}. We make ${esc(app.name)}.</p>\n${compareTables(r)}\n<p><a href="/best/${esc(r.slug)}/">The full comparison, with sources: ${esc(r.h1)}</a></p>\n`).join('')}<h2>Feature matrix</h2>
 <div class="wrap"><table>
 <caption>${esc(app.name)}: features, status and file types</caption>
 <thead><tr><th scope="col">Feature</th><th scope="col">Status</th><th scope="col">File types</th></tr></thead>
@@ -189,13 +190,13 @@ function compareBody(apps) {
  * (an app id, or slop-365, creative-slop-pro, compare). `dir` is the folder the page is written to.
  * Throws if a page has no copy.
  */
-export function landingPages(apps, site, LANDING, TASKS = []) {
+export function landingPages(apps, site, LANDING, TASKS = [], ROUNDUPS = []) {
   const out = [];
   const add = (key, dir, crumb, html) => {
     if (!LANDING[key]) throw new Error(`${key}: no landing copy in shared/seo/copy.mjs LANDING`);
     out.push({ key, dir, url: `${site}/${dir}`, html: shell(html), crumb });
   };
-  for (const app of apps) if (isPage(app)) add(app.id, `apps/${app.id}/`, app.name, appBody(app, apps, TASKS.filter((t) => t.app === app.id)));
+  for (const app of apps) if (isPage(app)) add(app.id, `apps/${app.id}/`, app.name, appBody(app, apps, TASKS.filter((t) => t.app === app.id), ROUNDUPS.filter((r) => r.app === app.id)));
   add('slop-365', 'slop-365/', 'Slop 365', slop365Body(apps));
   add('creative-slop-pro', 'creative-slop-pro/', 'Creative Slop Pro', creativeBody(apps));
   add('compare', 'compare/', 'Compare', compareBody(apps));

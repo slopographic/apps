@@ -128,6 +128,17 @@ p { margin: 0 0 12px; }
 .l-doc .cards li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 0; overflow: hidden; background: var(--ink-2); }
 .l-doc .cards .thumb { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 6px; margin: 0 0 8px; background: var(--line); }
 
+/* comparison tables (tools/seo/roundups.mjs compareTables): our tool highlighted, the marks in colour, and the first
+   column pinned while a wide table scrolls sideways */
+.l-doc table.cmp { font-size: 14px; min-width: 560px; }
+.l-doc table.cmp th[scope="row"] { color: var(--bone); font-weight: 600; position: sticky; left: 0; background: var(--ink); z-index: 1; }
+.l-doc table.cmp tr.us th, .l-doc table.cmp tr.us td, .l-doc table.cmp th.us { background: color-mix(in srgb, var(--slop) 9%, var(--ink)); color: var(--bone); }
+.l-doc table.cmp .m-yes { color: color-mix(in srgb, var(--slop) 70%, var(--bone)); font-weight: 600; }
+.l-doc table.cmp .m-no { color: var(--bone-faint); }
+.l-doc table.cmp .m-partial { color: var(--amber); font-weight: 600; }
+.l-doc table.cmp .m-unknown { color: var(--bone-faint); font-style: italic; }
+.l-doc table.matrix td { white-space: nowrap; }
+
 /* phones: the matrix turns into one card per feature. Headers stay in the DOM for screen readers. */
 @media (max-width: 640px) {
   .l-hero { padding-top: 36px; }

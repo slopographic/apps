@@ -26,12 +26,32 @@ export function checkRoundup(r, apps) {
     }
   }
   if (!Array.isArray(r.faq) || r.faq.length < 3) fail('at least 3 questions');
+  if (r.matrix) {
+    if (!Array.isArray(r.matrix) || r.matrix.length < 5) fail('matrix: at least 5 features');
+    for (const m of r.matrix) {
+      if (!m.feature || !Array.isArray(m.values) || m.values.length !== r.tools.length) fail(`matrix "${m.feature}": one value per tool`);
+      for (const v of m.values) if (!(v in MARK) && (typeof v !== 'string' || !v.trim())) fail(`matrix "${m.feature}": yes, no, partial, unknown or a short text`);
+    }
+  }
+}
+/** The marks of the feature matrix: yes, no, partial (some of it, or on a paid plan), unknown (the sources do not say). */
+const MARK = { yes: ['✓', 'Yes', 'yes'], no: ['✗', 'No', 'no'], partial: ['◐', 'Partly', 'partial'], unknown: ['–', 'Not stated', 'unknown'] };
+const cell = (v) => (MARK[v] ? `<td class="m-${MARK[v][2]}"><span aria-hidden="true">${MARK[v][0]}</span> ${MARK[v][1]}</td>` : `<td>${esc(v)}</td>`);
+/** The comparison tables of a round-up: the facts at a glance and, when it has one, the feature matrix. Used by the
+ *  round-up page and by the app's landing page (landing.mjs), so both show the same sourced data. */
+export function compareTables(r) {
+  const name = (t) => `${esc(t.name)}${t.ours ? ' <span class="l-badge">ours</span>' : ''}`;
+  const glance = `<div class="wrap"><table class="cmp"><caption>${esc(r.h1)}: the main facts side by side (checked ${esc(r.checked)})</caption>
+<thead><tr><th scope="col">Tool</th>${r.columns.map((c) => `<th scope="col">${esc(c)}</th>`).join('')}</tr></thead><tbody>${r.tools.map((t) => `<tr${t.ours ? ' class="us"' : ''}><th scope="row">${name(t)}</th>${t.cells.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  if (!r.matrix) return glance;
+  const matrix = `<div class="wrap"><table class="cmp matrix"><caption>Feature by feature: ✓ yes, ◐ partly or on a paid plan, ✗ no, – not stated by the tool's own pages</caption>
+<thead><tr><th scope="col">Feature</th>${r.tools.map((t) => `<th scope="col"${t.ours ? ' class="us"' : ''}>${name(t)}</th>`).join('')}</tr></thead><tbody>${r.matrix.map((m) => `<tr><th scope="row">${esc(m.feature)}</th>${m.values.map(cell).join('')}</tr>`).join('')}</tbody></table></div>`;
+  return glance + '\n' + matrix;
 }
 
 const app = (apps, id) => apps.find((a) => a.id === id);
 function body(r, apps) {
   const ours = r.tools.find((t) => t.ours), a = app(apps, r.app);
-  const rows = r.tools.map((t) => `<tr><th scope="row">${esc(t.name)}${t.ours ? ' <span class="l-badge">ours</span>' : ''}</th>${t.cells.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('');
   const tools = r.tools.map((t, i) => `<h2 id="t${i + 1}">${i + 1}. ${esc(t.name)}${t.ours ? ' (ours)' : ''}</h2>
 <p><b>Best for:</b> ${esc(t.bestFor)}</p>
 ${t.summary ? `<p>${esc(t.summary)}</p>` : ''}
@@ -45,8 +65,7 @@ ${t.summary ? `<p>${esc(t.summary)}</p>` : ''}
 <h2>How we compared them</h2>
 <ul>${r.criteria.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
 <h2>At a glance</h2>
-<div class="wrap"><table><caption>${esc(r.h1)}: the main facts side by side</caption>
-<thead><tr><th scope="col">Tool</th>${r.columns.map((c) => `<th scope="col">${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>
+${compareTables(r)}
 ${tools}
 ${r.verdict ? `<h2>Which one to choose</h2>\n${(Array.isArray(r.verdict) ? r.verdict : [r.verdict]).map((p) => `<p>${esc(p)}</p>`).join('\n')}` : ''}
 <h2>Questions</h2>

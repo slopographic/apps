@@ -3,7 +3,8 @@
 //   { slug, app (ours), title (≤ 75), description (120–160), h1, crumb?, lead, checked: 'YYYY-MM-DD' (the day the facts were
 //     checked), criteria: [≥ 3], columns: [table headings], tools: [3–8 of { name, ours?, url, bestFor, summary?, cells:
 //     [one per column], pros, cons (≥ 1), sources: [{ label, url }] (required for every tool that is not ours) }],
-//     verdict?: paragraphs, faq: [[question, answer], ≥ 3] }
+//     matrix?: [≥ 5 of { feature, values: [one per tool: 'yes' | 'no' | 'partial' | 'unknown' | a short text] }] (the
+//     feature table, also shown on the app's landing page), verdict?: paragraphs, faq: [[question, answer], ≥ 3] }
 import { ROUNDUPS as creative } from './creative.mjs';
 import { ROUNDUPS as documents } from './documents.mjs';
 import { ROUNDUPS as business } from './business.mjs';

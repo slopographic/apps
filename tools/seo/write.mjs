@@ -125,13 +125,13 @@ export async function build({ date }) {
     copyEntries.push([`${a.id} about`, ABOUT[a.id]]);
   }
   const { TASKS } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'tasks', 'index.mjs')).href);
-  const landing = landingPages(apps, SITE, LANDING, TASKS);
+  const { ROUNDUPS } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'roundups', 'index.mjs')).href);
+  const landing = landingPages(apps, SITE, LANDING, TASKS, ROUNDUPS);
   for (const p of landing) copyEntries.push([`${p.key} landing`, LANDING[p.key]]);
   const tasks = taskPages(apps, SITE, TASKS);
   for (const p of tasks) copyEntries.push([`${p.key} task`, p.task]);
   const hub = hubPage(apps, SITE, TASKS);
   copyEntries.push(['all-tools landing', LANDING['all-tools']]);
-  const { ROUNDUPS } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'roundups', 'index.mjs')).href);
   const best = roundupPages(apps, SITE, ROUNDUPS), bestIndex = roundupIndex(SITE, ROUNDUPS);
   for (const p of best) copyEntries.push([`${p.key} roundup`, p.r]);
   copyEntries.push(['best landing', LANDING.best]);

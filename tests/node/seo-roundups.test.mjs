@@ -53,3 +53,22 @@ test('every round-up in the copy passes the checks, and the index lists them all
   const idx = R.roundupIndex(SITE, ROUNDUPS);
   for (const r of ROUNDUPS) assert.ok(idx.html.includes(`href="/best/${r.slug}/"`));
 });
+
+test('the feature matrix: one value per tool, shown with marks, and the same tables on the app landing page', async () => {
+  const m = (feature, values) => ({ feature, values });
+  const withMatrix = { ...good, matrix: [m('Merge', ['yes', 'yes', 'no']), m('Sign', ['yes', 'partial', 'unknown']), m('OCR', ['no', 'yes', 'yes']),
+    m('Offline', ['yes', 'no', 'no']), m('Free limit', ['None', '2 a day', 'unknown'])] };
+  assert.doesNotThrow(() => R.checkRoundup(withMatrix, apps));
+  assert.throws(() => R.checkRoundup({ ...withMatrix, matrix: withMatrix.matrix.slice(0, 3) }, apps), /at least 5/);
+  assert.throws(() => R.checkRoundup({ ...withMatrix, matrix: [m('X', ['yes'])].concat(withMatrix.matrix) }, apps), /one value per tool/);
+  const html = R.compareTables(withMatrix);
+  assert.match(html, /<td class="m-yes"><span aria-hidden="true">✓<\/span> Yes<\/td>/);
+  assert.match(html, /<td class="m-partial">/);
+  assert.match(html, /<td>2 a day<\/td>/);
+  assert.match(html, /<tr class="us"><th scope="row">Slop PDF <span class="l-badge">ours<\/span>/);
+  const L = await import(pathToFileURL(path.join(ROOT, 'tools/seo/landing.mjs')).href);
+  const page = L.landingPages(apps, SITE, new Proxy({}, { get: () => ({ title: 't', description: 'd' }) }), [], [withMatrix]).find((p) => p.key === 'pdf');
+  assert.match(page.html, /<h2>How Slop PDF compares<\/h2>/);
+  assert.ok(page.html.includes(R.compareTables(withMatrix)));
+  assert.match(page.html, /href="\/best\/free-pdf-editors\/"/);
+});
