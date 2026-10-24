@@ -61,6 +61,8 @@ panel.render([
 - **Look**: the panel follows Slop PDF's properties panel (sticky title, small upper-case section headings, label/value
   rows, buttons that wrap). Colours are the theme's `--sl-*` tokens; `--sf-list-w` sets the list column (320px).
 - `render()` keeps the keyboard focus on the same button across redraws (give actions an `id` for a stable key).
+- `setFooter(actions)` puts the main actions (the primary one first) in a footer that stays at the bottom of the panel
+  while it scrolls, as in Slop Watermark ("Watermark 3 files", Download, Save to Slop Drive…). `[]` removes it.
 
 ## Users
 

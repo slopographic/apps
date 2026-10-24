@@ -1,22 +1,23 @@
-/* Slop Watermark: sorting pictures into shape groups, and the per-group override of the shared setup. Pure (no DOM).
- * Classic script. Exposes window.WMGroups.
+/* Slop Watermark: sorting files into shape groups (by the picture, the video frame or the first PDF page), and the
+ * per-group override of the shared watermark. Pure (no DOM). Classic script. Exposes window.WMGroups.
  *   classify(w, h) → 'portrait' | 'landscape' | 'square' | 'panorama'
- *   summarise(items) → [{ kind, label, items, first, sizeText }] in KINDS order, only the groups with pictures
- *   scaleKey(kind) → the setup key of the size: 'logoScale' for a logo, 'size' for text
- *   scaleRange(kind) → { min, max, step } of the size slider, in percent ; fmtScale(kind, fraction) → '4.5%'
- *   overrideFrom(cfg) → an override copied from the shared setup (off) ; clean(raw, base) → a saved override or null
- *   applyOverride(cfg, ov) → the setup one picture is drawn with: the shared setup, or the group's when it is on */
+ *   summarise(items) → [{ kind, label, items, first, sizeText, text }] in KINDS order, only the groups with files
+ *   overrideFrom(spec) → an override from the shared watermark (off) ; clean(raw, spec) → a saved override or null
+ *   applyOverride(spec, ov) → the watermark a file of that group gets: the shared one, or with the group's position,
+ *     opacity and size (a scale of every layer's size: 1 is the shared size) when its override is on
+ *   SCALE: the range of that scale */
 (function () {
   'use strict';
   /** The shape thresholds. Change them here only.
-   *  tol: a picture is portrait or landscape when one side is MORE than tol longer than the other (0.10 = 10 percent).
+   *  tol: a file is portrait or landscape when one side is MORE than tol longer than the other (0.10 = 10 percent).
    *  panoramaMax / panoramaMin: width / height above panoramaMax or below panoramaMin is a panorama. */
   const THRESHOLDS = { tol: 0.10, panoramaMax: 2.2, panoramaMin: 0.45 };
   const KINDS = ['portrait', 'landscape', 'square', 'panorama'];
   const LABEL = { portrait: 'Portrait', landscape: 'Landscape', square: 'Square', panorama: 'Panorama' };
-  const POSITIONS = window.SlopWatermark.POSITIONS;
+  const SCALE = { min: 0.25, max: 3, step: 0.05 };
+  const S = window.SlopWatermarkSpec;
 
-  /** The group of a picture by its size in pixels. Panorama is checked first; a picture with no size is a square. */
+  /** The group of a file by its size in pixels. Panorama is checked first; a file with no size is a square. */
   function classify(w, h) {
     if (!(w > 0 && h > 0)) return 'square';
     const T = THRESHOLDS, r = w / h;
@@ -26,48 +27,42 @@
     return 'square';
   }
 
-  /** The groups that have pictures, with the count and the size range (the shorter side, which the watermark scales by). */
+  /** The groups that have files, with the count and the size range (the shorter side, which the watermark scales by). */
   function summarise(items) {
     const out = [];
     for (const kind of KINDS) {
       const list = items.filter((x) => x.group === kind);
       if (!list.length) continue;
       const sides = list.map((x) => Math.min(x.w, x.h));
-      const min = Math.min(...sides), max = Math.max(...sides);
-      const n = list.length;
+      const min = Math.min(...sides), max = Math.max(...sides), n = list.length;
+      const noun = list.every((x) => !x.media || x.media === 'picture') ? 'picture' : 'file';
       const sizeText = (min === max ? String(min) : min + ' to ' + max) + ' px';
-      out.push({ kind, label: LABEL[kind], items: list, first: list[0], sizeText, text: LABEL[kind] + ', ' + n + (n === 1 ? ' picture' : ' pictures') + ', ' + sizeText });
+      out.push({ kind, label: LABEL[kind], items: list, first: list[0], sizeText, text: LABEL[kind] + ', ' + n + ' ' + noun + (n === 1 ? '' : 's') + ', ' + sizeText });
     }
     return out;
   }
 
-  const scaleKey = (kind) => (kind === 'logo' ? 'logoScale' : 'size');
-  const scaleRange = (kind) => (kind === 'logo' ? { min: 2, max: 80, step: 1 } : { min: 0.5, max: 20, step: 0.5 });
-  const fmtScale = (kind, fraction) => (fraction * 100).toFixed(kind === 'logo' ? 0 : 1) + '%';
-
-  /** An override that starts from the shared setup, and is off. */
-  function overrideFrom(cfg) {
-    return { on: false, position: cfg.position, opacity: cfg.opacity, size: cfg.size, logoScale: cfg.logoScale };
+  /** An override that starts from the shared watermark (its top layer), and is off. */
+  function overrideFrom(spec) {
+    const L = spec.layers[spec.layers.length - 1] || S.layerDefaults('text');
+    return { on: false, position: L.position, opacity: L.opacity, scale: 1 };
   }
-  /** A saved override, checked: only an override that is on is kept; a bad field falls back to the shared setup. */
-  function clean(raw, base) {
+  const num = (v, d) => (typeof v === 'number' && isFinite(v) && v >= 0 ? v : d);
+  /** A saved override, checked: only one that is on is kept; a bad field falls back to the shared watermark. A group
+   *  saved before layers had its own size (size or logoScale): that becomes the scale of the shared size. */
+  function clean(raw, spec) {
     if (!raw || raw.on !== true) return null;
-    const num = (v, d) => (typeof v === 'number' && isFinite(v) && v >= 0 ? v : d);
-    return {
-      on: true,
-      position: POSITIONS.includes(raw.position) ? raw.position : base.position,
-      opacity: Math.min(1, num(raw.opacity, base.opacity)),
-      size: num(raw.size, base.size),
-      logoScale: num(raw.logoScale, base.logoScale),
-    };
+    const base = overrideFrom(spec), L = spec.layers[spec.layers.length - 1];
+    let scale = num(raw.scale, NaN);
+    if (!isFinite(scale) && L) { const old = L.kind === 'logo' ? raw.logoScale : raw.size; scale = num(old, 0) > 0 ? old / L.size : 1; }
+    return { on: true, position: S.POSITIONS.includes(raw.position) ? raw.position : base.position, opacity: Math.min(1, num(raw.opacity, base.opacity)),
+      scale: Math.min(SCALE.max, Math.max(SCALE.min, isFinite(scale) ? scale : 1)) };
   }
-  /** The setup for one picture: the shared setup, with the group's position, opacity and size when the group's override is on. */
-  function applyOverride(cfg, ov) {
-    if (!ov || !ov.on) return cfg;
-    const out = Object.assign({}, cfg, { position: ov.position, opacity: ov.opacity });
-    out[scaleKey(cfg.kind)] = ov[scaleKey(cfg.kind)];
-    return out;
+  /** The watermark for a file of a group: the shared one, or with the group's position, opacity and size when it is on. */
+  function applyOverride(spec, ov) {
+    if (!ov || !ov.on) return spec;
+    return S.normalize(Object.assign({}, spec, { layers: spec.layers.map((L) => Object.assign({}, L, { position: ov.position, opacity: ov.opacity, size: L.size * (ov.scale || 1) })) }));
   }
 
-  window.WMGroups = { THRESHOLDS, KINDS, LABEL, classify, summarise, scaleKey, scaleRange, fmtScale, overrideFrom, clean, applyOverride };
+  window.WMGroups = { THRESHOLDS, KINDS, LABEL, SCALE, classify, summarise, overrideFrom, clean, applyOverride };
 })();

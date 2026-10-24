@@ -1,7 +1,9 @@
-/* Slop PDF — watermark layers as data (no DOM). A document has a list of layers, bottom first: each is a text or
-   an image (logo) with a position (a 3 by 3 anchor on the visible page plus an offset in points), a size, an opacity,
-   a rotation (degrees, counter-clockwise) and a page range. The list is stored in state.stamps.watermarks. Every
-   function here returns a new list and never changes its input, so E.commit can record each change as one step.
+/* Slop PDF — the PDF writer's watermark layers (no DOM). A layer is a text or an image (logo) with a position (a 3 by 3
+   anchor on the visible page plus an offset in points), a size in points, an opacity, a rotation (degrees,
+   counter-clockwise) and a page range. The document keeps the one site-wide watermark spec (shared/watermark/spec.js) in
+   state.stamps.wm; SlopWatermarkSpec.toPdfLayers maps it onto these layers for each page, and the macros' Watermark
+   step (macro/ops-draw.js) writes them. A document saved before the spec kept these layers in stamps.watermarks (or one
+   watermark object in stamps.watermark): fromStamps reads both. Page ranges are the spec's parser (load spec.js first).
    Loaded as a classic script (window.SlopPdfWm) and in a vm for tests/node/pdf-watermark.test.mjs. */
 (function () {
   'use strict';
@@ -14,11 +16,6 @@
   function num(v, lo, hi, d) { var n = typeof v === 'number' ? v : parseFloat(v); if (!isFinite(n)) n = d; return Math.min(hi, Math.max(lo, n)); }
   W.uid = function () { seq++; return 'w' + Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(2, 6) + seq.toString(36); };
 
-  /** A layer with every field set (defaults for a new text or logo layer). */
-  W.defaults = function (kind) {
-    return W.normalize({ id: W.uid(), kind: kind === 'image' ? 'image' : 'text', text: 'CONFIDENTIAL', font: 'Helvetica', bold: true,
-      colour: '#888888', size: kind === 'image' ? 160 : 60, opacity: 0.25, rot: 45, anchor: 'mc', dx: 0, dy: 0, asset: '', pages: '', show: true });
-  };
   /** Clean copy of a layer: every field in range, unknown fields dropped, an id always present. */
   W.normalize = function (L) {
     L = L || {};
@@ -55,28 +52,8 @@
       size: old.size || 60, opacity: old.opacity == null ? 0.25 : old.opacity, rot: old.angle == null ? 45 : old.angle, anchor: 'mc' })];
   };
 
-  /** Page indices (0-based, sorted) that a page range names, for a document of n pages. Syntax: 2, 1-3, 4-, last,
-      odd, even, all; comma separated. An empty range or "all" is every page. Throws on text it cannot read. */
-  W.parsePages = function (spec, n) {
-    var total = n == null ? Infinity : n, finite = isFinite(total), s = String(spec == null ? '' : spec).trim().toLowerCase();
-    var out = new Set();
-    function addAll(test) { for (var i = 0; finite && i < total; i++) if (!test || test(i + 1)) out.add(i); }
-    if (!s) s = 'all';
-    s.split(',').forEach(function (raw) {
-      var p = raw.trim();
-      if (!p) return;
-      if (p === 'all') return addAll();
-      if (p === 'odd') return addAll(function (k) { return k % 2 === 1; });
-      if (p === 'even') return addAll(function (k) { return k % 2 === 0; });
-      if (p === 'last') { if (finite && total > 0) out.add(total - 1); return; }
-      var m = /^(\d+)(?:\s*-\s*(\d+)?)?$/.exec(p);
-      if (!m) throw new Error('“' + p + '” is not a page number. Use numbers such as 2 or 1-3, or the words all, odd, even, last.');
-      var a = +m[1], b = m[2] != null ? +m[2] : (p.indexOf('-') >= 0 ? total : a);
-      if (a < 1 || b < a) throw new Error('“' + p + '” is not a valid page range.');
-      for (var k = a; k <= b && (finite ? k <= total : k <= a + 10000); k++) out.add(k - 1);
-    });
-    return Array.from(out).sort(function (x, y) { return x - y; });
-  };
+  /** Page indices (0-based, sorted) that a page range names: the spec's one parser (2, 1-3, 4-, last, odd, even, all). */
+  W.parsePages = function (spec, n) { return window.SlopWatermarkSpec.parsePages(spec, n); };
   /** Whether a layer is drawn on page `index` (0-based) of `total` pages. A range that cannot be read draws nowhere. */
   W.appliesTo = function (L, index, total) {
     if (!L || !L.show) return false;
@@ -93,43 +70,10 @@
     return { cx: left + w / 2, cy: top + h / 2, w: w, h: h, rot: L.rot };
   };
 
-  /* Pure list operations. */
-  W.get = function (list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; };
-  W.indexOf = function (list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return i; return -1; };
-  /** A new layer on top of the stack (or at `index`, counted from the bottom). */
-  W.add = function (list, layer, index) {
-    var L = W.normalize(layer), out = list.slice();
-    var at = index == null ? out.length : Math.max(0, Math.min(out.length, index));
-    out.splice(at, 0, L);
-    return out;
-  };
-  W.remove = function (list, id) { return list.filter(function (x) { return x.id !== id; }); };
-  /** A copy of the layer, one step above the original. The copy takes a new id. */
-  W.duplicate = function (list, id, newId) {
-    var i = W.indexOf(list, id); if (i < 0) return list.slice();
-    var copy = W.normalize(Object.assign({}, list[i], { id: newId || W.uid() }));
-    var out = list.slice(); out.splice(i + 1, 0, copy); return out;
-  };
-  /** Moves a layer one step: dir -1 down (towards the bottom), +1 up. At the edge the list is unchanged. */
-  W.move = function (list, id, dir) {
-    var i = W.indexOf(list, id), j = i + (dir < 0 ? -1 : 1), out = list.slice();
-    if (i < 0 || j < 0 || j >= out.length) return out;
-    var t = out[i]; out[i] = out[j]; out[j] = t;
-    return out;
-  };
-  /** Changes some fields of one layer (the rest keep their values). */
-  W.update = function (list, id, patch) {
-    return list.map(function (x) { return x.id === id ? W.normalize(Object.assign({}, x, patch, { id: x.id })) : x; });
-  };
   /** Ids of the logo assets the layers use (saved with the edit log so a replay finds them). */
   W.assetIds = function (list) {
     var seen = {};
     (list || []).forEach(function (L) { if (L && L.kind === 'image' && L.asset) seen[L.asset] = true; });
     return Object.keys(seen);
-  };
-  /** Text of a layer's label in lists: its text, or the logo's name. */
-  W.label = function (L, assetName) {
-    if (L.kind === 'image') return 'Logo' + (assetName ? ': ' + assetName : '');
-    return L.text.trim() ? '“' + L.text.trim().slice(0, 40) + '”' : 'Text (empty)';
   };
 })();

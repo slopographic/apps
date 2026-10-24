@@ -1,5 +1,6 @@
-// Slop PDF watermark layers as data (pdf/js/core/watermark.js): the anchor maths, the page ranges, the stacking order,
-// the legacy single watermark, and undo/redo of every change through the real history (core/history.js + model.js).
+// Slop PDF watermark layers as data (pdf/js/core/watermark.js): the anchor maths, the page ranges (the spec's parser,
+// shared/watermark/spec.js), the legacy single watermark, and undo/redo of every change to the document's watermark spec
+// (stamps.wm, changed with the spec's list operations) through the real history (core/history.js + model.js).
 // Run with: node --test tests/node/pdf-watermark.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert';  // loose deepEqual: the layer arrays come from another realm (vm)
@@ -12,10 +13,10 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const ctx = { console };
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const f of ['core/util', 'core/model', 'core/history', 'core/watermark']) {
-  vm.runInContext(readFileSync(path.join(ROOT, 'pdf', 'js', f + '.js'), 'utf8'), ctx, { filename: f + '.js' });
+for (const f of ['shared/watermark/spec', 'pdf/js/core/util', 'pdf/js/core/model', 'pdf/js/core/history', 'pdf/js/core/watermark']) {
+  vm.runInContext(readFileSync(path.join(ROOT, f + '.js'), 'utf8'), ctx, { filename: f + '.js' });
 }
-const W = ctx.SlopPdfWm, E = ctx.SP.engine;
+const W = ctx.SlopPdfWm, E = ctx.SP.engine, S = ctx.SlopWatermarkSpec;
 const plain = (v) => JSON.parse(JSON.stringify(v));
 const text = (over) => W.normalize(Object.assign({ id: undefined, kind: 'text', text: 'DRAFT', size: 40 }, over));
 /** Fixed-width glyphs: 0.5 em per character (enough for the box maths). */
@@ -60,20 +61,22 @@ test('a layer is drawn only where it is shown and its pages cover the page', () 
   assert.equal(W.appliesTo(text({ pages: 'x y' }), 0, 3), false, 'an unreadable range draws nowhere');
 });
 
-test('stacking: the list is bottom first; move, duplicate and remove keep the order', () => {
-  let L = [];
-  L = W.add(L, text({ id: 'a', text: 'A' }));
-  L = W.add(L, text({ id: 'b', text: 'B' }));
-  assert.deepEqual(L.map((x) => x.id), ['a', 'b'], 'a new layer goes on top');
-  assert.deepEqual(W.move(L, 'a', 1).map((x) => x.id), ['b', 'a'], 'move up: drawn later');
-  assert.deepEqual(W.move(L, 'b', 1).map((x) => x.id), ['a', 'b'], 'the top layer cannot move up');
-  assert.deepEqual(W.move(L, 'a', -1).map((x) => x.id), ['a', 'b'], 'the bottom layer cannot move down');
-  const copy = W.duplicate(L, 'a', 'c');
-  assert.deepEqual(copy.map((x) => x.id), ['a', 'c', 'b'], 'a copy sits just above its original');
-  assert.equal(copy[1].text, 'A');
-  assert.deepEqual(W.remove(copy, 'c').map((x) => x.id), ['a', 'b']);
-  assert.deepEqual(W.add(L, text({ id: 'z' }), 0).map((x) => x.id), ['z', 'a', 'b'], 'an index puts a layer at that place');
-  assert.equal(L.length, 2, 'the input list is not changed');
+test('stacking: the spec lists layers bottom first; move, duplicate and remove keep the order', () => {
+  const T = (id, text) => S.layerDefaults('text', { id, text });
+  let sp = { v: 1, name: '', layers: [] };
+  sp = S.addLayer(sp, T('a', 'A'));
+  sp = S.addLayer(sp, T('b', 'B'));
+  const ids = (x) => x.layers.map((L) => L.id);
+  assert.deepEqual(ids(sp), ['a', 'b'], 'a new layer goes on top');
+  assert.deepEqual(ids(S.moveLayer(sp, 'a', 1)), ['b', 'a'], 'move up: drawn later');
+  assert.deepEqual(ids(S.moveLayer(sp, 'b', 1)), ['a', 'b'], 'the top layer cannot move up');
+  assert.deepEqual(ids(S.moveLayer(sp, 'a', -1)), ['a', 'b'], 'the bottom layer cannot move down');
+  const copy = S.duplicateLayer(sp, 'a', 'c');
+  assert.deepEqual(ids(copy), ['a', 'c', 'b'], 'a copy sits just above its original');
+  assert.equal(copy.layers[1].text, 'A');
+  assert.deepEqual(ids(S.removeLayer(copy, 'c')), ['a', 'b']);
+  assert.deepEqual(ids(S.addLayer(sp, T('z', 'Z'), 0)), ['z', 'a', 'b'], 'an index puts a layer at that place');
+  assert.equal(sp.layers.length, 2, 'the input spec is not changed');
 });
 
 test('a document with one watermark object from before layers reads as one layer', () => {
@@ -92,32 +95,33 @@ test('values are kept in range and a colour must be a hex colour', () => {
   assert.equal(L.dx, 5000);
 });
 
-test('every change is one undo step: add, move, duplicate, change, hide, change pages and remove', () => {
-  const st = () => plain(E.state.stamps.watermarks || []);
+test('every change to the watermark spec is one undo step: add, move, duplicate, change, hide, change pages and remove', () => {
+  const st = () => plain(E.state.stamps.wm || null);
+  const T = (id, text) => S.layerDefaults('text', { id, text });
   /** Each change is applied to the same two layers, undone, and checked: one step, undone exactly, redone exactly. */
   const step = (label, fn) => {
     const before = st();
-    E.commit(label, (s) => { s.stamps.watermarks = fn(s.stamps.watermarks || []); delete s.stamps.watermark; });
+    E.commit(label, (s) => { s.stamps.wm = fn(s.stamps.wm); });
     const after = st();
-    assert.notDeepEqual(after, before, label + ' changes the layers');
+    assert.notDeepEqual(after, before, label + ' changes the spec');
     assert.equal(E.undo(), label, 'it is one undo step named after the change');
-    assert.deepEqual(st(), before, 'undo restores the layers exactly');
+    assert.deepEqual(st(), before, 'undo restores the spec exactly');
     assert.equal(E.redo(), label);
     assert.deepEqual(st(), after, 'redo puts the change back');
     E.undo();
   };
   E.resetHistory();
   E.state = E.blankState();
-  E.commit('set up', (s) => { s.stamps.watermarks = [text({ id: 'a', text: 'A' }), text({ id: 'b', text: 'B' })]; });
+  E.commit('set up', (s) => { s.stamps.wm = { v: 1, name: '', layers: [T('a', 'A'), T('b', 'B')] }; });
   E.resetHistory();
-  step('Add text layer', (L) => W.add(L, text({ id: 'c', text: 'C' })));
-  step('Move layer up', (L) => W.move(L, 'a', 1));
-  step('Duplicate layer', (L) => W.duplicate(L, 'a', 'd'));
-  step('Change size', (L) => W.update(L, 'a', { size: 90 }));
-  step('Hide layer', (L) => W.update(L, 'a', { show: false }));
-  step('Change pages', (L) => W.update(L, 'a', { pages: '1-2' }));
-  step('Remove layer', (L) => W.remove(L, 'a'));
-  assert.deepEqual(st().map((x) => x.id), ['a', 'b'], 'the set-up layers are unchanged after every step was undone');
+  step('Add text layer', (sp) => S.addLayer(sp, T('c', 'C')));
+  step('Move layer up', (sp) => S.moveLayer(sp, 'a', 1));
+  step('Duplicate layer', (sp) => S.duplicateLayer(sp, 'a', 'd'));
+  step('Change size', (sp) => S.updateLayer(sp, 'a', { size: 0.09 }));
+  step('Hide layer', (sp) => S.updateLayer(sp, 'a', { show: false }));
+  step('Change pages', (sp) => S.updateLayer(sp, 'a', { pages: '1-2' }));
+  step('Remove layer', (sp) => S.removeLayer(sp, 'a'));
+  assert.deepEqual(st().layers.map((x) => x.id), ['a', 'b'], 'the set-up layers are unchanged after every step was undone');
 });
 
 test('the layer maths is pure: the content size is the only thing measured', () => {

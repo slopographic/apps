@@ -109,7 +109,7 @@
   V.sig = function (p, index, total) {
     var st = E.state.stamps, s = E.rotation(p) + '|' + JSON.stringify(p.annots || []);
     if (st.pageNumbers) s += '|n' + index + '/' + total + JSON.stringify(st.pageNumbers);
-    if (st.watermark || st.watermarks) s += '|w' + JSON.stringify([st.watermark || null, st.watermarks || null]);
+    if (st.wm || st.watermark || st.watermarks) s += '|w' + JSON.stringify([st.wm || null, st.watermark || null, st.watermarks || null]);
     return s;
   };
 

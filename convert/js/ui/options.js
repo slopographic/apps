@@ -1,7 +1,9 @@
 /* Builds the option controls for a conversion from its spec list, and reads their values back.
  * Every control has a label; hints are linked with aria-describedby. type 'password' is a masked field (Protect PDF).
  * type 'image' (an operation of the registry, shared/ops: Watermark's logo) is a picture chosen from the device, kept as a
- * data URL: a thumbnail and Remove beside the file field, and a bubbling 'change' once the picture is read. */
+ * data URL: a thumbnail and Remove beside the file field, and a bubbling 'change' once the picture is read.
+ * type 'watermark' (Watermark's spec option) is a choice of My watermarks, the watermarks saved in any app
+ * (shared/watermark/saved.js, loaded on first use): the chosen one's spec, as JSON, is the value. */
 import { h } from './dom.js';
 
 /** prefix: a file's id and a dash ('3-') on its card, 'bulk-' in the bulk bar, so every id on the page is unique. */
@@ -27,6 +29,8 @@ export function renderOptions(container, specs, defaults = {}, prefix = '') {
       wrap = h('div', { class: 'cv-opt' }, h('label', { for: id }, s.label, ' ', out), control, hint);
     } else if (s.type === 'image') {
       ({ control, wrap } = imageField(s, id, value, hint, describe));
+    } else if (s.type === 'watermark') {
+      ({ control, wrap } = watermarkField(s, id, value, hint, describe));
     } else if (s.type === 'color') {
       control = h('input', { type: 'color', id, value, 'aria-describedby': describe });
       wrap = h('div', { class: 'cv-opt' }, h('label', { for: id }, s.label), control, hint);
@@ -46,7 +50,7 @@ export function readOptions(container, specs, prefix = '') {
     if (!el) continue;
     if (s.type === 'checkbox') out[s.key] = el.checked;
     else if (s.type === 'number') out[s.key] = el.value === '' ? undefined : Number(el.value);
-    else if (s.type === 'image') out[s.key] = el.dataset.value || '';
+    else if (s.type === 'image' || s.type === 'watermark') out[s.key] = el.dataset.value || '';
     else out[s.key] = el.value;
   }
   return out;
@@ -75,5 +79,44 @@ function imageField(s, id, value, hint, describe) {
   });
   clear.addEventListener('click', () => set(''));
   const wrap = h('div', { class: 'cv-opt cv-image' }, h('label', { for: id }, s.label), h('div', { class: 'cv-img-row' }, thumb, control, clear), hint);
+  return { control, wrap };
+}
+
+const ROOT = new URL('../../../', import.meta.url);
+const classic = (rel) => new Promise((res, rej) => {
+  const src = new URL(rel, ROOT).href;
+  if ([...document.scripts].some((x) => x.src === src)) { res(); return; }
+  document.head.append(Object.assign(document.createElement('script'), { src, async: false, onload: res, onerror: () => rej(new Error('Could not load ' + rel)) }));
+});
+let savedP = null;
+/** My watermarks, newest first ([] where storage is off). */
+function savedMarks() {
+  if (!savedP) savedP = (async () => {
+    if (!window.SlopWatermarkSpec) await classic('shared/watermark/spec.js');
+    if (!window.SlopWatermarkSaved) await classic('shared/watermark/saved.js');
+    return window.SlopWatermarkSaved.list();
+  })().catch(() => []).finally(() => { setTimeout(() => { savedP = null; }, 0); });
+  return savedP;
+}
+/** A saved watermark: a choice of My watermarks; the value is the chosen spec as JSON ('' for none). */
+function watermarkField(s, id, value, hint, describe) {
+  const control = h('select', { id, 'aria-describedby': describe }, h('option', { value: '' }, 'None: use the settings above'));
+  let rows = [], name = '';
+  try { name = value ? JSON.parse(value).name || 'A watermark chosen before' : ''; } catch (e) { name = ''; }
+  if (value) control.append(h('option', { value: '=', selected: true }, name || 'A watermark chosen before'));
+  control.dataset.value = value || '';
+  savedMarks().then((list) => {
+    rows = list;
+    for (const r of rows) {
+      const same = value && JSON.stringify(r.spec) === value;
+      control.append(h('option', { value: r.id, selected: same }, r.name));
+      if (same) { const cur = control.querySelector('option[value="="]'); if (cur) cur.remove(); }
+    }
+  });
+  control.addEventListener('change', () => {
+    const v = control.value, r = rows.find((x) => x.id === v);
+    if (v !== '=') control.dataset.value = r ? JSON.stringify(r.spec) : '';
+  });
+  const wrap = h('div', { class: 'cv-opt' }, h('label', { for: id }, s.label), control, hint);
   return { control, wrap };
 }

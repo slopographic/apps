@@ -4,6 +4,8 @@
  *   const p = SlopFramePanel.create(panelEl, { title: 'Message' });    // also SlopFrame.panel(panelEl, opts)
  *   p.render([{ title: 'Details', rows: [['From', 'Ann']] }, { title: 'Actions', actions: [{ label: 'Export', menu: [...] }] }]);
  *   p.setTitle(text)
+ *   p.setFooter(actions)   the panel's main actions in a footer that stays at the bottom while the panel scrolls (the
+ *                          primary one first: "Watermark 3 files", then Download, Save to Slop Drive…); [] removes it
  * Section and action shapes: see frame.js. A menu opens under its button with shared/ui/menubutton.js (SlopMenuButton);
  * items are { label, act, disabled?, keywords? } or { heading }. Classic script; styles in frame.css. */
 (function (g) {
@@ -103,7 +105,17 @@
         if (again && !again.disabled) again.focus({ preventScroll: true });
       }
     }
-    return { render, setTitle: (t) => { h.textContent = t; }, element: body, title: head };
+    let foot = null;
+    function setFooter(actions) {
+      const list = (actions || []).filter(Boolean);
+      if (!foot) { foot = el('div', 'sf-p-foot'); panel.append(foot); }
+      const focused = doc.activeElement && foot.contains(doc.activeElement) ? doc.activeElement.dataset.sfKey : null;
+      foot.replaceChildren(...list.map((a, k) => button(a, 'foot/' + (a.id || k))));
+      foot.hidden = !list.length;
+      const again = focused && foot.querySelector('[data-sf-key="' + focused.replace(/["\\]/g, '\\$&') + '"]');
+      if (again && !again.disabled) again.focus({ preventScroll: true });
+    }
+    return { render, setTitle: (t) => { h.textContent = t; }, setFooter, element: body, title: head };
   }
 
   g.SlopFramePanel = { create };

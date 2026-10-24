@@ -12,6 +12,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const ctx = { console };
 ctx.window = ctx;
 vm.createContext(ctx);
+vm.runInContext(readFileSync(path.join(ROOT, 'shared', 'watermark', 'spec.js'), 'utf8'), ctx, { filename: 'spec.js' });   // the page ranges
 vm.runInContext(readFileSync(path.join(ROOT, 'pdf', 'js', 'core', 'watermark.js'), 'utf8'), ctx, { filename: 'watermark.js' });
 for (const f of ['pattern', 'model']) vm.runInContext(readFileSync(path.join(ROOT, 'pdf', 'js', 'macro', f + '.js'), 'utf8'), ctx, { filename: f + '.js' });
 const M = ctx.SlopPdfMacro;

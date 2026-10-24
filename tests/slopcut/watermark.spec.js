@@ -1,6 +1,8 @@
 /* SlopCut: the watermark module (js/watermark). Off by default; a text watermark turned on shows in the monitor and
    in an export (the exported frame has its pixels, and without it the frame has none); the logo path; the settings
-   are saved with the project and load back; the device default style; the Watermark tab; the module can be absent. */
+   are saved with the project and load back (an old flat one too); a time range; the device default; the Watermark tab (the
+   site's one watermark panel); the module can be absent.
+   Covers: slopcut/js/watermark/state.js, slopcut/js/watermark/panel.js, slopcut/js/render/compositor.js */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor } = SlopTest;
@@ -19,8 +21,10 @@
     const out = await ST.SE.encode.run({ format: 'mp4', w: W, h: H, fps: 5, quality: 'high', audio: false, a: 0, b: 0.2 });
     return ST.firstFrame(out.blob);
   }
-  /** A white text watermark, centred, fully opaque, no shadow. */
-  const TEXT = { on: true, kind: 'text', text: 'SLOP', size: 0.2, position: 'mc', opacity: 1, colour: '#ffffff', shadow: false, tile: false, rotate: 0, margin: 0.03 };
+  /** A white text watermark, centred, fully opaque, no shadow (a watermark spec: shared/watermark/spec.js). */
+  const layer = (o) => Object.assign({ kind: 'text', text: 'SLOP', size: 0.2, position: 'mc', opacity: 1, colour: '#ffffff', shadow: false, tile: false, rotate: 0, margin: 0.03 }, o);
+  const TEXT = { on: true, spec: { layers: [layer()] } };
+  const first = () => ST.SE.watermark.settings().spec.layers[0];
 
   describe('watermark', () => {
     it('boots the app with the watermark module', async () => {
@@ -51,7 +55,7 @@
       SE.emit('frame', {});
       await waitFor(() => ST.countBright(monitor) > 100, { timeout: 5000 });
       if (!(await ST.canEncode())) { // no encoder here: the preview and the settings are still checked
-        expect(WM.settings().position).toBe('mc');
+        expect(first().position).toBe('mc');
         return;
       }
       expect(ST.countBright(await exportFrame())).toBeGreaterThan(300);
@@ -64,35 +68,51 @@
       await importSource();
       const SE = ST.SE, WM = SE.watermark, logo = document.createElement('canvas');
       logo.width = 120; logo.height = 60; logo.getContext('2d').fillStyle = '#fff'; logo.getContext('2d').fillRect(0, 0, 120, 60);
-      WM.set({ on: true, kind: 'logo', logo: logo.toDataURL('image/png'), logoScale: 0.4, position: 'tl', opacity: 1, margin: 0.03 }, 'Test logo', 'logo');
+      WM.set({ on: true, spec: { layers: [{ kind: 'logo', logo: logo.toDataURL('image/png'), logoW: 120, logoH: 60, size: 0.4, position: 'tl', opacity: 1, margin: 0.03 }] } }, 'Test logo', 'logo');
       await WM.ready(SE.doc);
-      if (!(await ST.canEncode())) { expect(WM.settings().kind).toBe('logo'); return; }
+      if (!(await ST.canEncode())) { expect(first().kind).toBe('logo'); return; }
       expect(ST.countBright(await exportFrame())).toBeGreaterThan(2000);
     }, { timeout: 90000 });
 
     it('the settings are saved with the project and load back with it', async () => {
       await ST.reset();
       const SE = ST.SE, WM = SE.watermark;
-      WM.set(Object.assign({}, TEXT, { text: 'KEEP', colour: '#ff0000' }), 'Test watermark', 'test');
+      WM.set({ on: true, spec: { layers: [layer({ text: 'KEEP', colour: '#ff0000' })] } }, 'Test watermark', 'test');
       const blob = await SE.project.toBlob();
-      WM.set({ on: false, text: 'OTHER' }, 'Watermark off', 'test');
+      WM.set({ on: false, spec: { layers: [layer({ text: 'OTHER' })] } }, 'Watermark off', 'test');
       await SE.project.load(blob);
-      const s = WM.settings();
-      expect(s.on).toBe(true);
-      expect(s.text).toBe('KEEP');
-      expect(s.colour).toBe('#ff0000');
+      expect(WM.settings().on).toBe(true);
+      expect(first().text).toBe('KEEP');
+      expect(first().colour).toBe('#ff0000');
+    });
+
+    it('a project saved before the watermark spec (one flat mark) still opens with its watermark', async () => {
+      await ST.reset();
+      const SE = ST.SE, WM = SE.watermark;
+      SE.change('Old project', (p) => { p.watermark = { on: true, kind: 'text', text: 'FLAT', size: 0.1, position: 'bl', opacity: 0.6, colour: '#00ffff' }; });
+      expect(WM.settings().on).toBe(true);
+      expect([first().text, first().position, first().size, first().colour]).toEqual(['FLAT', 'bl', 0.1, '#00ffff']);
+    });
+
+    it('a layer with a time range shows in the frames of that time only', async () => {
+      await ST.reset();
+      await importSource();
+      const SE = ST.SE, WM = SE.watermark;
+      WM.set({ on: true, spec: { layers: [layer({ from: 0.5 })] } }, 'Timed watermark', 'test');
+      expect(ST.countBright(ST.renderAt(SE.doc, 0))).toBeLessThan(20);
+      expect(ST.countBright(ST.renderAt(SE.doc, 0.6))).toBeGreaterThan(100);
     });
 
     it('a new project takes this device’s default style, and its watermark stays off', async () => {
       const SE = ST.SE, WM = SE.watermark;
       ST.win.localStorage.removeItem('slopedit.watermark');
       await ST.reset();
-      WM.set({ colour: '#00ff00', text: 'DEFAULT', position: 'tl' }, 'Test style', 'style');
+      WM.set({ spec: { layers: [layer({ colour: '#00ff00', text: 'DEFAULT', position: 'tl' })] } }, 'Test style', 'style');
       WM.saveDefaults();
       await ST.reset();
       expect(WM.settings().on).toBe(false);
-      expect(WM.settings().colour).toBe('#00ff00');
-      expect(WM.settings().text).toBe('DEFAULT');
+      expect(first().colour).toBe('#00ff00');
+      expect(first().text).toBe('DEFAULT');
       ST.win.localStorage.removeItem('slopedit.watermark');
     });
 
@@ -103,13 +123,14 @@
       const list = doc.querySelector('.bin-list');
       expect(!!doc.querySelector('.bin-tab[data-tab="watermark"]')).toBe(true);
       expect(!!list.querySelector('.wm-panel')).toBe(true);
-      const sw = list.querySelector('.wm-switch input');
+      const sw = list.querySelector('.swp-switch input');
       sw.checked = true; sw.dispatchEvent(new ST.win.Event('change'));
       expect(SE.watermark.settings().on).toBe(true);
-      const cells = list.querySelectorAll('.wm-cell');
+      const cells = list.querySelectorAll('.swp-cell');
       expect(cells.length).toBe(9);
       cells[0].click();
-      expect(SE.watermark.settings().position).toBe('tl');
+      expect(first().position).toBe('tl');
+      expect(!!list.querySelector('.swp-time')).toBe(true);   // the time range of a layer, for video
     });
 
     it('with the module absent, the monitor and the compositor still draw', async () => {
