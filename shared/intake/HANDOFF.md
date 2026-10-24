@@ -211,6 +211,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   Drive picker), Import Word, Markdown or text from Slop Drive (mode `import`, unlinked), a drop on the page (new),
   ?drive= launch and launchQueue (the reader waits for the tabs; a launch replaces the blank tab). The hidden input's
   paste is only text. Out: Send to is `SlopOuttake.items` (the document as DOCX). `tests/intake/docs.test.html`.
+- **Slop EML** (`eml/js/main.js`, spec `eml`): Open messages… (both buttons, Ctrl+O), a drop on the strip or the page,
+  the sample (`SlopIntake.sample`), a paste (new), ?drive= launch and launchQueue; a message already open is refused with
+  its reason; a batch of two or more goes to the list (`ctx.batch`). `EmlActions.openFiles` is gone. Out: Open in Slop
+  PDF (`EmlExport.toApp`) is `SlopOuttake.send`; an attachment's Open in is `SlopOuttake.items`.
+  `tests/intake/eml.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -338,20 +343,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] Drive picker: `effects/js/app/io.js:39`
 - [ ] pickFiles: `effects/js/app/io.js:53`
 - [ ] Drive picker: `effects/js/app/io.js:133`
-
-### eml
-
-- [ ] pickFiles: `eml/js/actions.js:17`
-- [ ] out: Open in/Send to label: `eml/js/commands.js:29`
-- [ ] out: sendTo: `eml/js/export-ui.js:49`
-- [ ] out: Open in/Send to label: `eml/js/export-ui.js:71`
-- [ ] out: Open in/Send to label: `eml/js/export-ui.js:110`
-- [ ] out: sendMenuItems: `eml/js/export-ui.js:122`
-- [ ] SlopDrop.attach: `eml/js/main.js:37`
-- [ ] ?drive= launch: `eml/js/main.js:64`
-- [ ] out: Open in/Send to label: `eml/js/side.js:26`
-- [ ] out: Open in/Send to label: `eml/js/side.js:39`
-- [ ] out: Open in/Send to label: `eml/js/side.js:63`
 
 ### expenses
 
