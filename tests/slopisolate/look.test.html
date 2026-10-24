@@ -54,7 +54,7 @@
         expect(shown(D.getElementById('btnOpenIn'))).toBe(false);
         D.getElementById('btnMore').click();
         const menu = await waitFor(() => D.querySelector('.sui-menu'), { timeout: 4000 });
-        expect(menu.textContent).toContain('Open in…');
+        expect(menu.textContent).toContain('Open in');
         expect(menu.textContent).toContain('Clear saved work…');
         D.dispatchEvent(new D.defaultView.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       }

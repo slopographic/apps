@@ -52,8 +52,10 @@ jobs:
   # The slices are balanced by tests/timings.json (refresh with: node tests/run.mjs --record-timings). The jobs run in
   # Playwright's own image, which has Chromium and its system libraries, so a job starts in seconds. Its version must be the
   # one in package-lock.json (tests/node/ci-config.test.mjs checks it). This is CI only: GitHub Pages serves the files as they are.
+  # The full suite runs on testing, main and pull requests; never on wip/* branches (see browser-changed below).
   browser:
     name: Browser tests ${{ matrix.shard }}/16
+    if: ${{ !startsWith(github.ref, 'refs/heads/wip/') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     container:
@@ -67,3 +69,35 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Browser tests, slice ${{ matrix.shard }} of 16
         run: node tests/run.mjs --shard=${{ matrix.shard }}/16 --jobs=3 --skip-node
+
+  # wip/* branches (work in progress) never run the full suite: only the test pages of the apps the branch changed, the
+  # test pages it changed, and a few smoke pages. Finished work is merged into testing in batches, where the full suite runs.
+  browser-changed:
+    name: Browser tests of the changed apps
+    if: ${{ startsWith(github.ref, 'refs/heads/wip/') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - run: npm ci --no-audit --no-fund
+      - name: The changed apps' pages and the smoke pages
+        run: |
+          git fetch -q origin testing
+          BASE=$(git merge-base HEAD origin/testing)
+          SETS="home/catalog pdf/pdf.test workflows/run convert/hub photoslop/look"
+          for f in $(git diff --name-only "$BASE"..HEAD); do
+            case "$f" in
+              tests/*.test.html) SETS="$SETS ${f#tests/}" ;;
+              *) d=${f%%/*}; ls tests/"$d"/*.test.html >/dev/null 2>&1 && SETS="$SETS $d/" ;;
+            esac
+          done
+          FAIL=0
+          for s in $(printf '%s\n' $SETS | sort -u); do
+            echo "::group::$s"; node tests/run.mjs "$s" --jobs=3 --skip-node || FAIL=1; echo "::endgroup::"
+          done
+          exit $FAIL

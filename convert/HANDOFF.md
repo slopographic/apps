@@ -94,6 +94,17 @@ and no first-visit picture; `onResults(outputs)` is called after each Convert. R
 | Markdown / text to PDF and to Word (`core/doc-out.js`) | MD, TXT | PDF or DOCX; A4 or Letter; sans, serif or mono | The Slop Docs engine (its Markdown import, layout, PDF writer with `shared/fonts/pdf-runs.js`, DOCX writer). Other scripts get their Noto font through SlopFontJIT (asks first). Markdown tables, links and images stay as typed text. |
 | Word to PDF, HTML, Markdown, text (`core/office.js`) | DOCX | PDF (page size as in the document, A4 or Letter), HTML (page or body), Markdown, TXT | Slop Docs' own DOCX import (`docs/js/io/docx-in.js`), layout and PDF writer through `doc-out.js` (every script via `shared/fonts/pdf-runs.js` and SlopFontJIT), its Markdown and HTML writers (`docs/js/io/md-out.js`, `html-out.js`) and text (`sdoc.js toText`). Pictures, footnotes, comments and tracked changes are not imported yet. Markdown: GitHub pipe tables, no underline. Slop Docs does not read ODT, so there is no ODT conversion. |
 | PowerPoint to PDF, pictures, text (`core/slides-out.js`, `core/deck-text.js`) | PPTX | PDF (one page per slide), ZIP of PNGs (1×, 2×, 3× the slide size in points), TXT (titles, text, speaker notes) | Slop Slides' own PPTX import, renderer and PDF export, loaded from `slides/js/manifest.js` into `window.SS` (`slidesEngine`). Hidden slides only when ticked. The status line counts what the import left out (charts, SmartArt, media). No ODP, .doc or .ppt. |
+| HTML to Markdown (`core/html-md.js`) | HTML | Markdown (CommonMark, GitHub tables, ~~strike~~) | DOMParser. Scripts, styles and forms dropped; Markdown characters in text escaped. |
+| CSV to Markdown table / HTML table, Change CSV separator (`core/table-out.js`, `text-more.js`) | CSV (TSV and .tsv read as CSV) | MD, HTML (page or table), CSV or .tsv | Number columns right-aligned in Markdown; pipes escaped, line breaks as `<br>`. The separator change keeps the kind (`chain: false`). |
+| JSON Lines to JSON, JSON to JSON Lines (`core/jsonl.js`) | JSONL / NDJSON, JSON | JSON array, one value per line | A bad line is named with its number and column. |
+| JSON to CSV, option Nested values in their own columns | JSON | CSV | `csv.js flattenRecord`: `a.b`, `tags.0`; off by default (nested values as JSON text, as before). |
+| Text encoding to UTF-8 (`core/encoding.js`, `TO_UTF8`) | every text kind | the same kind, `-utf8` in the name | TextDecoder. Detect: BOM, UTF-16 by its zero bytes, valid UTF-8, else Windows-1252. Last in the catalog so it is never a kind's default. |
+| EPUB to text, Markdown, HTML (`core/epub.js`) | EPUB 2 and 3 | TXT, MD, one HTML page (pictures as data: URLs) | Spine order; nav pages not in the spine are left out. DRM (chapters in `META-INF/encryption.xml`) is refused. Pictures become `[alt]` in text and Markdown. EPUB to PDF and Word are routes through Markdown. |
+| ASS/SSA to SRT and VTT, SBV to SRT (`core/subs-more.js`) | .ass, .ssa, .sbv | SRT, VTT, shift | Dialogue lines in Format order, sorted; `\i`, `\b`, `\u` become tags, other overrides dropped. |
+| Favicon set (`core/favicon.js`) | any picture | ZIP: favicon.ico (16, 32, 48), PNGs 16 to 512, apple-touch-icon (always filled), site.webmanifest, head-tags.html | Fitted into a square, optional padding and fill. `ico.js encodeIcoImages` writes multi-size ICOs. |
+| Cut audio (`core/cut.js`, `media-geo.js`) | audio and video files | WAV or MP3 | Start and end as seconds or m:ss, fades. Decoded by the browser like To WAV. |
+| Cut video (`media-geo.js`) | MP4, MOV, WebM | the same format | ffmpeg.wasm. Default: streams copied (starts at the key frame before the start); Cut at the exact frame re-encodes. |
+| GPX and KML to GeoJSON, GeoJSON to GPX and CSV (`core/geo-read.js`, `geo-write.js`) | .gpx, .kml, .geojson | GeoJSON, GPX 1.1, CSV of points | Track times in `properties.coordTimes`; KML placemarks in folders, polygons with holes, MultiGeometry, gx:Track. GPX has no areas: outlines become tracks and are counted. KMZ: unzip first. |
 
 Browser support: anything the browser cannot decode or encode (for example WebP output in some Safari versions) reports a plain error on that file; the rest of the batch still runs.
 
@@ -279,3 +290,15 @@ option (`zipName`, default `files`). `runChain` (`core/chain-run.js`) gained, wi
 function of the input kind, an output's own `kind`, `keepStep(i)`, `onUnit` (per file per step), an `AbortSignal`, and
 `run(files, opts, { signal, progress })`. `ui/options.js` also draws an `image` option (a picture kept as a data URL).
 Tests: `tests/node/workflows-*.test.mjs`, `tests/workflows/`.
+
+## More text, data, media and map conversions (`core/text-more.js`, `core/media-geo.js`)
+`TEXT_MORE`, `MEDIA_GEO` and `TO_UTF8` (last) are spread into `CONVERSIONS`; the table above has each. New kinds in `detect.js`:
+`jsonl`, `ass`, `sbv`, `gpx`, `kml`, `geojson` (all in `TEXT_KINDS`, so typed text works), and `.tsv` reads as `csv`. Chain flags: the
+separator change, UTF-8, both cuts and the favicon set are `chain: false`; EPUB to text costs 2 so routes to PDF and Word go through
+Markdown. Routes this adds: EPUB to PDF or Word, KML to GPX, GPX to CSV or XLSX, HTML to Word through Markdown, SBV to VTT.
+Pages (`core/more-pages-2.js`, `more-pages-3.js`, 21): html-to-markdown, csv-to-markdown, csv-to-html, csv-to-tsv, jsonl-to-json,
+json-to-jsonl, fix-text-encoding, epub-to-txt, epub-to-pdf, epub-to-html, epub-to-markdown, ass-to-srt, sbv-to-srt,
+favicon-generator, trim-audio, trim-video, gpx-to-geojson, kml-to-geojson, kml-to-gpx, gpx-to-csv, geojson-to-gpx.
+Tests: `tests/node/convert-text-more.test.mjs`, `convert-media-geo.test.mjs`; `tests/convert/text-more.test.html` (an EPUB made by
+`epub-fixture.js`, to text, Markdown, HTML and PDF read back), `media-geo.test.html` (favicon ZIP drawn back, a WAV cut and decoded,
+real GPX and KML, the pages), `cut-ff.test.html` (Cut video with the real ffmpeg core).
