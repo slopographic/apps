@@ -12,7 +12,7 @@
     query: { text: '', chips: [], sort: 'added' },
   };
 
-  const fmtSize = (n) => (n < 1024 ? n + ' B' : n < 1048576 ? Math.round(n / 1024) + ' KB' : (n / 1048576).toFixed(1) + ' MB');
+  const fmtSize = (n) => window.SlopHub.fmtSize(n);   // SlopHub.fmtSize (shared/hub.js)
   const fmtDate = (t) => (t ? new Date(t).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'Unknown date');
   const extOf = (name) => window.SlopKinds.extOf(name);
 

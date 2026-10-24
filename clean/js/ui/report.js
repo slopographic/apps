@@ -11,7 +11,7 @@
     if (item.out) return !item.out.after.some((a) => a.cat === f.cat && a.label === f.label && a.value === f.value);
     return !!remove[f.cat];
   }
-  const fmtSize = (n) => (n < 1024 ? n + ' B' : n < 1048576 ? Math.round(n / 1024) + ' KB' : (n / 1048576).toFixed(1) + ' MB');
+  const fmtSize = (n) => window.SlopHub.fmtSize(n);   // SlopHub.fmtSize (shared/hub.js)
 
   /** The "What it holds" list for one item, grouped by category in the order of CATS. */
   function holdings(item, remove) {

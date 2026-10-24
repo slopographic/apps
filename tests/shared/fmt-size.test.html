@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Shared · SlopHub.fmtSize, the one file size format</title>
+  <!-- Covers: shared/hub.js, drive/js/core/util.js, gallery/js/ui/viewer.js, gallery/js/ui/drive-view.js, clean/js/ui/report.js, slopisolate/js/core/util.js, pdf/js/core/util.js -->
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="../../shared/apps.js"></script>
+  <script src="../../shared/hub.js"></script>
+  <script>
+  const { describe, it, expect, run } = SlopTest;
+  const f = window.SlopHub.fmtSize;
+  describe('SlopHub.fmtSize', () => {
+    it('bytes, KB with a decimal under 10 KB, MB and GB; a dash when the size is unknown', () => {
+      expect([f(0), f(512), f(1023)]).toEqual(['0 B', '512 B', '1023 B']);
+      expect([f(1024), f(3500), f(10240), f(49152)]).toEqual(['1.0 KB', '3.4 KB', '10 KB', '48 KB']);
+      expect([f(1048576), f(2621440)]).toEqual(['1.0 MB', '2.5 MB']);
+      expect(f(1288490189)).toBe('1.20 GB');
+      expect([f(undefined), f(null), f(NaN)]).toEqual(['—', '—', '—']);
+    });
+  });
+  run();
+  </script>
+</body>
+</html>

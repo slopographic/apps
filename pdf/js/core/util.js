@@ -48,11 +48,7 @@
   U.uid = function (p) { n++; return (p || 'i') + Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(2, 7) + n.toString(36); };
   U.clamp = function (v, a, b) { return v < a ? a : v > b ? b : v; };
   U.round = function (v, d) { var m = Math.pow(10, d || 0); return Math.round(v * m) / m; };
-  U.fmtBytes = function (b) {
-    if (b < 1024) return b + ' B';
-    if (b < 1024 * 1024) return (b / 1024).toFixed(b < 10240 ? 1 : 0) + ' KB';
-    return (b / 1048576).toFixed(b < 10485760 ? 2 : 1) + ' MB';
-  };
+  U.fmtBytes = function (b) { return window.SlopHub.fmtSize(b); };   // SlopHub.fmtSize (shared/hub.js)
   U.debounce = function (fn, ms) {
     var t = null;
     var d = function () { var a = arguments, s = this; clearTimeout(t); t = setTimeout(function () { t = null; fn.apply(s, a); }, ms); };

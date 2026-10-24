@@ -196,7 +196,9 @@
     u.searchParams.delete('drive'); history.replaceState(null, '', u.pathname + u.search + u.hash);
     try { const r = await get(id); if (r) touch(id); return r; } catch (e) { return null; }
   }
-  const fmtSize = (n) => (n < 1024 ? n + ' B' : n < 1048576 ? Math.round(n / 1024) + ' KB' : (n / 1048576).toFixed(1) + ' MB');
+  /** A file size for people: "512 B", "3.4 KB", "48 KB", "2.5 MB", "1.20 GB"; "—" when unknown. The one copy for every app. */
+  const fmtSize = (n) => (n == null || !Number.isFinite(n) ? '—' : n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(n < 10240 ? 1 : 0) + ' KB'
+    : n < 1073741824 ? (n / 1048576).toFixed(1) + ' MB' : (n / 1073741824).toFixed(2) + ' GB');
 
   /* ---------- Pickers (shared/drive/picker.js, loaded on first use) ---------- */
   const loaded = new Map();
