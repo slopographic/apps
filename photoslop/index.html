@@ -4,6 +4,7 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="photoslop" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+<script>/* the hidden copy that runs macros for Slop Workflows (shared/macros/frame.js) adds no third-party scripts */ if (/[?&]macro-host=1(&|$)/.test(location.search)) window.SLOP_CONSENT_LOADER = function () {};</script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -52,6 +53,8 @@
   <link rel="stylesheet" href="css/layer-style.css">
   <link rel="stylesheet" href="../shared/watermark/panel.css">
   <link rel="stylesheet" href="css/raw.css">
+  <link rel="stylesheet" href="../shared/ui/list.css">
+  <link rel="stylesheet" href="../shared/macros/macros.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
@@ -72,6 +75,7 @@
         <button class="top-btn" id="cmdBtn" type="button" title="Search commands" aria-label="Search commands" hidden>
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
         </button>
+        <button class="top-btn" id="macrosBtn" type="button" title="Record and play macros" aria-label="Macros" hidden>Macros</button>
         <button class="top-btn export" id="exportBtn" type="button" title="Export As… (Alt+Shift+Ctrl+W)">Export</button>
         <button class="top-btn panel-toggle" id="panelToggle" type="button" aria-expanded="false" aria-controls="panels">Layers</button>
       </div>
@@ -94,7 +98,11 @@
   <noscript><p class="noscript">PhotoSlop needs JavaScript to run. Nothing is uploaded: it all runs on your device.</p></noscript>
 
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
   <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="../shared/mask/mask.js"></script>
   <script src="../shared/mask/overlay.js"></script>
   <script src="../shared/session/session.js"></script>
@@ -119,6 +127,8 @@
   <script src="../shared/nav/index.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/hub.js"></script>
+  <script src="../shared/intake/outtake.js"></script>
+  <script src="../shared/ops/entry.js"></script>
   <script src="../shared/storage/classify.js"></script>
   <script src="../shared/storage/storage.js"></script>
   <script src="../shared/storage/clear.js"></script>
@@ -240,12 +250,21 @@
   <script src="js/app/nav-adapter.js"></script>
   <script src="js/app/view-state.js"></script>
   <script src="js/app/layout.js"></script>
-  <script src="../shared/drop/rules.js"></script>
   <script src="../shared/drop/panel.js"></script>
   <script src="../shared/drop/drop.js"></script>
   <script src="../shared/drop/choice.js"></script>
   <script src="../shared/samples/samples.js"></script>
   <script src="js/app/welcome.js"></script>
+  <script src="js/app/intake.js"></script>
+  <script src="../shared/db/query.js"></script>
+  <script src="../shared/db/db.js"></script>
+  <script src="../shared/ui/list.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/macros/core.js"></script>
+  <script src="../shared/macros/store.js"></script>
+  <script src="../shared/macros/macros.js"></script>
+  <script src="../shared/macros/panel.js"></script>
+  <script src="js/app/macros.js"></script>
   <script src="js/app/main.js"></script>
   <script type="module" async src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js" data-offline="strip"></script>

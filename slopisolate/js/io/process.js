@@ -3,8 +3,8 @@
  * free to edit finished images meanwhile. A failed image does not stop the rest; removing or re-running an image that is
  * being cut out cancels it. The image on screen owns a worker job (CO.active): slider and brush changes re-run only the
  * cheap post-processing in the worker via SlopCutout.finish(), so the model never runs twice.
- * One model for every image: an image follows the app's model (S.modelOf) unless the bulk bar gave it its own, so a
- * batch gets exactly what one image at a time gets. */
+ * One model for every image: an image follows the app's model (S.modelOf) unless the settings panel, editing several
+ * selected pictures, gave it its own (P.pin), so a batch gets exactly what one image at a time gets. */
 (function () {
   'use strict';
   const CO = window.CO, U = CO.util, S = CO.state, C = CO.compose;
@@ -98,6 +98,20 @@
     return redo;
   };
 
+  /** Give these images a model of their own (the settings panel with several pictures selected): only those of them that
+   *  were made, or are being made, with another model run again. Returns the images that re-run. */
+  P.pin = function (items, id) {
+    const redo = [];
+    for (const it of items) {
+      if (it.kind === 'video') continue;
+      it.model = id;
+      if (it.status === 'error' || it.status === 'queued') continue;
+      if (it.status === 'done' ? it.modelUsed !== id : running.has(it) && it.modelRunning !== id) redo.push(it);
+    }
+    redo.forEach((it) => P.rerun(it));
+    return redo;
+  };
+
   /** Re-segment an item (new model or a changed file). Keeps its brush edits. */
   P.rerun = function (it) {
     if (P.active && P.active.item === it) P.drop();
@@ -179,15 +193,11 @@
   P.live = function (it, rect) {
     const act = P.active;
     if (!act || act.item !== it || !it.base || !act.mask || !rect) return;
-    const W = act.w, s = it.s || {}, th = s.threshold == null ? 0.5 : s.threshold, sf = s.softness == null ? 1 : s.softness;
-    const lo = (th - sf / 2) * 255, hi = (th + sf / 2) * 255, hard = hi - lo < 1, k = hard ? 0 : 255 / (hi - lo);
+    const W = act.w, alpha = C.alphaFn(it.s);
     const base = it.base, ed = it.edit, m = act.mask, cut = act.cutout.data;
     for (let y = rect.y; y < rect.y1; y++) {
       for (let x = rect.x; x < rect.x1; x++) {
-        const i = y * W + x;
-        let a = hard ? (base[i] >= th * 255 ? 255 : 0) : (base[i] - lo) * k;
-        const e = ed ? ed[i] : 128;
-        if (e > 128) a = a + (255 - a) * (e - 128) / 127; else if (e < 128) a = a * e / 128;
+        const i = y * W + x, a = alpha(base[i], ed ? ed[i] : 128);
         m[i] = a; cut[i * 4 + 3] = a;
       }
     }
@@ -198,5 +208,10 @@
   P.pending = () => queue.length + running.size;
   P.running = () => running.size;
   CO.on('look', (it) => P.refreshSoon(it));
-  CO.on('history', ({ it }) => { if (it.edit || it.s) P.refreshSoon(it); });
+  // Undoing or redoing a change of edge refinement changes the cut-out itself: the model runs again (the rest is cheap).
+  CO.on('history', ({ it, entry, dir }) => {
+    const e = entry && entry.kind === 'look' && (dir === 'undo' || dir === 'redo') ? entry : null;
+    if (e && e.before.s.refine !== e.after.s.refine && it.status === 'done') P.rerun(it);
+    else if (it.edit || it.s) P.refreshSoon(it);
+  });
 })();

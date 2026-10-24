@@ -141,7 +141,7 @@ function buildLayersPanel() {
       row.addEventListener('dragend', () => { dragId = null; row.classList.remove('dragging'); $$('.layer', list).forEach((r) => r.classList.remove('drop-above', 'drop-below')); });
       row.addEventListener('dragover', (e) => { if (dragId == null) return; e.preventDefault(); const r = row.getBoundingClientRect(), above = e.clientY < r.top + r.height / 2; row.classList.toggle('drop-above', above); row.classList.toggle('drop-below', !above); });
       row.addEventListener('dragleave', () => row.classList.remove('drop-above', 'drop-below'));
-      row.addEventListener('drop', (e) => {
+      row.addEventListener('drop', (e) => { // intake-ok: a layer row dragged to a new place (no files)
         e.preventDefault(); if (dragId == null) return;
         const r = row.getBoundingClientRect(), above = e.clientY < r.top + r.height / 2;
         const from = layerIndex(dragId); let to = layerIndex(L.id) + (above ? 1 : 0);

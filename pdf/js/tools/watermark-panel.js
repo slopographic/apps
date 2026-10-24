@@ -24,7 +24,7 @@
         value: E.watermarkSpec(), onChange: commit, media: { pages: true, time: false },
         pageCount: function () { return E.state.pages.length; }, currentPage: curPage,
         newLayer: function (kind) { return NEW[kind] || null; },
-        onFiles: function (files) { SP.app.addFiles(files); }   // a PDF dropped on the panel opens as usual (SP.app: ui/app.js)
+        onFiles: function (files) { SlopIntake.take(files, { to: 'pdf', source: 'drop' }); }   // a PDF dropped on the panel opens as usual
       });
       b.appendChild(K.note('Layers stack like sheets: the top one is drawn last. Sizes follow each page’s shorter side, so the watermark looks the same on every page size. Drop a picture here to add it as a logo.'));
       K.onRefresh(function () { panel.set(E.watermarkSpec()); });

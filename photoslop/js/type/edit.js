@@ -65,7 +65,7 @@ function startTypeEdit(p, L, selectAll) {
   V.el.append(el);
   teRender(false);
   el.addEventListener('input', (e) => { if (e.isComposing) return; const sel = teGetSel(); if (!teRead()) { teRender(false); if (sel) teSetSel(sel.s, sel.e); } layoutTypeEdit(); });
-  el.addEventListener('paste', (e) => { e.preventDefault(); const s = (e.clipboardData && e.clipboardData.getData('text/plain')) || ''; document.execCommand('insertText', false, s.replace(/\r\n?/g, '\n')); });
+  el.addEventListener('paste', (e) => { e.preventDefault(); const s = (e.clipboardData && e.clipboardData.getData('text/plain')) || ''; document.execCommand('insertText', false, s.replace(/\r\n?/g, '\n')); }); // intake-ok: text pasted into the type editor (no files)
   el.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') { e.preventDefault(); endTypeEdit(true); }
     else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); endTypeEdit(); }

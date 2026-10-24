@@ -58,7 +58,7 @@ export function readOptions(container, specs, prefix = '') {
 
 /** A picture option: the file field holds the chosen picture as a data URL in data-value. */
 function imageField(s, id, value, hint, describe) {
-  const control = h('input', { type: 'file', id, accept: 'image/png,image/jpeg,image/webp,image/gif,image/svg+xml', 'aria-describedby': describe });
+  const control = h('input', { type: 'file', id, accept: 'image/png,image/jpeg,image/webp,image/gif,image/svg+xml', 'aria-describedby': describe }); // intake-ok: a conversion option's picture field (a value of the option, not a file into the app)
   const thumb = h('img', { class: 'cv-img-thumb', alt: `${s.label}: chosen picture`, hidden: !value, src: value || undefined });
   const clear = h('button', { type: 'button', class: 'cv-img-clear', hidden: !value }, 'Remove');
   const set = (v) => {

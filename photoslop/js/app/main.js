@@ -73,18 +73,13 @@ async function boot() {
   window.addEventListener('keyup', onKeyUp);
   window.addEventListener('keydown', (e) => { pasteInPlace = e.shiftKey; }, true);
   window.addEventListener('blur', () => { V.space = false; V.el.classList.remove('space'); });
-  // Pasted images and PSD files go through the shared intake (add to the open document, or open as new). It is attached
-  // before onPaste, so a paste it takes is marked prevented and onPaste returns. Our own buffer copies stay with onPaste.
-  SlopIntake.attach({
-    accept: (f) => (f.type.startsWith('image/') || isPSD(f)) && !SlopBuffer.isSystemCopyOf(f),
-    hasOpen: () => D.layers.length > 0,
-    openName: () => D.name || 'the open document',
-    onAdd: (files) => handleFiles(files, true),
-    onNew: (files) => handleFiles(files, false),
-  });
-  document.addEventListener('paste', onPaste);
+  // Every file comes in through the one intake (app/intake.js, shared/intake): a pasted picture or PSD asks Add to the open
+  // document or New document there. The intake's paste listener runs first and marks the paste prevented, so onPaste is
+  // only the app's own clipboard (and our buffer copies, which the intake leaves alone).
+  registerIntake();
+  document.addEventListener('paste', onPaste); // intake-ok: the app's own clipboard, not files
   document.addEventListener('dragover', onDragOver);
-  document.addEventListener('drop', onDropFiles);
+  document.addEventListener('drop', onDropFiles); // intake-ok: a picture dragged from a web page (a URL), sent to SlopIntake.take
   bindBufferDrop();
   bindFileDrop();
   window.addEventListener('beforeunload', (e) => { flushAutosave(); if (DOCS.some(docIsDirty)) { e.preventDefault(); e.returnValue = ''; } });

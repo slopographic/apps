@@ -1,8 +1,9 @@
 /* SlopIsolate — getting images in. ONE way in: every route (the picker, the drop zone #isoDrop and the queue sidebar,
- * paste, the sample, Open from Slop Drive, a file another app sent with ?drive=) calls CO.files.take(files, opts), and one
- * image is simply a batch of one. take() is shaped like the suite's intake (accept rules → the first-use gate → process
- * each file → after the batch): accept = ACCEPT, gate = F.gate(), process = CO.process.add (the bounded model pool in
- * io/process.js, so every file of a batch is cut out at once, up to the pool size), after = the "not images" toast. */
+ * paste, the sample, Open from Slop Drive, a file another app sent with ?drive=) is a source of the suite's intake
+ * (shared/intake, spec 'cutout'), whose reader hands the whole batch to CO.files.take(files, opts) at once; one image is
+ * simply a batch of one. take() keeps the app's own steps: the first-use gate F.gate() (the only notice; the spec has
+ * none of its own), then CO.process.add (the bounded model pool in io/process.js, so every file of a batch is cut out at
+ * once, up to the pool size). The intake's accept rules are F.ACCEPT. */
 (function () {
   'use strict';
   const CO = window.CO, U = CO.util;
@@ -49,37 +50,33 @@
     return CO.process.add(ok, opts);
   };
 
-  /** Open the system file picker (several images at once). */
-  F.open = async function () {
-    if (!window.SlopUI) return [];
-    const files = await SlopUI.pickFiles({ accept: 'image/*', multiple: true });
-    return F.take(files, { source: 'picker' });
+  /** The intake spec: every route ends here, and the whole batch goes to take() in one call (no per-file add). A file
+   *  from Slop Drive keeps its record: its id, and for one another app sent (?drive=) where it came from, so the mask can
+   *  go back to it (PhotoSlop's Layer ▸ Isolate Subject). Values: the new item ids, in the files' order. */
+  F.register = function () {
+    SlopIntake.register({
+      id: 'cutout', accept: ACCEPT, driveAccept: ['image/*', 'video/*'], toast: true,
+      processAll: async (files, ctx) => {
+        const rec = files.length === 1 && files[0].slopDrive ? files[0].slopDrive.record : null;
+        const opts = Object.assign({ source: ctx.source }, ctx.data || {});
+        if (rec) { opts.driveId = rec.id; if (ctx.source === 'launch') opts.origin = { from: rec.from, meta: rec.meta || {} }; }
+        const items = await F.take(files, opts);
+        if (rec && rec.meta && rec.meta.requestId && items[0]) items[0].request = { requestId: rec.meta.requestId };
+        return files.map((f) => { const it = items.find((x) => x.file === f || x.name === f.name); return it ? it.id : null; });
+      },
+    });
   };
+  const takeVia = (source, input, data) => SlopIntake.take(input, { to: 'cutout', source, data }).then((s) => s.added.map((a) => a.value && S().get(a.value)).filter(Boolean));
+  /** Open the system file picker (several images at once): the intake's picker. */
+  F.open = () => SlopIntake.pick({ to: 'cutout', accept: 'image/*' });
   /** The built-in sample image (a generated Sloppo goo on a busy background). */
-  F.sample = async function () {
-    return F.take([await CO.sample.make()], { source: 'sample' });
-  };
+  F.sample = () => SlopIntake.sample(() => CO.sample.make().then((f) => [f]), { to: 'cutout' });
   /** A file from Slop Drive (File ▸ Open from Slop Drive, or one another app sent here). rec: a Slop Hub record. */
   F.fromDrive = function (rec, extra = {}) {
     if (!rec) return Promise.resolve([]);
-    return F.take([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })], Object.assign({ source: 'drive', driveId: rec.id }, extra));
+    return takeVia(extra.source || 'drive', [rec], extra.origin ? { origin: extra.origin } : undefined);
   };
 
-  /** The drop zone's batch: SlopDrop hands over the accepted files of a drop (or paste, or its Choose files) in begin();
-   *  they all go into take() at once, then process(file) only reports each file until its cut-out is ready. */
-  let pendingBatch = null;
-  function begin(files) { pendingBatch = { files, items: F.take(files, { source: 'drop' }) }; }
-  async function report(file, progress) {
-    const items = pendingBatch ? await pendingBatch.items : [];
-    if (CO.video && CO.video.isVideo(file)) {
-      const v = (await Promise.all(items.videos || [])).find((x) => x.file === file);
-      if (!v || v.status === 'error') throw new Error(v ? v.error || 'cannot be read' : 'cannot be read');
-      return v.id;
-    }
-    const it = items.find((x) => x.file === file);
-    if (!it) throw new Error(F.accepts(file) ? 'was not added' : 'is not an image');
-    return F.settled(it, progress);
-  }
   /** Resolves with the item id once it is cut out (rejects when it fails or is removed); progress(0..1) on the way. */
   F.settled = function (it, progress) {
     return new Promise((resolve, reject) => {
@@ -105,14 +102,13 @@
   F.init = function () {
     const pv = SlopDrop.panel.preview(PREVIEW);
     if (pv) U.$('#emptyIntro').append(pv);
-    // The workspace and the queue sidebar take drops; a paste goes through the same batch (SlopDrop registers it with
-    // shared/intake). Either way the files reach take() once, in begin().
+    // The workspace and the queue sidebar take drops; a paste, Choose files and the rest are the intake's too. Every
+    // batch reaches take() once, through the spec's reader.
+    F.register();
     F.drop = SlopDrop.attach(U.$('#isoDrop'), {
-      accept: ACCEPT,
+      intake: 'cutout',
       compact: true,
       targets: [U.$('#workspace'), U.$('#queue')],
-      begin,
-      process: report,
     });
   };
 })();

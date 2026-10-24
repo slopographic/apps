@@ -34,8 +34,9 @@
   describe('camera RAW in the gallery', () => {
     it('the picker, drop and source keep RAW files (a file with no MIME type, by its extension)', async () => {
       await boot();
-      const kept = G.source.fromFiles([await nef(), new W.File(['x'], 'notes.txt', { type: 'text/plain' })]);
-      expect(kept.length).toBe(1);
+      // the one intake's rules (shared/intake): the RAW file is taken by its extension, the text file is refused
+      expect(W.SlopIntake.accepts('gallery', await nef())).toBe(true);
+      expect(W.SlopIntake.accepts('gallery', new W.File(['x'], 'notes.txt', { type: 'text/plain' }))).toBe(false);
       expect(G.source.mimeOf('a.CR3')).toBe('image/x-cr3');
     });
     it('import makes the thumbnail from the embedded preview, upright, with the camera and date from the RAW', async () => {

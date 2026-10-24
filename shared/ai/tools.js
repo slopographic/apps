@@ -5,8 +5,12 @@
  *   prepare(messages, tools)   → messages for the engine (tool help in the system prompt; roles normalised)
  *   parse(text, tools)         → { text, calls: [{ name, arguments }] }
  *   dispatch(call, tools, env) → { ok, result | error }     env.confirm(title, message) → Promise<bool>
- *   run(engine, messages, { tools, env, onDelta, onTool, maxSteps, maxCalls, ...chatOpts }) → the agent loop
- *       (onTool({ phase: 'start' | 'end', call, tool, res }); an aborted signal stops between actions) */
+ *   run(engine, messages, { tools, env, onDelta, onTool, onUsage, maxSteps, maxCalls, ...chatOpts }) → the agent loop
+ *       (onTool({ phase: 'start' | 'end', call, tool, res }); an aborted signal stops between actions;
+ *        onUsage(usage) after each model turn may return a sentence, which stops the loop there: the spending cap)
+ * Engines with native tool calling (shared/ai/cloud/) give each call an id and keep their own reply in done.native; the
+ * loop keeps both (assistant { toolCalls, native }, tool { callId, media }) so they can send the history back as it was.
+ * A tool may return { text, media: [{ mime, data (base64), name }] } (look_at_file): the media go to engines that can see. */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -80,18 +84,19 @@
     const destructive = typeof t.destructive === 'function' ? t.destructive(args) : !!t.destructive;
     if (destructive) {
       const what = t.confirmText ? t.confirmText(args) : `The assistant wants to run ${t.name}(${JSON.stringify(args)}).`;
-      const ok = env.confirm ? await env.confirm('Allow this action?', what) : false;
+      const ok = env.confirm ? await env.confirm(t.confirmTitle ? t.confirmTitle(args) : 'Allow this action?', what) : false;
       if (!ok) return { ok: false, error: 'The user said no to this action.' };
     }
     try {
       const r = await t.run(args, env);
+      if (r && typeof r === 'object' && Array.isArray(r.media)) return { ok: true, result: clip(String(r.text || 'ok'), t.maxChars), media: r.media };
       return { ok: true, result: clip(typeof r === 'string' ? r : JSON.stringify(r == null ? 'ok' : r), t.maxChars) };
     } catch (e) { return { ok: false, error: String((e && e.message) || e) }; }
   }
 
   /** The agent loop: chat, run any tool calls, feed the results back, repeat (maxSteps).
    * Returns { text, messages (the new assistant/tool messages), usage, steps }. */
-  async function run(engine, messages, { tools = [], env = {}, onDelta, onTool, maxSteps = 4, maxCalls = 12, ...chatOpts } = {}) {
+  async function run(engine, messages, { tools = [], env = {}, onDelta, onTool, onUsage, maxSteps = 4, maxCalls = 12, ...chatOpts } = {}) {
     const added = [], stopped = () => !!(chatOpts.signal && chatOpts.signal.aborted);
     let usage = null, text = '', calls = 0;
     for (let step = 0; step < maxSteps; step++) {
@@ -99,7 +104,9 @@
       let done = null;
       for await (const c of stream) { if (c.type === 'delta') { if (onDelta) onDelta(c.text, step); } else done = c; }
       usage = done.usage; text = done.text;
-      added.push({ role: 'assistant', content: done.raw, display: done.text, toolCalls: done.toolCalls, usage });
+      added.push({ role: 'assistant', content: done.raw, display: done.text, toolCalls: done.toolCalls, usage, native: done.native });
+      const capped = onUsage ? onUsage(usage) : null;
+      if (capped && done.toolCalls.length) { text = (text ? text + '\n\n' : '') + capped; added[added.length - 1].display = text; break; }   // the calls stay unrun: cloud engines answer them "not run"
       if (!done.toolCalls.length || done.aborted) break;
       for (const call of done.toolCalls) {
         if (stopped()) break;
@@ -108,7 +115,7 @@
         if (onTool) onTool({ phase: 'start', call, tool });
         const res = await dispatch(call, tools, env);
         if (onTool) onTool({ phase: 'end', call, res, tool });
-        added.push({ role: 'tool', name: call.name, content: res.ok ? res.result : 'ERROR: ' + res.error, ok: res.ok, args: call.arguments });
+        added.push({ role: 'tool', name: call.name, callId: call.id, content: res.ok ? res.result : 'ERROR: ' + res.error, ok: res.ok, args: call.arguments, media: res.media });
       }
       if (stopped() || calls > maxCalls) break;
       if (step === maxSteps - 1) text += '\n\n(Stopped after ' + maxSteps + ' tool steps.)';

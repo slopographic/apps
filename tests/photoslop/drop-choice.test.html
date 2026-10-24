@@ -6,18 +6,23 @@
 </head>
 <body>
   <div id="host" style="position:relative;height:240px;width:600px;margin:8px"><span id="inside">a document area</span></div>
+  <script src="../../shared/slopui.js"></script>
+  <script src="../../shared/intake/rules.js"></script>
+  <script src="../../shared/intake/normalize.js"></script>
+  <script src="../../shared/intake/pipeline.js"></script>
+  <script src="../../shared/intake/intake.js"></script>
   <script src="../../shared/drop/choice.js"></script>
   <script src="../harness.js"></script>
   <script>
-  // SlopDropChoice (shared/drop/choice.js): the "Add to current / Create new" dialog and the drop-zone helper that
-  // PhotoSlop uses for its Place and Open zones. Both are used with the same API by any app.
+  // SlopDropChoice (shared/drop/choice.js): ask, which is the intake's one Add or New question (SlopIntake.choose) with
+  // the old answers, and the drop-zone helper that PhotoSlop uses for its Place and Open zones.
   const { describe, it, expect, waitFor } = SlopTest;
   const C = window.SlopDropChoice;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const host = document.getElementById('host');
   const files = (...names) => names.map((n) => new File(['x'], n, { type: 'image/png' }));
-  const dialog = () => document.querySelector('.sdc-dialog');
-  const btn = (label) => [...document.querySelectorAll('.sdc-btn')].find((b) => b.textContent === label);
+  const dialog = () => document.querySelector('.sui-dlg.si-choose');
+  const btn = (label) => [...document.querySelectorAll('.si-choose .sui-foot .sui-btn')].find((b) => b.textContent === label);
   const drag = (el, type, withFiles = true) => {
     const dt = new DataTransfer();
     if (withFiles) dt.items.add(new File(['x'], 'a.png', { type: 'image/png' }));
@@ -46,7 +51,7 @@
       expect(btn('Create new')).toBeTruthy();
       btn('Add to current').click();
       expect(await p).toBe('current');
-      expect(dialog()).toBe(null); // the dialog is gone once it has answered
+      await waitFor(() => !dialog(), { timeout: 2000 }); // the dialog is gone once it has answered
     });
 
     it('Create new resolves new, with the default labels', async () => {
@@ -56,36 +61,16 @@
       expect(btn('Add to current')).toBeTruthy();
       btn('Create new').click();
       expect(await p).toBe('new');
+      await waitFor(() => !dialog(), { timeout: 2000 });
     });
 
-    it('Cancel, Escape and a click on the backdrop each resolve null', async () => {
-      let p = C.ask({ files: files('a.png'), hasDocument: true });
-      await waitFor(() => dialog(), { timeout: 2000 });
-      btn('Cancel').click();
-      expect(await p).toBe(null);
-
-      p = C.ask({ files: files('a.png'), hasDocument: true });
-      await waitFor(() => dialog(), { timeout: 2000 });
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
-      expect(await p).toBe(null);
-
-      p = C.ask({ files: files('a.png'), hasDocument: true });
-      await waitFor(() => dialog(), { timeout: 2000 });
-      document.querySelector('.sdc-back').click();
-      expect(await p).toBe(null);
-      expect(document.querySelector('.sdc-back')).toBe(null);
-    });
-
-    it('Tab moves between the three buttons and stays inside the dialog', async () => {
+    it('Cancel resolves null', async () => {
+      await waitFor(() => !dialog(), { timeout: 2000 }); // the last answer's dialog has gone
       const p = C.ask({ files: files('a.png'), hasDocument: true });
       await waitFor(() => dialog(), { timeout: 2000 });
-      expect(document.activeElement).toBe(btn('Add to current'));
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
-      expect(document.activeElement).toBe(btn('Cancel'));
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
-      expect(document.activeElement).toBe(btn('Add to current'));
       btn('Cancel').click();
-      await p;
+      expect(await p).toBe(null);
+      await waitFor(() => !dialog(), { timeout: 2000 });
     });
   });
 

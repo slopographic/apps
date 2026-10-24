@@ -1,43 +1,36 @@
-/* Slop Gallery: boot. Loads the library from IndexedDB, mounts the timeline and the side panel, wires drag and drop
- * (files and folders), the commands, the Slop Drive hand-off (?drive=<id>) and the bus. Sets window.SlopGallery.ready
+/* Slop Gallery: boot. Loads the library from IndexedDB, mounts the timeline and the side panel, registers the app with
+ * the one intake (every way photos come in), the commands, and the bus. Sets window.SlopGallery.ready
  * when the library is on screen (the tests wait for it). */
 (function () {
   'use strict';
   const G = (window.SlopGallery = window.SlopGallery || {});
   const $ = (id) => document.getElementById(id);
 
-  // Files and folders dropped on the window: SlopDrop (shared/drop) shows the outline and each file's progress. The
-  // folder walk (G.source.fromDrop) reads the drop's entries inside the drop event, as before.
-  // The zone is a compact strip, so the empty library carries the preview (what it makes, and how) and the sample
-  // button; the sample photos go through the zone's batch like a drop.
+  // Every way photos come in (a drop of files or folders, Import, Ctrl+O, Import a folder, Import from Slop Drive,
+  // ?drive=<id> from another app, a paste, the sample) goes through the one intake (shared/intake): its rules refuse what
+  // is not a photo, with the reason, and each photo goes to G.actions.importOne. SlopDrop (shared/drop) is the drop
+  // source and the feedback: the outline, each file's row and the toast. Dropped folders are walked by SlopDrop.folders
+  // inside the drop event. The zone is a compact strip, so the empty library carries the preview (what it makes, and
+  // how) and the sample button.
   const PREVIEW = {
     picture: { src: '../assets/shots/gallery.jpg', alt: 'A photo library: eight photos under the month they were taken' },
     steps: ['Drop photos or a whole folder', 'Browse by month, make albums, find duplicates', 'Back up the library as a ZIP'],
   };
   function bindDrop() {
-    const drop = window.SlopDrop.attach($('gDrop'), {
-      accept: {
-        types: ['image/*'],
-        exts: ['.jpg', '.jpeg', '.jpe', '.png', '.webp', '.gif', '.avif', '.bmp', '.heic', '.heif', '.svg', ...(window.SlopRaw ? window.SlopRaw.EXTS.map((e) => '.' + e) : [])],
-        noun: 'a photo',
-      },
+    window.SlopIntake.register({
+      id: 'gallery', accept: G.source.rules(), driveAccept: ['image/*'],
+      process: (file, ctx) => G.actions.importOne(file, ctx),
+    });
+    G.actions.registerBackup();
+    window.SlopDrop.attach($('gDrop'), {
+      intake: 'gallery',
       compact: true,
       targets: [document.querySelector('main.grid-area') || document.body],
-      files: async (dt) => (await G.source.fromDrop(dt)).map((it) => it.file),
-      process: async (file) => {
-        await G.actions.importItems([{ file, name: file.name }]);
-        return file.name;
-      },
+      files: (dt) => window.SlopDrop.folders.read(dt),
     });
     const pv = window.SlopDrop.panel.preview(PREVIEW);
     if (pv) $('emptyIntro').append(pv);
-    $('emptySample').addEventListener('click', () => drop.run(window.SlopSamples.photos(8)));
-  }
-
-  async function openFromLaunch() {
-    if (!window.SlopHub || !window.SlopHub.consumeLaunch) return;
-    const rec = await window.SlopHub.consumeLaunch();
-    if (rec && rec.blob && G.source.isImage(rec.blob, rec.name)) await G.actions.importItems([{ file: rec.blob, name: rec.name, driveId: rec.id }]);
+    $('emptySample').addEventListener('click', () => window.SlopIntake.sample(() => window.SlopSamples.photos(8), { to: 'gallery' }));
   }
 
   async function boot() {
@@ -67,7 +60,7 @@
     G.library.on(() => { if (G.state.state.view === 'album' && !G.library.album(G.state.state.query.album)) G.state.setView('photos'); });
     await G.viewState.restore(); // ui/view-state.js: the view, filters, Select mode and scroll
     G.ready = true;
-    openFromLaunch();
+    window.SlopIntake.launch({ to: 'gallery' }); // ?drive=<id> (Send to…) or the files the installed app was opened with
   }
 
   G.boot = boot;

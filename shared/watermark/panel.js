@@ -11,10 +11,12 @@
  *     toggle: { get: () => on, set: (on) => {}, label: 'Watermark on', note: (on) => text },  // an on/off switch (optional)
  *     newLayer: (kind) => ({ ...fields }),   // the app's defaults for a new layer (optional)
  *     actions: [{ label, title, act }],      // the app's own buttons under the panel (optional)
- *     onFiles: (files) => {},                // files dropped on the panel that are not pictures (optional)
+ *     onFiles: (files) => {},                // files dropped on the panel that are not pictures (default: the page's intake)
  *     saved: true,                           // the My watermarks button
  *   });
- *   p.el ; p.set(spec) ; p.get() ; p.setMedia({ pages, time }) ; p.select(layerId) ; p.selected() ; p.sync() ; p.destroy() */
+ *   p.el ; p.set(spec) ; p.get() ; p.setMedia({ pages, time }) ; p.select(layerId) ; p.selected() ; p.sync() ; p.destroy()
+ * A logo comes in through the page's one intake (shared/intake, SlopIntake) when the page has it: each panel is a part of
+ * its own ('watermark.logo.<n>', picked or dropped); without it, through SlopUI.pickFiles and the panel's own drop. */
 (function () {
   'use strict';
   const P = (window.SlopWatermarkPanel = window.SlopWatermarkPanel || {});
@@ -23,14 +25,28 @@
   const IMG = 'image/png,image/jpeg,image/webp,image/gif,image/svg+xml';
   const isPicture = (f) => /^image\/(png|jpeg|webp|gif|svg\+xml)$/.test(f.type || '') || /\.(png|jpe?g|webp|gif|svg)$/i.test(f.name || '');
 
+  let mounts = 0;
   P.mount = function (host, opts = {}) {
+    const IID = 'watermark.logo.' + (++mounts);
+    let offIntake = null;
     let spec = S.normalize(opts.value || S.defaults()), sel = spec.layers.length ? spec.layers[spec.layers.length - 1].id : null;
     let media = Object.assign({ pages: false, time: false }, opts.media), editorFor = '';
     const emit = (next, label, key) => { spec = next; render(); if (opts.onChange) opts.onChange(spec, { label, key: key || null }); };
     const layer = () => S.getLayer(spec, sel);
     const fresh = (kind) => S.layerDefaults(kind, opts.newLayer ? opts.newLayer(kind) : null);
 
+    /** The panel's logo part in the page's intake (registered on first use). */
+    function intake() {
+      const SI = window.SlopIntake;
+      if (!offIntake && SI && SI.register && SI.pick) {
+        offIntake = SI.register({ id: IID, main: false, paste: false, limit: 1, toast: false,
+          accept: { types: IMG.split(','), exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'], noun: 'a picture (PNG, JPEG, WebP, GIF or SVG)' },
+          process: (file, ctx) => useLogo(file, !!(ctx && ctx.data && ctx.data.add)) }) || (() => {});
+      }
+      return !!offIntake;
+    }
     async function pickLogo(add) {
+      if (intake()) { await window.SlopIntake.pick({ to: IID, multiple: false, data: { add } }); return; }
       const files = await window.SlopUI.pickFiles({ accept: IMG });
       if (files && files[0]) await useLogo(files[0], add);
     }
@@ -98,7 +114,9 @@
       if (!hasFiles(e)) return;
       e.preventDefault(); e.stopPropagation(); root.classList.remove('swp-over');
       const files = [...(e.dataTransfer.files || [])], pic = files.find(isPicture);
-      if (pic) useLogo(pic, true); else if (files.length && opts.onFiles) opts.onFiles(files);
+      const rest = files.filter((f) => f !== pic);
+      if (pic) { if (intake()) window.SlopIntake.take([pic], { to: IID, source: 'drop', data: { add: true } }); else useLogo(pic, true); }
+      if (rest.length) { if (opts.onFiles) opts.onFiles(rest); else if (window.SlopIntake && window.SlopIntake.take) window.SlopIntake.take(rest, { source: 'drop' }); }
     });
 
     function render() {
@@ -128,7 +146,7 @@
       select(id) { sel = id; render(); },
       selected: () => sel,
       sync: render,
-      destroy() { if (saved) saved.destroy(); root.remove(); },
+      destroy() { if (saved) saved.destroy(); if (offIntake) offIntake(); root.remove(); },
     };
   };
 })();

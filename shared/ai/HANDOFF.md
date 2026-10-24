@@ -107,5 +107,38 @@ other tabs stream through it. If that tab closes, clients see `ready = false`. "
 already-downloaded model into the current page instead (a second copy in GPU memory), and that page then hosts it for
 others. Nothing is downloaded from the panel; downloads happen in Slop AI, after consent.
 
+## Your own AI account (shared/ai/cloud/, 2026-10)
+People connect their own key (Claude, ChatGPT/OpenAI, Gemini, OpenRouter, Ollama or LM Studio on their computer, or any
+OpenAI-compatible address) in the panel's model choice ("Use your own AI account", also shown without WebGPU). The
+browser calls the provider directly; there is no server. A provider is **just another engine** (`K.CloudEngine`,
+`cloud/engine.js`) behind the same interface, so the one loop (`tools.run`), the one tool list (`appTools.build` +
+`cmdTools`) and the one panel drive it. Tool calling is **native**: each tool goes out as JSON Schema
+(`cmdTools.inputSchema(tool)`, the one schema maker; `cmdTools.specs(cmd)` gives the provider-neutral definitions that
+WebMCP uses too), calls come back structured with ids, and each provider's own reply (`done.native`: Claude's thinking
+blocks with signatures, OpenAI's reasoning items, Gemini's parts with `thoughtSignature`, OpenRouter's
+`reasoning_details`) is sent back unchanged.
+
+| File | What |
+|---|---|
+| `cloud/net.js` | `K.cloud`: `sse(body)` (Server-Sent Events), `call(url, init, { secret, provider })` (every failure a `CloudError` with a plain message: key, rate (Retry-After), money, cors (with local-server help), network, model, request, server, refusal), `redact` (no key in any message), `seal` (calls that never ran get "Not run" before the next turn). |
+| `cloud/anthropic.js` | Messages API, `anthropic-version: 2026-10-21`, `anthropic-dangerous-direct-browser-access: true`; no temperature (that version refuses it); effort medium on 4.6+/5.x; `fallbacks: "default"` + `anthropic-beta: server-side-fallback-2026-07-01` on Opus/Sonnet/Fable 5.x (not Haiku). |
+| `cloud/openai.js` | Responses API (`/v1/responses`, OpenAI's recommended API for tools), `store: false`, output items passed back. |
+| `cloud/compat.js` | Chat Completions for OpenRouter, Ollama, LM Studio and custom addresses (tool_calls deltas by index; pictures as a user message after the tool messages). |
+| `cloud/gemini.js` | `streamGenerateContent?alt=sse`, key in `x-goog-api-key`, `functionDeclarations` with `parametersJsonSchema`. |
+| `cloud/providers.js` | The list in plain words, default models (Claude Opus/Sonnet/Haiku 5.5; others from the fetched list by pattern), Anthropic prices and OpenRouter's from its list, `checkBase` (https, or http only for localhost), `localHelp` (OLLAMA_ORIGINS, LM Studio's Enable CORS, Chrome's local network prompt). |
+| `cloud/keys.js` | Keys: IndexedDB `slop-ai-keys` when "Remember on this device" is on, else this tab only (memory + sessionStorage). Settings (`slop-ai.cloud` in localStorage) never hold a key. `shared/backup/core.js` and `central.js` leave the database out. |
+| `cloud/meter.js` | Tokens per reply and this visit (sessionStorage), cost when the price is known, the cap, and the one-time notice per provider (`slop-firstrun:ai-cloud:<id>`). |
+| `cloud/connect.js` | The form: provider, address, key (password field, autocomplete off), Test connection, Forget key, model, cap, steps, Use; `restore()` brings the last provider back on the next page when its key is still here. |
+| `filetools.js` | `look_at_file`: asks every time ("Send a copy to Anthropic?"), sends a picture scaled to 1024 px (JPEG) or the first 8,000 characters of a text. |
+| `optools.js` | `list_operations`, `run_operation`, `run_workflow` from `shared/ops/registry.js` and the one runner (`workflows/js/core/plan.js`); results saved to Slop Drive. |
+
+The panel: the header names the provider and model (click it to change), the foot says where requests go; before
+the first request to a provider, the notice; cloud runs get `look`, `ops` and up to `steps` model turns (12 by default,
+1–30); after each reply a line with its tokens and this visit's total; the cap stops the loop after the turn that reaches
+it and refuses new requests; Stop aborts the request in flight. A key-based engine is never shared with other tabs.
+
 ## Tests
-`node tests/run.mjs ai` covers all of this; see `ai/HANDOFF.md`.
+`node tests/run.mjs ai` covers all of this; see `ai/HANDOFF.md`. Own keys: `tests/node/ai-cloud-formats.test.mjs`
+(request building, streams from documented SSE fixtures, conversion both ways), `tests/node/ai-cloud-engine.test.mjs`
+(the loop per provider, errors, cap, redaction, settings), `tests/ai/cloud.test.html`, `tests/ai/cloud-keys.test.html`
+and `tests/photoslop/ai-cloud.test.html` (a fake fetch per provider, `tests/ai/cloud-util.js`).
