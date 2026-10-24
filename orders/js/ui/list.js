@@ -53,6 +53,7 @@
     if ((x.status === 'open' || x.status === 'fulfilled') && !x.invoiceId) {
       items.push({ label: 'Convert to invoice', act: () => run(NS.actions.convertId(x.id), 'Invoice draft created') });
     }
+    if (x.status === 'open' || x.status === 'fulfilled') items.push({ label: 'Delivery note', act: () => NS.app.go(`d/${x.id}`) });
     if (x.invoiceId) items.push({ label: 'Open invoice', act: () => { location.href = `../invoices/#i/${x.invoiceId}`; } });
     return items;
   }

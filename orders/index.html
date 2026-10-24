@@ -42,6 +42,7 @@
   <link rel="stylesheet" href="../shared/biz/app.css">
   <link rel="stylesheet" href="../shared/ui/list.css">
   <link rel="stylesheet" href="../shared/docs/lines.css">
+  <link rel="stylesheet" href="../shared/biz/sheet.css">
   <link rel="stylesheet" href="css/orders.css">
   <script src="../shared/guard.js" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
@@ -58,6 +59,7 @@
     <nav class="tabs" role="tablist" aria-label="Orders sections">
       <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Orders</button>
       <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Order</button>
+      <button type="button" role="tab" class="tab" id="tab-delivery" data-view="delivery" aria-controls="view-delivery" aria-selected="false" hidden>Delivery note</button>
       <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
     </nav>
 
@@ -109,6 +111,9 @@
         <p class="note" id="eInvoice"></p>
         <div class="toolbar actions" id="eActions"></div>
       </section>
+
+      <section class="view" id="view-delivery" role="tabpanel" aria-labelledby="tab-delivery" hidden></section>
+
 
       <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
         <div class="card">
@@ -181,6 +186,9 @@
   <script src="../shared/layouts/presets.js" data-src="shared/layouts/presets.js"></script>
   <script src="../shared/layouts/core.js" data-src="shared/layouts/core.js"></script>
   <script src="../shared/layouts/layouts.js" data-src="shared/layouts/layouts.js"></script>
+  <script src="../shared/biz/sheet.js"></script>
+  <script src="js/core/delivery.js"></script>
+  <script src="js/ui/delivery.js"></script>
   <script src="js/ui/app.js"></script>
   <script src="js/ui/layout.js"></script>
   <script src="../shared/pwa.js"></script>
