@@ -203,6 +203,10 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   file, ?drive= launch and launchQueue. The reader waits for the tabs (`before: whenTabs`), and a launch that opens
   replaces the blank tab; a zero-byte .stab (Drive's New) is taken (`allowEmpty`). The grid's own paste is only cells and
   text. Import a template (file or Slop Drive) is the part's pick / fromDrive. `tests/intake/tables.test.html`.
+- **Slop Sheets viewer** (`sheetview/js/main.js`, spec `sheetview`): Open spreadsheet… (both buttons, Ctrl+O), a drop,
+  the sample (`SlopIntake.sample`), a paste (new), ?drive= launch and launchQueue, and the test hook. A file that fails
+  is refused with its reason (was an alert per file). Out: Open current sheet in Slop Table is `SlopOuttake.send`.
+  `tests/intake/sheetview.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -535,14 +539,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### shared/tour
 
 - [ ] out: Open in/Send to label: `shared/tour/tours/img3d.js:11`
-
-### sheetview
-
-- [ ] pickFiles: `sheetview/js/main.js:38`
-- [ ] pickFiles: `sheetview/js/main.js:39`
-- [ ] ?drive= launch: `sheetview/js/main.js:45`
-- [ ] out: sendTo: `sheetview/js/main.js:63`
-- [ ] SlopDrop.attach: `sheetview/js/main.js:156`
 
 ### shell
 
