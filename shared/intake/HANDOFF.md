@@ -322,6 +322,10 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **SlopDocTabs** (shared/doctabs): its own Open from Slop Drive (`api.openFromDrive`, `drive.js`) is gone: every app
   that used it (Docs, Hex, Slides) opens from Slop Drive through its intake, whose reader calls `api.openDoc(doc, {
   driveId, origName })`. The tab strip's drag of tabs stays (`intake-ok`). `tests/doctabs/doctabs.test.html`.
+- **Import config** (shared/config/dialog.js, part `config`, a .slop.json): From this computer…, From Slop Drive…, the
+  dialog's zone (`SlopDrop.attach({ intake: 'config' })`) and a .slop.json dropped anywhere on the page (the page-wide
+  capture drop is now a source that hands the file to `SlopIntake.take`, `intake-ok`). A page without shared/intake keeps
+  the old picker and `SlopConfig.importFromDrive`. `tests/intake/config.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -392,13 +396,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### shared/buffer
 
 - [ ] drop listener: `shared/buffer/buffer.js:68`
-
-### shared/config
-
-- [ ] pickFiles: `shared/config/dialog.js:24`
-- [ ] SlopDrop.attach: `shared/config/dialog.js:36`
-- [ ] drop listener: `shared/config/dialog.js:139`
-- [ ] Drive picker: `shared/config/io.js:88`
 
 ### shared/convert
 

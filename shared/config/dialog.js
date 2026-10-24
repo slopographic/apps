@@ -20,28 +20,34 @@
     UI().dialog({ title, body, buttons: [{ label: 'OK', primary: true }] });
   }
 
+  /* A config file comes in one way where the page has the intake (shared/intake): the part 'config' (From this computer…,
+     From Slop Drive…, the dialog's zone, a .slop.json dropped anywhere on the page). Its reader checks and imports it. */
+  const ACCEPT = '.json,.slop.json,application/json';
+  const SI = () => (g.SlopIntake && g.SlopIntake.part ? g.SlopIntake : null);
+  const part = () => SI().part({
+    id: 'config', limit: 1,
+    accept: (f) => /\.slop\.json$/i.test(f.name || '') || (f.name || 'file') + ' is not a .slop.json file',
+    process: async (f, ctx) => { showResult(await C.importFile(f, { app: (ctx.data && ctx.data.app) || (zone && zone.dataset.app) || appOf() })); return f.name; },
+  });
   async function runFile(app) {
-    const files = await UI().pickFiles({ accept: '.json,.slop.json,application/json' });
+    if (SI()) { await SI().pick({ to: part(), multiple: false, data: { app }, accept: ACCEPT }); return; }
+    const files = await UI().pickFiles({ accept: ACCEPT }); // intake-ok: a page without shared/intake
     if (files && files[0]) showResult(await C.importFile(files[0], { app }));
+  }
+  function runDrive(app) {
+    if (SI()) return SI().fromDrive({ to: part(), data: { app }, accept: ['application/json', 'text/plain'], title: 'Import a config from Slop Drive' });
+    return C.importFromDrive({ app }).then((res) => showResult(res)); // intake-ok: a page without shared/intake
   }
 
   /** The import dialog's drop zone: one SlopDrop instance (shared/drop), moved into each dialog that opens. A .slop.json
    *  file dropped on it, or chosen there, is checked and imported. Null when the page has no SlopDrop. */
   let zone = null;
   function importZone() {
-    if (!g.SlopDrop) return null;
+    if (!g.SlopDrop || !SI()) return null;
     if (!zone) {
       zone = document.createElement('div');
       zone.className = 'sd-config-zone';
-      g.SlopDrop.attach(zone, {
-        accept: { types: ['application/json'], exts: ['.json'], noun: 'a .slop.json file' },
-        compact: true, window: false, overlay: false,
-        process: async (file) => {
-          if (!/\.slop\.json$/i.test(file.name)) throw new Error('is not a .slop.json file');
-          showResult(await C.importFile(file, { app: zone.dataset.app }));
-          return file.name;
-        },
-      });
+      g.SlopDrop.attach(zone, { intake: part(), compact: true, window: false, overlay: false, data: () => ({ app: zone.dataset.app }) });
     }
     return zone;
   }
@@ -57,7 +63,7 @@
       title: o.title || 'Import config', body,
       buttons: [
         { label: 'Cancel' },
-        { label: 'From Slop Drive…', act: () => { C.importFromDrive({ app }).then((res) => showResult(res)); } },
+        { label: 'From Slop Drive…', act: () => { runDrive(app); } },
         { label: 'From this computer…', primary: true, act: () => { runFile(app); } },
       ],
     });
@@ -136,13 +142,15 @@
       const hasFiles = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
       g.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); }, true);
     }
-    g.addEventListener('drop', (e) => {
+    // A .slop.json dropped anywhere on the page, before the app's own drop places see it: a source of the part 'config'.
+    g.addEventListener('drop', (e) => { // intake-ok: the drop source of the config part (it hands the file to SlopIntake.take)
       const files = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
       const cfg = files.find((f) => /\.slop\.json$/i.test(f.name || ''));
       if (!cfg) return;
       e.preventDefault();
       e.stopPropagation();
-      C.importFile(cfg, { app }).then((res) => showResult(res));
+      if (SI()) SI().take([cfg], { to: part(), source: 'drop', data: { app } });
+      else C.importFile(cfg, { app }).then((res) => showResult(res));
     }, true);
   }
 
