@@ -302,6 +302,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Expenses** (`expenses/js/ui/receipt.js`, spec `expenses`, the receipt photo): From a receipt… is the intake's
   picker (the hidden `#eReceiptPick` input is gone), and a pasted photo while the editor is open (new). The page now
   loads shared/intake. `tests/expenses/receipt.test.html`.
+- **The business apps' backups** (`shared/biz/backup.js`, part `biz.backup`; admin's own `admin.backup` in
+  `admin/js/ui/data.js`): Restore from a backup file… is now a button (the intake's picker; was a labelled file input) in
+  Slop Inventory, Invoices, Orders, Purchases, Quotes and Admin, and those pages load shared/intake. **Slop Inventory**'s
+  Import products from CSV is a part `inventory.csv` (its Choose a CSV file… button). `tests/intake/business.test.html`,
+  `tests/biz/backup.test.html`, `tests/admin/admin.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -356,28 +361,10 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
   (the layer round trip in `slopisolate/js/io/send.js` and `photoslop/js/io/isolate.js`);
 - `{ from: 'cutout', to: 'slopedit', types: ['video/*'], replaces: true, label: 'Send to SlopCut as a colour + matte pair' }`.
 
-### admin
-
-- [ ] file input: `admin/index.html:134`
-
-### inventory
-
-- [ ] file input: `inventory/index.html:228`
-- [ ] file input: `inventory/js/ui/import.js:22`
-
-### invoices
-
-- [ ] file input: `invoices/index.html:177`
-- [ ] out: Open in/Send to label: `invoices/js/ui/reminder.js:23`
-
 ### ledger
 
 - [ ] file input: `ledger/index.html:88`
 - [ ] file input: `ledger/index.html:180`
-
-### orders
-
-- [ ] file input: `orders/index.html:130`
 
 ### photoslop
 
@@ -387,14 +374,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] drop listener: `photoslop/classic/paint/17-files.js:59`
 - [ ] paste listener: `photoslop/classic/paint/17-files.js:65`
 - [ ] file input: `photoslop/index.html:93`
-
-### purchases
-
-- [ ] file input: `purchases/index.html:121`
-
-### quotes
-
-- [ ] file input: `quotes/index.html:121`
 
 ### shared/backup
 

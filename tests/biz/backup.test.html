@@ -8,7 +8,7 @@
 </head>
 <body>
   <button id="dBackup" type="button">Backup</button>
-  <input id="dRestore" type="file">
+  <button id="dRestore" type="button">Restore</button>
   <ul id="dRestoreMsg"></ul>
   <script src="../harness.js"></script>
   <script src="../../shared/data/money.js"></script>
@@ -23,6 +23,11 @@
   <script src="../../shared/data/bundle-check.js"></script>
   <script src="../../shared/data/export.js"></script>
   <script src="../../shared/biz/biz.js"></script>
+  <script src="../../shared/intake/rules.js"></script>
+  <script src="../../shared/intake/normalize.js"></script>
+  <script src="../../shared/intake/pipeline.js"></script>
+  <script src="../../shared/intake/intake.js"></script>
+  <script src="../../shared/intake/sources.js"></script>
   <script src="../../shared/biz/backup.js"></script>
   <script>
   const { describe, it, expect, waitFor, run } = SlopTest;
@@ -70,9 +75,8 @@
       expect(await SlopBiz.backup.restore(file(good))).toBe(true);
       expect((await S.store.list('customers')).value.map((c) => c.name)).toEqual(['Ada']);
       expect($('dRestoreMsg').textContent).toBe('Restored. Every record now matches the file.');
-      const input = $('dRestore');
-      const dt = new DataTransfer(); dt.items.add(file(good)); input.files = dt.files;
-      input.dispatchEvent(new Event('change'));
+      window.SlopUI.pickFiles = async () => [file(good)]; // Restore is the intake's picker (part biz.backup)
+      $('dRestore').click();
       await waitFor(() => done === 1);
     });
   });
