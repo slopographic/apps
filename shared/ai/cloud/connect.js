@@ -3,7 +3,8 @@
  * SlopAIKit.cloud.connect = { render(box, { onReady(engine) }), restore() → Promise<engine|null>, engineFor(id, s) }.
  * The key field is a password field with autocomplete off; the key goes to keys.js (this tab, or this device when
  * "Remember on this device" is on) and from there only into requests to that provider. Forget key removes it.
- * restore(): the provider chosen last, used again on the next page when its key is still here (or none is needed). */
+ * restore(appId): the provider chosen last (or the model last picked in this app), used again on the next page when its
+ * key is still here (or none is needed). */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -18,8 +19,11 @@
     const f = (fetched.get(id) || []).find((m) => m.id === model);
     return new K.CloudEngine({ provider: p, model, base: ps.base || p.base, key: () => C.keys.get(id), modelName: (f && f.name) || ps.modelName || '', price: C.price(p, model, f) || ps.price || null });
   }
-  async function restore() {
-    const s = C.keys.settings(), p = s.active && C.byId(s.active);
+  /** appId: the model last picked in this app (model-menu.js) wins when its provider is still connected. */
+  async function restore(appId) {
+    const s = C.keys.settings(), last = appId && s.lastByApp && s.lastByApp[appId], lp = last && C.byId(last.provider);
+    if (lp && (!lp.needsKey || (await C.keys.get(lp.id)))) { s.active = lp.id; s.providers = Object.assign({}, s.providers, { [lp.id]: Object.assign({}, s.providers[lp.id], { model: last.model }) }); }
+    const p = s.active && C.byId(s.active);
     if (!p) return null;
     if (p.needsKey && !(await C.keys.get(p.id))) return null;
     const eng = engineFor(p.id, s);
@@ -115,6 +119,7 @@
         const st = C.keys.settings(), f = (fetched.get(p.id) || []).find((m) => m.id === model.value);
         st.active = p.id; st.cap = Math.max(0, Math.round(Number(cap.value) || 0)); st.steps = Math.min(30, Math.max(1, Math.round(Number(steps.value) || 12)));
         st.providers = Object.assign({}, st.providers, { [p.id]: { model: model.value, modelName: f ? f.name : (p.models.find((m) => m.id === model.value) || {}).name, base: p.editBase ? cfgBase() : undefined, price: f && f.price ? f.price : undefined } });
+        if (o.appId) st.lastByApp = Object.assign({}, st.lastByApp, { [o.appId]: { provider: p.id, model: model.value } });
         C.keys.save(st);
         key.value = '';
         const eng = engineFor(p.id); await eng.load();

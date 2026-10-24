@@ -45,7 +45,7 @@
       expect((await P.SlopAI.comment('the user drew a cat').text).length).toBeGreaterThan(3);
     });
     it('the panel controls the page’s commands, asking before destructive ones', async () => {
-      let asked = 0; P.SlopUI.confirm = async () => { asked++; return true; };
+      let asked = 0; P.SlopAIPermissions.prompt = async () => { asked++; return 'once'; };   // the permission question (permissions-ui.js)
       await P.SlopAIPanel.send('please run demo.bold');
       expect(P.ran).toEqual(['demo.bold']); expect(asked).toBe(0);
       await P.SlopAIPanel.send('now run demo.clear');

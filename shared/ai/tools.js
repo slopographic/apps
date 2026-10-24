@@ -4,7 +4,9 @@
  * Results go back as a user message that starts with "TOOL RESULT (name):".
  *   prepare(messages, tools)   → messages for the engine (tool help in the system prompt; roles normalised)
  *   parse(text, tools)         → { text, calls: [{ name, arguments }] }
- *   dispatch(call, tools, env) → { ok, result | error }     env.confirm(title, message) → Promise<bool>
+ *   dispatch(call, tools, env) → { ok, result | error }     env.permit({ kind, tool, action, detail, title, step }) → Promise<bool>
+ *       (shared/ai/permissions.js ask), or the older env.confirm(title, message). A tool says which kind of approval it
+ *       needs with kind(args): 'change' | 'delete' | 'send' (permissions.js); a destructive tool without one is 'delete'.
  *   run(engine, messages, { tools, env, onDelta, onTool, onUsage, maxSteps, maxCalls, ...chatOpts }) → the agent loop
  *       (onTool({ phase: 'start' | 'end', call, tool, res }); an aborted signal stops between actions;
  *        onUsage(usage) after each model turn may return a sentence, which stops the loop there: the spending cap)
@@ -84,7 +86,11 @@
     const destructive = typeof t.destructive === 'function' ? t.destructive(args) : !!t.destructive;
     if (destructive) {
       const what = t.confirmText ? t.confirmText(args) : `The assistant wants to run ${t.name}(${JSON.stringify(args)}).`;
-      const ok = env.confirm ? await env.confirm(t.confirmTitle ? t.confirmTitle(args) : 'Allow this action?', what) : false;
+      let action = t.name;
+      try { if (t.label) action = t.label(args) || t.name; } catch (e) { /* the tool's name */ }
+      // env.permit: the one permission module (permissions.js); else the plain yes/no of older callers
+      const ok = env.permit ? await env.permit({ kind: t.kind ? t.kind(args) : 'delete', tool: t.name, action, detail: what, title: t.confirmTitle ? t.confirmTitle(args) : undefined, step: env.step })
+        : env.confirm ? await env.confirm(t.confirmTitle ? t.confirmTitle(args) : 'Allow this action?', what) : false;
       if (!ok) return { ok: false, error: 'The user said no to this action.' };
     }
     try {
@@ -113,7 +119,7 @@
         if (++calls > maxCalls) { text += '\n\n(Stopped: at most ' + maxCalls + ' actions per request.)'; break; }
         const tool = tools.find((x) => x.name === call.name) || null;
         if (onTool) onTool({ phase: 'start', call, tool });
-        const res = await dispatch(call, tools, env);
+        const res = await dispatch(call, tools, Object.assign({}, env, { step: calls }));
         if (onTool) onTool({ phase: 'end', call, res, tool });
         added.push({ role: 'tool', name: call.name, callId: call.id, content: res.ok ? res.result : 'ERROR: ' + res.error, ok: res.ok, args: call.arguments, media: res.media });
       }

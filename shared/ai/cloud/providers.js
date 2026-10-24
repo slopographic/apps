@@ -17,7 +17,8 @@
       keyUrl: 'https://platform.claude.com/settings/keys', keyHint: 'sk-ant-…', where: 'the Claude Console (platform.claude.com) › API keys',
       models: [{ id: 'claude-opus-5-5', name: 'Claude Opus 5.5', note: 'most capable' }, { id: 'claude-sonnet-5-5', name: 'Claude Sonnet 5.5', note: 'fast and capable' }, { id: 'claude-haiku-5-5', name: 'Claude Haiku 5.5', note: 'fastest, cheapest' }],
       prefer: [/^claude-opus-5-5$/, /^claude-sonnet-5-5$/, /^claude-haiku-5-5$/],
-      prices: { 'claude-opus-5-5': [4, 20], 'claude-sonnet-5-5': [2, 10], 'claude-haiku-5-5': [0.1, 0.5], 'claude-fable-5-1': [10, 50], 'claude-opus-5': [5, 25], 'claude-sonnet-5': [2, 10], 'claude-opus-4-8': [5, 25], 'claude-sonnet-4-6': [3, 15], 'claude-haiku-4-5': [1, 5] } },
+      // $ per million tokens: input, output, cache read (0.1× input where Anthropic lists none; writes cost 1.25× input)
+      prices: { 'claude-opus-5-5': [4, 20, 0.2], 'claude-sonnet-5-5': [2, 10, 0.2], 'claude-haiku-5-5': [0.1, 0.5], 'claude-fable-5-1': [10, 50, 0.25], 'claude-opus-5': [5, 25], 'claude-sonnet-5': [2, 10], 'claude-opus-4-8': [5, 25], 'claude-sonnet-4-6': [3, 15], 'claude-haiku-4-5': [1, 5] } },
     { id: 'openai', name: 'ChatGPT (OpenAI)', who: 'OpenAI', short: 'OpenAI', format: 'openai', needsKey: true,
       keyUrl: 'https://platform.openai.com/api-keys', keyHint: 'sk-…', where: 'platform.openai.com › API keys (a ChatGPT subscription is not an API key)',
       models: [{ id: 'gpt-6-astra', name: 'gpt-6-astra', note: 'recommended by OpenAI' }, { id: 'gpt-5.6-terra', name: 'gpt-5.6-terra', note: 'lower cost' }, { id: 'gpt-5.6-luna', name: 'gpt-5.6-luna', note: 'fastest, cheapest' }],
@@ -53,9 +54,15 @@
   function price(p, model, fetched) {
     if (fetched && fetched.price) return fetched.price;
     const row = p && p.prices && p.prices[model];
-    return row ? { input: row[0], output: row[1] } : null;
+    return row ? { input: row[0], output: row[1], cacheRead: row[2] != null ? row[2] : row[0] * 0.1 } : null;
   }
-  const cost = (usage, pr) => (pr && usage ? ((usage.input || 0) * pr.input + (usage.output || 0) * pr.output) / 1e6 : null);
+  /** $ for a reply: cached input at the cache price (0.1× input when unknown), cache writes at 1.25× input. */
+  function cost(u, pr) {
+    if (!pr || !u) return null;
+    const read = u.cacheRead || 0, wrote = u.cacheWrite || 0, plain = Math.max(0, (u.input || 0) - read - wrote);
+    const cr = pr.cacheRead != null ? pr.cacheRead : pr.input * 0.1;
+    return (plain * pr.input + read * cr + wrote * pr.input * 1.25 + (u.output || 0) * pr.output) / 1e6;
+  }
 
   /** The models offered first: the provider's preferred ones that the fetched list has, else its defaults. */
   function suggested(p, models) {

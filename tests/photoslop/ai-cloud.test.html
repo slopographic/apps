@@ -14,7 +14,7 @@
   //   shared/ai/cmdtools.js, shared/ai/panel-run.js, shared/ai/tools.js
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   let app, win, W, F;
-  const steps = () => [...win.document.querySelectorAll('.sap-step')].map((s) => s.textContent);
+  const steps = () => [...win.document.querySelectorAll('.sap-step')].map((s) => [...s.childNodes].filter((n) => !n.classList || !n.classList.contains('sap-step-r')).map((n) => n.textContent).join(''));   // the call, without its result line
   const lastBody = () => F.requests.filter((r) => /\/v1\/messages$/.test(r.url)).pop().body;
   const px = (x, y) => { const L = W.activeLayer(); return [...L.canvas.getContext('2d').getImageData(x - L.x, y - L.y, 1, 1).data]; };
 
@@ -80,6 +80,58 @@
       const bmp = await createImageBitmap(f.blob);
       expect([bmp.width, bmp.height]).toEqual([160, 120]);
     }, { timeout: 60000 });
+  });
+  describe('the five steps seen live: fill, new layer, fill, opacity, crop 1:1 (asks once), then Undo all', () => {
+    it('the question names Crop; the list reply renders as a list; Undo all hides its button for good', async () => {
+      W.newDocument(300, 200, '#ffffff', 'Five');
+      const before = W.Hist.idx;
+      F.replies.push(CU.anthropic.call([['fill', { color: '#ff0000' }], ['new_layer', { name: 'Blue' }], ['fill', { color: '#0000ff' }], ['set_layer', { opacity: 50 }], ['crop', { ratio: '1:1' }]]),
+        CU.anthropic.text('Done:\n- I filled the canvas red\n- I added a layer and filled it blue\n- I set it to 50% and cropped to 1:1'));
+      const sent = win.SlopAIPanel.send('fill red, new layer, fill blue, 50% opacity, crop 1:1');
+      const d = await waitFor(() => [...win.document.querySelectorAll('.sui-back:not(.sui-out) .sui-dlg')].pop());
+      expect(d.textContent).toContain('Crop to a ratio, ratio 1:1'); expect(d.textContent).toContain('Kind of action: app changes. Step 5 of this request.');
+      [...d.querySelectorAll('button')].find((b) => b.textContent === 'Allow once').click();
+      await sent;
+      expect(W.D.w).toBe(200); expect(W.D.h).toBe(200);
+      const reply = [...win.document.querySelectorAll('.sap-msg.assistant')].pop();
+      expect(reply.querySelectorAll('li').length).toBe(3);   // a reply's own usage once made it render as a plain line
+      expect(win.document.querySelectorAll('.sap-list .sap-live').length).toBe(0);
+      // five steps fold into one line that opens; each step shows what the app answered
+      const fold = [...win.document.querySelectorAll('.sap-steps')].pop();
+      expect(fold.querySelector('summary').textContent).toBe('5 steps ✓'); expect(fold.open).toBe(false);
+      expect(fold.querySelectorAll('.sap-step').length).toBe(5);
+      expect(fold.querySelector('.sap-step-r').textContent).toBe('Filled the layer with #ff0000.');
+      expect([...win.document.querySelectorAll('.sap-usage')].every((u) => u.textContent.trim())).toBe(true);
+      const lastReply = [...win.document.querySelectorAll('.sap-list > *')].slice(-3).map((e) => e.className);
+      expect(lastReply).toEqual(['sap-steps', 'sap-msg assistant', 'sap-usage']);
+      const undo = win.document.querySelector('.sap-undo');
+      expect(undo.textContent).toContain('(5)');
+      undo.click();
+      await sleep(100);
+      expect(W.Hist.idx).toBe(before); expect(W.D.w).toBe(300);
+      expect(win.getComputedStyle(undo).display).toBe('none'); expect(undo.textContent).not.toContain('(5)');
+      win.dispatchEvent(new win.Event('resize')); await sleep(100);
+      expect(win.getComputedStyle(undo).display).toBe('none');
+    }, { timeout: 40000 });
+  });
+  describe('look_at_canvas: the model checks its own work', () => {
+    it('asks as "sending" even with app changes allowed, sends a small picture of the document, shows it as a thumbnail', async () => {
+      win.SlopAIPermissions.setMode('changes');
+      W.newDocument(1600, 1200, '#00aa00', 'Poster');
+      F.replies.push(CU.anthropic.call('look_at_canvas', {}), CU.anthropic.text('The poster is green, as asked.'));
+      const sent = win.SlopAIPanel.send('make sure the poster looks right');
+      const d = await waitFor(() => [...win.document.querySelectorAll('.sui-back:not(.sui-out) .sui-dlg')].pop());
+      expect(d.textContent).toContain('Send a picture of your work to Anthropic?'); expect(d.textContent).toContain('Kind of action: sending files');
+      [...d.querySelectorAll('button')].find((b) => b.textContent === 'Allow once').click();
+      await sent;
+      const r = lastBody().messages.pop().content[0], img = r.content[1];
+      expect(img.type).toBe('image'); expect(img.source.media_type).toBe('image/jpeg');
+      const bmp = await createImageBitmap(await (await fetch('data:image/jpeg;base64,' + img.source.data)).blob());
+      expect([bmp.width, bmp.height]).toEqual([1024, 768]);
+      const thumb = [...win.document.querySelectorAll('.sap-thumb')].pop();
+      expect(!!thumb).toBe(true); expect(thumb.getAttribute('src')).toMatch(/^data:image\/jpeg;base64,/);
+      win.SlopAIPermissions.setMode('ask');
+    }, { timeout: 40000 });
   });
   SlopTest.run({ name: 'PhotoSlop: an own-key AI model' });
   </script>

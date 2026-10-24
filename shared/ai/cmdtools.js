@@ -23,6 +23,8 @@
     const re = (K.appTools && K.appTools.DESTRUCTIVE) || WORDS;
     return re.test(c.title || '') || re.test((c.id || '').replace(/[._-]/g, ' '));
   }
+  /** Which approval a destructive command needs: 'delete' or 'change' (shared/ai/permissions.js, the one rule). */
+  const kindOf = (c) => { const P = window.SlopAIPermissions; return P && P.kindOf ? P.kindOf(`${(c && c.id) || ''} ${(c && c.title) || ''}`) : 'delete'; };
   const toolName = (c) => (c.tool || String(c.id).replace(/^[a-z0-9]+\./i, '')).replace(/\W+/g, '_').replace(/^_+|_+$/g, '').toLowerCase();
   const plainTitle = (c) => String(c.title || c.id).replace(/…$/, '').split(' › ').pop();
   function label(c, args) {
@@ -68,7 +70,7 @@
       names.add(name);
       tools.push({ name, cmdId: c.id, description: c.description || plainTitle(c), params: params(c.args),
         schema: A() ? A().jsonSchema(c.args) : { type: 'object', properties: {} },
-        destructive: () => isDestructive(c), confirmText: () => confirmText(c), label: (a) => label(c, a),
+        destructive: () => isDestructive(c), kind: () => kindOf(c), confirmText: () => confirmText(c), label: (a) => label(c, a),
         run: (a) => exec(cmd, c, a) });
     }
     if (cmd.state) {
@@ -81,7 +83,7 @@
         run: () => listAll(cmd).filter(usable).filter((c) => !c.hidden || c.args).map((c) => (c.args && A() ? { id: c.id, title: c.title, args: A().normalize(c.args).map((p) => `${p.name}: ${A().hint(p)}`) } : { id: c.id, title: c.title, group: c.group || '' })) },
       { name: 'run_command', description: `Run one command of ${where} by its id (ids from list_commands), with optional arguments.`,
         params: { id: { type: 'string', description: 'command id', required: true }, args: { type: 'object', description: 'arguments, when the command takes any' } },
-        destructive: (a) => isDestructive(byId(a.id) || { id: a.id }), confirmText: (a) => confirmText(byId(a.id) || { id: a.id }),
+        destructive: (a) => isDestructive(byId(a.id) || { id: a.id }), kind: (a) => kindOf(byId(a.id) || { id: a.id }), confirmText: (a) => confirmText(byId(a.id) || { id: a.id }),
         label: (a) => { const c = byId(a.id); return c ? label(c, a.args) : String(a.id); },
         cmdIdOf: (a) => a.id,
         run: (a) => {
@@ -108,8 +110,8 @@
   function specs(cmd, env = {}) {
     return build(cmd, env).map((t) => ({ name: t.name, description: t.description, inputSchema: inputSchema(t), cmdId: t.cmdId || null,
       readOnly: READ_ONLY.has(t.name), untrusted: t.name === 'app_state', mayDestroy: t.name === 'run_command' || (!!t.destructive && !!t.destructive({})),
-      destructive: t.destructive || false, confirmText: t.confirmText, run: t.run }));
+      destructive: t.destructive || false, kind: t.kind || null, confirmText: t.confirmText, run: t.run }));
   }
 
-  K.cmdTools = { build, definitions, specs, inputSchema, isDestructive, label, toolName };
+  K.cmdTools = { build, definitions, specs, inputSchema, isDestructive, kindOf, label, toolName };
 })();

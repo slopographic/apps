@@ -15,6 +15,32 @@
   const stepText = (tool, call) => { try { return tool && tool.label ? tool.label(call.arguments || {}) : call.name; } catch (e) { return call.name; } };
   const ICON = { run: '…', ok: '✓', bad: '✗', stop: '■' };
 
+  /** A step's result as a short line: what the app said, without repeating the step's own label; nothing for data. */
+  function result(m) {
+    let t = String(m.content || '').trim();
+    if (/^[[{]/.test(t)) return '';
+    const done = `Done: ${m.label || ''}.`;
+    if (m.label && t.startsWith(done)) t = t.slice(done.length).trim();
+    else t = t.replace(/^Done:\s*/, '');
+    return t.length > 160 ? t.slice(0, 157) + '…' : t;
+  }
+  /** All messages as DOM; a run of more than 3 steps folds into "9 steps ▸" (open it to see each one). Empty assistant
+   * turns (a reply that only called tools) draw nothing. */
+  P.viewAll = function (list) {
+    const out = [];
+    for (let i = 0; i < list.length;) {
+      const m = list[i];
+      if (m.role === 'assistant' && !m.note && !String(m.display != null ? m.display : m.content || '').trim()) { i++; continue; }
+      if (m.role !== 'tool') { out.push(P.view(m)); i++; continue; }
+      const run = [];
+      for (; i < list.length && (list[i].role === 'tool' || (list[i].role === 'assistant' && !list[i].note && !String(list[i].display != null ? list[i].display : list[i].content || '').trim())); i++) if (list[i].role === 'tool') run.push(list[i]);
+      if (run.length <= 3) { run.forEach((x) => out.push(P.view(x))); continue; }
+      const bad = run.filter((x) => !x.ok).length;
+      out.push(h('details', { class: 'sap-steps' }, h('summary', null, `${run.length} steps${bad ? `, ${bad} failed` : ' ✓'}`), ...run.map((x) => P.view(x))));
+    }
+    return out;
+  };
+
   /** One message as DOM: a user bubble, an assistant reply (Markdown), or a step. */
   P.view = function (m) {
     if (m.role === 'tool') {
@@ -22,9 +48,12 @@
       return h('div', { class: 'sap-tool sap-step ' + st, title: String(m.content).slice(0, 400) },
         h('span', { class: 'sap-step-i', 'aria-hidden': 'true' }, ICON[st]), h('span', { class: 'sap-step-t' }, m.label || m.name),
         h('span', { class: 'sr-only' }, m.ok ? ' (done)' : ' (failed)'),
-        !m.ok ? h('span', { class: 'sap-step-e' }, String(m.content).replace(/^ERROR:\s*/, '')) : null);
+        !m.ok ? h('span', { class: 'sap-step-e' }, String(m.content).replace(/^ERROR:\s*/, '')) : result(m) ? h('span', { class: 'sap-step-r' }, result(m)) : null,
+        // what was sent to the provider (look_at_file, look_at_canvas): a thumbnail, so the person sees it too
+        ...(m.media || []).filter((x) => /^image\//.test(x.mime)).map((x) => h('img', { class: 'sap-thumb', alt: 'Sent: ' + (x.name || 'picture'), src: `data:${x.mime};base64,${x.data}` })));
     }
-    if (m.usage) return h('div', { class: 'sap-usage' }, m.display);
+    if (m.handoff && m.url) return h('div', { class: 'sap-handoff' }, h('span', null, m.display), m.opened ? null : h('button', { type: 'button', class: 'sap-btn primary', onclick: () => { window.open(m.url, '_blank'); m.opened = true; K.handoff.clear(); P.render(); } }, `Continue in ${m.to}`));
+    if (m.meter) return h('div', { class: 'sap-usage' }, m.display);   // the tokens line (not m.usage: every reply carries its usage)
     const d = h('div', { class: 'sap-msg ' + m.role + (m.error ? ' bad' : '') });
     const text = m.display != null ? m.display : m.content;
     if (m.role === 'assistant' && K.md && !m.error) d.innerHTML = K.md.render(text); else d.textContent = text;
@@ -37,13 +66,16 @@
       : `You are Slop AI, a helpful assistant inside ${name} on slopographic.com. It runs on the user's own device. Be brief.`];
     if (tools.length && cloud) {
       lines.push(`You control ${name} with the tools. Call app_state first when you need to know what is open.`,
-        'Plan the fewest steps and use arguments in the given ranges. Destructive actions and look_at_file ask the user first; if they say no, accept it.',
-        'Files stay on the device: to see a picture or read a file, call look_at_file. After the actions, answer in one short sentence. If a tool fails, say so plainly; do not invent results.');
+        'Plan the fewest steps and use arguments in the given ranges. Some actions (deleting, look_at_file) may ask the user first; if they say no, accept it.',
+        'Files stay on the device: to see a picture or read a file, call look_at_file. After the actions, answer in one short sentence. If a tool fails, say so plainly; do not invent results.',
+        'Be resourceful: build what is asked from the tools you have (layers, shapes, text, gradients, SVG, fills, filters, and generate_image when it is there) instead of saying it cannot be done. After making something visual, check it with look_at_canvas when it is available, and fix what is off.',
+        `Never refuse because ${name} cannot do something: if the person wants a file and stays here, make it with run_operation (find one with list_operations); if the work belongs in another app's editor, call open_app with that app's id and a task saying what to do there, and the conversation continues in that app.`,
+        `The apps on the site:\n${K.appTools.catalog(window.SLOP_APPS || [])}`);
     } else if (tools.length) {
       lines.push(`You control ${name} with the tools below. Call app_state first when you need to know what is open.`,
         'Plan the fewest steps. Use the tools that match the request directly, with arguments in the given ranges.',
         'You may put several <tool_call> lines in one reply; they run in order. After the results, answer in one short sentence.',
-        'If a tool fails, say so plainly; do not invent results.');
+        'If a tool fails, say so plainly; do not invent results. If the request belongs in another app, call open_app with its id and a task.');
     }
     return lines.join(' ');
   }
@@ -68,9 +100,20 @@
     P.undoBtn.hidden = true; P.rollback = null;
     P.render();
     const cmd = window.SlopCmd;
+    let handed = null;
+    /** open_app with a task (handoff.js): the conversation and the task go to that app's page, in a new tab. */
+    const handoff = ({ app, task, url }) => {
+      K.handoff.save({ to: app.id, toName: app.name, from: P.appId(), fromName: P.appName(), task, messages: K.handoff.carry(P.messages) });
+      let w = null;
+      try { w = window.open(url, '_blank'); } catch (e) { w = null; }
+      if (w) K.handoff.clear();   // the new tab has its own copy of this tab's sessionStorage
+      handed = { to: app.name, url, opened: !!w };
+      return w ? `Opened ${app.name}: the conversation continues there with this task. Tell the person in one short sentence.`
+        : `The browser blocked the new tab. A "Continue in ${app.name}" button is in the chat; tell the person to press it.`;
+    };
     const control = P.toolsBox.checked && !!cmd;
     if (control && cmd.prepare) { try { await cmd.prepare(); } catch (e) { console.warn('SlopCmd.prepare:', e); } }
-    const tools = P.toolsBox.checked ? K.appTools.build({ cmd, appId: P.appId(), confirm: confirmFn, look: cloud, ops: cloud, who: cloud ? eng.provider.who : '' }) : [];
+    const tools = P.toolsBox.checked ? K.appTools.build({ cmd, appId: P.appId(), appName: P.appName(), confirm: confirmFn, look: cloud, ops: cloud, who: cloud ? eng.provider.who : '', handoff }) : [];
     let rollback = null;
     try { rollback = control && cmd.checkpoint ? cmd.checkpoint() : null; } catch (e) { rollback = null; }
     let changed = 0;
@@ -78,11 +121,14 @@
     live.append(reply); P.list.append(live);
     P.busy = new AbortController(); setBusy(true);
     let pieces = '';
-    const steps = new Map(), spent = [];
+    const steps = new Map(), spent = [], Perm = window.SlopAIPermissions;
+    // approvals: the one permission module (mode, remembered rules, this visit, this request)
+    const permit = (req) => Perm.ask(Object.assign({ app: P.appId(), appName: P.appName(), who: cloud ? eng.provider.who : '' }, req));
+    Perm.startRequest();
     try {
       const turns = cloud ? cs.steps || 12 : MAX_STEPS;
       const res = await K.tools.run(eng, [{ role: 'system', content: systemPrompt(tools, eng) }, ...P.messages.filter((m) => !m.error && !m.note)], {
-        tools, env: { confirm: confirmFn }, maxSteps: tools.length ? turns : 1, maxCalls: cloud ? Math.max(MAX_CALLS, turns * 3) : MAX_CALLS, temperature: 0.3, max_tokens: 640, signal: P.busy.signal,
+        tools, env: { confirm: confirmFn, permit }, maxSteps: tools.length ? turns : 1, maxCalls: cloud ? Math.max(MAX_CALLS, turns * 3) : MAX_CALLS, temperature: 0.3, max_tokens: 640, signal: P.busy.signal,
         onUsage: cloud ? (u) => { spent.push(u); C.meter.add(u); return C.meter.over(cs.cap) ? C.meter.capText(cs.cap) : null; } : null,
         onDelta: (t) => { pieces += t; reply.innerHTML = K.md.render(pieces.replace(/<tool_call>[\s\S]*?(<\/tool_call>|$)/g, '').trim()); P.list.scrollTop = P.list.scrollHeight; },
         onTool: ({ phase, call, tool, res: r }) => {
@@ -93,7 +139,7 @@
           } else {
             if (r.ok && tool && (tool.cmdId || (tool.cmdIdOf && tool.cmdIdOf(call.arguments || {})))) changed++;
             const row = steps.get(call);
-            if (row) row.replaceWith(P.view({ role: 'tool', ok: r.ok, name: call.name, label: stepText(tool, call), content: r.ok ? r.result : 'ERROR: ' + r.error }));
+            if (row) row.replaceWith(P.view({ role: 'tool', ok: r.ok, name: call.name, label: stepText(tool, call), content: r.ok ? r.result : 'ERROR: ' + r.error, media: r.media }));
           }
           P.list.scrollTop = P.list.scrollHeight;
         },
@@ -106,10 +152,12 @@
       const msg = cloud ? K.cloud.redact((e && e.message) || e) : (e && e.message) || e;
       P.messages.push({ role: 'assistant', content: '', display: (cloud && e && e.kind ? '' : 'Something went wrong: ') + msg, error: true });
     }
+    if (handed) P.messages.push({ role: 'assistant', content: '', display: `Continuing in ${handed.to}${handed.opened ? ' (in a new tab).' : '.'}`, note: true, handoff: true, url: handed.url, to: handed.to, opened: handed.opened });
     if (cloud && spent.length) {
-      const u = spent.reduce((a, x) => ({ input: a.input + (x.input || 0), output: a.output + (x.output || 0), cost: a.cost == null || x.cost == null ? null : a.cost + x.cost }), { input: 0, output: 0, cost: 0 });
-      P.messages.push({ role: 'assistant', content: '', display: `${C.meter.line(u)} · ${C.meter.totalLine(cs.cap)}`, note: true, usage: true });
+      const u = spent.reduce((a, x) => ({ input: a.input + (x.input || 0), output: a.output + (x.output || 0), cacheRead: a.cacheRead + (x.cacheRead || 0), cost: a.cost == null || x.cost == null ? null : a.cost + x.cost }), { input: 0, output: 0, cacheRead: 0, cost: 0 });
+      P.messages.push({ role: 'assistant', content: '', display: `${C.meter.line(u)} · ${C.meter.totalLine(cs.cap)}`, note: true, meter: true });
     }
+    Perm.endRequest();   // "Allow for this request" ends with the reply
     P.busy = null; setBusy(false);
     P.rollback = changed && typeof rollback === 'function' ? rollback : null;
     P.render();
@@ -119,7 +167,7 @@
 
   P.undoAll = function () {
     const r = P.rollback;
-    P.rollback = null; P.undoBtn.hidden = true;
+    P.rollback = null; P.undoBtn.hidden = true; P.undoBtn.textContent = '↶ Undo all AI changes';
     if (!r) return;
     let ok = true;
     try { ok = r() !== false; } catch (e) { ok = false; console.warn(e); }

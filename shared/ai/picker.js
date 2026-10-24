@@ -8,6 +8,8 @@
  *        no WebGPU → a plain message and what still works; otherwise the models with size, GPU memory, licence and
  *        a "good at app control" mark (strength 'tools'), Download / Use with progress and Cancel.
  *   picker.FIT: the catalog ids that follow tool instructions well enough to control an app, best first.
+ *   Order: with an own-key provider in use, its section ("Use your own AI account", with the Model choice) comes first
+ *        and the local models follow under "Models on this device"; otherwise the local models come first.
  *   picker.loadCloud() → loads "Use your own AI account" (shared/ai/cloud/), shown under the models in render, and
  *        also when this browser has no WebGPU: a provider with the person's own key works in every browser.
  * Downloads happen only after a click and the notice. Nothing is uploaded. */
@@ -61,14 +63,18 @@
   const CLOUD = ['cloud/net', 'cloud/providers', 'cloud/anthropic', 'cloud/openai', 'cloud/compat', 'cloud/gemini', 'cloud/keys', 'cloud/meter', 'cloud/engine', 'cloud/connect'];
   const loadCloud = () => K.load(['cmdtools', ...CLOUD]);
   async function cloud(box, o) {
-    try { await loadCloud(); K.cloud.connect.render(box, { onReady: o.onReady, onForget: o.onForget, open: o.cloudOpen }); } catch (e) { console.warn('Slop AI: own-key providers', e); }
+    try { await loadCloud(); K.cloud.connect.render(box, { onReady: o.onReady, onForget: o.onForget, open: o.cloudOpen, appId: o.appId }); } catch (e) { console.warn('Slop AI: own-key providers', e); }
   }
 
   async function render(box, o = {}) {
     box.textContent = '';
     const wrap = h('div', { class: 'sap-pick' }), more = h('div', { class: 'sap-pick-cloud' });
-    box.append(wrap, more);
-    const g = await gpu();
+    // a provider in use comes first (its model choice at the top); the models on this device follow under a heading
+    let active = '';
+    try { active = (JSON.parse(localStorage.getItem('slop-ai.cloud') || 'null') || {}).active || ''; } catch (e) { active = ''; }
+    if (active) { box.append(more, wrap); wrap.append(h('p', { class: 'sap-pick-local-h' }, h('b', null, 'Models on this device'))); o = Object.assign({ cloudOpen: true }, o); }
+    else box.append(wrap, more);
+    const g = await K.picker.gpu();
     if (!g.ok) {
       wrap.append(h('p', { class: 'sap-pick-no', role: 'alert' }, noGpuText(g.reason)), h('p', { class: 'sap-dim' }, NO_GPU_HELP),
         h('p', { class: 'sap-dim' }, `You can still use every menu and tool of ${o.appName || 'this app'} yourself, or connect your own AI account below. A model that `, aiLink(), ' runs in another tab of this browser is used here too.'));
@@ -78,7 +84,7 @@
     const p = prefs(), list = K.catalog.list.slice().sort((a, b) => rank(a) - rank(b));
     const st = new Map(await Promise.all(list.map(async (m) => [m.id, await statusOf(m.id)])));
     const have = list.find((m) => (st.get(m.id) || {}).state === 'ready' && (m.id === p.defaultModel || m.id === p.lastModel)) || list.find((m) => (st.get(m.id) || {}).state === 'ready');
-    wrap.append(h('p', null, h('b', null, 'Pick a model to start.'), ' It downloads once and then works offline, on your graphics card.'));
+    wrap.append(h('p', null, h('b', null, active ? 'Or a model on this device.' : 'Pick a model to start.'), ' It downloads once and then works offline, on your graphics card.'));
     const rows = h('div', { class: 'sap-pick-list' });
     for (const m of list.filter((x) => FIT.includes(x.id) || x === have || x.id === p.defaultModel)) rows.append(row(m, st.get(m.id) || {}, m === have, o));
     wrap.append(rows, h('p', { class: 'sap-dim' }, 'Smaller models are faster but follow instructions less well. More models and settings: ', aiLink(), '.'));

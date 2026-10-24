@@ -137,6 +137,35 @@ the first request to a provider, the notice; cloud runs get `look`, `ops` and up
 1–30); after each reply a line with its tokens and this visit's total; the cap stops the loop after the turn that reaches
 it and refuses new requests; Stop aborts the request in flight. A key-based engine is never shared with other tabs.
 
+## Permissions, handoff, model menu (2026-10, wip/ai-permissions)
+- **One permission module**, `permissions.js` (`window.SlopAIPermissions`, also CommonJS) + `permissions-ui.js` (the
+  question and the settings view). `tools.dispatch` asks through `env.permit(req)` (the panel passes
+  `SlopAIPermissions.ask`); a tool says which approval it needs with `kind(args)`: `change` (marked app changes: crop,
+  flatten, merge…), `delete` (delete, clear, close, overwrite…, `kindOf(text)` is the one word rule), `send` (a copy of a
+  file or a picture of the work goes to the provider: `look_at_file`, `look_at_canvas`). Modes: Ask each time (default),
+  Allow app changes (never covers `send` or `delete`), Allow everything (with a warning). Answers: Allow once · for this
+  request (ends with the reply: `startRequest`/`endRequest`) · for this visit (sessionStorage) · Always in this app (a rule,
+  listed in ⚙ AI permissions with Remove) · Deny. Reading and ordinary edits never ask; Undo all works in every mode.
+  WebMCP (shared/agent/) should call `SlopAIPermissions.ask({ kind, app, appName, action, detail })` the same way.
+  The Slop AI app page (`ai/js/ui/chat.js`) still uses its plain confirm.
+- **Prompt caching**: Anthropic requests carry a cache breakpoint on the system prompt (tools come first, so they are
+  cached too) plus top-level automatic caching; usage reports `cacheRead`/`cacheWrite`, the cost prices them (reads
+  0.1× or the listed price, writes 1.25×). OpenAI gets `prompt_cache_key`; Gemini and OpenRouter cache on their own and
+  report cached tokens. Measured live (Haiku 5.5, 5 steps, 34 tools): 42,898 tokens either way; cost $0.0044 → $0.0014
+  (Sonnet 5.5 prices: $0.088 → $0.028); `tests/node/ai-permissions.test.mjs` keeps those numbers.
+- **The site in the prompt**: own-key models get `appTools.catalog(SLOP_APPS)` (each app: what it is, what it makes and
+  opens), "be resourceful" and "never refuse because this app cannot: run_operation here, or open_app with a task".
+- **Handoff** (`handoff.js`): `open_app({ id, task })` saves the conversation and the task in sessionStorage and opens the
+  app in a new tab (a new tab gets a copy of sessionStorage: the session key and visit answers come along); a blocked
+  tab gets a "Continue in <app>" button. On that page the shell header opens the panel, which shows "Continued from
+  <app>" and sends the task as soon as a model is there (the provider restores itself).
+- **look_at_canvas** (`filetools.js`): `SlopCmd.snapshot()` when the app provides one (`SlopCmd.provide({ snapshot })`),
+  else the file the app hands to Convert; scaled to 1024 px, kind `send`, a thumbnail in the chat.
+- **Model menu** (`model-menu.js`): the header's model name is a SlopMenuButton: the connected providers' models (hint
+  per model), AI settings…, AI permissions…, Disconnect. A pick is remembered for that app (`lastByApp`). With a
+  provider in use, the full model choice shows it first and the local models under "Models on this device".
+- Steps show the app's answer as a dimmed line; more than 3 steps in a row fold into "9 steps ✓" (open to see them).
+
 ## Tests
 `node tests/run.mjs ai` covers all of this; see `ai/HANDOFF.md`. Own keys: `tests/node/ai-cloud-formats.test.mjs`
 (request building, streams from documented SSE fixtures, conversion both ways), `tests/node/ai-cloud-engine.test.mjs`
