@@ -7,8 +7,10 @@
   const tiles = new Map();
   let root = null, addBtn = null;
 
+  /** What a working image is doing (the engine's progress phases). */
+  const PHASE = { runtime: 'Loading', model: 'Loading', init: 'Starting', infer: 'Cutting out', refine: 'Edges' };
   const badgeText = (it) => {
-    if (it.status === 'working') return it.progress != null ? Math.round(it.progress * 100) + '%' : 'Working…';
+    if (it.status === 'working') return it.progress != null ? Math.round(it.progress * 100) + '%' : PHASE[it.phase] || 'Working…';
     if (it.status === 'queued') return 'Queued';
     if (it.status === 'error') return 'Error';
     return '';
@@ -75,10 +77,7 @@
     addBtn = h('button', { type: 'button', class: 'q-add', 'aria-label': 'Add images', title: 'Add images' });
     addBtn.innerHTML = U.icon('plus');
     addBtn.addEventListener('click', () => CO.files.open());
-    // drop images on the sidebar too: the same route as the drop strip and the picker
-    root.addEventListener('dragover', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); root.classList.add('is-drop'); } });
-    root.addEventListener('dragleave', () => root.classList.remove('is-drop'));
-    root.addEventListener('drop', (e) => { e.preventDefault(); root.classList.remove('is-drop'); if (e.dataTransfer && e.dataTransfer.files.length) CO.files.addFiles(e.dataTransfer.files); });
+    // Files dropped on the sidebar are taken by the drop zone (CO.files.init lists #queue as one of its targets).
     CO.on('list', render);
     CO.on('activeItem', render);
     CO.on('item', (it) => {

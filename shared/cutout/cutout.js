@@ -1,5 +1,6 @@
 /* SlopCutout: on-device AI background removal for any Slopographic app. Classic script, sets window.SlopCutout.
- * The model runs in a Web Worker (shared/cutout/worker.js) so the page never freezes.
+ * The model runs in Web Workers (shared/cutout/worker.js) so the page never freezes. Calls made together run at once,
+ * spread over poolSize() workers (each with its own model session); every call gets the same model, size and refinement.
  *
  *   const r = await SlopCutout.removeBackground(fileOrBitmap, { model: 'quality', onProgress });
  *   r.mask      Uint8ClampedArray (w*h, 0..255): the final alpha (use it as a layer mask)
@@ -20,40 +21,77 @@
   if (window.SlopCutout) return;
   const SCRIPT = document.currentScript;
   const BASE = SCRIPT && SCRIPT.src ? new URL('./', SCRIPT.src).href : new URL('shared/cutout/', location.href).href;
-  const conf = { workerUrl: BASE + 'worker.js', init: null };
-  let worker = null, seq = 0, jobSeq = 0;
-  const pending = new Map();
+  const conf = { workerUrl: BASE + 'worker.js', init: null, workers: 0 };
+  // A pool of workers, each with its own ONNX Runtime and model session: without cross-origin isolation WebAssembly runs
+  // single-threaded, so separate workers are the only way to segment several images at once. Worker 0 also answers the
+  // plain calls (load, cached, info, ping). One more worker, 'edit', holds the jobs made by createJob (the image on screen):
+  // its finish() runs no model, so slider and brush changes never wait behind a batch. A kept job lives in the worker
+  // that made it, and finish/release go there.
+  const slots = new Map(), jobAt = new Map();
+  let seq = 0, jobSeq = 0, seen = null; // seen: the backend the workers really use (known after the first model pass)
 
-  function fail(msg) {
-    for (const p of pending.values()) p.reject(new Error(msg));
-    pending.clear();
-    if (worker) worker.terminate();
-    worker = null;
+  /** How many images can be segmented at once here. WebGPU: 2 (the GPU runs one model pass at a time; the second worker
+   *  overlaps its CPU work: decode, edge refinement, decontamination). WebAssembly: one per two cores, at most 3, and 2
+   *  with under 4 GB of memory; 1 on iOS or with 2 GB or less (every worker holds its own copy of the model). */
+  function poolSize() {
+    if (conf.workers > 0) return conf.workers;
+    const nav = typeof navigator !== 'undefined' ? navigator : {}, cores = nav.hardwareConcurrency || 2, mem = nav.deviceMemory || 8;
+    const ios = /iPad|iPhone|iPod/.test(nav.userAgent || '') || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
+    if (ios || mem <= 2) return 1;
+    // Before the first pass, a browser with WebGPU is assumed to use it; a software adapter falls back to WebAssembly.
+    const gpu = seen ? seen === 'webgpu' : !!nav.gpu && !(conf.init && conf.init.backend === 'wasm');
+    const n = gpu ? 2 : Math.min(3, Math.max(1, Math.floor(cores / 2)));
+    return mem < 4 ? Math.min(n, 2) : n;
   }
-  function ensure() {
-    if (worker) return worker;
-    worker = new Worker(conf.workerUrl);
-    worker.onmessage = (e) => {
-      const { id, type, data, message } = e.data || {}, p = pending.get(id);
+
+  /** Stop one worker (or all): its calls reject with msg, its jobs are gone. The next call starts a fresh one. */
+  function fail(msg, only) {
+    for (const s of only ? [only] : [...slots.values()]) {
+      for (const p of s.pending.values()) p.reject(new Error(msg));
+      s.pending.clear();
+      s.worker.terminate();
+      if (slots.get(s.key) === s) slots.delete(s.key);
+      for (const [j, at] of jobAt) if (at === s) jobAt.delete(j);
+    }
+  }
+  function slotAt(key) {
+    if (slots.has(key)) return slots.get(key);
+    const s = { key, worker: new Worker(conf.workerUrl), pending: new Map(), running: new Set() };
+    s.worker.onmessage = (e) => {
+      const { id, type, data, message } = e.data || {}, p = s.pending.get(id);
+      if (type !== 'progress') s.running.delete(id);
       if (!p) return;
       if (type === 'progress') { if (p.onProgress) try { p.onProgress(data); } catch (err) { console.warn(err); } return; }
-      pending.delete(id);
+      s.pending.delete(id);
       if (type === 'error') p.reject(new Error(message || 'Background removal failed')); else p.resolve(data);
     };
-    worker.onerror = (e) => { e.preventDefault(); fail('The background remover stopped' + (e.message ? ': ' + e.message : ' (out of memory?)')); };
-    if (conf.init) worker.postMessage({ id: ++seq, type: 'init', data: conf.init });
-    return worker;
+    s.worker.onerror = (e) => { e.preventDefault(); fail('The background remover stopped' + (e.message ? ': ' + e.message : ' (out of memory?)'), s); };
+    if (conf.init) s.worker.postMessage({ id: ++seq, type: 'init', data: conf.init });
+    slots.set(key, s);
+    return s;
   }
-  /** Low-level RPC to the worker. */
-  function call(type, data, { onProgress, transfer, signal } = {}) {
+  /** The segment worker with the least work in flight (work a worker is still doing counts, even when its caller gave
+   *  up). An idle started worker is used first; a new one starts only when every started one is busy, up to poolSize(). */
+  function idlest() {
+    const n = poolSize(), live = [];
+    for (let i = 0; i < n; i++) if (slots.has(i)) live.push(slots.get(i));
+    const free = live.find((s) => s.running.size === 0);
+    if (free) return free;
+    for (let i = 0; i < n; i++) if (!slots.has(i)) return slotAt(i);
+    return live.reduce((a, s) => (s.running.size < a.running.size ? s : a));
+  }
+  /** Low-level RPC to a worker (worker 0 unless a slot is given). */
+  function call(type, data, { onProgress, transfer, signal, slot } = {}) {
     return new Promise((resolve, reject) => {
       if (signal && signal.aborted) { reject(new DOMException('Aborted', 'AbortError')); return; }
-      const w = ensure(), id = ++seq;
-      pending.set(id, { resolve, reject, onProgress });
-      if (signal) signal.addEventListener('abort', () => { if (pending.delete(id)) reject(new DOMException('Aborted', 'AbortError')); }, { once: true });
-      w.postMessage({ id, type, data }, transfer || []);
+      const s = slot || slotAt(0), id = ++seq;
+      s.pending.set(id, { resolve, reject, onProgress });
+      s.running.add(id);
+      if (signal) signal.addEventListener('abort', () => { if (s.pending.delete(id)) reject(new DOMException('Aborted', 'AbortError')); }, { once: true });
+      s.worker.postMessage({ id, type, data }, transfer || []);
     });
   }
+  const jobSlot = (jobId) => { const s = jobAt.get(jobId); if (!s || slots.get(s.key) !== s) throw new Error('Unknown cutout job ' + jobId); return s; };
 
   /** Turn any supported input into something we can transfer to the worker. */
   async function prepare(input, { transfer: give = false } = {}) {
@@ -90,26 +128,40 @@
   }
 
   async function removeBackground(input, opts = {}) {
+    if (opts.signal && opts.signal.aborted) throw new DOMException('Aborted', 'AbortError');
     const { image, transfer } = await prepare(input, opts);
-    const jobId = opts.keep ? 'j' + (++jobSeq) : null;
-    const r = await call('segment', { image, model: opts.model || 'fast', jobId, refine: opts.refine, guided: opts.guided, wantLow: !!opts.wantLow, settings: settingsOf(opts) },
-      { onProgress: opts.onProgress, transfer, signal: opts.signal });
-    return wrap(r, { jobId });
+    const jobId = opts.keep ? 'j' + (++jobSeq) : null, slot = idlest();
+    if (jobId) jobAt.set(jobId, slot);
+    try {
+      const r = await call('segment', { image, model: opts.model || 'fast', jobId, refine: opts.refine, guided: opts.guided, wantLow: !!opts.wantLow, settings: settingsOf(opts) },
+        { onProgress: opts.onProgress, transfer, signal: opts.signal, slot });
+      if (r.timings && r.timings.backend) seen = r.timings.backend;
+      return wrap(r, { jobId, worker: slot.key });
+    } catch (e) { if (jobId) release(jobId); throw e; }
   }
   /** Re-run threshold → brush edit → feather → decontaminate at full resolution for a kept job.
    *  edit: optional Uint8Array (w*h, 128 = untouched, 255 = keep, 0 = remove); it is copied. */
   async function finish(jobId, settings = {}, edit = null, { base } = {}) {
     const e = edit ? edit.slice() : null, b = base ? base.slice() : null;
-    const r = await call('finish', { jobId, settings: settingsOf(settings), edit: e && e.buffer, base: b && b.buffer }, { transfer: [e && e.buffer, b && b.buffer].filter(Boolean) });
+    const r = await call('finish', { jobId, settings: settingsOf(settings), edit: e && e.buffer, base: b && b.buffer }, { transfer: [e && e.buffer, b && b.buffer].filter(Boolean), slot: jobSlot(jobId) });
     return wrap(r, { jobId });
   }
 
   /** Store an image plus a base mask from an earlier removeBackground() in the worker, without running
    *  the model again, so finish() works on it. Resolves with the new jobId. */
   async function createJob(input, base) {
-    const { image, transfer } = await prepare(input), b = base.slice(), jobId = 'j' + (++jobSeq);
-    await call('job', { jobId, image, base: b.buffer }, { transfer: transfer.concat([b.buffer]) });
+    const { image, transfer } = await prepare(input), b = base.slice(), jobId = 'j' + (++jobSeq), slot = slotAt('edit');
+    jobAt.set(jobId, slot);
+    try { await call('job', { jobId, image, base: b.buffer }, { transfer: transfer.concat([b.buffer]), slot }); }
+    catch (e) { jobAt.delete(jobId); throw e; }
     return jobId;
+  }
+  /** Free a kept job in the worker that holds it. */
+  function release(jobId) {
+    const s = jobId && jobAt.get(jobId);
+    if (!s) return Promise.resolve();
+    jobAt.delete(jobId);
+    return slots.get(s.key) === s ? call('release', { jobId }, { slot: s }) : Promise.resolve();
   }
 
   /* ---------- helpers ---------- */
@@ -131,23 +183,29 @@
   }
 
   window.SlopCutout = {
-    removeBackground, finish, createJob,
-    release: (jobId) => (jobId && worker ? call('release', { jobId }) : Promise.resolve()),
+    removeBackground, finish, createJob, release, poolSize,
     /** Download (or read from cache) and initialise a model ahead of time. */
     load: (model = 'fast', onProgress) => call('load', { model }, { onProgress }),
     /** { fast: bool, quality: bool, portrait: bool }: which models are already stored on this device. */
     cached: () => call('cached'),
     info: () => call('info'),
-    /** configure({ workerUrl, backend: 'auto'|'wasm', vendor, models, sources }) before the first call. */
+    /** configure({ workerUrl, backend: 'auto'|'wasm', vendor, models, sources, workers }) before the first call.
+     *  workers: how many images segment at once (0 = poolSize() decides). */
     configure(o = {}) {
       if (o.workerUrl) conf.workerUrl = o.workerUrl;
+      if (o.workers !== undefined) conf.workers = Math.max(0, o.workers | 0);
       const init = {};
       for (const k of ['backend', 'vendor', 'models', 'sources']) if (o[k] !== undefined) init[k] = o[k];
       conf.init = Object.assign(conf.init || {}, init);
-      if (worker && Object.keys(init).length) { if (o.backend !== undefined) fail('Restarting with a new backend'); else worker.postMessage({ id: ++seq, type: 'init', data: init }); }
+      if (slots.size && Object.keys(init).length) {
+        if (o.backend !== undefined) { seen = null; fail('Restarting with a new backend'); }
+        else for (const s of slots.values()) s.worker.postMessage({ id: ++seq, type: 'init', data: init });
+      }
     },
     terminate: () => fail('Stopped'),
     call, toBlob, maskToImageData, canvasOf, BASE,
-    get busy() { return pending.size; },
+    get busy() { let n = 0; for (const s of slots.values()) n += s.pending.size; return n; },
+    /** Workers started so far, the edit worker included (for tests). */
+    get workers() { return slots.size; },
   };
 })();
