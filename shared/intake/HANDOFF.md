@@ -288,6 +288,12 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   launchQueue (open), File ▸ Import, a drop on the view (new) and a paste (new) add to the scene. The config import's
   fallback (no shared config dialog) is a part `3d.config`. The outliner's drag stays (`intake-ok`).
   `tests/intake/3d.test.html`.
+- **Slop AI** (`ai/js/ui/intake.js`, spec `ai`, text files to a chat panel (`data.panel`); parts `ai.conv`, `ai.model`,
+  `ai.launch`): the attach menu (this computer, Slop Drive), a drop on the messages, a paste (new), ?drive= launch and
+  launchQueue (a picture is refused with the reason). Import a conversation and Open a chat from Slop Drive (linked) are
+  `ai.conv`; the model folder fallback (no directory picker) is `ai.model` (`pick({ folder: true })`); the Apps list's
+  "Open a file from this computer / a Slop Drive file in it" is `ai.launch`, which sends through `SlopOuttake.send`.
+  The page now loads shared/intake. `tests/intake/ai.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -345,24 +351,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### admin
 
 - [ ] file input: `admin/index.html:134`
-
-### ai
-
-- [ ] ?drive= launch: `ai/js/app/main.js:24`
-- [ ] drop listener: `ai/js/ui/chat.js:29`
-- [ ] pickFiles: `ai/js/ui/chat.js:52`
-- [ ] Drive picker: `ai/js/ui/chat.js:53`
-- [ ] pickFiles: `ai/js/ui/chatlist.js:80`
-- [ ] out: Open in/Send to label: `ai/js/ui/ctxmenu.js:23`
-- [ ] Drive picker: `ai/js/ui/drive.js:21`
-- [ ] out: sendTo: `ai/js/ui/launcher.js:11`
-- [ ] pickFiles: `ai/js/ui/launcher.js:15`
-- [ ] out: sendTo: `ai/js/ui/launcher.js:17`
-- [ ] out: Open in/Send to label: `ai/js/ui/launcher.js:22`
-- [ ] Drive picker: `ai/js/ui/launcher.js:23`
-- [ ] out: Open in/Send to label: `ai/js/ui/launcher.js:23`
-- [ ] file input: `ai/js/ui/models.js:112`
-- [ ] out: Open in/Send to label: `ai/js/ui/workspace.js:104`
 
 ### crm
 
