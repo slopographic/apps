@@ -65,7 +65,7 @@ Parts of an app with files of their own (a watermark logo, brushes, a backup, a 
 |---|---|---|
 | a drop on the app's zone / targets (with the zone UI, outlines, rows) | `SlopDrop.attach(zone, { intake: 'myapp', targets, mode?(e), data?(e), files?(dt, e) })` | drop |
 | the zone's Choose files | (the zone) | picker |
-| File ▸ Open, Ctrl+O, Insert from file, an "Open…" button | `SlopIntake.pick({ to, mode, data, multiple, accept })` | picker |
+| File ▸ Open, Ctrl+O, Insert from file, an "Open…" button, Upload a folder (`folder: true`) | `SlopIntake.pick({ to, mode, data, multiple, accept, folder })` | picker |
 | a drop on a plain area (no zone UI) | `SlopIntake.dropTarget(el, { to, mode?(e), data?(e) })` | drop |
 | a paste | automatic: the first spec (paste ≠ false) that takes the file | paste |
 | Open from Slop Drive | `SlopIntake.fromDrive({ to, mode, title })` | drive |
@@ -93,6 +93,7 @@ ctx)`, `begin`, `done`, `limit`, `paste`), so the old callers work unchanged and
 
 ```js
 SlopOuttake.items({ get: () => blob, name: 'x.png', type: 'image/png', from: 'myapp', verb: 'Open in', folder: true })
+SlopOuttake.send('code', { id: rec.id, name: rec.name, type: rec.type }) // a file already in Slop Drive: no copy
 SlopOuttake.menu(buttonOrPoint, o); SlopOuttake.button(o, { label: 'Open in…' }); SlopOuttake.send('upscale', o)
 SlopOuttake.handover({ from: 'cutout', to: 'photoslop', types: ['image/*'], replaces: true, label: 'Send to PhotoSlop as a layer', run: async (ctx) => { … } })
 SlopOuttake.extend((ctx) => [{ label: 'Add to a workflow…', act }])
