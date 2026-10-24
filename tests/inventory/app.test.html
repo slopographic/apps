@@ -151,6 +151,18 @@
       expect($('kProducts').textContent).toBe('2');
       expect(errors).toEqual([]);
     });
+    it('stock on a placed purchase order shows on the product row and in the low-stock list', async () => {
+      // Covers: inventory/js/ui/reports.js, inventory/js/ui/products.js
+      const S = win().SlopData;
+      const p = (await S.store.list('products')).value[0];
+      await S.store.put('products', { ...p, reorderLevel: 1000 });
+      const sup = (await S.store.put('customers', { name: 'Parts Co', stage: 'customer', supplier: true })).value;
+      const po = (await S.store.put('purchases', { customerId: sup.id, date: '2026-10-20', lines: [{ productId: p.id, description: p.name, qty: 12, unitPrice: 100, taxRate: 0 }] })).value;
+      await S.store.put('purchases', { ...po, status: 'ordered' });
+      await waitFor(() => $('lowList').textContent.includes('12 on order'), { timeout: 8000 });
+      $('tab-products').click();
+      await waitFor(() => [...doc().querySelectorAll('#pRows .chip.ordered')].some((c) => c.textContent === '12 on order'), { timeout: 8000 });
+    });
   });
 
   run({ name: 'Inventory · the app at 390 px' });

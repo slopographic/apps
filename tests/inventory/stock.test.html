@@ -17,6 +17,7 @@
   <script src="../../shared/data/fx.js"></script>
   <script src="../../shared/data/ledger.js"></script>
   <script src="../../shared/data/stock.js"></script>
+  <script src="../../shared/data/purchases.js"></script>
   <script src="../../shared/data/billing.js"></script>
   <script src="../../shared/data/bundle-check.js"></script>
   <script src="../../shared/data/export.js"></script>
@@ -231,6 +232,15 @@
       expect(plan.headerErrors.some((m) => m.includes('"name"'))).toBe(true);
     });
 
+    it('a row counts what is on placed purchase orders, not drafts or received ones', async () => {
+      // Covers: inventory/js/core/rows.js
+      await fresh();
+      const p = await product('PO-1');
+      const line = (qty) => [{ productId: p.id, description: 'x', qty, unitPrice: 100, taxRate: 0 }];
+      const rows = NS.rows.rowsOf(await allProducts(), [], [{ status: 'ordered', lines: line(5) }, { status: 'ordered', lines: line(2) }, { status: 'draft', lines: line(9) }, { status: 'received', lines: line(4) }]);
+      expect(rows.find((r) => r.id === p.id).onOrder).toBe(7);
+      expect((await NS.rows.stockRows()).value.find((r) => r.id === p.id).onOrder).toBe(0);
+    });
     it('an export reads back through the import as updates of the same products', async () => {
       await fresh();
       const p = await product('RT-1', { ean: EAN_A, reorderLevel: 3 });

@@ -13,10 +13,12 @@
     sku: (a, b) => a.sku.localeCompare(b.sku),
   };
 
-  /** A list row shows the product name and the part number (SKU) only. Price, tax, stock and EAN are in the form and reports. */
+  /** A list row shows the product name and the part number (SKU), and how many are on order. Price, tax, stock and EAN are in
+   *  the form and reports. */
   function rowEl(r) {
     return U.h('div', { class: 'row' + (r.low ? ' is-low' : ''), role: 'row', tabindex: 0, dataset: { id: r.id } },
-      U.h('span', { role: 'cell', class: 'c-name' }, U.h('b', { class: 'mono', text: r.sku }), U.h('span', { class: 'sub', text: r.name })));
+      U.h('span', { role: 'cell', class: 'c-name' }, U.h('b', { class: 'mono', text: r.sku }), U.h('span', { class: 'sub', text: r.name }),
+        r.onOrder ? U.h('span', { class: 'chip ordered', text: `${r.onOrder} on order` }) : null));
   }
 
   /** Redraws the rows from the last read, applying the search, filter and sort. */

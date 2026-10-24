@@ -87,6 +87,14 @@
       expect((await P.recordBill(a.id)).code).toBe('invalid_transition');
       expect((await st.get('customers', sup.id)).value.supplier).toBe(true);
     });
+    it('onOrder: the quantity of each product on placed (ordered) purchase orders', async () => {
+      const a = await po(); await setStatus(a, 'ordered');
+      const b = await po(); await setStatus(b, 'ordered'); await P.receive(b.id);
+      await po();   // a draft
+      const m = P.onOrder((await st.list('purchases')).value);
+      expect(m.get(widget.id)).toBe(10);
+      expect(m.size).toBe(1);
+    });
     it('backups: a purchase order pointing at a missing supplier is refused; an export without purchases restores', async () => {
       await po();
       const b = (await S.exporter.exportBundle()).value;
