@@ -2,20 +2,22 @@
  * (shared/models/: catalog.js ranks them, chooser.js is the dialog). Pure data (no DOM, no storage), so a Node test can
  * load it (module.exports); the browser gets window.SlopSpeechModels, and model-registry.js adds MODELS to the model index.
  * Classic script: load shared/models/catalog.js, then this file, then model-registry.js.
- * Every file is on the slopographic/cdn repository at a pinned commit (models/whisper/<id>/, with manifest.json, the licence
+ * Every file is on the slopographic/cdn repository at the release tag in shared/cdn/assets.js (load it first; models/whisper/<id>/, with manifest.json, the licence
  * and SOURCE.md). A file over 95 MB is stored in parts (GitHub refuses files over 100 MB): the installer downloads them in
  * order, checks each part's SHA-256, joins them and checks the whole file's SHA-256 (aitools/download.js).
  * Exposes the catalog (shared/models/catalog.js create()): MODELS, QUICK, byId, fits, rank(language), recommended(language),
  * bytesOf(model), and CDN. */
 (function (root, factory) {
   const catalog = root.SlopModelCatalog || (typeof module === 'object' && module.exports ? require('../shared/models/catalog.js') : null);
-  const api = factory(catalog);
+  const cdn = root.SlopCdn || (typeof module === 'object' && module.exports ? require('../shared/cdn/assets.js') : null);
+  const api = factory(catalog, cdn);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopSpeechModels = api;
-})(typeof window !== 'undefined' ? window : globalThis, function (catalog) {
+})(typeof window !== 'undefined' ? window : globalThis, function (catalog, cdn) {
   'use strict';
-  const CDN = 'https://raw.githubusercontent.com/slopographic/cdn/82fd438d0a49e7a144a037f71f8d20fdab630285/models/whisper/';
-  const B = (id, name) => CDN + id + '/' + name;
+  /** The models' folder in the cdn repository; every URL comes from shared/cdn/assets.js (jsDelivr, then GitHub). */
+  const CDN = 'models/whisper/';
+  const B = (id, name) => cdn.url(CDN + id + '/' + name);
   const QUICK = 'whisper-tiny';
   const OPENAI = 'https://github.com/openai/whisper';
 

@@ -153,10 +153,10 @@ test('convertModel: STL to PLY with a scale, and the status line names the size 
   assert.match(glbish.info, /STL cannot hold 1 material/);
 });
 
-test('the cdn decoders: which extensions need which engine, pinned to a commit, each file with a SHA-256', () => {
+test('the cdn decoders: which extensions need which engine, pinned to the release tag, each file with a SHA-256', () => {
   assert.deepEqual(needed({ extensionsUsed: ['KHR_draco_mesh_compression', 'KHR_texture_basisu'] }), ['draco', 'basis']);
   assert.deepEqual(needed({ extensionsRequired: ['EXT_meshopt_compression'] }), ['meshopt']);
   assert.deepEqual(needed({ extensionsUsed: ['KHR_materials_unlit'] }), []);
-  assert.match(CDN_BASE, /^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/[0-9a-f]{40}\/engines\/$/);
+  assert.equal(CDN_BASE, `https://cdn.jsdelivr.net/gh/slopographic/cdn@${globalThis.SlopCdn.TAG}/engines/`);
   for (const e of Object.values(ENGINES)) for (const [hash, bytes] of Object.values(e.files)) { assert.match(hash, /^[0-9a-f]{64}$/); assert.ok(bytes > 1000); }
 });

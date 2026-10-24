@@ -9,6 +9,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const O = require('../../aitools/ocr-models.js');
+const C = require('../../shared/cdn/assets.js');
 const R = require('../../aitools/model-registry.js');
 globalThis.SlopOcrModels = O;
 const { ocrLanguages, ocrLanguageName } = await import('../../shared/ocr/languages.js');
@@ -17,7 +18,7 @@ const { suggestModel, scriptsIn, unread } = await import('../../shared/ocr/sugge
 
 const ids = (list) => list.map((r) => r.model.id);
 
-test('every OCR model is in the model index, valid, and its cdn files are on the pinned commit', () => {
+test('every OCR model is in the model index, valid, and its cdn files are at the release tag', () => {
   assert.deepEqual(R.problems(), []);
   for (const m of O.MODELS) {
     if (m.id === O.QUICK) assert.deepEqual(R.byId(m.id).files, m.files, 'the bundled model is the same in both lists');
@@ -30,8 +31,9 @@ test('every OCR model is in the model index, valid, and its cdn files are on the
     assert.equal(txt.length, 1, m.id + ': one dictionary');
     for (const f of m.files) {
       if (m.id === O.QUICK) continue;
-      assert.ok(f.url.startsWith(O.CDN), `${m.id}/${f.name} is on the pinned cdn commit`);
-      assert.match(f.url, /\/slopographic\/cdn\/[0-9a-f]{40}\/models\/ocr\//);
+      const p = C.pathOf(f.url);
+      assert.ok(p && p.startsWith(O.CDN), `${m.id}/${f.name} is in the cdn's ${O.CDN} at the release tag`);
+      assert.equal(f.url, C.url(p));
       assert.ok(R.allowedUrl(f.url));
     }
   }
