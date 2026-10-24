@@ -11,7 +11,9 @@
 //   data              { get(id), save(form), customers(), products() } resolving to Results
 //   statusLabel       status -> words; locked(st): true when the document is read only
 //   dateError         the words for a missing date
-//   extra?            { blank(st, settings), apply(st, rec), collect(st) -> fields or { error }, paint(st, ro), mount(st, edited) }
+//   extra?            { blank(st, settings), apply(st, rec), collect(st) -> fields or { error }, paint(st, ro), mount(st, edited),
+//                     fieldError(name, st) -> words, null when fine, or undefined when the field is not its own }
+//   heading?(st), statusText?(st), savedText?(created, st)   the title, the status chip and the save message, when they differ
 //   actions(st, ed)   the buttons and notes for the current status (ed is the editor)
 (function (g) {
   'use strict';
@@ -108,9 +110,9 @@
 
     /** Fills every control from the state. Called after any change that redraws the form. */
     function paint() {
-      $('eTitle').textContent = st.id ? st.number : cfg.title;
+      $('eTitle').textContent = cfg.heading ? cfg.heading(st) : st.id ? st.number : cfg.title;
       const chip = $('eStatus');
-      chip.textContent = cfg.statusLabel[st.status] || st.status;
+      chip.textContent = cfg.statusText ? cfg.statusText(st) : cfg.statusLabel[st.status] || st.status;
       chip.className = `chip ${st.status}`;
       paintCustomers();
       $('eDate').value = st.date;
@@ -127,6 +129,8 @@
 
     /** The first problem with one field, in the words the save gives (null when it is fine). */
     function fieldError(name, idx) {
+      const own = X.fieldError ? X.fieldError(name, st) : undefined;
+      if (own !== undefined) return own;
       if (name === 'customer') return st.customerId ? null : 'Choose a customer first, or add a new one.';
       if (name === 'date') return DATE.test(st.date) ? null : cfg.dateError;
       if (!st.lines[idx]) return null;
@@ -162,7 +166,7 @@
       setDirty(false);
       if (created) history.replaceState(null, '', `#${cfg.route}/${r.value.id}`);
       paint();
-      setMsg(`${created ? 'Created' : 'Saved'} ${r.value.number}.`);
+      setMsg(cfg.savedText ? cfg.savedText(created, st) : `${created ? 'Created' : 'Saved'} ${r.value.number}.`);
       return true;
     }
 

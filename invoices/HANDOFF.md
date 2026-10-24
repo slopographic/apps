@@ -16,15 +16,16 @@ journal in the same transaction); conversion from an order through `SlopData.bil
   get with payments, save draft, remove draft, issue, record payment, void.
 - `js/core/context.js`: one invoice for printing and PDF (customer, payments, balance, tax by rate, company block).
 - `js/core/pdf.js`: the invoice's view (`viewOf`) and the PDF (`invoicePdf`), through `SlopDocs.pdf.renderPdf`.
-- `js/ui/page.js`: the invoice on the page: the paper view with in-place editing and the layout pick. Drafts edit in place;
-  issued invoices are read only. Each change gets the form's own check.
+- `js/ui/page.js`: `SlopDocs.docPage` (shared/docs/doc-page.js) for an invoice: the paper view with in-place editing, the due
+  date, payments and balance. Drafts edit in place; issued invoices are read only. Each change gets the form's own check.
 - `js/ui/list.js`: list, outstanding panel, row menu, "From an order…".
-- `js/ui/editor.js`: one invoice: customer, dates, notes, lines, totals, payments, and the actions for its status.
+- `js/ui/editor.js`: one invoice on the shared editor (`shared/docs/doc-editor.js`): its due date, payments, balance, top
+  bar and order link, and the actions for its status. The form, lines, save and leave are the shared editor's.
 - `js/ui/payment-dialog.js`: record a payment (amount defaults to the balance).
 - `js/ui/preview.js`: the printable sheet (the paper view, the same template as the PDF), and the PDF download.
 - `js/ui/print.js`: the Print view (browser print dialog, PDF, back).
-- `js/ui/app.js`, `commands.js`, `data.js`: boot and routes (`#list`, `#new`, `#i/<id>`, `#p/<id>`, `#data`), SlopCmd
-  commands, backup and restore.
+- `js/ui/app.js`, `layout.js`, `commands.js`, `data.js`: `SlopDocs.docApp` routes (`#list`, `#new`, `#i/<id>`, `#data`) plus
+  `#p/<id>`, the top bar, `SlopDocs.docLayout`, SlopCmd commands, and `SlopBiz.backup`.
 - `js/core/samples.js`: the io for random samples (no DOM). `js/ui/samples.js`: the list buttons and the editor action.
 - Shared with orders, in `shared/docs/`: `model.js`, `lines.js`, `customer-dialog.js`, `product-dialog.js`, and the sample
   generator: `samples.js` (pure plan), `samples-run.js` (create and delete through the app's io), `samples-dialog.js` (the buttons).

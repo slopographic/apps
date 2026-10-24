@@ -1,6 +1,7 @@
 // The routes the document apps share (Slop Orders, Slop Quotes), on the business router (shared/biz/router.js): list, new,
 // <route>/<id> and data. Leaving the editor with unsaved changes asks first; the edit tab goes back to the open document.
-// SlopDocs.docApp.start(cfg) returns ns.app. cfg: { ns, app: 'orders', route: 'o', noun: 'order' }. The views are
+// SlopDocs.docApp.start(cfg) returns ns.app. cfg: { ns, app: 'orders', route: 'o', noun: 'order', more?(hash) -> a route of
+// the app's own (such as Invoices' p/<id> print view) or null, after?(t, shown), mount?(), tabRoute?(name) }. The views are
 // ns.views.list, .edit and .data ({ mount, refresh, onShow(arg) }). Classic script, loaded after shared/biz/router.js.
 (function (g) {
   'use strict';
@@ -10,6 +11,8 @@
     const NS = cfg.ns, pre = `${cfg.route}/`;
     /** The route for a hash: list, new, <route>/<id> or data. */
     function parse(h) {
+      const own = cfg.more ? cfg.more(h) : null;
+      if (own) return own;
       if (h === 'data') return { view: 'data' };
       if (h === 'new') return { view: 'edit', arg: null };
       if (h.startsWith(pre) && h.length > pre.length) return { view: 'edit', arg: h.slice(pre.length) };
@@ -24,7 +27,8 @@
       return yes;
     }
     NS.state = { view: 'list' };
-    return g.SlopBiz.router.start({ ns: NS, app: cfg.app, parse, leave, editRoute: () => NS.editor.route(), current: () => NS.editor.route() });
+    return g.SlopBiz.router.start({ ns: NS, app: cfg.app, parse, leave, after: cfg.after, mount: cfg.mount, tabRoute: cfg.tabRoute,
+      editRoute: () => NS.editor.route(), current: () => NS.editor.route() });
   }
 
   D.docApp = { start };
