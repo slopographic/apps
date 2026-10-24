@@ -7,8 +7,9 @@
  * Conversions in the Encoding and Archives groups, and the ones that take any file, are never in a found route either. */
 const LOSSY = ['to-jpg', 'to-webp', 'to-avif', 'to-ico', 'to-bmp', 'pdf-to-images', 'pdf-to-pptx', 'html-to-text', 'eml-to-text',
   'json-to-csv', 'json-to-toml', 'vtt-to-srt', 'to-mp3', 'to-webm', 'frame-to-webp', 'frame-to-jpg', 'html-to-pdf',
-  'heic-to-jpg', 'heic-to-webp', 'raw-to-jpg', 'raw-to-webp', 'to-ogg', 'to-opus', 'to-m4a', 'gif-to-mp4'];
-const FIRST = ['pdf-to-html', 'pdf-to-docx', 'pdf-to-xlsx', 'pdf-to-text', 'csv-to-vcf', 'xlsx-to-vcf'];
+  'heic-to-jpg', 'heic-to-webp', 'raw-to-jpg', 'raw-to-webp', 'to-ogg', 'to-opus', 'to-m4a', 'gif-to-mp4', 'pptx-to-images'];
+// Word to HTML, Markdown or text and PowerPoint to text only from a real document (not one made from text or a picture on the way)
+const FIRST = ['pdf-to-html', 'pdf-to-docx', 'pdf-to-xlsx', 'pdf-to-text', 'csv-to-vcf', 'xlsx-to-vcf', 'docx-to-html', 'docx-to-md', 'docx-to-text', 'pptx-to-text'];
 const NEVER = ['line-endings', 'json-format', 'subs-shift', 'eml-attachments', 'merge-pdf', 'split-pdf'];
 
 export const CHAIN_FLAGS = {

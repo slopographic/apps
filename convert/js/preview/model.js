@@ -23,9 +23,11 @@ export function pickInputs(conv, items) {
     .map((i) => ({ name: i.name, file: i.file, kind: i.kind, size: i.size }));
 }
 
-/** The same input, cut down for the preview. Text keeps its first part; pictures and PDFs are kept whole. */
+// Zip-based files (Word, PowerPoint, workbooks) cannot be read from their first part, so they are kept whole like PDFs
+const WHOLE = ['pdf', 'docx', 'pptx', 'xlsx', 'ods', 'odt', 'odp', 'zip', 'epub'];
+/** The same input, cut down for the preview. Text keeps its first part; pictures, PDFs and zip-based files are kept whole. */
 export function previewInput(i) {
-  if (IMAGE_KINDS.includes(i.kind) || i.kind === 'pdf') return { ...i, truncated: false, large: i.size > IMAGE_LIMIT };
+  if (IMAGE_KINDS.includes(i.kind) || WHOLE.includes(i.kind)) return { ...i, truncated: false, large: i.size > IMAGE_LIMIT };
   const large = i.size > TEXT_LIMIT;
   return { ...i, file: large ? i.file.slice(0, TEXT_LIMIT) : i.file, truncated: large, large };
 }

@@ -26,6 +26,7 @@ import { HEIC } from './heic.js';
 import { DATA_MORE } from './data-more.js';
 import { MEDIA_MORE } from './media-more.js';
 import { DOC_OUT } from './doc-out.js';
+import { OFFICE } from './office.js';
 import { PDF_EXTRA } from './pdf-extra.js';
 import { PDF_LOCK } from './pdf-lock.js';
 import { KEYWORDS } from './keywords.js';
@@ -233,6 +234,7 @@ export const CONVERSIONS = [
     return [out(`${base(files[0].name)}.decoded.txt`, urlDecode(await text(files[0].file)), 'text/plain')];
   } },
   ...DOC_OUT,   // text and Markdown to PDF and DOCX with the Slop Docs engine (core/doc-out.js)
+  ...OFFICE,   // Word to PDF, HTML, Markdown, text (core/office.js, Slop Docs); PowerPoint to PDF, pictures, text (core/slides-out.js, Slop Slides)
   { id: 'line-endings', label: 'Line endings', group: 'Text', from: ['txt', 'csv', 'json', 'md', 'html', 'yaml', 'toml', 'xml', 'srt', 'vtt'], ext: 'txt', mode: 'each', options: [EOL], run: async (files, o) => {
     const f = files[0];
     const ext = /\.[^.]+$/.test(f.name) ? f.name.split('.').pop().toLowerCase() : 'txt';

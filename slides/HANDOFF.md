@@ -79,6 +79,9 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 - Counted and left out (`SS.pptxIn.summary`, shown in the toast): charts, SmartArt, video and audio (poster kept), embedded objects, EMF/WMF/TIFF pictures, ink. Not read: shadows and effects, table styles, theme effect styles, vertical text, East Asian/complex-script font slots, animations. Strict OOXML is refused with a reason. ODP is not read.
 - Theme colour references without modifiers stay slot names, so the Theme picker recolours them.
 
+## Used by File convert
+File convert (`convert/js/core/slides-out.js`) loads `js/manifest.js` and then the `core` and `render` scripts and the PPTX reader and PDF writer from `io` into `window.SS` (inside Slop Slides it uses the editor's own), for PowerPoint to PDF (`SS.pdfExport.write`), to PNG pictures (`SS.canvasRender.slideToCanvas`, zipped) and to text. So a new script those packages need must be in the manifest, and must not need `SS.app` while it loads. Tests: `tests/convert/office-pptx.test.html`.
+
 ## PDF export
 - File ▸ Download PDF (`file.pdf`). One page per visible slide (hidden slides left out; `write(deck, { hidden: true })` keeps them), at the slide size, from `SS.scene.slide` (objects as they are after their animations). Vector paths, linear and radial gradients (PDF shadings), opacity (ExtGState), clips, pictures (PNG/JPEG embedded, other formats drawn to PNG), link annotations. Shadows are left out.
 - Text: the slide face (same TTF) embedded as a subset, laid out without kerning or ligatures to match the canvas. Characters the face lacks: `SlopFontJIT` (asks once, or automatic) downloads the Noto pack, `SlopBidi.segments` (base ltr, as the canvas) cuts runs by font and direction (`SS.pdfMath.runs`), fontkit shapes (Arabic joining, Indic with `vendor/regenerator-runtime`), glyphs are placed with TJ adjustments and rise (`SS.pdfMath.glyphPlan`). A declined font is named in the toast.
