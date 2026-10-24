@@ -139,8 +139,9 @@
     const closers = [];
     for (const title of Object.keys(opts.menus || {})) {
       const own = opts.menus[title];
-      // Help ends with the site's own "AI agents…" note (shared/agent/boot.js), once the page has it.
-      const src = title !== 'Help' ? own : () => { const list = [].concat(typeof own === 'function' ? own() : own); return window.SlopCmd && SlopCmd.get('agents.about') && !list.includes('cmd:agents.about') ? list.concat(['-', 'cmd:agents.about']) : list; };
+      // A Help menu built when it opens ends with the site's own "AI agents…" note (shared/agent/boot.js), once the page
+      // has it. A plain list of buttons is drawn at mount, as it was.
+      const src = title !== 'Help' || (Array.isArray(own) && !own.some(isCmd)) ? own : () => { const list = [].concat(typeof own === 'function' ? own() : own); return window.SlopCmd && SlopCmd.get('agents.about') && !list.includes('cmd:agents.about') ? list.concat(['-', 'cmd:agents.about']) : list; };
       // A menu of commands is built when it opens: the app registers its commands after the bar is mounted.
       const m = menuFor(title, Array.isArray(src) && src.some(isCmd) ? () => src : src);
       closers.push(m.close);
