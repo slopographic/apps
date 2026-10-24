@@ -65,7 +65,7 @@ async function boot() {
   // The suite rule (shared/frame/HANDOFF.md): Export, the main button, is at the foot of the right-hand panels (the shared
   // footer, shared/frame/panel.js), as well as File ▸ Export As….
   SlopFramePanel.create($('#panels'), { bare: true })
-    .footer([{ id: 'exportBtn', label: 'Export…', primary: true, title: 'Export As… (Alt+Shift+Ctrl+W)', run: () => dlgExport() }]);
+    .footer([{ el: $('#exportBtn'), run: () => dlgExport() }]);
   $('#viewport').before(buildViewBar()); // the viewport toolbar (view rotation), above the canvas
   $('#themeToggle').addEventListener('click', () => setTheme(theme() === 'pro' ? 'light' : theme() === 'light' ? 'paint' : 'pro'));
   window.PSTopbarFit && PSTopbarFit.mount();

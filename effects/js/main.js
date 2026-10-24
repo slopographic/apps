@@ -44,7 +44,7 @@
     // The suite rule (shared/frame/HANDOFF.md): Render, the main button, sits at the foot of the right panel; on a phone
     // the closed sheet still shows it, with Properties to open the rest (SlopFramePanel's footer, shared/frame/panel.js).
     g.SlopFramePanel.create(document.querySelector('.fx-side'), { bare: true })
-      .footer([{ id: 'fx-render', label: 'Render…', primary: true, title: 'Render the composition to a video or pictures' }], { more: 'Properties', onMore: () => sheet && sheet.toggle() });
+      .footer([{ el: $('fx-render') }], { more: 'Properties', onMore: () => sheet && sheet.toggle() });
     const menus = ns.menus.mount(S, Object.assign(act, { toast }), io);
     const renderDialog = () => ns.renderDialog.open(S, toast);
     const compDialog = () => ns.menus.compDialog(S, act);

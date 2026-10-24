@@ -17,24 +17,23 @@
   $('up-back').addEventListener('click', () => fr.showList());
 
   const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
-  /** What the footer's button does now: Upscale (this one), Upscale N pictures (every one not done), Cancel while running. */
+  /** The footer's buttons: Upscale (this one) or Upscale N pictures (every one not done), and Cancel while running. */
   function primary() {
     const s = S(), todo = s.items.filter((it) => !it.out);
-    if (s.busy) return { id: 'up-cancel', label: 'Cancel', title: 'Stop now (Esc)', run: () => A().cancel() };
     const many = todo.length > 1, all = todo.every((it) => it.kind === 'image');
     const label = many ? 'Upscale ' + plural(todo.length, 'picture', all ? 'pictures' : 'files') : 'Upscale';
-    return { id: 'up-run', label, primary: true, title: 'Upscale (Ctrl+Enter)', disabled: !s.item, run: () => A().run() };
+    return [{ el: $('up-run'), label, hidden: s.busy, disabled: !s.item, run: () => A().run() }, { el: $('up-cancel'), hidden: !s.busy, run: () => A().cancel() }];
   }
 
   function resultActions() {
     const s = S(), it = s.item, done = !!(it && it.out), D = U.drive, O = U.output;
     const doneAll = s.items.filter((x) => x.out);
     return [
-      { id: 'up-download', label: 'Download', disabled: !done || s.busy, run: O.download },
+      { el: $('up-download'), label: 'Download', disabled: !done || s.busy, run: O.download },
       doneAll.length > 1 ? { id: 'up-zip', label: 'Download all (ZIP, ' + doneAll.length + ')', disabled: s.busy || !g.SlopZip, run: O.downloadAll } : null,
-      { id: 'up-save', label: 'Save to Slop Drive', title: 'Save to the Slop Upscale folder in Slop Drive', disabled: !done || s.busy || !D.available(), run: O.saveDrive },
+      { el: $('up-save'), label: 'Save to Slop Drive', disabled: !done || s.busy || !D.available(), run: O.saveDrive },
       { id: 'up-openin', label: 'Open in…', disabled: !done || s.busy || !g.SlopOuttake, menu: () => O.openInItems() },
-      { id: 'up-clear', label: s.items.length > 1 ? 'Remove this file' : 'Clear', disabled: !it || s.busy, run: () => A().remove(it) },
+      { el: $('up-clear'), label: s.items.length > 1 ? 'Remove this file' : 'Clear', disabled: !it || s.busy, run: () => A().remove(it) },
     ];
   }
 
@@ -53,7 +52,7 @@
       ]);
       list();
     }
-    panel.footer([primary()], { note: 'Ctrl+Enter upscales · Esc cancels', more: 'Settings' });
+    panel.footer(primary(), { note: 'Ctrl+Enter upscales · Esc cancels', more: 'Settings' });
   }
 
   function list() {

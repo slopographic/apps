@@ -154,11 +154,11 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop AI Tools | aitools/ (+ ocr, speech, denoise, tags, portrait) | tool | each tool one column | to do | five tool pages: view + right panel |
 | Reel Remix | remix/ | editor | bin left, settings right, Remix in the panel | close | phone sheet missing |
 | PhotoSlop | photoslop/ | editor | toolbox left, panels right, Export in the header | done | Export at the panels' foot; the top bar fits the app's width (container query, More ▾) beside the Slop AI panel |
-| SlopVector | slopvector/ | editor | toolbar left, dock right | close | Export into the dock's foot |
+| SlopVector | slopvector/ | editor | toolbar left, dock right, no main button | done | Export ▾ at the dock's foot (the File ▸ Export actions); the dock is a drawer on phones |
 | Slop PDF | pdf/ | editor | rail left, properties right, Download in the header | close | Download into the properties' foot |
 | SlopLabel | label/ | editor | toolbox left, dock right, Print in the header | done | Print at the dock's foot (the shared footer) |
 | SlopCut | slopcut/ | editor | bin left, inspector right, Export in the header | close | Export into the inspector's foot |
-| Slop Press | press/ | editor | toolbar left, dock right | close | Export into the dock's foot |
+| Slop Press | press/ | editor | toolbar left, dock right, Export PDF in the control bar | done | Export PDF… at the dock's foot; the dock is a drawer on phones |
 | Slop Slides | slides/ | editor | slides left, inspector right, Save in the header | close | Save stays in the header (a document app saves from File) |
 | Slop 3D | 3d/ | editor | outliner left, properties right, Save in the header | done | Save at the Properties foot (the shared footer) |
 | Slop Docs | docs/ | editor | outline left, no inspector | to do | needs an inspector (large) |

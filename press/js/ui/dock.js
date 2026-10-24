@@ -68,6 +68,12 @@
    * tap outside and the swipe. */
   UI.attachDockSheet = function () {
     UI.dockSheet = SlopSheet.attach({ root: U.$('#app'), panel: U.$('#dock'), side: 'end', phone: '(max-width: 899px)', toggles: [U.$('#panelsToggle')], label: 'Panels' });
+    // The suite rule (shared/frame/HANDOFF.md): the main button, Export PDF… (File ▸ Export PDF, Ctrl+E), sits at the foot
+    // of the dock (the shared footer, shared/frame/panel.js).
+    if (window.SlopFramePanel && window.SlopCmd) {
+      SlopFramePanel.create(U.$('#dock'), { bare: true }).footer([{ id: 'dockExport', label: 'Export PDF…', primary: true, title: 'Export PDF (Ctrl+E)', run: function () { SlopCmd.run('file.exportPDF'); } }],
+        { more: 'Panels', onMore: function () { UI.dockSheet.toggle(); } });
+    }
   };
   /** Builds a small icon button for panel footers. */
   UI.footBtn = function (icon, title, fn) {

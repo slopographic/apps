@@ -18,11 +18,11 @@
   function resultActions(api, items, busy) {
     const done = items.filter((i) => i.status === 'done'), one = done.length === 1 ? done[0] : null;
     return [
-      { id: 'rs-zip', label: done.length > 1 ? 'Download all (ZIP, ' + done.length + ')' : 'Download', title: 'One zip of every result (Ctrl+S)', disabled: busy || !done.length, run: () => api.downloadAll() },
-      { id: 'rs-save-all', label: 'Save to Slop Drive', title: 'Save the results to the Slop Resize folder in Slop Drive', disabled: busy || !done.some((i) => !i.drive), run: () => api.saveAll() },
+      { el: $('rs-zip'), label: done.length > 1 ? 'Download all (ZIP, ' + done.length + ')' : 'Download', title: 'One zip of every result (Ctrl+S)', disabled: busy || !done.length, run: () => api.downloadAll() },
+      { el: $('rs-save-all'), label: 'Save to Slop Drive', title: 'Save the results to the Slop Resize folder in Slop Drive', disabled: busy || !done.some((i) => !i.drive), run: () => api.saveAll() },
       { id: 'rs-openin', label: 'Open in…', title: one ? 'Open the result in another app' : 'One result at a time: use the row of the file', disabled: busy || !one || !g.SlopOuttake,
         menu: () => (one && g.SlopOuttake ? g.SlopOuttake.items({ from: 'resize', get: () => one.out.blob, name: one.outName, type: one.out.blob.type }) : []) },
-      { id: 'rs-clear', label: 'Clear', disabled: busy || !items.length, run: () => api.clear() },
+      { el: $('rs-clear'), label: 'Clear', disabled: busy || !items.length, run: () => api.clear() },
     ];
   }
 
@@ -39,11 +39,10 @@
         { title: 'Results', key: 'results', actions: resultActions(api, items, busy) },
       ]);
     }
-    const main = busy
-      ? { id: 'rs-cancel', label: 'Cancel', title: 'Stop after the current file (Esc)', run: () => api.cancel() }
-      : { id: 'rs-run', label: ready.length > 1 ? 'Resize ' + plural(ready.length, 'file', 'files') : 'Resize', primary: true,
-        title: 'Resize every file in the list (Ctrl+Enter)', disabled: !ready.length, run: () => api.run() };
-    panel.footer([main], { note: 'Ctrl+Enter resizes · Esc cancels', more: 'Settings' });
+    panel.footer([
+      { el: $('rs-run'), label: ready.length > 1 ? 'Resize ' + plural(ready.length, 'file', 'files') : 'Resize', hidden: busy, disabled: !ready.length, run: () => api.run() },
+      { el: $('rs-cancel'), hidden: !busy, run: () => api.cancel() },
+    ], { note: 'Ctrl+Enter resizes · Esc cancels', more: 'Settings' });
   }
 
   NS.layout = { frame: fr, panel, paint, groups };

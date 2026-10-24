@@ -43,6 +43,7 @@
 .sf-acts { display: flex; flex-direction: column; gap: 6px; }
 .sf-acts .sf-btn { min-width: 0; padding-inline: 10px; }
 .sf-acts .sf-btn, .sf-item-acts .sf-btn { white-space: normal; height: auto; }
+.sf-btn[hidden] { display: none; }
 .sf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; }
 .sf-btn-txt { min-width: 0; overflow-wrap: anywhere; line-height: 1.2; padding-block: 4px; }
 .sf-caret { font-size: 10px; opacity: .75; }

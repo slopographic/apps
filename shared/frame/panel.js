@@ -13,8 +13,8 @@
  * footer() redraws only the footer (call it on every state change; the settings are not touched). footer([]) removes it.
  * Big editors keep their own panel and take only the footer: create(theirPanel, { bare: true }).footer([...], { more,
  * onMore: () => theirSheet.open() }) (the panel needs SlopSheet on phones for the closed sheet to show the footer).
- * An action may be { el: existingButton }: the page's own button moves in as it is (a menu bar or a test that looks the
- * id up in the HTML still finds it; the app keeps wiring it).
+ * An action may be { el: existingButton, ...fields }: the page's own button moves in (a menu bar, a tour or a test that
+ * looks the id up in the HTML still finds it); label, disabled, hidden, title and run, when given, update it.
  * Section and action shapes: see frame.js. A menu opens under its button with shared/ui/menubutton.js (SlopMenuButton);
  * items are { label, act, disabled?, keywords? } or { heading }. Classic script; styles in frame.css. */
 (function (g) {
@@ -25,10 +25,17 @@
 
   /** One button for an action. With a menu it is "Label ▾" and opens the menu under it. */
   function button(a, key) {
-    if (a.el) {   // a button that is already in the page's markup (its id, label and listeners stay the app's own)
-      a.el.classList.add('sf-btn');
-      a.el.dataset.sfKey = key;
-      return a.el;
+    if (a.el) {   // a button that is already in the page's markup (its id and listeners stay); the other fields update it
+      const b = a.el;
+      b.classList.add('sf-btn');
+      b.dataset.sfKey = key;
+      if (a.label != null) b.textContent = a.label;
+      if ('disabled' in a) b.disabled = !!a.disabled;
+      if ('hidden' in a) b.hidden = !!a.hidden;
+      if (a.title) b.title = a.title;
+      if (a.primary) b.classList.add('sui-primary');
+      if (a.run) { b.sfRun = a.run; if (!b.sfWired) { b.sfWired = true; b.addEventListener('click', () => b.sfRun()); } }
+      return b;
     }
     const b = el('button', 'sui-btn sf-btn' + (a.primary ? ' sui-primary' : '') + (a.menu ? ' sf-menu-btn' : ''));
     b.type = 'button';

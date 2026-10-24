@@ -13,8 +13,8 @@
   const panel = g.SlopFrame.panel($('panel'), { title: 'Image to 3D' });
   panel.render([
     ...[...$('panel').querySelectorAll('.i3-group')].map((gr) => ({ title: gr.dataset.title, key: gr.dataset.title, settings: gr })),
-    { title: 'Result', key: 'result', actions: [{ id: 'btnObj', label: 'Export OBJ', disabled: true }, { id: 'btnGlb', label: 'Export GLB', disabled: true }] },
+    { title: 'Result', key: 'result', actions: [{ el: $('btnObj') }, { el: $('btnGlb') }] },
   ]);
-  panel.footer([{ id: 'btnSend', label: 'Open in Slop 3D', primary: true, disabled: true }], { more: 'Settings' });
+  panel.footer([{ el: $('btnSend') }], { more: 'Settings' });
   (g.SlopImg3D = g.SlopImg3D || {}).layout = { frame: fr, panel };
 })(typeof window !== 'undefined' ? window : globalThis);
