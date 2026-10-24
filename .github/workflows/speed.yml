@@ -36,6 +36,9 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
     strategy:
       fail-fast: false
+      # at most 6 of these at once: the free plan runs 20 jobs at a time across the account, and the tests (17 jobs in
+      # rules.yml) must not wait behind page speed
+      max-parallel: 6
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     steps:
