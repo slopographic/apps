@@ -39,7 +39,7 @@
       await P.SlopAIPanel.send('make a picture of a lighthouse');
       expect(asked.length).toBe(1);
       expect(asked[0]).toMatch(/^Spend on image generation\? \| Make 1 picture with OpenRouter \(Google: Nano Banana 2\.1, 1:1, 1K\)/);
-      expect(asked[0]).toContain('go to OpenRouter, which makes the picture and charges your account. OpenRouter’s terms and content rules apply.');
+      expect(asked[0]).toContain('goes to OpenRouter, which makes the picture and charges your account. OpenRouter’s terms and content rules apply.');
       expect(F.calls.length).toBe(0);
       expect(lastResult().is_error).toBe(true);
       // yes: saved to Slop Drive from 'ai'

@@ -33,7 +33,7 @@
     if (!p) return null;
     const m = G.model(p.id, r.model) || { name: r.model || 'its default model' }, est = G.estimate(r);
     const px = p.format === 'openai' && !r.edit ? G.size(r.aspect, r.resolution) : null;
-    const size = px ? `${px.w} × ${px.h} px` : `${r.aspect}, ${r.resolution}`;
+    const size = r.edit ? (r.image ? `${r.image.width} × ${r.image.height} px` : 'the picture’s own shape') : px ? `${px.w} × ${px.h} px` : `${r.aspect}, ${r.resolution}`;
     const price = est.perImage != null ? `${money(est.perImage)} per picture${est.exact ? '' : ' (estimate)'}` : `price not known before (${est.note})`;
     return { p, m, size, price, est };
   }
@@ -41,8 +41,9 @@
     const d = describe(r);
     if (!d) return 'No picture provider is connected.';
     const what = `${r.n} picture${r.n > 1 ? 's' : ''} with ${d.p.short} (${d.m.name || d.m.id}, ${d.size}): ${d.price}.`;
-    const goes = d.p.local ? `The prompt${sourceWords ? ' and ' + sourceWords : ''} go to ${d.p.who}; nothing leaves this computer.`
-      : `The prompt${sourceWords ? ' and ' + sourceWords : ''} go to ${d.p.who}, which makes the picture and charges your account. ${d.p.who}’s terms and content rules apply.`;
+    const sent = `The prompt${sourceWords ? ' and ' + sourceWords + ' go' : ' goes'} to ${d.p.who}`;
+    const goes = d.p.local ? `${sent}; nothing leaves this computer.`
+      : `${sent}, which makes the picture and charges your account. ${d.p.who}’s terms and content rules apply.`;
     return `${r.edit ? 'Edit' : 'Make'} ${what} ${goes}`;
   }
 

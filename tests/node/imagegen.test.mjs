@@ -180,7 +180,7 @@ test('the tool: offered when a picture provider has a key; asks first with provi
   assert.equal(w.requests.length, 0);
   assert.equal(asked[0][0], 'Spend on image generation?');
   assert.match(asked[0][1], /1 picture with OpenAI \(GPT Image 2\.5 Flare, 1024 × 1024 px\): price not known before/);
-  assert.match(asked[0][1], /go to OpenAI, which makes the picture and charges your account\. OpenAI’s terms and content rules apply\./);
+  assert.match(asked[0][1], /goes to OpenAI, which makes the picture and charges your account\. OpenAI’s terms and content rules apply\./);
   const text = await tools[0].run({ prompt: 'a cat on a sofa' }, { confirm: async () => true });
   assert.match(text, /^Made 1 picture with OpenAI gpt-image-2\.5-flare \(1024 × 1024 px\) · about \$0\.05\. Saved “ai-a-cat-on-a-sofa\.png” to Slop Drive/);
   assert.deepEqual(J(saved), [{ name: 'ai-a-cat-on-a-sofa.png', from: 'ai' }]);

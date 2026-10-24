@@ -20,6 +20,8 @@
   const button = (d, label) => [...d.querySelectorAll('button')].find((b) => b.textContent === label);
   const px = (L, x, y) => [...L.canvas.getContext('2d').getImageData(x - L.x, y - L.y, 1, 1).data];
   const layer = (name) => W.D.layers.find((l) => l.name === name);
+  /** A dialog left open by a failed test would hide the next one: close them first. */
+  const closeAll = () => { for (const x of win.document.querySelectorAll('.sui-back:not(.sui-out) .sui-x')) x.click(); };
   function wipe() {
     for (const k of Object.keys(localStorage)) if (/^slop-ai\.(cloud|imagegen)|^slop-firstrun:ai-cloud:/.test(k)) localStorage.removeItem(k);
     for (const k of Object.keys(sessionStorage)) if (/^slop-ai\.cloud/.test(k)) sessionStorage.removeItem(k);
@@ -33,7 +35,7 @@
       const menu = W.MENUS.find((m) => m[0] === 'Layer')[1].map((i) => i && i.label);
       expect(menu).toContain('Generate Image…'); expect(menu).toContain('Edit with AI…');
       expect(win.SlopCmd.list().find((c) => c.id === 'ps.generate').args.map((a) => a.name)).toContain('prompt');
-      const open = W.psImageGen('generate');
+      closeAll(); const open = W.psImageGen('generate');
       const d = await waitFor(dlg, { timeout: 15000 });
       expect(d.textContent).toContain('cannot draw'); expect(d.textContent).toContain('Use your own AI account');
       button(d, 'Close').click(); await open;
@@ -44,10 +46,10 @@
       IG.key(win, 'openai', 'sk-proj-PHOTOSLOP0123456789');
       W.newDocument(600, 400, '#ffffff', 'Gen');
       const before = W.D.layers.length, hist = W.Hist.idx;
-      const open = W.psImageGen('generate', { prompt: 'a red square on white', aspect: '3:2' });
+      closeAll(); const open = W.psImageGen('generate', { prompt: 'a red square on white', aspect: '3:2' });
       const d = await waitFor(() => { const x = dlg(); return x && x.querySelector('.sig-prompt') ? x : null; }, { timeout: 15000 });
       expect(d.querySelector('.sig-prompt').value).toBe('a red square on white');
-      expect(d.querySelector('.sig-who').textContent).toContain('go to OpenAI, which makes the picture and charges your account. OpenAI’s terms and content rules apply.');
+      expect(d.querySelector('.sig-who').textContent).toContain('goes to OpenAI, which makes the picture and charges your account. OpenAI’s terms and content rules apply.');
       expect(d.querySelector('.sig-cost').textContent).toContain('1536 × 1024 px');
       const sel = d.querySelectorAll('select')[1]; sel.value = 'gpt-image-2'; sel.dispatchEvent(new win.Event('change'));
       expect(d.querySelector('.sig-cost').textContent).toContain('Price: about $0.04 per picture');
@@ -66,7 +68,7 @@
 
     it('a new document instead of a layer', async () => {
       const tabs = W.DOCS.length;
-      const open = W.psImageGen('generate', { prompt: 'blue sky', target: 'document' });
+      closeAll(); const open = W.psImageGen('generate', { prompt: 'blue sky', target: 'document' });
       const d = await waitFor(() => { const x = dlg(); return x && x.querySelector('.sig-prompt') ? x : null; });
       F.color = '#0000ff'; F.size = [320, 240];
       button(d, 'Generate').click(); await open;
@@ -79,7 +81,7 @@
       W.newDocument(200, 200, '#ffffff', 'Refused');
       const n = W.D.layers.length;
       F.fail = { status: 400, body: { error: { message: 'Your request was rejected as a result of our safety system.', type: 'image_generation_user_error', code: 'moderation_blocked' } } };
-      const open = W.psImageGen('generate', { prompt: 'something not allowed' });
+      closeAll(); const open = W.psImageGen('generate', { prompt: 'something not allowed' });
       const d = await waitFor(() => { const x = dlg(); return x && x.querySelector('.sig-prompt') ? x : null; });
       button(d, 'Generate').click();
       await waitFor(() => /declined to make this picture under its content rules/.test(d.querySelector('.sig-msg').textContent));
@@ -94,7 +96,7 @@
       const m = W.mkCanvas(200, 100), g = m.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, 100, 100);
       W.D.sel = W.makeSel(m);
       F.color = '#00ff00'; F.size = [256, 128];
-      const open = W.psImageGen('edit', { prompt: 'make it green', provider });
+      closeAll(); const open = W.psImageGen('edit', { prompt: 'make it green', provider });
       const d = await waitFor(() => { const x = dlg(); return x && x.querySelector('.sig-prompt') ? x : null; });
       expect(d.querySelector('.sig-who').textContent).toContain('a copy of the layer (at most 1536 px)');
       button(d, 'Edit').click(); await open;

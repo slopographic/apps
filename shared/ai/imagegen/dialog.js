@@ -53,9 +53,9 @@
     }
     function update() {
       const r = req(), p = G.byId(r.provider), d = T().describe(r), est = G.estimate(r, fetched);
-      cost.textContent = est.perImage != null ? `Price: ${T().money(est.perImage)} per picture${r.n > 1 ? ` · ${T().money(est.total)} for ${r.n}` : ''}${est.exact ? '' : ' (estimate)'}${d ? ` · ${d.size}` : ''}.` : `Price: not known before it is made (${est.note}).`;
-      who.textContent = p.local ? `Your prompt${edit ? ' and a copy of the layer' : ''} go to ${p.who}. Nothing leaves this computer.`
-        : `Your prompt${edit ? ' and a copy of the layer (at most 1536 px)' : ''} go to ${p.who}, which makes the picture and charges your account. ${p.who}’s terms and content rules apply.` + (p.help ? ' ' + p.help : '')
+      cost.textContent = est.perImage != null ? `Price: ${T().money(est.perImage)} per picture${r.n > 1 ? ` · ${T().money(est.total)} for ${r.n}` : ''}${est.exact ? '' : ' (estimate)'}${d ? ` · ${d.size}` : ''}.` : `Price: not known before it is made (${est.note})${d ? ` · ${d.size}` : ''}.`;
+      who.textContent = p.local ? `Your prompt${edit ? ' and a copy of the layer go' : ' goes'} to ${p.who}. Nothing leaves this computer.`
+        : `Your prompt${edit ? ' and a copy of the layer (at most 1536 px) go' : ' goes'} to ${p.who}, which makes the picture and charges your account. ${p.who}’s terms and content rules apply.` + (p.help ? ' ' + p.help : '')
           + (edit && !p.mask ? ` ${p.short} takes no mask: with a selection, the result is kept inside it here.` : '');
     }
     provider.addEventListener('change', () => { fillModels(); if (provider.value === 'openrouter' && !fetched.length) loadRouter(); });
