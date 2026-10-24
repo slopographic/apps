@@ -60,6 +60,7 @@
   <script src="js/forms.js"></script>
   <script src="js/panel-content.js"></script>
   <script src="js/panel-design.js"></script>
+  <script src="../shared/ui/tabs.js"></script>
   <script src="js/app.js"></script>
   <script src="js/batch.js"></script>
   <script src="js/commands.js"></script>
@@ -72,12 +73,12 @@
     <div class="qr-work">
       <section class="qr-left" aria-label="Edit the code">
         <div class="qr-tabs" role="tablist" aria-label="Edit sections" id="qr-tabs">
-          <button type="button" role="tab" class="qr-tab" id="qr-tab-templates" aria-controls="qr-panel-templates" aria-selected="false" tabindex="-1"></button>
-          <button type="button" role="tab" class="qr-tab" id="qr-tab-content" aria-controls="qr-panel-content" aria-selected="true" tabindex="0"></button>
-          <button type="button" role="tab" class="qr-tab" id="qr-tab-design" aria-controls="qr-panel-design" aria-selected="false" tabindex="-1"></button>
-          <button type="button" role="tab" class="qr-tab" id="qr-tab-logo" aria-controls="qr-panel-logo" aria-selected="false" tabindex="-1"></button>
-          <button type="button" role="tab" class="qr-tab" id="qr-tab-raw" aria-controls="qr-panel-raw" aria-selected="false" tabindex="-1"></button>
-          <button type="button" role="tab" class="qr-tab qr-tab-batch" id="qr-tab-batch" aria-controls="qr-panel-batch" aria-selected="false" tabindex="-1"></button>
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-templates" data-view="templates" aria-controls="qr-panel-templates" aria-selected="false" tabindex="-1"></button>
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-content" data-view="content" aria-controls="qr-panel-content" aria-selected="true" tabindex="0"></button>
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-design" data-view="design" aria-controls="qr-panel-design" aria-selected="false" tabindex="-1"></button>
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-logo" data-view="logo" aria-controls="qr-panel-logo" aria-selected="false" tabindex="-1"></button>
+          <button type="button" role="tab" class="qr-tab" id="qr-tab-raw" data-view="raw" aria-controls="qr-panel-raw" aria-selected="false" tabindex="-1"></button>
+          <button type="button" role="tab" class="qr-tab qr-tab-batch" id="qr-tab-batch" data-view="batch" aria-controls="qr-panel-batch" aria-selected="false" tabindex="-1"></button>
         </div>
 
         <div class="qr-panel" role="tabpanel" id="qr-panel-templates" aria-labelledby="qr-tab-templates" hidden>

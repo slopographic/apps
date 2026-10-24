@@ -58,16 +58,16 @@
       </section>
       <aside class="fx-side" aria-label="Properties">
         <nav class="fx-tabs" role="tablist" id="fx-tabs">
-          <button type="button" role="tab" data-tab="layer" aria-selected="true">Layer</button>
-          <button type="button" role="tab" data-tab="fx" aria-selected="false">Effects</button>
-          <button type="button" role="tab" data-tab="motion" aria-selected="false">Motion</button>
+          <button type="button" role="tab" data-view="layer" aria-selected="true">Layer</button>
+          <button type="button" role="tab" data-view="fx" aria-selected="false">Effects</button>
+          <button type="button" role="tab" data-view="motion" aria-selected="false">Motion</button>
         </nav>
         <div class="fx-panel" id="fx-panel" role="tabpanel"></div>
       </aside>
       <section class="fx-tl" aria-label="Timeline">
         <nav class="fx-tabs" role="tablist" id="fx-tl-tabs">
-          <button type="button" role="tab" data-tl="timeline" aria-selected="true">Timeline</button>
-          <button type="button" role="tab" data-tl="graph" aria-selected="false">Graph editor</button>
+          <button type="button" role="tab" data-view="timeline" aria-selected="true">Timeline</button>
+          <button type="button" role="tab" data-view="graph" aria-selected="false">Graph editor</button>
         </nav>
         <div id="fx-timeline" class="fx-timeline"></div>
         <div id="fx-graph" class="fx-graph" hidden></div>
@@ -133,6 +133,7 @@
   <script src="js/ui/render-dialog.js"></script>
   <script src="js/app/io.js"></script>
   <script src="js/app/cmd.js"></script>
+  <script src="../shared/ui/tabs.js"></script>
   <script src="js/main.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>

@@ -27,7 +27,7 @@
     }
     const cur = S.currentApp && S.currentApp.id;
     const recent = S.recent().filter((id) => id !== cur).map((id) => all.find((a) => a.id === id)).filter(Boolean).slice(0, 5);
-    const tabs = window.SlopTabs ? window.SlopTabs.list() : [];
+    const tabs = window.SlopOpenTabs ? window.SlopOpenTabs.list() : [];
     return [
       { title: tr('switcher.recent', 'Recent'), items: recent.map((app) => ({ kind: 'app', app })) },
       { title: tr('switcher.open_tabs', 'Open tabs'), items: tabs.map((tab) => ({ kind: 'tab', tab })) },
@@ -76,7 +76,7 @@
     const it = items[i];
     if (!it) return;
     close();
-    if (it.kind === 'tab') window.SlopTabs && window.SlopTabs.focus(it.tab.tab);
+    if (it.kind === 'tab') window.SlopOpenTabs && window.SlopOpenTabs.focus(it.tab.tab);
     else S.navigate(S.appUrl(it.app));
   }
 

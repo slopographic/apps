@@ -29,21 +29,13 @@
     ns.props.mount(boxes.layer, S, act, io);
     ns.propsFx.mountFx(boxes.fx, S, act);
     ns.propsFx.mountMotion(boxes.motion, S, act, ka);
-    const showTab = (name) => {
-      for (const k of Object.keys(boxes)) boxes[k].hidden = k !== name;
-      for (const b of document.querySelectorAll('#fx-tabs [role=tab]')) b.setAttribute('aria-selected', String(b.dataset.tab === name));
-    };
-    document.querySelectorAll('#fx-tabs [role=tab]').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+    // SlopTabs (shared/ui/tabs.js) marks the tab, shows its box and gives the strips the arrow keys
+    const sideTabs = g.SlopTabs.mount($('fx-tabs'), { panel: (k) => boxes[k] });
+    const showTab = (name) => sideTabs.show(name);
     showTab('layer');
 
     // Timeline tabs: the timeline and the graph editor share the lower area.
-    const showTl = (name) => {
-      $('fx-timeline').hidden = name !== 'timeline';
-      $('fx-graph').hidden = name !== 'graph';
-      for (const b of document.querySelectorAll('#fx-tl-tabs [role=tab]')) b.setAttribute('aria-selected', String(b.dataset.tl === name));
-    };
-    document.querySelectorAll('#fx-tl-tabs [role=tab]').forEach((b) => b.addEventListener('click', () => showTl(b.dataset.tl)));
-    showTl('timeline');
+    g.SlopTabs.mount($('fx-tl-tabs'), { panel: (k) => $(k === 'graph' ? 'fx-graph' : 'fx-timeline') }).show('timeline');
 
     const menus = ns.menus.mount(S, Object.assign(act, { toast }), io);
     const renderDialog = () => ns.renderDialog.open(S, toast);

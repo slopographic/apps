@@ -7,7 +7,7 @@
   const $ = (id) => document.getElementById(id);
   const TABS = ['customers', 'pipeline', 'followups'];   // the list comes first, and is the start screen
   const VIEWS = [...TABS, 'customer'];
-  let timer = 0, lastTab = 'customers';
+  let timer = 0, lastTab = 'customers', tabs = null;
   const WIDE = g.matchMedia ? g.matchMedia('(min-width: 960px)') : null;
   const isWide = () => !!(WIDE && WIDE.matches);
   NS.state = { view: 'customers', current: null, split: false, settings: { currency: 'USD', locale: 'en-US' } };
@@ -28,14 +28,9 @@
     NS.state.split = split;
     const shown = split ? ['customers', 'customer'] : [name];
     for (const v of VIEWS) $(`view-${v}`).hidden = !shown.includes(v);
-  if (window.SlopLayouts) SlopLayouts.refresh('crm');
+    if (window.SlopLayouts) SlopLayouts.refresh('crm');
     $('main').classList.toggle('split', split);
-    for (const t of TABS) {
-      const b = $(`tab-${t}`);
-      const on = t === (name === 'customer' ? lastTab : name);
-      b.setAttribute('aria-selected', String(on));
-      b.tabIndex = on ? 0 : -1;
-    }
+    if (tabs) tabs.show(name === 'customer' ? lastTab : name);   // the tab strip only: the panels are shown above
     return render();
   }
 
@@ -59,7 +54,8 @@
     }
     for (const v of Object.values(NS.views)) if (v.mount) v.mount();
     NS.commands.init();
-    for (const t of document.querySelectorAll('.tab')) t.addEventListener('click', () => show(t.dataset.view));
+    // SlopTabs (shared/ui/tabs.js) marks the tabs and gives them the arrow keys; the views and the split are this file's
+    tabs = g.SlopTabs.mount(document.querySelector('.tabs'), { select: (n) => show(n), panel: () => null });
     $('dBack').addEventListener('click', () => close());
     S.store.subscribe(() => refreshSoon());
     if (WIDE && WIDE.addEventListener) WIDE.addEventListener('change', () => show(NS.state.view, NS.state.current));

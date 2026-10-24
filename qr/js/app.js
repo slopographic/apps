@@ -13,7 +13,7 @@
   let last = null;      // { text, svg } for the code on screen, or null
   let touched = false;  // after the first edit, errors show; before it the form only says what to do
   let dirty = false;    // changed since the last save or open
-  let tab = 'content';
+  let tab = 'content', tabs = null;
   let barKey = '';
   let bar = null;
 
@@ -81,12 +81,7 @@
   function setTab(t) {
     if (!TABS.includes(t)) return;
     tab = t;
-    for (const k of TABS) {
-      const on = k === t;
-      $('qr-tab-' + k).setAttribute('aria-selected', String(on));
-      $('qr-tab-' + k).tabIndex = on ? 0 : -1;
-      $('qr-panel-' + k).hidden = !on;
-    }
+    tabs.show(t);   // SlopTabs (shared/ui/tabs.js): the panel, the selected tab and the arrow keys
     drawTab(t);
   }
   function drawTab(t = tab) {
@@ -206,17 +201,8 @@
     });
     window.QRPreview.init();
     window.QRPanelContent.drawTemplates($('qr-templates'), applyTemplate);
-    for (const k of TABS) {
-      $('qr-tab-' + k).textContent = NAMES[k];
-      $('qr-tab-' + k).addEventListener('click', () => setTab(k));
-    }
-    $('qr-tabs').addEventListener('keydown', (e) => {
-      const i = TABS.indexOf(tab);
-      const n = e.key === 'ArrowRight' ? (i + 1) % TABS.length : e.key === 'ArrowLeft' ? (i - 1 + TABS.length) % TABS.length
-        : e.key === 'Home' ? 0 : e.key === 'End' ? TABS.length - 1 : -1;
-      if (n < 0) return;
-      e.preventDefault(); setTab(TABS[n]); $('qr-tab-' + TABS[n]).focus();
-    });
+    for (const k of TABS) $('qr-tab-' + k).textContent = NAMES[k];
+    tabs = window.SlopTabs.mount($('qr-tabs'), { select: setTab, panel: (k) => $('qr-panel-' + k) });
     $('qr-name').addEventListener('input', () => { Q().setLabel($('qr-name').value); dirty = true; syncBar(); });
     $('qr-raw').addEventListener('input', () => { Q().setRaw($('qr-raw').value); edit(); drawRaw(); });
     $('qr-raw-reset').addEventListener('click', () => { Q().clearRaw(); drawRaw(); edit(); });

@@ -184,9 +184,11 @@
     }
     return { exact, prefix };
   }
+  const TAB_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']);
   function onKey(e) {
     if (recording || e.isComposing) return;
     if (e.target && e.target.closest && e.target.closest('[role="menu"]')) return; // an open menu takes its own keys
+    if (TAB_KEYS.has(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey && e.target && e.target.closest && e.target.closest('[role="tablist"]')) return; // and a focused tab strip its arrows
     const steps = eventSteps(e);
     if (!steps) return;
     const typing = isTyping(e.composedPath ? e.composedPath()[0] : e.target), blocked = dialogOpen();

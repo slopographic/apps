@@ -8,7 +8,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
-  // Covers: ledger/js/core/util.js
+  // Covers: ledger/js/core/util.js, ledger/js/ui/app.js, shared/biz/router.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   const frame = document.createElement('iframe');
   frame.style.cssText = 'width:390px;height:820px;border:0;position:fixed;left:0;top:0;background:#111';
@@ -154,6 +154,16 @@
       expect(U.decimal(1234, 'USD')).toBe('12.34');
       expect(U.decimal(-5, 'EUR')).toBe('-0.05');
       expect(U.decimal(500, 'JPY')).toBe('500');
+    });
+    it('the tabs are SlopTabs on the business router: the arrow keys move to the next tab and its #hash', async () => {
+      win().SlopLedger.app.show('journal');
+      await waitFor(() => !$('view-journal').hidden);
+      const first = $('tab-journal');
+      expect(first.getAttribute('aria-selected')).toBe('true');
+      first.focus();
+      first.dispatchEvent(new (win().KeyboardEvent)('keydown', { key: 'ArrowRight', bubbles: true }));
+      await waitFor(() => win().location.hash === '#gl' && !$('view-gl').hidden);
+      expect(doc().activeElement.id).toBe('tab-gl');
     });
     it('no error reached the page', () => {
       expect(errors).toHaveLength(0);
