@@ -89,20 +89,21 @@ Product photos (remove background → background colour white → resize 1080 ×
 the web (clean metadata → longest side 1600 PNG → WebP), Scans to one PDF (images to A4 PDF → compress), Protect and send
 (merge → password; asks for the password before running).
 
-## App macros (next: where they plug in)
+## App macros
 
-A macro recorded in an app (`shared/commands/recorder.js`, commands with args through `SlopCmd.exec`) becomes a step of
-kind `macro`: `{ kind: 'macro', id, app, macroId, options }` is already a valid document step. An **app host adapter**
-calls `R.provide(app, { label, list() })` (registry.js): `list()` returns the app's macros as operations (`kind: 'macro'`,
-`from`, `ext`, `options` from the macro's argument schema, `macroId`) with a `run(files, opts, ctx)` that loads the app in a
-hidden same-origin iframe, opens each file, replays the macro's commands with their args, exports, and returns the blobs.
-They then appear under their app in + Add step (the menu groups by `R.apps()`), are checked by `compat.js` like any step, and
-run on the same runner. Nothing else changes.
+Built: see `shared/macros/HANDOFF.md`. A macro recorded in PhotoSlop or SlopIsolate (its own SlopCmd commands with args)
+is kept in IndexedDB `slop-macros`; `shared/ops/macros.js` (imported by `all.js`) is the app host adapter that calls
+`R.provide(app, { label, list })`, so each saved macro is an operation of kind `macro` under its app in + Add step
+(`{ kind: 'macro', id: 'macro:<app>:<macroId>', app, macroId, options }`), checked by `compat.js` and run by the one
+runner. PhotoSlop's run in a hidden same-origin iframe at `photoslop/?macro-host=1` (`shared/macros/frame.js`);
+SlopIsolate's fold into Remove background's options. `mount.js` waits for `macrosReady` before drawing a saved workflow
+and draws again on `onMacros` (a macro saved in another tab shows up at once). An app's Macros panel has "Add to a
+workflow…", which hands the macro step over through `SlopFlowDoc.addToWorkflow` like the other apps' hooks.
 
 ## Tests
 
 Node: `tests/node/workflows-ops.test.mjs` (registry, option checks, kinds, groups, macros through `provide`, app settings
-mappings, clean choices, rename), `tests/node/workflows-flow.test.mjs` (document, file and link round trips, step checks,
+mappings, clean choices, rename), `tests/node/macros.test.mjs` and `tests/workflows/macros.test.html` (app macros), `tests/node/workflows-flow.test.mjs` (document, file and link round trips, step checks,
 templates, plan and run with fakes, cancel). Browser: `tests/workflows/run.test.html` (remove background with a stub
 SlopCutout → watermark → resize on 3 pictures → a ZIP of 3 PNGs 200 × 200, see-through corners and magenta watermark
 pixels; progress grid; a step that cannot take PDF; Stop), `library.test.html` (templates, passwords never stored, save and

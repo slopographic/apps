@@ -79,6 +79,8 @@
       { label: 'Redo' + (rl ? ' ' + rl : ''), key: keyOf('co.redo', 'Ctrl+Shift+Z'), act: act.redo, disabled: !H.can(it, 'redo') },
       '-',
       { label: 'Clear brush edits', act: act.clearEdits, disabled: !it || !CO.brush.hasEdits(it) },
+      ...(window.SlopMacros ? ['-', SlopMacros.recording ? { label: 'Stop recording and save the macro…', act: () => SlopMacros.stop() } : { label: 'Record a macro', act: () => SlopMacros.record() },
+        { label: 'Macros…', act: () => SlopMacros.openPanel() }] : []),
     ];
   }
   function viewItems() {

@@ -33,6 +33,7 @@
     const cur = S.current();
     if (changed.size && cur && items.includes(cur)) S.rememberLook(cur);
     if (changed.size) CO.emit('settings', { items, paths: [...changed] });
+    if (changed.size && CO.macroLook) CO.macroLook(cur && items.includes(cur) ? cur : items[0]);   // a macro being recorded keeps the look (ui/macros.js)
     return [...changed];
   }
 

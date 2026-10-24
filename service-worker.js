@@ -5,7 +5,11 @@
  * Only same-origin GET requests are handled. Other origins are never cached or intercepted. */
 'use strict';
 
-const VERSION = 'v-1dd91f057f76';
+<<<<<<< HEAD
+const VERSION = 'v-7e778e48fd0c';
+=======
+const VERSION = 'v-54d1716c5598';
+>>>>>>> 47574bb47419a11629d315a4ff7358ab4a6e2bfc
 const CACHE = 'slopographic-' + VERSION;
 const OFFLINE = '/offline.html';
 const STATIC = /\.(m?js|css|woff2?|ttf|otf|png|jpe?g|webp|gif|svg|ico|wasm|json|glb|bcmap|pfb)$/i;

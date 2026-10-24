@@ -43,6 +43,7 @@
     if (it && it.model && it.model !== id) it.model = null;
     const redo = CO.process.followModel();
     if (redo.length > 1) CO.emit('toast', `Running ${redo.length} images again with the ${name} model`);
+    if (CO.macroLook) CO.macroLook(it);   // a macro being recorded keeps the model (ui/macros.js)
     P.refresh();
   }
   function modelSec() {
