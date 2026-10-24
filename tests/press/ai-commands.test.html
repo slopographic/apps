@@ -58,7 +58,7 @@
 
     it('add_text_frame, set_text, format_text, add_shape, move_item, delete_item', async () => {
       await run('new-document', { preset: 'a5' });
-      let r = await run('add-text-frame', { page: 1, text: 'Big Sale\nEverything must go', x: 30, y: 40, w: 300, h: 120, style: 'Heading 1', color: 'red', align: 'center', name: 'Title' });
+      let r = await run('add-text-frame', { page: 1, text: 'Big Sale\nEverything must go', x: 30, y: 40, w: 300, h: 120, style: 'Heading 1', color: '#ff0000', align: 'center', name: 'Title' });
       const t = items()[0];
       expect([t.type, t.name, Math.round(t.x), Math.round(t.w)]).toEqual(['text', 'Title', 30, 300]);
       const st = PR.state.doc.stories[t.story];

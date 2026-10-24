@@ -43,7 +43,7 @@
       expect(W.LabelTabs.api.tabs().length).toBe(n + 1);
       expect([W.App.doc.label.w, W.App.doc.label.h, W.App.doc.name]).toEqual([60, 40, 'Jar']);
       expect(objs().length).toBe(0);
-      r = await run('new-label', { preset: 'avery-l7160', name: 'Sheet' });
+      r = await run('new-label', { preset: 'stock-avery-l7160', name: 'Sheet' });
       expect(r.value).toMatch(/3 × 7 per sheet/);
       await run('new-label', { width: 60, height: 40, name: 'Jar 2' });
     });

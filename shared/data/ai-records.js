@@ -27,6 +27,8 @@
     if (!Number.isFinite(n)) throw new Error(`“${v}” is not a rate`);
     return Math.round((n > 0 && n < 1 && !/%/.test(String(v)) ? n * 100 : n) * 100);
   }
+  /** The fields of one item of a list field: rows (its own), lines (document lines), jlines (journal lines), countLines. */
+  const itemsOf = (s) => { const d = D().schemaDefs; return s.t === 'rows' ? s.of : s.t === 'lines' ? d.LINE : s.t === 'jlines' ? d.JLINE : s.t === 'countLines' ? d.COUNT : null; };
   function convert(spec, v, cur) {
     if (v == null) return v;
     if (spec.t === 'money') return minor(v, cur);
@@ -34,7 +36,7 @@
     if (spec.t === 'int') return Math.round(A().toNumber(v));
     if (spec.t === 'ts') { const t = typeof v === 'number' ? v : Date.parse(String(v)); if (!Number.isFinite(t)) throw new Error(`“${v}” is not a date and time`); return t; }
     if (spec.t === 'bool') return /^(true|yes|1|on)$/i.test(String(v));
-    if (spec.t === 'rows') return [].concat(v).map((row) => convertAll(spec.of, row, cur));
+    if (itemsOf(spec)) return [].concat(v).map((row) => convertAll(itemsOf(spec), row, cur));
     if (spec.t === 'strings') return [].concat(typeof v === 'string' ? v.split(/\s*,\s*/) : v).filter(Boolean).map(String);
     return v;
   }
@@ -77,7 +79,7 @@
       const o = { field: k, type: s.t === 'money' ? 'amount like 12.50' : s.t === 'rate' ? 'percent like 20' : s.t };
       if (s.req) o.required = true;
       if (s.values) o.choices = s.values;
-      if (s.t === 'rows' && s.of) o.items = Object.keys(s.of).filter((x) => !['net', 'tax', 'total'].includes(x));
+      if (itemsOf(s)) o.items = Object.keys(itemsOf(s)).filter((x) => !['net', 'tax', 'total'].includes(x));
       return o;
     });
   }
