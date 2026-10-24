@@ -1,83 +1,33 @@
-/* Slop Inventory: tokens, layout, product rows, scan panel, forms. Dark by default; data-theme="light" for light.
- * Works at 390 px wide with no horizontal page scroll: the product table turns into stacked rows below 600 px. */
-:root {
-  --bg: #0e0e10; --panel: #17171b; --panel-2: #1f1f25; --ink: #f1ede4; --mute: #9a968c; --line: #2b2b33;
-  --accent: #d4ff3a; --accent-ink: #0e0e10; --danger: #ff4f6e; --warn: #ffb547; --ok: #7fdc8a; --chip: #26262e; --focus: #d4ff3a;
-  color-scheme: dark;
-}
-:root[data-theme="light"] {
-  --bg: #f6f4ef; --panel: #ffffff; --panel-2: #efece4; --ink: #17161a; --mute: #6b675e; --line: #d9d4c7;
-  --accent: #2f5bff; --accent-ink: #ffffff; --danger: #c81e44; --warn: #a25b00; --ok: #17803a; --chip: #e7e3d8; --focus: #2f5bff;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="pro"]):not([data-theme="dark"]) {
-    --bg: #f6f4ef; --panel: #ffffff; --panel-2: #efece4; --ink: #17161a; --mute: #6b675e; --line: #d9d4c7;
-    --accent: #2f5bff; --accent-ink: #ffffff; --danger: #c81e44; --warn: #a25b00; --ok: #17803a; --chip: #e7e3d8; --focus: #2f5bff; color-scheme: light;
-  }
-}
-[hidden] { display: none !important; }
-html, body { margin: 0; background: var(--bg); color: var(--ink); overflow-x: hidden; }
-body { font: 14px/1.45 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100vh; }
-button, input, select, textarea { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.app { min-height: 100vh; display: flex; flex-direction: column; min-width: 0; }
+/* Slop Inventory: only what is its own. The base (theme tokens from the site theme, inputs, buttons, tabs, cards, notes,
+ * toolbars, the top bar, form grids) is shared/biz/app.css. Here: the product table, KPIs, stock levels and histories, the
+ * scan screen and the forms. At 390 px the product table stacks and nothing scrolls sideways. */
 .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
-.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.sub { color: var(--mute); font-size: 12px; }
-.note, .fhint { color: var(--mute); font-size: 12.5px; margin: 6px 0; }
-.empty { color: var(--mute); padding: 10px 0; }
-.h2 { font-size: 15px; margin: 18px 0 8px; }
+.fhint { color: var(--mute); font-size: 12.5px; margin: 6px 0; }
+.h2 { font-size: 15px; }
 .h3 { font-size: 14px; margin: 0 0 4px; }
-
-/* top bar, tabs */
-.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--panel); min-width: 0; }
 .brand { display: inline-flex; color: var(--accent); }
-.brand-mark { width: 26px; height: 26px; fill: currentColor; }
-.brand-mark path { fill: currentColor; }
-.brand-mark .shine { fill: none; stroke: var(--bg); stroke-width: 2; stroke-linecap: round; }
-.appname { display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
-.appname b { font-size: 15px; }
-.home-link { color: var(--mute); font-size: 11px; text-decoration: none; }
-.local-badge { margin-left: auto; font-size: 12px; color: var(--mute); }
-.tb-btn, .btn { min-height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); cursor: pointer; white-space: nowrap; }
-.btn:hover, .tb-btn:hover { border-color: var(--mute); }
-.btn:disabled { opacity: .5; cursor: default; }
-.btn.small { min-height: 28px; padding: 0 8px; font-size: 12.5px; }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
-.btn.danger { color: var(--danger); }
-.tabs { display: flex; gap: 2px; overflow-x: auto; padding: 0 8px; border-bottom: 1px solid var(--line); background: var(--panel); scrollbar-width: none; }
-.tab { flex: 0 0 auto; min-height: 42px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--mute); cursor: pointer; }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
-.main { padding: 14px 16px 40px; min-width: 0; max-width: 1100px; width: 100%; margin: 0 auto; box-sizing: border-box; }
-.boot { padding: 30px 0; color: var(--mute); }
-.msg { min-height: 1.4em; margin: 10px 0; font-size: 13px; }
-.msg.ok, .ok-line { color: var(--ok); }
-.msg.bad, .form-error { color: var(--danger); }
-
-/* toolbars and fields */
-.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin: 0 0 10px; }
+.brand-mark { width: 26px; height: 26px; }
+.topbar { gap: 8px 10px; padding: 8px 12px; min-width: 0; }
+.topbar .local-badge { margin-left: auto; color: var(--mute); border: 0; padding: 0; }
+.topbar .local-badge ~ .tb-btn { margin-left: 0; }
+.main { max-width: 1100px; }
+.ok-line { color: var(--ok); }
+.form-error { color: var(--danger); }
 .toolbar label, .scan-bar label, .card label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--mute); min-width: 0; }
 .toolbar .grow { flex: 1 1 200px; }
-input, select { min-height: 34px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); min-width: 0; box-sizing: border-box; }
 input[type="number"] { width: 110px; }
 .search { flex: 1 1 220px; }
-.search input { width: 100%; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 12px; min-width: 0; }
 .card > label { margin: 6px 0; }
 .check { flex-direction: row !important; align-items: center; color: var(--ink) !important; }
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .forms { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
 .forms .card { display: flex; flex-direction: column; gap: 6px; }
 .forms .btn { margin-top: 6px; align-self: flex-start; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 8px; }
-.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; }
 .kpi span { display: block; color: var(--mute); font-size: 12px; }
 .kpi b { font-size: 20px; font-variant-numeric: tabular-nums; }
 
 /* product table: a header row on wide screens, stacked rows on narrow ones */
-.table { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; }
 .row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--line); cursor: pointer; min-width: 0; }
 .row.head { border-top: 0; cursor: default; color: var(--mute); font-size: 12px; background: var(--panel-2); }
 .row:not(.head):hover, .row:not(.head):focus-visible { background: var(--panel-2); }
@@ -88,8 +38,6 @@ input[type="number"] { width: 110px; }
 .badge.warn { color: var(--warn); border: 1px solid var(--warn); }
 @media (max-width: 600px) {
   .row.head { display: none; }
-  .local-badge { display: none; }
-  .grid2 { grid-template-columns: 1fr; }
 }
 
 /* levels, histories and logs */

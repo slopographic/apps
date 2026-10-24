@@ -128,6 +128,18 @@
     });
   });
 
+  describe('the site theme', () => {
+    it('follows the site theme (shared/biz/app.css): text reads on its background in every theme', async () => {
+      // Covers: crm/css/crm.css, crm/css/crm-labels.css, shared/biz/app.css
+      for (const theme of ['light', 'dark', 'classic', 'lime']) {
+        win().SlopTheme.apply(theme);
+        const inp = win().getComputedStyle(doc().querySelector('#cSearch')), body = win().getComputedStyle(doc().body);
+        expect(SlopTest.contrast(inp.webkitTextFillColor || inp.color, inp.backgroundColor) >= 4.5).toBe(true, `${theme}: input`);
+        expect(SlopTest.contrast(body.color, body.backgroundColor) >= 4.5).toBe(true, `${theme}: page`);
+      }
+    });
+  });
+
   describe('suppliers', () => {
     it('a contact flagged supplier (Slop Purchases) is not on the sales pipeline', async () => {
       // Covers: crm/js/ui/board.js
@@ -136,6 +148,13 @@
       await waitFor(() => colOf('customer') && !doc().getElementById('view-pipeline').hidden);
       await new Promise((r) => setTimeout(r, 200));
       expect(doc().getElementById('view-pipeline').textContent.includes('Parts Supplier')).toBe(false);
+    });
+    it('in the customer list a supplier reads Supplier instead of a sales stage', async () => {
+      // Covers: crm/js/ui/list.js
+      win().SlopCrm.app.show('customers');
+      await waitFor(() => [...doc().querySelectorAll('#cRows .row')].some((r) => r.dataset.name === 'Parts Supplier'), { timeout: 8000 });
+      const row = [...doc().querySelectorAll('#cRows .row')].find((r) => r.dataset.name === 'Parts Supplier');
+      expect(row.querySelector('.stage').textContent).toBe('Supplier');
     });
   });
 
