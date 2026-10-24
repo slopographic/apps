@@ -1,6 +1,7 @@
 /* Settings for the live preview. Pure: no DOM. The limits keep the preview light: large text shows its first
  * part, large pictures are drawn smaller, and only page 1 of a PDF is rendered. Download always converts all. */
-export { TEXT_KINDS } from '../core/detect.js';
+import { TEXT_KINDS } from '../core/detect.js';
+export { TEXT_KINDS };
 
 export const DEBOUNCE_MS = 150;
 export const TEXT_LIMIT = 256 * 1024;   // bytes of text read for the preview
@@ -22,9 +23,10 @@ export const REVERSE = {
   'csv-to-json': 'json-to-csv', 'json-to-csv': 'csv-to-json',
   'json-to-yaml': 'yaml-to-json', 'yaml-to-json': 'json-to-yaml', 'json-to-toml': 'toml-to-json', 'toml-to-json': 'json-to-toml',
   'srt-to-vtt': 'vtt-to-srt', 'vtt-to-srt': 'srt-to-vtt',
+  'jsonl-to-json': 'json-to-jsonl', 'json-to-jsonl': 'jsonl-to-json', 'gpx-to-geojson': 'geojson-to-gpx', 'geojson-to-gpx': 'gpx-to-geojson',
 };
 
 /** True when a conversion takes typed text (any text kind, or any file for Base64 encode). */
 export function acceptsText(conv) {
-  return !!conv && (conv.from.includes('*') || conv.from.some((k) => ['csv', 'json', 'md', 'txt', 'html', 'vcf', 'yaml', 'toml', 'xml', 'srt', 'vtt'].includes(k)));
+  return !!conv && (conv.from.includes('*') || conv.from.some((k) => TEXT_KINDS.includes(k)));
 }
