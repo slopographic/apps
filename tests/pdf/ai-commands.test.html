@@ -101,7 +101,7 @@
       expect(st.formFields.find((f) => f.name === 'Name').value).toBe('Ada Lovelace');
       const out = await built();
       const fields = out.fields || {};
-      expect((fields.Name || [])[0].value).toBe('Ada Lovelace');
+      expect((fields.Name || []).find((w) => w.type).value).toBe('Ada Lovelace');   // the first entry is the parent field (as in pdf.spec-export.js)
       expect(back()).toBe(true);
       expect(Object.keys(PT.E.state.forms).every((k) => !Object.keys(PT.E.state.forms[k] || {}).length)).toBe(true);
     }, { timeout: 30000 });

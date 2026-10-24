@@ -46,6 +46,7 @@
     it('add_picture from Slop Drive keeps it inside; the checkpoint puts the old details back', async () => {
       const c = document.createElement('canvas'); c.width = 40; c.height = 40; c.getContext('2d').fillRect(0, 0, 40, 40);
       await W.SlopHub.put(await new Promise((r) => c.toBlob(r, 'image/png')), { name: 'logo.png' });
+      await run('set-style', { template: 'side' });   // the compact template has no picture
       const back = C.checkpoint();
       await run('add-picture', { file: 'logo.png', image_size: 64 });
       expect(sig().querySelector('img').getAttribute('src').startsWith('data:image/png')).toBe(true);

@@ -104,7 +104,9 @@
   (a) => {
     const o = makeObject('barcode', Object.assign({ content: a.value, w: a.size, h: a.size }, pick(a, ['x', 'y', 'name'])));
     applySymbology(o, 'qrcode');
-    o.w = o.h = a.size;   // the symbology's own default size gives way to the size asked for
+    // a QR code's size follows its module: scale the module so the code comes out at the size asked for
+    syncAutoSize(App.doc, o, previewGet());
+    if (o.w > 0 && o.module) { o.module = round(o.module * a.size / o.w, 4); syncAutoSize(App.doc, o, previewGet()); }
     place(o, a, 'Add QR code');
     return `Added a QR code for “${a.value.slice(0, 40)}” (id ${o.id}).` + edgeNote(o);
   }, { description: 'Add a QR code.' });
