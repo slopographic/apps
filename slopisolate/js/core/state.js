@@ -60,6 +60,14 @@
   S.modelOf = (it) => (it && it.model) || S.model;
   S.get = (id) => S.items.find((it) => it.id === id) || null;
   S.current = () => S.get(S.activeId);
+  /** What the settings panel edits: every selected picture when two or more are selected (bulk editing; videos have no
+   *  look), else the image on screen. */
+  S.targets = () => {
+    if (S.sel.size >= 2) return S.items.filter((it) => S.sel.has(it.id) && it.kind !== 'video');
+    const it = S.current();
+    return it ? [it] : [];
+  };
+  S.bulk = () => S.sel.size >= 2;
   S.index = (id) => S.items.findIndex((it) => it.id === id);
   S.setStatus = (it, status, extra) => { Object.assign(it, { status }, extra || {}); CO.emit('item', it); };
   S.setTool = (t) => { S.tool = t; CO.emit('tool', t); };

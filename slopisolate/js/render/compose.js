@@ -21,6 +21,20 @@
     return x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
   };
 
+  /** The matte maths of the main thread (the live brush preview and the queue's result thumbnails): threshold and
+   *  softness on the base mask, then the brush edit (128 = untouched). Returns alpha(base, edit) → 0..255. The worker does
+   *  the same, plus feather and decontamination, for the full result. */
+  C.alphaFn = function (s) {
+    s = s || {};
+    const th = s.threshold == null ? 0.5 : s.threshold, sf = s.softness == null ? 1 : s.softness;
+    const lo = (th - sf / 2) * 255, hi = (th + sf / 2) * 255, hard = hi - lo < 1, k = hard ? 0 : 255 / (hi - lo), cut = th * 255;
+    return (b, e) => {
+      let a = hard ? (b >= cut ? 255 : 0) : Math.min(255, Math.max(0, (b - lo) * k));
+      if (e > 128) a = a + (255 - a) * (e - 128) / 127; else if (e < 128) a = a * e / 128;
+      return a;
+    };
+  };
+
   /** The canvas for a cutout's ImageData (cached on the active record). */
   C.cutCanvas = function (act) {
     if (act.cut) return act.cut;

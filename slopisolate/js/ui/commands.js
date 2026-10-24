@@ -49,7 +49,7 @@
     if (!SC || !a) return;
     try {
       SC.init({ app: 'cutout' });
-      SC.register(list(a).concat(window.CO.configCommands ? window.CO.configCommands() : []));
+      SC.register(list(a).concat(CO.bulk && CO.bulk.commands ? CO.bulk.commands() : [], window.CO.configCommands ? window.CO.configCommands() : []));
     } catch (err) { console.warn('SlopIsolate: commands are off', err); }
   }
 

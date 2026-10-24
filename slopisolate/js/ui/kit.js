@@ -1,9 +1,11 @@
 /* SlopIsolate — panel kit: form controls for the settings panel. Every control is a row or a widget
  * with `.input` (the form control) and `.sync(v)` (set the shown value without firing events).
+ * sync(v, mixed): mixed = the selected pictures differ here; the control then shows no value (an empty slider thumb,
+ * "Mixed"), and touching it sets the value on all of them.
  * CO.kit.look() turns a slider drag into one undo step: the look is snapshotted on the first move. */
 (function () {
   'use strict';
-  const CO = window.CO, U = CO.util, S = CO.state, H = CO.history, h = U.h;
+  const CO = window.CO, U = CO.util, S = CO.state, h = U.h;
   const K = CO.kit = {};
 
   const ctl = (el, input, sync) => Object.assign(el, { input, sync });
@@ -17,11 +19,17 @@
   K.slider = function ({ label, min, max, step, value, fmt = (v) => String(v), onInput, onCommit }) {
     const input = h('input', { type: 'range', min, max, step, 'aria-label': label });
     const out = h('span', { class: 'pp-val' });
-    const sync = (v) => { input.value = String(v); out.textContent = fmt(+input.value); };
+    const row = h('div', { class: 'pp-row' }, h('span', null, label), input, out);
+    const sync = (v, mixed) => {
+      row.classList.toggle('mixed', !!mixed);
+      input.value = String(mixed ? (+min + +max) / 2 : v);
+      out.textContent = mixed ? 'Mixed' : fmt(+input.value);
+      input.setAttribute('aria-valuetext', mixed ? 'Mixed' : out.textContent);
+    };
     sync(value == null ? min : value);
-    input.addEventListener('input', () => { out.textContent = fmt(+input.value); if (onInput) onInput(+input.value); });
+    input.addEventListener('input', () => { row.classList.remove('mixed'); out.textContent = fmt(+input.value); input.removeAttribute('aria-valuetext'); if (onInput) onInput(+input.value); });
     input.addEventListener('change', () => { if (onCommit) onCommit(+input.value); });
-    return ctl(h('div', { class: 'pp-row' }, h('span', null, label), input, out), input, sync);
+    return ctl(row, input, sync);
   };
 
   /** Drop-down row. options: [[value, text], …]. */
@@ -42,10 +50,13 @@
       b.append(t);
       return b;
     });
-    const sync = (v) => {
-      cur = v;
-      btns.forEach((b, i) => { const on = options[i][0] === v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    const sync = (v, mixed) => {
+      cur = mixed ? null : v;
+      wrap.classList.toggle('mixed', !!mixed);
+      wrap.title = mixed ? 'Mixed: the selected pictures differ' : '';
+      btns.forEach((b, i) => { const on = options[i][0] === cur; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
     };
+    const wrap = h('div', { class: 'seg', role: 'group' }, ...btns);
     btns.forEach((b, i) => b.addEventListener('click', () => {
       const v = options[i][0];
       if (v === cur) return;
@@ -53,25 +64,26 @@
       if (onChange) onChange(v);
     }));
     sync(value);
-    return ctl(h('div', { class: 'seg', role: 'group' }, ...btns), null, sync);
+    return ctl(wrap, null, sync);
   };
 
   /** Colour row. onInput runs while the picker moves; onCommit when it closes. */
   K.color = function ({ label, value, onInput, onCommit }) {
-    const input = h('input', { type: 'color', 'aria-label': label });
-    const sync = (v) => { input.value = v; };
+    const input = h('input', { type: 'color', 'aria-label': label }), note = h('span', { class: 'pp-mixed' }, 'Mixed');
+    const row = h('div', { class: 'pp-row wide' }, h('span', null, label), h('span', { class: 'color' }, input, note));
+    const sync = (v, mixed) => { input.value = v; row.classList.toggle('mixed', !!mixed); };
     sync(value);
-    input.addEventListener('input', () => { if (onInput) onInput(input.value); });
+    input.addEventListener('input', () => { row.classList.remove('mixed'); if (onInput) onInput(input.value); });
     input.addEventListener('change', () => { if (onCommit) onCommit(input.value); });
-    return ctl(h('div', { class: 'pp-row wide' }, h('span', null, label), h('span', { class: 'color' }, input)), input, sync);
+    return ctl(row, input, sync);
   };
 
   /** Checkbox row. */
   K.check = function ({ label, checked, onChange }) {
     const input = h('input', { type: 'checkbox' });
-    const sync = (v) => { input.checked = !!v; };
+    const sync = (v, mixed) => { input.checked = !!v && !mixed; input.indeterminate = !!mixed; };
     sync(checked);
-    input.addEventListener('change', () => { if (onChange) onChange(input.checked); });
+    input.addEventListener('change', () => { input.indeterminate = false; if (onChange) onChange(input.checked); });
     return ctl(h('label', { class: 'chk' }, input, h('span', null, label)), input, sync);
   };
 
@@ -86,36 +98,31 @@
   };
 
   /**
-   * Look edits for the active image. `apply(it, v)` changes one field of it.look.
-   *  input(v): live change (snapshot on the first move, emits 'look').
-   *  commit(): the drag ended, push one undo step for the whole drag.
+   * Look edits for what the panel edits (S.targets(): the image on screen, or every selected picture), through the one
+   * code path of ui/edit.js. `path` is the field ('s.threshold', 'bg.color', …: core/settings.js).
+   *  input(v): live change (snapshot on the first move).
+   *  commit(): the drag ended, push one undo step for the whole drag (one for all the pictures).
    *  once(v):  a discrete change (check, seg), one undo step.
-   * opts.rerun: the field changes the segmentation (e.g. refine), so re-run the model instead of the look.
    */
-  K.look = function (label, apply, opts = {}) {
-    let snap = null, snapIt = null;
-    const change = (it, v) => {
-      apply(it, v);
-      S.rememberLook(it);
-      if (opts.rerun) CO.process.rerun(it); else CO.emit('look', it);
-    };
+  K.look = function (label, path) {
+    let ses = null;
     return {
       input(v) {
-        const it = S.current();
-        if (!it) return;
-        if (!snap || snapIt !== it) { snap = H.snapLook(it); snapIt = it; }
-        change(it, v);
+        const items = S.targets();
+        if (!items.length) return;
+        if (!ses || ses.items.length !== items.length || ses.items.some((it, i) => it !== items[i])) {
+          if (ses) ses.commit(label);
+          ses = CO.edit.begin(items);
+        }
+        ses.change({ [path]: v });
       },
       commit() {
-        if (snap && snapIt) H.pushLook(snapIt, snap, label);
-        snap = null; snapIt = null;
+        if (ses) ses.commit(label);
+        ses = null;
       },
       once(v) {
-        const it = S.current();
-        if (!it) return;
-        const before = H.snapLook(it);
-        change(it, v);
-        H.pushLook(it, before, label);
+        const items = S.targets();
+        if (items.length) CO.edit.apply(items, { [path]: v }, label);
       },
     };
   };
