@@ -43,10 +43,10 @@ function buildStatus() {
   sync();
 }
 
+/** Phones: the panels (Layers, History…) are a drawer from the right. SlopSheet (shared/ui/sheet.js) does the Layers
+ * button, the ×, Escape, a tap outside (on the picture too) and the swipe. */
 function wireMobile() {
-  const toggle = $('#panelToggle');
-  toggle.addEventListener('click', () => { const open = document.body.classList.toggle('panels-open'); toggle.setAttribute('aria-expanded', String(open)); });
-  $('#viewport').addEventListener('pointerdown', () => { if (document.body.classList.contains('panels-open') && innerWidth < 900) { document.body.classList.remove('panels-open'); toggle.setAttribute('aria-expanded', 'false'); } });
+  window.PS_SHEET = SlopSheet.attach({ root: document.body, panel: $('#panels'), side: 'end', phone: '(max-width: 900px)', toggles: [$('#panelToggle')], label: 'Panels' });
 }
 
 let domLoaded = false; // set by a listener registered while this script parses, so it runs before any other DOMContentLoaded handler

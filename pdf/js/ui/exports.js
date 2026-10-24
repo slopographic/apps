@@ -26,21 +26,34 @@
   }
 
   /* --------------------------------------------------------- downloads */
-  A.download = function () {
+  /** Builds, checks and downloads the document. opts.protect (ui/protect.js): { pw, owner, print, copy, edit } adds a
+   *  password (AES-256) after the check, which pdf.js could not open without it. The caller forgets the fields. */
+  A.download = function (opts) {
     if (!E.state.pages.length) return;
+    var prot = opts && opts.protect && opts.protect.pw ? opts.protect : null, locked = prot ? ' · password-protected' : '';
+    function forget() { if (prot) { prot.pw = ''; prot.owner = ''; prot = null; } }
     return S.guarded('Building your PDF…', async function (prog) {
+      try { return await save(prog); } finally { forget(); }
+    });
+    async function save(prog) {
       var n = E.state.pages.length;
       var bytes = await E.build({ onProgress: function (f) { prog(f * 0.85); } });
       prog(0.92, 'Checking the result…');
       await E.validate(bytes, n);
+      if (prot) {
+        prog(0.96, 'Adding the password…');
+        bytes = await SP.decrypt.encryptPdf(bytes, { userPassword: prot.pw, ownerPassword: prot.owner || '',
+          permissions: { print: prot.print !== false, copy: prot.copy !== false, modify: prot.edit !== false, annotate: prot.edit !== false, assemble: prot.edit !== false } });
+        forget();
+      }
       var name = U.safeName(S.els.fileName.value || 'document.pdf', 'pdf');
       S.els.fileName.value = name;
       U.download(bytes, name, 'application/pdf');
       A.lastOutput = bytes;
-      A.status('Saved ' + name + ' · ' + n + ' pages · ' + U.fmtBytes(bytes.length) + ' · validated ✓', 'ok');
-      SlopUI.toast('Downloaded ' + name + ' (' + U.fmtBytes(bytes.length) + ')');
+      A.status('Saved ' + name + ' · ' + n + ' pages · ' + U.fmtBytes(bytes.length) + ' · validated ✓' + locked, 'ok');
+      SlopUI.toast('Downloaded ' + name + ' (' + U.fmtBytes(bytes.length) + ')' + locked);
       return bytes;
-    });
+    }
   };
   A.extract = function (idList) {
     var ids = idList || O.selected();

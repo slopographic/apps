@@ -85,14 +85,11 @@ button { font: inherit; color: inherit; }
 .cd-fine, .cd-note { color: var(--cd-faint); font-size: 12px; }
 .cd-tools .sui-btn:disabled, .cd-empty .sui-btn:disabled { opacity: .5; }
 
-/* drawer on a phone (and the Files button) */
-.cd-scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); z-index: 40; }
+/* on a phone the Explorer is a drawer: shared/ui/sheet.js gives it its place and motion (js/ui.js initDrawer) */
 @media (max-width: 719px) {
   .cd-app, .cd-app.cd-tree-hidden, .cd-app.cd-pv-open, .cd-app.cd-tree-hidden.cd-pv-open { grid-template-columns: minmax(0, 1fr); }
   .cd-app.cd-tree-hidden .cd-main { grid-column: auto; }
   .cd-files-btn { display: inline-flex; align-items: center; }
-  .cd-tree { position: fixed; top: 0; bottom: 0; left: 0; width: min(84vw, 300px); z-index: 50; transform: translateX(-102%); transition: transform .18s ease; box-shadow: 0 0 24px rgba(0, 0, 0, .4); }
-  .cd-app.cd-drawer-open .cd-tree { transform: none; }
   .cd-tree-hidden .cd-tree { display: flex; }
   .cd-main { grid-column: 1; }
   .cd-brand { flex: 1 1 auto; }

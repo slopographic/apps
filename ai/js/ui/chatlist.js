@@ -42,14 +42,14 @@
   AI.openConv = async function (id) {
     const c = await AI.db.get(id); if (!c) return;
     panel.setConv(c); bar(); refresh();
-    if (AI.isMobile()) document.body.classList.remove('side-open');
+    if (AI.chatsUI) AI.chatsUI.close();   // the phone drawer
   };
   AI.newChat = function () {
     if (AI.tab !== 'chat') AI.setTab('chat');
     const c = AI.db.blank('chat');
     if (AI.pendingTools) { c.tools = true; AI.pendingTools = false; }
     panel.setConv(c); bar(); refresh(); panel.input.focus();
-    if (AI.isMobile()) document.body.classList.remove('side-open');
+    if (AI.chatsUI) AI.chatsUI.close();   // the phone drawer
     return c;
   };
   AI.renameConv = async function (c) {
@@ -83,11 +83,12 @@
     catch (e) { window.SlopUI.alert('Could not import', e.message); }
   };
 
+  let chatsBtn = null;   // made once: it is the phone drawer's toggle, so bar() keeps the same button
   function bar() {
     const c = panel.conv, b = AI.$('chatBar'); if (!b) return;
     const persona = c ? (c.system && c.persona !== 'builder' ? 'Custom' : (AI.PERSONAS[c.persona] || AI.PERSONAS.helper).name) : AI.PERSONAS[AI.prefs.persona] ? AI.PERSONAS[AI.prefs.persona].name : 'Helpful assistant';
     b.replaceChildren(
-      el('button', { type: 'button', class: 'tb only-mobile', 'aria-label': 'Chats', onclick: () => document.body.classList.toggle('side-open') }, AI.icon('menu')),
+      chatsBtn,
       el('button', { type: 'button', class: 'conv-title', id: 'convTitle', title: 'Rename', onclick: () => c && c.messages.length && AI.renameConv() }, c ? c.title : 'New chat'),
       el('button', { type: 'button', class: 'btn sm', id: 'btnPersona', title: 'Persona, temperature, max tokens', onclick: () => AI.settingsDialog(panel.conv || null, { onSave: bar }) }, AI.icon('gear'), el('span', null, persona)),
       el('button', { type: 'button', class: 'btn sm toggle', id: 'btnTools', 'aria-pressed': String(!!(c ? c.tools : AI.prefs.tools)), title: 'Let the model open apps and save to Slop Drive',
@@ -102,7 +103,11 @@
       el('div', { class: 'conv-list', id: 'convList' }),
       AI.renderLauncher());
     const main = el('div', { class: 'chat-main' }, el('div', { class: 'chat-bar', id: 'chatBar' }));
-    v.append(side, el('div', { class: 'scrim', onclick: () => document.body.classList.remove('side-open') }), main);
+    v.append(side, main);
+    // On a phone the chat list is a drawer from the start edge: SlopSheet (shared/ui/sheet.js) gives it the Chats button as
+    // its toggle, the ×, Escape, a tap outside and a swipe left.
+    chatsBtn = el('button', { type: 'button', class: 'tb only-mobile', 'aria-label': 'Chats', 'aria-controls': 'convs' }, AI.icon('menu'));
+    AI.chatsUI = window.SlopSheet.attach({ root: document.body, panel: side, side: 'start', phone: '(max-width: 760px)', toggles: [chatsBtn], label: 'Chats' });
     panel = AI.chat = new AI.ChatPanel(main, { kind: 'chat', empty, toolsFor: AI.toolsFor, onDone: () => bar(), onCreate: (c) => { if (AI.pendingTools) { c.tools = true; AI.pendingTools = false; } bar(); } });
     AI.on('convs', AI.debounce(refresh, 30));
     AI.on('engine', () => { if (panel.conv && !panel.conv.messages.length || !panel.conv) panel.render(); });

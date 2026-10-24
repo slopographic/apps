@@ -2,7 +2,7 @@
  * reached through window.SlopAITools from aitools/common.js, which loads first as a classic script). The model is only
  * used after the gate passes; nothing downloads here. Layout, outputs and drawing live in the modules beside this file. */
 import { isSupported, openFile, renderPage } from './sources.js';
-import { linesToText } from './layout.js';
+import { linesToText, rowsOf } from './layout.js';
 import { drawPage } from './overlay.js';
 import { plainText, markdownText, docxFile, searchablePdf, jpegBytes, saveBlob, copyText } from './export.js';
 import { sampleReceipt } from './sample.js';
@@ -114,7 +114,7 @@ async function readAll() {
       if (i === state.cur) await paint();
       refresh();
     }
-    const lines = state.pages.reduce((n, p) => n + (p.lines ? p.lines.length : 0), 0);
+    const lines = state.pages.reduce((n, p) => n + (p.lines ? rowsOf(p.lines).length : 0), 0);
     const failed = state.pages.filter((p) => p.error);
     say(failed.length
       ? `Could not read ${failed.length} page${failed.length === 1 ? '' : 's'}: ${failed[0].error}`

@@ -67,7 +67,7 @@ uploaded.
     e-mail, company).
   - `io-dialogs.js` (the import picker and the export dialog), `tools-dialogs.js` (duplicates, clean up, find and replace,
     add or remove a group, default country code), `photo-ui.js` (picking a photo, the avatar markup).
-  - `keys.js` (Cmd+N, Cmd+F, Cmd+A, Delete and Backspace asking first, Escape), `commands.js` (SlopCmd commands and
+  - `keys.js` (Ctrl+Alt+N, which is Cmd+Option+N on a Mac: Chrome keeps Ctrl+N for a new window; Cmd+F, Cmd+A, Delete and Backspace asking first, Escape), `commands.js` (SlopCmd commands and
     `data-cmd`), `main.js` (boot, and a `.scontacts` handed over from Slop Drive is imported).
 
 ## The shared record
@@ -136,7 +136,7 @@ uploaded.
   `window.SlopUrlState`. A URL that names a place wins over the saved session place at start-up.
 
 ## Actions
-- New contact (the quick form, Cmd+N). Duplicate (a copy under a new id, opened in the form). Delete (a SlopUI dialog;
+- New contact (the quick form, Ctrl+Alt+N). Duplicate (a copy under a new id, opened in the form). Delete (a SlopUI dialog;
   Delete and Backspace ask too).
 - Selection: a click opens the contact; Cmd or Ctrl click adds or removes a row; Shift click selects the range; Select
   mode makes every click a toggle (for touch). The bulk bar: add to group, set stage, delete, done.
@@ -163,7 +163,7 @@ uploaded.
 - `contacts.spec-app.js`: letter headers in order with # last; a row's second line; a new contact in its letter section
   and in the CRM's Customers; the orders and invoices of a customer from the shared collections with links; a contact
   with no orders; the 390 px layout (no horizontal scroll, list first, full-page card with back); arrows, Enter, Delete
-  asking first; Cmd+N.
+  asking first; Ctrl+Alt+N.
 - `tests/contacts/form.test.html` (`contacts.spec-form.js`): the edit form at 390 and 1280 px: its box, the content width
   and the fields above the rows do not move while two phone rows and an address row are added (for a new and an existing
   contact); Save and Cancel are on screen and not covered; the first field has the focus; Escape cancels; Cmd+Enter saves.

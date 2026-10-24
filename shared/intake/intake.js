@@ -70,10 +70,11 @@
     else if (pick === 'new') await app.onNew(files);
   }
 
-  /** Attaches an app to pastes. o: { accept(file), hasOpen?(), openName?(), onAdd(files), onNew(files) }. */
+  /** Attaches an app to pastes. o: { accept(file), hasOpen?(), openName?(), onAdd(files), onNew(files), first? }.
+   *  first: true puts it before the ones attached earlier (a page that attaches its general drop zone first). */
   SI.attach = function (o) {
     const entry = { accept: o.accept, hasOpen: o.hasOpen, openName: o.openName, onAdd: o.onAdd || o.onNew, onNew: o.onNew || o.onAdd };
-    apps.push(entry);
+    if (o.first) apps.unshift(entry); else apps.push(entry);
     if (!listening) { document.addEventListener('paste', onPaste); listening = true; }
     return () => { const i = apps.indexOf(entry); if (i >= 0) apps.splice(i, 1); };
   };

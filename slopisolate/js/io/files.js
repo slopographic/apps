@@ -7,20 +7,21 @@
   const toast = (msg) => { if (window.SlopUI) SlopUI.toast(msg); };
 
   /** Hand files to the queue. Non-image files are skipped; tell the user when nothing was usable. */
-  /** The first-use notice: shown once, the first time files are given to the app. */
-  const NOTICE = {
-    title: 'Remove backgrounds on this device',
-    lines: ['Slop Isolate removes the background from a picture with an AI model that runs in your browser.'],
-    downloads: [
-      { name: 'Fast model (U²-Netp)', bytes: 4574105 },
-      { name: 'Quality model (IS-Net)', bytes: 46535524 },
-      { name: 'Portrait model (MODNet)', bytes: 25888640 },
-    ],
+  /** The first-use notice: shown once, the first time files are given to the app. Only the chosen model downloads
+   * (the others when they are first picked), so the notice names that one, with its size from the model registry. */
+  F.notice = function () {
+    const M = window.SlopCutoutModels, m = M.get(CO.state.model);
+    return {
+      title: 'Remove backgrounds on this device',
+      lines: ['Slop Isolate removes the background from a picture with an AI model that runs in your browser.',
+        'Another model is downloaded only if you choose it in the Model panel.'],
+      downloads: [{ name: `${m.name} model (${m.arch.split(' (')[0]})`, bytes: m.bytes }],
+    };
   };
   async function take(files) {
     const list = [...(files || [])];
     if (!list.length) return [];
-    if (window.SlopFirstRun && !(await SlopFirstRun.once('slopisolate', NOTICE))) return [];
+    if (window.SlopFirstRun && !(await SlopFirstRun.once('slopisolate', F.notice()))) return [];
     const items = CO.process.add(list);
     if (!items.length) toast('Those files are not images');
     return items;

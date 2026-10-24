@@ -36,7 +36,8 @@
     'MIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary="BND"\r\n\r\n' +
     '--BND\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nHello\r\n' + NAMES.map(part).join('') + '--BND--\r\n';
 
-  const att = (i) => W().document.querySelectorAll('.em-att')[i].querySelector('.em-att-info');
+  // The attachments are in the side panel (shared/frame/panel.js): each row's name opens the preview.
+  const att = (i) => W().document.querySelectorAll('#em-side .sf-item')[i].querySelector('.sf-item-main');
   const dlg = () => W().document.querySelector('.sui-back:not(.sui-out) .sui-dlg.em-prev-dlg');
   const frame = () => dlg() && dlg().querySelector('iframe');
   const btn = (label) => [...dlg().querySelectorAll('.sui-foot button')].find((b) => b.textContent === label);
@@ -53,7 +54,7 @@
     await new Promise((r) => { f.addEventListener('load', r, { once: true }); f.src = '../../eml/index.html'; });
     await waitFor(() => W().EmlApp && W().EmlPreview && W().document.body.classList.contains('ready'), { timeout: 10000 });
     await W().EmlApp.openFile(new File([EML], 'attachments.eml', { type: 'message/rfc822' }));
-    await waitFor(() => W().document.querySelectorAll('.em-att').length === NAMES.length, { timeout: 5000 });
+    await waitFor(() => W().document.querySelectorAll('#em-side .sf-item').length === NAMES.length, { timeout: 5000 });
   }
 
   describe('attachment preview: the kind of each file', () => {
@@ -198,9 +199,9 @@
       } finally { W().SlopUI.download = real; closeAll(); }
     });
 
-    it('the list still has a Save button for each attachment', async () => {
-      const saves = [...W().document.querySelectorAll('.em-att-save')];
-      expect(saves.length).toBe(NAMES.length);
+    it('the panel has a Save button and an Open in menu for each attachment', async () => {
+      const rows = [...W().document.querySelectorAll('#em-side .sf-item')];
+      expect(rows.map((r) => [...r.querySelectorAll('.sf-item-acts .sf-btn-txt')].map((b) => b.textContent).join('|'))).toEqual(NAMES.map(() => 'Save|Open in'));
     });
   });
 

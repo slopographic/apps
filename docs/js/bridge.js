@@ -17,22 +17,9 @@ import { fragRuns, visualChars } from './layout/runs.js';
 import * as LANG from './fonts/lang.js';
 import { ensureDocLang, mayNeedLang } from './fonts/lang-doc.js';
 import * as HF from './model/hf.js';
+import { ensureDocFonts } from './fonts/doc-fonts.js';   // every face the runs use (the layout falls back to nearby faces until they arrive)
 /** The PDF writer is loaded on first use (it pulls in pdf-lib). */
 const exportPdf = async (doc, layout, opts) => (await import('./io/pdf.js')).exportPdf(doc, layout, opts);
-
-/** Load every face the document's runs use (the layout falls back to nearby faces until they arrive). */
-async function ensureDocFonts(doc) {
-  const seen = new Map();
-  for (const b of M.docBlocks(doc)) {
-    if (b.type !== 'p') continue;
-    for (const r of b.runs || []) {
-      if (r.obj) continue;
-      const m = S.runMarks(doc, b, r), k = `${m.font}|${!!m.b}|${!!m.i}`;
-      if (!seen.has(k)) seen.set(k, { font: m.font, b: !!m.b, i: !!m.i });
-    }
-  }
-  await F.ensureFaces([...seen.values()]);
-}
 
 // a face that finishes loading changes the metrics: drop cached paragraph layouts and let the UI re-lay out
 F.onFontLoad(() => { clearParaCache(); window.dispatchEvent(new Event('slopdocs:fonts')); });

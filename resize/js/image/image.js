@@ -2,7 +2,8 @@
  * PNG, WebP or AVIF. Shrinking halves in steps first (each step averages 2×2 pixels) so a big reduction stays clean;
  * spec.resample 'nearest' skips that and keeps hard pixels. PNG, WebP and AVIF keep transparency. JPEG has none, so a
  * transparent area is filled with the chosen background colour (white when none is chosen), and the note says so.
- * A maximum file size searches the quality of the lossy types (JPEG, WebP, AVIF).
+ * A maximum file size searches the quality of the lossy types (JPEG, WebP, AVIF). Camera RAW files (shared/raw) are
+ * developed by the RAW engine, or use their embedded preview when it cannot run.
  * Classic script; exposes window.SlopResize.image. Needs core/size.js and core/format.js. */
 (function (g) {
   'use strict';
@@ -10,8 +11,17 @@
   const canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
   const smooth = (ctx, best) => { ctx.imageSmoothingEnabled = best !== false; ctx.imageSmoothingQuality = 'high'; };
 
-  /** Decode a picture file. Resolves with { node, w, h, close() }. */
+  const isRaw = async (blob) => !!g.SlopRaw && (await g.SlopRaw.isRaw(blob, blob.name || ''));
+  /** A camera RAW file (shared/raw), developed in full by the RAW engine (as shot white balance, upright), or its
+   *  embedded preview when the engine cannot run; note says which. */
+  async function loadRaw(blob) {
+    const r = await g.SlopRaw.image(blob, { mode: 'full' });
+    return { node: r.canvas, w: r.canvas.width, h: r.canvas.height, close: () => {}, note: r.note };
+  }
+
+  /** Decode a picture file. Resolves with { node, w, h, close(), note? }. */
   I.load = async function (blob) {
+    if (await isRaw(blob)) return loadRaw(blob);
     try {
       const bmp = await createImageBitmap(blob, { imageOrientation: 'from-image' });
       return { node: bmp, w: bmp.width, h: bmp.height, close: () => bmp.close() };
@@ -28,8 +38,14 @@
     } finally { URL.revokeObjectURL(url); }
   };
 
-  /** Size of a picture file without keeping it decoded. */
+  /** Size of a picture file without keeping it decoded. A RAW file is measured from its embedded preview (no engine)
+   *  and gets thumb, a JPEG URL of that preview for the list. */
   I.probe = async function (blob) {
+    if (await isRaw(blob)) {
+      const r = await g.SlopRaw.image(blob, { mode: 'preview', maxEdge: 160 });
+      const t = await new Promise((res) => r.canvas.toBlob(res, 'image/jpeg', 0.85));
+      return { w: r.width, h: r.height, thumb: t ? URL.createObjectURL(t) : '' };
+    }
     const s = await I.load(blob);
     try { return { w: s.w, h: s.h }; } finally { s.close(); }
   };
@@ -88,7 +104,7 @@
       const chosen = spec.bg !== 'transparent' ? spec.bg : null;
       // Formats without alpha are always filled: white when no colour was chosen (never black).
       const fill = chosen || (fmt.alpha ? null : '#ffffff');
-      let note = '';
+      let note = s.note || '';
       if (!fmt.alpha && !chosen && hasTransparency(s)) {
         note = `${fmt.label} has no transparency, so transparent areas are filled white. Pick a background colour to choose the fill.`;
       }

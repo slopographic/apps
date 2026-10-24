@@ -5,7 +5,10 @@ import { PAGES } from '../core/pages.js';
 import { h } from './dom.js';
 import '../../../shared/ui/flow.js';   // window.SlopFlow: the same PDF → DOCX picture as the converter pages
 
-export const CATEGORIES = ['Documents', 'Images', 'Audio and video', 'Data', 'Text & code'];
+// The order of the groups. A page whose category is not listed still gets a group (after these), so every page in
+// PAGES has a card: the hub never drops a page because its category was not added here.
+const ORDER = ['Documents', 'Images', 'Camera RAW', 'Audio and video', 'Data', 'Text & code', '3D models', 'Finance'];
+export const CATEGORIES = [...new Set([...ORDER, ...PAGES.map((p) => p.cat)])];
 
 const accepts = (p) => (p.from.length ? p.from.map((k) => k.toUpperCase()).join(', ') : 'Any file');
 

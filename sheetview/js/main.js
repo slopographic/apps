@@ -88,6 +88,10 @@ function exportMenu(anchor) {
   window.SlopUI.menu(exportItems(ctx, runExport), r.left, r.bottom + 4);
 }
 
+/** Convert… (shared/convert/dialog.js, loaded on first use): File convert's tool in a dialog, with the open document
+ *  as XLSX (its provider is in export.js). This page has no shell header, so the Menu and the palette offer it. */
+const openConvert = () => import('../../shared/convert/dialog.js').then((m) => m.open({})).catch(() => toast('Convert is not available offline'));
+
 function menuItems() {
   const has = !!store.doc();
   const v = store.view();
@@ -98,6 +102,7 @@ function menuItems() {
     ...exportItems(exportContext() || { doc: null, sheet: null, order: [] }, runExport).map((it) => (it === '-' ? it : { ...it, disabled: !has })),
     '-',
     { label: 'Open current sheet in Slop Table', disabled: !has, act: openInTables },
+    { label: 'Convert files…', act: openConvert },
     { label: 'Clear sort and filters', disabled: !has || nothingToClear, act: () => store.clearView() },
   ];
 }
@@ -113,6 +118,7 @@ function registerCommands() {
     C('hub', 'Open current sheet in Slop Table', [], openInTables, { keywords: ['tables', 'edit', 'drive'], when: () => !!store.doc() }),
     C('export-visible-csv', 'Export visible rows as CSV', [], () => runExport('csv', 'visible', exportContext()), { keywords: ['save', 'filter'], when: () => !!store.doc() }),
     C('export-all-xlsx', 'Export all rows as XLSX', [], () => runExport('xlsx', 'all', exportContext()), { keywords: ['excel', 'save'], when: () => !!store.doc() }),
+    C('convert', 'Convert files…', [], openConvert, { keywords: ['convert', 'format', 'pdf', 'json', 'csv'] }),
     C('clear', 'Clear sort and filters', [], () => store.clearView(), { keywords: ['reset', 'sort', 'filter'], when: () => !!store.doc() }),
   ]);
 }

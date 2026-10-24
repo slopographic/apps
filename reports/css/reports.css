@@ -6,7 +6,11 @@ body {
   color: var(--sl-text, #1d1d1b);
   font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
-.rp-main { max-width: 1100px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
+/* The page keeps one width whatever the report: the body is a flex column (the shared bar), where an auto-margin item
+   shrinks to its content, so main takes the full width up to its cap; and the scrollbar's gutter is kept, so a long
+   report that scrolls does not narrow the page. */
+html { scrollbar-gutter: stable; }
+.rp-main { width: 100%; max-width: 1100px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
 .rp-home { color: var(--sl-text-muted, #6b675c); text-decoration: none; font-size: 13px; }
 .rp-lead, .rp-sub { color: var(--sl-text-muted, #6b675c); margin: 4px 0 12px; }
 .rp-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }

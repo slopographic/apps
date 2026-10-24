@@ -155,7 +155,7 @@ function bindFileDrop() {
   const area = $('.docarea');
   fileZones = window.SlopDropChoice.zones(area, { labels: DROP_LABELS, accept: (e) => hasDragType(e, ['Files', 'text/uri-list']) });
   fileDrop = window.SlopDrop.attach($('#psDrop'), {
-    accept: { types: ['image/*'], exts: ['.psd', '.psb', '.ora', '.kra', '.tif', '.tiff', '.svg', '.avif', '.bmp', '.gif'], noun: 'a picture or a document' },
+    accept: { types: ['image/*'], exts: ['.psd', '.psb', '.ora', '.kra', '.tif', '.tiff', '.svg', '.avif', '.bmp', '.gif', ...(window.SlopRaw ? SlopRaw.EXTS.map((e) => '.' + e) : [])], noun: 'a picture or a document' },
     compact: true, overlay: false,
     targets: [area],
     files: (dt, e) => {

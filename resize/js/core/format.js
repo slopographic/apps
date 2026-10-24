@@ -25,7 +25,7 @@
     if (type.startsWith('image/')) return 'image';
     if (type.startsWith('video/')) return 'video';
     if (VIDEO_EXT.test(name)) return 'video';
-    if (IMAGE_EXT.test(name)) return 'image';
+    if (IMAGE_EXT.test(name) || (g.SlopRaw && g.SlopRaw.isRawName(name))) return 'image';   // camera RAW: shared/raw
     return null;
   };
 

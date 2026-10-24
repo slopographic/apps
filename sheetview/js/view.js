@@ -44,12 +44,13 @@ export function createView(store, els, appearance) {
     els.sheets.hidden = !d;
   }
 
+  /** Counts leave out the header row (v.head), which always shows. */
   function status(sheet, order, v) {
     const filters = [...v.filters.values()].filter(isActiveFilter).length;
-    const parts = [];
-    parts.push(order.length === sheet.height
-      ? `${plural(sheet.height, 'row', 'rows')}`
-      : `${n(order.length)} of ${n(sheet.height)} rows`);
+    const parts = [], total = sheet.height - v.head, shown = order.length - v.head;
+    parts.push(shown === total
+      ? `${plural(total, 'row', 'rows')}`
+      : `${n(shown)} of ${n(total)} rows`);
     if (filters) parts.push(`${plural(filters, 'filter', 'filters')} on`);
     const sort = describeSort(v.sort, colName);
     if (sort) parts.push(sort);
@@ -72,7 +73,7 @@ export function createView(store, els, appearance) {
     els.status.textContent = `${sheet.name} · ${status(sheet, order, v)}`;
     grid.update({
       sheet, order, sort: v.sort, filtered: new Set([...v.filters.keys()].filter((c) => isActiveFilter(v.filters.get(c)))),
-      onFilter: (col, btn) => openFilter(btn, { sheet, col, spec: store.filterOf(col), onApply: (f) => store.setFilter(col, f) }),
+      onFilter: (col, btn) => openFilter(btn, { sheet, col, spec: store.filterOf(col), onApply: (f) => store.setFilter(col, f), head: v.head }),
       resetScroll: changedSheet,
     });
   }

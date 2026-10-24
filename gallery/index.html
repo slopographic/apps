@@ -3,6 +3,7 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="gallery" data-src="shared/theme/theme.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -67,7 +68,6 @@
 
     <div class="body">
       <aside class="side" id="side" aria-label="Library">
-        <button type="button" class="drawer-close" id="btnDrawerClose" aria-label="Close filters">×</button>
         <nav class="nav" id="sideNav" aria-label="Views">
           <button type="button" class="nav-item" data-view="photos"><span class="nav-l">Photos</span><span class="nav-n" id="cntAll">0</span></button>
           <button type="button" class="nav-item" data-view="favourites"><span class="nav-l">Favourites</span><span class="nav-n" id="cntFav">0</span></button>
@@ -197,6 +197,10 @@
   <script src="js/io/backup.js" data-src="gallery/js/io/backup.js"></script>
   <script src="js/io/export.js" data-src="gallery/js/io/export.js"></script>
   <script src="js/core/db.js" data-src="gallery/js/core/db.js"></script>
+  <script src="../shared/raw/tiff.js" data-src="shared/raw/tiff.js"></script>
+  <script src="../shared/raw/detect.js" data-src="shared/raw/detect.js"></script>
+  <script src="../shared/raw/preview.js" data-src="shared/raw/preview.js"></script>
+  <script src="../shared/raw/raw.js" data-src="shared/raw/raw.js"></script>
   <script src="js/core/thumb.js" data-src="gallery/js/core/thumb.js"></script>
   <script src="js/core/library.js" data-src="gallery/js/core/library.js"></script>
   <script src="js/core/import.js" data-src="gallery/js/core/import.js"></script>
@@ -219,6 +223,7 @@
   <script src="js/ui/dupes.js" data-src="gallery/js/ui/dupes.js"></script>
   <script src="js/ui/menus.js" data-src="gallery/js/ui/menus.js"></script>
   <script src="js/ui/commands.js" data-src="gallery/js/ui/commands.js"></script>
+  <script src="../shared/ui/sheet.js" data-src="shared/ui/sheet.js"></script>
   <script src="js/ui/sidebar.js" data-src="gallery/js/ui/sidebar.js"></script>
   <script src="js/ui/people.js" data-src="gallery/js/ui/people.js"></script>
   <script src="js/ui/people-faces.js" data-src="gallery/js/ui/people-faces.js"></script>
@@ -240,5 +245,6 @@
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="gallery"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

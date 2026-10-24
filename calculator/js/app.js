@@ -14,11 +14,13 @@
   function setStatus(msg) { el.status.textContent = msg; }
   function toast(msg) { if (window.SlopUI && SlopUI.toast) SlopUI.toast(msg); else setStatus(msg); }
 
-  /** The result of a run of statements in the shape the page shows: { ok, value, text } or { ok:false, error }. */
+  /** The result of a run of statements in the shape the page shows: { ok, value, text } or { ok:false, error }. The text is
+   *  the value alone: the line itself already says "price = 19.99", so the tape reads "price = 19.99 = 19.99" at most once
+   *  per name, never "price = 19.99 = price = 19.99". */
   function resultOf(p) {
     const failed = p.steps.find((s) => !s.ok), done = p.steps.filter((s) => s.ok);
     if (failed) return { ok: false, error: failed.error };
-    return { ok: true, value: p.value, text: done.length ? done[done.length - 1].text : '' };
+    return { ok: true, value: p.value, text: done.length ? done[done.length - 1].result : '' };
   }
   /** Runs a line (one or more statements separated by ;). A preview works on a copy of the variables; Calculate keeps
    *  the names it sets. A currency pair with no rate yet is fetched from Slop Ledger, then the line runs again. */

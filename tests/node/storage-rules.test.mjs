@@ -24,7 +24,7 @@ const ERASE_OK = new Set(['shared/data/store.js', 'gallery/js/core/db.js', 'shar
 
 async function sources(dir = ROOT, out = []) {
   for (const e of await readdir(dir, { withFileTypes: true })) {
-    if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name) && !(dir === ROOT && SKIP_TOP.has(e.name))) await sources(path.join(dir, e.name), out); continue; }
+    if (e.isDirectory()) { if (!e.name.startsWith('.') && !SKIP_DIRS.has(e.name) && !(dir === ROOT && SKIP_TOP.has(e.name))) await sources(path.join(dir, e.name), out); continue; }
     if (/\.(m?js|html)$/.test(e.name)) out.push(path.join(dir, e.name));
   }
   return out;

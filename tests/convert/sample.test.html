@@ -34,7 +34,7 @@
       const T = $('[data-convert-root]').convertTool;
       expect(T.items[0].name).toBe('Price list.csv');
       expect(T.items[0].kind).toBe('csv');
-      expect($('#cv-target').value).toBe('csv-to-xlsx');
+      expect(T.target).toBe('csv-to-xlsx');
       expect(W.getComputedStyle($('#cv-drop .sd-preview')).display).toBe('none');   // the preview is for an empty page
       expect($('#cv-run').disabled).toBe(false);
     }, { timeout: 60000 });

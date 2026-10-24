@@ -41,8 +41,7 @@
       expect(M.glad).toBeGreaterThan(0.5);                  // and he is happy
       expect(LINES.candyyes).toContain(M.bubble.querySelector('.say-text').textContent);
       expect(doc.querySelector('.sh-mk').disabled).toBe(false);
-      await sleep(600);
-      expect(doc.querySelectorAll('.sloppo-candy').length).toBe(0);
+      await waitFor(() => doc.querySelectorAll('.sloppo-candy').length === 0, { timeout: 3000 });   // eaten: it fades away
       calm();
     });
     it('when he is MAD he asks for a candy in his bubble, and the button makes one', async () => {

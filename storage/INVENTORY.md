@@ -19,7 +19,7 @@ Versions: "v" is the value passed to `indexedDB.open` (IndexedDB), or the envelo
 ## IndexedDB: SlopData (`slop-data`, shared/data)
 
 Version 9 (`DB_VERSION` in `shared/data/store.js`). v2 adds `exchangeRates`, v3 `customerGroups` and `customerTags`, v4
-`events`, `tasks` and `reminders`, v5 `expenses`, v6 `quotes`, v7 `timeEntries`, v8 `schedules`, v9 `purchases`, v10 `creditNotes`, v11 `bankLines`. Every step only creates the stores that are missing (`createStores`), so a
+`events`, `tasks` and `reminders`, v5 `expenses`, v6 `quotes`, v7 `timeEntries`, v8 `schedules`, v9 `purchases`, v10 `creditNotes`, v11 `bankLines`, v12 `projects` and `projectTasks`. Every step only creates the stores that are missing (`createStores`), so a
 database of any earlier version keeps all of its records; `tests/storage/upgrade.test.html` opens a v1 database and checks
 every collection exists after the upgrade. SlopData's collections are listed in `schema-defs.js`.
 
@@ -46,6 +46,7 @@ every collection exists after the upgrade. SlopData's collections are listed in 
 | shared/data | purchases | 9 | purchase order: supplier (a contact flagged supplier), date, expected date, lines and totals, status draft/ordered/received/cancelled, where it was received, the bill's expense | shared/data (purchases), purchases, inventory, expenses | new in v9; created on upgrade; numbers PO-0001 |
 | shared/data | creditNotes | 10 | credit note: the invoice and customer, date, amount with its subtotal and tax, the part paid back and how, reason | shared/data (credits), invoices, reports | new in v10; created on upgrade; numbers CN-0001; immutable, posting only |
 | shared/data | bankLines | 11 | a bank statement line to reconcile: account, date, text, signed amount, status open/matched/ignored, the journal entry it matches, the file it came from | ledger (bank) | new in v11; created on upgrade; key unique per statement line, so a second import adds nothing |
+| shared/data | projects, projectTasks | 12 | Slop Projects: a project (name, colour, dates, board columns with WIP limits, people, CRM customer) and its tasks (column and place, assignee, priority, start/end/due, tags, checklist, the ids of the tasks it waits for, CRM customer) | projects | new in v12; created on upgrade; hard delete (Undo puts the records back) |
 
 ## IndexedDB: other databases
 

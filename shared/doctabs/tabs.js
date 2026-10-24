@@ -37,7 +37,8 @@
     const listeners = new Set();
     let cur = null, dragId = null, menuOpen = false, edit = null; // edit = { id, value, input } while a tab name is being typed
 
-    const strip = make(d, 'div', { class: 'sl-doctabs-strip' });
+    // the tabs' tablist (a tab needs one as its parent), named by the host's label
+    const strip = make(d, 'div', { class: 'sl-doctabs-strip', role: 'tablist', 'aria-label': host.getAttribute('aria-label') || 'Open documents' });
     const plus = make(d, 'button', { type: 'button', class: 'sl-doctabs-new', title: 'New document (Ctrl+T)', 'aria-label': 'New document' }, ['+']);
     const more = make(d, 'button', { type: 'button', class: 'sl-doctabs-more', title: 'All open documents', 'aria-label': 'All open documents', 'aria-haspopup': 'menu', 'aria-expanded': 'false' }, ['⋯']);
     const menu = make(d, 'div', { class: 'sl-doctabs-menu', role: 'menu' });

@@ -184,15 +184,13 @@
       expect(doc().querySelector('.rail-b[data-tool="convert"]').getAttribute('aria-selected')).toBe('true');
       PT.A._.fileMenu().find((x) => x && x.label === 'Convert…').act(); // File > Convert opens the dialog on the open document
       const dlg = await waitFor(() => doc().querySelector('.sl-cvt-dlg'), { timeout: 20000 });
-      await waitFor(() => dlg.querySelector('input[name]'), { timeout: 20000 });
-      const ids = [...dlg.querySelectorAll('input[name]')].map((i) => i.dataset.target);
-      expect(ids).toContain('pdf-to-png');
+      await waitFor(() => dlg.querySelector('.cv-to[data-target="pdf-to-images"]'), { timeout: 20000 }); // the file starts on PDF to images (PNG)
+      const ids = dlg.querySelector('.cv-tool').convertTool.targets();
+      expect(ids).toContain('pdf-to-images');
       expect(ids).not.toContain('images-to-pdf');
-      await waitFor(() => dlg.querySelector('input[data-target="pdf-to-png"]'), { timeout: 20000 });
-      dlg.querySelector('[data-k="run"]').click();
-      await waitFor(() => dlg.querySelector('[data-k="dl:0"]'), { timeout: 60000 });
-      expect(dlg.querySelector('[data-k="dl:0"]').closest('li').querySelector('.sl-cvt-name').textContent).toBe('to-convert-edited-page-1.png');
-      expect(!!dlg.querySelector('[data-k="dr:0"]')).toBe(true); // the tab is linked to Slop Drive
+      dlg.querySelector('.cv-form button[type=submit]').click();
+      await waitFor(() => dlg.querySelector('.cv-out-item .sl-cvt-save'), { timeout: 60000 }); // Download, and Save to Slop Drive
+      expect(dlg.querySelector('.cv-out-item .cv-file-name').textContent).toBe('to-convert-edited-page-1.png');
       dlg.dispatchEvent(new PT.win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       await waitFor(() => !doc().querySelector('.sl-cvt-dlg'));
       PT.A.driveId = null;

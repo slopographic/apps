@@ -82,7 +82,8 @@
       document.body.append(f);
       await waitFor(() => f.contentWindow.SlopImg3D && f.contentWindow.SlopImg3D.jit && f.contentWindow.SlopLibraryInstall, { timeout: 20000 });
       const W = f.contentWindow, D = W.document, log = fakes(W);
-      expect(D.getElementById('depthNote').textContent).toContain('downloads when you open a picture');
+      // the note is written after the app checks its library (async): wait for it rather than read it at once
+      await waitFor(() => D.getElementById('depthNote').textContent.includes('downloads when you open a picture'), { timeout: 10000 });
       const c = D.createElement('canvas'); c.width = 64; c.height = 48;
       const x = c.getContext('2d'); x.fillStyle = '#888'; x.fillRect(0, 0, 64, 48);
       const dt = new W.DataTransfer();

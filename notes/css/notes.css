@@ -43,11 +43,11 @@ button, input, textarea { font: inherit; color: inherit; }
 .nt-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: auto; background: var(--nt-bg); }
 .nt-list { border-right: 1px solid var(--nt-line); }
 .nt-side { border-right: 1px solid var(--nt-line); }
-/* Phone only: one pane at a time. On desktop every pane stays visible whatever data-pane says. */
+/* Phone only: the notes list or the editor, one at a time, and the notebooks as a drawer over them (shared/ui/sheet.js,
+ * attached in js/main.js). On desktop every pane stays visible whatever data-pane says. */
 @media (max-width: 899px) {
-  .nt-app[data-pane="side"] .nt-list, .nt-app[data-pane="side"] .nt-main,
-  .nt-app[data-pane="list"] .nt-side, .nt-app[data-pane="list"] .nt-main,
-  .nt-app[data-pane="editor"] .nt-side, .nt-app[data-pane="editor"] .nt-list { display: none; }
+  .nt-app[data-pane="list"] .nt-main, .nt-app[data-pane="editor"] .nt-list { display: none; }
+  .nt-side { --ssh-z: 950; }   /* over the sticky menu bar (900) */
   .nt-app > .nt-side, .nt-app > .nt-list, .nt-app > .nt-main { grid-column: 1; }
 }
 

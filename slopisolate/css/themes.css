@@ -53,10 +53,9 @@
   .statusbar { display: none; }
   .queue { flex-direction: row; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); border-right: 0; border-top: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; }
   .q-item, .q-add { width: auto; height: 100%; }
-  .props { position: fixed; left: 0; right: 0; bottom: 0; max-height: 64vh; z-index: 40; border-left: 0; border-top: 1px solid var(--line-2); border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0, 0, 0, .4); transform: translateY(calc(100% + 40px)); visibility: hidden; transition: transform .22s ease, visibility 0s .22s; display: flex !important; padding-bottom: env(safe-area-inset-bottom); }
-  .app.sheet-open .props { transform: none; visibility: visible; transition: transform .22s ease; }
+  /* the settings panel is a bottom sheet: shared/ui/sheet.js gives its place, motion, × and closing */
+  .props { display: flex !important; border-left: 0; padding-bottom: env(safe-area-inset-bottom); --ssh-z: 40; }
   .pp-title { border-radius: 18px 18px 0 0; }
-  .sheet-grip { display: block; position: absolute; left: 50%; top: 5px; width: 36px; height: 4px; margin-left: -18px; border-radius: 4px; background: var(--line-2); }
   #btnPanel, #btnMore { display: inline-flex; }
   .menus, .tb-group { display: none; }
   .local-badge span { display: none; }

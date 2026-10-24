@@ -88,8 +88,14 @@ body { margin: 0; }
 .fx-graph-wrap { display: grid; grid-template-columns: minmax(200px, 320px) minmax(0, 1fr); gap: 16px; align-items: start; }
 .fx-curve { width: 100%; max-width: 320px; aspect-ratio: 1; border-radius: 8px; background: var(--fx-bg); border: 1px solid var(--fx-border); touch-action: none; }
 .fx-graph-side { display: grid; gap: 10px; align-content: start; }
+.fx-phone { display: none; }
 @media (max-width: 760px) {
-  .fx-main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-template-areas: "stage" "side" "tl"; padding: 12px 16px 24px; }
+  .fx-main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-template-areas: "stage" "tl"; padding: 12px 16px 24px; }
+  /* the Properties panel is a bottom sheet: shared/ui/sheet.js gives its place, motion and ×; the × sits over the tab row's end */
+  .fx-tools .fx-phone { display: inline-block; }
+  .fx-side { --ssh-z: 70; height: min(62vh, 520px); }   /* over the spotlight dock (z 60) */
+  .ssh-phone .fx-side > .ssh-x { position: absolute; inset: 2px 2px auto auto; margin: 0; }
+  .fx-side .fx-tabs { padding-right: 48px; }
   .fx-top { padding: 8px 16px; }
   .fx-brand { margin-right: auto; }   /* the shared buttons share the first row with the name; the field and tools follow */
   .fx-name { order: 1; }
@@ -98,7 +104,6 @@ body { margin: 0; }
   .fx-tools .sui-btn { flex: 1 1 auto; }
   .fx-name { width: 100%; }
   .fx-view { min-height: 46vh; }
-  .fx-side { min-height: 0; }
   .fx-panel { max-height: none; }
   .fx-tl { min-height: 320px; }
   .fx-lcell { width: 170px; }

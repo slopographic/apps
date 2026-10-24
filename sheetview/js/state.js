@@ -1,8 +1,9 @@
 /* Slop Sheets viewer: the open documents and their views (sheet, sort, filters). No DOM here.
- * A document: { id, name, format, sheets, sheet (index), views: [{ sort, filters: Map<col, filter>, version, cache }] }.
+ * A document: { id, name, format, sheets, sheet (index), views: [{ sort, filters: Map<col, filter>, head, version, cache }] }.
+ * head is how many rows at the top are the sheet's header (headerRows): sort and filter leave them on top.
  * Every change to a view bumps its version, and the visible rows are recomputed only when the version moves. */
 import { visibleOrder } from '../../shared/sheets/query.js';
-import { emptyFilter, isActiveFilter } from '../../shared/sheets/query.js';
+import { emptyFilter, isActiveFilter, headerRows } from '../../shared/sheets/query.js';
 
 let nextId = 1;
 
@@ -10,7 +11,7 @@ export function createStore(onChange = () => {}) {
   const store = { docs: [], active: -1 };
   const changed = () => onChange(store);
 
-  const newView = () => ({ sort: null, filters: new Map(), version: 0, cache: null });
+  const newView = (sheet) => ({ sort: null, filters: new Map(), head: headerRows(sheet), version: 0, cache: null });
   const bump = (v) => { v.version++; v.cache = null; };
 
   store.addDoc = (parsed, { name = parsed.name } = {}) => {
@@ -74,6 +75,8 @@ export function createStore(onChange = () => {}) {
     }
     return v.cache.order;
   };
+  /** Header rows at the top of the active sheet (0 or 1). */
+  store.head = () => store.view()?.head ?? 0;
   store.filterOf = (col) => store.view()?.filters.get(col) ?? emptyFilter();
   return store;
 }

@@ -1,6 +1,7 @@
 // Round-ups for the document apps, part 2 (shape in index.mjs): word processors (docs), spreadsheets (tables) and
 // presentation software (slides). Every fact about another tool is from its own pages (linked in sources), checked on
 // the date below. Our columns follow the code as it stood that day: re-check them when Docs, Tables or Slides change.
+import { INSTALL } from '../install-copy.mjs';
 const checked = '2026-10-24';
 const GW = 'https://workspace.google.com/products', GS = 'https://support.google.com';
 const MSS = 'https://support.microsoft.com/en-us';
@@ -24,7 +25,7 @@ const lo = {
   msf: { label: 'LibreOffice Help: Microsoft Office documents', url: `${LOH}/shared/guide/ms_import_export_limitations.html` },
   pdf: { label: 'LibreOffice Help: export as PDF', url: `${LOH}/shared/01/ref_pdf_export.html` },
 };
-const OURS = { Price: 'Free', Account: 'Not needed', Runs: 'Browser; works offline after the first visit' };
+const OURS = { Price: 'Free', Account: 'Not needed', Runs: 'In the browser on any device; works offline after the first visit' };
 
 export const ROUNDUPS = [
   { slug: 'free-word-processors', app: 'docs', checked, crumb: 'Best free word processors',
@@ -58,7 +59,7 @@ export const ROUNDUPS = [
       { name: 'Slop Docs', ours: true, bestFor: 'A quick private document with real pages, no account and nothing uploaded',
         summary: 'A word processor in the browser with real pages: styles, lists, headers and footers, tables from Word files, and DOCX, PDF and Markdown out. Early version.',
         cells: [OURS.Price, OURS.Account, OURS.Runs, 'Slop Drive, in this browser on your device', 'Opens and saves DOCX'],
-        pros: ['No account and nothing uploaded: documents are kept in Slop Drive in your browser', 'Real pages with margins, headers, footers and page numbers', 'Downloads Word (DOCX), PDF with selectable text and bookmarks, Markdown and text', 'Opens DOCX, Markdown and text, and has random and saved templates'],
+        pros: ['No account and nothing uploaded: documents are kept in Slop Drive in your browser', 'Real pages with margins, headers, footers and page numbers', 'Downloads Word (DOCX), PDF with selectable text and bookmarks, Markdown and text', 'Opens DOCX, Markdown and text, and has random and saved templates', INSTALL.pro],
         cons: ['No co-editing, comments or tracked changes', 'Pictures cannot be inserted yet, and DOCX images, footnotes and comments are not imported', 'Does not open ODT files', 'Files open through Slop Drive, not straight from a folder on your computer'] },
     ],
     matrix: [
@@ -76,12 +77,12 @@ export const ROUNDUPS = [
       { feature: 'Works offline', values: ['Chrome or Edge, with an extension', 'Desktop app', 'unknown', 'Desktop apps', 'After the first visit'] },
       { feature: 'Where documents are kept', values: ['Google Drive', 'unknown', 'OneDrive', 'unknown', 'Your browser'] },
     ],
-    verdict: ['For writing with other people, Google Docs and Word for the web are the strongest free choices: co-editing, comments and history, in exchange for an account and cloud storage. Pick Word for the web if your documents must stay .docx, and Google Docs for the smoothest collaboration.',
-      'LibreOffice Writer is the most complete free option if you can install a program. Zoho Writer is a good free web editor with reviews and an AI assistant.',
-      'Slop Docs is the one to pick when you want no account and nothing uploaded: a document with real pages, saved in your browser, out as DOCX or PDF. It is an early version without collaboration, so it is listed last here.'],
+    verdict: ['Slop Docs is our pick for a private document: no account and nothing uploaded, real pages with headers, footers and page numbers, and DOCX, PDF and Markdown out. It installs from the browser on a phone, tablet or computer and works offline. It is an early version: there is no co-editing, comments or tracked changes, and pictures cannot be inserted yet.',
+      'Choose Google Docs or Word for the web if you write with other people: both have co-editing, comments and history, in exchange for an account and cloud storage. Word for the web suits documents that must stay .docx; Google Docs has the smoothest collaboration.',
+      'Choose LibreOffice Writer for a full desktop word processor, if you can install a program, or Zoho Writer for reviews and an AI assistant in a free web editor.'],
     faq: [['Which free word processor needs no account?', 'Slop Docs works without an account: open the page and start typing. Google Docs, Word for the web and Zoho Writer need an account; LibreOffice is a program you install.'],
       ['Can a free word processor open and save Word files?', 'All five on this page open and save DOCX. Word for the web uses it as its own format, Google Docs can edit Word files directly, and Slop Docs reads and writes DOCX in your browser.'],
-      ['Which one works offline?', 'LibreOffice is a desktop app. Google Docs works offline in Chrome or Edge after you turn it on. Zoho Writer has desktop apps with offline mode. Slop Docs keeps working offline once the site has loaded.'],
+      ['Which one works offline?', 'Slop Docs works offline after the first visit, and you can install it from the browser to open it in its own window. LibreOffice is a desktop app. Google Docs works offline in Chrome or Edge after you turn it on. Zoho Writer has desktop apps with offline mode.'],
       ['Where are my documents stored?', 'Google Docs keeps them in Google Drive and Word for the web in OneDrive. Slop Docs keeps them in Slop Drive, which is storage inside your own browser, so they are not uploaded.']] },
 
   { slug: 'free-online-spreadsheets', app: 'tables', checked, crumb: 'Best free online spreadsheets',
@@ -115,7 +116,7 @@ export const ROUNDUPS = [
       { name: 'Slop Tables', ours: true, bestFor: 'A private spreadsheet with formulas, charts and pivots, no account and nothing uploaded',
         summary: 'A spreadsheet in the browser: 324 functions, several sheets, charts and pivot tables. It opens XLSX, ODS and CSV and saves XLSX. Early version.',
         cells: [OURS.Price, OURS.Account, OURS.Runs, 'Opens XLSX and ODS; saves XLSX', 'Slop Drive, in this browser'],
-        pros: ['No account and nothing uploaded: files stay in your browser', '324 functions, several sheets, freeze panes and number formats', 'Column, bar, line and pie charts, and pivot tables', 'Opens XLSX, XLSM, ODS, CSV and TSV, saves XLSX and CSV, and says what an import left out'],
+        pros: ['No account and nothing uploaded: files stay in your browser', '324 functions, several sheets, freeze panes and number formats', 'Column, bar, line and pie charts, and pivot tables', 'Opens XLSX, XLSM, ODS, CSV and TSV, saves XLSX and CSV, and says what an import left out', INSTALL.pro],
         cons: ['No sort, filter or conditional formatting yet', 'No co-editing, comments or macros', 'Does not save ODS, and has no print or PDF yet', 'Other chart types in an Excel file are not imported'] },
     ],
     matrix: [
@@ -135,9 +136,9 @@ export const ROUNDUPS = [
       { feature: 'Templates', values: ['unknown', 'yes', 'unknown', 'unknown', 'yes'] },
       { feature: 'Works offline', values: ['Chrome or Edge, with an extension', 'unknown', 'Desktop app', 'In its apps', 'After the first visit'] },
     ],
-    verdict: ['Google Sheets is the easiest free spreadsheet for working with other people, and Excel for the web is the safest choice when the file must stay an Excel workbook. Both need an account and keep your files in their cloud.',
-      'LibreOffice Calc is the most capable free option on your own computer. Zoho Sheet offers many chart types and an AI assistant for teams.',
-      'Slop Tables is for when you want formulas, charts and pivot tables with no account and nothing uploaded. It still lacks sort, filter and conditional formatting, so it is listed last.'],
+    verdict: ['Slop Tables is our pick when you want formulas, charts and pivot tables with no account and nothing uploaded: 324 functions, several sheets, and XLSX in and out, with a note of anything an import left out. It installs from the browser and works offline. It still lacks sort, filter and conditional formatting, and has no co-editing.',
+      'Choose Google Sheets if you work on spreadsheets with other people, or Excel for the web when the file must stay an Excel workbook. Both need an account and keep your files in their cloud.',
+      'Choose LibreOffice Calc for heavy spreadsheet work on your own computer, or Zoho Sheet for many chart types and an AI assistant for teams.'],
     faq: [['Which free spreadsheet works without an account?', 'Slop Tables opens in the browser with no account or sign-in. Google Sheets and Excel for the web need an account; LibreOffice Calc is a program you install.'],
       ['Can I open an Excel file in a free spreadsheet?', 'Yes. All five open XLSX. Slop Tables reads it in your browser, recalculates the formulas and tells you what it could not bring across, such as chart types it does not draw.'],
       ['Which free spreadsheet has pivot tables?', 'All five on this page have pivot tables: Google Sheets, Excel for the web, LibreOffice Calc, Zoho Sheet and Slop Tables.'],
@@ -174,7 +175,7 @@ export const ROUNDUPS = [
       { name: 'Slop Slides', ours: true, bestFor: 'A private deck with a presenter view and PPTX in and out, no account',
         summary: 'A presentation editor in the browser: themes, layouts, transitions and animations, a presenter view, and PowerPoint import and export. Early version.',
         cells: [OURS.Price, OURS.Account, OURS.Runs, 'Imports PPTX; exports PPTX', 'Yes, in a second window'],
-        pros: ['No account and nothing uploaded: decks are kept in Slop Drive in your browser', 'Presenter view with the current and next slide, notes, a timer and the slide count', 'Imports PowerPoint files and says what it left out; exports PPTX, PDF and PNG', 'Themes, layouts, transitions, animations and templates'],
+        pros: ['No account and nothing uploaded: decks are kept in Slop Drive in your browser', 'Presenter view with the current and next slide, notes, a timer and the slide count', 'Imports PowerPoint files and says what it left out; exports PPTX, PDF and PNG', 'Themes, layouts, transitions, animations and templates', INSTALL.pro],
         cons: ['No co-editing or comments', 'Video, audio, charts and SmartArt in a PowerPoint file are not imported, and video cannot be added', 'Does not open ODP files'] },
     ],
     matrix: [
@@ -194,11 +195,11 @@ export const ROUNDUPS = [
       { feature: 'Templates', values: ['yes', 'yes', 'unknown', '100+', 'yes'] },
       { feature: 'Works offline', values: ['Chrome or Edge, with an extension', 'unknown', 'Desktop app', 'yes', 'After the first visit'] },
     ],
-    verdict: ['Google Slides is the easiest free choice for building a deck with other people, and PowerPoint for the web keeps files in PowerPoint\'s own format, though its Presenter View needs the desktop app. Both need an account and keep files in their cloud.',
-      'LibreOffice Impress is the strongest free option on your own computer, with a Presenter Console. Zoho Show is a generous free web app with many import and export formats.',
-      'Slop Slides suits a private deck: no account, nothing uploaded, a presenter view with notes and PPTX in and out. It has no collaboration yet, so it is listed last.'],
+    verdict: ['Slop Slides is our pick for a private deck: no account, nothing uploaded, a presenter view with your notes, the next slide and a timer, and PPTX in and out. It installs from the browser and works offline, so you can present without a connection. It has no co-editing or comments yet, and video cannot be added.',
+      'Choose Google Slides to build a deck with other people, or PowerPoint for the web to keep files in PowerPoint\'s own format, though its Presenter View needs the desktop app. Both need an account and keep files in their cloud.',
+      'Choose LibreOffice Impress to present from your own computer with its Presenter Console, or Zoho Show for a generous free web app with many import and export formats.'],
     faq: [['Which free presentation software has a presenter view?', 'LibreOffice Impress has the Presenter Console, and Slop Slides opens a presenter view with your notes, the next slide and a timer. Microsoft says PowerPoint for the web needs desktop PowerPoint for Presenter View.'],
       ['Can I open a PowerPoint file without PowerPoint?', 'Yes. Google Slides, PowerPoint for the web, LibreOffice Impress, Zoho Show and Slop Slides all open PPTX. Slop Slides imports it in your browser and lists anything it could not bring across.'],
       ['Which one needs no account?', 'Slop Slides needs no account. Google Slides, PowerPoint for the web and Zoho Show ask you to sign in; LibreOffice Impress is a program you install.'],
-      ['Can I present offline?', 'LibreOffice Impress is a desktop app, Zoho Show lists an offline mode, Google Slides works offline in Chrome or Edge once turned on, and Slop Slides keeps working offline after the site has loaded once.']] },
+      ['Can I present offline?', 'Yes. Slop Slides works offline after the first visit, in the browser or installed from it as an app. LibreOffice Impress is a desktop app, Zoho Show lists an offline mode, and Google Slides works offline in Chrome or Edge once turned on.']] },
 ];

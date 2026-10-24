@@ -198,6 +198,13 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 .nav { --slop-hbtn-h: 36px; }
 .nav .tab { color: var(--bone-dim); }
 .nav .tab:hover { color: var(--bone); }
+/* the room the shell's buttons and the Tour button take, kept in the HTML so the header does not move when they come;
+ * like them it narrows when the header is full (their labels give way to icons) */
+.nav .sh-hdr-slot { flex: 0 1 207px; min-inline-size: 116px; block-size: 36px; }
+.nav .stour-slot { flex: 0 1 75px; min-inline-size: 36px; block-size: 36px; }
+/* the app finder is built by script: until then it keeps a screen's height, so what follows it is below the fold and
+ * does not move when it comes */
+.finder-host:empty { min-block-size: 100svh; }
 .nav .sh-hdr {
   --sh-fg: var(--sl-text, #f1ede4);
   --sh-dim: var(--sl-text, #f1ede4);

@@ -7,21 +7,25 @@ Slop Drive, and download. Status in `shared/apps.js` is `building`, group `creat
 
 - **three.js r170, vendored** in `vendor/three/three.module.min.js`, loaded with a dynamic `import()` relative to the page.
   No CDN. Licence: MIT (`vendor/three/LICENSE`, © 2010–2024 three.js authors). The page never fetches it from the network.
-- The vendored build has no addons for orbit controls, transform controls, GLTF/OBJ loaders or exporters, so:
-  - **Camera**: our own orbit, pan, zoom, frame and numbered views (`js/render/camera.js`).
-  - **Move gizmo**: our own three coloured arrows that drag along an axis, snapped (`js/render/gizmo.js`).
-  - **OBJ and glTF/GLB import**: our own parsers, pure JS (`js/core/obj.js`, `js/core/glb.js`).
-  - **OBJ export**: our own writer (`js/core/obj.js`). **GLB export is not done** (no exporter vendored).
+- Camera and move gizmo are our own (`js/render/camera.js`, `js/render/gizmo.js`).
+- **Model files** go through the shared 3D I/O module (`shared/3d-io/`, the three.js 0.170.0 loaders and exporters in
+  `vendor/three/addons/`), the same one File convert uses. `js/app/modelio.js` turns a loaded model into an import tree
+  and the scene into three.js objects. Opens OBJ (+MTL), STL, PLY, glTF (separate .bin and pictures picked together),
+  GLB, 3MF, DAE and FBX; exports OBJ (+MTL and PNG textures, as a zip), STL, PLY, GLB, glTF and USDZ. Animations are
+  not kept (models open in their current pose); point clouds, lines, cameras and lights in a file are left out.
 - Shading is `MeshStandardMaterial` (smooth normals, roughness, metallic, opacity, optional embedded image texture).
   Lights are real three.js lights built from the scene's light nodes.
 
 ## Files
 
 - `index.html`, `css/app.css`, `css/panels.css`: the page (topbar, outliner, viewport, inspector, status line).
+  Top bar: one row from 1260 px (1260 to 1536 px drops the word "slopographic" and packs the buttons; the shared buttons
+  are icons there), the scene actions on a row of their own under 1260 px. In edit mode (Vertex, Edge, Face shown) the
+  actions still wrap below 1440 px.
 - `js/core/` (pure, no DOM, loads in Node): `xform.js` (4×4 maths, Euler XYZ in degrees), `snap.js`, `geometry.js`
   (primitives as parameters), `blob.js` (icosphere plus value noise, seeded), `model.js` (scene and tree), `ops.js`
   (duplicate, group, ungroup, reparent, move, set field, bounds), `history.js` (snapshot undo with merge keys),
-  `format.js` (.s3d serialise, parse and validate), `obj.js`, `glb.js`, and the mesh editing set: `mesh.js` (welded
+  `format.js` (.s3d serialise, parse and validate), and the mesh editing set: `mesh.js` (welded
   polygon working form, bake of primitives, edge map, compact), `meshrender.js` (flat-where-it-bends render arrays),
   `meshsel.js` (element selection, mode conversion, edge loops, screen picks), `meshops.js` (extrude, delete,
   subdivide, merge, flip, fill, hide, reveal), `meshxf.js` (world matrices applied to selected vertices), `config.js`
@@ -159,3 +163,10 @@ The file is the scene JSON itself, UTF-8, with `"format": "slop-3d"` and `"versi
   with "Open in Slop 3D" (a `.s3d` in Slop Drive, opened with `?drive=`).
 - Meshes may carry optional `geom.uvs` (two numbers per vertex, checked by `geometry.js`). `render/objects.js` sets the
   `uv` attribute, so `material.map` shows on them. Meshes without `uvs` are unchanged. Mesh edit drops the UVs.
+
+## Phone layout (SlopSheet)
+Under 900 px the viewport fills the screen and the panels are SlopSheets (`shared/ui/sheet.js`, see
+`shared/ui/HANDOFF.md`), attached in `js/app/layout.js`: the Scene outliner is a drawer from the left, Properties a
+bottom sheet. The Scene and Properties buttons at the viewport's foot (`.vp-panels`, phone only) open and close them; the
+shared ×, Escape, a tap outside and a swipe close them. Before, the panels were stacked under the viewport in a scrolling
+page. `window.Slop3DSheets` (`{ scene, props }`) is for the tests: `tests/3d/phone.test.html`.

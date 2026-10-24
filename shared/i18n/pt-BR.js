@@ -12,6 +12,10 @@
     'nav.settings': 'Configurações',
 
     'shell.switch_app': 'Trocar de app',
+
+    'shell.convert': 'Converter…',
+
+    'shell.ai': 'IA',
     'shell.switch_title': 'Trocar de app ({shortcut})',
 
     'switcher.search': 'Buscar apps',
@@ -32,6 +36,7 @@
     'footer.settings_link': 'Configurações e privacidade',
     'footer.code_license': 'Código MIT',
     'footer.trademarks': 'Sloppo™ e Slopographic™ são marcas comerciais',
+    'footer.made': 'Feito com ❤️ na Suécia',
 
     'settings.appearance': 'Aparência',
     'settings.appearance_lede': 'Um só tema para todos os apps Slopographic e para este site. Escolha aqui e ele vale na hora. Cada app usa a mesma escolha ao abrir.',
@@ -79,5 +84,27 @@
     'menu.cancel': 'Cancelar',
     'menu.ok': 'OK',
     'menu.close': 'Fechar',
+
+    'storage.site': 'Armazenamento deste site',
+    'storage.of': '{used} de {quota}',
+    'storage.unknown': 'O navegador não informa quanto este site usa.',
+    'storage.meter_aria': 'Armazenamento usado',
+    'storage.kept': 'Mantidos: o navegador não vai apagar seus arquivos para liberar espaço.',
+    'storage.not_kept': 'Ainda não mantidos: o navegador pode apagar seus arquivos quando o disco estiver quase cheio.',
+    'storage.keep': 'Manter meus arquivos',
+    'storage.kept_button': 'Arquivos mantidos',
+    'storage.granted': 'Pronto. O navegador vai manter seus arquivos e não vai apagá-los para liberar espaço.',
+    'storage.denied': 'O navegador não prometeu manter seus arquivos. Ele pode apagá-los quando o disco estiver quase cheio, então faça um backup.',
+    'storage.denied_chromium': 'Ainda não. O Chrome e o Edge decidem isso sozinhos, conforme você usa este site. Seus arquivos estão salvos, mas faça um backup.',
+    'storage.denied_firefox': 'Não permitido. O Firefox perguntou e a resposta foi não, ou a pergunta foi fechada. Você pode mudar isso nas permissões do site.',
+    'storage.unsupported': 'Este navegador não pode prometer manter seus arquivos. Faça um backup.',
+    'storage.limit_title': 'Quanto espaço você tem',
+    'storage.limit_chromium': 'O Chrome e o Edge deixam este site usar até cerca de 60% do seu disco. Até o navegador aceitar manter seus arquivos, ele pode apagá-los quando o disco estiver quase cheio.',
+    'storage.limit_firefox': 'O Firefox deixa este site usar 10% do seu disco ou 10 GB, o que for menor. Quando você permite que ele mantenha seus arquivos, o limite sobe para até 50% do disco (no máximo 8 TB). O Firefox pergunta antes.',
+    'storage.limit_safari': 'O Safari deixa os apps do navegador usarem até cerca de 60% do seu disco.',
+    'storage.limit_other': 'Seu navegador define quanto este site pode guardar. Peça que ele mantenha seus arquivos, para não apagá-los quando o disco estiver quase cheio.',
+    'storage.folder': 'Para ter espaço sem limite do navegador, conecte uma pasta do seu disco no Slop Drive. Lá os arquivos só são limitados pelo seu disco.',
+    'storage.folder_button': 'Conectar uma pasta no Slop Drive',
+    'storage.folder_needs': 'Uma pasta conectada não tem limite do navegador, mas precisa do Chrome ou do Edge em um computador. Neste navegador seus arquivos ficam no armazenamento do navegador.',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

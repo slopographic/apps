@@ -1,5 +1,7 @@
 /* Slop Tables layout: a blank workbook shows the grid with cells and headers, the formula bar, the sheet tabs and
-   the sidebar, at desktop width and at 390 px. A storage that never answers must not leave the page blank. */
+   the sidebar, at desktop width and at 390 px (where the sidebar is a SlopSheet drawer). A storage that never answers
+   must not leave the page blank.
+   Covers: tables/js/ui/sidebar.js */
 (function () {
   'use strict';
   const { describe, it, expect } = SlopTest;
@@ -68,19 +70,35 @@
   });
 
   describe('blank workbook at 390 px', () => {
-    it('keeps the grid, the sidebar and the sheet tabs on screen with no page scroll', async () => {
-      await TB.boot('', 'app2', { keepDrafts: false });
-      TB.T.flush();
-      const f = TB.win;
-      expect(boxOf('side').width).toBeGreaterThan(100);
-      expect(shown(doc().getElementById('sideSheets').querySelector('.side-item'))).toBe(true);
-      expect(shown(doc().getElementById('sideFromTpl'))).toBe(true);
-      expect(doc().querySelectorAll('.ch').length).toBeGreaterThan(2);
-      expect(shown(doc().getElementById('cursor'))).toBe(true);
-      expect(boxOf('grid').width).toBeGreaterThan(150);
-      expect(shown(doc().querySelector('#tabs .tab:not(.tab-add)'))).toBe(true);
-      expect(doc().documentElement.scrollWidth <= f.innerWidth + 1).toBe(true);
-      expect(boxOf('grid').right <= f.innerWidth + 1).toBe(true);
+    const pdoc = () => TB.frame('app2').document, pbox = (id) => pdoc().getElementById(id).getBoundingClientRect();
+    it('keeps the grid, the sidebar toggle and the sheet tabs on screen with no page scroll', async () => {
+      // TB.doc and TB.win stay on the desktop frame; the phone frame is read here
+      const f = await TB.boot('', 'app2', { keepDrafts: false });
+      f.SlopTables.flush();
+      pdoc().head.append(Object.assign(pdoc().createElement('style'), { textContent: '* { transition: none !important; }' }));   // an offscreen frame stalls them
+      expect(pbox('side').width).toBeLessThan(40);   // only the toggle strip: the sidebar is a drawer
+      expect(shown(pdoc().getElementById('sideToggle'))).toBe(true);
+      expect(pbox('sideBody').right).toBeLessThanOrEqual(1);
+      expect(pdoc().querySelectorAll('.ch').length).toBeGreaterThan(2);
+      expect(shown(pdoc().getElementById('cursor'))).toBe(true);
+      expect(pbox('grid').width).toBeGreaterThan(300);
+      expect(shown(pdoc().querySelector('#tabs .tab:not(.tab-add)'))).toBe(true);
+      expect(pdoc().documentElement.scrollWidth <= f.innerWidth + 1).toBe(true);
+      expect(pbox('grid').right <= f.innerWidth + 1).toBe(true);
+    });
+    it('the toggle opens the sidebar as a drawer (SlopSheet); the toggle again, ×, Escape and picking a sheet close it', () => {
+      const D = pdoc(), t = D.getElementById('sideToggle'), body = D.getElementById('sideBody'), on = () => body.classList.contains('ssh-on');
+      const esc = () => D.dispatchEvent(new (TB.frame('app2').KeyboardEvent)('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      t.click();
+      expect([on(), t.getAttribute('aria-expanded'), Math.round(pbox('sideBody').left)]).toEqual([true, 'true', 0]);
+      expect(shown(D.getElementById('sideSheets').querySelector('.side-item'))).toBe(true);
+      expect(shown(D.getElementById('sideFromTpl'))).toBe(true);
+      t.click(); expect([on(), t.getAttribute('aria-expanded')]).toEqual([false, 'false']);
+      expect(D.getElementById('side').classList.contains('collapsed')).toBe(false);   // the desktop choice is untouched
+      t.focus(); t.click(); D.querySelector('#sideBody > .ssh-x').click();
+      expect([on(), D.activeElement]).toEqual([false, t]);
+      t.click(); esc(); expect(on()).toBe(false);
+      t.click(); D.querySelector('#sideSheets .side-item').click(); expect(on()).toBe(false);
     });
   });
 

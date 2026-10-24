@@ -1,6 +1,7 @@
 # SlopCmd: shared command palette and customizable shortcuts
 
 ## Files (all ≤300 lines)
+- `args.js`: argument schemas (validate, clamp, defaults, JSON schema, hints). Loaded on demand by `exec`.
 - `commands.js`: the core. It covers key parsing and display (`Mod` = Ctrl or ⌘, chords, ⌘⇧⌥ on Mac), the registry, per-app overrides (`localStorage 'slop.keys.<app>'`), recents/frecency (`'slop.cmd.recent.<app>'`), providers and the single capturing keydown dispatcher. Missing UI parts load on demand.
 - `search.js`: fuzzy ranking over title, keywords, group and id. Acronyms count, every word must match, enabled items rank first and recent use boosts. It also builds "Go to <app>" entries from `SLOP_APPS` and the provider sections.
 - `palette.js`: the Spotlight palette. It uses the ARIA combobox + listbox pattern with `aria-activedescendant`, traps focus, restores focus on close and is a full-width sheet at ≤640 px. The floating search button is opt-in: `init({ fab: true | 'touch' })`.
@@ -15,7 +16,8 @@ Load it after `slopui.js`:
 List `search.js`, `palette.js`, `recorder.js` and `keymap.js` too if the app builds an offline single file; otherwise they load lazily.
 
 - `init({ app, target?, fab?, paletteKeys? })`
-- `register([{ id, title, group, keys, icon, keywords, when, checked, run(ctx), repeat?, global?, hidden? }])`
+- `register([{ id, title, group, keys, icon, keywords, when, checked, run(ctx), repeat?, global?, hidden?, args?, tool?, description?, destructive? }])`
+- `exec(id, args, ctx)` → `Promise<{ ok, value, args, notes } | { ok: false, error }>`; `provide({ state, checkpoint, prepare })`, `state()`, `checkpoint()`, `prepare()`
 - `unregister(id)`, `run(id, ctx)`, `list()`, `get(id)`
 - `keyFor(id)`, `keysFor(id)`, `bindings(id)`
 - `open(q)`, `close()`, `openKeymap()`, `isOpen`
@@ -26,6 +28,37 @@ List `search.js`, `palette.js`, `recorder.js` and `keymap.js` too if the app bui
 - `parse`, `canon`, `format`, `eventSteps`, `search(q)`
 
 `run(ctx)` receives `{ source: 'key' | 'palette' | 'api', event }`.
+
+### Arguments and app state (for the Slop AI assistant)
+`args.js` (`window.SlopCmdArgs`, also a CommonJS module) describes what a command takes. Every existing command keeps
+working unchanged; only a command that sets `args` is called differently.
+
+```js
+SlopCmd.register([{ id: 'ps.ai.gaussian-blur', tool: 'gaussian_blur', title: 'Gaussian blur', hidden: true, destructive: false,
+  description: 'Blur the active layer, or only the selection.',
+  args: [{ name: 'radius', type: 'number', min: 0.1, max: 250, default: 4, step: 0.1, description: 'px' }],
+  run: (args, ctx) => blur(args ? args.radius : 4) }]);      // args is null from keys and the palette
+SlopCmd.provide({
+  state: () => ({ document: …, layers: […], selection: … }),   // small JSON: what the assistant reads with app_state
+  checkpoint: () => { const mark = history.now(); return () => history.goTo(mark); },  // "Undo all AI changes"
+  prepare: () => import('./ai-commands.js'),                     // optional: load the AI commands when first needed
+});
+const r = await SlopCmd.exec('ps.ai.gaussian-blur', { radius: '900px' });  // { ok, value, args: { radius: 250 }, notes: […] }
+```
+- Types: `number` (`min`, `max`, `step`, `integer`), `string` (`maxLength`), `enum` (`values` or `options: [[value, label]]`),
+  `boolean`, `color` (hex or a basic name → `#rrggbb`). `required`, `default`, `description` on any. A map `{ radius: {…} }` works too.
+- `exec(id, args, ctx)` loads `args.js` if needed, checks the arguments (strings coerced, numbers clamped with a note,
+  unknown names dropped with a note, defaults filled, a missing required or unreadable value is an error), runs the
+  command and awaits it. `run(id, { args })` does the same check synchronously when `args.js` is on the page.
+- `tool`: the tool name the model sees (default: the id without its app prefix). `destructive: true|false` overrides the
+  word rule (delete, clear, new, merge, crop… ask first). `hidden: true` keeps a command that duplicates a menu item out
+  of the palette; the assistant still sees it. `ai: false` keeps a command with args away from the assistant.
+- `state()`, `checkpoint()` and `prepare()` call what the app provided (null / a resolved promise when it did not).
+- Make every command one step in the app's own undo history (PhotoSlop folds several commits into one with `aiOneStep`).
+- Return a short sentence (or a promise of one) saying what happened; throw an `Error` with a plain message when it
+  cannot run. Both reach the model and the panel's step list.
+- Reference: `photoslop/js/app/ai-commands.js` (schemas), `ai-ops.js` (one-step operations, state, checkpoint) and
+  `commands.js` (`provide({ prepare })`). Tests: `tests/node/cmd-args.test.mjs`, `tests/photoslop/ai-panel.test.html`.
 
 Built-in commands:
 - `cmd.palette`: Mod+K, Shift+Mod+P and `/` (`/` only outside text fields).

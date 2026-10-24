@@ -54,6 +54,7 @@
       case 'entries': if (!Array.isArray(v) || v.length > s.max || v.some((e) => !isObj(e) || typeof e.value !== 'string' || !e.value || e.value.length > s.valMax || (e.label !== undefined && (typeof e.label !== 'string' || e.label.length > 40)))) bad(`must be up to ${s.max} labelled values of at most ${s.valMax} characters`); break;
       case 'strings': if (!Array.isArray(v) || v.length > s.max || v.some((x) => typeof x !== 'string' || !x || x.length > s.itemMax)) bad(`must be up to ${s.max} tags of up to ${s.itemMax} characters`); break;
       case 'lines': case 'jlines': case 'countLines': checkList(s, v, field, errors); break;
+      case 'rows': checkRows(s, v, field, errors); break;
     }
   }
 
@@ -65,6 +66,17 @@
       if (!isObj(l)) { errors.push({ field: f, message: 'must be an object' }); return; }
       checkFields(specs, l, errors, `${f}.`, []);
       if (s.t === 'lines' && Math.abs(l.qty * l.unitPrice) > MAX) errors.push({ field: f, message: 'line amount is too large' });
+    });
+  }
+
+  /** A list of small records with their own field specs (s.of), at most s.max of them: a project's columns, a checklist. */
+  function checkRows(s, v, field, errors) {
+    if (!Array.isArray(v) || v.length < (s.min || 0) || v.length > s.max) { errors.push({ field, message: `must be a list of ${s.min || 0} to ${s.max} entries` }); return; }
+    v.forEach((r, i) => {
+      const f = `${field}[${i}]`;
+      if (!isObj(r)) { errors.push({ field: f, message: 'must be an object' }); return; }
+      for (const k of Object.keys(r)) if (!(k in s.of)) errors.push({ field: `${f}.${k}`, message: 'is not a field here' });
+      checkFields(s.of, r, errors, `${f}.`, []);
     });
   }
 
@@ -133,6 +145,7 @@
     if (s.t === 'currency') return String(v).toUpperCase();
     if (s.t === 'strings' && Array.isArray(v)) return [...new Set(v.map((x) => (typeof x === 'string' ? x.trim() : x)).filter(Boolean))];
     if (s.t === 'lines' && Array.isArray(v)) return v.map((l) => (isObj(l) ? { ...l } : l));
+    if (s.t === 'rows' && Array.isArray(v)) return v.map((r) => (isObj(r) ? Object.fromEntries(Object.entries(r).filter(([, x]) => x !== undefined && x !== null).map(([k, x]) => [k, typeof x === 'string' ? x.trim() : x])) : r));
     if (s.t === 'jlines' && Array.isArray(v)) return v.map((l) => (isObj(l) ? { ...l, debit: l.debit ?? 0, credit: l.credit ?? 0 } : l));
     return v;
   }

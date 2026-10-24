@@ -36,3 +36,10 @@ export async function exportFile(kind, scope, { doc, sheet, order }) {
   window.SlopUI.download(blob, name);
   return name;
 }
+
+/** Convert… in the header (shared/convert/provided.js): every sheet of the open document, as one XLSX. */
+addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {
+  const d = window.SlopSheetView && window.SlopSheetView.store.doc();
+  if (!d) return null;
+  return [{ name: `${safeBase(d.name)}.xlsx`, blob: await toXlsxBlob(d.sheets.map((s) => exportSheet(s))) }];
+}, { app: 'Slop Sheets' }));

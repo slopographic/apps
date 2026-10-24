@@ -39,4 +39,10 @@
   }
 
   G.export = { downloadSelection, downloadBackup, uniqueName };
+  /** Convert… in the header (shared/convert/provided.js): the selected photos, else the one open in the viewer. */
+  addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {
+    const open = document.querySelector('.viewer:not([hidden])'), cur = open && G.viewer && G.viewer.current();
+    const sel = [...G.state.selected], ids = sel.length ? sel : cur ? [cur.id] : [];
+    return ids.length ? originals(ids) : null;
+  }));
 })();

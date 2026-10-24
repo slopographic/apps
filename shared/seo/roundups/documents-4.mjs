@@ -1,5 +1,6 @@
 // Round-ups for the document and utility apps, part 4 (shape in index.mjs): photo metadata removers, local AI chat,
 // hex editors and file hash checkers. Every fact about another tool is from its own page, listed in its sources, and dated.
+import { INSTALL } from '../install-copy.mjs';
 const checked = '2026-10-24';
 const src = (label, url) => ({ label, url });
 
@@ -20,7 +21,7 @@ const exif = { slug: 'free-exif-remover', app: 'clean', checked, crumb: 'Free EX
       cells: ['Free', 'In the browser', 'Your device', 'Yes, download as ZIP', 'JPEG, PNG, WebP, TIFF'],
       pros: ['Lists GPS, dates, camera, serial numbers, software, author and more in plain words, then removes the categories you tick',
         'Removal is byte-level: the picture data is never decoded or re-encoded, so quality is unchanged',
-        'Nothing to install, and the photos are read on your device', 'Several photos at once, downloaded as one ZIP'],
+        'Nothing to install, and the photos are read on your device', 'Several photos at once, downloaded as one ZIP', INSTALL.pro],
       cons: ['No HEIC, HEIF, AVIF or RAW files, and no video or PDF', 'Still marked as being built', 'No command line for scripts'] },
     { name: 'ExifTool', url: 'https://exiftool.org/', bestFor: 'Power users who want full control over metadata in almost any file type, from the command line.',
       cells: ['Free (same terms as Perl)', 'Windows, macOS, Unix', 'Your computer', 'Yes, files and folders', 'Very many, incl. JPEG, PNG, WebP, HEIC, MP4'],
@@ -60,8 +61,8 @@ const exif = { slug: 'free-exif-remover', app: 'clean', checked, crumb: 'Free EX
     { feature: 'Photos stay on your device', values: ['yes', 'yes', 'yes', 'yes', 'no'] },
     { feature: 'Windows, macOS and Linux', values: ['yes', 'yes', 'yes', 'no', 'yes'] },
   ],
-  verdict: ['For a few photos before you post them, SlopClean is the quickest private choice: it runs in the browser, shows what each picture gives away and removes it without touching the pixels. It cannot clean HEIC, video or PDF.',
-    'ExifTool is the most complete tool here and the one to use for HEIC, video or scripted batches, if you are happy on the command line. ExifCleaner gives most people the same job in a simple desktop window, and ImageOptim suits Mac users who also want smaller files. Verexif is handy for a quick look, but it means uploading the picture.'],
+  verdict: ['SlopClean is our pick for cleaning photos before you post them: it runs in the browser, shows in plain words what each picture gives away, removes the parts you choose without touching the pixels, and nothing is uploaded. It installs from the browser and works offline. It cannot clean HEIC, RAW, video or PDF.',
+    'Choose ExifTool for HEIC, video or scripted batches, if you are happy on the command line: it is the most complete tool here. Choose ExifCleaner for the same job in a simple desktop window, ImageOptim on a Mac if you also want smaller files, or Verexif for a quick look, though it means uploading the picture.'],
   faq: [['Does removing EXIF data lower the photo quality?', 'Not with SlopClean: it removes the metadata blocks and leaves the picture data as it is. Tools that also compress, such as ImageOptim, rewrite the image, and their lossy settings can change it.'],
     ['Can I remove only the GPS location and keep the date?', 'Yes in SlopClean (untick the categories you want to keep) and in ExifTool (delete single tags or groups). ExifCleaner and ImageOptim pages do not describe choosing single fields.'],
     ['Do these tools upload my photos?', 'SlopClean reads them in your browser. ExifTool, ExifCleaner and ImageOptim are programs on your computer. Verexif asks you to upload the picture, and says it does not store a copy.'],
@@ -83,7 +84,7 @@ const localAi = { slug: 'free-local-ai-chat', app: 'ai', checked, crumb: 'Free l
     'Model choice and size', 'Extras: chat with documents, images, a local API'],
   columns: ['Price for local use', 'Runs on', 'Install', 'Models', 'Offline'],
   tools: [
-    { name: 'LM Studio', url: 'https://lmstudio.ai/', bestFor: 'The most capable free desktop app for running bigger open models, with a chat window and a local API.',
+    { name: 'LM Studio', url: 'https://lmstudio.ai/', bestFor: 'Running bigger open models in a free desktop app, with a chat window and a local API.',
       cells: ['Free ($0 plan)', 'Apple Silicon Mac, Windows x64/ARM, Linux', 'Desktop app', 'GGUF (llama.cpp) and MLX, from Hugging Face', 'Yes, once models are downloaded'],
       pros: ['Runs llama.cpp models, and MLX models on Apple Silicon', 'Chat with documents and MCP servers', 'Serves models on OpenAI-like endpoints', 'Can operate entirely offline'],
       cons: ['16 GB of RAM recommended, and 4 GB of dedicated VRAM on Windows', 'Intel Macs are not supported', 'Paid plans ($20 and $100 a month) are for its cloud models'], sources: LMSTUDIO },
@@ -106,7 +107,7 @@ const localAi = { slug: 'free-local-ai-chat', app: 'ai', checked, crumb: 'Free l
     { name: 'Slop AI', ours: true, bestFor: 'Checking what your PC can run and chatting with a small model in the browser, with no install, then using it across Slopographic apps.',
       cells: ['Free', 'A browser with WebGPU', 'None', '10 models, 0.5B to 7B (290 MB to 4.3 GB)', 'Yes, after the first visit and download'],
       pros: ['"Can my PC run it?" tests WebGPU and memory and rates each model before you download it', 'Asks before each download, then the model stays on your device',
-        'Builds small one-file apps in a sandboxed preview, and can open and drive other Slopographic apps', 'Chats are kept on your device and export as Markdown or JSON'],
+        'Builds small one-file apps in a sandboxed preview, and can open and drive other Slopographic apps', 'Chats are kept on your device and export as Markdown or JSON', INSTALL.pro],
       cons: ['Small models only (up to 7B), so answers are weaker than the bigger models desktop apps can run', 'Text only: images cannot be sent to the model',
         'No local API for other programs', 'Needs WebGPU, and it is still in beta'] },
   ],
@@ -127,12 +128,12 @@ const localAi = { slug: 'free-local-ai-chat', app: 'ai', checked, crumb: 'Free l
     { feature: 'MCP tools', values: ['yes', 'unknown', 'unknown', 'yes', 'unknown', 'no'] },
     { feature: 'Hardware check before download', values: ['unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'yes'] },
   ],
-  verdict: ['If you can install an app and have 16 GB of RAM, LM Studio is the strongest free choice here: bigger models, document chat, MCP and a local API. Ollama is the pick for developers who want models behind an API, GPT4All for older laptops without a GPU, and Jan for an open-source app that can mix local and cloud models.',
-    'If you cannot or would rather not install anything, the browser apps run on WebGPU instead. WebLLM Chat can take images. Slop AI tells you first what your computer can run, keeps the model on your device and works with the other Slopographic apps, but its models are small, so do not expect the answers of a big desktop model.'],
+  verdict: ['Slop AI is our pick for private AI chat with nothing to install: it tells you first which models your computer can run, asks before each download, keeps the model and your chats on your device, works offline after that, and can build small apps and drive the other Slopographic apps. Its models are small (up to 7B) and text only, so do not expect the answers of a big desktop model.',
+    'Choose LM Studio if you can install an app, have 16 GB of RAM and want bigger models, document chat, MCP and a local API. Choose Ollama for models behind an API for your own tools, GPT4All for older laptops without a GPU, Jan for an open-source app that can mix local and cloud models, or WebLLM Chat to send images to a model in the browser.'],
   faq: [['Is local AI really private?', 'The model runs on your computer, so a local chat does not have to leave it. GPT4All, Jan, LM Studio and WebLLM Chat say so on their own pages. In Slop AI the chats stay on your device; it goes online to download the model you choose. Several apps can also connect to cloud models; those chats do go to a server.'],
     ['What computer do I need?', 'LM Studio recommends 16 GB of RAM; Jan suggests 8 GB for 3B models and 16 GB for 7B on a Mac. GPT4All runs without a GPU. The browser apps need WebGPU; Slop AI\'s system check tells you which of its models will run before you download one.'],
     ['Do these work offline?', 'LM Studio, Jan and WebLLM Chat say they work offline once the model is downloaded. Slop AI does too, after the first visit and the model download.'],
-    ['Which is the most powerful?', 'The desktop apps, LM Studio first, run larger models than the browser apps. Slop AI and WebLLM Chat trade size for having nothing to install.']] };
+    ['Which is the most powerful?', 'The desktop apps, such as LM Studio, run larger models than the browser apps. Slop AI and WebLLM Chat trade size for having nothing to install.']] };
 
 const IMHEX = src('ImHex on GitHub', 'https://github.com/WerWolv/ImHex');
 const HEXEDIT = src('HexEd.it', 'https://hexed.it/');
@@ -161,7 +162,7 @@ const hex = { slug: 'free-hex-editors', app: 'hex', checked, crumb: 'Free hex ed
     { name: 'Slop Hex', ours: true, bestFor: 'A quick look and small patches in the browser, with the file type and SHA-256 shown, and versions kept in Slop Drive.',
       cells: ['Free', 'Any modern browser', 'None', 'Read in 64 KB pages (100 MB opens)'],
       pros: ['Offset, hex and ASCII columns, find hex bytes or text, go to any offset, undo and redo', 'Reads large files in pages, so a 100 MB file opens',
-        'Shows the file type from its magic bytes and its SHA-256', 'Files are read on your device; saves keep the original and add a new version'],
+        'Shows the file type from its magic bytes and its SHA-256', 'Files are read on your device; saves keep the original and add a new version', INSTALL.pro],
       cons: ['Overwrite only: no inserting or deleting bytes', 'No data inspector, templates, diff or disassembler', 'The ASCII column cannot be edited', 'Still marked as being built'] },
     { name: '010 Editor', url: 'https://www.sweetscape.com/010editor/', bestFor: 'Professionals who will pay for Binary Templates, scripting, drive and memory editing.',
       cells: ['$59.95 home, $149.95 commercial (perpetual); 30-day trial', 'Windows 11/10, macOS, Linux', 'Desktop app', '50 GB+'],
@@ -185,11 +186,11 @@ const hex = { slug: 'free-hex-editors', app: 'hex', checked, crumb: 'Free hex ed
     { feature: 'Hashes', values: ['yes', 'unknown', 'unknown', 'SHA-256', 'yes'] },
     { feature: 'File type from magic bytes', values: ['yes', 'unknown', 'unknown', 'yes', 'unknown'] },
   ],
-  verdict: ['For real reverse engineering, ImHex is the strongest free choice, and Hex Fiend is the one to use on a Mac for huge files and insert or delete. 010 Editor goes further still, but it is paid after the trial.',
-    'When you cannot install anything, HexEd.it and Slop Hex both run in the browser and keep the file on your device. Slop Hex is the simpler of the two: it shows the type and SHA-256 at once and keeps versions in Slop Drive, but it only overwrites bytes.'],
+  verdict: ['Slop Hex is our pick for a quick look and small patches with nothing to install: it runs in the browser, keeps the file on your device, shows the file type and SHA-256 at once, opens a 100 MB file in pages and never overwrites the original. It installs from the browser and works offline. It only overwrites bytes in place and has no data inspector or templates.',
+    'Choose ImHex for real reverse engineering (pattern language, disassembler, diff), Hex Fiend on a Mac for huge files and insert or delete, HexEd.it for another browser editor, or 010 Editor if you will pay for templates and scripting after the trial.'],
   faq: [['Can a hex editor damage my file?', 'Only if you save over it. Slop Hex never overwrites the original: it saves a new version beside it, or a download.'],
     ['Which free hex editor handles very large files?', 'Hex Fiend says it handles files as big as you can create without keeping them in memory. Slop Hex reads files in 64 KB pages, so a 100 MB file opens. 010 Editor (paid) lists 50 GB+.'],
-    ['Is there a hex editor that runs in the browser?', 'Yes: HexEd.it and Slop Hex both run in the browser and read the file on your device.'],
+    ['Is there a hex editor that runs in the browser?', 'Yes: Slop Hex and HexEd.it both run in the browser and read the file on your device. Slop Hex can also be installed from the browser and works offline.'],
     ['Can I insert bytes, not only change them?', 'Hex Fiend says you can insert, delete and rearrange. Slop Hex only overwrites bytes in place.']] };
 
 const GFH = src('Get-FileHash (Microsoft Learn)', 'https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash');
@@ -206,7 +207,7 @@ const checksum = { slug: 'free-checksum-tools', app: 'checksum', checked, crumb:
     { name: 'Checksum', ours: true, bestFor: 'Checking one download against a published SHA-256 in the browser, with a clear match or no-match answer.',
       cells: ['Free', 'Any modern browser', 'Web page', 'SHA-256, SHA-384, SHA-512, SHA-1'],
       pros: ['Paste the published hash and it says Match or No match, and warns when the length shows the wrong algorithm', 'Nothing to install, and the file is read on your device',
-        'Copes with pasted hashes in capitals, with spaces or a "sha256:" prefix'],
+        'Copes with pasted hashes in capitals, with spaces or a "sha256:" prefix', INSTALL.pro],
       cons: ['One file at a time', 'No MD5 or CRC32, which some sites still publish', 'Reads the whole file into memory, so very large files need a lot of RAM'] },
     { name: 'PowerShell Get-FileHash', url: GFH.url, bestFor: 'Windows users happy to type one command, or to hash files in a script.',
       cells: ['Part of PowerShell', 'Where PowerShell runs', 'Command line', 'SHA1, SHA256, SHA384, SHA512, MD5'],
@@ -238,8 +239,8 @@ const checksum = { slug: 'free-checksum-tools', app: 'checksum', checked, crumb:
     { feature: 'Mac and Linux', values: ['yes', 'unknown', 'no', 'yes'] },
     { feature: 'File read on your device', values: ['yes', 'yes', 'yes', 'yes'] },
   ],
-  verdict: ['To check a single download against the SHA-256 on a website, Checksum is the quickest: drop the file, paste the hash, read the answer, on any computer with a browser. It cannot do MD5 or many files at once.',
-    'On Windows, Get-FileHash is already there for anyone comfortable with a command, and HashMyFiles is the easy choice for folders and MD5 or CRC32. QuickHash-GUI has the most algorithms and runs on Linux, Windows and Mac.'],
+  verdict: ['Checksum is our pick to check a single download against the SHA-256 on a website: drop the file, paste the hash and read the answer, on any device with a browser, with the file read on your device. It cannot do MD5 or many files at once.',
+    'Choose Get-FileHash on Windows if you are comfortable with a command, HashMyFiles for folders and MD5 or CRC32, or QuickHash-GUI for the most algorithms on Linux, Windows and Mac.'],
   faq: [['Which hash should I use?', 'Use the one the publisher lists, usually SHA-256. Microsoft\'s documentation notes that MD5 and SHA1 are no longer considered secure, so use them only to match an older published hash.'],
     ['Is my file uploaded to compute the hash?', 'Not with any of these. Checksum reads the file in your browser with the Web Crypto API; the others are programs on your computer.'],
     ['What does "No match" mean?', 'The file differs from the one that was published: download it again from the official site. Check you picked the same algorithm first; Checksum warns when the length does not fit.'],

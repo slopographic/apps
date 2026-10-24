@@ -88,7 +88,7 @@
       ST.close(a);
     }, { timeout: 30000 });
 
-    it('a PowerPoint file is not overwritten: the editor opens a blank deck with no link', async () => {
+    it('a file that only claims to be PowerPoint is not overwritten: nothing opens over it', async () => {
       const w = await ST.open('../../slides/');
       const id = await w.SlopHub.put(new w.Blob(['PK-not-really'], { type: PPTX }), { name: 'Deck.pptx' });
       ST.close(w);

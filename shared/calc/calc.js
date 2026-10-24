@@ -32,7 +32,7 @@
       if (!r.ok) { steps.push({ src, ok: false, error: r.error }); break; }
       if (r.name) vars[r.name] = r.value;
       ans = r.value;
-      steps.push({ src, ok: true, name: r.name, value: r.value, text: r.name ? r.name + ' = ' + r.text : r.text });
+      steps.push({ src, ok: true, name: r.name, value: r.value, result: r.text, text: r.name ? r.name + ' = ' + r.text : r.text });
     }
     const last = steps[steps.length - 1];
     return { ok: !!steps.length && steps.every((s) => s.ok), steps, vars, value: last && last.ok ? last.value : null, ans };

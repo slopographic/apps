@@ -116,8 +116,20 @@
       if (res.text.trim()) out.push({ text: res.text, score: res.score, box: { x: lines[i].x0, y: lines[i].y0, w: lines[i].x1 - lines[i].x0 + 1, h: lines[i].y1 - lines[i].y0 + 1 } });
     }
     progress({ stage: 'read', done: lines.length, total: lines.length });
-    return out.sort((a, b) => a.box.y - b.box.y || a.box.x - b.box.x);
+    return readingOrder(out);
+  }
+  /** Lines in reading order: rows top to bottom (pieces whose boxes overlap by over half the smaller height share a
+   * row, as a receipt's item and its price do), each row left to right. Sorting by top edge alone let a price whose box
+   * starts a pixel higher come before its item. */
+  function readingOrder(lines) {
+    const rows = [];
+    for (const l of lines.slice().sort((a, b) => a.box.y - b.box.y || a.box.x - b.box.x)) {
+      const b = l.box;
+      const row = rows.find((r) => Math.min(r.y + r.h, b.y + b.h) - Math.max(r.y, b.y) > 0.5 * Math.min(r.h, b.h));
+      if (row) row.items.push(l); else rows.push({ y: b.y, h: b.h, items: [l] });
+    }
+    return rows.flatMap((r) => r.items.sort((a, b) => a.box.x - b.box.x));
   }
 
-  root.SlopAIOcr = { run, fitDet, blobs, mergeLines, ctc, toDetInput };
+  root.SlopAIOcr = { run, fitDet, blobs, mergeLines, ctc, toDetInput, readingOrder };
 })(self);

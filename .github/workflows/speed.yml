@@ -1,0 +1,88 @@
+name: Page speed
+
+# Lighthouse on every page of the site (tools/speed/run.mjs), on the mobile and desktop presets, the median of 3 runs per
+# page, checked against the ratchet in tools/speed/budgets.json: a page fails when it gets slower or heavier than its budget
+# by more than the noise tolerance (tools/speed/budget.mjs), or when it has no budget. The goal is LCP within 500 ms on
+# desktop (2.5 s on mobile) and CLS under 0.1 everywhere. Its own workflow, so the rules and tests stay fast: the pages are
+# split into 20 slices that run as parallel jobs in Playwright's image (Chromium preinstalled; the same version as
+# .github/workflows/rules.yml, tests/node/speed-config.test.mjs checks it), each serving the checkout with gzip as GitHub
+# Pages does. The summary job writes every slice's results to the run's summary, slowest pages first, and uploads them
+# together as the speed-results artifact; lower the budgets from it with
+#   node tools/speed/run.mjs --update --from=<the unzipped artifact>
+# Recording: when tools/speed/budgets.json is missing, or on a manual run with "record" ticked, the jobs measure every page
+# and check nothing; the same command then writes the budgets from that run's artifact (how the first budgets were made:
+# CI's machines, not a laptop, set the numbers).
+on:
+  push:
+    branches: [testing, main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      record:
+        description: Measure every page and check nothing (to record new budgets from the speed-results artifact)
+        type: boolean
+        default: false
+
+concurrency:
+  group: speed-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  measure:
+    name: Page speed ${{ matrix.shard }}/20
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    strategy:
+      fail-fast: false
+      # at most 6 of these at once: the free plan runs 20 jobs at a time across the account, and the tests (17 jobs in
+      # rules.yml) must not wait behind page speed
+      max-parallel: 6
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund
+      - name: The page speed tools (pinned in tools/speed/deps.mjs, not in package.json)
+        run: npm install --no-save --no-audit --no-fund $(node tools/speed/deps.mjs)
+      - name: Lighthouse, slice ${{ matrix.shard }} of 20
+        run: |
+          MODE=""
+          if [ "${{ inputs.record }}" = "true" ] || [ ! -f tools/speed/budgets.json ]; then MODE=--record; fi
+          node tools/speed/run.mjs --shard=${{ matrix.shard }}/20 --runs=3 --jobs=2 $MODE --out=speed-results/slice-${{ matrix.shard }}.json
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: speed-slice-${{ matrix.shard }}
+          path: speed-results/
+          retention-days: 14
+
+  summary:
+    needs: measure
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: speed-slice-*
+          path: speed-results
+          merge-multiple: true
+      - name: Every page against its budget, slowest first
+        run: |
+          MODE=""
+          if [ "${{ inputs.record }}" = "true" ] || [ ! -f tools/speed/budgets.json ]; then MODE=--record; fi
+          node tools/speed/run.mjs --from=speed-results $MODE --summary="$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v5
+        with:
+          name: speed-results
+          path: speed-results/
+          retention-days: 30

@@ -76,7 +76,7 @@
       if (pic.nodeType) fig.append(pic);
       else if (pic.flow && root.SlopFlow) fig.append(root.SlopFlow.create(Object.assign({ size: 'lg' }, pic.flow)).el);
       // a single-file offline build (opened from file://) has no assets folder beside it: the steps say it there
-      else if (pic.src && !(root.location && root.location.protocol === 'file:')) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.loading = 'lazy'; fig.append(img); }
+      else if (pic.src && !(root.location && root.location.protocol === 'file:')) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.width = 1280; img.height = 800; img.fetchPriority = 'high'; img.decoding = 'async'; fig.append(img); }   // the first view's largest picture: fetched first, never lazy; its size keeps the room
       if (fig.firstChild) box.append(fig);
     }
     if (o.steps && o.steps.length) {

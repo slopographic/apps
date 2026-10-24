@@ -43,3 +43,11 @@ Items: `text | image | rect | ellipse | line | polygon` with `x,y,w,h,rot,fill,s
 
 - **Save (Ctrl+S)** writes the `.slpress` back to the Drive file the document came from (`S.driveId`, set by `HB.openRecord` for project files, cleared by `PR.setDoc`). The first save asks for a folder. `File ▸ Save to Slop Drive…` creates a new Drive file and links to it. Save As and offline builds download as before (the offline build strips the hub).
 - Open/Place from Drive, `?drive=` launch and `register('press')` as before.
+
+## Phone layout (SlopSheet)
+Under 900 px the dock is a drawer from the right, under the menu and control bars: `UI.attachDockSheet()` (`js/ui/dock.js`,
+called from `main.js`) is `SlopSheet.attach({ side: 'end', toggles: [#panelsToggle] })` (`shared/ui/sheet.js`, see
+`shared/ui/HANDOFF.md`). The Panels button, Tab and Window ▸ Show/Hide Panels open and close it, `showPanel` opens it; the
+shared ×, Escape, a tap outside and a swipe right close it. The old `dock-open` class and the `.dock-head` bar with its × are
+gone; the Escape command (Exit / Deselect) waits while the drawer is open. The script carries `data-src`, so the offline
+build includes it. Test: `tests/press/phone-dock.test.html`.

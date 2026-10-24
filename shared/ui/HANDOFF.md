@@ -109,3 +109,99 @@ f.state('run'); f.progress(0.4); f.state('done');                      // or 'er
 f.set({ from: 'csv', to: 'xlsx' });                                     // a new pair is idle and draws again
 ```
 Tests: `tests/shared/flow.test.html`, `tests/convert/ui.test.html`, `tests/convert/dialog.test.html`, `tests/convert/hub.test.html`.
+
+## Menu button (`menubutton.js`, SlopMenuButton)
+
+A button with its own menu of choices (choose one): rows with an optional icon node, group headings, the chosen row
+checked. It opens under the button (above when there is no room), sets `aria-expanded`, and gives focus back on close.
+Keys: ArrowDown or ArrowUp on the button open it; in the menu the arrows, Home, End and a typed letter move, Enter or Space
+picks, Escape or Tab closes. SlopUI.menu stays the context menu at the pointer; this one belongs to a button. Styles are
+injected once and take the page's `--panel`, `--ink`, `--line`, `--accent`, `--focus` (or `--smb-*`).
+
+```js
+SlopMenuButton.attach(button, { label: 'Convert photo.png to', empty: 'No format',
+  items: () => [{ heading: 'Images' }, { value: 'to-jpg', label: 'To JPG', icon: SlopFlow.tile('jpg'), checked: true }],
+  onPick: (value) => { ... } });
+```
+Used by File convert's per-file targets (`convert/js/ui/file-row.js`). Tests: `tests/shared/menubutton.test.html`.
+
+## Undo (`undo.js`, SlopUndo)
+
+One undo history for an app's edits (a drag that moves something, a delete). `SlopUndo.create({ limit = 50 })` returns
+`{ push(label, undo), undo(), next, size, clear() }`: `undo` is an async function that reverses one step and resolves to a
+Result; `undo()` runs the newest and resolves `{ ok, label }` or `{ ok: false, message }`. `SlopUndo.keys(history, run)`
+makes Ctrl+Z (Cmd+Z) call `run()` unless a text field, a dialog or a menu has the focus. `SlopUndo.toast(what, run)` says
+what was done with an Undo button. Used by Slop Calendar (event drags) and Slop Projects (every move, edit and delete).
+Tests: `tests/projects/board.test.html` (undo of moves and deletes), `tests/calendar/drag.test.html`.
+
+## Phone sheets and drawers (`sheet.js`, SlopSheet)
+
+One pattern for every app's side panel on a phone: the panel becomes a **bottom sheet** (or a **drawer** from the start or
+end edge, for a sidebar of places or files). Every app's sheet behaves the same, so nobody has to learn it twice:
+
+- the button or tool that opens it closes it when tapped again (toggles keep `aria-expanded`);
+- a close **×** (44 px, `aria-label` "Close <label>") sits at its top right;
+- **Escape**, a **tap outside** (the tap still reaches what was tapped) and a **swipe** in the closing direction close it
+  (down from the top 56 px of a bottom sheet; left or right anywhere on a drawer);
+- it is not modal: focus stays put on open and goes back to the opener when × or Escape closes it;
+- on a wide screen nothing changes (no sheet, no ×), unless the app passes `closeWide`, in which case the × is the panel's
+  close on a wide screen too (Slop Drive's details).
+
+### How an app adopts it
+
+1. Load `shared/ui/sheet.js` (a classic script) before the app's own scripts. On an app page with render blocking keep
+   the scripts' order: a plain `<script src>` in `<body>` before the app's scripts, or in `<head>` with `defer`/`blocking`
+   in the same position as its neighbours (`tests/node/render-ready.test.mjs`).
+2. Attach once the DOM is there. The sheet takes Escape on the window in the capture phase and stops it, so an app's
+   own Escape (Deselect, a SlopCmd command) only runs when no sheet is open; an app handler that may still see it should
+   skip an Escape with `e.defaultPrevented`:
+   ```js
+   const sheet = SlopSheet.attach({ root: document.body, panel: $('info'), phone: '(max-width: 760px)',
+     side: 'bottom',                  // or 'start' / 'end' for a drawer
+     toggles: [$('btnInfo')],         // buttons that open and close it
+     triggers: railEl,                // or: a rail of tool buttons (a tap on the active tool closes it)
+     label: 'Details', onChange: (open, why) => render() });
+   ```
+3. **Delete** the app's own phone toggle, ×, scrim, Escape and outside-tap code. Keep a thin wrapper if other code calls it
+   (`DR.drawer = (open) => open ? DR.drawerUI.open() : DR.drawerUI.close()`).
+4. **CSS**: drop the app's own phone `position: fixed` / `transform` / `.open` rules for the panel. The shared look
+   (`.ssh-panel`, `.ssh-start`, `.ssh-end`, open = `.ssh-on` on the panel, `.ssh-phone` on the root) gives place, motion,
+   rounded corners, shadow and the dim behind a drawer. Tune it with `--ssh-z` (stacking, default 70: above the spotlight
+   dock), `--ssh-bottom` (a bottom bar to
+   sit above) and `--ssh-top` (a drawer below a header). An app whose panel must keep its own motion passes `openClass` and
+   styles `.<openClass>` itself (Slop PDF).
+5. Test at 390 px: open with its button or tool, the same button again closes, × closes and refocuses, Escape closes.
+
+Two sheets can share a root (Drive's folders drawer and details sheet); Escape closes one at a time. The × is kept as the
+panel's first child when the app redraws the panel. Menus, SlopUI dialogs and menu buttons over the sheet get Escape and
+taps first.
+
+A panel laid out as a CSS grid or flex column gets the × as a grid/flex item; such an app positions `.ssh-x` absolutely
+in its own CSS (Label's dock, Effects' side panel). An app on the shared offline builder lists `shared/ui/sheet.js` in
+`shared/offline/manifest.js` (PDF, SlopVector).
+
+Used by:
+
+| App | Panel | Shape | Opened by |
+|---|---|---|---|
+| Slop PDF | tool panel | bottom (own `openClass`) | the tool rail |
+| Slop Drive | folders; details | start drawer; bottom (+ `closeWide`) | Folders; Info |
+| Slop Code | explorer | start drawer | Files (Ctrl+B) |
+| Slop Docs | outline | start drawer | the outline rail button |
+| Slop Notes | notebooks, folders, tags | start drawer | View ▸ Notebooks |
+| Slop AI | chat list | start drawer under the top bar | Chats |
+| Slop Sheets (tables) | sheets, charts, functions | start drawer | the side strip's › |
+| SlopIsolate | settings | bottom | the panel button, View ▸ panel |
+| Gallery | filters, albums | start drawer | Filters |
+| PhotoSlop | panels (layers…) | end drawer under the top bar | Layers |
+| SlopVector, Slop Press | panel dock | end drawer | Panels (Tab, Window menu) |
+| SlopLabel | dock (objects, properties…) | bottom | ☰ |
+| Slop 3D | scene; properties | start drawer; bottom | Scene; Properties (phone buttons on the viewport) |
+| Slop Effects | layer / effects / motion | bottom | Properties (phone button) |
+| Slides | inspector | bottom | Properties (phone button) |
+
+Not sheets, on purpose: SlopCut (its bottom tab bar shows one pane at a time), the business documents (Invoices, Quotes,
+Orders, Purchases: on a phone the details are the Form view, with a Page / Form switch), CRM, Calendar, Projects and
+Remix (their side parts stack in the page flow and are the main content there).
+
+Tests: `tests/shared/sheet.test.html`, and each app's phone test.

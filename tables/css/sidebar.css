@@ -23,6 +23,10 @@
 .side-fns { max-height: 46vh; overflow-y: auto; }
 .side-empty { display: block; padding: 4px 6px; font-size: 11px; color: var(--faint); }
 .side-fn { min-height: 0; }
+/* a phone: the column is its toggle strip, and the body a drawer from the start edge (shared/ui/sheet.js, sidebar.js) */
 @media (max-width: 720px) {
-  .side { width: 150px; }
+  .side, .side.collapsed { width: 28px; }
+  .side.collapsed .side-body { display: flex; }
+  .side-toggle { height: 40px; font-size: 20px; }
+  .side-body { --ssh-z: 950; }
 }

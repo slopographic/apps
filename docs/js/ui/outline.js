@@ -1,6 +1,7 @@
 /* Slop Docs — ui/outline: the document outline sidebar. A tree of the Heading 1 to 3 paragraphs, read from the document
  * through model/outline.js. The current section is highlighted as the caret or the page moves. A header button hides the
- * sidebar to a rail; the rail button shows it again. On a phone the outline is a drawer opened by the rail button. The
+ * sidebar to a rail; the rail button shows it again. On a phone the outline is a drawer from the start edge, opened and
+ * closed by the rail button: SlopSheet (shared/ui/sheet.js) gives it the ×, Escape, a tap outside and a swipe. The
  * desktop state is kept per session. Shortcuts: Ctrl+Shift+O, Alt+Up, Alt+Down (SlopCmd). ES module, loaded last. */
 import * as M from '../model/outline.js';
 import * as A from './outline-actions.js';
@@ -12,7 +13,7 @@ const PHONE = window.matchMedia('(max-width: 640px)');
 const ICON = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>';
 const PLUS = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 const collapsed = new Set();   // ids of the collapsed headings (kept for the session)
-const st = { root: null, app: null, stage: null, tree: null, tn: null, nodes: new Map(), desk: true, drawer: false, active: -1, timer: 0, raf: 0 };
+const st = { root: null, app: null, stage: null, tree: null, tn: null, nodes: new Map(), desk: true, sheet: null, active: -1, timer: 0, raf: 0 };
 
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 function button(cls, html, label, onClick) {
@@ -28,13 +29,12 @@ function button(cls, html, label, onClick) {
 /* ---------- sidebar state: desktop open or rail, phone drawer ---------- */
 function readOpen() { try { return sessionStorage.getItem(KEY) !== 'shut'; } catch (e) { return true; } }
 function saveOpen() { try { sessionStorage.setItem(KEY, st.desk ? 'open' : 'shut'); } catch (e) { /* storage blocked */ } }
-const isOpen = () => (PHONE.matches ? st.drawer : st.desk);
+const isOpen = () => (PHONE.matches ? !!st.sheet && st.sheet.isOpen() : st.desk);
 
 function applyMode() {
   const phone = PHONE.matches;
   st.app.classList.toggle('ol-phone', phone);
   st.app.classList.toggle('ol-shut', !phone && !st.desk);
-  st.app.classList.toggle('ol-drawer', phone && st.drawer);
   const show = st.root.querySelector('.ol-show');
   show.setAttribute('aria-expanded', String(isOpen()));
   show.setAttribute('aria-label', phone ? 'Open outline' : 'Show outline');
@@ -42,10 +42,10 @@ function applyMode() {
   st.root.querySelector('.ol-hide').title = phone ? 'Close outline' : 'Hide outline (Ctrl+Shift+O)';
 }
 function setOpen(open) {
-  if (PHONE.matches) st.drawer = open;
-  else { st.desk = open; saveOpen(); }
+  if (PHONE.matches) { if (st.sheet) { if (open) st.sheet.open(); else st.sheet.close(); } return; }
+  st.desk = open; saveOpen();
   applyMode();
-  if (!PHONE.matches) S.focusIme();
+  S.focusIme();
 }
 
 /* ---------- the tree ---------- */
@@ -174,7 +174,7 @@ function registerKeys() {
 /* ---------- mount ---------- */
 function build() {
   const rail = el('div', 'ol-rail');
-  rail.append(button('ol-show', ICON, 'Show outline', () => setOpen(true)));
+  rail.append(button('ol-show', ICON, 'Show outline', () => { if (!PHONE.matches) setOpen(true); }));   // on a phone: the drawer's toggle
   const panel = el('div', 'ol-panel');
   const head = el('div', 'ol-head');
   head.append(el('span', 'ol-title', 'Outline'));
@@ -195,9 +195,7 @@ function build() {
   st.root.setAttribute('aria-label', 'Document outline');
   st.root.append(rail, panel);
   st.root.addEventListener('contextmenu', onContext);
-  const scrim = el('div', 'ol-scrim');
-  scrim.addEventListener('click', () => setOpen(false));
-  st.app.append(scrim);
+  if (window.SlopSheet) st.sheet = SlopSheet.attach({ root: st.app, panel, side: 'start', phone: PHONE.media, toggles: [rail.querySelector('.ol-show')], label: 'Outline', onChange: applyMode });
 }
 function injectCss() {
   if (document.querySelector('link[data-outline]')) return;

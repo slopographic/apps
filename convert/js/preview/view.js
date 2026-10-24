@@ -2,6 +2,7 @@
  * and Download buttons. Takes the plain panel data from model.js. Browser only. */
 import { h } from '../ui/dom.js';
 import { fmtSize } from '../io/files.js';
+import { fillModel } from './model3d.js';
 
 function panel(title) {
   const meta = h('span', { class: 'cv-pv-meta' });
@@ -14,6 +15,7 @@ function panel(title) {
 function fill(pn, p) {
   for (const u of pn.urls) URL.revokeObjectURL(u);
   pn.urls = [];
+  if (pn.cleanup) { pn.cleanup(); pn.cleanup = null; }   // a 3D view from the last fill
   pn.meta.textContent = [p.label, p.size != null ? fmtSize(p.size) : ''].filter(Boolean).join(' · ');
   if (p.kind === 'image') {
     const url = URL.createObjectURL(p.blob);
@@ -25,6 +27,8 @@ function fill(pn, p) {
   } else if (p.kind === 'text') {
     const lines = p.lines.map((line, i) => h('span', { class: 'cv-pv-line' + (p.changed && p.changed.has(i) ? ' cv-pv-chg' : ''), text: line || ' ' }));
     pn.body.replaceChildren(h('pre', { class: 'cv-pv-text' }, lines), p.note ? h('p', { class: 'cv-hint', text: p.note }) : null);
+  } else if (p.kind === 'model') {
+    pn.cleanup = fillModel(pn, p);
   } else if (p.kind === 'error') {
     pn.body.replaceChildren(h('p', { class: 'cv-pv-error', role: 'alert', text: p.message }), p.hint ? h('p', { class: 'cv-hint', text: p.hint }) : null);
   } else {

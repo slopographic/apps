@@ -8,7 +8,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
-  // Covers: shell/header.js, shell/shell.js, shell/shell.css, shell/notify.js, shared/ui/hbtn.css, shared/ui/hbtn.js,
+  // Covers: shared/ui/video.js, shell/header.js, shell/shell.js, shell/shell.css, shell/notify.js, shared/ui/hbtn.css, shared/ui/hbtn.js,
   //   shared/drive-link.js, shared/tour/mount.js, shared/tour/tour.css, slides/css/app.css,
   //   photoslop/css/layout.css, photoslop/css/extras.css, home/home.css, shared/viewmode/viewmode.css, brand/brand.css
   // Slides once had six looks in one bar (24 to 34 px tall, square to round, the browser's own button for Tour) and,
@@ -72,7 +72,9 @@
       b.click();
       const menu = await waitFor(() => D.querySelector('.sui-menu'));
       const labels = [...menu.querySelectorAll('.sui-lbl')].map((n) => n.textContent);
-      expect(labels).toEqual(['System'].concat(W.SlopTheme.THEMES.map((t) => t.name)));
+      // Convert… and AI give up their place in a full header (shared/ui/hbtn.js): the menu then offers them first
+      const moved = [['.sh-ai', 'Ask Slop AI…'], ['.sh-convert', 'Convert files…']].filter(([s]) => D.querySelector(s) && D.querySelector(s).hidden).map(([, l]) => l);
+      expect(labels).toEqual(moved.concat(['System'], W.SlopTheme.THEMES.map((t) => t.name)));
       expect(menu.querySelectorAll('[aria-checked="true"]').length).toBe(1);
       expect(b.getAttribute('aria-expanded')).toBe('true');
       [...menu.querySelectorAll('.sui-row')].find((r) => r.textContent.includes('Dark')).click();
@@ -91,11 +93,28 @@
       await waitFor(() => f.contentDocument && f.contentDocument.querySelector('.sh-switch'), { timeout: 30000 });
       return f;
     };
-    it('an app with a video tutorial links it in the header, in a new tab; an app without one has no link', async () => {
+    it('an app with a video tutorial links it in the header and plays it in a dialog on a click; an app without one has no link', async () => {
       const pdf = await boot('pdf'), a = pdf.contentDocument.querySelector('header .sh-tutorial');
       expect([a.getAttribute('href'), a.target, a.rel]).toEqual(['https://www.youtube.com/watch?v=sLjcd23fOhw', '_blank', 'noopener']);
-      expect(a.getAttribute('aria-label')).toBe('Watch the Slop PDF video tutorial on YouTube');
+      expect(a.getAttribute('aria-label')).toBe('Watch the Slop PDF video tutorial');
       expect(a.getBoundingClientRect().width > 0).toBe(true);
+      // a plain click plays it in a dialog on the page (privacy-enhanced player), and nothing navigates away
+      const D = pdf.contentDocument;
+      expect(D.querySelector('iframe[src*="youtube"]')).toBe(null);   // nothing from YouTube before the click
+      a.dispatchEvent(new pdf.contentWindow.MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
+      await waitFor(() => D.querySelector('.svid-dlg iframe'), { timeout: 5000 });
+      const ifr = D.querySelector('.svid-dlg iframe');
+      expect(ifr.src.startsWith('https://www.youtube-nocookie.com/embed/sLjcd23fOhw?')).toBe(true);
+      expect(D.querySelector('.svid-dlg .sui-title').textContent).toBe('Slop PDF tutorial');
+      expect(D.querySelector('.svid-dlg .svid-note a').href).toBe('https://www.youtube.com/watch?v=sLjcd23fOhw');
+      D.querySelector('.svid-dlg .sui-x').click();
+      await waitFor(() => !D.querySelector('.svid-dlg'), { timeout: 3000 });   // closing removes the player, so it stops
+      // a Ctrl+click is left to the browser (a new tab on YouTube): no dialog
+      const ctrl = new pdf.contentWindow.MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ctrlKey: true });
+      pdf.contentWindow.addEventListener('click', (e) => e.preventDefault(), { once: true });   // after the page's handler: keep the test from opening a tab
+      a.dispatchEvent(ctrl);
+      await sleep(100);
+      expect(D.querySelector('.svid-dlg')).toBe(null);
       pdf.remove();
       const phone = await boot('pdf');
       phone.style.width = '390px';

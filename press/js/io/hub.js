@@ -59,4 +59,8 @@
       return HB.openRecord(rec).then(function () { U.toast('Opened “' + (rec.name || 'file') + '” from Slop Drive'); return rec; });
     }).catch(function () { return null; });
   };
+  /* Convert… in the header (shared/convert/provided.js): the document as a PDF, the same file Send to makes. */
+  addEventListener('slop:convert-files', function (e) {
+    e.detail.provide(function () { return S.doc ? HB.pdfBlob().then(function (blob) { return [{ name: PR.io.baseName() + '.pdf', blob: blob }]; }) : null; });
+  });
 })();

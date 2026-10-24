@@ -13,6 +13,7 @@
     fr.src = '../../pdf/index.html' + query;
     await waitFor(() => fr.contentWindow && fr.contentWindow.document.documentElement?.classList.contains('ready') && fr.contentWindow.SP && fr.contentWindow.SP.app, { timeout: 30000 });
     const win = fr.contentWindow;
+    if (win.SlopBanner) win.SlopBanner.remove();   // the consent card floats over the page's bottom corner; no choice is stored
     await win.SP.engine.pdfjs();
     await win.SP.engine.initFonts();
     if (frameId === 'app') Object.assign(PT, { win, SP: win.SP, E: win.SP.engine, U: win.SP.util, A: win.SP.app });

@@ -23,5 +23,8 @@
     return win.SlopBuddy;
   }
   const prefs = () => JSON.parse(localStorage.getItem('slop.buddy') || '{}');
-  window.BuddyTest = { openApp, turnOn, prefs };
+  /** Resolves after n animation frames of the app window: his meters and the tray update once per frame, and a loaded
+   *  machine can give fewer frames in a fixed sleep than a test expects. */
+  const frames = (win, n) => new Promise((r) => { const step = () => (--n <= 0 ? r() : win.requestAnimationFrame(step)); win.requestAnimationFrame(step); });
+  window.BuddyTest = { openApp, turnOn, prefs, frames };
 })();

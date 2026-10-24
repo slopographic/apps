@@ -78,7 +78,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 - **Export.** One photo downloads as its original file. Several photos download as one store-only zip (`js/io/zip.js`, CRC-32 checked on read). The whole library backs up to one zip with a manifest, originals and thumbnails. Restore validates the manifest and every SHA-256 before writing, then writes in one transaction.
 - **Right-click menus** on photos, albums, month headers and the empty grid (SlopCtx and SlopUI).
 - **SlopCmd commands** for the main actions (`js/ui/commands.js`).
-- **Layout.** Checked at 390 px: no horizontal page scroll. The side panel becomes a drawer behind the Filters button.
+- **Layout.** Checked at 390 px: no horizontal page scroll. Under 700 px the side panel is a drawer from the left: `SlopSheet.attach({ side: 'start', toggles: [Filters] })` in `js/ui/sidebar.js` (`shared/ui/sheet.js`, see `shared/ui/HANDOFF.md`). Filters opens and closes it; the shared ×, Escape, a tap outside and a swipe left close it; a view picked in it closes it (`G.sidebar.closeDrawer()`). There is no `drawer-open` class or close button of Gallery's own any more. The Escape command (Clear selection) waits while the drawer is open. Test: `tests/gallery/phone-drawer.test.html`.
 
 ## Test hook
 
@@ -131,3 +131,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 - **No identity:** groups are counts of faces only. Nothing is named, matched or recognised.
 - **Tests:** `tests/gallery/faces.test.html` (stubbed detector: the picture's width sets its faces), and the Node file
   `tests/node/faces-drive-gallery.test.mjs`. `node tests/run.mjs gallery` runs them with the rest of the suite, all green at the time of this change.
+
+## Camera RAW (uses `shared/raw/`)
+- `io/source.js` keeps RAW files by extension (a RAW often has no MIME type); `core/thumb.js` makes the thumbnail from the embedded preview, upright (a half-size develop, after the engine notice, when there is none); `core/import.js` reads the date and camera with `SlopRaw.meta` and stores orientation 1 (the thumbnail is upright). The original bytes are stored unchanged.
+- `core/urls.js` hands the viewer the upright preview as a JPEG for a RAW photo. Test: `tests/gallery/raw.test.html`.

@@ -6,14 +6,15 @@
   <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; display: block; }</style>
 </head>
 <body>
+  <!-- Covers: slopcut/js/ui/view-state.js -->
   <iframe id="app" src="about:blank"></iframe>
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const f = document.getElementById('app');
-  /** Load a page in the iframe; for SlopCut, wait until the app is ready (body.ready). */
+  /** Load a page in the iframe; for SlopCut, wait until the app is ready (body.ready: its saved place is applied). */
   async function open(src) {
-    const want = new URL(src, location.href).pathname, app = src.includes('slopedit');
+    const want = new URL(src, location.href).pathname, app = src.includes('slopcut');
     f.src = src;
     await waitFor(() => f.contentWindow && f.contentWindow.location.pathname === want && f.contentWindow.document.readyState === 'complete' && (!app || (f.contentWindow.document.body.classList.contains('ready') && f.contentWindow.SE && f.contentWindow.SE.viewState)), { timeout: 30000 });
     return f.contentWindow;

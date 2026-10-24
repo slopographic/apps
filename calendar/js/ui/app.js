@@ -13,6 +13,7 @@
   const get = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
   const put = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked: the setting lasts this visit */ } };
   let timer = 0;
+  NS.history = g.SlopUndo.create();   // shared/ui/undo.js: one step per drag
   const state = { view: 'month', anchor: '', zone: T.deviceZone(), showTasks: true, locale: undefined, today: '', seq: 0, pair: null };
   NS.state = state;
 
@@ -140,16 +141,6 @@
     UI.menu(items, r.left, r.bottom + 4);
   }
 
-  /** Ctrl+Z (Cmd+Z) undoes the last move, unless a text field or a dialog has the focus. */
-  function onUndoKey(e) {
-    if ((e.key || '').toLowerCase() !== 'z' || !(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey) return;
-    const t = e.target;
-    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-    if (document.querySelector('.sui-dlg') || !NS.history.size) return;
-    e.preventDefault();
-    undo();
-  }
-
   function wire() {
     for (const btn of document.querySelectorAll('[data-view]')) btn.addEventListener('click', () => setView(btn.dataset.view));
     $('cPrev').addEventListener('click', () => step(-1));
@@ -162,7 +153,7 @@
     $('cExport').addEventListener('click', () => NS.ics.exportIcs());
     $('cImport').addEventListener('click', importIcs);
     $('cConfig').addEventListener('click', configMenu);
-    document.addEventListener('keydown', onUndoKey);
+    g.SlopUndo.keys(NS.history, undo);   // Ctrl+Z (Cmd+Z) undoes the last move, unless a text field or a dialog has the focus
     if (NARROW && NARROW.addEventListener) NARROW.addEventListener('change', () => render());
     addEventListener('hashchange', () => { const h = location.hash.slice(1); if (VIEWS.includes(h)) setView(h); });
   }

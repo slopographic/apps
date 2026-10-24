@@ -22,7 +22,7 @@
     if (!b) throw new Error('no dialog button "' + label + '": ' + [...doc().querySelectorAll('.sui-dlg')].map((d) => d.textContent).join(' | '));
     b.click();
   };
-  const suiTitles = () => [...doc().querySelectorAll('.sui-dlg .sui-title')].map((t) => t.textContent);
+  const suiTitles = () => [...doc().querySelectorAll('.sui-dlg:not(.sl-cvt-dlg) .sui-title')].map((t) => t.textContent);   // the Convert dialog is a SlopUI dialog too
   const file = (name, type, bytes) => new PT.win.File([bytes || new PT.win.Uint8Array([1, 2, 3, 4, 5, 6, 7, 8])], name, { type });
   const openTabs = () => PT.SP.docs.list().length;
 
@@ -108,7 +108,7 @@
       expect(cvtText()).toContain('cannot be converted to PDF here');
       expect(suiTitles()).toEqual([]);
       expect(PT.E.state.pages.length).toBe(1);
-      doc().querySelector('.sl-cvt-x').click();
+      doc().querySelector('.sl-cvt-dlg .sui-x').click();
       await waitFor(() => !cvtDialog());
     }, { timeout: 60000 });
 
@@ -118,15 +118,14 @@
       PT.reset();
       drop([file('page.html', 'text/html', new PT.win.TextEncoder().encode('<p>hi</p>'))]);
       await waitFor(() => cvtDialog() && cvtText().includes('page.html'), { timeout: 30000 });
-      await waitFor(() => cvtDialog().querySelector('input[data-target="html-to-pdf"]'), { timeout: 15000 });
-      expect(cvtDialog().querySelector('input[data-target="html-to-pdf"]').checked).toBe(true);
+      await waitFor(() => cvtDialog().querySelector('.cv-to[data-target="html-to-pdf"]'), { timeout: 15000 }); // the file's Convert to: Picture PDF
       expect(cvtText()).not.toContain('cannot be converted to PDF here');
-      doc().querySelector('.sl-cvt-x').click();
+      doc().querySelector('.sl-cvt-dlg .sui-x').click();
       await waitFor(() => !cvtDialog());
       drop([file('data.csv', 'text/csv', new PT.win.TextEncoder().encode('a,b\n1,2\n'))]);
       await waitFor(() => cvtDialog() && cvtText().includes('data.csv'), { timeout: 30000 });
       expect(cvtText()).toContain('CSV');
-      doc().querySelector('.sl-cvt-x').click();
+      doc().querySelector('.sl-cvt-dlg .sui-x').click();
       await waitFor(() => !cvtDialog());
       expect(PT.E.state.pages.length).toBe(0);
     }, { timeout: 90000 });
@@ -139,9 +138,8 @@
       const before = openTabs();
       drop([file('logo.svg', 'image/svg+xml', new PT.win.TextEncoder().encode(SVG))]);
       await waitFor(() => cvtDialog() && cvtText().includes('logo.svg'), { timeout: 30000 });
-      const pdfRadio = () => cvtDialog().querySelector('input[data-target="images-to-pdf"]');
-      await waitFor(() => pdfRadio() && pdfRadio().checked, { timeout: 15000 });
-      cvtDialog().querySelector('[data-k="run"]').click();
+      await waitFor(() => cvtDialog().querySelector('.cv-to[data-target="images-to-pdf"]'), { timeout: 15000 });
+      cvtDialog().querySelector('.cv-form button[type=submit]').click();
       await waitFor(() => !cvtDialog(), { timeout: 60000 });
       await waitFor(() => openTabs() === before + 1 && PT.E.state.pages.length === 1, { timeout: 60000 });
       await waitFor(() => toastText().includes('Converted logo.svg to PDF'), { timeout: 15000 });
@@ -155,8 +153,8 @@
       const before = openTabs();
       drop([file('report.html', 'text/html', new PT.win.TextEncoder().encode('<!doctype html><html><head><style>h1{color:#c33}</style><script>document.title="x"</script></head><body><h1>Hello</h1><p>A small page.</p><img src="https://example.invalid/x.png"></body></html>'))]);
       await waitFor(() => cvtDialog() && cvtText().includes('report.html'), { timeout: 30000 });
-      await waitFor(() => cvtDialog().querySelector('input[data-target="html-to-pdf"]').checked, { timeout: 15000 });
-      cvtDialog().querySelector('[data-k="run"]').click();
+      await waitFor(() => cvtDialog().querySelector('.cv-to[data-target="html-to-pdf"]'), { timeout: 15000 });
+      cvtDialog().querySelector('.cv-form button[type=submit]').click();
       await waitFor(() => !cvtDialog(), { timeout: 90000 });
       await waitFor(() => openTabs() === before + 1 && PT.E.state.pages.length === 1, { timeout: 90000 });
       await waitFor(() => toastText().includes('Converted report.html to PDF'), { timeout: 15000 });
@@ -170,7 +168,7 @@
       await waitFor(() => cvtDialog() && cvtText().includes('notes.docx'), { timeout: 30000 });
       await waitFor(() => PT.E.state.pages.length === 1, { timeout: 30000 });
       expect(cvtText()).not.toContain('ok.pdf');
-      doc().querySelector('.sl-cvt-x').click();
+      doc().querySelector('.sl-cvt-dlg .sui-x').click();
       await waitFor(() => !cvtDialog());
     }, { timeout: 60000 });
   });

@@ -18,7 +18,9 @@
   var mdoc = null, mfonts = {}, charsets = {};
   E.initFonts = async function () {
     if (mdoc) return;
-    mdoc = await PDFLib.PDFDocument.create();
+    var L = await E.pdflib(); // core/pdfjs.js: loaded on first use
+    if (mdoc) return;
+    mdoc = await L.PDFDocument.create();
     Object.keys(FONTMAP).forEach(function (fam) {
       FONTMAP[fam].forEach(function (nm) { mfonts[nm] = mdoc.embedStandardFont(nm); charsets[nm] = new Set(mfonts[nm].getCharacterSet()); });
     });

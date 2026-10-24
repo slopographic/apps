@@ -70,7 +70,7 @@
       const d = await page();
       expect(!!d.querySelector('link[rel="stylesheet"][href="/shared/landing/landing.css"]')).toBe(true);
       expect(d.querySelectorAll('style').length).toBe(0);
-      expect([...d.querySelectorAll('header.l-top nav a')].map((a) => a.getAttribute('href'))).toEqual(['/', '/all-tools/', '/compare/', '/how-it-works/', '/settings/']);
+      expect([...d.querySelectorAll('header.l-top nav a')].map((a) => a.getAttribute('href'))).toEqual(['/', '/all-tools/', '/compare/', '/best/', '/how-it-works/', '/settings/']);
       expect(!!d.querySelector('footer.l-foot a[href="https://github.com/slopographic/apps"]')).toBe(true);
       expect(!!d.querySelector('main.l-doc')).toBe(true);
       expect(!!d.querySelector('script[src*="shell/shell.js"]')).toBe(true);

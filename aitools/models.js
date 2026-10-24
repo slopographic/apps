@@ -1,12 +1,12 @@
 /* Slop AI Tools: the model manager. Lists each model with its licence, size, source and status
  * (bundled, installed, needs download), installs a model only when the caller asks (get-more.js asks first),
- * checks every file's byte length and SHA-256 before anything is stored, and keeps the verified files in
+ * checks every file's byte length and SHA-256 before anything is stored (download.js; a big file comes in parts), and keeps the verified files in
  * IndexedDB (database "slop-aitools"). A model is stored in one transaction or not at all. Bundled files are
  * read from vendor/models/ and checked against the same index. Classic script; exposes window.SlopAIManager. */
 (function (root) {
   'use strict';
   const R = root.SlopAIModels;
-  const DB = 'slop-aitools', VER = 1;
+  const DB = 'slop-aitools', VER = 1, SMALL = 64 * 1024;
   const SITE = typeof document !== 'undefined' && document.currentScript ? new URL('../', document.currentScript.src).href : new URL('/', root.location.href).href;
   let dbp = null;
   const bundledCache = new Map();
@@ -55,56 +55,87 @@
   async function record(id) {
     try { return (await request('models', 'readonly', (s) => s.get(id))) || null; } catch (e) { return null; }
   }
-  /** Status: 'bundled' (no download needed), 'installed' (stored and verified), or 'needs-download'. A model stored before
-   *  its files changed (Whisper's decoder became the cached one) needs downloading again: readAll would miss a file. */
+  /** Status: 'bundled' (no download needed), 'installed' (stored and verified), 'update' (stored, but the index gained small
+   *  files since, such as Whisper's config.json: under 64 KB, fetched without asking again, see ensureFiles) or
+   *  'needs-download'. A model stored before a big file changed needs downloading again: readAll would miss it. */
   async function status(id) {
     const m = R.byId(id);
     if (!m) return 'unknown';
     const remote = R.remoteFiles(m);
     if (!remote.length) return 'bundled';
-    const rec = await record(id), have = new Set(((rec && rec.files) || []).map((f) => f.name));
-    return rec && remote.every((f) => have.has(f.name)) ? 'installed' : 'needs-download';
+    const rec = await record(id), have = new Set(((rec && rec.files) || []).map((f) => f.name + ':' + f.sha256));
+    if (!rec) return 'needs-download';
+    const missing = remote.filter((f) => !have.has(f.name + ':' + f.sha256));
+    if (!missing.length) return 'installed';
+    return missing.reduce((n, f) => n + f.size, 0) <= SMALL ? 'update' : 'needs-download';
   }
   /** One row per model: the index entry, its status and when it was installed. */
   async function list() {
     const rows = [];
     for (const m of R.MODELS) {
       const rec = await record(m.id);
-      rows.push({ model: m, status: !R.remoteFiles(m).length ? 'bundled' : rec ? 'installed' : 'needs-download', installedAt: rec ? rec.installedAt : null });
+      rows.push({ model: m, status: await status(m.id), installedAt: rec ? rec.installedAt : null });
     }
     return rows;
   }
 
   /**
-   * Downloads, verifies and stores every remote file of one model. Only call this after the person confirmed
-   * the licence and size (get-more.js). onProgress({ file, index, count, loaded, total }). Any failure stores nothing.
+   * Downloads, verifies and stores the remote files of one model (those not already stored with the same SHA-256). Only
+   * call this after the person confirmed the licence and size (get-more.js, the speech Language and model dialog).
+   * onProgress({ file, index, count, loaded, total }): loaded and total in bytes over the whole model. opts.signal cancels.
+   * Any failure or a cancel stores nothing. A file in parts is joined and checked whole (download.js).
    */
-  async function install(id, onProgress) {
+  async function install(id, onProgress, opts = {}) {
     const m = R.byId(id);
     if (!m) throw new Error('Unknown model ' + id);
-    const remote = R.remoteFiles(m), blobs = new Map();
-    let n = 0;
-    for (const f of remote) {
+    const remote = R.remoteFiles(m), rec = await record(id);
+    const have = new Set(((rec && rec.files) || []).map((f) => f.name + ':' + f.sha256));
+    const todo = remote.filter((f) => !have.has(f.name + ':' + f.sha256)), blobs = new Map();
+    const total = todo.reduce((n, f) => n + f.size, 0);
+    let n = 0, before = 0;
+    for (const f of todo) {
       n++;
-      const r = await fetch(f.url, { credentials: 'omit', redirect: 'follow', cache: 'no-cache' });
-      if (!r.ok) throw new Error(`${f.name}: HTTP ${r.status}`);
-      if (!R.allowedUrl(r.url || f.url)) throw new Error(`${f.name}: redirected to a host that is not allowed`);
-      const buf = await r.arrayBuffer();
-      if (onProgress) onProgress({ file: f.name, index: n, count: remote.length, loaded: buf.byteLength, total: f.size });
-      blobs.set(f.name, new Blob([await verify(buf, f)]));
+      const tell = (loaded) => { if (onProgress) onProgress({ file: f.name, index: n, count: todo.length, loaded: before + loaded, total }); };
+      const buf = await (await downloader()).fetchFile(f, { fetch: (u, o) => root.fetch(u, o), sha256Hex, allowedUrl: R.allowedUrl, signal: opts.signal, onBytes: tell });
+      before += f.size;
+      blobs.set(f.name, new Blob([buf]));
     }
+    if (opts.signal && opts.signal.aborted) throw Object.assign(new Error('Download cancelled'), { name: 'AbortError' });
     const db = await open();
     await new Promise((resolve, reject) => {
       const t = db.transaction(['models', 'files'], 'readwrite');
       t.oncomplete = () => resolve();
       t.onerror = () => reject(t.error);
       t.onabort = () => reject(t.error || new Error('Storing the model was cancelled'));
-      for (const f of remote) t.objectStore('files').put({ key: `${id}/${f.name}`, blob: blobs.get(f.name) });
-      t.objectStore('models').put({ id, installedAt: new Date().toISOString(), licence: m.licence, files: remote.map((f) => ({ name: f.name, size: f.size, sha256: f.sha256 })) });
+      for (const f of todo) t.objectStore('files').put({ key: `${id}/${f.name}`, blob: blobs.get(f.name) });
+      t.objectStore('models').put({ id, installedAt: (rec && rec.installedAt) || new Date().toISOString(), licence: m.licence, files: remote.map((f) => ({ name: f.name, size: f.size, sha256: f.sha256 })) });
     });
-    // The Get more dialog named the download, its size and licence and the person agreed: the first-run notice would only ask again.
+    // The dialog named the download, its size and licence and the person agreed: the first-run notice would only ask again.
     if (root.SlopFirstRun && root.SlopFirstRun.mark) root.SlopFirstRun.mark('aitools');
-    return { id, files: remote.length };
+    return { id, files: todo.length };
+  }
+  /** download.js: on the page already, or loaded once from next to this file (pages that only read models skip it). */
+  let dlp = null;
+  function downloader() {
+    if (root.SlopAIDownload) return Promise.resolve(root.SlopAIDownload);
+    if (!dlp) dlp = new Promise((resolve, reject) => {
+      const sc = document.createElement('script');
+      sc.src = new URL('aitools/download.js', SITE).href;
+      sc.onload = () => (root.SlopAIDownload ? resolve(root.SlopAIDownload) : reject(new Error('The downloader did not load')));
+      sc.onerror = () => { dlp = null; reject(new Error('The downloader could not load')); };
+      document.head.append(sc);
+    });
+    return dlp;
+  }
+  /** Bytes stored on this device for the given models (all when ids is missing). */
+  async function usage(ids) {
+    let n = 0;
+    for (const m of R.MODELS) {
+      if (ids && !ids.includes(m.id)) continue;
+      const rec = await record(m.id);
+      if (rec) n += (rec.files || []).reduce((a, f) => a + (f.size || 0), 0);
+    }
+    return n;
   }
 
   /** Removes a stored model and its files. */
@@ -151,5 +182,5 @@
     return bundledCache.get(f.path);
   }
 
-  root.SlopAIManager = { list, status, install, remove, readAll, record, verify, sha256Hex, available: () => open().then(() => true, () => false), site: SITE };
+  root.SlopAIManager = { list, status, install, usage, remove, readAll, record, verify, sha256Hex, available: () => open().then(() => true, () => false), site: SITE };
 })(typeof window !== 'undefined' ? window : globalThis);

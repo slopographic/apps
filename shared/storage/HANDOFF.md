@@ -8,6 +8,7 @@ recoverable. It is shared by every app that saves; apps do not rewrite their sto
 
 | file | what it does |
 |---|---|
+| `quota.js` | `window.SlopQuota` (UMD; Node `require`s it): `estimate()`, `persisted()`, `persistAnswer()`, `persist()`, `request()`, `askIfBig(bytes)`, `bytes()`, `format()`, `browser()`, `limitText()`, `folderText()`, `outcome()`. The only place that calls `navigator.storage` estimate/persisted/persist (Drive, AI, Admin, Settings and `shared/pwa.js` go through it; `pwa.js` loads it on first use where a page does not). Text is the `storage.*` keys in `shared/i18n/`. |
 | `classify.js` | `SlopStorage.classify(err)` → `{ quota, store, message }`. Pure: no DOM, so Node can test it. |
 | `storage.js` | `estimate()`, `persisted()`, `requestPersist()`, `bytes(n)`. |
 | `clear.js` | `clear(kind)`: removes only regenerable caches. |
@@ -45,7 +46,7 @@ Pages load them after `shared/hub.js` or `shared/data/store.js`, and after `shar
 | `shared/data/store.js` `errOf()` | `handle(e, { what: 'this change' })` on a quota Result | CRM, Orders, Invoices, Inventory, Contacts, Calendar, To-do, Ledger, Reminders |
 | `slopcut/js/core/util.js` `tx()` | `handle(e, { what: 'this media' })` | Cut (imported media, autosave) |
 | `docs/js/ui/files.js` `draftPut`, `tables/js/ui/drafts.js`, `slides/js/io/draft.js`, `label/js/io/files.js` autosave, `photoslop/js/io/save.js` recovery | `handle(e, { once: … })` | drafts and autosaves: the person is told once |
-| `settings/storage.js` | `SlopStorage.estimate/clear/requestPersist` | the Storage section of Settings |
+| `settings/storage.js` + `settings/storage-keep.js` | `SlopStorage.estimate/clear`, `SlopQuota.estimate/request` | the Storage section of Settings: meter, Keep my files, the browser's limit, Connect a folder (links to `drive/#connect-folder`) |
 
 Not wired: SlopVector's localStorage autosave already shows its own "storage full" toast (it cannot tell full from blocked).
 Other localStorage writes (preferences) stay silent by design: they are small and fall back to defaults.
@@ -55,14 +56,16 @@ Other localStorage writes (preferences) stay silent by design: they are small an
 1. Call `handle` in the catch of a save the person pressed. Do not clear the editor, the canvas or the form. The content
    stays, and "Try again" (or saving again) works once space is freed.
 2. For autosaves, pass `once`.
-3. Never call `navigator.storage.persist()` from a save path. Use `SlopStorage.requestPersist()` (asks first).
+3. Never call `navigator.storage.persist()` yourself. After a save the person made, call `SlopQuota.askIfBig(bytes)`: it asks
+   the browser to keep the data the first time a visit stores 50 MB or more, once per visit, never on page load (Drive
+   uploads and Slop AI model downloads do this). A button the person presses uses `SlopQuota.request()`.
 4. Do not add a version-less `indexedDB.open` outside the generic openers listed in `tests/node/storage-rules.test.mjs`.
 
 ## Service worker (not changed here; do it in the release)
 
 `service-worker.js` must be changed by its owner:
 
-1. Add to `PRECACHE`: `/shared/storage/classify.js`, `/shared/storage/storage.js`, `/shared/storage/clear.js`,
+1. Add to `PRECACHE`: `/shared/storage/quota.js`, `/settings/storage-keep.js`, `/shared/storage/classify.js`, `/shared/storage/storage.js`, `/shared/storage/clear.js`,
    `/shared/storage/ui.js`, `/settings/storage.js`. The `/shared/slopui.js`, `/shared/slopui.css` and `/shared/cache/regen.js`
    entries are already there.
 2. Bump `VERSION` (`'v14'` → `'v15'`), because a precached file changed.
@@ -76,6 +79,8 @@ work online.
 
 | test | what it checks |
 |---|---|
+| `tests/node/storage-quota.test.mjs` | SlopQuota with a fake navigator: estimate, persist, askIfBig once, the formatter, the limit per browser, the English matching `strings.js` |
+| `tests/settings/storage.test.html` | the Settings section: meter, Keep my files with a no then a yes, Firefox's limit, the language, the Drive link |
 | `tests/node/storage-classify.test.mjs` | `classify(err)` on the error shapes above, the store names, and that other errors are not quota errors |
 | `tests/storage/quota-save.test.html` | a forced IndexedDB quota error on a real SlopData save opens the dialog once, keeps the editor text, "Try again" retries and closes, the estimate reports parts |
 | `tests/consent/settings.test.html` | the Storage section renders (usage bar, parts, persist button, the four clear actions) and a clear asks first |

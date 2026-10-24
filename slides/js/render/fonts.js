@@ -85,10 +85,18 @@
   F.bytes = function (key) { return faces[key] && faces[key].u8; };
   F.parsed = function (key) { return faces[key] && faces[key].font; };
 
-  var mctx = null;
+  var mctx = null, fallbacks = [], fbCss = 'sans-serif';
+  /** A language font now in this browser (a Noto pack the PDF export downloaded): the canvas and measuring use it for the
+   * characters the slide faces lack, so the screen and the PDF set them in the same font. */
+  F.addFallback = function (family) {
+    if (!family || fallbacks.indexOf(family) >= 0) return;
+    fallbacks.push(family);
+    fbCss = fallbacks.map(function (f) { return '"' + f.replace(/"/g, '') + '"'; }).concat(['sans-serif']).join(', ');
+    if (SS.app && SS.app.emit) SS.app.emit('render');
+  };
   function fallbackWidth(ch, size) {
     if (!mctx) mctx = document.createElement('canvas').getContext('2d');
-    mctx.font = '100px sans-serif';
+    mctx.font = '100px ' + fbCss;
     return mctx.measureText(ch).width * size / 100;
   }
   /** Width in points of `s` at `size` pt in the given face (from F.face). Unknown glyphs use a system font. */
@@ -111,5 +119,5 @@
   /** CSS font string for canvas. Sizes are in canvas units (the caller scales the context). */
   /** CSS font-family for DOM text in a family (bold/italic come from font-weight/font-style). */
   F.domFamily = function (family) { var f = F.family(family), d = F.FAMILIES[f]; return '"SSG-' + (d.user ? d.regular : f) + '", ' + (d.kind === 'serif' ? 'serif' : d.kind === 'mono' ? 'monospace' : 'sans-serif'); };
-  F.css = function (face, size) { return size + 'px "' + face.css + '", sans-serif'; };
+  F.css = function (face, size) { return size + 'px "' + face.css + '", ' + fbCss; };
 })();

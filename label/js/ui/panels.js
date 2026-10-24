@@ -134,5 +134,6 @@ function renderData(body) {
     tb.append(tr);
   }
   tbl.append(tb); wrap.append(tbl);
-  body.append(wrap, n > max ? mk('p', { class: 'hint' }, `Showing the first ${max} of ${n} records.`) : null, mk('p', { class: 'hint' }, 'Click a row to preview it on the label (PageUp / PageDown step through records). Tick rows to print only those.'));
+  // Element.append writes a null argument as the text "null", so the optional note is left out instead.
+  body.append(wrap, ...(n > max ? [mk('p', { class: 'hint' }, `Showing the first ${max} of ${n} records.`)] : []), mk('p', { class: 'hint' }, 'Click a row to preview it on the label (PageUp / PageDown step through records). Tick rows to print only those.'));
 }

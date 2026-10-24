@@ -6,9 +6,15 @@
   /* ---------------------------------------------------------- organize */
   PANELS.organize = {
     title: 'Organize pages', icon: 'organize', build: function (b) {
-      var files = h('div', { class: 'file-list' });
-      b.appendChild(section('Files', [files, h('div', { class: 'btn-row' }, btn('Add PDFs or images', 'plus', function () { SP.app.openDialog(); }, 'wide'))]));
+      var files = h('div', { class: 'file-list' }), pwNote = h('div', { class: 'pw-notice', role: 'status', hidden: true });
+      b.appendChild(section('Files', [files, pwNote, h('div', { class: 'btn-row' }, btn('Add PDFs or images', 'plus', function () { SP.app.openDialog(); }, 'wide'))]));
       onRefresh(function () {
+        // a file that had a password (pdfjs.js f.security): downloads have none unless one is added (ui/protect.js)
+        var A = SP.app, had = A.hadPassword && A.hadPassword();
+        pwNote.innerHTML = ''; pwNote.hidden = !had;
+        if (had) pwNote.append(h('b', null, 'This PDF had a password.'), note(' Downloads have no password unless you add one.'),
+          h('div', { class: 'btn-row' }, btn('Remove password', 'download', function () { A.download(); }, 'pw-remove', 'Download it without a password'),
+            btn('Keep the password', 'lock', function () { A.protect(A.protectPreset(had.security)); }, 'pw-keep', 'Download it with a password and the original permissions')));
         files.innerHTML = '';
         var counts = {};
         E.state.pages.forEach(function (p) { if (p.f) counts[p.f] = (counts[p.f] || 0) + 1; });
@@ -18,7 +24,7 @@
           files.appendChild(h('div', { class: 'file-item' + (n ? '' : ' unused') },
             h('span', { class: 'fdot', style: { '--fc': f.color } }),
             h('span', { class: 'fi-name', title: f.name }, f.name),
-            h('span', { class: 'fi-meta' }, n + '/' + f.numPages + ' p' + (f.decrypted ? ' · unlocked' : '') + (f.locked ? ' · locked' : '')),
+            h('span', { class: 'fi-meta' }, n + '/' + f.numPages + ' p' + (f.decrypted ? ' · had a password' : '') + (f.locked ? ' · locked' : '')),
             h('button', { type: 'button', class: 'ib', title: 'Select its pages', 'aria-label': 'Select pages from ' + f.name, html: U.icon('selectall'), onclick: function () { SP.organizer.setSelection(E.state.pages.filter(function (p) { return p.f === f.id; }).map(function (p) { return p.id; })); } }),
             h('button', { type: 'button', class: 'ib', title: n ? 'Remove its pages' : 'Add its pages again', 'aria-label': (n ? 'Remove pages of ' : 'Re-add pages of ') + f.name, html: U.icon(n ? 'trash' : 'plus'), onclick: function () {
               if (n) SP.app.remove(E.state.pages.filter(function (p) { return p.f === f.id; }).map(function (p) { return p.id; }));

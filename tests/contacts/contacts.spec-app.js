@@ -1,7 +1,8 @@
 /* Slop Contacts app: the three-column layout on the shared customer records. Letter headers in order, a new contact
  * in its letter section and in the CRM view, the orders and invoices of a customer, the 390 px layout with no
- * horizontal scroll, and the keyboard (arrows, Enter, Cmd+N, Delete asks first). The app runs in a same-origin iframe
- * and reads the same IndexedDB as the test page. */
+ * horizontal scroll, and the keyboard (arrows, Enter, Ctrl+Alt+N, Delete asks first). The app runs in a same-origin iframe
+ * and reads the same IndexedDB as the test page.
+ * Covers: contacts/js/app/keys.js */
 (function () {
   'use strict';
   const { describe, it, expect, sleep, waitFor } = SlopTest;
@@ -167,9 +168,14 @@
       await waitFor(() => !rowNames(win).includes('Key Bea'), { timeout: 5000 });
     });
 
-    it('Cmd+N starts a new contact in the list (no dialog)', async () => {
+    it('Ctrl+Alt+N starts a new contact in the list (no dialog); Ctrl+N is left to the browser', async () => {
       const win = await boot();
-      win.document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'n', metaKey: true, bubbles: true }));
+      const plain = new win.KeyboardEvent('keydown', { key: 'n', code: 'KeyN', ctrlKey: true, bubbles: true, cancelable: true });
+      win.document.dispatchEvent(plain);
+      expect(plain.defaultPrevented).toBe(false);
+      expect($(win, '#rows .row-new-input')).toBeFalsy();
+      // a Mac's Option+N gives a dead key, so the key is read from e.code
+      win.document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Dead', code: 'KeyN', metaKey: true, altKey: true, bubbles: true }));
       await waitFor(() => $(win, '#rows .row-new-input'), { timeout: 3000 });
       expect($(win, '.sui-dlg')).toBeFalsy();
       key(win, $(win, '#rows .row-new-input'), 'Escape');

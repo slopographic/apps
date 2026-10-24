@@ -67,7 +67,10 @@ themes (Pro / Light / Classic 98 via the shared token block and `--sui-*`), `sha
   `messages.js`, `chat.js` (`AI.ChatPanel`, used by Chat and Build), `settings.js`, `builder-prompts.js`, `builder.js`,
   `sloppo.js`, `commands.js`. `js/app/main.js` boots.
 - `css/`: `base.css` (tokens, top bar), `chat.css`, `models.css`, `build.css`, `mobile.css` (≤ 760 px: icon tabs,
-  drawer for chats, Build shows chat first with a Preview button).
+  the chat list is a drawer from the left below the top bar, Build shows chat first with a Preview button). The drawer is
+  `SlopSheet` (`shared/ui/sheet.js`, `side: 'start'`, `AI.chatsUI`, attached in `js/ui/chatlist.js`): the Chats button
+  (made once, so the bar's redraw keeps it) opens and closes it, and the shared ×, Escape, a tap outside, a swipe left,
+  opening a chat or New chat close it. There is no scrim or `side-open` class any more.
 
 ## Tests
 `node tests/run.mjs ai` → 64 tests on 8 pages, all green:
@@ -81,7 +84,7 @@ themes (Pro / Light / Classic 98 via the shared token block and `--sui-*`), `sha
 | `sandbox.test.html` | preview iframe attributes, a probe app cannot read the parent, storage, cookies or the network, CSP injection, `extractHtml`, templates, save, iterating by chat |
 | `ui.test.html` | smoke with the fake engine: models (badges, pause/cancel, download, default), chat (markdown, copy, stats, stop, regenerate, attachments, Control apps → open_app, settings dialog), Ask Sloppo, system check + spec card, SlopCmd registration, themes, no sideways scroll |
 | `panel.test.html` | `window.SlopAI` offline fallback, discovering a model loaded in Slop AI, Sloppo persona over the bridge, `comment()`, the panel running a page's SlopCmd commands with a confirm for destructive ones, going offline on unload |
-| `mobile.test.html` | 390×844: every tab fits, chat drawer, chatting, Build preview toggle |
+| `mobile.test.html` | 390×844: every tab fits, the chat drawer (Chats opens and closes it, ×, Escape, outside tap, New chat), chatting, Build preview toggle |
 
 Helpers: `tests/ai/util.js` (`AT.app()` opens the app with the fake engine and its own database; `AT.SYS` mocked
 snapshots), `bridge-frame.html`, `panel-page.html` (a pretend app with a stub SlopCmd and the panel).

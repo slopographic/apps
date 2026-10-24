@@ -5,6 +5,7 @@ import { conversionById } from '../core/catalog.js';
 import { writeZip } from '../io/zip.js';
 import { saveBlob } from '../io/files.js';
 import { buildPreview, pickInputs } from './model.js';
+import { buildRoutePreview, runRouteFull } from './chain.js';   // a route of several conversions
 import { createView } from './view.js';
 import { acceptsText, REVERSE, DEBOUNCE_MS } from './spec.js';
 
@@ -27,7 +28,7 @@ export class PreviewPanel {
     this.model = null;
     this.dirty = true;
     this.conv = null;
-    const textOk = !tool.preset || acceptsText(conversionById(tool.preset.conv));
+    const textOk = !tool.preset || acceptsText(conversionById(String(tool.preset.conv).split(/[>@]/)[0]));   // a route: its first step
     this.view = createView(block, { input: textOk });
     const v = this.view;
     if (v.ta) v.ta.addEventListener('input', () => tool.setText(v.ta.value));
@@ -60,8 +61,9 @@ export class PreviewPanel {
     const id = ++this.seq;
     this.dirty = false;
     this.syncInput();
-    const { conv, items, opts } = this.tool.previewState();
+    const { conv, items, opts, steps } = this.tool.previewState();
     this.conv = conv;
+    this.route = !!steps;
     if (!conv || !items.length) {
       this.model = null;
       this.view.empty(this.tool.items.length ? 'No conversion on this page for these files.' : 'Add a file or type text to see the preview.');
@@ -69,7 +71,7 @@ export class PreviewPanel {
       return;
     }
     this.view.setStatus('Updating…');
-    const model = await buildPreview(conv, items, opts);
+    const model = steps ? await buildRoutePreview(steps, items) : await buildPreview(conv, items, opts);
     if (id !== this.seq) return;
     this.model = model;
     this.view.render(model);
@@ -82,15 +84,16 @@ export class PreviewPanel {
     const text = !!after && after.kind === 'text';
     const picture = !!after && after.kind === 'image';
     v.copy.disabled = !(text || picture);
-    v.swap.hidden = !(text && REVERSE[this.conv && this.conv.id]);
-    v.download.disabled = !model;
+    v.swap.hidden = !(text && !this.route && REVERSE[this.conv && this.conv.id]);
+    v.download.disabled = !model || !!model.secret;   // a password conversion downloads from Convert, which then forgets the password
   }
 
   /** The whole conversion of the previewed items, as Download would run it. Reuses the preview when it was whole. */
   async full() {
     if (this.model && this.model.outputs && !this.dirty) return this.model.outputs;
-    const { conv, items, opts } = this.tool.previewState();
+    const { conv, items, opts, steps } = this.tool.previewState();
     if (!conv || !items.length) return [];
+    if (steps) return runRouteFull(steps, items);
     return conv.run(pickInputs(conv, items).map(({ name, file, kind }) => ({ name, file, kind })), opts);
   }
 

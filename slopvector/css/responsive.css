@@ -6,9 +6,8 @@
   .main { grid-template-columns: var(--toolbar-w) minmax(0, 1fr); }
   .app.no-dock .main { grid-template-columns: var(--toolbar-w) minmax(0, 1fr); }
   .app.no-dock .dock { display: flex; }
-  .dock { position: fixed; right: 0; top: calc(var(--menubar-h) + var(--cb-h)); bottom: var(--sb-h); width: min(320px, 90vw); z-index: 60; transform: translateX(105%); transition: transform .2s ease; box-shadow: var(--shadow); }
-  .app.dock-open .dock { transform: none; }
-  .dock-head { display: flex; align-items: center; justify-content: space-between; height: 30px; padding: 0 6px 0 12px; font-weight: 700; border-bottom: 1px solid var(--border-dark); background: var(--title-bg); color: var(--title-fg); flex: 0 0 auto; }
+  /* the dock is a drawer from the right under the bars: shared/ui/sheet.js gives place, motion, × and closing */
+  .dock { --ssh-z: 60; --ssh-top: calc(var(--menubar-h) + var(--cb-h)); }
   .tools { grid-template-columns: 32px; }
   .tool { width: 32px; height: 30px; }
   .fs-stack { width: 40px; height: 40px; }

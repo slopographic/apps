@@ -145,6 +145,18 @@
       U.toast('Again');
       expect(document.querySelectorAll('.sui-toast').length).toBe(1);
     });
+    it('an action button (Undo) shows its label, readable on the dark toast (it was a blank light box)', async () => {
+      let undone = 0;
+      U.toast('Imported: 4 added.', 6000, { label: 'Undo', run: () => { undone++; } });
+      const t = document.querySelector('.sui-toast'), b = t.querySelector('.sui-toast-act');
+      expect(b.textContent).toBe('Undo');
+      const bg = getComputedStyle(b).backgroundColor;
+      // the button lets the toast's dark face show through, and its text stands out from it
+      expect(/rgba\(0, 0, 0, 0\)|transparent/.test(bg)).toBe(true);
+      expect(SlopTest.contrast(getComputedStyle(b).color, getComputedStyle(t).backgroundColor)).toBeGreaterThan(7);
+      b.click();
+      expect(undone).toBe(1);
+    });
   });
 
   run();

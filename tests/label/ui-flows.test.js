@@ -1,5 +1,6 @@
 /* SlopLabel UI flow tests: dialogs, data merge, variables, print dialog and outputs, templates,
- * themes, Slop Hub, print-form links and the phone layout. */
+ * themes, Slop Hub, print-form links and the phone layout.
+ * Covers: label/js/ui/panels.js */
 (function () {
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   const frame = () => new Promise((r) => WIN.requestAnimationFrame(() => WIN.requestAnimationFrame(r)));
@@ -29,6 +30,10 @@
       expect(W.$('recInfo').textContent).toBe('2 / 2');
       W.App.tab = 'data'; W.refreshNow();
       expect(W.$('dockBody').querySelectorAll('tbody tr').length).toBe(2);
+      // No stray "null" text node under the records table (append() turns a null argument into that text).
+      const stray = [...W.$('dockBody').querySelectorAll('*')].concat(W.$('dockBody')).flatMap((e) => [...e.childNodes]).filter((t) => t.nodeType === 3 && t.data.trim() === 'null');
+      expect(stray.length).toBe(0);
+      expect(/null/.test(W.$('dockBody').textContent)).toBe(false);
       expect(W.jobScenes({}).scenes.length).toBe(3); // Ada ×2 + Grace ×1
     });
     it('adds a variable through the editor and renames references', async () => {
@@ -164,6 +169,25 @@
       expect(win.getComputedStyle(doc.getElementById('dock')).visibility).toBe('visible');
       const lab = win.eval('App.doc.label'), z = win.eval('App.zoom');
       expect(lab.w * z).toBeLessThanOrEqual(390);
+      doc.getElementById('btnDock').click();
+    });
+    it('the panels sheet (SlopSheet): Panels opens it, again closes it, × closes and refocuses, Escape and a tap on the label close it', async () => {
+      const win = document.getElementById('phone').contentWindow, doc = win.document, btn = doc.getElementById('btnDock'), sheet = win.eval('App.sheet');
+      const esc = () => doc.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      expect(sheet.isOpen()).toBe(false);
+      btn.click(); expect([sheet.isOpen(), btn.getAttribute('aria-expanded')]).toEqual([true, 'true']);
+      btn.click(); expect(sheet.isOpen()).toBe(false);
+      btn.focus(); btn.click();
+      const x = doc.querySelector('#dock > .ssh-x');
+      expect(x.getAttribute('aria-label')).toBe('Close panels');
+      x.click(); expect([sheet.isOpen(), doc.activeElement]).toEqual([false, btn]);
+      btn.click(); esc(); expect(sheet.isOpen()).toBe(false);
+      win.showDock('objects'); expect([sheet.isOpen(), win.eval('App.tab')]).toEqual([true, 'objects']);
+      doc.getElementById('stage').dispatchEvent(new win.PointerEvent('pointerdown', { bubbles: true }));
+      expect(sheet.isOpen()).toBe(false);
+      win.showDock('props');
+      await sleep(0); expect(doc.getElementById('dock').firstElementChild.classList.contains('ssh-x')).toBe(true);
+      win.hideDock();
     });
   });
 })();

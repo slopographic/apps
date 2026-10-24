@@ -6,6 +6,7 @@ import { isPage } from './site.mjs';
 import { compareTables } from './roundups.mjs';
 import { appNav, withToc, docsLayout } from './guide.mjs';
 import OFFLINE_APPS from '../../shared/offline/manifest.js';
+import { INSTALL } from '../../shared/seo/install-copy.mjs';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,7 +39,8 @@ const TYPE = {
   'application/vnd.ms-excel': 'Excel (.xls)', 'application/vnd.oasis.opendocument.spreadsheet': 'OpenDocument spreadsheet (.ods)',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PowerPoint (.pptx)',
   'application/vnd.oasis.opendocument.presentation': 'OpenDocument presentation (.odp)',
-  'message/rfc822': 'Email (.eml)', '.eml': 'Email (.eml)', 'model/gltf-binary': 'GLB', 'model/obj': 'OBJ',
+  'message/rfc822': 'Email (.eml)', '.eml': 'Email (.eml)', 'model/gltf-binary': 'GLB', 'model/obj': 'OBJ', 'model/gltf+json': 'glTF', 'model/stl': 'STL', 'model/3mf': '3MF',
+  'model/vnd.collada+xml': 'DAE (Collada)', 'application/x-ply': 'PLY', 'application/x-fbx': 'FBX',
   'audio/mpeg': 'MP3', 'audio/wav': 'WAV', 'audio/ogg': 'Ogg', 'audio/flac': 'FLAC', 'audio/mp4': 'M4A',
   'audio/aac': 'AAC', 'audio/opus': 'Opus', 'text/css': 'CSS', 'text/javascript': 'JavaScript',
   'application/javascript': 'JavaScript', 'text/x-python': 'Python', 'text/typescript': 'TypeScript',
@@ -63,12 +65,12 @@ export function related(app, apps) {
  *  About pages (shared/landing/landing.css, which follows the chosen theme), the profile, theme and consent scripts,
  *  and the shell (Theme and Apps in the header). siteTop() and siteFoot() are also written into hand-made pages
  *  between <!-- site:top --> and <!-- site:foot --> markers (write.mjs), so every page has the same header and footer. */
-const NAV = [['/', 'Home'], ['/all-tools/', 'All tools'], ['/compare/', 'Compare apps'], ['/how-it-works/', 'How it works'], ['/settings/', 'Settings']];
+const NAV = [['/', 'Home'], ['/all-tools/', 'All tools'], ['/compare/', 'All apps'], ['/best/', 'Comparisons'], ['/how-it-works/', 'How it works'], ['/settings/', 'Settings']];
 export const SITE_HEAD = ['<script src="/shared/profile/profile.js"></script>', '<script src="/shared/theme/theme.js" data-app="site"></script>',
   '<script src="/shared/consent/config.js"></script>', '<script src="/shared/consent/state.js"></script>', '<script src="/shared/consent/consent-mode.js"></script>',
   '<script src="/shared/consent/banner.js"></script>', '<link rel="icon" href="/favicon.ico" type="image/x-icon">', '<link rel="stylesheet" href="/shared/landing/landing.css">'];
-export const siteTop = () => `<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav></header>`;
-export const siteFoot = () => `<footer class="l-foot"><div class="l-foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>`;
+export const siteTop = () => `<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav><div class="sh-hdr-slot"></div></header>`;   // the slot keeps the room the shell's header buttons take (shell/header.js fills it), so nothing moves when they come
+export const siteFoot = () => `<footer class="l-foot"><div class="l-foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p><p class="l-fine l-made">Made with ❤️ in Sweden</p></footer>`;
 export function shell(body) {
   return `<!doctype html>
 <html lang="en">
@@ -99,12 +101,14 @@ export const cardList = (items) => `<ul class="cards">${items.map((b) => `<li>${
 /** The app's YouTube tutorial as a card (its thumbnail is kept in assets/video), or '' without one. */
 export function videoLink(app) {
   const v = app.video;
-  return v ? `<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>` : '';
+  return v ? `<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener" data-slop-video="${esc(v.id)}" data-slop-video-title="${esc(v.title)}"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>` : '';
 }
+/** The app's screenshot as a figure (assets/shots/<id>.jpg), or '' when there is none. */
+export const shotFigure = (app) => (hasFile(`assets/shots/${app.id}.jpg`) ? `<figure class="shot"><img src="/assets/shots/${esc(app.id)}.jpg" alt="${esc(app.name)} open in a browser" width="1280" height="800" loading="lazy"></figure>` : '');
 export function mediaBlock(app) {
   const id = app.id, out = [];
   const clip = hasFile(`assets/clips/${id}.mp4`);
-  if (!clip && hasFile(`assets/shots/${id}.jpg`)) out.push(`<figure class="shot"><img src="/assets/shots/${esc(id)}.jpg" alt="${esc(app.name)} open in a browser" width="1280" height="800" loading="lazy"></figure>`);
+  if (!clip && shotFigure(app)) out.push(shotFigure(app));
   if (clip) {
     const poster = hasFile(`assets/shots/${id}.jpg`) ? ` poster="/assets/shots/${esc(id)}.jpg"` : '';
     out.push(`<video class="clip" controls preload="none" playsinline${poster}><source src="/assets/clips/${esc(id)}.webm" type="video/webm"><source src="/assets/clips/${esc(id)}.mp4" type="video/mp4">Your browser cannot play this clip.</video>`);
@@ -129,6 +133,7 @@ function appBody(app, apps, tasks = [], roundups = []) {
 <h1>${esc(app.title || app.name)}</h1>
 <p class="lead">${esc(app.tagline)}</p>
 <p><a class="btn" href="/${esc(app.path)}" aria-label="Open now: ${esc(app.name)}">Open now</a></p>${offlineLink(app)}
+<p class="note">${esc(INSTALL.how)}</p>
 ${mediaBlock(app)}
 <p>${esc(app.name)} ${feats.length ? `has these main features: ${esc(feats.slice(0, 2).join('; '))}.` : 'is listed below with its file types.'}${types.length ? ` It opens ${esc(types.join(', '))}.` : ''}</p>
 ${note ? `<p class="note">${esc(note)}</p>` : ''}
@@ -178,15 +183,18 @@ ${cardList(picks)}
 </ul>`;
 }
 
-function compareBody(apps) {
+function compareBody(apps, ROUNDUPS = []) {
   const pages = apps.filter(isPage);
-  const rows = pages.map((a) => `<tr><td><a href="/apps/${esc(a.id)}/">${esc(a.name)}</a></td><td>${esc(statusOf(a))}</td><td>${esc((a.features || []).slice(0, 2).join('; ') || 'None listed')}</td><td>${esc(fileTypes(a))}</td></tr>`).join('');
-  return `<p class="eyebrow">Compare</p>
-<h1>Compare every Slopographic app</h1>
-<p class="lead">All ${pages.length} apps with a page, their status, their first two features and the file types they open. Each row links to the app's own page.</p>
+  // each app's comparison with other tools (shared/seo/roundups): "vs Photopea, GIMP, Pixlr", linked
+  const vs = (a) => ROUNDUPS.filter((r) => r.app === a.id).map((r) => `<a href="/best/${esc(r.slug)}/">vs ${esc(r.tools.filter((t) => !t.ours).map((t) => t.name).slice(0, 3).join(', '))}</a>`).join('<br>') || '<span class="note">Not compared yet</span>';
+  const rows = pages.map((a) => `<tr><td><a href="/apps/${esc(a.id)}/">${esc(a.name)}</a></td><td>${vs(a)}</td><td>${esc(statusOf(a))}</td><td>${esc((a.features || []).slice(0, 2).join('; ') || 'None listed')}</td><td>${esc(fileTypes(a))}</td></tr>`).join('');
+  return `<p class="eyebrow">All apps</p>
+<h1>Every Slopographic app, and how each compares</h1>
+<p class="lead">All ${pages.length} apps with a page: what each does, the file types it opens, and a link to its side-by-side comparison with the well-known tools for the same job.</p>
+${ROUNDUPS.length ? `<h2>Comparisons with other tools</h2>\n<p>Each one puts one of our apps next to the tools people usually compare it with, feature by feature, with every fact sourced from those tools' own pages.</p>\n<ul class="cmp-list">${ROUNDUPS.map((r) => `<li><a href="/best/${esc(r.slug)}/">${esc(r.h1)}</a></li>`).join('')}</ul>\n<h2>All apps</h2>` : ''}
 <div class="wrap"><table>
-<caption>All apps: status, key features and file types</caption>
-<thead><tr><th scope="col">App</th><th scope="col">Status</th><th scope="col">Key features</th><th scope="col">File types</th></tr></thead>
+<caption>All apps: what each is compared with, its status, key features and file types</caption>
+<thead><tr><th scope="col">App</th><th scope="col">Compared with</th><th scope="col">Status</th><th scope="col">Key features</th><th scope="col">File types</th></tr></thead>
 <tbody>${rows}</tbody>
 </table></div>`;
 }
@@ -210,6 +218,6 @@ export function landingPages(apps, site, LANDING, TASKS = [], ROUNDUPS = [], GUI
   }
   add('slop-365', 'slop-365/', 'Slop 365', slop365Body(apps));
   add('creative-slop-pro', 'creative-slop-pro/', 'Creative Slop Pro', creativeBody(apps));
-  add('compare', 'compare/', 'Compare', compareBody(apps));
+  add('compare', 'compare/', 'All apps', compareBody(apps, ROUNDUPS));
   return out;
 }

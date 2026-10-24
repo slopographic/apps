@@ -35,14 +35,14 @@
 </head>
 <body>
 <div class="l-wrap">
-<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">All apps</a><a href="/best/">Comparisons</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav><div class="sh-hdr-slot"></div></header>
 <main class="l-doc">
 <div class="l-docs">
 <aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
 <nav class="l-side-nav" aria-label="Checksum guide">
 <p class="l-side-app"><a href="/apps/checksum/">Checksum</a></p>
 <p><a class="btn l-side-open" href="/checksum/">Open Checksum</a></p>
-
+<p class="l-side-h">Guides</p><ul><li><a href="/checksum/getting-started/">Getting started</a></li></ul>
 <p class="l-side-h">How to</p><ul><li><a href="/checksum/sha256-checksum/">SHA-256 checksum</a></li><li><a href="/checksum/verify-checksum/">Verify a download</a></li><li><a href="/checksum/sha512-checksum/">SHA-512 checksum</a></li></ul>
 <p class="l-side-h">Compared</p><ul><li><a href="/best/free-checksum-tools/" aria-current="page">Free checksum tools</a></li></ul>
 </nav>
@@ -63,7 +63,7 @@
 <h2 id="t1">1. Checksum (ours)</h2>
 <p><b>Best for:</b> Checking one download against a published SHA-256 in the browser, with a clear match or no-match answer.</p>
 
-<h3>Good</h3><ul><li>Paste the published hash and it says Match or No match, and warns when the length shows the wrong algorithm</li><li>Nothing to install, and the file is read on your device</li><li>Copes with pasted hashes in capitals, with spaces or a &quot;sha256:&quot; prefix</li></ul>
+<h3>Good</h3><ul><li>Paste the published hash and it says Match or No match, and warns when the length shows the wrong algorithm</li><li>Nothing to install, and the file is read on your device</li><li>Copes with pasted hashes in capitals, with spaces or a &quot;sha256:&quot; prefix</li><li>Works on your phone, tablet and computer in the browser, even offline</li></ul>
 <h3>Not so good</h3><ul><li>One file at a time</li><li>No MD5 or CRC32, which some sites still publish</li><li>Reads the whole file into memory, so very large files need a lot of RAM</li></ul>
 <p><a class="btn" href="/checksum/">Open Checksum</a></p>
 <h2 id="t2">2. PowerShell Get-FileHash</h2>
@@ -85,8 +85,8 @@
 <h3>Not so good</h3><ul><li>Has to be downloaded and installed</li><li>Its home page lists the algorithms but little about the rest of the features</li></ul>
 <p><a href="https://www.quickhash-gui.org/" rel="noopener nofollow">QuickHash-GUI website</a> · Sources: <a href="https://www.quickhash-gui.org/" rel="noopener nofollow">QuickHash-GUI home page</a></p>
 <h2 id="which-one-to-choose">Which one to choose</h2>
-<p>To check a single download against the SHA-256 on a website, Checksum is the quickest: drop the file, paste the hash, read the answer, on any computer with a browser. It cannot do MD5 or many files at once.</p>
-<p>On Windows, Get-FileHash is already there for anyone comfortable with a command, and HashMyFiles is the easy choice for folders and MD5 or CRC32. QuickHash-GUI has the most algorithms and runs on Linux, Windows and Mac.</p>
+<p>Checksum is our pick to check a single download against the SHA-256 on a website: drop the file, paste the hash and read the answer, on any device with a browser, with the file read on your device. It cannot do MD5 or many files at once.</p>
+<p>Choose Get-FileHash on Windows if you are comfortable with a command, HashMyFiles for folders and MD5 or CRC32, or QuickHash-GUI for the most algorithms on Linux, Windows and Mac.</p>
 <h2 id="questions">Questions</h2>
 <h3>Which hash should I use?</h3>
 <p>Use the one the publisher lists, usually SHA-256. Microsoft's documentation notes that MD5 and SHA1 are no longer considered secure, so use them only to match an older published hash.</p>
@@ -100,7 +100,7 @@
 </div>
 </div>
 </main>
-<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">All apps</a><a href="/best/">Comparisons</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p><p class="l-fine l-made">Made with ❤️ in Sweden</p></footer>
 </div>
 <script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>

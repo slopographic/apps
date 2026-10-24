@@ -3,10 +3,16 @@
 <head><meta charset="utf-8"><title>AI Tools · Whisper engine: cached decoding with the merged decoder, the plain one, segments</title></head>
 <body>
   <script src="../harness.js"></script>
+  <script src="../../shared/models/catalog.js"></script>
+  <script src="../../aitools/speech-models.js"></script>
   <script src="../../aitools/model-registry.js"></script>
+  <script src="../../aitools/workers/whisper-logits.js"></script>
+  <script src="../../aitools/workers/whisper-quality.js"></script>
+  <script src="../../aitools/workers/whisper-decode.js"></script>
+  <script src="../../aitools/workers/whisper-longform.js"></script>
   <script src="../../aitools/workers/speech-engine.js"></script>
   <script>
-  // Covers: aitools/workers/speech-engine.js, aitools/workers/infer.worker.js, aitools/model-registry.js
+  // Covers: aitools/workers/speech-engine.js, aitools/workers/infer.worker.js, aitools/model-registry.js, aitools/workers/whisper-longform.js
   // A fake runtime and scripted decoders: the real model is a download the tests do not make. The script says which token
   // each pass makes most likely; the checks are on what the engine feeds the decoder.
   const { describe, it, expect, run } = SlopTest;

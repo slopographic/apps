@@ -22,7 +22,7 @@
     return el('li', { class: `rm-row src-${it.source}${it.dismissed ? ' is-dismissed' : ''}`, 'data-key': it.key, 'data-source': it.source },
       el('div', { class: 'rm-when' }, T.dateTimeText(it.at, state.zone, state.locale), el('span', { class: 'rm-zone' }, state.zone)),
       el('div', { class: 'rm-main' }, el('b', null, it.title || 'Reminder'),
-        el('span', { class: 'rm-sub' }, `${SOURCE[it.source] || 'Reminder'}${snoozed ? ` · snoozed until ${T.timeText(it.snoozedUntil, state.zone, state.locale)}` : ''}${it.firedAt && !snoozed ? ' · shown' : ''}`)),
+        el('span', { class: 'rm-sub' }, `${SOURCE[it.source] || 'Reminder'}${it.repeat ? ` · ${it.repeat}` : ''}${it.more ? ' · the next one' : ''}${snoozed ? ` · snoozed until ${T.timeText(it.snoozedUntil, state.zone, state.locale)}` : ''}${it.firedAt && !snoozed ? ' · shown' : ''}`)),
       el('div', { class: 'rm-acts' }, snooze,
         el('button', { type: 'button', class: 'btn small', onclick: async () => {
           const r = await E.dismiss(it);
@@ -39,11 +39,9 @@
     const items = snap.value.items.filter((it) => state.show === 'all' || !it.dismissed);   // dismissed rows show only with 'Show dismissed'
     const counts = { overdue: 0, today: 0, later: 0 };   // counts open (not dismissed) reminders
     const groups = { overdue: [], today: [], later: [] };
-    for (const it of items) {
-      const g2 = NR.group(it, today, state.zone);
-      groups[g2].push(it);
-      if (!it.dismissed) counts[g2]++;
-    }
+    for (const it of items) groups[NR.group(it, today, state.zone)].push(it);
+    groups.later = NR.nextOnly(groups.later);   // a repeating event shows its next occurrence once, not every week for a year
+    for (const k of Object.keys(groups)) counts[k] = groups[k].filter((it) => !it.dismissed).length;
     const blocks = GROUPS.map(([k, label]) => el('section', { class: 'rm-group', 'aria-label': label },
       el('h3', { class: 'rm-h' }, `${label}`, el('span', { class: 'side-n' }, String(counts[k]))),
       groups[k].length ? el('ul', { class: 'rm-list', role: 'list' }, groups[k].map((it) => row(it, now)))

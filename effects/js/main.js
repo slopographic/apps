@@ -33,6 +33,10 @@
     const sideTabs = g.SlopTabs.mount($('fx-tabs'), { panel: (k) => boxes[k] });
     const showTab = (name) => sideTabs.show(name);
     showTab('layer');
+    // Phones: the side panel is a bottom sheet (SlopSheet, shared/ui/sheet.js), opened and closed by Properties in the
+    // toolbar, with the shared ×, Escape, a tap outside and a swipe down. On a wide screen it stays in its column.
+    const sheet = g.SlopSheet ? g.SlopSheet.attach({ root: $('fx-app'), panel: document.querySelector('.fx-side'), phone: '(max-width: 760px)',
+      toggles: [$('fx-props')], label: 'Properties' }) : null;
 
     // Timeline tabs: the timeline and the graph editor share the lower area.
     g.SlopTabs.mount($('fx-tl-tabs'), { panel: (k) => $(k === 'graph' ? 'fx-graph' : 'fx-timeline') }).show('timeline');
@@ -40,7 +44,7 @@
     const menus = ns.menus.mount(S, Object.assign(act, { toast }), io);
     const renderDialog = () => ns.renderDialog.open(S, toast);
     const compDialog = () => ns.menus.compDialog(S, act);
-    const focusMotion = () => showTab('motion');
+    const focusMotion = () => { showTab('motion'); if (sheet) sheet.open(); };
     if (g.SlopCmd && g.SlopCmd.init) g.SlopCmd.init({ app: 'effects' });
     ns.cmd.init({ S, act, ka, io, tr, preview, toast, renderDialog, compDialog, focusMotion });
 
@@ -49,7 +53,7 @@
     g.addEventListener('keydown', (e) => { if (e.key === 'Escape' && S.isDragging()) S.cancelLive(); });
     S.emit('doc');
     S.emit('sel');
-    g.SlopEffects.app = { S, act, ka, io, tr, preview, menus, showTab };
+    g.SlopEffects.app = { S, act, ka, io, tr, preview, menus, showTab, sheet };
     menus.refresh();
   }
 

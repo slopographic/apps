@@ -29,7 +29,7 @@
     var launching = /[?&]drive=/.test(location.search);
     await (A.tabsReady || Promise.resolve()).catch(function () {}); // the page is ready once the stored tabs are open
     var v = await window.SlopSession.load(APP, 'view', null).catch(function () { return null; });
-    if (v && typeof v === 'object' && E.state.pages.length && !launching) applyView(v);
+    if (v && typeof v === 'object' && E.state.pages.length && !launching) A.applyView(v);   // route.js puts a link's ?tool= over it
     if (v && typeof v === 'object' && v.split && !launching && SP.panes) SP.panes.restore(v.split);
     ready = true;
     document.documentElement.classList.add('ready');

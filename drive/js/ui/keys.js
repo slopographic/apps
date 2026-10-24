@@ -29,13 +29,15 @@
       if (mod && k.toLowerCase() === 'v') return run(() => DR.paste(one && one.isFolder && !one.trashedAt ? one.id : DR.dest()));
       if (mod && k.toLowerCase() === 'd') return run(() => items.length && DR.duplicate(items));
       if (mod && k.toLowerCase() === 'm') return run(() => items.length && DR.moveDialog(items));
-      if (mod && e.shiftKey && k.toLowerCase() === 'n') return run(() => DR.newFolder(DR.dest()));
+      // New folder is Ctrl+Alt+Shift+N, as in Slop Code (Chrome keeps Ctrl+Shift+N for an incognito window); e.code, since a
+      // Mac's Option changes e.key
+      if (mod && e.altKey && e.shiftKey && e.code === 'KeyN') return run(() => DR.newFolder(DR.dest()));
       if (mod && k.toLowerCase() === 'u') return run(() => DR.uploadPicker(false));
       if (mod && k.toLowerCase() === 'f') return run(() => $('search').focus());
       if (mod) return;
       if (k === '/') return run(() => $('search').focus());
       if (k === '?') return run(() => DR.shortcutsDialog());
-      if (k === 'Escape') { if (document.body.classList.contains('sheet-open')) return run(() => DR.sheet(false)); if (document.body.classList.contains('drawer-open')) return run(() => DR.drawer(false)); S.touchMode = false; return run(() => DR.select([])); }
+      if (k === 'Escape') { if (e.defaultPrevented) return; S.touchMode = false; return run(() => DR.select([])); }   // an open sheet took it first
       if (k === 'g') { gPending = Date.now(); return; }
       if (/^[1-6]$/.test(k)) return run(() => DR.setView(DR.VIEWS[+k - 1][0]));
       if (k === 'i' || k === 'I') return run(() => DR.toggleInfo());

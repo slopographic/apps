@@ -9,6 +9,7 @@
   <!-- The real app runs in an iframe. The sample message is fetched from fixtures/sample.eml and handed to the app as a File. -->
   <iframe id="app" src="about:blank"></iframe>
   <script src="../harness.js"></script>
+  <script src="eml.helpers.js"></script>
   <script>
   const { describe, it, beforeEach, expect, waitFor, sleep, run } = SlopTest;
   const f = document.getElementById('app');
@@ -16,35 +17,6 @@
   const q = (sel) => W().document.querySelector(sel);
   const qa = (sel) => [...W().document.querySelectorAll(sel)];
   const A = () => W().EmlApp;
-  /** The text lines a PDF draws: each content stream is inflated, and pdf-lib's hex strings before Tj decode to the
-   *  Latin text they hold (WinAnsi matches ASCII here). */
-  async function drawnLines(bytes) {
-    const latin = new TextDecoder('windows-1252').decode(bytes);
-    const out = [];
-    let i = 0;
-    while ((i = latin.indexOf('stream', i)) >= 0) {
-      if (latin.slice(i - 3, i) === 'end') { i += 6; continue; }
-      let start = i + 6;
-      if (latin[start] === '\r') start++;
-      if (latin[start] === '\n') start++;
-      let end = latin.indexOf('endstream', start);
-      if (end < 0) break;
-      i = end + 9;
-      if (latin[end - 1] === '\n') end--;
-      if (latin[end - 1] === '\r') end--;
-      try {
-        const ds = new DecompressionStream('deflate');
-        const writer = ds.writable.getWriter();
-        writer.write(new Uint8Array(bytes.slice(start, end))).catch(() => {});
-        writer.close().catch(() => {});
-        const txt = new TextDecoder().decode(await new Response(ds.readable).arrayBuffer());
-        for (const m of txt.matchAll(/<([0-9A-Fa-f]+)>\s*Tj/g)) {
-          out.push(m[1].match(/../g).map((h) => String.fromCharCode(parseInt(h, 16))).join(''));
-        }
-      } catch (e) { /* not a Flate stream */ }
-    }
-    return out;
-  }
   const SRC = '../../eml/index.html';
 
   /** Loads the app fresh (about:blank first, so a reload never reads the old page's ready flag). */
@@ -125,7 +97,7 @@
 
     it('lists the attachments with decoded names, and saves their decoded bytes', async () => {
       const doc = await openSample();
-      const names = qa('.em-att-name').map((n) => n.textContent);
+      const names = qa('#em-side .sf-item-name').map((n) => n.textContent);
       expect(names).toContain('Q3 report €.pdf');
       expect(names).toContain('logo.png');
       const got = A().attachmentBlob(doc, names.indexOf('Q3 report €.pdf'));
@@ -134,7 +106,7 @@
       expect(String.fromCharCode(...head)).toBe('%PDF');
     });
 
-    it('opens several messages in turn, as tabs, and closes one', async () => {
+    it('opens several messages in turn, each pinned as a tab, and closes one', async () => {
       const first = await openSample();
       await openSample();
       expect(qa('.em-tab').length).toBe(2);
@@ -164,38 +136,34 @@
       expect(r.pages).toBeGreaterThanOrEqual(1);
     });
 
-    it('replaces a character the standard font cannot draw with ? and reports it', async () => {
+    it('keeps the paragraphs as text lines, with the subject as a bookmark and the attachments listed', async () => {
       const doc = await openSample();
       const r = await W().EmlPdf.build(doc);
-      expect(r.replaced).toBeGreaterThanOrEqual(1);
-      expect(r.samples).toContain('☺');
+      const got = await EH.readPdf(r.bytes);
+      expect(got.n).toBe(r.pages);
+      const all = got.pages.join(' ');
+      expect(all).toContain('Hello Ben,');
+      expect(all).toContain('Attachments (2)');
+      expect(all).toContain('Q3 report €.pdf');
+      expect(all).toContain('Page 1 of ' + r.pages);
+      expect(all.includes('Smile ?')).toBe(false);
+      expect(got.outline).toEqual(['Quarterly report ✓']);
     });
 
-    it('keeps the paragraphs on their own lines, and draws the unknown emoji as ?', async () => {
+    it('lists the attachments by default, and can leave them out', async () => {
       const doc = await openSample();
-      const r = await W().EmlPdf.build(doc);
-      const lines = await drawnLines(r.bytes);
-      expect(lines).toContain('Hello Ben,');
-      expect(lines).toContain('Smile ? (that emoji cannot be drawn in the PDF font).');
-      expect(lines.some((l) => l.includes('Hello Ben,') && l.includes('The report'))).toBeFalsy();
-      expect(lines).toContain('Attachments (2)');
+      const without = await EH.readPdf((await W().EmlPdf.build(doc, { attachments: false })).bytes);
+      expect(without.pages.join(' ').includes('Attachments (2)')).toBe(false);
     });
 
-    it('lists the attachments at the end by default, and can leave them out', async () => {
-      const doc = await openSample();
-      const withList = await W().EmlPdf.build(doc);
-      const without = await W().EmlPdf.build(doc, { attachments: false });
-      expect(withList.bytes.length).toBeGreaterThan(without.bytes.length);
-    });
-
-    it('the convert dialog says what the PDF keeps and what it does not', async () => {
+    it('Convert to PDF opens the Export dialog with PDF chosen, and says what the PDF keeps', async () => {
       await openSample();
       W().EmlActions.convertPdf();
       const dlg = q('.sui-dlg');
       expect(dlg).toBeTruthy();
-      expect(dlg.textContent).toContain('HTML layout and images are not kept in the PDF');
-      expect(dlg.textContent).toContain('use Print to keep them');
-      expect(dlg.textContent).toContain('replaced with "?"');
+      expect(q('#em-ex-format').value).toBe('pdf');
+      expect(dlg.textContent).toContain('Text in every language is kept');
+      expect(dlg.textContent).toContain('Print keeps them');
       q('.sui-x').click();
       await sleep(200);
     });

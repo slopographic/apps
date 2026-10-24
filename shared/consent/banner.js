@@ -34,21 +34,35 @@
     (document.head || document.documentElement).append(link);
   }
   /* Room for the strip: while it is up, <html> gets class slopc-on and --consent-h (the strip's measured height, kept
-   * current by a ResizeObserver). banner.css adds that height to the page's bottom padding, so the end of the page
-   * scrolls clear of the strip. The page's own bottom padding is kept in --slopc-base-pb. */
+   * current by a ResizeObserver, and measured again when banner.css arrives, when web fonts load and when the window
+   * resizes: the first measure can run before the card is styled, and its padding and bottom gap change no content box).
+   * banner.css adds that height to the page's bottom padding, so the end of the page scrolls clear of the strip. The
+   * page's own bottom padding is kept in --slopc-base-pb. */
   var root = document.documentElement;
-  var ro = null;
+  var ro = null, off = null;
   function reserve(el) {
     if (!root.classList.contains('slopc-on')) {
       root.style.setProperty('--slopc-base-pb', getComputedStyle(document.body).paddingBottom);
       root.classList.add('slopc-on');
     }
-    var measure = function () { root.style.setProperty('--consent-h', Math.ceil(el.getBoundingClientRect().height) + 'px'); };
+    // the room the card takes from the bottom of the window: its height and the gap under it
+    // (its laid-out size and offset, not its on-screen box, which the slide-in animation moves)
+    var measure = function () { var gap = parseFloat(getComputedStyle(el).bottom) || 0; root.style.setProperty('--consent-h', Math.ceil(el.offsetHeight + gap) + 'px'); };
     measure();
-    if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(measure); ro.observe(el); }
+    if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(measure); ro.observe(el, { box: 'border-box' }); }
+    var link = document.getElementById('slopc-css'), fonts = document.fonts;
+    if (link) link.addEventListener('load', measure);
+    window.addEventListener('resize', measure);
+    if (fonts && fonts.addEventListener) { fonts.addEventListener('loadingdone', measure); fonts.ready.then(function () { if (off) measure(); }); }
+    off = function () {
+      if (link) link.removeEventListener('load', measure);
+      window.removeEventListener('resize', measure);
+      if (fonts && fonts.removeEventListener) fonts.removeEventListener('loadingdone', measure);
+    };
   }
   function unreserve() {
     if (ro) { ro.disconnect(); ro = null; }
+    if (off) { off(); off = null; }
     root.classList.remove('slopc-on');
     root.style.removeProperty('--consent-h');
     root.style.removeProperty('--slopc-base-pb');

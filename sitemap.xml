@@ -48,6 +48,7 @@
   <url><loc>https://slopographic.com/crm/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/calendar/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/todo/</loc><lastmod>2026-10-20</lastmod></url>
+  <url><loc>https://slopographic.com/projects/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/reminders/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/ledger/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/admin/</loc><lastmod>2026-10-20</lastmod></url>
@@ -73,6 +74,7 @@
   <url><loc>https://slopographic.com/time/about/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/calendar/about/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/todo/about/</loc><lastmod>2026-10-20</lastmod></url>
+  <url><loc>https://slopographic.com/projects/about/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/reminders/about/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/apps/photoslop/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/apps/vector/</loc><lastmod>2026-10-20</lastmod></url>
@@ -121,6 +123,7 @@
   <url><loc>https://slopographic.com/apps/crm/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/apps/calendar/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/apps/todo/</loc><lastmod>2026-10-20</lastmod></url>
+  <url><loc>https://slopographic.com/apps/projects/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/apps/reminders/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/apps/ledger/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/apps/admin/</loc><lastmod>2026-10-20</lastmod></url>
@@ -206,8 +209,6 @@
   <url><loc>https://slopographic.com/sheetview/xlsx-to-csv/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/html2pdf/html-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/html2pdf/saved-web-page-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
-  <url><loc>https://slopographic.com/eml/open-eml-file/</loc><lastmod>2026-10-24</lastmod></url>
-  <url><loc>https://slopographic.com/eml/eml-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/notes/markdown-editor/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/notes/markdown-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/paste/code-snippet-manager/</loc><lastmod>2026-10-24</lastmod></url>
@@ -221,6 +222,10 @@
   <url><loc>https://slopographic.com/clean/remove-exif-data/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/clean/remove-gps-from-photo/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/clean/exif-viewer/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/eml/open-eml-file/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/eml/eml-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/eml/combine-emails-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/eml/mbox-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/invoices/free-invoice-generator/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/invoices/invoice-with-vat/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/invoices/recurring-invoices/</loc><lastmod>2026-10-24</lastmod></url>
@@ -299,6 +304,80 @@
   <url><loc>https://slopographic.com/slopcut/add-text-to-video/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/slopcut/split-screen-video/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/slopcut/capcut-alternative/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/3d/stl-viewer/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/3d/fbx-viewer/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/3d-file-converter/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/3d-model-to-stl/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/open-sie-file/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/sie-to-excel/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/ofx-to-excel/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/mt940-to-excel/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/camt053-viewer/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/ledger/import-sie-file/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/ledger/import-bank-statement/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/photoslop/open-raw-files/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/gallery/raw-photo-viewer/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/dng-converter/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/resize/resize-raw-photos/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/photoslop/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/photoslop/layers/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/photoslop/classic/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/slopvector/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/resize/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/upscale/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/slopisolate/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/watermark/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/effects/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/img3d/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/3d/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/gallery/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/sorter/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/label/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/press/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/qr/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/pdf/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/pdf/organize-pages/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/ocr/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/docs/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/slides/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/tables/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/sheetview/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/html2pdf/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/eml/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/notes/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/paste/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/checksum/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/hex/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/code/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/clean/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/invoices/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/quotes/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/orders/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/purchases/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/timesheets/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/expenses/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/admin/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/inventory/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/contacts/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/crm/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/ledger/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/reports/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/signature/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/transcribe/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/time/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/calculator/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/ai/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/aitools/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/nodes/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/serials/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/calendar/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/todo/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/reminders/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/drive/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/music/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/remix/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/slopcut/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/all-tools/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/best/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/best/free-online-photo-editors/</loc><lastmod>2026-10-24</lastmod></url>
@@ -341,6 +420,73 @@
   <url><loc>https://slopographic.com/convert/vcf-to-csv/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/convert/vcf-to-xlsx/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/convert/vcf-to-json/</loc><lastmod>2026-10-20</lastmod></url>
+  <url><loc>https://slopographic.com/convert/sie-to-xlsx/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/sie-to-csv/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/ofx-to-csv/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/qif-to-csv/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/camt053-to-xlsx/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/mt940-to-csv/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/obj-to-stl/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/stl-to-obj/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/glb-to-obj/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/obj-to-glb/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/fbx-to-glb/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/fbx-to-obj/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/stl-to-glb/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/ply-to-stl/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/dae-to-glb/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/3mf-to-stl/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/gltf-to-glb/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/glb-to-usdz/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/cr2-to-jpg/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/cr3-to-jpg/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/nef-to-jpg/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/arw-to-jpg/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/dng-to-jpg/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/raf-to-jpg/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/heic-to-jpg/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/heic-to-png/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/svg-to-jpg/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/gif-to-mp4/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/wav-to-mp3/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/m4a-to-mp3/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/flac-to-mp3/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/mp3-to-wav/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/wav-to-flac/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/mp3-to-ogg/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/markdown-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/txt-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/markdown-to-docx/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/xlsx-to-csv/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/xlsx-to-json/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/ods-to-xlsx/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/json-to-xlsx/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/json-to-yaml/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/yaml-to-json/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/json-to-toml/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/toml-to-json/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/json-to-xml/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/json-formatter/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/srt-to-vtt/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/vtt-to-srt/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/shift-subtitles/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/sie-to-json/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/heic-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/xlsx-to-yaml/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/pdf-to-webp/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/csv-to-yaml/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/ics-to-xlsx/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/password-protect-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/remove-password-from-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/docx-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/word-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/docx-to-html/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/docx-to-markdown/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/docx-to-text/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/pptx-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/powerpoint-to-pdf/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/pptx-to-images/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/convert/pptx-to-text/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/convert/png-to-jpg/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/convert/jpg-to-png/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/convert/png-to-webp/</loc><lastmod>2026-10-20</lastmod></url>

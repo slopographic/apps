@@ -37,7 +37,8 @@
     PR.tools.attach(V.canvas);
     PR.textEdit.attach(U.$('#textInput'));
     dropSetup();
-    U.$('#panelsToggle').addEventListener('click', function () { UI.togglePanels(); });
+    UI.attachDockSheet();
+    U.$('#panelsToggle').addEventListener('click', function () { if (!UI.dockSheet.isPhone()) UI.togglePanels(); });   // on a phone it is the drawer's toggle
     U.$('#searchCmd').addEventListener('click', function () { PR.actions.palette(); });
     var setKey = function () { U.$('#searchKey').textContent = PR.actions.keyFor('help.search') || (U.IS_MAC ? '⌘K' : 'Ctrl+K'); };
     setKey(); PR.on('keys', setKey);
@@ -59,7 +60,7 @@
       console.error(e);
       return PR.io.openDoc(PR.model.create({ pages: 2 }));
     }).then(function () {
-      if (innerWidth < 900) U.$('#app').classList.remove('dock-open');
+      UI.dockSheet.close();
       V.resize(); V.fitPage(); UI.refreshPanels(); UI.refreshControlBar(true); UI.refreshStatus();
       U.$('#app').classList.add('ready');
       PR.emit('ready');

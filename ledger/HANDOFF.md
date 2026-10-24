@@ -22,6 +22,19 @@ balance, reversals, and exchange rates. Browser only, local only. All rules live
 - **CSV**: the trial balance and the journal download as CSV (plain decimal amounts, one row per journal line).
 - SlopCmd commands, right-click menus on journal entries and accounts, SlopHub registration, SlopGuard, 390 px layout.
 
+- **Import SIE** (Journal tab, File menu, `journal.importSie`): an SIE file (types 1 to 4 and 4I, read by
+  `shared/finance/sie.js`) becomes accounts, one opening-balance entry (#IB of year 0, dated the first day of the year)
+  and one journal entry per voucher (`js/core/sie-import.js` makes the plan, `js/ui/sie.js` asks and posts). The dialog
+  lists new accounts, accounts whose code is taken by another type here (they get a free code, editable), sub-accounts
+  of more than four digits (joined to their four-digit parent of the same type, else a free code), names that differ
+  (kept unless ticked), the opening balances and the vouchers. Sources are `sie:<org no>:<year start>:<series>:<number>`,
+  so a second import posts nothing. Unbalanced vouchers, vouchers without lines and unbalanced opening balances are
+  skipped and listed with the reason. A file in another currency posts at the stored rate (no rate: skipped). The data
+  schema is unchanged.
+- **Bank statements besides CSV**: the Bank tab reads OFX/QFX, QIF, camt.053 and MT940 through `shared/finance/`
+  (`core/bank.js` `linesFromStatement`), with the same line keys as CSV. Pending camt entries are skipped; a statement in
+  another currency than the base is refused. CSV files that are not UTF-8 are read as Windows-1252.
+
 ## Limits
 - Posted entries cannot be edited or deleted; correct them with a reversal and a new entry.
 - Realised and unrealised exchange gains and losses are not booked (the shared model does not have them yet).
@@ -30,4 +43,4 @@ balance, reversals, and exchange rates. Browser only, local only. All rules live
 - Accounts cannot be deleted or deactivated, and their type cannot change once added.
 - Entries from other modules (for example invoices) appear in the journal and can be reversed here, but are not edited here.
 - Amounts in CSV are plain decimals in the base or entry currency; no locale formatting.
-- Tests: `node tests/run.mjs ledger` (tests/ledger/ledger.test.html).
+- Tests: `node tests/run.mjs ledger` (tests/ledger/*.test.html; Import SIE and statements in tests/ledger/sie.test.html), and `tests/node/finance-ledger.test.mjs`.

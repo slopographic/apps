@@ -13,6 +13,7 @@
   <script src="../../shared/apps.js"></script>
   <script src="../../shared/hub.js"></script>
   <script>
+  // Covers: notes/js/main.js, notes/js/actions.js, notes/js/state.js (the phone notebooks drawer)
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const f = document.getElementById('app');
   const W = () => f.contentWindow;
@@ -151,13 +152,14 @@
     });
 
     it('phone width (390 px): one pane at a time, with no sideways scroll', async () => {
+      W().document.head.append(Object.assign(W().document.createElement('style'), { textContent: '* { transition: none !important; }' }));   // the drawer's slide stalls offscreen
       f.style.width = '390px';
       await sleep(150);
       const shown = (sel) => W().getComputedStyle(q(sel)).display !== 'none';
       W().document.getElementById('nt-app').dataset.pane = 'list';
       await sleep(50);
       expect(shown('#nt-list')).toBe(true);
-      expect(shown('#nt-side')).toBe(false);
+      expect(q('#nt-side').getBoundingClientRect().right <= 1).toBe(true);   // the notebooks drawer is shut
       expect(shown('#nt-main')).toBe(false);
       expect(W().document.documentElement.scrollWidth <= 390).toBe(true);
       qa('#nt-notes .nt-note')[0].click();
@@ -166,6 +168,25 @@
       expect(shown('#nt-list')).toBe(false);
       f.style.width = '1280px';
       await sleep(100);
+    });
+
+    it('phone width (390 px): the notebooks are a drawer (SlopSheet): Notebooks opens and closes it, so do ×, Escape and a notebook', async () => {
+      f.style.width = '390px';
+      await sleep(150);
+      const D = W().document, side = q('#nt-side'), btn = q('#nt-side-btn'), on = () => side.classList.contains('ssh-on');
+      D.head.append(Object.assign(D.createElement('style'), { id: 'no-motion', textContent: '* { transition: none !important; }' }));   // an offscreen frame stalls them
+      const esc = () => D.dispatchEvent(new (W().KeyboardEvent)('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      btn.click();
+      expect([on(), Math.round(side.getBoundingClientRect().left), btn.getAttribute('aria-expanded')]).toEqual([true, 0, 'true']);
+      btn.click(); expect(on()).toBe(false);
+      btn.click(); q('#nt-side > .ssh-x').click(); expect(on()).toBe(false);
+      btn.click(); esc(); expect(on()).toBe(false);
+      btn.click(); q('#nt-books .nt-item').click();   // All notes: shows the list and closes the drawer
+      expect([on(), q('#nt-app').dataset.pane]).toEqual([false, 'list']);
+      D.getElementById('no-motion').remove();
+      f.style.width = '1280px';
+      await sleep(100);
+      expect(side.getBoundingClientRect().width > 100).toBe(true);   // a column again on a wide screen
     });
   });
   run({ name: 'Slop Notes' });

@@ -36,6 +36,7 @@
       cmd('file.extractAssets', 'Extract assets…', 'File', [], function () { A.extractAssets(); }, has, { keywords: ['images', 'fonts', 'save', 'export'] }),
       cmd('file.save', 'Save', 'File', ['Mod+S'], function () { if (window.SlopHub && !SP.offline) A.saveToDrive(); else A.download(); }, function () { return has() && noMenu(); }, { keywords: ['save', 'drive'] }),
       cmd('file.download', 'Download PDF', 'File', [], function () { A.download(); }, function () { return has() && noMenu(); }, { keywords: ['save', 'export'] }),
+      cmd('file.protect', 'Protect with password…', 'File', [], function () { A.protect(); }, function () { return has() && noMenu(); }, { keywords: ['password', 'encrypt', 'lock', 'secure', 'protect'] }),
       cmd('file.extract', 'Download selected pages', 'File', [], function () { A.extract(); }, function () { return O.sel.size > 0; }),
       cmd('file.text', 'Extract text…', 'File', [], function () { A.extractText(); }, has),
       cmd('file.images', 'Pages to images…', 'File', [], function () { A.setTool('convert'); }, has, { keywords: ['png', 'jpeg', 'convert'] }),
@@ -107,9 +108,11 @@
     if (!C) { console.warn('Slop PDF: SlopCmd is missing; keyboard shortcuts are off'); return; }
     C.init({ app: 'pdf' });
     C.register(all());
-    var b = U.h('button', { type: 'button', class: 'tb', id: 'btnCmd', title: 'Search commands (' + C.keyFor('cmd.palette') + ')', 'aria-label': 'Search commands', html: U.icon('search') });
+    // The button is in the page (index.html), so the top bar is whole at its first paint; it works from here on
+    var b = document.getElementById('btnCmd');
+    if (!b) { b = U.h('button', { type: 'button', class: 'tb', id: 'btnCmd', 'aria-label': 'Search commands', html: U.icon('search') }); S.els.btnPanel.parentNode.insertBefore(b, S.els.btnPanel); }
+    b.title = 'Search commands (' + C.keyFor('cmd.palette') + ')';
     b.addEventListener('click', function () { C.open(); });
-    S.els.btnPanel.parentNode.insertBefore(b, S.els.btnPanel);
     C.on('change', function () { b.title = 'Search commands (' + C.keyFor('cmd.palette') + ')'; });
   };
 })();

@@ -17,7 +17,9 @@ both vendored in `/vendor/`).
   checkbox, dropdown, radio) with keep-editable or flatten.
 - Compress (lossless re-save; lossy JPEG rasterise), pages→PNG/JPEG (zip), images→PDF, text extraction.
 - Password PDFs: RC4-128, AES-128, AES-256 (R6), with/without object streams, owner-only restricted
-  files — decrypted locally (`js/io/decrypt.js`) so pdf-lib can rewrite them. Broken files show a clear error.
+  files — decrypted locally so pdf-lib can rewrite them. Broken files show a clear error. The crypto is the site's one
+  implementation, `shared/pdf-crypto/` (`window.SlopPdfCrypto`, its own HANDOFF); `js/io/decrypt.js` is only a shim onto
+  it (`SP.decrypt`: `load`, `isEncrypted`, `decryptPdf`, `inspect`, `describe`, `encryptPdf`). See "Passwords" below.
 - Themes Pro/Light/Classic 98, shared SlopUI dialogs/menus, Slop Hub (register, ?drive= launch,
   File ▸ Open from Slop Drive, File ▸ Send to, page context menu ▸ Send page as image to).
 - Code split into packages; every non-vendor file ≤ 300 lines.
@@ -56,6 +58,58 @@ both vendored in `/vendor/`).
     redacted page's content along.
   - No "keep vector text" mode is offered (content-stream rewriting was not done; image-only is the safe path).
     Invisible OCR text on redacted pages is lost too (they become pure images).
+
+## Loading: the first view first (`index.html`, `ui/app.js`, `shared/load`)
+The page runs only what the empty first view needs before its first paint, and loads the rest after it (the pattern,
+for every app: `shared/load/HANDOFF.md`).
+- Before the paint (parser-blocking, about 30 small scripts and 9 stylesheets): `shared/load/load.js`, SlopUI, intake,
+  the app registry, the Drive link, view modes, `core/util`, `ui/icons`, `core/model`, `core/history`, `core/layers`,
+  `ui/sheet`, `organize/grid`, `editor/view` (namespaces the later files keep in variables), `ui/panel-kit`, `ui/dock`,
+  the Organize, Layers and History panels, `ui/app`, `ui/menus`, the bottom sheet (`shared/ui/sheet.js`), the drop zone
+  (`shared/drop/*`, `ui/drop`), the shell and Spotlight. `A.boot` (DOMContentLoaded) builds the rail, menus, panel and
+  drop zone from them. The command-search button is in the HTML; the tab strip keeps its height (`css/doc-tabs.css`).
+- `<template id="pdf-later" data-load="paint">`: every other script and stylesheet, in the old order, right after the
+  first paint. `A.bootRest` then wires the rest (context bars, grid, editor, keys, tabs, the saved view, `?drive=`) and
+  resolves `A.ready` (`A.isReady`). Controls drawn by `A.boot` wait for it through `A.whenReady(fn)`; a drop waits too.
+- `<template id="pdf-idle" data-load="idle">`: the consent card, the Convert dialog, the mascot, the offline worker.
+- `<template id="pdf-engine">`: pdf-lib, loaded by `E.pdflib()` (core/pdfjs.js). pdf.js is a dynamic import in
+  `E.pdfjs()`. Neither loads on the empty page: `E.libs()` (both, then `E.initFonts`) is awaited by `E.registerPdf`
+  (every open, tab restore and Drive file), `E.makeSample`, `E.imagesToPdf`, `E.build` and `E.openOutput`. Code that
+  uses `PDFLib` runs only with a document open, so after one of those.
+- `<template id="pdf-crypto">`: the five `shared/pdf-crypto/` scripts, loaded by `SP.decrypt.load()` (io/decrypt.js, through
+  `SlopLoad.scripts`, so a failed load can be retried) only when pdf.js reports a security handler on an opened file
+  (`E.mayBeEncrypted`: `info.EncryptFilterName`, or a password was typed) or a download with a password is asked for.
+- Offline copy: the manifest's `scripts` list is the page's order (first view, then later); the boot runs all of them
+  and pdf-lib, so the templates are empty there.
+- Tests: `tests/pdf/lazy.test.html` (no pdf-lib or pdf.js on the empty page, the later files asked for after the page
+  is built, both libraries on the first open or sample), `tests/pdf/phone-sheet.test.html` (390 px sheet).
+- A script in the later group must not wait for DOMContentLoaded (it has fired): `ui/rename.js` checks readyState.
+  `editor/paste-image.js` attaches to the shared paste intake with `first: true`, ahead of the drop zone.
+
+## Passwords (`core/pdfjs.js`, `io/decrypt.js`, `ui/protect.js`, `ui/exports.js`)
+- Opening: `E.registerPdf` decrypts a protected file with the password typed in `A.askPassword` and keeps
+  `f.security` = `SP.decrypt.describe(original bytes, password)`: `{ encrypted, R, V, method, bits, P, permissions,
+  needsPassword, owner }` (owner: the typed password was the owner's). The password itself is not kept on `f`, in the
+  edit log, the session or tab state (`io/session.js`, `io/doc-state.js` carry `security` only) or Drive metadata.
+- Notice: the Organize panel's Files section shows "This PDF had a password. Downloads have no password unless you add
+  one." (`.pw-notice`, `tools/organize-panel.js`) with **Remove password** (a plain `A.download()`) and **Keep the
+  password** (`A.protect(A.protectPreset(f.security))`: the dialog with the original print/copy/edit permissions). The
+  status line says it too when the file is opened. Before this, decrypted files were saved without a password silently.
+- Download with a password: `A.protect(preset)` (`ui/protect.js`) is the Download PDF dialog with a "Protect with a
+  password" section: the checkbox, Password, Confirm, Allow printing / copying / editing. Empty or different passwords
+  keep it open with an error. `A.download({ protect: { pw, owner, print, copy, edit } })` builds and validates first
+  (`E.validate` opens the output with pdf.js), then `SP.decrypt.encryptPdf` (AES-256, R 6, `%PDF-1.7`; a blank owner
+  password is random). The dialog's fields are emptied when the download starts and `A.download` blanks the option's
+  `pw` when it is done (success or error); the status and toast say only "password-protected". The plain Download
+  button and Mod+S are unchanged (no dialog).
+- Reached from File ▸ Protect with password…, File ▸ Export as ▸ PDF with a password…, and the command
+  `file.protect` (Mod+K, keywords password encrypt lock secure; enabled with pages).
+- `redact/panel.js` wraps `A.download` and passes its arguments on, so a protected download asks to apply marks too.
+- Tests: `tests/pdf/protect.test.html` (`pdf.spec-protect.js`): a plain PDF does not load the crypto; the qpdf AES-256
+  fixture (`tests/pdf-crypto/fixtures/qpdf-aes256.pdf`, password `sesame`) opens and `f.security` is right with no
+  password anywhere; the notice; Remove password gives a file with no `/Encrypt`; Keep the password presets the
+  permissions, refuses different passwords, empties the fields, and pdf.js needs the new password, refuses a wrong one,
+  opens with it and reads the permissions back; the command and menu item, an empty password refused, unchecked = plain.
 
 ## Navigation and zoom (page view)
 The page view uses the shared navigation engine (`shared/nav`, `SlopNav.engine.attach`), not its own wheel or pinch code.

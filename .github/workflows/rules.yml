@@ -6,6 +6,11 @@ on:
   push:
   pull_request:
 
+# A newer push to the same branch stops the run that is still going (the old commit no longer matters).
+concurrency:
+  group: rules-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Runs in Playwright's image (Chromium, its libraries and git preinstalled): a few Node tests open pages.
   check:

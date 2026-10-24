@@ -28,7 +28,7 @@ test('a hand-made page gets the same frame between its markers; a page without m
   assert.equal(W.siteChrome('<p>plain</p>'), '<p>plain</p>');
 });
 
-test('the nav links the hub, the comparison, How it works and Settings, and the footer links the public source', () => {
-  assert.deepEqual([...L.siteTop().matchAll(/href="([^"]+)"/g)].map((m) => m[1]), ['/', '/', '/all-tools/', '/compare/', '/how-it-works/', '/settings/']);
+test('the nav links the hub, all apps, the comparisons, How it works and Settings, and the footer links the public source', () => {
+  assert.deepEqual([...L.siteTop().matchAll(/href="([^"]+)"/g)].map((m) => m[1]), ['/', '/', '/all-tools/', '/compare/', '/best/', '/how-it-works/', '/settings/']);
   assert.match(L.siteFoot(), /https:\/\/github\.com\/slopographic\/apps/);
 });

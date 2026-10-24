@@ -65,6 +65,7 @@
     }
     if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); C.deleteSel(); return; }
     if (e.key === 'Escape') {
+      if (e.defaultPrevented) return;   // an open panels drawer (SlopSheet) took it
       if (S.pen) { SV.finishPen(); return; }
       if (S.op) { SV.revert(); S.op = null; S.marquee = null; S.readout = null; SV.requestRender(true); return; }
       if (SV.ui && SV.ui.closeMenus && SV.ui.closeMenus()) return;

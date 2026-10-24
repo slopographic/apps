@@ -9,13 +9,44 @@ decode, line endings) stay because they also take uploaded files.
 
 ## Layout
 
-- `index.html`: the hub (generated, see "SEO pages" below). Drop zone, target picker, batch, zip.
+- `index.html`: the hub (generated, see "SEO pages" below). Drop zone, file cards, batch, zip.
 - `<slug>/index.html`: one static page per converter, with the same tool embedded.
-- `css/convert.css`: tokens on `:root`, dark by default, light via `prefers-color-scheme` or `data-theme`.
+- `css/convert.css`: the pages (tokens on `:root`, dark by default, light via `prefers-color-scheme` or `data-theme`); it imports `css/tool.css`, the tool's own scoped styles.
 - `js/core/`: pure converters. `catalog.js` lists them; `pages.js` lists the SEO pages. `vcf.js` runs the vCard pairs and loads the Contacts vCard code (`contacts/js/core/`) into the page; `vcf-map.js` holds their header rule.
-- `js/ui/`: the tool controller (`tool.js`), its markup (`markup.js`), options, batch runner and `mount.js`.
+- `js/ui/`: the tool controller (`tool.js`), its markup (`markup.js`), options, batch runner, `mount-tool.js` and `mount.js`.
 - `js/preview/`: the live preview (see below). `mount.js` is its entry point; `controller.js` debounces and runs the actions; `model.js` runs the converter for the preview; `view.js` draws the block; `diff.js` and `spec.js` hold the line diff and the limits.
 - `js/io/`: file helpers, and `zip.js`, a re-export of `shared/office/zip.js` (ZIP writer and reader, shared with the other apps).
+
+## The tool (mountTool) and per-file targets
+
+`js/ui/mount-tool.js` `mountTool(host, { files, preset, fixedTarget, compact, onResults })` puts the whole converter in any
+element: the hub and every pair page call it from `js/ui/mount.js` on `[data-convert-root]`, and a "Convert…" dialog in
+another app can call it too. The host gets the class `.cv-tool`; `css/tool.css` holds every rule of the tool, all under
+`.cv-tool`, with its own colour tokens and container queries (`@container cv-tool`), so it looks the same at any width and
+inside any page; `convert.css` imports it and `mountTool` adds it to a page that has not. Ids are made per tool: `cv-drop`
+for the first tool on a page, `cv2-drop` for the next (`tool.ns`). `compact` shows the drop zone as a strip from the start
+and no first-visit picture; `onResults(outputs)` is called after each Convert. Returns the ConvertTool (`host.convertTool`).
+
+- **Drop zone** (`#cv-drop`, SlopDrop): always the upload area at the top. Once there are files it is a strip of one fixed
+  height (76 px, "Add more files"), so nothing above the list moves; the zone's own progress list and status are hidden
+  (the file list and the status line say the same). The flow picture keeps its place (blank while a side is unknown).
+- **Cards** (`file-row.js`): every file has a checkbox, its own **Convert to** (a `shared/ui/menubutton.js` menu with a search
+  box; catalog `keywords`, from `core/keywords.js` and each module's entries, plus the output extension and group, are
+  searched) and its own **Options** (`file-opts.js`: a disclosure with the options of that file's target, values kept per
+  file per conversion in `item.opts`; a 'combine' conversion copies a change to all its files). The option definitions are
+  the catalog's `options` (one source), drawn by `options.js`; control ids are `cv-o-<file id>-<key>`.
+- **Bulk bar** (`bulk.js`): always there once there are files; Select all, and for the selected rows "N selected · Convert to ·
+  Remove · Clear selection", plus "Options for the N selected" when they share a target (ids `cv-o-bulk-<key>`).
+- There is no big picker and no hidden select any more. `tool.setTarget(id)` sets the selected files, or every file (and
+  the files added later) when none is selected; `tool.target` is the one they share ('' when they differ) and
+  `tool.targets()` what they could all become. A set fires `cv:target` (route.js writes `?to=`).
+- `?to=` (`route.js`) calls `ConvertTool.setDefaultTarget`. Pair pages (`data-preset`) still allow only their conversion.
+- The flow picture's target tile opens the bulk bar's menu when rows are selected, else the first file's menu.
+- Convert runs one group per conversion in use (`groupsFor`, `run.js runGroups`, each file with its own option values).
+- `available()` on a catalog entry hides a conversion this browser cannot do (To AVIF where the canvas cannot write AVIF).
+- Files: `mount-tool.js`, `tool.js`, `tool-chain.js`, `markup.js`, `targets.js`, `file-row.js`, `file-opts.js`, `bulk.js`, `list-view.js`, `focus.js`, `chain-row.js`, `chain-opts.js` (routes: see below).
+  Tests: `tests/convert/cards.test.html` (strip, card options, 390 px light), `per-file.test.html`, `mount.test.html` (two tools,
+  one dialog-sized), `tests/shared/menubutton.test.html`.
 
 ## Converters and their limits
 
@@ -49,8 +80,45 @@ decode, line endings) stay because they also take uploaded files.
 | Base64 encode / decode | any / text | .base64.txt / original bytes | Decode detects PNG, JPG, PDF and other signatures to pick the extension. |
 | URL encode / decode | text | text | Encode everything by default, or keep URL punctuation. A bad % sequence is reported. |
 | Line endings | text | text | LF, CRLF or CR. |
+| SIE to XLSX | SIE (.se, .si; types 1, 2, 3, 4, 4I) | XLSX: Info, Vouchers, Accounts, Balances, Periods | Read by `shared/finance/sie.js` (SIE 4C/4B format; PC8 = CP437, or UTF-8 / Windows-1252 when a program wrote those). Checksum (#KSUMMA) checked. Amounts are numbers, dates are dates. |
+| SIE to CSV | SIE | CSV, one row per transaction line (balances per account when the file has no vouchers) | Separator comma, semicolon (then a decimal comma) or tab; UTF-8 with a BOM. #BTRANS lines are listed with a note and not counted. |
+| Bank statement to CSV / XLSX (`bank-to-csv`, `bank-to-xlsx`) | OFX/QFX 1.x and 2.x, QIF, camt.053 (also 052/054), MT940 | CSV, or XLSX with Transactions and Statement sheets | Readers in `shared/finance/`. Money out is negative. Pending camt entries are listed but not counted. OFX has no opening balance; QIF has no currency. |
+| 3D models (`core/threed.js`) | OBJ (+MTL), STL, PLY, glTF (+.bin, pictures), GLB, 3MF, DAE, FBX | STL (binary/ASCII), OBJ (+MTL, PNG textures), GLB, glTF (embedded), PLY (binary/ASCII), USDZ | Shared 3D I/O module (`shared/3d-io/`). Companion files (`with` kinds) are matched by name and never converted alone. Options: units, scale, up axis, merge, encoding, materials, animations. The status line names what the format dropped. Compressed glTF loads Draco/meshopt/Basis from the cdn (SHA-256 checked, first-use notice). The preview draws input and output in 3D (`js/preview/model3d.js`). |
+| HEIC to JPG / PNG / WebP (`core/heic.js`) | HEIC, HEIF (iPhone) | picture, size, quality | The browser's own decoder first (Safari); else libheif from the cdn (`shared/heic/`, see below). A file with several pictures gives the main one and says so. |
+| To AVIF (`core/media-more.js`) | PNG, JPG, WebP, BMP, GIF, SVG, ICO | AVIF, size, quality | Offered only where the canvas writes AVIF (`available`); Chromium and Firefox do not today, so it is usually hidden. |
+| To OGG / Opus / FLAC / M4A (`media-more.js`) | MP4, WebM, MOV, M4A, MP3, WAV, OGG, FLAC | Vorbis, Opus (48 kHz), FLAC, AAC; bitrate | ffmpeg.wasm (`engine: 'ffmpeg'`, its notice). Tags copied. Opus uses ffmpeg's own encoder: libopus in this core crashes the page. |
+| GIF to MP4 (`media-more.js`) | GIF | H.264 MP4, quality | ffmpeg.wasm. An odd size is made even; no transparency. |
+| Spreadsheet to CSV / JSON, ODS to XLSX, JSON to XLSX (`core/data-more.js`, `sheet-json.js`) | XLSX, ODS / JSON | CSV (first or every sheet, separator, UTF-8 mark), JSON (objects or arrays, a key per sheet), XLSX | Read by `shared/sheets/read.js`, written by `shared/sheets/write.js` (the Slop Tables reader and writer). Old .xls is refused with what to do (kind `xls`, no conversion). Formulas: the saved values. |
+| JSON to YAML / TOML / XML, YAML / TOML to JSON, Format JSON (`core/structured.js`) | JSON, YAML, TOML | text | js-yaml 4.1.1 (`vendor/js-yaml`, MIT) and smol-toml 1.9.0 (`vendor/smol-toml`, BSD-3-Clause), loaded on first use. JSON mistakes are reported with line and column. TOML has no null: nulls are left out and counted. |
+| SRT to VTT, VTT to SRT, Shift subtitle timing (`core/subtitles.js`) | SRT, VTT (also detected inside .txt) | text, shift in seconds | NOTE, STYLE and REGION blocks are dropped; VTT cue settings are kept in VTT, dropped in SRT. |
+| Markdown / text to PDF and to Word (`core/doc-out.js`) | MD, TXT | PDF or DOCX; A4 or Letter; sans, serif or mono | The Slop Docs engine (its Markdown import, layout, PDF writer with `shared/fonts/pdf-runs.js`, DOCX writer). Other scripts get their Noto font through SlopFontJIT (asks first). Markdown tables, links and images stay as typed text. |
+| Word to PDF, HTML, Markdown, text (`core/office.js`) | DOCX | PDF (page size as in the document, A4 or Letter), HTML (page or body), Markdown, TXT | Slop Docs' own DOCX import (`docs/js/io/docx-in.js`), layout and PDF writer through `doc-out.js` (every script via `shared/fonts/pdf-runs.js` and SlopFontJIT), its Markdown and HTML writers (`docs/js/io/md-out.js`, `html-out.js`) and text (`sdoc.js toText`). Pictures, footnotes, comments and tracked changes are not imported yet. Markdown: GitHub pipe tables, no underline. Slop Docs does not read ODT, so there is no ODT conversion. |
+| PowerPoint to PDF, pictures, text (`core/slides-out.js`, `core/deck-text.js`) | PPTX | PDF (one page per slide), ZIP of PNGs (1×, 2×, 3× the slide size in points), TXT (titles, text, speaker notes) | Slop Slides' own PPTX import, renderer and PDF export, loaded from `slides/js/manifest.js` into `window.SS` (`slidesEngine`). Hidden slides only when ticked. The status line counts what the import left out (charts, SmartArt, media). No ODP, .doc or .ppt. |
 
 Browser support: anything the browser cannot decode or encode (for example WebP output in some Safari versions) reports a plain error on that file; the rest of the batch still runs.
+
+## Word and PowerPoint (`core/office.js`, `core/slides-out.js`, `core/office-pages.js`)
+`OFFICE` (Word entries `DOCX_IN`, then PowerPoint `SLIDES_IN`) is spread into `CONVERSIONS` after `DOC_OUT`. A .docx or .pptx defaults to
+its PDF conversion (the first entry for the kind), so the Convert dialog fed by Slop Docs (DOCX) or Slop Slides (PPTX) starts on
+Word to PDF or PowerPoint to PDF. Chain flags: Word to HTML, Markdown, text and PowerPoint to text are `chain: 'first'` (no
+"Markdown via DOCX" for a text file); PowerPoint to pictures is lossy. `detect.js officeOfZip` names a zip with no telling name
+from its first entry (`word/` or `ppt/`). The preview keeps zip-based inputs whole (`preview/model.js` WHOLE), as a cut zip cannot
+be read. Pages (`OFFICE_PAGES`): docx-to-pdf, word-to-pdf, docx-to-html, docx-to-markdown, docx-to-text, pptx-to-pdf,
+powerpoint-to-pdf, pptx-to-images, pptx-to-text. Tests: `tests/node/convert-office.test.mjs` (Word to Markdown, HTML and text,
+detection, routes, deck text), `tests/convert/office.test.html` (a Word file from `office-fixture.js` with headings, lists, a table,
+a link, Swedish and Arabic, to PDF read back with pdf.js, HTML, Markdown, text, and the dialog in Slop Docs) and
+`tests/convert/office-pptx.test.html` (a deck written by Slop Slides' PPTX writer, to PDF, PNGs and text). The Arabic font is
+served from memory (`office-helpers.js`).
+
+## Finance files
+
+`js/core/finance.js` holds the four finance conversions (`FINANCE`, spread into `CONVERSIONS`) and `js/core/finance-pages.js`
+their six pages (`FINANCE_PAGES`, spread into `PAGES`; category Finance). The readers, the shared model and the tables are
+in `shared/finance/` (one module per format, `index.js` sniffs and dispatches, `tables.js` makes the rows); the XLSX writer
+is `shared/sheets/write.js` (several sheets, bold header, number and date formats). `detect.js` asks
+`shared/finance/index.js` `sniffFinance` first, so a finance file named .txt, .xml, .csv or .dat is recognised by content.
+The preview decodes finance files before it shows them and shows the converter's own table (`result.preview`) for XLSX.
+Tests: `tests/convert/finance.test.html`, `tests/node/finance-*.test.mjs`, samples in `tests/finance/fixtures/`.
 
 ## SEO pages
 
@@ -107,7 +175,10 @@ yet, so offline use of the preview needs them added there (that file is owned el
 - `pdf.test.html`: image to PDF page count (`/Type /Page` count) and `%PDF` header, A4/Letter, merge, extract, split, PDF to PNG and JPG.
 - `data.test.html`: CSV to JSON round trip, JSON to CSV, XLSX parts, Base64 round trip, URL, line endings, Markdown, HTML to text.
 - `seo.test.html`: sitemap, robots, each page's h1, canonical, JSON-LD and embedded tool.
-- `ui.test.html`: target picker validity, preset limits, keyboard drop zone, labels, safe file names.
+- `office.test.html`, `office-pptx.test.html`: Word and PowerPoint files (see "Word and PowerPoint"). Node: `tests/node/convert-office.test.mjs`.
+- `more.test.html`: HEIC through the real decoder, the new kinds and their menus, sheets, YAML, TOML, XML, subtitles, Markdown and Arabic text to PDF and DOCX. `audio-ff.test.html`: OGG, Opus, FLAC, M4A and GIF to MP4 with ffmpeg. `cards.test.html`, `mount.test.html`: see above. Node: `tests/node/convert-{sheets,structured,subtitles}.test.mjs`.
+- `ui.test.html`: valid targets per file, preset limits, keyboard drop zone, labels, safe file names.
+- `per-file.test.html`: per-file targets, mixed kinds, select + bulk set, presets and ?to=, companions, keys, 390 px.
 - `preview.test.html`: the preview shows the PNG to JPG output and follows a new input; the JSON to CSV preview updates as text is typed and shows invalid JSON in place.
 
 ## Adding a converter
@@ -118,6 +189,82 @@ yet, so offline use of the preview needs them added there (that file is owned el
 4. If it deserves a page, add it to `pages.js`, create the page and add it to `sitemap.xml`.
 
 
+## Routes: several conversions one after the other (`core/chain.js`)
+
+A target can be a **route**: conversions done in order, written as a key of step ids joined by `>`
+(`sie-to-csv>csv-to-json`); a step whose Format option the route fixes is `id@kind` (`pdf-to-images@jpg>to-webp`). A plain
+conversion id is a one-step route, so `item.target`, `setTarget`, the bulk bar and `?to=` take either.
+
+- **Route finding** (`core/chain.js`, pure, Node-tested): the catalog is the graph (each conversion is an edge from each kind
+  in `from` to `outKind`; one edge per Format value). The best route to a kind is the one with the fewest engine downloads
+  (`engine: 'ffmpeg'`; so the engine is used only when the target needs it anyway), then the fewest steps, then the least loss,
+  then catalog order. Loss comes from `core/chain-flags.js`, copied onto the catalog entries like `keywords.js`: `lossy: true`
+  (cost 1), `cost: n` (XLSX to CSV or JSON reads one sheet: 2; video to GIF: 2), `chain: 'first'` (needs the original file: PDF to
+  Word, Excel, HTML or text, CSV or XLSX to vCard), `chain: false` (keeps the kind or makes anything: line endings, JSON format,
+  subtitle shift, email attachments, merge and split PDF). Never in a found route: the Encoding and Archives groups, conversions
+  that take any file (`*`) or have companions (`with`), a step that keeps the kind, a kind twice (no round trips), and `txt`
+  as a step's input when the conversion also takes a real kind (CSV to JSON takes `.txt` only as a misnamed CSV). At most
+  `MAX_STEPS` (3) steps; `MAX_MANUAL` (4) with steps added by hand.
+- **Menus**: a card's Convert to lists the single conversions as before, then **More formats**: the best route to every kind no
+  single conversion makes from this kind ("JSON · via CSV", searchable by the kinds on the way and the last step's keywords).
+  `targets.js` `routeEntry` makes such a choice look like a catalog entry (`id` = key, `ext` = final kind, `route: true`).
+- **Card** (`ui/chain-row.js`): a route target shows its formats as tiles with arrows under the row (SIE → CSV → JSON). A
+  middle tile is a menu button (`middleChoices`: the other formats that join the same ends, the current first); **+ Then…** adds
+  a step from what the route makes (`thenChoices`: no encoding, nothing that keeps the kind, nothing back to a kind on the route);
+  **×** removes the last step (a step that had its Format fixed by the route keeps it as its option, `dropLast`). A one-step target
+  has + Then… beside its Convert to. Focus stays on the tile or button through the redraw (`focus.js`).
+- **Options** (`ui/chain-opts.js`): one group per step, "Step 1 · SIE → CSV", with the catalog's options of that step (values
+  per file per conversion as before; a middle step's Format is the route's, so it is not shown); ids `cv-o-<file>-s<n>-<key>`.
+  **Also keep the in-between files** (`cv-o-<file>-keep`, `item.keepMid`) adds what the middle steps made to the results,
+  after the final files, marked "in between".
+- **Running** (`core/chain-run.js` `runChain`, `ui/run.js` `runGroups`, `ui/tool-chain.js` `runTool`): each step's outputs are
+  the next step's inputs; an `each` step maps over every file the step before made (PDF to page pictures, then each picture to
+  WebP), a `combine` step takes the whole set (HEIC photos to JPG, then one PDF). The status line names the step ("Step 2 of 3:
+  CSV → JSON…"); an error names its step ("Step 2 of 2 (CSV → JSON) failed: …") and stops only the files it came from.
+- **Preview** (`preview/chain.js`): the final result, with the same limits as one conversion (first part of large text, page 1
+  of a PDF, the RAW and HEIC preview options so nothing is downloaded); a route with an ffmpeg step is not run for a preview.
+- **Bulk bar**: More formats lists the routes that fit every selected file; a shared route shows its tiles in the bar, and its
+  middle tile, + Then… and × set every selected file where the route fits; its Options are per step too.
+- **Links**: `?to=` takes a conversion id or a format (`?to=json`): a file that cannot make it in one step gets the best route
+  (`targets.js` `targetFor`). Picking a route writes its last conversion to `?to=` (the `cv:target` event's `id`; `route` holds the key).
+- **mountTool**: unchanged. `tool.target` can be a route key; `tool.targets()` still lists single conversions only, and the
+  new `tool.routes()` lists the route keys; `tool.rowRoute(item, key)` and `tool.bulkRoute(key)` set routes.
+- **Pages** (`core/chain-pages.js`, `CHAIN_PAGES`, in PAGES and `shared/seo/convert-copy.mjs`): sie-to-json, heic-to-pdf
+  (through JPG: a smaller PDF of photos), xlsx-to-yaml, pdf-to-webp, csv-to-yaml, ics-to-xlsx. `data-preset` is the route key;
+  such a page takes any route to the same format (its middle tile switches), but has no + Then… or ×.
+- Tests: `tests/node/convert-chain.test.mjs` (routes, alternatives, Then, the runner with fake converters),
+  `tests/convert/chain.test.html` (SIE → CSV → JSON with a real SIE file, the menus, options per step, keep in-between, bulk,
+  `?to=json`, the SIE to JSON page, keyboard, 390 px).
+
 ## Video engine (ffmpeg.wasm)
 
 `convert/js/core/ffmpeg-engine.js` runs ffmpeg in the browser. The JavaScript is vendored in `vendor/ffmpeg` (MIT). The core (about 30 MB of WebAssembly, GPL-2.0-or-later) is loaded from jsDelivr on first use, pinned to `CORE_VERSION`. One job runs at a time; a runtime error restarts the engine and retries once. WebM audio is Vorbis: the Opus encoder in this build fails with video. Inputs over 400 MB are refused.
+
+## Camera RAW (`js/core/raw.js`, `js/core/raw-pages.js`)
+RAW kinds are the extensions (cr2, cr3, nef, arw, dng, raf, orf, rw2, pef, srw, …); `detect.js` asks `shared/raw/detect.js` first, before the TIFF and MP4 magics. Conversions `raw-to-jpg`, `raw-to-png`, `raw-to-webp` (group Camera RAW): White balance, Exposure (−2 to +2 EV), Highlights, size, quality; developed by the LibRaw engine (`shared/raw/engine.js`, its own first-use notice). Declined or failing engine: the embedded preview is converted and the status line says so (`out.info`). The live preview passes `rawPreview` (embedded JPEG only, nothing downloaded). Pages: cr2, cr3, nef, arw, dng, raf `-to-jpg` (`data-accept` sets the file chooser's list; `mount.js` reads it). Test: `tests/convert/raw.test.html`.
+
+## HEIC photos (`js/core/heic.js`, `shared/heic/`)
+The decoder is libheif with libde265 compiled to WebAssembly (libheif-js 1.23.5, LGPL-3.0), unchanged, on the cdn at
+`engines/libheif/libheif-js-1.23.5/` (commit 8929ad4e202f7b728f0c10c5ee493fd12a4698e1; SOURCE.md, licences, manifest).
+`shared/heic/engine.js` (window.SlopHeicEngine) works like the RAW engine: its own first-use notice ('heic-engine'), the
+shared installer (size and SHA-256 checked, kept in IndexedDB), a classic worker (`worker.js`). The live preview never asks
+(opts.heicPreview). Pages: heic-to-jpg, heic-to-png (`core/more-pages.js`). Test: `tests/convert/more.test.html` with
+`tests/convert/fixtures/tiny.heic` (CC0, see the fixtures README).
+
+## More pages
+`core/more-pages.js` (HEIC, SVG to JPG, GIF to MP4, audio, text to PDF and Word) and `core/data-pages.js` (spreadsheets,
+JSON, YAML, TOML, XML, subtitles) are spread into PAGES. Their head copy is not written twice: `shared/seo/convert-copy.mjs`
+makes the copy.mjs PAGES entries from these lists (and the RAW pages). A new page: add it to one of these lists, make
+`convert/<slug>/index.html` like its neighbours, then `node tools/seo/write.mjs` (it writes the head and the sitemap).
+
+## PDF passwords (`js/core/pdf-lock.js`, `js/core/pdf-lock-pages.js`)
+**Protect PDF with a password** (`pdf-protect`: Password, Type the password again, Allow printing / copying / editing) and
+**Remove PDF password** (`pdf-unlock`: Password, blank for a file that opens freely but has limits), both PDF to PDF, run by
+the shared security handler `shared/pdf-crypto/` (AES-256 R6 out; RC4, AES-128 and AES-256 in; see its HANDOFF.md), loaded
+on first use. Their entries say `secret: true` and `chain: false`: option type `'password'` is a masked field
+(`options.js`, `autocomplete=new-password`), the card summary says "password set" and never the value (`file-opts.js`
+`changed`), the live preview does not run them and its Download is off (`preview/model.js`, `controller.js`), and Convert
+forgets every password option afterwards (`file-opts.js` `forgetSecrets`, called in `tool-chain.js` `runTool`), so the
+fields are empty again. Passwords are never logged or stored. Errors name what to do ("Wrong password…", "already has a
+password…", "no password to remove"). Pages: `password-protect-pdf`, `remove-password-from-pdf`. Test:
+`tests/convert/pdf-lock.test.html`; the crypto itself: `tests/node/pdf-crypto.test.mjs`, `tests/pdf-crypto/crypto.test.html`.

@@ -61,7 +61,7 @@ small (MIT) was not evaluated; V2 Small is Apache-2.0 and its ONNX file is on a 
 
 - `index.html`, `css/img3d.css` (colours from the shared theme's `--sl-*` tokens, `--i3-*` names).
 - `js/core/` (pure, Node-loadable): `hfmesh.js` (blur, resample, percentile stretch, normals, height field, point cloud,
-  splats), `prepare.js` (picture to grids, luminance fallback), `s3d.js` (the Slop 3D scene), `glbwrite.js` (GLB 2.0 writer).
+  splats), `prepare.js` (picture to grids, luminance fallback), `s3d.js` (the Slop 3D scene). OBJ and GLB are written by the shared 3D I/O module (`shared/3d-io/write.js`) from `js/app/export.js`.
 - `js/model/depth.js`: the depth model (pack, SHA-256 check, ONNX Runtime Web session).
 - `js/model/jit.js`: the just-in-time download after the notice (`decide`, `ensure`, `noteInstalled`).
 - `js/render/orbit.js` (orbit, pan, zoom, frame; vendor/three has no OrbitControls), `js/render/view.js` (three.js r170
@@ -109,10 +109,10 @@ A('img3d', 'app', 'Slop Image to 3D', 'img3d/', 'Turn a picture into a 3D model.
 
 `service-worker.js`: add to the precache list (the app's own files; the 3d files already listed except the ones above):
 `/img3d/index.html`, `/img3d/css/img3d.css`, `/img3d/js/core/hfmesh.js`, `/img3d/js/core/prepare.js`,
-`/img3d/js/core/s3d.js`, `/img3d/js/core/glbwrite.js`, `/img3d/js/model/depth.js`, `/img3d/js/render/orbit.js`,
+`/img3d/js/core/s3d.js`, `/img3d/js/model/depth.js`, `/img3d/js/render/orbit.js`,
 `/img3d/js/render/view.js`, `/img3d/js/app/image.js`, `/img3d/js/app/export.js`, `/img3d/js/app/main.js`,
 `/3d/js/core/xform.js`, `/3d/js/core/snap.js`, `/3d/js/core/geometry.js`, `/3d/js/core/blob.js`, `/3d/js/core/model.js`,
-`/3d/js/core/ops.js`, `/3d/js/core/obj.js`. Do not precache `vendor/models/depth/` (27 MB, opt-in). Bump the cache version.
+`/3d/js/core/ops.js` (and `shared/3d-io/`, loaded on first export). Do not precache `vendor/models/depth/` (27 MB, opt-in). Bump the cache version.
 
 Also needs committing: `vendor/models/depth/depth-anything-v2-small.onnx` (27 MB) and `vendor/models/depth/LICENSE`.
 

@@ -1,4 +1,5 @@
 /* Slop PDF: a pasted picture goes on the current page, through the shared intake (Add to this page). */
+// Covers: pdf/js/editor/paste-image.js, shared/intake/intake.js (a picture pasted after the drop zone attached still goes on the page)
 (function () {
   'use strict';
   const { describe, it, expect, waitFor } = SlopTest;

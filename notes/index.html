@@ -3,6 +3,7 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="notes" data-src="shared/theme/theme.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -50,6 +51,7 @@
   <script src="../shared/doctabs/tabs.js"></script>
   <script src="../shared/doctabs/drive.js"></script>
   <script src="../shared/doctabs/session.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
   <script type="module" src="js/main.js"></script>
   <link rel="stylesheet" href="../shared/slop365/look.css">
 </head>
@@ -112,5 +114,6 @@
 <script src="../shared/menubar/menubar.js"></script>
 <script>SlopMenuBar.mount({"app": "Notes", "tools": ["#nt-new"], "menus": {"File": ["#nt-new", "#nt-nb-new", "#nt-fd-new", "#nt-export"], "Edit": ["#nt-pin", "#nt-insert", "#nt-del"], "View": ["#nt-side-btn"], "Help": ["#nt-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

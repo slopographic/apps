@@ -1,5 +1,6 @@
 // Slop Image to 3D: the pure height-field mesh (counts, scale, smoothing, subject mask), point and splat grids,
-// the .s3d scene (checked by Slop 3D's own validator), the OBJ export (Slop 3D's writer) and the GLB writer.
+// and the .s3d scene (checked by Slop 3D's own validator). The OBJ and GLB exports (the shared 3D I/O writer) are tested in
+// the browser: tests/img3d/img3d.spec.js.
 // Loads Slop 3D's pure core and the img3d core into one vm context. Not a browser test.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -14,7 +15,7 @@ const ctx = { TextEncoder, TextDecoder };
 ctx.window = ctx;
 vm.createContext(ctx);
 for (const f of FILES) vm.runInContext(await readFile(path.join(ROOT, '3d', 'js', 'core', f), 'utf8'), ctx, { filename: f });
-for (const f of ['hfmesh.js', 'prepare.js', 's3d.js', 'glbwrite.js']) vm.runInContext(await readFile(path.join(ROOT, 'img3d', 'js', 'core', f), 'utf8'), ctx, { filename: f });
+for (const f of ['hfmesh.js', 'prepare.js', 's3d.js']) vm.runInContext(await readFile(path.join(ROOT, 'img3d', 'js', 'core', f), 'utf8'), ctx, { filename: f });
 const I = ctx.SlopImg3D, HF = I.hf, S3 = ctx.Slop3D;
 const plain = (v) => JSON.parse(JSON.stringify(v));
 const near = (a, b, eps = 1e-5) => assert.ok(Math.abs(a - b) <= eps, `${a} is not ${b}`);
@@ -125,34 +126,3 @@ test('the .s3d scene passes Slop 3D\'s own validator and round-trips through its
   assert.equal(parsed.ok, true);
 });
 
-test('the OBJ export goes through Slop 3D\'s writer: one v per vertex, one f per triangle', () => {
-  const prep = I.prepare(ramp(12, 12), 12, 12, { grid: 12 });
-  const m = HF.heightField(prep, { scale: 0.3 });
-  const obj = S3.obj.write(I.s3d.sceneOf(m, { name: 'Picture' }));
-  const lines = obj.split('\n');
-  assert.equal(lines.filter((l) => l.startsWith('v ')).length, m.positions.length / 3);
-  assert.equal(lines.filter((l) => l.startsWith('f ')).length, m.indices.length / 3);
-});
-
-test('the GLB writer produces a valid GLB 2.0 container with the right accessors', () => {
-  const prep = I.prepare(ramp(8, 8), 8, 8, { grid: 8 });
-  const m = HF.heightField(prep, { scale: 0.3 });
-  const buf = I.glb.write({ positions: m.positions, normals: m.normals, uv: m.uv, indices: m.indices, name: 'Test' });
-  const dv = new DataView(buf);
-  assert.equal(dv.getUint32(0, true), 0x46546c67, 'glTF magic');
-  assert.equal(dv.getUint32(4, true), 2, 'version 2');
-  assert.equal(dv.getUint32(8, true), buf.byteLength, 'length in the header');
-  const jlen = dv.getUint32(12, true);
-  const json = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, jlen)));
-  assert.equal(json.meshes[0].primitives[0].mode, 4);
-  assert.equal(json.accessors[json.meshes[0].primitives[0].attributes.POSITION].count, 64);
-  assert.equal(json.accessors[json.meshes[0].primitives[0].indices].count, 7 * 7 * 6);
-  const imported = S3.glb.importGltf(buf);
-  assert.equal(imported.tree.type, 'group', 'Slop 3D reads the file as an import tree');
-  const meshes = imported.tree.children || [];
-  assert.ok(meshes.length >= 1, 'Slop 3D found the mesh');
-  const pts = I.glb.write({ positions: m.positions, colors: new Float32Array(m.positions.length), points: true, name: 'P' });
-  const pj = JSON.parse(new TextDecoder().decode(new Uint8Array(pts, 20, new DataView(pts).getUint32(12, true))));
-  assert.equal(pj.meshes[0].primitives[0].mode, 0, 'points');
-  assert.equal(pj.meshes[0].primitives[0].indices, undefined);
-});

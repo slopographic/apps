@@ -34,10 +34,9 @@
     $('btnNew').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); DR.newMenu(r.left, r.bottom + 4); });
     $('btnMore').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); DR.moreMenu(r.right - 220, r.bottom + 4); });
     $('btnBackup').addEventListener('click', () => DR.backupDialog());
-    $('btnInfo').addEventListener('click', () => { if (DR.isMobile()) DR.sheet(!document.body.classList.contains('sheet-open')); else DR.toggleInfo(); });
+    DR.wireDrawer(); DR.wireSheet();   // before the app's keys: the sheets' Escape comes first
+    $('btnInfo').addEventListener('click', () => { if (!DR.isMobile()) DR.toggleInfo(); });   // on a phone it is the sheet's toggle
     $('btnSort').addEventListener('click', () => DR.openSortMenu());
-    $('btnSide').addEventListener('click', () => DR.drawer(!document.body.classList.contains('drawer-open')));
-    $('scrim').addEventListener('click', () => { DR.drawer(false); DR.sheet(false); });
     DR.wireCommands(); DR.wireSelect(); DR.wireDrag(); DR.wireDropUpload(); DR.wireKeys(); DR.wireCtxMenu();
     DR.wireProviders(); DR.wireProvDrag();
     $('btnCmd').addEventListener('click', () => DR.openPalette());
@@ -65,10 +64,14 @@
     document.body.classList.add('ready');
     $('pane').focus({ preventScroll: true });
   };
-  // Ask the browser to keep our storage after the first upload (a gesture is in progress then).
+  // Ask the browser to keep our storage the first time a visit uploads something big (SlopQuota.askIfBig: 50 MB, once
+  // per visit). The answer goes through SlopPWA, whose listener redraws the meter.
   const imp = DR.importFiles;
-  let asked = false;
-  DR.importFiles = async function (...a) { const r = await imp.apply(this, a); if (!asked && r.length) { asked = true; DR.requestPersist(false); } return r; };
+  DR.importFiles = async function (...a) {
+    const r = await imp.apply(this, a);
+    if (r.length) window.SlopQuota.askIfBig((a[0] || []).reduce((n, x) => n + ((x && x.file && x.file.size) || 0), 0));
+    return r;
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', DR.boot); else DR.boot();
 })(window.DR);

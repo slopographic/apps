@@ -3,6 +3,7 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="music" data-src="shared/theme/theme.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -34,6 +35,7 @@
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="css/music.css">
+  <script src="../shared/guard.js" defer blocking="render"></script>
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -161,7 +163,6 @@
   <script src="../shared/tags/tags.js"></script>
   <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('.mu-tools', { before: '#mu-add' }));</script>
-  <script src="../shared/guard.js" defer></script>
   <script src="js/core/id3.js"></script>
   <script src="js/core/vorbis.js"></script>
   <script src="js/core/queue.js"></script>
@@ -188,5 +189,6 @@
   <script src="js/app/main.js"></script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

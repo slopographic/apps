@@ -31,11 +31,11 @@
   - `SlopHub.register('docs')` runs on boot. `apps.js` was left unchanged: the Docs entry already lists its `accepts` and `creates`.
 - **Export** (`docs/js/io/docx.js`, `sdoc.js`):
   - DOCX via `shared/office`: paragraphs, runs, bullets and numbers, alignment, indents, spacing, shading, tables (with spans), page size and margins, and Word's built-in heading, title, quote and code styles (`styles.xml`).
-  - Markdown, plain text, and the raw `.sdoc`.
+  - Markdown (`io/md-out.js`): headings, nested lists, quotes, code blocks (fenced), bold, italic, underline (`__`, read back by the import), strike, code spans, links and tables as GitHub pipe tables; Markdown characters in the text are escaped and read back. HTML (`io/html-out.js`, used by File convert's Word to HTML; not in the File menu yet). Plain text, and the raw `.sdoc`.
   - Checked: python-docx reads the export (text, styles, bold and italic, list, table, page size). LibreOffice converts it to PDF.
 - **Import:**
-  - DOCX: paragraphs, runs (bold, italic, underline, strike, size, colour, font, sup and sub), styles by name, lists by numbering format, tables, page size and margins.
-  - Markdown: headings, lists, quotes, code blocks, bold, italic, underline and code spans.
+  - DOCX: paragraphs, runs (bold, italic, underline, strike, size, colour, font, sup and sub), hyperlinks to web and mail addresses (`run.link`), styles by name, lists by numbering format, tables, page size and margins.
+  - Markdown: headings, lists, quotes, code blocks, bold, italic, underline, code spans and backslash escapes (links and tables stay as typed text).
   - Text: one paragraph per line. HTML: text only.
 - **Random templates** (`ui/random.js`, `ui/templates.js`, generator in `shared/templates/`):
   - File ▸ New ▸ Random template, the toolbar's Random button, or the palette. The dialog draws the first page of a seeded design with the page renderer (`R.pageEl`). Click it to see it full size.
@@ -70,7 +70,9 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
   - `commands.js`: SlopCmd registrations.
   - `main.js`: boot.
 - `docs/js/model/ops.js`: pure editing operations on blocks, copy-on-write.
-- `docs/js/io/sdoc.js`: `.sdoc`, text and Markdown.
+- `docs/js/io/sdoc.js`: `.sdoc`, text and Markdown import. `io/md-out.js` and `io/html-out.js`: Markdown and HTML out (pure, Node-tested).
+- `docs/js/fonts/doc-fonts.js`: `ensureDocFonts(doc)`, every face the runs use (bridge.js and File convert).
+- **File convert uses this engine** (`convert/js/core/doc-out.js`, `office.js`): Markdown and text to PDF and DOCX, Word to PDF, HTML, Markdown and text. A change to the import, layout or writers shows there too; `tests/convert/office.test.html` and `tests/node/convert-office.test.mjs` cover it.
 - `docs/js/io/docx.js`: DOCX export and import.
 - `docs/js/ui/random.js`: the Random template dialog. `docs/js/ui/templates.js`: My templates (IndexedDB and Slop Drive). `docs/css/random.css`.
 - `shared/templates/`: the generator (see its `HANDOFF.md`). Bridge exposes it as `SlopDocEngine.TPL`.
@@ -98,7 +100,7 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
 
 ## Outline sidebar
 - Left of the page area: a tree of the Heading 1 to 3 paragraphs (H2 under the H1 above, H3 under the H2 above). The current section is highlighted as the caret or the page moves. Collapse arrows per heading. Clicking a heading places the caret there.
-- Hide to a 30 px rail and show it again (remembered per session). On a phone it is a drawer.
+- Hide to a 30 px rail and show it again (remembered per session). On a phone the rail stays and its button opens the outline panel as a drawer from the left: `SlopSheet` (`shared/ui/sheet.js`, `side: 'start'`), with the shared ×, Escape, a tap outside and a swipe; the rail button again closes it, and so does Ctrl+Shift+O or picking a heading. The old scrim and `ol-drawer` class are gone. Tests: `tests/docs/outline-phone.test.html`.
 - Sections are the real structure: a heading owns the blocks up to the next heading of the same or a higher level. Add section, rename, move (Alt+Up/Down), promote/demote, delete (heading only, or with content after a dialog), and the right-click menu. Ctrl+Shift+O toggles it.
 - Files: `js/model/outline.js` (pure: tree, sections, moves), `js/ui/outline.js` (module entry: DOM, state, shortcuts), `js/ui/outline-actions.js` (commits through `SlopDocs.edit`), `js/ui/outline-menu.js`, `css/outline.css` (the app is a grid: outline column beside `#stage`). Loaded by one module script line and one `#outline` element in `index.html`.
 - Not done: headings past level 3 are not listed; a rename drops objects in the heading.
@@ -151,3 +153,8 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
   - Floats (lines ~88-95 and 128-133), tables (`placeTable`), the TOC passes (`layout/index.js` ~70-80), footnotes and header/footer fields have not been exercised.
   - Write tests for each of these first.
 - `layout/lines.js`: a paragraph that ends with '\n' gets an empty trailing line through `needsTrailingLine`, and that path is unverified.
+
+## Assistant commands (Slop AI panel)
+- `ui/commands.js` registers only `SlopCmd.provide({ prepare })`; `SlopCmd.prepare()` imports `ui/ai-commands.js` (ES module) on demand, so nothing is added to first paint. It registers hidden, non-destructive commands with argument schemas and provides `state` (title, pages, paragraphs, words, heading outline, caret, selection) and `checkpoint` (rollback = one more undo step; false after another tab or document is opened).
+- Tools: `insert_heading` (text, level 1–6, where caret/end/start), `insert_paragraph` (text, where, style), `find_replace` (find, replace, match_case, whole_word, all → count), `set_paragraph_style` (style, paragraph), `format_text` (bold, italic, underline, strike, color, match, paragraph), `undo` (steps). Each is one `SlopDocs.edit`, so one undo step. Pure parts: `model/ai-edit.js`.
+- Test: `tests/docs/ai-commands.test.html`.

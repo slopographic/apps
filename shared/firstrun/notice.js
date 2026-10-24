@@ -3,7 +3,10 @@
  * If storage is unavailable the notice is shown each time, and nothing else changes. Classic script: window.SlopFirstRun.
  *   SlopFirstRun.once(app, { title, lines: [string], downloads: [{ name, bytes }] })  ->  Promise<boolean> (true = carry on)
  * Only the notice is shown on the first use; an app with no downloads passes downloads: [] and gets a plain privacy note.
- *   SlopFirstRun.mark(app)  counts the notice as seen (another consent step covered it); SlopFirstRun.seen(app) -> boolean */
+ *   SlopFirstRun.mark(app)  counts the notice as seen (another consent step covered it); SlopFirstRun.seen(app) -> boolean
+ *   SlopFirstRun.size(bytes) -> '64 MB': the one way a download's size is written (1 MB = 1024 × 1024 bytes, as the
+ *                               library's Get more and the rest of the site do). A page that names a model's size takes it
+ *                               from here and the model's byte count, so the page and this notice cannot disagree. */
 (function () {
   'use strict';
   const KEY = (app) => 'slop-firstrun:' + app;
@@ -25,13 +28,14 @@
       const body = document.createElement('div');
       o.lines.concat([PRIVACY]).forEach((t) => { const p = document.createElement('p'); p.className = 'sui-p'; p.textContent = t; body.append(p); });
       if (o.downloads && o.downloads.length) {
-        const total = o.downloads.reduce((n, d) => n + d.bytes, 0);
+        const total = o.downloads.reduce((n, d) => n + d.bytes, 0), one = o.downloads.length === 1;
         const ul = document.createElement('ul');
         ul.className = 'sui-p';
         o.downloads.forEach((d) => { const li = document.createElement('li'); li.textContent = `${d.name}, ${size(d.bytes)}`; ul.append(li); });
         const p = document.createElement('p');
         p.className = 'sui-p';
-        p.textContent = `These are downloaded once, about ${size(total)} in all, and kept by this browser for next time.`;
+        p.textContent = one ? `This is downloaded once, ${size(total)}, and kept by this browser for next time.`
+          : `These are downloaded once, about ${size(total)} in all, and kept by this browser for next time.`;
         body.append(p, ul);
       }
       let done = false;

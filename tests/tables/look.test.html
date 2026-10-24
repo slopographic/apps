@@ -5,6 +5,7 @@
 <body>
   <!-- Covers: tables/index.html -->
   <!-- Covers: tables/css/tables.css -->
+  <!-- Covers: shared/ui/hbtn.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -64,6 +65,25 @@
       const D = await open(390);
       expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
     }, { timeout: 40000 });
+    // Slop AI's panel sits beside the app above 900 px: the page narrows (to 1060 px here) while the window stays wide, so
+    // the bar's steps follow the app's width (container queries) and the header fit runs again (shared/ui/hbtn.js).
+    it('1440 with the AI panel open beside the app: the header gives way and never scrolls sideways', async () => {
+      const D = await open(1440), W = D.defaultView;
+      Object.defineProperty(W.navigator, 'gpu', { value: undefined, configurable: true });   // the panel's no-WebGPU state
+      D.querySelector('header .sh-ai').click();
+      await waitFor(() => W.SlopAIPanel && W.SlopAIPanel.isOpen && D.documentElement.classList.contains('sap-beside'), { timeout: 20000 });
+      await W.SlopAIPanel.ready;
+      await sleep(600);
+      const h = headers(D)[0], panel = box(D.querySelector('.sap'));
+      expect(Math.round(box(D.body).width)).toBeLessThan(1100);
+      expect(h.scrollWidth).toBeLessThanOrEqual(h.clientWidth + 1);
+      for (const n of h.querySelectorAll('button, a, input, select')) if (shown(n)) expect((n.id || n.className) + ' ' + (box(n).right <= panel.left + 0.5)).toBe((n.id || n.className) + ' true');
+      expect(box(D.getElementById('btnSave')).right).toBeLessThanOrEqual(box(h).right);
+      W.SlopAIPanel.toggle();
+      await waitFor(() => !D.documentElement.classList.contains('sap-beside'), { timeout: 10000 });
+      await sleep(600);
+      fits(D);
+    }, { timeout: 60000 });
   });
   SlopTest.run({ name: 'Slop Tables: the look' });
   </script>

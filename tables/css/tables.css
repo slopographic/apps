@@ -24,6 +24,9 @@ html, body { height: 100%; margin: 0; }
 body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); overflow: hidden; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .app { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+/* The bar's steps follow the app's own width, not the window's: Slop AI's panel beside the app (shared/ai/panel.css)
+   narrows the page while the window stays wide. */
+.app { container: tables-app / inline-size; }
 
 /* top bar */
 .topbar { position: relative; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 10px; background: var(--panel); border-bottom: 1px solid var(--line); overflow-x: auto; flex: none; }
@@ -51,14 +54,14 @@ body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); o
 .topbar .tb { min-width: 34px; height: 34px; }
 .topbar .nf, .fname input { height: 34px; box-sizing: border-box; }
 /* Medium screens: the bar sheds the extras so Save and the shared buttons stay in view. */
-@media (max-width: 1500px) {
+@container tables-app (max-width: 1500px) {
   .appname, .local-badge { display: none; }
   .topbar { gap: 6px; }
   .menu-b { padding: 4px 6px; }
   .nf { max-width: 128px; }
   .fname input { width: 132px; }
 }
-@media (max-width: 1100px) {
+@container tables-app (max-width: 1100px) {
   .topbar { gap: 4px; }
   .menu-b { padding: 4px 3px; }
   .topbar .tb { min-width: 30px; padding: 4px 6px; }
@@ -115,7 +118,7 @@ body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); o
 .save-state.dirty { color: var(--accent); }
 
 /* small screens: keep the layout, scroll the toolbar inside its bar */
-@media (max-width: 720px) {
+@container tables-app (max-width: 720px) {
   .local-badge, .appname .home-link { display: none; }
   .fname input { width: 110px; }
   .namebox { width: 78px; }

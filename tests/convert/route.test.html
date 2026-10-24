@@ -16,13 +16,13 @@ async function openHub(search) {
   document.body.append(frame);
   await new Promise((r) => frame.addEventListener('load', r, { once: true }));
   const doc = frame.contentDocument, win = frame.contentWindow;
-  await waitFor(() => doc.querySelector('[data-convert-root]') && doc.querySelector('[data-convert-root]').convertTool && doc.getElementById('cv-target'));
+  await waitFor(() => doc.querySelector('[data-convert-root]') && doc.querySelector('[data-convert-root]').convertTool && doc.getElementById('cv-drop'));
   const add = async (name) => {
     const blob = await pngOf(8, 8);
     await doc.querySelector('[data-convert-root]').convertTool.addFiles([new win.File([await blob.arrayBuffer()], name, { type: 'image/png' })]);
     await sleep(50);
   };
-  return { doc, win, add, target: () => doc.getElementById('cv-target').value, close: () => frame.remove() };
+  return { doc, win, add, target: () => doc.querySelector('[data-convert-root]').convertTool.target, close: () => frame.remove() };
 }
 
 describe('?to= from a task page link', () => {

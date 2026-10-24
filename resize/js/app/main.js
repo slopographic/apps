@@ -40,7 +40,7 @@
   }
 
   async function openPicker() {
-    const files = await window.SlopUI.pickFiles({ accept: 'image/*,video/*', multiple: true });
+    const files = await window.SlopUI.pickFiles({ accept: 'image/*,video/*' + (window.SlopRaw ? ',' + window.SlopRaw.ACCEPT : ''), multiple: true });
     await addFiles(files);
   }
 
@@ -150,14 +150,14 @@
   // empty state's only drop area; once files are queued, the whole column still takes drops.
   const DROP_RULES = {
     types: ['image/*', 'video/*'],
-    exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp', '.tif', '.tiff', '.mp4', '.m4v', '.mov', '.webm', '.mkv', '.ogv'],
+    exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp', '.tif', '.tiff', '.mp4', '.m4v', '.mov', '.webm', '.mkv', '.ogv', ...(window.SlopRaw ? window.SlopRaw.EXTS.map((e) => '.' + e) : [])],
     noun: 'a picture or a video',
   };
   function wireDrop() {
     SlopDrop.attach($('rs-drop'), {
       accept: DROP_RULES,
       label: 'Drop pictures or videos here',
-      hint: 'JPEG, PNG, WebP, AVIF and GIF pictures, and MP4, WebM or MOV video. Many at once. Each file is read and resized in this browser and never uploaded.',
+      hint: 'JPEG, PNG, WebP, AVIF, GIF and camera RAW pictures, and MP4, WebM or MOV video. Many at once. Each file is read and resized in this browser and never uploaded.',
       targets: [$('rs-left')],
       preview: { picture: { src: '../assets/shots/resize.jpg', alt: 'Photos resized from 2400 × 1600 to 1080 × 720, each with its old and new file size' },
         steps: ['Drop pictures or videos, many at once', 'Pick a size, a percentage or a file limit', 'Download the copies as a ZIP'] },

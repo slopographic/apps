@@ -3,6 +3,7 @@
 <head>
   <script src="../../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../../shared/theme/theme.js" data-app="paint-classic" data-src="shared/theme/theme.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../../shared/consent/config.js"></script>
 <script src="../../shared/consent/state.js"></script>
 <script src="../../shared/consent/consent-mode.js"></script>
@@ -188,7 +189,8 @@
   <script src="hub.js"></script>
   <script src="commands.js"></script>
   <script src="ctx.js"></script>
-  <script type="module" src="../../shared/buddy/boot.js" data-offline="strip"></script>
+  <script type="module" async src="../../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../../shared/spotlight/spotlight.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

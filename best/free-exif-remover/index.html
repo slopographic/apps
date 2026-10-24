@@ -35,14 +35,14 @@
 </head>
 <body>
 <div class="l-wrap">
-<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">All apps</a><a href="/best/">Comparisons</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav><div class="sh-hdr-slot"></div></header>
 <main class="l-doc">
 <div class="l-docs">
 <aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
 <nav class="l-side-nav" aria-label="SlopClean guide">
 <p class="l-side-app"><a href="/apps/clean/">SlopClean</a></p>
 <p><a class="btn l-side-open" href="/clean/">Open SlopClean</a></p>
-
+<p class="l-side-h">Guides</p><ul><li><a href="/clean/getting-started/">Getting started</a></li></ul>
 <p class="l-side-h">How to</p><ul><li><a href="/clean/remove-exif-data/">Remove EXIF data</a></li><li><a href="/clean/remove-gps-from-photo/">Remove GPS location</a></li><li><a href="/clean/exif-viewer/">EXIF viewer</a></li></ul>
 <p class="l-side-h">Compared</p><ul><li><a href="/best/free-exif-remover/" aria-current="page">Free EXIF removers</a></li></ul>
 </nav>
@@ -63,7 +63,7 @@
 <h2 id="t1">1. SlopClean (ours)</h2>
 <p><b>Best for:</b> Seeing exactly what a photo gives away and removing chosen parts in the browser, without re-encoding the picture.</p>
 
-<h3>Good</h3><ul><li>Lists GPS, dates, camera, serial numbers, software, author and more in plain words, then removes the categories you tick</li><li>Removal is byte-level: the picture data is never decoded or re-encoded, so quality is unchanged</li><li>Nothing to install, and the photos are read on your device</li><li>Several photos at once, downloaded as one ZIP</li></ul>
+<h3>Good</h3><ul><li>Lists GPS, dates, camera, serial numbers, software, author and more in plain words, then removes the categories you tick</li><li>Removal is byte-level: the picture data is never decoded or re-encoded, so quality is unchanged</li><li>Nothing to install, and the photos are read on your device</li><li>Several photos at once, downloaded as one ZIP</li><li>Works on your phone, tablet and computer in the browser, even offline</li></ul>
 <h3>Not so good</h3><ul><li>No HEIC, HEIF, AVIF or RAW files, and no video or PDF</li><li>Still marked as being built</li><li>No command line for scripts</li></ul>
 <p><a class="btn" href="/clean/">Open SlopClean</a></p>
 <h2 id="t2">2. ExifTool</h2>
@@ -91,8 +91,8 @@
 <h3>Not so good</h3><ul><li>The picture is uploaded to the site</li><li>Image size limit of 20 MB</li><li>Its page does not list the formats it can clean</li></ul>
 <p><a href="https://www.verexif.com/en/" rel="noopener nofollow">Verexif website</a> · Sources: <a href="https://www.verexif.com/en/" rel="noopener nofollow">Verexif</a></p>
 <h2 id="which-one-to-choose">Which one to choose</h2>
-<p>For a few photos before you post them, SlopClean is the quickest private choice: it runs in the browser, shows what each picture gives away and removes it without touching the pixels. It cannot clean HEIC, video or PDF.</p>
-<p>ExifTool is the most complete tool here and the one to use for HEIC, video or scripted batches, if you are happy on the command line. ExifCleaner gives most people the same job in a simple desktop window, and ImageOptim suits Mac users who also want smaller files. Verexif is handy for a quick look, but it means uploading the picture.</p>
+<p>SlopClean is our pick for cleaning photos before you post them: it runs in the browser, shows in plain words what each picture gives away, removes the parts you choose without touching the pixels, and nothing is uploaded. It installs from the browser and works offline. It cannot clean HEIC, RAW, video or PDF.</p>
+<p>Choose ExifTool for HEIC, video or scripted batches, if you are happy on the command line: it is the most complete tool here. Choose ExifCleaner for the same job in a simple desktop window, ImageOptim on a Mac if you also want smaller files, or Verexif for a quick look, though it means uploading the picture.</p>
 <h2 id="questions">Questions</h2>
 <h3>Does removing EXIF data lower the photo quality?</h3>
 <p>Not with SlopClean: it removes the metadata blocks and leaves the picture data as it is. Tools that also compress, such as ImageOptim, rewrite the image, and their lossy settings can change it.</p>
@@ -106,7 +106,7 @@
 </div>
 </div>
 </main>
-<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">All apps</a><a href="/best/">Comparisons</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p><p class="l-fine l-made">Made with ❤️ in Sweden</p></footer>
 </div>
 <script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>

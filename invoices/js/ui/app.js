@@ -11,9 +11,9 @@
   const more = (h) => (h === 'repeat' ? { view: 'repeat' } : h.startsWith('p/') && h.length > 2 ? { view: 'print', arg: h.slice(2) }
     : h.startsWith('s/') && h.length > 2 ? { view: 'statement', arg: h.slice(2) } : h.startsWith('c/') && h.length > 2 ? { view: 'credit', arg: h.slice(2) } : null);
 
-  /** After a view shows: the list's selected row, and on the list the repeating invoices that are due. */
-  function after(t, shown) {
-    if (NS.views.list && !$('view-list').hidden) Promise.resolve(shown).then(() => NS.views.list.refresh());
+  /** After a view shows: on the list, the repeating invoices that are due (the list beside an open invoice is redrawn by
+   *  shared/docs/doc-app.js). */
+  function after(t) {
     if (t.view === 'list') NS.repeat.dueNotice();
   }
 

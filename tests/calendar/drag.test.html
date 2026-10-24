@@ -8,6 +8,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
+  // Covers: calendar/js/ui/app.js (the drag undo, now SlopUndo from shared/ui/undo.js)
   const { describe, it, expect, waitFor, run } = SlopTest;
   const cal = document.createElement('iframe');
   cal.style.cssText = 'width:1100px;height:760px;border:0;position:fixed;left:0;top:0;background:#111';

@@ -19,6 +19,9 @@ pages are not precached for offline use yet (`service-worker.js` lists its files
 | `common.js` | Worker client, model loading, gating, file helpers, Slop Drive and Slop Docs hand-off |
 | `workers/infer.worker.js` | The inference worker. Every model runs here |
 | `workers/ort.js`, `ocr-engine.js`, `speech-engine.js`, `classify-engine.js` | ONNX Runtime loader and the three engines |
+| `workers/whisper-logits.js`, `whisper-quality.js`, `whisper-decode.js`, `whisper-longform.js` | Whisper's long-form algorithm, pure and Node-tested: logit rules, quality fallback, no-speech skip, seek |
+| `speech-models.js` | The speech models (a family of the shared chooser, `shared/models/`), files on slopographic/cdn |
+| `download.js` | One model file, or its parts joined, with every hash checked; progress and cancel |
 | `ocr/`, `speech/`, `denoise/`, `tags/`, `portrait/` | The five tool pages |
 | `denoise/filters.js` | Median and bilateral filters (classic, no model) |
 | `tests/node/aitools-models.test.mjs` | Node test of the model index (licence, hash format, URLs, tools) |
@@ -33,10 +36,7 @@ Bundled files are read from `vendor/models/` and checked against the same index.
 
 | Model (id) | Used by | Licence | Source | File | Bytes | SHA-256 |
 |---|---|---|---|---|---|---|
-| Whisper tiny (`whisper-tiny`) | Speech to text | MIT (OpenAI Whisper, upstream: github.com/openai/whisper) | huggingface.co/Xenova/whisper-tiny (ONNX export; the export page is tagged Apache-2.0, the weights are MIT) | `onnx/encoder_model_quantized.onnx` | 10 124 910 | `fd9d995b9dcb0520f0dbf6cf68651af639fc385f594d9d876e69ca2802dc438e` |
-| | | | | `onnx/decoder_model_merged_quantized.onnx` | 30 727 765 | `6c0c125986b007d2e3734bec84c18bda0152071b90b87fadac6d7764499927a0` |
-| | | | | `vocab.json` | 1 036 584 | `50d6a919f0a0601d56a04eb583c780d18553aa388254ba3158eb6a00f13e2c1a` |
-| | | | | `added_tokens.json` | 2 082 | `ce949fe720c14311cb6c446e69cfe340dc669d7b006077a6feed6ae571dd7e88` |
+| Speech models (`whisper-tiny`, `whisper-base`, `whisper-small`, `whisper-base-en`, `whisper-small-en`, `kb-whisper-base`, `kb-whisper-small`, `nb-whisper-base`, `nb-whisper-small`) | Speech to text, Slop Transcribe | MIT (OpenAI Whisper) or Apache-2.0 (KB-Whisper by KBLab, NB-Whisper by NbAiLab) | slopographic/cdn `models/whisper/<id>/` at the commit pinned in `speech-models.js`, each folder with its licence, SOURCE.md (Hugging Face repo and revision) and manifest.json | int8 encoder and merged decoder, vocab, added tokens, config, generation config | see `speech-models.js` | per file there; files over 95 MB in 90 MiB parts |
 | PP-OCRv4 mobile (`ppocr-v4`) | OCR | Apache-2.0 (PaddleOCR, github.com/PaddlePaddle/PaddleOCR) | huggingface.co/SWHL/RapidOCR, `PP-OCRv4/` (ONNX export) | `ch_PP-OCRv4_det_infer.onnx` | 4 745 517 | `d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9` |
 | | | | | `ch_PP-OCRv4_rec_infer.onnx` | 10 857 958 | `48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b` |
 | | | | Bundled: `vendor/models/ppocr_keys_v1.txt` (PaddleOCR `ppocr/utils/ppocr_keys_v1.txt`) | `ppocr_keys_v1.txt` | 26 249 | `28b2362ad4ab2dc38769aa72feb535e3a9ddb3fd2a7585a05920e6393b1dc7f7` |
@@ -64,9 +64,12 @@ so the index must be updated with the new bytes and hash, not the check relaxed.
 - **OCR**: DB detection (long side 960, threshold 0.3, unclip 1.6), boxes merged into lines, then CTC greedy reading
   at height 48. Works on images and on one chosen PDF page (rendered at about 200 dpi with vendored pdf.js).
   Output: copy, `.txt` download, or Save to Slop Drive and open in Slop Docs.
-- **Speech to text**: Whisper tiny, log-mel features as Whisper computes them (Slaney filters, 80 bins), 30-second
-  windows with progress, language detection or a chosen language, greedy decoding without a key-value cache
-  (fine for tiny), timestamp tokens become segments. Export `.srt` and `.txt`. Audio up to 2 hours.
+- **Speech to text**: any of the speech models (the Language and model dialog), log-mel features as Whisper computes them
+  (Slaney filters, 80 bins), openai/whisper's long-form algorithm: per step suppress_tokens / begin_suppress and the
+  timestamp rules; per window the compression ratio (over 2.4) and average log-probability (under -1) checks with
+  temperature fallback 0.2 to 1.0 (seeded sampling) and a loop guard; the no-speech skip (over 0.6 with an unsure
+  decode); the next window starts at the end of the last complete segment; no previous-text prompt by default. The
+  language is found by the quick model (`detect`). Export `.srt` and `.txt`. Audio up to 2 hours.
 - **Auto tags**: MobileNetV3 with timm preprocessing (256 short side, 224 centre crop). Suggestions are buttons; accepted
   tags go to the Drive record's `meta.tags` through `shared/tags/tags.js` (`SlopTags`). An uploaded photo is put in
   Slop Drive only when the tags are saved.

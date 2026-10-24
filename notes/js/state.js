@@ -1,6 +1,7 @@
 /* Slop Notes state: what is loaded from Drive and what the screen shows. One object, read and changed by the views.
  * S.notebookId null = every notebook. S.folderId null = the whole notebook. S.tag null = every tag.
- * S.pane is the phone view: 'side' (notebooks), 'list' (notes) or 'editor' (one note). Wide screens show all three. */
+ * S.pane is the phone view: 'list' (notes) or 'editor' (one note); on a phone the notebooks are a drawer over it (main.js).
+ * Wide screens show all three. */
 export const S = {
   notebooks: [], folders: [], notes: [],
   notebookId: null, folderId: null, tag: null, query: '',

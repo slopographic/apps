@@ -15,7 +15,7 @@ print sheet, and the PDF. The data (money, numbering, totals) is unchanged: this
 | `page.js` | `SlopDocs.page.mount(o)`: the Page / Form switch (Form is the default under 700 px), the layout pick and "New seed", and repainting the paper. The app supplies its state and its `field(name, index, value)`. |
 | `doc-editor.js` | `SlopDocs.docEditor.create(cfg)`: the document editor a document app configures (form state, customers and products, line cards, checks, one save at a time, the unsaved-changes guard). The app gives its words, statuses, extra fields (`extra`) and action buttons (`actions`). Orders and Quotes use it. |
 | `doc-page.js` | `SlopDocs.docPage.create(cfg)`: the paper view for that editor (in-place edits through the editor's `fieldError`, the company name, the PDF download). `cfg.view` adds view fields such as `moreMeta`; `cfg.field` takes the app's own fields. |
-| `doc-app.js` | `SlopDocs.docApp.start(cfg)`: boot and routes (`#list`, `#new`, `#<route>/<id>`, `#data`) with SlopTabs, the leave-without-saving question and the list redraw on store changes. |
+| `doc-app.js` | `SlopDocs.docApp.start(cfg)`: boot and routes (`#list`, `#new`, `#<route>/<id>`, `#data`) with SlopTabs, the leave-without-saving question and the list redraw on store changes (the list beside an open record redraws with it after a route and after every store change, so a first save or an issue shows at once). |
 | `doc-pdf.js` | `SlopDocs.docPdf.create(cfg)`: `load(id)` (the record, its customer and the company block), `viewOf(ctx)` and `pdf(id)` for a stored document. |
 | `doc-layout.js` | `SlopDocs.docLayout.mount(ns, app)`: the list-and-document workspace layout (shared/layouts) above 720 px. |
 | `model.js`, `lines.js` | Unchanged apart from `SlopDocs.lines.parseField`, which the paper uses so typed values are read exactly as the form reads them. |
@@ -53,12 +53,17 @@ print sheet, and the PDF. The data (money, numbering, totals) is unchanged: this
 
 - `node tests/run.mjs docs` and the browser tests in `tests/invoices/paper.test.html` and `tests/orders/paper.test.html`
   (click a line description on the page, check the form and the store follow, then export and check the `%PDF-` bytes).
+- `tests/shared/doc-apps.test.html`: in all four apps, the list beside the editor shows the first saved record, money and
+  dates on the page keep to one line, and the Bold header layout keeps the fields below its band dark (they were white on white).
 - `tests/node/pdf-render.test.mjs`: every template gives `%PDF-` bytes with the totals text (29.00, tax 4.00, subtotal
   25.00), the same document gives the same bytes, a long table runs onto several pages, the schema enum equals the
   template ids, the seed reaches all five templates, and word wrapping.
 
 ## Known limits
 
+- Numbers, money and dates on the paper never wrap (`white-space: nowrap`); the description column takes the squeeze, the
+  side bar stacks under 660 px of paper (a container query), and a table still too wide scrolls inside the page. In the
+  workspace between 721 and about 1000 px the centre column is very narrow, so the table scrolls there.
 - The paper on screen grows with its content; it is not paginated on screen. The PDF and the print sheet paginate.
 - Fonts are the standard PDF faces, not the bundled library (see above).
 - `service-worker.js` precaches the app files and was not regenerated for these new files; regenerate its precache

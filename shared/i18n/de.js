@@ -12,6 +12,10 @@
     'nav.settings': 'Einstellungen',
 
     'shell.switch_app': 'App wechseln',
+
+    'shell.convert': 'Konvertieren…',
+
+    'shell.ai': 'KI',
     'shell.switch_title': 'App wechseln ({shortcut})',
 
     'switcher.search': 'Apps suchen',
@@ -32,6 +36,7 @@
     'footer.settings_link': 'Einstellungen und Datenschutz',
     'footer.code_license': 'Code MIT',
     'footer.trademarks': 'Sloppo™ und Slopographic™ sind Marken',
+    'footer.made': 'Mit ❤️ in Schweden gemacht',
 
     'settings.appearance': 'Darstellung',
     'settings.appearance_lede': 'Ein Design für alle Slopographic-Apps und für diese Website. Wählen Sie es hier, es wird sofort angewendet. Jede App übernimmt beim Öffnen dieselbe Wahl.',
@@ -79,5 +84,27 @@
     'menu.cancel': 'Abbrechen',
     'menu.ok': 'OK',
     'menu.close': 'Schließen',
+
+    'storage.site': 'Speicher dieser Website',
+    'storage.of': '{used} von {quota}',
+    'storage.unknown': 'Der Browser sagt nicht, wie viel diese Website belegt.',
+    'storage.meter_aria': 'Belegter Speicher',
+    'storage.kept': 'Behalten: Der Browser löscht deine Dateien nicht, um Platz zu schaffen.',
+    'storage.not_kept': 'Noch nicht behalten: Der Browser kann deine Dateien löschen, wenn die Festplatte fast voll ist.',
+    'storage.keep': 'Meine Dateien behalten',
+    'storage.kept_button': 'Dateien behalten',
+    'storage.granted': 'Erledigt. Der Browser behält deine Dateien und löscht sie nicht, um Platz zu schaffen.',
+    'storage.denied': 'Der Browser hat nicht zugesagt, deine Dateien zu behalten. Er kann sie löschen, wenn die Festplatte fast voll ist. Lege also eine Sicherung an.',
+    'storage.denied_chromium': 'Noch nicht. Chrome und Edge entscheiden das selbst, je nachdem, wie du diese Website nutzt. Deine Dateien sind gespeichert, aber lege eine Sicherung an.',
+    'storage.denied_firefox': 'Nicht erlaubt. Firefox hat dich gefragt und die Antwort war nein, oder die Frage wurde geschlossen. Du kannst das in den Website-Berechtigungen ändern.',
+    'storage.unsupported': 'Dieser Browser kann nicht zusagen, deine Dateien zu behalten. Lege eine Sicherung an.',
+    'storage.limit_title': 'Wie viel Platz du hast',
+    'storage.limit_chromium': 'Chrome und Edge erlauben dieser Website bis zu etwa 60 % deiner Festplatte. Bis der Browser zusagt, deine Dateien zu behalten, kann er sie löschen, wenn die Festplatte fast voll ist.',
+    'storage.limit_firefox': 'Firefox erlaubt dieser Website 10 % deiner Festplatte oder 10 GB, je nachdem, was kleiner ist. Erlaubst du ihm, deine Dateien zu behalten, steigt die Grenze auf bis zu 50 % der Festplatte (höchstens 8 TB). Firefox fragt dich vorher.',
+    'storage.limit_safari': 'Safari erlaubt Browser-Apps bis zu etwa 60 % deiner Festplatte.',
+    'storage.limit_other': 'Dein Browser legt fest, wie viel diese Website speichern darf. Bitte ihn, deine Dateien zu behalten, damit er sie nicht löscht, wenn die Festplatte fast voll ist.',
+    'storage.folder': 'Für Platz ohne Browser-Grenze verbinde in Slop Drive einen Ordner auf deiner Festplatte. Dort begrenzt nur deine Festplatte die Dateien.',
+    'storage.folder_button': 'Einen Ordner in Slop Drive verbinden',
+    'storage.folder_needs': 'Ein verbundener Ordner hat keine Browser-Grenze, braucht aber Chrome oder Edge auf einem Computer. In diesem Browser bleiben deine Dateien im Browserspeicher.',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

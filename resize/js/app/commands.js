@@ -1,6 +1,7 @@
 /* Slop Resize: SlopCmd commands and their keys (the palette and the shortcut editor both list them). Classic script; adds
  * window.SlopResize.commands.install(api), where api is the controller in main.js. A command that changes a setting
- * sets the panel's own control and fires 'change', so the panel updates exactly as if the person had picked it. */
+ * sets the panel's own control and fires 'change', so the panel updates exactly as if the person had picked it.
+ * SlopCmd.prepare() loads ai-commands.js: the assistant's commands with arguments, its state summary and checkpoint. */
 (function (g) {
   'use strict';
   const NS = g.SlopResize, C = (NS.commands = {});
@@ -36,5 +37,18 @@
       ...NS.size.PRESETS.map((p) => ({ id: 'rs.target.' + p.id, title: 'Target size: ' + p.label, group: 'Target size', keywords: ['resize', 'dimensions', `${p.w}x${p.h}`, `${p.w}×${p.h}`], run: () => setField('rs-preset', p.id) })),
     ];
     g.SlopCmd.register(list);
+    if (g.SlopCmd.provide) g.SlopCmd.provide({ prepare: loadAICommands });   // the assistant's commands load when first needed
   };
+
+  /** ai-commands.js (commands with arguments, the state summary, the checkpoint), loaded on demand, never on first paint. */
+  function loadAICommands() {
+    if (NS.aiCommands) return Promise.resolve();
+    return new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'js/app/ai-commands.js';
+      s.onload = () => res();
+      s.onerror = () => rej(new Error('Could not load js/app/ai-commands.js'));
+      document.head.append(s);
+    });
+  }
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -203,6 +203,7 @@
   /* ---------- Pickers (shared/drive/picker.js, loaded on first use) ---------- */
   const loaded = new Map();
   function loadScript(rel) {
+    if (window.SlopLoad) return SlopLoad.script(new URL(rel, ROOT).href); // the shared loader (shared/load) where the page has it
     if (!loaded.has(rel)) loaded.set(rel, new Promise((res, rej) => { const s = document.createElement('script'); s.src = new URL(rel, ROOT).href; s.onload = res; s.onerror = () => { loaded.delete(rel); rej(new Error('Could not load ' + rel)); }; document.head.append(s); }));
     return loaded.get(rel);
   }

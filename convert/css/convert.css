@@ -1,3 +1,4 @@
+@import url("tool.css");   /* the tool (drop zone, cards, options, results), scoped under .cv-tool */
 /* File convert: hub and converter pages. Colours are tokens on :root; dark is the default. */
 :root {
   --bg: #0a0a0a; --panel: #161618; --panel-2: #1f1f23; --ink: #f1ede4; --muted: #b3ada3;
@@ -40,53 +41,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .cv-links a { display: block; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; background: var(--panel); }
 .cv-links a:hover { border-color: var(--accent); }
 
-.cv-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; min-height: 150px; padding: 22px 16px; border: 2px dashed var(--line); border-radius: 14px; background: var(--panel); }
-.cv-drop:hover { border-color: var(--accent); }
-.cv-drop > .sd-zone { width: 100%; }
 .cv-hint { color: var(--muted); font-size: 14px; margin: 0; }
-.cv-page-note { color: var(--muted); margin: 0 0 12px; }
-
-.cv-files, .cv-out { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.cv-file, .cv-out-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 12px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
-.cv-file-main { min-width: 0; display: flex; flex-direction: column; }
-.cv-file-name { font-weight: 600; overflow-wrap: anywhere; min-width: 0; }
-.cv-file-meta { color: var(--muted); font-size: 14px; }
-.cv-file-msg { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--muted); }
-.cv-error { color: var(--danger); }
-.cv-empty { color: var(--muted); padding: 6px 2px; }
-.cv-skip { opacity: .75; }
-
-.cv-form { display: grid; gap: 14px; margin: 18px 0 10px; }
-.cv-opt { display: flex; flex-direction: column; gap: 6px; }
-.cv-opt label, .cv-check label { font-weight: 600; font-size: 15px; }
-.cv-check label { display: flex; gap: 8px; align-items: center; font-weight: 500; }
-.cv-opts { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 0; min-width: 0; }
-.cv-opts legend { font-weight: 700; padding: 0 6px; }
-.cv-opts-body { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
-.cv-opts-body .cv-hint { font-size: 13px; }
-select, input[type="text"], input[type="number"] { width: 100%; min-height: 44px; padding: 8px 10px; font: inherit; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; }
-input[type="color"] { width: 64px; height: 44px; padding: 2px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; }
-input[type="range"] { width: 100%; min-height: 44px; accent-color: var(--accent); }
-output { color: var(--muted); font-weight: 500; }
-.cv-note { color: var(--muted); font-size: 14px; margin: 0; min-height: 1em; }
-.cv-actions, .cv-res-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+/* Buttons outside the tool (the hub cards, the preview) look like the tool's. */
 .cv-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 16px; font: inherit; font-weight: 600; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; text-decoration: none; cursor: pointer; }
 .cv-btn:hover:not(:disabled) { border-color: var(--accent); }
 .cv-btn:disabled { opacity: .5; cursor: not-allowed; }
 .cv-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .cv-small { min-height: 36px; padding: 4px 12px; font-size: 14px; }
-.cv-status { min-height: 1.5em; color: var(--muted); margin: 6px 0; }
-.cv-results { margin-top: 18px; }
-.cv-out-item { grid-template-columns: minmax(0, 1fr) auto auto; }
-
-
-@media (max-width: 480px) {
-  .cv-wrap { padding: 18px 16px 44px; }
-  .cv-file, .cv-out-item { grid-template-columns: minmax(0, 1fr); }
-  .cv-out-item .cv-btn, .cv-file .cv-btn { justify-self: start; }
-  .cv-actions .cv-btn { flex: 1 1 140px; }
-}
-@media (prefers-reduced-motion: no-preference) { .cv-drop { transition: border-color .15s; } }
+@media (max-width: 480px) { .cv-wrap { padding: 18px 16px 44px; } }
 
 /* Live preview (js/preview): input box, before and after panels, and the Copy, Swap and Download buttons. */
 .cv-pv { margin-top: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 16px; }
@@ -104,6 +66,7 @@ output { color: var(--muted); font-weight: 500; }
 .cv-pv-meta { color: var(--muted); font-weight: 400; font-size: .85rem; }
 .cv-pv-body { padding: 8px; max-height: 360px; overflow: auto; }
 .cv-pv-body img { display: block; max-width: 100%; height: auto; margin: 0 auto; background: repeating-conic-gradient(var(--line) 0 25%, transparent 0 50%) 0 0 / 16px 16px; }
+.cv-pv-3d { height: 260px; border-radius: 6px; background: radial-gradient(circle at 50% 40%, var(--panel), var(--panel-2)); }
 .cv-pv-text { margin: 0; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
 .cv-pv-line { display: block; min-height: 1.45em; }
 .cv-pv-chg { background: color-mix(in srgb, var(--accent) 25%, transparent); }
@@ -125,9 +88,6 @@ output { color: var(--muted); font-weight: 500; }
 .cv-pair:hover { border-color: var(--accent); }
 .cv-pair-path { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .cv-pair-path .sflow { color: var(--muted); }
-/* The tool's "PDF → DOCX" picture (shared/ui/flow.js), centred above the drop zone. */
-.cv-flow { display: flex; justify-content: center; padding: 4px 0 18px; color: var(--muted); }
-.cv-flow[hidden] { display: none; }
 .cv-pair-title { font-size: 1.05rem; margin: 0; }
 .cv-pair-desc, .cv-pair-accepts { margin: 0; color: var(--muted); }
 .cv-pair-accepts { font-size: 14px; }

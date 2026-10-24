@@ -16,47 +16,78 @@
   S.RAIL = RAIL;
 
   /* ---------------------------------------------------------------- boot */
+  /* Two steps (shared/load/HANDOFF.md). A.boot builds the empty first view from the scripts the page runs before its
+     first paint: the rail, the menus, the Organize panel, the drop zone. The rest of the app is in <template id="pdf-later">,
+     loaded right after that paint; A.bootRest wires it. A press before then waits for it (A.whenReady). */
+  var readyRes; A.isReady = false;
+  A.ready = new Promise(function (r) { readyRes = r; });
+  /** fn, run now once the app is wired, or as soon as it is. */
+  A.whenReady = function (fn) {
+    return function () {
+      var self = this, args = arguments;
+      if (A.isReady) return fn.apply(self, args);
+      return A.ready.then(function () { return fn.apply(self, args); });
+    };
+  };
   A.boot = function () {
     ['app', 'rail', 'stage', 'grid', 'viewer', 'empty', 'props', 'ctxGrid', 'ctxPage', 'status', 'fileName', 'btnDownload', 'btnFonts', 'btnUndo', 'btnRedo', 'menus', 'btnMore', 'btnPanel', 'live', 'busy', 'restore', 'gridWrap']
       .forEach(function (id) { S.els[id] = document.getElementById(id); });
-    S.buildRail(); S.buildMenus(); S.buildCtxBars();
-    O.init(S.els.grid, S.els.gridWrap);
-    Ed.init(S.els.viewer);
+    S.buildRail(); S.buildMenus();
     PN.init(S.els.props);
-    E.on('change', S.onChange);
-    E.on('files', function () { PN.refresh('files'); });
-    S.els.btnDownload.addEventListener('click', function () { A.download(); });
-    S.els.btnUndo.addEventListener('click', function () { A.undo(); });
-    S.els.btnRedo.addEventListener('click', function () { A.redo(); });
-    S.els.btnPanel.addEventListener('click', function () { A.togglePanel(); });
+    // phone width: the panel is a bottom sheet (shared/ui/sheet.js) that the rail's tools and the panel button open and close
+    if (window.SlopSheet) S.sheet = SlopSheet.attach({ root: S.els.app, panel: S.els.props, phone: '(max-width: 900px)', openClass: 'sheet-open', triggers: S.els.rail,
+      isActive: function (b) { return b.classList.contains('on'); }, toggles: [S.els.btnPanel], label: 'Tool panel' });
+    S.els.btnPanel.addEventListener('click', function () { if (!S.sheet || !S.sheet.isPhone()) A.togglePanel(); });
+    S.els.btnDownload.addEventListener('click', A.whenReady(function () { A.download(); }));
+    S.els.btnUndo.addEventListener('click', A.whenReady(function () { A.undo(); }));
+    S.els.btnRedo.addEventListener('click', A.whenReady(function () { A.redo(); }));
     S.els.fileName.addEventListener('input', function () { S.fileNameTouched = true; });
-    S.els.fileName.addEventListener('change', function () { var v = S.els.fileName.value; A.rename(String(v).trim() ? v : 'document.pdf'); });
-    $('#emptySample').addEventListener('click', function () { A.loadSample(); });
-    S.els.restore.addEventListener('click', function () { A.restoreSession(); });
-    S.setupDrop(); S.setupKeys();
+    S.els.fileName.addEventListener('change', A.whenReady(function () { var v = S.els.fileName.value; A.rename(String(v).trim() ? v : 'document.pdf'); }));
+    $('#emptySample').addEventListener('click', A.whenReady(function () { A.loadSample(); }));
+    S.els.restore.addEventListener('click', A.whenReady(function () { A.restoreSession(); }));
+    S.setupDrop();
     A.paintMeta(); // the shared theme script has already painted the page
-    A.setTool('organize');
-    S.refreshAll();
-    E.initFonts().catch(function (e) { console.warn(e); });
-    // warm up pdf.js so the first open is snappy
-    E.pdfjs().catch(function (e) { A.status('Could not load the PDF engine: ' + e.message, 'err'); });
-    A.startTabs(); // ui/doc-tabs.js: the strip, and the tabs stored on this device (the document on screen opens first)
-    A.restoreView(); // ui/view-state.js: the view the open tab was left in, once the tabs are open
+    S.markRail(A.tool); PN.show(A.tool); S.updateChrome();
     if (SP.offline) document.documentElement.classList.add('is-offline');
   };
+  A.bootRest = function () {
+    S.buildCtxBars();
+    O.init(S.els.grid, S.els.gridWrap);
+    Ed.init(S.els.viewer);
+    E.on('change', S.onChange);
+    E.on('files', function () { PN.refresh('files'); });
+    S.setupKeys();
+    A.isReady = true; readyRes();
+    A.setTool(A.tool);
+    S.refreshAll();
+    A.startTabs(); // ui/doc-tabs.js: the strip, and the tabs stored on this device (the document on screen opens first)
+    A.restoreView(); // ui/view-state.js: the view the open tab was left in, once the tabs are open
+    if (A.launch) A.launch(); // ui/main.js: Slop Hub (?drive=)
+  };
+  // The view modes, at once (the top bar is parsed): their control comes before the Drive link (DOMContentLoaded), as always
+  if (window.SlopViewMode) SlopViewMode.register('pdf', { regions: { toolbar: '.topbar', sidebar: '#rail', panels: '#props' }, mount: '.topbar' });
+  function start() {
+    A.boot();
+    var later = window.SlopLoad ? SlopLoad.ready('pdf-later') : Promise.resolve();
+    later.then(A.bootRest).catch(function (e) { console.error('Slop PDF: could not start', e); A.status('Slop PDF could not start: ' + (e.message || e), 'err'); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 
   /* ---------------------------------------------------------------- rail */
   S.buildRail = function () {
     RAIL.forEach(function (t) {
       var b = h('button', { type: 'button', class: 'rail-b', role: 'tab', 'data-tool': t[0], 'aria-selected': 'false', title: t[1], html: U.icon(t[2]) + '<span>' + t[1] + '</span>' });
-      b.addEventListener('click', function () { A.setTool(t[0]); if (window.innerWidth <= 900) A.togglePanel(true); });
+      b.addEventListener('click', A.whenReady(function () { A.setTool(t[0]); })); // on a phone the sheet opens or closes with it (S.sheet)
       S.els.rail.appendChild(b);
     });
-  }
+  };
+  S.markRail = function (t) {
+    U.$$('.rail-b', S.els.rail).forEach(function (b) { var on = b.dataset.tool === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  };
   A.setTool = function (t) {
     if (Ed.isEditingText()) Ed.commitText();
     A.tool = t;
-    U.$$('.rail-b', S.els.rail).forEach(function (b) { var on = b.dataset.tool === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    S.markRail(t);
     if (PAGE_TOOLS[t]) { if (E.state.pages.length) A.ensurePage(); if (t === 'redact' && Ed.tool !== 'redact') Ed.setTool('redact'); }
     else if (A.mode === 'page') A.showGrid(true);
     PN.show(t);

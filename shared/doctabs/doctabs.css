@@ -33,7 +33,7 @@
   flex: 0 1 180px;
   min-width: 90px;
   max-width: 220px;
-  padding: 6px 6px 6px 10px;
+  padding: 4px 4px 4px 10px;
   border-bottom: 2px solid transparent;
   background: transparent;
   color: var(--sl-tab-muted);
@@ -69,7 +69,9 @@
   cursor: pointer;
   border-radius: 4px;
 }
-.sl-doctab-x { width: 20px; height: 20px; line-height: 1; opacity: 0.6; }
+.sl-doctab-x { position: relative; width: 24px; height: 24px; line-height: 1; opacity: 0.6; }
+/* 24 px is the smallest target (WCAG 2.5.8); a finger gets 44 px round it, without changing the strip's height */
+@media (pointer: coarse) { .sl-doctab-x::after { content: ''; position: absolute; inset: -10px; } }
 .sl-doctab-x:hover, .sl-doctab-x:focus-visible { opacity: 1; background: var(--sl-tab-line); }
 .sl-doctabs-new, .sl-doctabs-more { width: 30px; align-self: center; height: 26px; font-size: 16px; }
 .sl-doctabs-new:hover, .sl-doctabs-more:hover, .sl-doctabs-new:focus-visible, .sl-doctabs-more:focus-visible { background: var(--sl-tab-line); }

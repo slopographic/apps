@@ -1,7 +1,7 @@
-// Documents family, part 3: Slop Sheets (sheetview), Slop HTML to PDF (html2pdf), Slop EML (eml), Slop Notes (notes),
+// Documents family, part 3: Slop Sheets (sheetview), Slop HTML to PDF (html2pdf), Slop Notes (notes),
 // Paste (paste), Checksum (checksum), Slop Hex (hex), Slop Code (code) and SlopClean (clean). Checksum reads
 // ?alg=sha256|sha384|sha512|sha1 (checksum/js/checksum.js); the others take no preset.
-const sheetview = 'sheetview', html2pdf = 'html2pdf', eml = 'eml', notes = 'notes', paste = 'paste';
+const sheetview = 'sheetview', html2pdf = 'html2pdf', notes = 'notes', paste = 'paste';
 const checksum = 'checksum', hex = 'hex', code = 'code', clean = 'clean';
 export const TASKS = [
   { app: sheetview, slug: 'open-xlsx-online', crumb: 'Open an XLSX file',
@@ -74,35 +74,6 @@ export const TASKS = [
     faq: [['Why attach the images myself?', 'The page never fetches anything, for your privacy. Attaching the pictures from the saved folder lets them show without a network request.'],
       ['Will fonts from the web page load?', 'No. Remote fonts are not loaded, so the text is drawn in a font your device has.'],
       ['Are the page\'s scripts run?', 'No. Scripts are removed, so the PDF shows the page as it was saved, without pop-ups or trackers.']] },
-
-  { app: eml, slug: 'open-eml-file', crumb: 'Open an EML file',
-    title: 'Open EML files online: free EML viewer, no Outlook needed',
-    description: 'Open .eml email files in your browser without Outlook. Read the headers, HTML or plain text and attachments. Remote images stay blocked. Nothing is uploaded.',
-    h1: 'Open an .eml email file',
-    lead: 'An .eml file is one saved email. Drop it here to read it as it was sent: sender, date, subject, the HTML or text body, and the attachments.',
-    cta: 'Open an EML file',
-    steps: ['Drop the .eml file on the page, or choose Open. Several messages open in tabs.',
-      'Read the headers and the body. Switch between HTML and Plain text when the message has both.',
-      'Choose Show embedded images to see pictures that are inside the message.',
-      'Select attachments and choose Download selected, or Download all.'],
-    faq: [['Will the email load tracking pictures?', 'No. Remote images stay blocked and nothing loads from the network, so the sender cannot see that you opened it.'],
-      ['Can it open Outlook .msg files?', 'No. Slop EML reads .eml (MIME) files, the format most mail apps use when you save or drag out a message.'],
-      ['How are several attachments saved?', 'One attachment downloads as it is. Two or more go into one ZIP named after the message.'],
-      ['Is the email uploaded?', 'No. The file is read in this page and never leaves your device.']] },
-  { app: eml, slug: 'eml-to-pdf', crumb: 'EML to PDF',
-    title: 'EML to PDF converter: save an email as PDF, free',
-    description: 'Convert an .eml email to PDF in your browser: the headers, subject and text, with page numbers and the attachment names. Or print it with its layout.',
-    h1: 'Convert an EML email to PDF',
-    lead: 'Keep an email as a PDF for your records or a case file. Slop EML writes the headers and the text of the message to a clean A4 PDF.',
-    cta: 'Convert EML to PDF',
-    steps: ['Drop the .eml file on the page.',
-      'Choose Convert to PDF.',
-      'Keep the option to list the attachment names at the end, or untick it.',
-      'Choose Save PDF.'],
-    body: ['To keep the HTML layout and pictures instead, choose Print and pick Save as PDF in your browser\'s print dialog.'],
-    faq: [['Does the PDF keep the email\'s design?', 'Convert to PDF keeps the headers and the text, with links as text. For the HTML layout and images, use Print and save as PDF from the print dialog.'],
-      ['Are attachments put inside the PDF?', 'No. Their names are listed at the end; download the attachments themselves from the message.'],
-      ['What about characters the PDF cannot show?', 'The PDF uses a standard font. Characters it cannot draw are replaced and counted, and the app tells you how many.']] },
 
   { app: notes, slug: 'markdown-editor', crumb: 'Markdown editor',
     title: 'Online Markdown editor with live preview, free, no sign-up',

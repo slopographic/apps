@@ -1,7 +1,7 @@
 {
   "name": "Slopographic",
   "short_name": "Slop",
-  "description": "Creative apps that run entirely in your browser. No installs, no accounts, nothing uploaded.",
+  "description": "Free office and creative apps that run right in your browser: no installs, no accounts, nothing uploaded. Works offline too.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

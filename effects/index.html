@@ -3,6 +3,7 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="effects" data-src="shared/theme/theme.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
   <script src="../shared/consent/config.js"></script>
   <script src="../shared/consent/state.js"></script>
   <script src="../shared/consent/consent-mode.js"></script>
@@ -47,6 +48,7 @@
         <button type="button" class="sui-btn" id="fx-file">File</button>
         <button type="button" class="sui-btn" id="fx-comp">Composition</button>
         <button type="button" class="sui-btn" id="fx-layer">Layer</button>
+        <button type="button" class="sui-btn fx-phone" id="fx-props" aria-expanded="false">Properties</button>
         <button type="button" class="sui-btn sui-primary" id="fx-render">Render</button>
         <button type="button" class="sui-btn" id="fx-search" title="Search commands (Ctrl+K)">Search</button>
       </div>
@@ -134,11 +136,13 @@
   <script src="js/app/io.js"></script>
   <script src="js/app/cmd.js"></script>
   <script src="../shared/ui/tabs.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
   <script src="js/main.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
   <script src="../shared/tour/mount.js" data-app="effects"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
   <script src="../shell/shell.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

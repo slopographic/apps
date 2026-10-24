@@ -1,6 +1,6 @@
 # Slop Slides: handoff
 
-Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the first version works end to end: you can make a deck, edit it, save it to Slop Drive, reopen it, present it, export PPTX, and keep decks as templates. `node tests/run.mjs slides` is green (98 tests, 7 pages).
+Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the first version works end to end: you can make a deck, edit it, save it to Slop Drive, reopen it, open PowerPoint files, present it (with a presenter view), export PPTX and PDF, and keep decks as templates. `node tests/run.mjs slides` is green (98 tests, 7 pages).
 
 ## Architecture
 - Classic scripts under `window.SS`. The load order is `js/manifest.js` (`SS_MANIFEST`: core, render, anim, io, ui). `index.html` writes its script tags from that list, so the manifest is the only list. Tests and the future offline build use it too.
@@ -14,6 +14,8 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
   - `native.js`: `.sslide` read/write. Mime `application/x-slop-slides`.
   - `draft.js`: the autosave draft in IndexedDB (`slop-slides`, store `drafts`, key `last`).
   - `pptx.js`: PPTX writer on `shared/office/zip.js`.
+  - `pptx-in-style.js`, `pptx-in-text.js`, `pptx-in-shape.js`, `pptx-in.js`: PPTX reader (`SS.pptxIn.read(blob, name)` → `{ deck, report }`) on `shared/office/zip.js`, `xml.js`, `units.js`. See "PowerPoint import".
+  - `pdf-math.js`, `pdf-text.js`, `pdf-paint.js`, `pdf.js`: PDF writer (`SS.pdfExport.write(deck)`). See "PDF export".
   - `validate.js`: `SS.deckCheck.run(deck)`, the one deck validator. Version check, migration (`anim/migrate.js`), then structure (types, numbers, layouts, picture references). Throws with a reason ("Slide 2, object 3 (Name): unknown type ...").
   - `template-file.js`: `.sslide-template` files (`SS.templateFile`). Envelope `{kind:'slop-slides-template', format:1, name, created, deck}`. Parsing calls `SS.native.normalize`, so a template and a `.sslide` pass the same checks.
   - `template-store.js`: "My templates" (`SS.templateStore`). IndexedDB `slop-slides-templates` / `templates` (record: name, slides, first-slide JPEG preview, deck, driveId), plus a copy in the "Templates" folder of Slop Drive.
@@ -39,6 +41,8 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 | `js/anim/migrate.js` | version 1 to 2 file migration (legacy transitions and builds) |
 | `js/ui/present.js` | Present mode: slide order, builds, transitions, keys, clicks |
 | `js/ui/present-view.js` | Present picture: two canvases whose transform, opacity and clip come from `SlopMotion.transitions` |
+| `js/ui/presenter.js`, `presenter-view.js`, `css/presenter.css` | Presenter view: a second window built by the editor (current and next slide, notes, timer, clock, counter, keys) |
+| `js/ui/file-drop.js` | drop a .pptx or .sslide anywhere (shared SlopDrop strip `#ssDrop`), File ▸ Open a file from this computer |
 | `js/ui/anim-panel.js` | inspector sections: Transition (Apply to all slides), Present switch, Animation list (add, preset, trigger, delay, duration, move, delete) |
 | `js/ui/commands.js` | every shortcut and palette command (SlopCmd, app `slides`) |
 | `js/ui/main.js` | boot; adds `body.ready` |
@@ -69,6 +73,24 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 - Version 1 files open with a migration (`js/anim/migrate.js`): `transition {type, dir, dur}` maps to an engine name (dissolve and magic become fade, slide and push become push-<dir>, zoom becomes zoom-in), and each v1 build becomes an animation on its object (fly to slide-up, scale to pop, otherwise fade-in; `after` becomes `with`). The paragraph split of builds is not kept. Files with no transition or animation fields open with the defaults.
 - Drafts and Drive files both go through `SS.native.normalize`, so both migrate.
 
+## PowerPoint import
+- Opens from Slop Drive (open or Import), a file dropped on the editor, or File ▸ Open a file. Always a new tab with no Drive link (Save writes a new `.sslide`); a damaged file is reported and nothing opens.
+- Read: slide size, theme (clrScheme through the master's clrMap → `deck.theme` id `pptx`, major/minor fonts → heading/body), backgrounds (slide → layout → master, bgRef too), master and layout shapes (copied onto each slide, under the slide's own), placeholders (frame, geometry, fill, line, list styles and bodyPr from layout then master), text (runs: bold, italic, underline, strike, size, colour with lumMod/lumOff/tint/shade, font, link; paragraphs: alignment, bullets char/number/none, levels, space before, line spacing; bodyPr insets, anchor, normAutofit → shrink), shapes (preset geometries Slop Slides has, others drawn as rectangles and counted), lines and connectors with arrow ends, gradients, pictures (crop; picture fills become pictures with a mask), groups (child frame kept), tables (cells, column widths, row heights, cell fills, header/banded flags; merges are flattened), speaker notes, hidden slides, transitions (fade, push/cover/pull, wipe, zoom, cube; others → fade).
+- Counted and left out (`SS.pptxIn.summary`, shown in the toast): charts, SmartArt, video and audio (poster kept), embedded objects, EMF/WMF/TIFF pictures, ink. Not read: shadows and effects, table styles, theme effect styles, vertical text, East Asian/complex-script font slots, animations. Strict OOXML is refused with a reason. ODP is not read.
+- Theme colour references without modifiers stay slot names, so the Theme picker recolours them.
+
+## Used by File convert
+File convert (`convert/js/core/slides-out.js`) loads `js/manifest.js` and then the `core` and `render` scripts and the PPTX reader and PDF writer from `io` into `window.SS` (inside Slop Slides it uses the editor's own), for PowerPoint to PDF (`SS.pdfExport.write`), to PNG pictures (`SS.canvasRender.slideToCanvas`, zipped) and to text. So a new script those packages need must be in the manifest, and must not need `SS.app` while it loads. Tests: `tests/convert/office-pptx.test.html`.
+
+## PDF export
+- File ▸ Download PDF (`file.pdf`). One page per visible slide (hidden slides left out; `write(deck, { hidden: true })` keeps them), at the slide size, from `SS.scene.slide` (objects as they are after their animations). Vector paths, linear and radial gradients (PDF shadings), opacity (ExtGState), clips, pictures (PNG/JPEG embedded, other formats drawn to PNG), link annotations. Shadows are left out.
+- Text: the slide face (same TTF) embedded as a subset, laid out without kerning or ligatures to match the canvas. Characters the face lacks: `SlopFontJIT` (asks once, or automatic) downloads the Noto pack, `SlopBidi.segments` (base ltr, as the canvas) cuts runs by font and direction (`SS.pdfMath.runs`), fontkit shapes (Arabic joining, Indic with `vendor/regenerator-runtime`), glyphs are placed with TJ adjustments and rise (`SS.pdfMath.glyphPlan`). A declined font is named in the toast.
+- Workarounds for vendored libraries (in `pdf-text.js`): fontkit 1.1's CFF subset header offSize is invalid (Chrome's OTS refuses Noto SC) → rewritten to 4; glyphs with no code points get U+200D in ToUnicode (pdf-lib would write an empty entry).
+- After a language pack is downloaded, `SS.fonts.addFallback(family)` puts it in the canvas font list, so the screen sets those characters in the same font.
+
+## Presenter view
+- File ▸ Present with presenter view (Alt+F5). The show starts in this window; the second window (`window.open`, built by the editor, no page of its own) shows the current slide with its builds, the next slide, notes, timer (Pause/Reset), clock and counter. Keys in either window drive `SS.present`; `A.emit('present')` keeps the view in step. Ending the show closes the window. Blocked pop-ups get a toast.
+
 ## PowerPoint export drops
 - Slide transitions and object animations are not written to `.pptx` (not sure of the transition XML, so none is invented). The export message says so.
 - Also left out: tables, charts and media (the message counts them).
@@ -80,17 +102,19 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 - `tests/slides/templates.test.html` (`spec-templates.js`): save as template (whole deck and one slide, Save as template dialog) and its preview in New from template, the Drive copy in the Templates folder, export then import round trip (slides, transitions, animations), pictures copied in as data, a broken import changes nothing and shows the reason, the `.sslide` loader and template import give the same reason, a version 1 deck migrates on import.
 - `tests/slides/app.test.html`: runs the real editor in iframes (`frame.js` helpers, `spec-boot.js`, `spec-storage.js`, `spec-present.js`). Covers boot, slides, text boxes and dragging, undo, double-click editing, inspector fields, picture insert, template, 390×844 layout, Ctrl+S to the same Drive id and reopen by `?drive=`, folder and star kept, zero-byte, picture, PowerPoint, damaged, draft restore, PPTX package, Present key handling.
 - PPTX was loaded with python-pptx (slide size, text, picture and shape positions). **Not yet opened in Microsoft PowerPoint.**
+- `tests/node/slides-pptx-in.test.mjs`: import of a package the exporter wrote and of a hand-built one (`slides-pptx-fixture.mjs`). `tests/node/slides-pdf-math.test.mjs`: PDF maths.
+- `tests/slides/pptx-import.test.html` (Drive, drop, Open a file, round trip), `pdf-export.test.html` (pdf.js reads pages, size and Arabic/Hebrew/Chinese/Hindi text; fonts are Noto subsets in `tests/slides/fixtures/`), `presenter.test.html` (sync both ways, black, timer, end, real popup).
 
 ## Templates: not done
 - Import from Drive and from a file are covered by `importText` tests; the file picker and Drive picker themselves are not automated.
 - My templates has no rename and no reorder. Preview is one slide, the first.
 
 ## Missing (in rough order of value)
-1. **PDF export** from the display list (subset fonts via `js/render/ttf.js`). Not started. Stretch goal not done.
+1. ~~PDF export~~ done. Shadows are not in the PDF.
 2. **Magic Move** is not in the engine (the v1 `magic` transition maps to fade). Animations apply to top-level objects only, not to children of a group.
-3. **Presenter window** (second window with notes and timer, via BroadcastChannel), laser pointer.
-4. **PowerPoint and ODP import.** A `.pptx` or `.odp` from Drive opens as a blank deck with no link, so it is never overwritten.
-5. **PPTX export gaps:** tables, charts, video and audio are left out (the result says how many); speaker notes; footer and slide numbers; transitions and animations (see Schema and PowerPoint export drops).
+3. ~~Presenter window~~ done. No laser pointer.
+4. ~~PowerPoint import~~ done (see above). **ODP import** is not built: Slides no longer lists ODP in `accepts`.
+5. **PPTX export gaps:** tables, charts, video and audio are left out (the result says how many); speaker notes; footer and slide numbers; transitions and animations (see Schema and PowerPoint export drops). The export now writes theme slots as scheme colours, `lvl`, space before, roundRect radius, and line spacing as PowerPoint means it (model 1.2 = 100%).
 6. **Editing gaps:** no rotation handle (use the Rotation field), no marquee selection, no group/ungroup or align/distribute buttons (the model has them), no table or chart editing, no image crop or mask, no slide-size change, no per-run formatting controls (only the object's default style).
 7. **Text:** the overlay edits plain text. Whole-line changes in multi-run paragraphs lose run formatting.
 8. **Drag reorder** works with the mouse (HTML5 drag). On phones use the Move up and Move down buttons.
@@ -102,3 +126,9 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 3. Animations for objects inside groups.
 4. Import PPTX (`shared/office/zip.js` + `ppt/slides/*.xml`).
 5. Presenter window and notes.
+
+## Phone layout (SlopSheet)
+Under 700 px the inspector is a bottom sheet, `SlopSheet.attach` from `shared/ui/sheet.js` (see `shared/ui/HANDOFF.md`) in
+`js/ui/main.js` (`SS.sheet`); `shared/ui/sheet.js` is the first `ui` entry of `js/manifest.js`. The Properties button in the
+top bar (phone only) opens and closes it; the shared ×, Escape, a tap outside and a swipe down close it, and the × stays
+when the inspector redraws. Before, the inspector was stacked under the slide strip. Test: `tests/slides/phone.test.html`.

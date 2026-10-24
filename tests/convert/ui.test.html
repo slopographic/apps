@@ -18,7 +18,7 @@ const file = (name, type, body) => new File([body], name, { type });
 const pngFile = async (name = 'pic.png') => file(name, 'image/png', await pngOf(30, 20));
 const csvFile = (name = 'data.csv') => file(name, 'text/csv', 'a,b\n1,2\n');
 const jsonFile = (name = 'data.json') => file(name, 'application/json', '[{"a":1}]');
-const targets = (t) => [...t.ui.target.options].map((o) => o.value);
+const targets = (t) => t.targets();   // what every file (or the selected ones) can become
 const mount = (preset = null) => { const root = document.createElement('div'); document.body.append(root); return new ConvertTool(root, preset); };
 
 describe('target picker offers only valid conversions', () => {
@@ -95,9 +95,9 @@ describe('the from → to picture (shared/ui/flow.js)', () => {
     expect(t.ui.flowBox.hidden).toBe(true);
     await t.addFiles([csvFile()]);
     expect(t.ui.flowBox.hidden).toBe(false);
-    t.ui.target.value = 'csv-to-xlsx'; t.ui.target.dispatchEvent(new Event('change'));
+    t.setTarget('csv-to-xlsx');
     expect(t.ui.flowBox.querySelector('.sflow').getAttribute('aria-label')).toBe('CSV to XLSX');
-    t.ui.target.value = 'csv-to-json'; t.ui.target.dispatchEvent(new Event('change'));
+    t.setTarget('csv-to-json');
     expect(t.ui.flowBox.querySelector('.sflow').getAttribute('aria-label')).toBe('CSV to JSON');
   });
   it('a run ends with the picture done; Clear puts it back to idle', async () => {

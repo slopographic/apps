@@ -3,6 +3,7 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="press" data-src="shared/theme/theme.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -104,6 +105,7 @@
   <script src="../shared/storage/ui.js"></script>
   <script src="../shared/drive-link.js" data-src="shared/drive-link.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('#menubar'));</script>
+  <script src="../shared/ui/sheet.js" data-src="shared/ui/sheet.js"></script>
   <script src="js/core/util.js" data-src="press/js/core/util.js"></script>
   <script src="js/core/model.js" data-src="press/js/core/model.js"></script>
   <script src="js/core/pages.js" data-src="press/js/core/pages.js"></script>
@@ -168,7 +170,7 @@
   <script src="js/ui/help.js" data-src="press/js/ui/help.js"></script>
   <script src="js/ui/export-dialogs.js" data-src="press/js/ui/export-dialogs.js"></script>
   <script src="js/ui/main.js" data-src="press/js/ui/main.js"></script>
-  <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script type="module" async src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js" data-offline="strip"></script>
   <script>window.SlopPWA && SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>
@@ -177,5 +179,6 @@
   <script src="../shared/viewmode/grid.js" data-src="shared/viewmode/grid.js"></script><script src="../shared/viewmode/viewmode.js" data-src="shared/viewmode/viewmode.js"></script>
   <script src="js/ui/route.js" data-src="press/js/ui/route.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

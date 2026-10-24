@@ -7,10 +7,10 @@
   --bone: var(--sl-text, #f1ede4);
   --ink-2: color-mix(in srgb, var(--bone) 5%, var(--ink));
   --bone-dim: color-mix(in srgb, var(--bone) 72%, var(--ink));
-  --bone-faint: color-mix(in srgb, var(--bone) 50%, var(--ink));
+  --bone-faint: color-mix(in srgb, var(--bone) 64%, var(--ink));   /* 4.5:1 or more on light and dark pages */
   --line: color-mix(in srgb, var(--bone) 15%, var(--ink));
   --slop: var(--sl-accent, #d4ff3a);
-  --amber: #f5c26b;
+  --amber: color-mix(in srgb, #d98a10 55%, var(--bone));   /* readable on light and dark: mixed toward the text colour */
   --sans: "Inter Tight", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   color-scheme: light dark;
@@ -43,6 +43,9 @@ p { margin: 0 0 12px; }
 .l-top nav { display: flex; gap: 16px; font-size: 14px; }
 .l-top nav a { color: var(--bone-dim); text-decoration: none; }
 .l-top nav a:hover { color: var(--bone); }
+/* the room the shell's header buttons take (Tutorial, Theme, Apps, the bell), kept in the HTML so the header does not move
+ * when shell/header.js puts them in; on phones their labels give way to icons */
+.sh-hdr-slot { flex: none; inline-size: 215px; block-size: 32px; }
 
 /* hero */
 .l-hero { padding: 56px 0 28px; }
@@ -163,6 +166,7 @@ p { margin: 0 0 12px; }
 @media (max-width: 640px) {
   .l-hero { padding-top: 36px; }
   .l-top { flex-wrap: wrap; } .l-top nav { flex-wrap: wrap; gap: 6px 14px; }
+  .sh-hdr-slot { inline-size: 108px; }
   .l-doc .demo { flex-direction: column; align-items: flex-start; } .l-doc .demo img { width: 100%; max-width: 100%; }
   .l-cta .l-btn { flex: 1 1 auto; text-align: center; }
   .l-matrix-wrap { overflow: visible; }

@@ -72,8 +72,7 @@
       const S = await turnOn(win), doc = win.document;
       const canvas = doc.getElementById('work'), cr = canvas.getBoundingClientRect();
       canvas.dispatchEvent(new win.PointerEvent('pointerdown', { pointerId: 9, clientX: cr.left + 50, clientY: cr.top + 50, bubbles: true }));
-      await sleep(60);
-      expect(S.M.layer.classList.contains('is-ghost')).toBe(true);
+      await waitFor(() => S.M.layer.classList.contains('is-ghost'), { timeout: 2000 });   // set on his next frame
       expect(win.getComputedStyle(S.M.hit).pointerEvents).toBe('none');
       const h = S.M.hit.getBoundingClientRect();
       const under = doc.elementFromPoint(h.left + h.width / 2, h.top + h.height / 2);

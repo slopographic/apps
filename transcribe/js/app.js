@@ -1,12 +1,15 @@
 /* Slop Transcribe: voice, MP3 or any audio or video file to text, on this device. Files come from a drop, Choose files,
  * Slop Drive (SlopDrop) or the microphone (record.js); queue.js reads them one after another through Whisper (the Slop AI
- * Tools engine, aitools/common.js, the same model and download as the Speech page); the transcript can be corrected,
- * copied, downloaded (exports.js) or saved to Slop Drive, or opened in Slop Docs. The SlopFlow picture shows "MP3 → TXT". */
+ * Tools engine, aitools/common.js, the same models and downloads as the Speech page). Start fast, upgrade on request: the
+ * quick model finds each file's language and reads it; the line under the transcript offers the better model for that
+ * language (choose.js, models.js; the Language and model dialog is shared/models/chooser.js). The transcript can be
+ * corrected, copied, downloaded (exports.js) or saved to Slop Drive, or opened in Slop Docs. SlopFlow shows "MP3 → TXT". */
 import { createQueue } from './queue.js';
 import { createRecorder } from './record.js';
 import { FORMATS, fileOf, textOf, presetOf } from './exports.js';
 import { drawList, drawTranscript, textFor } from './view.js';
-import { fillLanguages } from './languages.js';
+import { wireChoice } from './choose.js';
+import { createPrefs } from '../../shared/models/prefs.js';
 import '../../shared/ui/flow.js';
 
 const T = window.SlopAITools, $ = (id) => document.getElementById(id);
@@ -14,14 +17,22 @@ const say = (s) => { $('trMsg').textContent = s || ''; };
 let selected = null, times = false;
 const flow = window.SlopFlow.create({ from: 'mp3', to: 'txt', size: 'lg', label: 'Audio or video to text' });
 $('trFlow').append(flow.el);
-fillLanguages($('trLang'));
 $('trSteps').append(window.SlopDrop.panel.preview({ steps: ['Drop audio or video, or press Record', 'Press Transcribe: it runs on this device', 'Correct the text, then save it'] }));
 
-/** The Whisper engine of Slop AI Tools. The model downloads once, after the person agrees (T.gate). */
+/** The Whisper engine of Slop AI Tools. The quick model downloads once, after the person agrees (T.gate); a better model
+ *  only from the Language and model dialog or the offer under a transcript. One big model at a time stays in the worker. */
+const C = window.SlopSpeechModels;
+let big = null;
 const engine = {
-  prepare: (onStatus) => T.ensure('whisper-tiny', onStatus),
+  prepare: async (onStatus, model = C.QUICK) => {
+    if (model !== C.QUICK && big && big !== model) await T.release(big);
+    if (model !== C.QUICK) big = model;
+    await T.ensure(model, onStatus);
+  },
   samples: (file) => T.audioSamples(file),
-  transcribe: (samples, language, onProgress) => T.call('transcribe', { samples, language }, { transfer: [samples.buffer], onProgress }),
+  // the language of the first 30 seconds, from the quick model (one encoder pass), whatever model reads the file
+  detect: async (samples) => { await T.ensure(C.QUICK); return (await T.call('detect', { model: C.QUICK, samples: samples.slice(0, 30 * 16000) })).languages; },
+  transcribe: (samples, language, onProgress, model = C.QUICK) => T.call('transcribe', { model, samples, language }, { transfer: [samples.buffer], onProgress }),
 };
 const q = createQueue({ engine, onChange: () => draw() });
 const current = () => (selected && q.get(selected)) || null;
@@ -31,6 +42,7 @@ function draw() {
   const it = current();
   if (document.activeElement !== $('trText')) $('trText').value = textFor(it, { times });
   drawTranscript(it, { times });
+  if (window.SlopTranscribe) models.drawSuggest(it);
   const reading = q.items.find((x) => x.status === 'reading');
   const shown = reading || it || q.items[0];
   if (shown) flow.set({ from: (shown.name.match(/\.([a-z0-9]+)$/i) || [, 'mp3'])[1].toLowerCase(), to: 'txt' });
@@ -48,6 +60,7 @@ function add(files) {
   const added = q.add(files);
   if (!added.length) { say('Only audio and video files can be transcribed: MP3, WAV, M4A, OGG, FLAC, WebM, MP4 and the like.'); return null; }
   if (!selected) selected = added[0].id;
+  models.choice.newFile(); models.drawButton();
   say(`${added.length} file${added.length === 1 ? '' : 's'} added. Press Transcribe.`);
   draw();
   return added[added.length - 1].id;
@@ -55,7 +68,7 @@ function add(files) {
 
 async function run() {
   say('');
-  await q.run({ language: $('trLang').value, onStatus: say });
+  await q.run({ language: models.choice.language, choose: (lang) => models.choice.chooseFor(lang), onStatus: say });
   const list = q.items, bad = list.filter((x) => x.status === 'error').length;
   say(bad ? `${bad} file${bad === 1 ? '' : 's'} could not be read; the reason is under each one.` : 'Done. Check the text before you use it: corrections are kept for Text and Word.');
   if (!current() || current().status !== 'done') { const first = list.find((x) => x.status === 'done'); if (first) select(first.id); }
@@ -110,7 +123,8 @@ function wire() {
   draw();
 }
 
+const models = wireChoice({ queue: q, run, draw: () => draw(), say, catalog: C, manager: window.SlopAIManager, ui: window.SlopUI, prefs: createPrefs('speech') });
 // engine is exposed so a test can stand in a fake Whisper (the real model is a download the tests do not make)
-window.SlopTranscribe = { queue: q, engine, add, run, select, presetOf, get selected() { return selected; } };
+window.SlopTranscribe = { queue: q, engine, add, run, select, presetOf, models, get selected() { return selected; } };
 T.gate('speech', () => { $('trUi').hidden = false; });
 wire();

@@ -127,3 +127,17 @@ Desktop 1440×900 and phone 390×844 in Chromium, zero console errors: guide pan
 - A drawn rectangle is a shape layer: `L.shape = { kind, r, radius, fill, stroke, strokeW, fg, bg }` and its canvas is redrawn from it. Changing the option redraws the active shape layer. A slider drag is one history step (400 ms settle), and a typed value is one step.
 - Painting, selecting, transforming or filtering a shape layer rasterizes it, as for type. Crop and resize drop the record and keep the pixels. Other kinds (ellipse, polygon, star, heart, line) are still plain pixels.
 - Tests: `tests/photoslop/shapes.test.html`.
+
+## Camera RAW (`js/io/raw.js`, `css/raw.css`, uses `shared/raw/`)
+- `readAnyFile` sends a RAW file (by content and extension, `SlopRaw.isRaw`) to `readRawFile`, so File ▸ Open, drop and Slop Drive (files stored with an `image/*` type) reach it; `OPENABLE` and the drop zone take the RAW extensions.
+- The Develop dialog shows the embedded preview at once, then a half-size develop that follows White balance (as shot, auto, daylight), Exposure (−3 to +3 EV) and Highlights (clip, blend, rebuild). Open develops full size (8-bit sRGB, upright) as one Background layer; Use embedded preview opens the camera JPEG with no engine; Cancel opens nothing (`err.code 'cancelled'`, no toast).
+- Tests: `tests/photoslop/raw.test.html` (5).
+- Seen while testing (not changed): the welcome card stays over a file opened with File ▸ Open (a PNG too), because `D` is the same object after `openDocTab`.
+
+## Phone layout (SlopSheet)
+Under 900 px the panels column (`#panels`: Layers, History…) is a drawer from the right, under the top bar:
+`window.PS_SHEET = SlopSheet.attach({ side: 'end', toggles: [#panelToggle] })` in `wireMobile()` (`js/app/main.js`;
+`shared/ui/sheet.js`, see `shared/ui/HANDOFF.md`). The Layers button opens and closes it; the shared ×, Escape, a tap outside
+(on the picture too) and a swipe right close it. `css/extras.css` only sets `--ssh-top` (38 px, 66 px under 640 px) and
+`--ssh-z`; the old `panels-open` class and viewport listener are gone. A tool that uses Escape (a transform, a lasso) still
+gets it first. Test: `tests/photoslop/phone-panels.test.html`.

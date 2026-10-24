@@ -61,3 +61,10 @@ models in `vendor/models/`, ONNX Runtime Web in `vendor/onnxruntime-web/`. Modul
   Test: `tests/slopisolate/persist.test.html`.
 - Tests: `tests/node/slopisolate-smooth.test.mjs`; `tests/slopisolate/video.test.html` (2-second generated MP4: frames, model
   per frame, cancel, WebM or PNG export, MP4 background); `live.test.html`; `persist.test.html`.
+
+## Phone layout (SlopSheet)
+Under 900 px the settings panel (`#props`) is a bottom sheet: `CO.sheet = SlopSheet.attach(...)` in `js/ui/menus.js`
+(`shared/ui/sheet.js`, see `shared/ui/HANDOFF.md`). The panel button (and View ▸ panel, `act.panel`) opens and closes it; the
+shared ×, Escape, a tap outside and a swipe down close it. Before this the CSS had a `.sheet-open` sheet that nothing ever
+opened, so the settings were out of reach on a phone; that CSS and the unused `.sheet-grip` are gone. On a wide screen the
+button still hides the panel (`no-panel`). Test: `tests/slopisolate/phone-sheet.test.html`.

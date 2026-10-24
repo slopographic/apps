@@ -1,6 +1,7 @@
 // Business apps, part 3: Slop Expenses, Timesheets, Reports and Signature (part 1 is business.mjs). Presets read by the
 // apps: reports report=<built-in report id> (reports/js/app.js R.presetOf); signature mail=gmail|outlook|outlook-web|apple
 // (the steps that open, signature/js/app.js presetOf).
+import { INSTALL } from '../install-copy.mjs';
 export const TASKS = [
   { app: 'expenses', slug: 'expense-tracker', crumb: 'Business expense tracker',
     title: 'Free business expense tracker with tax to reclaim and CSV export',
@@ -70,7 +71,7 @@ export const TASKS = [
       'See monthly totals in Summary and Download CSV for your accountant.'],
     body: ['What it has: expenses by supplier and category, the tax to reclaim, receipt reading on the device, mileage claims, bills to pay, posting to the ledger and CSV export. What it does not have: approvals, a team, card feeds or reimbursement payments.'],
     faq: [['Is Slop Expenses made by Expensify?', 'No. Slopographic is not affiliated with Expensify. Expensify is a trademark of its owner, and the name is used here only to describe what people search for.'],
-      ['Can I use it on my phone?', 'Yes. It runs in the phone\'s browser, and From a receipt… can use the camera. The data stays in that browser.'],
+      ['Can I use it on my phone?', `Yes, and From a receipt… can use the camera. ${INSTALL.how} The data stays on that phone.`],
       ['Is there an account or a limit?', 'No account and no limit on expenses. Everything is kept in your browser.']] },
   { app: 'timesheets', slug: 'free-timesheet', crumb: 'Free timesheet',
     title: 'Free online timesheet with a timer: weekly hours and CSV',

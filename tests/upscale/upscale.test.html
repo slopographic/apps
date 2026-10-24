@@ -53,7 +53,7 @@
 
     it('runs the opt-in Real-ESRGAN file passed in as bytes (the Get more path), 4× to 160 × 160', async () => {
       const res = await fetch('../../vendor/models/upscale/realesrgan-x4plus/model.onnx', { cache: 'no-store' });
-      // The weights are gitignored (67 MB, opt-in), so a checkout without them skips this check and says so.
+      // The weights are gitignored (64 MB, opt-in), so a checkout without them skips this check and says so.
       if (!res.ok) { console.warn('skipped: the Real-ESRGAN weights are not installed in vendor/models'); return; }
       const bytes = await res.arrayBuffer();
       const c = document.createElement('canvas');

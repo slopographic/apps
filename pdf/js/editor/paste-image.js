@@ -12,7 +12,9 @@
     Ed.placeImage(asset, 'Add image');
   };
 
+  // first: the drop zone (ui/drop.js) attaches before this file loads, and a pasted picture belongs on the page
   SlopIntake.attach({
+    first: true,
     accept: function (f) { return f.type.startsWith('image/'); },
     hasOpen: function () { return !!(E.state && E.state.pages.length) && !!Ed.page(); },
     openName: function () { return 'this page'; },

@@ -2,10 +2,16 @@
  * the first part of a large text file and a smaller copy of a large picture, and returns the before and after
  * panels. Browser only. The panels are plain data; view.js draws them. */
 import { KIND_LABEL, TEXT_KINDS } from '../core/detect.js';
+import { decodeBytes } from '../../../shared/finance/text.js';
+
+// Finance files are text in an old code page (SIE: CP437), so they are decoded before they are shown.
+const FINANCE_KINDS = ['sie', 'ofx', 'qif', 'camt053', 'mt940'];
 import { pdfToImages } from '../core/pdf-raster.js';
 import { parseCsv } from '../core/csv.js';
 import { fmtSize } from '../io/files.js';
 import { changedLines } from './diff.js';
+import { is3d, modelBefore, modelAfter } from './model3d.js';
+import { RAW_KINDS, rawPreviewBlob } from '../core/raw.js';
 import { IMAGE_KINDS, TEXT_LIMIT, IMAGE_LIMIT, PREVIEW_PX, MAX_LINES, FIRST_PAGE_ONLY, LINE_DIFF } from './spec.js';
 
 const PICTURE_EXT = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'svg', 'ico'];
@@ -17,9 +23,11 @@ export function pickInputs(conv, items) {
     .map((i) => ({ name: i.name, file: i.file, kind: i.kind, size: i.size }));
 }
 
-/** The same input, cut down for the preview. Text keeps its first part; pictures and PDFs are kept whole. */
-function previewInput(i) {
-  if (IMAGE_KINDS.includes(i.kind) || i.kind === 'pdf') return { ...i, truncated: false, large: i.size > IMAGE_LIMIT };
+// Zip-based files (Word, PowerPoint, workbooks) cannot be read from their first part, so they are kept whole like PDFs
+const WHOLE = ['pdf', 'docx', 'pptx', 'xlsx', 'ods', 'odt', 'odp', 'zip', 'epub'];
+/** The same input, cut down for the preview. Text keeps its first part; pictures, PDFs and zip-based files are kept whole. */
+export function previewInput(i) {
+  if (IMAGE_KINDS.includes(i.kind) || WHOLE.includes(i.kind)) return { ...i, truncated: false, large: i.size > IMAGE_LIMIT };
   const large = i.size > TEXT_LIMIT;
   return { ...i, file: large ? i.file.slice(0, TEXT_LIMIT) : i.file, truncated: large, large };
 }
@@ -44,12 +52,19 @@ function textPanel(text, { size, truncated = false, label = '' } = {}) {
   return { kind: 'text', text, lines: all.slice(0, MAX_LINES), size, label, note: notes.join(' ') };
 }
 
-async function beforePanel(p) {
+export async function beforePanel(p) {
+  if (RAW_KINDS.includes(p.kind)) {   // a camera RAW photo: its embedded JPEG (the RAW engine runs on Convert only)
+    const blob = await rawPreviewBlob(p.file);
+    if (blob) return { kind: 'image', blob, size: p.size, label: KIND_LABEL[p.kind], note: 'Camera RAW: the preview is the camera\'s embedded JPEG. Convert develops the RAW file.' };
+  }
   if (IMAGE_KINDS.includes(p.kind)) {
     return { kind: 'image', blob: p.file, size: p.size, label: KIND_LABEL[p.kind] || 'Picture' };
   }
   if (p.kind === 'pdf') {
     return { kind: 'image', blob: await firstPage(p.file), size: p.size, label: 'PDF, page 1', note: p.large ? 'Large PDF: only page 1 is drawn.' : '' };
+  }
+  if (FINANCE_KINDS.includes(p.kind)) {
+    return textPanel(decodeBytes(new Uint8Array(await p.file.arrayBuffer())).text, { size: p.size, truncated: p.truncated, label: KIND_LABEL[p.kind] });
   }
   if (TEXT_KINDS.includes(p.kind)) {
     return textPanel(await p.file.text(), { size: p.size, truncated: p.truncated, label: KIND_LABEL[p.kind] });
@@ -57,12 +72,13 @@ async function beforePanel(p) {
   return { kind: 'info', text: `${KIND_LABEL[p.kind] || 'File'}, ${fmtSize(p.size)}. Its contents are not shown.`, size: p.size, label: KIND_LABEL[p.kind] || 'File' };
 }
 
-async function afterPanel(outs, inputText) {
+export async function afterPanel(outs, inputText) {
   const o = outs[0], ext = extOf(o.name);
   const more = outs.length > 1 ? `, 1 of ${outs.length} files` : '';
   const size = o.blob.size;
   if (PICTURE_EXT.includes(ext)) return { kind: 'image', blob: o.blob, size, label: `${ext.toUpperCase()} picture${more}` };
   if (ext === 'pdf') return { kind: 'image', blob: await firstPage(o.blob), size, label: `PDF, page 1${more}` };
+  if (ext === 'xlsx' && outs.preview) return textPanel(outs.preview, { size, label: 'Spreadsheet, main sheet (tab separated)' });   // the converter's own view
   if (ext === 'xlsx') {
     const rows = parseCsv(inputText);
     return textPanel(rows.map((r) => r.join('\t')).join('\n'), { size, label: 'Spreadsheet, first sheet (tab separated)' });
@@ -79,17 +95,26 @@ async function afterPanel(outs, inputText) {
  * An error from the converter is returned as after.kind 'error', shown in place.
  */
 export async function buildPreview(conv, items, opts) {
-  const inputs = pickInputs(conv, items).map(previewInput);
+  // an engine conversion (ffmpeg) is not run for a preview: its first download asks first, on Convert
+  if (conv.engine) return { before: await beforePanel(previewInput(pickInputs(conv, items)[0])).catch((e) => ({ kind: 'error', message: e.message || String(e) })),
+    after: { kind: 'info', text: 'Press Convert to make this file. Video and audio conversions run with the video engine, which is not started for a preview.' }, note: '', outputs: null };
+  // a password conversion (Protect PDF, Remove PDF password) runs on Convert only, so a password is not used while it is typed
+  if (conv.secret) return { before: await beforePanel(previewInput(pickInputs(conv, items)[0])).catch(() => ({ kind: 'info', text: 'This PDF is password protected, so it is not drawn here.' })),
+    after: { kind: 'info', text: 'Press Convert to make this file. Password conversions are not previewed.' }, note: '', outputs: null, secret: true };
+  // 3D models are read whole (a cut model, .bin or .mtl cannot be read at all)
+  const inputs = pickInputs(conv, items).map((i) => (is3d(conv) ? { ...i, truncated: false, large: false } : previewInput(i)));
   const runOpts = { ...opts };
   let cut = inputs.some((i) => i.truncated);
+  if (inputs.some((i) => RAW_KINDS.includes(i.kind))) { runOpts.rawPreview = true; cut = true; }   // no engine download from a preview
+  if (inputs.some((i) => i.kind === 'heic')) { runOpts.heicPreview = true; cut = true; }   // the HEIC decoder is not downloaded for a preview
   if (FIRST_PAGE_ONLY.includes(conv.id) && !String(opts.pages || '').trim()) { runOpts.pages = '1'; cut = true; }
   const drawSmaller = inputs.some((i) => i.large) && conv.options.some((o) => o.key === 'width') && !opts.width && !opts.height;
   if (drawSmaller) { runOpts.width = PREVIEW_PX; cut = true; }
-  const before = await beforePanel(inputs[0]).catch((e) => ({ kind: 'error', message: e.message || String(e) }));
+  const before = await (is3d(conv) ? Promise.resolve(modelBefore(inputs)) : beforePanel(inputs[0])).catch((e) => ({ kind: 'error', message: e.message || String(e) }));
   let after, outputs = null;
   try {
     const outs = await conv.run(inputs.map(({ name, file, kind }) => ({ name, file, kind })), runOpts);
-    after = outs.length ? await afterPanel(outs, before.text || '') : { kind: 'info', text: 'The conversion made no file.' };
+    after = !outs.length ? { kind: 'info', text: 'The conversion made no file.' } : is3d(conv) ? modelAfter(outs) : await afterPanel(outs, before.text || '');
     if (!cut) outputs = outs;
   } catch (e) {
     after = { kind: 'error', message: (e && e.message) || String(e) };

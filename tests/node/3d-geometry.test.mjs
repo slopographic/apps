@@ -1,10 +1,11 @@
-// Slop 3D pure logic: primitive geometry (outward winding), transform maths, OBJ and glTF/GLB import and export.
+// Slop 3D pure logic: primitive geometry (outward winding) and transform maths. Model files (OBJ, glTF, GLB and the rest)
+// are read and written by the shared 3D I/O module: tests/node/3d-io.test.mjs, tests/3d-io/ and tests/3d/modelio.test.html.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { load, plain } from './3d-env.mjs';
 
 const S = await load();
-const { geometry: G, xform: X, model: M, ops: O, obj: OBJ, glb: GLB } = S;
+const { geometry: G, xform: X, model: M, ops: O } = S;
 const near = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) <= eps, `${a} is not ${b}`);
 
 /** Every triangle must face outwards: its geometric normal agrees with the average vertex normal. */
@@ -70,52 +71,3 @@ test('quaternions match the equivalent Euler rotation', () => {
   near(d[0], 0); near(d[2], -1);
 });
 
-test('an OBJ round-trips through the scene', () => {
-  const text = `o Tri\nv 0 0 0\nv 1 0 0\nv 0 1 0\nv 1 1 0\nf 1 2 4 3\n`;
-  const tree = OBJ.parse(text, 'quad');
-  assert.equal(tree.children.length, 1);
-  assert.equal(tree.children[0].name, 'Tri');
-  assert.equal(tree.children[0].geom.indices.length, 6, 'a quad becomes two triangles');
-  let sc = M.defaultScene('OBJ');
-  const imp = O.importTree(sc, tree, null, -1);
-  const out = OBJ.write(imp.scene);
-  assert.match(out, /^o Tri$/m);
-  const back = OBJ.parse(out, 'again');
-  assert.equal(back.children[0].geom.indices.length, 6);
-  assert.throws(() => OBJ.parse('# nothing here\n', 'x'), /no faces/);
-  assert.throws(() => OBJ.parse('v 0 0 0\nf 1 2 9\n', 'x'), /does not exist/);
-});
-
-test('a GLB file imports as a node with its mesh and translation', () => {
-  const pos = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]);
-  const idx = new Uint16Array([0, 1, 2]);
-  const bin = new Uint8Array(44);
-  bin.set(new Uint8Array(pos.buffer), 0);
-  bin.set(new Uint8Array(idx.buffer), 36);
-  const json = { asset: { version: '2.0' }, scene: 0, scenes: [{ nodes: [0] }], nodes: [{ mesh: 0, translation: [1, 0, 0], name: 'Tri' }],
-    meshes: [{ primitives: [{ attributes: { POSITION: 0 }, indices: 1 }] }],
-    accessors: [{ bufferView: 0, componentType: 5126, count: 3, type: 'VEC3' }, { bufferView: 1, componentType: 5123, count: 3, type: 'SCALAR' }],
-    bufferViews: [{ buffer: 0, byteOffset: 0, byteLength: 36 }, { buffer: 0, byteOffset: 36, byteLength: 6 }], buffers: [{ byteLength: 44 }] };
-  const js = new TextEncoder().encode(JSON.stringify(json));
-  const jsPad = new Uint8Array(Math.ceil(js.length / 4) * 4).fill(0x20); jsPad.set(js);
-  const total = 12 + 8 + jsPad.length + 8 + bin.length;
-  const buf = new ArrayBuffer(total), dv = new DataView(buf), u8 = new Uint8Array(buf);
-  dv.setUint32(0, 0x46546c67, true); dv.setUint32(4, 2, true); dv.setUint32(8, total, true);
-  dv.setUint32(12, jsPad.length, true); dv.setUint32(16, 0x4e4f534a, true); u8.set(jsPad, 20);
-  const binAt = 20 + jsPad.length;
-  dv.setUint32(binAt, bin.length, true); dv.setUint32(binAt + 4, 0x004e4942, true); u8.set(bin, binAt + 8);
-  const r = GLB.importGltf(buf);
-  const group = r.tree.children[0];
-  assert.equal(group.name, 'Tri');
-  near(group.transform.p[0], 1);
-  const mesh = group.children[0];
-  assert.deepEqual(plain(mesh.geom.positions), [0, 0, 0, 1, 0, 0, 0, 1, 0]);
-  assert.deepEqual(plain(mesh.geom.indices), [0, 1, 2]);
-  assert.equal(mesh.geom.normals.length, 9, 'normals are computed when missing');
-  // The same file as a .gltf with an embedded data URI.
-  const b64 = Buffer.from(bin.buffer).toString('base64');
-  const text = JSON.stringify(Object.assign({}, json, { buffers: [{ byteLength: 44, uri: 'data:application/octet-stream;base64,' + b64 }] }));
-  assert.equal(GLB.importGltf(text).tree.children[0].children[0].geom.indices.length, 3);
-  assert.throws(() => GLB.importGltf(new ArrayBuffer(24)), /not a GLB/);
-  assert.throws(() => GLB.importGltf(JSON.stringify({ asset: { version: '1.0' } })), /2\.0/);
-});

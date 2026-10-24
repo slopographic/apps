@@ -3,7 +3,9 @@
 <head><meta charset="utf-8"><title>File convert: PDF to HTML</title></head>
 <body>
   <script>try { localStorage.setItem('slop-firstrun:convert', '1'); } catch (e) { /* private window */ }</script>
+<link rel="stylesheet" href="../../shared/slopui.css">
 <script src="../harness.js"></script>
+<script src="../../shared/slopui.js"></script>
 <script src="../../vendor/pdf-lib/pdf-lib.min.js"></script>
 <script type="module">
 import { pdfToHtml } from '../../convert/js/core/pdf-html.js';
@@ -78,12 +80,11 @@ describe('PDF to HTML', () => {
   });
 
   it('is offered by the Convert dialog, with the close-copy note', async () => {
-    const ctl = open({ file: new File([await samplePdf()], 'sample.pdf', { type: 'application/pdf' }) });
+    const ctl = open({ file: new File([await samplePdf()], 'sample.pdf', { type: 'application/pdf' }), target: 'pdf-to-html' });
     await ctl.ready;
     expect(ctl.targets().includes('pdf-to-html')).toBe(true);
-    ctl.element.querySelector('input[data-target="pdf-to-html"]').click();
     expect(ctl.element.textContent.includes('A close copy, not an identical one')).toBe(true);
-    ctl.element.querySelector('[data-k="run"]').click();
+    ctl.element.querySelector('.cv-form button[type=submit]').click();
     await waitFor(() => ctl.results().length === 1, { timeout: 60000 });
     const [out] = ctl.results();
     expect(out.name).toBe('sample.html');

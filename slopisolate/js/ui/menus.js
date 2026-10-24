@@ -48,6 +48,7 @@
     fit: () => CO.view.fit(),
     zoom: (f) => { const r = $('#stage').getBoundingClientRect(); CO.view.zoomAt(f, r.width / 2, r.height / 2); },
     panel: () => {
+      if (CO.sheet && CO.sheet.isPhone()) return CO.sheet.toggle();   // a phone: the settings bottom sheet
       const off = $('#app').classList.toggle('no-panel');
       U.store.set('panel', !off);
       $('#btnPanel').setAttribute('aria-expanded', String(!off));
@@ -145,7 +146,7 @@
     undo.addEventListener('click', () => act.undo());
     redo.addEventListener('click', () => act.redo());
     $('#btnDownload').addEventListener('click', () => act.exportOne());
-    panel.addEventListener('click', () => act.panel());
+    panel.addEventListener('click', () => { if (!CO.sheet.isPhone()) act.panel(); });   // on a phone it is the sheet's toggle
     more.addEventListener('click', () => openAt(moreItems, more));
     $('#emptyOpen').addEventListener('click', () => act.open());
     $('#emptySample').addEventListener('click', () => act.sample());
@@ -159,10 +160,12 @@
   }
 
   function init() {
+    // Phones: the settings panel is a bottom sheet (shared/ui/sheet.js: this button, ×, Escape, a tap outside, swipe down).
+    CO.sheet = SlopSheet.attach({ root: $('#app'), panel: $('#props'), phone: '(max-width: 900px)', toggles: [$('#btnPanel')], label: 'Settings' });
     buildBar(); bindButtons(); sync();
     ['history', 'activeItem', 'item', 'list'].forEach((t) => CO.on(t, sync));
     if (U.store.get('panel', true) === false) $('#app').classList.add('no-panel');
-    $('#btnPanel').setAttribute('aria-expanded', String(!$('#app').classList.contains('no-panel')));
+    $('#btnPanel').setAttribute('aria-expanded', String(!CO.sheet.isPhone() && !$('#app').classList.contains('no-panel')));
   }
 
   CO.menus = { init, act };

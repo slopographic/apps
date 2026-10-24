@@ -17,8 +17,10 @@
       const parts = []; for await (const x of s) parts.push(x);
       expect(parts.join('')).toMatch(/SLURP|blorp/); expect(s.offline).toBe(true);
       P.SlopAIPanel.open();
-      expect(P.document.querySelector('.sap-empty').textContent).toMatch(/No model is loaded/);
-      expect(P.document.querySelector('.sap-empty a').getAttribute('href')).toMatch(/\/ai\/#models$/);
+      // no model: the shared model choice (picker.js), or the plain WebGPU message, with a link to Slop AI
+      await waitFor(() => P.document.querySelector('.sap-pick a'));
+      expect(P.document.querySelector('.sap-pick').textContent).toMatch(/Pick a model|WebGPU/);
+      expect(P.document.querySelector('.sap-pick a').getAttribute('href')).toMatch(/\/ai\/#models$/);
     });
   });
   describe('sharing a model loaded in Slop AI', () => {
@@ -57,6 +59,18 @@
       await H.AI.E.unload();
       await waitFor(() => !P.SlopAI.ready);
       expect(P.SlopAI.model).toBe(null);
+    });
+  });
+  describe('the download notice (picker.js), shared by the panel and Slop AI (ai/js/core/engine.js consent)', () => {
+    // Covers: shared/ai/picker.js, ai/js/core/engine.js
+    it('names the real size, the hosts and the licence, and Cancel declines', async () => {
+      const K = P.SlopAIKit, m = K.catalog.byId('Qwen2.5-1.5B-Instruct-q4f16_1-MLC');
+      try { P.localStorage.removeItem('slop-firstrun:ai-model:' + m.id); } catch (e) { /* private */ }
+      const answer = K.picker.consent(m, {});
+      const dlg = await waitFor(() => [...P.document.querySelectorAll('.sui-dlg')].pop());
+      expect(dlg.textContent).toContain('880 MB'); expect(dlg.textContent).toContain('huggingface.co'); expect(dlg.textContent).toContain('Apache License 2.0');
+      [...dlg.querySelectorAll('button')].find((b) => b.textContent === 'Cancel').click();
+      expect(await answer).toBe(false);
     });
   });
   SlopTest.run({ name: 'Slop AI: side panel and window.SlopAI' });

@@ -36,7 +36,7 @@
     if (report.failed.length) await SlopUI.alert('Some files could not be read', `These files are not images this browser can decode: ${report.failed.slice(0, 12).join(', ')}${report.failed.length > 12 ? '…' : ''}`);
     return report;
   }
-  const importFiles = async () => importItems(G.source.fromFiles(await SlopUI.pickFiles({ accept: 'image/*', multiple: true })));
+  const importFiles = async () => importItems(G.source.fromFiles(await SlopUI.pickFiles({ accept: 'image/*' + (window.SlopRaw ? ',' + window.SlopRaw.ACCEPT : ''), multiple: true })));
   const importFolder = async () => {
     const items = await G.source.fromDirectory();
     if (items === null) { await SlopUI.alert('Folder import', 'This browser cannot open folders directly. Drag the folder onto the window instead.'); return null; }

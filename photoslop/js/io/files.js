@@ -83,7 +83,7 @@ async function handleFiles(files, place) {
       const doc = await readAnyFile(f);
       if (place) pasteCanvas(doc.layers.length === 1 && !doc.layers[0].x && !doc.layers[0].y ? doc.layers[0].canvas : flattenDocLayers(doc), null, null, name);
       else { openDocTab(doc.w, doc.h, doc.layers, name); if (doc.guides) adoptGuides(doc.guides); if (doc.wm) adoptWatermark(doc.wm); opened++; }
-    } catch (e) { console.warn(e); failed.push(`Couldn't open ${f.name}: ${e.message || e}`); toast(`Couldn't open ${f.name}: ${e.message || e}`, 4200); }
+    } catch (e) { if (e && e.code === 'cancelled') continue; console.warn(e); failed.push(`Couldn't open ${f.name}: ${e.message || e}`); toast(`Couldn't open ${f.name}: ${e.message || e}`, 4200); }
   }
   if (opened) toast(opened === 1 ? `Opened ${files[0].name}` : `Opened ${opened} files in tabs`);
   document.body.classList.remove('busy');

@@ -5,7 +5,18 @@ import { encodeIco } from './ico.js';
 
 const MAX_SIDE = 10000;
 const MAX_PIXELS = 40e6;
-const MIME = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' };
+const MIME = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', avif: 'image/avif' };
+
+/** Whether this browser's canvas can write a picture type (toDataURL falls back to PNG when it cannot). Sync, cached. */
+const encodes = new Map();
+export function canEncode(mime) {
+  if (!encodes.has(mime)) {
+    let ok = false;
+    try { const c = document.createElement('canvas'); c.width = c.height = 2; ok = c.toDataURL(mime).startsWith(`data:${mime}`); } catch (e) { /* no canvas */ }
+    encodes.set(mime, ok);
+  }
+  return encodes.get(mime);
+}
 
 export function makeCanvas(w, h) {
   const c = document.createElement('canvas');
@@ -61,7 +72,7 @@ export function sizeFor(src, { width, height } = {}) {
 }
 
 /**
- * Convert one image. to: 'png' | 'jpg' | 'webp' | 'bmp' | 'ico'.
+ * Convert one image. to: 'png' | 'jpg' | 'webp' | 'avif' (where the browser writes it) | 'bmp' | 'ico'.
  * JPG and BMP have no transparency, so the background colour fills it first.
  * Returns { blob, ext, width, height }.
  */

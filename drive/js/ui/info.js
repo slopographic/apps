@@ -111,8 +111,8 @@
       rows([['Items here', String(list.length)], ['Size', DR.fmtSize(list.reduce((n, x) => n + DR.sizeOf(x), 0))]])];
   }
   DR.renderInfo = function (force) {
-    const box = $('info'), open = S.info || document.body.classList.contains('sheet-open');
-    box.hidden = !open;
+    const box = $('info'), open = S.info || (DR.sheetUI && DR.sheetUI.isOpen());
+    box.hidden = !open && !DR.isMobile();   // on a phone the closed sheet is out of sight, ready to slide up
     document.body.classList.toggle('info-on', !!S.info);
     if (!open) { shownKey = null; free(); return; }
     const items = DR.selected();
@@ -120,14 +120,14 @@
     if (key === shownKey && !force) return;
     shownKey = key; free();
     if (faceH) { faceH.destroy(); faceH = null; }
-    const close = el('button', { type: 'button', class: 'tb info-x', 'aria-label': 'Close details' }, DR.icon('x'));
-    close.addEventListener('click', () => { if (document.body.classList.contains('sheet-open')) DR.sheet(false); else DR.toggleInfo(false); });
-    box.replaceChildren(DR.$('infoGrip'), close, ...(items.length === 1 ? single(items[0]) : items.length ? many(items) : place()));
+    box.replaceChildren(DR.$('infoGrip'), ...(items.length === 1 ? single(items[0]) : items.length ? many(items) : place()));
   };
-  /** Phones: the details panel as a bottom sheet. */
-  DR.sheet = function (open) {
-    document.body.classList.toggle('sheet-open', !!open);
-    $('scrim').hidden = !open && !document.body.classList.contains('drawer-open');
-    DR.renderInfo(true);
+  /** Phones: the details panel is a bottom sheet (SlopSheet, shared/ui/sheet.js: the Info button, ×, Escape, a tap
+   * outside, swipe down). Its × is the panel's close on a wide screen too. */
+  DR.wireSheet = function () {
+    DR.sheetUI = SlopSheet.attach({ root: document.body, panel: $('info'), phone: '(max-width: 760px)', toggles: [$('btnInfo')], label: 'Details',
+      closeWide: () => DR.toggleInfo(false), onChange: () => DR.renderInfo(true) });
+    matchMedia('(max-width: 760px)').addEventListener('change', () => DR.renderInfo(true));
   };
+  DR.sheet = (open) => (open ? DR.sheetUI.open() : DR.sheetUI.close());
 })(window.DR);

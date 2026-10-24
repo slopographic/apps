@@ -18,7 +18,7 @@
     const drop = window.SlopDrop.attach($('gDrop'), {
       accept: {
         types: ['image/*'],
-        exts: ['.jpg', '.jpeg', '.jpe', '.png', '.webp', '.gif', '.avif', '.bmp', '.heic', '.heif', '.svg'],
+        exts: ['.jpg', '.jpeg', '.jpe', '.png', '.webp', '.gif', '.avif', '.bmp', '.heic', '.heif', '.svg', ...(window.SlopRaw ? window.SlopRaw.EXTS.map((e) => '.' + e) : [])],
         noun: 'a photo',
       },
       compact: true,

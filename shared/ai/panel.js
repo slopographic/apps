@@ -1,11 +1,14 @@
 /* Slop AI side panel: an AI chat any Slopographic page can embed with ONE tag:
  *     <script src="(../)shared/ai/panel.js" defer></script>
- * Optional attributes on that tag: data-button="false" (no floating button; open it yourself), data-app="<app id>".
- * It reuses a model already loaded in another tab (Slop AI) over the bridge (shared/ai/bridge.js), so the model
- * downloads and loads once. If none is open, "Load here" loads an already-downloaded model in this page (its own
- * copy in GPU memory). With "Control this app" on, the model can run this app's SlopCmd commands, open apps and
- * save to Slop Drive; anything destructive asks first.
- * API: window.SlopAIPanel = { open(), close(), toggle(), send(text), get messages() }. */
+ * The shell's header AI button (shell/header.js) loads it on the first click, so no page carries it at first paint.
+ * Optional attributes on the tag: data-button="false" (no floating button; open it yourself), data-app="<app id>".
+ * Wide screens: the panel sits beside the app (the page narrows by its width above 900 px). Phones (≤ 640 px): a
+ * bottom sheet (shared/ui/sheet.js, SlopSheet). It reuses a model already loaded in another tab (Slop AI) over the
+ * bridge, or one downloaded before ("Use"); with none, it shows the model choice (picker.js, shared with Slop AI).
+ * With "Control <app>" on, the model runs the app's SlopCmd commands with their arguments (cmdtools.js); each one is a
+ * step in the chat ("Gaussian blur, radius 8 ✓"), Stop ends the run between steps, destructive ones ask first, and
+ * "Undo all AI changes" rolls the app back to before the last request (SlopCmd.checkpoint). The run is panel-run.js.
+ * API: window.SlopAIPanel = { open(), close(), toggle(), send(text), use(engine), get messages(), ready, isOpen }. */
 (function () {
   'use strict';
   if (window.SlopAIPanel) return;
@@ -15,33 +18,38 @@
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   K.base = K.base || base;
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'panel.css'; document.head.append(css);
-  const add = (src) => new Promise((res, rej) => { if (src === 'slopai' && window.SlopAI) return res(); const s = document.createElement('script'); s.src = base + src + '.js'; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
-  const kit = add('slopai').then(() => window.SlopAI.loaded).then(() => K.load(['apptools', 'md', 'catalog']));
+  const add = (src, test) => new Promise((res, rej) => { if (test && test()) return res(); const s = document.createElement('script'); s.src = new URL(src + '.js', base).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
+  const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), add('../ui/sheet', () => window.SlopSheet)])
+    .then(() => window.SlopAI.loaded).then(() => K.load(['apptools', 'cmdtools', 'md', 'catalog', 'picker', 'panel-run']));
 
   const h = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) { const v = attrs[k]; if (v == null || v === false) continue; if (k === 'class') n.className = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? '' : v); } for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(c)); return n; };
   const SPARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg>';
   const appId = () => opts.app || (window.SlopHub && SlopHub.self && SlopHub.self.app) || location.pathname.split('/').filter(Boolean)[0] || 'home';
   const appName = () => { const a = (window.SLOP_APPS || []).find((x) => x.id === appId()); return a ? a.name : 'this page'; };
+  const WIDE = '(min-width: 901px)';
 
-  let root = null, list, input, status, toolsBox, sendBtn, busy = null, local = null;
-  const messages = [];
+  const P = { messages: [], local: null, busy: null, h, appId, appName, K };
+  let host = null, root = null, sheet = null;
 
   function build() {
     if (root) return;
-    toolsBox = h('input', { type: 'checkbox', checked: !!window.SlopCmd });
-    input = h('textarea', { rows: 2, placeholder: 'Ask about ' + appName() + '…', 'aria-label': 'Message' });
-    sendBtn = h('button', { type: 'button', class: 'sap-send', 'aria-label': 'Send', onclick: () => (busy ? busy.abort() : send()) }, '↑');
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!busy) send(); } e.stopPropagation(); });
-    list = h('div', { class: 'sap-list', role: 'log', 'aria-live': 'polite' });
-    status = h('div', { class: 'sap-status' });
-    root = h('aside', { class: 'sap', role: 'complementary', 'aria-label': 'Slop AI', hidden: true },
-      h('header', null, h('b', null, 'Slop AI'), status, h('button', { type: 'button', class: 'sap-x', 'aria-label': 'Close', onclick: close }, '×')),
-      list,
-      h('label', { class: 'sap-tools' }, toolsBox, ' Control ' + appName()),
-      h('div', { class: 'sap-comp' }, input, sendBtn),
+    P.toolsBox = h('input', { type: 'checkbox', checked: !!window.SlopCmd });
+    P.input = h('textarea', { rows: 2, placeholder: 'Ask about ' + appName() + ', or say what to do…', 'aria-label': 'Message' });
+    P.sendBtn = h('button', { type: 'button', class: 'sap-send', 'aria-label': 'Send', onclick: () => (P.busy ? P.stop() : P.send()) }, '↑');
+    P.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!P.busy) P.send(); } if (e.key !== 'Escape') e.stopPropagation(); });
+    P.list = h('div', { class: 'sap-list', role: 'log', 'aria-live': 'polite' });
+    P.status = h('div', { class: 'sap-status' });
+    P.undoBtn = h('button', { type: 'button', class: 'sap-btn sap-undo', hidden: true, onclick: () => P.undoAll() }, '↶ Undo all AI changes');
+    root = h('aside', { class: 'sap ssh-panel', role: 'complementary', 'aria-label': 'Slop AI', hidden: true },
+      h('header', null, h('span', { class: 'sap-logo', html: null }), h('b', null, 'Slop AI'), P.status, h('button', { type: 'button', class: 'sap-x', 'aria-label': 'Close Slop AI', onclick: close }, '×')),
+      P.list,
+      h('div', { class: 'sap-bar' }, h('label', { class: 'sap-tools' }, P.toolsBox, ' Control ' + appName()), P.undoBtn),
+      h('div', { class: 'sap-comp' }, P.input, P.sendBtn),
       h('div', { class: 'sap-foot' }, 'Runs on your device. Nothing leaves it.'));
-    document.body.append(root);
-    render();
+    root.querySelector('.sap-logo').innerHTML = SPARK;
+    host = h('div', { class: 'sap-host' }, root);
+    document.body.append(host);
+    P.render();
   }
   function fab() {
     if (!opts.button || document.querySelector('.sap-fab')) return;
@@ -49,79 +57,62 @@
     b.innerHTML = SPARK; document.body.append(b);
   }
 
-  function engine() { return local && local.loaded ? local : window.SlopAI && SlopAI.engine(); }
-  function renderStatus() {
-    if (!status) return;
+  P.engine = () => (P.local && P.local.loaded ? P.local : window.SlopAI && SlopAI.engine());
+  P.renderStatus = function () {
+    if (!P.status) return;
     const m = window.SlopAI && SlopAI.model, fabEl = document.querySelector('.sap-fab');
     if (fabEl) fabEl.classList.toggle('on', !!m);
-    status.textContent = m ? (m.name || m.id || 'Model') + (m.kind === 'remote' ? ' · shared' : '') : 'no model';
-  }
-  function render() {
-    renderStatus();
-    list.textContent = '';
-    if (!messages.length) {
-      const ready = !!engine();
-      list.append(h('div', { class: 'sap-empty' }, ready ? `Ask anything, or tell me what to do in ${appName()}.` : 'No model is loaded yet. Load one in Slop AI (it stays open in its own tab) and this panel uses it.',
-        !ready ? h('div', { class: 'sap-acts' }, h('a', { class: 'sap-btn', href: new URL('../../ai/#models', base).href, target: '_blank', rel: 'noopener' }, 'Open Slop AI'), h('button', { type: 'button', class: 'sap-btn', onclick: loadHere }, 'Load here')) : null));
+    document.querySelectorAll('.sh-ai').forEach((b) => b.classList.toggle('on', !!m));
+    P.status.textContent = m ? (m.name || m.id || 'Model') + (m.kind === 'remote' ? ' · shared' : m.kind === 'fake' ? ' · demo' : '') : 'no model yet';
+  };
+  P.render = function () {
+    if (!P.list) return;
+    P.renderStatus();
+    const picking = !P.messages.length && !P.engine() && K.picker;
+    if (picking && P.pickBox && P.pickBox.isConnected) return;   // keep the model choice (and a download in progress) as it is
+    P.list.textContent = ''; P.pickBox = null;
+    if (!P.messages.length) {
+      if (P.engine()) P.list.append(h('div', { class: 'sap-empty' }, `Ask anything, or tell me what to do in ${appName()}. For example: “blur the background”.`));
+      else if (picking) {
+        const box = P.pickBox = h('div', { class: 'sap-empty' });
+        P.list.append(box);
+        K.picker.render(box, { appName: appName(), onReady: (eng) => P.use(eng) });
+      } else P.list.append(h('div', { class: 'sap-empty' }, 'Loading…'));
     }
-    for (const m of messages) {
-      if (m.role === 'tool') { list.append(h('div', { class: 'sap-tool' + (m.ok ? '' : ' bad') }, '🔧 ' + m.name + ': ' + String(m.content).slice(0, 160))); continue; }
-      const d = h('div', { class: 'sap-msg ' + m.role });
-      if (m.role === 'assistant' && K.md) d.innerHTML = K.md.render(m.display != null ? m.display : m.content); else d.textContent = m.display != null ? m.display : m.content;
-      list.append(d);
-    }
-    list.scrollTop = list.scrollHeight;
-  }
+    for (const m of P.messages) P.list.append(P.view ? P.view(m) : h('div', { class: 'sap-msg ' + m.role }, m.display != null ? m.display : m.content));
+    P.list.scrollTop = P.list.scrollHeight;
+  };
+  /** A model this page loaded itself (the picker, a test's fake engine): used here and shared with other tabs. */
+  P.use = function (eng) { P.local = eng; if (window.SlopAI) SlopAI.use(eng); P.render(); };
 
-  /** Load the default (already downloaded) model into this page: its own GPU copy, shared with other tabs. */
-  async function loadHere() {
-    await kit; await K.load(['webllm']);
-    let prefs = {}; try { prefs = JSON.parse(localStorage.getItem('slop-ai.prefs')) || {}; } catch (e) { /* none */ }
-    const ids = [prefs.defaultModel, prefs.lastModel, ...K.catalog.list.map((m) => m.id)].filter(Boolean);
-    let id = null;
-    for (const x of ids) { const st = await K.models.status(x).catch(() => null); if (st && st.state === 'ready') { id = x; break; } }
-    if (!id) { status.textContent = 'nothing downloaded'; list.prepend(h('div', { class: 'sap-tool bad' }, 'No model is downloaded yet. Open Slop AI to download one first.')); return; }
-    local = new K.WebLLMEngine();
-    status.textContent = 'loading…';
-    try {
-      await local.load(K.catalog.byId(id) || id, (p) => { status.textContent = Math.round((p.progress || 0) * 100) + '%'; });
-      SlopAI.use(local);
-    } catch (e) { local = null; status.textContent = 'failed'; list.prepend(h('div', { class: 'sap-tool bad' }, 'Could not load: ' + e.message)); return; }
-    render();
+  const beside = () => window.matchMedia && matchMedia(WIDE).matches;
+  function layout() {
+    const on = !!root && !root.hidden;
+    document.documentElement.classList.toggle('sap-beside', on && beside());
+    document.body.classList.toggle('sap-open', on);
+    window.dispatchEvent(new Event('resize'));   // the app re-fits its canvas to the narrower page
   }
-
-  const confirmFn = (title, msg) => (window.SlopUI && SlopUI.confirm ? SlopUI.confirm(title, msg, 'Allow') : Promise.resolve(window.confirm(title + '\n\n' + msg)));
-  async function send(text) {
-    await kit;
-    text = text != null ? text : input.value.trim();
-    if (!text || busy) return;
-    const eng = engine();
-    if (!eng) { render(); return; }
-    input.value = '';
-    messages.push({ role: 'user', content: text });
-    render();
-    const tools = toolsBox.checked ? K.appTools.build({ cmd: window.SlopCmd, appId: appId(), confirm: confirmFn }) : [];
-    const sys = `You are Slop AI, a helpful assistant inside ${appName()} on slopographic.com. It runs on the user's own device. Be brief.` + (tools.length ? ' You can control this app with the tools below: call list_commands first to see what is possible.' : '');
-    const live = h('div', { class: 'sap-msg assistant live' }); list.append(live);
-    busy = new AbortController(); sendBtn.textContent = '■';
-    let text2 = '';
-    try {
-      const res = await K.tools.run(eng, [{ role: 'system', content: sys }, ...messages.filter((m) => !m.error)], {
-        tools, env: { confirm: confirmFn }, maxSteps: tools.length ? 5 : 1, temperature: 0.5, max_tokens: 768, signal: busy.signal,
-        onDelta: (t) => { text2 += t; live.innerHTML = K.md.render(text2.replace(/<tool_call>[\s\S]*$/, '')); list.scrollTop = list.scrollHeight; },
-        onTool: ({ phase }) => { if (phase === 'end') text2 = ''; },
-      });
-      messages.push(...res.messages);
-    } catch (e) { messages.push({ role: 'assistant', content: '', display: '⚠️ ' + e.message, error: true }); }
-    busy = null; sendBtn.textContent = '↑';
-    render();
+  function attachSheet() {
+    if (sheet || !window.SlopSheet) return;
+    sheet = SlopSheet.attach({ root: host, panel: root, side: 'bottom', phone: '(max-width: 640px)', label: 'Slop AI',
+      onChange: (open, why) => { if (!open && why !== 'api' && why !== 'wide') { root.hidden = true; layout(); } } });
   }
-
-  function open() { build(); root.hidden = false; document.body.classList.add('sap-open'); renderStatus(); setTimeout(() => input.focus(), 0); kit.then(render); }
-  function close() { if (root) root.hidden = true; document.body.classList.remove('sap-open'); }
+  function open() {
+    build(); attachSheet();
+    root.hidden = false;
+    if (sheet && sheet.isPhone()) sheet.open();
+    layout(); P.renderStatus();
+    setTimeout(() => P.input.focus({ preventScroll: true }), 0);
+    kit.then(P.render);
+    return kit;
+  }
+  function close() { if (sheet && sheet.isOpen()) sheet.close(); if (root) root.hidden = true; layout(); }
   function toggle() { if (root && !root.hidden) close(); else open(); }
+  if (window.matchMedia) matchMedia(WIDE).addEventListener('change', layout);
 
-  const start = () => { fab(); kit.then(() => { SlopAI.on('change', () => { renderStatus(); if (root && !messages.length) render(); }); renderStatus(); }).catch((e) => console.warn('Slop AI panel:', e.message)); };
+  const start = () => { fab(); kit.then(() => { SlopAI.on('change', () => { P.renderStatus(); if (root && !P.messages.length) P.render(); }); P.renderStatus(); }).catch((e) => console.warn('Slop AI panel:', e.message)); };
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
-  window.SlopAIPanel = { open, close, toggle, send: (t) => { open(); return send(t); }, get messages() { return messages; }, ready: kit };
+  window.SlopAIPanel = { open, close, toggle, send: (t) => { open(); return kit.then(() => P.send(t)); }, use: (e) => kit.then(() => P.use(e)),
+    get messages() { return P.messages; }, get isOpen() { return !!root && !root.hidden; }, ready: kit, _p: P };
+  K.panel = P;
 })();

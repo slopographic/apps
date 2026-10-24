@@ -51,7 +51,7 @@
       PR.select(PR.activeItems().filter(function (it) { return !PR.layers.locked(S.doc, it) && PR.layers.visible(S.doc, it); }).map(function (it) { return it.id; }));
     } },
     { id: 'edit.deselect', title: 'Deselect All', group: 'Edit', keys: ['Shift+Mod+A'], run: function () { if (S.text) PR.textEdit.exit(); PR.select([]); } },
-    { id: 'edit.escape', title: 'Exit / Deselect', group: 'Edit', keys: ['Escape'], run: function () { if (PR.selectTool.loaded) { PR.selectTool.loaded = null; PR.view.canvas.classList.remove('loaded'); return; } if (S.text) { PR.textEdit.exit(); PR.tools.set('select'); } else if (S.tool !== 'select') PR.tools.set('select'); else PR.select([]); } },
+    { id: 'edit.escape', title: 'Exit / Deselect', group: 'Edit', keys: ['Escape'], when: function () { return !(PR.ui.dockSheet && PR.ui.dockSheet.isOpen()); }, run: function () { if (PR.selectTool.loaded) { PR.selectTool.loaded = null; PR.view.canvas.classList.remove('loaded'); return; } if (S.text) { PR.textEdit.exit(); PR.tools.set('select'); } else if (S.tool !== 'select') PR.tools.set('select'); else PR.select([]); } },
     { id: 'nudge.left', title: 'Nudge Left', group: 'Edit', keys: ['ArrowLeft'], when: hasSel, run: function () { nudge(-NUDGE(), 0); } },
     { id: 'nudge.right', title: 'Nudge Right', group: 'Edit', keys: ['ArrowRight'], when: hasSel, run: function () { nudge(NUDGE(), 0); } },
     { id: 'nudge.up', title: 'Nudge Up', group: 'Edit', keys: ['ArrowUp'], when: hasSel, run: function () { nudge(0, -NUDGE()); } },

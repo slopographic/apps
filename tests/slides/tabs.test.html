@@ -6,6 +6,7 @@
   <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; display: block; }</style>
 </head>
 <body>
+  <!-- Covers: slides/js/ui/tabs.js -->
   <iframe id="app" src="about:blank"></iframe>
   <script src="../harness.js"></script>
   <script>
@@ -51,6 +52,28 @@
       tabEls(W)[0].click();
       expect(W.SS.app.deck.title).toBe('First deck');
     }, { timeout: 90000 });
+  });
+  describe('Slop Slides: the tab follows the deck name', () => {
+    it('naming the deck in the title field renames its tab and file; undo puts the old name back', async () => {
+      const W = f.contentWindow;
+      W.document.querySelector('#tabs .sl-doctabs-new').click(); // a blank presentation in a new tab
+      await sleep(30);
+      const title = () => tabEls(W).find((t) => t.getAttribute('aria-selected') === 'true').textContent;
+      expect(title()).toContain('Untitled presentation');
+      const field = W.document.getElementById('title');
+      field.value = 'Spring launch';
+      field.dispatchEvent(new W.Event('change'));
+      await sleep(30);
+      expect(W.SS.app.deck.title).toBe('Spring launch');
+      expect(title()).toContain('Spring launch');
+      expect(title().includes('Untitled')).toBe(false);
+      expect(W.SS.app.doc.name).toBe('Spring launch.sslide');
+      expect(W.SS.tabs.api().tabs().find((t) => t.active).title).toBe('Spring launch');
+      W.SS.app.undo();
+      await sleep(30);
+      expect(W.SS.app.deck.title).toBe('Untitled presentation');
+      expect(title()).toContain('Untitled presentation');
+    }, { timeout: 60000 });
   });
   run({ name: 'Slop Slides tabs' });
   </script>

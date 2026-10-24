@@ -1,5 +1,5 @@
 /* Slop Drive — ui/sidebar: places (Slop Drive, Recent, Starred, Trash), the folder tree, and the storage
- * meter (navigator.storage.estimate) with a "keep my files" persist request. */
+ * meter (SlopQuota.estimate, shared/storage/quota.js) with a "keep my files" persist request. */
 'use strict';
 (function (DR) {
   const S = DR.S, el = DR.el, $ = DR.$;
@@ -54,7 +54,7 @@
   /* ---------- storage ---------- */
   let persisted = null;       // true/false once the browser has answered; null = ask it again
   DR.requestPersist = async function (loud) {
-    const answer = await window.SlopPWA.requestPersist();
+    const answer = await window.SlopQuota.request();
     persisted = answer === 'granted';
     if (loud) DR.toast(persisted ? 'The browser will keep Slop Drive' : 'The browser did not promise. See the note under Storage');
     DR.renderMeter();
@@ -65,9 +65,8 @@
   DR.renderMeter = async function () {
     const box = $('meter');
     const drive = DR.liveFiles().reduce((n, r) => n + (r.size || 0), 0) + DR.trashTops().reduce((n, it) => n + DR.sizeOf(it), 0);
-    let usage = null, quota = null;
-    try { if (navigator.storage && navigator.storage.estimate) ({ usage, quota } = await navigator.storage.estimate()); } catch (e) { /* unsupported */ }
-    if (persisted == null && navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted().catch(() => false);
+    const Q = window.SlopQuota, est = await Q.estimate(), usage = est.usage, quota = est.quota;
+    if (persisted == null) persisted = !!est.persisted;
     // The recorded answer explains a "no" in plain words; a yes shows as "Kept by the browser".
     const recorded = window.SlopPWA.persistAnswer();
     const state = persisted ? 'granted' : (recorded === 'denied' || recorded === 'unsupported' ? recorded : null);
@@ -82,7 +81,7 @@
     clear.addEventListener('click', () => DR.clearLocalCache());
     const note = state ? el('p', { class: 'meter-note persist-note', 'data-state': state }, window.SlopPWA.persistMessage(state)) : null;
     box.replaceChildren(
-      el('div', { class: 'meter-h' }, el('b', null, 'Storage'), el('span', null, usage != null ? `${DR.fmtSize(usage)} of ${DR.fmtSize(quota)}` : 'Unknown')), bar,
+      el('div', { class: 'meter-h' }, el('b', null, 'Storage'), el('span', null, usage != null ? Q.format(usage, quota, DR.fmtSize) : 'Unknown')), bar,
       el('div', { class: 'meter-note' }, `Slop Drive: ${DR.fmtSize(drive)}. Everything stays in this browser.`), ...(note ? [note] : []), keep, bk, clear);
   };
   /** Removes only the regenerable caches (thumbnails, waveforms, face results, downloaded models). Files and documents stay. */
@@ -94,9 +93,10 @@
     DR.renderMeter();
   };
 
-  /** Mobile: the sidebar is a drawer. */
-  DR.drawer = function (open) {
-    document.body.classList.toggle('drawer-open', !!open);
-    $('scrim').hidden = !open && !document.body.classList.contains('sheet-open');
+  /** Phones: the sidebar is a drawer from the start edge. SlopSheet (shared/ui/sheet.js) does the ×, the Folders button,
+   * Escape, a tap outside and the swipe; wired before the app's own keys so its Escape comes first. */
+  DR.wireDrawer = function () {
+    DR.drawerUI = SlopSheet.attach({ root: document.body, panel: $('side'), side: 'start', phone: '(max-width: 760px)', toggles: [$('btnSide')], label: 'Folders' });
   };
+  DR.drawer = (open) => (open ? DR.drawerUI.open() : DR.drawerUI.close());
 })(window.DR);

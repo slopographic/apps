@@ -3,6 +3,7 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="tables" data-src="shared/theme/theme.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -48,6 +49,8 @@
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="../shared/slop365/look.css">
+  <script src="../shared/ui/sheet.js" defer blocking="render" data-src="shared/ui/sheet.js"></script>
+  <script type="module" blocking="render" src="js/ui/main.js" data-src="tables/js/ui/main.js"></script>
 </head>
 <body>
   <div class="app">
@@ -161,7 +164,6 @@
   <script src="../shared/doctabs/tabs.js" data-src="shared/doctabs/tabs.js"></script>
   <script src="../shared/doctabs/drive.js" data-src="shared/doctabs/drive.js"></script>
   <script src="../shared/doctabs/session.js" data-src="shared/doctabs/session.js"></script>
-  <script type="module" src="js/ui/main.js" data-src="tables/js/ui/main.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>
@@ -171,5 +173,6 @@
   <script src="../shared/viewmode/grid.js"></script><script src="../shared/viewmode/viewmode.js"></script>
   <script src="js/ui/route.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

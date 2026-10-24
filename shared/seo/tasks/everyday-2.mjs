@@ -1,5 +1,6 @@
 // Everyday tools, part 2: Slop Calendar, Slop To-do, Slop Reminders, Slop Drive, Slop Music, Reel Remix and SlopCut
 // (registry id slopedit). None of these pages uses a preset. Part 1 is everyday.mjs.
+import { INSTALL } from '../install-copy.mjs';
 const NOT_AFFILIATED = (name, owner) => `No. Slopographic is not affiliated with ${owner}. ${name} is a trademark of its owner, named here only for comparison.`;
 const CLIPS_LOCAL = 'No. Clips are stored in your browser and the export is encoded on your device, so your footage never leaves it.';
 
@@ -58,7 +59,7 @@ const planner = [
       'Tick To-dos in Slop Calendar to see timed tasks next to your events.'],
     body: ['Slop To-do is for one person on one device: there is no sharing, no assigning tasks to other people and no sync. Subtasks go one level deep, and you change a date in the task editor rather than by dragging.'],
     faq: [['Is Slopographic part of Todoist?', NOT_AFFILIATED('Todoist', 'Todoist or Doist')],
-      ['Does it work on a phone?', 'Yes, in the phone\'s browser: at narrow widths the views become a row of buttons. Tasks are kept in that browser only.'],
+      ['Does it work on a phone?', `Yes: at narrow widths the views become a row of buttons. ${INSTALL.how} Tasks are kept on that phone only.`],
       ['What happens when I complete a repeating task?', 'Its due date moves to the next time it repeats and it stays open, until the repeat\'s end day.'],
       ['Can I search my tasks?', 'Yes. Find searches your tasks, and Show done brings back the ones you have completed.']] },
   { app: 'reminders', slug: 'online-reminder', crumb: 'Set a reminder online',

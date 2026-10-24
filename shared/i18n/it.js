@@ -12,6 +12,10 @@
     'nav.settings': 'Impostazioni',
 
     'shell.switch_app': 'Cambia app',
+
+    'shell.convert': 'Converti…',
+
+    'shell.ai': 'IA',
     'shell.switch_title': 'Cambia app ({shortcut})',
 
     'switcher.search': 'Cerca app',
@@ -32,6 +36,7 @@
     'footer.settings_link': 'Impostazioni e privacy',
     'footer.code_license': 'Codice MIT',
     'footer.trademarks': 'Sloppo™ e Slopographic™ sono marchi',
+    'footer.made': 'Fatto con ❤️ in Svezia',
 
     'settings.appearance': 'Aspetto',
     'settings.appearance_lede': 'Un unico tema per tutte le app Slopographic e per questo sito. Scegli qui e si applica subito. Ogni app usa la stessa scelta quando si apre.',
@@ -79,5 +84,27 @@
     'menu.cancel': 'Annulla',
     'menu.ok': 'OK',
     'menu.close': 'Chiudi',
+
+    'storage.site': 'Spazio di questo sito',
+    'storage.of': '{used} di {quota}',
+    'storage.unknown': 'Il browser non dice quanto spazio usa questo sito.',
+    'storage.meter_aria': 'Spazio usato',
+    'storage.kept': 'Conservati: il browser non cancellerà i tuoi file per liberare spazio.',
+    'storage.not_kept': 'Non ancora conservati: il browser può cancellare i tuoi file quando il disco è quasi pieno.',
+    'storage.keep': 'Conserva i miei file',
+    'storage.kept_button': 'File conservati',
+    'storage.granted': 'Fatto. Il browser conserverà i tuoi file e non li cancellerà per liberare spazio.',
+    'storage.denied': 'Il browser non ha promesso di conservare i tuoi file. Può cancellarli quando il disco è quasi pieno, quindi tieni un backup.',
+    'storage.denied_chromium': 'Non ancora. Chrome ed Edge lo decidono da soli, in base a come usi questo sito. I tuoi file sono salvati, ma tieni un backup.',
+    'storage.denied_firefox': 'Non consentito. Firefox te l’ha chiesto e la risposta è stata no, oppure la domanda è stata chiusa. Puoi cambiarlo nei permessi del sito.',
+    'storage.unsupported': 'Questo browser non può promettere di conservare i tuoi file. Tieni un backup.',
+    'storage.limit_title': 'Quanto spazio hai',
+    'storage.limit_chromium': 'Chrome ed Edge consentono a questo sito di usare fino a circa il 60% del disco. Finché il browser non accetta di conservare i tuoi file, può cancellarli quando il disco è quasi pieno.',
+    'storage.limit_firefox': 'Firefox consente a questo sito il 10% del disco o 10 GB, il valore più piccolo. Se gli permetti di conservare i tuoi file, il limite sale fino al 50% del disco (al massimo 8 TB). Firefox te lo chiede prima.',
+    'storage.limit_safari': 'Safari consente alle app del browser di usare fino a circa il 60% del disco.',
+    'storage.limit_other': 'Il tuo browser decide quanto può salvare questo sito. Chiedigli di conservare i tuoi file, così non li cancella quando il disco è quasi pieno.',
+    'storage.folder': 'Per avere spazio senza limiti del browser, collega una cartella del disco in Slop Drive. Lì i file sono limitati solo dal disco.',
+    'storage.folder_button': 'Collega una cartella in Slop Drive',
+    'storage.folder_needs': 'Una cartella collegata non ha limiti del browser, ma richiede Chrome o Edge su un computer. In questo browser i tuoi file restano nello spazio del browser.',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

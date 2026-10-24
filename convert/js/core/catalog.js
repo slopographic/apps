@@ -19,6 +19,18 @@ import { stemOf as base } from '../io/files.js';
 import { decodeAudio, channelsOf, encodeWav, encodeMp3, loadLame } from './audio.js';
 import { convertVideo } from './ffmpeg-engine.js';
 import { emlToHtml, emlToText, emlAttachmentsZip, icsToCsv, icsToJson, xmlToJson, unzipEntries, zipFiles } from './mail.js';
+import { FINANCE } from './finance.js';
+import { THREED } from './threed.js';
+import { RAW } from './raw.js';
+import { HEIC } from './heic.js';
+import { DATA_MORE } from './data-more.js';
+import { MEDIA_MORE } from './media-more.js';
+import { DOC_OUT } from './doc-out.js';
+import { OFFICE } from './office.js';
+import { PDF_EXTRA } from './pdf-extra.js';
+import { PDF_LOCK } from './pdf-lock.js';
+import { KEYWORDS } from './keywords.js';
+import { CHAIN_FLAGS } from './chain-flags.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'];
 const SIZE = [
@@ -187,7 +199,9 @@ export const CONVERSIONS = [
     return [{ name: `${base(files[0].name)}.xlsx`, blob: await rowsToXlsx(rows) }];
   } },
   { id: 'csv-to-vcf', label: 'CSV to vCard', group: 'Data', from: ['csv', 'txt'], ext: 'vcf', mode: 'each', options: [DELIM], run: csvToVcf },
+  ...DATA_MORE.slice(0, 1),   // Spreadsheet to CSV first: the default for a workbook (core/data-more.js)
   { id: 'xlsx-to-vcf', label: 'XLSX to vCard', group: 'Data', from: ['xlsx'], ext: 'vcf', mode: 'each', options: [], run: xlsxToVcf },
+  ...DATA_MORE.slice(1),   // spreadsheets and JSON, YAML, TOML, XML, subtitles (core/data-more.js)
   { id: 'vcf-to-csv', label: 'vCard to CSV', group: 'Data', from: ['vcf'], ext: 'csv', mode: 'each', options: [], run: vcfToCsv },
   { id: 'vcf-to-xlsx', label: 'vCard to XLSX', group: 'Data', from: ['vcf'], ext: 'xlsx', mode: 'each', options: [], run: vcfToXlsx },
   { id: 'vcf-to-json', label: 'vCard to JSON', group: 'Data', from: ['vcf'], ext: 'json', mode: 'each', options: [], run: vcfToJson },
@@ -219,7 +233,9 @@ export const CONVERSIONS = [
   { id: 'url-decode', label: 'URL decode', group: 'Encoding', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [], run: async (files) => {
     return [out(`${base(files[0].name)}.decoded.txt`, urlDecode(await text(files[0].file)), 'text/plain')];
   } },
-  { id: 'line-endings', label: 'Line endings', group: 'Text', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [EOL], run: async (files, o) => {
+  ...DOC_OUT,   // text and Markdown to PDF and DOCX with the Slop Docs engine (core/doc-out.js)
+  ...OFFICE,   // Word to PDF, HTML, Markdown, text (core/office.js, Slop Docs); PowerPoint to PDF, pictures, text (core/slides-out.js, Slop Slides)
+  { id: 'line-endings', label: 'Line endings', group: 'Text', from: ['txt', 'csv', 'json', 'md', 'html', 'yaml', 'toml', 'xml', 'srt', 'vtt'], ext: 'txt', mode: 'each', options: [EOL], run: async (files, o) => {
     const f = files[0];
     const ext = /\.[^.]+$/.test(f.name) ? f.name.split('.').pop().toLowerCase() : 'txt';
     const body = setLineEndings(decodeText(new Uint8Array(await f.file.arrayBuffer())), o.eol);
@@ -232,13 +248,23 @@ export const CONVERSIONS = [
   { id: 'ics-to-csv', label: 'Calendar to CSV', group: 'Calendar', from: ['ics'], ext: 'csv', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.csv`, blob: new Blob([await icsToCsv(await text(f.file))], { type: 'text/csv' }) }]; } },
   { id: 'ics-to-json', label: 'Calendar to JSON', group: 'Calendar', from: ['ics'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([await icsToJson(await text(f.file))], { type: 'application/json' }) }]; } },
   { id: 'xml-to-json', label: 'XML to JSON', group: 'Data', from: ['xml'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([xmlToJson(await text(f.file))], { type: 'application/json' }) }]; } },
+  // SIE accounting files and bank statements (OFX, QIF, camt.053, MT940): core/finance.js, readers in shared/finance.
+  ...FINANCE,
   { id: 'unzip', label: 'Unzip', group: 'Archives', from: ['zip'], mode: 'each', options: [], run: async (files) => unzipEntries(files[0].file) },
   { id: 'zip-files', label: 'Files to ZIP', group: 'Archives', from: ['*'], ext: 'zip', mode: 'combine', options: [], run: async (files) => [{ name: 'files.zip', blob: await zipFiles(files) }] },
+  ...RAW,   // camera RAW photos (core/raw.js)
+  ...HEIC,   // HEIC and HEIF photos (core/heic.js)
+  ...MEDIA_MORE,   // OGG, Opus, FLAC, M4A, GIF to MP4, AVIF (core/media-more.js)
+  ...THREED,   // 3D models (core/threed.js)
+  ...PDF_EXTRA,   // PDF to text, HTML to a picture PDF (core/pdf-extra.js)
+  ...PDF_LOCK,   // Protect PDF with a password, Remove PDF password (core/pdf-lock.js, shared/pdf-crypto)
 ];
+
+for (const c of CONVERSIONS) if (KEYWORDS[c.id]) c.keywords = [...(c.keywords || []), ...KEYWORDS[c.id]];   // the menus' search words
+for (const c of CONVERSIONS) Object.assign(c, CHAIN_FLAGS[c.id]);   // lossy, cost, chain: for the route finder (chain.js)
 
 export const conversionById = (id) => CONVERSIONS.find((c) => c.id === id);
 
-/** Conversions that accept every one of the given kinds (intersection). */
 /** The kind a conversion makes, for its picture (SlopFlow): a format option wins (PDF to images), then the converter's ext.
  *  Base64 decode makes whatever the text held, so it is a plain 'file'. */
 export function outKind(conv, opts = {}) {
@@ -246,7 +272,10 @@ export function outKind(conv, opts = {}) {
   return (opts && typeof opts.format === 'string' && opts.format) || conv.ext || 'file';
 }
 
+/** Conversions that accept every one of the given kinds (intersection). */
 export function conversionsFor(kinds, only = null) {
-  const list = only ? CONVERSIONS.filter((c) => c.id === only) : CONVERSIONS;
-  return list.filter((c) => kinds.every((k) => c.from.includes('*') || c.from.includes(k)));
+  // `available`: a conversion this browser cannot do (AVIF where the canvas cannot write it) is not offered
+  const list = (only ? CONVERSIONS.filter((c) => c.id === only) : CONVERSIONS).filter((c) => !c.available || c.available());
+  // `with` kinds (a model's .mtl, .bin or textures) are taken only beside a kind in `from`, never on their own
+  return list.filter((c) => kinds.every((k) => c.from.includes('*') || c.from.includes(k) || (c.with || []).includes(k)) && (!c.with || kinds.some((k) => c.from.includes(k))));
 }

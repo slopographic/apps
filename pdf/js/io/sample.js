@@ -5,6 +5,7 @@
 
   /* --------------------------------------------------------- sample PDF */
   E.makeSample = async function () {
+    await E.libs();
     var L = PDFLib, doc = await L.PDFDocument.create();
     var H = doc.embedStandardFont(L.StandardFonts.HelveticaBold), R = doc.embedStandardFont(L.StandardFonts.Helvetica), T = doc.embedStandardFont(L.StandardFonts.TimesRomanItalic);
     var ink = L.rgb(0.04, 0.04, 0.04), bone = L.rgb(0.945, 0.929, 0.894), lime = L.rgb(0.831, 1, 0.227), pink = L.rgb(1, 0.37, 0.64), cyan = L.rgb(0.22, 0.84, 1), grey = L.rgb(0.35, 0.35, 0.35);

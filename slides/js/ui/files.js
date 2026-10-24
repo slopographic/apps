@@ -2,13 +2,13 @@
    tab saves to its own Drive file (drive.js: the same id, in place) and a file opened with ?drive=<id> or from the Drive
    picker opens in a tab linked to it. A zero-byte .sslide (Drive's New menu) opens as a blank deck. Pictures open as a
    one-slide deck and other formats open as a blank deck, in a tab with no link, so Save can never overwrite a file this
-   editor did not write. Also: the .sslide download, PowerPoint and PNG export, and the boot. Exposes SS.files. */
+   editor did not write. A PowerPoint file (Drive, a drop or Open a file) is imported into a tab with no link, and what was left
+   out is reported. Also: the .sslide download, PowerPoint, PDF and PNG export, and the boot. Exposes SS.files. */
 (function () {
   'use strict';
   var SS = window.SS, A = SS.app, N = SS.native, U = SS.util, D = SS.dom, R = SS.canvasRender;
   var F = SS.files = {};
   var PPTX = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
-  var ODP = 'application/vnd.oasis.opendocument.presentation';
   var hub = function () { return window.SlopHub || null; };
   var api = function () { return SS.tabs.api(); };
 
@@ -30,10 +30,10 @@
     if (!hub() || !api()) return null;
     return api().openFromDrive({ title: 'Open from Slop Drive' });
   };
-  /** File ▸ Import: a PowerPoint, OpenDocument or picture file from Slop Drive, in a tab with no link. */
+  /** File ▸ Import: a PowerPoint or picture file from Slop Drive, in a tab with no link. */
   F.importDrive = async function () {
     if (!hub()) return;
-    var rec = await hub().pickFromDrive({ accept: [PPTX, ODP, 'image/*'], title: 'Import from Slop Drive' });
+    var rec = await hub().pickFromDrive({ accept: [PPTX, 'image/*'], title: 'Import from Slop Drive' });
     if (rec) await F.openRecord(rec);
   };
   /** Opens a Drive record (full or summary) in a tab. A tab already showing that file is brought forward. Resolves true when a deck is open. */
@@ -42,20 +42,32 @@
     if (!full) { D.toast('That file is no longer in Slop Drive'); return false; }
     var res;
     try { res = await N.read(full.blob, full.type, full.name); }
-    catch (e) { D.toast('Could not open ' + full.name + ': ' + e.message); return false; }
-    var named = N.fileName(res.deck.title);
-    if (res.kind === 'foreign') {
-      SS.tabs.open(res.deck, { name: named, origName: full.name });
-      D.toast((res.type || 'This') + ' files cannot be opened in Slop Slides yet. Opened a blank presentation.', 4200);
-    } else if (res.kind === 'image') {
-      SS.tabs.open(res.deck, { name: named, origName: full.name });
-      D.toast('Picture added to a new presentation');
-    } else {
+    catch (e) { D.toast('Could not open ' + full.name + ': ' + e.message, 4200); return false; }
+    if (res.kind === 'deck' || res.kind === 'blank') {
       var open = api().tabs().find(function (t) { return t.driveId === full.id; });
       if (open) api().activate(open.doc);
       else SS.tabs.open(res.deck, { name: full.name, origName: full.name }, full.id);
+      return true;
+    }
+    return shown(res, full.name);
+  };
+  /** A deck read from a file this editor did not write (PowerPoint, a picture, another format): a tab with no Drive link. */
+  function shown(res, name) {
+    SS.tabs.open(res.deck, { name: N.fileName(res.deck.title), origName: name });
+    if (res.kind === 'foreign') D.toast((res.type || 'This') + ' files cannot be opened in Slop Slides yet. Opened a blank presentation.', 4200);
+    else if (res.kind === 'image') D.toast('Picture added to a new presentation');
+    else if (res.kind === 'pptx') {
+      var n = res.deck.slides.length, left = SS.pptxIn.summary(res.report);
+      D.toast('Opened ' + name + ': ' + n + ' slide' + (n === 1 ? '' : 's') + '. ' + (left ? left + ' ' : '') + 'Save keeps it as a new Slop Slides file.', left ? 9000 : 4200);
     }
     return true;
+  }
+  /** Opens a file from this computer (a drop, or Open a file): a .pptx or .sslide, in a tab with no Drive link. Throws with the reason. */
+  F.openFile = async function (file) {
+    var res = await N.read(file, file.type, file.name);
+    if (res.kind === 'deck' || res.kind === 'blank') { SS.tabs.open(res.deck, { name: file.name, origName: file.name }); return true; }
+    if (res.kind === 'foreign') throw new Error(file.name + ' is not a presentation Slop Slides can open');
+    return shown(res, file.name);
   };
 
   /** Saves the open presentation to Slop Drive: its own file (in place), or a new one. asNew: always a new file (Save as). Resolves true when written. */
@@ -85,6 +97,24 @@
       D.toast(left + 'Slide transitions and object animations are not in the PowerPoint file. They are kept in the .sslide file.', 5200);
     } catch (e) { D.toast('Export failed: ' + e.message, 4000); }
   };
+  /** File ▸ Download PDF: one page per visible slide (io/pdf.js). Language fonts the text needs are fetched first (asked once). */
+  F.exportPdf = async function () {
+    if (F.pdfBusy) return null;
+    F.pdfBusy = true;
+    D.toast('Making the PDF…', 2000);
+    try {
+      var r = await SS.pdfExport.write(A.deck);
+      U.download(r.blob, N.fileName(A.deck.title).replace(/\.sslide$/, '.pdf'));
+      SlopSupport.afterExport('slides');
+      var hidden = A.deck.slides.filter(function (s) { return s.hidden; }).length;
+      var notes = [r.pages + ' page' + (r.pages === 1 ? '' : 's') + '.'];
+      if (hidden) notes.push(hidden + ' hidden slide' + (hidden === 1 ? ' is' : 's are') + ' left out.');
+      if (r.missing.length) notes.push('Some text needs a font that was not downloaded (' + r.missing.join(', ') + '), so it shows as boxes.');
+      D.toast('PDF ready: ' + notes.join(' '), r.missing.length ? 7000 : 3600);
+      return r;
+    } catch (e) { D.toast('PDF export failed: ' + e.message, 4200); return null; }
+    finally { F.pdfBusy = false; }
+  };
   F.exportPng = function () {
     var s = A.slide();
     if (!s) return;
@@ -103,4 +133,12 @@
     try { await F.openRecord(launch); } catch (e) { D.toast('Could not open: ' + e.message, 4000); }
     if (blank && SS.tabs.current() !== blank) await api().close(blank);
   };
+  /** Convert… in the header (shared/convert/provided.js): the open deck, as PPTX. */
+  addEventListener('slop:convert-files', function (e) {
+    e.detail.provide(async function () {
+      if (!A.deck) return null;
+      var r = await SS.pptx.write(A.deck);
+      return [{ name: N.fileName(A.deck.title).replace(/\.sslide$/, '.pptx'), blob: r.blob }];
+    });
+  });
 })();

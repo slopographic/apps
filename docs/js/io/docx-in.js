@@ -1,7 +1,7 @@
 /* Slop Docs — io/docx-in: Word (.docx) import on top of shared/office (zip + xml). Reads paragraphs, runs (bold, italic,
  * underline, strike, size, colour, font, super- and subscript), styles by name, lists by numbering format, tables, page
  * size and margins, and the headers and footers (default and first page, w:titlePg) with their PAGE and NUMPAGES fields
- * (simple and complex). Not carried yet: images, footnotes, comments and tracked changes. */
+ * (simple and complex), and hyperlinks to web and mail addresses (run.link). Not carried yet: images, footnotes, comments and tracked changes. */
 import { readZip, readText } from '../../../shared/office/zip.js';
 import { parseXml, kids, kid, path as pathOf, attr, NS } from '../../../shared/office/xml.js';
 import { twipsToPt, halfPtToPt, ooxmlToHex } from '../../../shared/office/units.js';
@@ -35,6 +35,17 @@ function fieldOf(instr) {
   const k = String(instr || '').trim().split(/\s+/)[0].toUpperCase();
   return k === 'PAGE' ? 'page' : k === 'NUMPAGES' || k === 'SECTIONPAGES' ? 'pages' : null;
 }
+/** The web or mail address of a w:hyperlink, from the part's relationships (r:id, external targets only), or ''. */
+let partLinks = new Map();
+function linkOf(el) {
+  const t = partLinks.get(attr(el, NS.r, 'id'));
+  return t && /^(https?:|mailto:|tel:)/i.test(t) ? t : '';
+}
+function relsMap(files, partPath) {
+  const xml = readText(files, partPath.replace(/([^/]+)$/, '_rels/$1.rels')), out = new Map();
+  if (xml) for (const r of kids(parseXml(xml).documentElement, NS.rel, 'Relationship')) out.set(r.getAttribute('Id'), r.getAttribute('Target'));
+  return out;
+}
 /** Runs of a w:p (or a hyperlink in it). Page number and page count fields, simple (w:fldSimple) or complex (w:fldChar
  * begin, w:instrText, separate, the shown result, end), become field objects; other fields keep their shown text. */
 function runsIn(pEl) {
@@ -48,8 +59,10 @@ function runsIn(pEl) {
       continue;
     }
     const rs = el.localName === 'hyperlink' ? kids(el, NS.w, 'r') : el.localName === 'r' ? [el] : [];
+    const href = el.localName === 'hyperlink' ? linkOf(el) : '';
     for (const r of rs) {
       const m = markIn(kid(r, NS.w, 'rPr'));
+      if (href) m.link = href;
       for (const c of kids(r, NS.w, '*')) {
         if (c.localName === 'fldChar') {
           const t = attr(c, NS.w, 'fldCharType');
@@ -81,7 +94,8 @@ function readHF(files, sp, lists, out) {
     for (const ref of kids(sp, NS.w, tag)) {
       const type = attr(ref, NS.w, 'type') || 'default', target = rels.get(attr(ref, NS.r, 'id'));
       if ((type !== 'default' && type !== 'first') || !target) continue;
-      const xml = readText(files, 'word/' + target.replace(/^\/?word\//, '').replace(/^\//, ''));
+      const part = 'word/' + target.replace(/^\/?word\//, '').replace(/^\//, ''), xml = readText(files, part);
+      partLinks = relsMap(files, part);
       if (xml) out[kind][type] = blocksIn(parseXml(xml).documentElement, lists).filter((b, i, all) => b.type !== 'p' || b.runs.length || all.length > 1);
     }
   }
@@ -171,6 +185,7 @@ export async function importDocx(src) {
   const d = parseXml(xml), body = kid(d.documentElement, NS.w, 'body');
   const lists = listKinds(readText(files, 'word/numbering.xml'));
   const out = newDoc();
+  partLinks = relsMap(files, 'word/document.xml');
   out.blocks = blocksIn(body, lists);
   const sp = kid(body, NS.w, 'sectPr'), sz = pathOf(sp, NS.w, 'pgSz'), mar = pathOf(sp, NS.w, 'pgMar');
   if (sz) {
@@ -182,6 +197,7 @@ export async function importDocx(src) {
     out.section.margin = { ...out.section.margin, top: g('top') ?? 72, right: g('right') ?? 72, bottom: g('bottom') ?? 72, left: g('left') ?? 72, header: g('header') ?? 36, footer: g('footer') ?? 36 };
   }
   readHF(files, sp, lists, out);
+  partLinks = new Map();
   const usesBul = [...lists.values()].includes('bul'), usesNum = [...lists.values()].includes('num');
   if (usesBul) out.lists.bul = bulletList();
   if (usesNum) out.lists.num = numberList();

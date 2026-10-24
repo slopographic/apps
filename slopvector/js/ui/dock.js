@@ -29,11 +29,11 @@
     var g = groupOf(p); S.prefs.panels = true; UI.st.collapsed[g.id] = false;
     if (g.panels.length > 1) UI.st.activeTabs[g.id] = p;
     savePrefs(); applyDock();
-    if (window.innerWidth < 900) document.getElementById('app').classList.add('dock-open');
+    if (UI.dockSheet && UI.dockSheet.isPhone()) UI.dockSheet.open();
   }
   UI.showPanel = showPanel;
   function togglePanels() {
-    if (window.innerWidth < 900) { document.getElementById('app').classList.toggle('dock-open'); return; }
+    if (UI.dockSheet && UI.dockSheet.isPhone()) { UI.dockSheet.toggle(); return; }   // a phone: the panels drawer
     S.prefs.panels = !S.prefs.panels; savePrefs(); applyDock();
     setTimeout(function () { SV.requestRender(true); }, 0);
   }
@@ -57,7 +57,9 @@
   }
   function buildDock() {
     var dock = document.getElementById('dock');
-    dock.appendChild(h('div', { class: 'dock-head' }, [h('span', { text: 'Panels' }), h('button', { type: 'button', class: 'xbtn', 'aria-label': 'Close panels', html: '&times;', onclick: function () { document.getElementById('app').classList.remove('dock-open'); } })]));
+    // Phones: the dock is a drawer from the right. SlopSheet (shared/ui/sheet.js) does the Panels button, the ×, Escape, a
+    // tap outside and the swipe.
+    UI.dockSheet = SlopSheet.attach({ root: document.getElementById('app'), panel: dock, side: 'end', phone: '(max-width: 899px)', toggles: [document.getElementById('panelsToggle')], label: 'Panels' });
     GROUPS.forEach(function (g) {
       var ge = h('section', { class: 'dock-group dg-' + g.id, id: 'dg-' + g.id });
       var tabs = h('div', { class: 'dock-tabs', role: 'tablist' });

@@ -1,0 +1,155 @@
+/* SlopCmdArgs: argument schemas for SlopCmd commands. A command may describe what it takes:
+ *   args: [{ name: 'radius', type: 'number', min: 0.1, max: 250, default: 4, description: 'blur radius in px' },
+ *          { name: 'format', type: 'enum', values: ['png', 'jpeg', 'webp'], default: 'png' },
+ *          { name: 'text', type: 'string', maxLength: 500, required: true }, { name: 'on', type: 'boolean' },
+ *          { name: 'fill', type: 'color', default: '#ffffff' }]        (also an object map { radius: { type… } })
+ * Types: number (integer: true rounds; step rounds to the step), string, enum (values, or options [[value, label]]),
+ * boolean, color (any CSS hex or a basic colour name → '#rrggbb').
+ *   validate(schema, raw) → { ok, args, errors: [text], notes: [text] }: unknown names dropped, strings coerced
+ *       ("8px" → 8, "yes" → true, "JPEG" → 'jpeg'), numbers clamped to min..max (a note says so), defaults filled,
+ *       a missing required argument or a value that cannot be read is an error.
+ *   defaults(schema) → { name: default }         jsonSchema(schema) → a JSON-schema object for tool definitions
+ *   hint(arg) → 'number 0.1–250, default 4'      summary(title, schema, args) → 'Gaussian blur, radius 8'
+ * Classic script for pages (window.SlopCmdArgs) and a CommonJS module for Node tests. No dependencies. */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  root.SlopCmdArgs = api;
+})(typeof window !== 'undefined' ? window : globalThis, function () {
+  'use strict';
+  const TYPES = new Set(['number', 'string', 'enum', 'boolean', 'color']);
+  const NAMED = { black: '#000000', white: '#ffffff', red: '#ff0000', green: '#008000', lime: '#00ff00', blue: '#0000ff', yellow: '#ffff00',
+    orange: '#ffa500', purple: '#800080', pink: '#ffc0cb', grey: '#808080', gray: '#808080', brown: '#a52a2a', cyan: '#00ffff',
+    magenta: '#ff00ff', navy: '#000080', teal: '#008080', gold: '#ffd700', silver: '#c0c0c0', transparent: '#00000000' };
+
+  /** The schema as a list of { name, type, … } (accepts a list or a map; drops entries without a name). */
+  function normalize(schema) {
+    if (!schema) return [];
+    const list = Array.isArray(schema) ? schema : Object.keys(schema).map((k) => Object.assign({ name: k }, schema[k]));
+    return list.filter((a) => a && a.name).map((a) => Object.assign({}, a, { type: TYPES.has(a.type) ? a.type : 'string' }));
+  }
+  /** Allowed values of an enum: [[value, label]]. */
+  const choices = (a) => (a.options ? a.options.map((o) => (Array.isArray(o) ? o : [o, String(o)])) : (a.values || []).map((v) => [v, String(v)]));
+  const fmt = (n) => String(Math.round(n * 1000) / 1000);
+
+  function defaults(schema) {
+    const out = {};
+    for (const a of normalize(schema)) if (a.default !== undefined) out[a.name] = a.default;
+    return out;
+  }
+
+  function toNumber(v) {
+    if (typeof v === 'number') return v;
+    if (typeof v === 'boolean') return v ? 1 : 0;
+    const m = String(v == null ? '' : v).replace(',', '.').match(/[-+]?\d*\.?\d+(e[-+]?\d+)?/i);
+    return m ? Number(m[0]) : NaN;
+  }
+  function toBool(v) {
+    if (typeof v === 'boolean') return v;
+    if (typeof v === 'number') return v !== 0;
+    const s = String(v).trim().toLowerCase();
+    if (/^(true|yes|y|on|1|checked|enable|enabled)$/.test(s)) return true;
+    if (/^(false|no|n|off|0|unchecked|disable|disabled|none)$/.test(s)) return false;
+    return null;
+  }
+  function toColor(v) {
+    const s = String(v == null ? '' : v).trim().toLowerCase();
+    if (NAMED[s]) return NAMED[s];
+    let m = s.match(/^#?([0-9a-f]{3,8})$/);
+    if (m && [3, 4, 6, 8].includes(m[1].length)) {
+      let hx = m[1];
+      if (hx.length <= 4) hx = hx.split('').map((c) => c + c).join('');
+      return '#' + (hx.length === 8 && hx.endsWith('ff') ? hx.slice(0, 6) : hx);
+    }
+    m = s.match(/^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/);
+    if (m) return '#' + [m[1], m[2], m[3]].map((x) => Math.max(0, Math.min(255, +x)).toString(16).padStart(2, '0')).join('');
+    return null;
+  }
+  function toEnum(a, v) {
+    const s = String(v == null ? '' : v).trim().toLowerCase(), list = choices(a);
+    const hit = list.find(([val]) => String(val).toLowerCase() === s) || list.find(([, label]) => label.toLowerCase() === s)
+      || (s && list.find(([val, label]) => String(val).toLowerCase().startsWith(s) || label.toLowerCase().startsWith(s)));
+    return hit ? hit[0] : undefined;
+  }
+
+  /** One argument: { ok, value, note } or { ok: false, error }. */
+  function one(a, v) {
+    if (a.type === 'number') {
+      let n = toNumber(v);
+      if (!Number.isFinite(n)) return { ok: false, error: `${a.name} must be a number` + (a.min != null && a.max != null ? ` from ${fmt(a.min)} to ${fmt(a.max)}` : '') };
+      if (a.integer) n = Math.round(n);
+      else if (a.step) n = Math.round(n / a.step) * a.step;
+      let note = null;
+      if (a.min != null && n < a.min) { note = `${a.name} ${fmt(n)} is below the minimum, so ${fmt(a.min)} was used`; n = a.min; }
+      if (a.max != null && n > a.max) { note = `${a.name} ${fmt(n)} is above the maximum, so ${fmt(a.max)} was used`; n = a.max; }
+      return { ok: true, value: Number(fmt(n)), note };
+    }
+    if (a.type === 'boolean') { const b = toBool(v); return b == null ? { ok: false, error: `${a.name} must be true or false` } : { ok: true, value: b }; }
+    if (a.type === 'enum') {
+      const e = toEnum(a, v);
+      return e === undefined ? { ok: false, error: `${a.name} must be one of: ${choices(a).map((c) => c[0]).join(', ')}` } : { ok: true, value: e };
+    }
+    if (a.type === 'color') { const c = toColor(v); return c ? { ok: true, value: c } : { ok: false, error: `${a.name} must be a colour like #ff8800 or "red"` }; }
+    let s = typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
+    let note = null;
+    if (a.maxLength && s.length > a.maxLength) { s = s.slice(0, a.maxLength); note = `${a.name} was cut to ${a.maxLength} characters`; }
+    if (a.required && !s.trim()) return { ok: false, error: `${a.name} must not be empty` };
+    return { ok: true, value: s, note };
+  }
+
+  function validate(schema, raw) {
+    const list = normalize(schema), given = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const args = {}, errors = [], notes = [];
+    const lower = {};
+    for (const k of Object.keys(given)) lower[k.toLowerCase().replace(/[\s_-]/g, '')] = given[k];
+    for (const a of list) {
+      let v = Object.prototype.hasOwnProperty.call(given, a.name) ? given[a.name] : lower[a.name.toLowerCase().replace(/[\s_-]/g, '')];
+      if (v === undefined || v === null || v === '') {
+        if (a.default !== undefined) args[a.name] = a.default;
+        else if (a.required) errors.push(`Missing ${a.name}` + (a.description ? ` (${a.description})` : ''));
+        continue;
+      }
+      const r = one(a, v);
+      if (!r.ok) { errors.push(r.error); continue; }
+      args[a.name] = r.value;
+      if (r.note) notes.push(r.note);
+    }
+    const known = new Set(list.map((a) => a.name.toLowerCase().replace(/[\s_-]/g, '')));
+    const extra = Object.keys(given).filter((k) => !known.has(k.toLowerCase().replace(/[\s_-]/g, '')));
+    if (extra.length) notes.push('ignored unknown argument' + (extra.length > 1 ? 's ' : ' ') + extra.join(', '));
+    return { ok: !errors.length, args, errors, notes };
+  }
+
+  function jsonSchema(schema) {
+    const properties = {}, required = [];
+    for (const a of normalize(schema)) {
+      const p = {};
+      if (a.type === 'number') { p.type = a.integer ? 'integer' : 'number'; if (a.min != null) p.minimum = a.min; if (a.max != null) p.maximum = a.max; }
+      else if (a.type === 'boolean') p.type = 'boolean';
+      else if (a.type === 'enum') { p.type = 'string'; p.enum = choices(a).map((c) => c[0]); }
+      else if (a.type === 'color') { p.type = 'string'; p.pattern = '^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$'; }
+      else { p.type = 'string'; if (a.maxLength) p.maxLength = a.maxLength; }
+      if (a.description) p.description = a.description;
+      if (a.default !== undefined) p.default = a.default;
+      properties[a.name] = p;
+      if (a.required) required.push(a.name);
+    }
+    return { type: 'object', properties, required, additionalProperties: false };
+  }
+
+  function hint(a) {
+    const d = a.default !== undefined ? `, default ${a.default}` : '';
+    if (a.type === 'number') return `number${a.min != null && a.max != null ? ` ${fmt(a.min)}–${fmt(a.max)}` : ''}${d}`;
+    if (a.type === 'enum') return `one of ${choices(a).map((c) => c[0]).join('|')}${d}`;
+    if (a.type === 'color') return `colour #rrggbb${d}`;
+    return a.type + d;
+  }
+  /** A short line for a step: 'Gaussian blur, radius 8'. */
+  function summary(title, schema, args) {
+    const parts = normalize(schema).filter((a) => args && args[a.name] !== undefined)
+      .map((a) => (a.type === 'boolean' ? (args[a.name] ? a.name : 'no ' + a.name) : `${a.label || a.name} ${String(args[a.name]).slice(0, 40)}`));
+    return [String(title || '').replace(/…$/, '')].concat(parts).join(', ');
+  }
+
+  return { normalize, defaults, validate, jsonSchema, hint, summary, toColor, toNumber };
+});

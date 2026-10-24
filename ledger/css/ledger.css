@@ -39,3 +39,9 @@ input[type="text"], input[type="date"], input[type="search"], select { min-width
 .fs-sheet .fs-head th { padding-top: 14px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--mute); }
 .fs-sheet .fs-total th { border-top: 1px solid var(--line); }
 @media print { .fs-sheets { display: block; } .fs-sheet { break-inside: avoid; margin-bottom: 24px; } }
+/* Import SIE: the plan and the report fit the dialog; long lists scroll inside it */
+.sie-dlg { width: min(720px, calc(100vw - 32px)); }
+.sie-plan .tablewrap, .sie-skipped { max-height: 40vh; overflow: auto; }
+.sie-plan input[data-sie] { width: 6ch; }
+.sie-plan .check { display: flex; align-items: flex-start; gap: 8px; margin: 8px 0; }
+.sie-plan .check input { margin-top: 3px; flex: none; }

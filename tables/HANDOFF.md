@@ -22,6 +22,10 @@ conditional formats, validation, sort/filter, find and comments are not built ye
 - `js/ui/sheets.js`: tabs: switch, add, rename (double-click or menu), delete, right-click menu.
 - `js/ui/chrome.js`: toolbar state, name box (type `B7` or `A1:C9` to jump), formula bar sync, status (Count, Sum, Average), save state, document title.
 - `js/ui/commands.js`: every command (id, title, group, keys, `when`). Registered with SlopCmd (palette and remappable keys, ⌘K button). Without SlopCmd, `runShortcut` handles the Ctrl/⌘ keys. The menus (File, Edit, Format, View, Sheets, Help) are built from the same list.
+- `js/ui/ai-commands.js`, `js/ui/ai-ops.js`: the Slop AI panel's commands with argument schemas (hidden from the palette, one undo
+  step each): `sort_column`, `filter_rows`, `clear_filter`, `add_column`, `fill_column`, `set_cell`, `undo`; plus `SlopCmd.provide`
+  state (sheets, table range, column headers, selection, filtered rows) and checkpoint. Loaded by `SlopCmd.prepare()` with a dynamic
+  import (commands.js), so first paint is unchanged. Filter marks rows `filtered` (saved in `.stab`, not exported as an XLSX autofilter).
 - `js/ui/storage.js`: open and save through SlopHub (see "Storage"), CSV import, downloads, `launch()`.
 - `js/ui/drafts.js`: autosave draft in IndexedDB (`slop-tables-drafts`), written 0.6 s after a change, restored on a plain start.
 - `js/ui/main.js`: boot and the test API `window.SlopTables` (`type`, `setCell`, `value`, `text`, `el`, `select`, `flush`, `save`, `csv`, `xlsx`, `native`, `command`, `undo`/`redo`, `ready`).
@@ -64,6 +68,7 @@ conditional formats, validation, sort/filter, find and comments are not built ye
   not-imported notice, .xls refused, chart XLSX round trip; Insert chart, live update, move/resize with undo, edit, delete,
   save and reopen, XLSX chart part; Insert pivot, Refresh, same-sheet place with the overwrite question, right-click Edit,
   save and reopen, sheet rename). Node: `tests/node/tables-objects.test.mjs`, `tests/node/tables-import.test.mjs`.
+- `tests/tables/ai-commands.test.html` (7 tests: the AI commands through `SlopCmd.exec`, clamping, errors, undo, state, checkpoint).
 - `node tests/run.mjs tables`: `tests/tables/templates.test.html` (9 tests: every built-in opens and its formulas compute, Budget and Invoice checks, the From template dialog, Save as template with the Drive copy, export and import round trip, broken import changes nothing, import from Drive), `tests/tables/app.test.html` (37 tests: boot, formulas, keyboard editing, styles and undo, layout and virtualisation, freeze panes, sheets, Drive save and reopen, zero-byte .stab, CSV in Drive, unknown id, autosave draft, CSV export text, XLSX package, native round trip) plus the engine's 11 tests. All green.
 - Helpers in `tests/tables/tables.helpers.js`. The app runs in same-origin iframes, so the real Slop Drive and draft stores are used. Only the folder picker is stubbed.
 
@@ -80,6 +85,7 @@ conditional formats, validation, sort/filter, find and comments are not built ye
 - Structure: no insert or delete of rows and columns (the engine has `adjustForStructure` but no `Workbook.insertRows`).
 - Templates: no template editing or deleting built-ins, no template categories or search, no thumbnails (the preview is a table of values), no sharing between devices except through Slop Drive.
 - Not done: conditional formats, data validation, sort and filter, find, comments, fill colour and text colour, merge commands in the UI (the model and XLSX export support merges), zoom.
+- Phone sidebar: at 720 px and under the sidebar column is only its toggle strip (›), and the toggle opens Sheets, Charts and pivots, Templates and Functions as a drawer from the left (`SlopSheet` from `shared/ui/sheet.js`, `side: 'start'`, in `js/ui/sidebar.js`). The toggle again, the shared ×, Escape, a tap outside, a swipe left, picking a sheet or a function close it; the desktop collapsed choice is not touched. `tests/tables/tables.spec-layout.js` checks it in the 390 px frame.
 - Layout: a phone (390 px) has no page scroll, but the menus and toolbar scroll sideways inside the top bar. Sheet scroll positions are not remembered between sheets. Text does not spill into empty neighbours.
 - Undo covers edits, styles, paste, sheet operations, freeze and resize. Sheet selection and scroll are not undo steps.
 

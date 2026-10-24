@@ -73,7 +73,7 @@
     if (A.mode === 'page') A.showGrid(true);
     E.emit('files');
     E.emit('change', {});
-    if (doc.view) A.applyView(doc.view); else A.setTool('organize');
+    A.applyView(doc.view || { tool: 'organize' });   // a new document opens on Organize, or on the tool a ?tool= link named (route.js)
     S.updateChrome();
     if (SP.panes) SP.panes.onDocShown(doc);   // a split view's previews take the document that left (ui/panes.js)
   }

@@ -15,13 +15,12 @@
     var defs = [['File', S.fileMenu], ['Edit', S.editMenu], ['View', S.viewMenu], ['Help', S.helpMenu]];
     defs.forEach(function (d) {
       var b = h('button', { type: 'button', class: 'menu-b', 'aria-haspopup': 'menu' }, d[0]);
-      b.addEventListener('click', function (e) { e.stopPropagation(); var r = b.getBoundingClientRect(); SlopUI.menu(d[1](), r.left, r.bottom + 2); });
+      var open = A.whenReady(function () { var r = b.getBoundingClientRect(); SlopUI.menu(d[1](), r.left, r.bottom + 2); }); // the items need the whole app
+      b.addEventListener('click', function (e) { e.stopPropagation(); open(); });
       S.els.menus.appendChild(b);
     });
-    S.els.btnMore.addEventListener('click', function (e) {
-      e.stopPropagation(); var r = S.els.btnMore.getBoundingClientRect();
-      SlopUI.menu(S.moreMenu(), r.right - 220, r.bottom + 4);
-    });
+    var more = A.whenReady(function () { var r = S.els.btnMore.getBoundingClientRect(); SlopUI.menu(S.moreMenu(), r.right - 220, r.bottom + 4); });
+    S.els.btnMore.addEventListener('click', function (e) { e.stopPropagation(); more(); });
   }
   /* The overflow (More) menu, shown at 900 px and below where the toolbar has no room: Convert is listed here directly
      (the toolbar button is hidden at that width) and the four top-bar menus follow. */
@@ -45,6 +44,7 @@
       window.SlopHub && !SP.offline ? { label: 'Save to Slop Drive', key: A.key('file.save'), act: function () { A.saveToDrive(); }, disabled: !has } : null,
       window.SlopHub && !SP.offline && has ? { label: 'Versions', sub: A.versionItems() } : null,
       { label: 'Download PDF', key: A.key('file.download'), act: A.download, disabled: !has },
+      { label: 'Protect with password…', key: A.key('file.protect'), act: function () { A.protect(); }, disabled: !has },
       { label: 'Download selected pages', act: A.extract, disabled: !O.sel.size },
       { label: 'Extract text…', act: A.extractText, disabled: !has },
       !SP.offline && window.SlopAITools ? { label: 'Recognise text on this page', act: function () { A.recognisePage(); }, disabled: !has } : null,
@@ -131,10 +131,11 @@
     else A.status('Theme: ' + row[1]);
     A.paintMeta();
   };
+  /** The properties panel: on a phone the bottom sheet (shared/ui/sheet.js, attached in ui/app.js), else the side panel. */
   A.togglePanel = function (force) {
-    var narrow = window.innerWidth <= 900;
-    if (narrow) { var open = force != null ? force : !S.els.app.classList.contains('sheet-open'); S.els.app.classList.toggle('sheet-open', open); S.els.btnPanel.setAttribute('aria-expanded', open ? 'true' : 'false'); }
-    else { S.els.app.classList.toggle('no-panel', force != null ? !force : undefined); S.els.btnPanel.setAttribute('aria-expanded', S.els.app.classList.contains('no-panel') ? 'false' : 'true'); }
+    var sheet = S.sheet;
+    if (sheet && sheet.isPhone()) { if (force == null) sheet.toggle(); else if (force) sheet.open(); else sheet.close(); }
+    else if (window.innerWidth > 900 || !sheet) { S.els.app.classList.toggle('no-panel', force != null ? !force : undefined); S.els.btnPanel.setAttribute('aria-expanded', S.els.app.classList.contains('no-panel') ? 'false' : 'true'); }
     if (A.mode === 'page') setTimeout(function () { Ed.layout(); }, 200);
   };
 })();
