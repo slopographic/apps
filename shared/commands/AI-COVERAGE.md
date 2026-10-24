@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 6 of 58 apps.
+Covered: 7 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -22,7 +22,7 @@ Covered: 6 of 58 apps.
 | SlopClean (`clean`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
 | Slop AI (`ai`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Docs (`docs`) | ✓ 2 | ✓ 6 | ✓ 4 | ✓ 1 | 1 | yes |
-| Slop Tables (`tables`) | ✗ | ✓ 1 | ✓ 4 | ✗ |  | no |
+| Slop Tables (`tables`) | ✓ 3 | ✓ 3 | ✓ 8 | ✓ 1 | 1 | yes |
 | Slop Slides (`slides`) | ✓ 2 | ✓ 4 | ✓ 6 | ✓ 1 | 1 | yes |
 | Slop Press (`press`) | ✓ 2 | ✓ 4 | ✓ 5 | ✓ 1 |  | yes |
 | Reel Remix (`remix`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
@@ -106,8 +106,11 @@ Covered: 6 of 58 apps.
 
 ### Slop Tables
 
-- add: `add_column`
-- edit: `fill_column`, `filter_rows`, `set_cell`, `sort_column`
+- create: `build_table`, `create_chart`, `new_workbook`
+- add: `add_column`, `add_rows`, `add_sheet`
+- edit: `delete_column`, `delete_rows`, `fill_column`, `filter_rows`, `format_cells`, `set_cell`, `set_range`, `sort_column`
+- export: `export_workbook`
+- operations: `table-data-to-spreadsheet`
 
 ### Slop Slides
 

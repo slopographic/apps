@@ -13,7 +13,7 @@ const SLIDE_SIZES = [['', 'As the outline says (16:9)'], ['16:9', '16:9'], ['4:3
 const THEMES = [['', 'As the outline says (Slopographic)'], ['slop', 'Slopographic'], ['paper', 'Paper'], ['midnight', 'Midnight'], ['editorial', 'Editorial'],
   ['aurora', 'Aurora'], ['terminal', 'Terminal'], ['sunset', 'Sunset'], ['chalk', 'Chalkboard']];
 const IN = ['json', 'md', 'txt'];
-const text = async (f) => (await f.file.text()).replace(/^﻿/, '');
+const text = async (f) => (await f.file.text()).replace(/^\uFEFF/, '');
 const SLIDE_HELP = 'JSON { "title", "subtitle", "theme", "slides": [{ "title", "bullets": [..], "notes", "layout" }] }, or Markdown: "# Title", "## Slide", "- bullet", "> note".';
 const DOC_HELP = 'JSON { "title", "subtitle", "blocks": [{ "type": "heading", "text", "level" } | { "type": "paragraph", "text" } | { "type": "bullets", "items": [..] } | { "type": "table", "rows": [[..]] }] }, or Markdown.';
 
