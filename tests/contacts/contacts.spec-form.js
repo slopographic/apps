@@ -5,8 +5,8 @@
   'use strict';
   const { describe, it, expect, sleep, waitFor } = SlopTest;
 
-  /** Boots the app in the frame at a width (the layout follows the frame's width), and hides the consent strip, which
-   * is not part of the form and would cover the foot of a phone screen. */
+  /** Boots the app in the frame at a width (the layout follows the frame's width), with a consent choice on record so the
+   * consent strip, which is not part of the form and would cover the foot of a phone screen, does not show. */
   async function boot(width) {
     const fr = document.getElementById('app');
     fr.style.width = width + 'px';
@@ -15,7 +15,16 @@
     try { localStorage.removeItem('slop-contacts.mode'); } catch (e) { /* blocked: the app reads the mode when it loads */ }
     fr.src = '../../contacts/index.html';
     await waitFor(() => fr.contentWindow && fr.contentWindow.location.pathname.includes('contacts/index.html') && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
-    const win = fr.contentWindow;
+    let win = fr.contentWindow;
+    // A consent choice on record, then a reload: the strip (and the room it keeps at the foot) never shows. Taking the
+    // strip out after it showed left its padding to be undone later, which resized the form in the middle of a check.
+    if (win.SlopConsentState && win.SlopConsentState.needsChoice()) {
+      win.SlopConsentState.write({});
+      fr.src = '../../contacts/index.html?again';
+      await waitFor(() => fr.contentWindow && fr.contentWindow !== win && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 }).catch(() => {});
+      await waitFor(() => fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
+      win = fr.contentWindow;
+    }
     await sleep(300);
     win.document.querySelectorAll('.slopc-banner').forEach((n) => n.remove());
     return win;
@@ -109,7 +118,7 @@
           expect($(win, '.ed-body').contains($(win, '.ed-row'))).toBeTruthy();
           expectStill(steps);
         } finally { restore(); }
-      });
+      }, { timeout: 45000 });   // the first boot records the consent choice and loads the app again
 
       it('an existing contact keeps its frame while rows are added to it', async () => {
         await CT.resetCustomers();
