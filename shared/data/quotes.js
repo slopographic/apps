@@ -1,5 +1,5 @@
 // Quotes (estimates): a priced offer to a customer. Nothing is posted to the ledger. Drafts and status changes are ordinary
-// store.put calls (the schema allows draft -> sent -> accepted or declined; see QUOTE_NEXT). Turning a quote into an order or
+// store.put calls (the schema allows draft -> sent -> accepted or declined; see FLOWS). Turning a quote into an order or
 // a draft invoice goes through here: one transaction writes the new document and links both ways, and accepts the quote.
 (function (g) {
   'use strict';

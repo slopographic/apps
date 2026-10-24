@@ -22,6 +22,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 <script src="…/shared/data/quotes.js"></script>    <!-- quotes: to an order or a draft invoice -->
 <script src="…/shared/data/timesheets.js"></script> <!-- time worked: billed onto a draft invoice -->
 <script src="…/shared/data/recurring.js"></script>  <!-- repeating invoices: due drafts made from schedules -->
+<script src="…/shared/data/purchases.js"></script>  <!-- purchase orders: receive into stock, the bill as an expense -->
 <script src="…/shared/data/bundle-check.js"></script>
 <script src="…/shared/data/export.js"></script>
 <script src="…/shared/data/rates-ecb.js"></script>   <!-- only if the page offers the ECB update -->
@@ -31,7 +32,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 `rates-ecb.js` is optional and does nothing until the person turns on the consent category (see below).
 
 Everything hangs off `window.SlopData`: `money`, `barcode`, `schema`, `schemaDefs`, `result`, `locale`, `store`,
-`numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `quotes`, `timesheets`, `recurring`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
+`numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `quotes`, `timesheets`, `recurring`, `purchases`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
 files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 5 (see storage/INVENTORY.md for
 what each version added), and upgrades only create the missing stores.
 
@@ -277,3 +278,14 @@ Rules enforced by `schema.js` and `store.js`:
   network) and `download(kind)`. Kinds: `label` (SlopLabel merge data), `inventory` (product CSV import), `contacts` (Google
   Contacts CSV, which Slop Contacts reads), `crm` (the same columns; the CRM imports them through Slop Contacts).
 - Tests: `tests/node/barcode-gen.test.mjs`, `tests/node/examples-csv.test.mjs`.
+
+## Status flows
+
+Invoices, orders, quotes and purchase orders each have a flow in `schema-defs.js` (`FLOWS`): the statuses each status may go
+to, the statuses the document can still be edited in, the fields locked otherwise, and the refusals in plain words.
+`schema.checkTransition` applies them; there is no per-collection code.
+
+Purchase orders (`purchases`, PO-0001) are ordinary records for draft, ordered and cancelled. `SlopData.purchases.receive(id,
+{ date, location })` puts every product line into stock and marks the order received, and `recordBill(id, { date, account,
+method })` records the supplier's bill as a posted expense (`SlopData.expenses.recordIn`, the in-transaction form of
+`record`) and links it (`expenseId`), each in one transaction. The supplier is a contact (`customers`) with `supplier: true`.

@@ -132,5 +132,5 @@
     });
   }
 
-  ns.stock = { onHandOf, levelsOf, lowStockRows, countRows, onHand, levels, move, transfer, postCount, lowStock, lookupBarcode };
+  ns.stock = { onHandOf, levelsOf, lowStockRows, countRows, onHand, levels, move, moveIn, transfer, postCount, lowStock, lookupBarcode };
 })(typeof window !== 'undefined' ? window : globalThis);

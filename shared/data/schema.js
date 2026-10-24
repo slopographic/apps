@@ -4,7 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
-  const { ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, INVOICE_NEXT, ORDER_NEXT, QUOTE_NEXT, RX, LINE, JLINE, COUNT, DEFS, COLLECTIONS, movementError, journalErrors, fxErrors } = ns.schemaDefs;
+  const { ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, FLOWS, RX, LINE, JLINE, COUNT, DEFS, COLLECTIONS, movementError, journalErrors, fxErrors } = ns.schemaDefs;
   const MAX = 9e12;
   const META = ['createdAt', 'updatedAt', 'version', 'deletedAt'];
   const ok = (value) => ({ ok: true, value }), clone = (v) => (Array.isArray(v) ? v.slice() : v);
@@ -143,17 +143,10 @@
     if (!d) return 'unknown collection';
     if (d.immutable) return `${name} records cannot be changed`;
     const same = (keys) => keys.every((k) => JSON.stringify(prev[k]) === JSON.stringify(next[k]));
-    if (name === 'invoices') {
-      if (prev.status !== next.status && !INVOICE_NEXT[prev.status].includes(next.status)) return `an invoice cannot go from ${prev.status} to ${next.status}`;
-      if (prev.status !== 'draft' && !same(['customerId', 'date', 'dueDate', 'number', 'currency', 'lines', 'notes', 'orderId', 'subtotal', 'tax', 'total'])) return 'an issued invoice cannot be changed; void it and issue a new one';
-    }
-    if (name === 'orders') {
-      if (prev.status !== next.status && !ORDER_NEXT[prev.status].includes(next.status)) return `an order cannot go from ${prev.status} to ${next.status}`;
-      if (!['draft', 'open'].includes(prev.status) && !same(['customerId', 'date', 'number', 'currency', 'lines', 'notes'])) return 'a closed order cannot be changed';
-    }
-    if (name === 'quotes') {
-      if (prev.status !== next.status && !QUOTE_NEXT[prev.status].includes(next.status)) return `a quote cannot go from ${prev.status} to ${next.status}`;
-      if (prev.status === 'accepted' && !same(['customerId', 'date', 'validUntil', 'number', 'currency', 'lines', 'notes'])) return 'an accepted quote cannot be changed';
+    const f = FLOWS[name];
+    if (f) {
+      if (prev.status !== next.status && !(f.next[prev.status] || []).includes(next.status)) return `${f.noun} cannot go from ${prev.status} to ${next.status}`;
+      if (!f.open.includes(prev.status) && !same(f.lock)) return f.locked;
     }
     if (name === 'timeEntries' && prev.invoiceId && prev.invoiceId === next.invoiceId && !same(['date', 'customerId', 'minutes', 'rate', 'currency', 'billable'])) {
       return 'billed time cannot be changed; void its invoice first';
@@ -178,7 +171,7 @@
   }
 
   ns.schema = {
-    COLLECTIONS, MAX_MINOR: MAX, META, ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, INVOICE_NEXT, ORDER_NEXT,
+    COLLECTIONS, MAX_MINOR: MAX, META, ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, FLOWS,
     def: (name) => DEFS[name] || null, prepare, validate, checkTransition, removable, derive, movementError, journalErrors, fxErrors, errorText,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
