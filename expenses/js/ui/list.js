@@ -48,6 +48,7 @@
   }
 
   function mount() {
+    if (NS.mileageDialog) NS.mileageDialog.mount();   // Mileage… (ui/mileage.js)
     list = g.SlopList.mount($('xRows'), {
       label: 'Expenses', noun: ['expense', 'expenses'], summary: $('xSummary'),
       empty: 'No expenses match. Record one with New expense.',
