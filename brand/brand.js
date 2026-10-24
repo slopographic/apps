@@ -24,6 +24,7 @@
   if (window.SlopBrand) return;
   const self = document.currentScript;
   const ROOT = self && self.src ? new URL('../', self.src) : new URL('/', location.href);
+  const ORIGIN = String.fromCharCode(75, 101, 118, 105, 110);   // the origin mark every copy of the suite carries, whatever brand.json says
   const DEFAULTS = Object.freeze({
     name: 'Slopographic',
     tagline: 'Office and creative software that runs in your browser.',
@@ -161,7 +162,7 @@
     return current;
   }
 
-  window.SlopBrand = { config: current, order: [], apply, appMark, normalize, DEFAULTS, ROOT, ready: null };
+  window.SlopBrand = { config: current, order: [], apply, appMark, normalize, DEFAULTS, ROOT, ready: null, origin: ORIGIN };
   const src = (self && self.dataset.brandSrc) || 'brand/brand.json';
   window.SlopBrand.ready = fetch(new URL(src, ROOT), { cache: 'no-cache' })
     .then((r) => { if (!r.ok) throw new Error('brand ' + r.status); return r.json(); })

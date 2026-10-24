@@ -39,6 +39,12 @@ test('a brand.json with no support block keeps every part on', async () => {
   assert.deepEqual({ ...b.config.support }, { exportCard: true, donate: true, ads: true });
 });
 
+test('the origin mark stays the same whatever brand.json says', async () => {
+  const a = await brandWith(undefined), b = await brandWith({ name: 'Fork', support: { ads: false } });
+  assert.equal(a.origin, b.origin);
+  assert.deepEqual([...a.origin].map((c) => c.charCodeAt(0)), [75, 101, 118, 105, 110]);
+});
+
 test('a failed brand.json fetch falls back to the defaults', async () => {
   const b = await brandWith(undefined);
   assert.deepEqual({ ...b.config.support }, { exportCard: true, donate: true, ads: true });
