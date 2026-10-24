@@ -101,7 +101,7 @@
     ['Enter / double-click', 'Open folder, or open file in its app'], ['Space', 'Quick look'], ['Backspace / Alt+↑', 'Up one folder'],
     ['Arrows', 'Move the focus (Shift extends)'], ['Ctrl+A', 'Select all'], ['Esc', 'Clear selection'],
     ['F2', 'Rename'], ['Delete', 'Move to Trash (Shift+Delete: delete forever)'], ['S', 'Star / unstar'],
-    ['Ctrl+C / X / V', 'Copy, cut, paste'], ['Ctrl+D', 'Duplicate'], ['Ctrl+M', 'Move to…'], ['Ctrl+Shift+N', 'New folder'], ['Ctrl+U', 'Upload files'],
+    ['Ctrl+C / X / V', 'Copy, cut, paste'], ['Ctrl+D', 'Duplicate'], ['Ctrl+M', 'Move to…'], ['Ctrl+Alt+Shift+N', 'New folder'], ['Ctrl+U', 'Upload files'],
     ['/ or Ctrl+F', 'Search'], ['1 – 6', 'Grid, list, compact, columns, nodes, disk usage'], ['I', 'Info panel'],
     ['G then R / S / T / D', 'Go to Recent, Starred, Trash, Slop Drive'], ['?', 'This list'],
   ];

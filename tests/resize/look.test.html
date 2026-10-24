@@ -59,6 +59,15 @@
       expect(h('#rs-open')).toBe(h('header .sh-switch'));
     }, { timeout: 40000 });
 
+    it('at 1280px the whole title shows on one row: the shared buttons give their labels up for icons', async () => {
+      const D = await open(1280);
+      await waitFor(() => D.querySelector('header.rs-top').classList.contains('slop-htight'), { timeout: 5000 });
+      const h1 = D.querySelector('header.rs-top h1'), box = h1.parentElement.getBoundingClientRect();
+      expect(h1.getBoundingClientRect().right).toBeLessThanOrEqual(box.right + 1);
+      expect(D.querySelector('header.rs-top').getBoundingClientRect().height).toBeLessThan(60);
+      expect(laidOut(D, 1280)).toBe(true);
+    }, { timeout: 40000 });
+
     it('at 390px nothing scrolls sideways and no header controls overlap', async () => {
       const D = await open(390);
       expect(laidOut(D, 390)).toBe(true);

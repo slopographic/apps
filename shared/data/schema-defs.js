@@ -21,6 +21,7 @@
     eventKind: ['event', 'call', 'meeting'],
     repeatFreq: ['none', 'daily', 'weekly', 'monthly', 'yearly'],
     priority: ['none', 'low', 'high'],
+    taskPriority: ['none', 'low', 'medium', 'high'],   // a project task (Slop Projects)
     reminderSource: ['event', 'task', 'custom'],
     expenseStatus: ['posted', 'owed', 'void'],   // owed: a bill recorded, not paid yet (Accounts Payable)
     bankLineStatus: ['open', 'matched', 'ignored'],
@@ -67,6 +68,7 @@
     cur: (o) => ({ t: 'currency', ...o }),
     bool: (o) => ({ t: 'bool', ...o }),
     entries: (o) => ({ t: 'entries', max: 10, valMax: 200, ...o }),
+    rows: (of, o) => ({ t: 'rows', of, max: 100, ...o }),   // small records with their own fields (schema.js checkRows)
   };
   const LINE = {
     productId: F.id(), sku: F.str({ max: 80 }), description: F.str({ req: true, max: 300 }),
@@ -221,6 +223,20 @@
       method: F.en(ENUM.payMethod, { def: 'bank' }), status: F.en(ENUM.expenseStatus, { def: 'posted' }),
       receiptId: F.str({ max: 200 }), notes: F.text({}), sample: F.bool({}),
       dueDate: F.date({}), paidDate: F.date({}) } },   // a bill owed (status owed) is due on dueDate; paidDate once it is paid
+    // Slop Projects. A project has its board columns (id, name, a WIP limit, done marks the finished column), the people
+    // tasks are assigned to, and dates. A task sits in one column at a place (order); start and end (inclusive) put it on
+    // the timeline, deps are the ids of the tasks that must finish before it starts (finish-to-start).
+    projects: { key: 'id', check: (r) => (r.start && r.end && r.end < r.start ? ['the end date is before the start date'] : []), fields: {
+      id: F.id({ req: true }), name: F.str({ req: true, max: 120 }), color: F.en(ENUM.tagColor, { def: 'blue' }), start: F.date({}), end: F.date({}),
+      notes: F.text({}), columns: F.rows({ id: F.str({ req: true, max: 40 }), name: F.str({ req: true, max: 40 }), wip: F.int({ min: 0, max: 999 }), done: F.bool({}) }, { min: 1, max: 12, req: true }),
+      people: { t: 'strings', max: 50, itemMax: 80, def: [] }, customerId: F.id({}), sample: F.bool({}) } },
+    projectTasks: { key: 'id', check: (r) => ((!r.start) !== (!r.end) ? ['a task needs both a start and an end date, or neither'] : r.start && r.end < r.start ? ['the end date is before the start date'] : (r.deps || []).includes(r.id) ? ['a task cannot depend on itself'] : []),
+      indexes: [{ name: 'projectId', key: 'projectId' }, { name: 'customerId', key: 'customerId' }], fields: {
+      id: F.id({ req: true }), projectId: F.id({ req: true }), title: F.str({ req: true, max: 200 }), description: F.text({}), column: F.str({ req: true, max: 40 }),
+      order: F.int({ min: 0, max: 1e6, def: 0 }), assignee: F.str({ max: 80 }), priority: F.en(ENUM.taskPriority, { def: 'none' }),
+      start: F.date({}), end: F.date({}), due: F.date({}), tags: { t: 'strings', max: 20, itemMax: 40, def: [] },
+      checklist: F.rows({ text: F.str({ req: true, max: 200 }), done: F.bool({}) }, { def: [] }), deps: { t: 'strings', max: 50, itemMax: 80, def: [] },
+      customerId: F.id({}), sample: F.bool({}) } },
     // Reminders. Custom reminders are rows of their own (source custom). Event and task reminders are read from the
     // events and tasks; a row here only records what the person did (snoozedUntil, firedAt, dismissedAt) for one of them.
     reminders: { key: 'id', indexes: [{ name: 'source', key: 'source' }], fields: {

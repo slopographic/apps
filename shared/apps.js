@@ -181,6 +181,8 @@
       features: ['Month, week, day and agenda views', 'Repeats, time zones and drag to move', 'Reminders, .ics import and export', 'Links to CRM customers and To-do tasks'],
       icon: 'page', status: 'beta' }),
     A('todo', 'app', 'Slop To-do', 'todo/', 'Tasks and lists that show in Calendar. Nothing uploaded.', { title: 'To-do lists', group: 'business', accepts: [], features: ['Due dates and times', 'Lists, tags and subtasks', 'Shows in Calendar and CRM'], icon: 'tag', status: 'building' }),
+    A('projects', 'app', 'Slop Projects', 'projects/', 'Plan projects on a board and a timeline. Nothing uploaded.', { title: 'Project planner: Kanban and Gantt', group: 'business', accepts: [],
+      features: ['Kanban board with WIP limits, drag and drop', 'Timeline (Gantt) with dependencies', 'Checklists, people, tags and priorities', 'JSON backup and CSV export'], icon: 'tag', status: 'building' }),
     A('reminders', 'app', 'Slop Reminders', 'reminders/', 'One timeline of reminders from Calendar and To-do. Nothing uploaded.', { title: 'Reminders', group: 'business', accepts: [], features: ['Snooze and dismiss', 'Custom reminders', 'In-app and browser notifications'], icon: 'spark', status: 'building' }),
     A('ledger', 'app', 'Slop Ledger', 'ledger/', 'Double-entry books, trial balance and exchange rates.', { title: 'Accounting ledger', group: 'business',
       features: ['Chart of accounts, journal and reversals', 'General ledger and trial balance', 'Foreign currency at stored rates', 'Trial balance and journal to CSV'],

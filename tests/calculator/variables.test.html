@@ -38,6 +38,14 @@
       expect(shown.some((t) => t.startsWith('price = 4'))).toBeTruthy();
       expect(frame.contentWindow.localStorage.getItem('slopcalc.vars') !== null).toBeTruthy(); // kept on this device
     });
+    it('naming a value puts it on the tape once: "price = 19.99 = 19.99", not "= price = 19.99"', async () => {
+      // Covers: calculator/js/app.js, shared/calc/calc.js
+      await type('price = 19.99');
+      await until(() => $('#sc-tape li:last-child .sc-line-expr') && $('#sc-tape li:last-child .sc-line-expr').textContent === 'price = 19.99', 'the tape line');
+      expect($('#sc-tape li:last-child .sc-line-val').textContent).toBe('= 19.99');
+      expect($('#sc-preview').textContent).toBe('= 19.99');
+      expect(frame.contentWindow.SlopCalc.program('price = 19.99', {}).steps[0].text).toBe('price = 19.99');   // the step keeps its own form
+    });
     it('an unknown name says so and keeps nothing', async () => {
       await type('nothing_here * 2');
       expect($('#sc-preview').textContent).toMatch(/Unknown name/);

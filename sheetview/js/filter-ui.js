@@ -17,10 +17,11 @@ export function closeFilter() {
   panel = null;
 }
 
-/** Opens the popover under anchor for column col of sheet. spec is the column's current filter (or emptyFilter()). */
-export function openFilter(anchor, { sheet, col, spec, onApply }) {
+/** Opens the popover under anchor for column col of sheet. spec is the column's current filter (or emptyFilter()).
+ * head: header rows at the top, left out of the value list. */
+export function openFilter(anchor, { sheet, col, spec, onApply, head = 0 }) {
   closeFilter();
-  const values = distinctValues(sheet, col);
+  const values = distinctValues(sheet, col, head);
   const items = values.map(({ text, count }) => {
     const row = el('label', 'sv-fitem');
     const cb = el('input');

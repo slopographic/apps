@@ -19,6 +19,9 @@ Slop Drive, and download. Status in `shared/apps.js` is `building`, group `creat
 ## Files
 
 - `index.html`, `css/app.css`, `css/panels.css`: the page (topbar, outliner, viewport, inspector, status line).
+  Top bar: one row from 1260 px (1260 to 1536 px drops the word "slopographic" and packs the buttons; the shared buttons
+  are icons there), the scene actions on a row of their own under 1260 px. In edit mode (Vertex, Edge, Face shown) the
+  actions still wrap below 1440 px.
 - `js/core/` (pure, no DOM, loads in Node): `xform.js` (4×4 maths, Euler XYZ in degrees), `snap.js`, `geometry.js`
   (primitives as parameters), `blob.js` (icosphere plus value noise, seeded), `model.js` (scene and tree), `ops.js`
   (duplicate, group, ungroup, reparent, move, set field, bounds), `history.js` (snapshot undo with merge keys),

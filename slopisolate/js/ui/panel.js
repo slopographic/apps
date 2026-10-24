@@ -42,7 +42,8 @@
     bind((it) => {
       const id = it ? it.model : S.model;
       for (const r of rows) {
-        const on = r.m.id === id, bytes = r.m.bytes ? U.fmtBytes(r.m.bytes) : '';
+        // The size as the first-use notice writes it, from the same byte count (shared/cutout/models.js).
+        const on = r.m.id === id, bytes = r.m.bytes ? (window.SlopFirstRun ? SlopFirstRun.size(r.m.bytes) : U.fmtBytes(r.m.bytes)) : '';
         const ready = cache[r.m.id] === true;
         r.input.checked = on;
         r.lab.classList.toggle('on', on);

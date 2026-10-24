@@ -26,9 +26,21 @@
       if (yes) NS.editor.clean();
       return yes;
     }
+    /** The list beside an open record (the workspace layout, shared/docs/doc-layout.js) shows while another view is current:
+     *  it is redrawn with that view, after a route and after every store change, so a save or an issue shows in it at once. */
+    const listBeside = (t) => t !== 'list' && NS.views && NS.views.list && document.getElementById('view-list') && !document.getElementById('view-list').hidden;
+    function after(t, shown) {
+      if (listBeside(t.view)) Promise.resolve(shown).then(() => NS.views.list.refresh());
+      if (cfg.after) cfg.after(t, shown);
+    }
+    function refresh(view) {
+      const v = NS.views[view], fn = v && (v.refresh || v.render);
+      if (fn) fn.call(v);
+      if (listBeside(view)) NS.views.list.refresh();
+    }
     NS.state = { view: 'list' };
     if (!NS.views || !NS.views.data) g.SlopBiz.backup.attach(NS);   // the Data view: full backup and restore
-    return g.SlopBiz.router.start({ ns: NS, app: cfg.app, parse, leave, after: cfg.after, mount: cfg.mount, tabRoute: cfg.tabRoute,
+    return g.SlopBiz.router.start({ ns: NS, app: cfg.app, parse, leave, after, refresh, mount: cfg.mount, tabRoute: cfg.tabRoute,
       editRoute: () => NS.editor.route(), current: () => NS.editor.route() });
   }
 

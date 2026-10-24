@@ -64,6 +64,22 @@
       expect([...card.querySelectorAll('.rp-kv')].map((n) => n.textContent)).toEqual(['Income: $0.00', 'Expenses: $100.00', 'Profit: -$100.00']);
       expect(doc().documentElement.scrollWidth <= 391).toBe(true);
     });
+    it('at 1280 px the page keeps one width and position whatever report is chosen (it jumped between reports)', async () => {
+      frame.style.width = '1280px';
+      await waitFor(() => frame.contentWindow.innerWidth === 1280);
+      const sel = $('report'), seen = new Set();
+      for (const o of [...sel.options]) {
+        sel.value = o.value;
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+        await new Promise((r) => setTimeout(r, 150));
+        const m = doc().querySelector('.rp-main').getBoundingClientRect();
+        seen.add(`${Math.round(m.left)}/${Math.round(m.width)}`);
+      }
+      expect(seen.size).toBe(1);
+      expect([...seen][0].endsWith('/1100')).toBe(true);   // the full capped width, not shrunk to the report's content
+      expect(getComputedStyle(doc().documentElement).scrollbarGutter).toBe('stable');
+      frame.style.width = '390px';
+    });
   });
   run();
   </script>

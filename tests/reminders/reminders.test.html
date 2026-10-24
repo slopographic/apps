@@ -60,6 +60,21 @@
     });
   });
 
+  describe('a repeating event in Later', () => {
+    it('a weekly event shows its next occurrence once, with "Every week", not a row per week for a year', async () => {
+      // Covers: reminders/js/app.js, shared/reminders/core.js
+      const start = T0 + 2 * 86400000;
+      const r = await w().SlopData.store.put('events', { title: 'Weekly sync', allDay: false, start, end: start + 3600000, tz: 'UTC', color: 'blue', kind: 'event', freq: 'weekly', remind: 15 });
+      expect(r.ok).toBe(true);
+      await w().SlopRemindersUI.app.render();
+      const later = () => [...d().querySelectorAll('.rm-group[aria-label="Later"] .rm-row')].filter((x) => x.querySelector('b').textContent === 'Weekly sync');
+      await waitFor(() => later().length === 1, { timeout: 6000 });
+      expect(later()[0].querySelector('.rm-sub').textContent).toContain('Every week');
+      expect(later()[0].querySelector('.rm-when').textContent).toContain(w().SlopTime.dateTimeText(start - 15 * 60000, w().SlopTime.deviceZone()).slice(0, 6));
+      expect(d().querySelector('.rm-group[aria-label="Later"] .side-n').textContent).toBe(String(d().querySelectorAll('.rm-group[aria-label="Later"] .rm-row').length));
+    });
+  });
+
   run({ name: 'Reminders · snooze' });
   </script>
 </body>

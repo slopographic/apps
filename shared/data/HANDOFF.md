@@ -36,7 +36,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 
 Everything hangs off `window.SlopData`: `money`, `barcode`, `schema`, `schemaDefs`, `result`, `locale`, `store`,
 `numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `quotes`, `timesheets`, `recurring`, `purchases`, `statement`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
-files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 10 (see storage/INVENTORY.md for
+files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 12 (see storage/INVENTORY.md for
 what each version added), and upgrades only create the missing stores.
 
 ## Credit notes
@@ -114,6 +114,11 @@ Codes: `invalid`, `invalid_transition`, `immutable`, `posting_required`, `delete
 | `stockMovements` | `id` | productId*, location (default main), qty* (signed, non-zero), reason receipt\|sale\|adjustment\|transfer\|count\|return, date*, ref. Immutable. |
 | `stockCounts` | `id` | location*, date*, `lines[{productId, expected, counted, diff}]`, status posted. Immutable. |
 | `numbering` | `id` ('invoice', 'order') | prefix, pad, next. Only moves forward. |
+| `projects` | `id` | Slop Projects. name*, color (tag colour), start, end, notes, `columns[]`* (`rows`: id*, name*, wip 0–999, done; 1 to 12), `people[]`, customerId. Hard delete. |
+| `projectTasks` | `id` | projectId*, title*, description, column* (a column id), order, assignee, priority none\|low\|medium\|high, start and end (both or neither, end not before start), due, `tags[]`, `checklist[]` (`rows`: text*, done), `deps[]` (ids of tasks that finish first; not itself), customerId. Indexes projectId, customerId. Hard delete. |
+
+Field type `rows` (`F.rows(of, { min, max })` in schema-defs.js, checked by `checkRows` in schema.js): a list of small records with
+their own field specs, such as a project's columns or a task's checklist. Unknown keys in a row are refused.
 
 `*` = required. Every record also carries `createdAt`, `updatedAt` (ms), `version` (starts at 1, +1 per save), and
 `deletedAt` for soft-deleted records. Those are stamped by the store; callers never set them.

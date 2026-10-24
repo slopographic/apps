@@ -3,7 +3,7 @@
 <head>
   <script src="../../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../../shared/theme/theme.js" data-app="convert" data-src="shared/theme/theme.js"></script>
-  <script src="../../shared/boot/boot.js" data-src="shared/boot/boot.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../../shared/drop/rules.js" data-src="shared/drop/rules.js"></script>
 <script src="../../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
 <script src="../../shared/intake/intake.js" data-src="shared/intake/intake.js"></script>
@@ -31,6 +31,8 @@
   <link rel="stylesheet" href="../../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../../convert/css/convert.css">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"File convert: Split PDF","applicationCategory":"UtilitiesApplication","operatingSystem":"Any (modern web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://slopographic.com/convert/split-pdf/","description":"Split a PDF in your browser. Extract a page range into one PDF, or split every page into its own file and download them as a zip. Nothing uploaded.","isAccessibleForFree":true}</script>
+  <script type="module" blocking="render" src="../../convert/js/ui/mount.js"></script>
+  <script type="module" blocking="render" src="../../convert/js/preview/mount.js"></script>
 </head>
 <body>
   <a class="cv-skip-link" href="#tool">Skip to the converter</a>
@@ -93,8 +95,7 @@
   <aside class="cv-wrap" aria-label="Advertisement">
     <div class="slop-ad" data-slop-ad="convert-sidebar" hidden></div>
   </aside>
-  <script type="module" src="../../convert/js/ui/mount.js"></script>
-  <script type="module" src="../../convert/js/preview/mount.js"></script>
   <script src="../../shell/shell.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

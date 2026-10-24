@@ -67,7 +67,7 @@
   act('edit.pasteBack', 'Paste in Back', ['mod+b'], function () { C.paste('back'); });
   act('edit.clear', 'Delete', [], function () { C.deleteSel(); }, { enabled: hasSel, keyText: 'Del' });
   act('edit.duplicate', 'Duplicate', ['mod+d'], function () { C.duplicate(); }, { enabled: hasSel });
-  act('edit.prefs', 'Preferences…', ['mod+k'], function () { prefsDialog(); });
+  act('edit.prefs', 'Preferences…', ['mod+,'], function () { prefsDialog(); });
   act('edit.nav', 'Navigation…', [], function () { SlopNav.openModal('vector'); });
 
   act('object.group', 'Group', ['mod+g'], function () { C.group(); }, { enabled: hasSel });
@@ -157,6 +157,8 @@
   Object.keys(A).forEach(function (id) { A[id].keys.forEach(function (k) { SV.keymap[k] = id; }); });
   SV.keymap['mod+n'] = 'file.new';
   SV.keymap['mod+shift+/'] = 'help.shortcuts';
+  // Ctrl/⌘+K is Search Commands in every app (SlopCmd's palette); Preferences is Ctrl/⌘+, (above).
+  SV.keymap['mod+k'] = 'help.commands';
 
   $.A = A; $.PANEL_IDS = PANEL_IDS; $.PANEL_NAMES = PANEL_NAMES; $.act = act;
 })();

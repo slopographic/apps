@@ -66,6 +66,20 @@
       expect(Math.round(b.width)).toBe(Math.round(b.height));
       h.remove();
     });
+    it('a header whose title is clipped by its brand box goes tight ("Slop Upsca" at 1280)', () => {
+      const h = bar('wide');
+      h.style.width = '420px';
+      const brand = document.createElement('div');
+      brand.style.cssText = 'display:flex;flex:1 1 auto;min-width:0;overflow:clip';
+      brand.innerHTML = '<h1 style="margin:0;font-size:18px;white-space:nowrap">Slop Upscale with a long name</h1>';
+      h.prepend(brand);
+      SlopHbtn.fit(h);
+      expect(h.scrollWidth).toBeLessThanOrEqual(h.clientWidth + 1);   // nothing overflows the header itself
+      expect(h.classList.contains('slop-htight')).toBe(true);
+      h.style.width = '1200px';
+      expect(SlopHbtn.check(h)).toBe(false);
+      h.remove();
+    });
     it('a header that wraps its buttons onto a second row goes tight', () => {
       const h = SlopHbtn.fit(bar('wrap'));
       expect(h.classList.contains('slop-htight')).toBe(true);

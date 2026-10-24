@@ -21,14 +21,15 @@
 
   /**
    * Every reminder whose moment falls in [from, to), from events, open tasks and custom rows.
-   * Each item: { key, source, refId, title, at, fireAt, dismissed, snoozedUntil, firedAt, stateId, isCustom }.
+   * Each item: { key, source, refId, title, at, fireAt, dismissed, snoozedUntil, firedAt, stateId, isCustom, repeat }.
+   * repeat is the event's repeat in words ("Every week") for a repeating event, else null.
    * stateId is the row that holds what the person did (created on the first snooze or dismiss for event and task items).
    * zone is the device zone (where a day without a time is 09:00).
    */
   function items({ events = [], tasks = [], records = [], from, to, zone }) {
     const rows = new Map(records.map((r) => [r.id, r]));
     const out = [];
-    const push = (source, refId, title, at, stateId) => {
+    const push = (source, refId, title, at, stateId, repeat) => {
       const row = rows.get(stateId) || {};
       const isCustom = source === 'custom';
       out.push({
@@ -37,7 +38,7 @@
         snoozedUntil: row.snoozedUntil || null,
         firedAt: row.firedAt || null,
         dismissed: !!row.dismissedAt,
-        stateId, isCustom,
+        stateId, isCustom, repeat: repeat || null,
       });
     };
     for (const ev of events) {
@@ -46,7 +47,7 @@
         const base = o.allDay ? T.dayTimeToUtc(o.startDay, TK.DEFAULT_TIME, zone) : o.start;
         const at = base - ev.remind * MIN;
         if (at < from || at >= to) continue;
-        push('event', ev.id, ev.title, at, stateKey('event', ev.id, at));
+        push('event', ev.id, ev.title, at, stateKey('event', ev.id, at), RR.FREQS.includes(ev.freq) ? RR.describe(ev) : null);
       }
     }
     for (const t of tasks) {
@@ -85,6 +86,25 @@
     return { notify, silent };
   }
 
+  /**
+   * A repeating event once: the first (next) of its occurrences in the list stands for the rest, which it counts in
+   * `more`. Used for the Later group, which would otherwise list a weekly event about 58 times (the window is 400 days).
+   * Other items pass through. Keeps the order. (Dismissed occurrences are filtered out before this, so dismissing the
+   * next one brings up the one after.)
+   */
+  function nextOnly(list) {
+    const first = new Map(), out = [];
+    for (const it of list) {
+      if (it.source !== 'event' || !it.repeat) { out.push(it); continue; }
+      const seen = first.get(it.refId);
+      if (seen) { seen.more++; continue; }
+      const row = { ...it, more: 0 };
+      out.push(row);
+      first.set(it.refId, row);
+    }
+    return out;
+  }
+
   /** The row to write when an item fires, snoozes or is dismissed. Custom rows keep their own fields. */
   function stateRow(item, patch) {
     return {
@@ -107,6 +127,7 @@
   NS.stateKey = stateKey;
   NS.items = items;
   NS.group = group;
+  NS.nextOnly = nextOnly;
   NS.due = due;
   NS.stateRow = stateRow;
   NS.snoozeUntil = snoozeUntil;

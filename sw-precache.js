@@ -20,7 +20,7 @@ PRECACHE.push(
   '/aitools/aitools.css', '/aitools/common.js', '/aitools/dialog.css', '/aitools/get-more.js', '/aitools/hub.js', '/aitools/index.html',
   '/aitools/model-registry.js', '/aitools/models.js', '/aitools/support.js', '/aitools/transcript.js', '/app.js', '/assets/icons/icon-192.png',
   '/assets/icons/icon-512.png', '/assets/samples/moon-landing.ogg', '/assets/samples/moon-landing.txt', '/brand/brand.css', '/brand/brand.js',
-  '/brand/brand.json', '/brand/logo.svg', '/calculator/css/calc.css', '/calculator/index.html', '/calculator/js/app.js', '/calculator/js/calendar.js',
+  '/brand/brand.json', '/brand/logo-128.webp', '/calculator/css/calc.css', '/calculator/index.html', '/calculator/js/app.js', '/calculator/js/calendar.js',
   '/calculator/js/commands.js', '/calculator/js/convert.js', '/calculator/js/panels.js', '/calculator/js/route.js', '/calendar/css/calendar.css',
   '/calendar/css/views.css', '/calendar/index.html', '/calendar/js/config.js', '/calendar/js/core/model.js', '/calendar/js/core/periods.js',
   '/calendar/js/ui/agenda.js', '/calendar/js/ui/app.js', '/calendar/js/ui/chip.js', '/calendar/js/ui/commands.js', '/calendar/js/ui/drag.js',

@@ -34,10 +34,12 @@ against its source framework before the file is written. The list, hashes and so
 
 | Model | Scale | Bundled | Size | Licence | Source |
 |---|---|---|---|---|---|
-| FSRCNN x2 (Fast) | 2× | yes | 36 KB | Apache-2.0 | Saafke/FSRCNN_Tensorflow `models/FSRCNN_x2.pb` (checked against TensorFlow: error 7e-7) |
-| FSRCNN x4 (Fast) | 4× | yes | 39 KB | Apache-2.0 | Saafke/FSRCNN_Tensorflow `models/FSRCNN_x4.pb` (error 7e-7) |
-| Real-ESRGAN x4plus (Quality) | 4× | no, opt-in | 67 MB | BSD-3-Clause | xinntao/Real-ESRGAN `RealESRGAN_x4plus.pth` (v0.1.0, `params_ema`; error 1e-6) |
+| FSRCNN x2 (Fast) | 2× | yes | 35 KB | Apache-2.0 | Saafke/FSRCNN_Tensorflow `models/FSRCNN_x2.pb` (checked against TensorFlow: error 7e-7) |
+| FSRCNN x4 (Fast) | 4× | yes | 38 KB | Apache-2.0 | Saafke/FSRCNN_Tensorflow `models/FSRCNN_x4.pb` (error 7e-7) |
+| Real-ESRGAN x4plus (Quality) | 4× | no, opt-in | 64 MB | BSD-3-Clause | xinntao/Real-ESRGAN `RealESRGAN_x4plus.pth` (v0.1.0, `params_ema`; error 1e-6) |
 
+- Sizes: `bytes` in `js/core/models.js` is the one source. The page's Quality size (`#up-quality-size`) and the first-use
+  notice both write it with `SlopFirstRun.size` (1 MB = 1024 × 1024 bytes, as Get more does), so they always agree.
 - FSRCNN works on Y only. Colour comes from Lanczos, and only the luminance is replaced by the network's output.
 - Real-ESRGAN: the code is BSD-3-Clause. The weights are published in the same repository under that licence;
   no separate weights licence is given (noted in `index.json`). Its training data (DF2K, OST) is not redistributed.
@@ -53,7 +55,7 @@ model that is not bundled.
 
 **The download URL is `raw.githubusercontent.com/slopographic/cdn/main/models/upscale/realesrgan-x4plus.onnx`.
 It only works once that file is on `main`.** Until then Get more reports that the download failed, and Quality falls
-back to Lanczos. The file is 67 MB; commit it with git LFS if the repository should not hold it directly.
+back to Lanczos. The file is 64 MB; commit it with git LFS if the repository should not hold it directly.
 
 ## How a run works
 1. The picture is decoded to a canvas. `plan()` cuts it into 128 px cores, each read with 16 px of context on every

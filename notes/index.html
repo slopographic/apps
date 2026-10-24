@@ -3,7 +3,7 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="notes" data-src="shared/theme/theme.js"></script>
-  <script src="../shared/boot/boot.js" data-src="shared/boot/boot.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -113,5 +113,6 @@
 <script src="../shared/menubar/menubar.js"></script>
 <script>SlopMenuBar.mount({"app": "Notes", "tools": ["#nt-new"], "menus": {"File": ["#nt-new", "#nt-nb-new", "#nt-fd-new", "#nt-export"], "Edit": ["#nt-pin", "#nt-insert", "#nt-del"], "View": ["#nt-side-btn"], "Help": ["#nt-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

@@ -11,9 +11,15 @@
   const watched = new WeakSet();
 
   /** Something inside host is cut off, pushed past an edge, or wrapped onto a second row (a shared button sits below the
-   *  bottom of the header's first item). */
+   *  bottom of the header's first item), or the app's title (h1) is squeezed: it runs past the box that holds it, which
+   *  clips it ("Slop Upsca"). */
   function over(host) {
     if (host.scrollWidth > host.clientWidth + 1) return true;
+    for (const t of host.querySelectorAll('h1')) {
+      const p = t.parentElement, tr = t.getBoundingClientRect();
+      if (!tr.width || !p || p === host) continue;
+      if (tr.right > p.getBoundingClientRect().right + 1 || t.scrollWidth > t.clientWidth + 1) return true;
+    }
     const box = host.getBoundingClientRect();
     const first = [...host.children].map((c) => c.getBoundingClientRect()).find((r) => r.width && r.height);
     const row = first ? first.bottom : box.bottom;

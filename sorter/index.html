@@ -23,12 +23,13 @@
   <!-- seo:end -->
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="sorter" data-src="shared/theme/theme.js"></script>
-  <script src="../shared/boot/boot.js" data-src="shared/boot/boot.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/deck/deck.css">
   <link rel="stylesheet" href="css/sorter.css">
+  <script type="module" blocking="render" src="js/app.js"></script>
 </head>
 <body>
   <div class="smb-hold" hidden>
@@ -72,10 +73,10 @@
   <script src="../shared/deck/deck.js"></script>
   <script src="../shared/samples/samples.js"></script>
   <script src="js/model.js"></script>
-  <script type="module" src="js/app.js"></script>
   <link rel="stylesheet" href="../shared/menubar/menubar.css">
   <script src="../shared/menubar/menubar.js"></script>
   <script>SlopMenuBar.mount({ "app": "Photo Sorter", "menus": { "File": ["#soFolder", "-", "#soZip", "#soDrive", "#soCsv", "-", "#soClear"], "Sort": ["#soStart"] } });</script>
   <script src="../shell/shell.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

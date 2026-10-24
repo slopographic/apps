@@ -3,7 +3,7 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="photoslop" data-src="shared/theme/theme.js"></script>
-  <script src="../shared/boot/boot.js" data-src="shared/boot/boot.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -238,7 +238,7 @@
   <script src="../shared/samples/samples.js"></script>
   <script src="js/app/welcome.js"></script>
   <script src="js/app/main.js"></script>
-  <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script type="module" async src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js" data-offline="strip"></script>
   <script>window.SlopPWA && SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>
@@ -249,5 +249,6 @@
   <script src="../shared/viewmode/grid.js"></script><script src="../shared/viewmode/viewmode.js"></script>
   <script src="js/app/route.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

@@ -7,6 +7,7 @@
 <script type="module">
 import { PAGES } from '../../convert/js/core/pages.js';
 import { TASKS } from '../../shared/seo/tasks/index.mjs';
+import { GUIDES } from '../../shared/seo/guides/index.mjs';
 const { describe, it, expect } = SlopTest;
 const SITE = 'https://slopographic.com';
 const text = async (url) => { const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) throw new Error(`${url} returned ${r.status}`); return r.text(); };
@@ -24,9 +25,10 @@ describe('sitemap and robots', () => {
   it('sitemap.xml lists only URLs that exist', async () => {
     const xml = await text('../../sitemap.xml');
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-    // The hub, every converter page and the task pages (shared/seo/tasks/, app convert, such as convert/pdf-to-word/).
-    const tasks = TASKS.filter((t) => t.app === 'convert').length;
-    expect(locs.filter((l) => l.startsWith(`${SITE}/convert/`)).length).toBe(PAGES.length + 1 + tasks);
+    // The hub, every converter page, the task pages (shared/seo/tasks/, app convert, such as convert/pdf-to-word/) and the
+    // guides (shared/seo/guides/, such as convert/getting-started/).
+    const tasks = TASKS.filter((t) => t.app === 'convert').length, guides = GUIDES.filter((g) => g.app === 'convert').length;
+    expect(locs.filter((l) => l.startsWith(`${SITE}/convert/`)).length).toBe(PAGES.length + 1 + tasks + guides);
     for (const loc of locs) {
       const path = loc.replace(SITE, '');
       const r = await fetch(`../..${path}`);

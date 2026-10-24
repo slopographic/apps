@@ -29,7 +29,9 @@
       if (mod && k.toLowerCase() === 'v') return run(() => DR.paste(one && one.isFolder && !one.trashedAt ? one.id : DR.dest()));
       if (mod && k.toLowerCase() === 'd') return run(() => items.length && DR.duplicate(items));
       if (mod && k.toLowerCase() === 'm') return run(() => items.length && DR.moveDialog(items));
-      if (mod && e.shiftKey && k.toLowerCase() === 'n') return run(() => DR.newFolder(DR.dest()));
+      // New folder is Ctrl+Alt+Shift+N, as in Slop Code (Chrome keeps Ctrl+Shift+N for an incognito window); e.code, since a
+      // Mac's Option changes e.key
+      if (mod && e.altKey && e.shiftKey && e.code === 'KeyN') return run(() => DR.newFolder(DR.dest()));
       if (mod && k.toLowerCase() === 'u') return run(() => DR.uploadPicker(false));
       if (mod && k.toLowerCase() === 'f') return run(() => $('search').focus());
       if (mod) return;

@@ -3,7 +3,7 @@
 <head>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="label" data-src="shared/theme/theme.js"></script>
-  <script src="../shared/boot/boot.js" data-src="shared/boot/boot.js"></script>
+  <link rel="expect" href="#slop-built" blocking="render">
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -173,7 +173,7 @@
   <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
   <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="js/ui/boot.js"></script>
-  <script type="module" src="../shared/buddy/boot.js" data-offline="strip"></script>
+  <script type="module" async src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
@@ -186,5 +186,6 @@
   <script src="../shared/viewmode/grid.js" data-src="shared/viewmode/grid.js"></script><script src="../shared/viewmode/viewmode.js" data-src="shared/viewmode/viewmode.js"></script>
   <script src="js/ui/route.js" data-src="label/js/ui/route.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<i id="slop-built" hidden></i>
 </body>
 </html>

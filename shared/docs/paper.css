@@ -52,7 +52,7 @@
 .paper.l-minimal.ta-left .pp-co { text-align: right; }
 .paper.l-bold.hd-band .pp-head { background: var(--accent); color: #fff; margin: -48px -52px 24px; padding: 26px 52px 24px; border-radius: 2px 2px 0 0; }
 .paper.l-bold.hd-band .pp-addr, .paper.l-bold.hd-band .pp-status, .paper.l-bold.hd-band .pp-meta dt, .paper.l-bold.hd-band .pp-meta dd,
-.paper.l-bold.hd-band .pp-coname, .paper.l-bold.hd-band .pe, .paper.l-bold.hd-band h2 { color: #fff; }
+.paper.l-bold.hd-band .pp-coname, .paper.l-bold.hd-band .pp-head .pe, .paper.l-bold.hd-band h2 { color: #fff; }
 .paper.l-bold.hd-band .pp-title { text-align: left; }
 .paper.l-bold.hd-band .pp-meta div { justify-content: flex-start; }
 .paper.l-bold .pp-table th { color: var(--accent); }
@@ -66,11 +66,22 @@
 /* Editable fields: buttons that look like text until hovered or focused */
 .paper .pe { font: inherit; color: inherit; background: none; border: 1px dashed transparent; border-radius: 3px; padding: 0 3px; margin: 0 -3px;
   text-align: inherit; cursor: text; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Numbers, money and dates never break onto two lines ("£1,200.0 / 0"): their cells keep one line and the description
+   column takes the squeeze. The editable button's own wrapping is for text fields only. */
+.paper .pp-table .n .pe, .paper .pp-meta dd, .paper .pp-meta dd .pe, .paper .pp-sums dd { white-space: nowrap; overflow-wrap: normal; font-variant-numeric: tabular-nums; }
 .paper .pe:hover, .paper .pe:focus-visible { border-color: #aab4c0; background: rgba(51, 69, 92, .06); outline: none; }
 .paper .pe-input { font: inherit; color: #111; background: #fff; width: 100%; box-sizing: border-box; padding: 3px 5px; border: 1px solid #6b7785; border-radius: 3px; }
 .paper textarea.pe-input { resize: vertical; min-height: 56px; }
 .paper .pp-table .pe-input { text-align: inherit; }
 .paper .pp-table .n .pe-input { text-align: right; }
+/* A narrow page (the centre of the workspace, a phone): the side bar stacks above the table, the cells pad less, and a table
+   that is still too wide scrolls inside the page instead of running off it. */
+.paper { container-type: inline-size; }
+.paper .pp-main { min-width: 0; overflow-x: auto; }
+@container (max-width: 660px) {
+  .paper.l-sidebar .pp-grid { grid-template-columns: 1fr; gap: 18px; }
+  .paper .pp-table th, .paper .pp-table td { padding-left: 3px; padding-right: 3px; }
+}
 
 @media (max-width: 560px) {
   .paper { padding: 26px 16px 24px; }

@@ -52,6 +52,7 @@
     crm: { desc: 'Manage customers and leads on a pipeline board, with dated notes, follow-ups and links to orders.', keywords: ['crm', 'customers', 'leads', 'pipeline', 'sales', 'follow up', 'contacts', 'clients'] },
     calendar: { desc: 'Plan days and weeks with month, week and agenda views, repeats, time zones and .ics import.', keywords: ['calendar', 'events', 'meetings', 'ics', 'schedule', 'appointments', 'agenda', 'reminders'] },
     todo: { desc: 'Keep tasks and lists with due dates, tags and subtasks. Tasks show up in Calendar.', keywords: ['to-do', 'todo', 'tasks', 'checklist', 'lists', 'due dates', 'to do list', 'jobs'] },
+    projects: { desc: 'Plan a project on a Kanban board and a Gantt timeline, with dependencies, checklists, people and CSV export.', keywords: ['project management', 'kanban', 'gantt', 'board', 'timeline', 'tasks', 'trello', 'planner', 'dependencies'] },
     reminders: { desc: 'One timeline for every reminder from Calendar and To-do, with snooze and browser notifications.', keywords: ['reminders', 'alerts', 'notifications', 'snooze', 'timeline', 'due', 'nudge', 'alarm'] },
     ledger: { desc: 'Double-entry books with a chart of accounts, journal, trial balance and foreign currency.', keywords: ['ledger', 'accounts', 'bookkeeping', 'double entry', 'trial balance', 'journal', 'accounting', 'gl'] },
     admin: { desc: 'Set up your company profile, numbering and currency, and make validated backups or restores.', keywords: ['admin', 'settings', 'backup', 'restore', 'company profile', 'numbering', 'reset', 'setup'] },

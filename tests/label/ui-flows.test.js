@@ -1,5 +1,6 @@
 /* SlopLabel UI flow tests: dialogs, data merge, variables, print dialog and outputs, templates,
- * themes, Slop Hub, print-form links and the phone layout. */
+ * themes, Slop Hub, print-form links and the phone layout.
+ * Covers: label/js/ui/panels.js */
 (function () {
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   const frame = () => new Promise((r) => WIN.requestAnimationFrame(() => WIN.requestAnimationFrame(r)));
@@ -29,6 +30,10 @@
       expect(W.$('recInfo').textContent).toBe('2 / 2');
       W.App.tab = 'data'; W.refreshNow();
       expect(W.$('dockBody').querySelectorAll('tbody tr').length).toBe(2);
+      // No stray "null" text node under the records table (append() turns a null argument into that text).
+      const stray = [...W.$('dockBody').querySelectorAll('*')].concat(W.$('dockBody')).flatMap((e) => [...e.childNodes]).filter((t) => t.nodeType === 3 && t.data.trim() === 'null');
+      expect(stray.length).toBe(0);
+      expect(/null/.test(W.$('dockBody').textContent)).toBe(false);
       expect(W.jobScenes({}).scenes.length).toBe(3); // Ada ×2 + Grace ×1
     });
     it('adds a variable through the editor and renames references', async () => {

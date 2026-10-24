@@ -79,7 +79,7 @@
   const FIRST_USE = {
     title: 'Sharpen pictures on this device',
     lines: ['Slop Upscale enlarges pictures with models that run in your browser.'],
-    downloads: [{ name: 'Quality model (Real-ESRGAN x4plus), only if you choose it', bytes: 67051618 }],
+    downloads: [{ name: 'Quality model (Real-ESRGAN x4plus), only if you choose it', bytes: MD.get(QUALITY_ID).bytes }],
   };
   async function open(file, o = {}) {
     if (window.SlopFirstRun && !(await SlopFirstRun.once('upscale', FIRST_USE))) return;
@@ -257,6 +257,9 @@
   }
 
   async function boot() {
+    // The Quality model's size on the page comes from the registry's byte count, as the first-use notice's does.
+    const qs = document.getElementById('up-quality-size');
+    if (qs && g.SlopFirstRun) qs.textContent = g.SlopFirstRun.size(MD.get(QUALITY_ID).bytes);
     wire();
     updateButtons();
     await formats();

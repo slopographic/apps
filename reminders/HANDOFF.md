@@ -20,12 +20,16 @@ is open, and optionally as a browser notification. Nothing uses the network.
   flood the page.
 - Delivery: `SlopNotify.show({ title, body })` if a page loads it, otherwise a toast. A browser notification is also shown when the
   permission is granted. `SlopReminderEngine.setNotifier(fn)` replaces delivery (for tests).
+- A repeating event shows in Later once: its next occurrence, with the repeat in words ("Event · Every week · the next
+  one"), through `SlopReminders.nextOnly`. The 400-day window would otherwise list a weekly event about 58 times. Overdue
+  and Today still list each occurrence. Dismissing the next one brings up the one after.
 - Snooze sets `snoozedUntil` and clears `firedAt`, so the reminder fires again at that time. Dismiss hides it for good.
 
 ## Tests
 - `node tests/run.mjs todo`: the due and reminder rules (`tests/node/todo-logic.test.mjs`).
 - `node tests/run.mjs reminders`: `tests/reminders/reminders.test.html`. Fake clock: a custom reminder fires once, a 5 minute
-  snooze keeps it quiet at 4 minutes and fires it again at 5 minutes, and a due reminder appears in the in-app notifications.
+  snooze keeps it quiet at 4 minutes and fires it again at 5 minutes, a due reminder appears in the in-app notifications,
+  and a weekly event shows once in Later. `tests/node/todo-logic.test.mjs` checks `nextOnly`.
 
 ## Not done or not checked
 - In-app delivery calls `SlopNotify.show({ title, body })` (shell/notify.js, loaded by shell/shell.js). It used to pass one

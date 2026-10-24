@@ -68,6 +68,19 @@
       expect(UI.menuItems('Help')[0].key).toBe('Ctrl+K');
       expect(W.document.getElementById('cmdBtn').hidden).toBe(false);
     });
+
+    it('Ctrl+K belongs to Search Commands only: Preferences is Ctrl+, (it once took Ctrl+K too)', async () => {
+      // Covers: slopvector/js/ui/actions.js
+      expect(C.keyFor('sv.edit.prefs')).toBe('Ctrl+,');
+      expect(UI.menuItems('Edit').find((i) => i && i.label === 'Preferences…').key).toBe('Ctrl+,');
+      expect(C.list().filter((c) => c.id !== 'cmd.palette' && C.bindings(c.id).includes('Mod+K')).map((c) => c.id)).toEqual([]);
+      expect(SV.keymap['mod+k']).toBe('help.commands');
+      expect(SV.keymap['mod+,']).toBe('edit.prefs');
+      key('Comma', ',', { ctrlKey: true });
+      await waitFor(() => [...W.document.querySelectorAll('.sui-dlg')].find((d) => d.getAttribute('aria-label') === 'Preferences'), { timeout: 3000 });
+      for (const x of W.document.querySelectorAll('.sui-back .sui-x')) x.click();
+      expect(C.isOpen).toBeFalsy();
+    });
   });
   </script>
   <script>SlopTest.run({ name: 'SlopVector · commands' });</script>

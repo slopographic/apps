@@ -131,3 +131,17 @@ test('the tomorrow snooze is 09:00 on the next day in the zone', () => {
   assert.equal(NR.snoozeUntil('tomorrow', now, NY), T.wallToUtc(2026, 10, 12, 9, 0, NY));
   assert.equal(NR.snoozeUntil('1h', now, NY), now + 3600000);
 });
+
+test('a weekly event shows once in Later (its next occurrence, saying "Every week"), not once per week for the window', () => {
+  // Covers: shared/reminders/core.js
+  const start = T.wallToUtc(2026, 10, 12, 10, 0, PARIS);
+  const ev = { id: 'w1', title: 'Standup', allDay: false, start, end: start + 3600000, tz: PARIS, freq: 'weekly', remind: 15 };
+  const once = { id: 'o1', title: 'Dentist', allDay: false, start: start + 86400000, end: start + 90000000, tz: PARIS, freq: 'none', remind: 15 };
+  const from = start - 86400000, to = from + 400 * 86400000;
+  const all = NR.items({ events: [ev, once], records: [], from, to, zone: PARIS });
+  assert.ok(all.filter((x) => x.refId === 'w1').length > 50);   // the window holds about 58 weeks
+  const later = NR.nextOnly(all);
+  same(later.map((x) => [x.refId, x.repeat]), [['w1', 'Every week'], ['o1', null]]);
+  assert.equal(later[0].at, start - 15 * 60000);
+  assert.equal(later[0].more, all.filter((x) => x.refId === 'w1').length - 1);
+});

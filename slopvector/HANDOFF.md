@@ -32,6 +32,8 @@ An Illustrator-style vector editor at `/slopvector/`. Plain scripts (no modules,
 - Every action in `SV.actions` is a SlopCmd command `sv.<action id>`; tools are `sv.tool.<id>`; canvas keys (X and Shift+X swap fill and stroke, D sets the defaults, / comma, period, arrow nudges) are `sv.paint.*`, `sv.nudge.*`. `sv.focus.toggle` (fill / stroke focus) has no key now; the fill and stroke chips do it. Menus and context menus label items with `UI.actKey(a)`, i.e. the person's own binding.
 - Commands are gated off while the text editor, a SlopUI menu or the colour picker has the keys. Copy/Cut/Paste keep their native events (no SlopCmd keys). With SlopCmd active, `tools/keys.js` handles only Space, Esc, Enter, clipboard and shape-drag arrows.
 - Help ▸ Search Commands… (⌘K), Help ▸ Keyboard Shortcuts (SlopCmd's editor; F1), and a search button in the menubar.
+  ⌘K is only Search Commands (as in every app); Edit ▸ Preferences… is ⌘, (it was bound to ⌘K by mistake). The legacy keymap
+  (no SlopCmd) maps ⌘K to Search Commands too.
 
 ## Colour and eyedropper (`shared/color/`, `js/ui/color.js`, `js/tools/eyedrop.js`)
 - **Picker body** is `SlopColorPicker` (`shared/color/picker.js`, used by PhotoSlop too): saturation-brightness square, hue and alpha bars, hex / RGB / HSB / alpha fields, a Recent row (`localStorage` `slopvector.recentColors`, 12 entries) and the palette row. Every change applies at once through `SV.applyStyle(which, hex, { commit: false })`; the undo step is written when the popover closes.
