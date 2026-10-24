@@ -5,7 +5,7 @@
  * what is already on the page), applies the chosen language (SlopI18n.apply) once the header is in, adds the Apps and Notifications buttons to the page header, and binds Ctrl+Space.
  * Options on the tag: data-no-header (no buttons), data-brand-src (see brand/brand.js).
  * Exposes window.SlopShell (core helpers) and, once booted, SlopShell.switcher / .drawer / .notify / .tabs.
- * Modules: shell/notify.js SlopNotify · shell/layout.js SlopLayout · shell/tabs.js SlopTabs ·
+ * Modules: shell/notify.js SlopNotify · shell/layout.js SlopLayout · shell/tabs.js SlopOpenTabs ·
  *          shell/switcher.js SlopSwitcher · shell/drawer.js SlopDrawer · shell/header.js SlopHeader. */
 (function () {
   'use strict';
@@ -90,7 +90,7 @@
     S.currentApp = detectCurrent();
     if (S.currentApp) pushRecent(S.currentApp.id);
     S.notify = window.SlopNotify;
-    S.tabs = window.SlopTabs;
+    S.tabs = window.SlopOpenTabs;
     S.switcher = window.SlopSwitcher;
     S.drawer = window.SlopDrawer;
     S.layout = window.SlopLayout;

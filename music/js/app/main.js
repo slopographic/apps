@@ -5,14 +5,10 @@
   'use strict';
   const M = window.SlopMusic, H = () => window.SlopHub, $ = (id) => document.getElementById(id);
   const VIEWS = ['library', 'playlists', 'now'];
-  let view = 'library';
+  let view = 'library', tabs = null;
   function setView(v, { focus = false } = {}) {
     view = VIEWS.includes(v) ? v : 'library';
-    for (const name of VIEWS) {
-      $('v-' + name).hidden = name !== view;
-      const tab = document.querySelector(`[data-tab="${name}"]`);
-      if (tab) { tab.setAttribute('aria-selected', String(name === view)); tab.tabIndex = name === view ? 0 : -1; }
-    }
+    tabs.show(view);   // SlopTabs (shared/ui/tabs.js): the view, the selected tab and the arrow keys
     if (view === 'now' && !$('queue-sheet').hidden) M.now.openQueue(false);
     M.mini.paint(view);
     if (focus) $('v-' + view).querySelector('h2, input, button, select')?.focus();
@@ -27,7 +23,7 @@
     return !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && !(t.type === 'range' || t.type === 'checkbox'));
   }
   function keys(e) {
-    if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e)) return;
+    if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e) || e.target.closest?.('[role=tab]')) return;   // a tab's arrows move between tabs
     const eng = M.engine, k = e.key;
     if (k === ' ' || k === 'Spacebar') { e.preventDefault(); eng.toggle(); }
     else if (k === 'ArrowLeft' && !e.target.closest?.('[role=slider]')) { e.preventDefault(); eng.seek(eng.state().time - (e.shiftKey ? 15 : 5)); }
@@ -46,14 +42,7 @@
     setView('now');
   }
   function bindTabs() {
-    document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => setView(b.dataset.tab)));
-    document.querySelector('.mu-tabs').addEventListener('keydown', (e) => {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      const i = VIEWS.indexOf(view) + (e.key === 'ArrowRight' ? 1 : -1);
-      const next = VIEWS[(i + VIEWS.length) % VIEWS.length];
-      setView(next, { focus: true });
-      document.querySelector(`[data-tab="${next}"]`).focus();
-    });
+    tabs = window.SlopTabs.mount(document.querySelector('.mu-tabs'), { select: (v) => setView(v), panel: (k) => $('v-' + k) });
   }
   async function start() {
     if (H()) H().register('music');
