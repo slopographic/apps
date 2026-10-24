@@ -5,6 +5,9 @@ const SZ_MAX = 12000;
 const szClamp = (v) => clamp(Math.round(v) || 1, 1, SZ_MAX);
 const FILL_CHOICES = [['transparent', 'Transparent'], ['bg', 'Background colour'], ['fg', 'Foreground colour'], ['white', 'White'], ['black', 'Black']];
 /** Colour for the new canvas area, or null for transparent. */
+// a macro step's names for the anchor and the new area (ps.ai.canvas-size, app/ai-commands.js)
+const SZ_ANCHOR = [['top-left', 'top', 'top-right'], ['left', 'center', 'right'], ['bottom-left', 'bottom', 'bottom-right']];
+const SZ_FILL = { transparent: 'transparent', bg: 'background', fg: 'foreground', white: 'white', black: 'black' };
 const canvasFill = (v) => ({ bg: C.bg, fg: C.fg, white: '#ffffff', black: '#000000' })[v] || null;
 const LINK_ICON = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6.5 9.5l3-3M7.2 4.6l1.3-1.3a2.6 2.6 0 0 1 3.7 3.7l-1.3 1.3M8.8 11.4l-1.3 1.3a2.6 2.6 0 0 1-3.7-3.7l1.3-1.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
 
@@ -29,6 +32,7 @@ function dlgCanvasSize() {
       if (nw === D.w && nh === D.h) return;
       resizeCanvas(nw, nh, Math.round(((nw - D.w) * st.ax) / 2), Math.round(((nh - D.h) * st.ay) / 2), 'Canvas Size', canvasFill(fill.value));
       fitView();
+      if (window.SlopMacros) SlopMacros.note('ps.ai.canvas-size', { width: nw, height: nh, anchor: SZ_ANCHOR[st.ay][st.ax], fill: SZ_FILL[fill.value] || 'transparent' }, 'Canvas Size');
     } }] });
 }
 function dlgImageSize() {
@@ -81,5 +85,6 @@ function dlgImageSize() {
       if (st.w === pw && st.h === ph) return;
       imageSize(st.w, st.h, mode.value);
       fitView();
+      if (window.SlopMacros) SlopMacros.note('ps.ai.image-size', { width: st.w, height: st.h, keep_aspect: false, resample: mode.value }, 'Image Size');
     } }] });
 }

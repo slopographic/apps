@@ -29,6 +29,7 @@
     S.model = id;
     U.store.set('model', id);
     if (it && it.model !== id) { it.model = id; CO.process.rerun(it); }
+    if (CO.macroLook) CO.macroLook(it);
     P.refresh();
   }
   function modelSec() {

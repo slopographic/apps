@@ -98,6 +98,7 @@
       apply(it, v);
       S.rememberLook(it);
       if (opts.rerun) CO.process.rerun(it); else CO.emit('look', it);
+      if (CO.macroLook) CO.macroLook(it);   // a macro being recorded keeps the look (ui/macros.js)
     };
     return {
       input(v) {
