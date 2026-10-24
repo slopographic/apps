@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const FILES = ['shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
-  'shared/data/currency.js', 'shared/docs/model.js', 'shared/docs/samples.js', 'shared/docs/samples-run.js'];
+  'shared/data/currency.js', 'shared/data/ledger.js', 'shared/docs/model.js', 'shared/docs/samples.js', 'shared/docs/samples-run.js'];
 
 async function load() {
   const ctx = {};

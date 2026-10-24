@@ -14,6 +14,13 @@
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
+  /** A YYYY-MM-DD date moved by n whole days (negative goes back). */
+  function addDays(date, n) {
+    const d = new Date(`${date}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + Number(n || 0));
+    return d.toISOString().slice(0, 10);
+  }
+
   /** Errors for an entry before posting: shape, positive whole amounts, balance and, when `accounts` is given, known codes. */
   function validateEntry(entry, accounts) {
     const errors = ns.schema.prepare('journal', entry, { skipKey: true }).errors.slice();
@@ -116,5 +123,5 @@
     });
   }
 
-  ns.ledger = { TYPE_SIDE, today, validateEntry, reverseLines, summarize, postIn, reverseIn, postJournal, reverseJournal, trialBalance };
+  ns.ledger = { addDays, TYPE_SIDE, today, validateEntry, reverseLines, summarize, postIn, reverseIn, postJournal, reverseJournal, trialBalance };
 })(typeof window !== 'undefined' ? window : globalThis);

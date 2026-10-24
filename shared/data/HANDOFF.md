@@ -21,6 +21,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 <script src="…/shared/data/expenses.js"></script>  <!-- money going out: record and void, posted to the journal -->
 <script src="…/shared/data/quotes.js"></script>    <!-- quotes: to an order or a draft invoice -->
 <script src="…/shared/data/timesheets.js"></script> <!-- time worked: billed onto a draft invoice -->
+<script src="…/shared/data/recurring.js"></script>  <!-- repeating invoices: due drafts made from schedules -->
 <script src="…/shared/data/bundle-check.js"></script>
 <script src="…/shared/data/export.js"></script>
 <script src="…/shared/data/rates-ecb.js"></script>   <!-- only if the page offers the ECB update -->
@@ -30,7 +31,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 `rates-ecb.js` is optional and does nothing until the person turns on the consent category (see below).
 
 Everything hangs off `window.SlopData`: `money`, `barcode`, `schema`, `schemaDefs`, `result`, `locale`, `store`,
-`numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `quotes`, `timesheets`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
+`numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `quotes`, `timesheets`, `recurring`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
 files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 5 (see storage/INVENTORY.md for
 what each version added), and upgrades only create the missing stores.
 
@@ -53,6 +54,12 @@ needs a customer. `SlopData.timesheets.toInvoice(ids, { dueDate, taxRate })` bil
 currency onto one draft invoice (one line per entry, by date) and links them (`invoiceId`). Billed time cannot change its
 date, customer, minutes, rate, currency or billable flag. Time on a void or deleted invoice is open again; `release(id)`
 unlinks it. `amountOf`, `hm`, `isOpen`, `deadInvoice` and `lineOf` are pure.
+
+Repeating invoices are `schedules` records (`store.put`, or `SlopData.recurring.fromInvoice(id, { every, unit, start,
+endDate, dueDays })`). `makeDue(today, { scheduleId })` makes a draft invoice (with `scheduleId`) for every period due on or
+before today, at most `CATCH_UP` (12) per schedule at a time, and moves each schedule on, in one transaction; a schedule
+past its end date stops (`active: false`). Months keep `anchorDay`, clamped to short months. `step`, `dueDates`, `due` and
+`describe` are pure; `SlopData.ledger.addDays` is the one date step every app uses (SlopDocs.model.addDays calls it).
 
 ## Result shape (every async call)
 

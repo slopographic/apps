@@ -19,5 +19,9 @@
   const refusal = (r) => B.refusal(r, { plain: PLAIN, fields: FIELD });
 
   // settings, money and the DOM builder are SlopBiz's (one copy for the business apps)
-  NS.util = { PLAIN, FIELD, refusal, settings: B.settings, money: B.money, h: B.h, ok: S.result.ok, fail: S.result.fail };
+  const STATUS = { draft: 'Draft', issued: 'Issued', paid: 'Paid', void: 'Void' };
+  /** The status words: an issued invoice with nothing left to pay reads Paid. */
+  const statusText = (status, balance) => (status === 'issued' && balance <= 0 ? 'Paid' : STATUS[status] || '');
+
+  NS.util = { PLAIN, FIELD, STATUS, statusText, refusal, settings: B.settings, money: B.money, h: B.h, ok: S.result.ok, fail: S.result.fail };
 })(typeof window !== 'undefined' ? window : globalThis);

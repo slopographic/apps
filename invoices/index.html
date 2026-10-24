@@ -64,6 +64,7 @@
       <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Invoices</button>
       <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Invoice</button>
       <button type="button" role="tab" class="tab" id="tab-print" data-view="print" aria-controls="view-print" aria-selected="false" hidden>Print</button>
+      <button type="button" role="tab" class="tab" id="tab-repeat" data-view="repeat" aria-controls="view-repeat" aria-selected="false">Repeating</button>
       <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
     </nav>
 
@@ -84,6 +85,7 @@
           <button type="button" class="btn" id="iSamples">Random samples…</button>
           <button type="button" class="btn danger" id="iDelSamples">Delete all samples</button>
         </div>
+        <p class="card notice" id="iDue" role="status" hidden><span></span> <button type="button" class="btn small primary" id="iDueMake">Make the drafts</button></p>
         <h2 class="h2">Owed by customer</h2>
         <div class="table" id="iOutstanding"></div>
         <h2 class="h2">Invoices</h2>
@@ -140,6 +142,13 @@
         <div id="pSheet"></div>
       </section>
 
+      <section class="view" id="view-repeat" role="tabpanel" aria-labelledby="tab-repeat" hidden>
+        <div class="toolbar"><p class="note" id="rSummary" role="status"></p>
+          <button type="button" class="btn primary" id="rMake" disabled>Nothing due</button></div>
+        <div class="table" id="rRows"></div>
+        <p class="note">A schedule copies an invoice onto a new draft every week or month. Open an invoice and choose Repeat… to start one.</p>
+      </section>
+
       <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
         <div class="card">
           <h2 class="h2">Full backup</h2>
@@ -167,6 +176,7 @@
   <script src="../shared/data/ledger.js"></script>
   <script src="../shared/data/stock.js"></script>
   <script src="../shared/data/billing.js"></script>
+  <script src="../shared/data/recurring.js"></script>
   <script src="../shared/data/bundle-check.js"></script>
   <script src="../shared/data/export.js"></script>
   <script src="../shared/docs/model.js"></script>
@@ -183,6 +193,7 @@
   <script src="../shared/docs/doc-page.js"></script>
   <script src="../shared/docs/doc-app.js"></script>
   <script src="../shared/docs/doc-layout.js"></script>
+  <script src="../shared/docs/doc-pdf.js"></script>
   <script src="../shared/slopui.js"></script>
   <script src="../shared/docs/samples.js"></script>
   <script src="../shared/docs/samples-run.js"></script>
@@ -197,7 +208,6 @@
   <script src="js/core/util.js"></script>
   <script src="js/core/invoices.js"></script>
   <script src="js/core/context.js"></script>
-  <script src="js/core/pdf.js"></script>
   <script src="js/core/samples.js"></script>
   <script src="js/ui/preview.js"></script>
   <script src="../shared/ui/list.js"></script>
@@ -205,6 +215,8 @@
   <script src="js/ui/list.js"></script>
   <script src="js/ui/samples.js"></script>
   <script src="js/ui/payment-dialog.js"></script>
+  <script src="js/ui/repeat-dialog.js"></script>
+  <script src="js/ui/repeat.js"></script>
   <script src="js/ui/editor.js"></script>
   <script src="js/ui/page.js"></script>
   <script src="js/ui/print.js"></script>

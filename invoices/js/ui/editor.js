@@ -14,7 +14,7 @@
   let ed = null;
 
   /** The status words: an issued invoice with nothing left to pay reads Paid. */
-  const statusText = (st) => (st.status === 'issued' && st.balance <= 0 ? 'Paid' : NS.preview.STATUS[st.status]);
+  const statusText = (st) => U.statusText(st.status, st.balance);
 
   const extra = {
     blank: (st, s) => Object.assign(st, { dueDate: M.addDays(st.date, s.paymentTermsDays), orderId: null, payments: [], paid: 0, balance: 0 }),
@@ -55,6 +55,7 @@
       out.push(b('Record payment…', () => NS.paymentDialog.open(st.id, ed.reload), 'btn primary'));
       out.push(b('Void…', voidInvoice, 'btn danger', st.payments.length > 0, st.payments.length ? 'Not allowed while payments exist' : 'Reverse the issue entry and void'));
     }
+    if (!ed.isNew() && st.status !== 'void') out.push(b('Repeat…', () => NS.repeatDialog.open(st.id, () => NS.app.go('repeat'))));
     if (!ed.isNew()) out.push(b('Preview / print', preview), b('Export PDF', () => saveThen(() => NS.preview.pdf(st.id))));
     if (st.status === 'paid' || st.status === 'void') out.push(h('p', { class: 'note', text: st.status === 'paid' ? 'Paid in full. The invoice is closed.' : 'Void. The number stays used.' }));
     return out;
@@ -98,7 +99,7 @@
   ed = g.SlopDocs.docEditor.create({
     ns: NS, noun: 'invoice', title: 'New invoice', route: 'i',
     data: { get: invoiceOnly, save: (f) => NS.invoices.saveDraft(f), customers: () => NS.invoices.customers(), products: () => NS.invoices.products() },
-    statusLabel: NS.preview.STATUS, statusText, locked: (st) => st.status !== 'draft',
+    statusLabel: U.STATUS, statusText, locked: (st) => st.status !== 'draft',
     heading: (st) => (st.id ? st.number || 'Draft invoice' : 'New invoice'), savedText: () => 'Draft saved.',
     dateError: 'Enter the invoice date.', extra, actions,
   });
