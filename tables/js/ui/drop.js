@@ -1,22 +1,33 @@
-/* Slop Tables: files dropped on the window open as workbooks (SlopDrop: the outline, the "Drop to add" label, refusals
- * with a reason and the result toast). .stab, .xlsx, .xlsm, .ods, .csv and .tsv; each opens in its own tab through
- * storage.js openFile. The strip under the sheet tabs is hidden at rest and shows only while files are read. A drag of the
- * shared copy buffer (not a file) is still the paste of ui/buffer.js. */
+/* Slop Tables: the one way files come in (shared/intake, spec 'tables'). A drop on the window or the strip under the
+ * sheet tabs (hidden at rest, shown only while files are read), File ▸ Open from Slop Drive (Ctrl+O), Open file from this
+ * device, ?drive=<id> (another app's Send to…, Drive's New ▸ spreadsheet) and a PWA launch all reach one reader: a Slop
+ * Drive record opens through openRecord (its tab stays linked to it), a file from this device through openFile. .stab,
+ * .xlsx, .xlsm, .ods, .csv and .tsv; each in its own tab. The reader waits for the tabs (storage.js launch). A drag of the
+ * shared copy buffer (not a file) is still the paste of ui/buffer.js. Templates (.stabt) are a part of their own
+ * ('tables.template', ui/templates.js). */
 import { $ } from './state.js';
-import { openFile, OPEN_EXTS, SHEET_TYPES } from './storage.js';
+import { openFile, openRecord, whenTabs, OPEN_EXTS, SHEET_TYPES } from './storage.js';
 import { MIME } from '../io/native.js';
 
+const ACCEPT = { types: [MIME, ...SHEET_TYPES, 'text/csv', 'text/tab-separated-values', 'application/vnd.ms-excel'], exts: OPEN_EXTS, noun: 'a spreadsheet', allowEmpty: true }; // a zero-byte .stab from Drive's New menu is a blank workbook
+async function read(file, ctx) {
+  const rec = ctx.drive && ctx.drive.record;
+  const ok = rec ? await openRecord(Object.assign({}, rec, { blob: file })) : await openFile(file);
+  if (!ok) throw new Error('could not be opened');
+  return file.name;
+}
 let drop = null;
 export function wireDrop() {
+  const SI = window.SlopIntake;
+  if (!SI) return null;
+  SI.register({ id: 'tables', accept: ACCEPT, limit: 10, process: read, before: () => whenTabs() });
   const D = window.SlopDrop, zone = $('dropZone');
   if (!D || !zone) return null;
   drop = D.attach(zone, {
-    accept: { types: [MIME, ...SHEET_TYPES, 'text/csv', 'text/tab-separated-values', 'application/vnd.ms-excel'], exts: OPEN_EXTS, noun: 'a spreadsheet' },
-    limit: 10,
+    intake: 'tables',
     compact: true,
     label: 'Drop a spreadsheet to open it',
     targets: [$('grid')],
-    process: async (file) => { await openFile(file); return file.name; },
   });
   return drop;
 }

@@ -198,6 +198,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   (open) go out through `SlopOuttake.send(app, { id })` (new in outtake.js: an output already in Slop Drive opens without
   a copy, and has no Save to Slop Drive…). Drive keeps its own Open with list (default app per type, remembered; see
   "Open questions"). `tests/intake/drive.test.html`.
+- **Slop Tables** (`tables/js/ui/drop.js`, spec `tables`; part `tables.template` in `ui/templates.js`): a drop on the grid
+  or the strip, Open file from this device, Open from Slop Drive (Ctrl+O; the tab stays linked to the record), a pasted
+  file, ?drive= launch and launchQueue. The reader waits for the tabs (`before: whenTabs`), and a launch that opens
+  replaces the blank tab; a zero-byte .stab (Drive's New) is taken (`allowEmpty`). The grid's own paste is only cells and
+  text. Import a template (file or Slop Drive) is the part's pick / fromDrive. `tests/intake/tables.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -569,15 +574,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] file input: `sorter/index.html:45`
 - [ ] file input: `sorter/index.html:46`
 - [ ] SlopDrop.attach: `sorter/js/app.js:112`
-
-### tables
-
-- [ ] paste listener: `tables/js/ui/actions.js:121`
-- [ ] Drive picker: `tables/js/ui/storage.js:68`
-- [ ] pickFiles: `tables/js/ui/storage.js:86`
-- [ ] ?drive= launch: `tables/js/ui/storage.js:137`
-- [ ] pickFiles: `tables/js/ui/templates.js:174`
-- [ ] Drive picker: `tables/js/ui/templates.js:180`
 
 ### watermark (pictures done; the logo is left to the watermark panel rewrite, wip/watermark-all)
 
