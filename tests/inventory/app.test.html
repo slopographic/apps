@@ -151,6 +151,15 @@
       expect($('kProducts').textContent).toBe('2');
       expect(errors).toEqual([]);
     });
+    it('follows the site theme (shared/biz/app.css): text reads on its background in every theme', async () => {
+      // Covers: inventory/css/inventory.css, shared/biz/app.css
+      for (const theme of ['light', 'dark', 'classic', 'lime']) {
+        win().SlopTheme.apply(theme);
+        const inp = win().getComputedStyle($('pSearch')), body = win().getComputedStyle(doc().body);
+        expect(SlopTest.contrast(inp.webkitTextFillColor || inp.color, inp.backgroundColor) >= 4.5).toBe(true, `${theme}: input`);
+        expect(SlopTest.contrast(body.color, body.backgroundColor) >= 4.5).toBe(true, `${theme}: page`);
+      }
+    });
     it('stock on a placed purchase order shows on the product row and in the low-stock list', async () => {
       // Covers: inventory/js/ui/reports.js, inventory/js/ui/products.js
       const S = win().SlopData;
