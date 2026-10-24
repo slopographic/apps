@@ -81,7 +81,6 @@ body { --s-bg2: var(--sui-bg2); --s-input: var(--sui-input); --s-line: var(--sui
 .mu-empty p { margin: 0 auto 14px; max-width: 46ch; }
 .mu-empty .sd-preview { margin: 6px 0 18px; }
 .mu-empty-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-#lib-drop .sd-sample { display: none; } /* the empty library shows the sample button (#lib-sample) */
 .mu-pl { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 20px; align-items: start; }
 .mu-pl-side .mu-bar { flex-direction: column; }
 .mu-pl-side .sui-btn { width: 100%; }

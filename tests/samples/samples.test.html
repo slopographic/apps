@@ -7,6 +7,7 @@
 <body>
   <div id="zone"></div>
   <div id="zone2"></div>
+  <div id="area"><div id="strip"></div></div>
   <script src="../../shared/drop/rules.js"></script>
   <script src="../../shared/drop/panel.js"></script>
   <script src="../../shared/drop/drop.js"></script>
@@ -55,6 +56,7 @@
       expect([btn.disabled, z.querySelector('.sd-status').textContent]).toEqual([true, 'Preparing the sample…']);
       await waitFor(() => got.length === 2);
       expect(btn.disabled).toBe(false);
+      expect(z.querySelector('.sd-status').textContent).not.toBe('Preparing the sample…');
       expect(got).toEqual(['Sample sunset.jpg', 'Sample mountains.jpg']);
       await d.sample();
       expect(got.length).toBe(4);
@@ -76,6 +78,28 @@
       const p = SlopDrop.attach(z, { accept: { any: true }, process: async () => 1 });
       expect([z.querySelector('.sd-preview'), z.querySelector('.sd-sample')]).toEqual([null, null]);
       p.destroy();
+    });
+  });
+  describe('SlopDrop quiet strip', () => {
+    it('a compact strip whose drops land on a bigger area hides at rest and shows the files being added', async () => {
+      const strip = document.getElementById('strip');
+      let release;
+      const d = SlopDrop.attach(strip, { accept: { any: true }, compact: true, toast: false, targets: [document.getElementById('area')],
+        process: () => new Promise((r) => { release = r; }) });
+      expect([strip.classList.contains('sd-quiet'), getComputedStyle(strip).display]).toEqual([true, 'none']);
+      d.run([new File(['x'], 'a.txt', { type: 'text/plain' })]);
+      await waitFor(() => release);
+      expect(getComputedStyle(strip).display).toBe('block');   // a row is being read
+      release('a.txt');
+      await waitFor(() => strip.querySelector('.sd-status').textContent !== '');
+      expect(getComputedStyle(strip).display).toBe('block');   // the result shows
+      d.destroy();
+      const own = SlopDrop.attach(strip, { accept: { any: true }, compact: true, window: false, targets: [document.getElementById('area')], process: async () => 1 });
+      own.destroy();
+      strip.classList.remove('sd-quiet');
+      const keep = SlopDrop.attach(strip, { accept: { any: true }, compact: true, quiet: false, targets: [document.getElementById('area')], process: async () => 1 });
+      expect(strip.classList.contains('sd-quiet')).toBe(false);
+      keep.destroy();
     });
   });
   SlopTest.run({ name: 'SlopSamples' });

@@ -108,7 +108,7 @@
         if (!(await M.lib.addFiles([file]))) throw new Error('could not be added to Slop Drive');
         return file.name;
       },
-      // the sample's button is the empty library's (below), not the strip's
+      // the sample's button is the empty library's (below): a compact strip draws none
       sample: { label: 'Try it with 3 sample tracks', files: () => window.SlopSamples.media.melodies(3, 8) },
     });
     $('lib-preview').replaceChildren(SlopDrop.panel.preview({

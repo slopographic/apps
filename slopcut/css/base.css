@@ -125,5 +125,3 @@ input[type=color] { width: 30px; height: 24px; padding: 0; border: 1px solid var
 /* Drop strip over the monitor (shared/drop, compact) */
 #monitor { position: relative; }
 .sc-dropstrip { position: absolute; left: 12px; top: 12px; z-index: 5; max-width: min(420px, calc(100% - 24px)); max-height: 50%; overflow: auto; background: var(--panel, #fff); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.2); }
-/* At rest the Media panel's Import files and a drop anywhere do the job: the strip shows only the files being added and the result. */
-.sc-dropstrip:not(:has(.sd-list li)):not(:has(.sd-status:not(:empty))) { display: none; }

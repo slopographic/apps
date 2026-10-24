@@ -20,7 +20,7 @@
       expect(D.querySelector('#lib-preview .sd-pic img').getAttribute('src')).toBe('../assets/shots/music.jpg');
       expect([...D.querySelectorAll('#lib-preview .sd-steps li')].map((li) => li.textContent))
         .toEqual(['Drop MP3, WAV or other audio files', 'Search, tag and make playlists', 'Play, shuffle and repeat']);
-      expect(W.getComputedStyle(D.querySelector('#lib-drop .sd-sample')).display).toBe('none');
+      expect(D.querySelector('#lib-drop .sd-sample')).toBe(null);   // a compact strip never gets one
       expect(D.querySelector('#lib-side').textContent.includes('null')).toBe(false);
     });
     it('Try it with 3 sample tracks adds three WAVs to Slop Drive and the library lists them with their length', async () => {

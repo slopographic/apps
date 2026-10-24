@@ -38,7 +38,9 @@
    *   limit?: most files taken in one drop (the rest are refused with a reason). overlay?: false to skip the outlines
    *     and label (for an app that marks its own drop areas). window?: false leaves the rest of the page alone: only the
    *     targets take drops (marked .sd-over while a file is over them). label?, hint?: text for the zone.
-   *   toast?: false to hide the toast. multiple?: default true. compact?: one row (message and button), for a strip.
+   *   toast?: false to hide the toast. multiple?: default true. compact?: one row (message and button), for a strip; with
+   *     targets beyond the strip it is hidden at rest and shows only the files being added and the result (quiet: false
+   *     keeps it on view).
    *   preview?: { picture, steps }: what the app makes and how, shown in the zone above the prompt (not when compact).
    *     picture: { src, alt } | { flow: { from, to } } | an element; steps: three short lines.
    *   sample?: { label?, files: () => File[] | Promise<File[]> }: a "Try it with a sample" button whose files go
@@ -53,6 +55,9 @@
     const listed = (o.targets || []).filter(Boolean);
     const targets = listed.length ? listed : [zone];
     const limit = o.limit || Infinity;
+    // A strip whose drops land on a bigger area (the app's targets) is not a second place to add files: at rest it is
+    // hidden (.sd-quiet), and it shows only while files are added or a result is shown. quiet: false keeps it on view.
+    if (o.compact && o.window !== false && o.quiet !== false && listed.some((t) => t !== zone)) zone.classList.add('sd-quiet');
     const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint, compact: o.compact, preview: o.preview, sample: o.sample });
     const input = o.input || doc.createElement('input');
     input.type = 'file';
@@ -105,6 +110,7 @@
     async function batch(list, at) {
       let files;
       try { files = Array.from((await list) || []); } catch (err) { ui.status.textContent = ''; PN.toast('Could not read the dropped files', 'warn'); return; }
+      ui.status.textContent = '';   // 'Preparing the sample…' is done: the rows say what happens now
       if (!files.length) return;
       cancelTidy();
       ui.list.replaceChildren();
