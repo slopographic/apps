@@ -129,14 +129,14 @@
       expect(q('.sap-cloud-base').value).toBe('http://localhost:11434/v1');
       F.offline = true;
       q('.sap-cloud-test').click();
-      await waitFor(() => /could not reach Ollama on this computer/.test(q('.sap-cloud-msg').textContent));
-      expect(q('.sap-cloud-msg').textContent).toContain('choose Allow');
+      await waitFor(() => /Nothing answers at http:\/\/localhost:11434\/v1/.test(q('.sap-cloud-msg').textContent));
+      expect(q('.sap-cloud-diag').textContent).toContain('choose Allow');
       expect(q('.sap-cloud-local').textContent).toContain('OLLAMA_ORIGINS');
       expect(q('.sap-cloud-local').textContent).toContain(location.origin);
       F.offline = false;
       q('.sap-cloud-base').value = 'http://192.168.0.9:11434/v1';
       q('.sap-cloud-use').click();
-      await waitFor(() => /https:\/\/ address, or http:\/\/localhost/.test(q('.sap-cloud-msg').textContent));
+      await waitFor(() => /mixed content.*https:\/\/ address, or http:\/\/localhost/.test(q('.sap-cloud-msg').textContent));
     }, { timeout: 30000 });
   });
 

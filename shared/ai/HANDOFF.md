@@ -142,3 +142,37 @@ it and refuses new requests; Stop aborts the request in flight. A key-based engi
 (request building, streams from documented SSE fixtures, conversion both ways), `tests/node/ai-cloud-engine.test.mjs`
 (the loop per provider, errors, cap, redaction, settings), `tests/ai/cloud.test.html`, `tests/ai/cloud-keys.test.html`
 and `tests/photoslop/ai-cloud.test.html` (a fake fetch per provider, `tests/ai/cloud-util.js`).
+
+## The provider catalog (shared/ai/cloud/catalog/, 2026-10)
+About fifty providers, as data. One file per group, each pushing entries into `K.cloud.catalog`: `main.js` (Claude,
+OpenAI, Gemini, OpenRouter; the entry fields are documented at its top), `open.js` (fast inference: Groq, Cerebras,
+SambaNova; open models: Together, Fireworks, DeepInfra, Hyperbolic, Novita, Nebius, Hugging Face), `cloud.js` (RunPod
+Serverless, Azure OpenAI v1 and classic, Bedrock with an API key, Bedrock IAM, Cloudflare, Vertex), `more.js` (Mistral,
+xAI, DeepSeek, Perplexity, Cohere, AI21, Kimi, Qwen, Z.ai, Zhipu), `local.js` (Ollama, LM Studio, vLLM, llama.cpp, Jan,
+LocalAI, KoboldCpp, text-generation-webui, Any address) and `images.js` (fal, Together images, Stability, Recraft, RunPod
+image endpoints; Replicate, BFL, Ideogram need a proxy). `providers.js` normalizes them (`needsKey` from `auth`, `who`,
+`short`, `usable`, `chat`, `test` from `testPath`) and serves `providers`, `byId`, `search`, `resolve`/`baseFor` (address
+templates such as `https://api.runpod.ai/v2/{endpointId}/openai/v1`; a query like `?api-version={apiVersion}` stays at the
+end, `endpoint(base, path)`), `authHeaders` (Bearer, or `{ header: 'api-key' }` for Azure).
+- **One code path per format.** `format` is `anthropic`, `openai-responses` (openai.js), `openai-chat` (compat.js) or
+  `gemini`; `C.formats['openai-chat']` is an alias of `compat`. A new OpenAI-compatible provider is one catalog entry.
+  Picture formats (`fal`, `openai-images`, `stability`, `recraft`, `runpod-sync`, …) are listed in `IMAGE_FORMATS` and
+  belong to `shared/ai/imagegen` (on wip/imagegen: register one file per format there; `keyOf` says when a picture entry
+  uses another entry's key, e.g. Together images → `together`). The chat form only keeps their key ("Save key").
+- **CORS** is `verified` only when a browser preflight from https://slopographic.com is allowed. Re-check by hand:
+  `node tools/check-ai-cors.mjs [ids]` (not in CI); it prints the table and marks entries that changed. `needs-proxy`
+  entries show greyed with "Can't be used straight from a browser" and their `corsNote`; `blocker: 'auth'` marks those
+  held back by sign-in (Vertex's one-hour tokens, Bedrock IAM signing) rather than by CORS. GitHub Models was retired on
+  2026-07-30 and is not listed.
+- **Picker** (`cloud/pick.js`): a button and an inline list (search box; Main open, other groups collapsible; badges tools /
+  vision / images / browser OK / needs a proxy / on this computer). It drives the hidden `.sap-cloud-provider` select, so
+  the form keeps one value. `fields(p)` renders the template's fields; `models(select, p)` adds "Recently used"
+  (`slop-ai.cloud.recent`, ids only) and a search box over long lists.
+- **Local servers** (`cloud/local.js`, `local-ui.js`): Test connection diagnoses `mixed` (http to another machine from an
+  https page: needs Tailscale Serve, Caddy or a tunnel), `permission` (Chrome's local network permission denied, asked
+  only after a failed request from a public page), `cors` (a no-cors request reaches it), `down`, `path` (suggests /v1),
+  `key`, `none` (no models), each with that server's fix. "Find servers on this computer" asks the presets' default ports
+  (and llama.cpp's newer 9931) only after the click.
+- Tests: `tests/node/ai-catalog.test.mjs` (well-formed entries, templates, requests, search, the CORS tool's probes),
+  `tests/node/ai-local.test.mjs` (each diagnosis, the port probe), `tests/ai/cloud-picker.test.html` (search, groups,
+  needs-proxy rows, fields per provider, a chat through RunPod and Groq with a fake fetch, models, Find servers, 390 px).
