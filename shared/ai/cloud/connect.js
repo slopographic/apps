@@ -65,13 +65,19 @@
       const pr = C.price(p, model.value, (fetched.get(p.id) || []).find((m) => m.id === model.value)), n = Number(cap.value) || 0;
       est.textContent = n && pr ? ` About $${((n * (pr.input * 0.8 + pr.output * 0.2)) / 1e6).toFixed(2)} at most with this model.` : n ? ' The price of this model is not known here.' : '';
     }
+    let seq = 0;
+    /** Draws the chosen provider. Cleared first and synchronously, so a slow key-store read can never wipe a message
+     * (Test connection's answer) that came after; only the latest call draws. */
     async function show() {
+      const my = ++seq;
+      say('');
       const ps = (C.keys.settings().providers || {})[p.id] || {};
       sel.value = p.id; base.value = ps.base || p.base || ''; base.placeholder = p.base || 'https://…/v1';
       baseRow.hidden = !p.editBase; keyRow.hidden = remRow.hidden = forget.hidden = !(p.needsKey || p.keyOptional);
       key.value = ''; key.placeholder = p.keyHint || 'paste the key (if the service needs one)';
-      remember.checked = await C.keys.remembered(p.id);
-      const has = !!(await C.keys.get(p.id));
+      const rem = await C.keys.remembered(p.id), has = !!(await C.keys.get(p.id));
+      if (my !== seq) return;
+      remember.checked = rem;
       if (has) key.placeholder = remember.checked ? 'Key saved on this device' : 'Key kept in this tab';
       forget.disabled = !has;
       use.textContent = 'Use ' + p.short;
@@ -81,7 +87,7 @@
       else help.append('Any server that speaks the OpenAI Chat Completions API.');
       local.textContent = ''; local.hidden = !p.editBase;
       if (p.editBase) local.append(h('summary', null, 'How to connect a local server'), ...C.localHelp(p).map((t) => h('p', { class: 'sap-dim' }, t)));
-      say(''); fillModels();
+      fillModels();
     }
     const cfgBase = () => (p.editBase ? base.value.trim() : p.base);
     async function engineNow() {

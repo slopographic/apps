@@ -10,7 +10,9 @@
   // Covers: shared/ai/cloud/connect.js, shared/ai/cloud/keys.js, shared/ai/cloud/meter.js, shared/ai/cloud/engine.js,
   //   shared/ai/cloud/anthropic.js, shared/ai/cloud/net.js, shared/ai/cloud/providers.js, shared/ai/filetools.js,
   //   shared/ai/panel.js, shared/ai/panel-run.js, shared/ai/picker.js, shared/ai/apptools.js, shared/ai/tools.js
-  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  const { describe, it, expect, sleep } = SlopTest;
+  /** waitFor that says what the panel showed when it gave up. */
+  const waitFor = (f, o) => SlopTest.waitFor(f, o).catch(() => { throw new Error('waitFor timed out on ' + f.toString().slice(0, 100) + ' | panel: ' + (P && P.document.querySelector('.sap') ? P.document.querySelector('.sap').textContent.slice(0, 700) : 'none')); });
   const KEY = 'sk-ant-api03-TESTKEY-0123456789abcdef';
   let P, F;
   const q = (s) => P.document.querySelector(s);
