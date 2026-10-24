@@ -27,10 +27,7 @@
   const act = {
     open: () => CO.files.open(),
     sample: () => CO.files.sample(),
-    driveOpen: () => guard(async () => {
-      const rec = await hub().pickFromDrive({ accept: ['image/*'], title: 'Open from Slop Drive' });
-      if (rec) await CO.files.fromDrive(rec);
-    }),
+    driveOpen: () => guard(() => SlopIntake.fromDrive({ to: 'cutout', accept: ['image/*'], title: 'Open from Slop Drive' })),
     exportOne: (it) => guard(() => CO.export.one(it || needItem())),
     exportAll: () => guard(() => CO.export.all()),
     // Slop Workflows: Remove background as a step, with the model and the look of the image on screen (shared/ops/flowdoc.js)

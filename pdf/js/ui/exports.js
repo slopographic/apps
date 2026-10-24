@@ -126,28 +126,37 @@
       return files;
     });
   };
+  /** Images to PDF (Document panel): the pictures come in through the intake (shared/intake), a part of its own. */
+  var imagesIo = null;
   A.imagesToPdf = function (io) {
-    SlopUI.pickFiles({ accept: 'image/png,image/jpeg,image/webp,image/gif', multiple: true }).then(function (files) {
-      if (!files.length) return;
-      S.guarded('Converting images…', async function (prog) {
-        var items = [];
-        for (var i = 0; i < files.length; i++) { var b = await U.readFile(files[i]), k = U.sniff(b); if (/png|jpeg|webp|gif|bmp/.test(k)) items.push({ bytes: b, kind: k, name: files[i].name }); }
-        if (!items.length) { SlopUI.alert('No images', 'None of those files is a PNG, JPEG, WebP or GIF image.'); return; }
-        var pdf = await E.imagesToPdf(items, io);
-        prog(0.8);
-        if (io.add && E.state.pages.length) {
-          var f = await E.registerPdf(pdf, (items.length === 1 ? U.baseName(items[0].name) : 'Images (' + items.length + ')') + '.pdf', null);
-          f.noLog = true; // generated from images
-          var pages = E.pagesForFile(f);
-          E.commit('Add images', function (st) { E.ops.insert(st, st.pages.length, pages); });
-          A.announce('Added ' + pages.length + ' image page' + (pages.length === 1 ? '' : 's'));
-        } else {
-          U.download(pdf, items.length === 1 ? U.safeName(U.baseName(items[0].name), 'pdf') : 'images.pdf', 'application/pdf');
-          A.status('Converted ' + items.length + ' image' + (items.length === 1 ? '' : 's') + ' to PDF', 'ok');
-        }
-      });
+    imagesIo = io;
+    SlopIntake.register({
+      id: 'pdf.images-to-pdf', main: false, paste: false, toast: false,
+      accept: { types: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'], noun: 'a PNG, JPEG, WebP or GIF image' },
+      processAll: imagesToPdfFiles,
     });
+    return SlopIntake.pick({ to: 'pdf.images-to-pdf' });
   };
+  function imagesToPdfFiles(files) {
+    var io = imagesIo || {};
+    return S.guarded('Converting images…', async function (prog) {
+      var items = [];
+      for (var i = 0; i < files.length; i++) { var b = await U.readFile(files[i]), k = U.sniff(b); if (/png|jpeg|webp|gif|bmp/.test(k)) items.push({ bytes: b, kind: k, name: files[i].name }); }
+      if (!items.length) { SlopUI.alert('No images', 'None of those files is a PNG, JPEG, WebP or GIF image.'); return; }
+      var pdf = await E.imagesToPdf(items, io);
+      prog(0.8);
+      if (io.add && E.state.pages.length) {
+        var f = await E.registerPdf(pdf, (items.length === 1 ? U.baseName(items[0].name) : 'Images (' + items.length + ')') + '.pdf', null);
+        f.noLog = true; // generated from images
+        var pages = E.pagesForFile(f);
+        E.commit('Add images', function (st) { E.ops.insert(st, st.pages.length, pages); });
+        A.announce('Added ' + pages.length + ' image page' + (pages.length === 1 ? '' : 's'));
+      } else {
+        U.download(pdf, items.length === 1 ? U.safeName(U.baseName(items[0].name), 'pdf') : 'images.pdf', 'application/pdf');
+        A.status('Converted ' + items.length + ' image' + (items.length === 1 ? '' : 's') + ' to PDF', 'ok');
+      }
+    });
+  }
   A.extractText = function () {
     return S.guarded('Extracting text…', async function () {
       var bytes = await E.build({ stamps: true });

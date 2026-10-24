@@ -1,81 +1,119 @@
-/* SlopIntake: one place where pasted files become work, for every app. An app says what it takes and what each choice does:
- *   SlopIntake.attach({ accept(file), hasOpen(), openName(), onAdd(files), onNew(files) })
- * A paste with files the app accepts (a copied file, or an image copied from a web page) goes to onAdd when something is
- * open (after asking "Add to <name>" or "New document") and straight to onNew when nothing is. The paste is taken only
- * when there is an accepted file, so the app's own paste still runs for everything else (it checks e.defaultPrevented).
- * Typing fields and open dialogs are left alone. Classic script: window.SlopIntake. See shared/intake/HANDOFF.md. */
+/* SlopIntake: the one way files get into an app. Every source (a drop, Choose files, File ▸ Open, a paste, Slop Drive,
+   ?drive= and Send to…, a PWA launch, the sample, the Convert dialog's results) ends in SlopIntake.take(files, { source }),
+   and the page's one pipeline (pipeline.js) runs the app's registered spec over them. This file makes that pipeline with
+   the page's side: the slop:intake-* events, the first-use notice (shared/firstrun), the "Add to <doc> or New document"
+   question, the feedback (the drop zone's rows when the app has one, else a toast). Classic script; loads after
+   rules.js, normalize.js and pipeline.js, before sources.js. See shared/intake/HANDOFF.md.
+     SlopIntake.register({ id, accept, noun, process(file, ctx), ... })  → unregister()
+     SlopIntake.take(files, { source, to?, mode?, at?, data? })          → Promise<summary>
+     SlopIntake.on('before' | 'file' | 'after', fn(detail))              → off()
+   Events on document: 'slop:intake-before' (cancelable), 'slop:intake-file', 'slop:intake-after'; detail has app,
+   source, mode, files, and results / the file's result. */
 (function () {
   'use strict';
-  if (window.SlopIntake) return; // loaded once per page: a second copy would hear every paste twice
-  const SI = (window.SlopIntake = {});
-  const typing = (t) => !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) && !t.classList.contains('paste-catcher');
-  const DATA_IMG = /<img[^>]+src="(data:image\/[^"]+)"/;
+  const SI = (window.SlopIntake = window.SlopIntake || {});
+  if (SI.take) return; // loaded once per page: a second copy would make a second pipeline
+  const R = SI.rules;
+  const views = new Map();
+  const EVENTS = { before: 'slop:intake-before', file: 'slop:intake-file', after: 'slop:intake-after' };
+  const warn = (...a) => console.warn(...a);
 
-  /** The files on a clipboard, read at once (the paste event must be handled synchronously). A copied web image that
-   *  arrives only as <img src="data:…"> is returned as a file too: its bytes are read later by SI.imageFromDataUrl. */
-  function filesOf(cd) {
-    if (!cd) return { files: [], dataUrl: null, mime: null };
-    let files = [...(cd.files || [])];
-    if (!files.length) files = [...(cd.items || [])].filter((i) => i.kind === 'file').map((i) => i.getAsFile()).filter(Boolean);
-    const dataUrl = files.length ? null : ((cd.getData('text/html') || '').match(DATA_IMG) || [])[1] || null;
-    return { files, dataUrl, mime: dataUrl ? dataUrl.slice(5, dataUrl.indexOf(';')) : null };
+  function toast(text, kind) {
+    const P = window.SlopDrop && window.SlopDrop.panel;
+    if (P && P.toast) P.toast(text, kind || '');
+    else if (window.SlopUI && window.SlopUI.toast) window.SlopUI.toast(text);
   }
-  SI.filesOf = filesOf;
 
-  /** A data: image URL as a File named after its type (for apps that read files). */
-  SI.imageFromDataUrl = async function (url) {
-    const blob = await (await fetch(url)).blob();
-    const ext = (blob.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
-    return new File([blob], 'pasted-image.' + ext, { type: blob.type });
-  };
-
-  /** "Add to <name>" or "New document" (or Cancel). Resolves 'add', 'new' or null. */
-  SI.choose = function (count, name) {
+  /** "Add to <name>" or "New document" (or Cancel): the one question for every source (a drop, a pick, a paste, a file
+   *  from Slop Drive), asked by the pipeline's Add or New gate. Resolves 'add', 'new' or null.
+   *  o: { count, names, name, source, labels: { title, message, add, new, cancel } }. The dialog is .si-choose. */
+  SI.choose = function (o, legacyName) {
+    if (typeof o === 'number') o = { count: o, name: legacyName }; // the old choose(count, name)
+    const L = Object.assign({}, o.labels);
+    const name = o.name || 'the open document', n = o.count || 1, names = o.names || [];
+    if (!window.SlopUI || !window.SlopUI.dialog) return Promise.resolve('add');
+    const what = n === 1 && names[0] ? '“' + names[0] + '”' : o.source === 'paste' ? (n === 1 ? 'This image' : n + ' images') : n === 1 ? 'This file' : n + ' files';
     return new Promise((res) => {
       let pick = null;
       window.SlopUI.dialog({
-        title: 'Paste',
-        body: (count === 1 ? 'This image' : count + ' images') + ' can go into ' + name + ', or open as a new document.',
+        title: L.title || (o.source === 'paste' ? 'Paste' : 'Add files'),
+        body: L.message ? L.message + ' ' + (n === 1 && names[0] ? names[0] : n + ' files') : what + ' can go into ' + name + ', or open as a new document.',
+        cls: 'si-choose',
         buttons: [
-          { label: 'Cancel' },
-          { label: 'Add to ' + name, act: () => { pick = 'add'; } },
-          { label: 'New document', primary: true, act: () => { pick = 'new'; } },
+          { label: L.cancel || 'Cancel' },
+          { label: L.new || 'New document', act: () => { pick = 'new'; } },
+          { label: L.add || 'Add to ' + name, primary: true, act: () => { pick = 'add'; } },
         ],
         onClose: () => res(pick),
       });
     });
   };
 
-  // One paste listener for the page; each registered app says which files it takes. The first app (in the order they
-  // attached) that takes a file gets the paste. Returns a function that detaches the app.
-  const apps = [];
-  let listening = false;
-  async function onPaste(e) {
-    if (e.defaultPrevented || typing(e.target) || (window.SlopUI && window.SlopUI.openDialogs)) return;
-    const got = filesOf(e.clipboardData);
-    if (!got.files.length && !got.dataUrl) return;
-    // Which app takes it is decided from the type alone (a one-byte stand-in for a copied web image).
-    const probe = got.files.length ? got.files : [new File([new Uint8Array(1)], 'pasted-image.png', { type: got.mime || 'image/png' })];
-    const app = apps.find((a) => probe.some(a.accept));
-    if (!app) return;
-    e.preventDefault(); // taken here: the app's own paste does not also run
-    let files = got.files;
-    if (!files.length) { try { files = [await SI.imageFromDataUrl(got.dataUrl)]; } catch (err) { return; } }
-    files = files.filter(app.accept);
-    if (!files.length) return;
-    const open = app.hasOpen ? app.hasOpen() : false;
-    if (!open) { await app.onNew(files); return; }
-    const pick = await SI.choose(files.length, app.openName ? app.openName() : 'the open document');
-    if (pick === 'add') await app.onAdd(files);
-    else if (pick === 'new') await app.onNew(files);
-  }
+  const pipe = SI.createPipeline({
+    emit(type, detail) {
+      const ev = new CustomEvent(EVENTS[type], { detail, cancelable: type === 'before' });
+      document.dispatchEvent(ev);
+      if (ev.defaultPrevented && detail.batch) detail.batch.cancel();
+      return !ev.defaultPrevented;
+    },
+    /** The first-use notice, once per batch (whichever source). notice: { app?, title, lines, downloads }. */
+    notice(spec, notice, batch) {
+      const F = window.SlopFirstRun;
+      if (!F) return Promise.resolve(true);
+      return F.once(notice.app || spec.noticeApp || spec.id, notice);
+    },
+    choose: (o) => SI.choose(o),
+    view: (id) => views.get(id) || null,
+    report(summary) {
+      const s = pipe.spec(summary.app);
+      if ((s && s.toast === false) || (!summary.added.length && !summary.skipped.length)) return;
+      toast(R.describe(summary), summary.added.length ? '' : 'warn');
+    },
+    toast,
+    warn,
+  });
 
-  /** Attaches an app to pastes. o: { accept(file), hasOpen?(), openName?(), onAdd(files), onNew(files), first? }.
-   *  first: true puts it before the ones attached earlier (a page that attaches its general drop zone first). */
-  SI.attach = function (o) {
-    const entry = { accept: o.accept, hasOpen: o.hasOpen, openName: o.openName, onAdd: o.onAdd || o.onNew, onNew: o.onNew || o.onAdd };
-    if (o.first) apps.unshift(entry); else apps.push(entry);
-    if (!listening) { document.addEventListener('paste', onPaste); listening = true; }
-    return () => { const i = apps.indexOf(entry); if (i >= 0) apps.splice(i, 1); };
+  /** Registers the app's spec (see HANDOFF.md for its fields). Returns a function that unregisters it. */
+  SI.register = (spec) => pipe.register(spec);
+  SI.unregister = (id) => pipe.unregister(id);
+  SI.spec = (id) => pipe.spec(id);
+  SI.specs = () => pipe.specs();
+  /** Does the spec take this file? (its rules or accept function) */
+  SI.accepts = (id, file) => { const s = typeof id === 'object' ? id : pipe.spec(id); return !!s && pipe.check(s, file).ok; };
+  /** The <input accept> value for a spec: its pickAccept, else its rules' types and extensions ('' takes anything). */
+  SI.acceptAttr = (id) => { const s = typeof id === 'object' ? id : pipe.spec(id); if (!s) return ''; return s.pickAccept || (s.accept && typeof s.accept === 'object' ? R.acceptAttr(s.accept) : ''); };
+  /** The one entry: every source calls this. */
+  SI.take = (files, opts) => pipe.take(files, typeof opts === 'string' ? { source: opts } : opts);
+  /** A feedback view for a spec (the drop zone's rows): { begin(batch), row(file) → { progress, set }, end(summary) }. */
+  SI.view = (id, adapter) => { if (adapter) views.set(id, adapter); else views.delete(id); return () => { if (views.get(id) === adapter) views.delete(id); }; };
+  /** Listens to the pipeline's events: 'before' (fn may return false to cancel), 'file', 'after'. Returns off(). */
+  SI.on = function (type, fn, opts) {
+    const name = EVENTS[type] || type;
+    const only = opts && opts.app;
+    const h = (e) => { if (only && e.detail.app !== only) return; if (fn(e.detail, e) === false && e.cancelable) e.preventDefault(); };
+    document.addEventListener(name, h);
+    return () => document.removeEventListener(name, h);
   };
+  SI.toast = toast;
+  SI.EVENTS = EVENTS;
+
+  // The old paste-only API (SlopIntake.attach) is a spec too: its files go through the same pipeline, source 'paste'.
+  let legacy = 0;
+  /** Attaches an app to pastes: { accept(file), hasOpen?(), openName?(), onAdd(files), onNew(files), first? }.
+   *  Kept for apps not yet migrated; new code registers a spec. Returns a function that detaches it. */
+  SI.attach = function (o) {
+    const id = o.id || 'paste-' + ++legacy;
+    return pipe.register({
+      id, main: false, first: !!o.first, paste: true, pasteOnly: true, toast: false,
+      accept: (f) => !!o.accept(f), hasOpen: o.hasOpen ? () => o.hasOpen() : null, openName: o.openName ? () => o.openName() : null,
+      onAdd: o.onAdd || o.onNew, onNew: o.onNew || o.onAdd,
+    });
+  };
+  /** The old helpers, kept: the files on a clipboard (sync), and a data: image as a File. */
+  SI.filesOf = function (cd) {
+    const list = SI.listOf(cd);
+    const files = list.filter((x) => typeof x !== 'string'), url = list.find((x) => typeof x === 'string') || null;
+    return { files, dataUrl: url, mime: url ? url.slice(5, url.indexOf(';')) : null };
+  };
+  SI.imageFromDataUrl = async (url) => SI.dataUrlFile(url);
 })();

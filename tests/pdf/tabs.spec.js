@@ -26,14 +26,14 @@
   const clickIn = (root, label) => [...root.querySelectorAll('button')].find((b) => b.textContent.trim() === label).click();
   const texts = async () => (await PT.read(await PT.E.build())).pages.map((p) => p.text);
   const field = () => doc().getElementById('fileName');
-  /** A drop on an open document shows the shared Add to current / Create new dialog first (shared/drop/choice.js). */
+  /** A drop on an open document shows the shared Add to current / Create new dialog first (shared/intake, SlopIntake.choose). */
   async function chooseHere(label, name) {
-    const d = await waitFor(() => doc().querySelector('.sdc-dialog'), { timeout: 15000 });
+    const d = await waitFor(() => doc().querySelector('.sui-dlg.si-choose'), { timeout: 15000 });
     expect(d.textContent.includes(name)).toBe(true);
-    const buttons = [...d.querySelectorAll('.sdc-btn')];
+    const buttons = [...d.querySelectorAll('.sui-foot .sui-btn')];
     expect(buttons.map((b) => b.textContent)).toEqual(['Cancel', 'Create new', 'Add to current']);
     buttons.find((b) => b.textContent === label).click();
-    await waitFor(() => !doc().querySelector('.sdc-dialog'));
+    await waitFor(() => !doc().querySelector('.sui-dlg.si-choose'));
   }
 
   describe('document tabs', () => {

@@ -61,11 +61,7 @@
     var open = U.h('button', { type: 'button', class: 'sui-btn sui-primary' }, 'Open a file');
     var show = U.h('button', { type: 'button', class: 'sui-btn' }, 'Show an open document');
     open.addEventListener('click', function () {
-      var input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'application/pdf,image/png,image/jpeg,image/webp,image/gif,image/bmp';
-      input.addEventListener('change', function () { if (input.files && input.files[0]) SP.app.openFilesInPane(i, [input.files[0]]); });
-      input.click();
+      SlopIntake.pick({ to: 'pdf', accept: 'application/pdf,image/png,image/jpeg,image/webp,image/gif,image/bmp', multiple: false, mode: 'new', data: { pane: i } });
     });
     show.addEventListener('click', function () {
       var r = show.getBoundingClientRect();

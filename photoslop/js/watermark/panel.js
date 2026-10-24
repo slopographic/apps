@@ -48,9 +48,7 @@ function buildWatermarkPanel() {
   colour.addEventListener('input', () => wmSet({ colour: colour.value }));
   shadow.addEventListener('change', () => wmSet({ shadow: shadow.checked }));
   tile.addEventListener('change', () => wmSet({ tile: tile.checked }));
-  pick.addEventListener('click', () => SlopUI.pickFiles({ accept: WM_LOGO_TYPES }).then(async (files) => {
-    if (files && files[0]) await wmSetLogo(files[0]).catch((e) => toast(e.message, 4200));
-  }).catch(() => { /* the picker was closed */ }));
+  pick.addEventListener('click', () => SlopIntake.pick({ to: 'photoslop.logo', multiple: false })); // app/intake.js
   clear.addEventListener('click', () => wmClearLogo());
   actions.children[0].addEventListener('click', () => wmSaveDefaults());
   actions.children[1].addEventListener('click', () => wmResetStyle());

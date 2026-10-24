@@ -1,13 +1,15 @@
-/* SlopDrop rules: which dropped files an app takes, why it refuses the others, and the words for the result.
-   Pure (no DOM, no fetch). Attaches to window.SlopDrop.rules. See shared/drop/HANDOFF.md.
+/* SlopIntake rules: which files an app takes (from any source: a drop, a pick, a paste, Slop Drive...), why it refuses the
+   others, and the words for the result. Pure (no DOM, no fetch). Attaches to window.SlopIntake.rules, and to
+   window.SlopDrop.rules for the drop zone (shared/drop). See shared/intake/HANDOFF.md.
    A rule set: { types: ['image/*', 'video/*', 'application/pdf'], exts: ['.heic'], noun: 'a picture or video', maxBytes }.
    any: true takes every type; allowEmpty: true takes zero-byte files.
    types: MIME patterns (type/* or an exact type). exts: used only when the browser gives no type (or octet-stream).
    noun: how a refusal reads, "notes.txt is not <noun>". */
 (function (root) {
   'use strict';
+  const SI = (root.SlopIntake = root.SlopIntake || {});
   const SD = (root.SlopDrop = root.SlopDrop || {});
-  const R = (SD.rules = {});
+  const R = (SI.rules = SD.rules = SI.rules || {});
 
   /** The extension of a file name, lower case, with its dot ('' when none). */
   R.ext = function (name) {

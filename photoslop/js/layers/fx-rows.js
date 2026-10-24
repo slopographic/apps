@@ -32,7 +32,7 @@ function fxRow(L, e, i) {
     row.classList.toggle('drop-above', above); row.classList.toggle('drop-below', !above);
   });
   row.addEventListener('dragleave', () => row.classList.remove('drop-above', 'drop-below'));
-  row.addEventListener('drop', (ev) => {
+  row.addEventListener('drop', (ev) => { // intake-ok: an effect row dragged to a new place (no files)
     if (!fxDrag || fxDrag.layer !== L.id) return;
     ev.preventDefault(); ev.stopPropagation();
     const r = row.getBoundingClientRect(), above = ev.clientY < r.top + r.height / 2;
