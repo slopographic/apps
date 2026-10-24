@@ -1,5 +1,5 @@
 // Covers: tools/speed/deps.mjs
-// The page speed workflow (.github/workflows/speed.yml) and the repo agree: it runs on pushes to testing and main and on
+// The page speed workflow (.github/workflows/speed.yml) and the repo agree: it runs on pushes to main (milestones and hotfixes) and on demand, not on
 // pull requests, in the Playwright image the browser tests use, every slice of its matrix is asked for, Lighthouse is
 // pinned to one exact version. A new page needs no budget before a push: CI measures it and reports it as new.
 import { test } from 'node:test';
@@ -18,9 +18,10 @@ const rules = read('.github/workflows/rules.yml');
 const pkg = JSON.parse(read('package.json'));
 const lock = JSON.parse(read('package-lock.json'));
 
-test('the speed workflow runs on pushes to testing and main, and on pull requests', () => {
-  assert.match(wf, /push:\s*\n\s*branches: \[testing, main\]/);
-  assert.match(wf, /\n  pull_request:/);
+test('the speed workflow runs on pushes to main and on demand (a full run outlasts the gap between pushes to testing)', () => {
+  assert.match(wf, /push:\s*\n\s*branches: \[main\]/);
+  assert.match(wf, /\n  workflow_dispatch:/);
+  assert.doesNotMatch(wf, /\n  pull_request:/);
 });
 
 test('the speed jobs run in the same Playwright image as the browser tests', () => {

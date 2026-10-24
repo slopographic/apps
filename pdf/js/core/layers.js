@@ -9,7 +9,7 @@
   var NAMES = {
     text: 'Text', callout: 'Callout', note: 'Comment', rect: 'Rectangle', ellipse: 'Ellipse', line: 'Line', arrow: 'Arrow',
     pen: 'Drawing', marker: 'Highlighter', hlbox: 'Highlight', texthl: 'Text highlight', whiteout: 'Whiteout', image: 'Image',
-    redact: 'Redaction', step: 'Step',
+    redact: 'Redaction', step: 'Step', para: 'Paragraph',
   };
 
   L.isHidden = function (a) { return !!(a && a.hidden); };

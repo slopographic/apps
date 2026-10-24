@@ -12,10 +12,11 @@ name: Page speed
 # Recording: when tools/speed/budgets.json is missing, or on a manual run with "record" ticked, the jobs measure every page
 # and check nothing; the same command then writes the budgets from that run's artifact (how the first budgets were made:
 # CI's machines, not a laptop, set the numbers).
+# On main only (a milestone or a hotfix: a few pushes a day) and on demand. A full run takes longer than the time between
+# pushes to testing, so on testing every run was cancelled by the next push before it finished.
 on:
   push:
-    branches: [testing, main]
-  pull_request:
+    branches: [main]
   workflow_dispatch:
     inputs:
       record:

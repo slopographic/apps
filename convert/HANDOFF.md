@@ -268,3 +268,14 @@ forgets every password option afterwards (`file-opts.js` `forgetSecrets`, called
 fields are empty again. Passwords are never logged or stored. Errors name what to do ("Wrong password…", "already has a
 password…", "no password to remove"). Pages: `password-protect-pdf`, `remove-password-from-pdf`. Test:
 `tests/convert/pdf-lock.test.html`; the crypto itself: `tests/node/pdf-crypto.test.mjs`, `tests/pdf-crypto/crypto.test.html`.
+
+## The operation registry (shared/ops/registry.js) and Slop Workflows
+The catalog is one part of the site's single operation registry: `catalog.js` ends with `register(CONVERSIONS, { app:
+'convert' })`. Apps register their own headless operations beside it (`shared/ops/*.js`: SlopIsolate, Watermark, Resize,
+Upscale, Clean, OCR, Rename, Compress PDF) in the same entry shape; File convert still shows only `CONVERSIONS`, and Slop
+Workflows (`workflows/`, see its HANDOFF.md) shows them all. New entry fields any conversion may use: `check(opts)` (a
+problem to show before a workflow runs; Protect PDF asks for its password), `description`. `zip-files` has a ZIP name
+option (`zipName`, default `files`). `runChain` (`core/chain-run.js`) gained, without changing routes: step `name`, `to` as a
+function of the input kind, an output's own `kind`, `keepStep(i)`, `onUnit` (per file per step), an `AbortSignal`, and
+`run(files, opts, { signal, progress })`. `ui/options.js` also draws an `image` option (a picture kept as a data URL).
+Tests: `tests/node/workflows-*.test.mjs`, `tests/workflows/`.

@@ -1,5 +1,6 @@
 /* Slop Isolate: the work survives leaving the page and coming back. Processes the sample, goes to another page of the
- * app and back, and expects the same mask (no model run on the way back). Then clears the saved work. */
+ * app and back, and expects the same mask (no model run on the way back). Then clears the saved work.
+ * Covers: slopisolate/js/ui/view-state.js */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;

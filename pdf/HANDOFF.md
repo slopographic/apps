@@ -296,6 +296,8 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   colour is the darkest ink in the run on the rendered page. The info line names the font and "embedded"/"not embedded".
   NOT DONE: reusing an embedded font for the new text, and "Use a font file…": pdf-lib needs `@pdf-lib/fontkit` to embed
   TTF/OTF, which is not vendored (`vendor/` was out of scope), so the new text is always a standard font.
+  (Since then: the new text is set in the installed family, the answer to the font check, or the closest bundled one —
+  `editor/font-check.js` S.runFont.) Edit text now has two modes, Lines (this) and Paragraphs (below).
 - **Page actions** (`js/ui/page-acts.js`, `organize/grid.js`): each thumbnail has rotate left/right, open, duplicate,
   move up, move down, extract this page, delete; the focused thumbnail's buttons are in the Tab order. Each is one undo
   step. The current page has a border on its thumbnail and its canvas (`css/page-acts.css`).
@@ -378,6 +380,56 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
 - **Limits.** A document built from several files is linked to its first file; the other files are stored as their own
   originals. The offline file has no Drive, so none of this runs there.
 - Tests: `tests/pdf/pdf.spec-drive-docs.js`.
+
+## Edit text ▸ Paragraphs (`editor/para-*.js`, `css/para.css`)
+- **Modes**: while Edit text is on, a bar under the page toolbar (`#ctxEditText`, built by `para-mode.js` after `#ctxPage`)
+  has a Lines | Paragraphs segmented control (a radio group: Tab reaches the checked one, arrows switch; the commands treat
+  it as a field so arrows do not turn pages), a hint and Done. The choice is kept in `slop-pdf.editTextMode` (try/catch).
+  `Ed.setEditTextMode('lines' | 'paragraphs')`, `Ed.paraMode`. Lines mode is unchanged (`edit-text.js`).
+- **Blocks** (`para-blocks.js`, pure, `tests/node/pdf-para-blocks.test.mjs`): the page's runs (`S.textRuns`, only the
+  ones no cover hides, `S.visibleRuns`; upright runs only) become lines (one baseline, a gap over 1.5 em splits: column
+  gutters) and lines become blocks: the nearest line below in the same column (x ranges overlap), same family, size
+  (±12%) and weight of the line's main run (bold/italic runs inside a line stay), the pitch of the block (±20%; the first
+  join at most 1.8 em), and the block's edge: same left edge (a first-line indent or a bullet's hanging indent on the
+  second line is allowed), else the right edge or the centre. A new indent, a bullet or number ("•", "-", "1.", "a)") or
+  a bigger gap starts the next block. Alignment: left / right / center / justify (both edges even over at least two
+  lines, the last one shorter; tolerance 0.06 em). Right-to-left lines (mostly Arabic/Hebrew letters) are mirrored, so
+  their start edge is the right one.
+- **Frame** (`para-mode.js`): in Paragraphs mode a press goes to `S.paraDown` (hook in `pointer.js`): a frame annotation
+  under it is selected; on page text, the block under the press, or every block a drag crosses (one frame, one paragraph
+  each). The frame (`.para-frame` in the page layer, focusable) shows at once and its fonts are set up behind it
+  (`P.fromBlocks`, `para-model.js`): the font check (`S.fontsReady`), each document font's substitute (`S.runFont`), the
+  ink and paper colours (`edit-colours.js`) and one cover per old line (`M.coverPlan` + `F.coverAnnot`, 0.12 em wider so
+  overhanging glyphs are hidden). Double-click / Enter / F2 edits, a side handle reflows (page space, so rotated pages
+  work), the body moves, Escape lets go. Nothing changes until the first move, resize or edit, which commits the covers
+  and the frame as one undo step (`P.commit`); later changes replace the frame (one step each: Edit / Move / Resize
+  paragraph). With the select tool a frame is an ordinary box annotation (`E.BOX.para`): left/right handles reflow it on
+  an unrotated page (`S.paraReflow`, `view.js` handles), double-click edits it.
+- **Typing** (`para-edit.js`): a contenteditable box over the frame in the paragraph's face (the pdf.js face of the
+  document font when it has one, `P.faces`), size, pitch, alignment, indents and paper colour, stretched horizontally
+  (scaleX) by the ratio of the document's widths to the browser's so it wraps where the saved frame will. Enter = new
+  paragraph, Shift+Enter = line break, Ctrl+B/I bold/italic (a style of the frame with that weight, else the substitute
+  font in it), paste is plain text. Ctrl+Enter or a click elsewhere applies, Escape cancels.
+- **Layout and saving** (`para-layout.js` pure, `tests/node/pdf-para-layout.test.mjs`; `para-fonts.js`): greedy wrap to
+  the frame width (first-line / hanging indent, paragraph gap kept from the original), left/right/centre, justify spreads
+  the words of every line but a paragraph's last (each word is its own positioned piece). The frame annotation keeps its
+  laid-out lines (`lines[].segs[]: x, w, t, s, fb, rtl`), so it draws (`V.paraNode`, `para-view.js`, SVG text with
+  textLength) and saves (`E.drawPara`, hook in `io/export.js`) without the fonts at hand. Each style keeps `cm`
+  (character → [code, width]) for the characters it uses, read from the document font with pdf-lib (`P.info`: Type 0
+  Identity-H with a ToUnicode map and W widths, or simple TrueType/Type 1 with Widths and ToUnicode or WinAnsi; embedded
+  fonts only). Saving writes those codes in the document's own font (the copied page's font dictionary, found by
+  BaseFont, registered as `SlopPara…`), so the text is the original face and stays searchable through its ToUnicode map.
+  A character the font lacks (a subset), right-to-left lines (they need shaping) and fonts that cannot be reused (Type 3,
+  other CMaps, not embedded: Helvetica stays the standard Helvetica) go through the substitute font and the language
+  fonts (`E.runsOf`, `SlopPdfRuns.drawRun`). `E.paraFontNeeds` lets `E.prepareAnnotFonts` ready them before a save.
+- **Limits**: a frame does not push the text below it (a longer paragraph can overlap the next one; drag a side or move
+  it); right-to-left lines are not spread when justified (they stay at their start edge); a multi-style RTL line places
+  its style runs from the right but SlopBidi orders only inside each run; rotated text (not upright) is not grouped;
+  colour is one per frame (the first line's ink).
+- Tests: `tests/node/pdf-para-blocks.test.mjs`, `tests/node/pdf-para-layout.test.mjs`, `tests/pdf/para.test.html`
+  (`para.helpers.js`, `pdf.spec-para.js`, `pdf.spec-para-intl.js`: select a 3-line paragraph, type, the saved lines
+  inside the frame one pitch apart, narrower frame → more lines, move, undo, a drag over two paragraphs, justified stays
+  justified, Lines mode and the remembered mode, Swedish å ä ö, a Barlow subset reused with ö in the substitute, Arabic).
 
 ## Fonts (`ui/fonts.js`, the shared panel)
 - File ▸ Fonts…, the top-bar "Aa" button and the command palette ("Fonts…"). It opens the shared Fonts panel
