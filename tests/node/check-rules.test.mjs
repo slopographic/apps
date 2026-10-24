@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { check, lineCount, isSource, needsTest, MAX_LINES } from '../../tools/check-rules.mjs';
+import { check, lineCount, isSource, needsTest, touchProblems, MAX_LINES } from '../../tools/check-rules.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const lines = (n) => 'x\n'.repeat(n);
@@ -44,6 +44,29 @@ test('without the tests text only the size rule runs (the --all mode)', () => {
 });
 
 test('every tracked source file has at most 300 lines (node tools/check-rules.mjs --all)', () => {
+  const r = spawnSync(process.execPath, [path.join(ROOT, 'tools/check-rules.mjs'), '--all'], { cwd: ROOT, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+});
+
+test('rule 3: app scripts use pointer events, not mouse listeners, unless a touch-ok comment says why', () => {
+  assert.equal(touchProblems('app/js/a.js', "el.addEventListener('mousedown', f);").length, 1);
+  assert.equal(touchProblems('app/js/a.js', 'el.addEventListener("mousemove", f);').length, 1);
+  assert.equal(touchProblems('app/js/a.js', 'h({ onmouseup: f })').length, 1);
+  assert.equal(touchProblems('app/js/a.js', "el.addEventListener('mousedown', keep); // touch-ok: keeps the focus").length, 0);
+  assert.equal(touchProblems('app/js/a.js', "el.addEventListener('pointerdown', f); el.addEventListener('mouseenter', g);").length, 0);
+  assert.equal(touchProblems('tests/a.test.js', "el.addEventListener('mousedown', f);").length, 0); // tests and vendor are not app code
+  assert.equal(touchProblems('vendor/x.js', "el.addEventListener('mousedown', f);").length, 0);
+});
+
+test('rule 3: a script that drags (setPointerCapture) marks its touch surface', () => {
+  assert.equal(touchProblems('app/js/a.js', 'el.setPointerCapture(e.pointerId);').length, 1);
+  assert.equal(touchProblems('app/js/a.js', "el.setPointerCapture(e.pointerId); SlopTouch.surface(el);").length, 0);
+  assert.equal(touchProblems('app/js/a.js', "el.setPointerCapture(e.pointerId); el.setAttribute('data-touch-surface', '');").length, 0);
+  assert.equal(touchProblems('app/js/a.js', "el.setPointerCapture(e.pointerId); el.style.touchAction = 'none'; // touch-action").length, 0);
+  assert.equal(touchProblems('app/js/a.js', 'el.setPointerCapture(e.pointerId); // touch-ok: the grip is marked in app.css').length, 0);
+});
+
+test('rule 3 holds on the whole repository', () => {
   const r = spawnSync(process.execPath, [path.join(ROOT, 'tools/check-rules.mjs'), '--all'], { cwd: ROOT, encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
 });

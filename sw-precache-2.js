@@ -97,9 +97,10 @@ PRECACHE.push(
   '/shared/graphics/icons.js', '/shared/guard.js', '/shared/guides/engine.js', '/shared/guides/guides.css', '/shared/guides/notation.js',
   '/shared/guides/panel-tabs.js', '/shared/guides/panel.js', '/shared/guides/presets.js', '/shared/hub.js', '/shared/i18n/ar.js', '/shared/i18n/de.js',
   '/shared/i18n/es.js', '/shared/i18n/fr.js', '/shared/i18n/i18n.js', '/shared/i18n/it.js', '/shared/i18n/pt-BR.js', '/shared/i18n/strings.js',
-  '/shared/intake/intake.js', '/shared/kinds/kinds.js', '/shared/layouts/core.js', '/shared/layouts/layouts.css', '/shared/layouts/layouts.js',
-  '/shared/layouts/presets.js', '/shared/library/get-more.js', '/shared/library/manifest.js', '/shared/library/packs.json', '/shared/library/store.js',
-  '/shared/load/load.js', '/shared/mail/codec.js', '/shared/mail/mime.js', '/shared/mask/mask.js', '/shared/mask/overlay.js', '/shared/menubar/menubar.css',
+  '/shared/input/events.js', '/shared/input/gesture.js', '/shared/input/touch.css', '/shared/input/touch.js', '/shared/intake/intake.js',
+  '/shared/kinds/kinds.js', '/shared/layouts/core.js', '/shared/layouts/layouts.css', '/shared/layouts/layouts.js', '/shared/layouts/presets.js',
+  '/shared/library/get-more.js', '/shared/library/manifest.js', '/shared/library/packs.json', '/shared/library/store.js', '/shared/load/load.js',
+  '/shared/mail/codec.js', '/shared/mail/mime.js', '/shared/mask/mask.js', '/shared/mask/overlay.js', '/shared/menubar/menubar.css',
   '/shared/menubar/menubar.js', '/shared/models/catalog.js', '/shared/models/chooser.css', '/shared/models/chooser.js', '/shared/models/prefs.js',
   '/shared/motion/easing.js', '/shared/motion/playback.js', '/shared/motion/presets.js', '/shared/motion/timeline.js', '/shared/motion/track.js',
   '/shared/nav/describe.js', '/shared/nav/engine.js', '/shared/nav/index.js', '/shared/nav/logic.js', '/shared/nav/modal.js', '/shared/nav/nav.css',
@@ -200,6 +201,5 @@ PRECACHE.push(
   '/time/js/work.js', '/time/js/world.js', '/time/js/zones.js', '/timesheets/css/timesheets.css', '/timesheets/index.html', '/timesheets/js/core/entries.js',
   '/timesheets/js/core/time.js', '/timesheets/js/ui/app.js', '/timesheets/js/ui/bill.js', '/timesheets/js/ui/commands.js', '/timesheets/js/ui/editor.js',
   '/timesheets/js/ui/list.js', '/timesheets/js/ui/timer.js', '/todo/css/todo.css', '/todo/index.html', '/todo/js/config.js', '/todo/js/ui/app.js',
-  '/todo/js/ui/commands.js', '/todo/js/ui/editor.js', '/todo/js/ui/list.js', '/transcribe/css/transcribe.css', '/transcribe/index.html',
 );
 // END PRECACHE

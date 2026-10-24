@@ -22,3 +22,9 @@ test('the matrix lists every slice from 1 to n, and the run asks for slices of n
   const n = Number((wf.match(/--shard=\$\{\{ matrix\.shard \}\}\/(\d+)/) || [])[1]);
   assert.deepEqual(list, Array.from({ length: n }, (_, i) => i + 1));
 });
+
+test('the touch jobs run the touch-marked pages in WebKit (iPad) and Chromium (Android)', () => {
+  const engines = (wf.match(/engine: \[([a-z, ]+)\]/) || [])[1].split(',').map((s) => s.trim());
+  assert.deepEqual(engines.sort(), ['chromium', 'webkit']);
+  assert.match(wf, /node tests\/run\.mjs --touch --browser=\$\{\{ matrix\.engine \}\}/);
+});

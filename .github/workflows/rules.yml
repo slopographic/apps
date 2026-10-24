@@ -67,3 +67,22 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Browser tests, slice ${{ matrix.shard }} of 16
         run: node tests/run.mjs --shard=${{ matrix.shard }}/16 --jobs=3 --skip-node
+
+  # The touch tests: pages marked <meta name="slop-test-touch"> on a touch tablet, with real touches from the runner
+  # (tests/touch.mjs). WebKit is Safari's engine as an iPad (iOS: no dblclick on a double tap, no contextmenu on a long
+  # press); Chromium is an Android tablet (its own dblclick and contextmenu, which the touch layer must not double).
+  touch:
+    name: Touch tests ${{ matrix.engine }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [webkit, chromium]
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm ci --no-audit --no-fund
+      - name: Touch tests in ${{ matrix.engine }}
+        run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node

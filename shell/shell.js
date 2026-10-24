@@ -5,6 +5,7 @@
  * what is already on the page), applies the chosen language (SlopI18n.apply) once the header is in, adds the Apps and Notifications buttons to the page header, and binds Ctrl+Space.
  * Options on the tag: data-no-header (no buttons), data-brand-src (see brand/brand.js).
  * Exposes window.SlopShell (core helpers) and, once booted, SlopShell.switcher / .drawer / .notify / .tabs.
+ * Also loads the touch layer (shared/input: window.SlopTouch).
  * Modules: shell/notify.js SlopNotify · shell/layout.js SlopLayout · shell/tabs.js SlopOpenTabs ·
  *          shell/switcher.js SlopSwitcher · shell/drawer.js SlopDrawer · shell/header.js SlopHeader. */
 (function () {
@@ -89,6 +90,8 @@
   addCss('brand/brand.css');   // the brand link's app icon and badge
   addCss('shared/ui/hbtn.css');   // the look of every shared header button (Apps, the bell, Drive, Tour, View)
   if (!window.SlopHbtn) queue.push(['shared/ui/hbtn.js']);
+  // Touch and pen for every app (double tap, long press, pinch on surfaces, palm rejection): shared/input/HANDOFF.md
+  if (!(window.SlopTouch && window.SlopTouch.ready)) { addCss('shared/input/touch.css'); queue.push(['shared/input/gesture.js'], ['shared/input/events.js'], ['shared/input/touch.js']); }
   if (!window.SlopPWA) queue.push(['shared/pwa.js']);   // every app works offline after its first visit
   if (!window.SlopTutorialVideo) queue.push(['shared/ui/video.js']);   // tutorial links play in a dialog on the page
   for (const m of ['notify', 'layout', 'tabs', 'switcher', 'drawer', 'header']) queue.push(['shell/' + m + '.js']);
