@@ -9,6 +9,7 @@
   /** Header actions. Apply and ZIP need pictures (and results); the page says why when they are not ready. */
   function syncBar() {
     const n = window.WMItems.count(), outs = window.WMItems.outCount();
+    $('wm-drop').classList.toggle('wm-has', n > 0); // the preview in the zone is for an empty page only
     bar.setActions([
       { id: 'open', label: 'Open pictures…', icon: 'open', disabled: busy, onClick: () => $('wm-open').click() },
       { id: 'apply', label: 'Apply to all', icon: 'save', primary: true, disabled: busy || !n, onClick: applyAll },
@@ -75,6 +76,9 @@
       targets: [$('wm-drop'), $('wm-preview-box')],
       label: 'Drop pictures here',
       hint: 'PNG, JPEG, WebP, GIF or SVG. Many at once. Read in this browser, never uploaded.',
+      preview: { picture: { src: '../assets/shots/watermark.jpg', alt: 'A sunset photo with a © text watermark in the bottom right corner' },
+        steps: ['Drop pictures, many at once', 'Type your text or add a logo, pick a corner', 'Download them all as a ZIP'] },
+      sample: { label: 'Try it with 4 sample photos', files: () => window.SlopSamples.photos(4) },
       process: async (file) => {
         if (window.WMItems.count() >= window.WMItems.MAX) throw new Error('the list is full (' + window.WMItems.MAX + ' pictures)');
         return (await window.WMItems.add(file)).id;

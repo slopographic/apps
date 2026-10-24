@@ -8,8 +8,14 @@
 
   // Files and folders dropped on the window: SlopDrop (shared/drop) shows the outline and each file's progress. The
   // folder walk (G.source.fromDrop) reads the drop's entries inside the drop event, as before.
+  // The zone is a compact strip, so the empty library carries the preview (what it makes, and how) and the sample
+  // button; the sample photos go through the zone's batch like a drop.
+  const PREVIEW = {
+    picture: { src: '../assets/shots/gallery.jpg', alt: 'A photo library: eight photos under the month they were taken' },
+    steps: ['Drop photos or a whole folder', 'Browse by month, make albums, find duplicates', 'Back up the library as a ZIP'],
+  };
   function bindDrop() {
-    window.SlopDrop.attach($('gDrop'), {
+    const drop = window.SlopDrop.attach($('gDrop'), {
       accept: {
         types: ['image/*'],
         exts: ['.jpg', '.jpeg', '.jpe', '.png', '.webp', '.gif', '.avif', '.bmp', '.heic', '.heif', '.svg'],
@@ -23,6 +29,9 @@
         return file.name;
       },
     });
+    const pv = window.SlopDrop.panel.preview(PREVIEW);
+    if (pv) $('emptyIntro').append(pv);
+    $('emptySample').addEventListener('click', () => drop.run(window.SlopSamples.photos(8)));
   }
 
   async function openFromLaunch() {

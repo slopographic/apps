@@ -23,6 +23,7 @@ p, h2 { margin: 0; }
 .wm-note { color: var(--wm-dim); font-size: 13px; min-height: 0; }
 .wm-note:empty { display: none; }
 .wm-drop { border: 1px dashed var(--wm-line); border-radius: var(--wm-radius); padding: 14px; background: var(--wm-panel); }
+.wm-drop.wm-has .sd-preview { display: none; }
 .wm-list-wrap { display: grid; gap: 8px; }
 .wm-groups { display: grid; gap: 8px; }
 .wm-group-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }

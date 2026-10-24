@@ -143,6 +143,7 @@ const DROP_LABELS = {
   currentHint: () => 'into ' + (D.name || 'this document'),
 };
 let fileZones = null; // SlopDropChoice.zones on the document area (made in bindFileDrop)
+let fileDrop = null; // the drop strip's SlopDrop.attach result (the welcome card's sample goes through its batch)
 const placeFile = new WeakMap(); // File -> true when its drop landed on "Place as layers"
 const hasDragType = (e, names) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).some((t) => names.includes(t));
 function onDragOver(e) {
@@ -153,7 +154,7 @@ function onDragOver(e) {
 function bindFileDrop() {
   const area = $('.docarea');
   fileZones = window.SlopDropChoice.zones(area, { labels: DROP_LABELS, accept: (e) => hasDragType(e, ['Files', 'text/uri-list']) });
-  window.SlopDrop.attach($('#psDrop'), {
+  fileDrop = window.SlopDrop.attach($('#psDrop'), {
     accept: { types: ['image/*'], exts: ['.psd', '.psb', '.ora', '.kra', '.tif', '.tiff', '.svg', '.avif', '.bmp', '.gif'], noun: 'a picture or a document' },
     compact: true, overlay: false,
     targets: [area],

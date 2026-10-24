@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><title>Slop Watermark: the look (header, 1440 and 390 wide)</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
 <body>
-  <!-- Covers: watermark/index.html, watermark/css/watermark.css, watermark/js/main.js -->
+  <!-- Covers: watermark/index.html, watermark/css/watermark.css, watermark/js/main.js, assets/shots/watermark.jpg -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
@@ -25,6 +25,14 @@
   }
 
   describe('Slop Watermark: the look', () => {
+    it('the empty page shows what it makes and how; Try it with 4 sample photos lists them and the preview goes', async () => {
+      const D = await open(1280), W = D.defaultView;
+      expect(D.querySelectorAll('#wm-drop .sd-steps li').length).toBe(3);
+      expect(D.querySelector('#wm-drop .sd-pic img').getAttribute('src')).toBe('../assets/shots/watermark.jpg');
+      D.querySelector('#wm-drop .sd-sample').click();
+      await waitFor(() => W.WMItems.count() === 4, { timeout: 20000 });
+      await waitFor(() => D.querySelector('#wm-drop .sd-preview').getBoundingClientRect().height === 0);
+    }, { timeout: 40000 });
     it('the header leads with the home link (the app icon), in place of the bar badge', async () => {
       const D = await open(1440);
       const brand = D.querySelector('#wm-bar .sab-brand > a.brand:first-child');

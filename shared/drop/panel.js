@@ -39,6 +39,7 @@
     '.sd-steps{flex:0 1 260px;margin:0;padding:0;list-style:none;counter-reset:sd;display:grid;gap:8px;color:var(--sui-text,#1b1b22);font-size:14px}',
     '.sd-steps li{counter-increment:sd;display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}',
     '.sd-steps li::before{content:counter(sd);display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--sui-accent,var(--accent,var(--sl-accent,#3b5bdb)));color:var(--sui-accent-ink,var(--accent-ink,var(--sl-on-accent,#fff)));font:700 12px/1 system-ui,sans-serif}',
+    '.sd-zone.sd-has .sd-preview,.sd-zone.sd-has .sd-sample{display:none}',   // once files are in, the zone is just the prompt
     '.sd-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}',
     '.sd-sample{font:inherit;font-size:13px;padding:7px 12px;border:1px solid transparent;border-radius:6px;background:none;color:var(--sui-text,var(--sl-text,#1b1b22));text-decoration-color:var(--sui-accent,var(--accent,var(--sl-accent,#3b5bdb)));text-decoration-thickness:2px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}',
     '.sd-sample:focus-visible{outline:2px solid var(--sui-accent,#3b5bdb);outline-offset:2px}',
@@ -65,7 +66,8 @@
       fig.className = 'sd-pic';
       if (pic.nodeType) fig.append(pic);
       else if (pic.flow && root.SlopFlow) fig.append(root.SlopFlow.create(Object.assign({ size: 'lg' }, pic.flow)).el);
-      else if (pic.src) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.loading = 'lazy'; fig.append(img); }
+      // a single-file offline build (opened from file://) has no assets folder beside it: the steps say it there
+      else if (pic.src && !(root.location && root.location.protocol === 'file:')) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.loading = 'lazy'; fig.append(img); }
       if (fig.firstChild) box.append(fig);
     }
     if (o.steps && o.steps.length) {
@@ -93,7 +95,7 @@
     choose.type = 'button'; choose.className = 'sd-choose';
     choose.textContent = o.chooseLabel || 'Choose files';
     let sample = null;
-    if (o.sample) {
+    if (o.sample && !o.compact) {   // a strip stays a strip: an app with its own empty state puts its button there and calls .sample()
       sample = doc.createElement('button');
       sample.type = 'button'; sample.className = 'sd-sample';
       sample.textContent = o.sample.label || 'Try it with a sample';
@@ -108,7 +110,7 @@
     status.className = 'sd-status'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
     wrap.append(status);
     zone.replaceChildren(wrap);
-    return { list, msg, status, choose, sample };
+    return { wrap, list, msg, status, choose, sample };
   };
   /** One file's row in the progress list. state: 'reading' | 'ready' | 'error'. Returns { progress(p), set(state, text) }. */
   P.row = function (list, name, size, text) {

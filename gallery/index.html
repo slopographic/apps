@@ -139,8 +139,12 @@
           <div class="sticky" id="sticky" hidden><span class="sticky-l"></span><span class="sticky-n"></span></div>
           <div class="tl-content" id="tlContent"></div>
           <div class="empty" id="empty" hidden>
+            <div class="g-intro" id="emptyIntro" data-empty-intro></div>
             <p data-empty-text></p>
-            <button type="button" class="tb-btn primary" id="emptyImport">Import photos</button>
+            <div class="g-empty-acts">
+              <button type="button" class="tb-btn primary" id="emptyImport">Import photos</button>
+              <button type="button" class="sd-sample" id="emptySample" data-empty-intro>Try it with 8 sample photos</button>
+            </div>
           </div>
         </div>
         <div class="dgrid" id="dgrid" hidden>
@@ -229,6 +233,7 @@
   <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
   <script src="../shared/intake/intake.js" data-src="shared/intake/intake.js"></script>
   <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
+  <script src="../shared/samples/samples.js" data-src="shared/samples/samples.js"></script>
   <script src="js/ui/main.js" data-src="gallery/js/ui/main.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>

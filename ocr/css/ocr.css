@@ -26,6 +26,8 @@ body { margin: 0; background: var(--ocr-paper); color: var(--ocr-ink); font: 15p
 .ocr-app select { font: inherit; max-width: 100%; min-height: 36px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--ocr-edge); background: var(--ocr-card); color: var(--ocr-ink); }
 
 .ocr-ui { display: grid; gap: 14px; }
+.ocr-intro { margin: 8px 0 14px; }
+.ocr-drop.ocr-has .sd-preview { display: none; }
 .ocr-drop { display: block; border: 2px dashed var(--ocr-edge); border-radius: 12px; padding: 22px 16px; text-align: center; color: var(--ocr-muted); background: var(--ocr-card); }
 .ocr-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
 .ocr-progress { flex: 1 1 160px; height: 8px; accent-color: var(--ocr-hi); min-width: 0; }

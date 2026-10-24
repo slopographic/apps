@@ -41,6 +41,7 @@ export class ConvertTool {
       input: ui.input,
       label: 'Drop files here, or choose files',
       hint: 'Several at once is fine. Files are read on this device and never uploaded.',
+      ...this.firstVisit(),
       process: async (file) => { await this.addFiles([file]); return file.name; },
     });
     ui.input.setAttribute('accept', accept);
@@ -55,6 +56,21 @@ export class ConvertTool {
       if (b) this.remove(Number(b.dataset.remove));
     });
     this.render();
+  }
+
+  /** What an empty page shows in the drop zone (SlopDrop's preview): the hub shows a CSV becoming an XLSX and offers a
+   *  sample price list (shared/samples/docs.js); a converter page has its pair drawn above, so it shows the steps. */
+  firstVisit() {
+    const p = this.preset, tag = (k) => window.SlopFlow.tag(k);
+    if (p) {
+      const conv = conversionById(p.conv), from = p.from ? p.from.map(tag).join(' or ') : 'your';
+      return { preview: { steps: [`Drop ${from} files, one or many`, 'Check the options', `Download the ${conv ? tag(outKind(conv, p.defaults)) : 'new'} files`] } };
+    }
+    const S = window.SlopSamples;
+    return {
+      preview: { picture: { flow: { from: 'csv', to: 'xlsx' } }, steps: ['Drop pictures, PDFs, sheets, text', 'Pick what to make', 'Download one file or a zip'] },
+      sample: S && S.docs ? { label: 'Try it with a sample price list (CSV)', files: () => { this.wantTarget = 'csv-to-xlsx'; return [S.docs.csv()]; } } : undefined,
+    };
   }
 
   /** Adds files (a FileList or array). Each is detected by its first bytes, name and type. */
@@ -147,7 +163,11 @@ export class ConvertTool {
     const prev = ui.target.value;
     ui.target.replaceChildren(...(cands.length ? cands.map((c) => h('option', { value: c.id }, c.label))
       : [h('option', { value: '' }, this.active().length ? 'No conversion for these files' : 'Add files first')]));
-    if (cands.some((c) => c.id === prev)) ui.target.value = prev;
+    if (cands.some((c) => c.id === this.wantTarget)) { ui.target.value = this.wantTarget; this.wantTarget = null; } else if (cands.some((c) => c.id === prev)) ui.target.value = prev;
+    // The preview in the drop zone is for an empty page.
+    const pv = ui.drop.querySelector('.sd-preview'), sample = ui.drop.querySelector('.sd-sample');
+    if (pv) pv.hidden = this.items.length > 0;
+    if (sample) sample.hidden = this.items.length > 0;
     ui.target.disabled = !cands.length;
     ui.run.disabled = this.busy || !cands.length;
     this.noteFor(cands);

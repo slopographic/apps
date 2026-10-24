@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><title>Slop OCR: the look (header, hidden parts, 1440 and 390 wide)</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
 <body>
-  <!-- Covers: ocr/index.html, ocr/css/ocr.css -->
+  <!-- Covers: ocr/index.html, ocr/css/ocr.css, ocr/js/app.js, ocr/js/sample.js, assets/shots/ocr.jpg -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
@@ -35,8 +35,28 @@
       expect(shown(D.getElementById('work'))).toBe(false);
     }, { timeout: 40000 });
 
+    it('the empty page shows what it makes and how, above the model prompt or in the drop zone, never both', async () => {
+      const D = await open(1280);
+      const where = D.getElementById('ui').hidden ? '#intro' : '#drop';
+      expect(D.querySelectorAll(where + ' .sd-steps li').length).toBe(3);
+      expect(D.querySelector(where + ' .sd-pic img').getAttribute('src')).toBe('../assets/shots/ocr.jpg');
+      expect([...D.querySelectorAll('.sd-preview')].filter(shown).length).toBe(1);
+    }, { timeout: 40000 });
+
+    it('Try it with a sample receipt opens a drawn receipt as page 1, and the zone drops its preview', async () => {
+      const D = await open(1280);
+      D.getElementById('ui').hidden = false; // without the model the tool waits behind the prompt; opening a file needs no model
+      D.querySelector('#drop .sd-sample').click();
+      await waitFor(() => D.getElementById('pages').options.length === 1, { timeout: 20000 });
+      expect(D.getElementById('pages').options[0].textContent).toBe('1. Sample receipt.png (not read yet)');
+      expect(D.getElementById('work').hidden).toBe(false);
+      expect(D.getElementById('read').disabled).toBe(false);
+      expect(shown(D.querySelector('#drop .sd-preview'))).toBe(false);
+    }, { timeout: 40000 });
+
     it('at 390px nothing scrolls sideways', async () => {
       const D = await open(390);
+      expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390); // the preview above the model prompt fits
       D.getElementById('ui').hidden = false;
       expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
     }, { timeout: 40000 });

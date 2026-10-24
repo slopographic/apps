@@ -77,16 +77,18 @@
       expect(picks).toBe(1);
     });
 
-    it('the zone is not positioned over the top bar', () => {
+    // The strip is hidden at rest (the Media panel adds files); it shows while it has a result, and then it must sit clear.
+    const showing = (fn) => { const st = $('#scDrop .sd-status'); st.textContent = 'Added 1 file'; try { return fn(); } finally { st.textContent = ''; } };
+    it('the zone is not positioned over the top bar', () => showing(() => {
       const zone = $('#scDrop'), bar = win.document.querySelector('header.topbar');
       expect(zone.getBoundingClientRect().height).toBeGreaterThan(0);
       expect(overlaps(zone, bar)).toBe(false);
       expect(overlaps(zone, $('#btnExport'))).toBe(false);
-    });
+    }));
 
-    it('the zone does not cover the playback controls', () => {
+    it('the zone does not cover the playback controls', () => showing(() => {
       expect(overlaps($('#scDrop'), $('#transport'))).toBe(false);
-    });
+    }));
   });
 
   SlopTest.run({ name: 'SlopCut file drops' });

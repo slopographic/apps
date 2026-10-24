@@ -23,7 +23,7 @@
     $('em-atts-all-get').addEventListener('click', () => window.EmlView.downloadAll());
     /* .eml files dropped on the strip or the message area open in turn (SlopDrop: refusals say why). A file that is already
        open is not opened again. */
-    window.SlopDrop.attach($('em-drop'), {
+    const drop = window.SlopDrop.attach($('em-drop'), {
       accept: { types: ['message/rfc822'], exts: ['.eml'], noun: 'an email file (.eml)' },
       targets: [$('em-drop'), $('em-main')],
       compact: true,
@@ -33,6 +33,15 @@
         return file.name;
       },
     });
+    // The empty page shows a read email and how (SlopDrop's preview); the sample goes through the strip.
+    const empty = $('em-empty'), row = empty.querySelector('.em-empty-b'), sample = document.createElement('button');
+    empty.insertBefore(window.SlopDrop.panel.preview({
+      picture: { src: '../assets/shots/eml.jpg', alt: 'An email open in Slop EML: who sent it, when, and the message' },
+      steps: ['Drop .eml files', 'Read the message and its attachments', 'Save the attachments, or the email as a PDF'],
+    }), row);
+    sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'em-sample'; sample.textContent = 'Try it with a sample email';
+    sample.addEventListener('click', () => drop.run([window.SlopSamples.docs.eml()]));
+    row.append(sample);
   }
 
   function boot() {

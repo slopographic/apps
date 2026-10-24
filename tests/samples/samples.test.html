@@ -58,16 +58,20 @@
       expect(got).toEqual(['Sample sunset.jpg', 'Sample mountains.jpg']);
       await d.sample();
       expect(got.length).toBe(4);
+      expect([getComputedStyle(z.querySelector('.sd-preview')).display, getComputedStyle(btn).display]).toEqual(['none', 'none']);
       d.destroy();
     });
-    it('a flow picture uses SlopFlow; a compact strip and a zone without options draw no preview or sample', () => {
+    it('a flow picture uses SlopFlow; a compact strip and a zone without options draw no preview or sample', async () => {
       const z = document.getElementById('zone2');
       const d = SlopDrop.attach(z, { accept: { any: true }, process: async () => 1, preview: { picture: { flow: { from: 'pdf', to: 'docx' } } } });
       expect(z.querySelector('.sd-pic .sflow').getAttribute('aria-label')).toBe('PDF to DOCX');
       expect(z.querySelector('.sd-steps')).toBe(null);
       d.destroy();
-      const c = SlopDrop.attach(z, { accept: { any: true }, process: async () => 1, compact: true, preview: { steps: ['a'] } });
-      expect(z.querySelector('.sd-preview')).toBe(null);
+      let n = 0;
+      const c = SlopDrop.attach(z, { accept: { any: true }, process: async () => 1, compact: true, preview: { steps: ['a'] }, sample: { files: () => { n++; return []; } } });
+      expect([z.querySelector('.sd-preview'), z.querySelector('.sd-sample')]).toEqual([null, null]);
+      await c.sample();
+      expect(n).toBe(1);   // the app's own button calls it
       c.destroy();
       const p = SlopDrop.attach(z, { accept: { any: true }, process: async () => 1 });
       expect([z.querySelector('.sd-preview'), z.querySelector('.sd-sample')]).toEqual([null, null]);

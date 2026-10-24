@@ -130,6 +130,7 @@
           skipped.push({ name: f.name, reason });
         }
       }
+      if (added.length && ui.wrap) ui.wrap.classList.add('sd-has');
       const summary = { added, skipped };
       const text = R.describe(summary);
       ui.status.textContent = text;

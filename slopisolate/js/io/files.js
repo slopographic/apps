@@ -85,8 +85,16 @@
   }
   const S = () => CO.state;
 
+  /** What the app makes and how, in the empty card (the drop zone is a compact strip, so the card carries it). */
+  const PREVIEW = {
+    picture: { src: '../assets/shots/cutout.jpg', alt: 'A picture before and after: the busy background is gone, the subject is kept' },
+    steps: ['Drop images, several at once', 'The AI cuts out the subject; touch up with Keep and Remove', 'Download a PNG with a clear background'],
+  };
+
   /** Drag and drop onto the workspace (a compact zone above the stage, and the window). Pasting stays below. */
   F.init = function () {
+    const pv = SlopDrop.panel.preview(PREVIEW);
+    if (pv) U.$('#emptyIntro').append(pv);
     SlopDrop.attach(U.$('#isoDrop'), {
       accept: DROP_RULES,
       compact: true,

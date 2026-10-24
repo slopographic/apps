@@ -42,11 +42,8 @@
 .app:not([data-mode="empty"]) .empty { display: none; }
 .drop-card { width: min(620px, 100%); padding: 40px 28px 26px; text-align: center; border: 2px dashed var(--line-2); border-radius: 22px; background: color-mix(in srgb, var(--panel) 82%, transparent); transition: border-color .15s, background .15s; }
 .drop-card:hover { border-color: var(--faint); }
-.empty-art { width: 108px; height: 108px; margin-bottom: 4px; }
-.ea-photo { fill: var(--panel-2); stroke: var(--line-2); stroke-width: 2; stroke-dasharray: 6 5; }
-.ea-hill { fill: none; stroke: var(--faint); stroke-width: 2.5; stroke-linejoin: round; stroke-dasharray: 6 5; }
-.ea-goo { fill: var(--lime); stroke: var(--ink); stroke-width: 2.5; }
-.ea-shine { fill: none; stroke: #fff; stroke-width: 2.4; stroke-linecap: round; }
+/* The preview (SlopDrop.panel.preview): what the app makes, and how. */
+.iso-intro { margin-bottom: 18px; }
 .drop-card h1 { margin: 0 0 8px; font: 800 clamp(26px, 5vw, 38px)/1.05 var(--font-display); letter-spacing: -.02em; }
 .drop-card p { margin: 0 auto 20px; max-width: 460px; color: var(--dim); font-size: 14px; line-height: 1.5; }
 .empty-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }

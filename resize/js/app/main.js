@@ -159,6 +159,9 @@
       label: 'Drop pictures or videos here',
       hint: 'JPEG, PNG, WebP, AVIF and GIF pictures, and MP4, WebM or MOV video. Many at once. Each file is read and resized in this browser and never uploaded.',
       targets: [$('rs-left')],
+      preview: { picture: { src: '../assets/shots/resize.jpg', alt: 'Photos resized from 2400 × 1600 to 1080 × 720, each with its old and new file size' },
+        steps: ['Drop pictures or videos, many at once', 'Pick a size, a percentage or a file limit', 'Download the copies as a ZIP'] },
+      sample: { label: 'Try it with 4 sample photos', files: () => window.SlopSamples.photos(4, { width: 2400, height: 1600 }) },
       process: async (file) => {
         const it = await NS.queue.add(file);
         if (it.status === 'error') throw new Error(it.err);
