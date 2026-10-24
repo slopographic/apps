@@ -9,6 +9,8 @@
   <meta name="description" content="Transcribe audio or the audio of a video with Whisper, on your device: tiny, base, small, or KB-Whisper for Swedish. Timestamps, .srt and .txt export.">
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../aitools.css">
+  <link rel="stylesheet" href="../../shared/frame/frame.css">
+  <link rel="stylesheet" href="../frame.css">
   <link rel="stylesheet" href="../../shared/slopui.css">
   <link rel="stylesheet" href="../../shared/models/chooser.css">
 </head>
@@ -23,17 +25,17 @@
     <section id="ui" class="ai-stack" hidden>
       <div id="drop" class="ai-drop">Drop an audio or video file here, or <label><u>choose a file</u><input id="file" type="file" accept="audio/*,video/*" hidden></label><br><span class="ai-meta">Up to 2 hours. Long files are read in 30-second windows.</span></div>
       <div class="ai-grid2">
-        <div class="ai-field"><span id="modelHead">Language and model</span>
+        <div class="ai-field" data-side="settings"><span id="modelHead">Language and model</span>
           <button id="model" type="button" aria-haspopup="dialog" aria-describedby="modelHead">Detect automatically · Whisper tiny</button></div>
         <div class="ai-field"><span class="ai-meta" id="fileName"></span></div>
       </div>
-      <div><button id="run" class="ai-pri" type="button" disabled>Transcribe</button></div>
+      <div><button id="run" class="ai-pri" type="button" disabled data-side="main">Transcribe</button></div>
       <progress id="prog" class="ai-progress" value="0" max="1" hidden></progress>
       <p id="msg" class="ai-meta" role="status"></p>
       <textarea id="out" class="ai-out" aria-label="Transcript" placeholder="The transcript appears here, with timestamps in the .srt file."></textarea>
       <div class="ai-act">
-        <button id="srt" type="button" disabled>Download .srt</button>
-        <button id="txt" type="button" disabled>Download .txt</button>
+        <button id="srt" type="button" disabled data-side="save">Download .srt</button>
+        <button id="txt" type="button" disabled data-side="save">Download .txt</button>
       </div>
     </section>
   </div>
@@ -50,6 +52,12 @@
   <script src="../common.js"></script>
   <script src="../transcript.js"></script>
   <script type="module" src="speech.js"></script>
+  <script src="../../shared/ui/sheet.js"></script>
+  <script src="../../shared/ui/menubutton.js"></script>
+  <script src="../../shared/ui/resize-panel.js"></script>
+  <script src="../../shared/frame/frame.js"></script>
+  <script src="../../shared/frame/panel.js"></script>
+  <script src="../frame.js"></script>
   <script src="../../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

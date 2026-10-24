@@ -18,7 +18,8 @@ async function audit() {
   assert.ok(at > 0, 'the audit section is in shared/frame/HANDOFF.md');
   return md.slice(at).split('\n').filter((l) => /^\| [^-|]/.test(l) && !/^\| App \|/.test(l)).map((l) => {
     const [name, folder, kind, , status] = l.split('|').slice(1).map((c) => c.trim());
-    return { name, folder: folder.split(' ')[0], kind, status };
+    const subs = (folder.match(/\(\+ ([^)]+)\)/) || [])[1];   // "aitools/ (+ ocr, speech)": the tool pages under the folder
+    return { name, folder: folder.split(' ')[0], pages: subs ? subs.split(',').map((x) => x.trim()) : null, kind, status };
   });
 }
 
@@ -43,7 +44,8 @@ test('every app marked done loads SlopFrame and its phone sheet; a done tool has
   const done = (await audit()).filter((r) => r.status === 'done');
   assert.ok(done.length >= 3, 'some apps are done');
   for (const r of done) {
-    const dir = r.folder.replace(/\/$/, ''), html = await read(dir + '/index.html');
+    const dir = r.folder.replace(/\/$/, '');
+    const html = (await Promise.all((r.pages ? r.pages.map((x) => dir + '/' + x) : [dir]).map((d) => read(d + '/index.html')))).join('\n');
     const loads = (f) => html.includes('shared/frame/' + f) || html.includes("'shared/frame/" + f);
     const js = await ownScripts(dir);
     const all = html + js;
