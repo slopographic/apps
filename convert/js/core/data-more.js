@@ -57,8 +57,8 @@ const text = (fn, ext, type) => async (files, o = {}) => {
 };
 
 const SHEET = { key: 'sheet', type: 'select', label: 'Sheets', value: 'first', options: [['first', 'The first sheet'], ['all', 'Every sheet']], hint: 'Every sheet: one CSV file per sheet, or one JSON object with a key per sheet.' };
-const INDENT = { key: 'indent', type: 'select', label: 'Indent', value: '2', options: [['2', '2 spaces'], ['4', '4 spaces'], ['tab', 'Tabs'], ['0', 'None (minified, one line)']] };
-const SHIFT = { key: 'shift', type: 'number', label: 'Shift the timing (seconds)', min: -36000, max: 36000, step: 0.001, value: 0, hint: 'A positive number shows every subtitle later, a negative one earlier. 0 keeps the timing.' };
+export const INDENT = { key: 'indent', type: 'select', label: 'Indent', value: '2', options: [['2', '2 spaces'], ['4', '4 spaces'], ['tab', 'Tabs'], ['0', 'None (minified, one line)']] };
+export const SHIFT = { key: 'shift', type: 'number', label: 'Shift the timing (seconds)', min: -36000, max: 36000, step: 0.001, value: 0, hint: 'A positive number shows every subtitle later, a negative one earlier. 0 keeps the timing.' };
 const SHEETS_KW = ['excel', 'spreadsheet', 'sheet'];
 
 export const DATA_MORE = [
