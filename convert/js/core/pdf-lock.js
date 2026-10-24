@@ -75,6 +75,7 @@ export const PDF_LOCK = [
   { id: 'pdf-protect', label: 'Protect PDF with a password', group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each', secret: true, chain: false,
     keywords: ['password', 'encrypt', 'lock', 'secure', 'aes', 'protect'],
     note: 'AES-256, the strongest PDF encryption. Keep the password safe: nobody, not even this site, can open the file without it.',
+    check: (o = {}) => (!o.password ? 'Type a password.' : o.password !== o.confirm ? 'The two passwords are not the same.' : ''),   // before a workflow runs
     options: [
       { key: 'password', type: 'password', label: 'Password', hint: 'Needed to open the PDF. The password is used on this device only and forgotten after Convert.' },
       { key: 'confirm', type: 'password', label: 'Type the password again' },

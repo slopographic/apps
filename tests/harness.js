@@ -64,6 +64,7 @@
       const t0 = performance.now();
       let status = 'pass', message = '';
       window.__SLOPTEST_NOW__ = s.name + ' › ' + t.name;
+      window.__SLOPTEST_DEADLINE__ = performance.now() + t.timeout * SCALE;   // tests/run.mjs: past this, the harness itself is stuck
       try {
         // the test with its beforeEach and afterEach steps, all inside the test's time limit (a hook can hang too)
         const steps = async () => { for (const b of s.before) await b(); await t.fn(); for (const a of s.after) await a(); };

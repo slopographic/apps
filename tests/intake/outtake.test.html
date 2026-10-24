@@ -7,8 +7,9 @@
 <script src="../../shared/apps.js"></script>
 <script src="../../shared/hub.js"></script>
 <script src="../../shared/intake/outtake.js"></script>
+<script src="../../shared/ops/entry.js"></script>
 <script>
-  // Covers: shared/intake/outtake.js, shared/hub.js
+  // Covers: shared/intake/outtake.js, shared/hub.js, shared/ops/entry.js
   // The one outbound builder: every registry app that takes the type, the handovers apps register (first, and standing in
   // for that app's plain item), the items shared features add, the 'slop:outtake' event, Save to Slop Drive…, the menu
   // and the toolbar button; SlopHub.openIn and sendMenuItems are the same builder. sendTo and saveToDrive are stubbed.
@@ -20,7 +21,7 @@
   const png = () => new Blob([new Uint8Array([137, 80, 78, 71])], { type: 'image/png' });
   const out = (extra) => Object.assign({ from: 'cutout', get: png, name: 'cut.png', type: 'image/png' }, extra);
   const labels = (items) => items.map((i) => (i === '-' ? '-' : i.label));
-  const takers = () => H.appsAccepting('image/png').filter((a) => a.id !== 'cutout');
+  const takers = () => H.appsAccepting('image/png').filter((a) => a.id !== 'cutout' && a.id !== 'workflows');
 
   describe('the items', () => {
     it('lists every app that takes the type, then Save to Slop Drive…', () => {
@@ -67,11 +68,25 @@
     });
   });
 
+  describe('Slop Workflows, one way', () => {
+    it('its entry gives Run a workflow… and Add to a workflow… once, in place of Open in Slop Workflows', async () => {
+      const l = labels(O.items(out()));
+      expect(l.filter((x) => x === 'Run a workflow…').length).toBe(1);
+      expect(l.filter((x) => x === 'Add to a workflow…').length).toBe(1);
+      expect(l).not.toContain('Open in Slop Workflows');
+      sent.length = 0;
+      await O.items(out()).find((i) => i.label === 'Add to a workflow…').act();
+      expect(sent[0][0]).toBe('workflows');
+      expect(sent[0][1]).toBe('cut.png');
+    });
+  });
+
   describe('one builder for every menu', () => {
     it('SlopHub.openIn is the builder, and sendMenuItems (the older call) is too: Send to …, Save only with folder', () => {
       expect(labels(H.openIn(out()))).toEqual(labels(O.items(out())));
       const old = labels(H.sendMenuItems(png, 'x.png', 'image/png'));
-      expect(old.every((x) => x.startsWith('Send to '))).toBe(true);
+      expect(old.filter((x) => !/workflow/.test(x)).every((x) => x.startsWith('Send to '))).toBe(true);
+      expect(old).toContain('Run a workflow…');
       expect(labels(H.sendMenuItems(png, 'x.png', 'image/png', { folder: true }))).toContain('Save to Slop Drive…');
     });
     it('the toolbar button opens the same items in a menu', async () => {

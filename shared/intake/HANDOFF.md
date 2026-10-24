@@ -101,7 +101,10 @@ SlopOuttake.extend((ctx) => [{ label: 'Add to a workflow…', act }])
 Items, in order: the app's registered handovers (richer, and `replaces` the plain item of that target), every registry app
 that takes the type (`SlopHub.appsAccepting`; the file goes to Slop Drive and the target opens on ?drive=<id>, where its
 `SlopIntake.launch` takes it), the shared features' items (`extend`, and `slop:outtake` listeners with `phase: 'items'` →
-`detail.add(item)`), then "Save to Slop Drive…". After a file went out: `slop:outtake` with `phase: 'sent'` (`from, to,
+`detail.add(item)`), then "Save to Slop Drive…". Slop Workflows comes in one way: when the page has `shared/ops/entry.js`
+(loaded after outtake.js), its `SlopWorkflowEntry.menuItems` gives "Run a workflow…" and "Add to a workflow…", and the
+plain "Open in Slop Workflows" (the registry says it takes images and PDFs) is left out so it is not listed twice.
+`items(o)` gives no separators (menus that do not draw them); `menu()` and `button()` add them. After a file went out: `slop:outtake` with `phase: 'sent'` (`from, to,
 type, name, id`). `SlopHub.openIn(o)` is `items`; `SlopHub.sendMenuItems(getBlob, name, type, { folder })` is `items`
 with the verb "Send to". Use the same items for the toolbar button, the More menu and the context menus.
 
@@ -507,6 +510,10 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] out: Open in/Send to label: `shared/i18n/strings.js:32`
 
+### shared/ops
+
+- [ ] out: sendTo: `shared/ops/entry.js:29`
+
 ### shared/presets
 
 - [ ] hub listener: `shared/presets/store.js:52`
@@ -629,4 +636,13 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] file input: `watermark/index.html:42`
 - [ ] file input: `watermark/index.html:96`
 - [ ] SlopDrop.attach: `watermark/js/main.js:71`
+
+### workflows
+
+- [ ] ?drive= launch: `workflows/js/ui/app.js:27`
+- [ ] pickFiles: `workflows/js/ui/library.js:105`
+- [ ] out: sendMenuItems: `workflows/js/ui/run.js:104`
+- [ ] out: Open in/Send to label: `workflows/js/ui/run.js:104`
+- [ ] SlopDrop.attach: `workflows/js/ui/run.js:158`
+- [ ] drop listener: `workflows/js/ui/steps.js:145`
 

@@ -37,6 +37,7 @@
     // select tool the press is the annotation's when it is inside its box (select, move, resize), in Edit text mode or not.
     // Edit text mode (edit-text.js): only a press on the page's own text opens a run.
     if (!hitG && !handle && t === 'select' && !tbox) hitG = S.annotElAt(e);
+    if (Ed.editText && Ed.paraMode && t === 'select' && !handle && S.paraDown && S.paraDown(e, p, hitG)) return; // Paragraphs (para-mode.js)
     if (Ed.editText && t === 'select' && !handle && !hitG && !tbox) { e.preventDefault(); S.runDown(e, p); return; }
     if (t === 'block') { e.preventDefault(); S.blockDown(e, p); return; } // block copy (editor/block-copy.js)
     if (t === 'select') {
@@ -46,7 +47,7 @@
         e.preventDefault();
         var hid = hitG.getAttribute('data-aid'), now = Date.now();
         // own double-click/double-tap detection (pointer capture swallows native dblclick)
-        if (S.lastTap && S.lastTap.id === hid && now - S.lastTap.t < 450) { S.lastTap = null; var ta0 = S.findAnnot(hid); if (ta0 && !ta0.locked && (ta0.type === 'text' || ta0.type === 'callout' || ta0.type === 'step')) { Ed.select(hid); S.editing = { id: hid, isNew: false, before: ta0.text }; S.openTextEditor(ta0); return; } }
+        if (S.lastTap && S.lastTap.id === hid && now - S.lastTap.t < 450) { S.lastTap = null; var ta0 = S.findAnnot(hid); if (ta0 && !ta0.locked && ta0.type === 'para' && S.paraEditAnnot) { S.paraEditAnnot(ta0); return; } if (ta0 && !ta0.locked && (ta0.type === 'text' || ta0.type === 'callout' || ta0.type === 'step')) { Ed.select(hid); S.editing = { id: hid, isNew: false, before: ta0.text }; S.openTextEditor(ta0); return; } }
         S.lastTap = { id: hid, t: now };
         Ed.select(hid); S.startEdit(e, 'move'); return;
       }
@@ -162,7 +163,8 @@
         }
         if (n.w < 0) { n.x += n.w; n.w = -n.w; } if (n.h < 0) { n.y += n.h; n.h = -n.h; }
         n.w = Math.max(n.w, 2); n.h = Math.max(n.h, 2);
-        if (x.type === 'text') {
+        if (x.type === 'para' && S.paraReflow) n = S.paraReflow(x, n, r, hh); // the text reflows to the new width (para-view.js)
+        else if (x.type === 'text') {
           var k3 = n.h / r.h; x.size = U.clamp(U.round(S.act.orig.size * k3, 1), 4, 400);
           var t = E.textLayout(x), va = (((c.R - (x.rot || 0)) % 360) + 360) % 360;
           var tw = va % 180 ? t.h : t.w, th = va % 180 ? t.w : t.h;
@@ -192,8 +194,9 @@
     var id = g ? g.getAttribute('data-aid') : Ed.selId;
     if (!id || Ed.tool !== 'select') return;
     var a = S.findAnnot(id);
+    if (a && !a.locked && a.type === 'para' && S.paraEditAnnot) { S.paraEditAnnot(a); return; }
     if (a && !a.locked && (a.type === 'text' || a.type === 'callout' || a.type === 'step')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); }
   }
-  Ed.editSelectedText = function () { var a = Ed.getSelected(); if (a && !a.locked && (a.type === 'text' || a.type === 'callout' || a.type === 'step')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); return true; } return false; };
+  Ed.editSelectedText = function () { var a = Ed.getSelected(); if (a && !a.locked && a.type === 'para' && S.paraEditAnnot) { S.paraEditAnnot(a); return true; } if (a && !a.locked && (a.type === 'text' || a.type === 'callout' || a.type === 'step')) { S.editing = { id: a.id, isNew: false, before: a.text }; S.openTextEditor(a); return true; } return false; };
 
 })();

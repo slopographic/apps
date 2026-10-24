@@ -8,6 +8,7 @@
   <script src="../../shared/apps.js"></script>
   <script src="../../shared/hub.js"></script>
   <script src="../../shared/intake/outtake.js"></script>
+  <script src="../../shared/ops/entry.js"></script>
   <script src="fixtures.js"></script>
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
@@ -41,6 +42,8 @@
 
     it('writes a .splaylist file with Drive ids and reads it back', async () => {
       const H = window.SlopHub, M = W.SlopMusic;
+      // the page was just reopened: the playlists are back, the library may still be loading its tracks
+      await waitFor(() => [ids[1], ids[0]].every((id) => M.lib.track(id)), { timeout: 15000 });
       const tracks = [ids[1], ids[0]].map((id) => M.lib.track(id));
       const blob = M.plfile.build('Road mix', tracks.map((t) => ({ id: t.id, title: M.lib.display(t), artist: '', album: '', duration: t.duration })));
       const id = await H.put(blob, { name: M.plfile.fileName('Road mix'), from: 'music' });

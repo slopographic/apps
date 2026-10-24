@@ -50,5 +50,6 @@ export async function hub() {
   if (!window.SLOP_APPS) await script('shared/apps.js');
   if (!window.SlopHub) await script('shared/hub.js');
   if (!window.SlopOuttake) await script('shared/intake/outtake.js');   // the one "Open in…" builder (SlopHub.openIn)
+  if (!window.SlopWorkflowEntry) await script('shared/ops/entry.js');  // its Run a workflow… and Add to a workflow… items
   return window.SlopHub;
 }
