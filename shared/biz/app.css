@@ -1,4 +1,4 @@
-/* Business app base (Slop Expenses, Orders and Invoices; Ledger and Admin next): colour tokens taken from the site theme,
+/* Business app base (Slop Expenses, Quotes, Orders and Invoices; Ledger and Admin next): colour tokens taken from the site theme,
  * base elements, inputs, buttons, status chips, view tabs, toolbars, cards, form grids, messages, the empty state, the
  * backup block and stat tiles. An app stylesheet adds only what is its own. Works at 390 px wide. Record rows are SlopList
  * (shared/ui/list.css); document line cards and totals are shared/docs/lines.css. */
@@ -52,9 +52,9 @@ input[readonly] { color: var(--mute); }
 /* Status chips of the business records: a dot in the status colour (in progress, done, cancelled, overdue, sample data) */
 .chip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px; border-radius: 999px; background: var(--chip); border: 1px solid var(--line); font-size: 11.5px; line-height: 1.6; white-space: nowrap; color: var(--mute); }
 .chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
-.chip.open, .chip.issued { color: var(--accent); }
-.chip.fulfilled, .chip.paid, .chip.posted { color: var(--ok); }
-.chip.cancelled, .chip.void { color: var(--mute); text-decoration: line-through; }
+.chip.open, .chip.issued, .chip.sent { color: var(--accent); }
+.chip.fulfilled, .chip.paid, .chip.posted, .chip.accepted { color: var(--ok); }
+.chip.cancelled, .chip.void, .chip.declined { color: var(--mute); text-decoration: line-through; }
 .chip.overdue { color: var(--danger); font-weight: 600; }
 .chip.sample { color: var(--warn); }
 

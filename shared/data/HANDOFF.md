@@ -19,6 +19,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 <script src="…/shared/data/stock.js"></script>
 <script src="…/shared/data/billing.js"></script>
 <script src="…/shared/data/expenses.js"></script>  <!-- money going out: record and void, posted to the journal -->
+<script src="…/shared/data/quotes.js"></script>    <!-- quotes: to an order or a draft invoice -->
 <script src="…/shared/data/bundle-check.js"></script>
 <script src="…/shared/data/export.js"></script>
 <script src="…/shared/data/rates-ecb.js"></script>   <!-- only if the page offers the ECB update -->
@@ -28,7 +29,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 `rates-ecb.js` is optional and does nothing until the person turns on the consent category (see below).
 
 Everything hangs off `window.SlopData`: `money`, `barcode`, `schema`, `schemaDefs`, `result`, `locale`, `store`,
-`numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
+`numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `quotes`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
 files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 5 (see storage/INVENTORY.md for
 what each version added), and upgrades only create the missing stores.
 
@@ -39,6 +40,12 @@ a posted expense and its journal entry in one transaction: the expense account (
 is debited with the amount without tax, the tax account (2100) with the reclaimable tax, and cash (method `cash`) or the bank
 with the total. `voidExpense(id)` marks it void and reverses the entry. `expenseLines(e)` and `totals(list)` are pure.
 Expenses are posting-only: `store.put('expenses', ...)` is refused.
+
+Quotes are ordinary records (`store.put('quotes', ...)`, numbered QUO-0001, never deleted). Status: draft -> sent ->
+accepted or declined; a sent quote can go back to draft, a declined one can be reopened, an accepted one is final.
+`SlopData.quotes.toOrder(id)` makes a confirmed order and `toInvoice(id, { dueDate })` a draft invoice, in one transaction
+that links both ways (`quoteId` on the new document, `orderId` or `invoiceId` on the quote) and accepts the quote. Nothing is
+posted. `isExpired(q, day)` is pure.
 
 ## Result shape (every async call)
 

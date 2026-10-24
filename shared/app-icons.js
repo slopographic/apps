@@ -41,6 +41,7 @@
     inventory: '<path d="M6 16 24 8l18 8v18L24 42 6 34z"/><path d="M6 16l18 8 18-8M24 24v18"/>',
     orders: '<rect x="10" y="8" width="28" height="34" rx="2"/><path d="M18 8V5h12v3M17 22l4 4 8-8M17 34h14"/>',
     invoices: '<path d="M12 6h24v36l-4-3-4 3-4-3-4 3-4-3-4 3z"/><path d="M18 16h12M18 22h12M18 28h6"/>',
+    quotes: '<path d="M10 6h22l6 6v30H10z"/><path d="M32 6v6h6M16 18h10M16 24h16"/><path d="M17 32c2-3 4-3 5 0s3 3 5 0"/>',
     expenses: '<path d="M12 6h24v36l-4-3-4 3-4-3-4 3-4-3-4 3z"/><path d="M18 14h12M24 19v13M19 27l5 5 5-5"/>',
     notes: '<path d="M10 6h28v36H10z"/><path d="M16 16h16M16 22h16M16 28h10"/><path d="M32 40l8-8-3-3-8 8z"/>',
     paste: '<rect x="10" y="10" width="28" height="34" rx="2"/><path d="M18 10V7h12v3M16 22h16M16 28h16M16 34h10"/>',

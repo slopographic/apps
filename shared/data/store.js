@@ -7,7 +7,7 @@
   const ns = (g.SlopData = g.SlopData || {});
   const { ok, fail, isResult } = ns.result;
   const DB_NAME = 'slop-data';
-  const DB_VERSION = 5; // 2 adds exchangeRates; 3 adds customerGroups and customerTags; 4 adds events, tasks and reminders; 5 adds expenses. Every version needs an entry in UPGRADES below.
+  const DB_VERSION = 6; // 2 adds exchangeRates; 3 adds customerGroups and customerTags; 4 adds events, tasks and reminders; 5 adds expenses; 6 quotes. Every version needs an entry in UPGRADES below.
   const subs = new Set();
   let dbH = null, dbP = null, readyP = null, bc = null;
   const all = () => ns.schema.COLLECTIONS;
@@ -47,8 +47,8 @@
     }
   }
   /** Upgrade steps keyed by the version they reach. v1 -> v2 adds exchangeRates, v2 -> v3 the CRM label stores, v3 -> v4 the calendar,
-   *  to-do and reminder stores, v4 -> v5 the expenses store. Records are migrated in seedDefaults. */
-  const UPGRADES = { 1: createStores, 2: createStores, 3: createStores, 4: createStores, 5: createStores };
+   *  to-do and reminder stores, v4 -> v5 the expenses store, v5 -> v6 the quotes store. Records are migrated in seedDefaults. */
+  const UPGRADES = { 1: createStores, 2: createStores, 3: createStores, 4: createStores, 5: createStores, 6: createStores };
 
   function openDb() {
     if (dbH) return Promise.resolve(dbH);

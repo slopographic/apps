@@ -1,6 +1,6 @@
 # Shared documents: PDF, templates and the paper view (handoff)
 
-Used by Slop Orders and Slop Invoices. One view of a document feeds three outputs: the paper on the editor screen, the
+Used by Slop Orders, Slop Quotes and Slop Invoices. One view of a document feeds three outputs: the paper on the editor screen, the
 print sheet, and the PDF. The data (money, numbering, totals) is unchanged: this folder only draws.
 
 ## Files
@@ -8,11 +8,16 @@ print sheet, and the PDF. The data (money, numbering, totals) is unchanged: this
 | Path | Role |
 | --- | --- |
 | `pdf-layouts.js` | `SlopDocs.layouts`: the five templates (`classic`, `modern`, `minimal`, `bold`, `sidebar`), four accent colours, `newSeed()`, `seedOf(doc)`, `resolve(doc)` and `describe(style)`. Pure data. |
-| `doc-view.js` | `SlopDocs.view.build(doc)`: the one view of a document (company, number, dates, bill-to, rows with the raw value each editable cell edits, totals, notes). Money is formatted here. |
+| `doc-view.js` | `SlopDocs.view.build(doc)`: the one view of a document (company, number, dates (`moreMeta` adds more, such as a quote's Valid until), bill-to, rows with the raw value each editable cell edits, totals, notes). Money is formatted here. |
 | `pdf-render.js` | `SlopDocs.pdf.renderPdf(view)`: the A4 PDF through the vendored pdf-lib (global `PDFLib`). Wraps lines, paginates with a repeated table head, and draws a footer with "Page n of N". |
 | `paper.js` / `paper.css` | `SlopDocs.paper.build(view, { editable })`: the page as DOM, in the template's layout. Editable fields are `button.pe` with `data-edit`, `data-index` and `data-value`. |
 | `paper-edit.js` | `SlopDocs.paperEdit.attach(root, o)`: a click or Enter on a field opens an input; Enter, blur or change commits; Escape restores; Ctrl+Enter ends a note. |
 | `page.js` | `SlopDocs.page.mount(o)`: the Page / Form switch (Form is the default under 700 px), the layout pick and "New seed", and repainting the paper. The app supplies its state and its `field(name, index, value)`. |
+| `doc-editor.js` | `SlopDocs.docEditor.create(cfg)`: the document editor a document app configures (form state, customers and products, line cards, checks, one save at a time, the unsaved-changes guard). The app gives its words, statuses, extra fields (`extra`) and action buttons (`actions`). Orders and Quotes use it. |
+| `doc-page.js` | `SlopDocs.docPage.create(cfg)`: the paper view for that editor (in-place edits through the editor's `fieldError`, the company name, the PDF download). `cfg.view` adds view fields such as `moreMeta`; `cfg.field` takes the app's own fields. |
+| `doc-app.js` | `SlopDocs.docApp.start(cfg)`: boot and routes (`#list`, `#new`, `#<route>/<id>`, `#data`) with SlopTabs, the leave-without-saving question and the list redraw on store changes. |
+| `doc-pdf.js` | `SlopDocs.docPdf.create(cfg)`: `load(id)` (the record, its customer and the company block), `viewOf(ctx)` and `pdf(id)` for a stored document. |
+| `doc-layout.js` | `SlopDocs.docLayout.mount(ns, app)`: the list-and-document workspace layout (shared/layouts) above 720 px. |
 | `model.js`, `lines.js` | Unchanged apart from `SlopDocs.lines.parseField`, which the paper uses so typed values are read exactly as the form reads them. |
 
 ## The template and the seed
