@@ -9,35 +9,44 @@ decode, line endings) stay because they also take uploaded files.
 
 ## Layout
 
-- `index.html`: the hub (generated, see "SEO pages" below). Drop zone, target picker, batch, zip.
+- `index.html`: the hub (generated, see "SEO pages" below). Drop zone, file cards, batch, zip.
 - `<slug>/index.html`: one static page per converter, with the same tool embedded.
-- `css/convert.css`: tokens on `:root`, dark by default, light via `prefers-color-scheme` or `data-theme`.
+- `css/convert.css`: the pages (tokens on `:root`, dark by default, light via `prefers-color-scheme` or `data-theme`); it imports `css/tool.css`, the tool's own scoped styles.
 - `js/core/`: pure converters. `catalog.js` lists them; `pages.js` lists the SEO pages. `vcf.js` runs the vCard pairs and loads the Contacts vCard code (`contacts/js/core/`) into the page; `vcf-map.js` holds their header rule.
-- `js/ui/`: the tool controller (`tool.js`), its markup (`markup.js`), options, batch runner and `mount.js`.
-
-## Per-file targets
-
-Every file in the list has its own "Convert to" (a format tile and the conversion's name, opening a
-`shared/ui/menubutton.js` menu). The lists come from `conversionsFor` only: one file's from `[its kind]`, a set's from
-their kinds (`js/ui/targets.js`). `item.target` is null (the default for its kind: the first conversion made for it, not
-Base64 or ZIP), a conversion id, or `@with` (goes with a 3D model). Companions (`with` kinds) go with a model in the list
-when they have no format of their own (.mtl, .bin) or a file in the list names them (`map_Kd tex.png`); a photo dropped
-beside a model is converted on its own, and its menu offers both.
-
-- Rows have checkboxes (shift-click selects a range); the bar above (`bulk.js`) has Select all and, for the selected rows,
-  "N selected · Convert to · Remove · Clear selection". Its menu offers only formats every selected file shares, or says none fits.
-- The big picker and the hidden `#cv-target` set the selected rows, or every file when none is selected; the select holds
-  the format they share ('' "Different formats" when they differ). A pick with no selection is also the default for files
-  added later, until Clear.
-- `?to=` (`route.js`) calls `ConvertTool.setDefaultTarget`: every file that can take it starts on it. Pair pages
-  (`data-preset`) still allow only their conversion.
-- Convert runs one group per conversion in use (`groupsFor`, `run.js runGroups`); combine conversions combine their own files.
-  Options show one set per conversion in use (`option-sets.js`; ids `cv-o-<conversion>-<key>` when there are several).
-- The preview and the flow picture show the conversion the picker shows, else the first one in use.
-- Files: `targets.js`, `file-row.js`, `bulk.js`, `list-view.js`, `focus.js` (focus survives redraws), `option-sets.js`.
-  Tests: `tests/convert/per-file.test.html`, `tests/shared/menubutton.test.html`.
+- `js/ui/`: the tool controller (`tool.js`), its markup (`markup.js`), options, batch runner, `mount-tool.js` and `mount.js`.
 - `js/preview/`: the live preview (see below). `mount.js` is its entry point; `controller.js` debounces and runs the actions; `model.js` runs the converter for the preview; `view.js` draws the block; `diff.js` and `spec.js` hold the line diff and the limits.
 - `js/io/`: file helpers, and `zip.js`, a re-export of `shared/office/zip.js` (ZIP writer and reader, shared with the other apps).
+
+## The tool (mountTool) and per-file targets
+
+`js/ui/mount-tool.js` `mountTool(host, { files, preset, fixedTarget, compact, onResults })` puts the whole converter in any
+element: the hub and every pair page call it from `js/ui/mount.js` on `[data-convert-root]`, and a "Convert…" dialog in
+another app can call it too. The host gets the class `.cv-tool`; `css/tool.css` holds every rule of the tool, all under
+`.cv-tool`, with its own colour tokens and container queries (`@container cv-tool`), so it looks the same at any width and
+inside any page; `convert.css` imports it and `mountTool` adds it to a page that has not. Ids are made per tool: `cv-drop`
+for the first tool on a page, `cv2-drop` for the next (`tool.ns`). `compact` shows the drop zone as a strip from the start
+and no first-visit picture; `onResults(outputs)` is called after each Convert. Returns the ConvertTool (`host.convertTool`).
+
+- **Drop zone** (`#cv-drop`, SlopDrop): always the upload area at the top. Once there are files it is a strip of one fixed
+  height (76 px, "Add more files"), so nothing above the list moves; the zone's own progress list and status are hidden
+  (the file list and the status line say the same). The flow picture keeps its place (blank while a side is unknown).
+- **Cards** (`file-row.js`): every file has a checkbox, its own **Convert to** (a `shared/ui/menubutton.js` menu with a search
+  box; catalog `keywords`, from `core/keywords.js` and each module's entries, plus the output extension and group, are
+  searched) and its own **Options** (`file-opts.js`: a disclosure with the options of that file's target, values kept per
+  file per conversion in `item.opts`; a 'combine' conversion copies a change to all its files). The option definitions are
+  the catalog's `options` (one source), drawn by `options.js`; control ids are `cv-o-<file id>-<key>`.
+- **Bulk bar** (`bulk.js`): always there once there are files; Select all, and for the selected rows "N selected · Convert to ·
+  Remove · Clear selection", plus "Options for the N selected" when they share a target (ids `cv-o-bulk-<key>`).
+- There is no big picker and no hidden select any more. `tool.setTarget(id)` sets the selected files, or every file (and
+  the files added later) when none is selected; `tool.target` is the one they share ('' when they differ) and
+  `tool.targets()` what they could all become. A set fires `cv:target` (route.js writes `?to=`).
+- `?to=` (`route.js`) calls `ConvertTool.setDefaultTarget`. Pair pages (`data-preset`) still allow only their conversion.
+- The flow picture's target tile opens the bulk bar's menu when rows are selected, else the first file's menu.
+- Convert runs one group per conversion in use (`groupsFor`, `run.js runGroups`, each file with its own option values).
+- `available()` on a catalog entry hides a conversion this browser cannot do (To AVIF where the canvas cannot write AVIF).
+- Files: `mount-tool.js`, `tool.js`, `markup.js`, `targets.js`, `file-row.js`, `file-opts.js`, `bulk.js`, `list-view.js`, `focus.js`.
+  Tests: `tests/convert/cards.test.html` (strip, card options, 390 px light), `per-file.test.html`, `mount.test.html` (two tools,
+  one dialog-sized), `tests/shared/menubutton.test.html`.
 
 ## Converters and their limits
 
@@ -75,6 +84,14 @@ beside a model is converted on its own, and its menu offers both.
 | SIE to CSV | SIE | CSV, one row per transaction line (balances per account when the file has no vouchers) | Separator comma, semicolon (then a decimal comma) or tab; UTF-8 with a BOM. #BTRANS lines are listed with a note and not counted. |
 | Bank statement to CSV / XLSX (`bank-to-csv`, `bank-to-xlsx`) | OFX/QFX 1.x and 2.x, QIF, camt.053 (also 052/054), MT940 | CSV, or XLSX with Transactions and Statement sheets | Readers in `shared/finance/`. Money out is negative. Pending camt entries are listed but not counted. OFX has no opening balance; QIF has no currency. |
 | 3D models (`core/threed.js`) | OBJ (+MTL), STL, PLY, glTF (+.bin, pictures), GLB, 3MF, DAE, FBX | STL (binary/ASCII), OBJ (+MTL, PNG textures), GLB, glTF (embedded), PLY (binary/ASCII), USDZ | Shared 3D I/O module (`shared/3d-io/`). Companion files (`with` kinds) are matched by name and never converted alone. Options: units, scale, up axis, merge, encoding, materials, animations. The status line names what the format dropped. Compressed glTF loads Draco/meshopt/Basis from the cdn (SHA-256 checked, first-use notice). The preview draws input and output in 3D (`js/preview/model3d.js`). |
+| HEIC to JPG / PNG / WebP (`core/heic.js`) | HEIC, HEIF (iPhone) | picture, size, quality | The browser's own decoder first (Safari); else libheif from the cdn (`shared/heic/`, see below). A file with several pictures gives the main one and says so. |
+| To AVIF (`core/media-more.js`) | PNG, JPG, WebP, BMP, GIF, SVG, ICO | AVIF, size, quality | Offered only where the canvas writes AVIF (`available`); Chromium and Firefox do not today, so it is usually hidden. |
+| To OGG / Opus / FLAC / M4A (`media-more.js`) | MP4, WebM, MOV, M4A, MP3, WAV, OGG, FLAC | Vorbis, Opus (48 kHz), FLAC, AAC; bitrate | ffmpeg.wasm (`engine: 'ffmpeg'`, its notice). Tags copied. Opus uses ffmpeg's own encoder: libopus in this core crashes the page. |
+| GIF to MP4 (`media-more.js`) | GIF | H.264 MP4, quality | ffmpeg.wasm. An odd size is made even; no transparency. |
+| Spreadsheet to CSV / JSON, ODS to XLSX, JSON to XLSX (`core/data-more.js`, `sheet-json.js`) | XLSX, ODS / JSON | CSV (first or every sheet, separator, UTF-8 mark), JSON (objects or arrays, a key per sheet), XLSX | Read by `shared/sheets/read.js`, written by `shared/sheets/write.js` (the Slop Tables reader and writer). Old .xls is refused with what to do (kind `xls`, no conversion). Formulas: the saved values. |
+| JSON to YAML / TOML / XML, YAML / TOML to JSON, Format JSON (`core/structured.js`) | JSON, YAML, TOML | text | js-yaml 4.1.1 (`vendor/js-yaml`, MIT) and smol-toml 1.9.0 (`vendor/smol-toml`, BSD-3-Clause), loaded on first use. JSON mistakes are reported with line and column. TOML has no null: nulls are left out and counted. |
+| SRT to VTT, VTT to SRT, Shift subtitle timing (`core/subtitles.js`) | SRT, VTT (also detected inside .txt) | text, shift in seconds | NOTE, STYLE and REGION blocks are dropped; VTT cue settings are kept in VTT, dropped in SRT. |
+| Markdown / text to PDF and to Word (`core/doc-out.js`) | MD, TXT | PDF or DOCX; A4 or Letter; sans, serif or mono | The Slop Docs engine (its Markdown import, layout, PDF writer with `shared/fonts/pdf-runs.js`, DOCX writer). Other scripts get their Noto font through SlopFontJIT (asks first). Markdown tables, links and images stay as typed text. |
 
 Browser support: anything the browser cannot decode or encode (for example WebP output in some Safari versions) reports a plain error on that file; the rest of the batch still runs.
 
@@ -143,7 +160,8 @@ yet, so offline use of the preview needs them added there (that file is owned el
 - `pdf.test.html`: image to PDF page count (`/Type /Page` count) and `%PDF` header, A4/Letter, merge, extract, split, PDF to PNG and JPG.
 - `data.test.html`: CSV to JSON round trip, JSON to CSV, XLSX parts, Base64 round trip, URL, line endings, Markdown, HTML to text.
 - `seo.test.html`: sitemap, robots, each page's h1, canonical, JSON-LD and embedded tool.
-- `ui.test.html`: target picker validity, preset limits, keyboard drop zone, labels, safe file names.
+- `more.test.html`: HEIC through the real decoder, the new kinds and their menus, sheets, YAML, TOML, XML, subtitles, Markdown and Arabic text to PDF and DOCX. `audio-ff.test.html`: OGG, Opus, FLAC, M4A and GIF to MP4 with ffmpeg. `cards.test.html`, `mount.test.html`: see above. Node: `tests/node/convert-{sheets,structured,subtitles}.test.mjs`.
+- `ui.test.html`: valid targets per file, preset limits, keyboard drop zone, labels, safe file names.
 - `per-file.test.html`: per-file targets, mixed kinds, select + bulk set, presets and ?to=, companions, keys, 390 px.
 - `preview.test.html`: the preview shows the PNG to JPG output and follows a new input; the JSON to CSV preview updates as text is typed and shows invalid JSON in place.
 
@@ -160,4 +178,18 @@ yet, so offline use of the preview needs them added there (that file is owned el
 `convert/js/core/ffmpeg-engine.js` runs ffmpeg in the browser. The JavaScript is vendored in `vendor/ffmpeg` (MIT). The core (about 30 MB of WebAssembly, GPL-2.0-or-later) is loaded from jsDelivr on first use, pinned to `CORE_VERSION`. One job runs at a time; a runtime error restarts the engine and retries once. WebM audio is Vorbis: the Opus encoder in this build fails with video. Inputs over 400 MB are refused.
 
 ## Camera RAW (`js/core/raw.js`, `js/core/raw-pages.js`)
-RAW kinds are the extensions (cr2, cr3, nef, arw, dng, raf, orf, rw2, pef, srw, …); `detect.js` asks `shared/raw/detect.js` first, before the TIFF and MP4 magics. Conversions `raw-to-jpg`, `raw-to-png`, `raw-to-webp` (group Camera RAW): White balance, Exposure (−2 to +2 EV), Highlights, size, quality; developed by the LibRaw engine (`shared/raw/engine.js`, its own first-use notice). Declined or failing engine: the embedded preview is converted and the status line says so (`out.info`). The live preview passes `rawPreview` (embedded JPEG only, nothing downloaded). Pages: cr2, cr3, nef, arw, dng, raf `-to-jpg` (`data-accept` sets the picker's list; `mount.js` reads it). Test: `tests/convert/raw.test.html`.
+RAW kinds are the extensions (cr2, cr3, nef, arw, dng, raf, orf, rw2, pef, srw, …); `detect.js` asks `shared/raw/detect.js` first, before the TIFF and MP4 magics. Conversions `raw-to-jpg`, `raw-to-png`, `raw-to-webp` (group Camera RAW): White balance, Exposure (−2 to +2 EV), Highlights, size, quality; developed by the LibRaw engine (`shared/raw/engine.js`, its own first-use notice). Declined or failing engine: the embedded preview is converted and the status line says so (`out.info`). The live preview passes `rawPreview` (embedded JPEG only, nothing downloaded). Pages: cr2, cr3, nef, arw, dng, raf `-to-jpg` (`data-accept` sets the file chooser's list; `mount.js` reads it). Test: `tests/convert/raw.test.html`.
+
+## HEIC photos (`js/core/heic.js`, `shared/heic/`)
+The decoder is libheif with libde265 compiled to WebAssembly (libheif-js 1.23.5, LGPL-3.0), unchanged, on the cdn at
+`engines/libheif/libheif-js-1.23.5/` (commit 8929ad4e202f7b728f0c10c5ee493fd12a4698e1; SOURCE.md, licences, manifest).
+`shared/heic/engine.js` (window.SlopHeicEngine) works like the RAW engine: its own first-use notice ('heic-engine'), the
+shared installer (size and SHA-256 checked, kept in IndexedDB), a classic worker (`worker.js`). The live preview never asks
+(opts.heicPreview). Pages: heic-to-jpg, heic-to-png (`core/more-pages.js`). Test: `tests/convert/more.test.html` with
+`tests/convert/fixtures/tiny.heic` (CC0, see the fixtures README).
+
+## More pages
+`core/more-pages.js` (HEIC, SVG to JPG, GIF to MP4, audio, text to PDF and Word) and `core/data-pages.js` (spreadsheets,
+JSON, YAML, TOML, XML, subtitles) are spread into PAGES. Their head copy is not written twice: `shared/seo/convert-copy.mjs`
+makes the copy.mjs PAGES entries from these lists (and the RAW pages). A new page: add it to one of these lists, make
+`convert/<slug>/index.html` like its neighbours, then `node tools/seo/write.mjs` (it writes the head and the sitemap).

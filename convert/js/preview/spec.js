@@ -20,9 +20,11 @@ export const REVERSE = {
   'base64-encode': 'base64-decode', 'base64-decode': 'base64-encode',
   'url-encode': 'url-decode', 'url-decode': 'url-encode',
   'csv-to-json': 'json-to-csv', 'json-to-csv': 'csv-to-json',
+  'json-to-yaml': 'yaml-to-json', 'yaml-to-json': 'json-to-yaml', 'json-to-toml': 'toml-to-json', 'toml-to-json': 'json-to-toml',
+  'srt-to-vtt': 'vtt-to-srt', 'vtt-to-srt': 'srt-to-vtt',
 };
 
 /** True when a conversion takes typed text (any text kind, or any file for Base64 encode). */
 export function acceptsText(conv) {
-  return !!conv && (conv.from.includes('*') || conv.from.some((k) => ['csv', 'json', 'md', 'txt', 'html', 'vcf'].includes(k)));
+  return !!conv && (conv.from.includes('*') || conv.from.some((k) => ['csv', 'json', 'md', 'txt', 'html', 'vcf', 'yaml', 'toml', 'xml', 'srt', 'vtt'].includes(k)));
 }

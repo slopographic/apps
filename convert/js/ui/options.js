@@ -2,12 +2,11 @@
  * Every control has a label; hints are linked with aria-describedby. */
 import { h } from './dom.js';
 
-/** prefix: '' for the one conversion in use (ids cv-o-<key>); '<conversion id>-' when several are shown together. */
+/** prefix: a file's id and a dash ('3-') on its card, 'bulk-' in the bulk bar, so every id on the page is unique. */
 const idOf = (key, prefix = '') => `cv-o-${prefix}${key}`;
 
 export function renderOptions(container, specs, defaults = {}, prefix = '') {
   container.replaceChildren();
-  container.closest('fieldset').hidden = !specs.length;
   for (const s of specs) {
     const id = idOf(s.key, prefix);
     const value = defaults[s.key] !== undefined ? defaults[s.key] : s.value;
@@ -28,7 +27,7 @@ export function renderOptions(container, specs, defaults = {}, prefix = '') {
       control = h('input', { type: 'color', id, value, 'aria-describedby': describe });
       wrap = h('div', { class: 'cv-opt' }, h('label', { for: id }, s.label), control, hint);
     } else {
-      control = h('input', { type: s.type === 'number' ? 'number' : 'text', id, min: s.min, max: s.max, placeholder: s.placeholder, value: value ?? '', 'aria-describedby': describe, inputmode: s.type === 'number' ? 'numeric' : undefined });
+      control = h('input', { type: s.type === 'number' ? 'number' : 'text', id, min: s.min, max: s.max, step: s.step, placeholder: s.placeholder, value: value ?? '', 'aria-describedby': describe, inputmode: s.type === 'number' ? (s.step && s.step < 1 ? 'decimal' : 'numeric') : undefined });
       wrap = h('div', { class: 'cv-opt' }, h('label', { for: id }, s.label), control, hint);
     }
     container.append(wrap);

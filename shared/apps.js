@@ -166,7 +166,7 @@
       icon: 'grid', status: 'building' }),
     A('convert', 'app', 'File convert', 'convert/', 'Images, PDFs, data and text, converted on your device.', { title: 'File converter', group: 'business', tool: true,
       accepts: ['image/*', 'application/pdf', 'text/csv', 'application/json', 'text/markdown', 'text/plain'],
-      features: ['Images to PNG, JPG, WebP, BMP, ICO and PDF', 'PDF to images, merge and split', 'CSV, JSON, XLSX, Markdown and Base64', 'Batch convert, download as zip'],
+      features: ['iPhone HEIC, camera RAW and images to JPG, PNG, WebP and PDF', 'PDF to images, Word and Excel; merge and split', 'Excel, CSV, JSON, YAML, TOML, XML and subtitles', 'Video and audio: MP4, GIF, MP3, FLAC, OGG, M4A', 'Batch convert, download as zip'],
       icon: 'doc', status: 'building' }),
     A('calculator', 'app', 'Slopculator', 'calculator/', 'A calculator with a paper tape, units, currency, dates and times. Nothing uploaded.', { title: 'Calculator with a paper tape', group: 'business', tool: true,
       features: ['Brackets, percentages, powers and roots', 'Units, currency and manual exchange rates', 'Date and time arithmetic with a paper tape', 'Save any calculation to Slop Drive'],

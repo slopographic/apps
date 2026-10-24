@@ -93,11 +93,15 @@ async function afterPanel(outs, inputText) {
  * An error from the converter is returned as after.kind 'error', shown in place.
  */
 export async function buildPreview(conv, items, opts) {
+  // an engine conversion (ffmpeg) is not run for a preview: its first download asks first, on Convert
+  if (conv.engine) return { before: await beforePanel(previewInput(pickInputs(conv, items)[0])).catch((e) => ({ kind: 'error', message: e.message || String(e) })),
+    after: { kind: 'info', text: 'Press Convert to make this file. Video and audio conversions run with the video engine, which is not started for a preview.' }, note: '', outputs: null };
   // 3D models are read whole (a cut model, .bin or .mtl cannot be read at all)
   const inputs = pickInputs(conv, items).map((i) => (is3d(conv) ? { ...i, truncated: false, large: false } : previewInput(i)));
   const runOpts = { ...opts };
   let cut = inputs.some((i) => i.truncated);
   if (inputs.some((i) => RAW_KINDS.includes(i.kind))) { runOpts.rawPreview = true; cut = true; }   // no engine download from a preview
+  if (inputs.some((i) => i.kind === 'heic')) { runOpts.heicPreview = true; cut = true; }   // the HEIC decoder is not downloaded for a preview
   if (FIRST_PAGE_ONLY.includes(conv.id) && !String(opts.pages || '').trim()) { runOpts.pages = '1'; cut = true; }
   const drawSmaller = inputs.some((i) => i.large) && conv.options.some((o) => o.key === 'width') && !opts.width && !opts.height;
   if (drawSmaller) { runOpts.width = PREVIEW_PX; cut = true; }

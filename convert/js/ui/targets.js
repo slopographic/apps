@@ -11,8 +11,11 @@ export const WITH = '@with';
 const HOSTS = CONVERSIONS.filter((c) => c.with);
 const generic = (c) => c.from.includes('*');
 
+/** Conversions made for these kinds first, the ones that take any file (Base64, ZIP) after them, each in catalog order. */
+const specificFirst = (list) => [...list.filter((c) => !generic(c)), ...list.filter(generic)];
+
 /** The formats one file of this kind can become (on a converter page, only that page's conversion). */
-export const ownTargets = (kind, only = null) => conversionsFor([kind], only);
+export const ownTargets = (kind, only = null) => specificFirst(conversionsFor([kind], only));
 
 /** The default for a kind: `prefer` when it fits, else the first conversion made for the kind (not one that takes any
  *  file, such as Base64 or ZIP, unless that is all there is). The same order as the catalog, so the same as before. */
@@ -52,9 +55,12 @@ export function resolve(item, items, only = null) {
   return defaultTarget(item.kind, only);
 }
 
+/** Words the menu's search box also matches: the conversion's own keywords, its output extension and its group. */
+export const keywordsOf = (c) => [...(c.keywords || []), c.ext || '', c.group || ''].filter(Boolean);
+
 /** The choices of one file's menu: [{ id, label, ext, group }] (WITH first for a companion). */
 export function choicesFor(item, items, only = null) {
-  const own = ownTargets(item.kind, only).map((c) => ({ id: c.id, label: c.label, ext: c.ext || 'file', group: c.group || 'Other' }));
+  const own = ownTargets(item.kind, only).map((c) => ({ id: c.id, label: c.label, ext: c.ext || 'file', group: c.group || 'Other', keywords: keywordsOf(c) }));
   const models = modelsFor(item, items);
   if (!models.length) return own;
   const name = models.length === 1 ? models[0].name : `${models.length} models`;
@@ -64,7 +70,7 @@ export function choicesFor(item, items, only = null) {
 /** The formats every one of these files can become (companions count as going with their model). */
 export function sharedTargets(items, only = null) {
   if (!items.length) return [];
-  return conversionsFor([...new Set(items.map((i) => i.kind))], only);
+  return specificFirst(conversionsFor([...new Set(items.map((i) => i.kind))], only));
 }
 
 /** Sets one conversion on a file, if it fits: its own format, or WITH when the conversion takes it beside a model. */

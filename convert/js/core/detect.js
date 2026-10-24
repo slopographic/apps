@@ -22,10 +22,10 @@ const EXT = {
   png: 'png', jpg: 'jpg', jpeg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg',
   pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', markdown: 'md', txt: 'txt', text: 'txt',
   html: 'html', htm: 'html', vcf: 'vcf', vcard: 'vcf', xlsx: 'xlsx',
-  eml: 'eml', ics: 'ics', ical: 'ics', xml: 'xml', yaml: 'yaml', yml: 'yaml',
+  eml: 'eml', ics: 'ics', ical: 'ics', xml: 'xml', yaml: 'yaml', yml: 'yaml', toml: 'toml', srt: 'srt', vtt: 'vtt', xls: 'xls',
   docx: 'docx', pptx: 'pptx', odt: 'odt', ods: 'ods', odp: 'odp', epub: 'epub', zip: 'zip',
   ico: 'ico', tif: 'tif', tiff: 'tif', avif: 'avif', heic: 'heic', heif: 'heic',
-  mp4: 'mp4', m4v: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', oga: 'ogg', flac: 'flac',
+  mp4: 'mp4', m4v: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', oga: 'ogg', opus: 'ogg', flac: 'flac',
   obj: 'obj', stl: 'stl', ply: 'ply', gltf: 'gltf', glb: 'glb', '3mf': '3mf', dae: 'dae', fbx: 'fbx', usdz: 'usdz', mtl: 'mtl', tga: 'tga', ktx2: 'ktx2',   // a .bin (a glTF buffer) needs no entry: unknown files are 'bin'
   ...FINANCE_EXT,
   ...Object.fromEntries(RAW.EXTS.map((e) => [e, e])),   // camera RAW: the kind is the extension
@@ -37,7 +37,7 @@ const MIME = {
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
   'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/mpeg': 'mp3',
   'audio/wav': 'wav', 'audio/x-wav': 'wav', 'audio/webm': 'webm', 'audio/ogg': 'ogg', 'video/ogg': 'ogg', 'audio/flac': 'flac', 'audio/x-flac': 'flac',
-  'message/rfc822': 'eml', 'text/calendar': 'ics', 'text/xml': 'xml', 'application/xml': 'xml', 'application/x-yaml': 'yaml', 'text/yaml': 'yaml',
+  'message/rfc822': 'eml', 'text/calendar': 'ics', 'text/xml': 'xml', 'application/xml': 'xml', 'application/x-yaml': 'yaml', 'text/yaml': 'yaml', 'application/yaml': 'yaml', 'application/toml': 'toml', 'text/vtt': 'vtt', 'application/x-subrip': 'srt', 'application/vnd.ms-excel': 'xls',
   'image/x-icon': 'ico', 'image/vnd.microsoft.icon': 'ico', 'image/tiff': 'tif', 'image/avif': 'avif', 'image/heic': 'heic', 'image/heif': 'heic',
   'application/zip': 'zip', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx', 'application/vnd.oasis.opendocument.text': 'odt',
@@ -47,8 +47,8 @@ const MIME = {
   'application/x-ofx': 'ofx', 'application/ofx': 'ofx', 'application/vnd.intu.qfx': 'ofx', 'application/qif': 'qif', 'application/x-qif': 'qif',
 };
 /** Extension used when a file of this kind is saved. */
-export const EXT_OF_KIND = { glb: 'glb', fbx: 'fbx', ply: 'ply', mp4: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', flac: 'flac', png: 'png', jpg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg', pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', txt: 'txt', html: 'html', vcf: 'vcf', xlsx: 'xlsx', bin: 'bin' };
-export const TEXT_KINDS = ['csv', 'json', 'md', 'txt', 'html', 'vcf'];
+export const EXT_OF_KIND = { glb: 'glb', fbx: 'fbx', ply: 'ply', mp4: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', flac: 'flac', png: 'png', jpg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg', pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', txt: 'txt', html: 'html', vcf: 'vcf', xlsx: 'xlsx', ods: 'ods', yaml: 'yaml', toml: 'toml', xml: 'xml', srt: 'srt', vtt: 'vtt', heic: 'heic', bin: 'bin' };
+export const TEXT_KINDS = ['csv', 'json', 'md', 'txt', 'html', 'vcf', 'yaml', 'toml', 'xml', 'srt', 'vtt'];
 
 const startsWith = (head, sig) => sig.every((b, i) => head[i] === b);
 const HEAD_LIMIT = 512;   // the bytes detectKind is given (readHead in io/files.js)
@@ -63,7 +63,7 @@ export function kindFromMagic(head) {
   if (head.length >= 12 && ascii(head, 4, 4) === 'ftyp') {
     const brand = ascii(head, 8, 4);
     if (brand === 'avif' || brand === 'avis') return 'avif';
-    if (['heic', 'heix', 'mif1', 'msf1'].includes(brand)) return 'heic';
+    if (['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx', 'mif1', 'msf1'].includes(brand)) return 'heic';
     return brand === 'M4A ' ? 'm4a' : brand === 'qt  ' ? 'mov' : 'mp4';
   }
   if (head.length >= 12 && ascii(head, 0, 4) === 'RIFF' && ascii(head, 8, 4) === 'WAVE') return 'wav';
@@ -110,9 +110,18 @@ export function looksLikeXml(head) {
   return !!head && /^\s*<\?xml[\s>]/i.test(ascii(head, 0, Math.min(head.length, 256)));
 }
 
-/** The kind of a text file from what it says, or null: 'eml', 'ics' or 'xml'. */
+/** Text that is a subtitle file: WebVTT says so on its first line; SubRip starts with a cue number and a time line. */
+export function looksLikeSubs(head) {
+  const t = head ? ascii(head, 0, Math.min(head.length, 256)).replace(/^\uFEFF|^\xEF\xBB\xBF/, '') : '';
+  if (/^WEBVTT(\s|$)/.test(t)) return 'vtt';
+  return /^\s*\d+\r?\n\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(t) ? 'srt' : null;
+}
+
+/** The kind of a text file from what it says, or null: 'eml', 'ics', 'xml', 'vtt' or 'srt'. */
 export function sniffText(head) {
   if (!head || !head.length) return null;
+  const subs = looksLikeSubs(head);
+  if (subs) return subs;
   if (looksLikeIcs(head)) return 'ics';
   if (looksLikeEml(head)) return 'eml';
   if (looksLikeXml(head)) return 'xml';
@@ -161,6 +170,6 @@ export function detectKind(name = '', type = '', head = null) {
 }
 
 /** Human label for a kind. */
-export const KIND_LABEL = { mp4: 'MP4 video', webm: 'WebM video', mov: 'QuickTime video', m4a: 'M4A audio', mp3: 'MP3 audio', wav: 'WAV audio', ogg: 'Ogg audio', flac: 'FLAC audio', png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', vcf: 'vCard', xlsx: 'Excel (XLSX)', bin: 'Binary file', eml: 'Email message (EML)', ics: 'Calendar (ICS)', xml: 'XML', yaml: 'YAML', ico: 'Icon (ICO)', tif: 'TIFF image', avif: 'AVIF image', heic: 'HEIC image', zip: 'ZIP archive', docx: 'Word (DOCX)', pptx: 'PowerPoint (PPTX)', odt: 'OpenDocument text', ods: 'OpenDocument sheet', odp: 'OpenDocument slides', epub: 'EPUB book', obj: 'OBJ 3D model', stl: 'STL 3D model', ply: 'PLY 3D model', gltf: 'glTF 3D model', glb: 'GLB 3D model', '3mf': '3MF 3D model', dae: 'Collada 3D model (DAE)', fbx: 'FBX 3D model', usdz: 'USDZ 3D model', mtl: 'OBJ materials (MTL)', tga: 'TGA image', ktx2: 'KTX2 texture',
+export const KIND_LABEL = { mp4: 'MP4 video', webm: 'WebM video', mov: 'QuickTime video', m4a: 'M4A audio', mp3: 'MP3 audio', wav: 'WAV audio', ogg: 'Ogg audio', flac: 'FLAC audio', png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', vcf: 'vCard', xlsx: 'Excel (XLSX)', bin: 'Binary file', eml: 'Email message (EML)', ics: 'Calendar (ICS)', xml: 'XML', yaml: 'YAML', toml: 'TOML', srt: 'SubRip subtitles (SRT)', vtt: 'WebVTT subtitles (VTT)', xls: 'Excel 97-2003 (XLS)', ico: 'Icon (ICO)', tif: 'TIFF image', avif: 'AVIF image', heic: 'HEIC photo', zip: 'ZIP archive', docx: 'Word (DOCX)', pptx: 'PowerPoint (PPTX)', odt: 'OpenDocument text', ods: 'OpenDocument sheet', odp: 'OpenDocument slides', epub: 'EPUB book', obj: 'OBJ 3D model', stl: 'STL 3D model', ply: 'PLY 3D model', gltf: 'glTF 3D model', glb: 'GLB 3D model', '3mf': '3MF 3D model', dae: 'Collada 3D model (DAE)', fbx: 'FBX 3D model', usdz: 'USDZ 3D model', mtl: 'OBJ materials (MTL)', tga: 'TGA image', ktx2: 'KTX2 texture',
   sie: 'SIE accounting file', ofx: 'OFX bank statement', qif: 'QIF (Quicken) file', camt053: 'ISO 20022 statement (camt.053)', mt940: 'MT940 bank statement',
   ...Object.fromEntries(RAW.EXTS.map((e) => [e, RAW.FORMATS[e].label + ' RAW photo'])) };

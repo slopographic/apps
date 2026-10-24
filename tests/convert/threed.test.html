@@ -128,7 +128,7 @@ describe('the 3D pages, the hub and the preview', () => {
     const files = (await cubes('obj')).map((x) => new f.contentWindow.File([x], x.name));
     await tool.addFiles(files);
     expect(tool.active().length).toBe(2);
-    expect(tool.ui.target.value).toBe('3d-to-stl');
+    expect(tool.target).toBe('3d-to-stl');
     const D = f.contentDocument;
     const caps = () => [...D.querySelectorAll('.cv-pv-panel .cv-hint')].map((p) => p.textContent);
     // both panels caption themselves once their model has loaded, one after the other

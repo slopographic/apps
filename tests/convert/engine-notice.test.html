@@ -21,7 +21,7 @@
     await waitFor(() => { const w = f.contentWindow; return w && w.document.querySelector('[data-convert-root]') && w.document.querySelector('[data-convert-root]').convertTool; }, { timeout: 30000 });
     W = f.contentWindow; D = W.document; T = $('[data-convert-root]').convertTool;
   }
-  const pick = async (id) => { const s = $('#cv-target'); s.value = id; s.dispatchEvent(new W.Event('change', { bubbles: true })); await sleep(50); };
+  const pick = async (id) => { T.setTarget(id); await sleep(50); };
 
   describe('File convert: the video engine notice', () => {
     it('a CSV is added and converted without any notice', async () => {

@@ -1,8 +1,8 @@
-/* Entry point, loaded by the hub and by every converter page. Mounts each [data-convert-root] it finds:
+/* Entry point, loaded by the hub and by every converter page. Mounts the tool (mount-tool.js) in each [data-convert-root]:
  *   data-preset="to-jpg" data-from="png"    a single converter, limited to those input kinds
  *   data-defaults='{"format":"jpg"}'         default option values for that converter
  *   (no attributes)                          the full hub */
-import { ConvertTool } from './tool.js';
+import { mountTool } from './mount-tool.js';
 import { mountCards } from './cards.js';
 
 for (const root of document.querySelectorAll('[data-convert-root]')) {
@@ -13,7 +13,7 @@ for (const root of document.querySelectorAll('[data-convert-root]')) {
     note: root.dataset.note || '',
     accept: root.dataset.accept || '',   // the file picker's list, when the page's kinds are not image/* (camera RAW)
   } : null;
-  root.convertTool = new ConvertTool(root, preset);
+  mountTool(root, { preset });
 }
 
 // The hub's conversion cards and their search box (absent on the converter pages).

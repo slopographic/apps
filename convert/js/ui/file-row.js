@@ -1,6 +1,7 @@
 /* One row of the file list (li.cv-file): a checkbox to select it, the name and kind, its own "Convert to" menu (a
- * format tile and the conversion's name, shared/ui/menubutton.js) and Remove. Also the menu control the bulk bar uses.
- *   fileRow(it, { reason, choices, target, selected, onPick, onSelect })
+ * format tile and the conversion's name, shared/ui/menubutton.js, searchable by the conversions' keywords), Remove, and
+ * the Options of its target (file-opts.js, drawn by the list). Also the menu control the bulk bar uses.
+ *   fileRow(it, { reason, choices, target, selected, onPick, onSelect, options })
  *   targetButton({ label, choices, target, onPick, empty, cls })  -> button (a SlopMenuButton) */
 import { h } from './dom.js';
 import { fmtSize } from '../io/files.js';
@@ -17,7 +18,7 @@ function menuItems(choices, target) {
   const many = groups.size > 1, out = [];
   for (const [name, list] of groups) {
     if (many) out.push({ heading: name });
-    for (const c of list) out.push({ value: c.id, label: c.label, icon: tileOf(c.ext), checked: c.id === target });
+    for (const c of list) out.push({ value: c.id, label: c.label, icon: tileOf(c.ext), checked: c.id === target, keywords: c.keywords || [] });
   }
   return out;
 }
@@ -34,7 +35,7 @@ export function targetButton({ label, choices, target, onPick, empty, cls = '' }
   return b;
 }
 
-export function fileRow(it, { reason, choices, target, selected, onPick, onSelect }) {
+export function fileRow(it, { reason, choices, target, selected, onPick, onSelect, options = null }) {
   const meta = `${KIND_LABEL[it.kind] || 'File'} · ${fmtSize(it.size)}`;
   const box = h('input', { type: 'checkbox', class: 'cv-file-check', 'data-select': it.id, 'aria-label': `Select ${it.name}`, checked: !!selected });
   box.addEventListener('click', (e) => onSelect(it, box.checked, e.shiftKey));
@@ -48,6 +49,7 @@ export function fileRow(it, { reason, choices, target, selected, onPick, onSelec
       h('span', { class: 'cv-file-meta', text: meta })),
     control,
     h('button', { type: 'button', class: 'cv-btn cv-small cv-file-rm', 'data-remove': it.id, 'aria-label': `Remove ${it.name}` }, 'Remove'),
+    options,
     reason ? h('p', { class: 'cv-file-msg' }, reason) : null,
     it.error ? h('p', { class: 'cv-file-msg cv-error', role: 'alert' }, it.error) : null);
 }

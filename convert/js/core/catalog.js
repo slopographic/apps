@@ -22,6 +22,11 @@ import { emlToHtml, emlToText, emlAttachmentsZip, icsToCsv, icsToJson, xmlToJson
 import { FINANCE } from './finance.js';
 import { THREED } from './threed.js';
 import { RAW } from './raw.js';
+import { HEIC } from './heic.js';
+import { DATA_MORE } from './data-more.js';
+import { MEDIA_MORE } from './media-more.js';
+import { DOC_OUT } from './doc-out.js';
+import { KEYWORDS } from './keywords.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'];
 const SIZE = [
@@ -190,7 +195,9 @@ export const CONVERSIONS = [
     return [{ name: `${base(files[0].name)}.xlsx`, blob: await rowsToXlsx(rows) }];
   } },
   { id: 'csv-to-vcf', label: 'CSV to vCard', group: 'Data', from: ['csv', 'txt'], ext: 'vcf', mode: 'each', options: [DELIM], run: csvToVcf },
+  ...DATA_MORE.slice(0, 1),   // Spreadsheet to CSV first: the default for a workbook (core/data-more.js)
   { id: 'xlsx-to-vcf', label: 'XLSX to vCard', group: 'Data', from: ['xlsx'], ext: 'vcf', mode: 'each', options: [], run: xlsxToVcf },
+  ...DATA_MORE.slice(1),   // spreadsheets and JSON, YAML, TOML, XML, subtitles (core/data-more.js)
   { id: 'vcf-to-csv', label: 'vCard to CSV', group: 'Data', from: ['vcf'], ext: 'csv', mode: 'each', options: [], run: vcfToCsv },
   { id: 'vcf-to-xlsx', label: 'vCard to XLSX', group: 'Data', from: ['vcf'], ext: 'xlsx', mode: 'each', options: [], run: vcfToXlsx },
   { id: 'vcf-to-json', label: 'vCard to JSON', group: 'Data', from: ['vcf'], ext: 'json', mode: 'each', options: [], run: vcfToJson },
@@ -222,7 +229,8 @@ export const CONVERSIONS = [
   { id: 'url-decode', label: 'URL decode', group: 'Encoding', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [], run: async (files) => {
     return [out(`${base(files[0].name)}.decoded.txt`, urlDecode(await text(files[0].file)), 'text/plain')];
   } },
-  { id: 'line-endings', label: 'Line endings', group: 'Text', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [EOL], run: async (files, o) => {
+  ...DOC_OUT,   // text and Markdown to PDF and DOCX with the Slop Docs engine (core/doc-out.js)
+  { id: 'line-endings', label: 'Line endings', group: 'Text', from: ['txt', 'csv', 'json', 'md', 'html', 'yaml', 'toml', 'xml', 'srt', 'vtt'], ext: 'txt', mode: 'each', options: [EOL], run: async (files, o) => {
     const f = files[0];
     const ext = /\.[^.]+$/.test(f.name) ? f.name.split('.').pop().toLowerCase() : 'txt';
     const body = setLineEndings(decodeText(new Uint8Array(await f.file.arrayBuffer())), o.eol);
@@ -240,12 +248,15 @@ export const CONVERSIONS = [
   { id: 'unzip', label: 'Unzip', group: 'Archives', from: ['zip'], mode: 'each', options: [], run: async (files) => unzipEntries(files[0].file) },
   { id: 'zip-files', label: 'Files to ZIP', group: 'Archives', from: ['*'], ext: 'zip', mode: 'combine', options: [], run: async (files) => [{ name: 'files.zip', blob: await zipFiles(files) }] },
   ...RAW,   // camera RAW photos (core/raw.js)
+  ...HEIC,   // HEIC and HEIF photos (core/heic.js)
+  ...MEDIA_MORE,   // OGG, Opus, FLAC, M4A, GIF to MP4, AVIF (core/media-more.js)
   ...THREED,   // 3D models (core/threed.js)
 ];
 
+for (const c of CONVERSIONS) if (KEYWORDS[c.id]) c.keywords = [...(c.keywords || []), ...KEYWORDS[c.id]];   // the menus' search words
+
 export const conversionById = (id) => CONVERSIONS.find((c) => c.id === id);
 
-/** Conversions that accept every one of the given kinds (intersection). */
 /** The kind a conversion makes, for its picture (SlopFlow): a format option wins (PDF to images), then the converter's ext.
  *  Base64 decode makes whatever the text held, so it is a plain 'file'. */
 export function outKind(conv, opts = {}) {
@@ -253,8 +264,10 @@ export function outKind(conv, opts = {}) {
   return (opts && typeof opts.format === 'string' && opts.format) || conv.ext || 'file';
 }
 
+/** Conversions that accept every one of the given kinds (intersection). */
 export function conversionsFor(kinds, only = null) {
-  const list = only ? CONVERSIONS.filter((c) => c.id === only) : CONVERSIONS;
+  // `available`: a conversion this browser cannot do (AVIF where the canvas cannot write it) is not offered
+  const list = (only ? CONVERSIONS.filter((c) => c.id === only) : CONVERSIONS).filter((c) => !c.available || c.available());
   // `with` kinds (a model's .mtl, .bin or textures) are taken only beside a kind in `from`, never on their own
   return list.filter((c) => kinds.every((k) => c.from.includes('*') || c.from.includes(k) || (c.with || []).includes(k)) && (!c.with || kinds.some((k) => c.from.includes(k))));
 }

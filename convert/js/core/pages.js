@@ -4,6 +4,8 @@
 import { THREED_PAGES } from './threed-pages.js';
 import { FINANCE_PAGES } from './finance-pages.js';
 import { RAW_PAGES } from './raw-pages.js';
+import { MORE_PAGES } from './more-pages.js';
+import { DATA_PAGES } from './data-pages.js';
 
 export const PAGES = [
   { slug: 'mov-to-mp4', conv: 'to-mp4', from: ['mov'], label: 'MOV to MP4', pair: ["MOV", "MP4"], cat: 'Audio and video', summary: "Convert MOV videos to MP4 in your browser.", h1: "MOV to MP4 converter",
@@ -243,4 +245,6 @@ export const PAGES = [
   ...THREED_PAGES,   // 3D models (core/threed-pages.js)
   ...FINANCE_PAGES,   // SIE files and bank statements (core/finance-pages.js)
   ...RAW_PAGES,   // camera RAW photos (core/raw-pages.js)
+  ...MORE_PAGES,   // HEIC, SVG to JPG, GIF to MP4, audio, text to PDF and Word (core/more-pages.js)
+  ...DATA_PAGES,   // spreadsheets, JSON, YAML, TOML, XML, subtitles (core/data-pages.js)
 ];

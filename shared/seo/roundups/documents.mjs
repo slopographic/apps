@@ -75,9 +75,9 @@ export const ROUNDUPS = [
     columns: ['Price', 'Free limits', 'Formats', 'Files processed on', 'Account'],
     tools: [
       { name: 'File convert', ours: true, bestFor: 'Private files and everyday conversions with no daily cap',
-        summary: 'Converts images, PDFs, video, audio, data, contacts, calendars and archives in the browser, one file or a batch.',
-        cells: ['Free', 'None set by us', '45 conversions: images, PDF, video, audio, data, text, archives', 'Your device', 'Not needed'],
-        pros: ['Nothing is uploaded: every conversion runs on your device', 'PDF to Word, Excel and PowerPoint, merge and split, PDF to images', 'MOV to MP4, video to GIF and WebM, audio to MP3 and WAV', 'CSV, JSON, XLSX, vCard and calendar data; batch convert to a ZIP'],
+        summary: 'Converts images (iPhone HEIC too), PDFs, video, audio, spreadsheets, data, subtitles, contacts, calendars and archives in the browser, one file or a batch.',
+        cells: ['Free', 'None set by us', '80+ conversions: images, PDF, video, audio, data, text, archives', 'Your device', 'Not needed'],
+        pros: ['Nothing is uploaded: every conversion runs on your device', 'PDF to Word, Excel and PowerPoint, merge and split, PDF to images', 'HEIC to JPG, MOV to MP4, video to GIF and WebM, audio to MP3, WAV, FLAC, OGG and M4A', 'CSV, JSON, YAML, TOML, XML, XLSX and ODS, SRT and VTT subtitles, Markdown to PDF and Word; batch convert to a ZIP'],
         cons: ['Far fewer formats than CloudConvert or Convertio', 'No Word, Excel or PowerPoint to PDF, and no e-book formats', 'Video is converted on your computer, so long videos take a while on slower machines'] },
       { name: 'CloudConvert', url: 'https://cloudconvert.com/', bestFor: 'Many formats with high quality, a few times a day',
         cells: ['Free €0; credit packages and subscriptions', '10 conversion credits a day, 1 GB per file', 'Documents, video, audio, e-books, archives and more', 'CloudConvert servers (files deleted right after processing)', 'Not needed to convert'],
