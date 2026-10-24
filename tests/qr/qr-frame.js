@@ -1,5 +1,6 @@
 /* QR SLOP test helpers: load the real app in the iframe of tests/qr/qr.test.html, and drive it with the clicks, keys and
  * input events a person makes. Classic script, loaded after tests/harness.js. Exposes window.QRT. */
+// Covers: qr/js/app.js, qr/index.html, shared/ui/tabs.js
 (function () {
   'use strict';
   const { waitFor, sleep } = SlopTest;

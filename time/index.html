@@ -66,6 +66,7 @@
   <script src="js/convert-ui.js"></script>
   <script src="js/clocks.js"></script>
   <script src="js/sync-ui.js"></script>
+  <script src="../shared/ui/tabs.js"></script>
   <script src="js/app.js"></script>
   <script src="js/commands.js"></script>
 </head>
@@ -78,12 +79,12 @@
 
 
     <nav class="st-tabs" role="tablist" aria-label="Sections">
-      <button type="button" role="tab" id="tab-world" aria-controls="p-world">World clock</button>
-      <button type="button" role="tab" id="tab-my" aria-controls="p-my">My time</button>
-      <button type="button" role="tab" id="tab-meet" aria-controls="p-meet">Meetings</button>
-      <button type="button" role="tab" id="tab-conv" aria-controls="p-conv">Convert</button>
-      <button type="button" role="tab" id="tab-timers" aria-controls="p-timers">Timers</button>
-      <button type="button" role="tab" id="tab-sync" aria-controls="p-sync">Sync</button>
+      <button type="button" role="tab" id="tab-world" data-view="world" aria-controls="p-world">World clock</button>
+      <button type="button" role="tab" id="tab-my" data-view="my" aria-controls="p-my">My time</button>
+      <button type="button" role="tab" id="tab-meet" data-view="meet" aria-controls="p-meet">Meetings</button>
+      <button type="button" role="tab" id="tab-conv" data-view="conv" aria-controls="p-conv">Convert</button>
+      <button type="button" role="tab" id="tab-timers" data-view="timers" aria-controls="p-timers">Timers</button>
+      <button type="button" role="tab" id="tab-sync" data-view="sync" aria-controls="p-sync">Sync</button>
     </nav>
 
     <datalist id="st-zones"></datalist>

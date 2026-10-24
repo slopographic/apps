@@ -1,36 +1,17 @@
 /* Slop Time page: the tabs, the one-second tick and the start-up. Classic script, loaded after every panel script.
- * Tabs: World clock, My time, Meetings, Convert, Timers, Sync. The active tab is kept in the URL hash (#my). */
+ * Tabs (SlopTabs): World clock, My time, Meetings, Convert, Timers, Sync. The active tab is kept in the URL hash (#my). */
 (function () {
   'use strict';
   const ns = window.SlopTime;
   const TABS = [['world', 'World clock'], ['my', 'My time'], ['meet', 'Meetings'], ['conv', 'Convert'], ['timers', 'Timers'], ['sync', 'Sync']];
   const $ = ns.ui.$;
-  let active = 'world';
+  let active = 'world', tabs = null;
 
+  /** Shows one tab (SlopTabs, shared/ui/tabs.js: the panel, the selected tab, the arrow keys) and keeps it in the #hash. */
   function show(id) {
+    if (!tabs.show(id)) return;
     active = id;
-    for (const [key] of TABS) {
-      const on = key === id;
-      const tab = $('tab-' + key);
-      tab.setAttribute('aria-selected', String(on));
-      tab.tabIndex = on ? 0 : -1;
-      $('p-' + key).hidden = !on;
-    }
     if (location.hash !== '#' + id) { try { history.replaceState(null, '', '#' + id); } catch (e) { /* sandboxed page */ } }
-  }
-
-  function onTabKey(e) {
-    const keys = TABS.map(([k]) => k);
-    const i = keys.indexOf(active);
-    let j = null;
-    if (e.key === 'ArrowRight') j = (i + 1) % keys.length;
-    else if (e.key === 'ArrowLeft') j = (i - 1 + keys.length) % keys.length;
-    else if (e.key === 'Home') j = 0;
-    else if (e.key === 'End') j = keys.length - 1;
-    if (j === null) return;
-    e.preventDefault();
-    show(keys[j]);
-    $('tab-' + keys[j]).focus();
   }
 
   function tick() {
@@ -53,10 +34,7 @@
   function boot() {
     fillZoneList();
     $('st-device').textContent = `This device: ${ns.state.device()}`;
-    for (const [key] of TABS) {
-      $('tab-' + key).addEventListener('click', () => show(key));
-      $('tab-' + key).addEventListener('keydown', onTabKey);
-    }
+    tabs = window.SlopTabs.mount(document.querySelector('.st-tabs'), { select: show, panel: (k) => $('p-' + k) });
     ns.world.init();
     ns.my.init();
     ns.meet.init();
