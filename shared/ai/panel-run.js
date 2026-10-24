@@ -60,6 +60,10 @@
     return d;
   };
 
+  /** A local model good enough for the longer tool list (the operations): one the catalog marks good at tools, 3B or more. */
+  P.capable = function (eng) {
+    try { const m = K.catalog && K.catalog.byId(eng.info().id); return !!m && (m.strengths || []).includes('tools') && m.params >= 3; } catch (e) { return false; }
+  };
   /** The rule for tasks that use other apps, with the person's setting (handoff.js mode). */
   function hopRule() {
     const show = K.handoff && K.handoff.mode() === 'show';
@@ -130,7 +134,7 @@
     const handoff = ({ app, task, url }) => hop({ app, task, line: `Continuing in ${app.name}.` }, () => { location.href = url; });
     const control = P.toolsBox.checked && !!cmd;
     if (control && cmd.prepare) { try { await cmd.prepare(); } catch (e) { console.warn('SlopCmd.prepare:', e); } }
-    const ops = cloud || eng.kind === 'fake';   // file operations: own-key models (and the test engine); small local models stay lean
+    const ops = cloud || eng.kind === 'fake' || P.capable(eng);   // file operations: own-key models, the test engine, capable local models
     const tools = P.toolsBox.checked ? K.appTools.build({ cmd, appId: P.appId(), appName: P.appName(), confirm: confirmFn, look: cloud, ops, who: cloud ? eng.provider.who : '', handoff, hop }) : [];
     let rollback = null;
     try { rollback = control && cmd.checkpoint ? cmd.checkpoint() : null; } catch (e) { rollback = null; }

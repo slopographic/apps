@@ -121,6 +121,22 @@
       expect((await P.SlopHub.list()).some((f) => f.name === out.files[0].name && f.from === 'ai')).toBe(true);
     }, { timeout: 40000 });
   });
+  describe('operations for every capable model, and inputs written in the call', () => {
+    it('a fake (local) engine gets run_operation; capable local models do; an outline goes in as input, no file first', async () => {
+      const K = P.SlopAIKit;
+      expect(K.panel.capable({ info: () => ({ id: 'Qwen2.5-3B-Instruct-q4f16_1-MLC' }) })).toBe(true);
+      expect(K.panel.capable({ info: () => ({ id: 'Llama-3.2-3B-Instruct-q4f16_1-MLC' }) })).toBe(true);
+      expect(K.panel.capable({ info: () => ({ id: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC' }) })).toBe(false);
+      const call = (name, args) => `<tool_call>{"name": "${name}", "arguments": ${JSON.stringify(args)}}</tool_call>`;
+      const eng = new K.FakeEngine({ delay: 0, loadMs: 0, replies: [call('run_operation', { operation: 'test.outline-slides', input: { name: 'slime.md', text: '# Slime\n- goo' } }), 'Made slime.sslide.'] });
+      await eng.load('fake'); await P.SlopAIPanel.use(eng);
+      await P.SlopAIPanel.send('make a presentation about slime, I stay here');
+      expect(eng.calls[0].messages[0].content).toMatch(/run_operation\(operation: string, files\?: array, input\?: object/);
+      const step = [...P.document.querySelectorAll('.sap-step')].pop();
+      expect(step.classList.contains('ok')).toBe(true); expect(step.textContent).toContain('Run test.outline-slides on slime.md');
+      expect((await P.SlopHub.list()).some((f) => f.name === 'slime.sslide' && f.from === 'ai')).toBe(true);
+    }, { timeout: 30000 });
+  });
   SlopTest.run({ name: 'Slop AI: handoff, catalog, model menu' });
   </script>
 </body>
