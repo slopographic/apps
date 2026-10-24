@@ -29,11 +29,17 @@
   let seeded = null;
 
   describe('Slop Admin in a 390 px wide window', () => {
-    it('opens on the company profile, with no horizontal scroll', async () => {
+    it('with nothing set up it opens on Get started: five steps, none done, with no horizontal scroll', async () => {
+      // Covers: admin/js/ui/start.js, admin/js/ui/app.js, admin/css/admin.css, shared/biz/setup.js
       await waitFor(ready, { timeout: 20000 });
       win().addEventListener('error', (e) => errors.push(e.message));
+      await waitFor(() => !$('view-start').hidden && doc().querySelectorAll('#sSteps .start-step').length === 5);
+      expect($('sCount').textContent).toBe('0 of 5 done');
+      expect(doc().querySelector('[data-step="sell"] a').getAttribute('href')).toBe('../invoices/#new');
       expect($('cName').value).toBe('');
       expect(doc().documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      win().SlopAdmin.app.show('company');
+      await waitFor(() => !$('view-company').hidden);
     });
 
     it('saves the company profile, with the tax rate as a percentage stored in basis points', async () => {
@@ -46,6 +52,13 @@
       const s = (await S().store.get('settings', 'main')).value;
       expect(s.defaultTaxRate).toBe(750);
       expect(s.defaultCurrency).toBe('USD');
+    });
+
+    it('the company step is ticked once the profile has a name', async () => {
+      win().SlopAdmin.app.show('start');
+      await waitFor(() => $('sCount').textContent === '1 of 5 done');
+      expect(doc().querySelector('[data-step="company"]').classList.contains('is-done')).toBe(true);
+      win().SlopAdmin.app.show('company');
     });
 
     it('refuses a tax rate out of range with a message, and keeps the old value', async () => {

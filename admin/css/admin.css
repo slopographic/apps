@@ -64,3 +64,13 @@ input[type="text"], input[type="number"], input[type="file"], select, textarea {
 .grid-t thead th { color: var(--mute); font-weight: 600; }
 .num { text-align: right !important; font-variant-numeric: tabular-nums; }
 .sui-dlg.danger-dlg .sui-title { color: var(--danger); }
+
+/* Get started: the first steps, ticked when done */
+.start-head { display: flex; align-items: center; gap: 10px; margin: 6px 0 10px; }
+.start-head progress { flex: 1 1 auto; max-width: 320px; height: 10px; accent-color: var(--accent); }
+.start-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.start-step { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.start-step .start-text { display: grid; gap: 2px; min-width: 0; }
+.start-mark { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-weight: 700; }
+.start-step.is-done .start-mark { background: var(--accent); border-color: var(--accent); color: var(--accent-ink, #0e0e10); }
+.start-step.is-done b { text-decoration: line-through; text-decoration-color: var(--mute, currentColor); }

@@ -53,6 +53,7 @@
     </header>
 
     <nav class="tabs" role="tablist" aria-label="Admin sections">
+      <button type="button" role="tab" class="tab" id="tab-start" data-view="start" aria-controls="view-start" aria-selected="false">Get started</button>
       <button type="button" role="tab" class="tab" id="tab-company" data-view="company" aria-controls="view-company" aria-selected="true">Company</button>
       <button type="button" role="tab" class="tab" id="tab-numbering" data-view="numbering" aria-controls="view-numbering" aria-selected="false">Numbering</button>
       <button type="button" role="tab" class="tab" id="tab-taxes" data-view="taxes" aria-controls="view-taxes" aria-selected="false">Tax rates</button>
@@ -62,6 +63,16 @@
 
     <main class="main" id="main">
       <div id="boot" class="boot" role="status">Opening Slop Admin…</div>
+
+      <section class="view" id="view-start" role="tabpanel" aria-labelledby="tab-start" hidden>
+        <div class="card">
+          <h2 class="h2">Get started with the business apps</h2>
+          <p class="note">Five first steps. Each is ticked as soon as it is done, in whichever app you do it. Everything stays in this browser.</p>
+          <div class="start-head"><progress id="sProgress" value="0" max="5"></progress> <span id="sCount" role="status"></span></div>
+          <ol class="start-steps" id="sSteps"></ol>
+          <p class="msg" id="sMsg" role="status"></p>
+        </div>
+      </section>
 
       <section class="view" id="view-company" role="tabpanel" aria-labelledby="tab-company" hidden>
         <form class="card" id="cForm" novalidate onsubmit="return false">
@@ -179,6 +190,8 @@
   <script src="js/core/overview.js"></script>
   <script src="js/core/tax.js"></script>
   <script src="js/core/storage.js"></script>
+  <script src="../shared/biz/setup.js"></script>
+  <script src="js/ui/start.js"></script>
   <script src="js/ui/company.js"></script>
   <script src="js/ui/numbering.js"></script>
   <script src="js/ui/taxes.js"></script>
