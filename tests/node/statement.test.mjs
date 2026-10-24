@@ -80,6 +80,7 @@ test('reminder: the tone follows the most overdue invoice; the text lists each o
   assert.equal(ST.reminder(recent, who, money).tone, 'friendly');
   const firm = ST.build(INV.filter((i) => i.id !== 'e'), PAY, 'c', { currency: 'USD', today: '2026-10-24' });
   assert.equal(ST.reminder(firm, who, money).tone, 'firm');
+  assert.ok(ST.reminder(st, { customer: 'Ada Ltd', company: '' }, money).body.endsWith('Balance owed: $59.00\n\nThank you.'));
   const none = ST.build(INV, PAY, 'nobody', { currency: 'USD', today: '2026-10-24' });
   assert.deepEqual(ST.reminder(none, who, money), { tone: 'none', subject: '', body: '' });
 });

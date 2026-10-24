@@ -66,7 +66,6 @@
     if (!st.owed.length || st.closing <= 0) return { tone: 'none', subject: '', body: '' };
     const late = Math.max(...st.owed.map((o) => o.late));
     const tone = late <= 30 ? 'friendly' : late <= 60 ? 'firm' : 'final';
-    const from = company || 'us';
     const list = st.owed.map((o) => `- ${o.ref}, due ${o.due}: ${money(o.left)}${o.late ? ` (${o.late} day${o.late === 1 ? '' : 's'} late)` : ''}`).join('\n');
     const subject = { friendly: `A reminder: ${money(st.closing)} to pay`, firm: `Overdue: ${money(st.closing)} to pay`, final: `Final reminder: ${money(st.closing)} overdue` }[tone];
     const open = {
@@ -74,7 +73,8 @@
       firm: 'The invoices below are now overdue. Please arrange payment as soon as you can, or let us know if there is a problem with them.',
       final: 'Despite our earlier reminders, the invoices below are still unpaid and well past their due dates. Please pay the balance within 7 days, or contact us today to agree how it will be paid.',
     }[tone];
-    const body = `Hello ${customer},\n\n${open}\n\n${list}\n\nBalance owed: ${money(st.closing)}\n\nThank you,\n${from}`;
+    const sign = company && company.trim() ? `Thank you,\n${company.trim()}` : 'Thank you.';   // no company name: no name line
+    const body = `Hello ${customer},\n\n${open}\n\n${list}\n\nBalance owed: ${money(st.closing)}\n\n${sign}`;
     return { tone, subject, body };
   }
 
