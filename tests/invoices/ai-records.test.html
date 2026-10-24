@@ -10,7 +10,7 @@
   <script src="../harness.js"></script>
   <script src="../../shared/commands/args.js"></script>
   <script>
-  // Covers: shared/data/ai-records.js, shared/data/ai-records-apps.js, shared/biz/biz.js, contacts/js/app/commands.js
+  // Covers: shared/data/ai-records.js, shared/data/ai-records-apps.js, shared/biz/biz.js, contacts/js/app/commands.js, todo/js/ui/commands.js, calendar/js/ui/commands.js
   const { describe, it, expect, waitFor } = SlopTest;
   let W, C;
   const S = () => W.SlopData;
@@ -97,6 +97,18 @@
       expect(l[0].email).toBe('grace@example.com');
       expect(l[0].categories).toEqual(['navy', 'code']);
     }, { timeout: 30000 });
+  });
+  describe('Slop To-do and Slop Calendar: tasks and events', () => {
+    it('create_record adds a task in Slop To-do and an event in Slop Calendar', async () => {
+      await boot('../../todo/index.html', (w) => w.SlopCmd.get && w.SlopCmd.get('todo.calendar'));
+      await C.prepare();
+      const t = await run('todo.ai.create-record', { collection: 'tasks', fields: { title: 'Feed the bees' } });
+      expect((await S().store.get('tasks', t.value.id)).value.title).toBe('Feed the bees');
+      await boot('../../calendar/index.html', (w) => w.SlopCmd.get && w.SlopCmd.get('cal.crm'));
+      await C.prepare();
+      const fields = (await run('calendar.ai.describe-records', { collection: 'events' })).value.map((f) => f.field);
+      expect(fields).toContain('title');
+    }, { timeout: 40000 });
   });
   SlopTest.run({ name: 'Business records for the assistant' });
   </script>

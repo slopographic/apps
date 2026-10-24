@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 16 of 58 apps.
+Covered: 18 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -56,8 +56,8 @@ Covered: 16 of 58 apps.
 | Slopculator (`calculator`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Time (`time`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop CRM (`crm`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
-| Slop Calendar (`calendar`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop To-do (`todo`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Calendar (`calendar`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
+| Slop To-do (`todo`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Projects (`projects`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 | Slop Reminders (`reminders`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Ledger (`ledger`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -189,6 +189,20 @@ Covered: 16 of 58 apps.
 - export: `export_invoice_pdf`, `export_records`
 
 ### Slop CRM
+
+- create: `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_records`
+
+### Slop Calendar
+
+- create: `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_records`
+
+### Slop To-do
 
 - create: `create_record`
 - add: `create_record`

@@ -21,6 +21,8 @@
     if (!g.SlopCmd) return;
     g.SlopCmd.init({ app: 'todo' });
     g.SlopCmd.register(COMMANDS);
+    // the assistant's record commands (shared/data/ai-records.js through shared/biz/biz.js), loaded when the AI panel first asks
+    if (g.SlopCmd.provide && g.SlopBiz && g.SlopBiz.assistant) g.SlopCmd.provide({ prepare: () => g.SlopBiz.assistant('todo') });
   }
 
   NS.commands = { init, list: COMMANDS };

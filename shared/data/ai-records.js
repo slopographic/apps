@@ -32,6 +32,7 @@
     if (spec.t === 'money') return minor(v, cur);
     if (spec.t === 'rate') return rate(v);
     if (spec.t === 'int') return Math.round(A().toNumber(v));
+    if (spec.t === 'ts') { const t = typeof v === 'number' ? v : Date.parse(String(v)); if (!Number.isFinite(t)) throw new Error(`“${v}” is not a date and time`); return t; }
     if (spec.t === 'bool') return /^(true|yes|1|on)$/i.test(String(v));
     if (spec.t === 'rows') return [].concat(v).map((row) => convertAll(spec.of, row, cur));
     if (spec.t === 'strings') return [].concat(typeof v === 'string' ? v.split(/\s*,\s*/) : v).filter(Boolean).map(String);
@@ -63,6 +64,7 @@
     const f = fieldsOf(collection), r = Object.assign({}, raw || {});
     if (r.customer != null && f.customerId && r.customerId == null) { r.customerId = await customerId(r.customer, r.supplier ? { supplier: true } : {}); delete r.customer; }
     if (r.supplier != null && f.customerId && r.customerId == null && typeof r.supplier === 'string') { r.customerId = await customerId(r.supplier, { supplier: true }); delete r.supplier; }
+    if (f.tz && r.tz == null) r.tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';   // events and tasks keep their time zone
     return convertAll(f, r, r.currency);
   };
   AI.customerId = customerId;

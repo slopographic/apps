@@ -104,7 +104,7 @@
     return e;
   }
 
-  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands, h };
+  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands, assistant, h };
   g.SlopBiz = Object.assign(g.SlopBiz || {}, api);   // merge: router.js, backup.js and setup.js may have loaded first
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

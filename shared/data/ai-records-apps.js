@@ -94,5 +94,7 @@
     } },
     expenses: { label: 'Slop Expenses', collections: ['expenses'], post: { expenses: (r) => D().expenses.record(r) } },
     timesheets: { label: 'Slop Timesheets', collections: ['timeEntries', 'customers'] },
+    todo: { label: 'Slop To-do', collections: ['tasks'] },
+    calendar: { label: 'Slop Calendar', collections: ['events', 'tasks'] },
   };
 })(typeof window !== 'undefined' ? window : globalThis);
