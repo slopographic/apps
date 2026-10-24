@@ -35,6 +35,8 @@ Status `building` in `shared/apps.js`.
 | `ocr.read` | Slop OCR | searchable PDF, text or Markdown | `aitools/common.js` (PP-OCRv4 worker), `ocr/js/sources.js`, `layout.js`, `export.js`; asks to install the model in Slop OCR (Get more) if missing |
 | `files.rename` | Files | `{name}` `{n}` `{date}`, first number, digits (combine) | `renameAll` (pure) |
 | `pdf.compress` | Slop PDF | lossless re-save, or strong (pages to JPEG at 72/110/150 dpi) | pdf-lib; File convert's `pdf-raster.js` and `pdf-images.js` |
+| `outline-to-presentation` | Slop Slides | an outline (.json/.md/.txt) → PPTX, PDF or .sslide; theme, size | `slides/js/core/outline.js`, `pptx.js`, `pdf.js` via File convert's `slidesEngine` |
+| `outline-to-document` | Slop Docs | an outline (.json/.md/.txt) → DOCX, PDF, Markdown or .sdoc; page size | `docs/js/model/build.js` + File convert's Docs `engine` |
 | every catalog entry | File convert | merge-pdf (fan-in), images-to-pdf, pdf-to-images, pdf-protect (`check`: password), Files to ZIP (now with a ZIP name), to-jpg… | the catalog |
 
 `shared/ops/load.js`: `scripts(paths, ready)` (through SlopLoad when present), `notice(app, opts)` (SlopFirstRun),

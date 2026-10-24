@@ -46,7 +46,11 @@ SlopCmd.provide({
 const r = await SlopCmd.exec('ps.ai.gaussian-blur', { radius: '900px' });  // { ok, value, args: { radius: 250 }, notes: […] }
 ```
 - Types: `number` (`min`, `max`, `step`, `integer`), `string` (`maxLength`), `enum` (`values` or `options: [[value, label]]`),
-  `boolean`, `color` (hex or a basic name → `#rrggbb`). `required`, `default`, `description` on any. A map `{ radius: {…} }` works too.
+  `boolean`, `color` (hex or a basic name → `#rrggbb`), `array` (`items`: a JSON Schema per item, `maxItems`; JSON text is parsed,
+  plain text is one item per line), `object` (`properties`; JSON text is parsed). The command checks what is inside an array or
+  object. `required`, `default`, `description` on any. A map `{ radius: {…} }` works too.
+- `sources.js` (`window.SlopCmdSources`, loaded on demand): `driveFile(q)`, `siteFile(url)` (same origin only), `picture({ file, url })`
+  and `put(blob, name, from)`: where commands with arguments get files from and save them to (Slop Slides and Slop Docs use it).
 - `exec(id, args, ctx)` loads `args.js` if needed, checks the arguments (strings coerced, numbers clamped with a note,
   unknown names dropped with a note, defaults filled, a missing required or unreadable value is an error), runs the
   command and awaits it. `run(id, { args })` does the same check synchronously when `args.js` is on the page.
