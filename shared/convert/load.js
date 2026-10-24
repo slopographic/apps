@@ -28,13 +28,17 @@ function css(rel) {
 }
 
 let ready = null;
-/** SlopUI, SlopDrop (rules, panel, drop: in that order) and dialog.css. */
+/** SlopUI, the intake pipeline (shared/intake), SlopDrop (panel, drop) and dialog.css. */
 export function deps() {
   if (!ready) ready = (async () => {
     css('shared/convert/dialog.css');
     if (!window.SlopUI) { css('shared/slopui.css'); await script('shared/slopui.js'); }
-    const SD = window.SlopDrop || {};
-    if (!SD.rules) await script('shared/drop/rules.js');
+    const SI = () => window.SlopIntake || {};
+    if (!SI().rules) await script('shared/intake/rules.js');
+    if (!SI().normalize) await script('shared/intake/normalize.js');
+    if (!SI().createPipeline) await script('shared/intake/pipeline.js');
+    if (!SI().take) await script('shared/intake/intake.js');
+    if (!SI().pick) await script('shared/intake/sources.js');
     if (!(window.SlopDrop || {}).panel) await script('shared/drop/panel.js');
     if (!(window.SlopDrop || {}).attach) await script('shared/drop/drop.js');
   })().catch((e) => { ready = null; throw e; });
@@ -45,5 +49,6 @@ export function deps() {
 export async function hub() {
   if (!window.SLOP_APPS) await script('shared/apps.js');
   if (!window.SlopHub) await script('shared/hub.js');
+  if (!window.SlopOuttake) await script('shared/intake/outtake.js');   // the one "Open in…" builder (SlopHub.openIn)
   return window.SlopHub;
 }

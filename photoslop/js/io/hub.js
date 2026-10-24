@@ -14,14 +14,10 @@ async function docBlob(type) {
   if (type === 'image/vnd.adobe.photoshop') return new Blob([writePSD()], { type });
   return canvasToBlob(wmApplyExport(flattenCanvas(type === 'image/jpeg' ? '#fff' : null)), type, 0.92);
 }
-function recordToFile(rec) { return new File([rec.blob], rec.name || 'Untitled', { type: rec.type }); }
-// A tab opened from Slop Drive remembers its record (CUR.driveId), so Save writes back to that same file.
-async function openRecordTab(rec) { const before = CUR; await handleFiles([recordToFile(rec)], false); if (CUR && CUR !== before) CUR.driveId = rec.id; }
-async function openFromDrive(place) {
-  if (!hub()) return toast('Slop Drive is not available here');
-  const rec = await hub().pickFromDrive({ accept: ['image/*', 'image/vnd.adobe.photoshop', 'application/x-openraster'], title: place ? 'Place from Slop Drive' : 'Open from Slop Drive' });
-  if (rec && place) await handleFiles([recordToFile(rec)], true);
-  else if (rec) await openRecordTab(rec);
+// Open from Slop Drive and ?drive=<id> are sources of the one intake (app/intake.js): a tab opened from a Drive file
+// remembers its record (CUR.driveId), so Save writes back to that same file.
+function openFromDrive(place) {
+  return SlopIntake.fromDrive({ to: 'photoslop', mode: place ? 'add' : 'new', title: place ? 'Place from Slop Drive' : 'Open from Slop Drive' });
 }
 /** File ▸ Save (Ctrl+S): writes the layered PSD back to the linked Drive file, or asks for a folder the first time. */
 async function saveDrive() {
@@ -42,14 +38,11 @@ function sendToMenu() {
   const rows = hub().sendMenuItems(() => docBlob('image/png'), () => safeName() + '.png', 'image/png');
   return rows.concat(['-', { label: 'Save PNG to Slop Drive', act: () => saveToDrive() }]);
 }
-/** Called once at boot: announce ourselves and open a file another app sent here. */
+/** Called once at boot: announce ourselves and open a file another app sent here (through the intake). */
 async function hubBoot() {
-  if (!hub()) return false;
-  hub().register('photoslop');
-  const rec = await hub().consumeLaunch();
-  if (!rec) return false;
-  await openRecordTab(rec);
-  return true;
+  if (hub()) hub().register('photoslop');
+  const got = await SlopIntake.launch({ to: 'photoslop', mode: 'new' });
+  return !!(got && got.added.length);
 }
 // Convert… in the header (shared/convert/provided.js): the open image, flattened, as PNG.
 addEventListener('slop:convert-files', (e) => e.detail.provide(async () => (CUR ? [{ name: safeName() + '.png', blob: await docBlob('image/png') }] : null)));

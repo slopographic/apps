@@ -140,7 +140,7 @@ class ConvertDialog {
 
   close() { if (this.dlg) this.dlg.close(false); }
   closed() {
-    if (this.tool) { try { this.tool.dropZone.destroy(); this.tool.clearOutputs(); } catch (e) { /* already gone */ } }
+    if (this.tool) { try { this.tool.destroy(); this.tool.clearOutputs(); } catch (e) { /* already gone */ } }
     this.resolveDone();
   }
 

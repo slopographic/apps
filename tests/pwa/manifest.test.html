@@ -44,6 +44,12 @@
       expect(sizes.has('512x512')).toBe(true);
       expect(m.icons.some((i) => i.src === '/favicon.svg' && i.sizes === 'any')).toBe(true);
     });
+    it('opens files with the apps on the shared intake (file_handlers, taken by SlopIntake.launch from launchQueue)', async () => {
+      const m = await (await fetch('/manifest.webmanifest')).json();
+      const actions = (m.file_handlers || []).map((h) => h.action);
+      for (const a of ['/pdf/', '/photoslop/', '/resize/', '/gallery/', '/convert/']) expect(actions).toContain(a);
+      for (const h of m.file_handlers) { expect(Object.keys(h.accept).length > 0).toBe(true); expect((await fetch(h.action)).ok).toBe(true); }
+    });
     it('has the Slop Drive shortcut and it opens', async () => {
       const s = m.shortcuts.find((x) => x.url === '/drive/');
       expect(!!s).toBe(true);

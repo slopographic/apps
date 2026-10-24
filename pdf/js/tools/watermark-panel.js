@@ -35,15 +35,29 @@
       setList('Add logo', WM.add(list(), L));
     }, function () { SlopUI.alert('Logo not added', 'That image could not be read. Use a PNG, JPEG, WebP or GIF.'); });
   }
-  function pickLogo(change) {
-    SlopUI.pickFiles({ accept: IMG }).then(function (files) {
-      if (!files || !files[0]) return;
-      if (!change) return addLogo(files[0]);
-      storeLogo(files[0]).then(function (asset) { patch('Change logo', { asset: asset.id }); },
-        function () { SlopUI.toast('That image could not be read.'); });
+  /** The logo comes in through the intake (shared/intake), a part of its own: picked (Logo…, Change) or dropped on the
+   *  panel. A dropped file that is not a picture goes to the app's own intake ('pdf'), like a drop on the page. */
+  var logoSpec = false;
+  function registerLogo() {
+    if (logoSpec) return;
+    logoSpec = true;
+    SlopIntake.register({
+      id: 'pdf.logo', main: false, paste: false, limit: 1, toast: false,
+      accept: { any: true }, pickAccept: IMG, // any file is taken here; route keeps the pictures
+      route: function (files) {
+        var img = files.filter(function (f) { return IMG.split(',').indexOf(f.type) >= 0; });
+        var rest = files.filter(function (f) { return img.indexOf(f) < 0; });
+        if (rest.length) SlopIntake.take(rest, { to: 'pdf', source: 'drop' });
+        return img;
+      },
+      process: function (file, ctx) {
+        if (!(ctx.data && ctx.data.change)) return addLogo(file);
+        return storeLogo(file).then(function (asset) { patch('Change logo', { asset: asset.id }); },
+          function () { SlopUI.toast('That image could not be read.'); });
+      },
     });
   }
-  function hasFiles(e) { var t = e.dataTransfer && e.dataTransfer.types; return !!t && Array.prototype.indexOf.call(t, 'Files') >= 0; }
+  function pickLogo(change) { registerLogo(); return SlopIntake.pick({ to: 'pdf.logo', multiple: false, data: { change: !!change } }); }
 
   /** The fields of the selected layer. Rebuilt only when the selection or history changes (keeps focus while typing). */
   function editor(L) {
@@ -123,15 +137,8 @@
       var hint = note('Layers stack like sheets: the top layer is drawn last, over the others. Drop a PNG, JPEG, WebP or GIF here to add it as a logo.');
       var root = h('div', { class: 'wm-drop' }, section('Layers', [head, listBox, hint]), editBox);
       b.appendChild(root);
-      root.addEventListener('dragenter', function (e) { if (hasFiles(e)) { e.preventDefault(); e.stopPropagation(); } });
-      root.addEventListener('dragover', function (e) { if (hasFiles(e)) { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = 'copy'; } });
-      root.addEventListener('drop', function (e) {
-        if (!hasFiles(e)) return;
-        e.preventDefault(); e.stopPropagation();
-        var files = Array.prototype.slice.call(e.dataTransfer.files || []);
-        var img = files.filter(function (f) { return /^image\/(png|jpeg|webp|gif)$/.test(f.type); })[0];
-        if (img) addLogo(img); else if (files.length) SP.app.addFiles(files); // SP.app is set by ui/app.js
-      });
+      registerLogo();
+      SlopIntake.dropTarget(root, { to: 'pdf.logo' }); // a picture is the logo; any other file goes to the app's intake
       onRefresh(function (reason) {
         var all = list();
         if (selId && !WM.get(all, selId)) selId = null;

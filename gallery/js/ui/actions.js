@@ -15,34 +15,24 @@
     return id ? [id] : sel;
   }
 
-  /** Runs the import pipeline and reports the result. items: [{ file, name, driveId? }]. */
-  /** The note for video files that were left out (the library keeps photos). */
-  const videoNote = (names) => `${plural(names.length, 'video was', 'videos were')} not imported: the library keeps photos. Play them in the Drive view.`;
-  async function importItems(items) {
-    const videos = (items && items.skipped) || [];
-    if (!items || !items.length) { toast(videos.length ? videoNote(videos) : 'Nothing to import: no photos found.'); return null; }
-    const busy = document.getElementById('busy');
+  /** One photo into the library: the reader of the one intake (shared/intake, registered in ui/main.js), whichever way
+   *  it came in. Throws the reason it is not added (a row in the drop strip, and the toast). */
+  async function importOne(file, ctx) {
     const keep = !!(document.getElementById('keepDup') || {}).checked;
-    if (busy) { busy.hidden = false; busy.textContent = `Importing ${items.length}…`; }
-    let report;
-    try {
-      report = await G.importer.run(items, { keepDuplicates: keep, onProgress: (p) => { if (busy) busy.textContent = `Importing ${p.done + 1} of ${p.total}${p.name ? ' · ' + p.name : ''}`; } });
-    } finally { if (busy) busy.hidden = true; }
-    const parts = [plural(report.added, 'photo added', 'photos added')];
-    if (videos.length) parts.push(videoNote(videos));
-    if (report.skipped) parts.push(`${report.skipped} already in the library`);
-    if (report.failed.length) parts.push(`${report.failed.length} could not be read`);
-    toast(parts.join(' · '));
-    if (report.failed.length) await SlopUI.alert('Some files could not be read', `These files are not images this browser can decode: ${report.failed.slice(0, 12).join(', ')}${report.failed.length > 12 ? '…' : ''}`);
-    return report;
+    const name = file.slopPath || file.name || 'photo';
+    const r = await G.importer.run([{ file, name, driveId: ctx && ctx.drive ? ctx.drive.id : null }], { keepDuplicates: keep });
+    if (r.failed.length) throw new Error('is not an image this browser can decode');
+    if (!r.added) throw new Error('is already in the library');
+    return name;
   }
-  const importFiles = async () => importItems(G.source.fromFiles(await SlopUI.pickFiles({ accept: 'image/*' + (window.SlopRaw ? ',' + window.SlopRaw.ACCEPT : ''), multiple: true })));
+  // Import, Import a folder and Import from Slop Drive are sources of the intake, like a drop.
+  const importFiles = () => window.SlopIntake.pick({ to: 'gallery' });
   const importFolder = async () => {
-    const items = await G.source.fromDirectory();
-    if (items === null) { await SlopUI.alert('Folder import', 'This browser cannot open folders directly. Drag the folder onto the window instead.'); return null; }
-    return importItems(items);
+    const files = await G.source.fromDirectory();
+    if (files === null) { await SlopUI.alert('Folder import', 'This browser cannot open folders directly. Drag the folder onto the window instead.'); return null; }
+    return window.SlopIntake.take(files, { source: 'folder', to: 'gallery' });
   };
-  const importDrive = async () => importItems(await G.source.fromDrive());
+  const importDrive = () => window.SlopIntake.fromDrive({ to: 'gallery', title: 'Import from Slop Drive' });
 
   async function removeIds(ids) {
     if (!ids.length) return;
@@ -65,21 +55,24 @@
     const n = await G.export.downloadSelection(ids);
     toast(n > 1 ? `Saved ${n} photos as a zip` : n ? 'Saved' : 'Nothing to save');
   }
-  async function restoreBackup() {
-    const picked = await SlopUI.pickFiles({ accept: '.zip,application/zip', multiple: false });
-    const file = picked && picked[0];
-    if (!file) return null;
-    const ok = await SlopUI.confirm('Restore a backup', `Restore “${file.name}” into this library? Photos already here (same bytes) are merged, nothing is deleted.`, 'Restore');
-    if (!ok) return null;
-    try {
-      const r = await G.backup.restore(file);
-      toast(`Restored ${plural(r.added, 'photo', 'photos')}${r.merged ? `, ${r.merged} already here` : ''}`);
-      return r;
-    } catch (e) {
-      await SlopUI.alert('Restore failed', e.message + ' Nothing was changed.');
-      return null;
-    }
-  }
+  // Restore a backup: a part of the intake of its own (a .zip, one at a time, asked first), so a backup comes in the same
+  // one way as a photo. Registered at boot (ui/main.js), once shared/intake has loaded.
+  const registerBackup = () => window.SlopIntake.register({
+    id: 'gallery.backup', main: false, paste: false, limit: 1, toast: false,
+    accept: { types: ['application/zip', 'application/x-zip-compressed'], exts: ['.zip'], noun: 'a Slop Gallery backup (.zip)' },
+    gate: (batch) => SlopUI.confirm('Restore a backup', `Restore “${batch.take[0].name}” into this library? Photos already here (same bytes) are merged, nothing is deleted.`, 'Restore'),
+    process: async (file) => {
+      try {
+        const r = await G.backup.restore(file);
+        toast(`Restored ${plural(r.added, 'photo', 'photos')}${r.merged ? `, ${r.merged} already here` : ''}`);
+        return r;
+      } catch (e) {
+        await SlopUI.alert('Restore failed', e.message + ' Nothing was changed.');
+        throw e;
+      }
+    },
+  });
+  const restoreBackup = async () => { const s = await window.SlopIntake.pick({ to: 'gallery.backup', multiple: false }); return (s.added[0] && s.added[0].value) || null; };
   function sortIds(ids) {
     const list = ids && ids.length ? ids : G.timeline.visibleIds();
     if (!list.length) { toast('Nothing to sort here.'); return; }
@@ -87,7 +80,7 @@
   }
 
   G.actions = {
-    targets, importItems, importFiles, importFolder, importDrive, removeIds, tagPrompt, exportIds, restoreBackup, sortIds,
+    targets, importOne, registerBackup, importFiles, importFolder, importDrive, removeIds, tagPrompt, exportIds, restoreBackup, sortIds,
     selectAll: () => G.state.select(G.timeline.visibleIds(), true),
     clearSelection: () => G.state.clearSelection(),
     toggleFav: (ids) => G.library.toggleFav(ids),

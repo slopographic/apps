@@ -1,11 +1,12 @@
-/* Slop Gallery: where photos come from. Each source resolves to [{ file, name, driveId? }] with only image files kept.
- *  - fromFiles(FileList)          the file picker
- *  - fromDrop(DataTransfer)       dropped files and whole folders (webkitGetAsEntry, recursive)
- *  - fromDirectory()              showDirectoryPicker where the browser has it (FileSystemDirectoryHandle), else null
- *  - fromDrive()                  one file from Slop Drive (SlopHub.pickFromDrive), keeps its Drive id
- * Entries are read synchronously inside the drop event, as the browser requires, before any await. The library keeps
- * photos (JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, HEIC, and camera RAW: CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2 and more); video files (WebM and the rest) are left out and listed in
- * .skipped on the array, so the import can say why. WebM plays in the Drive view.
+/* Slop Gallery: what a photo is, and the folder picker. Every way photos come in (Import, Ctrl+O, a drop of files or whole
+ * folders, Import a folder, Import from Slop Drive, ?drive=<id>, a paste, the sample) is a source of the one intake
+ * (shared/intake, registered in ui/main.js); this file only knows the photo types and walks a picked folder.
+ *  - isImage(file, name)          a photo the library keeps (JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, HEIC, camera RAW: CR2,
+ *                                 CR3, NEF, ARW, DNG, RAF, ORF, RW2 and more); videos are not kept (they play in the Drive view)
+ *  - rules()                      the intake rules (shared/intake/rules.js): the refusals, the picker and the drag label
+ *  - fromDirectory()              showDirectoryPicker where the browser has it: its files, each with its path in
+ *                                 file.slopPath ("Trip/a.jpg"); null where the browser cannot pick folders
+ * Dropped folders are walked by SlopDrop.folders (shared/drop/folders.js), which sets the same slopPath.
  * Exposes window.SlopGallery.source. */
 (function () {
   'use strict';
@@ -17,44 +18,11 @@
   const mimeOf = (name) => EXT[extOf(name)] || (isRaw(name) ? 'image/x-' + extOf(name) : 'application/octet-stream');
   const isImage = (file, name) => /^image\//.test(file.type || '') || !!EXT[extOf(name || file.name)] || isRaw(name || file.name);
 
-  /** Keeps image files only and gives each a display name. The array's .skipped lists the video files left out. */
-  function keepImages(list) {
-    const out = list.filter((x) => x && x.file && isImage(x.file, x.name)).map((x) => ({ file: x.file, name: x.name || x.file.name || 'photo', driveId: x.driveId || null }));
-    out.skipped = list.filter((x) => x && x.file && !isImage(x.file, x.name) && isVideo(x.file, x.name)).map((x) => x.name || x.file.name || 'video');
-    return out;
-  }
-  function fromFiles(fileList) {
-    return keepImages([...(fileList || [])].map((f) => ({ file: f, name: f.name })));
-  }
-
-  const readEntries = (reader) => new Promise((res, rej) => reader.readEntries(res, rej));
-  const entryFile = (entry) => new Promise((res, rej) => entry.file(res, rej));
-  async function walkEntry(entry, out) {
-    if (entry.isFile) { out.push({ file: await entryFile(entry), name: entry.fullPath ? entry.fullPath.replace(/^\//, '') : entry.name }); return; }
-    if (!entry.isDirectory) return;
-    const reader = entry.createReader();
-    for (let batch = await readEntries(reader); batch.length; batch = await readEntries(reader)) {
-      for (const child of batch) await walkEntry(child, out);
-    }
-  }
-  /** Drop handler: collects entries synchronously, then walks folders. Falls back to getAsFile where entries are missing. */
-  async function fromDrop(dt) {
-    if (!dt || !dt.items) return fromFiles(dt && dt.files);
-    const entries = [], loose = [];
-    for (const item of [...dt.items]) {
-      if (item.kind && item.kind !== 'file') continue;
-      const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
-      if (entry) entries.push(entry);
-      else { const f = item.getAsFile && item.getAsFile(); if (f) loose.push({ file: f, name: f.name }); }
-    }
-    const out = [...loose];
-    for (const e of entries) await walkEntry(e, out);
-    return keepImages(out);
-  }
+  const withPath = (file, path) => { try { Object.defineProperty(file, 'slopPath', { value: path, configurable: true }); } catch (e) { /* frozen */ } return file; };
   /** Walks a FileSystemDirectoryHandle; only where showDirectoryPicker exists (Chromium). */
   async function walkHandle(dir, prefix, out) {
     for await (const [name, h] of dir.entries()) {
-      if (h.kind === 'file') out.push({ file: await h.getFile(), name: prefix + name });
+      if (h.kind === 'file') out.push(withPath(await h.getFile(), prefix + name));
       else if (h.kind === 'directory') await walkHandle(h, prefix + name + '/', out);
     }
     return out;
@@ -63,16 +31,14 @@
     if (!window.showDirectoryPicker) return null;
     let dir;
     try { dir = await window.showDirectoryPicker({ mode: 'read' }); } catch (e) { return []; }
-    return keepImages(await walkHandle(dir, '', []));
+    return walkHandle(dir, '', []);
   }
-  async function fromDrive() {
-    if (!window.SlopHub || !window.SlopHub.pickFromDrive) return [];
-    const picked = await window.SlopHub.pickFromDrive({ accept: ['image/*'], title: 'Import from Slop Drive' });
-    if (!picked) return [];
-    const rec = picked.blob ? picked : await window.SlopHub.get(picked.id);
-    if (!rec || !rec.blob) return [];
-    return keepImages([{ file: rec.blob, name: rec.name, driveId: rec.id }]);
-  }
+  /** The intake rules (camera RAW by extension once shared/raw is on the page). */
+  const rules = () => ({
+    types: ['image/*'],
+    exts: ['.jpg', '.jpeg', '.jpe', '.png', '.webp', '.gif', '.avif', '.bmp', '.heic', '.heif', '.svg', ...(window.SlopRaw ? window.SlopRaw.EXTS.map((e) => '.' + e) : [])],
+    noun: 'a photo',
+  });
 
-  G.source = { fromFiles, fromDrop, fromDirectory, fromDrive, mimeOf, isImage, EXT };
+  G.source = { fromDirectory, mimeOf, isImage, isVideo, rules, EXT };
 })();

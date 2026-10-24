@@ -1,4 +1,4 @@
-// Node tests for shared/drop (SlopDrop): the accept and refuse rules as a drop applies them, and attach() with a missing
+// Node tests for shared/drop (SlopDrop) on the intake pipeline (shared/intake): the accept and refuse rules as a drop applies them, and attach() with a missing
 // zone (returns null, no throw) and with a missing target (the null is skipped; with none left the zone takes drops).
 // The three classic scripts run in a vm context with a small fake DOM (elements record their listeners), so no browser
 // is needed. Run with: node tests/run.mjs drop   (or: node --test tests/node/drop.test.mjs)
@@ -39,22 +39,28 @@ function fakeElement(tag = 'div') {
 
 /** A fresh SlopDrop in a vm context: rules, panel and drop, run in order, over a fake document. */
 function load() {
-  const win = new EventTarget();
+  const win = new EventTarget(), docEvents = new EventTarget();
   const document = {
+    addEventListener: (...a) => docEvents.addEventListener(...a),
+    removeEventListener: (...a) => docEvents.removeEventListener(...a),
+    dispatchEvent: (e) => docEvents.dispatchEvent(e),
+    documentElement: { dataset: {} },
     createElement: (tag) => fakeElement(tag),
     getElementById: () => null,
     head: { appendChild() {} },
     body: fakeElement('body'),
   };
   const sandbox = {
-    console, document,
+    console, document, CustomEvent, File, AbortController, TextEncoder,
     addEventListener: (...a) => win.addEventListener(...a),
     removeEventListener: (...a) => win.removeEventListener(...a),
     dispatchEvent: (e) => win.dispatchEvent(e),
   };
   sandbox.window = sandbox;
   vm.createContext(sandbox);
-  for (const f of ['shared/drop/rules.js', 'shared/drop/panel.js', 'shared/drop/drop.js']) {
+  const files = ['shared/intake/rules.js', 'shared/intake/normalize.js', 'shared/intake/pipeline.js', 'shared/intake/intake.js',
+    'shared/intake/sources.js', 'shared/drop/panel.js', 'shared/drop/drop.js'];
+  for (const f of files) {
     vm.runInContext(read(f), sandbox, { filename: f });
   }
   return { SD: sandbox.SlopDrop, document };
@@ -84,7 +90,7 @@ describe('accept and refuse, through a drop', () => {
       zone.fire('drop', dropEvent([picture('a.png'), text('notes.txt'), picture('empty.png', 0)]));
     });
     assert.deepEqual(seen, ['a.png']);
-    assert.deepEqual(plain(summary.added), [{ name: 'a.png', value: 'a.png' }]);
+    assert.deepEqual(plain(summary.added.map(({ name, value }) => ({ name, value }))), [{ name: 'a.png', value: 'a.png' }]);
     assert.deepEqual(plain(summary.skipped), [
       { name: 'notes.txt', reason: 'notes.txt is not a picture' },
       { name: 'empty.png', reason: 'empty.png is empty' },
