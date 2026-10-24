@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Timesheets guide">
+<p class="l-side-app"><a href="/apps/timesheets/">Slop Timesheets</a></p>
+<p><a class="btn l-side-open" href="/timesheets/">Open Slop Timesheets</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/timesheets/free-timesheet/">Free timesheet</a></li><li><a href="/timesheets/billable-hours-tracker/" aria-current="page">Billable hours tracker</a></li><li><a href="/timesheets/toggl-alternative/">Free Toggl alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-timesheets">More with Slop Timesheets</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/timesheets/">Slop Timesheets</a> · free, in your browser</p>
 <h1>Track billable hours and invoice them</h1>
 <p class="lead">Log your hours against each customer at an hourly rate. When it is time to bill, tick the open hours and Slop Timesheets makes the draft invoice, one line per entry.</p>
 <p><a class="btn" href="/timesheets/">Bill your hours</a></p>
 
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Log each piece of work with a Customer, Project and Hourly rate, Billable ticked.</li><li>Open the Bill tab and pick the customer. Their open billable time is listed, all ticked.</li><li>Untick anything to leave for later and set the Tax rate %.</li><li>Choose Make draft invoice, then Open it in Slop Invoices to check and issue it.</li></ol>
 <p>Each entry becomes one invoice line with its date, project, description and hours, priced at minutes times rate. Billed time cannot be changed or deleted; void the invoice, or delete it while it is a draft, and the time is open again.</p>
 <p class="note">Your files stay on this device: Slop Timesheets runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Can I bill several customers at once?</h3>
 <p>One invoice is made per customer and currency. Pick each customer in the Bill tab in turn.</p>
 <h3>How is the amount rounded?</h3>
 <p>Each entry is priced as minutes times the hourly rate divided by 60, rounded to the cent.</p>
 <h3>Can I see hours per customer?</h3>
 <p>Yes. Hours by customer in Slop Reports shows the time logged for each customer and what the billable part is worth.</p>
-<h2>More with Slop Timesheets</h2>
+<h2 id="more-with-slop-timesheets">More with Slop Timesheets</h2>
 <ul><li><a href="/timesheets/free-timesheet/">A free timesheet with a timer</a></li><li><a href="/timesheets/toggl-alternative/">A free Toggl alternative, in your browser</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

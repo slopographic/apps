@@ -128,6 +128,26 @@ p { margin: 0 0 12px; }
 .l-doc .cards li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 0; overflow: hidden; background: var(--ink-2); }
 .l-doc .cards .thumb { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 6px; margin: 0 0 8px; background: var(--line); }
 
+/* the guide around each app (tools/seo/guide.mjs): the sidebar of the app's pages and this page's sections */
+.l-docs { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 40px; align-items: start; }
+.l-side { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; font-size: 14px; padding-top: 6px; }
+.l-side-fold > summary { display: none; }
+.l-side ul { list-style: none; margin: 0 0 14px; padding: 0; }
+.l-side li { margin: 0; }
+.l-side a { display: block; padding: 5px 10px; border-radius: 6px; color: var(--bone-dim); text-decoration: none; }
+.l-side a:hover { color: var(--bone); background: var(--ink-2); }
+.l-side a[aria-current="page"] { color: var(--bone); background: color-mix(in srgb, var(--slop) 14%, var(--ink)); font-weight: 600; }
+.l-side-app a { font-weight: 800; font-size: 16px; color: var(--bone); padding-left: 10px; }
+.l-side-h { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone-faint); margin: 14px 10px 6px; }
+.l-side .l-side-open { display: inline-block; margin: 4px 10px 6px; padding: 8px 14px; font-size: 14px; }
+.l-side .l-toc a { font-size: 13px; padding: 3px 10px; }
+.l-docs-main { min-width: 0; }
+@media (max-width: 899px) {
+  .l-docs { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .l-side { position: static; max-height: none; border: 1px solid var(--line); border-radius: 10px; padding: 0 8px; margin: 18px 0 8px; }
+  .l-side-fold > summary { display: list-item; cursor: pointer; padding: 10px 6px; font-weight: 600; color: var(--bone); }
+}
+
 /* comparison tables (tools/seo/roundups.mjs compareTables): our tool highlighted, the marks in colour, and the first
    column pinned while a wide table scrolls sideways */
 .l-doc table.cmp { font-size: 14px; min-width: 560px; }

@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Inventory guide">
+<p class="l-side-app"><a href="/apps/inventory/">Slop Inventory</a></p>
+<p><a class="btn l-side-open" href="/inventory/">Open Slop Inventory</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/inventory/inventory-spreadsheet-alternative/" aria-current="page">Inventory spreadsheet alternative</a></li><li><a href="/inventory/barcode-inventory-scanner/">Barcode inventory scanner</a></li><li><a href="/inventory/stock-count/">Stock count</a></li><li><a href="/inventory/low-stock-alerts/">Low stock alerts and reordering</a></li><li><a href="/inventory/sortly-alternative/">Free Sortly alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-inventory">More with Slop Inventory</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/inventory/">Slop Inventory</a> · free, in your browser</p>
 <h1>A free alternative to an inventory spreadsheet</h1>
 <p class="lead">Keep the simplicity of a sheet, with the stock maths done for you: every receipt, sale, transfer and count is a movement, so on-hand figures add up and the history is there.</p>
 <p><a class="btn" href="/inventory/">Import your stock list</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/inventory.jpg" alt="Slop Inventory open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Save your sheet as CSV with the columns SKU, Name, Price, and optionally EAN and Reorder level, in any order.</li><li>In the Data tab choose Import products from CSV… The preview counts new and updated products and lists any row with a problem; nothing is written until every row is right.</li><li>In the Stock tab, Receive the quantities you have, at each location.</li><li>Record sales, adjustments and transfers as they happen, or scan them with a barcode scanner.</li><li>See Stock value, Low stock and Stock value by product in Reports, and choose Export product list (CSV) when you need the sheet again.</li></ol>
 <p>A row whose SKU already exists updates that product, so you can keep editing prices in your spreadsheet and import again. An export imports back as it is.</p>
 <p class="note">Your files stay on this device: Slop Inventory runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Will my spreadsheet columns be understood?</h3>
 <p>The import reads SKU, EAN, Name, Price and Reorder level in any column order, with commas or semicolons. A file with a wrong row is refused as a whole and the report says which row and why.</p>
 <h3>How is stock value worked out?</h3>
 <p>On hand times the selling price, before tax. There is no cost price in this version, so it is a value at selling price.</p>
 <h3>Where is the data kept?</h3>
 <p>In this browser on this device, shared with Slop Orders and Slop Purchases. Nothing is uploaded. Download a full backup from the Data tab to keep a copy.</p>
-<h2>More with Slop Inventory</h2>
+<h2 id="more-with-slop-inventory">More with Slop Inventory</h2>
 <ul><li><a href="/inventory/barcode-inventory-scanner/">Scan barcodes into your inventory</a></li><li><a href="/inventory/stock-count/">Do a stock count (stocktake)</a></li><li><a href="/inventory/low-stock-alerts/">Low stock alerts and reorder levels</a></li><li><a href="/inventory/sortly-alternative/">A free Sortly alternative for stock tracking</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/tables.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/tables/">Slop Tables</a><br><span class="note">In development</span><br>Excel and Google Sheets, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/contacts.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/contacts/">Slop Contacts</a><br><span class="note">In development</span><br>Address book: vCard and CSV in and out, duplicates merged.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

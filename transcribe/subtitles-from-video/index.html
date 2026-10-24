@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Transcribe guide">
+<p class="l-side-app"><a href="/apps/transcribe/">Slop Transcribe</a></p>
+<p><a class="btn l-side-open" href="/transcribe/">Open Slop Transcribe</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/transcribe/audio-to-text/">Audio to text</a></li><li><a href="/transcribe/video-to-text/">Video to text</a></li><li><a href="/transcribe/subtitles-from-video/" aria-current="page">Subtitles from a video</a></li><li><a href="/transcribe/otter-ai-alternative/">Otter.ai alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-transcribe">More with Slop Transcribe</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/transcribe/">Slop Transcribe</a> · free, in your browser</p>
 <h1>Make subtitles (SRT or VTT) from a video</h1>
 <p class="lead">Drop a video or an audio track and get a subtitle file with a start and end time for every line. Whisper listens on your device, so the footage is never uploaded.</p>
 <p><a class="btn" href="/transcribe/?format=srt">Make subtitles</a></p>
 
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Open Slop Transcribe from this page: the format is already set to Subtitles (.srt). The first time, press Get more… and confirm the download of the Whisper tiny model (about 40 MB). It is kept in your browser for next time.</li><li>Drop the video or audio file on the page and press Transcribe.</li><li>Turn on Show times to check each segment with its start time.</li><li>Keep Subtitles (.srt), or choose Web subtitles (.vtt) for HTML5 video, and press Download.</li><li>Load the file in your video player or editor next to the video.</li></ol>
 <p>Subtitle files keep the segments exactly as Whisper heard them, with its timing. Corrections typed in the text box go into the Text and Word downloads, not into the subtitles; an SRT file is plain text, so a text editor can fix a line after you download it.</p>
 <p class="note">Your files stay on this device: Slop Transcribe runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>What is the difference between SRT and VTT?</h3>
 <p>Both are plain-text subtitle files with a start and end time for each line. SRT is the most widely accepted; WebVTT (.vtt) is the format HTML5 video players read.</p>
 <h3>Can I edit the subtitles here?</h3>
@@ -55,13 +67,16 @@
 <p>Choose one of the 99 languages Whisper knows in the Spoken language list, from Afrikaans to Yoruba, including English, Spanish, French, German, Chinese, Japanese and Arabic, or leave it on Detect. The subtitles are in the spoken language; there is no translation.</p>
 <h3>Is my video uploaded?</h3>
 <p>No. The sound is read and transcribed in your browser. Only the Whisper model is downloaded, once, from Hugging Face, and then kept in your browser.</p>
-<h2>More with Slop Transcribe</h2>
+<h2 id="more-with-slop-transcribe">More with Slop Transcribe</h2>
 <ul><li><a href="/transcribe/audio-to-text/">Transcribe audio to text: MP3, WAV, M4A and more</a></li><li><a href="/transcribe/video-to-text/">Transcribe a video to text</a></li><li><a href="/transcribe/otter-ai-alternative/">A free Otter.ai alternative that keeps your audio on your device</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/aitools.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/aitools/">Slop AI Tools</a><br><span class="note">Beta</span><br>OCR, speech to text, denoise, auto tags and portrait blur. On your device.</li><li><img class="thumb" src="/assets/shots/slopedit.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/slopedit/">SlopCut</a><br><span class="note">Beta</span><br>A video editor that never uploads your footage.</li><li><img class="thumb" src="/assets/shots/remix.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/remix/">Reel Remix</a><br><span class="note">In development</span><br>Clips and photos in, a random edit out, then fine-tune in SlopCut.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

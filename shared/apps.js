@@ -65,7 +65,7 @@
     A('tables', 'app', 'Slop Tables', 'tables/', 'Excel and Google Sheets, rebuilt for the browser.', { title: 'Spreadsheet editor', group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'text/tab-separated-values'],
       creates: [{ label: 'Spreadsheet', ext: 'stab', mime: 'application/x-slop-table' }],
-      features: ['300+ functions, several sheets, freeze panes', 'Saves XLSX and CSV, opens CSV', 'Templates to start from', 'Offline .html'],
+      features: ['300+ functions, charts and pivot tables', 'Opens XLSX, ODS and CSV; saves XLSX and CSV', 'Templates to start from', 'Offline .html'],
       shot: 'assets/shots/tables.jpg', icon: 'grid', status: 'building' }),
     A('slides', 'app', 'Slop Slides', 'slides/', 'Keynote and PowerPoint, rebuilt for the browser.', { title: 'Presentation editor', group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation', 'image/*'],

@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="SlopClean guide">
+<p class="l-side-app"><a href="/apps/clean/">SlopClean</a></p>
+<p><a class="btn l-side-open" href="/clean/">Open SlopClean</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/clean/remove-exif-data/" aria-current="page">Remove EXIF data</a></li><li><a href="/clean/remove-gps-from-photo/">Remove GPS location</a></li><li><a href="/clean/exif-viewer/">EXIF viewer</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slopclean">More with SlopClean</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/clean/">SlopClean</a> · free, in your browser</p>
 <h1>Remove EXIF data from a photo</h1>
 <p class="lead">Photos carry hidden data: the camera and its serial number, the date, the software, often the GPS position. SlopClean shows it all and removes it without touching the picture.</p>
 <p><a class="btn" href="/clean/">Remove photo metadata</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/clean.jpg" alt="SlopClean open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop the photos on the page, or choose Open pictures. Each one gets a card listing what it holds.</li><li>In What to remove, keep the categories ticked that should go. The colour profile and print size are kept unless you tick them.</li><li>Check the cards: each line is marked Removed or Kept.</li><li>Choose Copy and clean: download. Several photos come as a ZIP, and the copies are named (clean).</li></ol>
 
 <p class="note">Your files stay on this device: SlopClean runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Does removing EXIF lower the quality?</h3>
 <p>No. The metadata blocks are taken out and the picture data is copied byte for byte, so it is not compressed again.</p>
 <h3>Which formats work?</h3>
@@ -55,13 +67,16 @@
 <p>No. The cleaned files are copies; the originals stay as they were.</p>
 <h3>Are the photos uploaded?</h3>
 <p>No. Reading and cleaning happen in your browser.</p>
-<h2>More with SlopClean</h2>
+<h2 id="more-with-slopclean">More with SlopClean</h2>
 <ul><li><a href="/clean/remove-gps-from-photo/">Remove the location from a photo</a></li><li><a href="/clean/exif-viewer/">See the hidden data in a photo</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/photoslop.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/photoslop/">PhotoSlop</a><br><span class="note">Live</span><br>Photoshop, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/vector.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/vector/">SlopVector</a><br><span class="note">Live</span><br>Illustrator, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/cutout.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/cutout/">SlopIsolate</a><br><span class="note">Beta</span><br>Remove backgrounds with AI that runs on your device.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

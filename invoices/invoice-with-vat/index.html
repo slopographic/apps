@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Invoices guide">
+<p class="l-side-app"><a href="/apps/invoices/">Slop Invoices</a></p>
+<p><a class="btn l-side-open" href="/invoices/">Open Slop Invoices</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/invoices/free-invoice-generator/">Free invoice generator</a></li><li><a href="/invoices/invoice-with-vat/" aria-current="page">Invoice with VAT or sales tax</a></li><li><a href="/invoices/recurring-invoices/">Recurring invoices</a></li><li><a href="/invoices/credit-note/">Credit note</a></li><li><a href="/invoices/customer-statement/">Customer statement</a></li><li><a href="/invoices/wave-alternative/">Free Wave alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-invoices">More with Slop Invoices</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/invoices/">Slop Invoices</a> · free, in your browser</p>
 <h1>Make an invoice with VAT or sales tax</h1>
 <p class="lead">Each line has its own tax rate, so one invoice can mix rates (or zero). The totals list the tax for each rate, and the tax is posted to sales tax payable in your books when you issue it.</p>
 <p><a class="btn" href="/invoices/">Make a VAT invoice</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/invoices.jpg" alt="Slop Invoices open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>In Slop Admin, fill in the company profile: company name, address and Tax number (your VAT or GST number), and the default tax rate.</li><li>In Slop Invoices, choose New invoice and pick the customer.</li><li>Add the lines. Type the rate in Tax % on each line, such as 20, 5 or 0.</li><li>Check the totals: Subtotal (before tax), then a Tax line for each rate with the amount it is charged on, then the Total.</li><li>Issue… the invoice and choose Export PDF. The tax number is printed under your address.</li></ol>
 <p>The amounts are kept in whole cents (or pence), so the tax for each rate adds up exactly. Issuing posts the invoice to the ledger: receivables for the total, revenue for the subtotal and sales tax payable for the tax. Slop Reports then shows the tax collected and reclaimed by quarter.</p>
 <p class="note">Your files stay on this device: Slop Invoices runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Does it work for VAT, GST and US sales tax?</h3>
 <p>It works with any percentage tax added on top of the price. The word on the invoice is &quot;Tax&quot;, with the rate, so it suits VAT, GST or sales tax. Check your own country's invoice rules.</p>
 <h3>Can one invoice have several tax rates?</h3>
@@ -55,13 +67,16 @@
 <p>Type it as Tax number in the company profile in Slop Admin. It appears under your address on the invoice, the PDF and the footer.</p>
 <h3>Can I see how much tax to pay?</h3>
 <p>Yes. The Sales tax by quarter report in Slop Reports sets the tax on issued invoices against the tax to reclaim on expenses. Check it with your accountant before you file.</p>
-<h2>More with Slop Invoices</h2>
+<h2 id="more-with-slop-invoices">More with Slop Invoices</h2>
 <ul><li><a href="/invoices/free-invoice-generator/">Free invoice generator with templates and PDF</a></li><li><a href="/invoices/recurring-invoices/">Recurring invoices every week or month</a></li><li><a href="/invoices/credit-note/">Make a credit note for an invoice</a></li><li><a href="/invoices/customer-statement/">Customer statement and payment reminders</a></li><li><a href="/invoices/wave-alternative/">A free Wave alternative for invoicing, in your browser</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

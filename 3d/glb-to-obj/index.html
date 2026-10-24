@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop 3D guide">
+<p class="l-side-app"><a href="/apps/3d/">Slop 3D</a></p>
+<p><a class="btn l-side-open" href="/3d/">Open Slop 3D</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/3d/glb-viewer/">GLB and OBJ viewer</a></li><li><a href="/3d/glb-to-obj/" aria-current="page">GLB to OBJ converter</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-3d">More with Slop 3D</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/3d/">Slop 3D</a> · free, in your browser</p>
 <h1>Convert GLB to OBJ</h1>
 <p class="lead">Some tools only take OBJ. Import your GLB or glTF into Slop 3D, check it in the viewport, and export it as OBJ, with no converter to install.</p>
 <p><a class="btn" href="/3d/">Convert a GLB</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/3d.jpg" alt="Slop 3D open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Choose Import and pick the .glb or .gltf file.</li><li>Check the model in the viewport, and delete or move parts if you need to.</li><li>Choose Export &gt; Export OBJ….</li></ol>
 
 <p class="note">Your files stay on this device: Slop 3D runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>What does the OBJ contain?</h3>
 <p>Vertex positions, normals and faces. No UV coordinates, no MTL file and no materials, so colours and textures are not carried over.</p>
 <h3>Can I convert OBJ to GLB?</h3>
 <p>Not yet. Slop 3D exports OBJ and its own .s3d scene format, but not GLB.</p>
 <h3>Is the file uploaded?</h3>
 <p>No. The conversion happens in your browser.</p>
-<h2>More with Slop 3D</h2>
+<h2 id="more-with-slop-3d">More with Slop 3D</h2>
 <ul><li><a href="/3d/glb-viewer/">Open and view GLB, glTF and OBJ files</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/photoslop.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/photoslop/">PhotoSlop</a><br><span class="note">Live</span><br>Photoshop, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/vector.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/vector/">SlopVector</a><br><span class="note">Live</span><br>Illustrator, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/cutout.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/cutout/">SlopIsolate</a><br><span class="note">Beta</span><br>Remove backgrounds with AI that runs on your device.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

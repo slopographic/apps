@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop EML guide">
+<p class="l-side-app"><a href="/apps/eml/">Slop EML</a></p>
+<p><a class="btn l-side-open" href="/eml/">Open Slop EML</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/eml/open-eml-file/" aria-current="page">Open an EML file</a></li><li><a href="/eml/eml-to-pdf/">EML to PDF</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-eml">More with Slop EML</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/eml/">Slop EML</a> · free, in your browser</p>
 <h1>Open an .eml email file</h1>
 <p class="lead">An .eml file is one saved email. Drop it here to read it as it was sent: sender, date, subject, the HTML or text body, and the attachments.</p>
 <p><a class="btn" href="/eml/">Open an EML file</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/eml.jpg" alt="Slop EML open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop the .eml file on the page, or choose Open. Several messages open in tabs.</li><li>Read the headers and the body. Switch between HTML and Plain text when the message has both.</li><li>Choose Show embedded images to see pictures that are inside the message.</li><li>Select attachments and choose Download selected, or Download all.</li></ol>
 
 <p class="note">Your files stay on this device: Slop EML runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Will the email load tracking pictures?</h3>
 <p>No. Remote images stay blocked and nothing loads from the network, so the sender cannot see that you opened it.</p>
 <h3>Can it open Outlook .msg files?</h3>
@@ -55,13 +67,16 @@
 <p>One attachment downloads as it is. Two or more go into one ZIP named after the message.</p>
 <h3>Is the email uploaded?</h3>
 <p>No. The file is read in this page and never leaves your device.</p>
-<h2>More with Slop EML</h2>
+<h2 id="more-with-slop-eml">More with Slop EML</h2>
 <ul><li><a href="/eml/eml-to-pdf/">Convert an EML email to PDF</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Reports guide">
+<p class="l-side-app"><a href="/apps/reports/">Slop Reports</a></p>
+<p><a class="btn l-side-open" href="/reports/">Open Slop Reports</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/reports/sales-tax-report/">Sales tax and VAT report</a></li><li><a href="/reports/cash-flow-report/" aria-current="page">Cash flow report</a></li><li><a href="/reports/unpaid-invoices-report/">Unpaid invoices report</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-reports">More with Slop Reports</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/reports/">Slop Reports</a> · free, in your browser</p>
 <h1>Cash flow report by month</h1>
 <p class="lead">Profit is not cash. This report shows, month by month, the money that actually came into your bank and cash accounts and the money that went out.</p>
 <p><a class="btn" href="/reports/?report=cash-flow">Open the cash flow report</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/reports.jpg" alt="Slop Reports open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Record payments on invoices in Slop Invoices and paid expenses in Slop Expenses.</li><li>Open Slop Reports. Cash flow by month opens from this page.</li><li>Read money in, money out and the net for each month.</li><li>Choose Export CSV for a spreadsheet.</li></ol>
 
 <p class="note">Your files stay on this device: Slop Reports runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Why is it different from profit?</h3>
 <p>Profit counts an invoice when it is issued; cash flow counts it when it is paid. Unpaid invoices and unpaid bills are in profit but not yet in cash flow.</p>
 <h3>Are moves between accounts counted?</h3>
 <p>No. A transfer between cash and the bank is left out, because no money came in or went out of the business.</p>
 <h3>Can I see profit by month too?</h3>
 <p>Yes. Pick Profit by month in the same list, or see the full profit and loss statement in Slop Ledger.</p>
-<h2>More with Slop Reports</h2>
+<h2 id="more-with-slop-reports">More with Slop Reports</h2>
 <ul><li><a href="/reports/sales-tax-report/">Sales tax and VAT report by quarter</a></li><li><a href="/reports/unpaid-invoices-report/">Unpaid invoices report by customer</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/ocr.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ocr/">Slop OCR</a><br><span class="note">Beta</span><br>Read text from images and scanned PDFs on your device. Nothing uploaded.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

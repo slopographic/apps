@@ -6,6 +6,7 @@
 //   roundupPages(apps, site, ROUNDUPS) -> [{ key, dir, url, html, r }]
 //   roundupJsonLd(r, url, site) -> Article, ItemList, BreadcrumbList and FAQPage
 import { esc, shell } from './landing.mjs';
+import { appNav, withToc, docsLayout } from './guide.mjs';
 
 const MONTH = /^20\d\d-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 export function checkRoundup(r, apps) {
@@ -84,13 +85,15 @@ export function roundupJsonLd(r, url, site) {
   ];
 }
 
-export function roundupPages(apps, site, ROUNDUPS) {
+export function roundupPages(apps, site, ROUNDUPS, { TASKS = [], GUIDES = [] } = {}) {
   const seen = new Set();
   return ROUNDUPS.map((r) => {
     checkRoundup(r, apps);
     if (seen.has(r.slug)) throw new Error(`roundup ${r.slug}: listed twice`);
     seen.add(r.slug);
-    return { key: `best/${r.slug}`, dir: `best/${r.slug}/`, url: `${site}/best/${r.slug}/`, html: shell(body(r, apps)), r };
+    const a = app(apps, r.app), { body: b, toc } = withToc(body(r, apps));
+    const nav = appNav(a, { tasks: TASKS.filter((t) => t.app === r.app), roundups: ROUNDUPS.filter((x) => x.app === r.app), guides: GUIDES.filter((g) => g.app === r.app) }, `/best/${r.slug}/`);
+    return { key: `best/${r.slug}`, dir: `best/${r.slug}/`, url: `${site}/best/${r.slug}/`, html: shell(docsLayout(nav, toc, b)), r };
   });
 }
 

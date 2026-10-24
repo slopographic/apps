@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Reminders guide">
+<p class="l-side-app"><a href="/apps/reminders/">Slop Reminders</a></p>
+<p><a class="btn l-side-open" href="/reminders/">Open Slop Reminders</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/reminders/online-reminder/" aria-current="page">Set a reminder online</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/reminders/">Slop Reminders</a> · free, in your browser</p>
 <h1>Set a reminder in your browser</h1>
 <p class="lead">Type what to remember, pick a date and a time, and Slop Reminders tells you when it is due. Reminders from Slop Calendar and Slop To-do show on the same timeline.</p>
 <p><a class="btn" href="/reminders/">Open Slop Reminders</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/reminders.jpg" alt="Slop Reminders open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Open Slop Reminders and press Allow browser notifications if you want them outside the page.</li><li>Type what to remember in Custom reminder, such as Call the bank back.</li><li>Pick the Date and Time and press Add reminder.</li><li>When it is due, a pop-up appears. Snooze it for 5 minutes, 1 hour or until tomorrow, or press Dismiss.</li><li>See everything under Overdue, Today and Later. Show dismissed brings back the ones you closed.</li></ol>
 
 <p class="note">Your files stay on this device: Slop Reminders runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Will it remind me if the browser is closed?</h3>
 <p>No. Reminders are checked while Slop Reminders, Calendar or To-do is open in a tab, so keep one open. With notifications allowed, they reach you while that tab is in the background.</p>
 <h3>Where do the reminders come from?</h3>
@@ -54,11 +66,14 @@
 <h3>Is anything sent to a server?</h3>
 <p>No. Reminders are stored in this browser and checked by the page itself; nothing uses the network.</p>
 
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

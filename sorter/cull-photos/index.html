@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Photo Sorter guide">
+<p class="l-side-app"><a href="/apps/sorter/">Slop Photo Sorter</a></p>
+<p><a class="btn l-side-open" href="/sorter/">Open Slop Photo Sorter</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/sorter/cull-photos/" aria-current="page">Cull photos fast</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/sorter/">Slop Photo Sorter</a> · free, in your browser</p>
 <h1>Cull a photo shoot with the arrow keys</h1>
 <p class="lead">After a wedding, an event or a holiday, the slow part is picking. Slop Photo Sorter shows one photo at a time and takes one key per decision, so you get through hundreds quickly and download only the keepers.</p>
 <p><a class="btn" href="/sorter/">Start culling</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/sorter.jpg" alt="Slop Photo Sorter open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop your photos on the page, or use Choose a folder… for a whole folder and its subfolders.</li><li>Press Start sorting. Press ↑ to like and ↓ to dislike; each moves to the next photo.</li><li>Press → to skip ahead and ← to go back. Type a letter to add tags, such as &quot;print&quot; or &quot;client&quot;.</li><li>Use the filters (Liked, Disliked, Not sorted yet or a tag) to review your picks.</li><li>Choose Download liked (ZIP), Save liked to Slop Drive, or Download the list (CSV).</li></ol>
 <p>The CSV lists every photo with its folder, the decision and its tags, which helps when you hand a selection to a client or an editor. The photos stay as they were: the ZIP holds the original files.</p>
 <p class="note">Your files stay on this device: Slop Photo Sorter runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Is my progress saved if I close the page?</h3>
 <p>No. Photos and decisions are kept only while the page is open, and the page warns you before you leave. Download the list or the liked photos first.</p>
 <h3>Can I change my mind about a photo?</h3>
@@ -56,11 +68,14 @@
 <h3>Are my photos uploaded?</h3>
 <p>No. They are opened in your browser and never sent anywhere.</p>
 
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/photoslop.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/photoslop/">PhotoSlop</a><br><span class="note">Live</span><br>Photoshop, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/vector.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/vector/">SlopVector</a><br><span class="note">Live</span><br>Illustrator, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/cutout.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/cutout/">SlopIsolate</a><br><span class="note">Beta</span><br>Remove backgrounds with AI that runs on your device.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

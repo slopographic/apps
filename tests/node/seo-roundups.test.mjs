@@ -1,7 +1,7 @@
 // Round-up pages (tools/seo/roundups.mjs, copy in shared/seo/roundups/): the checks that keep them fair and sourced,
 // the page (disclosure, criteria, table, sources, trademark note) and the JSON-LD.
-// Covers: tools/seo/roundups.mjs, shared/seo/roundups/index.mjs, shared/seo/roundups/creative.mjs, shared/seo/roundups/documents.mjs,
-//   shared/seo/roundups/business.mjs
+// Covers: tools/seo/guide.mjs, tools/seo/roundups.mjs, shared/seo/roundups/index.mjs, shared/seo/roundups/creative.mjs, shared/seo/roundups/documents.mjs,
+//   shared/seo/roundups/documents-2.mjs, shared/seo/roundups/documents-3.mjs, shared/seo/roundups/documents-4.mjs, shared/seo/roundups/business.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -33,7 +33,7 @@ test('the page says which tool is ours, how they were compared, and links each s
   const [p] = R.roundupPages(apps, SITE, [good]);
   assert.equal(p.dir, 'best/free-pdf-editors/');
   assert.match(p.html, /We make Slop PDF, one of the tools on this page/);
-  assert.match(p.html, /<h2>How we compared them<\/h2>/);
+  assert.match(p.html, /<h2 id="how-we-compared-them">How we compared them<\/h2>/);
   assert.match(p.html, /<a href="https:\/\/alpha\.example\/pricing" rel="noopener nofollow">Alpha pricing<\/a>/);
   assert.match(p.html, /<a class="btn" href="\/pdf\/">Open Slop PDF<\/a>/);
   assert.match(p.html, /trademarks of their owners/);
@@ -68,7 +68,22 @@ test('the feature matrix: one value per tool, shown with marks, and the same tab
   assert.match(html, /<tr class="us"><th scope="row">Slop PDF <span class="l-badge">ours<\/span>/);
   const L = await import(pathToFileURL(path.join(ROOT, 'tools/seo/landing.mjs')).href);
   const page = L.landingPages(apps, SITE, new Proxy({}, { get: () => ({ title: 't', description: 'd' }) }), [], [withMatrix]).find((p) => p.key === 'pdf');
-  assert.match(page.html, /<h2>How Slop PDF compares<\/h2>/);
+  assert.match(page.html, /<h2 id="how-slop-pdf-compares">How Slop PDF compares<\/h2>/);
   assert.ok(page.html.includes(R.compareTables(withMatrix)));
   assert.match(page.html, /href="\/best\/free-pdf-editors\/"/);
+});
+
+test('the guide: a sidebar of the app\'s pages on its landing, task and comparison pages, with this page marked and its sections listed', async () => {
+  const G = await import(pathToFileURL(path.join(ROOT, 'tools/seo/guide.mjs')).href);
+  const pdf = apps.find((a) => a.id === 'pdf');
+  const nav = G.appNav(pdf, { tasks: [{ slug: 'sign-pdf', h1: 'Sign a PDF', crumb: 'Sign a PDF' }], roundups: [good] }, '/pdf/sign-pdf/');
+  assert.match(nav, /<a href="\/pdf\/sign-pdf\/" aria-current="page">Sign a PDF<\/a>/);
+  assert.match(nav, /<a href="\/best\/free-pdf-editors\/">Best free PDF editors<\/a>/);
+  assert.match(nav, /Video tutorial/);   // Slop PDF has a tutorial in the registry
+  assert.match(nav, /<a class="btn l-side-open" href="\/pdf\/">Open Slop PDF<\/a>/);
+  const { body, toc } = G.withToc('<h2>One</h2><p>x</p><h2 id="keep">Two</h2><h2>One</h2>');
+  assert.deepEqual(toc.map((t) => t.id), ['one', 'keep', 'one-2']);
+  assert.match(body, /<h2 id="one">One<\/h2>/);
+  assert.match(G.docsLayout(nav, toc, body), /<p class="l-side-h">On this page<\/p>/);
+  assert.doesNotMatch(G.docsLayout(nav, toc.slice(0, 2), body), /On this page/);   // short pages need no list
 });

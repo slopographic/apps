@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Hex guide">
+<p class="l-side-app"><a href="/apps/hex/">Slop Hex</a></p>
+<p><a class="btn l-side-open" href="/hex/">Open Slop Hex</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/hex/hex-viewer/">Hex viewer</a></li><li><a href="/hex/identify-file-type/" aria-current="page">Identify a file type</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-hex">More with Slop Hex</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/hex/">Slop Hex</a> · free, in your browser</p>
 <h1>Identify a file by its magic bytes</h1>
 <p class="lead">A file with no extension, or the wrong one? Most formats start with a known signature. Open the file to see its type and the bytes that give it away.</p>
 <p><a class="btn" href="/hex/">Identify a file</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/hex.jpg" alt="Slop Hex open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop the file on the page.</li><li>Read the Type line: it names the format from the file's first bytes, or says text or binary.</li><li>Look at the first row of the hex column to see the signature itself, such as 25 50 44 46 for a PDF.</li><li>Rename the file with the right extension and open it in the app it belongs to.</li></ol>
 
 <p class="note">Your files stay on this device: Slop Hex runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Which formats are recognised?</h3>
 <p>Common ones such as PNG, JPEG, GIF, WebP, PDF, ZIP, ELF and Windows MZ (.exe) programs, WAV, MP4 and SQLite. Anything else is shown as text or binary.</p>
 <h3>Can a file fake its type?</h3>
 <p>The signature is only the first few bytes, so it tells you the format a file claims to be, not whether it is safe. Be careful with programs from unknown senders.</p>
 <h3>Is the file uploaded?</h3>
 <p>No. Only your browser reads it, and the file is not run.</p>
-<h2>More with Slop Hex</h2>
+<h2 id="more-with-slop-hex">More with Slop Hex</h2>
 <ul><li><a href="/hex/hex-viewer/">View a file in hex</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

@@ -37,17 +37,29 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Invoices guide">
+<p class="l-side-app"><a href="/apps/invoices/">Slop Invoices</a></p>
+<p><a class="btn l-side-open" href="/invoices/">Open Slop Invoices</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/invoices/free-invoice-generator/" aria-current="page">Free invoice generator</a></li><li><a href="/invoices/invoice-with-vat/">Invoice with VAT or sales tax</a></li><li><a href="/invoices/recurring-invoices/">Recurring invoices</a></li><li><a href="/invoices/credit-note/">Credit note</a></li><li><a href="/invoices/customer-statement/">Customer statement</a></li><li><a href="/invoices/wave-alternative/">Free Wave alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-invoices">More with Slop Invoices</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/invoices/">Slop Invoices</a> · free, in your browser</p>
 <h1>Free invoice generator with templates and PDF</h1>
 <p class="lead">Write an invoice, issue it with the next number, and download a PDF or print it. Slop Invoices keeps your customers, invoices and payments in this browser, with no account to make.</p>
 <p><a class="btn" href="/invoices/">Make an invoice</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/invoices.jpg" alt="Slop Invoices open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Choose New invoice, then pick a customer or add one with New customer.</li><li>Choose Add line for each item: description, Qty, Unit price, Tax % and Discount %. The totals show the subtotal, the tax at each rate and the total.</li><li>Set the invoice date and the due date (it starts at the date plus your payment terms), add any notes, and Save.</li><li>Choose Issue… to give the invoice its number (INV-0001, then INV-0002 and on, with no gaps).</li><li>Choose Export PDF for an A4 file in the invoice's template, or Preview / print to print it.</li><li>When the customer pays, choose Record payment… A part payment leaves the rest owing; the last one marks it Paid.</li></ol>
 <p>Five templates are built in: classic, modern, minimal, bold header and side bar. Your company name, address and tax number come from the company profile in Slop Admin and appear on every invoice and PDF.</p>
 <p>Your data is kept in this browser on this device. Download a full backup from the Data tab now and then, and restore it on another computer if you move.</p>
 <p class="note">Your files stay on this device: Slop Invoices runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Is it really free, with no account?</h3>
 <p>Yes. Slop Invoices runs in your browser. There is no sign-up, no limit on the number of invoices, and no watermark on the PDF.</p>
 <h3>Where are my invoices stored?</h3>
@@ -56,13 +68,16 @@
 <p>No: an issued invoice is read only, as books need. While it has no payments you can void it (the number stays used), or take money back with a credit note.</p>
 <h3>Can I start from an order or a quote?</h3>
 <p>Yes. From an order… makes a draft from a confirmed or fulfilled order in Slop Orders, and an accepted quote in Slop Quotes becomes a draft invoice in one click.</p>
-<h2>More with Slop Invoices</h2>
+<h2 id="more-with-slop-invoices">More with Slop Invoices</h2>
 <ul><li><a href="/invoices/invoice-with-vat/">Make an invoice with VAT or sales tax</a></li><li><a href="/invoices/recurring-invoices/">Recurring invoices every week or month</a></li><li><a href="/invoices/credit-note/">Make a credit note for an invoice</a></li><li><a href="/invoices/customer-statement/">Customer statement and payment reminders</a></li><li><a href="/invoices/wave-alternative/">A free Wave alternative for invoicing, in your browser</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

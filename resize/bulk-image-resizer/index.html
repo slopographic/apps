@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Resize guide">
+<p class="l-side-app"><a href="/apps/resize/">Slop Resize</a></p>
+<p><a class="btn l-side-open" href="/resize/">Open Slop Resize</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/resize/bulk-image-resizer/" aria-current="page">Bulk image resizer</a></li><li><a href="/resize/compress-image-to-100kb/">Compress image to 100 KB</a></li><li><a href="/resize/resize-video/">Resize a video</a></li><li><a href="/resize/pixel-art-scaler/">Pixel art scaler</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-resize">More with Slop Resize</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/resize/">Slop Resize</a> · free, in your browser</p>
 <h1>Resize many images at once</h1>
 <p class="lead">Drop dozens or hundreds of photos and give them all the same size: a width, a height, a long edge or a percentage. Slop Resize does them one by one on your device and hands you a ZIP.</p>
 <p><a class="btn" href="/resize/?long=1920&amp;format=jpg">Resize images in bulk</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/resize.jpg" alt="Slop Resize open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop your photos on the page, or choose Open…. Each one joins the queue.</li><li>Under Resize by, pick Width and height, Percentage or Long edge, and type the size. Long edge 1920 is set for you.</li><li>Choose the Picture format (JPEG, PNG, WebP or AVIF where your browser can write it) and the quality.</li><li>Press Resize all (Ctrl+Enter). Each row shows the size before and after.</li><li>Choose Download all (zip) to get every result in one file.</li></ol>
 <p>Long edge is the easy choice for a mixed batch: portrait and landscape photos both end up with their longer side at the size you pick, and keep their shape. The originals are never changed; the results are copies named like photo-1920x1280.jpg.</p>
 <p class="note">Your files stay on this device: Slop Resize runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>How many images can I resize at once?</h3>
 <p>There is no fixed number. The queue works through the files one at a time on your device, so a big batch just takes longer.</p>
 <h3>Will the photos keep their proportions?</h3>
@@ -55,13 +67,16 @@
 <p>No. Every picture is decoded, resized and encoded in your browser.</p>
 <h3>Can I save my settings for next time?</h3>
 <p>Yes. Save the settings as a preset; they are kept in Slop Drive, or in this browser without it.</p>
-<h2>More with Slop Resize</h2>
+<h2 id="more-with-slop-resize">More with Slop Resize</h2>
 <ul><li><a href="/resize/compress-image-to-100kb/">Compress an image to 100 KB or less</a></li><li><a href="/resize/resize-video/">Resize a video to 1080p, 720p or any size</a></li><li><a href="/resize/pixel-art-scaler/">Scale up pixel art without blurring it</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/aitools.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/aitools/">Slop AI Tools</a><br><span class="note">Beta</span><br>OCR, speech to text, denoise, auto tags and portrait blur. On your device.</li><li><img class="thumb" src="/assets/shots/remix.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/remix/">Reel Remix</a><br><span class="note">In development</span><br>Clips and photos in, a random edit out, then fine-tune in SlopCut.</li><li><img class="thumb" src="/assets/shots/slopedit.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/slopedit/">SlopCut</a><br><span class="note">Beta</span><br>A video editor that never uploads your footage.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

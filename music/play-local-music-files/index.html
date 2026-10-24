@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Music guide">
+<p class="l-side-app"><a href="/apps/music/">Slop Music</a></p>
+<p><a class="btn l-side-open" href="/music/">Open Slop Music</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/music/play-local-music-files/" aria-current="page">Play your own music files</a></li><li><a href="/music/flac-player/">FLAC player</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-music">More with Slop Music</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/music/">Slop Music</a> · free, in your browser</p>
 <h1>Play your own music files in your browser</h1>
 <p class="lead">Add the songs you already have and Slop Music builds a library from their tags, with covers, playlists, shuffle and repeat. Nothing streams and nothing is uploaded.</p>
 <p><a class="btn" href="/music/">Open Slop Music</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/music.jpg" alt="Slop Music open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Open Slop Music and press Add files…, or drop audio files on the Library.</li><li>Tracks show their title, artist, album and cover from their ID3 tags. Sort them or search.</li><li>Click a track to play it. Now playing has a waveform you can click to seek, with shuffle, repeat, speed and volume.</li><li>On Playlists, press New playlist, add tracks and drag them into order.</li><li>Use your keyboard's media keys, or the lock screen controls, while it plays.</li></ol>
 
 <p class="note">Your files stay on this device: Slop Music runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Which formats play?</h3>
 <p>MP3, WAV, AAC or M4A and FLAC in the major browsers; Ogg Vorbis and Opus in Chrome, Edge and Firefox. Your browser does the decoding, so a file it cannot play still shows, with a note.</p>
 <h3>Where are my songs kept?</h3>
@@ -55,13 +67,16 @@
 <p>No. Slop Music plays your files: there are no lyrics, no equaliser, and no streaming, radio or podcasts.</p>
 <h3>Can I try it without my own files?</h3>
 <p>Yes. With an empty library, press Try it with 3 sample tracks.</p>
-<h2>More with Slop Music</h2>
+<h2 id="more-with-slop-music">More with Slop Music</h2>
 <ul><li><a href="/music/flac-player/">Play FLAC files in your browser</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/photoslop.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/photoslop/">PhotoSlop</a><br><span class="note">Live</span><br>Photoshop, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/vector.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/vector/">SlopVector</a><br><span class="note">Live</span><br>Illustrator, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/cutout.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/cutout/">SlopIsolate</a><br><span class="note">Beta</span><br>Remove backgrounds with AI that runs on your device.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

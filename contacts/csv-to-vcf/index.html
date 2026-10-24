@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Contacts guide">
+<p class="l-side-app"><a href="/apps/contacts/">Slop Contacts</a></p>
+<p><a class="btn l-side-open" href="/contacts/">Open Slop Contacts</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/contacts/vcf-to-csv/">VCF to CSV</a></li><li><a href="/contacts/csv-to-vcf/" aria-current="page">CSV to VCF</a></li><li><a href="/contacts/merge-duplicate-contacts/">Merge duplicate contacts</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-contacts">More with Slop Contacts</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/contacts/">Slop Contacts</a> · free, in your browser</p>
 <h1>Convert a CSV contact list to VCF (vCard)</h1>
 <p class="lead">Have your contacts in a spreadsheet? Import the CSV, tell Slop Contacts which column is which, and export one .vcf file that phones and mail apps can import.</p>
 <p><a class="btn" href="/contacts/">Convert a CSV file</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/contacts.jpg" alt="Slop Contacts open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Save the sheet as CSV, then drop it on the contact list or choose Import.</li><li>Check the column mapping: name, first and last name, company, job title, e-mail, phone, address, notes, groups, birthday, website, or do not import.</li><li>Look over the preview and choose Import.</li><li>Choose Export, then vCard 3.0 (.vcf), one file for iOS and Android, or vCard 4.0.</li><li>Open or import the .vcf on your phone or in your mail app.</li></ol>
 <p>Several e-mail or phone columns each add a value, and address columns are joined into one line. Not sure of the layout? Download example CSV in the import dialog shows one that works.</p>
 <p class="note">Your files stay on this device: Slop Contacts runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Will it work with a Google or Outlook CSV?</h3>
 <p>Yes. Their column names are guessed, and Google group labels such as &quot;* myContacts ::: Friends&quot; become groups.</p>
 <h3>Can I make one file per contact?</h3>
 <p>Yes. In Export, choose vCard 3.0, one file per contact (.zip), to get a ZIP with a .vcf for each person.</p>
 <h3>Has the result been tested in every phone?</h3>
 <p>The files follow the vCard standard, but we have not tried every phone and app. Import a few contacts first and check them before a large import.</p>
-<h2>More with Slop Contacts</h2>
+<h2 id="more-with-slop-contacts">More with Slop Contacts</h2>
 <ul><li><a href="/contacts/vcf-to-csv/">Convert VCF (vCard) contacts to CSV</a></li><li><a href="/contacts/merge-duplicate-contacts/">Find and merge duplicate contacts</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/tables.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/tables/">Slop Tables</a><br><span class="note">In development</span><br>Excel and Google Sheets, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/inventory.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/inventory/">Slop Inventory</a><br><span class="note">In development</span><br>Products, stock and barcode scanning. Nothing uploaded.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

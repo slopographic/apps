@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Calendar guide">
+<p class="l-side-app"><a href="/apps/calendar/">Slop Calendar</a></p>
+<p><a class="btn l-side-open" href="/calendar/">Open Slop Calendar</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/calendar/open-ics-file/" aria-current="page">Open an .ics file</a></li><li><a href="/calendar/google-calendar-alternative/">Google Calendar alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-calendar">More with Slop Calendar</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/calendar/">Slop Calendar</a> · free, in your browser</p>
 <h1>Open an .ics calendar file</h1>
 <p class="lead">Got an invitation or a calendar export as an .ics file? Open it in Slop Calendar to see what is in it before anything is added, then view the events by month, week, day or agenda.</p>
 <p><a class="btn" href="/calendar/">Open Slop Calendar</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/calendar.jpg" alt="Slop Calendar open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Open Slop Calendar and press Import .ics.</li><li>Drop the .ics file on the dialog, or choose it.</li><li>Read the preview: how many events will be added, how many are already here, and any warnings.</li><li>Press Add to bring them in, or Cancel to leave your calendar as it was.</li><li>Browse them in Month, Week, Day or Agenda view. Export .ics writes every event back to a file.</li></ol>
 
 <p class="note">Your files stay on this device: Slop Calendar runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Will importing the same file twice make duplicates?</h3>
 <p>No. Events whose UID is already in your calendar are skipped, and the preview tells you how many.</p>
 <h3>What is kept from the file?</h3>
 <p>Title, start and end, location, description, time zone, reminders, and repeats by day, week, month or year. More complex repeat rules come in as a simple repeat, and the preview warns you.</p>
 <h3>Is the file uploaded?</h3>
 <p>No. The file is read in your browser and the events are stored on this device. Nothing is written until you confirm.</p>
-<h2>More with Slop Calendar</h2>
+<h2 id="more-with-slop-calendar">More with Slop Calendar</h2>
 <ul><li><a href="/calendar/google-calendar-alternative/">A private Google Calendar alternative</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

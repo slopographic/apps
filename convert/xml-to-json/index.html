@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="File convert guide">
+<p class="l-side-app"><a href="/apps/convert/">File convert</a></p>
+<p><a class="btn l-side-open" href="/convert/">Open File convert</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/convert/pdf-to-word/">PDF to Word</a></li><li><a href="/convert/pdf-to-excel/">PDF to Excel</a></li><li><a href="/convert/pdf-to-powerpoint/">PDF to PowerPoint</a></li><li><a href="/convert/avif-to-jpg/">AVIF to JPG</a></li><li><a href="/convert/ics-to-csv/">ICS to CSV</a></li><li><a href="/convert/xml-to-json/" aria-current="page">XML to JSON</a></li><li><a href="/convert/cloudconvert-alternative/">CloudConvert alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-file-convert">More with File convert</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/convert/">File convert</a> · free, in your browser</p>
 <h1>Convert XML to JSON</h1>
 <p class="lead">Turn an XML feed, export or config file into JSON you can read in code. The structure is kept: every element, its attributes, its text and its children.</p>
 <p><a class="btn" href="/convert/?to=xml-to-json">Convert XML to JSON</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/convert.jpg" alt="File convert open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop the .xml file on the page.</li><li>XML to JSON is chosen for you. Choose Convert.</li><li>Download the .json file, indented for reading.</li></ol>
 
 <p class="note">Your files stay on this device: File convert runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>What does the JSON look like?</h3>
 <p>Each element is an object such as { &quot;name&quot;: &quot;item&quot;, &quot;attributes&quot;: { &quot;id&quot;: &quot;1&quot; }, &quot;text&quot;: &quot;…&quot;, &quot;children&quot;: [ … ] }, so nothing in the XML is lost.</p>
 <h3>What if my XML is broken?</h3>
 <p>The converter says the XML could not be read and asks you to check it is well formed, instead of writing a half-finished file.</p>
 <h3>Is the file uploaded?</h3>
 <p>No. The XML is parsed by your browser and the JSON is written on your device.</p>
-<h2>More with File convert</h2>
+<h2 id="more-with-file-convert">More with File convert</h2>
 <ul><li><a href="/convert/pdf-to-word/">Convert a PDF to Word (DOCX)</a></li><li><a href="/convert/pdf-to-excel/">Convert a PDF to Excel (XLSX)</a></li><li><a href="/convert/pdf-to-powerpoint/">Convert a PDF to PowerPoint (PPTX)</a></li><li><a href="/convert/avif-to-jpg/">Convert AVIF to JPG</a></li><li><a href="/convert/ics-to-csv/">Convert an ICS calendar to CSV</a></li><li><a href="/convert/cloudconvert-alternative/">A free CloudConvert alternative that stays on your device</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/press.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/press/">Slop Press</a><br><span class="note">Beta</span><br>InDesign, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/code.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/code/">Slop Code</a><br><span class="note">In development</span><br>A code editor for your Slop Drive files. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

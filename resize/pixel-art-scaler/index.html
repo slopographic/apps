@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Resize guide">
+<p class="l-side-app"><a href="/apps/resize/">Slop Resize</a></p>
+<p><a class="btn l-side-open" href="/resize/">Open Slop Resize</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/resize/bulk-image-resizer/">Bulk image resizer</a></li><li><a href="/resize/compress-image-to-100kb/">Compress image to 100 KB</a></li><li><a href="/resize/resize-video/">Resize a video</a></li><li><a href="/resize/pixel-art-scaler/" aria-current="page">Pixel art scaler</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-resize">More with Slop Resize</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/resize/">Slop Resize</a> · free, in your browser</p>
 <h1>Scale up pixel art without blurring it</h1>
 <p class="lead">Normal resizing smooths pixel art into mush. Slop Resize can keep the hard pixels instead, so a 32×32 sprite becomes a crisp 128×128 for a game, a store page or a print.</p>
 <p><a class="btn" href="/resize/?scale=400&amp;resample=nearest&amp;format=png">Scale pixel art</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/resize.jpg" alt="Slop Resize open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop your sprites or pixel art on the page; many at once is fine.</li><li>Resize by is set to Percentage at 400%, with Resampling set to Hard pixels (nearest). Use 200% or 300% for other sizes.</li><li>Keep the Picture format at PNG so transparency and exact colours are kept.</li><li>Press Resize all, then Download all (zip).</li></ol>
 
 <p class="note">Your files stay on this device: Slop Resize runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Why use whole numbers like 200% or 400%?</h3>
 <p>Each pixel then becomes an exact 2×2 or 4×4 block. Other percentages make some pixels wider than others.</p>
 <h3>Is transparency kept?</h3>
 <p>Yes, in PNG, WebP and AVIF. JPEG has no transparency, so the gaps are filled with the background colour.</p>
 <h3>Can I go bigger than 400%?</h3>
 <p>Percentage goes up to 400%. For more, use Width and height with Hard pixels, up to 16384 pixels a side.</p>
-<h2>More with Slop Resize</h2>
+<h2 id="more-with-slop-resize">More with Slop Resize</h2>
 <ul><li><a href="/resize/bulk-image-resizer/">Resize many images at once</a></li><li><a href="/resize/compress-image-to-100kb/">Compress an image to 100 KB or less</a></li><li><a href="/resize/resize-video/">Resize a video to 1080p, 720p or any size</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/aitools.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/aitools/">Slop AI Tools</a><br><span class="note">Beta</span><br>OCR, speech to text, denoise, auto tags and portrait blur. On your device.</li><li><img class="thumb" src="/assets/shots/remix.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/remix/">Reel Remix</a><br><span class="note">In development</span><br>Clips and photos in, a random edit out, then fine-tune in SlopCut.</li><li><img class="thumb" src="/assets/shots/slopedit.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/slopedit/">SlopCut</a><br><span class="note">Beta</span><br>A video editor that never uploads your footage.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

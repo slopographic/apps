@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Time guide">
+<p class="l-side-app"><a href="/apps/time/">Slop Time</a></p>
+<p><a class="btn l-side-open" href="/time/">Open Slop Time</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/time/time-zone-converter/">Time zone converter</a></li><li><a href="/time/meeting-planner/" aria-current="page">Meeting planner</a></li><li><a href="/time/online-stopwatch/">Online stopwatch</a></li><li><a href="/time/timeanddate-alternative/">timeanddate.com alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-time">More with Slop Time</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/time/">Slop Time</a> · free, in your browser</p>
 <h1>Meeting planner for time zones</h1>
 <p class="lead">Add the time zones of everyone in the meeting and pick a day. Slop Time lists the windows when all of you are inside working hours, with the local time in each zone.</p>
 <p><a class="btn" href="/time/?tab=meet">Plan a meeting</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/time.jpg" alt="Slop Time open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>On the My time tab, set your time zone, your working hours and your working days.</li><li>Open Meetings (this page's link opens it) and pick the Day, in your time zone.</li><li>Under Add a zone to the meeting, type a city or zone and press Add. Repeat for each person, or press Use my cities.</li><li>Choose the Window step: 15 min, 30 min or 1 hour.</li><li>Read the windows: each shows your time and the local time in every zone. Press Add to Calendar to save one as a meeting in Slop Calendar.</li></ol>
 
 <p class="note">Your files stay on this device: Slop Time runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Whose working hours does it use?</h3>
 <p>Yours, from the My time tab, applied to every zone in its own local time. With 9 to 17 on weekdays, it looks for times when it is between 9 and 17 on a weekday in every zone.</p>
 <h3>What if no time works?</h3>
@@ -55,13 +67,16 @@
 <p>Yes. Each window is worked out for the day you pick, with the offset in force in every zone on that day.</p>
 <h3>Is the list of meeting zones saved?</h3>
 <p>The zones you add to a meeting are kept for this visit only. Use my cities fills the list from the cities saved on your World clock.</p>
-<h2>More with Slop Time</h2>
+<h2 id="more-with-slop-time">More with Slop Time</h2>
 <ul><li><a href="/time/time-zone-converter/">Time zone converter</a></li><li><a href="/time/online-stopwatch/">Online stopwatch and countdown timer</a></li><li><a href="/time/timeanddate-alternative/">A timeanddate.com alternative for world clocks and time zones</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

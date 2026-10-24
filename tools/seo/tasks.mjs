@@ -7,6 +7,7 @@
 //   taskJsonLd(task, app, url, site) -> the page's JSON-LD (WebPage, BreadcrumbList, HowTo, FAQPage, VideoObject)
 //   videoJsonLd(app, site) -> a VideoObject for an app's tutorial, or null
 import { esc, shell, mediaBlock, cardList, related } from './landing.mjs';
+import { appNav, withToc, docsLayout } from './guide.mjs';
 
 /** Checks one task's copy; throws with the task's key on the first problem. */
 export function checkTask(t, app) {
@@ -72,7 +73,7 @@ export function taskJsonLd(t, app, url, site) {
   return out;
 }
 
-export function taskPages(apps, site, TASKS) {
+export function taskPages(apps, site, TASKS, { ROUNDUPS = [], GUIDES = [] } = {}) {
   const byId = new Map(apps.map((a) => [a.id, a]));
   const seen = new Set();
   return TASKS.map((t) => {
@@ -82,7 +83,9 @@ export function taskPages(apps, site, TASKS) {
     if (seen.has(dir)) throw new Error(`task ${t.app}/${t.slug}: listed twice`);
     seen.add(dir);
     const siblings = TASKS.filter((s) => s.app === t.app && s.slug !== t.slug);
-    return { key: `${t.app}/${t.slug}`, dir, url: `${site}/${dir}`, html: shell(body(t, app, apps, siblings)), app, task: t };
+    const { body: b, toc } = withToc(body(t, app, apps, siblings));
+    const nav = appNav(app, { tasks: TASKS.filter((s) => s.app === t.app), roundups: ROUNDUPS.filter((r) => r.app === t.app), guides: GUIDES.filter((g) => g.app === t.app) }, `/${dir}`);
+    return { key: `${t.app}/${t.slug}`, dir, url: `${site}/${dir}`, html: shell(docsLayout(nav, toc, b)), app, task: t };
   });
 }
 

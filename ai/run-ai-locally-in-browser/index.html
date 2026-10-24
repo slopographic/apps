@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop AI guide">
+<p class="l-side-app"><a href="/apps/ai/">Slop AI</a></p>
+<p><a class="btn l-side-open" href="/ai/">Open Slop AI</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/ai/run-ai-locally-in-browser/" aria-current="page">Run AI locally</a></li><li><a href="/ai/can-my-pc-run-ai/">Can my PC run AI?</a></li><li><a href="/ai/chatgpt-alternative/">ChatGPT alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-ai">More with Slop AI</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/ai/">Slop AI</a> · free, in your browser</p>
 <h1>Run a local AI model in your browser</h1>
 <p class="lead">Slop AI runs open models such as Llama 3.2, Qwen2.5, Phi-3.5 mini and Gemma 2 on your own graphics card, through WebGPU. After a one-time download, the model answers on your device.</p>
 <p><a class="btn" href="/ai/?tab=models">Choose a model</a></p>
 <div class="media"><video class="clip" controls preload="none" playsinline poster="/assets/shots/ai.jpg"><source src="/assets/clips/ai.webm" type="video/webm"><source src="/assets/clips/ai.mp4" type="video/mp4">Your browser cannot play this clip.</video></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Open Slop AI from this page: it starts on Models. Each model shows its download size, the GPU memory it needs, its licence and a verdict for your PC.</li><li>Pick a model and press Download. Qwen2.5 0.5B is about 290 MB; the 7B models are about 4.3 GB.</li><li>Confirm the download. It comes from huggingface.co once and is kept in your browser; you can pause it and carry on later.</li><li>Go to Chat and type. Replies stream in, with the tokens per second under each one.</li><li>Press Set default, and the model loads by itself on your next visit.</li></ol>
 
 <p class="note">Your files stay on this device: Slop AI runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>What do I need?</h3>
 <p>A browser with WebGPU, such as a recent Chrome or Edge, and enough GPU memory for the model: about 1 GB for the smallest and about 5 GB for the 7B models. The Can my PC run it? tab checks for you.</p>
 <h3>Does it need the internet after the download?</h3>
@@ -55,13 +67,16 @@
 <p>No. Replies are generated on your device and conversations are stored in your browser. You can export them as Markdown or JSON, or save them to Slop Drive.</p>
 <h3>Can it read images?</h3>
 <p>Not yet: the local models read text only. You can attach text files, and the first 24,000 characters of each are given to the model.</p>
-<h2>More with Slop AI</h2>
+<h2 id="more-with-slop-ai">More with Slop AI</h2>
 <ul><li><a href="/ai/can-my-pc-run-ai/">Can my PC run a local LLM?</a></li><li><a href="/ai/chatgpt-alternative/">A private, free ChatGPT alternative that runs on your computer</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/ocr.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ocr/">Slop OCR</a><br><span class="note">Beta</span><br>Read text from images and scanned PDFs on your device. Nothing uploaded.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

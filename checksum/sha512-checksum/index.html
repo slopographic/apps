@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Checksum guide">
+<p class="l-side-app"><a href="/apps/checksum/">Checksum</a></p>
+<p><a class="btn l-side-open" href="/checksum/">Open Checksum</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/checksum/sha256-checksum/">SHA-256 checksum</a></li><li><a href="/checksum/verify-checksum/">Verify a download</a></li><li><a href="/checksum/sha512-checksum/" aria-current="page">SHA-512 checksum</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-checksum">More with Checksum</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/checksum/">Checksum</a> · free, in your browser</p>
 <h1>Get the SHA-512 checksum of a file</h1>
 <p class="lead">Some projects publish SHA-512 hashes. Drop the file to get its 128-character SHA-512, or paste the published one to check it.</p>
 <p><a class="btn" href="/checksum/?alg=sha512">Get a SHA-512 hash</a></p>
 
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop the file on the page.</li><li>SHA-512 is chosen in Algorithm; choose SHA-384 there if you need that one.</li><li>Choose Copy hash, or paste the published hash into Expected hash to compare.</li></ol>
 
 <p class="note">Your files stay on this device: Checksum runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Is SHA-512 safer than SHA-256?</h3>
 <p>Both are strong for checking files. Use whichever the publisher lists, so the two hashes can be compared.</p>
 <h3>How long is a SHA-512 hash?</h3>
 <p>128 hexadecimal characters. SHA-384 has 96 and SHA-256 has 64.</p>
 <h3>Is the file uploaded?</h3>
 <p>No. The hash is computed by your browser on your device.</p>
-<h2>More with Checksum</h2>
+<h2 id="more-with-checksum">More with Checksum</h2>
 <ul><li><a href="/checksum/sha256-checksum/">Get the SHA-256 checksum of a file</a></li><li><a href="/checksum/verify-checksum/">Verify a download with its checksum</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

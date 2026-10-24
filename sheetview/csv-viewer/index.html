@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Sheets guide">
+<p class="l-side-app"><a href="/apps/sheetview/">Slop Sheets</a></p>
+<p><a class="btn l-side-open" href="/sheetview/">Open Slop Sheets</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/sheetview/open-xlsx-online/">Open an XLSX file</a></li><li><a href="/sheetview/csv-viewer/" aria-current="page">CSV viewer</a></li><li><a href="/sheetview/xlsx-to-csv/">XLSX to CSV</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-sheets">More with Slop Sheets</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/sheetview/">Slop Sheets</a> · free, in your browser</p>
 <h1>Open a CSV file as a table</h1>
 <p class="lead">A CSV in a text editor is a wall of commas. Drop it on Slop Sheets to see it as a table with columns you can sort and filter.</p>
 <p><a class="btn" href="/sheetview/">Open a CSV file</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/sheetview.jpg" alt="Slop Sheets open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop the .csv or .tsv file on the page, or choose Open.</li><li>Click a column header to sort by it; click again to reverse.</li><li>Use a column's filter button to keep only some values, rows that contain a text, or numbers above or below a value.</li><li>Choose Export, Visible rows to save just the filtered rows as CSV, TSV or XLSX.</li></ol>
 
 <p class="note">Your files stay on this device: Slop Sheets runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Which separators work?</h3>
 <p>Commas in .csv files and tabs in .tsv files, with quoted fields as most programs write them. A file without a name hint is checked for tabs.</p>
 <h3>Can I turn the CSV into an Excel file?</h3>
 <p>Yes. Choose Export and pick XLSX for the visible rows or for all rows.</p>
 <h3>Is my data sent anywhere?</h3>
 <p>No. The CSV is read in your browser and stays on your device.</p>
-<h2>More with Slop Sheets</h2>
+<h2 id="more-with-slop-sheets">More with Slop Sheets</h2>
 <ul><li><a href="/sheetview/open-xlsx-online/">Open an XLSX file without Excel</a></li><li><a href="/sheetview/xlsx-to-csv/">Convert XLSX to CSV</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/tables.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/tables/">Slop Tables</a><br><span class="note">In development</span><br>Excel and Google Sheets, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/contacts.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/contacts/">Slop Contacts</a><br><span class="note">In development</span><br>Address book: vCard and CSV in and out, duplicates merged.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 // Only registry facts are written. Called by tools/seo/write.mjs, which adds the SEO head block to each page.
 import { isPage } from './site.mjs';
 import { compareTables } from './roundups.mjs';
+import { appNav, withToc, docsLayout } from './guide.mjs';
 import OFFLINE_APPS from '../../shared/offline/manifest.js';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -84,6 +85,7 @@ ${body}
 </main>
 ${siteFoot()}
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>
@@ -94,6 +96,11 @@ const thumb = (id) => (hasFile(`assets/shots/${id}.jpg`) ? `<img class="thumb" s
 export const cardList = (items) => `<ul class="cards">${items.map((b) => `<li>${thumb(b.id)}<a href="/apps/${esc(b.id)}/">${esc(b.name)}</a><br><span class="note">${esc(statusOf(b))}</span><br>${esc(b.tagline)}</li>`).join('')}</ul>`;
 
 /** The picture, the clip and the YouTube demo of one app, when the files exist. */
+/** The app's YouTube tutorial as a card (its thumbnail is kept in assets/video), or '' without one. */
+export function videoLink(app) {
+  const v = app.video;
+  return v ? `<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>` : '';
+}
 export function mediaBlock(app) {
   const id = app.id, out = [];
   const clip = hasFile(`assets/clips/${id}.mp4`);
@@ -102,8 +109,7 @@ export function mediaBlock(app) {
     const poster = hasFile(`assets/shots/${id}.jpg`) ? ` poster="/assets/shots/${esc(id)}.jpg"` : '';
     out.push(`<video class="clip" controls preload="none" playsinline${poster}><source src="/assets/clips/${esc(id)}.webm" type="video/webm"><source src="/assets/clips/${esc(id)}.mp4" type="video/mp4">Your browser cannot play this clip.</video>`);
   }
-  const v = app.video;
-  if (v) out.push(`<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>`);
+  if (app.video) out.push(videoLink(app));
   return out.length ? `<div class="media">${out.join('')}</div>` : '';
 }
 
@@ -190,13 +196,18 @@ function compareBody(apps) {
  * (an app id, or slop-365, creative-slop-pro, compare). `dir` is the folder the page is written to.
  * Throws if a page has no copy.
  */
-export function landingPages(apps, site, LANDING, TASKS = [], ROUNDUPS = []) {
+export function landingPages(apps, site, LANDING, TASKS = [], ROUNDUPS = [], GUIDES = []) {
   const out = [];
   const add = (key, dir, crumb, html) => {
     if (!LANDING[key]) throw new Error(`${key}: no landing copy in shared/seo/copy.mjs LANDING`);
     out.push({ key, dir, url: `${site}/${dir}`, html: shell(html), crumb });
   };
-  for (const app of apps) if (isPage(app)) add(app.id, `apps/${app.id}/`, app.name, appBody(app, apps, TASKS.filter((t) => t.app === app.id), ROUNDUPS.filter((r) => r.app === app.id)));
+  for (const app of apps) {
+    if (!isPage(app)) continue;
+    const tasks = TASKS.filter((t) => t.app === app.id), roundups = ROUNDUPS.filter((r) => r.app === app.id);
+    const { body, toc } = withToc(appBody(app, apps, tasks, roundups));
+    add(app.id, `apps/${app.id}/`, app.name, docsLayout(appNav(app, { tasks, roundups, guides: GUIDES.filter((g) => g.app === app.id) }, `/apps/${app.id}/`), toc, body));
+  }
   add('slop-365', 'slop-365/', 'Slop 365', slop365Body(apps));
   add('creative-slop-pro', 'creative-slop-pro/', 'Creative Slop Pro', creativeBody(apps));
   add('compare', 'compare/', 'Compare', compareBody(apps));

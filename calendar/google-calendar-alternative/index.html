@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Calendar guide">
+<p class="l-side-app"><a href="/apps/calendar/">Slop Calendar</a></p>
+<p><a class="btn l-side-open" href="/calendar/">Open Slop Calendar</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/calendar/open-ics-file/">Open an .ics file</a></li><li><a href="/calendar/google-calendar-alternative/" aria-current="page">Google Calendar alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-calendar">More with Slop Calendar</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/calendar/">Slop Calendar</a> · free, in your browser</p>
 <h1>A private Google Calendar alternative</h1>
 <p class="lead">Slop Calendar is a free calendar that keeps every event in your browser, on your device. It has year, month, week, day and agenda views, repeats, time zones, reminders and .ics files.</p>
 <p><a class="btn" href="/calendar/">Open Slop Calendar</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/calendar.jpg" alt="Slop Calendar open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Open Slop Calendar. There is no account to create.</li><li>If your current calendar can export an .ics file, press Import .ics and bring the events in.</li><li>Press New event (or N) to add one, with a time zone, a repeat and a reminder.</li><li>Drag events to move them, and drag the bottom edge in Week or Day view to change the length.</li><li>Press Export .ics now and then to keep a copy of everything.</li></ol>
 <p>Because nothing is stored on a server, Slop Calendar does not sync between your devices, send invitations or share a calendar with other people. It suits a calendar on one computer that you would rather keep to yourself.</p>
 <p class="note">Your files stay on this device: Slop Calendar runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Is Slopographic connected to Google?</h3>
 <p>No. Slopographic is not affiliated with Google. Google Calendar is a trademark of its owner, named here only for comparison.</p>
 <h3>Does it sync with my phone?</h3>
@@ -55,13 +67,16 @@
 <p>Yes. Tick To-dos and the Slop To-do tasks that have a due time show on the calendar; completing one there completes it in To-do too.</p>
 <h3>Does it remind me of events?</h3>
 <p>Yes, while Slop Calendar, To-do or Reminders is open in a tab: give the event a Reminder and a pop-up appears, or a browser notification if you allow them.</p>
-<h2>More with Slop Calendar</h2>
+<h2 id="more-with-slop-calendar">More with Slop Calendar</h2>
 <ul><li><a href="/calendar/open-ics-file/">Open an .ics calendar file</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

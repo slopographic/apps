@@ -37,16 +37,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Image to 3D guide">
+<p class="l-side-app"><a href="/apps/img3d/">Slop Image to 3D</a></p>
+<p><a class="btn l-side-open" href="/img3d/">Open Slop Image to 3D</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/img3d/photo-to-3d-model/" aria-current="page">Photo to 3D model</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/img3d/">Slop Image to 3D</a> · free, in your browser</p>
 <h1>Turn a photo into a 3D model</h1>
 <p class="lead">An AI model estimates how far away each part of the photo is, and Slop Image to 3D raises the picture into a textured 3D surface. Use it for a 3D effect, a scene backdrop or a quick model to build on.</p>
 <p><a class="btn" href="/img3d/">Make a 3D model</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/img3d.jpg" alt="Slop Image to 3D open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Choose Open image… or drop a photo on the viewport.</li><li>Add the depth model with Get more… (Depth Anything V2 Small, 27 MB) for real depth; without it, brightness is used as a rough stand-in.</li><li>Set the Depth scale, Smoothing and Resolution, and tick Subject only (remove the background) to keep just the subject.</li><li>Choose Show as: Height-field mesh, Point cloud or Splats, and orbit around it.</li><li>Press Export GLB for a textured model, Export OBJ for the mesh, or Open in Slop 3D to keep editing.</li></ol>
 <p>The result is a relief seen from the front, like a deep embossing of the photo: one surface with no back. It is not a full 360° model and is not ready for 3D printing without more work.</p>
 <p class="note">Your files stay on this device: Slop Image to 3D runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Does it make a full 3D object from one picture?</h3>
 <p>No. One photo only shows one side, so you get the front surface with depth. The hidden sides are not invented.</p>
 <h3>Which file formats can I export?</h3>
@@ -56,11 +68,14 @@
 <h3>Why does it say the depth is a fallback?</h3>
 <p>The depth model is not installed yet. Press Get more… to add it; until then brightness is used, which is not real depth.</p>
 
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/photoslop.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/photoslop/">PhotoSlop</a><br><span class="note">Live</span><br>Photoshop, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/vector.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/vector/">SlopVector</a><br><span class="note">Live</span><br>Illustrator, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/cutout.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/cutout/">SlopIsolate</a><br><span class="note">Beta</span><br>Remove backgrounds with AI that runs on your device.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

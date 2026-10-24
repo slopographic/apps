@@ -38,16 +38,28 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop PDF guide">
+<p class="l-side-app"><a href="/apps/pdf/">Slop PDF</a></p>
+<p><a class="btn l-side-open" href="/pdf/">Open Slop PDF</a></p>
+<p class="l-side-h">Guides</p><ul><li><a href="https://www.youtube.com/watch?v=sLjcd23fOhw" rel="noopener">Video tutorial</a></li></ul>
+<p class="l-side-h">How to</p><ul><li><a href="/pdf/sign-pdf/">Sign a PDF</a></li><li><a href="/pdf/fill-pdf-form/">Fill a PDF form</a></li><li><a href="/pdf/edit-pdf-text/">Edit PDF text</a></li><li><a href="/pdf/compress-pdf/" aria-current="page">Compress a PDF</a></li><li><a href="/pdf/redact-pdf/">Redact a PDF</a></li><li><a href="/pdf/rotate-pdf/">Rotate PDF pages</a></li><li><a href="/pdf/adobe-acrobat-alternative/">Adobe Acrobat alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-pdf">More with Slop PDF</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/pdf/">Slop PDF</a> · free, in your browser</p>
 <h1>Compress a PDF</h1>
 <p class="lead">Shrink a PDF to fit an email or an upload form. Choose a lossless re-save that keeps everything, or a strong mode for scans and photo-heavy files.</p>
 <p><a class="btn" href="/pdf/?tool=compress">Compress a PDF</a></p>
 <div class="media"><video class="clip" controls preload="none" playsinline poster="/assets/shots/pdf.jpg"><source src="/assets/clips/pdf.webm" type="video/webm"><source src="/assets/clips/pdf.mp4" type="video/mp4">Your browser cannot play this clip.</video><a class="demo" href="https://www.youtube.com/watch?v=sLjcd23fOhw" rel="noopener"><img src="/assets/video/yt-sLjcd23fOhw.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the Slop PDF tutorial: a free PDF editor in the browser</b><br>On YouTube, about one minute.</span></a></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Drop the PDF on the page.</li><li>Open the Compress tool and choose Lossless or Strong (lossy).</li><li>For Strong, set the resolution and the JPEG quality: lower values give a smaller file.</li><li>Choose Compress &amp; download. The panel shows the size before and after.</li></ol>
 
 <p class="note">Your files stay on this device: Slop PDF runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>How much smaller will my PDF get?</h3>
 <p>It depends on the file. Lossless removes unused objects and packs the rest, which helps some files a lot and others hardly at all. Strong mode shrinks scans and photos the most.</p>
 <h3>Does Strong compression keep the text?</h3>
@@ -56,13 +68,16 @@
 <p>No. The compression runs in your browser and the smaller file is saved straight to your device.</p>
 <h3>What if there is no saving?</h3>
 <p>The panel tells you when the original was already compact. Try Strong mode with a lower resolution if the size still matters.</p>
-<h2>More with Slop PDF</h2>
+<h2 id="more-with-slop-pdf">More with Slop PDF</h2>
 <ul><li><a href="/pdf/sign-pdf/">Sign a PDF in your browser</a></li><li><a href="/pdf/fill-pdf-form/">Fill in a PDF form</a></li><li><a href="/pdf/edit-pdf-text/">Edit the text in a PDF</a></li><li><a href="/pdf/redact-pdf/">Redact a PDF</a></li><li><a href="/pdf/rotate-pdf/">Rotate the pages of a PDF</a></li><li><a href="/pdf/adobe-acrobat-alternative/">A free Adobe Acrobat alternative in your browser</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/ocr.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ocr/">Slop OCR</a><br><span class="note">Beta</span><br>Read text from images and scanned PDFs on your device. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/press.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/press/">Slop Press</a><br><span class="note">Beta</span><br>InDesign, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/convert.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/convert/">File convert</a><br><span class="note">In development</span><br>Images, PDFs, data and text, converted on your device.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

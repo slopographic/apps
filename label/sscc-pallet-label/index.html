@@ -37,29 +37,44 @@
 <div class="l-wrap">
 <header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
 <main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="SlopLabel guide">
+<p class="l-side-app"><a href="/apps/label/">SlopLabel</a></p>
+<p><a class="btn l-side-open" href="/label/">Open SlopLabel</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/label/print-labels-from-excel/">Print labels from Excel</a></li><li><a href="/label/avery-label-template/">Avery label templates</a></li><li><a href="/label/zpl-viewer/">ZPL viewer</a></li><li><a href="/label/sscc-pallet-label/" aria-current="page">SSCC pallet label</a></li><li><a href="/label/bartender-alternative/">BarTender alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-sloplabel">More with SlopLabel</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/label/">SlopLabel</a> · free, in your browser</p>
 <h1>Make an SSCC pallet label</h1>
 <p class="lead">Retailers and warehouses ask for a GS1 logistic label on each pallet. SlopLabel has a GS1-128 pallet label template with the SSCC, product and batch data, and checks the application identifiers as you type.</p>
 <p><a class="btn" href="/label/">Make a pallet label</a></p>
 <div class="media"><video class="clip" controls preload="none" playsinline poster="/assets/shots/label.jpg"><source src="/assets/clips/label.webm" type="video/webm"><source src="/assets/clips/label.mp4" type="video/mp4">Your browser cannot play this clip.</video></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Choose File &gt; New… and the GS1-128 pallet label (SSCC) template.</li><li>Fill in the SSCC body, GTIN, count, batch and best-before date, or import them from a CSV for many pallets.</li><li>The SSCC check digit is worked out for you, and each AI is checked for length and format.</li><li>Print on a 4×6&quot; or 100×150 mm thermal label, or export ZPL for a Zebra printer.</li></ol>
 <p>GS1 data is typed with the AIs in brackets, such as (00)… for the SSCC, (02)… for the content GTIN, (37)… for the count, (10)… for the batch and (15)… for the best-before date. GS1 QR Code and GS1 DataMatrix are there too.</p>
 <p class="note">Your files stay on this device: SlopLabel runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>What is an SSCC?</h3>
 <p>The Serial Shipping Container Code: an 18-digit number that identifies one pallet or parcel. It starts with your GS1 company prefix and ends with a check digit.</p>
 <h3>Does it check my GS1 data?</h3>
 <p>Yes. Each application identifier is checked for its length, digits and dates, and missing check digits are added while wrong ones are reported.</p>
 <h3>Do I need a GS1 company prefix?</h3>
 <p>Yes. Real SSCCs and GTINs must use a prefix your company gets from GS1; SlopLabel builds the codes but does not issue numbers.</p>
-<h2>More with SlopLabel</h2>
+<h2 id="more-with-sloplabel">More with SlopLabel</h2>
 <ul><li><a href="/label/print-labels-from-excel/">Print labels from an Excel or CSV file</a></li><li><a href="/label/avery-label-template/">Print on Avery label sheets</a></li><li><a href="/label/zpl-viewer/">View and edit ZPL label code</a></li><li><a href="/label/bartender-alternative/">A free BarTender alternative in your browser</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/convert.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/convert/">File convert</a><br><span class="note">In development</span><br>Images, PDFs, data and text, converted on your device.</li><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/ocr.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ocr/">Slop OCR</a><br><span class="note">Beta</span><br>Read text from images and scanned PDFs on your device. Nothing uploaded.</li></ul>
+</div>
+</div>
 </main>
 <footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
 </div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>
