@@ -89,6 +89,10 @@
 
     function render(sections) {
       const focused = doc.activeElement && panel.contains(doc.activeElement) ? doc.activeElement.dataset.sfKey : null;
+      // a settings control in use (the app's own element, moved by the redraw) keeps the focus and the caret
+      const act = !focused && body.contains(doc.activeElement) ? doc.activeElement : null;
+      let caret = null;
+      try { if (act && typeof act.selectionStart === 'number') caret = [act.selectionStart, act.selectionEnd]; } catch (e) { /* number inputs */ }
       body.replaceChildren();
       (sections || []).filter(Boolean).forEach((s, si) => {
         const sec = el('section', 'sf-sec' + (s.cls ? ' ' + s.cls : ''));
@@ -110,6 +114,10 @@
         if (s.body) sec.append(s.body);
         body.append(sec);
       });
+      if (act && act.isConnected && doc.activeElement !== act) {
+        act.focus({ preventScroll: true });
+        if (caret) try { act.setSelectionRange(caret[0], caret[1]); } catch (e) { /* not a text field */ }
+      }
       if (focused) {
         const again = body.querySelector('[data-sf-key="' + focused.replace(/["\\]/g, '\\$&') + '"]');
         if (again && !again.disabled) again.focus({ preventScroll: true });

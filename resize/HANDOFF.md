@@ -7,7 +7,7 @@ uploaded. Originals are never changed; results are copies, downloaded or saved t
 | File | What it does |
 |---|---|
 | `index.html` | Markup and the load order. Shared: slopui, apps, hub, zip, commands, shell. Vendored: mp4-muxer, webm-muxer. |
-| `css/resize.css` | Tokens (dark, light), layout, the phone stack (≤860 px the panel goes under the list). |
+| `css/resize.css` | Tokens (dark, light), the queue rows, the settings' own controls. The view and the right panel (a bottom sheet on phones) are shared/frame/frame.css. |
 | `js/core/size.js` | Pure geometry: `SlopResize.size.dims(src, spec, opts)`, `normalize`, the size presets. No DOM. |
 | `js/core/format.js` | Kind of a file (picture or video), output names, byte sizes, which image types the browser writes. |
 | `js/image/image.js` | Pictures: decode, draw (halving steps for big reductions, high smoothing), encode, file size search. |
@@ -23,6 +23,7 @@ uploaded. Originals are never changed; results are copies, downloaded or saved t
 | `js/app/commands.js` | SlopCmd commands (`rs.*`), with their keys. Settings commands use the panel's own controls. `SlopCmd.prepare()` loads ai-commands.js. |
 | `js/app/ai-commands.js` | Assistant commands with arguments (hidden from the palette): `set_size`, `set_output_format`, `resize_all`; `SlopCmd.state()` summary and the settings checkpoint. Loaded on demand. Test: `tests/resize/ai-commands.test.html`. |
 | `js/app/main.js` | Controller: open, drop, Drive, run, cancel, download (one file or zip), save, engine checks, boot. |
+| `js/app/layout.js` | The page as SlopFrame's View · Panel: the queue in the middle; Size, Output, Saved settings and Results (Download / Download all (ZIP), Save to Slop Drive, Open in…, Clear) in the right panel; Resize / Resize N files / Cancel at its foot (the suite rule, shared/frame/HANDOFF.md). The header keeps Open… and From Slop Drive…. Test: `tests/resize/panel.test.html`. |
 
 ## Settings and geometry
 A spec (`size.normalize`) has `mode` (`size` box, `bytes` box + file limit, `scale` %, `long` edge), `w`, `h`

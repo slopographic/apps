@@ -105,6 +105,7 @@ panel.render([
 - Slop EML (`eml/js/main.js` mounts it; `eml/js/side.js` fills the panel; `eml/js/list.js` is its list).
 - Slop Workflows (`workflows/js/ui/mount.js`; the run panel is `workflows/js/ui/run.js`).
 - Slop Upscale (`upscale/js/app/layout.js`: settings sections and the Upscale footer).
+- Slop Resize (`resize/js/app/layout.js`: no list column, the queue is the view).
 
 ## Tests
 
@@ -112,7 +113,7 @@ panel.render([
 hide/show by button, command and Ctrl+Alt+B (remembered across a reload), no list, phone list/view and the bottom sheet,
 panel sections, menus and focus, settings sections and the footer (the phone's closed sheet shows only the footer).
 Guard: `tests/node/right-panel.test.mjs` checks that every app marked done in the audit below loads SlopFrame and puts
-its main button in the panel. Slop Upscale: `tests/upscale/panel.test.html`. Slop EML: `tests/eml/batch.test.html`, `tests/eml/look.test.html`.
+its main button in the panel. Slop Upscale: `tests/upscale/panel.test.html`. Slop Resize: `tests/resize/panel.test.html`. Slop EML: `tests/eml/batch.test.html`, `tests/eml/look.test.html`.
 
 ## Screens (described)
 
@@ -134,7 +135,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop Upscale | upscale/ | tool | settings LEFT, Upscale in the header | done | |
 | Slop EML | eml/ | viewer | SlopFrame | done | |
 | Slop Workflows | workflows/ | tool | SlopFrame, run panel right | done | |
-| Slop Resize | resize/ | tool | settings right, Resize all + downloads in the header | to do | move Resize all, ZIP, Save into the panel |
+| Slop Resize | resize/ | tool | settings right, Resize all + downloads in the header | done | |
 | Slop Watermark | watermark/ | tool | settings right, run/download in an app bar | to do | being rebuilt on wip/watermark-all (told the rule) |
 | SlopIsolate | slopisolate/ | editor | queue left, #props right; Download, Send back in the header | close | checked only: put Download into #props' foot (owned by its branch) |
 | Slop OCR | ocr/ | tool | settings row above the work area, Read in it | to do | settings row → right panel, Read text in the footer |

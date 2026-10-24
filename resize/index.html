@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/resize.css">
   <script src="../shared/guard.js" defer blocking="render"></script>
 </head>
@@ -40,20 +41,16 @@
       <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"></a>
       <h1>Slop Resize</h1><span class="rs-tag">Resize pictures and videos. Nothing uploaded.</span>
     </div>
-    <div class="rs-tools" role="toolbar" aria-label="Queue">
+    <div class="rs-tools" role="toolbar" aria-label="Open">
       <button type="button" class="sui-btn" id="rs-open">Open…</button>
       <button type="button" class="sui-btn" id="rs-drive">From Slop Drive…</button>
-      <button type="button" class="sui-btn sui-primary" id="rs-run" disabled title="Resize every file in the list (Ctrl+Enter)">Resize all</button>
-      <button type="button" class="sui-btn" id="rs-cancel" disabled title="Stop after the current file (Esc)">Cancel</button>
-      <button type="button" class="sui-btn" id="rs-zip" disabled title="One zip of every result (Ctrl+S)">Download all (zip)</button>
-      <button type="button" class="sui-btn" id="rs-save-all" disabled title="Save the results to the Slop Resize folder in Slop Drive">Save to Slop Drive</button>
-      <button type="button" class="sui-btn" id="rs-clear" disabled>Clear</button>
     </div>
   </header>
   <div class="rs-stat" id="rs-stat" aria-live="polite"></div>
   <div class="rs-warning" id="rs-video-warning" role="note" hidden></div>
-  <main class="rs-main">
-    <section class="rs-left" id="rs-left" aria-label="Files">
+  <!-- View · Panel (shared/frame): the queue in the middle, the settings and the Resize button in the panel on the right -->
+  <div class="rs-main" id="rs-main">
+    <main class="rs-left" id="rs-left" aria-label="Files">
       <section class="rs-empty" id="rs-empty" aria-label="Open files">
         <div class="rs-drop-card">
           <div id="rs-drop" class="rs-dropzone"></div>
@@ -63,10 +60,10 @@
       <div id="rs-queue-wrap" hidden>
         <ol class="rs-list" id="rs-list" aria-label="Queue"></ol>
       </div>
-    </section>
+    </main>
 
     <aside class="rs-panel" id="rs-panel" aria-label="Resize settings">
-      <h2 class="rs-h">Size</h2>
+      <div class="rs-group" data-title="Size">
       <label class="rs-field">Target
         <select id="rs-preset"></select>
       </label>
@@ -128,8 +125,8 @@
           <option value="nearest">Hard pixels (nearest, for pixel art)</option>
         </select>
       </label>
-
-      <h2 class="rs-h">Output</h2>
+      </div>
+      <div class="rs-group" data-title="Output">
       <label class="rs-field">Picture format
         <select id="rs-mime">
           <option value="image/jpeg">JPEG</option>
@@ -165,8 +162,8 @@
       </label>
       <label class="rs-check"><input type="checkbox" id="rs-audio" checked> Keep the audio track</label>
       <p class="rs-note" id="rs-engine-note" hidden></p>
-
-      <h2 class="rs-h">Saved settings</h2>
+      </div>
+      <div class="rs-group" data-title="Saved settings">
       <label class="rs-field"><span class="sr-only">Saved settings</span>
         <select id="rs-saved"></select>
       </label>
@@ -176,8 +173,9 @@
         <button type="button" class="sui-btn" id="rs-delete">Delete</button>
       </div>
       <p class="rs-fine">Saved in Slop Drive, in the Slop Resize folder. Without Slop Drive they stay in this browser.</p>
+      </div>
     </aside>
-  </main>
+  </div>
 
   <script src="../shared/consent/config.js"></script>
   <script src="../shared/consent/state.js"></script>
@@ -196,6 +194,10 @@
   <script src="../shared/storage/ui.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="../shared/backup/zip.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
   <script src="../vendor/mp4-muxer/mp4-muxer.js"></script>
   <script src="../vendor/webm-muxer/webm-muxer.js"></script>
   <script src="js/core/size.js"></script>
@@ -223,6 +225,7 @@
   <script src="../shared/drop/panel.js"></script>
   <script src="../shared/drop/drop.js"></script>
   <script src="../shared/samples/samples.js"></script>
+  <script src="js/app/layout.js"></script>
   <script src="js/app/main.js"></script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="resize"></script>
