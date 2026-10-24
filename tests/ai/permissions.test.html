@@ -89,7 +89,7 @@
       await waitFor(() => radio('all'));
       radio('all').click();
       await waitFor(() => q('.sap-perm-warn'));
-      expect(q('.sap-perm-warn').textContent).toContain('send copies of your files to the AI provider without asking');
+      expect(q('.sap-perm-warn').textContent).toContain('send copies of your files to the AI provider and spend on image generation without asking');
       q('.sap-back').click();
       await send('clear', [run('demo.clear'), 'ok'], []);
       q('.sap-gear').click(); await waitFor(() => radio('ask')); radio('ask').click(); q('.sap-back').click();
