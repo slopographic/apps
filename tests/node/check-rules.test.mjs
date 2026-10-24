@@ -48,7 +48,7 @@ test('every tracked source file has at most 300 lines (node tools/check-rules.mj
   assert.equal(r.status, 0, r.stderr);
 });
 
-test('rule 3: app scripts use pointer events, not mouse listeners, unless a touch-ok comment says why', () => {
+test('rule 5: app scripts use pointer events, not mouse listeners, unless a touch-ok comment says why', () => {
   assert.equal(touchProblems('app/js/a.js', "el.addEventListener('mousedown', f);").length, 1);
   assert.equal(touchProblems('app/js/a.js', 'el.addEventListener("mousemove", f);').length, 1);
   assert.equal(touchProblems('app/js/a.js', 'h({ onmouseup: f })').length, 1);
@@ -58,7 +58,7 @@ test('rule 3: app scripts use pointer events, not mouse listeners, unless a touc
   assert.equal(touchProblems('vendor/x.js', "el.addEventListener('mousedown', f);").length, 0);
 });
 
-test('rule 3: a script that drags (setPointerCapture) marks its touch surface', () => {
+test('rule 5: a script that drags (setPointerCapture) marks its touch surface', () => {
   assert.equal(touchProblems('app/js/a.js', 'el.setPointerCapture(e.pointerId);').length, 1);
   assert.equal(touchProblems('app/js/a.js', "el.setPointerCapture(e.pointerId); SlopTouch.surface(el);").length, 0);
   assert.equal(touchProblems('app/js/a.js', "el.setPointerCapture(e.pointerId); el.setAttribute('data-touch-surface', '');").length, 0);
@@ -66,7 +66,21 @@ test('rule 3: a script that drags (setPointerCapture) marks its touch surface', 
   assert.equal(touchProblems('app/js/a.js', 'el.setPointerCapture(e.pointerId); // touch-ok: the grip is marked in app.css').length, 0);
 });
 
-test('rule 3 holds on the whole repository', () => {
+test('rule 5 holds on the whole repository', () => {
   const r = spawnSync(process.execPath, [path.join(ROOT, 'tools/check-rules.mjs'), '--all'], { cwd: ROOT, encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
+});
+
+// Rule 4 (tools/one-way.mjs): one way in, one way out, in the apps on the shared intake.
+test('a migrated app may not add its own way in or out; other apps, shared/intake and marked lines pass', () => {
+  const read = fake({
+    'pdf/js/x.js': "a.addEventListener('drop', f);\nSlopUI.pickFiles({});\nH.consumeLaunch();\nconst i = h('input', { type: 'file' });\n"
+      + "H.appsAccepting(t).map((a) => ({ label: `Open in ${a.name}` }));\n// SlopUI.pickFiles in a comment\nrow.addEventListener('drop', g); // intake-ok: a row reorder\n",
+    'notes/js/y.js': "a.addEventListener('paste', f);\n",
+    'shared/intake/sources.js': "document.addEventListener('paste', onPaste);\n",
+  });
+  const p = check(['pdf/js/x.js', 'notes/js/y.js', 'shared/intake/sources.js'], { read, size: false });
+  assert.deepEqual(p.map((x) => [x.file, x.rule]), Array(5).fill(['pdf/js/x.js', 'one-way']));
+  assert.match(p[0].message, /pdf\/js\/x\.js:1: a 'drop' listener of its own/);
+  assert.match(p[4].message, /hand-made "Open in"/);
 });

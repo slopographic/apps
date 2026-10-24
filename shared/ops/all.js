@@ -9,5 +9,7 @@ import './upscale.js';
 import './clean.js';
 import './ocr.js';
 import './files.js';
+import './macros.js';   // the apps' recorded macros (app host adapters), after the apps' own operations
 
 export * from './registry.js';
+export { macrosReady, onMacros } from './macros.js';

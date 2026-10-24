@@ -24,7 +24,6 @@ function openFxPresetPicker(layerId) {
   const exportBtn = h('button', { type: 'button', class: 'sui-btn' }, 'Export…');
   const deleteBtn = h('button', { type: 'button', class: 'sui-btn sui-danger' }, 'Delete');
   const importBtn = h('button', { type: 'button', class: 'sui-btn' }, 'Import…');
-  const file = h('input', { type: 'file', accept: '.json,.slop.json,application/json', hidden: true });
   const mine = () => { const p = sel && SP.get(sel); return p && !p.builtin ? p : null; };
 
   /** Puts the layer back to what it was before the picker opened (no history step). */
@@ -70,15 +69,16 @@ function openFxPresetPicker(layerId) {
   }
 
   exportBtn.addEventListener('click', () => { const f = sel && SP.exportFile(sel); if (f) SlopUI.download(f.blob, f.name); });
-  importBtn.addEventListener('click', () => file.click());
-  file.addEventListener('change', async () => {
-    const f = file.files && file.files[0];
-    file.value = '';
-    if (!f) return;
-    const r = await SP.importFile(f);
-    status.textContent = r.ok ? 'Imported.' : SP.errorText(r.errors);
-    if (r.ok) choose(r.id); else paint();
-  });
+  // Import comes in the one way (shared/intake): a spec of its own, for this dialog.
+  SlopIntake.register({ id: 'photoslop.fx-preset', main: false, paste: false, limit: 1, toast: false,
+    accept: { types: ['application/json'], exts: ['.json'], noun: 'an effects preset (.slop.json)' },
+    process: async (f) => {
+      const r = await SP.importFile(f);
+      status.textContent = r.ok ? 'Imported.' : SP.errorText(r.errors);
+      if (r.ok) choose(r.id); else paint();
+      return r.ok;
+    } });
+  importBtn.addEventListener('click', () => SlopIntake.pick({ to: 'photoslop.fx-preset', multiple: false }));
   deleteBtn.addEventListener('click', async () => {
     const m = mine();
     if (!m || !(await SlopUI.confirm('Delete preset', 'Delete “' + m.label + '”? It is removed from Slop Drive for every app.', 'Delete', { danger: true }))) return;
@@ -89,7 +89,7 @@ function openFxPresetPicker(layerId) {
 
   const repaint = () => paint();
   window.addEventListener('slop-presets:change', repaint);
-  const body = h('div', { class: 'sp-dialog' }, h('div', { class: 'sp-tools' }, exportBtn, importBtn, deleteBtn, file), list, status,
+  const body = h('div', { class: 'sp-dialog' }, h('div', { class: 'sp-tools' }, exportBtn, importBtn, deleteBtn), list, status,
     h('p', { class: 'sp-help' }, 'Choose a preset to preview it on the layer. Apply keeps it as one undo step.'));
   let closeDlg = () => {};
   SlopUI.dialog({

@@ -42,8 +42,9 @@
     O.setSelection([p.id], p.id); O.reveal(p.id);
     A.announce('Inserted a blank page at position ' + (at + 1));
   };
+  var OPEN_ACCEPT = 'application/pdf,.pdf,image/png,image/jpeg,image/webp,image/gif';
   A.insertFromFile = function () {
-    SlopUI.pickFiles({ accept: 'application/pdf,.pdf,image/png,image/jpeg,image/webp,image/gif', multiple: true }).then(function (files) { if (files.length) A.addFiles(files, { at: S.insertIndex() }); });
+    return SlopIntake.pick({ to: 'pdf', accept: OPEN_ACCEPT, mode: 'add', data: { at: S.insertIndex() } }); // ui/drop.js
   };
   A.pageMenuItems = function () {
     var ids = A.targetIds(), one = ids.length === 1;
@@ -75,7 +76,7 @@
 
   /* -------------------------------------------------------- open files */
   A.openDialog = function () {
-    SlopUI.pickFiles({ accept: 'application/pdf,.pdf,image/png,image/jpeg,image/webp,image/gif', multiple: true }).then(function (files) { if (files.length) A.addFiles(files); });
+    return SlopIntake.pick({ to: 'pdf', accept: OPEN_ACCEPT }); // the one intake (ui/drop.js): Add to current or Create new
   };
   A.askPassword = function (name, wrong) {
     return new Promise(function (res) {

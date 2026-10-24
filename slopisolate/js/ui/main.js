@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   const CO = window.CO, U = CO.util, S = CO.state, $ = U.$;
-  const MODULES = ['view', 'pointer', 'ctxbar', 'panel', 'queue', 'menus', 'commands', 'ctxmenu', 'files', 'send', 'videoPlayer', 'bulk', 'openIn', 'viewState'];
+  const MODULES = ['view', 'pointer', 'ctxbar', 'panel', 'queue', 'menus', 'commands', 'ctxmenu', 'files', 'send', 'videoPlayer', 'bulk', 'thumbs', 'openIn', 'viewState'];
   let busyBy = null;
 
   function startModules() {
@@ -84,11 +84,10 @@
     const hub = document.documentElement.dataset.offline ? null : window.SlopHub;
     if (!hub) return;
     hub.register('cutout');
-    const rec = await hub.consumeLaunch();
-    if (!rec || !CO.files) return;
-    // A file PhotoSlop sent to be cut out (Layer ▸ Isolate Subject) remembers its request: the mask goes back to it.
-    const [it] = await CO.files.fromDrive(rec, { source: 'hub', origin: { from: rec.from, meta: rec.meta || {} } });
-    if (it && rec.meta && rec.meta.requestId) it.request = { requestId: rec.meta.requestId };
+    if (!CO.files) return;
+    // Through the intake (source 'launch'): a file PhotoSlop sent to be cut out (Layer ▸ Isolate Subject) keeps where it
+    // came from and its request (io/files.js), so the mask goes back to it.
+    await SlopIntake.launch({ to: 'cutout' });
   }
 
   function boot() {

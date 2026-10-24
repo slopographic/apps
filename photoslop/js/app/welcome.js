@@ -25,7 +25,7 @@ function showWelcome() {
   const onDown = (e) => { if (card && !card.contains(e.target)) close(); };
   const sample = h('button', { type: 'button', class: 'sd-sample', id: 'psWelcomeSample', onclick: () => {
     close();
-    if (fileDrop && window.SlopSamples) fileDrop.run(SlopSamples.photos(1, { width: 1600, height: 1000 }));
+    if (window.SlopSamples) SlopIntake.sample(() => SlopSamples.photos(1, { width: 1600, height: 1000 }), { to: 'photoslop', mode: 'new' });
   } }, 'Try it with a sample photo');
   const shut = h('button', { type: 'button', class: 'sd-sample', onclick: close }, 'Start with this blank canvas');
   const inner = h('div', { class: 'ps-welcome-card' }, pv, h('div', { class: 'sd-acts' }, sample, shut));

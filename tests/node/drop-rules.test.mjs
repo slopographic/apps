@@ -1,4 +1,4 @@
-// Node tests for the drop rules (shared/drop/rules.js, window.SlopDrop.rules): which dropped files an app takes, why it
+// Node tests for the drop rules (shared/intake/rules.js, window.SlopIntake.rules and SlopDrop.rules): which dropped files an app takes, why it
 // refuses the others, the toast words, and the accept attribute. Loaded in a vm context. Run with: node tests/run.mjs drop
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,7 +11,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const ctx = { console };
 ctx.window = ctx;
 vm.createContext(ctx);
-vm.runInContext(readFileSync(path.join(ROOT, 'shared', 'drop', 'rules.js'), 'utf8'), ctx, { filename: 'rules.js' });
+vm.runInContext(readFileSync(path.join(ROOT, 'shared', 'intake', 'rules.js'), 'utf8'), ctx, { filename: 'rules.js' });
 const R = ctx.SlopDrop.rules;
 // vm objects come from another realm, so compare plain copies.
 const plain = (v) => JSON.parse(JSON.stringify(v));

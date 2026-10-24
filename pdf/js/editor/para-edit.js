@@ -121,7 +121,7 @@
       else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); ed.commit(); }
     });
     box.addEventListener('input', function () { ed.place(); }); // a new paragraph takes the indents
-    box.addEventListener('paste', function (e) {
+    box.addEventListener('paste', function (e) { // intake-ok: text pasted into the paragraph editor (no files)
       e.preventDefault();
       var t = (e.clipboardData && e.clipboardData.getData('text/plain')) || '';
       document.execCommand('insertText', false, t);

@@ -48,8 +48,10 @@
         SlopUI.el('p', { class: 'sui-p' }, 'The layers are set up. Add each picture; it goes on the layer with the same file name:'),
         SlopUI.el('ul', { class: 'sui-errors' }, names)),
       buttons: [{ label: 'Later' }, { label: 'Add pictures…', primary: true, act: async () => {
-        const files = await SlopUI.pickFiles({ accept: 'image/*', multiple: true });
-        for (const f of files || []) await place(f);
+        // the pictures come in the one way (shared/intake): a spec of their own, each placed on its layer
+        SlopIntake.register({ id: 'photoslop.layer-pictures', main: false, paste: false, toast: false,
+          accept: { types: ['image/*'], noun: 'a picture' }, process: (f) => place(f) });
+        await SlopIntake.pick({ to: 'photoslop.layer-pictures' });
         if (PS.waiting.length) askForPictures();
       } }],
     });

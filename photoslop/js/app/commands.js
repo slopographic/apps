@@ -22,7 +22,7 @@ function menuCommands() {
     for (const it of items) {
       if (!it || it === '-') continue;
       if (it.sub) { walk(it.sub, group, path.concat(it.label)); continue; }
-      if (!it.act || /^cmd\./.test(it.cmdId || '')) continue;
+      if (!it.act || /^(cmd|macro)\./.test(it.cmdId || '')) continue;   // shared commands keep their own ids
       const id = it.cmdId || (it.cmdId = 'ps.' + slug([group].concat(path, it.label).join(' ')));
       const keys = NATIVE_KEYS.has(it.key) ? [] : [it.key].concat(it.alt || []).filter(Boolean).map(cmdKey).concat(EXTRA_KEYS[id] || []);
       out.push({ id, title: path.concat(it.label.replace(/…$/, '')).join(' › ') + (it.label.endsWith('…') ? '…' : ''), group, keys, keywords: [group].concat(path),

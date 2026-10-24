@@ -1,5 +1,5 @@
-/* Slop Resize: the controller. Opens pictures and videos (button, drop, Slop Drive picker, or ?drive=<id> from another
- * app), runs the queue with the panel's settings, and hands out the results: a download (one file, or a zip of them all),
+/* Slop Resize: the controller. Opens pictures and videos through the one intake (shared/intake: Open, a drop, a paste,
+ * the Slop Drive picker, or ?drive=<id> from another app), runs the queue with the panel's settings, and hands out the results: a download (one file, or a zip of them all),
  * or a copy saved to Slop Drive. Originals are never changed. Classic script. */
 (function () {
   'use strict';
@@ -23,31 +23,9 @@
     $('rs-stat').textContent = NS.list.summary(items);
   }
 
-  async function addFiles(files) {
-    let skipped = 0;
-    for (const f of [...files]) {
-      if (!NS.format.kind(f)) { skipped++; continue; }
-      await NS.queue.add(f);
-    }
-    if (skipped) toast(plural(skipped, 'file skipped: it is not a picture or a video', 'files skipped: they are not pictures or videos'));
-  }
-
-  async function addDriveRecord(rec) {
-    if (!rec || !rec.blob) { toast('That Drive file has no content'); return; }
-    const file = new File([rec.blob], rec.name || 'Untitled', { type: rec.type || rec.blob.type || '' });
-    if (window.SlopHub) window.SlopHub.touch(rec.id);
-    await NS.queue.add(file, { name: rec.name });
-  }
-
-  async function openPicker() {
-    const files = await window.SlopUI.pickFiles({ accept: 'image/*,video/*' + (window.SlopRaw ? ',' + window.SlopRaw.ACCEPT : ''), multiple: true });
-    await addFiles(files);
-  }
-
-  async function openDrive() {
-    if (!NS.drive.available()) { toast('Slop Drive is not available on this page'); return; }
-    await addDriveRecord(await NS.drive.pick());
-  }
+  /** File ▸ Open (and Ctrl+O) and Open from Slop Drive: sources of the one intake (shared/intake), like a drop. */
+  const openPicker = () => window.SlopIntake.pick({ to: 'resize' });
+  const openDrive = () => window.SlopIntake.fromDrive({ to: 'resize' });
 
   async function run() {
     if (!NS.queue.items().some((i) => i.src)) return;
@@ -95,9 +73,10 @@
 
   /** Sends a row to Slop Upscale: the result when it is done, else the original. Opens Upscale in a new tab. */
   async function sendToUpscale(it) {
-    if (!window.SlopHub) { toast('Slop Drive is not available on this page'); return; }
+    if (!window.SlopHub || !window.SlopOuttake) { toast('Slop Drive is not available on this page'); return; }
     const done = it.status === 'done' && it.out;
-    try { await window.SlopHub.sendTo('upscale', done ? it.out.blob : it.file, done && it.outName ? it.outName : it.name); }
+    // the one way out (shared/intake/outtake.js): the file goes through Slop Drive and Upscale takes it with its intake
+    try { await window.SlopOuttake.send('upscale', { from: 'resize', get: () => (done ? it.out.blob : it.file), name: done && it.outName ? it.outName : it.name, type: (done ? it.out.blob : it.file).type }); }
     catch (e) { toast('Could not send to Slop Upscale: ' + e.message); }
   }
 
@@ -145,28 +124,34 @@
     if (off) $('rs-video-warning').textContent = `Video is not available here. ${sup.reason} Images only.`;
   }
 
-  // Drops (on the left column, or the zone) go through SlopDrop (shared/drop): each file is checked, read by the queue
-  // as before, and reported with its progress. A file the queue cannot read shows its error in the zone. The zone is the
-  // empty state's only drop area; once files are queued, the whole column still takes drops.
+  // Every way in (a drop on the left column or the zone, Open, Ctrl+O, Open from Slop Drive, ?drive=<id> from another app,
+  // a paste, the sample) is a source of the one intake (shared/intake): it checks each file and hands it to the queue
+  // here, and the zone (SlopDrop) shows its row and progress. A file the queue cannot read shows its error in the zone.
   const DROP_RULES = {
     types: ['image/*', 'video/*'],
     exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp', '.tif', '.tiff', '.mp4', '.m4v', '.mov', '.webm', '.mkv', '.ogv', ...(window.SlopRaw ? window.SlopRaw.EXTS.map((e) => '.' + e) : [])],
     noun: 'a picture or a video',
   };
+  function registerIntake() {
+    window.SlopIntake.register({
+      id: 'resize', accept: DROP_RULES, noun: DROP_RULES.noun, driveAccept: ['image/*', 'video/*'],
+      process: async (file, ctx) => {
+        if (ctx.drive && window.SlopHub) window.SlopHub.touch(ctx.drive.id);
+        const it = await NS.queue.add(file, { name: file.name });
+        if (it.status === 'error') throw new Error(it.err);
+        return it.id;
+      },
+    });
+  }
   function wireDrop() {
     SlopDrop.attach($('rs-drop'), {
-      accept: DROP_RULES,
+      intake: 'resize',
       label: 'Drop pictures or videos here',
       hint: 'JPEG, PNG, WebP, AVIF, GIF and camera RAW pictures, and MP4, WebM or MOV video. Many at once. Each file is read and resized in this browser and never uploaded.',
       targets: [$('rs-left')],
       preview: { picture: { src: '../assets/shots/resize.jpg', alt: 'Photos resized from 2400 × 1600 to 1080 × 720, each with its old and new file size' },
         steps: ['Drop pictures or videos, many at once', 'Pick a size, a percentage or a file limit', 'Download the copies as a ZIP'] },
       sample: { label: 'Try it with 4 sample photos', files: () => window.SlopSamples.photos(4, { width: 2400, height: 1600 }) },
-      process: async (file) => {
-        const it = await NS.queue.add(file);
-        if (it.status === 'error') throw new Error(it.err);
-        return it.id;
-      },
       reveal: () => $('rs-list').lastElementChild,
     });
   }
@@ -191,15 +176,13 @@
     NS.presets.bind({ select: $('rs-saved'), apply: $('rs-apply'), saveAs: $('rs-save-as'), del: $('rs-delete'), status: toast });
     wirePanel();
     NS.settings.wireLock();
+    registerIntake();
     wireDrop();
     NS.queue.on(render);
     render();
     checkEngines();
     if (window.SlopCmd) { SlopCmd.init({ app: 'resize' }); NS.commands.install(api); }
-    if (NS.drive.available()) {
-      const rec = await window.SlopHub.consumeLaunch();
-      if (rec) await addDriveRecord(rec);
-    }
+    await window.SlopIntake.launch({ to: 'resize' }); // ?drive=<id> (Send to…) or the files the installed app was opened with
   }
 
   NS.app = api;

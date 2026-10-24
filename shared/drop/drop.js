@@ -1,8 +1,11 @@
-/* SlopDrop: one call per app. SlopDrop.attach(zone, o) draws the drop zone (message, Choose files, progress list),
-   outlines the targets and labels "Drop to add N files" while a file drag is over the window, takes only the files the
-   rules allow (refusals say why), hands each accepted file to the app's own reader (o.process) one at a time, and then
-   reports: o.done(summary), a toast, and the new item scrolled into view (o.reveal). Routing and feedback only: the
-   app reads and decodes files as before. Loads after rules.js and panel.js. See shared/drop/HANDOFF.md. */
+/* SlopDrop: the drop zone and progress UI on top of the one intake pipeline (shared/intake, SlopIntake). SlopDrop.attach(zone, o)
+   draws the drop zone (message, Choose files, progress list), outlines the targets and labels "Drop to add N files" while
+   a file drag is over the window, and is the drop, Choose files and sample source for one app: every file it is given
+   goes to SlopIntake.take(files, { source: 'drop' | 'picker' | 'sample' }). The pipeline checks the rules (refusals say
+   why), runs the gates and the app's reader, and this zone shows each file's row, the result line, the toast and the new
+   item (o.reveal). o.intake: the id of a spec the app registered with SlopIntake.register (the zone is then only its UI);
+   without it, attach registers a spec from o (accept, process, begin, done, limit), so older callers work unchanged.
+   Loads after shared/intake/{rules,normalize,pipeline,intake,sources}.js and panel.js. See shared/drop/HANDOFF.md. */
 (function (root) {
   'use strict';
   const SD = (root.SlopDrop = root.SlopDrop || {});
@@ -23,62 +26,70 @@
     setTimeout(() => el.classList.remove('sd-flash'), 1300);
   }
 
-  /** Attach the drop feedback to a zone. o:
-   *   accept: rules { types, exts, noun, maxBytes } (see rules.js); files that fail are refused with a reason.
-   *   process(file, progress, ctx): the app's own reader for one accepted file. Resolves with a value (the item id,
-   *     say) or throws Error(reason). progress(0..1) is optional; without it the bar shows motion while reading.
-   *     ctx: { at: { x, y } client point of a drop (null from Choose files), index: the file's place among the added ones }.
-   *   begin(files)?: before the first file is read. done(summary)?: after the last one, summary = { added: [{ name,
-   *     value }], skipped: [{ name, reason }] }. reveal(summary)?: returns the element to scroll into view and flash.
-   *   files?(dataTransfer, event) → File[] (or a Promise of one): the files of a drop, when the app reads them itself
-   *     (folders). Called inside the drop event, so the event's own target is still the one the drop landed on.
-   *   targets?: elements that take drops (default: the zone). A null in the list (a missing element) is skipped; with none
-   *     left, the zone takes the drops. They are outlined while a file drag is over the window.
-   *   input?: an existing <input type=file> to use for Choose files (its change event runs the same batch).
-   *   limit?: most files taken in one drop (the rest are refused with a reason). overlay?: false to skip the outlines
-   *     and label (for an app that marks its own drop areas). window?: false leaves the rest of the page alone: only the
-   *     targets take drops (marked .sd-over while a file is over them). label?, hint?: text for the zone.
-   *   toast?: false to hide the toast. multiple?: default true. compact?: one row (message and button), for a strip; with
-   *     targets beyond the strip it is hidden at rest and shows only the files being added and the result (quiet: false
-   *     keeps it on view).
-   *   preview?: { picture, steps }: what the app makes and how, shown in the zone above the prompt (not when compact).
-   *     picture: { src, alt } | { flow: { from, to } } | an element; steps: three short lines.
-   *   sample?: { label?, files: () => File[] | Promise<File[]> }: a "Try it with a sample" button whose files go
-   *     through the same batch as a drop (shared/samples/samples.js makes sample files).
-   *  Returns { choose(), run(files), sample(), destroy() }. */
+  let seq = 0;
+  /** Attach the drop zone to an app. o:
+   *   intake?: the id of the app's registered spec (SlopIntake.register); the zone is then its drop/pick/sample source
+   *     and its feedback. Without it these options make the spec: accept (rules, see shared/intake/rules.js),
+   *     process(file, progress, ctx) (the app's reader: resolves a value or throws Error(reason); ctx: { at, index,
+   *     source, mode, data }), begin(files)?, limit?, id? (the spec id; default 'drop-<n>'), main?, paste? (false: no
+   *     paste; { hasOpen, openName, onAdd }: ask Add or New on a paste).
+   *   done(summary)?: after each batch, summary = { added: [{ name, value }], skipped: [{ name, reason }], source }.
+   *   reveal(summary)?: returns the element to scroll into view and flash.
+   *   files?(dataTransfer, event) → File[] (or a Promise): the files of a drop, read inside the drop event (folders).
+   *   mode?(event) → 'add' | 'new' | null and data?(event): what the drop's own place decides (a zone it landed on).
+   *   targets?, input?, overlay?, window?, label?, hint?, toast?, multiple?, compact?, quiet?, preview?, sample?: the
+   *     zone's look and where it takes drops (see shared/drop/HANDOFF.md).
+   *  Returns { id, choose(), run(files, at), sample(), empty(v), destroy() }. */
   SD.attach = function (zone, o) {
     if (!zone) return null; // the page has no drop zone: nothing to attach, and no error
     o = o || {};
-    const rules = o.accept || {};
+    const SI = root.SlopIntake;
+    if (!SI || !SI.take) { console.error('SlopDrop needs shared/intake (SlopIntake) on the page'); return null; }
+    let id = o.intake, unregister = null;
+    if (!id) {
+      id = o.id || 'drop-' + ++seq;
+      const P = o.paste && typeof o.paste === 'object' ? o.paste : {};
+      unregister = SI.register({
+        id, main: o.main, accept: o.accept || { any: true }, limit: o.limit, toast: o.toast, paste: o.paste !== false,
+        hasOpen: P.hasOpen || null, openName: P.openName || null, ask: ['paste'], onAdd: P.onAdd ? (files) => P.onAdd(files) : null,
+        before: o.begin ? (batch) => { try { o.begin(batch.take.slice()); } catch (err) { console.error('SlopDrop begin', err); } } : null,
+        process: (file, ctx) => o.process(file, ctx.progress, { at: ctx.at, index: ctx.index, source: ctx.source, mode: ctx.mode, data: ctx.data }),
+      });
+    }
+    const spec = () => SI.spec(id) || {};
+    const rules = () => (spec().accept && typeof spec().accept === 'object' ? spec().accept : { any: true });
     // A target that is missing from this page (a page without that element, a null from $('id')) is skipped, never an
     // error. When none is left, the zone itself takes the drops, so the zone still works.
     const listed = (o.targets || []).filter(Boolean);
     const targets = listed.length ? listed : [zone];
-    const limit = o.limit || Infinity;
     // A strip whose drops land on a bigger area (the app's targets) is not a second place to add files: at rest it is
     // hidden (.sd-quiet), and it shows only while files are added or a result is shown. quiet: false keeps it on view.
     if (o.compact && o.window !== false && o.quiet !== false && listed.some((t) => t !== zone)) zone.classList.add('sd-quiet');
-    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint, compact: o.compact, preview: o.preview, sample: o.sample });
+    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules().hint, compact: o.compact, preview: o.preview, sample: o.sample });
     const input = o.input || doc.createElement('input');
     input.type = 'file';
-    input.multiple = o.multiple !== false;
-    input.accept = R.acceptAttr(rules);
+    input.multiple = o.multiple != null ? o.multiple !== false : spec().limit !== 1;
+    input.accept = R.acceptAttr(rules());
     if (!o.input) { input.hidden = true; zone.append(input); }
     ui.choose.addEventListener('click', () => input.click());
-    /** The sample's files, through the same batch as a drop. */
-    /** Making the files can take a moment (recorded clips): the status line says so and the button waits. */
+
+    /** Every file the zone is given, from any of its sources, goes into the pipeline. */
+    function run(list, at, source, extra) {
+      return SI.take(list, Object.assign({ source: source || 'drop', to: id, at: at || null }, extra));
+    }
+    /** The sample's files, through the same pipeline as a drop. Making them can take a moment (recorded clips): the
+     *  status line says so and the button waits. */
     const trySample = () => {
       if (!o.sample) return Promise.resolve();
       if (ui.sample) ui.sample.disabled = true;
       ui.status.textContent = 'Preparing the sample…';
       const files = Promise.resolve().then(() => o.sample.files()).finally(() => { if (ui.sample) ui.sample.disabled = false; });
-      return run(files);
+      return run(files, null, 'sample');
     };
     if (ui.sample) ui.sample.addEventListener('click', trySample);
-    const onPick = () => { const files = Array.from(input.files || []); input.value = ''; if (files.length) run(files); };
+    const onPick = () => { const files = Array.from(input.files || []); input.value = ''; if (files.length) run(files, null, 'picker'); };
     input.addEventListener('change', onPick);
 
-    let chain = Promise.resolve();
     let tidy = null;
     /** After a batch with no problems the file rows and the status line go, so the strip is its plain prompt again. */
     /** The timers are optional: a host without them (a test sandbox) just keeps the rows. */
@@ -89,62 +100,24 @@
       tidy = setTimeout(() => { ui.list.replaceChildren(); ui.status.textContent = ''; }, 3000);
       if (tidy && tidy.unref) tidy.unref(); // a node test does not wait on this tidy-up
     };
-    /** Runs one batch after the previous one (drops during a batch queue up). */
-    function run(list, at) {
-      chain = chain.then(() => batch(list, at)).catch((err) => console.error('SlopDrop', err));
-      return chain;
-    }
-    // Paste is the same batch as a drop: a copied file (or a picture copied from a web page) that the rules accept goes
-    // through o.process like a dropped one. o.paste may give hasOpen/openName (then pasting asks Add or New document) and
-    // onAdd (the app's own add path; by default the batch runs as usual). Needs shared/intake (SlopIntake) on the page.
-    if (root.SlopIntake && o.paste !== false) {
-      const P = o.paste || {};
-      root.SlopIntake.attach({
-        accept: (f) => R.check(f, rules).ok,
-        hasOpen: P.hasOpen,
-        openName: P.openName,
-        onAdd: P.onAdd ? (files) => P.onAdd(files) : (files) => run(files),
-        onNew: (files) => run(files),
-      });
-    }
-    async function batch(list, at) {
-      let files;
-      try { files = Array.from((await list) || []); } catch (err) { ui.status.textContent = ''; PN.toast('Could not read the dropped files', 'warn'); return; }
-      ui.status.textContent = '';   // 'Preparing the sample…' is done: the rows say what happens now
-      if (!files.length) return;
-      cancelTidy();
-      ui.list.replaceChildren();
-      const take = [], added = [], skipped = [];
-      for (const f of files) {
-        const c = R.check(f, rules);
-        const reason = !c.ok ? c.reason : take.length >= limit ? f.name + ' is not taken: ' + (limit === 1 ? 'only one file at a time' : 'only ' + limit + ' files at a time') : '';
-        if (!reason) { take.push(f); continue; }
-        skipped.push({ name: f.name, reason });
-        PN.row(ui.list, f.name, R.size(f.size)).set('error', reason);
-      }
-      if (o.begin && take.length) { try { o.begin(take); } catch (err) { console.error('SlopDrop begin', err); } }
-      for (const f of take) {
-        const row = PN.row(ui.list, f.name, R.size(f.size));
-        try {
-          const value = await o.process(f, (p) => row.progress(p), { at, index: added.length });
-          row.set('ready', 'Ready');
-          added.push({ name: f.name, value });
-        } catch (err) {
-          const msg = (err && err.message) || 'could not be read';
-          const reason = msg.includes(f.name) ? msg : f.name + ' ' + msg;
-          row.set('error', reason);
-          skipped.push({ name: f.name, reason });
-        }
-      }
-      if (added.length && ui.wrap) ui.wrap.classList.add('sd-has');
-      const summary = { added, skipped };
-      const text = R.describe(summary);
-      ui.status.textContent = text;
-      if (!skipped.length) tidyLater();
-      if (o.done) { try { o.done(summary); } catch (err) { console.error('SlopDrop done', err); } }
-      if (added.length && o.reveal) { try { reveal(o.reveal(summary)); } catch (err) { console.error('SlopDrop reveal', err); } }
-      if (o.toast !== false) PN.toast(text, added.length ? '' : 'warn');
-    }
+    // The zone is the spec's feedback view, whichever source the batch came from (a drop, Open, Slop Drive, a paste).
+    const offView = SI.view(id, {
+      begin() { cancelTidy(); ui.list.replaceChildren(); ui.status.textContent = ''; },
+      refuse(r) { cancelTidy(); PN.row(ui.list, r.name, R.size(r.file && r.file.size)).set('error', r.reason); },
+      row(file) { cancelTidy(); return PN.row(ui.list, file.name, R.size(file.size)); },
+      end(summary) {
+        if (summary.cancelled && !summary.added.length) { ui.status.textContent = ''; return; }
+        if (!summary.added.length && !summary.skipped.length) { ui.status.textContent = ''; return; }
+        const { added, skipped } = summary;
+        if (added.length && ui.wrap) ui.wrap.classList.add('sd-has');
+        const text = R.describe(summary);
+        ui.status.textContent = text;
+        if (!skipped.length) tidyLater();
+        if (o.done) { try { o.done(summary); } catch (err) { console.error('SlopDrop done', err); } }
+        if (added.length && o.reveal) { try { reveal(o.reveal(summary)); } catch (err) { console.error('SlopDrop reveal', err); } }
+        if (o.toast !== false && spec().toast !== false) PN.toast(text, added.length ? '' : 'warn');
+      },
+    });
 
     // Window: a file drag shows the outlines and the label over every target; a drop elsewhere says where to drop.
     let depth = 0, shown = false;
@@ -152,7 +125,7 @@
     const onEnter = (e) => {
       if (!isFiles(e)) return;
       depth++;
-      if (!shown) { shown = true; if (o.overlay !== false) PN.showHints(targets, R.dragLabel(dragTypes(e.dataTransfer), rules)); }
+      if (!shown) { shown = true; if (o.overlay !== false) PN.showHints(targets, R.dragLabel(dragTypes(e.dataTransfer), rules())); }
     };
     const onLeave = (e) => { if (!isFiles(e)) return; depth = Math.max(0, depth - 1); if (!depth) hide(); };
     const onOver = (e) => { if (!isFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; if (shown) PN.placeHints(); };
@@ -173,7 +146,7 @@
       hide();
       // o.files(dataTransfer) is read now, inside the drop event (folder entries must be), and may resolve later.
       const list = o.files ? o.files(e.dataTransfer, e) : Array.from((e.dataTransfer && e.dataTransfer.files) || []);
-      run(list, { x: e.clientX, y: e.clientY });
+      run(list, { x: e.clientX, y: e.clientY }, 'drop', { mode: o.mode ? o.mode(e) : null, data: o.data ? o.data(e) : undefined });
     };
     const win = root;
     // window: false leaves the page alone (no window outline, no drops taken elsewhere): only the targets react.
@@ -198,8 +171,9 @@
     }
 
     return {
+      id,
       choose: () => input.click(),
-      run,
+      run: (list, at) => run(list, at, 'drop'),
       sample: trySample,
       /** Whether the app has nothing in it yet: the preview and the sample button show only then. A batch that adds files
        *  sets it to false; an app's Clear sets it back with empty(true). */
@@ -220,6 +194,8 @@
           t.removeEventListener('drop', onTargetDrop);
         }
         input.removeEventListener('change', onPick);
+        offView();
+        if (unregister) unregister();
         hide();
       },
     };

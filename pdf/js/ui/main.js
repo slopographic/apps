@@ -4,21 +4,11 @@
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._;
   function hub() { return window.SlopHub || null; }
-  function recToFile(rec) {
-    var name = rec.name || 'file', type = rec.type || (rec.blob && rec.blob.type) || '';
-    try { return new File([rec.blob], name, { type: type }); } catch (e) { var b = rec.blob; try { b.name = name; } catch (er) { /* ignore */ } return b; }
-  }
-  // A.driveId: the Slop Drive record the open document came from (or was saved to). Only a document
-  // that was empty when a Drive file arrived takes that file's id, so Save never overwrites a different file.
+  // A.driveId: the Slop Drive record the open document came from (or was saved to). Only a document that was empty when
+  // a Drive file arrived takes that file's id (the intake's onNew, ui/drop.js), so Save never overwrites a different file.
   A.driveId = null;
-  function openDriveRecord(rec) {
-    var wasEmpty = !E.state.pages.length;
-    return A.addFiles([recToFile(rec)]).then(function () { if (wasEmpty && E.state.pages.length) A.driveId = rec.id; });
-  }
-  A.openFromDrive = function () {
-    var H = hub(); if (!H) return;
-    H.pickFromDrive({ accept: ['application/pdf', 'image/*'] }).then(function (rec) { if (rec && rec.blob) openDriveRecord(rec); });
-  };
+  /** Open from Slop Drive: a source of the one intake (ui/drop.js), like a drop. */
+  A.openFromDrive = function () { return SlopIntake.fromDrive({ to: 'pdf' }); };
   // Starting a different document unlinks the Drive file.
   ['closeAll', 'loadSample'].forEach(function (k) {
     var orig = A[k]; if (!orig) return;
@@ -78,17 +68,13 @@
     var n = E.indexOf(id) + 1;
     return H.sendMenuItems(wrap('Rendering page ' + n + '…', function () { return A.pagePngBlob(id); }), function () { return U.baseName(S.els.fileName.value || 'document') + '-page-' + n + '.png'; }, 'image/png');
   };
+  /** ?drive=<id> (Send to…) and a PWA launch: sources of the intake. */
   async function launch() {
-    var H = hub(); if (!H) return;
-    try { H.register('pdf'); } catch (e) { console.warn('Slop PDF: hub register failed', e); }
-    var rec = null;
-    try { rec = await H.consumeLaunch(); } catch (e) { rec = null; }
-    if (rec && rec.blob) {
-      await A.tabsReady; // the stored tabs are open first; the launched file gets a tab of its own
-      A.newTab();
-      await openDriveRecord(rec);
-      SlopUI.toast('Opened “' + (rec.name || 'file') + '” from Slop Drive');
-    }
+    var H = hub();
+    if (H) { try { H.register('pdf'); } catch (e) { console.warn('Slop PDF: hub register failed', e); } }
+    await A.tabsReady; // the stored tabs are open first; the launched file gets a tab of its own
+    var r = await SlopIntake.launch({ to: 'pdf', mode: 'new', data: { tab: true } });
+    if (r && r.added.length) SlopUI.toast('Opened “' + r.added[0].name + '” from Slop Drive');
   }
   A.launch = launch; // run by A.bootRest (ui/app.js) once the app is wired
 })();

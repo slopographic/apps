@@ -28,7 +28,7 @@ export function mountTool(host, { files = null, preset = null, fixedTarget = nul
   const p = preset || (fixedTarget ? { conv: fixedTarget, from: null, defaults: {}, note: '', accept: '' } : null);
   const tool = new ConvertTool(host, p, { compact: !!compact, onResults, drop });
   host.convertTool = tool;
-  if (files && files.length) tool.ready = tool.addFiles(files);
+  if (files && files.length) tool.ready = tool.addFiles(files, 'convert');
   else tool.ready = Promise.resolve();
   return tool;
 }

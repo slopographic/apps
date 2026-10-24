@@ -73,14 +73,25 @@ const cell = (v) => {
 };
 const quote = (s, d) => (s.includes('"') || s.includes('\n') || s.includes('\r') || s.includes(d) ? `"${s.replace(/"/g, '""')}"` : s);
 
+/** A nested record as one level: { a: { b: 1 }, tags: ['x', 'y'] } → { 'a.b': 1, 'tags.0': 'x', 'tags.1': 'y' }. An empty object
+ *  or array stays as its JSON text. */
+export function flattenRecord(v, prefix = '', out = {}) {
+  const isObj = v && typeof v === 'object';
+  if (!isObj || !Object.keys(v).length) { if (prefix) out[prefix] = isObj ? JSON.stringify(v) : v; return out; }
+  for (const [k, x] of Object.entries(v)) flattenRecord(x, prefix ? `${prefix}.${k}` : k, out);
+  return out;
+}
+
 /**
  * JSON text → CSV text. Accepts an array of objects (columns are the union of keys, first-seen order),
  * an array of arrays, a single object, or an array of plain values (one column named "value").
+ * flatten: nested objects and arrays become their own columns (a.b, tags.0) instead of JSON text in one cell.
  */
-export function jsonToCsv(text, { delimiter = ',', eol = '\n' } = {}) {
+export function jsonToCsv(text, { delimiter = ',', eol = '\n', flatten = false } = {}) {
   let data;
   try { data = JSON.parse(text); } catch (e) { throw new Error('This is not valid JSON.'); }
   if (!Array.isArray(data)) data = [data];
+  if (flatten && data.every((r) => r && typeof r === 'object' && !Array.isArray(r))) data = data.map((r) => flattenRecord(r));
   let rows;
   if (data.every((r) => r && typeof r === 'object' && !Array.isArray(r))) {
     const keys = [];

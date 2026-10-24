@@ -29,7 +29,7 @@ function buildBrushesPanel() {
     }
   };
   const bar = h('div', { class: 'bp-bar' },
-    h('button', { type: 'button', class: 'btn', onclick: () => SlopUI.pickFiles({ accept: '.abr,.slopbrush,.json,image/*', multiple: true }).then(importBrushFiles), title: 'Photoshop .abr, PNG/JPEG tips, .slopbrush packs' }, 'Import…'),
+    h('button', { type: 'button', class: 'btn', onclick: () => SlopIntake.pick({ to: 'photoslop.brushes' }), title: 'Photoshop .abr, PNG/JPEG tips, .slopbrush packs' }, 'Import…'),
     h('button', { type: 'button', class: 'btn', onclick: () => dlgBrushSettings() }, 'Settings…'),
     h('button', { type: 'button', class: 'btn', onclick: () => defineBrushFromSelection(), title: 'Make a brush from the selection (or the whole image)' }, 'From selection'));
   listeners.add((w) => { if (w === 'brushes' || w === 'theme') render(); });

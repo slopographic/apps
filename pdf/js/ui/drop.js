@@ -1,10 +1,12 @@
-/* Slop PDF — files dropped on the document area or the tab strip, and the zone on the empty page. SlopDrop
-   (shared/drop) draws the zone and the outlines over the stage and the tabs, and reports each file. On the tab strip
-   each file opens in a new tab. On the open document the person chooses (shared/drop/choice.js): "Add to current" adds
-   the pages at a place they pick, as one undo step; "Create new" opens each file in a new tab. With no document open
-   the files simply open. Every other file (SVG, Office files, text, HTML...) goes to the Convert dialog with its target set
-   to PDF where it can make one; the PDF it makes opens in a new tab (A.openConverted). A PDF already open asks first.
-   Classic script. */
+/* Slop PDF — the one way files come in (shared/intake, spec 'pdf'). A drop on the document area or the tab strip, the
+   empty page's zone and its Choose files, File ▸ Open (Ctrl+O), Insert pages from file, Open from Slop Drive, ?drive=<id>
+   (Send to…), a paste, a split pane's "Open a file", the Convert dialog's PDFs and a PWA launch all call SlopIntake.take.
+   PDFs and raster images open here; every other file (SVG, Office files, text, HTML...) goes to the Convert dialog with its
+   target set to PDF (route), and the PDF it makes comes back through the intake (source 'convert'). With a document open
+   the intake asks "Add to current" or "Create new" (the drop's place decides for the tab strip and the panes): Add puts
+   the pages at a place the person picks (or opts.at for Insert pages from file), as one undo step; New opens each file in a
+   tab of its own, or into the empty tab. A PDF already open asks first. SlopDrop (shared/drop) draws the zone, the
+   outlines over the stage and the tabs, and each file's row. Classic script. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._; // SP.docs (io/doc-state.js) loads after the first paint: read it when used
@@ -12,7 +14,6 @@
   var OPENS = ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'];
   var OPEN_TYPE = /^application\/pdf$|^image\/(png|jpe?g|webp|gif|bmp)$/;
   var RULES = { any: true, noun: 'a file' }; // every file is taken by the zone; the ones not opened here go to Convert
-  var dest = new WeakMap(); // a file -> 'tab' (open in a new tab); set by the drop, read by process
 
   /** 'open' for a PDF or a raster image, 'convert' for any other file (the Convert dialog says what it can make of it). */
   function kind(file) {
@@ -44,25 +45,19 @@
       if (!E.state.pages.length) A.closeTab(); // the file did not open (an error was shown): no empty tab left behind
     });
     if (!E.state.pages.length) throw new Error('could not be opened');
+    if (file.slopDrive) A.driveId = file.slopDrive.id; // a Slop Drive file: Save writes back to it
   }
 
-  /** A PDF the Convert dialog made (open-convert.js): opens in a new tab, then a toast names the files it came from. */
+  /** The PDFs the Convert dialog made (open-convert.js): through the intake, each in a new tab; then a toast names the
+   *  files they came from. */
   A.openConverted = async function (outs, names) {
-    for (var i = 0; i < outs.length; i++) {
-      try { await openInTab(new File([outs[i].blob], outs[i].name, { type: 'application/pdf' })); } catch (err) {
-        A.status('“' + outs[i].name + '” ' + err.message, 'err');
-        return;
-      }
-    }
-    SlopUI.toast('Converted ' + (names.length === 1 ? names[0] : names.length + ' files') + ' to PDF');
+    var r = await SlopIntake.fromConvert(outs, { to: 'pdf', mode: 'new', data: { tab: true } });
+    if (r && r.added.length) SlopUI.toast('Converted ' + (names.length === 1 ? names[0] : names.length + ' files') + ' to PDF');
   };
 
-  /** Files opened into split pane i (a drop on it, or Open a file in its empty state). Each opens in a tab; the first one is
+  /** Files opened into split pane i (a drop on it, or Open a file in its empty state), from the intake's onNew. Each opens in a tab; the first one is
    *  then shown live in pane i, and the document that was live goes to the pane that held it. */
   A.openFilesInPane = async function (pane, files) {
-    if (A.isLocked()) { A.status('Wait for the current open to finish, then try again.', 'err'); return; }
-    var conv = files.filter(function (f) { return kind(f) === 'convert'; });
-    if (conv.length) A.convertFiles(conv);
     var opens = files.filter(function (f) { return kind(f) === 'open'; });
     if (!opens.length) return;
     var prev = SP.tabs.current(), first = null;
@@ -75,7 +70,7 @@
   };
 
   /** Adds the files' pages to the open document. A PDF that is already in it asks first; the position is asked once. */
-  async function addToDocument(files) {
+  async function addToDocument(files, at) {
     var keep = [];
     for (var i = 0; i < files.length; i++) {
       var file = files[i], fp = await fingerprintOf(file);
@@ -87,7 +82,7 @@
       keep.push(file);
     }
     if (!keep.length) return;
-    var at = await askPosition(E.state.pages.length);
+    if (at == null) at = await askPosition(E.state.pages.length);
     if (at == null) return;
     await A.lockedOpen(function () { return A.addFiles(keep, { at: at }); });
   }
@@ -115,52 +110,68 @@
     });
   }
 
-  /** The drop (SlopDrop's files hook, read inside the drop event). Returns the files SlopDrop should open one by one. */
-  async function onDrop(dt, e) {
-    var list = Array.prototype.slice.call((dt && dt.files) || []);
-    if (!A.isReady) await A.ready; // a drop before the rest of the app has loaded (ui/app.js) waits for it
-    if (A.isLocked()) { A.status('Wait for the current open to finish, then drop again.', 'err'); return []; }
-    var r = split(list);
-    if (r.convert.length) A.convertFiles(r.convert);
-    var opens = r.open;
-    if (!opens.length) return [];
-    var pane = SP.panes.paneAt(e && e.target);
-    if (pane >= 0 && pane !== SP.panes.focused()) { await A.openFilesInPane(pane, opens); return []; }
-    if (onTabs(e && e.target) || !E.state.pages.length) {
-      // on the strip, or with no document open: each file opens in a tab (the strip) or the first file opens here
-      if (onTabs(e && e.target)) opens.forEach(function (f) { dest.set(f, 'tab'); });
-      return opens;
+  /** New: each file in a tab of its own (the tab strip, a launch, the Convert dialog), into a split pane, or, when the tab
+   *  on screen is empty, all of them into it (merged, as Open always did). */
+  async function openNew(files, ctx) {
+    var data = ctx.data || {};
+    if (data.pane >= 0) { await A.openFilesInPane(data.pane, files); return; }
+    if (!data.tab && !E.state.pages.length) {
+      await A.lockedOpen(function () { return A.addFiles(files); });
+      if (!E.state.pages.length) throw new Error('could not be opened');
+      if (files.length === 1 && files[0].slopDrive) A.driveId = files[0].slopDrive.id; // a Slop Drive file: Save writes back to it
+      return;
     }
-    var where = window.SlopDropChoice ? await SlopDropChoice.ask({ files: opens, hasDocument: true }) : 'current';
-    if (where === 'new') { opens.forEach(function (f) { dest.set(f, 'tab'); }); return opens; }
-    if (where === 'current') await addToDocument(opens);
-    return [];
+    var errs = [];
+    for (var i = 0; i < files.length; i++) {
+      try { await openInTab(files[i]); } catch (err) { errs.push('“' + files[i].name + '” ' + err.message); }
+    }
+    if (errs.length) throw new Error(errs.join('; '));
   }
 
-  /** Choose files: the files that are not opened here go to the Convert dialog (process names them as not added). */
-  function begin(list) {
-    if (!A.isReady) { A.ready.then(function () { begin(list); }); return; }
-    var conv = list.filter(function (f) { return kind(f) === 'convert'; });
-    if (conv.length) A.convertFiles(conv);
+  /** Registers Slop PDF with the intake: what it takes, the Add or New question, and the readers. */
+  function register() {
+    SlopIntake.register({
+      id: 'pdf', accept: RULES, driveAccept: ['application/pdf', 'image/*'],
+      hasOpen: function () { return !!E.state.pages.length; },
+      openName: function () { return 'this document'; },
+      labels: { title: 'Add files', message: 'Where should these files go?', add: 'Add to current', new: 'Create new' },
+      // the files this page does not open go to the Convert dialog, which makes a PDF and hands it back (source 'convert')
+      route: async function (files) {
+        if (!A.isReady) await A.ready; // files before the rest of the app has loaded (ui/app.js) wait for it
+        var r = split(files);
+        if (r.convert.length) A.convertFiles(r.convert);
+        return r.open;
+      },
+      gate: function () {
+        if (!A.isLocked()) return true;
+        A.status('Wait for the current open to finish, then try again.', 'err');
+        return false;
+      },
+      onAdd: function (files, ctx) { return addToDocument(files, ctx.data && ctx.data.at); },
+      onNew: openNew,
+    });
   }
 
-  /** One accepted file, from a drop or the zone's Choose files button. */
-  async function process(file) {
-    if (!A.isReady) await A.ready;
-    if (kind(file) === 'convert') throw new Error('is not opened here: it went to the Convert dialog');
-    if (dest.get(file) === 'tab') { await openInTab(file); return file.name; }
-    await A.addFiles([file]);
-    if (!E.state.pages.length) throw new Error('could not be opened');
-    return file.name;
+  /** Where a drop lands decides: the tab strip opens new tabs, a split pane that is not the focused one opens there. */
+  function dropMode(e) {
+    var pane = SP.panes && SP.panes.paneAt ? SP.panes.paneAt(e && e.target) : -1;
+    if (pane >= 0 && pane !== SP.panes.focused()) return 'new';
+    return onTabs(e && e.target) ? 'new' : null;
+  }
+  function dropData(e) {
+    var pane = SP.panes && SP.panes.paneAt ? SP.panes.paneAt(e && e.target) : -1;
+    if (pane >= 0 && pane !== SP.panes.focused()) return { pane: pane };
+    return onTabs(e && e.target) ? { tab: true } : {};
   }
 
   /** Wires the zone (on the empty page) and the drop targets (the stage and the tab strip). Called from ui/app.js. */
   S.setupDrop = function () {
+    register();
     if (!window.SlopDrop) return;
     SlopDrop.attach(document.getElementById('pdfDrop'), {
-      accept: RULES, compact: true, label: 'Drop PDFs, images or other files here', chooseLabel: 'Choose files',
+      intake: 'pdf', compact: true, label: 'Drop PDFs, images or other files here', chooseLabel: 'Choose files',
       targets: [document.getElementById('stage'), document.getElementById('tabs')],
-      files: onDrop, begin: begin, process: process,
+      mode: dropMode, data: dropData,
     });
     // The empty page shows a finished PDF and how (SlopDrop's preview), in place of the drawing; Try a sample stays below.
     var art = document.querySelector('#empty .empty-art');

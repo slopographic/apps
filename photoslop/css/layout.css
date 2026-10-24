@@ -66,6 +66,8 @@ svg { display: block; }
 .doc-title { flex: 1; min-width: 0; text-align: center; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 8px; }
 /* Under 1180 px the title would show as a cut-off stub; the document tab below still names the file. */
 @media (max-width: 1180px) { .doc-title { visibility: hidden; } }
+/* Macros ▾ only where the bar has room for it (a phone's bar has a second row); Edit ▸ Macros and Ctrl+K are always there */
+@media (min-width: 641px) and (max-width: 1279px) { #macrosBtn { display: none; } }
 .top-actions { display: flex; gap: 6px; flex: none; }
 /* The shared header buttons (Drive, Tour, View, Theme, Apps: shared/ui/hbtn.css) wear the look of .top-btn. */
 .topbar { --slop-hbtn-h: 26px; --slop-hbtn-bg: var(--panel-2); --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); --slop-hbtn-radius: var(--radius); --slop-hbtn-fs: 12px; }

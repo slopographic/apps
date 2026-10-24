@@ -99,7 +99,7 @@ function renderTabs() {
     tab.addEventListener('dragstart', (e) => { dragTab = rec; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('application/x-slop-tab', String(rec.id)); });
     tab.addEventListener('dragend', () => { dragTab = null; });
     tab.addEventListener('dragover', (e) => { if (!dragTab) return; e.preventDefault(); e.stopPropagation(); });
-    tab.addEventListener('drop', (e) => {
+    tab.addEventListener('drop', (e) => { // intake-ok: a tab dragged to a new place (no files)
       if (!dragTab) return;
       e.preventDefault(); e.stopPropagation();
       const from = DOCS.indexOf(dragTab), r = tab.getBoundingClientRect();
@@ -133,42 +133,28 @@ function windowMenuItems() {
 }
 
 /* ---------- drag & drop: open as tabs, or place as layers ----------
-   Files: SlopDrop (shared/drop) takes a drop anywhere on the document area (the tabs and the viewport, as a whole). The
-   zones (SlopDropChoice) show while a file is over it, and the zone a drop lands on decides "place" (layers) or "open"
-   (tabs). That is read from the drop's own event, so a later Choose files pick never inherits an earlier hover. The strip
-   at the foot of the viewport shows progress and the Choose files button, and is not a drop target. */
+   Files: SlopDrop (shared/drop) takes a drop anywhere on the document area (the tabs and the viewport, as a whole) and hands
+   it to the one intake (app/intake.js). The zones (SlopDropChoice) show while a file is over it, and the zone a drop lands
+   on is the drop's mode: 'add' (Place as layers) or 'new' (Open as new tabs). That is read from the drop's own event, so a
+   later Choose files pick never inherits an earlier hover. The strip at the foot of the viewport shows progress and the
+   Choose files button, and is not a drop target. */
 const DROP_LABELS = {
   new: 'Open as new tabs', current: 'Place as layers',
   newHint: 'PSD, PNG, JPEG, WebP, GIF, SVG, TIFF, BMP, AVIF, ORA, KRA…',
   currentHint: () => 'into ' + (D.name || 'this document'),
 };
 let fileZones = null; // SlopDropChoice.zones on the document area (made in bindFileDrop)
-let fileDrop = null; // the drop strip's SlopDrop.attach result (the welcome card's sample goes through its batch)
-const placeFile = new WeakMap(); // File -> true when its drop landed on "Place as layers"
 const hasDragType = (e, names) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).some((t) => names.includes(t));
 function onDragOver(e) {
   // An image dragged from another web page arrives as a URL: that drag must be allowed to drop anywhere on the page.
   if (dragTab) return;
   if (hasDragType(e, ['text/uri-list'])) e.preventDefault();
 }
+const dropMode = (e) => (fileZones && fileZones.at(e) === 'current' ? 'add' : 'new');
 function bindFileDrop() {
   const area = $('.docarea');
   fileZones = window.SlopDropChoice.zones(area, { labels: DROP_LABELS, accept: (e) => hasDragType(e, ['Files', 'text/uri-list']) });
-  fileDrop = window.SlopDrop.attach($('#psDrop'), {
-    accept: { types: ['image/*'], exts: ['.psd', '.psb', '.ora', '.kra', '.tif', '.tiff', '.svg', '.avif', '.bmp', '.gif', ...(window.SlopRaw ? SlopRaw.EXTS.map((e) => '.' + e) : [])], noun: 'a picture or a document' },
-    compact: true, overlay: false,
-    targets: [area],
-    files: (dt, e) => {
-      const list = Array.from(dt.files || []), place = fileZones.at(e) === 'current';
-      for (const f of list) placeFile.set(f, place);
-      return list;
-    },
-    process: async (file) => {
-      const failed = await handleFiles([file], placeFile.get(file) === true);
-      if (failed.length) throw new Error(failed[0]);
-      return file.name;
-    },
-  });
+  window.SlopDrop.attach($('#psDrop'), { intake: 'photoslop', compact: true, overlay: false, targets: [area], mode: dropMode });
   $('#psDrop').addEventListener('pointerdown', (e) => e.stopPropagation());
 }
 async function onDropFiles(e) {
@@ -176,13 +162,13 @@ async function onDropFiles(e) {
   e.preventDefault();
   if (e.dataTransfer.files && e.dataTransfer.files.length) return; // files go through SlopDrop (bindFileDrop)
   // An image dragged straight from another web page.
-  const place = fileZones.at(e) === 'current';
+  const mode = dropMode(e);
   const url = (e.dataTransfer.getData('text/uri-list') || '').split('\n').find((l) => l && !l.startsWith('#'));
   if (!url) return;
   try {
     const r = await fetch(url, { mode: 'cors' });
     const blob = await r.blob();
     const name = decodeURIComponent(url.split('/').pop().split('?')[0] || 'image');
-    handleFiles([new File([blob], name, { type: blob.type })], place);
+    SlopIntake.take([new File([blob], name, { type: blob.type })], { source: 'drop', to: 'photoslop', mode });
   } catch (err) { toast("That site won't share the image directly. Save it, then drop the file here.", 4200); }
 }
