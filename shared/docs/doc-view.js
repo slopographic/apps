@@ -13,7 +13,7 @@
   /** The view of one document. doc: { kind ('invoice' | 'order'), title, id, number, statusText, date, dueDate, notes,
    *  currency, locale, lines, customer { name, email, phone, address }, company { name, address, taxNumber },
    *  totals (SlopDocs.model totals, or null when a line is not complete), paid, balance (null hides the row), money(minor),
-   *  pdfSeed, pdfLayout, moreMeta [{ label, value, field }] (more dated fields under the date, such as a quote's Valid until) }. */
+   *  pdfSeed, pdfLayout, partyTitle (the heading over the other party, default Bill to), moreMeta [{ label, value, field }] (more dated fields under the date, such as a quote's Valid until) }. */
   function build(doc) {
     const money = doc.money || ((m) => S.money.formatMinor(m, doc.currency || 'USD', doc.locale || 'en-US'));
     const c = doc.customer || {};
@@ -50,12 +50,12 @@
     for (const m of doc.moreMeta || []) meta.push({ label: m.label, value: m.value || '', field: m.field });
     const ls = doc.lines || [];
     return {
-      kind: doc.kind, title: doc.title || ({ order: 'Order', quote: 'Quote' }[doc.kind] || 'Invoice'),
+      kind: doc.kind, title: doc.title || ({ order: 'Order', quote: 'Quote', purchase: 'Purchase order' }[doc.kind] || 'Invoice'),
       number: doc.number || 'draft', statusText: doc.statusText || '',
       style: NS.layouts.resolve({ id: doc.id, pdfSeed: doc.pdfSeed, pdfLayout: doc.pdfLayout }),
       company: { name: co.name || 'Your company', lines: lines(co.address), taxNumber: co.taxNumber || '', field: 'company' },
       meta,
-      bill: { title: 'Bill to', name: c.name || '', lines: [c.email, c.phone, ...lines(c.address)].filter(Boolean), field: 'customer', customerId: doc.customerId ?? c.id ?? '' },
+      bill: { title: doc.partyTitle || 'Bill to', name: c.name || '', lines: [c.email, c.phone, ...lines(c.address)].filter(Boolean), field: 'customer', customerId: doc.customerId ?? c.id ?? '' },
       hasDiscount: ls.some((l) => l.discount),
       rows: ls.map(rowOf),
       totals,

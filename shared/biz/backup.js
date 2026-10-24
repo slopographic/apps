@@ -1,7 +1,8 @@
 // Full backup and restore for the business apps, through SlopData.exporter: one file with every record in the shared
 // business data. A restore is validated as a whole first, so a bad file changes nothing and its errors are listed.
 // SlopBiz.backup.mount({ done? }) wires the Data view's #dBackup button, #dRestore file input and #dRestoreMsg list, and
-// returns { backup, restore }; done() runs after a restore (an app redraws). Classic script, loaded after biz.js.
+// returns { backup, restore }; done() runs after a restore (an app redraws). attach(ns) makes an app's Data view of it.
+// Classic script, loaded after biz.js.
 (function (g) {
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
@@ -43,5 +44,13 @@
     return { backup, restore };
   }
 
-  B.backup = { mount, backup, restore };
+  /** The Data view of an app: ns.views.data mounts the backup controls, and ns.dataActions gives the commands backup and
+   *  restore. The document apps get it through SlopDocs.docApp. */
+  function attach(ns, opts) {
+    ns.dataActions = { backup, restore };
+    ns.views = ns.views || {};
+    ns.views.data = { mount: () => mount(opts), refresh: () => {}, onShow: () => {} };
+  }
+
+  B.backup = { mount, attach, backup, restore };
 })(typeof window !== 'undefined' ? window : globalThis);

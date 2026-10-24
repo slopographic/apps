@@ -37,7 +37,9 @@
     const r = await NS.customers.load();
     if (!r.ok) { root.replaceChildren(el('p', { class: 'msg', role: 'alert' }, NS.util.refusal(r))); return; }
     const cur = NS.state.settings;
-    const cols = NS.STAGES.map((s) => column(s, r.value.filter((c) => c.stage === s), cur));
+    // Suppliers (contacts Slop Purchases buys from) are not part of the sales pipeline.
+    const people = r.value.filter((c) => !c.supplier);
+    const cols = NS.STAGES.map((s) => column(s, people.filter((c) => c.stage === s), cur));
     root.replaceChildren(...cols);
   }
 

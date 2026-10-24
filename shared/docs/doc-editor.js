@@ -9,6 +9,7 @@
 //   ns                the app namespace (ns.app.go, ns.page.paint/mount/exportPdf, ns.util.settings/refusal)
 //   noun, title       'order', 'New order'; route: 'o' (the hash is #o/<id>); list: the list route ('list')
 //   data              { get(id), save(form), customers(), products() } resolving to Results
+//   party?            'customer' (default) or 'supplier': the word for the other party (the picker, New …, its check)
 //   statusLabel       status -> words; locked(st): true when the document is read only
 //   dateError         the words for a missing date
 //   extra?            { blank(st, settings), apply(st, rec), collect(st) -> fields or { error }, paint(st, ro), mount(st, edited),
@@ -31,7 +32,7 @@
     };
     const isNew = () => !st.id;
     const locked = () => cfg.locked(st);
-    const dirtyKey = `${cfg.noun}s-editor`;
+    const dirtyKey = `${cfg.noun}s-editor`, party = cfg.party || 'customer';
 
     function setMsg(text, bad) { const m = $('eMsg'); m.textContent = text || ''; m.className = `msg ${bad ? 'bad' : 'ok'}`; }
     function setDirty(v) { st.dirty = v; if (g.SlopGuard) g.SlopGuard.setUnsaved(dirtyKey, v); }
@@ -104,7 +105,7 @@
 
     function paintCustomers() {
       const sel = $('eCustomer'), h = U().h;
-      sel.replaceChildren(h('option', { value: '', text: 'Choose a customer…' }), ...st.customers.map((c) => h('option', { value: c.id, text: c.name })));
+      sel.replaceChildren(h('option', { value: '', text: `Choose a ${party}…` }), ...st.customers.map((c) => h('option', { value: c.id, text: c.name })));
       sel.value = st.customerId || '';
     }
 
@@ -131,7 +132,7 @@
     function fieldError(name, idx) {
       const own = X.fieldError ? X.fieldError(name, st) : undefined;
       if (own !== undefined) return own;
-      if (name === 'customer') return st.customerId ? null : 'Choose a customer first, or add a new one.';
+      if (name === 'customer') return st.customerId ? null : `Choose a ${party} first, or add a new one.`;
       if (name === 'date') return DATE.test(st.date) ? null : cfg.dateError;
       if (!st.lines[idx]) return null;
       const e = M.lineErrors(st.lines[idx]);
@@ -209,7 +210,7 @@
         st.customerId = rec.id;
         setDirty(true);
         paint();
-      }));
+      }, { word: party }));
       $('eAddLine').addEventListener('click', () => { st.lines.push(M.newLine(null, st.defaultTaxRate)); setDirty(true); paint(); });
       if (X.mount) X.mount(st, () => setDirty(true));
       NS.page.mount();

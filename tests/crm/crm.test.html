@@ -128,6 +128,17 @@
     });
   });
 
+  describe('suppliers', () => {
+    it('a contact flagged supplier (Slop Purchases) is not on the sales pipeline', async () => {
+      // Covers: crm/js/ui/board.js
+      await S().store.put('customers', { name: 'Parts Supplier', stage: 'customer', supplier: true });
+      win().SlopCrm.app.show('pipeline');
+      await waitFor(() => colOf('customer') && !doc().getElementById('view-pipeline').hidden);
+      await new Promise((r) => setTimeout(r, 200));
+      expect(doc().getElementById('view-pipeline').textContent.includes('Parts Supplier')).toBe(false);
+    });
+  });
+
   describe('the local-only rule', () => {
     it('no error reached the page', () => {
       expect(errors).toHaveLength(0);

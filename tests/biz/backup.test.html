@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Business · full backup and restore (SlopBiz.backup)</title>
-  <!-- Covers: shared/biz/backup.js, orders/js/ui/data.js, invoices/js/ui/data.js, inventory/js/ui/import.js -->
+  <!-- Covers: shared/biz/backup.js, inventory/js/ui/import.js -->
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
 <body>
@@ -56,6 +56,13 @@
       const good = await calls.download[0].blob.text();
       expect(await SlopBiz.backup.restore(file(good))).toBe(false);
       calls.confirm = true;
+    });
+    it('attach(ns) gives an app its Data view and the backup and restore actions', () => {
+      const ns = {};
+      SlopBiz.backup.attach(ns);
+      expect(typeof ns.views.data.mount).toBe('function');
+      expect(ns.dataActions.backup).toBe(SlopBiz.backup.backup);
+      expect(ns.dataActions.restore).toBe(SlopBiz.backup.restore);
     });
     it('a good file replaces every record, says so, and runs done', async () => {
       const good = await calls.download[0].blob.text();
