@@ -51,5 +51,15 @@
     });
   }
 
-  ns.purchases = { receive, recordBill };
+  /** Pure: the quantity of each product on ordered (placed, not yet received) purchase orders: productId -> qty. */
+  function onOrder(purchases) {
+    const out = new Map();
+    for (const po of purchases || []) {
+      if (po.status !== 'ordered') continue;
+      for (const l of po.lines || []) if (l.productId) out.set(l.productId, (out.get(l.productId) || 0) + l.qty);
+    }
+    return out;
+  }
+
+  ns.purchases = { receive, recordBill, onOrder };
 })(typeof window !== 'undefined' ? window : globalThis);

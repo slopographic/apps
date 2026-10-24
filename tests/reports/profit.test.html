@@ -78,6 +78,19 @@
     });
   });
 
+  describe('Spend by supplier', () => {
+    it('sums posted expenses by supplier and currency, largest first', () => {
+      const data = { expenses: [
+        { supplier: 'Acme', amount: 6300, tax: 800, currency: 'USD', status: 'posted' },
+        { supplier: 'Acme', amount: 700, tax: 0, currency: 'USD', status: 'posted' },
+        { supplier: 'Acme', amount: 9999, tax: 0, currency: 'USD', status: 'void' },
+        { supplier: 'Taxi', amount: 2400, tax: 400, currency: 'USD', status: 'posted' },
+      ] };
+      const res = E.run(def('spend-by-supplier'), data);
+      expect(res.rows.map((r) => [r.supplier, r.count, r.sum_amount, r.sum_tax])).toEqual([['Acme', 2, 7000, 800], ['Taxi', 1, 2400, 400]]);
+    });
+  });
+
   describe('Loader', () => {
     it('counts expenses and journal entries as data to report on', () => {
       expect(R.hasData({ expenses: 1 })).toBe(true);
