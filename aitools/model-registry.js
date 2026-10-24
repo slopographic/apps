@@ -4,13 +4,15 @@
  * confirms the licence (get-more.js); a bundled file ships with the site under vendor/models/.
  * Each file: { name, size, sha256, url } (remote), { name, size, sha256, parts: [{ url, size, sha256 }] } (remote, stored in
  * pieces under 95 MB and joined after download) or { name, size, sha256, path } (bundled). The speech models are in
- * speech-models.js (load it first). See HANDOFF.md. */
+ * speech-models.js and the text recognition models per script in ocr-models.js (load them first). See HANDOFF.md. */
 (function (root, factory) {
-  const speech = root.SlopSpeechModels || (typeof module === 'object' && module.exports ? require('./speech-models.js') : null);
-  const api = factory(speech);
+  const node = typeof module === 'object' && module.exports;
+  const speech = root.SlopSpeechModels || (node ? require('./speech-models.js') : null);
+  const ocr = root.SlopOcrModels || (node ? require('./ocr-models.js') : null);   // only on the pages that offer OCR languages
+  const api = factory(speech, ocr);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopAIModels = api;
-})(typeof window !== 'undefined' ? window : globalThis, function (speech) {
+})(typeof window !== 'undefined' ? window : globalThis, function (speech, ocr) {
   'use strict';
 
   /** Licences a model may declare, with the name shown to the person. Anything else is refused. */
@@ -58,7 +60,9 @@
         { name: 'modnet-portrait.onnx', size: 25888640, sha256: '07c308cf0fc7e6e8b2065a12ed7fc07e1de8febb7dc7839d7b7f15dd66584df9', path: 'vendor/models/modnet-portrait.onnx' },
       ],
     },
-  ].concat(speech ? speech.MODELS : []);   // the speech models: aitools/speech-models.js (Whisper and its fine-tunes)
+  ].concat(speech ? speech.MODELS : [])   // the speech models: aitools/speech-models.js (Whisper and its fine-tunes)
+    // the text recognition models per script: aitools/ocr-models.js (its ppocr-v4 is the entry above, kept here for pages without it)
+    .concat(ocr ? ocr.MODELS.filter((m) => m.id !== 'ppocr-v4') : []);
 
   const TOOLS = [
     { id: 'ocr', name: 'OCR', page: 'ocr/', models: ['ppocr-v4'], blurb: 'Read text from an image or a scanned PDF page.' },
@@ -121,5 +125,8 @@
     return `${(n / (1024 * 1024)).toFixed(n < 10 * 1024 * 1024 ? 1 : 0)} MB`;
   }
 
-  return { MODELS, TOOLS, LICENCES, HOST_ROOTS, CDN_HOST, byId, remoteFiles, urlsOf, downloadBytes, problems, allowedUrl, formatSize };
+  /** Adds a family's models loaded after this file (aitools/ocr-models.js on a page that loads it on demand, Slop PDF).
+   *  A model already in the index stays as it is. */
+  function add(list) { for (const m of list || []) if (!byId(m.id)) MODELS.push(m); }
+  return { MODELS, TOOLS, LICENCES, HOST_ROOTS, CDN_HOST, byId, remoteFiles, urlsOf, downloadBytes, problems, allowedUrl, formatSize, add };
 });

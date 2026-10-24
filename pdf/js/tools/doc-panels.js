@@ -67,7 +67,8 @@
       b.appendChild(note);
       b.appendChild(section('Recognise text', [
         row('', btn('Run OCR on this page', 'ocr', function () { A.recognisePage(); })),
-        row('', btn('Run OCR on document', 'ocr', function () { A.recogniseAll(); }))
+        row('', btn('Run OCR on document', 'ocr', function () { A.recogniseAll(); })),
+        row('', btn('Language and model', 'ocr', function () { SP.ocr.chooseLanguage(); }))   // shared/ocr/choose.js
       ]));
     }
   };

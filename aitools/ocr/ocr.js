@@ -1,9 +1,14 @@
-/* OCR tool page: an image or one PDF page in, text out. Recognition runs in the inference worker (PP-OCRv4).
+/* OCR tool page: an image or one PDF page in, text out. Recognition runs in the inference worker (PaddleOCR), with the model
+ * for the language chosen under Language and model (shared/ocr/choose.js, the same dialog as Slop OCR); without a choice
+ * the bundled Chinese and English model reads first and a line under the text offers the model for another script.
  * Nothing leaves the device: the file is read here and handed to the worker, and the text is only saved when asked. */
 (function () {
   'use strict';
   const T = window.SlopAITools, $ = (id) => document.getElementById(id);
   let file = null, pdfDoc = null;
+  /** The Language and model choice (an ES module, loaded once). */
+  const choiceP = import(new URL('../../shared/ocr/choose.js', document.baseURI).href)
+    .then((m) => m.createOcrChoice({ ui: window.SlopUI, storageHref: '../../settings/#storage' }));
 
   /** Renders one page of a PDF to a canvas at about 200 dpi (scale 2.8 of 72 dpi points). */
   async function pdfPage(f, n) {
@@ -34,9 +39,12 @@
     $('run').disabled = true; $('msg').textContent = ''; const prog = $('prog');
     prog.hidden = false; prog.value = 0;
     try {
-      await T.ensure('ppocr-v4', (s) => ($('msg').textContent = s));
+      const choice = await choiceP, pick = await choice.pick();
+      $('suggest').replaceChildren();
+      if (!pick) { $('msg').textContent = 'Choose the language of the text, and download its model, to read it.'; return; }
+      await T.ensure(pick.model, (s) => ($('msg').textContent = s));
       const img = await source();
-      const r = await T.call('ocr', { bitmap: img.bitmap, w: img.w, h: img.h }, {
+      const r = await T.call('ocr', { model: pick.model, bitmap: img.bitmap, w: img.w, h: img.h }, {
         transfer: [img.bitmap],
         onProgress: (p) => { prog.value = p.total ? p.done / p.total : 0; $('msg').textContent = p.stage === 'detect' ? 'Finding text lines…' : `Reading line ${p.done + 1} of ${p.total}…`; },
       });
@@ -45,6 +53,8 @@
       const any = text.length > 0;
       $('copy').disabled = $('dl').disabled = $('docs').disabled = !any;
       $('msg').textContent = any ? `${r.lines.length} line${r.lines.length === 1 ? '' : 's'} read. Check the text before you use it.` : 'No text found on this picture.';
+      const tip = choice.suggestion(choice.suggest(r.lines, pick.model, r.skipped), () => run());
+      if (tip) $('suggest').append(tip);
     } catch (e) {
       $('msg').textContent = 'Could not read the text: ' + e.message;
     } finally { $('run').disabled = false; prog.hidden = true; }
@@ -62,6 +72,7 @@
   drop.addEventListener('dragover', (e) => { e.preventDefault(); });
   drop.addEventListener('drop', (e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); });
   $('run').addEventListener('click', run);
+  choiceP.then((c) => c.button($('lang'), () => { if (file && $('out').value) run(); }));
   $('copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('out').value); $('msg').textContent = 'Copied.'; } catch (e) { $('msg').textContent = 'Copy was blocked. Select the text and copy it.'; } });
   $('dl').addEventListener('click', () => { const base = (file ? file.name.replace(/\.[^.]+$/, '') : 'ocr'); T.download(base + '.txt', $('out').value, 'text/plain'); });
   $('docs').addEventListener('click', async () => {

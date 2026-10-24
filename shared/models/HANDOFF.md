@@ -1,7 +1,7 @@
 # On-device model families: handoff
 
 One chooser, one installer and one file host for every family of on-device models. Speech (Whisper) is the first
-family; OCR (more PP-OCR recognition models, one per script) is meant to be the next.
+family; OCR (PaddleOCR recognition models, one per script) is the second, see "The OCR family" below.
 
 | File | What it does |
 |---|---|
@@ -17,7 +17,17 @@ The speech family: `aitools/speech-models.js` (the models and their files on the
 words of the dialog). The Whisper decoding is in `aitools/workers/` (`whisper-*.js`, `speech-engine.js`) and has nothing
 to do with the chooser.
 
-## Adding a family (OCR)
+## The OCR family
+
+`aitools/ocr-models.js` (the models; `SCRIPTS`, the one table of which languages each script group reads; `rank('auto')`
+lists every model, the bundled PP-OCRv4 first), `shared/ocr/languages.js` (the codes from that table, the names from
+`shared/speech/languages.js` plus traditional Chinese, Kyrgyz, Kurdish, Uyghur and Irish), `shared/ocr/family.js`,
+`shared/ocr/suggest.js` (after a first read with no language chosen: which model would read the text better) and
+`shared/ocr/choose.js` (the button, `pick()`, the suggestion line; `loadOcr()` loads the list on demand, as Slop PDF does;
+the list then adds itself to the model index with `SlopAIModels.add`). Files on the cdn under `models/ocr/<id>/`; the
+detector (`ppocr-det-v4`) is the same file in every model. Used by Slop OCR, Slop PDF's OCR panel and AI Tools' OCR.
+
+## Adding a family
 
 1. **Files on the cdn**: put each model under `models/<family>/<id>/` in slopographic/cdn with its licence text,
    `SOURCE.md` (upstream, revision, what was changed) and `manifest.json` (`{ path, bytes, sha256 }` per file; a file over

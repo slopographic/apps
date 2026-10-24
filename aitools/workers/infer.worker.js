@@ -23,9 +23,13 @@ async function load(model, files) {
     for (const [tok, id] of Object.entries(vj)) vocab[id] = tok;
     const json = (n) => (files[n] ? JSON.parse(text(files[n])) : null);
     loaded.set(model, { speech: true, encoder, decoder, vocab, added: JSON.parse(text(files['added_tokens.json'])), config: json('config.json'), generation: json('generation_config.json') });
-  } else if (model === 'ppocr-v4') {
-    const [det, rec] = await Promise.all([SlopAIOrt.session(files['ch_PP-OCRv4_det_infer.onnx']), SlopAIOrt.session(files['ch_PP-OCRv4_rec_infer.onnx'])]);
-    const dict = text(files['ppocr_keys_v1.txt']).replace(/\r/g, '').split('\n');
+  } else if (Object.keys(files).some((n) => n.endsWith('_det_infer.onnx'))) {
+    // an OCR model (ocr-models.js): the detector, a recogniser for one script and its dictionary, known by their names
+    const names = Object.keys(files), detName = names.find((n) => n.endsWith('_det_infer.onnx'));
+    const recName = names.find((n) => n.endsWith('.onnx') && n !== detName), dictName = names.find((n) => n.endsWith('.txt'));
+    if (!recName || !dictName) throw new Error(model + ': the recogniser or its dictionary is missing');
+    const [det, rec] = await Promise.all([SlopAIOrt.session(files[detName]), SlopAIOrt.session(files[recName])]);
+    const dict = text(files[dictName]).replace(/\r/g, '').split('\n');
     if (dict[dict.length - 1] === '') dict.pop();
     loaded.set(model, { det, rec, chars: ['', ...dict, ' '] });
   } else if (model === 'mobilenetv3-l100') {
@@ -43,9 +47,9 @@ function need(model) {
 const handlers = {
   load: (d) => load(d.model, d.files),
   ocr: async (d, progress) => {
-    const m = need('ppocr-v4');
+    const m = need(d.model || 'ppocr-v4');   // d.model: the OCR model the page loaded (ocr-models.js), else the bundled one
     const lines = await SlopAIOcr.run({ det: m.det, rec: m.rec }, m.chars, { bitmap: d.bitmap, w: d.w, h: d.h }, progress);
-    return { lines };
+    return { lines, skipped: lines.skipped || 0 };
   },
   transcribe: async (d, progress) => {
     const m = need(d.model || 'whisper-tiny');

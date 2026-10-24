@@ -1,16 +1,20 @@
-/* Slop OCR page: files in, text out. Recognition is the Slop AI Tools OCR engine (PP-OCRv4 in the inference worker,
+/* Slop OCR page: files in, text out. Recognition is the Slop AI Tools OCR engine (PaddleOCR in the inference worker,
  * reached through window.SlopAITools from aitools/common.js, which loads first as a classic script). The model is only
- * used after the gate passes; nothing downloads here. Layout, outputs and drawing live in the modules beside this file. */
+ * used after the gate passes; nothing downloads here except from the Language and model dialog (shared/ocr/choose.js):
+ * without a choice the bundled Chinese and English model reads first, and a line under the text offers the model for
+ * another script when the text looks like one. Layout, outputs and drawing live in the modules beside this file. */
 import { isSupported, openFile, renderPage } from './sources.js';
 import { linesToText, rowsOf } from './layout.js';
 import { drawPage } from './overlay.js';
 import { plainText, markdownText, docxFile, searchablePdf, jpegBytes, saveBlob, copyText } from './export.js';
 import { sampleReceipt } from './sample.js';
+import { createOcrChoice } from '../../shared/ocr/choose.js';
 
 const T = window.SlopAITools;
 const $ = (id) => document.getElementById(id);
 const EXPORT_IDS = ['dlTxt', 'dlMd', 'dlDocx', 'dlPdf', 'copy'];
 const state = { pages: [], cur: 0, busy: false, shown: null };
+const choice = createOcrChoice({ ui: window.SlopUI, storageHref: '../settings/#storage' });
 let dropZone = null;   // the SlopDrop zone (its preview shows while no page is open)
 
 const say = (s) => { $('msg').textContent = s; };
@@ -80,14 +84,14 @@ async function addFiles(list) {
 }
 
 /** Reads one page into p: the picture goes to the worker, the lines and the text come back. */
-async function readPage(p, i, onProgress) {
+async function readPage(p, i, model, onProgress) {
   const canvas = await renderPage(p);
   const bitmap = await createImageBitmap(canvas);
-  const r = await T.call('ocr', { bitmap, w: canvas.width, h: canvas.height }, {
+  const r = await T.call('ocr', { model, bitmap, w: canvas.width, h: canvas.height }, {
     transfer: [bitmap],
     onProgress: (q) => onProgress(q),
   });
-  Object.assign(p, { w: canvas.width, h: canvas.height, lines: r.lines, text: linesToText(r.lines), done: true, error: null });
+  Object.assign(p, { w: canvas.width, h: canvas.height, lines: r.lines, skipped: r.skipped || 0, model, text: linesToText(r.lines), done: true, error: null, edited: false });
   if (i === state.cur) state.shown = { i, canvas };
 }
 
@@ -98,13 +102,16 @@ async function readAll() {
   const prog = $('prog');
   prog.hidden = false; prog.value = 0;
   $('read').disabled = true;
+  $('suggest').replaceChildren();
   try {
-    await T.ensure('ppocr-v4', say);
+    const pick = await choice.pick();
+    if (!pick) { say('Choose the language of the text, and download its model, to read it.'); return; }
+    await T.ensure(pick.model, say);
     for (let k = 0; k < todo.length; k++) {
       const { p, i } = todo[k];
       say(`Reading ${p.label} (${k + 1} of ${todo.length})…`);
       try {
-        await readPage(p, i, (q) => {
+        await readPage(p, i, pick.model, (q) => {
           prog.value = q.total ? q.done / q.total : 0;
           say(q.stage === 'detect' ? `Finding text lines in ${p.label}…` : `Reading line ${q.done + 1} of ${q.total} in ${p.label}…`);
         });
@@ -119,6 +126,7 @@ async function readAll() {
     say(failed.length
       ? `Could not read ${failed.length} page${failed.length === 1 ? '' : 's'}: ${failed[0].error}`
       : lines ? `${lines} line${lines === 1 ? '' : 's'} read. Check the text before you use it.` : 'No text found on these pages.');
+    offer(pick.model);
   } catch (e) {
     say('Could not read the text: ' + e.message);
   } finally {
@@ -126,6 +134,23 @@ async function readAll() {
     prog.hidden = true;
     refresh();
   }
+}
+
+/** After a read with no language chosen: the line that offers a better model (shared/ocr/suggest.js), whose button opens
+ *  the dialog; once a model is chosen there, the pages are read again with it. */
+function offer(model) {
+  const read = state.pages.filter((p) => p.done && p.model === model);
+  const s = choice.suggest(read.flatMap((p) => p.lines || []), model, read.reduce((n, p) => n + (p.skipped || 0), 0));
+  const el = choice.suggestion(s, again);
+  $('suggest').replaceChildren(...(el ? [el] : []));
+}
+/** Reads every page again with the model just chosen; asks first when the person corrected the text. */
+async function again() {
+  if (state.busy || !state.pages.length) return;
+  if (state.pages.some((p) => p.edited) && !(await window.SlopUI.confirm('Read the text again?', 'The new text replaces the text on every page, and the corrections you made are lost.', 'Read again'))) return;
+  for (const p of state.pages) p.done = false;
+  refresh();
+  await readAll();
 }
 
 /** The pages as the outputs want them: the text as edited, the lines and the picture size. */
@@ -177,7 +202,8 @@ function wire() {
   $('next').addEventListener('click', () => show(state.cur + 1));
   $('pages').addEventListener('change', (e) => show(parseInt(e.target.value, 10)));
   $('boxes').addEventListener('change', () => paint());
-  $('text').addEventListener('input', () => { const p = state.pages[state.cur]; if (p) p.text = $('text').value; });
+  $('text').addEventListener('input', () => { const p = state.pages[state.cur]; if (p) { p.text = $('text').value; p.edited = true; } });
+  choice.button($('lang'), () => { if (state.pages.some((p) => p.done)) again(); });
   $('dlTxt').addEventListener('click', () => saveBlob(stem() + '.txt', new Blob([plainText(outPages())], { type: 'text/plain' })));
   $('dlMd').addEventListener('click', () => saveBlob(stem() + '.md', new Blob([markdownText(outPages())], { type: 'text/markdown' })));
   $('dlDocx').addEventListener('click', async () => {
@@ -194,6 +220,7 @@ function wire() {
   $('clear').addEventListener('click', () => {
     if (state.busy) return;
     state.pages = []; state.cur = 0; state.shown = null;
+    $('suggest').replaceChildren();
     $('text').value = ''; $('file').value = '';
     say('Cleared.');
     refresh();
