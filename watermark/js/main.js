@@ -21,7 +21,7 @@
       { id: 'clear', label: 'Clear', disabled: busy || !n, onClick: clearAll },
     ]);
     bar.setMenu([{ id: 'drive', label: 'Save all to Slop Drive…', disabled: busy || !outs, onClick: saveAll }]);
-    const H = window.SlopHub, openIn = one && H ? H.sendMenuItems(() => items[0].out.blob, items[0].out.name, items[0].out.blob.type).map((it) => ({ label: it.label.replace(/^Send to /, ''), act: it.act })) : null;
+    const O = window.SlopOuttake, openIn = one && O ? O.items({ get: () => items[0].out.blob, name: items[0].out.name, type: items[0].out.blob.type, from: 'watermark', folder: false }) : null;
     side.setFooter([
       { id: 'wm-apply', label: n ? 'Watermark ' + n + ' ' + nounOf(items, n) : 'Watermark files', primary: true, disabled: busy || !n, run: applyAll },
       { id: 'wm-zip', label: n > 1 ? 'Download all (ZIP)' : 'Download', disabled: busy || !outs, run: n > 1 ? downloadZip : () => window.WMExport.downloadOne(items[0]) },

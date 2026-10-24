@@ -44,13 +44,12 @@
     return window.SlopZip.zip(entries);
   }
   function downloadOne(item) { if (item.out) window.SlopUI.download(item.out.blob, item.out.name); }
-  /** Save to Slop Drive and Open in… for one result, as a menu at (x, y). Slop Hub loads on first use. */
-  async function moreMenu(item, x, y) {
+  /** Open in… and Save to Slop Drive for one result, as a menu at (x, y): the site's one outbound menu (SlopOuttake). */
+  function moreMenu(item, x, y) {
     if (!item.out) return;
-    const H = window.SlopHub;
-    if (!H) { window.SlopUI.toast('Slop Drive is not available here'); return; }
-    const o = item.out, items = H.sendMenuItems(() => o.blob, o.name, o.blob.type, { folder: true });
-    window.SlopUI.menu(items.map((it) => Object.assign({}, it, { label: it.label.replace(/^Send to /, 'Open in ') })), x, y);
+    if (!window.SlopOuttake) { window.SlopUI.toast('Slop Drive is not available here'); return; }
+    const o = item.out;
+    window.SlopOuttake.menu({ x, y }, { get: () => o.blob, name: o.name, type: o.blob.type, from: 'watermark' });
   }
   /** Every finished output into one Slop Drive folder the person picks. */
   async function saveAllToDrive(items) {
