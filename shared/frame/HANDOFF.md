@@ -139,7 +139,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop Resize | resize/ | tool | settings right, Resize all + downloads in the header | done | |
 | Slop Watermark | watermark/ | tool | settings right, run/download in an app bar | to do | being rebuilt on wip/watermark-all (told the rule) |
 | SlopIsolate | slopisolate/ | editor | queue left, #props right; Download, Send back in the header | close | checked only: put Download into #props' foot (owned by its branch) |
-| Slop OCR | ocr/ | tool | settings row above the work area, Read in it | to do | settings row → right panel, Read text in the footer |
+| Slop OCR | ocr/ | tool | settings row above the work area, Read in it | done | the model prompt shows before the tool, as before |
 | Slop Transcribe | transcribe/ | tool | controls above, list left, text right | to do | controls → right panel, Transcribe in the footer |
 | SlopClean | clean/ | tool | choices panel right, Copy and clean in the header | done | |
 | Slop HTML to PDF | html2pdf/ | tool | settings LEFT, Print in the header | done | |
