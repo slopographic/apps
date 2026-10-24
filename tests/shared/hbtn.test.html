@@ -102,6 +102,61 @@
       h.remove();
     });
   });
+
+  describe('SlopHbtn: the buttons that yield (Convert…, AI)', () => {
+    /** The bar with two yielding buttons in front of the shared ones; state: full, icon or hidden. */
+    function yieldBar(width) {
+      const h = bar('wide');
+      h.style.cssText = `width:${width}px;flex-wrap:wrap`;
+      h.querySelector('.own').insertAdjacentHTML('afterend', ['Convert files', 'Assistant'].map((t, i) =>
+        `<button class="slop-hbtn y${i + 1}" data-hbtn-yield="${i + 1}">${ICON}<span class="slop-hbtn-txt">${t}</span></button>`).join(''));
+      return h;
+    }
+    const state = (b) => b.hidden ? 'hidden' : b.classList.contains('sh-icon-only') ? 'icon' : 'full';
+    const states = (h) => [state(h.querySelector('.y1')), state(h.querySelector('.y2')), h.classList.contains('slop-htight')].join(' ');
+    /** The header's width with only the app button and the plain shared buttons, labels shown. */
+    function baseWidth() {
+      const h = bar('wide'); h.style.width = 'max-content';
+      const w = h.getBoundingClientRect().width; h.remove();
+      return w;
+    }
+    it('with room they keep their labels', () => {
+      const h = yieldBar(900); SlopHbtn.fit(h);
+      expect(states(h)).toBe('full full false');
+      h.remove();
+    });
+    it('they give way in order: the first one\'s label, the second\'s, the first, the second; the others keep their labels', () => {
+      const seen = [];
+      for (let w = Math.ceil(baseWidth()) + 400; w >= baseWidth() - 2; w -= 4) {
+        const h = yieldBar(w);
+        SlopHbtn.check(h);
+        const s = states(h);
+        if (seen[seen.length - 1] !== s) seen.push(s);
+        expect(h.getBoundingClientRect().height).toBeLessThan(60);   // never a second row
+        h.remove();
+      }
+      expect(seen.slice(0, 5)).toEqual(['full full false', 'icon full false', 'icon icon false', 'hidden icon false', 'hidden hidden false']);
+    });
+    it('a header that is tight without them takes them back as icons where they fit', () => {
+      const h = yieldBar(Math.floor(baseWidth()) - 30);
+      SlopHbtn.check(h);
+      expect(h.classList.contains('slop-htight')).toBe(true);
+      expect(states(h)).toBe('icon icon true');
+      h.remove();
+    });
+    it('two controls drawn over each other count as a full header', () => {
+      const h = bar('wide');
+      h.style.width = '900px';
+      const g = document.createElement('div');
+      g.style.cssText = 'display:flex;width:40px;flex:none';
+      g.innerHTML = '<button class="own" style="flex:none">One</button><button class="own" style="flex:none">Two</button>';
+      h.prepend(g);
+      expect(SlopHbtn.check(h)).toBe(true);
+      g.style.width = 'auto';
+      expect(SlopHbtn.check(h)).toBe(false);
+      h.remove();
+    });
+  });
   run();
   </script>
 </body>

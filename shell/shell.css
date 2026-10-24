@@ -19,9 +19,6 @@
 button { font: inherit; }
 .sh-hdr { display: inline-flex; align-items: center; gap: 6px; margin-inline-start: 8px; position: relative; flex: none; }
 /* .sh-hbtn (Apps, the bell) takes its look from shared/ui/hbtn.css (.slop-hbtn), like every shared header button. */
-/* Convert… gives up its label first, without the others giving up theirs (shell/header.js placeConvert). */
-.slop-hbtn.sh-icon-only { padding: 0; width: var(--slop-hbtn-h, 32px); }
-.slop-hbtn.sh-icon-only .slop-hbtn-txt { display: none; }
 .sh-tile:focus-visible, .sh-opt:focus-visible, .sh-dr-close:focus-visible, .sh-dr button:focus-visible, .sn-toast button:focus-visible, .sn-panel button:focus-visible { outline: 2px solid var(--sh-accent); outline-offset: 1px; }
 .sh-fab { position: fixed; top: 10px; inset-inline-end: 10px; margin: 0; z-index: 800; }
 .sh-kbd { font: 11px var(--sui-mono, ui-monospace, monospace); color: var(--sh-dim); border: 1px solid var(--sh-line); border-radius: 5px; padding: 1px 6px; }

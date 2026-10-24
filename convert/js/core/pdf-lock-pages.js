@@ -4,7 +4,7 @@
 const PRIVATE = ['Is my PDF or my password uploaded?', 'No. The PDF is encrypted or decrypted in your browser, on this device. Neither the file nor the password is sent to Slopographic or to any other server, and the password is forgotten after Convert.'];
 
 export const PDF_LOCK_PAGES = [
-  { slug: 'password-protect-pdf', conv: 'pdf-protect', from: ['pdf'], accept: '.pdf,application/pdf', label: 'Password protect PDF', pair: ['PDF', 'PDF'], cat: 'PDF',
+  { slug: 'password-protect-pdf', conv: 'pdf-protect', from: ['pdf'], accept: '.pdf,application/pdf', label: 'Password protect PDF', pair: ['PDF', 'PDF'], cat: 'Documents',
     summary: 'Add a password to a PDF with AES-256 encryption, and choose whether it can be printed, copied or edited.', h1: 'Password protect a PDF',
     title: 'Password protect PDF with AES-256, free, on your device | File convert',
     description: 'Add a password to a PDF in your browser with AES-256 encryption. Choose whether it can be printed, copied or edited. The file is never uploaded.',
@@ -16,7 +16,7 @@ export const PDF_LOCK_PAGES = [
       ['Which apps open the protected PDF?', 'Any current PDF reader: Adobe Acrobat and Reader, Apple Preview, Chrome, Edge, Firefox and the Slop PDF editor ask for the password and open it.'],
       ['Do the print and copy limits always hold?', 'Readers that follow the PDF rules, such as Acrobat, Preview and browsers, apply them. They are a request to the reader app, not a lock like the password itself.'],
       ['What if I forget the password?', 'The file cannot be opened. There is no recovery: keep a copy of the original PDF or of the password somewhere safe.'], PRIVATE] },
-  { slug: 'remove-password-from-pdf', conv: 'pdf-unlock', from: ['pdf'], accept: '.pdf,application/pdf', label: 'Remove password from PDF', pair: ['PDF', 'PDF'], cat: 'PDF',
+  { slug: 'remove-password-from-pdf', conv: 'pdf-unlock', from: ['pdf'], accept: '.pdf,application/pdf', label: 'Remove password from PDF', pair: ['PDF', 'PDF'], cat: 'Documents',
     summary: 'Save a copy of a password-protected PDF that opens without the password, with no limits on printing or copying.', h1: 'Remove the password from a PDF',
     title: 'Remove password from PDF: unlock a PDF you can open, free | File convert',
     description: 'Remove the password from a PDF you can open, in your browser: type it once and save a copy with no password and no print or copy limits. No upload.',

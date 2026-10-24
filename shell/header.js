@@ -84,6 +84,7 @@
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'sh-hbtn slop-hbtn sh-convert';
+    b.dataset.hbtnYield = '1';   // gives way first when the header is full (shared/ui/hbtn.js), then shows in the Theme menu
     b.title = 'Convert files to another format, on this device';
     b.setAttribute('aria-label', 'Convert files');
     b.setAttribute('aria-haspopup', 'dialog');
@@ -116,6 +117,7 @@
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'sh-hbtn slop-hbtn sh-ai';
+    b.dataset.hbtnYield = '2';   // gives way right after Convert… (shared/ui/hbtn.js), then shows in the Theme menu
     b.title = 'Slop AI: ask, or let it work in ' + app.name + ' (runs on this device)';
     b.setAttribute('aria-label', 'Slop AI');
     b.innerHTML = ICON_AI + '<span class="slop-hbtn-txt" data-i18n="shell.ai">AI</span>';
@@ -123,38 +125,6 @@
     const C = window.SlopCmd;
     if (C && C.register && !C.get('shell.ai')) C.register([{ id: 'shell.ai', title: 'Ask Slop AI…', group: 'Help', keywords: ['ai', 'assistant', 'chat', 'llm', 'help'], run: openAI }]);
     return b;
-  }
-
-  /** Convert… never costs the header a row or the other buttons their labels: it shows with its label when that fits,
-   *  else as an icon, else (a phone, a full header) not at all, and then the Theme menu offers it first. */
-  function placeConvert(host, ...btns) {
-    btns = btns.filter(Boolean);
-    const H = window.SlopHbtn, fit = () => { if (H) H.check(host); };
-    const tight = () => host.classList.contains('slop-htight');
-    const set = (b, st) => { b.hidden = st === 'hidden'; b.classList.toggle('sh-icon-only', st === 'icon'); };
-    btns.forEach((b) => set(b, 'hidden')); fit();
-    const h0 = host.getBoundingClientRect().height, t0 = tight();
-    const ok = () => host.getBoundingClientRect().height <= h0 + 1 && host.scrollWidth <= host.clientWidth + 1 && tight() === t0;
-    // give way in order: Convert's label, then AI's, then Convert itself, then AI (both are then offered in the Theme menu)
-    const [c, a] = btns, plans = [[], [[c, 'icon']], [[c, 'icon'], [a, 'icon']], [[c, 'hidden'], [a, 'icon']], [[c, 'hidden'], [a, 'hidden']]];
-    for (const plan of plans) {
-      btns.forEach((b) => set(b, 'full'));
-      for (const [b, st] of plan) if (b) set(b, st);
-      fit();
-      if (ok() || plan === plans[plans.length - 1]) return;
-    }
-  }
-  function watchConvert(host, conv, ai) {
-    let queued = false, w = -1;
-    const later = () => {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(() => { queued = false; const nw = Math.round(host.getBoundingClientRect().width); if (nw !== w) { w = nw; placeConvert(host, conv, ai); } });
-    };
-    placeConvert(host, conv, ai);
-    w = Math.round(host.getBoundingClientRect().width);
-    if (window.ResizeObserver) new ResizeObserver(later).observe(host);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => placeConvert(host, conv, ai));
   }
 
   function mount() {
@@ -182,7 +152,9 @@
     if (host) { if (window.SlopHbtn) window.SlopHbtn.fit(host); }   // labels give way to icons when the header is full
     else { box.classList.add('sh-fab'); document.body.append(box); }
     window.SlopNotify.mountBell(box);
-    if (host && (conv || ai)) watchConvert(host, conv, ai);   // after the bell, the last button in
+    // Convert… and AI never cost the header a row or the app's controls their room: they give up their labels, then their
+    // place (the Theme menu offers them), before anything else does (shared/ui/hbtn.js). Measured again now the bell is in.
+    if (host && window.SlopHbtn) window.SlopHbtn.check(host);
     window.addEventListener('slop-lang', () => { sw.title = title(); });
   }
 

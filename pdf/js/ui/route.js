@@ -10,6 +10,9 @@
   var PANELS = ['layers', 'history'];
   var TOOLS = S.RAIL.map(function (t) { return t[0]; });
   function ready() { return document.documentElement.classList.contains('ready'); }
+  // Did the link name a real rail tool? A ?tool= that is not one (an old or mistyped link) is ignored, as if the link had
+  // no ?tool=: the view the person left (a restored tab) is kept, not replaced by the default.
+  function namedTool() { return R.has('tool') && TOOLS.indexOf(String(SlopUrlState.get('tool', ''))) >= 0; }
 
   var linkTool = null, viewing = 0;   // the link's ?tool= and "a view or the link is being applied" (see below)
   var R = SlopRoute.register('pdf', {
@@ -19,7 +22,7 @@
       panel: { values: PANELS, def: '' },
     },
     apply: function (s) {
-      if (R.has('tool') && s.tool && s.tool !== A.tool) { viewing++; try { A.setTool(s.tool); } finally { viewing--; } }
+      if (namedTool() && s.tool !== A.tool) { viewing++; try { A.setTool(s.tool); } finally { viewing--; } }
       if (R.has('panel') && s.panel) {
         if (A.togglePanel) A.togglePanel(true);
         if (D && D.setOpen) D.setOpen(s.panel, true);
@@ -29,8 +32,10 @@
 
   // The tool picked by the person (any caller of A.setTool, boot included) goes to the URL once the app is ready.
   // A link's tool (?tool=) outlives the stored tabs: a tab that finishes loading after the page is ready brings back its
-  // own view, and the link's tool is put back over it, until the person picks a tool themselves.
-  linkTool = R.has('tool') ? R.get('tool') : null;
+  // own view, and the link's tool is put back over it, until the person picks a tool themselves. The saved view applied
+  // at boot (ui/view-state.js) goes through A.applyView too, so the link's tool is on screen before the page is ready.
+  linkTool = namedTool() ? R.get('tool') : null;
+  if (linkTool) A.tool = linkTool;   // A.bootRest opens A.tool: the link's tool is the first one wired, with no flash of Organize
   var setTool = A.setTool;
   A.setTool = function (t) {
     setTool.apply(this, arguments);
