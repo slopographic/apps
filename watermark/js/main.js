@@ -4,12 +4,13 @@
   'use strict';
   const $ = window.WMUtil.$;
   const toast = (msg) => window.SlopUI.toast(msg);
-  let bar = null, busy = false, cancelRun = false;
+  let bar = null, busy = false, cancelRun = false, dropZone = null;
 
   /** Header actions. Apply and ZIP need pictures (and results); the page says why when they are not ready. */
   function syncBar() {
     const n = window.WMItems.count(), outs = window.WMItems.outCount();
-    $('wm-drop').classList.toggle('wm-has', n > 0); // the preview in the zone is for an empty page only
+    if (dropZone) dropZone.empty(!n); // the preview in the zone is for an empty page only
+    $('wm-preview-box').hidden = !n; $('wm-preview-note').hidden = !n; // the empty stage would only repeat the zone
     bar.setActions([
       { id: 'open', label: 'Open pictures…', icon: 'open', disabled: busy, onClick: () => $('wm-open').click() },
       { id: 'apply', label: 'Apply to all', icon: 'save', primary: true, disabled: busy || !n, onClick: applyAll },
@@ -67,7 +68,7 @@
 
   /** Drops and Open pictures: each picture is read into the list. The shared module reports the rest. */
   function wireDrop() {
-    window.SlopDrop.attach($('wm-drop'), {
+    dropZone = window.SlopDrop.attach($('wm-drop'), {
       accept: {
         types: window.WMDecode.TYPES, exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'],
         noun: 'a PNG, JPEG, WebP, GIF or SVG picture',

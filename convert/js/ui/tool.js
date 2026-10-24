@@ -36,7 +36,7 @@ export class ConvertTool {
     // The drop zone is SlopDrop (shared/drop): drops and the Choose files button (the only thing that opens the picker)
     // read each file through addFiles. The page's own picker input keeps its accept list.
     const accept = ui.input.getAttribute('accept');
-    window.SlopDrop.attach(ui.drop, {
+    this.dropZone = window.SlopDrop.attach(ui.drop, {
       accept: { any: true, noun: 'a file' },
       input: ui.input,
       label: 'Drop files here, or choose files',
@@ -165,9 +165,7 @@ export class ConvertTool {
       : [h('option', { value: '' }, this.active().length ? 'No conversion for these files' : 'Add files first')]));
     if (cands.some((c) => c.id === this.wantTarget)) { ui.target.value = this.wantTarget; this.wantTarget = null; } else if (cands.some((c) => c.id === prev)) ui.target.value = prev;
     // The preview in the drop zone is for an empty page.
-    const pv = ui.drop.querySelector('.sd-preview'), sample = ui.drop.querySelector('.sd-sample');
-    if (pv) pv.hidden = this.items.length > 0;
-    if (sample) sample.hidden = this.items.length > 0;
+    if (this.dropZone) this.dropZone.empty(!this.items.length);
     ui.target.disabled = !cands.length;
     ui.run.disabled = this.busy || !cands.length;
     this.noteFor(cands);

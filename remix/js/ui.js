@@ -35,7 +35,7 @@
       return li;
     }));
     if (!st.items.length) ul.append(Object.assign(document.createElement('li'), { className: 'rm-empty', textContent: 'No clips or photos yet.' }));
-    $('rm-drop').classList.toggle('rm-has', st.items.length > 0); // the preview and the sample are for an empty bin
+    if (dropZone) dropZone.empty(!st.items.length); // the preview and the sample are for an empty bin
   }
   /** One cut in the cut list: its items (each a drop target for a clip) and its fill. */
   function cutItem(beat, i, st) {
@@ -126,9 +126,9 @@
   // The bin and the stage take files through SlopDrop (shared/drop): it checks the types, shows each file's progress,
   // and calls RM.addFiles (the same path as before) one file at a time.
   const DROP_RULES = { types: ['image/*', 'video/*'], exts: [], noun: 'a picture or video' };
-  let missingBefore = 0;
+  let missingBefore = 0, dropZone = null;
   function wireDrop() {
-    SlopDrop.attach($('rm-drop'), {
+    dropZone = SlopDrop.attach($('rm-drop'), {
       accept: DROP_RULES,
       input: $('rm-file'),
       targets: [$('rm-bin'), $('rm-stage')],

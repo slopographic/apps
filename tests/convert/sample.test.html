@@ -35,7 +35,7 @@
       expect(T.items[0].name).toBe('Price list.csv');
       expect(T.items[0].kind).toBe('csv');
       expect($('#cv-target').value).toBe('csv-to-xlsx');
-      expect($('#cv-drop .sd-preview').hidden).toBe(true);
+      expect(W.getComputedStyle($('#cv-drop .sd-preview')).display).toBe('none');   // the preview is for an empty page
       expect($('#cv-run').disabled).toBe(false);
     }, { timeout: 60000 });
     it('at 390 px the preview fits: no sideways scroll', async () => {

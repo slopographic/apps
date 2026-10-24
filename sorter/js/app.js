@@ -7,7 +7,7 @@ import { writeZip } from '../../shared/office/zip.js';
 
 const M = window.SlopSorter.model, UI = window.SlopUI, $ = (id) => document.getElementById(id);
 const set = M.create(), urls = new Map();
-let which = 'all';
+let which = 'all', dropZone = null;
 const say = (t) => { $('soMsg').textContent = t || ''; };
 const urlOf = (id) => { if (!urls.has(id)) { const it = set.get(id); if (it) urls.set(id, URL.createObjectURL(it.file)); } return urls.get(id) || null; };
 const shown = () => M.filter(set.items, which);
@@ -61,6 +61,7 @@ function card(it, i, list) {
 function draw() {
   const items = set.items, c = M.counts(items), list = shown();
   $('soWork').hidden = items.length === 0;
+  if (dropZone) dropZone.empty(!items.length);
   drawFilters(c);
   $('soGrid').replaceChildren(...list.map((it, i) => card(it, i, list)));
   $('soNone').hidden = list.length > 0;
@@ -108,7 +109,7 @@ function clear() {
 }
 
 function wire() {
-  window.SlopDrop.attach($('soDrop'), {
+  dropZone = window.SlopDrop.attach($('soDrop'), {
     accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.svg', '.bmp'], noun: 'a photo' },
     input: $('soPick'), label: 'Drop photos here, or choose photos', hint: 'As many as you like. They stay on this device.',
     preview: { picture: { src: '../assets/shots/sorter.jpg', alt: 'Photos sorted into liked and disliked, with tags' },

@@ -127,6 +127,7 @@
     it('Clear empties it again', async () => {
       $('soClear').click();
       expect($('soWork').hidden).toBe(true);
+      expect(W.getComputedStyle(D.querySelector('#soDrop .sd-preview')).display).toBe('flex');   // the preview is back
       expect(A.set.items.length).toBe(0);
     });
     it('the empty page shows what it makes and how, and Try it with sample photos fills it', async () => {

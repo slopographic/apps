@@ -195,6 +195,9 @@
       choose: () => input.click(),
       run,
       sample: trySample,
+      /** Whether the app has nothing in it yet: the preview and the sample button show only then. A batch that adds files
+       *  sets it to false; an app's Clear sets it back with empty(true). */
+      empty(v) { if (ui.wrap) ui.wrap.classList.toggle('sd-has', !v); },
       destroy() {
         if (winOn) {
           win.removeEventListener('dragenter', onEnter);
