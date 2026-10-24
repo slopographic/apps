@@ -9,7 +9,7 @@
  *     out?(inKind, opts) → kind, mode: 'each' | 'combine', options: [option], run(files, opts, { signal, progress }) →
  *     [{ name, blob, kind? }], notice?, engine?, secret?, keywords?, description?, check?(opts) → problem text,
  *     fromApp?(settings) → options (the app's "Add to a workflow…" hook) }
- *   option: { key, type: number | range | select | checkbox | color | text | password | image, label, value, min, max,
+ *   option: { key, type: number | range | select | checkbox | color | text | password | image | watermark (a spec, as JSON), label, value, min, max,
  *             step, options: [[value, label]], hint, placeholder }
  *   kind 'macro': an app's recorded macro, run by an app host adapter (provide()): its run() opens the app headlessly,
  *   replays the macro and hands the files back. Its options come from the macro definition. See workflows/HANDOFF.md.
@@ -103,7 +103,7 @@ function argOf(o) {
   else if (o.type === 'select') Object.assign(a, { type: 'enum', options: o.options });
   else if (o.type === 'checkbox') a.type = 'boolean';
   else if (o.type === 'color') a.type = 'color';
-  else Object.assign(a, { type: 'string', maxLength: o.type === 'image' ? 4e6 : 2000 });
+  else Object.assign(a, { type: 'string', maxLength: o.type === 'image' || o.type === 'watermark' ? 4e6 : 2000 });
   if (o.value !== undefined && o.value !== '') a.default = o.value;
   return a;
 }

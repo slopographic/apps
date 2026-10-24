@@ -1,73 +1,111 @@
-/* Slopographic watermark engine (one source for Slop Watermark, the SlopCut and PhotoSlop modules).
- * window.SlopWatermark.draw(ctx, w, h, cfg, assets) paints a text or logo watermark onto a 2D canvas context
- * of size w x h. Positions and sizes are fractions of the frame's shorter side, so the same settings look the
- * same on a photo, a thumbnail or a video frame. Classic script; no dependencies. */
+/* Slopographic watermark engine: paints a watermark spec (spec.js) onto a 2D canvas. One engine for every picture and video
+ * frame on the site: Slop Watermark, PhotoSlop's exports and page view, SlopCut's monitor and exports, Slop Workflows. The
+ * layout maths is spec-layout.js (shared with the PDF mapping). Classic script; load spec.js and spec-layout.js first.
+ *   SlopWatermark.draw(ctx, w, h, spec, { page, pages, time, pdfFonts })   every layer that is active there (spec.active),
+ *        bottom first. A logo that is still decoding is skipped; onLogo tells when it is ready, to draw again.
+ *   SlopWatermark.drawLayer(ctx, w, h, layer, image, opts)
+ *   SlopWatermark.logo(dataUrl) → { img, ok, w, h, ready }     decoded once and kept (at most 2048 px on the long side)
+ *   SlopWatermark.ready(spec) → Promise                        every logo of the spec decoded (exports wait for it)
+ *   SlopWatermark.onLogo(fn) → off()                            fn() after any logo finishes decoding
+ *   SlopWatermark.readLogo(file) → Promise<{ logo, logoName, logoW, logoH }>   a picked picture as a layer's logo fields:
+ *        PNG or JPEG under 1.5 MB as it is, anything else (WebP, GIF, SVG, big files) as a PNG, so PDFs can embed it
+ *   SlopWatermark.ROOT ; load(paths) → Promise                  the site root, and classic scripts from it (once each) */
 (function () {
   'use strict';
-  var POS = { tl: [0, 0], tc: [0.5, 0], tr: [1, 0], ml: [0, 0.5], mc: [0.5, 0.5], mr: [1, 0.5], bl: [0, 1], bc: [0.5, 1], br: [1, 1] };
+  if (window.SlopWatermark && window.SlopWatermark.draw) return;
+  const S = window.SlopWatermarkSpec;
+  const SCRIPT = document.currentScript;
+  const ROOT = SCRIPT && SCRIPT.src ? new URL('../../', SCRIPT.src).href : new URL('/', location.href).href;
+  const LOGO_SIDE = 2048, KEEP_BYTES = 1.5 * 1048576, SVG_SIDE = 1024;
+  const PDF_CSS = { sans: 'Helvetica, Arial, sans-serif', serif: '"Times New Roman", Times, serif', mono: '"Courier New", Courier, monospace' };
+  const logos = new Map(), listeners = new Set();
 
-  function defaults() {
-    return { kind: 'text', text: '© Your name', font: 'Inter Tight, system-ui, sans-serif', weight: 600,
-      colour: '#ffffff', shadow: true, size: 0.045, logoScale: 0.2, opacity: 0.5,
-      position: 'br', tile: false, rotate: 0, margin: 0.03 };
+  const fontOf = (L, px, opts) => (L.bold ? 600 : 400) + ' ' + px + 'px ' + (opts && opts.pdfFonts ? PDF_CSS[L.font] : S.FONTS[L.font].css);
+
+  function logo(url) {
+    let e = logos.get(url);
+    if (e) return e;
+    e = { img: null, ok: false, w: 0, h: 0, ready: null };
+    logos.set(url, e);
+    e.ready = (async () => {
+      try {
+        const im = new Image();
+        im.src = url;
+        await im.decode();
+        let w = im.naturalWidth, h = im.naturalHeight;
+        if (!(w > 0 && h > 0)) { w = SVG_SIDE; h = SVG_SIDE; }
+        const k = Math.min(1, LOGO_SIDE / Math.max(w, h)), c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        Object.assign(e, { img: c, ok: true, w: c.width, h: c.height });
+        listeners.forEach((fn) => { try { fn(url); } catch (x) { console.warn(x); } });
+      } catch (err) { console.warn('Slopographic watermark: a logo could not be read', err); }
+    })();
+    return e;
   }
+  const ready = (spec) => Promise.all(S.visible(spec).filter((L) => L.kind === 'logo' && L.logo).map((L) => logo(L.logo).ready)).then(() => {});
+  function onLogo(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 
-  /** The size of one watermark item in pixels, { w, h }, for a frame of w x h. */
-  function itemSize(ctx, w, h, cfg, img) {
-    var s = Math.min(w, h);
-    if (cfg.kind === 'logo' && img) {
-      var lw = s * cfg.logoScale, aspect = (img.naturalHeight || img.height) / (img.naturalWidth || img.width);
-      return { w: lw, h: lw * aspect };
-    }
-    var px = Math.max(8, s * cfg.size);
-    ctx.save(); ctx.font = cfg.weight + ' ' + px + 'px ' + cfg.font;
-    var tw = ctx.measureText(cfg.text || ' ').width; ctx.restore();
-    return { w: tw, h: px * 1.2 };
-  }
-
-  /** Where one item goes: the anchor point inside the frame, with the margin. Returns the item's top-left. */
-  function anchored(w, h, cfg, size) {
-    var a = POS[cfg.position] || POS.br, m = Math.min(w, h) * cfg.margin;
-    var x = a[0] === 0 ? m : a[0] === 1 ? w - m - size.w : (w - size.w) / 2;
-    var y = a[1] === 0 ? m : a[1] === 1 ? h - m - size.h : (h - size.h) / 2;
-    return { x: x, y: y };
-  }
-
-  function paintItem(ctx, cfg, img, x, y, size) {
-    if (cfg.kind === 'logo' && img) { ctx.drawImage(img, x, y, size.w, size.h); return; }
-    ctx.font = cfg.weight + ' ' + (size.h / 1.2) + 'px ' + cfg.font;
-    ctx.textBaseline = 'top';
-    if (cfg.shadow) { ctx.shadowColor = 'rgba(0,0,0,0.45)'; ctx.shadowBlur = size.h * 0.15; ctx.shadowOffsetY = size.h * 0.05; }
-    ctx.fillStyle = cfg.colour;
-    ctx.fillText(cfg.text, x, y);
-    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-  }
-
-  /** Paints the watermark onto ctx (a 2D context already sized w x h). assets.image is the logo when kind is 'logo'. */
-  function draw(ctx, w, h, cfg, assets) {
-    cfg = Object.assign(defaults(), cfg || {});
-    var img = assets && assets.image || null;
-    if (cfg.kind === 'logo' && !img) return;
-    if (cfg.kind !== 'logo' && !cfg.text) return;
-    var size = itemSize(ctx, w, h, cfg, img);
+  /** A layer's items, painted at their centres. A logo without its own size takes the decoded picture's aspect. */
+  function drawLayer(ctx, w, h, L, img, opts) {
+    if (L.kind === 'logo' && !img) return;
+    if (L.kind === 'text' && !L.text) return;
+    const lay = L.kind === 'logo' && !(L.logoW > 0 && L.logoH > 0) ? Object.assign({}, L, { logoW: img.width, logoH: img.height }) : L;
+    const item = S.itemSize(lay, w, h, (t, px) => { ctx.save(); ctx.font = fontOf(L, px, opts); const m = ctx.measureText(t).width; ctx.restore(); return m; });
+    const at = S.placements(lay, w, h, item);
     ctx.save();
-    ctx.globalAlpha = Math.max(0, Math.min(1, cfg.opacity));
-    ctx.textAlign = 'left';
-    if (!cfg.tile) {
-      var p = anchored(w, h, cfg, size);
-      var cx = p.x + size.w / 2, cy = p.y + size.h / 2;
-      ctx.translate(cx, cy); ctx.rotate(cfg.rotate * Math.PI / 180);
-      paintItem(ctx, cfg, img, -size.w / 2, -size.h / 2, size);
-    } else {
-      var gap = Math.min(w, h) * 0.12, stepX = size.w + gap, stepY = size.h + gap;
-      var diag = Math.hypot(w, h);
-      ctx.translate(w / 2, h / 2); ctx.rotate(cfg.rotate * Math.PI / 180);
-      for (var y = -diag / 2; y < diag / 2; y += stepY) {
-        for (var x = -diag / 2; x < diag / 2; x += stepX) paintItem(ctx, cfg, img, x, y, size);
-      }
+    ctx.globalAlpha = Math.max(0, Math.min(1, L.opacity));
+    if (L.kind === 'text') {
+      ctx.font = fontOf(L, item.px, opts); ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.fillStyle = L.colour;
+      if (L.shadow) { ctx.shadowColor = 'rgba(0,0,0,0.45)'; ctx.shadowBlur = item.h * 0.15; ctx.shadowOffsetY = item.h * 0.05; }
+    }
+    const rad = at.rot * Math.PI / 180;
+    for (const p of at.items) {
+      ctx.save();
+      ctx.translate(p.cx, p.cy);
+      if (rad) ctx.rotate(rad);
+      if (L.kind === 'logo') ctx.drawImage(img, -item.w / 2, -item.h / 2, item.w, item.h);
+      else ctx.fillText(L.text, -item.w / 2, -item.h / 2);
+      ctx.restore();
     }
     ctx.restore();
   }
+  function draw(ctx, w, h, spec, opts = {}) {
+    if (!spec || !spec.layers) return;
+    for (const L of spec.layers) {
+      if (!S.active(L, opts)) continue;
+      const e = L.kind === 'logo' && L.logo ? logo(L.logo) : null;
+      drawLayer(ctx, w, h, L, e && e.ok ? e.img : null, opts);
+    }
+  }
 
-  window.SlopWatermark = { defaults: defaults, draw: draw, itemSize: itemSize, POSITIONS: Object.keys(POS) };
+  const dataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(new Error('That file could not be read.')); r.readAsDataURL(blob); });
+  async function readLogo(file) {
+    if (!file || !/^image\//.test(file.type || '') && !/\.(png|jpe?g|webp|gif|svg)$/i.test(file.name || '')) throw new Error('Choose a picture (PNG, JPEG, WebP, GIF or SVG) for the logo.');
+    let url = await dataUrl(file.type ? file : new Blob([file], { type: /\.svg$/i.test(file.name) ? 'image/svg+xml' : 'image/png' }));
+    const e = logo(url);
+    await e.ready;
+    if (!e.ok) { logos.delete(url); throw new Error('That picture could not be read. Use a PNG, JPEG, WebP, GIF or SVG.'); }
+    const keep = /^data:image\/(png|jpeg)/.test(url) && file.size <= KEEP_BYTES && Math.max(e.w, e.h) < LOGO_SIDE;
+    if (!keep) { url = e.img.toDataURL('image/png'); logos.set(url, e); }
+    return { logo: url, logoName: String(file.name || 'logo').slice(0, 120), logoW: e.w, logoH: e.h };
+  }
+
+  const loaded = new Map();
+  function one(rel) {
+    const src = new URL(rel, ROOT).href;
+    if (!loaded.has(src)) {
+      loaded.set(src, new Promise((resolve, reject) => {
+        if ([...document.scripts].some((s) => s.src === src)) { resolve(); return; }
+        const s = Object.assign(document.createElement('script'), { src, async: false });
+        s.onload = () => resolve();
+        s.onerror = () => { loaded.delete(src); s.remove(); reject(new Error('Could not load ' + rel + '. Check the connection.')); };
+        document.head.append(s);
+      }));
+    }
+    return loaded.get(src);
+  }
+  async function load(paths) { for (const p of paths) await one(p); }
+
+  window.SlopWatermark = Object.assign(window.SlopWatermark || {}, { ROOT, draw, drawLayer, logo, ready, onLogo, readLogo, load, POSITIONS: S.POSITIONS });
 })();

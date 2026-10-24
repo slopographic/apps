@@ -1,12 +1,12 @@
-/* Slop Watermark: the groups list. One row per shape group: the first picture's thumbnail, the count and size range,
- * and the group's own setting (off until the person turns it on). Rows are reused between renders, so a slider keeps
+/* Slop Watermark: the groups list. One row per shape group: the first file's thumbnail, the count and size range,
+ * and the group's own setting (off until the person turns it on): position, size (a scale of the shared size) and opacity. Rows are reused between renders, so a slider keeps
  * its focus while it is dragged. Classic script. Exposes window.WMGroupsUI.render(). */
 (function () {
   'use strict';
   const $ = window.WMUtil.$;
   const el = (tag, attrs, ...kids) => window.SlopUI.el(tag, attrs, ...kids);
   const G = window.WMGroups;
-  const POS = { tl: 'Top left', tc: 'Top middle', tr: 'Top right', ml: 'Middle left', mc: 'Centre', mr: 'Middle right', bl: 'Bottom left', bc: 'Bottom middle', br: 'Bottom right' };
+  const POS = window.SlopWatermarkSpec.POSITION_LABELS;
 
   function makeRow(kind) {
     return el('li', { class: 'wm-group', 'data-kind': kind },
@@ -17,8 +17,8 @@
         el('div', { class: 'wm-gset' },
           el('label', { class: 'wm-field' }, 'Position',
             el('select', { class: 'sui-input', 'data-f': 'position' }, ...Object.keys(POS).map((p) => el('option', { value: p }, POS[p])))),
-          el('label', { class: 'wm-field' }, el('span', { 'data-f': 'scale-label' }),
-            el('span', { class: 'wm-range' }, el('input', { type: 'range', 'data-f': 'scale' }), el('output', { 'data-f': 'scale-out' }))),
+          el('label', { class: 'wm-field' }, 'Size (of the shared size)',
+            el('span', { class: 'wm-range' }, el('input', { type: 'range', min: G.SCALE.min * 100, max: G.SCALE.max * 100, step: G.SCALE.step * 100, 'data-f': 'scale' }), el('output', { 'data-f': 'scale-out' }))),
           el('label', { class: 'wm-field' }, 'Opacity',
             el('span', { class: 'wm-range' }, el('input', { type: 'range', min: 0, max: 100, step: 1, 'data-f': 'opacity' }), el('output', { 'data-f': 'opacity-out' }))))));
   }
@@ -28,17 +28,15 @@
 
   /** Brings one row in line with its group and the setup. */
   function update(li, g) {
-    const S = window.WMSettings, cfg = S.cfg(), ov = S.group(g.kind), on = ov.on === true, sk = G.scaleKey(cfg.kind);
+    const ov = window.WMSettings.group(g.kind), on = ov.on === true;
     const img = li.querySelector('img');
     if (img.dataset.src !== g.first.url) { img.dataset.src = g.first.url; img.src = g.first.url; }
     li.querySelector('.wm-gname').textContent = g.text;
     li.querySelector('[data-f="on"]').checked = on;
     const sel = li.querySelector('[data-f="position"]'); put(sel, ov.position); sel.disabled = !on;
-    const range = li.querySelector('[data-f="scale"]'), r = G.scaleRange(cfg.kind);
-    range.min = r.min; range.max = r.max; range.step = r.step;
-    put(range, ov[sk] * 100); range.disabled = !on;
-    li.querySelector('[data-f="scale-label"]').textContent = cfg.kind === 'logo' ? 'Logo size' : 'Text size';
-    li.querySelector('[data-f="scale-out"]').textContent = G.fmtScale(cfg.kind, ov[sk]);
+    const range = li.querySelector('[data-f="scale"]');
+    put(range, Math.round(ov.scale * 100)); range.disabled = !on;
+    li.querySelector('[data-f="scale-out"]').textContent = Math.round(ov.scale * 100) + '%';
     const op = li.querySelector('[data-f="opacity"]'); put(op, Math.round(ov.opacity * 100)); op.disabled = !on;
     li.querySelector('[data-f="opacity-out"]').textContent = Math.round(ov.opacity * 100) + '%';
     li.querySelector('.wm-gset').classList.toggle('is-off', !on);
@@ -63,10 +61,10 @@
   function onChange(e) {
     const li = e.target.closest('.wm-group'), f = e.target.dataset.f;
     if (!li || !f) return;
-    const S = window.WMSettings, kind = li.dataset.kind, cfg = S.cfg();
-    if (f === 'on') S.setGroup(kind, e.target.checked ? Object.assign(G.overrideFrom(cfg), { on: true }) : { on: false });
+    const S = window.WMSettings, kind = li.dataset.kind;
+    if (f === 'on') S.setGroup(kind, e.target.checked ? Object.assign(G.overrideFrom(S.spec()), { on: true }) : { on: false });
     else if (f === 'position') S.setGroup(kind, { position: e.target.value });
-    else if (f === 'scale') S.setGroup(kind, { [G.scaleKey(cfg.kind)]: +e.target.value / 100 });
+    else if (f === 'scale') S.setGroup(kind, { scale: +e.target.value / 100 });
     else if (f === 'opacity') S.setGroup(kind, { opacity: +e.target.value / 100 });
   }
 

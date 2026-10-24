@@ -1,0 +1,134 @@
+/* The one watermark panel for every app: layers (text and logo, stacked bottom to top: show or hide, select, move up or
+ * down, duplicate, remove), the selected layer's fields (panel-fields.js), My watermarks (panel-saved.js) and the app's
+ * own buttons. It holds no document: every change goes to onChange(spec, { label, key }) as a new spec (the app keeps it
+ * and its undo; key joins a run of changes to one field into one undo step), and set(spec) shows the app's spec again.
+ * Mount it as many times as needed (each is separate). Styles: panel.css. Needs SlopUI, SlopMenuButton, spec*.js, core.js
+ * and saved.js. Classic script: window.SlopWatermarkPanel.
+ *   const p = SlopWatermarkPanel.mount(host, {
+ *     value: spec, onChange(spec, { label, key }),
+ *     media: { pages: false, time: false },  // which ranges to offer: page range (PDFs), time range (videos)
+ *     pageCount: () => n, currentPage: () => 1-based page in view (adds "This page"),
+ *     toggle: { get: () => on, set: (on) => {}, label: 'Watermark on', note: (on) => text },  // an on/off switch (optional)
+ *     newLayer: (kind) => ({ ...fields }),   // the app's defaults for a new layer (optional)
+ *     actions: [{ label, title, act }],      // the app's own buttons under the panel (optional)
+ *     onFiles: (files) => {},                // files dropped on the panel that are not pictures (optional)
+ *     saved: true,                           // the My watermarks button
+ *   });
+ *   p.el ; p.set(spec) ; p.get() ; p.setMedia({ pages, time }) ; p.select(layerId) ; p.selected() ; p.sync() ; p.destroy() */
+(function () {
+  'use strict';
+  const P = (window.SlopWatermarkPanel = window.SlopWatermarkPanel || {});
+  const S = window.SlopWatermarkSpec, WM = window.SlopWatermark;
+  const el = (...a) => window.SlopUI.el(...a);
+  const IMG = 'image/png,image/jpeg,image/webp,image/gif,image/svg+xml';
+  const isPicture = (f) => /^image\/(png|jpeg|webp|gif|svg\+xml)$/.test(f.type || '') || /\.(png|jpe?g|webp|gif|svg)$/i.test(f.name || '');
+
+  P.mount = function (host, opts = {}) {
+    let spec = S.normalize(opts.value || S.defaults()), sel = spec.layers.length ? spec.layers[spec.layers.length - 1].id : null;
+    let media = Object.assign({ pages: false, time: false }, opts.media), editorFor = '';
+    const emit = (next, label, key) => { spec = next; render(); if (opts.onChange) opts.onChange(spec, { label, key: key || null }); };
+    const layer = () => S.getLayer(spec, sel);
+    const fresh = (kind) => S.layerDefaults(kind, opts.newLayer ? opts.newLayer(kind) : null);
+
+    async function pickLogo(add) {
+      const files = await window.SlopUI.pickFiles({ accept: IMG });
+      if (files && files[0]) await useLogo(files[0], add);
+    }
+    async function useLogo(file, add) {
+      let fields;
+      try { fields = await WM.readLogo(file); } catch (e) { window.SlopUI.toast(e.message, 4000); return; }
+      const cur = layer();
+      if (!add && cur && cur.kind === 'logo') { emit(S.updateLayer(spec, cur.id, fields), 'Change logo'); return; }
+      const L = Object.assign(fresh('logo'), fields);
+      sel = L.id;
+      emit(S.addLayer(spec, L), 'Add logo');
+    }
+    function addText() { const L = fresh('text'); sel = L.id; emit(S.addLayer(spec, L), 'Add text layer'); }
+
+    const ctx = { layer, media: () => media, pageCount: () => (opts.pageCount ? opts.pageCount() : 0), currentPage: opts.currentPage || null,
+      pickLogo: () => pickLogo(false), patch: (p, label, key) => { const L = layer(); if (L) emit(S.updateLayer(spec, L.id, p), label, key ? 'wm:' + L.id + ':' + key : null); } };
+
+    // the switch
+    let sw = null, swNote = null;
+    if (opts.toggle) {
+      const cb = el('input', { type: 'checkbox', role: 'switch', 'aria-label': opts.toggle.label || 'Watermark on' });
+      cb.addEventListener('change', () => opts.toggle.set(cb.checked));
+      swNote = el('p', { class: 'swp-fine swp-note', 'aria-live': 'polite' });
+      sw = { cb, el: el('div', { class: 'swp-toggle' }, el('label', { class: 'swp-switch' }, cb, el('span', null, opts.toggle.label || 'Watermark on')), swNote) };
+    }
+
+    // layers
+    const addT = el('button', { type: 'button', class: 'sui-btn swp-add', 'data-add': 'text' }, '+ Text');
+    const addL = el('button', { type: 'button', class: 'sui-btn swp-add', 'data-add': 'logo' }, '+ Logo…');
+    addT.addEventListener('click', addText);
+    addL.addEventListener('click', () => pickLogo(true));
+    const saved = opts.saved !== false && window.SlopWatermarkSaved && window.SlopMenuButton
+      ? P.savedButton({ get: () => spec, use: (sp) => { sel = sp.layers.length ? sp.layers[sp.layers.length - 1].id : null; emit(sp, 'Use a saved watermark'); } }) : null;
+    const list = el('ol', { class: 'swp-layers', 'aria-label': 'Layers, top first' });
+    const stackBtn = (label, title, fn) => { const b = el('button', { type: 'button', class: 'sui-btn', title }, label); b.addEventListener('click', fn); return b; };
+    const up = stackBtn('Up', 'Move the layer up (drawn over the ones below)', () => emit(S.moveLayer(spec, sel, 1), 'Move layer up'));
+    const down = stackBtn('Down', 'Move the layer down', () => emit(S.moveLayer(spec, sel, -1), 'Move layer down'));
+    const dup = stackBtn('Duplicate', 'A copy of this layer', () => { const id = S.uid(), next = S.duplicateLayer(spec, sel, id); sel = id; emit(next, 'Duplicate layer'); });
+    const del = stackBtn('Remove', 'Remove this layer', () => { const i = spec.layers.findIndex((L) => L.id === sel), next = S.removeLayer(spec, sel); sel = next.layers.length ? next.layers[Math.max(0, i - 1)].id : null; emit(next, 'Remove layer'); });
+    del.classList.add('swp-danger');
+    const stack = el('div', { class: 'swp-stack', role: 'group', 'aria-label': 'Selected layer' }, up, down, dup, del);
+    list.addEventListener('click', (e) => { const b = e.target.closest('.swp-item'); if (b) { sel = b.dataset.id; render(); } });
+    list.addEventListener('change', (e) => {
+      const cb = e.target.closest('input[data-show]');
+      if (cb) { sel = cb.dataset.show; emit(S.updateLayer(spec, cb.dataset.show, { show: cb.checked }), cb.checked ? 'Show layer' : 'Hide layer'); }
+    });
+
+    const editorBox = el('div', { class: 'swp-editor-box' }), msg = el('p', { class: 'swp-msg', role: 'status' });
+    let editor = null;
+    const actions = el('div', { class: 'swp-actions' }, ...(opts.actions || []).map((a) => {
+      const b = el('button', { type: 'button', class: 'sui-btn', title: a.title || null }, a.label);
+      b.addEventListener('click', () => a.act(spec));
+      return b;
+    }));
+    const root = el('div', { class: 'swp', role: 'group', 'aria-label': 'Watermark' }, sw && sw.el,
+      el('div', { class: 'swp-top' }, addT, addL, saved && saved.el), list, stack, editorBox, msg, actions);
+    actions.hidden = !actions.children.length;
+    host.append(root);
+
+    // a picture dropped on the panel is a new logo layer
+    const hasFiles = (e) => [...((e.dataTransfer && e.dataTransfer.types) || [])].includes('Files');
+    root.addEventListener('dragover', (e) => { if (hasFiles(e)) { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = 'copy'; root.classList.add('swp-over'); } });
+    root.addEventListener('dragleave', () => root.classList.remove('swp-over'));
+    root.addEventListener('drop', (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault(); e.stopPropagation(); root.classList.remove('swp-over');
+      const files = [...(e.dataTransfer.files || [])], pic = files.find(isPicture);
+      if (pic) useLogo(pic, true); else if (files.length && opts.onFiles) opts.onFiles(files);
+    });
+
+    function render() {
+      if (sel && !layer()) sel = null;
+      if (!sel && spec.layers.length) sel = spec.layers[spec.layers.length - 1].id;
+      if (sw) { const on = !!opts.toggle.get(); sw.cb.checked = on; swNote.textContent = opts.toggle.note ? opts.toggle.note(on) : ''; swNote.hidden = !swNote.textContent; }
+      list.replaceChildren(...(spec.layers.length ? spec.layers.slice().reverse().map((L) => el('li', { class: 'swp-row' + (L.id === sel ? ' swp-on' : '') + (L.show ? '' : ' swp-hidden') },
+        el('input', { type: 'checkbox', 'data-show': L.id, checked: L.show, 'aria-label': 'Show ' + S.label(L) }),
+        el('button', { type: 'button', class: 'swp-item', 'data-id': L.id, 'aria-pressed': String(L.id === sel), title: S.label(L) }, S.label(L)),
+        el('span', { class: 'swp-kind' }, L.kind === 'logo' ? 'logo' : 'text'))) : [el('li', { class: 'swp-empty' }, 'No layers. Add text or a logo.')]));
+      const i = spec.layers.findIndex((L) => L.id === sel);
+      stack.hidden = i < 0;
+      up.disabled = i >= spec.layers.length - 1; down.disabled = i <= 0;
+      dup.disabled = spec.layers.length >= S.MAX_LAYERS; addT.disabled = addL.disabled = spec.layers.length >= S.MAX_LAYERS;
+      const L = layer(), key = L ? L.id + ':' + L.kind : '';
+      if (key !== editorFor) { editorFor = key; editorBox.replaceChildren(); editor = L ? P.fields(ctx) : null; if (editor) editorBox.append(editor.el); }
+      if (editor) editor.sync();
+      msg.textContent = S.check(spec); msg.hidden = !msg.textContent;
+    }
+    render();
+
+    return {
+      el: root,
+      get: () => spec,
+      set(next) { spec = S.normalize(next); render(); },
+      setMedia(m) { media = Object.assign({ pages: false, time: false }, m); render(); },
+      select(id) { sel = id; render(); },
+      selected: () => sel,
+      sync: render,
+      destroy() { if (saved) saved.destroy(); root.remove(); },
+    };
+  };
+})();

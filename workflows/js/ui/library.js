@@ -111,7 +111,7 @@ export function createLibrary(ctx, els = {}) {
     let dropped = 0;
     const doc = { ...S.doc, steps: S.doc.steps.map((s) => {
       const op = R.byId(s.id), o = { ...s.options };
-      for (const opt of (op ? op.options : [])) if (opt.type === 'image' && String(o[opt.key] || '').length > LINK_IMAGE_MAX) { delete o[opt.key]; dropped++; }
+      for (const opt of (op ? op.options : [])) if ((opt.type === 'image' || opt.type === 'watermark') && String(o[opt.key] || '').length > LINK_IMAGE_MAX) { delete o[opt.key]; dropped++; }
       return { ...s, options: o };
     }) };
     const url = new URL('workflows/', SITE);
