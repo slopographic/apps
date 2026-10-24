@@ -319,6 +319,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   backup file… (`backup.import`, shared/backup/ui.js) and Export everything's (`backup.everything`,
   shared/backup/central-ui.js) are parts of the one intake on pages that load it; on a page without shared/intake each
   keeps its old picker (`intake-ok`). `tests/intake/shared-parts.test.html`.
+- **SlopDocTabs** (shared/doctabs): its own Open from Slop Drive (`api.openFromDrive`, `drive.js`) is gone: every app
+  that used it (Docs, Hex, Slides) opens from Slop Drive through its intake, whose reader calls `api.openDoc(doc, {
+  driveId, origName })`. The tab strip's drag of tabs stays (`intake-ok`). `tests/doctabs/doctabs.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -401,11 +404,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] out: Open in/Send to label: `shared/convert/load.js:52`
 - [ ] out: Open in/Send to label: `shared/convert/results.js:50`
-
-### shared/doctabs
-
-- [ ] Drive picker: `shared/doctabs/drive.js:57`
-- [ ] drop listener: `shared/doctabs/tabs.js:84`
 
 ### shared/fonts
 
