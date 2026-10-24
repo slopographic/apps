@@ -84,10 +84,12 @@
         expect(doc.getElementById('up-stage').hidden).toBe(false);
       })), { timeout: APP });
 
-      it('one picture at a time: a second file in the same drop is refused and the toast says why', () => openApp('../../upscale/index.html', (w) => w.document.querySelector('#up-drop .sd-msg')).then((f) => withApp(f, async (w, doc) => {
+      it('two pictures in one drop both join the list (the files column shows from two)', () => openApp('../../upscale/index.html', (w) => w.document.querySelector('#up-drop .sd-msg')).then((f) => withApp(f, async (w, doc) => {
         drop(w, [await picture(w, 'first.png'), await picture(w, 'second.png')], doc.getElementById('up-stage-wrap'));
         await waitFor(() => toastOf(doc) !== '', { timeout: 30000 });
-        expect(toastOf(doc)).toBe('Added 1 file, 1 skipped: second.png is not taken: only one file at a time');
+        expect(toastOf(doc)).toBe('Added 2 files');
+        expect(doc.querySelectorAll('#up-rows .up-row').length).toBe(2);
+        expect(doc.getElementById('up-run').textContent).toBe('Upscale 2 pictures');
       })), { timeout: APP });
     });
 

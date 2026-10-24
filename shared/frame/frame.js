@@ -25,6 +25,8 @@
  *     { title, list: [{ name, meta, open?, actions: [action] }] }    files or items, each with its own buttons
  *     { title, actions: [action] }                                   buttons; one may be primary
  *     { title, note }  { title, body: element }                      a line of text, or the app's own element
+ *     { title, settings: element | [elements] }                      a tool's settings group (the app's own controls)
+ *   .footer([action], { note, more })   the panel's main button(s), stuck to its bottom (tool apps: the rule)
  *   action = { label, run?, menu?: items | () => items, primary?, disabled?, title?, id? }
  *     menu items = [{ label, act, disabled?, heading? }] open under the button (shared/ui/menubutton.js) as "Label ▾".
  * Classic script; styles in frame.css. Needs shared/ui/sheet.js for phones and shared/ui/menubutton.js for menus. */
@@ -90,6 +92,9 @@
       root.classList.toggle('sf-phone', phone());
       root.classList.toggle('sf-viewing', phone() && hasList && viewing);
       grip.setAttribute('aria-valuenow', String(width));
+      // a phone's closed sheet that shows only its footer (panel.js footer()): the rest of it is out of reach until opened
+      const peek = phone() && panel.classList.contains('sf-has-foot') && !(sheet && sheet.isOpen());
+      for (const c of panel.children) { if (!c.classList.contains('sf-p-foot')) c.inert = peek; }
       if (btn) { btn.setAttribute('aria-pressed', String(phone() ? !!(sheet && sheet.isOpen()) : shown)); btn.classList.toggle('sf-phone-hide', phone()); }
       if (o.onChange) o.onChange({ panel: shown, width, viewing });
     }
@@ -99,7 +104,11 @@
       setPanel(!shown);
     }
     function setWidth(w) { width = clamp(w); save(); paint(); }
-    if (btn) btn.addEventListener('click', () => { if (!phone()) setPanel(!shown); });   // on a phone SlopSheet's toggle opens it
+    if (btn) btn.addEventListener('click', () => { if (!phone()) setPanel(!shown); });
+    const onMore = () => { if (phone() && sheet) { sheet.toggle(); paint(); } else if (!shown) setPanel(true); };   // the footer's "more" button
+    panel.addEventListener('sf-sheet', onMore);
+    const onFoot = () => paint();   // the footer came or went
+    panel.addEventListener('sf-foot', onFoot);   // on a phone SlopSheet's toggle opens it
 
     // Drag the edge: the panel is as wide as from the pointer to the root's far edge (the start edge in right-to-left).
     let drag = null;
@@ -147,6 +156,7 @@
       isPhone: phone, button: btn, grip, command: cmdId,
       destroy() {
         mq.removeEventListener('change', onMq);
+        panel.removeEventListener('sf-sheet', onMore); panel.removeEventListener('sf-foot', onFoot);
         if (sheet) sheet.destroy();
         grip.remove(); if (btn) btn.remove();
         if (g.SlopCmd && o.command !== false) g.SlopCmd.unregister(cmdId);

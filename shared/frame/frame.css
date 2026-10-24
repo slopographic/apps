@@ -56,4 +56,31 @@ button.sf-item-main:focus-visible { outline: 2px solid var(--sl-accent); outline
 .sf-item-meta { font-size: 11.5px; color: color-mix(in srgb, var(--sl-text) 62%, transparent); overflow-wrap: anywhere; }
 .sf-item-acts { display: flex; gap: 4px; flex: 0 0 auto; }
 .sf-item-acts .sf-btn { min-height: 28px; height: 28px; padding: 0 8px; font-size: 12px; }
+
+/* A tool's settings (panel.js: { settings }) and its main button (panel.js: footer()). The panel is a column so the
+   footer sits at its bottom edge however short the settings are. */
+.sf-panel.sf-has-foot { display: flex; flex-direction: column; }
+.sf-panel.sf-has-foot > .sf-p-body { flex: 1 0 auto; }
+.sf-set { display: grid; gap: 10px; font-size: 13px; }
+.sf-field { display: grid; gap: 6px; min-width: 0; }
+.sf-lab { font-size: 12.5px; font-weight: 600; }
+.sf-field select, .sf-field input:not([type="range"]):not([type="checkbox"]):not([type="radio"]) { width: 100%; min-width: 0; height: 34px; padding: 0 10px;
+  box-sizing: border-box; background: var(--sl-background); color: var(--sl-text); border: 1px solid var(--sl-border); border-radius: 8px; font: inherit; }
+.sf-field input[type="range"] { width: 100%; accent-color: var(--sl-accent); margin: 2px 0 0; }
+.sf-seg { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 6px; }
+.sf-seg .sui-btn { min-width: 0; height: 34px; }
+.sf-seg [aria-pressed="true"] { border-color: var(--sl-accent); color: var(--sl-accent); background: color-mix(in srgb, var(--sl-accent) 12%, transparent); }
+.sf-set .sf-note { margin: 0; }
+.sf-p-foot { position: sticky; bottom: 0; z-index: 2; display: grid; gap: 6px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--sl-surface); border-top: 1px solid var(--sl-border); }
+.sf-foot-acts { display: flex; gap: 6px; }
+.sf-foot-acts .sf-btn { flex: 1 1 0; min-width: 0; min-height: 40px; font-weight: 700; }
+.sf-foot-note { margin: 0; font-size: 11.5px; color: color-mix(in srgb, var(--sl-text) 62%, transparent); text-align: center; }
+.sf-foot-more { display: none; }
+/* Phones: the closed sheet shows only its footer at the bottom of the screen; the page leaves room for it */
+.sf-phone .sf-foot-acts .sf-foot-more { display: inline-flex; flex: 0 0 auto; font-weight: 600; }
+.sf-phone .sf-panel.sf-has-foot.ssh-panel:not(.ssh-on) { visibility: visible; transform: none; transition: none; overflow: hidden; box-shadow: 0 -6px 18px rgba(0, 0, 0, .18); }
+.sf-phone .sf-panel.sf-has-foot.ssh-panel:not(.ssh-on) > :not(.sf-p-foot) { display: none; }
+.sf-phone .sf-panel.sf-has-foot .sf-p-foot { border-radius: 0; }
+.sf-phone:has(> .sf-panel.sf-has-foot) { padding-bottom: var(--sf-foot-h, 64px); }
 @media print { .sf-panel, .sf-grip, .sf-list { display: none !important; } }

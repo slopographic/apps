@@ -4,6 +4,13 @@
  *   const p = SlopFramePanel.create(panelEl, { title: 'Message' });    // also SlopFrame.panel(panelEl, opts)
  *   p.render([{ title: 'Details', rows: [['From', 'Ann']] }, { title: 'Actions', actions: [{ label: 'Export', menu: [...] }] }]);
  *   p.setTitle(text)
+ *   p.footer([{ label: 'Upscale', primary: true, run }], { note: 'Ctrl+Enter', more: 'Settings' })
+ * Tool apps (resize, upscale, ocr…) put their settings and their main button here, the rule for every tool app
+ * (shared/frame/HANDOFF.md): settings groups as { title, settings: element | [elements] } sections (the app's own form
+ * controls, styled by .sf-field / .sf-lab / .sf-seg in frame.css), and the main button in footer(): a bar stuck to the
+ * panel's bottom edge, so it is in reach however long the settings are. On a phone the closed sheet still shows the
+ * footer at the bottom of the screen (the primary button is never hidden); its "more" button opens the whole sheet.
+ * footer() redraws only the footer (call it on every state change; the settings are not touched). footer([]) removes it.
  * Section and action shapes: see frame.js. A menu opens under its button with shared/ui/menubutton.js (SlopMenuButton);
  * items are { label, act, disabled?, keywords? } or { heading }. Classic script; styles in frame.css. */
 (function (g) {
@@ -95,6 +102,11 @@
           s.actions.filter(Boolean).forEach((a, k) => bar.append(button(a, skey + '/a/' + (a.id || k))));
           sec.append(bar);
         }
+        if (s.settings) {
+          const set = el('div', 'sf-set');
+          set.append(...[].concat(s.settings).filter(Boolean));
+          sec.append(set);
+        }
         if (s.body) sec.append(s.body);
         body.append(sec);
       });
@@ -103,7 +115,36 @@
         if (again && !again.disabled) again.focus({ preventScroll: true });
       }
     }
-    return { render, setTitle: (t) => { h.textContent = t; }, element: body, title: head };
+
+    // The footer: the main button(s), stuck to the panel's bottom; its height is kept in --sf-foot-h on the frame's root
+    // (frame.css lifts the page above it on phones, where the closed sheet shows only the footer).
+    const foot = el('div', 'sf-p-foot');
+    const host = () => panel.closest('.sf-root') || panel.parentElement;
+    const ro = g.ResizeObserver ? new g.ResizeObserver(() => { const r = host(); if (r) r.style.setProperty('--sf-foot-h', foot.offsetHeight + 'px'); }) : null;
+    function footer(actions, fo) {
+      fo = fo || {};
+      const list = (actions || []).filter(Boolean);
+      const focused = doc.activeElement && foot.contains(doc.activeElement) ? doc.activeElement.dataset.sfKey : null;
+      foot.replaceChildren();
+      const had = panel.classList.contains('sf-has-foot');
+      panel.classList.toggle('sf-has-foot', list.length > 0);
+      if (had !== list.length > 0) panel.dispatchEvent(new g.CustomEvent('sf-foot'));
+      if (!list.length) { foot.remove(); return; }
+      const bar = el('div', 'sf-foot-acts');
+      list.forEach((a, k) => bar.append(button(a, 'foot/' + (a.id || k))));
+      if (fo.more) {
+        const m = button({ label: fo.more, run: () => panel.dispatchEvent(new g.CustomEvent('sf-sheet', { bubbles: true })) }, 'foot/more');
+        m.classList.add('sf-foot-more');
+        m.setAttribute('aria-haspopup', 'dialog');
+        bar.prepend(m);
+      }
+      foot.append(bar);
+      if (fo.note) foot.append(el('p', 'sf-foot-note', fo.note));
+      if (foot.parentNode !== panel || panel.lastChild !== foot) panel.append(foot);
+      if (ro) ro.observe(foot);
+      if (focused) { const again = foot.querySelector('[data-sf-key="' + focused + '"]'); if (again && !again.disabled) again.focus({ preventScroll: true }); }
+    }
+    return { render, footer, setTitle: (t) => { h.textContent = t; }, element: body, title: head, foot };
   }
 
   g.SlopFramePanel = { create };
