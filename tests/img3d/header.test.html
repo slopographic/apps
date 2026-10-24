@@ -43,6 +43,7 @@
     });
     it('at 1280px the settings are a panel on the right, with the exports and Open in Slop 3D at its foot, not in the header', async () => {
       const f = await open(1280), D = f.contentDocument, panel = D.getElementById('panel');
+      await waitFor(() => box(D, '#panel').width > 200 && box(D, '#stage').width > 200, { timeout: 10000 });
       expect(box(D, '#panel').left).toBeGreaterThanOrEqual(box(D, '#stage').right - 1);
       expect(Math.round(box(D, '#panel').right)).toBe(1280);
       expect([...panel.querySelectorAll('.sf-h')].map((n) => n.textContent)).toEqual(['Picture', 'Depth', 'Subject', 'Output', 'Controls', 'Result']);

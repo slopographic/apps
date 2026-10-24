@@ -69,7 +69,8 @@ svg { display: block; }
    still does not fit folds into More ▾ (js/app/topbar-fit.js). */
 @container ps-app (max-width: 1180px) { .doc-title { visibility: hidden; } }
 @container ps-app (min-width: 641px) and (max-width: 1279px) { #macrosBtn { display: none; } }
-.top-btn.ps-fold { display: none; }
+@container ps-app (min-width: 641px) and (max-width: 1000px) { .logo-word { display: none; } }
+.topbar .ps-fold { display: none !important; }
 .top-actions { display: flex; gap: 6px; flex: none; }
 /* The shared header buttons (Drive, Tour, View, Theme, Apps: shared/ui/hbtn.css) wear the look of .top-btn. */
 .topbar { --slop-hbtn-h: 26px; --slop-hbtn-bg: var(--panel-2); --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); --slop-hbtn-radius: var(--radius); --slop-hbtn-fs: 12px; }

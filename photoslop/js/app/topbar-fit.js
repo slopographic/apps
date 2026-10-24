@@ -1,14 +1,15 @@
 /* PhotoSlop: the top bar always fits the app's own width, also when the page is narrower than the window (the Slop AI
  * panel open beside the app takes 380 px). When the bar would overflow, PhotoSlop's own buttons (Macros, Search, the
- * theme switch, New, in that order) fold into a "More ▾" menu (SlopMenuButton, shared/ui/menubutton.js) that clicks the
+ * theme switch, New, in that order), then Tour and Slop Drive, fold into a "More ▾" menu (SlopMenuButton, shared/ui/menubutton.js) that clicks the
  * same buttons, so nothing is cut off and nothing runs under the panel. The CSS side is a container query on .app
  * (css/layout.css). Classic script: PSTopbarFit.mount() once the bar is built (app/main.js). */
 (function (g) {
   'use strict';
-  const ORDER = ['macrosBtn', 'cmdBtn', 'themeToggle', 'newBtn'];
+  const ORDER = ['#macrosBtn', '#cmdBtn', '#themeToggle', '#newBtn', '.topbar .stour-btn', '.topbar .sdl'];
   let bar = null, more = null, raf = 0;
-  const $ = (id) => document.getElementById(id);
+  const $ = (sel) => document.querySelector(sel);
   const label = (b) => b.getAttribute('aria-label') || b.textContent.trim() || b.title;
+  const keyOf = (b) => ORDER.find((sel) => $(sel) === b);
   const folded = () => ORDER.map($).filter((b) => b && b.classList.contains('ps-fold'));
   const over = () => bar.scrollWidth > bar.clientWidth + 1;
 
@@ -42,8 +43,8 @@
     if (g.SlopMenuButton) {
       g.SlopMenuButton.attach(more, {
         label: 'More', search: false,
-        items: () => folded().map((b) => ({ value: b.id, label: label(b) })),
-        onPick: (id) => { const b = $(id); if (b) b.click(); },
+        items: () => folded().map((b) => ({ value: keyOf(b), label: label(b) })),
+        onPick: (sel) => { const b = $(sel); if (b) b.click(); },
       });
     }
     if (g.ResizeObserver) new g.ResizeObserver(later).observe(bar);

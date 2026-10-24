@@ -30,6 +30,7 @@
         const { win, D } = await withAI(width);
         const bar = D.querySelector('.topbar'), app = D.getElementById('app').getBoundingClientRect(), sap = D.querySelector('.sap').getBoundingClientRect();
         expect(app.right).toBeLessThanOrEqual(sap.left + 1);
+        await waitFor(() => bar.scrollWidth <= bar.clientWidth + 1, { timeout: 5000 }).catch(() => {});   // the fit settles on the next frame
         expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth + 1);
         const right = bar.getBoundingClientRect().right;
         for (const n of [...bar.querySelectorAll('button, a')].filter(vis)) expect(Math.round(n.getBoundingClientRect().right)).toBeLessThanOrEqual(Math.round(right));

@@ -110,15 +110,15 @@
         if (s.note) sec.append(el('p', 'sf-note', s.note));
         if (s.rows) sec.append(rows(s.rows));
         if (s.list) sec.append(s.list.length ? items(s.list, skey) : el('p', 'sf-note', s.empty || 'None.'));
+        if (s.settings) {   // the settings first, then the section's buttons
+          const set = el('div', 'sf-set');
+          set.append(...[].concat(s.settings).filter(Boolean));
+          sec.append(set);
+        }
         if (s.actions) {
           const bar = el('div', 'sf-acts');
           s.actions.filter(Boolean).forEach((a, k) => bar.append(button(a, skey + '/a/' + (a.id || k))));
           sec.append(bar);
-        }
-        if (s.settings) {
-          const set = el('div', 'sf-set');
-          set.append(...[].concat(s.settings).filter(Boolean));
-          sec.append(set);
         }
         if (s.body) sec.append(s.body);
         body.append(sec);
