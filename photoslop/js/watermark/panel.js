@@ -7,6 +7,7 @@ function buildWatermarkPanel() {
   const host = h('div', { class: 'ps-wm' });
   const panel = SlopWatermarkPanel.mount(host, {
     value: wmState().spec,
+    intake: 'photoslop.logo',   // the logo part: SlopIntake.pick({ to: 'photoslop.logo' })
     onChange: (spec) => wmSetSpec(spec),
     toggle: { get: wmOn, set: wmSetOn, label: 'Watermark on', note: (on) => (on ? 'On: added to exports and shown on the page.' : 'Off: exports and the page show no watermark.') },
     actions: [
