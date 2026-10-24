@@ -76,6 +76,7 @@
     var face = faces.get(key);
     if (!face) return (cache[key] = out.embedStandardFont(key.indexOf('|') < 0 ? key : 'Helvetica'));
     if (!kitted.has(out)) { out.registerFontkit(face.kit); kitted.add(out); }
-    return (cache[key] = await out.embedFont(face.bytes, { subset: true }));
+    // a subset through the shared run drawer: CFF fonts (Noto Sans CJK) get a header PDF readers accept (shared/fonts/pdf-runs.js)
+    return (cache[key] = await window.SlopPdfRuns.embed(out, face.bytes));
   };
 })();

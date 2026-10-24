@@ -7,7 +7,7 @@
      E.langKey(pack, bold)                      the face key of a language font
      E.charsetOf(key)                           the code points a font key can set (text.js)
      E.langFaceFor(cp, bold, text)              the prepared language face key that sets cp, or null
-     E.runsOf(line, key, bold) -> [{ text, font }]   the line in visual order, left to right, one font per run
+     E.runsOf(line, key, bold) -> [{ text, font, rtl }]   the line in visual order, left to right, one font per run
      E.needsScripts(text, key)                  true when the text has characters the font cannot set and no face is ready
      E.ensureScripts(text, key, bold, { ask })  downloads (after asking, unless automatic) and prepares the faces needed
      E.langFamilies()                           the CSS families of the prepared language fonts, for screen text */
@@ -39,11 +39,14 @@
     var out = [];
     B.segments(line, { fontOf: fontOf }).forEach(function (seg) {
       // a character the run's font lacks (a symbol beside Arabic, say) goes back to the text's own font
-      var fcs = seg.font === key ? cs : E.charsetOf(seg.font), cur = null;
+      var fcs = seg.font === key ? cs : E.charsetOf(seg.font), cur = null, parts = [];
       for (var ch of seg.text) {
         var f = fcs.has(ch.codePointAt(0)) ? seg.font : key;
-        if (cur && cur.font === f) cur.text += ch; else { cur = { text: ch, font: f }; out.push(cur); }
+        if (cur && cur.font === f) cur.text += ch; else { cur = { text: ch, font: f, rtl: seg.rtl }; parts.push(cur); }
       }
+      // inside a right-to-left segment the runs go right to left too (each run's text stays in logical order)
+      if (seg.rtl) parts.reverse();
+      out.push.apply(out, parts);
     });
     return out;
   };

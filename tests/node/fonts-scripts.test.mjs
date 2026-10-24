@@ -63,3 +63,29 @@ test('base direction: the first strong character, unless given', () => {
   assert.deepEqual(seg('abc', 'rtl').map((x) => x[0]), ['abc']);
   assert.deepEqual(B.segments('', {}), []);
 });
+
+test('N0: a bracket pair takes the direction of the strong text inside it', () => {
+  const lv = (text, base) => { const cps = [...text].map(cp); const l = B.levels(cps, base); return (ch) => l[[...text].indexOf(ch)]; };
+  // right-to-left words in brackets inside English: both brackets join the Arabic run
+  let at = lv('English العربية (عربي) end', 0);
+  assert.deepEqual([at('('), at(')')], [1, 1]);
+  assert.deepEqual(seg('English العربية (عربي) end').filter((x) => x[1]).map((x) => x[0]), ['العربية (عربي)']);
+  // English in brackets: stays left to right
+  at = lv('say (hello) now', 0);
+  assert.deepEqual([at('('), at(')')], [0, 0]);
+  // Hebrew in brackets after English, in an English paragraph: the text before is left to right, so the brackets are too
+  at = lv('see (שלום) here', 0);
+  assert.deepEqual([at('('), at(')')], [0, 0]);
+  // English in brackets inside a right-to-left paragraph, after Hebrew: the brackets follow the paragraph
+  at = lv('שלום (abc) עולם', 1);
+  assert.deepEqual([at('('), at(')')], [1, 1]);
+  // unmatched brackets are left alone; nested pairs are each resolved
+  assert.equal(lv('a ( b', 0)('('), 0);
+  at = lv('x [מ (y) נ] z', 0);
+  assert.deepEqual([at('['), at(']')], [0, 0]);
+});
+
+test('reorder (L2) puts items at higher levels in reverse, highest first', () => {
+  assert.deepEqual(B.reorder([{ level: 0, t: 'a' }, { level: 1, t: 'b' }, { level: 1, t: 'c' }, { level: 0, t: 'd' }]).map((x) => x.t), ['a', 'c', 'b', 'd']);
+  assert.deepEqual(B.reorder([{ level: 1, t: 'a' }, { level: 2, t: 'b' }, { level: 1, t: 'c' }]).map((x) => x.t), ['c', 'b', 'a']);
+});

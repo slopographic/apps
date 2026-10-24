@@ -9,10 +9,11 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 require('../../shared/fonts/scripts.js');
 require('../../shared/fonts/bidi.js'); // sets globalThis.SlopBidi, which layout/bidi.js reads
+require('../../shared/fonts/pdf-runs.js'); // sets globalThis.SlopPdfRuns, which layout/runs.js reads
 const { hfText, hfBlocks, applyHF, hasHF } = await import('../../docs/js/model/hf.js');
 const { newDoc, OBJ } = await import('../../docs/js/model/doc.js');
 const { hfParts } = await import('../../docs/js/io/docx-hf.js');
-const { bidiLine, reorder, pairBrackets, paraRtl, hasRtl } = await import('../../docs/js/layout/bidi.js');
+const { bidiLine, paraRtl, hasRtl } = await import('../../docs/js/layout/bidi.js');
 const { visualChars, fragRuns } = await import('../../docs/js/layout/runs.js');
 const { fontRuns, textWidth } = await import('../../docs/js/fonts/registry.js');
 
@@ -66,13 +67,11 @@ const frag = (text, start, x, kind = 'text') => ({ kind, text, start, end: start
 const line = (frags, extra = {}) => ({ frags, left: 0, shift: 0, ...extra });
 const view = (ln) => ln.frags.map((f) => [f.text, f.x, !!f.rtl]);
 
-test('paragraph direction and the L2 reorder', () => {
+test('paragraph direction', () => {
   assert.equal(paraRtl('שלום world'), true);
   assert.equal(paraRtl('Hello שלום'), false);
   assert.equal(paraRtl('123 مرحبا'), true);
   assert.equal(hasRtl('abc'), false);
-  assert.deepEqual(reorder([{ level: 0, t: 'a' }, { level: 1, t: 'b' }, { level: 1, t: 'c' }, { level: 0, t: 'd' }]).map((x) => x.t), ['a', 'c', 'b', 'd']);
-  assert.deepEqual(reorder([{ level: 1, t: 'a' }, { level: 2, t: 'b' }, { level: 1, t: 'c' }]).map((x) => x.t), ['c', 'b', 'a']);
 });
 
 test('a right-to-left paragraph is laid out from the right, its numbers left to right', () => {
@@ -94,13 +93,10 @@ test('Hebrew inside an English line keeps its place and reads right to left; tab
   assert.deepEqual(view(lab), [['1.', 90, false], ['שלום', 62, true]]);
 });
 
-test('N0: a bracket pair takes the direction of the right-to-left text inside it', () => {
-  const B = globalThis.SlopBidi, text = 'English עברית (עברי) end', cps = [...text].map((c) => c.codePointAt(0));
-  const lv = pairBrackets(cps, B.levels(cps, 0), 0, B.typeOf);
-  const at = (ch) => lv[[...text].indexOf(ch)];
-  assert.deepEqual([at('('), at(')')], [1, 1]);
-  const ltr = 'say (hello) now', c2 = [...ltr].map((c) => c.codePointAt(0));
-  assert.ok(pairBrackets(c2, B.levels(c2, 0), 0, B.typeOf).every((l) => l === 0));
+test('a bracket pair around right-to-left words stays with them (N0, from SlopBidi)', () => {
+  const ln = bidiLine(line([frag('ab עב (גד) cd', 0, 0)]), false, 200);
+  // the right-to-left piece holds both brackets: "עב (גד)" drawn right to left
+  assert.deepEqual(ln.frags.map((f) => [f.text, !!f.rtl]), [['ab ', false], ['עב (גד)', true], [' cd', false]]);
 });
 
 test('drawing order: right-to-left characters reversed with brackets mirrored; font runs and widths', () => {

@@ -23,10 +23,6 @@ export function fragRuns(f) {
   return list;
 }
 
-/** Bracket pairs swap in right-to-left text (Unicode Bidi_Mirrored, the common ones). */
-const MIRROR = { '(': ')', ')': '(', '[': ']', ']': '[', '{': '}', '}': '{', '<': '>', '>': '<', '\u00ab': '\u00bb', '\u00bb': '\u00ab', '\u2039': '\u203a', '\u203a': '\u2039' };
-/** The characters of a right-to-left run in a face without shaping, in drawing order (reversed, brackets mirrored). */
-export function visualChars(text, rtl) {
-  const chars = Array.from(text);
-  return rtl ? chars.reverse().map((c) => MIRROR[c] || c) : chars;
-}
+/** The characters of a right-to-left run in a face without shaping, in drawing order (reversed, brackets mirrored): the
+ * shared rule (shared/fonts/pdf-runs.js), so the screen and the PDF put them the same way. */
+export const visualChars = (text, rtl) => globalThis.SlopPdfRuns.visualChars(text, rtl);

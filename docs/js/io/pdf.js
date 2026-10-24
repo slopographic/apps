@@ -39,14 +39,6 @@ async function imageOf(pdf, src) {
   return pdf.embedPng(new Uint8Array(await png.arrayBuffer()));
 }
 
-/** fontkit 1.1.1 writes a CFF subset (Noto Sans CJK and other OpenType/CFF fonts) with an offSize of 24 in its header, which
- * PDF readers refuse ("Bad offSize"); the field must be 1 to 4. The subset is otherwise sound, so the byte is set to 4. */
-function fixCff(pf) {
-  const e = pf.embedder, serialize = e.serializeFont && e.serializeFont.bind(e);
-  if (serialize && e.isCFF) e.serializeFont = async () => { const b = await serialize(); if (e.isCFF() && b[3] > 4) b[3] = 4; return b; };
-  return pf;
-}
-
 export async function exportPdf(doc, layout, { title = '', author = '' } = {}) {
   const [PL, fk] = await Promise.all([pdfLib(), fontkit()]);
   const pdf = await PL.PDFDocument.create();
@@ -61,18 +53,8 @@ export async function exportPdf(doc, layout, { title = '', author = '' } = {}) {
   pdf.setModificationDate(now);
 
   const pfonts = new Map();
-  for (const [key, face] of facesOf(layout)) pfonts.set(key, fixCff(await pdf.embedFont(face.bytes, { subset: true })));
-  const names = new WeakMap();
-  const ctx = {
-    PL, pdf, links: [],
-    font(page, face) {
-      const pf = pfonts.get(face.key);
-      let m = names.get(page);
-      if (!m) names.set(page, (m = new Map()));
-      if (!m.has(face.key)) m.set(face.key, page.node.newFontDictionary(pf.name, pf.ref));
-      return { pf, name: m.get(face.key) };
-    },
-  };
+  for (const [key, face] of facesOf(layout)) pfonts.set(key, await globalThis.SlopPdfRuns.embed(pdf, face.bytes)); // a CFF-safe subset (shared/fonts/pdf-runs.js)
+  const ctx = { PL, links: [], font: (face) => pfonts.get(face.key) };
   const images = new Map();
   const pages = [], pageLinks = [];
   for (const pg of layout.pages) {

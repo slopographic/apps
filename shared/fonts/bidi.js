@@ -7,7 +7,8 @@
  *     -> [{ text, rtl, level, font }] in visual order, left to right. Each segment's text stays in logical order: a
  *        right-to-left segment is shaped and reversed by the font engine (fontkit), as it does for RTL scripts.
  *        fontOf(cp) null means "the font of the characters around it" (spaces, digits, punctuation).
- *   baseOf(text) -> 'rtl' when the first strong character is right-to-left, else 'ltr'. */
+ *   baseOf(text) -> 'rtl' when the first strong character is right-to-left, else 'ltr'.
+ *   levels(cps, baseLevel) -> resolved levels; reorder(items with .level) -> the items in visual order (L2). */
 (function (root, factory) {
   const api = factory(root.SlopScripts || (typeof require === 'function' ? require('./scripts.js') : null));
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -48,10 +49,37 @@
       for (let k = i; k < j; k++) t[k] = d;
       i = j;
     }
-    return t.map((x) => {                                    // I1, I2
+    const lv = t.map((x) => {                                // I1, I2
       if (baseLevel % 2 === 0) return x === 'R' ? baseLevel + 1 : x === 'AN' || x === 'EN' ? baseLevel + 2 : baseLevel;
       return x === 'L' || x === 'EN' || x === 'AN' ? baseLevel + 1 : baseLevel;
     });
+    return pairBrackets(cps, lv, baseLevel);
+  }
+  const OPEN = { 0x28: 0x29, 0x5b: 0x5d, 0x7b: 0x7d, 0xab: 0xbb, 0x2039: 0x203a };
+  /** N0 (simplified BD16 pairing): a bracket pair takes the direction of the strong text inside it (the embedding direction
+   * first; the other one when the strong text before the pair has it too), so "(عربي)" in English keeps both brackets with the
+   * Arabic. Changes lv in place and returns it. */
+  function pairBrackets(cps, lv, base) {
+    const e = base % 2 ? 'R' : 'L', dir = (x) => (x === 'L' ? 'L' : x === 'R' || x === 'AL' || x === 'EN' || x === 'AN' ? 'R' : null);
+    const stack = [], pairs = [];
+    cps.forEach((cp, i) => {
+      if (OPEN[cp]) { if (stack.length < 63) stack.push([OPEN[cp], i]); return; }
+      for (let k = stack.length - 1; k >= 0; k--) if (stack[k][0] === cp) { pairs.push([stack[k][1], i]); stack.length = k; break; }
+    });
+    for (const [o, c] of pairs.sort((a, b) => a[0] - b[0])) {
+      const inside = new Set();
+      for (let k = o + 1; k < c; k++) { const d = dir(typeOf(cps[k])); if (d) inside.add(d); }
+      let d = null;
+      if (inside.has(e)) d = e;
+      else if (inside.size) {
+        let before = e;
+        for (let k = o - 1; k >= 0; k--) { const x = dir(typeOf(cps[k])); if (x) { before = x; break; } }
+        d = before;
+      }
+      if (!d) continue;
+      lv[o] = lv[c] = d === 'R' ? (base % 2 ? base : base + 1) : (base % 2 ? base + 1 : base);
+    }
+    return lv;
   }
   /** L2: reverses every run at or above each level, from the highest down to the lowest odd one. */
   function reorder(items) {
@@ -88,5 +116,5 @@
     }
     return reorder(runs).map((r) => ({ text: r.text, rtl: r.level % 2 === 1, level: r.level, font: r.font }));
   }
-  return { segments, baseOf, levels, typeOf };
+  return { segments, baseOf, levels, typeOf, reorder };
 });
