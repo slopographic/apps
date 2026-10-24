@@ -31,3 +31,6 @@ input[type="text"], input[type="date"], input[type="search"], select { min-width
 .orig, .arrow { color: var(--mute); }
 .num { text-align: right !important; }
 .plain { margin: 0; padding-left: 18px; }
+/* Bank tab: a line's actions sit on its first text line, and wrap under each other only when the row is narrow */
+#bkRows .toolbar { margin: 0; justify-content: flex-end; gap: 6px; }
+#bkRows td { vertical-align: middle; }

@@ -1,10 +1,10 @@
-// Slop Ledger boot: the business router (shared/biz/router.js) with one view per tab (journal, gl, trial, accounts, rates;
+// Slop Ledger boot: the business router (shared/biz/router.js) with one view per tab (journal, gl, trial, accounts, rates, bank;
 // #hash). The open tab is redrawn whenever the store reports a change, and the header shows the base currency.
 (function (g) {
   'use strict';
   const NS = (g.SlopLedger = g.SlopLedger || {});
   const $ = (id) => document.getElementById(id);
-  const VIEWS = ['journal', 'gl', 'trial', 'accounts', 'rates'];
+  const VIEWS = ['journal', 'gl', 'trial', 'accounts', 'rates', 'bank'];
   NS.state = { view: 'journal' };
 
   /** The base currency in the header. */
