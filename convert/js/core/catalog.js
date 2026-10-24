@@ -31,6 +31,7 @@ import { PDF_EXTRA } from './pdf-extra.js';
 import { PDF_LOCK } from './pdf-lock.js';
 import { KEYWORDS } from './keywords.js';
 import { CHAIN_FLAGS } from './chain-flags.js';
+import { register } from '../../../shared/ops/registry.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'];
 const SIZE = [
@@ -251,7 +252,9 @@ export const CONVERSIONS = [
   // SIE accounting files and bank statements (OFX, QIF, camt.053, MT940): core/finance.js, readers in shared/finance.
   ...FINANCE,
   { id: 'unzip', label: 'Unzip', group: 'Archives', from: ['zip'], mode: 'each', options: [], run: async (files) => unzipEntries(files[0].file) },
-  { id: 'zip-files', label: 'Files to ZIP', group: 'Archives', from: ['*'], ext: 'zip', mode: 'combine', options: [], run: async (files) => [{ name: 'files.zip', blob: await zipFiles(files) }] },
+  { id: 'zip-files', label: 'Files to ZIP', group: 'Archives', from: ['*'], ext: 'zip', mode: 'combine', keywords: ['add to zip', 'archive', 'bundle'],
+    options: [{ key: 'zipName', type: 'text', label: 'ZIP name', value: 'files', placeholder: 'files' }],
+    run: async (files, o = {}) => [{ name: `${String(o.zipName || 'files').trim().replace(/\.zip$/i, '').replace(/[\\/:*?"<>|]+/g, '_') || 'files'}.zip`, blob: await zipFiles(files) }] },
   ...RAW,   // camera RAW photos (core/raw.js)
   ...HEIC,   // HEIC and HEIF photos (core/heic.js)
   ...MEDIA_MORE,   // OGG, Opus, FLAC, M4A, GIF to MP4, AVIF (core/media-more.js)
@@ -262,6 +265,10 @@ export const CONVERSIONS = [
 
 for (const c of CONVERSIONS) if (KEYWORDS[c.id]) c.keywords = [...(c.keywords || []), ...KEYWORDS[c.id]];   // the menus' search words
 for (const c of CONVERSIONS) Object.assign(c, CHAIN_FLAGS[c.id]);   // lossy, cost, chain: for the route finder (chain.js)
+
+// The one operation registry (shared/ops/registry.js): File convert's entries are its 'convert' app; Slop Workflows adds the
+// apps' own operations beside them. CONVERSIONS stays File convert's list.
+register(CONVERSIONS, { app: 'convert', label: 'File convert' });
 
 export const conversionById = (id) => CONVERSIONS.find((c) => c.id === id);
 
