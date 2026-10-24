@@ -11,11 +11,10 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 /** Pictures and clips are found by name: assets/shots/<id>.jpg, assets/clips/<id>.webm and .mp4. */
 const hasFile = (rel) => existsSync(path.join(ROOT, rel));
-/** The YouTube demos. The thumbnail is kept in assets/video, so the page loads nothing from YouTube. */
-export const DEMOS = {
-  pdf: { id: 'sLjcd23fOhw', title: 'Slop PDF demo' },
-  photoslop: { id: 'sasXp4d8rtg', title: 'PhotoSlop demo' },
-};
+/** An app's YouTube tutorial is in the registry (shared/apps.js `video`). Its thumbnail is kept in assets/video, so the
+ *  page loads nothing from YouTube. */
+const lengthWords = (iso) => { const m = /PT(?:(\d+)M)?(?:(\d+)S)?/.exec(iso || '') || [], n = Math.max(1, Math.round((Number(m[1] || 0) * 60 + Number(m[2] || 0)) / 60));
+  return `about ${['', 'one', 'two', 'three', 'four', 'five'][n] || n} minute${n === 1 ? '' : 's'}`; };
 
 /** Slop 365 tools, in the order the hub lists them. Each id must be an app in the registry. */
 export const SLOP365 = ['invoices', 'orders', 'contacts', 'inventory', 'crm', 'ledger', 'reports', 'tables', 'docs', 'notes'];
@@ -85,7 +84,7 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 .demo b{color:var(--acc)}
 @media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}`;
 
-function shell(body) {
+export function shell(body) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -104,10 +103,10 @@ ${body}
 }
 
 const thumb = (id) => (hasFile(`assets/shots/${id}.jpg`) ? `<img class="thumb" src="/assets/shots/${esc(id)}.jpg" alt="" width="220" height="137" loading="lazy">` : '');
-const cardList = (items) => `<ul class="cards">${items.map((b) => `<li>${thumb(b.id)}<a href="/apps/${esc(b.id)}/">${esc(b.name)}</a><br><span class="note">${esc(statusOf(b))}</span><br>${esc(b.tagline)}</li>`).join('')}</ul>`;
+export const cardList = (items) => `<ul class="cards">${items.map((b) => `<li>${thumb(b.id)}<a href="/apps/${esc(b.id)}/">${esc(b.name)}</a><br><span class="note">${esc(statusOf(b))}</span><br>${esc(b.tagline)}</li>`).join('')}</ul>`;
 
 /** The picture, the clip and the YouTube demo of one app, when the files exist. */
-function mediaBlock(app) {
+export function mediaBlock(app) {
   const id = app.id, out = [];
   const clip = hasFile(`assets/clips/${id}.mp4`);
   if (!clip && hasFile(`assets/shots/${id}.jpg`)) out.push(`<figure class="shot"><img src="/assets/shots/${esc(id)}.jpg" alt="${esc(app.name)} open in a browser" width="1280" height="800" loading="lazy"></figure>`);
@@ -115,8 +114,8 @@ function mediaBlock(app) {
     const poster = hasFile(`assets/shots/${id}.jpg`) ? ` poster="/assets/shots/${esc(id)}.jpg"` : '';
     out.push(`<video class="clip" controls preload="none" playsinline${poster}><source src="/assets/clips/${esc(id)}.webm" type="video/webm"><source src="/assets/clips/${esc(id)}.mp4" type="video/mp4">Your browser cannot play this clip.</video>`);
   }
-  const demo = DEMOS[id];
-  if (demo) out.push(`<a class="demo" href="https://www.youtube.com/watch?v=${demo.id}" rel="noopener"><img src="/assets/video/yt-${demo.id}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(demo.title)}</b><br>On YouTube, about three minutes.</span></a>`);
+  const v = app.video;
+  if (v) out.push(`<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>`);
   return out.length ? `<div class="media">${out.join('')}</div>` : '';
 }
 
@@ -125,7 +124,7 @@ const offlineLink = (app) => (OFFLINE_APPS[app.id] && OFFLINE_APPS[app.id].entry
   ? `\n<p class="note"><a href="/downloads/${esc(app.id)}.html" download>Download offline (.html)</a>: one file that opens from disk and works without a connection.</p>`
   : '');
 /** Body of one app's landing page. */
-function appBody(app, apps) {
+function appBody(app, apps, tasks = []) {
   const feats = app.features || [];
   const types = fileTypeList(app);
   const rows = feats.length
@@ -139,7 +138,7 @@ function appBody(app, apps) {
 ${mediaBlock(app)}
 <p>${esc(app.name)} ${feats.length ? `has these main features: ${esc(feats.slice(0, 2).join('; '))}.` : 'is listed below with its file types.'}${types.length ? ` It opens ${esc(types.join(', '))}.` : ''}</p>
 ${note ? `<p class="note">${esc(note)}</p>` : ''}
-<h2>Feature matrix</h2>
+${tasks.length ? `<h2>What you can do with ${esc(app.name)}</h2>\n<ul>${tasks.map((t) => `<li><a href="/${esc(app.path)}${esc(t.slug)}/">${esc(t.h1)}</a></li>`).join('')}</ul>\n` : ''}<h2>Feature matrix</h2>
 <div class="wrap"><table>
 <caption>${esc(app.name)}: features, status and file types</caption>
 <thead><tr><th scope="col">Feature</th><th scope="col">Status</th><th scope="col">File types</th></tr></thead>
@@ -203,13 +202,13 @@ function compareBody(apps) {
  * (an app id, or slop-365, creative-slop-pro, compare). `dir` is the folder the page is written to.
  * Throws if a page has no copy.
  */
-export function landingPages(apps, site, LANDING) {
+export function landingPages(apps, site, LANDING, TASKS = []) {
   const out = [];
   const add = (key, dir, crumb, html) => {
     if (!LANDING[key]) throw new Error(`${key}: no landing copy in shared/seo/copy.mjs LANDING`);
     out.push({ key, dir, url: `${site}/${dir}`, html: shell(html), crumb });
   };
-  for (const app of apps) if (isPage(app)) add(app.id, `apps/${app.id}/`, app.name, appBody(app, apps));
+  for (const app of apps) if (isPage(app)) add(app.id, `apps/${app.id}/`, app.name, appBody(app, apps, TASKS.filter((t) => t.app === app.id)));
   add('slop-365', 'slop-365/', 'Slop 365', slop365Body(apps));
   add('creative-slop-pro', 'creative-slop-pro/', 'Creative Slop Pro', creativeBody(apps));
   add('compare', 'compare/', 'Compare', compareBody(apps));

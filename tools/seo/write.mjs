@@ -11,6 +11,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ROOT, SITE, loadRegistry, isPage, pageUrl } from './site.mjs';
 import { landingPages } from './landing.mjs';
+import { taskPages, taskJsonLd, videoJsonLd } from './tasks.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
 const DEFAULT_IMAGE = `${SITE}/og-share.png`;
@@ -115,8 +116,11 @@ export async function build({ date }) {
     if (!ABOUT[a.id]) throw new Error(`${a.id}: has about/ but no entry in shared/seo/copy.mjs ABOUT`);
     copyEntries.push([`${a.id} about`, ABOUT[a.id]]);
   }
-  const landing = landingPages(apps, SITE, LANDING);
+  const { TASKS } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'tasks', 'index.mjs')).href);
+  const landing = landingPages(apps, SITE, LANDING, TASKS);
   for (const p of landing) copyEntries.push([`${p.key} landing`, LANDING[p.key]]);
+  const tasks = taskPages(apps, SITE, TASKS);
+  for (const p of tasks) copyEntries.push([`${p.key} task`, p.task]);
   for (const slug of Object.keys(PAGES)) copyEntries.push([`${slug} page`, PAGES[slug]]);
   validateCopy(copyEntries);
 
@@ -167,9 +171,19 @@ export async function build({ date }) {
     const block = { title: LANDING[p.key].title, description: LANDING[p.key].description, url: p.url, image: DEFAULT_IMAGE, viewport: false,
       jsonld: [{ '@context': 'https://schema.org', '@type': 'WebPage', name: LANDING[p.key].title, description: LANDING[p.key].description, url: p.url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } },
         { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: p.crumb, item: p.url }] }] };
+    const app = apps.find((a) => a.id === p.key), video = app && videoJsonLd(app, SITE);
+    if (video) block.jsonld.push(video);
     out.push({ file, html: injectHead(p.html, headBlock(block)), before });
   }
-  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
+  // Task pages (tools/seo/tasks.mjs, copy in shared/seo/tasks/): the same head block, with their own JSON-LD.
+  for (const p of tasks) {
+    const file = path.join(ROOT, p.dir, 'index.html');
+    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
+    const image = imageFor(p.app);
+    const block = { title: p.task.title, description: p.task.description, url: p.url, image, viewport: false, jsonld: taskJsonLd(p.task, p.app, p.url, SITE) };
+    out.push({ file, html: injectHead(p.html, headBlock(block)), before });
+  }
+  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...tasks.map((p) => p.url), ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
   return out;
 }
 

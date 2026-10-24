@@ -10,12 +10,14 @@
   /* Group headings on the homepage. Change a label here only; the keys ('business', 'creative') stay as they are. */
   const GROUP_LABELS = Object.freeze({ business: 'Slop 365', creative: 'Creative Slop' });
   window.SLOP_GROUP_LABELS = GROUP_LABELS;
+  // extra.video: the app's YouTube tutorial { id, title, date (ISO upload time), duration (ISO 8601) }: the landing page
+  // shows it (thumbnail kept in assets/video/yt-<id>.jpg) and the shell header links it as Tutorial.
   const A = (id, kind, name, path, tagline, extra = {}) => Object.assign({ id, kind, name, path, tagline, status: 'live', accepts: [], features: [] }, extra);
   window.SLOP_APPS = [
     A('photoslop', 'app', 'PhotoSlop', 'photoslop/', 'Photoshop, rebuilt for the browser.', { title: 'PhotoSlop: photo editor', group: 'creative',
       accepts: ['image/*', 'image/vnd.adobe.photoshop', 'application/x-openraster'],
       features: ['Layers, masks & 17 blend modes', 'Real PSD open & save', '50+ filters, brush packs, .abr import', 'Tabs, autosave, offline .html'],
-      shot: 'assets/shots/photoslop.jpg', icon: 'brush' }),
+      shot: 'assets/shots/photoslop.jpg', video: { id: 'sasXp4d8rtg', title: 'PhotoSlop tutorial: a free photo editor in the browser', date: '2026-10-13T14:35:03-07:00', duration: 'PT2M25S' }, icon: 'brush' }),
     A('vector', 'app', 'SlopVector', 'slopvector/', 'Illustrator, rebuilt for the browser.', { title: 'SlopVector: vector editor', group: 'creative',
       accepts: ['image/svg+xml', 'image/*', 'application/illustrator'],
       features: ['Pen, shapes, type & layers', 'Real pathfinder booleans', 'SVG, PNG, PDF & .ai export', 'Offline .html'],
@@ -23,7 +25,7 @@
     A('pdf', 'app', 'Slop PDF', 'pdf/', 'Organise, edit and sign PDFs. Nothing uploaded.', { title: 'PDF tools', group: 'business', featured: true,
       accepts: ['application/pdf', 'image/*'],
       features: ['Reorder, merge & split', 'Text, shapes, images & signatures', 'Page numbers, watermarks, forms', 'Compress & convert'],
-      shot: 'assets/shots/pdf.jpg', icon: 'doc' }),
+      shot: 'assets/shots/pdf.jpg', video: { id: 'sLjcd23fOhw', title: 'Slop PDF tutorial: a free PDF editor in the browser', date: '2026-10-13T13:23:22-07:00', duration: 'PT1M27S' }, icon: 'doc' }),
     A('label', 'app', 'SlopLabel', 'label/', 'Design and print barcode labels.', { title: 'SlopLabel: barcode label designer', group: 'business',
       accepts: ['image/*', 'text/csv'],
       features: ['Barcodes & QR, GS1', 'Data merge from CSV & Excel', 'Zebra ZPL export & import', 'Sheets & thermal rolls'],
@@ -31,7 +33,7 @@
     A('cutout', 'app', 'SlopIsolate', 'slopisolate/', 'Remove backgrounds with AI that runs on your device.', { title: 'SlopIsolate: background remover', group: 'creative',
       accepts: ['image/*'],
       features: ['One-click AI background removal', 'Refine brush & soft edges', 'Replace with colour, blur or image', 'Batch, no uploads, no watermarks'],
-      shot: 'assets/shots/cutout.jpg', icon: 'brush', status: 'beta' }),
+      shot: 'assets/shots/cutout.jpg', video: { id: 'jKWTbl2PEIc', title: 'SlopIsolate tutorial: remove backgrounds in the browser', date: '2026-10-14T14:06:15-07:00', duration: 'PT1M41S' }, icon: 'brush', status: 'beta' }),
     A('aitools', 'app', 'Slop AI Tools', 'aitools/', 'OCR, speech to text, denoise, auto tags and portrait blur. On your device.', { title: 'AI tools', group: 'creative',
       accepts: ['image/*', 'audio/*', 'video/*', 'application/pdf'],
       features: ['OCR for images and scanned PDF pages', 'Speech to text with .srt and .txt export', 'Denoise with a before and after slider', 'Auto tags saved to Slop Drive, portrait blur'],

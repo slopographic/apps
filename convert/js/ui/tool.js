@@ -11,11 +11,12 @@ import { convertAll } from './run.js';
 
 let seq = 0;
 
-/** The first-use notice: one per drop (or pick), shown once. The video engine is downloaded only when a video is converted. */
+/** The notice before the video engine's first download: shown once, and only when a video conversion runs (catalog
+ *  entries with engine: 'ffmpeg'). Every other conversion needs no download and starts without asking. */
 const FIRST_USE = {
-  title: 'Convert files on this device',
-  lines: ['Conversions run in your browser. Files are read on this device and never uploaded.'],
-  downloads: [{ name: 'Video engine (ffmpeg.wasm), only when a video is converted', bytes: 32344223 }],
+  title: 'Download the video engine?',
+  lines: ['Converting a video needs the video engine. It is downloaded once and kept by this browser for next time. Your files are still read on this device and never uploaded.'],
+  downloads: [{ name: 'Video engine (ffmpeg.wasm)', bytes: 32344223 }],
 };
 let firstUse = null;
 /** Resolves true when the work may go on. Cancelling clears the gate, so the next drop asks again. */
@@ -77,7 +78,6 @@ export class ConvertTool {
   async addFiles(list) {
     const files = Array.from(list || []);
     if (!files.length) return;
-    if (!(await firstUseGate())) return;
     this.items = this.items.filter((i) => !i.pasted);
     this.setStatus(`Reading ${files.length} file${files.length === 1 ? '' : 's'}…`);
     for (const file of files) {
@@ -230,6 +230,7 @@ export class ConvertTool {
     const conv = this.current();
     const act = this.active();
     if (!conv || !act.length || this.busy) return;
+    if (conv.engine === 'ffmpeg' && !(await firstUseGate())) return;   // the video engine's first download asks first
     this.busy = true;
     this.clearOutputs();
     for (const it of this.items) it.error = '';

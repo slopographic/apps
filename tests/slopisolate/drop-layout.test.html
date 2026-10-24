@@ -22,6 +22,7 @@
     const frame = document.getElementById(id);
     const win = frame.contentWindow;
     await waitFor(() => win.document && win.document.getElementById('isoDrop') && win.document.querySelector('#isoDrop .sd-choose'), { timeout: 30000 });
+    win.document.querySelector('#isoDrop .sd-status').textContent = 'Added 1 file';   // hidden at rest: check it where it shows
     // the phone frame sits below the fold: bring it into view so its layout runs
     frame.scrollIntoView({ block: 'start' });
     return { win, doc: win.document, id };
