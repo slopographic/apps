@@ -95,6 +95,17 @@
       expect(m.get(widget.id)).toBe(10);
       expect(m.size).toBe(1);
     });
+    it('reorder suggestions: back above twice the reorder level less on hand and on order; the last supplier and price', async () => {
+      expect([P.suggestQty(5, 2, 0), P.suggestQty(5, 2, 6), P.suggestQty(5, 20, 0), P.suggestQty(undefined, 0, 0), P.suggestQty(0, 0, 0)]).toEqual([8, 2, 1, 1, 1]);
+      const a = await po({ date: '2026-01-05' });
+      const b = await po({ date: '2026-03-01', lines: [{ productId: widget.id, description: 'Widget', qty: 1, unitPrice: 450, taxRate: 1000 }] });
+      await setStatus(a, 'ordered');
+      const all = (await st.list('purchases')).value;
+      expect(P.lastBought(all, widget.id)).toEqual({ supplierId: sup.id, unitPrice: 450, taxRate: 1000 });
+      await setStatus(b, 'cancelled');
+      expect(P.lastBought((await st.list('purchases')).value, widget.id).unitPrice).toBe(400);
+      expect(P.lastBought(all, 'other')).toBe(null);
+    });
     it('backups: a purchase order pointing at a missing supplier is refused; an export without purchases restores', async () => {
       await po();
       const b = (await S.exporter.exportBundle()).value;

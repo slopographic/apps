@@ -82,6 +82,16 @@
       expect([e.supplier, e.amount, e.tax, e.description]).toEqual(['Acme Supply', 4800, 800, 'Purchase order PO-0001']);
       await waitFor(() => $('eLinks').textContent.includes('recorded in Slop Expenses') && !button('Record bill…'));
     });
+    it('#reorder/<product> opens a new purchase order filled in: last supplier and price, the suggested quantity', async () => {
+      // Covers: purchases/js/ui/reorder.js
+      await S().store.put('products', { ...(await S().store.get('products', widget.id)).value, reorderLevel: 8 });
+      W.location.hash = `#reorder/${widget.id}`;
+      await waitFor(() => !$('view-edit').hidden && $('eTitle').textContent === 'New purchase order' && D.querySelector('#eLines .line-card [data-f="qty"]').value === '6');
+      expect($('eCustomer').selectedOptions[0].textContent).toBe('Acme Supply');
+      expect(D.querySelector('#eLines .line-card [data-f="unitPrice"]').value).toBe('4.00');
+      expect($('eMsg').textContent).toContain('10 on hand');
+      W.SlopPurchases.editor.clean();
+    });
     it('the list shows the order received and billed; the late filter finds an overdue order; 390 px', async () => {
       const sup = (await W.SlopPurchases.purchases.suppliers()).value[0];
       const late = (await W.SlopPurchases.purchases.save({ customerId: sup.id, date: '2026-01-01', expectedDate: '2026-01-10', lines: [{ description: 'Boxes', qty: 1, unitPrice: 100, taxRate: 0 }] })).value;

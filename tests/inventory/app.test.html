@@ -169,6 +169,7 @@
       const po = (await S.store.put('purchases', { customerId: sup.id, date: '2026-10-20', lines: [{ productId: p.id, description: p.name, qty: 12, unitPrice: 100, taxRate: 0 }] })).value;
       await S.store.put('purchases', { ...po, status: 'ordered' });
       await waitFor(() => $('lowList').textContent.includes('12 on order'), { timeout: 8000 });
+      expect([...$('lowList').querySelectorAll('a.btn')].some((x) => x.getAttribute('href') === `../purchases/#reorder/${p.id}`)).toBe(true);
       $('tab-products').click();
       await waitFor(() => [...doc().querySelectorAll('#pRows .chip.ordered')].some((c) => c.textContent === '12 on order'), { timeout: 8000 });
     });
