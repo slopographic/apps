@@ -28,9 +28,9 @@
   }
   function setUpscale(a) {
     notBusy();
+    if (a.model === 'quality' && Number(a.scale || S().scale) !== 4) throw new Error('The Quality model is 4× only: give scale 4');   // checked before anything changes
     if (a.scale) $('up-scale-' + a.scale).click();
     if (a.model) {
-      if (a.model === 'quality' && S().scale !== 4) throw new Error('The Quality model is 4× only: give scale 4');
       field('up-model', a.model);
     }
     if (a.format) { const o = [...$('up-format').options].find((x) => x.value === a.format); if (o && o.disabled) throw new Error(`${a.format} is not available in this browser`); field('up-format', a.format); }

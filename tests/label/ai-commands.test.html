@@ -64,7 +64,7 @@
       expect((await C.exec('label.ai.add-barcode', { value: 'abc', type: 'ean13' })).ok).toBe(false);
       await run('add-qr', { value: 'https://slopographic.com', x: 40, y: 2, size: 15 });
       expect(last().symbology).toBe('qrcode');
-      expect(Math.abs(last().w - 15)).toBeLessThan(1.5);   // the module snaps to the printer's dots
+      expect(Math.abs(last().w - 15)).toBeLessThan(3.5);   // the module snaps to whole printer dots, so the size moves in steps
       await run('add-shape', { shape: 'rect', x: 1, y: 1, w: 58, h: 38, line_width: 0.5 });
       expect([last().type, last().stroke]).toEqual(['rect', 0.5]);
       W.undo();

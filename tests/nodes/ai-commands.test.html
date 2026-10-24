@@ -17,6 +17,7 @@
   const res = (name) => { const A = W.SlopNodesApp, n = A.graph().nodes.find((x) => x.name === name); return n && A.results().get(n.id); };
   const driveId = (r) => /id ([^)\s]+)\)/.exec(r.value)[1];
 
+  const num = (r) => (r && r.value && typeof r.value === 'object' ? r.value.v : r && r.value);   // results are { t, v }
   describe('Slopnodes assistant commands', () => {
     it('prepare() loads the commands; build_graph makes values, formulas and an output that compute', async () => {
       const f = document.getElementById('app');
@@ -35,9 +36,9 @@
       await run('add-node', { type: 'formula', name: 'vat', expr: 'total * 0.2', inputs: ['total'] });
       expect(res('vat').text).toBe('2.4');
       await run('set-node', { node: 'price', expr: '5' });
-      expect(res('total').value).toBe(15);
+      expect(num(res('total'))).toBe(15);
       W.SlopNodesApp.undo();
-      expect(res('total').value).toBe(12);
+      expect(num(res('total'))).toBe(12);
       const n = W.SlopNodesApp.graph().nodes.length;
       expect((await C.exec('nodes.ai.add-node', { name: 'bad', inputs: ['nope'] })).ok).toBe(false);
       expect(W.SlopNodesApp.graph().nodes.length).toBe(n);
