@@ -1,5 +1,6 @@
-// Slop Expenses editor: a new expense (or a copy of one) is a form; Record posts it (SlopData.expenses.record). A recorded
-// expense is read only, as the books are: it can be voided (its entry reversed) or copied into a new one.
+// Slop Expenses editor: a new expense (or a copy of one) is a form; Record posts it (SlopData.expenses.record), paid or as a
+// bill to pay by a due date. A recorded expense is read only, as the books are: a bill owed can be marked as paid, and any
+// can be voided (its entries reversed) or copied into a new one.
 (function (g) {
   'use strict';
   const S = g.SlopData, B = g.SlopBiz, UI = g.SlopUI, el = g.SlopUI.el;
@@ -42,7 +43,13 @@
     $('eTax').value = amount == null ? '' : decimal(NS.core.taxIn(amount, rate), $('eCurrency').value || 'USD');
   }
 
-  function setForm(on) { $('eForm').hidden = !on; $('eView').hidden = on; $('eRecord').hidden = !on; $('eVoid').hidden = true; $('eCopy').hidden = on; }
+  function setForm(on) { $('eForm').hidden = !on; $('eView').hidden = on; $('eRecord').hidden = !on; $('eVoid').hidden = true; $('ePay').hidden = true; $('eCopy').hidden = on; }
+  /** "Not paid yet" asks for the due date (the payment terms from the bill's date to start with). */
+  async function dueRow() {
+    const later = $('eMethod').value === 'later';
+    $('eDueRow').hidden = !later;
+    if (later && !$('eDue').value) $('eDue').value = S.ledger.addDays($('eDate').value || today(), (await B.settings()).paymentTermsDays);
+  }
 
   /** A new expense: today, the settings' currency and tax rate, or the details of the expense being copied. */
   async function showNew(copyOf) {
@@ -60,6 +67,7 @@
     $('eRate').value = String((s.defaultTaxRate || 0) / 100);
     $('eTax').value = src ? decimal(src.tax || 0, $('eCurrency').value) : '';
     $('eMethod').value = src ? src.method : 'bank';
+    $('eDue').value = ''; await dueRow();
     $('eNotes').value = src ? src.notes || '' : '';
     await Promise.all([fillAccounts(src ? src.account : undefined), suppliers()]);
     $('eSupplier').focus();
@@ -76,9 +84,11 @@
     $('eView').replaceChildren(el('dl', { class: 'facts' }, ...row('Supplier', e.supplier), ...row('Description', e.description || '—'),
       ...row('Category', acct ? `${acct.code} ${acct.name}` : e.account), ...row('Amount', m(e.amount)), ...row('Tax', m(e.tax || 0)),
       ...row('Without tax', m(e.amount - (e.tax || 0))), ...row('Paid by', (METHODS.find((x) => x[0] === e.method) || [, e.method])[1]),
-      ...row('Status', e.status === 'void' ? 'Void (the entry is reversed)' : 'Recorded in the books'), ...row('Notes', e.notes || '—'),
+      ...row('Status', e.status === 'void' ? 'Void (the entry is reversed)' : e.status === 'owed' ? `Owed to the supplier${e.dueDate ? `, due ${e.dueDate}` : ''}` : `Recorded in the books${e.paidDate && e.paidDate !== e.date ? `, paid ${e.paidDate}` : ''}`),
+      ...row('Notes', e.notes || '—'),
       ...(e.receiptId ? row('Receipt', el('button', { type: 'button', class: 'btn small', onclick: () => viewReceipt(e.receiptId) }, 'View the receipt')) : [])));
-    $('eVoid').hidden = e.status !== 'posted';
+    $('eVoid').hidden = e.status !== 'posted' && e.status !== 'owed';
+    $('ePay').hidden = e.status !== 'owed';
   }
 
   /** The receipt photo kept in Slop Drive, in a new tab. */
@@ -93,8 +103,10 @@
     const amount = S.money.parseMinor($('eAmount').value, currency), tax = $('eTax').value.trim() ? S.money.parseMinor($('eTax').value, currency) : 0;
     if (amount == null || amount < 1) { say('Amount: type what was paid, like 24.00.', true); $('eAmount').focus(); return; }
     if (tax == null) { say('Tax: type an amount like 4.00, or leave it empty.', true); $('eTax').focus(); return; }
+    const later = $('eMethod').value === 'later';
     const r = await S.expenses.record({ date: $('eDate').value, supplier: $('eSupplier').value.trim(), description: $('eDescription').value.trim() || undefined,
-      account: $('eAccount').value, amount, tax, currency, method: $('eMethod').value, notes: $('eNotes').value.trim() || undefined,
+      account: $('eAccount').value, amount, tax, currency, method: later ? 'bank' : $('eMethod').value, notes: $('eNotes').value.trim() || undefined,
+      payLater: later || undefined, dueDate: later ? $('eDue').value || undefined : undefined,
       receiptId: (NS.receiptScan && NS.receiptScan.current()) || undefined });
     if (!r.ok) { say(B.refusal(r, { fields: FIELDS }), true); return; }
     if (NS.receiptScan) NS.receiptScan.clear();
@@ -106,6 +118,8 @@
     $('eRecord').addEventListener('click', record);
     $('eForm').addEventListener('submit', (ev) => { ev.preventDefault(); record(); });
     $('eVoid').addEventListener('click', async () => { if (cur) { await NS.listView.voidOne(cur); showOne(cur.id); } });
+    $('ePay').addEventListener('click', () => cur && NS.payDialog.open(cur, () => showOne(cur.id)));
+    $('eMethod').addEventListener('change', dueRow);
     $('eCopy').addEventListener('click', () => cur && NS.app.go(`new/${cur.id}`));
     $('eBack').addEventListener('click', () => NS.app.go('list'));
     $('eAccount').addEventListener('change', () => { if ($('eAccount').value === '+') newCategory(); });

@@ -66,7 +66,7 @@ const adapter = {
     S.noteId = T.id || null;
     const n = noteOf(T);
     if (n && n.notebook) S.notebookId = n.notebook;
-    S.pane = 'editor';
+    S.pane = T.id ? 'editor' : 'list';   // a blank tab has nothing to edit: a phone shows the notes to pick from
     redraw();
   },
   deactivate() { /* the note stays in the list; nothing to put away */ },

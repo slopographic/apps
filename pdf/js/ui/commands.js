@@ -107,7 +107,7 @@
     if (!C) { console.warn('Slop PDF: SlopCmd is missing; keyboard shortcuts are off'); return; }
     C.init({ app: 'pdf' });
     C.register(all());
-    var b = U.h('button', { type: 'button', class: 'tb', id: 'btnCmd', title: 'Search commands (' + C.keyFor('cmd.palette') + ')', 'aria-label': 'Search commands', html: U.icon('zoomin') });
+    var b = U.h('button', { type: 'button', class: 'tb', id: 'btnCmd', title: 'Search commands (' + C.keyFor('cmd.palette') + ')', 'aria-label': 'Search commands', html: U.icon('search') });
     b.addEventListener('click', function () { C.open(); });
     S.els.btnPanel.parentNode.insertBefore(b, S.els.btnPanel);
     C.on('change', function () { b.title = 'Search commands (' + C.keyFor('cmd.palette') + ')'; });

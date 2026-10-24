@@ -28,7 +28,7 @@
     it('seeds the default chart, settings and numbering on first open', async () => {
       const accts = await st.list('accounts');
       expect(accts.ok).toBe(true);
-      expect(accts.value.length).toBe(7);
+      expect(accts.value.length).toBe(S.schema.DEFAULT_CHART.length);   // 8 with Accounts Payable
       expect((await st.get('settings', 'main')).value.defaultCurrency).toBe('USD');
       expect((await S.numbering.peek('invoice')).value).toBe('INV-0001');
       expect((await S.numbering.peek('order')).value).toBe('ORD-0001');
@@ -42,7 +42,7 @@
       await st.put('customers', cust());
       await st.erase();
       expect((await st.list('customers')).value.length).toBe(0);
-      expect((await st.list('accounts')).value.length).toBe(7);
+      expect((await st.list('accounts')).value.length).toBe(S.schema.DEFAULT_CHART.length);
     });
   });
 

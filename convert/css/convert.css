@@ -19,10 +19,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .cv-sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
-.cv-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
-.cv-brand { font-weight: 700; text-decoration: none; }
-.cv-nav { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 14px; }
-.cv-nav a { color: var(--muted); }
+/* The header: the app's icon (home), the name (the converter list), then the shared header buttons (shell/header.js,
+ * shared/ui/hbtn.css) at the right in the page's colours. */
+.cv-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; min-height: 56px; padding: 10px 16px; border-bottom: 1px solid var(--line);
+  --slop-hbtn-h: 34px; --slop-hbtn-radius: 8px; --slop-hbtn-bg: var(--panel); --slop-hbtn-line: var(--line); --slop-hbtn-hover: var(--panel-2); --slop-hbtn-fs: 14px; }
+.cv-brand { display: inline-flex; align-items: center; color: var(--ink); }
+.cv-brand .brand-mark { width: 24px; height: 24px; fill: var(--accent); }
+.cv-app { margin-right: auto; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.cv-app:hover { text-decoration: underline; }
+.cv-top > .slopvm-bar { margin-left: 0; }   /* the View button (hub only) joins the others at the right */
 .cv-wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 56px; overflow-wrap: anywhere; }
 .cv-wrap h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.15; margin: 0 0 12px; }
 .cv-wrap h2 { font-size: 1.25rem; margin: 0 0 10px; }

@@ -193,5 +193,6 @@ test('errorText gives one readable line', () => {
   assert.equal(schema.errorText([{ field: 'qty', message: 'is required' }]), 'qty is required');
   assert.equal(schema.errorText([]), 'invalid record');
   assert.equal(schema.ACCT.AR, '1200');
-  assert.equal(schema.DEFAULT_CHART.length, 7);
+  assert.equal(schema.DEFAULT_CHART.length, 8);   // with 2000 Accounts Payable
+  assert.equal(schema.ACCT.AP, '2000');
 });

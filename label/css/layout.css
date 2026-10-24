@@ -9,6 +9,9 @@
 /* The shared menu bar fills this row (see shared/menubar): it keeps the row's height and sits in the grid, not above it. */
 .menubar.smb-bar { position: static; min-height: 0; height: var(--menubar-h); padding: 0 8px; border-bottom: 1px solid var(--border-dark); }
 .menubar .smb-menu-b, .menubar .smb-tool { min-height: 26px; }
+/* The shared header buttons (Drive, Tour, Theme, Apps in the menu bar; View in the control bar: shared/ui/hbtn.css) wear
+   the look of .btn, 26 px like Print and the zoom buttons. */
+.menubar, .ctrlbar { --slop-hbtn-h: 26px; --slop-hbtn-radius: var(--radius); --slop-hbtn-bg: var(--btn-bg); --slop-hbtn-line: var(--btn-border); --slop-hbtn-hover: var(--btn-hover); --slop-hbtn-fs: var(--fs); }
 .brand { display: flex; align-items: center; gap: 7px; font-weight: 700; letter-spacing: -.01em; color: var(--text); text-decoration: none; padding: 0 8px 0 2px; white-space: nowrap; }
 .brand-dot { width: 13px; height: 13px; border-radius: 50% 50% 46% 54% / 60% 60% 40% 40%; background: var(--accent); box-shadow: inset -2px -2px 0 rgba(0, 0, 0, .18); }
 .menus { display: flex; gap: 1px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
@@ -28,7 +31,7 @@
 
 .ctrlbar { grid-area: ctrl; display: flex; align-items: center; gap: 6px; padding: 0 8px; background: var(--bg-panel-2); border-bottom: 1px solid var(--border-dark); min-width: 0; overflow: hidden; }
 .ctrlbar .sep { width: 1px; height: 18px; background: var(--sep); }
-.chip { height: 24px; padding: 0 9px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); border-radius: var(--radius); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46vw; box-shadow: var(--bevel-in); }
+.chip { height: 26px; padding: 0 9px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); border-radius: var(--radius); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46vw; box-shadow: var(--bevel-in); }
 .chip:hover { border-color: var(--accent-line); }
 .recnav { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
 #recInfo { min-width: 70px; text-align: center; font-size: var(--fs-s); }
@@ -57,7 +60,8 @@
 
 .dock { grid-area: dock; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg-panel); border-left: 1px solid var(--border-dark); min-height: 0; min-width: 0; }
 .tabs { display: flex; gap: 2px; padding: 5px 6px 0; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel-2); overflow-x: auto; scrollbar-width: none; }
-.tab { height: 26px; padding: 0 10px; border: 1px solid transparent; border-bottom: 0; background: none; color: var(--text-dim); border-radius: var(--radius) var(--radius) 0 0; white-space: nowrap; }
+/* The dock's tabs share its width; a long name ends in an ellipsis instead of pushing the last tab out of view. */
+.tab { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; height: 26px; padding: 0 6px; border: 1px solid transparent; border-bottom: 0; background: none; color: var(--text-dim); border-radius: var(--radius) var(--radius) 0 0; white-space: nowrap; }
 .tab:hover { color: var(--text); }
 .tab.on { background: var(--bg-panel); color: var(--text); border-color: var(--border-dark); margin-bottom: -1px; font-weight: 600; }
 .tab .count { margin-left: 4px; font-size: 10px; color: var(--text-faint); }

@@ -31,3 +31,11 @@ input[type="text"], input[type="date"], input[type="search"], select { min-width
 .orig, .arrow { color: var(--mute); }
 .num { text-align: right !important; }
 .plain { margin: 0; padding-left: 18px; }
+/* Bank tab: a line's actions sit on its first text line, and wrap under each other only when the row is narrow */
+#bkRows .toolbar { margin: 0; justify-content: flex-end; gap: 6px; }
+#bkRows td { vertical-align: middle; }
+/* Statements tab: the profit and loss and the balance sheet side by side on a wide screen, one under the other in print */
+.fs-sheets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 14px; align-items: start; }
+.fs-sheet .fs-head th { padding-top: 14px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--mute); }
+.fs-sheet .fs-total th { border-top: 1px solid var(--line); }
+@media print { .fs-sheets { display: block; } .fs-sheet { break-inside: avoid; margin-bottom: 24px; } }

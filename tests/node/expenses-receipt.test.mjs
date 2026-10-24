@@ -1,4 +1,5 @@
-// Slop Expenses: reading a receipt's lines (expenses/js/core/receipt.js), as OCR gives them, into supplier, date, total and tax.
+// Reading text (shared/data/readtext.js: amounts and dates) and a receipt's lines (expenses/js/core/receipt.js), as OCR
+// gives them, into supplier, date, total and tax.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -8,27 +9,42 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ctx = vm.createContext({});
-vm.runInContext(readFileSync(path.join(ROOT, 'expenses/js/core/receipt.js'), 'utf8'), ctx);
-const R = ctx.SlopExpenses.receipt;
+for (const f of ['shared/data/readtext.js', 'expenses/js/core/receipt.js']) vm.runInContext(readFileSync(path.join(ROOT, f), 'utf8'), ctx);
+const R = ctx.SlopExpenses.receipt, T = ctx.SlopData.readText;
 
 test('amounts in a line: dot or comma decimals, thousands, and no percentages', () => {
-  assert.deepEqual([...R.amountsIn('Coffee 2 x 3.50   7.00')], [350, 700]);
-  assert.deepEqual([...R.amountsIn('Summa 1 234,50 kr')], [123450]);
-  assert.deepEqual([...R.amountsIn('TOTAL $1,234.5')], [123450]);
-  assert.deepEqual([...R.amountsIn('Moms 25,00 % 61,20')], [6120]);
-  assert.deepEqual([...R.amountsIn('Order 10442 table 7')], []);
+  assert.deepEqual([...T.amountsIn('Coffee 2 x 3.50   7.00')], [350, 700]);
+  assert.deepEqual([...T.amountsIn('Summa 1 234,50 kr')], [123450]);
+  assert.deepEqual([...T.amountsIn('TOTAL $1,234.5')], [123450]);
+  assert.deepEqual([...T.amountsIn('Moms 25,00 % 61,20')], [6120]);
+  assert.deepEqual([...T.amountsIn('Order 10442 table 7')], []);
+});
+
+test('one signed amount from a statement cell: signs, brackets, both decimal marks, thousands', () => {
+  assert.equal(T.amountOf('-1 234,50'), -123450);
+  assert.equal(T.amountOf('(12.00)'), -1200);
+  assert.equal(T.amountOf('12.00-'), -1200);
+  assert.equal(T.amountOf('€-3,20'), -320);
+  assert.equal(T.amountOf('+5'), 500);
+  assert.equal(T.amountOf('1.234'), 123400);
+  assert.equal(T.amountOf('1,234.56'), 123456);
+  assert.equal(T.amountOf('1.234,56'), 123456);
+  assert.equal(T.amountOf('12,5'), 1250);
+  assert.equal(T.amountOf(''), null);
+  assert.equal(T.amountOf('n/a'), null);
 });
 
 test('dates: ISO, day first or month first, two-digit years, and month names; not an impossible day', () => {
-  assert.equal(R.dateIn('2026-10-24 14:02'), '2026-10-24');
-  assert.equal(R.dateIn('Date: 24/10/2026'), '2026-10-24');
-  assert.equal(R.dateIn('10/24/2026'), '2026-10-24');       // 24 cannot be a month
-  assert.equal(R.dateIn('03/04/2026', false), '2026-03-04');
-  assert.equal(R.dateIn('03/04/2026'), '2026-04-03');
-  assert.equal(R.dateIn('24.10.26'), '2026-10-24');
-  assert.equal(R.dateIn('24 Oct 2026'), '2026-10-24');
-  assert.equal(R.dateIn('October 24, 2026'), '2026-10-24');
-  assert.equal(R.dateIn('31/02/2026'), null);
+  assert.equal(T.dateIn('2026-10-24 14:02'), '2026-10-24');
+  assert.equal(T.dateIn('Date: 24/10/2026'), '2026-10-24');
+  assert.equal(T.dateIn('10/24/2026'), '2026-10-24');       // 24 cannot be a month
+  assert.equal(T.dateIn('03/04/2026', false), '2026-03-04');
+  assert.equal(T.dateIn('03/04/2026'), '2026-04-03');
+  assert.equal(T.dateIn('24.10.26'), '2026-10-24');
+  assert.equal(T.dateIn('24 Oct 2026'), '2026-10-24');
+  assert.equal(T.dateIn('October 24, 2026'), '2026-10-24');
+  assert.equal(T.dateIn('20261024'), '2026-10-24');
+  assert.equal(T.dateIn('31/02/2026'), null);
 });
 
 test('a US café receipt: the supplier, the date, the total (not the subtotal) and the tax', () => {

@@ -21,6 +21,9 @@ body { background: var(--bg); }
 .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
 .topbar { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 10px; background: var(--panel); border-bottom: 1px solid var(--line); flex: none; }
+/* The shared header buttons (Drive, Tour, View, Theme, Apps: shared/ui/hbtn.css) and the bar's own .tb are as tall as Save. */
+.topbar { --slop-hbtn-h: 34px; --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); }
+.topbar .tb { min-width: 34px; height: 34px; border-radius: 8px; }
 .brand { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; color: var(--accent); flex: none; }
 .brand-mark { width: 24px; height: 24px; fill: currentColor; }
 .brand-mark .shine { fill: none; stroke: var(--panel); stroke-width: 2; stroke-linecap: round; }
@@ -67,7 +70,7 @@ body { background: var(--bg); }
 @media (max-width: 640px) {
   .local-badge, .docname .hide-s, #wordInfo { display: none; }
   .docname { flex: 0 1 140px; }
-  .topbar { gap: 4px; padding: 0 6px; }
+  .topbar { gap: 4px; padding: 6px; height: auto; min-height: 48px; box-sizing: border-box; flex-wrap: wrap; }
   .menu-btn { padding: 6px 6px; }
   #btnSave span { display: none; }
   .stage { padding: 12px 8px 40px; }

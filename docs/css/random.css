@@ -1,5 +1,5 @@
 /* Slop Docs — the Random template dialog and its toolbar button. Colours and fonts come from app.css tokens. */
-.tb-text { gap: 6px; padding: 0 10px; font-weight: 600; }
+.tb-text { display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; font-weight: 600; }
 .tb-text .ic { width: 16px; height: 16px; }
 .tpl-body { display: flex; flex-direction: column; gap: 12px; width: min(540px, 100%); max-width: 100%; }
 .tpl-seed { font-family: var(--mono); width: 100%; box-sizing: border-box; }

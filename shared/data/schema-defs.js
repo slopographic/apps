@@ -22,12 +22,13 @@
     repeatFreq: ['none', 'daily', 'weekly', 'monthly', 'yearly'],
     priority: ['none', 'low', 'high'],
     reminderSource: ['event', 'task', 'custom'],
-    expenseStatus: ['posted', 'void'],
+    expenseStatus: ['posted', 'owed', 'void'],   // owed: a bill recorded, not paid yet (Accounts Payable)
+    bankLineStatus: ['open', 'matched', 'ignored'],
   };
-  const ACCT = { CASH: '1000', BANK: '1010', AR: '1200', TAX_PAYABLE: '2100', EQUITY: '3000', REVENUE: '4000', EXPENSES: '5000' };
+  const ACCT = { CASH: '1000', BANK: '1010', AR: '1200', AP: '2000', TAX_PAYABLE: '2100', EQUITY: '3000', REVENUE: '4000', EXPENSES: '5000' };
   const DEFAULT_CHART = [
     { code: '1000', name: 'Cash', type: 'asset' }, { code: '1010', name: 'Bank', type: 'asset' }, { code: '1200', name: 'Accounts Receivable', type: 'asset' },
-    { code: '2100', name: 'Sales Tax Payable', type: 'liability' }, { code: '3000', name: 'Equity', type: 'equity' },
+    { code: '2000', name: 'Accounts Payable', type: 'liability' }, { code: '2100', name: 'Sales Tax Payable', type: 'liability' }, { code: '3000', name: 'Equity', type: 'equity' },
     { code: '4000', name: 'Sales Revenue', type: 'revenue' }, { code: '5000', name: 'Expenses', type: 'expense' },
   ];
   // defaultCurrency is the ledger's base currency. locale is refined from the browser by currency.js at seed time.
@@ -151,6 +152,14 @@
       id: F.id({ req: true }), number: F.str({ req: true, max: 40 }), invoiceId: F.id({ req: true }), customerId: F.id({ req: true }), date: F.date({ req: true }),
       currency: F.cur({}), amount: F.mny({ req: true, min: 1 }), subtotal: F.mny({}), tax: F.mny({}), refund: F.mny({ def: 0 }),
       method: F.en(ENUM.payMethod, {}), reason: F.str({ max: 300 }), amountBase: F.mny({}) } },
+    // Bank statement lines imported into Slop Ledger to reconcile: each one is matched to the journal entry that moved the
+    // same account by the same amount, recorded as a payment or an expense, or set aside. key is unique per line of a
+    // statement (date, amount, text and its place among identical lines), so importing a statement twice adds nothing.
+    bankLines: { key: 'id', unique: ['key'],
+      indexes: [{ name: 'key', key: 'key', unique: true }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
+      id: F.id({ req: true }), key: F.str({ req: true, max: 400 }), account: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), date: F.date({ req: true }),
+      description: F.str({ max: 300 }), amount: F.int({ req: true, min: -1e12, max: 1e12 }), currency: F.cur({}),
+      status: F.en(ENUM.bankLineStatus, { def: 'open' }), journalId: F.id({}), source: F.str({ max: 200 }), importedAt: F.ts({}) } },
     accounts: { key: 'code', noRemove: 'accounts cannot be deleted', indexes: [{ name: 'type', key: 'type' }], fields: {
       code: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), name: F.str({ req: true }), type: F.en(ENUM.accountType, { req: true }) } },
     journal: { key: 'id', immutable: true, postingOnly: true, unique: ['source'], check: (r) => [...journalErrors(r.lines), ...fxErrors(r)],
@@ -210,7 +219,8 @@
       account: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), amount: F.mny({ req: true, min: 1 }), tax: F.mny({ def: 0 }),
       currency: F.cur({}), rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
       method: F.en(ENUM.payMethod, { def: 'bank' }), status: F.en(ENUM.expenseStatus, { def: 'posted' }),
-      receiptId: F.str({ max: 200 }), notes: F.text({}), sample: F.bool({}) } },
+      receiptId: F.str({ max: 200 }), notes: F.text({}), sample: F.bool({}),
+      dueDate: F.date({}), paidDate: F.date({}) } },   // a bill owed (status owed) is due on dueDate; paidDate once it is paid
     // Reminders. Custom reminders are rows of their own (source custom). Event and task reminders are read from the
     // events and tasks; a row here only records what the person did (snoozedUntil, firedAt, dismissedAt) for one of them.
     reminders: { key: 'id', indexes: [{ name: 'source', key: 'source' }], fields: {

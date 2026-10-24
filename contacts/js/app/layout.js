@@ -8,7 +8,7 @@
   const S = SC.state;
   const $ = (id) => document.getElementById(id);
   const KEY = 'slop-contacts.list-width';
-  const DEFAULT = 340, MIN = 260, CARD_MIN = 420, GROUPS = 210, BAR = 6, STEP = 16;
+  const DEFAULT = 380, MIN = 260, CARD_MIN = 420, GROUPS = 210, BAR = 6, STEP = 16;
   const wide = () => window.matchMedia('(min-width: 960px)').matches;
 
   function savedWidth() {

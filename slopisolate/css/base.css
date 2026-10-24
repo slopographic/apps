@@ -65,6 +65,8 @@ kbd { font: 600 11px var(--mono); padding: 1px 5px; border-radius: 4px; border: 
 
 /* ---------------------------------------------------------------- top bar */
 .topbar { grid-area: top; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 12px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; }
+/* The shared header buttons (Slop Drive, Tour, Theme, Apps, the bell: shared/ui/hbtn.css) look like the .btn buttons. */
+.topbar { --slop-hbtn-h: 32px; --slop-hbtn-radius: var(--radius-s); --slop-hbtn-bg: var(--panel-2); --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); --slop-hbtn-fs: var(--fs); }
 .brand { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--ink); flex: none; }
 .brand-mark { width: 22px; height: 22px; }
 .brand-mark path:first-child { fill: var(--lime); }
@@ -100,7 +102,7 @@ kbd { font: 600 11px var(--mono); padding: 1px 5px; border-radius: 4px; border: 
 .btn.ghost { background: none; border-color: transparent; color: var(--dim); }
 .btn.wide { flex: 1; }
 .btn .ic { width: 17px; height: 17px; }
-.btn.dl { height: 34px; padding: 0 16px; }
+.btn.dl { padding: 0 16px; }
 
 /* ---------------------------------------------------------------- status bar */
 .statusbar { grid-area: status; display: flex; align-items: center; gap: 14px; padding: 0 12px; background: var(--panel); border-top: 1px solid var(--line); color: var(--faint); font: 500 11px var(--mono); white-space: nowrap; overflow: hidden; }

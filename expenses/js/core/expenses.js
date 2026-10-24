@@ -11,7 +11,7 @@
     return Math.round((amount * rate) / (ONE + rate));
   }
 
-  /** The expenses to list: matching the search (supplier, description, notes), the status ('all', 'posted', 'void') and
+  /** The expenses to list: matching the search (supplier, description, notes), the status ('all', 'posted', 'owed', 'void') and
    *  the date range (YYYY-MM-DD, both ends included), newest first. */
   function filter(list, q = {}) {
     const text = String(q.search || '').trim().toLowerCase();
@@ -30,7 +30,7 @@
   function summary(list) {
     const months = new Map();
     for (const e of list || []) {
-      if (e.status !== 'posted' || e.deletedAt) continue;
+      if ((e.status !== 'posted' && e.status !== 'owed') || e.deletedAt) continue;   // a bill owed is a cost of its month too
       const key = e.date.slice(0, 7) + ' ' + (e.currency || '');
       const m = months.get(key) || { month: e.date.slice(0, 7), currency: e.currency || '', count: 0, amount: 0, tax: 0, byAccount: {} };
       m.count++; m.amount += e.amount; m.tax += e.tax || 0;
