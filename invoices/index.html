@@ -51,14 +51,18 @@
 <body>
   <div class="app">
     <div class="smb-hold" hidden>
+      <!-- File › Samples (the menu bar runs these; they are not in the toolbar) -->
+      <button type="button" class="btn" id="iSample">Random sample</button>
+      <button type="button" class="btn" id="iSamples">Random samples…</button>
+      <button type="button" class="btn danger" id="iDelSamples">Delete all samples</button>
       <a id="tbAbout" href="about/">About</a>
       <button type="button" class="tb-btn" id="tbCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
       <button type="button" class="btn primary" id="tbNew" title="New invoice">New invoice</button>
       <button type="button" class="btn primary" id="tbSave" title="Save the draft">Save</button>
       <button type="button" class="btn" id="tbPrint" title="Preview and print the invoice">Print</button>
+      <b class="tb-num" id="tbNum" aria-live="polite"></b><span class="chip" id="tbStatus"></span>
     </div>
-    <div class="tb-doc no-print" aria-live="polite"><b class="tb-num" id="tbNum"></b><span class="chip" id="tbStatus"></span>
-      <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded."><span>100% local</span></span></div>
+    <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded."><span>100% local</span></span>
 
 
     <nav class="tabs no-print" role="tablist" aria-label="Invoice sections">
@@ -83,9 +87,6 @@
           </select></label>
           <button type="button" class="btn primary" id="iNew">New invoice</button>
           <button type="button" class="btn" id="iFromOrder">From an order…</button>
-          <button type="button" class="btn" id="iSample">Random sample</button>
-          <button type="button" class="btn" id="iSamples">Random samples…</button>
-          <button type="button" class="btn danger" id="iDelSamples">Delete all samples</button>
         </div>
         <p class="card notice" id="iDue" role="status" hidden><span></span> <button type="button" class="btn small primary" id="iDueMake">Make the drafts</button></p>
         <h2 class="h2">Owed by customer</h2>
@@ -222,7 +223,7 @@
   <script src="../vendor/pdf-lib/pdf-lib.min.js"></script>
   <script src="../shared/biz/biz.js"></script>
   <script src="../shared/biz/backup.js"></script>
-  <script src="../shared/biz/router.js"></script>
+  <script src="../shared/biz/router.js"></script><script src="../shared/biz/docbar.js"></script>
   <script src="js/core/util.js"></script>
   <script src="js/core/invoices.js"></script>
   <script src="js/core/context.js"></script>
@@ -251,7 +252,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Invoices", "tools": ["#tbNew", "#tbSave", "#tbPrint"], "menus": {"File": ["#tbNew", "#tbSave", "#tbPrint"], "Help": ["#tbAbout", "#tbCmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Invoices", "tools": ["#tbNew"], "menus": {"File": ["#tbNew", "#iFromOrder", "-", "#tbSave", "#tbPrint", "-", {"label": "Samples", "sub": ["#iSample", "#iSamples", "-", "#iDelSamples"]}], "Help": ["#tbAbout", "#tbCmd"]}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="invoices"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

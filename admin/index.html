@@ -207,5 +207,7 @@
   <script>SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
+<script>SlopMenuBar.mount({"app": "Admin", "menus": {"File": ["cmd:data.backup", "cmd:data.everything", "cmd:data.restore", "-", "cmd:data.reset"], "View": ["cmd:view.company", "cmd:view.numbering", "cmd:view.taxes", "cmd:view.data", "cmd:view.storage"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "header.topbar"});</script>
 </body>
 </html>

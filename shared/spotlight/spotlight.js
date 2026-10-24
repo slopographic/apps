@@ -1,5 +1,5 @@
 /* Spotlight: a Home link and an "All apps" search on every app page. Press Ctrl+K (⌘K on a Mac), or click the pill in the
- * corner, and type to find an app by name, what it does or a keyword. Enter opens it; Escape closes the search.
+ * corner (not on pages whose header has the brand and the shell's Apps button), and type to find an app by name, what it does or a keyword. Enter opens it; Escape closes the search.
  * Where the page has the shared command palette (SlopCmd), Ctrl+K opens that palette, which lists the apps too.
  * The app list comes from shared/apps.js and the descriptions from shared/finder/app-search.js: both are loaded here
  * when a page does not already have them. Classic script, self-contained, no network. */
@@ -120,7 +120,10 @@
       else if (e.key === 'Escape') { close(); }
     });
     back.addEventListener('mousedown', (e) => { if (e.target === back) close(); });
-    document.body.append(dock, back);
+    // A page whose header has the brand (Home) and the shell (Apps) does not need the corner pills: they would repeat them.
+    const shell = !!(window.SlopShell || document.querySelector('script[src*="shell/shell.js"]'));
+    const header = shell && !!document.querySelector('header a.brand, .smb-brand');
+    document.body.append(...(header ? [] : [dock]), back);
     document.addEventListener('keydown', (e) => {
       if (!window.SlopCmd && (e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); open(); }
       else if (e.key === 'Escape' && back.classList.contains('on')) close();

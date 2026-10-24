@@ -1,6 +1,7 @@
 // Slop Invoices boot: the shared document routes (shared/docs/doc-app.js: list, new, i/<id>, data) plus p/<id>, the print
-// view, s/<customer id> (a customer statement) and repeat (the repeating schedules). The invoice and print tabs show only while one is open; the list beside an open invoice marks its row; the top bar
-// has New invoice, Save (a draft) and Print.
+// view, s/<customer id> (a customer statement) and repeat (the repeating schedules). An open invoice, its print view and a
+// statement show the record bar (SlopBiz.docbar: back, number, status, Save and Print); the tabs stay Invoices, Repeating and
+// Data. The list beside an open invoice marks its row; the menu bar has New invoice.
 (function (g) {
   'use strict';
   const NS = (g.SlopInvoices = g.SlopInvoices || {});
@@ -10,17 +11,17 @@
   const more = (h) => (h === 'repeat' ? { view: 'repeat' } : h.startsWith('p/') && h.length > 2 ? { view: 'print', arg: h.slice(2) }
     : h.startsWith('s/') && h.length > 2 ? { view: 'statement', arg: h.slice(2) } : null);
 
-  /** After a view shows: the print tab, the view name on the page (for the print rules), and the list's selected row. */
+  /** After a view shows: the view name on the page (for the print rules), and the list's selected row. */
   function after(t, shown) {
-    $('tab-print').hidden = t.view !== 'print';
-    $('tab-statement').hidden = t.view !== 'statement';
     document.querySelector('.app').dataset.view = t.view;
     if (NS.views.list && !$('view-list').hidden) Promise.resolve(shown).then(() => NS.views.list.refresh());
     if (t.view === 'list') NS.repeat.dueNotice();
   }
 
-  /** The top bar's actions: New invoice (list), Save (a draft open) and Print (an invoice open or its print view). */
+  /** The menu bar's New invoice, and the record bar's Save (a draft open) and Print (an invoice open or its print view). */
   function mount() {
+    // The open invoice's bar (shared/biz/docbar.js): back to the list, its number and status, Save and Print.
+    g.SlopBiz.docbar.mount({ back: 'list', title: '#tbNum', status: '#tbStatus', views: ['edit', 'print'], actions: ['#tbSave', '#tbPrint'] });
     $('tbNew').addEventListener('click', () => NS.app.go('new'));
     $('tbSave').addEventListener('click', () => NS.editor.save());
     $('tbPrint').addEventListener('click', () => (NS.state.view === 'edit' ? NS.editor.preview() : window.print()));

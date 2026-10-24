@@ -292,5 +292,7 @@
   <script>SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
+<script>SlopMenuBar.mount({"app": "Inventory", "menus": {"File": ["cmd:products.new", "cmd:products.import", "cmd:products.export", "-", "cmd:data.backup"], "Stock": ["cmd:stock.receive", "cmd:stock.sell", "cmd:stock.adjust", "cmd:stock.transfer", "-", "cmd:count.start", "cmd:count.review", "cmd:count.post", "cmd:count.cancel"], "View": ["cmd:view.products", "cmd:view.scan", "cmd:view.stock", "cmd:view.count", "cmd:view.reports", "cmd:view.data"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "header.topbar"});</script>
 </body>
 </html>

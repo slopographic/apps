@@ -51,6 +51,10 @@
 <body>
   <div class="app">
     <div class="smb-hold" hidden>
+      <!-- File › Samples (the menu bar runs these; they are not in the toolbar) -->
+      <button type="button" class="btn" id="oSample">Random sample</button>
+      <button type="button" class="btn" id="oSamples">Random samples…</button>
+      <button type="button" class="btn danger" id="oDelSamples">Delete all samples</button>
       <a id="ordAbout" href="about/">About</a>
       <button type="button" class="tb-btn" id="ordCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
     </div>
@@ -76,9 +80,6 @@
             <option value="fulfilled">Fulfilled</option><option value="cancelled">Cancelled</option>
           </select></label>
           <button type="button" class="btn primary" id="oNew">New order</button>
-          <button type="button" class="btn" id="oSample">Random sample</button>
-          <button type="button" class="btn" id="oSamples">Random samples…</button>
-          <button type="button" class="btn danger" id="oDelSamples">Delete all samples</button>
         </div>
         <p class="note" id="oSummary" role="status"></p>
         <div class="table" id="oRows"></div>
@@ -169,7 +170,7 @@
   <script src="../vendor/pdf-lib/pdf-lib.min.js"></script>
   <script src="../shared/biz/biz.js"></script>
   <script src="../shared/biz/backup.js"></script>
-  <script src="../shared/biz/router.js"></script>
+  <script src="../shared/biz/router.js"></script><script src="../shared/biz/docbar.js"></script>
   <script src="js/core/util.js"></script>
   <script src="js/core/orders.js"></script>
   <script src="js/core/fulfil.js"></script>
@@ -196,7 +197,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Orders", "menus": {"File": ["#oNew", "#oSample", "#oSamples"], "Help": ["#ordAbout", "#ordCmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Orders", "menus": {"File": ["#oNew", "-", {"label": "Samples", "sub": ["#oSample", "#oSamples", "-", "#oDelSamples"]}], "Help": ["#ordAbout", "#ordCmd"]}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="orders"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

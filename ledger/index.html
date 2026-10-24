@@ -222,5 +222,7 @@
   <script>SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
+<script>SlopMenuBar.mount({"app": "Ledger", "tools": ["#baseLabel"], "menus": {"File": ["cmd:journal.new", "cmd:journal.export", "cmd:trial.export", "-", "cmd:accounts.new", "cmd:rates.new"], "View": ["cmd:view.journal", "cmd:view.gl", "cmd:view.trial", "cmd:view.accounts", "cmd:view.rates"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "header.topbar"});</script>
 </body>
 </html>

@@ -4,7 +4,7 @@
  *   SlopMenuBar.mount({
  *     app: 'Slopculator',                       // shown after the brand
  *     home: '../',                              // where the brand goes (default '../')
- *     menus: { File: ['#id', '-', { label, act: fn, disabled?: bool|fn, key?, sub?: [...] }], Edit: [...], Help: () => [...] },
+ *     menus: { File: ['#id', 'cmd:data.backup', '-', { label, act: fn, disabled?: bool|fn, key?, sub?: [...] }], Help: () => [...] },
  *     tools: ['#id', { label, act }],           // optional buttons at the right; a '#id' button is moved here
  *     host: '#menubar'                          // optional: fill this element instead of adding a bar at the top
  *   })
@@ -18,9 +18,17 @@
   const $ = (sel) => document.querySelector(sel);
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
-  /** A menu entry from the shorthand: '#id' is that button, '-' a separator, an object is taken as it is. */
+  const isCmd = (it) => typeof it === 'string' && it.startsWith('cmd:');
+  /** A command's title without its group ("Customers: add a customer" is "Add a customer" in a menu). */
+  const short = (t) => { const s = String(t).replace(/^[^:…]+:\s+/, ''); return s.charAt(0).toUpperCase() + s.slice(1); };
+  /** A menu entry from the shorthand: '#id' is that button, 'cmd:<id>' a SlopCmd command (its title, keys and run: the
+   *  app's one list of actions), '-' a separator, an object is taken as it is. A command not registered is left out. */
   function entry(it) {
     if (it === '-' || (it && typeof it === 'object')) return it;
+    if (isCmd(it)) {
+      const C = window.SlopCmd, id = it.slice(4), c = C && C.get(id);
+      return c ? { label: short(c.title), key: C.keyFor(id), act: () => C.run(id) } : null;
+    }
     if (typeof it !== 'string' || !it.startsWith('#')) return null;
     const t = $(it);
     const label = t ? (t.getAttribute('aria-label') || t.textContent.trim() || t.title || it) : it;
@@ -111,25 +119,35 @@
     if (document.querySelector('.smb-bar')) return null;
     // host: an element the app already has in its layout (a grid row, say) becomes the bar, so the layout is kept.
     const host = opts.host ? $(opts.host) : null;
+    // "100% local": the page's own badge (its title says what stays local) moves next to the name, in every app.
+    const local = document.querySelector('.local-badge');
+    // The page's own buttons named in tools ('#id') are found before a host is emptied (they may live in it).
+    const owned = new Map((opts.tools || []).filter((t) => typeof t === 'string' && t.startsWith('#')).map((t) => [t, $(t)]));
     const bar = host || el('header', 'smb-bar');
     bar.classList.add('smb-bar');
     if (host) host.replaceChildren();
     bar.setAttribute('aria-label', 'Application menu');
-    const brand = el('a', 'smb-brand');
+    // The brand is the app's icon with the Slopographic mark as a corner badge (SlopBrand.appMark, brand/brand.js), as in
+    // every app header; the plain mark when the page has no icon for the app.
+    const brand = el('a', 'smb-brand brand');
     brand.href = opts.home || '../'; brand.title = 'Slopographic home'; brand.setAttribute('aria-label', 'Slopographic home');
-    brand.append(el('span', 'smb-mark', 'S'));
+    brand.innerHTML = '<svg class="brand-mark smb-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg>';
     const name = el('span', 'smb-app', opts.app || document.title.split('|')[0].trim());
+    // "100% local": the page's own badge (it carries what stays local in its title) moves next to the name, in every app.
+
     const menubar = el('nav', 'smb-menus'); menubar.setAttribute('aria-label', 'Menus');
     const closers = [];
     for (const title of Object.keys(opts.menus || {})) {
-      const m = menuFor(title, opts.menus[title]);
+      const src = opts.menus[title];
+      // A menu of commands is built when it opens: the app registers its commands after the bar is mounted.
+      const m = menuFor(title, Array.isArray(src) && src.some(isCmd) ? () => src : src);
       closers.push(m.close);
       menubar.append(m.wrap);
     }
     const tools = el('div', 'smb-tools');
     for (const raw of opts.tools || []) {
       // A '#id' tool is the page's own button, moved here as it is: its listeners and its state stay with it.
-      if (typeof raw === 'string' && raw.startsWith('#')) { const own = $(raw); if (own) tools.append(own); continue; }
+      if (typeof raw === 'string' && raw.startsWith('#')) { const own = owned.get(raw); if (own) tools.append(own); continue; }
       const t = entry(raw);
       if (!t || t === '-') continue;
       const b = el('button', 'smb-tool', t.label); b.type = 'button'; b.title = t.label; b.setAttribute('aria-label', t.label);
@@ -137,8 +155,9 @@
       b.addEventListener('click', () => run(t));
       tools.append(b);
     }
-    bar.append(brand, name, menubar, tools);
+    bar.append(brand, name, ...(local ? [local] : []), menubar, tools);
     if (!host) document.body.prepend(bar);
+    if (window.SlopBrand && window.SlopBrand.appMark) window.SlopBrand.appMark();
     document.addEventListener('click', (e) => { if (!e.target.closest('.smb-menu')) closers.forEach((c) => c()); });
     return bar;
   }

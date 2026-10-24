@@ -15,7 +15,8 @@
 //   start?()                async: the hash to open when the page has none (such as the view the app was left on)
 //   refresh?(view)          async: redraws after a store change (default: the view's refresh)
 //   ready?()                runs once after the first view is shown
-// The views are ns.views[name] = { mount?, show?(arg, t) (or onShow, or render), refresh? (or render) }. The edit tab (#tab-edit) shows only on the edit view.
+// The views are ns.views[name] = { mount?, show?(arg, t) (or onShow, or render), refresh? (or render) }. A view whose tab
+// is hidden in the page (#tab-edit, a print view) is a record view: its tab stays hidden and SlopBiz.docbar shows instead.
 (function (g) {
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
@@ -23,6 +24,7 @@
   function start(cfg) {
     const NS = cfg.ns, $ = (id) => document.getElementById(id);
     let tabs = null, timer = 0, at = null;
+    const docViews = new Set();   // the views whose tabs the page hides: an open record (edit, print, statement)
 
     /** Moves to a route. Hash changes run route(). */
     const go = (path) => { location.hash = path; };
@@ -31,8 +33,11 @@
     async function show(t) {
       at = t;
       NS.state = Object.assign(NS.state || {}, { view: t.view });
-      const edit = $('tab-edit');
-      if (edit) { edit.hidden = t.view !== 'edit'; if (cfg.editLabel) edit.textContent = cfg.editLabel(t); }
+      // A record view (its tab is hidden in the page) gets the record bar (SlopBiz.docbar); the tabs stay as they are.
+      const tab = $('tab-' + t.view), isDoc = docViews.has(t.view);
+      const text = cfg.editLabel && t.view === 'edit' ? cfg.editLabel(t) : tab ? tab.textContent.trim() : '';
+      if (B.docbar && docViews.size) B.docbar.show(isDoc, text, t.view);
+      document.body.dataset.bizDoc = isDoc ? 'open' : '';
       tabs.show(t.view);
       if (g.SlopLayouts) g.SlopLayouts.refresh(cfg.app);
       const v = NS.views[t.view];
@@ -64,6 +69,7 @@
       $('boot').hidden = true;
       const editRoute = cfg.editRoute || (() => location.hash.slice(1) || 'new');
       const tabRoute = cfg.tabRoute || ((name) => (name === 'edit' ? editRoute() : name));
+      for (const t of document.querySelectorAll('.tabs [role="tab"][hidden]')) docViews.add(t.dataset.view);
       tabs = g.SlopTabs.mount(document.querySelector('.tabs'), { select: (name) => go(tabRoute(name)) });
       for (const v of Object.values(NS.views)) if (v.mount) v.mount();
       if (NS.commands) NS.commands.init();
