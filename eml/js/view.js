@@ -20,7 +20,9 @@
     return d ? d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : raw;
   }
 
-  function drawTabs(docs, cur) {
+  /** The tabs: the pinned messages (a message opened on its own is pinned; a batch is in the list). */
+  function drawTabs(all, cur) {
+    const docs = all.filter((d) => d.pinned);
     const nav = $('em-tabs');
     nav.hidden = docs.length === 0;
     nav.replaceChildren();
@@ -66,6 +68,9 @@
     $('em-v-html').setAttribute('aria-pressed', String(view === 'html'));
     $('em-v-text').setAttribute('aria-pressed', String(view === 'text'));
 
+    const key = doc.id + ':' + view + ':' + !!doc.cids;
+    if (body.dataset.key === key && body.firstChild) return;   // the same body: a tick or a sort does not reload the frame
+    body.dataset.key = key;
     body.replaceChildren();
     if (view === 'html') {
       const f = document.createElement('iframe');
@@ -81,6 +86,9 @@
       body.append(el('p', 'em-none', 'This message has no body.'));
     }
 
+    notices(doc, m, view, hasHtml);
+  }
+  function notices(doc, m, view, hasHtml) {
     const remote = hasHtml && view === 'html' ? M.remoteRefs(m.html) : 0;
     const cids = hasHtml && view === 'html' ? M.cidRefs(m.html) : 0;
     $('em-notice').hidden = !(remote || cids);
@@ -92,49 +100,11 @@
     $('em-cid').setAttribute('aria-pressed', String(!!doc.cids));
   }
 
-  /** Each message keeps its ticked attachments in doc.picked (a Set of indexes). */
-  function drawAtts(doc) {
-    const list = $('em-atts-list');
-    const atts = doc.msg.attachments;
-    $('em-atts').hidden = atts.length === 0;
-    $('em-atts-count').textContent = String(atts.length);
-    doc.picked = new Set([...(doc.picked || [])].filter((i) => i < atts.length));
-    list.replaceChildren();
-    atts.forEach((a, i) => {
-      const li = el('li', 'em-att');
-      const pick = el('input', 'em-att-pick');
-      pick.type = 'checkbox';
-      pick.checked = doc.picked.has(i);
-      pick.setAttribute('aria-label', 'Select ' + a.name);
-      pick.addEventListener('change', () => { if (pick.checked) doc.picked.add(i); else doc.picked.delete(i); drawAttsBar(doc); });
-      const info = el('button', 'em-att-info');
-      info.type = 'button';
-      info.title = 'Preview ' + a.name;
-      info.setAttribute('aria-label', 'Preview ' + a.name);
-      info.append(el('span', 'em-att-name', a.name));
-      const meta = [a.type, size(a.size)];
-      if (a.inline) meta.push('inline');
-      if (a.malformed) meta.push('could not be read in full');
-      info.append(el('span', 'em-att-meta', meta.join(' · ')));
-      info.addEventListener('click', () => window.EmlPreview.open(doc, i));
-      const save = el('button', 'sui-btn em-att-save', 'Save');
-      save.type = 'button';
-      save.setAttribute('aria-label', 'Save ' + a.name);
-      save.addEventListener('click', () => V.saveAttachment(doc, i));
-      li.append(pick, info, save);
-      list.append(li);
-    });
-    drawAttsBar(doc);
-  }
-
-  /** The toolbar: how many are ticked, and the Select all box (blank when only some are). */
-  function drawAttsBar(doc) {
-    const n = doc.msg.attachments.length, k = doc.picked.size;
-    $('em-atts-all').checked = n > 0 && k === n;
-    $('em-atts-all').indeterminate = k > 0 && k < n;
-    $('em-atts-get').disabled = k === 0;
-    $('em-atts-get').textContent = k ? 'Download selected (' + k + ')' : 'Download selected';
-    $('em-atts-all-get').textContent = 'Download all (' + n + ')';
+  /** The chip under the headers: how many attachments; it shows them in the side panel. */
+  function drawChip(doc) {
+    const n = doc.msg.attachments.length, chip = $('em-atts-chip');
+    chip.hidden = n === 0;
+    chip.textContent = n + (n === 1 ? ' attachment' : ' attachments');
   }
 
   function drawWarn(doc) {
@@ -155,16 +125,6 @@
     const got = await window.EmlAttachments.packageOf(doc, indexes);
     if (got) window.SlopUI.download(got.blob, got.name);
   };
-  V.setAllAtts = function (on) {
-    const doc = window.EmlApp.current();
-    if (!doc) return;
-    doc.picked = new Set(on ? doc.msg.attachments.map((_, i) => i) : []);
-    drawAtts(doc);
-  };
-  V.downloadPicked = function () {
-    const doc = window.EmlApp.current();
-    if (doc && doc.picked.size) V.downloadAtts(doc, [...doc.picked].sort((a, b) => a - b));
-  };
   V.downloadAll = function () {
     const doc = window.EmlApp.current();
     if (doc) V.downloadAtts(doc, doc.msg.attachments.map((_, i) => i));
@@ -175,12 +135,16 @@
     const app = window.EmlApp;
     const docs = app.docs(), cur = app.current();
     drawTabs(docs, cur);
+    if (V.frame) V.frame.setList(docs.length > 1);
+    if (window.EmlList) window.EmlList.render();
+    if (window.EmlSide) window.EmlSide.render();
+    $('em-list-n').textContent = String(docs.length);
     $('em-empty').hidden = !!cur;
     $('em-msg').hidden = !cur;
-    if (!cur) return;
+    if (!cur) { $('em-body').dataset.key = ''; return; }
     drawHead(cur);
     drawBody(cur);
-    drawAtts(cur);
+    drawChip(cur);
     drawWarn(cur);
   };
 })();

@@ -1,55 +1,81 @@
 /* Slop EML: app state and actions. Classic script; exposes window.EmlApp. Nothing is uploaded: files are read in this page.
- * Each open message is a doc: { id, name, size, msg (EmlMime.parse result), summary, view: 'html' | 'text', cids: bool }.
+ * Each open message is a doc: { id, name, size, bytes (the original file), msg (EmlMime.parse result), summary, time (the
+ * Date header in ms, or null), attachments, view: 'html' | 'text', cids: bool, pinned: bool }. A mailbox (.mbox) opens as
+ * one doc per message (eml/js/mbox.js). A message opened on its own is pinned (it gets a tab); a batch goes to the list.
+ * The list's state: the ticked messages (checked), the sort and the search (eml/js/batch.js does the work).
  * Listeners (subscribe) run after every change, and the view redraws. */
 (function () {
   'use strict';
-  const M = window.EmlMime;
+  const M = window.EmlMime, B = window.EmlBatch, X = window.EmlMbox;
   const listeners = [];
-  let seq = 0, curId = null;
+  let seq = 0, curId = null, quiet = 0;
   const docs = [];
-  const notify = () => listeners.forEach((f) => { try { f(); } catch (e) { console.error(e); } });
+  const checked = new Set();
+  const list = { sort: 'date', dir: 'desc', query: '' };
+  const notify = () => { if (quiet) return; listeners.forEach((f) => { try { f(); } catch (e) { console.error(e); } }); };
 
   const find = (id) => docs.find((d) => d.id === id) || null;
   const current = () => find(curId);
-
-  /** Reads one .eml file and opens it. Resolves with the doc. Throws when the file cannot be read at all. */
   /** Is a message of this name and size open? (The same file again is not opened twice.) */
-  function isOpen(name, size) { return docs.some((d) => d.name === name && d.size === size); }
+  function isOpen(name, size) { return docs.some((d) => d.name === name && d.size === size && !d.fromMbox); }
 
-  async function openFile(file) {
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const msg = M.parse(bytes);
-    const doc = {
-      id: ++seq, name: file.name || 'message.eml', size: bytes.length, msg, summary: M.summary(msg),
-      view: msg.html != null ? 'html' : 'text', cids: false,
-    };
+  function add(bytes, name, extra) {
+    const msg = M.parse(bytes), summary = M.summary(msg), d = window.EmlCodec.parseDate(summary.date);
+    const doc = Object.assign({
+      id: ++seq, name, size: bytes.length, bytes, msg, summary, time: d ? d.getTime() : null, attachments: msg.attachments,
+      view: msg.html != null ? 'html' : 'text', cids: false, pinned: false,
+    }, extra);
     docs.push(doc);
-    curId = doc.id;
-    notify();
     return doc;
   }
-  /** Opens several files in turn. Returns { opened: [names], failed: [{ name, reason }] }. */
-  async function openFiles(files) {
-    const res = { opened: [], failed: [] };
-    for (const f of Array.from(files)) {
-      try { await openFile(f); res.opened.push(f.name); } catch (e) { res.failed.push({ name: f.name, reason: (e && e.message) || 'could not be read' }); }
+  /** Reads one .eml or .mbox file. Resolves with the (first) doc. Throws when the file cannot be read at all.
+   *  opts.pin: give it a tab (default: true for a single .eml). */
+  async function openFile(file, opts = {}) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const name = file.name || 'message.eml';
+    let first;
+    if (X.isMbox(name, bytes.subarray(0, 8))) {
+      const parts = X.split(bytes);
+      if (!parts.length) throw new Error('holds no messages');
+      const stem = name.replace(/\.(mbox|mbx)$/i, '') || 'mailbox', w = String(parts.length).length;
+      parts.forEach((p, i) => { const d = add(p, stem + ' ' + String(i + 1).padStart(w, '0') + '.eml', { fromMbox: name }); if (!first) first = d; });
+    } else {
+      first = add(bytes, name, { pinned: opts.pin !== false });
     }
+    curId = first.id;
+    notify();
+    return first;
+  }
+  /** Opens several files in turn; two or more are a batch (not pinned), redrawn once. Returns { opened, failed }. */
+  async function openFiles(files) {
+    const all = Array.from(files), res = { opened: [], failed: [] };
+    quiet++;
+    try {
+      for (const f of all) {
+        try { await openFile(f, { pin: all.length === 1 }); res.opened.push(f.name); } catch (e) { res.failed.push({ name: f.name, reason: (e && e.message) || 'could not be read' }); }
+      }
+    } finally { quiet--; }
+    notify();
     return res;
   }
+  /** The list as shown: searched and sorted. */
+  function visible() { return B.sort(B.search(docs, list.query), list.sort, list.dir); }
   function select(id) { if (find(id)) { curId = id; notify(); } }
   function close(id) {
     const i = docs.findIndex((d) => d.id === id);
     if (i < 0) return;
     docs.splice(i, 1);
+    checked.delete(id);
     if (curId === id) curId = docs.length ? docs[Math.min(i, docs.length - 1)].id : null;
     notify();
   }
+  function closeAll() { docs.length = 0; checked.clear(); curId = null; notify(); }
   function step(dir) {
-    if (!docs.length) return;
-    const i = Math.max(0, docs.findIndex((d) => d.id === curId));
-    select(docs[(i + dir + docs.length) % docs.length].id);
+    const v = visible();
+    if (!v.length) return;
+    const i = Math.max(0, v.findIndex((d) => d.id === curId));
+    select(v[(i + dir + v.length) % v.length].id);
   }
-  /** Changes the body view of a doc, only to a view the message has. */
   function setView(view, doc = current()) {
     if (!doc) return;
     if (view === 'html' && doc.msg.html == null) return;
@@ -57,20 +83,23 @@
     doc.view = view;
     notify();
   }
-  function toggleCids(doc = current()) {
-    if (!doc) return;
-    doc.cids = !doc.cids;
-    notify();
-  }
-  /** The bytes of one attachment, as a Blob for download. */
+  function toggleCids(doc = current()) { if (!doc) return; doc.cids = !doc.cids; notify(); }
+  function togglePin(doc = current()) { if (!doc) return; doc.pinned = !doc.pinned; notify(); }
   function attachmentBlob(doc, index) {
     const a = doc.msg.attachments[index];
-    return a ? { blob: new Blob([a.bytes], { type: a.type }), name: a.name } : null;
+    return a ? { blob: new Blob([a.bytes], { type: B.typeOf(a.name, a.type) }), name: a.name } : null;
   }
+  /* Ticks */
+  function check(id, on) { if (on) checked.add(id); else checked.delete(id); notify(); }
+  function checkMany(ids, on) { for (const id of ids) { if (on) checked.add(id); else checked.delete(id); } notify(); }
+  function checkAll(on) { checked.clear(); if (on) for (const d of visible()) checked.add(d.id); notify(); }
+  const checkedDocs = () => visible().filter((d) => checked.has(d.id));
+  function setList(patch) { Object.assign(list, patch); notify(); }
 
   window.EmlApp = {
     docs: () => docs.slice(),
-    current, find, isOpen, openFile, openFiles, select, close, step, setView, toggleCids, attachmentBlob,
+    current, find, isOpen, openFile, openFiles, select, close, closeAll, step, setView, toggleCids, togglePin, attachmentBlob,
+    visible, check, checkMany, checkAll, checkedDocs, isChecked: (id) => checked.has(id), listState: () => Object.assign({}, list), setList,
     subscribe(fn) { listeners.push(fn); },
     /** The file name of a doc without .eml, for the PDF and the print title. */
     baseName(doc) { return String(doc.name || 'message').replace(/\.(eml|mail|msg)$/i, '') || 'message'; },

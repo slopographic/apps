@@ -38,8 +38,8 @@
       expect(W.EmlApp.current().name).toBe('Kickoff on Thursday.eml');
       expect($('#em-empty').hidden).toBe(true);
       expect($('#em-msg').hidden).toBe(false);
-      expect($('#em-atts-count').textContent).toBe('2');
-      expect($('#em-atts').textContent).toContain('Invoice 2026-118.pdf');
+      expect($('#em-atts-chip').textContent).toBe('2 attachments');
+      expect($('#em-side').textContent).toContain('Invoice 2026-118.pdf');
     }, { timeout: 60000 });
     it('at 390 px the preview fits: no sideways scroll', async () => {
       await boot(390);

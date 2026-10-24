@@ -23,7 +23,7 @@
   'use strict';
   if (g.SlopMenuButton) return;
   const CSS = `
-.smb-menu { position: fixed; z-index: 2000; min-inline-size: 220px; max-inline-size: calc(100vw - 16px); max-block-size: min(60vh, 420px); overflow-y: auto;
+.smb-menu[role="menu"] { position: fixed; z-index: 2000; min-inline-size: 220px; max-inline-size: calc(100vw - 16px); max-block-size: min(60vh, 420px); overflow-y: auto;
   padding: 6px; margin: 0; box-sizing: border-box; background: var(--smb-bg, var(--panel, Canvas)); color: var(--smb-fg, var(--ink, var(--fg, CanvasText)));
   border: 1px solid var(--smb-line, var(--line, GrayText)); border-radius: 10px; box-shadow: 0 12px 36px rgba(0, 0, 0, .35); font: inherit; font-size: 14px; }
 .smb-group + .smb-group { margin-block-start: 4px; padding-block-start: 4px; border-block-start: 1px solid var(--smb-line, var(--line, GrayText)); }
@@ -42,7 +42,7 @@
   border: 1px solid var(--smb-line, var(--line, GrayText)); border-radius: 6px; background: var(--smb-bg, var(--panel, Canvas)); color: inherit; font: inherit; }
 .smb-search:focus-visible { outline: 2px solid var(--smb-focus, var(--focus, Highlight)); outline-offset: -1px; }
 .smb-row[hidden], .smb-group[hidden], .smb-empty[hidden] { display: none; }
-@media (max-width: 480px) { .smb-menu { min-inline-size: min(280px, calc(100vw - 16px)); } }`;
+@media (max-width: 480px) { .smb-menu[role="menu"] { min-inline-size: min(280px, calc(100vw - 16px)); } }`;
   let openOne = null;   // the one open menu on the page: { close }
   let uid = 0;
 

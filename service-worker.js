@@ -5,12 +5,12 @@
  * Only same-origin GET requests are handled. Other origins are never cached or intercepted. */
 'use strict';
 
-const VERSION = 'v-cd5208401762';
+const VERSION = 'v-86f15a4e378f';
 const CACHE = 'slopographic-' + VERSION;
 const OFFLINE = '/offline.html';
 const STATIC = /\.(m?js|css|woff2?|ttf|otf|png|jpe?g|webp|gif|svg|ico|wasm|json|glb|bcmap|pfb)$/i;
 
-importScripts('/sw-precache.js', '/sw-precache-2.js');
+importScripts('/sw-precache.js', '/sw-precache-2.js', '/sw-precache-3.js');
 
 const absolute = (p) => new URL(p, self.location.origin).href;
 // A folder navigation ("/drive/") is stored under the file it serves.
