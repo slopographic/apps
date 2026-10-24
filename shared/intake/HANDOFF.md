@@ -333,6 +333,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Out, shared**: the order's address label (`shared/biz/address-label.js`) and Workflows' Add to a workflow…
   (`shared/ops/entry.js`) go out through `SlopOuttake.send` where the page has it. `tests/biz/address-label.test.html`,
   `tests/intake/outtake.test.html`.
+- **Slop Paint Classic** (`photoslop/classic/paint/17-files.js`, spec `paint-classic`, one picture): File ▸ Open (mode
+  `open`) and Paste From (mode `paste`) are the intake's picker (the hidden `#fileInput` is gone), a drop on the window
+  (`dropTarget`), a pasted picture (unless the app's own copy is newer: `except`), Open from Slop Drive and ?drive= launch
+  (`classic/hub.js`; a Drive file stays linked through `SlopPaint.linkDrive`). The page's own paste is only its copy.
+  `tests/intake/paint-classic.test.html`. (`photoslop/classic/` is in STRICT.)
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -389,9 +394,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 ### photoslop
 
-- [ ] the classic Paint edition (`photoslop/classic/`, its own page): Drive picker `classic/hub.js:22`, ?drive= launch
-  `classic/hub.js:37`, the file input `classic/index.html:140`, drop and paste listeners `classic/paint/17-files.js:59,65`.
-  Not done in this pass (the photoslop macro code is being reworked on wip/macros).
 - [ ] `photoslop/index.html:97`: `<input type="file" id="fileIn">` is not read by any script any more (PhotoSlop's ways in
   are its intake); delete it once wip/macros has landed, so the two branches do not collide on the page.
 
