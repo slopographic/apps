@@ -137,6 +137,9 @@ the first request to a provider, the notice; cloud runs get `look`, `ops` and up
 1–30); after each reply a line with its tokens and this visit's total; the cap stops the loop after the turn that reaches
 it and refuses new requests; Stop aborts the request in flight. A key-based engine is never shared with other tabs.
 
+Pictures (`generate_image`, `edit_image`, PhotoSlop's Generate Image…): `imagegen/HANDOFF.md`. They join the one tool
+list through `K.toolSets` (a function env → tools that `apptools.js build` adds), loaded by the panel as `imagegen/index`.
+
 ## Tests
 `node tests/run.mjs ai` covers all of this; see `ai/HANDOFF.md`. Own keys: `tests/node/ai-cloud-formats.test.mjs`
 (request building, streams from documented SSE fixtures, conversion both ways), `tests/node/ai-cloud-engine.test.mjs`
