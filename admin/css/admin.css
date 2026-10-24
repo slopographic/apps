@@ -1,29 +1,7 @@
-/* Slop Admin: tokens, tabs, forms, tables and cards. Dark by default; data-theme="light" for light.
- * At 390 px the forms stack in one column, and the tables scroll inside their own box, never the page. */
-:root {
-  --bg: #0e0e10; --panel: #17171b; --panel-2: #1f1f25; --ink: #f1ede4; --mute: #9a968c; --line: #2b2b33;
-  --accent: #d4ff3a; --accent-ink: #0e0e10; --danger: #ff4f6e; --warn: #ffb547; --ok: #7fdc8a; --chip: #26262e; --focus: #d4ff3a;
-  color-scheme: dark;
-}
-:root[data-theme="light"] {
-  --bg: #f6f4ef; --panel: #ffffff; --panel-2: #efece4; --ink: #17161a; --mute: #6b675e; --line: #d9d4c7;
-  --accent: #2f5bff; --accent-ink: #ffffff; --danger: #c81e44; --warn: #a25b00; --ok: #17803a; --chip: #e7e3d8; --focus: #2f5bff;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="pro"]):not([data-theme="dark"]) {
-    --bg: #f6f4ef; --panel: #ffffff; --panel-2: #efece4; --ink: #17161a; --mute: #6b675e; --line: #d9d4c7;
-    --accent: #2f5bff; --accent-ink: #ffffff; --danger: #c81e44; --warn: #a25b00; --ok: #17803a; --chip: #e7e3d8; --focus: #2f5bff; color-scheme: light;
-  }
-}
-[hidden] { display: none !important; }
-html, body { margin: 0; background: var(--bg); color: var(--ink); overflow-x: hidden; }
-body { font: 14px/1.45 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100vh; }
-button, input, select, textarea { font: inherit; color: inherit; }
+/* Slop Admin: only what is its own. The base (theme tokens from the site theme, inputs, buttons, tabs, cards, notes) is
+ * shared/biz/app.css. Here: the top bar, the form grids, the tables, the danger card and the Get started steps. At 390 px
+ * the forms stack in one column, and the tables scroll inside their own box, never the page. */
 a { color: var(--accent); }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.app { min-height: 100vh; display: flex; flex-direction: column; min-width: 0; }
 .topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
 .brand-mark { width: 24px; height: 24px; fill: var(--accent); }
 .brand-mark path:not(.shine) { fill: var(--accent); }
@@ -31,46 +9,32 @@ a { color: var(--accent); }
 .appname { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
 .appname b { font-size: 15px; }
 .home-link { color: var(--mute); font-size: 12px; text-decoration: none; }
-.local-badge { font-size: 12px; color: var(--ok); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.topbar .local-badge { margin-left: 0; color: var(--ok); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
 .topbar .tb-btn { margin-left: auto; }
-.tb-btn, .btn { background: var(--chip); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
-.btn:hover, .tb-btn:hover { border-color: var(--focus); }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-.btn.danger { color: var(--danger); border-color: var(--danger); }
-.btn.small { padding: 4px 9px; font-size: 13px; }
-.tabs { display: flex; gap: 4px; padding: 8px 16px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
-.tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; cursor: pointer; color: var(--mute); white-space: nowrap; }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
-.main { padding: 16px; max-width: 900px; width: 100%; box-sizing: border-box; margin: 0 auto; }
-.boot { padding: 24px; color: var(--mute); }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; min-width: 0; }
+.main { max-width: 900px; }
 .danger-card { border-color: var(--danger); }
-.h2 { font-size: 20px; margin: 0 0 6px; }
+.card .h2 { font-size: 20px; margin: 0 0 6px; }
 .h3 { font-size: 15px; margin: 0 0 8px; }
-.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.toolbar { align-items: center; margin: 8px 0; }
 label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--mute); min-width: 0; margin-bottom: 8px; }
-input[type="text"], input[type="number"], input[type="file"], select, textarea {
-  background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; min-width: 0; width: 100%; box-sizing: border-box;
-}
+input[type="text"], input[type="number"], input[type="file"], select, textarea { min-width: 0; width: 100%; color: var(--ink); }
 .grid2, .grid3 { display: grid; gap: 10px; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.note { color: var(--mute); font-size: 13px; margin: 4px 0 10px; }
-.empty { color: var(--mute); padding: 8px 0; }
 .msg { color: var(--danger); margin: 6px 0; }
 .preview { color: var(--accent); font-variant-numeric: tabular-nums; }
-.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); margin-bottom: 12px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); margin-bottom: 12px; }
 .grid-t { width: 100%; border-collapse: collapse; font-size: 13px; }
 .grid-t th, .grid-t td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; }
 .grid-t thead th { color: var(--mute); font-weight: 600; }
-.num { text-align: right !important; font-variant-numeric: tabular-nums; }
+.num { text-align: right !important; }
 .sui-dlg.danger-dlg .sui-title { color: var(--danger); }
 
 /* Get started: the first steps, ticked when done */
 .start-head { display: flex; align-items: center; gap: 10px; margin: 6px 0 10px; }
 .start-head progress { flex: 1 1 auto; max-width: 320px; height: 10px; accent-color: var(--accent); }
 .start-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.start-step { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.start-step { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-s); }
 .start-step .start-text { display: grid; gap: 2px; min-width: 0; }
-.start-mark { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-weight: 700; }
-.start-step.is-done .start-mark { background: var(--accent); border-color: var(--accent); color: var(--accent-ink, #0e0e10); }
-.start-step.is-done b { text-decoration: line-through; text-decoration-color: var(--mute, currentColor); }
+.start-mark { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line-strong); display: grid; place-items: center; font-weight: 700; }
+.start-step.is-done .start-mark { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.start-step.is-done b { text-decoration: line-through; text-decoration-color: var(--mute); }

@@ -54,6 +54,15 @@
       expect(s.defaultCurrency).toBe('USD');
     });
 
+    it('follows the site theme (shared/biz/app.css): text reads on its background in every theme', async () => {
+      for (const theme of ['light', 'dark', 'classic', 'lime']) {
+        win().SlopTheme.apply(theme);
+        const inp = win().getComputedStyle($("cName")), body = win().getComputedStyle(doc().body);
+        const fill = inp.webkitTextFillColor || inp.color;
+        expect(SlopTest.contrast(fill, inp.backgroundColor) >= 4.5).toBe(true, `${theme}: input ${fill} on ${inp.backgroundColor}`);
+        expect(SlopTest.contrast(body.color, body.backgroundColor) >= 4.5).toBe(true, `${theme}: page`);
+      }
+    });
     it('the company step is ticked once the profile has a name', async () => {
       win().SlopAdmin.app.show('start');
       await waitFor(() => $('sCount').textContent === '1 of 5 done');

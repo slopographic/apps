@@ -84,5 +84,16 @@
   /** The open SlopUI dialog on top in a document (a closing one, .sui-out, is skipped), or null. Use it rather than the first
    *  .sui-dlg: under load a dialog that is closing is still in the page, and a test would act on it. */
   const topDialog = (d = document) => [...d.querySelectorAll('.sui-back:not(.sui-out) .sui-dlg')].pop() || null;
-  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog };
+  // WCAG contrast of two CSS colours as the browser computes them (rgb(), rgba() or color(srgb ...)).
+  function rgbOf(c) {
+    const m = /color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)/.exec(c);
+    if (m) return m.slice(1, 4).map((v) => Number(v) * 255);
+    return (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+  }
+  function contrast(a, b) {
+    const L = (c) => { const [r, g, bl] = rgbOf(c).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * bl; };
+    const [x, y] = [L(a), L(b)].sort((p, q) => q - p);
+    return (x + 0.05) / (y + 0.05);
+  }
+  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog, contrast };
 })();

@@ -42,6 +42,7 @@ input[readonly] { color: var(--mute); }
 .btn, .tb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 0 12px; border-radius: var(--r-s); border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); font-weight: 500; white-space: nowrap; transition: background .12s, border-color .12s; }
 .btn:hover:not(:disabled), .tb-btn:hover { background: var(--hover); border-color: var(--line-strong); }
 .btn:disabled { opacity: .5; cursor: default; }
+a.btn { text-decoration: none; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
 .btn.primary:hover:not(:disabled) { background: var(--accent); filter: brightness(1.08); }
 .btn.danger { color: var(--danger); }
@@ -60,6 +61,7 @@ input[readonly] { color: var(--mute); }
 
 /* View tabs (SlopTabs): one view at a time; the strip scrolls inside itself on a phone */
 .tabs { display: flex; gap: 4px; overflow-x: auto; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--panel); scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
 .tab { flex: 0 0 auto; min-height: 40px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--mute); font-weight: 500; }
 .tab:hover { color: var(--ink); }
 .tab[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
