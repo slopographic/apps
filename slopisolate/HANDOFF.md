@@ -37,11 +37,14 @@ models in `vendor/models/`, ONNX Runtime Web in `vendor/onnxruntime-web/`. Modul
   never wait behind the batch. A worker runs one model pass at a time (`exclusive` in worker.js). `io/process.js` keeps
   the app's bounded queue (`running` map of AbortControllers): remove and re-run cancel a running image (the worker
   finishes the pass, the result is dropped), a failed image does not stop the rest. Queue tiles show the phase
-  (Loading, Starting, Cutting out, Edges); the busy bar shows only for a download.
+  (Loading, Starting, Cutting out, Edges); the busy bar shows only for a download. Dropping the image on screen also
+  closes its decoded bitmap. poolSize learns the real backend from the first pass (WebGPU that falls back to WebAssembly
+  on a software adapter then gets the WebAssembly size).
 - **Timings, 10 photos (0.4 to 1.6 MP) dropped at once, Fast, WebAssembly, headless Chromium on a 44-core machine:**
   before (one at a time, the drop zone waiting on each) 71.8 s, first ready 7.9 s; after: pool 1 60.5 s, pool 2 33.5 s,
   pool 3 24.9 s, pool 4 20.5 s; first ready about 6.2 s in every case. Main thread: longest stall 60 to 200 ms, a click
-  handled within 1 ms. WebAssembly capped at 3 workers for memory (each holds its own session; Quality is the big one).
+  handled within 1 ms. Quality model, same 10 photos: 297.4 s before, 128.0 s after (auto pool 3; first ready 26 s before,
+  31 s after, as three passes share the CPU). WebAssembly capped at 3 workers for memory (each holds its own session; Quality is the big one).
   Bench script: tests are in the repo; the timing script was a scratch Playwright run (drop 10, wait for all done).
 - Tests: `tests/slopisolate/batch.test.html` (batch vs one at a time after a model change, pinned model kept; pool of 2:
   never more than 2 running, all finish, a click runs meanwhile, the image on screen edits while others run; a broken file

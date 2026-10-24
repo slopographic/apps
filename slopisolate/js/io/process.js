@@ -124,7 +124,7 @@
     P.drop();
     try {
       const act = await P.build(it);
-      if (seq !== refreshSeq || S.current() !== it) { SlopCutout.release(act.jobId); return; }
+      if (seq !== refreshSeq || S.current() !== it) { free(act); return; }
       P.active = act;
       CO.emit('active', act);
     } catch (e) { S.setStatus(it, 'error', { error: e.message }); }
@@ -134,8 +134,13 @@
   P.drop = function () {
     const act = P.active;
     P.active = null;
-    if (act) SlopCutout.release(act.jobId).catch(() => {});
+    if (act) free(act);
   };
+  /** Free a record: its worker job and its decoded bitmap (a batch switches the image on screen often). */
+  function free(act) {
+    SlopCutout.release(act.jobId).catch(() => {});
+    if (act.bitmap && act.bitmap.close) act.bitmap.close();
+  }
 
   /** Re-run post-processing for the active image (settings or brush edits changed). Newest call wins. */
   P.refresh = async function (it) {
