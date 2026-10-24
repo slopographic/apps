@@ -247,6 +247,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   gone), a drop on the view (`dropTarget`), From Slop Drive…, a paste (new), ?drive= launch and launchQueue. The
   first-use notice is the spec's `notice` (once per batch); `openBlob` is only the reader. The page now loads
   shared/intake. Out: Open in Slop 3D is `SlopOuttake.send('3d')`. `tests/intake/img3d.test.html`.
+- **Slop Contacts** (`contacts/js/app/drop-import.js`, spec `contacts`, the whole batch to the import flow; part
+  `contacts.photo`): a drop on the list and the zone, Import ▸ Choose files…, a paste (new), ?drive= launch and
+  launchQueue. Every source now takes the same files (vCard, CSV, TSV, text, .scontacts; a drop used to refuse .tsv and
+  .scontacts). Choose photo… is the part. The drag of contacts onto a group stays (`intake-ok`).
+  `tests/intake/contacts.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -341,14 +346,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] file input: `checksum/index.html:42`
 - [ ] drop listener: `checksum/js/checksum.js:81`
-
-### contacts
-
-- [ ] SlopDrop.attach: `contacts/js/app/drop-import.js:32`
-- [ ] drop listener: `contacts/js/app/groups.js:67`
-- [ ] pickFiles: `contacts/js/app/io-dialogs.js:31`
-- [ ] ?drive= launch: `contacts/js/app/main.js:14`
-- [ ] pickFiles: `contacts/js/app/photo-ui.js:60`
 
 ### crm
 

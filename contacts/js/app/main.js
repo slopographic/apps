@@ -10,14 +10,8 @@
   async function launch() {
     const h = window.SlopHub || null;
     if (h) { try { h.register('contacts'); } catch (e) { /* hub without register */ } }
-    let rec = null;
-    try { rec = h ? await h.consumeLaunch() : null; } catch (e) { rec = null; }
-    if (rec && rec.blob) {
-      // Not awaited: the import waits for the person to confirm the preview, and the page must not wait for that.
-      SC.io.importFiles([{ name: rec.name || 'contacts.scontacts', text: () => rec.blob.text() }])
-        .catch((e) => window.SlopUI.toast(`Could not import: ${e.message}`));
-    }
-    return !!(rec && rec.blob);
+    // through the intake (drop-import.js); the import waits for the person to confirm the preview, the page does not
+    try { return await SC.dropImport.launch(); } catch (e) { return false; }
   }
 
   async function boot() {
