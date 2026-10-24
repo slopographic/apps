@@ -20,6 +20,8 @@
     add('co.export-one', 'Export…', 'File', ['Mod+S'], () => a.exportOne(), { when: () => !!cur() && cur().status === 'done', keywords: ['download', 'save', 'png', 'webp', 'jpg'] });
     add('co.export-all', 'Export all as ZIP…', 'File', ['Shift+Mod+S'], () => a.exportAll(), { when: hasDone, keywords: ['batch', 'zip', 'download'] });
 
+    if (window.SlopFlowDoc) add('co.add-to-workflow', 'Add to a workflow…', 'File', [], () => a.workflow(), { keywords: ['workflow', 'batch', 'pipeline', 'chain', 'automate'] });
+
     add('co.undo', 'Undo', 'Edit', ['Mod+Z'], () => a.undo(), { when: () => H.can(cur(), 'undo') });
     add('co.redo', 'Redo', 'Edit', ['Shift+Mod+Z', 'Mod+Y'], () => a.redo(), { when: () => H.can(cur(), 'redo') });
     add('co.clear-edits', 'Clear brush edits', 'Edit', [], () => a.clearEdits(), { when: () => hasItem() && CO.brush.hasEdits(cur()), keywords: ['reset', 'keep', 'remove'] });

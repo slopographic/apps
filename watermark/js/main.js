@@ -89,6 +89,20 @@
     });
   }
 
+  /** Slop Workflows: this setup (and the logo) as a Watermark step (shared/ops/flowdoc.js; the mapping is the operation's). */
+  function addToWorkflow() {
+    const logo = window.WMSettings.logo();
+    let dataUrl = logo && logo.dataUrl;
+    if (logo && !dataUrl && logo.bitmap) {
+      const c = document.createElement('canvas');
+      c.width = logo.bitmap.width; c.height = logo.bitmap.height;
+      c.getContext('2d').drawImage(logo.bitmap, 0, 0);
+      dataUrl = c.toDataURL('image/png');
+    }
+    window.SlopFlowDoc.addToWorkflow({ id: 'watermark.apply' }, { settings: { cfg: window.WMSettings.cfg(), logo: dataUrl || '' } })
+      .catch((e) => toast('Could not open Slop Workflows: ' + e.message));
+  }
+
   function boot() {
     bar = window.SlopAppBar.mount($('wm-bar'), {
       home: '../', title: 'Slop Watermark', subtitle: 'Watermark many pictures with your logo or text. Nothing is uploaded.', actions: [], menu: [],
@@ -96,6 +110,7 @@
     window.WMSettings.init({ onChange: changed });
     window.WMList.wire((id) => { window.WMItems.remove(id); window.WMList.render(); window.WMPreview.schedule(); syncBar(); });
     $('wm-cancel').addEventListener('click', () => { cancelRun = true; });
+    $('wm-workflow').addEventListener('click', addToWorkflow);
     wireDrop();
     window.WMList.render();
     syncBar();

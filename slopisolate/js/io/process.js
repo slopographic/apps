@@ -1,12 +1,18 @@
-/* SlopIsolate — the queue and the active image. Every image is segmented once (its base mask is kept on
- * the item). The image on screen owns a worker job (CO.active): slider and brush changes re-run only the
- * cheap post-processing in the worker via SlopCutout.finish(), so the model never runs twice. */
+/* SlopIsolate — the queue and the active image. Every image is segmented once (its base mask is kept on the item), in a
+ * bounded pool: up to SlopCutout.poolSize() images at once (each in its own worker), the rest queued; the page stays
+ * free to edit finished images meanwhile. A failed image does not stop the rest; removing or re-running an image that is
+ * being cut out cancels it. The image on screen owns a worker job (CO.active): slider and brush changes re-run only the
+ * cheap post-processing in the worker via SlopCutout.finish(), so the model never runs twice.
+ * One model for every image: an image follows the app's model (S.modelOf) unless the bulk bar gave it its own, so a
+ * batch gets exactly what one image at a time gets. */
 (function () {
   'use strict';
   const CO = window.CO, U = CO.util, S = CO.state, C = CO.compose;
   const P = CO.process = { active: null };
-  const queue = [];
-  let running = false, refreshSeq = 0;
+  const queue = [], running = new Map(); // running: item -> AbortController of its model run
+  let refreshSeq = 0;
+  /** Images segmented at once (the engine decides from the backend, cores and memory; P.limit overrides it in tests). */
+  const limit = () => P.limit || (SlopCutout.poolSize ? SlopCutout.poolSize() : 1);
 
   /** Turn a finished engine result into the record the view and export read. */
   function record(it, jobId, r, bitmap) {
@@ -20,39 +26,52 @@
     act.rev++;
   }
 
-  /** Segment one item with the model (sequential queue). */
+  /** Segment one item with the model. Resolves when it is done, failed or cancelled. */
   async function segment(it) {
+    const ac = new AbortController();
+    running.set(it, ac);
+    it.modelRunning = S.modelOf(it);
     S.setStatus(it, 'working', { progress: 0, error: '' });
     try {
       const r = await SlopCutout.removeBackground(it.file, {
-        model: it.model, ...it.s,
-        onProgress: (p) => { it.progress = p.total ? p.loaded / p.total : null; CO.emit('progress', { it, p }); },
+        model: it.modelRunning, ...it.s, signal: ac.signal,
+        onProgress: (p) => { it.phase = p.phase; it.progress = p.total ? p.loaded / p.total : null; CO.emit('progress', { it, p }); },
       });
+      if (ac.signal.aborted || !S.get(it.id)) return;
       it.base = r.base.slice(); it.w = r.width; it.h = r.height;
-      it.modelUsed = r.model; it.timings = r.timings; it.progress = null;
-      if (r.jobId) SlopCutout.release(r.jobId);
+      it.modelUsed = r.model; it.timings = r.timings; it.progress = null; it.phase = null;
       S.setStatus(it, 'done');
       if (CO.drive && CO.drive.ready()) CO.drive.saveImage(it, r);
       if (!P.active && S.activeId === it.id) P.select(it);
     } catch (e) {
-      S.setStatus(it, 'error', { error: e.message || String(e), progress: null });
+      if (!ac.signal.aborted) S.setStatus(it, 'error', { error: e.message || String(e), progress: null });
+    } finally {
+      if (running.get(it) === ac) running.delete(it);
     }
   }
-  async function run() {
-    if (running) return;
-    running = true;
-    while (queue.length) {
+  /** Start queued items while there is room in the pool. */
+  function pump() {
+    while (queue.length && running.size < limit()) {
       const it = queue.shift();
-      if (S.get(it.id)) await segment(it);
+      if (S.get(it.id)) segment(it).then(pump);
     }
-    running = false;
+  }
+  /** Stop the model run of an item (its worker finishes the pass, the result is dropped). */
+  function cancel(it) {
+    const ac = running.get(it);
+    if (ac) { running.delete(it); ac.abort(); }
+    const i = queue.indexOf(it);
+    if (i >= 0) queue.splice(i, 1);
   }
 
-  /** Add files to the queue and start segmenting. */
+  /** The one way images enter the queue (CO.files.take calls it): new items, the first of them on screen, all queued.
+   *  opts: driveId, origin (where the files came from). Videos go to CO.video.addItem. Returns the new image items, with
+   *  .videos = a promise per video (of its item, once probed). */
   P.add = function (files, opts = {}) {
     const items = [];
+    items.videos = [];
     for (const f of files) {
-      if (CO.video && CO.video.isVideo(f)) { CO.video.addItem(f, opts); continue; }
+      if (CO.video && CO.video.isVideo(f)) { items.videos.push(CO.video.addItem(f, opts)); continue; }
       if (!U.isImage(f)) continue;
       const it = S.createItem(f);
       it.url = URL.createObjectURL(f);
@@ -62,20 +81,31 @@
       items.push(it);
       queue.push(it);
     }
-    // the newest image opens straight away: it becomes the active one, and the old view is dropped (it selects when it is done)
+    // the first new image opens straight away: it becomes the active one, and the old view is dropped (it selects when it is done)
     if (items.length) { S.activeId = items[0].id; P.drop(); }
     CO.emit('list', S.items);
-    if (items.length) { run(); CO.emit('activeItem', S.current()); }
+    if (items.length) { pump(); CO.emit('activeItem', S.current()); }
     return items;
+  };
+
+  /** The app's model changed (the Model panel): every image that follows it and was made with another model, or is
+   *  still on its way with one, runs again, so a batch never keeps the old model where one image would get the new one.
+   *  Returns the images that re-run. */
+  P.followModel = function () {
+    const redo = S.items.filter((it) => it.kind !== 'video' && !it.model && it.status !== 'error'
+      && (it.status === 'done' ? it.modelUsed !== S.model : running.has(it) && it.modelRunning !== S.model));
+    redo.forEach((it) => P.rerun(it));
+    return redo;
   };
 
   /** Re-segment an item (new model or a changed file). Keeps its brush edits. */
   P.rerun = function (it) {
     if (P.active && P.active.item === it) P.drop();
+    cancel(it);
     it.base = null;
-    if (!queue.includes(it)) queue.push(it);
+    queue.push(it);
     S.setStatus(it, 'queued', { error: '' });
-    run();
+    pump();
   };
 
   /** Build a record for an item (new worker job, post-processed). Caller must release() it. */
@@ -94,7 +124,7 @@
     P.drop();
     try {
       const act = await P.build(it);
-      if (seq !== refreshSeq || S.current() !== it) { SlopCutout.release(act.jobId); return; }
+      if (seq !== refreshSeq || S.current() !== it) { free(act); return; }
       P.active = act;
       CO.emit('active', act);
     } catch (e) { S.setStatus(it, 'error', { error: e.message }); }
@@ -104,8 +134,13 @@
   P.drop = function () {
     const act = P.active;
     P.active = null;
-    if (act) SlopCutout.release(act.jobId).catch(() => {});
+    if (act) free(act);
   };
+  /** Free a record: its worker job and its decoded bitmap (a batch switches the image on screen often). */
+  function free(act) {
+    SlopCutout.release(act.jobId).catch(() => {});
+    if (act.bitmap && act.bitmap.close) act.bitmap.close();
+  }
 
   /** Re-run post-processing for the active image (settings or brush edits changed). Newest call wins. */
   P.refresh = async function (it) {
@@ -124,8 +159,8 @@
   /** Remove an item from the list. */
   P.remove = function (it) {
     if (P.active && P.active.item === it) P.drop();
-    const i = queue.indexOf(it);
-    if (i >= 0) queue.splice(i, 1);
+    cancel(it);
+    pump();
     const idx = S.index(it.id);
     if (idx >= 0) S.items.splice(idx, 1);
     if (it.url) URL.revokeObjectURL(it.url);
@@ -160,7 +195,8 @@
     CO.emit('active', act);
   };
 
-  P.pending = () => queue.length + (running ? 1 : 0);
+  P.pending = () => queue.length + running.size;
+  P.running = () => running.size;
   CO.on('look', (it) => P.refreshSoon(it));
   CO.on('history', ({ it }) => { if (it.edit || it.s) P.refreshSoon(it); });
 })();

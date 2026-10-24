@@ -48,6 +48,7 @@
     notes: '<path d="M10 6h28v36H10z"/><path d="M16 16h16M16 22h16M16 28h10"/><path d="M32 40l8-8-3-3-8 8z"/>',
     paste: '<rect x="10" y="10" width="28" height="34" rx="2"/><path d="M18 10V7h12v3M16 22h16M16 28h16M16 34h10"/>',
     convert: '<path d="M8 16h28l-6-6M40 32H12l6 6"/>',
+    workflows: '<rect x="5" y="8" width="11" height="9" rx="2"/><rect x="32" y="8" width="11" height="9" rx="2"/><rect x="18.5" y="31" width="11" height="9" rx="2"/><path d="M16 12.5h16M37.5 17v5.5H24V31"/>',
     crm: '<circle cx="17" cy="16" r="5"/><circle cx="31" cy="16" r="5"/><path d="M6 38c1-7 5-10 11-10s10 3 11 10M24 38c1-7 5-10 11-10s8 3 7 10"/>',
     ledger: '<path d="M10 6h26v36H10z"/><path d="M10 6v36M20 12v24M28 12v24M16 16h-2M16 22h-2"/><path d="M24 15h9M24 21h9M24 27h9M24 33h9"/>',
     admin: '<circle cx="24" cy="24" r="6"/><path d="M24 6v6M24 36v6M6 24h6M36 24h6M11 11l4 4M33 33l4 4M37 11l-4 4M15 33l-4 4"/><circle cx="24" cy="24" r="14"/>',

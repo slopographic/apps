@@ -24,11 +24,15 @@
   }
 
   /* ---------- model ---------- */
+  /** The Model panel sets the app's model, for every image (not only the one on screen): the image on screen follows it
+   *  again if the bulk bar had given it another, and every image that follows it re-runs with it (CO.process.followModel). */
   function pickModel(id) {
     const it = S.current();
     S.model = id;
     U.store.set('model', id);
-    if (it && it.model !== id) { it.model = id; CO.process.rerun(it); }
+    if (it && it.model && it.model !== id) it.model = null;
+    const redo = CO.process.followModel();
+    if (redo.length > 1) CO.emit('toast', `Running ${redo.length} images again with the ${MODELS.find((m) => m.id === id).name} model`);
     P.refresh();
   }
   function modelSec() {
@@ -40,7 +44,7 @@
       return { m, input, size, lab };
     });
     bind((it) => {
-      const id = it ? it.model : S.model;
+      const id = S.modelOf(it);
       for (const r of rows) {
         // The size as the first-use notice writes it, from the same byte count (shared/cutout/models.js).
         const on = r.m.id === id, bytes = r.m.bytes ? (window.SlopFirstRun ? SlopFirstRun.size(r.m.bytes) : U.fmtBytes(r.m.bytes)) : '';
@@ -130,7 +134,7 @@
     root.replaceChildren(title, modelSec(), edgeSec(), ...look, exportSec());
     CO.on('activeItem', () => P.refresh());
     CO.on('active', () => P.refresh());
-    CO.on('item', (it) => { P.refresh(); if (it.status === 'done' && cache[it.model] !== true) loadCache(); });
+    CO.on('item', (it) => { P.refresh(); if (it.status === 'done' && cache[S.modelOf(it)] !== true) loadCache(); });
     CO.on('list', () => P.refresh());
     CO.on('export', () => P.refresh());
     loadCache();
