@@ -18,7 +18,8 @@
   async function boot() {
     const fr = document.getElementById('app');
     fr.src = '../../upscale/index.html';
-    await waitFor(() => fr.contentWindow && fr.contentWindow.SlopIntake && fr.contentWindow.SlopIntake.spec('upscale') && fr.contentWindow.document.querySelector('#up-drop .sd-choose'), { timeout: 20000 });
+    // SlopIntake is there before intake.js has given it spec(): ask only once it has
+    await waitFor(() => { try { return fr.contentWindow.SlopIntake.spec('upscale') && fr.contentWindow.document.querySelector('#up-drop .sd-choose'); } catch (e) { return false; } }, { timeout: 20000 });
     W = fr.contentWindow; D = W.document;
     const s = W.SlopIntake.spec('upscale'), reader = s.process;
     s.process = (f, ctx) => { seen.push(ctx.source); return reader(f, ctx); };
