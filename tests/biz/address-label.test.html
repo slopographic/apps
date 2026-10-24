@@ -44,6 +44,13 @@
       expect([sent[0].app, sent[0].name, sent[0].o.from]).toEqual(['label', 'Address label ORD-0007.sloplabel', 'orders']);
       expect(JSON.parse(sent[0].text).app).toBe('sloplabel');
     });
+    it('with the one outbound builder on the page, send() goes through SlopOuttake.send', async () => {
+      const sent = [];
+      window.SlopOuttake = { send: async (to, o) => { sent.push({ to, from: o.from, name: o.name, text: await o.get().text() }); return 'id2'; } };
+      expect(await A.send({ name: 'Ada Ltd', lines: ['1 High St'], ref: 'ORD-0008', app: 'orders' })).toBe('id2');
+      expect([sent[0].to, sent[0].from, sent[0].name]).toEqual(['label', 'orders', 'Address label ORD-0008.sloplabel']);
+      delete window.SlopOuttake;
+    });
   });
   run();
   </script>

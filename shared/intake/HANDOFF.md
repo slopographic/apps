@@ -330,6 +330,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   are the intake's picker and a drop on a row is `dropTarget` (data: the row's family); the per-row file inputs are gone.
   A page without shared/intake keeps a file input of its own (`intake-ok`). Covered by the apps' own-fonts tests (Press,
   Docs, Slides, PDF) and `tests/fonts/font-panel.test.html`.
+- **Out, shared**: the order's address label (`shared/biz/address-label.js`) and Workflows' Add to a workflow…
+  (`shared/ops/entry.js`) go out through `SlopOuttake.send` where the page has it. `tests/biz/address-label.test.html`,
+  `tests/intake/outtake.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -393,10 +396,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] paste listener: `photoslop/classic/paint/17-files.js:65`
 - [ ] file input: `photoslop/index.html:93`
 
-### shared/biz
-
-- [ ] out: sendTo: `shared/biz/address-label.js:32`
-
 ### shared/buffer
 
 - [ ] drop listener: `shared/buffer/buffer.js:68`
@@ -416,10 +415,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### shared/i18n
 
 - [ ] out: Open in/Send to label: `shared/i18n/strings.js:32`
-
-### shared/ops
-
-- [ ] out: sendTo: `shared/ops/entry.js:29`
 
 ### shared/presets
 
