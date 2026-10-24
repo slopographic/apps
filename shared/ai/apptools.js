@@ -4,7 +4,8 @@
  *        confirm(title, message), appId, workspace: SlopWorkspace (Slop AI: apps open beside the chat),
  *        look: add look_at_file (fileTools.js; for models that can see, it asks before each copy goes out), who: where
  *        that copy goes ("Anthropic"), ops: add the operations registry's tools (opTools.js), handoff({ app, task, url }):
- *        open_app takes a "task" and the conversation continues in that app (handoff.js), appName }
+ *        open_app takes a "task" and the conversation continues in that app (handoff.js), hop (open_in_app), appName };
+ *        plus every set a file put in SlopAIKit.toolSets (a function env → tools), such as the pictures of imagegen/tools.js
  *   appTools.catalog(apps) → the apps in a few words each (what they are, what they make and open), for the system prompt
  * The one tool list: the side panel, Slop AI and every engine (local prompt-based or cloud native) use what build makes.
  * Destructive actions (commands that delete, clear, close, reset, …) always ask the person first.
@@ -160,6 +161,7 @@
     if (env.look && K.fileTools) tools.push(K.fileTools.look(env), K.fileTools.canvas(env));
     if (env.ops && K.opTools) tools.push(...K.opTools.build(env));
     if (env.hop && K.handoff) tools.push(K.handoff.tool(env));   // open_in_app: the task moves to another app with files
+    for (const set of K.toolSets || []) tools.push(...set(env));   // registered sets, e.g. generate_image (imagegen/tools.js)
     const cmd = env.cmd;
     if (cmd && cmd.list && (cmd.run || cmd.exec) && K.cmdTools) {
       const label = env.appId ? `the ${((apps().find((a) => a.id === env.appId) || {}).name) || env.appId} app` : 'this app';

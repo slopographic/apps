@@ -23,7 +23,7 @@
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'panel.css'; document.head.append(css);
   const add = (src, test) => new Promise((res, rej) => { if (test && test()) return res(); const s = document.createElement('script'); s.src = new URL(src + '.js', base).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
   const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), add('../ui/sheet', () => window.SlopSheet)])
-    .then(() => window.SlopAI.loaded).then(() => K.load(['permissions', 'permissions-ui', 'apptools', 'cmdtools', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run', 'model-menu', '../ui/menubutton']))
+    .then(() => window.SlopAI.loaded).then(() => K.load(['permissions', 'permissions-ui', 'apptools', 'cmdtools', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run', 'model-menu', '../ui/menubutton', 'imagegen/index'])).then(() => K.imageGenReady && K.imageGenReady.catch(() => null))
     .then(() => takeHandoff()).then(() => restoreCloud()).then(() => { if (P.pending && P.engine()) runPending(); });
   /** A request handed over from another app (handoff.js): its conversation, a line saying so, and its task, sent as soon
    * as a model is there. */

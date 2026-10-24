@@ -184,6 +184,9 @@ it and refuses new requests; Stop aborts the request in flight. A key-based engi
   kept in the Actions cache). SwiftShader has no shader-f16, so the q4f16 build is reported as not testable there. The
   tokens SwiftShader produces are gibberish: the check is that every shader compiles and generation runs.
 
+Pictures (`generate_image`, `edit_image`, PhotoSlop's Generate Image…): `imagegen/HANDOFF.md`. They join the one tool
+list through `K.toolSets` (a function env → tools that `apptools.js build` adds), loaded by the panel as `imagegen/index`. They ask through the permission module as kind `spend-image`.
+
 ## Tests
 `node tests/run.mjs ai` covers all of this; see `ai/HANDOFF.md`. Own keys: `tests/node/ai-cloud-formats.test.mjs`
 (request building, streams from documented SSE fixtures, conversion both ways), `tests/node/ai-cloud-engine.test.mjs`

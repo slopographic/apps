@@ -98,6 +98,8 @@ const MENUS = [
     { label: 'Layer via Copy', key: 'Ctrl+J', act: () => layerViaCopy(false) },
     { label: 'Layer via Cut', key: 'Shift+Ctrl+J', act: () => layerViaCopy(true), need: 'layer' },
     { label: 'Isolate Subject…', act: () => isolateSubject(), en: () => !!activeLayer() },
+    { label: 'Generate Image…', cmdId: 'ps.generate', act: () => psImageGen('generate') },
+    { label: 'Edit with AI…', cmdId: 'ps.edit-ai', act: () => psImageGen('edit'), en: () => !!activeLayer() },
     { label: 'New Fill Layer', sub: [
       { label: 'Solid Color (foreground)', act: () => { const c = mkCanvas(D.w, D.h), g = cx(c); g.fillStyle = C.fg; g.fillRect(0, 0, D.w, D.h); addLayer({ name: nextName('Color Fill'), canvas: c }, 'Fill Layer'); } },
       { label: 'Gradient (foreground → background)', act: () => { const keep = T.gradient.type; T.gradient.type = 'linear'; const c = gradientCanvas({ x: 0, y: 0 }, { x: 0, y: D.h }); T.gradient.type = keep; addLayer({ name: nextName('Gradient Fill'), canvas: c }, 'Fill Layer'); } },
