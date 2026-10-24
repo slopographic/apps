@@ -40,6 +40,7 @@
     if (a.type === 'note') return V.noteNode(a);
     if (a.type === 'callout') return V.calloutNode(a);
     if (a.type === 'step') return V.stepNode(a);
+    if (a.type === 'para') return V.paraNode ? V.paraNode(a) : null; // a paragraph frame (editor/para-view.js)
     if (!E.isBox(a)) {
       if (!a.pts || !a.pts.length) return null;
       g = U.s('g', { 'data-aid': a.id, class: 'an an-' + a.type });

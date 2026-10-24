@@ -76,7 +76,7 @@
       kids.push(row('Width', slider(d.width || 2, 0.5, type === 'marker' ? 40 : 20, 0.5, set('width'), function (v) { return v + ' pt'; })));
     }
     if (type === 'rect' || type === 'ellipse') kids.push(row('Fill', colorPicker(d.fill || 'none', set('fill'), true)));
-    if (type === 'texthl') kids.push(row('Colour', colorPicker(d.color, set('color'))));
+    if (type === 'texthl' || type === 'para') kids.push(row('Colour', colorPicker(d.color, set('color'))));
     if (type === 'step') {
       kids.push(row('Circle', colorPicker(d.fill, set('fill'))));
       kids.push(row('Comment', colorPicker(d.color, set('color'))));
@@ -91,11 +91,11 @@
     if (type === 'redact') { box.appendChild(section(a ? 'Selected: Redaction mark' : 'New redaction mark', [note('Drag over anything that must be removed. Marks are hatched red until you apply them in the Redact panel; applying replaces the page with an image and removes the content for good.', 'warn'), h('div', { class: 'btn-row' }, btn('Open Redact panel', 'redact', function () { SP.app.setTool('redact'); }), a ? btn('Delete', 'trash', function () { Ed.deleteSelected(); }, 'danger-text') : null)])); return; }
     if (type !== 'whiteout') kids.push(row('Opacity', slider(Math.round((d.opacity == null ? 1 : d.opacity) * 100), 5, 100, 1, function (v) { Ed.setProp('opacity', v / 100); }, function (v) { return v + '%'; })));
     if (type === 'whiteout') kids.push(note('Whiteout paints an opaque box over the page. It hides content visually; the original text underneath is still in the file. Use Redact to remove content for real.', 'warn'));
-    var names = { text: 'Text', pen: 'Drawing', marker: 'Highlighter', rect: 'Rectangle', ellipse: 'Ellipse', line: 'Line', arrow: 'Arrow', whiteout: 'Whiteout', hlbox: 'Highlight box', texthl: 'Text highlight', image: a && a.sig ? 'Signature' : 'Image' };
+    var names = { text: 'Text', pen: 'Drawing', marker: 'Highlighter', rect: 'Rectangle', ellipse: 'Ellipse', line: 'Line', arrow: 'Arrow', whiteout: 'Whiteout', hlbox: 'Highlight box', texthl: 'Text highlight', para: 'Paragraph', image: a && a.sig ? 'Signature' : 'Image' };
     box.appendChild(section((a ? 'Selected: ' : 'New ') + (names[type] || type), kids));
     if (a) {
       box.appendChild(section(null, [h('div', { class: 'btn-grid' },
-        a.type === 'text' || a.type === 'callout' || a.type === 'step' ? btn('Edit text', 'text', function () { Ed.editSelectedText(); }) : null,
+        a.type === 'text' || a.type === 'callout' || a.type === 'step' || a.type === 'para' ? btn('Edit text', 'text', function () { Ed.editSelectedText(); }) : null,
         btn('Duplicate', 'copy', function () { Ed.duplicateSelected(); }),
         btn('Bring to front', 'plus', function () { zorder(a.id, 1); }),
         btn('Send to back', 'reverse', function () { zorder(a.id, -1); }),

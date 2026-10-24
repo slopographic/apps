@@ -42,7 +42,7 @@
             runs.push({
               str: it.str, fs: fs, fam: fam, fontName: it.fontName, label: label, ps: ps, facts: facts, embedded: !!ps,
               bold: /bold|black|heavy|semibold/i.test(label), italic: /italic|oblique/i.test(label),
-              x0: t[4], y: t[5], width: it.width || 0, box: SP.redact.itemBox(it, 0, it.str.length, view, st.fontFamily), pg: pg
+              x0: t[4], y: t[5], width: it.width || 0, upright: t[0] > 0 && Math.abs(t[1]) < 0.01 * fs, box: SP.redact.itemBox(it, 0, it.str.length, view, st.fontFamily), pg: pg
             });
           });
           return markOcr(f, p, runs).then(function () { return { pg: pg, runs: runs }; });
@@ -53,6 +53,7 @@
     }
     return cache.get(key);
   }
+  S.textRuns = function (p) { return runsOf(p); }; // the Paragraphs mode reads the same runs (para-mode.js)
   /** The run under a page point (the smallest box, with a little slack), or null. */
   function pick(runs, pt) {
     var best = null, slack = 2;
@@ -66,7 +67,7 @@
 
   Ed.toggleEditText = function () {
     if (Ed.editText) { S.closeRun(); Ed.editText = false; SlopUI.toast('Edit text is off.'); }
-    else { Ed.editText = true; SlopUI.toast('Edit text: click a line of text, type, then Enter to apply (Esc cancels).', 5000); }
+    else { Ed.editText = true; SlopUI.toast(Ed.paraMode ? 'Edit text, Paragraphs: click a paragraph, then double-click or Enter to type in it.' : 'Edit text: click a line of text, type, then Enter to apply (Esc cancels).', 5000); }
     if (S.viewer) S.viewer.classList.toggle('edit-text', Ed.editText);
   };
 
@@ -85,6 +86,7 @@
       return area <= 0 || G.rectsArea(G.rectsMinus([G.rectOfBox(run.box)], white)) >= 0.4 * area;
     });
   }
+  S.visibleRuns = visibleRuns;
   /** A press in edit mode: the run under the pointer opens for editing. */
   S.runDown = function (e, p) {
     var pt = S.pagePt(e);
