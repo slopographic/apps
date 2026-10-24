@@ -32,7 +32,11 @@ function draw() {
   const shown = reading || it || q.items[0];
   if (shown) flow.set({ from: (shown.name.match(/\.([a-z0-9]+)$/i) || [, 'mp3'])[1].toLowerCase(), to: 'txt' });
   flow.state(q.busy ? 'run' : it && it.status === 'done' ? 'done' : it && it.status === 'error' ? 'error' : 'idle');
-  if (reading) flow.progress(reading.progress);
+  if (reading) {
+    flow.progress(reading.progress);
+    const n = q.items.indexOf(q.items.find((x) => x.id === reading.id)) + 1, of = q.items.length;
+    say(`Transcribing ${reading.name}${of > 1 ? ` (${n} of ${of})` : ''}: ${Math.round(reading.progress * 100)}%. Long files take a while; it all runs on this device.`);
+  }
 }
 function select(id) { selected = id; $('trText').value = textFor(current(), { times }); draw(); }
 

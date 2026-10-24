@@ -24,7 +24,7 @@
     Object.assign(W.SlopTranscribe.engine, {
       prepare: async () => {},
       samples: async (file) => new W.Float32Array(Math.round(file.size / 2) * 16),
-      transcribe: async (samples, language, progress) => { progress({ done: 1, total: 2 }); await sleep(20); progress({ done: 2, total: 2 });
+      transcribe: async (samples, language, progress) => { progress({ done: 1, total: 2 }); await sleep(300); progress({ done: 2, total: 2 });
         return { segments: [{ start: 0, end: 2, text: 'Hello from the meeting.' }, { start: 5, end: 7, text: 'Next item is the budget.' }], language: language === 'auto' ? 'en' : language }; },
     });
     $('trUi').hidden = false;   // the model gate (Get more…) is not part of this test
@@ -44,6 +44,7 @@
       expect(D.querySelectorAll('#trFiles li').length).toBe(2);
       expect($('trRun').textContent).toBe('Transcribe 2 files');
       $('trRun').click();
+      await waitFor(() => /^Transcribing Board call\.mp3 \(1 of 2\): \d+%/.test($('trMsg').textContent));   // the status line follows the file being read
       await waitFor(() => [...D.querySelectorAll('#trFiles .tr-chip')].every((c) => c.textContent === 'Done'), { timeout: 10000 });
       expect($('trText').value).toBe('Hello from the meeting.\nNext item is the budget.');
       expect($('trText').readOnly).toBe(false);
