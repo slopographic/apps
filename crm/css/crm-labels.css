@@ -1,5 +1,5 @@
 /* Slop CRM: tags and groups (chips, colours, the sidebar filter and the manager dialogs), avatars, and the customer form
- * sections with their messages. Uses the tokens from crm.css. */
+ * sections with their messages. Uses the tokens of the business base (shared/biz/app.css). */
 .tg-blue { --tg: #3b82f6; } .tg-green { --tg: #22c55e; } .tg-amber { --tg: #f59e0b; } .tg-red { --tg: #ef4444; }
 .tg-violet { --tg: #8b5cf6; } .tg-teal { --tg: #14b8a6; } .tg-pink { --tg: #ec4899; } .tg-grey { --tg: #94a3b8; }
 .tag-chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 1px 4px 1px 8px; font-size: 12px;
