@@ -9,8 +9,8 @@
 const { describe, it, expect, waitFor } = SlopTest;
 let W, D;
 describe('Spotlight: a Home link and an all-apps search on every app page', () => {
-  it('a page without the shell (Checksum) shows the All apps button and a Home link in the corner', async () => {
-    const C = await DT.frame('../../checksum/', (w) => w.document.readyState === 'complete' && !!w.document.querySelector('.sps-pill'), { width: 1280, height: 780 });
+  it('a page without the shell (Img3D) shows the All apps button and a Home link in the corner', async () => {
+    const C = await DT.frame('../../img3d/', (w) => w.document.readyState === 'complete' && !!w.document.querySelector('.sps-pill'), { width: 1280, height: 780 });
     expect(C.document.querySelector('button.sps-pill span').textContent).toBe('All apps');
     expect([...C.document.querySelectorAll('a.sps-pill')].some((a) => /home/i.test(a.textContent))).toBe(true);
   });
@@ -19,10 +19,10 @@ describe('Spotlight: a Home link and an all-apps search on every app page', () =
     expect(R.document.querySelector('.sps-pill')).toBe(null);
     expect(!!R.document.querySelector('header .smb-brand')).toBe(true);
   });
-  it('a shell page with no header brand (QR) keeps the pills', async () => {
-    W = await DT.frame('../../qr/', (w) => w.document.readyState === 'complete' && !!w.document.querySelector('.sps-pill'), { width: 1280, height: 780 });
+  it('QR (the brand and Apps in its bar) shows no pills either', async () => {
+    W = await DT.frame('../../qr/', (w) => w.document.readyState === 'complete' && !!w.document.querySelector('.sps-back') && !!w.document.querySelector('.sh-switch'), { width: 1280, height: 780 });
     D = W.document;
-    expect(D.querySelector('button.sps-pill span').textContent).toBe('All apps');
+    expect(D.querySelector('.sps-pill')).toBe(null);
   });
   it('on a page with the command palette, the palette lists the apps: "barcode" finds SlopLabel', async () => {
     D.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true, cancelable: true }));

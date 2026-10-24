@@ -28,11 +28,12 @@
   <link rel="stylesheet" href="css/checksum.css">
 </head>
 <body>
+  <header class="ck-top">
+    <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"></a>
+    <h1>Checksum</h1>
+  </header>
   <main class="ck">
-    <header class="ck-head">
-      <h1>Checksum</h1>
-      <p>Compute the hash of a file, or check it against the hash its publisher gave you. The file is read on this device and never uploaded.</p>
-    </header>
+    <p class="ck-lede">Compute the hash of a file, or check it against the hash its publisher gave you. The file is read on this device and never uploaded.</p>
 
     <section class="ck-card" aria-labelledby="ck-pick">
       <h2 id="ck-pick">1. Choose a file</h2>
@@ -68,6 +69,7 @@
   </main>
   <script src="../shared/apps.js"></script>
   <script src="js/checksum.js"></script>
+  <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 </body>
 </html>

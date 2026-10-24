@@ -104,11 +104,12 @@
         { ...J('inv2v', '2026-10-04', [['4000', 5000, 0], ['2100', 1000, 0], ['1200', 0, 6000]]), reverses: 'inv2' },
         J('exp2', '2026-11-20', [['5000', 800, 0], ['2100', 200, 0], ['1010', 0, 1000]]),
         J('pay', '2026-11-21', [['1010', 12000, 0], ['1200', 0, 12000]]),
+        J('credit:cn1', '2026-11-25', [['4000', 2500, 0], ['2100', 500, 0], ['1200', 0, 3000]]),   // a credit note: collected tax comes back off
       ] };
       const res = E.run(def('sales-tax'), data);
       expect(res.ok).toBe(true);
       expect(res.rows.map((r) => [r.quarter, r.sum_collected, r.sum_reclaimed, r.sum_due])).toEqual([
-        ['2026-Q4', 0, 200, -200],
+        ['2026-Q4', -500, 200, -700],
         ['2026-Q3', 2000, 375, 1625],
       ]);
     });

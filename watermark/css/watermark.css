@@ -9,16 +9,20 @@
 html, body { margin: 0; }
 body { background: var(--wm-bg); color: var(--wm-fg); font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; min-height: 100vh; overflow-x: hidden; }
 p, h2 { margin: 0; }
-.wm-bar { position: sticky; top: 0; z-index: 5; background: var(--wm-panel); border-bottom: 1px solid var(--wm-line); }
+.wm-bar { position: sticky; top: 0; z-index: 5; background: var(--wm-panel); border-bottom: 1px solid var(--wm-line); padding: 0 16px; }
+/* The header (shared/appbar): the home link first (brand/brand.js draws the app's icon in it), and the shared header buttons
+   (Tour, Theme, Apps: shared/ui/hbtn.css) in the look of the bar's own buttons. */
+.wm-bar { --slop-hbtn-h: 36px; --slop-hbtn-radius: 8px; --slop-hbtn-bg: var(--wm-panel); --slop-hbtn-line: var(--wm-line); --slop-hbtn-fs: 13px; }
+.wm-bar .brand { display: grid; place-items: center; width: 36px; height: 36px; flex: none; color: var(--wm-accent); text-decoration: none; }
 .wm-main { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; padding: 16px; align-items: start; }
 .wm-work { display: grid; gap: 12px; min-width: 0; }
 .wm-stage { display: grid; place-items: center; min-height: 260px; border: 1px solid var(--wm-line); border-radius: var(--wm-radius);
   background: repeating-conic-gradient(#3a3a3a 0 25%, #2a2a2a 0 50%) 0 0 / 16px 16px; padding: 10px; overflow: hidden; }
 .wm-preview { max-width: 100%; height: auto; display: block; border-radius: 4px; }
-.wm-off { color: var(--wm-dim); text-align: center; max-width: 42ch; padding: 24px 0; }
+.wm-off { color: var(--wm-fg); background: var(--wm-panel); text-align: center; max-width: 42ch; padding: 10px 14px; border-radius: var(--wm-radius); }
 .wm-note { color: var(--wm-dim); font-size: 13px; min-height: 0; }
 .wm-note:empty { display: none; }
-.wm-drop { min-height: 0; }
+.wm-drop { border: 1px dashed var(--wm-line); border-radius: var(--wm-radius); padding: 14px; background: var(--wm-panel); }
 .wm-list-wrap { display: grid; gap: 8px; }
 .wm-groups { display: grid; gap: 8px; }
 .wm-group-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -65,6 +69,7 @@ p, h2 { margin: 0; }
 .wm-grid button { padding: 6px 0; }
 .wm-grid button[aria-pressed="true"] { background: var(--wm-accent); color: var(--wm-on-accent); border-color: var(--wm-accent); }
 .wm-fine { color: var(--wm-dim); font-size: 12px; }
+@media (max-width: 560px) { .wm-bar { --slop-hbtn-h: 32px; } }
 @media (max-width: 860px) {
   .wm-main { grid-template-columns: 1fr; padding: 12px 16px; }
   .wm-panel { position: static; max-height: none; }

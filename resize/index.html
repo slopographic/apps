@@ -34,7 +34,10 @@
 </head>
 <body>
   <header class="rs-top">
-    <div class="rs-brand"><span class="rs-logo" aria-hidden="true"></span><h1>Slop Resize</h1><span class="rs-tag">Resize pictures and videos. Nothing uploaded.</span></div>
+    <div class="rs-brand">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"></a>
+      <h1>Slop Resize</h1><span class="rs-tag">Resize pictures and videos. Nothing uploaded.</span>
+    </div>
     <div class="rs-tools" role="toolbar" aria-label="Queue">
       <button type="button" class="sui-btn" id="rs-open">Open…</button>
       <button type="button" class="sui-btn" id="rs-drive">From Slop Drive…</button>
@@ -49,13 +52,10 @@
   <div class="rs-warning" id="rs-video-warning" role="note" hidden></div>
   <main class="rs-main">
     <section class="rs-left" id="rs-left" aria-label="Files">
-      <div id="rs-drop" class="rs-dropzone"></div>
       <section class="rs-empty" id="rs-empty" aria-label="Open files">
         <div class="rs-drop-card">
-          <h2>Drop pictures or videos here</h2>
-          <p>JPEG, PNG, WebP, AVIF and GIF pictures, and MP4, WebM or MOV video. Many at once. Each file is read and resized in this browser and never uploaded.</p>
+          <div id="rs-drop" class="rs-dropzone"></div>
           <p class="rs-fine">Originals are never changed. Results are copies: download them, or save them to the Slop Resize folder in Slop Drive. Keys: Ctrl+O open, Ctrl+Enter resize, Esc cancel, Ctrl+S zip.</p>
-          <button type="button" class="sui-btn sui-primary" id="rs-open-empty">Open…</button>
         </div>
       </section>
       <div id="rs-queue-wrap" hidden>

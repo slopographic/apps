@@ -6,13 +6,8 @@
   const MAX_SECONDS = 2 * 3600;
   let file = null, segments = [], baseName = 'transcript';
 
-  /** The .srt text: numbered cues with hh:mm:ss,mmm times. */
-  function srt(segs) {
-    return segs.map((s, i) => `${i + 1}\n${T.srtTime(s.start)} --> ${T.srtTime(s.end)}\n${s.text}\n`).join('\n');
-  }
-  /** The .txt text: one paragraph per segment. */
-  function plain(segs) { return segs.map((s) => s.text).join('\n'); }
-  const clock = (s) => { const t = Math.floor(s), h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), x = t % 60; return [h, m, x].map((v) => String(v).padStart(2, '0')).join(':'); };
+  const X = window.SlopTranscript;   // the transcript formats (aitools/transcript.js), shared with Slop Transcribe
+  const clock = X.clock;
 
   async function run() {
     $('run').disabled = true; $('srt').disabled = $('txt').disabled = true;
@@ -28,7 +23,7 @@
         onProgress: (p) => { prog.value = p.total ? p.done / p.total : 0; $('msg').textContent = `Window ${Math.min(p.done + 1, p.total)} of ${p.total} (${clock(p.done * 30)} of ${clock(samples.length / 16000)})`; },
       });
       segments = r.segments;
-      $('out').value = segments.length ? segments.map((s) => `[${clock(s.start)}] ${s.text}`).join('\n') : '';
+      $('out').value = X.txt(segments, { times: true });
       const any = segments.length > 0;
       $('srt').disabled = $('txt').disabled = !any;
       $('msg').textContent = any ? `${segments.length} segments, language ${r.language}. Check the text before you use it.` : 'No speech found in this file.';
@@ -47,7 +42,7 @@
   $('drop').addEventListener('dragover', (e) => e.preventDefault());
   $('drop').addEventListener('drop', (e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); });
   $('run').addEventListener('click', run);
-  $('srt').addEventListener('click', () => T.download(baseName + '.srt', srt(segments), 'application/x-subrip'));
-  $('txt').addEventListener('click', () => T.download(baseName + '.txt', plain(segments), 'text/plain'));
+  $('srt').addEventListener('click', () => T.download(baseName + '.srt', X.srt(segments), 'application/x-subrip'));
+  $('txt').addEventListener('click', () => T.download(baseName + '.txt', X.txt(segments), 'text/plain'));
   T.gate('speech', () => { $('ui').hidden = false; });
 })();

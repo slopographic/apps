@@ -16,10 +16,10 @@
   const { f, W, q, qa, ev, open, type, field, tabBtn, clickTab, chip, pixels } = QRT;
 
   describe('QR SLOP: header and layout', () => {
-    it('the shared header renders the title, the app badge and the actions with labels', async () => {
+    it('the shared header renders the title, the home link and the actions with labels', async () => {
       await open();
       expect(q('#qr-bar .sab-name').textContent).toBe('QR SLOP');
-      expect(q('#qr-bar .sab-badge svg')).toBeTruthy();
+      expect(q('#qr-bar .sab-brand > a.brand')).toBeTruthy();
       expect(q('#qr-bar [data-id="save"]').getAttribute('aria-label')).toBe('Save to Drive');
       expect(q('#qr-bar [data-id="open"]').getAttribute('aria-label')).toBe('Open from Drive');
       expect(q('#qr-bar [data-id="buffer"]').disabled).toBe(true);

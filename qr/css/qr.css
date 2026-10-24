@@ -6,6 +6,13 @@ html, body { margin: 0; min-height: 100%; }
 body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
 .qr-app { max-width: 1180px; margin: 0 auto; padding: 0 16px 40px; box-sizing: border-box; min-width: 0; }
 .qr-bar { border-bottom: 1px solid var(--sl-border); }
+/* The header (shared/appbar): the home link first (brand/brand.js draws the app's icon in it), and the shared header buttons
+   (Tour, Theme, Apps: shared/ui/hbtn.css) in the look of the bar's own buttons. */
+.qr-bar { --slop-hbtn-h: 36px; --slop-hbtn-radius: 8px; --slop-hbtn-bg: var(--sl-surface); --slop-hbtn-line: var(--sl-border); --slop-hbtn-fs: 13px; }
+.qr-bar .brand { display: grid; place-items: center; width: 36px; height: 36px; flex: none; color: var(--sl-accent); text-decoration: none; }
+/* The page's own buttons match the header's height and corners. */
+.qr-app .sui-btn { height: 36px; border-radius: 8px; }
+.qr-app .sui-btn:disabled { opacity: .5; }
 .qr-work { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 18px; align-items: start; padding-top: 18px; }
 .qr-left, .qr-right { min-width: 0; }
 .qr-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-bottom: 12px; padding: 4px; border: 1px solid var(--sl-border); border-radius: 12px; background: var(--sl-surface); }
@@ -71,12 +78,12 @@ body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 
 .qr-card-bad { min-height: 120px; padding: 10px; font-size: 12px; text-align: center; }
 .qr-card-cap { font-size: 12px; color: color-mix(in srgb, var(--sl-text) 72%, transparent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .qr-card-btns { display: flex; gap: 6px; }
-.sui-btn:disabled { opacity: .5; }
 @media (max-width: 860px) {
   .qr-work { grid-template-columns: minmax(0, 1fr); }
   .qr-right { order: -1; }
   .qr-stage { min-height: 280px; }
 }
+@media (max-width: 560px) { .qr-bar { --slop-hbtn-h: 32px; } }
 @media (max-width: 420px) {
   .qr-app { padding: 0 16px 28px; }
   .qr-tab { padding: 6px 9px; }

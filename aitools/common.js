@@ -112,11 +112,5 @@
     const app = root.SlopHub && root.SlopHub.appById('docs');
     if (app) root.open(root.SlopHub.urlOf(app, driveId ? { drive: driveId } : null), '_blank');
   }
-  /** Turns a number of seconds into hh:mm:ss,mmm for SRT. */
-  function srtTime(s) {
-    const ms = Math.round(s * 1000), h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000), sec = Math.floor((ms % 60000) / 1000), r = ms % 1000;
-    return [h, m, sec].map((v) => String(v).padStart(2, '0')).join(':') + ',' + String(r).padStart(3, '0');
-  }
-
-  root.SlopAITools = { call, ensure, gate, image, audioSamples, download, toDrive, openDocs, srtTime, panel };
+  root.SlopAITools = { call, ensure, gate, image, audioSamples, download, toDrive, openDocs, panel };
 })(typeof window !== 'undefined' ? window : globalThis);
