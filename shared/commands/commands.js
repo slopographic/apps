@@ -188,6 +188,7 @@
   function onKey(e) {
     if (recording || e.isComposing) return;
     if (e.target && e.target.closest && e.target.closest('[role="menu"]')) return; // an open menu takes its own keys
+    if (e.key === 'Escape' && document.querySelector('[data-slop-escape]')) return; // an open sheet (shared/ui/sheet.js) closes first
     if (TAB_KEYS.has(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey && e.target && e.target.closest && e.target.closest('[role="tablist"]')) return; // and a focused tab strip its arrows
     const steps = eventSteps(e);
     if (!steps) return;
