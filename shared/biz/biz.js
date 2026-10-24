@@ -55,6 +55,7 @@
     if (C) {
       C.init({ app });
       C.register(list.map((c) => ({ id: c.id, title: c.title, group: c.group, keywords: c.keywords || [], keys: [], when: c.when, run: () => c.run() })));
+      if (C.provide) C.provide({ prepare: () => assistant(app) });
     }
     function run(id) {
       const c = byId[id];
@@ -71,6 +72,17 @@
       run(el.dataset.cmd);
     });
     return run;
+  }
+
+  /** The assistant's record commands (shared/data/ai-records.js, ai-records-apps.js), loaded when the AI panel first asks. */
+  const HERE = g.document && g.document.currentScript ? g.document.currentScript.src : '';
+  function assistant(app) {
+    const one = (rel) => new Promise((res, rej) => {
+      const s = Object.assign(g.document.createElement('script'), { src: new URL(rel, HERE || g.location.href).href, async: false });
+      s.onload = res; s.onerror = () => rej(new Error('Could not load ' + rel)); g.document.head.append(s);
+    });
+    const need = g.SlopDataAI && g.SlopDataAI.APPS ? Promise.resolve() : one('../data/ai-records.js').then(() => one('../data/ai-records-apps.js'));
+    return need.then(() => g.SlopDataAI.install(app));
   }
 
   /** Small DOM builder: h('a', { class, href, text, dataset, onclick }, 'text', child). Text children are escaped by the DOM. */

@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 7 of 58 apps.
+Covered: 16 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -30,14 +30,14 @@ Covered: 7 of 58 apps.
 | Slop Resize (`resize`) | ✗ | ✗ | ✓ 3 | ✗ | 1 | no |
 | Slop Upscale (`upscale`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
 | Slop Watermark (`watermark`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
-| Slop Contacts (`contacts`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Inventory (`inventory`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Orders (`orders`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Quotes (`quotes`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Purchases (`purchases`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Timesheets (`timesheets`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Expenses (`expenses`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Invoices (`invoices`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Contacts (`contacts`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
+| Slop Inventory (`inventory`) | ✓ 1 | ✓ 1 | ✓ 4 | ✓ 1 |  | yes |
+| Slop Orders (`orders`) | ✓ 2 | ✓ 1 | ✓ 3 | ✓ 2 |  | yes |
+| Slop Quotes (`quotes`) | ✓ 2 | ✓ 1 | ✓ 3 | ✓ 2 |  | yes |
+| Slop Purchases (`purchases`) | ✓ 2 | ✓ 1 | ✓ 3 | ✓ 2 |  | yes |
+| Slop Timesheets (`timesheets`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
+| Slop Expenses (`expenses`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
+| Slop Invoices (`invoices`) | ✓ 2 | ✓ 1 | ✓ 5 | ✓ 2 |  | yes |
 | Slop Notes (`notes`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Paste (`paste`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Effects (`effects`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
@@ -55,7 +55,7 @@ Covered: 7 of 58 apps.
 | File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slopculator (`calculator`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Time (`time`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop CRM (`crm`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop CRM (`crm`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Calendar (`calendar`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop To-do (`todo`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Projects (`projects`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
@@ -131,3 +131,66 @@ Covered: 7 of 58 apps.
 
 - edit: `resize_all`, `set_output_format`, `set_size`
 - operations: `resize.image`
+
+### Slop Contacts
+
+- create: `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_records`
+
+### Slop Inventory
+
+- create: `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `stock_move`, `update_record`
+- export: `export_records`
+
+### Slop Orders
+
+- create: `create_order`, `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_order_pdf`, `export_records`
+
+### Slop Quotes
+
+- create: `create_quote`, `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_quote_pdf`, `export_records`
+
+### Slop Purchases
+
+- create: `create_purchase`, `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_purchase_pdf`, `export_records`
+
+### Slop Timesheets
+
+- create: `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_records`
+
+### Slop Expenses
+
+- create: `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_records`
+
+### Slop Invoices
+
+- create: `create_invoice`, `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `issue_invoice`, `record_payment`, `update_record`
+- export: `export_invoice_pdf`, `export_records`
+
+### Slop CRM
+
+- create: `create_record`
+- add: `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_records`

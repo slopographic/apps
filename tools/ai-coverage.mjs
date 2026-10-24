@@ -55,7 +55,25 @@ export function toolsIn(text) {
   for (const m of text.matchAll(/\bid:\s*'([\w-]+)\.([\w.-]+)'[^\n]*?\bargs\s*:/g)) if (!/\btool:/.test(m[0])) out.add(m[2].split('.').pop().replace(/-/g, '_'));
   return [...out];
 }
+/** Where a record app's commands live: shared/data/ai-records.js (the same for every app) and its block in ai-records-apps.js. */
+const RECORDS = ['describe_records', 'list_records', 'create_record', 'update_record', 'delete_record', 'export_records'];
+export function recordTools(src) {
+  let text = '';
+  try { text = src.read('shared/data/ai-records-apps.js'); } catch (e) { return {}; }
+  const out = {}, parts = text.split(/\n {4}(?=[a-z]+: \{ label:)/).slice(1);
+  for (const p of parts) {
+    const app = /^([a-z]+):/.exec(p)[1], t = new Set(RECORDS);
+    for (const m of p.matchAll(/\badd\(\s*'([a-z_]+)'/g)) t.add(m[1]);
+    for (const m of p.matchAll(/docCommand\(add, '\w+', '(\w+)'/g)) t.add(`create_${m[1]}`);
+    for (const m of p.matchAll(/pdfCommand\(add, '\w+', '\w+', '(\w+)'\)/g)) t.add(`export_${m[1]}_pdf`);
+    out[app] = [...t];
+  }
+  return out;
+}
+/** A record is both a new item (create) and the app's content (add). */
+export const kindsOf = (tool) => (tool === 'create_record' ? ['create', 'add'] : [kindOf(tool)].filter(Boolean));
 export function kindOf(tool) {
+  if (tool === 'create_record') return 'create';
   if (READ.test(tool)) return null;
   if (/^(add_noise|add_grain)$/.test(tool)) return 'edit';
   if (/^(new|build|create)_(?!layer|slide|column|row|step|page)|_from_outline$/.test(tool)) return 'create';
@@ -78,12 +96,12 @@ export function opsByApp(src = source()) {
 }
 
 export function scan(src = source()) {
-  const ops = opsByApp(src);
+  const ops = opsByApp(src), recs = recordTools(src);
   return apps(src).map((a) => {
-    const tools = new Set();
+    const tools = new Set(recs[a.id] || []);
     for (const f of src.list(a.path)) for (const t of toolsIn(src.read(f))) tools.add(t);
     const by = Object.fromEntries(KINDS.map((k) => [k, []]));
-    for (const t of [...tools].sort()) { const k = kindOf(t); if (k) by[k].push(t); }
+    for (const t of [...tools].sort()) for (const k of kindsOf(t)) by[k].push(t);
     const ownOps = ops[a.id] || [];
     const covered = KINDS.every((k) => by[k].length > 0);
     return { id: a.id, name: a.name, path: a.path, by, ops: ownOps, covered, count: tools.size, owner: OWNED[a.id] || null };
