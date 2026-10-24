@@ -26,11 +26,12 @@
     const out = [
       C('3d.file.new', 'New scene', 'File', ['Mod+Shift+N'], () => F.newScene()),
       C('3d.file.open', 'Open…', 'File', ['Mod+O'], () => F.openDialog()),
-      C('3d.file.import', 'Import OBJ, GLB, glTF or image…', 'File', ['Mod+I'], () => F.importDialog()),
+      C('3d.file.import', 'Import a model (OBJ, STL, PLY, glTF, GLB, 3MF, DAE, FBX) or image…', 'File', ['Mod+I'], () => F.importDialog()),
       C('3d.file.drive', 'Open from Slop Drive…', 'File', [], () => F.openFromDrive()),
       C('3d.file.save', 'Save to Slop Drive', 'File', ['Mod+S'], () => F.save()),
       C('3d.file.download', 'Download .s3d', 'File', ['Mod+Shift+S'], () => F.downloadScene()),
       C('3d.file.exportObj', 'Export OBJ…', 'File', [], () => F.exportObj()),
+      ...[['Stl', 'STL'], ['Ply', 'PLY'], ['Glb', 'GLB'], ['Gltf', 'glTF'], ['Usdz', 'USDZ']].map(([k, label]) => C(`3d.file.export${k}`, `Export ${label}…`, 'File', [], () => F.exportModel(k.toLowerCase()))),
       C('3d.file.png1', 'Render PNG (1×)', 'File', [], () => F.exportPng(1)),
       C('3d.file.png2', 'Render PNG (2×)', 'File', [], () => F.exportPng(2)),
       C('3d.edit.undo', 'Undo', 'Edit', ['Mod+Z'], () => A.undo()),
@@ -54,7 +55,8 @@
         S.menus.cmd('3d.file.import', 'Import into this scene…'), S.menus.cmd('3d.file.importConfig', 'Import config…'), '-',
         S.menus.cmd('3d.config.template', 'Export plain template…'), S.menus.cmd('3d.config.ai', 'Ask AI to write a config…')]), { hidden: true }),
       C('3d.menu.export', 'Export menu', 'File', [], () => openMenu(document.getElementById('btnExport'), [
-        S.menus.cmd('3d.file.download', 'Download .s3d'), S.menus.cmd('3d.file.exportObj', 'Export OBJ…'), '-',
+        S.menus.cmd('3d.file.download', 'Download .s3d'), '-', S.menus.cmd('3d.file.exportObj', 'Export OBJ…'), S.menus.cmd('3d.file.exportStl', 'Export STL…'),
+        S.menus.cmd('3d.file.exportPly', 'Export PLY…'), S.menus.cmd('3d.file.exportGlb', 'Export GLB…'), S.menus.cmd('3d.file.exportGltf', 'Export glTF…'), S.menus.cmd('3d.file.exportUsdz', 'Export USDZ…'), '-',
         S.menus.cmd('3d.file.png1', 'Render PNG (1×)'), S.menus.cmd('3d.file.png2', 'Render PNG (2×)'), '-',
         S.menus.cmd('3d.file.exportConfig', 'Export config…')]), { hidden: true }),
     ];

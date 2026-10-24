@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const CORE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '3d', 'js', 'core');
-export const FILES = ['xform.js', 'snap.js', 'geometry.js', 'blob.js', 'model.js', 'ops.js', 'history.js', 'format.js', 'obj.js', 'glb.js',
+export const FILES = ['xform.js', 'snap.js', 'geometry.js', 'blob.js', 'model.js', 'ops.js', 'history.js', 'format.js',
   'mesh.js', 'meshrender.js', 'meshsel.js', 'meshops.js', 'meshxf.js', 'config.js'];
 
 /** Returns window.Slop3D from a fresh context with every core file loaded in order. */

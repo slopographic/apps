@@ -1,5 +1,7 @@
 /* Work out what kind of file a dropped File is: magic bytes first, then extension, then MIME type,
- * then a text sniff. Pure: no DOM, no network. Kinds: png jpg webp bmp gif svg pdf csv json md txt html bin. */
+ * then a text sniff. Pure: no DOM, no network. Kinds: png jpg webp bmp gif svg pdf csv json md txt html bin, and the
+ * finance files sie ofx qif camt053 mt940 (judged by what they say first: shared/finance/index.js sniffFinance). */
+import { sniffFinance, FINANCE_EXT } from '../../../shared/finance/index.js';
 const MAGIC = [
   ['pdf', [0x25, 0x50, 0x44, 0x46]],        // %PDF
   ['png', [0x89, 0x50, 0x4e, 0x47]],
@@ -11,7 +13,7 @@ const MAGIC = [
   ['zip', [0x50, 0x4b, 0x03, 0x04]],        // ZIP (also docx, xlsx, pptx, odt, epub: the extension says which)
 ];
 /** Zip-based formats: the extension (or MIME type) names the kind, not the zip signature. */
-const ZIP_KINDS = ['docx', 'pptx', 'xlsx', 'odt', 'ods', 'odp', 'epub'];
+const ZIP_KINDS = ['docx', 'pptx', 'xlsx', 'odt', 'ods', 'odp', 'epub', '3mf', 'usdz'];
 const EXT = {
   png: 'png', jpg: 'jpg', jpeg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg',
   pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', markdown: 'md', txt: 'txt', text: 'txt',
@@ -20,6 +22,8 @@ const EXT = {
   docx: 'docx', pptx: 'pptx', odt: 'odt', ods: 'ods', odp: 'odp', epub: 'epub', zip: 'zip',
   ico: 'ico', tif: 'tif', tiff: 'tif', avif: 'avif', heic: 'heic', heif: 'heic',
   mp4: 'mp4', m4v: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', oga: 'ogg', flac: 'flac',
+  obj: 'obj', stl: 'stl', ply: 'ply', gltf: 'gltf', glb: 'glb', '3mf': '3mf', dae: 'dae', fbx: 'fbx', usdz: 'usdz', mtl: 'mtl', tga: 'tga', ktx2: 'ktx2',   // a .bin (a glTF buffer) needs no entry: unknown files are 'bin'
+  ...FINANCE_EXT,
 };
 const MIME = {
   'image/png': 'png', 'image/jpeg': 'jpg', 'image/pjpeg': 'jpg', 'image/webp': 'webp', 'image/bmp': 'bmp', 'image/x-ms-bmp': 'bmp',
@@ -33,9 +37,12 @@ const MIME = {
   'application/zip': 'zip', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx', 'application/vnd.oasis.opendocument.text': 'odt',
   'application/vnd.oasis.opendocument.spreadsheet': 'ods', 'application/vnd.oasis.opendocument.presentation': 'odp', 'application/epub+zip': 'epub',
+  'model/gltf-binary': 'glb', 'model/gltf+json': 'gltf', 'model/obj': 'obj', 'model/stl': 'stl', 'model/x.stl-binary': 'stl', 'model/3mf': '3mf',
+  'model/vnd.collada+xml': 'dae', 'model/vnd.usdz+zip': 'usdz', 'model/mtl': 'mtl', 'application/x-ply': 'ply',
+  'application/x-ofx': 'ofx', 'application/ofx': 'ofx', 'application/vnd.intu.qfx': 'ofx', 'application/qif': 'qif', 'application/x-qif': 'qif',
 };
 /** Extension used when a file of this kind is saved. */
-export const EXT_OF_KIND = { mp4: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', flac: 'flac', png: 'png', jpg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg', pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', txt: 'txt', html: 'html', vcf: 'vcf', xlsx: 'xlsx', bin: 'bin' };
+export const EXT_OF_KIND = { glb: 'glb', fbx: 'fbx', ply: 'ply', mp4: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', flac: 'flac', png: 'png', jpg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg', pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', txt: 'txt', html: 'html', vcf: 'vcf', xlsx: 'xlsx', bin: 'bin' };
 export const TEXT_KINDS = ['csv', 'json', 'md', 'txt', 'html', 'vcf'];
 
 const startsWith = (head, sig) => sig.every((b, i) => head[i] === b);
@@ -60,6 +67,10 @@ export function kindFromMagic(head) {
   if (head.length >= 4 && ascii(head, 0, 4) === 'fLaC') return 'flac';
   if (head.length >= 3 && ascii(head, 0, 3) === 'ID3') return 'mp3';
   if (head.length >= 2 && head[0] === 0xff && (head[1] & 0xe0) === 0xe0) return 'mp3';
+  // 3D models with a signature: GLB (binary glTF), binary FBX and PLY (ASCII or binary, the header is text)
+  if (head.length >= 12 && ascii(head, 0, 4) === 'glTF') return 'glb';
+  if (head.length >= 20 && ascii(head, 0, 18) === 'Kaydara FBX Binary') return 'fbx';
+  if (head.length >= 10 && /^ply\r?\nformat /.test(ascii(head, 0, 12))) return 'ply';
   return null;
 }
 
@@ -124,6 +135,10 @@ export function detectKind(name = '', type = '', head = null) {
   }
   if (fromMagic) return fromMagic;
   if (fromExt === 'svg' || mime === 'image/svg+xml') return 'svg';
+  // A finance file says what it is in its first lines (an SIE #FLAGGA, an OFX header, an MT940 :20:): that wins over a
+  // plain .txt, .xml, .csv or .dat name and over a finance extension that names another format.
+  const fin = sniffFinance(head);
+  if (fin && (!fromExt || ['txt', 'xml', 'csv', 'dat', 'asc'].includes(fromExt) || FINANCE_EXT[ext])) return fin;
   // A text file (or one with no name) that says it is a mail message, a calendar or XML is judged by what it says.
   const said = sniffText(head);
   if (said && (!fromExt || fromExt === 'txt')) return said;
@@ -138,4 +153,5 @@ export function detectKind(name = '', type = '', head = null) {
 }
 
 /** Human label for a kind. */
-export const KIND_LABEL = { mp4: 'MP4 video', webm: 'WebM video', mov: 'QuickTime video', m4a: 'M4A audio', mp3: 'MP3 audio', wav: 'WAV audio', ogg: 'Ogg audio', flac: 'FLAC audio', png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', vcf: 'vCard', xlsx: 'Excel (XLSX)', bin: 'Binary file', eml: 'Email message (EML)', ics: 'Calendar (ICS)', xml: 'XML', yaml: 'YAML', ico: 'Icon (ICO)', tif: 'TIFF image', avif: 'AVIF image', heic: 'HEIC image', zip: 'ZIP archive', docx: 'Word (DOCX)', pptx: 'PowerPoint (PPTX)', odt: 'OpenDocument text', ods: 'OpenDocument sheet', odp: 'OpenDocument slides', epub: 'EPUB book' };
+export const KIND_LABEL = { mp4: 'MP4 video', webm: 'WebM video', mov: 'QuickTime video', m4a: 'M4A audio', mp3: 'MP3 audio', wav: 'WAV audio', ogg: 'Ogg audio', flac: 'FLAC audio', png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', vcf: 'vCard', xlsx: 'Excel (XLSX)', bin: 'Binary file', eml: 'Email message (EML)', ics: 'Calendar (ICS)', xml: 'XML', yaml: 'YAML', ico: 'Icon (ICO)', tif: 'TIFF image', avif: 'AVIF image', heic: 'HEIC image', zip: 'ZIP archive', docx: 'Word (DOCX)', pptx: 'PowerPoint (PPTX)', odt: 'OpenDocument text', ods: 'OpenDocument sheet', odp: 'OpenDocument slides', epub: 'EPUB book', obj: 'OBJ 3D model', stl: 'STL 3D model', ply: 'PLY 3D model', gltf: 'glTF 3D model', glb: 'GLB 3D model', '3mf': '3MF 3D model', dae: 'Collada 3D model (DAE)', fbx: 'FBX 3D model', usdz: 'USDZ 3D model', mtl: 'OBJ materials (MTL)', tga: 'TGA image', ktx2: 'KTX2 texture',
+  sie: 'SIE accounting file', ofx: 'OFX bank statement', qif: 'QIF (Quicken) file', camt053: 'ISO 20022 statement (camt.053)', mt940: 'MT940 bank statement' };

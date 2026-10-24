@@ -104,6 +104,7 @@ output { color: var(--muted); font-weight: 500; }
 .cv-pv-meta { color: var(--muted); font-weight: 400; font-size: .85rem; }
 .cv-pv-body { padding: 8px; max-height: 360px; overflow: auto; }
 .cv-pv-body img { display: block; max-width: 100%; height: auto; margin: 0 auto; background: repeating-conic-gradient(var(--line) 0 25%, transparent 0 50%) 0 0 / 16px 16px; }
+.cv-pv-3d { height: 260px; border-radius: 6px; background: radial-gradient(circle at 50% 40%, var(--panel), var(--panel-2)); }
 .cv-pv-text { margin: 0; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
 .cv-pv-line { display: block; min-height: 1.45em; }
 .cv-pv-chg { background: color-mix(in srgb, var(--accent) 25%, transparent); }
@@ -134,3 +135,18 @@ output { color: var(--muted); font-weight: 500; }
 .cv-pair-accepts span { color: var(--ink); font-weight: 600; }
 .cv-pair-go { margin-top: auto; align-self: flex-start; }
 .cv-cards-empty { color: var(--muted); }
+/* The "Convert to" picker (js/ui/target-picker.js): a file tile per format, grouped by kind; the chosen one marked. */
+.cv-opt-h { margin: 0; font-weight: 600; font-size: 15px; }
+.cv-picker { display: grid; gap: 12px; border-radius: 12px; }
+.cv-pick-h { margin: 0 0 6px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.cv-pick-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.cv-pick { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 14px 6px 8px; font: inherit; font-size: 14px; color: var(--ink);
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; text-align: left; }
+.cv-pick:hover { border-color: color-mix(in srgb, var(--ink) 45%, var(--line)); }
+.cv-pick[aria-checked="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel-2)); font-weight: 600; }
+.cv-pick:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.cv-pick .sflow-solo { flex: none; }
+.cv-pick-empty { margin: 0; color: var(--muted); font-size: 14px; }
+@keyframes cv-pick-flash { from { box-shadow: 0 0 0 3px var(--accent); } to { box-shadow: 0 0 0 0 transparent; } }
+.cv-picker.cv-pick-flash { animation: cv-pick-flash 1.1s ease-out; }
+@media (max-width: 560px) { .cv-pick { flex: 1 1 calc(50% - 8px); padding-right: 8px; } }

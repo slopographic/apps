@@ -19,6 +19,8 @@ import { stemOf as base } from '../io/files.js';
 import { decodeAudio, channelsOf, encodeWav, encodeMp3, loadLame } from './audio.js';
 import { convertVideo } from './ffmpeg-engine.js';
 import { emlToHtml, emlToText, emlAttachmentsZip, icsToCsv, icsToJson, xmlToJson, unzipEntries, zipFiles } from './mail.js';
+import { FINANCE } from './finance.js';
+import { THREED } from './threed.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'];
 const SIZE = [
@@ -232,8 +234,11 @@ export const CONVERSIONS = [
   { id: 'ics-to-csv', label: 'Calendar to CSV', group: 'Calendar', from: ['ics'], ext: 'csv', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.csv`, blob: new Blob([await icsToCsv(await text(f.file))], { type: 'text/csv' }) }]; } },
   { id: 'ics-to-json', label: 'Calendar to JSON', group: 'Calendar', from: ['ics'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([await icsToJson(await text(f.file))], { type: 'application/json' }) }]; } },
   { id: 'xml-to-json', label: 'XML to JSON', group: 'Data', from: ['xml'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([xmlToJson(await text(f.file))], { type: 'application/json' }) }]; } },
+  // SIE accounting files and bank statements (OFX, QIF, camt.053, MT940): core/finance.js, readers in shared/finance.
+  ...FINANCE,
   { id: 'unzip', label: 'Unzip', group: 'Archives', from: ['zip'], mode: 'each', options: [], run: async (files) => unzipEntries(files[0].file) },
   { id: 'zip-files', label: 'Files to ZIP', group: 'Archives', from: ['*'], ext: 'zip', mode: 'combine', options: [], run: async (files) => [{ name: 'files.zip', blob: await zipFiles(files) }] },
+  ...THREED,   // 3D models (core/threed.js)
 ];
 
 export const conversionById = (id) => CONVERSIONS.find((c) => c.id === id);
@@ -248,5 +253,6 @@ export function outKind(conv, opts = {}) {
 
 export function conversionsFor(kinds, only = null) {
   const list = only ? CONVERSIONS.filter((c) => c.id === only) : CONVERSIONS;
-  return list.filter((c) => kinds.every((k) => c.from.includes('*') || c.from.includes(k)));
+  // `with` kinds (a model's .mtl, .bin or textures) are taken only beside a kind in `from`, never on their own
+  return list.filter((c) => kinds.every((k) => c.from.includes('*') || c.from.includes(k) || (c.with || []).includes(k)) && (!c.with || kinds.some((k) => c.from.includes(k))));
 }

@@ -3,6 +3,7 @@
 // Pure: no page and no storage; the Node tests load it after shared/data/readtext.js. Exposes SlopLedger.bank:
 //   columns(header)                -> { date, description, amount } or { date, description, debit, credit } (column indexes)
 //   linesOf(rows, { dayFirst })    -> { lines: [{ date, description, amount, key }], skipped, columns } (rows from a CSV parser)
+//   linesFromStatement(model, { digits }) -> { lines, skipped } from an OFX, QIF, camt.053 or MT940 statement (shared/finance)
 //   moves(entries, account)        -> [{ journalId, date, amount, memo }] what each journal entry did to the account
 //   match(lines, moves, { days })  -> [{ line, move }] each open line paired with an unused move of the same amount, the
 //                                     nearest date within `days` (default 5) first
@@ -55,6 +56,24 @@
     return { lines, skipped, columns: col };
   }
 
+  /** A bank statement read by shared/finance (OFX, QIF, camt.053, MT940: the statement model) as lines, keyed the same way
+   *  as CSV lines. Amounts become minor units with the currency's digits. Pending and information-only entries (camt Sts
+   *  PDNG, INFO) are skipped: the bank has not booked them. */
+  function linesFromStatement(model, { digits = 2 } = {}) {
+    const seen = new Map(), lines = [];
+    let skipped = 0;
+    for (const t of (model && model.transactions) || []) {
+      const amount = Math.round(Number(t.amount) * 10 ** digits);
+      if (!t.date || !amount || /^(PDNG|INFO)$/i.test(t.status || '')) { skipped++; continue; }
+      const who = String(t.counterparty || '').trim(), what = String(t.text || '').trim();
+      const description = (who && !what.toLowerCase().includes(who.toLowerCase()) ? `${who} · ${what}` : what || who).replace(/\s+/g, ' ').replace(/ · $/, '').slice(0, 300);
+      const base = `${t.date}|${amount}|${description.toLowerCase()}`, n = (seen.get(base) || 0) + 1;
+      seen.set(base, n);
+      lines.push({ date: t.date, description, amount, key: `${base}|${n}` });
+    }
+    return { lines, skipped };
+  }
+
   /** What each journal entry did to one account (base minor units: debit is money in for a bank account). */
   function moves(entries, account) {
     const out = [];
@@ -86,5 +105,5 @@
     return pairs;
   }
 
-  NS.bank = { columns, linesOf, moves, match };
+  NS.bank = { columns, linesOf, linesFromStatement, moves, match };
 })(typeof window !== 'undefined' ? window : globalThis);

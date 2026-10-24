@@ -51,12 +51,35 @@
       expect(Math.abs(top - 0.5) < 1e-5).toBe(true);
     });
 
-    it('the mesh exports as a GLB container and as a .s3d scene', async () => {
+    it('the mesh exports as GLB (texture, read back), points as GLB, OBJ, and a .s3d scene (shared 3D writer)', async () => {
       const img = await roundTrip(testCanvas(64, 64));
       const prep = I.prepare(img.rgba, img.W, img.H, { grid: 64 });
       const mesh = I.hf.heightField(prep, { scale: 0.3 });
-      const glb = I.glb.write({ positions: mesh.positions, normals: mesh.normals, uv: mesh.uv, indices: mesh.indices, name: 'Test' });
-      expect(new DataView(glb).getUint32(0, true)).toBe(0x46546c67);
+      const canvas = testCanvas(64, 64);
+      const glb = await I.exporter.glbBytes({ kind: 'mesh', positions: mesh.positions, normals: mesh.normals, uv: mesh.uv, indices: mesh.indices }, 'Test', canvas);
+      const dv = new DataView(glb);
+      expect(dv.getUint32(0, true)).toBe(0x46546c67);
+      expect(dv.getUint32(8, true)).toBe(glb.byteLength);
+      const json = JSON.parse(new TextDecoder().decode(new Uint8Array(glb, 20, dv.getUint32(12, true))));
+      const prim = json.meshes[0].primitives[0];
+      expect(json.accessors[prim.attributes.POSITION].count).toBe(4096);
+      expect(json.accessors[prim.indices].count).toBe(63 * 63 * 6);
+      expect(json.images[0].mimeType).toBe('image/jpeg');
+      // read back by the shared reader (the one Slop 3D and File convert use)
+      const { readModel } = await import('../../shared/3d-io/read.js');
+      const back = await readModel([{ name: 'Test.glb', blob: new Blob([glb]) }]);
+      let tris = 0;
+      back.root.traverse((o) => { if (o.isMesh) tris += o.geometry.index.count / 3; });
+      expect(tris).toBe(63 * 63 * 2);
+      const pts = await I.exporter.glbBytes({ kind: 'points', positions: mesh.positions, colors: new Float32Array(mesh.positions.length) }, 'P');
+      const pj = JSON.parse(new TextDecoder().decode(new Uint8Array(pts, 20, new DataView(pts).getUint32(12, true))));
+      expect(pj.meshes[0].primitives[0].mode).toBe(0);
+      expect(pj.meshes[0].primitives[0].indices).toBe(undefined);
+      expect(pj.meshes[0].primitives[0].attributes.COLOR_0 >= 0).toBeTruthy();
+      const obj = await I.exporter.objText(mesh, 'Picture');
+      const lines = obj.split('\n');
+      expect(lines.filter((l) => l.startsWith('v ')).length).toBe(4096);
+      expect(lines.filter((l) => l.startsWith('f ')).length).toBe(63 * 63 * 2);
       const scene = I.s3d.sceneOf(mesh, { name: 'Test' });
       expect(scene.format).toBe('slop-3d');
       expect(scene.nodes.n1.geom.positions.length).toBe(4096 * 3);

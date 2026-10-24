@@ -1,12 +1,15 @@
 /* Slop 3D files: open, import, save to Slop Drive, download, OBJ export and PNG render. Everything stays in the
  * browser: files are read with FileReader and written as Blobs, and Slop Drive (SlopHub) is the only store.
- * Opening a .s3d replaces the scene; importing an OBJ, GLB, glTF or image adds to it. Sets window.Slop3D.files. */
+ * Opening a .s3d replaces the scene; importing a model (OBJ, STL, PLY, glTF, GLB, 3MF, DAE, FBX, read by the shared 3D I/O
+ * module through modelio.js) or an image adds to it. A model can be picked with its companion files (an OBJ's .mtl,
+ * a glTF's .bin, textures). Exports: .s3d, OBJ, STL, PLY, GLB, glTF, USDZ and PNG. Sets window.Slop3D.files. */
 (function () {
   'use strict';
   const S = (window.Slop3D = window.Slop3D || {});
   const M = S.model, A = S.actions, st = S.state, s = st.s;
-  const ACCEPT_UI = '.s3d,.json,.obj,.glb,.gltf,image/*,model/gltf-binary,model/obj';
-  const ACCEPT_DRIVE = ['application/x-slop-3d', 'model/gltf-binary', 'model/obj', 'model/gltf+json', 'image/*', 'text/plain', 'application/octet-stream', 'application/json'];
+  const MODELS = ['obj', 'stl', 'ply', 'gltf', 'glb', '3mf', 'dae', 'fbx'];   // the formats modelio.js reads
+  const ACCEPT_UI = '.s3d,.json,' + MODELS.map((e) => '.' + e).join(',') + ',.mtl,.bin,.tga,.ktx2,image/*,model/*';
+  const ACCEPT_DRIVE = ['application/x-slop-3d', 'model/*', 'image/*', 'text/plain', 'application/octet-stream', 'application/json', 'application/xml', 'application/x-ply'];
   const MAX_IMAGE = 8 * 1024 * 1024;
   const toast = (msg) => { if (window.SlopUI) SlopUI.toast(msg); };
   const hub = () => window.SlopHub || null;
@@ -35,9 +38,8 @@
     replaceScene(M.defaultScene('Untitled'), {});
   }
 
-  /** Reads a File or a Drive record's blob: text for .s3d/.obj/.gltf, ArrayBuffer for .glb, data URL for images. */
+  /** Reads a File or a Drive record's blob: text for .s3d, a data URL for images (models are read by modelio.js). */
   const readText = (blob) => blob.text();
-  const readBuffer = (blob) => blob.arrayBuffer();
   const readDataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error('could not read the image')); r.readAsDataURL(blob); });
 
   /** Imports an image as a standing plane textured with the picture (the picture is stored inside the file). */
@@ -49,16 +51,11 @@
     return { type: 'mesh', name, transform: { r: [90, 0, 0] }, geom: { kind: 'plane', width: w, depth: 1 },
       material: { color: '#ffffff', roughness: 0.9, metallic: 0, opacity: 1, map: url } };
   }
-  /** Turns any supported blob into an import tree (with warnings). Throws for unknown or broken files. */
-  async function treeFor(blob, name) {
+  /** Turns any supported blob into an import tree (with warnings). others: the files that came with it. Throws for
+   *  unknown or broken files. */
+  async function treeFor(blob, name, others = []) {
     const ext = extOf(name), base = baseName(name);
-    if (ext === 'obj') return { tree: S.obj.parse(await readText(blob), base), warnings: [] };
-    if (ext === 'glb' || ext === 'gltf') {
-      const input = ext === 'glb' ? await readBuffer(blob) : await readText(blob);
-      const r = S.glb.importGltf(input);
-      r.tree.name = base;
-      return r;
-    }
+    if (MODELS.includes(ext)) return S.modelio.treeFor([{ name, blob }, ...others.map((f) => ({ name: f.name, blob: f }))], base);
     if (blob.type.startsWith('image/') || /^(png|jpe?g|gif|webp|bmp)$/.test(ext)) return { tree: await imageTree(blob, base), warnings: [] };
     throw new Error('Slop 3D cannot open this kind of file');
   }
@@ -73,7 +70,7 @@
         replaceScene(r.scene, { name: baseName(name), driveId: extra.driveId || null, folderId: extra.folderId ?? null, dirty: false });
         return true;
       }
-      const { tree, warnings } = await treeFor(blob, name);
+      const { tree, warnings } = await treeFor(blob, name, extra.with || []);
       replaceScene(M.defaultScene(baseName(name)), { name: baseName(name), dirty: true });
       A.importTree(tree);
       if (warnings.length) toast(warnings[0]);
@@ -81,22 +78,24 @@
     } catch (e) { SlopUI.alert('Could not open that file', e.message || String(e)); return false; }
   }
   /** Adds a model or image to the current scene (File > Import). */
-  async function importBlob(blob, name) {
+  async function importBlob(blob, name, others = []) {
     try {
-      const { tree, warnings } = await treeFor(blob, name);
+      const { tree, warnings } = await treeFor(blob, name, others);
       A.importTree(tree);
       toast(warnings.length ? warnings[0] : 'Imported ' + baseName(name));
       return true;
     } catch (e) { SlopUI.alert('Could not import that file', e.message || String(e)); return false; }
   }
+  /** The file to open among several picked: a scene or a model first; the others are its companions. */
+  const mainOf = (list) => list.find((f) => ['s3d', 'json', ...MODELS].includes(extOf(f.name))) || list[0];
   async function openDialog() {
     if (!(await confirmDiscard())) return;
-    const [f] = await SlopUI.pickFiles({ accept: ACCEPT_UI });
-    if (f) await openBlob(f, f.name);
+    const list = await SlopUI.pickFiles({ accept: ACCEPT_UI, multiple: true }), f = mainOf(list);
+    if (f) await openBlob(f, f.name, { with: list.filter((x) => x !== f) });
   }
   async function importDialog() {
-    const [f] = await SlopUI.pickFiles({ accept: ACCEPT_UI });
-    if (f) await importBlob(f, f.name);
+    const list = await SlopUI.pickFiles({ accept: ACCEPT_UI, multiple: true }), f = mainOf(list);
+    if (f) await importBlob(f, f.name, list.filter((x) => x !== f));
   }
   async function openFromDrive() {
     const h = hub();
@@ -133,10 +132,22 @@
     } catch (e) { toast('Could not save: ' + (e.message || e)); }
   }
   function downloadScene() { download(sceneBlob(), sceneName() + '.s3d'); s.file.dirty = false; st.emit('file'); guard(); }
-  function exportObj() {
-    if (!s.doc.roots.length) { toast('Nothing to export yet'); return; }
-    download(new Blob([S.obj.write(s.doc)], { type: 'model/obj' }), sceneName() + '.obj');
+  /** Exports the visible meshes as obj, stl, ply, glb, gltf or usdz. Several files (an OBJ with its .mtl and textures)
+   *  download as one zip. Resolves with the files (tests read them). */
+  async function exportModel(format) {
+    if (!s.doc.roots.length) { toast('Nothing to export yet'); return null; }
+    try {
+      const { files, notes } = await S.modelio.exportFiles(s.doc, format, sceneName());
+      if (files.length === 1) download(files[0].blob, files[0].name);
+      else {
+        const { writeZip } = await import(new URL('../shared/office/zip.js', location.href).href);
+        download(await writeZip(files.map((f) => ({ path: f.name, data: f.blob }))), `${sceneName()}-${format}.zip`);
+      }
+      toast(notes[0] || (files.length > 1 ? `${format.toUpperCase()} saved with its ${files.length - 1} companion file${files.length > 2 ? 's' : ''}, in one zip` : `Exported ${format.toUpperCase()}`));
+      return files;
+    } catch (e) { toast(e.message || String(e)); return null; }
   }
+  const exportObj = () => exportModel('obj');
   let stageRef = null;
   /** Renders the viewport to PNG at 1× or 2× the on-screen size. */
   async function exportPng(scale) {
@@ -145,6 +156,6 @@
     catch (e) { toast(e.message || 'Could not render'); }
   }
 
-  S.files = { newScene, openDialog, importDialog, openFromDrive, launch, save, downloadScene, exportObj, exportPng,
+  S.files = { newScene, openDialog, importDialog, openFromDrive, launch, save, downloadScene, exportObj, exportModel, exportPng, MODELS,
     bindStage(stage) { stageRef = stage; }, openBlob, importBlob, replaceScene, sceneBlob, ACCEPT_UI, confirmDiscard };
 })();

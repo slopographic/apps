@@ -8,6 +8,7 @@ import { h } from './dom.js';
 import { buildTool } from './markup.js';
 import { renderOptions, readOptions } from './options.js';
 import { convertAll } from './run.js';
+import { drawPicker, focusPicker } from './target-picker.js';
 
 let seq = 0;
 
@@ -46,7 +47,9 @@ export class ConvertTool {
       process: async (file) => { await this.addFiles([file]); return file.name; },
     });
     ui.input.setAttribute('accept', accept);
-    ui.target.addEventListener('change', () => this.showOptions());
+    ui.target.addEventListener('change', () => { this.drawPicker(); this.showOptions(); });
+    // The flow picture's target tile (PDF → DOCX ▾) brings up the picker of the formats these files can become.
+    ui.flow.onTo(() => focusPicker(ui.picker), 'Choose the format to make');
     ui.opts.addEventListener('input', () => this.emit());
     ui.opts.addEventListener('change', () => { this.paintFlow(); this.emit(); });
     ui.form.addEventListener('submit', (e) => { e.preventDefault(); this.run(); });
@@ -135,7 +138,7 @@ export class ConvertTool {
 
   skipReason(item) {
     const p = this.preset;
-    if (p && p.from && !p.from.includes(item.kind)) {
+    if (p && p.from && !p.from.includes(item.kind) && !(conversionById(p.conv)?.with || []).includes(item.kind)) {   // `with`: a model's .mtl, .bin, textures
       return `This page converts ${p.from.map((k) => KIND_LABEL[k]).join(' or ')}, not ${KIND_LABEL[item.kind].toLowerCase()}.`;
     }
     return '';
@@ -167,9 +170,16 @@ export class ConvertTool {
     // The preview in the drop zone is for an empty page.
     if (this.dropZone) this.dropZone.empty(!this.items.length);
     ui.target.disabled = !cands.length;
+    this.drawPicker(cands);
     ui.run.disabled = this.busy || !cands.length;
     this.noteFor(cands);
     this.showOptions();
+  }
+
+  /** The tiles of the formats these files can become, the chosen one marked (target-picker.js). */
+  drawPicker(cands = this.candidates()) {
+    const empty = this.active().length ? 'No conversion for these files' : 'Add files to see what they can become';
+    drawPicker(this.ui.picker, cands, this.ui.target.value, (id) => { this.ui.target.value = id; this.ui.target.dispatchEvent(new Event('change')); }, empty);
   }
 
   itemRow(it) {

@@ -49,8 +49,22 @@ decode, line endings) stay because they also take uploaded files.
 | Base64 encode / decode | any / text | .base64.txt / original bytes | Decode detects PNG, JPG, PDF and other signatures to pick the extension. |
 | URL encode / decode | text | text | Encode everything by default, or keep URL punctuation. A bad % sequence is reported. |
 | Line endings | text | text | LF, CRLF or CR. |
+| SIE to XLSX | SIE (.se, .si; types 1, 2, 3, 4, 4I) | XLSX: Info, Vouchers, Accounts, Balances, Periods | Read by `shared/finance/sie.js` (SIE 4C/4B format; PC8 = CP437, or UTF-8 / Windows-1252 when a program wrote those). Checksum (#KSUMMA) checked. Amounts are numbers, dates are dates. |
+| SIE to CSV | SIE | CSV, one row per transaction line (balances per account when the file has no vouchers) | Separator comma, semicolon (then a decimal comma) or tab; UTF-8 with a BOM. #BTRANS lines are listed with a note and not counted. |
+| Bank statement to CSV / XLSX (`bank-to-csv`, `bank-to-xlsx`) | OFX/QFX 1.x and 2.x, QIF, camt.053 (also 052/054), MT940 | CSV, or XLSX with Transactions and Statement sheets | Readers in `shared/finance/`. Money out is negative. Pending camt entries are listed but not counted. OFX has no opening balance; QIF has no currency. |
+| 3D models (`core/threed.js`) | OBJ (+MTL), STL, PLY, glTF (+.bin, pictures), GLB, 3MF, DAE, FBX | STL (binary/ASCII), OBJ (+MTL, PNG textures), GLB, glTF (embedded), PLY (binary/ASCII), USDZ | Shared 3D I/O module (`shared/3d-io/`). Companion files (`with` kinds) are matched by name and never converted alone. Options: units, scale, up axis, merge, encoding, materials, animations. The status line names what the format dropped. Compressed glTF loads Draco/meshopt/Basis from the cdn (SHA-256 checked, first-use notice). The preview draws input and output in 3D (`js/preview/model3d.js`). |
 
 Browser support: anything the browser cannot decode or encode (for example WebP output in some Safari versions) reports a plain error on that file; the rest of the batch still runs.
+
+## Finance files
+
+`js/core/finance.js` holds the four finance conversions (`FINANCE`, spread into `CONVERSIONS`) and `js/core/finance-pages.js`
+their six pages (`FINANCE_PAGES`, spread into `PAGES`; category Finance). The readers, the shared model and the tables are
+in `shared/finance/` (one module per format, `index.js` sniffs and dispatches, `tables.js` makes the rows); the XLSX writer
+is `shared/sheets/write.js` (several sheets, bold header, number and date formats). `detect.js` asks
+`shared/finance/index.js` `sniffFinance` first, so a finance file named .txt, .xml, .csv or .dat is recognised by content.
+The preview decodes finance files before it shows them and shows the converter's own table (`result.preview`) for XLSX.
+Tests: `tests/convert/finance.test.html`, `tests/node/finance-*.test.mjs`, samples in `tests/finance/fixtures/`.
 
 ## SEO pages
 

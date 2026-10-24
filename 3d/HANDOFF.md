@@ -7,11 +7,12 @@ Slop Drive, and download. Status in `shared/apps.js` is `building`, group `creat
 
 - **three.js r170, vendored** in `vendor/three/three.module.min.js`, loaded with a dynamic `import()` relative to the page.
   No CDN. Licence: MIT (`vendor/three/LICENSE`, © 2010–2024 three.js authors). The page never fetches it from the network.
-- The vendored build has no addons for orbit controls, transform controls, GLTF/OBJ loaders or exporters, so:
-  - **Camera**: our own orbit, pan, zoom, frame and numbered views (`js/render/camera.js`).
-  - **Move gizmo**: our own three coloured arrows that drag along an axis, snapped (`js/render/gizmo.js`).
-  - **OBJ and glTF/GLB import**: our own parsers, pure JS (`js/core/obj.js`, `js/core/glb.js`).
-  - **OBJ export**: our own writer (`js/core/obj.js`). **GLB export is not done** (no exporter vendored).
+- Camera and move gizmo are our own (`js/render/camera.js`, `js/render/gizmo.js`).
+- **Model files** go through the shared 3D I/O module (`shared/3d-io/`, the three.js 0.170.0 loaders and exporters in
+  `vendor/three/addons/`), the same one File convert uses. `js/app/modelio.js` turns a loaded model into an import tree
+  and the scene into three.js objects. Opens OBJ (+MTL), STL, PLY, glTF (separate .bin and pictures picked together),
+  GLB, 3MF, DAE and FBX; exports OBJ (+MTL and PNG textures, as a zip), STL, PLY, GLB, glTF and USDZ. Animations are
+  not kept (models open in their current pose); point clouds, lines, cameras and lights in a file are left out.
 - Shading is `MeshStandardMaterial` (smooth normals, roughness, metallic, opacity, optional embedded image texture).
   Lights are real three.js lights built from the scene's light nodes.
 
@@ -21,7 +22,7 @@ Slop Drive, and download. Status in `shared/apps.js` is `building`, group `creat
 - `js/core/` (pure, no DOM, loads in Node): `xform.js` (4×4 maths, Euler XYZ in degrees), `snap.js`, `geometry.js`
   (primitives as parameters), `blob.js` (icosphere plus value noise, seeded), `model.js` (scene and tree), `ops.js`
   (duplicate, group, ungroup, reparent, move, set field, bounds), `history.js` (snapshot undo with merge keys),
-  `format.js` (.s3d serialise, parse and validate), `obj.js`, `glb.js`, and the mesh editing set: `mesh.js` (welded
+  `format.js` (.s3d serialise, parse and validate), and the mesh editing set: `mesh.js` (welded
   polygon working form, bake of primitives, edge map, compact), `meshrender.js` (flat-where-it-bends render arrays),
   `meshsel.js` (element selection, mode conversion, edge loops, screen picks), `meshops.js` (extrude, delete,
   subdivide, merge, flip, fill, hide, reveal), `meshxf.js` (world matrices applied to selected vertices), `config.js`

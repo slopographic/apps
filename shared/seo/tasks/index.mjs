@@ -14,5 +14,7 @@ import { TASKS as business2 } from './business-2.mjs';
 import { TASKS as business3 } from './business-3.mjs';
 import { TASKS as everyday } from './everyday.mjs';
 import { TASKS as everyday2 } from './everyday-2.mjs';
+import { TASKS as threed } from './threed.mjs';
+import { TASKS as finance } from './finance.mjs';
 
-export const TASKS = [...cutout, ...creative, ...creative2, ...creative3, ...documents, ...documents2, ...documents3, ...business, ...business2, ...business3, ...everyday, ...everyday2];
+export const TASKS = [...cutout, ...creative, ...creative2, ...creative3, ...documents, ...documents2, ...documents3, ...business, ...business2, ...business3, ...everyday, ...everyday2, ...threed, ...finance];

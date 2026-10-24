@@ -5,7 +5,7 @@ import { PAGES } from '../core/pages.js';
 import { h } from './dom.js';
 import '../../../shared/ui/flow.js';   // window.SlopFlow: the same PDF → DOCX picture as the converter pages
 
-export const CATEGORIES = ['Documents', 'Images', 'Audio and video', 'Data', 'Text & code'];
+export const CATEGORIES = ['Documents', 'Images', 'Audio and video', 'Data', 'Text & code', '3D models', 'Finance'];
 
 const accepts = (p) => (p.from.length ? p.from.map((k) => k.toUpperCase()).join(', ') : 'Any file');
 

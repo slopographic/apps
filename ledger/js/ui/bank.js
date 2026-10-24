@@ -1,4 +1,5 @@
-// The Bank tab: reconcile a bank (or cash) account with its statement. Import the bank's CSV: each line is kept once
+// The Bank tab: reconcile a bank (or cash) account with its statement. Import the bank's CSV, OFX or QFX, QIF, camt.053 or
+// MT940 file (the last four through the shared readers in shared/finance): each line is kept once
 // (bankLines; a second import of the same statement adds nothing) and matched to the journal entry that moved the account
 // by the same amount within 5 days (core/bank.js). What is left is for the person: money in that equals an open invoice's
 // balance can be recorded as its payment; money out that equals a bill owed can pay it, or be recorded as an expense;
@@ -17,11 +18,10 @@
 
   /** Reads the statement file and stores its new lines, then matches. Says how many were new. */
   async function importFile(file) {
-    // the one CSV parser of the site (convert/js/core/csv.js, an ES module), loaded when a statement is imported
-    const { parseCsv } = await import(new URL('../convert/js/core/csv.js', document.baseURI).href);
     const s = await NS.util.settings();
-    const parsed = NS.bank.linesOf(parseCsv(await file.text()), { dayFirst: !/^en-US$/i.test(s.locale) });
-    if (!parsed.columns) { UI.alert('Not a statement', 'No date and amount columns were found. A bank CSV needs a header row with a date and an amount (or money in and money out).'); return; }
+    const parsed = await readLines(file, s);
+    if (!parsed) return;
+    if (!parsed.columns) { UI.alert('Not a statement', 'No date and amount columns were found. A bank CSV needs a header row with a date and an amount (or money in and money out). OFX, QFX, QIF, camt.053 and MT940 files are read as they are.'); return; }
     const have = new Set((await list('bankLines')).map((l) => l.key)), acct = account();
     let added = 0;
     for (const l of parsed.lines) {
@@ -31,8 +31,26 @@
       if (w.ok) added++;
     }
     const matched = await autoMatch();
-    UI.toast(`${added} new line${added === 1 ? '' : 's'} from ${file.name}${matched ? `, ${matched} matched` : ''}${parsed.skipped ? `; ${parsed.skipped} skipped (no date or amount)` : ''}`);
+    UI.toast(`${added} new line${added === 1 ? '' : 's'} from ${file.name}${matched ? `, ${matched} matched` : ''}${parsed.skipped ? `; ${parsed.skipped} skipped (no date or amount${typeof parsed.columns === 'string' ? ', or not booked yet' : ''})` : ''}`);
     await render();
+  }
+
+  /** The statement's lines: OFX, QFX, QIF, camt.053 and MT940 through the shared readers (shared/finance, ES modules loaded
+   *  on first use), anything else as CSV with the site's one CSV parser (convert/js/core/csv.js). null when refused. */
+  async function readLines(file, s) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const fin = await import(new URL('../shared/finance/index.js', document.baseURI).href);
+    const format = fin.formatOf(file.name, bytes.subarray(0, 4096));
+    if (format === 'sie') { UI.alert('Not a bank statement', 'This is an SIE accounting file. Bring it in with Import SIE… in the Journal tab.'); return null; }
+    if (format) {
+      let model;
+      try { model = fin.readStatement(bytes, file.name); } catch (e) { UI.alert('Not read', (e && e.message) || String(e)); return null; }
+      if (model.currency && model.currency !== s.base) { UI.alert('Another currency', `This statement is in ${model.currency} and the books are in ${s.base}. Bank matching works in the base currency, so nothing was imported.`); return null; }
+      return { ...NS.bank.linesFromStatement(model, { digits: S.money.digits(s.base) }), columns: format };
+    }
+    const { parseCsv } = await import(new URL('../convert/js/core/csv.js', document.baseURI).href);
+    const { decodeBytes } = await import(new URL('../shared/finance/text.js', document.baseURI).href);
+    return NS.bank.linesOf(parseCsv(decodeBytes(bytes, { legacy: 'windows-1252' }).text), { dayFirst: !/^en-US$/i.test(s.locale) });
   }
 
   /** Matches every open line of the account it can; returns how many it matched. */
@@ -120,7 +138,7 @@
     const shown = $('bkShowAll').checked ? mine : open;
     $('bkRows').replaceChildren(...shown.map(row));
     $('bkEmpty').hidden = shown.length > 0;
-    $('bkEmpty').textContent = mine.length ? 'Every line is matched or set aside. Tick the box to see them.' : 'No statement yet. Import your bank’s CSV export: each line is matched to the books where it can be.';
+    $('bkEmpty').textContent = mine.length ? 'Every line is matched or set aside. Tick the box to see them.' : 'No statement yet. Import your bank’s statement (CSV, OFX, QIF, camt.053 or MT940): each line is matched to the books where it can be.';
   }
 
   function mount() {

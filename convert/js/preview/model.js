@@ -2,10 +2,15 @@
  * the first part of a large text file and a smaller copy of a large picture, and returns the before and after
  * panels. Browser only. The panels are plain data; view.js draws them. */
 import { KIND_LABEL, TEXT_KINDS } from '../core/detect.js';
+import { decodeBytes } from '../../../shared/finance/text.js';
+
+// Finance files are text in an old code page (SIE: CP437), so they are decoded before they are shown.
+const FINANCE_KINDS = ['sie', 'ofx', 'qif', 'camt053', 'mt940'];
 import { pdfToImages } from '../core/pdf-raster.js';
 import { parseCsv } from '../core/csv.js';
 import { fmtSize } from '../io/files.js';
 import { changedLines } from './diff.js';
+import { is3d, modelBefore, modelAfter } from './model3d.js';
 import { IMAGE_KINDS, TEXT_LIMIT, IMAGE_LIMIT, PREVIEW_PX, MAX_LINES, FIRST_PAGE_ONLY, LINE_DIFF } from './spec.js';
 
 const PICTURE_EXT = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'svg', 'ico'];
@@ -51,6 +56,9 @@ async function beforePanel(p) {
   if (p.kind === 'pdf') {
     return { kind: 'image', blob: await firstPage(p.file), size: p.size, label: 'PDF, page 1', note: p.large ? 'Large PDF: only page 1 is drawn.' : '' };
   }
+  if (FINANCE_KINDS.includes(p.kind)) {
+    return textPanel(decodeBytes(new Uint8Array(await p.file.arrayBuffer())).text, { size: p.size, truncated: p.truncated, label: KIND_LABEL[p.kind] });
+  }
   if (TEXT_KINDS.includes(p.kind)) {
     return textPanel(await p.file.text(), { size: p.size, truncated: p.truncated, label: KIND_LABEL[p.kind] });
   }
@@ -63,6 +71,7 @@ async function afterPanel(outs, inputText) {
   const size = o.blob.size;
   if (PICTURE_EXT.includes(ext)) return { kind: 'image', blob: o.blob, size, label: `${ext.toUpperCase()} picture${more}` };
   if (ext === 'pdf') return { kind: 'image', blob: await firstPage(o.blob), size, label: `PDF, page 1${more}` };
+  if (ext === 'xlsx' && outs.preview) return textPanel(outs.preview, { size, label: 'Spreadsheet, main sheet (tab separated)' });   // the converter's own view
   if (ext === 'xlsx') {
     const rows = parseCsv(inputText);
     return textPanel(rows.map((r) => r.join('\t')).join('\n'), { size, label: 'Spreadsheet, first sheet (tab separated)' });
@@ -79,17 +88,18 @@ async function afterPanel(outs, inputText) {
  * An error from the converter is returned as after.kind 'error', shown in place.
  */
 export async function buildPreview(conv, items, opts) {
-  const inputs = pickInputs(conv, items).map(previewInput);
+  // 3D models are read whole (a cut model, .bin or .mtl cannot be read at all)
+  const inputs = pickInputs(conv, items).map((i) => (is3d(conv) ? { ...i, truncated: false, large: false } : previewInput(i)));
   const runOpts = { ...opts };
   let cut = inputs.some((i) => i.truncated);
   if (FIRST_PAGE_ONLY.includes(conv.id) && !String(opts.pages || '').trim()) { runOpts.pages = '1'; cut = true; }
   const drawSmaller = inputs.some((i) => i.large) && conv.options.some((o) => o.key === 'width') && !opts.width && !opts.height;
   if (drawSmaller) { runOpts.width = PREVIEW_PX; cut = true; }
-  const before = await beforePanel(inputs[0]).catch((e) => ({ kind: 'error', message: e.message || String(e) }));
+  const before = await (is3d(conv) ? Promise.resolve(modelBefore(inputs)) : beforePanel(inputs[0])).catch((e) => ({ kind: 'error', message: e.message || String(e) }));
   let after, outputs = null;
   try {
     const outs = await conv.run(inputs.map(({ name, file, kind }) => ({ name, file, kind })), runOpts);
-    after = outs.length ? await afterPanel(outs, before.text || '') : { kind: 'info', text: 'The conversion made no file.' };
+    after = !outs.length ? { kind: 'info', text: 'The conversion made no file.' } : is3d(conv) ? modelAfter(outs) : await afterPanel(outs, before.text || '');
     if (!cut) outputs = outs;
   } catch (e) {
     after = { kind: 'error', message: (e && e.message) || String(e) };

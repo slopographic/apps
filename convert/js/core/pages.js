@@ -1,6 +1,9 @@
 /* The converter pages: one entry per static page at convert/<slug>/. The generator, the sitemap test and
  * the SEO test all read this list, so a page is added here and in sitemap.xml (see convert/HANDOFF.md).
  * conv: a catalog id. from: input kinds the page accepts. */
+import { THREED_PAGES } from './threed-pages.js';
+import { FINANCE_PAGES } from './finance-pages.js';
+
 export const PAGES = [
   { slug: 'mov-to-mp4', conv: 'to-mp4', from: ['mov'], label: 'MOV to MP4', pair: ["MOV", "MP4"], cat: 'Audio and video', summary: "Convert MOV videos to MP4 in your browser.", h1: "MOV to MP4 converter",
     title: "MOV to MP4 converter, free, runs on your device | File convert",
@@ -236,4 +239,6 @@ export const PAGES = [
     lead: 'Turn a .vcf address book into a JSON array with one object for each contact.',
     how: ['Drop one or more vCard files (.vcf). The file can hold any number of BEGIN:VCARD blocks.', 'Choose Convert to JSON. Each contact becomes an object with fields such as fn, name, emails, phones, adr and org.', 'Download the JSON file and use it in your app. Photos are not included.'],
     faq: [['What are the field names?', 'fn is the full name, name holds given and family, emails and phones are lists of value and types, adr holds addresses, and org, title, url and note are text.'], ['Is this the same data as the Contacts app?', 'It is read by the same vCard reader that Slop Contacts uses, so the fields match what the app shows.']] },
+  ...THREED_PAGES,   // 3D models (core/threed-pages.js)
+  ...FINANCE_PAGES,   // SIE files and bank statements (core/finance-pages.js)
 ];

@@ -7,6 +7,8 @@
  *   f.el                           the element (role img; aria-label "PDF to DOCX", or label)
  *   f.set({ from, to, label })     a new pair; the arrow draws again when it changed
  *   f.state('idle' | 'run' | 'done' | 'error');  f.progress(0..1)
+ *   f.onTo(fn, label?)            the target tile becomes a button with a ▾: fn(tile) on click (pick another format)
+ *   SlopFlow.tile(kind, { size })  one tile on its own (a format picker's option)
  *   SlopFlow.family('docx') -> 'doc'   the colour family of a kind (pdf, doc, sheet, slide, image, video, audio, text, code, archive, file)
  *   SlopFlow.tag('jpeg') -> 'JPG'      the short name on a tile */
 (function (g) {
@@ -48,6 +50,9 @@
 .sflow[data-state=done] .sflow-to .sflow-mark{display:grid;background:#2e8540}.sflow[data-state=done] .sflow-to .sflow-mark::before{content:"\\2713"}
 .sflow[data-state=error] .sflow-to .sflow-mark{display:grid;background:#c62828}.sflow[data-state=error] .sflow-to .sflow-mark::before{content:"!"}
 .sflow-more[hidden]{display:none}
+.sflow-pick{cursor:pointer}.sflow-pick:focus-visible{outline:3px solid var(--sl-accent,#4f6c00);outline-offset:3px}
+.sflow-caret{position:absolute;z-index:3;left:-8px;bottom:-8px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--sl-text,#222);color:var(--sl-surface,#fff);font-size:12px;font-weight:700;box-shadow:0 0 0 2px var(--sl-surface,#fff)}
+.sflow-pick:hover{transform:translateY(-2px)}
 .sflow[data-state=error] .sflow-track{background:repeating-linear-gradient(90deg,#c62828 0 8px,transparent 8px 14px)}
 .sflow[data-state=done] .sflow-fill{width:100%}
 .sflow-tile[data-family=pdf]{--sflow-c:#d93025}.sflow-tile[data-family=doc]{--sflow-c:#2b5bd7}.sflow-tile[data-family=sheet]{--sflow-c:#1e8e3e}
@@ -127,9 +132,34 @@
       },
       state(s) { el.dataset.state = s; if (s === 'idle') api.progress(0); return api; },
       progress(p) { el.style.setProperty('--sflow-p', String(Math.max(0, Math.min(1, Number(p) || 0)))); return api; },
+      /** Makes the target tile a button (a small ▾ says it can be changed): fn(tile) on click, Enter or Space. */
+      onTo(fn, label) {
+        to.removeAttribute('aria-hidden');
+        Object.assign(to, { tabIndex: 0 });
+        to.setAttribute('role', 'button');
+        to.setAttribute('aria-label', label || 'Choose the format to make');
+        to.classList.add('sflow-pick');
+        if (!to.querySelector('.sflow-caret')) { const c = g.document.createElement('span'); c.className = 'sflow-caret'; c.textContent = '\u25BE'; c.setAttribute('aria-hidden', 'true'); to.append(c); }
+        const go = (e) => { if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); fn(to); };
+        to.addEventListener('click', go); to.addEventListener('keydown', go);
+        return api;
+      },
     };
     return api.set(opts || {});
   }
 
-  g.SlopFlow = { create, family, tag, FAMILY };
+  /** One file tile on its own, the same look as the picture's ('PDF', 'XLSX'): a format picker's option, say. */
+  function solo(kind, opts) {
+    style();
+    const el = g.document.createElement('span');
+    el.className = 'sflow sflow-solo';
+    el.dataset.size = (opts && opts.size) || 'sm';
+    el.setAttribute('aria-hidden', 'true');
+    const t = tile('');
+    paintTile(t, [kind || 'file']);
+    el.append(t);
+    return el;
+  }
+
+  g.SlopFlow = { create, tile: solo, family, tag, FAMILY };
 })(typeof window !== 'undefined' ? window : globalThis);
