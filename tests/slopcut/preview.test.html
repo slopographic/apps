@@ -9,7 +9,7 @@
   <iframe id="app" style="width:1280px;height:800px" src="../../slopcut/index.html"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: slopcut/js/render/preview.js, slopcut/css/panels.css, slopcut/js/io/sample.js, assets/shots/slopedit.jpg
+  // Covers: slopcut/css/base.css, slopcut/js/render/preview.js, slopcut/css/panels.css, slopcut/js/io/sample.js, assets/shots/slopedit.jpg
   const { describe, it, expect, waitFor } = SlopTest;
   const win = () => document.getElementById('app').contentWindow, doc = () => win().document;
   const ready = () => waitFor(() => win() && win().SE && win().SE.doc && doc().querySelector('#monMsg .sd-preview'), { timeout: 20000 });
@@ -22,6 +22,14 @@
       expect([...m.querySelectorAll('.sd-steps li')].map((li) => li.textContent))
         .toEqual(['Drop video, audio or pictures', 'Cut and arrange them on the timeline', 'Export a video file']);
       expect([...doc().querySelectorAll('.bin-empty button')].map((b) => b.textContent)).toEqual(['Import files', 'Sample project']);
+    });
+    it('one place to add files: the drop strip over the monitor stays hidden until it has files or a result to show', async () => {
+      const strip = doc().getElementById('scDrop');
+      expect(win().getComputedStyle(strip).display).toBe('none');
+      strip.querySelector('.sd-status').textContent = 'notes.txt is not a video, audio, picture or project';
+      expect(win().getComputedStyle(strip).display).toBe('block');
+      strip.querySelector('.sd-status').textContent = '';
+      expect(win().getComputedStyle(strip).display).toBe('none');
     });
     it('Sample project builds the edit: both clips in order with a crossfade, the title, the logo and the music', async () => {
       const SE = win().SE, make = SE.sample.makeMedia;
