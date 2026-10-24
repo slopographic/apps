@@ -1,10 +1,12 @@
 /* XLSX export (SpreadsheetML) built with shared/office. Writes values, formulas with their last computed
    value, bold/italic, number formats, column widths, row heights, hidden rows and columns, merges, freeze
-   panes and global names. Not yet: charts, conditional formats, validation, comments, print setup. */
+   panes, global names and charts (xlsx-charts.js; pivot tables go out as their values). Not yet: conditional formats,
+   validation, comments, print setup. */
 import { writeZip } from '../../../shared/office/zip.js';
 import { esc, escAttr, doc } from '../../../shared/office/xml.js';
 import { addr } from '../engine/refs.js';
 import { FErr } from '../engine/values.js';
+import { chartParts } from './xlsx-charts.js';
 
 export const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 const NS_MAIN = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
@@ -14,8 +16,8 @@ const BUILTIN_NF = { General: 0, '0': 1, '0.00': 2, '#,##0': 3, '#,##0.00': 4, '
 
 /** Workbook → Blob (.xlsx). */
 export async function toXlsx(wb) {
-  const st = new StyleTable();
-  const sheets = wb.sheets.map((sh, i) => sheetXml(sh, i, st));
+  const st = new StyleTable(), charts = chartParts(wb);
+  const sheets = wb.sheets.map((sh, i) => sheetXml(sh, i, st, charts.sheets.has(i)));
   const names = [...wb.names.values()].map((d) => {
     const local = d.scope ? wb.sheets.findIndex((s) => s.id === d.scope) : -1;
     return `<definedName name="${escAttr(d.name)}"${local >= 0 ? ` localSheetId="${local}"` : ''}>${esc(d.ref)}</definedName>`;
@@ -31,7 +33,7 @@ export async function toXlsx(wb) {
   const ct = doc(`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>` +
     `<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>` +
     wb.sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('') +
-    `<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`);
+    `<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${charts.types.join('')}</Types>`);
   const root = doc(`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL}officeDocument" Target="xl/workbook.xml"/></Relationships>`);
   const entries = [
     { path: '[Content_Types].xml', data: ct },
@@ -40,6 +42,7 @@ export async function toXlsx(wb) {
     { path: 'xl/_rels/workbook.xml.rels', data: rels },
     { path: 'xl/styles.xml', data: st.xml() },
     ...sheets.map((x, i) => ({ path: `xl/worksheets/sheet${i + 1}.xml`, data: x })),
+    ...charts.entries,
   ];
   const zip = await writeZip(entries, { compress: true });
   return new Blob([zip], { type: XLSX_MIME });
@@ -94,7 +97,7 @@ function cellXml(sh, r, c, cell, st) {
   return `<c r="${ref}"${sa} t="inlineStr"><is><t xml:space="preserve">${esc(String(v))}</t></is></c>`;
 }
 
-function sheetXml(sh, idx, st) {
+function sheetXml(sh, idx, st, drawing) {
   const rows = new Map();
   const put = (r, c, cell) => { if (!rows.has(r)) rows.set(r, []); rows.get(r).push([c, cell]); };
   for (const [k, cell] of sh.cells) put(Math.floor(k / 16384), k % 16384, cell);
@@ -123,5 +126,5 @@ function sheetXml(sh, idx, st) {
     `<sheetViews><sheetView workbookViewId="0"${idx === (sh.wb.active || 0) ? ' tabSelected="1"' : ''}${sh.showGrid === false ? ' showGridLines="0"' : ''}>${pane}</sheetView></sheetViews>` +
     `<sheetFormatPr defaultRowHeight="${(sh.defH * 0.75).toFixed(2)}" defaultColWidth="${(sh.defW / 7).toFixed(2)}"/>` +
     (cols ? `<cols>${cols}</cols>` : '') +
-    `<sheetData>${sd}</sheetData>${merges}</worksheet>`);
+    `<sheetData>${sd}</sheetData>${merges}${drawing ? '<drawing r:id="rId1"/>' : ''}</worksheet>`);
 }

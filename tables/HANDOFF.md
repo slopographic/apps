@@ -1,8 +1,8 @@
 # Slop Tables: handoff
 
 Status: **building** (kept in shared/apps.js). The first working version exists: a grid UI on the engine,
-with native storage in Slop Drive, CSV and XLSX export. ODS, print/PDF, charts, pivots, conditional
-formats, validation, sort/filter, find and comments are not built yet (see "Missing").
+with native storage in Slop Drive, CSV and XLSX export, XLSX and ODS import, charts and pivot tables. Print/PDF,
+conditional formats, validation, sort/filter, find and comments are not built yet (see "Known limits").
 
 ## Files
 - `index.html`, `css/tables.css`: the page (top bar, formula bar, grid, sheet tabs, status bar). Dark by default, `data-theme="light"` for light.
@@ -26,6 +26,23 @@ formats, validation, sort/filter, find and comments are not built yet (see "Miss
 - `js/ui/drafts.js`: autosave draft in IndexedDB (`slop-tables-drafts`), written 0.6 s after a change, restored on a plain start.
 - `js/ui/main.js`: boot and the test API `window.SlopTables` (`type`, `setCell`, `value`, `text`, `el`, `select`, `flush`, `save`, `csv`, `xlsx`, `native`, `command`, `undo`/`redo`, `ready`).
 - `js/ui/numfmt.js`: number format presets (the engine's fmt/ codes).
+- `js/io/import.js`, `js/io/import-charts.js`: XLSX and ODS import. The shared reader (`shared/sheets/read.js`, also used by
+  Slop Sheets) reads the file; `importSheets(doc)` builds the workbook: values, formulas (recalculated; shared formulas filled
+  in from their first cell; `_xlfn.` dropped), number formats and dates, bold, italic, column widths, row heights, merges,
+  frozen panes and charts whose series are one block of cells. It returns `notes` (functions the engine lacks, charts left
+  out, and the reader's `skipped` list: pictures, macros, comments, conditional formatting, …), shown in a notice on open.
+- `js/objects/`: charts and pivot tables, no DOM. `region.js` (range text → cells, current region), `chart-data.js` (a chart's
+  series and categories read live from its range; header row and label column guessed, or fixed by `header`/`catCol` from an
+  import), `chart-svg.js` (the picture as an SVG string: column, bar, line, pie; validated 8-colour palette, light and dark;
+  every mark has a hover title), `pivot.js` (the summary: row fields, one column field, values with sum, count, average, min,
+  max, totals), `pivot-write.js` (read the source, write the summary as plain cells, overlap check, refresh), `store.js`
+  (the `charts` and `pivots` lists of each sheet in the `.stab` file, checked by `checkNative`).
+- `js/io/xlsx-charts.js`: charts in the XLSX export (drawing part plus a DrawingML chart part per chart, series referencing
+  the same cells, values cached). Pivot tables go out as their cells.
+- `js/ui/charts.js` (the chart boxes over the grid: select, drag, resize handles, Edit and × buttons, Delete key, arrows nudge),
+  `js/ui/chart-dialog.js` (Insert ▸ Chart… and Edit chart, live preview), `js/ui/pivot-dialog.js` (Insert ▸ Pivot table… and
+  Edit), `js/ui/objects.js` (commands, context menu rows, the sidebar's Charts and pivots with Refresh, sheet rename carried
+  into sources), `js/ui/drop.js` (files dropped on the window open: .stab, .xlsx, .xlsm, .ods, .csv, .tsv).
 - `js/templates/`: built-in templates. One data file per template (`budget.js`, `invoice.js`, `inventory.js`, `timesheet.js`, `project-plan.js`, `sales-pipeline.js`, `expense-claim.js`, `grade-book.js`): `{ id, name, description, sheets: [{ name, widths: {A: px}, styles: [[range, {b, i, nf, al}]], cells: {A1: 'input text'} }] }`. `build.js` makes a workbook from one (cells typed like a user types, so formulas compute). `index.js` lists `BUILTIN`.
 - `js/io/template.js`: the `.stab-template` file (`format: 'slop-tables-template'`, name, description, one `.stab` workbook). `parseTemplate(text)` validates and does a full build before returning, so a broken file keeps nothing.
 - `js/ui/template-store.js`: My templates in IndexedDB (`slop-tables-templates`, store `templates`) and the Drive `Templates` folder (root, created on first use).
@@ -33,7 +50,7 @@ formats, validation, sort/filter, find and comments are not built yet (see "Miss
 
 ## Storage and Slop Drive
 - Native type: `.stab`, mime `application/x-slop-table`. This is the `creates` entry in shared/apps.js, which Drive's New ▸ menu uses. (The brief said `.stables`; the registry says `.stab`, so `.stab` is used.)
-- Launch: `?drive=<id>` opens that record. A zero-byte `.stab` (New ▸ Spreadsheet in Drive) opens as a blank workbook that saves back to the same id. A `text/csv` or `.tsv` record opens as an unsaved import, so its Drive record is never overwritten with `.stab` data. An unknown id opens a blank workbook. XLSX/ODS records show "not supported yet" (no import yet).
+- Launch: `?drive=<id>` opens that record. A zero-byte `.stab` (New ▸ Spreadsheet in Drive) opens as a blank workbook that saves back to the same id. A `text/csv`, `.tsv`, `.xlsx` or `.ods` record opens as an unsaved import, so its Drive record is never overwritten with `.stab` data. An unknown id opens a blank workbook. File ▸ Open file from this device… and a drop take the same files.
 - Save: with a Drive id, `SlopHub.put(blob, { id, name, folderId, from: 'tables' })`. On the first save, `SlopHub.pickFolder` picks a folder, then `put`. (Same behaviour as `saveToDrive`, but it allows the test to stub the folder choice.) The URL gets `?drive=<id>`. Without SlopHub (offline), Save downloads the `.stab`.
 - `SlopHub.register('tables')` on launch. `SlopGuard.setUnsaved('tables', dirty)` keeps the reload warning honest.
 - Draft: a plain start with an unsaved draft restores it (toast "Restored your unsaved workbook").
@@ -43,24 +60,35 @@ formats, validation, sort/filter, find and comments are not built yet (see "Miss
 - Save as template keeps the current workbook (cells, styles, widths, all sheets) as a template named by the person. Import and export use `.stab-template`. Export downloads the file or saves it to Drive's Templates folder. Import accepts a file or a Drive record and never changes anything when the file is broken.
 
 ## Tests
+- `tests/tables/objects.test.html` (20 tests: a real .xlsx from SlopSamples opened, an .xlsx in Drive, a dropped .ods, the
+  not-imported notice, .xls refused, chart XLSX round trip; Insert chart, live update, move/resize with undo, edit, delete,
+  save and reopen, XLSX chart part; Insert pivot, Refresh, same-sheet place with the overwrite question, right-click Edit,
+  save and reopen, sheet rename). Node: `tests/node/tables-objects.test.mjs`, `tests/node/tables-import.test.mjs`.
 - `node tests/run.mjs tables`: `tests/tables/templates.test.html` (9 tests: every built-in opens and its formulas compute, Budget and Invoice checks, the From template dialog, Save as template with the Drive copy, export and import round trip, broken import changes nothing, import from Drive), `tests/tables/app.test.html` (37 tests: boot, formulas, keyboard editing, styles and undo, layout and virtualisation, freeze panes, sheets, Drive save and reopen, zero-byte .stab, CSV in Drive, unknown id, autosave draft, CSV export text, XLSX package, native round trip) plus the engine's 11 tests. All green.
 - Helpers in `tests/tables/tables.helpers.js`. The app runs in same-origin iframes, so the real Slop Drive and draft stores are used. Only the folder picker is stubbed.
 
 ## Known limits in this pass
-- Import: XLSX and ODS are not read yet. CSV is read as a Drive record. TSV is read when pasted.
-- Export: CSV exports the active sheet, as displayed. XLSX writes no charts, conditional formats, validation or comments. Newer functions (LET, LAMBDA, dynamic arrays) are written without the `_xlfn.` prefix, and spilled cells are written as plain values. ODS and print/PDF are not built.
+- Import: XLSX and ODS read values, formulas, formats, sizes, merges and frozen panes; XLSX charts made of one block of cells.
+  Not read: pictures, ODS charts, chart sheets, comments, conditional formats, validation, filters, macros (the notice says
+  which a file had). Old .xls is refused with the reason. Formats a reader cannot map (ODS fractions, conditions) fall back.
+- Charts: column, bar, line and pie only (no scatter, area, stacked or combo), one block of cells per chart, at most 8 series
+  shown (pie: 7 slices plus Other). No axis titles, data labels or per-series colours.
+- Pivot tables: one column field, two row levels, up to four values; refresh is by hand (sidebar, context menu, Insert menu),
+  not on every edit; no grouping of dates, filters or calculated fields. In XLSX they are plain cells, not Excel pivot tables.
+- Export: CSV exports the active sheet, as displayed. XLSX writes charts but no conditional formats, validation or comments. Newer functions (LET, LAMBDA, dynamic arrays) are written without the `_xlfn.` prefix, and spilled cells are written as plain values. ODS and print/PDF are not built.
 - Editing: a click on another cell while typing a formula does not insert a reference (no point mode). Arrow keys in a formula edit move the caret. There is no fill handle and no autofit on double-click of a header edge.
 - Structure: no insert or delete of rows and columns (the engine has `adjustForStructure` but no `Workbook.insertRows`).
 - Templates: no template editing or deleting built-ins, no template categories or search, no thumbnails (the preview is a table of values), no sharing between devices except through Slop Drive.
-- Not done: charts, pivots, conditional formats, data validation, sort and filter, find, comments, fill colour and text colour, merge commands in the UI (the model and XLSX export support merges), zoom.
+- Not done: conditional formats, data validation, sort and filter, find, comments, fill colour and text colour, merge commands in the UI (the model and XLSX export support merges), zoom.
 - Layout: a phone (390 px) has no page scroll, but the menus and toolbar scroll sideways inside the top bar. Sheet scroll positions are not remembered between sheets. Text does not spill into empty neighbours.
 - Undo covers edits, styles, paste, sheet operations, freeze and resize. Sheet selection and scroll are not undo steps.
 
 ## Next steps, in order
-1. Import XLSX and ODS (readZip/readText from shared/office, then `sheet.xml` and `content.xml` into the workbook; styles for bold, italic and number formats).
+1. (done) XLSX and ODS import.
 2. Point mode in formulas, and fill handle and autofit.
 3. Insert and delete rows and columns (`Workbook.insertRows` / `deleteRows`: move cell keys, row and column props, merges, then `calc.dirtyAll()`).
 4. Sort, filter and find; conditional formats; validation; comments.
 5. ODS export and print/PDF with page setup (a print preview that matches the print output).
-6. Charts (SVG) and the pivot builder.
+6. (done) Charts (SVG) and the pivot builder. Next there: chart types (scatter, area, stacked), axis titles, data labels,
+   pivot date grouping and filters, and reading ODS charts.
 7. The offline single-file build (`tables/` modules are plain ES, so a small bundler can inline them), then SlopCmd palette and keymap tests.

@@ -24,46 +24,41 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the template really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is built into Slop Tables, with no sign-up and no watermark."}},{"@type":"Question","name":"Will the formulas work in Excel?","acceptedAnswer":{"@type":"Answer","text":"Yes. The XLSX download keeps the formulas with their results, so Excel and Google Sheets calculate the same totals."}},{"@type":"Question","name":"Can I save my own version as a template?","acceptedAnswer":{"@type":"Answer","text":"Yes. Choose File, Save as template, and it appears under My templates the next time."}},{"@type":"Question","name":"Is my budget private?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is saved in this browser only and never sent to a server."}}]}</script>
   <!-- seo:end -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>:root{--bg:#fbfbf7;--fg:#1b1b1f;--mut:#5f6368;--line:#dcdcd2;--acc:#4f6c00;--on:#fff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}}
-:root[data-theme="dark"]{--bg:#0a0a0a;--fg:#f1ede4;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top,.foot{max-width:860px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
-h2{font-size:1.2rem;margin:2rem 0 .6rem}
-a{color:var(--acc)}
-.eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
-.lead{font-size:1.1rem}
-.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:var(--on);text-decoration:none;font-weight:600}
-.wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:0;list-style:none}
-.cards li{border:1px solid var(--line);border-radius:10px;padding:12px;overflow:hidden}
-.cards .thumb{display:block;width:100%;height:auto;border-radius:6px;margin:0 0 8px;aspect-ratio:16/10;object-fit:cover;background:var(--line)}
-.media{display:grid;gap:16px;margin:1.4rem 0}
-.shot{margin:0}
-.shot img,.clip{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--line)}
-.demo{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
-.demo img{width:200px;max-width:40%;height:auto;border-radius:8px;flex:0 0 auto}
-.demo span{font-size:15px}
-.demo b{color:var(--acc)}
-@media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}</style>
+  <script src="/shared/profile/profile.js"></script>
+  <script src="/shared/theme/theme.js" data-app="site"></script>
+  <script src="/shared/consent/config.js"></script>
+  <script src="/shared/consent/state.js"></script>
+  <script src="/shared/consent/consent-mode.js"></script>
+  <script src="/shared/consent/banner.js"></script>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/shared/landing/landing.css">
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
-<main>
+<div class="l-wrap">
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Tables guide">
+<p class="l-side-app"><a href="/apps/tables/">Slop Tables</a></p>
+<p><a class="btn l-side-open" href="/tables/">Open Slop Tables</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/tables/online-spreadsheet/">Online spreadsheet</a></li><li><a href="/tables/budget-spreadsheet-template/" aria-current="page">Budget spreadsheet template</a></li><li><a href="/tables/excel-alternative/">Excel alternative</a></li></ul>
+
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-tables">More with Slop Tables</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/tables/">Slop Tables</a> · free, in your browser</p>
 <h1>Budget spreadsheet template</h1>
 <p class="lead">Start from a ready budget: income and expense lines for three months, with the totals and the monthly balance already worked out by formulas.</p>
 <p><a class="btn" href="/tables/">Open the budget template</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/tables.jpg" alt="Slop Tables open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Open Slop Tables and choose File, From template.</li><li>Pick Budget and choose Use.</li><li>Replace the sample lines with your own income and expenses. The totals and balance update as you type.</li><li>Add rows for more categories; extend the SUM ranges if you add them below the totals.</li><li>Save to Slop Drive, or Download XLSX to open it in Excel or Google Sheets.</li></ol>
 <p>The same dialog has other ready templates: an invoice, an inventory list, a timesheet, a project plan, a sales pipeline, an expense claim and a grade book.</p>
 <p class="note">Your files stay on this device: Slop Tables runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Is the template really free?</h3>
 <p>Yes. It is built into Slop Tables, with no sign-up and no watermark.</p>
 <h3>Will the formulas work in Excel?</h3>
@@ -72,10 +67,16 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <p>Yes. Choose File, Save as template, and it appears under My templates the next time.</p>
 <h3>Is my budget private?</h3>
 <p>Yes. It is saved in this browser only and never sent to a server.</p>
-<h2>More with Slop Tables</h2>
+<h2 id="more-with-slop-tables">More with Slop Tables</h2>
 <ul><li><a href="/tables/online-spreadsheet/">A free spreadsheet in your browser</a></li><li><a href="/tables/excel-alternative/">A free Excel alternative in your browser</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/sheetview.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/sheetview/">Slop Sheets</a><br><span class="note">Beta</span><br>Open and browse spreadsheets on this device. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/contacts.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/contacts/">Slop Contacts</a><br><span class="note">In development</span><br>Address book: vCard and CSV in and out, duplicates merged.</li></ul>
+</div>
+</div>
 </main>
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+</div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
+<script src="/shell/shell.js"></script>
 </body>
 </html>

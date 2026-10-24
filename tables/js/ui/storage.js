@@ -1,17 +1,23 @@
 /* Files: open and save through Slop Drive (SlopHub), CSV and TSV import, the launch from ?drive=<id>,
    and downloads for when Slop Drive is not available. Each workbook is a tab (ui/tabs.js): Save and Save as new go
    through the strip's saveToDrive (drive.js), and a zero-byte .stab from Drive's New menu is a blank workbook that
-   saves back to that same Drive file. A CSV opens as an unsaved import, so its Drive record is never overwritten. */
-import { S, emit, sheet } from './state.js';
+   saves back to that same Drive file. A CSV, XLSX or ODS file opens as an unsaved import (io/import.js reads XLSX and ODS
+   through the shared reader), so its Drive record is never overwritten; what the import left out is said in a notice.
+   Files from this device (File ▸ Open file, or a drop: ui/drop.js) go through the same openRecord. */
+import { S, emit, sheet, toast } from './state.js';
 import { Workbook } from '../engine/index.js';
 import { toBlob, fromBlob, MIME, EXT } from '../io/native.js';
 import { toCsv, parseCsv } from '../io/csv.js';
 import { toXlsx } from '../io/xlsx.js';
 import { tabs } from './tabs.js';
+import { readWorkbook } from '../io/import.js';
 
 const hub = () => window.SlopHub || null;
 const CSV_TYPES = ['text/csv', 'text/tab-separated-values'];
 const isCsv = (rec) => CSV_TYPES.includes(rec.type) || /\.(csv|tsv)$/i.test(rec.name || '');
+export const SHEET_TYPES = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel.sheet.macroEnabled.12', 'application/vnd.oasis.opendocument.spreadsheet'];
+const isSheetFile = (rec) => !/\.(csv|tsv)$/i.test(rec.name || '') && (SHEET_TYPES.includes(rec.type) || /spreadsheetml|opendocument\.spreadsheet|ms-excel/.test(rec.type || '') || /\.(xlsx|xlsm|ods|xls)$/i.test(rec.name || ''));
+export const OPEN_EXTS = ['.stab', '.xlsx', '.xlsm', '.ods', '.csv', '.tsv'];
 const safe = (s) => String(s).replace(/[\\/:*?"<>|]/g, '-').trim() || 'Untitled spreadsheet';
 export const fileName = (ext = EXT) => `${safe(S.file.name)}.${ext}`;
 
@@ -27,9 +33,18 @@ export async function openRecord(rec) {
   if (!rec) return false;
   const name = (rec.name || '').replace(/\.[^.]+$/, '') || 'Untitled spreadsheet';
   let wb;
-  if (/spreadsheetml|opendocument\.spreadsheet|excel/.test(rec.type || '') || /\.(xlsx|xlsm|ods|xls)$/i.test(rec.name || '')) {
-    window.SlopUI.alert('Not supported yet', 'Slop Tables opens its own .stab files and CSV for now. XLSX and ODS import is the next step; export CSV from the other app to bring the data in.');
-    return false;
+  if (isSheetFile(rec)) {
+    let got;
+    try { got = await readWorkbook(rec.blob, rec.name || 'book.xlsx'); }
+    catch (err) { window.SlopUI.alert('Could not open that file', err.message || String(err)); return false; }
+    tabs.open(got.wb, { name, dirty: true, origName: rec.name }, null);
+    if (got.notes.length) {
+      const el = window.SlopUI.el;
+      window.SlopUI.alert('Opened with a few things left out', el('div', { class: 'import-notes' }, el('ul', null, got.notes.map((n) => el('li', null, n))),
+        el('p', { class: 'sui-p' }, 'Save keeps it as a Slop Tables file in Slop Drive; File ▸ Download ▸ XLSX writes a new Excel file.')));
+    }
+    else toast(`Opened ${rec.name || 'the file'}`);
+    return true;
   }
   try {
     if (isCsv(rec)) wb = await importCsv(rec.blob, rec.name || '');
@@ -50,8 +65,26 @@ export async function openRecord(rec) {
 export async function openFromDrive() {
   const h = hub();
   if (!h) return;
-  const rec = await h.pickFromDrive({ accept: [MIME, ...CSV_TYPES] });
+  const rec = await h.pickFromDrive({ accept: [MIME, ...CSV_TYPES, ...SHEET_TYPES] });
   if (rec) await openRecord(rec);
+}
+
+/** A file from this device (File ▸ Open file, a drop): .stab, XLSX, ODS, CSV or TSV, in a new tab. Throws the reason. */
+export async function openFile(file) {
+  const rec = { name: file.name || 'Untitled', type: file.type || '', blob: file };
+  if (!isSheetFile(rec) && !isCsv(rec)) {
+    if (!/\.stab$/i.test(rec.name) && rec.type !== MIME) throw new Error('Slop Tables opens .stab, .xlsx, .ods, .csv and .tsv files.');
+    let wb;
+    try { wb = await fromBlob(file); } catch (e) { throw new Error('This is not a Slop Tables file.'); }
+    tabs.open(wb, { name: rec.name.replace(/\.[^.]+$/, ''), dirty: true }, null);
+    return true;
+  }
+  return openRecord(rec);
+}
+
+export async function pickAndOpen() {
+  const files = await window.SlopUI.pickFiles({ accept: OPEN_EXTS.join(','), multiple: true });
+  for (const f of files || []) { try { await openFile(f); } catch (e) { window.SlopUI.alert('Could not open that file', e.message); } }
 }
 
 /** File ▸ New workbook: a blank workbook in a new tab. */

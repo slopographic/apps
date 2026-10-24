@@ -191,7 +191,7 @@ export const TASKS = [
       'Download XLSX for Excel or CSV for other apps.'],
     faq: [['Which formulas work?', 'Over 300 functions: maths, statistics, text, dates, logic and lookups, including SUMIFS, COUNTIFS, VLOOKUP, INDEX, MATCH and XLOOKUP.'],
       ['Can I open the file in Excel?', 'Yes. Download XLSX keeps values, formulas, bold and italic, number formats, column widths, merges and frozen panes.'],
-      ['Can I open an Excel file in it?', 'Not yet: Slop Tables opens its own workbooks and CSV or TSV files. To look at an .xlsx file, open it in Slop Sheets, which can send a sheet to Slop Tables.'],
+      ['Can I open an Excel file in it?', 'Yes. Open or drop an .xlsx or .ods file: values, formulas, number formats, widths, merges, frozen panes and simple charts come in, and a notice names anything left out. Old .xls files are not read.'],
       ['Is my data uploaded?', 'No. Workbooks are saved in Slop Drive in this browser and a draft is kept as you type. Nothing goes to a server.']] },
   { app: tables, slug: 'budget-spreadsheet-template', crumb: 'Budget spreadsheet template',
     title: 'Free budget spreadsheet template: monthly income and expenses',
@@ -220,7 +220,7 @@ export const TASKS = [
       'Save the workbook to Slop Drive in this browser.',
       'Download XLSX or CSV to share it.'],
     faq: [['Is Slop Tables made by Microsoft?', 'No. Slopographic is not affiliated with Microsoft. Microsoft and Excel are trademarks of their owner, named here only to describe what people search for.'],
-      ['What is missing compared with a desktop spreadsheet?', 'Charts, pivot tables, conditional formatting, sorting and filtering are not built yet, and .xlsx files cannot be opened in it yet.'],
+      ['What is missing compared with a desktop spreadsheet?', 'Conditional formatting, sorting and filtering are not built yet, and charts are column, bar, line and pie only. It opens and saves XLSX, and has charts and pivot tables.'],
       ['Does it save Excel files?', 'Yes. Download XLSX writes values, formulas, number formats, column widths, merges and frozen panes.'],
       ['Do I need an account?', 'No. Your workbooks stay in this browser, and there is nothing to sign up for.']] },
 ];

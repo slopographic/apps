@@ -4,6 +4,7 @@ export const S = {
   si: 0,                                      // active sheet index
   sel: { r: 0, c: 0, er: 0, ec: 0 },          // active cell (r, c) and the far corner of the selection (er, ec)
   edit: null,                                 // { r, c, text, orig, from: 'cell' | 'bar' } while typing in a cell
+  chart: null,                                // id of the selected chart on the active sheet (ui/charts.js), or null
   file: { name: 'Untitled spreadsheet', driveId: null, folderId: null, dirty: false },
   clip: null,                                 // internal clipboard: { r1, c1, cells, text, cut }
   hist: { undo: [], redo: [] },               // undo and redo steps of the open workbook (each tab has its own)

@@ -1,9 +1,10 @@
 /* Slop Tables native file (.stab): a JSON document holding the whole workbook. Cells keep their input
    (formula text or value) and a style id into a deduplicated style table; computed values are not stored
-   (they are recalculated on open). */
+   (they are recalculated on open). Each sheet may also hold its charts and pivot tables (objects/store.js). */
 import { Workbook } from '../engine/index.js';
 import { ERR, FErr, errFrom } from '../engine/values.js';
 import { MAX_ROWS, MAX_COLS } from '../engine/refs.js';
+import { encodeObjects, checkObjects, decodeObjects } from '../objects/store.js';
 
 export const FORMAT = 'slop-tables', VERSION = 1;
 export const MIME = 'application/x-slop-table', EXT = 'stab';
@@ -19,6 +20,7 @@ export function toNative(wb) {
       cols: [...sh.cols].sort((a, b) => a[0] - b[0]), rows: [...sh.rows].sort((a, b) => a[0] - b[0]),
       cells: [...sh.cells].sort((a, b) => a[0] - b[0]).map(([k, cell]) => [Math.floor(k / 16384), k % 16384, encodeCell(cell)])
         .filter(([, , rec]) => Object.keys(rec).length),
+      ...encodeObjects(sh),
     })),
     names: [...wb.names.values()].map((d) => ({ name: d.name, ref: d.ref, scope: d.scope ? sheetIndex(d.scope) : null })),
   };
@@ -63,6 +65,7 @@ export function checkNative(obj) {
     for (const list of [so.cols, so.rows]) {
       if (list !== undefined && (!Array.isArray(list) || !list.every((x) => Array.isArray(x) && isInt(x[0], 0, Math.max(MAX_ROWS, MAX_COLS)) && isObj(x[1])))) throw damaged(where + ' sizes');
     }
+    checkObjects(so, where, damaged);
     if (so.merges !== undefined && (!Array.isArray(so.merges) || !so.merges.every((m) => isObj(m) && isInt(m.r1, 0, MAX_ROWS) && isInt(m.c1, 0, MAX_COLS) && isInt(m.r2, 0, MAX_ROWS) && isInt(m.c2, 0, MAX_COLS)))) throw damaged(where + ' merges');
   });
   if (obj.names !== undefined && (!Array.isArray(obj.names) || !obj.names.every((d) => isObj(d) && typeof d.name === 'string' && typeof d.ref === 'string'))) throw damaged('names');
@@ -86,6 +89,7 @@ export function fromNative(obj) {
     sh.defW = so.defW || sh.defW; sh.defH = so.defH || sh.defH;
     sh.freeze = { r: so.freeze?.r || 0, c: so.freeze?.c || 0 };
     sh.merges = (so.merges || []).map((m) => ({ ...m }));
+    decodeObjects(sh, so);
     for (const [c, p] of so.cols || []) { p.s = mapStyle(p.s); sh.cols.set(c, p); }
     for (const [r, p] of so.rows || []) { p.s = mapStyle(p.s); sh.rows.set(r, p); }
     for (const [r, c, rec] of so.cells || []) {

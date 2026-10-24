@@ -42,10 +42,10 @@
       expect(tab.textContent).toBe('Sheet1');
       expect(shown(doc().querySelector('.bottombar'))).toBe(true);
     });
-    it('shows the sidebar with Sheets, Templates (From template, My templates) and Functions', () => {
+    it('shows the sidebar with Sheets, Charts and pivots, Templates (From template, My templates) and Functions', () => {
       expect(shown(doc().getElementById('side'))).toBe(true);
       expect(boxOf('side').width).toBeGreaterThan(120);
-      expect(headings()).toEqual(['Sheets', 'Templates', 'Functions']);
+      expect(headings()).toEqual(['Sheets', 'Charts and pivots', 'Templates', 'Functions']);
       expect(shown(doc().getElementById('sideFromTpl'))).toBe(true);
       expect(doc().querySelector('#sideSheets .side-item').textContent).toBe('Sheet1');
       expect(shown(doc().querySelector('#sideSheets .side-item'))).toBe(true);

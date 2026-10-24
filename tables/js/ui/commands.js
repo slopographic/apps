@@ -9,6 +9,7 @@ import * as TPL from './templates.js';
 import { NUMBER_FORMATS } from './numfmt.js';
 import { clearRange } from './actions.js';
 import { configCommands } from '../io/config.js';
+import * as OBJ from './objects.js';
 
 /** Grid commands run only when no text field has focus (Ctrl+A, Ctrl+Z… belong to the field then). */
 const idle = () => { const a = document.activeElement; return !S.edit && !(a && a.closest && a.closest('input, textarea, select, [contenteditable="true"]')); };
@@ -18,6 +19,7 @@ export const COMMANDS = [
   { id: 'file.fromTemplate', title: 'From template…', group: 'File', run: () => TPL.openTemplates() },
   { id: 'file.saveTemplate', title: 'Save as template…', group: 'File', run: () => TPL.saveAsTemplate() },
   { id: 'file.open', title: 'Open from Slop Drive…', group: 'File', keys: ['Mod+O'], run: F.openFromDrive, when: () => !!window.SlopHub },
+  { id: 'file.openFile', title: 'Open file from this device…', group: 'File', run: F.pickAndOpen },
   { id: 'file.save', title: 'Save', group: 'File', keys: ['Mod+S'], run: () => F.save() },
   { id: 'file.saveAs', title: 'Save to Slop Drive…', group: 'File', run: () => F.save({ as: true }), when: () => !!window.SlopHub },
   { id: 'file.rename', title: 'Rename…', group: 'File', run: () => window.SlopDocTabs.rename(null) },
@@ -32,6 +34,7 @@ export const COMMANDS = [
   { id: 'format.bold', title: 'Bold', group: 'Format', keys: ['Mod+B'], run: () => A.toggleStyle('b'), when: idle },
   { id: 'format.italic', title: 'Italic', group: 'Format', keys: ['Mod+I'], run: () => A.toggleStyle('i'), when: idle },
   ...NUMBER_FORMATS.map(([label, code], i) => ({ id: 'format.nf' + i, title: 'Number format: ' + label, group: 'Format', run: () => A.setFormat(code) })),
+  ...OBJ.commands(),
   { id: 'view.freeze', title: 'Freeze panes at selection', group: 'View', run: () => A.freezeAt() },
   { id: 'view.unfreeze', title: 'Unfreeze panes', group: 'View', run: () => A.unfreeze() },
   { id: 'sheet.add', title: 'Add sheet', group: 'Sheets', run: () => Sh.add() },
@@ -82,7 +85,7 @@ const item = (id, label) => { const c = byId[id]; return { label: label || c.tit
 export function menus() {
   const paste = () => (navigator.clipboard && navigator.clipboard.readText ? navigator.clipboard.readText().then(A.paste, () => toast('Use Ctrl+V to paste')) : toast('Use Ctrl+V to paste'));
   return {
-    File: [item('file.new'), item('file.fromTemplate'), item('file.open'), '-', item('file.save'), item('file.saveAs'), item('file.saveTemplate'), '-',
+    File: [item('file.new'), item('file.fromTemplate'), item('file.open'), item('file.openFile'), '-', item('file.save'), item('file.saveAs'), item('file.saveTemplate'), '-',
       { label: 'Config', sub: ['tables.config.export', 'tables.config.template', 'tables.config.import', 'tables.config.ai'].map((id) => item(id)) }, '-',
       { label: 'Download', sub: [item('file.stab', 'Download .stab (Slop Tables file)'), item('file.csv'), item('file.xlsx')] }],
     Edit: [item('edit.undo'), item('edit.redo'), '-',
@@ -92,6 +95,7 @@ export function menus() {
       item('edit.selectAll'), item('edit.clear', 'Clear contents'), item('edit.clearAll')],
     Format: [item('format.bold'), item('format.italic'), '-',
       { label: 'Number format', sub: NUMBER_FORMATS.map((_, i) => item('format.nf' + i)) }],
+    Insert: [item('insert.chart'), item('insert.pivot'), '-', item('data.refreshPivots')],
     View: [item('view.freeze'), item('view.unfreeze')],
     Sheets: [item('sheet.add'), item('sheet.rename'), item('sheet.delete')],
     Help: [window.SlopCmd ? { label: 'Search commands…', key: keyText({ id: 'cmd.palette' }), act: () => window.SlopCmd.open() } : null,

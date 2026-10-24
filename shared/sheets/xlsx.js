@@ -3,12 +3,15 @@
  * Reads xl/workbook.xml with its relationships, xl/sharedStrings.xml, xl/styles.xml (number formats and bold) and each
  * worksheet. Cell types: shared and inline strings, rich text runs, numbers, booleans, errors, formula text (the
  * saved result is used, formulas are not evaluated) and ISO dates. Date formats turn numbers into Date values.
- * Not read: charts, pictures, comments, hidden rows and columns (they show), filters, merged cells (the value shows in the
- * top-left cell), macros. Exports readXlsx(bytes) → { sheets }. */
+ * Also kept for apps that edit (Slop Tables): formula text, italic, column widths, row heights, merged cells and frozen
+ * panes (sheet.formulas, italic, cols, heights, merges, freeze: see buildSheet), and the charts (xlsx-charts.js).
+ * Not read: pictures, comments, hidden rows and columns (they show), filters, macros; readXlsx lists what a file has of
+ * these in `skipped`. Exports readXlsx(bytes or a readZip Map) → { sheets, skipped }. */
 import { readZip, readText } from '../office/zip.js';
 import { parseXml, kids, kid, all, attr, textOf, NS } from '../office/xml.js';
 import { BUILTIN_FORMATS, excelDate, isDateCode, formatNumber } from './numfmt.js';
 import { KEY } from './csv.js';
+import { readCharts, skippedParts } from './xlsx-charts.js';
 
 /** "AB12" → { r: 11, c: 27 } (zero-based). Missing references return null. */
 export function parseRef(ref) {
@@ -31,11 +34,12 @@ function itemText(si) {
 function readStyles(root) {
   const fmts = new Map();
   for (const nf of all(root, NS.s, 'numFmt')) fmts.set(Number(attr(nf, null, 'numFmtId')), attr(nf, null, 'formatCode') || 'General');
-  const fonts = kids(kid(root, NS.s, 'fonts'), NS.s, 'font').map((f) => !!kid(f, NS.s, 'b'));
+  const fonts = kids(kid(root, NS.s, 'fonts'), NS.s, 'font').map((f) => ({ b: !!kid(f, NS.s, 'b'), i: !!kid(f, NS.s, 'i') }));
   const xfs = kids(kid(root, NS.s, 'cellXfs'), NS.s, 'xf').map((xf) => {
     const id = Number(attr(xf, null, 'numFmtId') || 0);
     const code = fmts.get(id) ?? BUILTIN_FORMATS[id] ?? 'General';
-    return { code, bold: !!fonts[Number(attr(xf, null, 'fontId') || 0)] };
+    const font = fonts[Number(attr(xf, null, 'fontId') || 0)] || {};
+    return { code, bold: !!font.b, italic: !!font.i };
   });
   return xfs;
 }
@@ -63,32 +67,55 @@ function cellValue(c, shared, xf) {
 /** One worksheet part → a sheet object. Gaps between rows and columns are blank; blank rows share one frozen array. */
 function readSheet(name, xml, shared, styles) {
   const root = parseXml(xml).documentElement;
-  const cells = new Map();
-  let width = 0, height = 0;
+  const cells = new Map(), extra = { formulas: new Map(), cols: [], heights: new Map(), merges: [], freeze: null };
   const sheetData = kid(root, NS.s, 'sheetData');
   let rowNo = 0;
   for (const rowEl of kids(sheetData, NS.s, 'row')) {
     const rIdx = attr(rowEl, null, 'r') ? Number(attr(rowEl, null, 'r')) - 1 : rowNo;
     rowNo = rIdx + 1;
+    if (attr(rowEl, null, 'customHeight') === '1' && attr(rowEl, null, 'ht')) extra.heights.set(rIdx, Math.round(Number(attr(rowEl, null, 'ht')) / 0.75));
     let colNo = 0;
     for (const c of kids(rowEl, NS.s, 'c')) {
       const ref = parseRef(attr(c, null, 'r'));
       const r = ref ? ref.r : rIdx, col = ref ? ref.c : colNo;
       colNo = col + 1;
       const s = Number(attr(c, null, 's') || 0);
-      const xf = styles[s] || { code: 'General', bold: false };
-      const val = cellValue(c, shared, xf);
-      if (val.typed === null && !xf.bold) continue;
-      cells.set(KEY(r, col), { ...val, bold: xf.bold });
-      width = Math.max(width, col + 1);
-      height = Math.max(height, r + 1);
+      const xf = styles[s] || { code: 'General', bold: false, italic: false };
+      const val = cellValue(c, shared, xf), fEl = kid(c, NS.s, 'f');
+      if (fEl) {
+        const si = attr(fEl, null, 'si');
+        extra.formulas.set(KEY(r, col), { f: textOf(fEl), shared: attr(fEl, null, 't') === 'shared' ? Number(si) : null });
+      }
+      if (val.typed === null && !xf.bold && !xf.italic && !fEl) continue;
+      cells.set(KEY(r, col), { ...val, bold: xf.bold, italic: xf.italic });
     }
   }
+  for (const col of kids(kid(root, NS.s, 'cols'), NS.s, 'col')) {
+    const w = Number(attr(col, null, 'width'));
+    extra.cols.push({ c1: Number(attr(col, null, 'min')) - 1, c2: Number(attr(col, null, 'max')) - 1, w: w > 0 ? Math.round(w * 7) : null, hidden: attr(col, null, 'hidden') === '1' });
+  }
+  for (const m of all(root, NS.s, 'mergeCell')) {
+    const [a, b] = (attr(m, null, 'ref') || '').split(':').map(parseRef);
+    if (a && b) extra.merges.push({ r1: a.r, c1: a.c, r2: b.r, c2: b.c });
+  }
+  const pane = all(root, NS.s, 'pane').find((p) => /frozen/.test(attr(p, null, 'state') || ''));
+  if (pane) extra.freeze = { r: Number(attr(pane, null, 'ySplit') || 0), c: Number(attr(pane, null, 'xSplit') || 0) };
+  return buildSheet(name, cells, extra);
+}
+
+/** A sheet object from its cells: Map(key → { typed, text, code, bold, italic }) and the extras an editor keeps.
+ * Returns { name, rows, text, width, height, fmt, bold, italic, formulas, cols, heights, merges, freeze }:
+ *   formulas: Map(key → { f: formula text without "=" ('' for a shared-formula child), shared: group id or null })
+ *   cols: [{ c1, c2, w (pixels or null), hidden }], heights: Map(row → pixels), merges: [{ r1, c1, r2, c2 }],
+ *   freeze: { r, c } or null. Used by the ODS reader too. */
+export function buildSheet(name, cells, extra = {}) {
+  let width = 0, height = 0;
+  for (const k of cells.keys()) { width = Math.max(width, k % 16384 + 1); height = Math.max(height, Math.floor(k / 16384) + 1); }
   const rows = new Array(height), text = new Array(height);
   const blankT = Object.freeze(new Array(width).fill(null)), blankS = Object.freeze(new Array(width).fill(''));
-  const fmt = new Map(), bold = new Set();
+  const fmt = new Map(), bold = new Set(), italic = new Set();
   const byRow = new Array(height).fill(false);
-  for (const [k, cell] of cells) byRow[Math.floor(k / 16384)] = true;
+  for (const k of cells.keys()) byRow[Math.floor(k / 16384)] = true;
   for (let r = 0; r < height; r++) {
     if (!byRow[r]) { rows[r] = blankT; text[r] = blankS; continue; }
     rows[r] = new Array(width).fill(null); text[r] = new Array(width).fill('');
@@ -98,13 +125,16 @@ function readSheet(name, xml, shared, styles) {
     rows[r][c] = cell.typed; text[r][c] = cell.text;
     if (cell.code && cell.code !== 'General') fmt.set(k, cell.code);
     if (cell.bold) bold.add(k);
+    if (cell.italic) italic.add(k);
   }
-  return { name, rows, text, width, height, fmt, bold };
+  return { name, rows, text, width, height, fmt, bold, italic, formulas: extra.formulas || new Map(), cols: extra.cols || [],
+    heights: extra.heights || new Map(), merges: extra.merges || [], freeze: extra.freeze || null };
 }
 
-/** Bytes of an .xlsx file → { sheets: [{ name, rows, text, width, height, fmt, bold }] }. Throws on a broken package. */
+/** Bytes of an .xlsx file (or its readZip Map) → { sheets: [sheet (see buildSheet), with charts: [...] (xlsx-charts.js)],
+ * skipped: ['pictures', 'macros', …] }. Throws on a broken package. */
 export async function readXlsx(bytes) {
-  const files = await readZip(bytes);
+  const files = bytes instanceof Map ? bytes : await readZip(bytes);
   const wbXml = readText(files, 'xl/workbook.xml');
   if (!wbXml) throw new Error('Not an Excel workbook (no xl/workbook.xml)');
   const rels = new Map();
@@ -126,8 +156,10 @@ export async function readXlsx(bytes) {
     if (!/worksheets\//.test(target)) return; // chart sheets have no cells
     const xml = readText(files, target);
     if (xml === null) throw new Error(`Missing ${target} in the workbook`);
-    sheets.push(readSheet(attr(el, null, 'name') || `Sheet${i + 1}`, xml, shared, styles));
+    const sheet = readSheet(attr(el, null, 'name') || `Sheet${i + 1}`, xml, shared, styles);
+    sheet.charts = readCharts(files, target);
+    sheets.push(sheet);
   });
   if (!sheets.length) throw new Error('This workbook has no worksheets');
-  return { sheets };
+  return { sheets, skipped: skippedParts(files, sheetEls.length > sheets.length) };
 }

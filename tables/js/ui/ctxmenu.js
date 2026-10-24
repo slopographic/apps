@@ -7,6 +7,7 @@ import * as A from './actions.js';
 import * as Sh from './sheets.js';
 import * as cmd from './commands.js';
 import { startEdit } from './editor.js';
+import * as OBJ from './objects.js';
 
 const pick = (menu, labels) => labels.map((l) => menu.find((i) => i && i.label === l)).filter((i) => i !== undefined);
 const isMulti = () => { const g = range(); return g.r1 !== g.r2 || g.c1 !== g.c2; };
@@ -60,6 +61,8 @@ function resolve(target, ev) {
     if (target.id !== 'grid' || S.edit) return null;
     return cellItems(isMulti());
   }
+  const box = target.closest('.chart-box');
+  if (box) return OBJ.chartItems(box.dataset.id);
   const ch = target.closest('.ch[data-c]');
   if (ch) { const c = +ch.dataset.c; if (!colIn(c)) A.selectLine('col', c); return colItems(c); }
   const rh = target.closest('.rh[data-r]');
@@ -68,7 +71,8 @@ function resolve(target, ev) {
   if (cell) {
     const [r, c] = cell.dataset.rc.split(',').map(Number);
     if (!cellIn(r, c)) { S.sel = { r, c, er: r, ec: c }; redraw(); }
-    return cellItems(isMulti());
+    const pv = OBJ.pivotItems(r, c);
+    return pv ? [...pv, '-', ...cellItems(isMulti())] : cellItems(isMulti());
   }
   return null;
 }

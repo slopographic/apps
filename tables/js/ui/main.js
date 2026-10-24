@@ -14,6 +14,8 @@ import * as A from './actions.js';
 import * as ctxmenu from './ctxmenu.js';
 import * as TPL from './templates.js';
 import * as sidebar from './sidebar.js';
+import * as objects from './objects.js';
+import { wireDrop } from './drop.js';
 import { undo, redo, canUndo, canRedo } from './history.js';
 import { moveTo } from './nav.js';
 import { toCsv } from '../io/csv.js';
@@ -21,7 +23,7 @@ import { toXlsx } from '../io/xlsx.js';
 import { toBlob } from '../io/native.js';
 import { parseCell } from '../engine/refs.js';
 
-const paint = () => { grid.render(); chrome.render(); sidebar.render(); };
+const paint = () => { grid.render(); objects.render(); chrome.render(); sidebar.render(); };
 
 function bindToolbar() {
   $('btnUndo').addEventListener('click', undo);
@@ -44,7 +46,7 @@ function bindToolbar() {
 }
 
 function boot() {
-  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); A.bindClipboard(); ctxmenu.init(); sidebar.init();
+  grid.init(); pointer.init(); keys.init(); editor.init(); chrome.init(); cmd.init(); A.bindClipboard(); ctxmenu.init(); sidebar.init(); objects.init(); wireDrop();
   setPainter(paint);
   $('vp').addEventListener('scroll', () => redraw());
   addEventListener('resize', () => redraw());
@@ -92,6 +94,9 @@ function expose() {
     native: () => toBlob(S.wb),
     editing: () => !!S.edit,
     templates: TPL,
+    objects,
+    /** Opens a File (or Blob with a name) the way a drop or File ▸ Open file does. */
+    openFile: (file) => F.openFile(file),
   };
 }
 
