@@ -51,10 +51,13 @@
     const look = clone(S.defaults);
     return Object.assign({
       id: 'i' + (++seq), file, name: name || file.name || 'image', w: 0, h: 0,
-      status: 'queued', error: '', progress: null, model: S.model, modelUsed: null,
+      status: 'queued', error: '', progress: null, model: null, modelUsed: null,
       base: null, edit: null, thumb: null, timings: null, hist: { undo: [], redo: [] },
     }, look);
   };
+  /** The model an image runs with: its own (set by the bulk bar's Re-run model) or else the app's model, read when its
+   *  run starts. A new image has none of its own, so every image of a batch runs with the model one image would get. */
+  S.modelOf = (it) => (it && it.model) || S.model;
   S.get = (id) => S.items.find((it) => it.id === id) || null;
   S.current = () => S.get(S.activeId);
   S.index = (id) => S.items.findIndex((it) => it.id === id);

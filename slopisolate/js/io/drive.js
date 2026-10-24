@@ -71,6 +71,6 @@
   D.open = async function () {
     if (!D.ready()) return;
     const rec = await SlopHub.pickFromDrive({ accept: ['image/*', 'video/*'], title: 'Open from Slop Drive' });
-    if (rec) CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })], { driveId: rec.id });
+    if (rec) await CO.files.fromDrive(rec);
   };
 })();

@@ -23,7 +23,7 @@
   async function noticeText() {
     const c = D().createElement('canvas'); c.width = c.height = 8;
     const blob = await new Promise((r) => c.toBlob(r, 'image/png'));
-    const p = W().CO.files.addFiles([new (W().File)([blob], 'x.png', { type: 'image/png' })]);
+    const p = W().CO.files.take([new (W().File)([blob], 'x.png', { type: 'image/png' })]);
     const dlg = await waitFor(() => D().querySelector('.sui-dlg'), { timeout: 5000 });
     const text = dlg.textContent;
     [...dlg.querySelectorAll('button')].find((b) => b.textContent === 'Cancel').click();

@@ -112,6 +112,5 @@
 .iso-drop .sd-list { max-height: 84px; overflow: auto; }
 /* With images loaded the strip is hidden: the queue sidebar takes drops and has Add images, and the whole window still takes drops. */
 .app:not([data-mode="empty"]) .iso-drop { display: none; }
-#queue.is-drop { outline: 2px dashed var(--accent, #6b5cff); outline-offset: -4px; }
 .app:not([data-mode="empty"]) .iso-drop .sd-msg { font-size: 12px; }
 .app:not([data-mode="empty"]) .iso-drop .sd-list { max-height: 56px; }

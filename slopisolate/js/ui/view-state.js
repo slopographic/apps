@@ -21,7 +21,7 @@
     return {
       v: 2,
       items: list.map((it) => {
-        const rec = { kind: it.kind || 'image', name: it.name, file: it.file, model: it.model, look: copyLook(it), edit: it.edit ? u8(it.edit) : null, done: true };
+        const rec = { kind: it.kind || 'image', name: it.name, file: it.file, model: it.model || null, modelUsed: it.modelUsed || null, look: copyLook(it), edit: it.edit ? u8(it.edit) : null, done: true };
         if (rec.kind === 'image') Object.assign(rec, { base: it.base ? u8(it.base) : null, w: it.w, h: it.h });
         if (rec.kind === 'video' && it.vid && it.vid.res) rec.res = { masks: it.vid.res.masks.map((m) => u8(m)), mw: it.vid.res.mw, mh: it.vid.res.mh };
         return rec;
@@ -39,7 +39,7 @@
   function restoreImage(src) {
     const f = new File([src.file], src.name || 'image', { type: src.file.type });
     const it = S.createItem(f, src.name);
-    Object.assign(it, { url: URL.createObjectURL(f), model: src.model || it.model, w: src.w || 0, h: src.h || 0, base: u8(src.base), status: 'done' });
+    Object.assign(it, { url: URL.createObjectURL(f), model: ('modelUsed' in src && src.model) || null, modelUsed: src.modelUsed || src.model || null, w: src.w || 0, h: src.h || 0, base: u8(src.base), status: 'done' });
     if (src.look) Object.assign(it, { s: src.look.s, shadow: src.look.shadow, crop: src.look.crop, bg: Object.assign({}, it.bg, src.look.bg, { image: null }) });
     if (src.edit) it.edit = u8(src.edit);
     S.items.push(it);
