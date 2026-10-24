@@ -78,3 +78,17 @@ Inventory product form. The Label Properties panel does its own Reset (`label/js
 baseline is the selected objects, not the DOM.
 
 Tests: `tests/label/generate-reset.test.html` (the shared-form section).
+
+## Header buttons (`hbtn.css`, `hbtn.js`)
+
+Every button a shared script puts in an app's header wears `.slop-hbtn`: Slop Drive (`shared/drive-link.js`), Tour
+(`shared/tour/mount.js`), View and Show panels (`shared/viewmode`), Theme, Apps and the bell (`shell/header.js`,
+`shell/notify.js`). The label is a `.slop-hbtn-txt` span next to an icon. The shell links `hbtn.css` and loads `hbtn.js`
+on every shell page; a page without the shell links `hbtn.css` itself.
+
+- **Match the app**: set `--slop-hbtn-h`, `--slop-hbtn-radius`, `--slop-hbtn-bg`, `--slop-hbtn-line`, `--slop-hbtn-hover`
+  and `--slop-hbtn-fs` on `:root` or the header (Slides: `.top` in `slides/css/app.css`, like its `.tb-btn`).
+- **Fit**: `SlopHbtn.fit(header)` (the shell calls it on the header that holds Apps) watches the header; when a shared
+  button is cut off, past an edge, or wrapped onto a second row, the header gets `.slop-htight` and the shared buttons
+  show only their icons (title and aria-label still name them). Under 560 px they are icons always.
+- Tests: `tests/shared/hbtn.test.html`, `tests/shell/header-buttons.test.html`.

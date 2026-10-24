@@ -18,10 +18,8 @@
 .sh-back[hidden], .sh-dr[hidden], .sh-dr-folder[hidden], .sn-panel[hidden], .sn-perm[hidden], .sn-count[hidden] { display: none !important; }
 button { font: inherit; }
 .sh-hdr { display: inline-flex; align-items: center; gap: 6px; margin-inline-start: 8px; position: relative; flex: none; }
-.sh-hbtn { position: relative; height: 30px; min-width: 30px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: transparent; color: inherit; border: 1px solid var(--sh-line); border-radius: 8px; cursor: pointer; }
-.sh-hbtn:hover { background: var(--sh-sel); }
-.sh-hbtn:focus-visible, .sh-tile:focus-visible, .sh-opt:focus-visible, .sh-dr-close:focus-visible, .sh-dr button:focus-visible, .sn-toast button:focus-visible, .sn-panel button:focus-visible { outline: 2px solid var(--sh-accent); outline-offset: 1px; }
-.sh-hbtn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+/* .sh-hbtn (Apps, the bell) takes its look from shared/ui/hbtn.css (.slop-hbtn), like every shared header button. */
+.sh-tile:focus-visible, .sh-opt:focus-visible, .sh-dr-close:focus-visible, .sh-dr button:focus-visible, .sn-toast button:focus-visible, .sn-panel button:focus-visible { outline: 2px solid var(--sh-accent); outline-offset: 1px; }
 .sh-fab { position: fixed; top: 10px; inset-inline-end: 10px; margin: 0; z-index: 800; }
 .sh-kbd { font: 11px var(--sui-mono, ui-monospace, monospace); color: var(--sh-dim); border: 1px solid var(--sh-line); border-radius: 5px; padding: 1px 6px; }
 .sh-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -95,9 +93,7 @@ button { font: inherit; }
 .sn-ask { background: var(--sh-accent) !important; color: var(--sh-ink) !important; border-color: transparent !important; font-weight: 600; }
 
 @media (max-width: 560px) {
-  .sh-hbtn-txt { display: none; }
   .sh-hdr { gap: 4px; margin-inline-start: 4px; }
-  .sh-hbtn { min-width: 28px; height: 28px; padding: 0 6px; }
   .sh-back { padding-top: 8px; }
   .sh-sw { max-height: 86vh; }
   .sn-stack { left: 12px; right: 12px; bottom: 12px; width: auto; }

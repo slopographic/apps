@@ -1,14 +1,14 @@
-/* SlopViewMode: one set of view modes for every app. Classic script, no dependencies. Sets window.SlopViewMode.
+/* SlopViewMode: one set of view modes for every app. Classic script; needs grid.js first. Sets window.SlopViewMode.
  * Modes: full, focus (toolbars and sidebars hidden), content (every region hidden). Ctrl+Shift+F cycles, Ctrl+Shift+L
- * shows every hidden region, Escape returns to Full. The controls sit in the app's toolbar (the mount element): the mode
- * button and "Show panels". Hidden tracks of the app's grid are given back, so the workspace grows. HANDOFF.md has the API.
+ * shows every hidden region, Escape returns to Full. The controls sit in the app's toolbar (the mount element): the View
+ * button (a menu of the modes) and "Show panels". Hidden tracks of the app's grid are given back, so the workspace grows. HANDOFF.md has the API.
  * Saved in localStorage through try/catch: 'slop.viewmode' and 'slop.viewmode.layout.<app>'. */
 (function (win) {
   'use strict';
   if (win.SlopViewMode) return;
   const doc = win.document;
   const MODES = ['full', 'focus', 'content'];
-  const LABEL = { full: 'Full', focus: 'Focus', content: 'Content only' };
+  const LABEL = { full: 'Full', focus: 'Focus', content: 'Content' };
   const KEY = 'slop.viewmode', LAYOUT = 'slop.viewmode.layout.';
   const EDGE_PX = 6, LEAVE_MS = 700;
   const DEFAULT_EDGE = { toolbar: 'top', sidebar: 'left', panels: 'right' };
@@ -29,52 +29,8 @@
   const wantHidden = (r) => (apps.get(r.app).hides[mode] || []).includes(r.name);
   /** A toolbar that holds the mode controls stays on screen as a strip (only the controls show in it). */
   const isStrip = (r) => { const m = el(apps.get(r.app).spec.mount); return !!m && r.el.contains(m); };
-  const shown = (n) => { const cs = win.getComputedStyle(n); return cs.display !== 'none' && cs.position !== 'fixed' && cs.position !== 'absolute'; };
-  const isGrid = (n) => /grid$/.test(win.getComputedStyle(n).display);
-
-  /** The tracks of a grid container, as [start, end] in window pixels, measured in the current layout. */
-  function tracks(P, axis) {
-    const cs = win.getComputedStyle(P), x = axis === 'col';
-    const sizes = (x ? cs.gridTemplateColumns : cs.gridTemplateRows).split(/\s+/).filter((t) => /px$/.test(t)).map(parseFloat);
-    const gap = parseFloat(x ? cs.columnGap : cs.rowGap) || 0;
-    const box = P.getBoundingClientRect();
-    let pos = x ? box.left + parseFloat(cs.borderLeftWidth) + parseFloat(cs.paddingLeft)
-      : box.top + parseFloat(cs.borderTopWidth) + parseFloat(cs.paddingTop);
-    return sizes.map((s) => { const t = { a: pos, b: pos + s }; pos += s + gap; return t; });
-  }
-  const overlap = (a1, b1, a2, b2) => Math.min(b1, b2) - Math.max(a1, a2);
-
-  /** Which tracks a hidden region gives back: the ones it alone covers on that axis. An item that spans the whole axis
-   *  (a full-width toolbar) is not in the way: it simply gets narrower with the track. */
-  function giveBack(list, a, b, others, axis) {
-    const lo = axis === 'x' ? 'left' : 'top', hi = axis === 'x' ? 'right' : 'bottom';
-    const out = new Set();
-    if (!list.length) return out;
-    const first = list[0].a, last = list[list.length - 1].b;
-    const covered = list.map((t) => overlap(t.a, t.b, a, b) > 1);
-    if (covered.every(Boolean)) return out;   // the hidden region spans the whole axis: nothing to give back
-    const blockers = others.filter((o) => !(o[lo] <= first + 1 && o[hi] >= last - 1));
-    list.forEach((t, i) => {
-      if (covered[i] && !blockers.some((o) => overlap(t.a, t.b, o[lo], o[hi]) > 1)) out.add(i);
-    });
-    return out;
-  }
-  /** Is this grid placed by flow (no named areas, no explicit lines) with one item per track on this axis? */
-  function flowGrid(P, trackCount) {
-    const cs = win.getComputedStyle(P);
-    if (cs.gridTemplateAreas !== 'none') return false;
-    const kids = [...P.children].filter(shown);   // display:none items take no track
-    if (!trackCount || kids.length !== trackCount) return false;
-    return !kids.some((c) => { const k = win.getComputedStyle(c); return k.gridColumnStart !== 'auto' || k.gridRowStart !== 'auto'; });
-  }
-  /** The track the freed space goes to: the one under the largest shown item that is not given back. */
-  function fillTrack(list, kids, axis, zero, fillEl) {
-    const best = fillEl || kids.reduce((m, k) => (!m || k.width * k.height > m.width * m.height ? k : m), null);
-    if (!best) return -1;
-    const mid = axis === 'x' ? best.left + best.width / 2 : best.top + best.height / 2;
-    const i = list.findIndex((t) => mid >= t.a && mid <= t.b);
-    return i >= 0 && !zero.has(i) ? i : -1;
-  }
+  // The grid measuring (shared/viewmode/grid.js, loaded just before this file).
+  const { shown, isGrid, tracks, giveBack, flowGrid, fillTrack } = win.SlopViewModeGrid;
 
   /** Put the classes on every region for the current mode, give hidden tracks back to the grid, and label the buttons.
    *  Measure first, on the page as it is with nothing hidden; then apply. notify: a mode change tells the app to re-measure. */
@@ -129,8 +85,8 @@
       watch(P);
     }
     for (const e of apps.values()) {
-      for (const b of e.buttons) b.querySelector('.slopvm-txt').textContent = 'View: ' + LABEL[mode];
-      for (const b of e.reveal) b.textContent = peekAll ? 'Hide panels' : 'Show panels';
+      for (const b of e.buttons) { b.querySelector('.slopvm-txt').textContent = LABEL[mode]; b.firstChild.innerHTML = ICON[mode]; b.setAttribute('aria-label', 'View: ' + LABEL[mode] + '. Opens the view menu.'); }
+      for (const b of e.reveal) { b.lastChild.textContent = peekAll ? 'Hide panels' : 'Show panels'; b.setAttribute('aria-pressed', String(peekAll)); }
     }
     if (doc.documentElement) doc.documentElement.dataset.slopvm = mode;
     if (watcher) watcher.takeRecords();   // our own class changes are not an app change
@@ -201,7 +157,7 @@
     if (e.key !== 'Escape' || mode === 'full') return;
     const t = e.target, tag = t && t.tagName;
     if (t && (t.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT')) return;
-    if (doc.querySelector('dialog[open], [aria-modal="true"]')) return;
+    if (doc.querySelector('dialog[open], [aria-modal="true"], .sui-menu')) return;   // a dialog or a menu closes first
     setMode('full');
   }
 
@@ -220,27 +176,46 @@
     store.set(LAYOUT + app, safe(() => JSON.stringify(obj), '{}'));
     return true;
   }
-  /** The mode button and "Show panels", in the app's toolbar (never over the page). */
+  // The View button's icon per mode (a window with its bars), and the eye of "Show panels".
+  const BOX = '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/>';
+  const ICON = { full: BOX + '<path d="M3.5 9h17M9 9v10.5"/>', focus: BOX + '<path d="M3.5 9h17"/>', content: BOX + '<path d="M8 12h8"/>' };
+  const HINT = { full: 'everything shown', focus: 'fewer bars and sidebars', content: 'only the work area' };
+  const svg = (inner) => '<svg viewBox="0 0 24 24" aria-hidden="true">' + inner + '</svg>';
+  function button(cls, title, html, fn) {
+    const b = doc.createElement('button');
+    b.type = 'button'; b.className = cls + ' slop-hbtn'; b.title = title; b.innerHTML = html;
+    b.addEventListener('click', fn);
+    return b;
+  }
+  /** The View button (it opens the View menu) and "Show panels" (only in Focus and Content), in the app's toolbar, never
+   *  over the page. Both are shared header buttons (shared/ui/hbtn.css). */
   function mountControls(e) {
     const host = el(e.spec.mount);
     if (!host) return;
     const bar = doc.createElement('span');
     bar.className = 'slopvm-bar';
-    const b = doc.createElement('button');
-    b.type = 'button';
-    b.className = 'slopvm-btn';
-    b.title = 'Change the view (Ctrl+Shift+F). Ctrl+Shift+L shows hidden parts. Escape returns to Full.';
-    b.setAttribute('aria-label', 'View mode. Press to change.');
-    b.innerHTML = '<span class="slopvm-txt" aria-hidden="true"></span>';
-    b.addEventListener('click', cycle);
-    const reveal = doc.createElement('button');
-    reveal.type = 'button';
-    reveal.className = 'slopvm-reveal';
-    reveal.title = 'Show every hidden panel and toolbar (Ctrl+Shift+L)';
-    reveal.addEventListener('click', revealAll);
-    bar.append(reveal, b);   // the reveal sits left of the mode button, so the button stays put when it shows
+    const b = button('slopvm-btn', 'View: choose what is shown (Ctrl+Shift+F next view, Escape back to Full)',
+      svg('') + '<span class="slop-hbtn-txt"><span class="slopvm-txt"></span><span class="slopvm-caret" aria-hidden="true"></span></span>', () => openMenu(b));
+    b.setAttribute('aria-haspopup', 'menu'); b.setAttribute('aria-expanded', 'false');
+    const reveal = button('slopvm-reveal', 'Show every hidden panel and toolbar (Ctrl+Shift+L)',
+      svg('<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.5"/>') + '<span class="slop-hbtn-txt"></span>', revealAll);
+    bar.append(reveal, b);   // the reveal sits left of the View button, so the button stays put when it shows
     host.appendChild(bar);
     e.buttons.push(b); e.reveal.push(reveal); e.bar = bar;
+  }
+  /** The View menu (SlopUI.menu): the three modes with the current one checked, then Show hidden panels and Next view.
+   *  A page without SlopUI gets the old behaviour: the button goes to the next mode. */
+  function openMenu(b) {
+    const UI = win.SlopUI;
+    if (!UI || !UI.menu) { cycle(); return; }
+    const items = MODES.map((m) => ({ label: LABEL[m] + ': ' + HINT[m], check: m === mode, radio: true, act: () => setMode(m) }));
+    items.push('-', { label: peekAll ? 'Hide the panels again' : 'Show hidden panels', key: 'Ctrl+Shift+L', disabled: mode === 'full', act: revealAll },
+      { label: 'Next view', key: 'Ctrl+Shift+F', act: cycle });
+    const r = b.getBoundingClientRect(), m = UI.menu(items, r.left, r.bottom + 4);
+    m.classList.add('slopvm-menu');
+    b.setAttribute('aria-expanded', 'true');
+    const gone = new win.MutationObserver(() => { if (!m.isConnected) { b.setAttribute('aria-expanded', 'false'); gone.disconnect(); } });
+    gone.observe(doc.body, { childList: true });
   }
 
   /** Register an app. Returns its handle. Regions the page does not have are skipped. */

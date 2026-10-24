@@ -62,6 +62,8 @@ svg { display: block; }
 .mb-item:hover, .mb-item.open { background: var(--hover); }
 .doc-title { flex: 1; min-width: 0; text-align: center; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 8px; }
 .top-actions { display: flex; gap: 6px; flex: none; }
+/* The shared header buttons (Drive, Tour, View, Theme, Apps: shared/ui/hbtn.css) wear the look of .top-btn. */
+.topbar { --slop-hbtn-h: 26px; --slop-hbtn-bg: var(--panel-2); --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); --slop-hbtn-radius: var(--radius); --slop-hbtn-fs: 12px; }
 .top-btn { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: var(--radius); border: 1px solid var(--line-2); background: var(--panel-2); }
 .top-btn:hover { background: var(--hover); }
 .top-btn svg { width: 15px; height: 15px; fill: currentColor; }

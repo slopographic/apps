@@ -53,7 +53,10 @@
   }
   function button(label, title, fn) {
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'stour-btn top-btn'; b.textContent = label;
+    // The shared header-button look (shared/ui/hbtn.css): a compass, and the label that gives way to it in a full header.
+    b.type = 'button'; b.className = 'stour-btn slop-hbtn';
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m15 9-2 4-4 2 2-4z"/></svg><span class="slop-hbtn-txt"></span>';
+    b.lastChild.textContent = label;
     b.title = title; b.setAttribute('aria-label', title);
     b.addEventListener('click', fn);
     return b;

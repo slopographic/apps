@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Shell · the shared header buttons match the app's, stay on screen, and the Theme menu works on every page</title>
+  <style>body { margin: 0; background: #111; } iframe { border: 0; display: block; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script>
+  // Covers: shell/header.js, shell/shell.js, shell/shell.css, shell/notify.js, shared/ui/hbtn.css, shared/ui/hbtn.js,
+  //   shared/drive-link.js, shared/tour/mount.js, shared/tour/tour.css, slides/css/app.css,
+  //   photoslop/css/layout.css, photoslop/css/extras.css, home/home.css, shared/viewmode/viewmode.css
+  // Slides once had six looks in one bar (24 to 34 px tall, square to round, the browser's own button for Tour) and,
+  // below about 1800 px, pushed Drive, Tour, View and Apps out of sight. Now they are one look and always reachable.
+  const { describe, it, expect, waitFor, run, sleep } = SlopTest;
+  async function open(app, w, h) {
+    const f = document.createElement('iframe');
+    f.style.width = w + 'px'; f.style.height = h + 'px';
+    f.src = `../../${app}/index.html`;
+    document.body.append(f);
+    const D = () => f.contentDocument;
+    await waitFor(() => D() && D().querySelector('.sh-switch') && D().querySelector('.slopvm-btn') && D().querySelector('.sdl'), { timeout: 30000 });
+    await sleep(400);
+    return f;
+  }
+  const shared = (D) => [...D.querySelectorAll('header .slop-hbtn')].filter((n) => n.getBoundingClientRect().width);
+
+  describe('Slides top bar', () => {
+    for (const [w, h] of [[1886, 900], [1366, 800], [390, 800]]) {
+      it(`${w} px: Drive, Tour, View, Theme, Apps and the bell are on screen, one look, as tall as the app's buttons`, async () => {
+        const f = await open('slides', w, h), D = f.contentDocument, W = f.contentWindow;
+        const list = shared(D);
+        expect(list.length).toBeGreaterThanOrEqual(6);
+        const own = D.getElementById('btnSave').getBoundingClientRect().height;
+        for (const n of list) {
+          const r = n.getBoundingClientRect();
+          expect(r.left >= 0 && r.right <= W.innerWidth + 0.5).toBe(true, `${n.className} at ${Math.round(r.left)}–${Math.round(r.right)}`);
+          if (w > 560) expect(Math.abs(r.height - own)).toBeLessThan(1.5);
+        }
+        const looks = new Set(list.map((n) => { const c = W.getComputedStyle(n); return [Math.round(n.getBoundingClientRect().height), c.borderTopLeftRadius, c.borderTopWidth, c.fontSize].join('|'); }));
+        expect(looks.size).toBe(1, [...looks].join(' / '));
+        f.remove();
+      }, { timeout: 40000 });
+    }
+  });
+
+  describe('other apps', () => {
+    it('PhotoSlop: the shared buttons are as tall as its own top-bar buttons', async () => {
+      const f = await open('photoslop', 1600, 900), D = f.contentDocument;
+      const own = D.querySelector('.topbar .top-btn').getBoundingClientRect().height;
+      for (const n of shared(D)) expect(Math.abs(n.getBoundingClientRect().height - own)).toBeLessThan(1.5);
+      f.remove();
+    }, { timeout: 40000 });
+    it('PDF: Show panels is hidden in Full and shown in Focus, whichever stylesheet loads last', async () => {
+      const f = await open('pdf', 1366, 800), D = f.contentDocument, W = f.contentWindow;
+      W.SlopViewMode.set('full'); await sleep(100);
+      expect(W.getComputedStyle(D.querySelector('.slopvm-reveal')).display).toBe('none');
+      W.SlopViewMode.set('focus'); await sleep(100);
+      expect(W.getComputedStyle(D.querySelector('.slopvm-reveal')).display).not.toBe('none');
+      W.SlopViewMode.set('full');
+      f.remove();
+    }, { timeout: 40000 });
+  });
+
+  describe('Theme menu', () => {
+    it('every shell page has a Theme button: System and each theme, the current one checked; a pick paints the page', async () => {
+      const f = await open('slides', 1366, 800), D = f.contentDocument, W = f.contentWindow;
+      const before = W.SlopTheme.get();
+      const b = D.querySelector('.sh-theme');
+      expect(!!b).toBe(true);
+      b.click();
+      const menu = await waitFor(() => D.querySelector('.sui-menu'));
+      const labels = [...menu.querySelectorAll('.sui-lbl')].map((n) => n.textContent);
+      expect(labels).toEqual(['System'].concat(W.SlopTheme.THEMES.map((t) => t.name)));
+      expect(menu.querySelectorAll('[aria-checked="true"]').length).toBe(1);
+      expect(b.getAttribute('aria-expanded')).toBe('true');
+      [...menu.querySelectorAll('.sui-row')].find((r) => r.textContent.includes('Dark')).click();
+      expect(D.documentElement.getAttribute('data-slop-theme')).toBe('dark');
+      await waitFor(() => b.getAttribute('aria-expanded') === 'false');
+      W.SlopTheme.set(before);
+      f.remove();
+    }, { timeout: 40000 });
+  });
+  run();
+  </script>
+</body>
+</html>

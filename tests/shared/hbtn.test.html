@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Shared · header buttons (one look, labels give way to icons when the header is full)</title>
+  <link rel="stylesheet" href="../../shared/ui/hbtn.css">
+  <style>
+    body { margin: 0; background: #f1ede4; color: #111; font: 14px system-ui; }
+    .bar { display: flex; align-items: center; gap: 8px; padding: 6px; border: 1px solid #999; margin: 8px; }
+    .wide { width: 900px; } .over { width: 260px; overflow: hidden; } .wrap { width: 260px; flex-wrap: wrap; }
+    .own { height: 30px; padding: 0 12px; flex: none; }
+  </style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="../../shared/ui/hbtn.js"></script>
+  <script>
+  // Covers: shared/ui/hbtn.css, shared/ui/hbtn.js
+  const { describe, it, expect, waitFor, run } = SlopTest;
+  const ICON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>';
+  /** A header with one app button and three shared buttons (an icon and a label each). */
+  function bar(cls) {
+    const h = document.createElement('header');
+    h.className = 'bar ' + cls;
+    h.innerHTML = '<button class="own">Save</button>' + ['Slop Drive', 'Tour', 'Apps'].map((t) =>
+      `<button class="slop-hbtn" title="${t}">${ICON}<span class="slop-hbtn-txt">${t}</span></button>`).join('');
+    document.body.append(h);
+    return h;
+  }
+  const labelsShown = (h) => [...h.querySelectorAll('.slop-hbtn-txt')].every((s) => getComputedStyle(s).display !== 'none');
+
+  describe('SlopHbtn look', () => {
+    it('every shared button has one height, radius and font, whatever the element (a, button)', () => {
+      const h = bar('wide');
+      const a = document.createElement('a'); a.className = 'slop-hbtn'; a.href = '#'; a.innerHTML = ICON + '<span class="slop-hbtn-txt">Link</span>';
+      h.append(a);
+      const looks = [...h.querySelectorAll('.slop-hbtn')].map((n) => { const c = getComputedStyle(n); return [Math.round(n.getBoundingClientRect().height), c.borderTopLeftRadius, c.fontSize, c.textDecorationLine].join('|'); });
+      expect(new Set(looks).size).toBe(1);
+      expect(looks[0]).toBe('32|8px|13px|none');
+      h.remove();
+    });
+    it('an app sets the tokens on its header and the buttons follow them', () => {
+      const h = bar('wide');
+      h.style.cssText = '--slop-hbtn-h: 26px; --slop-hbtn-radius: 3px; --slop-hbtn-bg: rgb(1, 2, 3); --slop-hbtn-fs: 11px';
+      const b = h.querySelector('.slop-hbtn'), c = getComputedStyle(b);
+      expect(Math.round(b.getBoundingClientRect().height)).toBe(26);
+      expect(c.borderTopLeftRadius).toBe('3px');
+      expect(c.backgroundColor).toBe('rgb(1, 2, 3)');
+      expect(c.fontSize).toBe('11px');
+      h.remove();
+    });
+  });
+
+  describe('SlopHbtn.fit', () => {
+    it('a header with room keeps every label', () => {
+      const h = SlopHbtn.fit(bar('wide'));
+      expect(h.classList.contains('slop-htight')).toBe(false);
+      expect(labelsShown(h)).toBe(true);
+      h.remove();
+    });
+    it('a header that cuts its buttons off goes tight: icons only, each one square', () => {
+      const h = SlopHbtn.fit(bar('over'));
+      expect(h.classList.contains('slop-htight')).toBe(true);
+      expect(labelsShown(h)).toBe(false);
+      const b = h.querySelector('.slop-hbtn').getBoundingClientRect();
+      expect(Math.round(b.width)).toBe(Math.round(b.height));
+      h.remove();
+    });
+    it('a header that wraps its buttons onto a second row goes tight', () => {
+      const h = SlopHbtn.fit(bar('wrap'));
+      expect(h.classList.contains('slop-htight')).toBe(true);
+      h.remove();
+    });
+    it('the labels come back when the header gets room again', async () => {
+      const h = SlopHbtn.fit(bar('over'));
+      expect(h.classList.contains('slop-htight')).toBe(true);
+      h.classList.replace('over', 'wide');
+      await waitFor(() => !h.classList.contains('slop-htight'));
+      expect(labelsShown(h)).toBe(true);
+      h.remove();
+    });
+    it('a button added later is measured too', async () => {
+      const h = SlopHbtn.fit(bar('wide'));
+      h.style.width = '420px';
+      expect(SlopHbtn.check(h)).toBe(false);
+      for (const t of ['View', 'Theme', 'More']) h.insertAdjacentHTML('beforeend', `<button class="slop-hbtn">${ICON}<span class="slop-hbtn-txt">${t} with a long label</span></button>`);
+      await waitFor(() => h.classList.contains('slop-htight'));
+      h.remove();
+    });
+  });
+  run();
+  </script>
+</body>
+</html>
