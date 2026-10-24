@@ -9,7 +9,7 @@
   <iframe id="app" src="about:blank"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: inventory/js/ui/app.js, shared/biz/router.js
+  // Covers: inventory/js/ui/app.js, shared/biz/router.js, inventory/js/ui/view-state.js
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const f = document.getElementById('app');
   /** Load a page in the iframe; for Slop Inventory, wait until the store has opened (the boot cover is hidden). */
@@ -24,7 +24,9 @@
     it('comes back to the same view and product search after leaving for Slop Drive', async () => {
       await new Promise((res) => { const q = indexedDB.deleteDatabase('slop-session'); q.onsuccess = q.onerror = q.onblocked = () => res(); });
       let W = await open('../../inventory/index.html');
-      await waitFor(() => W.SlopInv.state.view, { timeout: 10000 }); // boot has restored its place (autosave starts only then)
+      // boot has restored its place and shown the first view (autosave starts only then). Not state.view: it is 'products'
+      // from the start, and the boot cover hides before the saved place is read, so a slow IndexedDB lost the change below.
+      await waitFor(() => W.SlopInv.app && W.SlopInv.app.booted, { timeout: 10000 });
       W.SlopInv.app.show('reports');
       const search = W.document.getElementById('pSearch');
       search.value = 'widget';

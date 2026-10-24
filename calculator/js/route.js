@@ -16,7 +16,9 @@
         const input = $('sc-expr');
         if (s.expr && input) { input.value = s.expr; input.dispatchEvent(new Event('input')); }
         const head = PANEL_HEAD[s.panel] && $(PANEL_HEAD[s.panel]);
-        if (head) head.scrollIntoView({ block: 'nearest' });
+        // 'start': the panel itself comes into view, not only its heading at the bottom edge ('nearest' left the heading
+        // a fraction of a pixel below a phone's screen, so it could count as out of view)
+        if (head) head.scrollIntoView({ block: 'start' });
       },
     });
     SlopViewMode.register('calc', {
