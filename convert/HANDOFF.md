@@ -92,8 +92,23 @@ and no first-visit picture; `onResults(outputs)` is called after each Convert. R
 | JSON to YAML / TOML / XML, YAML / TOML to JSON, Format JSON (`core/structured.js`) | JSON, YAML, TOML | text | js-yaml 4.1.1 (`vendor/js-yaml`, MIT) and smol-toml 1.9.0 (`vendor/smol-toml`, BSD-3-Clause), loaded on first use. JSON mistakes are reported with line and column. TOML has no null: nulls are left out and counted. |
 | SRT to VTT, VTT to SRT, Shift subtitle timing (`core/subtitles.js`) | SRT, VTT (also detected inside .txt) | text, shift in seconds | NOTE, STYLE and REGION blocks are dropped; VTT cue settings are kept in VTT, dropped in SRT. |
 | Markdown / text to PDF and to Word (`core/doc-out.js`) | MD, TXT | PDF or DOCX; A4 or Letter; sans, serif or mono | The Slop Docs engine (its Markdown import, layout, PDF writer with `shared/fonts/pdf-runs.js`, DOCX writer). Other scripts get their Noto font through SlopFontJIT (asks first). Markdown tables, links and images stay as typed text. |
+| Word to PDF, HTML, Markdown, text (`core/office.js`) | DOCX | PDF (page size as in the document, A4 or Letter), HTML (page or body), Markdown, TXT | Slop Docs' own DOCX import (`docs/js/io/docx-in.js`), layout and PDF writer through `doc-out.js` (every script via `shared/fonts/pdf-runs.js` and SlopFontJIT), its Markdown and HTML writers (`docs/js/io/md-out.js`, `html-out.js`) and text (`sdoc.js toText`). Pictures, footnotes, comments and tracked changes are not imported yet. Markdown: GitHub pipe tables, no underline. Slop Docs does not read ODT, so there is no ODT conversion. |
+| PowerPoint to PDF, pictures, text (`core/slides-out.js`, `core/deck-text.js`) | PPTX | PDF (one page per slide), ZIP of PNGs (1×, 2×, 3× the slide size in points), TXT (titles, text, speaker notes) | Slop Slides' own PPTX import, renderer and PDF export, loaded from `slides/js/manifest.js` into `window.SS` (`slidesEngine`). Hidden slides only when ticked. The status line counts what the import left out (charts, SmartArt, media). No ODP, .doc or .ppt. |
 
 Browser support: anything the browser cannot decode or encode (for example WebP output in some Safari versions) reports a plain error on that file; the rest of the batch still runs.
+
+## Word and PowerPoint (`core/office.js`, `core/slides-out.js`, `core/office-pages.js`)
+`OFFICE` (Word entries `DOCX_IN`, then PowerPoint `SLIDES_IN`) is spread into `CONVERSIONS` after `DOC_OUT`. A .docx or .pptx defaults to
+its PDF conversion (the first entry for the kind), so the Convert dialog fed by Slop Docs (DOCX) or Slop Slides (PPTX) starts on
+Word to PDF or PowerPoint to PDF. Chain flags: Word to HTML, Markdown, text and PowerPoint to text are `chain: 'first'` (no
+"Markdown via DOCX" for a text file); PowerPoint to pictures is lossy. `detect.js officeOfZip` names a zip with no telling name
+from its first entry (`word/` or `ppt/`). The preview keeps zip-based inputs whole (`preview/model.js` WHOLE), as a cut zip cannot
+be read. Pages (`OFFICE_PAGES`): docx-to-pdf, word-to-pdf, docx-to-html, docx-to-markdown, docx-to-text, pptx-to-pdf,
+powerpoint-to-pdf, pptx-to-images, pptx-to-text. Tests: `tests/node/convert-office.test.mjs` (Word to Markdown, HTML and text,
+detection, routes, deck text), `tests/convert/office.test.html` (a Word file from `office-fixture.js` with headings, lists, a table,
+a link, Swedish and Arabic, to PDF read back with pdf.js, HTML, Markdown, text, and the dialog in Slop Docs) and
+`tests/convert/office-pptx.test.html` (a deck written by Slop Slides' PPTX writer, to PDF, PNGs and text). The Arabic font is
+served from memory (`office-helpers.js`).
 
 ## Finance files
 
@@ -160,6 +175,7 @@ yet, so offline use of the preview needs them added there (that file is owned el
 - `pdf.test.html`: image to PDF page count (`/Type /Page` count) and `%PDF` header, A4/Letter, merge, extract, split, PDF to PNG and JPG.
 - `data.test.html`: CSV to JSON round trip, JSON to CSV, XLSX parts, Base64 round trip, URL, line endings, Markdown, HTML to text.
 - `seo.test.html`: sitemap, robots, each page's h1, canonical, JSON-LD and embedded tool.
+- `office.test.html`, `office-pptx.test.html`: Word and PowerPoint files (see "Word and PowerPoint"). Node: `tests/node/convert-office.test.mjs`.
 - `more.test.html`: HEIC through the real decoder, the new kinds and their menus, sheets, YAML, TOML, XML, subtitles, Markdown and Arabic text to PDF and DOCX. `audio-ff.test.html`: OGG, Opus, FLAC, M4A and GIF to MP4 with ffmpeg. `cards.test.html`, `mount.test.html`: see above. Node: `tests/node/convert-{sheets,structured,subtitles}.test.mjs`.
 - `ui.test.html`: valid targets per file, preset limits, keyboard drop zone, labels, safe file names.
 - `per-file.test.html`: per-file targets, mixed kinds, select + bulk set, presets and ?to=, companions, keys, 390 px.

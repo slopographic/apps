@@ -8,6 +8,7 @@ import { MORE_PAGES } from './more-pages.js';
 import { DATA_PAGES } from './data-pages.js';
 import { CHAIN_PAGES } from './chain-pages.js';
 import { PDF_LOCK_PAGES } from './pdf-lock-pages.js';
+import { OFFICE_PAGES } from './office-pages.js';
 
 export const PAGES = [
   { slug: 'mov-to-mp4', conv: 'to-mp4', from: ['mov'], label: 'MOV to MP4', pair: ["MOV", "MP4"], cat: 'Audio and video', summary: "Convert MOV videos to MP4 in your browser.", h1: "MOV to MP4 converter",
@@ -251,4 +252,5 @@ export const PAGES = [
   ...DATA_PAGES,   // spreadsheets, JSON, YAML, TOML, XML, subtitles (core/data-pages.js)
   ...CHAIN_PAGES,   // routes of two conversions: SIE to JSON, HEIC to PDF, Excel to YAML and more (core/chain-pages.js)
   ...PDF_LOCK_PAGES,   // password protect a PDF, remove a PDF password (core/pdf-lock-pages.js)
+  ...OFFICE_PAGES,   // Word and PowerPoint to PDF, HTML, Markdown, pictures and text (core/office-pages.js)
 ];

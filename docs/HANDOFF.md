@@ -31,11 +31,11 @@
   - `SlopHub.register('docs')` runs on boot. `apps.js` was left unchanged: the Docs entry already lists its `accepts` and `creates`.
 - **Export** (`docs/js/io/docx.js`, `sdoc.js`):
   - DOCX via `shared/office`: paragraphs, runs, bullets and numbers, alignment, indents, spacing, shading, tables (with spans), page size and margins, and Word's built-in heading, title, quote and code styles (`styles.xml`).
-  - Markdown, plain text, and the raw `.sdoc`.
+  - Markdown (`io/md-out.js`): headings, nested lists, quotes, code blocks (fenced), bold, italic, underline (`__`, read back by the import), strike, code spans, links and tables as GitHub pipe tables; Markdown characters in the text are escaped and read back. HTML (`io/html-out.js`, used by File convert's Word to HTML; not in the File menu yet). Plain text, and the raw `.sdoc`.
   - Checked: python-docx reads the export (text, styles, bold and italic, list, table, page size). LibreOffice converts it to PDF.
 - **Import:**
-  - DOCX: paragraphs, runs (bold, italic, underline, strike, size, colour, font, sup and sub), styles by name, lists by numbering format, tables, page size and margins.
-  - Markdown: headings, lists, quotes, code blocks, bold, italic, underline and code spans.
+  - DOCX: paragraphs, runs (bold, italic, underline, strike, size, colour, font, sup and sub), hyperlinks to web and mail addresses (`run.link`), styles by name, lists by numbering format, tables, page size and margins.
+  - Markdown: headings, lists, quotes, code blocks, bold, italic, underline, code spans and backslash escapes (links and tables stay as typed text).
   - Text: one paragraph per line. HTML: text only.
 - **Random templates** (`ui/random.js`, `ui/templates.js`, generator in `shared/templates/`):
   - File ▸ New ▸ Random template, the toolbar's Random button, or the palette. The dialog draws the first page of a seeded design with the page renderer (`R.pageEl`). Click it to see it full size.
@@ -70,7 +70,9 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
   - `commands.js`: SlopCmd registrations.
   - `main.js`: boot.
 - `docs/js/model/ops.js`: pure editing operations on blocks, copy-on-write.
-- `docs/js/io/sdoc.js`: `.sdoc`, text and Markdown.
+- `docs/js/io/sdoc.js`: `.sdoc`, text and Markdown import. `io/md-out.js` and `io/html-out.js`: Markdown and HTML out (pure, Node-tested).
+- `docs/js/fonts/doc-fonts.js`: `ensureDocFonts(doc)`, every face the runs use (bridge.js and File convert).
+- **File convert uses this engine** (`convert/js/core/doc-out.js`, `office.js`): Markdown and text to PDF and DOCX, Word to PDF, HTML, Markdown and text. A change to the import, layout or writers shows there too; `tests/convert/office.test.html` and `tests/node/convert-office.test.mjs` cover it.
 - `docs/js/io/docx.js`: DOCX export and import.
 - `docs/js/ui/random.js`: the Random template dialog. `docs/js/ui/templates.js`: My templates (IndexedDB and Slop Drive). `docs/css/random.css`.
 - `shared/templates/`: the generator (see its `HANDOFF.md`). Bridge exposes it as `SlopDocEngine.TPL`.

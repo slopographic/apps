@@ -47,13 +47,19 @@ const MIME = {
   'application/x-ofx': 'ofx', 'application/ofx': 'ofx', 'application/vnd.intu.qfx': 'ofx', 'application/qif': 'qif', 'application/x-qif': 'qif',
 };
 /** Extension used when a file of this kind is saved. */
-export const EXT_OF_KIND = { glb: 'glb', fbx: 'fbx', ply: 'ply', mp4: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', flac: 'flac', png: 'png', jpg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg', pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', txt: 'txt', html: 'html', vcf: 'vcf', xlsx: 'xlsx', ods: 'ods', yaml: 'yaml', toml: 'toml', xml: 'xml', srt: 'srt', vtt: 'vtt', heic: 'heic', bin: 'bin' };
+export const EXT_OF_KIND = { glb: 'glb', fbx: 'fbx', ply: 'ply', mp4: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', flac: 'flac', png: 'png', jpg: 'jpg', webp: 'webp', bmp: 'bmp', gif: 'gif', svg: 'svg', pdf: 'pdf', csv: 'csv', json: 'json', md: 'md', txt: 'txt', html: 'html', vcf: 'vcf', xlsx: 'xlsx', docx: 'docx', pptx: 'pptx', ods: 'ods', zip: 'zip', yaml: 'yaml', toml: 'toml', xml: 'xml', srt: 'srt', vtt: 'vtt', heic: 'heic', bin: 'bin' };
 export const TEXT_KINDS = ['csv', 'json', 'md', 'txt', 'html', 'vcf', 'yaml', 'toml', 'xml', 'srt', 'vtt'];
 
 const startsWith = (head, sig) => sig.every((b, i) => head[i] === b);
 const HEAD_LIMIT = 512;   // the bytes detectKind is given (readHead in io/files.js)
 const ascii = (head, from, len) => String.fromCharCode(...head.subarray(from, from + len));
 
+/** A Word or PowerPoint file with no name to go by: its first entries are under word/ or ppt/ (when Word or the apps
+ *  here wrote it, the first entry or two say so), or null. */
+export function officeOfZip(head) {
+  const t = head ? ascii(head, 0, head.length) : '';
+  return /\x50\x4b\x03\x04[\s\S]{26}word\//.test(t) ? 'docx' : /\x50\x4b\x03\x04[\s\S]{26}ppt\//.test(t) ? 'pptx' : null;
+}
 /** Kind from the first bytes of a file, or null when the bytes do not say. */
 export function kindFromMagic(head) {
   if (!head || !head.length) return null;
@@ -148,7 +154,7 @@ export function detectKind(name = '', type = '', head = null) {
   if (fromMagic === 'zip') {
     if (ZIP_KINDS.includes(fromExt)) return fromExt;
     if (ZIP_KINDS.includes(fromMime)) return fromMime;
-    return 'zip';
+    return (fromExt !== 'zip' && officeOfZip(head)) || 'zip';
   }
   if (fromMagic) return fromMagic;
   if (fromExt === 'svg' || mime === 'image/svg+xml') return 'svg';

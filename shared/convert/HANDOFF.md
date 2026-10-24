@@ -67,6 +67,9 @@ Slop Tables (XLSX), Slop Sheets (every sheet as XLSX), Docs (DOCX), Slides (PPTX
 (selected photos, else the one in the viewer), Drive (selected files), Notes (Markdown), Code (the open file), Hex (the
 open file with edits), Music (the current track), Label (PDF), Press (PDF).
 
+Docs' DOCX starts on Word to PDF (then HTML, Markdown, text) and Slides' PPTX on PowerPoint to PDF (then PNG pictures, text):
+the catalog's `core/office.js` and `core/slides-out.js`, run by the apps' own engines (see convert/HANDOFF.md).
+
 ## Tests
 `tests/convert/dialog.test.html`, `tests/convert/pdf-html.test.html`, `tests/shell/convert-button.test.html` (nothing
 loads before the click, 390 px, Escape and focus), `tests/shell/convert-providers.test.html` (every wired app), and

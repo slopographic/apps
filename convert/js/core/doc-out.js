@@ -3,7 +3,8 @@
  * draws text with the shared run drawer shared/fonts/pdf-runs.js) and its DOCX writer (docs/js/io/docx.js). Text in any
  * writing system works: the document faces are the site's own (shared/fonts), and a script they cannot set (Arabic,
  * Chinese, Devanagari…) gets its Noto language font through SlopFontJIT, which asks before the first download.
- * Browser only. Exports textToPdf, textToDocx and DOC_OUT (the catalog entries). */
+ * Browser only. Exports textToPdf, textToDocx and DOC_OUT (the catalog entries), and the engine, its classic helpers and
+ * docPdf for Word to PDF (office.js) and Slop Slides' engine (slides-engine.js). */
 import { stemOf as base } from '../io/files.js';
 import { decodeText } from './text.js';
 
@@ -13,19 +14,26 @@ const SHARED = new URL('../../../shared/', import.meta.url).href;
 const CLASSIC = [['SlopScripts', 'fonts/scripts.js'], ['SlopBidi', 'fonts/bidi.js'], ['SlopPdfRuns', 'fonts/pdf-runs.js'], ['SlopFontJIT', 'fonts/jit.js'], ['SlopUI', 'slopui.js']];
 let readyP = null;
 
-function script(src) {
-  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = SHARED + src; s.async = false; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.append(s); });
+/** A classic script from shared/ (or any URL), in order. */
+export function script(src) {
+  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = new URL(src, SHARED).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src.replace(/^.*\//, ''))); document.head.append(s); });
+}
+/** The classic helpers every text engine here needs (Slop Docs' and Slop Slides'): scripts, bidi, the PDF run drawer,
+ *  the language fonts and SlopUI for the download question. Each is loaded once, and not at all on a page that has it. */
+export async function textHelpers() {
+  if (!document.querySelector('link[href*="slopui.css"]')) document.head.append(Object.assign(document.createElement('link'), { rel: 'stylesheet', href: SHARED + 'slopui.css' }));
+  for (const [g, src] of CLASSIC) if (!globalThis[g]) await script(src);
 }
 /** The engine modules, and its classic helpers once. */
-function engine() {
+export function engine() {
   if (!readyP) {
     readyP = (async () => {
-      if (!document.querySelector('link[href*="slopui.css"]')) document.head.append(Object.assign(document.createElement('link'), { rel: 'stylesheet', href: SHARED + 'slopui.css' }));
-      for (const [g, src] of CLASSIC) if (!globalThis[g]) await script(src);
-      const [SD, layout, reg, lang, docx] = await Promise.all([
+      await textHelpers();
+      const [SD, layout, reg, lang, docx, fonts] = await Promise.all([
         import('../../../docs/js/io/sdoc.js'), import('../../../docs/js/layout/index.js'), import('../../../docs/js/fonts/registry.js'),
-        import('../../../docs/js/fonts/lang-doc.js'), import('../../../docs/js/io/docx.js')]);
-      return { SD, layoutDoc: layout.layoutDoc, reg, lang, exportDocx: docx.exportDocx, exportPdf: async (...a) => (await import('../../../docs/js/io/pdf.js')).exportPdf(...a) };
+        import('../../../docs/js/fonts/lang-doc.js'), import('../../../docs/js/io/docx.js'), import('../../../docs/js/fonts/doc-fonts.js')]);
+      return { SD, layoutDoc: layout.layoutDoc, reg, lang, exportDocx: docx.exportDocx, importDocx: docx.importDocx, ensureDocFonts: fonts.ensureDocFonts,
+        exportPdf: async (...a) => (await import('../../../docs/js/io/pdf.js')).exportPdf(...a) };
     })();
     readyP.catch(() => { readyP = null; });
   }
@@ -45,8 +53,9 @@ async function docOf(E, f, { markdown, page = 'A4', font = 'sans' }) {
   return doc;
 }
 
-/** The faces the runs use, loaded (the layout measures with them). */
-async function ensureFaces(E, doc) {
+/** The faces the runs use, with their styles' marks (fonts/doc-fonts.js), and the heading faces, loaded (the layout measures with them). */
+export async function ensureFaces(E, doc) {
+  await E.ensureDocFonts(doc);
   const want = new Map();
   for (const b of doc.blocks) for (const r of (b.runs || [])) { const k = `${r.font || ''}|${!!r.b}|${!!r.i}`; if (!want.has(k)) want.set(k, { font: r.font || 'Carlito', b: !!r.b, i: !!r.i }); }
   for (const h of ['Carlito', 'Caladea', 'Cousine']) { want.set(h + '|b', { font: h, b: true, i: false }); want.set(h + '|', { font: h, b: false, i: false }); }
@@ -57,10 +66,15 @@ export async function textToPdf(files, o = {}, markdown = false) {
   const f = files[0], E = await engine();
   const doc = await docOf(E, f, { markdown, page: o.page, font: o.font });
   await ensureFaces(E, doc);
+  return docPdf(E, doc, f.name);
+}
+
+/** A Slop Docs document as a PDF, with the language fonts its text needs (SlopFontJIT asks before the first download). */
+export async function docPdf(E, doc, name) {
   let info = '';
   if (E.lang.mayNeedLang(doc) && !(await E.lang.ensureDocLang(doc, { force: true }))) info = 'Some characters need a language font that was not downloaded, so they may show as boxes.';
-  const bytes = await E.exportPdf(doc, E.layoutDoc(doc), { title: base(f.name) });
-  const out = [{ name: `${base(f.name)}.pdf`, blob: new Blob([bytes], { type: 'application/pdf' }) }];
+  const bytes = await E.exportPdf(doc, E.layoutDoc(doc), { title: (doc.meta && doc.meta.title) || base(name), author: (doc.meta && doc.meta.author) || '' });
+  const out = [{ name: `${base(name)}.pdf`, blob: new Blob([bytes], { type: 'application/pdf' }) }];
   if (info) out.info = info;
   return out;
 }

@@ -1,6 +1,6 @@
 /* Slop Docs — io/sdoc: the native .sdoc file (the document JSON), plus plain text and Markdown in and out.
  * .sdoc is normalizeDoc(JSON), so an older or hand-edited file still opens. Markdown import covers headings,
- * lists, quotes, code blocks, **bold**, *italic* and __underline__; Markdown export writes the same. */
+ * lists, quotes, code blocks, **bold**, *italic* and __underline__; Markdown export (md-out.js) writes those, links and tables. */
 import { newDoc, normalizeDoc, para, uid, paraText, docText, docBlocks } from '../model/doc.js';
 import { bulletList, numberList } from '../model/styles.js';
 
@@ -34,10 +34,14 @@ export function fromText(text) {
 
 /* ---------- Markdown ---------- */
 const HEAD = { 1: 'H1', 2: 'H2', 3: 'H3', 4: 'H4', 5: 'H5', 6: 'H6' };
-const HEAD_OUT = { Title: '# ', H1: '# ', H2: '## ', H3: '### ', H4: '#### ', H5: '##### ', H6: '###### ' };
 
-/** Inline markdown → runs. Handles **bold**, __underline__, *italic* and `code`. */
+/** Inline markdown → runs. Handles **bold**, __underline__, *italic*, `code` and backslash escapes. */
+const ESCAPED = /\\([\\`*_[\]<>~#+\-.!|(){}])/g, HIDE = 0xe000;   // a backslash escape (md-out.js writes them)
 export function mdRuns(s) {
+  const hidden = String(s).replace(ESCAPED, (m, c) => String.fromCharCode(HIDE + c.charCodeAt(0)));
+  return mdRunsRaw(hidden).map((r) => ({ ...r, text: r.text.replace(/[\ue000-\ue07f]/g, (c) => String.fromCharCode(c.charCodeAt(0) - HIDE)) }));
+}
+function mdRunsRaw(s) {
   const runs = [];
   const re = /(\*\*([^*]+)\*\*|__([^_]+)__|\*([^*\s][^*]*)\*|`([^`]+)`)/g;
   let last = 0, m;
@@ -75,33 +79,8 @@ export function fromMarkdown(text) {
   if (d.blocks.some((b) => b.props && b.props.list && b.props.list.id === 'num')) d.lists.num = numberList();
   return d;
 }
-/** Document → Markdown (tables become their text). Paragraphs are separated by a blank line; list items are not. */
-export function toMarkdown(doc) {
-  const out = [];
-  let n = 0, prev = null;
-  for (const b of doc.blocks) {
-    if (b.type !== 'p') continue;
-    const body = (b.runs || []).map((r) => {
-      if (r.obj) return '';
-      let t = r.text;
-      if (r.font === 'Cousine' && r.size === 10) return '`' + t + '`';
-      if (r.b && r.i) t = `***${t}***`; else if (r.b) t = `**${t}**`; else if (r.i) t = `*${t}*`;
-      if (r.u) t = `__${t}__`;
-      return t;
-    }).join('');
-    const list = b.props && b.props.list;
-    let line;
-    if (list) {
-      n = prev && prev.id === 'num' && list.id === 'num' ? n + 1 : 1;
-      line = list.id === 'num' ? `${n}. ${body}` : `- ${body}`;
-    } else line = (HEAD_OUT[b.style] || (b.style === 'Quote' ? '> ' : '')) + body;
-    const sameList = list && prev && prev.id === list.id;
-    if (out.length && !sameList) out.push('');
-    out.push(line);
-    prev = list || null;
-  }
-  return out.join('\n') + '\n';
-}
+/** Document → Markdown: io/md-out.js (headings, lists, quotes, code, marks, links and tables). */
+export { toMarkdown } from './md-out.js';
 
 /** Text of the first heading or the first line, for a default file name. */
 export function titleOf(doc) {
