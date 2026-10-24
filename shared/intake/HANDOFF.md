@@ -262,6 +262,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   the hidden file input is gone), a drop anywhere on the page (`dropTarget` on the body; was a window drop listener), a
   paste of an .html file (new), ?drive= launch (new: the page now loads Slop Hub, so Open in arrives) and launchQueue.
   Attach local images… is now a button (the part's pick). `tests/intake/html2pdf.test.html`.
+- **Photo Sorter** (`sorter/js/app.js`, spec `sorter`, the whole batch at once): a drop of photos or folders on the
+  zone, Choose files and the sample, Choose a folder… (`SlopIntake.pick({ folder: true })`; the two hidden file inputs
+  are gone), a paste (new), ?drive= launch (new) and launchQueue. `tests/intake/sorter.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -522,12 +525,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] pickFiles: the watermark logo, `slopcut/js/watermark/panel.js` (`pickLogo`) → a part `slopedit.logo`; then put
   `slopcut/` in STRICT in place of its subfolders.
-
-### sorter
-
-- [ ] file input: `sorter/index.html:45`
-- [ ] file input: `sorter/index.html:46`
-- [ ] SlopDrop.attach: `sorter/js/app.js:112`
 
 ### watermark (pictures done; the logo is left to the watermark panel rewrite, wip/watermark-all)
 
