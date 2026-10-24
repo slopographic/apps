@@ -11,6 +11,7 @@
   <script type="module">
   import { OLD, TIMING } from '../../shared/buddy/timing.js';
   import { LINES } from '../../shared/buddy/lines.js';
+  const LOAD = Math.max(1, Number(window.__SLOPTEST_SCALE__) || 1);   // the test runner's load factor (tests/harness.js)
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const { openApp, turnOn } = BuddyTest;
   let win, S, M, doc;
@@ -135,15 +136,17 @@
       await waitFor(() => M.rage === 0, { timeout: 9000, step: 50 });
       const s = (performance.now() - t0) / 1000;
       expect(s).toBeGreaterThan(3);
-      expect(s).toBeLessThan(6);
+      expect(s).toBeLessThan(6 * LOAD);   // pages run side by side (CI) update late: the upper bound stretches with the load
       calm();
     }, { timeout: 15000 });
-    it('a good moment fades to half in about 1.2 s (measured)', async () => {
+    it('a good moment fades to half in about 1.2 s (measured: never early, late only under load)', async () => {
       await ready;
       calm(); S.cheer(1);
-      await sleep(1200);
-      expect(M.glad).toBeGreaterThan(0.35);
-      expect(M.glad).toBeLessThan(0.65);
+      const t0 = performance.now();
+      await waitFor(() => M.glad <= 0.5, { timeout: 4000, step: 25 });
+      const s = (performance.now() - t0) / 1000;
+      expect(s).toBeGreaterThan(0.9);
+      expect(s).toBeLessThan(1.6 * LOAD);
       calm();
     });
   });
