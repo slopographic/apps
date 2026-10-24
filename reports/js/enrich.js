@@ -50,6 +50,23 @@
       }
       return out;
     },
+    /** Journal entries: quarter (2026-Q4), collected (sales tax credited on sales), reclaimed (tax debited on purchases and
+     * expenses) and due (collected less reclaimed), on the chart's TAX_PAYABLE account, in the base currency. A reversal (a
+     * void) takes its amount off the side its original entry was on. Entries without tax are left out. */
+    salesTax(rows) {
+      const tax = g.SlopData.schemaDefs.ACCT.TAX_PAYABLE, out = [];
+      for (const r of rows) {
+        let collected = 0, reclaimed = 0;
+        for (const l of r.lines || []) {
+          if (l.account !== tax) continue;
+          if (r.reverses) { collected -= num(l.debit); reclaimed -= num(l.credit); } else { collected += num(l.credit); reclaimed += num(l.debit); }
+        }
+        if (!collected && !reclaimed) continue;
+        const d = String(r.date || '');
+        out.push({ ...r, quarter: `${d.slice(0, 4)}-Q${Math.floor((Number(d.slice(5, 7)) - 1) / 3) + 1}`, collected, reclaimed, due: collected - reclaimed });
+      }
+      return out;
+    },
     /** Any dated rows: month, the YYYY-MM of their date. */
     month(rows) {
       return rows.map((r) => ({ ...r, month: typeof r.date === 'string' ? r.date.slice(0, 7) : undefined }));
