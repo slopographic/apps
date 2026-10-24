@@ -113,3 +113,22 @@ test('prompt caching on a recorded 5-step task: same tokens, about a third of th
   assert.equal(C.cost(off, sonnet).toFixed(4), '0.0882'); assert.equal(C.cost(on, sonnet).toFixed(4), '0.0283');
   assert.equal(C.meter.line(Object.assign({ cost: C.cost(on, sonnet) }, on)), '42,898 tokens (35,314 from cache) · about $0.03');
 });
+
+test('spending (generate_image): its own kind with its own title; before() runs first; never covered by "allow app changes"', async () => {
+  const { w, P, asked, setAnswer } = fresh();
+  const T = w.SlopAIKit.tools, order = [];
+  const tool = { name: 'generate_image', permission: { kind: 'spend-image', title: 'Spend on image generation' }, params: { prompt: { type: 'string', required: true } },
+    before: async () => { order.push('before'); }, confirmText: () => 'Make 1 picture with OpenAI (gpt-image, 1024 × 1024 px): about $0.04 per picture.',
+    label: (a) => 'Make a picture: ' + a.prompt, run: async () => { order.push('run'); return 'made'; } };
+  const permit = (req) => { order.push('ask'); return P.ask(Object.assign({ app: 'photoslop', appName: 'PhotoSlop' }, req)); };
+  P.setMode('changes'); setAnswer('deny');
+  let r = await T.dispatch({ name: 'generate_image', arguments: { prompt: 'a slime' } }, [tool], { permit });
+  assert.equal(r.ok, false); assert.deepEqual(order, ['before', 'ask']);
+  assert.equal(asked[0].kind, 'spend-image'); assert.equal(asked[0].title, 'Spend on image generation?'); assert.match(asked[0].detail, /about \$0\.04 per picture/);
+  setAnswer('always'); order.length = 0;
+  r = await T.dispatch({ name: 'generate_image', arguments: { prompt: 'a slime' } }, [tool], { permit });
+  assert.equal(r.result, 'made');
+  r = await T.dispatch({ name: 'generate_image', arguments: { prompt: 'more slime' } }, [tool], { permit });
+  assert.equal(asked.length, 2, 'always allowed in PhotoSlop: no third question');
+  assert.match(P.MODES.find((m) => m.id === 'all').warning, /spend on image generation/);
+});

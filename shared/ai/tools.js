@@ -83,13 +83,17 @@
     if (!t) return { ok: false, error: `Unknown tool "${call.name}". Available: ${tools.map((x) => x.name).join(', ')}` };
     const args = call.arguments || {};
     for (const [k, p] of Object.entries(t.params || {})) if (p.required && (args[k] == null || args[k] === '')) return { ok: false, error: `Missing argument "${k}" for ${t.name}` };
-    const destructive = typeof t.destructive === 'function' ? t.destructive(args) : !!t.destructive;
+    // a tool that needs approval: destructive (delete, change, send), or one with a permission of its own
+    // ({ kind, title }: generate_image spends money); before(args) runs first so the question can name the price
+    const destructive = (typeof t.destructive === 'function' ? t.destructive(args) : !!t.destructive) || !!t.permission;
+    if (destructive && t.before) { try { await t.before(args, env); } catch (e) { return { ok: false, error: String((e && e.message) || e) }; } }
     if (destructive) {
       const what = t.confirmText ? t.confirmText(args) : `The assistant wants to run ${t.name}(${JSON.stringify(args)}).`;
       let action = t.name;
       try { if (t.label) action = t.label(args) || t.name; } catch (e) { /* the tool's name */ }
       // env.permit: the one permission module (permissions.js); else the plain yes/no of older callers
-      const ok = env.permit ? await env.permit({ kind: t.kind ? t.kind(args) : 'delete', tool: t.name, action, detail: what, title: t.confirmTitle ? t.confirmTitle(args) : undefined, step: env.step })
+      const kind = t.kind ? t.kind(args) : t.permission ? t.permission.kind : 'delete';
+      const ok = env.permit ? await env.permit({ kind, tool: t.name, action, detail: what, title: t.confirmTitle ? t.confirmTitle(args) : t.permission && t.permission.title ? t.permission.title + '?' : undefined, step: env.step })
         : env.confirm ? await env.confirm(t.confirmTitle ? t.confirmTitle(args) : 'Allow this action?', what) : false;
       if (!ok) return { ok: false, error: 'The user said no to this action.' };
     }

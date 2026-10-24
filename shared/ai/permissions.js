@@ -7,6 +7,8 @@
  *   change  an app change that Undo can take back but that the word rule marks (crop, flatten, merge, replace, new…)
  *   delete  deleting, clearing, closing or overwriting (delete, remove, clear, erase, reset, close, discard, overwrite…)
  *   send    sending a copy of a file or picture to the AI provider (look_at_file). Never covered by "allow app changes".
+ *   spend-image  making or editing a picture at the person's provider, which costs money (generate_image, edit_image).
+ *          Never covered by "allow app changes" either.
  *   kindOf(text) → 'delete' | 'change'   (a command's id and title; send is set by the tool itself)
  * Modes (one per device): 'ask' (default: every action of these kinds asks), 'changes' (app changes run, deleting and
  *   sending ask), 'all' (nothing asks). mode(), setMode(id), MODES.
@@ -28,12 +30,13 @@
     change: { id: 'change', name: 'app changes', what: 'a change Undo can take back (crop, flatten, merge, replace…)' },
     delete: { id: 'delete', name: 'deleting or clearing', what: 'deleting, clearing, closing or overwriting something' },
     send: { id: 'send', name: 'sending files', what: 'sending a copy of a file or picture to the AI provider' },
+    'spend-image': { id: 'spend-image', name: 'spending on image generation', what: 'making or editing a picture at your provider, which charges your account' },
   };
   const MODES = [
     { id: 'ask', label: 'Ask each time', note: 'Actions that change, delete or send something ask you first. Reading and ordinary edits run.' },
     { id: 'changes', label: 'Allow app changes, ask before deleting or sending files', note: 'Changes Undo can take back run without asking. Deleting, clearing and sending a file to the AI provider still ask.' },
     { id: 'all', label: 'Allow everything', note: 'Nothing asks.',
-      warning: 'The assistant can then delete or clear your work and send copies of your files to the AI provider without asking you. “Undo all AI changes” still takes back app changes, but nothing can call back a file that was sent or deleted from Slop Drive.' },
+      warning: 'The assistant can then delete or clear your work, send copies of your files to the AI provider and spend on image generation without asking you. “Undo all AI changes” still takes back app changes, but nothing can call back a file that was sent or deleted from Slop Drive.' },
   ];
   const DELETE = /\b(delete|remove|trash|purge|clear|erase|empty|wipe|destroy|discard|overwrite|reset|close|quit)\b/i;
   const kindOf = (text) => (DELETE.test(String(text || '').replace(/[._-]/g, ' ')) ? 'delete' : 'change');
