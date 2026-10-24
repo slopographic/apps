@@ -1,10 +1,8 @@
 # Slopographic
 
-A 3D studio for slop. Live at **[slopographic.com](https://slopographic.com)**.
+Free office and creative apps that run in your browser: a PDF editor, a photo editor, a background remover, a video editor, a file converter, workflows across apps and 70+ more. Live at **[slopographic.com](https://slopographic.com)**.
 
-A studio of browser apps for creative work and for running a small business. Live at **[slopographic.com](https://slopographic.com)**.
-
-Everything runs 100% in your browser: no installs, no accounts, no uploads, no watermarks. Static files, no backend, no build step. Each app is its own folder and can be downloaded as one offline `.html` file. Your files stay on your device, or in Slop Drive, the local drive every app shares.
+Everything runs 100% in your browser: no installs, no accounts, no uploads, no watermarks. Static files, no backend, no build step. Each app is its own folder and can be downloaded as one offline `.html` file. Your files stay on your device, or in Slop Drive, the local drive every app shares. The optional AI runs on your device, or, if you connect your own AI account, sends your requests straight to that provider and nowhere else.
 
 ### Creative
 
