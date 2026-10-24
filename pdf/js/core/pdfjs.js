@@ -82,13 +82,19 @@
     opts = opts || {};
     await E.libs();
     var fp = await SP.editLog.fingerprint(bytes); // SHA-256 of the original bytes (null when unavailable)
-    var r = await E.openPdfjs(bytes, name, askPassword), doc = r.doc, finalBytes = bytes, locked = null, decrypted = false;
-    if (SP.decrypt.isEncrypted(bytes)) {
+    var r = await E.openPdfjs(bytes, name, askPassword), doc = r.doc, finalBytes = bytes, locked = null, decrypted = false, security = null;
+    // pdf.js says whether the file has a security handler; only then is the password code (shared/pdf-crypto) loaded
+    if (r.password || await E.mayBeEncrypted(doc)) {
       try {
-        var dec = await SP.decrypt.decryptPdf(bytes, r.password);
-        if (dec) {
-          var r2 = await E.openPdfjs(dec, name, null);
-          await doc.destroy(); doc = r2.doc; finalBytes = dec; decrypted = true;
+        await SP.decrypt.load();
+        if (SP.decrypt.isEncrypted(bytes)) {
+          var dec = await SP.decrypt.decryptPdf(bytes, r.password);
+          if (dec) {
+            // what the original had (method, permissions, owner or user password), never the password itself
+            security = await SP.decrypt.describe(bytes, r.password).catch(function () { return null; });
+            var r2 = await E.openPdfjs(dec, name, null);
+            await doc.destroy(); doc = r2.doc; finalBytes = dec; decrypted = true;
+          }
         }
       } catch (e) { locked = e.message || 'Unsupported encryption'; console.warn('Slop PDF: could not remove encryption', e); }
     }
@@ -98,7 +104,7 @@
     var files = opts.files || E.files;
     var stable = fp ? 'f' + fp.slice(0, 16) : null;
     var id = opts.id || (stable && !files.has(stable) && !E.fileIdTaken(stable, files) ? stable : U.uid('f'));
-    var f = { id: id, name: name, bytes: finalBytes, doc: doc, numPages: doc.numPages, color: opts.color || E.COLORS[E._colorIdx++ % E.COLORS.length], info: [], decrypted: decrypted, locked: locked, fields: undefined, fp: fp, noLog: false };
+    var f = { id: id, name: name, bytes: finalBytes, doc: doc, numPages: doc.numPages, color: opts.color || E.COLORS[E._colorIdx++ % E.COLORS.length], info: [], decrypted: decrypted, security: security, locked: locked, fields: undefined, fp: fp, noLog: false };
     var n = doc.numPages, next = 0;
     async function worker() {
       while (next < n) { var i = next++; var pg = await doc.getPage(i + 1); f.info[i] = { view: pg.view.slice(), rotate: ((pg.rotate % 360) + 360) % 360 }; }
@@ -107,6 +113,10 @@
     files.set(f.id, f);
     if (!opts.silent) E.emit('files');
     return f;
+  };
+  /** pdf.js reads the trailer's /Encrypt: its document info names the handler (EncryptFilterName). No info: maybe. */
+  E.mayBeEncrypted = async function (doc) {
+    try { var md = await doc.getMetadata(); return !md || !md.info || !!md.info.EncryptFilterName; } catch (e) { return true; }
   };
   E.readMeta = async function (f) {
     try {

@@ -55,10 +55,10 @@
   // Downloads never include unapplied marks: offer to apply them first.
   var download = A.download;
   A.download = function () {
-    var n = R.pending().length;
-    if (!n) return download.apply(A, arguments);
+    var n = R.pending().length, args = arguments;
+    if (!n) return download.apply(A, args);
     return SlopUI.confirm('Redactions not applied', n + ' area' + (n === 1 ? ' is' : 's are') + ' marked for redaction but not removed yet. Apply the redactions permanently, then download?', 'Apply and download', { danger: true })
-      .then(function (ok) { return ok ? A.applyRedactions(true).then(function (done) { return done ? download.apply(A) : null; }) : null; });
+      .then(function (ok) { return ok ? A.applyRedactions(true).then(function (done) { return done ? download.apply(A, args) : null; }) : null; });
   };
   A.gotoMark = function (pid, aid) {
     if (A.tool !== 'redact') A.setTool('redact');

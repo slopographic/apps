@@ -133,6 +133,8 @@
       A.announce('Added ' + newPages.length + ' page' + (newPages.length === 1 ? '' : 's'));
       S.els.restore.hidden = true;
     }
+    var hadPw = opened.filter(function (f) { return f.security && f.security.encrypted; })[0];
+    if (hadPw) A.status('“' + hadPw.name + '” had a password. Downloads have no password unless you add one (File ▸ Protect with password…).', 'warn');
     if (errors.length) SlopUI.alert(errors.length > 1 ? 'Some files could not be opened' : 'Could not open file', h('div', null, errors.map(function (e) { return h('p', { class: 'sui-p' }, e); })));
     // Slop Drive: a version opened from Drive is linked to its document; other PDFs are kept there at once
     if (sources.length && newPages.length) {

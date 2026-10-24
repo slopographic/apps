@@ -42,7 +42,7 @@
     var live = doc.live, files = live ? E.files : doc.files, assets = live ? E.assets : doc.assets, state = live ? E.state : doc.state;
     return {
       v: 1,
-      files: Array.from(files.values()).filter(function (f) { return !f.locked; }).map(function (f) { return { id: f.id, name: f.name, bytes: f.bytes, color: f.color, fp: f.fp || null }; }),
+      files: Array.from(files.values()).filter(function (f) { return !f.locked; }).map(function (f) { return { id: f.id, name: f.name, bytes: f.bytes, color: f.color, fp: f.fp || null, security: f.security || null }; }),
       assets: Array.from(assets.values()),
       state: JSON.parse(JSON.stringify(state)),
       fileName: live ? SP.app._.els.fileName.value : doc.fileName,
@@ -69,6 +69,7 @@
         var bytes = fd.bytes instanceof Uint8Array ? fd.bytes : new Uint8Array(fd.bytes);
         var rf = await E.registerPdf(bytes, fd.name, null, { id: wanted || undefined, color: fd.color, silent: true, files: files });
         rf.noLog = true; // the saved tab holds these edits; the edit log is for files opened from disk
+        if (fd.security) { rf.security = fd.security; rf.decrypted = true; } // what the original's password allowed (no password)
         ids[fd.id] = rf.id;
       } catch (e) { console.warn('Slop PDF: could not restore', fd.name, e); }
     }

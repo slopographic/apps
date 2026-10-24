@@ -135,3 +135,8 @@ select.inp { padding-right: 4px; }
 .pf-missing { color: #d9534f; border-color: #d9534f; }
 .pf-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
 @media (max-width: 480px) { .pf-row { grid-template-columns: 1fr; } .pf-status { justify-self: start; } }
+/* the Download PDF dialog's password section (ui/protect.js) and the notice on a file that had a password */
+.pp-protect h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+.pp-protect-fields { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 4px; }
+.pw-notice { margin: 0 0 8px; padding: 8px; border-radius: 8px; background: var(--panel-2); border-left: 3px solid var(--warn); }
+.pw-notice .btn-row { margin-top: 6px; }
