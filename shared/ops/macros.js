@@ -21,7 +21,10 @@ const M = g.SlopMacrosCore;
 export const HOSTS = {
   photoslop: { label: 'PhotoSlop', url: 'photoslop/?macro-host=1', from: IMAGE_IN.concat(['psd']) },
   slopisolate: { label: 'SlopIsolate', op: 'slopisolate.remove-bg', fold: ['co.look'], from: IMAGE_IN },
+  // SlopCut's hidden copy opens the video, replays the macro and renders it (slopcut/js/ai/host.js)
+  slopedit: { label: 'SlopCut', url: 'slopcut/?macro-host=1', from: ['mp4', 'webm', 'mov', 'mp3', 'wav', 'm4a', 'png', 'jpg', 'webp'], video: true },
 };
+const VFORMAT = { key: 'format', type: 'select', label: 'Save as', value: 'mp4', options: [['mp4', 'MP4'], ['webm', 'WebM']] };
 
 const FORMAT = { key: 'format', type: 'select', label: 'Save as', value: 'same', options: [['same', 'Same as the file (PSD and others as PNG)'], ['png', 'PNG'], ['jpg', 'JPG'], ['webp', 'WebP']] };
 const QUALITY = { key: 'quality', type: 'range', label: 'Quality (JPG, WebP)', min: 40, max: 100, step: 1, value: 90 };
@@ -47,6 +50,16 @@ export function macroOp(app, macro) {
       description: `Your ${H.label} macro: ${titles.join(' → ')}.`, keywords: ['macro', 'recorded', H.label, ...titles],
       async run(files, o, ctx) { const f = await foldOptions(app, macro.steps); return f.op.run(files, f.options, ctx); } };
   }
+  if (H.video) return {
+    id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',
+    from: H.from, ext: 'mp4', out: (k, o = {}) => o.format || 'mp4', options: [VFORMAT],
+    description: `Your ${H.label} macro: ${titles.join(' → ')}.`, keywords: ['macro', 'recorded', H.label, ...titles],
+    async run(files, o, ctx = {}) {
+      const f = files[0], run = await hostRunner();
+      const r = await run({ app, url: H.url }, f.file, macro.steps, { format: o.format || 'mp4' }, { signal: ctx.signal, progress: ctx.progress, timeout: 60 * 60 * 1000 });
+      return [{ name: `${stem(f.name)}-${macro.name}.${r.kind}`.replace(/[\\/:*?"<>|]+/g, '-'), blob: r.blob, kind: r.kind }];
+    },
+  };
   return {
     id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',
     from: H.from, ext: 'png', out: outKind, options: [FORMAT, QUALITY],

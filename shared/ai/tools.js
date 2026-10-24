@@ -113,7 +113,7 @@
         if (++calls > maxCalls) { text += '\n\n(Stopped: at most ' + maxCalls + ' actions per request.)'; break; }
         const tool = tools.find((x) => x.name === call.name) || null;
         if (onTool) onTool({ phase: 'start', call, tool });
-        const res = await dispatch(call, tools, env);
+        const res = await dispatch(call, tools, chatOpts.signal ? Object.assign({}, env, { signal: chatOpts.signal }) : env);   // a long tool (an export) stops with Stop
         if (onTool) onTool({ phase: 'end', call, res, tool });
         added.push({ role: 'tool', name: call.name, callId: call.id, content: res.ok ? res.result : 'ERROR: ' + res.error, ok: res.ok, args: call.arguments, media: res.media });
       }

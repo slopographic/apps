@@ -4,7 +4,8 @@
  *          { name: 'text', type: 'string', maxLength: 500, required: true }, { name: 'on', type: 'boolean' },
  *          { name: 'fill', type: 'color', default: '#ffffff' }]        (also an object map { radius: { type… } })
  * Types: number (integer: true rounds; step rounds to the step), string, enum (values, or options [[value, label]]),
- * boolean, color (any CSS hex or a basic colour name → '#rrggbb').
+ * boolean, color (any CSS hex or a basic colour name → '#rrggbb'), json (an object or array, or its JSON text; maxLength
+ * counts the JSON characters; `schema` is its JSON schema for tool definitions, default an object).
  *   validate(schema, raw) → { ok, args, errors: [text], notes: [text] }: unknown names dropped, strings coerced
  *       ("8px" → 8, "yes" → true, "JPEG" → 'jpeg'), numbers clamped to min..max (a note says so), defaults filled,
  *       a missing required argument or a value that cannot be read is an error.
@@ -17,7 +18,7 @@
   root.SlopCmdArgs = api;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
-  const TYPES = new Set(['number', 'string', 'enum', 'boolean', 'color']);
+  const TYPES = new Set(['number', 'string', 'enum', 'boolean', 'color', 'json']);
   const NAMED = { black: '#000000', white: '#ffffff', red: '#ff0000', green: '#008000', lime: '#00ff00', blue: '#0000ff', yellow: '#ffff00',
     orange: '#ffa500', purple: '#800080', pink: '#ffc0cb', grey: '#808080', gray: '#808080', brown: '#a52a2a', cyan: '#00ffff',
     magenta: '#ff00ff', navy: '#000080', teal: '#008080', gold: '#ffd700', silver: '#c0c0c0', transparent: '#00000000' };
@@ -90,6 +91,13 @@
       return e === undefined ? { ok: false, error: `${a.name} must be one of: ${choices(a).map((c) => c[0]).join(', ')}` } : { ok: true, value: e };
     }
     if (a.type === 'color') { const c = toColor(v); return c ? { ok: true, value: c } : { ok: false, error: `${a.name} must be a colour like #ff8800 or "red"` }; }
+    if (a.type === 'json') {
+      let o = v;
+      if (typeof v === 'string') { try { o = JSON.parse(v); } catch (e) { return { ok: false, error: `${a.name} must be JSON: ${e.message}` }; } }
+      if (!o || typeof o !== 'object') return { ok: false, error: `${a.name} must be an object or a list` };
+      if (a.maxLength && JSON.stringify(o).length > a.maxLength) return { ok: false, error: `${a.name} is longer than ${a.maxLength} characters` };
+      return { ok: true, value: o };
+    }
     let s = typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
     let note = null;
     if (a.maxLength && s.length > a.maxLength) { s = s.slice(0, a.maxLength); note = `${a.name} was cut to ${a.maxLength} characters`; }
@@ -128,6 +136,7 @@
       else if (a.type === 'boolean') p.type = 'boolean';
       else if (a.type === 'enum') { p.type = 'string'; p.enum = choices(a).map((c) => c[0]); }
       else if (a.type === 'color') { p.type = 'string'; p.pattern = '^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$'; }
+      else if (a.type === 'json') Object.assign(p, a.schema || { type: 'object' });
       else { p.type = 'string'; if (a.maxLength) p.maxLength = a.maxLength; }
       if (a.description) p.description = a.description;
       if (a.default !== undefined) p.default = a.default;
@@ -147,7 +156,7 @@
   /** A short line for a step: 'Gaussian blur, radius 8'. */
   function summary(title, schema, args) {
     const parts = normalize(schema).filter((a) => args && args[a.name] !== undefined)
-      .map((a) => (a.type === 'boolean' ? (args[a.name] ? a.name : 'no ' + a.name) : `${a.label || a.name} ${String(args[a.name]).slice(0, 40)}`));
+      .map((a) => (a.type === 'boolean' ? (args[a.name] ? a.name : 'no ' + a.name) : `${a.label || a.name} ${(a.type === 'json' ? JSON.stringify(args[a.name]) : String(args[a.name])).slice(0, 40)}`));
     return [String(title || '').replace(/…$/, '')].concat(parts).join(', ');
   }
 

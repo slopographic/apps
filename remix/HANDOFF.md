@@ -170,3 +170,17 @@ timing beyond the slot offsets; a lock on a single slot that is in a cut with a 
 cut and slot, so after Remix a slot keeps its keys only when the new plan has the same cut and slot. Keyframes cover position,
 scale, rotation and opacity only (no key on colour or the clip's in point); the effect layer has no per-effect settings beyond
 intensity and change.
+
+## AI commands (js/ai-commands.js, js/ai-spec.js, 2026-10)
+
+Every operation is a SlopCmd command with arguments (the Slop AI panel's and WebMCP's tools; Ctrl+K opens a form):
+`remix_state` (read-only: clips with ids, options, each cut's slots), `add_from_drive` (source), `remove_clip` (destructive),
+`set_options` (target, pace, aspect/preset or width+height, layout, switches, grids, fill, timing, video, min, max, stagger,
+audio, music, effect, intensity, effect_change, photo_show, photo_seconds, photo_enter, photo_exit, seed; then plans),
+`remix` (seed or "new"), `set_cut_fill`, `replace_slot`, `swap_slots`, `move_cut`, `lock_cut`, `reset_options`
+(destructive), `export_reel` (engine slopcut, SlopCut's frame-exact render in its hidden copy, or record, the real-time
+export; format, name, save_to_drive, download), `send_to_slopcut`, and `remix_from_spec` (one call: { sources: [Slop Drive
+ids or names], …options, export: {…} }, the bin replaced unless replace: false). They set `RM.state` and the controls,
+then plan with `RM.remixNow`, so the page shows what was done. `SlopCmd.provide`: state, and a checkpoint of the options.
+Not done: beat sync and captions (Remix has neither; the "Remix to reel" operation, `shared/ops/video.js`, adds captions in
+SlopCut). Test: `tests/remix/ai-commands.test.html`.

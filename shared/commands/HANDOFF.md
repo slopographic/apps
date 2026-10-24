@@ -46,7 +46,12 @@ SlopCmd.provide({
 const r = await SlopCmd.exec('ps.ai.gaussian-blur', { radius: '900px' });  // { ok, value, args: { radius: 250 }, notes: […] }
 ```
 - Types: `number` (`min`, `max`, `step`, `integer`), `string` (`maxLength`), `enum` (`values` or `options: [[value, label]]`),
-  `boolean`, `color` (hex or a basic name → `#rrggbb`). `required`, `default`, `description` on any. A map `{ radius: {…} }` works too.
+  `boolean`, `color` (hex or a basic name → `#rrggbb`), `json` (an object or list, or its JSON text; `schema` is its JSON
+  schema for tool definitions; macros keep it).
+- `readOnly: true` (only reads; never asked) and `sends: true` (its value `{ text, media }` carries the app's content to the
+  model; asked every time, like look_at_file) are passed on to the tools (shared/ai/cmdtools.js).
+- `argform.js` (`SlopCmdForm.wrap(cmd)`): a command with args run from Ctrl+K or a key gets a form from its schema,
+  prefilled by `cmd.prefill()`; a recording macro keeps the values chosen. Used by SlopCut and Reel Remix. `required`, `default`, `description` on any. A map `{ radius: {…} }` works too.
 - `exec(id, args, ctx)` loads `args.js` if needed, checks the arguments (strings coerced, numbers clamped with a note,
   unknown names dropped with a note, defaults filled, a missing required or unreadable value is an error), runs the
   command and awaits it. `run(id, { args })` does the same check synchronously when `args.js` is on the page.

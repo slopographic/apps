@@ -46,6 +46,7 @@
   }
   async function start() {
     if (H()) H().register('music');
+    if (window.SlopCmd && M.cmds) { SlopCmd.init({ app: 'music' }); M.cmds.install(); }   // ai-commands.js: palette + Slop AI
     M.libUI.bind(); M.plUI.bind(); M.now.bind(); M.mini.bind(() => setView('now'));
     M.libUI.render();
     M.engine.subscribe(() => { titleNow(); M.mini.paint(view); });

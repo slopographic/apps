@@ -4,6 +4,7 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="slopedit" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+<script data-offline="strip">/* the hidden copy that runs edits for Slop Workflows and the AI (shared/macros/frame.js) adds no third-party scripts */ if (/[?&]macro-host=1(&|$)/.test(location.search)) window.SLOP_CONSENT_LOADER = function () {};</script>
 <script src="../shared/consent/config.js" data-offline="strip"></script>
 <script src="../shared/consent/state.js" data-offline="strip"></script>
 <script src="../shared/consent/consent-mode.js" data-offline="strip"></script>
@@ -245,6 +246,19 @@
   <script src="js/ui/context.js" data-src="slopcut/js/ui/context.js"></script>
   <script src="js/ui/view-state.js" data-src="slopcut/js/ui/view-state.js"></script>
   <script src="js/ui/layout.js" data-src="slopcut/js/ui/layout.js"></script>
+  <script src="../shared/video/edl.js" data-src="shared/video/edl.js"></script>
+  <script src="../shared/macros/core.js" data-offline="strip"></script>
+  <script src="../shared/macros/store.js" data-offline="strip"></script>
+  <script src="../shared/macros/macros.js" data-offline="strip"></script>
+  <script src="../shared/commands/args.js" data-src="shared/commands/args.js"></script>
+  <script src="../shared/commands/argform.js" data-src="shared/commands/argform.js"></script>
+  <script src="js/ai/core.js" data-src="slopcut/js/ai/core.js"></script>
+  <script src="js/ai/cmd-clips.js" data-src="slopcut/js/ai/cmd-clips.js"></script>
+  <script src="js/ai/cmd-text.js" data-src="slopcut/js/ai/cmd-text.js"></script>
+  <script src="js/ai/cmd-project.js" data-src="slopcut/js/ai/cmd-project.js"></script>
+  <script src="js/ai/cmd-export.js" data-src="slopcut/js/ai/cmd-export.js"></script>
+  <script src="js/ai/build.js" data-src="slopcut/js/ai/build.js"></script>
+  <script src="js/ai/host.js" data-src="slopcut/js/ai/host.js"></script>
   <script src="js/ui/main.js" data-src="slopcut/js/ui/main.js"></script>
   <script type="module" async src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js" data-offline="strip"></script>

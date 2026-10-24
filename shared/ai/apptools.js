@@ -155,7 +155,7 @@
     const cmd = env.cmd;
     if (cmd && cmd.list && (cmd.run || cmd.exec) && K.cmdTools) {
       const label = env.appId ? `the ${((apps().find((a) => a.id === env.appId) || {}).name) || env.appId} app` : 'this app';
-      tools.push(...K.cmdTools.build(cmd, { label }));   // list_commands, run_command, app_state and one tool per command with args
+      tools.push(...K.cmdTools.build(cmd, { label, who: env.who, look: !!env.look }));   // list_commands, run_command, app_state and one tool per command with args
     }
     return tools;
   }
