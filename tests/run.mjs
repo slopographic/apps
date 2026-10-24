@@ -7,6 +7,8 @@
 //                                 passed and is listed as load-sensitive (its timing depends on the machine being idle)
 //   --shard=2/8                   only the 2nd of 8 slices of the pages, balanced by tests/timings.json (CI runs the slices
 //                                 as parallel jobs; see tests/shard.mjs)
+//   --pages-file=list.txt         only the pages listed in the file (repo paths, space or line separated; CI's changed-pages
+//                                 run on work branches, from tools/ci/plan.mjs)
 //   --skip-node                   no Node tests (CI runs them in their own job)
 //   --needs-net                   only print yes when a page of the slice is in tests/net-urls.txt (CI then restores the
 //                                 download cache), else no
@@ -16,6 +18,7 @@
 // Requests to the model hosts and CDNs go through a disk cache, tests/.cache/net (see tests/netcache.mjs).
 // Serves the repo root on a local port (no dependencies), opens each page, waits for
 // window.__SLOPTEST__ (see tests/harness.js) and prints a report. Exit code 1 on failure.
+// What CI runs where (the full suite on testing, only the pages a change needs on work branches): tools/ci/plan.mjs.
 // Also runs Node-only tests (tests/node/*.test.mjs and tests/seo/*.test.mjs) with `node --test`.
 import http from 'node:http';
 import { readFile, readdir, stat, writeFile } from 'node:fs/promises';
@@ -83,6 +86,7 @@ if (nodeTests.length && !flag('skip-node')) {
 }
 
 let pages = (await findTests(path.join(ROOT, 'tests'))).filter((p) => p.includes(filter)).sort();
+if (value('pages-file')) { const only = new Set((await readFile(value('pages-file'), 'utf8')).split(/\s+/).filter(Boolean)); pages = pages.filter((p) => only.has(p)); }
 const timings = JSON.parse(await readFile(TIMINGS, 'utf8').catch(() => '{}'));
 if (SHARD) {
   pages = shardPages(pages, SHARD.count, timings)[SHARD.index - 1];
