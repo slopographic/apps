@@ -126,7 +126,8 @@ its main button in the panel. Slop Upscale: `tests/upscale/panel.test.html`. Slo
 
 ## Audit: every app against the rule
 
-Status: **done** (follows the rule; in `tests/node/right-panel.test.mjs`), **close** (panel already on the right, the
+Status: **done** (follows the rule; checked by `tests/node/right-panel.test.mjs`: a tool or viewer mounts SlopFrame and,
+for a tool, its main button is in the panel's footer; an editor keeps its own panel and takes the shared footer), **close** (panel already on the right, the
 main button still elsewhere), **to do**, **n/a** (no settings and no main action: the rule has nothing to move).
 Kind: tool (open → settings → run → save), editor, records (list + form), viewer, other.
 
@@ -145,7 +146,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop Image to 3D | img3d/ | tool | settings LEFT, Send in the header | done | |
 | Slop Signature | signature/ | tool | form LEFT, preview right, Copy under the preview | done | |
 | QR SLOP | qr/ | tool | editor LEFT, preview right, downloads under it | done | Save to Drive, Open from Drive and Copy to buffer stay in its app bar (Drive actions, like Open) |
-| Slop Effects | effects/ | tool | panel right, Render in the header | to do | Render into the panel's foot |
+| Slop Effects | effects/ | editor | properties right, Render in the header | done | its own panel and SlopSheet, the shared footer (bare) |
 | Checksum | checksum/ | tool | three stacked cards | to do | pick/check cards → right panel |
 | Serial counter | serials/ | tool | one column, bar + actions | to do | bar and exports → right panel |
 | Slop Photo Sorter | sorter/ | tool | one column, bar | to do | bar → right panel |

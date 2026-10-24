@@ -1,7 +1,7 @@
 // The suite's layout rule (shared/frame/HANDOFF.md, "settings and the main button live in the right panel") stays true
 // for every app the audit there marks done: the audit table is the one list, this test reads it. A done app loads
 // SlopFrame (frame.css, frame.js, panel.js, and sheet.js for phones), and a done tool also puts its main button in the
-// panel's footer (panel.js footer()). The browser tests of each app check the look (tests/<app>/…).
+// panel's footer (panel.js footer()); a done editor keeps its own panel and puts its main button in the shared footer. The browser tests of each app check the look (tests/<app>/…).
 // Covers: shared/frame/HANDOFF.md, shared/frame/frame.js, shared/frame/panel.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -48,8 +48,13 @@ test('every app marked done loads SlopFrame and its phone sheet; a done tool has
     const js = await ownScripts(dir);
     const all = html + js;
     assert.ok(/shared\/frame\/frame\.css/.test(all), r.name + ': frame.css');
-    assert.ok(loads('frame.js') && loads('panel.js'), r.name + ': frame.js and panel.js');
+    assert.ok(loads('panel.js'), r.name + ': panel.js');
     assert.ok(all.includes('shared/ui/sheet.js'), r.name + ': shared/ui/sheet.js (the phone sheet)');
+    if (r.kind === 'editor') {   // an editor keeps its own panel and takes the shared footer for its main button
+      assert.ok(/SlopFramePanel\.create\(.*bare: true/.test(js) && /\.footer\(\[/.test(js), r.name + ': the shared footer on its own panel');
+      continue;
+    }
+    assert.ok(loads('frame.js'), r.name + ': frame.js');
     assert.ok(/SlopFrame\.mount\(/.test(js) && /(SlopFrame\.panel|SlopFramePanel\.create)\(/.test(js), r.name + ': mounts SlopFrame and its panel');
     if (r.kind === 'tool' && r.folder !== 'workflows/') assert.ok(/\.footer\(\[/.test(js), r.name + ': the main button is in the panel footer');
   }

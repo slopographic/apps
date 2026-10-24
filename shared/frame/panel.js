@@ -11,6 +11,8 @@
  * panel's bottom edge, so it is in reach however long the settings are. On a phone the closed sheet still shows the
  * footer at the bottom of the screen (the primary button is never hidden); its "more" button opens the whole sheet.
  * footer() redraws only the footer (call it on every state change; the settings are not touched). footer([]) removes it.
+ * Big editors keep their own panel and take only the footer: create(theirPanel, { bare: true }).footer([...], { more,
+ * onMore: () => theirSheet.open() }) (the panel needs SlopSheet on phones for the closed sheet to show the footer).
  * Section and action shapes: see frame.js. A menu opens under its button with shared/ui/menubutton.js (SlopMenuButton);
  * items are { label, act, disabled?, keywords? } or { heading }. Classic script; styles in frame.css. */
 (function (g) {
@@ -85,7 +87,7 @@
     const head = el('div', 'sf-p-title'), h = el('h2', 'sf-p-h', o.title || '');
     head.append(h);
     const body = el('div', 'sf-p-body');
-    panel.append(head, body);
+    if (!o.bare) panel.append(head, body);   // bare: an editor's own panel that only takes the footer
 
     function render(sections) {
       const focused = doc.activeElement && panel.contains(doc.activeElement) ? doc.activeElement.dataset.sfKey : null;
@@ -127,7 +129,7 @@
     // The footer: the main button(s), stuck to the panel's bottom; its height is kept in --sf-foot-h on the frame's root
     // (frame.css lifts the page above it on phones, where the closed sheet shows only the footer).
     const foot = el('div', 'sf-p-foot');
-    const host = () => panel.closest('.sf-root') || panel.parentElement;
+    const host = () => panel.closest('.sf-root') || doc.documentElement;
     const ro = g.ResizeObserver ? new g.ResizeObserver(() => { const r = host(); if (r) r.style.setProperty('--sf-foot-h', foot.offsetHeight + 'px'); }) : null;
     function footer(actions, fo) {
       fo = fo || {};
@@ -141,7 +143,7 @@
       const bar = el('div', 'sf-foot-acts');
       list.forEach((a, k) => bar.append(button(a, 'foot/' + (a.id || k))));
       if (fo.more) {
-        const m = button({ label: fo.more, run: () => panel.dispatchEvent(new g.CustomEvent('sf-sheet', { bubbles: true })) }, 'foot/more');
+        const m = button({ label: fo.more, run: fo.onMore || (() => panel.dispatchEvent(new g.CustomEvent('sf-sheet', { bubbles: true }))) }, 'foot/more');
         m.classList.add('sf-foot-more');
         m.setAttribute('aria-haspopup', 'dialog');
         bar.prepend(m);

@@ -77,10 +77,12 @@ button.sf-item-main:focus-visible { outline: 2px solid var(--sl-accent); outline
 .sf-foot-acts .sf-btn { flex: 1 1 0; min-width: 0; min-height: 40px; font-weight: 700; }
 .sf-foot-note { margin: 0; font-size: 11.5px; color: color-mix(in srgb, var(--sl-text) 62%, transparent); text-align: center; }
 .sf-foot-more { display: none; }
-/* Phones: the closed sheet shows only its footer at the bottom of the screen; the page leaves room for it */
-.sf-phone .sf-foot-acts .sf-foot-more { display: inline-flex; flex: 0 0 auto; font-weight: 600; }
-.sf-phone .sf-panel.sf-has-foot.ssh-panel:not(.ssh-on) { visibility: visible; transform: none; transition: none; overflow: hidden; box-shadow: 0 -6px 18px rgba(0, 0, 0, .18); }
-.sf-phone .sf-panel.sf-has-foot.ssh-panel:not(.ssh-on) > :not(.sf-p-foot) { display: none; }
-.sf-phone .sf-panel.sf-has-foot .sf-p-foot { border-radius: 0; }
-.sf-phone:has(> .sf-panel.sf-has-foot) { padding-bottom: var(--sf-foot-h, 64px); }
+/* Phones (a SlopSheet panel: SlopFrame's, or an editor's own): the closed sheet shows only its footer at the bottom of the
+   screen, and the page leaves room for it */
+.ssh-phone .sf-foot-acts .sf-foot-more { display: inline-flex; flex: 0 0 auto; font-weight: 600; }
+.ssh-phone .sf-has-foot.ssh-panel:not(.ssh-on) { visibility: visible; transform: none; transition: none; overflow: hidden; block-size: auto; min-block-size: 0;
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, .18); }
+.ssh-phone .sf-has-foot.ssh-panel:not(.ssh-on) > :not(.sf-p-foot) { display: none; }
+.ssh-phone .sf-has-foot .sf-p-foot { border-radius: 0; }
+.ssh-phone:has(.sf-has-foot.ssh-panel) { padding-bottom: var(--sf-foot-h, 64px); }
 @media print { .sf-panel, .sf-grip, .sf-list { display: none !important; } }
