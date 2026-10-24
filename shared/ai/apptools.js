@@ -1,7 +1,10 @@
 /* SlopAIKit appTools: the "Control apps" tool set. Classic script; adds SlopAIKit.appTools.
  *   appTools.build(env) → tools for SlopAIKit.tools.run (with env.cmd, the page's own commands through cmdtools.js)
  * env: { apps(): SLOP_APPS, hub: SlopHub, cmd: SlopCmd (only inside an app, via the side panel), open(url),
- *        confirm(title, message), appId, workspace: SlopWorkspace (Slop AI: apps open beside the chat) }
+ *        confirm(title, message), appId, workspace: SlopWorkspace (Slop AI: apps open beside the chat),
+ *        look: add look_at_file (fileTools.js; for models that can see, it asks before each copy goes out), who: where
+ *        that copy goes ("Anthropic"), ops: add the operations registry's tools (opTools.js) }
+ * The one tool list: the side panel, Slop AI and every engine (local prompt-based or cloud native) use what build makes.
  * Destructive actions (commands that delete, clear, close, reset, …) always ask the person first.
  * With env.workspace, open_app opens the app in a frame beside the chat, and app_search / app_command / app_state
  * drive it through its SlopCmd registry (ai/js/ui/workspace.js). A web address given to open_app opens in a new tab. */
@@ -147,6 +150,8 @@
           return text.length > 4000 ? text.slice(0, 4000) + `\n… (${text.length - 4000} more characters)` : text;
         } },
     ];
+    if (env.look && K.fileTools) tools.push(K.fileTools.look(env));
+    if (env.ops && K.opTools) tools.push(...K.opTools.build(env));
     const cmd = env.cmd;
     if (cmd && cmd.list && (cmd.run || cmd.exec) && K.cmdTools) {
       const label = env.appId ? `the ${((apps().find((a) => a.id === env.appId) || {}).name) || env.appId} app` : 'this app';
