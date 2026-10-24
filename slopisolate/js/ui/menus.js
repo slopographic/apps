@@ -33,6 +33,11 @@
     }),
     exportOne: (it) => guard(() => CO.export.one(it || needItem())),
     exportAll: () => guard(() => CO.export.all()),
+    // Slop Workflows: Remove background as a step, with the model and the look of the image on screen (shared/ops/flowdoc.js)
+    workflow: () => guard(() => {
+      const it = cur() || S.defaults;
+      return window.SlopFlowDoc.addToWorkflow({ id: 'slopisolate.remove-bg' }, { settings: { model: (it && it.model) || S.model, look: { bg: it.bg, shadow: it.shadow, crop: it.crop } } });
+    }),
     undo: () => { const it = cur(); if (H.can(it, 'undo')) H.undo(it); },
     redo: () => { const it = cur(); if (H.can(it, 'redo')) H.redo(it); },
     clearEdits: () => {
@@ -74,6 +79,7 @@
     out.push('-',
       { label: 'Export…', key: keyOf('co.export-one', 'Ctrl+S'), act: act.exportOne, disabled: !done() },
       { label: 'Export all…', key: keyOf('co.export-all', 'Ctrl+Shift+S'), act: act.exportAll, disabled: !S.items.some((i) => i.status === 'done') });
+    if (window.SlopFlowDoc) out.push('-', { label: 'Add to a workflow…', act: act.workflow });
     return out;
   }
   function editItems() {

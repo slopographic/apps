@@ -1,0 +1,13 @@
+/* Every operation on the site, in one registry (shared/ops/registry.js): File convert's conversions (its catalog
+ * registers them) and the apps' headless operations. Slop Workflows imports this; File convert imports only its catalog.
+ * The order here is the order of the apps in the step menu (File convert first, as registered by the catalog). */
+import '../../convert/js/core/catalog.js';
+import './isolate.js';
+import './watermark.js';
+import './resize.js';
+import './upscale.js';
+import './clean.js';
+import './ocr.js';
+import './files.js';
+
+export * from './registry.js';

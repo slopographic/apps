@@ -268,6 +268,7 @@
   register([
     { id: 'cmd.palette', title: 'Search commands…', group: 'Help', keys: ['Mod+K', 'Shift+Mod+P', '/'], keywords: ['spotlight', 'palette', 'find', 'actions'], global: true, noRecent: true, run: () => (paletteOpen ? api.close() : api.open()) },
     { id: 'cmd.keymap', title: 'Keyboard shortcuts…', group: 'Help', keywords: ['keys', 'keymap', 'hotkeys', 'bindings', 'customize'], noRecent: true, run: () => api.openKeymap() },
+    { id: 'cmd.workflow', title: 'Run a workflow…', group: 'File', keywords: ['workflow', 'batch', 'pipeline', 'automate', 'chain', 'apps'], when: () => !!BASE && !window.SlopWorkflowsPage, run: () => import(new URL('../ops/dialog.js', BASE).href).then((m) => m.open({})) },   // shared/ops/dialog.js
   ]);
   const api = {
     init, register, unregister, run, list, on, off, parse, canon, format, eventSteps, isTyping, conflicts, allConflicts,
