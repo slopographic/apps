@@ -103,6 +103,7 @@
       { label: 'Search commands…', key: A.key('cmd.palette'), act: function () { if (window.SlopCmd) SlopCmd.open(); }, disabled: !window.SlopCmd },
       { label: 'Keyboard shortcuts…', key: A.key('cmd.keymap'), act: S.showKeys },
       { label: 'About Slop PDF & privacy', act: S.showAbout },
+      { label: 'AI agents…', act: function () { if (window.SlopAgents) SlopAgents.about(); }, disabled: !window.SlopAgents },
       '-',
       { label: 'Slopographic home', act: function () { location.href = SP.offline ? 'https://slopographic.com/' : '../'; } }
     ];
