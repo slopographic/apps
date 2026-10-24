@@ -70,11 +70,7 @@
   }
 
   /** ISO date plus n days (UTC arithmetic, so the day never shifts). */
-  function addDays(iso, n) {
-    const d = new Date(`${iso}T00:00:00Z`);
-    d.setUTCDate(d.getUTCDate() + Number(n || 0));
-    return d.toISOString().slice(0, 10);
-  }
+  const addDays = (iso, n) => S.ledger.addDays(iso, n);
 
   const STATUS_LABEL = { draft: 'Draft', open: 'Confirmed', fulfilled: 'Fulfilled', cancelled: 'Cancelled' };
 

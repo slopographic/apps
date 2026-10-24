@@ -1,5 +1,5 @@
 // Slop Invoices boot: the shared document routes (shared/docs/doc-app.js: list, new, i/<id>, data) plus p/<id>, the print
-// view. The invoice and print tabs show only while one is open; the list beside an open invoice marks its row; the top bar
+// view, and repeat (the repeating schedules). The invoice and print tabs show only while one is open; the list beside an open invoice marks its row; the top bar
 // has New invoice, Save (a draft) and Print.
 (function (g) {
   'use strict';
@@ -7,13 +7,14 @@
   const $ = (id) => document.getElementById(id);
 
   /** The print view's route, p/<id>. */
-  const more = (h) => (h.startsWith('p/') && h.length > 2 ? { view: 'print', arg: h.slice(2) } : null);
+  const more = (h) => (h === 'repeat' ? { view: 'repeat' } : h.startsWith('p/') && h.length > 2 ? { view: 'print', arg: h.slice(2) } : null);
 
   /** After a view shows: the print tab, the view name on the page (for the print rules), and the list's selected row. */
   function after(t, shown) {
     $('tab-print').hidden = t.view !== 'print';
     document.querySelector('.app').dataset.view = t.view;
     if (NS.views.list && !$('view-list').hidden) Promise.resolve(shown).then(() => NS.views.list.refresh());
+    if (t.view === 'list') NS.repeat.dueNotice();
   }
 
   /** The top bar's actions: New invoice (list), Save (a draft open) and Print (an invoice open or its print view). */

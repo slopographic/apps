@@ -11,6 +11,7 @@
     invoiceStatus: ['draft', 'issued', 'paid', 'void'],
     orderStatus: ['draft', 'open', 'fulfilled', 'cancelled'],   // open = confirmed
     quoteStatus: ['draft', 'sent', 'accepted', 'declined'],
+    repeatUnit: ['week', 'month'],
     pdfLayout: ['classic', 'modern', 'minimal', 'bold', 'sidebar'],   // PDF and print template (shared/docs/pdf-layouts.js); absent = random from pdfSeed
     accountType: ['asset', 'liability', 'equity', 'revenue', 'expense'],
     payMethod: ['cash', 'bank', 'card', 'other'],
@@ -177,7 +178,7 @@
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), dueDate: F.date({}),
       currency: F.cur({}), status: F.en(ENUM.invoiceStatus, { def: 'draft' }), lines: { t: 'lines', min: 0, def: [] }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
-      notes: F.text({}), orderId: F.id({}), quoteId: F.id({}), issuedAt: F.ts({}), sample: F.bool({}),
+      notes: F.text({}), orderId: F.id({}), quoteId: F.id({}), scheduleId: F.id({}), issuedAt: F.ts({}), sample: F.bool({}),
       pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     // Quotes (estimates): a priced offer. Nothing is posted; an accepted quote becomes an order or a draft invoice (quotes.js).
     quotes: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'quote', when: () => true }, check: quoteCheck, docCurrency: true,
@@ -230,6 +231,14 @@
     // tax is the reclaimable part. account is the expense account in the chart.
     // Time worked (shared/data/timesheets.js bills it). minutes and rate (per hour, minor units) price it; billable time
     // needs a customer. invoiceId is the invoice it was billed on; time on a void or deleted invoice is open again.
+    // Repeating invoices (shared/data/recurring.js makes their drafts): the customer, currency, notes and lines to copy, every
+    // `every` weeks or months from nextDate (anchorDay keeps a month's day, such as the 31st, clamped to short months).
+    schedules: { key: 'id', derive: true, docCurrency: true, check: (r) => (r.endDate && r.endDate < r.nextDate ? ['the end date is before the next date'] : []),
+      indexes: [{ name: 'customerId', key: 'customerId' }, { name: 'nextDate', key: 'nextDate' }], fields: {
+      id: F.id({ req: true }), customerId: F.id({ req: true }), currency: F.cur({}), notes: F.text({}), lines: { t: 'lines', min: 1, req: true },
+      subtotal: F.mny(), tax: F.mny(), total: F.mny(), every: F.int({ req: true, min: 1, max: 36 }), unit: F.en(ENUM.repeatUnit, { def: 'month' }), nextDate: F.date({ req: true }),
+      anchorDay: F.int({ min: 1, max: 31 }), endDate: F.date({}), dueDays: F.int({ min: 0, max: 365 }), active: F.bool({ def: true }),
+      made: F.int({ min: 0, max: 1e6, def: 0 }), lastInvoiceId: F.id({}), sourceInvoiceId: F.id({}) } },
     timeEntries: { key: 'id', check: (r) => (r.billable && !r.customerId ? ['billable time needs a customer'] : []),
       removeRule: (r) => (r.invoiceId ? 'billed time cannot be deleted; void its invoice first' : null),
       indexes: [{ name: 'date', key: 'date' }, { name: 'customerId', key: 'customerId' }, { name: 'invoiceId', key: 'invoiceId' }], fields: {

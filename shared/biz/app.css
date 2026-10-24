@@ -79,6 +79,8 @@ input[readonly] { color: var(--mute); }
 .head-row .h2 { margin: 0; }
 .empty-state { display: grid; justify-items: start; gap: 8px; padding: 16px; border: 1px dashed var(--line-strong); border-radius: var(--r); color: var(--mute); margin: 8px; }
 .empty-state p { margin: 0; }
+/* A notice that asks for an action, such as repeating invoices that are due */
+.notice { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: var(--sel); }
 
 /* Forms */
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }

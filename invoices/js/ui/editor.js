@@ -55,6 +55,7 @@
       out.push(b('Record payment…', () => NS.paymentDialog.open(st.id, ed.reload), 'btn primary'));
       out.push(b('Void…', voidInvoice, 'btn danger', st.payments.length > 0, st.payments.length ? 'Not allowed while payments exist' : 'Reverse the issue entry and void'));
     }
+    if (!ed.isNew() && st.status !== 'void') out.push(b('Repeat…', () => NS.repeatDialog.open(st.id, () => NS.app.go('repeat'))));
     if (!ed.isNew()) out.push(b('Preview / print', preview), b('Export PDF', () => saveThen(() => NS.preview.pdf(st.id))));
     if (st.status === 'paid' || st.status === 'void') out.push(h('p', { class: 'note', text: st.status === 'paid' ? 'Paid in full. The invoice is closed.' : 'Void. The number stays used.' }));
     return out;
