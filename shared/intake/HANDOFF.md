@@ -240,6 +240,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   Reel Remix used to do nothing) and launchQueue. Pick music file is now a button (the part's pick). The drags of bin
   clips and cuts stay (`intake-ok`). Out: Send to SlopCut is `SlopOuttake.send('slopedit', { id })` with the manifest.
   `tests/intake/remix.test.html`.
+- **Slop Clean** (`clean/js/app/main.js`, spec `clean`): Open pictures… (Ctrl+O, both buttons), a drop on the page
+  (`SlopIntake.dropTarget`; was its own document drop listener), a paste (new), ?drive= launch (the picture keeps its
+  Drive record: Replace original) and launchQueue. The page now loads shared/intake. `tests/intake/clean.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -334,12 +337,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] file input: `checksum/index.html:42`
 - [ ] drop listener: `checksum/js/checksum.js:81`
-
-### clean
-
-- [ ] pickFiles: `clean/js/app/main.js:82`
-- [ ] drop listener: `clean/js/app/main.js:91`
-- [ ] ?drive= launch: `clean/js/app/main.js:103`
 
 ### contacts
 
