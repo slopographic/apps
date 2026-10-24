@@ -122,16 +122,6 @@ a.btn { text-decoration: none; }
   .local-badge { display: none; }
 }
 
-/* The old app top bar (now SlopMenuBar in every business app; kept for pages that have not moved) */
-.topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
-.brand-mark { width: 24px; height: 24px; fill: var(--accent); }
-.brand-mark path:not(.shine) { fill: var(--accent); }
-.brand-mark .shine { fill: none; stroke: var(--accent-ink); stroke-width: 2; stroke-linecap: round; }
-.appname { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
-.appname b { font-size: 15px; }
-.home-link { color: var(--mute); font-size: 12px; text-decoration: none; }
-.topbar .local-badge { margin-left: 0; color: var(--ok); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
-.topbar .tb-btn { margin-left: auto; }
 .h3 { font-size: 15px; margin: 0 0 8px; }
 
 /* Form grids of plain labels (one column on a phone) and data tables that scroll inside their own box */

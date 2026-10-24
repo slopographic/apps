@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'shared');
 const DATA = path.join(ROOT, 'data');
-export const DATA_FILES = ['money.js', 'barcode.js', 'schema-defs.js', 'schema.js', 'currency.js', 'store.js', 'numbering.js', 'fx.js', 'ledger.js', 'billing.js', 'bundle-check.js', 'rates-ecb.js'];
+export const DATA_FILES = ['money.js', 'barcode.js', 'schema-checks.js', 'schema-defs.js', 'schema.js', 'currency.js', 'store.js', 'numbering.js', 'fx.js', 'ledger.js', 'billing.js', 'bundle-check.js', 'rates-ecb.js'];
 
 /** Runs the given files (relative to shared/) in one context. `extra` is copied onto the window first. */
 export async function loadInto(files, extra = {}) {

@@ -9,7 +9,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 ```html
 <script src="…/shared/data/money.js"></script>
 <script src="…/shared/data/barcode.js"></script>
-<script src="…/shared/data/schema-defs.js"></script>
+<script src="…/shared/data/schema-checks.js"></script><script src="…/shared/data/schema-defs.js"></script>
 <script src="…/shared/data/schema.js"></script>
 <script src="…/shared/data/currency.js"></script>
 <script src="…/shared/data/store.js"></script>

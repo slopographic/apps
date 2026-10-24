@@ -11,7 +11,9 @@
 }
 
 @media (min-width: 721px) {
-  .app[data-view="edit"] { height: 100vh; }
+  /* The window holds the menu bar and the app; the app takes what is left, so the window itself never scrolls */
+  body:has(> .app[data-view="edit"]) { height: 100vh; box-sizing: border-box; overflow: hidden; }   /* border-box: the consent strip's padding is inside */
+  .app[data-view="edit"] { flex: 1 1 0; min-height: 0; height: auto; }
   .app[data-view="edit"] > .main { flex: 1 1 auto; min-height: 0; overflow: hidden; padding: 0; max-width: none; }
   .app[data-view="edit"] #eModes { display: none; }
   #main[data-slop-layout] > #view-list { overflow: auto; min-height: 0; padding: 14px; background: var(--panel); border-right: 1px solid var(--line); }

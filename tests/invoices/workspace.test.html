@@ -76,6 +76,9 @@
       expect(!!D.querySelector('.ws-stage #ePage .paper')).toBe(true);
       expect(!!D.querySelector('.ws-panel #eLines')).toBe(true);
       expect(!!D.querySelector('.ws-panel #eTotals')).toBe(true);
+      // the panes scroll, the window does not: the menu bar, the record bar and the panes fit its height
+      W.scrollTo(0, 200);
+      expect(W.scrollY).toBe(0);
     });
 
     it('the open invoice is marked in the list, and the sheet and the details show together (no Page/Form switch on screen)', async () => {

@@ -45,15 +45,8 @@
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
-        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
-      </a>
-      <div class="appname"><b>Slop Ledger</b><a class="home-link" href="../">slopographic</a></div>
-      <span class="local-badge" title="The ledger stays in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <span class="base" id="baseLabel">Base currency</span>
-      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
-    </header>
+    <header id="menubar"></header>
+    <div class="smb-hold" hidden><span class="local-badge" title="The ledger stays in this browser. Nothing is uploaded."><span>100% local</span></span><span class="base" id="baseLabel">Base currency</span></div>
 
     <nav class="tabs" role="tablist" aria-label="Ledger sections">
       <button type="button" role="tab" class="tab" id="tab-journal" data-view="journal" aria-controls="view-journal" aria-selected="true">Journal</button>
@@ -180,7 +173,7 @@
 
   <script src="../shared/data/money.js"></script>
   <script src="../shared/data/barcode.js"></script>
-  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema-checks.js"></script><script src="../shared/data/schema-defs.js"></script>
   <script src="../shared/data/schema.js"></script>
   <script src="../shared/data/currency.js"></script>
   <script src="../shared/data/store.js"></script>
@@ -223,6 +216,6 @@
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Ledger", "tools": ["#baseLabel"], "menus": {"File": ["cmd:journal.new", "cmd:journal.export", "cmd:trial.export", "-", "cmd:accounts.new", "cmd:rates.new"], "View": ["cmd:view.journal", "cmd:view.gl", "cmd:view.trial", "cmd:view.accounts", "cmd:view.rates"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "header.topbar"});</script>
+<script>SlopMenuBar.mount({"app": "Ledger", "tools": ["#baseLabel"], "menus": {"File": ["cmd:journal.new", "cmd:journal.export", "cmd:trial.export", "-", "cmd:accounts.new", "cmd:rates.new"], "View": ["cmd:view.journal", "cmd:view.gl", "cmd:view.trial", "cmd:view.accounts", "cmd:view.rates"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"});</script>
 </body>
 </html>

@@ -48,7 +48,7 @@
       expect(bar.hidden).toBe(false);
       expect(bar.querySelector('.biz-back').textContent.trim()).toBe('‹ Orders');
       expect($('tab-edit').hidden).toBe(true);   // the tabs are the sections: Orders and Data
-      expect($('eStatus').className).toBe('chip draft');
+      await waitFor(() => $('eStatus').className === 'chip draft');
     });
     it('the tabs are SlopTabs: the arrow keys move to the next tab and route through the #hash', async () => {
       // with an order open the layout shows the list beside it (orders/js/ui/layout.js), so wait for the list view itself

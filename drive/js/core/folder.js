@@ -11,7 +11,7 @@
   const SUB = 'Slop Drive';
   const UNSUPPORTED = "Folders need Chrome or Edge. Slop Drive keeps your files in this browser's storage, and nothing is written to your computer.";
   const CONFIG_SCRIPTS = [
-    'shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-defs.js', 'shared/data/schema.js', 'shared/data/currency.js',
+    'shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js', 'shared/data/currency.js',
     'shared/data/store.js', 'shared/data/numbering.js', 'shared/data/ledger.js', 'shared/data/fx.js',
     'shared/config/schema.js', 'shared/config/validate.js', 'shared/config/io.js', 'shared/config/kinds.js', 'shared/config/folder.js',
   ];
