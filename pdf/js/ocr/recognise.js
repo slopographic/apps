@@ -1,5 +1,8 @@
-/* Slop PDF — Recognise text (OCR) on pages that have none. The engine is the AI tools' OCR (PP-OCRv4 on the inference
+/* Slop PDF — Recognise text (OCR) on pages that have none. The engine is the AI tools' OCR (PaddleOCR on the inference
    worker, aitools/common.js). Its model is stored on this device after one download (Get more), and then it runs offline.
+   The OCR panel's Language and model button opens the shared dialog (shared/ocr/choose.js, loaded on first use) for the
+   model of another script; without a choice the bundled Chinese and English model reads, and a note after the run names
+   the model that would read the text better.
    Each page is rendered at 200 dpi, read line by line, and the words are written as an invisible text layer (ocr/layer.js).
    When the lines are small (small print, low contrast), the picture is read again at 2x, contrast stretched and sharpened
    (OCR.readPicture); the boxes of that reading are mapped back to the page's own pixels before the layer uses them.
@@ -12,21 +15,39 @@
   var MODEL = 'ppocr-v4', DPI = 200, MAX_PX = 40e6;
   var SMALL_LINE = 40, ZOOM = 2; // a median line box under 40 px (about 14 pt at 200 dpi) is small text: read it at ZOOM
 
+  var choiceP = null, choiceNow = null;
+  /** The Language and model choice (shared/ocr/choose.js and the OCR model list, loaded once, on first use). */
+  OCR.choice = function () {
+    var site = (window.SlopAIManager && window.SlopAIManager.site) || new URL('../', document.baseURI).href;
+    if (!choiceP) choiceP = import(new URL('shared/ocr/choose.js', site).href).then(function (m) {
+      return m.loadOcr().then(function () { return (choiceNow = m.createOcrChoice({ ui: window.SlopUI, storageHref: '../settings/#storage' })); });
+    }).catch(function (e) { choiceP = null; throw e; });
+    return choiceP;
+  };
+  /** The OCR panel's Language and model button: the dialog, then the offer to read now. */
+  OCR.chooseLanguage = async function () {
+    var c = await OCR.choice(), r = await c.open();
+    if (r && r.model) OCR.installed();
+  };
   /** Checks the device and the model. Throws (with needsModel set) when the model still has to be downloaded. */
   OCR.ready = async function (onStatus) {
     var T = window.SlopAITools, M = window.SlopAIManager;
     if (!T || !M || !window.SlopAISupport) throw new Error('The OCR engine did not load. Reload the page.');
     var sup = window.SlopAISupport.check('ocr');
     if (!sup.ok) throw new Error(sup.reason);
-    if ((await M.status(MODEL)) === 'needs-download') {
+    var c = await OCR.choice(), model = await c.modelFor(c.language);
+    if (!model || (await M.status(model)) === 'needs-download') {
       var err = new Error('The OCR model is not on this device yet.');
       err.needsModel = true;
       throw err;
     }
-    await T.ensure(MODEL, onStatus);
+    OCR.model = model; OCR.skipped = 0;
+    await T.ensure(model, onStatus);
   };
-  /** Opens the Get more dialog for the model (nothing downloads until the person confirms there). */
+  /** Opens the Get more dialog for the bundled model, or the Language and model dialog when a language is chosen
+   *  (nothing downloads until the person confirms there). */
   OCR.getModel = function () {
+    if (choiceNow && choiceNow.language !== 'auto') { OCR.chooseLanguage(); return; }
     if (window.SlopAIGetMore) window.SlopAIGetMore.open(MODEL, { onInstalled: OCR.installed });
   };
   /** Runs after the model is stored (the Get more dialog has closed). Asks whether to read the text now. "Run on this
@@ -50,7 +71,8 @@
   /** Reads one picture (a canvas of the page). Resolves to lines [{ text, score, box: { x, y, w, h } }] in canvas pixels. */
   OCR.read = async function (canvas, onProgress) {
     var bitmap = await createImageBitmap(canvas);
-    var r = await window.SlopAITools.call('ocr', { bitmap: bitmap, w: canvas.width, h: canvas.height }, { transfer: [bitmap], onProgress: onProgress });
+    var r = await window.SlopAITools.call('ocr', { model: OCR.model || MODEL, bitmap: bitmap, w: canvas.width, h: canvas.height }, { transfer: [bitmap], onProgress: onProgress });
+    OCR.skipped = (OCR.skipped || 0) + (r.skipped || 0);
     return r.lines || [];
   };
   function median(a) { a = a.slice().sort(function (p, q) { return p - q; }); return a[a.length >> 1]; }
@@ -159,12 +181,18 @@
     var changed = await writeResults(results);
     if (error) SlopUI.alert('Could not read the text', String(error.message || error));
     else if (changed) {
-      SlopUI.toast('Text recognised on ' + changed + ' page' + (changed === 1 ? '' : 's') + (stopped ? '. Stopped early; the other pages are unchanged' : '') + (skipped ? '. ' + skipped + ' with text skipped' : '') + '.');
-    } else SlopUI.toast(stopped ? 'Cancelled. Nothing was changed.' : 'No text was found on these pages.');
+      SlopUI.toast('Text recognised on ' + changed + ' page' + (changed === 1 ? '' : 's') + (stopped ? '. Stopped early; the other pages are unchanged' : '') + (skipped ? '. ' + skipped + ' with text skipped' : '') + '.' + better(results));
+    } else SlopUI.toast(stopped ? 'Cancelled. Nothing was changed.' : 'No text was found on these pages.' + better(results));
     if (changed) Ed.paint();
     return changed;
   };
 
+  /** With no language chosen: the sentence naming a model that would read these pages better (shared/ocr/suggest.js). */
+  function better(results) {
+    var c = choiceNow;
+    var s = c && c.suggest([].concat.apply([], results.map(function (r) { return r.lines; })), OCR.model, OCR.skipped);
+    return s ? ' ' + c.sentence(s) + ' Choose it under OCR › Language and model.' : '';
+  }
   /** Writes the layer into one copy of each source file, then one undo step per page. */
   async function writeResults(results) {
     if (!results.length) return 0;

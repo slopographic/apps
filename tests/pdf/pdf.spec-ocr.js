@@ -1,6 +1,7 @@
 /* Slop PDF: Recognise text (OCR). Scanned pages (pictures only) get an invisible text layer (text render mode 3) at the
    recognised lines, so the editor's text runs, find and copy see the words. The helpers are in pdf.spec-ocr-shared.js.
-   The real stub-free path is the Get more prompt, which must open and change nothing. */
+   The real stub-free path is the Get more prompt, which must open and change nothing.
+   Covers: pdf/js/ocr/recognise.js, pdf/js/tools/doc-panels.js */
 (function () {
   'use strict';
   const { describe, it, expect } = SlopTest;
@@ -140,6 +141,23 @@
       const labels = PT.A._.fileMenu().map((i) => i && i.label);
       expect(labels).toContain('Recognise text on this page');
       expect(labels).toContain('Recognise text on all pages');
+    });
+    it('the OCR panel has Language and model, which opens the shared dialog with the OCR languages (pdf/js/tools/doc-panels.js)', async () => {
+      if (!PT.SP) await PT.boot();
+      const body = PT.win.document.createElement('div');
+      PT.SP.panels.PANELS.ocr.build(body);
+      const b = [...body.querySelectorAll('button')].find((x) => x.textContent.includes('Language and model'));
+      expect(!!b).toBe(true);
+      b.click();
+      const box = await SlopTest.waitFor(() => PT.win.document.querySelector('.spm-dlg'), { timeout: 10000 });
+      const names = [...box.querySelectorAll('.spm-lang')].map((l) => l.textContent);
+      for (const n of ['Detect automatically', 'Swedish', 'Russian', 'Arabic', 'Hindi', 'Korean', 'Japanese']) expect(names).toContain(n);
+      [...box.querySelectorAll('.spm-lang')].find((l) => l.textContent === 'Russian').click();
+      const first = await SlopTest.waitFor(() => { const r = box.querySelector('.spm-model'); return r && r.dataset.id !== 'ppocr-v4' && r; }, { timeout: 3000 });
+      expect(first.dataset.id).toBe('ppocr-v5-cyrillic');
+      expect(PT.win.SlopAIModels.byId('ppocr-v5-cyrillic').tool).toBe('ocr');   // added to the index when loaded on demand
+      box.querySelector('.sui-x').click();
+      await SlopTest.waitFor(() => !PT.win.document.querySelector('.spm-dlg'), { timeout: 3000 });
     });
   });
 })();

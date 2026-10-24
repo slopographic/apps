@@ -43,7 +43,7 @@
       icon: 'grid', status: 'beta' }),
     A('ocr', 'app', 'Slop OCR', 'ocr/', 'Read text from images and scanned PDFs on your device. Nothing uploaded.', { title: 'OCR: read text from images and scans', group: 'business', tool: true,
       accepts: ['image/*', 'application/pdf'],
-      features: ['Every page of a PDF, read at 200 dpi', 'Boxes on the page, and the text editable before you save', 'Copy, .txt, .md, Word or a searchable PDF', 'Simplified Chinese and English, on your device'],
+      features: ['Every page of a PDF, read at 200 dpi', 'Boxes on the page, and the text editable before you save', 'Copy, .txt, .md, Word or a searchable PDF', '85 languages, one model per script, on your device'],
       icon: 'doc', status: 'beta' }),
     A('html2pdf', 'app', 'Slop HTML to PDF', 'html2pdf/', 'Print an HTML file to PDF with a header and QR code. Nothing uploaded.', { title: 'HTML to PDF converter', group: 'business', tool: true,
       accepts: ['text/html', '.htm', '.html'],

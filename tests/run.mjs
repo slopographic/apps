@@ -98,16 +98,22 @@ async function runPage(browser, base, p, scale) {
   let report = null;
   try {
     await page.goto(base + p.split(path.sep).join('/'));
-    // Done, or dead: an error happened and the harness had still not started 30 s (times the load scale) after it. A page
-    // gets LIMIT_MS in all, or its own <meta name="slop-test-limit" content="<seconds>"> when it needs longer.
-    await page.waitForFunction((grace) => window.__SLOPTEST__ || (window.__SLOPTEST_ERR__ && !window.__SLOPTEST_STARTED__ && performance.now() - window.__SLOPTEST_ERR__ > grace),
-      30000 * Math.max(1, scale), { timeout: await pageLimit(p), polling: 250 });
+    // Done, or dead: an error happened and the harness had still not started 30 s (times the load scale) after it; or stuck:
+    // a test is still running 30 s past its own time limit (each test, with its hooks, has one: tests/harness.js), or the
+    // tests never started within START_MS. A page with many slow tests is not stuck: only the overall cap (CAP_MS, or the
+    // page's <meta name="slop-test-limit" content="<seconds>">) ends it.
+    await page.waitForFunction(([grace, startMs]) => window.__SLOPTEST__
+      || (window.__SLOPTEST_ERR__ && !window.__SLOPTEST_STARTED__ && performance.now() - window.__SLOPTEST_ERR__ > grace)
+      || (window.__SLOPTEST_DEADLINE__ && performance.now() > window.__SLOPTEST_DEADLINE__ + 30000)
+      || (!window.__SLOPTEST_STARTED__ && performance.now() > startMs),
+    [30000 * Math.max(1, scale), START_MS * Math.max(1, scale)], { timeout: await pageLimit(p), polling: 250 });
+    if (!(await page.evaluate(() => !!window.__SLOPTEST__))) throw new Error('Timeout: stuck');
     report = await page.evaluate(() => window.__SLOPTEST__);
     if (!report) throw new Error(`the page stopped before its tests started: ${consoleErrors[0] || 'a script error'}`);
   } catch (e) {
     // A page that never finished: what it had done, and the test it was in, so the hang can be found; it is not run again.
     const where = await page.evaluate(() => ({ now: window.__SLOPTEST_NOW__ || '', done: window.__SLOPTEST_DONE__ || [] })).catch(() => ({ now: '', done: [] }));
-    const msg = /Timeout/.test(e.message) ? `did not finish in ${Math.round((await pageLimit(p)) / 1000)} s${where.now ? `; still running: ${where.now}` : ' (before its tests started)'}` : e.message;
+    const msg = /Timeout/.test(e.message) ? `stuck${where.now ? ` past its time limit in: ${where.now}` : ' before its tests started'}` : e.message;
     report = { name: p, passed: where.done.filter((r) => r.status === 'pass').length, failed: 1, hung: /Timeout/.test(e.message), results: [...where.done, { suite: 'runner', test: 'page loaded and finished', status: 'fail', message: msg }], errors: [] };
   }
   const secs = (Date.now() - t0) / 1000;
@@ -122,12 +128,13 @@ async function runPage(browser, base, p, scale) {
   await ctx.close();
   return { out, passed: report.passed, failed: report.failed, hung: !!report.hung };
 }
-/** How long a page may take in all: LIMIT_MS, or its own <meta name="slop-test-limit" content="<seconds>">. */
-const LIMIT_MS = 120000;
+/** How long a page may take in all, as a last resort (a stuck test is caught sooner, see runPage): CAP_MS, or its own
+ *  <meta name="slop-test-limit" content="<seconds>">. START_MS: how long a page may take to start its tests. */
+const CAP_MS = 900000, START_MS = 60000;
 async function pageLimit(p) {
   const html = await readFile(p, 'utf8').catch(() => '');
   const m = /<meta name="slop-test-limit" content="(\d+)">/.exec(html);
-  return m ? Number(m[1]) * 1000 : LIMIT_MS;
+  return m ? Number(m[1]) * 1000 : CAP_MS;
 }
 if (pages.length) {
   const { chromium } = await loadPlaywright();
