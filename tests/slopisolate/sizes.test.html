@@ -32,6 +32,25 @@
     return text;
   }
 
+  describe('SlopIsolate: the first drop', () => {
+    it('a file dropped on the drop zone on a first visit asks with the notice (naming the chosen model), not an error', async () => {
+      await open();
+      const errors = [];
+      W().addEventListener('error', (e) => errors.push(e.message));
+      const c = D().createElement('canvas'); c.width = c.height = 8;
+      const blob = await new Promise((r) => c.toBlob(r, 'image/png'));
+      const dt = new (W().DataTransfer)();
+      dt.items.add(new (W().File)([blob], 'dropped.jpe', { type: 'image/jpeg' }));
+      D().getElementById('isoDrop').dispatchEvent(new (W().DragEvent)('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+      const dlg = await waitFor(() => D().querySelector('.sui-dlg'), { timeout: 5000 });
+      expect(dlg.textContent).toContain(W().SlopFirstRun.size(W().SlopCutoutModels.MODELS.fast.bytes));
+      expect(D().body.textContent.includes('is not defined')).toBe(false);
+      [...dlg.querySelectorAll('button')].find((b) => b.textContent === 'Cancel').click();
+      expect(errors).toEqual([]);
+      f.remove();
+    }, { timeout: 30000 });
+  });
+
   describe('SlopIsolate: model sizes', () => {
     it('each model card shows the size the notice would give, and no description repeats a size', async () => {
       await open();
