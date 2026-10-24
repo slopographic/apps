@@ -37,6 +37,11 @@
   add('invert_selection', 'Invert selection', [], () => selectInverse(), { description: 'Swap selected and unselected areas (for example to work on the background).' });
   add('deselect', 'Deselect', [], () => deselect(), { when: hasSel });
   add('crop_to_selection', 'Crop to selection', [], () => { cropTo(D.sel.bounds, true); fitView(); }, { when: hasSel, destructive: true });
+  add('crop', 'Crop to a ratio', [E('ratio', PS_RATIOS, '1:1', 'width:height, kept around the centre; 1:1 is a square')], (a) => psCropRatio(a.ratio),
+    { destructive: true, description: 'Crop the whole image to a ratio around its centre (1:1 is a square).' });
+  add('filter', 'Apply a filter', [{ name: 'filter', type: 'enum', required: true, values: FILTERS.filter((f) => f.id && !f.sep && f.fn && f.menu !== 'style').map((f) => f.id), description: 'filter id' },
+    S('params', 'the filter settings as JSON, the rest at their defaults', { maxLength: 20000 })],
+  (a) => aiFilter(a.filter, a.params ? JSON.parse(a.params) : {}, FILTER_BY_ID[a.filter].name.replace('…', '')), { ai: false, description: 'Any filter with its settings: what a macro records from the filter dialogs.' });
 
   /* image */
   add('image_size', 'Image size', [N('width', 1, 16384, undefined, 'px', { integer: true }), N('height', 1, 16384, undefined, 'px', { integer: true }), B('keep_aspect', true), E('resample', ['bicubic', 'bilinear', 'nearest'], 'bicubic')],
@@ -69,7 +74,7 @@
 
   /* output, undo, on-device AI */
   add('export', 'Export', [E('format', ['png', 'jpeg', 'webp'], 'png'), N('quality', 1, 100, 90, 'JPEG/WebP quality', { integer: true }), E('scale', ['25', '50', '100', '200'], '100', '% of the size'), B('transparent', true, 'PNG only')],
-    (a) => aiExport(Object.assign({}, a, { scale: Number(a.scale) })), { description: 'Download the image as a file.' });
+    (a) => aiExport(Object.assign({}, a, { scale: Number(a.scale) })), { description: 'Download the image as a file.', macro: false });   // a macro's file is written by Workflows
   add('undo', 'Undo', [N('steps', 1, 20, 1, '', { integer: true })], (a) => { let n = 0; while (n < a.steps && Hist.idx > 0) { undo(); n++; } return `Undid ${n} step${n === 1 ? '' : 's'}.`; });
   add('remove_background', 'Remove background', [E('mode', ['mask', 'delete'], 'mask', 'mask hides it (undoable, editable); delete erases it')], aiRemoveBackground, { when: hasLayer, description: 'Hide the background of the active layer with the on-device model.' });
   add('upscale', 'Upscale (AI)', [E('scale', ['2', '4'], '2')], aiUpscale, { description: 'Enlarge the whole image 2× or 4× with the on-device upscaler.' });
