@@ -63,6 +63,7 @@
     }
     async function show() {
       const ps = (C.keys.settings().providers || {})[p.id] || {};
+      say('');   // now, not after the key store answers: a Test pressed meanwhile keeps its message
       sel.value = p.id; base.value = ps.base || p.base || ''; base.placeholder = p.base || 'https://…/v1';
       baseRow.hidden = !p.editBase; keyRow.hidden = remRow.hidden = forget.hidden = !(p.needsKey || p.keyOptional);
       key.value = ''; key.placeholder = p.keyHint || 'paste the key (if the service needs one)';
@@ -77,7 +78,7 @@
       else help.append('Any server that speaks the OpenAI Chat Completions API.');
       local.textContent = ''; local.hidden = !p.editBase;
       if (p.editBase) local.append(h('summary', null, 'How to connect a local server'), ...C.localHelp(p).map((t) => h('p', { class: 'sap-dim' }, t)));
-      say(''); fillModels();
+      fillModels();
     }
     const cfgBase = () => (p.editBase ? base.value.trim() : p.base);
     async function engineNow() {
