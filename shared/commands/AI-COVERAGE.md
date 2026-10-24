@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 4 of 58 apps.
+Covered: 5 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -24,7 +24,7 @@ Covered: 4 of 58 apps.
 | Slop Docs (`docs`) | ✓ 2 | ✓ 6 | ✓ 4 | ✓ 1 | 1 | yes |
 | Slop Tables (`tables`) | ✗ | ✓ 1 | ✓ 4 | ✗ |  | no |
 | Slop Slides (`slides`) | ✓ 2 | ✓ 4 | ✓ 6 | ✓ 1 | 1 | yes |
-| Slop Press (`press`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Press (`press`) | ✓ 2 | ✓ 4 | ✓ 5 | ✓ 1 |  | yes |
 | Reel Remix (`remix`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 | SlopCut (`slopedit`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 | Slop Resize (`resize`) | ✗ | ✗ | ✓ 3 | ✗ | 1 | no |
@@ -109,6 +109,13 @@ Covered: 4 of 58 apps.
 - edit: `apply_theme`, `delete_slide`, `move_slide`, `set_layout`, `set_notes`, `set_text`
 - export: `export_presentation`
 - operations: `outline-to-presentation`
+
+### Slop Press
+
+- create: `build_document`, `new_document`
+- add: `add_image`, `add_page`, `add_shape`, `add_text_frame`
+- edit: `delete_item`, `delete_page`, `format_text`, `move_item`, `set_text`
+- export: `export_document`
 
 ### Slop Resize
 

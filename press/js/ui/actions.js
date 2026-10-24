@@ -6,6 +6,19 @@
   'use strict';
   var PR = window.PR, U = PR.util;
   var A = PR.actions = { defs: {}, order: [], bound: false };
+  var HERE = (document.currentScript && document.currentScript.src) || location.href;
+  function script(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script'); s.src = new URL(src, HERE).href; s.async = false;
+      s.onload = res; s.onerror = function () { rej(new Error('Could not load ' + src)); }; document.head.append(s);
+    });
+  }
+  /** The assistant's commands with arguments (ai-build.js, ai-commands.js, shared/commands/sources.js), loaded when SlopCmd.prepare() asks. */
+  A.prepareAI = function () {
+    if (PR.aiPress && PR.aiPress.loaded) return Promise.resolve();
+    return (window.SlopCmdSources ? Promise.resolve() : script('../../../shared/commands/sources.js'))
+      .then(function () { return script('ai-build.js'); }).then(function () { return script('ai-commands.js'); }).then(function () { PR.aiPress.loaded = true; });
+  };
 
   A.register = function (list) {
     [].concat(list).forEach(function (c) {
@@ -61,6 +74,7 @@
     if (A.bound || !window.SlopCmd || !window.SlopCmd.register) return false;
     try { if (window.SlopCmd.init) window.SlopCmd.init({ app: 'press' }); } catch (e) { /* already initialised */ }
     A.bound = true;
+    if (window.SlopCmd.provide) window.SlopCmd.provide({ prepare: A.prepareAI });
     toSlopCmd(A.order.map(function (id) { return A.defs[id]; }));
     if (window.SlopCmd.on) window.SlopCmd.on('change', function () { PR.emit('keys'); });
     PR.emit('keys');
