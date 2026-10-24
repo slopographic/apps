@@ -1,5 +1,6 @@
 /* English strings for the shared chrome: the top bar and home link, the Apps button and app switcher, the Settings
- * labels, the homepage footer, the consent strip, the support card and the common menu words. Keys are dotted, grouped
+ * labels, the homepage footer, the consent strip, the support card, the common menu words and the storage text
+ * (storage.*, shared/storage/quota.js and settings/storage-keep.js). Keys are dotted, grouped
  * by where they appear. The text is the same as the HTML or the script it replaces, so a page with no language support
  * shows the same words. Classic script: needs shared/i18n/i18n.js loaded first. Other languages live in their own
  * files (shared/i18n/es.js, ...), which must hold every key here (tests/node/i18n.test.mjs checks that). Add new keys
@@ -82,5 +83,27 @@
     'menu.cancel': 'Cancel',
     'menu.ok': 'OK',
     'menu.close': 'Close',
+
+    'storage.site': 'This site’s storage',
+    'storage.of': '{used} of {quota}',
+    'storage.unknown': 'The browser does not say how much this site uses.',
+    'storage.meter_aria': 'Storage used',
+    'storage.kept': 'Kept: the browser will not clear your files to free space.',
+    'storage.not_kept': 'Not kept yet: the browser may clear your files when the disk runs low.',
+    'storage.keep': 'Keep my files',
+    'storage.kept_button': 'Files kept',
+    'storage.granted': 'Done. The browser will keep your files and will not clear them to free space.',
+    'storage.denied': 'The browser did not promise to keep your files. It may clear them when the disk runs low, so keep a backup.',
+    'storage.denied_chromium': 'Not yet. Chrome and Edge decide this on their own, from how you use this site. Your files are stored, but keep a backup.',
+    'storage.denied_firefox': 'Not allowed. Firefox asked you and the answer was no, or the question was closed. You can change it in the site permissions.',
+    'storage.unsupported': 'This browser cannot promise to keep your files. Keep a backup.',
+    'storage.limit_title': 'How much space you get',
+    'storage.limit_chromium': 'Chrome and Edge let this site use up to about 60% of your disk. Until the browser agrees to keep your files, it may clear them when the disk runs low.',
+    'storage.limit_firefox': 'Firefox lets this site use 10% of your disk or 10 GB, whichever is smaller. When you allow it to keep your files, the limit rises to up to 50% of the disk (at most 8 TB). Firefox asks you first.',
+    'storage.limit_safari': 'Safari lets browser apps use up to about 60% of your disk.',
+    'storage.limit_other': 'Your browser sets how much this site may store. Ask it to keep your files, so it does not clear them when the disk runs low.',
+    'storage.folder': 'For space with no browser limit, connect a folder on your disk in Slop Drive. Files there are limited only by your disk.',
+    'storage.folder_button': 'Connect a folder in Slop Drive',
+    'storage.folder_needs': 'A connected folder has no browser limit, but it needs Chrome or Edge on a computer. In this browser your files stay in browser storage.',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

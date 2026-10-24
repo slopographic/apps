@@ -6,6 +6,7 @@
   <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style>
 </head>
 <body>
+  <!-- Covers: drive/js/app/main.js, drive/js/ui/sidebar.js, shared/pwa.js -->
   <iframe id="drive" src="../../drive/index.html"></iframe>
   <script src="../harness.js"></script>
   <script>
@@ -43,6 +44,17 @@
       await waitFor(() => note() && note().dataset.state === 'granted');
       expect(note().textContent).toContain('Kept by the browser');
       expect(win.document.querySelector('#meter [data-act="persist"]').disabled).toBe(true);
+    });
+    it('an upload hands its size to SlopQuota.askIfBig, which asks only past 50 MB and once per visit', async () => {
+      await ready;
+      const seen = [], real = win.SlopQuota.askIfBig;
+      win.SlopQuota.askIfBig = (n) => { seen.push(n); return Promise.resolve(null); };
+      try {
+        const file = new win.File(['x'.repeat(2048)], 'quota-probe.txt', { type: 'text/plain' });
+        await win.DR.importFiles([{ file, path: file.name }]);
+        expect(seen).toEqual([2048]);
+      } finally { win.SlopQuota.askIfBig = real; }
+      expect(win.SlopQuota.BIG).toBe(50 * 1024 * 1024);
     });
   });
 

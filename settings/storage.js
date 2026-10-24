@@ -1,6 +1,7 @@
 /* Settings: Storage. How full this site's browser storage is, what uses it, whether the browser keeps it, and the clear
  * actions. Clearing never deletes Drive files, documents or saved projects. Classic script. Needs shared/storage/*.js,
- * shared/cache/regen.js, shared/slopui.js and shared/review/ (the list of what a clear removes). Every clear opens
+ * shared/cache/regen.js, shared/slopui.js, shared/review/ (the list of what a clear removes), shared/storage/quota.js and
+ * settings/storage-keep.js (the meter, Keep my files and the browser's limit). Every clear opens
  * that list first: each removable part is a checked item with its size, and only the parts left checked are cleared. */
 (function () {
   'use strict';
@@ -18,11 +19,6 @@
     return n;
   }
   function say(msg) { note.textContent = msg; }
-  var PERSIST = {
-    granted: 'The browser keeps this site’s data. It will not clear it to free space.',
-    denied: 'The browser has not promised to keep this site’s data. It may clear it when the disk is low. Keep a backup.',
-    unknown: 'Unknown: this browser does not say whether it keeps the data.',
-  };
 
   /** A clear button. Its parts are listed first (run); the result is shown and the numbers redrawn. */
   var ACTIONS = [
@@ -73,11 +69,6 @@
     });
   }
 
-  function bar(est) {
-    var pct = est.usage != null && est.quota ? Math.min(100, est.percent) : 0;
-    return el('div', { class: 'meter-bar', role: 'meter', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': pct.toFixed(1), 'aria-label': 'Storage used' },
-      [el('i', { style: 'width:' + Math.max(pct, est.usage ? 1 : 0) + '%' })]);
-  }
   function partsList(est) {
     if (!est.parts.length) return el('p', { class: 'settings-note' }, 'No site data to list in this browser.');
     return el('ul', { class: 'storage-parts' }, est.parts.map(function (p) {
@@ -86,37 +77,23 @@
     }));
   }
 
-  /** Redraws the whole section from a fresh estimate. */
+  /** Redraws the whole section from a fresh estimate. The meter, the Keep my files button and the browser's limit come
+   * from settings/storage-keep.js (SlopQuota); the parts and the clear actions are drawn here. */
   function draw() {
-    return Promise.all([SS.estimate(), SS.persisted()]).then(function (r) {
-      var est = r[0], persisted = r[1];
-      var state = persisted === true ? 'granted' : persisted === false ? 'denied' : 'unknown';
-      var used = est.usage == null
-        ? 'The browser does not say how much this site uses.'
-        : SS.bytes(est.usage) + ' of ' + SS.bytes(est.quota) + ' used (' + Math.round(est.percent) + '%)';
-      var keep = el('button', { type: 'button', class: 'btn', 'data-act': 'persist' }, [document.createTextNode(persisted === true ? 'Kept by the browser' : 'Ask the browser to keep my data')]);
-      keep.disabled = persisted === true || !est.supported;
-      keep.addEventListener('click', function () {
-        SS.requestPersist().then(function (answer) {
-          say(answer === 'declined' ? 'Not asked. The browser was not contacted.' : answer === 'granted' ? 'The browser will keep this site’s data.' : answer === 'unsupported' ? 'This browser cannot promise to keep storage.' : 'The browser did not promise. Keep a backup.');
-          draw();
-        });
-      });
+    return Promise.all([SS.estimate(), window.SlopQuota.estimate()]).then(function (r) {
+      var est = r[0], q = r[1];
       var actions = ACTIONS.map(function (a) {
         var b = el('button', { type: 'button', class: 'btn', 'data-act': a.kind.join('+') }, [document.createTextNode(a.label)]);
         b.addEventListener('click', function () { run(a); });
         return el('div', { class: 'storage-act' }, [b, el('p', { class: 'settings-note', text: a.text })]);
       });
-      host.replaceChildren(
-        el('div', { class: 'meter-h' }, [el('b', { text: 'This site’s storage' }), el('span', { text: used })]),
-        bar(est),
+      host.replaceChildren.apply(host, window.SlopSettingsStorage.nodes(q, say, draw).concat([
         partsList(est),
-        el('p', { class: 'settings-note persist-note', 'data-state': state, text: PERSIST[state] }),
-        keep,
-        el('div', { class: 'storage-acts' }, actions)
-      );
+        el('div', { class: 'storage-acts' }, actions),
+      ]));
     });
   }
 
   if (host) draw().catch(function () { say('Storage could not be read in this browser.'); });
+  if (host) window.addEventListener('slop-lang', function () { draw(); });   // the storage.* text is in the new language
 })();

@@ -109,5 +109,15 @@
   DR.renderFolder = function () {
     const box = $('folderBox');
     if (box) box.replaceChildren(...DR.folderNodes());
+    // Settings > Storage links to drive/#connect-folder: point at the Connect button once (the picker itself needs a press).
+    const b = box && !linked && location.hash === '#connect-folder' && !F().name ? box.querySelector('button') : null;
+    if (!b) return;
+    linked = true;
+    if (DR.isMobile()) DR.drawer(true);
+    b.classList.add('primary');
+    b.setAttribute('data-linked', '');
+    b.scrollIntoView({ block: 'nearest' });
+    b.focus({ preventScroll: true });
   };
+  let linked = false;
 })(window.DR);

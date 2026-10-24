@@ -1,5 +1,6 @@
 /* Slop PDF: the URL sections (shared/router) and the view modes (shared/viewmode). A ?panel= link opens that dock
-   section and shows the sidebar; Ctrl+Shift+F cycles the view mode. */
+   section and shows the sidebar; Ctrl+Shift+F cycles the view mode.
+   Covers: pdf/js/ui/route.js, pdf/js/ui/doc-tabs.js (a ?tool= link survives restored and new documents) */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor } = SlopTest;
@@ -21,6 +22,16 @@
       await PT.boot('?tool=nonsense');
       await waitFor(() => doc().documentElement.classList.contains('ready'), { timeout: 15000 });
       expect(PT.SP.app.tool).toBe('organize');
+    }, { timeout: 90000 });
+
+    it('a ?tool= link outlives the documents it opens: each new document keeps that tool until the person picks another', async () => {
+      await PT.boot('?tool=compress');
+      await waitFor(() => PT.SP.app.tool === 'compress', { timeout: 15000 });
+      await PT.open(await PT.makePdf([{ w: 200, h: 200, text: 'one' }]), 'one.pdf');
+      expect(PT.SP.app.tool).toBe('compress');
+      PT.A.setTool('sign');
+      await PT.open(await PT.makePdf([{ w: 200, h: 200, text: 'two' }]), 'two.pdf');
+      expect(PT.SP.app.tool === 'compress').toBe(false);
     }, { timeout: 90000 });
 
     it('Ctrl+Shift+F cycles Full, Focus, Content only and back', async () => {

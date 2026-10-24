@@ -87,9 +87,19 @@
 .storage-box .meter-h { display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: 13px; }
 .storage-parts { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
 .storage-parts li { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
-.storage-parts small { font-family: var(--mono); color: var(--bone-faint); text-align: right; }
+.storage-parts small { font-family: var(--mono); color: var(--bone-faint); text-align: end; }
 .storage-acts { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .storage-act { display: grid; gap: 6px; align-content: start; }
 .storage-act .btn { justify-self: start; }
 .meter-bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
 .meter-bar i { display: block; height: 100%; background: var(--slop); }
+/* The top of the Storage section (settings/storage-keep.js): kept or not, Keep my files, the browser's limit, a folder. */
+.storage-keep { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding-block: 10px; border-block-end: 1px solid var(--sl-border, var(--line)); }
+.storage-keep .persist-note { flex: 1 1 260px; margin: 0; padding-inline-start: 10px; border-inline-start: 3px solid var(--sl-border, var(--line)); color: var(--sl-text, var(--bone)); font-size: 14px; }
+.storage-keep[data-state="granted"] .persist-note { border-inline-start-color: var(--sl-accent, var(--slop)); }
+.storage-keep .btn { margin-top: 0; }
+.storage-limit { padding: 12px 14px; border: 1px solid var(--sl-border, var(--line)); border-radius: 8px; background: var(--sl-surface, var(--ink-2)); }
+.storage-limit h3 { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: var(--sl-text, var(--bone)); }
+.settings-main .storage-limit p { margin: 0 0 8px; font-size: 14px; }
+.storage-folder { display: grid; gap: 4px; padding-block-start: 8px; border-block-start: 1px dashed var(--sl-border, var(--line)); }
+.storage-folder .btn { justify-self: start; text-decoration: none; }

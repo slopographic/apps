@@ -65,10 +65,14 @@
     document.body.classList.add('ready');
     $('pane').focus({ preventScroll: true });
   };
-  // Ask the browser to keep our storage after the first upload (a gesture is in progress then).
+  // Ask the browser to keep our storage the first time a visit uploads something big (SlopQuota.askIfBig: 50 MB, once
+  // per visit). The answer goes through SlopPWA, whose listener redraws the meter.
   const imp = DR.importFiles;
-  let asked = false;
-  DR.importFiles = async function (...a) { const r = await imp.apply(this, a); if (!asked && r.length) { asked = true; DR.requestPersist(false); } return r; };
+  DR.importFiles = async function (...a) {
+    const r = await imp.apply(this, a);
+    if (r.length) window.SlopQuota.askIfBig((a[0] || []).reduce((n, x) => n + ((x && x.file && x.file.size) || 0), 0));
+    return r;
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', DR.boot); else DR.boot();
 })(window.DR);

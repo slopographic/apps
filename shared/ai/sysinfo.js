@@ -53,11 +53,10 @@
     return g;
   }
 
+  /** From SlopQuota (shared/storage/quota.js), the one copy of the storage calls. */
   async function storageInfo() {
-    const s = { quota: null, usage: null, persisted: null };
-    try { if (navigator.storage && navigator.storage.estimate) Object.assign(s, await navigator.storage.estimate()); } catch (e) { /* blocked */ }
-    try { if (navigator.storage && navigator.storage.persisted) s.persisted = await navigator.storage.persisted(); } catch (e) { /* blocked */ }
-    return { quota: s.quota, usage: s.usage, persisted: s.persisted };
+    const s = window.SlopQuota ? await window.SlopQuota.estimate() : {};
+    return { quota: s.quota == null ? null : s.quota, usage: s.usage == null ? null : s.usage, persisted: s.persisted == null ? null : s.persisted };
   }
 
   async function collect({ bench = false, onStep } = {}) {

@@ -12,6 +12,7 @@
   var TOOLS = S.RAIL.map(function (t) { return t[0]; });
   function ready() { return document.documentElement.classList.contains('ready'); }
 
+  var linkTool = null, viewing = 0;   // the link's ?tool= and "a view or the link is being applied" (see below)
   var R = SlopRoute.register('pdf', {
     ready: ready,
     params: {
@@ -19,7 +20,7 @@
       panel: { values: PANELS, def: '' },
     },
     apply: function (s) {
-      if (R.has('tool') && s.tool && s.tool !== A.tool) A.setTool(s.tool);
+      if (R.has('tool') && s.tool && s.tool !== A.tool) { viewing++; try { A.setTool(s.tool); } finally { viewing--; } }
       if (R.has('panel') && s.panel) {
         if (A.togglePanel) A.togglePanel(true);
         if (D && D.setOpen) D.setOpen(s.panel, true);
@@ -28,10 +29,19 @@
   });
 
   // The tool picked by the person (any caller of A.setTool, boot included) goes to the URL once the app is ready.
+  // A link's tool (?tool=) outlives the stored tabs: a tab that finishes loading after the page is ready brings back its
+  // own view, and the link's tool is put back over it, until the person picks a tool themselves.
+  linkTool = R.has('tool') ? R.get('tool') : null;
   var setTool = A.setTool;
   A.setTool = function (t) {
     setTool.apply(this, arguments);
-    if (R && ready()) R.set({ tool: A.tool });
+    if (R && ready()) { if (!viewing) linkTool = null; R.set({ tool: A.tool }); }
+  };
+  var applyView = A.applyView;
+  if (applyView) A.applyView = function (v) {
+    viewing++;
+    try { applyView.apply(this, arguments); } finally { viewing--; }
+    if (linkTool && A.tool !== linkTool) { viewing++; try { A.setTool(linkTool); } finally { viewing--; } }
   };
   // A dock section the person opens or closes. The URL names the section last opened.
   if (D) D.onToggle = function (id, open) {

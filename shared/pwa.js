@@ -57,12 +57,23 @@
     });
   }
 
+  /** SlopQuota (shared/storage/quota.js) makes the browser call. Pages that do not load it get it on first use. */
+  const QUOTA_SRC = (() => { try { return new URL('storage/quota.js', document.currentScript.src).href; } catch (e) { return '/shared/storage/quota.js'; } })();
+  let quotaLoad = null;
+  function quota() {
+    if (win.SlopQuota) return Promise.resolve(win.SlopQuota);
+    quotaLoad = quotaLoad || new Promise((done) => {
+      const s = document.createElement('script');
+      s.src = QUOTA_SRC;
+      s.onload = s.onerror = () => done(win.SlopQuota || null);
+      document.head.append(s);
+    });
+    return quotaLoad;
+  }
   /** Asks the browser to keep this origin's storage, records the answer and tells listeners. */
   async function requestPersist() {
-    let answer = 'unsupported';
-    try {
-      if (NAV.storage && NAV.storage.persist) answer = (await NAV.storage.persist()) ? 'granted' : 'denied';
-    } catch (e) { answer = 'denied'; }
+    const Q = await quota();
+    const answer = Q ? await Q.persistAnswer() : 'unsupported';
     write(answer);
     listeners.forEach((fn) => { try { fn(answer); } catch (e) { /* a listener failed; keep going */ } });
     return answer;

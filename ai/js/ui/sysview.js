@@ -35,7 +35,7 @@
         row('Browser', [b.name, b.version].filter(Boolean).join(' ')), row('System', [b.os, b.osVersion, b.arch].filter(Boolean).join(' · '))),
       el('div', { class: 'card spec' }, el('h3', null, 'Storage'), row('Free for this site', st.quota ? gb(st.quota - (st.usage || 0)) : '—'), row('Used', st.usage != null ? AI.fmtBytes(st.usage) : '—'),
         row('Kept when space is low', st.persisted == null ? '—' : st.persisted ? 'yes' : 'no'),
-        st.persisted === false ? el('button', { type: 'button', class: 'btn sm', onclick: async () => { const ok = await navigator.storage.persist().catch(() => false); AI.toast(ok ? 'The browser will keep your models' : 'The browser said no (it decides by how often you visit)'); AI.runCheck({ bench: false }); } }, 'Ask to keep it') : null),
+        st.persisted === false ? el('button', { type: 'button', class: 'btn sm', onclick: async () => { const ok = (await window.SlopQuota.request()) === 'granted'; AI.toast(ok ? 'The browser will keep your models' : 'The browser said no (it decides by how often you visit)'); AI.runCheck({ bench: false }); } }, 'Ask to keep it') : null),
       el('div', { class: 'card spec' }, el('h3', null, 'Benchmark'), row('Matrix multiply', be && be.gflops ? be.gflops + ' GFLOPS' : be && be.error ? 'failed' : '—'), row('Memory bandwidth', be && be.bandwidthGBs ? be.bandwidthGBs + ' GB/s' : '—'),
         el('button', { type: 'button', class: 'btn sm', id: 'btnBench', disabled: !g.ok || AI.sysBusy, onclick: () => AI.runCheck({ bench: true }) }, be ? 'Run again' : 'Run the benchmark (1 s)')),
     ];
