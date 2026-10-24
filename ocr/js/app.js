@@ -186,11 +186,12 @@ function setExporting(on, text) {
 
 function wire() {
   // The one way in (shared/intake, spec 'ocr'): the zone (a drop, its Choose files, the sample), a paste, ?drive=<id>
-  // (another app's Open in Slop OCR) and a PWA launch all reach addFiles. Nothing comes in before the gate has passed.
+  // (another app's Open in Slop OCR) and a PWA launch all reach addFiles. A paste waits for the gate (the launch is read
+  // only once the gate has passed).
   window.SlopIntake.register({
     id: 'ocr',
     accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tif', '.tiff', '.avif'], noun: 'an image or a PDF' },
-    gate: () => !$('ui').hidden,
+    gate: (batch) => !$('ui').hidden || batch.source !== 'paste', // a paste before the gate has shown the page is not taken
     processAll: async (files) => { await addFiles(files); return files.map((f) => f.name); },
   });
   dropZone = window.SlopDrop.attach($('drop'), {

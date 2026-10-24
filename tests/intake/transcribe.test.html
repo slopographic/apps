@@ -11,8 +11,8 @@
 <script>
   // Covers: transcribe/js/app.js
   // Slop Transcribe on the one intake: a drop on the zone, its Choose files, a paste and ?drive=<id> (another app's Open
-  // in Slop Transcribe) reach the same reader (the queue) with the same events. Before the gate has shown the page,
-  // nothing comes in. (A recording is a take with source 'record'.)
+  // in Slop Transcribe) reach the same reader (the queue) with the same events. A paste before the gate has shown
+  // the page is not taken. (A recording is a take with source 'record'.)
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D, seen = [], events = [];
   async function boot() {
@@ -36,11 +36,11 @@
   }
 
   describe('Slop Transcribe: one way in', () => {
-    it('nothing comes in before the gate; then a drop on the zone', async () => {
+    it('no paste is taken before the gate; then a drop on the zone', async () => {
       await boot();
       const ui = D.getElementById('trUi'), files = [await png('a.png'), await png('b.png')];
       ui.hidden = true;
-      await W.SlopIntake.take(files, { to: 'transcribe', source: 'drop' });
+      await W.SlopIntake.take(files, { to: 'transcribe', source: 'paste' });
       expect(seen).toEqual([]);
       ui.hidden = false;
       await through('drop', () => D.getElementById('trDrop').dispatchEvent(new W.DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dtOf(files) })));

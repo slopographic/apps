@@ -11,8 +11,8 @@
 <script>
   // Covers: ocr/js/app.js
   // Slop OCR on the one intake: a drop on the zone, its Choose files, a paste, ?drive=<id> (another app's Open in Slop OCR)
-  // and the sample reach the same reader (addFiles, the whole batch) with the same events. Before the gate has shown the
-  // page, nothing comes in.
+  // and the sample reach the same reader (addFiles, the whole batch) with the same events. A paste before the gate has
+  // shown the page is not taken.
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D, seen = [], events = [];
   async function boot() {
@@ -39,11 +39,11 @@
   }
 
   describe('Slop OCR: one way in', () => {
-    it('nothing comes in before the gate; then a drop on the zone', async () => {
+    it('no paste is taken before the gate; then a drop on the zone', async () => {
       await boot();
       const ui = D.getElementById('ui'), files = [await png('a.png'), await png('b.png')];
       ui.hidden = true;
-      await W.SlopIntake.take(files, { to: 'ocr', source: 'drop' });
+      await W.SlopIntake.take(files, { to: 'ocr', source: 'paste' });
       expect(seen).toEqual([]);
       ui.hidden = false;
       await through('drop', () => D.getElementById('drop').dispatchEvent(new W.DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dtOf(files) })));

@@ -1,7 +1,7 @@
 /* Slop AI Tools: the one way a file comes into a tool page (shared/intake). SlopAITools.intake(id, o) registers the page's
  * spec (one file at a time) and makes its "Drop … here, or choose a file" box the way in: a drop on it, its "choose a
  * file" button (#chooseFile, the intake's picker), a paste, ?drive=<id> (when the page has Slop Hub) and a PWA launch all
- * reach o.read(file, ctx). Nothing comes in before the tool's gate has shown the page (#ui).
+ * reach o.read(file, ctx). A paste is not taken before the tool's gate has shown the page (#ui).
  *   o: { accept: rules (shared/intake/rules.js), read(file, ctx), drive?: '#button' (Open from Slop Drive) }
  * Classic script, after shared/intake/*.js and common.js. */
 (function (root) {
@@ -12,7 +12,7 @@
     const SI = root.SlopIntake;
     SI.register({
       id, accept: o.accept, limit: 1,
-      gate: () => !$('ui') || !$('ui').hidden,
+      gate: (batch) => !$('ui') || !$('ui').hidden || batch.source !== 'paste', // no paste before the gate shows the page
       process: async (file, ctx) => { await o.read(file, ctx); return file.name; },
     });
     SI.dropTarget($('drop'), { to: id });

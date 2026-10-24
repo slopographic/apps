@@ -177,15 +177,15 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   `SlopOuttake.items` (SVG with Workflows, PNG apps only). `tests/intake/slopvector.test.html`.
 - **Slop OCR** (`ocr/js/app.js`, spec `ocr`, `processAll` → `addFiles`): the zone and its Choose files (the page's own
   hidden `#file` input is gone), a paste (new), ?drive= launch (the page now loads Slop Hub, so Open in Slop OCR
-  arrives) and launchQueue, the sample. Nothing comes in before the model gate has shown the page (`gate`).
+  arrives) and launchQueue, the sample. A paste is not taken before the model gate has shown the page (`gate`).
   `tests/intake/ocr.test.html`.
 - **AI tool pages** (`aitools/intake.js`, `SlopAITools.intake(id, { accept, read, drive })`; specs `ai-denoise`, `ai-ocr`,
   `ai-portrait`, `ai-speech`, `ai-tags`, one file at a time): a drop on the box (`SlopIntake.dropTarget`), its "choose a
   file" button (was a file input in a label), a paste (new), launch, and Auto tags' "pick a photo from Slop Drive"
   (`fromDrive`; was a hand-made list of Drive photos). `tests/intake/aitools.test.html`.
 - **Slop Transcribe** (`transcribe/js/app.js`, spec `transcribe`): the zone and its Choose files (the hidden `#trPick` is
-  gone), the sample, a paste (new), a recording (a take with source `record`), ?drive= launch and launchQueue. Nothing
-  comes in before the model gate has shown the page. `tests/intake/transcribe.test.html`.
+  gone), the sample, a paste (new), a recording (a take with source `record`), ?drive= launch and launchQueue. A paste is
+  not taken before the model gate has shown the page. `tests/intake/transcribe.test.html`.
 - **Slop Music** (`music/js/ui/library.js`, spec `music`; part `music.playlist` in `ui/playlists.js`): Add files (the
   header and the empty library), a drop on the library and its strip, the sample, a paste (new), ?drive= launch (a track
   the library has plays, `M.playTrack`) and launchQueue (added to Slop Drive). Open a playlist from Slop Drive is the

@@ -10,8 +10,8 @@
 <script>
   // Covers: aitools/intake.js, aitools/denoise/denoise.js, aitools/ocr/ocr.js, aitools/portrait/portrait.js, aitools/speech/speech.js, aitools/tags/tags.js
   // Each AI tool page takes one file through the one intake: a drop on its box, its "choose a file" button, a paste and
-  // (Auto tags) a photo picked from Slop Drive reach the page's one reader with the same events. Before the tool's gate
-  // has shown the page, nothing comes in.
+  // (Auto tags) a photo picked from Slop Drive reach the page's one reader with the same events. A paste before the
+  // tool's gate has shown the page is not taken.
   const { describe, it, expect, waitFor, run } = SlopTest;
   const TOOLS = [
     { dir: 'denoise', id: 'ai-denoise', file: ['p.png', 'image/png'] },
@@ -51,11 +51,11 @@
   for (const t of TOOLS) {
     describe('AI tools, ' + t.dir + ': one way in', () => {
       let P;
-      it('nothing comes in before the gate has shown the page; then a drop on the box', async () => {
+      it('no paste is taken before the gate has shown the page; then a drop on the box', async () => {
         P = await open(t);
         const ui = P.D.getElementById('ui'), f = await fileIn(P, t);
         ui.hidden = true;
-        await P.W.SlopIntake.take([f], { to: t.id, source: 'drop' });
+        await P.W.SlopIntake.take([f], { to: t.id, source: 'paste' });
         expect(P.seen).toEqual([]);
         ui.hidden = false;
         await through(P, t, 'drop', () => P.D.getElementById('drop').dispatchEvent(new P.W.DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dtOf(P.W, [f]) })));

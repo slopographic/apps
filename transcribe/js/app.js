@@ -99,9 +99,9 @@ async function exportAs(format, then) {
 
 function wire() {
   // The one way in (shared/intake, spec 'transcribe'): the zone (a drop, Choose files, the sample), a paste, a recording,
-  // ?drive=<id> (another app's Open in Slop Transcribe) and a PWA launch all reach add(). Nothing before the gate passes.
+  // ?drive=<id> (another app's Open in Slop Transcribe) and a PWA launch all reach add(). A paste waits for the gate.
   window.SlopIntake.register({
-    id: 'transcribe', gate: () => !$('trUi').hidden,
+    id: 'transcribe', gate: (batch) => !$('trUi').hidden || batch.source !== 'paste', // no paste before the gate has shown the page
     accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac', '.webm', '.mp4', '.mov', '.mkv', '.amr', '.wma'], noun: 'an audio or video file' },
     process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return id; },
   });
