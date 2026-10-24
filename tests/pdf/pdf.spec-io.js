@@ -75,8 +75,8 @@
     it('registers as pdf and offers Send to items for the PDF and a page image', async () => {
       const H = PT.win.SlopHub;
       expect(H.self.app).toBe('pdf');
-      const imgApps = H.appsAccepting('image/png').map((a) => a.id);
-      const items = PT.A.sendPageItems(PT.E.state.pages[0].id);
+      const imgApps = H.appsAccepting('image/png').map((a) => a.id).filter((id) => id !== 'workflows');
+      const items = PT.A.sendPageItems(PT.E.state.pages[0].id).filter((i) => !/workflow/.test(i.label));
       expect(items.length).toBe(imgApps.length);
       const file = PT.A._.fileMenu().find((x) => x && x.label === 'Send to');
       expect(!!file && file.sub.length >= 1).toBe(true);

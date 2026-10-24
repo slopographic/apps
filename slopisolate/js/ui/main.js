@@ -69,7 +69,9 @@
     });
     CO.on('history', guardSync);
     CO.on('export', download);
+    // Only a download (the runtime or a model) shows the busy bar; each image's own progress is on its queue tile.
     CO.on('progress', ({ p }) => {
+      if (!p || !['runtime', 'model', 'init'].includes(p.phase)) { if (busyBy === 'progress') { busyBy = null; showBusy(false); } return; }
       busyBy = 'progress';
       showBusy(true, 'Loading the AI model…', p && p.total ? p.loaded / p.total : null);
     });
@@ -82,11 +84,10 @@
     const hub = document.documentElement.dataset.offline ? null : window.SlopHub;
     if (!hub) return;
     hub.register('cutout');
-    const rec = await hub.consumeLaunch();
-    if (!rec || !CO.process) return;
-    // A file PhotoSlop sent to be cut out (Layer ▸ Isolate Subject) remembers its request: the mask goes back to it.
-    const [it] = CO.process.add([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })], { driveId: rec.id, origin: { from: rec.from, meta: rec.meta || {} } });
-    if (it && rec.meta && rec.meta.requestId) it.request = { requestId: rec.meta.requestId };
+    if (!CO.files) return;
+    // Through the intake (source 'launch'): a file PhotoSlop sent to be cut out (Layer ▸ Isolate Subject) keeps where it
+    // came from and its request (io/files.js), so the mask goes back to it.
+    await SlopIntake.launch({ to: 'cutout' });
   }
 
   function boot() {

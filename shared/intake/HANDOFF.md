@@ -110,7 +110,7 @@ with the verb "Send to". Use the same items for the toolbar button, the More men
 
 ## Rule 4 (tools/one-way.mjs, run by tools/check-rules.mjs)
 
-In the apps listed in `STRICT` (now `pdf/`, `photoslop/js/`, `convert/`, `gallery/`, `resize/`), app code may not add a
+In the apps listed in `STRICT` (now `pdf/`, `photoslop/js/`, `convert/`, `gallery/`, `resize/`, `slopisolate/`), app code may not add a
 `drop` or `paste` listener, call `pickFiles`, make a file input, read ?drive= (`consumeLaunch`) or `launchQueue`, call
 `pickFromDrive`, or build an "Open in"/"Send to" list by hand. A line that must stay (a tab dragged to a new place, text
 pasted into a field) says why with an `// intake-ok: …` comment. When an app below is migrated, add its folder to
@@ -137,6 +137,7 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Gallery** (`gallery/js/ui/main.js` spec `gallery`; part `gallery.backup`): a drop of files or folders
   (SlopDrop.folders), Import (Ctrl+O), Import a folder, Import from Slop Drive, ?drive= launch, paste, the sample. Each
   photo is one `G.actions.importOne` (a duplicate is skipped with its reason). Out: SlopHub.sendMenuItems.
+- **SlopIsolate** (`slopisolate/js/io/files.js`, spec `cutout`): see its section below (in is done, out is to do).
 - **Slop Resize** (`resize/js/app/main.js` spec `resize`): a drop on the column or the zone, Choose files, Open
   (Ctrl+O), Open from Slop Drive, ?drive= launch, paste, the sample. Out: Send to Slop Upscale is `SlopOuttake.send`.
 
@@ -169,12 +170,14 @@ PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach 
 
 ## Still to migrate (found by grepping; tick as done)
 
-### slopisolate (another agent is unifying its two add-files paths on wip/isolate-batch: adopt this API there)
+### slopisolate: in is migrated (spec 'cutout', `slopisolate/js/io/files.js`); out is still to do
 
-In: `slopisolate/js/io/files.js` (its pickFiles, its SlopDrop.attach, its own paste listener, the first-use notice
-F.notice() — make it the spec's `notice`, shown once per batch), `slopisolate/js/io/drive.js` (pickFromDrive),
-`slopisolate/js/ui/menus.js` (Open from Slop Drive), `slopisolate/js/ui/main.js` (?drive= launch), the hub listener in
-`slopisolate/js/io/send.js`.
+In (done, after wip/isolate-batch): every route is a source of the intake and the spec's reader (`processAll`) hands the
+whole batch to `CO.files.take` at once, which keeps the app's one first-use gate (`F.gate`) and its one add
+(`CO.process.add`); the accept rules are `F.ACCEPT`. Open (`CO.files.open` → `SlopIntake.pick`), the sample
+(`SlopIntake.sample`), Open from Slop Drive (`SlopIntake.fromDrive`, both menus), ?drive= (`SlopIntake.launch`; a file
+PhotoSlop sent keeps its origin and request), the drop zone on #workspace and #queue (`SlopDrop.attach({ intake:
+'cutout' })`), paste. `slopisolate/` is in rule 4's STRICT list. `tests/slopisolate/intake.test.html` checks it.
 Out: three overlapping menus become one `SlopOuttake.items({ from: 'cutout', type: 'image/png', … })` used by the toolbar
 "Open in…", More ▸ Send to and the context menu: `slopisolate/js/ui/openin.js` (a hand-kept list of PhotoSlop and Slop
 Vector; Slop Upscale is missing), More ▸ "Send to" (`menus.js`, sendMenuItems), and "Send cut-out to PhotoSlop as a new
