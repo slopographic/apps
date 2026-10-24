@@ -102,10 +102,12 @@ export function videoLink(app) {
   const v = app.video;
   return v ? `<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>` : '';
 }
+/** The app's screenshot as a figure (assets/shots/<id>.jpg), or '' when there is none. */
+export const shotFigure = (app) => (hasFile(`assets/shots/${app.id}.jpg`) ? `<figure class="shot"><img src="/assets/shots/${esc(app.id)}.jpg" alt="${esc(app.name)} open in a browser" width="1280" height="800" loading="lazy"></figure>` : '');
 export function mediaBlock(app) {
   const id = app.id, out = [];
   const clip = hasFile(`assets/clips/${id}.mp4`);
-  if (!clip && hasFile(`assets/shots/${id}.jpg`)) out.push(`<figure class="shot"><img src="/assets/shots/${esc(id)}.jpg" alt="${esc(app.name)} open in a browser" width="1280" height="800" loading="lazy"></figure>`);
+  if (!clip && shotFigure(app)) out.push(shotFigure(app));
   if (clip) {
     const poster = hasFile(`assets/shots/${id}.jpg`) ? ` poster="/assets/shots/${esc(id)}.jpg"` : '';
     out.push(`<video class="clip" controls preload="none" playsinline${poster}><source src="/assets/clips/${esc(id)}.webm" type="video/webm"><source src="/assets/clips/${esc(id)}.mp4" type="video/mp4">Your browser cannot play this clip.</video>`);

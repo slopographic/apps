@@ -53,7 +53,7 @@
 <h1>View and edit ZPL label code</h1>
 <p class="lead">See what a ZPL file will print before it reaches the Zebra printer. SlopLabel draws the label from the code, turns it into objects you can move and change, and writes ZPL again at 152 to 600 dpi.</p>
 <p><a class="btn" href="/label/">Open a ZPL file</a></p>
-<div class="media"><video class="clip" controls preload="none" playsinline poster="/assets/shots/label.jpg"><source src="/assets/clips/label.webm" type="video/webm"><source src="/assets/clips/label.mp4" type="video/mp4">Your browser cannot play this clip.</video></div>
+<div class="media"><figure class="shot"><img src="/assets/shots/label.jpg" alt="SlopLabel open in a browser" width="1280" height="800" loading="lazy"></figure></div>
 <h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Choose File &gt; Import ZPL… and paste the code, or open a .zpl, .prn or .txt file.</li><li>The label appears with its text, barcodes, boxes, lines and graphics as editable objects.</li><li>Change what you need, and set the size, dpi, darkness and speed in Label setup.</li><li>In Print…, choose ZPL (Zebra) to download the new code, ZPL preview to check it, or PDF and PNG.</li></ol>
 <p>The import reads the common commands: ^FO and ^FT positions, ^A fonts, ^FB text blocks, the ^B barcode commands (Code 128 with GS1, EAN, UPC, Code 39, Code 93, Interleaved 2 of 5, Codabar, QR, Data Matrix, PDF417 and Aztec), ^GB, ^GE, ^GC and ^GD shapes, and ^GF graphics. ^FN fields become prompts and ^SN becomes a counter.</p>

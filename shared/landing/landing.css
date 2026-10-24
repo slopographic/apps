@@ -7,10 +7,10 @@
   --bone: var(--sl-text, #f1ede4);
   --ink-2: color-mix(in srgb, var(--bone) 5%, var(--ink));
   --bone-dim: color-mix(in srgb, var(--bone) 72%, var(--ink));
-  --bone-faint: color-mix(in srgb, var(--bone) 50%, var(--ink));
+  --bone-faint: color-mix(in srgb, var(--bone) 64%, var(--ink));   /* 4.5:1 or more on light and dark pages */
   --line: color-mix(in srgb, var(--bone) 15%, var(--ink));
   --slop: var(--sl-accent, #d4ff3a);
-  --amber: #f5c26b;
+  --amber: color-mix(in srgb, #d98a10 55%, var(--bone));   /* readable on light and dark: mixed toward the text colour */
   --sans: "Inter Tight", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   color-scheme: light dark;

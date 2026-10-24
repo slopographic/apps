@@ -6,7 +6,7 @@
 //   taskPages(apps, site, TASKS) -> [{ key, dir, url, html, app, task }]
 //   taskJsonLd(task, app, url, site) -> the page's JSON-LD (WebPage, BreadcrumbList, HowTo, FAQPage, VideoObject)
 //   videoJsonLd(app, site) -> a VideoObject for an app's tutorial, or null
-import { esc, shell, mediaBlock, cardList, related } from './landing.mjs';
+import { esc, shell, shotFigure, videoLink, cardList, related } from './landing.mjs';
 import { appNav, withToc, docsLayout } from './guide.mjs';
 
 /** Checks one task's copy; throws with the task's key on the first problem. */
@@ -22,6 +22,7 @@ export function checkTask(t, app) {
   for (const [q, a] of t.faq) if (!q || !q.endsWith('?') || !a || a.length < 40) fail(`question "${q}": a question mark and an answer of 40+ characters`);
   if (t.query && !/^[a-z0-9_-]+=[a-z0-9_.-]+(&[a-z0-9_-]+=[a-z0-9_.-]+)*$/i.test(t.query)) fail('query must be like key=value&key=value (plain words)');
   if (t.body && !Array.isArray(t.body)) fail('body is a list of paragraphs');
+  if (t.image && (!/^\/assets\/[\w./-]+\.(jpg|png|webp)$/.test(t.image.src || '') || !t.image.alt)) fail('image: { src under /assets/, alt }');
 }
 
 
@@ -36,6 +37,14 @@ export function videoJsonLd(app, site) {
 /** The Open link: the app, set up for the task when the task has a query. */
 const openHref = (app, t) => `/${app.path}${t.query ? `?${t.query}` : ''}`;
 
+/** A task page's picture: the task's own (t.image: { src, alt }, a screenshot of that very result) or else the app's
+ *  screenshot, and the app's video tutorial. Never the app's general demo clip, which shows other things. */
+function taskMedia(t, app) {
+  const pic = t.image ? `<figure class="shot"><img src="${esc(t.image.src)}" alt="${esc(t.image.alt)}" loading="lazy"></figure>` : shotFigure(app);
+  const parts = [pic, videoLink(app)].filter(Boolean);
+  return parts.length ? `<div class="media">${parts.join('')}</div>` : '';
+}
+
 function body(t, app, apps, siblings) {
   const steps = t.steps.map((s) => `<li>${esc(s)}</li>`).join('');
   const faq = t.faq.map(([q, a]) => `<h3>${esc(q)}</h3>\n<p>${esc(a)}</p>`).join('\n');
@@ -44,7 +53,7 @@ function body(t, app, apps, siblings) {
 <h1>${esc(t.h1)}</h1>
 <p class="lead">${esc(t.lead)}</p>
 <p><a class="btn" href="${esc(openHref(app, t))}">${esc(t.cta || `Open ${app.name}`)}</a></p>
-${mediaBlock(app)}
+${taskMedia(t, app)}
 <h2>How to do it</h2>
 <ol>${steps}</ol>
 ${(t.body || []).map((p) => `<p>${esc(p)}</p>`).join('\n')}

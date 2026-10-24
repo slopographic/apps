@@ -21,6 +21,8 @@
       cmd('file.newTemplate', 'New from template…', 'File', [], function () { SS.templatesUI.openNew(); }, function () { return A.mode === 'edit'; }, { keywords: ['template', 'import'] }),
       cmd('file.saveTemplate', 'Save as template…', 'File', [], function () { SS.templatesUI.openSave(); }, editing, { keywords: ['template', 'export'] }),
       cmd('file.pptx', 'Export PowerPoint (.pptx)', 'File', [], function () { SS.files.exportPptx(); }, null, { keywords: ['powerpoint', 'export'] }),
+      cmd('file.pdf', 'Download PDF', 'File', [], function () { SS.files.exportPdf(); }, null, { keywords: ['pdf', 'export', 'print'] }),
+      cmd('file.openLocal', 'Open a file from this computer…', 'File', [], function () { SS.fileDrop.choose(); }, function () { return A.mode === 'edit'; }, { keywords: ['import', 'powerpoint', 'pptx'] }),
       cmd('edit.undo', 'Undo', 'Edit', ['Mod+Z'], function () { A.undo(); }, function () { return editing() && A.hist.canUndo(); }),
       cmd('edit.redo', 'Redo', 'Edit', ['Shift+Mod+Z', 'Mod+Y'], function () { A.redo(); }, function () { return editing() && A.hist.canRedo(); }),
       cmd('edit.copy', 'Copy', 'Edit', ['Mod+C'], function () { OP.copy(); }, hasSel),
@@ -45,7 +47,8 @@
       cmd('slide.down', 'Move slide down', 'Slide', [], function () { OP.moveSlide(1); }, editing),
       cmd('slide.next', 'Next slide', 'Slide', ['PageDown'], function () { A.go(A.idx + 1); }, function () { return editing() && A.idx < A.deck.slides.length - 1; }, { hidden: true }),
       cmd('slide.prev', 'Previous slide', 'Slide', ['PageUp'], function () { A.go(A.idx - 1); }, function () { return editing() && A.idx > 0; }, { hidden: true }),
-      cmd('view.present', 'Present', 'View', ['F5'], function () { SS.present.start(); }, editing)
+      cmd('view.present', 'Present', 'View', ['F5'], function () { SS.present.start(); }, editing),
+      cmd('view.presenter', 'Present with presenter view', 'View', ['Alt+F5'], function () { SS.presenter.start(); }, editing, { keywords: ['notes', 'speaker', 'timer'] })
     ];
     [['Left', -1, 0], ['Right', 1, 0], ['Up', 0, -1], ['Down', 0, 1]].forEach(function (d) {
       L.push(cmd('nudge.' + d[0].toLowerCase(), 'Nudge ' + d[0].toLowerCase(), 'Arrange', ['Arrow' + d[0]], function () { OP.nudge(d[1], d[2]); }, hasSel, { repeat: true, hidden: true }));

@@ -1,5 +1,5 @@
 /* Slop Slides: the top bar. Title, File menu (new, open, save, download, export), undo and redo, insert buttons,
-   layout and theme pickers, present, and the save status. Everything refreshes from the model. Exposes SS.toolbar. */
+   layout and theme pickers, present (and presenter view), and the save status. Everything refreshes from the model. Exposes SS.toolbar. */
 (function () {
   'use strict';
   var SS = window.SS, A = SS.app, D = SS.dom, OP = SS.ops, T = SS.toolbar = {};
@@ -12,6 +12,7 @@
       { label: 'New presentation', key: keyOf('file.new'), act: SS.files.newDeck },
       { label: 'New from template…', key: keyOf('file.newTemplate'), act: function () { SS.templatesUI.openNew(); } },
       { label: 'Open from Slop Drive…', key: keyOf('file.open'), act: SS.files.openDrive, disabled: !hub },
+      { label: 'Open a file from this computer…', act: function () { SS.fileDrop.choose(); } },
       { label: 'Import PowerPoint or picture from Slop Drive…', act: SS.files.importDrive, disabled: !hub },
       '-',
       { label: 'Save to Slop Drive', key: keyOf('file.save'), act: function () { SS.files.save(false); }, disabled: !hub },
@@ -19,12 +20,14 @@
       { label: 'Save as template…', key: keyOf('file.saveTemplate'), act: function () { SS.templatesUI.openSave(); } },
       '-',
       { label: 'Download .sslide', act: SS.files.download },
+      { label: 'Download PDF', key: keyOf('file.pdf'), act: SS.files.exportPdf },
       { label: 'Export PowerPoint (.pptx)', act: SS.files.exportPptx },
       { label: 'Export this slide as PNG', act: SS.files.exportPng },
       '-',
       '-',
       { label: 'Config', sub: SS.configio && SS.configio.menu ? SS.configio.menu() : [] },
-      { label: 'Present', key: keyOf('view.present') || 'F5', act: function () { SS.present.start(); } }
+      { label: 'Present', key: keyOf('view.present') || 'F5', act: function () { SS.present.start(); } },
+      { label: 'Present with presenter view', key: keyOf('view.presenter'), act: function () { SS.presenter.start(); } }
     ], x, y);
   }
   function fillSelects() {
@@ -45,7 +48,13 @@
     undo.title = 'Undo' + (A.hist.label('undo') ? ': ' + A.hist.label('undo') : '');
     redo.title = 'Redo' + (A.hist.label('redo') ? ': ' + A.hist.label('redo') : '');
     setVal($('selLayout'), s ? s.layout : '');
-    setVal($('selTheme'), A.deck.theme.id);
+    var th = $('selTheme'), own = th.querySelector('option[data-own]');
+    // a theme that came with the file (an imported PowerPoint theme) is listed by its own name
+    if (!SS.themes.list.some(function (t) { return t.id === A.deck.theme.id; })) {
+      if (!own) { own = D.option(A.deck.theme.id, '', ''); own.setAttribute('data-own', ''); th.prepend(own); }
+      own.value = A.deck.theme.id; own.textContent = A.deck.theme.name || 'This file’s theme';
+    } else if (own) own.remove();
+    setVal(th, A.deck.theme.id);
     setVal($('title'), A.deck.title);
     $('saveState').textContent = saveText();
     $('saveState').classList.toggle('dirty', A.dirty);

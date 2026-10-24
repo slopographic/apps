@@ -14,6 +14,7 @@
     SS.sorter.mount(document.getElementById('slides-list'));
     SS.inspector.mount(document.getElementById('inspector'));
     SS.toolbar.mount();
+    SS.fileDrop.mount();
     SS.ctxmenu.mount();
     SS.commands.setup();
     var launch = window.SlopHub ? await SlopHub.consumeLaunch() : null;

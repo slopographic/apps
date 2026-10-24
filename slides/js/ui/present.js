@@ -5,7 +5,7 @@
    jump; a click on the left third goes back; B blacks the screen; Escape ends the show on the slide that was on screen.
    Hidden slides are skipped. "Play animations" (P.animsOn, set in the inspector) turns builds and transitions off: every
    slide appears whole and each click moves to the next slide. Playback runs on SlopMotion.playback; P.clock is for tests.
-   Exposes window.SS.present. */
+   Every change of place emits A.emit('present'), which the presenter view (presenter.js) follows. Exposes window.SS.present. */
 (function () {
   'use strict';
   var SS = window.SS, A = SS.app, MO = window.SlopMotion, V = SS.presentView;
@@ -56,12 +56,26 @@
   P.current = function () { return P.list[P.n]; };
   /** For tests and the presenter: the slide, how many builds are consumed, how many on-click builds there are, and whether one is running. */
   P.status = function () { return { slide: P.n, build: next, builds: plan ? plan.clicks : 0, playing: !!cur }; };
+  /** What the presenter view shows: the slide on screen and its build state, the next slide, the place in the show, the
+   * on-click builds left on this slide and the black screen. null when no show runs. */
+  P.view = function () {
+    if (!P.on) return null;
+    var left = plan ? plan.steps.slice(next).filter(function (s) { return s.click; }).length : 0;
+    return { slide: slideAt(P.n), next: slideAt(P.n + 1) || null, n: P.n, total: P.list.length, left: left, black: P.black, states: statesAt(plan && next > 0 ? plan.steps[next - 1].to : time) };   // a build shows as it ends
+  };
+  /** B: blacks the screen out, or brings the slide back. */
+  P.toggleBlack = function () {
+    if (!P.on) return;
+    P.black = !P.black;
+    root.classList.toggle('black', P.black);
+    A.emit('present');
+  };
 
   /** Next key or click: finishes a running motion, else plays the next on-click build, else the next slide. */
   P.advance = function () {
     if (!P.on) return;
     if (cur) { cur.finish(); return; }
-    if (plan && next < plan.steps.length) { playStep(plan.steps[next++]); return; }
+    if (plan && next < plan.steps.length) { playStep(plan.steps[next++]); A.emit('present'); return; }
     P.step(1);
   };
   /** Moves by d slides (clamped), playing the transition of the slide entered. */
@@ -161,6 +175,7 @@
     repaint();
   }
   function show() {
+    A.emit('present');
     if (!flash) return;
     flash.textContent = (P.n + 1) + ' / ' + P.list.length;
     flash.classList.add('show');
@@ -176,6 +191,6 @@
     else if (back.indexOf(k) >= 0) { e.preventDefault(); P.step(-1); }
     else if (k === 'Home') { e.preventDefault(); P.jump(0); }
     else if (k === 'End') { e.preventDefault(); P.jump(P.list.length - 1); }
-    else if (k === 'b' || k === 'B' || k === '.') { e.preventDefault(); P.black = !P.black; root.classList.toggle('black', P.black); }
+    else if (k === 'b' || k === 'B' || k === '.') { e.preventDefault(); P.toggleBlack(); }
   }
 })();

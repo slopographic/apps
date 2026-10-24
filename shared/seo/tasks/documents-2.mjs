@@ -174,7 +174,7 @@ export const TASKS = [
       'Add transitions and animations, then press Present to rehearse.',
       'Export PowerPoint (.pptx) when you need to share it.'],
     faq: [['Is Slop Slides made by Microsoft?', 'No. Slopographic is not affiliated with Microsoft. Microsoft and PowerPoint are trademarks of their owner, named here only to describe what people search for.'],
-      ['Can it open .pptx files?', 'Not yet. Slop Slides writes .pptx files, but opening them is not built. A picture can be imported to start a new deck.'],
+      ['Can it open .pptx files?', 'Yes. Open a .pptx and its slides, text, pictures, shapes and notes come in as an editable deck; anything it cannot keep is listed when it opens. It also exports PowerPoint and PDF.'],
       ['Do I need an account?', 'No. Decks are saved to Slop Drive in this browser. There is no sign-up.'],
       ['What is kept in the PowerPoint export?', 'Slides, text, shapes and pictures. Transitions, animations, tables, charts and media are not written to the .pptx yet; the app tells you when something is left out.']] },
 

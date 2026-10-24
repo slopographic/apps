@@ -18,20 +18,23 @@
   var E = function (pt) { return Math.round(pt * 12700); };
   var ALIGN = { l: 'l', c: 'ctr', r: 'r', j: 'just' };
 
+  var SCHEME = { bg: 'bg1', text: 'tx1', bg2: 'bg2', text2: 'tx2', accent1: 'accent1', accent2: 'accent2', accent3: 'accent3', accent4: 'accent4', accent5: 'accent5', accent6: 'accent6' };
   function hex(theme, ref, fb) { return (TH.color(theme, ref, fb || 'text') || '#000000').replace('#', '').toUpperCase(); }
-  function solid(theme, c, alpha) {
-    var a = alpha == null ? 1 : alpha;
-    return '<a:solidFill><a:srgbClr val="' + c + '">' + (a < 1 ? '<a:alpha val="' + Math.round(a * 100000) + '"/>' : '') + '</a:srgbClr></a:solidFill>';
+  /** A solid fill. A plain theme slot ('accent2', 'text') is written as a scheme colour, so PowerPoint's theme recolours it too. */
+  function solid(theme, ref, fb, alpha) {
+    var a = alpha == null ? 1 : alpha, mod = a < 1 ? '<a:alpha val="' + Math.round(a * 100000) + '"/>' : '';
+    var slot = SCHEME[ref == null || ref === '' ? fb : ref];
+    return '<a:solidFill>' + (slot ? '<a:schemeClr val="' + slot + '">' + mod + '</a:schemeClr>' : '<a:srgbClr val="' + hex(theme, ref, fb) + '">' + mod + '</a:srgbClr>') + '</a:solidFill>';
   }
   function fillXml(theme, fill) {
     if (!fill || fill.type === 'none') return '<a:noFill/>';
     var ref = fill.type === 'solid' ? fill.color : (fill.colors || [])[0];
-    return solid(theme, hex(theme, ref, 'accent1'), fill.alpha);
+    return solid(theme, ref, 'accent1', fill.alpha);
   }
   function lineXml(theme, o) {
     var st = o.stroke;
     if (!st || !(st.width > 0) || st.color === 'none') return '<a:ln><a:noFill/></a:ln>';
-    return '<a:ln w="' + E(st.width) + '">' + solid(theme, hex(theme, st.color, 'text'), st.alpha) +
+    return '<a:ln w="' + E(st.width) + '">' + solid(theme, st.color, 'text', st.alpha) +
       (st.dash && st.dash !== 'solid' ? '<a:prstDash val="' + (st.dash === 'dot' ? 'sysDot' : 'dash') + '"/>' : '') +
       (st.head === 'arrow' ? '<a:headEnd type="triangle"/>' : '') + (st.tail === 'arrow' ? '<a:tailEnd type="triangle"/>' : '') + '</a:ln>';
   }
@@ -47,14 +50,23 @@
     var bold = r.b != null ? r.b : !!st.bold, ital = r.i != null ? r.i : !!st.italic;
     var face = F.family(TH.font(theme, r.font || p.font || st.font));
     return '<a:r><a:rPr lang="en-US" sz="' + Math.round(size * 100) + '" b="' + (bold ? 1 : 0) + '" i="' + (ital ? 1 : 0) + '"' +
-      (r.u ? ' u="sng"' : '') + (r.s ? ' strike="sngStrike"' : '') + ' dirty="0">' + solid(theme, hex(theme, r.color || p.color || st.color, 'text')) +
+      (r.u ? ' u="sng"' : '') + (r.s ? ' strike="sngStrike"' : '') + ' dirty="0">' + solid(theme, r.color || p.color || st.color, 'text') +
       '<a:latin typeface="' + U.esc(face) + '"/></a:rPr><a:t>' + U.esc(r.t) + '</a:t></a:r>';
   }
-  function para(p, st, theme) {
+  /** Space before a paragraph in points: its own, else what the text layout puts there (text.js), so PowerPoint spaces it the same. */
+  function before(p, st) {
+    if (p.spaceBefore != null) return p.spaceBefore;
+    if (st.paraSpace != null) return st.paraSpace;
+    var sz = (p.runs || []).reduce(function (m, r) { return Math.max(m, r.size || 0); }, 0) || st.size || 18;
+    return sz * (p.bullet && p.bullet !== 'none' ? 0.45 : 0.15);
+  }
+  function para(p, st, theme, first) {
     var bullet = !!p.bullet && p.bullet !== 'none', lvl = Math.min(p.level || 0, 4);
     var al = ALIGN[p.align || st.align || 'l'] || 'l';
-    var ppr = '<a:pPr algn="' + al + '"' + (bullet ? ' marL="' + E(18 + lvl * 18) + '" indent="' + -E(18) + '"' : ' marL="0" indent="0"') + '>' +
-      '<a:lnSpc><a:spcPct val="' + Math.round((st.lineHeight || 1.2) * 100000) + '"/></a:lnSpc>' +
+    // the model's line height is a multiple of the font size; PowerPoint's 100% is about 1.2 times the size
+    var ppr = '<a:pPr' + (lvl ? ' lvl="' + lvl + '"' : '') + ' algn="' + al + '"' + (bullet ? ' marL="' + E(18 + lvl * 18) + '" indent="' + -E(18) + '"' : ' marL="0" indent="0"') + '>' +
+      '<a:lnSpc><a:spcPct val="' + Math.round((st.lineHeight || 1.2) / 1.2 * 100000) + '"/></a:lnSpc>' +
+      (first ? '' : '<a:spcBef><a:spcPts val="' + Math.round(before(p, st) * 100) + '"/></a:spcBef>') +
       (bullet ? '<a:buFont typeface="Arial"/><a:buChar char="&#8226;"/>' : '<a:buNone/>') + '</a:pPr>';
     var runs = (p.runs || []).map(function (r) { return run(r, st, p, theme); }).join('');
     var end = '<a:endParaRPr lang="en-US" sz="' + Math.round((st.size || 18) * 100) + '"/>';
@@ -63,7 +75,7 @@
   function txBody(o, theme, st) {
     var tx = o.text || {}, ins = tx.inset || X.INSET;
     var anchor = tx.valign === 'middle' ? 'ctr' : tx.valign === 'bottom' ? 'b' : 't';
-    var paras = (tx.paras || []).map(function (p) { return para(p, st, theme); }).join('') || '<a:p><a:endParaRPr lang="en-US"/></a:p>';
+    var paras = (tx.paras || []).map(function (p, i) { return para(p, st, theme, i === 0); }).join('') || '<a:p><a:endParaRPr lang="en-US"/></a:p>';
     return '<p:txBody><a:bodyPr wrap="square" lIns="' + E(ins[0]) + '" tIns="' + E(ins[1]) + '" rIns="' + E(ins[2]) + '" bIns="' + E(ins[3]) +
       '" anchor="' + anchor + '" rtlCol="0"><a:noAutofit/></a:bodyPr><a:lstStyle/>' + paras + '</p:txBody>';
   }
@@ -71,7 +83,8 @@
   /* objects */
   function shapeXml(id, o, theme) {
     var line = O.isLine(o);
-    var geom = '<a:prstGeom prst="' + (PRST[o.shape] || 'rect') + '"><a:avLst/></a:prstGeom>';
+    var adj = o.shape === 'roundRect' ? '<a:gd name="adj" fmla="val ' + Math.round(Math.max(0, Math.min(0.5, o.radius == null ? 0.12 : o.radius)) * 100000) + '"/>' : '';
+    var geom = '<a:prstGeom prst="' + (PRST[o.shape] || 'rect') + '"><a:avLst>' + adj + '</a:avLst></a:prstGeom>';
     var fill = line ? '<a:noFill/>' : fillXml(theme, o.fill);
     var hasText = o.text && O.plain(o.text).trim() && !line;
     return '<p:sp><p:nvSpPr><p:cNvPr id="' + id + '" name="' + U.esc(o.name || 'Shape') + '"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>' +
@@ -101,7 +114,7 @@
     }).join('') + '</Relationships>';
   }
   function slideXml(deck, slide, theme, ctx) {
-    var bg = TH.background(theme, slide), bgc = bg.type === 'solid' ? bg.color : ((bg.colors || [])[0] || 'bg');
+    var bg = TH.background(theme, slide), bgc = (bg.type === 'solid' && bg.color) || (bg.colors || [])[0] || 'bg';
     var n = 2, body = [], rel = [{ id: 'rId1', type: 'slideLayout', target: '../slideLayouts/slideLayout1.xml' }];
     flatten(slide.objects, []).forEach(function (o) {
       if (o.type === 'shape' || (o.type === 'text' && O.plain(o.text).trim())) body.push(shapeXml(n++, o, theme));
@@ -116,7 +129,7 @@
       } else ctx.skipped++;
     });
     ctx.rels.push(rel);
-    return HDR + '<p:sld ' + NS + (slide.hidden ? ' show="0"' : '') + '><p:cSld><p:bg><p:bgPr>' + solid(theme, hex(theme, bgc, 'bg')) + '<a:effectLst/></p:bgPr></p:bg>' +
+    return HDR + '<p:sld ' + NS + (slide.hidden ? ' show="0"' : '') + '><p:cSld><p:bg><p:bgPr>' + solid(theme, bgc, 'bg') + '<a:effectLst/></p:bgPr></p:bg>' +
       '<p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/>' + body.join('') +
       '</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>';
   }

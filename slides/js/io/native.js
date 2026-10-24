@@ -1,7 +1,7 @@
 /* Slop Slides: the native file. A .sslide is the deck as JSON (mime application/x-slop-slides), media included.
    Reading turns what Slop Drive hands us into a deck: a zero-byte file of our type (what Drive's New menu makes)
-   is a blank deck, an image becomes a one-picture slide, and anything else is reported as foreign so the editor
-   never overwrites a file it could not read. Classic script; exposes window.SS.native. */
+   is a blank deck, an image becomes a one-picture slide, a PowerPoint file is imported (io/pptx-in.js), and anything else is
+   reported as foreign so the editor never overwrites a file it could not read. Classic script; exposes window.SS.native. */
 (function () {
   'use strict';
   var SS = window.SS, M = SS.model, U = SS.util, O = SS.objects;
@@ -59,13 +59,19 @@
   };
 
   /**
-   * Reads a Drive record's blob. Resolves with { deck, kind } where kind is 'deck' | 'blank' | 'image' | 'foreign'.
-   * Rejects only when a native file is damaged (the caller then opens nothing over it).
+   * Reads a Drive record's blob (or a File). Resolves with { deck, kind } where kind is 'deck' | 'blank' | 'image' | 'pptx' |
+   * 'foreign'; a PowerPoint file also gives { report } (what was left out, pptx-in.js). Rejects when a native or PowerPoint
+   * file is damaged (the caller then opens nothing over it).
    */
+  N.PPTX = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
   N.read = async function (blob, type, name) {
     type = type || (blob && blob.type) || '';
     if (!blob || blob.size === 0) return { deck: N.blank(), kind: 'blank' };
-    if (type === N.MIME || /json/.test(type)) return { deck: N.parse(await blob.text()), kind: 'deck' };
+    if (type === N.PPTX || /\.pptx$/i.test(name || '')) {
+      var r = await SS.pptxIn.read(blob, name);   // pptx-in.js; throws with the reason for a damaged or foreign file
+      return { deck: N.normalize(r.deck), kind: 'pptx', report: r.report };
+    }
+    if (type === N.MIME || /json/.test(type) || /\.sslide$/i.test(name || '')) return { deck: N.parse(await blob.text()), kind: 'deck' };
     if (/^image\//.test(type)) return { deck: await N.fromImage(await U.blobToDataUrl(blob), name || 'Picture'), kind: 'image' };
     return { deck: N.blank(), kind: 'foreign', type: type };
   };

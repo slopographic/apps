@@ -130,10 +130,11 @@ describe('the 3D pages, the hub and the preview', () => {
     expect(tool.active().length).toBe(2);
     expect(tool.ui.target.value).toBe('3d-to-stl');
     const D = f.contentDocument;
-    await waitFor(() => D.querySelectorAll('.cv-pv-panel .cv-pv-3d').length === 2 && /triangles/.test(D.querySelector('.cv-pv-grid').textContent), { timeout: 20000 });
+    const caps = () => [...D.querySelectorAll('.cv-pv-panel .cv-hint')].map((p) => p.textContent);
+    // both panels caption themselves once their model has loaded, one after the other
+    await waitFor(() => D.querySelectorAll('.cv-pv-panel .cv-pv-3d').length === 2 && caps().length === 2 && caps().every((c) => /triangles/.test(c)), { timeout: 20000 });
     expect(D.querySelector('.cv-pv-note').textContent).toContain('STL cannot hold 2 materials');
-    const caps = [...D.querySelectorAll('.cv-pv-panel .cv-hint')].map((p) => p.textContent);
-    expect(caps.every((c) => c.includes('24 triangles'))).toBeTruthy();
+    expect(caps().every((c) => c.includes('24 triangles'))).toBeTruthy();
     f.remove();
   }, { timeout: 40000 });
 });

@@ -43,7 +43,8 @@
       root.style.setProperty('--slopc-base-pb', getComputedStyle(document.body).paddingBottom);
       root.classList.add('slopc-on');
     }
-    var measure = function () { root.style.setProperty('--consent-h', Math.ceil(el.getBoundingClientRect().height) + 'px'); };
+    // the room the card takes from the bottom of the window: its height and the gap under it
+    var measure = function () { var r = el.getBoundingClientRect(); root.style.setProperty('--consent-h', Math.ceil(Math.max(r.height, window.innerHeight - r.top)) + 'px'); };
     measure();
     if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(measure); ro.observe(el); }
   }
