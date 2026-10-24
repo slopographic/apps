@@ -61,6 +61,51 @@ describe('SlopMenuButton', () => {
     mb.destroy(); b.click(); expect(menu()).toBe(null);
   });
 });
+
+describe('SlopMenuButton search', () => {
+  const s = document.createElement('button'); s.textContent = 'Many'; document.body.append(s);
+  const many = () => [{ heading: 'Images' }, { value: 'to-jpg', label: 'To JPG', checked: true }, { value: 'to-png', label: 'To PNG' },
+    { value: 'to-webp', label: 'To WebP' }, { heading: 'PDF' }, { value: 'images-to-pdf', label: 'Images to PDF', keywords: ['acrobat'] },
+    { heading: 'Encoding' }, { value: 'base64-encode', label: 'Base64 encode' }, { value: 'url-encode', label: 'URL encode' }];
+  const got = [];
+  SlopMenuButton.attach(s, { label: 'Convert y to', items: many, onPick: (v) => got.push(v) });
+  const search = () => menu().querySelector('.smb-search');
+  const visible = () => [...menu().querySelectorAll('.smb-row:not([hidden])')].map((r) => r.dataset.value);
+  const type = (text) => { search().value = text; search().dispatchEvent(new Event('input', { bubbles: true })); };
+  it('six or more choices open with a search box at the top, the cursor in it', () => {
+    s.click();
+    expect(!!search()).toBe(true);
+    expect(document.activeElement).toBe(search());
+    expect(search().getAttribute('aria-label')).toBe('Search Convert y to');
+    expect(menu().firstElementChild).toBe(search());
+  });
+  it('typing filters by label, value and keywords; empty groups hide; no match says so', () => {
+    type('png'); expect(visible()).toEqual(['to-png']);
+    expect([...menu().querySelectorAll('.smb-group:not([hidden]) .smb-h')].map((h) => h.textContent)).toEqual(['Images']);
+    type('acrobat'); expect(visible()).toEqual(['images-to-pdf']);
+    type('encode'); expect(visible()).toEqual(['base64-encode', 'url-encode']);
+    type('zzz'); expect(visible()).toEqual([]); expect(menu().querySelector('.smb-nomatch').hidden).toBe(false);
+    type(''); expect(visible().length).toBe(6); expect(menu().querySelector('.smb-nomatch').hidden).toBe(true);
+  });
+  it('ArrowDown goes to the first row, ArrowUp from it back to the box, a letter on a row types into the box', () => {
+    type('to ');
+    key(search(), 'ArrowDown'); expect(document.activeElement.dataset.value).toBe('to-jpg');
+    key(document.activeElement, 'ArrowUp'); expect(document.activeElement).toBe(search());
+    key(search(), 'ArrowDown'); key(document.activeElement, 'w');
+    expect([document.activeElement, search().value, visible()]).toEqual([search(), 'to w', ['to-webp']]);
+  });
+  it('Enter in the box picks the first match and closes', () => {
+    type('base');
+    key(search(), 'Enter');
+    expect([got, menu(), document.activeElement]).toEqual([['base64-encode'], null, s]);
+  });
+  it('a short menu has no search box, and search: false turns it off', () => {
+    b.click(); expect(menu() ? menu().querySelector('.smb-search') : null).toBe(null); SlopMenuButton.close();
+    const t = document.createElement('button'); document.body.append(t);
+    SlopMenuButton.attach(t, { items: many, search: false });
+    t.click(); expect(menu().querySelector('.smb-search')).toBe(null); SlopMenuButton.close();
+  });
+});
 SlopTest.run({ name: 'shared/ui menubutton' });
 </script>
 </body>

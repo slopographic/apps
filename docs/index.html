@@ -48,8 +48,45 @@
   <script src="../shared/guard.js" defer data-offline="strip"></script>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="../shared/slop365/look.css">
-  <script type="module" blocking="render" src="js/bridge.js" data-src="docs/js/bridge.js"></script>
-  <script type="module" blocking="render" src="js/ui/outline.js" data-src="docs/js/ui/outline.js"></script>
+  <script src="../shared/slopui.js" defer data-src="shared/slopui.js" blocking="render"></script>
+  <script src="../shared/ctxmenu.js" defer data-src="shared/ctxmenu.js" blocking="render"></script>
+  <script src="../shared/apps.js" defer data-src="shared/apps.js" blocking="render"></script>
+  <script src="../shared/commands/commands.js" defer data-src="shared/commands/commands.js" blocking="render"></script>
+  <script src="../shared/commands/search.js" defer data-src="shared/commands/search.js" blocking="render"></script>
+  <script src="../shared/commands/palette.js" defer data-src="shared/commands/palette.js" blocking="render"></script>
+  <script src="../shared/commands/recorder.js" defer data-src="shared/commands/recorder.js" blocking="render"></script>
+  <script src="../shared/commands/keymap.js" defer data-src="shared/commands/keymap.js" blocking="render"></script>
+  <script src="../shared/hub.js" defer data-src="shared/hub.js" blocking="render"></script>
+  <script src="../shared/drive-link.js" defer data-src="shared/drive-link.js" blocking="render"></script>
+  <script type="module" src="js/bridge.js" data-src="docs/js/bridge.js" blocking="render"></script>
+  <script src="js/ui/state.js" defer data-src="docs/js/ui/state.js" blocking="render"></script>
+  <script src="js/ui/render.js" defer data-src="docs/js/ui/render.js" blocking="render"></script>
+  <script src="js/ui/geom.js" defer data-src="docs/js/ui/geom.js" blocking="render"></script>
+  <script src="js/ui/actions.js" defer data-src="docs/js/ui/actions.js" blocking="render"></script>
+  <script src="js/ui/buffer.js" defer data-src="docs/js/ui/buffer.js" blocking="render"></script>
+  <script src="js/ui/objects.js" defer data-src="docs/js/ui/objects.js" blocking="render"></script>
+  <script src="js/ui/input.js" defer data-src="docs/js/ui/input.js" blocking="render"></script>
+  <script src="js/ui/toolbar.js" defer data-src="docs/js/ui/toolbar.js" blocking="render"></script>
+  <script src="../shared/config/schema.js" defer data-src="shared/config/schema.js" blocking="render"></script>
+  <script src="../shared/config/validate.js" defer data-src="shared/config/validate.js" blocking="render"></script>
+  <script src="../shared/config/template.js" defer data-src="shared/config/template.js" blocking="render"></script>
+  <script src="../shared/config/io.js" defer data-src="shared/config/io.js" blocking="render"></script>
+  <script src="../shared/config/prompt.js" defer data-src="shared/config/prompt.js" blocking="render"></script>
+  <script src="../shared/config/dialog.js" defer data-src="shared/config/dialog.js" blocking="render"></script>
+  <script src="../shared/config/dialog-ai.js" defer data-src="shared/config/dialog-ai.js" blocking="render"></script>
+  <script src="js/io/config.js" defer data-src="docs/js/io/config.js" blocking="render"></script>
+  <script src="js/ui/files.js" defer data-src="docs/js/ui/files.js" blocking="render"></script>
+  <script src="js/ui/output.js" defer data-src="docs/js/ui/output.js" blocking="render"></script>
+  <script src="js/ui/hf.js" defer data-src="docs/js/ui/hf.js" blocking="render"></script>
+  <script src="js/ui/templates.js" defer data-src="docs/js/ui/templates.js" blocking="render"></script>
+  <script src="js/ui/random.js" defer data-src="docs/js/ui/random.js" blocking="render"></script>
+  <script src="js/ui/menus.js" defer data-src="docs/js/ui/menus.js" blocking="render"></script>
+  <script src="js/ui/commands.js" defer data-src="docs/js/ui/commands.js" blocking="render"></script>
+  <script src="js/ui/ctxmenu.js" defer data-src="docs/js/ui/ctxmenu.js" blocking="render"></script>
+  <script src="js/ui/view-state.js" defer data-src="docs/js/ui/view-state.js" blocking="render"></script>
+  <script src="js/ui/tabs.js" defer data-src="docs/js/ui/tabs.js" blocking="render"></script>
+  <script src="js/ui/main.js" defer data-src="docs/js/ui/main.js" blocking="render"></script>
+  <script type="module" src="js/ui/outline.js" data-src="docs/js/ui/outline.js" blocking="render"></script>
 </head>
 <body>
   <div class="app" id="app">
@@ -124,21 +161,11 @@
   <div class="sr" id="live" aria-live="polite"></div>
   <noscript><p class="noscript">Slop Docs needs JavaScript. It runs entirely in your browser; nothing is uploaded.</p></noscript>
 
-  <script src="../shared/slopui.js" defer data-src="shared/slopui.js"></script>
   <script src="../shared/session/session.js"></script>
-  <script src="../shared/ctxmenu.js" defer data-src="shared/ctxmenu.js"></script>
-  <script src="../shared/apps.js" defer data-src="shared/apps.js"></script>
-  <script src="../shared/commands/commands.js" defer data-src="shared/commands/commands.js"></script>
-  <script src="../shared/commands/search.js" defer data-src="shared/commands/search.js"></script>
-  <script src="../shared/commands/palette.js" defer data-src="shared/commands/palette.js"></script>
-  <script src="../shared/commands/recorder.js" defer data-src="shared/commands/recorder.js"></script>
-  <script src="../shared/commands/keymap.js" defer data-src="shared/commands/keymap.js"></script>
-  <script src="../shared/hub.js" defer data-src="shared/hub.js"></script>
   <script src="../shared/storage/classify.js"></script>
   <script src="../shared/storage/storage.js"></script>
   <script src="../shared/storage/clear.js"></script>
   <script src="../shared/storage/ui.js"></script>
-  <script src="../shared/drive-link.js" defer data-src="shared/drive-link.js"></script>
   <script src="../shared/buffer/formats.js" data-src="shared/buffer/formats.js"></script>
   <script src="../shared/buffer/store.js" data-src="shared/buffer/store.js"></script>
   <script src="../shared/buffer/clipboard.js" data-src="shared/buffer/clipboard.js"></script>
@@ -152,37 +179,10 @@
   <script src="../shared/fonts/bidi.js" data-src="shared/fonts/bidi.js"></script>
   <script src="../shared/fonts/jit.js" data-src="shared/fonts/jit.js"></script>
   <script src="../shared/fonts/pdf-runs.js" data-src="shared/fonts/pdf-runs.js"></script>
-  <script src="js/ui/state.js" defer data-src="docs/js/ui/state.js"></script>
-  <script src="js/ui/render.js" defer data-src="docs/js/ui/render.js"></script>
-  <script src="js/ui/geom.js" defer data-src="docs/js/ui/geom.js"></script>
-  <script src="js/ui/actions.js" defer data-src="docs/js/ui/actions.js"></script>
-  <script src="js/ui/buffer.js" defer data-src="docs/js/ui/buffer.js"></script>
-  <script src="js/ui/objects.js" defer data-src="docs/js/ui/objects.js"></script>
-  <script src="js/ui/input.js" defer data-src="docs/js/ui/input.js"></script>
-  <script src="js/ui/toolbar.js" defer data-src="docs/js/ui/toolbar.js"></script>
-  <script src="../shared/config/schema.js" defer data-src="shared/config/schema.js"></script>
-  <script src="../shared/config/validate.js" defer data-src="shared/config/validate.js"></script>
-  <script src="../shared/config/template.js" defer data-src="shared/config/template.js"></script>
-  <script src="../shared/config/io.js" defer data-src="shared/config/io.js"></script>
-  <script src="../shared/config/prompt.js" defer data-src="shared/config/prompt.js"></script>
   <script src="../shared/drop/rules.js" data-src="shared/drop/rules.js"></script>
   <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
   <script src="../shared/intake/intake.js" data-src="shared/intake/intake.js"></script>
   <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
-  <script src="../shared/config/dialog.js" defer data-src="shared/config/dialog.js"></script>
-  <script src="../shared/config/dialog-ai.js" defer data-src="shared/config/dialog-ai.js"></script>
-  <script src="js/io/config.js" defer data-src="docs/js/io/config.js"></script>
-  <script src="js/ui/files.js" defer data-src="docs/js/ui/files.js"></script>
-  <script src="js/ui/output.js" defer data-src="docs/js/ui/output.js"></script>
-  <script src="js/ui/hf.js" defer data-src="docs/js/ui/hf.js"></script>
-  <script src="js/ui/templates.js" defer data-src="docs/js/ui/templates.js"></script>
-  <script src="js/ui/random.js" defer data-src="docs/js/ui/random.js"></script>
-  <script src="js/ui/menus.js" defer data-src="docs/js/ui/menus.js"></script>
-  <script src="js/ui/commands.js" defer data-src="docs/js/ui/commands.js"></script>
-  <script src="js/ui/ctxmenu.js" defer data-src="docs/js/ui/ctxmenu.js"></script>
-  <script src="js/ui/view-state.js" defer data-src="docs/js/ui/view-state.js"></script>
-  <script src="js/ui/tabs.js" defer data-src="docs/js/ui/tabs.js"></script>
-  <script src="js/ui/main.js" defer data-src="docs/js/ui/main.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>

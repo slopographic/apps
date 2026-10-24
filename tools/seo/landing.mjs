@@ -100,7 +100,7 @@ export const cardList = (items) => `<ul class="cards">${items.map((b) => `<li>${
 /** The app's YouTube tutorial as a card (its thumbnail is kept in assets/video), or '' without one. */
 export function videoLink(app) {
   const v = app.video;
-  return v ? `<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>` : '';
+  return v ? `<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener" data-slop-video="${esc(v.id)}" data-slop-video-title="${esc(v.title)}"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>` : '';
 }
 /** The app's screenshot as a figure (assets/shots/<id>.jpg), or '' when there is none. */
 export const shotFigure = (app) => (hasFile(`assets/shots/${app.id}.jpg`) ? `<figure class="shot"><img src="/assets/shots/${esc(app.id)}.jpg" alt="${esc(app.name)} open in a browser" width="1280" height="800" loading="lazy"></figure>` : '');

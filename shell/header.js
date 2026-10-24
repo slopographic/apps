@@ -46,8 +46,8 @@
     return b;
   }
 
-  /** The app's video tutorial (shared/apps.js `video`), opened on YouTube in a new tab: the page itself loads nothing
-   *  from YouTube. Null on a page whose app has no tutorial. */
+  /** The app's video tutorial (shared/apps.js `video`): a click plays it in a dialog on the page (shared/ui/video.js,
+   *  nothing loads from YouTube before that); a Ctrl/middle click opens YouTube. Null on a page whose app has none. */
   function tutorialLink() {
     const app = window.SlopShell && window.SlopShell.currentApp, v = app && app.video;
     if (!v || !/^[\w-]{6,20}$/.test(v.id)) return null;
@@ -55,8 +55,9 @@
     a.className = 'sh-hbtn slop-hbtn sh-tutorial';
     a.href = 'https://www.youtube.com/watch?v=' + v.id;
     a.target = '_blank'; a.rel = 'noopener';
-    a.title = 'Watch the video tutorial (YouTube)';
-    a.setAttribute('aria-label', 'Watch the ' + app.name + ' video tutorial on YouTube');
+    a.title = 'Watch the video tutorial';
+    a.dataset.slopVideo = v.id; a.dataset.slopVideoTitle = app.name + ' tutorial';
+    a.setAttribute('aria-label', 'Watch the ' + app.name + ' video tutorial');
     a.innerHTML = ICON_PLAY;   // an icon only: the app's own controls keep the header's room (title and label say what it is)
     return a;
   }

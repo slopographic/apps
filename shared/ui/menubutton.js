@@ -8,11 +8,15 @@
  *     items: () => [{ heading: 'Images' }, { value: 'to-jpg', label: 'To JPG', icon: node, checked: true }, ...],
  *     empty: 'Nothing to choose',                           // shown when items() is empty
  *     onPick: (value) => { ... },
+ *     search: 'auto',                                      // a search box at the top: true, false, or 'auto' (6+ choices)
  *   });
  *   mb.open(); mb.close(); mb.isOpen(); mb.destroy();
  *
  * Keys: Enter, Space or ArrowDown on the button open it on the chosen row (ArrowUp on the last). In the menu: the arrows,
  * Home and End move, a letter jumps to the next row that starts with it, Enter or Space picks, Escape and Tab close.
+ * With a search box (items may carry `keywords`), the menu opens with the cursor in it: typing filters the rows by
+ * label, value and keywords (groups with no match hide), ArrowDown goes to the first row, Enter picks the first match,
+ * and a letter typed on a row goes back to the box.
  * A click outside closes it. Classic script; also works as a side-effect ES-module import. Injects its styles once;
  * colours come from the page's tokens (--panel, --ink, --line, --accent, --focus) with system colours as the fallback. */
 (function (g) {
@@ -34,6 +38,10 @@
 .smb-chk { flex: none; inline-size: 1.2em; text-align: center; color: var(--smb-accent, var(--accent, Highlight)); }
 .smb-icon { flex: none; display: inline-flex; }
 .smb-empty { margin: 0; padding: 8px 10px; color: var(--smb-dim, var(--muted, GrayText)); }
+.smb-search { position: sticky; inset-block-start: -6px; z-index: 1; display: block; inline-size: 100%; box-sizing: border-box; margin-block-end: 6px; padding: 8px 10px;
+  border: 1px solid var(--smb-line, var(--line, GrayText)); border-radius: 6px; background: var(--smb-bg, var(--panel, Canvas)); color: inherit; font: inherit; }
+.smb-search:focus-visible { outline: 2px solid var(--smb-focus, var(--focus, Highlight)); outline-offset: -1px; }
+.smb-row[hidden], .smb-group[hidden], .smb-empty[hidden] { display: none; }
 @media (max-width: 480px) { .smb-menu { min-inline-size: min(280px, calc(100vw - 16px)); } }`;
   let openOne = null;   // the one open menu on the page: { close }
   let uid = 0;
@@ -54,7 +62,8 @@
     button.setAttribute('aria-expanded', 'false');
     let menu = null, typed = '', typedAt = 0;
 
-    const rows = () => (menu ? [...menu.querySelectorAll('.smb-row:not([disabled])')] : []);
+    const rows = () => (menu ? [...menu.querySelectorAll('.smb-row:not([disabled]):not([hidden])')] : []);
+    let search = null;
     function build() {
       const m = doc.createElement('div');
       m.className = 'smb-menu';
@@ -62,6 +71,8 @@
       m.id = 'smb-' + (++uid);
       if (o.label) m.setAttribute('aria-label', o.label);
       const list = (typeof o.items === 'function' ? o.items() : o.items) || [];
+      const count = list.filter((it) => it && it.heading === undefined).length;
+      search = (o.search === true || ((o.search === undefined || o.search === 'auto') && count >= 6)) ? searchBox(m) : null;
       let group = null;
       const newGroup = (heading) => {
         group = doc.createElement('div');
@@ -89,6 +100,7 @@
         r.setAttribute('role', 'menuitemradio');
         r.setAttribute('aria-checked', String(!!it.checked));
         r.dataset.value = it.value;
+        r.dataset.find = [it.label, it.value, ...(it.keywords || [])].join(' ').toLowerCase();
         if (it.disabled) r.disabled = true;
         const chk = doc.createElement('span'); chk.className = 'smb-chk'; chk.setAttribute('aria-hidden', 'true'); chk.textContent = it.checked ? '✓' : '';
         const lbl = doc.createElement('span'); lbl.className = 'smb-lbl'; lbl.textContent = it.label;
@@ -98,11 +110,37 @@
         r.addEventListener('click', () => { if (r.disabled) return; close(true); if (o.onPick) o.onPick(it.value); });
         group.append(r);
       }
-      if (!list.some((it) => it && it.heading === undefined)) {
+      if (!count) {
         const p = doc.createElement('p'); p.className = 'smb-empty'; p.textContent = o.empty || 'Nothing to choose'; m.append(p);
+      } else if (search) {
+        const p = doc.createElement('p'); p.className = 'smb-empty smb-nomatch'; p.textContent = 'No match'; p.hidden = true; m.append(p);
       }
       m.addEventListener('keydown', onMenuKey);
       return m;
+    }
+    /** The search box: filters the rows as you type; ArrowDown goes into the list, Enter picks the first match. */
+    function searchBox(m) {
+      const inp = doc.createElement('input');
+      inp.type = 'search'; inp.className = 'smb-search'; inp.placeholder = 'Search';
+      inp.setAttribute('aria-label', 'Search ' + (o.label || 'choices'));
+      inp.setAttribute('autocomplete', 'off');
+      inp.addEventListener('input', () => filter(inp.value));
+      inp.addEventListener('keydown', (e) => {
+        const all = rows();
+        if (e.key === 'ArrowDown') { e.preventDefault(); e.stopPropagation(); if (all[0]) all[0].focus(); }
+        else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (all[0]) all[0].click(); }
+        else if (e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); close(true); }
+        else e.stopPropagation();   // letters are for the box, not the menu's type-ahead
+      });
+      m.append(inp);
+      return inp;
+    }
+    function filter(text) {
+      const words = String(text || '').toLowerCase().split(/\s+/).filter(Boolean);
+      for (const r of menu.querySelectorAll('.smb-row')) r.hidden = !words.every((w) => r.dataset.find.includes(w));
+      for (const gp of menu.querySelectorAll('.smb-group')) gp.hidden = !gp.querySelector('.smb-row:not([hidden])');
+      const none = menu.querySelector('.smb-nomatch');
+      if (none) none.hidden = !!menu.querySelector('.smb-row:not([hidden])');
     }
     function place() {
       if (!menu) return;
@@ -128,6 +166,7 @@
       win.addEventListener('resize', onResize);
       win.addEventListener('scroll', place, true);
       const all = rows();
+      if (search && where !== 'last') { search.focus({ preventScroll: true }); return; }
       const target = where === 'last' ? all[all.length - 1] : menu.querySelector('.smb-row[aria-checked="true"]:not([disabled])') || all[0];
       if (target) target.focus({ preventScroll: true });
       else { menu.tabIndex = -1; menu.focus({ preventScroll: true }); }
@@ -150,11 +189,14 @@
       const all = rows(), i = all.indexOf(doc.activeElement);
       const go = (n) => { e.preventDefault(); if (all.length) all[(n + all.length) % all.length].focus(); };
       if (e.key === 'ArrowDown') go(i + 1);
-      else if (e.key === 'ArrowUp') go(i < 0 ? all.length - 1 : i - 1);
+      else if (e.key === 'ArrowUp') { if (search && i === 0) { e.preventDefault(); search.focus(); } else go(i < 0 ? all.length - 1 : i - 1); }
       else if (e.key === 'Home') go(0);
       else if (e.key === 'End') go(all.length - 1);
       else if ((e.key === 'Enter' || e.key === ' ') && i >= 0) { e.preventDefault(); all[i].click(); }
       else if (e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); close(true); }
+      else if (search && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault(); search.focus(); search.value += e.key; filter(search.value);   // typing goes back to the box
+      }
       else if (e.key.length === 1 && /\S/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
         const now = Date.now();
         typed = now - typedAt < 700 ? typed + e.key.toLowerCase() : e.key.toLowerCase();

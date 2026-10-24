@@ -90,6 +90,7 @@
   addCss('shared/ui/hbtn.css');   // the look of every shared header button (Apps, the bell, Drive, Tour, View)
   if (!window.SlopHbtn) queue.push(['shared/ui/hbtn.js']);
   if (!window.SlopPWA) queue.push(['shared/pwa.js']);   // every app works offline after its first visit
+  if (!window.SlopTutorialVideo) queue.push(['shared/ui/video.js']);   // tutorial links play in a dialog on the page
   for (const m of ['notify', 'layout', 'tabs', 'switcher', 'drawer', 'header']) queue.push(['shell/' + m + '.js']);
 
   // All at once: the browser fetches them side by side and, as they are not async, runs them in this order (one
@@ -104,6 +105,7 @@
     S.layout = window.SlopLayout;
     if (!S.noHeader && window.SlopHeader) window.SlopHeader.mount();
     if (window.SlopI18n) window.SlopI18n.apply(); // the chosen language, from the profile, on every shell page
+    if (window.SlopTutorialVideo) window.SlopTutorialVideo.wire(document);
     // The offline worker: a page that mounts SlopPWA itself (with its Install button) does so at load; the shell
     // registers it on every other page a moment later, so each app works offline after its first visit.
     const pwa = () => setTimeout(() => { const P = window.SlopPWA; if (P && P.mounted && !P.mounted()) P.mount({}); }, 1500);
