@@ -38,6 +38,8 @@
       const text = cfg.editLabel && t.view === 'edit' ? cfg.editLabel(t) : tab ? tab.textContent.trim() : '';
       if (B.docbar && docViews.size) B.docbar.show(isDoc, text, t.view);
       document.body.dataset.bizDoc = isDoc ? 'open' : '';
+      const app = document.querySelector('.app');
+      if (app) app.dataset.view = t.view;   // the panes (shared/docs/workspace.css) and the print rules key on it
       tabs.show(t.view);
       if (g.SlopLayouts) g.SlopLayouts.refresh(cfg.app);
       const v = NS.views[t.view];

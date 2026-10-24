@@ -11,9 +11,8 @@
   const more = (h) => (h === 'repeat' ? { view: 'repeat' } : h.startsWith('p/') && h.length > 2 ? { view: 'print', arg: h.slice(2) }
     : h.startsWith('s/') && h.length > 2 ? { view: 'statement', arg: h.slice(2) } : null);
 
-  /** After a view shows: the view name on the page (for the print rules), and the list's selected row. */
+  /** After a view shows: the list's selected row, and on the list the repeating invoices that are due. */
   function after(t, shown) {
-    document.querySelector('.app').dataset.view = t.view;
     if (NS.views.list && !$('view-list').hidden) Promise.resolve(shown).then(() => NS.views.list.refresh());
     if (t.view === 'list') NS.repeat.dueNotice();
   }
@@ -21,7 +20,7 @@
   /** The menu bar's New invoice, and the record bar's Save (a draft open) and Print (an invoice open or its print view). */
   function mount() {
     // The open invoice's bar (shared/biz/docbar.js): back to the list, its number and status, Save and Print.
-    g.SlopBiz.docbar.mount({ back: 'list', title: '#tbNum', status: '#tbStatus', views: ['edit', 'print'], actions: ['#tbSave', '#tbPrint'] });
+    g.SlopBiz.docbar.mount({ views: ['edit', 'print'], actions: ['#tbSave', '#tbPrint'] });
     $('tbNew').addEventListener('click', () => NS.app.go('new'));
     $('tbSave').addEventListener('click', () => NS.editor.save());
     $('tbPrint').addEventListener('click', () => (NS.state.view === 'edit' ? NS.editor.preview() : window.print()));

@@ -10,6 +10,7 @@
   <script src="../harness.js"></script>
   <script>
   // Covers: quotes/index.html, quotes/js/ui/app.js, quotes/js/ui/list.js, quotes/js/ui/editor.js, quotes/js/ui/page.js, quotes/js/ui/commands.js, quotes/js/ui/layout.js
+  // Covers: shared/docs/workspace.css, shared/biz/docbar.js, quotes/index.html
   // Covers: quotes/js/core/util.js, quotes/js/core/quotes.js, quotes/js/core/pdf.js, quotes/css/quotes.css, shared/docs/doc-layout.js, orders/js/ui/layout.js, shared/biz/app.css, shared/layouts/presets.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D;
@@ -39,6 +40,10 @@
     it('a new quote is valid for 30 days; saving gives it the next QUO number', async () => {
       W.SlopQuotes.app.go('new');
       await waitFor(() => !$('view-edit').hidden && $('eCustomer').options.length > 1);
+      // the shared workspace (as in Invoices): the sheet in the centre, the details on the right, under the record bar
+      if (W.innerWidth > 720) expect(D.querySelector('.ws-panel').getBoundingClientRect().left).toBeGreaterThan(D.querySelector('.ws-stage').getBoundingClientRect().left);
+      expect(D.querySelector('.biz-docbar').hidden).toBe(false);
+      expect(D.getElementById('eTitle').closest('.biz-docbar')).toBeTruthy();
       expect($('eValid').value).toBe(W.SlopDocs.model.addDays($('eDate').value, 30));
       set($('eCustomer'), $('eCustomer').options[1].value);
       const card = D.querySelector('#eLines .line-card');

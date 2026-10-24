@@ -62,7 +62,8 @@
       const D = W.document;
       const bar = D.querySelector('header.smb-bar');
       expect(!!bar).toBe(true);
-      expect(shown(D.getElementById('tbNum'))).toBe(true);
+      expect(shown(D.getElementById('eTitle'))).toBe(true);   // the invoice's heading, in the record bar (shared/biz/docbar.js)
+      expect(D.getElementById('eTitle').closest('.biz-docbar')).toBeTruthy();
       expect(shown(D.getElementById('tbSave'))).toBe(true);
       const list = D.getElementById('view-list'), stage = D.querySelector('.ws-stage'), panel = D.querySelector('.ws-panel');
       expect(!!stage && !!panel).toBe(true);

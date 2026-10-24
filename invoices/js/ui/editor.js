@@ -27,10 +27,6 @@
     fieldError: (name, st) => (name !== 'dueDate' ? undefined : !st.dueDate || DATE.test(st.dueDate) ? null : 'Enter the due date as a date, or leave it blank.'),
     collect: (st) => (st.dueDate && !DATE.test(st.dueDate) ? { error: 'Enter the due date as a date, or leave it blank.' } : { dueDate: st.dueDate || undefined }),
     paint(st, ro) {
-      const label = statusText(st);
-      $('tbNum').textContent = st.id ? st.number || 'No number yet' : 'New invoice';
-      $('tbStatus').textContent = label;
-      $('tbStatus').className = `chip ${st.status}`;
       document.querySelector('.app').dataset.docStatus = st.status;
       $('eDue').value = st.dueDate;
       $('eDue').disabled = ro;

@@ -3,12 +3,14 @@
 // bar sits above it: "‹ Invoices" back to the list, the record's name and status, and the record's own actions on the right
 // (Save, Print, Statement). Actions for the whole app (New invoice) stay in the menu bar. Classic script; SlopBiz.router
 // shows and hides the bar: the views whose tabs are hidden in the page (edit, print, statement) are record views.
-//   SlopBiz.docbar.mount({ back: 'list', title: '#tbNum', status: '#tbStatus', actions: ['#tbSave', '#tbPrint'] })
+//   SlopBiz.docbar.mount({ back: 'list', title: '#eTitle', status: '#eStatus', actions: ['#tbSave', '#tbPrint'] })
 //     back      the view the back button goes to (its tab's text is the button's label)        default 'list'
-//     title     an element the app fills with the record's name (moved in), shown on `views`; else the view's label
+//     title     the editor's heading, which the app fills with the record's name (moved in), shown on `views`;
+//               on other record views the bar shows the view's label                           default '#eTitle'
 //     views     the views that show `title`                                                       default ['edit']
-//     status    an element the app fills with the record's status chip (moved in)                optional
-//     actions   the app's own buttons for the record, moved in as they are (listeners and state stay with them)
+//     status    the editor's status chip (moved in)                                               default '#eStatus'
+//     actions   the app's own buttons for the record, moved in as they are                        optional
+//   The editor's own header row (.head-row: its back button, heading and chip) is hidden: the bar replaces it.
 //   SlopBiz.docbar.show(on, label, view)   the router: on a record view or not, the view's label and name
 (function (g) {
   'use strict';
@@ -33,13 +35,15 @@
     b.addEventListener('click', () => { location.hash = back; });
     const name = document.createElement('div');
     name.className = 'biz-doc-name';
-    own = $(opts.title);
+    own = $(opts.title || '#eTitle');
+    const row = own && own.closest('.head-row');
+    if (row) row.hidden = true;   // its back button and heading are the bar's now
     ownViews = opts.views || ['edit'];
     label = document.createElement('b');
     label.className = 'biz-doc-title';
     name.append(label);
     if (own) { own.classList.add('biz-doc-title'); name.append(own); }
-    status = $(opts.status);
+    status = $(opts.status || '#eStatus');
     if (status) name.append(status);
     const acts = document.createElement('div');
     acts.className = 'biz-doc-actions';

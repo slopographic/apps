@@ -73,6 +73,7 @@ a.btn { text-decoration: none; }
 .biz-back span { font-size: 18px; line-height: 1; }
 .biz-back:hover { border-color: var(--mute); }
 .biz-doc-name { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1 1 auto; }
+.biz-docbar .h2 { margin: 0; }
 .biz-doc-title { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .biz-doc-name .chip:empty { display: none; }
 .biz-doc-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto; }
@@ -89,6 +90,7 @@ a.btn { text-decoration: none; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; margin: 0 0 12px; min-width: 0; }
 .table { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--panel); }
 .head-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.head-row[hidden] { display: none; }
 .head-row .h2 { margin: 0; }
 .empty-state { display: grid; justify-items: start; gap: 8px; padding: 16px; border: 1px dashed var(--line-strong); border-radius: var(--r); color: var(--mute); margin: 8px; }
 .empty-state p { margin: 0; }
