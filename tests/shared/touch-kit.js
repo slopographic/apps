@@ -101,7 +101,8 @@
   /** Both taps at the same place, even when the first one makes the app draw the target anew. */
   async function doubleTap(t) { const p = where(t), at = { x: p.x, y: p.y }; await tap(at); await sleep(90); await tap(at); return sleep(420); }
 
-  async function longPress(t, ms = 700) {
+  // 1100 ms: the layer's 500 ms, plus once more when the page was busy as the finger landed (touch.js BUSY_MS)
+  async function longPress(t, ms = 1100) {
     const p = where(t);
     if (info().multi) { await cdp('start', [{ id: 1, x: p.x, y: p.y }]); await sleep(ms); await cdp('end', []); return sleep(60); }
     const f = finger(p.x, p.y);

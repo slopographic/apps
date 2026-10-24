@@ -65,6 +65,7 @@
       PT.win.SlopUI.closeMenu && PT.win.SlopUI.closeMenu();
       const count = () => doc().querySelectorAll('.pv-page .annots [data-aid]').length;
       const before = count();
+      await sleep(600); // a press this soon after the drag's would be the app's own double tap (pointer.js), which edits the text
       await TouchKit.longPress(annotEl(a.id));
       await waitFor(() => doc().querySelector('.sui-menu .sui-row'), { timeout: 4000 });
       await sleep(200);
