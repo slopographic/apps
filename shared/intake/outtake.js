@@ -40,7 +40,8 @@
     const ctx = {
       from, type: o.type || '', data: o.data || null, id: o.id || null,
       name: () => (typeof o.name === 'function' ? o.name() : o.name) || 'Untitled',
-      blob: () => (blob = blob || Promise.resolve().then(() => o.get())),
+      // an output that is already a Slop Drive record (o.id, no get) is read from Slop Drive when an item needs its bytes
+      blob: () => (blob = blob || Promise.resolve().then(() => (o.get ? o.get() : o.id && H() ? H().get(o.id).then((r) => r && r.blob) : null))),
     };
     return ctx;
   }

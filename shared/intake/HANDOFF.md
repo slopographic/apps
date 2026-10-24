@@ -220,6 +220,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   (linked; was the tab strip's own Drive picker), a drop on the tabs, the strip or the bytes, the sample, a paste (new),
   ?drive= launch and launchQueue (the reader waits for the tabs). A file already open is refused.
   `tests/intake/hex.test.html`.
+- **Slop Code** (`code/js/main.js`, spec `code`): Open from Slop Drive, ?drive= launch and launchQueue, a drop on the
+  editor (new) and a paste (new); Slop Code edits Slop Drive files, so a file from this device is put in Slop Drive (the
+  folder chosen in the tree) and opened from there. The page now loads shared/intake. The tree's drag of rows stays
+  (`intake-ok`). Out: a file that is not text offers `SlopOuttake.items({ id })` (the record opens in the app, no copy;
+  its bytes are read from Slop Drive when an item needs them). `tests/intake/code.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -319,15 +324,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] pickFiles: `clean/js/app/main.js:82`
 - [ ] drop listener: `clean/js/app/main.js:91`
 - [ ] ?drive= launch: `clean/js/app/main.js:103`
-
-### code
-
-- [ ] Drive picker: `code/js/main.js:14`
-- [ ] ?drive= launch: `code/js/main.js:94`
-- [ ] drop listener: `code/js/tree.js:53`
-- [ ] hub listener: `code/js/tree.js:61`
-- [ ] out: Open in/Send to label: `code/js/viewers.js:75`
-- [ ] out: sendTo: `code/js/viewers.js:80`
 
 ### contacts
 
