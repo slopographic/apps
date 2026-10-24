@@ -110,13 +110,17 @@
 
   /** Deletes this site's offline caches, asks the browser for the newest service worker, then reloads the page (without
    * ?fresh). The worker fetches every file again (network first, no HTTP cache), so the reload shows the newest release. */
+  const UPDATE_WAIT_MS = 3000;
   async function refresh() {
     try {
       if (win.caches) for (const k of await win.caches.keys()) if (k.startsWith('slopographic-')) await win.caches.delete(k);
     } catch (e) { /* caches blocked: the reload still revalidates with the server */ }
     try {
       const reg = NAV && NAV.serviceWorker && (await NAV.serviceWorker.getRegistration('/'));
-      if (reg) await reg.update();
+      // update() waits for a new worker to install, which precaches the whole site and can take far longer than anyone waits.
+      // Give it a moment, then reload anyway: the caches are gone, so the reload reads the newest files from the network and
+      // the new worker finishes installing in the background.
+      if (reg) await Promise.race([reg.update(), new Promise((r) => setTimeout(r, UPDATE_WAIT_MS))]);
     } catch (e) { /* offline or no worker: reload anyway */ }
     const u = new URL(win.location.href);
     u.searchParams.delete('fresh');
