@@ -7,6 +7,7 @@
  *   g.down({ id, x, y, t, kind })  g.move(...)  g.up(...)  g.cancel({ id })  → an array of actions
  *   g.tick(t)                      → actions due by time t (the long press); call it at g.deadline()
  *   g.deadline()                   → when tick next has something to do, or Infinity
+ *   g.restartLong(t)               → the hold of every finger still down counts from t (the page was busy)
  *   g.reset()                      → forget everything (a pen came down, the page lost focus)
  * kind is 'touch' or 'pen' (mouse is not fed in). x, y in CSS pixels, t in milliseconds.
  * Actions: { type: 'tap', x, y, id } · { type: 'doubletap', x, y, id } · { type: 'longpress', x, y, id }
@@ -37,7 +38,7 @@
 
     function down(p) {
       const out = [];
-      pts.set(p.id, { x0: p.x, y0: p.y, x: p.x, y: p.y, t0: p.t, kind: p.kind || 'touch', moved: false, long: false });
+      pts.set(p.id, { x0: p.x, y0: p.y, x: p.x, y: p.y, t0: p.t, tl: p.t, kind: p.kind || 'touch', moved: false, long: false });
       const touches = [...pts.entries()].filter(([, s]) => s.kind === 'touch');
       if (pts.size >= 2) {
         multi = true;
@@ -93,7 +94,7 @@
       const out = [];
       for (const [id, s] of pts) {
         if (s.long || s.moved || multi) continue;
-        if (t - s.t0 >= o.longMs) { s.long = true; lastTap = null; out.push({ type: 'longpress', x: s.x, y: s.y, id }); }
+        if (t - s.tl >= o.longMs) { s.long = true; lastTap = null; out.push({ type: 'longpress', x: s.x, y: s.y, id }); }
       }
       return out;
     }
@@ -101,17 +102,21 @@
     function deadline() {
       let next = Infinity;
       if (multi) return next;
-      for (const s of pts.values()) if (!s.long && !s.moved) next = Math.min(next, s.t0 + o.longMs);
+      for (const s of pts.values()) if (!s.long && !s.moved) next = Math.min(next, s.tl + o.longMs);
       return next;
     }
 
     /** No long press for this pointer: the browser opened its own menu, or the app took the gesture. */
     function skipLong(id) { const s = pts.get(id); if (s) s.long = true; }
 
+    /** The page was busy (the long press is due but came late): the hold counts again from t, so a finger that lifted
+     *  during the busy time (its pointerup still queued) is not taken for a long press. */
+    function restartLong(t) { for (const s of pts.values()) if (!s.long && !s.moved) s.tl = t; }
+
     function reset() { pts.clear(); lastTap = null; pinch = null; multi = false; }
 
     return {
-      down, move, tick, deadline, reset, skipLong,
+      down, move, tick, deadline, reset, skipLong, restartLong,
       up: (p) => end(p, false),
       cancel: (p) => end(p, true),
       get size() { return pts.size; },

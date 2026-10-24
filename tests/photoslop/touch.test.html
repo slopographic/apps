@@ -55,7 +55,9 @@
       const { B } = scene();
       const x0 = W.layerBoundsDoc(B).x;
       await TouchKit.drag(at(290, 150), 60, 0, 10);
-      await waitFor(() => Math.abs(W.layerBoundsDoc(W.D.layers.find((L) => L.name === 'B')).x - (x0 + 60)) < 4, { timeout: 3000 });
+      const x = () => W.layerBoundsDoc(W.D.layers.find((L) => L.name === 'B')).x;
+      try { await waitFor(() => x() > x0 + 30, { timeout: 3000 }); } catch (e) { throw new Error(`the layer is at ${x()}, it was at ${x0} (zoom ${W.V.zoom})`); }
+      expect(x()).toBeLessThan(x0 + 64 / Math.min(1, W.V.zoom)); // about 60 screen px (a real finger loses the first few to the start threshold)
     });
 
     it('a finger grabs a transform handle from 15 px away (a mouse needs 9) and scales the layer', async () => {

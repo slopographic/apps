@@ -13,6 +13,9 @@
   const info = () => window.__SLOPTEST_TOUCH__ || { engine: 'none', multi: false };
   const bridge = (op) => (typeof window.__slopInput === 'function' ? window.__slopInput(op) : Promise.resolve(false));
   let nextId = 100;
+  // The test page is the top document, where a real app page carries touch.css's html { touch-action: manipulation }:
+  // without it a double tap on the app's frame zooms this page (Chromium) and every later finger lands elsewhere.
+  document.documentElement.style.touchAction = 'manipulation';
 
   /** A target as { x, y } in the top page plus where it is in its own frame ({ win, lx, ly }). */
   function where(t) {
@@ -86,6 +89,9 @@
 
   async function tap(t) {
     const p = where(t);
+    // Chromium: the same CDP touches as every other gesture (Playwright's own tap there can leave a finger down for the
+    // next CDP touch, which then reads as a second finger)
+    if (info().multi) { await cdp('start', [{ id: 1, x: p.x, y: p.y }]); await sleep(40); await cdp('end', []); return sleep(30); }
     if (await bridge({ op: 'tap', x: p.x, y: p.y })) return sleep(30);
     const f = finger(p.x, p.y);
     await sleep(40);

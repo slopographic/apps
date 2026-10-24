@@ -19,11 +19,12 @@
   const g = T.gesture.create();
   const PALM_MS = 400;      // touches stay ignored this long after the pen lifts
   const CLICK_MS = 700;     // a click this soon after a handled long press, or a palm, is swallowed
+  const BUSY_MS = 150;     // a long-press timer this late means the page was too busy to tell a hold from a tap
   const NATIVE_MS = 800;    // a native dblclick/contextmenu this soon after ours is the same gesture: swallowed
 
   const info = new Map();   // pointer id → { target, kind, x, y, surface }
   const taken = new Set();  // pointer ids the app no longer sees (palm, or part of a pinch the layer handles)
-  let pens = 0, penUpAt = -Infinity, timer = 0;
+  let pens = 0, penUpAt = -Infinity, timer = 0, restarted = false;
   let blockClickUntil = 0;  // Infinity while a finger whose long press opened a menu is still down
   let sentDbl = -Infinity, sentMenu = -Infinity, pendingDbl = null;
   T.palm = true;
@@ -38,7 +39,13 @@
   function schedule() {
     clearTimeout(timer);
     const d = g.deadline();
-    if (d !== Infinity) timer = setTimeout(() => run(g.tick(now())), Math.max(0, d - now()) + 1);
+    if (d === Infinity) return;
+    timer = setTimeout(() => {
+      // Late by more than BUSY_MS: the page was busy, and the finger's pointerup may still be waiting behind it. The
+      // hold starts again (once a gesture), so only a finger still down after another long-press time opens a menu.
+      if (now() - d > BUSY_MS && !restarted) { restarted = true; g.restartLong(now()); schedule(); return; }
+      run(g.tick(now()));
+    }, Math.max(0, d - now()) + 1);
   }
   function takeFromApp(id) {
     const p = info.get(id);
@@ -79,15 +86,28 @@
 
   function longPress(a) {
     const p = info.get(a.id);
-    if (!p || E.editable(p.target) || taken.has(a.id)) return;
+    if (!p || taken.has(a.id)) return;
+    const at = E.at(a.x, a.y, p.target);
+    // a text field, or one the press itself opened under the finger (an in-place editor): its own long press is the system's
+    if (E.editable(p.target) || E.editable(at)) return;
     sentMenu = now();
-    const ev = E.contextmenu(E.at(a.x, a.y, p.target), a.x, a.y);
+    const ev = E.contextmenu(at, a.x, a.y);
     if (ev.defaultPrevented) blockClickUntil = Infinity; // until the finger lifts, then CLICK_MS more
+  }
+
+  /** A finger whose pointerup never came: the element it touched left the page (the app drew it anew, or opened an
+   *  editor in its place), and browsers send the rest of that touch to the removed element, where nothing hears it.
+   *  The layer forgets it and tells the page (a pointercancel on the document), so no app keeps a finger that is gone
+   *  (SlopNav would read the next touch as a second finger, a pinch). */
+  function lost(id, p) {
+    g.cancel({ id }); info.delete(id);
+    E.cancel(p.target, id, p.kind, p.x, p.y);
   }
 
   function onDown(e) {
     T.last = e.pointerType || 'mouse';
     if (!finger(e) || e.slopTouch) return;
+    for (const [id, p] of info) if (id !== e.pointerId && p.target && !p.target.isConnected && !taken.has(id)) lost(id, p);
     if (e.pointerType === 'pen') {
       pens++;
       if (T.palm) for (const [id, p] of info) if (p.kind === 'touch') { takeFromApp(id); g.cancel({ id }); }
@@ -96,6 +116,7 @@
       swallow(e);
       return;
     }
+    if (!info.size) restarted = false;
     info.set(e.pointerId, { target: e.target, kind: e.pointerType, x: e.clientX, y: e.clientY, surface: E.surfaceOf(e.target) });
     run(g.down(sample(e)), e);
   }
@@ -118,6 +139,8 @@
   }
 
   function onClick(e) {
+    // A real click means the fingers have lifted, even when the browser sent no pointerup: forget them (lost()).
+    if (e.isTrusted) for (const [id, p] of info) if (p.kind === 'touch' && !taken.has(id)) lost(id, p);
     if (now() < blockClickUntil && e.isTrusted) { blockClickUntil = 0; swallow(e); return; }
     if (pendingDbl && Math.hypot(e.clientX - pendingDbl.x, e.clientY - pendingDbl.y) <= 30) {
       const d = pendingDbl;

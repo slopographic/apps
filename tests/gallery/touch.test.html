@@ -29,8 +29,19 @@
     return img && img.alt === name && img.naturalWidth > 0 && D.querySelector('.v-pic .spv-content').style.width !== '';
   }, { timeout: 8000 });
 
+  /** Can this browser keep a Blob in IndexedDB? Playwright's WebKit on Linux cannot (Safari can): the photo library
+   *  needs it, so there the page checks nothing. */
+  const blobsOk = () => new Promise((res) => {
+    const r = indexedDB.open('touch-blob-probe', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('s');
+    r.onerror = () => res(false);
+    r.onsuccess = () => { try { const tx = r.result.transaction('s', 'readwrite'); tx.objectStore('s').put(new Blob(['x']), 'k'); tx.oncomplete = () => { r.result.close(); res(true); }; tx.onerror = tx.onabort = () => { r.result.close(); res(false); }; } catch (e) { res(false); } };
+  });
+  let blobs = true;
   describe('Slop Gallery by touch', () => {
     it('boots with the touch layer and two photos', async () => {
+      blobs = await blobsOk();
+      if (!blobs) { console.info('SKIP: this browser keeps no Blob in IndexedDB'); return; }
       const fr = document.getElementById('app');
       fr.src = '../../gallery/index.html?db=' + GT.dbName;
       await waitFor(() => fr.contentWindow && fr.contentWindow.SlopGallery && fr.contentWindow.SlopGallery.ready && fr.contentWindow.SlopTouch && fr.contentWindow.SlopTouch.ready, { timeout: 30000 });
@@ -44,6 +55,7 @@
     }, { timeout: 40000 });
 
     it('a long press on a photo opens its menu, and lifting the finger does not pick a row', async () => {
+      if (!blobs) return;
       await TouchKit.longPress(tileOf('wide.jpg'));
       await waitFor(() => menu(), { timeout: 3000 });
       await sleep(300);
@@ -55,12 +67,14 @@
     });
 
     it('a tap opens the photo in the viewer', async () => {
+      if (!blobs) return;
       await TouchKit.tap(tileOf('wide.jpg'));
       await waitPicture('wide.jpg');
       expect(D.querySelector('.viewer').hidden).toBe(false);
     });
 
     it('a pinch zooms the picture, not the page', async () => {
+      if (!blobs) return;
       const before = pct();
       await TouchKit.pinch(D.querySelector('.v-pic .spv-stage'), 2.2);
       await waitFor(() => pct() > before * 1.5, { timeout: 3000 });
@@ -69,6 +83,7 @@
     });
 
     it('a double tap zooms the picture back to fit, and its double-click stays in the viewer', async () => {
+      if (!blobs) return;
       let seen = 0;
       const count = () => { seen++; };
       D.addEventListener('dblclick', count);

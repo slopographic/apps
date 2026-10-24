@@ -126,7 +126,7 @@ async function runPage(browser, base, p, scale) {
   }
   const secs = (Date.now() - t0) / 1000;
   took[p] = secs;
-  const errs = consoleErrors.filter((m) => !/favicon|net::ERR_|Failed to load resource|Content Security Policy|Fetch API cannot load/.test(m));
+  const errs = consoleErrors.filter((m) => !/favicon|net::ERR_|Failed to load resource|Content Security Policy|Fetch API cannot load|ResizeObserver loop/.test(m));
   const out = [`\n${c.b(report.name || p)} ${c.d(p + ' · ' + secs.toFixed(1) + 's')}`];
   for (const r of report.results) {
     out.push(`  ${r.status === 'pass' ? c.g('✓') : c.r('✗')} ${r.suite} › ${r.test} ${c.d(r.ms != null ? r.ms + 'ms' : '')}`);

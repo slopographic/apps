@@ -45,7 +45,7 @@
       expect(SlopTouch.ready).toBe(true);
       const cs = getComputedStyle($('hooks'));
       expect(cs.touchAction).toBe('none');
-      expect(cs.userSelect === 'none' || cs.webkitUserSelect === 'none').toBe(true);
+      if (SlopTouch.coarse()) expect(cs.userSelect === 'none' || cs.webkitUserSelect === 'none').toBe(true); // a mouse still selects text
       expect(cs.overscrollBehaviorY || cs.overscrollBehavior || 'contain').toMatch(/contain/);
       expect(getComputedStyle($('plain')).touchAction).not.toBe('none');
     });
@@ -137,6 +137,20 @@
       expect(got('pointerdown', 'pad').find((x) => x.e.pointerType === 'pen').e.pressure).toBeCloseTo(0.4, 0.01);
       pen.up(r.left + 50, r.top + 50); palm.up(r.left + 200, r.top + 150);
       await sleep(450);
+    });
+    it('a finger whose element left the page (no pointerup ever comes) is forgotten and cancelled for the page', async () => {
+      const box = document.createElement('div');
+      box.style.cssText = 'position:fixed;left:0;top:0;width:60px;height:60px';
+      document.body.append(box);
+      const cancels = [];
+      addEventListener('pointercancel', (e) => { if (e.slopTouch) cancels.push(e.pointerId); }, true);
+      const gone = TouchKit.finger(30, 30, 'touch');
+      box.remove(); // the app drew it anew: the rest of that touch goes to the removed element
+      const next = TouchKit.finger(200, 400, 'touch');
+      expect(cancels.length).toBe(1);
+      next.up(200, 400);
+      await sleep(600);
+      expect(got('contextmenu').filter((x) => x.id === 'plain' && x.e.slopTouch).length).toBe(0); // no long press from the lost finger
     });
   });
   SlopTest.run({ name: 'SlopTouch' });

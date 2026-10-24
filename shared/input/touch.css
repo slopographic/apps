@@ -4,21 +4,22 @@
 html { touch-action: manipulation; }
 
 /* Editing surfaces (data-touch-surface, SlopTouch.surface): a drag is the app's, never a scroll, a pull-to-refresh or a
- * page zoom; a long press is the app's menu, not iOS's callout or a text selection. */
+ * page zoom. For a finger, a long press is the app's menu, not iOS's callout or a text selection; a mouse still selects
+ * text where the app lets it (Slop PDF's page text). */
 [data-touch-surface] {
   touch-action: none;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
   overscroll-behavior: contain;
   -webkit-tap-highlight-color: transparent;
 }
-/* Text being typed into inside a surface stays selectable (the in-place text editors). */
-[data-touch-surface] [contenteditable="true"], [data-touch-surface] [contenteditable=""],
-[data-touch-surface] input, [data-touch-surface] textarea {
-  -webkit-user-select: text;
-  user-select: text;
-  -webkit-touch-callout: default;
+@media (pointer: coarse) {
+  [data-touch-surface] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  /* Text being typed into inside a surface stays selectable (the in-place text editors). */
+  [data-touch-surface] [contenteditable="true"], [data-touch-surface] [contenteditable=""],
+  [data-touch-surface] input, [data-touch-surface] textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
 }
 
 /* Hit areas. --slop-hit is the least size a grabbable thing must have: 0 for a mouse, 44 px (Apple's and Google's

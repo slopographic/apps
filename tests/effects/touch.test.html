@@ -49,13 +49,14 @@
       const tab = D.querySelector('[data-view="graph"]');
       tab.click();
       await waitFor(() => D.querySelector('canvas.fx-curve') && D.querySelector('canvas.fx-curve').getBoundingClientRect().width > 0, { timeout: 5000 });
+      if (W.SlopBanner) W.SlopBanner.remove(); // the consent card floats over the bottom of the panel
+      D.querySelector('canvas.fx-curve').scrollIntoView({ block: 'center' });
+      await sleep(100);
       const cv = D.querySelector('canvas.fx-curve'), r = cv.getBoundingClientRect(), k = r.width / 320;
       const PAD = 22, toX = (x) => PAD + x * (320 - 2 * PAD), toY = (y) => 320 - PAD - ((y + 0.5) / 2) * (320 - 2 * PAD);
       const hx = toX(0.3) * k, hy = toY(0.2) * k;
-      const L = []; cv.addEventListener('pointerdown', (e) => L.push('down ' + Math.round(e.clientX - r.left) + ',' + Math.round(e.clientY - r.top) + ' k=' + k.toFixed(2)));
       await TouchKit.drag({ el: cv, x: hx + 16, y: hy }, 40, 0, 10);
       await sleep(200);
-      console.error('DBG', L.join(' '), cv.isConnected, hx, hy);
       const keys = W.SlopEffects.app.S.doc.tl.tracks[id].rotation;
       const ease = keys.find((x) => Math.abs(x.t) < 1e-6).ease;
       expect(Array.isArray(ease)).toBe(true);
