@@ -280,5 +280,5 @@ export const LANDING = {
   'paint-classic': { title: 'Paint Classic: the 1998 paint program in your browser | Slopographic', description: 'Paint Classic is the 1998 paint experience, with every MS Paint tool, running in your browser. It is an experiment on this site.' },
   'slop-365': { title: 'Slop 365: invoices, orders, CRM and ledger for business | Slopographic', description: 'Slop 365 is the business group of Slopographic apps: invoices, orders, contacts, inventory, CRM, ledger, reports, tables, docs and notes, all in your browser.' },
   'creative-slop-pro': { title: 'Creative Slop Pro: free browser photo, vector and video apps | Slopographic', description: 'Free browser alternatives to Photoshop-style photo editing, Illustrator-style vector drawing and video editing. Not Adobe products; no account or install.' },
-  compare: { title: 'Compare Slopographic apps: status, features and file types | Slopographic', description: 'Compare every Slopographic app in one table: its status, first two features and the file types it opens, with a link to each app landing page.' },
+  compare: { title: 'All Slopographic apps and how each compares to other tools | Slopographic', description: 'Every Slopographic app in one table, with a link to its side-by-side comparison with tools like Photopea, Acrobat and QuickBooks, its features and file types.' },
 };

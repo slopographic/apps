@@ -64,12 +64,12 @@ export function related(app, apps) {
  *  About pages (shared/landing/landing.css, which follows the chosen theme), the profile, theme and consent scripts,
  *  and the shell (Theme and Apps in the header). siteTop() and siteFoot() are also written into hand-made pages
  *  between <!-- site:top --> and <!-- site:foot --> markers (write.mjs), so every page has the same header and footer. */
-const NAV = [['/', 'Home'], ['/all-tools/', 'All tools'], ['/compare/', 'Compare apps'], ['/how-it-works/', 'How it works'], ['/settings/', 'Settings']];
+const NAV = [['/', 'Home'], ['/all-tools/', 'All tools'], ['/compare/', 'All apps'], ['/best/', 'Comparisons'], ['/how-it-works/', 'How it works'], ['/settings/', 'Settings']];
 export const SITE_HEAD = ['<script src="/shared/profile/profile.js"></script>', '<script src="/shared/theme/theme.js" data-app="site"></script>',
   '<script src="/shared/consent/config.js"></script>', '<script src="/shared/consent/state.js"></script>', '<script src="/shared/consent/consent-mode.js"></script>',
   '<script src="/shared/consent/banner.js"></script>', '<link rel="icon" href="/favicon.ico" type="image/x-icon">', '<link rel="stylesheet" href="/shared/landing/landing.css">'];
 export const siteTop = () => `<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav></header>`;
-export const siteFoot = () => `<footer class="l-foot"><div class="l-foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>`;
+export const siteFoot = () => `<footer class="l-foot"><div class="l-foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>`;
 export function shell(body) {
   return `<!doctype html>
 <html lang="en">
@@ -179,15 +179,18 @@ ${cardList(picks)}
 </ul>`;
 }
 
-function compareBody(apps) {
+function compareBody(apps, ROUNDUPS = []) {
   const pages = apps.filter(isPage);
-  const rows = pages.map((a) => `<tr><td><a href="/apps/${esc(a.id)}/">${esc(a.name)}</a></td><td>${esc(statusOf(a))}</td><td>${esc((a.features || []).slice(0, 2).join('; ') || 'None listed')}</td><td>${esc(fileTypes(a))}</td></tr>`).join('');
-  return `<p class="eyebrow">Compare</p>
-<h1>Compare every Slopographic app</h1>
-<p class="lead">All ${pages.length} apps with a page, their status, their first two features and the file types they open. Each row links to the app's own page.</p>
+  // each app's comparison with other tools (shared/seo/roundups): "vs Photopea, GIMP, Pixlr", linked
+  const vs = (a) => ROUNDUPS.filter((r) => r.app === a.id).map((r) => `<a href="/best/${esc(r.slug)}/">vs ${esc(r.tools.filter((t) => !t.ours).map((t) => t.name).slice(0, 3).join(', '))}</a>`).join('<br>') || '<span class="note">Not compared yet</span>';
+  const rows = pages.map((a) => `<tr><td><a href="/apps/${esc(a.id)}/">${esc(a.name)}</a></td><td>${vs(a)}</td><td>${esc(statusOf(a))}</td><td>${esc((a.features || []).slice(0, 2).join('; ') || 'None listed')}</td><td>${esc(fileTypes(a))}</td></tr>`).join('');
+  return `<p class="eyebrow">All apps</p>
+<h1>Every Slopographic app, and how each compares</h1>
+<p class="lead">All ${pages.length} apps with a page: what each does, the file types it opens, and a link to its side-by-side comparison with the well-known tools for the same job.</p>
+${ROUNDUPS.length ? `<h2>Comparisons with other tools</h2>\n<p>Each one puts one of our apps next to the tools people usually compare it with, feature by feature, with every fact sourced from those tools' own pages.</p>\n<ul class="cmp-list">${ROUNDUPS.map((r) => `<li><a href="/best/${esc(r.slug)}/">${esc(r.h1)}</a></li>`).join('')}</ul>\n<h2>All apps</h2>` : ''}
 <div class="wrap"><table>
-<caption>All apps: status, key features and file types</caption>
-<thead><tr><th scope="col">App</th><th scope="col">Status</th><th scope="col">Key features</th><th scope="col">File types</th></tr></thead>
+<caption>All apps: what each is compared with, its status, key features and file types</caption>
+<thead><tr><th scope="col">App</th><th scope="col">Compared with</th><th scope="col">Status</th><th scope="col">Key features</th><th scope="col">File types</th></tr></thead>
 <tbody>${rows}</tbody>
 </table></div>`;
 }
@@ -211,6 +214,6 @@ export function landingPages(apps, site, LANDING, TASKS = [], ROUNDUPS = [], GUI
   }
   add('slop-365', 'slop-365/', 'Slop 365', slop365Body(apps));
   add('creative-slop-pro', 'creative-slop-pro/', 'Creative Slop Pro', creativeBody(apps));
-  add('compare', 'compare/', 'Compare', compareBody(apps));
+  add('compare', 'compare/', 'All apps', compareBody(apps, ROUNDUPS));
   return out;
 }
