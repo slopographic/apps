@@ -119,7 +119,7 @@ export const CONVERSIONS = [
     const bytes = await imagesToPdf(items, { page: o.page, margin: Number(o.margin) });
     return [{ name: files.length === 1 ? `${base(files[0].name)}.pdf` : 'images.pdf', blob: new Blob([bytes], { type: 'application/pdf' }) }];
   } },
-  { id: 'pdf-to-images', label: 'PDF to images', group: 'PDF', from: ['pdf'], mode: 'each', options: [
+  { id: 'pdf-to-images', label: 'PDF to images', group: 'PDF', from: ['pdf'], ext: 'png', mode: 'each', options: [
     { key: 'format', type: 'select', label: 'Format', value: 'png', options: [['png', 'PNG'], ['jpg', 'JPG']] },
     { key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' },
     { key: 'scale', type: 'select', label: 'Resolution', value: 2, options: [[1, '72 dpi'], [2, '144 dpi'], [3, '216 dpi']] },
@@ -155,11 +155,11 @@ export const CONVERSIONS = [
       const f = files[0];
       return [{ name: `${base(f.name)}.pptx`, blob: await pdfToPptx(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages }) }];
     } },
-  { id: 'merge-pdf', label: 'Merge PDFs', group: 'PDF', from: ['pdf'], mode: 'combine', options: [], run: async (files) => {
+  { id: 'merge-pdf', label: 'Merge PDFs', group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'combine', options: [], run: async (files) => {
     const bytes = await mergePdfs(await Promise.all(files.map(async (f) => new Uint8Array(await f.file.arrayBuffer()))));
     return [{ name: 'merged.pdf', blob: new Blob([bytes], { type: 'application/pdf' }) }];
   } },
-  { id: 'split-pdf', label: 'Split PDF', group: 'PDF', from: ['pdf'], mode: 'each', options: [
+  { id: 'split-pdf', label: 'Split PDF', group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each', options: [
     { key: 'pages', type: 'text', label: 'Pages to extract', placeholder: 'Blank: one file per page', hint: 'e.g. 2-4, 9 makes one PDF with those pages. Blank splits every page into its own file.' },
   ], run: async (files, o) => {
     const f = files[0];
@@ -199,7 +199,7 @@ export const CONVERSIONS = [
   { id: 'html-to-text', label: 'HTML to plain text', group: 'Text', from: ['html'], ext: 'txt', mode: 'each', options: [], run: async (files) => {
     return [out(`${base(files[0].name)}.txt`, htmlToText(await text(files[0].file)), 'text/plain')];
   } },
-  { id: 'base64-encode', label: 'Base64 encode', group: 'Encoding', from: ['*'], mode: 'each', options: [
+  { id: 'base64-encode', label: 'Base64 encode', group: 'Encoding', from: ['*'], ext: 'txt', mode: 'each', options: [
     { key: 'wrap', type: 'select', label: 'Line length', value: 0, options: [[0, 'One line'], [76, '76 characters (MIME)']] },
   ], run: async (files, o) => {
     const bytes = new Uint8Array(await files[0].file.arrayBuffer());
@@ -218,7 +218,7 @@ export const CONVERSIONS = [
   { id: 'url-decode', label: 'URL decode', group: 'Encoding', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [], run: async (files) => {
     return [out(`${base(files[0].name)}.decoded.txt`, urlDecode(await text(files[0].file)), 'text/plain')];
   } },
-  { id: 'line-endings', label: 'Line endings', group: 'Text', from: ['txt', 'csv', 'json', 'md', 'html'], mode: 'each', options: [EOL], run: async (files, o) => {
+  { id: 'line-endings', label: 'Line endings', group: 'Text', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [EOL], run: async (files, o) => {
     const f = files[0];
     const ext = /\.[^.]+$/.test(f.name) ? f.name.split('.').pop().toLowerCase() : 'txt';
     const body = setLineEndings(decodeText(new Uint8Array(await f.file.arrayBuffer())), o.eol);
@@ -238,6 +238,13 @@ export const CONVERSIONS = [
 export const conversionById = (id) => CONVERSIONS.find((c) => c.id === id);
 
 /** Conversions that accept every one of the given kinds (intersection). */
+/** The kind a conversion makes, for its picture (SlopFlow): a format option wins (PDF to images), then the converter's ext.
+ *  Base64 decode makes whatever the text held, so it is a plain 'file'. */
+export function outKind(conv, opts = {}) {
+  if (!conv) return '';
+  return (opts && typeof opts.format === 'string' && opts.format) || conv.ext || 'file';
+}
+
 export function conversionsFor(kinds, only = null) {
   const list = only ? CONVERSIONS.filter((c) => c.id === only) : CONVERSIONS;
   return list.filter((c) => kinds.every((k) => c.from.includes('*') || c.from.includes(k)));

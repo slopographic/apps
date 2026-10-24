@@ -61,9 +61,10 @@
       expect(h.lastElementChild.id).toBe('first');
     });
 
-    it('injects its stylesheet once', () => {
-      SlopDriveLink.mount(fresh()); SlopDriveLink.mount(fresh());
-      expect(document.querySelectorAll('#sdl-style').length).toBe(1);
+    it('wears the shared header-button look, with its label as the text an icon-only button drops', () => {
+      const a = SlopDriveLink.mount(fresh());
+      expect(a.classList.contains('slop-hbtn')).toBe(true);
+      expect(a.querySelector('.slop-hbtn-txt').textContent).toBe('Slop Drive');
     });
   });
 

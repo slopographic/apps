@@ -1,6 +1,7 @@
 /* Builds the converter's markup inside a container and returns the elements the controller needs.
  * Used by the hub and by every converter page, so they all behave the same. */
 import { h } from './dom.js';
+import '../../../shared/ui/flow.js';   // window.SlopFlow: the "PDF → DOCX" picture at the top of the tool
 
 export function buildTool(root, preset) {
   const id = (s) => `cv-${s}`;
@@ -24,11 +25,14 @@ export function buildTool(root, preset) {
   const results = h('section', { class: 'cv-results', 'aria-labelledby': id('res-h'), hidden: true },
     h('div', { class: 'cv-res-head' }, h('h2', { id: id('res-h') }, 'Converted'), zip), outList);
   const picked = preset ? h('p', { class: 'cv-page-note' }, preset.note || '') : null;
+  const flow = window.SlopFlow.create({ size: 'lg' });
+  const flowBox = h('div', { class: 'cv-flow' }, flow.el);
   // replaceChildren turns null into the text "null", so an absent note is left out.
   root.replaceChildren(
+    flowBox,
     ...(picked ? [picked] : []),
     drop, input,
     h('section', { class: 'cv-section', 'aria-label': 'Files' }, list),
     form, status, results);
-  return { drop, input, list, target, opts, note, run, clear, form, status, zip, outList, results };
+  return { drop, input, list, target, opts, note, run, clear, form, status, zip, outList, results, flow, flowBox };
 }

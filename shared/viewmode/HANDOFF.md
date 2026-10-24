@@ -1,7 +1,8 @@
 # View modes: handoff
 
 `shared/viewmode/viewmode.js` (`window.SlopViewMode`) gives every app the same three view modes, one shortcut and one
-button in the top bar. Load order on a page: `router.js` is independent; `viewmode.js` goes before the app's glue file.
+button in the top bar. Load order on a page: `router.js` is independent; `grid.js` (the grid measuring, `window.SlopViewModeGrid`) then
+`viewmode.js` go before the app's glue file.
 
 ## Modes and shortcuts
 
@@ -11,12 +12,15 @@ button in the top bar. Load order on a page: `router.js` is independent; `viewmo
 | `focus` | the toolbars and the sidebars (the defaults; an app can change them) |
 | `content` | the toolbars, the sidebars and the panels |
 
-- **Ctrl+Shift+F** cycles Full, Focus, Content only (Ctrl or Cmd). The button in the top bar does the same.
+- **Ctrl+Shift+F** cycles Full, Focus, Content (Ctrl or Cmd). The **View** button in the top bar opens a menu
+  (SlopUI.menu): the three modes with the current one checked, Show hidden panels and Next view. On a page without
+  SlopUI the button goes to the next mode. The button shows the mode's name and icon; it is a shared header button
+  (`shared/ui/hbtn.css`), so it matches Drive, Tour, Theme and Apps and drops its label when the header is full.
 - **Ctrl+Shift+L** shows every hidden region until it is pressed again.
 - In Focus and Content, move the pointer to a region's window edge (6 px: top for toolbars, left for sidebars, right
   or bottom for panels, unless the app names another edge) and the region comes back. It hides again 0.7 s after the
   pointer leaves it.
-- The controls are in a fixed slot at the end of the app's own toolbar (the `mount` element; CSS `order` keeps it last, after any item another script appends, and fixed widths keep it in one place in every mode), never over the page: the mode button, and in Focus and
+- The controls are in a fixed slot at the end of the app's own toolbar (the `mount` element; CSS `order` keeps it last, after any item another script appends, and fixed widths keep it in one place in every mode), never over the page: the View button, and in Focus and
   Content a "Show panels" button (Ctrl+Shift+L toggles the same thing). A toolbar that is hidden stays on screen as a strip
   that holds only those controls, so there is always a visible way back.
 - Escape returns to Full (not while a dialog is open or a text field has focus).

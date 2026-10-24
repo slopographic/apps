@@ -199,7 +199,7 @@
     for (const it of items) {
       if (!it) continue;
       if (it === '-') { host.append(el('div', { class: 'sui-sep', role: 'separator' })); continue; }
-      const row = el('button', { class: 'sui-row' + (it.sub ? ' sui-has-sub' : ''), type: 'button', role: 'menuitem', disabled: !!it.disabled, 'aria-haspopup': it.sub ? 'menu' : null, 'aria-expanded': it.sub ? 'false' : null },
+      const row = el('button', { class: 'sui-row' + (it.sub ? ' sui-has-sub' : ''), type: 'button', role: 'check' in it ? (it.radio ? 'menuitemradio' : 'menuitemcheckbox') : 'menuitem', 'aria-checked': 'check' in it ? String(!!it.check) : null, disabled: !!it.disabled, 'aria-haspopup': it.sub ? 'menu' : null, 'aria-expanded': it.sub ? 'false' : null },
         el('span', { class: 'sui-chk' }, it.check ? '✓' : ''), el('span', { class: 'sui-lbl' }, it.label), el('span', { class: 'sui-key' }, it.sub ? '▸' : it.key ? keyLabel(it.key) : ''));
       if (it.sub) subRow(row, it.sub, level);
       else {

@@ -8,6 +8,8 @@
 }
 .sl-cvt-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--sl-border, #3a3a35); }
 .sl-cvt-head h2 { margin: 0; font-size: 17px; }
+.sl-cvt-flow { display: flex; justify-content: center; padding: 14px 18px 4px; color: var(--sl-text-muted, #a7a296); }
+.sl-cvt-flow[hidden] { display: none; }
 .sl-cvt-body { display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow: auto; padding: 14px 18px; }
 .sl-cvt-sec { display: flex; flex-direction: column; gap: 8px; margin: 0; }
 .sl-cvt-sec h3 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--sl-text-muted, #a7a296); }

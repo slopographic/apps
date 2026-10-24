@@ -123,7 +123,7 @@
   /** Adds the bell button to a container element and builds the history panel (once). */
   function mountBell(container) {
     if (bell) return bell;
-    bell = el('button', 'sh-hbtn sn-bell');
+    bell = el('button', 'sh-hbtn slop-hbtn sn-bell');
     bell.type = 'button';
     bell.setAttribute('aria-expanded', 'false');
     bell.title = 'Notifications';

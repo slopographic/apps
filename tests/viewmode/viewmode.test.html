@@ -8,7 +8,7 @@
   <div id="side" class="fx" style="width:100px;height:100px">side</div>
   <div id="panels" class="fx">panels</div>
   <div id="content" class="fx" style="height:300px">content</div>
-  <script src="../../shared/viewmode/viewmode.js"></script>
+  <script src="../../shared/viewmode/grid.js"></script><script src="../../shared/viewmode/viewmode.js"></script>
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, run, sleep } = SlopTest;
@@ -85,9 +85,10 @@
       V.register('vm-a', { regions: { toolbar: '#top' }, mount: '#top' });
       const b = $('top').querySelector('.slopvm-btn');
       expect(b).toBeTruthy();
-      expect(b.querySelector('.slopvm-txt').textContent).toBe('View: Full');
-      b.click();
-      expect(b.querySelector('.slopvm-txt').textContent).toBe('View: Focus');
+      expect(b.querySelector('.slopvm-txt').textContent).toBe('Full');
+      expect(b.getAttribute('aria-label')).toContain('View: Full');
+      b.click();   // no SlopUI on this page: the button goes to the next mode
+      expect(b.querySelector('.slopvm-txt').textContent).toBe('Focus');
       reset();
     });
 

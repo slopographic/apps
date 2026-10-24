@@ -77,13 +77,21 @@
       expect(Math.abs(wsArea() - full)).toBeLessThan(full * 0.01);
     });
 
-    it('the mode button cycles full, focus, content and back', async () => {
+    it('the View button opens a menu of the three modes, the current one checked; a row picks its mode', async () => {
       V.set('full'); await settle();
       const btn = q('.slopvm-btn');
-      btn.click(); expect(V.mode()).toBe('focus');
-      btn.click(); expect(V.mode()).toBe('content');
-      btn.click(); expect(V.mode()).toBe('full');
-      V.set('full');
+      for (const [label, m] of [['Focus', 'focus'], ['Content', 'content'], ['Full', 'full']]) {
+        btn.click();
+        const menu = await waitFor(() => q('.slopvm-menu'));
+        expect(btn.getAttribute('aria-expanded')).toBe('true');
+        const rows = [...menu.querySelectorAll('[role="menuitemradio"]')];
+        expect(rows.length).toBe(3);
+        expect(rows.filter((r) => r.getAttribute('aria-checked') === 'true').length).toBe(1);
+        rows.find((r) => r.querySelector('.sui-lbl').textContent.startsWith(label + ':')).click();
+        expect(V.mode()).toBe(m);
+        await waitFor(() => btn.getAttribute('aria-expanded') === 'false');
+        expect(btn.querySelector('.slopvm-txt').textContent).toBe(label);
+      }
     });
   });
 

@@ -35,8 +35,14 @@ describe('Convert dialog', () => {
     const ctl = open({ file: await samplePdf() });
     await ctl.ready;
     ctl.element.querySelector('input[data-target="pdf-to-png"]').click();
+    const flow = ctl.element.querySelector('.sl-cvt-flow .sflow');   // the PDF → PNG picture under the title (shared/ui/flow.js)
+    expect(flow.getAttribute('aria-label')).toBe('PDF to PNG');
+    ctl.element.querySelector('input[data-target="pdf-to-text"]').click();
+    expect(ctl.element.querySelector('.sl-cvt-flow .sflow').getAttribute('aria-label')).toBe('PDF to TXT');
+    ctl.element.querySelector('input[data-target="pdf-to-png"]').click();
     ctl.element.querySelector('[data-k="run"]').click();
     await waitFor(() => ctl.results().length === 1, { timeout: 60000 });
+    await waitFor(() => ctl.element.querySelector('.sflow').dataset.state === 'done');
     const [out] = ctl.results();
     expect(out.name).toBe('sample-page-1.png');
     expect(out.blob.type).toBe('image/png');

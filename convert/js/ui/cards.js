@@ -1,8 +1,9 @@
 /* The hub's conversion cards. One card per converter page in PAGES (core/pages.js, the single list), grouped by
- * category and filtered by the search box. Each card shows the file type on both sides of an arrow, a one-line
+ * category and filtered by the search box. Each card shows the file type on both sides of an arrow (SlopFlow), a one-line
  * description, the accepted types and a Convert link to the page. */
 import { PAGES } from '../core/pages.js';
 import { h } from './dom.js';
+import '../../../shared/ui/flow.js';   // window.SlopFlow: the same PDF → DOCX picture as the converter pages
 
 export const CATEGORIES = ['Documents', 'Images', 'Audio and video', 'Data', 'Text & code'];
 
@@ -12,10 +13,7 @@ function card(p) {
   const [from, to] = p.pair;
   const search = [p.label, from, to, p.cat, p.summary, accepts(p)].join(' ').toLowerCase();
   return h('article', { class: 'cv-pair', 'data-pair': p.slug, 'data-search': search },
-    h('div', { class: 'cv-pair-path', role: 'img', 'aria-label': `${from} to ${to}` },
-      h('span', { class: 'cv-badge cv-badge-from', 'aria-hidden': 'true' }, from),
-      h('span', { class: 'cv-arrow', 'aria-hidden': 'true' }, '→'),
-      h('span', { class: 'cv-badge cv-badge-to', 'aria-hidden': 'true' }, to)),
+    h('div', { class: 'cv-pair-path' }, window.SlopFlow.create({ from, to, label: `${from} to ${to}` }).el),
     h('h3', { class: 'cv-pair-title' }, p.label),
     h('p', { class: 'cv-pair-desc' }, p.summary),
     h('p', { class: 'cv-pair-accepts' }, 'Accepts: ', h('span', null, accepts(p))),
