@@ -54,6 +54,7 @@
     drive: '<path d="M6 12h13l4 5h19v21H6z"/><path d="M6 20h36"/>',
     code: '<path d="M16 14 6 24l10 10M32 14l10 10-10 10M27 10l-6 28"/>',
     gallery: '<rect x="12" y="6" width="30" height="26" rx="2"/><path d="M6 14v26h30"/><path d="M14 26l7-8 6 6 4-4 9 9"/><circle cx="32" cy="14" r="2"/>',
+    sorter: '<rect x="13" y="8" width="22" height="30" rx="3"/><path d="M8 12v24M40 12v24M19 30l4-5 3 3 3-3 3 5"/><path d="M24 17l1.5 1.5L28 16"/>',
     '3d': '<path d="M24 6l16 9v18l-16 9-16-9V15z"/><path d="M8 15l16 9 16-9M24 24v18"/>',
     music: '<path d="M18 34V10l20-4v24"/><circle cx="13" cy="34" r="5"/><circle cx="33" cy="30" r="5"/>',
     authenticator: '<rect x="14" y="6" width="20" height="36" rx="3"/><path d="M22 36h4M20 14h8"/><path d="M19 24l3 3 6-6"/>',
