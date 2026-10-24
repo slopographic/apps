@@ -3,7 +3,8 @@
  * - * 1. lists, - [ ] task items, --- rules, pipe tables (:--- alignment, \| for a pipe), callouts (a quote whose first
  * line is [!NOTE], [!TIP], [!WARNING] or [!VIDEO], with an optional title), [links](url) and ![images](data:image/…).
  * Links only use http, https, mailto, #, / and relative paths. Remote images are never loaded: they show their alt text.
- * Nested lists are not supported. */
+ * Nested lists are not supported. Link addresses are checked by SlopSanitize.url (shared/sanitize/sanitize.js). */
+import '../../shared/sanitize/sanitize.js';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -15,12 +16,8 @@ const LIST = /^\s*([-*+]|\d+\.)\s+(.*)$/;
 const CALLOUT = /^\[!(NOTE|TIP|WARNING|VIDEO)\](?:\s+(.*))?$/i;
 const SEP = /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/;
 
-/** A link target that is safe to put in href (the text is already escaped). */
-function safeHref(u) {
-  const t = u.trim();
-  if (/^[a-z][a-z0-9+.-]*:/i.test(t)) return /^(https?:|mailto:)/i.test(t) ? t : '';
-  return t;
-}
+/** A link target that is safe to put in href (the text is already escaped): web, mail, phone, in-page or relative. */
+const safeHref = (u) => globalThis.SlopSanitize.url(u, 'link');
 
 /** Inline Markdown on one line of text. Code spans are pulled out first so their contents stay literal. */
 export function inline(raw) {

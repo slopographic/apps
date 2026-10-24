@@ -54,7 +54,10 @@ test('an HTML table pastes as the expected Markdown table, and text with no tabl
     const page = await browser.newPage();
     await page.setContent('<!doctype html><html><body></body></html>');
     const load = async (rel) => readFile(path.join(ROOT, rel), 'utf8');
-    const sources = { table: await load('notes/js/table.js'), markdown: await load('notes/js/markdown.js') };
+    // markdown.js imports shared/sanitize/sanitize.js for its link check: a blob module cannot resolve that path, so the
+    // classic script goes in first and the import line is left out.
+    await page.addScriptTag({ content: await load('shared/sanitize/sanitize.js') });
+    const sources = { table: await load('notes/js/table.js'), markdown: (await load('notes/js/markdown.js')).replace(/^import '[^']*sanitize\.js';$/m, '') };
     const got = await page.evaluate(async ({ sources, cases }) => {
       const mod = (src) => import(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
       const T = await mod(sources.table);

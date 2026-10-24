@@ -16,6 +16,7 @@
   <script src="../../shared/ops/entry.js"></script>
   <script>
   // Covers: notes/js/main.js, notes/js/actions.js, notes/js/state.js (the phone notebooks drawer)
+  // Covers: notes/js/markdown.js, shared/sanitize/sanitize.js (link addresses)
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const f = document.getElementById('app');
   const W = () => f.contentWindow;
@@ -89,6 +90,22 @@
       await saved();
     });
 
+    it('a hostile Markdown file keeps its safe links and loses every script address, and no script runs', async () => {
+      W().__mdXss = undefined;
+      type('#nt-body', await (await fetch('../shared/fixtures/hostile/hostile.md')).text());
+      await sleep(200);
+      expect(q('#nt-preview h1').textContent).toBe('Hostile notes');
+      const hrefs = qa('#nt-preview a[href]').map((a) => a.getAttribute('href'));
+      expect(hrefs).toContain('https://example.com/ok');
+      expect(hrefs).toContain('mailto:a@example.com');
+      for (const h of hrefs) expect(/^(https?:|mailto:)/.test(h) || !/:/.test(h)).toBe(true);   // the rest are relative paths
+      expect(q('#nt-preview img')).toBe(null);
+      expect(q('#nt-preview svg')).toBe(null);
+      expect(W().__mdXss).toBe(undefined);
+      type('#nt-body', BODY);
+      await saved();
+    });
+
     it('pins a note and keeps the pin in Slop Drive', async () => {
       q('#nt-pin').click();
       await saved();
@@ -142,6 +159,8 @@
     it('the renderer only keeps safe links and turns lists into list elements', async () => {
       const M = await import('../../notes/js/markdown.js');
       expect(M.render('[bad](javascript:alert(1))')).not.toContain('href');
+      expect(M.render('[bad](\u0001javascript:alert(1))')).not.toContain('href');
+      expect(M.render('[bad](JAVA\u000bSCRIPT:alert(1))')).not.toContain('href');
       expect(M.render('[ok](https://example.com/a)')).toContain('href="https://example.com/a"');
       expect(M.render('1. one\n2. two')).toContain('<ol><li>one</li><li>two</li></ol>');
       expect(M.render('![x](https://example.com/p.png)')).not.toContain('<img');
