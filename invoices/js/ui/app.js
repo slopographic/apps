@@ -1,5 +1,5 @@
 // Slop Invoices boot: the shared document routes (shared/docs/doc-app.js: list, new, i/<id>, data) plus p/<id>, the print
-// view, and repeat (the repeating schedules). The invoice and print tabs show only while one is open; the list beside an open invoice marks its row; the top bar
+// view, s/<customer id> (a customer statement) and repeat (the repeating schedules). The invoice and print tabs show only while one is open; the list beside an open invoice marks its row; the top bar
 // has New invoice, Save (a draft) and Print.
 (function (g) {
   'use strict';
@@ -7,11 +7,13 @@
   const $ = (id) => document.getElementById(id);
 
   /** The print view's route, p/<id>. */
-  const more = (h) => (h === 'repeat' ? { view: 'repeat' } : h.startsWith('p/') && h.length > 2 ? { view: 'print', arg: h.slice(2) } : null);
+  const more = (h) => (h === 'repeat' ? { view: 'repeat' } : h.startsWith('p/') && h.length > 2 ? { view: 'print', arg: h.slice(2) }
+    : h.startsWith('s/') && h.length > 2 ? { view: 'statement', arg: h.slice(2) } : null);
 
   /** After a view shows: the print tab, the view name on the page (for the print rules), and the list's selected row. */
   function after(t, shown) {
     $('tab-print').hidden = t.view !== 'print';
+    $('tab-statement').hidden = t.view !== 'statement';
     document.querySelector('.app').dataset.view = t.view;
     if (NS.views.list && !$('view-list').hidden) Promise.resolve(shown).then(() => NS.views.list.refresh());
     if (t.view === 'list') NS.repeat.dueNotice();
@@ -25,7 +27,7 @@
   }
 
   // a tab click or the tab keys route through the #hash; the print tab stays on its invoice
-  const tabRoute = (n) => (n === 'edit' ? NS.editor.route() : n === 'print' ? location.hash.slice(1) : n);
+  const tabRoute = (n) => (n === 'edit' ? NS.editor.route() : n === 'print' || n === 'statement' ? location.hash.slice(1) : n);
 
   g.SlopDocs.docApp.start({ ns: NS, app: 'invoices', route: 'i', noun: 'invoice', more, after, mount, tabRoute });
 })(typeof window !== 'undefined' ? window : globalThis);

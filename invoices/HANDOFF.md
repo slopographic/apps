@@ -22,6 +22,9 @@ journal in the same transaction); conversion from an order through `SlopData.bil
 - `js/ui/editor.js`: one invoice on the shared editor (`shared/docs/doc-editor.js`): its due date, payments, balance, top
   bar and order link, and the actions for its status. The form, lines, save and leave are the shared editor's.
 - `js/ui/payment-dialog.js`: record a payment (amount defaults to the balance).
+- `js/ui/statement.js`: a customer statement (`#s/<customer id>`, from Owed by customer or an invoice's menu): every issued
+  invoice and payment with a running balance, an optional From date (opening balance), ageing, Print and CSV
+  (`SlopData.statement`).
 - `js/ui/repeat-dialog.js`, `repeat.js`: Repeat… on an invoice (a schedule, `SlopData.recurring`), the Repeating view
   (`#repeat`: pause, resume, delete, make due drafts) and the due notice on the list.
 - `js/ui/preview.js`: the printable sheet (the paper view, the same template as the PDF), and the PDF download.

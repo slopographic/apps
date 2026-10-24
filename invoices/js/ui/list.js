@@ -56,6 +56,7 @@
       items.push({ label: 'Delete draft…', act: async () => { if (await UI.confirm('Delete draft', 'Delete this draft? It has no number yet, so nothing else changes.', 'Delete', { danger: true })) run(NS.invoices.removeDraft(x.id), 'Draft deleted'); } });
     }
     items.push({ label: 'Export PDF', act: () => NS.preview.pdf(x.id) });
+    if (x.status !== 'draft') items.push({ label: `Statement for ${x.customerName}`, act: () => NS.app.go(`s/${x.customerId}`) });
     if (x.status === 'issued') {
       items.push({ label: 'Record payment…', act: () => NS.paymentDialog.open(x.id, () => draw()) });
       if (!x.paid) items.push({ label: 'Void…', act: async () => { if (await UI.confirm('Void invoice', `Void ${x.number}? The journal entry is reversed. The number stays used.`, 'Void', { danger: true })) run(NS.invoices.voidInvoice(x.id), `${x.number} voided`); } });
@@ -101,7 +102,8 @@
     list = g.SlopList.mount($('iRows'), { label: 'Invoices', noun: ['invoice', 'invoices'], summary: $('iSummary'), empty: $('iEmpty'),
       row, open: (x) => NS.app.go(`i/${x.id}`), menu: menuFor });
     owed = g.SlopList.mount($('iOutstanding'), { key: 'key', label: 'Outstanding balances', noun: ['customer', 'customers'],
-      empty: 'Nothing is owed. Every issued invoice is paid or void.', row: owedRow });
+      empty: 'Nothing is owed. Every issued invoice is paid or void.', row: owedRow,
+      open: (d) => NS.app.go(`s/${d.customerId}`), menu: (d) => [{ label: 'Customer statement', act: () => NS.app.go(`s/${d.customerId}`) }] });
   }
 
   NS.views = NS.views || {};

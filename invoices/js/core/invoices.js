@@ -42,7 +42,7 @@
     for (const r of rows) {
       if (r.status !== 'issued' || r.balance <= 0) continue;
       const key = `${r.customerName}\u0000${r.currency}`;
-      const row = map.get(key) || { key, customerName: r.customerName, currency: r.currency, due: 0, count: 0, overdue: 0 };
+      const row = map.get(key) || { key, customerId: r.customerId, customerName: r.customerName, currency: r.currency, due: 0, count: 0, overdue: 0 };
       row.due += r.balance;
       row.count += 1;
       if (r.overdue) row.overdue += r.balance;
