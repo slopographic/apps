@@ -76,9 +76,27 @@ body { background: var(--bg); }
   .stage { padding: 12px 8px 40px; }
 }
 @media print {
-  html, body { background: none; overflow: visible; height: auto; }
-  .topbar, .toolbar, .statusbar, .ime, .caret, .sel-r { display: none !important; }
+  html, body { background: none; overflow: visible; height: auto; margin: 0; padding: 0 !important; }
+  .app { display: block; height: auto; }
+  body > *:not(.app), .app > *:not(.stage) { display: none !important; } /* banners, panels, toasts: only the pages print */
+  .topbar, .toolbar, .statusbar, .ime, .caret, .sel-r, .outline, .doctabs-host, .sui-back, .sui-toast { display: none !important; }
   .stage { overflow: visible; padding: 0; background: none; }
-  .pages { gap: 0; }
-  .page { box-shadow: none; break-after: page; }
+  .pages { gap: 0; display: block; }
+  .page { box-shadow: none; break-after: page; margin: 0; }
+  .page:last-child { break-after: auto; }
 }
+/* the Header and footer panel (ui/hf.js): docked at the right edge, beside the pages */
+.sui-back.sui-dock-right:has(.hf-dlg) { padding: 100px 12px 16px 16px; }
+.sui-dlg.hf-dlg { width: min(340px, 100%); }
+.hf-panel { display: grid; gap: 10px; }
+.hf-first[hidden] { display: none; }
+.hf-area { border: 1px solid var(--line-2); border-radius: 6px; padding: 8px; margin: 0; display: grid; gap: 6px; }
+.hf-area legend { padding: 0 4px; color: var(--dim); font-size: 12px; }
+.hf-text { width: 100%; box-sizing: border-box; resize: vertical; font: 13px var(--font-ui); }
+.hf-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.hf-row .sui-input { width: auto; }
+.hf-ins { font-size: 12px; padding: 4px 7px; }
+.hf-row .sui-input:first-child { height: 28px; padding: 0 4px; }
+.hf-first { display: grid; gap: 10px; }
+.hf-gaps .sui-input { width: 64px; }
+.hf-note { color: var(--faint); font-size: 12px; margin: 0; }

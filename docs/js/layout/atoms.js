@@ -1,12 +1,20 @@
 /* Slop Docs — layout/atoms: a paragraph becomes a list of measured atoms (words, spaces, tabs, line
  * breaks, objects). Atoms carry their model offsets (start, end) so the editor can map x ↔ offset.
  * Widths come from the font's own advance widths (fonts/registry.js), the same numbers the PDF uses. */
-import { bestFace, textWidth, vmetrics, charWidth } from '../fonts/registry.js';
+import { bestFace, textWidth, textVm, charWidth, withHan, defaultHan } from '../fonts/registry.js';
 import { runMarks } from '../model/styles.js';
+import { paraText } from '../model/doc.js';
 
 export const LINK_COLOR = '#1155cc';
 const SPLIT = /(\t|\n|[  - 　]+|[^\t\n  - 　]+)/g;
 
+const CJK = /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af\uf900-\ufaff]/;
+const hans = new WeakMap();
+/** Which Chinese-character font a paragraph takes ('jp' beside kana, 'kr' beside hangul, else the browser's choice). */
+function hanOf(p) {
+  if (!hans.has(p)) { const t = paraText(p), S = globalThis.SlopScripts; hans.set(p, S && CJK.test(t) ? S.hanFor(t, globalThis.navigator && navigator.language) : defaultHan()); }
+  return hans.get(p);
+}
 /** Resolved style for a run: marks + face + render size + baseline shift. */
 export function styleFor(doc, p, r) {
   const m = runMarks(doc, p, r || {});
@@ -14,7 +22,7 @@ export function styleFor(doc, p, r) {
   if (m.link && (!r || r.u === undefined)) m.u = true;
   const size = m.va ? m.size * 0.65 : m.size;
   const dy = m.va === 'sup' ? -m.size * 0.35 : m.va === 'sub' ? m.size * 0.14 : 0;
-  return { m, face: bestFace(m.font, m.b, m.i), size, dy, full: m.size };
+  return { m, face: withHan(bestFace(m.font, m.b, m.i), hanOf(p)), size, dy, full: m.size };
 }
 
 /** ctx: { field(f) → string, fnLabel(id) → string } for dynamic objects. */
@@ -79,6 +87,6 @@ export function splitAtom(a, maxW) {
 /** Vertical metrics of an atom: { asc, desc, gap }. */
 export function atomMetrics(a) {
   if (a.kind === 'img') return { asc: a.h, desc: 0, gap: 0 };
-  const v = vmetrics(a.st.face, a.st.full);
+  const v = textVm(a.st.face, a.text, a.st.full);
   return { asc: v.asc - Math.min(0, a.st.dy), desc: v.desc + Math.max(0, a.st.dy), gap: v.gap };
 }

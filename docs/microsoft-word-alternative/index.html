@@ -24,46 +24,41 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Slop Docs made by Microsoft?","acceptedAnswer":{"@type":"Answer","text":"No. Slopographic is not affiliated with Microsoft. Microsoft and Word are trademarks of their owner, named here only to describe what people search for."}},{"@type":"Question","name":"Can it open my Word files?","acceptedAnswer":{"@type":"Answer","text":"Yes, from Slop Drive. Paragraphs, text formatting, styles, lists, tables and page setup are read. Pictures, headers, footers, footnotes, comments and tracked changes are not carried over yet."}},{"@type":"Question","name":"Does it work offline?","acceptedAnswer":{"@type":"Answer","text":"Once the page has loaded, documents are edited and saved in the browser, so a lost connection does not stop you."}},{"@type":"Question","name":"Is it really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. There is no plan to buy and no account. Your documents stay on your device."}}]}</script>
   <!-- seo:end -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>:root{--bg:#fbfbf7;--fg:#1b1b1f;--mut:#5f6368;--line:#dcdcd2;--acc:#4f6c00;--on:#fff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}}
-:root[data-theme="dark"]{--bg:#0a0a0a;--fg:#f1ede4;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top,.foot{max-width:860px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
-h2{font-size:1.2rem;margin:2rem 0 .6rem}
-a{color:var(--acc)}
-.eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
-.lead{font-size:1.1rem}
-.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:var(--on);text-decoration:none;font-weight:600}
-.wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:0;list-style:none}
-.cards li{border:1px solid var(--line);border-radius:10px;padding:12px;overflow:hidden}
-.cards .thumb{display:block;width:100%;height:auto;border-radius:6px;margin:0 0 8px;aspect-ratio:16/10;object-fit:cover;background:var(--line)}
-.media{display:grid;gap:16px;margin:1.4rem 0}
-.shot{margin:0}
-.shot img,.clip{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--line)}
-.demo{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
-.demo img{width:200px;max-width:40%;height:auto;border-radius:8px;flex:0 0 auto}
-.demo span{font-size:15px}
-.demo b{color:var(--acc)}
-@media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}</style>
+  <script src="/shared/profile/profile.js"></script>
+  <script src="/shared/theme/theme.js" data-app="site"></script>
+  <script src="/shared/consent/config.js"></script>
+  <script src="/shared/consent/state.js"></script>
+  <script src="/shared/consent/consent-mode.js"></script>
+  <script src="/shared/consent/banner.js"></script>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/shared/landing/landing.css">
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
-<main>
+<div class="l-wrap">
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Docs guide">
+<p class="l-side-app"><a href="/apps/docs/">Slop Docs</a></p>
+<p><a class="btn l-side-open" href="/docs/">Open Slop Docs</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/docs/online-word-processor/">Online word processor</a></li><li><a href="/docs/markdown-to-word/">Markdown to Word</a></li><li><a href="/docs/microsoft-word-alternative/" aria-current="page">Microsoft Word alternative</a></li></ul>
+<p class="l-side-h">Compared</p><ul><li><a href="/best/free-word-processors/">Best free word processors</a></li></ul>
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-docs">More with Slop Docs</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/docs/">Slop Docs</a> · free, in your browser</p>
 <h1>A free Microsoft Word alternative in your browser</h1>
 <p class="lead">For letters, essays and simple reports, Slop Docs gives you a page, styles and Word files in a browser tab, with no installation, no account and nothing uploaded.</p>
 <p><a class="btn" href="/docs/">Open Slop Docs</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/docs.jpg" alt="Slop Docs open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Open Slop Docs and start typing, or import a .docx you keep in Slop Drive.</li><li>Format with fonts, sizes, paragraph styles, alignment and lists.</li><li>Save to Slop Drive in this browser; drafts are saved as you type.</li><li>Download Word (.docx), Markdown or plain text, or print.</li></ol>
 
 <p class="note">Your files stay on this device: Slop Docs runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Is Slop Docs made by Microsoft?</h3>
 <p>No. Slopographic is not affiliated with Microsoft. Microsoft and Word are trademarks of their owner, named here only to describe what people search for.</p>
 <h3>Can it open my Word files?</h3>
@@ -72,10 +67,16 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <p>Once the page has loaded, documents are edited and saved in the browser, so a lost connection does not stop you.</p>
 <h3>Is it really free?</h3>
 <p>Yes. There is no plan to buy and no account. Your documents stay on your device.</p>
-<h2>More with Slop Docs</h2>
+<h2 id="more-with-slop-docs">More with Slop Docs</h2>
 <ul><li><a href="/docs/online-word-processor/">A free word processor in your browser</a></li><li><a href="/docs/markdown-to-word/">Convert Markdown to Word (.docx)</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/code.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/code/">Slop Code</a><br><span class="note">In development</span><br>A code editor for your Slop Drive files. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/convert.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/convert/">File convert</a><br><span class="note">In development</span><br>Images, PDFs, data and text, converted on your device.</li><li><img class="thumb" src="/assets/shots/html2pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/html2pdf/">Slop HTML to PDF</a><br><span class="note">Beta</span><br>Print an HTML file to PDF with a header and QR code. Nothing uploaded.</li></ul>
+</div>
+</div>
 </main>
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+</div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
+<script src="/shell/shell.js"></script>
 </body>
 </html>

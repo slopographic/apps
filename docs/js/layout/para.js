@@ -3,6 +3,8 @@
 import { atomsOf, styleFor } from './atoms.js';
 import { breakLines } from './lines.js';
 import { paraProps } from '../model/styles.js';
+import { paraText } from '../model/doc.js';
+import { paraRtl } from './bidi.js';
 
 const cache = new WeakMap();
 export function clearParaCache() { /* WeakMap entries die with their blocks; fonts loading call this */ gen++; }
@@ -34,6 +36,10 @@ export function layoutPara(doc, p, width, ctx = {}) {
     if (m && m.key === key && m.doc === doc.styles && m.lists === doc.lists) return m.out;
   }
   const P = resolvedProps(doc, p);
+  // a right-to-left paragraph is laid out from the right (bidi.js mirrors the line): its default alignment is the start
+  // (the right), and an alignment set on the paragraph keeps its visual meaning
+  P.rtl = paraRtl(paraText(p));
+  if (P.rtl && p.props && (p.props.align === 'left' || p.props.align === 'right')) P.align = p.props.align === 'left' ? 'right' : 'left';
   const atoms = ctx.atoms || atomsOf(doc, p, ctx);
   const first = (p.runs || [])[0];
   P.emptyStyle = styleFor(doc, p, first && !first.obj ? first : (p.rm || {}));

@@ -60,7 +60,7 @@
     A('docs', 'app', 'Slop Docs', 'docs/', 'Word and Google Docs, rebuilt for the browser.', { title: 'Document editor', group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/markdown', 'text/plain', 'text/html'],
       creates: [{ label: 'Document', ext: 'sdoc', mime: 'application/x-slop-doc' }],
-      features: ['Real pages, styles and lists', 'Opens & saves DOCX and Markdown', 'Prints, or saves a PDF from the print dialog', 'Offline .html'],
+      features: ['Real pages, styles and lists', 'Opens & saves DOCX and Markdown', 'Exports a PDF that matches the page', 'Headers, footers and page numbers', 'Arabic, Hebrew, Chinese, Hindi and more', 'Offline .html'],
       shot: 'assets/shots/docs.jpg', icon: 'page', status: 'building' }),
     A('tables', 'app', 'Slop Tables', 'tables/', 'Excel and Google Sheets, rebuilt for the browser.', { title: 'Spreadsheet editor', group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'text/tab-separated-values'],

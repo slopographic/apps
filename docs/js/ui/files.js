@@ -1,5 +1,5 @@
 /* Slop Docs — ui/files: Slop Drive (open with ?drive=<id>, File ▸ Open, Save and Ctrl+S), the saved templates store,
- * and exports (.sdoc, .docx, .md, .txt). Classic script; window.SlopDocs.
+ * and exports (.sdoc, .docx, .pdf, .md, .txt). Classic script; window.SlopDocs.
  * Open tabs and their autosave are the tab strip's job (ui/tabs.js and shared/doctabs). Save and Open from Slop Drive
  * go through the strip, so each tab writes its own .sdoc (a native record is saved back under its own id). A Word,
  * Markdown or text file is imported as a new, unlinked tab: saving it creates a new .sdoc. */
@@ -134,9 +134,10 @@
   };
 
   /* ---------- export ---------- */
-  /** Blob for a format: sdoc, docx, md or txt. */
+  /** Blob for a format: sdoc, docx, pdf, md or txt. */
   S.exportBlob = async function (kind) {
     if (kind === 'docx') return DX().exportDocx(S.doc);
+    if (kind === 'pdf') return S.pdfBlob();
     if (kind === 'md') return new Blob([SD().toMarkdown(S.doc)], { type: 'text/markdown' });
     if (kind === 'txt') return new Blob([SD().toText(S.doc)], { type: 'text/plain' });
     return SD().sdocBlob(S.doc);

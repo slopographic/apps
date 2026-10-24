@@ -3,6 +3,7 @@
  * frags have x positions relative to the content box's left edge. */
 import { splitAtom, atomMetrics } from './atoms.js';
 import { textWidth, vmetrics } from '../fonts/registry.js';
+import { bidiLine } from './bidi.js';
 
 export const DEFAULT_TAB = 36;
 const EPS = 0.001;
@@ -88,6 +89,7 @@ export function breakLines(atoms, P, opts) {
     }
     if (peekDone() && line.reason === 'wrap') line.reason = 'end';
     finish(line, P, left, right, lines.length ? lines[lines.length - 1].end : (opts.paraStart || 0));
+    bidiLine(line, !!P.rtl, width);
     line.top = y; y += line.h;
     line.next = i; line.pending = pending;
     lines.push(line);

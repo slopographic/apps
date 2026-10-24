@@ -4,6 +4,7 @@
  * and subset into the PDF. That is what makes screen and PDF line breaks identical.
  * Word and Google font names map to metric-compatible families (Calibri → Carlito, Arial → Arimo …). */
 import { parseTTF } from './ttf.js';
+import { langFace, hasLangFaces, langVersion, shapedWidth } from './lang.js';
 
 export const FAMILIES = [
   { name: 'Carlito', dir: 'carlito', stem: 'Carlito', cat: 'sans-serif', aliases: ['calibri', 'aptos', 'calibri light', 'segoe ui', 'candara', 'corbel'] },
@@ -111,26 +112,90 @@ function fallbackWidth(ch, size) {
   canvas.font = `${size}px sans-serif`;
   return canvas.measureText(ch).width;
 }
+/** The Chinese-character variant used when a paragraph does not say (from the browser language, as SlopFontJIT does). */
+export function defaultHan() {
+  const S = globalThis.SlopScripts, lang = (globalThis.navigator && navigator.language) || 'en';
+  return S ? S.hanFor('', lang) : 'sc';
+}
+const hanProxies = new WeakMap();
+/** The face for a paragraph whose Chinese characters take another variant (Japanese kanji beside kana, say): the same face
+ * object underneath, so it shares its bytes and caches, with its own han. */
+export function withHan(f, han) {
+  if (!f || !han || han === defaultHan()) return f;
+  let m = hanProxies.get(f);
+  if (!m) hanProxies.set(f, (m = {}));
+  return m[han] || (m[han] = Object.create(f, { han: { value: han } }));
+}
+const MARK = /^[\p{M}\u200c\u200d\ufe00-\ufe0f]$/u;
+const runCache = new WeakMap();
+/** A text cut into font runs, in logical order: [{ f, text }]. A character the face cannot set goes to the language face of
+ * its script when one is loaded; marks and joiners stay with the character before them. Screen, layout and PDF use this. */
+export function fontRuns(f, text) {
+  if (!hasLangFaces() || !text) return [{ f, text }];
+  let m = null;
+  if (f) {
+    m = runCache.get(f);
+    if (!m || m.v !== langVersion()) runCache.set(f, (m = { v: langVersion(), map: new Map() }));
+    const hit = m.map.get(text);
+    if (hit) return hit;
+  }
+  const out = [], han = (f && f.han) || defaultHan();
+  let cur = null;
+  for (const ch of text) {
+    const cp = ch.codePointAt(0);
+    let g;
+    if (cur && MARK.test(ch)) g = cur.f;
+    else if (cp < 0x80 || (f && f.ttf && f.ttf.has(cp))) g = f;
+    else g = langFace(cp, f ? f.b : false, han) || f;
+    if (cur && cur.f === g) cur.text += ch; else out.push((cur = { f: g, text: ch }));
+  }
+  if (m) { if (m.map.size > 5000) m.map.clear(); m.map.set(text, out); }
+  return out;
+}
 /** Advance width of one code point in points. */
 export function charWidth(f, cp, size) {
-  if (!f) return size * 0.5;
+  if (f && f.lang) return shapedWidth(f, String.fromCodePoint(cp), size);
+  if (!f) { const lf = langFace(cp, false, defaultHan()); return lf ? shapedWidth(lf, String.fromCodePoint(cp), size) : size * 0.5; }
   let w = f.cache.get(cp);
   if (w === undefined) {
     const g = f.ttf.has(cp) ? f.ttf.gid(cp) : -1;
     w = g >= 0 ? f.ttf.adv(g) / f.ttf.upm : (cp === 9 || cp === 10 ? 0 : -1);
     f.cache.set(cp, w);
   }
-  return w >= 0 ? w * size : fallbackWidth(String.fromCodePoint(cp), size);
+  if (w >= 0) return w * size;
+  const lf = langFace(cp, f.b, f.han || defaultHan());
+  return lf ? shapedWidth(lf, String.fromCodePoint(cp), size) : fallbackWidth(String.fromCodePoint(cp), size);
 }
-/** Width of a string in points (sum of advances: no kerning, no ligatures, same as the PDF). */
-export function textWidth(f, text, size) {
+function plainWidth(f, text, size) {
   let w = 0;
   for (const ch of text) w += charWidth(f, ch.codePointAt(0), size);
+  return w;
+}
+/** Width of one font run: shaped for a language face, the sum of advances for the document's own faces (they have no
+ * kerning or ligature tables, so that is exactly what the PDF draws). */
+export const runWidth = (f, text, size) => (f && f.lang ? shapedWidth(f, text, size) : plainWidth(f, text, size));
+/** Width of a string in points: the sum of its font runs. */
+export function textWidth(f, text, size) {
+  if (!hasLangFaces() || !text) return plainWidth(f, text || '', size);
+  let w = 0;
+  for (const r of fontRuns(f, text)) w += runWidth(r.f, r.text, size);
   return w;
 }
 /** Vertical metrics in points for a size: { asc, desc, gap, line }. */
 export function vmetrics(f, size) {
   if (!f) return { asc: size * 0.9, desc: size * 0.25, gap: 0, line: size * 1.15 };
-  const k = size / f.ttf.upm;
-  return { asc: f.ttf.asc * k, desc: f.ttf.desc * k, gap: f.ttf.gap * k, line: (f.ttf.asc + f.ttf.desc + f.ttf.gap) * k };
+  const t = f.lang ? f : f.ttf, k = size / t.upm;
+  return { asc: t.asc * k, desc: t.desc * k, gap: t.gap * k, line: (t.asc + t.desc + t.gap) * k };
+}
+/** The tallest metrics of the faces a text is set in (a line with Devanagari in it is as tall as Devanagari needs). */
+export function textVm(f, text, size) {
+  const v = vmetrics(f, size);
+  if (!hasLangFaces() || !text) return v;
+  for (const r of fontRuns(f, text)) {
+    if (r.f === f || !r.f) continue;
+    const w = vmetrics(r.f, size);
+    v.asc = Math.max(v.asc, w.asc); v.desc = Math.max(v.desc, w.desc); v.gap = Math.max(v.gap, w.gap);
+  }
+  v.line = v.asc + v.desc + v.gap;
+  return v;
 }
