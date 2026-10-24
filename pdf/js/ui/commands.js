@@ -36,6 +36,7 @@
       cmd('file.extractAssets', 'Extract assets…', 'File', [], function () { A.extractAssets(); }, has, { keywords: ['images', 'fonts', 'save', 'export'] }),
       cmd('file.save', 'Save', 'File', ['Mod+S'], function () { if (window.SlopHub && !SP.offline) A.saveToDrive(); else A.download(); }, function () { return has() && noMenu(); }, { keywords: ['save', 'drive'] }),
       cmd('file.download', 'Download PDF', 'File', [], function () { A.download(); }, function () { return has() && noMenu(); }, { keywords: ['save', 'export'] }),
+      cmd('file.protect', 'Protect with password…', 'File', [], function () { A.protect(); }, function () { return has() && noMenu(); }, { keywords: ['password', 'encrypt', 'lock', 'secure', 'protect'] }),
       cmd('file.extract', 'Download selected pages', 'File', [], function () { A.extract(); }, function () { return O.sel.size > 0; }),
       cmd('file.text', 'Extract text…', 'File', [], function () { A.extractText(); }, has),
       cmd('file.images', 'Pages to images…', 'File', [], function () { A.setTool('convert'); }, has, { keywords: ['png', 'jpeg', 'convert'] }),

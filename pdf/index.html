@@ -209,7 +209,7 @@
     <script src="js/tools/comments-panel.js" data-src="pdf/js/tools/comments-panel.js"></script> <script src="js/tools/doc-panels.js" data-src="pdf/js/tools/doc-panels.js"></script>
     <script src="js/ui/ctxbars.js" data-src="pdf/js/ui/ctxbars.js"></script> <script src="js/ui/actions.js" data-src="pdf/js/ui/actions.js"></script>
     <script src="js/ui/versions.js" data-src="pdf/js/ui/versions.js"></script> <script src="js/ui/fonts.js" data-src="pdf/js/ui/fonts.js"></script>
-    <script src="js/ui/export-menu.js" data-src="pdf/js/ui/export-menu.js"></script> <script src="js/ui/exports.js" data-src="pdf/js/ui/exports.js"></script>
+    <script src="js/ui/export-menu.js" data-src="pdf/js/ui/export-menu.js"></script> <script src="js/ui/exports.js" data-src="pdf/js/ui/exports.js"></script> <script src="js/ui/protect.js" data-src="pdf/js/ui/protect.js"></script>
     <script src="js/ui/page-acts.js" data-src="pdf/js/ui/page-acts.js"></script> <script src="js/ui/assets.js" data-src="pdf/js/ui/assets.js"></script>
     <script src="js/redact/panel.js" data-src="pdf/js/redact/panel.js"></script> <script src="js/ocr/layer.js" data-offline="strip"></script>
     <script src="js/ocr/recognise.js" data-offline="strip"></script> <script src="js/ui/commands.js" data-src="pdf/js/ui/commands.js"></script>
@@ -232,6 +232,14 @@
   <!-- On demand: the PDF writer, once a document is opened, made or saved (SP.engine.pdflib). -->
   <template id="pdf-engine">
     <script src="../vendor/pdf-lib/pdf-lib.min.js" data-src="vendor/pdf-lib/pdf-lib.min.js"></script>
+  </template>
+  <!-- On demand: the PDF password code, once a protected file is opened or a download with a password is asked for (SP.decrypt.load). -->
+  <template id="pdf-crypto">
+    <script src="../shared/pdf-crypto/legacy.js" data-src="shared/pdf-crypto/legacy.js"></script>
+    <script src="../shared/pdf-crypto/aes256.js" data-src="shared/pdf-crypto/aes256.js"></script>
+    <script src="../shared/pdf-crypto/security.js" data-src="shared/pdf-crypto/security.js"></script>
+    <script src="../shared/pdf-crypto/decrypt.js" data-src="shared/pdf-crypto/decrypt.js"></script>
+    <script src="../shared/pdf-crypto/encrypt.js" data-src="shared/pdf-crypto/encrypt.js"></script>
   </template>
 <i id="slop-built" hidden></i>
 </body>

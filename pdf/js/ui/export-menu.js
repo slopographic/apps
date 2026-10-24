@@ -9,7 +9,7 @@
   /** The File ▸ Export as submenu. */
   A.exportItems = function () {
     var has = E.state.pages.length > 0;
-    return [{ label: 'PDF (download)', act: A.download, disabled: !has }, '-']
+    return [{ label: 'PDF (download)', act: A.download, disabled: !has }, { label: 'PDF with a password…', act: function () { A.protect(); }, disabled: !has }, '-']
       .concat(TARGETS.map(function (t) { return { label: t[1], act: function () { A.openConvert(t[0]); }, disabled: !has }; }))
       .concat(['-', { label: 'Other formats…', act: function () { A.openConvert(null); }, disabled: !has }]);
   };
