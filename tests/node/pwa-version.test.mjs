@@ -24,3 +24,9 @@ test('the pre-commit hook regenerates the list and VERSION', () => {
   assert.match(hook, /node tools\/pwa-precache\.mjs/);
   assert.match(hook, /git add service-worker\.js sw-precache\*\.js/);
 });
+
+test('the sample files of "Try it with a sample" are cached for offline use', () => {
+  const list = ['sw-precache.js', 'sw-precache-2.js', 'sw-precache-3.js'].map((f) => { try { return readFileSync(path.join(ROOT, f), 'utf8'); } catch (e) { return ''; } }).join('\n');
+  assert.ok(list.includes("'/assets/samples/moon-landing.ogg'"), 'the Transcribe sample');
+  assert.ok(list.includes("'/shared/samples/samples.js'"), 'the sample maker');
+});
