@@ -30,12 +30,14 @@
   <link rel="stylesheet" href="../shared/fonts/fonts.css" data-offline="strip">
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
   <link rel="stylesheet" href="../shared/ui/hbtn.css" data-src="shared/ui/hbtn.css">
+  <link rel="stylesheet" href="../shell/shell.css" data-src="shell/shell.css"><!-- the brand tile; this page has no shell -->
   <link rel="stylesheet" href="css/img3d.css" data-src="img3d/css/img3d.css">
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <div class="app">
     <header class="topbar">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
       <span class="appname"><b>Slop Image to 3D</b></span>
       <div class="actions">
         <label class="tb-btn" for="file" title="Open a picture from disk">Open image…</label>
@@ -124,6 +126,8 @@
   <script src="js/app/export.js"></script>
   <script src="js/app/main.js"></script>
   <script src="../shared/tour/mount.js" data-app="img3d"></script>
+  <script src="../shared/app-icons.js"></script>
+  <script src="../brand/brand.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 </body>
 </html>

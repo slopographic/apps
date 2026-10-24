@@ -7,13 +7,14 @@
   const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
 
   ns.enrich = {
-    /** Invoices: paid (the payments made, in the invoice's currency) and balance (total less paid, for an issued invoice; 0 otherwise). */
+    /** Invoices: paid (the payments made, in the invoice's currency) and balance (an issued invoice's total less paid and its
+     *  credit notes, plus what they paid back, as SlopData.billing.balanceDue; 0 otherwise). */
     invoiceBalance(rows, data) {
       const paid = new Map();
       for (const p of data.payments || []) paid.set(p.invoiceId, (paid.get(p.invoiceId) || 0) + num(p.amount));
       return rows.map((r) => {
         const got = paid.get(r.id) || 0;
-        return { ...r, paid: got, balance: r.status === 'issued' ? Math.max(0, num(r.total) - got) : 0 };
+        return { ...r, paid: got, balance: r.status === 'issued' ? Math.max(0, num(r.total) - got - num(r.credited) + num(r.refunded)) : 0 };
       });
     },
     /** Customers: value, the total of their issued and paid invoices in the base currency. An invoice in another currency

@@ -7,7 +7,7 @@
 
   const ENUM = {
     stage: ['lead', 'contacted', 'customer', 'lost'],
-    invoiceStatus: ['draft', 'issued', 'paid', 'void'],
+    invoiceStatus: ['draft', 'issued', 'paid', 'void', 'credited'],   // credited: credit notes cover the whole total
     orderStatus: ['draft', 'open', 'fulfilled', 'cancelled'],   // open = confirmed
     quoteStatus: ['draft', 'sent', 'accepted', 'declined'],
     purchaseStatus: ['draft', 'ordered', 'received', 'cancelled'],
@@ -32,8 +32,8 @@
   ];
   // defaultCurrency is the ledger's base currency. locale is refined from the browser by currency.js at seed time.
   const DEFAULT_SETTINGS = { id: 'main', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30, ratesUpdateOnOpen: false };
-  const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }, { id: 'quote', prefix: 'QUO-', pad: 4, next: 1 }, { id: 'purchase', prefix: 'PO-', pad: 4, next: 1 }];
-  const INVOICE_NEXT = { draft: ['issued'], issued: ['paid', 'void'], paid: [], void: [] };
+  const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }, { id: 'quote', prefix: 'QUO-', pad: 4, next: 1 }, { id: 'purchase', prefix: 'PO-', pad: 4, next: 1 }, { id: 'credit', prefix: 'CN-', pad: 4, next: 1 }];
+  const INVOICE_NEXT = { draft: ['issued'], issued: ['paid', 'void', 'credited'], paid: ['credited'], void: [], credited: [] };
   const ORDER_NEXT = { draft: ['open', 'cancelled'], open: ['fulfilled', 'cancelled'], fulfilled: [], cancelled: [] };
   // A sent quote can go back to draft to be revised; a declined one can be reopened; an accepted one is final.
   const QUOTE_NEXT = { draft: ['sent', 'accepted', 'declined'], sent: ['draft', 'accepted', 'declined'], accepted: [], declined: ['draft'] };
@@ -121,6 +121,7 @@
       currency: F.cur({}), status: F.en(ENUM.invoiceStatus, { def: 'draft' }), lines: { t: 'lines', min: 0, def: [] }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
       notes: F.text({}), orderId: F.id({}), quoteId: F.id({}), scheduleId: F.id({}), issuedAt: F.ts({}), sample: F.bool({}),
+      credited: F.mny({}), refunded: F.mny({}),   // the credit notes on it, and the part of them paid back (shared/data/credits.js)
       pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     // Quotes (estimates): a priced offer. Nothing is posted; an accepted quote becomes an order or a draft invoice (quotes.js).
     quotes: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'quote', when: () => true }, check: quoteCheck, docCurrency: true,
@@ -143,6 +144,13 @@
       id: F.id({ req: true }), invoiceId: F.id({ req: true }), amount: F.mny({ req: true, min: 1 }), date: F.date({ req: true }),
       currency: F.cur({}), rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
       method: F.en(ENUM.payMethod, { def: 'bank' }), note: F.str({ max: 300 }) } },
+    // Credit notes (shared/data/credits.js): part or all of an issued or paid invoice taken back. Revenue and tax are reversed in
+    // the invoice's proportions; refund is the part already paid that goes back to the customer (by method).
+    creditNotes: { key: 'id', immutable: true, postingOnly: true, unique: ['number'],
+      indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'invoiceId', key: 'invoiceId' }, { name: 'customerId', key: 'customerId' }, { name: 'date', key: 'date' }], fields: {
+      id: F.id({ req: true }), number: F.str({ req: true, max: 40 }), invoiceId: F.id({ req: true }), customerId: F.id({ req: true }), date: F.date({ req: true }),
+      currency: F.cur({}), amount: F.mny({ req: true, min: 1 }), subtotal: F.mny({}), tax: F.mny({}), refund: F.mny({ def: 0 }),
+      method: F.en(ENUM.payMethod, {}), reason: F.str({ max: 300 }), amountBase: F.mny({}) } },
     accounts: { key: 'code', noRemove: 'accounts cannot be deleted', indexes: [{ name: 'type', key: 'type' }], fields: {
       code: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), name: F.str({ req: true }), type: F.en(ENUM.accountType, { req: true }) } },
     journal: { key: 'id', immutable: true, postingOnly: true, unique: ['source'], check: (r) => [...journalErrors(r.lines), ...fxErrors(r)],

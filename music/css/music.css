@@ -22,15 +22,24 @@ body { background: var(--mu-bg); color: var(--mu-fg); font: 14px/1.45 "Inter Tig
 h1, h2, h3 { margin: 0; font-weight: 650; }
 button, input, select { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
+/* SlopUI and the drop panel follow the Music tokens. slopui.css sets its --s-* names only inside its own dialogs and
+ * menus, so the page sets them too, for the .sui-btn and .sui-input it uses outside them. */
+:root { --sui-bg: var(--mu-bg2); --sui-bg2: var(--mu-panel); --sui-input: var(--mu-bg2); --sui-line: var(--mu-line); --sui-fg: var(--mu-fg); --sui-dim: var(--mu-dim);
+  --sui-faint: var(--mu-faint); --sui-hover: var(--mu-hover); --sui-accent: var(--mu-accent); --sui-accent-ink: var(--mu-accent-ink);
+  --sui-panel: var(--mu-bg2); --sui-text: var(--mu-fg); --sui-muted: var(--mu-dim); }
+body { --s-bg2: var(--sui-bg2); --s-input: var(--sui-input); --s-line: var(--sui-line); --s-fg: var(--sui-fg); --s-hover: var(--sui-hover);
+  --s-accent: var(--sui-accent); --s-accent-ink: var(--sui-accent-ink); --s-radius: 6px; }
 .mu-top { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 10px 16px; background: var(--mu-bg2); border-bottom: 1px solid var(--mu-line); }
+.mu-top { --slop-hbtn-h: 32px; --slop-hbtn-radius: 6px; --slop-hbtn-bg: var(--mu-panel); --slop-hbtn-line: var(--mu-line); --slop-hbtn-hover: var(--mu-hover); --slop-hbtn-fs: 14px; }
 .mu-brand { display: flex; align-items: center; gap: 8px; }
-.mu-brand h1 { font-size: 16px; }
-.mu-logo { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(var(--mu-accent) 0 30%, transparent 30% 100%); border: 2px solid var(--mu-accent); box-sizing: border-box; }
+.mu-brand h1 { font-size: 16px; white-space: nowrap; }
+.mu-brand .brand { display: grid; place-items: center; width: 28px; height: 28px; flex: none; color: var(--mu-fg); }
+.mu-brand .brand-mark { width: 20px; height: 20px; fill: currentColor; }
 .mu-tabs { display: flex; gap: 2px; background: var(--mu-panel); border-radius: 8px; padding: 3px; }
 .mu-tabs button { border: 0; background: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; color: var(--mu-dim); }
 .mu-tabs button[aria-selected="true"] { background: var(--mu-accent); color: var(--mu-accent-ink); font-weight: 600; }
 .mu-tools { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; }
-.mu-tools .sui-btn { height: 30px; }
+.mu-tools .sui-btn { height: 32px; }
 .mu-main { padding: 16px 16px 96px; max-width: 1200px; margin: 0 auto; }
 .mu-view { position: relative; }
 .mu-view.mu-drop-on { outline: 2px dashed var(--mu-accent); outline-offset: 6px; border-radius: 8px; }

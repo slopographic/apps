@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/sheets/table.css">
+  <link rel="stylesheet" href="../shell/shell.css"><!-- the brand tile; this page has no shell -->
   <link rel="stylesheet" href="css/sheetview.css">
   <script src="../shared/apps.js"></script>
   <script src="../shared/slopui.js"></script>
@@ -50,7 +51,7 @@
 <body>
   <div class="sv-app">
     <header class="sv-top">
-      <div class="sv-brand"><span class="sv-logo" aria-hidden="true"></span><h1>Slop Sheets</h1></div>
+      <div class="sv-brand"><a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a><h1>Slop Sheets</h1></div>
       <div class="sv-name" id="sv-name" aria-live="polite"></div>
       <div class="sv-tools" role="toolbar" aria-label="File">
         <button type="button" class="sv-btn sv-primary" id="sv-open" title="Open spreadsheets from this computer (Ctrl+O)">Open</button>
@@ -90,5 +91,7 @@
   </div>
   <script src="../shared/tour/mount.js" data-app="sheetview"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+  <script src="../shared/app-icons.js"></script>
+  <script src="../brand/brand.js"></script>
 </body>
 </html>

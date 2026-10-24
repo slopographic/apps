@@ -1,5 +1,5 @@
 // The Statement view (#s/<customer id>): one customer's account in one currency, as a printable sheet: the company and
-// customer blocks, every issued invoice and payment with a running balance (from a date, or from the start), what is owed
+// customer blocks, every issued invoice, payment and credit note (and refund) with a running balance (from a date, or from the start), what is owed
 // now and how late it is (SlopData.statement). Print it, download it as CSV, or write a payment reminder (ui/reminder.js).
 (function (g) {
   'use strict';
@@ -13,9 +13,10 @@
 
   /** Reads the customer, their invoices and the payments, and fills the currency pick. */
   async function load(customerId) {
-    const [c, inv, pay, settings] = await Promise.all([S.store.get('customers', customerId), S.store.list('invoices'), S.store.list('payments'), U.settings()]);
+    const [c, inv, pay, cn, settings] = await Promise.all([S.store.get('customers', customerId), S.store.list('invoices'), S.store.list('payments'),
+      S.store.list('creditNotes', { index: 'customerId', value: customerId }), U.settings()]);
     if (!c.ok || !c.value) { cur = null; return false; }
-    cur = { customer: c.value, invoices: inv.ok ? inv.value : [], payments: pay.ok ? pay.value : [], settings };
+    cur = { customer: c.value, invoices: inv.ok ? inv.value : [], payments: pay.ok ? pay.value : [], credits: cn.ok ? cn.value : [], settings };
     const list = S.statement.currencies(cur.invoices, customerId);
     $('stCurrency').replaceChildren(...(list.length ? list : [settings.currency]).map((x) => h('option', { value: x, text: x })));
     $('stCurrency').closest('label').hidden = list.length < 2;
@@ -23,7 +24,7 @@
   }
 
   function build() {
-    return S.statement.build(cur.invoices, cur.payments, cur.customer.id, { currency: $('stCurrency').value, from: $('stFrom').value, today: S.ledger.today() });
+    return S.statement.build(cur.invoices, cur.payments, cur.customer.id, { currency: $('stCurrency').value, from: $('stFrom').value, today: S.ledger.today(), credits: cur.credits });
   }
 
   /** Draws the sheet. */
@@ -40,7 +41,7 @@
       h('div', { class: 'sheet-scroll' }, h('table', { class: 'grid-t st-table' },
         h('thead', null, h('tr', null, ['Date', 'What', 'Invoice', 'Due', 'Charged', 'Paid', 'Balance'].map((x, i) => h('th', { class: i >= 4 ? 'num' : '', text: x })))),
         h('tbody', null, st.from ? row(['', 'Opening balance', '', '', '', '', m(st.opening)], 'st-open') : null,
-          st.lines.map((l) => row([l.date, l.kind === 'invoice' ? 'Invoice' : 'Payment, thank you', l.ref, l.due, l.debit ? m(l.debit) : '', l.credit ? m(l.credit) : '', m(l.balance)])),
+          st.lines.map((l) => row([l.date, l.kind === 'payment' ? 'Payment, thank you' : S.statement.KIND[l.kind], l.ref, l.due, l.debit ? m(l.debit) : '', l.credit ? m(l.credit) : '', m(l.balance)])),
           st.lines.length ? null : h('tr', null, h('td', { colspan: 7, class: 'sub', text: 'Nothing in this period.' }))),
         h('tfoot', null, h('tr', null, h('th', { colspan: 6, text: 'Balance owed' }), h('th', { class: 'num', text: m(st.closing) }))))),
       h('div', { class: 'stats st-age' }, AGE.map(([k, label]) => h('div', { class: `stat${st.ageing[k] && k !== 'current' ? ' is-late' : ''}` }, h('b', { text: m(st.ageing[k]) }), h('span', { text: label })))),

@@ -17,12 +17,12 @@
   const statusText = (st) => U.statusText(st.status, st.balance);
 
   const extra = {
-    blank: (st, s) => Object.assign(st, { dueDate: M.addDays(st.date, s.paymentTermsDays), orderId: null, payments: [], paid: 0, balance: 0 }),
+    blank: (st, s) => Object.assign(st, { dueDate: M.addDays(st.date, s.paymentTermsDays), orderId: null, payments: [], credits: [], paid: 0, balance: 0 }),
     /** The due date and order link from the record; the payments and balance from billing (NS.context). */
     async apply(st, rec) {
-      Object.assign(st, { dueDate: rec.dueDate || '', orderId: rec.orderId || null, payments: [], paid: 0, balance: 0 });
+      Object.assign(st, { dueDate: rec.dueDate || '', orderId: rec.orderId || null, payments: [], credits: [], paid: 0, balance: 0 });
       const c = await NS.context.load(rec.id);
-      if (c.ok) Object.assign(st, { payments: c.value.payments, paid: c.value.paid, balance: c.value.balance });
+      if (c.ok) Object.assign(st, { payments: c.value.payments, credits: c.value.credits, paid: c.value.paid, balance: c.value.balance });
     },
     fieldError: (name, st) => (name !== 'dueDate' ? undefined : !st.dueDate || DATE.test(st.dueDate) ? null : 'Enter the due date as a date, or leave it blank.'),
     collect: (st) => (st.dueDate && !DATE.test(st.dueDate) ? { error: 'Enter the due date as a date, or leave it blank.' } : { dueDate: st.dueDate || undefined }),
@@ -35,6 +35,9 @@
       const box = $('ePayments');
       if (!st.payments.length) box.replaceChildren(h('p', { class: 'note', text: st.status === 'issued' ? 'No payments yet.' : '' }));
       else box.replaceChildren(h('ul', { class: 'report' }, st.payments.map((p) => h('li', { text: `${p.date} · ${p.method} · ${U.money(p.amount, st.currency, st.locale)}${p.note ? ` · ${p.note}` : ''}` }))));
+      const m = (v) => U.money(v, st.currency, st.locale);
+      $('eCredits').replaceChildren(...(st.credits || []).map((c) => h('li', { text: `${c.number} · ${c.date} · ${m(c.amount)}${c.refund ? ` (${m(c.refund)} paid back)` : ''}${c.reason ? ` · ${c.reason}` : ''}` })));
+      $('eCreditsHead').hidden = !(st.credits || []).length;
     },
     mount(st, edited) { $('eDue').addEventListener('input', (e) => { st.dueDate = e.target.value; edited(); }); },
   };
@@ -49,11 +52,13 @@
     }
     if (st.status === 'issued') {
       out.push(b('Record payment…', () => NS.paymentDialog.open(st.id, ed.reload), 'btn primary'));
-      out.push(b('Void…', voidInvoice, 'btn danger', st.payments.length > 0, st.payments.length ? 'Not allowed while payments exist' : 'Reverse the issue entry and void'));
+      out.push(b('Void…', voidInvoice, 'btn danger', st.payments.length > 0 || st.credits.length > 0, st.payments.length || st.credits.length ? 'Not allowed once paid or credited: use a credit note' : 'Reverse the issue entry and void'));
     }
+    if (st.status === 'issued' || st.status === 'paid') out.push(b('Credit note…', () => NS.creditDialog.open(st.id, ed.reload), 'btn', false, 'Take back part or all of this invoice; a part already paid is refunded'));
     if (!ed.isNew() && st.status !== 'void') out.push(b('Repeat…', () => NS.repeatDialog.open(st.id, () => NS.app.go('repeat'))));
     if (!ed.isNew()) out.push(b('Preview / print', preview), b('Export PDF', () => saveThen(() => NS.preview.pdf(st.id))));
-    if (st.status === 'paid' || st.status === 'void') out.push(h('p', { class: 'note', text: st.status === 'paid' ? 'Paid in full. The invoice is closed.' : 'Void. The number stays used.' }));
+    const closed = { paid: 'Paid in full. The invoice is closed.', void: 'Void. The number stays used.', credited: 'Credited in full: credit notes cover the whole invoice.' };
+    if (closed[st.status]) out.push(h('p', { class: 'note', text: closed[st.status] }));
     return out;
   }
 

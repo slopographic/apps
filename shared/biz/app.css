@@ -57,6 +57,7 @@ a.btn { text-decoration: none; }
 .chip.open, .chip.issued, .chip.sent, .chip.ordered { color: var(--accent); }
 .chip.fulfilled, .chip.paid, .chip.posted, .chip.accepted, .chip.received { color: var(--ok); }
 .chip.cancelled, .chip.void, .chip.declined { color: var(--mute); text-decoration: line-through; }
+.chip.credited { color: var(--mute); }
 .chip.overdue { color: var(--danger); font-weight: 600; }
 .chip.sample { color: var(--warn); }
 

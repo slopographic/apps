@@ -24,7 +24,7 @@
     out.replaceChildren();
     if (!file) return false;
     const yes = await UI.confirm('Restore this backup?',
-      'This replaces every record in this browser with the contents of the file: customers, quotes, orders, invoices, payments, expenses, stock and the ledger. Download a backup first if you are not sure.',
+      'This replaces every record in this browser with the contents of the file: customers, quotes, orders, invoices, payments, credit notes, expenses, stock and the ledger. Download a backup first if you are not sure.',
       'Restore', { danger: true });
     if (!yes) { $('dRestore').value = ''; return false; }
     const r = await S.exporter.importBundle(await file.text());

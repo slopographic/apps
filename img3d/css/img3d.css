@@ -17,9 +17,14 @@ body { background: var(--i3-bg); color: var(--i3-ink); font: 13px/1.4 system-ui,
 button, select, input { font: inherit; color: inherit; }
 .app { display: grid; grid-template-rows: auto 1fr; height: 100vh; height: 100dvh; }
 .topbar { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--i3-panel); border-bottom: 1px solid var(--i3-line); flex-wrap: wrap; min-width: 0; }
+/* Tour (shared/ui/hbtn.css) wears the look of .tb-btn. */
+.topbar { --slop-hbtn-h: 30px; --slop-hbtn-radius: 6px; --slop-hbtn-line: transparent; --slop-hbtn-fs: 13px; }
+.topbar > .stour-btn { margin-left: auto; }
+.topbar .brand { display: grid; place-items: center; width: 28px; height: 28px; flex: none; color: var(--i3-ink); }
+.topbar .brand-mark { width: 20px; height: 20px; fill: currentColor; }
 .appname b { font-size: 14px; white-space: nowrap; }
 .actions { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.tb-btn, .btn { background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 5px 9px; cursor: pointer; color: var(--i3-ink); text-decoration: none; display: inline-block; }
+.tb-btn, .btn { box-sizing: border-box; height: 30px; display: inline-flex; align-items: center; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 0 9px; cursor: pointer; color: var(--i3-ink); text-decoration: none; white-space: nowrap; }
 .tb-btn:hover { background: color-mix(in srgb, var(--i3-ink) 8%, transparent); border-color: var(--i3-line); }
 .tb-btn:disabled { opacity: .45; cursor: default; }
 .btn.primary { background: var(--i3-accent); color: var(--i3-accent-ink); border-color: var(--i3-accent); }
@@ -46,6 +51,9 @@ button, select, input { font: inherit; color: inherit; }
   body { overflow: auto; }
   .app { height: auto; min-height: 100vh; }
   .work { grid-template-columns: 1fr; }
+  .appname { flex: 1 1 auto; }
+  .topbar > .stour-btn { order: 1; }
+  .topbar > .actions { order: 2; }
   .panel { border-right: 0; border-bottom: 1px solid var(--i3-line); }
   .stage { grid-template-rows: 60vh auto; }
 }

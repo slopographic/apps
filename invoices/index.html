@@ -83,7 +83,7 @@
             <input id="iSearch" type="search" placeholder="Search number, customer or notes" autocomplete="off" spellcheck="false"></label>
           <label>Status <select id="iStatus">
             <option value="all">All</option><option value="draft">Draft</option><option value="issued">Issued</option>
-            <option value="overdue">Overdue</option><option value="paid">Paid</option><option value="void">Void</option>
+            <option value="overdue">Overdue</option><option value="paid">Paid</option><option value="credited">Credited</option><option value="void">Void</option>
           </select></label>
           <button type="button" class="btn primary" id="iNew">New invoice</button>
           <button type="button" class="btn" id="iFromOrder">From an order…</button>
@@ -131,7 +131,7 @@
         <p class="note" id="eBalance"></p>
         <p class="note" id="eOrder"></p>
         <h2 class="h2">Payments</h2>
-        <div id="ePayments"></div>
+        <div id="ePayments"></div><h2 class="h2" id="eCreditsHead" hidden>Credit notes</h2><ul class="report" id="eCredits"></ul>
         <div class="toolbar actions" id="eActions"></div>
         </aside>
       </section>
@@ -193,7 +193,7 @@
   <script src="../shared/data/fx.js"></script>
   <script src="../shared/data/ledger.js"></script>
   <script src="../shared/data/stock.js"></script>
-  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/data/billing.js"></script><script src="../shared/data/credits.js"></script>
   <script src="../shared/data/recurring.js"></script>
   <script src="../shared/data/statement.js"></script>
   <script src="../shared/data/bundle-check.js"></script>
@@ -233,7 +233,7 @@
   <script src="../shared/ui/tabs.js"></script>
   <script src="js/ui/list.js"></script>
   <script src="js/ui/samples.js"></script>
-  <script src="js/ui/payment-dialog.js"></script>
+  <script src="js/ui/payment-dialog.js"></script><script src="js/ui/credit-dialog.js"></script>
   <script src="js/ui/repeat-dialog.js"></script>
   <script src="js/ui/repeat.js"></script>
   <script src="../shared/biz/sheet.js"></script>

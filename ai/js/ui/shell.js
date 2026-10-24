@@ -20,7 +20,6 @@
     AI.prefs.theme = t; AI.savePrefs();
     AI.emit('theme', t);
   };
-  AI.cycleTheme = () => { const cur = document.documentElement.getAttribute('data-theme') || 'pro', i = AI.THEMES.findIndex((t) => t[0] === cur); AI.setTheme(AI.THEMES[(i + 1) % AI.THEMES.length][0]); };
 
   function renderChip() {
     const chip = AI.$('modelChip');
@@ -89,8 +88,7 @@
       const b = AI.el('button', { type: 'button', class: 'tab', role: 'tab', 'data-tab': id, id: 'tab-' + id, onclick: () => AI.setTab(id) }, AI.icon(icon), AI.el('span', null, label));
       tabs.append(b);
     }
-    AI.$('btnCmd').append(AI.icon('cmd')); AI.$('btnTheme').append(AI.icon('theme')); AI.$('btnMore').append(AI.icon('more'));
-    AI.$('btnTheme').onclick = AI.cycleTheme;
+    AI.$('btnCmd').append(AI.icon('cmd')); AI.$('btnMore').append(AI.icon('more'));
     AI.$('btnMore').onclick = AI.moreMenu;
     AI.$('btnCmd').onclick = () => AI.openPalette();
     AI.$('modelChip').onclick = chipMenu;

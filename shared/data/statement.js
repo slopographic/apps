@@ -1,4 +1,5 @@
-// Customer statements: one customer's issued invoices and payments in one currency, oldest first, with a running balance,
+// Customer statements: one customer's issued invoices, payments and credit notes (and the refunds paid with them) in one
+// currency, oldest first, with a running balance,
 // what was owed before the period (opening) and at its end (closing), and how old the amount still owed is (ageing by days
 // past the due date: not yet due, 1-30, 31-60, 61-90, over 90). Pure: the invoices and payments come in, nothing is stored.
 // Drafts, void and deleted invoices are left out (a void invoice owes nothing). Exposes SlopData.statement.
@@ -6,8 +7,9 @@
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
   const DAY = 86400000;
+  const KIND = { invoice: 'Invoice', payment: 'Payment', credit: 'Credit note', refund: 'Refund' };
   const days = (from, to) => Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY);
-  const counts = (inv) => (inv.status === 'issued' || inv.status === 'paid') && !inv.deletedAt;
+  const counts = (inv) => (inv.status === 'issued' || inv.status === 'paid' || inv.status === 'credited') && !inv.deletedAt;
 
   /** The currencies a customer has issued invoices in, most used first. */
   function currencies(invoices, customerId) {
@@ -16,10 +18,11 @@
     return [...n.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).map(([c]) => c);
   }
 
-  /** The statement. opts: { currency, from (YYYY-MM-DD, '' = from the start), today }. Result: { currency, from, today,
-   *  opening, lines: [{ date, kind: 'invoice' | 'payment', ref, due, debit, credit, balance }], closing, owed: [{ ref, date,
-   *  due, left, late }], ageing: { current, d30, d60, d90, over90 } }. Money is minor units. */
-  function build(invoices, payments, customerId, { currency, from = '', today }) {
+  /** The statement. opts: { currency, from (YYYY-MM-DD, '' = from the start), today, credits (credit notes, optional) }.
+   *  Result: { currency, from, today, opening, lines: [{ date, kind: 'invoice' | 'payment' | 'credit' | 'refund', ref, due,
+   *  debit, credit, balance }], closing, owed: [{ ref, date, due, left, late }], ageing: { current, d30, d60, d90, over90 } }.
+   *  Money is minor units. */
+  function build(invoices, payments, customerId, { currency, from = '', today, credits = [] }) {
     const mine = invoices.filter((inv) => inv.customerId === customerId && inv.currency === currency && counts(inv));
     const byId = new Map(mine.map((inv) => [inv.id, inv]));
     const events = [];
@@ -27,6 +30,11 @@
     for (const p of payments) {
       const inv = byId.get(p.invoiceId);
       if (inv) events.push({ date: p.date, kind: 'payment', ref: inv.number || '', due: '', debit: 0, credit: p.amount, at: 1 });
+    }
+    for (const c of credits) {
+      if (!byId.has(c.invoiceId)) continue;
+      events.push({ date: c.date, kind: 'credit', ref: c.number, due: '', debit: 0, credit: c.amount, at: 2 });
+      if (c.refund) events.push({ date: c.date, kind: 'refund', ref: c.number, due: '', debit: c.refund, credit: 0, at: 3 });
     }
     events.sort((a, b) => (a.date === b.date ? a.at - b.at : a.date < b.date ? -1 : 1));
     let opening = 0, balance = 0;
@@ -40,7 +48,7 @@
     for (const p of payments) if (byId.has(p.invoiceId)) paid.set(p.invoiceId, (paid.get(p.invoiceId) || 0) + p.amount);
     const ageing = { current: 0, d30: 0, d60: 0, d90: 0, over90: 0 }, owed = [];
     for (const inv of mine) {
-      const left = inv.total - (paid.get(inv.id) || 0);
+      const left = inv.total - (paid.get(inv.id) || 0) - (inv.credited || 0) + (inv.refunded || 0);
       if (left <= 0) continue;
       const late = Math.max(0, days(inv.dueDate || inv.date, today));
       owed.push({ ref: inv.number || '', date: inv.date, due: inv.dueDate || inv.date, left, late });
@@ -55,7 +63,7 @@
     const cell = (v) => { const s = String(v ?? ''); return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
     const out = [['Date', 'What', 'Invoice', 'Due', 'Charged', 'Paid', 'Balance'].join(',')];
     if (st.from) out.push(['', 'Opening balance', '', '', '', '', plain(st.opening)].map(cell).join(','));
-    for (const l of st.lines) out.push([l.date, l.kind === 'invoice' ? 'Invoice' : 'Payment', l.ref, l.due, l.debit ? plain(l.debit) : '', l.credit ? plain(l.credit) : '', plain(l.balance)].map(cell).join(','));
+    for (const l of st.lines) out.push([l.date, KIND[l.kind], l.ref, l.due, l.debit ? plain(l.debit) : '', l.credit ? plain(l.credit) : '', plain(l.balance)].map(cell).join(','));
     return out.join('\r\n') + '\r\n';
   }
 
@@ -78,5 +86,5 @@
     return { tone, subject, body };
   }
 
-  ns.statement = { currencies, build, csv, reminder };
+  ns.statement = { currencies, build, csv, reminder, KIND };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -91,7 +91,8 @@ journal in the same transaction); conversion from an order through `SlopData.bil
 
 ## Limits
 
-- No refunds or credit notes. A paid or part-paid invoice cannot be voided, and payments cannot be removed.
+- Money is taken back with a credit note (Credit note… on an issued or paid invoice; shared/data/credits.js): a part already
+  paid is refunded by the method chosen. A paid, part-paid or credited invoice cannot be voided, and payments cannot be removed.
 - Currency: new invoices take the base currency. The UI has no currency choice. (The data layer supports a foreign
   currency through rates; the UI does not offer it yet.) No realised exchange gain or loss.
 - The PDF fonts are the standard Helvetica or Times (pdf-lib cannot embed the bundled WOFF2 faces), so characters outside
