@@ -9,11 +9,12 @@
   let rows, stat, side, empty, scheduled = false;
   const cmp = (x, y) => String(x).localeCompare(String(y), undefined, { numeric: true, sensitivity: 'base' });
   const dash = (a, b) => (a ? 0 : 1) - (b ? 0 : 1);
+  const trk = (a, b) => (a.track || 1e9) - (b.track || 1e9);   // album order: numbered tracks first, in number order
   function sortTracks(list, by) {
     const T = (t) => M.lib.display(t);
     return list.slice().sort((a, b) => {
-      if (by === 'artist') return dash(a.artist, b.artist) || cmp(a.artist || '', b.artist || '') || dash(a.album, b.album) || cmp(a.album || '', b.album || '') || cmp(T(a), T(b));
-      if (by === 'album') return dash(a.album, b.album) || cmp(a.album || '', b.album || '') || cmp(T(a), T(b));
+      if (by === 'artist') return dash(a.artist, b.artist) || cmp(a.artist || '', b.artist || '') || dash(a.album, b.album) || cmp(a.album || '', b.album || '') || trk(a, b) || cmp(T(a), T(b));
+      if (by === 'album') return dash(a.album, b.album) || cmp(a.album || '', b.album || '') || trk(a, b) || cmp(T(a), T(b));
       return cmp(T(a), T(b)) || cmp(a.artist || '', b.artist || '');
     });
   }
@@ -70,7 +71,7 @@
       onclick: () => { S.tag = S.tag === tag ? '' : tag; render(); } }, el('span', null, label), el('span', { class: 'mu-n' }, String(n)));
     side.replaceChildren(el('h2', { class: 'mu-h' }, 'Tags'), btn('All tracks', all.length, ''),
       ...counts.map(([tag, n]) => btn(tag, n, tag)),
-      counts.length ? null : el('p', { class: 'mu-fine' }, 'No tags yet. Use “Tags…” on a track to add some.'));
+      ...(counts.length ? [] : [el('p', { class: 'mu-fine' }, 'No tags yet. Use “Tags…” on a track to add some.')]));
   }
   function render() {
     scheduled = false;
@@ -100,7 +101,7 @@
     $('lib-add-empty').addEventListener('click', async () => addFiles(await UI().pickFiles({ accept: 'audio/*,.mp3,.wav,.ogg,.oga,.flac,.m4a,.aac,.opus', multiple: true })));
     const view = $('v-library');
     // Files dropped on the library go through SlopDrop (shared/drop): each one is added to Slop Drive as before.
-    SlopDrop.attach($('lib-drop'), {
+    const drop = SlopDrop.attach($('lib-drop'), {
       accept: { types: ['audio/*'], exts: ['.mp3', '.wav', '.ogg', '.oga', '.flac', '.m4a', '.aac', '.opus'], noun: 'an audio file' },
       compact: true,
       targets: [view],
@@ -108,7 +109,13 @@
         if (!(await M.lib.addFiles([file]))) throw new Error('could not be added to Slop Drive');
         return file.name;
       },
+      // the sample's button is the empty library's (below): a compact strip draws none
+      sample: { label: 'Try it with 3 sample tracks', files: () => window.SlopSamples.media.melodies(3, 8) },
     });
+    $('lib-preview').replaceChildren(SlopDrop.panel.preview({
+      picture: { src: '../assets/shots/music.jpg', alt: 'A library of three tracks with tags; the one playing is marked' },
+      steps: ['Drop MP3, WAV or other audio files', 'Search, tag and make playlists', 'Play, shuffle and repeat'] }));
+    $('lib-sample').addEventListener('click', () => drop.sample());
     M.lib.subscribe(schedule);
     M.engine.subscribe(() => { if (M.engine.state().trackId !== bind.last) { bind.last = M.engine.state().trackId; markCurrent(); } });
   }

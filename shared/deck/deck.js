@@ -4,6 +4,8 @@
  *   Left arrow: back, no tag               Right arrow: skip ahead, no tag
  *   Enter, or a letter or number typed on the photo: a tag field under it (Enter adds, commas separate, Esc cancels)
  *   Escape: close
+ * Each decision stamps the photo (♥ Liked / ✕ Disliked); the top shows "Photo 3 of 8", a progress bar and the tallies.
+ * Past the last photo an end card sums up (liked, disliked, not sorted) with See the results, Sort the N left and Back.
  * The photos come from a source the app passes in:
  *   { photo(id) -> { name, liked: 'liked' | 'disliked' | null, tags: [] } | null,  url(id) -> Promise<url>,  release(url),
  *     setLiked(id, tag) -> Promise,  addTag(id, tag) -> Promise,  removeTag(id, tag) -> Promise,  on(fn)?  (fn('tags' | 'photos')),
@@ -31,14 +33,22 @@
   const MARKUP = `
       <div class="s-top">
         <button type="button" class="dk-btn" data-act="close" title="Close (Esc)">Done</button>
-        <span class="s-count" aria-live="polite"></span>
+        <span class="s-count"></span>
+        <span class="s-tally"></span>
         <span class="dk-spacer"></span>
         <span class="s-hint">↑ like · ↓ dislike · ← back · → skip · Enter tag</span>
       </div>
+      <div class="s-progress" aria-hidden="true"><i></i></div>
       <div class="s-stage">
         <button type="button" class="dk-nav prev" data-act="back" aria-label="Back, no tag">‹</button>
-        <div class="s-pic"><img alt=""></div>
+        <div class="s-pic"><img alt=""><span class="s-mark" hidden></span><span class="s-stamp" aria-hidden="true"></span></div>
         <button type="button" class="dk-nav next" data-act="skip" aria-label="Skip ahead, no tag">›</button>
+        <div class="s-end" hidden role="group" aria-label="All photos seen">
+          <h2>All done</h2><p class="s-end-sum"></p>
+          <div class="s-end-acts"><button type="button" class="s-big like" data-act="close">See the results</button>
+            <button type="button" class="dk-btn" data-act="rest" hidden></button>
+            <button type="button" class="dk-btn" data-act="unend">Back to the last photo</button></div>
+        </div>
       </div>
       <div class="s-quick" hidden><input type="text" maxlength="64" autocomplete="off" placeholder="Tag, or several separated by commas. Enter adds, Esc cancels" aria-label="Tags for this photo"></div>
       <div class="s-bar">
@@ -48,7 +58,7 @@
       <div class="s-tags">
         <form class="s-tagform"><input type="text" maxlength="64" placeholder="Add a tag" aria-label="Add a tag to this photo"><button type="submit" class="dk-btn">Add tag</button></form>
         <div class="s-taglist"></div>
-        <p class="s-status" role="status"></p>
+        <p class="s-status" role="status" aria-live="polite"></p>
       </div>`;
 
   function create(src) {
@@ -68,7 +78,9 @@
       root.addEventListener('click', (e) => {
         const b = e.target.closest('[data-act]'); if (!b) return;
         const map = { close: 'Escape', back: 'ArrowLeft', skip: 'ArrowRight', like: 'ArrowUp', dislike: 'ArrowDown' };
-        if (map[b.dataset.act]) press(map[b.dataset.act]);
+        if (b.dataset.act === 'rest') sortRest();
+        else if (b.dataset.act === 'unend') hideEnd();
+        else if (map[b.dataset.act]) press(map[b.dataset.act]);
       });
       $('.s-tagform').addEventListener('submit', (e) => { e.preventDefault(); addTag(); });
       root.addEventListener('keydown', onKey);
@@ -84,15 +96,17 @@
     function press(key) {
       if (!root || root.hidden) return Promise.resolve(null);
       if (key === 'Escape') { close(); return Promise.resolve(null); }
+      if (endOpen()) { if (key === 'ArrowLeft') hideEnd(); return Promise.resolve(null); }
       const d = decide(key, pos, queue.length);
       if (!d) return Promise.resolve(null);
       hideQuick();
-      const id = queue[pos];
+      const id = queue[pos], m = cur(), name = m ? m.name : 'Photo';
       pos = d.pos;
       const write = d.tag && id ? Promise.resolve(src.setLiked(id, d.tag)) : Promise.resolve(null);
-      setStatus(d.tag ? `${TAG_LABEL[d.tag]}. ${d.atEnd ? 'That was the last photo.' : 'Next photo.'}` : (d.atEnd ? 'Last photo.' : ''));
+      if (d.tag) stamp(d.tag);
+      setStatus(d.tag ? `${TAG_LABEL[d.tag]}: ${name}.${d.atEnd ? '' : ` Photo ${pos + 1} of ${queue.length}.`}` : (d.atEnd ? '' : `Photo ${pos + 1} of ${queue.length}.`));
       paint();
-      return write.then(() => { paint(); return { pos: d.pos, tag: d.tag, atEnd: d.atEnd }; });
+      return write.then(() => { paint(); if (d.atEnd) showEnd(); return { pos: d.pos, tag: d.tag, atEnd: d.atEnd }; });
     }
     function openQuick(first) {
       if (!root || root.hidden || !queue.length) return;
@@ -123,9 +137,9 @@
       const d = decide('ArrowRight', pos, queue.length);
       pos = d.pos;
       const writes = tags.reduce((p, t) => p.then(() => src.addTag(id, t)), Promise.resolve());
-      setStatus(`Tagged “${tags.join('”, “')}”. ${d.atEnd ? 'That was the last photo.' : 'Next photo.'}`);
+      setStatus(`Tagged “${tags.join('”, “')}”.`);
       paint();
-      return writes.then(() => { paint(); return { pos: d.pos, tags, atEnd: d.atEnd }; });
+      return writes.then(() => { paint(); if (d.atEnd) showEnd(); return { pos: d.pos, tags, atEnd: d.atEnd }; });
     }
     function addTag() {
       const input = $('.s-tagform input'), t = input.value.trim().toLowerCase();
@@ -134,9 +148,52 @@
       Promise.resolve(src.addTag(queue[pos], t)).then(() => { paint(); setStatus(`Tagged “${t}”.`); });
     }
 
+    /** The decisions in this queue: { liked, disliked, left }. */
+    function tally() {
+      const t = { liked: 0, disliked: 0, left: 0 };
+      for (const id of queue) { const m = src.photo(id); if (m && m.liked === 'liked') t.liked++; else if (m && m.liked === 'disliked') t.disliked++; else t.left++; }
+      return t;
+    }
+    const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+    /** The big stamp over the photo for a moment: ♥ Liked or ✕ Disliked. */
+    function stamp(tag) {
+      const el = $('.s-stamp');
+      el.textContent = tag === 'liked' ? '♥ Liked' : '✕ Disliked';
+      el.className = 's-stamp ' + tag;
+      void el.offsetWidth;
+      el.classList.add('go');
+    }
+    const endOpen = () => !!root && !$('.s-end').hidden;
+    /** The end card: what was decided in this round, and what to do next. */
+    function showEnd() {
+      const t = tally(), rest = $('[data-act="rest"]');
+      $('.s-end-sum').textContent = `You have been through all ${plural(queue.length, 'photo')}: ${t.liked} liked, ${t.disliked} disliked` +
+        (t.left ? `, ${t.left} not sorted yet.` : '.');
+      rest.hidden = !t.left; rest.textContent = `Sort the ${t.left} left`;
+      $('.s-end').hidden = false;
+      root.classList.add('is-end');
+      setStatus(`All done. ${$('.s-end-sum').textContent}`);
+      $('.s-end .s-big').focus({ preventScroll: true });
+    }
+    function hideEnd() { if (!endOpen()) return; $('.s-end').hidden = true; root.classList.remove('is-end'); root.focus({ preventScroll: true }); setStatus(`Photo ${pos + 1} of ${queue.length}.`); }
+    /** Another round with only the photos not liked or disliked yet. */
+    function sortRest() {
+      const left = queue.filter((id) => { const m = src.photo(id); return m && !m.liked; });
+      $('.s-end').hidden = true; root.classList.remove('is-end');
+      if (left.length) { queue = left; pos = 0; setStatus(`Sorting the ${plural(left.length, 'photo')} left.`); paint(); }
+      root.focus({ preventScroll: true });
+    }
+
     async function paint() {
       const id = queue[pos], m = cur(), my = ++token;
-      $('.s-count').textContent = queue.length ? `${pos + 1} / ${queue.length}` : '0 photos';
+      const t = tally();
+      $('.s-count').textContent = queue.length ? `Photo ${pos + 1} of ${queue.length}` : 'No photos';
+      $('.s-tally').textContent = queue.length ? `♥ ${t.liked} · ✕ ${t.disliked} · ${t.left} left` : '';
+      $('.s-progress i').style.width = queue.length ? `${Math.round((100 * (t.liked + t.disliked)) / queue.length)}%` : '0';
+      const mark = $('.s-mark');
+      mark.hidden = !(m && m.liked);
+      mark.className = 's-mark ' + (m && m.liked ? m.liked : '');
+      mark.textContent = m && m.liked === 'liked' ? '♥ Liked' : m && m.liked === 'disliked' ? '✕ Disliked' : '';
       $('[data-act="like"]').setAttribute('aria-pressed', String(!!m && m.liked === 'liked'));
       $('[data-act="dislike"]').setAttribute('aria-pressed', String(!!m && m.liked === 'disliked'));
       $('.s-taglist').replaceChildren(...(m ? m.tags : []).map((t) => {
@@ -162,6 +219,8 @@
       }
       // The panel's tag box keeps its keys, except Escape, which closes the deck.
       if (e.target.closest && e.target.closest('input')) { if (e.key !== 'Escape') return; }
+      // The end card: its buttons take Enter and Tab; Escape closes, the left arrow goes back to the last photo.
+      if (endOpen() && e.key !== 'Escape' && e.key !== 'ArrowLeft') return;
       if (e.key === 'Enter' && !(e.target.closest && e.target.closest('button'))) { e.preventDefault(); e.stopPropagation(); openQuick(''); return; }
       if (!quickOpen() && !e.ctrlKey && !e.metaKey && !e.altKey && CHAR.test(e.key)) { e.preventDefault(); e.stopPropagation(); openQuick(e.key); return; }
       if (!KEYS[e.key] && e.key !== 'Escape') return;
@@ -174,6 +233,7 @@
       queue = ids.slice(); pos = Math.min(Math.max(0, start), Math.max(0, queue.length - 1));
       opener = document.activeElement;
       root.hidden = false;
+      $('.s-end').hidden = true; root.classList.remove('is-end');
       hideQuick(false);
       setStatus(queue.length ? '' : 'Nothing to sort here.');
       paint();
@@ -189,7 +249,7 @@
       if (opener && opener.isConnected) try { opener.focus({ preventScroll: true }); } catch (e) { /* gone */ }
       if (src.onClose) src.onClose();
     }
-    const state = () => ({ open: !!root && !root.hidden, pos, length: queue.length, id: queue[pos] || null, quick: quickOpen() });
+    const state = () => ({ open: !!root && !root.hidden, pos, length: queue.length, id: queue[pos] || null, quick: quickOpen(), end: endOpen() });
     return { open, close, press, state, get element() { return root; } };
   }
 

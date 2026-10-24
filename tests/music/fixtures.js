@@ -2,7 +2,12 @@
  * Classic script, sets window.MusicFixtures.
  *   wav(seconds, rate)                      a 16-bit mono WAV with a quiet tone
  *   tag(major, frames)                      an ID3v2 header + frames (major 3 or 4)
- *   mp3({ title, artist, album, cover, major, enc })   an ID3 tag, then one fake MPEG frame */
+ *   mp3({ title, artist, album, cover, major, enc })   an ID3 tag, then one fake MPEG frame
+ *   vorbisComments(pairs, vendor)           a Vorbis comment block (little-endian lengths) from [['TITLE', 'x'], ...]
+ *   pictureBlock(type, mime, bytes)         a FLAC METADATA_BLOCK_PICTURE body (big-endian lengths)
+ *   flac({ comments, pictures, id3 })       "fLaC", STREAMINFO, a comment block, picture blocks, padding (last)
+ *   ogg({ comments, codec, pageSize })      an Ogg stream: identification packet, then the comment packet split
+ *                                           over pages of at most pageSize bytes (codec 'vorbis' or 'opus') */
 (function () {
   'use strict';
   const ascii = (s) => [...s].map((c) => c.charCodeAt(0));
@@ -47,5 +52,44 @@
     h.setUint32(28, rate * 2, true); h.setUint16(32, 2, true); h.setUint16(34, 16, true); str(36, 'data'); h.setUint32(40, n * 2, true);
     return new Blob([h.buffer, data.buffer], { type: 'audio/wav' });
   }
-  window.MusicFixtures = { wav, tag, frame, text, mp3, PNG, syncsafe, ascii };
+  const u32le = (n) => [n & 255, (n >> 8) & 255, (n >> 16) & 255, (n >>> 24) & 255];
+  const u24 = (n) => [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  const utf8 = (s) => [...new TextEncoder().encode(s)];
+  function vorbisComments(pairs, vendor = 'Slop test') {
+    const v = utf8(vendor), out = [...u32le(v.length), ...v, ...u32le(pairs.length)];
+    for (const [k, val] of pairs) { const c = utf8(`${k}=${val}`); out.push(...u32le(c.length), ...c); }
+    return out;
+  }
+  function pictureBlock(type, mime, bytes) {
+    const m = ascii(mime), d = utf8('cover');
+    return [...u32(type), ...u32(m.length), ...m, ...u32(d.length), ...d, ...u32(1), ...u32(1), ...u32(24), ...u32(0), ...u32(bytes.length), ...bytes];
+  }
+  function flac({ comments = [], pictures = [], id3 = null } = {}) {
+    const blocks = [[0, new Array(34).fill(0)], [4, vorbisComments(comments)], ...pictures.map((p) => [6, pictureBlock(...p)]), [1, new Array(8).fill(0)]];
+    const out = [...ascii('fLaC')];
+    blocks.forEach(([type, body], i) => out.push((i === blocks.length - 1 ? 0x80 : 0) | type, ...u24(body.length), ...body));
+    return new Blob([...(id3 ? [id3] : []), new Uint8Array(out), new Uint8Array(64)], { type: 'audio/flac' });
+  }
+  /** One Ogg page (CRC left 0: readers of tags do not check it). */
+  function page(body, flags, seq, lacing) {
+    return [...ascii('OggS'), 0, flags, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, ...u32le(seq), 0, 0, 0, 0, lacing.length, ...lacing, ...body];
+  }
+  function ogg({ comments = [], codec = 'vorbis', pageSize = 255 * 4 } = {}) {
+    const ident = codec === 'opus' ? [...ascii('OpusHead'), 1, 2, 0, 0, ...u32le(48000), 0, 0, 0] : [1, ...ascii('vorbis'), ...new Array(23).fill(0)];
+    const tags = codec === 'opus' ? [...ascii('OpusTags'), ...vorbisComments(comments)] : [3, ...ascii('vorbis'), ...vorbisComments(comments), 1];
+    const out = page(ident, 2, 0, [ident.length]);
+    // the comment packet as lacing values (255s then the rest), cut into pages of at most pageSize bytes
+    const lace = []; let n = tags.length;
+    while (n >= 255) { lace.push(255); n -= 255; }
+    lace.push(n);
+    let at = 0, seq = 1, li = 0;
+    while (li < lace.length) {
+      const l = []; let size = 0;
+      while (li < lace.length && size + lace[li] <= pageSize && l.length < 255) { size += lace[li]; l.push(lace[li++]); }
+      out.push(...page(tags.slice(at, at + size), seq === 1 ? 0 : 1, seq, l));
+      at += size; seq++;
+    }
+    return new Blob([new Uint8Array(out), new Uint8Array(32)], { type: codec === 'opus' ? 'audio/opus' : 'audio/ogg' });
+  }
+  window.MusicFixtures = { wav, tag, frame, text, mp3, PNG, syncsafe, ascii, vorbisComments, pictureBlock, flac, ogg };
 })();

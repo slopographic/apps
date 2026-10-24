@@ -63,11 +63,17 @@
     page.pushOperators(L.pushGraphicsState(), L.concatTransformationMatrix(cs, -sn, sn, cs, e, f));
     if (a.type === 'text') {
       var t = E.textLayout(a);
-      var font = await E.embedTextFont(out, t.font, ctx.fonts);
-      t.lines.forEach(function (line, i) {
-        if (!line) return;
-        page.drawText(line, { x: t.pad, y: h - t.base(i), size: t.size, font: font, color: rgb(a.color || '#000'), opacity: op });
-      });
+      // each line in runs, left to right: one font per run (a language font for other scripts, text-intl.js)
+      for (var li = 0; li < t.lines.length; li++) {
+        var x = t.pad, runs = t.lines[li] ? E.runsOf(t.lines[li], t.font, a.bold) : [];
+        for (var ri = 0; ri < runs.length; ri++) {
+          var rf = await E.embedTextFont(out, runs[ri].font, ctx.fonts), col = rgb(a.color || '#000');
+          // a font of the catalogue or a language font: shaped glyphs at the shaper's positions (shared/fonts/pdf-runs.js)
+          if (E.face(runs[ri].font)) window.SlopPdfRuns.drawRun(L, page, rf, { text: runs[ri].text, x: x, y: h - t.base(li), size: t.size, rtl: !!runs[ri].rtl, shaped: true }, { color: [col.red, col.green, col.blue], opacity: op });
+          else page.drawText(runs[ri].text, { x: x, y: h - t.base(li), size: t.size, font: rf, color: col, opacity: op });
+          x += E.measureRun(runs[ri].text, runs[ri].font, t.size);
+        }
+      }
     } else if (a.type === 'image') {
       var img = await embedAsset(out, a.asset, ctx.images);
       if (img) page.drawImage(img, { x: 0, y: 0, width: w, height: h, opacity: op });

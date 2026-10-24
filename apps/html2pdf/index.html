@@ -22,36 +22,31 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://slopographic.com/"},{"@type":"ListItem","position":2,"name":"Slop HTML to PDF","item":"https://slopographic.com/apps/html2pdf/"}]}</script>
   <!-- seo:end -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>:root{--bg:#fbfbf7;--fg:#1b1b1f;--mut:#5f6368;--line:#dcdcd2;--acc:#4f6c00;--on:#fff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}}
-:root[data-theme="dark"]{--bg:#0a0a0a;--fg:#f1ede4;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top,.foot{max-width:860px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
-h2{font-size:1.2rem;margin:2rem 0 .6rem}
-a{color:var(--acc)}
-.eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
-.lead{font-size:1.1rem}
-.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:var(--on);text-decoration:none;font-weight:600}
-.wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:0;list-style:none}
-.cards li{border:1px solid var(--line);border-radius:10px;padding:12px;overflow:hidden}
-.cards .thumb{display:block;width:100%;height:auto;border-radius:6px;margin:0 0 8px;aspect-ratio:16/10;object-fit:cover;background:var(--line)}
-.media{display:grid;gap:16px;margin:1.4rem 0}
-.shot{margin:0}
-.shot img,.clip{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--line)}
-.demo{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
-.demo img{width:200px;max-width:40%;height:auto;border-radius:8px;flex:0 0 auto}
-.demo span{font-size:15px}
-.demo b{color:var(--acc)}
-@media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}</style>
+  <script src="/shared/profile/profile.js"></script>
+  <script src="/shared/theme/theme.js" data-app="site"></script>
+  <script src="/shared/consent/config.js"></script>
+  <script src="/shared/consent/state.js"></script>
+  <script src="/shared/consent/consent-mode.js"></script>
+  <script src="/shared/consent/banner.js"></script>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/shared/landing/landing.css">
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
-<main>
+<div class="l-wrap">
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop HTML to PDF guide">
+<p class="l-side-app"><a href="/apps/html2pdf/" aria-current="page">Slop HTML to PDF</a></p>
+<p><a class="btn l-side-open" href="/html2pdf/">Open Slop HTML to PDF</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/html2pdf/html-to-pdf/">HTML to PDF</a></li><li><a href="/html2pdf/saved-web-page-to-pdf/">Saved web page to PDF</a></li></ul>
+<p class="l-side-h">Compared</p><ul><li><a href="/best/free-html-to-pdf-converters/">Free HTML to PDF converters</a></li></ul>
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#what-you-can-do-with-slop-html-to-pdf">What you can do with Slop HTML to PDF</a></li><li><a href="#how-slop-html-to-pdf-compares">How Slop HTML to PDF compares</a></li><li><a href="#feature-matrix">Feature matrix</a></li><li><a href="#file-types">File types</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow">Slop HTML to PDF · Beta</p>
 <h1>HTML to PDF converter</h1>
 <p class="lead">Print an HTML file to PDF with a header and QR code. Nothing uploaded.</p>
@@ -59,17 +54,32 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <div class="media"><figure class="shot"><img src="/assets/shots/html2pdf.jpg" alt="Slop HTML to PDF open in a browser" width="1280" height="800" loading="lazy"></figure></div>
 <p>Slop HTML to PDF has these main features: Drop a file, or paste HTML; Preview with remote images blocked. It opens HTML.</p>
 <p class="note">Beta: still being tested, so some parts may change.</p>
-<h2>Feature matrix</h2>
+<h2 id="what-you-can-do-with-slop-html-to-pdf">What you can do with Slop HTML to PDF</h2>
+<ul><li><a href="/html2pdf/html-to-pdf/">Convert an HTML file to PDF</a></li><li><a href="/html2pdf/saved-web-page-to-pdf/">Turn a saved web page into a PDF</a></li></ul>
+<h2 id="how-slop-html-to-pdf-compares">How Slop HTML to PDF compares</h2>
+<p>Slop HTML to PDF next to PDF24, iLovePDF HTML to PDF, Sejda HTML to PDF, CloudConvert: facts from each tool's own pages, checked 2026-10-24. We make Slop HTML to PDF.</p>
+<div class="wrap"><table class="cmp"><caption>The best free HTML to PDF converters: the main facts side by side (checked 2026-10-24)</caption>
+<thead><tr><th scope="col">Tool</th><th scope="col">Price</th><th scope="col">Free limits</th><th scope="col">Takes</th><th scope="col">Where it is converted</th><th scope="col">Account needed</th></tr></thead><tbody><tr class="us"><th scope="row">Slop HTML to PDF <span class="l-badge">ours</span></th><td>Free</td><td>None</td><td>HTML file or pasted HTML, plus local pictures</td><td>In your browser (print to PDF)</td><td>No</td></tr><tr><th scope="row">PDF24</th><td>Free (with ads)</td><td>No limits</td><td>Web address (URL)</td><td>PDF24’s servers in Germany; deleted after one hour</td><td>No</td></tr><tr><th scope="row">iLovePDF HTML to PDF</th><td>Free; Premium 9 € a month or 60 € a year</td><td>Limited (varies by tool)</td><td>URL, HTML, CSS and JS files or a ZIP, pasted HTML</td><td>iLovePDF’s servers; deleted within two hours</td><td>Not stated</td></tr><tr><th scope="row">Sejda HTML to PDF</th><td>Free; Web Week Pass 5.50 €, Web Monthly 8.50 €</td><td>Documents up to 30 MB, 3 tasks per hour</td><td>URL, HTML file, HTML code</td><td>Sejda’s servers; deleted after 2 hours</td><td>No signup required</td></tr><tr><th scope="row">CloudConvert</th><td>Free; paid packages and subscriptions</td><td>10 conversions a day, 1 GB files, 5 minutes processing</td><td>HTML file</td><td>CloudConvert’s servers; deleted after processing</td><td>Not stated (free plan has a Sign Up button)</td></tr></tbody></table></div>
+<div class="wrap"><table class="cmp matrix"><caption>Feature by feature: ✓ yes, ◐ partly or on a paid plan, ✗ no, – not stated by the tool's own pages</caption>
+<thead><tr><th scope="col">Feature</th><th scope="col" class="us">Slop HTML to PDF <span class="l-badge">ours</span></th><th scope="col">PDF24</th><th scope="col">iLovePDF HTML to PDF</th><th scope="col">Sejda HTML to PDF</th><th scope="col">CloudConvert</th></tr></thead><tbody><tr><th scope="row">Convert a web address (URL)</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Upload an HTML file</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Paste HTML code</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Pictures and styles with the HTML</th><td>Local pictures</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td>ZIP of web files</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Page size</th><td>A4, Letter, A5, Legal</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td>A3, A4, A5, Letter, one long page</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Orientation</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Margins</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Header on every page</th><td>Name, date, QR code</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Block ads and pop-ups</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Runs the page’s scripts</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Makes the PDF itself</th><td>Browser print dialog</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">File stays on your device</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-no"><span aria-hidden="true">✗</span> No</td></tr><tr><th scope="row">No sign-up</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Free limits</th><td>None</td><td>None</td><td>Limited</td><td>3 tasks an hour</td><td>10 a day</td></tr><tr><th scope="row">Desktop version of the service</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td>Windows (PDF24 Creator)</td><td>Windows, Mac</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr></tbody></table></div>
+<p><a href="/best/free-html-to-pdf-converters/">The full comparison, with sources: The best free HTML to PDF converters</a></p>
+<h2 id="feature-matrix">Feature matrix</h2>
 <div class="wrap"><table>
 <caption>Slop HTML to PDF: features, status and file types</caption>
 <thead><tr><th scope="col">Feature</th><th scope="col">Status</th><th scope="col">File types</th></tr></thead>
 <tbody><tr><td>Drop a file, or paste HTML</td><td>Beta</td><td>HTML</td></tr><tr><td>Preview with remote images blocked</td><td>Beta</td><td>HTML</td></tr><tr><td>Header on every page: name, date and QR</td><td>Beta</td><td>HTML</td></tr><tr><td>Paper, margins, scale and background graphics</td><td>Beta</td><td>HTML</td></tr></tbody>
 </table></div>
-<h2>File types</h2>
+<h2 id="file-types">File types</h2>
 <p>Slop HTML to PDF opens HTML.</p>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/docs.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/docs/">Slop Docs</a><br><span class="note">In development</span><br>Word and Google Docs, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/code.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/code/">Slop Code</a><br><span class="note">In development</span><br>A code editor for your Slop Drive files. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li><li><img class="thumb" src="/assets/shots/ocr.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ocr/">Slop OCR</a><br><span class="note">Beta</span><br>Read text from images and scanned PDFs on your device. Nothing uploaded.</li></ul>
 <p class="note"><a href="/compare/">Compare all apps in the feature matrix</a></p>
+</div>
+</div>
 </main>
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+</div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
+<script src="/shell/shell.js"></script>
 </body>
 </html>

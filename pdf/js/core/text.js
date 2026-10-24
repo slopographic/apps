@@ -23,17 +23,31 @@
       FONTMAP[fam].forEach(function (nm) { mfonts[nm] = mdoc.embedStandardFont(nm); charsets[nm] = new Set(mfonts[nm].getCharacterSet()); });
     });
   };
+  /** The code points a font key can set: a prepared face's, else a standard font's. */
+  E.charsetOf = function (key) { var face = E.face(key); return face ? face.cs : (charsets[key] || charsets.Helvetica || new Set()); };
+  /** The text a font key can set: a character beyond it stays when a language font for its script is ready
+   *  (text-intl.js), else it becomes "?" (a non-breaking hyphen becomes "-"). */
   E.sanitize = function (text, fontName) {
-    var face = E.face(fontName), cs = face ? face.cs : (charsets[fontName] || charsets.Helvetica), out = '';
+    var cs = E.charsetOf(fontName), out = '';
     text = String(text == null ? '' : text).replace(/\r\n?/g, '\n').replace(/\t/g, '    ');
-    for (var ch of text) { var cp = ch.codePointAt(0); out += (ch === '\n' || !cs || cs.has(cp)) ? ch : (cp === 0x2011 ? '-' : '?'); }
+    for (var ch of text) {
+      var cp = ch.codePointAt(0);
+      out += (ch === '\n' || !cs || cs.has(cp) || (E.langFaceFor && E.langFaceFor(cp, false, text))) ? ch : (cp === 0x2011 ? '-' : '?');
+    }
     return out;
   };
-  E.measure = function (text, fontName, size) {
+  /** The width of one run in one font (no language fallback): a prepared face's shaped advance, or a standard font's. */
+  E.measureRun = function (text, fontName, size) {
     var face = E.face(fontName);
-    if (face) return E.faceWidth(face, E.sanitize(text, fontName), size);
+    if (face) return E.faceWidth(face, text, size);
     var f = mfonts[fontName] || mfonts.Helvetica;
-    try { return f.widthOfTextAtSize(E.sanitize(text, fontName), size); } catch (e) { return text.length * size * 0.55; }
+    try { return f.widthOfTextAtSize(text, size); } catch (e) { return text.length * size * 0.55; }
+  };
+  /** The width of a line as drawn: its runs (one font each, text-intl.js) added up. */
+  E.measure = function (text, fontName, size) {
+    var clean = E.sanitize(text, fontName);
+    if (!E.runsOf) return E.measureRun(clean, fontName, size);
+    return E.runsOf(clean, fontName).reduce(function (w, r) { return w + E.measureRun(r.text, r.font, size); }, 0);
   };
   /** Text layout shared by the on-screen SVG and the pdf-lib export. Its font is E.fontKey(a) (fonts-custom.js). */
   E.textLayout = function (a) {

@@ -1,5 +1,6 @@
 /* Slop Music: reads ID3v2 tags (MP3) and WAV headers by hand. No library, no network.
  * Text frames read: title (TIT2/TT2), artist (TPE1/TP1), album (TALB/TAL); APIC/PIC gives the cover.
+ * FLAC and Ogg files: readTags also reads their Vorbis comments through vorbis.js (load it first).
  * Exposes window.SlopMusic.id3 = { readTags, wavInfo, typeOf, titleFromName }. */
 (function () {
   'use strict';
@@ -74,38 +75,53 @@
     return new Blob([img], { type: /^image\/(jpeg|png|webp)$/.test(type) ? type : sniffImage(img) });
   }
 
-  /** Reads the ID3v2 tag at the start of a blob. Never throws: returns what it could read. */
+  /** Reads the ID3v2 frames of a tag (header h, body from offset 10) into out. */
+  async function readId3(blob, h, out) {
+    const major = h[3], flags = h[5], size = syncsafe(h, 6);
+    out.version = major;
+    if (major < 2 || major > 4) return;
+    let body = await bytesAt(blob, 10, Math.min(size, 16 * 1024 * 1024));
+    if (major === 3 && flags & 0x80) body = unsync(body);
+    let p = 0;
+    if (flags & 0x40) p = major === 4 ? syncsafe(body, 0) : 4 + u32(body, 0);
+    const idLen = major === 2 ? 3 : 4, hdr = major === 2 ? 6 : 10;
+    while (p + hdr <= body.length && body[p] !== 0) {
+      const id = ascii(body, p, idLen);
+      if (!/^[A-Z0-9]{3,4}$/.test(id)) break;
+      const fsize = major === 2 ? u24(body, p + 3) : major === 4 ? syncsafe(body, p + 4) : u32(body, p + 4);
+      const fflags = major === 2 ? 0 : (body[p + 8] << 8) | body[p + 9];
+      const start = p + hdr;
+      if (start + fsize > body.length) break;
+      let d = body.subarray(start, start + fsize);
+      p = start + fsize;
+      if (!fsize) continue;
+      if (major === 4 && fflags & 0x01) d = d.subarray(4);
+      if (major === 4 && fflags & 0x02) d = unsync(d);
+      if (major === 3 && fflags & 0xc0) continue;
+      if (major === 4 && fflags & 0x0c) continue;
+      const key = Object.keys(IDS).find((k) => IDS[k].includes(id));
+      if (key) { if (!out[key]) out[key] = textFrame(d); }
+      else if (PIC.includes(id) && !out.cover) out.cover = pictureFrame(d, major === 2);
+    }
+  }
+
+  /** Reads the tags of a blob: an ID3v2 tag at the start, then, for FLAC and Ogg (Vorbis, Opus) files, their Vorbis
+   * comments (vorbis.js) fill what ID3 left empty. version is the ID3 major version (0 without one); format is
+   * 'flac' or 'ogg' when Vorbis comments were found. Never throws: returns what it could read. */
   async function readTags(blob) {
-    const out = { title: '', artist: '', album: '', cover: null, version: 0 };
+    const out = { title: '', artist: '', album: '', track: 0, year: '', genre: '', cover: null, version: 0, format: '' };
     try {
       if (!blob || blob.size < 10) return out;
       const h = await bytesAt(blob, 0, 10);
-      if (ascii(h, 0, 3) !== 'ID3') return out;
-      const major = h[3], flags = h[5], size = syncsafe(h, 6);
-      out.version = major;
-      if (major < 2 || major > 4) return out;
-      let body = await bytesAt(blob, 10, Math.min(size, 16 * 1024 * 1024));
-      if (major === 3 && flags & 0x80) body = unsync(body);
-      let p = 0;
-      if (flags & 0x40) p = major === 4 ? syncsafe(body, 0) : 4 + u32(body, 0);
-      const idLen = major === 2 ? 3 : 4, hdr = major === 2 ? 6 : 10;
-      while (p + hdr <= body.length && body[p] !== 0) {
-        const id = ascii(body, p, idLen);
-        if (!/^[A-Z0-9]{3,4}$/.test(id)) break;
-        const fsize = major === 2 ? u24(body, p + 3) : major === 4 ? syncsafe(body, p + 4) : u32(body, p + 4);
-        const fflags = major === 2 ? 0 : (body[p + 8] << 8) | body[p + 9];
-        const start = p + hdr;
-        if (start + fsize > body.length) break;
-        let d = body.subarray(start, start + fsize);
-        p = start + fsize;
-        if (!fsize) continue;
-        if (major === 4 && fflags & 0x01) d = d.subarray(4);
-        if (major === 4 && fflags & 0x02) d = unsync(d);
-        if (major === 3 && fflags & 0xc0) continue;
-        if (major === 4 && fflags & 0x0c) continue;
-        const key = Object.keys(IDS).find((k) => IDS[k].includes(id));
-        if (key) { if (!out[key]) out[key] = textFrame(d); }
-        else if (PIC.includes(id) && !out.cover) out.cover = pictureFrame(d, major === 2);
+      let end = 0;
+      if (ascii(h, 0, 3) === 'ID3') {
+        end = 10 + syncsafe(h, 6) + (h[3] === 4 && h[5] & 0x10 ? 10 : 0);
+        try { await readId3(blob, h, out); } catch (e) { /* a broken tag keeps what was read */ }
+      }
+      const v = M.vorbis ? await M.vorbis.read(blob, end) : null;
+      if (v) {
+        for (const k of ['title', 'artist', 'album', 'track', 'year', 'genre', 'cover']) if (!out[k] && v[k]) out[k] = v[k];
+        out.format = ascii(await bytesAt(blob, end, 4), 0, 4) === 'fLaC' ? 'flac' : 'ogg';
       }
     } catch (e) { /* a broken tag keeps what was read */ }
     return out;

@@ -82,12 +82,20 @@
     S.raw = typeof o.raw === 'string' ? o.raw : null;
     return true;
   }
+  /** A task page's link, for this visit only (nothing is saved): ?type=wifi|vcard|url|… opens that form,
+   *  ?tab=templates|content|design|logo|raw|batch opens that tab. Unknown values are ignored. */
+  function presetOf(search) {
+    const q = new URLSearchParams(search || ''), out = {}, type = q.get('type'), tab = q.get('tab');
+    if (P.TYPES.includes(type)) out.kind = type;
+    if (['templates', 'content', 'design', 'logo', 'raw', 'batch'].includes(tab)) out.tab = tab;
+    return out;
+  }
   /** Back to a new code: text, no logo, default style. */
   function reset() {
     S.kind = 'text'; S.values = {}; S.raw = null; S.style = copy(DEFAULT_STYLE); S.logo = copy(DEFAULT_LOGO); S.label = '';
   }
 
   g.QRState = Object.freeze({
-    S, DEFAULT_STYLE, SHAPES, vals, setValue, setKind, setLabel, clearRaw, encodedText, renderOpts, setRaw, applyTemplate, snapshot, restore, reset,
+    S, DEFAULT_STYLE, SHAPES, vals, setValue, setKind, setLabel, clearRaw, encodedText, renderOpts, setRaw, applyTemplate, snapshot, restore, reset, presetOf,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

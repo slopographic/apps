@@ -1,0 +1,71 @@
+// Task pages (tools/seo/tasks.mjs, copy in shared/seo/tasks/): the copy checks, the page body, the JSON-LD, and that
+// every task page is written with its head block and listed in the sitemap.
+// Covers: tools/seo/tasks.mjs, shared/seo/tasks/index.mjs, shared/seo/tasks/cutout.mjs, shared/seo/tasks/creative.mjs, shared/seo/tasks/creative-2.mjs,
+//   shared/seo/tasks/creative-3.mjs,
+//   shared/seo/tasks/documents.mjs, shared/seo/tasks/documents-2.mjs, shared/seo/tasks/documents-3.mjs, shared/seo/tasks/business.mjs, shared/seo/tasks/business-2.mjs,
+//   shared/seo/tasks/business-3.mjs, shared/seo/tasks/everyday.mjs, shared/seo/tasks/everyday-2.mjs
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync, existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const { checkTask, taskPages, taskJsonLd, videoJsonLd } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/tasks.mjs')).href);
+const { TASKS } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/tasks/index.mjs')).href);
+const { loadRegistry, SITE } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/site.mjs')).href);
+const apps = await loadRegistry();
+const app = (id) => apps.find((a) => a.id === id);
+const good = { app: 'cutout', slug: 'x-y', h1: 'Do a thing', lead: 'A lead long enough to say what the page is about, in a sentence or two.',
+  steps: ['one', 'two', 'three'], faq: [['Q one?', 'An answer that is forty characters or longer, at least.'], ['Q two?', 'An answer that is forty characters or longer, at least.'], ['Q three?', 'An answer that is forty characters or longer, at least.']] };
+
+test('checkTask refuses copy that would make a thin or broken page', () => {
+  assert.doesNotThrow(() => checkTask(good, app('cutout')));
+  assert.throws(() => checkTask(good, undefined), /no such app/);
+  assert.throws(() => checkTask({ ...good, slug: 'Bad Slug' }, app('cutout')), /slug/);
+  assert.throws(() => checkTask({ ...good, steps: ['a', 'b'] }, app('cutout')), /3 to 6 steps/);
+  assert.throws(() => checkTask({ ...good, faq: good.faq.slice(0, 2) }, app('cutout')), /at least 3 questions/);
+  assert.throws(() => checkTask({ ...good, faq: [['No mark', 'An answer that is forty characters or longer, at least.'], ...good.faq] }, app('cutout')), /question mark/);
+  assert.throws(() => checkTask({ ...good, query: 'bg=white;rm' }, app('cutout')), /query/);
+});
+
+test('a page has the task, an Open link with the preset, the questions, and links to the other tasks', () => {
+  const pages = taskPages(apps, SITE, TASKS), p = pages.find((x) => x.key === 'cutout/white-background');
+  assert.equal(p.dir, 'slopisolate/white-background/');
+  assert.match(p.html, /<h1>White background for product photos<\/h1>/);
+  assert.match(p.html, /href="\/slopisolate\/\?bg=white&amp;format=jpg"/);
+  assert.match(p.html, /<h3>Is the background pure white \(#ffffff\)\?<\/h3>/);
+  assert.match(p.html, /href="\/slopisolate\/bulk-background-remover\/"/);
+  assert.match(p.html, /yt-jKWTbl2PEIc\.jpg/);
+});
+
+test('JSON-LD: breadcrumb to the app, HowTo steps, FAQ and the tutorial as a VideoObject', () => {
+  const t = TASKS.find((x) => x.slug === 'bulk-background-remover'), url = `${SITE}/slopisolate/bulk-background-remover/`;
+  const ld = taskJsonLd(t, app('cutout'), url, SITE), type = (k) => ld.find((x) => x['@type'] === k);
+  assert.deepEqual(type('BreadcrumbList').itemListElement.map((i) => i.item), [`${SITE}/`, `${SITE}/apps/cutout/`, url]);
+  assert.equal(type('HowTo').step.length, t.steps.length);
+  assert.equal(type('FAQPage').mainEntity.length, t.faq.length);
+  assert.deepEqual([type('VideoObject').uploadDate, type('VideoObject').duration], ['2026-10-14T14:06:15-07:00', 'PT1M41S']);
+  assert.equal(videoJsonLd(app('docs'), SITE), null);
+});
+
+test('every task page is on disk with its head block, and in the sitemap', () => {
+  const map = readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
+  for (const p of taskPages(apps, SITE, TASKS)) {
+    const file = path.join(ROOT, p.dir, 'index.html');
+    assert.ok(existsSync(file), `${p.dir} is written (node tools/seo/write.mjs)`);
+    const html = readFileSync(file, 'utf8');
+    assert.match(html, /<!-- seo:start/, p.dir);
+    assert.ok(html.includes(`<link rel="canonical" href="${p.url}">`), `${p.dir}: canonical`);
+    assert.ok(map.includes(`<loc>${p.url}</loc>`), `${p.dir}: in the sitemap`);
+  }
+});
+
+test('the All tools hub lists every task page, is in the sitemap, and every landing page links it', async () => {
+  const { hubPage } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/tasks.mjs')).href);
+  const hub = hubPage(apps, SITE, TASKS), html = readFileSync(path.join(ROOT, 'all-tools/index.html'), 'utf8');
+  assert.equal(hub.count, TASKS.length);
+  for (const p of taskPages(apps, SITE, TASKS)) assert.ok(html.includes(`href="/${p.dir}"`), `${p.dir} is on the hub`);
+  assert.ok(readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8').includes(`<loc>${SITE}/all-tools/</loc>`));
+  assert.match(readFileSync(path.join(ROOT, 'apps/cutout/index.html'), 'utf8'), /<a href="\/all-tools\/">All tools<\/a>/);
+});

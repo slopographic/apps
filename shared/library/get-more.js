@@ -2,20 +2,15 @@
  * Rules: nothing is downloaded on open, on load or by a timer. A pack downloads only after the person
  * presses its Download button and then Download in the confirmation, which shows the licence and size.
  * Every file must match its manifest SHA-256 and byte length before anything is stored; a pack is written to
- * IndexedDB (slop-library) in one go or not at all. Classic script; exposes window.SlopLibrary. */
+ * IndexedDB (slop-library) in one go or not at all (install.js does the download and the checks; load it first).
+ * Classic script; exposes window.SlopLibrary. */
 (function (root) {
   'use strict';
   const doc = root.document;
-  const SELF = (doc && doc.currentScript && doc.currentScript.src) || (root.location && root.location.href) || '';
-  const PACKS_URL = new URL('packs.json', SELF).href;
-  const listeners = new Set();
   let onDone = null;
-  /** Tells the page (every listener, then the callback of the dialog that is open) that the pack set changed. */
-  function notify(p) {
-    for (const fn of listeners) { try { fn(p); } catch (e) { /* a listener must not break the dialog */ } }
-    if (onDone) { try { onDone(p); } catch (e) { /* ignore */ } }
-  }
-  let manifestP = null, dialog = null, host = null;
+  /** Tells the callback of the dialog that is open that the pack set changed (install.js tells every listener). */
+  function notify(p) { if (onDone) { try { onDone(p); } catch (e) { /* ignore */ } } }
+  let dialog = null, host = null;
 
   const M = () => root.SlopLibraryManifest, S = () => root.SlopLibraryStore;
 
@@ -31,21 +26,10 @@
     return n;
   }
 
-  /** Reads packs.json once. Never throws: a missing or broken file becomes an error message. */
-  function loadManifest() {
-    if (!manifestP) {
-      manifestP = fetch(PACKS_URL, { cache: 'no-cache' })
-        .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then((j) => M().validate(j))
-        .catch((e) => ({ packs: [], errors: ['The pack list could not be read (' + e.message + ').'], hosts: [] }));
-    }
-    return manifestP;
-  }
-
-  /** Installed pack records keyed by id; {} when storage is unavailable. */
-  async function installedMap() {
-    try { const rows = await S().listPacks(); return Object.fromEntries(rows.map((r) => [r.id, r])); } catch (e) { return {}; }
-  }
+  /** packs.json and the installed packs come from SlopLibraryInstall (install.js), the one place packs are read and stored. */
+  const I = () => root.SlopLibraryInstall;
+  const loadManifest = () => I().loadManifest();
+  const installedMap = () => I().installed();
 
   function css() {
     if (doc.getElementById('slop-lib-css')) return;
@@ -137,26 +121,10 @@
     frame('Confirm download', el('div', null, body, status), el('span', null, cancel, ' ', go));
   }
 
-  /** Downloads, verifies and stores one pack. Any failure stores nothing. */
+  /** Downloads, verifies and stores one pack (install.js). Any failure stores nothing. */
   async function install(p, go, cancel, status) {
     go.disabled = true; cancel.disabled = true;
-    const blobs = {}, m = await loadManifest();
-    try {
-      let n = 0;
-      for (const f of p.files) {
-        status.textContent = `Downloading ${f.name} (${++n} of ${p.files.length})…`;
-        const r = await fetch(f.url, { credentials: 'omit', redirect: 'follow', cache: 'no-cache' });
-        if (!r.ok) throw new Error(`${f.name}: HTTP ${r.status}`);
-        if (!M().allowedUrl(r.url || f.url, m.hosts)) throw new Error(`${f.name}: redirected to a host that is not allowed`);
-        const buf = await r.arrayBuffer();
-        const v = await M().verifyBytes(buf, f);
-        if (!v.ok) throw new Error(v.reason);
-        const type = p.kind === 'model' ? 'application/octet-stream' : f.name.endsWith('.woff2') ? 'font/woff2' : 'font/' + f.name.split('.').pop().toLowerCase();
-        blobs[f.name] = new Blob([buf], { type });
-      }
-      status.textContent = 'Storing…';
-      await S().savePack(p, blobs);
-    } catch (e) {
+    try { await I().install(p, (t) => { status.textContent = t; }); } catch (e) {
       status.textContent = 'Not installed: ' + e.message + '. Nothing was stored.';
       go.disabled = false; cancel.disabled = false;
       return;
@@ -167,9 +135,10 @@
 
   async function removeInstalled(p) {
     try { await S().removePack(p.id); } catch (e) { showList('Could not remove ' + p.name + ': ' + e.message); return; }
+    I().changed(null);
     notify(null);
     showList(`${p.name} was removed.`);
   }
 
-  root.SlopLibrary = { open, close, loadManifest, onChange: (fn) => { listeners.add(fn); return () => listeners.delete(fn); } };
+  root.SlopLibrary = { open, close, loadManifest, onChange: (fn) => I().onChange(fn) };
 })(typeof window !== 'undefined' ? window : globalThis);

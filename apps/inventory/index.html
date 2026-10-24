@@ -22,36 +22,31 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://slopographic.com/"},{"@type":"ListItem","position":2,"name":"Slop Inventory","item":"https://slopographic.com/apps/inventory/"}]}</script>
   <!-- seo:end -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>:root{--bg:#fbfbf7;--fg:#1b1b1f;--mut:#5f6368;--line:#dcdcd2;--acc:#4f6c00;--on:#fff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}}
-:root[data-theme="dark"]{--bg:#0a0a0a;--fg:#f1ede4;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top,.foot{max-width:860px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
-h2{font-size:1.2rem;margin:2rem 0 .6rem}
-a{color:var(--acc)}
-.eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
-.lead{font-size:1.1rem}
-.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:var(--on);text-decoration:none;font-weight:600}
-.wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:0;list-style:none}
-.cards li{border:1px solid var(--line);border-radius:10px;padding:12px;overflow:hidden}
-.cards .thumb{display:block;width:100%;height:auto;border-radius:6px;margin:0 0 8px;aspect-ratio:16/10;object-fit:cover;background:var(--line)}
-.media{display:grid;gap:16px;margin:1.4rem 0}
-.shot{margin:0}
-.shot img,.clip{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--line)}
-.demo{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
-.demo img{width:200px;max-width:40%;height:auto;border-radius:8px;flex:0 0 auto}
-.demo span{font-size:15px}
-.demo b{color:var(--acc)}
-@media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}</style>
+  <script src="/shared/profile/profile.js"></script>
+  <script src="/shared/theme/theme.js" data-app="site"></script>
+  <script src="/shared/consent/config.js"></script>
+  <script src="/shared/consent/state.js"></script>
+  <script src="/shared/consent/consent-mode.js"></script>
+  <script src="/shared/consent/banner.js"></script>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/shared/landing/landing.css">
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
-<main>
+<div class="l-wrap">
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Inventory guide">
+<p class="l-side-app"><a href="/apps/inventory/" aria-current="page">Slop Inventory</a></p>
+<p><a class="btn l-side-open" href="/inventory/">Open Slop Inventory</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/inventory/inventory-spreadsheet-alternative/">Inventory spreadsheet alternative</a></li><li><a href="/inventory/barcode-inventory-scanner/">Barcode inventory scanner</a></li><li><a href="/inventory/stock-count/">Stock count</a></li><li><a href="/inventory/low-stock-alerts/">Low stock alerts and reordering</a></li><li><a href="/inventory/sortly-alternative/">Free Sortly alternative</a></li></ul>
+<p class="l-side-h">Compared</p><ul><li><a href="/best/free-inventory-management-software/">Best free inventory software</a></li></ul>
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#what-you-can-do-with-slop-inventory">What you can do with Slop Inventory</a></li><li><a href="#how-slop-inventory-compares">How Slop Inventory compares</a></li><li><a href="#feature-matrix">Feature matrix</a></li><li><a href="#file-types">File types</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow">Slop Inventory · In development</p>
 <h1>Inventory and barcode scanning</h1>
 <p class="lead">Products, stock and barcode scanning. Nothing uploaded.</p>
@@ -59,17 +54,32 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <div class="media"><figure class="shot"><img src="/assets/shots/inventory.jpg" alt="Slop Inventory open in a browser" width="1280" height="800" loading="lazy"></figure></div>
 <p>Slop Inventory has these main features: Camera or any USB scanner, with undo; Stock by location, transfers and counts. It opens CSV.</p>
 <p class="note">In development: some features listed below may not be finished yet.</p>
-<h2>Feature matrix</h2>
+<h2 id="what-you-can-do-with-slop-inventory">What you can do with Slop Inventory</h2>
+<ul><li><a href="/inventory/inventory-spreadsheet-alternative/">A free alternative to an inventory spreadsheet</a></li><li><a href="/inventory/barcode-inventory-scanner/">Scan barcodes into your inventory</a></li><li><a href="/inventory/stock-count/">Do a stock count (stocktake)</a></li><li><a href="/inventory/low-stock-alerts/">Low stock alerts and reorder levels</a></li><li><a href="/inventory/sortly-alternative/">A free Sortly alternative for stock tracking</a></li></ul>
+<h2 id="how-slop-inventory-compares">How Slop Inventory compares</h2>
+<p>Slop Inventory next to Sortly, Zoho Inventory (Free): facts from each tool's own pages, checked 2026-10-24. We make Slop Inventory.</p>
+<div class="wrap"><table class="cmp"><caption>The best free inventory management software: the main facts side by side (checked 2026-10-24)</caption>
+<thead><tr><th scope="col">Tool</th><th scope="col">Price</th><th scope="col">Free plan limits</th><th scope="col">Barcode scanning</th><th scope="col">Account</th><th scope="col">Where your data is kept</th></tr></thead><tbody><tr class="us"><th scope="row">Slop Inventory <span class="l-badge">ours</span></th><td>Free</td><td>None set by us</td><td>USB scanner in any browser; camera in Chromium browsers</td><td>Not needed</td><td>In your browser, on this device</td></tr><tr><th scope="row">Sortly</th><td>Free; Advanced, Ultra and Premium paid (yearly discounts)</td><td>100 unique items, 1 user, 1 custom field</td><td>In-app barcode and QR scanning on every plan</td><td>Sortly account</td><td>Sortly's service (synced)</td></tr><tr><th scope="row">Zoho Inventory (Free)</th><td>Free; Standard $29 a month yearly</td><td>50 orders, 1 user, 1 location</td><td>Barcode generation on Premium</td><td>Zoho account</td><td>Zoho's servers</td></tr></tbody></table></div>
+<div class="wrap"><table class="cmp matrix"><caption>Feature by feature: ✓ yes, ◐ partly or on a paid plan, ✗ no, – not stated by the tool's own pages</caption>
+<thead><tr><th scope="col">Feature</th><th scope="col" class="us">Slop Inventory <span class="l-badge">ours</span></th><th scope="col">Sortly</th><th scope="col">Zoho Inventory (Free)</th></tr></thead><tbody><tr><th scope="row">Items on the free plan</th><td>No limit</td><td>100 unique items</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Orders on the free plan</th><td>No limit (Slop Orders)</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td>50</td></tr><tr><th scope="row">Users on the free plan</th><td>1</td><td>1</td><td>1</td></tr><tr><th scope="row">Stock by location</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td>1 location</td></tr><tr><th scope="row">Scan barcodes with a camera</th><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">USB or Bluetooth scanner</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Barcode labels</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td></tr><tr><th scope="row">Stock counts</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td></tr><tr><th scope="row">Low-stock alerts</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Import from a spreadsheet</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Item photos</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Custom fields</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td>1</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Purchase orders</th><td>In Slop Purchases</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Kits or composite items</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Phone app</th><td>Browser only</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Works offline</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">No account needed</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-no"><span aria-hidden="true">✗</span> No</td></tr></tbody></table></div>
+<p><a href="/best/free-inventory-management-software/">The full comparison, with sources: The best free inventory management software</a></p>
+<h2 id="feature-matrix">Feature matrix</h2>
 <div class="wrap"><table>
 <caption>Slop Inventory: features, status and file types</caption>
 <thead><tr><th scope="col">Feature</th><th scope="col">Status</th><th scope="col">File types</th></tr></thead>
 <tbody><tr><td>Camera or any USB scanner, with undo</td><td>In development</td><td>CSV</td></tr><tr><td>Stock by location, transfers and counts</td><td>In development</td><td>CSV</td></tr><tr><td>CSV import with a validation report</td><td>In development</td><td>CSV</td></tr><tr><td>Reorder alerts and stock value</td><td>In development</td><td>CSV</td></tr></tbody>
 </table></div>
-<h2>File types</h2>
+<h2 id="file-types">File types</h2>
 <p>Slop Inventory opens CSV.</p>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/tables.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/tables/">Slop Tables</a><br><span class="note">In development</span><br>Excel and Google Sheets, rebuilt for the browser.</li><li><img class="thumb" src="/assets/shots/contacts.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/contacts/">Slop Contacts</a><br><span class="note">In development</span><br>Address book: vCard and CSV in and out, duplicates merged.</li><li><img class="thumb" src="/assets/shots/sheetview.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/sheetview/">Slop Sheets</a><br><span class="note">Beta</span><br>Open and browse spreadsheets on this device. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/convert.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/convert/">File convert</a><br><span class="note">In development</span><br>Images, PDFs, data and text, converted on your device.</li><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li></ul>
 <p class="note"><a href="/compare/">Compare all apps in the feature matrix</a></p>
+</div>
+</div>
 </main>
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+</div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
+<script src="/shell/shell.js"></script>
 </body>
 </html>

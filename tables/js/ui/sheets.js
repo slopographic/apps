@@ -2,6 +2,7 @@
 import { S, $, redraw, toast } from './state.js';
 import { transact } from './history.js';
 import { commitEdit } from './editor.js';
+import { renamed } from './objects.js';
 
 export function render() {
   const frag = document.createDocumentFragment();
@@ -44,7 +45,8 @@ export async function rename(i = S.si) {
   const sh = S.wb.sheets[i];
   const name = await window.SlopUI.prompt('Rename sheet', 'Sheet name', sh.name, { ok: 'Rename' });
   if (name === null || name.trim() === sh.name) return;
-  try { transact(() => S.wb.renameSheet(sh, name)); }
+  const old = sh.name;
+  try { transact(() => { S.wb.renameSheet(sh, name); renamed(S.wb, old, sh.name); }); }
   catch (err) { toast(err.message); }
 }
 

@@ -27,6 +27,19 @@
   const clone = (o) => ({ s: { ...o.s }, bg: { ...o.bg }, shadow: { ...o.shadow }, crop: { ...o.crop } });
   /** The look new images start with: the last one the user set (minus a background image). */
   S.defaults = (() => { const d = clone(DEFAULT_LOOK), saved = U.store.get('look', null); if (saved) for (const k of ['s', 'bg', 'shadow', 'crop']) Object.assign(d[k], saved[k] || {}); d.bg.image = null; if (d.bg.mode === 'image') d.bg.mode = 'transparent'; return d; })();
+  /** A task page's preset in the address (?bg=white&format=jpg): the background new images start with and the export
+   *  format, for this visit only (nothing is saved). Unknown values are ignored. Pure: { bg?, format? } from a query string. */
+  S.presetOf = (search) => {
+    const q = new URLSearchParams(search || ''), out = {}, bg = q.get('bg'), fmt = q.get('format');
+    if (bg === 'transparent') out.bg = { mode: 'transparent' };
+    else if (bg === 'white') out.bg = { mode: 'color', color: '#ffffff' };
+    else if (bg === 'blur') out.bg = { mode: 'blur' };
+    if (['png', 'jpg', 'webp'].includes(fmt)) out.format = fmt;
+    return out;
+  };
+  const preset = S.presetOf(typeof location !== 'undefined' ? location.search : '');
+  if (preset.bg) Object.assign(S.defaults.bg, preset.bg);
+  if (preset.format) S.exportOpts.format = preset.format;
   S.DEFAULT_LOOK = DEFAULT_LOOK;
   S.cloneLook = clone;
   S.lookOf = (it) => ({ s: it.s, bg: it.bg, shadow: it.shadow, crop: it.crop });

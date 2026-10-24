@@ -13,6 +13,11 @@ files and reports progress.
 - `panel.js`: `SlopDrop.panel`. The DOM: the zone (message, Choose files, progress list, status line), the outlines
   (`showHints`, `placeHints`, `hideHints`), the toast (one at a time, 6 s, click to dismiss). Its CSS is injected once.
 - `drop.js`: `SlopDrop.attach(zone, options)`. Routes the files and runs the batch.
+- `folders.js` (optional, after drop.js): `SlopDrop.folders.read(dataTransfer)` → Promise of Files, whole folders walked
+  (webkitGetAsEntry, every readEntries batch, sub-folders). A file from a folder gets `slopPath` (and `webkitRelativePath`
+  when empty) = its path from the dropped folder, `Trip/Day 1/a.jpg`, as a folder input gives it. Use it as the `files`
+  hook: `files: (dt) => SlopDrop.folders.read(dt)`. `hasFolder(dt)` says whether a drop holds a folder. Tested in
+  `tests/node/drop-folders.test.mjs`. (Gallery and Drive still have their own walkers, which also keep their own shapes.)
 
 ## Use (one call)
 
@@ -38,6 +43,14 @@ zero-byte files). `input`: an existing `<input type=file>` to use for Choose fil
 (folders); it is called inside the drop event, so entries can be read there, and may return a Promise. `compact`: one row
 for a strip. `window: false`: leave the rest of the page alone (only the targets take drops, marked `.sd-over`). `overlay:
 false`: no outlines or label. `toast: false`. `label`, `hint`, `chooseLabel`, `multiple`.
+
+`preview: { picture, steps }`: an empty page explains itself. Above the prompt the zone shows what the app makes
+(`picture`: `{ src, alt }`, usually `assets/shots/<app>.jpg`, a screenshot of a finished result; `{ flow: { from, to } }`
+for a converter, drawn by SlopFlow; or an element) and how (`steps`: three short lines). Not drawn in a `compact` strip.
+`sample: { label?, files }`: a "Try it with a sample" button. `files()` returns the sample files (or a Promise of them),
+which go through the same batch as a drop, so the sample shows exactly what a real file does. `shared/samples/samples.js`
+(`SlopSamples`) makes them: `photos(n)` paints scenes as JPEGs, `file(name, text, type)` makes a text file, and
+`asset(path)` loads a real file kept in `assets/samples/` (a PDF, a voice clip).
 
 `process` receives `ctx = { at: { x, y } | null, index }`: the client point of the drop (null from Choose files) and the
 file's place among the accepted ones (for placing files one after another at the drop point).
@@ -66,6 +79,7 @@ Each row is one `attach` call (plus the three script tags in the page):
 | Slop Isolate (`slopisolate/js/io/files.js` F.init) | a strip above the stage | `CO.process.add`, waits for the cut-out; videos `CO.video.addItem` |
 | Slop Gallery (`gallery/js/ui/main.js` bindDrop) | a strip above the grid | `files` hook = `G.source.fromDrop` (folders); `importItems` per file |
 | Slop Label (`label/js/ui/boot.js`) | page; a strip over the stage | `openFiles` per file; a picture on the stage lands at the drop point |
+| Slop Photo Sorter (`sorter/js/app.js` wire) | the drop zone; `input` is `#soPick` | `files` hook = `SlopDrop.folders.read` (folders keep their path); `add([file])` per file |
 | Slop Music (`music/js/ui/library.js`) | a zone above the library | `M.lib.addFiles` per file |
 | Slop Convert (`convert/js/ui/tool.js`, every converter page) | the drop zone; `input` is the page's own picker | `addFiles([file])` per file |
 | Slop OCR (`ocr/js/app.js` wire) | the drop zone; `input` is the page's own picker | `addFiles([file])` per file |

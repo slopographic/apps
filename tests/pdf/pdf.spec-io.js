@@ -129,7 +129,7 @@
       expect(/<script[^>]+\bsrc=/i.test(html)).toBe(false);
       expect(/<link[^>]+rel="stylesheet"/i.test(html)).toBe(false);
       const shell = html.replace(/<script type="application\/json" id="app-src">[\s\S]*?<\/script>/, '');
-      expect(shell).not.toContain('shared/fonts/');
+      expect(/(?:src|href)="[^"]*shared\/fonts\//.test(shell)).toBe(false);   // inlined scripts keep a data-src label; none loads from shared/fonts
       expect(shell).not.toContain('hub.js');
     }, { timeout: 60000 });
     it('rebuilds itself byte-for-byte from the embedded sources', async () => {

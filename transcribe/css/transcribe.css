@@ -5,7 +5,10 @@ main.tr-app { max-width: 1180px; }
 .tr-intro { display: flex; align-items: center; justify-content: space-between; gap: 16px 28px; flex-wrap: wrap; }
 .tr-intro h1 { margin: 0 0 4px; font-size: 26px; }
 .tr-lede { margin: 0; color: var(--muted); max-width: 60ch; }
+.tr-steps .sd-preview { justify-content: flex-start; margin: 12px 0 0; }
+.tr-steps .sd-steps { flex: 1 1 auto; font-size: 14px; color: var(--text, inherit); }
 .tr-flow { flex: none; color: var(--muted); }
+.tr-gate:not(:empty) { margin-top: 14px; }
 .tr-gate:empty { display: none; }
 .tr-add { margin: 18px 0 8px; display: grid; gap: 10px; }
 .tr-drop { min-height: 96px; display: grid; place-items: center; padding: 14px; border: 2px dashed var(--line); border-radius: 12px; background: var(--card); text-align: center; }

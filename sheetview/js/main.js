@@ -147,13 +147,22 @@ function wireHeader() {
 }
 
 function wireDrop() {
-  window.SlopDrop.attach($('sv-drop'), {
+  const drop = window.SlopDrop.attach($('sv-drop'), {
     accept: { types: MIME, exts: ['.xlsx', '.xlsm', '.csv', '.tsv', '.xls', '.ods'], noun: 'a spreadsheet' },
     limit: 20,
     compact: true,
     targets: [document.querySelector('.sv-app')],
     process: async (file) => openFile(file),
   });
+  // The empty page shows what a sheet looks like here and how (SlopDrop's preview); the sample goes through the strip.
+  const empty = $('sv-empty'), sample = document.createElement('button');
+  empty.insertBefore(window.SlopDrop.panel.preview({
+    picture: { src: '../assets/shots/sheetview.jpg', alt: 'A price list open in Slop Sheets, sorted by price' },
+    steps: ['Drop an .xlsx, .csv or .tsv file', 'Sort and filter any column', 'Export the rows you need'],
+  }), empty.querySelector('.sv-empty-b'));
+  sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'sv-sample'; sample.textContent = 'Try it with a sample price list';
+  sample.addEventListener('click', () => drop.run(window.SlopSamples.docs.xlsx().then((f) => [f])));
+  empty.querySelector('.sv-empty-b').append(sample);
 }
 
 async function boot() {

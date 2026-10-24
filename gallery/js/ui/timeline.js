@@ -99,6 +99,7 @@
     G.state.pruneSelection({ has: (id) => !!G.library.photo(id) }); // hidden by a filter is not gone: only removed photos leave the selection
     els.empty.hidden = people || list.length > 0 || !G.library.loaded; // People explains its own empty state in the bar
     els.empty.querySelector('[data-empty-text]').textContent = G.library.size ? 'Nothing matches these filters.' : 'Your library is empty. Import photos to start.';
+    for (const n of els.empty.querySelectorAll('[data-empty-intro]')) n.hidden = G.library.size > 0; // the preview is for an empty library
     markSelection();
   }
   function markSelection() {

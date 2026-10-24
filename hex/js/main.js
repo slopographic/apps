@@ -31,7 +31,7 @@
     if (window.SlopCtx) SlopCtx.bind($('hx-scroll'), () => window.HexCommands.contextItems());
     /* A file dropped on the tabs, the strip or the bytes opens (SlopDrop, shared/drop; one file at a time, and a file that is
        already open is not opened again). */
-    window.SlopDrop.attach($('hx-drop'), {
+    const drop = window.SlopDrop.attach($('hx-drop'), {
       accept: { any: true, allowEmpty: true, noun: 'a file' },
       limit: 1,
       compact: true,
@@ -42,6 +42,15 @@
         return file.name;
       },
     });
+    // The empty page shows a file's bytes and how (SlopDrop's preview); the sample (a small PDF) goes through the strip.
+    const empty = $('hx-empty'), row = empty.querySelector('.hx-empty-b'), sample = document.createElement('button');
+    empty.insertBefore(window.SlopDrop.panel.preview({
+      picture: { src: '../assets/shots/hex.jpg', alt: 'A PDF open in Slop Hex: offsets, hex bytes and the text beside them' },
+      steps: ['Drop any file', 'Read, find and change its bytes', 'Download the changed file'],
+    }), row);
+    sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'hx-sample'; sample.textContent = 'Try it with a sample PDF';
+    sample.addEventListener('click', () => drop.run([window.SlopSamples.docs.pdf()]));
+    row.append(sample);
   }
 
   async function boot() {

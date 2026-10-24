@@ -11,11 +11,12 @@ import { convertAll } from './run.js';
 
 let seq = 0;
 
-/** The first-use notice: one per drop (or pick), shown once. The video engine is downloaded only when a video is converted. */
+/** The notice before the video engine's first download: shown once, and only when a video conversion runs (catalog
+ *  entries with engine: 'ffmpeg'). Every other conversion needs no download and starts without asking. */
 const FIRST_USE = {
-  title: 'Convert files on this device',
-  lines: ['Conversions run in your browser. Files are read on this device and never uploaded.'],
-  downloads: [{ name: 'Video engine (ffmpeg.wasm), only when a video is converted', bytes: 32344223 }],
+  title: 'Download the video engine?',
+  lines: ['Converting a video needs the video engine. It is downloaded once and kept by this browser for next time. Your files are still read on this device and never uploaded.'],
+  downloads: [{ name: 'Video engine (ffmpeg.wasm)', bytes: 32344223 }],
 };
 let firstUse = null;
 /** Resolves true when the work may go on. Cancelling clears the gate, so the next drop asks again. */
@@ -36,11 +37,12 @@ export class ConvertTool {
     // The drop zone is SlopDrop (shared/drop): drops and the Choose files button (the only thing that opens the picker)
     // read each file through addFiles. The page's own picker input keeps its accept list.
     const accept = ui.input.getAttribute('accept');
-    window.SlopDrop.attach(ui.drop, {
+    this.dropZone = window.SlopDrop.attach(ui.drop, {
       accept: { any: true, noun: 'a file' },
       input: ui.input,
       label: 'Drop files here, or choose files',
       hint: 'Several at once is fine. Files are read on this device and never uploaded.',
+      ...this.firstVisit(),
       process: async (file) => { await this.addFiles([file]); return file.name; },
     });
     ui.input.setAttribute('accept', accept);
@@ -57,11 +59,25 @@ export class ConvertTool {
     this.render();
   }
 
+  /** What an empty page shows in the drop zone (SlopDrop's preview): the hub shows a CSV becoming an XLSX and offers a
+   *  sample price list (shared/samples/docs.js); a converter page has its pair drawn above, so it shows the steps. */
+  firstVisit() {
+    const p = this.preset, tag = (k) => window.SlopFlow.tag(k);
+    if (p) {
+      const conv = conversionById(p.conv), from = p.from ? p.from.map(tag).join(' or ') : 'your';
+      return { preview: { steps: [`Drop ${from} files, one or many`, 'Check the options', `Download the ${conv ? tag(outKind(conv, p.defaults)) : 'new'} files`] } };
+    }
+    const S = window.SlopSamples;
+    return {
+      preview: { picture: { flow: { from: 'csv', to: 'xlsx' } }, steps: ['Drop pictures, PDFs, sheets, text', 'Pick what to make', 'Download one file or a zip'] },
+      sample: S && S.docs ? { label: 'Try it with a sample price list (CSV)', files: () => { this.wantTarget = 'csv-to-xlsx'; return [S.docs.csv()]; } } : undefined,
+    };
+  }
+
   /** Adds files (a FileList or array). Each is detected by its first bytes, name and type. */
   async addFiles(list) {
     const files = Array.from(list || []);
     if (!files.length) return;
-    if (!(await firstUseGate())) return;
     this.items = this.items.filter((i) => !i.pasted);
     this.setStatus(`Reading ${files.length} file${files.length === 1 ? '' : 's'}…`);
     for (const file of files) {
@@ -147,7 +163,9 @@ export class ConvertTool {
     const prev = ui.target.value;
     ui.target.replaceChildren(...(cands.length ? cands.map((c) => h('option', { value: c.id }, c.label))
       : [h('option', { value: '' }, this.active().length ? 'No conversion for these files' : 'Add files first')]));
-    if (cands.some((c) => c.id === prev)) ui.target.value = prev;
+    if (cands.some((c) => c.id === this.wantTarget)) { ui.target.value = this.wantTarget; this.wantTarget = null; } else if (cands.some((c) => c.id === prev)) ui.target.value = prev;
+    // The preview in the drop zone is for an empty page.
+    if (this.dropZone) this.dropZone.empty(!this.items.length);
     ui.target.disabled = !cands.length;
     ui.run.disabled = this.busy || !cands.length;
     this.noteFor(cands);
@@ -212,6 +230,7 @@ export class ConvertTool {
     const conv = this.current();
     const act = this.active();
     if (!conv || !act.length || this.busy) return;
+    if (conv.engine === 'ffmpeg' && !(await firstUseGate())) return;   // the video engine's first download asks first
     this.busy = true;
     this.clearOutputs();
     for (const it of this.items) it.error = '';

@@ -3,6 +3,8 @@
 // rows, with status and file types), the file types it opens, a button to the app, and related apps.
 // Only registry facts are written. Called by tools/seo/write.mjs, which adds the SEO head block to each page.
 import { isPage } from './site.mjs';
+import { compareTables } from './roundups.mjs';
+import { appNav, withToc, docsLayout } from './guide.mjs';
 import OFFLINE_APPS from '../../shared/offline/manifest.js';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -11,11 +13,10 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 /** Pictures and clips are found by name: assets/shots/<id>.jpg, assets/clips/<id>.webm and .mp4. */
 const hasFile = (rel) => existsSync(path.join(ROOT, rel));
-/** The YouTube demos. The thumbnail is kept in assets/video, so the page loads nothing from YouTube. */
-export const DEMOS = {
-  pdf: { id: 'sLjcd23fOhw', title: 'Slop PDF demo' },
-  photoslop: { id: 'sasXp4d8rtg', title: 'PhotoSlop demo' },
-};
+/** An app's YouTube tutorial is in the registry (shared/apps.js `video`). Its thumbnail is kept in assets/video, so the
+ *  page loads nothing from YouTube. */
+const lengthWords = (iso) => { const m = /PT(?:(\d+)M)?(?:(\d+)S)?/.exec(iso || '') || [], n = Math.max(1, Math.round((Number(m[1] || 0) * 60 + Number(m[2] || 0)) / 60));
+  return `about ${['', 'one', 'two', 'three', 'four', 'five'][n] || n} minute${n === 1 ? '' : 's'}`; };
 
 /** Slop 365 tools, in the order the hub lists them. Each id must be an app in the registry. */
 export const SLOP365 = ['invoices', 'orders', 'contacts', 'inventory', 'crm', 'ledger', 'reports', 'tables', 'docs', 'notes'];
@@ -58,56 +59,49 @@ export function related(app, apps) {
     .slice(0, 6).map((x) => x.b);
 }
 
-const CSS = `:root{--bg:#fbfbf7;--fg:#1b1b1f;--mut:#5f6368;--line:#dcdcd2;--acc:#4f6c00;--on:#fff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}}
-:root[data-theme="dark"]{--bg:#0a0a0a;--fg:#f1ede4;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top,.foot{max-width:860px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
-h2{font-size:1.2rem;margin:2rem 0 .6rem}
-a{color:var(--acc)}
-.eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
-.lead{font-size:1.1rem}
-.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:var(--on);text-decoration:none;font-weight:600}
-.wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:0;list-style:none}
-.cards li{border:1px solid var(--line);border-radius:10px;padding:12px;overflow:hidden}
-.cards .thumb{display:block;width:100%;height:auto;border-radius:6px;margin:0 0 8px;aspect-ratio:16/10;object-fit:cover;background:var(--line)}
-.media{display:grid;gap:16px;margin:1.4rem 0}
-.shot{margin:0}
-.shot img,.clip{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--line)}
-.demo{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
-.demo img{width:200px;max-width:40%;height:auto;border-radius:8px;flex:0 0 auto}
-.demo span{font-size:15px}
-.demo b{color:var(--acc)}
-@media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}`;
-
-function shell(body) {
+/** The site's page frame for content pages (landing, task, hub and how-it-works pages): the same look as the apps'
+ *  About pages (shared/landing/landing.css, which follows the chosen theme), the profile, theme and consent scripts,
+ *  and the shell (Theme and Apps in the header). siteTop() and siteFoot() are also written into hand-made pages
+ *  between <!-- site:top --> and <!-- site:foot --> markers (write.mjs), so every page has the same header and footer. */
+const NAV = [['/', 'Home'], ['/all-tools/', 'All tools'], ['/compare/', 'Compare apps'], ['/how-it-works/', 'How it works'], ['/settings/', 'Settings']];
+export const SITE_HEAD = ['<script src="/shared/profile/profile.js"></script>', '<script src="/shared/theme/theme.js" data-app="site"></script>',
+  '<script src="/shared/consent/config.js"></script>', '<script src="/shared/consent/state.js"></script>', '<script src="/shared/consent/consent-mode.js"></script>',
+  '<script src="/shared/consent/banner.js"></script>', '<link rel="icon" href="/favicon.ico" type="image/x-icon">', '<link rel="stylesheet" href="/shared/landing/landing.css">'];
+export const siteTop = () => `<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav></header>`;
+export const siteFoot = () => `<footer class="l-foot"><div class="l-foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>`;
+export function shell(body) {
   return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>${CSS}</style>
+  ${SITE_HEAD.join('\n  ')}
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
-<main>
+<div class="l-wrap">
+${siteTop()}
+<main class="l-doc">
 ${body}
 </main>
+${siteFoot()}
+</div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
+<script src="/shell/shell.js"></script>
 </body>
 </html>
 `;
 }
 
 const thumb = (id) => (hasFile(`assets/shots/${id}.jpg`) ? `<img class="thumb" src="/assets/shots/${esc(id)}.jpg" alt="" width="220" height="137" loading="lazy">` : '');
-const cardList = (items) => `<ul class="cards">${items.map((b) => `<li>${thumb(b.id)}<a href="/apps/${esc(b.id)}/">${esc(b.name)}</a><br><span class="note">${esc(statusOf(b))}</span><br>${esc(b.tagline)}</li>`).join('')}</ul>`;
+export const cardList = (items) => `<ul class="cards">${items.map((b) => `<li>${thumb(b.id)}<a href="/apps/${esc(b.id)}/">${esc(b.name)}</a><br><span class="note">${esc(statusOf(b))}</span><br>${esc(b.tagline)}</li>`).join('')}</ul>`;
 
 /** The picture, the clip and the YouTube demo of one app, when the files exist. */
-function mediaBlock(app) {
+/** The app's YouTube tutorial as a card (its thumbnail is kept in assets/video), or '' without one. */
+export function videoLink(app) {
+  const v = app.video;
+  return v ? `<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>` : '';
+}
+export function mediaBlock(app) {
   const id = app.id, out = [];
   const clip = hasFile(`assets/clips/${id}.mp4`);
   if (!clip && hasFile(`assets/shots/${id}.jpg`)) out.push(`<figure class="shot"><img src="/assets/shots/${esc(id)}.jpg" alt="${esc(app.name)} open in a browser" width="1280" height="800" loading="lazy"></figure>`);
@@ -115,8 +109,7 @@ function mediaBlock(app) {
     const poster = hasFile(`assets/shots/${id}.jpg`) ? ` poster="/assets/shots/${esc(id)}.jpg"` : '';
     out.push(`<video class="clip" controls preload="none" playsinline${poster}><source src="/assets/clips/${esc(id)}.webm" type="video/webm"><source src="/assets/clips/${esc(id)}.mp4" type="video/mp4">Your browser cannot play this clip.</video>`);
   }
-  const demo = DEMOS[id];
-  if (demo) out.push(`<a class="demo" href="https://www.youtube.com/watch?v=${demo.id}" rel="noopener"><img src="/assets/video/yt-${demo.id}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(demo.title)}</b><br>On YouTube, about three minutes.</span></a>`);
+  if (app.video) out.push(videoLink(app));
   return out.length ? `<div class="media">${out.join('')}</div>` : '';
 }
 
@@ -125,7 +118,7 @@ const offlineLink = (app) => (OFFLINE_APPS[app.id] && OFFLINE_APPS[app.id].entry
   ? `\n<p class="note"><a href="/downloads/${esc(app.id)}.html" download>Download offline (.html)</a>: one file that opens from disk and works without a connection.</p>`
   : '');
 /** Body of one app's landing page. */
-function appBody(app, apps) {
+function appBody(app, apps, tasks = [], roundups = []) {
   const feats = app.features || [];
   const types = fileTypeList(app);
   const rows = feats.length
@@ -139,7 +132,7 @@ function appBody(app, apps) {
 ${mediaBlock(app)}
 <p>${esc(app.name)} ${feats.length ? `has these main features: ${esc(feats.slice(0, 2).join('; '))}.` : 'is listed below with its file types.'}${types.length ? ` It opens ${esc(types.join(', '))}.` : ''}</p>
 ${note ? `<p class="note">${esc(note)}</p>` : ''}
-<h2>Feature matrix</h2>
+${tasks.length ? `<h2>What you can do with ${esc(app.name)}</h2>\n<ul>${tasks.map((t) => `<li><a href="/${esc(app.path)}${esc(t.slug)}/">${esc(t.h1)}</a></li>`).join('')}</ul>\n` : ''}${roundups.map((r) => `<h2>How ${esc(app.name)} compares</h2>\n<p>${esc(app.name)} next to ${esc(r.tools.filter((t) => !t.ours).map((t) => t.name).join(', '))}: facts from each tool's own pages, checked ${esc(r.checked)}. We make ${esc(app.name)}.</p>\n${compareTables(r)}\n<p><a href="/best/${esc(r.slug)}/">The full comparison, with sources: ${esc(r.h1)}</a></p>\n`).join('')}<h2>Feature matrix</h2>
 <div class="wrap"><table>
 <caption>${esc(app.name)}: features, status and file types</caption>
 <thead><tr><th scope="col">Feature</th><th scope="col">Status</th><th scope="col">File types</th></tr></thead>
@@ -203,13 +196,18 @@ function compareBody(apps) {
  * (an app id, or slop-365, creative-slop-pro, compare). `dir` is the folder the page is written to.
  * Throws if a page has no copy.
  */
-export function landingPages(apps, site, LANDING) {
+export function landingPages(apps, site, LANDING, TASKS = [], ROUNDUPS = [], GUIDES = []) {
   const out = [];
   const add = (key, dir, crumb, html) => {
     if (!LANDING[key]) throw new Error(`${key}: no landing copy in shared/seo/copy.mjs LANDING`);
     out.push({ key, dir, url: `${site}/${dir}`, html: shell(html), crumb });
   };
-  for (const app of apps) if (isPage(app)) add(app.id, `apps/${app.id}/`, app.name, appBody(app, apps));
+  for (const app of apps) {
+    if (!isPage(app)) continue;
+    const tasks = TASKS.filter((t) => t.app === app.id), roundups = ROUNDUPS.filter((r) => r.app === app.id);
+    const { body, toc } = withToc(appBody(app, apps, tasks, roundups));
+    add(app.id, `apps/${app.id}/`, app.name, docsLayout(appNav(app, { tasks, roundups, guides: GUIDES.filter((g) => g.app === app.id) }, `/apps/${app.id}/`), toc, body));
+  }
   add('slop-365', 'slop-365/', 'Slop 365', slop365Body(apps));
   add('creative-slop-pro', 'creative-slop-pro/', 'Creative Slop Pro', creativeBody(apps));
   add('compare', 'compare/', 'Compare', compareBody(apps));

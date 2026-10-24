@@ -4,8 +4,9 @@
  * copied, downloaded (exports.js) or saved to Slop Drive, or opened in Slop Docs. The SlopFlow picture shows "MP3 → TXT". */
 import { createQueue } from './queue.js';
 import { createRecorder } from './record.js';
-import { FORMATS, fileOf, textOf } from './exports.js';
+import { FORMATS, fileOf, textOf, presetOf } from './exports.js';
 import { drawList, drawTranscript, textFor } from './view.js';
+import { fillLanguages } from './languages.js';
 import '../../shared/ui/flow.js';
 
 const T = window.SlopAITools, $ = (id) => document.getElementById(id);
@@ -13,6 +14,8 @@ const say = (s) => { $('trMsg').textContent = s || ''; };
 let selected = null, times = false;
 const flow = window.SlopFlow.create({ from: 'mp3', to: 'txt', size: 'lg', label: 'Audio or video to text' });
 $('trFlow').append(flow.el);
+fillLanguages($('trLang'));
+$('trSteps').append(window.SlopDrop.panel.preview({ steps: ['Drop audio or video, or press Record', 'Press Transcribe: it runs on this device', 'Correct the text, then save it'] }));
 
 /** The Whisper engine of Slop AI Tools. The model downloads once, after the person agrees (T.gate). */
 const engine = {
@@ -85,9 +88,14 @@ function wire() {
   window.SlopDrop.attach($('trDrop'), {
     accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac', '.webm', '.mp4', '.mov', '.mkv', '.amr', '.wma'], noun: 'an audio or video file' },
     input: $('trPick'), label: 'Drop audio or video files here, or choose files', hint: 'MP3, WAV, M4A, OGG, FLAC, video… Several at once. Nothing is uploaded.',
+    // the steps are in the intro (shown before the model is in, as the From → To picture is); the sample is NASA's
+    // public-domain Moon landing recording (assets/samples/moon-landing.txt)
+    sample: { label: 'Try it with a sample: the Moon landing, 24 s', files: async () => [await window.SlopSamples.asset('moon-landing.ogg', 'Moon landing, Apollo 11.ogg', 'audio/ogg')] },
     process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return file.name; },
   });
   $('trFormat').replaceChildren(...FORMATS.map((f) => Object.assign(document.createElement('option'), { value: f.id, textContent: f.label })));
+  const preset = presetOf(location.search);   // a task page's link, e.g. ?format=srt (not remembered)
+  if (preset.format) $('trFormat').value = preset.format;
   $('trRun').addEventListener('click', run);
   $('trStop').addEventListener('click', () => { q.stop(); say('Stopping after this file…'); });
   $('trClear').addEventListener('click', () => { if (q.clear()) { selected = null; say(''); draw(); } });
@@ -103,6 +111,6 @@ function wire() {
 }
 
 // engine is exposed so a test can stand in a fake Whisper (the real model is a download the tests do not make)
-window.SlopTranscribe = { queue: q, engine, add, run, select, get selected() { return selected; } };
+window.SlopTranscribe = { queue: q, engine, add, run, select, presetOf, get selected() { return selected; } };
 T.gate('speech', () => { $('trUi').hidden = false; });
 wire();

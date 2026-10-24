@@ -159,5 +159,11 @@
       targets: [document.getElementById('stage'), document.getElementById('tabs')],
       files: onDrop, begin: begin, process: process,
     });
+    // The empty page shows a finished PDF and how (SlopDrop's preview), in place of the drawing; Try a sample stays below.
+    var art = document.querySelector('#empty .empty-art');
+    if (art && SlopDrop.panel) art.replaceWith(SlopDrop.panel.preview({
+      picture: { src: '../assets/shots/pdf.jpg', alt: 'A four-page PDF open in Slop PDF, ready to reorder, sign or download' },
+      steps: ['Drop PDFs or pictures', 'Reorder, merge, sign or stamp the pages', 'Download the new PDF'],
+    }));
   };
 })();

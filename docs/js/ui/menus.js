@@ -26,6 +26,7 @@
       '-',
       { label: 'Save to Slop Drive', key: key('file.save'), act: act(() => S.save()) },
       '-',
+      { label: 'Download PDF (.pdf)', key: key('file.pdf'), act: act(() => S.download('pdf')) },
       { label: 'Download Word (.docx)', key: key('file.docx'), act: act(() => S.download('docx')) },
       { label: 'Download Markdown (.md)', key: key('file.md'), act: act(() => S.download('md')) },
       { label: 'Download plain text (.txt)', key: key('file.txt'), act: act(() => S.download('txt')) },
@@ -33,7 +34,7 @@
       '-',
       { label: 'Send to…', sub: S.sendItems ? S.sendItems() : [], disabled: !window.SlopHub },
       '-',
-      { label: 'Print…', act: act(() => window.print()) },
+      { label: 'Print…', key: key('file.print'), act: act(() => S.print()) },
     ],
     edit: () => [
       { label: 'Undo', key: key('edit.undo'), act: act(() => A().undo()), disabled: !S.canUndo() },
@@ -61,6 +62,8 @@
         { label: 'Paragraph style', sub: [
           ['Normal', 'Normal text'], ['Title', 'Title'], ['H1', 'Heading 1'], ['H2', 'Heading 2'], ['H3', 'Heading 3'], ['Quote', 'Quote'], ['Code', 'Code'],
         ].map(([v, l]) => ({ label: l, check: st.style === v, act: act(() => A().setStyle(v)) })) },
+        '-',
+        { label: 'Header and footer…', key: key('format.headerFooter'), act: () => S.openHF() },
         '-',
         { label: 'Clear formatting', key: key('format.clear'), act: act(() => A().clearFormat()) },
       ];

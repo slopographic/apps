@@ -19,9 +19,11 @@
   };
   /** The CSS font stack and weight an annotation is drawn with on screen. */
   E.cssFont = function (a) {
-    if (!a.font || E.isStdFamily(a.font)) return E.CSSFONT[a.font] || E.CSSFONT.Helvetica;
+    // the language fonts downloaded for other scripts go before the generic family, so screen text matches the saved file
+    var lang = (E.langFamilies ? E.langFamilies() : []).map(function (f) { return '"' + f + '", '; }).join('');
+    if (!a.font || E.isStdFamily(a.font)) { var std = E.CSSFONT[a.font] || E.CSSFONT.Helvetica, i = std.lastIndexOf(','); return std.slice(0, i + 1) + ' ' + lang + std.slice(i + 1).trim(); }
     var C = window.SlopFontCatalog, g = (C && GENERIC[C.guessCategory(a.font)]) || 'sans-serif';
-    return '"' + String(a.font).replace(/"/g, '') + '", ' + g;
+    return '"' + String(a.font).replace(/"/g, '') + '", ' + lang + g;
   };
   E.cssWeight = function (a) { return String(E.fontWeight(a)); };
 
@@ -47,17 +49,25 @@
   };
   /** Readies every non-standard font the pages' text annotations use, so that measuring and saving them is exact. A font that
    * is not installed any more keeps the standard metrics and is saved in Helvetica. */
-  E.prepareAnnotFonts = async function (pages) {
-    var want = new Map();
+  E.prepareAnnotFonts = async function (pages, opts) {
+    var want = new Map(), texts = [];
     pages.forEach(function (p) {
-      (p.annots || []).forEach(function (a) { if (a.text != null && a.font && !E.isStdFamily(a.font) && !faces.has(E.fontKey(a))) want.set(E.fontKey(a), a); });
+      (p.annots || []).forEach(function (a) {
+        if (a.text == null) return;
+        texts.push(a);
+        if (a.font && !E.isStdFamily(a.font) && !faces.has(E.fontKey(a))) want.set(E.fontKey(a), a);
+      });
     });
     for (var a of want.values()) await E.prepareFont(a.font, E.fontWeight(a), a.italic).catch(function () { /* not installed */ });
+    // other scripts: the language fonts (text-intl.js); opts.ask false uses only the ones already downloaded
+    for (var t of texts) if (E.ensureScripts) await E.ensureScripts(t.text, E.fontKey(t), t.bold, opts).catch(function () { /* set as "?" */ });
   };
   /** Width of a text in a prepared face at a size (points), from the face's own advance widths. */
   E.faceWidth = function (face, text, size) {
     var w = 0;
-    face.font.glyphsForString(String(text)).forEach(function (g) { w += g.advanceWidth; });
+    try { w = face.font.layout(String(text)).advanceWidth; } catch (e) {   // shaped (Arabic joining, ligatures), as pdf-lib draws it
+      face.font.glyphsForString(String(text)).forEach(function (g) { w += g.advanceWidth; });
+    }
     return w * size / face.upm;
   };
   /** The pdf-lib font for a text key, embedded once per output file: a standard font, or a prepared face as a subset. */
@@ -66,6 +76,7 @@
     var face = faces.get(key);
     if (!face) return (cache[key] = out.embedStandardFont(key.indexOf('|') < 0 ? key : 'Helvetica'));
     if (!kitted.has(out)) { out.registerFontkit(face.kit); kitted.add(out); }
-    return (cache[key] = await out.embedFont(face.bytes, { subset: true }));
+    // a subset through the shared run drawer: CFF fonts (Noto Sans CJK) get a header PDF readers accept (shared/fonts/pdf-runs.js)
+    return (cache[key] = await window.SlopPdfRuns.embed(out, face.bytes));
   };
 })();

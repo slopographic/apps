@@ -7,34 +7,53 @@
   const doc = root.document;
   const P = (SD.panel = {});
   const CSS = [
-    '.sd-zone{display:grid;gap:8px;justify-items:center;text-align:center;color:var(--sui-muted,#5d5d6b)}',
+    // Colours: the app's own --sui-* tokens when it has them, else mixed from the text colour round the zone (right in any
+    // theme, light or dark) and the shared theme's accent (--sl-*, set on every page by shared/theme/theme.js).
+    '.sd-zone,.sd-preview,.sd-sample,.sd-hint,.sd-toast,.sd-over,.sd-flash{--sd-accent:var(--sui-accent,var(--accent,var(--sl-accent,#3b5bdb)));--sd-on-accent:var(--sui-accent-ink,var(--accent-ink,var(--sl-on-accent,#fff)))}',
+    '.sd-zone,.sd-preview,.sd-sample{--sd-fg:var(--sui-text,currentColor);--sd-muted:var(--sui-muted,color-mix(in srgb,currentColor 68%,transparent));--sd-line:var(--sui-line,color-mix(in srgb,currentColor 22%,transparent));--sd-panel:var(--sui-panel,color-mix(in srgb,currentColor 6%,transparent));--sd-track:var(--sui-track,color-mix(in srgb,currentColor 14%,transparent))}',
+    '.sd-zone{display:grid;gap:8px;justify-items:center;text-align:center}',
+    '.sd-zone p{color:var(--sd-muted)}',
     '.sd-zone p{margin:0;font-size:13px}',
-    '.sd-choose{font:inherit;font-size:13px;padding:7px 12px;border:1px solid var(--sui-line,#d6d6de);border-radius:6px;background:var(--sui-panel,#fff);color:var(--sui-text,#1b1b22);cursor:pointer}',
-    '.sd-choose:focus-visible{outline:2px solid var(--sui-accent,#3b5bdb);outline-offset:2px}',
+    '.sd-choose{font:inherit;font-size:13px;padding:7px 12px;border:1px solid var(--sd-line);border-radius:6px;background:var(--sd-panel);color:var(--sd-fg);cursor:pointer}',
+    '.sd-choose:focus-visible{outline:2px solid var(--sd-accent);outline-offset:2px}',
     '.sd-list{list-style:none;margin:4px 0 0;padding:0;width:100%;display:grid;gap:6px;text-align:left}',
     '.sd-list:empty{display:none}',
-    '.sd-row{display:grid;gap:3px;padding:6px 8px;border:1px solid var(--sui-line,#d6d6de);border-radius:6px;font-size:12px;color:var(--sui-text,#1b1b22);background:var(--sui-panel,#fff)}',
+    '.sd-row{display:grid;gap:3px;padding:6px 8px;border:1px solid var(--sd-line);border-radius:6px;font-size:12px;color:var(--sd-fg);background:var(--sd-panel)}',
     '.sd-row-top{display:flex;justify-content:space-between;gap:8px;min-width:0}',
     '.sd-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}',
-    '.sd-size,.sd-msg-row{color:var(--sui-muted,#5d5d6b);white-space:nowrap}',
-    '.sd-bar{height:4px;border-radius:2px;background:var(--sui-track,#ececf1);overflow:hidden;position:relative}',
-    '.sd-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--sui-accent,#3b5bdb);transition:width .15s linear}',
+    '.sd-size,.sd-msg-row{color:var(--sd-muted);white-space:nowrap}',
+    '.sd-bar{height:4px;border-radius:2px;background:var(--sd-track);overflow:hidden;position:relative}',
+    '.sd-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--sd-accent);transition:width .15s linear}',
     '.sd-bar.ind i{width:40%;animation:sd-slide 1s linear infinite}',
     '@keyframes sd-slide{from{left:-40%}to{left:100%}}',
-    '.sd-row.ready .sd-msg-row{color:var(--sui-accent,#3b5bdb)}',
+    '.sd-row.ready .sd-msg-row{color:var(--sd-accent)}',
     '.sd-row.error{border-color:#c0392b}.sd-row.error .sd-msg-row{color:#c0392b}',
     '.sd-status{font-size:12px;margin:0;min-height:0}',
     '.sd-status:empty{display:none}',
     '.sd-compact{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;text-align:left}',
     '.sd-compact .sd-msg{flex:1 1 180px}',
     '.sd-compact .sd-list,.sd-compact .sd-status{flex-basis:100%}',
-    '.sd-hint{position:fixed;z-index:9000;pointer-events:none;box-sizing:border-box;border:2px dashed var(--sui-accent,#3b5bdb);border-radius:8px;background:color-mix(in srgb,var(--sui-accent,#3b5bdb) 8%,transparent);display:flex;align-items:center;justify-content:center;padding:6px}',
-    '.sd-hint b{background:var(--sui-accent,#3b5bdb);color:#fff;font:600 13px/1.3 system-ui,sans-serif;padding:6px 10px;border-radius:6px;max-width:90%;text-align:center}',
-    '.sd-toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:9001;max-width:min(560px,calc(100vw - 32px));background:var(--sui-text,#1b1b22);color:var(--sui-panel,#fff);font:13px/1.4 system-ui,sans-serif;padding:9px 14px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer}',
+    '.sd-hint{position:fixed;z-index:9000;pointer-events:none;box-sizing:border-box;border:2px dashed var(--sd-accent);border-radius:8px;background:color-mix(in srgb,var(--sd-accent) 8%,transparent);display:flex;align-items:center;justify-content:center;padding:6px}',
+    '.sd-hint b{background:var(--sd-accent);color:var(--sd-on-accent);font:600 13px/1.3 system-ui,sans-serif;padding:6px 10px;border-radius:6px;max-width:90%;text-align:center}',
+    '.sd-toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:9001;max-width:min(560px,calc(100vw - 32px));background:var(--sui-text,var(--sl-text,#1b1b22));color:var(--sui-panel,var(--sl-background,#fff));font:13px/1.4 system-ui,sans-serif;padding:9px 14px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer}',
     '.sd-toast.warn{border-left:4px solid #e0a040}',
-    '.sd-over{outline:2px dashed var(--sui-accent,#3b5bdb);outline-offset:3px}',
+    // The preview: what the app makes (a picture) and how (three steps), above the prompt, so an empty page explains itself.
+    '.sd-preview{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;justify-content:center;width:100%;margin:2px 0 6px;text-align:left}',
+    '.sd-pic{flex:0 1 300px;min-width:0;max-width:100%}',
+    '.sd-pic img{display:block;width:100%;height:auto;max-height:200px;object-fit:cover;object-position:top;border-radius:8px;border:1px solid var(--sd-line);box-shadow:0 4px 14px rgba(0,0,0,.12)}',
+    '.sd-steps{flex:0 1 260px;margin:0;padding:0;list-style:none;counter-reset:sd;display:grid;gap:8px;color:var(--sd-fg);font-size:14px}',
+    '.sd-steps li{counter-increment:sd;display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}',
+    '.sd-steps li::before{content:counter(sd);display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--sd-accent);color:var(--sd-on-accent);font:700 12px/1 system-ui,sans-serif}',
+    '.sd-private{flex:1 1 100%;margin:2px 0 0;font-size:12.5px;text-align:center;color:var(--sd-muted)}',
+    '.sd-private a{color:inherit;text-decoration-color:var(--sd-accent);text-decoration-thickness:2px;text-underline-offset:3px}',
+    '.sd-zone.sd-has .sd-preview,.sd-zone.sd-has .sd-sample{display:none}',   // once files are in, the zone is just the prompt
+    '.sd-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}',
+    '.sd-sample{font:inherit;font-size:13px;padding:7px 12px;border:1px solid transparent;border-radius:6px;background:none;color:var(--sd-fg);text-decoration-color:var(--sd-accent);text-decoration-thickness:2px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}',
+    '.sd-sample:focus-visible{outline:2px solid var(--sd-accent);outline-offset:2px}',
+    '.sd-quiet:not(:has(.sd-list li)):not(:has(.sd-status:not(:empty))){display:none!important}',
+    '.sd-over{outline:2px dashed var(--sd-accent);outline-offset:3px}',
     '.sd-flash{animation:sd-flash 1.2s ease-out}',
-    '@keyframes sd-flash{from{box-shadow:0 0 0 3px var(--sui-accent,#3b5bdb)}to{box-shadow:0 0 0 0 transparent}}',
+    '@keyframes sd-flash{from{box-shadow:0 0 0 3px var(--sd-accent)}to{box-shadow:0 0 0 0 transparent}}',
   ].join('\n');
 
   function style() {
@@ -43,11 +62,51 @@
     s.id = 'sd-style'; s.textContent = CSS;
     doc.head.appendChild(s);
   }
-  /** Replace the zone's content with the module's panel. Returns { list, msg, status, choose } (choose is the button). */
+  /** The preview: o.picture is { src, alt } (a picture of the result), { flow: { from, to } } (SlopFlow) or an element;
+   *  o.steps is a short list of what to do. Below them, a line says everything stays on the device and links How it
+   *  works (o.privacy: false leaves it out). Null when there is neither picture nor steps. */
+  P.preview = function (o) {
+    if (!o || (!o.picture && !(o.steps && o.steps.length))) return null;
+    const box = doc.createElement('div');
+    box.className = 'sd-preview';
+    const pic = o.picture;
+    if (pic) {
+      const fig = doc.createElement('div');
+      fig.className = 'sd-pic';
+      if (pic.nodeType) fig.append(pic);
+      else if (pic.flow && root.SlopFlow) fig.append(root.SlopFlow.create(Object.assign({ size: 'lg' }, pic.flow)).el);
+      // a single-file offline build (opened from file://) has no assets folder beside it: the steps say it there
+      else if (pic.src && !(root.location && root.location.protocol === 'file:')) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.loading = 'lazy'; fig.append(img); }
+      if (fig.firstChild) box.append(fig);
+    }
+    if (o.steps && o.steps.length) {
+      const ol = doc.createElement('ol');
+      ol.className = 'sd-steps'; ol.setAttribute('aria-label', 'How it works');
+      for (const t of o.steps) { const li = doc.createElement('li'); li.textContent = t; ol.append(li); }
+      box.append(ol);
+    }
+    // Every app runs on the device: the preview says so, and links the page that shows how (not from a file:// build).
+    if (o.privacy !== false) {
+      const note = doc.createElement('p');
+      note.className = 'sd-private';
+      note.textContent = 'Everything happens in your browser: nothing is uploaded, and your files stay private on this device. ';
+      if (!(root.location && root.location.protocol === 'file:')) {
+        const a = doc.createElement('a');
+        a.href = '/how-it-works/'; a.textContent = 'How it works';
+        note.append(a);
+      }
+      box.append(note);
+    }
+    return box;
+  };
+  /** Replace the zone's content with the module's panel. Returns { list, msg, status, choose, sample } (the buttons;
+   *  sample is null without o.sample). o.preview (not in a compact strip) and o.sample: see drop.js. */
   P.build = function (zone, o) {
     style();
     const wrap = doc.createElement('div');
     wrap.className = 'sd-zone' + (o.compact ? ' sd-compact' : '');
+    const pv = o.compact ? null : P.preview(o.preview);
+    if (pv) wrap.append(pv);
     const msg = doc.createElement('p');
     msg.className = 'sd-msg';
     msg.textContent = o.label || 'Drop files here or choose files';
@@ -56,7 +115,15 @@
     const choose = doc.createElement('button');
     choose.type = 'button'; choose.className = 'sd-choose';
     choose.textContent = o.chooseLabel || 'Choose files';
-    wrap.append(choose);
+    let sample = null;
+    if (o.sample && !o.compact) {   // a strip stays a strip: an app with its own empty state puts its button there and calls .sample()
+      sample = doc.createElement('button');
+      sample.type = 'button'; sample.className = 'sd-sample';
+      sample.textContent = o.sample.label || 'Try it with a sample';
+      const acts = doc.createElement('div');
+      acts.className = 'sd-acts'; acts.append(choose, sample);
+      wrap.append(acts);
+    } else wrap.append(choose);
     const list = doc.createElement('ul');
     list.className = 'sd-list'; list.setAttribute('aria-label', 'Files being added');
     wrap.append(list);
@@ -64,7 +131,7 @@
     status.className = 'sd-status'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
     wrap.append(status);
     zone.replaceChildren(wrap);
-    return { list, msg, status, choose };
+    return { wrap, list, msg, status, choose, sample };
   };
   /** One file's row in the progress list. state: 'reading' | 'ready' | 'error'. Returns { progress(p), set(state, text) }. */
   P.row = function (list, name, size, text) {

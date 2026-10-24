@@ -148,7 +148,7 @@
     var k = cm && cm.width > 0 && run.width > 0 ? run.width * z / cm.width : 1;
     if (!(k > 0.5 && k < 2) || Math.abs(k - 1) < 0.01) k = 1;
     var paper = S.paperColour(s, run.box).map(function (v) { return Math.round(v * 255); });
-    var input = U.h('input', { type: 'text', class: 'edit-run', value: run.str, 'aria-label': 'Edit text', spellcheck: 'false' });
+    var input = U.h('input', { type: 'text', class: 'edit-run', value: run.str, 'aria-label': 'Edit text', spellcheck: 'false', dir: 'auto' });
     // widths are in the input's own (unscaled) pixels; scaleX(k) from its left edge makes them page pixels
     var minW = b.w * z / k, maxW = Math.max(minW, ((s.layer.clientWidth || Infinity) - b.x * z) / k);
     input.style.left = (b.x * z) + 'px'; input.style.top = ((b.y + 0.98 * fs - asc * fs) * z) + 'px';
@@ -223,6 +223,8 @@
     S.closeRun();
     if (text === run.str) return;
     if (run.ocr) { S.replaceOcrRun(p, run, text, s, font); return; }
+    var key = E.fontKey(font);
+    if (E.needsScripts && E.needsScripts(text, key)) { E.ensureScripts(text, key, font.bold).then(function () { S.coverRun(p, run, font, text, s); }); return; }
     S.coverRun(p, run, font, text, s);
   };
   /** Ordinary text: the old run is covered and the new text drawn over it, as one undo step. */

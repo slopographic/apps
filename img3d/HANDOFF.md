@@ -45,8 +45,12 @@ text and the precache list are at the end of this file.
 | Checked | Runs in ONNX Runtime (Python 1.29) and ONNX Runtime Web (WebAssembly) in headless Chromium on a 1024×640 picture |
 
 The model is **opt-in**. It is listed in `shared/library/packs.json` as pack `depth-anything-v2-small` (kind `model`,
-licence shown before download, size 27 MB, hosts `raw.githubusercontent.com` only). Get more downloads it, checks
-the byte length and SHA-256, and stores it in IndexedDB (`slop-library`). The file is served from the repo's
+licence shown before download, size 27 MB, hosts `raw.githubusercontent.com` only). The first-use notice names the
+download and its size; Continue is the consent, and the first picture then downloads the pack just in time
+(`js/model/jit.js` → `SlopLibraryInstall.install(pack)`, the shared installer: byte length and SHA-256 checked, stored
+in IndexedDB `slop-library`). Get more… can add or remove it too. Once the model has been here (localStorage
+`slop-img3d:depth-had`), its absence means it was removed in Get more, and it is not downloaded again on its own. A
+failed download (offline) is tried once per visit, falls back to brightness and says why. Tests: `tests/img3d/jit.test.html`. The file is served from the repo's
 `vendor/models/depth/` after the change is pushed to `main`, so the pack's download works only once it is pushed.
 Nothing is fetched at load or in a timer.
 
@@ -59,6 +63,7 @@ small (MIT) was not evaluated; V2 Small is Apache-2.0 and its ONNX file is on a 
 - `js/core/` (pure, Node-loadable): `hfmesh.js` (blur, resample, percentile stretch, normals, height field, point cloud,
   splats), `prepare.js` (picture to grids, luminance fallback), `s3d.js` (the Slop 3D scene), `glbwrite.js` (GLB 2.0 writer).
 - `js/model/depth.js`: the depth model (pack, SHA-256 check, ONNX Runtime Web session).
+- `js/model/jit.js`: the just-in-time download after the notice (`decide`, `ensure`, `noteInstalled`).
 - `js/render/orbit.js` (orbit, pan, zoom, frame; vendor/three has no OrbitControls), `js/render/view.js` (three.js r170
   from `vendor/three`, mesh, points, splats).
 - `js/app/image.js` (decode), `js/app/export.js` (OBJ, GLB, Open in Slop 3D), `js/app/main.js` (page controller).

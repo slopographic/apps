@@ -22,36 +22,31 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://slopographic.com/"},{"@type":"ListItem","position":2,"name":"Slop EML","item":"https://slopographic.com/apps/eml/"}]}</script>
   <!-- seo:end -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>:root{--bg:#fbfbf7;--fg:#1b1b1f;--mut:#5f6368;--line:#dcdcd2;--acc:#4f6c00;--on:#fff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}}
-:root[data-theme="dark"]{--bg:#0a0a0a;--fg:#f1ede4;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top,.foot{max-width:860px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
-h2{font-size:1.2rem;margin:2rem 0 .6rem}
-a{color:var(--acc)}
-.eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
-.lead{font-size:1.1rem}
-.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:var(--on);text-decoration:none;font-weight:600}
-.wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:0;list-style:none}
-.cards li{border:1px solid var(--line);border-radius:10px;padding:12px;overflow:hidden}
-.cards .thumb{display:block;width:100%;height:auto;border-radius:6px;margin:0 0 8px;aspect-ratio:16/10;object-fit:cover;background:var(--line)}
-.media{display:grid;gap:16px;margin:1.4rem 0}
-.shot{margin:0}
-.shot img,.clip{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--line)}
-.demo{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
-.demo img{width:200px;max-width:40%;height:auto;border-radius:8px;flex:0 0 auto}
-.demo span{font-size:15px}
-.demo b{color:var(--acc)}
-@media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}</style>
+  <script src="/shared/profile/profile.js"></script>
+  <script src="/shared/theme/theme.js" data-app="site"></script>
+  <script src="/shared/consent/config.js"></script>
+  <script src="/shared/consent/state.js"></script>
+  <script src="/shared/consent/consent-mode.js"></script>
+  <script src="/shared/consent/banner.js"></script>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/shared/landing/landing.css">
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
-<main>
+<div class="l-wrap">
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop EML guide">
+<p class="l-side-app"><a href="/apps/eml/" aria-current="page">Slop EML</a></p>
+<p><a class="btn l-side-open" href="/eml/">Open Slop EML</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/eml/open-eml-file/">Open an EML file</a></li><li><a href="/eml/eml-to-pdf/">EML to PDF</a></li></ul>
+<p class="l-side-h">Compared</p><ul><li><a href="/best/free-eml-viewers/">Free EML viewers</a></li></ul>
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#what-you-can-do-with-slop-eml">What you can do with Slop EML</a></li><li><a href="#how-slop-eml-compares">How Slop EML compares</a></li><li><a href="#feature-matrix">Feature matrix</a></li><li><a href="#file-types">File types</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow">Slop EML · In development</p>
 <h1>EML previewer and converter</h1>
 <p class="lead">Preview, print and convert email files (.eml). Nothing uploaded.</p>
@@ -59,17 +54,32 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <div class="media"><figure class="shot"><img src="/assets/shots/eml.jpg" alt="Slop EML open in a browser" width="1280" height="800" loading="lazy"></figure></div>
 <p>Slop EML has these main features: Headers, HTML and plain text, with attachments; Remote images blocked, nothing loads from the network. It opens Email (.eml).</p>
 <p class="note">In development: some features listed below may not be finished yet.</p>
-<h2>Feature matrix</h2>
+<h2 id="what-you-can-do-with-slop-eml">What you can do with Slop EML</h2>
+<ul><li><a href="/eml/open-eml-file/">Open an .eml email file</a></li><li><a href="/eml/eml-to-pdf/">Convert an EML email to PDF</a></li></ul>
+<h2 id="how-slop-eml-compares">How Slop EML compares</h2>
+<p>Slop EML next to Hypermatic EML Viewer, Loops EML Viewer, Outlook (new Outlook and Outlook on the web): facts from each tool's own pages, checked 2026-10-24. We make Slop EML.</p>
+<div class="wrap"><table class="cmp"><caption>The best free EML viewers: the main facts side by side (checked 2026-10-24)</caption>
+<thead><tr><th scope="col">Tool</th><th scope="col">Price</th><th scope="col">Runs where</th><th scope="col">Account needed</th><th scope="col">Where the file is read</th><th scope="col">Opens .msg too</th></tr></thead><tbody><tr class="us"><th scope="row">Slop EML <span class="l-badge">ours</span></th><td>Free</td><td>Browser</td><td>No</td><td>On your device</td><td>No</td></tr><tr><th scope="row">Hypermatic EML Viewer</th><td>Free</td><td>Browser</td><td>No sign-up</td><td>On your device (parsed locally)</td><td>Not stated</td></tr><tr><th scope="row">Loops EML Viewer</th><td>Not stated</td><td>Browser</td><td>Not stated</td><td>On your device (FileReader, not uploaded)</td><td>Not stated</td></tr><tr><th scope="row">Outlook (new Outlook and Outlook on the web)</th><td>Not stated</td><td>New Outlook for Windows, Outlook on the web</td><td>Not stated for .eml; .msg and .oft need a qualifying Microsoft 365 subscription</td><td>Not stated</td><td>Yes, with a qualifying Microsoft 365 subscription</td></tr></tbody></table></div>
+<div class="wrap"><table class="cmp matrix"><caption>Feature by feature: ✓ yes, ◐ partly or on a paid plan, ✗ no, – not stated by the tool's own pages</caption>
+<thead><tr><th scope="col">Feature</th><th scope="col" class="us">Slop EML <span class="l-badge">ours</span></th><th scope="col">Hypermatic EML Viewer</th><th scope="col">Loops EML Viewer</th><th scope="col">Outlook (new Outlook and Outlook on the web)</th></tr></thead><tbody><tr><th scope="row">Works in a browser, no install</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td></tr><tr><th scope="row">File stays on your device</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">No account or sign-up</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Opens .msg (Outlook) files</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td></tr><tr><th scope="row">HTML and plain-text body</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Remote images and tracking pixels blocked</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Scripts blocked in the preview</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Embedded (cid) images shown</th><td>On request</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Save attachments</th><td>One, or several as a ZIP</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Preview attachments</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Raw source view</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Print</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Save as PDF</th><td>Text only</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td></tr><tr><th scope="row">Several messages at once</th><td>Tabs</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td>Bulk import to a mailbox</td></tr></tbody></table></div>
+<p><a href="/best/free-eml-viewers/">The full comparison, with sources: The best free EML viewers</a></p>
+<h2 id="feature-matrix">Feature matrix</h2>
 <div class="wrap"><table>
 <caption>Slop EML: features, status and file types</caption>
 <thead><tr><th scope="col">Feature</th><th scope="col">Status</th><th scope="col">File types</th></tr></thead>
 <tbody><tr><td>Headers, HTML and plain text, with attachments</td><td>In development</td><td>Email (.eml)</td></tr><tr><td>Remote images blocked, nothing loads from the network</td><td>In development</td><td>Email (.eml)</td></tr><tr><td>Print keeps the layout, PDF keeps the text</td><td>In development</td><td>Email (.eml)</td></tr><tr><td>Several messages open in tabs</td><td>In development</td><td>Email (.eml)</td></tr></tbody>
 </table></div>
-<h2>File types</h2>
+<h2 id="file-types">File types</h2>
 <p>Slop EML opens Email (.eml).</p>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li><li><img class="thumb" src="/assets/shots/ocr.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ocr/">Slop OCR</a><br><span class="note">Beta</span><br>Read text from images and scanned PDFs on your device. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/html2pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/html2pdf/">Slop HTML to PDF</a><br><span class="note">Beta</span><br>Print an HTML file to PDF with a header and QR code. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/ai.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ai/">Slop AI</a><br><span class="note">Beta</span><br>Chat with an AI that runs on your own computer.</li></ul>
 <p class="note"><a href="/compare/">Compare all apps in the feature matrix</a></p>
+</div>
+</div>
 </main>
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+</div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
+<script src="/shell/shell.js"></script>
 </body>
 </html>

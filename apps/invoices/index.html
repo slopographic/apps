@@ -22,36 +22,31 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://slopographic.com/"},{"@type":"ListItem","position":2,"name":"Slop Invoices","item":"https://slopographic.com/apps/invoices/"}]}</script>
   <!-- seo:end -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>:root{--bg:#fbfbf7;--fg:#1b1b1f;--mut:#5f6368;--line:#dcdcd2;--acc:#4f6c00;--on:#fff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}}
-:root[data-theme="dark"]{--bg:#0a0a0a;--fg:#f1ede4;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top,.foot{max-width:860px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
-h2{font-size:1.2rem;margin:2rem 0 .6rem}
-a{color:var(--acc)}
-.eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
-.lead{font-size:1.1rem}
-.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:var(--on);text-decoration:none;font-weight:600}
-.wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:0;list-style:none}
-.cards li{border:1px solid var(--line);border-radius:10px;padding:12px;overflow:hidden}
-.cards .thumb{display:block;width:100%;height:auto;border-radius:6px;margin:0 0 8px;aspect-ratio:16/10;object-fit:cover;background:var(--line)}
-.media{display:grid;gap:16px;margin:1.4rem 0}
-.shot{margin:0}
-.shot img,.clip{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--line)}
-.demo{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
-.demo img{width:200px;max-width:40%;height:auto;border-radius:8px;flex:0 0 auto}
-.demo span{font-size:15px}
-.demo b{color:var(--acc)}
-@media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}</style>
+  <script src="/shared/profile/profile.js"></script>
+  <script src="/shared/theme/theme.js" data-app="site"></script>
+  <script src="/shared/consent/config.js"></script>
+  <script src="/shared/consent/state.js"></script>
+  <script src="/shared/consent/consent-mode.js"></script>
+  <script src="/shared/consent/banner.js"></script>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/shared/landing/landing.css">
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
-<main>
+<div class="l-wrap">
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Invoices guide">
+<p class="l-side-app"><a href="/apps/invoices/" aria-current="page">Slop Invoices</a></p>
+<p><a class="btn l-side-open" href="/invoices/">Open Slop Invoices</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/invoices/free-invoice-generator/">Free invoice generator</a></li><li><a href="/invoices/invoice-with-vat/">Invoice with VAT or sales tax</a></li><li><a href="/invoices/recurring-invoices/">Recurring invoices</a></li><li><a href="/invoices/credit-note/">Credit note</a></li><li><a href="/invoices/customer-statement/">Customer statement</a></li><li><a href="/invoices/wave-alternative/">Free Wave alternative</a></li></ul>
+<p class="l-side-h">Compared</p><ul><li><a href="/best/free-invoice-generators/">Best free invoicing software</a></li></ul>
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#what-you-can-do-with-slop-invoices">What you can do with Slop Invoices</a></li><li><a href="#how-slop-invoices-compares">How Slop Invoices compares</a></li><li><a href="#feature-matrix">Feature matrix</a></li><li><a href="#file-types">File types</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow">Slop Invoices · Beta</p>
 <h1>Invoices</h1>
 <p class="lead">Gapless invoices, payments and a ledger. Nothing uploaded.</p>
@@ -59,17 +54,32 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <div class="media"><figure class="shot"><img src="/assets/shots/invoices.jpg" alt="Slop Invoices open in a browser" width="1280" height="800" loading="lazy"></figure></div>
 <p>Slop Invoices has these main features: Gapless numbers on issue, posted to the ledger; Payments, overdue and balances by customer.</p>
 <p class="note">Beta: still being tested, so some parts may change.</p>
-<h2>Feature matrix</h2>
+<h2 id="what-you-can-do-with-slop-invoices">What you can do with Slop Invoices</h2>
+<ul><li><a href="/invoices/free-invoice-generator/">Free invoice generator with templates and PDF</a></li><li><a href="/invoices/invoice-with-vat/">Make an invoice with VAT or sales tax</a></li><li><a href="/invoices/recurring-invoices/">Recurring invoices every week or month</a></li><li><a href="/invoices/credit-note/">Make a credit note for an invoice</a></li><li><a href="/invoices/customer-statement/">Customer statement and payment reminders</a></li><li><a href="/invoices/wave-alternative/">A free Wave alternative for invoicing, in your browser</a></li></ul>
+<h2 id="how-slop-invoices-compares">How Slop Invoices compares</h2>
+<p>Slop Invoices next to Zoho Invoice, Wave, Invoice Ninja: facts from each tool's own pages, checked 2026-10-24. We make Slop Invoices.</p>
+<div class="wrap"><table class="cmp"><caption>The best free invoicing software, compared: the main facts side by side (checked 2026-10-24)</caption>
+<thead><tr><th scope="col">Tool</th><th scope="col">Price</th><th scope="col">Free plan limits</th><th scope="col">Account</th><th scope="col">Online payments</th><th scope="col">Where invoices are kept</th></tr></thead><tbody><tr class="us"><th scope="row">Slop Invoices <span class="l-badge">ours</span></th><td>Free</td><td>None set by us</td><td>Not needed</td><td>No (record payments by hand)</td><td>In your browser, on this device</td></tr><tr><th scope="row">Zoho Invoice</th><td>Free</td><td>Up to 500 invoices a year, 2 users, 3 projects</td><td>Zoho account</td><td>Yes (&quot;multiple payment options&quot;)</td><td>Zoho's servers</td></tr><tr><th scope="row">Wave</th><td>Starter free; Pro $19 a month or $190 a year (USD)</td><td>Unlimited invoices and estimates on Starter</td><td>Wave account</td><td>Yes: 2.9% + $0.60 per card payment on Starter</td><td>Wave's servers</td></tr><tr><th scope="row">Invoice Ninja</th><td>Free; Pro $14 a month or $140 a year</td><td>5 clients, unlimited invoices</td><td>Invoice Ninja account</td><td>Yes: Stripe, PayPal, Square, GoCardless and more</td><td>Invoice Ninja's servers (its site links to a self-hosting option)</td></tr></tbody></table></div>
+<div class="wrap"><table class="cmp matrix"><caption>Feature by feature: ✓ yes, ◐ partly or on a paid plan, ✗ no, – not stated by the tool's own pages</caption>
+<thead><tr><th scope="col">Feature</th><th scope="col" class="us">Slop Invoices <span class="l-badge">ours</span></th><th scope="col">Zoho Invoice</th><th scope="col">Wave</th><th scope="col">Invoice Ninja</th></tr></thead><tbody><tr><th scope="row">Invoices on the free plan</th><td>No limit</td><td>500 a year</td><td>Unlimited</td><td>Unlimited</td></tr><tr><th scope="row">Clients on the free plan</th><td>No limit</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td>5</td></tr><tr><th scope="row">Invoice templates with your logo</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">PDF invoices</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Tax rates per line</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Several currencies</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Recurring invoices</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Quotes or estimates</th><td>In Slop Quotes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Online card payments</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Automatic payment reminders</th><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td></tr><tr><th scope="row">Client portal</th><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Expense tracking</th><td>In Slop Expenses</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">Time tracking</th><td>In Slop Timesheets</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-unknown"><span aria-hidden="true">–</span> Not stated</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">No branding of the tool on your invoices</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td><td class="m-partial"><span aria-hidden="true">◐</span> Partly</td></tr><tr><th scope="row">Mobile app</th><td>Browser only</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td></tr><tr><th scope="row">No account needed</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-no"><span aria-hidden="true">✗</span> No</td></tr><tr><th scope="row">Invoices kept on your device</th><td class="m-yes"><span aria-hidden="true">✓</span> Yes</td><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-no"><span aria-hidden="true">✗</span> No</td><td class="m-no"><span aria-hidden="true">✗</span> No</td></tr></tbody></table></div>
+<p><a href="/best/free-invoice-generators/">The full comparison, with sources: The best free invoicing software, compared</a></p>
+<h2 id="feature-matrix">Feature matrix</h2>
 <div class="wrap"><table>
 <caption>Slop Invoices: features, status and file types</caption>
 <thead><tr><th scope="col">Feature</th><th scope="col">Status</th><th scope="col">File types</th></tr></thead>
 <tbody><tr><td>Gapless numbers on issue, posted to the ledger</td><td>Beta</td><td>Not listed yet</td></tr><tr><td>Payments, overdue and balances by customer</td><td>Beta</td><td>Not listed yet</td></tr><tr><td>Printable invoice and PDF</td><td>Beta</td><td>Not listed yet</td></tr><tr><td>Void while unpaid</td><td>Beta</td><td>Not listed yet</td></tr></tbody>
 </table></div>
-<h2>File types</h2>
+<h2 id="file-types">File types</h2>
 <p>No specific file types are listed for this app yet.</p>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/reports.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/reports/">Slop Reports</a><br><span class="note">Beta</span><br>Totals and lists across Contacts, Invoices, Expenses and CRM, with profit by month. Read-only.</li><li><img class="thumb" src="/assets/shots/ocr.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ocr/">Slop OCR</a><br><span class="note">Beta</span><br>Read text from images and scanned PDFs on your device. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/html2pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/html2pdf/">Slop HTML to PDF</a><br><span class="note">Beta</span><br>Print an HTML file to PDF with a header and QR code. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/ai.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ai/">Slop AI</a><br><span class="note">Beta</span><br>Chat with an AI that runs on your own computer.</li></ul>
 <p class="note"><a href="/compare/">Compare all apps in the feature matrix</a></p>
+</div>
+</div>
 </main>
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+</div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
+<script src="/shell/shell.js"></script>
 </body>
 </html>

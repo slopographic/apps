@@ -56,12 +56,14 @@
     if (!ed.isNew) { var o = fin; o.text = ed.before; var tl = E.textLayout(o); void tl; }
     if (commit && !empty) {
       fin.text = S.ta.value;
-      var t = E.textLayout(fin);
-      if (ed.isNew) { Ed.addAnnot(fin, 'Add text'); Ed.tool = 'select'; S.pageEl.dataset.tool = 'select'; if (SP.app) SP.app.toolChanged(); }
-      else if (fin.text !== ed.before) {
-        void t;
-        S.commitPage('Edit text', function (pp) { pp.annots = pp.annots.map(function (y) { return y.id === fin.id ? fin : y; }); });
-      } else { S.restoreGeom(a, fin); Ed.paint(); }
+      var go = function () {
+        if (ed.isNew) { Ed.addAnnot(fin, 'Add text'); Ed.tool = 'select'; S.pageEl.dataset.tool = 'select'; if (SP.app) SP.app.toolChanged(); }
+        else if (fin.text !== ed.before) S.commitPage('Edit text', function (pp) { pp.annots = pp.annots.map(function (y) { return y.id === fin.id ? fin : y; }); });
+        else { S.restoreGeom(a, fin); Ed.paint(); }
+      };
+      // text in another script waits for its language font (text-intl.js), downloaded just in time
+      if (E.needsScripts && E.needsScripts(fin.text, E.fontKey(fin))) E.ensureScripts(fin.text, E.fontKey(fin), fin.bold).then(go, go);
+      else go();
     } else if (!ed.isNew && empty) {
       S.commitPage('Delete text', function (pp) { pp.annots = pp.annots.filter(function (y) { return y.id !== fin.id; }); });
       Ed.select(null);

@@ -17,6 +17,7 @@
   const DEPS = [
     [() => root.SlopLibraryManifest, '../library/manifest.js'],
     [() => root.SlopLibraryStore, '../library/store.js'],
+    [() => root.SlopLibraryInstall, '../library/install.js'],
     [() => root.SlopLibrary, '../library/get-more.js'],
     [() => root.SlopFontCatalog, 'catalog.js'],
     [() => root.SlopFonts && root.SlopFonts.openPanel, 'panel.js'],

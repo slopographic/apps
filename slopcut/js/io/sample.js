@@ -72,9 +72,10 @@
     const ext = (blob) => (blob.type.includes('mp4') ? '.mp4' : '.webm');
     return [new File([a], 'Sunset run' + ext(a), { type: a.type }), new File([b], 'Slime lab' + ext(b), { type: b.type }), new File([mus], 'Goo groove.wav', { type: 'audio/wav' }), new File([logo], 'Sloppo logo.png', { type: 'image/png' })];
   };
-  /** Build the sample timeline from imported metas [videoA, videoB, music, logo]. */
+  /** Build the sample timeline from the imported metas (picked by name: the import lists them as each one is read). */
   S.assemble = function (p, metas) {
-    const [va, vb, mus, logo] = metas;
+    const pick = (re) => metas.find((m) => re.test(m.name));
+    const va = pick(/^Sunset run/), vb = pick(/^Slime lab/), mus = pick(/^Goo groove/), logo = pick(/^Sloppo logo/);
     const V = M.videoTracks(p), Au = M.audioTracks(p);
     E.addMedia(p, va, V[0].id, 0);
     const bIds = E.addMedia(p, vb, V[0].id, M.end(M.clip(p, p.clips[0].id)));
@@ -91,7 +92,7 @@
       Object.assign(c, { dur: Math.max(1, M.end(bClip) - 1), scale: 0.18, x: p.w * 0.39, y: -p.h * 0.36, opacity: 0.9, fadeIn: 0.5, fadeOut: 0.5 });
     }
     const tt = M.addTrack(p, 'video');
-    E.addGenerated(p, 'title', tt.id, 0.4, Math.min(3, bClip.start), { text: { str: 'SLOPEDIT', size: Math.round(p.h * 0.12), anim: 'pop' }, y: p.h * 0.18 });
+    E.addGenerated(p, 'title', tt.id, 0.4, Math.min(3, bClip.start), { text: { str: 'SLOPCUT', size: Math.round(p.h * 0.12), anim: 'pop' }, y: p.h * 0.18 });
     p.markers.push({ id: U.uid('k'), t: bClip.start, name: 'Cut to lab', color: '#ffc94a' });
     E.setTransition(p, p.clips[0].id, 'black', 0.6);
   };

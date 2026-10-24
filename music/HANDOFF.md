@@ -7,9 +7,10 @@ network request. Files are read from Slop Drive (IndexedDB) and played through o
 
 - **Library**: every audio file in Slop Drive (`SlopHub.list` with the audio types). Add files with the picker
   or drop them on the Library; they are saved into Slop Drive first. Sort by artist, album or title; search.
-- **Title, artist, album**: ID3v2 tags are read by hand (see below). Without a tag, the title is the file name
+- **Title, artist, album**: ID3v2 tags, and the Vorbis comments of FLAC, Ogg Vorbis and Opus files, are read by
+  hand (see below). Vorbis comments also give track number (album order), year and genre (shown on Now playing). Without a tag, the title is the file name
   without its extension. Duration comes from the WAV header, or from one decode of the file (cached).
-- **Covers**: the ID3 APIC picture when present, else a generated tile in a colour from the title.
+- **Covers**: the ID3 APIC picture, or the FLAC picture block / Ogg METADATA_BLOCK_PICTURE (front cover first), when present, else a generated tile in a colour from the title.
 - **Playback**: play, pause, next, previous (previous restarts a track after 3 s), shuffle (the current track
   stays first), repeat off / all / one, seek on the full waveform (decoded once, peaks cached in IndexedDB),
   volume, speed 0.5× to 2×, mute.
@@ -31,7 +32,8 @@ network request. Files are read from Slop Drive (IndexedDB) and played through o
 | Path | What |
 |---|---|
 | `index.html`, `css/music.css` | The page: three views, the mini bar, the queue sheet, an SVG icon sprite. |
-| `js/core/id3.js` | ID3v2 reader (v2.2, 2.3, 2.4), WAV header reader, MIME and title helpers. |
+| `js/core/id3.js` | ID3v2 reader (v2.2, 2.3, 2.4), WAV header reader, MIME and title helpers. `readTags` also asks vorbis.js. |
+| `js/core/vorbis.js` | Vorbis comments: FLAC metadata blocks (comment, picture) and Ogg Vorbis / Opus comment packets. |
 | `js/core/queue.js` | Play order: shuffle, repeat, next and previous. Pure functions. |
 | `js/core/store.js` | IndexedDB `slop-music`: `analysis` and `playlists` stores. |
 | `js/core/analyze.js` | Per-file analysis (tags, duration, peaks, cover), cached by Drive id and size. |
@@ -54,7 +56,16 @@ From an ID3v2 tag at the start of the file (MP3 and any file that carries one):
 - Header flags: the v2.3 unsynchronisation and extended header, and the v2.4 per-frame unsynchronisation and
   data length indicator. Compressed or encrypted frames are skipped.
 
-Not read: track number, year, genre, comments, lyrics, ReplayGain.
+Not read from ID3: track number, year, genre, comments, lyrics, ReplayGain.
+
+## Vorbis comments (FLAC, Ogg Vorbis, Opus)
+
+`vorbis.js`, after any ID3 tag at the start (ID3 fields win, Vorbis fills the rest): FLAC `METADATA_BLOCK_VORBIS_COMMENT`
+(type 4) and `METADATA_BLOCK_PICTURE` (type 6); Ogg: the second packet (`\x03vorbis` or `OpusTags`, may span pages) and
+its base64 `METADATA_BLOCK_PICTURE` comment. Keys TITLE, ARTIST, ALBUM, TRACKNUMBER ("3/12" gives 3), DATE (the year),
+GENRE; the first of each wins. Picture type 3 (front cover) is preferred. Tests: `tests/node/music-vorbis.test.mjs`
+(hand-built FLAC and Ogg bytes from `tests/music/fixtures.js`) and the FLAC case in `tests/music/library.test.html`.
+Analysis VERSION 2 re-reads cached tracks once.
 
 ## Formats and browsers
 

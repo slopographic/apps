@@ -10,7 +10,10 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ROOT, SITE, loadRegistry, isPage, pageUrl } from './site.mjs';
-import { landingPages } from './landing.mjs';
+import { landingPages, siteTop, siteFoot, SITE_HEAD } from './landing.mjs';
+import { taskPages, taskJsonLd, videoJsonLd, hubPage } from './tasks.mjs';
+import { roundupPages, roundupJsonLd, roundupIndex } from './roundups.mjs';
+import { guidePages, guideJsonLd } from './guides.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
 const DEFAULT_IMAGE = `${SITE}/og-share.png`;
@@ -98,6 +101,13 @@ export function validateCopy(entries) {
   }
 }
 
+/** Writes the site frame into a hand-made page between its markers: <!-- site:head --> (theme, consent, the content-page
+ *  stylesheet), <!-- site:top --> (the header) and <!-- site:foot --> (the footer). A page without markers is unchanged. */
+export function siteChrome(html) {
+  const put = (name, body) => (h) => h.replace(new RegExp(`<!-- site:${name} -->[\\s\\S]*?<!-- /site:${name} -->`), `<!-- site:${name} -->\n${body}\n<!-- /site:${name} -->`);
+  return [put('head', SITE_HEAD.map((t) => '  ' + t).join('\n')), put('top', siteTop()), put('foot', siteFoot())].reduce((h, f) => f(h), html);
+}
+
 /** Builds every page's new content. Returns [{ file, html }] for pages and sitemap, plus the list of problems. */
 export async function build({ date }) {
   const { HOME, APPS, ABOUT, LANDING, PAGES = {} } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'copy.mjs')).href);
@@ -115,8 +125,20 @@ export async function build({ date }) {
     if (!ABOUT[a.id]) throw new Error(`${a.id}: has about/ but no entry in shared/seo/copy.mjs ABOUT`);
     copyEntries.push([`${a.id} about`, ABOUT[a.id]]);
   }
-  const landing = landingPages(apps, SITE, LANDING);
+  const { TASKS } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'tasks', 'index.mjs')).href);
+  const { ROUNDUPS } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'roundups', 'index.mjs')).href);
+  const { GUIDES } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'guides', 'index.mjs')).href);
+  const landing = landingPages(apps, SITE, LANDING, TASKS, ROUNDUPS, GUIDES);
   for (const p of landing) copyEntries.push([`${p.key} landing`, LANDING[p.key]]);
+  const tasks = taskPages(apps, SITE, TASKS, { ROUNDUPS, GUIDES });
+  for (const p of tasks) copyEntries.push([`${p.key} task`, p.task]);
+  const hub = hubPage(apps, SITE, TASKS);
+  copyEntries.push(['all-tools landing', LANDING['all-tools']]);
+  const best = roundupPages(apps, SITE, ROUNDUPS, { TASKS, GUIDES }), bestIndex = roundupIndex(SITE, ROUNDUPS);
+  for (const p of best) copyEntries.push([`${p.key} roundup`, p.r]);
+  copyEntries.push(['best landing', LANDING.best]);
+  const guides = guidePages(apps, SITE, GUIDES, { TASKS, ROUNDUPS });
+  for (const p of guides) copyEntries.push([`${p.key} guide`, p.guide]);
   for (const slug of Object.keys(PAGES)) copyEntries.push([`${slug} page`, PAGES[slug]]);
   validateCopy(copyEntries);
 
@@ -157,7 +179,7 @@ export async function build({ date }) {
     // A viewport tag outside the generated block is the page's own: the block then leaves it alone. A tag inside the block is kept.
     const outside = before.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, '');
     const addViewport = !/<meta[^>]+name=["']viewport["']/i.test(outside);
-    const after = injectHead(before, headBlock({ ...p.block, viewport: addViewport }));
+    const after = siteChrome(injectHead(before, headBlock({ ...p.block, viewport: addViewport })));
     out.push({ file: p.file, html: after, before });
   }
   // Landing pages: the body comes from landing.mjs, the head block is the same as for every other page.
@@ -167,9 +189,38 @@ export async function build({ date }) {
     const block = { title: LANDING[p.key].title, description: LANDING[p.key].description, url: p.url, image: DEFAULT_IMAGE, viewport: false,
       jsonld: [{ '@context': 'https://schema.org', '@type': 'WebPage', name: LANDING[p.key].title, description: LANDING[p.key].description, url: p.url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } },
         { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: p.crumb, item: p.url }] }] };
+    const app = apps.find((a) => a.id === p.key), video = app && videoJsonLd(app, SITE);
+    if (video) block.jsonld.push(video);
     out.push({ file, html: injectHead(p.html, headBlock(block)), before });
   }
-  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
+  // Task pages (tools/seo/tasks.mjs, copy in shared/seo/tasks/): the same head block, with their own JSON-LD.
+  for (const p of tasks) {
+    const file = path.join(ROOT, p.dir, 'index.html');
+    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
+    const image = imageFor(p.app);
+    const block = { title: p.task.title, description: p.task.description, url: p.url, image, viewport: false, jsonld: taskJsonLd(p.task, p.app, p.url, SITE) };
+    out.push({ file, html: injectHead(p.html, headBlock(block)), before });
+  }
+  { // the hub of every task page
+    const file = path.join(ROOT, hub.dir, 'index.html'), copy = LANDING['all-tools'];
+    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
+    const jsonld = [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: copy.title, description: copy.description, url: hub.url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: 'All tools', item: hub.url }] }];
+    out.push({ file, html: injectHead(hub.html, headBlock({ title: copy.title, description: copy.description, url: hub.url, image: DEFAULT_IMAGE, viewport: false, jsonld })), before });
+  }
+  // guides (/<app>/<slug>/): the same head block, with their own JSON-LD
+  for (const p of guides) {
+    const file = path.join(ROOT, p.dir, 'index.html'), before = existsSync(file) ? await readFile(file, 'utf8') : '';
+    out.push({ file, html: injectHead(p.html, headBlock({ title: p.guide.title, description: p.guide.description, url: p.url, image: imageFor(p.app), viewport: false, jsonld: guideJsonLd(p.guide, p.app, p.url, SITE) })), before });
+  }
+  // round-ups (/best/<slug>/) and their index: the same head block, with their own JSON-LD
+  for (const p of [...best, { ...bestIndex, r: null }]) {
+    const file = path.join(ROOT, p.dir, 'index.html'), copy = p.r || LANDING.best;
+    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
+    const jsonld = p.r ? roundupJsonLd(p.r, p.url, SITE) : [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: copy.title, description: copy.description, url: p.url }];
+    out.push({ file, html: injectHead(p.html, headBlock({ title: copy.title, description: copy.description, url: p.url, image: DEFAULT_IMAGE, viewport: false, jsonld })), before });
+  }
+  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...tasks.map((p) => p.url), ...guides.map((p) => p.url), hub.url, bestIndex.url, ...best.map((p) => p.url), ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
   return out;
 }
 

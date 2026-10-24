@@ -9,10 +9,11 @@
   <script src="../harness.js"></script>
   <script src="../../aitools/transcript.js"></script>
   <script type="module">
-  // Covers: aitools/transcript.js, transcribe/js/queue.js, transcribe/js/exports.js, transcribe/js/record.js
+  // Covers: aitools/transcript.js, transcribe/js/languages.js, transcribe/js/queue.js, transcribe/js/exports.js, transcribe/js/record.js
   import { createQueue, isMedia, MAX_SECONDS } from '../../transcribe/js/queue.js';
   import { fileOf, textOf, stem, FORMATS } from '../../transcribe/js/exports.js';
   import { createRecorder, recordingName, micReason } from '../../transcribe/js/record.js';
+  import { LANGUAGES, languageName, fillLanguages } from '../../transcribe/js/languages.js';
   import { readZip, readText } from '../../shared/office/zip.js';
   const { describe, it, expect, waitFor, run } = SlopTest;
   const X = window.SlopTranscript;
@@ -132,6 +133,28 @@
       expect(msg).toContain('blocked');
       expect(micReason({ name: 'NotFoundError' })).toBe('No microphone was found.');
       expect(recordingName(new Date(2026, 9, 24, 9, 5), 'ogg')).toBe('Recording 2026-10-24 09.05.ogg');
+    });
+  });
+  describe('the spoken languages (languages.js)', () => {
+    it('lists all 99 Whisper languages once, sorted by English name, each a Whisper token code', () => {
+      expect(LANGUAGES.length).toBe(99);
+      expect(new Set(LANGUAGES.map((l) => l.code)).size).toBe(99);
+      const names = LANGUAGES.map((l) => l.name);
+      expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, 'en')));
+      // speech-engine.js finds the language tokens as <|xx|> or <|xxx|> between <|startoftranscript|> and <|transcribe|>
+      expect(LANGUAGES.every((l) => /^[a-z]{2,3}$/.test(l.code))).toBe(true);
+      const codes = LANGUAGES.map((l) => l.code);
+      for (const c of ['en', 'sv', 'haw', 'jw', 'yo', 'ln', 'su']) expect(codes.includes(c)).toBe(true);
+      expect(codes.includes('jv')).toBe(false);   // Whisper's Javanese token is jw
+    });
+    it('names a code in English; Detect is auto; the menu has Detect first and keeps a known choice', () => {
+      expect([languageName('sv'), languageName('haw'), languageName('auto'), languageName('xx')]).toEqual(['Swedish', 'Hawaiian', 'Detect', 'xx']);
+      const sel = fillLanguages(document.createElement('select'));
+      expect(sel.options.length).toBe(100);
+      expect([sel.options[0].value, sel.options[0].textContent, sel.value]).toEqual(['auto', 'Detect', 'auto']);
+      expect(sel.options[1].textContent).toBe('Afrikaans');
+      expect(fillLanguages(sel, 'fo').value).toBe('fo');
+      expect(fillLanguages(sel, 'nope').value).toBe('auto');
     });
   });
   run();

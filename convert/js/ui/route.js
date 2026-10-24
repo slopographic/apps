@@ -1,6 +1,6 @@
 /* Slop Convert: the URL sections (shared/router) and the view modes (shared/viewmode). Parameter: ?to=<format>, the
- * format the converter starts on (for example ?to=pdf). Applied once, when the converter has its formats (they depend on
- * the files chosen, so the link waits for them); written when the person picks a format. The files are never in the URL.
+ * format the converter starts on (for example ?to=pdf-to-docx). Applied once, when the converter first offers it (the
+ * formats depend on the files chosen, so the link waits for them); written when the person picks a format. The files are never in the URL.
  * Classic script; loads after the converter module. */
 (function () {
   'use strict';
@@ -10,20 +10,25 @@
     const R = SlopRoute.register('convert', {
       params: { to: { pattern: /^[a-z0-9-]{1,12}$/, def: '' } },
     });
-    let applied = false;
+    // The link's format is applied the first time the list offers it (after the files that allow it are added), and
+    // only once. A format the person picks first wins.
+    let applied = !R.has('to') || !R.get('to');
     const obs = new MutationObserver(() => {
-      const sel = $('cv-target');
-      if (applied || !sel || sel.options.length === 0) return;
+      const sel = $('cv-target'), want = R.get('to');
+      if (applied || !sel || ![...sel.options].some((o) => o.value === want)) return;
       applied = true;
       obs.disconnect();
-      const want = R.get('to');
-      if (R.has('to') && want && [...sel.options].some((o) => o.value === want) && sel.value !== want) {
+      if (sel.value !== want) {
         sel.value = want;
         sel.dispatchEvent(new Event('change'));
       }
     });
-    obs.observe(document.body, { childList: true, subtree: true });
-    document.addEventListener('change', (e) => { if (e.target && e.target.id === 'cv-target') R.set({ to: e.target.value }); });
+    if (!applied) obs.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('change', (e) => {
+      if (!e.target || e.target.id !== 'cv-target') return;
+      if (e.isTrusted) { applied = true; obs.disconnect(); }
+      R.set({ to: e.target.value });
+    });
     SlopViewMode.register('convert', {
       regions: { toolbar: '.cv-top', panels: ['.cv-explain', '.cv-card'] },
       edges: { panels: 'bottom' },

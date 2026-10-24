@@ -119,7 +119,7 @@
     });
   });
 
-  describe('Slop Resize: keep aspect ratio in the panel', () => {
+  describe('Slop Resize: keep aspect ratio in the panel (Fit inside)', () => {
     let win = null, doc = null;
     const type = (id, v) => { const e = doc.getElementById(id); e.value = String(v); e.dispatchEvent(new win.Event('input', { bubbles: true })); };
     const check = (id, v) => { const e = doc.getElementById(id); e.checked = v; e.dispatchEvent(new win.Event('change', { bubbles: true })); };
@@ -135,6 +135,8 @@
       const c = doc.createElement('canvas'); c.width = 1000; c.height = 500;
       await win.SlopResize.queue.add(new win.File([await new Promise((r) => c.toBlob(r, 'image/png'))], 'wide.png', { type: 'image/png' }));
       await new Promise((r) => setTimeout(r, 50));
+      // the lock follows the picture for Fit inside (Fit and Cover keep the box: tests/resize/box.test.html)
+      const fill = doc.getElementById('rs-fill'); fill.value = 'within'; fill.dispatchEvent(new win.Event('change', { bubbles: true }));
     }
     it('typing a width sets the height from the picture ratio (1000 × 500: width 500 gives height 250)', async () => {
       await panel();

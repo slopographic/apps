@@ -1,5 +1,5 @@
 /* SlopHeader: adds the shell's buttons to the page header: the theme menu (every page, from SlopTheme), "Apps" (opens
- * the switcher) and the notifications bell. Goes at the end of header.topbar, header.menubar or header.nav, or floats at the
+ * the switcher), the notifications bell, and Tutorial (the app's YouTube tutorial, when the registry has one). Goes at the end of header.topbar, header.menubar or header.nav, or floats at the
  * top right when the page has no header. Loaded and mounted by shell/shell.js, which applies the language after.
  * The Apps text and the button's aria-label are marked for SlopI18n; the title is set here (it carries the shortcut). */
 (function () {
@@ -7,6 +7,7 @@
   if (window.SlopHeader) return;
   const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>';
   const ICON_THEME = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>';
+  const ICON_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>';
   const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
   let sw = null;
 
@@ -45,6 +46,21 @@
     return b;
   }
 
+  /** The app's video tutorial (shared/apps.js `video`), opened on YouTube in a new tab: the page itself loads nothing
+   *  from YouTube. Null on a page whose app has no tutorial. */
+  function tutorialLink() {
+    const app = window.SlopShell && window.SlopShell.currentApp, v = app && app.video;
+    if (!v || !/^[\w-]{6,20}$/.test(v.id)) return null;
+    const a = document.createElement('a');
+    a.className = 'sh-hbtn slop-hbtn sh-tutorial';
+    a.href = 'https://www.youtube.com/watch?v=' + v.id;
+    a.target = '_blank'; a.rel = 'noopener';
+    a.title = 'Watch the video tutorial (YouTube)';
+    a.setAttribute('aria-label', 'Watch the ' + app.name + ' video tutorial on YouTube');
+    a.innerHTML = ICON_PLAY;   // an icon only: the app's own controls keep the header's room (title and label say what it is)
+    return a;
+  }
+
   function mount() {
     if (window.SlopBrand && window.SlopBrand.appMark) window.SlopBrand.appMark(); // the app's icon in the header brand (brand/brand.js)
     const box = document.createElement('div');
@@ -58,7 +74,8 @@
     sw.title = title();
     sw.innerHTML = ICON_SEARCH + '<span class="sh-hbtn-txt slop-hbtn-txt" data-i18n="nav.apps">Apps</span>';
     sw.addEventListener('click', () => window.SlopSwitcher.toggle());
-    const theme = themeButton();
+    const tut = tutorialLink(), theme = themeButton();
+    if (tut) box.append(tut);
     if (theme) box.append(theme);
     box.append(sw);
     const host = document.querySelector('header.topbar, header.menubar, header.nav, header');

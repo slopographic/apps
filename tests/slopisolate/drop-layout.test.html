@@ -7,7 +7,8 @@
 </head>
 <body>
   <!-- The drop zone is part of the workspace column: it must sit above the stage, never over the preview or the canvas,
-       in the empty state and once images are in, at desktop and phone widths. -->
+       in the empty state and once images are in, at desktop and phone widths. The empty card shows the preview.
+       Covers: slopisolate/index.html, slopisolate/js/io/files.js, slopisolate/css/workspace.css, assets/shots/cutout.jpg -->
   <iframe id="wide" src="../../slopisolate/index.html"></iframe>
   <iframe id="phone" src="../../slopisolate/index.html"></iframe>
   <script>try { localStorage.setItem('slop-firstrun:slopisolate', '1'); } catch (e) { /* private window: the notice shows, and the tests dismiss it */ }</script>
@@ -21,6 +22,7 @@
     const frame = document.getElementById(id);
     const win = frame.contentWindow;
     await waitFor(() => win.document && win.document.getElementById('isoDrop') && win.document.querySelector('#isoDrop .sd-choose'), { timeout: 30000 });
+    win.document.querySelector('#isoDrop .sd-status').textContent = 'Added 1 file';   // hidden at rest: check it where it shows
     // the phone frame sits below the fold: bring it into view so its layout runs
     frame.scrollIntoView({ block: 'start' });
     return { win, doc: win.document, id };
@@ -47,10 +49,20 @@
       expect(boxOf(drop).left >= 0).toBe(true);
       expect(boxOf(drop).right <= f.win.innerWidth).toBe(true);
     }, { timeout: 40000 });
+    it(`the empty card shows what it makes and how, above the heading, with no sideways scroll, at ${label}`, async () => {
+      const f = await getFrame(id);
+      const card = f.doc.querySelector('#empty .drop-card');
+      expect(card.querySelectorAll('.sd-steps li').length).toBe(3);
+      expect(card.querySelector('.sd-pic img').getAttribute('src')).toBe('../assets/shots/cutout.jpg');
+      expect(boxOf(card.querySelector('.sd-preview')).bottom <= boxOf(card.querySelector('h1')).top).toBe(true);
+      expect(f.doc.querySelectorAll('.sd-zone').length).toBe(1); // still one drop zone: the strip
+      expect(f.doc.documentElement.scrollWidth <= f.win.innerWidth).toBe(true);
+    }, { timeout: 40000 });
     it(`hides the strip once images are in, so the stage has the room, at ${label}`, async () => {
       const f = await getFrame(id);
       if (f.doc.getElementById('app').dataset.mode === 'empty') { f.doc.getElementById('emptySample').click(); }
       await waitFor(() => f.doc.getElementById('app').dataset.mode !== 'empty', { timeout: 30000 });
+      expect(f.win.CO.state.items.length >= 1).toBe(true); // Try a sample put the sample in the queue
       expect(f.win.getComputedStyle(f.doc.getElementById('isoDrop')).display).toBe('none');
       expect(boxOf(f.doc.getElementById('stage')).height > 0).toBe(true);
     }, { timeout: 40000 });

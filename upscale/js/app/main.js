@@ -20,7 +20,7 @@
   };
 
   /* ---------- Get more (the library scripts load on first need; nothing is downloaded here) ---------- */
-  const LIB = ['manifest.js', 'store.js', 'get-more.js'];
+  const LIB = ['manifest.js', 'store.js', 'install.js', 'get-more.js'];
   let libP = null;
   function loadLib() {
     if (!libP) libP = LIB.reduce((chain, f) => chain.then(() => new Promise((res) => {
@@ -241,6 +241,10 @@
       accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: 'a picture or a short video' },
       targets: [$('up-stage-wrap')],
       limit: 1,
+      preview: { picture: { src: '../assets/shots/upscale.jpg', alt: 'A photo of a city at night, before and after a 2× upscale' },
+        steps: ['Drop a picture or a short video', 'Pick 2× or 4× and press Upscale', 'Download the bigger copy'] },
+      // The city at night (the fourth scene), small: its lit windows show the sharper edges best.
+      sample: { label: 'Try it with a sample photo', files: async () => (await window.SlopSamples.photos(4, { width: 400, height: 260 })).slice(3) },
       process: async (file) => {
         if (!(await open(file))) throw new Error('could not be opened');
         return file.name;

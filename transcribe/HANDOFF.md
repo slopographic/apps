@@ -9,6 +9,7 @@ Voice, MP3 or video to text, on the device. `transcribe/index.html`, ES modules 
 | `js/record.js` | Microphone recording with MediaRecorder; the file joins the queue like any other. Plain reasons when the microphone is blocked or missing. |
 | `js/exports.js` | TXT, Word (shared/office/docx.js), SRT and WebVTT. Text and Word use the person's corrections; subtitles keep the timed segments. |
 | `js/view.js` | Draws the list and the transcript pane. |
+| `js/languages.js` | The 99 Whisper languages (code as in the `<|code|>` token, English name; Javanese is `jw`), sorted by name; `fillLanguages` fills the Spoken language menu with Detect first. speech-engine.js falls back to English for a code it does not find. |
 | `../aitools/transcript.js` | `SlopTranscript`: the one place for transcript formats, shared with the AI Tools Speech page. |
 
 The engine is Slop AI Tools' Whisper tiny (`aitools/common.js`: `ensure('whisper-tiny')`, `audioSamples`, `call('transcribe')`),

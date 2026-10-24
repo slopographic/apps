@@ -93,7 +93,7 @@ async function boot() {
   await loadBrushPacks();
   const restored = await loadAutosave();
   const launched = await hubBoot().catch((e) => { console.warn(e); return false; });
-  if (!restored && !launched) newBlankTab();
+  if (!restored && !launched) { newBlankTab(); showWelcome(); }
   await restoreView(restored && !launched);
   emit('docname');
   // 'ready' promises the page is fully set up. The boot awaits above can finish while the page is still parsing,

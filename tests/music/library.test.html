@@ -9,6 +9,7 @@
   <script src="../../shared/hub.js"></script>
   <script src="fixtures.js"></script>
   <script>
+  // Covers: music/js/core/vorbis.js, music/js/core/id3.js, music/js/core/analyze.js, music/js/core/library.js, music/js/ui/library.js, music/js/ui/now.js
   const { describe, it, expect, waitFor } = SlopTest;
   const F = window.MusicFixtures;
   let W, H, wavId, mp3Id;
@@ -58,6 +59,19 @@
       expect((await H.get(wavId)).meta.tags).toEqual(['workout']);
       tagButton('workout').click();
       await waitFor(() => rows().length === 2, { timeout: 5000 });
+    });
+
+    it('reads the Vorbis comments and front cover of a FLAC file, and lists an album in track order', async () => {
+      const tags = (title, n) => [['TITLE', title], ['ARTIST', 'Flac Band'], ['ALBUM', 'Lossless'], ['TRACKNUMBER', n], ['DATE', '2019-05-01'], ['GENRE', 'Jazz']];
+      const two = await H.put(F.flac({ comments: tags('A second song', '2'), pictures: [[3, 'image/png', F.PNG]] }), { name: '02.flac', from: 'upload' });
+      await H.put(F.flac({ comments: tags('Zed opens the album', '1') }), { name: '01.flac', from: 'upload' });
+      await waitFor(() => rows().some((li) => titleOf(li) === 'A second song') && rows().some((li) => titleOf(li) === 'Zed opens the album'), { timeout: 20000 });
+      const t = W.SlopMusic.lib.track(two);
+      expect([t.artist, t.album, t.track, t.year, t.genre]).toEqual(['Flac Band', 'Lossless', 2, '2019', 'Jazz']);
+      expect(t.coverUrl.startsWith('blob:')).toBe(true);
+      const sort = W.document.getElementById('lib-sort');
+      sort.value = 'album'; sort.dispatchEvent(new W.Event('change'));
+      await waitFor(() => { const r = rows().map(titleOf); return r.indexOf('Zed opens the album') >= 0 && r.indexOf('Zed opens the album') + 1 === r.indexOf('A second song'); }, { timeout: 5000 });
     });
   });
   SlopTest.run({ name: 'Slop Music: library, ID3 and tags' });

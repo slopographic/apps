@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><title>Slop Resize: the look (header, one drop zone, 1440 and 390 wide)</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
 <body>
-  <!-- Covers: resize/index.html, resize/css/resize.css, resize/js/app/main.js -->
+  <!-- Covers: resize/index.html, resize/css/resize.css, resize/js/app/main.js, assets/shots/resize.jpg -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
@@ -25,6 +25,14 @@
   }
 
   describe('Slop Resize: the look', () => {
+    it('the empty page shows what it makes and how, and Try it with 4 sample photos queues them', async () => {
+      const D = await open(1280), W = D.defaultView;
+      expect(D.querySelectorAll('#rs-drop .sd-steps li').length).toBe(3);
+      expect(D.querySelector('#rs-drop .sd-pic img').getAttribute('src')).toBe('../assets/shots/resize.jpg');
+      D.querySelector('#rs-drop .sd-sample').click();
+      await waitFor(() => W.SlopResize.queue.items().length === 4, { timeout: 20000 });
+      expect(W.SlopResize.queue.items()[0].name).toBe('Sample sunset.jpg');
+    }, { timeout: 40000 });
     it('the header leads with the home link (the app icon), then the name', async () => {
       const D = await open(1440);
       const brand = D.querySelector('header.rs-top a.brand');

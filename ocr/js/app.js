@@ -5,13 +5,20 @@ import { isSupported, openFile, renderPage } from './sources.js';
 import { linesToText } from './layout.js';
 import { drawPage } from './overlay.js';
 import { plainText, markdownText, docxFile, searchablePdf, jpegBytes, saveBlob, copyText } from './export.js';
+import { sampleReceipt } from './sample.js';
 
 const T = window.SlopAITools;
 const $ = (id) => document.getElementById(id);
 const EXPORT_IDS = ['dlTxt', 'dlMd', 'dlDocx', 'dlPdf', 'copy'];
 const state = { pages: [], cur: 0, busy: false, shown: null };
+let dropZone = null;   // the SlopDrop zone (its preview shows while no page is open)
 
 const say = (s) => { $('msg').textContent = s; };
+/** What the page makes and how: in the drop zone once the tool can run, and above the model prompt before that. */
+const PREVIEW = {
+  picture: { src: '../assets/shots/ocr.jpg', alt: 'A receipt with a box around each line it read, and the text beside it' },
+  steps: ['Drop photos, scans or PDFs', 'Press Read text, then fix anything it misread', 'Save as text, Word or a searchable PDF'],
+};
 const allRead = () => state.pages.length > 0 && state.pages.every((p) => p.done);
 const stem = () => {
   const f = state.pages[0] && state.pages[0].file;
@@ -22,6 +29,7 @@ const stem = () => {
 function refresh() {
   const n = state.pages.length;
   $('work').hidden = n === 0;
+  if (dropZone) dropZone.empty(!n); // the preview in the zone is for an empty page only
   $('read').disabled = state.busy || n === 0 || allRead();
   $('pages').replaceChildren(...state.pages.map((p, i) => new Option(`${i + 1}. ${p.label}${p.done ? '' : ' (not read yet)'}`, String(i))));
   $('pages').value = String(state.cur);
@@ -155,10 +163,12 @@ function wire() {
   // The drop zone is SlopDrop (shared/drop): drops and the Choose files button (the only thing that opens the picker)
   // go through addFiles, one file at a time. The page's own picker input keeps its accept list.
   const file = $('file'), accept = file.getAttribute('accept');
-  window.SlopDrop.attach($('drop'), {
+  dropZone = window.SlopDrop.attach($('drop'), {
     accept: { any: true, noun: 'an image or a PDF' },
     input: file,
     label: 'Drop images or PDFs here, or choose files',
+    preview: PREVIEW,
+    sample: { label: 'Try it with a sample receipt', files: async () => [await sampleReceipt()] },
     process: async (f) => { await addFiles([f]); return f.name; },
   });
   file.setAttribute('accept', accept);
@@ -191,7 +201,10 @@ function wire() {
 }
 
 wire();
+const intro = window.SlopDrop.panel.preview(PREVIEW);
+if (intro) $('intro').append(intro);
 T.gate('ocr', () => {
   $('ui').hidden = false;
+  $('intro').hidden = true; // the drop zone shows the same preview now
   refresh();
 });

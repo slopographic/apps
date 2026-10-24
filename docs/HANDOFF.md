@@ -1,6 +1,6 @@
 # Slop Docs: handoff
 
-**Status: building, first working version.** You can type, format, save to Slop Drive, reopen with `?drive=<id>`, and export DOCX, Markdown and text. PDF is not started. The registry status in `shared/apps.js` stays `building`.
+**Status: building, first working version.** You can type, format, save to Slop Drive, reopen with `?drive=<id>`, and export PDF, DOCX, Markdown and text. Headers and footers with page numbers work on screen, in Print, PDF, DOCX and .sdoc. The registry status in `shared/apps.js` stays `building`.
 
 ## What works now
 - **Editing** (`docs/js/ui/input.js`, `actions.js`, `docs/js/model/ops.js`):
@@ -44,14 +44,12 @@
 - **Phones:** on screens under 700 px the page is fitted to the width (zoom 35% to 100%). The top bar and toolbar fit at 390 px with no page-level scroll.
 
 ## Known gaps (not built yet)
-- **PDF export:** not started. It is the next major item. The layout already gives the lines and page count it needs.
 - **Tables:** shown and exported, but the caret cannot enter a cell or insert tables. A click inside a table moves the caret to the nearest body paragraph.
 - **Images:** imported DOCX images are dropped. Images cannot be inserted, and none are exported.
-- **Headers, footers, page numbers, footnotes, TOC, comments:** the layout supports them, but there is no UI and DOCX import and export skip them.
+- **Footnotes, TOC, comments:** the layout supports them, but there is no UI and DOCX import and export skip them.
 - **ODT:** the registry `accepts` lists `application/vnd.oasis.opendocument.text`, but Docs does not open ODT yet. Opening one shows "cannot open". The lead may want to drop it from the accepts list.
 - **Rendering:** every page is rebuilt from the layout on each change. Pages are not virtualised, so long documents will get slow. The plan asked for SVG pages; spans are used for now.
 - **Save as:** only Save exists. The first save picks a folder, and saving a copy elsewhere is not built.
-- **Print:** `@media print` CSS is in place. It has not been checked against a real print.
 - **Offline single-file build:** not done.
 - **Other UI:** no rulers, templates, zoom beyond four presets, or word-count dialog.
 - **Touch:** no selection handles. Touch uses tap and double-tap only.
@@ -105,11 +103,21 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
 - Files: `js/model/outline.js` (pure: tree, sections, moves), `js/ui/outline.js` (module entry: DOM, state, shortcuts), `js/ui/outline-actions.js` (commits through `SlopDocs.edit`), `js/ui/outline-menu.js`, `css/outline.css` (the app is a grid: outline column beside `#stage`). Loaded by one module script line and one `#outline` element in `index.html`.
 - Not done: headings past level 3 are not listed; a rename drops objects in the heading.
 
+## PDF, any writing system, headers and footers (this pass)
+- **One layout, three outputs.** `layout/runs.js` `fragRuns(frag)` cuts every laid-out frag into font runs at fixed x; `ui/render.js` draws one span per run, `io/pdf-text.js` writes the same runs as glyphs. `ui/geom.js` (caret, hit-testing, selection) was split out of render.js and works by offset ranges, so it handles visual order.
+- **Language fonts.** `fonts/lang.js`: a Noto pack (SlopFontJIT) parsed by fontkit is a "language face" with its own CSS name; it measures by shaping (`shape`), so Arabic joining and Devanagari conjuncts are measured as drawn. `fonts/registry.js` `fontRuns`/`textWidth`/`textVm`: a character the document's face lacks goes to the language face of its script. `fonts/lang-doc.js` finds the packs a document needs and calls `SlopFontJIT.ready` (asks once per pack; File ▸ Download PDF asks again). `ui/output.js` checks on open and 0.7 s after edits. Chinese characters take the Japanese pack beside kana (`withHan`, per paragraph).
+- **Right to left.** `layout/bidi.js`: paragraph direction from the first strong character (like `dir="auto"`); RTL paragraphs are mirrored (start alignment, indents and list labels on the right; an explicit Left/Right keeps its visual meaning). Levels (with rule N0, bracket pairs) and the L2 reorder are SlopBidi's. Screen spans of shaped RTL runs use `dir="rtl"`; other RTL runs are put in drawing order (reversed, brackets mirrored), as in the PDF.
+- **PDF** (`io/pdf.js`, `pdf-text.js`, `pdf-nav.js`, `vendor.js`): pdf-lib + fontkit (regenerator-runtime first), subsets of every face used, glyph positions from the layout (shaped offsets for language faces), highlight/underline/strike, images, link annotations (web and #heading), bookmarks from headings. Glyph writing is the shared `shared/fonts/pdf-runs.js` (SlopPdfRuns, also used by Slop PDF): GPOS positions kept, ToUnicode for mark glyphs (U+034F), ActualText for shaped runs, and the fontkit 1.1.1 CFF-subset header fix. Bidi levels (with N0) and L2 reordering come from `shared/fonts/bidi.js`.
+- **Headers and footers.** `model/hf.js` (text with `{page}`/`{pages}` ⇄ blocks), `ui/hf.js` (Format ▸ Header and footer…, the palette, or double-click a page's top/bottom margin; live, Cancel restores; not in undo). DOCX: `io/docx-hf.js` writes w:hdr/w:ftr parts, PAGE/NUMPAGES fldSimple, titlePg; `io/docx-in.js` (the import half of docx.js, split out) reads them, simple and complex fields.
+- **Print** (`ui/output.js`): `@page` set to the document's page size, zoom 100% while printing, only the pages print.
+- **Tests:** `tests/docs/pdf.test.html` (PDF read back with pdf.js: page count and size, every LTR line at the layout's x/y with the same text, the six scripts, RTL right edge on screen and in PDF, embedded faces, header/footer per page, list/table/image/link/bookmarks, the ask dialog), `tests/docs/hf.test.html` (panel, every page, first page, double-click, Print, DOCX both ways incl. complex fields, .sdoc), `tests/node/docs-pages.test.mjs`. Fixtures: Noto subsets in `tests/docs/fixtures` (OFL), installed into IndexedDB by `tests/docs/pdf-helpers.js`.
+- **Limits:** text extraction of Indic pre-base vowel signs comes out in drawing order in readers that ignore ActualText (pdf.js); fonts you add to a document get synthetic bold/italic in the PDF (skew and outline); DOCX does not write `w:bidi` for RTL paragraphs; no tab leaders on screen or in the PDF.
+
 ## Next steps, in order
-1. PDF export. Use the layout lines and the subset TTF fonts (`fonts/ttf.js`). Add ToUnicode, links and the outline from `headings`, and check that PDF line breaks match the layout.
+1. (done) PDF export.
 2. Table editing: caret in cells, insert and delete rows and columns, and cell formatting.
 3. Images: insert from the Drive picker, drop, and paste. Write them to DOCX and PDF.
-4. Headers, footers and page numbers: a UI for them, then import and export.
+4. (done) Headers, footers and page numbers. Next: rich formatting inside them (the panel edits plain text).
 5. Virtualise pages off screen, and move the page render to SVG per the original plan.
 6. Offline single-file build.
 7. Rulers, then the templates.

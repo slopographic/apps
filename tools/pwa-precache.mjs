@@ -12,7 +12,7 @@
 // every precached file and of the worker's own code. It changes exactly when one of them does, so a release that changes
 // a cached file gets a new cache (the old one is deleted on activate) and the browser installs the new worker. The
 // pre-commit hook (.githooks/pre-commit) runs this and stages the result, so nobody bumps VERSION by hand.
-import { readFile, writeFile, stat, rm } from 'node:fs/promises';
+import { readFile, writeFile, stat, rm, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -96,7 +96,9 @@ const LIBRARY = ['shared/fonts/picker.js', 'shared/fonts/catalog.js', 'shared/fo
   'vendor/fontkit/fontkit.min.js', 'vendor/fontkit/LICENSE'];
 const libraryFiles = JSON.parse(await readFile(path.join(ROOT, 'shared/fonts/library/index.json'), 'utf8')).fonts
   .flatMap((f) => [`shared/fonts/library/${f.file}`, `shared/fonts/library/${f.licenceFile}`, ...(f.pdf ? [`shared/fonts/library/${f.pdf}`] : [])]);
-const roots = [...(await pageRoots()), ...EXTRA, ...LIBRARY, ...new Set(libraryFiles)];
+// The sample files of "Try it with a sample" (SlopSamples.asset fetches them at run time), so a sample works offline too.
+const samples = (await readdir(path.join(ROOT, 'assets/samples')).catch(() => [])).map((f) => `assets/samples/${f}`);
+const roots = [...(await pageRoots()), ...EXTRA, ...LIBRARY, ...new Set(libraryFiles), ...samples];
 for (const r of roots) await visit(r);
 const list = [...files].sort();
 for (const m of missing) console.warn('not on disk, left out:', m);

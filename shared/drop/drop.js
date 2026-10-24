@@ -38,8 +38,14 @@
    *   limit?: most files taken in one drop (the rest are refused with a reason). overlay?: false to skip the outlines
    *     and label (for an app that marks its own drop areas). window?: false leaves the rest of the page alone: only the
    *     targets take drops (marked .sd-over while a file is over them). label?, hint?: text for the zone.
-   *   toast?: false to hide the toast. multiple?: default true. compact?: one row (message and button), for a strip.
-   *  Returns { choose(), run(files), destroy() }. */
+   *   toast?: false to hide the toast. multiple?: default true. compact?: one row (message and button), for a strip; with
+   *     targets beyond the strip it is hidden at rest and shows only the files being added and the result (quiet: false
+   *     keeps it on view).
+   *   preview?: { picture, steps }: what the app makes and how, shown in the zone above the prompt (not when compact).
+   *     picture: { src, alt } | { flow: { from, to } } | an element; steps: three short lines.
+   *   sample?: { label?, files: () => File[] | Promise<File[]> }: a "Try it with a sample" button whose files go
+   *     through the same batch as a drop (shared/samples/samples.js makes sample files).
+   *  Returns { choose(), run(files), sample(), destroy() }. */
   SD.attach = function (zone, o) {
     if (!zone) return null; // the page has no drop zone: nothing to attach, and no error
     o = o || {};
@@ -49,13 +55,26 @@
     const listed = (o.targets || []).filter(Boolean);
     const targets = listed.length ? listed : [zone];
     const limit = o.limit || Infinity;
-    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint, compact: o.compact });
+    // A strip whose drops land on a bigger area (the app's targets) is not a second place to add files: at rest it is
+    // hidden (.sd-quiet), and it shows only while files are added or a result is shown. quiet: false keeps it on view.
+    if (o.compact && o.window !== false && o.quiet !== false && listed.some((t) => t !== zone)) zone.classList.add('sd-quiet');
+    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint, compact: o.compact, preview: o.preview, sample: o.sample });
     const input = o.input || doc.createElement('input');
     input.type = 'file';
     input.multiple = o.multiple !== false;
     input.accept = R.acceptAttr(rules);
     if (!o.input) { input.hidden = true; zone.append(input); }
     ui.choose.addEventListener('click', () => input.click());
+    /** The sample's files, through the same batch as a drop. */
+    /** Making the files can take a moment (recorded clips): the status line says so and the button waits. */
+    const trySample = () => {
+      if (!o.sample) return Promise.resolve();
+      if (ui.sample) ui.sample.disabled = true;
+      ui.status.textContent = 'Preparing the sample…';
+      const files = Promise.resolve().then(() => o.sample.files()).finally(() => { if (ui.sample) ui.sample.disabled = false; });
+      return run(files);
+    };
+    if (ui.sample) ui.sample.addEventListener('click', trySample);
     const onPick = () => { const files = Array.from(input.files || []); input.value = ''; if (files.length) run(files); };
     input.addEventListener('change', onPick);
 
@@ -90,7 +109,8 @@
     }
     async function batch(list, at) {
       let files;
-      try { files = Array.from((await list) || []); } catch (err) { PN.toast('Could not read the dropped files', 'warn'); return; }
+      try { files = Array.from((await list) || []); } catch (err) { ui.status.textContent = ''; PN.toast('Could not read the dropped files', 'warn'); return; }
+      ui.status.textContent = '';   // 'Preparing the sample…' is done: the rows say what happens now
       if (!files.length) return;
       cancelTidy();
       ui.list.replaceChildren();
@@ -116,6 +136,7 @@
           skipped.push({ name: f.name, reason });
         }
       }
+      if (added.length && ui.wrap) ui.wrap.classList.add('sd-has');
       const summary = { added, skipped };
       const text = R.describe(summary);
       ui.status.textContent = text;
@@ -179,6 +200,10 @@
     return {
       choose: () => input.click(),
       run,
+      sample: trySample,
+      /** Whether the app has nothing in it yet: the preview and the sample button show only then. A batch that adds files
+       *  sets it to false; an app's Clear sets it back with empty(true). */
+      empty(v) { if (ui.wrap) ui.wrap.classList.toggle('sd-has', !v); },
       destroy() {
         if (winOn) {
           win.removeEventListener('dragenter', onEnter);

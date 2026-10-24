@@ -1,5 +1,6 @@
 /* Slop Transcribe: drawing the file list and the transcript pane from the queue. No state of its own: the selection and
  * the "show times" choice are app.js's. Sizes and lengths read as people write them. */
+import { languageName } from './languages.js';
 const $ = (id) => document.getElementById(id);
 const X = () => globalThis.SlopTranscript;
 const STATUS = { waiting: 'Waiting', reading: 'Transcribing…', done: 'Done', error: 'Could not read' };
@@ -56,7 +57,7 @@ export function drawTranscript(item, { times }) {
   const done = !!item && item.status === 'done';
   $('trPaneTitle').textContent = item ? item.name : 'Transcript';
   $('trPaneMeta').textContent = !item ? 'Add a file or record your voice, then press Transcribe.'
-    : done ? [metaOf(item), item.language ? `language ${item.language}` : '', `${X().words($('trText').value)} words`].filter(Boolean).join(' · ')
+    : done ? [metaOf(item), item.language ? `language ${languageName(item.language)}` : '', `${X().words($('trText').value)} words`].filter(Boolean).join(' · ')
       : item.status === 'error' ? item.error : STATUS[item.status];
   for (const id of ['trCopy', 'trDownload', 'trFormat', 'trDrive', 'trDocs', 'trTimes']) $(id).disabled = !done;
   $('trText').readOnly = !done;

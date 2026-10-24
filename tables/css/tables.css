@@ -60,10 +60,10 @@ body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); o
 }
 @media (max-width: 1100px) {
   .topbar { gap: 4px; }
-  .menu-b { padding: 4px 5px; }
+  .menu-b { padding: 4px 3px; }
   .topbar .tb { min-width: 30px; padding: 4px 6px; }
-  .nf { max-width: 104px; }
-  .fname input { width: 112px; }
+  .nf { max-width: 96px; }
+  .fname input { width: 96px; }
 }
 
 /* formula bar */

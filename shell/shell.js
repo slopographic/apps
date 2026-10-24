@@ -89,6 +89,7 @@
   addCss('brand/brand.css');   // the brand link's app icon and badge
   addCss('shared/ui/hbtn.css');   // the look of every shared header button (Apps, the bell, Drive, Tour, View)
   if (!window.SlopHbtn) queue.push(['shared/ui/hbtn.js']);
+  if (!window.SlopPWA) queue.push(['shared/pwa.js']);   // every app works offline after its first visit
   for (const m of ['notify', 'layout', 'tabs', 'switcher', 'drawer', 'header']) queue.push(['shell/' + m + '.js']);
 
   S.ready = queue.reduce((p, [src, data]) => p.then(() => addScript(src, data)), Promise.resolve()).then(() => {
@@ -101,6 +102,10 @@
     S.layout = window.SlopLayout;
     if (!S.noHeader && window.SlopHeader) window.SlopHeader.mount();
     if (window.SlopI18n) window.SlopI18n.apply(); // the chosen language, from the profile, on every shell page
+    // The offline worker: a page that mounts SlopPWA itself (with its Install button) does so at load; the shell
+    // registers it on every other page a moment later, so each app works offline after its first visit.
+    const pwa = () => setTimeout(() => { const P = window.SlopPWA; if (P && P.mounted && !P.mounted()) P.mount({}); }, 1500);
+    if (document.readyState === 'complete') pwa(); else window.addEventListener('load', pwa, { once: true });
     return S;
   });
 })();

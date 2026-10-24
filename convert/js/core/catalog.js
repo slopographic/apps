@@ -55,7 +55,8 @@ const CRF = { key: 'crf', type: 'range', label: 'Quality (lower is better)', min
 const TIME = { key: 'time', type: 'number', label: 'Time (seconds)', min: 0, max: 36000, value: 1, hint: 'The moment to take the picture from. Past the end, the last frame is used.' };
 const GIF_WIDTH = { key: 'width', type: 'number', label: 'Width (px)', min: 16, max: 1920, value: 480, hint: 'Height follows the picture proportions.' };
 const GIF_FPS = { key: 'fps', type: 'number', label: 'Frames per second', min: 1, max: 30, value: 10 };
-/** Video conversions with ffmpeg.wasm. Where the codecs already fit the new container, the streams are copied (no quality loss). */
+/** Video conversions with ffmpeg.wasm. Where the codecs already fit the new container, the streams are copied (no quality loss).
+ *  Their catalog entries say engine: 'ffmpeg', so the page asks before the engine's first download, and only then. */
 function videoTo(to) {
   return async (files, o) => {
     const f = files[0];
@@ -96,13 +97,13 @@ const text = (blob) => blob.text();
 const out = (name, data, type) => ({ name, blob: new Blob([data], { type }) });
 
 export const CONVERSIONS = [
-  { id: 'to-mp4', label: 'To MP4', group: 'Audio and video', from: ['webm', 'mov'], ext: 'mp4', mode: 'each', options: [CRF], run: videoTo('mp4') },
-  { id: 'to-mov', label: 'To MOV', group: 'Audio and video', from: ['mp4', 'webm'], ext: 'mov', mode: 'each', options: [CRF], run: videoTo('mov') },
-  { id: 'to-webm', label: 'To WebM', group: 'Audio and video', from: VIDEO_IN, ext: 'webm', mode: 'each', options: [], run: videoTo('webm') },
-  { id: 'video-to-gif', label: 'To GIF', group: 'Audio and video', from: VIDEO_IN, ext: 'gif', mode: 'each', options: [GIF_WIDTH, GIF_FPS], run: videoTo('gif') },
-  { id: 'frame-to-webp', label: 'Frame to WebP', group: 'Audio and video', from: VIDEO_IN, ext: 'webp', mode: 'each', options: [TIME], run: videoTo('webp') },
-  { id: 'frame-to-png', label: 'Frame to PNG', group: 'Audio and video', from: VIDEO_IN, ext: 'png', mode: 'each', options: [TIME], run: videoTo('png') },
-  { id: 'frame-to-jpg', label: 'Frame to JPG', group: 'Audio and video', from: VIDEO_IN, ext: 'jpg', mode: 'each', options: [TIME], run: videoTo('jpg') },
+  { id: 'to-mp4', engine: 'ffmpeg', label: 'To MP4', group: 'Audio and video', from: ['webm', 'mov'], ext: 'mp4', mode: 'each', options: [CRF], run: videoTo('mp4') },
+  { id: 'to-mov', engine: 'ffmpeg', label: 'To MOV', group: 'Audio and video', from: ['mp4', 'webm'], ext: 'mov', mode: 'each', options: [CRF], run: videoTo('mov') },
+  { id: 'to-webm', engine: 'ffmpeg', label: 'To WebM', group: 'Audio and video', from: VIDEO_IN, ext: 'webm', mode: 'each', options: [], run: videoTo('webm') },
+  { id: 'video-to-gif', engine: 'ffmpeg', label: 'To GIF', group: 'Audio and video', from: VIDEO_IN, ext: 'gif', mode: 'each', options: [GIF_WIDTH, GIF_FPS], run: videoTo('gif') },
+  { id: 'frame-to-webp', engine: 'ffmpeg', label: 'Frame to WebP', group: 'Audio and video', from: VIDEO_IN, ext: 'webp', mode: 'each', options: [TIME], run: videoTo('webp') },
+  { id: 'frame-to-png', engine: 'ffmpeg', label: 'Frame to PNG', group: 'Audio and video', from: VIDEO_IN, ext: 'png', mode: 'each', options: [TIME], run: videoTo('png') },
+  { id: 'frame-to-jpg', engine: 'ffmpeg', label: 'Frame to JPG', group: 'Audio and video', from: VIDEO_IN, ext: 'jpg', mode: 'each', options: [TIME], run: videoTo('jpg') },
   { id: 'to-wav', label: 'To WAV', group: 'Audio and video', from: AUDIO_IN, ext: 'wav', mode: 'each', options: [], run: audioTo('wav') },
   { id: 'to-mp3', label: 'To MP3', group: 'Audio and video', from: AUDIO_IN, ext: 'mp3', mode: 'each', options: [BITRATE], run: audioTo('mp3') },
   { id: 'to-png', label: 'To PNG', group: 'Images', from: ['jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'png', mode: 'each', options: [...SIZE], run: imageTo('png') },

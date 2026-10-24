@@ -1,4 +1,5 @@
-/* Slop Gallery tests against the real app, in a same-origin iframe with its own test database (?db=). */
+/* Slop Gallery tests against the real app, in a same-origin iframe with its own test database (?db=).
+ * Covers: gallery/index.html, gallery/js/ui/main.js, gallery/js/ui/timeline.js, gallery/css/gallery.css, assets/shots/gallery.jpg */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -42,6 +43,20 @@
     it('a thumbnail is shown on each tile once loaded', async () => {
       await waitFor(() => tiles().every((t) => t.querySelector('img').getAttribute('src')), { timeout: 8000 });
       expect(tiles()[0].querySelector('img').getAttribute('src').startsWith('blob:')).toBe(true);
+    });
+  });
+
+  describe('the empty library', () => {
+    it('shows what it makes and how; Try it with 8 sample photos imports them and the preview goes', async () => {
+      await boot();
+      expect(D.querySelectorAll('#empty .sd-steps li').length).toBe(3);
+      expect(D.querySelector('#empty .sd-pic img').getAttribute('src')).toBe('../assets/shots/gallery.jpg');
+      expect(D.querySelectorAll('.sd-zone').length).toBe(1); // still one drop zone: the strip
+      D.getElementById('emptySample').click();
+      await waitFor(() => G.library.size === 8, { timeout: 20000 });
+      await waitFor(() => tiles().length === 8, { timeout: 8000 });
+      expect(D.getElementById('empty').hidden).toBe(true);
+      expect(D.getElementById('emptyIntro').hidden).toBe(true);
     });
   });
 

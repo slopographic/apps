@@ -7,6 +7,7 @@ import { startEdit } from './editor.js';
 import { moveTo, jumpEdge } from './nav.js';
 import { clearRange } from './actions.js';
 import { runShortcut } from './commands.js';
+import { onKey as chartKey } from './charts.js';
 
 const STEP = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
 
@@ -18,6 +19,7 @@ function onKey(e) {
   if (t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]')) return;
   if (document.querySelector('.sui-back, .sui-menu')) return;
   const mod = e.ctrlKey || e.metaKey;
+  if (!mod && chartKey(e)) return;
   if (mod && !window.SlopCmd && runShortcut(e)) { e.preventDefault(); return; }
   const shift = e.shiftKey, sel = S.sel;
   if (STEP[e.key]) {

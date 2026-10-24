@@ -53,6 +53,12 @@
 .mon-stage .mon-overlay { background: transparent; box-shadow: none; pointer-events: none; }
 .mon-msg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 80%; padding: 14px 18px; border-radius: 12px; background: color-mix(in srgb, var(--panel) 90%, transparent); color: var(--fg); text-align: center; font-size: 12.5px; }
 .mon-msg b { display: block; font: 800 18px var(--font-display); margin-bottom: 4px; color: var(--accent-line); }
+.mon-msg.mon-intro { width: max-content; max-width: min(92%, 600px); }
+.mon-msg .sd-preview { margin: 8px 0 0; flex-wrap: nowrap; }
+.mon-msg .sd-pic { flex: 0 0 230px; }
+.mon-msg .sd-pic img { max-height: 160px; border-color: var(--line-2); }
+.mon-msg .sd-steps { flex: 0 1 auto; color: var(--fg); font-size: 13px; }
+@media (max-width: 760px) { .mon-msg .sd-pic { display: none; } .mon-msg.mon-intro { padding: 8px 12px; } .mon-msg b { font-size: 15px; } .mon-msg .sd-steps { gap: 4px; font-size: 12px; } }
 
 /* transport */
 .transport { display: flex; align-items: center; gap: 4px; padding: 5px 10px; background: var(--panel); border-top: 1px solid var(--line); flex: none; min-width: 0; }
