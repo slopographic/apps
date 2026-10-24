@@ -5,7 +5,7 @@
   'use strict';
   const ns = (g.SlopReports = g.SlopReports || {});
   const DB_NAME = 'slop-data';
-  const STORES = ['customers', 'customerGroups', 'customerTags', 'invoices', 'payments', 'expenses', 'accounts', 'journal', 'timeEntries', 'settings'];
+  const STORES = ['customers', 'customerGroups', 'customerTags', 'invoices', 'payments', 'expenses', 'accounts', 'journal', 'timeEntries', 'quotes', 'settings'];
 
   const alive = (rows) => (rows || []).filter((r) => !r.deletedAt);
 
@@ -26,7 +26,7 @@
   }
 
   /** True when there is at least one contact, invoice, expense, journal entry, time entry or CRM record to report on. */
-  const hasData = (counts) => ['customers', 'invoices', 'expenses', 'journal', 'timeEntries'].some((s) => (counts[s] || 0) > 0);
+  const hasData = (counts) => ['customers', 'invoices', 'expenses', 'journal', 'timeEntries', 'quotes'].some((s) => (counts[s] || 0) > 0);
 
   ns.loadData = loadData;
   ns.hasData = hasData;

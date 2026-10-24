@@ -19,7 +19,7 @@
   const S = { def: null, saved: false, result: null, shown: null, finder: null, ctx: {}, seq: 0 };
 
   // Number, money and time cells line up on the right.
-  const numCls = (c) => (['money', 'number', 'duration'].includes(c.type) ? 'rp-num' : null);
+  const numCls = (c) => (['money', 'number', 'duration', 'percent'].includes(c.type) ? 'rp-num' : null);
   const option = (value, text) => { const o = el('option', null, text); o.value = value; return o; };
 
   /** Fills the picker: the built-in reports, then the saved ones. */
