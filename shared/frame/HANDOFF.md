@@ -149,7 +149,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop Workflows | workflows/ | tool | SlopFrame, run panel right | done | |
 | Slop Resize | resize/ | tool | settings right, Resize all + downloads in the header | done | |
 | Slop Watermark | watermark/ | tool | settings right, run/download in an app bar | to do | being rebuilt on wip/watermark-all (told the rule) |
-| SlopIsolate | slopisolate/ | editor | queue left, #props right; Download, Send back in the header | close | checked only: put Download into #props' foot (owned by its branch) |
+| SlopIsolate | slopisolate/ | editor | queue left, #props right; Download, Send back in the header | close | #props is resizable; Download and Send back still in the header (its own branch owns the panel) |
 | Slop OCR | ocr/ | tool | settings row above the work area, Read in it | done | the model prompt shows before the tool, as before |
 | Slop Transcribe | transcribe/ | tool | controls above, list left, text right | done | the file list stays in the view, left of the transcript |
 | SlopClean | clean/ | tool | choices panel right, Copy and clean in the header | done | |
@@ -166,14 +166,14 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Reel Remix | remix/ | editor | bin left, settings right, Remix in the panel | close | phone sheet missing |
 | PhotoSlop | photoslop/ | editor | toolbox left, panels right, Export in the header | done | Export at the panels' foot; the top bar fits the app's width (container query, More ▾) beside the Slop AI panel |
 | SlopVector | slopvector/ | editor | toolbar left, dock right, no main button | done | Export ▾ at the dock's foot (the File ▸ Export actions); the dock is a drawer on phones |
-| Slop PDF | pdf/ | editor | rail left, properties right, Download in the header | close | Download into the properties' foot |
+| Slop PDF | pdf/ | editor | rail left, properties right, Download in the header | close | properties resizable (shared/ui/resize-panel.js); Download stays in the header: its phone sheet is the app's own (openClass), where a footer would be hidden |
 | SlopLabel | label/ | editor | toolbox left, dock right, Print in the header | done | Print at the dock's foot (the shared footer) |
 | SlopCut | slopcut/ | editor | bin left, inspector right, Export in the header | close | Export into the inspector's foot |
 | Slop Press | press/ | editor | toolbar left, dock right, Export PDF in the control bar | done | Export PDF… at the dock's foot; the dock is a drawer on phones |
 | Slop Slides | slides/ | editor | slides left, inspector right, Save in the header | close | Save stays in the header (a document app saves from File) |
 | Slop 3D | 3d/ | editor | outliner left, properties right, Save in the header | done | Save at the Properties foot (the shared footer) |
-| Slop Docs | docs/ | editor | outline left, no inspector | to do | needs an inspector (large) |
-| Slop Tables | tables/ | editor | side panel LEFT | to do | side panel to the right |
+| Slop Docs | docs/ | editor | outline left, no inspector | to do | no inspector yet (a new right panel is a larger job); the outline is a list and stays left |
+| Slop Tables | tables/ | editor | sheets and objects list LEFT | n/a | the left column is a list (sheets, charts, pivots), which the rule keeps on the left; no settings panel |
 | Slop Code | code/ | editor | file tree left, preview right | n/a | an IDE: tree left is a list; no settings panel |
 | Slop Music | music/ | other | tags/playlists left | n/a | navigation only |
 | Slop Drive | drive/ | viewer | places left, info right, New in the header | close | file actions into the info panel |
