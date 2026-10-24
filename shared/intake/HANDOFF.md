@@ -137,7 +137,7 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Gallery** (`gallery/js/ui/main.js` spec `gallery`; part `gallery.backup`): a drop of files or folders
   (SlopDrop.folders), Import (Ctrl+O), Import a folder, Import from Slop Drive, ?drive= launch, paste, the sample. Each
   photo is one `G.actions.importOne` (a duplicate is skipped with its reason). Out: SlopHub.sendMenuItems.
-- **SlopIsolate** (`slopisolate/js/io/files.js`, spec `cutout`): see its section below (in is done, out is to do).
+- **SlopIsolate** (`slopisolate/js/io/files.js`, spec `cutout`): see its section below (in and out are done).
 - **Slop Resize** (`resize/js/app/main.js` spec `resize`): a drop on the column or the zone, Choose files, Open
   (Ctrl+O), Open from Slop Drive, ?drive= launch, paste, the sample. Out: Send to Slop Upscale is `SlopOuttake.send`.
 
@@ -170,7 +170,7 @@ PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach 
 
 ## Still to migrate (found by grepping; tick as done)
 
-### slopisolate: in is migrated (spec 'cutout', `slopisolate/js/io/files.js`); out is still to do
+### slopisolate: in and out are migrated (spec 'cutout', `slopisolate/js/io/files.js`; out: `slopisolate/js/ui/openin.js`)
 
 In (done, after wip/isolate-batch): every route is a source of the intake and the spec's reader (`processAll`) hands the
 whole batch to `CO.files.take` at once, which keeps the app's one first-use gate (`F.gate`) and its one add
@@ -178,7 +178,8 @@ whole batch to `CO.files.take` at once, which keeps the app's one first-use gate
 (`SlopIntake.sample`), Open from Slop Drive (`SlopIntake.fromDrive`, both menus), ?drive= (`SlopIntake.launch`; a file
 PhotoSlop sent keeps its origin and request), the drop zone on #workspace and #queue (`SlopDrop.attach({ intake:
 'cutout' })`), paste. `slopisolate/` is in rule 4's STRICT list. `tests/slopisolate/intake.test.html` checks it.
-Out: three overlapping menus become one `SlopOuttake.items({ from: 'cutout', type: 'image/png', … })` used by the toolbar
+Out (done, wip/isolate-bulk-edit; `tests/slopisolate/openin.test.html`): was three overlapping menus, now one
+`SlopOuttake.items({ from: 'cutout', type: 'image/png', … })` used by the toolbar
 "Open in…", More ▸ Send to and the context menu: `slopisolate/js/ui/openin.js` (a hand-kept list of PhotoSlop and Slop
 Vector; Slop Upscale is missing), More ▸ "Send to" (`menus.js`, sendMenuItems), and "Send cut-out to PhotoSlop as a new
 layer". Its two richer handovers are `SlopOuttake.handover`s:

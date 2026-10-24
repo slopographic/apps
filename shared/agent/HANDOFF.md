@@ -32,18 +32,21 @@ never written per app. The files stay in the browser: tools refer to them by ids
 | File | What |
 |---|---|
 | `boot.js` | `window.SlopAgents`, loaded by `shell/shell.js` after load (idle). The setting (`localStorage 'slop.agents'`, only "off" is stored, on by default), `api()`, `start()`, `about()`, the Help command `agents.about` ("AI agents…"), and a fallback that adds the page's own origin token when the head has none. |
-| `tools.js` | The pure generator (window + CommonJS): `fromCommands` (= `SlopAIKit.cmdTools.specs`), `unique` names, `checkSchema`, `toWebMCP` (annotations, the confirmation for destructive calls, MCP-style results). |
-| `workspace.js` | The file and operations tools: `list_files` (results made in the page `result:n`, files open in the app `app:n` through `slop:convert-files`, Slop Drive `drive:<id>`), `open_file` (through `SlopIntake.take`; only where the app registered an intake spec), `save_to_drive`, `download`, `list_operations`, `run_operation`, `run_workflow` (a `.slopflow` document, `shared/ops/flowdoc.js`, run by `workflows/js/core/plan.js runWorkflow` over `shared/ops/all.js`). The ops modules load on the first call. |
+| `tools.js` | The pure converter (window + CommonJS): `unique` names, `checkSchema`, `toWebMCP` (annotations, the confirmation for destructive calls, MCP-style results). |
+| `workspace.js` | The two tools the one list lacks: `open_file` (a Slop Drive file into this app through `SlopIntake.take`; only where the app registered an intake spec) and `download`. |
 | `webmcp.js` | `window.SlopWebMCP`: builds the tools, registers them, registers them again when the set changes (SlopCmd change/run/open/close, a command's `when()`, an app dialog opening or closing, files coming in, checked every 3 s while visible), withdraws them when the setting goes off. `refresh()`, `stop()`, `tools()`, `definitions()`, `ready`. |
 | `about.js` | The Help note and the setting toggle (`open()`, `note()`, `LINES`); Settings shows the same note (`data-slop-agents-note`). |
 | `trial-tokens.json` | The origin trial tokens, one per origin, with their expiry. |
 
-The command tools are the AI panel's: `shared/ai/cmdtools.js` `cmdTools.specs(cmd, env)` (added for this, also for
-cloud engines) gives each tool provider-neutral, with `inputSchema` from `cmdTools.inputSchema` (the one schema maker,
-also behind the panel's `definitions()`). So the Slop AI panel, cloud models and WebMCP see one tool list: one tool per
-command with `args` (`shared/commands/args.js`), commands with `ai: false` left out, `app_state` and `list_commands`
-(read-only), `run_command` (any command by id; it asks first for a destructive one). While a SlopUI dialog of the app is
-open, the command tools are withdrawn (the app is waiting on the person); the file tools stay.
+**One tool list.** The tools are the Slop AI panel's and the cloud engines' (`shared/ai/HANDOFF.md`):
+`SlopAIKit.appTools.build({ cmd: SlopCmd, ops: true, appId })` gives `list_apps`, `open_app`, `save_to_drive` (text),
+`list_files` (Slop Drive, with ids), `read_file`, the operations (`shared/ai/optools.js`: `list_operations`,
+`run_operation`, `run_workflow` over `shared/ops/all.js` and `workflows/js/core/plan.js`; the new files go to Slop Drive)
+and the page's commands (`shared/ai/cmdtools.js`: one tool per command with `args`, `ai: false` left out, `app_state`,
+`list_commands`, `run_command`). `cmdTools.neutral(tool)` (added for this; `cmdTools.specs` uses it) makes each one
+provider-neutral with `inputSchema` (`cmdTools.inputSchema`), `readOnly`, `untrusted`, `mayDestroy`. `webmcp.js` adds
+`workspace.js`'s two tools, leaves out commands whose `when()` is false, and while a SlopUI dialog of the app is open
+withdraws the command tools (the app is waiting on the person); the file tools stay.
 
 Help: the command `agents.about` is in Ctrl+K on every page with SlopCmd and at the end of every `SlopMenuBar` Help menu;
 PhotoSlop, Slop PDF and SlopCut have "AI agents…" in their own Help menus. Settings has an "AI agents" section.
@@ -70,19 +73,20 @@ Current tokens: slopographic.com and slopographic.github.io, both expiring 2027-
 
 ## Tests
 
-- `tests/node/agent-tools.test.mjs`: commands and registry schemas give valid JSON Schema tools, `ai: false` is skipped,
-  names are unique and valid, destructive tools are flagged and ask first, and the workspace schemas are valid.
+- `tests/node/agent-tools.test.mjs`: the one list (commands, operations, files) gives valid JSON Schema tools, `ai: false`
+  is skipped, names are unique and valid, destructive tools are flagged and ask first, read-only ones say so.
 - `tests/node/agent-trial.test.mjs`: the tokens (origin, feature, expiry), the heads, the renewal warning.
 - `tests/node/agent-real.test.mjs`: the real API in Playwright's Chromium with `--enable-features=WebMCP`. It covers
   registration, `getTools`, `executeTool`, withdrawal with the setting off, and registering again.
 - `tests/agent/apps.test.html` (with the fake context `tests/agent/fake.js`): tools on PhotoSlop, Slop PDF, SlopCut,
   Workflows and File convert; the setting off, then on and off again from the Help note.
-- `tests/agent/run.test.html`: `run_workflow` on a generated picture from Slop Drive → a resized `result:` file, then
-  `run_operation` and `save_to_drive`. SlopCut ripple trim through `run_command`. The confirmation for New project, and
+- `tests/agent/run.test.html`: `run_workflow` on a generated picture in Slop Drive → a new resized file there, then
+  `run_operation` by name and `download`. SlopCut ripple trim through `run_command`. The confirmation for New project, and
   Cancel changing nothing. Registering again after a state change, and a dialog opening.
 
 ## Limits
 
-- No tool gets the bytes of a file; agents act on ids. Text content can be saved (`save_to_drive` with `content`).
+- No tool hands an agent the bytes of a file; agents act on ids and names (`read_file` gives the first 4000 characters
+  of a text file). `look_at_file` (a small copy for a cloud model) is left out of WebMCP.
 - `photoslop/classic/` and `sheetview/` load SlopCmd without the shell, so they offer no tools.
 - The confirmation is the app's own dialog, meant for the person at the screen.

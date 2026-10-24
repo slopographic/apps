@@ -20,7 +20,11 @@ external requests, no attribution text anywhere. Load order is in `slopisolate/i
   ('queued'|'working'|'done'|'error'), error, progress (0..1 or null), phase (engine progress phase), model (null = follows `S.model`; set only by the bulk
   bar's Re-run model), modelUsed, base (Uint8ClampedArray),
   edit (Uint8ClampedArray or null), timings, hist {undo[], redo[]}`.
-  `S.defaults` and `S.rememberLook(it)` save the last look for new images. `S.modelOf(it)` = `it.model || S.model`, read
+  `S.defaults` and `S.rememberLook(it)` save the last look for new images. `S.sel` (selected ids), `S.targets()` (what the
+  panel edits: the selection when 2+, else the image on screen), `S.bulk()`.
+- `core/settings.js` (`CO.settings`): settings by path, merge/mixed, copy/paste, `needsModel`. `ui/edit.js` (`CO.edit`): the one
+  way settings change (`begin(items).change(patch)/commit(label)`, `apply`, `copy`, `paste`, `applyToAll`); a bulk change is one
+  undo group (`H.group()`, `pushLook(it, before, label, group)`). `S.modelOf(it)` = `it.model || S.model`, read
   when an image's run starts.
 - `core/brush.js` (`CO.brush`): `begin(it, mode)` with mode 'keep'|'remove'|'restore' → stroke state;
   `line(st, x0, y0, x1, y1, r, hardness)` in IMAGE pixels, r = radius in image px; `dab`; `end(st)` → undo entry or null;
@@ -78,7 +82,8 @@ external requests, no attribution text anywhere. Load order is in `slopisolate/i
   value, fmt, onInput, onCommit})` (row class `pp-row`; onInput live, onCommit on change — the caller handles
   history with snapLook/pushLook), `select({label, options:[[value,text]], value, onChange})`, `seg({options, value,
   onChange})` (class `seg`/`seg-b`), `color({label, value, onInput, onCommit})`, `check({label, checked, onChange})`,
-  `swatches({colors, value, onChange})`, `note(text)` (`pp-note`).
+  `swatches({colors, value, onChange})`, `note(text)` (`pp-note`). Every control's `sync(v, mixed)` shows "Mixed" when the
+  selected pictures differ. `look(label, path)` → `{input, commit, once}` through `CO.edit` on `S.targets()`.
 - `ui/panel.js` → `CO.panel.init()`: fills `#props`. Sections: Model (radio list `.models`/`.model` for fast, quality,
   portrait with `.m-size` sizes from the model info and `.cached` when cached, from `SlopCutout.cached()`; a change
   sets `S.model` and calls `CO.process.followModel()`), Edges (threshold, softness, feather, decontaminate, refine — each a look change with
@@ -88,7 +93,8 @@ external requests, no attribution text anywhere. Load order is in `slopisolate/i
 - `ui/panel-look.js` → `CO.panelLook.build()` returns an array of section elements for Background (seg: transparent,
   colour, gradient, blur; colour pickers, blur slider, gradient colours + angle), Shadow (on check, opacity, blur,
   x, y, colour) and Crop (seg: original / subject; pad slider). Panel.js appends them.
-- `ui/queue.js` → `CO.queue.init()`: fills `#queue`: one `button.q-item` per item (img = item.url, `data-status`,
+- `ui/queue.js` → `CO.queue.init()`: fills `#queue`: a header `.q-head` (Select all / none, "N selected"), one `button.q-item` per item
+  (a `.q-chk` checkbox, the result thumbnail `.q-res` from `render/thumbs.js` once done) (img = item.url, `data-status`,
   `.q-badge` shows status text or progress %, `.on` for active, `.q-x` remove button), plus a `button.q-add` "+" that
   calls `CO.files.open()`. Click selects via `CO.process.select(it)` after `S.activeId = it.id` and emits
   `activeItem`. Re-renders on `list`, `item`, `progress`, `activeItem`.

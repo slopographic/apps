@@ -10,8 +10,7 @@
   <script src="fake.js"></script>
   <script>
   // Covers: shared/agent/webmcp.js, shared/agent/workspace.js, shared/agent/tools.js, shared/ai/cmdtools.js
-  // The tools do the work: run_workflow on a generated picture in Slop Drive makes a file in the workspace (resized, and
-  // saved back to the Drive); a SlopCut command (ripple trim) runs through its tool; a destructive tool shows the
+  // The tools do the work: run_workflow on a generated picture in Slop Drive makes a new, resized file there; a SlopCut command (ripple trim) runs through its tool; a destructive tool shows the
   // confirmation, and Cancel changes nothing; the tools are registered again when the app's state changes.
   const { describe, it, expect } = SlopTest;
   const waitFor = (fn, o) => SlopTest.waitFor(fn, o).catch(() => { throw new Error('timed out waiting for ' + String(fn).slice(0, 120)); });
@@ -23,37 +22,34 @@
   }
 
   describe('the tools at work', () => {
-    it('Workflows: run_workflow on a generated picture returns a file in the workspace; save and list it', async () => {
+    it('Workflows: run_workflow on a generated picture makes a new file in Slop Drive; list and open it', async () => {
       const app = await AgentFake.open('../../workflows/index.html', { ready: (w) => !!(w.SlopCmd && w.SlopHub) });
-      const w = app.w;
-      const id = await w.SlopHub.put(await picture(w, 120, 80), { name: 'agent-test.png', from: 'test' });
-      const listed = await app.json('list_files', { query: 'agent-test' });
-      expect(listed.some((f) => f.id === 'drive:' + id)).toBe(true);
+      const w = app.w, H = w.SlopHub, stamp = Date.now().toString(36);
+      const id = await H.put(await picture(w, 120, 80), { name: `agent-${stamp}.png`, from: 'test' });
+      const listed = await app.json('list_files', { query: `agent-${stamp}` });
+      expect(listed.some((f) => f.id === id)).toBe(true);
       const flow = { kind: 'slopflow', v: 1, name: 'Agent test', steps: [
         { kind: 'op', id: 'resize.image', options: { mode: 'size', width: 60, height: 40, fit: 'stretch', format: 'png' } },
-        { kind: 'op', id: 'files.rename', options: { pattern: 'small-{n}', digits: 1 } }] };
-      const r = await app.json('run_workflow', { workflow: flow, files: ['drive:' + id] });
+        { kind: 'op', id: 'files.rename', options: { pattern: `small-${stamp}-{n}`, digits: 1 } }] };
+      const r = await app.json('run_workflow', { workflow: flow, files: [id] });
       expect(r.errors).toEqual([]);
       expect(r.files.length).toBe(1);
-      const out = r.files[0];
-      expect(out.id).toMatch(/^result:\d+$/);
-      expect(out.name).toBe('small-1.png');
-      const file = await w.SlopAgentWorkspace.file(out.id);
-      const bmp = await w.createImageBitmap(file);
+      expect(r.files[0].name).toBe(`small-${stamp}-1.png`);
+      const made = (await app.json('list_files', { query: `small-${stamp}` }))[0];
+      const rec = await H.get(made.id);
+      const bmp = await w.createImageBitmap(rec.blob);
       expect([bmp.width, bmp.height]).toEqual([60, 40]);
-      const ws = await app.json('list_files');
-      expect(ws.some((f) => f.id === out.id && f.where === 'result')).toBe(true);
-      // one operation alone, with a typed option the schema fixes ("30px")
-      const one = await app.json('run_operation', { operation: 'resize.image', files: [out.id], options: { mode: 'size', width: '30px', height: 20, fit: 'stretch' } });
+      // one operation alone, by file name, with a typed option the schema fixes ("30px")
+      const one = await app.json('run_operation', { operation: 'resize.image', files: [made.name], options: { mode: 'size', width: '30px', height: 20, fit: 'stretch', format: 'png' } });
       expect(one.files.length).toBe(1);
-      const saved = await app.json('save_to_drive', { id: out.id });
-      expect(saved.id).toMatch(/^drive:/);
-      const rec = await w.SlopHub.get(saved.id.slice(6));
-      expect(rec.name).toBe('small-1.png');
-      expect(rec.size).toBe(file.size);
-      const bad = await app.call('run_operation', { operation: 'no.such', files: [out.id] });
+      const bad = await app.call('run_operation', { operation: 'no.such', files: [made.id] });
       expect(bad.isError).toBe(true);
-      await w.SlopHub.remove(id); await w.SlopHub.remove(rec.id);
+      // download goes through the browser's own download
+      let got = null;
+      w.SlopUI.download = (blob, name) => { got = [name, blob.size]; };
+      await app.text('download', { file: made.id });
+      expect(got).toEqual([made.name, rec.size]);
+      for (const f of await H.list()) if (f.name.includes(stamp)) await H.remove(f.id);
       app.close();
     }, { timeout: 90000 });
 

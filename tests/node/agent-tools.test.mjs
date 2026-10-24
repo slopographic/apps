@@ -2,7 +2,7 @@
 // JSON Schema tools; commands flagged ai: false are left out; names are unique and valid; destructive actions are flagged
 // and ask first; the workspace tools' schemas are valid too.
 // Run: node --test tests/node/agent-tools.test.mjs
-// Covers: shared/agent/tools.js, shared/agent/workspace.js, shared/ai/cmdtools.js
+// Covers: shared/agent/tools.js, shared/agent/workspace.js, shared/ai/cmdtools.js, shared/ai/apptools.js, shared/ai/optools.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -17,13 +17,16 @@ const require = createRequire(import.meta.url);
 const T = require('../../shared/agent/tools.js');
 const A = require('../../shared/commands/args.js');
 
-async function classic(rel, extra = {}) {
-  const win = Object.assign({ SlopCmdArgs: A, console, URL, File, Blob, Map, Set, Promise, setTimeout }, extra);
+async function classic(rels, extra = {}) {
+  const win = Object.assign({ SlopCmdArgs: A, SLOP_APPS: [], console, URL, File, Blob, Map, Set, Promise, setTimeout }, extra);
   win.window = win;
   const ctx = vm.createContext(win);
-  vm.runInContext(await readFile(path.join(ROOT, rel), 'utf8'), ctx, { filename: rel });
+  for (const rel of [].concat(rels)) vm.runInContext(await readFile(path.join(ROOT, rel), 'utf8'), ctx, { filename: rel });
   return win;
 }
+const KIT = ['shared/ai/apptools.js', 'shared/ai/cmdtools.js', 'shared/ai/optools.js'];
+/** The one tool list, as WebMCP takes it: appTools.build (with the operations and the page's commands), cmdTools.neutral. */
+const oneList = (w, env) => w.SlopAIKit.appTools.build(Object.assign({ ops: true, hub: null }, env)).map(w.SlopAIKit.cmdTools.neutral);
 
 function fakeCmd() {
   const ran = [];
@@ -45,11 +48,12 @@ function fakeCmd() {
 }
 
 test('SlopCmd commands become tools: the panel\'s schemas, ai: false left out, names unique and valid', async () => {
-  const w = await classic('shared/ai/cmdtools.js');
+  const w = await classic(KIT);
   const cmd = fakeCmd();
-  const defs = T.unique(T.fromCommands(cmd, w.SlopAIKit.cmdTools, { label: 'PhotoSlop' }));
+  const defs = T.unique(oneList(w, { cmd }));
   const names = defs.map((d) => d.name);
-  assert.deepEqual(names.slice().sort(), ['app_state', 'delete_layer', 'fill', 'gaussian_blur', 'gaussian_blur_2', 'list_commands', 'run_command'].sort());
+  assert.deepEqual(names.slice().sort(), ['app_state', 'delete_layer', 'fill', 'gaussian_blur', 'gaussian_blur_2', 'list_commands', 'run_command',
+    'list_apps', 'open_app', 'save_to_drive', 'list_files', 'read_file', 'list_operations', 'run_operation', 'run_workflow'].sort());
   assert.ok(!defs.some((d) => d.cmdId === 'ps.ai.secret'), 'ai: false is not a tool');
   assert.equal(new Set(names).size, names.length);
   for (const d of defs) {
@@ -70,9 +74,9 @@ test('SlopCmd commands become tools: the panel\'s schemas, ai: false left out, n
 });
 
 test('destructive tools are flagged and ask first; read-only tools say so', async () => {
-  const w = await classic('shared/ai/cmdtools.js');
+  const w = await classic(KIT);
   const cmd = fakeCmd();
-  const defs = T.unique(T.fromCommands(cmd, w.SlopAIKit.cmdTools, {}));
+  const defs = T.unique(oneList(w, { cmd }));
   const tool = (n, o) => T.toWebMCP(defs.find((d) => d.name === n), o);
   assert.equal(tool('delete_layer').annotations.destructiveHint, true);
   assert.equal(tool('delete_layer').annotations.consequentialHint, true);
@@ -111,11 +115,12 @@ test('every registry operation\'s options map to a valid JSON Schema', () => {
   }
 });
 
-test('the workspace and operations tools: valid schemas and names, none destructive, read-only where they only read', async () => {
-  const w = await classic('shared/agent/workspace.js', { document: { currentScript: null, querySelectorAll: () => [] }, location: { href: 'http://localhost/photoslop/' } });
-  const defs = T.unique(w.SlopAgentWorkspace.defs({ app: 'PhotoSlop' }));
+test('the file and operations tools of the one list, and the page\'s own two: valid schemas and names, read-only where they only read', async () => {
+  const doc = { currentScript: null, querySelectorAll: () => [] };
+  const w = await classic(KIT.concat('shared/agent/workspace.js'), { document: doc, location: { href: 'http://localhost/photoslop/' } });
+  const defs = T.unique(oneList(w, {}).concat(w.SlopAgentWorkspace.defs({ app: 'PhotoSlop' })));
   const names = defs.map((d) => d.name);
-  for (const n of ['list_files', 'save_to_drive', 'download', 'list_operations', 'run_operation', 'run_workflow']) assert.ok(names.includes(n), n);
+  for (const n of ['list_files', 'read_file', 'save_to_drive', 'download', 'list_operations', 'run_operation', 'run_workflow']) assert.ok(names.includes(n), n);
   assert.ok(!names.includes('open_file'), 'no open_file without an app that takes files');
   for (const d of defs) {
     assert.match(d.name, T.NAME_RE);
@@ -123,12 +128,15 @@ test('the workspace and operations tools: valid schemas and names, none destruct
     assert.deepEqual(T.checkSchema(t.inputSchema), [], d.name);
     assert.equal(!!t.annotations.destructiveHint, false, d.name);
   }
-  assert.equal(T.toWebMCP(defs.find((d) => d.name === 'list_files')).annotations.readOnlyHint, true);
-  assert.equal(T.toWebMCP(defs.find((d) => d.name === 'list_operations')).annotations.readOnlyHint, true);
+  const tool = (n) => T.toWebMCP(defs.find((d) => d.name === n));
+  for (const n of ['list_files', 'read_file', 'list_operations', 'list_apps']) assert.equal(tool(n).annotations.readOnlyHint, true, n);
+  assert.equal(tool('list_files').annotations.untrustedContentHint, true);
+  assert.equal(tool('run_workflow').annotations.readOnlyHint, false);
+  assert.deepEqual([...tool('run_operation').inputSchema.required], ['operation', 'files']);
   // with an app that takes files, open_file is offered
-  const w2 = await classic('shared/agent/workspace.js', { document: { currentScript: null }, location: { href: 'http://localhost/' }, SlopIntake: { take: () => {}, spec: () => ({ id: 'x' }) } });
+  const w2 = await classic(KIT.concat('shared/agent/workspace.js'), { document: doc, location: { href: 'http://localhost/' }, SlopIntake: { take: () => {}, spec: () => ({ id: 'x' }) } });
   assert.ok(w2.SlopAgentWorkspace.defs({}).some((d) => d.name === 'open_file'));
-  // commands and workspace together: a command named like a workspace tool gets its own name
+  // a command named like another tool gets its own name
   const both = T.unique(defs.concat([{ name: 'download', description: 'the app\'s own', inputSchema: { type: 'object', properties: {} }, run: () => 1 }]));
   assert.deepEqual(both.filter((d) => /^download/.test(d.name)).map((d) => d.name), ['download', 'download_2']);
 });

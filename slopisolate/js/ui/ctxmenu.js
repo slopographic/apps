@@ -1,4 +1,5 @@
-/* SlopIsolate — context menus. The queue thumbnail (open, retry, export, remove) and the canvas (undo, tools,
+/* SlopIsolate — context menus. The queue thumbnail (open, select, retry, export, Open in, remove; the selection's menu
+ * on a selected picture) and the canvas (undo, tools,
  * view, zoom, clear edits, or open/sample when empty). Every item calls the shared action it names: CO.menus.act,
  * CO.queue.open, CO.process and CO.export, so a menu item, a key and a palette row run the same code. */
 (function () {
@@ -8,10 +9,16 @@
   const act = () => CO.menus.act;
   const keyOf = (id, fallback) => (window.SlopCtx ? SlopCtx.keyFor(id, fallback) : fallback || '');
 
-  /** Queue thumbnail: the image under the pointer. */
+  /** Queue thumbnail: the image under the pointer. A picture that is part of a selection of two or more: the selection's
+   *  menu (the settings panel's menu, ui/bulk-act.js). */
   function queueItems(it) {
-    const out = [{ label: 'Open', act: () => CO.queue.open(it) }];
-    if (it.status === 'done') out.push({ label: 'Export…', key: keyOf('co.export-one', 'Ctrl+S'), act: () => act().exportOne(it) });
+    if (S.bulk() && S.sel.has(it.id)) return CO.bulk.menuItems();
+    const out = [{ label: 'Open', act: () => CO.queue.open(it) }, { label: S.sel.has(it.id) ? 'Unselect' : 'Select', act: () => CO.bulk.toggle(it.id, { seed: true }) }];
+    if (it.status === 'done') {
+      out.push({ label: 'Export…', key: keyOf('co.export-one', 'Ctrl+S'), act: () => act().exportOne(it) });
+      const sub = CO.openIn.items(it);
+      if (sub.length) out.push({ label: 'Open in', sub });
+    }
     if (it.status === 'error') out.push({ label: 'Retry', act: () => CO.process.rerun(it) });
     out.push('-', { label: 'Remove from queue', act: () => CO.process.remove(it) });
     return out;

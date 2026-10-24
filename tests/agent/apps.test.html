@@ -9,13 +9,13 @@
   <script src="../harness.js"></script>
   <script src="fake.js"></script>
   <script>
-  // Covers: shared/agent/boot.js, shared/agent/webmcp.js, shared/agent/workspace.js, shared/agent/tools.js, shared/agent/about.js, shell/shell.js
+  // Covers: shared/ai/apptools.js, shared/ai/optools.js, shared/agent/boot.js, shared/agent/webmcp.js, shared/agent/workspace.js, shared/agent/tools.js, shared/agent/about.js, shell/shell.js
   // Covers: shared/menubar/menubar.js, pdf/js/ui/menus.js, slopcut/js/ui/menus.js, photoslop/js/ui/menus.js
   // With a fake document.modelContext installed before the page's agent code runs, each app registers its generated tools:
   // the workspace and operations tools everywhere, the SlopCmd tools where the page has commands. With the setting off,
   // nothing is registered. The Help note opens from the command palette.
   const { describe, it, expect, waitFor } = SlopTest;
-  const WS = ['list_files', 'save_to_drive', 'download', 'list_operations', 'run_operation', 'run_workflow'];
+  const WS = ['list_files', 'read_file', 'save_to_drive', 'download', 'list_operations', 'run_operation', 'run_workflow'];
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   function checkTools(app) {
     for (const t of app.mc.tools.values()) {

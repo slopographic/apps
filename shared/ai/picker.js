@@ -8,6 +8,8 @@
  *        no WebGPU → a plain message and what still works; otherwise the models with size, GPU memory, licence and
  *        a "good at app control" mark (strength 'tools'), Download / Use with progress and Cancel.
  *   picker.FIT: the catalog ids that follow tool instructions well enough to control an app, best first.
+ *   picker.loadCloud() → loads "Use your own AI account" (shared/ai/cloud/), shown under the models in render, and
+ *        also when this browser has no WebGPU: a provider with the person's own key works in every browser.
  * Downloads happen only after a click and the notice. Nothing is uploaded. */
 (function () {
   'use strict';
@@ -56,15 +58,21 @@
     return K.models.status(id).catch(() => ({ state: 'none', bytes: 0 }));
   }
 
+  const CLOUD = ['cloud/net', 'cloud/providers', 'cloud/anthropic', 'cloud/openai', 'cloud/compat', 'cloud/gemini', 'cloud/keys', 'cloud/meter', 'cloud/engine', 'cloud/connect'];
+  const loadCloud = () => K.load(['cmdtools', ...CLOUD]);
+  async function cloud(box, o) {
+    try { await loadCloud(); K.cloud.connect.render(box, { onReady: o.onReady, onForget: o.onForget, open: o.cloudOpen }); } catch (e) { console.warn('Slop AI: own-key providers', e); }
+  }
+
   async function render(box, o = {}) {
     box.textContent = '';
-    const wrap = h('div', { class: 'sap-pick' });
-    box.append(wrap);
+    const wrap = h('div', { class: 'sap-pick' }), more = h('div', { class: 'sap-pick-cloud' });
+    box.append(wrap, more);
     const g = await gpu();
     if (!g.ok) {
       wrap.append(h('p', { class: 'sap-pick-no', role: 'alert' }, noGpuText(g.reason)), h('p', { class: 'sap-dim' }, NO_GPU_HELP),
-        h('p', { class: 'sap-dim' }, `You can still use every menu and tool of ${o.appName || 'this app'} yourself. A model that `, aiLink(), ' runs in another tab of this browser is used here too.'));
-      return;
+        h('p', { class: 'sap-dim' }, `You can still use every menu and tool of ${o.appName || 'this app'} yourself, or connect your own AI account below. A model that `, aiLink(), ' runs in another tab of this browser is used here too.'));
+      return cloud(more, Object.assign({ cloudOpen: true }, o));
     }
     await K.load(['catalog', 'webllm']);
     const p = prefs(), list = K.catalog.list.slice().sort((a, b) => rank(a) - rank(b));
@@ -74,6 +82,7 @@
     const rows = h('div', { class: 'sap-pick-list' });
     for (const m of list.filter((x) => FIT.includes(x.id) || x === have || x.id === p.defaultModel)) rows.append(row(m, st.get(m.id) || {}, m === have, o));
     wrap.append(rows, h('p', { class: 'sap-dim' }, 'Smaller models are faster but follow instructions less well. More models and settings: ', aiLink(), '.'));
+    return cloud(more, o);
   }
   const aiLink = () => h('a', { href: new URL('../../ai/#models', K.base || document.baseURI).href, target: '_blank', rel: 'noopener' }, 'Slop AI');
   const rank = (m) => { const i = FIT.indexOf(m.id); return i < 0 ? 99 : i; };
@@ -112,5 +121,5 @@
     return s;
   }
 
-  K.picker = { gpu, consent, render, FIT, noGpuText, NO_GPU_HELP };
+  K.picker = { gpu, consent, render, FIT, noGpuText, NO_GPU_HELP, loadCloud, CLOUD };
 })();

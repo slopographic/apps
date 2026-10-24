@@ -1,13 +1,10 @@
-/* SlopAgentTools: the generator that turns what a page already has into WebMCP tools. Pure (no DOM): window.SlopAgentTools
- * on pages, a CommonJS module for Node tests. Nothing here is written per app: the tools come from
- *   - the page's SlopCmd commands, through the AI panel's own builder (shared/ai/cmdtools.js cmdTools.specs): one tool per
- *     command with an args schema (shared/commands/args.js), commands flagged ai: false left out, plus app_state,
- *     list_commands (read-only) and run_command
- *   - any other list of neutral definitions (the workspace and the operations registry, shared/agent/workspace.js)
- * A neutral definition (cmdTools.specs' shape): { name, title?, description, inputSchema, readOnly?, mayDestroy?, untrusted? (it returns the person's own content),
+/* SlopAgentTools: turns provider-neutral tool definitions into WebMCP tools. Pure (no DOM): window.SlopAgentTools on
+ * pages, a CommonJS module for Node tests. The definitions are the one tool list (shared/ai/apptools.js appTools.build:
+ * the app's SlopCmd commands with args, ai: false left out, app_state, list_commands, run_command, the operations, the
+ * Slop Drive files) through cmdTools.neutral (shared/ai/cmdtools.js), plus shared/agent/workspace.js.
+ * A neutral definition (cmdTools.neutral's shape): { name, title?, description, inputSchema, readOnly?, mayDestroy?, untrusted? (it returns the person's own content),
  *   destructive?: bool | fn(input),
  *   confirmText?(input), run(input) → value }.
- *   fromCommands(cmd, cmdTools, { label }) → definitions
  *   unique(defs, reserved?)   names cleaned to NAME_RE and made unique (a later duplicate gets _2, _3…)
  *   checkSchema(schema)       → [problems]: what a tool's inputSchema must be (an object type, typed properties)
  *   toWebMCP(def, { confirm }) → the tool the browser's model context takes: { name, title, description, inputSchema,
@@ -56,13 +53,6 @@
     return out;
   }
 
-  /** The page's commands: the AI panel's own tools (cmdTools.specs, shared/ai/cmdtools.js), the same list and schemas
-   * the Slop AI side panel and the cloud engines use. */
-  function fromCommands(cmd, cmdTools, { label } = {}) {
-    if (!cmd || !cmdTools || !cmdTools.specs) return [];
-    return cmdTools.specs(cmd, { label });
-  }
-
   const isDestructive = (d, input) => { try { return typeof d.destructive === 'function' ? !!d.destructive(input || {}) : !!d.destructive; } catch (e) { return true; } };
   /** Could this tool ever destroy work? (the annotation; the per-call check decides whether to ask) */
   const mayDestroy = (d) => (d.mayDestroy != null ? !!d.mayDestroy : typeof d.destructive === 'function' || !!d.destructive);
@@ -99,5 +89,5 @@
     return tool;
   }
 
-  return { NAME_RE, cleanName, unique, schemaOf, checkSchema, fromCommands, isDestructive, mayDestroy, toWebMCP, result, text };
+  return { NAME_RE, cleanName, unique, schemaOf, checkSchema, isDestructive, mayDestroy, toWebMCP, result, text };
 });

@@ -1,8 +1,9 @@
 /* SlopWebMCP: registers the page's tools with the browser's model context, so an AI agent in the browser (or a desktop
  * agent through the MCP-B extension) can use the app. Loaded by shared/agent/boot.js only when the API is there and the
- * setting is on. Classic script; window.SlopWebMCP. The tools are generated (shared/agent/tools.js), never written per app:
- *   the workspace and the operations registry (shared/agent/workspace.js), then the page's SlopCmd commands (the same
- *   tools and schemas as the Slop AI side panel, shared/ai/cmdtools.js).
+ * setting is on. Classic script; window.SlopWebMCP. The tools are never written per app: they are the one tool list of
+ *   the Slop AI panel and the cloud engines (shared/ai/apptools.js appTools.build with the operations, optools.js, and the
+ *   page's SlopCmd commands, cmdtools.js), made provider-neutral by cmdTools.neutral, plus open_file and download
+ *   (shared/agent/workspace.js), and turned into WebMCP tools by shared/agent/tools.js.
  * They are registered again when what the app offers changes: a command registered or removed, a command that becomes
  * available or not (its when()), a dialog of the app opening or closing (the command tools wait while one is open).
  * A destructive call (delete, clear, overwrite, new…) asks the person first: through the agent's own interaction hook
@@ -33,8 +34,6 @@
     const C = g.SlopCmd;
     if (!C || hooked) return cmdP || Promise.resolve();
     if (!cmdP) cmdP = (async () => {
-      if (!g.SlopCmdArgs) await A.script('shared/commands/args.js');
-      if (!(g.SlopAIKit && g.SlopAIKit.cmdTools)) await A.script('shared/ai/cmdtools.js');
       if (C.prepare) await Promise.resolve(C.prepare()).catch(() => null);
       if (C.on) for (const ev of ['change', 'run', 'open', 'close']) C.on(ev, schedule);
       hooked = true;
@@ -43,16 +42,15 @@
     return cmdP;
   }
 
+  const appId = () => (g.SlopHub && g.SlopHub.self && g.SlopHub.self.app) || ((g.SlopShell && g.SlopShell.currentApp) || {}).id || '';
   function build() {
     hookCmd();
-    const name = appName();
-    const ws = W ? W.defs({ app: name }) : [];
-    let cmd = [];
-    if (hooked && g.SlopAIKit && g.SlopAIKit.cmdTools) {
-      cmd = T.fromCommands(g.SlopCmd, g.SlopAIKit.cmdTools, { label: name }).filter((d) => !d.cmdId || usable(d.cmdId));
-      if (dialogOpen() && !busy) cmd = cmd.filter((d) => d.readOnly);   // the app waits on the person
-    }
-    return T.unique(ws.concat(cmd));
+    const K = g.SlopAIKit, name = appName();
+    let defs = K.appTools.build({ cmd: hooked ? g.SlopCmd : null, ops: true, appId: appId() }).map(K.cmdTools.neutral)
+      .filter((d) => !d.cmdId || usable(d.cmdId));
+    const isCmd = (d) => !!d.cmdId || d.name === 'run_command';
+    if (dialogOpen() && !busy) defs = defs.filter((d) => !isCmd(d) || d.readOnly);   // the app waits on the person
+    return T.unique(defs.concat(W ? W.defs({ app: name }) : []));
   }
 
   async function confirm(text, client) {

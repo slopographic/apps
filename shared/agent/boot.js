@@ -65,6 +65,11 @@
     startP = (async () => {
       if (!api()) await token();
       if (!api() || !isOn()) return false;
+      const K = (g.SlopAIKit = g.SlopAIKit || {});
+      K.base = K.base || new URL('shared/ai/', ROOT).href;
+      // the one tool list (shared/ai/HANDOFF.md): the side panel's app tools, its command tools and the operations
+      if (!g.SlopCmdArgs) await script('shared/commands/args.js');
+      for (const [name, have] of [['apptools', K.appTools], ['cmdtools', K.cmdTools], ['optools', K.opTools]]) if (!have) await script('shared/ai/' + name + '.js');
       if (!g.SlopAgentTools) await script('shared/agent/tools.js');
       if (!g.SlopAgentWorkspace) await script('shared/agent/workspace.js');
       await script('shared/agent/webmcp.js');
