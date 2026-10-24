@@ -6,14 +6,14 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 5 of 58 apps.
+Covered: 6 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
 | PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 29 | ✓ 1 |  | yes |
 | SlopVector (`vector`) | ✓ 1 | ✓ 3 | ✓ 10 | ✓ 1 |  | yes |
 | Slop PDF (`pdf`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
-| SlopLabel (`label`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | yes |
 | SlopIsolate (`cutout`) | ✗ | ✗ | ✓ 1 | ✗ |  | no |
 | Slop AI Tools (`aitools`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Reports (`reports`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -83,6 +83,13 @@ Covered: 5 of 58 apps.
 - create: `new_document`
 - add: `add_shape`, `add_svg`, `add_text`
 - edit: `align`, `arrange`, `delete_object`, `distribute`, `group`, `pathfinder`, `select_objects`, `set_style`, `transform`, `ungroup`
+- export: `export`
+
+### SlopLabel
+
+- create: `new_label`
+- add: `add_barcode`, `add_image`, `add_qr`, `add_shape`, `add_text`
+- edit: `data_merge`, `delete_object`, `set_property`
 - export: `export`
 
 ### SlopIsolate
