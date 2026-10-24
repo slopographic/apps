@@ -168,6 +168,12 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   `data.cutout`), the sample project's media (`data.sample`). The drops of bin items, effects and slots stay (`intake-ok`).
   Out: Send frame to PhotoSlop is `SlopOuttake.send`. In STRICT by subfolder (not `js/watermark/`, see below).
   `tests/intake/slopcut.test.html`.
+- **SlopVector** (`slopvector/js/io/intake.js`, spec `vector`): a drop on the window or the strip (placed at the drop
+  point), the strip's Choose files, File ▸ Place, File ▸ Open (mode `new`), Open from Slop Drive (mode `new`, linked) and
+  Place from Slop Drive, ?drive= launch and launchQueue (mode `new`: an SVG opens, a picture becomes a new artboard), a
+  pasted picture; its own clipboard copies (SlopBuffer) are `except`ed and stay with its paste. `HUB.openRecord` /
+  `placeRecord` / `sendTo` and `IO.openFile` / `pickFile` / `bindDrop` are gone. Out: File ▸ Send to is
+  `SlopOuttake.items` (SVG with Workflows, PNG apps only). `tests/intake/slopvector.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -565,21 +571,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] pickFiles: the watermark logo, `slopcut/js/watermark/panel.js` (`pickLogo`) → a part `slopedit.logo`; then put
   `slopcut/` in STRICT in place of its subfolders.
-
-### slopvector
-
-- [ ] pickFiles: `slopvector/js/io/files.js:50`
-- [ ] SlopDrop.attach: `slopvector/js/io/files.js:56`
-- [ ] Drive picker: `slopvector/js/io/hub.js:53`
-- [ ] Drive picker: `slopvector/js/io/hub.js:57`
-- [ ] out: sendMenuItems: `slopvector/js/io/hub.js:89`
-- [ ] out: sendMenuItems: `slopvector/js/io/hub.js:90`
-- [ ] out: sendTo: `slopvector/js/io/hub.js:98`
-- [ ] ?drive= launch: `slopvector/js/io/hub.js:105`
-- [ ] paste listener: `slopvector/js/tools/keys.js:109`
-- [ ] out: Open in/Send to label: `slopvector/js/ui/actions.js:78`
-- [ ] out: Open in/Send to label: `slopvector/js/ui/menus.js:22`
-- [ ] out: Open in/Send to label: `slopvector/js/ui/props.js:118`
 
 ### sorter
 

@@ -35,8 +35,8 @@
   function togglePref(k, label) { return function () { S.prefs[k] = !S.prefs[k]; savePrefs(); SV.requestRender(true); if (label) UI.toast(label + (S.prefs[k] ? ' on' : ' off')); }; }
 
   act('file.new', 'New…', ['mod+alt+n'], function () { newDocDialog(); });
-  act('file.open', 'Open…', ['mod+o'], function () { IO.pickFile('.svg,image/svg+xml', function (f) { if (f[0]) IO.openFile(f[0]); }); });
-  act('file.place', 'Place…', ['mod+shift+p'], function () { IO.pickFile('.svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp', function (f) { IO.placeFiles(f); }, true); });
+  act('file.open', 'Open…', ['mod+o'], function () { SV.intake.open(); });
+  act('file.place', 'Place…', ['mod+shift+p'], function () { SV.intake.place(); });
   act('file.openDrive', 'Open from Slop Drive…', [], function () { SV.hub.openFromDrive(); });
   act('file.placeDrive', 'Place from Slop Drive…', [], function () { SV.hub.placeFromDrive(); });
   act('file.sample', 'Open Sample: Sloppo', [], function () { SV.loadDoc(SV.sampleDoc(), { fit: true }); SV.commit('sample'); UI.toast('Say hi to Sloppo'); });

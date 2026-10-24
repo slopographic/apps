@@ -1,4 +1,4 @@
-/* SlopVector — io: images, file picking, drag and drop */
+/* SlopVector — io: images and files (placed or opened as documents; they come in through the intake, io/intake.js) */
 (function () {
   'use strict';
   var G = window.SVGeom, SV = window.SV, S = SV.state;
@@ -29,40 +29,29 @@
       return o;
     }).catch(function () { SV.toast('Could not read that image', 'warn'); });
   };
-  IO.placeFiles = function (files, at) {
-    var list = Array.from(files);
-    return list.reduce(function (p, f, i) {
-      return p.then(function () {
-        var pt = at ? { x: at.x + i * 20, y: at.y + i * 20 } : null;
-        var isSVG = /svg/.test(f.type) || /\.svg$/i.test(f.name);
-        if (isSVG) return readFile(f, true).then(function (t) { IO.importSVGText(t, { name: f.name.replace(/\.svg$/i, ''), at: pt, allowOpen: list.length === 1 && at && /slopvector-document/.test(t) }); });
-        if (/^image\//.test(f.type)) return readFile(f, false).then(function (u) { return IO.placeImageURL(u, f.name.replace(/\.[^.]+$/, ''), pt); });
-        SV.toast('Unsupported file: ' + f.name, 'warn');
+  /** Places one file into the document (the intake's reader, io/intake.js): an SVG as grouped artwork (a SlopVector
+   *  document dropped alone at a point may open), a picture as an image object. Resolves the placed object. */
+  IO.placeFile = function (f, pt, alone) {
+    var isSVG = /svg/.test(f.type) || /\.svg$/i.test(f.name);
+    if (isSVG) return readFile(f, true).then(function (t) { return IO.importSVGText(t, { name: f.name.replace(/\.svg$/i, ''), at: pt, allowOpen: !!(alone && pt && /slopvector-document/.test(t)) }); });
+    if (/^image\//.test(f.type)) return readFile(f, false).then(function (u) { return IO.placeImageURL(u, f.name.replace(/\.[^.]+$/, ''), pt); });
+    return Promise.reject(new Error('is not an SVG or a picture'));
+  };
+  /** Opens one file as a document: an SVG becomes the document, a picture a new artboard of its size. Resolves true. */
+  IO.openAsDocument = function (f) {
+    var isSVG = /svg/.test(f.type) || /\.svg$/i.test(f.name), base = String(f.name || 'Untitled').replace(/\.[^.\/]+$/, '');
+    if (isSVG) return readFile(f, true).then(function (t) { return IO.openSVGText(t, f.name || 'Untitled.svg'); });
+    if (!/^image\//.test(f.type)) return Promise.reject(new Error('is not an SVG or a picture'));
+    return readFile(f, false).then(function (url) {
+      return loadImg(url).then(function (img) {
+        var w0 = img.naturalWidth || 1, h0 = img.naturalHeight || 1, sc = min(1, 8000 / max(w0, h0)), w = Math.round(w0 * sc), h = Math.round(h0 * sc);
+        var doc = SV.newDoc(w, h, base);
+        var aid = 'a' + SV.uid(); doc.assets[aid] = url;
+        doc.layers[0].children.push(SV.mk.image(aid, 0, 0, w, h, base));
+        SV.loadDoc(doc, { fit: true });
+        SV.commit('open image'); SV.markSaved();
+        return true;
       });
-    }, Promise.resolve());
-  };
-  IO.openFile = function (file) {
-    if (!file) return;
-    if (/svg/.test(file.type) || /\.svg$/i.test(file.name)) readFile(file, true).then(function (t) { IO.openSVGText(t, file.name); });
-    else if (/^image\//.test(file.type)) IO.placeFiles([file]);
-    else SV.toast('Open supports .svg files (use Place for images)', 'warn');
-  };
-  IO.pickFile = function (accept, cb, multiple) { window.SlopUI.pickFiles({ accept: accept, multiple: !!multiple }).then(cb); };
-  // Drops go through SlopDrop (shared/drop): a file is placed at the drop point (offset for each extra file), and the
-  // strip at the foot of the stage shows each file's progress. The window's drag outline comes from the module.
-  var DROP_RULES = { types: ['image/*'], exts: ['.svg'], noun: 'an SVG or a picture' };
-  IO.bindDrop = function () {
-    var stage = SV.dom.stage;
-    window.SlopDrop.attach(document.getElementById('svDrop'), {
-      accept: DROP_RULES,
-      compact: true,
-      targets: [document.getElementById('app')],
-      process: function (file, progress, ctx) {
-        var r = stage.getBoundingClientRect();
-        var at = ctx.at ? SV.toDoc(ctx.at.x - r.left, ctx.at.y - r.top) : null;
-        var pt = at ? { x: at.x + ctx.index * 20, y: at.y + ctx.index * 20 } : null;
-        return IO.placeFiles([file], pt).then(function () { return file.name; });
-      },
     });
   };
 })();
