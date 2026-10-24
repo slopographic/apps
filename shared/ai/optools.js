@@ -61,7 +61,9 @@
       if (hub && hub.put) { await hub.put(blob, { name: o.name, from: 'ai' }); saved.push({ name: o.name, size: blob.size, saved: 'Slop Drive' }); }
       else saved.push({ name: o.name, size: blob.size });
     }
-    return { files: saved, errors: res.errors.map((e) => `Step ${e.step}: ${e.message}`), notes: (res.notes || []).concat(n.errors || []) };
+    const errors = res.errors.map((e) => `Step ${e.step}: ${e.message}`);
+    if (!saved.length && errors.length) throw new Error(errors.join(' '));   // nothing made: a failed step, not a ✓
+    return { files: saved, errors, notes: (res.notes || []).concat(n.errors || []) };
   }
 
   const FILES = { type: 'array', items: { type: 'string' }, description: 'Slop Drive file names or ids (list_files), or "open" for what this app has open' };

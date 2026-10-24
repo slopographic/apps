@@ -52,7 +52,7 @@
         // what was sent to the provider (look_at_file, look_at_canvas): a thumbnail, so the person sees it too
         ...(m.media || []).filter((x) => /^image\//.test(x.mime)).map((x) => h('img', { class: 'sap-thumb', alt: 'Sent: ' + (x.name || 'picture'), src: `data:${x.mime};base64,${x.data}` })));
     }
-    if (m.handoff && m.url) return h('div', { class: 'sap-handoff' }, h('span', null, m.display), m.opened ? null : h('button', { type: 'button', class: 'sap-btn primary', onclick: () => { window.open(m.url, '_blank'); m.opened = true; K.handoff.clear(); P.render(); } }, `Continue in ${m.to}`));
+    if (m.handoff) return h('div', { class: 'sap-handoff' }, m.display);   // "Opening SlopIsolate…", "Continuing in PhotoSlop with …"
     if (m.meter) return h('div', { class: 'sap-usage' }, m.display);   // the tokens line (not m.usage: every reply carries its usage)
     const d = h('div', { class: 'sap-msg ' + m.role + (m.error ? ' bad' : '') });
     const text = m.display != null ? m.display : m.content;
@@ -60,6 +60,14 @@
     return d;
   };
 
+  /** The rule for tasks that use other apps, with the person's setting (handoff.js mode). */
+  function hopRule() {
+    const show = K.handoff && K.handoff.mode() === 'show';
+    return ['Two kinds of work. (1) File in, file out (convert, remove background, watermark, resize, upscale, OCR, transcribe, compress, workflows): run_operation does it on this page (list_operations finds it). (2) Editing that needs an app (layers in PhotoSlop, a timeline in SlopCut, pages in Slop PDF, slides in Slop Slides): open_in_app moves the task to that app in this tab with the files and a full task; the chat comes along and you continue there.',
+      show ? 'The person chose "Show me in each app": move to the app that does each step, also for file jobs, so they can watch.'
+        : 'The person chose "Stay on this page when possible": do file jobs here with run_operation and move only for editing that needs another app.',
+      'If the person says "do it here", stay; if they say "show me", move to each app.'].join(' ');
+  }
   function systemPrompt(tools, eng) {
     const name = P.appName(), cloud = eng && eng.kind === 'cloud';
     const lines = [cloud ? `You are Slop AI, a helpful assistant inside ${name} on slopographic.com, a site of apps that run in the user's browser. The user connected you with their own key. Be brief.`
@@ -69,13 +77,13 @@
         'Plan the fewest steps and use arguments in the given ranges. Some actions (deleting, look_at_file) may ask the user first; if they say no, accept it.',
         'Files stay on the device: to see a picture or read a file, call look_at_file. After the actions, answer in one short sentence. If a tool fails, say so plainly; do not invent results.',
         'Be resourceful: build what is asked from the tools you have (layers, shapes, text, gradients, SVG, fills, filters, and generate_image when it is there) instead of saying it cannot be done. After making something visual, check it with look_at_canvas when it is available, and fix what is off.',
-        `Never refuse because ${name} cannot do something: if the person wants a file and stays here, make it with run_operation (find one with list_operations); if the work belongs in another app's editor, call open_app with that app's id and a task saying what to do there, and the conversation continues in that app.`,
+        `Never refuse because ${name} cannot do something. ${hopRule()}`,
         `The apps on the site:\n${K.appTools.catalog(window.SLOP_APPS || [])}`);
     } else if (tools.length) {
       lines.push(`You control ${name} with the tools below. Call app_state first when you need to know what is open.`,
         'Plan the fewest steps. Use the tools that match the request directly, with arguments in the given ranges.',
         'You may put several <tool_call> lines in one reply; they run in order. After the results, answer in one short sentence.',
-        'If a tool fails, say so plainly; do not invent results. If the request belongs in another app, call open_app with its id and a task.');
+        'If a tool fails, say so plainly; do not invent results.', hopRule());
     }
     return lines.join(' ');
   }
@@ -85,7 +93,11 @@
     P.sendBtn.classList.toggle('stop', !!on);
     P.sendBtn.setAttribute('aria-label', on ? 'Stop' : 'Send');
   }
-  P.stop = function () { if (P.busy) P.busy.abort(); };
+  P.stop = function () {
+    if (!P.busy) return;
+    P.busy.abort();
+    if (P.chain && K.handoff) { K.handoff.cancel(P.chain.id); P.chain = null; P.stoppedChain = true; }   // Stop ends the whole task, every app
+  };
 
   P.send = async function (text) {
     text = text != null ? String(text) : P.input.value.trim();
@@ -101,19 +113,25 @@
     P.render();
     const cmd = window.SlopCmd;
     let handed = null;
-    /** open_app with a task (handoff.js): the conversation and the task go to that app's page, in a new tab. */
-    const handoff = ({ app, task, url }) => {
-      K.handoff.save({ to: app.id, toName: app.name, from: P.appId(), fromName: P.appName(), task, messages: K.handoff.carry(P.messages) });
-      let w = null;
-      try { w = window.open(url, '_blank'); } catch (e) { w = null; }
-      if (w) K.handoff.clear();   // the new tab has its own copy of this tab's sessionStorage
-      handed = { to: app.name, url, opened: !!w };
-      return w ? `Opened ${app.name}: the conversation continues there with this task. Tell the person in one short sentence.`
-        : `The browser blocked the new tab. A "Continue in ${app.name}" button is in the chat; tell the person to press it.`;
+    const done = [];   // this request's steps so far: they go along when the task moves
+    /** The task moves to another app in this tab (handoff.js): the conversation, the task and the chain are saved in
+     * sessionStorage, this run stops, and go() navigates (SlopOuttake's act, or the app's address). */
+    const hop = async (rec, go) => {
+      const chain = P.chain || { id: Date.now().toString(36), hop: 0 };
+      if (chain.hop >= K.handoff.MAX_HOPS) throw new Error(`This task already moved through ${chain.hop} apps; it stops here.`);
+      handed = { display: `Opening ${rec.app.name}…`, note: true, handoff: true };
+      K.handoff.save({ to: rec.app.id, toName: rec.app.name, from: P.appId(), fromName: P.appName(), task: rec.task, line: rec.line, chain: { id: chain.id, hop: chain.hop + 1 },
+        messages: K.handoff.carry([...P.messages, ...done, { role: 'assistant', display: handed.display }]) });
+      P.list.append(P.view(Object.assign({ role: 'assistant' }, handed)));
+      if (P.busy) P.busy.abort();   // the next app's page goes on from here
+      await go();
+      return `Moving to ${rec.app.name}; the task continues there.`;
     };
+    const handoff = ({ app, task, url }) => hop({ app, task, line: `Continuing in ${app.name}.` }, () => { location.href = url; });
     const control = P.toolsBox.checked && !!cmd;
     if (control && cmd.prepare) { try { await cmd.prepare(); } catch (e) { console.warn('SlopCmd.prepare:', e); } }
-    const tools = P.toolsBox.checked ? K.appTools.build({ cmd, appId: P.appId(), appName: P.appName(), confirm: confirmFn, look: cloud, ops: cloud, who: cloud ? eng.provider.who : '', handoff }) : [];
+    const ops = cloud || eng.kind === 'fake';   // file operations: own-key models (and the test engine); small local models stay lean
+    const tools = P.toolsBox.checked ? K.appTools.build({ cmd, appId: P.appId(), appName: P.appName(), confirm: confirmFn, look: cloud, ops, who: cloud ? eng.provider.who : '', handoff, hop }) : [];
     let rollback = null;
     try { rollback = control && cmd.checkpoint ? cmd.checkpoint() : null; } catch (e) { rollback = null; }
     let changed = 0;
@@ -139,7 +157,9 @@
           } else {
             if (r.ok && tool && (tool.cmdId || (tool.cmdIdOf && tool.cmdIdOf(call.arguments || {})))) changed++;
             const row = steps.get(call);
-            if (row) row.replaceWith(P.view({ role: 'tool', ok: r.ok, name: call.name, label: stepText(tool, call), content: r.ok ? r.result : 'ERROR: ' + r.error, media: r.media }));
+            const msg = { role: 'tool', ok: r.ok, name: call.name, label: stepText(tool, call), content: r.ok ? r.result : 'ERROR: ' + r.error, media: r.media };
+            done.push(msg);
+            if (row) row.replaceWith(P.view(msg));
           }
           P.list.scrollTop = P.list.scrollHeight;
         },
@@ -147,12 +167,13 @@
       // the steps keep their labels in the history (the model sees only name and result)
       for (const m of res.messages) if (m.role === 'tool') { const t = tools.find((x) => x.name === m.name); m.label = stepText(t, { name: m.name, arguments: m.args }); }
       P.messages.push(...res.messages);
-      if (P.busy.signal.aborted) P.messages.push({ role: 'assistant', content: '', display: 'Stopped. The steps above that show ✓ were done.', note: true });
+      if (P.busy.signal.aborted && !handed) P.messages.push({ role: 'assistant', content: '', display: P.stoppedChain ? 'Stopped the task, in every app. The steps above that show ✓ were done.' : 'Stopped. The steps above that show ✓ were done.', note: true });
+      P.stoppedChain = false;
     } catch (e) {
       const msg = cloud ? K.cloud.redact((e && e.message) || e) : (e && e.message) || e;
       P.messages.push({ role: 'assistant', content: '', display: (cloud && e && e.kind ? '' : 'Something went wrong: ') + msg, error: true });
     }
-    if (handed) P.messages.push({ role: 'assistant', content: '', display: `Continuing in ${handed.to}${handed.opened ? ' (in a new tab).' : '.'}`, note: true, handoff: true, url: handed.url, to: handed.to, opened: handed.opened });
+    if (handed) P.messages.push(Object.assign({ role: 'assistant', content: '' }, handed));
     if (cloud && spent.length) {
       const u = spent.reduce((a, x) => ({ input: a.input + (x.input || 0), output: a.output + (x.output || 0), cacheRead: a.cacheRead + (x.cacheRead || 0), cost: a.cost == null || x.cost == null ? null : a.cost + x.cost }), { input: 0, output: 0, cacheRead: 0, cost: 0 });
       P.messages.push({ role: 'assistant', content: '', display: `${C.meter.line(u)} · ${C.meter.totalLine(cs.cap)}`, note: true, meter: true });

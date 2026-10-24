@@ -155,10 +155,15 @@ it and refuses new requests; Stop aborts the request in flight. A key-based engi
   (Sonnet 5.5 prices: $0.088 → $0.028); `tests/node/ai-permissions.test.mjs` keeps those numbers.
 - **The site in the prompt**: own-key models get `appTools.catalog(SLOP_APPS)` (each app: what it is, what it makes and
   opens), "be resourceful" and "never refuse because this app cannot: run_operation here, or open_app with a task".
-- **Handoff** (`handoff.js`): `open_app({ id, task })` saves the conversation and the task in sessionStorage and opens the
-  app in a new tab (a new tab gets a copy of sessionStorage: the session key and visit answers come along); a blocked
-  tab gets a "Continue in <app>" button. On that page the shell header opens the panel, which shows "Continued from
-  <app>" and sends the task as soon as a model is there (the provider restores itself).
+- **One task through several apps** (`handoff.js`), in this tab: file in → file out jobs run on any page
+  (`run_operation`); editing that needs an app moves there with `open_in_app({ app, files, task })`, which sends the files
+  the way "Open in…" does (SlopOuttake items now carry `to`; an app's own handover first, e.g. SlopIsolate → PhotoSlop as
+  a layer with its mask; `SlopHub.sameTab` makes `sendTo` stay in this tab). `open_app({ id, task })` moves without files.
+  The record (conversation, task, the line "Continuing in PhotoSlop with photo.png.", chain id and hop) is in
+  sessionStorage; on arrival the shell header opens the panel, which shows the line and sends the task as soon as a model
+  is there. Stop ends the chain in every app (`cancel`); at most 8 hops. Setting (⚙): "When a task uses other apps" —
+  Stay on this page when possible (default) / Show me in each app; the prompt honours "do it here" / "show me".
+  `tests/ai/chain.test.html`: Drive → PhotoSlop (stay) and Drive → SlopIsolate → PhotoSlop → export (show), real pages.
 - **look_at_canvas** (`filetools.js`): `SlopCmd.snapshot()` when the app provides one (`SlopCmd.provide({ snapshot })`),
   else the file the app hands to Convert; scaled to 1024 px, kind `send`, a thumbnail in the chat.
 - **Model menu** (`model-menu.js`): the header's model name is a SlopMenuButton: the connected providers' models (hint

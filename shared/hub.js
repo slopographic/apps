@@ -175,7 +175,8 @@
     const app = appById(appId); if (!app) throw new Error('Unknown app ' + appId);
     const fid = id || await put(blob, { name, from, folderId });
     const url = urlOf(app, { drive: fid });
-    if (newTab) { const w = window.open(url, '_blank'); if (!w) location.href = url; } else location.href = url;
+    // SlopHub.sameTab: the AI assistant moving a task to the next app opens it in this tab (shared/ai/handoff.js)
+    if (newTab && !(window.SlopHub && window.SlopHub.sameTab)) { const w = window.open(url, '_blank'); if (!w) location.href = url; } else location.href = url;
     return fid;
   }
   /** The "Open in…" items for an output: made by the one outbound builder, SlopOuttake (shared/intake/outtake.js, loaded

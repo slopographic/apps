@@ -30,8 +30,8 @@
   function takeHandoff() {
     const ho = K.handoff && K.handoff.take(appId());
     if (!ho) return;
-    P.messages.push(...(ho.messages || []), { role: 'assistant', content: '', display: `Continued from ${ho.fromName || 'another app'}.`, note: true, handoff: true });
-    P.pending = ho.task;
+    P.messages.push(...(ho.messages || []), { role: 'assistant', content: '', display: ho.line || `Continued from ${ho.fromName || 'another app'}.`, note: true, handoff: true });
+    P.pending = ho.task; P.chain = ho.chain || null;
     if (!root || root.hidden) open();
   }
   function runPending() { const t = P.pending; P.pending = null; if (t) setTimeout(() => P.send(t), 0); }
@@ -108,6 +108,7 @@
       const box = h('div', { class: 'sap-empty sap-settings' });
       P.list.append(h('button', { type: 'button', class: 'sap-btn sap-back', onclick: () => P.settings() }, '← Back to the chat'), box);
       SlopAIPermissions.renderSettings(box, { app: appId(), appName: appName() });
+      if (K.handoff) K.handoff.renderSetting(box);
       return;
     }
     if (P.choosing && K.picker) {

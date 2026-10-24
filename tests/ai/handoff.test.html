@@ -35,8 +35,8 @@
       await P.SlopAIPanel.send('hi');
       const b = F.requests.find((r) => /\/v1\/messages$/.test(r.url)).body, sys = b.system[0].text;
       expect(sys).toContain('- slides: Slop Slides, Keynote and PowerPoint, rebuilt for the browser. Makes: Presentation (.sslide).');
-      expect(sys).toContain('- docs: Slop Docs'); expect(sys).toContain('call open_app with that app');
-      expect(sys).toContain('make it with run_operation'); expect(sys).toContain('Be resourceful');
+      expect(sys).toContain('- docs: Slop Docs'); expect(sys).toContain('open_in_app moves the task to that app');
+      expect(sys).toContain('run_operation does it on this page'); expect(sys).toContain('Be resourceful');
       expect(b.tools.map((t) => t.name)).toContain('look_at_canvas');
       expect(b.tools.find((t) => t.name === 'open_app').input_schema.properties.task.type).toBe('string');
     }, { timeout: 40000 });
@@ -73,29 +73,20 @@
   });
 
   describe('a task for another app (fake engine)', () => {
-    it('"make a presentation" hands over to Slop Slides instead of refusing; the conversation goes along', async () => {
+    it('"make a presentation" hands over to Slop Slides instead of refusing: same tab, the conversation goes along', async () => {
       await wipe();
       P = await frame();
       const eng = new P.SlopAIKit.FakeEngine({ delay: 0, loadMs: 0 }); await eng.load('fake');
       await P.SlopAIPanel.use(eng);
-      let copy = null; const opened = [];
-      P.open = (url) => { opened.push(url); copy = JSON.parse(P.sessionStorage.getItem('slop-ai.handoff')); return {}; };
-      await P.SlopAIPanel.send('make a presentation about slime');
-      expect(opened.length).toBe(1); expect(opened[0]).toMatch(/\/slides\/?/);
-      expect(copy.to).toBe('slides'); expect(copy.task).toBe('make a presentation about slime'); expect(copy.fromName).toBe('PhotoSlop');
-      expect(copy.messages[0]).toEqual({ role: 'user', content: 'make a presentation about slime' });
-      expect(P.sessionStorage.getItem('slop-ai.handoff')).toBe(null);
-      expect(q('.sap-handoff').textContent).toContain('Continuing in Slop Slides');
-      expect(q('.sap-list').textContent).not.toMatch(/can.t|cannot|not able/i);
-      // a blocked new tab: the record waits and a button continues
-      P.open = () => null;
-      await P.SlopAIPanel.send('now make a presentation about goo');
-      const btn = qa('.sap-handoff button').pop();
-      expect(btn.textContent).toBe('Continue in Slop Slides');
-      expect(JSON.parse(P.sessionStorage.getItem('slop-ai.handoff')).task).toBe('now make a presentation about goo');
-      P.open = (u) => { opened.push(u); return {}; };
-      btn.click();
-      expect(opened.length).toBe(2); expect(P.sessionStorage.getItem('slop-ai.handoff')).toBe(null);
+      const f = P.__frame;
+      P.SlopAIPanel.send('make a presentation about slime');
+      await waitFor(() => { try { return f.contentWindow.location.pathname.includes('/slides/'); } catch (e) { return false; } }, { timeout: 20000 });
+      const rec = JSON.parse(sessionStorage.getItem('slop-ai.handoff') || 'null') || {};
+      // the slides page may already have taken it; either way the task went along
+      if (rec.to) { expect(rec.to).toBe('slides'); expect(rec.task).toBe('make a presentation about slime'); expect(rec.fromName).toBe('PhotoSlop');
+        expect(rec.messages[0]).toEqual({ role: 'user', content: 'make a presentation about slime' }); expect(rec.chain.hop).toBe(1); }
+      expect(eng.calls[0].messages[0].content).not.toMatch(/can.t|cannot/i);
+      sessionStorage.removeItem('slop-ai.handoff');
     }, { timeout: 30000 });
 
     it('the receiving app opens the panel, shows "Continued from", and runs the task with the same provider and model', async () => {

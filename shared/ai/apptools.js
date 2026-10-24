@@ -159,6 +159,7 @@
     ];
     if (env.look && K.fileTools) tools.push(K.fileTools.look(env), K.fileTools.canvas(env));
     if (env.ops && K.opTools) tools.push(...K.opTools.build(env));
+    if (env.hop && K.handoff) tools.push(K.handoff.tool(env));   // open_in_app: the task moves to another app with files
     const cmd = env.cmd;
     if (cmd && cmd.list && (cmd.run || cmd.exec) && K.cmdTools) {
       const label = env.appId ? `the ${((apps().find((a) => a.id === env.appId) || {}).name) || env.appId} app` : 'this app';
