@@ -11,13 +11,13 @@
     { id: 'view.rates', title: 'Go to Exchange rates', group: 'Go to', run: () => NS.app.show('rates') },
     { id: 'journal.new', title: 'Journal: new manual entry', group: 'Journal', run: () => { NS.app.show('journal'); setTimeout(() => $('jMemo').focus(), 40); } },
     { id: 'journal.export', title: 'Journal: export as CSV', group: 'Journal', run: () => $('jExport').click() },
-    { id: 'journal.importSie', title: 'Journal: import an SIE file…', group: 'Journal', run: () => { NS.app.show('journal'); $('jSiePick').click(); } },
+    { id: 'journal.importSie', title: 'Journal: import an SIE file…', group: 'Journal', run: () => { NS.app.show('journal'); NS.sieView.pick(); } },
     { id: 'trial.export', title: 'Trial balance: export as CSV', group: 'Trial balance', run: () => { NS.app.show('trial'); $('tExport').click(); } },
     { id: 'accounts.new', title: 'Accounts: add an account', group: 'Accounts', run: () => { NS.app.show('accounts'); setTimeout(() => $('aCode').focus(), 40); } },
     { id: 'rates.new', title: 'Rates: add a manual rate', group: 'Rates', run: () => { NS.app.show('rates'); setTimeout(() => $('rForeign').focus(), 40); } },
     { id: 'view.bank', title: 'Go to Bank', group: 'Go to', run: () => NS.app.show('bank') },
     { id: 'view.fin', title: 'Go to Statements (profit and loss, balance sheet)', group: 'Go to', run: () => NS.app.show('fin') },
-    { id: 'bank.import', title: 'Bank: import a statement…', group: 'Bank', run: () => { NS.app.show('bank'); $('bkPick').click(); } },
+    { id: 'bank.import', title: 'Bank: import a statement…', group: 'Bank', run: () => { NS.app.show('bank'); NS.bankPick(); } },
   ];
   const byId = Object.fromEntries(COMMANDS.map((c) => [c.id, c]));
 

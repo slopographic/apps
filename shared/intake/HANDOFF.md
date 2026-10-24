@@ -307,6 +307,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   Slop Inventory, Invoices, Orders, Purchases, Quotes and Admin, and those pages load shared/intake. **Slop Inventory**'s
   Import products from CSV is a part `inventory.csv` (its Choose a CSV file… button). `tests/intake/business.test.html`,
   `tests/biz/backup.test.html`, `tests/admin/admin.test.html`.
+- **Slop Ledger** (parts `ledger.sie` in `ledger/js/ui/sie.js` and `ledger.bank` in `ui/bank.js`, no paste): Import SIE…
+  and Import a statement… (the buttons and the commands) are the intake's pickers; the two hidden file inputs are gone,
+  and the page loads shared/intake. `tests/intake/ledger.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -360,11 +363,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - `{ from: 'cutout', to: 'photoslop', replaces: true, label: 'Send to PhotoSlop as a layer (with its mask)' }`
   (the layer round trip in `slopisolate/js/io/send.js` and `photoslop/js/io/isolate.js`);
 - `{ from: 'cutout', to: 'slopedit', types: ['video/*'], replaces: true, label: 'Send to SlopCut as a colour + matte pair' }`.
-
-### ledger
-
-- [ ] file input: `ledger/index.html:88`
-- [ ] file input: `ledger/index.html:180`
 
 ### photoslop
 
