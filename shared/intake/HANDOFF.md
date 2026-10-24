@@ -258,6 +258,10 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Serial counter** (`serials/js/app.js`, spec `serials`): the box is a button (the intake's picker; was a label with a
   file input) and a drop target, and a paste (new; waits for the model gate). The first-use notice is the spec's.
   `tests/intake/serials.test.html`.
+- **HTML to PDF** (`html2pdf/js/app.js`, spec `html2pdf`, one file; part `html2pdf.images`): Open HTML… (both buttons;
+  the hidden file input is gone), a drop anywhere on the page (`dropTarget` on the body; was a window drop listener), a
+  paste of an .html file (new), ?drive= launch (new: the page now loads Slop Hub, so Open in arrives) and launchQueue.
+  Attach local images… is now a button (the part's pick). `tests/intake/html2pdf.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -362,12 +366,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### expenses
 
 - [ ] file input: `expenses/index.html:88`
-
-### html2pdf
-
-- [ ] file input: `html2pdf/index.html:42`
-- [ ] file input: `html2pdf/index.html:54`
-- [ ] drop listener: `html2pdf/js/app.js:107`
 
 ### inventory
 
