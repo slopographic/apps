@@ -24,46 +24,41 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I present without the internet?","acceptedAnswer":{"@type":"Answer","text":"Once the page has loaded, the deck is drawn and presented in your browser, so the slideshow does not need a connection."}},{"@type":"Question","name":"Can I open the deck in PowerPoint?","acceptedAnswer":{"@type":"Answer","text":"Yes. Export PowerPoint (.pptx) writes the slides for PowerPoint, Keynote and LibreOffice. Transitions and animations stay in the .sslide file, and tables, charts and media are left out of the export for now."}},{"@type":"Question","name":"Can I export a slide as a picture?","acceptedAnswer":{"@type":"Answer","text":"Yes. Export this slide as PNG saves the current slide as an image."}},{"@type":"Question","name":"Are my slides uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Decks are saved in Slop Drive in this browser, and nothing is sent to a server."}}]}</script>
   <!-- seo:end -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>:root{--bg:#fbfbf7;--fg:#1b1b1f;--mut:#5f6368;--line:#dcdcd2;--acc:#4f6c00;--on:#fff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#ececf1;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}}
-:root[data-theme="dark"]{--bg:#0a0a0a;--fg:#f1ede4;--mut:#a0a3ab;--line:#33353d;--acc:#d4ff3a;--on:#0a0a0a}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top,.foot{max-width:860px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
-h2{font-size:1.2rem;margin:2rem 0 .6rem}
-a{color:var(--acc)}
-.eyebrow,.note{color:var(--mut);font-size:14px;margin:0}
-.lead{font-size:1.1rem}
-.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--acc);color:var(--on);text-decoration:none;font-weight:600}
-.wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:0;list-style:none}
-.cards li{border:1px solid var(--line);border-radius:10px;padding:12px;overflow:hidden}
-.cards .thumb{display:block;width:100%;height:auto;border-radius:6px;margin:0 0 8px;aspect-ratio:16/10;object-fit:cover;background:var(--line)}
-.media{display:grid;gap:16px;margin:1.4rem 0}
-.shot{margin:0}
-.shot img,.clip{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--line)}
-.demo{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
-.demo img{width:200px;max-width:40%;height:auto;border-radius:8px;flex:0 0 auto}
-.demo span{font-size:15px}
-.demo b{color:var(--acc)}
-@media (max-width:560px){.demo{flex-direction:column;align-items:flex-start}.demo img{width:100%;max-width:100%}}</style>
+  <script src="/shared/profile/profile.js"></script>
+  <script src="/shared/theme/theme.js" data-app="site"></script>
+  <script src="/shared/consent/config.js"></script>
+  <script src="/shared/consent/state.js"></script>
+  <script src="/shared/consent/consent-mode.js"></script>
+  <script src="/shared/consent/banner.js"></script>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/shared/landing/landing.css">
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
-<main>
+<div class="l-wrap">
+<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a></nav></header>
+<main class="l-doc">
+<div class="l-docs">
+<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<nav class="l-side-nav" aria-label="Slop Slides guide">
+<p class="l-side-app"><a href="/apps/slides/">Slop Slides</a></p>
+<p><a class="btn l-side-open" href="/slides/">Open Slop Slides</a></p>
+
+<p class="l-side-h">How to</p><ul><li><a href="/slides/online-presentation-maker/" aria-current="page">Online presentation maker</a></li><li><a href="/slides/powerpoint-alternative/">PowerPoint alternative</a></li></ul>
+<p class="l-side-h">Compared</p><ul><li><a href="/best/free-presentation-software/">Best free presentation software</a></li></ul>
+</nav>
+<p class="l-side-h">On this page</p><ul class="l-toc"><li><a href="#how-to-do-it">How to do it</a></li><li><a href="#questions">Questions</a></li><li><a href="#more-with-slop-slides">More with Slop Slides</a></li><li><a href="#related-apps">Related apps</a></li></ul>
+</details></aside>
+<div class="l-docs-main">
 <p class="eyebrow"><a href="/apps/slides/">Slop Slides</a> · free, in your browser</p>
 <h1>Make a presentation in your browser</h1>
 <p class="lead">Build a deck from a theme or a template, add text, shapes and pictures, and present it full screen. Slop Slides runs in a browser tab and keeps your slides on your device.</p>
 <p><a class="btn" href="/slides/">Make a presentation</a></p>
 <div class="media"><figure class="shot"><img src="/assets/shots/slides.jpg" alt="Slop Slides open in a browser" width="1280" height="800" loading="lazy"></figure></div>
-<h2>How to do it</h2>
+<h2 id="how-to-do-it">How to do it</h2>
 <ol><li>Open Slop Slides and choose File, New from template, or start from the blank deck.</li><li>Add slides with a layout, then type into the text boxes and add shapes and pictures.</li><li>Pick a slide transition and object animations in the side panel.</li><li>Choose Present (F5) to show it full screen.</li><li>Save to Slop Drive, or choose Export PowerPoint (.pptx) to share it.</li></ol>
 
 <p class="note">Your files stay on this device: Slop Slides runs in your browser, with no upload, no account and no watermark.</p>
-<h2>Questions</h2>
+<h2 id="questions">Questions</h2>
 <h3>Can I present without the internet?</h3>
 <p>Once the page has loaded, the deck is drawn and presented in your browser, so the slideshow does not need a connection.</p>
 <h3>Can I open the deck in PowerPoint?</h3>
@@ -72,10 +67,16 @@ th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <p>Yes. Export this slide as PNG saves the current slide as an image.</p>
 <h3>Are my slides uploaded?</h3>
 <p>No. Decks are saved in Slop Drive in this browser, and nothing is sent to a server.</p>
-<h2>More with Slop Slides</h2>
+<h2 id="more-with-slop-slides">More with Slop Slides</h2>
 <ul><li><a href="/slides/powerpoint-alternative/">A free PowerPoint alternative in your browser</a></li></ul>
-<h2>Related apps</h2>
+<h2 id="related-apps">Related apps</h2>
 <ul class="cards"><li><img class="thumb" src="/assets/shots/pdf.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/pdf/">Slop PDF</a><br><span class="note">Live</span><br>Organise, edit and sign PDFs. Nothing uploaded.</li><li><img class="thumb" src="/assets/shots/label.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/label/">SlopLabel</a><br><span class="note">Beta</span><br>Design and print barcode labels.</li><li><img class="thumb" src="/assets/shots/ocr.jpg" alt="" width="220" height="137" loading="lazy"><a href="/apps/ocr/">Slop OCR</a><br><span class="note">Beta</span><br>Read text from images and scanned PDFs on your device. Nothing uploaded.</li></ul>
+</div>
+</div>
 </main>
+<footer class="l-foot"><div class="l-foot-links"><a href="/">Home</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/how-it-works/">How it works</a><a href="/settings/">Settings</a><a href="/best/">Free tools compared</a><a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>
+</div>
+<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
+<script src="/shell/shell.js"></script>
 </body>
 </html>

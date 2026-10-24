@@ -1,7 +1,9 @@
 // Round-up pages (tools/seo/roundups.mjs, copy in shared/seo/roundups/): the checks that keep them fair and sourced,
 // the page (disclosure, criteria, table, sources, trademark note) and the JSON-LD.
-// Covers: tools/seo/guide.mjs, tools/seo/roundups.mjs, shared/seo/roundups/index.mjs, shared/seo/roundups/creative.mjs, shared/seo/roundups/documents.mjs,
-//   shared/seo/roundups/documents-2.mjs, shared/seo/roundups/documents-3.mjs, shared/seo/roundups/documents-4.mjs, shared/seo/roundups/business.mjs
+// Covers: tools/seo/guide.mjs, tools/seo/roundups.mjs, shared/seo/roundups/index.mjs, shared/seo/roundups/creative.mjs,
+//   shared/seo/roundups/creative-2.mjs, shared/seo/roundups/creative-3.mjs, shared/seo/roundups/creative-4.mjs, shared/seo/roundups/documents.mjs,
+//   shared/seo/roundups/documents-2.mjs, shared/seo/roundups/documents-3.mjs, shared/seo/roundups/documents-4.mjs, shared/seo/roundups/business.mjs,
+//   shared/seo/roundups/business-2.mjs, shared/seo/roundups/business-3.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';

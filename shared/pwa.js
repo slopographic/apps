@@ -129,6 +129,7 @@
 
   win.SlopPWA = {
     mount,
+    mounted: () => mounted,   // the shell mounts the worker on pages that did not (shell/shell.js)
     version,
     refresh,
     requestPersist,
