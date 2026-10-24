@@ -225,6 +225,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   folder chosen in the tree) and opened from there. The page now loads shared/intake. The tree's drag of rows stays
   (`intake-ok`). Out: a file that is not text offers `SlopOuttake.items({ id })` (the record opens in the app, no copy;
   its bytes are read from Slop Drive when an item needs them). `tests/intake/code.test.html`.
+- **Slop Slides** (`slides/js/ui/file-drop.js`, spec `slides`; part `slides.template`): a drop on the editor, Open a file
+  from this computer, Open from Slop Drive (a .sslide, linked; was the tab strip's own Drive picker), Import a PowerPoint
+  or picture from Slop Drive, Insert picture (mode `image`), a pasted picture (new: inserted on the slide), ?drive=
+  launch and launchQueue (read before the tabs, opened after them). Not during a slide show (`gate`). Import a template
+  (file or Slop Drive) is the part. The sorter's drag of thumbnails stays (`intake-ok`). `tests/intake/slides.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -527,18 +532,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### signature
 
 - [ ] file input: `signature/js/form.js:36`
-
-### slides
-
-- [ ] out: Open in/Send to label: `slides/js/ui/commands.js:42`
-- [ ] out: Open in/Send to label: `slides/js/ui/ctxmenu.js:39`
-- [ ] SlopDrop.attach: `slides/js/ui/file-drop.js:15`
-- [ ] Drive picker: `slides/js/ui/files.js:36`
-- [ ] ?drive= launch: `slides/js/ui/main.js:24`
-- [ ] pickFiles: `slides/js/ui/ops.js:38`
-- [ ] drop listener: `slides/js/ui/sorter-drag.js:42`
-- [ ] pickFiles: `slides/js/ui/templates-dialog.js:106`
-- [ ] Drive picker: `slides/js/ui/templates-dialog.js:117`
 
 ### slopcut (done but for its watermark panel's logo, left to wip/watermark-all)
 

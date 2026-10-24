@@ -21,8 +21,7 @@
     SS.fileDrop.mount();
     SS.ctxmenu.mount();
     SS.commands.setup();
-    var launch = window.SlopHub ? await SlopHub.consumeLaunch() : null;
-    await SS.files.boot(launch);
+    await SS.files.boot(SS.fileDrop.launch()); // the launch is read before the tabs come back (they rewrite the address bar)
     await SS.viewState.restore();
     document.body.classList.add('ready');
   }
