@@ -22,7 +22,7 @@ PRECACHE.push(
   '/projects/js/ui/toolbar.js', '/purchases/css/purchases.css', '/purchases/index.html', '/purchases/js/core/pdf.js', '/purchases/js/core/purchases.js',
   '/purchases/js/core/util.js', '/purchases/js/ui/app.js', '/purchases/js/ui/commands.js', '/purchases/js/ui/editor.js', '/purchases/js/ui/layout.js',
   '/purchases/js/ui/list.js', '/purchases/js/ui/page.js', '/purchases/js/ui/reorder.js', '/qr/css/qr.css', '/qr/index.html', '/qr/js/app.js',
-  '/qr/js/batch.js', '/qr/js/commands.js', '/qr/js/export.js', '/qr/js/forms.js', '/qr/js/logo.js', '/qr/js/main.js', '/qr/js/matrix.js',
+  '/qr/js/batch.js', '/qr/js/commands.js', '/qr/js/export.js', '/qr/js/forms.js', '/qr/js/layout.js', '/qr/js/logo.js', '/qr/js/main.js', '/qr/js/matrix.js',
   '/qr/js/panel-content.js', '/qr/js/panel-design.js', '/qr/js/parse.js', '/qr/js/payload.js', '/qr/js/preview.js', '/qr/js/render.js', '/qr/js/save.js',
   '/qr/js/state.js', '/qr/js/templates.js', '/quotes/css/quotes.css', '/quotes/index.html', '/quotes/js/core/pdf.js', '/quotes/js/core/quotes.js',
   '/quotes/js/core/util.js', '/quotes/js/ui/app.js', '/quotes/js/ui/commands.js', '/quotes/js/ui/editor.js', '/quotes/js/ui/layout.js',

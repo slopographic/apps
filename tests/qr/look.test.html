@@ -3,14 +3,14 @@
 <head><meta charset="utf-8"><title>QR SLOP: the look (header, 1440 and 390 wide)</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
 <body>
-  <!-- Covers: qr/index.html, qr/css/qr.css, qr/js/app.js -->
+  <!-- Covers: qr/index.html, qr/css/qr.css, qr/js/app.js, qr/js/layout.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
   /** The app in a fresh iframe of this width, once the shell's buttons and the drop zone are in. */
-  async function open(width) {
+  async function open(width, height = 800) {
     const f = document.createElement('iframe');
-    f.style.width = width + 'px';
+    f.style.width = width + 'px'; f.style.height = height + 'px';
     f.src = '../../qr/index.html';
     document.body.append(f);
     await waitFor(() => { const D = f.contentDocument; return D && D.readyState === 'complete' && D.querySelector('header .sh-switch') && D.querySelector('header a.brand .brand-app') && D.querySelector('#qr-bar .sab-btn'); }, { timeout: 30000 });
@@ -47,6 +47,37 @@
     it('at 390px nothing scrolls sideways and no header controls overlap', async () => {
       const D = await open(390);
       expect(laidOut(D, 390)).toBe(true);
+      expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+    }, { timeout: 40000 });
+
+    it('at 1280px the editor is a panel on the right; Download PNG at its foot makes a PNG of what was typed', async () => {
+      const D = await open(1280), W = D.defaultView, edit = D.getElementById('qr-edit');
+      expect(edit.getBoundingClientRect().left).toBeGreaterThanOrEqual(D.getElementById('qr-view').getBoundingClientRect().right - 1);
+      expect(Math.round(edit.getBoundingClientRect().right)).toBe(1280);
+      for (const id of ['qr-tabs', 'qr-name', 'qr-dl-svg', 'qr-dl-pdf', 'qr-dl-png']) expect(edit.contains(D.getElementById(id))).toBe(true);
+      const png = D.getElementById('qr-dl-png');
+      expect(png.closest('.sf-p-foot')).toBeTruthy();
+      expect(png.getBoundingClientRect().bottom).toBeLessThanOrEqual(800);
+      const text = D.querySelector('#qr-form textarea, #qr-form input');
+      text.value = 'right panel'; text.dispatchEvent(new W.Event('input', { bubbles: true }));
+      await waitFor(() => !png.disabled, { timeout: 10000 });
+      let got = null;
+      W.SlopUI.download = (blob, name) => { got = { blob, name }; };
+      png.click();
+      await waitFor(() => got, { timeout: 10000 });
+      expect(got.blob.type).toBe('image/png');
+      expect(got.blob.size).toBeGreaterThan(200);
+    }, { timeout: 40000 });
+
+    it('at 390px the preview is the page; Download PNG stays at the bottom and Edit opens the editor sheet', async () => {
+      const D = await open(390, 844), png = D.getElementById('qr-dl-png');
+      expect(png.getBoundingClientRect().top).toBeGreaterThan(700);
+      expect(png.getBoundingClientRect().bottom).toBeLessThanOrEqual(844);
+      expect(D.getElementById('qr-tabs').getBoundingClientRect().height).toBe(0);
+      D.querySelector('.sf-foot-more').click();
+      await waitFor(() => D.getElementById('qr-edit').classList.contains('ssh-on'));
+      await new Promise((r) => setTimeout(r, 300));
+      expect(D.getElementById('qr-tabs').getBoundingClientRect().height).toBeGreaterThan(0);
       expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
     }, { timeout: 40000 });
   });

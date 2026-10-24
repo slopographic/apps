@@ -144,7 +144,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop HTML to PDF | html2pdf/ | tool | settings LEFT, Print in the header | done | |
 | Slop Image to 3D | img3d/ | tool | settings LEFT, Send in the header | done | |
 | Slop Signature | signature/ | tool | form LEFT, preview right, Copy under the preview | done | |
-| QR SLOP | qr/ | tool | editor LEFT, preview right | to do | editor to the right, Download in the footer |
+| QR SLOP | qr/ | tool | editor LEFT, preview right, downloads under it | done | Save to Drive, Open from Drive and Copy to buffer stay in its app bar (Drive actions, like Open) |
 | Slop Effects | effects/ | tool | panel right, Render in the header | to do | Render into the panel's foot |
 | Checksum | checksum/ | tool | three stacked cards | to do | pick/check cards → right panel |
 | Serial counter | serials/ | tool | one column, bar + actions | to do | bar and exports → right panel |
