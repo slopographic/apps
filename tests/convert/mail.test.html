@@ -44,7 +44,7 @@ describe('File convert: mail, calendar and archives', () => {
 
   it('an HTML email converts to a page with its text and styles, and without scripts, handlers or remote loads', async () => {
     const mail = ['From: Ada <ada@example.com>', 'Subject: Hi', 'MIME-Version: 1.0', 'Content-Type: text/html; charset=utf-8', '',
-      '<html><head><style>p{color:#c00}</style></head><body onload="steal()"><p>Hello <b>there</b></p><script>alert(1)</script>' +
+      '<html><head><style>p{color:#c00}</style></head><body onload="steal()"><p>Hello <b>there</b></p>\x3cscript>alert(1)\x3c/script>' +
       '<img src="https://tracker.example/x.gif"><a href="javascript:alert(2)">bad</a><a href="https://example.com/">good</a>' +
       '<svg><animate attributeName="href" values="javascript:alert(3)"/></svg><img src=x onerror="alert(4)"></body></html>'].join('\n');
     const [out] = await runOn('eml-to-html', [{ name: 'hi.eml', kind: 'eml', file: file('hi.eml', mail) }]);
