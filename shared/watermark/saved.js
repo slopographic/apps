@@ -11,7 +11,8 @@
   const S = window.SlopWatermarkSpec;
   const NAME = 'slop-watermarks', STORE = 'marks', CHANNEL = 'slop-watermarks';
   const SCRIPT = document.currentScript;
-  const ROOT = (() => { try { return new URL('../../', SCRIPT.src).href; } catch (e) { return new URL('/', location.href).href; } })();   // a script run from a blob (an offline copy) has no folder
+  // the site root from this script's own address; a script run inline (an offline copy, a test frame) uses the page's base
+  const ROOT = (() => { for (const [rel, base] of [['../../', SCRIPT && SCRIPT.src], ['/', document.baseURI]]) { try { return new URL(rel, base).href; } catch (e) { /* next */ } } return ''; })();
   const listeners = new Set();
   let dbP = null, chan = null;
 
