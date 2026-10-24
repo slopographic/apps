@@ -277,6 +277,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Notes** (`notes/js/blocks.js`, spec `notes`, a picture up to 2 MB): Insert ▸ Image… (the intake's picker) and
   a pasted picture outside the text (new). The body's paste listener is only HTML tables (`intake-ok`). The rule test's
   "not migrated" fixture moved from notes/ to a made-up folder. `tests/intake/notes.test.html`.
+- **Slop Calendar** (`calendar/js/ui/ics-ui.js`, spec `calendar`, one .ics up to 5 MB, no paste): Import .ics opens a
+  dialog whose zone is the intake's (a drop on it, its Choose files); the reader hands the file to the waiting import
+  preview. The old fallback picker is the intake's. `tests/intake/calendar.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -361,11 +364,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] out: Open in/Send to label: `ai/js/ui/launcher.js:23`
 - [ ] file input: `ai/js/ui/models.js:112`
 - [ ] out: Open in/Send to label: `ai/js/ui/workspace.js:104`
-
-### calendar
-
-- [ ] pickFiles: `calendar/js/ui/ics-ui.js:29`
-- [ ] SlopDrop.attach: `calendar/js/ui/ics-ui.js:39`
 
 ### crm
 
