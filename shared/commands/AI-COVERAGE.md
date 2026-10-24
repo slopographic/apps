@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 19 of 58 apps.
+Covered: 23 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -38,7 +38,7 @@ Covered: 19 of 58 apps.
 | Slop Timesheets (`timesheets`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Expenses (`expenses`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Invoices (`invoices`) | ✓ 2 | ✓ 1 | ✓ 5 | ✓ 2 |  | yes |
-| Slop Notes (`notes`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Notes (`notes`) | ✓ 2 | ✓ 1 | ✓ 2 | ✓ 1 |  | yes |
 | Paste (`paste`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Effects (`effects`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 | Slop Image to 3D (`img3d`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -49,8 +49,8 @@ Covered: 19 of 58 apps.
 | Slopnodes (`nodes`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Serial counter (`serials`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Transcribe (`transcribe`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
-| Slop Signature (`signature`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| QR SLOP (`qr`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | yes |
+| QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slopculator (`calculator`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -65,7 +65,7 @@ Covered: 19 of 58 apps.
 | Slop Drive (`drive`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Code (`code`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Photo Sorter (`sorter`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Gallery (`gallery`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Gallery (`gallery`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | yes |
 | Slop 3D (`3d`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Music (`music`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 
@@ -196,6 +196,27 @@ Covered: 19 of 58 apps.
 - edit: `delete_record`, `describe_records`, `issue_invoice`, `record_payment`, `update_record`
 - export: `export_invoice_pdf`, `export_records`
 
+### Slop Notes
+
+- create: `new_note`, `new_notebook`
+- add: `insert_text`
+- edit: `delete_note`, `set_note`
+- export: `export_note`
+
+### Slop Signature
+
+- create: `new_signature`
+- add: `add_links`, `add_picture`
+- edit: `set_fields`, `set_style`
+- export: `export_signature`
+
+### QR SLOP
+
+- create: `new_qr`
+- add: `add_logo`
+- edit: `remove_logo`, `set_content`, `set_design`
+- export: `export_qr`
+
 ### Slop CRM
 
 - create: `create_record`
@@ -216,3 +237,10 @@ Covered: 19 of 58 apps.
 - add: `create_record`
 - edit: `delete_record`, `describe_records`, `update_record`
 - export: `export_records`
+
+### Slop Gallery
+
+- create: `new_album`
+- add: `add_photos`, `add_to_album`
+- edit: `delete_album`, `remove_from_album`, `remove_photos`, `reorder_album`, `set_tags`
+- export: `export_photos`

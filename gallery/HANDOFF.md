@@ -135,3 +135,12 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 ## Camera RAW (uses `shared/raw/`)
 - `io/source.js` keeps RAW files by extension (a RAW often has no MIME type); `core/thumb.js` makes the thumbnail from the embedded preview, upright (a half-size develop, after the engine notice, when there is none); `core/import.js` reads the date and camera with `SlopRaw.meta` and stores orientation 1 (the thumbnail is upright). The original bytes are stored unchanged.
 - `core/urls.js` hands the viewer the upright preview as a JPEG for a RAW photo. Test: `tests/gallery/raw.test.html`.
+
+## Assistant commands (`js/ui/ai-commands.js`)
+Loaded on demand by `SlopCmd.prepare()` (`ui/commands.js`); `gallery.ai.*`, hidden. `new_album` (name, photos), `add_photos`
+(Slop Drive names or ids through `shared/commands/sources.js`, then `SlopIntake.take`, the one way in; optional album, made
+when new), `set_tags` (tags, add_tags, remove_tags, liked, favourite), `add_to_album`, `reorder_album` (`library.reorderAlbum`),
+`remove_from_album`, `remove_photos` and `delete_album` (destructive; `actions.removeIds(ids, { ask: false })`),
+`export_photos` (an album or photos through `export.packOf`: one photo as itself, several as a zip, to Slop Drive and/or a
+download). Photos are named by id or file name. The checkpoint removes what the assistant added and puts tags back. There
+are no captions in the library, so there is no caption command. Test: `tests/gallery/ai-commands.test.html`.
