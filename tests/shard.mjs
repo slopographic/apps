@@ -19,7 +19,7 @@ export function parseShard(s) {
  * Returns an array of `count` page lists, each sorted by name. */
 export function shardPages(pages, count, timings = {}) {
   const secs = (p) => (Number.isFinite(timings[p]) ? timings[p] : DEFAULT_SECS);
-  const order = [...pages].sort((a, b) => secs(b) - secs(a) || (a < b ? -1 : a > b ? 1 : 0));
+  const order = longestFirst(pages, timings);
   const slices = Array.from({ length: count }, () => ({ total: 0, pages: [] }));
   for (const p of order) {
     let best = slices[0];
@@ -49,4 +49,10 @@ export function mergeTimings(old, run) {
   const all = { ...old };
   for (const [p, s] of Object.entries(run)) all[p] = Math.round(s * 10) / 10;
   return Object.fromEntries(Object.keys(all).sort().map((k) => [k, all[k]]));
+}
+
+/** The pages in the order to start them: longest recorded time first (a long page started last would finish last). */
+export function longestFirst(pages, timings = {}) {
+  const secs = (p) => (Number.isFinite(timings[p]) ? timings[p] : DEFAULT_SECS);
+  return [...pages].sort((a, b) => secs(b) - secs(a) || (a < b ? -1 : a > b ? 1 : 0));
 }

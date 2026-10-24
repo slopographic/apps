@@ -47,6 +47,19 @@ jobs:
           npm ci --no-audit --no-fund
       - name: Node tests
         run: node --test tests/node/*.test.mjs tests/seo/*.test.mjs
+      # The files the browser pages download (models, wasm: tests/net-urls.txt), kept between runs; filled here when the list
+      # changed, so the slices below find them (tests/netcache.mjs).
+      - name: Look up the download cache
+        id: netcache
+        if: hashFiles('tests/net-urls.txt') != ''
+        uses: actions/cache@v6
+        with:
+          path: tests/.cache/net
+          key: testnet-${{ hashFiles('tests/net-urls.txt') }}
+          lookup-only: true
+      - name: Fill the download cache
+        if: hashFiles('tests/net-urls.txt') != '' && steps.netcache.outputs.cache-hit != 'true'
+        run: node tests/netcache.mjs --fill
 
   # The browser tests (every tests/**/*.test.html), split into 16 slices that run as parallel jobs, 3 pages at a time in each.
   # The slices are balanced by tests/timings.json (refresh with: node tests/run.mjs --record-timings). The jobs run in
@@ -65,5 +78,24 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: npm ci --no-audit --no-fund
+      - name: Does a page of this slice download files?
+        id: net
+        run: echo "needs=$(node tests/run.mjs --shard=${{ matrix.shard }}/16 --skip-node --needs-net)" >> "$GITHUB_OUTPUT"
+      - name: Restore the download cache
+        if: steps.net.outputs.needs == 'yes'
+        uses: actions/cache/restore@v6
+        with:
+          path: tests/.cache/net
+          key: testnet-${{ hashFiles('tests/net-urls.txt') }}
+          restore-keys: testnet-
       - name: Browser tests, slice ${{ matrix.shard }} of 16
-        run: node tests/run.mjs --shard=${{ matrix.shard }}/16 --jobs=3 --skip-node
+        run: node tests/run.mjs --shard=${{ matrix.shard }}/16 --jobs=3 --skip-node --results=browser-results-${{ matrix.shard }}.json
+      # Each page's seconds, test times and downloads: node tests/results.mjs <the artifacts> refreshes tests/timings.json
+      # and tests/net-urls.txt.
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: browser-results-${{ matrix.shard }}
+          path: browser-results-${{ matrix.shard }}.json
+          retention-days: 14
+          if-no-files-found: ignore
