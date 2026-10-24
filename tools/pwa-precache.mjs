@@ -25,7 +25,7 @@ const resolveRef = (from, ref) => path.posix.normalize(path.posix.join(path.posi
 const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'shared/pwa.js',
   'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo-128.webp',
   'vendor/lamejs/lame.min.js', 'vendor/lamejs/LICENSE',
-  // the video engine's JavaScript (the ffmpeg core itself is loaded from jsDelivr on first use)
+  // the video engine's JavaScript (the ffmpeg core itself comes from the cdn on first use, shared/cdn/assets.js)
   'vendor/ffmpeg/index.js', 'vendor/ffmpeg/classes.js', 'vendor/ffmpeg/const.js', 'vendor/ffmpeg/errors.js', 'vendor/ffmpeg/types.js', 'vendor/ffmpeg/utils.js', 'vendor/ffmpeg/worker.js', 'vendor/ffmpeg/LICENSE']; // the MP3 encoder and the video engine, loaded on demand
 const CHECK = process.argv.includes('--check');
 const DRY = process.argv.includes('--dry-run') || CHECK;
@@ -93,6 +93,7 @@ async function visit(p) {
 // so they are listed here. Every WOFF2 named in shared/fonts/library/index.json is included, and each embeddable copy ("pdf").
 const LIBRARY = ['shared/fonts/picker.js', 'shared/fonts/catalog.js', 'shared/fonts/missing.js', 'shared/fonts/panel.js', 'shared/fonts/library/index.json',
   'shared/library/manifest.js', 'shared/library/store.js', 'shared/library/get-more.js', 'shared/library/packs.json',
+  'shared/library/install.js', 'shared/cdn/assets.js',   // the installer, and the cdn hosts it loads at run time
   'vendor/fontkit/fontkit.min.js', 'vendor/fontkit/LICENSE'];
 const libraryFiles = JSON.parse(await readFile(path.join(ROOT, 'shared/fonts/library/index.json'), 'utf8')).fonts
   .flatMap((f) => [`shared/fonts/library/${f.file}`, `shared/fonts/library/${f.licenceFile}`, ...(f.pdf ? [`shared/fonts/library/${f.pdf}`] : [])]);

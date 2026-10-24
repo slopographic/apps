@@ -47,6 +47,8 @@ jobs:
           npm ci --no-audit --no-fund
       - name: Node tests
         run: node --test tests/node/*.test.mjs tests/seo/*.test.mjs
+      - name: Every cdn file answers on jsDelivr (or GitHub when over its limit) with its size (tools/check-cdn.mjs)
+        run: node tools/check-cdn.mjs
 
   # The browser tests (every tests/**/*.test.html), split into 16 slices that run as parallel jobs, 3 pages at a time in each.
   # The slices are balanced by tests/timings.json (refresh with: node tests/run.mjs --record-timings). The jobs run in
