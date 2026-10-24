@@ -6,9 +6,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Speech to text · Slop AI Tools</title>
-  <meta name="description" content="Transcribe audio or the audio of a video with Whisper tiny, on your device. Timestamps, .srt and .txt export.">
+  <meta name="description" content="Transcribe audio or the audio of a video with Whisper, on your device: tiny, base, small, or KB-Whisper for Swedish. Timestamps, .srt and .txt export.">
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../aitools.css">
+  <link rel="stylesheet" href="../../shared/slopui.css">
+  <link rel="stylesheet" href="../../shared/models/chooser.css">
 </head>
 <body>
   <header class="ai-top">
@@ -16,17 +18,13 @@
     <a class="ai-crumb" href="../">AI Tools</a><span class="ai-sep" aria-hidden="true">/</span><h1>Speech to text</h1>
   </header>
   <div class="ai-tool">
-    <p class="ai-intro">One file at a time here. To record your voice, transcribe many files at once, correct the text or save it as Word or WebVTT, use <a href="../../transcribe/">Slop Transcribe</a> (the same model, already on this device once downloaded).</p>
+    <p class="ai-intro">One file at a time here. To record your voice, transcribe many files at once, correct the text or save it as Word or WebVTT, use <a href="../../transcribe/">Slop Transcribe</a> (the same models, already on this device once downloaded).</p>
     <div id="gate" class="ai-stack" aria-live="polite"></div>
     <section id="ui" class="ai-stack" hidden>
       <div id="drop" class="ai-drop">Drop an audio or video file here, or <label><u>choose a file</u><input id="file" type="file" accept="audio/*,video/*" hidden></label><br><span class="ai-meta">Up to 2 hours. Long files are read in 30-second windows.</span></div>
       <div class="ai-grid2">
-        <div class="ai-field"><label for="lang">Spoken language</label>
-          <select id="lang">
-            <option value="auto">Detect</option><option value="en">English</option><option value="es">Spanish</option><option value="fr">French</option>
-            <option value="de">German</option><option value="it">Italian</option><option value="pt">Portuguese</option><option value="nl">Dutch</option>
-            <option value="ru">Russian</option><option value="zh">Chinese</option><option value="ja">Japanese</option><option value="ko">Korean</option>
-          </select></div>
+        <div class="ai-field"><span id="modelHead">Language and model</span>
+          <button id="model" type="button" aria-haspopup="dialog" aria-describedby="modelHead">Detect automatically · Whisper tiny</button></div>
         <div class="ai-field"><span class="ai-meta" id="fileName"></span></div>
       </div>
       <div><button id="run" class="ai-pri" type="button" disabled>Transcribe</button></div>
@@ -39,14 +37,18 @@
       </div>
     </section>
   </div>
+  <script src="../../shared/slopui.js"></script>
+  <script src="../../shared/models/catalog.js"></script>
+  <script src="../speech-models.js"></script>
   <script src="../model-registry.js"></script>
   <script src="../../shared/firstrun/notice.js"></script>
-<script src="../models.js"></script>
+  <script src="../download.js"></script>
+  <script src="../models.js"></script>
   <script src="../support.js"></script>
   <script src="../get-more.js"></script>
   <script src="../common.js"></script>
   <script src="../transcript.js"></script>
-  <script src="speech.js"></script>
+  <script type="module" src="speech.js"></script>
   <script src="../../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

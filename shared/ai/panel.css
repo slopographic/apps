@@ -14,6 +14,7 @@ body.sap-open .sap-fab { display: none; }
 .sap { position: fixed; top: 0; right: 0; bottom: 0; z-index: 890; width: min(380px, 100vw); display: flex; flex-direction: column; background: var(--p-bg); border-left: 1px solid var(--p-line); box-shadow: -12px 0 40px rgba(0, 0, 0, .35); }
 .sap[hidden] { display: none; }
 .sap header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--p-line); }
+.sap-logo { display: inline-flex; color: var(--p-accent); } .sap-logo svg { width: 16px; height: 16px; fill: currentColor; }
 .sap-status { flex: 1; min-width: 0; color: var(--p-dim); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sap-x { border: 0; background: none; color: var(--p-dim); font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 6px; }
 .sap-list { flex: 1; min-height: 0; overflow: auto; padding: 12px; display: grid; gap: 10px; align-content: start; }
@@ -32,9 +33,45 @@ body.sap-open .sap-fab { display: none; }
 .sap-msg .md-code pre { margin: 0; padding: 8px; overflow: auto; max-height: 240px; background: var(--p-input); }
 .sap-tool { font-size: 11.5px; color: var(--p-dim); border-left: 2px solid var(--p-accent); padding-left: 8px; }
 .sap-tool.bad { border-left-color: #ff5a6e; }
-.sap-tools { display: flex; align-items: center; gap: 6px; padding: 6px 12px 0; color: var(--p-dim); font-size: 12px; }
+.sap-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 6px 12px 0; }
+.sap-tools { display: flex; align-items: center; gap: 6px; color: var(--p-dim); font-size: 12px; }
+.sap-undo { height: 28px; font-size: 12px; }
+.sap-btn[hidden], .sap-pbar[hidden] { display: none; }
 .sap-comp { display: flex; gap: 6px; padding: 8px 12px; align-items: flex-end; }
 .sap-comp textarea { flex: 1; resize: none; min-height: 40px; max-height: 140px; padding: 8px; border-radius: var(--p-radius); border: 1px solid var(--p-line); background: var(--p-input); color: var(--p-fg); font: inherit; }
-.sap-send { width: 38px; height: 38px; border: 0; border-radius: 10px; background: var(--p-accent); color: var(--p-ink); font: 700 16px var(--p-font); cursor: pointer; }
+.sap-send { min-width: 38px; padding: 0 8px; height: 38px; border: 0; border-radius: 10px; background: var(--p-accent); color: var(--p-ink); font: 700 16px var(--p-font); cursor: pointer; }
 .sap-foot { padding: 0 12px 10px; color: var(--p-dim); font-size: 11px; }
-@media (max-width: 600px) { .sap { top: auto; height: 78vh; width: 100vw; border-left: 0; border-top: 1px solid var(--p-line); border-radius: 14px 14px 0 0; } }
+.sap-send.stop { background: #ff5a6e; color: #fff; font-size: 13px; }
+.sap-btn.primary { background: var(--p-accent); color: var(--p-ink); border-color: transparent; font-weight: 600; }
+.sap-btn:disabled { opacity: .55; cursor: default; }
+.sap-msg.bad, .sap-pick-msg.bad, .sap-pick-no { color: #ff8a98; }
+/* each tool call as a step: "Gaussian blur, radius 8 ✓" */
+.sap-live { display: grid; gap: 8px; }
+.sap-step { display: grid; grid-template-columns: 18px 1fr; gap: 2px 6px; align-items: baseline; color: var(--p-fg); font-size: 12.5px; padding: 3px 0 3px 8px; }
+.sap-step-i { font-weight: 700; color: var(--p-accent); text-align: center; }
+.sap-step.bad .sap-step-i { color: #ff5a6e; } .sap-step.run .sap-step-i { animation: sap-pulse 1s ease-in-out infinite; }
+.sap-step-e { grid-column: 2; color: #ff8a98; font-size: 12px; }
+@keyframes sap-pulse { 50% { opacity: .3; } }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* the model choice (picker.js) */
+.sap-pick { display: grid; gap: 10px; color: var(--p-fg); }
+.sap-pick p { margin: 0; }
+.sap-dim { color: var(--p-dim); font-size: 12px; }
+.sap-dim a, .sap-pick a { color: inherit; text-decoration: underline; }
+.sap-pick-list { display: grid; gap: 8px; }
+.sap-pick-row { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--p-line); border-radius: var(--p-radius); background: var(--p-bg2); }
+.sap-pick-row.best { border-color: var(--p-accent); }
+.sap-pick-h { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.sap-badge { font-size: 10.5px; padding: 1px 6px; border-radius: 99px; background: var(--p-accent); color: var(--p-ink); }
+.sap-badge.dim { background: var(--p-line); color: var(--p-fg); }
+.sap-pbar { height: 4px; border-radius: 2px; background: var(--p-line); overflow: hidden; } .sap-pbar i { display: block; height: 100%; width: 0; background: var(--p-accent); }
+/* beside the app on wide screens: the page narrows, so nothing is covered */
+:root.sap-beside body { margin-inline-end: min(380px, 100vw); }
+:root.sap-beside .sap { box-shadow: none; }
+/* phones: a bottom sheet (shared/ui/sheet.js gives it its place, the swipe and the ×) */
+.sap-host.ssh-phone .sap { top: auto; width: auto; height: auto; block-size: 76vh; max-block-size: 76vh; border-left: 0; background: var(--p-bg); color: var(--p-fg); z-index: 890; }
+.sap-host.ssh-phone .sap-x { display: none; }
+.sap-host.ssh-phone .sap > .ssh-x { position: absolute; inset-block-start: 4px; inset-inline-end: 4px; float: none; margin: 0; }
+/* the Sloppo buddy's button (shared/buddy/boot.js) sits bottom right: keep it off the panel's Send button */
+body.sap-open .buddy-toggle { visibility: hidden; }
+:root.sap-beside body.sap-open .buddy-toggle { visibility: visible; right: calc(min(380px, 100vw) + 16px) !important; }

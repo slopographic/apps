@@ -20,7 +20,8 @@ uploaded. Originals are never changed; results are copies, downloaded or saved t
 | `js/app/drive.js` | Slop Drive: the "Slop Resize" folder, saving results, opening from Drive, the presets file. |
 | `js/app/presets.js` | Saved settings (Drive, or localStorage without Drive) and their panel buttons. |
 | `js/app/list.js` | The queue rows: thumbnail, before and after (pixels and bytes), progress, status, actions. |
-| `js/app/commands.js` | SlopCmd commands (`rs.*`), with their keys. Settings commands use the panel's own controls. |
+| `js/app/commands.js` | SlopCmd commands (`rs.*`), with their keys. Settings commands use the panel's own controls. `SlopCmd.prepare()` loads ai-commands.js. |
+| `js/app/ai-commands.js` | Assistant commands with arguments (hidden from the palette): `set_size`, `set_output_format`, `resize_all`; `SlopCmd.state()` summary and the settings checkpoint. Loaded on demand. Test: `tests/resize/ai-commands.test.html`. |
 | `js/app/main.js` | Controller: open, drop, Drive, run, cancel, download (one file or zip), save, engine checks, boot. |
 
 ## Settings and geometry

@@ -11,11 +11,7 @@
   UI.GROUPS = [{ ids: ['pages', 'layers'], grow: true }, { ids: ['props', 'swatches'] }, { ids: ['parastyles', 'charstyles'], grow: true }];
 
   UI.buildDock = function () {
-    var dock = U.$('#dock'); dock.innerHTML = '';
-    var head = h('div', { class: 'dock-head' }, 'Panels');
-    var x = h('button', { type: 'button', class: 'iconbtn', 'aria-label': 'Close panels', html: PR.kit.icon('close') });
-    x.addEventListener('click', function () { U.$('#app').classList.remove('dock-open'); });
-    head.append(x); dock.append(head);
+    var dock = U.$('#dock'); dock.innerHTML = '';   // SlopSheet puts its × back at once
     var saved = ST.pref('dock') || {};
     groups = UI.GROUPS.map(function (g, gi) {
       var el = h('section', { class: 'dgroup' + (g.grow ? ' grow' : '') + (saved['c' + gi] ? ' collapsed' : '') });
@@ -60,13 +56,18 @@
     var map = { styles: sub === 'char' ? 'charstyles' : 'parastyles' };
     id = map[id] || id;
     var app = U.$('#app');
-    app.classList.remove('no-dock'); app.classList.add('dock-open');
+    app.classList.remove('no-dock'); if (UI.dockSheet && UI.dockSheet.isPhone()) UI.dockSheet.open();
     groups.forEach(function (g) { if (g.ids.indexOf(id) >= 0) { g.el.classList.remove('collapsed'); select(g, id); g.el.scrollIntoView({ block: 'nearest' }); } });
   };
   UI.togglePanels = function () {
-    var app = U.$('#app');
-    if (innerWidth < 900) app.classList.toggle('dock-open'); else app.classList.toggle('no-dock');
+    if (UI.dockSheet && UI.dockSheet.isPhone()) return UI.dockSheet.toggle();   // a phone: the panels drawer
+    U.$('#app').classList.toggle('no-dock');
     PR.view.resize();
+  };
+  /** Phones: the dock is a drawer from the right. SlopSheet (shared/ui/sheet.js) does the Panels button, the ×, Escape, a
+   * tap outside and the swipe. */
+  UI.attachDockSheet = function () {
+    UI.dockSheet = SlopSheet.attach({ root: U.$('#app'), panel: U.$('#dock'), side: 'end', phone: '(max-width: 899px)', toggles: [U.$('#panelsToggle')], label: 'Panels' });
   };
   /** Builds a small icon button for panel footers. */
   UI.footBtn = function (icon, title, fn) {

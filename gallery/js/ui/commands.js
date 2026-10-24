@@ -20,7 +20,7 @@
     { id: 'gallery.restore', title: 'Restore from a backup…', group: 'File', run: () => A().restoreBackup(), when: idle },
     { id: 'gallery.export', title: 'Download selection', group: 'Edit', run: () => A().exportIds(ids()), when: () => idle() && hasSel() },
     { id: 'gallery.selectAll', title: 'Select all', group: 'Edit', keys: ['Mod+A'], run: () => A().selectAll(), when: idle },
-    { id: 'gallery.clearSelection', title: 'Clear selection', group: 'Edit', keys: ['Escape'], run: () => A().clearSelection(), when: () => idle() && hasSel() },
+    { id: 'gallery.clearSelection', title: 'Clear selection', group: 'Edit', keys: ['Escape'], run: () => A().clearSelection(), when: () => idle() && hasSel() && !(G.sidebar && G.sidebar.sheet && G.sidebar.sheet.isOpen()) },
     { id: 'gallery.remove', title: 'Remove selection from library', group: 'Edit', keys: ['Delete'], run: () => A().removeIds(ids()), when: () => idle() && hasSel() },
     { id: 'gallery.reel', title: 'Make reel from selection', group: 'Photo', run: () => A().makeReel(ids()), when: () => idle() && G.state.selected.length >= 2 },
     { id: 'gallery.favourite', title: 'Toggle favourite on selection', group: 'Photo', run: () => A().toggleFav(ids()), when: () => idle() && hasSel() },

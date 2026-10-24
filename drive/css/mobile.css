@@ -26,9 +26,9 @@
   .search { min-width: 0; }
   #btnBackup { display: none; }
   #btnNew { width: 34px; padding: 0; justify-content: center; }
-  .side { position: fixed; z-index: 800; left: 0; top: 0; bottom: 0; width: min(300px, 84vw); transform: translateX(-102%); transition: transform .2s ease; box-shadow: var(--shadow); padding-top: env(safe-area-inset-top); }
-  body.drawer-open .side { transform: none; }
-  .scrim { position: fixed; inset: 0; z-index: 700; background: rgba(0, 0, 0, .45); }
+  /* the sidebar is a drawer and the details a bottom sheet: shared/ui/sheet.js gives both their place and motion */
+  .side, .info { --ssh-z: 800; }
+  .side { padding-top: env(safe-area-inset-top); }
   .bar { flex-wrap: wrap; gap: 6px; padding: 6px 8px; }
   .crumbs { flex-basis: 100%; }
   .bar-tools { width: 100%; justify-content: space-between; flex-wrap: wrap; row-gap: 6px; }
@@ -46,8 +46,7 @@
   .crow { height: 40px; }
   .info-grip { left: 50%; top: 6px; bottom: auto; width: 44px; height: 14px; margin-left: -22px; cursor: default; }
   .info-grip::after { left: 0; right: 0; top: 4px; width: auto; height: 5px; margin: 0; background: var(--line-2); }
-  .info { position: fixed; z-index: 800; left: 0; right: 0; bottom: 0; top: auto; width: auto; max-height: 72vh; border: 0; border-top: 1px solid var(--line-2); border-radius: 14px 14px 0 0; box-shadow: var(--shadow); padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
-  body:not(.sheet-open) .info { display: none; }
+  .info { width: auto; max-height: 72vh; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
   .status { padding-bottom: env(safe-area-inset-bottom); height: auto; min-height: 26px; }
   .selbar .btn { height: 34px; }
   .viz-tools .muted { display: none; }

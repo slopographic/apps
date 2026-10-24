@@ -3,8 +3,7 @@
  *   ?panel=layers|history   the sidebar dock section to open; the sidebar is shown too.
  * A tool or dock section the person picks is written to the URL (a replace, not a new history entry). Nothing is written
  * before the app is ready, so the link's own values are not replaced during boot. Ctrl+Shift+F cycles the view mode and
- * Ctrl+Shift+L shows hidden regions (shared/viewmode). Classic script: after js/ui/view-state.js, before js/ui/main.js
- * (which boots the app). The other URL parameters (?drive=, ...) are kept as they are. */
+ * Ctrl+Shift+L shows hidden regions (shared/viewmode, registered in ui/app.js). Classic script: after js/ui/view-state.js. The other URL parameters (?drive=, ...) are kept as they are. */
 (function () {
   'use strict';
   var SP = window.SP, A = SP.app, S = A._, D = SP.dock;
@@ -49,9 +48,5 @@
     if (open) R.set({ panel: id });
     else if (R.get('panel') === id) R.set({ panel: '' });
   };
-
-  SlopViewMode.register('pdf', {
-    regions: { toolbar: '.topbar', sidebar: '#rail', panels: '#props' },
-    mount: '.topbar',
-  });
+  // The view modes (SlopViewMode) are registered by ui/app.js, before the first paint.
 })();

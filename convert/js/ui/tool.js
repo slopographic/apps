@@ -2,15 +2,17 @@
  * file list, where every file has its own "Convert to" and its own Options (targets.js, file-row.js, file-opts.js), the
  * selection and its bulk bar (bulk.js), the batch run (each file with its own target and values), and results with one
  * download per file or a zip of all of them. The flow picture's target tile opens the first file's menu (the bulk bar's
- * when rows are selected). setTarget(id) sets every file, or the selected ones; `target` is the one they share. */
+ * when rows are selected). setTarget(id) sets every file, or the selected ones; `target` is the one they share. A target can
+ * be a route of several conversions ('sie-to-csv>csv-to-json', core/chain.js; tool-chain.js runs it). */
 import { conversionById, outKind } from '../core/catalog.js';
 import { KIND_LABEL, TEXT_KINDS, detectKind } from '../core/detect.js';
 import { writeZip } from '../io/zip.js';
 import { readHead, uniqueName, saveBlob } from '../io/files.js';
 import { buildTool, firstVisit } from './markup.js';
 import { valuesOf, setValues } from './file-opts.js';
-import { runGroups, firstUseGate } from './run.js';
-import { ownTargets, resolve, sharedTargets, applyTarget, groupsFor, commonTarget, needsRefs, readRefs, WITH } from './targets.js';
+import { ownTargets, resolve, sharedTargets, applyTarget, groupsFor, commonTarget, needsRefs, readRefs, targetFor, WITH } from './targets.js';
+import { installRoutes, runTool } from './tool-chain.js';
+import { isRoute, stepsOf, kindsOf } from '../core/chain.js';
 import { drawFiles, drawResults } from './list-view.js';
 
 let seq = 0, instances = 0;
@@ -18,7 +20,7 @@ const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 
 export class ConvertTool {
   /** preset: null for the hub, or { conv, from, defaults, note, accept } for a converter page. opts: { compact (a strip of
-   *  a drop zone and no first-visit preview, for a dialog), onResults(outputs) after each run }. Use mountTool (mount-tool.js). */
+   *  a drop zone and no first-visit preview, for a dialog), drop (SlopDrop options for a compact tool), onResults(outputs) }. Use mountTool (mount-tool.js). */
   constructor(root, preset = null, opts = {}) {
     this.preset = preset;
     this.opts = opts;
@@ -38,7 +40,7 @@ export class ConvertTool {
       input: ui.input,
       label: 'Drop files here, or choose files',
       hint: 'Several at once is fine. Files are read on this device and never uploaded.',
-      ...(opts.compact ? { compact: true, quiet: false } : firstVisit(this)),
+      ...(opts.compact ? { compact: true, quiet: false, ...opts.drop } : firstVisit(this)),   // drop: a dialog's own targets
       process: async (file) => { await this.addFiles([file]); return file.name; },
     });
     ui.input.setAttribute('accept', accept);
@@ -56,11 +58,9 @@ export class ConvertTool {
 
   get only() { return this.preset ? this.preset.conv : null; }
 
-  /** A new file's target: the one-off wish (the sample, Swap), else the default (?to=, setTarget), when it fits. */
-  firstTarget(kind) {
-    const want = this.wantTarget || this.defaultTarget;
-    return want && ownTargets(kind, this.only).some((c) => c.id === want) ? want : null;
-  }
+  /** A new file's target: the one-off wish (the sample, Swap), else the default (?to=, setTarget), when it fits; a wish
+   *  this kind cannot take in one step goes by a route (?to=json on an SIE file: SIE to CSV, then CSV to JSON). */
+  firstTarget(kind) { return targetFor(kind, this.wantTarget || this.defaultTarget, this.only); }
 
   /** Adds files (a FileList or array). Each is detected by its first bytes, name and type. */
   async addFiles(list) {
@@ -103,15 +103,16 @@ export class ConvertTool {
   /** Sets the default target (?to=): files that can take it start on it, the ones already here that have no choice too. */
   setDefaultTarget(id) {
     this.defaultTarget = this.linkTarget = id || null;
-    for (const it of this.items) if (!it.target && this.firstTarget(it.kind)) it.target = id;
+    for (const it of this.items) if (!it.target && this.firstTarget(it.kind)) it.target = this.firstTarget(it.kind);   // by a route when it must
     this.render();
   }
 
   /** What the preview needs: the conversion shown, its files and its option values. */
   previewState() {
-    const conv = this.current();
-    const g = conv && this.groups().find((x) => x.conv.id === conv.id);
-    return { conv, items: g ? g.items : [], opts: this.valuesOf(g && g.items[0], conv) };
+    const g = this.currentGroup(), conv = g ? g.conv : null, first = g && g.items[0];
+    const kinds = g && g.steps ? kindsOf(first.kind, g.key, undefined, this.valuesOf(first, conv)) || [] : [];
+    const steps = g && g.steps ? g.steps.map((s, i) => ({ conv: s.conv, fmt: s.fmt, to: kinds[i + 1], opts: this.valuesOf(first, s.conv) })) : null;
+    return { conv, items: g ? g.items : [], opts: this.valuesOf(first, conv), steps, key: g ? g.key : '' };
   }
 
   emit() { this.root.dispatchEvent(new CustomEvent('cv:change')); }
@@ -143,7 +144,7 @@ export class ConvertTool {
   candidates() { return sharedTargets(this.scope(), this.only); }
   /** The conversion every file in scope has ('' when they differ), and the ones they could all have. */
   get target() { const t = commonTarget(this.scope(), this.active(), this.only); return this.candidates().some((c) => c.id === t) ? t : ''; }
-  targets() { return this.candidates().map((c) => c.id); }
+  targets() { return this.candidates().filter((c) => !c.route).map((c) => c.id); }
   /** Sets one conversion on the selected files, or on every file (and the files added later) when none is selected. */
   setTarget(id) { this.bulkPick(id, !this.selected().length); }
 
@@ -159,7 +160,7 @@ export class ConvertTool {
   valuesOf(it, conv) { return valuesOf(it, conv, this.preset && this.preset.defaults ? this.preset.defaults : {}); }
   /** A card's options changed. A 'combine' conversion makes one file of all its files, so they all take the values. */
   rowOptions(it, conv, values, final) {
-    const mates = conv.mode === 'combine' ? this.active().filter((i) => this.targetOf(i) === conv.id) : [it];
+    const mates = conv.mode === 'combine' ? this.active().filter((i) => this.targetOf(i) === this.targetOf(it)) : [it];
     setValues(mates, conv, values);
     if (final && mates.length > 1) drawFiles(this, { bulk: false });
     this.optionsChanged();
@@ -175,10 +176,10 @@ export class ConvertTool {
   groups() { return groupsFor(this.active(), this.only); }
 
   /** The conversion the picture and the preview show: the one the files in scope share, else the first in use. */
-  current() {
-    const id = commonTarget(this.scope(), this.active(), this.only);
-    const g = this.groups();
-    return (id && g.find((x) => x.conv.id === id)?.conv) || (g[0] && g[0].conv) || null;
+  current() { const g = this.currentGroup(); return g ? g.conv : null; }
+  currentGroup() {
+    const id = commonTarget(this.scope(), this.active(), this.only), g = this.groups();
+    return (id && g.find((x) => x.key === id)) || g[0] || null;
   }
 
   /** Sets one conversion on every file in scope that can take it. asDefault: files added later start on it too. */
@@ -187,7 +188,8 @@ export class ConvertTool {
     for (const it of this.scope()) applyTarget(it, act, id, this.only);
     if (asDefault) this.defaultTarget = id;
     this.render();
-    this.root.dispatchEvent(new CustomEvent('cv:target', { bubbles: true, detail: { id } }));   // route.js writes ?to=
+    const last = isRoute(id) ? stepsOf(id).pop().id : id;   // a route's link names its last conversion (route.js writes ?to=)
+    this.root.dispatchEvent(new CustomEvent('cv:target', { bubbles: true, detail: { id: last, route: isRoute(id) ? id : '' } }));
   }
 
   rowPick(it, id) { it.target = id; this.render(); }
@@ -234,8 +236,8 @@ export class ConvertTool {
    *  With several targets it shows the conversion the files in scope share, else the first. The hub's empty page has none;
    *  once there are files it keeps its place (blank while a side is unknown), so the list below does not move. */
   paintFlow() {
-    const conv = this.current() || (this.preset ? conversionById(this.preset.conv) : null);
-    const g = conv && this.groups().find((x) => x.conv.id === conv.id);
+    const g = this.currentGroup();
+    const conv = g ? g.conv : this.preset ? (isRoute(this.preset.conv) ? stepsOf(this.preset.conv).pop().conv : conversionById(this.preset.conv)) : null;
     const kinds = [...new Set((g ? g.items : this.active()).map((i) => i.kind))];
     const from = kinds.length ? kinds : this.preset && this.preset.from ? this.preset.from : [];
     const to = conv ? outKind(conv, this.valuesOf(g && g.items[0], conv)) : '';
@@ -253,29 +255,8 @@ export class ConvertTool {
     this.ui.results.hidden = true;
   }
 
-  /** Converts every file with its own target: one run per conversion in use. */
-  async run() {
-    const groups = this.groups();
-    if (!groups.length || this.busy) return;
-    if (groups.some((g) => g.conv.engine === 'ffmpeg') && !(await firstUseGate())) return;   // the video engine's first download asks first
-    this.busy = true;
-    this.clearOutputs();
-    for (const it of this.items) it.error = '';
-    this.ui.run.disabled = true;
-    const n = groups.reduce((s, g) => s + g.items.length, 0);
-    this.setStatus(`Converting ${plural(n, 'file')}…`);
-    this.ui.flow.state('run').progress(0);
-    const res = await runGroups(groups, (conv, it) => this.valuesOf(it, conv), (i, total) => { this.ui.flow.progress(i / total); this.setStatus(total > 1 ? `Converting ${i + 1} of ${total}…` : 'Converting…'); });
-    for (const e of res.errors) for (const it of this.items) if (e.ids.includes(it.id)) it.error = e.message;
-    const taken = new Set();
-    this.outputs = res.outputs.map((o) => ({ name: uniqueName(o.name, taken), blob: o.blob, url: URL.createObjectURL(o.blob) }));
-    this.busy = false;
-    this.ui.flow.state(res.outputs.length ? 'done' : 'error');
-    this.setStatus([this.summary(res), ...res.info].filter(Boolean).join(' '));
-    this.render();
-    this.renderResults();
-    if (this.opts.onResults) this.opts.onResults(this.outputs.slice());
-  }
+  /** Converts every file with its own target: one run per conversion or route in use (tool-chain.js). */
+  run() { return runTool(this); }
 
   summary(res) {
     const ok = res.outputs.length, bad = res.errors.reduce((n, e) => n + e.ids.length, 0);
@@ -295,3 +276,4 @@ export class ConvertTool {
     this.setStatus('Zip ready.');
   }
 }
+installRoutes(ConvertTool);   // rowRoute, bulkRoute, routes (tool-chain.js)

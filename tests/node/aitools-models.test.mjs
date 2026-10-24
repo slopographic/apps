@@ -29,7 +29,7 @@ test('every file has a lowercase SHA-256 of 64 hex digits and a positive size', 
 
 test('remote files come only from https on allowed hosts; bundled files stay in vendor/models', () => {
   for (const m of R.MODELS) for (const f of m.files) {
-    if (f.url) assert.ok(R.allowedUrl(f.url), `${m.id} ${f.name} ${f.url}`);
+    if (f.url || f.parts) for (const u of R.urlsOf(f)) assert.ok(R.allowedUrl(u), `${m.id} ${f.name} ${u}`);
     else assert.match(f.path, /^vendor\/models\/[A-Za-z0-9._-]+$/, `${m.id} ${f.name}`);
   }
   assert.equal(R.allowedUrl('http://huggingface.co/x.onnx'), false);
@@ -38,6 +38,10 @@ test('remote files come only from https on allowed hosts; bundled files stay in 
   assert.equal(R.allowedUrl('https://cdn-lfs-us-1.hf.co/x.onnx'), true);
   assert.equal(R.allowedUrl('https://huggingface.co.evil.com/x.onnx'), false);
   assert.equal(R.allowedUrl('https://evilhf.co/x.onnx'), false);
+  // Slopographic's file host: the slopographic/cdn repository only, not the rest of raw.githubusercontent.com
+  assert.equal(R.allowedUrl('https://raw.githubusercontent.com/slopographic/cdn/abc/models/whisper/x.onnx'), true);
+  assert.equal(R.allowedUrl('https://raw.githubusercontent.com/someone/cdn/abc/x.onnx'), false);
+  assert.equal(R.allowedUrl('https://raw.githubusercontent.com.evil.com/slopographic/cdn/x.onnx'), false);
 });
 
 test('every tool points at models that exist, and the denoise tool needs none', () => {

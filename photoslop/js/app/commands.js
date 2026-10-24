@@ -92,9 +92,15 @@ function wireCommands() {
     SlopCmd.init({ app: 'photoslop' });
     SlopCmd.register(menuCommands().concat(toolCommands()));
     CMD_ON = true;
+    if (SlopCmd.provide) SlopCmd.provide({ prepare: loadAICommands });   // the assistant's commands load when the AI panel first needs them
     const b = $('#cmdBtn'); if (b) { b.hidden = false; b.title = 'Search commands (' + SlopCmd.keyFor('cmd.palette') + ')'; }
   } catch (err) { console.warn(err); CMD_ON = false; }
   return CMD_ON;
+}
+/** The Slop AI panel's commands with arguments, the state summary and the checkpoint (ai-*.js), loaded on demand. */
+function loadAICommands() {
+  const add = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.async = false; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.append(s); });
+  return ['js/app/ai-ops.js', 'js/app/ai-tools.js', 'js/app/ai-commands.js'].reduce((p, src) => p.then(() => add(src)), Promise.resolve());
 }
 function openCommandPalette(q) { if (CMD_ON) SlopCmd.open(q); else dlgShortcuts(); }
 function openKeymap() { if (CMD_ON) SlopCmd.openKeymap(); else dlgShortcuts(); }

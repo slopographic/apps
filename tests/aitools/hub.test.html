@@ -9,6 +9,7 @@
   <iframe id="hub" title="Slop AI Tools hub"></iframe>
   <script src="../harness.js"></script>
   <script>
+  // Covers: aitools/hub.js, aitools/index.html, aitools/speech-models.js
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const frame = document.getElementById('hub');
   const EXPECT = { OCR: 'Needs download', 'Speech to text': 'Needs download', Denoise: 'Ready', 'Auto tags': 'Needs download', 'Portrait blur': 'Ready' };
@@ -19,7 +20,7 @@
     return new Promise((resolve) => {
       frame.onload = () => resolve();
       frame.src = '../../aitools/index.html?t=' + Date.now();
-    }).then(() => waitFor(() => frame.contentDocument.querySelectorAll('.ai-card').length === 5 && frame.contentDocument.querySelectorAll('.ai-model').length === 4, { timeout: 8000 }))
+    }).then(() => waitFor(() => frame.contentDocument.querySelectorAll('.ai-card').length === 5 && frame.contentDocument.querySelectorAll('.ai-model').length === 12, { timeout: 8000 }))
       .then(() => {
         win = frame.contentWindow;
         calls = [];
@@ -62,13 +63,13 @@
 
     it('shows the licence and size before any download, and only the Download button fetches', async () => {
       await loadHub();
-      const getMore = [...doc().querySelectorAll('.ai-model button')].find((b) => b.textContent.startsWith('Get more'));
+      const getMore = [...doc().querySelectorAll('.ai-model')].find((r) => r.textContent.includes('Whisper tiny')).querySelector('button');
       getMore.click();
       await waitFor(() => dialog());
       const text = dialog().textContent;
       expect(text).toMatch(/Licence: MIT License \(MIT\)/);
       expect(text).toMatch(/Download \d+(\.\d)? (KB|MB)/);
-      expect(text).toMatch(/huggingface\.co/);
+      expect(text).toMatch(/raw\.githubusercontent\.com/);
       await sleep(150);
       expect(calls).toEqual([]);
       dialog().querySelector('footer button').click();
@@ -78,7 +79,7 @@
 
     it('downloads after a click, rejects a file that fails its check, and stores nothing', async () => {
       await loadHub();
-      const getMore = [...doc().querySelectorAll('.ai-model button')].find((b) => b.textContent.startsWith('Get more'));
+      const getMore = [...doc().querySelectorAll('.ai-model')].find((r) => r.textContent.includes('Whisper tiny')).querySelector('button');
       getMore.click();
       await waitFor(() => dialog());
       const go = [...dialog().querySelectorAll('button')].find((b) => /^Download /.test(b.textContent));
@@ -86,7 +87,7 @@
       expect(calls).toEqual([]);
       go.click();
       await waitFor(() => calls.length === 1, { timeout: 5000 });
-      expect(calls[0]).toMatch(/^https:\/\/huggingface\.co\/Xenova\/whisper-tiny\/resolve\/main\/onnx\/encoder_model_quantized\.onnx$/);
+      expect(calls[0]).toMatch(/^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/[0-9a-f]{40}\/models\/whisper\/whisper-tiny\/encoder_model_quantized\.onnx$/);
       await waitFor(() => /Nothing was stored/.test(dialog().querySelector('[role="status"]').textContent), { timeout: 5000 });
       expect(dialog().querySelector('[role="status"]').textContent).toMatch(/bytes, expected/);
       expect(card('Speech to text').querySelector('.ai-pill').textContent).toBe('Needs download');

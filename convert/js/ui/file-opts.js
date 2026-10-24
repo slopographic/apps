@@ -5,6 +5,7 @@
  * files, so a change on one of its cards is copied to the others.
  *   valuesOf(item, conv, defaults)        the values a file converts with: the option defaults, the page's, the file's own
  *   setValues(items, conv, values)        stores values on these files (for that conversion)
+ *   forgetSecrets(items, convs)           drops the values of 'password' options (after Convert)
  *   optionsBox({ conv, values, prefix, label, open, onToggle, onChange(values, final), cls })   a <details> with the
  *     controls, or null when the conversion has no options; control ids are cv-o-<prefix><key>; final on a change event */
 import { h } from './dom.js';
@@ -17,16 +18,27 @@ export function valuesOf(item, conv, defaults = {}) {
   return { ...out, ...defaults, ...((item && item.opts && item.opts[conv.id]) || {}) };
 }
 
+/** After Convert: the password options of every file are forgotten, so the passwords do not stay in the page. */
+export function forgetSecrets(items, convs) {
+  for (const it of items) {
+    for (const id of Object.keys(it.opts || {})) {
+      const conv = convs.find((c) => c.id === id), vals = it.opts[id];
+      if (conv) for (const o of conv.options) if (o.type === 'password') delete vals[o.key];
+    }
+  }
+}
+
 export function setValues(items, conv, values) {
   for (const it of items) { it.opts = it.opts || {}; it.opts[conv.id] = { ...values }; }
 }
 
 /** A short summary of the values that differ from the defaults ("Quality 70, Width 800"), for the closed disclosure. */
-function changed(conv, values) {
+export function changed(conv, values) {
   const parts = [];
   for (const o of conv.options) {
     const v = values[o.key];
     if (v === undefined || v === '' || String(v) === String(o.value ?? '')) continue;
+    if (o.type === 'password') { if (!parts.includes('password set')) parts.push('password set'); continue; }   // never the password itself
     const shown = o.type === 'checkbox' ? (v ? 'on' : 'off') : o.type === 'select' ? ((o.options.find(([x]) => String(x) === String(v)) || [])[1] || v) : v;
     parts.push(`${o.label.replace(/\s*\(.*?\)$/, '')} ${shown}`);
   }

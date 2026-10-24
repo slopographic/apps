@@ -8,6 +8,7 @@
   const A = () => S.A;
   const cmd = (id, title, group, keys, run, extra) => Object.assign({ id, title, group, keys: keys || [], run }, extra || {});
   const hasText = () => !!S.doc;
+  const HERE = (document.currentScript && document.currentScript.src) || new URL('js/ui/commands.js', location.href).href;
 
   C.init({ app: 'docs' });
   C.register([
@@ -46,6 +47,8 @@
     cmd('style.quote', 'Quote', 'Format', [], () => A().setStyle('Quote'), { keywords: ['blockquote'] }),
     cmd('help.keys', 'Keyboard shortcuts…', 'Help', [], () => C.openKeymap(), { keywords: ['keys', 'hotkeys'] }),
   ]);
+  /** The assistant's commands with arguments, its state summary and checkpoint (ai-commands.js), loaded when the AI panel needs them. */
+  if (C.provide) C.provide({ prepare: () => import(new URL('ai-commands.js', HERE).href) });
 
   /** A ⌘K button in the top bar, next to Save. */
   const save = document.getElementById('btnSave');

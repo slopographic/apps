@@ -1,12 +1,14 @@
-/* Slop AI Tools speech engine (classic script for infer.worker.js): Whisper tiny, ONNX, multilingual.
- * Pipeline: 30-second windows of 16 kHz mono audio → log-mel features (80 bins, Slaney filters, as Whisper)
- * → encoder → greedy decoder (the merged decoder with its key/value cache reads one new token per step; the older
- * plain decoder, if that is what is installed, reruns on the growing token list)
- * → timestamp tokens become segment times. Byte-level BPE is decoded with vocab.json and the GPT-2 byte map.
- * Exposes self.SlopAISpeech = { transcribe(models, files, samples, opts, progress) }. */
+/* Slop AI Tools speech engine (classic script for infer.worker.js): any Whisper model exported to ONNX (tiny, base,
+ * small, English-only, KB-Whisper, NB-Whisper), its sizes read from the model's config.json.
+ * Pipeline: 30-second windows of 16 kHz mono audio → log-mel features (80 bins, Slaney filters, as Whisper) → encoder →
+ * the decoder (the merged decoder with its key/value cache reads one new token per step; an older plain decoder reruns
+ * on the growing token list) through Whisper's logit rules, quality fallback, no-speech skip and seek
+ * (whisper-logits.js, whisper-quality.js, whisper-decode.js, whisper-longform.js). Byte-level BPE is decoded with
+ * vocab.json and the GPT-2 byte map.
+ * Exposes self.SlopAISpeech = { transcribe(model, samples, opts, progress), detect(model, samples), prepare(files) ... }. */
 (function (root) {
   'use strict';
-  const SR = 16000, N_FFT = 400, HOP = 160, N_MELS = 80, CHUNK = 30 * SR, FRAMES = 3000, TS_STEP = 0.02, MAX_NEW = 220;
+  const SR = 16000, N_FFT = 400, HOP = 160, N_MELS = 80, CHUNK = 30 * SR, FRAMES = 3000;
 
   /** Slaney-scale mel filterbank [N_MELS][N_FFT/2+1], normalised as librosa does for Whisper. */
   function melFilters() {
@@ -81,44 +83,29 @@
     return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
   }
 
-  /** The special token ids: start, end (in vocab.json), transcribe, and the first timestamp (just after notimestamps). */
-  function specials(added, vocab) {
-    const need = ['<|startoftranscript|>', '<|transcribe|>', '<|notimestamps|>'];
-    for (const k of need) if (added[k] === undefined) throw new Error('Whisper tokens are missing ' + k);
-    const eot = vocab.indexOf('<|endoftext|>');
+  /** The special token ids and the rules' settings, from added_tokens.json, vocab.json and generation_config.json. */
+  function specials(added, vocab, gen = {}) {
+    for (const k of ['<|startoftranscript|>', '<|notimestamps|>']) if (added[k] === undefined) throw new Error('Whisper tokens are missing ' + k);
+    const eot = added['<|endoftext|>'] !== undefined ? added['<|endoftext|>'] : vocab.indexOf('<|endoftext|>');
     if (eot < 0) throw new Error('Whisper vocabulary is missing <|endoftext|>');
-    const langs = Object.entries(added).filter(([k, v]) => /^<\|[a-z]{2,3}\|>$/.test(k) && v > added['<|startoftranscript|>'] && v < added['<|transcribe|>']).map(([k, v]) => ({ code: k.slice(2, -2), id: v }));
-    return { sot: added['<|startoftranscript|>'], eot, transcribe: added['<|transcribe|>'], ts0: added['<|notimestamps|>'] + 1, langs };
+    const sot = added['<|startoftranscript|>'], transcribe = added['<|transcribe|>'];
+    const multilingual = gen.is_multilingual !== undefined ? !!gen.is_multilingual : transcribe !== undefined;
+    const langs = multilingual ? Object.entries(added).filter(([k, v]) => /^<\|[a-z]{2,3}\|>$/.test(k) && v > sot && v < transcribe).map(([k, v]) => ({ code: k.slice(2, -2), id: v })) : [];
+    const noTimestamps = gen.no_timestamps_token_id !== undefined ? gen.no_timestamps_token_id : added['<|notimestamps|>'];
+    const noSpeech = added['<|nospeech|>'] !== undefined ? added['<|nospeech|>'] : added['<|nocaptions|>'];
+    return { sot, eot, transcribe, noTimestamps, ts0: noTimestamps + 1, noSpeech, sotPrev: added['<|startofprev|>'], langs, multilingual };
   }
 
-  /** Turns decoded tokens into timed segments. Timestamp tokens open and close segments. */
-  function segmentsOf(ids, S, vocab, offset) {
-    const out = [];
-    let start = null, buf = [];
-    const flush = (end) => { const text = decodeTokens(buf, vocab).trim(); if (text && start !== null) out.push({ start: offset + start, end: offset + Math.max(end, start + 0.2), text }); buf = []; };
-    for (const id of ids) {
-      if (id >= S.ts0) {
-        const t = (id - S.ts0) * TS_STEP;
-        if (start === null) start = t;
-        else if (buf.length) { flush(t); start = t; } else start = t;
-      } else if (id < S.eot) { if (start === null) start = 0; buf.push(id); }
-    }
-    if (buf.length) flush(start === null ? CHUNK / SR : start + 2);
-    return out;
-  }
-
-  /** The merged decoder (decoder_model_merged) keeps a cache of attention keys and values: the first pass reads the prompt
-   *  and the encoder, and each later pass reads one new token. The plain decoder reruns on every token. */
   const isMerged = (decoder) => decoder.inputNames.includes('use_cache_branch');
-  const HEADS = 6, HEAD_DIM = 64;   // Whisper tiny
   const ids = (ort, tokens) => new ort.Tensor('int64', BigInt64Array.from(tokens.map((t) => BigInt(t))), [1, tokens.length]);
-  /** One merged-decoder pass. past: the cache from the last pass, or null for the first. Returns the last position's logits
-   *  and the cache to pass next time. */
-  async function step(ort, decoder, tokens, enc, past) {
+  /** One merged-decoder pass. past: the cache from the last pass, or null for the first. Returns the logits of every
+   *  position read in this pass and the cache to pass next time. dims: { heads, headDim } from config.json. */
+  async function step(ort, m, tokens, enc, past) {
+    const decoder = m.decoder, { heads, headDim } = m.dims;
     const feeds = { input_ids: ids(ort, tokens), encoder_hidden_states: enc, use_cache_branch: new ort.Tensor('bool', new Uint8Array([past ? 1 : 0]), [1]) };
     for (const n of decoder.inputNames) {
       // The first pass ignores the cache (use_cache_branch false), but the web runtime refuses an empty one: one zero step.
-      if (n.startsWith('past_key_values.')) feeds[n] = past ? past[n] : new ort.Tensor('float32', new Float32Array(HEADS * HEAD_DIM), [1, HEADS, 1, HEAD_DIM]);
+      if (n.startsWith('past_key_values.')) feeds[n] = past ? past[n] : new ort.Tensor('float32', new Float32Array(heads * headDim), [1, heads, 1, headDim]);
     }
     const out = await decoder.run(feeds);
     // The encoder's keys and values come out of the first pass only (a cached pass returns them empty): keep those.
@@ -128,72 +115,63 @@
       const k = 'past_key_values.' + n.slice(8);
       next[k] = past && k.includes('.encoder.') ? past[k] : out[n];
     }
-    const t = out.logits, V = t.dims[2];
-    return { logits: { data: t.data, o: (tokens.length - 1) * V, V }, past: next };
+    return { logits: out.logits, past: next };
   }
-  /** One decoder pass over the tokens so far: the logits of the last position. */
-  async function nextLogits(ort, decoder, tokens, enc) {
-    if (isMerged(decoder)) return (await step(ort, decoder, tokens, enc, null)).logits;
-    const out = await decoder.run({ [decoder.inputNames[0]]: ids(ort, tokens), [decoder.inputNames[1]]: enc });
-    const t = out[decoder.outputNames[0]], V = t.dims[2], o = (tokens.length - 1) * V;
-    return { data: t.data, o, V };
-  }
-  /** Language with the highest score after the start token, among the Whisper language tokens. */
-  function detectLanguage(logits, S) {
-    let best = S.langs[0], bv = -Infinity;
-    for (const l of S.langs) { const v = logits.data[logits.o + l.id]; if (v > bv) { bv = v; best = l; } }
-    return best;
-  }
-  /** The most likely next token, leaving out the special tokens other than end and the timestamps. */
-  function pick(lg, S) {
-    let best = -1, bv = -Infinity;
-    for (let v = 0; v < lg.V; v++) {
-      if (v >= S.eot && v < S.ts0 && v !== S.eot) continue;
-      const x = lg.data[lg.o + v];
-      if (x > bv) { bv = x; best = v; }
+  const rowsOf = (t) => { const V = t.dims[2], L = t.dims[1]; return { rows: (i) => t.data.subarray(i * V, (i + 1) * V), last: t.data.subarray((L - 1) * V, L * V) }; };
+  /** A runner for whisper-decode.js: begin(prompt) then next(token), on the cache or (plain decoder) rerunning. */
+  function runner(ort, m, enc) {
+    if (isMerged(m.decoder)) {
+      let past = null;
+      return {
+        begin: async (prompt) => { const r = await step(ort, m, prompt, enc, null); past = r.past; return rowsOf(r.logits); },
+        next: async (tok) => { const r = await step(ort, m, [tok], enc, past); past = r.past; return rowsOf(r.logits).last; },
+      };
     }
-    return best;
+    const d = m.decoder, toks = [];
+    const pass = async () => rowsOf((await d.run({ [d.inputNames[0]]: ids(ort, toks), [d.inputNames[1]]: enc }))[d.outputNames[0]]);
+    return { begin: async (prompt) => { toks.push(...prompt); return pass(); }, next: async (tok) => { toks.push(tok); return (await pass()).last; } };
   }
-  /** Greedy decoding with the prompt. With the merged decoder, each step after the first reads only the newest token. */
-  async function decodeWindow(ort, models, S, enc, prompt) {
-    const toks = prompt.slice(), d = models.decoder, cached = isMerged(d);
-    let r = cached ? await step(ort, d, toks, enc, null) : null;
-    for (let n = 0; n < MAX_NEW; n++) {
-      const best = pick(cached ? r.logits : await nextLogits(ort, d, toks, enc), S);
-      if (best === S.eot || best < 0) break;
-      toks.push(best);
-      if (cached && n + 1 < MAX_NEW) r = await step(ort, d, [best], enc, r.past);
-    }
-    return toks.slice(prompt.length);
+
+  /** The heads and head size of the decoder's attention, from config.json (Whisper tiny: 6 × 64; base 8 × 64; small 12 × 64). */
+  function dimsOf(config) {
+    const heads = config.decoder_attention_heads, d = config.d_model;
+    if (!heads || !d) throw new Error('The model config.json has no decoder_attention_heads or d_model');
+    if (config.num_mel_bins && config.num_mel_bins !== N_MELS) throw new Error('This Whisper model needs ' + config.num_mel_bins + ' mel bins; only 80 are supported');
+    return { heads, headDim: d / heads };
+  }
+
+  /** Everything the loop needs about one loaded model: special ids, rule settings, the encoder and the runner. */
+  async function modelOf(m, samples) {
+    const ort = await root.SlopAIOrt.get();
+    const gen = m.generation || {};
+    const S = specials(m.added, m.vocab, gen);
+    m.dims = m.dims || dimsOf(m.config || { decoder_attention_heads: 6, d_model: 384 });
+    const ctx = { S, suppress: gen.suppress_tokens || [], beginSuppress: gen.begin_suppress_tokens || [220, S.eot], maxInitialTs: Math.max(50, gen.max_initial_timestamp_index || 0) };   // 1.0 s at least (NB-Whisper ships 1, one step)
+    const encode = async (from) => {
+      const mel = logMel(samples.subarray(from, Math.min(samples.length, from + CHUNK)));
+      const feats = new ort.Tensor('float32', mel, [1, N_MELS, FRAMES]);
+      return (await m.encoder.run({ [m.encoder.inputNames[0]]: feats }))[m.encoder.outputNames[0]];
+    };
+    const detect = async (enc) => {
+      if (!S.multilingual) return [{ code: 'en', p: 1 }];
+      const r = await runner(ort, m, enc).begin([S.sot]);
+      return root.SlopWhisperLogits.languageProbs(r.rows(0), S.langs).map(({ code, p }) => ({ code, p }));
+    };
+    return { S, ctx, encode, detect, makeRunner: (enc) => runner(ort, m, enc), decodeText: (t) => decodeTokens(t, m.vocab) };
   }
 
   /**
-   * Transcribes samples (Float32Array, 16 kHz mono). opts: { language: 'auto' | code }. Calls progress({ done, total })
-   * per 30-second window. Resolves { segments: [{start, end, text}], language, windows }.
+   * Transcribes samples (Float32Array, 16 kHz mono). opts: { language: 'auto' | code, conditionPrevious, seed }.
+   * progress({ done, total, window }) in seconds. Resolves { segments: [{ start, end, text }], language, languages, windows, skipped }.
    */
-  async function transcribe(models, samples, opts, progress) {
-    const ort = await root.SlopAIOrt.get();
-    const S = specials(models.added, models.vocab);
-    const windows = Math.max(1, Math.ceil(samples.length / CHUNK));
-    const segs = [];
-    let language = null;
-    for (let w = 0; w < windows; w++) {
-      progress({ done: w, total: windows });
-      const win = samples.subarray(w * CHUNK, Math.min(samples.length, (w + 1) * CHUNK));
-      if (w > 0 && win.length < SR) break;
-      const mel = logMel(win);
-      const feats = new ort.Tensor('float32', mel, [1, N_MELS, FRAMES]);
-      const enc = (await models.encoder.run({ [models.encoder.inputNames[0]]: feats }))[models.encoder.outputNames[0]];
-      if (!language) {
-        if (opts.language && opts.language !== 'auto') { const l = S.langs.find((x) => x.code === opts.language); language = l || S.langs.find((x) => x.code === 'en'); }
-        else language = detectLanguage(await nextLogits(ort, models.decoder, [S.sot], enc), S);
-      }
-      const ids = await decodeWindow(ort, models, S, enc, [S.sot, language.id, S.transcribe]);
-      segs.push(...segmentsOf(ids, S, models.vocab, w * (CHUNK / SR)));
-    }
-    progress({ done: windows, total: windows });
-    return { segments: segs, language: language ? language.code : 'en', windows };
+  async function transcribe(m, samples, opts = {}, progress = () => {}) {
+    return root.SlopWhisperLongform.run(await modelOf(m, samples), samples, opts, progress);
+  }
+  /** The spoken language of the first 30 seconds: [{ code, p }] most likely first (top 5). One encoder pass. */
+  async function detect(m, samples) {
+    const mo = await modelOf(m, samples);
+    return (await mo.detect(await mo.encode(0))).slice(0, 5);
   }
 
-  root.SlopAISpeech = { transcribe, logMel, melFilters, decodeTokens, segmentsOf, specials };
+  root.SlopAISpeech = { transcribe, detect, logMel, melFilters, decodeTokens, specials, dimsOf };
 })(self);

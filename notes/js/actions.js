@@ -13,16 +13,21 @@ const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
 const byTitle = (a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' });
 
 export function setPane(pane) { S.pane = pane; redraw(); }
+/** The phone's notebooks drawer (SlopSheet, set by main.js): choosing a notebook or a folder closes it. */
+let side = null;
+export const setSide = (sheet) => { side = sheet; };
+const closeSide = () => { if (side) side.close(); };
 
 export function selectNotebook(id) {
   S.notebookId = id || null;
   S.folderId = null;
   S.tag = null;
   S.pane = 'list';
+  closeSide();
   redraw();
 }
 
-export function selectFolder(id) { S.folderId = id || null; S.tag = null; S.pane = 'list'; redraw(); }
+export function selectFolder(id) { S.folderId = id || null; S.tag = null; S.pane = 'list'; closeSide(); redraw(); }
 export function selectTag(tag) { S.tag = S.tag === tag ? null : tag; redraw(); }
 
 /** Shows a note in its tab (a new tab when it is not open yet). */

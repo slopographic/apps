@@ -95,4 +95,9 @@
   M.engine = { audio, state, current, subscribe: (f) => { subs.add(f); return () => subs.delete(f); },
     setQueue, play, pause, toggle: () => (audio.paused ? play() : pause()), next, prev, seek, setVolume, toggleMute,
     setRate, setShuffle, setRepeat, cycleRepeat, playIndex };
+  // Convert… in the header (shared/convert/provided.js): the current track's file from Slop Drive.
+  addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {
+    const rec = st.trackId && H() ? await H().get(st.trackId).catch(() => null) : null;
+    return rec && rec.blob ? [{ name: rec.name, blob: rec.blob }] : null;
+  }));
 })();

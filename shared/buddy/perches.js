@@ -62,16 +62,32 @@ export function all() {
   return out;
 }
 
-/** Viewport y of the consent strip's top edge (the window bottom when no strip is shown). */
-export function floorY() {
-  const strip = document.getElementById('slopc-banner');   // shared/consent/banner.js
-  return Math.min(innerHeight, strip ? strip.getBoundingClientRect().top : innerHeight);
+/** The consent card's box in the viewport (shared/consent/banner.js), or null when it is not shown. */
+function strip() {
+  const el = document.getElementById('slopc-banner');
+  const r = el && el.getBoundingClientRect();
+  return r && r.width ? r : null;
 }
-/** Is his feet point (from point()) under the consent strip? He would then stand on its buttons. */
-export const underStrip = (pt) => pt.y - scrollY > floorY() - 4;
+/** Viewport y of the consent card's top edge at viewport x, the window bottom beside it: the card floats in a bottom
+ *  corner, so a spot beside it is clear of it (how tall the card is depends on the fonts). */
+export function floorY(x = null) {
+  const r = strip(), pad = 40;
+  return Math.min(innerHeight, r && (x == null || (x > r.left - pad && x < r.right + pad)) ? r.top : innerHeight);
+}
+/** Is his feet point (from point()) under the consent card? He would then stand on its buttons. */
+export const underStrip = (pt) => pt.y - scrollY > floorY(pt.x - scrollX) - 4;
 
-/** Is this perch top comfortably inside the viewport, above the consent strip (with room for him above it)? */
-export const inView = (r) => r.top > navH() + 60 && r.top < floorY() - 8 && r.right > 40 && r.left < innerWidth - 40;
+/** The part of a perch's width (viewport x1..x2) he can stand on: inside the window and clear of the consent card. */
+function clearSpan(r) {
+  const x1 = Math.max(r.left, 40), x2 = Math.min(r.right, innerWidth - 40), c = strip(), pad = 40;
+  if (x2 <= x1) return null;
+  if (!c || r.top < c.top - 8) return [x1, x2];
+  const left = [x1, Math.min(x2, c.left - pad)], right = [Math.max(x1, c.right + pad), x2];
+  const best = left[1] - left[0] >= right[1] - right[0] ? left : right;
+  return best[1] - best[0] >= 40 ? best : null;
+}
+/** Is this perch top comfortably inside the viewport, above or beside the consent card (with room for him above it)? */
+export const inView = (r) => r.top > navH() + 60 && r.top < innerHeight - 8 && !!clearSpan(r);
 
 /** Page coordinates of a spot on a perch, or null if the perch is hidden. */
 export function point(p) {
@@ -94,8 +110,10 @@ export function pick({ exclude = null, filter = null, near = true } = {}) {
     return near ? 1 / (1 + Math.hypot(dx, dy) / 260) : 1;
   });
   let k = Math.random() * w.reduce((a, b) => a + b, 0);
-  for (let i = 0; i < c.length; i++) if ((k -= w[i]) <= 0) return { el: c[i].el, frac: 0.15 + Math.random() * 0.7 };
-  return { el: c[c.length - 1].el, frac: 0.5 };
+  /** A spot on the clear part of the perch (all of it unless the consent card is beside it). */
+  const spot = ({ el, r }, u) => { const [x1, x2] = clearSpan(r), w = r.right - r.left || 1, a = (x1 - r.left) / w, b = (x2 - r.left) / w; return { el, frac: a + (b - a) * u }; };
+  for (let i = 0; i < c.length; i++) if ((k -= w[i]) <= 0) return spot(c[i], 0.15 + Math.random() * 0.7);
+  return spot(c[c.length - 1], 0.5);
 }
 
 /** The highest perch top crossed while falling from y0 to y1 at x (page coordinates). */

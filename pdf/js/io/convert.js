@@ -101,6 +101,7 @@
   };
   /** items: [{bytes, kind}], o: {size:'fit'|'a4'|'letter', margin (pt), orientation:'auto'|'portrait'|'landscape'} */
   E.imagesToPdf = async function (items, o) {
+    await E.libs();
     o = o || {};
     var out = await PDFLib.PDFDocument.create();
     for (var i = 0; i < items.length; i++) {

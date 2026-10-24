@@ -22,6 +22,23 @@
     }
     return libP;
   };
+  /** pdf-lib (the writer), loaded on first use from <template id="pdf-engine"> in index.html (shared/load), or beside
+   *  pdf.js where a page has no such template. Resolves window.PDFLib. The offline copy has it already. */
+  var writerP = null;
+  E.pdflib = function () {
+    if (window.PDFLib) return Promise.resolve(window.PDFLib);
+    if (!writerP) {
+      var t = document.getElementById('pdf-engine'), tag = t && t.content && t.content.querySelector('script[src]');
+      var src = tag ? new URL(tag.getAttribute('src'), document.baseURI).href : new URL('../pdf-lib/pdf-lib.min.js', E.vendorBase()).href;
+      writerP = (window.SlopLoad ? SlopLoad.script(src) : new Promise(function (res, rej) {
+        var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.append(s);
+      })).then(function () { if (!window.PDFLib) throw new Error('The PDF writer did not load.'); return window.PDFLib; });
+      writerP.catch(function () { writerP = null; });
+    }
+    return writerP;
+  };
+  /** Both PDF libraries and the standard fonts: what an open document needs. Every way a document opens waits for it. */
+  E.libs = function () { return Promise.all([E.pdflib(), E.pdfjs()]).then(function () { return E.initFonts(); }); };
   E.docParams = function (data, password) {
     var p = { data: data, isEvalSupported: false, enableXfa: false, useSystemFonts: true, verbosity: 0 };
     if (password != null) p.password = password;
@@ -63,6 +80,7 @@
   /** Registers PDF bytes as a source file. Decrypts protected PDFs so they can be rewritten. */
   E.registerPdf = async function (bytes, name, askPassword, opts) {
     opts = opts || {};
+    await E.libs();
     var fp = await SP.editLog.fingerprint(bytes); // SHA-256 of the original bytes (null when unavailable)
     var r = await E.openPdfjs(bytes, name, askPassword), doc = r.doc, finalBytes = bytes, locked = null, decrypted = false;
     if (SP.decrypt.isEncrypted(bytes)) {

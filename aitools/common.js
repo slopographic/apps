@@ -1,6 +1,6 @@
 /* Slop AI Tools: helpers shared by the tool pages. Classic script; exposes window.SlopAITools.
  *  - worker client: one inference worker (workers/infer.worker.js) per page; call(type, data) resolves with the result
- *  - ensure(modelId): reads the model's files from IndexedDB or vendor/ and hands them to the worker once
+ *  - ensure(modelId): reads the model's files from IndexedDB or vendor/ and hands them to the worker once; release(modelId)
  *  - gate(toolId): shows the device or model problem on the page, with Get more, and resolves when the tool can run
  *  - files and output: pick, decode images and audio, download, save to Slop Drive, open Slop Docs */
 (function (root) {
@@ -37,12 +37,22 @@
   /** Loads a model's files into the worker once per page. Rejects with a plain reason. */
   function ensure(modelId, onStatus) {
     if (!loading.has(modelId)) loading.set(modelId, (async () => {
+      // a model stored before the index gained its small settings files (Whisper's config.json): the person agreed to this
+      // model already, so the few kilobytes are fetched and checked like the rest, without asking again
+      if ((await M.status(modelId)) === 'update') { if (onStatus) onStatus('Updating the model settings…'); await M.install(modelId); }
       if (onStatus) onStatus('Reading the model from this device…');
       const files = await M.readAll(modelId);
       if (onStatus) onStatus('Starting the model…');
       await call('load', { model: modelId, files }, { transfer: Object.values(files) });
     })().catch((e) => { loading.delete(modelId); throw e; }));
     return loading.get(modelId);
+  }
+
+  /** Frees a model in the worker (a big speech model when another is chosen); the next ensure() sends it again. */
+  async function release(modelId) {
+    if (!loading.has(modelId)) return;
+    loading.delete(modelId);
+    if (worker) await call('unload', { model: modelId }).catch(() => {});
   }
 
   /**
@@ -119,5 +129,5 @@
     const app = root.SlopHub && root.SlopHub.appById('docs');
     if (app) root.open(root.SlopHub.urlOf(app, driveId ? { drive: driveId } : null), '_blank');
   }
-  root.SlopAITools = { call, ensure, gate, image, audioSamples, download, toDrive, openDocs, panel };
+  root.SlopAITools = { call, ensure, release, gate, image, audioSamples, download, toDrive, openDocs, panel };
 })(typeof window !== 'undefined' ? window : globalThis);

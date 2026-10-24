@@ -63,13 +63,17 @@ a.tb-btn { text-decoration: none; display: inline-block; }
 :root[data-theme="light"] .status { background: rgba(255, 255, 255, .6); }
 .nogl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--ink); background: var(--view); }
 .nogl[hidden] { display: none; }
+.vp-panels { display: none; }
+/* Phones: the viewport fills the screen; Scene and Properties are SlopSheets (js/app/layout.js, shared/ui/sheet.js gives
+   their place, motion and ×), opened by the buttons at the viewport's foot. */
 @media (max-width: 900px) {
-  body { overflow: auto; }
-  .app { height: auto; min-height: 100vh; }
-  .workspace { grid-template-columns: 1fr; grid-template-rows: 62vh auto auto; }
-  .viewport { order: -1; min-height: 62vh; }
-  .panel-left, .panel-right { border: 0; border-top: 1px solid var(--line); }
-  .panel-body { max-height: 40vh; }
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .panel-left, .panel-right { --ssh-z: 70; border: 0; }   /* over the spotlight dock (z 60) */
+  .panel-right { max-height: 60vh; }
+  .vp-panels { display: flex; gap: 4px; position: absolute; right: 8px; bottom: 30px; }
+  .vp-panels .vp-btn { min-height: 36px; }
+  .vp-panels .vp-btn[aria-expanded="true"] { border-color: var(--accent); }
+  .vp-hint { max-width: calc(100% - 200px); }
   .actions { margin-left: 0; }
 }
 @media (max-width: 560px) { .appname .home-link { display: none; } }   /* the logo links home; the shared buttons keep one row */

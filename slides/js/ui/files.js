@@ -133,4 +133,12 @@
     try { await F.openRecord(launch); } catch (e) { D.toast('Could not open: ' + e.message, 4000); }
     if (blank && SS.tabs.current() !== blank) await api().close(blank);
   };
+  /** Convert… in the header (shared/convert/provided.js): the open deck, as PPTX. */
+  addEventListener('slop:convert-files', function (e) {
+    e.detail.provide(async function () {
+      if (!A.deck) return null;
+      var r = await SS.pptx.write(A.deck);
+      return [{ name: N.fileName(A.deck.title).replace(/\.sslide$/, '.pptx'), blob: r.blob }];
+    });
+  });
 })();

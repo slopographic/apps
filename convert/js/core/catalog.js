@@ -26,7 +26,10 @@ import { HEIC } from './heic.js';
 import { DATA_MORE } from './data-more.js';
 import { MEDIA_MORE } from './media-more.js';
 import { DOC_OUT } from './doc-out.js';
+import { PDF_EXTRA } from './pdf-extra.js';
+import { PDF_LOCK } from './pdf-lock.js';
 import { KEYWORDS } from './keywords.js';
+import { CHAIN_FLAGS } from './chain-flags.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'];
 const SIZE = [
@@ -251,9 +254,12 @@ export const CONVERSIONS = [
   ...HEIC,   // HEIC and HEIF photos (core/heic.js)
   ...MEDIA_MORE,   // OGG, Opus, FLAC, M4A, GIF to MP4, AVIF (core/media-more.js)
   ...THREED,   // 3D models (core/threed.js)
+  ...PDF_EXTRA,   // PDF to text, HTML to a picture PDF (core/pdf-extra.js)
+  ...PDF_LOCK,   // Protect PDF with a password, Remove PDF password (core/pdf-lock.js, shared/pdf-crypto)
 ];
 
 for (const c of CONVERSIONS) if (KEYWORDS[c.id]) c.keywords = [...(c.keywords || []), ...KEYWORDS[c.id]];   // the menus' search words
+for (const c of CONVERSIONS) Object.assign(c, CHAIN_FLAGS[c.id]);   // lossy, cost, chain: for the route finder (chain.js)
 
 export const conversionById = (id) => CONVERSIONS.find((c) => c.id === id);
 

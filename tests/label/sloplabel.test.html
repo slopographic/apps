@@ -6,7 +6,8 @@
   <style>body { margin: 0; background: #111; } iframe { border: 0; vertical-align: top; } #app { width: 1280px; height: 760px; } #phone { width: 390px; height: 844px; }</style>
 </head>
 <body>
-  <!-- The real app runs in same-origin iframes (desktop and phone width); tests drive its globals directly. -->
+  <!-- The real app runs in same-origin iframes (desktop and phone width); tests drive its globals directly.
+       Covers: label/js/ui/app.js, label/js/ui/boot.js, label/js/ui/route.js (the phone panels sheet: ui-flows.test.js) -->
   <iframe id="app" src="../../label/index.html"></iframe>
   <iframe id="phone" src="../../label/index.html"></iframe>
   <script src="../harness.js"></script>

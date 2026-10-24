@@ -40,7 +40,7 @@
       });
       it(`${name}: no sideways scroll at 390px`, async () => {
         const f = await open(path, 390), d = f.contentDocument;
-        await waitFor(() => (path ? d.querySelector('#gate').children.length || !d.querySelector('#ui').hidden : d.querySelectorAll('.ai-model').length === 4), { timeout: 8000 });
+        await waitFor(() => (path ? d.querySelector('#gate').children.length || !d.querySelector('#ui').hidden : d.querySelectorAll('.ai-model').length === f.contentWindow.SlopAIModels.MODELS.length), { timeout: 8000 });
         expect(d.documentElement.scrollWidth).toBeLessThanOrEqual(390);
         expect(d.querySelector('header.ai-top').getBoundingClientRect().height).toBeLessThan(60);
         f.remove();

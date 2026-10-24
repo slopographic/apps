@@ -59,7 +59,7 @@
     for (const { model: m, status, installedAt } of rows) {
       const remote = R.remoteFiles(m);
       const action = status === 'bundled' ? el('span', { class: 'ai-meta' }, 'Ships with the site')
-        : status === 'installed' ? el('span', null, el('span', { class: 'ai-meta' }, 'Installed ' + installedAt.slice(0, 10) + '. '), el('button', { type: 'button', on: { click: () => removeModel(m) } }, 'Remove'))
+        : status === 'installed' || status === 'update' ? el('span', null, el('span', { class: 'ai-meta' }, 'Installed ' + installedAt.slice(0, 10) + '. '), el('button', { type: 'button', on: { click: () => removeModel(m) } }, 'Remove'))
         : el('button', { type: 'button', class: 'ai-pri', on: { click: () => window.SlopAIGetMore.open(m.id, { onInstalled: refresh }) } }, 'Get more…');
       box.append(el('div', { class: 'ai-model' },
         el('div', null, el('strong', null, m.name), el('div', { class: 'ai-meta' }, R.LICENCES[m.licence] + ' (' + m.licence + ') · ' + (remote.length ? R.formatSize(R.downloadBytes(m)) : 'bundled')),

@@ -12,6 +12,10 @@
     'nav.settings': 'Configuración',
 
     'shell.switch_app': 'Cambiar de app',
+
+    'shell.convert': 'Convertir…',
+
+    'shell.ai': 'IA',
     'shell.switch_title': 'Cambiar de app ({shortcut})',
 
     'switcher.search': 'Buscar apps',

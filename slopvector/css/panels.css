@@ -1,7 +1,6 @@
 /* SlopVector — dock, panels, layers, swatches, gradient, status bar */
 /* ---------- dock & panels ---------- */
 .dock { background: var(--bg-panel); border-left: 1px solid var(--border-dark); display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
-.dock-head { display: none; }
 .dock-group { border-bottom: 1px solid var(--border-dark); display: flex; flex-direction: column; flex: 0 0 auto; }
 .dock-group.dg-b { flex: 1 0 210px; min-height: 210px; }
 .dock-group.collapsed { flex: 0 0 auto; min-height: 0; }

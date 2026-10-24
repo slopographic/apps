@@ -78,7 +78,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 - **Export.** One photo downloads as its original file. Several photos download as one store-only zip (`js/io/zip.js`, CRC-32 checked on read). The whole library backs up to one zip with a manifest, originals and thumbnails. Restore validates the manifest and every SHA-256 before writing, then writes in one transaction.
 - **Right-click menus** on photos, albums, month headers and the empty grid (SlopCtx and SlopUI).
 - **SlopCmd commands** for the main actions (`js/ui/commands.js`).
-- **Layout.** Checked at 390 px: no horizontal page scroll. The side panel becomes a drawer behind the Filters button.
+- **Layout.** Checked at 390 px: no horizontal page scroll. Under 700 px the side panel is a drawer from the left: `SlopSheet.attach({ side: 'start', toggles: [Filters] })` in `js/ui/sidebar.js` (`shared/ui/sheet.js`, see `shared/ui/HANDOFF.md`). Filters opens and closes it; the shared ×, Escape, a tap outside and a swipe left close it; a view picked in it closes it (`G.sidebar.closeDrawer()`). There is no `drawer-open` class or close button of Gallery's own any more. The Escape command (Clear selection) waits while the drawer is open. Test: `tests/gallery/phone-drawer.test.html`.
 
 ## Test hook
 

@@ -114,3 +114,10 @@ Ctrl+S save to Drive, Ctrl+O open from Drive, Ctrl+K command search.
    Suggested entry:
    `A('effects', 'app', 'Slop Effects', 'effects/', 'Motion design in the browser. Nothing uploaded.', { group: 'creative', accepts: ['application/json', 'image/*', 'video/*'], features: ['Layers, keyframes and easing', 'Graph editor and seeded random motion', 'Blur, glow, shadow, colour, grain, vignette, glitch', 'WebM, MP4 and PNG sequence'], icon: 'film', status: 'beta' })`
 2. `service-worker.js`: add `effects/` to the precache list so the app works offline.
+
+## Phone layout (SlopSheet)
+Under 760 px the Properties side panel (Layer, Effects, Motion) is a bottom sheet, `SlopSheet.attach` from
+`shared/ui/sheet.js` (see `shared/ui/HANDOFF.md`) in `js/main.js` (`SlopEffects.app.sheet`). The Properties button in the
+toolbar (phone only) opens and closes it; the shared ×, Escape, a tap outside and a swipe down close it; Motion from a
+command opens it on that tab. The preview and the timeline share the page; before, the panel sat between them in a long
+scrolling page. Test: `tests/effects/phone.test.html`.

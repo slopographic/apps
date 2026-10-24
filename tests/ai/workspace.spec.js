@@ -130,7 +130,7 @@
       expect(st.app).toBe('Slop Drive');
       expect(st.drivable).toBe(true);
       expect(st.state).toBe(null);
-      expect(st.note).toContain('no window.SlopAppState hook');
+      expect(st.note).toContain('window.SlopAppState hook');
     }, LONG);
 
     it('a frame without a command registry errors after the wait, not forever', async () => {

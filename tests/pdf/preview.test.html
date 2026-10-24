@@ -9,7 +9,7 @@
   <script>try { localStorage.setItem('slop-firstrun:convert', '1'); } catch (e) { /* private window */ }</script>
   <script src="../harness.js"></script>
   <script>
-  // Covers: pdf/js/ui/drop.js, pdf/css/workspace.css, assets/shots/pdf.jpg
+  // Covers: pdf/js/ui/drop.js, pdf/css/workspace.css, assets/shots/pdf-preview.webp (a 600 px WebP of assets/shots/pdf.jpg, preloaded by pdf/index.html)
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D;
   /** The app in a fresh iframe of this width, once the preview is in. */
@@ -29,7 +29,7 @@
       await boot(1280);
       expect(D.querySelectorAll('#empty .sd-steps li').length).toBe(3);
       const img = $('#empty .sd-pic img');
-      expect(img.getAttribute('src')).toBe('../assets/shots/pdf.jpg');
+      expect(img.getAttribute('src')).toBe('../assets/shots/pdf-preview.webp');
       expect(img.alt.length > 10).toBe(true);
       await waitFor(() => img.complete && img.naturalWidth > 300);
       expect($('#empty .empty-art')).toBe(null);

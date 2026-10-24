@@ -34,10 +34,9 @@
     $('btnNew').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); DR.newMenu(r.left, r.bottom + 4); });
     $('btnMore').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); DR.moreMenu(r.right - 220, r.bottom + 4); });
     $('btnBackup').addEventListener('click', () => DR.backupDialog());
-    $('btnInfo').addEventListener('click', () => { if (DR.isMobile()) DR.sheet(!document.body.classList.contains('sheet-open')); else DR.toggleInfo(); });
+    DR.wireDrawer(); DR.wireSheet();   // before the app's keys: the sheets' Escape comes first
+    $('btnInfo').addEventListener('click', () => { if (!DR.isMobile()) DR.toggleInfo(); });   // on a phone it is the sheet's toggle
     $('btnSort').addEventListener('click', () => DR.openSortMenu());
-    $('btnSide').addEventListener('click', () => DR.drawer(!document.body.classList.contains('drawer-open')));
-    $('scrim').addEventListener('click', () => { DR.drawer(false); DR.sheet(false); });
     DR.wireCommands(); DR.wireSelect(); DR.wireDrag(); DR.wireDropUpload(); DR.wireKeys(); DR.wireCtxMenu();
     DR.wireProviders(); DR.wireProvDrag();
     $('btnCmd').addEventListener('click', () => DR.openPalette());

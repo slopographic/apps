@@ -1,5 +1,5 @@
 /* Builds the option controls for a conversion from its spec list, and reads their values back.
- * Every control has a label; hints are linked with aria-describedby. */
+ * Every control has a label; hints are linked with aria-describedby. type 'password' is a masked field (Protect PDF). */
 import { h } from './dom.js';
 
 /** prefix: a file's id and a dash ('3-') on its card, 'bulk-' in the bulk bar, so every id on the page is unique. */
@@ -27,7 +27,7 @@ export function renderOptions(container, specs, defaults = {}, prefix = '') {
       control = h('input', { type: 'color', id, value, 'aria-describedby': describe });
       wrap = h('div', { class: 'cv-opt' }, h('label', { for: id }, s.label), control, hint);
     } else {
-      control = h('input', { type: s.type === 'number' ? 'number' : 'text', id, min: s.min, max: s.max, step: s.step, placeholder: s.placeholder, value: value ?? '', 'aria-describedby': describe, inputmode: s.type === 'number' ? (s.step && s.step < 1 ? 'decimal' : 'numeric') : undefined });
+      control = h('input', { type: s.type === 'number' ? 'number' : s.type === 'password' ? 'password' : 'text', id, autocomplete: s.type === 'password' ? 'new-password' : undefined, spellcheck: s.type === 'password' ? 'false' : undefined, min: s.min, max: s.max, step: s.step, placeholder: s.placeholder, value: value ?? '', 'aria-describedby': describe, inputmode: s.type === 'number' ? (s.step && s.step < 1 ? 'decimal' : 'numeric') : undefined });
       wrap = h('div', { class: 'cv-opt' }, h('label', { for: id }, s.label), control, hint);
     }
     container.append(wrap);

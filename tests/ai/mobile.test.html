@@ -6,6 +6,7 @@
 <script src="../harness.js"></script>
   <script src="util.js"></script>
   <script>
+  // Covers: ai/js/ui/chatlist.js (the phone chat list drawer)
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   let W, AI, D;
   const $ = (s) => D.querySelector(s);
@@ -18,14 +19,24 @@
       for (const t of ['chat', 'build', 'models', 'sys']) { AI.setTab(t); await sleep(60); expect(noSideways()).toBe(true); }
       for (const id of ['tab-chat', 'tab-models', 'modelChip', 'sloppo', 'btnMore']) expect(inView(D.getElementById(id))).toBe(true);
     });
-    it('the chat list is a drawer', async () => {
+    it('the chat list is a drawer from the left (SlopSheet): Chats opens it, again closes it, × and Escape close it', async () => {
       AI.setTab('chat');
-      const side = $('#convs');
+      D.head.append(Object.assign(D.createElement('style'), { textContent: '* { transition: none !important; }' }));   // an offscreen frame stalls them
+      const side = $('#convs'), btn = $('.chat-bar .only-mobile'), on = () => side.classList.contains('ssh-on');
+      const esc = () => D.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
       expect(side.getBoundingClientRect().right).toBeLessThanOrEqual(1);
-      $('.chat-bar .only-mobile').click();
-      await waitFor(() => inView(side), { timeout: 3000 });
-      $('.chat-view .scrim').click();
-      await waitFor(() => side.getBoundingClientRect().right <= 1, { timeout: 3000 });
+      btn.click();
+      expect([on(), inView(side), btn.getAttribute('aria-expanded')]).toEqual([true, true, 'true']);
+      expect(side.getBoundingClientRect().top).toBeGreaterThan(30);   // below the top bar
+      btn.click(); expect(on()).toBe(false);
+      btn.focus(); btn.click(); $('#convs > .ssh-x').click();
+      expect([on(), D.activeElement]).toEqual([false, btn]);
+      btn.click(); esc(); expect(on()).toBe(false);
+      btn.click(); $('.chat-main .msgs, .chat-main').dispatchEvent(new W.PointerEvent('pointerdown', { bubbles: true }));
+      expect(on()).toBe(false);
+      btn.click(); $('#btnNewChat').click();   // a new chat closes it
+      expect(on()).toBe(false);
+      expect(side.getBoundingClientRect().right).toBeLessThanOrEqual(1);
     });
     it('chatting works and the composer stays on screen', async () => {
       await AI.E.load('Qwen2.5-0.5B-Instruct-q4f16_1-MLC');

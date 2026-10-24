@@ -219,4 +219,6 @@
     gotoOffset, find, undo, redo, computeSha, selRange, versionName, activate, deactivate,
     doc: () => app.doc, grid: () => app.grid,
   };
+  // Convert… in the header (shared/convert/provided.js): the open file with its edits (an empty new tab is nothing).
+  addEventListener('slop:convert-files', (e) => e.detail.provide(() => (app.doc && app.doc.size ? [{ name: app.doc.name, blob: app.doc.toBlob() }] : null)));
 })();

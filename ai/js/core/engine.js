@@ -29,13 +29,8 @@
     if (E.isFake() || m.custom || E.consented.has(m.id)) return true;
     const st = await E.status(m.id);
     if (st.state === 'ready') return true;
-    const body = AI.el('div', { class: 'consent' },
-      AI.el('p', null, AI.el('b', null, `Download ${m.name}?`)),
-      AI.el('p', null, `This downloads about ${AI.fmtMB(m.sizeMB * (AI.sys && K.catalog.idFor(m, AI.sys) !== m.id ? 1.35 : 1))} from huggingface.co (plus the GPU kernels from raw.githubusercontent.com), once. It is stored in this browser and works offline afterwards.`),
-      AI.el('p', { class: 'ok-note' }, 'Your chats never leave your device: the model runs on your own GPU.'),
-      AI.el('p', { class: 'dim' }, 'Licence: ', m.license.url ? AI.el('a', { href: m.license.url, target: '_blank', rel: 'noopener' }, m.license.name) : m.license.name, ` · commercial use: ${m.license.commercial || 'see licence'}`),
-      st.state === 'partial' ? AI.el('p', { class: 'dim' }, 'Part of it is already downloaded; it continues where it stopped.') : null);
-    const ok = await new Promise((res) => window.SlopUI.dialog({ title: 'Download a model', body, cls: 'ai-dlg', onClose: res, buttons: [{ label: 'Cancel' }, { label: 'Download', primary: true }] }));
+    // the shared download notice (shared/ai/picker.js): the same one the side panel shows on every app
+    const ok = await K.picker.consent(m, { partial: st.state === 'partial', sizeMB: m.sizeMB * (AI.sys && K.catalog.idFor(m, AI.sys) !== m.id ? 1.35 : 1) });
     if (ok) E.consented.add(m.id);
     return ok;
   }

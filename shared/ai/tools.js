@@ -5,14 +5,15 @@
  *   prepare(messages, tools)   → messages for the engine (tool help in the system prompt; roles normalised)
  *   parse(text, tools)         → { text, calls: [{ name, arguments }] }
  *   dispatch(call, tools, env) → { ok, result | error }     env.confirm(title, message) → Promise<bool>
- *   run(engine, messages, { tools, env, onDelta, onTool, maxSteps, ...chatOpts }) → the agent loop */
+ *   run(engine, messages, { tools, env, onDelta, onTool, maxSteps, maxCalls, ...chatOpts }) → the agent loop
+ *       (onTool({ phase: 'start' | 'end', call, tool, res }); an aborted signal stops between actions) */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
 
   function describe(tools) {
     const lines = tools.map((t) => {
-      const ps = Object.entries(t.params || {}).map(([k, p]) => `${k}${p.required ? '' : '?'}: ${p.type || 'string'}`).join(', ');
+      const ps = Object.entries(t.params || {}).map(([k, p]) => `${k}${p.required ? '' : '?'}: ${p.type || 'string'}${p.hint ? ' ' + p.hint : ''}`).join(', ');
       return `- ${t.name}(${ps}): ${t.description}`;
     });
     return ['You can use these tools:', ...lines, '',
@@ -90,9 +91,9 @@
 
   /** The agent loop: chat, run any tool calls, feed the results back, repeat (maxSteps).
    * Returns { text, messages (the new assistant/tool messages), usage, steps }. */
-  async function run(engine, messages, { tools = [], env = {}, onDelta, onTool, maxSteps = 4, ...chatOpts } = {}) {
-    const added = [];
-    let usage = null, text = '';
+  async function run(engine, messages, { tools = [], env = {}, onDelta, onTool, maxSteps = 4, maxCalls = 12, ...chatOpts } = {}) {
+    const added = [], stopped = () => !!(chatOpts.signal && chatOpts.signal.aborted);
+    let usage = null, text = '', calls = 0;
     for (let step = 0; step < maxSteps; step++) {
       const stream = engine.chat([...messages, ...added], Object.assign({}, chatOpts, { tools, stream: true }));
       let done = null;
@@ -101,11 +102,15 @@
       added.push({ role: 'assistant', content: done.raw, display: done.text, toolCalls: done.toolCalls, usage });
       if (!done.toolCalls.length || done.aborted) break;
       for (const call of done.toolCalls) {
-        if (onTool) onTool({ phase: 'start', call });
+        if (stopped()) break;
+        if (++calls > maxCalls) { text += '\n\n(Stopped: at most ' + maxCalls + ' actions per request.)'; break; }
+        const tool = tools.find((x) => x.name === call.name) || null;
+        if (onTool) onTool({ phase: 'start', call, tool });
         const res = await dispatch(call, tools, env);
-        if (onTool) onTool({ phase: 'end', call, res });
-        added.push({ role: 'tool', name: call.name, content: res.ok ? res.result : 'ERROR: ' + res.error, ok: res.ok });
+        if (onTool) onTool({ phase: 'end', call, res, tool });
+        added.push({ role: 'tool', name: call.name, content: res.ok ? res.result : 'ERROR: ' + res.error, ok: res.ok, args: call.arguments });
       }
+      if (stopped() || calls > maxCalls) break;
       if (step === maxSteps - 1) text += '\n\n(Stopped after ' + maxSteps + ' tool steps.)';
     }
     return { text, messages: added, usage };

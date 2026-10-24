@@ -96,3 +96,5 @@ async function zplPreviewCanvas(text, dpi) {
   await preloadImages(d);
   return renderLabelCanvas(d, buildScene(d, makeResolver(d, {})), Math.min(dpi, 203));
 }
+// Convert… in the header (shared/convert/provided.js): the label as a PDF, the way Send to makes it.
+addEventListener('slop:convert-files', (e) => e.detail.provide(async () => (App.doc ? [{ name: fileBase() + '.pdf', blob: new Blob([await pdfBytes({ prompts: App.prompts })], { type: 'application/pdf' }) }] : null)));

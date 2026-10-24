@@ -195,6 +195,7 @@
 
   /** Builds the output PDF. opts: {pages, stamps (default true), meta (default true), onProgress} → Uint8Array */
   E.build = async function (opts) {
+    await E.libs();
     opts = opts || {};
     var L = PDFLib, st = E.state, pages = opts.pages || st.pages;
     if (!pages.length) throw new Error('There are no pages to export.');
@@ -263,7 +264,7 @@
   };
 
   /** Re-opens output with pdf.js; resolves the pdf.js doc (caller destroys) after checking the page count. */
-  E.openOutput = async function (bytes, expected) {
+  E.openOutput = async function (bytes, expected) { await E.libs();
     var r = await E.openPdfjs(bytes, 'output', null);
     if (expected != null && r.doc.numPages !== expected) { await r.doc.destroy(); throw new Error('Validation failed: expected ' + expected + ' pages, got ' + r.doc.numPages + '.'); }
     return r.doc;

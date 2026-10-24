@@ -1,6 +1,5 @@
 /* Slop Press — dock, panels: pages, layers, styles, properties, swatches */
 .dock { background: var(--bg-panel); border-left: 1px solid var(--border-dark); display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
-.dock-head { display: none; }
 .dgroup { border-bottom: 1px solid var(--border-dark); display: flex; flex-direction: column; flex: 0 0 auto; }
 .dgroup.grow { flex: 1 0 220px; min-height: 220px; }
 .dgroup:not(.grow) .pbody { max-height: 40vh; overflow-y: auto; }

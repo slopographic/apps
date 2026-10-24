@@ -13,7 +13,7 @@
   import { LINES } from '../../shared/buddy/lines.js';
   import { delayFor } from '../../shared/buddy/treats.js';
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
-  const { openApp, turnOn } = BuddyTest;
+  const { openApp, turnOn, frames } = BuddyTest;
   let win, S, M;
   const ready = openApp('', { clear: true }).then(async (w) => { win = w; S = await turnOn(w); M = S.M; S.toggleHud(true); });
   /** Drag samples: n moves, alternating ±amp px every `ms`. */
@@ -59,11 +59,10 @@
     it('once MAD he stays mad (no draining) until he gets something', async () => {
       await ready;
       M.rage = 2;
-      await sleep(700);
+      await Promise.all([sleep(700), frames(win, 20)]);   // time and frames enough to drain, were he draining
       expect(M.rage).toBe(2);
       M.rage = 1;
-      await sleep(400);
-      expect(M.rage).toBeLessThan(1);
+      await waitFor(() => M.rage < 1, { timeout: 3000 });  // below MAD the meter drains again
       M.rage = 0;
     });
     it('petting helps a little, but not at full rage', async () => {
@@ -82,11 +81,10 @@
       await ready;
       const doc = win.document, tray = doc.querySelector('.sh-give');
       M.rage = 0; S.care.tick(0, 0);
-      await sleep(300);
+      await Promise.all([sleep(300), frames(win, 5)]);
       expect(tray.hidden).toBe(true);
       M.rage = 1.2; M.fav = 'juice'; M.hate = 'plush';
-      await sleep(300);
-      expect(tray.hidden).toBe(false);
+      await waitFor(() => !tray.hidden, { timeout: 3000 });
       expect(tray.querySelector('.sh-give-body').hidden).toBe(true);   // the section opens only when pressed
       tray.querySelector('.sh-give-l').click();
       const btn = tray.querySelector('[data-item="cookie"]');
@@ -121,7 +119,8 @@
     it('no blush unless in love; no fangs when angry', async () => {
       await ready;
       M.moodUntil = 0; M.rage = 0;
-      await sleep(200);
+      await HomeWait();   // in the air (Restore page above can drop him) his face is the surprised one, hearts or not
+      await Promise.all([sleep(200), frames(win, 3)]);
       expect(M.svg.querySelector('.m-cheeks').style.opacity).toBe('0');
       S.pet();
       await waitFor(() => M.svg.querySelector('.m-cheeks').style.opacity === '1', { timeout: 2000 });

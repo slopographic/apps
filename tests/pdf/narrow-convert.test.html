@@ -42,9 +42,10 @@
         await PT.open(await PT.makePdf([{ text: 'Narrow phone' }]), 'narrow.pdf');
         const dlg = await convertFromMore(win);
         expect(dlg.getAttribute('role')).toBe('dialog');
-        await waitFor(() => dlg.querySelector('input[data-target="pdf-to-html"]'));
-        expect(!!dlg.querySelector('input[data-target="pdf-to-png"]')).toBe(true);
-        win.document.querySelector('.sl-cvt-x').click();
+        await waitFor(() => dlg.querySelector('.cv-tool') && dlg.querySelector('.cv-tool').convertTool.targets().includes('pdf-to-html'));
+        expect(dlg.querySelector('.cv-tool').convertTool.targets()).toContain('pdf-to-images');
+        expect(dlg.offsetWidth).toBe(390); // the whole screen on a phone
+        win.document.querySelector('.sl-cvt-dlg .sui-x').click();
         await waitFor(() => !win.document.querySelector('.sl-cvt-dlg'));
       }, { timeout: 60000 });
 
@@ -53,8 +54,8 @@
         expect(win.innerWidth).toBe(768);
         await openIn(win, await PT.makePdf([{ text: 'Tablet' }]));
         const dlg = await convertFromMore(win);
-        await waitFor(() => dlg.querySelector('input[data-target="pdf-to-text"]'));
-        win.document.querySelector('.sl-cvt-x').click();
+        await waitFor(() => dlg.querySelector('.cv-tool') && dlg.querySelector('.cv-tool').convertTool.targets().includes('pdf-to-text'));
+        win.document.querySelector('.sl-cvt-dlg .sui-x').click();
         await waitFor(() => !win.document.querySelector('.sl-cvt-dlg'));
       }, { timeout: 60000 });
     });

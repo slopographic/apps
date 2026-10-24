@@ -4,11 +4,12 @@
  * last one clicked (tool.js select()).
  * Once there are files it is always there (one fixed-height bar, so the list below never moves); with several selected
  * files of one target it also holds their Options (file-opts.js), which set every one of them.
- *   drawBulk(host, { items, selected, choices, target, options, onAll, onPick, onRemove, onNone }) */
+ *   drawBulk(host, { items, selected, choices, target, options, route, then, onAll, onPick, onRemove, onNone })
+ *     route: the shared route's tiles (chain-row.js); then: "+ Then…" for a shared one-step target */
 import { h } from './dom.js';
 import { targetButton } from './file-row.js';
 
-export function drawBulk(host, { items, selected, choices, target, options = null, onAll, onPick, onRemove, onNone }) {
+export function drawBulk(host, { items, selected, choices, target, options = null, route = null, then = null, onAll, onPick, onRemove, onNone }) {
   host.hidden = !items.length;
   if (host.hidden) { host.replaceChildren(); return; }
   const all = h('input', { type: 'checkbox', class: 'cv-file-check cv-bulk-allbox' });
@@ -21,10 +22,11 @@ export function drawBulk(host, { items, selected, choices, target, options = nul
     parts.push(h('span', { class: 'cv-bulk-n', role: 'status' }, `${n} selected`));
     parts.push(choices.length
       ? h('div', { class: 'cv-file-to' }, h('span', { class: 'cv-file-to-h', 'aria-hidden': 'true' }, 'Convert to'),
-        targetButton({ label: `Convert the ${n} selected file${n === 1 ? '' : 's'} to`, choices, target, onPick, empty: 'Choose', cls: 'cv-bulk-to' }))
+        targetButton({ label: `Convert the ${n} selected file${n === 1 ? '' : 's'} to`, choices, target, onPick, empty: 'Choose', cls: 'cv-bulk-to' }), then)
       : h('p', { class: 'cv-bulk-none' }, `No format fits ${n === 1 ? 'the selected file' : `all ${n} selected files`}. Select files of one kind, or set each row.`));
     parts.push(h('button', { type: 'button', class: 'cv-btn cv-small cv-bulk-rm' }, 'Remove'));
     parts.push(h('button', { type: 'button', class: 'cv-btn cv-small cv-bulk-clear' }, 'Clear selection'));
+    if (route && choices.length) parts.push(route);
     if (options) parts.push(options);
   }
   host.replaceChildren(...parts);

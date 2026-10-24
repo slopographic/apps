@@ -57,6 +57,30 @@ both vendored in `/vendor/`).
   - No "keep vector text" mode is offered (content-stream rewriting was not done; image-only is the safe path).
     Invisible OCR text on redacted pages is lost too (they become pure images).
 
+## Loading: the first view first (`index.html`, `ui/app.js`, `shared/load`)
+The page runs only what the empty first view needs before its first paint, and loads the rest after it (the pattern,
+for every app: `shared/load/HANDOFF.md`).
+- Before the paint (parser-blocking, about 30 small scripts and 9 stylesheets): `shared/load/load.js`, SlopUI, intake,
+  the app registry, the Drive link, view modes, `core/util`, `ui/icons`, `core/model`, `core/history`, `core/layers`,
+  `ui/sheet`, `organize/grid`, `editor/view` (namespaces the later files keep in variables), `ui/panel-kit`, `ui/dock`,
+  the Organize, Layers and History panels, `ui/app`, `ui/menus`, the bottom sheet (`shared/ui/sheet.js`), the drop zone
+  (`shared/drop/*`, `ui/drop`), the shell and Spotlight. `A.boot` (DOMContentLoaded) builds the rail, menus, panel and
+  drop zone from them. The command-search button is in the HTML; the tab strip keeps its height (`css/doc-tabs.css`).
+- `<template id="pdf-later" data-load="paint">`: every other script and stylesheet, in the old order, right after the
+  first paint. `A.bootRest` then wires the rest (context bars, grid, editor, keys, tabs, the saved view, `?drive=`) and
+  resolves `A.ready` (`A.isReady`). Controls drawn by `A.boot` wait for it through `A.whenReady(fn)`; a drop waits too.
+- `<template id="pdf-idle" data-load="idle">`: the consent card, the Convert dialog, the mascot, the offline worker.
+- `<template id="pdf-engine">`: pdf-lib, loaded by `E.pdflib()` (core/pdfjs.js). pdf.js is a dynamic import in
+  `E.pdfjs()`. Neither loads on the empty page: `E.libs()` (both, then `E.initFonts`) is awaited by `E.registerPdf`
+  (every open, tab restore and Drive file), `E.makeSample`, `E.imagesToPdf`, `E.build` and `E.openOutput`. Code that
+  uses `PDFLib` runs only with a document open, so after one of those.
+- Offline copy: the manifest's `scripts` list is the page's order (first view, then later); the boot runs all of them
+  and pdf-lib, so the templates are empty there.
+- Tests: `tests/pdf/lazy.test.html` (no pdf-lib or pdf.js on the empty page, the later files asked for after the page
+  is built, both libraries on the first open or sample), `tests/pdf/phone-sheet.test.html` (390 px sheet).
+- A script in the later group must not wait for DOMContentLoaded (it has fired): `ui/rename.js` checks readyState.
+  `editor/paste-image.js` attaches to the shared paste intake with `first: true`, ahead of the drop zone.
+
 ## Navigation and zoom (page view)
 The page view uses the shared navigation engine (`shared/nav`, `SlopNav.engine.attach`), not its own wheel or pinch code.
 The bindings are fixed for Slop PDF (`NAV` in `js/editor/view.js`), so the Navigation preset store does not apply here:

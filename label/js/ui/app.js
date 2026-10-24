@@ -164,9 +164,15 @@ function setTheme(t) {
   applyTheme(t);
 }
 const narrow = () => matchMedia('(max-width: 760px)').matches;
+/** Phones: the dock is a bottom sheet. SlopSheet (shared/ui/sheet.js) does the Panels button, the ×, Escape, a tap
+ * outside and the swipe down; on a wide screen the dock stays in its column. */
+function wireDock() {
+  App.sheet = SlopSheet.attach({ root: $('app'), panel: $('dock'), phone: '(max-width: 760px)', toggles: [$('btnDock')], label: 'Panels',
+    onChange: (open) => { if (open) renderPanels(); } });
+}
 function showDock(tab, open = true) {
   if (tab) App.tab = tab;
-  $('app').classList.toggle('dock-open', open && narrow());
+  if (App.sheet) { if (open) App.sheet.open(); else App.sheet.close(); }
   refresh();
 }
-function hideDock() { $('app').classList.remove('dock-open'); }
+function hideDock() { if (App.sheet) App.sheet.close(); }

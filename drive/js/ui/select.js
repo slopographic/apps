@@ -129,4 +129,9 @@
       pane.addEventListener('pointercancel', up, { once: true });
     });
   }
+  /** Convert… in the header (shared/convert/provided.js): the selected files (folders and the Trash left out). */
+  addEventListener('slop:convert-files', (e) => e.detail.provide(() => {
+    const files = DR.selected().filter((it) => it && it.blob && !it.isFolder && !it.trashedAt).map((it) => ({ name: it.name, blob: it.blob }));
+    return files.length ? files : null;
+  }));
 })(window.DR);

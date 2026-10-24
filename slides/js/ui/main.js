@@ -13,6 +13,10 @@
     SS.textEdit.mount(document.getElementById('editor'));
     SS.sorter.mount(document.getElementById('slides-list'));
     SS.inspector.mount(document.getElementById('inspector'));
+    // Phones: the inspector is a bottom sheet (SlopSheet, shared/ui/sheet.js), opened and closed by Properties in the top
+    // bar, with the shared ×, Escape, a tap outside and a swipe down. Wider, it stays in its column.
+    if (window.SlopSheet) SS.sheet = SlopSheet.attach({ root: document.getElementById('app'), panel: document.getElementById('inspector'),
+      phone: '(max-width: 700px)', toggles: [document.getElementById('btnInspector')], label: 'Properties' });
     SS.toolbar.mount();
     SS.fileDrop.mount();
     SS.ctxmenu.mount();

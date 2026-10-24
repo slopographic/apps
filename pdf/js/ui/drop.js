@@ -7,7 +7,7 @@
    Classic script. */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._, D = SP.docs;
+  var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._; // SP.docs (io/doc-state.js) loads after the first paint: read it when used
   var h = U.h;
   var OPENS = ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'];
   var OPEN_TYPE = /^application\/pdf$|^image\/(png|jpe?g|webp|gif|bmp)$/;
@@ -34,7 +34,7 @@
   /** One file in a new tab. A PDF that is open in another tab asks first. Throws the reason when it is not opened. */
   async function openInTab(file) {
     var fp = await fingerprintOf(file);
-    if (fp && D.holding(fp)) {
+    if (fp && SP.docs.holding(fp)) {
       var again = await SlopUI.confirm('Already open', '“' + file.name + '” is already open in a tab. Open this copy in a new tab too?', 'Open again');
       if (!again) throw new Error('is already open in a tab and was not opened again');
     }
@@ -118,6 +118,7 @@
   /** The drop (SlopDrop's files hook, read inside the drop event). Returns the files SlopDrop should open one by one. */
   async function onDrop(dt, e) {
     var list = Array.prototype.slice.call((dt && dt.files) || []);
+    if (!A.isReady) await A.ready; // a drop before the rest of the app has loaded (ui/app.js) waits for it
     if (A.isLocked()) { A.status('Wait for the current open to finish, then drop again.', 'err'); return []; }
     var r = split(list);
     if (r.convert.length) A.convertFiles(r.convert);
@@ -138,12 +139,14 @@
 
   /** Choose files: the files that are not opened here go to the Convert dialog (process names them as not added). */
   function begin(list) {
+    if (!A.isReady) { A.ready.then(function () { begin(list); }); return; }
     var conv = list.filter(function (f) { return kind(f) === 'convert'; });
     if (conv.length) A.convertFiles(conv);
   }
 
   /** One accepted file, from a drop or the zone's Choose files button. */
   async function process(file) {
+    if (!A.isReady) await A.ready;
     if (kind(file) === 'convert') throw new Error('is not opened here: it went to the Convert dialog');
     if (dest.get(file) === 'tab') { await openInTab(file); return file.name; }
     await A.addFiles([file]);
@@ -162,7 +165,7 @@
     // The empty page shows a finished PDF and how (SlopDrop's preview), in place of the drawing; Try a sample stays below.
     var art = document.querySelector('#empty .empty-art');
     if (art && SlopDrop.panel) art.replaceWith(SlopDrop.panel.preview({
-      picture: { src: '../assets/shots/pdf.jpg', alt: 'A four-page PDF open in Slop PDF, ready to reorder, sign or download' },
+      picture: { src: '../assets/shots/pdf-preview.webp', alt: 'A four-page PDF open in Slop PDF, ready to reorder, sign or download' },
       steps: ['Drop PDFs or pictures', 'Reorder, merge, sign or stamp the pages', 'Download the new PDF'],
     }));
   };

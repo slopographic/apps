@@ -51,6 +51,9 @@
     win.addEventListener('resize', later);
     // A button added later (View, Drive) or a label that changes length (a file name, "Saved") can change the fit.
     if (win.MutationObserver) new win.MutationObserver(later).observe(host, { childList: true, subtree: true, characterData: true });
+    // A web font that arrives later changes the labels' and the title's widths but not the header's own size.
+    const fonts = win.document.fonts;
+    if (fonts && fonts.addEventListener) { fonts.addEventListener('loadingdone', later); fonts.ready.then(later); }
     check(host);
     return host;
   }

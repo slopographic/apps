@@ -123,3 +123,9 @@ Keynote/PowerPoint alternative at `/slides/`. Status: **building**, but the firs
 3. Animations for objects inside groups.
 4. Import PPTX (`shared/office/zip.js` + `ppt/slides/*.xml`).
 5. Presenter window and notes.
+
+## Phone layout (SlopSheet)
+Under 700 px the inspector is a bottom sheet, `SlopSheet.attach` from `shared/ui/sheet.js` (see `shared/ui/HANDOFF.md`) in
+`js/ui/main.js` (`SS.sheet`); `shared/ui/sheet.js` is the first `ui` entry of `js/manifest.js`. The Properties button in the
+top bar (phone only) opens and closes it; the shared ×, Escape, a tap outside and a swipe down close it, and the × stays
+when the inspector redraws. Before, the inspector was stacked under the slide strip. Test: `tests/slides/phone.test.html`.

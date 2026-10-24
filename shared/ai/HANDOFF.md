@@ -64,6 +64,36 @@ A CSS glow also works for a DOM-positioned buddy: `filter: drop-shadow(0 0 8px r
 | `powerup.js` | `K.powerUp` | Brain hat, aura, sparkles. |
 | `md.js` | `K.md` | Safe Markdown for chat (escape first; http(s) links only; code blocks with Copy/Preview buttons; works on half-streamed text). |
 | `panel.js` + `panel.css` | `window.SlopAIPanel` | The embeddable side panel (below). |
+| `panel-run.js` | `K.panel.send` … | The panel's run: tool loop, steps, Stop, "Undo all AI changes". |
+| `picker.js` | `K.picker` | The model choice (WebGPU check with a plain fallback message, models good at app control first, download/use with progress and Cancel) and the download notice (`consent`, the shared first-use notice `shared/firstrun/notice.js` with the real size and licence). Slop AI's own downloads use the same notice. |
+| `cmdtools.js` | `K.cmdTools` | An app's SlopCmd commands as tools: one tool per command with an `args` schema (JSON schema in `definitions(cmd)`), `app_state`, `list_commands`, `run_command`; arguments are checked and clamped (SlopCmd.exec) before a command runs. |
+
+## The AI button and app control (2026-10)
+- Every app page with the shell header has an **AI** button (`shell/header.js`, `.sh-ai`, same look as Convert…). Nothing
+  of the AI loads before the first click; then it injects `shared/ai/panel.js` (`data-button="false"`) and opens the
+  panel. On Slop AI itself there is no button. When the header is full the button becomes an icon, then moves into the
+  Theme menu ("Ask Slop AI…"); it is also "Ask Slop AI…" in the command palette (`shell.ai`).
+- Layout: above 900 px the page narrows by the panel's width (`html.sap-beside body { margin-inline-end }`, plus a
+  resize event so canvases refit); 641–900 px it overlays on the right; ≤640 px it is a bottom sheet (`SlopSheet`,
+  `shared/ui/sheet.js`, unchanged: swipe down, ×, Escape, tap outside).
+- No model: the panel shows `picker.js`. Without WebGPU it says so plainly and what still works. A model loaded in
+  another tab (Slop AI) is used through the bridge.
+- "Control <app>" on: before each request the panel calls `SlopCmd.prepare()` (the app's AI commands load), builds the
+  tools from the commands (`cmdtools.js`) and takes `SlopCmd.checkpoint()`. Each tool call is a step
+  ("Gaussian blur, radius 8 ✓", ✗ with the error). Stop (the send button while running) ends the run between actions.
+  Limits: 6 model turns and 12 actions per request (`MAX_STEPS`, `MAX_CALLS` in `panel-run.js`). Destructive commands
+  ask (`destructive: true`, or the word rule). After a request that changed something, **Undo all AI changes (n)** calls
+  the checkpoint's rollback.
+- How an app joins: `shared/commands/HANDOFF.md` ▸ "Arguments and app state". Wired: PhotoSlop
+  (`photoslop/js/app/ai-*.js`, 33 commands), plus Slop Tables, Slop Docs and Slop Resize (see their HANDOFFs).
+- Slop AI's workspace (`ai/js/ui/workspace.js`) uses the same pieces for framed apps: `prepare()` before listing,
+  `exec` for `app_command` (arguments checked), `SlopCmd.state()` for `app_state` (falls back to `window.SlopAppState`).
+- Which models drive apps well enough: tool calling is prompt-based (`tools.js`), so any model can try. Qwen2.5 1.5B
+  (the default) follows the tool format and picks the right single tool reliably, and usually manages 2–3 step plans
+  such as "blur the background"; Llama 3.2 3B, Qwen2.5 3B and 7B plan longer chains better. Qwen2.5 0.5B and Llama 3.2
+  1B often answer in prose instead of calling a tool or invent argument names, so the panel's picker lists only the four
+  (`picker.FIT`); the others stay in Slop AI's Models page. These are observations from the prompt design, not a benchmark: the browser tests use the
+  scripted fake engine.
 
 ## The side panel (`panel.js`)
 Any app can add it later with one tag: `<script src="../shared/ai/panel.js" defer></script>` (after `shared/apps.js`,

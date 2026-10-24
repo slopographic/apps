@@ -156,4 +156,9 @@
     if (!H()) return [];
     return H().sendMenuItems(() => S.exportBlob('docx'), () => S.displayName() + '.docx', DOCX_MIME);
   };
+  /** Convert… in the header (shared/convert/provided.js): the open document, as DOCX. */
+  addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {
+    if (!S.doc) return null;
+    return [{ name: S.displayName() + '.docx', blob: new Blob([await S.exportBlob('docx')], { type: DOCX_MIME }) }];
+  }));
 })();

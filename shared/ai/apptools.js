@@ -1,5 +1,5 @@
 /* SlopAIKit appTools: the "Control apps" tool set. Classic script; adds SlopAIKit.appTools.
- *   appTools.build(env) → tools for SlopAIKit.tools.run
+ *   appTools.build(env) → tools for SlopAIKit.tools.run (with env.cmd, the page's own commands through cmdtools.js)
  * env: { apps(): SLOP_APPS, hub: SlopHub, cmd: SlopCmd (only inside an app, via the side panel), open(url),
  *        confirm(title, message), appId, workspace: SlopWorkspace (Slop AI: apps open beside the chat) }
  * Destructive actions (commands that delete, clear, close, reset, …) always ask the person first.
@@ -11,7 +11,7 @@
   const DESTRUCTIVE = /\b(delete|remove|trash|purge|clear|erase|empty|reset|close|discard|revert|overwrite|replace|wipe|destroy|new|flatten|merge|crop|quit)\b/i;
   /** Workspace commands that always ask: the usual words, plus the ones that clearly destroy data. */
   const WS_DESTRUCTIVE = /(delete|remove|clear|empty|reset|overwrite|purge|discard|erase|wipe)/i;
-  const isDestructiveCommand = (c) => !!c && (DESTRUCTIVE.test(c.title || '') || DESTRUCTIVE.test((c.id || '').replace(/[._-]/g, ' ')));
+  const isDestructiveCommand = (c) => !!c && (typeof c.destructive === 'boolean' ? c.destructive : DESTRUCTIVE.test(c.title || '') || DESTRUCTIVE.test((c.id || '').replace(/[._-]/g, ' ')));
 
   function listCommands(cmd) {
     let list = [];
@@ -78,8 +78,10 @@
             if (!ok) throw new Error(`The person did not allow commands in ${app.name}.`);
             ws.grant(app.id);
           }
-          if (!ws.run(app.id, c.id, a.args || {})) throw new Error(`“${c.title}” did not run.`);
-          return `Ran “${c.title}” in ${app.name}.`;
+          const r = await ws.run(app.id, c.id, a.args || {});
+          if (!r) throw new Error(`“${c.title}” did not run.`);
+          const notes = r.notes && r.notes.length ? ' Note: ' + r.notes.join('; ') + '.' : '', said = typeof r.value === 'string' ? ' ' + r.value : '';
+          return `Ran “${c.title}” in ${app.name}.${said}${notes}`;
         } },
       { name: 'app_state', description: 'Read a short summary of an app that is open beside the chat: its title, whether it can be driven, and any state it shares.',
         params: { appId: appArg },
@@ -146,20 +148,9 @@
         } },
     ];
     const cmd = env.cmd;
-    if (cmd && cmd.list && cmd.run) {
+    if (cmd && cmd.list && (cmd.run || cmd.exec) && K.cmdTools) {
       const label = env.appId ? `the ${((apps().find((a) => a.id === env.appId) || {}).name) || env.appId} app` : 'this app';
-      tools.push(
-        { name: 'list_commands', description: `List the commands of ${label} that can run right now (id and title).`, params: {}, run: () => listCommands(cmd) },
-        { name: 'run_command', description: `Run one command of ${label} by its id (get ids from list_commands).`,
-          params: { id: { type: 'string', description: 'command id', required: true } },
-          destructive: (a) => isDestructiveCommand(listCommands(cmd).find((c) => c.id === a.id) || { id: a.id }),
-          confirmText: (a) => { const c = listCommands(cmd).find((x) => x.id === a.id); return `The assistant wants to run “${c ? c.title : a.id}” in ${label}. This may change or remove your work.`; },
-          run: (a) => {
-            const c = listCommands(cmd).find((x) => x.id === a.id);
-            if (!c) throw new Error(`No command "${a.id}" right now. Use list_commands.`);
-            cmd.run(a.id);
-            return `Ran “${c.title}”.`;
-          } });
+      tools.push(...K.cmdTools.build(cmd, { label }));   // list_commands, run_command, app_state and one tool per command with args
     }
     return tools;
   }

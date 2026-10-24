@@ -36,7 +36,7 @@
 .ssh-x.ssh-x-wide:not(.ssh-phone *) { inline-size: 32px; block-size: 32px; margin-block-end: -32px; font-size: 22px; }
 .ssh-x:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
 .ssh-x:focus-visible { outline: 2px solid var(--sl-accent, Highlight); outline-offset: -4px; }
-.ssh-phone .ssh-panel { position: fixed; inset-inline: 0; inset-block-end: var(--ssh-bottom, 0px); max-block-size: 70vh; overflow: auto; z-index: var(--ssh-z, 60);
+.ssh-phone .ssh-panel { position: fixed; inset-inline: 0; inset-block-end: var(--ssh-bottom, 0px); max-block-size: 70vh; overflow: auto; z-index: var(--ssh-z, 70);
   background: var(--sl-surface, Canvas); color: var(--sl-text, CanvasText); border-block-start: 1px solid var(--sl-border, GrayText);
   border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0, 0, 0, .35); transform: translateY(calc(100% + 80px)); visibility: hidden;
   transition: transform .22s ease, visibility 0s .22s; }

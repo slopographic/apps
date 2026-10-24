@@ -21,7 +21,7 @@
       edges: { sidebar: 'left', panels: 'right' },
       mount: '#ctrlbar',   // the control bar has room at a phone width; the menu bar is full there
       layout: {
-        get: () => ({ dock: document.getElementById('app').classList.contains('dock-open') }),
+        get: () => ({ dock: !!(window.App && App.sheet && App.sheet.isOpen()) }),
         set: (o) => { if (o.dock && typeof showDock === 'function') showDock(window.App && App.tab || 'props'); },
       },
     });

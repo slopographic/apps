@@ -44,7 +44,7 @@ and no first-visit picture; `onResults(outputs)` is called after each Convert. R
 - The flow picture's target tile opens the bulk bar's menu when rows are selected, else the first file's menu.
 - Convert runs one group per conversion in use (`groupsFor`, `run.js runGroups`, each file with its own option values).
 - `available()` on a catalog entry hides a conversion this browser cannot do (To AVIF where the canvas cannot write AVIF).
-- Files: `mount-tool.js`, `tool.js`, `markup.js`, `targets.js`, `file-row.js`, `file-opts.js`, `bulk.js`, `list-view.js`, `focus.js`.
+- Files: `mount-tool.js`, `tool.js`, `tool-chain.js`, `markup.js`, `targets.js`, `file-row.js`, `file-opts.js`, `bulk.js`, `list-view.js`, `focus.js`, `chain-row.js`, `chain-opts.js` (routes: see below).
   Tests: `tests/convert/cards.test.html` (strip, card options, 390 px light), `per-file.test.html`, `mount.test.html` (two tools,
   one dialog-sized), `tests/shared/menubutton.test.html`.
 
@@ -173,6 +173,53 @@ yet, so offline use of the preview needs them added there (that file is owned el
 4. If it deserves a page, add it to `pages.js`, create the page and add it to `sitemap.xml`.
 
 
+## Routes: several conversions one after the other (`core/chain.js`)
+
+A target can be a **route**: conversions done in order, written as a key of step ids joined by `>`
+(`sie-to-csv>csv-to-json`); a step whose Format option the route fixes is `id@kind` (`pdf-to-images@jpg>to-webp`). A plain
+conversion id is a one-step route, so `item.target`, `setTarget`, the bulk bar and `?to=` take either.
+
+- **Route finding** (`core/chain.js`, pure, Node-tested): the catalog is the graph (each conversion is an edge from each kind
+  in `from` to `outKind`; one edge per Format value). The best route to a kind is the one with the fewest engine downloads
+  (`engine: 'ffmpeg'`; so the engine is used only when the target needs it anyway), then the fewest steps, then the least loss,
+  then catalog order. Loss comes from `core/chain-flags.js`, copied onto the catalog entries like `keywords.js`: `lossy: true`
+  (cost 1), `cost: n` (XLSX to CSV or JSON reads one sheet: 2; video to GIF: 2), `chain: 'first'` (needs the original file: PDF to
+  Word, Excel, HTML or text, CSV or XLSX to vCard), `chain: false` (keeps the kind or makes anything: line endings, JSON format,
+  subtitle shift, email attachments, merge and split PDF). Never in a found route: the Encoding and Archives groups, conversions
+  that take any file (`*`) or have companions (`with`), a step that keeps the kind, a kind twice (no round trips), and `txt`
+  as a step's input when the conversion also takes a real kind (CSV to JSON takes `.txt` only as a misnamed CSV). At most
+  `MAX_STEPS` (3) steps; `MAX_MANUAL` (4) with steps added by hand.
+- **Menus**: a card's Convert to lists the single conversions as before, then **More formats**: the best route to every kind no
+  single conversion makes from this kind ("JSON · via CSV", searchable by the kinds on the way and the last step's keywords).
+  `targets.js` `routeEntry` makes such a choice look like a catalog entry (`id` = key, `ext` = final kind, `route: true`).
+- **Card** (`ui/chain-row.js`): a route target shows its formats as tiles with arrows under the row (SIE → CSV → JSON). A
+  middle tile is a menu button (`middleChoices`: the other formats that join the same ends, the current first); **+ Then…** adds
+  a step from what the route makes (`thenChoices`: no encoding, nothing that keeps the kind, nothing back to a kind on the route);
+  **×** removes the last step (a step that had its Format fixed by the route keeps it as its option, `dropLast`). A one-step target
+  has + Then… beside its Convert to. Focus stays on the tile or button through the redraw (`focus.js`).
+- **Options** (`ui/chain-opts.js`): one group per step, "Step 1 · SIE → CSV", with the catalog's options of that step (values
+  per file per conversion as before; a middle step's Format is the route's, so it is not shown); ids `cv-o-<file>-s<n>-<key>`.
+  **Also keep the in-between files** (`cv-o-<file>-keep`, `item.keepMid`) adds what the middle steps made to the results,
+  after the final files, marked "in between".
+- **Running** (`core/chain-run.js` `runChain`, `ui/run.js` `runGroups`, `ui/tool-chain.js` `runTool`): each step's outputs are
+  the next step's inputs; an `each` step maps over every file the step before made (PDF to page pictures, then each picture to
+  WebP), a `combine` step takes the whole set (HEIC photos to JPG, then one PDF). The status line names the step ("Step 2 of 3:
+  CSV → JSON…"); an error names its step ("Step 2 of 2 (CSV → JSON) failed: …") and stops only the files it came from.
+- **Preview** (`preview/chain.js`): the final result, with the same limits as one conversion (first part of large text, page 1
+  of a PDF, the RAW and HEIC preview options so nothing is downloaded); a route with an ffmpeg step is not run for a preview.
+- **Bulk bar**: More formats lists the routes that fit every selected file; a shared route shows its tiles in the bar, and its
+  middle tile, + Then… and × set every selected file where the route fits; its Options are per step too.
+- **Links**: `?to=` takes a conversion id or a format (`?to=json`): a file that cannot make it in one step gets the best route
+  (`targets.js` `targetFor`). Picking a route writes its last conversion to `?to=` (the `cv:target` event's `id`; `route` holds the key).
+- **mountTool**: unchanged. `tool.target` can be a route key; `tool.targets()` still lists single conversions only, and the
+  new `tool.routes()` lists the route keys; `tool.rowRoute(item, key)` and `tool.bulkRoute(key)` set routes.
+- **Pages** (`core/chain-pages.js`, `CHAIN_PAGES`, in PAGES and `shared/seo/convert-copy.mjs`): sie-to-json, heic-to-pdf
+  (through JPG: a smaller PDF of photos), xlsx-to-yaml, pdf-to-webp, csv-to-yaml, ics-to-xlsx. `data-preset` is the route key;
+  such a page takes any route to the same format (its middle tile switches), but has no + Then… or ×.
+- Tests: `tests/node/convert-chain.test.mjs` (routes, alternatives, Then, the runner with fake converters),
+  `tests/convert/chain.test.html` (SIE → CSV → JSON with a real SIE file, the menus, options per step, keep in-between, bulk,
+  `?to=json`, the SIE to JSON page, keyboard, 390 px).
+
 ## Video engine (ffmpeg.wasm)
 
 `convert/js/core/ffmpeg-engine.js` runs ffmpeg in the browser. The JavaScript is vendored in `vendor/ffmpeg` (MIT). The core (about 30 MB of WebAssembly, GPL-2.0-or-later) is loaded from jsDelivr on first use, pinned to `CORE_VERSION`. One job runs at a time; a runtime error restarts the engine and retries once. WebM audio is Vorbis: the Opus encoder in this build fails with video. Inputs over 400 MB are refused.
@@ -193,3 +240,15 @@ shared installer (size and SHA-256 checked, kept in IndexedDB), a classic worker
 JSON, YAML, TOML, XML, subtitles) are spread into PAGES. Their head copy is not written twice: `shared/seo/convert-copy.mjs`
 makes the copy.mjs PAGES entries from these lists (and the RAW pages). A new page: add it to one of these lists, make
 `convert/<slug>/index.html` like its neighbours, then `node tools/seo/write.mjs` (it writes the head and the sitemap).
+
+## PDF passwords (`js/core/pdf-lock.js`, `js/core/pdf-lock-pages.js`)
+**Protect PDF with a password** (`pdf-protect`: Password, Type the password again, Allow printing / copying / editing) and
+**Remove PDF password** (`pdf-unlock`: Password, blank for a file that opens freely but has limits), both PDF to PDF, run by
+the shared security handler `shared/pdf-crypto/` (AES-256 R6 out; RC4, AES-128 and AES-256 in; see its HANDOFF.md), loaded
+on first use. Their entries say `secret: true` and `chain: false`: option type `'password'` is a masked field
+(`options.js`, `autocomplete=new-password`), the card summary says "password set" and never the value (`file-opts.js`
+`changed`), the live preview does not run them and its Download is off (`preview/model.js`, `controller.js`), and Convert
+forgets every password option afterwards (`file-opts.js` `forgetSecrets`, called in `tool-chain.js` `runTool`), so the
+fields are empty again. Passwords are never logged or stored. Errors name what to do ("Wrong password…", "already has a
+password…", "no password to remove"). Pages: `password-protect-pdf`, `remove-password-from-pdf`. Test:
+`tests/convert/pdf-lock.test.html`; the crypto itself: `tests/node/pdf-crypto.test.mjs`, `tests/pdf-crypto/crypto.test.html`.

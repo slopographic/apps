@@ -23,6 +23,6 @@
     return true;
   };
   E.on('files', paintOriginal);
-  document.addEventListener('DOMContentLoaded', paintOriginal);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintOriginal);   // loaded after the first paint (index.html)
   paintOriginal();
 })();

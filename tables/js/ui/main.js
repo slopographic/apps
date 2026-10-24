@@ -100,4 +100,7 @@ function expose() {
   };
 }
 
+/** Convert… in the header (shared/convert/provided.js): the open workbook, as XLSX. */
+addEventListener('slop:convert-files', (e) => e.detail.provide(async () => (S.wb ? [{ name: F.fileName('xlsx'), blob: await toXlsx(S.wb) }] : null)));
+
 if (document.readyState === 'loading') addEventListener('DOMContentLoaded', boot); else boot();

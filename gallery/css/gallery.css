@@ -43,7 +43,6 @@ button, input, select { font: inherit; color: inherit; }
 
 .body { flex: 1; min-height: 0; display: flex; position: relative; }
 .side { width: 248px; flex: none; overflow-y: auto; background: var(--panel); border-right: 1px solid var(--line); padding: 10px 12px 24px; }
-.drawer-close { display: none; float: right; background: none; border: 0; font-size: 22px; cursor: pointer; color: var(--fg-dim); }
 .nav { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
 .nav-item { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; background: none; border: 1px solid transparent; border-radius: 6px; padding: 6px 8px; cursor: pointer; }
 .nav-item:hover { background: var(--hover); }
@@ -102,10 +101,8 @@ body.dragging .drop-hint { display: flex; }
   /* Two rows: the home link, Filters and the shared buttons; then the toolbar on its own row. */
   .tb-group { order: 10; flex: 1 1 100%; }
   .tb-group .tb-btn { flex: 1 1 auto; }
-  /* The drawer's shadow only while it is open (closed, it would show along the left edge). */
-  .side { position: fixed; top: 0; bottom: 0; left: 0; width: min(300px, 86vw); z-index: 50; transform: translateX(-100%); transition: transform .18s ease; }
-  body.drawer-open .side { transform: none; box-shadow: 0 0 40px rgba(0, 0, 0, .5); }
-  .drawer-close { display: block; }
+  /* The panel is a drawer from the left: shared/ui/sheet.js gives its place, motion, shadow (only while open) and × */
+  .side { --ssh-z: 50; }
   .grid { padding: 6px 6px 20px; }
   .tb-group .tb-btn { padding: 6px 8px; }
 }

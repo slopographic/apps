@@ -24,7 +24,7 @@ export function pickInputs(conv, items) {
 }
 
 /** The same input, cut down for the preview. Text keeps its first part; pictures and PDFs are kept whole. */
-function previewInput(i) {
+export function previewInput(i) {
   if (IMAGE_KINDS.includes(i.kind) || i.kind === 'pdf') return { ...i, truncated: false, large: i.size > IMAGE_LIMIT };
   const large = i.size > TEXT_LIMIT;
   return { ...i, file: large ? i.file.slice(0, TEXT_LIMIT) : i.file, truncated: large, large };
@@ -50,7 +50,7 @@ function textPanel(text, { size, truncated = false, label = '' } = {}) {
   return { kind: 'text', text, lines: all.slice(0, MAX_LINES), size, label, note: notes.join(' ') };
 }
 
-async function beforePanel(p) {
+export async function beforePanel(p) {
   if (RAW_KINDS.includes(p.kind)) {   // a camera RAW photo: its embedded JPEG (the RAW engine runs on Convert only)
     const blob = await rawPreviewBlob(p.file);
     if (blob) return { kind: 'image', blob, size: p.size, label: KIND_LABEL[p.kind], note: 'Camera RAW: the preview is the camera\'s embedded JPEG. Convert develops the RAW file.' };
@@ -70,7 +70,7 @@ async function beforePanel(p) {
   return { kind: 'info', text: `${KIND_LABEL[p.kind] || 'File'}, ${fmtSize(p.size)}. Its contents are not shown.`, size: p.size, label: KIND_LABEL[p.kind] || 'File' };
 }
 
-async function afterPanel(outs, inputText) {
+export async function afterPanel(outs, inputText) {
   const o = outs[0], ext = extOf(o.name);
   const more = outs.length > 1 ? `, 1 of ${outs.length} files` : '';
   const size = o.blob.size;
@@ -96,6 +96,9 @@ export async function buildPreview(conv, items, opts) {
   // an engine conversion (ffmpeg) is not run for a preview: its first download asks first, on Convert
   if (conv.engine) return { before: await beforePanel(previewInput(pickInputs(conv, items)[0])).catch((e) => ({ kind: 'error', message: e.message || String(e) })),
     after: { kind: 'info', text: 'Press Convert to make this file. Video and audio conversions run with the video engine, which is not started for a preview.' }, note: '', outputs: null };
+  // a password conversion (Protect PDF, Remove PDF password) runs on Convert only, so a password is not used while it is typed
+  if (conv.secret) return { before: await beforePanel(previewInput(pickInputs(conv, items)[0])).catch(() => ({ kind: 'info', text: 'This PDF is password protected, so it is not drawn here.' })),
+    after: { kind: 'info', text: 'Press Convert to make this file. Password conversions are not previewed.' }, note: '', outputs: null, secret: true };
   // 3D models are read whole (a cut model, .bin or .mtl cannot be read at all)
   const inputs = pickInputs(conv, items).map((i) => (is3d(conv) ? { ...i, truncated: false, large: false } : previewInput(i)));
   const runOpts = { ...opts };

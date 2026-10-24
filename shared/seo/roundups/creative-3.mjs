@@ -21,7 +21,7 @@ export const ROUNDUPS = [
       { name: 'Slop Transcribe', ours: true, bestFor: 'Quick, private transcripts in the browser, with nothing to install, no account and Word or subtitle exports.',
         cells: ['Free', 'Up to 2 hours per file', 'Browser', 'On your device', '99, or detected', 'Text, Word, SRT, WebVTT'],
         pros: ['Whisper runs in your browser; recordings never leave your device', 'Record your voice or add MP3, WAV, M4A, OGG, FLAC or video files, several at once', 'Correct the text, then save as Text, Word, SRT or WebVTT, or open it in Slop Docs', 'No account, no monthly minutes', INSTALL.pro],
-        cons: ['Still in beta', 'Uses Whisper tiny, a small model: it can mishear names, jargon and noisy rooms', 'The first use downloads the model, about 40 MB', 'No speaker labels, summaries or translation'] },
+        cons: ['Still in beta', 'Starts with Whisper tiny, a small model that can mishear names, jargon and noisy rooms; better models (Whisper small, KB-Whisper for Swedish) are a larger download', 'The first use downloads the quick model, about 42 MB', 'No speaker labels, summaries or translation'] },
       { name: 'TurboScribe', url: 'https://turboscribe.ai/', bestFor: 'Long files and many languages on a paid plan, with speaker recognition and many export formats.',
         cells: ['Free; Unlimited $10 a month billed yearly', '3 files a day, up to 30 minutes each, one at a time', 'Browser', 'On its servers (GPUs)', '98+', 'DOCX, PDF, TXT, SRT, VTT'],
         pros: ['Speaker recognition and timestamps', 'Exports DOCX, PDF, TXT, SRT and VTT', 'Unlimited plan: files up to 10 hours and translation to 134+ languages'],

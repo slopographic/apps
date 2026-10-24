@@ -98,12 +98,18 @@ async function runPage(browser, base, p, scale) {
   let report = null;
   try {
     await page.goto(base + p.split(path.sep).join('/'));
-    // Done, or dead: an error happened and the harness had still not started 30 s (times the load scale) after it.
+    // Done, or dead: an error happened and the harness had still not started 30 s (times the load scale) after it. A page
+    // gets LIMIT_MS in all, or its own <meta name="slop-test-limit" content="<seconds>"> when it needs longer.
     await page.waitForFunction((grace) => window.__SLOPTEST__ || (window.__SLOPTEST_ERR__ && !window.__SLOPTEST_STARTED__ && performance.now() - window.__SLOPTEST_ERR__ > grace),
-      30000 * Math.max(1, scale), { timeout: 300000, polling: 250 });
+      30000 * Math.max(1, scale), { timeout: await pageLimit(p), polling: 250 });
     report = await page.evaluate(() => window.__SLOPTEST__);
     if (!report) throw new Error(`the page stopped before its tests started: ${consoleErrors[0] || 'a script error'}`);
-  } catch (e) { report = { name: p, passed: 0, failed: 1, results: [{ suite: 'runner', test: 'page loaded and finished', status: 'fail', message: e.message }], errors: [] }; }
+  } catch (e) {
+    // A page that never finished: what it had done, and the test it was in, so the hang can be found; it is not run again.
+    const where = await page.evaluate(() => ({ now: window.__SLOPTEST_NOW__ || '', done: window.__SLOPTEST_DONE__ || [] })).catch(() => ({ now: '', done: [] }));
+    const msg = /Timeout/.test(e.message) ? `did not finish in ${Math.round((await pageLimit(p)) / 1000)} s${where.now ? `; still running: ${where.now}` : ' (before its tests started)'}` : e.message;
+    report = { name: p, passed: where.done.filter((r) => r.status === 'pass').length, failed: 1, hung: /Timeout/.test(e.message), results: [...where.done, { suite: 'runner', test: 'page loaded and finished', status: 'fail', message: msg }], errors: [] };
+  }
   const secs = (Date.now() - t0) / 1000;
   took[p] = secs;
   const errs = consoleErrors.filter((m) => !/favicon|net::ERR_|Failed to load resource|Content Security Policy|Fetch API cannot load/.test(m));
@@ -114,7 +120,14 @@ async function runPage(browser, base, p, scale) {
   }
   if (errs.length) { out.push(c.r(`  ✗ console errors (${errs.length}):`)); for (const m of errs.slice(0, 5)) out.push(c.r('      ' + m)); report.failed++; }
   await ctx.close();
-  return { out, passed: report.passed, failed: report.failed };
+  return { out, passed: report.passed, failed: report.failed, hung: !!report.hung };
+}
+/** How long a page may take in all: LIMIT_MS, or its own <meta name="slop-test-limit" content="<seconds>">. */
+const LIMIT_MS = 120000;
+async function pageLimit(p) {
+  const html = await readFile(p, 'utf8').catch(() => '');
+  const m = /<meta name="slop-test-limit" content="(\d+)">/.exec(html);
+  return m ? Number(m[1]) * 1000 : LIMIT_MS;
 }
 if (pages.length) {
   const { chromium } = await loadPlaywright();
@@ -124,7 +137,7 @@ if (pages.length) {
   const again = [], alone = [];
   await pool(pages, JOBS, async (p) => {
     const r = await runPage(browser, base, p, Math.min(JOBS, 4));
-    if (r.failed && JOBS > 1) { again.push(p); console.log(r.out.join('\n') + c.d('\n  (runs again on its own after the others)')); return; }
+    if (r.failed && !r.hung && JOBS > 1) { again.push(p); console.log(r.out.join('\n') + c.d('\n  (runs again on its own after the others)')); return; }
     console.log(r.out.join('\n'));
     passed += r.passed; failed += r.failed;
   });

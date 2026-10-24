@@ -25,7 +25,7 @@ Slop Notes keeps notebooks, folders and Markdown notes in Slop Drive. It is regi
   - Whole notebook as a zip of Markdown or HTML files, in folders, through the shared zip writer (`shared/office/zip.js`). Notebook menu: Export notebook.
 - **Trash:** Delete moves a note to the Slop Drive Trash. Deleting a notebook or a folder moves everything in it to the Trash. Restore from the Drive Trash.
 - **Commands (SlopCmd):** New note (Ctrl+Alt+N), New notebook, New folder, Export as .md or .html, Search notes (Ctrl+Shift+F), Pin or unpin (Ctrl+Alt+P), Move to Trash, Cycle view (Ctrl+Alt+V), Next and Previous note (Ctrl+Alt+Arrow keys).
-- **Phone (390 px):** one pane at a time: Notebooks, the note list, or the editor. Back returns to the list.
+- **Phone (390 px):** the note list or the editor, one at a time (Back returns to the list). The notebooks, folders and tags are a drawer from the left over them: View ▸ Notebooks opens and closes it (`SlopSheet` from `shared/ui/sheet.js`, `side: 'start'`, attached in `js/main.js`), and the shared ×, Escape, a tap outside, a swipe left or choosing a notebook or folder close it. `S.pane` no longer has a 'side' value.
 
 ## Where the data lives
 - Each note is a Drive file: `text/markdown`, the body is the blob, the name is `<title>.md`. Its `meta` is `{ type: 'notes', kind: 'note', title, tags, pinned, notebook, folder }`.

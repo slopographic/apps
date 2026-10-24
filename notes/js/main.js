@@ -26,7 +26,9 @@ function wire() {
   on('nt-new', () => A.newNote());
   on('nt-nb-new', () => A.newNotebook());
   on('nt-fd-new', () => A.newFolder());
-  on('nt-side-btn', () => A.setPane('side'));
+  // On a phone the notebooks are a drawer from the start edge: SlopSheet (shared/ui/sheet.js) makes Notebooks (View menu)
+  // its toggle and gives it the ×, Escape, a tap outside and a swipe left. Wired before the app's keys.
+  A.setSide(SlopSheet.attach({ root: $('nt-app'), panel: $('nt-side'), side: 'start', phone: '(max-width: 899px)', toggles: [$('nt-side-btn')], label: 'Notebooks' }));
   on('nt-del', () => { const n = curNote(); if (n) A.remove(n); });
   on('nt-cmd', () => { if (window.SlopCmd && SlopCmd.open) SlopCmd.open(); });
   $('nt-insert').addEventListener('click', (e) => {
@@ -73,5 +75,13 @@ async function boot() {
   refresh();
   document.body.classList.add('ready');
 }
+
+/** Convert… in the header (shared/convert/provided.js): the open note, as Markdown. */
+addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {
+  const n = curNote();
+  if (!n) return null;
+  const { noteToMarkdown, fileBase } = await import('./export.js');
+  return [{ name: fileBase(n.title) + '.md', blob: noteToMarkdown(n) }];
+}));
 
 boot();

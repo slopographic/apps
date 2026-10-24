@@ -52,6 +52,7 @@
     const e = await ready(id), win = e.frame.contentWindow, t0 = Date.now();
     while (!(win.SlopCmd && own(win.SlopCmd).length) && Date.now() - t0 < timeout) await sleep(50);
     if (!win.SlopCmd) throw new Error(`${e.app.name} has no command registry (SlopCmd), so it can only be opened.`);
+    if (win.SlopCmd.prepare) await win.SlopCmd.prepare().catch(() => {});   // the app's commands with arguments, loaded on demand
     const list = own(win.SlopCmd);
     if (!list.length) throw new Error(`${e.app.name} registered no commands within ${timeout / 1000} s.`);
     return { app: e.app, list };
@@ -132,24 +133,35 @@
   }
 
   /** Runs one command through the frame's SlopCmd.run. Returns SlopCmd's answer: false when it is missing or not enabled. */
-  function run(id, cmdId, args) {
+  async function run(id, cmdId, args) {
     const S = entryOf(id).frame.contentWindow.SlopCmd;
-    return S ? S.run(cmdId, { source: 'ai', args: args || {} }) : false;
+    if (!S) return false;
+    if (!S.exec) return S.run(cmdId, { source: 'ai', args: args || {} });
+    const r = await S.exec(cmdId, args || {}, { source: 'ai' });   // checked and clamped against the command's args schema
+    if (!r.ok) throw new Error(r.error);
+    return r;
   }
   /** Up to ten commands matching a query (the app's palette search), as { id, title, group, enabled }. */
   async function search(id, q) {
     await commands(id);
     const S = entryOf(id).frame.contentWindow.SlopCmd;
-    return S.search(String(q || '')).filter((c) => !/^cmd\./.test(c.id) && !c.hidden).slice(0, 10)
-      .map((c) => ({ id: c.id, title: c.title, group: c.group || '', enabled: !!c.enabled }));
+    return S.search(String(q || '')).filter((c) => !/^cmd\./.test(c.id) && (!c.hidden || c.args)).slice(0, 10)
+      .map((c) => Object.assign({ id: c.id, title: c.title, group: c.group || '', enabled: !!c.enabled }, c.args ? { args: argList(c.args) } : null));
   }
+  /** A command's arguments for the model: ['radius: number 0.1–250, default 4', …] (shared/commands/args.js shapes). */
+  const argList = (args) => (Array.isArray(args) ? args : Object.keys(args).map((k) => Object.assign({ name: k }, args[k]))).map((a) =>
+    `${a.name}: ${a.type || 'string'}${a.min != null && a.max != null ? ` ${a.min}–${a.max}` : ''}${a.values ? ' (' + a.values.join('|') + ')' : ''}${a.default !== undefined ? ', default ' + a.default : ''}`);
   /** A summary of an open app: title, whether it can be driven, and what it shares through window.SlopAppState(). */
   async function state(id) {
     const e = await ready(id), w = e.frame.contentWindow;
     let st = null, note = null;
-    if (typeof w.SlopAppState === 'function') {
+    if (w.SlopCmd && w.SlopCmd.state && w.SlopCmd.prepare) {
+      await w.SlopCmd.prepare().catch(() => {});
+      try { st = JSON.parse(JSON.stringify(w.SlopCmd.state())); } catch (err) { note = 'The app state hook failed: ' + err.message; }
+    }
+    if (st == null && !note && typeof w.SlopAppState === 'function') {
       try { st = JSON.parse(JSON.stringify(w.SlopAppState())); } catch (err) { note = 'The app state hook failed: ' + err.message; }
-    } else note = 'This app shares no state (no window.SlopAppState hook), so only its title and command count are known.';
+    } else if (st == null && !note) note = 'This app shares no state (no SlopCmd.provide({ state }) or window.SlopAppState hook), so only its title and command count are known.';
     return { app: e.app.name, title: w.document.title || e.app.name, drivable: !!w.SlopCmd, commands: w.SlopCmd ? own(w.SlopCmd).length : 0, state: st, note };
   }
   /** One command of an open app as the registry lists it, or null (sync, for the destructive check). */

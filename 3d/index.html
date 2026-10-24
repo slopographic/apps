@@ -88,6 +88,10 @@
           <button type="button" class="vp-btn" data-cmd="3d.view.perspective">4 Persp</button>
           <button type="button" class="vp-btn" data-cmd="3d.view.frame">F Frame</button>
         </div>
+        <div class="vp-panels" role="toolbar" aria-label="Panels">
+          <button type="button" class="vp-btn" id="btnScene" aria-expanded="false">Scene</button>
+          <button type="button" class="vp-btn" id="btnProps" aria-expanded="false">Properties</button>
+        </div>
         <p id="hint" class="vp-hint">Drag to orbit · Shift-drag to pan · wheel to zoom · right-click for the menu · Tab to edit the mesh</p>
         <div id="nogl" class="nogl" hidden role="alert"></div>
         <div id="status" class="status" role="status" aria-live="polite"></div>
@@ -155,6 +159,7 @@
   <script src="js/app/editcommands.js"></script>
   <script src="js/app/configio.js"></script>
   <script src="js/app/commands.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
   <script src="js/app/layout.js"></script>
   <script src="js/app/main.js"></script>
   <script src="../shared/pwa.js"></script>

@@ -67,15 +67,16 @@
     $('btnBackup').addEventListener('click', () => G.actions.backup());
     $('btnRestore').addEventListener('click', () => G.actions.restoreBackup());
     $('btnSort').addEventListener('click', () => G.actions.sortIds(G.state.selected.length ? G.state.selected : []));
-    $('btnFilters').addEventListener('click', () => toggleDrawer());
-    $('btnDrawerClose').addEventListener('click', () => closeDrawer());
     if (!window.showDirectoryPicker) $('btnFolder').hidden = true;
     if (!window.SlopHub) $('btnDrive').hidden = true;
   }
-  function toggleDrawer() { const open = !document.body.classList.contains('drawer-open'); document.body.classList.toggle('drawer-open', open); $('btnFilters').setAttribute('aria-expanded', String(open)); }
-  function closeDrawer() { document.body.classList.remove('drawer-open'); $('btnFilters').setAttribute('aria-expanded', 'false'); }
+  /** Phones: the panel is a drawer from the left. SlopSheet (shared/ui/sheet.js) does the Filters button, the ×, Escape, a
+   * tap outside and the swipe; a view picked in it closes it. */
+  let sheet = null;
+  function closeDrawer() { if (sheet) sheet.close(); }
 
   function init(side) {
+    sheet = G.sidebar.sheet = SlopSheet.attach({ root: document.body, panel: side, side: 'start', phone: '(max-width: 700px)', toggles: [$('btnFilters')], label: 'Filters' });
     bindControls();
     G.menus.bind(side);
     const refresh = () => { renderFacets(); syncViewButtons(); };
@@ -84,5 +85,5 @@
     refresh();
   }
 
-  G.sidebar = { init, closeDrawer, renderFacets };
+  G.sidebar = { init, closeDrawer, renderFacets, sheet: null };
 })();

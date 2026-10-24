@@ -5,7 +5,7 @@ import { newView, makeState, setHooks, setWrap, isWrap, showFind } from './edito
 import { initTree, refresh as refreshTree, selectedFolder, revealFolder, newFolder } from './tree.js';
 import { initLayout, expandSection } from './explorer.js';
 import { renderExtensions, formatDoc, chooseLanguage } from './extensions.js';
-import { $, env, setHandlers, renderChrome, setStatus, setTreeOpen, treeOpen, setPreview, toast, isPhone } from './ui.js';
+import { $, env, setHandlers, renderChrome, setStatus, setTreeOpen, treeOpen, setPreview, toast, isPhone, initDrawer } from './ui.js';
 import { openRecord, saveDoc, saveAs, newFile, closeDoc, onEdit, showDoc, restoreTabs, togglePreview } from './ops.js';
 import { runDoc, attachPreview, canRun } from './run.js';
 import { registerCommands } from './commands.js';
@@ -62,15 +62,15 @@ function wireButtons() {
   on('cd-run', runCurrent);
   on('cd-md', () => togglePreview());
   on('cd-cmd', () => (window.SlopCmd && SlopCmd.open ? SlopCmd.open() : toast('Commands are not loaded')));
-  on('cd-files', toggleFiles);
+  on('cd-files', () => { if (!isPhone()) toggleFiles(); });   // on a phone it is the drawer's own toggle
   on('cd-tree-folder', () => newFolder(selectedFolder()));
-  on('cd-scrim', () => setTreeOpen(false));
   on('cd-pv-close', () => setPreview(false));
 }
 
 async function boot() {
   SlopHub.register('code');
   initLayout();
+  initDrawer();
   setTreeOpen(treeOpen()); // keeps the Files button's aria-expanded in step with what is shown
   const view = newView($('cd-editor'), makeState('', 'untitled.txt'));
   env.view = view;
@@ -98,4 +98,12 @@ async function boot() {
 }
 
 window.SlopCode = { view: () => env.view, docs, openRecord, saveDoc, saveAs, newFile, closeDoc, runCurrent, refreshTree, actions: ACTIONS };
+// Convert… in the header (shared/convert/provided.js): the open file (its live text, or a viewer tab's Drive file).
+addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {
+  const d = docs.current();
+  if (!d) return null;
+  if (d.kind === 'text' || !d.kind) return [{ name: d.name, blob: new Blob([docs.textOf(d)], { type: 'text/plain' }) }];
+  const rec = d.id && window.SlopHub ? await SlopHub.get(d.id).catch(() => null) : null;
+  return rec && rec.blob ? [{ name: rec.name || d.name, blob: rec.blob }] : null;
+}));
 boot().catch((e) => { console.error(e); toast('Slop Code could not start: ' + e.message); document.body.classList.add('ready'); });

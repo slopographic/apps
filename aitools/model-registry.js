@@ -2,12 +2,15 @@
  * Pure data and checks (no DOM, no storage), so a Node test can load it (module.exports) and the browser gets
  * window.SlopAIModels. Classic script. A remote file is downloaded only after the person presses Download and
  * confirms the licence (get-more.js); a bundled file ships with the site under vendor/models/.
- * Each file: { name, size, sha256, url } (remote) or { name, size, sha256, path } (bundled). See HANDOFF.md. */
+ * Each file: { name, size, sha256, url } (remote), { name, size, sha256, parts: [{ url, size, sha256 }] } (remote, stored in
+ * pieces under 95 MB and joined after download) or { name, size, sha256, path } (bundled). The speech models are in
+ * speech-models.js (load it first). See HANDOFF.md. */
 (function (root, factory) {
-  const api = factory();
+  const speech = root.SlopSpeechModels || (typeof module === 'object' && module.exports ? require('./speech-models.js') : null);
+  const api = factory(speech);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopAIModels = api;
-})(typeof window !== 'undefined' ? window : globalThis, function () {
+})(typeof window !== 'undefined' ? window : globalThis, function (speech) {
   'use strict';
 
   /** Licences a model may declare, with the name shown to the person. Anything else is refused. */
@@ -16,25 +19,18 @@
     'Apache-2.0': 'Apache License 2.0',
     'BSD-3-Clause': 'BSD 3-Clause License',
   };
-  /** Hosts a remote file may be served from: Hugging Face and its storage hosts. Checked on the final URL after redirects. */
+  /** Hosts a remote file may be served from: Hugging Face and its storage hosts, and the slopographic/cdn repository.
+   *  Checked on the final URL after redirects. */
   // Hugging Face serves a download from several storage hosts (cdn-lfs-us-1.hf.co, us.aws.cdn.hf.co, transfer.xethub.hf.co …),
   // and the set changes over time. So the rule is the domain family: huggingface.co, or any subdomain of hf.co or xethub.hf.co.
   const HOST_ROOTS = ['huggingface.co', 'hf.co', 'xethub.hf.co'];
+  // Slopographic's own file host: the slopographic/cdn repository on GitHub, nothing else on that host.
+  const CDN_HOST = 'raw.githubusercontent.com', CDN_PATH = '/slopographic/cdn/';
   const HF = 'https://huggingface.co/';
   const SHA = /^[0-9a-f]{64}$/;
+  const MAX_PART = 95 * 1000 * 1000;   // GitHub refuses files over 100 MB
 
   const MODELS = [
-    {
-      id: 'whisper-tiny', name: 'Whisper tiny', tool: 'speech', arch: 'Transformer encoder-decoder, multilingual (39M parameters)',
-      licence: 'MIT', upstream: 'https://github.com/openai/whisper',
-      source: HF + 'Xenova/whisper-tiny', sourceNote: 'ONNX export of openai/whisper-tiny (quantised int8). The export page is tagged Apache-2.0; the weights are MIT.',
-      files: [
-        { name: 'encoder_model_quantized.onnx', size: 10124910, sha256: 'fd9d995b9dcb0520f0dbf6cf68651af639fc385f594d9d876e69ca2802dc438e', url: HF + 'Xenova/whisper-tiny/resolve/main/onnx/encoder_model_quantized.onnx' },
-        { name: 'decoder_model_merged_quantized.onnx', size: 30727765, sha256: '6c0c125986b007d2e3734bec84c18bda0152071b90b87fadac6d7764499927a0', url: HF + 'Xenova/whisper-tiny/resolve/main/onnx/decoder_model_merged_quantized.onnx' },
-        { name: 'vocab.json', size: 1036584, sha256: '50d6a919f0a0601d56a04eb583c780d18553aa388254ba3158eb6a00f13e2c1a', url: HF + 'Xenova/whisper-tiny/resolve/main/vocab.json' },
-        { name: 'added_tokens.json', size: 2082, sha256: 'ce949fe720c14311cb6c446e69cfe340dc669d7b006077a6feed6ae571dd7e88', url: HF + 'Xenova/whisper-tiny/resolve/main/added_tokens.json' },
-      ],
-    },
     {
       id: 'ppocr-v4', name: 'PP-OCRv4 (text detection and recognition)', tool: 'ocr', arch: 'DB detector and CRNN recogniser (mobile, Chinese and Latin)',
       licence: 'Apache-2.0', upstream: 'https://github.com/PaddlePaddle/PaddleOCR',
@@ -62,7 +58,7 @@
         { name: 'modnet-portrait.onnx', size: 25888640, sha256: '07c308cf0fc7e6e8b2065a12ed7fc07e1de8febb7dc7839d7b7f15dd66584df9', path: 'vendor/models/modnet-portrait.onnx' },
       ],
     },
-  ];
+  ].concat(speech ? speech.MODELS : []);   // the speech models: aitools/speech-models.js (Whisper and its fine-tunes)
 
   const TOOLS = [
     { id: 'ocr', name: 'OCR', page: 'ocr/', models: ['ppocr-v4'], blurb: 'Read text from an image or a scanned PDF page.' },
@@ -74,6 +70,8 @@
 
   const byId = (id) => MODELS.find((m) => m.id === id) || null;
   const remoteFiles = (m) => m.files.filter((f) => !f.path);
+  /** The URLs a file is downloaded from: its url, or its parts' urls in order. */
+  const urlsOf = (f) => (f.parts ? f.parts.map((p) => p.url) : f.url !== undefined ? [f.url] : []);
   /** Total bytes a person would download for a model (bundled files excluded). */
   const downloadBytes = (m) => remoteFiles(m).reduce((n, f) => n + f.size, 0);
 
@@ -90,19 +88,28 @@
       for (const f of m.files || []) {
         if (!SHA.test(f.sha256)) out.push(`${who}: ${f.name} sha256 must be 64 lowercase hex digits`);
         if (!Number.isInteger(f.size) || f.size < 1) out.push(`${who}: ${f.name} size must be a positive integer`);
-        if (f.url !== undefined && !allowedUrl(f.url)) out.push(`${who}: ${f.name} url must be https on an allowed host`);
-        if (f.url === undefined && f.path === undefined) out.push(`${who}: ${f.name} needs a url or a path`);
+        for (const u of urlsOf(f)) if (!allowedUrl(u)) out.push(`${who}: ${f.name} url must be https on an allowed host`);
+        if (f.url === undefined && f.path === undefined && !f.parts) out.push(`${who}: ${f.name} needs a url, parts or a path`);
+        if (f.parts) {
+          if (!Array.isArray(f.parts) || f.parts.length < 2) out.push(`${who}: ${f.name} parts must list at least two parts`);
+          else {
+            if (f.parts.reduce((n, p) => n + p.size, 0) !== f.size) out.push(`${who}: ${f.name} parts do not add up to its size`);
+            for (const p of f.parts) if (!SHA.test(p.sha256) || !Number.isInteger(p.size) || p.size < 1 || p.size > MAX_PART) out.push(`${who}: ${f.name} each part needs a sha256 and a size up to 95 MB`);
+          }
+        }
       }
     }
     for (const t of TOOLS) for (const id of t.models) if (!ids.has(id)) out.push(`tool ${t.id}: unknown model ${id}`);
     return out;
   }
 
-  /** True when url is https and its host is HOST_ROOTS itself or a subdomain of one (never a look-alike such as hf.co.evil.com). */
+  /** True when url is https and its host is HOST_ROOTS itself or a subdomain of one (never a look-alike such as hf.co.evil.com),
+   *  or the slopographic/cdn repository on raw.githubusercontent.com. */
   function allowedUrl(url) {
     try {
       const u = new URL(url);
       if (u.protocol !== 'https:') return false;
+      if (u.hostname === CDN_HOST) return u.pathname.startsWith(CDN_PATH);
       return HOST_ROOTS.some((root) => u.hostname === root || u.hostname.endsWith('.' + root));
     } catch (e) { return false; }
   }
@@ -114,5 +121,5 @@
     return `${(n / (1024 * 1024)).toFixed(n < 10 * 1024 * 1024 ? 1 : 0)} MB`;
   }
 
-  return { MODELS, TOOLS, LICENCES, HOST_ROOTS, byId, remoteFiles, downloadBytes, problems, allowedUrl, formatSize };
+  return { MODELS, TOOLS, LICENCES, HOST_ROOTS, CDN_HOST, byId, remoteFiles, urlsOf, downloadBytes, problems, allowedUrl, formatSize };
 });

@@ -99,3 +99,11 @@ Engine bugs fixed this round: literal U+2028/2029 in an offline.js regex (syntax
 
 - **Save (Ctrl+S)** writes the `.sloplabel` project back to the Drive file it was opened from (`App.driveId`, cleared by `setDoc`). The first save asks for a folder. `File ▸ Download project (.sloplabel)` downloads; offline and without the hub, Save downloads as before.
 - `File ▸ Open project from Slop Drive…` and `?drive=` launch open JSON/.sloplabel records and link them; `Insert image` and `Data` pickers are unchanged.
+
+## Phone layout (SlopSheet)
+Under 760 px the dock (Properties, Objects, Variables, Data) is a bottom sheet: `App.sheet`, a `SlopSheet.attach` from
+`shared/ui/sheet.js` (see `shared/ui/HANDOFF.md`), wired by `wireDock()` in `ui/app.js` from `wireChrome()`. The ☰ Panels
+button opens and closes it; the shared ×, Escape, a tap outside (the label, the toolbox) and a swipe down close it.
+`showDock(tab)` / `hideDock()` are thin wrappers; there is no `dock-open` class, stage tap handler or own motion any more
+(the shared look gives place and motion; `mobile.css` sets the height and puts the × over the tab row's end). Test:
+`tests/label/ui-flows.test.js` (phone layout), run by `tests/label/sloplabel.test.html`.

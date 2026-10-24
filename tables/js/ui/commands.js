@@ -71,6 +71,8 @@ export function init() {
   if (!C) return;
   C.init({ app: 'tables' });
   C.register(COMMANDS.map((c) => ({ id: c.id, title: c.title, group: c.group, keys: c.keys || [], when: c.when, run: () => c.run() })));
+  // The assistant's commands with arguments (sort, filter, add/fill column, set cell), state and checkpoint: loaded when the AI panel first needs them.
+  if (C.provide) C.provide({ prepare: () => import('./ai-commands.js').then((m) => m.register()) });
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'tb'; b.id = 'btnCmd'; b.title = 'Search commands'; b.setAttribute('aria-label', 'Search commands');
   b.textContent = '⌘K';

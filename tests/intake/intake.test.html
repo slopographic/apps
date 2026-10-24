@@ -87,6 +87,19 @@
       expect(log.add.length + log.neu.length).toBe(0);
       log.off();
     });
+    it('the first app attached gets the paste, unless a later one attaches with first: true', async () => {
+      const a = taker(false), b = taker(false);
+      paste(document.body, [png()]);
+      await sleep(30);
+      expect([a.neu.length, b.neu.length]).toEqual([1, 0]);
+      const got = [];
+      const off = SlopIntake.attach({ first: true, accept: (f) => f.type.startsWith('image/'), onNew: async (files) => { got.push(files.length); } });
+      paste(document.body, [png()]);
+      await sleep(30);
+      expect(got).toEqual([1]);
+      expect(a.neu.length).toBe(1);
+      off(); a.off(); b.off();
+    });
   });
   run({ name: 'Shared paste intake' });
 </script>

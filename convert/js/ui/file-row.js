@@ -1,7 +1,8 @@
 /* One row of the file list (li.cv-file): a checkbox to select it, the name and kind, its own "Convert to" menu (a
  * format tile and the conversion's name, shared/ui/menubutton.js, searchable by the conversions' keywords), Remove, and
  * the Options of its target (file-opts.js, drawn by the list). Also the menu control the bulk bar uses.
- *   fileRow(it, { reason, choices, target, selected, onPick, onSelect, options })
+ *   fileRow(it, { reason, choices, target, selected, onPick, onSelect, options, route, then })
+ *     route: the route's row of tiles (chain-row.js) under the row; then: "+ Then…" beside Convert to
  *   targetButton({ label, choices, target, onPick, empty, cls })  -> button (a SlopMenuButton) */
 import { h } from './dom.js';
 import { fmtSize } from '../io/files.js';
@@ -35,13 +36,13 @@ export function targetButton({ label, choices, target, onPick, empty, cls = '' }
   return b;
 }
 
-export function fileRow(it, { reason, choices, target, selected, onPick, onSelect, options = null }) {
+export function fileRow(it, { reason, choices, target, selected, onPick, onSelect, options = null, route = null, then = null }) {
   const meta = `${KIND_LABEL[it.kind] || 'File'} · ${fmtSize(it.size)}`;
   const box = h('input', { type: 'checkbox', class: 'cv-file-check', 'data-select': it.id, 'aria-label': `Select ${it.name}`, checked: !!selected });
   box.addEventListener('click', (e) => onSelect(it, box.checked, e.shiftKey));
   const control = reason ? null : h('div', { class: 'cv-file-to' },
     h('span', { class: 'cv-file-to-h', 'aria-hidden': 'true' }, 'Convert to'),
-    targetButton({ label: `Convert ${it.name} to`, choices, target, onPick: (id) => onPick(it, id), empty: 'No format' }));
+    targetButton({ label: `Convert ${it.name} to`, choices, target, onPick: (id) => onPick(it, id), empty: 'No format' }), then);
   return h('li', { class: 'cv-file' + (reason ? ' cv-skip' : '') + (selected ? ' cv-selected' : ''), 'data-id': it.id },
     reason ? h('span', { class: 'cv-file-check-gap' }) : box,
     h('div', { class: 'cv-file-main' },
@@ -49,6 +50,7 @@ export function fileRow(it, { reason, choices, target, selected, onPick, onSelec
       h('span', { class: 'cv-file-meta', text: meta })),
     control,
     h('button', { type: 'button', class: 'cv-btn cv-small cv-file-rm', 'data-remove': it.id, 'aria-label': `Remove ${it.name}` }, 'Remove'),
+    reason ? null : route,
     options,
     reason ? h('p', { class: 'cv-file-msg' }, reason) : null,
     it.error ? h('p', { class: 'cv-file-msg cv-error', role: 'alert' }, it.error) : null);

@@ -51,3 +51,5 @@ async function hubBoot() {
   await openRecordTab(rec);
   return true;
 }
+// Convert… in the header (shared/convert/provided.js): the open image, flattened, as PNG.
+addEventListener('slop:convert-files', (e) => e.detail.provide(async () => (CUR ? [{ name: safeName() + '.png', blob: await docBlob('image/png') }] : null)));

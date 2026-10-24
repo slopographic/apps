@@ -118,16 +118,40 @@
   function unregister(id) { for (const i of [].concat(id)) cmds.delete(i); changed(); }
   const enabled = (c) => { try { return !c.when || !!c.when(); } catch (e) { return false; } };
   const checkedOf = (c) => { try { return c.checked ? !!c.checked() : undefined; } catch (e) { return undefined; } };
-  function view(c) { return { id: c.id, title: c.title || c.id, group: c.group || '', icon: c.icon || '', keywords: c.keywords || [], keys: bindings(c.id), defaults: c.keys.slice(), enabled: enabled(c), checked: checkedOf(c), hidden: !!c.hidden }; }
+  function view(c) { return { id: c.id, title: c.title || c.id, group: c.group || '', icon: c.icon || '', keywords: c.keywords || [], keys: bindings(c.id), defaults: c.keys.slice(), enabled: enabled(c), checked: checkedOf(c), hidden: !!c.hidden, args: c.args || null, tool: c.tool || null, description: c.description || '', destructive: c.destructive }; }
   const list = () => [...cmds.values()].map(view);
   function run(id, ctx = {}) {
     const c = cmds.get(id);
     if (!c || !enabled(c)) { if (c && window.SlopUI && ctx.source !== 'palette') SlopUI.toast(c.why || (c.title || id) + ' is not available right now.'); return false; }
     if (ctx.record !== false && !c.noRecent) { const r = recents[id] || [0, 0]; stamp = Math.max(Date.now(), stamp + 1); recents[id] = [r[0] + 1, stamp]; trimRecents(); ls.set(recStore(), recents); }
-    try { c.run(Object.assign({ id, source: 'api' }, ctx)); } catch (err) { console.error(err); if (window.SlopUI) SlopUI.toast((c.title || id) + ' failed: ' + err.message); }
+    try { call(c, ctx); } catch (err) { console.error(err); if (window.SlopUI) SlopUI.toast((c.title || id) + ' failed: ' + err.message); }
     emit('run', { id, source: ctx.source || 'api' });
     return true;
   }
+  /** A command with an args schema gets run(args, ctx): args null when the caller gave none (keys, palette), else checked
+   * against the schema (args.js) with defaults filled. Others get run(ctx) as always. */
+  function call(c, ctx) {
+    const full = Object.assign({ id: c.id, source: 'api' }, ctx);
+    if (!c.args) return c.run(full);
+    const A = window.SlopCmdArgs, a = ctx.args == null ? null : A ? A.validate(c.args, ctx.args).args : Object.assign({}, ctx.args);
+    return c.run(a, full);
+  }
+  /** Run with arguments and wait for the command to finish: { ok, value, args, notes } or { ok: false, error }. */
+  async function exec(id, args, ctx = {}) {
+    const c = cmds.get(id); if (!c) return { ok: false, error: `No command "${id}"` };
+    if (!enabled(c)) return { ok: false, error: c.why || (c.title || id) + ' is not available right now' };
+    let v = { args: args || {}, notes: [] };
+    if (c.args) { await ensureArgs(); v = window.SlopCmdArgs.validate(c.args, args || {}); if (!v.ok) return { ok: false, error: v.errors.join('; '), args: v.args }; }
+    try {
+      const value = await call(c, Object.assign({ source: 'api' }, ctx, { args: v.args }));
+      emit('run', { id, source: ctx.source || 'api', args: v.args });
+      return { ok: true, value, args: v.args, notes: v.notes };
+    } catch (err) { return { ok: false, error: String((err && err.message) || err), args: v.args }; }
+  }
+  const ensureArgs = () => (window.SlopCmdArgs || !BASE ? Promise.resolve() : loadPart('args'));
+  /** What an app shares with the assistant: provide({ state: () => json, checkpoint: () => rollbackFn, prepare: () => Promise }). */
+  const prov = {}, provide = (o) => { Object.assign(prov, o || {}); };
+  let prepP = null;
   function trimRecents() { const ids = Object.keys(recents); if (ids.length > 60) ids.sort((a, b) => recents[a][1] - recents[b][1]).slice(0, ids.length - 60).forEach((i) => delete recents[i]); }
   /** Frecency: use count weighted by how recently it was used (half-life about a day). */
   function frecency(id, now = Date.now()) { const r = recents[id]; if (!r) return 0; return r[0] * Math.pow(0.5, (now - r[1]) / 864e5) + 1 / (1 + (now - r[1]) / 6e4); }
@@ -220,14 +244,13 @@
     if (!missing.length) return Promise.resolve(parts);
     if (uiP) return uiP;
     if (!BASE) return Promise.reject(new Error('SlopCmd UI parts are not loaded'));
-    uiP = missing.reduce((p, name) => p.then(() => new Promise((res, rej) => {
-      if (parts[name]) return res();
-      const s = document.createElement('script');
-      s.src = BASE + name + '.js'; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + name + '.js'));
-      document.head.append(s);
-    })), Promise.resolve()).then(() => parts, (err) => { uiP = null; throw err; });
+    uiP = missing.reduce((p, name) => p.then(() => (parts[name] ? null : loadPart(name))), Promise.resolve()).then(() => parts, (err) => { uiP = null; throw err; });
     return uiP;
   }
+  const loadPart = (name) => new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = BASE + name + '.js'; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + name + '.js')); document.head.append(s);
+  });
   const withUI = (fn) => ensureUI().then(fn, (err) => { console.warn(err); if (window.SlopUI) SlopUI.toast('Command palette unavailable offline'); });
   let opts = {};
   function init(o = {}) {
@@ -251,6 +274,10 @@
     setKeys, resetKeys, exportKeys, importKeys, recent, frecency, ensureUI, bindings, addProvider, _parts: parts,
     providers: () => [...providers.values()], removeProvider: (id) => providers.delete(id),
     get: (id) => cmds.get(id) || null,
+    exec, provide,
+    state: () => { try { return prov.state ? prov.state() : null; } catch (e) { return { error: e.message }; } },
+    checkpoint: () => (prov.checkpoint ? prov.checkpoint() : null),
+    prepare: () => (prepP = prepP || Promise.resolve(prov.prepare ? prov.prepare() : null).catch((e) => { prepP = null; throw e; })),
     keyFor: (id) => { const b = bindings(id); return b.length ? format(b[0]) : ''; },
     keysFor: (id) => bindings(id).map((b) => format(b)),
     overrides: () => JSON.parse(JSON.stringify(overrides)),

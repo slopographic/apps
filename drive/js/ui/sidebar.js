@@ -93,9 +93,10 @@
     DR.renderMeter();
   };
 
-  /** Mobile: the sidebar is a drawer. */
-  DR.drawer = function (open) {
-    document.body.classList.toggle('drawer-open', !!open);
-    $('scrim').hidden = !open && !document.body.classList.contains('sheet-open');
+  /** Phones: the sidebar is a drawer from the start edge. SlopSheet (shared/ui/sheet.js) does the ×, the Folders button,
+   * Escape, a tap outside and the swipe; wired before the app's own keys so its Escape comes first. */
+  DR.wireDrawer = function () {
+    DR.drawerUI = SlopSheet.attach({ root: document.body, panel: $('side'), side: 'start', phone: '(max-width: 760px)', toggles: [$('btnSide')], label: 'Folders' });
   };
+  DR.drawer = (open) => (open ? DR.drawerUI.open() : DR.drawerUI.close());
 })(window.DR);

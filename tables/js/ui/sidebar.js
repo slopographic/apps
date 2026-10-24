@@ -1,5 +1,7 @@
 /* Slop Tables sidebar: the left column with Sheets, Templates (From template…, My templates) and Functions.
-   It is collapsible; the choice is kept in this browser. Every item calls the same code as the menus. */
+   It is collapsible; the choice is kept in this browser. Every item calls the same code as the menus. On a phone
+   (720 px and under) the column is only its toggle strip, and the toggle opens the sidebar as a drawer from the start
+   edge: SlopSheet (shared/ui/sheet.js) gives it the ×, Escape, a tap outside and a swipe left. */
 import { S, $, redraw } from './state.js';
 import * as Sheets from './sheets.js';
 import * as TPL from './templates.js';
@@ -10,7 +12,11 @@ import { startEdit } from './editor.js';
 
 const KEY = 'slop-tables.sidebar';
 const LIMIT_MS = 1500; // My templates is read from IndexedDB; a read that never answers shows an empty list
+const PHONE = '(max-width: 720px)';
 let sheetsKey = '';
+let drawer = null;
+/** On a phone, picking a sheet or a function shows the grid again. */
+const closeDrawer = () => { if (drawer) drawer.close(); };
 let mineSeq = 0;
 
 const el = (tag, cls, text) => {
@@ -27,6 +33,7 @@ const wrap = (node) => { const li = el('li'); li.append(node); return li; };
 function applyCollapsed(collapsed) {
   const side = $('side'), t = $('sideToggle');
   if (!side || !t) return;
+  if (drawer && drawer.isPhone()) return phoneToggle(drawer.isOpen());   // the strip's toggle is the drawer's
   side.classList.toggle('collapsed', collapsed);
   t.setAttribute('aria-expanded', String(!collapsed));
   t.setAttribute('aria-label', collapsed ? 'Show sidebar' : 'Hide sidebar');
@@ -56,7 +63,7 @@ export function renderSheets() {
     b.type = 'button';
     b.title = sh.name;
     if (i === S.si) b.setAttribute('aria-current', 'true');
-    b.addEventListener('click', () => Sheets.select(i));
+    b.addEventListener('click', () => { Sheets.select(i); closeDrawer(); });
     return wrap(b);
   }));
 }
@@ -93,7 +100,7 @@ function buildFunctions() {
     b.type = 'button';
     b.title = 'Start a formula with ' + name;
     b.dataset.name = name;
-    b.addEventListener('click', () => { if (!S.edit) startEdit('=' + name + '('); });
+    b.addEventListener('click', () => { if (!S.edit) { closeDrawer(); startEdit('=' + name + '('); } });
     return wrap(b);
   }));
   const filter = $('fnFilter');
@@ -103,10 +110,22 @@ function buildFunctions() {
   });
 }
 
+/** The toggle strip on a phone: › opens the drawer, ‹ closes it. */
+function phoneToggle(open) {
+  const t = $('sideToggle');
+  t.textContent = open ? '‹' : '›';
+  t.setAttribute('aria-label', open ? 'Hide sidebar' : 'Show sidebar');
+  t.title = t.getAttribute('aria-label');
+  t.setAttribute('aria-expanded', String(open));
+}
+
 /** Wires the sidebar. Called once at boot. */
 export function init() {
+  drawer = window.SlopSheet.attach({ root: $('side'), panel: $('sideBody'), side: 'start', phone: PHONE, toggles: [$('sideToggle')], label: 'Sidebar',
+    onChange: (open) => { phoneToggle(open); if (open) loadMine(); } });
+  matchMedia(PHONE).addEventListener('change', () => applyCollapsed(savedCollapsed()));
   applyCollapsed(savedCollapsed());
-  $('sideToggle').addEventListener('click', () => setCollapsed(!$('side').classList.contains('collapsed')));
+  $('sideToggle').addEventListener('click', () => { if (!drawer.isPhone()) setCollapsed(!$('side').classList.contains('collapsed')); });
   $('sideAddSheet').addEventListener('click', () => Sheets.add());
   $('sideFromTpl').addEventListener('click', () => TPL.openTemplates());
   buildFunctions();

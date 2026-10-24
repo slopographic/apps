@@ -19,9 +19,7 @@
   #tab-sys, .topbar .sdl { display: none; } /* Can my PC run it? stays in the model chip's menu; Slop Drive in Apps */
   .only-mobile { display: inline-flex; }
   .chat-view { grid-template-columns: minmax(0, 1fr); }
-  .convs { position: fixed; z-index: 400; top: var(--top-h); bottom: 0; left: 0; width: min(300px, 86vw); transform: translateX(-102%); transition: transform .2s; box-shadow: var(--shadow); }
-  body.side-open .convs { transform: none; }
-  body.side-open .chat-view .scrim { display: block; position: fixed; inset: var(--top-h) 0 0; z-index: 390; background: rgba(0, 0, 0, .4); }
+  .convs { --ssh-z: 400; --ssh-top: var(--top-h); }   /* the chat list drawer: shared/ui/sheet.js (js/ui/chatlist.js) */
   .chat-bar { padding: 6px 8px; gap: 6px; }
   #btnPersona span, #btnTools span { display: none; }
   .msgs { padding: 14px 10px 8px; }

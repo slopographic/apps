@@ -108,3 +108,22 @@
   .cv-tool .cv-actions .cv-btn { flex: 1 1 140px; }
 }
 @media (prefers-reduced-motion: no-preference) { .cv-tool .cv-drop { transition: border-color .15s; } }
+/* A card's route (js/ui/chain-row.js): SIE → [CSV ▾] → JSON  + Then…  ×, under the row; it wraps on a phone. The tiles in
+ * the middle are menu buttons; the route's Options has one group per step (js/ui/chain-opts.js). */
+.cv-tool .cv-file-to { flex-wrap: wrap; }
+.cv-tool .cv-route { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-inline-size: 0; }
+.cv-tool .cv-bulk .cv-route { flex: 1 1 100%; }
+.cv-tool .cv-route-arrow { color: var(--muted); font-weight: 700; }
+.cv-tool .cv-route-mid { display: inline-flex; align-items: center; gap: 4px; min-block-size: 44px; padding-block: 3px; padding-inline: 4px 8px; font: inherit; color: var(--ink);
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.cv-tool .cv-route-mid:hover:not(:disabled), .cv-tool .cv-route-mid[aria-expanded="true"] { border-color: var(--accent); }
+.cv-tool .cv-route-mid:disabled { cursor: default; background: none; border-color: transparent; }
+.cv-tool .cv-route-mid:disabled .cv-to-caret { display: none; }
+.cv-tool .cv-route-end { display: inline-flex; }
+.cv-tool .cv-route-then, .cv-tool .cv-route-x { white-space: nowrap; }
+.cv-tool .cv-route-x { min-inline-size: 36px; padding-inline: 8px; font-size: 18px; line-height: 1; }
+.cv-tool .cv-route + .cv-file-opts { margin-block-start: 0; }
+.cv-tool .cv-step-opts + .cv-step-opts { margin-block-start: 6px; padding-block-start: 6px; border-block-start: 1px dashed var(--line); }
+.cv-tool .cv-step-h { margin: 6px 0 4px; font-size: 13px; font-weight: 700; letter-spacing: .02em; color: var(--muted); }
+.cv-tool .cv-route-opts .cv-opts-body { padding-block: 2px 4px; }
+.cv-tool .cv-keep { margin-block: 8px 4px; }

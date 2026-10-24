@@ -35,7 +35,7 @@ Slop Code is a code editor that runs entirely in the browser, with its files in 
 - **Tabs** are remembered per viewer (localStorage `slop-code.tabs`).
 - **Run:** an HTML file shows its page in the preview. A JavaScript file runs alone. Project CSS, JS and images come from the file's Drive folder (subfolders too). Open tabs use their unsaved text. Console output and uncaught errors show under the preview.
 - **Commands (SlopCmd):** Open, New, New folder, Save, Save as, Close tab, Find, Replace, Toggle wrap, Show or hide Explorer, Show Extensions, Set language mode, Format document, Run. Shortcuts show in the palette and menus. Without SlopCmd, the same shortcuts are handled in `js/commands.js`.
-- **Phone (390 px):** the sidebar (Explorer, Open editors, Extensions) is a drawer behind the Files button. It closes after a file is opened. The resize handle is hidden. The preview covers the screen.
+- **Phone (390 px):** the sidebar (Explorer, Open editors, Extensions) is a drawer from the left behind the Files button: `SlopSheet.attach({ side: 'start' })` from `shared/ui/sheet.js` (`initDrawer` in `js/ui.js`; see `shared/ui/HANDOFF.md`). Files again, its ×, Escape, a tap outside and a swipe left close it; Ctrl+B toggles it. There is no scrim or `cd-drawer-open` class of Code's own any more. It closes after a file is opened. `tests/code/tree.test.html` checks it at 390 px. The resize handle is hidden. The preview covers the screen.
 
 ## Files and views
 - A tab is either a **text** tab (the editor; saved with Ctrl+S) or a **view** tab (`doc.kind` is `image`, `audio`, `video`, `pdf` or `binary`). A view tab is read only: Save, Save as and Run are off, and the status bar says so. Its editor state stays empty.

@@ -59,13 +59,15 @@
     const errors = [];
     addEventListener('error', (e) => errors.push(String(e.message)));
     addEventListener('unhandledrejection', (e) => errors.push(String(e.reason && e.reason.message || e.reason)));
+    window.__SLOPTEST_DONE__ = results;   // tests/run.mjs prints these, and __SLOPTEST_NOW__, when a page never finishes
     for (const s of suites) for (const t of s.tests) {
       const t0 = performance.now();
       let status = 'pass', message = '';
+      window.__SLOPTEST_NOW__ = s.name + ' › ' + t.name;
       try {
-        for (const b of s.before) await b();
-        await Promise.race([Promise.resolve().then(t.fn), new Promise((_, rej) => setTimeout(() => rej(new AssertionError(`timed out after ${t.timeout * SCALE}ms`)), t.timeout * SCALE))]);
-        for (const a of s.after) await a();
+        // the test with its beforeEach and afterEach steps, all inside the test's time limit (a hook can hang too)
+        const steps = async () => { for (const b of s.before) await b(); await t.fn(); for (const a of s.after) await a(); };
+        await Promise.race([steps(), new Promise((_, rej) => setTimeout(() => rej(new AssertionError(`timed out after ${t.timeout * SCALE}ms`)), t.timeout * SCALE))]);
       } catch (e) { status = 'fail'; message = (e && e.message) || String(e); if (!(e instanceof AssertionError) && e && e.stack) message += '\n' + e.stack.split('\n').slice(1, 3).join('\n'); }
       results.push({ suite: s.name, test: t.name, status, message, ms: Math.round(performance.now() - t0) });
     }

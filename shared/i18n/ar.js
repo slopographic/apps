@@ -13,6 +13,10 @@
     'nav.settings': 'الإعدادات',
 
     'shell.switch_app': 'تبديل التطبيق',
+
+    'shell.convert': 'تحويل…',
+
+    'shell.ai': 'ذكاء',
     'shell.switch_title': 'تبديل التطبيق ({shortcut})',
 
     'switcher.search': 'البحث في التطبيقات',

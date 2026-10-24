@@ -36,14 +36,16 @@
     S.emit('doc');
   };
   /** The document's own fonts (doc.fonts: { family, weight, italic, file, data }) are registered with the engine and listed in the
-   * shared catalogue as "own". Re-lays out when they are in place. */
+   * shared catalogue as "own". The engine gets them at once, before setDoc lays the document out and loads its faces (waiting
+   * for the catalogue first let the stand-in face load in their place); the catalogue once it is ready. */
   S.registerOwnFonts = async function (doc) {
-    if (window.SlopFonts) await SlopFonts.ready();
-    const C = window.SlopFontCatalog, own = [];
+    const own = [];
     for (const r of (doc && doc.fonts) || []) {
-      try { const bytes = C.fromDataURL(r.data); E().F.addUserFamily(r.family, bytes); own.push({ family: r.family, weight: r.weight, italic: r.italic, bytes }); }
+      try { const bytes = fromDataURL(r.data); E().F.addUserFamily(r.family, bytes); own.push({ family: r.family, weight: r.weight, italic: r.italic, bytes }); }
       catch (e) { console.warn('Slop Docs: ' + r.family + ' is not used: ' + e.message); }
     }
+    if (window.SlopFonts) await SlopFonts.ready();
+    const C = window.SlopFontCatalog;
     if (C) C.setDocumentFonts(own, { only: true });
     if (doc && doc === S.doc && own.length) { S.relayout(); S.emit('doc'); }
   };
@@ -60,6 +62,11 @@
     await S.registerOwnFonts(doc);
     return name;
   };
+  function fromDataURL(url) {
+    const b = atob(String(url).slice(String(url).indexOf(',') + 1)), u = new Uint8Array(b.length);
+    for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+    return u;
+  }
   S.relayout = function () {
     if (!S.doc) return;
     S.layout = E().layoutDoc(S.doc);

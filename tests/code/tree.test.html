@@ -7,6 +7,7 @@
   <script src="../../shared/hub.js"></script>
   <script src="util.js"></script>
   <script>
+  // Covers: code/js/ui.js, code/js/main.js (the Explorer drawer at 390 px)
   const { describe, it, expect } = SlopTest;
   const { frame, close, text, H, view, doc, textOf, rec, tabNames, dialog, dialogButtons, clickButton, waitFor, sleep } = CT;
   let w, folder, page, readme;
@@ -91,22 +92,29 @@
   });
 
   describe('Slop Code: phone width', () => {
-    it('at 390 px there is no sideways scroll, and the tree is a drawer', async () => {
+    it('at 390 px there is no sideways scroll, and the tree is a drawer from the left (SlopSheet)', async () => {
       close(w);
       w = await frame('../../code/', { width: 390, height: 844 });
-      await waitFor(() => w.document.getElementById('cd-tree-list').children.length > 0 || true, { timeout: 3000 });
-      const doc2 = w.document.documentElement;
-      expect(doc2.scrollWidth).toBeLessThanOrEqual(390);
-      expect(w.document.body.scrollWidth).toBeLessThanOrEqual(390);
-      const tree = w.document.getElementById('cd-tree');
-      expect(w.getComputedStyle(tree).transform).not.toBe('none');
-      w.document.getElementById('cd-files').click();
-      await waitFor(() => w.getComputedStyle(tree).transform === 'none', { timeout: 5000, step: 20 }); // the drawer slides in (.18 s)
-      expect(w.document.getElementById('cd-app').classList.contains('cd-drawer-open')).toBe(true);
-      expect(w.getComputedStyle(tree).transform).toBe('none');
-      w.document.getElementById('cd-scrim').click();
-      await sleep(50);
-      expect(w.document.getElementById('cd-app').classList.contains('cd-drawer-open')).toBe(false);
+      const D = w.document;
+      D.head.append(Object.assign(D.createElement('style'), { textContent: '* { transition: none !important; }' }));   // an offscreen frame stalls them
+      expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      expect(D.body.scrollWidth).toBeLessThanOrEqual(390);
+      const tree = D.getElementById('cd-tree'), btn = D.getElementById('cd-files');
+      const esc = () => D.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      expect(tree.getBoundingClientRect().right).toBeLessThanOrEqual(1);
+      btn.click();
+      expect([tree.classList.contains('ssh-on'), btn.getAttribute('aria-expanded'), Math.round(tree.getBoundingClientRect().left)]).toEqual([true, 'true', 0]);
+      btn.click();
+      expect(tree.classList.contains('ssh-on')).toBe(false);   // Files again closes it
+      btn.focus(); btn.click(); D.querySelector('#cd-tree > .ssh-x').click();
+      expect([tree.classList.contains('ssh-on'), D.activeElement]).toEqual([false, btn]);
+      btn.click(); esc();
+      expect(tree.classList.contains('ssh-on')).toBe(false);
+      btn.click(); D.querySelector('.cd-main').dispatchEvent(new w.PointerEvent('pointerdown', { bubbles: true }));
+      expect(tree.classList.contains('ssh-on')).toBe(false);   // a tap outside
+      w.SlopCode.actions.files();   // Ctrl+B still toggles it
+      expect(tree.classList.contains('ssh-on')).toBe(true);
+      w.SlopCode.actions.files();
     });
   });
   SlopTest.run({ name: 'Slop Code: tree and phone' });

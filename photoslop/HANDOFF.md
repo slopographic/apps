@@ -133,3 +133,11 @@ Desktop 1440×900 and phone 390×844 in Chromium, zero console errors: guide pan
 - The Develop dialog shows the embedded preview at once, then a half-size develop that follows White balance (as shot, auto, daylight), Exposure (−3 to +3 EV) and Highlights (clip, blend, rebuild). Open develops full size (8-bit sRGB, upright) as one Background layer; Use embedded preview opens the camera JPEG with no engine; Cancel opens nothing (`err.code 'cancelled'`, no toast).
 - Tests: `tests/photoslop/raw.test.html` (5).
 - Seen while testing (not changed): the welcome card stays over a file opened with File ▸ Open (a PNG too), because `D` is the same object after `openDocTab`.
+
+## Phone layout (SlopSheet)
+Under 900 px the panels column (`#panels`: Layers, History…) is a drawer from the right, under the top bar:
+`window.PS_SHEET = SlopSheet.attach({ side: 'end', toggles: [#panelToggle] })` in `wireMobile()` (`js/app/main.js`;
+`shared/ui/sheet.js`, see `shared/ui/HANDOFF.md`). The Layers button opens and closes it; the shared ×, Escape, a tap outside
+(on the picture too) and a swipe right close it. `css/extras.css` only sets `--ssh-top` (38 px, 66 px under 640 px) and
+`--ssh-z`; the old `panels-open` class and viewport listener are gone. A tool that uses Escape (a transform, a lasso) still
+gets it first. Test: `tests/photoslop/phone-panels.test.html`.

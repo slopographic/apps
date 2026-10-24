@@ -1,48 +1,76 @@
-/* Speech to text page: audio or the audio track of a video, in 30-second windows through Whisper tiny in the
- * inference worker. Shows progress per window. The result is a list of timed segments, exported as .srt and .txt. */
-(function () {
-  'use strict';
-  const T = window.SlopAITools, $ = (id) => document.getElementById(id);
-  const MAX_SECONDS = 2 * 3600;
-  let file = null, segments = [], baseName = 'transcript';
+/* Speech to text page: audio or the audio track of a video, through Whisper in the inference worker (any installed model:
+ * the Language and model dialog, shared/models/chooser.js, the same one as Slop Transcribe). Shows progress; the result is
+ * a list of timed segments, exported as .srt and .txt. Detect automatically finds the language with the quick model and
+ * reads with the model the person chose (or the preferred model for that language, if installed). ES module. */
+import { openModelChooser } from '../../shared/models/chooser.js';
+import { createPrefs } from '../../shared/models/prefs.js';
+import { speechFamily } from '../../shared/speech/family.js';
+import { languageName } from '../../shared/speech/languages.js';
 
-  const X = window.SlopTranscript;   // the transcript formats (aitools/transcript.js), shared with Slop Transcribe
-  const clock = X.clock;
+const T = window.SlopAITools, C = window.SlopSpeechModels, M = window.SlopAIManager, $ = (id) => document.getElementById(id);
+const MAX_SECONDS = 2 * 3600;
+const prefs = createPrefs('speech');
+let file = null, segments = [], baseName = 'transcript', language = prefs.pinned() || 'auto', model = null, big = null;
 
-  async function run() {
-    $('run').disabled = true; $('srt').disabled = $('txt').disabled = true;
-    const prog = $('prog'); prog.hidden = false; prog.value = 0; $('msg').textContent = '';
-    try {
-      $('msg').textContent = 'Decoding the audio…';
-      const samples = await T.audioSamples(file);
-      if (samples.length / 16000 > MAX_SECONDS) throw new Error('The audio is longer than 2 hours.');
-      if (samples.length < 16000 / 2) throw new Error('The audio is too short to transcribe.');
-      await T.ensure('whisper-tiny', (s) => ($('msg').textContent = s));
-      const r = await T.call('transcribe', { samples, language: $('lang').value }, {
-        transfer: [samples.buffer],
-        onProgress: (p) => { prog.value = p.total ? p.done / p.total : 0; $('msg').textContent = `Window ${Math.min(p.done + 1, p.total)} of ${p.total} (${clock(p.done * 30)} of ${clock(samples.length / 16000)})`; },
-      });
-      segments = r.segments;
-      $('out').value = X.txt(segments, { times: true });
-      const any = segments.length > 0;
-      $('srt').disabled = $('txt').disabled = !any;
-      $('msg').textContent = any ? `${segments.length} segments, language ${r.language}. Check the text before you use it.` : 'No speech found in this file.';
-    } catch (e) {
-      $('msg').textContent = 'Could not transcribe: ' + e.message;
-    } finally { $('run').disabled = false; prog.hidden = true; }
-  }
-  function pick(f) {
-    if (!f) return;
-    if (!/^(audio|video)\//.test(f.type)) { $('msg').textContent = 'Choose an audio or video file.'; return; }
-    file = f; segments = []; baseName = f.name.replace(/\.[^.]+$/, '') || 'transcript';
-    $('fileName').textContent = f.name + ' · ' + window.SlopAIModels.formatSize(f.size);
-    $('out').value = ''; $('run').disabled = false;
-  }
-  $('file').addEventListener('change', (e) => pick(e.target.files[0]));
-  $('drop').addEventListener('dragover', (e) => e.preventDefault());
-  $('drop').addEventListener('drop', (e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); });
-  $('run').addEventListener('click', run);
-  $('srt').addEventListener('click', () => T.download(baseName + '.srt', X.srt(segments), 'application/x-subrip'));
-  $('txt').addEventListener('click', () => T.download(baseName + '.txt', X.txt(segments), 'text/plain'));
-  T.gate('speech', () => { $('ui').hidden = false; });
-})();
+const X = window.SlopTranscript;   // the transcript formats (aitools/transcript.js), shared with Slop Transcribe
+const clock = X.clock;
+const installed = async (id) => /^(installed|update|bundled)$/.test(await M.status(id));
+function label() {
+  const id = model || (language !== 'auto' && prefs.preferred(language)) || C.QUICK;
+  $('model').textContent = `${language === 'auto' ? 'Detect automatically' : languageName(language)} · ${C.byId(id).name} ▾`;
+}
+/** The model for a language: the one chosen in the dialog if it fits, else the preferred one if installed, else the quick one. */
+async function modelFor(lang) {
+  if (model && C.fits(C.byId(model), lang)) return model;
+  const p = prefs.preferred(lang);
+  return p && C.fits(C.byId(p), lang) && (await installed(p)) ? p : C.QUICK;
+}
+
+async function run() {
+  $('run').disabled = true; $('srt').disabled = $('txt').disabled = true;
+  const prog = $('prog'); prog.hidden = false; prog.value = 0; $('msg').textContent = '';
+  try {
+    $('msg').textContent = 'Decoding the audio…';
+    const samples = await T.audioSamples(file);
+    if (samples.length / 16000 > MAX_SECONDS) throw new Error('The audio is longer than 2 hours.');
+    if (samples.length < 16000 / 2) throw new Error('The audio is too short to transcribe.');
+    await T.ensure(C.QUICK, (s) => ($('msg').textContent = s));
+    let lang = language;
+    if (lang === 'auto') lang = (await T.call('detect', { model: C.QUICK, samples: samples.slice(0, 30 * 16000) })).languages[0].code;
+    const use = await modelFor(lang);
+    if (use !== C.QUICK && big && big !== use) await T.release(big);
+    if (use !== C.QUICK) big = use;
+    await T.ensure(use, (s) => ($('msg').textContent = s));
+    const r = await T.call('transcribe', { model: use, samples, language: lang }, {
+      transfer: [samples.buffer],
+      onProgress: (p) => { prog.value = p.total ? p.done / p.total : 0; $('msg').textContent = `${clock(p.done)} of ${clock(p.total)} read`; },
+    });
+    segments = r.segments;
+    $('out').value = X.txt(segments, { times: true });
+    const any = segments.length > 0;
+    $('srt').disabled = $('txt').disabled = !any;
+    $('msg').textContent = any ? `${segments.length} segments, ${languageName(r.language)}, read with ${C.byId(use).name}. Check the text before you use it.` : 'No speech found in this file.';
+  } catch (e) {
+    $('msg').textContent = 'Could not transcribe: ' + e.message;
+  } finally { $('run').disabled = false; prog.hidden = true; }
+}
+function pick(f) {
+  if (!f) return;
+  if (!/^(audio|video)\//.test(f.type)) { $('msg').textContent = 'Choose an audio or video file.'; return; }
+  file = f; segments = []; baseName = f.name.replace(/\.[^.]+$/, '') || 'transcript';
+  if (!prefs.pinned()) { language = 'auto'; label(); }   // each new file is detected afresh unless a language is pinned
+  $('fileName').textContent = f.name + ' · ' + window.SlopAIModels.formatSize(f.size);
+  $('out').value = ''; $('run').disabled = false;
+}
+$('model').addEventListener('click', async () => openModelChooser({
+  family: speechFamily(C), language, model: model || await modelFor(language), pinned: !!prefs.pinned(), installer: M, ui: window.SlopUI, storageHref: '../../settings/#storage',
+  onChoose: (c) => { language = c.language; model = c.model; if (c.pin) prefs.pin(language); else if (prefs.pinned() !== language) prefs.pin(null); label(); },
+}));
+$('file').addEventListener('change', (e) => pick(e.target.files[0]));
+$('drop').addEventListener('dragover', (e) => e.preventDefault());
+$('drop').addEventListener('drop', (e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); });
+$('run').addEventListener('click', run);
+$('srt').addEventListener('click', () => T.download(baseName + '.srt', X.srt(segments), 'application/x-subrip'));
+$('txt').addEventListener('click', () => T.download(baseName + '.txt', X.txt(segments), 'text/plain'));
+label();
+T.gate('speech', () => { $('ui').hidden = false; });

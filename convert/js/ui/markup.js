@@ -2,6 +2,7 @@
  * Used by the hub and by every converter page, so they all behave the same. */
 import { h } from './dom.js';
 import { conversionById, outKind } from '../core/catalog.js';
+import { isRoute, stepsOf } from '../core/chain.js';
 import '../../../shared/ui/flow.js';   // window.SlopFlow: the "PDF → DOCX" picture at the top of the tool
 import '../../../shared/raw/tiff.js';
 import '../../../shared/raw/detect.js';   // camera RAW extensions for the file picker (often no MIME type)
@@ -45,7 +46,7 @@ export function buildTool(root, preset, { ns = 'cv', compact = false } = {}) {
 export function firstVisit(tool) {
   const p = tool.preset, tag = (k) => window.SlopFlow.tag(k);
   if (p) {
-    const conv = conversionById(p.conv), from = p.from ? p.from.map(tag).join(' or ') : 'your';
+    const conv = conversionById(p.conv) || (isRoute(p.conv) ? stepsOf(p.conv).pop().conv : null), from = p.from ? p.from.map(tag).join(' or ') : 'your';
     return { preview: { steps: [`Drop ${from} files, one or many`, 'Check the options', `Download the ${conv ? tag(outKind(conv, p.defaults)) : 'new'} files`] } };
   }
   const S = window.SlopSamples;

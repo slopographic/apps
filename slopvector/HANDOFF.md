@@ -104,3 +104,11 @@ These were asked for together with the PhotoSlop layer work; none of the Vector 
   groups work. The clip shape is not drawn and cannot be edited in place: release, edit, then make the mask again.
 - **Tests:** `tests/node/slopvector-clip.test.mjs` (plan, apply, release, SVG and PDF strings) and
   `tests/slopvector/clip.test.html` (make, the picture before and after, hit testing, undo/redo and release, save, no-op, PDF).
+
+## Phone layout (SlopSheet)
+Under 900 px the dock is a drawer from the right, under the menu and control bars: `UI.dockSheet = SlopSheet.attach({ side:
+'end', toggles: [#panelsToggle] })` in `buildDock()` (`js/ui/dock.js`; `shared/ui/sheet.js`, see `shared/ui/HANDOFF.md`). The
+Panels button, Tab and Window ▸ Show/Hide Panels open and close it, Window ▸ a panel opens it; the shared ×, Escape, a tap
+outside and a swipe right close it. The old `dock-open` class and the `.dock-head` bar with its × are gone; the keyboard
+Escape (deselect) skips an Escape the drawer took. `shared/ui/sheet.js` is in the offline manifest. Test:
+`tests/slopvector/phone-dock.test.html`.

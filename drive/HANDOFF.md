@@ -16,7 +16,7 @@ Slop Drive is the local file drive that every Slopographic app shares. It is an 
 | `guard.test.html` | Ctrl+Shift+R, Ctrl+F5 and Cmd+Shift+R are caught (plain Ctrl+R is not), the dialog text and buttons, Export backup, Reload anyway, "Don't show again", the `beforeunload` prompt only while work is unsaved, pages with a foreign `window.SlopUI` (the homepage), the folder-aware picker, `saveToDrive` |
 | `commands.test.html` | the command list, registering with SlopCmd (a stub), handing shortcuts over, the files provider |
 | `newmenu.test.html` | the New ▸ submenu (toolbar and right-click), creating `Untitled document.sdoc` etc. in the open folder, unique names, opening in the creating app |
-| `mobile.test.html` | 390×844: no sideways scroll in any view, drawer, tap to open, details sheet, long-press menu |
+| `mobile.test.html` | 390×844: no sideways scroll in any view; the folders drawer and the details sheet (SlopSheet: their button opens and closes, ×, Escape, a tap outside); tap to open; long-press menu |
 | `panel.test.html` | details panel width: 260 px to 60% clamp, rail under 300 px, arrow keys and Home/End on the grip, drag, double-click reset, stored width across a reload |
 | `sort.test.html` | each sort key ascending and descending with folders first, default directions, header and Alt+S menu arrows, a sort per view, kept across a reload |
 | `tags.test.html` | add (lowercase, unique, modified date kept), remove, the details panel chips, tags across a reload, sidebar tag counts and the drive-wide tag filter, the Tags column |
@@ -202,3 +202,11 @@ The sidebar's **Drives** section lists the local providers: the **Local folder**
 - **Limits**: a local drive is Chrome or Edge only (`showDirectoryPicker`). Upload to a provider does not merge into an existing folder of the same name; it makes "name (2)". Rename is not offered for items inside a local drive. The Local folder's mirror (Cloud backup) reads only its `Slop Drive` subfolder, so files moved into the Local folder's root are not mirrored back.
 - **Code**: `core/drives-store.js`, `core/prov-dir.js`, `core/prov-internal.js`, `core/transfer.js`, `core/providers.js`, `ui/prov-tree.js`, `ui/prov-picker.js`, `ui/prov-dnd.js`, `ui/prov-actions.js`, `ui/prov-drives.js`, `css/providers.css`.
 - **Tests**: `tests/node/drive-providers.test.mjs` (the folder provider and the transfer engine on a fake directory handle) and `tests/drive/providers.test.html` (the sidebar, the add, allow and help dialogs, the menus, drops and moves across places, the picker).
+
+## Phone layout (SlopSheet)
+Under 760 px the sidebar is a drawer from the left (`DR.drawerUI`, wired in `ui/sidebar.js`) and the details panel a bottom
+sheet (`DR.sheetUI`, `ui/info.js`), both `SlopSheet.attach` from `shared/ui/sheet.js` (see `shared/ui/HANDOFF.md`): the
+Folders and Info buttons open and close them, and the shared ×, Escape, a tap outside and a swipe close them. There is no
+scrim, `sheet-open`/`drawer-open` class or Escape branch of Drive's own any more; `DR.drawer(open)` and `DR.sheet(open)` are
+thin wrappers. The details × is the panel's close on a desktop too (`closeWide`). Both are wired in `main.js` before
+`DR.wireKeys()`, whose Escape skips an event the sheet took (`e.defaultPrevented`).

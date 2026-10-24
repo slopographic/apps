@@ -107,9 +107,11 @@
     if (!C) { console.warn('Slop PDF: SlopCmd is missing; keyboard shortcuts are off'); return; }
     C.init({ app: 'pdf' });
     C.register(all());
-    var b = U.h('button', { type: 'button', class: 'tb', id: 'btnCmd', title: 'Search commands (' + C.keyFor('cmd.palette') + ')', 'aria-label': 'Search commands', html: U.icon('search') });
+    // The button is in the page (index.html), so the top bar is whole at its first paint; it works from here on
+    var b = document.getElementById('btnCmd');
+    if (!b) { b = U.h('button', { type: 'button', class: 'tb', id: 'btnCmd', 'aria-label': 'Search commands', html: U.icon('search') }); S.els.btnPanel.parentNode.insertBefore(b, S.els.btnPanel); }
+    b.title = 'Search commands (' + C.keyFor('cmd.palette') + ')';
     b.addEventListener('click', function () { C.open(); });
-    S.els.btnPanel.parentNode.insertBefore(b, S.els.btnPanel);
     C.on('change', function () { b.title = 'Search commands (' + C.keyFor('cmd.palette') + ')'; });
   };
 })();

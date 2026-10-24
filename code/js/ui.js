@@ -54,14 +54,19 @@ export function setStatus() {
 
 export const isPhone = () => window.matchMedia('(max-width: 719px)').matches;
 const phone = isPhone;
+let drawer = null;
+/** On a phone the Explorer is a drawer from the start edge: SlopSheet (shared/ui/sheet.js) gives it the Files button as
+ * its toggle, the ×, Escape, a tap outside and a swipe left. */
+export function initDrawer() {
+  drawer = window.SlopSheet.attach({ root: $('cd-app'), panel: $('cd-tree'), side: 'start', phone: '(max-width: 719px)', toggles: [$('cd-files')], label: 'Explorer' });
+}
 /** Show or hide the file tree: a drawer on a phone, a column on a desktop. */
 export function setTreeOpen(on) {
-  const app = $('cd-app');
-  if (phone()) { app.classList.toggle('cd-drawer-open', !!on); $('cd-scrim').hidden = !on; }
-  else app.classList.toggle('cd-tree-hidden', !on);
+  if (phone()) { if (on) drawer.open(); else drawer.close(); return; }
+  $('cd-app').classList.toggle('cd-tree-hidden', !on);
   $('cd-files').setAttribute('aria-expanded', on ? 'true' : 'false');
 }
-export const treeOpen = () => (phone() ? $('cd-app').classList.contains('cd-drawer-open') : !$('cd-app').classList.contains('cd-tree-hidden'));
+export const treeOpen = () => (phone() ? drawer.isOpen() : !$('cd-app').classList.contains('cd-tree-hidden'));
 
 /** The preview pane (the Run output and the console). */
 export function setPreview(on) {

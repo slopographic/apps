@@ -43,13 +43,13 @@
 
     it('Export as a Word file opens the Convert dialog with Word chosen and says how faithful it is', async () => {
       PT.A.openConvert('pdf-to-docx');
-      await waitFor(() => doc().querySelector('input[data-target="pdf-to-docx"]'), { timeout: 15000 });
-      expect(doc().querySelector('input[data-target="pdf-to-docx"]').checked).toBe(true);
-      const dlg = doc().querySelector('.sl-cvt-x');
+      await waitFor(() => doc().querySelector('.sl-cvt-dlg .cv-to[data-target="pdf-to-docx"]'), { timeout: 15000 });
+      expect(doc().querySelector('.sl-cvt-dlg .sl-cvt-notes').textContent).toMatch(/Text-based/);
+      const dlg = doc().querySelector('.sl-cvt-dlg .sui-x');
       if (dlg) dlg.click();
-      const t = (await import('../../shared/convert/targets.js')).TARGETS.find((x) => x.id === 'pdf-to-docx');
+      const t = (await import('../../convert/js/core/catalog.js')).conversionById('pdf-to-docx');
       expect(t.note).toMatch(/Text-based/);
-      expect((await import('../../shared/convert/targets.js')).TARGETS.find((x) => x.id === 'pdf-to-pptx').note).toMatch(/picture/);
+      expect((await import('../../convert/js/core/catalog.js')).conversionById('pdf-to-pptx').note).toMatch(/picture/);
     });
 
     it('builds a table only from cells that are positioned apart (synthetic lines)', async () => {

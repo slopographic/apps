@@ -58,3 +58,10 @@ main.tr-app { max-width: 1180px; }
   .tr-intro h1 { font-size: 22px; }
   .tr-text { min-height: 260px; }
 }
+/* the Language and model button and the line under a transcript (js/choose.js, js/models.js) */
+.tr-modelbtn { font: inherit; font-size: 14px; color: var(--fg); background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; min-height: 38px; text-align: left; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tr-suggest { margin: 8px 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; display: grid; gap: 6px; font-size: 14px; }
+.tr-detect { margin: 0; color: var(--muted); }
+.tr-upgrade { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tr-upgrade-busy { font-variant-numeric: tabular-nums; }
+.tr-link { background: none; border: 0; padding: 0; min-height: 0; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; }

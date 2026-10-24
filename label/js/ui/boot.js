@@ -19,15 +19,13 @@ function wireChrome() {
   $('btnUndo').addEventListener('click', undo);
   $('btnRedo').addEventListener('click', redo);
   $('btnPrint').addEventListener('click', openPrintDialog);
-  $('btnDock').addEventListener('click', () => { const open = !$('app').classList.contains('dock-open'); $('app').classList.toggle('dock-open', open); if (open) renderPanels(); });
+  wireDock();   // ui/app.js: the phone sheet
   $('cbLabel').addEventListener('click', () => labelSetupDialog());
   $('recPrev').addEventListener('click', () => setRecord(App.rec - 1));
   $('recNext').addEventListener('click', () => setRecord(App.rec + 1));
   $('zoomIn').addEventListener('click', () => zoomTo(App.zoom * 1.25));
   $('zoomOut').addEventListener('click', () => zoomTo(App.zoom / 1.25));
   $('zoomVal').addEventListener('click', fitView);
-  // tapping the canvas on a phone closes the panel sheet
-  $('stage').addEventListener('pointerdown', () => { if (narrow()) hideDock(); }, true);
   // drag and drop anywhere: SlopDrop (shared/drop) shows the outline and each file's progress in the strip over the
   // stage. A picture dropped on the stage lands where it was dropped; everything else opens as before (openFiles).
   const DROP_RULES = {
@@ -48,7 +46,7 @@ function wireChrome() {
       return file.name;
     },
   });
-  matchMedia('(max-width: 760px)').addEventListener('change', () => { hideDock(); setTimeout(fitView, 50); });
+  matchMedia('(max-width: 760px)').addEventListener('change', () => setTimeout(fitView, 50));
 }
 /** The label people see on first visit: the product label template. */
 function starterDoc() { return TEMPLATES.find((t) => t.id === 'product').build(); }

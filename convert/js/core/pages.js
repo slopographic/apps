@@ -6,6 +6,8 @@ import { FINANCE_PAGES } from './finance-pages.js';
 import { RAW_PAGES } from './raw-pages.js';
 import { MORE_PAGES } from './more-pages.js';
 import { DATA_PAGES } from './data-pages.js';
+import { CHAIN_PAGES } from './chain-pages.js';
+import { PDF_LOCK_PAGES } from './pdf-lock-pages.js';
 
 export const PAGES = [
   { slug: 'mov-to-mp4', conv: 'to-mp4', from: ['mov'], label: 'MOV to MP4', pair: ["MOV", "MP4"], cat: 'Audio and video', summary: "Convert MOV videos to MP4 in your browser.", h1: "MOV to MP4 converter",
@@ -247,4 +249,6 @@ export const PAGES = [
   ...RAW_PAGES,   // camera RAW photos (core/raw-pages.js)
   ...MORE_PAGES,   // HEIC, SVG to JPG, GIF to MP4, audio, text to PDF and Word (core/more-pages.js)
   ...DATA_PAGES,   // spreadsheets, JSON, YAML, TOML, XML, subtitles (core/data-pages.js)
+  ...CHAIN_PAGES,   // routes of two conversions: SIE to JSON, HEIC to PDF, Excel to YAML and more (core/chain-pages.js)
+  ...PDF_LOCK_PAGES,   // password protect a PDF, remove a PDF password (core/pdf-lock-pages.js)
 ];

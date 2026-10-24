@@ -105,10 +105,10 @@ describe('bank statements to CSV and Excel', () => {
 });
 
 describe('the converter pages', () => {
-  it('six finance pages, in the Finance group, each on a finance conversion', () => {
+  it('seven finance pages, in the Finance group, each on a finance conversion (SIE to JSON: a route that starts with one)', () => {
     const fin = PAGES.filter((p) => p.cat === 'Finance');
-    expect(fin.map((p) => p.slug)).toEqual(['sie-to-xlsx', 'sie-to-csv', 'ofx-to-csv', 'qif-to-csv', 'camt053-to-xlsx', 'mt940-to-csv']);
-    for (const p of fin) expect(!!conv(p.conv)).toBeTruthy();
+    expect(fin.map((p) => p.slug)).toEqual(['sie-to-xlsx', 'sie-to-csv', 'ofx-to-csv', 'qif-to-csv', 'camt053-to-xlsx', 'mt940-to-csv', 'sie-to-json']);
+    for (const p of fin) expect(!!conv(p.conv.split('>')[0])).toBeTruthy();
   });
   it('a dropped SIE file shows as text (code page 437 decoded) and its workbook as a table in the preview', async () => {
     const root = document.createElement('div'), block = document.createElement('section');
