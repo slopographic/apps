@@ -26,7 +26,17 @@
       deck: deck,
       doc: { driveId: null, name: (doc && doc.name) || N.DEFAULT_NAME, dirty: !!(doc && doc.dirty) },
       idx: 0, sel: [], hist: A.makeHist(), untouched: !!untouched,
+      title0: deck.title,   // the deck name the tab last followed (followTitle)
     };
+  }
+  /** The tab follows the deck's name: naming the deck (the title field, or an undo of that) renames the tab, and a deck
+   * not linked to a Drive file takes the name as its file name too. A linked one renames its Drive file (the strip does). */
+  function followTitle(T) {
+    var t = String(T.deck.title || '').trim();
+    if (!t || t === T.title0) return;
+    T.title0 = t;
+    if (!tabs.driveIdOf(T)) T.doc.name = N.fileName(t);
+    tabs.rename(T, t);
   }
   function copyOut(T) {
     T.deck = A.deck; T.doc = A.doc; T.doc.dirty = !!A.dirty;
@@ -88,6 +98,7 @@
     A.dirty = A.doc.dirty;
     A.hist.clear();
     T.untouched = false;
+    T.title0 = deck.title;
     A.emit('load');
     A.emit('change');
   };
@@ -101,6 +112,7 @@
         if (switching || !A.deck || !cur()) return;
         copyOut(cur());
         cur().untouched = false;
+        followTitle(cur());
         tabs.changed(cur());
       });
       tabs.on(guard);

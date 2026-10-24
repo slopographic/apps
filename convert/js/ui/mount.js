@@ -11,6 +11,7 @@ for (const root of document.querySelectorAll('[data-convert-root]')) {
     from: root.dataset.from ? root.dataset.from.split(',') : null,
     defaults: root.dataset.defaults ? JSON.parse(root.dataset.defaults) : {},
     note: root.dataset.note || '',
+    accept: root.dataset.accept || '',   // the file picker's list, when the page's kinds are not image/* (camera RAW)
   } : null;
   root.convertTool = new ConvertTool(root, preset);
 }

@@ -56,6 +56,9 @@
       btn().click();
       await waitFor(() => w.document.getElementById('storage-note').textContent);
       expect(w.document.getElementById('storage-note').textContent).toContain('Chrome and Edge decide this on their own');
+      // the answer also shows right under the button, where the person is looking, and stays after the redraw
+      await waitFor(() => box(w).querySelector('.storage-keep .persist-answer'));
+      expect(box(w).querySelector('.storage-keep .persist-answer').textContent).toContain('Chrome and Edge decide this on their own');
       let kept = false;
       stub(w, 'persisted', async () => kept);
       stub(w, 'persist', async () => { kept = true; return true; });

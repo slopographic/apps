@@ -1,7 +1,7 @@
 /* Slop Gallery: decode an image, apply its EXIF orientation by hand, and make a JPEG thumbnail (long edge <= 320 px).
  * Decoding uses imageOrientation 'none' so the browser never rotates the pixels behind our back: the orientation we
  * read from EXIF is the only one applied, and the stored width/height are the upright ones.
- * SVG is drawn from an <img> (createImageBitmap refuses SVG). Classic script, exposes window.SlopGallery.thumb.make(blob,
+ * SVG is drawn from an <img> (createImageBitmap refuses SVG). Camera RAW files use their embedded preview (shared/raw). Classic script, exposes window.SlopGallery.thumb.make(blob,
  * orientation) -> { blob, w, h }. */
 (function () {
   'use strict';
@@ -47,8 +47,18 @@
     return { src: bmp, width: bmp.width, height: bmp.height, close: () => bmp.close() };
   }
 
+  /** A camera RAW file's thumbnail: its embedded JPEG preview, drawn upright by SlopRaw (shared/raw), or a half-size
+   *  develop when the file has none. w and h are the picture's upright size. */
+  async function rawThumb(blob) {
+    const r = await window.SlopRaw.image(blob, { mode: 'preview', maxEdge: MAX_EDGE });
+    const out = await new Promise((res, rej) => r.canvas.toBlob((x) => (x ? res(x) : rej(new Error('Thumbnail failed'))), 'image/jpeg', 0.82));
+    return { blob: out, w: r.width, h: r.height, raw: true };
+  }
+  const isRaw = async (blob) => !!window.SlopRaw && (await window.SlopRaw.isRaw(blob, blob.name || ''));
+
   /** Thumbnail for an image Blob. Throws if the browser cannot decode it (for example HEIC in Chromium). */
   async function make(blob, orientation = 1) {
+    if (await isRaw(blob)) return rawThumb(blob);   // upright already: the RAW's own orientation is applied
     const bmp = await decode(blob);
     try {
       const o = orientation >= 1 && orientation <= 8 ? orientation : 1;
@@ -77,5 +87,5 @@
     return up;
   }
 
-  G.thumb = { make, dims, matrix, uprightSize, MAX_EDGE };
+  G.thumb = { make, dims, matrix, uprightSize, isRaw, MAX_EDGE };
 })();

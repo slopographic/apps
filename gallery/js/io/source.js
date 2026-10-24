@@ -4,7 +4,7 @@
  *  - fromDirectory()              showDirectoryPicker where the browser has it (FileSystemDirectoryHandle), else null
  *  - fromDrive()                  one file from Slop Drive (SlopHub.pickFromDrive), keeps its Drive id
  * Entries are read synchronously inside the drop event, as the browser requires, before any await. The library keeps
- * photos (JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, HEIC); video files (WebM and the rest) are left out and listed in
+ * photos (JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, HEIC, and camera RAW: CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2 and more); video files (WebM and the rest) are left out and listed in
  * .skipped on the array, so the import can say why. WebM plays in the Drive view.
  * Exposes window.SlopGallery.source. */
 (function () {
@@ -13,8 +13,9 @@
   const EXT = { jpg: 'image/jpeg', jpeg: 'image/jpeg', jpe: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif', bmp: 'image/bmp', heic: 'image/heic', heif: 'image/heif', svg: 'image/svg+xml' };
   const isVideo = (file, name) => /^video\//.test(file.type || '') || /\.(webm|mp4|m4v|mov|mkv|ogv)$/i.test(name || file.name || '');
   const extOf = (name) => (/\.([a-z0-9]+)$/i.exec(name || '') || [])[1]?.toLowerCase() || '';
-  const mimeOf = (name) => EXT[extOf(name)] || 'application/octet-stream';
-  const isImage = (file, name) => /^image\//.test(file.type || '') || !!EXT[extOf(name || file.name)];
+  const isRaw = (name) => !!(window.SlopRaw && window.SlopRaw.isRawName(name));   // camera RAW (shared/raw): by extension here
+  const mimeOf = (name) => EXT[extOf(name)] || (isRaw(name) ? 'image/x-' + extOf(name) : 'application/octet-stream');
+  const isImage = (file, name) => /^image\//.test(file.type || '') || !!EXT[extOf(name || file.name)] || isRaw(name || file.name);
 
   /** Keeps image files only and gives each a display name. The array's .skipped lists the video files left out. */
   function keepImages(list) {

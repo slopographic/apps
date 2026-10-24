@@ -16,6 +16,7 @@
   }
 
   /** est: SlopQuota.estimate(). say(text) writes the status line; redraw() draws the section again. */
+  var answer = '';   // the browser's last answer to Keep my files, shown under the button (it survives the redraw)
   function nodes(est, say, redraw) {
     var t = Q.t, kept = est.persisted === true;
     var pct = est.usage != null && est.quota ? est.percent : 0;
@@ -27,7 +28,7 @@
     keep.disabled = kept || !est.canPersist;
     keep.addEventListener('click', function () {
       keep.disabled = true;
-      Q.request().then(function (answer) { say(Q.outcome(answer, est.browser.engine)); redraw(); });
+      Q.request().then(function (a) { answer = Q.outcome(a, est.browser.engine); say(answer); redraw(); });
     });
     var folder = el('div', { class: 'storage-folder', 'data-folder': est.folder ? 'yes' : 'no' }, [
       el('p', { text: Q.folderText(est) }),
@@ -39,6 +40,7 @@
       el('div', { class: 'storage-keep', 'data-state': state }, [
         el('p', { class: 'persist-note', 'data-state': state, text: kept ? t('storage.kept') : t('storage.not_kept') }),
         keep,
+        answer ? el('p', { class: 'persist-answer', role: 'status', text: answer }) : null,
       ]),
       el('div', { class: 'storage-limit', 'data-engine': est.browser.engine }, [
         el('h3', { text: t('storage.limit_title') }),

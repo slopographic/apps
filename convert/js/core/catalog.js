@@ -21,6 +21,7 @@ import { convertVideo } from './ffmpeg-engine.js';
 import { emlToHtml, emlToText, emlAttachmentsZip, icsToCsv, icsToJson, xmlToJson, unzipEntries, zipFiles } from './mail.js';
 import { FINANCE } from './finance.js';
 import { THREED } from './threed.js';
+import { RAW } from './raw.js';
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'];
 const SIZE = [
@@ -238,6 +239,7 @@ export const CONVERSIONS = [
   ...FINANCE,
   { id: 'unzip', label: 'Unzip', group: 'Archives', from: ['zip'], mode: 'each', options: [], run: async (files) => unzipEntries(files[0].file) },
   { id: 'zip-files', label: 'Files to ZIP', group: 'Archives', from: ['*'], ext: 'zip', mode: 'combine', options: [], run: async (files) => [{ name: 'files.zip', blob: await zipFiles(files) }] },
+  ...RAW,   // camera RAW photos (core/raw.js)
   ...THREED,   // 3D models (core/threed.js)
 ];
 

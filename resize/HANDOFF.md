@@ -107,3 +107,6 @@ Offline: `service-worker.js` precaches each app's files explicitly, so the `resi
 - Rotated phone videos are used at the size the browser reports for them.
 - No EXIF is copied to results (the canvas output has none). SlopClean removes metadata; Slop Resize does not add it.
 - Send-to menus in the other apps need the registry entry above.
+
+## Camera RAW (uses `shared/raw/`)
+`format.kind` treats RAW extensions as images; `image.probe` measures a RAW from its embedded preview (and gives the list a preview thumbnail) with no engine; `image.load` develops it in full with the camera's white balance (`SlopRaw.image` mode full), or uses the preview and sets `note` when the engine cannot run or is declined. Test: `tests/resize/raw.test.html`.

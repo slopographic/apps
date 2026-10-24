@@ -92,7 +92,9 @@
   if (!window.SlopPWA) queue.push(['shared/pwa.js']);   // every app works offline after its first visit
   for (const m of ['notify', 'layout', 'tabs', 'switcher', 'drawer', 'header']) queue.push(['shell/' + m + '.js']);
 
-  S.ready = queue.reduce((p, [src, data]) => p.then(() => addScript(src, data)), Promise.resolve()).then(() => {
+  // All at once: the browser fetches them side by side and, as they are not async, runs them in this order (one
+  // round trip in all, not one per file)
+  S.ready = Promise.all(queue.map(([src, data]) => addScript(src, data))).then(() => {
     S.currentApp = detectCurrent();
     if (S.currentApp) pushRecent(S.currentApp.id);
     S.notify = window.SlopNotify;

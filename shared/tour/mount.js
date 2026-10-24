@@ -65,7 +65,8 @@
     const host = document.querySelector('.top-actions') || document.querySelector('header.topbar') || document.querySelector('header') || document.querySelector('main') || document.body;
     if (host.querySelector('.stour-btn')) return;
     const b = button('Tour', 'Start the ' + NAME[APP] + ' tour', () => startTour(APP));
-    if (host.matches('.top-actions, main, body')) host.prepend(b); else host.append(b);
+    const slot = host.querySelector('.stour-slot');   // room kept for it in the page's own HTML, so nothing moves
+    if (slot) slot.replaceWith(b); else if (host.matches('.top-actions, main, body')) host.prepend(b); else host.append(b);
   }
   /** Register "Start tour: <name>". Pages without the palette get its registry core (no key handling) to hold it. */
   function paletteCommand() {

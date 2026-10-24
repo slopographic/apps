@@ -79,7 +79,9 @@
     if (theme) box.append(theme);
     box.append(sw);
     const host = document.querySelector('header.topbar, header.menubar, header.nav, header');
-    if (host) { host.append(box); if (window.SlopHbtn) window.SlopHbtn.fit(host); }   // labels give way to icons when the header is full
+    const slot = host && host.querySelector('.sh-hdr-slot');   // room kept for the buttons in the page's own HTML
+    if (slot) slot.replaceWith(box); else if (host) host.append(box);
+    if (host) { if (window.SlopHbtn) window.SlopHbtn.fit(host); }   // labels give way to icons when the header is full
     else { box.classList.add('sh-fab'); document.body.append(box); }
     window.SlopNotify.mountBell(box);
     window.addEventListener('slop-lang', () => { sw.title = title(); });

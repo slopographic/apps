@@ -124,6 +124,7 @@ main { overflow: clip; }
 .lede { color: var(--bone-dim); font-size: 17px; margin: 0 0 26px; max-width: 32em; }
 .cta { display: flex; gap: 10px; flex-wrap: wrap; }
 
+.btn[hidden] { display: none; }   /* a hidden button stays hidden: .btn's own display must not show it while the page loads */
 .btn {
   display: inline-flex;
   align-items: center;

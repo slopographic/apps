@@ -33,6 +33,7 @@
     'footer.settings_link': 'الإعدادات والخصوصية',
     'footer.code_license': 'الكود بترخيص MIT',
     'footer.trademarks': 'Sloppo™ وSlopographic™ علامتان تجاريتان',
+    'footer.made': 'صُنع بـ ❤️ في السويد',
 
     'settings.appearance': 'المظهر',
     'settings.appearance_lede': 'سمة واحدة لكل تطبيقات Slopographic ولهذا الموقع. اختَرها هنا وتُطبَّق فوراً. يستخدم كل تطبيق الاختيار نفسه عند فتحه.',

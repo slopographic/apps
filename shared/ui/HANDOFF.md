@@ -109,3 +109,18 @@ f.state('run'); f.progress(0.4); f.state('done');                      // or 'er
 f.set({ from: 'csv', to: 'xlsx' });                                     // a new pair is idle and draws again
 ```
 Tests: `tests/shared/flow.test.html`, `tests/convert/ui.test.html`, `tests/convert/dialog.test.html`, `tests/convert/hub.test.html`.
+
+## Menu button (`menubutton.js`, SlopMenuButton)
+
+A button with its own menu of choices (choose one): rows with an optional icon node, group headings, the chosen row
+checked. It opens under the button (above when there is no room), sets `aria-expanded`, and gives focus back on close.
+Keys: ArrowDown or ArrowUp on the button open it; in the menu the arrows, Home, End and a typed letter move, Enter or Space
+picks, Escape or Tab closes. SlopUI.menu stays the context menu at the pointer; this one belongs to a button. Styles are
+injected once and take the page's `--panel`, `--ink`, `--line`, `--accent`, `--focus` (or `--smb-*`).
+
+```js
+SlopMenuButton.attach(button, { label: 'Convert photo.png to', empty: 'No format',
+  items: () => [{ heading: 'Images' }, { value: 'to-jpg', label: 'To JPG', icon: SlopFlow.tile('jpg'), checked: true }],
+  onPick: (value) => { ... } });
+```
+Used by File convert's per-file targets (`convert/js/ui/file-row.js`). Tests: `tests/shared/menubutton.test.html`.

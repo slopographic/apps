@@ -3,6 +3,7 @@
  * conv: a catalog id. from: input kinds the page accepts. */
 import { THREED_PAGES } from './threed-pages.js';
 import { FINANCE_PAGES } from './finance-pages.js';
+import { RAW_PAGES } from './raw-pages.js';
 
 export const PAGES = [
   { slug: 'mov-to-mp4', conv: 'to-mp4', from: ['mov'], label: 'MOV to MP4', pair: ["MOV", "MP4"], cat: 'Audio and video', summary: "Convert MOV videos to MP4 in your browser.", h1: "MOV to MP4 converter",
@@ -241,4 +242,5 @@ export const PAGES = [
     faq: [['What are the field names?', 'fn is the full name, name holds given and family, emails and phones are lists of value and types, adr holds addresses, and org, title, url and note are text.'], ['Is this the same data as the Contacts app?', 'It is read by the same vCard reader that Slop Contacts uses, so the fields match what the app shows.']] },
   ...THREED_PAGES,   // 3D models (core/threed-pages.js)
   ...FINANCE_PAGES,   // SIE files and bank statements (core/finance-pages.js)
+  ...RAW_PAGES,   // camera RAW photos (core/raw-pages.js)
 ];

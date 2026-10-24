@@ -17,7 +17,7 @@
   pdf: {
     id: 'pdf', entry: 'pdf/index.html', mode: 'embed', marker: 'slop-pdf-build',
     boot: { file: 'pdf/js/io/build.js', name: 'SP.build.BOOT' },
-    drop: ['shared/profile/profile.js', 'shared/theme/theme.js', 'shared/hub.js', 'shared/drive-link.js', 'shared/spotlight/spotlight.js'],
+    drop: ['shared/profile/profile.js', 'shared/theme/theme.js', 'shared/boot/boot.js', 'shared/hub.js', 'shared/drive-link.js', 'shared/spotlight/spotlight.js'],
     files: [
     'shared/session/session.js', 'pdf/css/base.css', 'pdf/css/workspace.css', 'shared/workspace/workspace.css', 'shared/doctabs/pane-tabs.css', 'pdf/css/panels.css',
     'pdf/css/redact.css', 'pdf/css/page-acts.css', 'pdf/css/find.css', 'pdf/css/selbar.css', 'pdf/css/assets.css',
@@ -95,7 +95,7 @@
     id: 'vector', entry: 'slopvector/index.html', mode: 'inline', marker: 'slop-vector-build',
     drop: ['shared/guard.js', 'shared/spotlight/spotlight.js'],
     files: [
-    'shared/profile/profile.js', 'shared/theme/theme.js', 'shared/support/state.js', 'shared/support/card.js',
+    'shared/profile/profile.js', 'shared/theme/theme.js', 'shared/boot/boot.js', 'shared/support/state.js', 'shared/support/card.js',
     'shared/support/support.js', 'shared/slopui.css', 'shared/color/picker.css', 'shared/nav/nav.css',
     'shared/commands/commands.css', 'shared/guides/guides.css', 'slopvector/css/themes.css',
     'slopvector/css/chrome.css', 'slopvector/css/canvas.css', 'slopvector/css/panels.css',

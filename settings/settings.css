@@ -97,6 +97,7 @@
 .storage-keep { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding-block: 10px; border-block-end: 1px solid var(--sl-border, var(--line)); }
 .storage-keep .persist-note { flex: 1 1 260px; margin: 0; padding-inline-start: 10px; border-inline-start: 3px solid var(--sl-border, var(--line)); color: var(--sl-text, var(--bone)); font-size: 14px; }
 .storage-keep[data-state="granted"] .persist-note { border-inline-start-color: var(--sl-accent, var(--slop)); }
+.storage-keep .persist-answer { flex: 1 1 100%; margin: 0; font-size: 14px; color: var(--sl-text, var(--bone)); }   /* the browser's answer, right under the button */
 .storage-keep .btn { margin-top: 0; }
 .storage-limit { padding: 12px 14px; border: 1px solid var(--sl-border, var(--line)); border-radius: 8px; background: var(--sl-surface, var(--ink-2)); }
 .storage-limit h3 { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: var(--sl-text, var(--bone)); }

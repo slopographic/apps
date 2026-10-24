@@ -32,6 +32,7 @@
     'footer.settings_link': 'Configuración y privacidad',
     'footer.code_license': 'Código MIT',
     'footer.trademarks': 'Sloppo™ y Slopographic™ son marcas comerciales',
+    'footer.made': 'Hecho con ❤️ en Suecia',
 
     'settings.appearance': 'Apariencia',
     'settings.appearance_lede': 'Un solo tema para todas las apps de Slopographic y para este sitio. Elígelo aquí y se aplica al momento. Cada app usa la misma elección al abrirse.',

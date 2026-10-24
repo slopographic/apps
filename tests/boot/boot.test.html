@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Boot cover</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; } iframe { width: 400px; height: 300px; border: 0; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script>
+  // Covers: shared/boot/boot.js
+  const { describe, it, expect, waitFor } = SlopTest;
+  /** Loads a fixture into a fresh iframe; resolves with its window once SlopBoot exists. */
+  async function open(name) {
+    const f = document.createElement('iframe');
+    f.src = 'fixtures/' + name;
+    document.body.append(f);
+    await waitFor(() => f.contentWindow && f.contentWindow.SlopBoot, { timeout: 10000 });
+    return f.contentWindow;
+  }
+  const covered = (w) => w.document.documentElement.classList.contains('slop-booting');
+
+  describe('the boot cover', () => {
+    it('covers the page while it builds and shows it once, whole, after it stays still', async () => {
+      const w = await open('late.html');
+      await w.SlopBoot.done;
+      expect(w.seen.length).toBe(3);
+      expect(w.seen.every((s) => s.covered)).toBe(true, 'every step was built under the cover');
+      expect(w.SlopBoot.at > 0).toBe(true);
+      await waitFor(() => !covered(w), { timeout: 2000 });
+      // no trace is left in the page (an offline copy saves itself from the live page)
+      expect(w.document.getElementById('slop-boot-css')).toBe(null);
+      expect(w.document.documentElement.hasAttribute('class')).toBe(false);
+      w.frameElement.remove();
+    });
+
+    it('waits for the shell (SlopShell.ready) before it shows the page', async () => {
+      const w = await open('shell.html');
+      await w.SlopBoot.done;
+      expect(w.shellAt > 0).toBe(true);
+      expect(w.SlopBoot.at >= w.shellAt).toBe(true, `shown at ${w.SlopBoot.at}, shell ready at ${w.shellAt}`);
+      w.frameElement.remove();
+    });
+
+    it('a script that throws shows the page at once, even one that never stops changing', async () => {
+      const w = await open('throws.html');
+      await w.SlopBoot.done;
+      expect(w.SlopBoot.at < w.SlopBoot.timing.SETTLE).toBe(true, 'shown at ' + w.SlopBoot.at);
+      w.frameElement.remove();
+    });
+
+    it('the cover takes no clicks, and reveal() can be called again safely', async () => {
+      const w = await open('late.html');
+      const cs = w.getComputedStyle(w.document.documentElement, '::after');
+      if (covered(w)) expect(cs.pointerEvents).toBe('none');
+      w.SlopBoot.reveal(); w.SlopBoot.reveal();
+      await w.SlopBoot.done;
+      await waitFor(() => !covered(w), { timeout: 2000 });
+      w.frameElement.remove();
+    });
+  });
+  SlopTest.run({ name: 'Boot cover' });
+  </script>
+</body>
+</html>

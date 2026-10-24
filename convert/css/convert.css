@@ -150,3 +150,36 @@ output { color: var(--muted); font-weight: 500; }
 @keyframes cv-pick-flash { from { box-shadow: 0 0 0 3px var(--accent); } to { box-shadow: 0 0 0 0 transparent; } }
 .cv-picker.cv-pick-flash { animation: cv-pick-flash 1.1s ease-out; }
 @media (max-width: 560px) { .cv-pick { flex: 1 1 calc(50% - 8px); padding-right: 8px; } }
+
+/* Per-file targets (js/ui/file-row.js, bulk.js): a checkbox, the name, the row's own Convert to, Remove. The menu is
+ * shared/ui/menubutton.js and takes these tokens. On a phone the row wraps: Convert to and Remove go under the name. */
+.cv-file { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+.cv-file-check { inline-size: 20px; block-size: 20px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.cv-file.cv-selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--panel)); }
+.cv-file-to { display: inline-flex; align-items: center; gap: 8px; min-inline-size: 0; }
+.cv-file-to-h { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.cv-to { display: inline-flex; align-items: center; gap: 8px; min-block-size: 40px; min-inline-size: 0; max-inline-size: 280px; padding-block: 4px; padding-inline: 6px 10px;
+  font: inherit; font-size: 14px; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-align: start; }
+.cv-to:hover:not(:disabled), .cv-to[aria-expanded="true"] { border-color: var(--accent); }
+.cv-to:disabled { opacity: .6; cursor: default; }
+.cv-to-label { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cv-to-caret { color: var(--muted); font-size: 12px; }
+.cv-to .sflow-solo { flex: none; }
+.cv-bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-block-end: 8px; padding-block: 8px; padding-inline: 12px; border: 1px dashed var(--line); border-radius: 10px; }
+.cv-bulk-all { display: inline-flex; align-items: center; gap: 8px; min-block-size: 36px; font-size: 14px; cursor: pointer; }
+.cv-bulk-n { font-weight: 600; font-size: 14px; }
+.cv-bulk-none { flex: 1 1 220px; margin: 0; font-size: 14px; color: var(--muted); }
+.cv-pick-scope { margin-block: 0 8px; }
+.cv-pick-scope:empty { display: none; }
+.cv-opts-body.cv-opts-multi { display: block; }
+.cv-opt-set + .cv-opt-set { margin-block-start: 12px; padding-block-start: 12px; border-block-start: 1px solid var(--line); }
+.cv-opt-set-h { margin-block: 0 6px; font-weight: 600; }
+@media (max-width: 600px) {
+  .cv-file { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .cv-file-main { grid-column: 2 / -1; }
+  .cv-file-to { grid-column: 2; grid-row: 2; }
+  .cv-file .cv-file-to-h { display: none; }   /* the button's label still says "Convert <file> to" */
+  .cv-file .cv-file-rm { grid-column: 3; grid-row: 2; justify-self: end; }
+  .cv-file.cv-skip .cv-file-rm { grid-column: 2 / -1; justify-self: start; }
+  .cv-to { max-inline-size: 100%; }
+}

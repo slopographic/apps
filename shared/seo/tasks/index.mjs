@@ -16,5 +16,6 @@ import { TASKS as everyday } from './everyday.mjs';
 import { TASKS as everyday2 } from './everyday-2.mjs';
 import { TASKS as threed } from './threed.mjs';
 import { TASKS as finance } from './finance.mjs';
+import { TASKS as raw } from './raw.mjs';
 
-export const TASKS = [...cutout, ...creative, ...creative2, ...creative3, ...documents, ...documents2, ...documents3, ...business, ...business2, ...business3, ...everyday, ...everyday2, ...threed, ...finance];
+export const TASKS = [...cutout, ...creative, ...creative2, ...creative3, ...documents, ...documents2, ...documents3, ...business, ...business2, ...business3, ...everyday, ...everyday2, ...threed, ...finance, ...raw];

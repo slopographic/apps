@@ -127,3 +127,9 @@ Desktop 1440×900 and phone 390×844 in Chromium, zero console errors: guide pan
 - A drawn rectangle is a shape layer: `L.shape = { kind, r, radius, fill, stroke, strokeW, fg, bg }` and its canvas is redrawn from it. Changing the option redraws the active shape layer. A slider drag is one history step (400 ms settle), and a typed value is one step.
 - Painting, selecting, transforming or filtering a shape layer rasterizes it, as for type. Crop and resize drop the record and keep the pixels. Other kinds (ellipse, polygon, star, heart, line) are still plain pixels.
 - Tests: `tests/photoslop/shapes.test.html`.
+
+## Camera RAW (`js/io/raw.js`, `css/raw.css`, uses `shared/raw/`)
+- `readAnyFile` sends a RAW file (by content and extension, `SlopRaw.isRaw`) to `readRawFile`, so File ▸ Open, drop and Slop Drive (files stored with an `image/*` type) reach it; `OPENABLE` and the drop zone take the RAW extensions.
+- The Develop dialog shows the embedded preview at once, then a half-size develop that follows White balance (as shot, auto, daylight), Exposure (−3 to +3 EV) and Highlights (clip, blend, rebuild). Open develops full size (8-bit sRGB, upright) as one Background layer; Use embedded preview opens the camera JPEG with no engine; Cancel opens nothing (`err.code 'cancelled'`, no toast).
+- Tests: `tests/photoslop/raw.test.html` (5).
+- Seen while testing (not changed): the welcome card stays over a file opened with File ▸ Open (a PNG too), because `D` is the same object after `openDocTab`.

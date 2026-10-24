@@ -4,6 +4,7 @@
   <script>window.__SV_HTML_ATTRS = Array.prototype.map.call(document.documentElement.attributes, function (a) { return [a.name, a.value]; });</script>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="vector" data-src="shared/theme/theme.js"></script>
+  <script src="../shared/boot/boot.js" data-src="shared/boot/boot.js"></script>
 <script src="../shared/consent/config.js" data-offline="strip"></script>
 <script src="../shared/consent/state.js" data-offline="strip"></script>
 <script src="../shared/consent/consent-mode.js" data-offline="strip"></script>
@@ -46,8 +47,8 @@
           // <html> gets the attributes it shipped with (theme.js sets its own on load, see __SV_HTML_ATTRS above)
           Array.prototype.slice.call(c.attributes).forEach(function (a) { c.removeAttribute(a.name); });
           (window.__SV_HTML_ATTRS || []).forEach(function (a) { c.setAttribute(a[0], a[1]); });
-          // drop nodes injected by scripts at load (theme styles, Slop Hub's picker styles) so the copy is pristine
-          Array.prototype.forEach.call(c.querySelectorAll('head > style'), function (st) { if (st.id === 'slop-theme-style' || /^\.hub-/.test(st.textContent)) st.remove(); });
+          // drop nodes injected by scripts at load (theme styles, the boot cover's styles, Slop Hub's picker styles) so the copy is pristine
+          Array.prototype.forEach.call(c.querySelectorAll('head > style'), function (st) { if (st.id === 'slop-theme-style' || st.id === 'slop-boot-css' || /^\.hub-/.test(st.textContent)) st.remove(); });
           window.__SV_PRISTINE = '<!doctype html>\n' + c.outerHTML;
         }
       } catch (e) { /* ignore */ }

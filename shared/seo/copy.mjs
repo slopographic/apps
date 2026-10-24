@@ -214,6 +214,19 @@ export const PAGES = {
     category: 'UtilitiesApplication', description: 'Pack a .gltf file with its .bin buffers and texture pictures into one GLB in your browser. Embedded .gltf files work too. Nothing is uploaded from your device.' },
   'convert/glb-to-usdz': { title: 'GLB to USDZ converter for iPhone AR Quick Look, free | File convert', crumb: 'GLB to USDZ',
     category: 'UtilitiesApplication', description: 'Convert GLB or glTF models to USDZ in your browser, for AR Quick Look on iPhone and iPad. Meshes, materials and textures. Nothing is uploaded.' },
+  // Camera RAW converter pages (convert/js/core/raw-pages.js holds the same copy for the pages and the hub cards)
+  'convert/cr2-to-jpg': { title: 'CR2 to JPG converter for Canon RAW photos, free | File convert', crumb: 'CR2 to JPG',
+    category: 'UtilitiesApplication', description: 'Convert Canon CR2 RAW files to JPG in your browser. White balance, exposure and highlight options, full size or resized. Nothing is uploaded.' },
+  'convert/cr3-to-jpg': { title: 'CR3 to JPG converter for Canon RAW photos, free | File convert', crumb: 'CR3 to JPG',
+    category: 'UtilitiesApplication', description: 'Convert Canon CR3 RAW files to JPG in your browser. White balance, exposure and highlight options, full size or resized. Nothing is uploaded.' },
+  'convert/nef-to-jpg': { title: 'NEF to JPG converter for Nikon RAW photos, free | File convert', crumb: 'NEF to JPG',
+    category: 'UtilitiesApplication', description: 'Convert Nikon NEF RAW files to JPG in your browser. White balance, exposure and highlight options, full size or resized. Nothing is uploaded.' },
+  'convert/arw-to-jpg': { title: 'ARW to JPG converter for Sony RAW photos, free | File convert', crumb: 'ARW to JPG',
+    category: 'UtilitiesApplication', description: 'Convert Sony ARW RAW files to JPG in your browser. White balance, exposure and highlight options, full size or resized. Nothing is uploaded.' },
+  'convert/dng-to-jpg': { title: 'DNG to JPG converter for phone and camera RAW photos, free | File convert', crumb: 'DNG to JPG',
+    category: 'UtilitiesApplication', description: 'Convert phone and camera DNG RAW files to JPG in your browser. White balance, exposure and highlight options, full size or resized. Nothing is uploaded.' },
+  'convert/raf-to-jpg': { title: 'RAF to JPG converter for Fujifilm RAW photos, free | File convert', crumb: 'RAF to JPG',
+    category: 'UtilitiesApplication', description: 'Convert Fujifilm RAF RAW files to JPG in your browser. White balance, exposure and highlight options, full size or resized. Nothing is uploaded.' },
 };
 
 // Landing pages (/apps/<id>/, /slop-365/, /creative-slop-pro/, /compare/). Written by tools/seo/landing.mjs,

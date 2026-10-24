@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Boot fixture: a page built late</title>
+  <script src="../../../shared/boot/boot.js"></script>
+</head>
+<body>
+  <main id="main">bare</main>
+  <script>
+  // The page records what a person could have seen while covered, then builds itself in three steps after parsing.
+  window.seen = [];
+  const note = () => window.seen.push({ covered: document.documentElement.classList.contains('slop-booting'), step: document.querySelectorAll('.part').length });
+  const add = () => { const p = document.createElement('p'); p.className = 'part'; document.getElementById('main').append(p); note(); };
+  document.addEventListener('DOMContentLoaded', () => { add(); setTimeout(add, 60); setTimeout(add, 150); });
+  </script>
+</body>
+</html>

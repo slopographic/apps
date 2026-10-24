@@ -20,7 +20,7 @@ export const ROUNDUPS = [
       { name: 'Slop Upscale', ours: true, bestFor: 'Enlarging a single picture or a short clip in the browser, with nothing to install and nothing uploaded.',
         cells: ['Free', 'One picture or a 15-second video at a time; up to 64 megapixels', 'Browser, on your device', 'No', '4×', 'No'],
         pros: ['Runs in your browser with WebAssembly; the picture never leaves your device', 'Fast model ships with the page; optional Quality model (Real-ESRGAN x4plus)', 'Before and after slider, PNG, JPEG or WebP', 'Works on large pictures in tiles, with progress and cancel'],
-        cons: ['Still in beta', 'The Quality model is a 67 MB download and is much slower, as it runs on the CPU', 'No batches: one picture at a time', 'Stops at 4×; videos are limited to 15 seconds, lose their sound and need WebCodecs (current Chrome or Edge)'] },
+        cons: ['Still in beta', 'The Quality model is a 64 MB download and is much slower, as it runs on the CPU', 'No batches: one picture at a time', 'Stops at 4×; videos are limited to 15 seconds, lose their sound and need WebCodecs (current Chrome or Edge)'] },
       { name: 'Upscale.media', url: 'https://www.upscale.media/', bestFor: 'A quick online upscale up to 8× from any device, including phones, without signing up.',
         cells: ['Free tier; paid credits and subscription', 'Without sign-up 1 image a day; with an account 3 free credits a month', 'Browser, Android and iOS apps, API', 'No, for the guest tier', '8×', 'No'],
         pros: ['2×, 4× and 8×, with no watermark', 'Also upscales videos up to 1 minute (MP4, MOV, WebM)', 'Android and iOS apps, an API and plugins', 'Takes PNG, JPEG, WebP and HEIC'],

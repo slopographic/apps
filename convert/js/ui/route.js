@@ -1,32 +1,24 @@
 /* Slop Convert: the URL sections (shared/router) and the view modes (shared/viewmode). Parameter: ?to=<format>, the
- * format the converter starts on (for example ?to=pdf-to-docx). Applied once, when the converter first offers it (the
- * formats depend on the files chosen, so the link waits for them); written when the person picks a format. The files are never in the URL.
+ * format the converter starts on (for example ?to=pdf-to-docx): the default target of every file that can take it (each
+ * file has its own target, so a mix keeps the others' defaults); written when the person picks a format on the picker.
+ * The files are never in the URL.
  * Classic script; loads after the converter module. */
 (function () {
   'use strict';
-  const $ = (id) => document.getElementById(id);
 
   function init() {
     const R = SlopRoute.register('convert', {
       params: { to: { pattern: /^[a-z0-9-]{1,12}$/, def: '' } },
     });
-    // The link's format is applied the first time the list offers it (after the files that allow it are added), and
-    // only once. A format the person picks first wins.
-    let applied = !R.has('to') || !R.get('to');
-    const obs = new MutationObserver(() => {
-      const sel = $('cv-target'), want = R.get('to');
-      if (applied || !sel || ![...sel.options].some((o) => o.value === want)) return;
-      applied = true;
-      obs.disconnect();
-      if (sel.value !== want) {
-        sel.value = want;
-        sel.dispatchEvent(new Event('change'));
-      }
-    });
-    if (!applied) obs.observe(document.body, { childList: true, subtree: true });
+    // The link's format is the default target (ConvertTool.setDefaultTarget): every file that can take it starts on it,
+    // files added later too, and the others keep their own default. A format the person picks on the picker wins.
+    const want = R.get('to');
+    if (want) {
+      const give = () => { const root = document.querySelector('[data-convert-root]'), t = root && root.convertTool; if (t) t.setDefaultTarget(want); return !!t; };
+      if (!give()) { const obs = new MutationObserver(() => { if (give()) obs.disconnect(); }); obs.observe(document.body, { childList: true, subtree: true }); }
+    }
     document.addEventListener('change', (e) => {
-      if (!e.target || e.target.id !== 'cv-target') return;
-      if (e.isTrusted) { applied = true; obs.disconnect(); }
+      if (!e.target || e.target.id !== 'cv-target' || !e.target.value) return;
       R.set({ to: e.target.value });
     });
     SlopViewMode.register('convert', {

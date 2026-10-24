@@ -1,7 +1,11 @@
 /* Work out what kind of file a dropped File is: magic bytes first, then extension, then MIME type,
  * then a text sniff. Pure: no DOM, no network. Kinds: png jpg webp bmp gif svg pdf csv json md txt html bin, and the
- * finance files sie ofx qif camt053 mt940 (judged by what they say first: shared/finance/index.js sniffFinance). */
+ * finance files sie ofx qif camt053 mt940 (judged by what they say first: shared/finance/index.js sniffFinance), and the
+ * camera RAW kinds cr2 cr3 nef arw dng raf orf rw2 and the rest (shared/raw/detect.js: by content, then by extension). */
 import { sniffFinance, FINANCE_EXT } from '../../../shared/finance/index.js';
+import '../../../shared/raw/tiff.js';
+import '../../../shared/raw/detect.js';
+const RAW = globalThis.SlopRawDetect;
 const MAGIC = [
   ['pdf', [0x25, 0x50, 0x44, 0x46]],        // %PDF
   ['png', [0x89, 0x50, 0x4e, 0x47]],
@@ -24,6 +28,7 @@ const EXT = {
   mp4: 'mp4', m4v: 'mp4', webm: 'webm', mov: 'mov', m4a: 'm4a', mp3: 'mp3', wav: 'wav', ogg: 'ogg', oga: 'ogg', flac: 'flac',
   obj: 'obj', stl: 'stl', ply: 'ply', gltf: 'gltf', glb: 'glb', '3mf': '3mf', dae: 'dae', fbx: 'fbx', usdz: 'usdz', mtl: 'mtl', tga: 'tga', ktx2: 'ktx2',   // a .bin (a glTF buffer) needs no entry: unknown files are 'bin'
   ...FINANCE_EXT,
+  ...Object.fromEntries(RAW.EXTS.map((e) => [e, e])),   // camera RAW: the kind is the extension
 };
 const MIME = {
   'image/png': 'png', 'image/jpeg': 'jpg', 'image/pjpeg': 'jpg', 'image/webp': 'webp', 'image/bmp': 'bmp', 'image/x-ms-bmp': 'bmp',
@@ -123,6 +128,9 @@ export function looksLikeText(head) {
 
 /** Detect the kind of a file. name and type are strings; head is the first ~512 bytes (Uint8Array) or null. */
 export function detectKind(name = '', type = '', head = null) {
+  // camera RAW first: a CR3 is ISO-BMFF and most others are TIFF inside, so the magic alone would call them mp4 or tif
+  const raw = head && head.length >= 12 ? RAW.sniff(head, name) : null;
+  if (raw) return raw.ext;
   const fromMagic = kindFromMagic(head);
   const ext = (String(name).split('.').pop() || '').toLowerCase();
   const fromExt = name.includes('.') ? EXT[ext] : undefined;
@@ -154,4 +162,5 @@ export function detectKind(name = '', type = '', head = null) {
 
 /** Human label for a kind. */
 export const KIND_LABEL = { mp4: 'MP4 video', webm: 'WebM video', mov: 'QuickTime video', m4a: 'M4A audio', mp3: 'MP3 audio', wav: 'WAV audio', ogg: 'Ogg audio', flac: 'FLAC audio', png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', vcf: 'vCard', xlsx: 'Excel (XLSX)', bin: 'Binary file', eml: 'Email message (EML)', ics: 'Calendar (ICS)', xml: 'XML', yaml: 'YAML', ico: 'Icon (ICO)', tif: 'TIFF image', avif: 'AVIF image', heic: 'HEIC image', zip: 'ZIP archive', docx: 'Word (DOCX)', pptx: 'PowerPoint (PPTX)', odt: 'OpenDocument text', ods: 'OpenDocument sheet', odp: 'OpenDocument slides', epub: 'EPUB book', obj: 'OBJ 3D model', stl: 'STL 3D model', ply: 'PLY 3D model', gltf: 'glTF 3D model', glb: 'GLB 3D model', '3mf': '3MF 3D model', dae: 'Collada 3D model (DAE)', fbx: 'FBX 3D model', usdz: 'USDZ 3D model', mtl: 'OBJ materials (MTL)', tga: 'TGA image', ktx2: 'KTX2 texture',
-  sie: 'SIE accounting file', ofx: 'OFX bank statement', qif: 'QIF (Quicken) file', camt053: 'ISO 20022 statement (camt.053)', mt940: 'MT940 bank statement' };
+  sie: 'SIE accounting file', ofx: 'OFX bank statement', qif: 'QIF (Quicken) file', camt053: 'ISO 20022 statement (camt.053)', mt940: 'MT940 bank statement',
+  ...Object.fromEntries(RAW.EXTS.map((e) => [e, RAW.FORMATS[e].label + ' RAW photo'])) };

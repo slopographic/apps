@@ -176,12 +176,13 @@ async function readTIFF(buf) {
 }
 
 /* ---------- open anything ---------- */
-const OPENABLE = 'image/*,.psd,.psb,.ora,.kra,.tif,.tiff,.svg,.ico,.bmp,.avif,.webp,.jfif';
+const OPENABLE = 'image/*,.psd,.psb,.ora,.kra,.tif,.tiff,.svg,.ico,.bmp,.avif,.webp,.jfif' + (window.SlopRaw ? ',' + SlopRaw.ACCEPT : '');
 async function readAnyFile(f) {
   const n = (f.name || '').toLowerCase();
   const head = new Uint8Array(await f.slice(0, 8).arrayBuffer());
   const magic = String.fromCharCode(...head.slice(0, 4));
   if (magic === '8BPS' || isPSD(f)) return readPSD(await f.arrayBuffer());
+  if (window.SlopRaw && await SlopRaw.isRaw(f, f.name)) return readRawFile(f);   // camera RAW: the Develop dialog (io/raw.js)
   if ((head[0] === 0x49 && head[1] === 0x49 && head[2] === 42) || (head[0] === 0x4d && head[1] === 0x4d && head[3] === 42) || /\.tiff?$/.test(n)) return readTIFF(await f.arrayBuffer());
   if (head[0] === 0x50 && head[1] === 0x4b) {
     if (/\.kra$/.test(n)) return readKRA(await f.arrayBuffer());

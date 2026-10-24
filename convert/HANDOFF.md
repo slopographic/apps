@@ -14,6 +14,28 @@ decode, line endings) stay because they also take uploaded files.
 - `css/convert.css`: tokens on `:root`, dark by default, light via `prefers-color-scheme` or `data-theme`.
 - `js/core/`: pure converters. `catalog.js` lists them; `pages.js` lists the SEO pages. `vcf.js` runs the vCard pairs and loads the Contacts vCard code (`contacts/js/core/`) into the page; `vcf-map.js` holds their header rule.
 - `js/ui/`: the tool controller (`tool.js`), its markup (`markup.js`), options, batch runner and `mount.js`.
+
+## Per-file targets
+
+Every file in the list has its own "Convert to" (a format tile and the conversion's name, opening a
+`shared/ui/menubutton.js` menu). The lists come from `conversionsFor` only: one file's from `[its kind]`, a set's from
+their kinds (`js/ui/targets.js`). `item.target` is null (the default for its kind: the first conversion made for it, not
+Base64 or ZIP), a conversion id, or `@with` (goes with a 3D model). Companions (`with` kinds) go with a model in the list
+when they have no format of their own (.mtl, .bin) or a file in the list names them (`map_Kd tex.png`); a photo dropped
+beside a model is converted on its own, and its menu offers both.
+
+- Rows have checkboxes (shift-click selects a range); the bar above (`bulk.js`) has Select all and, for the selected rows,
+  "N selected · Convert to · Remove · Clear selection". Its menu offers only formats every selected file shares, or says none fits.
+- The big picker and the hidden `#cv-target` set the selected rows, or every file when none is selected; the select holds
+  the format they share ('' "Different formats" when they differ). A pick with no selection is also the default for files
+  added later, until Clear.
+- `?to=` (`route.js`) calls `ConvertTool.setDefaultTarget`: every file that can take it starts on it. Pair pages
+  (`data-preset`) still allow only their conversion.
+- Convert runs one group per conversion in use (`groupsFor`, `run.js runGroups`); combine conversions combine their own files.
+  Options show one set per conversion in use (`option-sets.js`; ids `cv-o-<conversion>-<key>` when there are several).
+- The preview and the flow picture show the conversion the picker shows, else the first one in use.
+- Files: `targets.js`, `file-row.js`, `bulk.js`, `list-view.js`, `focus.js` (focus survives redraws), `option-sets.js`.
+  Tests: `tests/convert/per-file.test.html`, `tests/shared/menubutton.test.html`.
 - `js/preview/`: the live preview (see below). `mount.js` is its entry point; `controller.js` debounces and runs the actions; `model.js` runs the converter for the preview; `view.js` draws the block; `diff.js` and `spec.js` hold the line diff and the limits.
 - `js/io/`: file helpers, and `zip.js`, a re-export of `shared/office/zip.js` (ZIP writer and reader, shared with the other apps).
 
@@ -122,6 +144,7 @@ yet, so offline use of the preview needs them added there (that file is owned el
 - `data.test.html`: CSV to JSON round trip, JSON to CSV, XLSX parts, Base64 round trip, URL, line endings, Markdown, HTML to text.
 - `seo.test.html`: sitemap, robots, each page's h1, canonical, JSON-LD and embedded tool.
 - `ui.test.html`: target picker validity, preset limits, keyboard drop zone, labels, safe file names.
+- `per-file.test.html`: per-file targets, mixed kinds, select + bulk set, presets and ?to=, companions, keys, 390 px.
 - `preview.test.html`: the preview shows the PNG to JPG output and follows a new input; the JSON to CSV preview updates as text is typed and shows invalid JSON in place.
 
 ## Adding a converter
@@ -135,3 +158,6 @@ yet, so offline use of the preview needs them added there (that file is owned el
 ## Video engine (ffmpeg.wasm)
 
 `convert/js/core/ffmpeg-engine.js` runs ffmpeg in the browser. The JavaScript is vendored in `vendor/ffmpeg` (MIT). The core (about 30 MB of WebAssembly, GPL-2.0-or-later) is loaded from jsDelivr on first use, pinned to `CORE_VERSION`. One job runs at a time; a runtime error restarts the engine and retries once. WebM audio is Vorbis: the Opus encoder in this build fails with video. Inputs over 400 MB are refused.
+
+## Camera RAW (`js/core/raw.js`, `js/core/raw-pages.js`)
+RAW kinds are the extensions (cr2, cr3, nef, arw, dng, raf, orf, rw2, pef, srw, …); `detect.js` asks `shared/raw/detect.js` first, before the TIFF and MP4 magics. Conversions `raw-to-jpg`, `raw-to-png`, `raw-to-webp` (group Camera RAW): White balance, Exposure (−2 to +2 EV), Highlights, size, quality; developed by the LibRaw engine (`shared/raw/engine.js`, its own first-use notice). Declined or failing engine: the embedded preview is converted and the status line says so (`out.info`). The live preview passes `rawPreview` (embedded JPEG only, nothing downloaded). Pages: cr2, cr3, nef, arw, dng, raf `-to-jpg` (`data-accept` sets the picker's list; `mount.js` reads it). Test: `tests/convert/raw.test.html`.

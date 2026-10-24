@@ -131,3 +131,7 @@ The hand-off (`ui/reel.js` `run()`, `io/reel-drive.js`):
 - **No identity:** groups are counts of faces only. Nothing is named, matched or recognised.
 - **Tests:** `tests/gallery/faces.test.html` (stubbed detector: the picture's width sets its faces), and the Node file
   `tests/node/faces-drive-gallery.test.mjs`. `node tests/run.mjs gallery` runs them with the rest of the suite, all green at the time of this change.
+
+## Camera RAW (uses `shared/raw/`)
+- `io/source.js` keeps RAW files by extension (a RAW often has no MIME type); `core/thumb.js` makes the thumbnail from the embedded preview, upright (a half-size develop, after the engine notice, when there is none); `core/import.js` reads the date and camera with `SlopRaw.meta` and stores orientation 1 (the thumbnail is upright). The original bytes are stored unchanged.
+- `core/urls.js` hands the viewer the upright preview as a JPEG for a RAW photo. Test: `tests/gallery/raw.test.html`.

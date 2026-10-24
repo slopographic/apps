@@ -2,13 +2,14 @@
  * Every control has a label; hints are linked with aria-describedby. */
 import { h } from './dom.js';
 
-const idOf = (key) => `cv-o-${key}`;
+/** prefix: '' for the one conversion in use (ids cv-o-<key>); '<conversion id>-' when several are shown together. */
+const idOf = (key, prefix = '') => `cv-o-${prefix}${key}`;
 
-export function renderOptions(container, specs, defaults = {}) {
+export function renderOptions(container, specs, defaults = {}, prefix = '') {
   container.replaceChildren();
   container.closest('fieldset').hidden = !specs.length;
   for (const s of specs) {
-    const id = idOf(s.key);
+    const id = idOf(s.key, prefix);
     const value = defaults[s.key] !== undefined ? defaults[s.key] : s.value;
     const hint = s.hint ? h('p', { class: 'cv-hint', id: `${id}-hint` }, s.hint) : null;
     const describe = s.hint ? `${id}-hint` : null;
@@ -35,10 +36,10 @@ export function renderOptions(container, specs, defaults = {}) {
 }
 
 /** Current values as { key: value }. Numbers are numbers, blank number fields are undefined, checkboxes are booleans. */
-export function readOptions(container, specs) {
+export function readOptions(container, specs, prefix = '') {
   const out = {};
   for (const s of specs) {
-    const el = container.querySelector(`#${idOf(s.key)}`);
+    const el = container.querySelector(`#${CSS.escape(idOf(s.key, prefix))}`);
     if (!el) continue;
     if (s.type === 'checkbox') out[s.key] = el.checked;
     else if (s.type === 'number') out[s.key] = el.value === '' ? undefined : Number(el.value);

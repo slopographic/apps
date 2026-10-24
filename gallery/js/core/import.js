@@ -7,6 +7,12 @@
   'use strict';
   const G = (window.SlopGallery = window.SlopGallery || {});
 
+  /** The date, camera and orientation of a camera RAW file (its TIFF, CR3 boxes or embedded JPEG; shared/raw). */
+  function rawExif(buf) {
+    const m = window.SlopRaw.meta(new Uint8Array(buf)), t = m.date ? new Date(m.date).getTime() : NaN;
+    return { takenAt: Number.isFinite(t) ? t : null, make: m.make, model: m.model, orientation: m.orientation };
+  }
+
   /** items: [{ file: Blob, name, driveId? }]. Returns a report; failed holds the names that could not be decoded. */
   async function run(items, { keepDuplicates = false, onProgress = () => {} } = {}) {
     const L = G.library, report = { added: 0, skipped: 0, failed: [], total: items.length };
@@ -18,9 +24,10 @@
         const buf = await file.arrayBuffer();
         const sha = await G.hash.sha256(buf);
         if (!keepDuplicates && (L.hasSha(sha) || seen.has(sha))) { report.skipped++; continue; }
-        const exif = G.exif.read(buf);
-        const orientation = exif.orientation || 1;
-        const thumb = await G.thumb.make(file, orientation);
+        const raw = await G.thumb.isRaw(file);
+        const exif = raw ? rawExif(buf) : G.exif.read(buf);
+        const thumb = await G.thumb.make(file, exif.orientation || 1);
+        const orientation = raw ? 1 : exif.orientation || 1;   // a RAW thumbnail and viewer picture are drawn upright
         const meta = {
           id: L.newId(), name, type: file.type || G.source.mimeOf(name), size: file.size, sha,
           w: thumb.w, h: thumb.h, takenAt: exif.takenAt != null ? exif.takenAt : (file.lastModified || Date.now()),

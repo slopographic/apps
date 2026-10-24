@@ -11,6 +11,7 @@ import { parseCsv } from '../core/csv.js';
 import { fmtSize } from '../io/files.js';
 import { changedLines } from './diff.js';
 import { is3d, modelBefore, modelAfter } from './model3d.js';
+import { RAW_KINDS, rawPreviewBlob } from '../core/raw.js';
 import { IMAGE_KINDS, TEXT_LIMIT, IMAGE_LIMIT, PREVIEW_PX, MAX_LINES, FIRST_PAGE_ONLY, LINE_DIFF } from './spec.js';
 
 const PICTURE_EXT = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'svg', 'ico'];
@@ -50,6 +51,10 @@ function textPanel(text, { size, truncated = false, label = '' } = {}) {
 }
 
 async function beforePanel(p) {
+  if (RAW_KINDS.includes(p.kind)) {   // a camera RAW photo: its embedded JPEG (the RAW engine runs on Convert only)
+    const blob = await rawPreviewBlob(p.file);
+    if (blob) return { kind: 'image', blob, size: p.size, label: KIND_LABEL[p.kind], note: 'Camera RAW: the preview is the camera\'s embedded JPEG. Convert develops the RAW file.' };
+  }
   if (IMAGE_KINDS.includes(p.kind)) {
     return { kind: 'image', blob: p.file, size: p.size, label: KIND_LABEL[p.kind] || 'Picture' };
   }
@@ -92,6 +97,7 @@ export async function buildPreview(conv, items, opts) {
   const inputs = pickInputs(conv, items).map((i) => (is3d(conv) ? { ...i, truncated: false, large: false } : previewInput(i)));
   const runOpts = { ...opts };
   let cut = inputs.some((i) => i.truncated);
+  if (inputs.some((i) => RAW_KINDS.includes(i.kind))) { runOpts.rawPreview = true; cut = true; }   // no engine download from a preview
   if (FIRST_PAGE_ONLY.includes(conv.id) && !String(opts.pages || '').trim()) { runOpts.pages = '1'; cut = true; }
   const drawSmaller = inputs.some((i) => i.large) && conv.options.some((o) => o.key === 'width') && !opts.width && !opts.height;
   if (drawSmaller) { runOpts.width = PREVIEW_PX; cut = true; }

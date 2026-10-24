@@ -68,8 +68,8 @@ const NAV = [['/', 'Home'], ['/all-tools/', 'All tools'], ['/compare/', 'All app
 export const SITE_HEAD = ['<script src="/shared/profile/profile.js"></script>', '<script src="/shared/theme/theme.js" data-app="site"></script>',
   '<script src="/shared/consent/config.js"></script>', '<script src="/shared/consent/state.js"></script>', '<script src="/shared/consent/consent-mode.js"></script>',
   '<script src="/shared/consent/banner.js"></script>', '<link rel="icon" href="/favicon.ico" type="image/x-icon">', '<link rel="stylesheet" href="/shared/landing/landing.css">'];
-export const siteTop = () => `<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav></header>`;
-export const siteFoot = () => `<footer class="l-foot"><div class="l-foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p></footer>`;
+export const siteTop = () => `<header class="l-top"><a class="l-brand" href="/"><span class="l-brand-dot" aria-hidden="true"></span>Slopographic</a><nav aria-label="Site">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}</nav><div class="sh-hdr-slot"></div></header>`;   // the slot keeps the room the shell's header buttons take (shell/header.js fills it), so nothing moves when they come
+export const siteFoot = () => `<footer class="l-foot"><div class="l-foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="https://github.com/slopographic/apps" rel="noopener">Source code</a></div><p class="l-fine">Slopographic · free apps that run in your browser · nothing uploaded</p><p class="l-fine l-made">Made with ❤️ in Sweden</p></footer>`;
 export function shell(body) {
   return `<!doctype html>
 <html lang="en">

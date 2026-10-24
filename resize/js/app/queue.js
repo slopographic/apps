@@ -33,6 +33,7 @@
     try {
       if (!kind) throw new Error('Not a picture or a video');
       it.src = kind === 'video' ? await NS.video.probe(file) : await NS.image.probe(file);
+      if (it.src.thumb) { URL.revokeObjectURL(it.thumb); it.thumb = it.src.thumb; }   // a camera RAW file: its preview
       it.status = 'waiting';
     } catch (e) {
       it.status = 'error';

@@ -44,7 +44,8 @@
       root.classList.add('slopc-on');
     }
     // the room the card takes from the bottom of the window: its height and the gap under it
-    var measure = function () { var r = el.getBoundingClientRect(); root.style.setProperty('--consent-h', Math.ceil(Math.max(r.height, window.innerHeight - r.top)) + 'px'); };
+    // (its laid-out size and offset, not its on-screen box, which the slide-in animation moves)
+    var measure = function () { var gap = parseFloat(getComputedStyle(el).bottom) || 0; root.style.setProperty('--consent-h', Math.ceil(el.offsetHeight + gap) + 'px'); };
     measure();
     if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(measure); ro.observe(el); }
   }

@@ -103,7 +103,9 @@ test('each app page has SoftwareApplication and BreadcrumbList JSON-LD that pars
     assert.equal(sw.offers['@type'], 'Offer', `${p.label}: offers type`);
     assert.equal(sw.offers.price, '0', `${p.label}: price`);
     assert.equal(sw.offers.priceCurrency, 'USD', `${p.label}: priceCurrency`);
-    assert.equal(sw.description, descOf(html[p.label]), `${p.label}: JSON-LD description`);
+    // the meta tag's text is HTML-escaped (P&amp;L); the JSON-LD holds the plain text (P&L)
+    const plain = descOf(html[p.label]).replace(/&(amp|lt|gt|quot|#39);/g, (m, e) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" })[e]);
+    assert.equal(sw.description, plain, `${p.label}: JSON-LD description`);
     assert.equal(sw.url, p.url, `${p.label}: url`);
     assert.equal(sw.author.name, 'Slopographic', `${p.label}: author`);
     const [crumbs] = byType(blocks, 'BreadcrumbList');
