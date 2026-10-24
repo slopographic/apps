@@ -17,4 +17,13 @@ import { ROUNDUPS as business } from './business.mjs';
 import { ROUNDUPS as business2 } from './business-2.mjs';
 import { ROUNDUPS as business3 } from './business-3.mjs';
 
-export const ROUNDUPS = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3];
+/** Our app comes first in every round-up: the tools, and each feature row's values with them (same order). The other
+ *  tools keep the order they are written in. */
+export function oursFirst(r) {
+  const i = r.tools.findIndex((t) => t.ours);
+  if (i <= 0) return r;
+  const move = (list) => [list[i], ...list.slice(0, i), ...list.slice(i + 1)];
+  return { ...r, tools: move(r.tools), matrix: r.matrix && r.matrix.map((m) => ({ ...m, values: move(m.values) })) };
+}
+
+export const ROUNDUPS = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3].map(oursFirst);

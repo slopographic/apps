@@ -1,5 +1,6 @@
 // Round-ups for the document apps, part 1 (shape in index.mjs): PDF editors, file converters, OCR. Every fact about
 // another tool is from its own pages (linked in sources), checked on the date below. Parts 2 to 4 are documents-*.mjs.
+import { INSTALL } from '../install-copy.mjs';
 const checked = '2026-10-24';
 const ILP = 'https://www.ilovepdf.com';
 
@@ -15,8 +16,8 @@ export const ROUNDUPS = [
       { name: 'Slop PDF', ours: true, bestFor: 'Private documents, and editing without limits or an account',
         summary: 'A full PDF editor that runs in the browser: organise pages, change existing text, sign, fill forms, redact and recognise text, all on your device.',
         cells: ['Free', 'None set by us', 'Not needed', 'Your device', 'Works offline after the first visit'],
-        pros: ['Nothing is uploaded: the file is read and saved in your browser', 'Edit existing text in place, plus text, shapes, images and signatures', 'True redaction: marked areas are burned into the page, with find and redact for e-mails, phone and card numbers', 'Merge, split, reorder, page numbers, watermarks, forms and compression in one place', 'Opens password-protected PDFs (RC4 and AES) once you type the password'],
-        cons: ['Cannot add a password to a PDF', 'PDF to Word is in File convert, a separate app', 'Text recognition (OCR) needs a one-time model download and reads English and Simplified Chinese', 'Heavy files depend on your computer\'s memory'] },
+        pros: ['Nothing is uploaded: the file is read and saved in your browser', 'Edit existing text in place, plus text, shapes, images and signatures', 'True redaction: marked areas are burned into the page, with find and redact for e-mails, phone and card numbers', 'Merge, split, reorder, page numbers, watermarks, forms and compression in one place', 'Converts to Word (DOCX), Excel and PowerPoint from its Convert tool, with nothing uploaded', 'Opens password-protected PDFs (RC4 and AES) once you type the password', INSTALL.pro],
+        cons: ['Cannot add a password to a PDF', 'Text recognition (OCR) needs a one-time model download and reads English and Simplified Chinese', 'Heavy files depend on your computer\'s memory'] },
       { name: 'PDF24 Tools', url: 'https://tools.pdf24.org/en/', bestFor: 'A wide set of free online tools with no artificial limits, and a free Windows app',
         cells: ['Free', '"No artificial limits"', 'Not stated', 'PDF24 servers (online); your PC with PDF24 Creator', 'PDF24 Creator for Windows'],
         pros: ['All tools free "without any restrictions", paid for by advertising, as its home page says', 'Uploaded files are deleted from the server after one hour, or at once by hand', 'PDF24 Creator, a free Windows app, does everything offline'],
@@ -51,7 +52,7 @@ export const ROUNDUPS = [
       { feature: 'Fill forms', values: ['yes', 'yes', 'yes', 'yes', 'yes', 'yes'] },
       { feature: 'Redact', values: ['yes', 'yes', 'yes', 'unknown', 'yes', 'unknown'] },
       { feature: 'OCR (recognise text in scans)', values: ['yes', 'yes', 'yes', 'yes', 'yes', 'yes'] },
-      { feature: 'PDF to Word', values: ['In File convert', 'yes', 'yes', 'yes', 'yes', 'yes'] },
+      { feature: 'PDF to Word', values: ['yes', 'yes', 'yes', 'yes', 'yes', 'yes'] },
       { feature: 'Page numbers', values: ['yes', 'yes', 'yes', 'yes', 'yes', 'yes'] },
       { feature: 'Watermark', values: ['yes', 'yes', 'yes', 'yes', 'yes', 'unknown'] },
       { feature: 'Add a password', values: ['no', 'yes', 'yes', 'yes', 'yes', 'yes'] },
@@ -59,7 +60,7 @@ export const ROUNDUPS = [
       { feature: 'No account needed', values: ['yes', 'unknown', 'unknown', 'yes', 'unknown', 'no'] },
       { feature: 'Free plan without task limits', values: ['yes', 'yes', 'partial', 'no', 'no', 'unknown'] },
       { feature: 'Files stay on your device', values: ['yes', 'partial', 'partial', 'partial', 'no', 'no'] }],
-    verdict: ['If the PDF is private (contracts, IDs, medical or tax papers) or you need to edit a lot, Slop PDF fits our criteria best: it is free without set limits, needs no account, and never sends the file anywhere. It cannot add a password, and its OCR reads English and Simplified Chinese only.',
+    verdict: ['If the PDF is private (contracts, IDs, medical or tax papers) or you need to edit a lot, Slop PDF fits our criteria best: it is free without set limits, needs no account, and never sends the file anywhere, and its Convert tool turns a PDF into Word, Excel or PowerPoint on your device. It cannot add a password, and its OCR reads English and Simplified Chinese only.',
       'For a free tool with many functions and no limits, PDF24 is strong, and its Windows app keeps files local. iLovePDF puts almost every tool on its free plan, with per-task limits. Sejda is good at changing existing text in small files, within 3 free tasks an hour. Smallpdf and Adobe Acrobat online are polished, but editing existing text needs their paid plans.'],
     faq: [['Which free PDF editor can change existing text?', 'Slop PDF, iLovePDF and Sejda can change existing text on their free plans. Smallpdf lists Edit Text under Pro, and Adobe says its free online editor cannot edit existing text; that needs Acrobat Pro.'],
       ['Which PDF editors do not upload my file?', 'Slop PDF works in your browser, so the file stays on your device. PDF24 Creator (Windows) and Sejda Desktop also process files on your computer. The online versions of PDF24, iLovePDF, Sejda, Smallpdf and Acrobat process files on their servers.'],
@@ -77,7 +78,7 @@ export const ROUNDUPS = [
       { name: 'File convert', ours: true, bestFor: 'Private files and everyday conversions with no daily cap',
         summary: 'Converts images (iPhone HEIC too), PDFs, video, audio, spreadsheets, data, subtitles, contacts, calendars and archives in the browser, one file or a batch.',
         cells: ['Free', 'None set by us', '80+ conversions: images, PDF, video, audio, data, text, archives', 'Your device', 'Not needed'],
-        pros: ['Nothing is uploaded: every conversion runs on your device', 'PDF to Word, Excel and PowerPoint, merge and split, PDF to images', 'HEIC to JPG, MOV to MP4, video to GIF and WebM, audio to MP3, WAV, FLAC, OGG and M4A', 'CSV, JSON, YAML, TOML, XML, XLSX and ODS, SRT and VTT subtitles, Markdown to PDF and Word; batch convert to a ZIP'],
+        pros: ['Nothing is uploaded: every conversion runs on your device', 'PDF to Word, Excel and PowerPoint, merge and split, PDF to images', 'HEIC to JPG, MOV to MP4, video to GIF and WebM, audio to MP3, WAV, FLAC, OGG and M4A', 'CSV, JSON, YAML, TOML, XML, XLSX and ODS, SRT and VTT subtitles, Markdown to PDF and Word; batch convert to a ZIP', INSTALL.pro],
         cons: ['Far fewer formats than CloudConvert or Convertio', 'No Word, Excel or PowerPoint to PDF, and no e-book formats', 'Video is converted on your computer, so long videos take a while on slower machines'] },
       { name: 'CloudConvert', url: 'https://cloudconvert.com/', bestFor: 'Many formats with high quality, a few times a day',
         cells: ['Free €0; credit packages and subscriptions', '10 conversion credits a day, 1 GB per file', 'Documents, video, audio, e-books, archives and more', 'CloudConvert servers (files deleted right after processing)', 'Not needed to convert'],
@@ -128,7 +129,7 @@ export const ROUNDUPS = [
       { name: 'Slop OCR', ours: true, bestFor: 'Private scans in English or Simplified Chinese, many pages at once',
         summary: 'Reads text from photos, screenshots and every page of a scanned PDF in the browser, shows a box around each line, and lets you fix the text before saving.',
         cells: ['Free', 'None set by us', 'English and Simplified Chinese', 'Your device', 'No account; a 15 MB model downloads once'],
-        pros: ['Nothing is uploaded: the scan is read on your device', 'Every page of a PDF, read at 200 dpi', 'Edit the text before you save it', 'Save as text, Markdown, Word or a searchable PDF, or copy'],
+        pros: ['Nothing is uploaded: the scan is read on your device', 'Every page of a PDF, read at 200 dpi', 'Edit the text before you save it', 'Save as text, Markdown, Word or a searchable PDF, or copy', INSTALL.pro],
         cons: ['Two languages only: English and Simplified Chinese', 'Needs a one-time model download (about 15 MB) before the first read', 'Slower on old phones and computers than a server'] },
       { name: 'Google Drive', url: 'https://support.google.com/drive/answer/176692?hl=en', bestFor: 'People who already use Google Drive and Docs',
         cells: ['Included in Google Drive', 'Files of 2 MB or smaller', 'Many; detected automatically', 'Google Drive', 'Google account'],

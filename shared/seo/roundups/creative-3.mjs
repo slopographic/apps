@@ -1,5 +1,6 @@
 // Round-ups for the creative apps, part 3: transcription, labels, desktop publishing, motion graphics (shape in index.mjs).
 // Every fact about another tool is from its own pages, listed in its sources, as they read on the checked date.
+import { INSTALL } from '../install-copy.mjs';
 const checked = '2026-10-24';
 const S = (label, url) => ({ label, url });
 
@@ -8,7 +9,7 @@ export const ROUNDUPS = [
     title: 'Best free transcription software: audio to text, compared',
     description: 'Free audio to text tools compared: Buzz, Slop Transcribe, TurboScribe and Otter. Free minutes, file length, languages, speakers, exports and privacy.',
     h1: 'The best free transcription software',
-    lead: 'Turning an interview, a lecture or a voice memo into text can be free. Two of these tools run Whisper on your own computer; two are online services with free plans. Here is how far each free version goes.',
+    lead: 'Turning an interview, a lecture or a voice memo into text can be free. Two of these tools, ours and Buzz, run Whisper on your own computer; two are online services with free plans. Here is how far each free version goes.',
     criteria: ['How much is free: minutes, file length, number of files', 'Privacy: whether the recording leaves your device', 'Accuracy aids: languages, speaker labels, timestamps, editing', 'Exports such as Word, SRT and VTT'],
     columns: ['Price', 'Free limits', 'Runs where', 'Audio processed', 'Languages', 'Exports'],
     tools: [
@@ -19,7 +20,7 @@ export const ROUNDUPS = [
         sources: [S('Buzz on GitHub', 'https://github.com/chidiwilliams/buzz'), S('Buzz documentation', 'https://chidiwilliams.github.io/buzz/docs'), S('Buzz home', 'https://buzzcaptions.com/'), S('Buzz docs: editing transcripts', 'https://chidiwilliams.github.io/buzz/docs/usage/edit_and_resize')] },
       { name: 'Slop Transcribe', ours: true, bestFor: 'Quick, private transcripts in the browser, with nothing to install, no account and Word or subtitle exports.',
         cells: ['Free', 'Up to 2 hours per file', 'Browser', 'On your device', '99, or detected', 'Text, Word, SRT, WebVTT'],
-        pros: ['Whisper runs in your browser; recordings never leave your device', 'Record your voice or add MP3, WAV, M4A, OGG, FLAC or video files, several at once', 'Correct the text, then save as Text, Word, SRT or WebVTT, or open it in Slop Docs', 'No account, no monthly minutes'],
+        pros: ['Whisper runs in your browser; recordings never leave your device', 'Record your voice or add MP3, WAV, M4A, OGG, FLAC or video files, several at once', 'Correct the text, then save as Text, Word, SRT or WebVTT, or open it in Slop Docs', 'No account, no monthly minutes', INSTALL.pro],
         cons: ['Still in beta', 'Uses Whisper tiny, a small model: it can mishear names, jargon and noisy rooms', 'The first use downloads the model, about 40 MB', 'No speaker labels, summaries or translation'] },
       { name: 'TurboScribe', url: 'https://turboscribe.ai/', bestFor: 'Long files and many languages on a paid plan, with speaker recognition and many export formats.',
         cells: ['Free; Unlimited $10 a month billed yearly', '3 files a day, up to 30 minutes each, one at a time', 'Browser', 'On its servers (GPUs)', '98+', 'DOCX, PDF, TXT, SRT, VTT'],
@@ -46,12 +47,12 @@ export const ROUNDUPS = [
       { feature: 'Translation', values: ['yes', 'no', 'partial', 'partial'] },
       { feature: 'Processed on your device', values: ['yes', 'yes', 'no', 'no'] },
       { feature: 'No install', values: ['no', 'yes', 'yes', 'yes'] },
-      { feature: 'Desktop app', values: ['yes', 'no', 'no', 'yes'] },
-      { feature: 'Mobile app', values: ['no', 'no', 'no', 'yes'] },
+      { feature: 'Desktop app', values: ['yes', INSTALL.short, 'no', 'yes'] },
+      { feature: 'Mobile app', values: ['no', INSTALL.short, 'no', 'yes'] },
       { feature: 'Open source', values: ['yes', 'yes', 'unknown', 'no'] },
     ],
-    verdict: ['Buzz comes first: it is free, open source and private, and lets you use larger Whisper models than a browser can, with speaker identification. You have to install it.',
-      'Slop Transcribe gives you the same privacy with nothing to install, at the cost of a smaller, less accurate model. TurboScribe and Otter are online services: TurboScribe for long files on its paid plan, Otter for meetings, both with tight free limits.'],
+    verdict: ['Slop Transcribe is our pick for quick, private transcripts: Whisper runs in your browser, so the recording never leaves your device, files can be up to 2 hours, there is no account or monthly limit, and you get Word, SRT and WebVTT. It uses a small model that can mishear names and noisy rooms.',
+      'Choose Buzz if you need speaker labels, translation or larger, more accurate Whisper models, and do not mind installing a desktop program; it is just as private. Choose TurboScribe for long files on its paid plan, or Otter for meetings with summaries; both are online services with tight free limits.'],
     faq: [['Which free transcription tool keeps my audio private?', 'Buzz and Slop Transcribe run Whisper on your own device. TurboScribe runs its transcription on its own GPUs, and Otter processes audio in the cloud.'],
       ['How long can a free recording be?', 'Slop Transcribe takes files up to 2 hours. TurboScribe and Otter stop at 30 minutes on their free plans. Buzz states no limit.'],
       ['Which one tells speakers apart?', 'Buzz, TurboScribe and Otter label speakers. Slop Transcribe gives one text without speaker labels.'],
@@ -67,7 +68,7 @@ export const ROUNDUPS = [
     tools: [
       { name: 'SlopLabel', ours: true, bestFor: 'One free tool for sheets and Zebra printers, with spreadsheet merge and GS1 barcodes, in the browser.',
         cells: ['Free', 'Browser; offline .html', 'No', 'CSV, TSV, Excel .xlsx, JSON', 'Avery and Herma codes, or custom', 'Yes, ZPL export and import'],
-        pros: ['Barcodes and QR codes, GS1, with check digits added for you', 'One label per spreadsheet row, quantity column, counters, dates and formulas', 'Avery Letter and A4 sheets by code, thermal rolls or any custom size', 'Writes Zebra ZPL at 152 to 600 dpi and draws a ZPL file to edit; PDF, PNG and SVG export'],
+        pros: ['Barcodes and QR codes, GS1, with check digits added for you', 'One label per spreadsheet row, quantity column, counters, dates and formulas', 'Avery Letter and A4 sheets by code, thermal rolls or any custom size', 'Writes Zebra ZPL at 152 to 600 dpi and draws a ZPL file to edit; PDF, PNG and SVG export', INSTALL.pro],
         cons: ['Still in beta', 'Old .xls files must be saved as .xlsx or CSV first', 'Direct USB or network printing to a Zebra printer needs a helper such as Zebra Browser Print, or sending the .zpl file', 'Browser printing must be set to 100% scale for sheets to line up'] },
       { name: 'Avery Design & Print', url: 'https://www.avery.com/software/design-and-print/', bestFor: 'Printing on Avery sheets with ready-made designs and a mail merge.',
         cells: ['Free', 'Browser', 'Optional; needed to save online', 'Yes, from spreadsheets', 'Avery products', 'Not stated'],
@@ -101,8 +102,8 @@ export const ROUNDUPS = [
       { feature: 'Free for every feature', values: ['yes', 'yes', 'partial', 'yes'] },
       { feature: 'Open source', values: ['yes', 'no', 'no', 'yes'] },
     ],
-    verdict: ['SlopLabel is first because it is the only one here that does spreadsheet merge on Avery sheets and Zebra ZPL for free, in any browser. It is in beta, and printing straight to a Zebra printer needs a helper.',
-      'For Avery sheets alone, Avery Design & Print is the official, polished choice. ZebraDesigner Essentials is the natural free start for Zebra owners on Windows, though data merge needs the paid edition. gLabels suits Linux users.'],
+    verdict: ['SlopLabel is our pick: it is the only one here that does spreadsheet merge on Avery sheets and Zebra ZPL for free, in any browser. It is in beta, and printing straight to a Zebra printer needs a helper.',
+      'Choose Avery Design & Print if you print only on Avery sheets and want its ready-made designs. Choose ZebraDesigner Essentials if you own a Zebra printer, use Windows and design labels by hand, since data merge needs its paid edition. Choose gLabels on Linux.'],
     faq: [['Is there free label software with mail merge?', 'Yes. SlopLabel, Avery Design & Print and gLabels merge from spreadsheets for free. ZebraDesigner has database connections only in its paid Professional edition.'],
       ['Which free label software works with Zebra printers?', 'ZebraDesigner 3 Essentials prints to Zebra Link-OS printers on Windows. SlopLabel writes ZPL in a browser on any system, and the file can be sent to the printer.'],
       ['Can I make Avery labels for free?', 'Yes. Avery Design & Print is Avery\'s own free tool. SlopLabel and gLabels also include Avery sheet layouts by their codes.'],

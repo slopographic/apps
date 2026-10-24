@@ -1,6 +1,6 @@
 // Round-up pages (tools/seo/roundups.mjs, copy in shared/seo/roundups/): the checks that keep them fair and sourced,
 // the page (disclosure, criteria, table, sources, trademark note) and the JSON-LD.
-// Covers: tools/seo/guide.mjs, tools/seo/roundups.mjs, shared/seo/roundups/index.mjs, shared/seo/roundups/creative.mjs,
+// Covers: shared/seo/install-copy.mjs, tools/seo/guide.mjs, tools/seo/roundups.mjs, shared/seo/roundups/index.mjs, shared/seo/roundups/creative.mjs,
 //   shared/seo/roundups/creative-2.mjs, shared/seo/roundups/creative-3.mjs, shared/seo/roundups/creative-4.mjs, shared/seo/roundups/documents.mjs,
 //   shared/seo/roundups/documents-2.mjs, shared/seo/roundups/documents-3.mjs, shared/seo/roundups/documents-4.mjs, shared/seo/roundups/business.mjs,
 //   shared/seo/roundups/business-2.mjs, shared/seo/roundups/business-3.mjs
@@ -88,4 +88,25 @@ test('the guide: a sidebar of the app\'s pages on its landing, task and comparis
   assert.match(body, /<h2 id="one">One<\/h2>/);
   assert.match(G.docsLayout(nav, toc, body), /<p class="l-side-h">On this page<\/p>/);
   assert.doesNotMatch(G.docsLayout(nav, toc.slice(0, 2), body), /On this page/);   // short pages need no list
+});
+
+test('our app is first in every round-up, and every feature row moved with it', async () => {
+  const { ROUNDUPS: all, oursFirst } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/roundups/index.mjs')).href);
+  for (const r of all) assert.ok(r.tools[0].ours, `${r.slug}: ${r.tools[0].name} is first`);
+  // the move keeps each tool's values with it: our column stays ours, the others keep their order
+  const r = { tools: [{ name: 'A' }, { name: 'B' }, { name: 'Us', ours: true }, { name: 'C' }], matrix: [{ feature: 'f', values: ['a', 'b', 'us', 'c'] }] };
+  const o = oursFirst(r);
+  assert.deepEqual(o.tools.map((t) => t.name), ['Us', 'A', 'B', 'C']);
+  assert.deepEqual(o.matrix[0].values, ['us', 'a', 'b', 'c']);
+  assert.equal(oursFirst(o), o);   // already first: unchanged
+});
+
+test('the install facts are stated once and every app landing page shows how to install it', async () => {
+  const { INSTALL } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/install-copy.mjs')).href);
+  for (const k of ['short', 'pro', 'con', 'how']) assert.ok(typeof INSTALL[k] === 'string' && INSTALL[k].length > 10, k);
+  const { readFileSync, readdirSync } = await import('node:fs');
+  for (const d of readdirSync(path.join(ROOT, 'apps'))) {
+    const html = readFileSync(path.join(ROOT, 'apps', d, 'index.html'), 'utf8');
+    assert.ok(html.includes(INSTALL.how.slice(0, 40).replace(/&/g, '&amp;')), `apps/${d}: the install note`);
+  }
 });

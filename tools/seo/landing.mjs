@@ -6,6 +6,7 @@ import { isPage } from './site.mjs';
 import { compareTables } from './roundups.mjs';
 import { appNav, withToc, docsLayout } from './guide.mjs';
 import OFFLINE_APPS from '../../shared/offline/manifest.js';
+import { INSTALL } from '../../shared/seo/install-copy.mjs';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -132,6 +133,7 @@ function appBody(app, apps, tasks = [], roundups = []) {
 <h1>${esc(app.title || app.name)}</h1>
 <p class="lead">${esc(app.tagline)}</p>
 <p><a class="btn" href="/${esc(app.path)}" aria-label="Open now: ${esc(app.name)}">Open now</a></p>${offlineLink(app)}
+<p class="note">${esc(INSTALL.how)}</p>
 ${mediaBlock(app)}
 <p>${esc(app.name)} ${feats.length ? `has these main features: ${esc(feats.slice(0, 2).join('; '))}.` : 'is listed below with its file types.'}${types.length ? ` It opens ${esc(types.join(', '))}.` : ''}</p>
 ${note ? `<p class="note">${esc(note)}</p>` : ''}

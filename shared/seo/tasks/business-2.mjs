@@ -1,5 +1,6 @@
 // Business apps, part 2: Slop Inventory, Contacts, CRM and Ledger (part 1 is business.mjs). Preset read by the app:
 // ledger view=journal|gl|trial|accounts|rates|bank|fin (the tab to open, ledger/js/ui/app.js NS.presetOf).
+import { INSTALL } from '../install-copy.mjs';
 export const TASKS = [
   { app: 'inventory', slug: 'inventory-spreadsheet-alternative', crumb: 'Inventory spreadsheet alternative',
     title: 'Inventory spreadsheet alternative: free stock tracking in your browser',
@@ -141,7 +142,7 @@ export const TASKS = [
     body: ['Slop Reports adds up the pipeline with CRM leads by stage, which also shows the value of issued and paid invoices for each stage. Suppliers from Slop Purchases are kept off the board.'],
     faq: [['Can I rename or add stages?', 'No. The four stages are fixed: Lead, Contacted, Customer and Lost. Use tags or groups for anything finer.'],
       ['Does the pipeline show deal values?', 'There is no deal amount on a card. The CRM leads by stage report shows the invoiced value of the customers in each stage.'],
-      ['Does it work on a phone?', 'Yes. On a narrow screen the list and the customer page take the full width, and cards move with their Move button.']] },
+      ['Does it work on a phone?', `Yes. On a narrow screen the list and the customer page take the full width, and cards move with their Move button. ${INSTALL.how}`]] },
   { app: 'crm', slug: 'customer-follow-up-tracker', crumb: 'Customer follow-up tracker',
     title: 'Customer follow-up tracker: never miss a call back, free',
     description: 'Give each customer a follow-up date and see who is overdue, due today or coming up in one list. Add dated notes and mark follow-ups done. Free, in your browser.',

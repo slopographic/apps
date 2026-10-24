@@ -4,6 +4,7 @@
 import { RAW_PAGES } from '../../convert/js/core/raw-pages.js';
 import { MORE_PAGES } from '../../convert/js/core/more-pages.js';
 import { DATA_PAGES } from '../../convert/js/core/data-pages.js';
+import { CHAIN_PAGES } from '../../convert/js/core/chain-pages.js';
 
-export const CONVERT_PAGES = Object.fromEntries([...RAW_PAGES, ...MORE_PAGES, ...DATA_PAGES].map((p) => [`convert/${p.slug}`,
-  { title: p.title, crumb: p.label, category: 'UtilitiesApplication', description: p.description }]));
+export const CONVERT_PAGES = Object.fromEntries([...RAW_PAGES, ...MORE_PAGES, ...DATA_PAGES, ...CHAIN_PAGES].map((p) => [`convert/${p.slug}`,
+  { title: p.title, crumb: p.label, category: p.appCat || 'UtilitiesApplication', description: p.description }]));
