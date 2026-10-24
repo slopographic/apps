@@ -7,6 +7,7 @@
 </head>
 <body>
   <script src="../harness.js"></script>
+  <script src="../../shared/commands/args.js"></script>
   <script>
   // Covers: docs/js/ui/ai-create.js, docs/js/ui/ai-commands.js, docs/js/model/build.js, shared/commands/sources.js
   const { describe, it, expect, waitFor } = SlopTest;
@@ -43,7 +44,7 @@
         expect(!!c).toBe(true);
         expect(c.destructive).toBe(false);
       }
-      const js = win.SlopCmdArgs.jsonSchema(C.get('docs.ai.insert-table').args);
+      const js = SlopCmdArgs.jsonSchema(C.get('docs.ai.insert-table').args);
       expect(js.properties.rows.type).toBe('array');
       expect(js.properties.rows.items.type).toBe('array');
     }, { timeout: 30000 });

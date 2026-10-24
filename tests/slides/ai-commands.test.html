@@ -10,6 +10,7 @@
        exported as PDF (read back with pdf.js) and PowerPoint (read back as a ZIP of XML).
        Covers: slides/js/ui/ai-commands.js, slides/js/ui/ai-files.js, slides/js/ui/commands.js, slides/js/core/outline.js, shared/commands/sources.js -->
   <script src="../harness.js"></script>
+  <script src="../../shared/commands/args.js"></script>
   <script src="frame.js"></script>
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
@@ -43,7 +44,7 @@
       for (const id of ids) expect(!!C.get('slides.ai.' + id)).toBe(true);
       const destructive = C.list().filter((c) => /^slides\.ai\./.test(c.id) && c.destructive).map((c) => c.id);
       expect(destructive).toEqual(['slides.ai.delete-slide']);
-      const js = w.SlopCmdArgs.jsonSchema(C.get('slides.ai.build-presentation').args);
+      const js = SlopCmdArgs.jsonSchema(C.get('slides.ai.build-presentation').args);
       expect(js.properties.slides.type).toBe('array');
       expect(js.properties.slides.items.properties.bullets.type).toBe('array');
       expect(js.required).toEqual(['title', 'slides']);

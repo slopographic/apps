@@ -141,3 +141,17 @@ Under 900 px the panels column (`#panels`: Layers, History…) is a drawer from 
 (on the picture too) and a swipe right close it. `css/extras.css` only sets `--ssh-top` (38 px, 66 px under 640 px) and
 `--ssh-z`; the old `panels-open` class and viewport listener are gone. A tool that uses Escape (a transform, a lasso) still
 gets it first. Test: `tests/photoslop/phone-panels.test.html`.
+
+## Drawing and every tool for the assistant (`js/app/ai-draw.js`, `ai-tool-use.js`, `ai-draw-cmds.js`)
+Loaded on demand with the other `ai-*.js` (`SlopCmd.prepare()`); all `ps.ai.*`, hidden, one history step each, recordable as
+macro steps. `new_document` (new tab, size, background), `add_svg_layer` (the model's SVG, checked by `psCheckSvg`: no
+script, foreignObject, event handlers, javascript: or links other than `#id` and `data:` pictures; drawn at document size or
+x/y/width/height into a new named layer), `gradient_fill` (linear/radial/conic, colours or stops, angle, centre, radius; on
+the layer or the selection through `bakeStroke`, or a new layer), `draw_shape` (rect, rounded, ellipse, polygon, star, heart,
+line, points, SVG path; fill, stroke, blur, opacity, blend), `use_tool` / `click_tool` / `brush_stroke` (any `TOOLS` id driven
+through the tool's own `down`/`move`/`up` with points in document px; options from `T`, colours; clone/heal `source`, type
+`text`, crop `apply`, polygonal lasso closes with `finish`; the eyedropper returns the colour), `transform_layer` (Free
+Transform's state with numbers, then `commitTransform`), `list_tools` (each tool and its options, read from `T`). `add_text`,
+`draw_shape`, `add_svg_layer` and the shape/type/move tools say where the content landed and warn when it runs past the
+canvas (`psBoundsNote`); `fit: true` shrinks it inside. Not there: skew/perspective, a pen/path tool and quick selection
+(PhotoSlop has none). Test: `tests/photoslop/ai-draw.test.html`.
