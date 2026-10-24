@@ -38,6 +38,18 @@
       const T = g.SlopData.timesheets;
       return rows.map((r) => ({ ...r, value: r.billable ? T.amountOf(r) : 0 }));
     },
+    /** Journal entries: month, cashIn, cashOut and net, what the entry moved into or out of cash and the bank (the chart's
+     * CASH and BANK accounts, SlopData.schemaDefs.ACCT), in the base currency. A move between cash and the bank is left
+     * out, and so is an entry that does not touch either. */
+    cash(rows) {
+      const A = g.SlopData.schemaDefs.ACCT, money = new Set([A.CASH, A.BANK]), out = [];
+      for (const r of rows) {
+        let net = 0, touched = false;
+        for (const l of r.lines || []) if (money.has(l.account)) { touched = true; net += num(l.debit) - num(l.credit); }
+        if (touched && net) out.push({ ...r, month: String(r.date || '').slice(0, 7), cashIn: Math.max(0, net), cashOut: Math.max(0, -net), net });
+      }
+      return out;
+    },
     /** Any dated rows: month, the YYYY-MM of their date. */
     month(rows) {
       return rows.map((r) => ({ ...r, month: typeof r.date === 'string' ? r.date.slice(0, 7) : undefined }));
