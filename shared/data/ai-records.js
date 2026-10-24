@@ -133,7 +133,7 @@
     add('export_records', 'Export records', [Object.assign({}, COLL, { values: cfg.collections.concat(['all']) }), { name: 'format', type: 'enum', values: ['csv', 'json'], default: 'csv' },
       { name: 'to', type: 'enum', values: ['drive', 'download', 'both'], default: 'drive' }],
       async (a) => {
-        if (a.collection === 'all' || a.format === 'json' && a.collection === 'all') { const f = await D().exporter.exportFile(); return save(f.blob, f.name, a.to, app); }
+        if (a.collection === 'all' || a.format === 'json' && a.collection === 'all') { const r0 = await D().exporter.exportFile(), f = r0 && r0.ok !== undefined ? AI.unwrap(r0, 'Backup') : r0; return save(f.blob, f.name, a.to, app); }
         const rows = unwrap(await S().list(a.collection), 'List'), day = new Date().toISOString().slice(0, 10);
         const blob = a.format === 'json' ? new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' }) : new Blob([csv(rows)], { type: 'text/csv' });
         return save(blob, `${a.collection}-${day}.${a.format}`, a.to, app);

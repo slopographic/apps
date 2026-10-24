@@ -36,6 +36,7 @@
     if (a.format) { const o = [...$('up-format').options].find((x) => x.value === a.format); if (o && o.disabled) throw new Error(`${a.format} is not available in this browser`); field('up-format', a.format); }
     if (a.quality != null) field('up-quality', a.quality);
     if (a.fps != null) field('up-fps', a.fps);
+    if (a.scale && S().scale !== Number(a.scale)) $('up-scale-' + a.scale).click();   // a model change may have reset it
     return `Upscale ${S().scale}× with ${S().model}, saved as ${S().format}${S().format === 'png' ? '' : ` at ${Math.round(S().quality * 100)}%`}.`;
   }
   async function upscale() {

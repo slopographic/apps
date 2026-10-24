@@ -118,7 +118,7 @@
         AI.remember({ kind: 'updated', collection: 'numbering', id: a.sequence, before });
         return `The next ${a.sequence} number is ${D().numbering.format(rec, rec.next)}.`;
       });
-      add('export_backup', 'Export a full backup', [TO], async (a) => { const f = await D().exporter.exportFile(); return AI.save(f.blob, f.name, a.to, 'admin'); },
+      add('export_backup', 'Export a full backup', [TO], async (a) => { const r0 = await D().exporter.exportFile(), f = r0 && r0.ok !== undefined ? AI.unwrap(r0, 'Backup') : r0; return AI.save(f.blob, f.name, a.to, 'admin'); },
         { description: 'Every business record in one JSON file (the same as Data ▸ Backup), to Slop Drive and/or a download.' });
     } },
     reminders: { label: 'Slop Reminders', collections: ['reminders'], post: { reminders: (r) => D().store.put('reminders', Object.assign({ source: 'custom' }, r)) } },

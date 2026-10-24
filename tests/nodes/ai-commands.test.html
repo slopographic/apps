@@ -32,8 +32,8 @@
     }, { timeout: 30000 });
 
     it('add_node, connect, set_node, disconnect, delete_node: one undo step each; refusals change nothing', async () => {
-      await run('add-node', { type: 'formula', name: 'tax', expr: 'total * 0.2', inputs: ['total'] });
-      expect(res('tax').text).toBe('2.4');
+      await run('add-node', { type: 'formula', name: 'vat', expr: 'total * 0.2', inputs: ['total'] });
+      expect(res('vat').text).toBe('2.4');
       await run('set-node', { node: 'price', expr: '5' });
       expect(res('total').value).toBe(15);
       W.SlopNodesApp.undo();
@@ -41,12 +41,12 @@
       const n = W.SlopNodesApp.graph().nodes.length;
       expect((await C.exec('nodes.ai.add-node', { name: 'bad', inputs: ['nope'] })).ok).toBe(false);
       expect(W.SlopNodesApp.graph().nodes.length).toBe(n);
-      expect((await C.exec('nodes.ai.connect', { from: 'tax', to: 'total' })).ok).toBe(false);   // a loop
-      await run('disconnect', { from: 'total', to: 'tax' });
+      expect((await C.exec('nodes.ai.connect', { from: 'vat', to: 'total' })).ok).toBe(false);   // a loop
+      await run('disconnect', { from: 'total', to: 'vat' });
       expect(W.SlopNodesApp.graph().links.length).toBe(2);
-      await run('connect', { from: 'total', to: 'tax' });
-      await run('delete-node', { node: 'tax' });
-      expect(res('tax')).toBe(undefined);
+      await run('connect', { from: 'total', to: 'vat' });
+      await run('delete-node', { node: 'vat' });
+      expect(res('vat')).toBe(undefined);
       const st = C.state();
       expect(st.wires).toContain('price → total');
     });
