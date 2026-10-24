@@ -79,10 +79,10 @@
   .fname input { width: 150px; }
   .empty-feats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+/* Small screens: the brand mark names the app, and Fonts… stays in File (under More). */
+@media (max-width: 680px) { .appname, #btnFonts { display: none; } }
 @media (max-width: 560px) {
   .topbar { gap: 4px; padding: 0 6px 0 8px; }
-  .appname { margin: 0 2px; }
-  .home-link { display: none; }
   .fname { display: none; }
   .btn.dl span { display: none; }
   .btn.dl { padding: 0 10px; }
@@ -93,5 +93,6 @@
   .empty-feats li { font-size: 11px; }
   .pp-row { grid-template-columns: 78px minmax(0, 1fr) auto; }
 }
+@media (max-width: 400px) { .topbar { gap: 2px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 

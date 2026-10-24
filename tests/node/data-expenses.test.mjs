@@ -30,15 +30,16 @@ test('an expense that is all tax posts no zero line for the expense account', ()
   assert.deepEqual(lines.map((l) => l.account), ['2100', '1010']);
 });
 
-test('totals leave out void and deleted expenses and group the amount by account', () => {
+test('totals leave out void and deleted expenses, count bills owed (and what is to pay), and group the amount by account', () => {
   const t = plain(X.totals([
     { amount: 1000, tax: 200, account: '5000', status: 'posted' },
     { amount: 500, account: '5100', status: 'posted' },
     { amount: 700, account: '5000', status: 'void' },
     { amount: 900, account: '5000', status: 'posted', deletedAt: 1 },
+    { amount: 300, account: '5100', status: 'owed' },   // a bill not paid yet counts, and is what is still to pay
   ]));
-  assert.deepEqual(t, { count: 2, amount: 1500, tax: 200, byAccount: { 5000: 1000, 5100: 500 } });
-  assert.deepEqual(plain(X.totals()), { count: 0, amount: 0, tax: 0, byAccount: {} });
+  assert.deepEqual(t, { count: 3, amount: 1800, tax: 200, owed: 300, byAccount: { 5000: 1000, 5100: 800 } });
+  assert.deepEqual(plain(X.totals()), { count: 0, amount: 0, tax: 0, owed: 0, byAccount: {} });
 });
 
 test('the schema has the expenses collection: posting only, tax not above the amount, an expense account code', () => {

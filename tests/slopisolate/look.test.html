@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>SlopIsolate: the look (one header row with labels at 1440, Open in and Clear saved work in More when narrow)</title>
+<style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
+<body>
+  <!-- Covers: slopisolate/css/base.css -->
+  <!-- Covers: slopisolate/css/themes.css -->
+  <!-- Covers: slopisolate/js/ui/menus.js -->
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  /** The page in a fresh iframe of this width, once it and the shell's header buttons are in. */
+  async function open(width, src = '../../slopisolate/index.html') {
+    for (const old of document.querySelectorAll('iframe')) old.remove();
+    const f = document.createElement('iframe');
+    f.style.width = width + 'px';
+    f.src = src;
+    document.body.append(f);
+    await waitFor(() => { const D = f.contentDocument; return D && D.readyState === 'complete' && D.querySelector('header .sh-hdr .slop-hbtn') && D.getElementById('btnOpenIn') && D.getElementById('btnClearSaved'); }, { timeout: 30000 });
+    await sleep(400);   // the header fit (shared/ui/hbtn.js) runs on the next frame
+    return f.contentDocument;
+  }
+  const box = (n) => n.getBoundingClientRect();
+  const shown = (n) => !!n && box(n).width > 0 && box(n).height > 0;
+  /** Every header on screen (the menu bar is a header too). */
+  const headers = (D) => [...D.querySelectorAll('header')].filter((n) => shown(n) && !n.parentElement.closest('header'));
+  /** The heights of the shared header buttons on screen. */
+  const hbtnHeights = (D) => [...D.querySelectorAll('header .slop-hbtn')].filter(shown).map((n) => Math.round(box(n).height));
+  /** The page's own buttons (selectors) are as tall as the shared ones. */
+  function sameHeight(D, sels) {
+    const hs = hbtnHeights(D);
+    expect(hs.length).toBeGreaterThan(2);
+    for (const h of hs) expect(h).toBe(hs[0]);
+    for (const sel of sels) {
+      const n = D.querySelector(sel);
+      if (!shown(n)) continue;
+      expect(sel + ' ' + Math.round(box(n).height)).toBe(sel + ' ' + hs[0]);
+    }
+  }
+  const noSideScroll = (D) => expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(D.defaultView.innerWidth);
+
+  describe('SlopIsolate: the look', () => {
+    it('at 1440px: one header, the shared buttons keep their labels and are as tall as Download', async () => {
+      const D = await open(1440);
+      expect(headers(D).length).toBe(1);
+      expect(D.querySelector('header.slop-htight')).toBe(null);
+      sameHeight(D, ['#btnDownload', '#btnOpenIn']);
+    }, { timeout: 40000 });
+
+    it('at 1024 and 390px nothing scrolls sideways, and More holds Open in and Clear saved work', async () => {
+      for (const w of [1024, 390]) {
+        const D = await open(w);
+        noSideScroll(D);
+        expect(shown(D.getElementById('btnOpenIn'))).toBe(false);
+        D.getElementById('btnMore').click();
+        const menu = await waitFor(() => D.querySelector('.sui-menu'), { timeout: 4000 });
+        expect(menu.textContent).toContain('Open in…');
+        expect(menu.textContent).toContain('Clear saved work…');
+        D.dispatchEvent(new D.defaultView.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      }
+    }, { timeout: 60000 });
+  });
+  SlopTest.run({ name: 'SlopIsolate: the look' });
+  </script>
+</body>
+</html>

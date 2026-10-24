@@ -109,6 +109,10 @@
       if (cur() && cur().request) out.push({ label: 'Send mask back to PhotoSlop', act: () => CO.send.mask(), disabled: !done() });
       out.push({ label: 'Send cut-out to PhotoSlop as a new layer', act: () => CO.send.layer(), disabled: !done() });
     }
+    // A narrow top bar hides Open in… and Clear saved work (css/themes.css); the More menu runs the same buttons.
+    const openIn = $('#btnOpenIn'), clear = $('#btnClearSaved');
+    if (openIn) out.push({ label: 'Open in…', act: () => CO.openIn.show($('#btnMore')), disabled: openIn.disabled });
+    if (clear) out.push({ label: 'Clear saved work…', act: () => clear.click() });
     out.push('-', { label: 'About SlopIsolate', act: act.about });
     return out;
   }

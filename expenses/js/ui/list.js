@@ -27,9 +27,9 @@
   function draw() {
     const shown = NS.core.filter(all, { search: $('xSearch').value, status: $('xStatus').value, ...period($('xPeriod').value) });
     list.set(shown);
-    const posted = shown.filter((e) => e.status === 'posted'), cur = settings.currency;
-    const same = posted.every((e) => (e.currency || cur) === cur);
-    $('xTotal').textContent = posted.length && same ? `Total ${B.money(posted.reduce((t, e) => t + e.amount, 0), cur, settings.locale)}` : '';
+    const live = shown.filter((e) => e.status === 'posted' || e.status === 'owed'), cur = settings.currency, m = (v) => B.money(v, cur, settings.locale);
+    const same = live.every((e) => (e.currency || cur) === cur), owed = live.filter((e) => e.status === 'owed').reduce((t, e) => t + e.amount, 0);
+    $('xTotal').textContent = live.length && same ? `Total ${m(live.reduce((t, e) => t + e.amount, 0))}${owed ? ` · to pay ${m(owed)}` : ''}` : '';
   }
 
   async function voidOne(e) {
@@ -41,9 +41,17 @@
     refresh();
   }
 
+  /** A bill owed: To pay (due date), or Overdue once the due date has passed. */
+  function owedChip(e) {
+    if (e.status !== 'owed') return null;
+    const late = S.expenses.overdue(e, S.ledger.today());
+    return { chip: `${late ? 'Overdue' : 'To pay'}${e.dueDate ? ` · due ${e.dueDate}` : ''}`, cls: late ? 'overdue' : 'draft' };
+  }
+
   function menu(e) {
     const items = [{ label: 'Open', act: () => NS.app.go(`e/${e.id}`) }, { label: 'Record a copy…', act: () => NS.app.go(`new/${e.id}`) }];
-    if (e.status === 'posted') items.push({ label: 'Void…', act: () => voidOne(e) });
+    if (e.status === 'owed') items.push({ label: 'Mark as paid…', act: () => NS.payDialog.open(e, refresh) });
+    if (e.status === 'posted' || e.status === 'owed') items.push({ label: 'Void…', act: () => voidOne(e) });
     return items;
   }
 
@@ -56,7 +64,7 @@
         title: e.supplier + (e.description ? ` · ${e.description}` : ''),
         amount: B.money(e.amount, e.currency || settings.currency, settings.locale), cls: e.status === 'void' ? 'is-void' : '',
         meta: [e.date, names[e.account] || e.account, e.tax ? `tax ${B.money(e.tax, e.currency || settings.currency, settings.locale)}` : null,
-          e.method, e.status === 'void' ? { chip: 'Void', cls: 'void' } : null, e.sample ? { chip: 'Sample', cls: 'warn' } : null],
+          e.status === 'owed' ? null : e.method, e.status === 'void' ? { chip: 'Void', cls: 'void' } : null, owedChip(e), e.sample ? { chip: 'Sample', cls: 'warn' } : null],
       }),
       open: (e) => NS.app.go(`e/${e.id}`), menu,
     });

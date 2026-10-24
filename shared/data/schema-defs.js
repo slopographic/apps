@@ -22,13 +22,13 @@
     repeatFreq: ['none', 'daily', 'weekly', 'monthly', 'yearly'],
     priority: ['none', 'low', 'high'],
     reminderSource: ['event', 'task', 'custom'],
-    expenseStatus: ['posted', 'void'],
+    expenseStatus: ['posted', 'owed', 'void'],   // owed: a bill recorded, not paid yet (Accounts Payable)
     bankLineStatus: ['open', 'matched', 'ignored'],
   };
-  const ACCT = { CASH: '1000', BANK: '1010', AR: '1200', TAX_PAYABLE: '2100', EQUITY: '3000', REVENUE: '4000', EXPENSES: '5000' };
+  const ACCT = { CASH: '1000', BANK: '1010', AR: '1200', AP: '2000', TAX_PAYABLE: '2100', EQUITY: '3000', REVENUE: '4000', EXPENSES: '5000' };
   const DEFAULT_CHART = [
     { code: '1000', name: 'Cash', type: 'asset' }, { code: '1010', name: 'Bank', type: 'asset' }, { code: '1200', name: 'Accounts Receivable', type: 'asset' },
-    { code: '2100', name: 'Sales Tax Payable', type: 'liability' }, { code: '3000', name: 'Equity', type: 'equity' },
+    { code: '2000', name: 'Accounts Payable', type: 'liability' }, { code: '2100', name: 'Sales Tax Payable', type: 'liability' }, { code: '3000', name: 'Equity', type: 'equity' },
     { code: '4000', name: 'Sales Revenue', type: 'revenue' }, { code: '5000', name: 'Expenses', type: 'expense' },
   ];
   // defaultCurrency is the ledger's base currency. locale is refined from the browser by currency.js at seed time.
@@ -219,7 +219,8 @@
       account: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), amount: F.mny({ req: true, min: 1 }), tax: F.mny({ def: 0 }),
       currency: F.cur({}), rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
       method: F.en(ENUM.payMethod, { def: 'bank' }), status: F.en(ENUM.expenseStatus, { def: 'posted' }),
-      receiptId: F.str({ max: 200 }), notes: F.text({}), sample: F.bool({}) } },
+      receiptId: F.str({ max: 200 }), notes: F.text({}), sample: F.bool({}),
+      dueDate: F.date({}), paidDate: F.date({}) } },   // a bill owed (status owed) is due on dueDate; paidDate once it is paid
     // Reminders. Custom reminders are rows of their own (source custom). Event and task reminders are read from the
     // events and tasks; a row here only records what the person did (snoozedUntil, firedAt, dismissedAt) for one of them.
     reminders: { key: 'id', indexes: [{ name: 'source', key: 'source' }], fields: {

@@ -44,6 +44,9 @@ button:disabled { cursor: default; opacity: .4; }
 
 .app { display: grid; height: 100%; grid-template-columns: var(--side-w) minmax(0, 1fr) auto; grid-template-rows: var(--top-h) minmax(0, 1fr); grid-template-areas: 'top top top' 'side main info'; }
 .topbar { grid-area: top; display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; }
+/* One height in the header: the search, New, the icon buttons and the shared header buttons (shared/ui/hbtn.css). */
+.topbar { --slop-hbtn-h: 34px; --slop-hbtn-radius: var(--radius-s); --slop-hbtn-bg: var(--panel-2); --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); --slop-hbtn-fs: 13px; }
+.topbar .btn { height: var(--slop-hbtn-h); }
 .brand { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--accent); flex: none; }
 .brand-mark { width: 17px; height: 17px; fill: var(--accent-ink); }
 .appname { display: grid; line-height: 1.1; margin-right: 8px; white-space: nowrap; }

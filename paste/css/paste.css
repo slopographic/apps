@@ -30,17 +30,17 @@ body { background: var(--pb-bg); color: var(--pb-fg); font: 14px/1.4 var(--pb-sa
 button, input, select, textarea { font: inherit; color: inherit; }
 
 /* layout */
-.pb-app { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); min-width: 0; }
-.pb-top { grid-column: 1 / -1; grid-row: 1; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--pb-line); background: var(--pb-panel); min-width: 0; }
-.pb-brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.pb-brand h1 { margin: 0; font-size: 15px; font-weight: 700; white-space: nowrap; }
-.pb-logo { width: 18px; height: 18px; border-radius: 5px; background: var(--pb-accent); display: inline-block; box-shadow: inset -5px -5px 0 rgba(0, 0, 0, .18); }
+.pb-app { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); min-width: 0; }
+/* The menu bar (shared/menubar) holds the save state and New paste; its buttons are as tall as the shared header buttons
+ * (shared/ui/hbtn.css), and those take the look of the SlopUI buttons. */
+.smb-bar { --slop-hbtn-h: 32px; --slop-hbtn-radius: 6px; --slop-hbtn-bg: var(--pb-panel); --slop-hbtn-line: var(--pb-line); --slop-hbtn-hover: var(--pb-hover); }
+.smb-tools { align-items: center; }
+.smb-tools .sui-btn { height: var(--slop-hbtn-h); }
 .pb-save { color: var(--pb-faint); font-size: 12px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pb-save[data-state="error"] { color: var(--pb-danger); }
-.pb-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
-.pb-tools .sui-btn, .pb-bar .sui-btn { white-space: nowrap; }
-.pb-narrow { display: inline-flex; }
-.pb-list, .pb-main { grid-row: 2; min-width: 0; min-height: 0; }
+.pb-bar .sui-btn { white-space: nowrap; }
+.pb-narrow { display: inline-flex; align-items: center; }
+.pb-list, .pb-main { grid-row: 1; min-width: 0; min-height: 0; }
 .pb-list { display: flex; flex-direction: column; background: var(--pb-panel); border-right: 1px solid var(--pb-line); }
 .pb-main { display: flex; flex-direction: column; overflow: auto; background: var(--pb-bg); }
 .pb-app[data-pane="list"] .pb-main { display: none; }
@@ -48,7 +48,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* the list */
 .pb-search { display: flex; gap: 6px; padding: 10px; }
+.pb-search .sui-btn { height: auto; }
 .pb-search input { flex: 1; min-width: 0; box-sizing: border-box; padding: 7px 10px; border: 1px solid var(--pb-line); border-radius: 8px; background: var(--pb-bg); }
+.pb-items:empty { display: none; }   /* the "no pastes" line then sits under the search, not at the bottom */
 .pb-items { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 2px; padding: 0 6px 12px; }
 .pb-item { display: flex; flex-direction: column; gap: 3px; width: 100%; border: 0; background: none; text-align: left; padding: 9px 10px; border-radius: 8px; cursor: pointer; min-width: 0; }
 .pb-item:hover, .pb-item:focus-visible { background: var(--pb-hover); outline: none; }
@@ -98,12 +100,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .pb-main { grid-column: 1; }
   .pb-text { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .pb-text textarea { min-height: 34vh; }
-  .pb-tools .sui-btn:not(#pb-new) { display: none; }
-  .pb-save { flex-basis: 100%; order: 3; }
+  .pb-save:not([data-state="error"]) { display: none; }   /* no room on a phone for "Saved"; an error still shows */
 }
 @media (min-width: 900px) {
   .pb-app { grid-template-columns: 300px minmax(0, 1fr); }
-  .pb-top { grid-column: 1 / -1; }
   .pb-list { grid-column: 1; }
   .pb-main { grid-column: 2; }
   .pb-narrow { display: none; }

@@ -50,15 +50,12 @@
 </head>
 <body>
   <div class="pb-app" id="pb-app" data-pane="list">
-    <div class="pb-top">
     <div class="smb-hold" hidden>
       <button type="button" class="sui-btn pb-narrow" id="pb-side-btn" aria-label="Show the paste list">Pastes</button>
+      <span class="pb-save" id="pb-save" role="status" aria-live="polite"></span>
       <button type="button" class="sui-btn sui-primary" id="pb-new" title="New text paste (Ctrl+Alt+N)">New paste</button>
       <button type="button" class="sui-btn" id="pb-cmd" aria-label="Commands (search every command)">Commands</button>
     </div>
-    <span class="pb-save" id="pb-save" role="status" aria-live="polite"></span>
-    </div>
-
 
     <section class="pb-list" aria-label="Pastes">
       <div class="pb-search">
@@ -104,7 +101,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Paste", "tools": ["#pb-new"], "menus": {"File": ["#pb-new", "#pb-add-img", "#pb-download", "#pb-share"], "Edit": ["#pb-copy", "#pb-del"], "View": ["#pb-side-btn"], "Help": ["#pb-cmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Paste", "tools": ["#pb-save", "#pb-new"], "menus": {"File": ["#pb-new", "#pb-add-img", "#pb-download", "#pb-share"], "Edit": ["#pb-copy", "#pb-del"], "View": ["#pb-side-btn"], "Help": ["#pb-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
 </body>
 </html>

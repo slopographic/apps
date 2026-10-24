@@ -88,7 +88,7 @@ PRECACHE.push(
   '/eml/js/commands.js', '/eml/js/frame.js', '/eml/js/main.js', '/eml/js/pdf.js', '/eml/js/preview.js', '/eml/js/route.js', '/eml/js/text.js',
   '/eml/js/view.js', '/expenses/css/expenses.css', '/expenses/index.html', '/expenses/js/core/expenses.js', '/expenses/js/core/mileage.js',
   '/expenses/js/core/receipt.js', '/expenses/js/ui/app.js', '/expenses/js/ui/commands.js', '/expenses/js/ui/editor.js', '/expenses/js/ui/list.js',
-  '/expenses/js/ui/mileage.js', '/expenses/js/ui/receipt.js', '/expenses/js/ui/summary.js', '/favicon.svg', '/gallery/css/drive.css',
+  '/expenses/js/ui/mileage.js', '/expenses/js/ui/pay.js', '/expenses/js/ui/receipt.js', '/expenses/js/ui/summary.js', '/favicon.svg', '/gallery/css/drive.css',
   '/gallery/css/gallery.css', '/gallery/css/people.css', '/gallery/css/viewer.css', '/gallery/index.html', '/gallery/js/core/db.js',
   '/gallery/js/core/drive-query.js', '/gallery/js/core/import.js', '/gallery/js/core/library.js', '/gallery/js/core/people.js', '/gallery/js/core/query.js',
   '/gallery/js/core/reel.js', '/gallery/js/core/sort.js', '/gallery/js/core/thumb.js', '/gallery/js/core/urls.js', '/gallery/js/io/backup.js',

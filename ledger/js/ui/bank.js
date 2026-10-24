@@ -1,7 +1,8 @@
 // The Bank tab: reconcile a bank (or cash) account with its statement. Import the bank's CSV: each line is kept once
 // (bankLines; a second import of the same statement adds nothing) and matched to the journal entry that moved the account
 // by the same amount within 5 days (core/bank.js). What is left is for the person: money in that equals an open invoice's
-// balance can be recorded as its payment; money out can be recorded as an expense; anything else can be set aside. The
+// balance can be recorded as its payment; money out that equals a bill owed can pay it, or be recorded as an expense;
+// anything else can be set aside. The
 // statement's totals and the difference still to explain are at the top.
 (function (g) {
   'use strict';
@@ -53,6 +54,18 @@
     if (line.amount <= 0) return [];
     return cache.invoices.filter((x) => x.due === line.amount);
   }
+  /** Money out: the bills owed whose amount is exactly this line's. */
+  function billsFor(line) {
+    if (line.amount >= 0) return [];
+    return cache.bills.filter((b) => b.amount === -line.amount);
+  }
+  async function payBill(line, bill) {
+    const r = await S.expenses.pay(bill.id, { date: line.date, method: line.account === '1000' ? 'cash' : 'bank' });
+    if (!r.ok) { UI.alert('Bill not paid', NS.util.refusal(r)); return; }
+    await autoMatch();
+    UI.toast(`Bill from ${bill.supplier} paid and matched`);
+    await render();
+  }
   async function recordPayment(line, inv) {
     const r = await S.billing.recordPayment({ invoiceId: inv.id, amount: line.amount, date: line.date, method: line.account === '1000' ? 'cash' : 'bank', note: line.description.slice(0, 300) || undefined });
     if (!r.ok) { UI.alert('Payment not recorded', NS.util.refusal(r)); return; }
@@ -82,6 +95,7 @@
     const acts = [];
     if (line.status === 'open') {
       for (const inv of invoicesFor(line).slice(0, 2)) acts.push(el('button', { type: 'button', class: 'btn small primary', onclick: () => recordPayment(line, inv) }, `Payment for ${inv.number}`));
+      for (const bill of billsFor(line).slice(0, 2)) acts.push(el('button', { type: 'button', class: 'btn small primary', onclick: () => payBill(line, bill) }, `Pay bill from ${bill.supplier}`));
       if (line.amount < 0) acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => recordExpense(line) }, 'Record as expense…'));
       acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => setStatus(line, 'ignored') }, 'Set aside'));
     } else if (line.status === 'matched') acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => setStatus(line, 'open') }, 'Unmatch'));
@@ -94,10 +108,11 @@
 
   async function render() {
     const acct = account(), s = await NS.util.settings();
-    const [lines, journal, invoices, payments] = await Promise.all([list('bankLines'), list('journal'), list('invoices', { index: 'status', value: 'issued' }), list('payments')]);
+    const [lines, journal, invoices, payments, bills] = await Promise.all([list('bankLines'), list('journal'), list('invoices', { index: 'status', value: 'issued' }), list('payments'),
+      list('expenses', { index: 'status', value: 'owed' })]);
     const mine = lines.filter((l) => l.account === acct).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
     const due = invoices.filter((x) => !x.deletedAt).map((x) => ({ id: x.id, number: x.number, due: S.billing.balanceDue(x, payments.filter((p) => p.invoiceId === x.id)) }));
-    cache = { lines: mine, moves: NS.bank.moves(journal, acct), invoices: due, settings: s };
+    cache = { lines: mine, moves: NS.bank.moves(journal, acct), invoices: due, bills: bills.filter((b) => (b.amountBase !== undefined ? b.amountBase : b.amount) === b.amount), settings: s };
     const count = (st) => mine.filter((l) => l.status === st).length, m = (v) => NS.util.money(v, s.base, s.locale);
     const open = mine.filter((l) => l.status === 'open');
     $('bkStats').replaceChildren(...[[String(mine.length), 'Statement lines'], [String(count('matched')), 'Matched'], [String(open.length), 'To review'],

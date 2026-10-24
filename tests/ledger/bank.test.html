@@ -9,7 +9,7 @@
   <iframe id="app"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: ledger/css/ledger.css, ledger/js/ui/bank.js, ledger/js/core/bank.js, ledger/index.html, ledger/js/ui/app.js, ledger/js/ui/commands.js, shared/data/readtext.js, shared/data/schema-defs.js, shared/data/store.js
+  // Covers: shared/data/expenses.js, ledger/css/ledger.css, ledger/js/ui/bank.js, ledger/js/core/bank.js, ledger/index.html, ledger/js/ui/app.js, ledger/js/ui/commands.js, shared/data/readtext.js, shared/data/schema-defs.js, shared/data/store.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D;
   const $ = (id) => D.getElementById(id);
@@ -32,6 +32,7 @@
       const d = (await S().store.put('invoices', { customerId: c.id, date: '2026-10-01', lines: [{ description: 'Work', qty: 1, unitPrice: 120000, taxRate: 0 }] })).value;
       await S().billing.issue(d.id);
       await S().expenses.record({ date: '2026-10-21', supplier: 'Coffee Corner', amount: 450, tax: 0, currency: 'USD', method: 'bank', account: '5000' });
+      await S().expenses.record({ date: '2026-10-01', supplier: 'Paper Co', amount: 200, tax: 0, currency: 'USD', account: '5000', payLater: true, dueDate: '2026-10-31' });
       await W.SlopLedger.bankView.importFile(new W.File([CSV], 'statement.csv', { type: 'text/csv' }));
       expect(stat('Statement lines')).toBe('4');
       expect(stat('Matched')).toBe('1');
@@ -47,26 +48,36 @@
       expect(inv.status).toBe('paid');
       expect(stat('Matched')).toBe('2');
     });
-    it('money out: Record as expense… posts it from the bank and matches the line; Set aside clears the fee', async () => {
+    it('money out that equals a bill owed: Pay bill from Paper Co pays it and matches the line', async () => {
+      const tr = rowOf('Bank fee');
+      expect([...tr.querySelectorAll('button')].map((b) => b.textContent)).toContain('Pay bill from Paper Co');
+      press(tr, 'Pay bill from Paper Co');
+      await waitFor(() => !rowOf('Bank fee'));
+      expect((await S().store.list('expenses')).value.find((e) => e.supplier === 'Paper Co').status).toBe('posted');
+    });
+    it('money out: Record as expense… posts it from the bank and matches the line', async () => {
       press(rowOf('Office chair'), 'Record as expense');
       await waitFor(() => D.querySelector('.sui-dlg'));
       [...D.querySelectorAll('.sui-dlg button')].find((b) => b.textContent === 'Record expense').click();
       await waitFor(() => !rowOf('Office chair'));
       const ex = (await S().store.list('expenses')).value.find((e) => e.description === 'Office chair');
       expect([ex.amount, ex.method]).toEqual([8900, 'bank']);
-      press(rowOf('Bank fee'), 'Set aside');
       await waitFor(() => stat('To review') === '0');
-      expect(stat('Set aside')).toBe('1');
+      expect(stat('Set aside')).toBe('0');
       expect(stat('Still to explain')).toBe('$0.00');
       expect($('bkEmpty').hidden).toBe(false);
     });
-    it('the same statement again adds nothing; Show matched lists every line with what it matched', async () => {
+    it('the same statement again adds nothing; Show matched lists every line; unmatch, set aside, bring back', async () => {
       await W.SlopLedger.bankView.importFile(new W.File([CSV], 'statement.csv', { type: 'text/csv' }));
       expect(stat('Statement lines')).toBe('4');
       $('bkShowAll').click();
       await waitFor(() => rows().length === 4);
       expect(rowOf('Coffee Corner').textContent).toContain('Matched:');
       press(rowOf('Coffee Corner'), 'Unmatch');
+      await waitFor(() => stat('To review') === '1');
+      press(rowOf('Coffee Corner'), 'Set aside');
+      await waitFor(() => stat('Set aside') === '1' && stat('To review') === '0');
+      press(rowOf('Coffee Corner'), 'Bring back');
       await waitFor(() => stat('To review') === '1');
     });
   });

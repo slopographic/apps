@@ -1,6 +1,8 @@
 /* SlopLabel — narrow screens: tools along the bottom, panels in a slide-up sheet */
 @media (max-width: 1100px) {
-  :root { --dock-w: 270px; }
+  :root { --dock-w: 284px; }
+  .tabs { padding: 5px 4px 0; }
+  .tab { padding: 0 5px; }
 }
 @media (max-width: 760px) {
   :root { --menubar-h: 42px; --cb-h: 36px; --ruler: 0px; }
@@ -8,13 +10,17 @@
   .only-wide { display: none !important; }
   .app {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: var(--menubar-h) auto var(--cb-h) minmax(0, 1fr) 52px;
+    grid-template-rows: auto auto var(--cb-h) minmax(0, 1fr) 52px;
     grid-template-areas: 'menu' 'tabs' 'ctrl' 'work' 'tools';
   }
   .brand { font-size: 0; gap: 0; padding-right: 4px; }
   .brand-dot { width: 16px; height: 16px; }
   .mb { height: 32px; padding: 0 8px; }
   .menubar .btn { height: 32px; }
+  /* The shared menu bar wraps its tools under the menus here, so the row grows with it instead of covering the tabs. */
+  .menubar.smb-bar { height: auto; min-height: var(--menubar-h); padding: 4px 8px; column-gap: 6px; }
+  .menubar .smb-menu-b { padding: 4px 6px; }
+  .menubar, .ctrlbar { --slop-hbtn-h: 32px; }
   .btn.ghost { min-width: 32px; font-size: 16px; }
   .chip { height: 28px; max-width: 40vw; }
   .ctrlbar .sep { display: none; }

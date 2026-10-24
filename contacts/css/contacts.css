@@ -27,7 +27,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
 
 .app { display: flex; flex-direction: column; height: 100%; min-width: 0; }
-.topbar { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; padding: 8px 14px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; }
+.topbar { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; padding: 8px 14px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; }
+/* The shared header buttons (Slop Drive, View, Theme, Apps, the bell: shared/ui/hbtn.css) look like the toolbar's own. */
+.topbar { --slop-hbtn-h: 32px; --slop-hbtn-radius: 8px; --slop-hbtn-bg: var(--panel); --slop-hbtn-line: var(--line); --slop-hbtn-hover: var(--panel-2); --slop-hbtn-fs: 13px; }
+.tb-btn { height: var(--slop-hbtn-h); }
 .brand { display: inline-flex; color: var(--ink); }
 .brand-mark { width: 22px; height: 22px; fill: var(--accent); stroke: none; }
 .brand-mark .shine { fill: none; stroke: var(--panel); stroke-width: 2; stroke-linecap: round; }
@@ -46,7 +49,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* Three columns: groups | list | splitter | card. The list's width is --list-w (set by the splitter, saved in localStorage).
  * Below 960 px the list is the screen; the card is a page; groups a sheet. */
-.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: 210px minmax(260px, var(--list-w, 340px)) 6px minmax(0, 1fr); min-width: 0; position: relative; }
+.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: 210px minmax(260px, var(--list-w, 380px)) 6px minmax(0, 1fr); min-width: 0; position: relative; }
 .col { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--panel); }
 .col-groups { background: var(--bg); border-right: 1px solid var(--line); overflow: auto; padding: 14px 0; }
 .col-list { border-right: 1px solid var(--line); }
@@ -69,4 +72,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
   body.groups-open .scrim { display: block; position: fixed; inset: 0; background: rgba(0, 0, 0, .28); z-index: 35; }
   .topbar { padding: 8px 12px; }
   .local-badge { display: none; }
+}
+/* Below 1200 px the header keeps its main buttons and the shared ones on one row; Duplicates, Clean up and Country code
+ * stay in the command palette (shared/commands). */
+@media (max-width: 1199px) { .actions .wide-only { display: none; } }
+/* A phone: the list's + adds a contact and the icon goes home, so the header keeps two rows. */
+@media (max-width: 640px) {
+  .home-link, .actions [data-cmd="contacts.new"] { display: none; }
 }

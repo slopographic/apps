@@ -29,14 +29,14 @@ button, input, textarea { font: inherit; color: inherit; }
 /* layout */
 .nt-app { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); min-width: 0; }
 .nt-top { grid-column: 1 / -1; grid-row: 1; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--nt-line); background: var(--nt-panel); min-width: 0; }
-.nt-brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.nt-brand h1 { margin: 0; font-size: 15px; font-weight: 700; white-space: nowrap; }
-.nt-logo { width: 18px; height: 18px; border-radius: 5px; background: var(--nt-accent); display: inline-block; box-shadow: inset -5px -5px 0 rgba(0, 0, 0, .18); }
+/* The menu bar (shared/menubar) holds New note; it is as tall as the shared header buttons (shared/ui/hbtn.css), and
+ * those take the look of the SlopUI buttons. */
+.smb-bar { --slop-hbtn-h: 32px; --slop-hbtn-radius: 6px; --slop-hbtn-bg: var(--nt-panel); --slop-hbtn-line: var(--nt-line); --slop-hbtn-hover: var(--nt-hover); }
+.smb-tools .sui-btn { height: var(--slop-hbtn-h); }
 .nt-save { color: var(--nt-faint); font-size: 12px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nt-save[data-state="error"] { color: var(--nt-danger); }
-.nt-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
-.nt-tools .sui-btn, .nt-bar .sui-btn { white-space: nowrap; }
-.nt-narrow { display: inline-flex; }
+.nt-bar .sui-btn { white-space: nowrap; }
+.nt-narrow { display: inline-flex; align-items: center; }
 .nt-side, .nt-list, .nt-main { grid-row: 2; min-width: 0; min-height: 0; }
 .nt-side, .nt-list { display: flex; flex-direction: column; background: var(--nt-panel); }
 .nt-side { overflow: auto; padding-bottom: 12px; }
@@ -69,6 +69,7 @@ button, input, textarea { font: inherit; color: inherit; }
 .nt-search { padding: 10px 10px 4px; }
 .nt-search input { width: 100%; box-sizing: border-box; padding: 7px 10px; border: 1px solid var(--nt-line); border-radius: 8px; background: var(--nt-bg); }
 .nt-crumb { margin: 4px 12px 6px; color: var(--nt-faint); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nt-notes:empty { display: none; }   /* the "no notes" line then sits under the search, not at the bottom */
 .nt-notes { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 2px; padding: 0 6px 12px; }
 .nt-note { display: flex; flex-direction: column; gap: 3px; width: 100%; border: 0; background: none; text-align: left; padding: 9px 10px; border-radius: 8px; cursor: pointer; min-width: 0; }
 .nt-note:hover, .nt-note:focus-visible { background: var(--nt-hover); outline: none; }
@@ -122,7 +123,6 @@ button, input, textarea { font: inherit; color: inherit; }
   .nt-panes { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .nt-panes[data-mode="split"] .nt-body { min-height: 36vh; }
   .nt-panes[data-mode="split"] .nt-preview { min-height: 30vh; }
-  .nt-tools .sui-btn:not(#nt-new) { display: none; }
   .nt-bar .nt-seg { margin-left: 0; }
   .nt-save { flex-basis: 100%; order: 3; }
 }

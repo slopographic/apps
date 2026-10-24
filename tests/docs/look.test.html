@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Slop Docs: the look (header buttons one height, nothing past the edge, no sideways scroll)</title>
+<style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
+<body>
+  <!-- Covers: docs/index.html -->
+  <!-- Covers: docs/css/app.css -->
+  <!-- Covers: docs/css/outline.css -->
+  <!-- Covers: docs/css/random.css -->
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  /** The page in a fresh iframe of this width, once it and the shell's header buttons are in. */
+  async function open(width) {
+    for (const old of document.querySelectorAll('iframe')) old.remove();
+    const f = document.createElement('iframe');
+    f.style.width = width + 'px';
+    f.src = SRC;
+    document.body.append(f);
+    await waitFor(() => { const D = f.contentDocument; return D && D.readyState === 'complete' && D.querySelector('header .sh-hdr .slop-hbtn') && D.querySelector(READY); }, { timeout: 30000 });
+    await sleep(600);   // the header fit (shared/ui/hbtn.js) runs on the next frame
+    return f.contentDocument;
+  }
+  const box = (n) => n.getBoundingClientRect();
+  const shown = (n) => !!n && box(n).width > 0 && box(n).height > 0;
+  const headers = (D) => [...D.querySelectorAll('header')].filter((n) => shown(n) && !n.parentElement.closest('header'));
+  const hbtns = (D) => [...D.querySelectorAll('.slop-hbtn')].filter(shown);
+  /** The shared header buttons are one height, and the page's own buttons (selectors) match it. */
+  function sameHeight(D, sels) {
+    const hs = hbtns(D).map((n) => Math.round(box(n).height));
+    expect(hs.length).toBeGreaterThan(3);
+    for (const h of hs) expect(h).toBe(hs[0]);
+    for (const sel of sels) {
+      const n = D.querySelector(sel);
+      if (!shown(n)) continue;
+      expect(sel + ' ' + Math.round(box(n).height)).toBe(sel + ' ' + hs[0]);
+    }
+    return hs[0];
+  }
+  /** Nothing in the header ends past its right edge or is clipped by it, and the page does not scroll sideways. */
+  function fits(D) {
+    const h = headers(D)[0], W = D.defaultView.innerWidth;
+    expect(h.scrollWidth).toBeLessThanOrEqual(h.clientWidth + 1);
+    for (const n of h.querySelectorAll('button, a, input, select')) if (shown(n)) expect((n.id || n.className) + ' ' + (box(n).right <= W + 0.5)).toBe((n.id || n.className) + ' true');
+    expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(W);
+  }
+  /** Every shared header button sits on the row of the given element. */
+  function oneRow(D, sel) {
+    const r = box(D.querySelector(sel));
+    for (const n of hbtns(D)) expect(Math.abs((box(n).top + box(n).bottom) / 2 - (r.top + r.bottom) / 2)).toBeLessThan(2);
+  }
+  const SRC = '../../docs/index.html', READY = '#btnCmd';
+
+  describe('Slop Docs: the look', () => {
+    it('1440: Save, Search and the shared buttons are one height on one row; the toolbar sits above the page', async () => {
+      const D = await open(1440);
+      expect(headers(D).length).toBe(1);
+      expect(sameHeight(D, ['#btnSave', '#btnCmd', '#docName'])).toBe(34);
+      oneRow(D, '#btnSave');
+      fits(D);
+      expect(box(D.getElementById('toolbar')).top).toBeLessThan(box(D.getElementById('stage')).top);
+      expect(box(D.getElementById('toolbar')).bottom).toBeLessThanOrEqual(box(D.getElementById('stage')).top + 1);
+      const r = D.getElementById('tbRandom');   // icon and word side by side, no line of text under the bar
+      expect(Math.round(box(r.querySelector('span')).top)).toBeGreaterThanOrEqual(Math.round(box(r).top));
+      expect(box(r.querySelector('span')).bottom).toBeLessThanOrEqual(box(r).bottom + 0.5);
+    }, { timeout: 40000 });
+    it('1024: everything fits on one row', async () => {
+      const D = await open(1024);
+      sameHeight(D, ['#btnSave', '#btnCmd']);
+      oneRow(D, '#btnSave');
+      fits(D);
+    }, { timeout: 40000 });
+    it('390: the bar wraps instead of hiding the shared buttons past the edge', async () => {
+      const D = await open(390);
+      fits(D);
+      expect(box(headers(D)[0]).bottom).toBeLessThanOrEqual(box(D.getElementById('tabs')).top + 1);
+    }, { timeout: 40000 });
+  });
+  SlopTest.run({ name: 'Slop Docs: the look' });
+  </script>
+</body>
+</html>

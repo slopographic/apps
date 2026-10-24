@@ -68,7 +68,7 @@
           <label>Period <select id="xPeriod">
             <option value="all">All dates</option><option value="month">This month</option><option value="last">Last month</option><option value="year">This year</option>
           </select></label>
-          <label>Status <select id="xStatus"><option value="all">All</option><option value="posted">Recorded</option><option value="void">Void</option></select></label>
+          <label>Status <select id="xStatus"><option value="all">All</option><option value="posted">Recorded</option><option value="owed">To pay</option><option value="void">Void</option></select></label>
           <button type="button" class="btn primary" id="xNew">New expense</button>
           <button type="button" class="btn" id="xMileage">Mileage…</button>
         </div>
@@ -91,7 +91,8 @@
             <datalist id="eSuppliers"></datalist>
             <label class="wide">Description <input id="eDescription" maxlength="300" placeholder="What it was for"></label>
             <label>Category <select id="eAccount"></select></label>
-            <label>Paid by <select id="eMethod"><option value="bank">Bank transfer</option><option value="card">Card</option><option value="cash">Cash</option><option value="other">Other</option></select></label>
+            <label>Paid by <select id="eMethod"><option value="bank">Bank transfer</option><option value="card">Card</option><option value="cash">Cash</option><option value="other">Other</option><option value="later">Not paid yet: a bill to pay</option></select></label>
+            <label id="eDueRow" hidden>Due date <input id="eDue" type="date"></label>
             <label>Amount paid (tax included) <input id="eAmount" inputmode="decimal" placeholder="24.00" required></label>
             <label>Currency <input id="eCurrency" maxlength="3" autocomplete="off" spellcheck="false"></label>
             <label>Tax rate % <input id="eRate" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
@@ -103,6 +104,7 @@
         <div class="toolbar actions">
           <button type="button" class="btn primary" id="eRecord">Record expense</button>
           <button type="button" class="btn" id="eCopy" hidden>Record a copy</button>
+          <button type="button" class="btn primary" id="ePay" hidden>Mark as paid…</button>
           <button type="button" class="btn danger" id="eVoid" hidden>Void…</button>
         </div>
       </section>
@@ -143,7 +145,7 @@
   <script src="../aitools/get-more.js"></script><script src="../aitools/common.js"></script><script src="../shared/firstrun/notice.js"></script>
   <script src="js/core/expenses.js"></script><script src="../shared/data/readtext.js"></script><script src="js/core/receipt.js"></script><script src="js/core/mileage.js"></script>
   <script src="js/ui/list.js"></script>
-  <script src="js/ui/receipt.js"></script><script src="js/ui/mileage.js"></script>
+  <script src="js/ui/receipt.js"></script><script src="js/ui/mileage.js"></script><script src="js/ui/pay.js"></script>
   <script src="js/ui/editor.js"></script>
   <script src="js/ui/summary.js"></script>
   <script src="js/ui/commands.js"></script>

@@ -45,6 +45,26 @@ body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); o
 .fname, .nf-wrap { position: relative; }
 .fname input { font: inherit; color: var(--fg); background: var(--input); border: 1px solid var(--line-2); border-radius: 6px; padding: 4px 8px; width: 170px; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+/* One height in the bar: the icon buttons, the number format, the name and Save are 34 px like the shared header buttons
+   (Drive, Tour, View, Theme, Apps: shared/ui/hbtn.css), which take this bar's colours. */
+.topbar { --slop-hbtn-h: 34px; --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); }
+.topbar .tb { min-width: 34px; height: 34px; }
+.topbar .nf, .fname input { height: 34px; box-sizing: border-box; }
+/* Medium screens: the bar sheds the extras so Save and the shared buttons stay in view. */
+@media (max-width: 1500px) {
+  .appname, .local-badge { display: none; }
+  .topbar { gap: 6px; }
+  .menu-b { padding: 4px 6px; }
+  .nf { max-width: 128px; }
+  .fname input { width: 132px; }
+}
+@media (max-width: 1100px) {
+  .topbar { gap: 4px; }
+  .menu-b { padding: 4px 5px; }
+  .topbar .tb { min-width: 30px; padding: 4px 6px; }
+  .nf { max-width: 104px; }
+  .fname input { width: 112px; }
+}
 
 /* formula bar */
 .fbar { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px; background: var(--panel-2); border-bottom: 1px solid var(--line); flex: none; }

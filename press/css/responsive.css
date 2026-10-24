@@ -1,4 +1,6 @@
 /* Slop Press — responsive layout (tablet, phone view/edit-lite) and SlopUI theming */
+/* Wide screens keep every menu in view (the shared buttons drop their labels first); narrower ones scroll the menus. */
+@media (min-width: 900px) { .menus { flex-shrink: 0; } }
 @media (max-width: 1180px) { :root { --dock-w: 260px; } .docname, .searchbtn .sb-label { display: none; } }
 @media (max-width: 899px) {
   :root { --toolbar-w: 40px; --cb-h: 40px; }
@@ -9,8 +11,7 @@
   .app.dock-open .dock { transform: none; }
   .dock-head { display: flex; align-items: center; justify-content: space-between; height: 30px; padding: 0 6px 0 12px; font-weight: 700; border-bottom: 1px solid var(--border-dark); background: var(--title-bg); color: var(--title-fg); flex: 0 0 auto; }
   .tool { width: 32px; height: 30px; }
-  .hl-text, .brand-name, .searchbtn kbd { display: none; }
-  .home-link { padding: 3px 7px; }
+  .app-name, .searchbtn kbd { display: none; }
   .menu-btn { padding: 0 7px; }
   .paint-chips { width: 32px; height: 32px; }
   .pchip { width: 19px; height: 19px; }

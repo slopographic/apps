@@ -1,4 +1,6 @@
 /* Settings page. Shares tokens and the header and footer with style/base.css and style/footer.css. */
+/* The header's section tabs and the shared header buttons (shell/header.js) sit together at the right, as on the home page. */
+.nav .tabs { margin-left: auto; }
 .settings-hero { padding: 36px 0 8px; }
 .settings-main { max-width: 760px; margin: 0 auto; padding: 0 24px 48px; }
 .page-title { font-family: var(--cond); font-stretch: 62%; font-weight: 900; font-size: clamp(44px, 9vw, 96px); line-height: 0.9; text-transform: uppercase; margin: 0 0 18px; }
