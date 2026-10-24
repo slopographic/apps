@@ -230,6 +230,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   or picture from Slop Drive, Insert picture (mode `image`), a pasted picture (new: inserted on the slide), ?drive=
   launch and launchQueue (read before the tabs, opened after them). Not during a slide show (`gate`). Import a template
   (file or Slop Drive) is the part. The sorter's drag of thumbnails stays (`intake-ok`). `tests/intake/slides.test.html`.
+- **Slop Workflows** (`workflows/js/ui/run.js`, spec `workflows` on the page; a tool in the "Run a workflow…" dialog is a
+  part `workflows.<ns>` with no paste, unregistered by `destroy()`; part `workflows.import` in `ui/library.js`): a drop
+  on the zone, Choose files, the sample, a paste, ?drive= launch (Add to a workflow…, Open in) and launchQueue, and the
+  tool's `addFiles` (now a take; the dialog's files too). Each batch is added at once. The step cards' drag stays
+  (`intake-ok`). Out: a result's Open in is `SlopOuttake.items`. `tests/intake/workflows.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -552,13 +557,3 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] file input: the logo's Upload logo… (`#wm-logo-file` in `watermark/index.html`, read by `watermark/js/settings.js`)
   → a part `watermark.logo` (`main: false, paste: false`) and `SlopIntake.pick({ to: 'watermark.logo' })`; then add
   `watermark/` to STRICT.
-
-### workflows
-
-- [ ] ?drive= launch: `workflows/js/ui/app.js:27`
-- [ ] pickFiles: `workflows/js/ui/library.js:105`
-- [ ] out: sendMenuItems: `workflows/js/ui/run.js:104`
-- [ ] out: Open in/Send to label: `workflows/js/ui/run.js:104`
-- [ ] SlopDrop.attach: `workflows/js/ui/run.js:158`
-- [ ] drop listener: `workflows/js/ui/steps.js:145`
-

@@ -101,7 +101,7 @@ export function createRun(ctx, panelEl, { frame = null, drop: dropOpts = {}, onR
       sections.push({ title: `Results (${list.length})`, key: 'results', empty: 'Nothing was made.', list: list.map((o) => ({
         name: o.name, meta: `${kindsLabel([o.kind || ''])} · ${size(o.blob.size)}${o.mid ? ` · step ${o.step}, kept` : ''}`,
         actions: [{ label: 'Download', run: () => saveBlob(o.blob, o.name) },
-          { label: 'Open in', menu: () => (g.SlopHub ? g.SlopHub.sendMenuItems(() => o.blob, o.name, typeOf(o), { folder: true }) : []), empty: 'No app opens this kind of file' }],
+          { label: 'Open in', menu: () => (g.SlopOuttake ? g.SlopOuttake.items({ get: () => o.blob, name: o.name, type: typeOf(o), from: 'workflows', verb: 'Send to' }) : []), empty: 'No app opens this kind of file' }],
       })) });
       if (list.length) sections.push({ title: 'All results', key: 'all', actions: [
         { label: 'Download all (ZIP)', id: `${ns}-zip`, primary: true, run: async () => saveBlob(await resultsZip(), zipName()) },
@@ -155,13 +155,24 @@ export function createRun(ctx, panelEl, { frame = null, drop: dropOpts = {}, onR
   }
 
   const panel = g.SlopFramePanel.create(panelEl, { title: 'Files and run' });
+  // The one way in (shared/intake): the page's tool is the spec 'workflows' (a drop, Choose files, the sample, a paste,
+  // ?drive=<id>, a launch); a tool in the "Run a workflow…" dialog is a part of its own ('workflows.<ns>', no paste),
+  // gone when the dialog closes. Each batch is added at once.
+  const { paste, ...zoneOpts } = dropOpts, inPage = paste !== false;
+  const intakeId = inPage && ns === 'wf' ? 'workflows' : `workflows.${ns}`;
+  const offSpec = g.SlopIntake.register({
+    id: intakeId, main: inPage, paste: inPage, accept: { any: true, noun: 'a file' },
+    processAll: async (files) => (await addFiles(files)).map((it) => it.id),
+    after: () => render(),
+  });
   const drop = g.SlopDrop.attach(zone, Object.assign({
-    accept: { any: true, noun: 'a file' }, label: 'Drop files to run the workflow on', hint: 'Pictures, PDFs, documents… Read on this device, never uploaded.',
+    intake: intakeId, label: 'Drop files to run the workflow on', hint: 'Pictures, PDFs, documents… Read on this device, never uploaded.',
     sample: g.SlopSamples ? { label: 'Try 3 sample photos', files: () => g.SlopSamples.photos(3) } : undefined,
-    process: async (file) => { const [it] = await addFiles([file]); return it.id; },
-    done: () => render(),
-  }, dropOpts));
+  }, zoneOpts));
+  /** Files from code (another app's "Run a workflow…", the page's API) go through the intake too. */
+  const take = (files) => g.SlopIntake.take([...files], { to: intakeId, source: 'api' }).then((r) => r.added.map((a) => S.files.find((f) => f.id === a.value)).filter(Boolean));
+  const destroy = () => { offSpec(); if (drop && drop.destroy) drop.destroy(); };
   on('files', render);
   on('doc', render);
-  return { render, run, stop, addFiles, clearFiles, results, resultsZip, drop };
+  return { render, run, stop, addFiles: take, clearFiles, results, resultsZip, drop, intakeId, destroy };
 }
