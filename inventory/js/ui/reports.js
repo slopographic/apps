@@ -21,7 +21,8 @@
     $('lowList').replaceChildren(...low.map((x) => h('li', { class: 'out' },
       h('span', { text: `${x.sku} ${x.name}` }),
       h('span', { class: 'sub', text: `reorder at ${x.reorderLevel}${x.onOrder ? ` · ${x.onOrder} on order` : ''}` }),
-      h('b', { class: 'num', text: `${x.onHand} ${x.unit}` }))));
+      h('b', { class: 'num', text: `${x.onHand} ${x.unit}` }),
+      h('a', { class: 'btn small', href: `../purchases/#reorder/${x.id}`, text: 'Reorder' }))));
     $('lowEmpty').hidden = low.length > 0;
     const valued = rows.slice().sort((a, b) => b.value - a.value || a.sku.localeCompare(b.sku));
     $('valueList').replaceChildren(...(valued.length ? valued : []).map((x) => h('li', null,

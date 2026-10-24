@@ -61,5 +61,22 @@
     return out;
   }
 
-  ns.purchases = { receive, recordBill, onOrder };
+  /** Pure: how many to reorder so stock goes back above the reorder level: up to twice the level, less what is on hand and on
+   *  order; at least 1. Without a reorder level, 1. */
+  function suggestQty(reorderLevel, onHand, ordered) {
+    if (!(reorderLevel > 0)) return 1;
+    return Math.max(1, reorderLevel * 2 - (onHand || 0) - (ordered || 0));
+  }
+
+  /** Pure: what the product was last bought at, from the newest purchase order with a line for it (not cancelled):
+   *  { supplierId, unitPrice, taxRate } or null. */
+  function lastBought(purchases, productId) {
+    const list = (purchases || []).filter((po) => po.status !== 'cancelled' && (po.lines || []).some((l) => l.productId === productId))
+      .sort((a, b) => (a.date === b.date ? (b.createdAt || 0) - (a.createdAt || 0) : a.date < b.date ? 1 : -1));
+    if (!list.length) return null;
+    const l = list[0].lines.find((x) => x.productId === productId);
+    return { supplierId: list[0].customerId, unitPrice: l.unitPrice, taxRate: l.taxRate };
+  }
+
+  ns.purchases = { receive, recordBill, onOrder, suggestQty, lastBought };
 })(typeof window !== 'undefined' ? window : globalThis);

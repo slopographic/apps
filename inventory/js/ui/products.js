@@ -1,4 +1,5 @@
-// Products view: search, sort, low-stock filter, the product rows, and the row menu (edit, show movements, delete).
+// Products view: search, sort, low-stock filter, the product rows, and the row menu (edit, show movements, reorder in Slop
+// Purchases, delete).
 (function (g) {
   'use strict';
   const S = g.SlopData;
@@ -81,6 +82,7 @@
         return [
           { label: 'Edit product', act: () => openEdit(id) },
           { label: 'Show movements', act: () => NS.app.show('stock', id) },
+          { label: 'Reorder… (a purchase order)', act: () => { location.href = `../purchases/#reorder/${id}`; } },
           '-',
           { label: 'Delete product', act: () => remove(id) },
         ];

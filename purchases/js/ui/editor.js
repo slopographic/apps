@@ -99,5 +99,5 @@
     state: () => { const st = ed.live(); return { open: !!st.id || st.lines.length > 0, status: st.status, billed: !!st.expenseId, dirty: st.dirty, isNew: ed.isNew() }; },
   });
   NS.views = NS.views || {};
-  NS.views.edit = { mount: ed.mount, refresh: () => {}, onShow: (id) => ed.open(id || null) };
+  NS.views.edit = { mount: ed.mount, refresh: () => {}, onShow: (id, t) => (t && t.reorder ? NS.reorder.open(t.reorder) : ed.open(id || null)) };
 })(typeof window !== 'undefined' ? window : globalThis);
