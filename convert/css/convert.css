@@ -118,9 +118,10 @@ output { color: var(--muted); font-weight: 500; }
 .cv-pair { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
 .cv-pair:hover { border-color: var(--accent); }
 .cv-pair-path { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-.cv-badge { display: inline-block; min-width: 3.2ch; padding: 6px 10px; font-weight: 700; font-size: 1.5rem; line-height: 1.1; text-align: center; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; letter-spacing: .02em; }
-.cv-badge-to { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
-.cv-arrow { font-size: 1.4rem; color: var(--muted); }
+.cv-pair-path .sflow { color: var(--muted); }
+/* The tool's "PDF → DOCX" picture (shared/ui/flow.js), centred above the drop zone. */
+.cv-flow { display: flex; justify-content: center; padding: 4px 0 18px; color: var(--muted); }
+.cv-flow[hidden] { display: none; }
 .cv-pair-title { font-size: 1.05rem; margin: 0; }
 .cv-pair-desc, .cv-pair-accepts { margin: 0; color: var(--muted); }
 .cv-pair-accepts { font-size: 14px; }

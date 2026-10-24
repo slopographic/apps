@@ -11,6 +11,8 @@ import { detectKind, KIND_LABEL } from '../../convert/js/core/detect.js';
 import { convertAll } from '../../convert/js/ui/run.js';
 import { writeZip } from '../../convert/js/io/zip.js';
 import { targetsFor } from './targets.js';
+import { outKind } from '../../convert/js/core/catalog.js';
+import '../ui/flow.js';   // window.SlopFlow: the "PDF → DOCX" picture under the title
 
 const ACCEPT = '.pdf,.png,.jpg,.jpeg,.webp,.bmp,.gif,.svg,.csv,.json,.txt,.md,.html,.htm,application/pdf,image/*,text/*,application/json';
 const UNSUPPORTED = ['bin'];
@@ -65,6 +67,7 @@ class Dialog {
     this.dlg = el('div', { class: 'sl-cvt-dlg', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Convert',
       onkeydown: (e) => this.onKey(e) },
       el('div', { class: 'sl-cvt-head' }, el('h2', { text: 'Convert' }), el('button', { type: 'button', class: 'sl-cvt-x', 'aria-label': 'Close', onclick: () => this.close() }, '×')),
+      this.flowBox = el('div', { class: 'sl-cvt-flow' }, (this.flow = window.SlopFlow.create({ size: 'lg' })).el),
       this.body,
       el('p', { class: 'sl-cvt-foot', text: 'Converted on this device. Nothing is uploaded.' }));
     this.back.append(this.dlg);
@@ -119,6 +122,7 @@ class Dialog {
     if (!t || this.busy) return;
     this.busy = true; this.progress = 0; this.outputs = []; this.errors = []; this.saved = {}; this.status = 'Converting…';
     this.paint();
+    this.flow.state('run');
     try {
       const res = await convertAll(t, this.items, this.optsFor(t), (g, n) => { this.progress = g / n; this.paint(); });
       this.outputs = res.outputs;
@@ -129,6 +133,7 @@ class Dialog {
       this.status = '';
     } finally {
       this.busy = false; this.paint();
+      this.flow.state(this.outputs.length && !this.errors.length ? 'done' : 'error');
     }
     if (this.opts.onPdf && PDF_TARGETS.includes(t.id) && this.outputs.length && !this.errors.length) this.handOff();
   }
@@ -156,9 +161,17 @@ class Dialog {
   paint() {
     const focused = this.dlg.contains(document.activeElement) ? document.activeElement.getAttribute('data-k') : null;
     const t = this.target();
+    this.paintFlow(t);
     const parts = [this.filesSection(), this.targetSection(), this.pdfNote(), t && t.note ? note(t.note, 'sl-cvt-note sl-cvt-hint') : null, t && t.options.length ? this.optionsSection(t) : null, this.runSection(t), this.resultSection()];
     this.body.replaceChildren(...parts.filter((x) => x != null));
     if (focused) { const n = [...this.body.querySelectorAll('[data-k]')].find((x) => x.getAttribute('data-k') === focused); if (n && !n.disabled) n.focus(); }
+  }
+  /** The picture under the title: the kinds of the open files to what the chosen target makes; hidden until both are known. */
+  paintFlow(t) {
+    const kinds = [...new Set(this.items.map((i) => i.kind))];
+    this.flowBox.hidden = !kinds.length || !t;
+    this.flow.progress(this.progress);
+    if (kinds.length && t) this.flow.set({ from: kinds, to: outKind(t, this.optsFor(t)) });
   }
   filesSection() {
     const rows = this.items.map((i) => el('li', { class: 'sl-cvt-file' },

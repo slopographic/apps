@@ -9,6 +9,7 @@
   <script>try { localStorage.setItem('slop-firstrun:convert', '1'); } catch (e) { /* private window */ }</script>
 <script src="../harness.js"></script>
 <script type="module">
+// Covers: convert/js/ui/tool.js, convert/js/ui/markup.js
 import { ConvertTool } from '../../convert/js/ui/tool.js';
 import { pngOf } from './fixtures.js';
 const { describe, it, expect } = SlopTest;
@@ -80,6 +81,32 @@ describe('preset converter pages', () => {
     await t.run();
     expect(t.ui.outList.querySelectorAll('a').length).toBe(2);
     expect(t.ui.zip.hidden).toBeFalsy();
+  });
+});
+
+describe('the from → to picture (shared/ui/flow.js)', () => {
+  it('a converter page shows its pair before any file: PNG to JPG', () => {
+    const t = mount({ conv: 'to-jpg', from: ['png'] });
+    expect(t.ui.flowBox.hidden).toBe(false);
+    expect(t.ui.flowBox.querySelector('.sflow').getAttribute('aria-label')).toBe('PNG to JPG');
+  });
+  it('the hub shows it once it knows both sides, and it follows the files and the target', async () => {
+    const t = mount();
+    expect(t.ui.flowBox.hidden).toBe(true);
+    await t.addFiles([csvFile()]);
+    expect(t.ui.flowBox.hidden).toBe(false);
+    t.ui.target.value = 'csv-to-xlsx'; t.ui.target.dispatchEvent(new Event('change'));
+    expect(t.ui.flowBox.querySelector('.sflow').getAttribute('aria-label')).toBe('CSV to XLSX');
+    t.ui.target.value = 'csv-to-json'; t.ui.target.dispatchEvent(new Event('change'));
+    expect(t.ui.flowBox.querySelector('.sflow').getAttribute('aria-label')).toBe('CSV to JSON');
+  });
+  it('a run ends with the picture done; Clear puts it back to idle', async () => {
+    const t = mount({ conv: 'to-jpg', from: ['png'] });
+    await t.addFiles([await pngFile('photo.png')]);
+    await t.run();
+    expect(t.ui.flow.el.dataset.state).toBe('done');
+    t.clear();
+    expect(t.ui.flow.el.dataset.state).toBe('idle');
   });
 });
 

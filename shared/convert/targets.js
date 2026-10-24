@@ -20,14 +20,14 @@ async function pdfToText(files, o) {
   return [{ name: `${stem}.txt`, blob: new Blob([parts.join('\n\n').trim()], { type: 'text/plain' }) }];
 }
 const PDF_TEXT = {
-  id: 'pdf-to-text', label: 'PDF to text', group: 'PDF', from: ['pdf'], mode: 'each', options: [
+  id: 'pdf-to-text', label: 'PDF to text', group: 'PDF', from: ['pdf'], ext: 'txt', mode: 'each', options: [
     { key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page. Scanned pages have no text unless they were OCR’d.' },
   ], run: pdfToText,
 };
 
 /** HTML to a picture PDF (html-pdf.js): the page is drawn as pictures, so its text is not selectable. */
 const HTML_PDF = {
-  id: 'html-to-pdf', label: 'Picture PDF (HTML)', group: 'PDF', from: ['html'], mode: 'each', options: [],
+  id: 'html-to-pdf', label: 'Picture PDF (HTML)', group: 'PDF', from: ['html'], ext: 'pdf', mode: 'each', options: [],
   note: 'Picture PDF: text is not selectable or searchable. Scripts do not run; remote images, fonts and links are not loaded.',
   run: async (files) => {
     const f = files[0];
@@ -39,8 +39,8 @@ const HTML_PDF = {
 export const TARGETS = [...CONVERSIONS.flatMap((c) => {
   if (c.id === 'pdf-to-images') {
     return [
-      preset(c, 'pdf-to-png', 'PDF to PNG', { format: 'png' }, ['format', 'quality']),
-      preset(c, 'pdf-to-jpg', 'PDF to JPG', { format: 'jpg' }, ['format']),
+      { ...preset(c, 'pdf-to-png', 'PDF to PNG', { format: 'png' }, ['format', 'quality']), ext: 'png' },
+      { ...preset(c, 'pdf-to-jpg', 'PDF to JPG', { format: 'jpg' }, ['format']), ext: 'jpg' },
       PDF_TEXT,
     ];
   }

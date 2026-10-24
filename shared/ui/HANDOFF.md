@@ -92,3 +92,20 @@ on every shell page; a page without the shell links `hbtn.css` itself.
   button is cut off, past an edge, or wrapped onto a second row, the header gets `.slop-htight` and the shared buttons
   show only their icons (title and aria-label still name them). Under 560 px they are icons always.
 - Tests: `tests/shared/hbtn.test.html`, `tests/shell/header-buttons.test.html`.
+
+## From → to picture (`flow.js`, SlopFlow)
+
+The one picture of a conversion: two file tiles (coloured by family: PDF red, Word blue, sheets green, slides orange,
+images purple, video, audio, text, code, archives) joined by an arrow. The arrow draws itself when the pair changes,
+marches with a progress fill while work runs, and the target tile ticks when done (a red mark on error). Classic script
+that also works as a side-effect ES-module import; it injects its own styles once. Used by the Convert hub cards
+(`convert/js/ui/cards.js`), the top of every converter page (`convert/js/ui/markup.js`, `tool.js`) and the Convert dialog
+(`shared/convert/dialog.js`). The output kind of each conversion comes from `outKind()` in `convert/js/core/catalog.js`.
+
+```js
+const f = SlopFlow.create({ from: 'pdf', to: 'docx', size: 'lg' });   // from may be a list: ['png', 'jpg'] shows PNG +1
+host.append(f.el);
+f.state('run'); f.progress(0.4); f.state('done');                      // or 'error', 'idle'
+f.set({ from: 'csv', to: 'xlsx' });                                     // a new pair is idle and draws again
+```
+Tests: `tests/shared/flow.test.html`, `tests/convert/ui.test.html`, `tests/convert/dialog.test.html`, `tests/convert/hub.test.html`.

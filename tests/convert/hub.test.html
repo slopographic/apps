@@ -5,6 +5,7 @@
   <script>try { localStorage.setItem('slop-firstrun:convert', '1'); } catch (e) { /* private window */ }</script>
 <script src="../harness.js"></script>
 <script type="module">
+// Covers: convert/js/ui/cards.js
 import { PAGES } from '../../convert/js/core/pages.js';
 const { describe, it, expect, waitFor, sleep } = SlopTest;
 
@@ -37,8 +38,9 @@ describe('hub: one card per catalogue pair', () => {
         const card = hub.doc.querySelector(`.cv-pair[data-pair="${p.slug}"]`);
         expect(card).toBeTruthy();
         expect(card.querySelector('.cv-pair-go').getAttribute('href')).toBe(`${p.slug}/`);
-        expect(card.querySelector('.cv-badge-from').textContent).toBe(p.pair[0]);
-        expect(card.querySelector('.cv-badge-to').textContent).toBe(p.pair[1]);
+        expect(card.querySelector('.sflow-from b').textContent).toBe(p.pair[0]);   // SlopFlow tiles (shared/ui/flow.js)
+        expect(card.querySelector('.sflow-to b').textContent).toBe(p.pair[1]);
+        expect(card.querySelector('.sflow').getAttribute('aria-label')).toBe(`${p.pair[0]} to ${p.pair[1]}`);
         expect(card.querySelector('.cv-pair-desc').textContent).toBe(p.summary);
         expect(card.closest('.cv-cat').dataset.cat).toBe(p.cat);
       }

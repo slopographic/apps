@@ -1,6 +1,6 @@
 /* The converter controller: the file list, target picker (only conversions valid for the files),
  * options, batch run, and results with one download per file or a zip of all of them. */
-import { conversionsFor } from '../core/catalog.js';
+import { conversionsFor, conversionById, outKind } from '../core/catalog.js';
 import { KIND_LABEL, TEXT_KINDS, detectKind } from '../core/detect.js';
 import { writeZip } from '../io/zip.js';
 import { readHead, fmtSize, uniqueName, saveBlob } from '../io/files.js';
@@ -46,7 +46,7 @@ export class ConvertTool {
     ui.input.setAttribute('accept', accept);
     ui.target.addEventListener('change', () => this.showOptions());
     ui.opts.addEventListener('input', () => this.emit());
-    ui.opts.addEventListener('change', () => this.emit());
+    ui.opts.addEventListener('change', () => { this.paintFlow(); this.emit(); });
     ui.form.addEventListener('submit', (e) => { e.preventDefault(); this.run(); });
     ui.clear.addEventListener('click', () => this.clear());
     ui.zip.addEventListener('click', () => this.zipAll());
@@ -110,6 +110,7 @@ export class ConvertTool {
   }
 
   clear() {
+    this.ui.flow.state('idle');
     this.items = [];
     this.clearOutputs();
     this.setStatus('');
@@ -183,7 +184,19 @@ export class ConvertTool {
     const conv = this.current();
     const defaults = this.preset && this.preset.defaults ? this.preset.defaults : {};
     renderOptions(this.ui.opts, conv ? conv.options : [], defaults);
+    this.paintFlow();
     this.emit();
+  }
+
+  /** The picture at the top: the kinds of the files (or, before any, what the page takes) to what the conversion makes.
+   *  The hub shows it only once it knows both sides. */
+  paintFlow() {
+    const conv = this.current() || (this.preset ? conversionById(this.preset.conv) : null);
+    const kinds = [...new Set(this.active().map((i) => i.kind))];
+    const from = kinds.length ? kinds : this.preset && this.preset.from ? this.preset.from : [];
+    const to = conv ? outKind(conv, readOptions(this.ui.opts, conv.options)) : '';
+    this.ui.flowBox.hidden = !from.length || !to;
+    if (!this.busy) this.ui.flow.set({ from, to });
   }
 
   setStatus(text) { this.ui.status.textContent = text; }
@@ -205,11 +218,13 @@ export class ConvertTool {
     this.ui.run.disabled = true;
     const opts = readOptions(this.ui.opts, conv.options);
     this.setStatus(`Converting ${act.length} file${act.length === 1 ? '' : 's'}…`);
-    const res = await convertAll(conv, act, opts, (i, n) => this.setStatus(n > 1 ? `Converting file ${i + 1} of ${n}…` : 'Converting…'));
+    this.ui.flow.state('run').progress(0);
+    const res = await convertAll(conv, act, opts, (i, n) => { this.ui.flow.progress(i / n); this.setStatus(n > 1 ? `Converting file ${i + 1} of ${n}…` : 'Converting…'); });
     for (const e of res.errors) for (const it of this.items) if (e.ids.includes(it.id)) it.error = e.message;
     const taken = new Set();
     this.outputs = res.outputs.map((o) => ({ name: uniqueName(o.name, taken), blob: o.blob, url: URL.createObjectURL(o.blob) }));
     this.busy = false;
+    this.ui.flow.state(res.outputs.length ? 'done' : 'error');
     this.setStatus([this.summary(res), ...res.info].filter(Boolean).join(' '));
     this.render();
     this.renderResults();
