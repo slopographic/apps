@@ -7,15 +7,15 @@
 <body>
   <script src="../harness.js"></script>
   <script>
-  // Covers: shared/raw/raw.js, shared/raw/engine.js, shared/raw/worker.js, shared/raw/tiff.js, shared/raw/detect.js, shared/raw/preview.js
-  // The engine's cdn files are served by the real network (the pinned commit) unless window.__mode says otherwise:
+  // Covers: shared/raw/raw.js, shared/raw/engine.js, shared/library/install.js, shared/raw/worker.js, shared/raw/tiff.js, shared/raw/detect.js, shared/raw/preview.js
+  // The engine's cdn files are served by the real network (the release tag in shared/cdn/assets.js) unless window.__mode says otherwise:
   // 'bad' gives wrong bytes for libraw.wasm (checksum mismatch), '404' a missing file. Requests are counted in __net.
   const realFetch = window.fetch.bind(window);
   window.__mode = 'real';
   window.__net = { engine: 0 };
   window.fetch = async (input, init) => {
     const url = String(input && input.url ? input.url : input);
-    if (/slopographic\/cdn\/.*\/engines\/libraw\//.test(url)) {
+    if (/slopographic\/cdn[@/].*\/engines\/libraw\//.test(url)) {   // jsDelivr (cdn@tag) or GitHub (cdn/tag)
       window.__net.engine++;
       if (window.__mode === '404') return new Response('not found', { status: 404 });
       if (window.__mode === 'bad' && url.endsWith('.wasm')) return new Response(new Uint8Array(1417725), { status: 200 });

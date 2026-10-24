@@ -7,7 +7,7 @@
  * (codes as in shared/speech/languages.js, plus zh-Hant for traditional Chinese); every model's languages come from it.
  * The bundled PP-OCRv4 model (Chinese and English, the first one Slop OCR had) is the quick model, always offered; the
  * others are PaddleOCR recognisers (PP-OCRv6 small for Latin script, Chinese and Japanese; PP-OCRv5 mobile for the other
- * scripts) on the slopographic/cdn repository at a pinned commit
+ * scripts) on the slopographic/cdn repository at the release tag in shared/cdn/assets.js (load it first)
  * (models/ocr/<id>/, with manifest.json, the licence and SOURCE.md), each with the same PP-OCRv4 text detector
  * (models/ocr/ppocr-det-v4/) and its own dictionary. The worker (workers/infer.worker.js) knows the files by their ends:
  * *_det_infer.onnx the detector, the other .onnx the recogniser, the .txt the dictionary.
@@ -16,15 +16,17 @@
  * (scripts) and its languages (the union of theirs). */
 (function (root, factory) {
   const catalog = root.SlopModelCatalog || (typeof module === 'object' && module.exports ? require('../shared/models/catalog.js') : null);
-  const api = factory(catalog);
+  const cdn = root.SlopCdn || (typeof module === 'object' && module.exports ? require('../shared/cdn/assets.js') : null);
+  const api = factory(catalog, cdn);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopOcrModels = api;
   // loaded after the model index (on demand): the index takes these models now
   if (root.SlopAIModels && root.SlopAIModels.add) root.SlopAIModels.add(api.MODELS);
-})(typeof window !== 'undefined' ? window : globalThis, function (catalog) {
+})(typeof window !== 'undefined' ? window : globalThis, function (catalog, cdn) {
   'use strict';
-  const CDN = 'https://raw.githubusercontent.com/slopographic/cdn/6e90bb5fbe82fe463e551f034ae969dd84bfaeb4/models/ocr/';
-  const B = (id, name) => CDN + id + '/' + name;
+  /** The models' folder in the cdn repository; every URL comes from shared/cdn/assets.js (jsDelivr, then GitHub). */
+  const CDN = 'models/ocr/';
+  const B = (id, name) => cdn.url(CDN + id + '/' + name);
   const HF = 'https://huggingface.co/';
   const QUICK = 'ppocr-v4';
   const PADDLE = 'https://github.com/PaddlePaddle/PaddleOCR';

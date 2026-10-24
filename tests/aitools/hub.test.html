@@ -9,7 +9,7 @@
   <iframe id="hub" title="Slop AI Tools hub"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: aitools/hub.js, aitools/index.html, aitools/speech-models.js
+  // Covers: aitools/hub.js, aitools/index.html, aitools/speech-models.js, aitools/get-more.js, shared/cdn/assets.js
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const frame = document.getElementById('hub');
   const EXPECT = { OCR: 'Needs download', 'Speech to text': 'Needs download', Denoise: 'Ready', 'Auto tags': 'Needs download', 'Portrait blur': 'Ready' };
@@ -69,6 +69,7 @@
       const text = dialog().textContent;
       expect(text).toMatch(/Licence: MIT License \(MIT\)/);
       expect(text).toMatch(/Download \d+(\.\d)? (KB|MB)/);
+      expect(text).toMatch(/cdn\.jsdelivr\.net/);
       expect(text).toMatch(/raw\.githubusercontent\.com/);
       await sleep(150);
       expect(calls).toEqual([]);
@@ -86,8 +87,10 @@
       expect(go).toBeTruthy();
       expect(calls).toEqual([]);
       go.click();
-      await waitFor(() => calls.length === 1, { timeout: 5000 });
-      expect(calls[0]).toMatch(/^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/[0-9a-f]{40}\/models\/whisper\/whisper-tiny\/encoder_model_quantized\.onnx$/);
+      await waitFor(() => calls.length >= 2, { timeout: 5000 });
+      // jsDelivr at the release tag first; its wrong bytes send the download to the GitHub copy, which is refused too
+      expect(calls[0]).toMatch(/^https:\/\/cdn\.jsdelivr\.net\/gh\/slopographic\/cdn@v\d+\.\d+\.\d+\/models\/whisper\/whisper-tiny\/encoder_model_quantized\.onnx$/);
+      expect(calls[1]).toMatch(/^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/v\d+\.\d+\.\d+\/models\/whisper\/whisper-tiny\/encoder_model_quantized\.onnx$/);
       await waitFor(() => /Nothing was stored/.test(dialog().querySelector('[role="status"]').textContent), { timeout: 5000 });
       expect(dialog().querySelector('[role="status"]').textContent).toMatch(/bytes, expected/);
       expect(card('Speech to text').querySelector('.ai-pill').textContent).toBe('Needs download');

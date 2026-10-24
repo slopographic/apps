@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const M = require(path.join(ROOT, 'shared/library/manifest.js'));
+const C = require(path.join(ROOT, 'shared/cdn/assets.js'));
 const packs = JSON.parse(readFileSync(path.join(ROOT, 'shared/library/packs.json'), 'utf8'));
 const index = JSON.parse(readFileSync(path.join(ROOT, 'shared/fonts/library/index.json'), 'utf8'));
 const HOSTS = ['raw.githubusercontent.com', 'cdn.jsdelivr.net'];
@@ -29,6 +30,9 @@ test('the shipped pack list is valid (and empty until the owner adds packs)', ()
   const r = M.validate(packs);
   assert.deepEqual(r.errors, []);
   assert.equal(r.packs.length, packs.packs.length);
+  // every file is a cdn path, and comes back with the URL shared/cdn/assets.js gives it (no URL written into packs.json)
+  for (const p of r.packs) for (const f of p.files) assert.equal(f.url, C.url(f.cdn), f.cdn);
+  assert.doesNotMatch(readFileSync(path.join(ROOT, 'shared/library/packs.json'), 'utf8'), /githubusercontent\.com\/slopographic|jsdelivr\.net\/gh\/slopographic/);
   assert.ok(Array.isArray(packs.hosts) && packs.hosts.length > 0, 'hosts allowlist is set');
 });
 
@@ -55,6 +59,20 @@ test('files must come from an https URL on an allowed host (exact host match)', 
   }
   assert.equal(M.allowedUrl(URL_OK, HOSTS), true);
   assert.equal(M.allowedUrl(URL_OK, ['cdn.jsdelivr.net']), false);
+});
+
+test('a cdn path must be a plain path in the repository', async () => {
+  for (const cdn of ['../evil/Demo-Regular.woff2', '/packs/Demo-Regular.woff2', 'packs/a/../../x/Demo-Regular.woff2', 'packs/x?y=1', 'https://evil.example/Demo-Regular.woff2']) {
+    const m = await sample();
+    delete m.packs[0].files[0].url;
+    m.packs[0].files[0].cdn = cdn;
+    assert.equal(M.validate(m).packs.length, 0, cdn);
+  }
+  const ok = await sample();
+  delete ok.packs[0].files[0].url;
+  ok.packs[0].files[0].cdn = 'packs/demo/v1/Demo-Regular.woff2';
+  const f = M.validate(ok).packs[0].files[0];
+  assert.equal(f.url, 'https://cdn.jsdelivr.net/gh/slopographic/cdn@' + C.TAG + '/packs/demo/v1/Demo-Regular.woff2');
 });
 
 test('only font files are accepted, and the declared pack size must add up', async () => {
@@ -105,7 +123,7 @@ test('the metric-compatible pack: four static faces per family, each naming the 
     assert.deepEqual(fs.map((f) => `${f.weight} ${f.style}`).sort(), ['400 italic', '400 normal', '700 italic', '700 normal'], fam);
     for (const f of fs) {
       assert.deepEqual(f.metricFor, [office], f.name);
-      assert.match(f.url, /^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/[0-9a-f]{40}\/packs\/metric-compatible\/v1\//, 'pinned to a cdn commit');
+      assert.match(f.cdn, /^packs\/metric-compatible\/v1\//, 'a path in the cdn repository (its URLs: shared/cdn/assets.js)');
       assert.ok(/\.ttf$/.test(f.name), 'TTF, so a PDF can embed it');
     }
   }
