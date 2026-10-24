@@ -1,12 +1,15 @@
-/* SlopIsolate — getting images in: the file picker, the built-in sample, drag and drop, and paste.
- * Every route ends in CO.process.add(files), which keeps only the image files. */
+/* SlopIsolate — getting images in. ONE way in: every route (the picker, the drop zone #isoDrop and the queue sidebar,
+ * paste, the sample, Open from Slop Drive, a file another app sent with ?drive=) calls CO.files.take(files, opts), and one
+ * image is simply a batch of one. take() is shaped like the suite's intake (accept rules → the first-use gate → process
+ * each file → after the batch): accept = ACCEPT, gate = F.gate(), process = CO.process.add (the bounded model pool in
+ * io/process.js, so every file of a batch is cut out at once, up to the pool size), after = the "not images" toast. */
 (function () {
   'use strict';
   const CO = window.CO, U = CO.util;
   const F = CO.files = {};
+  const S = () => CO.state;
   const toast = (msg) => { if (window.SlopUI) SlopUI.toast(msg); };
 
-  /** Hand files to the queue. Non-image files are skipped; tell the user when nothing was usable. */
   /** The first-use notice: shown once, the first time files are given to the app. Only the chosen model downloads
    * (the others when they are first picked), so the notice names that one, with its size from the model registry. */
   F.notice = function () {
@@ -18,73 +21,79 @@
       downloads: [{ name: `${m.name} model (${m.arch.split(' (')[0]})`, bytes: m.bytes }],
     };
   };
-  async function take(files) {
+  /** What the app takes: images and videos (SlopDrop's rule format; the drop zone and paste refuse the rest with a reason). */
+  const ACCEPT = F.ACCEPT = {
+    types: ['image/*', 'video/*'],
+    exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp', '.tif', '.tiff', '.mp4', '.m4v', '.mov', '.webm'],
+    noun: 'an image or a video',
+  };
+  F.accepts = (f) => U.isImage(f) || !!(CO.video && CO.video.isVideo(f));
+
+  /** The first-use gate: one notice for a batch, whichever route it came by. Batches that arrive while it is open wait on
+   *  the same notice. Cancelling asks again next time. Resolves true to carry on. */
+  let gating = null;
+  F.gate = function () {
+    if (!window.SlopFirstRun) return Promise.resolve(true);
+    if (!gating) gating = Promise.resolve(SlopFirstRun.once('slopisolate', F.notice())).finally(() => { gating = null; });
+    return gating;
+  };
+
+  /** THE way files enter the app. files: a list (or FileList); opts: { source, driveId, origin }. Resolves with the new
+   *  image items (queued, the first on screen), or [] when the notice was cancelled or nothing could be used. */
+  F.take = async function (files, opts = {}) {
     const list = [...(files || [])];
     if (!list.length) return [];
-    if (window.SlopFirstRun && !(await SlopFirstRun.once('slopisolate', F.notice()))) return [];
-    const items = CO.process.add(list);
-    if (!items.length) toast('Those files are not images');
-    return items;
-  }
+    if (!(await F.gate())) return [];
+    const ok = list.filter(F.accepts);
+    if (!ok.length) { toast(list.length === 1 ? 'That file is not an image' : 'Those files are not images'); return []; }
+    return CO.process.add(ok, opts);
+  };
 
   /** Open the system file picker (several images at once). */
   F.open = async function () {
     if (!window.SlopUI) return [];
     const files = await SlopUI.pickFiles({ accept: 'image/*', multiple: true });
-    return take(files);
+    return F.take(files, { source: 'picker' });
   };
-
-  /** Add files that were dropped or pasted elsewhere (the queue sidebar): the same route as the picker and the drop strip. */
-  F.addFiles = function (list) {
-    return take(list);
-  };
-
-  /** Add the built-in sample image (a generated Sloppo goo on a busy background). */
+  /** The built-in sample image (a generated Sloppo goo on a busy background). */
   F.sample = async function () {
-    const file = await CO.sample.make();
-    return take([file]);
+    return F.take([await CO.sample.make()], { source: 'sample' });
+  };
+  /** A file from Slop Drive (File ▸ Open from Slop Drive, or one another app sent here). rec: a Slop Hub record. */
+  F.fromDrive = function (rec, extra = {}) {
+    if (!rec) return Promise.resolve([]);
+    return F.take([new File([rec.blob], rec.name || 'Untitled', { type: rec.type })], Object.assign({ source: 'drive', driveId: rec.id }, extra));
   };
 
-  const editable = (t) => !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
-  const DROP_RULES = {
-    types: ['image/*', 'video/*'],
-    exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp', '.tif', '.tiff', '.mp4', '.m4v', '.mov', '.webm'],
-    noun: 'an image or a video',
-  };
-  /** One dropped file into the queue. Resolves with the item id once it is cut out (or the video is open), so the
-   *  drop list shows the decode as progress; rejects with the reason when the file cannot be used. */
-  let firstUse = null;
-  /** One notice for a whole drop: every file in it waits on the same choice. Cancelling asks again next time. */
-  function gateFirstUse() {
-    if (!firstUse) firstUse = window.SlopFirstRun ? SlopFirstRun.once('slopisolate', F.notice()) : Promise.resolve(true);
-    return firstUse.then((ok) => { if (!ok) { firstUse = null; throw new Error('cancelled'); } return true; });
-  }
-  function ingest(file, progress) {
-    return gateFirstUse().then(() => ingestNow(file, progress));
-  }
-  function ingestNow(file, progress) {
+  /** The drop zone's batch: SlopDrop hands over the accepted files of a drop (or paste, or its Choose files) in begin();
+   *  they all go into take() at once, then process(file) only reports each file until its cut-out is ready. */
+  let pendingBatch = null;
+  function begin(files) { pendingBatch = { files, items: F.take(files, { source: 'drop' }) }; }
+  async function report(file, progress) {
+    const items = pendingBatch ? await pendingBatch.items : [];
     if (CO.video && CO.video.isVideo(file)) {
-      return CO.video.addItem(file).then(() => {
-        const it = S().items.slice().reverse().find((x) => x.name === file.name);
-        if (!it || it.status === 'error') throw new Error(it ? it.error || 'cannot be read' : 'cannot be read');
-        return it.id;
-      });
+      const v = (await Promise.all(items.videos || [])).find((x) => x.file === file);
+      if (!v || v.status === 'error') throw new Error(v ? v.error || 'cannot be read' : 'cannot be read');
+      return v.id;
     }
-    const items = CO.process.add([file]);
-    if (!items.length) return Promise.reject(new Error('is not an image'));
-    const it = items[0];
-    return new Promise((resolve, reject) => {
-      const offs = [];
-      const finish = () => offs.forEach((off) => off());
-      offs.push(CO.on('item', (x) => {
-        if (x !== it) return;
-        if (it.status === 'done') { finish(); resolve(it.id); }
-        else if (it.status === 'error') { finish(); reject(new Error(it.error || 'could not be cut out')); }
-      }));
-      offs.push(CO.on('progress', (d) => { if (d && d.it === it && it.progress != null) progress(it.progress); }));
-    });
+    const it = items.find((x) => x.file === file);
+    if (!it) throw new Error(F.accepts(file) ? 'was not added' : 'is not an image');
+    return F.settled(it, progress);
   }
-  const S = () => CO.state;
+  /** Resolves with the item id once it is cut out (rejects when it fails or is removed); progress(0..1) on the way. */
+  F.settled = function (it, progress) {
+    return new Promise((resolve, reject) => {
+      const offs = [], end = (fn, v) => { offs.forEach((off) => off()); fn(v); };
+      const check = () => {
+        if (it.status === 'done') end(resolve, it.id);
+        else if (it.status === 'error') end(reject, new Error(it.error || 'could not be cut out'));
+        else if (!S().get(it.id)) end(reject, new Error('was removed'));
+      };
+      offs.push(CO.on('item', (x) => { if (x === it) check(); }), CO.on('list', check));
+      if (progress) offs.push(CO.on('progress', (d) => { if (d && d.it === it && it.progress != null) progress(it.progress); }));
+      check();
+    });
+  };
 
   /** What the app makes and how, in the empty card (the drop zone is a compact strip, so the card carries it). */
   const PREVIEW = {
@@ -96,29 +105,14 @@
   F.init = function () {
     const pv = SlopDrop.panel.preview(PREVIEW);
     if (pv) U.$('#emptyIntro').append(pv);
-    SlopDrop.attach(U.$('#isoDrop'), {
-      accept: DROP_RULES,
+    // The workspace and the queue sidebar take drops; a paste goes through the same batch (SlopDrop registers it with
+    // shared/intake). Either way the files reach take() once, in begin().
+    F.drop = SlopDrop.attach(U.$('#isoDrop'), {
+      accept: ACCEPT,
       compact: true,
-      targets: [U.$('#workspace')],
-      process: ingest,
-      done: (sum) => {
-        const last = sum.added[sum.added.length - 1];
-        const it = last && S().get(last.value);
-        if (it && it.status === 'done' && CO.process.select) CO.process.select(it);
-      },
-    });
-
-    window.addEventListener('paste', (e) => {
-      if (editable(e.target) || !e.clipboardData) return;
-      const files = [];
-      for (const it of e.clipboardData.items || []) {
-        if (it.kind !== 'file' || !/^image\//.test(it.type)) continue;
-        const f = it.getAsFile();
-        if (f) files.push(f);
-      }
-      if (!files.length) return;
-      e.preventDefault();
-      take(files);
+      targets: [U.$('#workspace'), U.$('#queue')],
+      begin,
+      process: report,
     });
   };
 })();
