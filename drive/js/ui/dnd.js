@@ -90,7 +90,8 @@
       return t.dataset.drop === 'root' ? null : t.dataset.drop;
     };
     let batchDest = null;
-    // SlopDrop (shared/drop): the zone is the strip above the pane; the drops are taken by the pane and the tree.
+    // SlopDrop (shared/drop): the zone is the strip above the pane, shown only while files are added (drive/css/base.css);
+    // the drops are taken by the pane and the tree.
     window.SlopDrop.attach(document.getElementById('drvDrop'), {
       accept: { any: true, allowEmpty: true, noun: 'a file' },
       compact: true,
