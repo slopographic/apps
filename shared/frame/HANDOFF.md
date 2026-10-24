@@ -160,7 +160,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | SlopCut | slopcut/ | editor | bin left, inspector right, Export in the header | close | Export into the inspector's foot |
 | Slop Press | press/ | editor | toolbar left, dock right | close | Export into the dock's foot |
 | Slop Slides | slides/ | editor | slides left, inspector right, Save in the header | close | Save stays in the header (a document app saves from File) |
-| Slop 3D | 3d/ | editor | outliner left, panel right, Save in the header | close | Save into the panel's foot |
+| Slop 3D | 3d/ | editor | outliner left, properties right, Save in the header | done | Save at the Properties foot (the shared footer) |
 | Slop Docs | docs/ | editor | outline left, no inspector | to do | needs an inspector (large) |
 | Slop Tables | tables/ | editor | side panel LEFT | to do | side panel to the right |
 | Slop Code | code/ | editor | file tree left, preview right | n/a | an IDE: tree left is a list; no settings panel |

@@ -3,14 +3,14 @@
 <head><meta charset="utf-8"><title>Slop 3D on a phone: Scene and Properties are SlopSheets</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; width: 390px; height: 844px; }</style></head>
 <body>
-  <!-- Covers: 3d/js/app/layout.js, 3d/css/app.css -->
+  <!-- Covers: 3d/js/app/layout.js, 3d/css/app.css, 3d/index.html, shared/frame/panel.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   let W, D;
   const esc = () => D.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
   describe('Slop 3D at 390 × 844', () => {
-    it('the viewport fills the screen; the panels are out of sight and nothing scrolls sideways', async () => {
+    it('the viewport fills the screen; of the panels only the Properties foot (Save) shows; nothing scrolls sideways', async () => {
       const f = document.createElement('iframe'); f.src = '../../3d/index.html'; document.body.append(f);
       await waitFor(() => f.contentWindow.Slop3DSheets && f.contentDocument.querySelector('#snap option'), { timeout: 40000 });
       W = f.contentWindow; D = f.contentDocument;
@@ -18,7 +18,12 @@
       expect(D.querySelector('.viewport').getBoundingClientRect().height).toBeGreaterThan(500);
       expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
       expect([W.Slop3DSheets.scene.isOpen(), W.Slop3DSheets.props.isOpen()]).toEqual([false, false]);
-      expect(W.getComputedStyle(D.querySelector('.panel-right')).visibility).toBe('hidden');
+      const save = D.getElementById('btnSave');
+      expect(save.closest('.sf-p-foot').parentNode).toBe(D.querySelector('.panel-right'));
+      expect(save.getBoundingClientRect().top).toBeGreaterThan(740);
+      expect(save.getBoundingClientRect().bottom).toBeLessThanOrEqual(844);
+      expect(D.getElementById('inspector').getBoundingClientRect().height).toBe(0);
+      expect(W.getComputedStyle(D.querySelector('.panel-left')).visibility).toBe('hidden');
     }, { timeout: 60000 });
     it('Properties: its button opens the bottom sheet, again closes it, × closes and refocuses, Escape closes', () => {
       const btn = D.getElementById('btnProps'), s = W.Slop3DSheets.props, panel = D.querySelector('.panel-right');
