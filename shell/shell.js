@@ -110,6 +110,10 @@
     // registers it on every other page a moment later, so each app works offline after its first visit.
     const pwa = () => setTimeout(() => { const P = window.SlopPWA; if (P && P.mounted && !P.mounted()) P.mount({}); }, 1500);
     if (document.readyState === 'complete') pwa(); else window.addEventListener('load', pwa, { once: true });
+    // AI agents (WebMCP, shared/agent/boot.js): after the page has painted and loaded, when the browser is idle. It adds
+    // "AI agents…" to Help and, only where the browser has the API and the setting is on, registers the app's tools.
+    const agents = () => (window.requestIdleCallback ? requestIdleCallback(() => addScript('shared/agent/boot.js'), { timeout: 2000 }) : setTimeout(() => addScript('shared/agent/boot.js'), 300));
+    if (document.readyState === 'complete') agents(); else window.addEventListener('load', agents, { once: true });
     return S;
   });
 })();

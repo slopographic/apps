@@ -69,6 +69,11 @@
       <p class="privacy">Slopographic runs in your browser and your files never leave your device. Your choices on this page are stored in this browser's local storage and nowhere else. Analytics and ads are off until you turn them on, and no third-party script loads until you do. You can change this at any time.</p>
     </section>
 
+    <section id="agents" aria-labelledby="agents-title">
+      <h2 id="agents-title">AI agents</h2>
+      <div class="privacy" data-slop-agents-note></div>
+    </section>
+
     <section aria-labelledby="choices-title">
       <h2 id="choices-title" data-i18n="settings.analytics_ads">Analytics and ads</h2>
       <div class="set-row">
@@ -242,6 +247,8 @@
   <script src="../shared/pwa.js"></script>
   <script src="updates.js"></script>
   <script src="app-settings.js"></script>
+  <script src="../shared/agent/boot.js"></script>
+  <script src="../shared/agent/about.js"></script>
   <script src="../shell/shell.js"></script>
 </body>
 </html>
