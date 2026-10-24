@@ -23,7 +23,7 @@
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'panel.css'; document.head.append(css);
   const add = (src, test) => new Promise((res, rej) => { if (test && test()) return res(); const s = document.createElement('script'); s.src = new URL(src + '.js', base).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
   const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), add('../ui/sheet', () => window.SlopSheet)])
-    .then(() => window.SlopAI.loaded).then(() => K.load(['apptools', 'cmdtools', 'filetools', 'optools', 'md', 'catalog', 'picker', 'panel-run']))
+    .then(() => window.SlopAI.loaded).then(() => K.load(['apptools', 'cmdtools', 'filetools', 'optools', 'md', 'catalog', 'picker', 'panel-run', 'imagegen/index'])).then(() => K.imageGenReady && K.imageGenReady.catch(() => null))
     .then(() => restoreCloud());
   /** The provider chosen last, when its key is still here (keys.js keeps no key in localStorage, only which one). */
   function restoreCloud() {
