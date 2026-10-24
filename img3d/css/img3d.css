@@ -30,16 +30,15 @@ button, select, input { font: inherit; color: inherit; }
 .btn.primary { background: var(--i3-accent); color: var(--i3-accent-ink); border-color: var(--i3-accent); }
 .btn.primary:disabled { opacity: .45; cursor: default; }
 :focus-visible { outline: 2px solid var(--i3-accent); outline-offset: 1px; }
-.work { display: grid; grid-template-columns: 260px 1fr; min-height: 0; }
-.panel { background: var(--i3-panel); border-right: 1px solid var(--i3-line); overflow: auto; padding: 4px 0 16px; }
-.panel section { padding: 10px 14px; border-bottom: 1px solid var(--i3-line); }
-.panel h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--i3-muted); margin: 0 0 6px; }
+.work { min-height: 0; }   /* SlopFrame's view and the settings panel on the right (shared/frame/frame.css) */
+.i3-more { justify-self: start; margin-top: 4px; }
 .panel .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+.panel .row:has(> input[type="checkbox"]) { flex-wrap: nowrap; }
 .panel .row input[type="range"] { flex: 1 1 100%; accent-color: var(--i3-accent); }
 .panel output { margin-left: auto; color: var(--i3-muted); font-variant-numeric: tabular-nums; }
 .panel select { background: var(--i3-bg); border: 1px solid var(--i3-line); border-radius: 6px; padding: 3px 6px; }
 .meta { color: var(--i3-muted); font-size: 12px; margin: 4px 0; overflow-wrap: anywhere; }
-.stage { display: grid; grid-template-rows: 1fr auto; min-width: 0; min-height: 0; }
+.stage { overflow: hidden; display: grid; grid-template-rows: 1fr auto; min-width: 0; min-height: 0; }
 .vp { position: relative; background: var(--i3-view); min-height: 0; overflow: hidden; }
 .vp canvas { display: block; width: 100%; height: 100%; cursor: grab; }
 .vp canvas:active { cursor: grabbing; }
@@ -48,12 +47,7 @@ button, select, input { font: inherit; color: inherit; }
 .status { margin: 0; padding: 6px 12px; border-top: 1px solid var(--i3-line); background: var(--i3-panel); color: var(--i3-muted); font-size: 12px; min-height: 28px; }
 .status.err { color: var(--i3-danger); }
 @media (max-width: 720px) {
-  body { overflow: auto; }
-  .app { height: auto; min-height: 100vh; }
-  .work { grid-template-columns: 1fr; }
   .appname { flex: 1 1 auto; }
   .topbar > .stour-btn { order: 1; }
   .topbar > .actions { order: 2; }
-  .panel { border-right: 0; border-bottom: 1px solid var(--i3-line); }
-  .stage { grid-template-rows: 60vh auto; }
 }
