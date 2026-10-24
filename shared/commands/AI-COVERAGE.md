@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 23 of 58 apps.
+Covered: 27 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -16,7 +16,7 @@ Covered: 23 of 58 apps.
 | SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | yes |
 | SlopIsolate (`cutout`) | ✗ | ✗ | ✓ 1 | ✗ |  | no |
 | Slop AI Tools (`aitools`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Reports (`reports`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Reports (`reports`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 1 |  | yes |
 | Slop OCR (`ocr`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
 | Slop HTML to PDF (`html2pdf`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | SlopClean (`clean`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
@@ -60,10 +60,10 @@ Covered: 23 of 58 apps.
 | Slop To-do (`todo`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Projects (`projects`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 | Slop Reminders (`reminders`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Ledger (`ledger`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Ledger (`ledger`) | ✓ 2 | ✓ 2 | ✓ 3 | ✓ 3 |  | yes |
 | Slop Admin (`admin`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Drive (`drive`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slop Code (`code`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Drive (`drive`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 1 |  | yes |
+| Slop Code (`code`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 2 |  | yes |
 | Slop Photo Sorter (`sorter`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Gallery (`gallery`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | yes |
 | Slop 3D (`3d`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -103,6 +103,13 @@ Covered: 23 of 58 apps.
 ### SlopIsolate
 
 - edit: `look`
+
+### Slop Reports
+
+- create: `create_report`
+- add: `add_column`
+- edit: `delete_report`, `describe_sources`, `open_report`, `set_filter`, `set_grouping`
+- export: `export_report`
 
 ### Slop Docs
 
@@ -237,6 +244,27 @@ Covered: 23 of 58 apps.
 - add: `create_record`
 - edit: `delete_record`, `describe_records`, `update_record`
 - export: `export_records`
+
+### Slop Ledger
+
+- create: `create_journal_entry`, `create_record`
+- add: `add_account`, `create_record`
+- edit: `delete_record`, `describe_records`, `update_record`
+- export: `export_records`, `export_statement`, `export_trial_balance`
+
+### Slop Drive
+
+- create: `new_document`, `new_folder`
+- add: `add_file`
+- edit: `delete_item`, `move_item`, `rename_item`, `star_item`
+- export: `download_items`
+
+### Slop Code
+
+- create: `new_file`
+- add: `insert_text`
+- edit: `format_document`, `open_file`, `replace_text`, `run_preview`, `set_text`
+- export: `export_file`, `save_file`
 
 ### Slop Gallery
 

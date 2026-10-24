@@ -3,6 +3,7 @@
 'use strict';
 (function (DR) {
   const S = DR.S;
+  const HERE = (document.currentScript && document.currentScript.src) || new URL('js/ui/commands.js', location.href).href;
   const sel = () => DR.selected(), one = () => (S.sel.size === 1 ? sel()[0] : null);
   const live = () => sel().filter((i) => !i.trashedAt);
   const has = () => live().length > 0;
@@ -84,6 +85,11 @@
       C.register(DR.commands());
       const p = fileProvider();
       if (C.addProvider) C.addProvider(p); else if (C.provider) C.provider(p);
+      // the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
+      if (C.provide) C.provide({ prepare: () => (C.get && C.get('drive.ai.list-items') ? null : new Promise((res, rej) => {
+        const s = Object.assign(document.createElement('script'), { src: new URL('ai-commands.js', HERE).href, async: false });
+        s.onload = res; s.onerror = () => rej(new Error('Could not load ai-commands.js')); document.head.append(s);
+      })) });
       DR.cmdActive = true;
       const b = DR.$('btnCmd'); if (b) b.hidden = false;
     } catch (e) { console.warn('Slop Drive: command palette unavailable', e); }

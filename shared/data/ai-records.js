@@ -152,7 +152,8 @@
       const undo = log.splice(mark).reverse();
       (async () => {
         for (const e of undo) {
-          if (e.kind === 'created') await D().store.remove(e.collection, e.id);
+          if (e.kind === 'created' && e.collection === 'journal') await D().ledger.reverseJournal(e.id, { memo: 'Undo of an AI change' });   // posted: reversed, never removed
+          else if (e.kind === 'created') await D().store.remove(e.collection, e.id);
           else if (e.before) await D().store.put(e.collection, e.before);
         }
       })();

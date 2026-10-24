@@ -96,5 +96,45 @@
     timesheets: { label: 'Slop Timesheets', collections: ['timeEntries', 'customers'] },
     todo: { label: 'Slop To-do', collections: ['tasks'] },
     calendar: { label: 'Slop Calendar', collections: ['events', 'tasks'] },
+    ledger: { label: 'Slop Ledger', collections: ['journal', 'accounts'],
+      post: { journal: (r) => D().ledger.postJournal(Object.assign({ source: `manual:${D().store.newId()}` }, r)) }, extra(add) {
+        const L = () => g.SlopLedger;
+        add('create_journal_entry', 'Post a journal entry', [S('date', 'YYYY-MM-DD, today when empty', { maxLength: 10 }), S('memo', 'what it is for', { maxLength: 300 }),
+          { name: 'lines', type: 'array', required: true, maxItems: 50, items: { type: 'object', properties: { account: { type: 'string', description: '4-digit code' }, debit: { type: 'string', description: 'like 120.00' }, credit: { type: 'string' } } },
+            description: 'balanced lines: [{ account, debit }, { account, credit }]; debits must equal credits' }],
+        async (a) => {
+          const rec = await AI.toRecord('journal', { date: a.date || today(), memo: a.memo || '', lines: a.lines.map((l) => ({ account: String(l.account), debit: l.debit || 0, credit: l.credit || 0 })) });
+          const e = AI.unwrap(await D().ledger.postJournal(Object.assign({ source: `manual:${D().store.newId()}` }, rec)), 'Journal');
+          AI.remember({ kind: 'posted', collection: 'journal', id: e.id });
+          const total = e.lines.reduce((t, l) => t + (l.debit || 0), 0);
+          return { done: `Posted the entry “${e.memo || e.id}” on ${e.date}: ${e.lines.length} lines, ${D().money.formatMinor(total, (await L().util.settings()).base)} each side.`, id: e.id };
+        }, { description: 'Post a balanced journal entry (posted entries cannot change; a reversal undoes one).' });
+        add('add_account', 'Add an account', [S('code', '4 digits', { required: true, maxLength: 4 }), S('name', 'account name', { required: true }),
+          { name: 'type', type: 'enum', values: D().schema.ENUM.accountType, required: true }],
+        async (a) => { const r = AI.unwrap(await D().store.put('accounts', { code: a.code, name: a.name, type: a.type }), 'Account'); AI.remember({ kind: 'created', collection: 'accounts', id: r.code }); return `Added account ${r.code} ${r.name} (${r.type}).`; });
+        add('export_trial_balance', 'Export the trial balance', [TO], async (a) => {
+          const s = await L().util.settings(), tb = AI.unwrap(await D().ledger.trialBalance(), 'Trial balance');
+          const f = L().csv.trialCsv(Object.assign({ foreign: [] }, tb), s.base, L().util.today());
+          return AI.save(f.blob, f.name, a.to, 'ledger');
+        });
+        add('export_statement', 'Export a statement', [{ name: 'statement', type: 'enum', values: ['profit_and_loss', 'balance_sheet'], default: 'profit_and_loss' },
+          { name: 'period', type: 'enum', values: ['month', 'quarter', 'year', 'last-year'], default: 'year' }, TO],
+        async (a) => {
+          const s = await L().util.settings(), [j, ac] = await Promise.all([D().store.list('journal'), D().store.list('accounts')]);
+          const ents = AI.unwrap(j, 'Journal'), accts = AI.unwrap(ac, 'Accounts'), p = L().statements.period(a.period, L().util.today()), dec = (m) => L().util.decimal(m, s.base);
+          const rows = [['Section', 'Code', 'Account', `Amount (${s.base})`]];
+          if (a.statement === 'balance_sheet') {
+            const b = L().statements.balanceSheet(ents, accts, { at: p.to });
+            for (const [k, list] of [['Assets', b.assets], ['Liabilities', b.liabilities], ['Equity', b.equity]]) for (const r of list) rows.push([k, r.code, r.name, dec(r.amount)]);
+            rows.push(['Equity', '', 'Result to date', dec(b.resultToDate)], ['', '', 'Total assets', dec(b.totalAssets)], ['', '', 'Total liabilities and equity', dec(b.totalLiabilities + b.totalEquity)]);
+          } else {
+            const r0 = L().statements.profitAndLoss(ents, accts, p);
+            for (const [k, list] of [['Revenue', r0.revenue], ['Expenses', r0.expenses]]) for (const r of list) rows.push([k, r.code, r.name, dec(r.amount)]);
+            rows.push(['', '', 'Result', dec(r0.result)]);
+          }
+          const name = `${a.statement.replace(/_/g, '-')}-${p.from}-${p.to}.csv`;
+          return AI.save(new Blob([L().csv.toCsv(rows)], { type: 'text/csv' }), name, a.to, 'ledger');
+        }, { description: 'The profit and loss or the balance sheet for a period, as CSV.' });
+      } },
   };
 })(typeof window !== 'undefined' ? window : globalThis);
