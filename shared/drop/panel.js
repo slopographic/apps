@@ -32,6 +32,16 @@
     '.sd-hint b{background:var(--sui-accent,#3b5bdb);color:#fff;font:600 13px/1.3 system-ui,sans-serif;padding:6px 10px;border-radius:6px;max-width:90%;text-align:center}',
     '.sd-toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:9001;max-width:min(560px,calc(100vw - 32px));background:var(--sui-text,#1b1b22);color:var(--sui-panel,#fff);font:13px/1.4 system-ui,sans-serif;padding:9px 14px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer}',
     '.sd-toast.warn{border-left:4px solid #e0a040}',
+    // The preview: what the app makes (a picture) and how (three steps), above the prompt, so an empty page explains itself.
+    '.sd-preview{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;justify-content:center;width:100%;margin:2px 0 6px;text-align:left}',
+    '.sd-pic{flex:0 1 300px;min-width:0;max-width:100%}',
+    '.sd-pic img{display:block;width:100%;height:auto;max-height:200px;object-fit:cover;object-position:top;border-radius:8px;border:1px solid var(--sui-line,#d6d6de);box-shadow:0 4px 14px rgba(0,0,0,.12)}',
+    '.sd-steps{flex:0 1 260px;margin:0;padding:0;list-style:none;counter-reset:sd;display:grid;gap:8px;color:var(--sui-text,#1b1b22);font-size:14px}',
+    '.sd-steps li{counter-increment:sd;display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}',
+    '.sd-steps li::before{content:counter(sd);display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--sui-accent,var(--accent,var(--sl-accent,#3b5bdb)));color:var(--sui-accent-ink,var(--accent-ink,var(--sl-on-accent,#fff)));font:700 12px/1 system-ui,sans-serif}',
+    '.sd-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}',
+    '.sd-sample{font:inherit;font-size:13px;padding:7px 12px;border:1px solid transparent;border-radius:6px;background:none;color:var(--sui-text,var(--sl-text,#1b1b22));text-decoration-color:var(--sui-accent,var(--accent,var(--sl-accent,#3b5bdb)));text-decoration-thickness:2px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}',
+    '.sd-sample:focus-visible{outline:2px solid var(--sui-accent,#3b5bdb);outline-offset:2px}',
     '.sd-over{outline:2px dashed var(--sui-accent,#3b5bdb);outline-offset:3px}',
     '.sd-flash{animation:sd-flash 1.2s ease-out}',
     '@keyframes sd-flash{from{box-shadow:0 0 0 3px var(--sui-accent,#3b5bdb)}to{box-shadow:0 0 0 0 transparent}}',
@@ -43,11 +53,37 @@
     s.id = 'sd-style'; s.textContent = CSS;
     doc.head.appendChild(s);
   }
-  /** Replace the zone's content with the module's panel. Returns { list, msg, status, choose } (choose is the button). */
+  /** The preview: o.picture is { src, alt } (a picture of the result), { flow: { from, to } } (SlopFlow) or an element;
+   *  o.steps is a short list of what to do. Null when there is neither. */
+  P.preview = function (o) {
+    if (!o || (!o.picture && !(o.steps && o.steps.length))) return null;
+    const box = doc.createElement('div');
+    box.className = 'sd-preview';
+    const pic = o.picture;
+    if (pic) {
+      const fig = doc.createElement('div');
+      fig.className = 'sd-pic';
+      if (pic.nodeType) fig.append(pic);
+      else if (pic.flow && root.SlopFlow) fig.append(root.SlopFlow.create(Object.assign({ size: 'lg' }, pic.flow)).el);
+      else if (pic.src) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.loading = 'lazy'; fig.append(img); }
+      if (fig.firstChild) box.append(fig);
+    }
+    if (o.steps && o.steps.length) {
+      const ol = doc.createElement('ol');
+      ol.className = 'sd-steps'; ol.setAttribute('aria-label', 'How it works');
+      for (const t of o.steps) { const li = doc.createElement('li'); li.textContent = t; ol.append(li); }
+      box.append(ol);
+    }
+    return box;
+  };
+  /** Replace the zone's content with the module's panel. Returns { list, msg, status, choose, sample } (the buttons;
+   *  sample is null without o.sample). o.preview (not in a compact strip) and o.sample: see drop.js. */
   P.build = function (zone, o) {
     style();
     const wrap = doc.createElement('div');
     wrap.className = 'sd-zone' + (o.compact ? ' sd-compact' : '');
+    const pv = o.compact ? null : P.preview(o.preview);
+    if (pv) wrap.append(pv);
     const msg = doc.createElement('p');
     msg.className = 'sd-msg';
     msg.textContent = o.label || 'Drop files here or choose files';
@@ -56,7 +92,15 @@
     const choose = doc.createElement('button');
     choose.type = 'button'; choose.className = 'sd-choose';
     choose.textContent = o.chooseLabel || 'Choose files';
-    wrap.append(choose);
+    let sample = null;
+    if (o.sample) {
+      sample = doc.createElement('button');
+      sample.type = 'button'; sample.className = 'sd-sample';
+      sample.textContent = o.sample.label || 'Try it with a sample';
+      const acts = doc.createElement('div');
+      acts.className = 'sd-acts'; acts.append(choose, sample);
+      wrap.append(acts);
+    } else wrap.append(choose);
     const list = doc.createElement('ul');
     list.className = 'sd-list'; list.setAttribute('aria-label', 'Files being added');
     wrap.append(list);
@@ -64,7 +108,7 @@
     status.className = 'sd-status'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
     wrap.append(status);
     zone.replaceChildren(wrap);
-    return { list, msg, status, choose };
+    return { list, msg, status, choose, sample };
   };
   /** One file's row in the progress list. state: 'reading' | 'ready' | 'error'. Returns { progress(p), set(state, text) }. */
   P.row = function (list, name, size, text) {

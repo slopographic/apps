@@ -9,7 +9,7 @@
   <iframe id="app" style="width:1280px;height:860px"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: sorter/index.html, sorter/js/app.js, sorter/js/model.js, sorter/css/sorter.css, shared/deck/deck.js, shared/deck/deck.css
+  // Covers: assets/shots/sorter.jpg, sorter/index.html, sorter/js/app.js, sorter/js/model.js, sorter/css/sorter.css, shared/deck/deck.js, shared/deck/deck.css
   const { describe, it, expect, waitFor, run, sleep } = SlopTest;
   let W, D, A, got;
   const $ = (id) => D.getElementById(id);
@@ -128,6 +128,14 @@
       $('soClear').click();
       expect($('soWork').hidden).toBe(true);
       expect(A.set.items.length).toBe(0);
+    });
+    it('the empty page shows what it makes and how, and Try it with sample photos fills it', async () => {
+      await boot();
+      expect(D.querySelectorAll('#soDrop .sd-steps li').length).toBe(3);
+      expect(D.querySelector('#soDrop .sd-pic img').getAttribute('src')).toBe('../assets/shots/sorter.jpg');
+      D.querySelector('#soDrop .sd-sample').click();
+      await waitFor(() => A.set.items.length === 8, { timeout: 15000 });
+      expect($('soStart').textContent).toBe('Start sorting (8)');
     });
     it('at 390 px: no sideways scroll, and the deck fits', async () => {
       await boot(390);

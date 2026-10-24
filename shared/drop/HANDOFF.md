@@ -39,6 +39,14 @@ zero-byte files). `input`: an existing `<input type=file>` to use for Choose fil
 for a strip. `window: false`: leave the rest of the page alone (only the targets take drops, marked `.sd-over`). `overlay:
 false`: no outlines or label. `toast: false`. `label`, `hint`, `chooseLabel`, `multiple`.
 
+`preview: { picture, steps }`: an empty page explains itself. Above the prompt the zone shows what the app makes
+(`picture`: `{ src, alt }`, usually `assets/shots/<app>.jpg`, a screenshot of a finished result; `{ flow: { from, to } }`
+for a converter, drawn by SlopFlow; or an element) and how (`steps`: three short lines). Not drawn in a `compact` strip.
+`sample: { label?, files }`: a "Try it with a sample" button. `files()` returns the sample files (or a Promise of them),
+which go through the same batch as a drop, so the sample shows exactly what a real file does. `shared/samples/samples.js`
+(`SlopSamples`) makes them: `photos(n)` paints scenes as JPEGs, `file(name, text, type)` makes a text file, and
+`asset(path)` loads a real file kept in `assets/samples/` (a PDF, a voice clip).
+
 `process` receives `ctx = { at: { x, y } | null, index }`: the client point of the drop (null from Choose files) and the
 file's place among the accepted ones (for placing files one after another at the drop point).
 

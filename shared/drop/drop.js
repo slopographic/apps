@@ -39,7 +39,11 @@
    *     and label (for an app that marks its own drop areas). window?: false leaves the rest of the page alone: only the
    *     targets take drops (marked .sd-over while a file is over them). label?, hint?: text for the zone.
    *   toast?: false to hide the toast. multiple?: default true. compact?: one row (message and button), for a strip.
-   *  Returns { choose(), run(files), destroy() }. */
+   *   preview?: { picture, steps }: what the app makes and how, shown in the zone above the prompt (not when compact).
+   *     picture: { src, alt } | { flow: { from, to } } | an element; steps: three short lines.
+   *   sample?: { label?, files: () => File[] | Promise<File[]> }: a "Try it with a sample" button whose files go
+   *     through the same batch as a drop (shared/samples/samples.js makes sample files).
+   *  Returns { choose(), run(files), sample(), destroy() }. */
   SD.attach = function (zone, o) {
     if (!zone) return null; // the page has no drop zone: nothing to attach, and no error
     o = o || {};
@@ -49,13 +53,16 @@
     const listed = (o.targets || []).filter(Boolean);
     const targets = listed.length ? listed : [zone];
     const limit = o.limit || Infinity;
-    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint, compact: o.compact });
+    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules.hint, compact: o.compact, preview: o.preview, sample: o.sample });
     const input = o.input || doc.createElement('input');
     input.type = 'file';
     input.multiple = o.multiple !== false;
     input.accept = R.acceptAttr(rules);
     if (!o.input) { input.hidden = true; zone.append(input); }
     ui.choose.addEventListener('click', () => input.click());
+    /** The sample's files, through the same batch as a drop. */
+    const trySample = () => (o.sample ? run(Promise.resolve().then(() => o.sample.files())) : Promise.resolve());
+    if (ui.sample) ui.sample.addEventListener('click', trySample);
     const onPick = () => { const files = Array.from(input.files || []); input.value = ''; if (files.length) run(files); };
     input.addEventListener('change', onPick);
 
@@ -179,6 +186,7 @@
     return {
       choose: () => input.click(),
       run,
+      sample: trySample,
       destroy() {
         if (winOn) {
           win.removeEventListener('dragenter', onEnter);

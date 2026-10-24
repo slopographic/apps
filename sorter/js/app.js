@@ -111,6 +111,9 @@ function wire() {
   window.SlopDrop.attach($('soDrop'), {
     accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.svg', '.bmp'], noun: 'a photo' },
     input: $('soPick'), label: 'Drop photos here, or choose photos', hint: 'As many as you like. They stay on this device.',
+    preview: { picture: { src: '../assets/shots/sorter.jpg', alt: 'Photos sorted into liked and disliked, with tags' },
+      steps: ['Drop photos or a whole folder', 'Swipe: ↑ like, ↓ dislike, type to tag', 'Download the keepers as a ZIP'] },
+    sample: { label: 'Try it with 8 sample photos', files: () => window.SlopSamples.photos(8) },
     process: async (file) => { add([file]); return file.name; },
   });
   $('soFolder').addEventListener('click', () => $('soDir').click());
