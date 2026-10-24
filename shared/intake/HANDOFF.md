@@ -299,6 +299,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   `tests/intake/projects.test.html`.
 - **Slop CRM** (`crm/js/ui/form-parts.js`, spec `crm`, the customer's photo, no paste): Add / Change photo is the intake's
   picker; the page now loads shared/intake. `tests/intake/crm.test.html`.
+- **Slop Expenses** (`expenses/js/ui/receipt.js`, spec `expenses`, the receipt photo): From a receipt… is the intake's
+  picker (the hidden `#eReceiptPick` input is gone), and a pasted photo while the editor is open (new). The page now
+  loads shared/intake. `tests/expenses/receipt.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -356,10 +359,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### admin
 
 - [ ] file input: `admin/index.html:134`
-
-### expenses
-
-- [ ] file input: `expenses/index.html:88`
 
 ### inventory
 
