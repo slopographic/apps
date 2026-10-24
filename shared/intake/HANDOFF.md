@@ -252,6 +252,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   launchQueue. Every source now takes the same files (vCard, CSV, TSV, text, .scontacts; a drop used to refuse .tsv and
   .scontacts). Choose photo… is the part. The drag of contacts onto a group stays (`intake-ok`).
   `tests/intake/contacts.test.html`.
+- **Slop Checksum** (`checksum/js/checksum.js`, spec `checksum`, one file): the box is a button (the intake's picker; was
+  a label with a file input) and a drop target (`dropTarget`), and a paste (new). The page now loads shared/intake.
+  `tests/intake/checksum.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -341,11 +344,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] pickFiles: `calendar/js/ui/ics-ui.js:29`
 - [ ] SlopDrop.attach: `calendar/js/ui/ics-ui.js:39`
-
-### checksum
-
-- [ ] file input: `checksum/index.html:42`
-- [ ] drop listener: `checksum/js/checksum.js:81`
 
 ### crm
 
