@@ -10,7 +10,7 @@
   const DRAG_PX = 6;
   let root = null, grid = null, folderBox = null, folderGrid = null, ghost = null;
   let items = [], drag = null, suppressClick = false, openId = null, returnTo = null, isOpen = false, prevOverflow = '';
-  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const esc = (s) => window.SlopShell.esc(s);   // the shell's one HTML escape (shell.js)
   const hue = (s) => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
   const apps = () => S.apps().filter((a) => a.kind === 'app');
   const appById = (id) => apps().find((a) => a.id === id);

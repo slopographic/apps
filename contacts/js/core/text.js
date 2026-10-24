@@ -1,4 +1,5 @@
-/* Slop Contacts: text helpers for the vCard and CSV code (escapes, folding, quoted-printable, octets).
+/* Slop Contacts: text helpers: HTML escaping for the views (html), and for the vCard and CSV code escapes, folding,
+ * quoted-printable and octets.
  * Classic script, no dependencies. Adds SlopContacts.text. */
 (function () {
   'use strict';
@@ -69,5 +70,8 @@
   const tidyNote = (s) => String(s == null ? '' : s).replace(/\r\n?/g, '\n').split('\n').map((l) => l.replace(/[ \t]+/g, ' ').trim()).join('\n').trim();
   const uniq = (a) => [...new Set(a)];
 
-  SC.text = { octets, fold, escVal, unescVal, splitUnescaped, qpDecode, decodeBytes, tidy, tidyNote, uniq };
+  /** Text made safe inside HTML (element text and attribute values): & < > " ' as entities; null and undefined as ''. */
+  const html = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+
+  SC.text = { html, octets, fold, escVal, unescVal, splitUnescaped, qpDecode, decodeBytes, tidy, tidyNote, uniq };
 })();

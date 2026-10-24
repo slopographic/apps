@@ -27,7 +27,7 @@
     try { localStorage.setItem(KEY, JSON.stringify({ v: 1, data: history })); } catch (e) { /* storage blocked: session only */ }
   }
   const emit = () => { listeners.forEach((fn) => { try { fn(); } catch (e) { /* a listener must not break the others */ } }); renderBell(); };
-  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const esc = (s) => window.SlopShell.esc(s);   // the shell's one HTML escape (shell.js)
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   const hasNative = () => typeof window.Notification === 'function';
   const desktopState = () => (!hasNative() ? 'unsupported' : Notification.permission);

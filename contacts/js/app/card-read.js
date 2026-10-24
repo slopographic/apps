@@ -8,7 +8,7 @@
   const S = SC.state;
   const D = window.SlopData;
   const UI = window.SlopUI;
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+  const esc = (s) => SC.text.html(s);   // the one HTML escape (core/text.js)
   const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   let token = 0, settings = { defaultCurrency: 'USD', locale: 'en-US' };
 

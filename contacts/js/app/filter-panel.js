@@ -8,7 +8,7 @@
   const S = SC.state;
   const F = SC.filters;
   const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+  const esc = (s) => SC.text.html(s);   // the one HTML escape (core/text.js)
   const opt = (v, label, sel) => `<option value="${esc(v)}"${String(v) === String(sel) ? ' selected' : ''}>${esc(label)}</option>`;
   let lastPanel = '', lastChips = '';
 

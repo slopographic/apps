@@ -13,6 +13,14 @@
   /** Logical PHOTO lines of a vCard text (unfolded). */
   const photoLines = (text) => text.replace(/\r\n[ \t]/g, '').split(CR).filter((l) => /^PHOTO/.test(l));
 
+  describe('text.html, the one HTML escape of the views', () => {
+    // Covers: contacts/js/core/text.js
+    it('escapes & < > " and \' and reads null and undefined as nothing', () => {
+      expect(SC().text.html(`<a href="x" title='y'>Tom & Jerry</a>`)).toBe('&lt;a href=&quot;x&quot; title=&#39;y&#39;&gt;Tom &amp; Jerry&lt;/a&gt;');
+      expect([SC().text.html(null), SC().text.html(undefined), SC().text.html(42)]).toEqual(['', '', '42']);
+    });
+  });
+
   describe('PHOTO on import', () => {
     it('reads a base64 JPEG (3.0 form) as a data URI, joining the folded lines', () => {
       const [c] = SC().vcard.read(card(`PHOTO;ENCODING=b;TYPE=JPEG:${JPG}`));

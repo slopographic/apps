@@ -8,7 +8,7 @@
   const UI = window.SlopUI;
   const el = UI.el;
   const MAX = 256, QUALITY = 0.85;
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+  const esc = (s) => SC.text.html(s);   // the one HTML escape (core/text.js)
 
   /** A picture file to an image element. The object URL is released when it has loaded or failed. */
   function decode(file) {

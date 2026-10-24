@@ -6,7 +6,7 @@
   if (window.SlopSwitcher) return;
   const S = window.SlopShell;
   let back = null, input = null, listEl = null, items = [], active = 0, returnTo = null, isOpen = false;
-  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const esc = (s) => window.SlopShell.esc(s);   // the shell's one HTML escape (shell.js)
   const hue = (s) => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
   /** The text for a key in the chosen language (SlopI18n), else the English given. {name} vars are filled. */
   const tr = (key, en, vars) => {
