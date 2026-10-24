@@ -29,8 +29,10 @@
     D.artShadow = document.getElementById('artShadow');
     D.grid = document.getElementById('grid');
     D.textEditor = document.getElementById('textEditor');
-    var th = SV.lsGet('slopvector.theme');
-    UI.st.currentTheme = (th === 'light' || th === 'classic' || th === 'pro') ? th : 'pro';
+    // The saved theme, else the one shared/theme/theme.js already painted (it follows the system), else Pro.
+    var ok = function (t) { return t === 'light' || t === 'classic' || t === 'pro'; };
+    var th = SV.lsGet('slopvector.theme'), shown = document.documentElement.getAttribute('data-theme');
+    UI.st.currentTheme = ok(th) ? th : ok(shown) ? shown : 'pro';
     document.documentElement.setAttribute('data-theme', UI.st.currentTheme);
     loadPrefs();
     buildMenubar(); buildToolbar(); buildDock(); buildStatus(); bindRulers(); applyRulers();

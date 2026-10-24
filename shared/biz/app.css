@@ -57,6 +57,7 @@ a.btn { text-decoration: none; }
 .chip.open, .chip.issued, .chip.sent, .chip.ordered { color: var(--accent); }
 .chip.fulfilled, .chip.paid, .chip.posted, .chip.accepted, .chip.received { color: var(--ok); }
 .chip.cancelled, .chip.void, .chip.declined { color: var(--mute); text-decoration: line-through; }
+.chip.credited { color: var(--mute); }
 .chip.overdue { color: var(--danger); font-weight: 600; }
 .chip.sample { color: var(--warn); }
 
@@ -66,6 +67,17 @@ a.btn { text-decoration: none; }
 .tab { flex: 0 0 auto; min-height: 40px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--mute); font-weight: 500; }
 .tab:hover { color: var(--ink); }
 .tab[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
+/* The record bar (shared/biz/docbar.js) over an open invoice, order, quote or entry: back, name and status, its actions */
+.biz-docbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 46px; padding: 6px 12px; box-sizing: border-box; background: var(--bg); border-bottom: 1px solid var(--line); }
+.biz-docbar[hidden] { display: none; }
+.biz-back { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 10px 0 6px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); font: inherit; font-weight: 500; cursor: pointer; }
+.biz-back span { font-size: 18px; line-height: 1; }
+.biz-back:hover { border-color: var(--mute); }
+.biz-doc-name { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1 1 auto; }
+.biz-docbar .h2 { margin: 0; }
+.biz-doc-title { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.biz-doc-name .chip:empty { display: none; }
+.biz-doc-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 
 .main { padding: 14px 16px 40px; min-width: 0; max-width: 960px; width: 100%; margin: 0 auto; box-sizing: border-box; }
 .boot { padding: 30px 0; color: var(--mute); }
@@ -79,6 +91,7 @@ a.btn { text-decoration: none; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; margin: 0 0 12px; min-width: 0; }
 .table { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--panel); }
 .head-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.head-row[hidden] { display: none; }
 .head-row .h2 { margin: 0; }
 .empty-state { display: grid; justify-items: start; gap: 8px; padding: 16px; border: 1px dashed var(--line-strong); border-radius: var(--r); color: var(--mute); margin: 8px; }
 .empty-state p { margin: 0; }
@@ -110,16 +123,6 @@ a.btn { text-decoration: none; }
   .local-badge { display: none; }
 }
 
-/* The app top bar (Slop Admin, Ledger): the brand mark, the app name over the home link, the local badge */
-.topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
-.brand-mark { width: 24px; height: 24px; fill: var(--accent); }
-.brand-mark path:not(.shine) { fill: var(--accent); }
-.brand-mark .shine { fill: none; stroke: var(--accent-ink); stroke-width: 2; stroke-linecap: round; }
-.appname { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
-.appname b { font-size: 15px; }
-.home-link { color: var(--mute); font-size: 12px; text-decoration: none; }
-.topbar .local-badge { margin-left: 0; color: var(--ok); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
-.topbar .tb-btn { margin-left: auto; }
 .h3 { font-size: 15px; margin: 0 0 8px; }
 
 /* Form grids of plain labels (one column on a phone) and data tables that scroll inside their own box */

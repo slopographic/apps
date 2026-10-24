@@ -16,20 +16,21 @@ html, body { height: 100%; margin: 0; }
 body { background: var(--hx-bg); color: var(--hx-fg); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
 .hx-app { display: flex; flex-direction: column; height: 100%; min-height: 0; }
 .hx-app > .doctabs-host { flex: none; }
-.hx-brand { display: flex; align-items: center; gap: 8px; }
-.hx-brand h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: .01em; }
-.hx-logo { width: 14px; height: 14px; border-radius: 3px; background: var(--hx-accent); }
-.hx-name { flex: none; min-width: 0; padding: 6px 14px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--hx-dim); font-size: 13px; }
-.hx-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+/* SlopUI buttons and the menu bar's tools take the Hex colours (the shared --s-* tokens are only set inside dialogs), and
+ * every button and field in the header and the bar is as tall as the shared header buttons (shared/ui/hbtn.css). */
+.hx-app, .smb-bar { --s-bg2: var(--hx-panel); --s-input: var(--hx-bg); --s-line: var(--hx-line); --s-fg: var(--hx-fg); --s-hover: var(--hx-hover);
+  --s-accent: var(--sl-accent, var(--hx-accent)); --s-accent-ink: var(--sl-on-accent, var(--hx-bg)); --s-radius: 8px; }
+.smb-tools .sui-btn, .hx-bar .sui-btn, .hx-bar input, .hx-bar select { height: var(--slop-hbtn-h, 32px); box-sizing: border-box; }
+.hx-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hx-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 8px 14px; border-bottom: 1px solid var(--hx-line); }
 .hx-go, .hx-find { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0; }
 .hx-bar input, .hx-bar select { font: inherit; color: var(--hx-fg); background: var(--hx-bg); border: 1px solid var(--hx-line); border-radius: 6px; padding: 5px 8px; min-width: 0; }
 #hx-goto { width: 170px; font-family: var(--hx-mono); }
 #hx-q { width: 220px; font-family: var(--hx-mono); }
 .hx-status { color: var(--hx-dim); font-size: 13px; flex-basis: 100%; }
-.hx-info { display: grid; grid-template-columns: auto auto 1fr auto; gap: 4px 22px; margin: 0; padding: 8px 14px; border-bottom: 1px solid var(--hx-line); font-size: 13px; }
+.hx-info { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; padding: 8px 14px; border-bottom: 1px solid var(--hx-line); font-size: 13px; }
 .hx-info > div { display: flex; flex-direction: column; min-width: 0; }
-.hx-info > .hx-wide { grid-column: span 2; }
+.hx-info > .hx-file { max-width: 280px; }
 .hx-info dt { color: var(--hx-faint); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
 .hx-info dd { margin: 0; word-break: break-all; }
 .hx-mono { font-family: var(--hx-mono); font-size: 12px; }
@@ -56,14 +57,13 @@ body { background: var(--hx-bg); color: var(--hx-fg); font: 14px/1.4 system-ui, 
 .hx-cur { background: var(--hx-cur); color: var(--hx-fg); box-shadow: inset 0 0 0 1px var(--hx-accent); }
 .hx-row:hover .hx-b:not(.hx-sel) { background: var(--hx-hover); }
 @media (max-width: 600px) {
-  .hx-tools { width: 100%; }
-  .hx-tools .sui-btn { flex: 1 1 auto; }
   .hx-bar { padding: 8px 10px; }
-  #hx-goto, #hx-q { width: 100%; max-width: 100%; }
-  .hx-go, .hx-find { width: 100%; }
-  .hx-find input[type="text"] { flex: 1 1 140px; }
-  .hx-info { grid-template-columns: 1fr 1fr; padding: 8px 10px; }
-  .hx-info > .hx-wide { grid-column: span 2; }
+  .hx-go, .hx-find { width: 100%; flex-wrap: nowrap; }
+  #hx-goto, #hx-q { flex: 1 1 0; width: auto; }
+  .hx-info { padding: 8px 10px; }
+  .hx-info > .hx-file, .hx-info > .hx-wide { flex: 1 1 100%; max-width: none; }
+  /* The header's Open, Save version and Download are in its File menu: on a phone the bar keeps to one row. */
+  .smb-tools > .sui-btn { display: none; }
   .hx-off { width: 11ch; padding: 0 8px 0 8px; }
 }
 

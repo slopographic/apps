@@ -29,11 +29,15 @@ h2:first-child { margin-top: 0; }
 h3 { font-size: 15px; margin: 0; }
 .st-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.st-app { width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 16px 40px; box-sizing: border-box; }
+/* Under the menu bar: the tabs, with this device's zone at the end of their row; the panels below. */
+.st-app { width: 100%; max-width: 1000px; margin: 0 auto; padding: 8px 16px 40px; box-sizing: border-box;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "tabs device" "main main"; }
+.st-tabs { grid-area: tabs; }
+.st-main { grid-area: main; }
 .st-brand { display: flex; align-items: center; gap: 8px; }
 .st-brand h1 { margin: 0; font-size: 17px; }
 .st-logo { width: 18px; height: 18px; border-radius: 5px; background: var(--st-accent); box-shadow: inset -5px -5px 0 rgba(0, 0, 0, .18); }
-.st-device { margin: 0; color: var(--st-faint); font-size: 12px; }
+.st-device { grid-area: device; display: flex; align-items: center; margin: 0 0 14px; padding: 0 0 4px 12px; border-bottom: 1px solid var(--st-line); color: var(--st-faint); font-size: 12px; }
 
 .st-tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; border-bottom: 1px solid var(--st-line); margin-bottom: 14px; scrollbar-width: thin; }
 .st-tabs button { flex: 0 0 auto; padding: 9px 12px; border: 0; border-bottom: 3px solid transparent; background: transparent; cursor: pointer; color: var(--st-dim); min-height: 40px; }
@@ -41,6 +45,13 @@ h3 { font-size: 15px; margin: 0; }
 .st-tabs button:focus-visible, .st-btn:focus-visible, input:focus-visible, select:focus-visible, .st-result:focus-visible { outline: 2px solid var(--st-accent); outline-offset: 1px; }
 
 .st-main { min-width: 0; }
+/* At phone width the six tabs are a 3 × 2 grid (nothing hides off the edge) and the device's zone goes under them. */
+@media (max-width: 560px) {
+  .st-app { grid-template-columns: minmax(0, 1fr); grid-template-areas: "tabs" "device" "main"; }
+  .st-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
+  .st-tabs button { padding: 8px 4px; }
+  .st-device { padding: 0; border: 0; margin: -6px 0 12px; }
+}
 .st-panel { min-width: 0; }
 .st-field { display: grid; gap: 4px; margin-bottom: 10px; min-width: 0; }
 .st-field label, .st-note, .st-caption { color: var(--st-dim); font-size: 12px; }
@@ -65,6 +76,7 @@ h3 { font-size: 15px; margin: 0; }
 .st-days label { display: flex; align-items: center; gap: 4px; min-height: 36px; }
 
 .st-results, .st-cards, .st-windows, .st-chips, .st-laps { list-style: none; margin: 8px 0; padding: 0; }
+.st-results:empty { display: none; }
 .st-results li + li { border-top: 1px solid var(--st-line); }
 .st-result { width: 100%; text-align: left; padding: 8px 10px; background: transparent; border: 0; border-radius: 8px; cursor: pointer; font-size: 13px; }
 .st-result:hover { background: var(--st-hover); }

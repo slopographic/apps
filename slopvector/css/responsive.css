@@ -21,6 +21,7 @@
   .ruler { cursor: default; }
   .menu-btn { padding: 0 8px; }
 }
+@media (max-width: 640px) { .menus { flex: 0 1 auto; } }
 @media (max-width: 560px) {
   #sbPos, #sbFlags, #sbSel, .sbb, .zsel { display: none; }
   .cb-label { min-width: 0; }

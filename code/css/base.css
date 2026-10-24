@@ -24,6 +24,8 @@
   --sui-fg: var(--cd-fg); --sui-dim: var(--cd-dim); --sui-faint: var(--cd-faint); --sui-hover: var(--cd-hover);
   --sui-sel: var(--cd-on); --sui-accent: var(--cd-accent); --sui-accent-ink: var(--cd-ink);
 }
+/* slopui.css gives .sui-btn its --s-* colours only inside its own dialogs and menus: these are for the app's buttons. */
+.cd-app { --s-bg2: var(--cd-bg); --s-line: var(--cd-line); --s-fg: var(--cd-fg); --s-hover: var(--cd-hover); --s-accent: var(--cd-accent); --s-accent-ink: var(--cd-ink); --s-radius: 6px; }
 [hidden] { display: none !important; }
 html, body { height: 100%; margin: 0; }
 body { background: var(--cd-bg); color: var(--cd-fg); font: 14px/1.4 var(--cd-sans); overflow: hidden; }
@@ -36,10 +38,14 @@ button { font: inherit; color: inherit; }
 
 /* toolbar */
 .cd-top { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--cd-line); background: var(--cd-panel); min-width: 0; }
+/* The shared header buttons (Tour, Theme, Apps, the bell: shared/ui/hbtn.css) wear the look of the toolbar's .sui-btn. */
+.cd-top { --slop-hbtn-h: 32px; --slop-hbtn-radius: 6px; --slop-hbtn-bg: var(--cd-bg); --slop-hbtn-line: var(--cd-line); --slop-hbtn-hover: var(--cd-hover); --slop-hbtn-fs: 14px; }
 .cd-files-btn { display: none; }
+.cd-top .sui-btn { height: 32px; }
 .cd-brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .cd-brand h1 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: .01em; white-space: nowrap; }
-.cd-logo { width: 18px; height: 18px; border-radius: 5px; background: var(--cd-accent); display: inline-block; box-shadow: inset -5px -5px 0 rgba(0, 0, 0, .18); }
+.cd-brand .brand { display: grid; place-items: center; width: 28px; height: 28px; flex: none; color: var(--cd-fg); }
+.cd-brand .brand-mark { width: 20px; height: 20px; fill: currentColor; }
 .cd-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; min-width: 0; }
 .cd-tools .sui-btn { white-space: nowrap; }
 
@@ -84,12 +90,15 @@ button { font: inherit; color: inherit; }
 @media (max-width: 719px) {
   .cd-app, .cd-app.cd-tree-hidden, .cd-app.cd-pv-open, .cd-app.cd-tree-hidden.cd-pv-open { grid-template-columns: minmax(0, 1fr); }
   .cd-app.cd-tree-hidden .cd-main { grid-column: auto; }
-  .cd-files-btn { display: inline-flex; }
+  .cd-files-btn { display: inline-flex; align-items: center; }
   .cd-tree { position: fixed; top: 0; bottom: 0; left: 0; width: min(84vw, 300px); z-index: 50; transform: translateX(-102%); transition: transform .18s ease; box-shadow: 0 0 24px rgba(0, 0, 0, .4); }
   .cd-app.cd-drawer-open .cd-tree { transform: none; }
   .cd-tree-hidden .cd-tree { display: flex; }
   .cd-main { grid-column: 1; }
-  .cd-tools { margin-left: 0; width: 100%; }
+  .cd-brand { flex: 1 1 auto; }
+  /* the file and run buttons take the second row, and scroll sideways when they do not fit */
+  .cd-tools { order: 1; margin-left: 0; width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .cd-tools .sui-btn { padding: 0 10px; }
   .cd-brand h1 { font-size: 14px; }
   .cd-tab-name { max-width: 160px; }
   .cd-empty { padding: 24px 16px; }

@@ -2,7 +2,8 @@
  * the app downloads (with sizes) before it can start. Shown once per app and kept in localStorage (key 'slop-firstrun:<app>').
  * If storage is unavailable the notice is shown each time, and nothing else changes. Classic script: window.SlopFirstRun.
  *   SlopFirstRun.once(app, { title, lines: [string], downloads: [{ name, bytes }] })  ->  Promise<boolean> (true = carry on)
- * Only the notice is shown on the first use; an app with no downloads passes downloads: [] and gets a plain privacy note. */
+ * Only the notice is shown on the first use; an app with no downloads passes downloads: [] and gets a plain privacy note.
+ *   SlopFirstRun.mark(app)  counts the notice as seen (another consent step covered it); SlopFirstRun.seen(app) -> boolean */
 (function () {
   'use strict';
   const KEY = (app) => 'slop-firstrun:' + app;
@@ -47,5 +48,8 @@
     });
   }
 
-  window.SlopFirstRun = { once, size };
+  /** Another consent step already covered the notice (AI Tools' Get more dialog names the download and its licence). */
+  const mark = (app) => remember(app);
+
+  window.SlopFirstRun = { once, size, mark, seen };
 })();

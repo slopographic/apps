@@ -5,7 +5,7 @@
 (function (root) {
   'use strict';
   const doc = root.document, R = root.SlopAIModels, M = root.SlopAIManager;
-  let host = null, onDone = null;
+  let host = null, onDone = null, onGone = null;
 
   /** Creates an element; children are nodes or text (never HTML). */
   function el(tag, attrs, ...kids) {
@@ -20,12 +20,14 @@
   }
   const hostOf = (url) => { try { return new URL(url).hostname; } catch (e) { return 'this site'; } };
 
-  /** Opens the dialog for one model. opts.onInstalled(id) runs after the model is stored. */
+  /** Opens the dialog for one model. opts.onInstalled(id) runs after the model is stored; opts.onClose() when the dialog
+   *  closes without it (Cancel, Close, Escape), so a caller waiting on the model can stop waiting. */
   function open(modelId, opts = {}) {
     const m = R.byId(modelId);
     if (!m) return null;
     close();
     onDone = opts.onInstalled || null;
+    onGone = opts.onClose || null;
     const remote = R.remoteFiles(m), bytes = R.downloadBytes(m);
     const hosts = [...new Set(remote.map((f) => hostOf(f.url)))].join(', ');
     const status = el('p', { class: 'ai-err', role: 'status' });
@@ -53,7 +55,9 @@
   function close() {
     doc.removeEventListener('keydown', onKey, true);
     if (host) host.remove();
-    host = null; onDone = null;
+    const gone = onGone;
+    host = null; onDone = null; onGone = null;
+    if (gone) gone();
   }
 
   /** Downloads and stores the model. Any failure stores nothing and leaves the dialog open with the reason. */
@@ -67,6 +71,7 @@
       return;
     }
     const cb = onDone;
+    onGone = null;   // installed: not a cancel
     close();
     if (cb) cb(m.id);
   }

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Reel Remix: the look (header and options at 1440, 1024 and 390 wide)</title>
+<style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
+<body>
+  <!-- Covers: remix/css/remix.css, remix/js/ui.js -->
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  /** The app in a fresh iframe of this width, once the bin and the shell's buttons are in. */
+  async function open(width) {
+    const f = document.createElement('iframe');
+    f.style.width = width + 'px';
+    f.src = '../../remix/index.html';
+    document.body.append(f);
+    await waitFor(() => { const D = f.contentDocument; return D && D.querySelector('#rm-bin li') && D.querySelector('.rm-top .sh-switch') && D.querySelector('.rm-top .stour-btn'); }, { timeout: 40000 });
+    await sleep(400);   // shared/ui/hbtn.js settles the labels on the next frame
+    return f;
+  }
+  const visible = (D, sel) => [...D.querySelectorAll(sel)].filter((n) => n.getBoundingClientRect().width > 0);
+
+  describe('Reel Remix: the look', () => {
+    for (const w of [1440, 1024, 390]) {
+      it(`at ${w}px the shared buttons match Config, and the header and options stay inside`, async () => {
+        const f = await open(w), D = f.contentDocument, W = f.contentWindow;
+        expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(w);
+        const own = D.getElementById('rm-config').getBoundingClientRect();
+        const cfg = W.getComputedStyle(D.getElementById('rm-config'));
+        for (const n of visible(D, '.rm-top .slop-hbtn')) {
+          const r = n.getBoundingClientRect(), c = W.getComputedStyle(n);
+          expect(r.right).toBeLessThanOrEqual(w + 0.5);
+          if (w > 560) expect(r.height).toBe(own.height);
+          expect(c.borderTopLeftRadius).toBe(cfg.borderTopLeftRadius);
+          expect(c.borderTopColor).toBe(cfg.borderTopColor);
+        }
+        const side = D.querySelector('.rm-side').getBoundingClientRect();
+        for (const n of visible(D, '.rm-side .rm-f select, .rm-side .rm-f input')) expect(n.getBoundingClientRect().right).toBeLessThanOrEqual(side.right + 0.5);
+        f.remove();
+      }, { timeout: 60000 });
+    }
+
+    it('the empty bin does not repeat the drop zone above it', async () => {
+      const f = await open(1440), D = f.contentDocument;
+      expect(D.querySelector('#rm-bin .rm-empty').textContent).toBe('No clips or photos yet.');
+      f.remove();
+    }, { timeout: 60000 });
+  });
+  SlopTest.run({ name: 'Reel Remix: the look' });
+  </script>
+</body>
+</html>

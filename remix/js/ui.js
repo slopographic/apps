@@ -34,7 +34,7 @@
       li.append(name, rm);
       return li;
     }));
-    if (!st.items.length) ul.append(Object.assign(document.createElement('li'), { className: 'rm-empty', textContent: 'Drop clips and photos here, or use Add files.' }));
+    if (!st.items.length) ul.append(Object.assign(document.createElement('li'), { className: 'rm-empty', textContent: 'No clips or photos yet.' }));
   }
   /** One cut in the cut list: its items (each a drop target for a clip) and its fill. */
   function cutItem(beat, i, st) {

@@ -94,6 +94,8 @@ button:disabled { cursor: default; opacity: .4; }
 .fname input { width: 180px; height: 30px; padding: 0 10px; border-radius: var(--radius-s); border: 1px solid var(--line-2); background: var(--input); color: var(--fg); font: 500 12px var(--mono); }
 .fname input:focus { outline: none; border-color: var(--accent-line); }
 #btnMore { display: none; }
+/* The shared header buttons (Drive, Tour, View, Theme, Apps: shared/ui/hbtn.css) wear the look of .tb. */
+.topbar { --slop-hbtn-h: 30px; --slop-hbtn-radius: var(--radius-s); --slop-hbtn-bg: transparent; --slop-hbtn-line: transparent; --slop-hbtn-hover: var(--hover); --slop-hbtn-fs: 12px; }
 
 /* buttons and inputs */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 30px; padding: 0 12px; border-radius: var(--radius-s); border: 1px solid var(--line-2); background: var(--panel-2); color: var(--fg); font-weight: 500; white-space: nowrap; }

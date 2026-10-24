@@ -10,7 +10,7 @@ import { inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const FILES = ['shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
+const FILES = ['shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
   'shared/docs/model.js', 'shared/docs/pdf-layouts.js', 'shared/docs/doc-view.js', 'shared/docs/pdf-render.js'];
 
 async function load() {

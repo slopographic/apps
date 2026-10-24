@@ -16,7 +16,7 @@ const text = (buf) => new TextDecoder('utf-8').decode(buf);
 async function load(model, files) {
   if (loaded.has(model)) return { ok: true, model, cached: true };
   if (model === 'whisper-tiny') {
-    const [encoder, decoder] = await Promise.all([SlopAIOrt.session(files['encoder_model_quantized.onnx']), SlopAIOrt.session(files['decoder_model_quantized.onnx'])]);
+    const [encoder, decoder] = await Promise.all([SlopAIOrt.session(files['encoder_model_quantized.onnx']), SlopAIOrt.session(files['decoder_model_merged_quantized.onnx'] || files['decoder_model_quantized.onnx'])]);
     const vj = JSON.parse(text(files['vocab.json'])), vocab = [];
     for (const [tok, id] of Object.entries(vj)) vocab[id] = tok;
     loaded.set(model, { encoder, decoder, vocab, added: JSON.parse(text(files['added_tokens.json'])) });

@@ -47,14 +47,8 @@
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
-        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
-      </a>
-      <div class="appname"><b>Slop CRM</b><a class="home-link" href="../">slopographic</a></div>
-      <span class="local-badge" title="Your customers stay in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
-    </header>
+    <header id="menubar"></header>
+    <div class="smb-hold" hidden><span class="local-badge" title="Your customers stay in this browser. Nothing is uploaded."><span>100% local</span></span></div>
 
     <nav class="tabs" role="tablist" aria-label="CRM sections">
       <button type="button" role="tab" class="tab" id="tab-customers" data-view="customers" aria-controls="view-customers" aria-selected="true">Customers</button>
@@ -122,7 +116,7 @@
 
   <script src="../shared/data/money.js"></script>
   <script src="../shared/data/barcode.js"></script>
-  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema-checks.js"></script><script src="../shared/data/schema-defs.js"></script>
   <script src="../shared/data/schema.js"></script>
   <script src="../shared/data/currency.js"></script>
   <script src="../shared/data/store.js"></script>
@@ -179,5 +173,7 @@
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="crm"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
+<script>SlopMenuBar.mount({"app": "CRM", "menus": {"File": ["cmd:customers.new", "cmd:customers.import", "-", "cmd:labels.tags", "cmd:labels.groups"], "View": ["cmd:view.customers", "cmd:view.pipeline", "cmd:view.followups"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"});</script>
 </body>
 </html>

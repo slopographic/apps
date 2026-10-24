@@ -16,7 +16,7 @@
   .sloppo, .sloppo canvas { width: 40px; height: 40px; }
   .chip .bar { display: none; }
   .tb-group { gap: 2px; }
-  #btnTheme { display: none; }
+  #tab-sys, .topbar .sdl { display: none; } /* Can my PC run it? stays in the model chip's menu; Slop Drive in Apps */
   .only-mobile { display: inline-flex; }
   .chat-view { grid-template-columns: minmax(0, 1fr); }
   .convs { position: fixed; z-index: 400; top: var(--top-h); bottom: 0; left: 0; width: min(300px, 86vw); transform: translateX(-102%); transition: transform .2s; box-shadow: var(--shadow); }

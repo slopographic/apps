@@ -33,7 +33,10 @@
 </head>
 <body>
   <header class="up-top">
-    <div class="up-brand"><span class="up-logo" aria-hidden="true"></span><h1>Slop Upscale</h1><span class="up-tag-line">Bigger pictures and short videos. Nothing uploaded.</span></div>
+    <div class="up-brand">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"></a>
+      <h1>Slop Upscale</h1><span class="up-tag-line">Bigger pictures and short videos. Nothing uploaded.</span>
+    </div>
     <div class="up-tools" role="toolbar" aria-label="Picture">
       <button type="button" class="sui-btn" id="up-open">Open…</button>
       <button type="button" class="sui-btn" id="up-drive">From Slop Drive…</button>
@@ -47,13 +50,10 @@
   <div class="up-status-line" id="up-info" aria-live="polite"></div>
   <main class="up-main">
     <section class="up-left" id="up-stage-wrap" aria-label="Picture">
-      <div id="up-drop" class="up-dropzone"></div>
       <section class="up-empty" id="up-empty" aria-label="Open a picture or video">
         <div class="up-drop-card">
-          <h2>Drop a picture or a short video here</h2>
-          <p>JPEG, PNG, WebP and AVIF pictures, and MP4, WebM or MOV video up to 15 seconds. Everything runs in this browser. Nothing is uploaded.</p>
+          <div id="up-drop" class="up-dropzone"></div>
           <p class="up-fine">Choose 2× or 4×. Fast is bundled. Quality (Real-ESRGAN) is an optional 67 MB download from Get more. Without a model, Lanczos resampling is used and the page says so.</p>
-          <button type="button" class="sui-btn sui-primary" id="up-open-empty">Open…</button>
         </div>
       </section>
       <div class="up-stage" id="up-stage" hidden></div>

@@ -37,7 +37,9 @@ body { min-height: 100vh; }
 .appname b { font-size: 16px; margin-right: 8px; }
 .home-link { color: var(--mute); font-size: 13px; }
 .local-badge { font-size: 12px; color: var(--mute); border: 1px solid var(--line); border-radius: 99px; padding: 2px 8px; }
-.layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: calc(100vh - 56px); }
+/* The app fills the window under the menu bar (the body is a column: shared/menubar/menubar.css). */
+.app { flex: 1 0 auto; display: flex; flex-direction: column; }
+.layout { flex: 1 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); }
 .side { border-right: 1px solid var(--line); padding: 12px; background: var(--panel); }
 .side-list { list-style: none; padding: 0; margin: 0 0 10px; }
 .side-btn { width: 100%; display: flex; justify-content: space-between; gap: 8px; background: none; border: none; color: var(--ink); padding: 7px 8px; border-radius: 8px; cursor: pointer; font: inherit; text-align: left; overflow-wrap: anywhere; }
@@ -52,6 +54,8 @@ body { min-height: 100vh; }
 .search input, .add input, .task-form input, .task-form select, .task-form textarea, .sub-list input { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; font: inherit; max-width: 100%; }
 .add { display: flex; gap: 8px; margin: 14px 0 6px; flex-wrap: wrap; }
 .add input { flex: 1 1 220px; }
+/* The buttons and fields of the list's head are as tall as the shared header buttons (shared/ui/hbtn.css, 32 px). */
+.head .btn, .add .btn, .search input, .add input { height: 32px; padding-top: 0; padding-bottom: 0; font-size: 14px; }
 .t-list { list-style: none; padding: 0; margin: 0; }
 .t-row { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); margin-bottom: 6px; }
 .t-row.is-sub { margin-left: 28px; background: var(--panel-2); }
@@ -74,13 +78,18 @@ body { min-height: 100vh; }
 .sub-row.is-done span { text-decoration: line-through; color: var(--mute); }
 .inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 @media (max-width: 640px) {
-  .layout { grid-template-columns: minmax(0, 1fr); }
+  .layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
   .side { border-right: none; border-bottom: 1px solid var(--line); padding: 8px 10px; }
   .side-list { display: flex; flex-wrap: wrap; gap: 6px; }
   .side-list li { list-style: none; }
   .side-btn { width: auto; }
   .side-h { display: none; }
   .main { padding: 12px 10px 30px; }
+  .head-tools { flex: 1 1 100%; flex-wrap: nowrap; }
+  .head-tools .search { flex: 1 1 0; min-width: 0; }
+  .search input { width: 100%; }
+  .add { flex-wrap: nowrap; }
+  .add input { flex: 1 1 0; min-width: 0; }
   .t-row.is-sub { margin-left: 14px; }
   .task-form { width: min(92vw, 420px); }
 }

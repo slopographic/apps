@@ -1,14 +1,13 @@
 // Record definitions: enums, the default chart, settings and sequences, field specs and the collection
-// table (DEFS). Pure data plus the small check helpers the table names. schema.js validates against it.
-// Load order: money.js, barcode.js, schema-defs.js, schema.js. Exposes window.SlopData.schemaDefs.
+// table (DEFS). Pure data; the checks the table names are in schema-checks.js. schema.js validates against it.
+// Load order: money.js, barcode.js, schema-checks.js, schema-defs.js, schema.js. Exposes window.SlopData.schemaDefs.
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
-  const isObj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
 
   const ENUM = {
     stage: ['lead', 'contacted', 'customer', 'lost'],
-    invoiceStatus: ['draft', 'issued', 'paid', 'void'],
+    invoiceStatus: ['draft', 'issued', 'paid', 'void', 'credited'],   // credited: credit notes cover the whole total
     orderStatus: ['draft', 'open', 'fulfilled', 'cancelled'],   // open = confirmed
     quoteStatus: ['draft', 'sent', 'accepted', 'declined'],
     purchaseStatus: ['draft', 'ordered', 'received', 'cancelled'],
@@ -33,8 +32,8 @@
   ];
   // defaultCurrency is the ledger's base currency. locale is refined from the browser by currency.js at seed time.
   const DEFAULT_SETTINGS = { id: 'main', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30, ratesUpdateOnOpen: false };
-  const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }, { id: 'quote', prefix: 'QUO-', pad: 4, next: 1 }, { id: 'purchase', prefix: 'PO-', pad: 4, next: 1 }];
-  const INVOICE_NEXT = { draft: ['issued'], issued: ['paid', 'void'], paid: [], void: [] };
+  const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }, { id: 'quote', prefix: 'QUO-', pad: 4, next: 1 }, { id: 'purchase', prefix: 'PO-', pad: 4, next: 1 }, { id: 'credit', prefix: 'CN-', pad: 4, next: 1 }];
+  const INVOICE_NEXT = { draft: ['issued'], issued: ['paid', 'void', 'credited'], paid: ['credited'], void: [], credited: [] };
   const ORDER_NEXT = { draft: ['open', 'cancelled'], open: ['fulfilled', 'cancelled'], fulfilled: [], cancelled: [] };
   // A sent quote can go back to draft to be revised; a declined one can be reopened; an accepted one is final.
   const QUOTE_NEXT = { draft: ['sent', 'accepted', 'declined'], sent: ['draft', 'accepted', 'declined'], accepted: [], declined: ['draft'] };
@@ -78,78 +77,7 @@
   const JLINE = { account: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), debit: F.mny({ def: 0 }), credit: F.mny({ def: 0 }), origDebit: F.mny({}), origCredit: F.mny({}) };
   const COUNT = { productId: F.id({ req: true }), expected: F.int({ req: true }), counted: F.int({ req: true, min: 0 }), diff: F.int({ req: true }) };
 
-  /** Errors for one stock movement: a receipt or return adds stock, a sale removes it, nothing is zero. */
-  function movementError(reason, qty) {
-    if (!Number.isSafeInteger(qty) || qty === 0) return 'quantity must be a non-zero whole number';
-    if ((reason === 'receipt' || reason === 'return') && qty < 0) return `a ${reason} must add stock (positive)`;
-    if (reason === 'sale' && qty > 0) return 'a sale must remove stock (negative)';
-    return null;
-  }
-
-  /** Errors for a journal: each line has exactly one positive side and the base totals agree. */
-  function journalErrors(lines) {
-    if (!Array.isArray(lines)) return [];
-    const out = [];
-    let dr = 0, cr = 0;
-    for (const l of lines) {
-      if (!isObj(l) || !Number.isSafeInteger(l.debit) || !Number.isSafeInteger(l.credit)) continue;
-      if ((l.debit > 0) === (l.credit > 0)) out.push('each line needs a positive debit or a positive credit, not both or neither');
-      dr += l.debit;
-      cr += l.credit;
-    }
-    if (dr !== cr) out.push(`debits (${dr}) and credits (${cr}) do not balance`);
-    return out;
-  }
-
-  /** Errors for the currency fields of a journal entry: amountBase equals the base debits; a foreign entry's original amounts balance too. */
-  function fxErrors(r) {
-    if (!Array.isArray(r.lines)) return [];
-    const sum = (k) => r.lines.reduce((s, l) => s + (isObj(l) && Number.isSafeInteger(l[k]) ? l[k] : 0), 0);
-    const out = [];
-    if (r.amountBase !== undefined && r.amountBase !== sum('debit')) out.push('amountBase must equal the base debits');
-    if (!r.rateId) return out;
-    if (r.amount !== sum('origDebit')) out.push('amount must equal the original debits');
-    if (sum('origDebit') !== sum('origCredit')) out.push('original debits and credits do not balance');
-    return out;
-  }
-
-  const invoiceCheck = (r, o = {}) => {
-    if (r.status === 'draft') return r.number ? ['a draft has no number yet'] : [];
-    const out = [];
-    if (!r.number && !o.deferNumber) out.push('an issued invoice needs a number');
-    if (!r.lines || !r.lines.length) out.push('an issued invoice needs at least one line');
-    return out;
-  };
-  const orderCheck = (r, o = {}) => (!r.number && !o.deferNumber ? ['an order needs a number'] : []);
-  const purchaseCheck = (r, o = {}) => (!r.number && !o.deferNumber ? ['a purchase order needs a number'] : []);
-  const quoteCheck = (r, o = {}) => (!r.number && !o.deferNumber ? ['a quote needs a number'] : []);
-  const countCheck = (r) => {
-    const ids = (r.lines || []).map((l) => l && l.productId);
-    const out = new Set(ids).size === ids.length ? [] : ['each product can be counted once per count'];
-    for (const l of r.lines || []) {
-      if (isObj(l) && Number.isSafeInteger(l.counted) && Number.isSafeInteger(l.expected) && l.diff !== l.counted - l.expected) out.push('diff must equal counted minus expected');
-    }
-    return out;
-  };
-  /** Calendar events: timed ones need start and end (ms); all-day ones need startDay and endDay (inclusive). */
-  const eventCheck = (r) => {
-    if (r.allDay) {
-      if (!r.startDay) return ['an all-day event needs a start day'];
-      if (r.endDay && r.endDay < r.startDay) return ['the end day is before the start day'];
-      return [];
-    }
-    if (r.start === undefined) return ['a timed event needs a start'];
-    if (r.end !== undefined && r.end < r.start) return ['the end is before the start'];
-    return [];
-  };
-  /** Tasks: a due time needs a due date, and a repeating task needs a due date to repeat from. */
-  const taskCheck = (r) => {
-    const out = [];
-    if (r.dueTime && !r.due) out.push('a task with a due time needs a due date');
-    if (r.freq && r.freq !== 'none' && !r.due) out.push('a repeating task needs a due date');
-    return out;
-  };
-  const rateCheck = (r) => (r.base && r.base === r.quote ? ['base and quote must be different currencies'] : []);
+  const { movementError, journalErrors, fxErrors, invoiceCheck, orderCheck, purchaseCheck, quoteCheck, countCheck, eventCheck, taskCheck, rateCheck } = ns.schemaChecks;   // schema-checks.js
 
   const DEFS = {
     settings: { key: 'id', singleton: 'main', fields: {
@@ -193,6 +121,7 @@
       currency: F.cur({}), status: F.en(ENUM.invoiceStatus, { def: 'draft' }), lines: { t: 'lines', min: 0, def: [] }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
       notes: F.text({}), orderId: F.id({}), quoteId: F.id({}), scheduleId: F.id({}), issuedAt: F.ts({}), sample: F.bool({}),
+      credited: F.mny({}), refunded: F.mny({}),   // the credit notes on it, and the part of them paid back (shared/data/credits.js)
       pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     // Quotes (estimates): a priced offer. Nothing is posted; an accepted quote becomes an order or a draft invoice (quotes.js).
     quotes: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'quote', when: () => true }, check: quoteCheck, docCurrency: true,
@@ -215,6 +144,13 @@
       id: F.id({ req: true }), invoiceId: F.id({ req: true }), amount: F.mny({ req: true, min: 1 }), date: F.date({ req: true }),
       currency: F.cur({}), rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
       method: F.en(ENUM.payMethod, { def: 'bank' }), note: F.str({ max: 300 }) } },
+    // Credit notes (shared/data/credits.js): part or all of an issued or paid invoice taken back. Revenue and tax are reversed in
+    // the invoice's proportions; refund is the part already paid that goes back to the customer (by method).
+    creditNotes: { key: 'id', immutable: true, postingOnly: true, unique: ['number'],
+      indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'invoiceId', key: 'invoiceId' }, { name: 'customerId', key: 'customerId' }, { name: 'date', key: 'date' }], fields: {
+      id: F.id({ req: true }), number: F.str({ req: true, max: 40 }), invoiceId: F.id({ req: true }), customerId: F.id({ req: true }), date: F.date({ req: true }),
+      currency: F.cur({}), amount: F.mny({ req: true, min: 1 }), subtotal: F.mny({}), tax: F.mny({}), refund: F.mny({ def: 0 }),
+      method: F.en(ENUM.payMethod, {}), reason: F.str({ max: 300 }), amountBase: F.mny({}) } },
     accounts: { key: 'code', noRemove: 'accounts cannot be deleted', indexes: [{ name: 'type', key: 'type' }], fields: {
       code: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), name: F.str({ req: true }), type: F.en(ENUM.accountType, { req: true }) } },
     journal: { key: 'id', immutable: true, postingOnly: true, unique: ['source'], check: (r) => [...journalErrors(r.lines), ...fxErrors(r)],

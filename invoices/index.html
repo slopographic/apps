@@ -43,6 +43,7 @@
   <link rel="stylesheet" href="../shared/ui/list.css">
   <link rel="stylesheet" href="../shared/docs/lines.css">
   <link rel="stylesheet" href="../shared/biz/sheet.css">
+  <link rel="stylesheet" href="../shared/docs/workspace.css">
   <link rel="stylesheet" href="css/invoices.css">
   <link rel="stylesheet" href="css/workspace.css">
   <script src="../shared/guard.js" defer></script>
@@ -51,14 +52,17 @@
 <body>
   <div class="app">
     <div class="smb-hold" hidden>
+      <!-- File › Samples (the menu bar runs these; they are not in the toolbar) -->
+      <button type="button" class="btn" id="iSample">Random sample</button>
+      <button type="button" class="btn" id="iSamples">Random samples…</button>
+      <button type="button" class="btn danger" id="iDelSamples">Delete all samples</button>
       <a id="tbAbout" href="about/">About</a>
       <button type="button" class="tb-btn" id="tbCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
       <button type="button" class="btn primary" id="tbNew" title="New invoice">New invoice</button>
       <button type="button" class="btn primary" id="tbSave" title="Save the draft">Save</button>
       <button type="button" class="btn" id="tbPrint" title="Preview and print the invoice">Print</button>
     </div>
-    <div class="tb-doc no-print" aria-live="polite"><b class="tb-num" id="tbNum"></b><span class="chip" id="tbStatus"></span>
-      <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded."><span>100% local</span></span></div>
+    <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded."><span>100% local</span></span>
 
 
     <nav class="tabs no-print" role="tablist" aria-label="Invoice sections">
@@ -66,6 +70,7 @@
       <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Invoice</button>
       <button type="button" role="tab" class="tab" id="tab-print" data-view="print" aria-controls="view-print" aria-selected="false" hidden>Print</button>
       <button type="button" role="tab" class="tab" id="tab-statement" data-view="statement" aria-controls="view-statement" aria-selected="false" hidden>Statement</button>
+      <button type="button" role="tab" class="tab" id="tab-credit" data-view="credit" aria-controls="view-credit" aria-selected="false" hidden>Credit note</button>
       <button type="button" role="tab" class="tab" id="tab-repeat" data-view="repeat" aria-controls="view-repeat" aria-selected="false">Repeating</button>
       <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
     </nav>
@@ -79,13 +84,10 @@
             <input id="iSearch" type="search" placeholder="Search number, customer or notes" autocomplete="off" spellcheck="false"></label>
           <label>Status <select id="iStatus">
             <option value="all">All</option><option value="draft">Draft</option><option value="issued">Issued</option>
-            <option value="overdue">Overdue</option><option value="paid">Paid</option><option value="void">Void</option>
+            <option value="overdue">Overdue</option><option value="paid">Paid</option><option value="credited">Credited</option><option value="void">Void</option>
           </select></label>
           <button type="button" class="btn primary" id="iNew">New invoice</button>
           <button type="button" class="btn" id="iFromOrder">From an order…</button>
-          <button type="button" class="btn" id="iSample">Random sample</button>
-          <button type="button" class="btn" id="iSamples">Random samples…</button>
-          <button type="button" class="btn danger" id="iDelSamples">Delete all samples</button>
         </div>
         <p class="card notice" id="iDue" role="status" hidden><span></span> <button type="button" class="btn small primary" id="iDueMake">Make the drafts</button></p>
         <h2 class="h2">Owed by customer</h2>
@@ -130,7 +132,7 @@
         <p class="note" id="eBalance"></p>
         <p class="note" id="eOrder"></p>
         <h2 class="h2">Payments</h2>
-        <div id="ePayments"></div>
+        <div id="ePayments"></div><h2 class="h2" id="eCreditsHead" hidden>Credit notes</h2><ul class="report" id="eCredits"></ul>
         <div class="toolbar actions" id="eActions"></div>
         </aside>
       </section>
@@ -146,10 +148,6 @@
 
       <section class="view" id="view-statement" role="tabpanel" aria-labelledby="tab-statement" hidden>
         <div class="toolbar no-print">
-          <button type="button" class="btn small" id="stBack">← Invoices</button>
-          <h2 class="h2" id="stTitle">Statement</h2>
-        </div>
-        <div class="toolbar no-print">
           <label>From (optional) <input id="stFrom" type="date"></label>
           <label>Currency <select id="stCurrency"></select></label>
           <button type="button" class="btn primary" id="stPrint">Print…</button>
@@ -157,6 +155,10 @@
           <button type="button" class="btn" id="stRemind">Reminder…</button>
         </div>
         <div id="stSheet"></div>
+      </section>
+      <section class="view" id="view-credit" role="tabpanel" aria-labelledby="tab-credit" hidden>
+        <div class="toolbar no-print"><button type="button" class="btn primary" id="cnPrint">Print…</button><a class="btn" id="cnInvoice" href="#list">Open the invoice</a></div>
+        <div id="cnSheet"></div>
       </section>
 
       <section class="view" id="view-repeat" role="tabpanel" aria-labelledby="tab-repeat" hidden>
@@ -180,7 +182,7 @@
 
   <script src="../shared/data/money.js"></script>
   <script src="../shared/data/barcode.js"></script>
-  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema-checks.js"></script><script src="../shared/data/schema-defs.js"></script>
   <script src="../shared/data/schema.js"></script>
   <script src="../shared/data/currency.js"></script>
   <script src="../shared/data/store.js"></script>
@@ -192,7 +194,7 @@
   <script src="../shared/data/fx.js"></script>
   <script src="../shared/data/ledger.js"></script>
   <script src="../shared/data/stock.js"></script>
-  <script src="../shared/data/billing.js"></script>
+  <script src="../shared/data/billing.js"></script><script src="../shared/data/credits.js"></script>
   <script src="../shared/data/recurring.js"></script>
   <script src="../shared/data/statement.js"></script>
   <script src="../shared/data/bundle-check.js"></script>
@@ -222,7 +224,7 @@
   <script src="../vendor/pdf-lib/pdf-lib.min.js"></script>
   <script src="../shared/biz/biz.js"></script>
   <script src="../shared/biz/backup.js"></script>
-  <script src="../shared/biz/router.js"></script>
+  <script src="../shared/biz/router.js"></script><script src="../shared/biz/docbar.js"></script>
   <script src="js/core/util.js"></script>
   <script src="js/core/invoices.js"></script>
   <script src="js/core/context.js"></script>
@@ -232,11 +234,11 @@
   <script src="../shared/ui/tabs.js"></script>
   <script src="js/ui/list.js"></script>
   <script src="js/ui/samples.js"></script>
-  <script src="js/ui/payment-dialog.js"></script>
+  <script src="js/ui/payment-dialog.js"></script><script src="js/ui/credit-dialog.js"></script>
   <script src="js/ui/repeat-dialog.js"></script>
   <script src="js/ui/repeat.js"></script>
   <script src="../shared/biz/sheet.js"></script>
-  <script src="js/ui/statement.js"></script>
+  <script src="js/ui/statement.js"></script><script src="js/ui/credit-note.js"></script>
   <script src="js/ui/reminder.js"></script>
   <script src="js/ui/editor.js"></script>
   <script src="js/ui/page.js"></script>
@@ -251,7 +253,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Invoices", "tools": ["#tbNew", "#tbSave", "#tbPrint"], "menus": {"File": ["#tbNew", "#tbSave", "#tbPrint"], "Help": ["#tbAbout", "#tbCmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Invoices", "tools": ["#tbNew"], "menus": {"File": ["#tbNew", "#iFromOrder", "-", "#tbSave", "#tbPrint", "-", {"label": "Samples", "sub": ["#iSample", "#iSamples", "-", "#iDelSamples"]}], "Help": ["#tbAbout", "#tbCmd"]}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="invoices"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

@@ -80,6 +80,8 @@
       expect(f.el.style.getPropertyValue('--sflow-p')).toBe('1');
       f.state('done');
       expect(getComputedStyle(tiles(f)[1].querySelector('.sflow-mark')).display).toBe('grid');
+      expect(getComputedStyle(tiles(f)[0].querySelector('.sflow-mark')).display).toBe('none');   // the tick is on the target only
+      expect(getComputedStyle(tiles(f)[0].querySelector('.sflow-more')).display).toBe('none');   // no "+0" for one kind
       f.state('error');
       expect(getComputedStyle(tiles(f)[1].querySelector('.sflow-mark')).display).toBe('grid');
       f.state('idle');

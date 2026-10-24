@@ -11,11 +11,14 @@ body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 
 .sv-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 16px; border-bottom: 1px solid var(--sl-border); background: var(--sl-surface); }
 .sv-brand { display: flex; align-items: center; gap: 8px; }
 .sv-brand h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: .01em; }
-.sv-logo { width: 14px; height: 14px; border-radius: 3px; background: var(--sl-accent); }
+.sv-brand .brand { display: grid; place-items: center; width: 28px; height: 28px; flex: none; color: var(--sl-text); }
+.sv-brand .brand-mark { width: 20px; height: 20px; fill: currentColor; }
 .sv-name { flex: 1 1 140px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; opacity: .8; }
 .sv-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .sv-pick { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
-.sv-pick select { font: inherit; color: var(--sl-text); background: var(--sl-background); border: 1px solid var(--sl-border); border-radius: 6px; padding: 5px 6px; }
+.sv-pick select { font: inherit; color: var(--sl-text); background: var(--sl-background); border: 1px solid var(--sl-border); border-radius: 6px; padding: 0 6px; }
+/* one height for the header's buttons and pickers */
+.sv-top .sv-btn, .sv-pick select { box-sizing: border-box; height: 32px; padding-top: 0; padding-bottom: 0; }
 
 .sv-btn { font: inherit; font-size: 13px; color: var(--sl-text); background: var(--sl-surface); border: 1px solid var(--sl-border); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
 .sv-btn:hover:not(:disabled) { border-color: var(--sl-accent); }
@@ -66,9 +69,9 @@ body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 
 /* Phones: a 16px gutter, no sideways page scroll (the grid and the tabs scroll inside their boxes). */
 @media (max-width: 600px) {
   .sv-top { padding: 10px 16px; }
-  .sv-tools { width: 100%; }
-  .sv-tools .sv-btn { flex: 1 1 auto; }
-  .sv-pick { flex: 1 1 140px; }
-  .sv-pick select { flex: 1 1 auto; min-width: 0; }
+  .sv-brand { flex: 1 1 auto; }
+  /* the tools take one row that scrolls sideways, instead of four wrapped rows */
+  .sv-tools { width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px; }
+  .sv-tools > * { flex: none; white-space: nowrap; }
   .sv-bar { padding: 6px 16px; }
 }

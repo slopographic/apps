@@ -1,56 +1,8 @@
-/* Slop Invoices: the workspace. A top bar (the app, the open document's number and status, the primary actions on the right).
- * While an invoice is open, on screens 721 px and wider: the invoice list on the left (#view-list, placed by shared/layouts),
- * the page sheet in the centre (.ws-stage) and the invoice details on the right (.ws-panel). The panels scroll inside the
- * window; the page does not. Below 721 px the tabs apply, one view at a time, and the details stack under the sheet. */
+/* Slop Invoices: what is its own in the workspace. The panes are shared/docs/workspace.css; the record bar over an open
+ * invoice is shared/biz/docbar.js. */
 
-/* Top bar: brand, app name, the document, and the actions on the right */
-.tabs { flex: none; }
-.brand { display: inline-flex; color: var(--accent); }
-.brand-mark { width: 26px; height: 26px; fill: currentColor; }
-.brand-mark .shine { fill: none; stroke: var(--bg); stroke-width: 2; stroke-linecap: round; }
-.appname { display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
-.appname b { font-size: 15px; font-weight: 650; }
-.appname-links { font-size: 11px; color: var(--mute); white-space: nowrap; }
-.home-link { color: var(--mute); font-size: 11px; text-decoration: none; }
-.home-link:hover { color: var(--ink); }
-.tb-doc { display: none; align-items: center; gap: 8px; min-width: 0; margin-left: 12px; padding-left: 12px; border-left: 1px solid var(--line); }
-.tb-num { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.local-badge { margin-left: auto; font-size: 12px; color: var(--mute); white-space: nowrap; }
-.tb-actions { display: flex; align-items: center; gap: 8px; margin-left: 4px; flex-wrap: wrap; }
-.smb-tools > #tbNew, .smb-tools > #tbSave, .smb-tools > #tbPrint { display: none; }
-body:has(.app[data-view="list"]) #tbNew { display: inline-flex; }
+/* The record bar (shared/biz/docbar.js): Save for a draft, Print for an open invoice or its print view. New invoice is in
+ * the menu bar on every view. */
+.biz-doc-actions > #tbSave, .biz-doc-actions > #tbPrint { display: none; }
 body:has(.app[data-view="edit"]) #tbPrint, body:has(.app[data-view="print"]) #tbPrint { display: inline-flex; }
 body:has(.app[data-view="edit"][data-doc-status="draft"]) #tbSave { display: inline-flex; }
-
-/* The workspace while an invoice is open (set by the layout module on #main) */
-.ws-stage { min-width: 0; min-height: 0; }
-.ws-panel { min-width: 0; min-height: 0; }
-
-@media (max-width: 720px) {
-  .ws-stage { padding-top: 2px; }
-}
-
-@media (min-width: 721px) {
-  .tb-doc { display: none; }
-  .app[data-view="edit"] .tb-doc, .app[data-view="print"] .tb-doc { display: inline-flex; }
-  .app[data-view="edit"] { height: 100vh; }
-  .app[data-view="edit"] > .main { flex: 1 1 auto; min-height: 0; overflow: hidden; padding: 0; max-width: none; }
-  .app[data-view="edit"] .head-row, .app[data-view="edit"] #eModes { display: none; }
-  #main[data-slop-layout] > #view-list { overflow: auto; min-height: 0; padding: 14px; background: var(--panel); border-right: 1px solid var(--line); }
-  #main[data-slop-layout] > #view-edit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 320px); min-height: 0; overflow: hidden; background: var(--bg); }
-  /* Both the sheet and the details show at once here: the Page / Form switch is for phones, so it does not hide them */
-  .ws-stage #ePage[hidden], .ws-panel [data-form-only][hidden] { display: block !important; }
-  .ws-stage { overflow: auto; padding: 18px 16px 40px; background-color: var(--bg); background-image: radial-gradient(var(--dots) 1px, transparent 1.2px); background-size: 18px 18px; }
-  .ws-stage .msg { margin: 0 0 6px; }
-  .ws-panel { overflow: auto; padding: 14px; background: var(--panel); border-left: 1px solid var(--line); }
-  .ws-panel .card { background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 12px; margin: 0 0 12px; }
-  .ws-panel .line-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .ws-panel .line-grid .full { grid-column: 1 / -1; }
-  .ws-panel .totals { background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 10px; }
-  .ws-panel .h2 { margin-top: 14px; }
-}
-
-@media (max-width: 420px) {
-  .tb-actions { margin-left: auto; }
-  .tb-btn { padding: 0 8px; }
-}

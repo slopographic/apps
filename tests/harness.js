@@ -54,6 +54,7 @@
   async function waitFor(pred, { timeout = 10000, step = 30 } = {}) { const t0 = performance.now(); for (;;) { const v = await pred(); if (v) return v; if (performance.now() - t0 > timeout * SCALE) throw new AssertionError('waitFor timed out'); await sleep(step); } }
 
   async function run({ name = document.title } = {}) {
+    window.__SLOPTEST_STARTED__ = true;   // tests/run.mjs: a page that errors before this point is reported, not waited on
     const results = [];
     const errors = [];
     addEventListener('error', (e) => errors.push(String(e.message)));

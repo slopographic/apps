@@ -56,11 +56,15 @@ svg { display: block; }
 .logo svg path { fill: var(--accent); }
 .logo svg .shine { fill: none; stroke: var(--accent-ink); stroke-width: 1.6; stroke-linecap: round; opacity: .6; }
 .logo-word { font: 800 14px/1 "Archivo", var(--ui); letter-spacing: -.01em; font-stretch: 85%; }
-.menubar { display: flex; gap: 1px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+/* The menu keeps its width so a full bar shows as overflow and the shared buttons go icon-only (shared/ui/hbtn.js);
+   on a phone it scrolls instead (extras.css). */
+.menubar { display: flex; gap: 1px; flex: none; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .menubar::-webkit-scrollbar { display: none; }
 .mb-item { background: none; border: 0; padding: 5px 9px; border-radius: var(--radius); white-space: nowrap; }
 .mb-item:hover, .mb-item.open { background: var(--hover); }
 .doc-title { flex: 1; min-width: 0; text-align: center; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 8px; }
+/* Under 1180 px the title would show as a cut-off stub; the document tab below still names the file. */
+@media (max-width: 1180px) { .doc-title { visibility: hidden; } }
 .top-actions { display: flex; gap: 6px; flex: none; }
 /* The shared header buttons (Drive, Tour, View, Theme, Apps: shared/ui/hbtn.css) wear the look of .top-btn. */
 .topbar { --slop-hbtn-h: 26px; --slop-hbtn-bg: var(--panel-2); --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); --slop-hbtn-radius: var(--radius); --slop-hbtn-fs: 12px; }

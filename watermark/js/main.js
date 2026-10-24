@@ -86,7 +86,7 @@
 
   function boot() {
     bar = window.SlopAppBar.mount($('wm-bar'), {
-      title: 'Slop Watermark', subtitle: 'Watermark many pictures with your logo or text. Nothing is uploaded.', icon: 'watermark', actions: [], menu: [],
+      home: '../', title: 'Slop Watermark', subtitle: 'Watermark many pictures with your logo or text. Nothing is uploaded.', actions: [], menu: [],
     });
     window.WMSettings.init({ onChange: changed });
     window.WMList.wire((id) => { window.WMItems.remove(id); window.WMList.render(); window.WMPreview.schedule(); syncBar(); });

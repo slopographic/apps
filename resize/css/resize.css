@@ -25,26 +25,30 @@ body { background: var(--rs-bg); color: var(--rs-fg); font: 14px/1.45 system-ui,
 h1, h2, p, ol { margin: 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* header */
-.rs-top { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--rs-line); background: var(--rs-panel); position: sticky; top: 0; z-index: 5; }
-.rs-brand { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; min-width: 0; }
-.rs-brand h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
-.rs-logo { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--rs-accent); align-self: center; }
-.rs-tag { color: var(--rs-dim); font-size: 13px; }
-.rs-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+/* header: home link (the app icon, brand/brand.js), name, tagline, the queue tools, then the shell's buttons on one row.
+   The shared header buttons (shared/ui/hbtn.css) wear the look of the tools. */
+.rs-top { display: flex; align-items: center; gap: 8px 12px; padding: 10px 16px; border-bottom: 1px solid var(--rs-line); background: var(--rs-panel); position: sticky; top: 0; z-index: 5; min-width: 0;
+  --slop-hbtn-h: 32px; --slop-hbtn-radius: var(--s-radius, 6px); --slop-hbtn-bg: var(--s-bg2); --slop-hbtn-line: var(--s-line); --slop-hbtn-fs: 14px; }
+.rs-brand { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; min-width: 0; overflow: clip; overflow-clip-margin: 6px; }
+.rs-brand .brand { display: grid; place-items: center; width: 32px; height: 32px; flex: none; color: var(--rs-accent); text-decoration: none; }
+.rs-brand h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.rs-tag { color: var(--rs-dim); font-size: 13px; white-space: nowrap; }
+.rs-tools { display: flex; gap: 6px; flex: none; }
+.rs-top .sui-btn { height: 32px; }
 .rs-stat { padding: 8px 16px; color: var(--rs-dim); font-size: 13px; min-height: 34px; }
 .rs-warning { margin: 0 16px 8px; padding: 10px 12px; border: 1px solid var(--rs-bad); border-radius: var(--rs-radius); color: var(--rs-bad); }
 
 /* layout */
 .rs-main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; padding: 0 16px 24px; align-items: start; }
 .rs-left { min-width: 0; }
-.rs-dropzone { border: 1px dashed var(--rs-line); border-radius: var(--rs-radius); padding: 12px 14px; margin-bottom: 14px; background: var(--rs-panel); }
 
-/* empty state */
+/* empty state: one card around the drop zone (shared/drop draws its message, hint, Choose files and progress) */
 .rs-empty { display: grid; place-items: center; min-height: 52vh; }
 .rs-drop-card { max-width: 520px; text-align: center; padding: 28px; border: 1px dashed var(--rs-line); border-radius: var(--rs-radius); background: var(--rs-panel); display: grid; gap: 12px; justify-items: center; }
-.rs-drop-card h2 { font-size: 20px; }
-.rs-drop-card p { color: var(--rs-dim); }
+.rs-dropzone { width: 100%; }
+.rs-dropzone .sd-zone { gap: 12px; }
+.rs-dropzone .sd-msg { font-size: 20px; font-weight: 700; color: var(--rs-fg); }
+.rs-dropzone .sd-zone > p:not(.sd-msg) { font-size: 14px; color: var(--rs-dim); }
 .rs-fine { color: var(--rs-faint); font-size: 12px; }
 
 /* queue */
@@ -86,14 +90,18 @@ h1, h2, p, ol { margin: 0; }
 .rs-colour { gap: 4px; }
 
 /* small screens: the controls stack under the list */
+@media (max-width: 1500px) { .rs-tag { display: none; } }
+/* below the width the tools need, they get a row of their own under the name */
+@media (max-width: 1100px) {
+  .rs-top { flex-wrap: wrap; }
+  .rs-tools { order: 9; flex: 1 1 100%; flex-wrap: wrap; }
+}
 @media (max-width: 860px) {
   .rs-main { grid-template-columns: minmax(0, 1fr); padding: 0 16px 24px; }
   .rs-panel { position: static; max-height: none; overflow: visible; }
+  .rs-empty { min-height: 0; }
 }
 @media (max-width: 520px) {
-  .rs-top { padding: 10px 16px; }
-  .rs-tag { display: none; }
-  .rs-tools { width: 100%; }
   .rs-tools .sui-btn { flex: 1 1 auto; }
   .rs-row { grid-template-columns: 48px minmax(0, 1fr); }
   .rs-thumb { width: 48px; height: 48px; }

@@ -9,6 +9,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 ```html
 <script src="…/shared/data/money.js"></script>
 <script src="…/shared/data/barcode.js"></script>
+<script src="…/shared/data/schema-checks.js"></script><script src="…/shared/data/schema-checks.js"></script>
 <script src="…/shared/data/schema-defs.js"></script>
 <script src="…/shared/data/schema.js"></script>
 <script src="…/shared/data/currency.js"></script>
@@ -18,6 +19,7 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 <script src="…/shared/data/ledger.js"></script>
 <script src="…/shared/data/stock.js"></script>
 <script src="…/shared/data/billing.js"></script>
+<script src="…/shared/data/credits.js"></script>   <!-- credit notes: credit an invoice, refund what was paid -->
 <script src="…/shared/data/expenses.js"></script>  <!-- money going out: record and void, posted to the journal -->
 <script src="…/shared/data/quotes.js"></script>    <!-- quotes: to an order or a draft invoice -->
 <script src="…/shared/data/timesheets.js"></script> <!-- time worked: billed onto a draft invoice -->
@@ -34,8 +36,20 @@ IndexedDB `slop-data`, one object store per collection. Nothing else may define 
 
 Everything hangs off `window.SlopData`: `money`, `barcode`, `schema`, `schemaDefs`, `result`, `locale`, `store`,
 `numbering`, `fx`, `ledger`, `stock`, `billing`, `expenses`, `quotes`, `timesheets`, `recurring`, `purchases`, `statement`, `bundleCheck`, `exporter`, `rates`. The Node tests load the same
-files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 5 (see storage/INVENTORY.md for
+files in a vm context (`tests/node/data-env.mjs`, `tests/node/fx-env.mjs`). The database version is 10 (see storage/INVENTORY.md for
 what each version added), and upgrades only create the missing stores.
+
+## Credit notes
+
+`SlopData.credits.issue({ invoiceId, amount, date, reason, method })` credits part or all of an issued or paid invoice (at most
+its total less earlier credit notes), as credit note CN-0001 and on, in one transaction: revenue (4000) and tax (2100) are
+debited in the invoice's proportions (`split`), AR (1200) is credited with the part that comes off what is owed, and cash or
+the bank with the part paid back (`refund`, when the customer had already paid more than is now owed; `method` is then
+required). The invoice keeps `credited` and `refunded`; `billing.balanceDue` counts them, so payments, lists, the statement
+and reports agree. Once credit notes cover the whole total the invoice is `credited`; an issued invoice with nothing left
+owed becomes `paid`. A credited invoice cannot be voided. Credit notes are immutable and posting-only; a foreign-currency
+invoice is credited at its own rate. `forInvoice(id)` lists them; `split`, `creditable`, `effect` and `statusAfter` are pure.
+The statement (`statement.build(..., { credits })`) shows each credit note and its refund as lines.
 
 ## Expenses
 
@@ -255,7 +269,6 @@ Rules enforced by `schema.js` and `store.js`:
 
 ## Not built yet (decide before the apps need it)
 
-- Refunds and credit notes: a paid or part-paid invoice cannot be voided, and payments cannot be removed. A refund record is needed.
 - Fractional quantities (quantities are whole numbers), and a line in a different currency from its document.
 - Realised and unrealised exchange gains or losses (payments on foreign invoices convert at the issue rate, so no gain
   or loss arises yet). Cross-rates through a third currency: GBP to USD needs its own row, or the inverse of one. A

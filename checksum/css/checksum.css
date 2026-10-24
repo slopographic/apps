@@ -1,7 +1,11 @@
 /* Checksum: a small page. Colours come from the site theme tokens (shared/slopui.css). */
-.ck { max-width: 680px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 16px; color: var(--sl-text, #111); }
-.ck-head h1 { margin: 0 0 6px; font-size: 28px; }
-.ck-head p, .ck-note { margin: 0; color: var(--sl-muted, #555); font-size: 14px; line-height: 1.5; }
+body { margin: 0; background: var(--sl-background, #f4f2ec); color: var(--sl-text, #111); font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+/* header: home link (the app icon, brand/brand.js) and the name; the shell adds Theme, Apps and the bell at the end */
+.ck-top { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--sl-surface, #fff); border-bottom: 1px solid var(--sl-border, #ddd); min-width: 0; }
+.ck-top .brand { display: grid; place-items: center; width: 32px; height: 32px; flex: none; color: var(--sl-accent, #2a6df4); text-decoration: none; }
+.ck-top h1 { flex: 1 1 auto; min-width: 0; margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.ck { max-width: 680px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 16px; }
+.ck-lede, .ck-note { margin: 0; color: var(--sl-muted, #555); font-size: 14px; line-height: 1.5; }
 .ck-card { background: var(--sl-surface, #fff); border: 1px solid var(--sl-border, #ddd); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
 .ck-card h2 { margin: 0; font-size: 16px; }
 .ck-drop { display: grid; place-items: center; min-height: 96px; border: 2px dashed var(--sl-border, #bbb); border-radius: 10px; cursor: pointer; padding: 12px; text-align: center; }
@@ -13,5 +17,6 @@
 .ck-btn { justify-self: start; font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--sl-border, #bbb); background: transparent; color: inherit; cursor: pointer; }
 .ck-btn:disabled { opacity: .5; cursor: default; }
 .ck-status, .ck-verdict { margin: 0; font-size: 14px; min-height: 1.4em; }
+.ck-status:empty { min-height: 0; }
 .ck-verdict.ok { color: #1a7f37; font-weight: 600; }
 .ck-verdict.bad { color: #b42318; font-weight: 600; }

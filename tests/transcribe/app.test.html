@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slop Transcribe: add files, transcribe them (a fake Whisper), correct the text, save it; at 1280 and 390 px</title>
+  <style>body { margin: 0; background: #111; } iframe { border: 0; display: block; }</style>
+</head>
+<body>
+  <iframe id="app" style="width:1280px;height:860px"></iframe>
+  <script src="../harness.js"></script>
+  <script>
+  // Covers: transcribe/index.html, transcribe/js/app.js, transcribe/js/view.js, transcribe/css/transcribe.css, aitools/common.js, aitools/speech/speech.js
+  // The real model is a download the tests do not make: the page's engine is swapped for a fake that answers like Whisper.
+  const { describe, it, expect, waitFor, run, sleep } = SlopTest;
+  let W, D;
+  const $ = (id) => D.getElementById(id);
+  async function boot(width = 1280) {
+    const old = document.getElementById('app'), f = document.createElement('iframe');   // a new frame: never the last page's window
+    f.id = 'app'; f.style.cssText = `width:${width}px;height:860px`;
+    old.replaceWith(f);
+    f.src = '../../transcribe/index.html';
+    await waitFor(() => f.contentWindow && f.contentWindow.SlopTranscribe && f.contentWindow.document.querySelector('.smb-bar'), { timeout: 20000 });
+    W = f.contentWindow; D = W.document;
+    Object.assign(W.SlopTranscribe.engine, {
+      prepare: async () => {},
+      samples: async (file) => new W.Float32Array(Math.round(file.size / 2) * 16),
+      transcribe: async (samples, language, progress) => { progress({ done: 1, total: 2 }); await sleep(300); progress({ done: 2, total: 2 });
+        return { segments: [{ start: 0, end: 2, text: 'Hello from the meeting.' }, { start: 5, end: 7, text: 'Next item is the budget.' }], language: language === 'auto' ? 'en' : language }; },
+    });
+    $('trUi').hidden = false;   // the model gate (Get more…) is not part of this test
+  }
+  const mp3 = (name, kb = 40) => new W.File([new W.Uint8Array(kb * 1000)], name, { type: 'audio/mpeg' });
+
+  describe('Slop Transcribe', () => {
+    it('one header: the menu bar with the app icon, the name and 100% local; the From → To picture shows MP3 → TXT', async () => {
+      await boot();
+      const bar = D.querySelector('header.smb-bar');
+      expect(bar.querySelector('.smb-app').textContent).toBe('Transcribe');
+      expect(!!bar.querySelector('.local-badge')).toBe(true);
+      expect(D.querySelector('#trFlow .sflow').getAttribute('aria-label')).toBe('Audio or video to text');
+    });
+    it('added files are listed; Transcribe reads them and shows the text, the language and the word count', async () => {
+      W.SlopTranscribe.add([mp3('Board call.mp3'), mp3('Voice note.m4a', 20), new W.File(['x'], 'notes.txt', { type: 'text/plain' })]);
+      expect(D.querySelectorAll('#trFiles li').length).toBe(2);
+      expect($('trRun').textContent).toBe('Transcribe 2 files');
+      $('trRun').click();
+      await waitFor(() => /^Transcribing Board call\.mp3 \(1 of 2\): \d+%/.test($('trMsg').textContent));   // the status line follows the file being read
+      await waitFor(() => [...D.querySelectorAll('#trFiles .tr-chip')].every((c) => c.textContent === 'Done'), { timeout: 10000 });
+      expect($('trText').value).toBe('Hello from the meeting.\nNext item is the budget.');
+      expect($('trText').readOnly).toBe(false);
+      expect($('trPaneMeta').textContent).toContain('language en');
+      expect($('trPaneMeta').textContent).toContain('9 words');
+      expect(D.querySelector('#trFlow .sflow').dataset.state).toBe('done');
+    });
+    it('Show times puts the time in front of each line; a correction is kept and can be undone', async () => {
+      $('trTimes').click();
+      expect($('trText').value.split('\n')[1]).toBe('[00:00:05] Next item is the budget.');
+      $('trText').value = 'Hello from the board meeting.';
+      $('trText').dispatchEvent(new W.Event('input', { bubbles: true }));
+      expect($('trEdited').hidden).toBe(false);
+      expect(W.SlopTranscribe.queue.get(W.SlopTranscribe.selected).text).toBe('Hello from the board meeting.');
+      $('trRevert').click();
+      expect($('trEdited').hidden).toBe(true);
+      expect($('trText').value.startsWith('[00:00:00] Hello from the meeting.')).toBe(true);
+      $('trTimes').click();
+    });
+    it('Download gives the chosen format; another file in the list opens its own transcript', async () => {
+      const got = [];
+      W.SlopAITools.download = (name, blob) => got.push({ name, blob });
+      $('trFormat').value = 'srt'; $('trDownload').click();
+      $('trFormat').value = 'docx'; $('trDownload').click();
+      await waitFor(() => got.length === 2);
+      expect(got.map((g) => g.name)).toEqual(['Board call.srt', 'Board call.docx']);
+      expect((await got[0].blob.text()).split('\n')[1]).toBe('00:00:00,000 --> 00:00:02,000');
+      D.querySelectorAll('#trFiles li')[1].click();
+      expect($('trPaneTitle').textContent).toBe('Voice note.m4a');
+    });
+    it('at 390 px the page has no sideways scroll and the list stacks above the transcript', async () => {
+      await boot(390);
+      W.SlopTranscribe.add([mp3('a-very-long-file-name-from-a-phone-recorder-2026-10-24.mp3')]);
+      await sleep(100);
+      expect(D.scrollingElement.scrollWidth <= W.innerWidth + 1).toBe(true);
+      expect(D.querySelector('.tr-pane').getBoundingClientRect().top).toBeGreaterThan(D.querySelector('.tr-list').getBoundingClientRect().top);
+    });
+  });
+  run();
+  </script>
+</body>
+</html>

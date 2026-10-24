@@ -21,14 +21,15 @@
   /** Pure: total of the payments made against an invoice. */
   const paidOn = (payments) => payments.reduce((s, p) => s + p.amount, 0);
 
-  /** Pure: what is still owed on an invoice given its payments. */
-  const balanceDue = (inv, payments) => inv.total - paidOn(payments);
+  /** Pure: what is still owed on an invoice given its payments: the total, less what was paid and what credit notes took off
+   *  it, plus what was paid back (shared/data/credits.js keeps credited and refunded on the invoice). */
+  const balanceDue = (inv, payments) => inv.total - paidOn(payments) - (inv.credited || 0) + (inv.refunded || 0);
 
   /** Pure: the base-currency amount of a payment. The payment that clears the invoice takes the rest of the
    *  base total, so rounding never leaves a residue; earlier payments convert at the invoice's rate. */
   function paymentBase(inv, payments, amount, due) {
     const invBase = inv.amountBase !== undefined ? inv.amountBase : inv.total;
-    if (amount === due) return invBase - payments.reduce((s, p) => s + (p.amountBase !== undefined ? p.amountBase : p.amount), 0);
+    if (amount === due && !inv.credited) return invBase - payments.reduce((s, p) => s + (p.amountBase !== undefined ? p.amountBase : p.amount), 0);
     return inv.rateId ? ns.fx.scale(amount, inv.rate) : amount;
   }
 
@@ -91,7 +92,7 @@
     });
   }
 
-  /** Issued -> void. Only allowed while no payment exists (payments are immutable; refunds are not built yet). Reverses the issue entry. */
+  /** Issued -> void. Only allowed while no payment or credit note exists (take money back with a credit note). Reverses the issue entry. */
   function voidInvoice(id) {
     return ns.store.transact(async (tx) => {
       const inv = await loadInvoice(tx, id);
@@ -100,6 +101,7 @@
       const pays = await tx.list('payments', { index: 'invoiceId', value: id });
       if (!pays.ok) return pays;
       if (pays.value.length) return fail('has_payments', 'this invoice has payments and cannot be voided');
+      if (inv.value.credited) return fail('has_credits', 'this invoice has credit notes and cannot be voided');
       const v = await tx.put('invoices', { ...inv.value, status: 'void' }, { posting: true });
       if (!v.ok) return v;
       const je = await tx.list('journal', { index: 'source', value: `invoice:${id}:issue`, includeDeleted: true });

@@ -47,8 +47,10 @@ a { color: var(--accent-line); }
 
 .app { display: grid; height: 100%; grid-template-rows: var(--top-h) minmax(0, 1fr); }
 .topbar { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; box-shadow: var(--bevel); }
-.brand { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--accent); flex: none; }
-.brand-mark { width: 17px; height: 17px; fill: var(--accent-ink); }
+/* The shared header buttons (Slop Drive, Theme, Apps, the bell: shared/ui/hbtn.css) wear the look of the .tb buttons. */
+.topbar { --slop-hbtn-h: 34px; --slop-hbtn-radius: var(--radius-s); --slop-hbtn-bg: var(--panel-2); --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); }
+.brand { display: grid; place-items: center; width: 30px; height: 30px; color: var(--fg); flex: none; }
+.brand-mark { width: 20px; height: 20px; fill: currentColor; }
 .appname { display: grid; line-height: 1.1; white-space: nowrap; }
 .appname b { font-size: 14px; letter-spacing: -.01em; }
 .home-link { color: var(--faint) !important; font: 10.5px var(--mono); text-decoration: none; }
@@ -59,7 +61,8 @@ a { color: var(--accent-line); }
 :root[data-theme="classic"] .tab[aria-selected="true"] { color: #fff; }
 .tb-group { display: flex; gap: 4px; margin-left: auto; align-items: center; }
 .tb { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: var(--radius-s); background: none; color: var(--dim); flex: none; }
-.tb:hover { background: var(--hover); color: var(--fg); }
+.topbar .tb { border: 1px solid var(--line-2); background: var(--panel-2); box-shadow: var(--bevel); }
+.tb:hover, .topbar .tb:hover { background: var(--hover); color: var(--fg); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: var(--radius-s); background: var(--panel-2); color: var(--fg); white-space: nowrap; box-shadow: var(--bevel); text-decoration: none; }
 .btn:hover { background: var(--hover); }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }

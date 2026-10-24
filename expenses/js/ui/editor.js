@@ -50,6 +50,7 @@
     let src = null;
     if (copyOf) { const r = await S.store.get('expenses', copyOf); src = r.ok ? r.value : null; }
     cur = null; taxTouched = !!src; setForm(true); say('');
+    if (NS.receiptScan) NS.receiptScan.clear();
     $('eTitle').textContent = src ? `Copy of ${src.supplier}` : 'New expense';
     $('eDate').value = today();
     $('eSupplier').value = src ? src.supplier : '';
@@ -75,8 +76,16 @@
     $('eView').replaceChildren(el('dl', { class: 'facts' }, ...row('Supplier', e.supplier), ...row('Description', e.description || '—'),
       ...row('Category', acct ? `${acct.code} ${acct.name}` : e.account), ...row('Amount', m(e.amount)), ...row('Tax', m(e.tax || 0)),
       ...row('Without tax', m(e.amount - (e.tax || 0))), ...row('Paid by', (METHODS.find((x) => x[0] === e.method) || [, e.method])[1]),
-      ...row('Status', e.status === 'void' ? 'Void (the entry is reversed)' : 'Recorded in the books'), ...row('Notes', e.notes || '—')));
+      ...row('Status', e.status === 'void' ? 'Void (the entry is reversed)' : 'Recorded in the books'), ...row('Notes', e.notes || '—'),
+      ...(e.receiptId ? row('Receipt', el('button', { type: 'button', class: 'btn small', onclick: () => viewReceipt(e.receiptId) }, 'View the receipt')) : [])));
     $('eVoid').hidden = e.status !== 'posted';
+  }
+
+  /** The receipt photo kept in Slop Drive, in a new tab. */
+  async function viewReceipt(id) {
+    const f = g.SlopHub ? await g.SlopHub.get(id).catch(() => null) : null;
+    if (!f || !f.blob) { UI.alert('Receipt not found', 'The photo is no longer in Slop Drive.'); return; }
+    g.open(URL.createObjectURL(f.blob), '_blank', 'noopener');
   }
 
   async function record() {
@@ -85,8 +94,10 @@
     if (amount == null || amount < 1) { say('Amount: type what was paid, like 24.00.', true); $('eAmount').focus(); return; }
     if (tax == null) { say('Tax: type an amount like 4.00, or leave it empty.', true); $('eTax').focus(); return; }
     const r = await S.expenses.record({ date: $('eDate').value, supplier: $('eSupplier').value.trim(), description: $('eDescription').value.trim() || undefined,
-      account: $('eAccount').value, amount, tax, currency, method: $('eMethod').value, notes: $('eNotes').value.trim() || undefined });
+      account: $('eAccount').value, amount, tax, currency, method: $('eMethod').value, notes: $('eNotes').value.trim() || undefined,
+      receiptId: (NS.receiptScan && NS.receiptScan.current()) || undefined });
     if (!r.ok) { say(B.refusal(r, { fields: FIELDS }), true); return; }
+    if (NS.receiptScan) NS.receiptScan.clear();
     UI.toast(`Expense from ${r.value.supplier} recorded`);
     NS.app.go(`e/${r.value.id}`);
   }
@@ -100,6 +111,7 @@
     $('eAccount').addEventListener('change', () => { if ($('eAccount').value === '+') newCategory(); });
     for (const id of ['eAmount', 'eRate', 'eCurrency']) $(id).addEventListener('input', autoTax);
     $('eTax').addEventListener('input', () => { taxTouched = $('eTax').value.trim() !== ''; });
+    if (NS.receiptScan) NS.receiptScan.mount(say);   // From a receipt… (ui/receipt.js)
   }
 
   NS.editor = { record, current: () => cur };

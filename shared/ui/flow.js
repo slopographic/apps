@@ -45,8 +45,9 @@
 .sflow-dot{position:absolute;top:50%;left:0;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--sl-accent,#4f6c00);opacity:0}
 .sflow-to{transition:transform .2s}
 .sflow-mark{position:absolute;z-index:2;right:-7px;bottom:-7px;width:20px;height:20px;border-radius:50%;display:none;place-items:center;font-size:12px;font-weight:800;color:#fff;box-shadow:0 0 0 2px var(--sl-surface,#fff)}
-.sflow[data-state=done] .sflow-mark{display:grid;background:#2e8540}.sflow[data-state=done] .sflow-mark::before{content:"\\2713"}
-.sflow[data-state=error] .sflow-mark{display:grid;background:#c62828}.sflow[data-state=error] .sflow-mark::before{content:"!"}
+.sflow[data-state=done] .sflow-to .sflow-mark{display:grid;background:#2e8540}.sflow[data-state=done] .sflow-to .sflow-mark::before{content:"\\2713"}
+.sflow[data-state=error] .sflow-to .sflow-mark{display:grid;background:#c62828}.sflow[data-state=error] .sflow-to .sflow-mark::before{content:"!"}
+.sflow-more[hidden]{display:none}
 .sflow[data-state=error] .sflow-track{background:repeating-linear-gradient(90deg,#c62828 0 8px,transparent 8px 14px)}
 .sflow[data-state=done] .sflow-fill{width:100%}
 .sflow-tile[data-family=pdf]{--sflow-c:#d93025}.sflow-tile[data-family=doc]{--sflow-c:#2b5bd7}.sflow-tile[data-family=sheet]{--sflow-c:#1e8e3e}

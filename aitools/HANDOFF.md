@@ -34,7 +34,7 @@ Bundled files are read from `vendor/models/` and checked against the same index.
 | Model (id) | Used by | Licence | Source | File | Bytes | SHA-256 |
 |---|---|---|---|---|---|---|
 | Whisper tiny (`whisper-tiny`) | Speech to text | MIT (OpenAI Whisper, upstream: github.com/openai/whisper) | huggingface.co/Xenova/whisper-tiny (ONNX export; the export page is tagged Apache-2.0, the weights are MIT) | `onnx/encoder_model_quantized.onnx` | 10 124 910 | `fd9d995b9dcb0520f0dbf6cf68651af639fc385f594d9d876e69ca2802dc438e` |
-| | | | | `onnx/decoder_model_quantized.onnx` | 30 460 101 | `d1ac41063dd0a01d278dca49214ff8ce1b930cc9e34e2881c56a79a428650534` |
+| | | | | `onnx/decoder_model_merged_quantized.onnx` | 30 727 765 | `6c0c125986b007d2e3734bec84c18bda0152071b90b87fadac6d7764499927a0` |
 | | | | | `vocab.json` | 1 036 584 | `50d6a919f0a0601d56a04eb583c780d18553aa388254ba3158eb6a00f13e2c1a` |
 | | | | | `added_tokens.json` | 2 082 | `ce949fe720c14311cb6c446e69cfe340dc669d7b006077a6feed6ae571dd7e88` |
 | PP-OCRv4 mobile (`ppocr-v4`) | OCR | Apache-2.0 (PaddleOCR, github.com/PaddlePaddle/PaddleOCR) | huggingface.co/SWHL/RapidOCR, `PP-OCRv4/` (ONNX export) | `ch_PP-OCRv4_det_infer.onnx` | 4 745 517 | `d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9` |
@@ -86,7 +86,10 @@ so the index must be updated with the new bytes and hash, not the check relaxed.
 ## Limits and follow-ups
 
 - The model downloads come from Hugging Face; a host change needs a new `HOSTS` entry and a new hash.
-- Speech decodes greedily without a cache: fine for tiny, slow for long files. A KV-cache decoder would help.
+- Speech decodes greedily with the merged decoder's key/value cache (decoder_model_merged): each step reads one new token.
+  Measured on one minute of the Spoken Wikipedia sample: 22 s with the cache against 106 s with the plain decoder. An
+  install from before the change shows as needing a download (status compares the stored files with the registry), and
+  the engine still runs the plain decoder if that is what it is given.
 - OCR reads horizontal lines only; rotated text is not corrected.
 - Add the new `aitools/` files to `service-worker.js` (not done here) so the tools work offline.
 - `shared/library` (Get more for fonts) was not changed: its `packs.json` format is for fonts, so the model dialog lives

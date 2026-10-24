@@ -19,7 +19,7 @@
   const refusal = (r) => B.refusal(r, { plain: PLAIN, fields: FIELD });
 
   // settings, money and the DOM builder are SlopBiz's (one copy for the business apps)
-  const STATUS = { draft: 'Draft', issued: 'Issued', paid: 'Paid', void: 'Void' };
+  const STATUS = { draft: 'Draft', issued: 'Issued', paid: 'Paid', void: 'Void', credited: 'Credited' };
   /** The status words: an issued invoice with nothing left to pay reads Paid. */
   const statusText = (status, balance) => (status === 'issued' && balance <= 0 ? 'Paid' : STATUS[status] || '');
 

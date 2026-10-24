@@ -41,6 +41,7 @@ Everything runs 100% in your browser: no installs, no accounts, no uploads, no w
 | `/calendar/`, `/todo/`, `/reminders/`, `/time/` | **Calendar**, **To-do**, **Reminders** and **Time**: schedule, tasks, reminders, world clock and meetings |
 | `/notes/`, `/paste/` | **Slop Notes** (Markdown notebooks) and **Paste** (share text, code and images by link) |
 | `/calculator/`, `/nodes/`, `/serials/` | **Slopculator**, **Slopnodes** and the **Serial counter** |
+| `/transcribe/` | **Slop Transcribe**: voice, MP3 and video to text on the device (Whisper), corrected and saved as TXT, Word, SRT or VTT |
 | `/ocr/`, `/aitools/`, `/ai/` | **Slop OCR**, **AI Tools** (OCR, transcription, denoise) and **Slop AI** (chat with a model on your own computer) |
 
 ### Utilities

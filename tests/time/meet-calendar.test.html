@@ -28,6 +28,8 @@
     it('plans a meeting with London, shows the windows, and adds one to Calendar as a meeting', async () => {
       await until(() => W().SlopData && W().SlopData.store && $('#tab-meet'), 'the page and the store');
       $('#tab-meet').click();
+      // the planner draws its starting zones once the app has loaded them: changing anything before that is undone
+      await until(() => $$('#st-meet-zones button').length > 0, 'the planner drawn');
       $('#st-meet-date').value = '2026-10-12';          // a Monday, inside the working days of the default week
       $('#st-meet-date').dispatchEvent(new Event('input', { bubbles: true }));
       // Only London in the meeting, so the windows are simple to check.

@@ -7,13 +7,14 @@
   const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
 
   ns.enrich = {
-    /** Invoices: paid (the payments made, in the invoice's currency) and balance (total less paid, for an issued invoice; 0 otherwise). */
+    /** Invoices: paid (the payments made, in the invoice's currency) and balance (an issued invoice's total less paid and its
+     *  credit notes, plus what they paid back, as SlopData.billing.balanceDue; 0 otherwise). */
     invoiceBalance(rows, data) {
       const paid = new Map();
       for (const p of data.payments || []) paid.set(p.invoiceId, (paid.get(p.invoiceId) || 0) + num(p.amount));
       return rows.map((r) => {
         const got = paid.get(r.id) || 0;
-        return { ...r, paid: got, balance: r.status === 'issued' ? Math.max(0, num(r.total) - got) : 0 };
+        return { ...r, paid: got, balance: r.status === 'issued' ? Math.max(0, num(r.total) - got - num(r.credited) + num(r.refunded)) : 0 };
       });
     },
     /** Customers: value, the total of their issued and paid invoices in the base currency. An invoice in another currency
@@ -52,14 +53,17 @@
     },
     /** Journal entries: quarter (2026-Q4), collected (sales tax credited on sales), reclaimed (tax debited on purchases and
      * expenses) and due (collected less reclaimed), on the chart's TAX_PAYABLE account, in the base currency. A reversal (a
-     * void) takes its amount off the side its original entry was on. Entries without tax are left out. */
+     * void) takes its amount off the side its original entry was on, and a credit note off the tax collected. Entries without
+     * tax are left out. */
     salesTax(rows) {
       const tax = g.SlopData.schemaDefs.ACCT.TAX_PAYABLE, out = [];
       for (const r of rows) {
         let collected = 0, reclaimed = 0;
+        const credit = String(r.source || '').startsWith('credit:');
         for (const l of r.lines || []) {
           if (l.account !== tax) continue;
-          if (r.reverses) { collected -= num(l.debit); reclaimed -= num(l.credit); } else { collected += num(l.credit); reclaimed += num(l.debit); }
+          // a reversal (a void) and a credit note (SlopData.credits: source credit:<id>) take tax back off what was collected
+          if (r.reverses) { collected -= num(l.debit); reclaimed -= num(l.credit); } else if (credit) collected -= num(l.debit); else { collected += num(l.credit); reclaimed += num(l.debit); }
         }
         if (!collected && !reclaimed) continue;
         const d = String(r.date || '');

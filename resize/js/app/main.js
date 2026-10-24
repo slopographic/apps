@@ -146,7 +146,8 @@
   }
 
   // Drops (on the left column, or the zone) go through SlopDrop (shared/drop): each file is checked, read by the queue
-  // as before, and reported with its progress. A file the queue cannot read shows its error in the zone.
+  // as before, and reported with its progress. A file the queue cannot read shows its error in the zone. The zone is the
+  // empty state's only drop area; once files are queued, the whole column still takes drops.
   const DROP_RULES = {
     types: ['image/*', 'video/*'],
     exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp', '.tif', '.tiff', '.mp4', '.m4v', '.mov', '.webm', '.mkv', '.ogv'],
@@ -155,6 +156,8 @@
   function wireDrop() {
     SlopDrop.attach($('rs-drop'), {
       accept: DROP_RULES,
+      label: 'Drop pictures or videos here',
+      hint: 'JPEG, PNG, WebP, AVIF and GIF pictures, and MP4, WebM or MOV video. Many at once. Each file is read and resized in this browser and never uploaded.',
       targets: [$('rs-left')],
       process: async (file) => {
         const it = await NS.queue.add(file);
@@ -170,7 +173,6 @@
     panel.addEventListener('change', () => { NS.settings.showModes($('rs-mode').value); NS.settings.labels(); NS.settings.alphaUI(); });
     panel.addEventListener('input', () => NS.settings.labels());
     $('rs-open').addEventListener('click', () => api.open());
-    $('rs-open-empty').addEventListener('click', () => api.open());
     $('rs-drive').addEventListener('click', () => api.drive());
     $('rs-run').addEventListener('click', () => run());
     $('rs-cancel').addEventListener('click', () => api.cancel());

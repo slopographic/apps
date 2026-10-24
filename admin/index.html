@@ -44,14 +44,8 @@
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
-        <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
-      </a>
-      <div class="appname"><b>Slop Admin</b><a class="home-link" href="../">slopographic</a></div>
-      <span class="local-badge" title="Settings and records stay in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <button type="button" class="tb-btn" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
-    </header>
+    <header id="menubar"></header>
+    <div class="smb-hold" hidden><span class="local-badge" title="Settings and records stay in this browser. Nothing is uploaded."><span>100% local</span></span></div>
 
     <nav class="tabs" role="tablist" aria-label="Admin sections">
       <button type="button" role="tab" class="tab" id="tab-start" data-view="start" aria-controls="view-start" aria-selected="false">Get started</button>
@@ -164,7 +158,7 @@
 
   <script src="../shared/data/money.js"></script>
   <script src="../shared/data/barcode.js"></script>
-  <script src="../shared/data/schema-defs.js"></script>
+  <script src="../shared/data/schema-checks.js"></script><script src="../shared/data/schema-defs.js"></script>
   <script src="../shared/data/schema.js"></script>
   <script src="../shared/data/currency.js"></script>
   <script src="../shared/data/store.js"></script>
@@ -207,5 +201,7 @@
   <script>SlopPWA.mount();</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
+<link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
+<script>SlopMenuBar.mount({"app": "Admin", "menus": {"File": ["cmd:data.backup", "cmd:data.everything", "cmd:data.restore", "-", "cmd:data.reset"], "View": ["cmd:view.company", "cmd:view.numbering", "cmd:view.taxes", "cmd:view.data", "cmd:view.storage"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"});</script>
 </body>
 </html>

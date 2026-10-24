@@ -20,12 +20,9 @@ body { min-height: 100vh; }
 .btn, .tb-btn, .snooze { background: var(--chip); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; font: inherit; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .btn.small { padding: 4px 8px; font-size: 13px; }
-.topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
-.brand-mark { width: 26px; height: 26px; fill: var(--accent); }
-.appname b { font-size: 16px; margin-right: 8px; }
-.home-link { color: var(--mute); font-size: 13px; }
-.local-badge { font-size: 12px; color: var(--mute); border: 1px solid var(--line); border-radius: 99px; padding: 2px 8px; }
-.topbar .tb-btn { margin-left: auto; }
+/* The header is the shared menu bar (shared/menubar); the buttons and fields of the page are as tall as its buttons
+ * (shared/ui/hbtn.css, 32 px). */
+.perm .btn, .add .btn, .field input { height: 32px; padding-top: 0; padding-bottom: 0; font-size: 14px; }
 .main { padding: 16px 20px 40px; max-width: 900px; }
 .perm, .add { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 12px; }
 .perm { align-items: center; font-size: 13px; color: var(--mute); }
@@ -36,6 +33,7 @@ body { min-height: 100vh; }
 .add .field input { width: 100%; }
 .rm-group { margin-top: 18px; }
 .rm-h { font-size: 14px; color: var(--mute); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 6px; }
+.rm-group .empty { margin: 0; padding: 2px 0 0; font-size: 14px; }
 .rm-list { list-style: none; padding: 0; margin: 0; }
 .rm-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; }
 .rm-row.src-custom { border-left: 4px solid var(--accent); }
@@ -50,4 +48,6 @@ body { min-height: 100vh; }
   .main { padding: 12px 10px 30px; }
   .rm-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .rm-acts { justify-content: flex-start; }
+  .add .field:first-child { flex-basis: 100%; }
+  .add .field:not(:first-child) { flex: 1 1 130px; min-width: 0; }
 }

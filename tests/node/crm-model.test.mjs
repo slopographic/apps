@@ -9,7 +9,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const DATA = ['money.js', 'barcode.js', 'schema-defs.js', 'schema.js'].map((f) => path.join(ROOT, 'shared', 'data', f));
+const DATA = ['money.js', 'barcode.js', 'schema-checks.js', 'schema-defs.js', 'schema.js'].map((f) => path.join(ROOT, 'shared', 'data', f));
 const BIZ = [path.join(ROOT, 'shared', 'biz', 'biz.js')];
 const CRM = ['util.js', 'notes.js', 'labels.js', 'customer-fields.js', 'query.js'].map((f) => path.join(ROOT, 'crm', 'js', 'core', f));
 const ctx = {};

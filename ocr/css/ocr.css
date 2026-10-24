@@ -9,19 +9,21 @@
   --ocr-on-hi: var(--sl-on-accent, #ffffff);
   --ocr-muted: color-mix(in srgb, var(--sl-text, #0a0a0a) 68%, transparent);
 }
+/* A hidden part stays hidden whatever its own display (the tool waits behind the model prompt; the pages wait for a file). */
+[hidden] { display: none !important; }
 body { margin: 0; background: var(--ocr-paper); color: var(--ocr-ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif; }
 .ocr-app { max-width: 1100px; margin: 0 auto; padding: 16px; box-sizing: border-box; min-width: 0; overflow-wrap: anywhere; }
 .ocr-app *, .ocr-app *::before, .ocr-app *::after { box-sizing: border-box; }
 .ocr-app :focus-visible { outline: 2px solid var(--ocr-hi); outline-offset: 2px; }
 
 .ocr-app h1 { font-size: 26px; margin: 0 0 2px; line-height: 1.2; }
-.ocr-tag, .ocr-meta, .ocr-msg { color: var(--ocr-muted); font-size: 13px; margin: 4px 0; }
+.ocr-meta, .ocr-msg { color: var(--ocr-muted); font-size: 13px; margin: 4px 0; }
 .ocr-link { color: var(--ocr-ink); text-decoration: none; border: 1px solid var(--ocr-edge); border-radius: 8px; padding: 6px 10px; background: var(--ocr-card); }
 
-.ocr-app button, .ocr-app .ocr-link { font: inherit; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--ocr-edge); background: var(--ocr-card); color: var(--ocr-ink); cursor: pointer; }
+.ocr-app button, .ocr-app .ocr-link { font: inherit; padding: 0 12px; min-height: 36px; border-radius: 8px; border: 1px solid var(--ocr-edge); background: var(--ocr-card); color: var(--ocr-ink); cursor: pointer; }
 .ocr-app button:disabled { opacity: .5; cursor: default; }
 .ocr-app button.ocr-primary { background: var(--ocr-hi); color: var(--ocr-on-hi); border-color: var(--ocr-hi); }
-.ocr-app select { font: inherit; max-width: 100%; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--ocr-edge); background: var(--ocr-card); color: var(--ocr-ink); }
+.ocr-app select { font: inherit; max-width: 100%; min-height: 36px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--ocr-edge); background: var(--ocr-card); color: var(--ocr-ink); }
 
 .ocr-ui { display: grid; gap: 14px; }
 .ocr-drop { display: block; border: 2px dashed var(--ocr-edge); border-radius: 12px; padding: 22px 16px; text-align: center; color: var(--ocr-muted); background: var(--ocr-card); }

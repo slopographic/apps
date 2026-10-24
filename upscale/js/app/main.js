@@ -220,7 +220,6 @@
   function wire() {
     const pick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*,video/*'; i.onchange = () => i.files[0] && open(i.files[0]); i.click(); };
     $('up-open').addEventListener('click', pick);
-    $('up-open-empty').addEventListener('click', pick);
     $('up-drive').addEventListener('click', U.output.openDrive);
     $('up-run').addEventListener('click', run);
     $('up-cancel').addEventListener('click', cancel);
@@ -235,7 +234,10 @@
     $('up-fps').addEventListener('change', (e) => { S.fps = Number(e.target.value); updateInfo(); });
     $('up-get-more').addEventListener('click', async () => { await loadLib(); if (g.SlopLibrary) g.SlopLibrary.open({ onInstalled: refreshModels }); });
     // Drops and the zone go through SlopDrop (shared/drop): one picture at a time, the rest are refused with a reason.
+    // The zone is the empty state's only drop area; with a picture open, the whole stage still takes drops.
     SlopDrop.attach($('up-drop'), {
+      label: 'Drop a picture or a short video here',
+      hint: 'JPEG, PNG, WebP and AVIF pictures, and MP4, WebM or MOV video up to 15 seconds. Everything runs in this browser. Nothing is uploaded.',
       accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: 'a picture or a short video' },
       targets: [$('up-stage-wrap')],
       limit: 1,

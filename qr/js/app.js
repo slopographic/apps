@@ -197,7 +197,7 @@
 
   function init() {
     bar = window.SlopAppBar.mount($('qr-bar'), {
-      title: 'QR SLOP', subtitle: 'Codes with logos, templates and a live preview. Nothing is uploaded.', icon: 'qr', actions: [], menu: [],
+      home: '../', title: 'QR SLOP', subtitle: 'Codes with logos, templates and a live preview. Nothing is uploaded.', actions: [], menu: [],
     });
     window.QRPreview.init();
     window.QRPanelContent.drawTemplates($('qr-templates'), applyTemplate);

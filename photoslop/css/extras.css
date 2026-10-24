@@ -111,7 +111,12 @@ body.no-panels .main { grid-template-columns: 1fr; }
   .doc-title { display: none; }
 }
 @media (max-width: 640px) {
-  .app { grid-template-rows: 38px auto 1fr auto 22px; }
+  /* The top bar takes two rows: the logo and the menus (they scroll), then the buttons. */
+  .app { grid-template-rows: 66px auto 1fr auto 22px; }
+  .topbar { flex-wrap: wrap; align-content: center; gap: 4px; padding: 4px 8px; }
+  .top-actions { gap: 4px; }
+  .top-btn { padding: 0 7px; }
+  .panels { top: 66px; }
   .main { display: contents; }
   .docarea { grid-row: 3; }
   .toolbox { grid-row: 4; flex-direction: row; border: 0; border-top: 1px solid var(--line); padding: 6px 10px; overflow-x: auto; gap: 10px; }
@@ -123,6 +128,7 @@ body.no-panels .main { grid-template-columns: 1fr; }
   .status { grid-row: 5; gap: 10px; }
   .sb-pos, .sb-colwrap, .sb-size { display: none; }
   .logo-word, .top-btn#themeToggle { display: none; }
+  .menubar { flex: 1 1 calc(100% - 40px); }
   .panels { bottom: 0; }
   .options { gap: 10px; }
   .opt-name, .opt-hint { display: none; }

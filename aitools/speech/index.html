@@ -10,8 +10,12 @@
   <link rel="stylesheet" href="../aitools.css">
 </head>
 <body>
+  <header class="ai-top">
+    <a class="brand" href="../../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
+    <a class="ai-crumb" href="../">AI Tools</a><span class="ai-sep" aria-hidden="true">/</span><h1>Speech to text</h1>
+  </header>
   <div class="ai-tool">
-    <div class="ai-bar"><a class="ai-btn" href="../">← AI Tools</a><h1>Speech to text</h1></div>
+    <p class="ai-intro">One file at a time here. To record your voice, transcribe many files at once, correct the text or save it as Word or WebVTT, use <a href="../../transcribe/">Slop Transcribe</a> (the same model, already on this device once downloaded).</p>
     <div id="gate" class="ai-stack" aria-live="polite"></div>
     <section id="ui" class="ai-stack" hidden>
       <div id="drop" class="ai-drop">Drop an audio or video file here, or <label><u>choose a file</u><input id="file" type="file" accept="audio/*,video/*" hidden></label><br><span class="ai-meta">Up to 2 hours. Long files are read in 30-second windows.</span></div>
@@ -40,6 +44,7 @@
   <script src="../support.js"></script>
   <script src="../get-more.js"></script>
   <script src="../common.js"></script>
+  <script src="../transcript.js"></script>
   <script src="speech.js"></script>
   <script src="../../shell/shell.js"></script>
 </body>
