@@ -81,8 +81,8 @@ async function toggleRecord() {
   if (rec.recording) {
     const file = await rec.stop();
     $('trRecord').classList.remove('is-on'); $('trRecord').textContent = 'Record'; $('trRecTime').hidden = true;
-    const id = file && add([file]);
-    if (id) select(id);
+    const r = file && (await window.SlopIntake.take([file], { to: 'transcribe', source: 'record' })); // the one way in
+    if (r && r.added[0]) select(r.added[0].value);
     return;
   }
   try { await rec.start(); } catch (e) { say(e.message); return; }
@@ -98,13 +98,18 @@ async function exportAs(format, then) {
 }
 
 function wire() {
-  window.SlopDrop.attach($('trDrop'), {
+  // The one way in (shared/intake, spec 'transcribe'): the zone (a drop, Choose files, the sample), a paste, a recording,
+  // ?drive=<id> (another app's Open in Slop Transcribe) and a PWA launch all reach add(). Nothing before the gate passes.
+  window.SlopIntake.register({
+    id: 'transcribe', gate: () => !$('trUi').hidden,
     accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac', '.webm', '.mp4', '.mov', '.mkv', '.amr', '.wma'], noun: 'an audio or video file' },
-    input: $('trPick'), label: 'Drop audio or video files here, or choose files', hint: 'MP3, WAV, M4A, OGG, FLAC, video… Several at once. Nothing is uploaded.',
+    process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return id; },
+  });
+  window.SlopDrop.attach($('trDrop'), {
+    intake: 'transcribe', label: 'Drop audio or video files here, or choose files', hint: 'MP3, WAV, M4A, OGG, FLAC, video… Several at once. Nothing is uploaded.',
     // the steps are in the intro (shown before the model is in, as the From → To picture is); the sample is NASA's
     // public-domain Moon landing recording (assets/samples/moon-landing.txt)
     sample: { label: 'Try it with a sample: the Moon landing, 24 s', files: async () => [await window.SlopSamples.asset('moon-landing.ogg', 'Moon landing, Apollo 11.ogg', 'audio/ogg')] },
-    process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return file.name; },
   });
   $('trFormat').replaceChildren(...FORMATS.map((f) => Object.assign(document.createElement('option'), { value: f.id, textContent: f.label })));
   const preset = presetOf(location.search);   // a task page's link, e.g. ?format=srt (not remembered)
@@ -126,5 +131,5 @@ function wire() {
 const models = wireChoice({ queue: q, run, draw: () => draw(), say, catalog: C, manager: window.SlopAIManager, ui: window.SlopUI, prefs: createPrefs('speech') });
 // engine is exposed so a test can stand in a fake Whisper (the real model is a download the tests do not make)
 window.SlopTranscribe = { queue: q, engine, add, run, select, presetOf, models, get selected() { return selected; } };
-T.gate('speech', () => { $('trUi').hidden = false; });
+T.gate('speech', () => { $('trUi').hidden = false; if (window.SlopHub) window.SlopHub.register('transcribe'); window.SlopIntake.launch({ to: 'transcribe' }); });
 wire();

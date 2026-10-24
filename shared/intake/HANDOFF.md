@@ -182,6 +182,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   `ai-portrait`, `ai-speech`, `ai-tags`, one file at a time): a drop on the box (`SlopIntake.dropTarget`), its "choose a
   file" button (was a file input in a label), a paste (new), launch, and Auto tags' "pick a photo from Slop Drive"
   (`fromDrive`; was a hand-made list of Drive photos). `tests/intake/aitools.test.html`.
+- **Slop Transcribe** (`transcribe/js/app.js`, spec `transcribe`): the zone and its Choose files (the hidden `#trPick` is
+  gone), the sample, a paste (new), a recording (a take with source `record`), ?drive= launch and launchQueue. Nothing
+  comes in before the model gate has shown the page. `tests/intake/transcribe.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -576,11 +579,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] ?drive= launch: `tables/js/ui/storage.js:137`
 - [ ] pickFiles: `tables/js/ui/templates.js:174`
 - [ ] Drive picker: `tables/js/ui/templates.js:180`
-
-### transcribe
-
-- [ ] file input: `transcribe/index.html:54`
-- [ ] SlopDrop.attach: `transcribe/js/app.js:101`
 
 ### watermark (pictures done; the logo is left to the watermark panel rewrite, wip/watermark-all)
 
