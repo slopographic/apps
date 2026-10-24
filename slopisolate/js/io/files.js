@@ -56,7 +56,7 @@
   let firstUse = null;
   /** One notice for a whole drop: every file in it waits on the same choice. Cancelling asks again next time. */
   function gateFirstUse() {
-    if (!firstUse) firstUse = window.SlopFirstRun ? SlopFirstRun.once('slopisolate', NOTICE) : Promise.resolve(true);
+    if (!firstUse) firstUse = window.SlopFirstRun ? SlopFirstRun.once('slopisolate', F.notice()) : Promise.resolve(true);
     return firstUse.then((ok) => { if (!ok) { firstUse = null; throw new Error('cancelled'); } return true; });
   }
   function ingest(file, progress) {
