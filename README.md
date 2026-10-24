@@ -75,6 +75,7 @@ Pages serves this branch from the repo root:
 - **Sloppo character art:** all rights reserved, see [`LICENSE-ART`](LICENSE-ART).
 - **Brand:** Slopographic™ and Sloppo™ are trademarks; see [`TRADEMARKS.md`](TRADEMARKS.md). Forks must rename and use their own mascot.
 - **Third-party code** in `vendor/` keeps its own license.
+- What the MIT License does not cover, in one place: [`NOTICE.md`](NOTICE.md).
 
 
 ## Contributing
