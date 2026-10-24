@@ -210,7 +210,9 @@
     $('qr-dl-png').addEventListener('click', downloadPng);
     $('qr-dl-pdf').addEventListener('click', downloadPdf);
     $('qr-copy').addEventListener('click', copyText);
-    setTab(tab);
+    const preset = Q().presetOf(location.search);
+    if (preset.kind) Q().setKind(preset.kind);
+    setTab(preset.tab || tab);
     refresh();
   }
 

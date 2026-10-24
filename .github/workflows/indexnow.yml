@@ -1,0 +1,22 @@
+# Production only: after GitHub Pages publishes a push to main, tell the IndexNow search engines which pages changed
+# (tools/seo/indexnow.mjs). The testing preview is noindex and never pinged.
+name: IndexNow
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Wait for Pages to publish
+        run: sleep 150
+      - name: Send the changed pages
+        run: node tools/seo/indexnow.mjs "${{ github.event.before }}" "${{ github.sha }}"

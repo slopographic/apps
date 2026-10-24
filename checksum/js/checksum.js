@@ -57,6 +57,16 @@
     show();
   }
 
+  /** The algorithm a task page's link asks for (?alg=sha256|sha384|sha512|sha1), or null. This visit only: the choice
+   *  is not stored, and unknown values are ignored. */
+  const ALGS = { sha256: 'SHA-256', sha384: 'SHA-384', sha512: 'SHA-512', sha1: 'SHA-1' };
+  function presetOf(search) {
+    const a = new URLSearchParams(search || '').get('alg');
+    return a && Object.prototype.hasOwnProperty.call(ALGS, a.toLowerCase()) ? ALGS[a.toLowerCase()] : null;
+  }
+  const preset = presetOf(location.search);
+  if (preset) $('ck-alg').value = preset;
+
   $('ck-file').addEventListener('change', (e) => choose(e.target.files[0]));
   $('ck-alg').addEventListener('change', show);
   $('ck-expect').addEventListener('input', check);
@@ -71,5 +81,5 @@
   drop.addEventListener('drop', (e) => choose(e.dataTransfer.files[0]));
 
   // Exposed for the browser test.
-  window.SlopChecksum = { hashOf: (alg, f) => { file = f; last = { alg: null, hash: null }; return hashOf(alg); }, clean };
+  window.SlopChecksum = { presetOf, hashOf: (alg, f) => { file = f; last = { alg: null, hash: null }; return hashOf(alg); }, clean };
 })();

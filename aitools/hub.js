@@ -1,6 +1,7 @@
 /* Slop AI Tools hub: lists the five tools with their status (ready, needs download, not supported on this device)
  * and the model index with licence, size, source and status. Nothing is downloaded here: "Get more" opens the
- * licence dialog (get-more.js) and only its Download button fetches. Classic script, page: aitools/index.html. */
+ * licence dialog (get-more.js) and only its Download button fetches. Classic script, page: aitools/index.html.
+ * ?tool=<id> (from a task page) goes straight to that tool's page. */
 (function () {
   'use strict';
   const doc = document, R = window.SlopAIModels, M = window.SlopAIManager, S = window.SlopAISupport;
@@ -18,6 +19,13 @@
     for (const c of kids) if (c != null) n.append(c);
     return n;
   }
+  /** Pure: the page of the tool a task page's link names (?tool=portrait gives 'portrait/'), or null for an unknown one. */
+  function toolPage(search) {
+    const id = new URLSearchParams(search || '').get('tool'), t = R.TOOLS.find((x) => x.id === id);
+    return t ? t.page : null;
+  }
+  const go = toolPage(location.search);
+  if (go) { location.replace(go); return; }   // straight to the tool; the hub is not drawn
   const pill = (state) => el('span', { class: 'ai-pill ai-' + state }, LABEL[state]);
 
   /** Status of one tool: { state, reason, missing } from the device check and its models. */
@@ -71,5 +79,5 @@
   async function refresh() { await renderTools(); await renderModels(); }
 
   refresh();
-  window.SlopAIHub = { refresh, toolState };
+  window.SlopAIHub = { refresh, toolState, toolPage };
 })();

@@ -5,7 +5,7 @@
   'use strict';
   const ns = window.SlopImg3D, hf = ns.hf;
   const $ = (id) => document.getElementById(id);
-  const LIB = ['manifest.js', 'store.js', 'get-more.js'];
+  const LIB = ['manifest.js', 'store.js', 'install.js', 'get-more.js'];
   const S = { img: null, depth: null, depthFailed: false, depthInstalled: false, mask: null, prep: null, item: null,
     viewer: null, viewerP: null, busy: false, again: false };
   let libP = null;

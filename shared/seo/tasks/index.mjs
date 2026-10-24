@@ -4,8 +4,15 @@
 //   steps: [3–6], body?: [paragraphs], faq: [[question, answer], ≥ 3] }. Titles and descriptions are unique site-wide.
 import { TASKS as cutout } from './cutout.mjs';
 import { TASKS as creative } from './creative.mjs';
+import { TASKS as creative2 } from './creative-2.mjs';
+import { TASKS as creative3 } from './creative-3.mjs';
 import { TASKS as documents } from './documents.mjs';
+import { TASKS as documents2 } from './documents-2.mjs';
+import { TASKS as documents3 } from './documents-3.mjs';
 import { TASKS as business } from './business.mjs';
+import { TASKS as business2 } from './business-2.mjs';
+import { TASKS as business3 } from './business-3.mjs';
 import { TASKS as everyday } from './everyday.mjs';
+import { TASKS as everyday2 } from './everyday-2.mjs';
 
-export const TASKS = [...cutout, ...creative, ...documents, ...business, ...everyday];
+export const TASKS = [...cutout, ...creative, ...creative2, ...creative3, ...documents, ...documents2, ...documents3, ...business, ...business2, ...business3, ...everyday, ...everyday2];

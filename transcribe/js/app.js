@@ -4,7 +4,7 @@
  * copied, downloaded (exports.js) or saved to Slop Drive, or opened in Slop Docs. The SlopFlow picture shows "MP3 → TXT". */
 import { createQueue } from './queue.js';
 import { createRecorder } from './record.js';
-import { FORMATS, fileOf, textOf } from './exports.js';
+import { FORMATS, fileOf, textOf, presetOf } from './exports.js';
 import { drawList, drawTranscript, textFor } from './view.js';
 import '../../shared/ui/flow.js';
 
@@ -92,6 +92,8 @@ function wire() {
     process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return file.name; },
   });
   $('trFormat').replaceChildren(...FORMATS.map((f) => Object.assign(document.createElement('option'), { value: f.id, textContent: f.label })));
+  const preset = presetOf(location.search);   // a task page's link, e.g. ?format=srt (not remembered)
+  if (preset.format) $('trFormat').value = preset.format;
   $('trRun').addEventListener('click', run);
   $('trStop').addEventListener('click', () => { q.stop(); say('Stopping after this file…'); });
   $('trClear').addEventListener('click', () => { if (q.clear()) { selected = null; say(''); draw(); } });
@@ -107,6 +109,6 @@ function wire() {
 }
 
 // engine is exposed so a test can stand in a fake Whisper (the real model is a download the tests do not make)
-window.SlopTranscribe = { queue: q, engine, add, run, select, get selected() { return selected; } };
+window.SlopTranscribe = { queue: q, engine, add, run, select, presetOf, get selected() { return selected; } };
 T.gate('speech', () => { $('trUi').hidden = false; });
 wire();

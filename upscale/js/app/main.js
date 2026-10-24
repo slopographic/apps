@@ -20,7 +20,7 @@
   };
 
   /* ---------- Get more (the library scripts load on first need; nothing is downloaded here) ---------- */
-  const LIB = ['manifest.js', 'store.js', 'get-more.js'];
+  const LIB = ['manifest.js', 'store.js', 'install.js', 'get-more.js'];
   let libP = null;
   function loadLib() {
     if (!libP) libP = LIB.reduce((chain, f) => chain.then(() => new Promise((res) => {

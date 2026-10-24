@@ -1,7 +1,9 @@
 /* Slop Signature: an email signature from a short form, seen in a mock email as it is typed, then copied into Gmail,
  * Outlook or Apple Mail (Copy signature puts the formatted signature and a plain-text one on the clipboard), or taken as
  * HTML. What was typed is kept in this browser (localStorage, through try/catch) so the page opens where it was left.
- * Classic script, after model.js, templates.js and form.js. Sets SlopSignature.app = { state, render, copy, copyCode, download, reset, example }. */
+ * A link may name the mail program (?mail=gmail|outlook|outlook-web|apple, from a task page): its steps open, the others
+ * close, for this visit only (presetOf; unknown values are ignored, nothing is stored).
+ * Classic script, after model.js, templates.js and form.js. Sets SlopSignature.app = { state, render, copy, copyCode, download, reset, example, presetOf }. */
 (function (g) {
   'use strict';
   const NS = (g.SlopSignature = g.SlopSignature || {});
@@ -51,6 +53,17 @@
   function reset() { F.fill(M.blank()); render(); say('Cleared. Type your details.'); }
   function example() { F.fill(M.sample()); render(); say(''); }
 
+  const MAILS = ['gmail', 'outlook', 'outlook-web', 'apple'];
+  /** The preset in a page address: { mail } when it names a known mail program, else {}. Pure. */
+  function presetOf(search) {
+    const mail = new URLSearchParams(search || '').get('mail');
+    return MAILS.includes(mail) ? { mail } : {};
+  }
+  /** Opens the steps for one mail program and closes the others. */
+  function showMail(mail) {
+    for (const d of document.querySelectorAll('.sg-how details[data-mail]')) d.open = d.dataset.mail === mail;
+  }
+
   function mount() {
     F.mount($('sgForm'), state, render);
     $('sgCopy').addEventListener('click', copy);
@@ -58,9 +71,11 @@
     $('sgDownload').addEventListener('click', download);
     $('sgReset').addEventListener('click', reset);
     $('sgExample').addEventListener('click', example);
+    const preset = presetOf(location.search);
+    if (preset.mail) showMail(preset.mail);
     render();
   }
 
   mount();
-  NS.app = { get state() { return state; }, get current() { return current; }, render, copy, copyCode, download, reset, example };
+  NS.app = { get state() { return state; }, get current() { return current; }, render, copy, copyCode, download, reset, example, presetOf };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -93,7 +93,7 @@ export function shell(body) {
   <style>${CSS}</style>
 </head>
 <body>
-<header class="top"><a href="/">Slopographic</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
+<header class="top"><a href="/">Slopographic</a><a href="/all-tools/">All tools</a><a href="/compare/">Compare apps</a><a href="/slop-365/">Slop 365</a><a href="/creative-slop-pro/">Creative Slop Pro</a></header>
 <main>
 ${body}
 </main>

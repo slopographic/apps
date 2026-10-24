@@ -13,7 +13,10 @@
     if (window.SlopHub) SlopHub.register('ai');
     E.watchHosts();
     const hash = location.hash.slice(1);
-    AI.setTab(AI.TABS.some((t) => t[0] === hash) ? hash : AI.prefs.tab || 'chat');
+    const preset = AI.tabOf(location.search);   // ?tab=sys from a task page: this visit only, not remembered
+    if (AI.TABS.some((t) => t[0] === hash)) AI.setTab(hash);
+    else if (preset) AI.setTab(preset, { save: false });
+    else AI.setTab(AI.prefs.tab || 'chat');
     addEventListener('hashchange', () => { const h = location.hash.slice(1); if (AI.TABS.some((t) => t[0] === h)) AI.setTab(h); });
     await AI.restoreChatPlace(); // ui/view-state.js: the open chat and its unsent text
     // "Send to Slop AI" from another app: text files become an attachment

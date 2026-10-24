@@ -103,5 +103,7 @@ button { font: inherit; }
   .sh-mini { width: 52px; height: 52px; }
 }
 @media (prefers-reduced-motion: reduce) { .sn-toast { transition: none; } }
-/* The Tutorial link (a YouTube video) gives way on phones, where the header has room only for the app's own controls. */
+/* The Tutorial link (a YouTube video) gives way when the header is short of room: on phones, and when its labels have
+   already turned to icons (.slop-htight, shared/ui/hbtn.js), so the app's own controls keep their place. */
 @media (max-width: 560px) { .sh-hdr .slop-hbtn.sh-tutorial { display: none; } }
+.slop-htight .sh-hdr .slop-hbtn.sh-tutorial { display: none; }

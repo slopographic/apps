@@ -57,7 +57,7 @@
     a.target = '_blank'; a.rel = 'noopener';
     a.title = 'Watch the video tutorial (YouTube)';
     a.setAttribute('aria-label', 'Watch the ' + app.name + ' video tutorial on YouTube');
-    a.innerHTML = ICON_PLAY + '<span class="slop-hbtn-txt">Tutorial</span>';
+    a.innerHTML = ICON_PLAY;   // an icon only: the app's own controls keep the header's room (title and label say what it is)
     return a;
   }
 

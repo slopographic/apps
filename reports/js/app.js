@@ -1,6 +1,8 @@
 /* Slop Reports: the page. Lists the built-in and saved reports, runs the chosen one over the data in this browser (read-only),
  * and shows the rows with the sort and filter header of SlopFinder (the one Slop Sheets uses), or a plain table without it.
- * Saved definitions are checked by the engine before they are kept. Classic script. */
+ * Saved definitions are checked by the engine before they are kept. A link may name the built-in report to open
+ * (?report=sales-tax, from a task page): this visit only (R.presetOf, pure; unknown ids are ignored, nothing is stored).
+ * Classic script. */
 (function (g) {
   'use strict';
   const R = g.SlopReports;
@@ -203,6 +205,12 @@
     openEditor({ ...S.def, id: `${S.def.id}-copy`, title: `${S.def.title} (copy)` });
   }
 
+  /** The preset in a page address: { report } when it names a built-in report, else {}. */
+  R.presetOf = (search) => {
+    const id = new URLSearchParams(search || '').get('report');
+    return R.BUILTIN.some((d) => d.id === id) ? { report: id } : {};
+  };
+
   function init() {
     fillPicker();
     dom.select.addEventListener('change', () => choose(dom.select.value));
@@ -212,7 +220,7 @@
     $('csv').addEventListener('click', exportCsv);
     dom.save.addEventListener('click', saveEditor);
     $('cancel').addEventListener('click', closeEditor);
-    choose(R.BUILTIN[0].id);
+    choose(R.presetOf(g.location.search).report || R.BUILTIN[0].id);
   }
 
   init();

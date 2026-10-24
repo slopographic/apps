@@ -50,6 +50,9 @@
       const z = document.getElementById('zone');
       expect(z.querySelector('.sd-pic img').getAttribute('alt')).toBe('Result');
       expect([...z.querySelectorAll('.sd-steps li')].map((li) => li.textContent)).toEqual(['Drop', 'Sort', 'Save']);
+      const priv = z.querySelector('.sd-private');   // every preview says the files stay on the device, and links How it works
+      expect(priv.textContent).toContain('nothing is uploaded, and your files stay private on this device');
+      expect(priv.querySelector('a').getAttribute('href')).toBe('/how-it-works/');
       const btn = z.querySelector('.sd-sample');
       expect(btn.textContent).toBe('Try 2 sample photos');
       btn.click();

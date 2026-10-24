@@ -6,9 +6,17 @@
   AI.THEMES = [['pro', 'Pro'], ['light', 'Light'], ['classic', 'Classic 98']];
   const rendered = new Set();
 
-  AI.setTab = function (tab) {
+  /** Pure: the tab a task page's link asks for (?tab=sys), or null for a missing or unknown one. */
+  AI.tabOf = function (search) {
+    const t = new URLSearchParams(search || '').get('tab');
+    return AI.TABS.some((x) => x[0] === t) ? t : null;
+  };
+
+  /** Shows a tab and remembers it, unless opts.save is false (a preset from the address is for this visit only). */
+  AI.setTab = function (tab, opts = {}) {
     if (!AI.TABS.some((t) => t[0] === tab)) tab = 'chat';
-    AI.tab = tab; AI.prefs.tab = tab; AI.savePrefs();
+    AI.tab = tab;
+    if (opts.save !== false) { AI.prefs.tab = tab; AI.savePrefs(); }
     for (const b of AI.$('tabs').children) b.setAttribute('aria-selected', String(b.dataset.tab === tab));
     for (const v of document.querySelectorAll('.view')) v.classList.toggle('on', v.dataset.view === tab);
     const first = !rendered.has(tab); rendered.add(tab);

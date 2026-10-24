@@ -187,7 +187,7 @@
   async function boot() {
     if (window.SlopHub) window.SlopHub.register('resize');
     fillSizePresets();
-    NS.settings.write(NS.settings.fromSaved(NS.settings.DEFAULTS));
+    NS.settings.write(Object.assign(NS.settings.fromSaved(NS.settings.DEFAULTS), NS.settings.presetOf(location.search)));
     NS.presets.bind({ select: $('rs-saved'), apply: $('rs-apply'), saveAs: $('rs-save-as'), del: $('rs-delete'), status: toast });
     wirePanel();
     NS.settings.wireLock();

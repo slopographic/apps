@@ -44,6 +44,8 @@
     '.sd-steps{flex:0 1 260px;margin:0;padding:0;list-style:none;counter-reset:sd;display:grid;gap:8px;color:var(--sd-fg);font-size:14px}',
     '.sd-steps li{counter-increment:sd;display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}',
     '.sd-steps li::before{content:counter(sd);display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--sd-accent);color:var(--sd-on-accent);font:700 12px/1 system-ui,sans-serif}',
+    '.sd-private{flex:1 1 100%;margin:2px 0 0;font-size:12.5px;text-align:center;color:var(--sd-muted)}',
+    '.sd-private a{color:inherit;text-decoration-color:var(--sd-accent);text-decoration-thickness:2px;text-underline-offset:3px}',
     '.sd-zone.sd-has .sd-preview,.sd-zone.sd-has .sd-sample{display:none}',   // once files are in, the zone is just the prompt
     '.sd-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}',
     '.sd-sample{font:inherit;font-size:13px;padding:7px 12px;border:1px solid transparent;border-radius:6px;background:none;color:var(--sd-fg);text-decoration-color:var(--sd-accent);text-decoration-thickness:2px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}',
@@ -61,7 +63,8 @@
     doc.head.appendChild(s);
   }
   /** The preview: o.picture is { src, alt } (a picture of the result), { flow: { from, to } } (SlopFlow) or an element;
-   *  o.steps is a short list of what to do. Null when there is neither. */
+   *  o.steps is a short list of what to do. Below them, a line says everything stays on the device and links How it
+   *  works (o.privacy: false leaves it out). Null when there is neither picture nor steps. */
   P.preview = function (o) {
     if (!o || (!o.picture && !(o.steps && o.steps.length))) return null;
     const box = doc.createElement('div');
@@ -81,6 +84,18 @@
       ol.className = 'sd-steps'; ol.setAttribute('aria-label', 'How it works');
       for (const t of o.steps) { const li = doc.createElement('li'); li.textContent = t; ol.append(li); }
       box.append(ol);
+    }
+    // Every app runs on the device: the preview says so, and links the page that shows how (not from a file:// build).
+    if (o.privacy !== false) {
+      const note = doc.createElement('p');
+      note.className = 'sd-private';
+      note.textContent = 'Everything happens in your browser: nothing is uploaded, and your files stay private on this device. ';
+      if (!(root.location && root.location.protocol === 'file:')) {
+        const a = doc.createElement('a');
+        a.href = '/how-it-works/'; a.textContent = 'How it works';
+        note.append(a);
+      }
+      box.append(note);
     }
     return box;
   };

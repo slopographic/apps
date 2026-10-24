@@ -15,6 +15,14 @@
       expect(header('layers').getAttribute('aria-expanded')).toBe('true');
     }, { timeout: 60000 });
 
+    it('?tool=compress (a task page link) opens that rail tool; an unknown tool is ignored', async () => {
+      await PT.boot('?tool=compress');
+      await waitFor(() => PT.SP.app.tool === 'compress', { timeout: 15000 });
+      await PT.boot('?tool=nonsense');
+      await waitFor(() => doc().documentElement.classList.contains('ready'), { timeout: 15000 });
+      expect(PT.SP.app.tool).toBe('organize');
+    }, { timeout: 90000 });
+
     it('Ctrl+Shift+F cycles Full, Focus, Content only and back', async () => {
       if (!PT.SP) await PT.boot();
       const V = PT.win.SlopViewMode;

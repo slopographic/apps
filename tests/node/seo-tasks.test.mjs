@@ -1,7 +1,9 @@
 // Task pages (tools/seo/tasks.mjs, copy in shared/seo/tasks/): the copy checks, the page body, the JSON-LD, and that
 // every task page is written with its head block and listed in the sitemap.
-// Covers: tools/seo/tasks.mjs, shared/seo/tasks/index.mjs, shared/seo/tasks/cutout.mjs, shared/seo/tasks/creative.mjs,
-//   shared/seo/tasks/documents.mjs, shared/seo/tasks/business.mjs, shared/seo/tasks/everyday.mjs
+// Covers: tools/seo/tasks.mjs, shared/seo/tasks/index.mjs, shared/seo/tasks/cutout.mjs, shared/seo/tasks/creative.mjs, shared/seo/tasks/creative-2.mjs,
+//   shared/seo/tasks/creative-3.mjs,
+//   shared/seo/tasks/documents.mjs, shared/seo/tasks/documents-2.mjs, shared/seo/tasks/documents-3.mjs, shared/seo/tasks/business.mjs, shared/seo/tasks/business-2.mjs,
+//   shared/seo/tasks/business-3.mjs, shared/seo/tasks/everyday.mjs, shared/seo/tasks/everyday-2.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
@@ -57,4 +59,13 @@ test('every task page is on disk with its head block, and in the sitemap', () =>
     assert.ok(html.includes(`<link rel="canonical" href="${p.url}">`), `${p.dir}: canonical`);
     assert.ok(map.includes(`<loc>${p.url}</loc>`), `${p.dir}: in the sitemap`);
   }
+});
+
+test('the All tools hub lists every task page, is in the sitemap, and every landing page links it', async () => {
+  const { hubPage } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/tasks.mjs')).href);
+  const hub = hubPage(apps, SITE, TASKS), html = readFileSync(path.join(ROOT, 'all-tools/index.html'), 'utf8');
+  assert.equal(hub.count, TASKS.length);
+  for (const p of taskPages(apps, SITE, TASKS)) assert.ok(html.includes(`href="/${p.dir}"`), `${p.dir} is on the hub`);
+  assert.ok(readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8').includes(`<loc>${SITE}/all-tools/</loc>`));
+  assert.match(readFileSync(path.join(ROOT, 'apps/cutout/index.html'), 'utf8'), /<a href="\/all-tools\/">All tools<\/a>/);
 });

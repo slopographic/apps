@@ -74,6 +74,24 @@
     return out;
   };
 
+  /** Settings from a task page's link, for this visit only (nothing is saved): ?w=1080&h=1080 a box, ?kb=100 a file size
+   *  limit (the picture keeps its size unless w or h is given too), ?scale=50 a percentage, ?long=1920 the long edge,
+   *  ?fill=fit|cover|stretch|within, ?resample=best|nearest, ?format=jpg|png|webp. Unknown or out-of-range values are ignored. */
+  S.presetOf = function (search) {
+    const q = new URLSearchParams(search || ''), out = {};
+    const int = (k, lo, hi) => { const v = q.get(k); return v !== null && /^\d+$/.test(v) && +v >= lo && +v <= hi ? +v : 0; };
+    const w = int('w', 1, 16384), h = int('h', 1, 16384), kb = int('kb', 1, 100000), scale = int('scale', 1, 400), long = int('long', 1, 16384);
+    if (w || h) Object.assign(out, { mode: 'size', w, h });
+    if (kb) Object.assign(out, { mode: 'bytes', maxKB: kb, w, h });
+    else if (scale) Object.assign(out, { mode: 'scale', scale });
+    else if (long) Object.assign(out, { mode: 'long', long });
+    if (FILLS.includes(q.get('fill'))) out.fill = q.get('fill');
+    if (RESAMPLE.includes(q.get('resample'))) out.resample = q.get('resample');
+    const mime = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }[q.get('format')];
+    if (mime) out.mime = mime;
+    return out;
+  };
+
   /** What the queue runs with: the geometry spec plus the encoder choices. */
   S.toRun = function (s) {
     const spec = NS.size.normalize({ mode: s.mode, w: s.w, h: s.h, keepRatio: s.keepRatio, scale: s.scale, long: s.long, fill: s.fill, anchor: s.anchor, resample: s.resample, bg: s.bg, even: s.even, maxBytes: s.maxKB * 1024 });

@@ -8,6 +8,7 @@
 <body>
   <div id="host"><select id="pick" aria-label="Font family"></select></div>
   <script>
+  // Covers: shared/library/get-more.js, shared/library/install.js
   // Mock network: packs.json and the third-party pack files are served from memory and counted.
   // The "third-party" font bytes are a real bundled WOFF2 (Lato 400), so FontFace can really load them.
   const PACK_URL = 'https://raw.githubusercontent.com/example/test-fonts/main/ofl/testpack/TestPackSans-Regular.woff2';

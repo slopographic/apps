@@ -2,7 +2,8 @@
  * (SRT, WebVTT) keep the timed segments as the engine heard them. The formats themselves are SlopTranscript
  * (aitools/transcript.js) and the Word writer is shared/office/docx.js.
  *   FORMATS                          [{ id, label, ext, type }]
- *   fileOf(item, format, { times })  -> Promise<{ name, blob }> */
+ *   fileOf(item, format, { times })  -> Promise<{ name, blob }>
+ *   presetOf(search)                 -> { format? }: the file format a task page's link asks for (?format=srt) */
 import { docxBlob } from '../../shared/office/docx.js';
 
 export const FORMATS = [
@@ -12,6 +13,12 @@ export const FORMATS = [
   { id: 'vtt', label: 'Web subtitles (.vtt)', ext: 'vtt', type: 'text/vtt' },
 ];
 const X = () => globalThis.SlopTranscript;
+
+/** Pure: the preset in a page address. Only a known format is kept; anything else is ignored. For this visit only. */
+export function presetOf(search) {
+  const f = new URLSearchParams(search || '').get('format');
+  return FORMATS.some((x) => x.id === f) ? { format: f } : {};
+}
 
 /** The file name without its extension (a recording gets its own name). */
 export const stem = (name) => String(name || 'transcript').replace(/\.[^.]+$/, '') || 'transcript';

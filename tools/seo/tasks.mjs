@@ -85,3 +85,14 @@ export function taskPages(apps, site, TASKS) {
     return { key: `${t.app}/${t.slug}`, dir, url: `${site}/${dir}`, html: shell(body(t, app, apps, siblings)), app, task: t };
   });
 }
+
+/** The hub of every task page, grouped by app in registry order: /all-tools/. Every landing and task page links it. */
+export function hubPage(apps, site, TASKS) {
+  const groups = apps.map((a) => ({ app: a, tasks: TASKS.filter((t) => t.app === a.id) })).filter((g) => g.tasks.length);
+  const count = groups.reduce((n, g) => n + g.tasks.length, 0);
+  const body = `<p class="eyebrow">All tools</p>
+<h1>All free tools: ${count} things you can do in your browser</h1>
+<p class="lead">Every task the Slopographic apps do, grouped by app. Each one runs in your browser, with no upload, no account and no watermark.</p>
+${groups.map((g) => `<h2><a href="/apps/${esc(g.app.id)}/">${esc(g.app.name)}</a></h2>\n<ul>${g.tasks.map((t) => `<li><a href="/${esc(g.app.path)}${esc(t.slug)}/">${esc(t.h1)}</a></li>`).join('')}</ul>`).join('\n')}`;
+  return { key: 'all-tools', dir: 'all-tools/', url: `${site}/all-tools/`, html: shell(body), count };
+}

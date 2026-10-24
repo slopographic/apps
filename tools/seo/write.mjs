@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ROOT, SITE, loadRegistry, isPage, pageUrl } from './site.mjs';
 import { landingPages } from './landing.mjs';
-import { taskPages, taskJsonLd, videoJsonLd } from './tasks.mjs';
+import { taskPages, taskJsonLd, videoJsonLd, hubPage } from './tasks.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
 const DEFAULT_IMAGE = `${SITE}/og-share.png`;
@@ -121,6 +121,8 @@ export async function build({ date }) {
   for (const p of landing) copyEntries.push([`${p.key} landing`, LANDING[p.key]]);
   const tasks = taskPages(apps, SITE, TASKS);
   for (const p of tasks) copyEntries.push([`${p.key} task`, p.task]);
+  const hub = hubPage(apps, SITE, TASKS);
+  copyEntries.push(['all-tools landing', LANDING['all-tools']]);
   for (const slug of Object.keys(PAGES)) copyEntries.push([`${slug} page`, PAGES[slug]]);
   validateCopy(copyEntries);
 
@@ -183,7 +185,14 @@ export async function build({ date }) {
     const block = { title: p.task.title, description: p.task.description, url: p.url, image, viewport: false, jsonld: taskJsonLd(p.task, p.app, p.url, SITE) };
     out.push({ file, html: injectHead(p.html, headBlock(block)), before });
   }
-  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...tasks.map((p) => p.url), ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
+  { // the hub of every task page
+    const file = path.join(ROOT, hub.dir, 'index.html'), copy = LANDING['all-tools'];
+    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
+    const jsonld = [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: copy.title, description: copy.description, url: hub.url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: 'All tools', item: hub.url }] }];
+    out.push({ file, html: injectHead(hub.html, headBlock({ title: copy.title, description: copy.description, url: hub.url, image: DEFAULT_IMAGE, viewport: false, jsonld })), before });
+  }
+  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...tasks.map((p) => p.url), hub.url, ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
   return out;
 }
 
