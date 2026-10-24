@@ -9,6 +9,7 @@
   <script src="../harness.js"></script>
   <iframe id="app" src="../../invoices/index.html#new" title="Slop Invoices"></iframe>
   <script>
+  // Covers: invoices/js/ui/page.js, invoices/js/ui/editor.js, shared/docs/doc-editor.js, shared/docs/doc-page.js, shared/docs/doc-app.js
   const { describe, it, expect, run } = SlopTest;
   const frame = document.getElementById('app');
   const W = () => frame.contentWindow;

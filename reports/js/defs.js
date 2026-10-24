@@ -72,6 +72,18 @@
         { field: 'sum_amount', label: 'Amount', type: 'money' },
         { field: 'sum_tax', label: 'Tax', type: 'money' },
       ] },
+    { id: 'hours-by-customer', title: 'Hours by customer',
+      note: 'From Slop Timesheets: the time logged for each customer (internal time is shown as (none)), and what the billable part is worth at its rates, in each currency.',
+      from: 'timeEntries', enrich: ['timeValue'],
+      join: { from: 'customers', on: ['customerId', 'id'], type: 'left', prefix: 'customer_' },
+      by: ['customer_name', 'currency'], count: true, sum: ['minutes', 'value'], orderBy: 'sum_minutes', desc: true,
+      columns: [
+        { field: 'customer_name', label: 'Customer' },
+        { field: 'currency', label: 'Currency' },
+        { field: 'count', label: 'Entries', type: 'number' },
+        { field: 'sum_minutes', label: 'Time', type: 'duration' },
+        { field: 'sum_value', label: 'Billable value', type: 'money' },
+      ] },
   ];
 
   ns.BUILTIN = Object.freeze(BUILTIN.map((r) => Object.freeze(r)));

@@ -8,6 +8,9 @@
 //   editLabel?(t)           the edit tab's text for a route
 //   leave?(t)               async: false keeps the person where they are (unsaved changes); the hash is put back
 //   current?()              the hash to put back when leave() says no
+//   after?(t, shown)        runs after a view is shown (shown: what its show returned)
+//   mount?()                runs once with the views (an app's own bar)
+//   tabRoute?(name)         the hash a view tab goes to (default: editRoute() for the edit tab, else the tab's name)
 // The views are ns.views[name] = { mount?, show?(arg, t) (or onShow), refresh? }. The edit tab (#tab-edit) shows only on the edit view.
 (function (g) {
   'use strict';
@@ -30,7 +33,9 @@
       if (g.SlopLayouts) g.SlopLayouts.refresh(cfg.app);
       const v = NS.views[t.view];
       const fn = v && (v.show || v.onShow);
-      return fn ? fn(t.arg, t) : undefined;
+      const out = fn ? fn(t.arg, t) : undefined;
+      if (cfg.after) cfg.after(t, out);
+      return out;
     }
 
     async function route() {
@@ -49,9 +54,11 @@
       if (!ready.ok) { $('boot').textContent = `Storage is not available here: ${B.refusal(ready)}. Nothing can be saved in this window.`; return; }
       $('boot').hidden = true;
       const editRoute = cfg.editRoute || (() => location.hash.slice(1) || 'new');
-      tabs = g.SlopTabs.mount(document.querySelector('.tabs'), { select: (name) => go(name === 'edit' ? editRoute() : name) });
+      const tabRoute = cfg.tabRoute || ((name) => (name === 'edit' ? editRoute() : name));
+      tabs = g.SlopTabs.mount(document.querySelector('.tabs'), { select: (name) => go(tabRoute(name)) });
       for (const v of Object.values(NS.views)) if (v.mount) v.mount();
       if (NS.commands) NS.commands.init();
+      if (cfg.mount) cfg.mount();
       if (g.SlopHub) { try { g.SlopHub.register(cfg.app); } catch (e) { /* the hub is optional */ } }
       S.store.subscribe(redraw);
       addEventListener('hashchange', route);

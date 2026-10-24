@@ -4,7 +4,8 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
-  const { ok, fail } = ns.result;
+  // The pure helpers load on their own (Slop Reports prices time with amountOf); the writes need SlopData.result.
+  const ok = (v) => ns.result.ok(v), fail = (code, msg) => ns.result.fail(code, msg);
 
   /** Pure: what an entry is worth, in minor units: minutes at the hourly rate, rounded half up. */
   const amountOf = (e) => Math.round(((e.minutes || 0) * (e.rate || 0)) / 60);
