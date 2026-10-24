@@ -469,3 +469,14 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
 - The service worker precache does not list the new files until `node tools/pwa-precache.mjs` runs and VERSION is bumped.
 - Tables are found from text alignment only: no ruled-line detection, no merged cells.
 - Scanned pages are marked, not OCR'd, in Word and Excel (PowerPoint keeps them as pictures).
+
+## Assistant commands (`js/ui/ai-pages.js`, `js/ui/ai-commands.js`)
+Loaded on demand by `SlopCmd.prepare()` (`ui/commands.js`, not in the offline build), with `shared/commands/sources.js`. All
+`pdf.ai.*`, hidden, one `E.commit` each: `new_document` (size a4/letter/legal/a5/a3 or width/height in points, landscape,
+pages, title; a new tab when a PDF is open), `add_pages`, `insert_pdf` (a Slop Drive PDF through `A.addFiles`), `delete_pages`
+(the only destructive one), `rotate_pages`, `move_page`, `add_text` (Helvetica/Times/Courier, size, colour, bold, italic),
+`add_shape` (rect, ellipse, line, arrow, highlight box, whiteout), `add_image` (Slop Drive or a same-origin URL), `fill_form_field`,
+`set_metadata`, `export_pdf` (`E.build`, to Slop Drive and/or a download), `undo`. Positions are points from the top-left of the
+page as shown; results say where the addition landed and warn when it runs past the page. `state()` lists pages, additions,
+metadata and form fields; the checkpoint closes tabs the assistant opened and undoes back to its depth (`SP.history.goTo`).
+Test: `tests/pdf/ai-commands.test.html`.

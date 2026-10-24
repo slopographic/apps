@@ -6,13 +6,13 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 18 of 58 apps.
+Covered: 19 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
 | PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 29 | ✓ 1 |  | yes |
 | SlopVector (`vector`) | ✓ 1 | ✓ 3 | ✓ 10 | ✓ 1 |  | yes |
-| Slop PDF (`pdf`) | ✗ | ✗ | ✗ | ✗ | 1 | no |
+| Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 5 | ✓ 1 | 1 | yes |
 | SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | yes |
 | SlopIsolate (`cutout`) | ✗ | ✗ | ✓ 1 | ✗ |  | no |
 | Slop AI Tools (`aitools`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -84,6 +84,14 @@ Covered: 18 of 58 apps.
 - add: `add_shape`, `add_svg`, `add_text`
 - edit: `align`, `arrange`, `delete_object`, `distribute`, `group`, `pathfinder`, `select_objects`, `set_style`, `transform`, `ungroup`
 - export: `export`
+
+### Slop PDF
+
+- create: `new_document`
+- add: `add_image`, `add_pages`, `add_shape`, `add_text`, `insert_pdf`
+- edit: `delete_pages`, `fill_form_field`, `move_page`, `rotate_pages`, `set_metadata`
+- export: `export_pdf`
+- operations: `pdf.compress`
 
 ### SlopLabel
 
