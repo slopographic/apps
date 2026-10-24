@@ -110,7 +110,7 @@ input[type=checkbox] { accent-color: var(--accent); margin: 0; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
 
 /* ---------- main area ---------- */
-.main { display: grid; grid-template-columns: 62px 1fr 280px; min-height: 0; }
+.main { display: grid; grid-template-columns: 62px 1fr var(--ps-panels-w, 280px); min-height: 0; }   /* the panels' width: dragged, kept (js/app/main.js) */
 .toolbox { background: var(--chrome); border-right: 1px solid var(--line); padding: 8px 6px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .tools { display: grid; grid-template-columns: repeat(2, 24px); gap: 2px; }
 .tool { width: 24px; height: 24px; display: grid; place-items: center; border: 0; background: none; border-radius: 4px; color: var(--fg); padding: 0; }

@@ -61,6 +61,17 @@ p.footer([{ id: 'up-run', label: 'Upscale 2 pictures', primary: true, run }], { 
 - With a footer the panel is a column and the footer is `position: sticky; bottom: 0`; its height is in `--sf-foot-h` on
   the frame's root (frame.css leaves that much room under the page on phones).
 
+## Resizing side panels (every app)
+
+Every side panel is resized one way: `shared/ui/resize-panel.js` (SlopResizePanel). A handle on the panel's inner edge
+(drag, or focus it and use Left/Right, Shift for bigger steps, Home/End; a double-click puts the default back), min and
+max widths per panel, nothing on phones. The width is kept in the site's settings store (`SlopProfile.panelSize(app,
+panel)`, shared/profile/profile.js) and applied when the panel is attached, so an app that attaches before its first
+paint shows it at once. "Reset panel sizes" is one SlopCmd command, `view.resetPanels`; put it in the app's View menu.
+Users: SlopFrame (the panel and the list: `frame-panel`, `frame-list`; every app above), Slop AI's side panel
+(shared/ai/panel.js, `ai`), PhotoSlop's panels column, Slop PDF's and SlopIsolate's properties. An app whose grid comes
+from shared/layouts passes `sizeVars` so the layout's column follows the width. Tests: `tests/shared/resize-panel.test.html`.
+
 ## API
 
 ```html

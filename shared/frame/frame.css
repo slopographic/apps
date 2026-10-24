@@ -9,14 +9,15 @@
 .sf-view { order: 2; flex: 1 1 auto; min-width: 0; min-height: 0; overflow: auto; }
 .sf-grip { order: 3; flex: 0 0 7px; margin-inline: -3px -4px; position: relative; z-index: 2; cursor: col-resize; touch-action: none; }
 .sf-grip::after { content: ""; position: absolute; inset-block: 0; inset-inline-start: 3px; width: 1px; background: transparent; transition: background .15s; }
-.sf-grip:hover::after, .sf-grip:focus-visible::after, .sf-dragging .sf-grip::after { width: 2px; background: var(--sl-accent); }
+.sf-grip:hover::after, .sf-grip:focus-visible::after { width: 2px; background: var(--sl-accent); }
+.sf-lgrip { order: 1; margin-inline: -4px -3px; }   /* after the list (its DOM place), before the view */
 .sf-grip:focus-visible { outline: none; }
 .sf-dragging { cursor: col-resize; user-select: none; }
 .sf-dragging iframe { pointer-events: none; }
 .sf-panel { order: 4; flex: 0 0 var(--sf-panel-w, 300px); min-width: 0; min-height: 0; overflow-y: auto; box-sizing: border-box;
   background: var(--sl-surface); color: var(--sl-text); border-inline-start: 1px solid var(--sl-border); }
-.sf-nolist .sf-list { display: none; }
-.sf-nopanel:not(.sf-phone) .sf-panel, .sf-nopanel .sf-grip, .sf-phone .sf-grip { display: none; }
+.sf-nolist .sf-list, .sf-nolist .sf-lgrip { display: none; }
+.sf-nopanel:not(.sf-phone) .sf-panel, .sf-nopanel .sf-grip:not(.sf-lgrip), .sf-phone .sf-grip { display: none; }
 
 /* Phones: the list is the page; an item opens over it. The panel is a bottom sheet (shared/ui/sheet.js). */
 .sf-phone .sf-list { flex: 1 1 auto; border-inline-end: 0; }

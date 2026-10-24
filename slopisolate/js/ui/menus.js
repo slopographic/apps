@@ -154,6 +154,9 @@
   function init() {
     // Phones: the settings panel is a bottom sheet (shared/ui/sheet.js: this button, ×, Escape, a tap outside, swipe down).
     CO.sheet = SlopSheet.attach({ root: $('#app'), panel: $('#props'), phone: '(max-width: 900px)', toggles: [$('#btnPanel')], label: 'Settings' });
+    // the settings panel's width: dragged on its edge and kept (shared/ui/resize-panel.js, every side panel's one implementation)
+    if (window.SlopResizePanel) SlopResizePanel.attach($('#props'), { app: 'slopisolate', id: 'props', edge: 'start', width: 304, min: 260, max: 560,
+      phone: '(max-width: 900px)', cssVar: '--props-w', target: $('#app'), label: 'Settings' });
     buildBar(); bindButtons(); sync();
     ['history', 'activeItem', 'item', 'list'].forEach((t) => CO.on(t, sync));
     if (U.store.get('panel', true) === false) $('#app').classList.add('no-panel');

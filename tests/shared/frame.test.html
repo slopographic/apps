@@ -6,7 +6,7 @@
   <style>body { margin: 0; } iframe { border: 0; display: block; height: 700px; }</style>
 </head>
 <body>
-  <!-- Covers: shared/frame/frame.js, shared/frame/panel.js, shared/frame/frame.css, shared/ui/menubutton.js -->
+  <!-- Covers: shared/frame/frame.js, shared/frame/panel.js, shared/frame/frame.css, shared/ui/menubutton.js, shared/ui/resize-panel.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -29,7 +29,7 @@
 
   describe('SlopFrame: the layout', () => {
     it('three regions in order: list, view, panel at its width; a header button names the panel', async () => {
-      localStorage.removeItem(KEY);
+      localStorage.removeItem(KEY); localStorage.removeItem('slop-profile');
       const W = await open(1280);
       expect(box(W, 'list').right).toBeLessThanOrEqual(box(W, 'view').left + 1);
       expect(box(W, 'view').right).toBeLessThanOrEqual(box(W, 'panel').left + 1);
@@ -37,14 +37,14 @@
       const b = W.document.querySelector('#tools .sf-toggle');
       expect(b.textContent).toBe('Details');
       expect(b.getAttribute('aria-pressed')).toBe('true');
-      expect(W.document.querySelector('.sf-grip').getAttribute('role')).toBe('separator');
+      expect(W.document.querySelector('.sf-grip:not(.sf-lgrip)').getAttribute('role')).toBe('separator');
     });
 
     it('the panel edge drags wider and narrower, within its limits, and the width is remembered', async () => {
-      const W = await open(1280), g = W.document.querySelector('.sf-grip'), right = box(W, 'root').right;
+      const W = await open(1280), g = W.document.querySelector('.sf-grip:not(.sf-lgrip)'), right = box(W, 'root').right;
       ptr(g, 'pointerdown', right - 280); ptr(g, 'pointermove', right - 400); ptr(g, 'pointerup', right - 400);
       expect(Math.round(box(W, 'panel').width)).toBe(400);
-      expect(JSON.parse(localStorage.getItem(KEY)).width).toBe(400);
+      expect(JSON.parse(localStorage.getItem('slop-profile')).data['@panels'].frametest['frame-panel']).toBe(400);   // the site's settings store
       ptr(g, 'pointerdown', right - 400); ptr(g, 'pointermove', right - 50); ptr(g, 'pointerup', right - 50);
       expect(W.FR.width()).toBe(240);
       const W2 = await open(1280);
@@ -52,7 +52,7 @@
     });
 
     it('keys on the edge: Left widens, Right narrows, Home and End go to the limits', async () => {
-      const W = await open(1280), g = W.document.querySelector('.sf-grip');
+      const W = await open(1280), g = W.document.querySelector('.sf-grip:not(.sf-lgrip)');
       W.FR.setWidth(300);
       key(g, 'ArrowLeft'); expect(W.FR.width()).toBe(316);
       key(g, 'ArrowRight', { shiftKey: true }); expect(W.FR.width()).toBe(252);

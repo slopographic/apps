@@ -9,7 +9,7 @@
   <script src="../harness.js"></script>
   <script src="fresh-app.js"></script>
   <script>
-  // Covers: photoslop/js/app/topbar-fit.js, photoslop/js/app/main.js, photoslop/css/layout.css, photoslop/index.html, shared/frame/panel.js, shared/frame/frame.css
+  // Covers: photoslop/js/app/topbar-fit.js, photoslop/js/app/main.js, photoslop/js/app/layout.js, photoslop/js/ui/menus.js, shared/layouts/core.js, shared/ui/resize-panel.js, photoslop/css/layout.css, photoslop/index.html, shared/frame/panel.js, shared/frame/frame.css
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   const vis = (n) => n.getBoundingClientRect().width > 0 && n.getBoundingClientRect().height > 0;
 
@@ -69,6 +69,22 @@
       expect(exp.getBoundingClientRect().left).toBeGreaterThan(D.getElementById('viewport').getBoundingClientRect().right - 1);
       exp.click();
       await waitFor(() => D.querySelector('.sui-back, dialog[open], [role="dialog"]'), { timeout: 5000 });
+    }, { timeout: 60000 });
+  });
+  describe('the right panels resize (shared/ui/resize-panel.js) and keep their width', () => {
+    it('a handle on the panels\' edge; the width comes back after a reload; Reset panel sizes puts it back', async () => {
+      let app = await freshApp(), D = app.win.document;
+      const r = app.win.SlopResizePanel.panels().find((p) => p.id === 'panels');
+      expect(r.handle.getAttribute('role')).toBe('separator');
+      r.setWidth(400);
+      await sleep(50);
+      expect(Math.round(D.getElementById('panels').getBoundingClientRect().width)).toBe(400);
+      app = await freshApp({ keep: true }); D = app.win.document;
+      await sleep(50);
+      expect(Math.round(D.getElementById('panels').getBoundingClientRect().width)).toBe(400);
+      app.win.SlopResizePanel.resetAll();
+      await sleep(50);
+      expect(Math.round(D.getElementById('panels').getBoundingClientRect().width)).toBe(280);
     }, { timeout: 60000 });
   });
   SlopTest.run({ name: 'PhotoSlop: top bar fit and Export' });
