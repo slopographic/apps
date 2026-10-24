@@ -28,7 +28,7 @@
  *     { title, note }  { title, body: element }                      a line of text, or the app's own element
  *     { title, settings: element | [elements] }                      a tool's settings group (the app's own controls)
  *   .footer([action], { note, more })   the panel's main button(s), stuck to its bottom (tool apps: the rule)
- *   action = { label, run?, menu?: items | () => items, primary?, disabled?, title?, id? }
+ *   action = { label, run?, menu?: items | () => items, primary?, disabled?, title?, id? }  or { el: a button already in the page }
  *     menu items = [{ label, act, disabled?, heading? }] open under the button (shared/ui/menubutton.js) as "Label ▾".
  * Classic script; styles in frame.css. Needs shared/ui/sheet.js for phones and shared/ui/menubutton.js for menus. */
 (function (g) {

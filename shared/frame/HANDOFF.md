@@ -153,7 +153,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | File convert | convert/ | tool | tool built in JS, one column | to do | split the tool into view + right panel |
 | Slop AI Tools | aitools/ (+ ocr, speech, denoise, tags, portrait) | tool | each tool one column | to do | five tool pages: view + right panel |
 | Reel Remix | remix/ | editor | bin left, settings right, Remix in the panel | close | phone sheet missing |
-| PhotoSlop | photoslop/ | editor | toolbox left, panels right, Export in the header | close | Export into the right panel's foot |
+| PhotoSlop | photoslop/ | editor | toolbox left, panels right, Export in the header | done | Export at the panels' foot; the top bar fits the app's width (container query, More ▾) beside the Slop AI panel |
 | SlopVector | slopvector/ | editor | toolbar left, dock right | close | Export into the dock's foot |
 | Slop PDF | pdf/ | editor | rail left, properties right, Download in the header | close | Download into the properties' foot |
 | SlopLabel | label/ | editor | toolbox left, dock right, Print in the header | close | Print into the dock's foot |

@@ -71,7 +71,7 @@ button.sf-item-main:focus-visible { outline: 2px solid var(--sl-accent); outline
 .sf-seg .sui-btn { min-width: 0; height: 34px; }
 .sf-seg [aria-pressed="true"] { border-color: var(--sl-accent); color: var(--sl-accent); background: color-mix(in srgb, var(--sl-accent) 12%, transparent); }
 .sf-set .sf-note { margin: 0; }
-.sf-p-foot { position: sticky; bottom: 0; z-index: 2; display: grid; gap: 6px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+.sf-p-foot { position: sticky; bottom: 0; z-index: 2; margin-top: auto; display: grid; gap: 6px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
   background: var(--sl-surface); border-top: 1px solid var(--sl-border); }
 .sf-foot-acts { display: flex; gap: 6px; }
 .sf-foot-acts .sf-btn { flex: 1 1 0; min-width: 0; min-height: 40px; font-weight: 700; }
@@ -80,9 +80,9 @@ button.sf-item-main:focus-visible { outline: 2px solid var(--sl-accent); outline
 /* Phones (a SlopSheet panel: SlopFrame's, or an editor's own): the closed sheet shows only its footer at the bottom of the
    screen, and the page leaves room for it */
 .ssh-phone .sf-foot-acts .sf-foot-more { display: inline-flex; flex: 0 0 auto; font-weight: 600; }
-.ssh-phone .sf-has-foot.ssh-panel:not(.ssh-on) { visibility: visible; transform: none; transition: none; overflow: hidden; block-size: auto; min-block-size: 0;
+.ssh-phone .sf-has-foot.ssh-panel:not(.ssh-on):not(.ssh-start):not(.ssh-end) { visibility: visible; transform: none; transition: none; overflow: hidden; block-size: auto; min-block-size: 0;
   box-shadow: 0 -6px 18px rgba(0, 0, 0, .18); }
-.ssh-phone .sf-has-foot.ssh-panel:not(.ssh-on) > :not(.sf-p-foot) { display: none; }
+.ssh-phone .sf-has-foot.ssh-panel:not(.ssh-on):not(.ssh-start):not(.ssh-end) > :not(.sf-p-foot) { display: none; }
 .ssh-phone .sf-has-foot .sf-p-foot { border-radius: 0; }
-.ssh-phone:has(.sf-has-foot.ssh-panel) { padding-bottom: var(--sf-foot-h, 64px); }
+.ssh-phone:has(.sf-has-foot.ssh-panel:not(.ssh-start):not(.ssh-end)) { padding-bottom: var(--sf-foot-h, 64px); }
 @media print { .sf-panel, .sf-grip, .sf-list { display: none !important; } }

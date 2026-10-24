@@ -11,6 +11,6 @@
   });
   const panel = g.SlopFrame.panel($('h2p-side'), { title: 'HTML to PDF' });
   panel.render([...$('h2p-side').querySelectorAll('.h2p-group')].map((gr) => ({ title: gr.dataset.title, key: gr.dataset.title, settings: gr })));
-  panel.footer([{ id: 'h2p-print', label: 'Print or save as PDF…', primary: true, disabled: true }], { more: 'Options' });
+  panel.footer([{ el: $('h2p-print') }], { more: 'Options' });
   (g.H2P = g.H2P || {}).layout = { frame: fr, panel };
 })(typeof window !== 'undefined' ? window : globalThis);

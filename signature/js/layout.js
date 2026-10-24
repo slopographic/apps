@@ -13,8 +13,8 @@
   const panel = g.SlopFrame.panel($('sgPanel'), { title: 'Your signature' });
   panel.render([
     { title: 'Your details', key: 'details', settings: [$('sgStart'), $('sgForm')] },
-    { title: 'Result', key: 'result', actions: [{ id: 'sgCode', label: 'Copy HTML code' }, { id: 'sgDownload', label: 'Download HTML' }] },
+    { title: 'Result', key: 'result', actions: [{ el: $('sgCode') }, { el: $('sgDownload') }] },
   ]);
-  panel.footer([{ id: 'sgCopy', label: 'Copy signature', primary: true }], { more: 'Edit' });
+  panel.footer([{ el: $('sgCopy') }], { more: 'Edit' });
   (g.SlopSignature = g.SlopSignature || {}).layout = { frame: fr, panel };
 })(typeof window !== 'undefined' ? window : globalThis);

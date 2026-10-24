@@ -48,7 +48,7 @@ button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--focus, #4ea1ff); outline-offset: 1px; }
 svg { display: block; }
 
-.app { display: grid; grid-template-rows: 38px auto 1fr 24px; height: 100vh; height: 100dvh; }
+.app { display: grid; grid-template-rows: 38px auto 1fr 24px; height: 100vh; height: 100dvh; container: ps-app / inline-size; }
 /* ---------- top bar ---------- */
 .topbar { display: flex; align-items: center; gap: 6px; background: var(--bar); border-bottom: 1px solid var(--line); padding: 0 8px 0 10px; min-width: 0; }
 .logo { display: flex; align-items: center; gap: 7px; color: var(--fg); text-decoration: none; padding-right: 6px; flex: none; }
@@ -63,10 +63,13 @@ svg { display: block; }
 .mb-item { background: none; border: 0; padding: 5px 9px; border-radius: var(--radius); white-space: nowrap; }
 .mb-item:hover, .mb-item.open { background: var(--hover); }
 .doc-title { flex: 1; min-width: 0; text-align: center; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 8px; }
-/* Under 1180 px the title would show as a cut-off stub; the document tab below still names the file. */
-@media (max-width: 1180px) { .doc-title { visibility: hidden; } }
-/* Macros ▾ only where the bar has room for it (a phone's bar has a second row); Edit ▸ Macros and Ctrl+K are always there */
-@media (min-width: 641px) and (max-width: 1279px) { #macrosBtn { display: none; } }
+/* The bar follows the app's own width (a container query on .app), not the window's: the Slop AI panel beside the app
+   makes it narrower than the window. Under 1180 px the title would show as a cut-off stub (the document tab below still
+   names the file); Macros ▾ only where the bar has room for it (Edit ▸ Macros and Ctrl+K are always there). Whatever
+   still does not fit folds into More ▾ (js/app/topbar-fit.js). */
+@container ps-app (max-width: 1180px) { .doc-title { visibility: hidden; } }
+@container ps-app (min-width: 641px) and (max-width: 1279px) { #macrosBtn { display: none; } }
+.top-btn.ps-fold { display: none; }
 .top-actions { display: flex; gap: 6px; flex: none; }
 /* The shared header buttons (Drive, Tour, View, Theme, Apps: shared/ui/hbtn.css) wear the look of .top-btn. */
 .topbar { --slop-hbtn-h: 26px; --slop-hbtn-bg: var(--panel-2); --slop-hbtn-line: var(--line-2); --slop-hbtn-hover: var(--hover); --slop-hbtn-radius: var(--radius); --slop-hbtn-fs: 12px; }
