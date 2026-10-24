@@ -9,6 +9,7 @@
   <iframe id="app"></iframe>
   <script src="../harness.js"></script>
   <script>
+  // Covers: invoices/js/ui/credit-note.js, invoices/js/ui/app.js, invoices/index.html, shared/biz/docbar.js
   // Covers: invoices/js/ui/credit-dialog.js, invoices/js/ui/editor.js, invoices/js/core/context.js, invoices/js/core/util.js, invoices/js/ui/statement.js
   // Covers: shared/data/credits.js, shared/biz/app.css, reports/js/enrich.js
   const { describe, it, expect, waitFor, run, sleep } = SlopTest;
@@ -53,6 +54,16 @@
       expect($('eCreditsHead').hidden).toBe(false);
       expect($('eBalance').textContent).toContain('$70.00');
       expect(action('Void…').disabled).toBe(true);
+    });
+    it('the credit note opens as a printable sheet, named in the record bar, with a link back to its invoice', async () => {
+      $('eCredits').querySelector('a').click();
+      await waitFor(() => !$('view-credit').hidden && D.querySelector('.credit-note'));
+      const sheet = D.querySelector('.credit-note');
+      expect(sheet.textContent).toContain('CN-0001');
+      expect(sheet.textContent).toContain('Reason: Price agreed');
+      expect(sheet.querySelector('tfoot').textContent).toBe('Amount credited$30.00');
+      expect(D.querySelector('.biz-docbar .biz-doc-title:not([hidden])').textContent).toBe('Credit note CN-0001');
+      expect($('cnInvoice').getAttribute('href').startsWith('#i/')).toBe(true);
     });
     it('on a paid invoice the credit is paid back: the dialog asks how, and the statement shows the credit and the refund', async () => {
       const inv = await issued(5000);

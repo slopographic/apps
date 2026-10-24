@@ -1,5 +1,5 @@
 // Slop Invoices boot: the shared document routes (shared/docs/doc-app.js: list, new, i/<id>, data) plus p/<id>, the print
-// view, s/<customer id> (a customer statement) and repeat (the repeating schedules). An open invoice, its print view and a
+// view, s/<customer id> (a customer statement), c/<credit note id> (a credit note to print) and repeat (the repeating schedules). An open invoice, its print view and a
 // statement show the record bar (SlopBiz.docbar: back, number, status, Save and Print); the tabs stay Invoices, Repeating and
 // Data. The list beside an open invoice marks its row; the menu bar has New invoice.
 (function (g) {
@@ -9,7 +9,7 @@
 
   /** The print view's route, p/<id>. */
   const more = (h) => (h === 'repeat' ? { view: 'repeat' } : h.startsWith('p/') && h.length > 2 ? { view: 'print', arg: h.slice(2) }
-    : h.startsWith('s/') && h.length > 2 ? { view: 'statement', arg: h.slice(2) } : null);
+    : h.startsWith('s/') && h.length > 2 ? { view: 'statement', arg: h.slice(2) } : h.startsWith('c/') && h.length > 2 ? { view: 'credit', arg: h.slice(2) } : null);
 
   /** After a view shows: the list's selected row, and on the list the repeating invoices that are due. */
   function after(t, shown) {
@@ -27,7 +27,7 @@
   }
 
   // a tab click or the tab keys route through the #hash; the print tab stays on its invoice
-  const tabRoute = (n) => (n === 'edit' ? NS.editor.route() : n === 'print' || n === 'statement' ? location.hash.slice(1) : n);
+  const tabRoute = (n) => (n === 'edit' ? NS.editor.route() : n === 'print' || n === 'statement' || n === 'credit' ? location.hash.slice(1) : n);
 
   g.SlopDocs.docApp.start({ ns: NS, app: 'invoices', route: 'i', noun: 'invoice', more, after, mount, tabRoute });
 })(typeof window !== 'undefined' ? window : globalThis);

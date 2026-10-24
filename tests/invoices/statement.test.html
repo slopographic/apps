@@ -49,7 +49,7 @@
       expect(ages[3]).toContain('$60.00');
       expect(D.querySelector('.st-to').textContent).toContain('Leeds');
       expect(D.querySelector('.biz-docbar').hidden).toBe(false);   // the record bar (shared/biz/docbar.js), not a new tab
-      expect(D.querySelector('.biz-docbar .biz-doc-title:not([hidden])').textContent).toBe('Statement');
+      expect(D.querySelector('.biz-docbar .biz-doc-title:not([hidden])').textContent).toBe('Ada Ltd: statement');
     });
     it('a From date gives an opening balance and only the later lines', async () => {
       const from = S().ledger.addDays(S().ledger.today(), -30);

@@ -70,6 +70,7 @@
       <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Invoice</button>
       <button type="button" role="tab" class="tab" id="tab-print" data-view="print" aria-controls="view-print" aria-selected="false" hidden>Print</button>
       <button type="button" role="tab" class="tab" id="tab-statement" data-view="statement" aria-controls="view-statement" aria-selected="false" hidden>Statement</button>
+      <button type="button" role="tab" class="tab" id="tab-credit" data-view="credit" aria-controls="view-credit" aria-selected="false" hidden>Credit note</button>
       <button type="button" role="tab" class="tab" id="tab-repeat" data-view="repeat" aria-controls="view-repeat" aria-selected="false">Repeating</button>
       <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
     </nav>
@@ -147,10 +148,6 @@
 
       <section class="view" id="view-statement" role="tabpanel" aria-labelledby="tab-statement" hidden>
         <div class="toolbar no-print">
-          <button type="button" class="btn small" id="stBack">← Invoices</button>
-          <h2 class="h2" id="stTitle">Statement</h2>
-        </div>
-        <div class="toolbar no-print">
           <label>From (optional) <input id="stFrom" type="date"></label>
           <label>Currency <select id="stCurrency"></select></label>
           <button type="button" class="btn primary" id="stPrint">Print…</button>
@@ -158,6 +155,10 @@
           <button type="button" class="btn" id="stRemind">Reminder…</button>
         </div>
         <div id="stSheet"></div>
+      </section>
+      <section class="view" id="view-credit" role="tabpanel" aria-labelledby="tab-credit" hidden>
+        <div class="toolbar no-print"><button type="button" class="btn primary" id="cnPrint">Print…</button><a class="btn" id="cnInvoice" href="#list">Open the invoice</a></div>
+        <div id="cnSheet"></div>
       </section>
 
       <section class="view" id="view-repeat" role="tabpanel" aria-labelledby="tab-repeat" hidden>
@@ -237,7 +238,7 @@
   <script src="js/ui/repeat-dialog.js"></script>
   <script src="js/ui/repeat.js"></script>
   <script src="../shared/biz/sheet.js"></script>
-  <script src="js/ui/statement.js"></script>
+  <script src="js/ui/statement.js"></script><script src="js/ui/credit-note.js"></script>
   <script src="js/ui/reminder.js"></script>
   <script src="js/ui/editor.js"></script>
   <script src="js/ui/page.js"></script>

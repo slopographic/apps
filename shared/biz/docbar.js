@@ -12,6 +12,7 @@
 //     actions   the app's own buttons for the record, moved in as they are                        optional
 //   The editor's own header row (.head-row: its back button, heading and chip) is hidden: the bar replaces it.
 //   SlopBiz.docbar.show(on, label, view)   the router: on a record view or not, the view's label and name
+//   SlopBiz.docbar.title(text)             a record view's own name once loaded (a statement: "Ada Ltd: statement")
 (function (g) {
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
@@ -67,5 +68,8 @@
     bar.dataset.view = view || '';
   }
 
-  B.docbar = { mount, show, get element() { return bar; } };
+  /** A record view names itself once it has loaded (a statement: the customer's name); shown in place of the view's label. */
+  function title(text) { if (label) label.textContent = text || ''; }
+
+  B.docbar = { mount, show, title, get element() { return bar; } };
 })(typeof window !== 'undefined' ? window : globalThis);

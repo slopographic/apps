@@ -36,7 +36,8 @@
       if (!st.payments.length) box.replaceChildren(h('p', { class: 'note', text: st.status === 'issued' ? 'No payments yet.' : '' }));
       else box.replaceChildren(h('ul', { class: 'report' }, st.payments.map((p) => h('li', { text: `${p.date} · ${p.method} · ${U.money(p.amount, st.currency, st.locale)}${p.note ? ` · ${p.note}` : ''}` }))));
       const m = (v) => U.money(v, st.currency, st.locale);
-      $('eCredits').replaceChildren(...(st.credits || []).map((c) => h('li', { text: `${c.number} · ${c.date} · ${m(c.amount)}${c.refund ? ` (${m(c.refund)} paid back)` : ''}${c.reason ? ` · ${c.reason}` : ''}` })));
+      $('eCredits').replaceChildren(...(st.credits || []).map((c) => h('li', null, h('a', { href: `#c/${c.id}`, text: c.number }),
+        ` · ${c.date} · ${m(c.amount)}${c.refund ? ` (${m(c.refund)} paid back)` : ''}${c.reason ? ` · ${c.reason}` : ''}`)));
       $('eCreditsHead').hidden = !(st.credits || []).length;
     },
     mount(st, edited) { $('eDue').addEventListener('input', (e) => { st.dueDate = e.target.value; edited(); }); },

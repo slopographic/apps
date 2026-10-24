@@ -46,7 +46,7 @@
         h('tfoot', null, h('tr', null, h('th', { colspan: 6, text: 'Balance owed' }), h('th', { class: 'num', text: m(st.closing) }))))),
       h('div', { class: 'stats st-age' }, AGE.map(([k, label]) => h('div', { class: `stat${st.ageing[k] && k !== 'current' ? ' is-late' : ''}` }, h('b', { text: m(st.ageing[k]) }), h('span', { text: label })))),
       st.owed.length ? h('p', { class: 'note', text: `Still open: ${st.owed.map((o) => `${o.ref} ${m(o.left)}${o.late ? ` (${o.late} days late)` : ''}`).join(' · ')}.` }) : h('p', { class: 'note', text: 'Nothing is owed. Thank you.' })));
-    $('stTitle').textContent = `${c.name}: statement`;
+    g.SlopBiz.docbar.title(`${c.name}: statement`);   // the record bar (shared/biz/docbar.js) names the statement
     $('stRemind').disabled = st.closing <= 0;
   }
 
@@ -70,7 +70,6 @@
     $('stPrint').addEventListener('click', () => g.print());
     $('stCsv').addEventListener('click', downloadCsv);
     $('stRemind').addEventListener('click', () => cur && NS.reminder.open(build(), cur.customer, cur.settings));
-    $('stBack').addEventListener('click', () => NS.app.go('list'));
   }
 
   NS.statementView = { show, draw, build, downloadCsv };

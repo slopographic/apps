@@ -122,7 +122,8 @@
     it('the list view keeps its tabs and fits the window with no sideways scroll', async () => {
       const W = await openApp(390, 'list', 'list');
       const D = W.document;
-      expect(D.querySelectorAll('.tabs .tab').length).toBe(6);
+      // the sections are the tabs; an open invoice, print view, statement or credit note shows in the record bar instead
+      expect([...D.querySelectorAll('.tabs .tab:not([hidden])')].map((t) => t.textContent)).toEqual(['Invoices', 'Repeating', 'Data']);
       expect(shown(D.getElementById('iRows'))).toBe(true);
       expect(D.documentElement.scrollWidth <= 390).toBe(true);
       expect(sideways(W)).toEqual([]);
