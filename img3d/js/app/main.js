@@ -182,8 +182,21 @@
     }
   }
 
+  /** For the assistant's commands (ai-commands.js, loaded when the AI panel first asks): the page's own steps. */
+  ns.app = { state: () => S, openBlob, build, opts, meshNow, idle: () => !S.busy && !S.again };
+  function commands() {
+    const C = window.SlopCmd;
+    if (!C || !C.init) return;
+    C.init({ app: 'img3d' });
+    if (C.provide) C.provide({ prepare: () => (ns.ai ? null : new Promise((res, rej) => {
+      const el = Object.assign(document.createElement('script'), { src: new URL('js/app/ai-commands.js', location.href).href });
+      el.onload = res; el.onerror = () => rej(new Error('Could not load ai-commands.js')); document.head.append(el);
+    })) });
+  }
+
   async function boot() {
     bind();
+    commands();
     $('scaleVal').textContent = (+$('scale').value).toFixed(2);
     say('Open a picture to begin. Nothing is uploaded.');
     refreshDepthNote();

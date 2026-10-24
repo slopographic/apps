@@ -10,7 +10,7 @@ import { scan, render, toolsIn, kindOf, ROOT, OUT } from '../../tools/ai-coverag
 
 // Apps that must stay covered. Add an app here once its commands cover it (never remove one to make the test pass).
 const COVERED = ['photoslop', 'vector', 'pdf', 'label', 'reports', 'docs', 'tables', 'slides', 'press', 'contacts', 'inventory', 'orders', 'quotes', 'purchases',
-  'timesheets', 'expenses', 'invoices', 'notes', 'signature', 'qr', 'crm', 'calendar', 'todo', 'ledger', 'drive', 'code', 'gallery'];
+  'timesheets', 'expenses', 'invoices', 'notes', 'signature', 'qr', 'crm', 'calendar', 'todo', 'ledger', 'drive', 'code', 'gallery', '3d', 'nodes'];
 const rows = scan();
 
 test('AI-COVERAGE.md is up to date (run node tools/ai-coverage.mjs)', () => {

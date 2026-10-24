@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 27 of 58 apps.
+Covered: 29 of 58 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -41,12 +41,12 @@ Covered: 27 of 58 apps.
 | Slop Notes (`notes`) | ✓ 2 | ✓ 1 | ✓ 2 | ✓ 1 |  | yes |
 | Paste (`paste`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Effects (`effects`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
-| Slop Image to 3D (`img3d`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop Image to 3D (`img3d`) | ✓ 1 | ✗ | ✓ 1 | ✓ 1 |  | no |
 | Slop Sheets (`sheetview`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Hex (`hex`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop EML (`eml`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Checksum (`checksum`) | ✗ | ✗ | ✗ | ✗ |  | no |
-| Slopnodes (`nodes`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slopnodes (`nodes`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 2 |  | yes |
 | Serial counter (`serials`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Transcribe (`transcribe`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | yes |
@@ -66,7 +66,7 @@ Covered: 27 of 58 apps.
 | Slop Code (`code`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 2 |  | yes |
 | Slop Photo Sorter (`sorter`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slop Gallery (`gallery`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | yes |
-| Slop 3D (`3d`) | ✗ | ✗ | ✗ | ✗ |  | no |
+| Slop 3D (`3d`) | ✓ 2 | ✓ 2 | ✓ 8 | ✓ 1 |  | yes |
 | Slop Music (`music`) | ✗ | ✗ | ✗ | ✗ |  | owned by wip/video-ai |
 
 ## Commands per app
@@ -210,6 +210,19 @@ Covered: 27 of 58 apps.
 - edit: `delete_note`, `set_note`
 - export: `export_note`
 
+### Slop Image to 3D
+
+- create: `new_from_picture`
+- edit: `set_options`
+- export: `export_model`
+
+### Slopnodes
+
+- create: `build_graph`, `new_graph`
+- add: `add_node`
+- edit: `connect`, `delete_node`, `disconnect`, `set_node`
+- export: `export_graph`, `save_project`
+
 ### Slop Signature
 
 - create: `new_signature`
@@ -272,3 +285,10 @@ Covered: 27 of 58 apps.
 - add: `add_photos`, `add_to_album`
 - edit: `delete_album`, `remove_from_album`, `remove_photos`, `reorder_album`, `set_tags`
 - export: `export_photos`
+
+### Slop 3D
+
+- create: `build_scene`, `new_scene`
+- add: `add_model`, `add_object`
+- edit: `delete_object`, `rename_object`, `set_background`, `set_light`, `set_material`, `set_shape`, `set_transform`, `set_view`
+- export: `export_scene`
