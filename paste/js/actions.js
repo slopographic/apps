@@ -42,15 +42,10 @@ export async function newPaste(o = {}) {
 }
 
 /** Paste handling for the whole page: an image makes an image paste; text pasted outside a field makes a text paste. */
+/** A pasted picture is the intake's (registerIntake: it takes it first, also in the text box, a paste-catcher); this is
+ *  pasted text. */
 export async function onPaste(e) {
-  const items = [...((e.clipboardData && e.clipboardData.items) || [])];
-  const img = items.find((i) => i.kind === 'file' && i.type.startsWith('image/'));
-  if (img) {
-    e.preventDefault();
-    const blob = img.getAsFile();
-    if (blob) await newPaste({ kind: 'image', blob, title: 'Image' });
-    return;
-  }
+  if (e.defaultPrevented) return;
   const t = e.target;
   const typing = t && t.matches && t.matches('input, textarea, [contenteditable]');
   const text = e.clipboardData && e.clipboardData.getData('text/plain');
@@ -70,11 +65,14 @@ export async function onPaste(e) {
   }
 }
 
-export async function addImage() {
-  const files = await SlopUI.pickFiles({ accept: 'image/*' });
-  const f = files && files[0];
-  if (f) await newPaste({ kind: 'image', blob: f, title: f.name.replace(/\.[^.]+$/, '') || 'Image' });
+/** The one way pictures come in (shared/intake, spec 'paste'): Add image… and a pasted picture each become a paste. */
+export function registerIntake() {
+  window.SlopIntake.register({
+    id: 'paste', accept: { types: ['image/*'], noun: 'a picture' }, toast: false,
+    process: async (f, ctx) => { await newPaste({ kind: 'image', blob: f, title: ctx.source === 'paste' ? 'Image' : f.name.replace(/\.[^.]+$/, '') || 'Image' }); return f.name; },
+  });
 }
+export const addImage = () => window.SlopIntake.pick({ to: 'paste', multiple: false, accept: 'image/*' });
 
 export async function copy(p) {
   if (!p) return;

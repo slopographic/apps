@@ -271,6 +271,9 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   `tests/intake/qr-signature.test.html`.
 - **Slop Signature** (`signature/js/form.js`, spec `signature`, the picture): the button (the intake's picker; was a
   hidden file input) and a pasted picture (new). `tests/intake/qr-signature.test.html`.
+- **Slop Pastebin** (`paste/js/actions.js`, spec `paste`, pictures): Add image… (the intake's picker) and a pasted
+  picture, also in the text box (`#pb-src` is a `paste-catcher`, so a file pasted there is the intake's too). The page's
+  own paste listener is only pasted text. `tests/intake/paste.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -399,11 +402,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### orders
 
 - [ ] file input: `orders/index.html:130`
-
-### paste
-
-- [ ] pickFiles: `paste/js/actions.js:74`
-- [ ] paste listener: `paste/js/main.js:20`
 
 ### photoslop
 
