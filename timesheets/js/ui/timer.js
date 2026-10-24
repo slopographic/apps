@@ -1,0 +1,61 @@
+// Slop Timesheets timer: Start notes the time (kept in this browser, so a reload or another tab keeps it running); Stop
+// opens a new entry with the minutes worked (at least one), the description and the customer filled in, to check and save.
+// Nothing is stored in the books until that entry is saved.
+(function (g) {
+  'use strict';
+  const NS = (g.SlopTimesheets = g.SlopTimesheets || {});
+  const $ = (id) => document.getElementById(id);
+  const KEY = 'slop-timesheets.timer';
+  let tick = 0;
+
+  function read() { try { const v = JSON.parse(localStorage.getItem(KEY)); return v && Number.isFinite(v.start) ? v : null; } catch (e) { return null; } }
+  function write(v) { try { if (v) localStorage.setItem(KEY, JSON.stringify(v)); else localStorage.removeItem(KEY); } catch (e) { /* storage blocked: the timer lasts this page */ } }
+  let mem = null;   // the timer when storage is blocked
+  const current = () => read() || mem;
+
+  /** Elapsed time as h:mm:ss. */
+  function clock(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000)), p = (n) => String(n).padStart(2, '0');
+    return `${Math.floor(s / 3600)}:${p(Math.floor(s / 60) % 60)}:${p(s % 60)}`;
+  }
+
+  function paint() {
+    const t = current(), on = !!t;
+    $('tmGo').textContent = on ? 'Stop' : 'Start timer';
+    $('tmGo').className = on ? 'btn danger' : 'btn primary';
+    $('tmClock').textContent = on ? clock(Date.now() - t.start) : '0:00:00';
+    $('tmCard').classList.toggle('is-running', on);
+    if (on && document.activeElement !== $('tmDesc')) $('tmDesc').value = t.description || '';
+    clearInterval(tick);
+    if (on) tick = setInterval(() => { const c = current(); if (c) $('tmClock').textContent = clock(Date.now() - c.start); }, 1000);
+  }
+
+  function start() {
+    mem = { start: Date.now(), description: $('tmDesc').value.trim(), customerId: $('tCustomer').value };
+    write(mem);
+    paint();
+  }
+
+  /** Stops the timer and opens the new entry with what it measured. */
+  function stop() {
+    const t = current();
+    if (!t) return;
+    const minutes = Math.min(1440, Math.max(1, Math.ceil((Date.now() - t.start) / 60000)));
+    NS.state.prefill = { minutes, description: $('tmDesc').value.trim() || t.description || '', customerId: t.customerId || '' };
+    mem = null;
+    write(null);
+    paint();
+    NS.app.go('new');
+  }
+
+  function mount() {
+    $('tmGo').addEventListener('click', () => (current() ? stop() : start()));
+    $('tmDesc').addEventListener('input', () => { const t = current(); if (t) { t.description = $('tmDesc').value; mem = t; write(t); } });
+    addEventListener('storage', (e) => { if (e.key === KEY) paint(); });
+    paint();
+  }
+
+  NS.timer = { mount, paint, start, stop, running: () => !!current(), clock };
+  NS.views = NS.views || {};
+  NS.views.timer = { mount };
+})(typeof window !== 'undefined' ? window : globalThis);

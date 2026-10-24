@@ -41,16 +41,13 @@
   }
 
   const cell = (v) => { const s = String(v ?? ''); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const decimal = (minor, digits) => { const n = Math.abs(minor), d = 10 ** digits; return (minor < 0 ? '-' : '') + (digits ? `${Math.floor(n / d)}.${String(n % d).padStart(digits, '0')}` : String(n)); };
-
-  /** CSV of expenses (a header line, then one line per expense, oldest first). names: account code -> name; digits(currency)
-   *  gives the currency's minor digits. Amounts are plain decimals, so spreadsheets read them as numbers. */
-  function csv(list, names = {}, digits = () => 2) {
+  /** CSV of expenses (a header line, then one line per expense, oldest first). names: account code -> name; plain(minor, currency)
+   *  is the plain decimal text (SlopData.money.plainMinor). Amounts are plain decimals, so spreadsheets read them as numbers. */
+  function csv(list, names, plain) {
     const head = ['Date', 'Supplier', 'Description', 'Category', 'Amount', 'Tax', 'Currency', 'Paid by', 'Status', 'Notes'];
     const rows = [...(list || [])].filter((e) => !e.deletedAt).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)).map((e) => {
-      const d = digits(e.currency);
-      return [e.date, e.supplier, e.description, names[e.account] ? `${e.account} ${names[e.account]}` : e.account,
-        decimal(e.amount, d), decimal(e.tax || 0, d), e.currency || '', e.method || '', e.status, e.notes].map(cell).join(',');
+      return [e.date, e.supplier, e.description, (names || {})[e.account] ? `${e.account} ${names[e.account]}` : e.account,
+        plain(e.amount, e.currency), plain(e.tax || 0, e.currency), e.currency || '', e.method || '', e.status, e.notes].map(cell).join(',');
     });
     return [head.join(','), ...rows].join('\r\n') + '\r\n';
   }

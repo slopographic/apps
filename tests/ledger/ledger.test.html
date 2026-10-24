@@ -8,6 +8,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
+  // Covers: ledger/js/core/util.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   const frame = document.createElement('iframe');
   frame.style.cssText = 'width:390px;height:820px;border:0;position:fixed;left:0;top:0;background:#111';
@@ -148,6 +149,12 @@
   });
 
   describe('the local-only rule', () => {
+    it('CSV amounts are exact plain decimals in the currency digits (SlopData.money.plainMinor)', () => {
+      const U = win().SlopLedger.util;
+      expect(U.decimal(1234, 'USD')).toBe('12.34');
+      expect(U.decimal(-5, 'EUR')).toBe('-0.05');
+      expect(U.decimal(500, 'JPY')).toBe('500');
+    });
     it('no error reached the page', () => {
       expect(errors).toHaveLength(0);
     });

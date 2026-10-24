@@ -29,7 +29,7 @@
   async function exportCsv() {
     const [r, accts] = await Promise.all([S.store.list('expenses'), B.expenseAccounts()]);
     if (!r.ok) { UI.alert('Not exported', B.refusal(r)); return; }
-    const text = NS.core.csv(r.value, Object.fromEntries(accts.map((a) => [a.code, a.name])), (c) => S.money.digits(c || 'USD'));
+    const text = NS.core.csv(r.value, Object.fromEntries(accts.map((a) => [a.code, a.name])), (m, c) => S.money.plainMinor(m, c || 'USD'));
     UI.download(new Blob(['﻿' + text], { type: 'text/csv' }), `expenses-${S.ledger.today()}.csv`);
   }
 

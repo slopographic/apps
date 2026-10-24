@@ -45,6 +45,14 @@
     return Number.isSafeInteger(n) && Math.abs(n) <= MAX_MINOR ? n : null;
   }
 
+  /** Plain decimal text with the currency's minor digits, no symbol or grouping: 1250 USD -> "12.50", -5 -> "-0.05",
+   *  500 JPY -> "500". Exact (string arithmetic); round-trips with parseMinor. For forms and CSV. */
+  function plainMinor(minor, currency = 'USD') {
+    const d = digits(currency), neg = minor < 0;
+    const s = String(Math.abs(minor)).padStart(d + 1, '0');
+    return (neg ? '-' : '') + (d ? `${s.slice(0, -d)}.${s.slice(-d)}` : s);
+  }
+
   /** Display only, through Intl.NumberFormat with halfExpand rounding (ties away from zero). */
   function formatMinor(minor, currency = 'USD', locale = 'en-US') {
     const code = String(currency || 'USD').toUpperCase();
@@ -83,5 +91,5 @@
     return { subtotal, tax, total: subtotal + tax, byRate: [...rates.values()].sort((x, y) => x.rate - y.rate) };
   }
 
-  ns.money = { MAX_MINOR, ONE, mulDiv, taxOn, lineAmounts, documentTotals, parseMinor, formatMinor, digits };
+  ns.money = { MAX_MINOR, ONE, mulDiv, taxOn, lineAmounts, documentTotals, parseMinor, formatMinor, plainMinor, digits };
 })(typeof window !== 'undefined' ? window : globalThis);

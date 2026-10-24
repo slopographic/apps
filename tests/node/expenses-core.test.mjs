@@ -7,6 +7,8 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const X = require('../../expenses/js/core/expenses.js');
 const B = require('../../shared/biz/biz.js');
+require('../../shared/data/money.js');   // SlopData.money.plainMinor, which the CSV is given
+const plain = (m, c) => globalThis.SlopData.money.plainMinor(m, c || 'USD');
 
 test('the tax inside an amount that includes it, at a rate in basis points', () => {
   assert.equal(X.taxIn(2400, 2000), 400);     // 24.00 at 20%
@@ -41,14 +43,14 @@ test('summary: posted expenses by month, newest first, with tax and the total pe
 });
 
 test('CSV: a header, oldest first, decimal amounts, category names, quoted cells; deleted ones left out', () => {
-  const text = X.csv(E, { 5000: 'Expenses', 5100: 'Office' }, (c) => (c === 'JPY' ? 0 : 2));
+  const text = X.csv(E, { 5000: 'Expenses', 5100: 'Office' }, plain);
   const lines = text.trim().split('\r\n');
   assert.equal(lines[0], 'Date,Supplier,Description,Category,Amount,Tax,Currency,Paid by,Status,Notes');
   assert.equal(lines.length, 4);
   assert.equal(lines[1], '2026-09-30,Cloud host,,5100 Office,120.00,20.00,EUR,bank,posted,"Annual, ""pro"" plan"');
   assert.equal(lines[2], '2026-10-01,City Taxi,Airport,5000 Expenses,24.00,4.00,EUR,card,posted,');
   assert.ok(text.endsWith('\r\n'));
-  assert.equal(X.csv([{ date: '2026-01-01', supplier: 'A', amount: 500, account: '5000', status: 'posted', currency: 'JPY' }], {}, (c) => (c === 'JPY' ? 0 : 2)).split('\r\n')[1].split(',')[4], '500');
+  assert.equal(X.csv([{ date: '2026-01-01', supplier: 'A', amount: 500, account: '5000', status: 'posted', currency: 'JPY' }], {}, plain).split('\r\n')[1].split(',')[4], '500');
 });
 
 test('SlopBiz.refusal: field errors, plain words for the code with the message, and the app\'s own words', () => {

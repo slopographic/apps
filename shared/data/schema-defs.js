@@ -226,10 +226,16 @@
       list: F.str({ max: 40, def: 'Inbox' }), tags: { t: 'strings', max: 20, itemMax: 40, def: [] }, parentId: F.id({}),
       done: F.bool({ def: false }), doneAt: F.ts({}), freq: F.en(ENUM.repeatFreq, { def: 'none' }), until: F.date({}),
       remind: F.int({ min: 0, max: 525600 }), customerId: F.id({}) } },
-    // Reminders. Custom reminders are rows of their own (source custom). Event and task reminders are read from the
-    // events and tasks; a row here only records what the person did (snoozedUntil, firedAt, dismissedAt) for one of them.
     // Money going out (shared/data/expenses.js writes them with their journal entry). amount is what was paid, tax included;
     // tax is the reclaimable part. account is the expense account in the chart.
+    // Time worked (shared/data/timesheets.js bills it). minutes and rate (per hour, minor units) price it; billable time
+    // needs a customer. invoiceId is the invoice it was billed on; time on a void or deleted invoice is open again.
+    timeEntries: { key: 'id', check: (r) => (r.billable && !r.customerId ? ['billable time needs a customer'] : []),
+      removeRule: (r) => (r.invoiceId ? 'billed time cannot be deleted; void its invoice first' : null),
+      indexes: [{ name: 'date', key: 'date' }, { name: 'customerId', key: 'customerId' }, { name: 'invoiceId', key: 'invoiceId' }], fields: {
+      id: F.id({ req: true }), date: F.date({ req: true }), customerId: F.id({}), project: F.str({ max: 80 }), description: F.str({ req: true, max: 300 }),
+      minutes: F.int({ req: true, min: 1, max: 1440 }), rate: F.mny({ def: 0 }), currency: F.cur({}), billable: F.bool({ def: true }),
+      invoiceId: F.id({}), sample: F.bool({}) } },
     expenses: { key: 'id', postingOnly: true, check: (r) => (r.tax > r.amount ? ['tax cannot be more than the amount paid'] : []),
       indexes: [{ name: 'date', key: 'date' }, { name: 'supplier', key: 'supplier' }, { name: 'status', key: 'status' }], fields: {
       id: F.id({ req: true }), date: F.date({ req: true }), supplier: F.str({ req: true, max: 200 }), description: F.str({ max: 300 }),
@@ -237,6 +243,8 @@
       currency: F.cur({}), rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
       method: F.en(ENUM.payMethod, { def: 'bank' }), status: F.en(ENUM.expenseStatus, { def: 'posted' }),
       receiptId: F.str({ max: 200 }), notes: F.text({}), sample: F.bool({}) } },
+    // Reminders. Custom reminders are rows of their own (source custom). Event and task reminders are read from the
+    // events and tasks; a row here only records what the person did (snoozedUntil, firedAt, dismissedAt) for one of them.
     reminders: { key: 'id', indexes: [{ name: 'source', key: 'source' }], fields: {
       id: F.id({ req: true }), source: F.en(ENUM.reminderSource, { req: true }), refId: F.id({}), title: F.str({ req: true, max: 200 }),
       at: F.ts({ req: true }), snoozedUntil: F.ts({}), firedAt: F.ts({}), dismissedAt: F.ts({}) } },
