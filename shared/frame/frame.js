@@ -9,7 +9,8 @@
  *   const fr = SlopFrame.mount(root, {
  *     list: listEl, view: viewEl, panel: panelEl,     // list is optional (null: two columns)
  *     phone: '(max-width: 900px)', panelLabel: 'Actions', storageKey: 'eml',
- *     button: '.smb-tools',                           // where the header's show/hide button goes (selector or element; optional)
+ *     button: '.smb-tools',                           // where the header's show/hide button goes (selector or element; optional;
+ *                                                     //   a selector not on the page yet is tried again at DOMContentLoaded)
  *     phoneButton: true,                              // false: no header button on phones (the app opens the sheet itself)
  *     width: 300, min: 240, max: 520,                 // panel width in px (default, limits)
  *     command: true,                                  // register '<storageKey>.panel' in SlopCmd (default true when present)
@@ -66,16 +67,19 @@
     grip.setAttribute('aria-valuemax', String(max));
     panel.before(grip);
 
+    // The header button goes into o.button; a host that is not on the page yet (a menu bar mounted after this script)
+    // is looked up again once the page is parsed.
     let btn = null;
     const host = pick(o.button);
-    if (host) {
+    if (o.button) {
       btn = el('button', 'slop-hbtn sf-toggle' + (o.phoneButton === false ? ' sf-toggle-wide' : ''));
       btn.type = 'button';
       btn.innerHTML = ICON + '<span class="slop-hbtn-txt"></span>';
       btn.querySelector('.slop-hbtn-txt').textContent = label;
       btn.title = 'Show or hide the ' + label.toLowerCase() + ' panel (Ctrl+Alt+B)';
       btn.setAttribute('aria-label', label + ' panel');
-      host.append(btn);
+      if (host) host.append(btn);
+      else doc.addEventListener('DOMContentLoaded', () => { const h = pick(o.button); if (h) h.append(btn); }, { once: true });
     }
 
     const sheet = g.SlopSheet ? g.SlopSheet.attach({

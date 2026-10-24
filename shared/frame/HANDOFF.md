@@ -141,7 +141,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop OCR | ocr/ | tool | settings row above the work area, Read in it | to do | settings row → right panel, Read text in the footer |
 | Slop Transcribe | transcribe/ | tool | controls above, list left, text right | to do | controls → right panel, Transcribe in the footer |
 | SlopClean | clean/ | tool | choices panel right, Clean all in the header | to do | Clean all into the panel's foot |
-| Slop HTML to PDF | html2pdf/ | tool | settings LEFT, Print in the header | to do | panel to the right, Print in the footer |
+| Slop HTML to PDF | html2pdf/ | tool | settings LEFT, Print in the header | done | |
 | Slop Image to 3D | img3d/ | tool | settings LEFT, Send in the header | to do | panel to the right, primary in the footer |
 | Slop Signature | signature/ | tool | form LEFT, preview right, Copy under the preview | to do | form to the right, Copy in the footer |
 | QR SLOP | qr/ | tool | editor LEFT, preview right | to do | editor to the right, Download in the footer |
