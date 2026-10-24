@@ -1,6 +1,7 @@
 // The Delivery note view (#d/<order id>): a printable business sheet (SlopBiz.sheet) for packing an order: the company
 // block, the order number and date, who it goes to, every line with its quantity and unit but no prices (core/delivery.js),
-// the order's notes, and a line for the receiver to sign. The markup is built here, to keep the page short.
+// the order's notes, and a line for the receiver to sign; Address label opens the parcel label in SlopLabel
+// (SlopBiz.addressLabel). The markup is built here, to keep the page short.
 (function (g) {
   'use strict';
   const S = g.SlopData;
@@ -8,7 +9,7 @@
   const U = NS.util;
   const h = U.h;
   const $ = (id) => document.getElementById(id);
-  let orderId = null;
+  let orderId = null, label = null;   // label: what the Address label button sends
 
   async function show(id) {
     orderId = id || null;
@@ -16,6 +17,7 @@
     if (!o.ok || !o.value) { $('dnSheet').replaceChildren(h('p', { class: 'msg bad', text: 'That order no longer exists.' })); return; }
     const order = o.value, c = await S.store.get('customers', order.customerId), who = (c.ok && c.value) || { name: '(no customer)' };
     const note = NS.delivery.noteOf(order, products.ok ? products.value : []);
+    label = { name: who.name, lines: [...g.SlopBiz.sheet.lines(who.address), who.phone].filter(Boolean), from: settings.companyName, ref: order.number, app: 'orders' };
     $('dnTitle').textContent = `${order.number}: delivery note`;
     $('dnSheet').replaceChildren(h('article', { class: 'doc-sheet delivery' },
       g.SlopBiz.sheet.head(settings, 'Delivery note', [`Order ${order.number}`, `Date ${S.ledger.today()}`, `Ordered ${order.date}`]),
@@ -35,7 +37,9 @@
       h('div', { class: 'toolbar no-print' },
         h('button', { type: 'button', class: 'btn small', text: '← Order', onclick: () => NS.app.go(orderId ? `o/${orderId}` : 'list') }),
         h('h2', { class: 'h2', id: 'dnTitle', text: 'Delivery note' }),
-        h('button', { type: 'button', class: 'btn primary', text: 'Print…', onclick: () => g.print() })),
+        h('button', { type: 'button', class: 'btn primary', text: 'Print…', onclick: () => g.print() }),
+        h('button', { type: 'button', class: 'btn', text: 'Address label', title: 'Open a 4 × 2" address label in SlopLabel',
+          onclick: async () => { if (!label) return; try { await g.SlopBiz.addressLabel.send(label); g.SlopUI.toast('Opened the address label in SlopLabel'); } catch (e) { g.SlopUI.toast(`Could not open SlopLabel: ${e.message}`); } } })),
       h('div', { id: 'dnSheet' }));
   }
 

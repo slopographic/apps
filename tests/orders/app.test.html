@@ -10,7 +10,7 @@
   <script src="../harness.js"></script>
   <script>
   // Covers: orders/js/ui/app.js, orders/js/ui/list.js, orders/js/ui/commands.js, orders/js/core/util.js, shared/biz/app.css
-  // Covers: orders/js/ui/delivery.js, orders/js/core/delivery.js, orders/index.html, shared/biz/sheet.css
+  // Covers: shared/biz/address-label.js, orders/js/ui/delivery.js, orders/js/core/delivery.js, orders/index.html, shared/biz/sheet.css
   // Covers: shared/docs/doc-editor.js, shared/docs/doc-page.js, shared/docs/doc-app.js, shared/docs/doc-pdf.js, shared/docs/doc-view.js, shared/docs/paper-edit.js, orders/js/ui/editor.js, orders/js/ui/page.js, orders/js/core/pdf.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D;
@@ -84,6 +84,12 @@
       expect(sheet.textContent.includes('$')).toBe(false);
       expect(sheet.querySelectorAll('.sheet-sign > div').length).toBe(3);
       expect($('tab-delivery').hidden).toBe(false);
+      const sent = [];
+      W.SlopHub.sendTo = async (app, blob, name) => { sent.push({ app, name, doc: JSON.parse(await blob.text()) }); return 'x'; };
+      [...D.querySelectorAll('#view-delivery button')].find((b) => b.textContent === 'Address label').click();
+      await waitFor(() => sent.length === 1);
+      expect([sent[0].app, sent[0].name]).toEqual(['label', `Address label ${o.number}.sloplabel`]);
+      expect(sent[0].doc.objects.find((x) => x.id === 'address').content).toBe('1 High St\nLeeds');
       W.SlopOrders.app.go('list');
       await waitFor(() => $('tab-delivery').hidden);
     });
