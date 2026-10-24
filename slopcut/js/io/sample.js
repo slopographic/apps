@@ -103,7 +103,7 @@
       const files = await S.makeMedia({ progress: (m) => dlg && dlg.set(null, m) });
       await SE.session.newProject(false);
       SE.doc.name = 'Sample project';
-      const metas = await SE.media.importFiles(files, { from: 'sample' });
+      const metas = await SE.intake.sample(files); // through the intake, like every other way in
       SE.doc.w = 1280; SE.doc.h = 720; SE.doc.fps = 30;
       SE.change('Sample project', (p) => S.assemble(p, metas));
       SE.history.reset();

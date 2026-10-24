@@ -160,6 +160,14 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   sample, and `SlopUpscale.controller.open` (now a take). The first-use notice is the spec's `notice` (once per batch,
   whichever source); `open()` is only the reader. `drive.js` lost its own picker and `output.js` its record opener.
   `tests/intake/upscale.test.html`.
+- **SlopCut** (`slopcut/js/io/intake.js`, spec `slopedit`, one `processAll` reader for the whole batch): Import media
+  (Ctrl+I, the bin), Open project (Ctrl+O), Import from Slop Drive (a .slopedit stays linked), a drop on the window or the
+  strip over the monitor and its Choose files, a drop on a timeline lane (`SlopIntake.dropTarget`, `data.tl`: placed
+  where dropped), a paste (new), ?drive= launch and launchQueue (a file, a reel from Slop Gallery, a matte pair from
+  SlopIsolate), SlopIsolate's `cutout-result` message (`SE.cutout.receive` hands the two Drive records to the intake,
+  `data.cutout`), the sample project's media (`data.sample`). The drops of bin items, effects and slots stay (`intake-ok`).
+  Out: Send frame to PhotoSlop is `SlopOuttake.send`. In STRICT by subfolder (not `js/watermark/`, see below).
+  `tests/intake/slopcut.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -553,25 +561,10 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] pickFiles: `slides/js/ui/templates-dialog.js:106`
 - [ ] Drive picker: `slides/js/ui/templates-dialog.js:117`
 
-### slopcut
+### slopcut (done but for its watermark panel's logo, left to wip/watermark-all)
 
-- [ ] hub listener: `slopcut/js/io/cutout.js:50`
-- [ ] pickFiles: `slopcut/js/io/project.js:55`
-- [ ] ?drive= launch: `slopcut/js/io/session.js:53`
-- [ ] drop listener: `slopcut/js/render/cells.js:81`
-- [ ] out: sendTo: `slopcut/js/render/preview.js:102`
-- [ ] out: Open in/Send to label: `slopcut/js/timeline/menu.js:23`
-- [ ] drop listener: `slopcut/js/timeline/menu.js:146`
-- [ ] out: Open in/Send to label: `slopcut/js/timeline/order.js:2`
-- [ ] out: Open in/Send to label: `slopcut/js/timeline/order.js:33`
-- [ ] pickFiles: `slopcut/js/ui/app.js:45`
-- [ ] Drive picker: `slopcut/js/ui/app.js:48`
-- [ ] drop listener: `slopcut/js/ui/app.js:107`
-- [ ] SlopDrop.attach: `slopcut/js/ui/app.js:117`
-- [ ] drop listener: `slopcut/js/ui/templates-panel.js:59`
-- [ ] drop listener: `slopcut/js/ui/templates-panel.js:97`
-- [ ] pickFiles: `slopcut/js/watermark/panel.js:22`
-
+- [ ] pickFiles: the watermark logo, `slopcut/js/watermark/panel.js` (`pickLogo`) → a part `slopedit.logo`; then put
+  `slopcut/` in STRICT in place of its subfolders.
 
 ### slopvector
 
