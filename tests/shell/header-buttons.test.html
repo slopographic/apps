@@ -82,6 +82,31 @@
       f.remove();
     }, { timeout: 40000 });
   });
+  describe('Tutorial', () => {
+    const boot = async (app) => {
+      const f = document.createElement('iframe');
+      f.style.width = '1400px'; f.style.height = '800px';
+      f.src = `../../${app}/index.html`;
+      document.body.append(f);
+      await waitFor(() => f.contentDocument && f.contentDocument.querySelector('.sh-switch'), { timeout: 30000 });
+      return f;
+    };
+    it('an app with a video tutorial links it in the header, in a new tab; an app without one has no link', async () => {
+      const pdf = await boot('pdf'), a = pdf.contentDocument.querySelector('header .sh-tutorial');
+      expect([a.getAttribute('href'), a.target, a.rel]).toEqual(['https://www.youtube.com/watch?v=sLjcd23fOhw', '_blank', 'noopener']);
+      expect(a.getAttribute('aria-label')).toBe('Watch the Slop PDF video tutorial on YouTube');
+      expect(a.getBoundingClientRect().width > 0).toBe(true);
+      pdf.remove();
+      const phone = await boot('pdf');
+      phone.style.width = '390px';
+      await sleep(300);
+      expect(phone.contentWindow.getComputedStyle(phone.contentDocument.querySelector('.sh-tutorial')).display).toBe('none');   // gives way on phones
+      phone.remove();
+      const notes = await boot('notes');
+      expect(notes.contentDocument.querySelector('.sh-tutorial')).toBe(null);
+      notes.remove();
+    }, { timeout: 60000 });
+  });
   run();
   </script>
 </body>

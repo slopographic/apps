@@ -103,3 +103,5 @@ button { font: inherit; }
   .sh-mini { width: 52px; height: 52px; }
 }
 @media (prefers-reduced-motion: reduce) { .sn-toast { transition: none; } }
+/* The Tutorial link (a YouTube video) gives way on phones, where the header has room only for the app's own controls. */
+@media (max-width: 560px) { .sh-hdr .slop-hbtn.sh-tutorial { display: none; } }
