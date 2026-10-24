@@ -1,6 +1,6 @@
 /* HEIC and HEIF photos (iPhone pictures): the decoder, libheif with the libde265 HEVC decoder compiled to WebAssembly
  * (libheif-js 1.23.5; LGPL-3.0, see the cdn's engines/libheif/libheif-js-1.23.5/SOURCE.md). Its two files (about 1.5 MB)
- * are fetched just in time from the Slopographic cdn at a pinned commit, the first time a HEIC photo is decoded, after the
+ * are fetched just in time from the Slopographic cdn at its release tag, the first time a HEIC photo is decoded, after the
  * shared first-use notice (shared/firstrun/notice.js). The download goes through the shared installer
  * (shared/library/install.js: allowed host, byte length and SHA-256 checked, kept in IndexedDB), so it happens once per
  * browser. Decoding runs in a Web Worker (worker.js). The same shape as the camera RAW engine (shared/raw/engine.js).
@@ -15,14 +15,15 @@
   'use strict';
   const doc = root.document;
   const SELF = (doc && doc.currentScript && doc.currentScript.src) || root.SlopHeicBase || (root.location && root.location.href) || '';
-  const BASE = 'https://raw.githubusercontent.com/slopographic/cdn/8929ad4e202f7b728f0c10c5ee493fd12a4698e1/engines/libheif/libheif-js-1.23.5/';
+  // the engine's folder in the cdn repository: the installer fetches it from there (shared/cdn/assets.js: jsDelivr, then GitHub)
+  const BASE = 'engines/libheif/libheif-js-1.23.5/';
   const FILES = [
     { name: 'libheif.js', size: 91255, sha256: '376c0bb483c23ac458cd22d718074693748ea75eddc3e4929353d4153e365a2e' },
     { name: 'libheif.wasm', size: 1463506, sha256: '184d3d20f8323877f13e9f5254f9c6a0ce272c9a3a2f823b0b2bcd2ee9f73f80' },
   ];
   const PACK = {
     id: 'engine-libheif', kind: 'model', name: 'HEIC photo decoder (libheif 1.23.5, WebAssembly)', licence: 'LGPL-3.0',
-    licenceUrl: BASE + 'SOURCE.md', size: FILES.reduce((n, f) => n + f.size, 0), files: FILES.map((f) => ({ ...f, url: BASE + f.name })),
+    licenceUrl: 'https://github.com/slopographic/cdn/blob/main/' + BASE + 'SOURCE.md', size: FILES.reduce((n, f) => n + f.size, 0), files: FILES.map((f) => ({ ...f, cdn: BASE + f.name })),
   };
   const NOTICE = {
     title: 'Download the HEIC photo decoder?',
