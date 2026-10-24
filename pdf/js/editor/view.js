@@ -131,7 +131,8 @@
       });
       return;
     }
-    hs = a.type === 'note' ? [] : (a.type === 'text' || a.type === 'image' || a.type === 'callout') ? ['nw', 'ne', 'se', 'sw'] : ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+    // a paragraph frame (para-view.js): its left and right edges reflow the text (on an unrotated page)
+    hs = a.type === 'para' ? (c.R ? [] : ['w', 'e']) : a.type === 'note' ? [] : (a.type === 'text' || a.type === 'image' || a.type === 'callout') ? ['nw', 'ne', 'se', 'sw'] : ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
     if (a.type === 'callout' && a.tip) { // the leader line's end: dragged on its own
       var tq = E.toView(c.R, c.W, c.H, a.tip[0], a.tip[1]), th = U.h('div', { class: 'handle h-pt', 'data-h': 'tip' });
       th.style.left = (tq[0] * z) + 'px'; th.style.top = (tq[1] * z) + 'px';

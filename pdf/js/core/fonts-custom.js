@@ -53,6 +53,7 @@
     var want = new Map(), texts = [];
     pages.forEach(function (p) {
       (p.annots || []).forEach(function (a) {
+        if (a.type === 'para' && E.paraFontNeeds) { E.paraFontNeeds(a).forEach(function (t) { texts.push(t); if (t.font && !E.isStdFamily(t.font) && !faces.has(E.fontKey(t))) want.set(E.fontKey(t), t); }); return; }
         if (a.text == null) return;
         texts.push(a);
         if (a.font && !E.isStdFamily(a.font) && !faces.has(E.fontKey(a))) want.set(E.fontKey(a), a);
