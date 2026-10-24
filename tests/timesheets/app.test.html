@@ -95,6 +95,7 @@
       expect($('bNone').hidden).toBe(false);
       W.SlopTimesheets.app.go('list');
       await waitFor(() => rows().filter((r) => r.textContent.includes('Billed')).length === 2);
+      expect(rows().filter((r) => r.textContent.includes('on a draft invoice')).length).toBe(2);
       const billed = (await S().store.list('timeEntries')).value.find((e) => e.description === 'Copywriting');
       W.SlopTimesheets.app.go(`t/${billed.id}`);
       await waitFor(() => !$('eBilled').hidden && $('eDuration').disabled);

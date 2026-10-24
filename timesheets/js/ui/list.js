@@ -34,7 +34,7 @@
     const st = STATE[x.state];
     return { title: x.description, amount: `${C().hm(x.minutes)} h`,
       meta: [{ chip: st.chip, cls: st.cls }, x.date, x.customerName || null, x.project || null,
-        x.billable ? B.money(x.amount, x.currency, settings.locale) : null, x.invoiceNumber ? `on ${x.invoiceNumber}` : null] };
+        x.billable ? B.money(x.amount, x.currency, settings.locale) : null, x.invoiceNumber ? (x.invoiceNumber === 'draft' ? 'on a draft invoice' : `on ${x.invoiceNumber}`) : null] };
   }
 
   async function remove(x) {
