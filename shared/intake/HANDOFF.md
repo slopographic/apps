@@ -155,6 +155,11 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   text, JSON and spreadsheet types (a dropped .csv or .json was refused before). The app's paste listener is only its
   clipboard, ZPL and text. Out: File ▸ Send to is `SlopOuttake.items` for the PDF and the PNG.
   `tests/intake/label.test.html`.
+- **Slop Upscale** (`upscale/js/app/main.js`, spec `upscale`, `limit: 1`): Open, the zone and its Choose files, a drop
+  on the stage, a paste (new), Open from Slop Drive (the result keeps the Drive link), ?drive= launch and launchQueue, the
+  sample, and `SlopUpscale.controller.open` (now a take). The first-use notice is the spec's `notice` (once per batch,
+  whichever source); `open()` is only the reader. `drive.js` lost its own picker and `output.js` its record opener.
+  `tests/intake/upscale.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -602,13 +607,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] file input: `transcribe/index.html:54`
 - [ ] SlopDrop.attach: `transcribe/js/app.js:101`
-
-### upscale
-
-- [ ] Drive picker: `upscale/js/app/drive.js:38`
-- [ ] file input: `upscale/js/app/main.js:221`
-- [ ] SlopDrop.attach: `upscale/js/app/main.js:238`
-- [ ] ?drive= launch: `upscale/js/app/main.js:270`
 
 ### watermark
 
