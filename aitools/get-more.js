@@ -29,7 +29,9 @@
     onDone = opts.onInstalled || null;
     onGone = opts.onClose || null;
     const remote = R.remoteFiles(m), bytes = R.downloadBytes(m);
-    const hosts = [...new Set(remote.map((f) => hostOf(f.url)))].join(', ');
+    // every place a file may come from: a cdn file names jsDelivr and its GitHub fallback (shared/cdn/assets.js)
+    const places = (u) => (root.SlopCdn ? root.SlopCdn.candidates(u) : [u]);
+    const hosts = [...new Set(remote.flatMap((f) => R.urlsOf(f).flatMap(places).map(hostOf)))].join(', ');
     const status = el('p', { class: 'ai-err', role: 'status' });
     const body = el('div', null,
       el('p', { class: 'ai-meta' }, m.arch),

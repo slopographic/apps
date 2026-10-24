@@ -1,6 +1,6 @@
 /* Camera RAW: the full decoder, LibRaw 0.22.1 compiled to WebAssembly (libraw-wasm 1.6.0; LibRaw is LGPL-2.1 or
  * CDDL-1.0, see the cdn's engines/libraw/libraw-wasm-1.6.0/SOURCE.md). Its two files (about 1.4 MB) are fetched just in
- * time from the Slopographic cdn at a pinned commit, the first time a RAW file is developed, after the shared first-use
+ * time from the Slopographic cdn at its release tag, the first time a RAW file is developed, after the shared first-use
  * notice (shared/firstrun/notice.js). The download goes through the shared installer (shared/library/install.js: allowed
  * host, byte length and SHA-256 checked, kept in IndexedDB), so it happens once per browser. Decoding runs in a Web
  * Worker (worker.js). Loads its helpers on first use. Classic script; exposes window.SlopRawEngine:
@@ -15,14 +15,15 @@
   'use strict';
   const doc = root.document;
   const SELF = (doc && doc.currentScript && doc.currentScript.src) || (root.location && root.location.href) || '';
-  const BASE = 'https://raw.githubusercontent.com/slopographic/cdn/0cd1e199373a327108ba91702e597d767fbfc3f9/engines/libraw/libraw-wasm-1.6.0/';
+  // the engine's folder in the cdn repository: the installer fetches it from there (shared/cdn/assets.js: jsDelivr, then GitHub)
+  const BASE = 'engines/libraw/libraw-wasm-1.6.0/';
   const FILES = [
     { name: 'libraw.js', size: 69155, sha256: 'e23952fca5b268550af1f84619af5c0c035e5db3bde0e4d5a20300f1614a9487' },
     { name: 'libraw.wasm', size: 1417725, sha256: '8947f7e668e488461c3e9defe7007583aa8477b4886aa603b36b407f2f0846ff' },
   ];
   const PACK = {
     id: 'engine-libraw', kind: 'model', name: 'Camera RAW engine (LibRaw 0.22.1, WebAssembly)', licence: 'LGPL-2.1 or CDDL-1.0',
-    licenceUrl: BASE + 'SOURCE.md', size: FILES.reduce((n, f) => n + f.size, 0), files: FILES.map((f) => ({ ...f, url: BASE + f.name })),
+    licenceUrl: 'https://github.com/slopographic/cdn/blob/main/' + BASE + 'SOURCE.md', size: FILES.reduce((n, f) => n + f.size, 0), files: FILES.map((f) => ({ ...f, cdn: BASE + f.name })),
   };
   const NOTICE = {
     title: 'Download the camera RAW engine?',

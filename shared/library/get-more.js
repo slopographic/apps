@@ -109,7 +109,9 @@
 
   /** Step 2: the confirmation. Nothing has been fetched yet. */
   function showConfirm(p) {
-    const hosts = [...new Set(p.files.map((f) => new URL(f.url).hostname))].join(', ');
+    // a cdn file names every host it may come from (jsDelivr, then GitHub as the fallback: shared/cdn/assets.js)
+    const where = (f) => (f.cdn && root.SlopCdn ? root.SlopCdn.urls(f.cdn) : [f.url]);
+    const hosts = [...new Set(p.files.flatMap((f) => where(f).map((u) => new URL(u).hostname)))].join(', ');
     const body = el('div', null,
       el('p', null, `Download ${p.name}?`),
       el('p', { class: 'meta' }, `Licence: ${M().LICENCES[p.licence]} (${p.licence}).`),

@@ -62,9 +62,9 @@ SHA-256. Get more shows them before anything downloads. The file is stored in th
 (`slop-library`), and the worker checks its size and SHA-256 again before it loads it. The worker never fetches a
 model that is not bundled.
 
-**The download URL is `raw.githubusercontent.com/slopographic/cdn/main/models/upscale/realesrgan-x4plus.onnx`.
-It only works once that file is on `main`.** Until then Get more reports that the download failed, and Quality falls
-back to Lanczos. The file is 64 MB; commit it with git LFS if the repository should not hold it directly.
+The file is `models/upscale/realesrgan-x4plus.onnx` in the cdn repository (`"cdn"` in packs.json). At 64 MB it is over
+jsDelivr's 20 MB limit, so it comes from `raw.githubusercontent.com` at the release tag until the Hugging Face copy exists
+(see shared/cdn/HANDOFF.md). The cdn repository uses no Git LFS (jsDelivr would serve the pointer).
 
 ## How a run works
 1. The picture is decoded to a canvas. `plan()` cuts it into 128 px cores, each read with 16 px of context on every
