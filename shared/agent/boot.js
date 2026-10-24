@@ -8,6 +8,9 @@
  *   start()               the origin trial token for this origin (shared/agent/trial-tokens.json), then, when the API is
  *                         there and the setting is on, shared/agent/webmcp.js, which registers the tools
  *   about()               the Help note (shared/agent/about.js): what agents can do, in plain words, and the setting
+ *   load()                the page's agent tools (shared/agent/toolset.js and the one tool list it is made from)
+ *   connect({ ask, port }) an AI app on this computer through the local bridge (bridge.js, bridge-ui.js): the command
+ *                         "Connect an AI app…" (Help, Ctrl+K), ?connect=1&port=N, and again after a reload of a paired tab
  * Also adds the command "AI agents…" (Help) to the page's SlopCmd, so the note is in Ctrl+K and in Help menus. */
 (function (g) {
   'use strict';
@@ -22,7 +25,7 @@
     try { if (on) localStorage.removeItem(KEY); else localStorage.setItem(KEY, 'off'); } catch (e) { /* storage blocked: this visit only */ }
     mem = !!on;
     for (const fn of listeners) try { fn(!!on); } catch (e) { console.warn(e); }
-    if (on) start(); else if (g.SlopWebMCP) g.SlopWebMCP.stop();
+    if (on) start(); else { if (g.SlopWebMCP) g.SlopWebMCP.stop(); if (g.SlopBridge) g.SlopBridge.disconnect(); }
     return !!on;
   }
   let mem = null;
@@ -57,6 +60,25 @@
     return tokenP;
   }
 
+  /** The page's agent tools (shared/agent/toolset.js) and what they need: the one tool list of shared/ai. */
+  let loadP = null;
+  function load() {
+    if (g.SlopAgentToolset) return Promise.resolve(true);
+    if (loadP) return loadP;
+    loadP = (async () => {
+      const K = (g.SlopAIKit = g.SlopAIKit || {});
+      K.base = K.base || new URL('shared/ai/', ROOT).href;
+      // the one tool list (shared/ai/HANDOFF.md): the side panel's app tools, its command tools and the operations
+      if (!g.SlopCmdArgs) await script('shared/commands/args.js');
+      for (const [name, have] of [['apptools', K.appTools], ['cmdtools', K.cmdTools], ['optools', K.opTools]]) if (!have) await script('shared/ai/' + name + '.js');
+      if (!g.SlopAgentTools) await script('shared/agent/tools.js');
+      if (!g.SlopAgentWorkspace) await script('shared/agent/workspace.js');
+      await script('shared/agent/toolset.js');
+      return true;
+    })().finally(() => { loadP = null; });
+    return loadP;
+  }
+
   let startP = null;
   function start() {
     if (!isOn()) return Promise.resolve(false);
@@ -65,17 +87,19 @@
     startP = (async () => {
       if (!api()) await token();
       if (!api() || !isOn()) return false;
-      const K = (g.SlopAIKit = g.SlopAIKit || {});
-      K.base = K.base || new URL('shared/ai/', ROOT).href;
-      // the one tool list (shared/ai/HANDOFF.md): the side panel's app tools, its command tools and the operations
-      if (!g.SlopCmdArgs) await script('shared/commands/args.js');
-      for (const [name, have] of [['apptools', K.appTools], ['cmdtools', K.cmdTools], ['optools', K.opTools]]) if (!have) await script('shared/ai/' + name + '.js');
-      if (!g.SlopAgentTools) await script('shared/agent/tools.js');
-      if (!g.SlopAgentWorkspace) await script('shared/agent/workspace.js');
+      await load();
       await script('shared/agent/webmcp.js');
       return !!g.SlopWebMCP;
     })().catch((e) => { console.warn('SlopAgents', e); return false; }).finally(() => { startP = null; });
     return startP;
+  }
+
+  /** An AI app on this computer (Claude Code, Codex, Cursor…) through the local bridge (shared/agent/bridge.js):
+   * connect({ port, ask }) opens the pairing dialog (ask) or resumes this tab's pairing; the same tools as WebMCP. */
+  function connect(opts = {}) {
+    return load().then(() => script('shared/agent/bridge.js')).then(() => script('shared/agent/bridge-ui.js'))
+      .then(() => g.SlopBridgeUI.start(opts))
+      .catch((e) => { console.warn('SlopAgents', e); if (g.SlopUI) g.SlopUI.toast('Connecting an AI app needs the page to be online once.'); return false; });
   }
 
   function about() {
@@ -87,10 +111,18 @@
     if (!C || !C.register) { if (tries < 10) setTimeout(() => command(tries + 1), 1000); return; }
     if (!C.get('agents.about')) C.register([{ id: 'agents.about', title: 'AI agents…', group: 'Help', ai: false, noRecent: true,
       keywords: ['agents', 'webmcp', 'mcp', 'ai', 'automation', 'assistant', 'privacy'], run: about }]);
+    if (!C.get('agents.connect')) C.register([{ id: 'agents.connect', title: 'Connect an AI app…', group: 'Help', ai: false, noRecent: true,
+      keywords: ['claude code', 'codex', 'cursor', 'gemini', 'vs code', 'mcp', 'connect', 'pair', 'ai', 'agent'], run: () => connect({ ask: true }) }]);
   }
 
-  g.SlopAgents = { KEY, ROOT, enabled: isOn, set, api, supported: () => !!api(), start, about, token, script,
+  g.SlopAgents = { KEY, ROOT, enabled: isOn, set, api, supported: () => !!api(), start, about, token, script, load, connect,
     onChange: (fn) => { listeners.add(fn); return () => listeners.delete(fn); } };
   command();
   start();
+  // ?connect=1 (the AI app opened this page to pair), or this tab was paired before (a reload or the next app page)
+  const q = new URLSearchParams(location.search);
+  let paired = false;
+  try { paired = !!sessionStorage.getItem('slop.bridge'); } catch (e) { /* storage blocked */ }
+  if (q.get('connect') === '1') connect({ ask: true, port: Number(q.get('port')) || 0 });
+  else if (paired && isOn()) connect({ ask: false });
 })(window);

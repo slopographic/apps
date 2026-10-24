@@ -12,6 +12,7 @@
     'Here an agent can run this app\'s commands, run File convert conversions and Slop Workflows on your files, and open, save to Slop Drive or download files.',
     'Your files stay on this device. The app gives the agent file names and ids and the results of what it ran; the work itself runs in this browser and the app uploads nothing. What the agent does with what it is told is up to the agent you use.',
     'Before anything that deletes, clears or replaces your work, the app asks you first.',
+    'An AI app on your computer (Claude Code, Codex, Cursor, VS Code, Claude Desktop…) can also connect directly with the Slopographic MCP server: “Connect an AI app…” below, or Ctrl+K. You pair it once per tab with a code it shows, and the page shows that it is connected until you disconnect.',
     'Browsers: Chrome 149 to 156 on slopographic.com while its WebMCP trial runs, or any recent Chrome with chrome://flags/#enable-webmcp-testing turned on. Edge has it behind a flag. Firefox and Safari do not have it yet. An agent on your computer (outside the browser) needs an extension that connects it to WebMCP, such as MCP-B.',
   ];
   const el = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) n.setAttribute(k, attrs[k]); n.append(...kids); return n; };
@@ -30,7 +31,9 @@
     };
     box.addEventListener('change', async () => { A.set(box.checked); await (box.checked ? A.start() : null); show(); });
     const label = el('label', { for: box.id, class: 'sag-toggle' }, box, ' Let AI agents use this app');
-    frag.append(label, el('p', { class: 'sag-hint' }, 'The setting is for every Slopographic app in this browser. Turned off, the apps offer agents nothing.'), status);
+    const link = el('button', { type: 'button', class: 'sui-btn sag-connect' }, 'Connect an AI app…');
+    link.addEventListener('click', () => { if (A && A.connect) A.connect({ ask: true }); });
+    frag.append(label, el('p', { class: 'sag-hint' }, 'The setting is for every Slopographic app in this browser. Turned off, the apps offer agents nothing.'), status, el('p', {}, link));
     show();
     document.addEventListener('slop:agent-tools', show);
     return frag;

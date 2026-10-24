@@ -67,6 +67,18 @@
 <h3>Can I check this myself?</h3>
 <p>Yes. The source code is public, and the sections below list every browser feature the apps use and every request they can make, with the file that makes it. You can also open your browser's developer tools, go to the Network tab and watch: opening and saving your files sends nothing.</p>
 
+<h2 id="ai-apps">Use Slopographic from Claude Code and other AI apps</h2>
+<p><strong class="sac-soon" data-slop-ai-soon>Coming soon:</strong> an AI app on your computer, such as Claude Code, Codex, Cursor, VS Code or Claude Desktop, can use the Slopographic app open in your browser: its real commands, conversions and workflows, with your files going in and results coming out as files on your computer. It runs through the Slopographic MCP server, a small program the AI app starts on your computer. It needs no account and no install beyond the AI app itself.</p>
+<ol>
+<li><strong>Claude Code:</strong> type <code>/plugin marketplace add slopographic/claude-plugin</code>, then <code>/plugin install slopographic@slopographic</code>. Do this once.</li>
+<li>Type <code>/slopographic:slop-connect</code> (add an app name, such as <code>photoslop</code>, if you like). Claude Code opens Slopographic in your browser and shows a short code.</li>
+<li>Chrome asks once whether this site may use apps and services on this device. Choose <strong>Allow</strong>: that is how the page reaches Claude Code on your computer. The page talks only to your own computer (127.0.0.1), not to your network.</li>
+<li>Type the code in the page. The page then shows <strong>“Claude Code is connected · Disconnect”</strong> in the corner. Press Disconnect, or close the tab, to end it.</li>
+</ol>
+<p>Each tab is paired on its own, and the code works once. Nothing else on your computer can use the page without it. Actions that delete or replace your work still ask you in the page, as in the AI panel. Any Slopographic page can connect from the command palette: Ctrl+K (⌘K on a Mac), then “Connect an AI app…”.</p>
+<div class="sac-list" data-slop-ai-clients><p>The setup for other AI apps (Codex, Gemini CLI, Cursor, VS Code, Windsurf, Claude Desktop) appears here when scripts run.</p></div>
+<p class="note">ChatGPT chats can only reach servers on the internet, so they cannot use this local server yet. Codex in the ChatGPT desktop app can.</p>
+
 <h2 id="apis">Browser APIs, and the specification for each</h2>
 <p class="note">The file paths are the main places each API is used. Search the repository for the API name to find the rest.</p>
 <div class="wrap"><table>
@@ -93,6 +105,7 @@
 <tr><td>BroadcastChannel</td><td>Messages between open tabs of this site (channel <code>slopographic</code>). Stays inside the browser.</td><td><code>shared/hub.js</code></td><td><a href="https://html.spec.whatwg.org/multipage/web-messaging.html#broadcasting-to-other-browsing-contexts">WHATWG HTML, Broadcasting</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel">MDN</a></td></tr>
 <tr><td>Web Share: <code>navigator.share()</code></td><td>The system share sheet, only when you press Share. The system then sends the file to the app you pick.</td><td><code>shared/preview/chrome.js</code>, <code>ai/js/ui/speccard.js</code></td><td><a href="https://www.w3.org/TR/web-share/">w3.org/TR/web-share</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Share_API">MDN</a></td></tr>
 <tr><td>WebMCP: <code>document.modelContext.registerTool()</code></td><td>Offers an AI agent in the browser the app's actions as tools (its commands, the file operations, the files by id), only where the browser has the API and the setting "Let AI agents use this app" is on. The tools run in the page. The origin trial token is in each page's head.</td><td><code>shared/agent/webmcp.js</code>, <code>shared/agent/workspace.js</code>, <code>shared/agent/boot.js</code></td><td><a href="https://webmachinelearning.github.io/webmcp/">W3C Web Machine Learning CG draft</a> · <a href="https://developer.chrome.com/docs/ai/webmcp">Chrome</a></td></tr>
+<tr><td>WebSocket</td><td>The link to an AI app on your computer (the Slopographic MCP server), only after you choose “Connect an AI app…”. It connects to <code>ws://127.0.0.1</code>, this computer only.</td><td><code>shared/agent/bridge.js</code></td><td><a href="https://websockets.spec.whatwg.org/">WHATWG WebSockets</a></td></tr>
 <tr><td>Fetch</td><td>Every network request in the apps. The full list is in <a href="#network">Outbound requests</a>.</td><td>About 35 <code>fetch(</code> call sites in about 30 files (a few are comments)</td><td><a href="https://fetch.spec.whatwg.org/">WHATWG Fetch</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">MDN</a></td></tr>
 </tbody>
 </table></div>
@@ -113,6 +126,7 @@
 <tr><td><code>slop-consent</code></td><td>localStorage</td><td>Your analytics, ads and rates choices. Off until you choose.</td><td><code>shared/consent/state.js</code></td></tr>
 <tr><td><code>slop-sync</code></td><td>localStorage</td><td>Cloud sync settings: your OAuth client IDs and last sync times. Tokens are not kept here.</td><td><code>shared/sync/config.js</code></td></tr>
 <tr><td><code>slop.agents</code></td><td>localStorage</td><td>"off" when you turned off "Let AI agents use this app". Nothing is stored while it is on.</td><td><code>shared/agent/boot.js</code></td></tr>
+<tr><td><code>slop.bridge</code></td><td>sessionStorage</td><td>While this tab is paired with an AI app on your computer: the port and the pairing token, so a reload stays connected. Gone when you disconnect or close the tab.</td><td><code>shared/agent/bridge.js</code></td></tr>
 <tr><td><code>slop-profile</code></td><td>localStorage</td><td>Per-app settings you changed from the default.</td><td><code>shared/profile/profile.js</code></td></tr>
 <tr><td><code>slop-drive.prefs</code>, <code>slop-drive.theme</code></td><td>localStorage</td><td>Slop Drive view preferences and theme.</td><td><code>drive/js/core/util.js</code></td></tr>
 <tr><td><code>slopographic-v38</code></td><td>Cache Storage</td><td>Saved copies of the site's own files, so the site works offline.</td><td><code>service-worker.js</code></td></tr>
@@ -137,6 +151,7 @@
 <tr><td><code>data-api.ecb.europa.eu</code></td><td>Exchange rates (<code>shared/data/rates-ecb.js</code>, opened from Settings, and read by Ledger and Calculator)</td><td>Daily EUR reference rates from the European Central Bank</td><td>Only when the rates category is on and you press Update. Update on open runs only when you also tick it.</td></tr>
 <tr><td>The address of an image dragged from another website</td><td>PhotoSlop (<code>photoslop/js/app/tabs.js</code>)</td><td>Opens the dragged image in a new tab</td><td>Only when you drag an image from another page onto PhotoSlop.</td></tr>
 <tr><td><code>slopographic.com</code> (the site itself)</td><td>Every page, the homepage logo, the service worker</td><td>The site's own files</td><td>On each visit. Nothing else from this origin is requested.</td></tr>
+<tr><td><code>127.0.0.1</code> (your own computer)</td><td>Connect an AI app (<code>shared/agent/bridge.js</code>)</td><td>The page talks to the Slopographic MCP server that your AI app started: the app's tools, their results, and the files you ask to send or save</td><td>Only after you choose “Connect an AI app…” and type the code the AI app shows. Chrome asks first.</td></tr>
 <tr><td>Links only: Patreon, YouTube and Vimeo</td><td>Donate link (<code>shared/consent/donate.js</code>), Notes video links (<code>notes/js/video.js</code>)</td><td>Opens the site in a new tab when you click it</td><td>Only when you click. A video in a note shows as a link, not an embedded player or a thumbnail image.</td></tr>
 </tbody>
 </table></div>
@@ -169,5 +184,7 @@
 <!-- /site:foot -->
 </div>
   <script src="../shell/shell.js"></script>
+  <script src="../shared/agent/clients.js" defer></script>
+  <script src="../shared/agent/clients-help.js" defer></script>
 </body>
 </html>
