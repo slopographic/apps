@@ -13,6 +13,7 @@ const say = (s) => { $('trMsg').textContent = s || ''; };
 let selected = null, times = false;
 const flow = window.SlopFlow.create({ from: 'mp3', to: 'txt', size: 'lg', label: 'Audio or video to text' });
 $('trFlow').append(flow.el);
+$('trSteps').append(window.SlopDrop.panel.preview({ steps: ['Drop audio or video, or press Record', 'Press Transcribe: it runs on this device', 'Correct the text, then save it'] }));
 
 /** The Whisper engine of Slop AI Tools. The model downloads once, after the person agrees (T.gate). */
 const engine = {
@@ -85,6 +86,9 @@ function wire() {
   window.SlopDrop.attach($('trDrop'), {
     accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac', '.webm', '.mp4', '.mov', '.mkv', '.amr', '.wma'], noun: 'an audio or video file' },
     input: $('trPick'), label: 'Drop audio or video files here, or choose files', hint: 'MP3, WAV, M4A, OGG, FLAC, video… Several at once. Nothing is uploaded.',
+    // the steps are in the intro (shown before the model is in, as the From → To picture is); the sample is NASA's
+    // public-domain Moon landing recording (assets/samples/moon-landing.txt)
+    sample: { label: 'Try it with a sample: the Moon landing, 24 s', files: async () => [await window.SlopSamples.asset('moon-landing.ogg', 'Moon landing, Apollo 11.ogg', 'audio/ogg')] },
     process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return file.name; },
   });
   $('trFormat').replaceChildren(...FORMATS.map((f) => Object.assign(document.createElement('option'), { value: f.id, textContent: f.label })));

@@ -18,6 +18,7 @@ h2 small { font-weight: 400; text-transform: none; }
 .rm-drop { border: 2px dashed var(--rm-line); border-radius: 8px; padding: 14px; text-align: center; color: var(--rm-muted); }
 .rm-drop.over { border-color: var(--rm-accent); }
 .rm-drop p { margin: 0 0 8px; }
+.rm-drop.rm-has .sd-preview, .rm-drop.rm-has .sd-sample { display: none; }
 .rm-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; max-height: 60vh; overflow: auto; }
 .rm-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--rm-line); border-radius: 6px; }
 .rm-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }

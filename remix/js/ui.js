@@ -35,6 +35,7 @@
       return li;
     }));
     if (!st.items.length) ul.append(Object.assign(document.createElement('li'), { className: 'rm-empty', textContent: 'No clips or photos yet.' }));
+    $('rm-drop').classList.toggle('rm-has', st.items.length > 0); // the preview and the sample are for an empty bin
   }
   /** One cut in the cut list: its items (each a drop target for a clip) and its fill. */
   function cutItem(beat, i, st) {
@@ -131,6 +132,10 @@
       accept: DROP_RULES,
       input: $('rm-file'),
       targets: [$('rm-bin'), $('rm-stage')],
+      preview: { picture: { src: '../assets/shots/remix.jpg', alt: 'A vertical reel cut from clips and photos, several to a frame' },
+        steps: ['Drop clips and photos', 'Press Remix: it plans the cuts', 'Play it, then export a video'] },
+      sample: { label: 'Try it with 2 clips and 3 photos', files: async () => { const S = window.SlopSamples; status('Making the sample clips…'); // painted in the page (shared/samples)
+        return (await Promise.all([S.media.clip(4, { scene: 'hills', width: 480, height: 640 }), S.media.clip(4, { scene: 'sea', width: 480, height: 640 }), S.photos(3, { width: 900, height: 1200 })])).flat(); } },
       begin: () => { missingBefore = RM.state.items.filter((x) => x.missing).length; },
       process: async (file) => {
         if (!(await RM.addFiles([file]))) throw new Error('could not be decoded as a picture or video');

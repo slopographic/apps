@@ -76,8 +76,12 @@
           <ul class="mu-list" id="lib-list" aria-label="Tracks"></ul>
           <div class="mu-empty" id="lib-empty">
             <h2>No audio in Slop Drive yet</h2>
+            <div id="lib-preview"></div>
             <p>Add MP3, WAV, Ogg, FLAC, AAC or Opus files, or drop them here. They are saved to Slop Drive on this device.</p>
-            <button type="button" class="sui-btn sui-primary" id="lib-add-empty">Add files…</button>
+            <div class="mu-empty-acts">
+              <button type="button" class="sui-btn sui-primary" id="lib-add-empty">Add files…</button>
+              <button type="button" class="sd-sample" id="lib-sample">Try it with 3 sample tracks</button>
+            </div>
           </div>
         </div>
       </div>
@@ -173,6 +177,8 @@
   <script src="../shared/drop/panel.js"></script>
   <script src="../shared/intake/intake.js"></script>
   <script src="../shared/drop/drop.js"></script>
+  <script src="../shared/samples/samples.js"></script>
+  <script src="../shared/samples/media.js"></script>
   <script src="js/ui/library.js"></script>
   <script src="js/ui/now.js"></script>
   <script src="js/ui/mini.js"></script>

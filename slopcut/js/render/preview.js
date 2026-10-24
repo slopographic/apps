@@ -68,11 +68,18 @@
     if (SE.cells) SE.cells.draw(og, W, H); // the layout's cells (render/cells.js)
     if (SE.maskView) SE.maskView.draw(og); // the clip's mask outline and handles (render/mask-view.js)
   }
+  /** An empty project shows what SlopCut makes and how (SlopDrop's preview; the bin has Import and Sample project). */
+  let intro = null;
+  const introOf = () => intro || (intro = window.SlopDrop.panel.preview({
+    picture: { src: '../assets/shots/slopedit.jpg', alt: 'A short film on the timeline: two clips with a crossfade, a title, a logo and music' },
+    steps: ['Drop video, audio or pictures', 'Cut and arrange them on the timeline', 'Export a video file'] }));
   function updateMsg() {
     const p = SE.doc;
     if (!p.clips.length) {
-      msg.hidden = false;
-      msg.innerHTML = '<b>SlopCut</b>' + (p.media.length ? 'Drag media from the bin onto the timeline, or double-click an item.' : 'Import video, audio or images to start editing.<br>Everything stays on this device.');
+      msg.hidden = false; msg.classList.toggle('mon-intro', !p.media.length);
+      const b = document.createElement('b'); b.textContent = 'SlopCut';
+      if (p.media.length) msg.replaceChildren(b, 'Drag media from the bin onto the timeline, or double-click an item.');
+      else msg.replaceChildren(b, introOf());
     } else msg.hidden = true;
   }
 
