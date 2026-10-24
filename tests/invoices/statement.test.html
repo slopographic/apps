@@ -9,7 +9,7 @@
   <iframe id="app"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: invoices/js/ui/statement.js, invoices/js/ui/list.js, invoices/js/ui/app.js, invoices/js/core/invoices.js, invoices/css/invoices.css, invoices/index.html, shared/data/statement.js
+  // Covers: invoices/js/ui/reminder.js, invoices/js/ui/statement.js, invoices/js/ui/list.js, invoices/js/ui/app.js, invoices/js/core/invoices.js, invoices/css/invoices.css, invoices/index.html, shared/data/statement.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D, c;
   const $ = (id) => D.getElementById(id);
@@ -30,7 +30,7 @@
     it('Owed by customer opens the statement: every invoice and payment with a running balance, and the ageing', async () => {
       await boot();
       await S().store.erase(); await S().store.ready();
-      c = (await S().store.put('customers', { name: 'Ada Ltd', stage: 'customer', address: '1 High St\nLeeds' })).value;
+      c = (await S().store.put('customers', { name: 'Ada Ltd', stage: 'customer', email: 'pay@ada.example', address: '1 High St\nLeeds' })).value;
       const today = S().ledger.today(), back = (n) => S().ledger.addDays(today, -n);
       const a = await issued(back(100), back(70), 10000);
       await issued(back(20), back(5), 5000);
@@ -56,6 +56,22 @@
       await waitFor(() => D.querySelector('.st-open'));
       expect(D.querySelector('.st-open').textContent).toContain('$60.00');
       expect(D.querySelectorAll('.st-table tbody tr').length).toBe(2);
+    });
+    it('Reminder… writes a final reminder (an invoice is 70 days late) listing the open invoices, to copy or email', async () => {
+      $('stFrom').value = ''; $('stFrom').dispatchEvent(new W.Event('input'));
+      $('stRemind').click();
+      const dlg = await waitFor(() => SlopTest.topDialog(D));
+      expect(dlg.textContent).toContain('Final reminder');
+      const subject = dlg.querySelector('input'), body = dlg.querySelector('textarea');
+      expect(subject.value).toBe('Final reminder: $110.00 overdue');
+      expect(body.value.startsWith('Hello Ada Ltd,')).toBe(true);
+      expect(body.value).toContain('(70 days late)');
+      const mail = dlg.querySelector('a.btn');
+      expect(mail.getAttribute('href').startsWith('mailto:pay%40ada.example?subject=Final%20reminder')).toBe(true);
+      subject.value = 'Changed'; subject.dispatchEvent(new W.Event('input'));
+      expect(mail.getAttribute('href')).toContain('subject=Changed');
+      [...dlg.querySelectorAll('button')].find((b) => b.textContent === 'Close').click();
+      await waitFor(() => !SlopTest.topDialog(D));
     });
     it('Download CSV gives the statement as CSV; the page has no sideways scroll at 390 px', async () => {
       let got = null;

@@ -64,3 +64,22 @@ test('CSV: a header, the opening balance for a period, one line per event with p
   assert.equal(lines[1], ',Opening balance,,,,,9.00');
   assert.equal(lines[3], '2026-09-15,Payment,INV-2,,,20.00,39.00');
 });
+
+test('reminder: the tone follows the most overdue invoice; the text lists each open invoice and the balance', () => {
+  const money = (m) => `$${(m / 100).toFixed(2)}`;
+  const who = { customer: 'Ada Ltd', company: 'Slop Studio' };
+  const st = ST.build(INV, PAY, 'c', { currency: 'USD', today: '2026-10-24' });
+  const r = ST.reminder(st, who, money);
+  assert.equal(r.tone, 'final');
+  assert.equal(r.subject, 'Final reminder: $59.00 overdue');
+  assert.ok(r.body.startsWith('Hello Ada Ltd,'));
+  assert.ok(r.body.includes('- INV-4, due 2026-05-01: $9.00 (176 days late)'));
+  assert.ok(r.body.includes('- INV-3, due 2026-10-31: $20.00\n'));
+  assert.ok(r.body.endsWith('Balance owed: $59.00\n\nThank you,\nSlop Studio'));
+  const recent = ST.build(INV.filter((i) => i.id !== 'e'), PAY, 'c', { currency: 'USD', today: '2026-09-10' });
+  assert.equal(ST.reminder(recent, who, money).tone, 'friendly');
+  const firm = ST.build(INV.filter((i) => i.id !== 'e'), PAY, 'c', { currency: 'USD', today: '2026-10-24' });
+  assert.equal(ST.reminder(firm, who, money).tone, 'firm');
+  const none = ST.build(INV, PAY, 'nobody', { currency: 'USD', today: '2026-10-24' });
+  assert.deepEqual(ST.reminder(none, who, money), { tone: 'none', subject: '', body: '' });
+});

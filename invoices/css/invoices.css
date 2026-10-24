@@ -22,6 +22,7 @@
 .st-scroll { overflow-x: auto; min-width: 0; }   /* on a phone only the table scrolls sideways, never the page */
 .st-table td, .st-table th { white-space: nowrap; }
 .st-age .stat.is-late b { color: var(--danger); }
+.rem .rem-body { width: 100%; min-height: 220px; font: 13px/1.5 ui-monospace, monospace; }
 @media print {
   .statement { border: 0; padding: 0; background: #fff; color: #000; }
   .statement .stat { border-color: #999; background: #fff; }
