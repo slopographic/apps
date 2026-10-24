@@ -2,8 +2,9 @@
    Classic script; loads after intake.js. See shared/intake/HANDOFF.md.
      paste      one paste listener for the page: a pasted file (or a picture copied from a web page) goes to the first
                 registered spec that takes it (paste: false opts a spec out)                       source 'paste'
-     pick       SlopIntake.pick({ to, multiple, accept, mode, data }): the file picker (File ▸ Open, Ctrl+O, Choose
-                files, Insert from file...)                                                        source 'picker'
+     pick       SlopIntake.pick({ to, multiple, accept, folder, mode, data }): the file picker (File ▸ Open, Ctrl+O,
+                Choose files, Insert from file...; folder: true picks a whole folder, each file keeping its path in
+                webkitRelativePath)                                                                source 'picker'
      drive      SlopIntake.fromDrive({ to, accept, title, mode, data }): Open from Slop Drive        source 'drive'
      launch     SlopIntake.launch({ to }): a file another app sent here (?drive=<id>, Slop Hub's Send to…) or the
                 files the system opened the installed app with (launchQueue)                      source 'launch'
@@ -35,11 +36,12 @@
   document.addEventListener('paste', onPaste);
 
   /* ---------- the file picker ---------- */
-  function pickFiles(accept, multiple) {
-    if (window.SlopUI && window.SlopUI.pickFiles) return window.SlopUI.pickFiles({ accept, multiple });
+  function pickFiles(accept, multiple, folder) {
+    if (!folder && window.SlopUI && window.SlopUI.pickFiles) return window.SlopUI.pickFiles({ accept, multiple });
     return new Promise((res) => {
       const i = document.createElement('input');
       i.type = 'file'; i.accept = accept; i.multiple = multiple; i.style.cssText = 'position:fixed;left:-9999px';
+      if (folder) i.webkitdirectory = true;
       i.addEventListener('change', () => { res([...i.files]); i.remove(); }, { once: true });
       i.addEventListener('cancel', () => { res([]); i.remove(); }, { once: true });
       document.body.append(i);
@@ -47,15 +49,17 @@
     });
   }
   /** Opens the picker for a spec and takes what is picked. o: { to, multiple (default: the spec's, else true), accept
-   *  (default: the spec's rules), mode, data }. Resolves the summary (an empty one when nothing was picked). */
+   *  (default: the spec's rules), folder (a whole folder), mode, data }. Resolves the summary (an empty one when nothing was picked). */
   SI.pick = async function (o) {
     o = o || {};
     const spec = SI.spec(o.to);
     const multiple = o.multiple != null ? o.multiple : spec && spec.multiple != null ? spec.multiple : !(spec && spec.limit === 1);
-    const files = await pickFiles(o.accept != null ? o.accept : SI.acceptAttr(spec), multiple);
+    const files = await (SI.pickFiles || pickFiles)(o.accept != null ? o.accept : SI.acceptAttr(spec), multiple, !!o.folder);
     if (!files || !files.length) return { app: spec && spec.id, source: 'picker', added: [], skipped: [], refused: [], cancelled: true };
     return SI.take(files, Object.assign({}, o, { source: o.source || 'picker', to: o.to }));
   };
+
+  SI.pickFiles = null; // a test may stand in its own picker: (accept, multiple, folder) → File[]
 
   /* ---------- Slop Drive ---------- */
   const hub = () => (document.documentElement.dataset.offline ? null : window.SlopHub || null);

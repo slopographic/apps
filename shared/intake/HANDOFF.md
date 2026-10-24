@@ -189,6 +189,14 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   header and the empty library), a drop on the library and its strip, the sample, a paste (new), ?drive= launch (a track
   the library has plays, `M.playTrack`) and launchQueue (added to Slop Drive). Open a playlist from Slop Drive is the
   part's `fromDrive`. `tests/intake/music.test.html`.
+- **Slop Drive** (`drive/js/ui/dnd.js`, spec `drive`, one `processAll` upload for the whole batch, `toast: false`
+  (DR.done reports), `paste: false` (Ctrl+V is Drive's own clipboard)): a drop on the pane or the tree (files and folders,
+  into the folder under the pointer; a provider folder and a lone .slop backup keep their own handling in the zone's
+  `files` hook), Upload files… and Upload a folder… (`SlopIntake.pick({ folder: true })`, new in sources.js), ?drive=
+  launch (a file Drive has is shown, no copy) and launchQueue (uploaded). Out: Open with, Quick look's Open in and New ▸
+  (open) go out through `SlopOuttake.send(app, { id })` (new in outtake.js: an output already in Slop Drive opens without
+  a copy, and has no Save to Slop Drive…). Drive keeps its own Open with list (default app per type, remembered; see
+  "Open questions"). `tests/intake/drive.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -216,6 +224,13 @@ PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach 
    `SlopOuttake.handover`.
 6. Add the folder to `STRICT` in `tools/one-way.mjs` and run `node tools/check-rules.mjs --all`; add the app to a
    `tests/intake/<app>.test.html` like resize's.
+
+## Open questions (for the owner)
+
+- **Slop Drive's Open with**: Drive lists the apps for a file itself (`DR.openInRows`, `DR.orderedAppsFor`: the app that
+  made the file first, then the most specific match, the default per type remembered) because SlopOuttake.items lists the
+  registry in its own order and has no default or remember. The files go out through `SlopOuttake.send` already; to make
+  the list the builder's too, SlopOuttake.items needs an `order(apps)` hook and a `remember` item, or Drive keeps its list.
 
 ## Still to migrate (found by grepping; tick as done)
 
@@ -310,19 +325,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] paste listener: `docs/js/ui/input.js:62`
 - [ ] ?drive= launch: `docs/js/ui/main.js:47`
 - [ ] out: Open in/Send to label: `docs/js/ui/menus.js:35`
-
-### drive
-
-- [ ] hub listener: `drive/js/app/main.js:51`
-- [ ] ?drive= launch: `drive/js/app/main.js:62`
-- [ ] file input: `drive/js/core/io.js:40`
-- [ ] out: sendTo: `drive/js/core/io.js:116`
-- [ ] SlopDrop.attach: `drive/js/ui/dnd.js:95`
-- [ ] out: Open in/Send to label: `drive/js/ui/info.js:39`
-- [ ] out: Open in/Send to label: `drive/js/ui/info.js:40`
-- [ ] out: Open in/Send to label: `drive/js/ui/menus.js:63`
-- [ ] out: sendTo: `drive/js/ui/newdoc.js:29`
-- [ ] out: Open in/Send to label: `drive/js/ui/quicklook.js:21`
 
 ### effects
 
