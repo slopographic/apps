@@ -149,6 +149,13 @@
       await new Promise((r) => setTimeout(r, 200));
       expect(doc().getElementById('view-pipeline').textContent.includes('Parts Supplier')).toBe(false);
     });
+    it('in the customer list a supplier reads Supplier instead of a sales stage', async () => {
+      // Covers: crm/js/ui/list.js
+      win().SlopCrm.app.show('customers');
+      await waitFor(() => [...doc().querySelectorAll('#cRows .row')].some((r) => r.dataset.name === 'Parts Supplier'), { timeout: 8000 });
+      const row = [...doc().querySelectorAll('#cRows .row')].find((r) => r.dataset.name === 'Parts Supplier');
+      expect(row.querySelector('.stage').textContent).toBe('Supplier');
+    });
   });
 
   describe('the local-only rule', () => {

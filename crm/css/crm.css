@@ -17,6 +17,7 @@
 .s-contacted { color: var(--warn); border-color: var(--warn); }
 .s-customer { color: var(--ok); border-color: var(--ok); }
 .s-lost { color: var(--danger); border-color: var(--danger); }
+.s-supplier { color: var(--accent); border-color: var(--accent); }
 .board { display: grid; grid-template-columns: 1fr; gap: 12px; }
 @media (min-width: 900px) { .board { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .col { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px; min-width: 0; }

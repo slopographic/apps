@@ -40,7 +40,8 @@
           tags.length || cats.length ? el('span', { class: 'chips' },
             tags.map((t) => el('span', { class: `tag-chip tg-${t.color}` }, t.name)),
             cats.map((t) => el('span', { class: 'chip' }, t))) : null)),
-      el('span', { class: `stage s-${c.stage}` }, NS.stageLabel(c.stage)),
+      // a supplier (Slop Purchases) is not on the sales pipeline: it reads Supplier, not a stage
+      c.supplier ? el('span', { class: 'stage s-supplier' }, 'Supplier') : el('span', { class: `stage s-${c.stage}` }, NS.stageLabel(c.stage)),
       el('span', { class: 'c-cell c-act' }, act ? NS.util.date(isoDay(act), loc) : '—'),
       el('span', { class: `c-cell c-fol${overdue ? ' overdue' : ''}` }, c.followUp ? NS.util.date(c.followUp, loc) : '—'),
       el('button', { type: 'button', class: 'btn small', 'aria-label': `Actions for ${c.name}`,
