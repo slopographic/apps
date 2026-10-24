@@ -1,0 +1,121 @@
+#!/usr/bin/env node
+// The AI coverage audit: for every app in shared/apps.js, which SlopCmd commands with arguments (the tools the AI panel,
+// Ctrl+K, macros and WebMCP get) it registers, sorted into what the assistant can do there:
+//   create   start a new document or project              (new_…, build_…, create_…)
+//   add      put content in: text, shapes, rows, slides…  (add_…, insert_…, draw_…, use_tool, brush_…, paste_…)
+//   edit     change or style what is there                (everything else that changes the document)
+//   export   save or send it out                          (export_…, save_…, download_…)
+// plus the operations the app registers in shared/ops (headless, from any app's AI panel and Slop Workflows).
+// The commands are read from the app's own scripts (no browser): add('tool', …), ['tool', 'Title', [args…]],
+// tool: 'tool', and { id: '…', …, args: … } on one line, in files that hold argument schemas.
+//   node tools/ai-coverage.mjs           writes shared/commands/AI-COVERAGE.md
+//   node tools/ai-coverage.mjs --check   exits 1 when that file is out of date
+//   node tools/ai-coverage.mjs --index   reads the files staged for commit (the pre-commit hook), not the working tree
+import { readFileSync, readdirSync, statSync, writeFileSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+import vm from 'node:vm';
+import { fileURLToPath } from 'node:url';
+
+export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+export const OUT = 'shared/commands/AI-COVERAGE.md';
+export const KINDS = ['create', 'add', 'edit', 'export'];
+// Apps whose AI commands another branch builds: listed as owned, not as gaps.
+export const OWNED = { slopedit: 'wip/video-ai', remix: 'wip/video-ai', effects: 'wip/video-ai', projects: 'wip/video-ai', music: 'wip/video-ai', transcribe: 'wip/video-ai' };
+const READ = /^(list_|get_|app_state|go_to|undo$|redo$|select_layer$|deselect$|clear_filter$)/;
+
+/** Where the files are read from: the working tree under root, or git's index (staged files). */
+export function source(root = ROOT, index = false) {
+  if (!index) return { read: (f) => readFileSync(path.join(root, f), 'utf8'), list: (dir) => files(path.join(root, dir)).map((p) => path.relative(root, p)) };
+  const git = (...a) => execFileSync('git', a, { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 });
+  const all = git('ls-files', '--cached').split('\n').filter(Boolean);
+  return { read: (f) => git('show', ':' + f), list: (dir) => all.filter((f) => f.startsWith(dir.replace(/\/?$/, '/')) && /\.m?js$/.test(f) && !/\.min\.js$/.test(f) && !/\/(node_modules|vendor|fonts|assets|classic)\//.test('/' + f.slice(dir.length))) };
+}
+export function apps(src = source()) {
+  const ctx = { window: {} };
+  vm.runInNewContext(src.read('shared/apps.js'), ctx);
+  return ctx.window.SLOP_APPS.filter((a) => a.kind === 'app' && a.path && !/^https?:/.test(a.path));
+}
+function files(dir, out = []) {
+  if (!existsSync(dir)) return out;
+  for (const n of readdirSync(dir)) {
+    const p = path.join(dir, n);
+    if (statSync(p).isDirectory()) { if (!/^(node_modules|vendor|fonts|assets|classic)$/.test(n)) files(p, out); }
+    else if (/\.m?js$/.test(n) && !/\.min\.js$/.test(n)) out.push(p);
+  }
+  return out;
+}
+/** The tool names of the commands with arguments in one script's text. */
+export function toolsIn(text) {
+  if (!/type:\s*'(number|string|enum|boolean|color|array|object)'|\bargs\s*:/.test(text)) return [];
+  const out = new Set();
+  for (const m of text.matchAll(/\badd\(\s*'([a-z][a-z0-9_]*)'\s*,\s*'/g)) out.add(m[1]);
+  for (const m of text.matchAll(/\[\s*'([a-z][a-z0-9_]*)'\s*,\s*'[^'\n]*'\s*,\s*\[/g)) out.add(m[1]);
+  for (const m of text.matchAll(/\btool:\s*'([a-z][a-z0-9_]*)'/g)) out.add(m[1]);
+  for (const m of text.matchAll(/\bid:\s*'([\w-]+)\.([\w.-]+)'[^\n]*?\bargs\s*:/g)) if (!/\btool:/.test(m[0])) out.add(m[2].split('.').pop().replace(/-/g, '_'));
+  return [...out];
+}
+export function kindOf(tool) {
+  if (READ.test(tool)) return null;
+  if (/^(add_noise|add_grain)$/.test(tool)) return 'edit';
+  if (/^(new|build|create)_(?!layer|slide|column|row|step|page)|_from_outline$/.test(tool)) return 'create';
+  if (/^new_/.test(tool)) return 'add';
+  if (/^(export|save|download)(_|$)/.test(tool)) return 'export';
+  if (/^(add|insert|draw|use_tool|click_tool|brush|paste|append|import|place)(_|$)/.test(tool)) return 'add';
+  return 'edit';
+}
+/** The operations registered per app (shared/ops/*.js register([...], { app })). */
+export function opsByApp(src = source()) {
+  const out = {};
+  for (const f of src.list('shared/ops')) {
+    for (const part of src.read(f).split(/\bregister\(\[/).slice(1)) {
+      const m = /\],\s*\{\s*app:\s*'([\w-]+)'/.exec(part);
+      if (!m) continue;
+      for (const o of part.slice(0, m.index).matchAll(/\{\s*id:\s*'([\w.:-]+)',\s*label:/g)) (out[m[1]] = out[m[1]] || []).push(o[1]);
+    }
+  }
+  return out;
+}
+
+export function scan(src = source()) {
+  const ops = opsByApp(src);
+  return apps(src).map((a) => {
+    const tools = new Set();
+    for (const f of src.list(a.path)) for (const t of toolsIn(src.read(f))) tools.add(t);
+    const by = Object.fromEntries(KINDS.map((k) => [k, []]));
+    for (const t of [...tools].sort()) { const k = kindOf(t); if (k) by[k].push(t); }
+    const ownOps = ops[a.id] || [];
+    const covered = KINDS.every((k) => by[k].length > 0);
+    return { id: a.id, name: a.name, path: a.path, by, ops: ownOps, covered, count: tools.size, owner: OWNED[a.id] || null };
+  });
+}
+
+export function render(rows) {
+  const yes = (l) => (l.length ? `✓ ${l.length}` : '✗');
+  const lines = ['# AI coverage', '',
+    'Generated by `node tools/ai-coverage.mjs` from each app\'s own SlopCmd commands with arguments (the tools of the AI panel,',
+    'Ctrl+K, macros and WebMCP) and its operations in `shared/ops`. Do not edit by hand; `tests/node/ai-coverage.test.mjs` checks',
+    'that this file is up to date and that no covered app loses a create, add or export command.', '',
+    '**Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.', '',
+    `Covered: ${rows.filter((r) => r.covered).length} of ${rows.length} apps.`, '',
+    '| App | Create | Add | Edit | Export | Operations | Covered |', '|---|---|---|---|---|---|---|'];
+  for (const r of rows) lines.push(`| ${r.name} (\`${r.id}\`) | ${yes(r.by.create)} | ${yes(r.by.add)} | ${yes(r.by.edit)} | ${yes(r.by.export)} | ${r.ops.length || ''} | ${r.covered ? 'yes' : r.owner ? `owned by ${r.owner}` : 'no'} |`);
+  lines.push('', '## Commands per app', '');
+  for (const r of rows.filter((x) => x.count)) {
+    lines.push(`### ${r.name}`, '');
+    for (const k of KINDS) if (r.by[k].length) lines.push(`- ${k}: ${r.by[k].map((t) => '`' + t + '`').join(', ')}`);
+    if (r.ops.length) lines.push(`- operations: ${r.ops.map((t) => '`' + t + '`').join(', ')}`);
+    lines.push('');
+  }
+  return lines.join('\n');
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const root = process.argv.includes('--root') ? path.resolve(process.argv[process.argv.indexOf('--root') + 1]) : ROOT;
+  const text = render(scan(source(root, process.argv.includes('--index')))), file = path.join(root, OUT);
+  if (process.argv.includes('--check')) {
+    const old = existsSync(file) ? readFileSync(file, 'utf8') : '';
+    if (old !== text) { console.error(`${OUT} is out of date: run node tools/ai-coverage.mjs`); process.exit(1); }
+  } else if (process.argv.includes('--print')) process.stdout.write(text);
+  else writeFileSync(file, text);
+}
