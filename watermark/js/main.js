@@ -12,7 +12,7 @@
     if (dropZone) dropZone.empty(!n); // the preview in the zone is for an empty page only
     $('wm-preview-box').hidden = !n; $('wm-preview-note').hidden = !n; // the empty stage would only repeat the zone
     bar.setActions([
-      { id: 'open', label: 'Open pictures…', icon: 'open', disabled: busy, onClick: () => $('wm-open').click() },
+      { id: 'open', label: 'Open pictures…', icon: 'open', disabled: busy, onClick: () => window.SlopIntake.pick({ to: 'watermark' }) },
       { id: 'apply', label: 'Apply to all', icon: 'save', primary: true, disabled: busy || !n, onClick: applyAll },
       { id: 'zip', label: 'Download all (ZIP)', icon: 'download', disabled: busy || !outs, onClick: downloadZip },
       { id: 'clear', label: 'Clear', disabled: busy || !n, onClick: clearAll },
@@ -66,25 +66,30 @@
     window.WMList.render(); window.WMPreview.schedule(); syncBar();
   }
 
-  /** Drops and Open pictures: each picture is read into the list. The shared module reports the rest. */
+  /** The one way pictures come in (shared/intake, spec 'watermark'): a drop, the zone's Choose files, Open pictures…, a
+   *  paste, ?drive=<id> (another app's Open in…) and a PWA launch. Each picture is read into the list; the zone reports
+   *  the rest. */
   function wireDrop() {
-    dropZone = window.SlopDrop.attach($('wm-drop'), {
+    window.SlopIntake.register({
+      id: 'watermark',
       accept: {
         types: window.WMDecode.TYPES, exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'],
         noun: 'a PNG, JPEG, WebP, GIF or SVG picture',
       },
-      input: $('wm-open'),
+      process: async (file) => {
+        if (window.WMItems.count() >= window.WMItems.MAX) throw new Error('the list is full (' + window.WMItems.MAX + ' pictures)');
+        return (await window.WMItems.add(file)).id;
+      },
+      after: () => { window.WMList.render(); window.WMPreview.schedule(); syncBar(); },
+    });
+    dropZone = window.SlopDrop.attach($('wm-drop'), {
+      intake: 'watermark',
       targets: [$('wm-drop'), $('wm-preview-box')],
       label: 'Drop pictures here',
       hint: 'PNG, JPEG, WebP, GIF or SVG. Many at once. Read in this browser, never uploaded.',
       preview: { picture: { src: '../assets/shots/watermark.jpg', alt: 'A sunset photo with a © text watermark in the bottom right corner' },
         steps: ['Drop pictures, many at once', 'Type your text or add a logo, pick a corner', 'Download them all as a ZIP'] },
       sample: { label: 'Try it with 4 sample photos', files: () => window.SlopSamples.photos(4) },
-      process: async (file) => {
-        if (window.WMItems.count() >= window.WMItems.MAX) throw new Error('the list is full (' + window.WMItems.MAX + ' pictures)');
-        return (await window.WMItems.add(file)).id;
-      },
-      done: () => { window.WMList.render(); window.WMPreview.schedule(); syncBar(); },
       reveal: () => $('wm-list').lastElementChild,
     });
   }
@@ -116,6 +121,8 @@
     syncBar();
     window.WMSettings.restore().then(() => window.WMPreview.schedule());
     window.WMPreview.schedule();
+    if (window.SlopHub) window.SlopHub.register('watermark');
+    window.SlopIntake.launch({ to: 'watermark' });
   }
 
   document.addEventListener('DOMContentLoaded', () => {

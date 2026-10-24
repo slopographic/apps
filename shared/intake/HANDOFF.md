@@ -608,11 +608,14 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] file input: `transcribe/index.html:54`
 - [ ] SlopDrop.attach: `transcribe/js/app.js:101`
 
-### watermark
+### watermark (pictures done; the logo is left to the watermark panel rewrite, wip/watermark-all)
 
-- [ ] file input: `watermark/index.html:42`
-- [ ] file input: `watermark/index.html:96`
-- [ ] SlopDrop.attach: `watermark/js/main.js:71`
+- [x] pictures: spec `watermark` (`watermark/js/main.js`): a drop, the zone, Open pictures… (`SlopIntake.pick`; the
+  page's hidden `#wm-open` input is gone), a paste, ?drive= launch (the page now loads shared/hub.js, so another app's
+  Open in Slop Watermark reaches it) and launchQueue, the sample. `tests/intake/watermark.test.html`.
+- [ ] file input: the logo's Upload logo… (`#wm-logo-file` in `watermark/index.html`, read by `watermark/js/settings.js`)
+  → a part `watermark.logo` (`main: false, paste: false`) and `SlopIntake.pick({ to: 'watermark.logo' })`; then add
+  `watermark/` to STRICT.
 
 ### workflows
 
