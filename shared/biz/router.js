@@ -1,7 +1,8 @@
 // The boot and #hash router every business app shares: opens the shared store (a plain message when it cannot), mounts the
 // views, wires the view tabs (SlopTabs, shared/ui/tabs.js), registers the commands and the hub, redraws the current view
 // when the store reports a change (from this tab or another), and shows a view for each hash. Classic script.
-// SlopBiz.router.start(cfg) sets ns.app = { go, route, boot, parse, show } and returns it. cfg:
+// SlopBiz.router.start(cfg) sets ns.app = { go, route, boot, parse, show(name) (that view, its name in the address) } and
+// returns it. cfg:
 //   ns, app                 the namespace (ns.views, ns.commands, ns.util) and the app id ('expenses')
 //   parse(hash)             -> { view, arg?, ... } for the hash without '#'
 //   editRoute()             the hash the edit tab goes to (default: the current hash, or 'new')
@@ -11,7 +12,10 @@
 //   after?(t, shown)        runs after a view is shown (shown: what its show returned)
 //   mount?()                runs once with the views (an app's own bar)
 //   tabRoute?(name)         the hash a view tab goes to (default: editRoute() for the edit tab, else the tab's name)
-// The views are ns.views[name] = { mount?, show?(arg, t) (or onShow), refresh? }. The edit tab (#tab-edit) shows only on the edit view.
+//   start?()                async: the hash to open when the page has none (such as the view the app was left on)
+//   refresh?(view)          async: redraws after a store change (default: the view's refresh)
+//   ready?()                runs once after the first view is shown
+// The views are ns.views[name] = { mount?, show?(arg, t) (or onShow, or render), refresh? (or render) }. The edit tab (#tab-edit) shows only on the edit view.
 (function (g) {
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
@@ -32,8 +36,8 @@
       tabs.show(t.view);
       if (g.SlopLayouts) g.SlopLayouts.refresh(cfg.app);
       const v = NS.views[t.view];
-      const fn = v && (v.show || v.onShow);
-      const out = fn ? fn(t.arg, t) : undefined;
+      const fn = v && (v.show || v.onShow || v.render);
+      const out = fn ? fn.call(v, t.arg, t) : undefined;
       if (cfg.after) cfg.after(t, out);
       return out;
     }
@@ -46,7 +50,12 @@
 
     function redraw() {
       clearTimeout(timer);
-      timer = setTimeout(() => { const v = at && NS.views[at.view]; if (v && v.refresh) v.refresh(); }, 40);
+      timer = setTimeout(() => {
+        if (!at) return;
+        if (cfg.refresh) { cfg.refresh(at.view); return; }
+        const v = NS.views[at.view], fn = v && (v.refresh || v.render);
+        if (fn) fn.call(v);
+      }, 40);
     }
 
     async function boot() {
@@ -62,11 +71,13 @@
       if (g.SlopHub) { try { g.SlopHub.register(cfg.app); } catch (e) { /* the hub is optional */ } }
       S.store.subscribe(redraw);
       addEventListener('hashchange', route);
+      if (cfg.start && !location.hash.slice(1)) { const h = await cfg.start(); if (h) history.replaceState(null, '', `#${h}`); }
       await route();
+      if (cfg.ready) cfg.ready();
     }
 
     NS.views = NS.views || {};
-    NS.app = { go, route, boot, parse: () => cfg.parse(location.hash.slice(1)), show: (name, arg) => show({ view: name, arg }) };
+    NS.app = { go, route, boot, parse: () => cfg.parse(location.hash.slice(1)), show: (name, arg) => { history.replaceState(null, '', `#${name}`); return show({ view: name, arg }); } };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();
     return NS.app;

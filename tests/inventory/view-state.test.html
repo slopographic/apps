@@ -9,6 +9,7 @@
   <iframe id="app" src="about:blank"></iframe>
   <script src="../harness.js"></script>
   <script>
+  // Covers: inventory/js/ui/app.js, shared/biz/router.js
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const f = document.getElementById('app');
   /** Load a page in the iframe; for Slop Inventory, wait until the store has opened (the boot cover is hidden). */
