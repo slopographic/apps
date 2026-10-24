@@ -14,30 +14,23 @@
   /* ---------- shared actions ---------- */
   async function guard(fn) { try { await fn(); } catch (e) { toast(e.message || String(e)); } }
   function needItem() { const it = cur(); if (!it) throw new Error('Open an image first'); return it; }
-  /** The PNG of the active cutout (compose at full resolution), for Send to. Builds a job when none is active. */
-  async function activeBlob() {
-    const it = cur();
-    if (!it || it.status !== 'done') throw new Error('Wait for the cutout first');
-    const P = CO.process, mine = !!P.active && P.active.item === it;
-    const rec = mine ? P.active : await P.build(it);
-    try { return await U.blobOf(CO.compose.render(it, rec), 'image/png'); }
-    finally { if (!mine) Promise.resolve(SlopCutout.release(rec.jobId)).catch(() => {}); }
-  }
-
   const act = {
     open: () => CO.files.open(),
     sample: () => CO.files.sample(),
     driveOpen: () => guard(() => SlopIntake.fromDrive({ to: 'cutout', accept: ['image/*'], title: 'Open from Slop Drive' })),
     exportOne: (it) => guard(() => CO.export.one(it || needItem())),
     exportAll: () => guard(() => CO.export.all()),
-    // Slop Workflows: Remove background as a step, with the model and the look of the image on screen (shared/ops/flowdoc.js)
+    // Slop Workflows: Remove background as a step, with the model and the look of the image on screen, or of the selected
+    // pictures where they agree (a setting they differ on comes from the image on screen) (shared/ops/flowdoc.js)
     workflow: () => guard(() => {
-      const it = cur() || S.defaults;
-      return window.SlopFlowDoc.addToWorkflow({ id: 'slopisolate.remove-bg' }, { settings: { model: (it && it.model) || S.model, look: { bg: it.bg, shadow: it.shadow, crop: it.crop } } });
+      const src = cur() || S.defaults, items = S.bulk() ? S.targets() : [src];
+      const it = CO.settings.agreed(items, src, S.modelOf);
+      return window.SlopFlowDoc.addToWorkflow({ id: 'slopisolate.remove-bg' }, { settings: { model: it.model || S.model, look: { bg: it.bg, shadow: it.shadow, crop: it.crop } } });
     }),
     undo: () => { const it = cur(); if (H.can(it, 'undo')) H.undo(it); },
     redo: () => { const it = cur(); if (H.can(it, 'redo')) H.redo(it); },
     clearEdits: () => {
+      if (S.bulk()) return CO.bulk.act('clear');   // with a selection: every selected picture, one undo step
       const it = cur();
       if (!it || !CO.brush.hasEdits(it)) return toast('No brush edits to clear');
       const old = it.edit.slice();
@@ -103,21 +96,15 @@
   function helpItems() {
     return [{ label: 'Keyboard shortcuts…', key: '', act: act.keys }];
   }
-  function sendItems() {
-    const rows = hub().sendMenuItems(activeBlob, () => U.baseName(cur() ? cur().name : '') + '-cutout.png', 'image/png', { folder: true });
-    return rows.map((r) => Object.assign(r, { disabled: !done() }));
-  }
   function moreItems() {
     const now = window.SlopTheme ? SlopTheme.get() : 'dark';
     const out = [{ label: 'Theme', sub: THEMES.map(([v, l, s]) => ({ label: l, check: now === s, act: () => act.theme(v) })) }];
-    if (hub()) {
-      const sub = sendItems(); if (sub.length) out.push({ label: 'Send to', sub });
-      if (cur() && cur().request) out.push({ label: 'Send mask back to PhotoSlop', act: () => CO.send.mask(), disabled: !done() });
-      out.push({ label: 'Send cut-out to PhotoSlop as a new layer', act: () => CO.send.layer(), disabled: !done() });
-    }
-    // A narrow top bar hides Open in… and Clear saved work (css/themes.css); the More menu runs the same buttons.
-    const openIn = $('#btnOpenIn'), clear = $('#btnClearSaved');
-    if (openIn) out.push({ label: 'Open in…', act: () => CO.openIn.show($('#btnMore')), disabled: openIn.disabled });
+    // Open in: the same items as the toolbar's Open in… (ui/openin.js, SlopOuttake), for the selection when there is one.
+    const sub = S.bulk() ? CO.openIn.bulkItems() : CO.openIn.items(cur());
+    out.push({ label: 'Open in', sub, disabled: !sub.length });
+    if (hub() && cur() && cur().request) out.push({ label: 'Send mask back to PhotoSlop', act: () => CO.send.mask(), disabled: !done() });
+    // A narrow top bar hides Clear saved work (css/themes.css); the More menu runs the same button.
+    const clear = $('#btnClearSaved');
     if (clear) out.push({ label: 'Clear saved work…', act: () => clear.click() });
     out.push('-', { label: 'About SlopIsolate', act: act.about });
     return out;
@@ -173,5 +160,5 @@
     $('#btnPanel').setAttribute('aria-expanded', String(!CO.sheet.isPhone() && !$('#app').classList.contains('no-panel')));
   }
 
-  CO.menus = { init, act };
+  CO.menus = { init, act, moreItems };
 })();
