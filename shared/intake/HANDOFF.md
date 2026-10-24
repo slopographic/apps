@@ -190,8 +190,8 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   header and the empty library), a drop on the library and its strip, the sample, a paste (new), ?drive= launch (a track
   the library has plays, `M.playTrack`) and launchQueue (added to Slop Drive). Open a playlist from Slop Drive is the
   part's `fromDrive`. `tests/intake/music.test.html`.
-- **Slop Drive** (`drive/js/ui/dnd.js`, spec `drive`, one `processAll` upload for the whole batch, `toast: false`
-  (DR.done reports), `paste: false` (Ctrl+V is Drive's own clipboard)): a drop on the pane or the tree (files and folders,
+- **Slop Drive** (`drive/js/ui/dnd.js`, spec `drive`, one `processAll` upload for the whole batch,
+  `paste: false` (Ctrl+V is Drive's own clipboard)): a drop on the pane or the tree (files and folders,
   into the folder under the pointer; a provider folder and a lone .slop backup keep their own handling in the zone's
   `files` hook), Upload files… and Upload a folder… (`SlopIntake.pick({ folder: true })`, new in sources.js), ?drive=
   launch (a file Drive has is shown, no copy) and launchQueue (uploaded). Out: Open with, Quick look's Open in and New ▸
