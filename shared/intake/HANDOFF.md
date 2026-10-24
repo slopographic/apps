@@ -58,6 +58,9 @@ SlopIntake.register({
 
 Parts of an app with files of their own (a watermark logo, brushes, a backup, a macro's test PDF) are specs of their own
 (`main: false, paste: false`), reached with `SlopIntake.pick({ to: 'myapp.logo' })`.
+`SlopIntake.part(spec)` registers such a part once (`main: false, paste: false, toast: false` unless given) and returns its
+id: `SlopIntake.pick({ to: SlopIntake.part({ id: 'keys.import', accept, process }) })`. A shared component on pages that
+may not load shared/intake keeps its old picker as the fallback, marked `intake-ok`.
 
 ## Sources (every one calls take)
 
@@ -310,6 +313,12 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
 - **Slop Ledger** (parts `ledger.sie` in `ledger/js/ui/sie.js` and `ledger.bank` in `ui/bank.js`, no paste): Import SIE…
   and Import a statement… (the buttons and the commands) are the intake's pickers; the two hidden file inputs are gone,
   and the page loads shared/intake. `tests/intake/ledger.test.html`.
+- **Shared components' files** (`SlopIntake.part`, new in sources.js): Import shortcuts (`keys.import`,
+  shared/commands/recorder.js), the guides' Import Presets (`guides.presets`, shared/guides/panel-tabs.js), the presets
+  dialog's Import… (`presets.import`, shared/presets/ui.js; its hidden file input is gone), Backup & restore's Choose
+  backup file… (`backup.import`, shared/backup/ui.js) and Export everything's (`backup.everything`,
+  shared/backup/central-ui.js) are parts of the one intake on pages that load it; on a page without shared/intake each
+  keeps its old picker (`intake-ok`). `tests/intake/shared-parts.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -373,11 +382,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] paste listener: `photoslop/classic/paint/17-files.js:65`
 - [ ] file input: `photoslop/index.html:93`
 
-### shared/backup
-
-- [ ] pickFiles: `shared/backup/central-ui.js:85`
-- [ ] pickFiles: `shared/backup/ui.js:41`
-
 ### shared/biz
 
 - [ ] out: sendTo: `shared/biz/address-label.js:32`
@@ -385,10 +389,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### shared/buffer
 
 - [ ] drop listener: `shared/buffer/buffer.js:68`
-
-### shared/commands
-
-- [ ] pickFiles: `shared/commands/recorder.js:79`
 
 ### shared/config
 
@@ -413,10 +413,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] file input: `shared/fonts/panel.js:139`
 - [ ] drop listener: `shared/fonts/panel.js:146`
 
-### shared/guides
-
-- [ ] pickFiles: `shared/guides/panel-tabs.js:100`
-
 ### shared/hub.js
 
 - [ ] out: sendTo: `shared/hub.js:174`
@@ -434,8 +430,8 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 ### shared/presets
 
-- [ ] hub listener: `shared/presets/store.js:52`
-- [ ] file input: `shared/presets/ui.js:37`
+- [x] file input: the presets dialog's Import… (`presets.import`).
+- [ ] hub listener: `shared/presets/store.js:52` (a Drive change refreshes the list; not a way in)
 
 ### shared/preview
 

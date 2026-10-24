@@ -61,6 +61,14 @@
 
   SI.pickFiles = null; // a test may stand in its own picker: (accept, multiple, folder) → File[]
 
+  /** A part of a page with files of its own (a logo, a backup, a config, presets, fonts): spec is registered once, with
+   *  main: false, paste: false and toast: false unless it says otherwise. Returns its id, for pick / fromDrive / take:
+   *  SlopIntake.pick({ to: SlopIntake.part({ id, accept, process }) }). */
+  SI.part = function (spec) {
+    if (!SI.spec(spec.id)) SI.register(Object.assign({ main: false, paste: false, toast: false }, spec));
+    return spec.id;
+  };
+
   /* ---------- Slop Drive ---------- */
   const hub = () => (document.documentElement.dataset.offline ? null : window.SlopHub || null);
   /** The MIME patterns the Drive picker lists for a spec: driveAccept, else its rules' types (all when it takes any). */
