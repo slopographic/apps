@@ -75,7 +75,7 @@
       if (g.SlopAgents && !g.SlopAgents.enabled()) g.SlopAgents.set(true);   // connecting is the person's own choice
       const r = await B.pair(code);
       if (r.ok) { done(); return false; }
-      say(r.left != null ? `That code is not right. ${r.left} ${r.left === 1 ? 'try' : 'tries'} left.` : (r.reason || 'Pairing failed.'), true);
+      say(r.left != null ? `That code is not right. ${r.left} ${r.left === 1 ? 'try' : 'tries'} left.${port ? '' : ' With more than one AI app session open, open the link the AI app shows with the code: it names the right one.'}` : (r.reason || 'Pairing failed.'), true);
       input.select();
       return false;
     };
