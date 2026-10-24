@@ -1,7 +1,8 @@
 /* Slopographic packs: the one way a pack gets onto this device. Used by the Get more dialog (get-more.js) and by fonts
  * downloaded just in time (shared/fonts/jit.js). Every file comes from a host listed in packs.json, must match its
  * manifest byte length and SHA-256, and the pack is stored in one transaction (shared/library/store.js) or not at all.
- * Needs manifest.js and store.js. Classic script; exposes window.SlopLibraryInstall:
+ * The download goes through shared/cdn/assets.js (loaded here when the page has not): a cdn file is tried on jsDelivr, then
+ * on GitHub, each place checked the same way. Needs manifest.js and store.js. Classic script; exposes window.SlopLibraryInstall:
  *   loadManifest() -> Promise<{ packs, errors, hosts }>     packs.json, read once, validated; never rejects
  *   installed() -> Promise<{ id: record }>                     installed packs ({} when storage is unavailable)
  *   install(pack, onStatus?) -> Promise                        rejects with the reason; nothing is stored then
@@ -14,11 +15,26 @@
   const PACKS_URL = new URL('packs.json', SELF).href;
   const M = () => root.SlopLibraryManifest, S = () => root.SlopLibraryStore;
   const listeners = new Set();
-  let manifestP = null;
+  let manifestP = null, cdnP = null;
+
+  /** shared/cdn/assets.js, which knows where the cdn files are served from: on the page already, or loaded once. */
+  function cdn() {
+    if (root.SlopCdn || !doc) return Promise.resolve(root.SlopCdn);
+    if (!cdnP) {
+      cdnP = new Promise((res, rej) => {
+        const s = doc.createElement('script');
+        s.src = new URL('../cdn/assets.js', SELF).href;
+        s.onload = () => res(root.SlopCdn);
+        s.onerror = () => { cdnP = null; rej(new Error('shared/cdn/assets.js could not load')); };
+        doc.head.append(s);
+      });
+    }
+    return cdnP;
+  }
 
   function loadManifest() {
     if (!manifestP) {
-      manifestP = fetch(PACKS_URL, { cache: 'no-cache' })
+      manifestP = cdn().then(() => fetch(PACKS_URL, { cache: 'no-cache' }))
         .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then((j) => M().validate(j))
         .catch((e) => ({ packs: [], errors: ['The pack list could not be read (' + e.message + ').'], hosts: [] }));
@@ -36,12 +52,12 @@
     let n = 0;
     for (const f of p.files) {
       say(`Downloading ${f.name} (${++n} of ${p.files.length})…`);
-      const r = await fetch(f.url, { credentials: 'omit', redirect: 'follow', cache: 'no-cache' });
-      if (!r.ok) throw new Error(`${f.name}: HTTP ${r.status}`);
-      if (!M().allowedUrl(r.url || f.url, m.hosts)) throw new Error(`${f.name}: redirected to a host that is not allowed`);
-      const buf = await r.arrayBuffer();
-      const v = await M().verifyBytes(buf, f);
-      if (!v.ok) throw new Error(v.reason);
+      const C = await cdn();
+      const bytes = await C.fetchVerified(f.cdn ? C.urls(f.cdn) : C.candidates(f.url), { label: f.name }, {
+        allowedUrl: (u) => M().allowedUrl(u, m.hosts) || C.isCdnUrl(u),
+        verify: (b) => M().verifyBytes(b.buffer, f),   // the bytes fill their buffer exactly
+      });
+      const buf = bytes.buffer;
       const type = p.kind === 'model' ? 'application/octet-stream' : f.name.endsWith('.woff2') ? 'font/woff2' : 'font/' + f.name.split('.').pop().toLowerCase();
       blobs[f.name] = new Blob([buf], { type });
     }

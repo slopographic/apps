@@ -152,13 +152,14 @@ describe('the cdn decoders (network mocked)', () => {
     await readModel(asFiles(files));
     expect(decoders.requested.length).toBe(before);
   });
-  it('a Draco glTF asks for the decoder at the pinned commit and refuses bytes with the wrong SHA-256', async () => {
+  it('a Draco glTF asks for the decoder at the pinned release tag (jsDelivr first) and refuses bytes with the wrong SHA-256', async () => {
     const urls = [];
     decoders.setFetch(async (url) => { urls.push(url); return { ok: true, status: 200, arrayBuffer: async () => new TextEncoder().encode('not the decoder').buffer }; });
     try {
       await expect(readModel([{ name: 'd.gltf', blob: new Blob([draco]) }])).rejects(/Draco mesh decoder.*checksum/);
       expect(urls[0]).toBe(decoders.CDN_BASE + 'draco/three-0.170.0/draco_wasm_wrapper.js');
-      expect(urls[0]).toMatch(/\/cdn\/[0-9a-f]{40}\//);
+      expect(urls[0]).toMatch(/^https:\/\/cdn\.jsdelivr\.net\/gh\/slopographic\/cdn@v\d+\.\d+\.\d+\//);
+      expect(urls[1]).toMatch(/^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/v\d+\.\d+\.\d+\//);   // wrong bytes: the fallback is tried too
       decoders.setFetch(async () => ({ ok: false, status: 404 }));
       await expect(readModel([{ name: 'd.gltf', blob: new Blob([draco]) }])).rejects(/HTTP 404/);
     } finally { decoders.setFetch(null); }
