@@ -216,6 +216,10 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   its reason; a batch of two or more goes to the list (`ctx.batch`). `EmlActions.openFiles` is gone. Out: Open in Slop
   PDF (`EmlExport.toApp`) is `SlopOuttake.send`; an attachment's Open in is `SlopOuttake.items`.
   `tests/intake/eml.test.html`.
+- **Slop Hex** (`hex/js/main.js`, spec `hex`, `limit: 1`): Open file… (Ctrl+O, both buttons), Open from Slop Drive
+  (linked; was the tab strip's own Drive picker), a drop on the tabs, the strip or the bytes, the sample, a paste (new),
+  ?drive= launch and launchQueue (the reader waits for the tabs). A file already open is refused.
+  `tests/intake/hex.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -347,13 +351,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 ### expenses
 
 - [ ] file input: `expenses/index.html:88`
-
-### hex
-
-- [ ] pickFiles: `hex/js/actions.js:114`
-- [ ] out: Open in/Send to label: `hex/js/actions.js:119`
-- [ ] SlopDrop.attach: `hex/js/main.js:34`
-- [ ] ?drive= launch: `hex/js/main.js:69`
 
 ### html2pdf
 
