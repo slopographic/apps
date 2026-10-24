@@ -21,7 +21,7 @@
     <p class="ai-intro">One file at a time here. To record your voice, transcribe many files at once, correct the text or save it as Word or WebVTT, use <a href="../../transcribe/">Slop Transcribe</a> (the same models, already on this device once downloaded).</p>
     <div id="gate" class="ai-stack" aria-live="polite"></div>
     <section id="ui" class="ai-stack" hidden>
-      <div id="drop" class="ai-drop">Drop an audio or video file here, or <label><u>choose a file</u><input id="file" type="file" accept="audio/*,video/*" hidden></label><br><span class="ai-meta">Up to 2 hours. Long files are read in 30-second windows.</span></div>
+      <div id="drop" class="ai-drop">Drop an audio or video file here, or <button type="button" id="chooseFile" class="ai-choose">choose a file</button><br><span class="ai-meta">Up to 2 hours. Long files are read in 30-second windows.</span></div>
       <div class="ai-grid2">
         <div class="ai-field"><span id="modelHead">Language and model</span>
           <button id="model" type="button" aria-haspopup="dialog" aria-describedby="modelHead">Detect automatically · Whisper tiny</button></div>
@@ -48,6 +48,12 @@
   <script src="../get-more.js"></script>
   <script src="../common.js"></script>
   <script src="../transcript.js"></script>
+  <script src="../../shared/intake/rules.js"></script>
+  <script src="../../shared/intake/normalize.js"></script>
+  <script src="../../shared/intake/pipeline.js"></script>
+  <script src="../../shared/intake/intake.js"></script>
+  <script src="../../shared/intake/sources.js"></script>
+  <script src="../intake.js"></script>
   <script type="module" src="speech.js"></script>
   <script src="../../shell/shell.js"></script>
 <i id="slop-built" hidden></i>

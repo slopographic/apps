@@ -174,6 +174,14 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   pasted picture; its own clipboard copies (SlopBuffer) are `except`ed and stay with its paste. `HUB.openRecord` /
   `placeRecord` / `sendTo` and `IO.openFile` / `pickFile` / `bindDrop` are gone. Out: File ▸ Send to is
   `SlopOuttake.items` (SVG with Workflows, PNG apps only). `tests/intake/slopvector.test.html`.
+- **Slop OCR** (`ocr/js/app.js`, spec `ocr`, `processAll` → `addFiles`): the zone and its Choose files (the page's own
+  hidden `#file` input is gone), a paste (new), ?drive= launch (the page now loads Slop Hub, so Open in Slop OCR
+  arrives) and launchQueue, the sample. Nothing comes in before the model gate has shown the page (`gate`).
+  `tests/intake/ocr.test.html`.
+- **AI tool pages** (`aitools/intake.js`, `SlopAITools.intake(id, { accept, read, drive })`; specs `ai-denoise`, `ai-ocr`,
+  `ai-portrait`, `ai-speech`, `ai-tags`, one file at a time): a drop on the box (`SlopIntake.dropTarget`), its "choose a
+  file" button (was a file input in a label), a paste (new), launch, and Auto tags' "pick a photo from Slop Drive"
+  (`fromDrive`; was a hand-made list of Drive photos). `tests/intake/aitools.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
@@ -250,19 +258,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 - [ ] out: Open in/Send to label: `ai/js/ui/launcher.js:23`
 - [ ] file input: `ai/js/ui/models.js:112`
 - [ ] out: Open in/Send to label: `ai/js/ui/workspace.js:104`
-
-### aitools
-
-- [ ] drop listener: `aitools/denoise/denoise.js:47`
-- [ ] file input: `aitools/denoise/index.html:21`
-- [ ] file input: `aitools/ocr/index.html:23`
-- [ ] drop listener: `aitools/ocr/ocr.js:73`
-- [ ] file input: `aitools/portrait/index.html:21`
-- [ ] drop listener: `aitools/portrait/portrait.js:67`
-- [ ] file input: `aitools/speech/index.html:24`
-- [ ] drop listener: `aitools/speech/speech.js:71`
-- [ ] file input: `aitools/tags/index.html:21`
-- [ ] drop listener: `aitools/tags/tags.js:84`
 
 ### calendar
 
@@ -395,11 +390,6 @@ layer". Its two richer handovers are `SlopOuttake.handover`s:
 
 - [ ] pickFiles: `notes/js/blocks.js:78`
 - [ ] paste listener: `notes/js/editor.js:97`
-
-### ocr
-
-- [ ] file input: `ocr/index.html:51`
-- [ ] SlopDrop.attach: `ocr/js/app.js:191`
 
 ### orders
 
