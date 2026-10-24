@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="paint.css">
   <link rel="stylesheet" href="paint-forms.css">
   <link rel="stylesheet" href="paint-responsive.css">
+  <link rel="stylesheet" href="../../shared/input/touch.css">
   <script src="../../shared/guard.js" defer></script>
 </head>
 <body>
@@ -68,7 +69,7 @@
         <div class="ws-frame">
           <div class="workspace" id="ws">
             <div class="stage" id="stage">
-              <div class="wrap" id="wrap">
+              <div class="wrap" id="wrap" data-touch-surface>
                 <canvas id="main" width="800" height="500" aria-label="Drawing canvas" role="img"></canvas>
                 <canvas id="overlay" width="800" height="500" aria-hidden="true"></canvas>
                 <div class="grid" id="grid" hidden></div>
@@ -162,6 +163,10 @@
   <script src="../../shared/drive-link.js" data-src="shared/drive-link.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => window.SlopDriveLink && SlopDriveLink.mount('#menubar'));</script>
   <script src="../../shared/slopui.js"></script>
+  <!-- Touch and pen (no shell on this page, so as the shell would: shared/input/HANDOFF.md) -->
+  <script src="../../shared/input/gesture.js"></script>
+  <script src="../../shared/input/events.js"></script>
+  <script src="../../shared/input/touch.js"></script>
   <script src="../../shared/commands/commands.js"></script>
   <script src="../../shared/commands/search.js"></script>
   <script src="../../shared/commands/palette.js"></script>

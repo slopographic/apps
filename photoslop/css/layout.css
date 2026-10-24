@@ -42,7 +42,8 @@ html:root[data-slop-theme=classic] {
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
-body { background: var(--app); color: var(--fg); font: var(--fs)/1.35 var(--ui); overflow: hidden; -webkit-font-smoothing: antialiased; overscroll-behavior: none; touch-action: none; }
+body { background: var(--app); color: var(--fg); font: var(--fs)/1.35 var(--ui); overflow: hidden; -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
+/* Touch: the canvas (#viewport) is a touch surface (data-touch-surface, shared/input); the panels and lists scroll with a finger. */
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--focus, #4ea1ff); outline-offset: 1px; }

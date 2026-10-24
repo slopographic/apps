@@ -76,6 +76,8 @@
   };
   /** Attaches the engine to the viewer. Keys and Space are left to the app outside page view (grid). */
   function attachNav() {
+    // A touch surface (shared/input): no scroll, callout or text selection takes a drag; pinch is the engine's.
+    S.viewer.setAttribute('data-touch-surface', 'nav');
     if (!window.SlopNav || !SlopNav.engine) return;
     SlopNav.engine.attach({
       host: S.viewer, adapter: Ed.nav, bindings: function () { return NAV; }, passthrough: true,

@@ -55,10 +55,10 @@
     return out;
   };
   /** The handle under an overlay point (or null). */
-  V.hitHandle = function (c, o) {
+  V.hitHandle = function (c, o, r) { // r: a bigger radius (overlay px) for a finger or a pen (mask-input.js)
     for (const h of V.handles(c.mask)) {
       const f = V.lOv(c, h.l);
-      if (Math.hypot(f.x - o.x, f.y - o.y) <= HIT) return h;
+      if (Math.hypot(f.x - o.x, f.y - o.y) <= Math.max(HIT, r || 0)) return h;
     }
     return null;
   };

@@ -104,6 +104,7 @@
     // Drag the edge: the panel is as wide as from the pointer to the root's far edge (the start edge in right-to-left).
     let drag = null;
     const rtl = () => win.getComputedStyle(root).direction === 'rtl';
+    // touch-ok: .sf-grip has touch-action: none and a 44 px grab area under a coarse pointer (frame.css)
     grip.addEventListener('pointerdown', (e) => {
       if (phone() || e.button !== 0) return;
       e.preventDefault();

@@ -72,7 +72,7 @@ function bindDrag(n) {
   n.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     e.preventDefault();
-    try { n.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
+    try { n.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ } // touch-ok: a candy has touch-action: none (extras.css)
     d = { id: e.pointerId, ox: parseFloat(n.style.left) - e.pageX, oy: parseFloat(n.style.top) - e.pageY };
     n.classList.add('grabbing');
   });

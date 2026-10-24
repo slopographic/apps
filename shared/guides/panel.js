@@ -181,6 +181,7 @@
     requestAnimationFrame(() => { const f = box.querySelector('.sgd-tabbody input, .sgd-tabbody textarea'); if (f && root.innerWidth > 700) f.focus({ preventScroll: true }); });
     return api;
   }
+  /** touch-ok: the panel's head has touch-action: none (guides.css .sgd-head), so a finger moves the panel. */
   function dragBy(handle, box) {
     handle.addEventListener('pointerdown', (e) => {
       if (e.target.closest('button')) return;
@@ -188,7 +189,8 @@
       handle.setPointerCapture(e.pointerId);
       const mv = (ev) => { box.classList.add('sgd-moved'); box.style.left = Math.max(0, Math.min(innerWidth - 80, ev.clientX - sx)) + 'px'; box.style.top = Math.max(0, Math.min(innerHeight - 40, ev.clientY - sy)) + 'px'; box.style.right = 'auto'; box.style.bottom = 'auto'; };
       handle.addEventListener('pointermove', mv);
-      handle.addEventListener('pointerup', () => handle.removeEventListener('pointermove', mv), { once: true });
+      const up = () => { handle.removeEventListener('pointermove', mv); handle.removeEventListener('pointerup', up); handle.removeEventListener('pointercancel', up); };
+      handle.addEventListener('pointerup', up); handle.addEventListener('pointercancel', up);
     });
   }
   SG.formHasGrid = (f) => !!(f && (+f.cols.count || +f.rows.count || ['top', 'right', 'bottom', 'left'].some((k) => parseFloat(f.margins[k]))));

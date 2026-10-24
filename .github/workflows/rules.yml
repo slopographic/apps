@@ -139,3 +139,29 @@ jobs:
           path: browser-results-${{ matrix.shard }}.json
           retention-days: 14
           if-no-files-found: ignore
+
+  # The touch tests: pages marked <meta name="slop-test-touch"> on a touch tablet, with real touches from the runner
+  # (tests/touch.mjs). WebKit is Safari's engine as an iPad (iOS: no dblclick on a double tap, no contextmenu on a long
+  # press); Chromium is an Android tablet (its own dblclick and contextmenu, which the touch layer must not double).
+  # The plan (tools/ci/plan.mjs) decides: every touch page on a full run, else only the touch pages among the changed pages.
+  touch:
+    name: Touch tests ${{ matrix.engine }}
+    needs: plan
+    if: ${{ needs.plan.outputs.touch == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [webkit, chromium]
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm ci --no-audit --no-fund
+      - name: The pages of the plan
+        env:
+          PAGES: ${{ needs.plan.outputs.pages }}
+        run: echo "$PAGES" > plan-pages.txt
+      - name: Touch tests in ${{ matrix.engine }}
+        run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node ${{ needs.plan.outputs.suite == 'changed' && '--pages-file=plan-pages.txt' || '' }}

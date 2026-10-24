@@ -73,7 +73,7 @@
   S.liftEdit = function (e, h) {
     var snap = T.snap, d = snap && snap.plan && snap.plan.data; if (!d) return;
     e.preventDefault();
-    S.pageEl.setPointerCapture(e.pointerId);
+    S.pageEl.setPointerCapture(e.pointerId); // touch-ok: the page view is a touch surface (view-zoom.js)
     function cleanup() {
       S.pageEl.removeEventListener('pointermove', mv); S.pageEl.removeEventListener('pointerup', cleanup); S.pageEl.removeEventListener('pointercancel', cleanup);
     }

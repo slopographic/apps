@@ -35,11 +35,12 @@
     M.playlists.setTracks(p.id, moved(p.trackIds, i, to));
   }
   const moved = (arr, from, to) => { const a = arr.slice(), [x] = a.splice(from, 1); a.splice(to, 0, x); return a; };
-  /** Pointer drag: the target is the row the pointer is over when released. */
+  /** Pointer drag: the target is the row the pointer is over when released. The handle has touch-action: none and is
+   *  44 px wide for a finger (music/css/music.css). */
   function startDrag(e, p, from) {
     e.preventDefault();
     const list = $('pl-items'), handle = e.currentTarget;
-    handle.setPointerCapture(e.pointerId);
+    try { handle.setPointerCapture(e.pointerId); } catch (err) { /* a synthetic pointer */ }
     const rowsEls = () => [...list.querySelectorAll('.mu-pl-item')];
     let to = from;
     const mark = (ev) => {

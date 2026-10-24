@@ -19,22 +19,20 @@ function renderPalette() {
   const pal = $('#palette');
   pal.textContent = '';
   PALETTE.forEach((c, i) => {
-    let lp = 0;
+    let touchPrev = null; // the primary colour before a finger pressed this swatch
     const b = h('button', { class: 'sw', type: 'button', 'aria-label': `Color ${c}`, title: 'Left-click: primary · Right-click: menu · Double-click: edit', style: { background: c } });
     b.addEventListener('pointerdown', e => {
       if (e.button !== 0) return;
       const prev = S.primary;
       setColor(0, PALETTE[i]);
-      if (e.pointerType === 'touch') {
-        clearTimeout(lp);
-        lp = setTimeout(() => { setColor(0, prev); setColor(2, PALETTE[i]); status('Secondary color set. Long-press = right-click.'); if (navigator.vibrate) navigator.vibrate(15); }, 550);
-      }
+      touchPrev = e.pointerType === 'touch' || e.pointerType === 'pen' ? prev : null;
     });
-    const stop = () => clearTimeout(lp);
-    b.addEventListener('pointerup', stop); b.addEventListener('pointerleave', stop); b.addEventListener('pointercancel', stop);
+    b.addEventListener('pointerup', () => { setTimeout(() => { touchPrev = null; }, 0); });
     b.addEventListener('click', e => { if (e.detail === 0) setColor(0, PALETTE[i]); });
     b.addEventListener('dblclick', () => editSwatch(i));
-    b.addEventListener('contextmenu', e => e.preventDefault());
+    // A long press is a right-click (shared/input sends contextmenu): the swatch menu opens (ctx.js, with Set as
+    // Secondary Color), and the press does not leave the colour as primary.
+    b.addEventListener('contextmenu', e => { e.preventDefault(); if (touchPrev != null) { setColor(0, touchPrev); touchPrev = null; } });
     pal.append(b);
   });
 }

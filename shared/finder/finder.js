@@ -75,7 +75,7 @@
       const q = st.q;
       const list = q.trim() ? M.filter(items, { ...st, facets: {} }, spec).slice(0, opts.suggest.max || 8) : [];
       suggest.replaceChildren(...list.map((it, i) => el('li', { role: 'option', id: id + '-o' + i, 'aria-selected': i === active ? 'true' : 'false',
-        class: i === active ? 'is-on' : null, onmousedown: (e) => { e.preventDefault(); win.location.href = opts.suggest.href(it); } },
+        class: i === active ? 'is-on' : null, onmousedown: (e) => { e.preventDefault(); win.location.href = opts.suggest.href(it); } }, // touch-ok: before the field's blur; a tap sends it too
         el('a', { href: opts.suggest.href(it), tabindex: '-1' }, el('b', null, opts.suggest.label(it)), el('span', { class: 'sf-hint' }, opts.suggest.hint ? opts.suggest.hint(it) : '')))));
       suggest.hidden = !list.length;
       search.setAttribute('aria-expanded', String(!!list.length));

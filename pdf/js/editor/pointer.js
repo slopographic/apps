@@ -1,5 +1,6 @@
 /* Slop PDF — editor pointer input: drawing new annotations with each tool, and moving,
-   resizing or re-pointing existing ones (all committed as single undo steps). */
+   resizing or re-pointing existing ones (all committed as single undo steps).
+   touch-ok: the page view is a touch surface (data-touch-surface="nav", set in view-zoom.js). */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._;

@@ -73,6 +73,9 @@ body { min-height: 100vh; }
 .tg-block { position: absolute; margin: 0; align-items: flex-start; }
 .tg-block .chip-t { white-space: normal; }
 .tg-block .rz { position: absolute; left: 0; right: 0; bottom: 0; height: 8px; cursor: ns-resize; }
+/* Touch: an event a finger drags never scrolls the view or selects its text; the resize edge is 22 px for a finger */
+.chip.can-drag { touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+@media (pointer: coarse) { .tg-block .rz { height: max(8px, var(--slop-hit-r, 22px)); } }
 .tg-block.dragging { transition: none; }
 .tg-now { position: absolute; left: 0; right: 0; border-top: 2px solid var(--danger); pointer-events: none; z-index: 2; }
 /* agenda */

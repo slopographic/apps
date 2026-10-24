@@ -7,6 +7,7 @@ import * as A from './actions.js';
 import * as Sh from './sheets.js';
 import * as cmd from './commands.js';
 import { startEdit } from './editor.js';
+import { cellAt } from './pointer.js';
 import * as OBJ from './objects.js';
 
 const pick = (menu, labels) => labels.map((l) => menu.find((i) => i && i.label === l)).filter((i) => i !== undefined);
@@ -67,9 +68,9 @@ function resolve(target, ev) {
   if (ch) { const c = +ch.dataset.c; if (!colIn(c)) A.selectLine('col', c); return colItems(c); }
   const rh = target.closest('.rh[data-r]');
   if (rh) { const r = +rh.dataset.r; if (!rowIn(r)) A.selectLine('row', r); return rowItems(r); }
-  const cell = target.closest('[data-rc]');
-  if (cell) {
-    const [r, c] = cell.dataset.rc.split(',').map(Number);
+  const cell = target.closest('[data-rc]'), under = !cell && target.closest('#vp') ? cellAt(ev) : null;
+  if (cell || under) {
+    const [r, c] = cell ? cell.dataset.rc.split(',').map(Number) : [under.r, under.c];
     if (!cellIn(r, c)) { S.sel = { r, c, er: r, ec: c }; redraw(); }
     const pv = OBJ.pivotItems(r, c);
     return pv ? [...pv, '-', ...cellItems(isMulti())] : cellItems(isMulti());

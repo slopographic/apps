@@ -71,3 +71,12 @@ body { margin: 0; overflow: hidden; background: var(--sl-background, #f6f6f4); c
 /* Below 1180 px the bar keeps one row: nodes are added from the Insert menu, which has the same four; Save stays. */
 @media (max-width: 1180px) { .smb-tools .sn-add { display: none; } }
 @media (max-width: 720px) { .sn-project { display: none; } .sn-info { padding: 6px 12px; } }
+
+/* A finger: ports and wires grab within 44 px (shared/input/touch.css --slop-hit); the visuals stay small. */
+@media (pointer: coarse) {
+  /* mostly outside the box, so the head's label next to a port stays the head's */
+  .sn-port::after { content: ''; position: absolute; top: 50%; width: var(--slop-hit, 44px); height: var(--slop-hit, 44px); transform: translateY(-50%); border-radius: 50%; }
+  .sn-in::after { right: 0; }
+  .sn-out::after { left: 0; }
+  .sn-hit { stroke-width: 28; }
+}

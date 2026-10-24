@@ -42,6 +42,7 @@
     else if (key === 'ArrowLeft') DR.setInfoWidth(shown != null && shown < RAIL ? DEFAULT : cur + STEP);
     else if (key === 'ArrowRight') DR.setInfoWidth(cur - STEP);
   }
+  // The grip has touch-action: none and a 44 px hit area for a finger (drive/css/panels.css).
   function wire(grip) {
     grip.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || DR.isMobile()) return;

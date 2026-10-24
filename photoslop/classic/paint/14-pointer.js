@@ -1,4 +1,6 @@
 /* Slop Paint, part 14: pointer plumbing: mouse, touch, pan, resize.
+ * Touch: #wrap (the canvas) is a touch surface (data-touch-surface in index.html); two fingers pinch through its zoom
+ * levels and pan the workspace (wrap.touchSurface, read by shared/input). A long press on a palette swatch opens its menu (ctx.js); on the canvas it does nothing (the right button paints).
  * Split from the old paint.js (one IIFE). Loaded in order by index.html; state and helpers are shared through window.SlopPaint (P). */
 (() => {
 'use strict';
@@ -113,6 +115,24 @@ ws.addEventListener('wheel', e => {
   const wr = ws.getBoundingClientRect(), p = toImg(e);
   setZoom(levels[ni], { ix: p.x, iy: p.y, cx: e.clientX - wr.left, cy: e.clientY - wr.top });
 }, { passive: false });
+
+// Two fingers on the canvas (shared/input): a pinch steps through the zoom levels around its centre, a pan scrolls.
+const ZOOM_LEVELS = [1, 2, 4, 6, 8];
+let pinchScale = 1;
+function stepZoom(dir, cx, cy) {
+  const i = ZOOM_LEVELS.indexOf(S.zoom), ni = clamp((i < 0 ? 0 : i) + dir, 0, ZOOM_LEVELS.length - 1);
+  if (ZOOM_LEVELS[ni] === S.zoom) return;
+  const wr = ws.getBoundingClientRect(), p = toImg({ clientX: cx, clientY: cy });
+  setZoom(ZOOM_LEVELS[ni], { ix: p.x, iy: p.y, cx: cx - wr.left, cy: cy - wr.top });
+}
+wrap.touchSurface = {
+  zoom(scale, cx, cy) {
+    if (P.st.op) cancelOp();
+    pinchScale *= scale;
+    if (pinchScale > 1.35) { pinchScale = 1; stepZoom(1, cx, cy); } else if (pinchScale < 0.74) { pinchScale = 1; stepZoom(-1, cx, cy); }
+  },
+  pan(dx, dy) { ws.scrollLeft -= dx; ws.scrollTop -= dy; },
+};
 
 // canvas resize handles
 $$('.hdl').forEach(hd => {

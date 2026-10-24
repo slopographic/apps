@@ -16,6 +16,9 @@
 //   --results=out.json            write every page's seconds, test times and network tally as JSON (a CI artifact per
 //                                 slice; tests/results.mjs turns those into tests/timings.json and tests/net-urls.txt)
 // Requests to the model hosts and CDNs go through a disk cache, tests/.cache/net (see tests/netcache.mjs).
+//   --touch                       only pages marked <meta name="slop-test-touch">, on a touch tablet (tests/touch.mjs):
+//   --browser=webkit|chromium       WebKit (Safari's engine) as an iPad, or Chromium as an Android tablet (default chromium)
+//   --device="iPhone 15"            another Playwright device instead (an iPhone, a Pixel...)
 // Serves the repo root on a local port (no dependencies), opens each page, waits for
 // window.__SLOPTEST__ (see tests/harness.js) and prints a report. Exit code 1 on failure.
 // What CI runs where (the full suite on testing, only the pages a change needs on work branches): tools/ci/plan.mjs.
@@ -29,6 +32,7 @@ import { fileURLToPath } from 'node:url';
 import { parseShard, shardPages, pool, mergeTimings, longestFirst } from './shard.mjs';
 import { attachNet, NET_DIR } from './netcache.mjs';
 import { parseNetUrls, NET_URLS } from './results.mjs';
+import { touchDevice, touchPage, isTouchPage, TOUCH_ARGS } from './touch.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2), flag = (name) => argv.find((a) => a === `--${name}` || a.startsWith(`--${name}=`));
@@ -37,6 +41,7 @@ const filter = argv.find((a) => !a.startsWith('--')) || '';
 const JOBS = Math.max(1, Number(value('jobs') || process.env.SLOPTEST_JOBS || 1) || 1);
 const SHARD = value('shard') ? parseShard(value('shard')) : null;
 const TIMINGS = path.join(ROOT, 'tests', 'timings.json');
+const TOUCH = !!flag('touch'), ENGINE = value('browser') || 'chromium';
 // Ad and analytics hosts do not resolve in the test browser: the tests check that the app adds those scripts (their tags and
 // URLs), and the real ones would make results depend on third-party servers (AdSense throws on a test page) and send ad
 // requests. Done in DNS, not with request routing, which made pages that fetch many files at once fail.
@@ -87,6 +92,7 @@ if (nodeTests.length && !flag('skip-node')) {
 
 let pages = (await findTests(path.join(ROOT, 'tests'))).filter((p) => p.includes(filter)).sort();
 if (value('pages-file')) { const only = new Set((await readFile(value('pages-file'), 'utf8')).split(/\s+/).filter(Boolean)); pages = pages.filter((p) => only.has(p)); }
+if (TOUCH) { pages = (await Promise.all(pages.map(async (p) => (isTouchPage(await readFile(p, 'utf8')) ? p : null)))).filter(Boolean); console.log(c.b(`\nTouch: ${pages.length} pages in ${ENGINE} as ${touchDevice(ENGINE, value('device')).name}`)); }
 const timings = JSON.parse(await readFile(TIMINGS, 'utf8').catch(() => '{}'));
 if (SHARD) {
   pages = shardPages(pages, SHARD.count, timings)[SHARD.index - 1];
@@ -101,9 +107,11 @@ const took = {}, results = {};
 /** Opens one test page in its own context and returns its report as printed lines (a page prints all at once, so pages
  *  that run side by side never mix their output). */
 async function runPage(browser, base, p, scale) {
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
+  const ctx = TOUCH ? await browser.newContext({ ...touchDevice(ENGINE, value('device')).options, acceptDownloads: true })
+    : await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
   const net = await attachNet(ctx, { dir: NET_DIR });
   const page = await ctx.newPage();
+  if (TOUCH) await touchPage(page, ENGINE, touchDevice(ENGINE, value('device')).name); // real touches for the test page (tests/touch.mjs)
   if (scale > 1) await page.addInitScript((n) => { window.__SLOPTEST_SCALE__ = n; }, scale); // harness timeouts (tests/harness.js)
   // A script error before the harness starts (a syntax error in the test page) would leave the page waiting for the full
   // timeout; the page notes the first error so the wait below can end early.
@@ -135,7 +143,7 @@ async function runPage(browser, base, p, scale) {
   }
   const secs = (Date.now() - t0) / 1000;
   took[p] = secs;
-  const errs = consoleErrors.filter((m) => !/favicon|net::ERR_|Failed to load resource|Content Security Policy|Fetch API cannot load/.test(m));
+  const errs = consoleErrors.filter((m) => !/favicon|net::ERR_|Failed to load resource|Content Security Policy|Fetch API cannot load|ResizeObserver loop/.test(m));
   const out = [`\n${c.b(report.name || p)} ${c.d(p + ' · ' + secs.toFixed(1) + 's')}`];
   for (const r of report.results) {
     out.push(`  ${r.status === 'pass' ? c.g('✓') : c.r('✗')} ${r.suite} › ${r.test} ${c.d(r.ms != null ? r.ms + 'ms' : '')}`);
@@ -157,10 +165,11 @@ async function pageLimit(p) {
   return m ? Number(m[1]) * 1000 : CAP_MS;
 }
 if (pages.length) {
-  const { chromium } = await loadPlaywright();
+  const pw = await loadPlaywright(), engine = pw[ENGINE];
+  if (!engine) throw new Error(`--browser=${ENGINE}: not a Playwright browser`);
   const server = await serve();
   const base = `http://127.0.0.1:${server.address().port}/`;
-  const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', NO_THIRD_PARTY] });
+  const browser = ENGINE !== 'chromium' ? await engine.launch(TOUCH_ARGS[ENGINE] || {}) : await engine.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', NO_THIRD_PARTY] });
   const again = [], alone = [];
   await pool(longestFirst(pages, timings), JOBS, async (p) => {
     const r = await runPage(browser, base, p, Math.min(JOBS, 4));
@@ -178,7 +187,7 @@ if (pages.length) {
   await browser.close();
   server.close();
   if (value('results')) await writeFile(value('results'), JSON.stringify({ shard: value('shard'), jobs: JOBS, pages: results }) + '\n');
-  if (flag('record-timings')) await writeFile(TIMINGS, JSON.stringify(mergeTimings(timings, took), null, 1) + '\n');
+  if (flag('record-timings') && !TOUCH) await writeFile(TIMINGS, JSON.stringify(mergeTimings(timings, took), null, 1) + '\n');
 }
 console.log(`\n${failed ? c.r(`${failed} failed`) : c.g('all green')} · ${passed} passed across ${pages.length} page${pages.length === 1 ? '' : 's'}${nodeTests.length && !flag('skip-node') ? ` + ${nodeTests.length} node file${nodeTests.length === 1 ? '' : 's'}` : ''}`);
 process.exit(failed ? 1 : 0);

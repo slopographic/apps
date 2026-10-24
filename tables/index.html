@@ -112,14 +112,15 @@
         </div>
       </aside>
     <main class="grid" id="grid" tabindex="0" aria-label="Spreadsheet grid" aria-multiselectable="true">
-      <div class="corner" id="corner"></div>
-      <div class="colhead" id="colhead"></div>
-      <div class="rowhead" id="rowhead"></div>
+      <div class="corner" id="corner" data-touch-surface></div>
+      <div class="colhead" id="colhead" data-touch-surface></div>
+      <div class="rowhead" id="rowhead" data-touch-surface></div>
       <div class="vp" id="vp"><div class="sizer" id="sizer"></div></div>
       <div class="plane" id="plane">
         <div id="cells"></div>
         <div class="selrect" id="selrect" hidden></div>
         <div class="cursor" id="cursor"></div>
+        <div class="selknob" id="selknob" data-touch-surface data-touch-hit aria-hidden="true"></div>
         <div class="objects" id="objects"></div>
         <input id="editor" class="editor" type="text" spellcheck="false" autocomplete="off" aria-label="Cell editor">
       </div>

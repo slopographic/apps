@@ -21,6 +21,13 @@
   const stop = (e) => { e.preventDefault(); e.stopImmediatePropagation(); };
   /** Keep the pointer on the monitor during a drag (ignored for synthetic or finished pointers). */
   const capture = (e) => { try { stage.setPointerCapture(e.pointerId); } catch (err) { /* no active pointer */ } };
+  /** A handle's hit radius in overlay px for this pointer: 22 CSS px for a finger, 12 for a pen (shared/input; the
+   *  monitor is a touch surface, data-touch-surface in preview-input.js), else the mouse's own (mask-view.js). */
+  function touchR(e) {
+    const ov = A.els.overlay, w = ov.getBoundingClientRect().width || 1;
+    const css = window.SlopTouch && SlopTouch.hit ? SlopTouch.hit(e, 0) : e.pointerType === 'touch' ? 22 : e.pointerType === 'pen' ? 12 : 0;
+    return css * (ov.width / w);
+  }
   /** One undo step: the mask of clip id becomes `mask` (or none). */
   function commit(label, id, mask, { tool = false } = {}) {
     SE.change(label, (p) => { const c = M.clip(p, id); if (c) c.mask = MK.clean(mask); });
@@ -101,7 +108,7 @@
       return;
     }
     if (!c || !c.mask || MI.edit !== c.id) return;
-    const q = V.toLocal(c, V.framePt(e)), h = V.hitHandle(c, V.ovPt(e));
+    const q = V.toLocal(c, V.framePt(e)), h = V.hitHandle(c, V.ovPt(e), touchR(e));
     const m = c.mask;
     if (h) {
       stop(e);

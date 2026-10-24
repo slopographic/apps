@@ -184,7 +184,7 @@ defTool({ id: 'crop', name: 'Crop Tool', key: 'C', icon: ICON('M6 2v16h16M2 6h16
   deactivate() { this.r = null; this.s = null; },
   handleAt(p) {
     const r = this.r; if (!r) return null;
-    const tol = 9 / V.zoom, xs = [r.x, r.x + r.w / 2, r.x + r.w], ys = [r.y, r.y + r.h / 2, r.y + r.h];
+    const tol = handleR(9) / V.zoom, xs = [r.x, r.x + r.w / 2, r.x + r.w], ys = [r.y, r.y + r.h / 2, r.y + r.h];
     for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) { if (i === 1 && j === 1) continue; if (Math.abs(p.x - xs[i]) < tol && Math.abs(p.y - ys[j]) < tol) return { hx: i - 1, hy: j - 1 }; }
     if (p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h) return { move: true };
     return null;

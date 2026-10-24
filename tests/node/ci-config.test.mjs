@@ -55,3 +55,13 @@ test('the plan: wip/* and other branches never get the full suite; main skips it
   assert.match(src, /'HEAD\^\{tree\}'\) !== git\('rev-parse', 'HEAD\^2\^\{tree\}'\)/);
   assert.match(src, /w\.name === 'Rules and tests' && w\.conclusion === 'success'/);
 });
+
+test('the touch jobs run the touch-marked pages in WebKit (iPad) and Chromium (Android)', () => {
+  const engines = (wf.match(/engine: \[([a-z, ]+)\]/) || [])[1].split(',').map((s) => s.trim());
+  assert.deepEqual(engines.sort(), ['chromium', 'webkit']);
+  assert.match(wf, /node tests\/run\.mjs --touch --browser=\$\{\{ matrix\.engine \}\}/);
+  const job = wf.slice(wf.indexOf('\n  touch:'));
+  assert.match(job, /needs: plan/);
+  assert.match(job, /if: \$\{\{ needs\.plan\.outputs\.touch == 'true' \}\}/);
+  assert.match(job, /--pages-file=plan-pages\.txt/); // a changed-pages run: only the touch pages among them
+});
