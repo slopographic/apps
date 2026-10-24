@@ -25,7 +25,7 @@
     it('SlopCmd is on the page; prepare() loads the commands with the operation\'s options', async () => {
       localStorage.removeItem('slopwatermark.setup');
       f.src = '../../watermark/index.html';
-      await waitFor(() => f.contentWindow && f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready') && f.contentWindow.SlopCmd && f.contentWindow.SlopCmd.get('wm.apply'), { timeout: 20000 });
+      await waitFor(() => f.contentWindow && f.contentWindow.document.body && f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready') && f.contentWindow.SlopCmd && f.contentWindow.SlopCmd.get('wm.apply'), { timeout: 20000 });
       W = f.contentWindow; C = W.SlopCmd;
       await C.prepare();
       expect(C.get('wm.ai.new-batch').destructive).toBe(true);

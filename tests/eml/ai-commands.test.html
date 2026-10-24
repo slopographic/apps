@@ -20,7 +20,7 @@
   describe('Slop EML: assistant commands', () => {
     it('new_message writes an .eml the app reads back; search and select', async () => {
       f.src = '../../eml/index.html';
-      await waitFor(() => f.contentWindow && f.contentWindow.EmlApp && f.contentWindow.SlopCmd && f.contentWindow.document.body.classList.contains('ready'), { timeout: 20000 });
+      await waitFor(() => f.contentWindow && f.contentWindow.EmlApp && f.contentWindow.SlopCmd && f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready'), { timeout: 20000 });
       W = f.contentWindow; C = W.SlopCmd;
       await C.prepare();
       await run('new-message', { to: 'ada@example.com', from: 'me@example.com', subject: 'Hive report – week 3', text: 'All colonies are well.' });

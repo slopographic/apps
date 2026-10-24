@@ -20,7 +20,7 @@
   describe('Slop Hex: assistant commands', () => {
     it('new_file, set_bytes (one undo step), find_bytes; past the end is refused', async () => {
       f.src = '../../hex/index.html';
-      await waitFor(() => f.contentWindow && f.contentWindow.HexApp && f.contentWindow.SlopCmd && f.contentWindow.document.body.classList.contains('ready'), { timeout: 20000 });
+      await waitFor(() => f.contentWindow && f.contentWindow.HexApp && f.contentWindow.SlopCmd && f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready'), { timeout: 20000 });
       W = f.contentWindow; C = W.SlopCmd;
       await C.prepare();
       await run('new-file', { name: 'hello.bin', text: 'Hello world' });

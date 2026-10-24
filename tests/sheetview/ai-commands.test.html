@@ -20,7 +20,7 @@
   describe('Slop Sheets: assistant commands', () => {
     it('open_file from Slop Drive, select_sheet, sort and filter by header name', async () => {
       f.src = '../../sheetview/index.html';
-      await waitFor(() => f.contentWindow && f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready') && f.contentWindow.SlopSheetView, { timeout: 15000 });
+      await waitFor(() => f.contentWindow && f.contentWindow.document.body && f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready') && f.contentWindow.SlopSheetView, { timeout: 15000 });
       W = f.contentWindow; C = W.SlopCmd;
       await C.prepare();
       expect(C.list().filter((c) => /^sheetview\.ai\./.test(c.id) && c.destructive).length).toBe(0);

@@ -20,7 +20,7 @@
   describe('Paste: assistant commands', () => {
     it('prepare() loads them; delete_paste is the only destructive one', async () => {
       f.src = '../../paste/index.html';
-      await waitFor(() => f.contentWindow && f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready') && f.contentWindow.SlopCmd, { timeout: 20000 });
+      await waitFor(() => f.contentWindow && f.contentWindow.document.body && f.contentWindow.document.body && f.contentWindow.document.body.classList.contains('ready') && f.contentWindow.SlopCmd, { timeout: 20000 });
       W = f.contentWindow; C = W.SlopCmd;
       await C.prepare();
       const ids = C.list().filter((c) => /^paste\.ai\./.test(c.id));

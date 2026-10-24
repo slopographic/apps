@@ -13,7 +13,7 @@
 
   describe('Slop Drive: assistant commands', () => {
     it('prepare() loads the commands; only delete_item is destructive', async () => {
-      W = await DT.frame('../../drive/', (w) => w.document.body.classList.contains('ready'));
+      W = await DT.frame('../../drive/', (w) => w.document.body && w.document.body.classList.contains('ready'));
       DR = W.DR; H = W.SlopHub; C = W.SlopCmd;
       await H.clear(); await DR.refresh(); DR.render();
       W.SlopUI.download = (blob, name) => downloads.push({ blob, name });
