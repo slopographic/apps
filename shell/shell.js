@@ -52,6 +52,8 @@
     appUrl: (app) => new URL(app.path, ROOT).href,
     navigate(url) { location.assign(url); },
     recent: readRecent,
+    /** Text made safe inside HTML (the one escape of the shell's modules). */
+    esc: (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]),
     ready: null,
   };
   window.SlopShell = S;

@@ -7,7 +7,7 @@
   const S = SC.state;
   const UI = window.SlopUI;
   const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+  const esc = (s) => SC.text.html(s);   // the one HTML escape (core/text.js)
 
   /** One button of the group list. key is the group key (empty for All). */
   function item(key, label, count, extra = '') {

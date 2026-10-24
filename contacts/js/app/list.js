@@ -6,7 +6,7 @@
   const SC = window.SlopContacts;
   const S = SC.state;
   const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+  const esc = (s) => SC.text.html(s);   // the one HTML escape (core/text.js)
 
   /** The heading letter of a name: its first letter without accents, or # for anything else. */
   function letterOf(name) {

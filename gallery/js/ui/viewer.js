@@ -10,7 +10,7 @@
   let root = null, ids = [], i = 0, url = null, pv = null, token = 0, info = false, timer = 0, opener = null;
   const LABEL = { dateFrom: { exif: 'Taken (from EXIF)', file: 'Date (from file)' } };
 
-  const fmtBytes = (n) => (n < 1024 ? n + ' B' : n < 1048576 ? Math.round(n / 1024) + ' KB' : (n / 1048576).toFixed(1) + ' MB');
+  const fmtBytes = (n) => window.SlopHub.fmtSize(n);   // SlopHub.fmtSize (shared/hub.js)
   const fmtDate = (t) => (t ? new Date(t).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'Unknown');
 
   function build() {

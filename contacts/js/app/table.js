@@ -10,7 +10,7 @@
   const TM = SC.tableModel;
   const UI = window.SlopUI;
   const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+  const esc = (s) => SC.text.html(s);   // the one HTML escape (core/text.js)
   let editing = null; // { id, colId, td } while a cell has an input
 
   /** The shown contacts, sorted when a column is chosen. */
