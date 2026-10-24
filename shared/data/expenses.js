@@ -21,21 +21,22 @@
 
   /** Records a paid expense and posts it. input: { date, supplier, description, account, amount, tax, currency, method,
    *  receiptId, notes }. account must be an expense account in the chart (default 5000). */
-  function record(input) {
+  const record = (input) => ns.store.transact((tx) => recordIn(tx, input));
+
+  /** record() inside a transaction the caller holds (Slop Purchases records a bill with its purchase order). */
+  async function recordIn(tx, input) {
     const e = { ...(input || {}) };
-    return ns.store.transact(async (tx) => {
-      const acct = await tx.get('accounts', e.account || A().EXPENSES);
-      if (!acct.ok) return acct;
-      if (!acct.value || acct.value.type !== 'expense') return fail('invalid', `account ${e.account} is not an expense account`, [{ field: 'account', message: 'choose an expense account' }]);
-      const id = ns.store.newId();
-      const rec = await tx.put('expenses', { ...e, id, account: acct.value.code, date: e.date || ns.ledger.today(), status: 'posted' }, { posting: true });
-      if (!rec.ok) return rec;
-      const j = await ns.ledger.postIn(tx, {
-        date: rec.value.date, memo: `Expense: ${rec.value.supplier}`, source: `expense:${id}`, lines: expenseLines(rec.value), currency: rec.value.currency,
-      });
-      if (!j.ok) return j;
-      return tx.put('expenses', { ...rec.value, rateId: j.value.rateId, rate: j.value.rate, amountBase: j.value.amountBase }, { posting: true });
+    const acct = await tx.get('accounts', e.account || A().EXPENSES);
+    if (!acct.ok) return acct;
+    if (!acct.value || acct.value.type !== 'expense') return fail('invalid', `account ${e.account} is not an expense account`, [{ field: 'account', message: 'choose an expense account' }]);
+    const id = ns.store.newId();
+    const rec = await tx.put('expenses', { ...e, id, account: acct.value.code, date: e.date || ns.ledger.today(), status: 'posted' }, { posting: true });
+    if (!rec.ok) return rec;
+    const j = await ns.ledger.postIn(tx, {
+      date: rec.value.date, memo: `Expense: ${rec.value.supplier}`, source: `expense:${id}`, lines: expenseLines(rec.value), currency: rec.value.currency,
     });
+    if (!j.ok) return j;
+    return tx.put('expenses', { ...rec.value, rateId: j.value.rateId, rate: j.value.rate, amountBase: j.value.amountBase }, { posting: true });
   }
 
   /** Posted -> void: reverses the expense's journal entry. The record stays, marked void, so the history is kept. */
@@ -68,5 +69,5 @@
     return out;
   }
 
-  ns.expenses = { expenseLines, record, voidExpense, totals };
+  ns.expenses = { expenseLines, record, recordIn, voidExpense, totals };
 })(typeof window !== 'undefined' ? window : globalThis);

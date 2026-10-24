@@ -1,0 +1,55 @@
+// Purchase orders: what a business orders from a supplier. Drafts and status changes are ordinary store.put calls (draft ->
+// ordered -> received, or cancelled; see FLOWS in schema-defs.js). Receiving and the supplier's bill go through here, each in
+// one transaction: receive() puts every product line into stock (receipt movements) and marks the order received;
+// recordBill() records the bill as a posted expense (SlopData.expenses.recordIn) and links it to the order.
+(function (g) {
+  'use strict';
+  const ns = (g.SlopData = g.SlopData || {});
+  const ok = (v) => ns.result.ok(v), fail = (code, msg) => ns.result.fail(code, msg);
+
+  /** Reads a purchase order inside a transaction, or a refusal. */
+  async function load(tx, id) {
+    const r = await tx.get('purchases', id);
+    if (!r.ok) return r;
+    return r.value ? ok(r.value) : fail('not_found', `no purchase order ${id}`);
+  }
+
+  /** Ordered -> received: one receipt movement per product line (ref: the order number), at location (default 'main'), dated
+   *  date (default today). Lines without a product (services, delivery) are not stocked. */
+  function receive(id, { date, location = 'main' } = {}) {
+    return ns.store.transact(async (tx) => {
+      const p = await load(tx, id);
+      if (!p.ok) return p;
+      const po = p.value, day = date || ns.ledger.today();
+      if (po.status !== 'ordered') return fail('invalid_transition', 'only an ordered purchase order can be received');
+      for (const l of po.lines.filter((x) => x.productId)) {
+        const m = await ns.stock.moveIn(tx, { productId: l.productId, location, qty: l.qty, reason: 'receipt', ref: po.number, date: day, note: l.description });
+        if (!m.ok) return m;
+      }
+      return tx.put('purchases', { ...po, status: 'received', receivedAt: day, location });
+    });
+  }
+
+  /** The supplier's bill for an ordered or received purchase order, recorded once as a posted expense: the total paid (tax
+   *  included) with the tax to reclaim, on the expense account (default 5000), paid by method (default bank). */
+  function recordBill(id, { date, account, method = 'bank' } = {}) {
+    return ns.store.transact(async (tx) => {
+      const p = await load(tx, id);
+      if (!p.ok) return p;
+      const po = p.value;
+      if (po.status !== 'ordered' && po.status !== 'received') return fail('invalid_transition', 'record the bill of an ordered or received purchase order');
+      if (po.expenseId) return fail('conflict', 'the bill of this purchase order is already recorded');
+      const who = await tx.get('customers', po.customerId);
+      if (!who.ok) return who;
+      const e = await ns.expenses.recordIn(tx, {
+        date: date || ns.ledger.today(), supplier: (who.value && who.value.name) || 'Supplier', description: `Purchase order ${po.number}`,
+        account, amount: po.total, tax: po.tax || 0, currency: po.currency, method,
+      });
+      if (!e.ok) return e;
+      const w = await tx.put('purchases', { ...po, expenseId: e.value.id });
+      return w.ok ? e : w;
+    });
+  }
+
+  ns.purchases = { receive, recordBill };
+})(typeof window !== 'undefined' ? window : globalThis);

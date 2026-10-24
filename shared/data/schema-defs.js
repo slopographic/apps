@@ -11,6 +11,7 @@
     invoiceStatus: ['draft', 'issued', 'paid', 'void'],
     orderStatus: ['draft', 'open', 'fulfilled', 'cancelled'],   // open = confirmed
     quoteStatus: ['draft', 'sent', 'accepted', 'declined'],
+    purchaseStatus: ['draft', 'ordered', 'received', 'cancelled'],
     repeatUnit: ['week', 'month'],
     pdfLayout: ['classic', 'modern', 'minimal', 'bold', 'sidebar'],   // PDF and print template (shared/docs/pdf-layouts.js); absent = random from pdfSeed
     accountType: ['asset', 'liability', 'equity', 'revenue', 'expense'],
@@ -32,11 +33,23 @@
   ];
   // defaultCurrency is the ledger's base currency. locale is refined from the browser by currency.js at seed time.
   const DEFAULT_SETTINGS = { id: 'main', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30, ratesUpdateOnOpen: false };
-  const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }, { id: 'quote', prefix: 'QUO-', pad: 4, next: 1 }];
+  const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }, { id: 'quote', prefix: 'QUO-', pad: 4, next: 1 }, { id: 'purchase', prefix: 'PO-', pad: 4, next: 1 }];
   const INVOICE_NEXT = { draft: ['issued'], issued: ['paid', 'void'], paid: [], void: [] };
   const ORDER_NEXT = { draft: ['open', 'cancelled'], open: ['fulfilled', 'cancelled'], fulfilled: [], cancelled: [] };
   // A sent quote can go back to draft to be revised; a declined one can be reopened; an accepted one is final.
   const QUOTE_NEXT = { draft: ['sent', 'accepted', 'declined'], sent: ['draft', 'accepted', 'declined'], accepted: [], declined: ['draft'] };
+  const PURCHASE_NEXT = { draft: ['ordered', 'cancelled'], ordered: ['received', 'cancelled'], received: [], cancelled: [] };
+  // The status flow of a document (schema.checkTransition): the statuses each may go to, the statuses it can still be
+  // edited in, the fields that are locked otherwise, and the refusals in plain words.
+  const flow = (noun, next, open, lock, locked) => ({ noun, next, open, lock, locked });
+  const FLOWS = {
+    invoices: flow('an invoice', INVOICE_NEXT, ['draft'], ['customerId', 'date', 'dueDate', 'number', 'currency', 'lines', 'notes', 'orderId', 'subtotal', 'tax', 'total'],
+      'an issued invoice cannot be changed; void it and issue a new one'),
+    orders: flow('an order', ORDER_NEXT, ['draft', 'open'], ['customerId', 'date', 'number', 'currency', 'lines', 'notes'], 'a closed order cannot be changed'),
+    quotes: flow('a quote', QUOTE_NEXT, ['draft', 'sent', 'declined'], ['customerId', 'date', 'validUntil', 'number', 'currency', 'lines', 'notes'], 'an accepted quote cannot be changed'),
+    purchases: flow('a purchase order', PURCHASE_NEXT, ['draft', 'ordered'], ['customerId', 'date', 'expectedDate', 'number', 'currency', 'lines', 'notes'],
+      'a received or cancelled purchase order cannot be changed'),
+  };
   const RX = { currency: /^[A-Z]{3}$/, locale: /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/ };
 
   // Field specs. t = type; req = required; def = default; min/max/values/pattern/itemMax as named.
@@ -108,6 +121,7 @@
     return out;
   };
   const orderCheck = (r, o = {}) => (!r.number && !o.deferNumber ? ['an order needs a number'] : []);
+  const purchaseCheck = (r, o = {}) => (!r.number && !o.deferNumber ? ['a purchase order needs a number'] : []);
   const quoteCheck = (r, o = {}) => (!r.number && !o.deferNumber ? ['a quote needs a number'] : []);
   const countCheck = (r) => {
     const ids = (r.lines || []).map((l) => l && l.productId);
@@ -147,7 +161,7 @@
     customers: { key: 'id', softDelete: true, indexes: [{ name: 'name', key: 'name' }, { name: 'stage', key: 'stage' }, { name: 'categories', key: 'categories', multi: true }], fields: {
       id: F.id({ req: true }), name: F.str({ req: true }), email: F.str({ max: 200 }), phone: F.str({ max: 60 }), address: F.text({ max: 1000 }),
       categories: { t: 'strings', max: 20, itemMax: 40, def: [] }, stage: F.en(ENUM.stage, { def: 'lead' }), notes: F.text({}),
-      contactId: F.str({ max: 80 }), followUp: F.date({}), sample: F.bool({}),   // sample: made by a random-sample generator (absent otherwise)
+      contactId: F.str({ max: 80 }), followUp: F.date({}), supplier: F.bool({}), sample: F.bool({}),   // supplier: a contact we buy from (Slop Purchases)   // sample: made by a random-sample generator (absent otherwise)
       groupIds: { t: 'strings', max: 50, itemMax: 80, def: [] }, tagIds: { t: 'strings', max: 50, itemMax: 80, def: [] },
       company: F.str({ max: 200 }), department: F.str({ max: 200 }), title: F.str({ max: 200 }), website: F.str({ max: 300 }),
       birthday: F.str({ max: 20 }), photo: F.str({ max: 400000 }),
@@ -187,6 +201,15 @@
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), validUntil: F.date({}),
       currency: F.cur({}), status: F.en(ENUM.quoteStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       notes: F.text({}), orderId: F.id({}), invoiceId: F.id({}), sample: F.bool({}),
+      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
+    // Purchase orders: goods or services ordered from a supplier (customerId: a contact flagged supplier). Receiving puts the
+    // product lines into stock, and the supplier's bill is recorded as an expense (shared/data/purchases.js, expenseId).
+    purchases: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'purchase', when: () => true }, check: purchaseCheck, docCurrency: true,
+      noRemove: 'purchase orders cannot be deleted; cancel them instead',
+      indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
+      id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), expectedDate: F.date({}),
+      currency: F.cur({}), status: F.en(ENUM.purchaseStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
+      notes: F.text({}), receivedAt: F.date({}), location: F.str({ max: 40 }), expenseId: F.id({}), sample: F.bool({}),
       pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     payments: { key: 'id', immutable: true, postingOnly: true, indexes: [{ name: 'invoiceId', key: 'invoiceId' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), invoiceId: F.id({ req: true }), amount: F.mny({ req: true, min: 1 }), date: F.date({ req: true }),
@@ -261,7 +284,7 @@
   const COLLECTIONS = Object.keys(DEFS);
 
   ns.schemaDefs = {
-    ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, INVOICE_NEXT, ORDER_NEXT, QUOTE_NEXT, RX, F, LINE, JLINE, COUNT,
+    ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, INVOICE_NEXT, ORDER_NEXT, QUOTE_NEXT, PURCHASE_NEXT, FLOWS, RX, F, LINE, JLINE, COUNT,
     DEFS, COLLECTIONS, movementError, journalErrors, fxErrors,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
