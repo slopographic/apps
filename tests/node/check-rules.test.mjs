@@ -61,3 +61,12 @@ test('a migrated app may not add its own way in or out; other apps, shared/intak
   assert.match(p[0].message, /pdf\/js\/x\.js:1: a 'drop' listener of its own/);
   assert.match(p[4].message, /hand-made "Open in"/);
 });
+test('a migrated app may not list Slop Drive files for a picker of its own; a library or lookup says intake-ok', () => {
+  const read = fake({
+    'crm/js/x.js': "const files = await SlopHub.list({ trashed: false });\nconst r = await hub().list();\nH.list({ accept });\n"
+      + "const all = await H().list(); // intake-ok: the library view\nstore.list('customers');\nS.hub.list();\n",
+  });
+  const p = check(['crm/js/x.js'], { read, size: false });
+  assert.deepEqual(p.map((x) => x.message.match(/x\.js:(\d+)/)[1]), ['1', '2', '3']);
+  assert.match(p[0].message, /a list of Slop Drive files of its own/);
+});

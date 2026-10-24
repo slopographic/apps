@@ -33,7 +33,7 @@
     const m = /^(.*?)(\.[^.]{1,8})?$/.exec(r.name), stem = m[1], ext = m[2] || '';
     return stem ? `${stem} (${r.id.slice(-6)})${ext}` : `${r.name} (${r.id.slice(-6)})`;
   }
-  const allRecords = () => H().list({ trashed: 'any' });
+  const allRecords = () => H().list({ trashed: 'any' }); // intake-ok: Slop Drive itself
 
   /** Writes the queued records into the folder. Nothing is written without granted access. */
   async function flush() {

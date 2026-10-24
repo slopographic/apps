@@ -28,7 +28,7 @@ async function bodyOf(r) {
 
 /** Every live notebook, folder and note from Drive (the Trash is left out). */
 export async function load() {
-  const recs = await SH().list({ accept: [NOTE_MIME, META_MIME] });
+  const recs = await SH().list({ accept: [NOTE_MIME, META_MIME] }); // intake-ok: the notes store, not a picker
   const out = { notebooks: [], folders: [], notes: [] };
   for (const r of recs) {
     const m = metaOf(r);

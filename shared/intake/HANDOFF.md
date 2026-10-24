@@ -71,11 +71,20 @@ may not load shared/intake keeps its old picker as the fallback, marked `intake-
 | File ▸ Open, Ctrl+O, Insert from file, an "Open…" button, Upload a folder (`folder: true`) | `SlopIntake.pick({ to, mode, data, multiple, accept, folder })` | picker |
 | a drop on a plain area (no zone UI) | `SlopIntake.dropTarget(el, { to, mode?(e), data?(e) })` | drop |
 | a paste | automatic: the first spec (paste ≠ false) that takes the file | paste |
-| Open from Slop Drive | `SlopIntake.fromDrive({ to, mode, title })` | drive |
+| Open from Slop Drive | `SlopIntake.fromDrive({ to, mode, title, accept })` | drive |
 | ?drive=<id> (another app's Send to… / Open in…), PWA `launchQueue` (manifest `file_handlers`) | `SlopIntake.launch({ to, mode })` once the app is ready | launch |
 | the Convert dialog's results handed back | `SlopIntake.fromConvert(outputs, { to, mode })` | convert |
 | Try it with a sample | `SlopIntake.sample(files or fn, { to, mode })`, or the zone's `sample` option | sample |
 | code (tests, an app API) | `SlopIntake.take(files, { to })` | api |
+
+**The one Slop Drive picker.** Every "from Slop Drive" in every app is `SlopIntake.fromDrive`, which opens
+`SlopHub.pickFromDrive` → `shared/drive/picker.js`: folders with breadcrumbs, a search over every folder, and each file
+as a picture (the Drive app's cached thumbnail through `shared/drive/thumb-read.js`, which also serves the Gallery's
+Drive source; else the picture itself, a video's first frame, or a card with the file's kind from shared/kinds). A
+resting pointer or a long press shows a larger preview. `accept` (default: the spec's `driveAccept`, else its types)
+decides what is listed. No app builds its own list of Drive files for picking (rule 4 below);
+`tests/intake/drive-picker.test.html` tests the picker and `tests/intake/drive-buttons.test.html` that the apps' Drive
+buttons open it.
 
 ## Extension points
 
@@ -116,7 +125,8 @@ with the verb "Send to". Use the same items for the toolbar button, the More men
 
 In the apps listed in `STRICT` (in tools/one-way.mjs: every folder in the Migrated list below), app code may not add a
 `drop` or `paste` listener, call `pickFiles`, make a file input, read ?drive= (`consumeLaunch`) or `launchQueue`, call
-`pickFromDrive`, or build an "Open in"/"Send to" list by hand. A line that must stay (a tab dragged to a new place, text
+`pickFromDrive`, list Slop Drive files with `SlopHub.list` (a picker of its own; a library view or a lookup by name
+says `intake-ok:`), or build an "Open in"/"Send to" list by hand. A line that must stay (a tab dragged to a new place, text
 pasted into a field) says why with an `// intake-ok: …` comment. When an app below is migrated, add its folder to
 `STRICT`.
 
@@ -338,6 +348,12 @@ pasted into a field) says why with an `// intake-ok: …` comment. When an app b
   (`dropTarget`), a pasted picture (unless the app's own copy is newer: `except`), Open from Slop Drive and ?drive= launch
   (`classic/hub.js`; a Drive file stays linked through `SlopPaint.linkDrive`). The page's own paste is only its copy.
   `tests/intake/paint-classic.test.html`. (`photoslop/classic/` is in STRICT.)
+- **Slopnodes** (`nodes/js/app.js`, part `nodes.project`): Open project… is the shared Slop Drive picker (was a
+  hand-made list of saved projects; `SlopNodesProjects.list` is gone). The page now loads shared/intake.
+  `tests/nodes/nodes-projects.test.html`, `tests/intake/drive-buttons.test.html`.
+- **Slop CRM, Import from Slop Contacts** (`crm/js/ui/import.js`, part `crm.contacts`): the newest saved list is offered
+  first, and Choose another list… is the shared Slop Drive picker (was a select of saved lists).
+  `tests/crm/crm.test.html`.
 
 PWA: `manifest.webmanifest` has `file_handlers` for these five; the files reach `SlopIntake.launch` through launchQueue.
 
