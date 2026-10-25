@@ -53,7 +53,8 @@ body.sap-open .sap-fab { display: none; }
 .sap-send.stop { background: #ff5a6e; color: #fff; font-size: 13px; }
 .sap-btn.primary { background: var(--p-accent); color: var(--p-ink); border-color: transparent; font-weight: 600; }
 .sap-btn:disabled { opacity: .55; cursor: default; }
-.sap-msg.bad, .sap-pick-msg.bad, .sap-pick-no { color: var(--p-danger); }
+.sap-msg.bad, .sap-pick-msg.bad, .sap-pick-no, .sap-kit-error { color: var(--p-danger); }
+.sap-kit-error { margin: 0 0 10px; line-height: 1.4; }
 /* each tool call as a step: "Gaussian blur, radius 8 ✓" */
 .sap-live { display: grid; gap: 8px; }
 .sap-step { display: grid; grid-template-columns: 18px 1fr; gap: 2px 6px; align-items: baseline; color: var(--p-fg); font-size: 12.5px; padding: 3px 0 3px 8px; }

@@ -87,7 +87,7 @@
     back.innerHTML = `<div class="sh-sw" role="dialog" aria-modal="true" aria-label="Switch app" data-i18n-attr="aria-label:shell.switch_app">
       <div class="sh-sw-head"><label class="sh-sr" for="sh-q" data-i18n="switcher.search">Search apps</label>
         <input id="sh-q" class="sh-q" type="search" placeholder="Search apps" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="sh-list" aria-autocomplete="list" data-i18n-attr="placeholder:switcher.search">
-        <kbd class="sh-kbd" data-i18n="switcher.esc">Esc</kbd></div>
+        <button type="button" class="sh-close" aria-label="Close"><kbd class="sh-kbd slop-esc-hint" aria-hidden="true" data-i18n="switcher.esc">Esc</kbd><span class="sh-x" aria-hidden="true">×</span></button></div>
       <div class="sh-list" id="sh-list" role="listbox" aria-label="Apps" data-i18n-attr="aria-label:nav.apps"></div>
       <div class="sh-sw-foot"><span class="sh-hint" data-i18n="switcher.hint">Enter to open · ↑ ↓ to move</span><button type="button" class="sh-all" data-i18n="switcher.all_apps">All apps</button></div>
     </div>`;
@@ -104,6 +104,7 @@
       else if (e.key === 'Tab') { e.preventDefault(); input.focus(); }
     });
     back.querySelector('.sh-all').addEventListener('click', () => { close(); S.drawer.open(); });
+    back.querySelector('.sh-close').addEventListener('click', close);   // the × (Esc is the keyboard's way, its hint beside it)
     back.addEventListener('pointerdown', (e) => { if (e.target === back) close(); });
   }
 

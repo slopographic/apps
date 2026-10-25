@@ -22,10 +22,13 @@
   const h = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) { const v = attrs[k]; if (v == null || v === false) continue; if (k === 'class') n.className = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? '' : v); } for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(c)); return n; };
   const size = (mb) => (window.SlopFirstRun ? SlopFirstRun.size(mb * MB) : (mb >= 1024 ? (mb / 1024).toFixed(1) + ' GB' : Math.round(mb) + ' MB'));
 
+  /** Can this browser run a WebGPU model? An adapter request that does not answer in GPU_WAIT ms counts as no. */
+  const GPU_WAIT = 5000;
   function gpu() {
     return (gpuP = gpuP || (async () => {
       if (!navigator.gpu) return { ok: false, reason: 'no-api' };
-      try { return (await navigator.gpu.requestAdapter()) ? { ok: true } : { ok: false, reason: 'no-adapter' }; } catch (e) { return { ok: false, reason: 'error' }; }
+      const late = new Promise((res) => setTimeout(() => res('late'), GPU_WAIT));
+      try { const a = await Promise.race([navigator.gpu.requestAdapter(), late]); return a === 'late' ? { ok: false, reason: 'error' } : a ? { ok: true } : { ok: false, reason: 'no-adapter' }; } catch (e) { return { ok: false, reason: 'error' }; }
     })());
   }
   const noGpuText = (r) => (r === 'no-api'
@@ -64,8 +67,12 @@
   const CLOUD = ['cloud/net', ...CATALOG, 'cloud/providers', 'cloud/free', 'cloud/anthropic', 'cloud/openai', 'cloud/compat', 'cloud/gemini', 'cloud/keys', 'cloud/meter', 'cloud/engine', 'cloud/pick', 'cloud/local', 'cloud/local-ui', 'cloud/free-guide', 'cloud/connect'];
   const loadCloud = () => K.load(['cmdtools', ...CLOUD]);
   async function cloud(box, o) {
-    try { await loadCloud(); K.cloud.connect.render(box, { onReady: o.onReady, onForget: o.onForget, open: o.cloudOpen, appId: o.appId, tools: o.tools }); } catch (e) { console.warn('Slop AI: own-key providers', e); }
+    box.append(h('p', { class: 'sap-dim sap-pick-wait' }, 'Loading “Use your own AI account”…'));
+    try { await loadCloud(); box.textContent = ''; K.cloud.connect.render(box, { onReady: o.onReady, onForget: o.onForget, open: o.cloudOpen, appId: o.appId, tools: o.tools }); }
+    catch (e) { box.textContent = ''; box.append(failed('“Use your own AI account” did not load', e)); console.warn('Slop AI: own-key providers', e); }
   }
+  /** A line saying what did not load, instead of an empty space. */
+  const failed = (what, e) => h('p', { class: 'sap-pick-no sap-kit-error', role: 'alert' }, `${what} (${(e && e.message) || e}). Check the connection, then open this again.`);
 
   async function render(box, o = {}) {
     box.textContent = '';
@@ -73,13 +80,28 @@
     // a provider in use comes first (its model choice at the top); the models on this device follow under a heading
     let active = '';
     try { active = (JSON.parse(localStorage.getItem('slop-ai.cloud') || 'null') || {}).active || ''; } catch (e) { active = ''; }
-    if (active) { box.append(more, wrap); wrap.append(h('p', { class: 'sap-pick-local-h' }, h('b', null, 'Models on this device'))); o = Object.assign({ cloudOpen: true }, o); }
+    // Without WebGPU (most phones, Firefox) the own account comes first and open: it works in every browser. It loads at
+    // once, beside the device check, so the choice is never an empty space while the GPU is asked.
+    const noApi = !navigator.gpu;
+    if (active || noApi) { box.append(more, wrap); if (active) wrap.append(h('p', { class: 'sap-pick-local-h' }, h('b', null, 'Models on this device'))); o = Object.assign({ cloudOpen: true }, o); }
     else box.append(wrap, more);
+    const cloudP = cloud(more, o);
+    const wait = h('p', { class: 'sap-dim sap-pick-wait' }, 'Checking what this device can run…');
+    wrap.before(wait);
+    try { await local(box, wrap, more, o); } catch (e) { wrap.append(failed('The models on this device could not be listed', e)); console.warn('Slop AI: local models', e); }
+    wait.remove();
+    const g = await K.picker.gpu();
+    if (!g.ok) await cloudP.then(() => { const det = more.querySelector('details.sap-cloud'); if (det) det.open = true; });
+    return cloudP;
+  }
+  /** The models on this device (or why there are none), into wrap. */
+  async function local(box, wrap, more, o) {
     const g = await K.picker.gpu();
     if (!g.ok) {
+      if (more.parentNode === box && box.firstChild !== more) box.prepend(more);   // the account first when nothing runs here
       wrap.append(h('p', { class: 'sap-pick-no', role: 'alert' }, noGpuText(g.reason)), h('p', { class: 'sap-dim' }, NO_GPU_HELP),
-        h('p', { class: 'sap-dim' }, `You can still use every menu and tool of ${o.appName || 'this app'} yourself, or connect your own AI account below. A model that `, aiLink(), ' runs in another tab of this browser is used here too.'));
-      return cloud(more, Object.assign({ cloudOpen: true }, o));
+        h('p', { class: 'sap-dim' }, `You can still use every menu and tool of ${o.appName || 'this app'} yourself, or connect your own AI account above. A model that `, aiLink(), ' runs in another tab of this browser is used here too.'));
+      return;
     }
     await K.load(['catalog', 'webllm']);
     const p = prefs(), list = K.catalog.list.slice().sort((a, b) => rank(a) - rank(b));
@@ -89,7 +111,6 @@
     const rows = o.rows = h('div', { class: 'sap-pick-list' });
     for (const m of list.filter((x) => FIT.includes(x.id) || x === have || x.id === p.defaultModel)) rows.append(row(m, st.get(m.id) || {}, m === have, o));
     wrap.append(rows, h('p', { class: 'sap-dim' }, 'Smaller models are faster but follow instructions less well. More models and settings: ', aiLink(), '.'));
-    return cloud(more, o);
   }
   const aiLink = () => h('a', { href: new URL('../../ai/#models', K.base || document.baseURI).href, target: '_blank', rel: 'noopener' }, 'Slop AI');
   const rank = (m) => { const i = FIT.indexOf(m.id); return i < 0 ? 99 : i; };
