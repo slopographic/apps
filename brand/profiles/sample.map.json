@@ -15,22 +15,19 @@
       "from": "photoslop",
       "to": "imageeditor",
       "fromCamel": "PhotoSlop",
-      "toCamel": "ImageEditor",
-      "path": "image-editor"
+      "toCamel": "ImageEditor"
     },
     {
       "from": "slopisolate",
       "to": "bgremover",
       "fromCamel": "SlopIsolate",
-      "toCamel": "BgRemover",
-      "path": "bg-remover"
+      "toCamel": "BgRemover"
     },
     {
       "from": "slopcut",
       "to": "videostudio",
       "fromCamel": "SlopCut",
-      "toCamel": "VideoStudio",
-      "path": "video-studio"
+      "toCamel": "VideoStudio"
     },
     {
       "from": "slopedit",
@@ -42,8 +39,7 @@
       "from": "slopvector",
       "to": "vectoreditor",
       "fromCamel": "SlopVector",
-      "toCamel": "VectorEditor",
-      "path": "vector-editor"
+      "toCamel": "VectorEditor"
     },
     {
       "from": "sloplabel",
@@ -59,13 +55,11 @@
     },
     {
       "from": "slop-365",
-      "to": "businessapps",
-      "path": "business-apps"
+      "to": "businessapps"
     },
     {
       "from": "creative-slop-pro",
-      "to": "creativepro",
-      "path": "creative-pro"
+      "to": "creativepro"
     },
     {
       "from": "sloppo",

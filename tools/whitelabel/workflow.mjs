@@ -23,7 +23,7 @@ function dropJob(yml, name) {
 }
 
 /** The workflow text without the dropped jobs and steps and without the git identity lines. */
-export function mirrorWorkflow(yml) {
+export function mirrorWorkflow(yml, skip = '') {
   const lines = DROP_JOBS.reduce(dropJob, yml).split('\n');
   const out = [];
   for (let i = 0; i < lines.length; i++) {
@@ -36,7 +36,9 @@ export function mirrorWorkflow(yml) {
     if (/^\s*git config user\.(name|email) /.test(lines[i])) continue;
     out.push(lines[i]);
   }
-  return out.join('\n')
+  // the tests that pin this site's own profile values are skipped by name (mirror-skip.mjs)
+  const node = skip ? `node --test '--test-skip-pattern=${skip}' tests/node/` : 'node --test tests/node/';
+  return out.join('\n').replace('node --test tests/node/', node)
     .replace(/^# The file rules[\s\S]*?\n(?=on:)/m, '# Generated with the site: the file rules, the Node tests and the browser tests, on every push.\n')
     .replace(/name: Set up the repo as a clone is[^\n]*/, 'name: Install the test dependencies');
 }

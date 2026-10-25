@@ -47,5 +47,7 @@ export function remapColors(text, pal) {
   });
 }
 
-/** Which files the shift applies to: the site's own styles and code, not third-party code or test fixtures. */
-export const paletteFile = (file) => /\.(css|m?js|html|svg)$/.test(file) && !/^(vendor|tests\/.*fixtures)\//.test(file);
+/** Tests whose colours are inputs to colour maths, not the site's look: left as they are. */
+export const PALETTE_KEEP = /^tests\/(node\/colors-|.*fixtures\/)/;
+/** Which files the shift applies to: the site's own styles and code and the tests that check them; not third-party code. */
+export const paletteFile = (file) => /\.(css|m?js|html|svg)$/.test(file) && !/^vendor\//.test(file) && !PALETTE_KEEP.test(file);

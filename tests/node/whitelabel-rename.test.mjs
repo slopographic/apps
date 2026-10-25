@@ -14,7 +14,7 @@ const fwd = tokenRules(MAP), rev = reverseRules(MAP);
 
 test('urls: the origin, the account, the site repository and the mail domain', () => {
   const m = { origin: 'https://tools.acme.example', github: 'acme', repo: 'acme/tools', mail: 'acme.example' };
-  assert.equal(urls('see https://slopographic.com/pdf/ and https://www.slopographic.com', m), 'see https://tools.acme.example/pdf/ and https://tools.acme.example');
+  assert.equal(urls('see https://slopographic.com/pdf/ and https://www.slopographic.com', m), 'see https://tools.acme.example/pdf/ and https://www.tools.acme.example');
   assert.equal(urls('https://github.com/slopographic/apps/blob/main/LICENSE', m), 'https://github.com/acme/tools/blob/main/LICENSE');
   assert.equal(urls('https://cdn.jsdelivr.net/gh/slopographic/cdn@1/x', m), 'https://cdn.jsdelivr.net/gh/acme/cdn@1/x');
   assert.equal(urls('mail noreply@slopographic.com', m), 'mail noreply@acme.example');

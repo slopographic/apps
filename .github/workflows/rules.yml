@@ -200,10 +200,11 @@ jobs:
         run: node tools/whitelabel/roundtrip.mjs ${{ matrix.profile }}
       - name: Build the profile, with the leak scan (tools/whitelabel/build.mjs)
         run: node tools/whitelabel/build.mjs ${{ matrix.profile }} "$OUT"
-      - name: The build as a mirror checkout is (one commit), and its Node tests
+      - name: The build as a mirror checkout is (one commit), and its Node tests (less the ones that pin this site's profile)
         run: |
+          SKIP=$(node tools/whitelabel/mirror-skip.mjs ${{ matrix.profile }})
           cd "$OUT" && git init -q && git add -A && git -c user.name=mirror -c user.email=mirror@example.invalid commit -qm build
-          npm ci --no-audit --no-fund && node --test tests/node/*.test.mjs tests/seo/*.test.mjs
+          npm ci --no-audit --no-fund && node --test ${SKIP:+"--test-skip-pattern=$SKIP"} tests/node/*.test.mjs tests/seo/*.test.mjs
       - name: Browser smoke pages, served from the build
         run: |
           cd "$OUT"

@@ -52,7 +52,8 @@ function serve() {
       let f = path.join(ROOT, decodeURIComponent(new URL(req.url, 'http://x').pathname));
       if (!f.startsWith(ROOT)) { res.writeHead(403).end(); return; }
       if ((await stat(f).catch(() => null))?.isDirectory()) f = path.join(f, 'index.html');
-      res.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' }).end(await readFile(f));
+      const body = await readFile(f);   // read first: a missing file answers 404, never a 200 that has already gone out
+      res.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' }).end(body);
     } catch (e) { res.writeHead(404).end('not found'); }
   });
   return new Promise((r) => server.listen(0, '127.0.0.1', () => r(server)));

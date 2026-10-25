@@ -12,7 +12,7 @@ const load = (file, name) => {
   vm.runInNewContext(fs.readFileSync(path.join(root, file), 'utf8'), { window: win });
   return win[name];
 };
-const apps = load('shared/apps.js', 'SLOP_APPS');
+const apps = load('shared/apps.js', 'SLOP_ALL_APPS');   // every app, also one a brand profile hides
 const search = load('shared/finder/app-search.js', 'SLOP_APP_SEARCH');
 
 test('every registry app has a search entry with a description', () => {

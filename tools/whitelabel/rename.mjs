@@ -24,11 +24,15 @@ export function urls(text, map) {
   return text
     .replace(/https?:\\\/\\\/(?:www\\\.)?slopographic\\\.com/g, re(map.origin))
     .replace(/@slopographic\\\.com/g, '@' + re(map.mail))
-    .replace(/https?:\/\/(?:www\.)?slopographic\.(?:com|github\.io)/g, map.origin)
+    .replace(/github\\\.com\\\/slopographic\\\/apps\b/g, 'github\\.com\\/' + re(map.repo || `${map.github}/apps`))
+    .replace(/(githubusercontent\\\.com|github\\\.com|gh)\\\/slopographic\\\//g, (m, a) => `${a}\\/${re(map.github)}\\/`)
+    .replace(/(https?):\/\/(www\.)?slopographic\.(?:com|github\.io)/g, (m, s, w) => `${s}://${w || ''}${host}`)   // scheme and www kept
     .replace(/wss:\/\/mcp\.slopographic\.com/g, `wss://mcp.${host}`)
     .replace(/github\.com\/slopographic\/apps\b/g, `github.com/${map.repo || map.github + '/apps'}`)
     .replace(/(raw\.githubusercontent\.com|cdn\.jsdelivr\.net\/gh|github\.com)\/slopographic\b/g, `$1/${map.github}`)
     .replace(/github:slopographic\//g, `github:${map.github}/`)
+    .replace(/(?<![\w./-])slopographic\/apps\b/g, map.repo || `${map.github}/apps`)
+    .replace(/(?<![\w./-])slopographic\/(cdn|claude-plugin)\b/g, `${map.github}/$1`)
     .replace(/slopographic\/slopographic\.github\.io/g, `${map.github}/${map.github}.github.io`)
     .replace(/https:\/\/[\w.-]*\b(?:x\.com|patreon\.com|reddit\.com|tiktok\.com)\/[^\s"'<>)]*[Ss]lopographic[^\s"'<>)]*/g, map.origin + '/')
     .replace(/https:\/\/slopographic\.gumroad\.com[^\s"'<>)]*/g, map.origin + '/')
@@ -44,11 +48,13 @@ export function urls(text, map) {
 export function phraseRules(pairs, brandWord) {
   const rules = [...pairs].filter(([f]) => f).sort((a, b) => b[0].length - a[0].length)
     .map(([from, to]) => {
-      const before = /^\w/.test(from) ? '(?<![\\w$.\\-/@])(?<!\\bnew )' : '';
+      // a name of several words may follow a slash (a regular expression); any name may follow an escape (\n)
+      const glue = from.includes(' ') ? '[\\w$.\\-@]' : '[\\w$.\\-/@]';
+      const before = /^\w/.test(from) ? `(?:(?<!${glue})|(?<=\\\\[ntr]))(?<!\\bnew )` : '';
       const after = /\w$/.test(from) ? '(?![\\w$\\-@])(?!\\.[A-Za-z_$])(?![(\\[])(?!\\s*=[^=>])' : '';
       return [new RegExp(before + escRe(from) + after, 'g'), to];
     });
-  rules.push([/(?<![\w$.\-/@])Slop (?=[A-Z0-9])/g, '']);
+  rules.push([/(?:(?<![\w$.\-/@])|(?<=\\[ntr]))Slop (?=[A-Z0-9])/g, '']);
   if (brandWord) rules.push([/(?<![\w$.\-/@])Slop(?= [a-z]|['’]s\b)/g, brandWord]);
   return rules;
 }

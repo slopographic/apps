@@ -265,6 +265,7 @@
     sorter: ['Photo Sorter'], gallery: ['Gallery'], '3d': ['3D Modeller'], music: ['Music Player'],
     authenticator: ['AI Text Detector', 'Check whether a text reads as machine-written.'], 'paint-classic': ['Paint Classic', 'A simple paint program in the classic style.'],
   };
+  window.SLOP_ALL_APPS = window.SLOP_APPS;   // with the apps a profile hides (registry checks read this one)
   window.SLOP_APPS = window.SLOP_APPS.filter((a) => HIDE.indexOf(a.id) < 0);
   for (const a of window.SLOP_APPS) {
     const p = PLAIN[a.id] || [a.title || a.name];

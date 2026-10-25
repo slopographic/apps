@@ -12,27 +12,66 @@
   "mascot": false,
   "github": "acme-example",
   "mailDomain": "acme.example",
-  "brandTerms": ["Acme Tools"],
-  "colors": { "ink": "#111827", "paper": "#f9fafb", "accent": "#4f46e5" },
-  "palette": { "hue": 243, "from": [55, 110] },
-  "themes": {
-    "light": { "background": "#f3f4f6", "surface": "#ffffff", "text": "#111827", "accent": "#4338ca", "border": "#9ca3af" },
-    "dark": { "background": "#111827", "surface": "#1f2937", "text": "#f3f4f6", "accent": "#a5b4fc", "border": "#6b7280" },
-    "hide": ["lime"]
+  "brandTerms": [
+    "Acme Tools"
+  ],
+  "colors": {
+    "ink": "#111827",
+    "paper": "#f9fafb",
+    "accent": "#4f46e5"
   },
-  "logo": { "text": "Acme Tools", "mark": "A", "color": "#4338ca" },
+  "palette": {
+    "hue": 243,
+    "from": [65, 100]
+  },
+  "themes": {
+    "light": {
+      "background": "#f3f4f6",
+      "surface": "#ffffff",
+      "text": "#111827",
+      "accent": "#4338ca",
+      "border": "#6b7280"
+    },
+    "dark": {
+      "background": "#111827",
+      "surface": "#1f2937",
+      "text": "#f3f4f6",
+      "accent": "#a5b4fc",
+      "border": "#6b7280"
+    }
+  },
+  "logo": {
+    "text": "Acme Tools",
+    "mark": "A",
+    "color": "#4338ca"
+  },
   "links": {},
   "footer": "© 2026 Acme Example Ltd.",
   "copy": {},
-  "apps": { "hide": ["authenticator", "paint-classic"] },
+  "apps": {
+    "hide": []
+  },
   "media": false,
-  "support": { "exportCard": false, "donate": false, "ads": false },
+  "support": {
+    "exportCard": false,
+    "donate": false,
+    "ads": false
+  },
   "analytics": false,
   "seo": {
     "homeTitle": "Acme Tools: business and office tools in your browser",
     "homeDescription": "PDF editor, image editor, documents, spreadsheets, invoices and more. Runs in your browser; your files stay on your device. Free, no accounts.",
     "titleSuffix": " | Acme"
   },
-  "legal": { "holder": "Acme Example Ltd", "year": "2026" },
-  "publish": { "repo": "acme-example/tools", "branch": "main", "secret": "SAMPLE_TOKEN", "author": "Acme Example", "email": "tools@acme.example" }
+  "legal": {
+    "holder": "Acme Example Ltd",
+    "year": "2026"
+  },
+  "publish": {
+    "repo": "acme-example/tools",
+    "branch": "main",
+    "secret": "SAMPLE_TOKEN",
+    "author": "Acme Example",
+    "email": "tools@acme.example"
+  }
 }

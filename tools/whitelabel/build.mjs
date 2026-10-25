@@ -17,6 +17,7 @@ import { urls, phrases, tokens, collisions } from './rename.mjs';
 import { context, profileText, forward, forwardPath } from './transform.mjs';
 import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, mit, notice, trademarks, security, readme } from './emit.mjs';
 import { mirrorWorkflow } from './workflow.mjs';
+import { skipPattern } from './mirror-skip.mjs';
 import { isText, scan, report } from './scan.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -47,6 +48,8 @@ export function excluded(file, p) {
   return false;
 }
 
+/** True for valid UTF-8 (fixtures in Windows-1252 or CP437 are copied as bytes, never decoded and re-encoded). */
+export const isUtf8 = (buf) => { try { new TextDecoder('utf-8', { fatal: true }).decode(buf); return true; } catch (e) { return false; } };
 const sh = (cmd, args, cwd) => execFileSync(cmd, args, { cwd, encoding: 'utf8', maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 'inherit'], env: Object.assign({}, process.env, { SEO_LENIENT: '1' }) });
 const write = (out, rel, data) => { const f = path.join(out, rel); mkdirSync(path.dirname(f), { recursive: true }); writeFileSync(f, data); };
 
@@ -84,7 +87,7 @@ export function build(id, out, opts = {}) {
     if (seen.has(dest)) throw new Error(`two files map to ${dest}: ${seen.get(dest)} and ${f}`);
     seen.set(dest, f);
     const buf = readFileSync(path.join(ROOT, f));
-    if (!isText(buf)) { write(out, dest, patchBinary(f, buf)); n++; continue; }
+    if (!isText(buf) || !isUtf8(buf)) { write(out, dest, patchBinary(f, buf)); n++; continue; }   // other encodings stay byte for byte
     const src = buf.toString('utf8');
     for (const [t, c] of collisions(profileText(src, ctx), map)) clashes.push(`${f}: '${t}' x${c}`);
     write(out, dest, forward(src, ctx, dest));
@@ -118,7 +121,7 @@ function emit(out, p, opts, ctx) {
   const trial = path.join(out, 'shared/agent/trial-tokens.json');
   if (existsSync(trial)) { const t = JSON.parse(readFileSync(trial, 'utf8')); t.tokens = []; writeFileSync(trial, JSON.stringify(t, null, 2) + '\n'); }
   const wf = readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8');
-  write(out, '.github/workflows/rules.yml', tokens(phrases(urls(mirrorWorkflow(wf), ctx.urls), ctx.phraseRules), ctx.tokenRules));
+  write(out, '.github/workflows/rules.yml', tokens(phrases(urls(mirrorWorkflow(wf, skipPattern(p)), ctx.urls), ctx.phraseRules), ctx.tokenRules));
   write(out, '.nojekyll', '');
 }
 

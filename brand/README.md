@@ -82,7 +82,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `logo` | `{ text, mark, color }`: the build draws a wordmark (`brand/logo.svg`), a square mark (`brand/mark.svg`, the favicon) and the PNG icons and share card from it. Replace the files in a later commit of the profile's folder if you have a real logo. |
 | `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
 | `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
-| `apps.hide`, `media` | Apps left out of every list, menu and sitemap; `false` leaves out screenshots, clips and videos (they show this brand). |
+| `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; the SEO tests of a mirror then need their names on the skip list); `false` leaves out screenshots, clips and videos (they show this brand). |
 | `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap. |
 | `legal` | `{ holder, year }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md`. |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
@@ -94,8 +94,9 @@ profile here.
 ### The rename map
 
 `<id>.map.json` holds every token and folder rename of a build, in one file: `stem` (`["slop", "<new stem>"]`, every case
-form: `SlopUI` -> `TlbxUI`, `SLOP_APPS` -> `TLBX_APPS`) and `compounds` (`photoslop` -> `imageeditor`, with the folder
-name `image-editor/`). English words that contain the stem (slope, sloped, sloppy, SLOPE) are never touched. The map is a
+form: `SlopUI` -> `TlbxUI`, `SLOP_APPS` -> `TLBX_APPS`) and `compounds` (`photoslop` -> `imageeditor`, also the folder:
+`/imageeditor/`). A compound can give a folder its own spelling (`"path": "image-editor"`), but code that builds a path
+from an id then misses it, so the maps here keep one spelling. English words that contain the stem (slope, sloped, sloppy, SLOPE) are never touched. The map is a
 bijection: its targets must not occur in the source (the build refuses a map whose targets do), so the reverse is exact.
 `node tools/whitelabel/roundtrip.mjs <id>` proves it over the whole repository; CI runs it on every push.
 
@@ -113,6 +114,13 @@ workflows' identity checks, the profiles, this tool), renames paths and text thr
 not edit", the manifest, logo, favicon, icons, share card and the mirror's own CI workflow), runs the SEO writer and the
 precache list inside the copy, and then scans every file name, text line and binary for this brand's words and every
 other profile's terms. Any hit fails the build. Serve the folder with any static server to look at it.
+
+### Tests in a mirror
+
+A mirror keeps the whole test suite, renamed, and its own CI workflow runs it. The few Node tests that check this site's
+own profile values (its brand app names, its copy lengths, its media, its support links) are skipped by name there, and
+only when the profile differs (`tools/whitelabel/mirror-skip.mjs`, each with its reason). CI here runs the same build
+checks on the samples.
 
 ### Releases
 

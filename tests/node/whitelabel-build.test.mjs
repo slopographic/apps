@@ -1,4 +1,4 @@
-// Covers: tools/whitelabel/build.mjs, tools/whitelabel/export.mjs, tools/whitelabel/images.mjs, tools/whitelabel/workflow.mjs
+// Covers: tools/whitelabel/build.mjs, tools/whitelabel/export.mjs, tools/whitelabel/images.mjs, tools/whitelabel/workflow.mjs, tools/whitelabel/mirror-skip.mjs
 // The build's parts that need no browser: what it leaves out, the model-file patch, the mirror's workflow, the icon file,
 // the share card. CI's white-label job runs the whole build, the scan and the smoke pages on the sample profile.
 import { test } from 'node:test';
@@ -10,6 +10,8 @@ import { excluded, patchBinary, SCAN_ALLOW } from '../../tools/whitelabel/build.
 import { exportProfile } from '../../tools/whitelabel/export.mjs';
 import { ico, cardHtml } from '../../tools/whitelabel/images.mjs';
 import { mirrorWorkflow, DROP_STEPS } from '../../tools/whitelabel/workflow.mjs';
+import { skipPattern, SKIP } from '../../tools/whitelabel/mirror-skip.mjs';
+import { loadProfile, profilesDir } from '../../tools/whitelabel/profile.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const P = { support: { ads: false }, media: false };
@@ -46,4 +48,15 @@ test('icons: a PNG-in-ICO header; the share card holds the name', () => {
   assert.equal(f.readUInt16LE(2), 1); assert.equal(f.readUInt16LE(4), 2); assert.equal(f.readUInt32LE(6 + 12), 38);
   assert.match(cardHtml({ name: 'Acme Tools', tagline: 'x', colors: { ink: '#000', paper: '#fff', accent: '#00f' } }, '<svg ></svg>'), /Acme Tools/);
   assert.equal(typeof exportProfile, 'function');
+});
+
+test('the mirror skips only the tests that pin this site’s profile, and names each one', () => {
+  const dir = profilesDir(ROOT);
+  assert.equal(skipPattern(loadProfile(dir, 'slopographic')), '^each landing page has a description of 120 to 160 characters|^each page has a description of 120 to 160 characters');
+  const pat = skipPattern(loadProfile(dir, 'sample'));
+  assert.doesNotMatch(pat, /['"]/);
+  for (const s of SKIP) assert.ok(new RegExp(pat).test(s.test), s.test);
+  assert.ok(!new RegExp(pat).test('every app id in shared/apps.js has an icon entry'));
+  const yml = mirrorWorkflow(readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8'), pat);
+  assert.ok(yml.includes(`node --test '--test-skip-pattern=${pat}' tests/node/`));
 });

@@ -1,6 +1,6 @@
 {
   "_": "The plain tone's copy layer: phrases replaced in every file of a build whose profile has tone 'plain' (tools/whitelabel/build.mjs). App names come from shared/apps.js (PLAIN); this file holds the other names and the playful lines. Longer phrases win. A profile's own `copy` adds to or overrides these.",
-  "Slopographic Lime": "Lime",
+  "Slopographic Lime": "Accent",
   "Creative Slop Pro": "Creative Pro",
   "Creative Slop": "Creative apps",
   "Slop 365": "Business apps",

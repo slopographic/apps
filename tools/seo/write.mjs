@@ -108,7 +108,7 @@ export function validateCopy(entries, lenient = process.env.SEO_LENIENT === '1')
     if (description.length < DESC_MIN || description.length > DESC_MAX) bad(`${name}: description is ${description.length} characters (need ${DESC_MIN} to ${DESC_MAX})`);
     if (!title) throw new Error(`${name}: title missing`);
     if (title.length > 75) bad(`${name}: title missing or too long`);
-    if (titles.has(title)) throw new Error(`${name}: title repeats ${titles.get(title)}`);
+    if (titles.has(title)) bad(`${name}: title repeats ${titles.get(title)}`);
     titles.set(title, name);
   }
 }

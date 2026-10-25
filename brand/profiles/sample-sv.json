@@ -22,10 +22,7 @@
   },
   "palette": {
     "hue": 174,
-    "from": [
-      55,
-      110
-    ]
+    "from": [65, 100]
   },
   "themes": {
     "light": {
@@ -33,7 +30,7 @@
       "surface": "#ffffff",
       "text": "#18181b",
       "accent": "#0f766e",
-      "border": "#a1a1aa"
+      "border": "#71717a"
     },
     "dark": {
       "background": "#18181b",
@@ -41,10 +38,7 @@
       "text": "#f4f4f5",
       "accent": "#2dd4bf",
       "border": "#71717a"
-    },
-    "hide": [
-      "lime"
-    ]
+    }
   },
   "logo": {
     "text": "Exempelbolaget Verktyg",
@@ -55,10 +49,7 @@
   "footer": "© 2026 Exempelbolaget AB.",
   "copy": {},
   "apps": {
-    "hide": [
-      "authenticator",
-      "paint-classic"
-    ]
+    "hide": []
   },
   "media": false,
   "support": {
