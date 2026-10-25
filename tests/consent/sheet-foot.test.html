@@ -49,6 +49,7 @@
     }, { timeout: 60000 });
     it('at 1280 px the card keeps its place in the bottom corner', async () => {
       const f = await open(1280, 800);
+      await waitFor(() => Math.round(800 - box(f, '#slopc-banner').bottom) === 16, { timeout: 3000 }).catch(() => {});   // it slides in
       expect(Math.round(800 - box(f, '#slopc-banner').bottom)).toBe(16);
       f.remove();
     }, { timeout: 60000 });

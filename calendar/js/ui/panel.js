@@ -10,7 +10,7 @@
   'use strict';
   const NS = (g.SlopCal = g.SlopCal || {}), T = g.SlopTime;
   const $ = (id) => document.getElementById(id);
-  let p = null, editing = null, last = null;
+  let p = null, editing = null, last = null, box = null;
   const phoneOpen = () => $('cSide').classList.contains('ssh-on');
 
   function mount() {
@@ -33,13 +33,13 @@
   /** The panel for the day the view is on: its items (from the view's ctx), the display choices and the file actions. */
   function paint(ctx, day) {
     last = [ctx, day];
-    if (!p || editing) return;
+    if (!p) return;
     const list = NS.model.forDay(ctx.items || [], day, ctx.zone).map((it) => ({
       name: it.title || '(no title)',
       meta: [it.allDay ? 'All day' : T.timeText(it.start, ctx.zone, ctx.locale), it.kind === 'task' ? 'To-do' : it.eventKind, it.location].filter(Boolean).join(' · '),
       open: () => ctx.open(it),
     }));
-    p.setTitle(T.dayText(day, ctx.locale, { weekday: 'long', day: 'numeric', month: 'long' }));
+    if (!editing) p.setTitle(T.dayText(day, ctx.locale, { weekday: 'long', day: 'numeric', month: 'long' }));
     p.render([
       { key: 'day', title: day === ctx.today ? 'Today' : 'On this day', list, empty: 'Nothing on this day. New event adds one.' },
       { key: 'show', title: 'Show', settings: [$('cTasks').closest('label'), $('cZone').closest('label'), $('cSplit')] },
@@ -53,7 +53,11 @@
     const fr = NS.panel.frame;
     editing = o;
     p.setTitle(o.title);
-    p.render([{ key: 'edit', body: o.body }]);
+    // the day's sections stay in the page, hidden (their controls keep their ids); the form shows in their place
+    if (!box) { box = document.createElement('div'); box.className = 'sf-p-body cal-edit'; }
+    box.replaceChildren(o.body);
+    p.element.hidden = true;
+    p.element.after(box);
     p.footer([...o.buttons.map((b, i) => ({ id: 'ev-' + i, label: b.label, primary: !!b.primary, run: b.run })), { el: $('cNew'), hidden: true }], { more: 'Day' });
     if (fr) { if (fr.isPhone()) fr.openSheet(); else if (!fr.panelShown()) fr.setPanel(true); }
     return { close: done };
@@ -63,6 +67,8 @@
   function done() {
     if (!editing) return;
     editing = null;
+    if (box) box.remove();
+    p.element.hidden = false;
     p.footer([{ el: $('cNew'), primary: true, hidden: false }], { more: 'Day' });
     const fr = NS.panel.frame;
     if (fr && fr.isPhone() && phoneOpen()) fr.closeSheet();

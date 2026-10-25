@@ -73,16 +73,19 @@
   }
 
   /** On a phone the card is a bottom sheet (shared/ui/sheet.js). Closing it closes the contact; with the form open it
-   *  asks first (Cancel's question) and stays open when the answer is no. */
+   *  leaves the form the way Escape and Cancel do (asking first about unsaved changes) and the card stays. A window that
+   *  becomes a phone's with a contact open shows it in the sheet. */
   function mountSheet() {
     if (!window.SlopSheet) return;
-    const card = document.getElementById('card');
-    sheet = window.SlopSheet.attach({ root: document.getElementById('shell'), panel: card, side: 'bottom', phone: '(max-width: 959px)', label: 'Contact',
-      onChange: async (open, why) => {
+    const card = document.getElementById('card'), PHONE = '(max-width: 959px)';
+    sheet = window.SlopSheet.attach({ root: document.getElementById('shell'), panel: card, side: 'bottom', phone: PHONE, label: 'Contact',
+      onChange: (open, why) => {
         if (open || why === 'api' || why === 'wide' || why === 'destroy' || !S.open) return;
-        if (S.mode === 'edit') { sheet.open(); await SC.cardEdit.cancel(); if (S.mode === 'edit') return; }
-        S.open = null; S.mode = 'view'; S.emit('render');
+        if (S.mode === 'edit') { sheet.open(); SC.cardEdit.cancel(); return; }
+        S.open = null; S.emit('render');
       } });
+    const mq = window.matchMedia(PHONE);
+    mq.addEventListener('change', () => { if (mq.matches && S.open) sheet.open(); });
   }
 
   function mount() {

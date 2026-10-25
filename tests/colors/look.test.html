@@ -31,10 +31,10 @@ describe('Slop Colors: the look', () => {
     expect(dl.classList.contains('sui-primary')).toBe(true);
     expect(dl.disabled).toBe(true);   // an empty palette has nothing to download
     // the colour's values once, in the main view (each with Copy); the panel holds only the settings
-    const view = D.getElementById('co-view'), side = D.getElementById('co-panel');
+    const main = D.getElementById('co-view'), side = D.getElementById('co-panel');
     expect(D.querySelectorAll('input[id^="co-in-"]').length).toBe(5);
-    expect(view.querySelectorAll('input[id^="co-in-"]').length).toBe(5);
-    expect(view.querySelectorAll('.co-value .co-copy').length).toBe(5);
+    expect(main.querySelectorAll('input[id^="co-in-"]').length).toBe(5);
+    expect(main.querySelectorAll('.co-value .co-copy').length).toBe(5);
     expect(side.querySelector('input[id^="co-in-"], #co-native, #co-as-fg')).toBe(null);
     expect([...side.querySelectorAll('.sf-h')].map((h) => h.textContent)).toEqual(['Made from it', 'Picture', 'Export']);
     expect(D.querySelectorAll('.sd-zone').length).toBe(1);

@@ -32,6 +32,7 @@
 .cal-body > .main { flex: 1 1 auto; min-width: 0; }
 .cal-body:not(.sf-phone) > .cal-side { position: sticky; top: 0; max-height: calc(100vh - var(--cal-top, 96px)); min-height: calc(100vh - var(--cal-top, 96px)); }   /* its foot in view, the editor too */
 .cal-body > .sf-grip { align-self: stretch; }
+.cal-edit { padding: 12px 16px 20px; }   /* the event editor in the panel (js/ui/panel.js) */
 .cal-side label.sf-field { color: var(--ink); font-size: 13px; }
 .cal-side label.sf-field:has(input[type="checkbox"]) { display: flex; align-items: center; gap: 8px; }
 .cal-side .tb-lbl { display: inline; }

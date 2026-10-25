@@ -121,8 +121,11 @@
       await CT.seed([{ name: 'Phone Page', id: 'mob-1' }, { name: 'Other One', id: 'mob-2' }]);
       const win = await boot();
       const fr = document.getElementById('app');
+      win.SlopContacts.state.open = null;   // the saved place may reopen the last contact
+      win.SlopContacts.state.emit('render');
       fr.style.width = '390px';
       fr.style.height = '780px';
+      try {
       await sleep(250);
       const doc = win.document, card = $(win, '#card');
       expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
@@ -145,8 +148,7 @@
       $(win, '#card .ssh-x').click();
       await waitFor(() => !card.classList.contains('ssh-on') && win.SlopContacts.state.open === null, { timeout: 5000 });
       expect($(win, '#card .sf-p-foot')).toBe(null);
-      fr.style.width = '1280px';
-      fr.style.height = '760px';
+      } finally { fr.style.width = '1280px'; fr.style.height = '760px'; await sleep(100); }
     });
 
     it('arrow keys move through the list, Enter opens the card, and Delete asks before it removes', async () => {
