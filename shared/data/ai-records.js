@@ -3,7 +3,8 @@
  * demand by SlopBiz.commands' prepare (shared/biz/biz.js) or an app's own; ai-records-apps.js says which collections each
  * app works on and adds the app's own steps (issue an invoice, a document's PDF…).
  *   install(app)   registers <app>.ai.* for that app: describe_records, list_records, create_record, update_record,
- *                  delete_record (destructive), export_records, plus the app's own; provide({ state, checkpoint })
+ *                  delete_record (destructive), export_records, make_sample (shared/biz/sample.js), plus the app's own;
+ *                  provide({ state, checkpoint })
  *   toRecord(collection, fields)  plain values → the store's shape: money "12.50" → 1250 minor units, a rate "20%" → 2000
  *                  basis points, lines the same way, customer: "name" → customerId (made when it does not exist yet)
  * Every write is remembered for "Undo all AI changes": created records are removed and changed ones put back. */
@@ -138,6 +139,7 @@
         const blob = a.format === 'json' ? new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' }) : new Blob([csv(rows)], { type: 'text/csv' });
         return save(blob, `${a.collection}-${day}.${a.format}`, a.to, app);
       }, { description: 'Save the records as CSV or JSON to Slop Drive and/or a download.' });
+    if (g.SlopBiz && g.SlopBiz.sample) g.SlopBiz.sample.command(add, cfg, app);   // make_sample (shared/biz/sample.js)
     if (cfg.extra) cfg.extra(add, AI);
     C.register(list);
     C.provide({ state: () => AI.view(cfg), checkpoint });

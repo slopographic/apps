@@ -54,7 +54,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Serial counter (`serials`) | ✗ | ✓ 3 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
 | Slop Transcribe (`transcribe`) | ✗ | ✓ 1 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | no | no |
 | Slop Recorder (`recorder`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | ✓ own | ✓ page | ✗ | no | no |
@@ -348,7 +348,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 
 - create: `new_signature`
 - add: `add_links`, `add_picture`
-- edit: `set_fields`, `set_style`
+- edit: `copy_signature`, `make_logo`, `random_signature`, `set_fields`, `set_style`
 - export: `export_signature`
 
 ### QR SLOP

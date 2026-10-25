@@ -1,5 +1,6 @@
 /* Slop Signature: the page as the suite's View · Panel (shared/frame): the signature in a mock email in the middle, the
- * form on the right (Your details), Copy HTML code and Download HTML as its Result section, and Copy signature stuck to
+ * form on the right (Your details, with Random and its seed), the copies for Gmail, Outlook and Apple Mail, Copy HTML code
+ * and Download HTML as its Result section, and Copy signature stuck to
  * its foot (the suite rule, shared/frame/HANDOFF.md). Phones: the panel is a bottom sheet whose foot (Edit + Copy
  * signature) always shows, so the email is the page. Runs before app.js, which wires and enables the buttons (drawn once
  * here, never redrawn) and fills #sgForm. Classic script. */
@@ -12,8 +13,8 @@
   });
   const panel = g.SlopFrame.panel($('sgPanel'), { title: 'Your signature' });
   panel.render([
-    { title: 'Your details', key: 'details', settings: [$('sgStart'), $('sgForm')] },
-    { title: 'Result', key: 'result', actions: [{ el: $('sgCode') }, { el: $('sgDownload') }] },
+    { title: 'Your details', key: 'details', settings: [$('sgStart'), $('sgSeedRow'), $('sgForm')] },
+    { title: 'Result', key: 'result', settings: [$('sgOut')], actions: [{ el: $('sgCode') }, { el: $('sgDownload') }] },
   ]);
   panel.footer([{ el: $('sgCopy') }], { more: 'Edit' });
   (g.SlopSignature = g.SlopSignature || {}).layout = { frame: fr, panel };
