@@ -8,7 +8,8 @@
  * The provider is chosen in the searchable picker (cloud/pick.js), which drives a hidden select (the form's one value);
  * a provider's own fields (endpoint id, account id…) come from its address template; a server on this computer gets
  * "Find servers" and a diagnosis on Test connection (cloud/local.js, local-ui.js). A picture-only provider just keeps
- * its key here, for AI pictures. */
+ * its key here, for AI pictures. Free tiers: "Get a free key in 2 minutes" (free-guide.js), "· Free" on free models and
+ * "Show only free models" (cloud/free.js, pick.js). */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -60,12 +61,14 @@
     function fillModels() {
       const list = fetched.get(p.id) || [], top = C.suggested(p, list), ps = (C.keys.settings().providers || {})[p.id] || {};
       model.textContent = '';
-      top.forEach((m) => model.append(h('option', { value: m.id }, m.name + (m.note ? ` (${m.note})` : ''))));
+      // a free model says so (cloud/free.js: OpenRouter's :free ids and zero prices, the catalog's free models)
+      const opt = (m, text) => { const free = C.free.model(p, m) === true && !p.local; return h('option', { value: m.id, 'data-free': free ? '1' : null, 'data-tools': m.tools === false ? '0' : null }, text + (free ? ' · Free' : '')); };
+      top.forEach((m) => model.append(opt(m, m.name + (m.note ? ` (${m.note})` : ''))));
       const rest = list.filter((m) => !top.includes(m));
-      if (rest.length) model.append(h('optgroup', { label: 'More models' }, rest.map((m) => h('option', { value: m.id }, m.name))));
+      if (rest.length) model.append(h('optgroup', { label: 'More models' }, rest.map((m) => opt(m, m.name))));
       if (ps.model && ![...model.options].some((x) => x.value === ps.model)) model.prepend(h('option', { value: ps.model }, ps.modelName || ps.model));
       if (ps.model) model.value = ps.model;
-      C.pick.models(model, p);
+      C.pick.models(model, p, { tools: o.tools ? o.tools() : true });
       model.disabled = !model.options.length;
       estimate();
     }
@@ -91,7 +94,8 @@
       forget.disabled = !has;
       use.textContent = p.chat ? 'Use ' + p.short : 'Save key';
       help.textContent = '';
-      if (p.needsKey) help.append('Get a key at ', h('a', { href: p.keyUrl, target: '_blank', rel: 'noopener' }, p.where || p.keyUrl), `. ${p.who} charges your account there for what you use.`);
+      const free = !p.local && C.free.tier(p);
+      if (p.needsKey) help.append('Get a key at ', h('a', { href: p.keyUrl, target: '_blank', rel: 'noopener' }, p.where || p.keyUrl), free ? `. ${C.free.label(p)}: ${free.note}` : `. ${p.who} charges your account there for what you use.`);
       else if (p.local) help.append(`Uses ${p.short} running on this computer. Nothing leaves it.`);
       else help.append(p.notes || 'Any server that speaks the OpenAI Chat Completions API.');
       if (!p.chat) help.append(' This one makes pictures: its key is kept for AI pictures.');
@@ -161,10 +165,11 @@
     const modelRow = h('label', { class: 'sap-cloud-f' }, 'Model', model), capRow = h('label', { class: 'sap-cloud-f' }, 'Spending cap (tokens this visit)', cap), stepRow = h('label', { class: 'sap-cloud-f' }, 'Steps per request', steps);
     const chatOnly = [modelRow, capRow, est, stepRow], hint = h('p', { class: 'sap-dim sap-cloud-hint' }, 'Off: the key is kept in this tab only, until you close it.');
     cap.value = s.cap || ''; steps.value = s.steps || 12;
+    const guide = C.freeGuide.render({ onChoose: (id) => { sel.value = id; sel.dispatchEvent(new Event('change')); shown.then(() => key.focus()); } });
     const wrap = h('details', { class: 'sap-cloud', open: o.open || !!s.active || null },
       h('summary', null, h('b', null, 'Use your own AI account'), h('span', { class: 'sap-dim' }, ` Claude, ChatGPT, Gemini, OpenRouter, ${C.providers.length - 4} more, or a model on this computer`)),
       h('p', { class: 'sap-dim' }, 'With your own key, the requests go from this browser straight to that provider, and are charged to your account there. There is no Slopographic server in between.'),
-      h('div', { class: 'sap-cloud-f' }, h('span', null, 'Provider'), sel, pp.node), finder, baseRow, fieldBox, keyRow, help, remRow,
+      guide, h('div', { class: 'sap-cloud-f' }, h('span', null, 'Provider'), sel, pp.node), finder, baseRow, fieldBox, keyRow, help, remRow,
       hint,
       h('div', { class: 'sap-acts' }, test, forget), msg, diag, modelRow, capRow, est, stepRow,
       h('div', { class: 'sap-acts' }, use), local);

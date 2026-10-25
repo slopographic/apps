@@ -13,7 +13,13 @@
  *     tools/check-ai-cors.mjs) | 'needs-proxy' (the browser is refused; corsNote says why in plain words) | 'unknown'
  *   blocker: 'auth' when a needs-proxy entry is held back by its sign-in (signing, short-lived tokens), not by CORS
  *   docs (https), notes, aliases (search words), local / anyAddress (an address the person types), setup (help lines)
- *   testPath: a key check of its own (OpenRouter's list is public); toolsOnly, maxTokens, usageOption: request options */
+ *   testPath: a key check of its own (OpenRouter's list is public); toolsOnly, maxTokens, usageOption: request options
+ *   free: what costs nothing, read from the provider's own pricing or limits page on `verified` (cloud/free.js reads it):
+ *     { tier: 'free' | 'free-models' (some models are free) | 'free-trial' (credit that runs out) | 'none' (checked: no
+ *     free use), note (the limits in plain words), limits (the short form for a rate-limit message), reset, training
+ *     (what the provider may do with free-tier data, in plain words; null when nothing leaves the computer), signup (where
+ *     to get the key), docs (the page it was read from), verified 'YYYY-MM-DD', models ('all', or ids and patterns of
+ *     the free models; OpenRouter's come from its list), rank (order in the free guide and suggestions) } */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -38,13 +44,22 @@
       modelsEndpoint: '/v1beta/models', caps: { tools: true, vision: true, images: true, streaming: true }, cors: 'verified',
       docs: 'https://ai.google.dev/gemini-api/docs', aliases: ['google', 'gemini', 'ai studio', 'bard'],
       models: [{ id: 'gemini-3.8-pro', name: 'Gemini 3.8 Pro', note: 'most capable' }, { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', note: 'fast' }, { id: 'gemini-3.5-flash-lite', name: 'Gemini 3.5 Flash-Lite', note: 'cheapest' }],
-      prefer: [/^gemini-[\d.]+-pro$/, /^gemini-[\d.]+-flash$/, /^gemini-[\d.]+-flash-lite$/] },
+      prefer: [/^gemini-[\d.]+-pro$/, /^gemini-[\d.]+-flash$/, /^gemini-[\d.]+-flash-lite$/],
+      free: { tier: 'free', rank: 1, verified: '2026-10-25', docs: 'https://ai.google.dev/gemini-api/docs/pricing', signup: 'https://aistudio.google.com/app/apikey',
+        note: 'Free of charge on the Flash and Flash-Lite models and Gemini 2.5 Pro (not the newest Pro models), with lower limits than paid use. Your limits are shown in Google AI Studio; they count per project, and the daily ones reset at midnight Pacific time.',
+        limits: 'a limited number of requests a minute and a day (see Google AI Studio › Rate limits)', reset: 'at midnight Pacific time',
+        training: 'On the free tier Google may use your prompts and the replies to improve its products, and people may review them, except for users in the EEA, Switzerland and the UK. Do not send private data on the free tier.',
+        models: ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3-flash-preview', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', /^gemma-4/] } },
     { id: 'openrouter', name: 'OpenRouter (many models, one key)', who: 'OpenRouter', short: 'OpenRouter', group: 'main', rank: 4, format: 'openai-chat', base: 'https://openrouter.ai/api/v1',
       keyUrl: 'https://openrouter.ai/keys', keyHint: 'sk-or-…', where: 'openrouter.ai › Keys', testPath: '/key',
       headers: { 'HTTP-Referer': origin(), 'X-OpenRouter-Title': 'Slopographic' }, maxTokens: 16000, toolsOnly: true,
       modelsEndpoint: '/models', caps: { tools: true, vision: true, images: true, streaming: true }, cors: 'verified', priceSource: 'its model list',
       docs: 'https://openrouter.ai/docs/api/reference/overview', aliases: ['openrouter', 'router', 'many models'],
       modelHints: ['llama', 'qwen', 'deepseek', 'mistral', 'kimi', 'glm', 'grok', 'claude', 'gpt', 'gemini'],
-      models: [], prefer: [/^anthropic\/claude-sonnet/, /^openai\/gpt-/, /^google\/gemini-[\d.]+-flash$/, /^anthropic\/claude-haiku/] },
+      models: [], prefer: [/^anthropic\/claude-sonnet/, /^openai\/gpt-/, /^google\/gemini-[\d.]+-flash$/, /^anthropic\/claude-haiku/],
+      free: { tier: 'free-models', rank: 3, verified: '2026-10-25', docs: 'https://openrouter.ai/docs/api/reference/limits', signup: 'https://openrouter.ai/keys',
+        note: 'Models whose id ends in :free cost nothing: 20 requests a minute and 50 a day, or 1,000 a day once you have bought at least $10 of credits. Paid models need credits.',
+        limits: '20 requests a minute and 50 a day on :free models (1,000 a day after buying $10 of credits)',
+        training: 'Free models are run by other companies with their own data rules; OpenRouter keeps separate privacy settings for free models (Settings › Privacy).' } },
   );
 })();

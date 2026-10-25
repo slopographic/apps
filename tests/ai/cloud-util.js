@@ -2,7 +2,7 @@
  * answers the model lists and key checks and streams scripted replies in each provider's documented SSE format. No real
  * key, no network. window.CU = { install(win, provider), anthropic: { text, call }, openai, compat, gemini }.
  *   const f = CU.install(win, 'anthropic'); f.replies.push(CU.anthropic.call('run_command', { id: 'demo.bold' }), CU.anthropic.text('Done'));
- *   f.requests: [{ url, headers, body }]; f.fail = { status, body } answers the next request with that error. */
+ *   f.requests: [{ url, headers, body }]; f.fail = { status, body, headers } answers the next request with that error. */
 window.CU = (function () {
   'use strict';
   const ev = (list) => list.map((e) => (Array.isArray(e) ? `event: ${e[0]}\ndata: ${JSON.stringify(e[1])}\n\n` : `data: ${typeof e === 'string' ? e : JSON.stringify(e)}\n\n`)).join('');
@@ -48,7 +48,7 @@ window.CU = (function () {
     let i = 0;
     return new Response(new ReadableStream({ pull(c) { if (i >= bytes.length) return c.close(); c.enqueue(bytes.slice(i, i + 40)); i += 40; } }), { headers: { 'content-type': 'text/event-stream' } });
   }
-  const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'content-type': 'application/json' } });
+  const json = (o, status = 200, headers = {}) => new Response(JSON.stringify(o), { status, headers: Object.assign({ 'content-type': 'application/json' }, headers) });
 
   function install(win, provider) {
     const f = { provider, replies: [], requests: [], fail: null, offline: false };
@@ -57,7 +57,7 @@ window.CU = (function () {
       const body = init.body ? JSON.parse(init.body) : null;
       f.requests.push({ url, headers: Object.assign({}, init.headers || {}), body, method: init.method || 'GET' });
       if (f.offline) throw new TypeError('Failed to fetch');
-      if (f.fail) { const x = f.fail; f.fail = null; return json(x.body, x.status); }
+      if (f.fail) { const x = f.fail; f.fail = null; return json(x.body, x.status, x.headers); }
       if (/\/models(\?|$)/.test(url)) return json(MODELS[provider] || { data: [] });
       if (/openrouter\.ai\/api\/v1\/key$/.test(url)) return json({ data: { label: 'test', usage: 0 } });
       if (!f.replies.length) throw new Error('fake fetch: no reply queued for ' + url);
