@@ -110,12 +110,13 @@
       expect(DR.defaultAppFor(r).id).toBe('docs');
     });
 
-    it('the details panel offers the default app first, and an Open in… menu for the rest', async () => {
+    it('the details panel offers the default app first (at its foot), and an Open in… menu for the rest', async () => {
       DR.select(['f:' + png]);
       DR.toggleInfo(true);
       DR.renderInfo(true);
+      const foot = [...W.document.querySelectorAll('#info .sf-p-foot button:not(.sf-foot-more)')].map((b) => b.textContent);
+      expect(foot[0]).toBe('Open in SlopVector');   // the main button (ui/info-foot.js)
       const acts = [...W.document.querySelectorAll('#info .acts button')].map((b) => b.textContent);
-      expect(acts[0]).toBe('Open in SlopVector');
       expect(acts).toContain('Open in…');
       DR.select([]);
     });

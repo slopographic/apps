@@ -217,3 +217,12 @@ Loaded on demand by `SlopCmd.prepare()` (`ui/commands.js`). `drive.ai.*`, hidden
 `star_item`, `delete_item` (to the Trash; the only destructive one), `download_items` (one file, or a ZIP). Items are named by path
 ("Work/notes.md"), name, id or key. The checkpoint undoes the assistant's changes (made items to the Trash, the rest put back).
 Test: `tests/drive/ai-commands.test.html`.
+
+## The details panel's main buttons (the suite rule)
+
+The info panel keeps Drive's own code (ui/info.js, the width in ui/info-width.js) and takes the shared footer
+(shared/frame/panel.js, `SlopFramePanel.create(info, { bare: true })`) for its main buttons: ui/info-foot.js. One file:
+Open in <its app> (Quick look when no app opens it) and Download; a folder: Open and Download .zip; the trash: Restore and
+Delete forever; several: Download N items (Restore N items in the trash). The other actions stay under the preview. On a
+phone the closed details sheet still shows them at the bottom ("Details" opens the sheet). New stays in the header (it is
+Drive's Open). Test: tests/drive/info-foot.test.html.
