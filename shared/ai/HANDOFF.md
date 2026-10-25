@@ -155,6 +155,10 @@ it and refuses new requests; Stop aborts the request in flight. A key-based engi
   (Sonnet 5.5 prices: $0.088 → $0.028); `tests/node/ai-permissions.test.mjs` keeps those numbers.
 - **The site in the prompt**: own-key models get `appTools.catalog(SLOP_APPS)` (each app: what it is, what it makes and
   opens), "be resourceful" and "never refuse because this app cannot: run_operation here, or open_app with a task".
+  What each app makes is generated, not written by hand: `node tools/ai-coverage.mjs` (also the pre-commit hook) writes
+  `shared/ai/app-skills.js` (`SlopAIKit.appSkills`: per app its create tools, up to 8 add tools and its operations) from
+  the same scan as `shared/commands/AI-COVERAGE.md`; `appTools.catalog` adds "Tools there: …" and "Operations: …" to each
+  app's line. Own-key models, the fake engine and capable local models get it.
 - **One task through several apps** (`handoff.js`), in this tab: file in → file out jobs run on any page
   (`run_operation`); editing that needs an app moves there with `open_in_app({ app, files, task })`, which sends the files
   the way "Open in…" does (SlopOuttake items now carry `to`; an app's own handover first, e.g. SlopIsolate → PhotoSlop as
