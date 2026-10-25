@@ -26,3 +26,8 @@
 .rm-dialog::backdrop { background: rgba(0, 0, 0, .4); }
 .rm-dialog h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--sl-text-muted); margin: 0 0 10px; }
 .rm-dialog .rm-size { color: var(--sl-text-muted); }
+/* With the options panel's footer (js/side.js) Remix is always in reach there, and it pulses instead of a floating button */
+body:has(.rm-side.sf-has-foot) .rm-fab { display: none; }
+.rm-btn.pulse { animation: rm-btn-ring 1.8s ease-out infinite; }
+@keyframes rm-btn-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--sl-accent) 70%, transparent); } 100% { box-shadow: 0 0 0 9px transparent; } }
+@media (prefers-reduced-motion: reduce) { .rm-btn.pulse { animation: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--sl-accent) 45%, transparent); } }

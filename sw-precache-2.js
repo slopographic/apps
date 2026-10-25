@@ -34,7 +34,7 @@ PRECACHE.push(
   '/reminders/index.html', '/reminders/js/app.js', '/remix/css/remix-auto.css', '/remix/css/remix.css', '/remix/index.html', '/remix/js/ai-commands.js',
   '/remix/js/ai-spec.js', '/remix/js/audio.js', '/remix/js/auto.js', '/remix/js/config-map.js', '/remix/js/config.js', '/remix/js/core.js',
   '/remix/js/drop.js', '/remix/js/export.js', '/remix/js/fab.js', '/remix/js/fx.js', '/remix/js/intake.js', '/remix/js/items.js', '/remix/js/keys.js',
-  '/remix/js/moves.js', '/remix/js/panel.js', '/remix/js/preview.js', '/remix/js/randomise.js', '/remix/js/send.js', '/remix/js/ui.js',
+  '/remix/js/moves.js', '/remix/js/panel.js', '/remix/js/preview.js', '/remix/js/randomise.js', '/remix/js/send.js', '/remix/js/side.js', '/remix/js/ui.js',
   '/reports/css/reports.css', '/reports/index.html', '/reports/js/app.js', '/reports/js/commands.js', '/reports/js/data.js', '/reports/js/defs.js',
   '/reports/js/engine.js', '/reports/js/enrich.js', '/reports/js/saved.js', '/resize/css/resize.css', '/resize/index.html', '/resize/js/app/commands.js',
   '/resize/js/app/drive.js', '/resize/js/app/layout.js', '/resize/js/app/list.js', '/resize/js/app/main.js', '/resize/js/app/presets.js',

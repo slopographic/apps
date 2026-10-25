@@ -70,3 +70,10 @@ h2 small { font-weight: 400; text-transform: none; }
 .rm-cuts li[data-drop=before] { box-shadow: inset 0 2px 0 var(--rm-accent); }
 .rm-cuts li[data-drop=after] { box-shadow: inset 0 -2px 0 var(--rm-accent); }
 .rm-cuts li[draggable=true] { cursor: grab; }
+/* The options panel (js/side.js): its footer holds Remix and Export. Wide: the panel stays in view as the page scrolls and
+   its own options scroll, the footer at its foot. Phone: a bottom sheet whose closed state is the footer alone. */
+.rm-side > .sf-p-foot { margin: 10px -14px 0; border-radius: 0 0 8px 8px; }
+@media (min-width: 961px) { .rm-side { position: sticky; top: 16px; max-height: calc(100vh - 90px); overflow-y: auto; padding-bottom: 0; } }
+.ssh-phone .rm-side { padding: 0 14px; border-radius: 18px 18px 0 0; }
+.ssh-phone .rm-side.ssh-on > h2 { margin-top: 14px; }
+.ssh-phone .rm-side > .sf-p-foot { margin-top: 0; border-radius: 0; }
