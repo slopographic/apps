@@ -2,7 +2,8 @@
  * is two clicks. Classic script; adds SlopAIKit.modelMenu = { attach(P), items(P), refresh() }.
  * The menu: each connected provider (a key in this browser, or a server on this computer that was used) with its models,
  * the current one ticked, each with its hint ("most capable", "fastest, cheapest") and "· Free" when it costs nothing (a
- * provider with a free tier says so in its heading, cloud/free.js); then "AI settings…" (the full
+ * provider with a free tier says so in its heading, cloud/free.js); then "Use your own AI account…" (the model choice
+ * with the key form open), "AI settings…" (the full
  * model choice), "AI permissions…", and "Disconnect <provider>" (forgets its key). Picking a model uses it at once and
  * remembers it for this app (settings.lastByApp; connect.restore prefers it on this app's pages). */
 (function () {
@@ -36,7 +37,7 @@
         list.push({ value: `use|${p.id}|${m.id}`, label: m.name + (m.note ? ` · ${m.note}` : '') + (free ? ' · Free' : ''), keywords: free ? ['free'] : [], checked: !!cur && cur.provider.id === p.id && cur.model.id === m.id });
       }
     }
-    list.push({ heading: 'More' }, { value: 'settings', label: 'AI settings…' }, { value: 'permissions', label: 'AI permissions…' });
+    list.push({ heading: 'More' }, { value: 'own', label: connected.length ? 'Add another AI account…' : 'Use your own AI account…' }, { value: 'settings', label: 'AI settings…' }, { value: 'permissions', label: 'AI permissions…' });
     if (cur) list.push({ value: 'forget', label: `Disconnect ${cur.provider.short} (forget the key)` });
     return list;
   }
@@ -44,6 +45,11 @@
   async function pick(P, value) {
     const C = K.cloud;
     if (value === 'settings') return P.choose();
+    if (value === 'own') {   // the model choice with "Use your own AI account" open and in view (it works in every browser)
+      if (!P.choosing) P.choose();
+      const t0 = Date.now(), find = () => { const d = document.querySelector('.sap details.sap-cloud'); if (d) { d.open = true; d.scrollIntoView({ block: 'start' }); } else if (Date.now() - t0 < 10000) setTimeout(find, 100); };
+      return find();
+    }
     if (value === 'permissions') return P.settings();
     if (value === 'forget' && P.local && P.local.kind === 'cloud') {
       const p = P.local.provider;

@@ -74,7 +74,7 @@
         if (e.shiftKey) { if (Math.abs(x - d.x0) > Math.abs(y - d.y0)) y = d.y0; else x = d.x0; }
         c.x = Math.round(x); c.y = Math.round(y);
       } else if (d.mode === 'scale') {
-        c.scale = U.round(U.clamp(d.s0 * Math.hypot(pt.x - d.cx, pt.y - d.cy) / d.d0, 0.01, 20), 3);
+        c.scale = U.round(SE.fit.clampScale(d.s0 * Math.hypot(pt.x - d.cx, pt.y - d.cy) / d.d0), 3);
       } else {
         let r = d.r0 + ((Math.atan2(pt.y - d.cy, pt.x - d.cx) - d.a0) * 180) / Math.PI;
         r = ((r + 540) % 360) - 180;

@@ -66,8 +66,8 @@
       var note = h('p', { class: 'hint' }, off ? 'Text recognition needs the OCR model, which is available when the app is online.' : 'Reads the text of scanned pages so you can select, search and edit it. Runs on this device.');
       b.appendChild(note);
       b.appendChild(section('Recognise text', [
-        row('', btn('Run OCR on this page', 'ocr', function () { A.recognisePage(); })),
-        row('', btn('Run OCR on document', 'ocr', function () { A.recogniseAll(); })),
+        row('', btn('Run OCR on this page', 'ocr', function () { SP.app.recognisePage(); })),
+        row('', btn('Run OCR on document', 'ocr', function () { SP.app.recogniseAll(); })),
         row('', btn('Language and model', 'ocr', function () { SP.ocr.chooseLanguage(); }))   // shared/ocr/choose.js
       ]));
     }
@@ -79,15 +79,15 @@
       if (E.state.pages.length) {
         b.appendChild(section('To Word, Excel or PowerPoint', [
           h('div', { class: 'btn-row' },
-            btn('Word (.docx)', 'convert', function () { A.openConvert('pdf-to-docx'); }),
-            btn('Excel (.xlsx)', 'convert', function () { A.openConvert('pdf-to-xlsx'); }),
-            btn('PowerPoint (.pptx)', 'convert', function () { A.openConvert('pdf-to-pptx'); }))
+            btn('Word (.docx)', 'convert', function () { SP.app.openConvert('pdf-to-docx'); }),
+            btn('Excel (.xlsx)', 'convert', function () { SP.app.openConvert('pdf-to-xlsx'); }),
+            btn('PowerPoint (.pptx)', 'convert', function () { SP.app.openConvert('pdf-to-pptx'); }))
         ]));
       }
       if (E.state.pages.length) {
         // The full converter, with every format (the Office buttons above open it with one preselected).
         b.appendChild(section('All conversions', [
-          h('div', { class: 'btn-row' }, btn('All formats…', 'convert', function () { A.openConvert(); })),
+          h('div', { class: 'btn-row' }, btn('All formats…', 'convert', function () { SP.app.openConvert(); })),
           note('Every format the converter can make from this document, in one dialog.')
         ]));
       }

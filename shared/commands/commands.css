@@ -32,7 +32,8 @@
 .scmd-input::-webkit-search-cancel-button { display: none; }
 .scmd-close { flex: none; display: inline-flex; align-items: center; border: 0; background: none; color: var(--c-dim); cursor: pointer; padding: 4px; border-radius: 4px; font: inherit; }
 .scmd-close:hover { background: var(--c-hover); color: var(--c-fg); }
-.scmd-x { display: none; font-size: 22px; line-height: 1; }
+.scmd-close { gap: 6px; min-width: 36px; min-height: 36px; justify-content: center; }
+.scmd-x { font-size: 22px; line-height: 1; }   /* always: a finger has no Esc key (the Esc hint is .slop-esc-hint, slopui.css) */
 .scmd-list { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 6px; scroll-padding: 28px 0 6px; }
 .scmd-hdr { padding: 8px 10px 4px; color: var(--c-dim); font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
 .scmd-opt { display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 4px 10px; border-radius: var(--c-radius); cursor: pointer; user-select: none; }
@@ -90,8 +91,7 @@
   .scmd-back { padding: 0; align-items: stretch; }
   .scmd-pal { width: 100%; max-height: none; height: 100%; height: 100dvh; border: 0; border-radius: 0; padding-top: env(safe-area-inset-top, 0px); }
   .scmd-input { height: 54px; font-size: 17px; }
-  .scmd-back .scmd-esc { display: none; }
-  .scmd-x { display: inline; padding: 6px 8px; }
+  .scmd-close { min-width: 44px; min-height: 44px; }
   .scmd-opt { min-height: 48px; padding: 6px 12px; font-size: 15px; }
   .scmd-hint { display: none; }
   .scmd-foot { justify-content: center; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }

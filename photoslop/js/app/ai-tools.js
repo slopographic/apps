@@ -73,17 +73,21 @@ async function aiUpscale(a) {
   return `The image is now ${D.w} × ${D.h} px.`;
 }
 
+/** The AI Tools edge-keeping filter (aitools/denoise/filters.js, bilateral) on a canvas: a new canvas. Also used by
+ *  Auto retouch's denoise (js/retouch/enhance.js). strength: light | medium | strong. */
+async function aiDenoiseCanvas(c, strength) {
+  await aiScript('../aitools/denoise/filters.js');
+  const [r, sr] = { light: [2, 18], medium: [3, 30], strong: [4, 48] }[strength] || [3, 30];
+  const w = c.width, hh = c.height, d = cxr(c).getImageData(0, 0, w, hh);
+  const out = mkCanvas(w, hh);
+  cx(out).putImageData(new ImageData(SlopAIFilters.bilateral(d.data, w, hh, r, sr), w, hh), 0, 0);
+  return out;
+}
 /** Denoise the active layer (or the selection) with the AI Tools edge-keeping filter. */
 async function aiDenoise(a) {
   await aiSettle();
   aiLayer();
-  await aiScript('../aitools/denoise/filters.js');
-  const [r, sr] = { light: [2, 18], medium: [3, 30], strong: [4, 48] }[a.strength] || [3, 30];
-  await aiOneStep('Denoise', () => applyToLayer('Denoise', (c) => {
-    const w = c.width, hh = c.height, d = cxr(c).getImageData(0, 0, w, hh);
-    const out = mkCanvas(w, hh);
-    cx(out).putImageData(new ImageData(SlopAIFilters.bilateral(d.data, w, hh, r, sr), w, hh), 0, 0);
-    return out;
-  }));
+  const out = await aiDenoiseCanvas(activeLayer().canvas, a.strength);
+  await aiOneStep('Denoise', () => applyToLayer('Denoise', () => out));
   return `Denoised “${activeLayer().name}” (${a.strength}).`;
 }

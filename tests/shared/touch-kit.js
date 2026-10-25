@@ -48,6 +48,7 @@
    *  app would throw where a real finger works): capturing one of them does nothing, as touch pointers are already
    *  captured to what they touched. */
   const kitIds = new Set();
+  const down = { touch: 0, pen: 0 }; // the kit's fingers (and pens) down now: only the first is primary, as in a browser
   function allowCapture(W) {
     const P = W.Element.prototype;
     if (P.__touchKit) return;
@@ -63,13 +64,16 @@
     kitIds.add(id);
     allowCapture(start.win);
     const ox = x - start.lx, oy = y - start.ly; // the frame's offset in the top page
+    const primary = !down[kind]; down[kind] = (down[kind] || 0) + 1;
+    let lifted = false;
+    const lift = () => { if (!lifted) { lifted = true; down[kind]--; } };
     const send = (type, px, py, extra) => {
       const W = start.win;
       // A target the app took off the page (it re-rendered) no longer gets the events: as the browser does, what is
       // under the finger gets them instead.
       const to = target.isConnected ? target : W.document.elementFromPoint(px - ox, py - oy) || W.document.body;
       to.dispatchEvent(new W.PointerEvent(type, { bubbles: true, cancelable: type !== 'pointercancel', composed: true, view: W,
-        pointerId: id, pointerType: kind, isPrimary: true, clientX: px - ox, clientY: py - oy, screenX: px, screenY: py,
+        pointerId: id, pointerType: kind, isPrimary: primary, clientX: px - ox, clientY: py - oy, screenX: px, screenY: py,
         button: type === 'pointermove' ? -1 : 0, buttons: type === 'pointerup' || type === 'pointercancel' ? 0 : 1,
         pressure: type === 'pointerup' ? 0 : pressure, width: 8, height: 8, ...extra }));
     };
@@ -77,10 +81,10 @@
     return {
       move(px, py) { send('pointermove', px, py); },
       up(px, py, click) {
-        send('pointerup', px, py);
+        send('pointerup', px, py); lift();
         if (click) (target.isConnected ? target : start.win.document.elementFromPoint(px - ox, py - oy) || start.win.document.body).dispatchEvent(new start.win.MouseEvent('click', { bubbles: true, cancelable: true, view: start.win, clientX: px - ox, clientY: py - oy, detail: 1 }));
       },
-      cancel() { send('pointercancel', x, y); },
+      cancel() { send('pointercancel', x, y); lift(); },
     };
   }
 

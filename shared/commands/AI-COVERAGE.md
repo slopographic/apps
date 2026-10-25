@@ -10,9 +10,9 @@ Covered: 44 of 61 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
-| PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 29 | ✓ 1 |  | yes |
+| PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 34 | ✓ 1 | 2 | yes |
 | SlopVector (`vector`) | ✓ 1 | ✓ 3 | ✓ 10 | ✓ 1 |  | yes |
-| Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 5 | ✓ 1 | 1 | yes |
+| Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 12 | ✓ 2 | 2 | yes |
 | SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | yes |
 | SlopIsolate (`cutout`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | yes |
 | Slop AI Tools (`aitools`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -26,7 +26,7 @@ Covered: 44 of 61 apps.
 | Slop Slides (`slides`) | ✓ 2 | ✓ 4 | ✓ 6 | ✓ 1 | 1 | yes |
 | Slop Press (`press`) | ✓ 2 | ✓ 4 | ✓ 5 | ✓ 1 |  | yes |
 | Reel Remix (`remix`) | ✗ | ✓ 1 | ✓ 12 | ✓ 1 |  | owned by wip/video-ai |
-| SlopCut (`slopedit`) | ✓ 2 | ✓ 9 | ✓ 19 | ✓ 1 | 4 | yes |
+| SlopCut (`slopedit`) | ✓ 2 | ✓ 9 | ✓ 22 | ✓ 1 | 4 | yes |
 | Slop Resize (`resize`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | yes |
 | Slop Upscale (`upscale`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | yes |
 | Slop Watermark (`watermark`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | yes |
@@ -78,8 +78,9 @@ Covered: 44 of 61 apps.
 
 - create: `new_document`
 - add: `add_svg_layer`, `add_text`, `brush_stroke`, `click_tool`, `draw_shape`, `new_layer`, `use_tool`
-- edit: `add_noise`, `brightness_contrast`, `canvas_size`, `crop`, `crop_to_selection`, `curves`, `delete_layer`, `denoise`, `desaturate`, `duplicate_layer`, `fill`, `filter`, `flip`, `gaussian_blur`, `gradient_fill`, `hue_saturation`, `image_size`, `invert_selection`, `levels`, `motion_blur`, `remove_background`, `rotate`, `select_all`, `select_subject`, `set_layer`, `sharpen`, `transform_layer`, `upscale`, `vignette`
+- edit: `add_noise`, `auto_enhance`, `brightness_contrast`, `canvas_size`, `crop`, `crop_to_selection`, `curves`, `delete_layer`, `denoise`, `desaturate`, `detect_tilt`, `duplicate_layer`, `fill`, `filter`, `flip`, `gaussian_blur`, `gradient_fill`, `hue_saturation`, `image_size`, `invert_selection`, `levels`, `motion_blur`, `portrait_retouch`, `remove_background`, `remove_object`, `rotate`, `select_all`, `select_subject`, `set_layer`, `sharpen`, `straighten`, `transform_layer`, `upscale`, `vignette`
 - export: `export`
+- operations: `photoslop.auto-enhance`, `photoslop.portrait`
 
 ### SlopVector
 
@@ -92,9 +93,9 @@ Covered: 44 of 61 apps.
 
 - create: `new_document`
 - add: `add_image`, `add_pages`, `add_shape`, `add_text`, `insert_pdf`
-- edit: `delete_pages`, `fill_form_field`, `move_page`, `rotate_pages`, `set_metadata`
-- export: `export_pdf`
-- operations: `pdf.compress`
+- edit: `arrange_page_object`, `delete_page_object`, `delete_pages`, `duplicate_page_object`, `fill_form_field`, `move_page`, `move_page_object`, `replace_page_image`, `resize_page_object`, `rotate_page_object`, `rotate_pages`, `set_metadata`
+- export: `export_pdf`, `export_pdf_contents`
+- operations: `pdf.compress`, `pdf.extract`
 
 ### SlopLabel
 
@@ -173,7 +174,7 @@ Covered: 44 of 61 apps.
 
 - create: `build_from_edit_list`, `new_project`
 - add: `add_captions`, `add_clip`, `add_effect_layer`, `add_graphic`, `add_marker`, `add_music`, `add_title`, `add_transition`, `import_media`
-- edit: `check_edit_list`, `delete_clips`, `duplicate_clip`, `edit_title`, `look_at_frame`, `move_clip`, `picture_in_picture`, `random_edit`, `reframe`, `set_colour`, `set_in_out`, `set_sequence`, `set_source_range`, `set_speed`, `set_track`, `set_transform`, `set_volume`, `split_clip`, `trim_clip`
+- edit: `check_edit_list`, `delete_clips`, `duplicate_clip`, `edit_title`, `fit_frame`, `look_at_frame`, `move_clip`, `picture_in_picture`, `random_edit`, `reframe`, `select_all`, `select_clips`, `set_colour`, `set_in_out`, `set_sequence`, `set_source_range`, `set_speed`, `set_track`, `set_transform`, `set_volume`, `split_clip`, `trim_clip`
 - export: `export_video`
 - operations: `slopedit.edl`, `slopedit.reframe`, `slopedit.captions`, `slopedit.reel`
 

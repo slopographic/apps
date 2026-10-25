@@ -5,7 +5,10 @@
    (sel-annot.js; Del still deletes). It is placed from the selection's box on screen: above it, below when there is no
    room above (near the top edge), kept inside the viewport and above the on-screen keyboard (SlopKeyboard), and hidden
    when the selection scrolls out of the viewer or is cleared. Keyboard: Tab from the selection moves into the bar, Escape
-   dismisses it and returns focus to the page. Styles: css/selbar.css. */
+   dismisses it and returns focus to the page. Styles: css/selbar.css.
+   Other selections use the same bar: SlopSelBar.provide({ id, label(), active(), box() → client rect, build(h) → row,
+   refresh?(row), dismiss() }) adds a row shown (mode 'p:' + id) while active(), before the annotation and text rows (the
+   selected page object in Objects mode, obj-bar.js). */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, Ed = SP.editor, S = Ed._, T = S.sel, A = S.selAct, N = S.annotAct;
@@ -29,6 +32,8 @@
     ['find', 'Find', function () { return A.find(); }, 4]
   ];
 
+  var providers = [], prow = {}, shown = null; // the rows other selections add (SlopSelBar.provide), and the one shown
+  function provided() { for (var i = 0; i < providers.length; i++) if (providers[i].active()) return providers[i]; return null; }
   function editable(el) { return !!el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable); }
   function run(fn) { Promise.resolve().then(fn).catch(function (err) { console.error(err); SlopUI.toast('That did not work. ' + ((err && err.message) || '')); }); }
 
@@ -127,13 +132,14 @@
   function onDocKey(e) {
     if (!bar || bar.hidden || bar.contains(e.target) || editable(e.target)) return;
     if (e.key === 'Tab' && !e.shiftKey) {
-      var first = (mode === 'annot' ? arow : row).querySelector('button:not([hidden])');
+      var first = (shown ? prow[shown.id] : mode === 'annot' ? arow : row).querySelector('button:not([hidden])');
       if (first) { e.preventDefault(); first.focus(); }
-    } else if (e.key === 'Escape') { T.dismiss(); }
+    } else if (e.key === 'Escape') { if (shown) { shown.dismiss(); render(); } else T.dismiss(); }
   }
   /** Leaves the bar: the selection stays, the bar hides until the selection changes, and focus goes back to the page. */
   function leave() {
     if (bar.contains(document.activeElement)) document.activeElement.blur();
+    if (shown) { shown.dismiss(); render(); return; }
     if (mode === 'annot') { dismissed = Ed.selId; render(); return; }
     T.dismiss();
   }
@@ -144,12 +150,15 @@
   function render() {
     var a = N && Ed.selId && Ed.selId !== dismissed ? N.target() : null;
     if (Ed.selId !== dismissed) dismissed = null;
-    var next = a ? 'annot' : T.shown() ? 'text' : null;
+    var pv = provided(), next = pv ? 'p:' + pv.id : a ? 'annot' : T.shown() ? 'text' : null;
     if (!bar) { if (!next) return; build(); }
     if (next !== mode) closePop(false);
-    mode = next;
+    mode = next; shown = pv;
+    if (pv && !prow[pv.id]) bar.insertBefore(prow[pv.id] = pv.build(h), pop);
+    Object.keys(prow).forEach(function (k) { prow[k].hidden = !pv || pv.id !== k; });
     if (!next) { bar.hidden = true; markSeq++; setPressed(null); return; }
     row.hidden = next !== 'text'; arow.hidden = next !== 'annot';
+    if (pv) { bar.setAttribute('aria-label', pv.label()); if (pv.refresh) pv.refresh(prow[pv.id]); place(); return; }
     if (next === 'annot') { annotRow(a); place(); return; }
     bar.setAttribute('aria-label', 'Selected text');
     colour();
@@ -175,7 +184,7 @@
   /** Puts the bar above the selection, below it when there is no room above, inside the viewport. */
   function place() {
     if (!bar || !mode) return;
-    var b = mode === 'annot' ? N.box() : T.snap && T.snap.box, vr = S.viewer ? S.viewer.getBoundingClientRect() : { top: 0, bottom: innerHeight };
+    var b = shown ? shown.box() : mode === 'annot' ? N.box() : T.snap && T.snap.box, vr = S.viewer ? S.viewer.getBoundingClientRect() : { top: 0, bottom: innerHeight };
     if (!b) { bar.hidden = true; return; }
     if (b.bottom < vr.top || b.top > vr.bottom) { bar.hidden = true; return; } // the selection is scrolled out of view
     bar.hidden = false;
@@ -217,5 +226,6 @@
   var draw = S.drawSelection;
   S.drawSelection = function () { var r = draw.apply(this, arguments); render(); return r; };
   window.addEventListener('slopkeyboard', function () { if (bar && mode) place(); });
-  window.SlopSelBar = { place: place, leave: leave, update: render, mode: function () { return mode; }, isOpen: function () { return !!bar && !bar.hidden; } };
+  window.SlopSelBar = { place: place, leave: leave, update: render, mode: function () { return mode; }, isOpen: function () { return !!bar && !bar.hidden; },
+    provide: function (p) { providers.push(p); render(); } };
 })();

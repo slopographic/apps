@@ -11,7 +11,8 @@
  * Own AI account (shared/ai/cloud/): a provider connected with the person's own key is just another engine; the
  * header names it ("Claude · Claude Opus 5.5"), the foot says where requests go, and the provider chosen last comes
  * back on the next page when its key is still in this browser. It is never shared with other tabs over the bridge.
- * API: window.SlopAIPanel = { open(), close(), toggle(), send(text), use(engine), get messages(), ready, isOpen }. */
+ * API: window.SlopAIPanel = { open(), close(), toggle(), send(text), use(engine), get messages(), ready (all of the kit),
+ *   chatReady (what the chat needs: the composer works from then), isOpen }. */
 (function () {
   'use strict';
   if (window.SlopAIPanel) return;
@@ -23,9 +24,22 @@
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'panel.css'; document.head.append(css);
   const add = (src, test) => new Promise((res, rej) => { if (test && test()) return res(); const s = document.createElement('script'); s.src = new URL(src + '.js', base).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
   const sheetP = add('../ui/sheet', () => window.SlopSheet);   // a phone's bottom sheet: as soon as it is here, not after the kit
+  // The kit in two parts, each requested at once (K.load): what the chat needs (the composer works when it is in), then
+  // what waits (permission settings, the model menu, pictures), which a send also waits for. A part that fails says so.
+  const CORE = ['permissions', 'app-skills', 'apptools', 'cmdtools', 'toolbox', 'prompt', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run'];
+  const LATER = ['permissions-ui', '../ui/menubutton', 'model-menu', 'imagegen/index'];
+  K.panelKit = { CORE, LATER };
   const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), sheetP, add('../ui/resize-panel', () => window.SlopResizePanel)])
-    .then(() => window.SlopAI.loaded).then(() => K.load(['permissions', 'permissions-ui', 'app-skills', 'apptools', 'cmdtools', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run', 'model-menu', '../ui/menubutton', 'imagegen/index'])).then(() => K.imageGenReady && K.imageGenReady.catch(() => null))
-    .then(() => takeHandoff()).then(() => restoreCloud()).then(() => { if (P.pending && P.engine()) runPending(); });
+    .then(() => Promise.all([window.SlopAI.loaded, K.load(CORE)]))
+    .then(() => takeHandoff()).then(() => restoreCloud());
+  const extras = kit.then(() => K.load(LATER)).then(() => K.imageGenReady && K.imageGenReady.catch(() => null));
+  kit.then(() => extras.catch(() => null)).then(() => { if (P.pending && P.engine()) runPending(); }, () => {});
+  kit.catch((e) => { P.kitError = e; if (root) P.render(); });
+  extras.catch((e) => { if (!P.kitError) { P.kitError = e; P.kitPart = 'later'; } if (root) P.render(); });
+  const allReady = kit.then(() => extras.catch(() => null));
+  allReady.catch(() => {});   // reported in the panel (kit.catch)
+  /** A message sent before the kit is in waits for it (the composer is there at once). */
+  const sendWhenReady = (t) => kit.then(() => extras.catch(() => null)).then(() => P.send(t));
   /** A request handed over from another app (handoff.js): its conversation, a line saying so, and its task, sent as soon
    * as a model is there. */
   function takeHandoff() {
@@ -56,14 +70,14 @@
     if (root) return;
     P.toolsBox = h('input', { type: 'checkbox', checked: !!window.SlopCmd });
     P.input = h('textarea', { rows: 2, placeholder: 'Ask about ' + appName() + ', or say what to do…', 'aria-label': 'Message' });
-    P.sendBtn = h('button', { type: 'button', class: 'sap-send', 'aria-label': 'Send', onclick: () => (P.busy ? P.stop() : P.send()) }, '↑');
-    P.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!P.busy) P.send(); } if (e.key !== 'Escape') e.stopPropagation(); });
+    P.sendBtn = h('button', { type: 'button', class: 'sap-send', 'aria-label': 'Send', onclick: () => (P.busy ? P.stop() : sendWhenReady()) }, '↑');
+    P.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!P.busy) sendWhenReady(); } if (e.key !== 'Escape') e.stopPropagation(); });
     P.list = h('div', { class: 'sap-list', role: 'log', 'aria-live': 'polite' });
     P.status = h('button', { type: 'button', class: 'sap-status', title: 'Change the model' });   // the quick model menu (model-menu.js)
     P.undoBtn = h('button', { type: 'button', class: 'sap-btn sap-undo', hidden: true, onclick: () => P.undoAll() }, '↶ Undo all AI changes');
     root = h('aside', { class: 'sap ssh-panel', role: 'complementary', 'aria-label': 'Slop AI', hidden: true },
       h('header', null, h('span', { class: 'sap-logo', html: null }), h('b', null, 'Slop AI'), P.status,
-        h('button', { type: 'button', class: 'sap-gear', title: 'AI permissions', 'aria-label': 'AI permissions', onclick: () => P.settings() }, '⚙'),
+        h('button', { type: 'button', class: 'sap-gear', title: 'AI permissions', 'aria-label': 'AI permissions', onclick: () => extras.catch(() => null).then(() => P.settings()) }, '⚙'),
         h('button', { type: 'button', class: 'sap-x', 'aria-label': 'Close Slop AI', onclick: close }, '×')),
       P.list,
       h('div', { class: 'sap-bar' }, h('label', { class: 'sap-tools' }, P.toolsBox, ' Control ' + appName()), P.undoBtn),
@@ -73,7 +87,10 @@
     host = h('div', { class: 'sap-host' }, root);
     document.body.append(host);
     P.render();
-    kit.then(() => { if (K.modelMenu) K.modelMenu.attach(P); else P.status.addEventListener('click', () => P.choose()); });
+    // the model menu arrives with the later part; a tap before then opens it as soon as it is in (or the model choice)
+    const early = () => { if (!P.modelMenu) extras.catch(() => null).then(() => (P.modelMenu ? P.modelMenu.open() : P.choose())); };
+    P.status.addEventListener('click', early);
+    extras.then(() => { if (K.modelMenu) K.modelMenu.attach(P); P.status.removeEventListener('click', early); if (!P.modelMenu) P.status.addEventListener('click', () => P.choose()); }, () => {});
   }
   function fab() {
     if (!opts.button || document.querySelector('.sap-fab')) return;
@@ -104,6 +121,7 @@
     const picking = ((!P.messages.length && !P.engine()) || P.choosing) && K.picker;
     if (picking && P.pickBox && P.pickBox.isConnected) return;   // keep the model choice (and a download in progress) as it is
     P.list.textContent = ''; P.pickBox = null;
+    if (P.kitError) P.list.append(h('p', { class: 'sap-kit-error', role: 'alert' }, (P.kitPart === 'later' ? 'Part of Slop AI did not load' : 'Slop AI did not load') + ` (${P.kitError.message || P.kitError}). Check the connection, then close and open Slop AI again.`));
     if (P.undoBtn) P.undoBtn.hidden = !P.rollback;   // the button follows what can still be undone
     if (P.setting && window.SlopAIPermissions && SlopAIPermissions.renderSettings) {
       const box = h('div', { class: 'sap-empty sap-settings' });
@@ -124,7 +142,7 @@
         const box = P.pickBox = h('div', { class: 'sap-empty' });
         P.list.append(box);
         K.picker.render(box, { appName: appName(), appId: appId(), tools: () => P.toolsBox.checked, onReady: (eng) => P.use(eng), onForget: P.forgot });
-      } else P.list.append(h('div', { class: 'sap-empty' }, 'Loading…'));
+      } else if (!P.kitError) P.list.append(h('div', { class: 'sap-empty sap-loading' }, 'Loading the AI tools…'));
     }
     if (P.viewAll) P.list.append(...P.viewAll(P.messages));
     else for (const m of P.messages) P.list.append(h('div', { class: 'sap-msg ' + m.role }, m.display != null ? m.display : m.content));
@@ -156,13 +174,13 @@
   }
   function open() {
     build(); attachSheet();
-    if (!sizer) kit.then(attachSheet);   // the resize module arrives with the kit
+    if (!sizer) kit.then(attachSheet).catch(() => {});   // the resize module arrives with the kit
     root.hidden = false;
     if (sheet && sheet.isPhone()) sheet.open();
     else if (!sheet) sheetP.then(() => { attachSheet(); if (sheet && sheet.isPhone() && !root.hidden) { sheet.open(); layout(); } }).catch(() => {});
     layout(); P.renderStatus();
     setTimeout(() => P.input.focus({ preventScroll: true }), 0);
-    kit.then(P.render);
+    kit.then(P.render).catch(() => {});   // a kit that failed shows its error line (kit.catch above)
     return kit;
   }
   function close() { if (sheet && sheet.isOpen()) sheet.close(); if (root) root.hidden = true; layout(); }
@@ -171,7 +189,8 @@
 
   const start = () => { fab(); kit.then(() => { SlopAI.on('change', () => { P.renderStatus(); if (root && !P.messages.length) P.render(); }); P.renderStatus(); }).catch((e) => console.warn('Slop AI panel:', e.message)); };
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
-  window.SlopAIPanel = { open, close, toggle, send: (t) => { open(); return kit.then(() => P.send(t)); }, use: (e) => kit.then(() => P.use(e)),
-    get messages() { return P.messages; }, get isOpen() { return !!root && !root.hidden; }, ready: kit, _p: P };
+  window.SlopAIPanel = { open, close, toggle, send: (t) => { open(); return sendWhenReady(t); }, use: (e) => kit.then(() => P.use(e)),
+    get messages() { return P.messages; }, get isOpen() { return !!root && !root.hidden; },
+    ready: allReady, chatReady: kit, _p: P };
   K.panel = P;
 })();

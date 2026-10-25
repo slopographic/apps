@@ -98,6 +98,9 @@
 
     /* touch: the first finger goes to the app (it may draw); a second finger takes over as pinch/pan */
     function touchDown(e) {
+      // The first finger of a touch: no other is down (a lift the browser never sent, to an element the app removed,
+      // must not make this finger the second one of a pinch and take it from the app).
+      if (e.isPrimary) { for (const id of touches.keys()) owned.delete(id); touches.clear(); pinch = null; }
       touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
       const b = cfg();
       if (touches.size === 2 && (b.pinch === 'zoom' || b.touchPan)) {

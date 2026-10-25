@@ -29,13 +29,15 @@
   function cmd(id, title, group, keys, run, when, extra) {
     return Object.assign({ id: id, title: title, group: group, keys: keys || [], run: run, when: when }, extra || {});
   }
+  /** A page object is selected in Objects mode (editor/obj-mode.js): the arrows, Delete and Escape are its. */
+  function objSel() { return pg() && idle() && !!Ed.objMode && !!(Ed._.obj && Ed._.obj.selected()) && !Ed.getSelected(); }
   function all() {
     var L = [
       cmd('file.open', 'Open PDFs or images…', 'File', ['Mod+O'], function () { A.openDialog(); }, noMenu, { keywords: ['add', 'import', 'merge'] }),
       cmd('file.drive', 'Open from Slop Drive…', 'File', [], function () { A.openFromDrive(); }, function () { return !!window.SlopHub && !SP.offline; }),
       cmd('file.sample', 'Try the sample PDF', 'File', [], function () { A.loadSample(); }),
       cmd('file.fonts', 'Fonts…', 'File', [], function () { A.openFonts(); }, has, { keywords: ['font', 'typeface', 'missing', 'embedded'] }),
-      cmd('file.extractAssets', 'Extract assets…', 'File', [], function () { A.extractAssets(); }, has, { keywords: ['images', 'fonts', 'save', 'export'] }),
+      cmd('file.extractAssets', 'Extract all…', 'File', [], function () { A.extractAssets(); }, has, { keywords: ['images', 'fonts', 'attachments', 'embedded files', 'text', 'zip', 'save', 'export', 'assets'] }),
       cmd('file.save', 'Save', 'File', ['Mod+S'], function () { if (window.SlopHub && !SP.offline) A.saveToDrive(); else A.download(); }, function () { return has() && noMenu(); }, { keywords: ['save', 'drive'] }),
       cmd('file.download', 'Download PDF', 'File', [], function () { A.download(); }, function () { return has() && noMenu(); }, { keywords: ['save', 'export'] }),
       cmd('file.protect', 'Protect with password…', 'File', [], function () { A.protect(); }, function () { return has() && noMenu(); }, { keywords: ['password', 'encrypt', 'lock', 'secure', 'protect'] }),
@@ -46,6 +48,7 @@
       cmd('file.rename', 'Rename…', 'File', [], function () { A.rename(null); }, null, { keywords: ['name', 'title'] }),
       cmd('file.closeAll', 'Close all', 'File', [], function () { A.closeAll(); }, has),
       cmd('edit.text', 'Edit text in place', 'Edit', ['Mod+E'], function () { Ed.toggleEditText(); }, pg, { keywords: ['replace', 'change', 'type over'] }),
+      cmd('edit.objects', 'Edit page objects (images, artwork)', 'Edit', ['O'], function () { Ed.toggleObjects(); }, function () { return pg() && idle(); }, { keywords: ['move image', 'resize', 'rotate', 'logo', 'vector', 'objects', 'arrange'], checked: function () { return !!Ed.objMode; } }),
       cmd('edit.find', 'Find in document…', 'Edit', ['Mod+F'], function () { SlopPdfFind.open(); }, function () { return has() && noMenu(); }, { keywords: ['search', 'highlight', 'text'] }),
       cmd('edit.undo', 'Undo', 'Edit', ['Mod+Z'], function () { A.undo(); }, function () { return E.canUndo() && !inField() && noMenu(); }),
       cmd('edit.redo', 'Redo', 'Edit', ['Shift+Mod+Z', 'Mod+Y'], function () { A.redo(); }, function () { return E.canRedo() && !inField() && noMenu(); }),
@@ -74,8 +77,8 @@
       cmd('view.grid', 'All pages (organizer)', 'View', [], function () { A.showGrid(); }, has, { checked: function () { return A.mode !== 'page'; } }),
       cmd('view.page', 'Page view', 'View', ['Enter'], function () { A.ensurePage(); }, function () { var a = document.activeElement; return grid() && idle() && !(a && a.closest && a.closest('.thumb, button, a')); }, { checked: function () { return A.mode === 'page'; } }),
       cmd('annot.editText', 'Edit selected text', 'Annotation', ['Enter'], function () { Ed.editSelectedText(); }, function () { var a = Ed.getSelected(); return pg() && idle() && !!a && a.type === 'text'; }),
-      cmd('view.next', 'Next page', 'View', ['PageDown', 'ArrowRight'], function () { A.gotoPage(1); }, function () { return pg() && idle() && !Ed.getSelected(); }),
-      cmd('view.prev', 'Previous page', 'View', ['PageUp', 'ArrowLeft'], function () { A.gotoPage(-1); }, function () { return pg() && idle() && !Ed.getSelected(); }),
+      cmd('view.next', 'Next page', 'View', ['PageDown', 'ArrowRight'], function () { A.gotoPage(1); }, function () { return pg() && idle() && !Ed.getSelected() && !objSel(); }),
+      cmd('view.prev', 'Previous page', 'View', ['PageUp', 'ArrowLeft'], function () { A.gotoPage(-1); }, function () { return pg() && idle() && !Ed.getSelected() && !objSel(); }),
       cmd('view.continuous', 'Continuous scroll', 'View', [], function () { Ed.setLayout('continuous'); }, function () { return pg() && idle(); }, { checked: function () { return Ed.layoutMode === 'continuous'; } }),
       cmd('view.single', 'Single page layout', 'View', [], function () { Ed.setLayout('single'); }, function () { return pg() && idle(); }, { checked: function () { return Ed.layoutMode === 'single'; } }),
       cmd('view.two', 'Two pages side by side', 'View', [], function () { Ed.setLayout('two'); }, function () { return pg() && idle(); }, { checked: function () { return Ed.layoutMode === 'two'; } }),
@@ -99,6 +102,14 @@
         L.push(cmd('annot.nudge' + d[2] + (s[0] > 1 ? '10' : ''), 'Nudge annotation ' + d[2].toLowerCase() + (s[0] > 1 ? ' (10 pt)' : ''), 'Annotation', [s[1] + 'Arrow' + d[2]], function () { Ed.nudgeSelected(d[0] * s[0], d[1] * s[0]); }, function () { return pg() && idle() && !!Ed.getSelected(); }, { repeat: true, hidden: true }));
       });
     });
+    // a selected page object (Objects mode, editor/obj-bar.js): arrows nudge, Delete deletes, Escape lets go
+    [[-1, 0, 'Left'], [1, 0, 'Right'], [0, -1, 'Up'], [0, 1, 'Down']].forEach(function (d) {
+      [[1, ''], [10, 'Shift+']].forEach(function (s) {
+        L.push(cmd('obj.nudge' + d[2] + (s[0] > 1 ? '10' : ''), 'Nudge object ' + d[2].toLowerCase() + (s[0] > 1 ? ' (10 pt)' : ''), 'Object', [s[1] + 'Arrow' + d[2]], function () { Ed._.obj.act.nudge(d[0] * s[0], d[1] * s[0]); }, objSel, { repeat: true, hidden: true }));
+      });
+    });
+    L.push(cmd('obj.delete', 'Delete object', 'Object', ['Delete', 'Backspace'], function () { Ed._.obj.act.remove(); }, objSel, { hidden: true }),
+      cmd('obj.escape', 'Let go of the object', 'Object', ['Escape'], function () { Ed._.obj.select(null); }, objSel, { hidden: true }));
     if (!SP.offline && window.SlopAITools) L.push(
       cmd('tools.ocrPage', 'Recognise text on this page', 'Tools', [], function () { A.recognisePage(); }, has, { keywords: ['ocr', 'scan', 'read text'] }),
       cmd('tools.ocrAll', 'Recognise text on all pages', 'Tools', [], function () { A.recogniseAll(); }, has, { keywords: ['ocr', 'scan', 'read text'] }));
@@ -110,8 +121,8 @@
     if (!C) { console.warn('Slop PDF: SlopCmd is missing; keyboard shortcuts are off'); return; }
     C.init({ app: 'pdf' });
     C.register(all());
-    // the assistant's commands with arguments (ai-pages.js, ai-commands.js), loaded when the AI panel first asks
-    if (C.provide && !SP.offline) C.provide({ prepare: function () { return SP.aiPdf ? null : ['../shared/commands/sources.js', 'js/ui/ai-pages.js', 'js/ui/ai-commands.js'].reduce(function (p, src) {
+    // the assistant's commands with arguments (ai-pages.js, ai-commands.js, ai-objects.js), loaded when the AI panel first asks
+    if (C.provide && !SP.offline) C.provide({ prepare: function () { return SP.aiPdf ? null : ['../shared/commands/sources.js', 'js/ui/ai-pages.js', 'js/ui/ai-commands.js', 'js/ui/ai-objects.js'].reduce(function (p, src) {
       return p.then(function () { return src.indexOf('sources') >= 0 && window.SlopCmdSources ? null : new Promise(function (res, rej) {
         var s = document.createElement('script'); s.src = new URL(src, location.href).href; s.async = false;
         s.onload = res; s.onerror = function () { rej(new Error('Could not load ' + src)); }; document.head.append(s);

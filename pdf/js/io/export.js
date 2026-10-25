@@ -186,9 +186,9 @@
     push(ctx.trailerInfo.Root); push(ctx.trailerInfo.Info);
     while (stack.length) {
       var o = stack.pop();
-      if (o instanceof L.PDFDict) o.entries().forEach(function (e) { push(e[1]); });
+      if (o instanceof L.PDFDict) o.entries().forEach(function (e) { push(e[1]); }); // compat-ok: pdf-lib returns an array here, not an iterator
       else if (o instanceof L.PDFArray) o.asArray().forEach(push);
-      else if (o instanceof L.PDFStream) o.dict.entries().forEach(function (e) { push(e[1]); });
+      else if (o instanceof L.PDFStream) o.dict.entries().forEach(function (e) { push(e[1]); }); // compat-ok: pdf-lib returns an array here, not an iterator
     }
     ctx.enumerateIndirectObjects().forEach(function (e) { if (!keep.has(e[0].toString())) ctx.delete(e[0]); });
   };
@@ -215,7 +215,7 @@
       var vals = st.forms[fid];
       if ((vals && Object.keys(vals).length) || st.flattenForms) E.fillForm(src, vals || {}, !!st.flattenForms);
       prepareLinks(src);
-      copied.set(fid, await out.copyPages(src, entry[1]));
+      copied.set(fid, await E.copyPagesWith(out, src, entry[1], fid)); // one copier per file: its layers and attachments follow (export-oc.js)
       srcDocs.set(fid, src);
       if (opts.onProgress) opts.onProgress(++step / steps);
     }
@@ -249,6 +249,7 @@
     out.getPages().forEach(function (pg) { E.stripPageExtras(pg); if (redacted) E.pruneXObjects(out, pg); });
     if (!st.flattenForms) rebuildAcroForm(out, srcDocs);
     if (opts.meta !== false) E.applyMeta(out);
+    E.carryCatalog(out);
     E._gc(out);
     return out.save({ useObjectStreams: true, updateFieldAppearances: false });
   };

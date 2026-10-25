@@ -54,6 +54,7 @@
     ['commands', 'search', 'palette', 'recorder', 'keymap'].forEach(function (n) { run(S['shared/commands/' + n + '.js'], n + '.js'); });
     // No Slop Hub offline: Slop Drive lives with the website's origin, not with a local file.
     run(S['vendor/pdf-lib/pdf-lib.min.js'], 'pdf-lib.min.js');
+    run(S['shared/compat/stream.js'], 'stream.js'); // before pdf.js: Safari has no for-await over streams
     run(B.toClassic(S['vendor/pdfjs/pdf.min.js'], 'pdfjsLib'), 'pdf.min.js');
     var wsrc = B.toClassic(S['vendor/pdfjs/pdf.worker.min.js'], 'pdfjsWorker');
     try {

@@ -22,12 +22,13 @@
     if (HAS[n] && HAS[n]()) return res();
     const fail = () => rej(new Error('Could not load shared/ai/' + n + '.js'));
     const old = document.querySelector(`script[data-slopai="${n}"]`);
-    if (old) { old.addEventListener('load', () => res()); old.addEventListener('error', fail); return; }   // still loading
+    if (old) { if (old.dataset.loaded) return res(); old.addEventListener('load', () => res()); old.addEventListener('error', fail); return; }   // still loading
     const s = document.createElement('script'); s.src = base + n + '.js'; s.dataset.slopai = n; s.async = false;
-    s.onload = () => res(); s.onerror = fail;
+    s.onload = () => { s.dataset.loaded = '1'; res(); }; s.onerror = fail;
     document.head.append(s);
   });
-  K.imageGenReady = FILES.reduce((p, n) => p.then(() => one(n)), Promise.resolve())
+  // all requested at once; async = false runs them in this order (as SlopAIKit.load does)
+  K.imageGenReady = Promise.all(FILES.map(one))
     .then(() => K.imageGen.choose().catch(() => null))
     .then(() => K.imageGen);
   K.imageGenReady.catch((e) => console.warn('Slop AI pictures:', e && e.message));

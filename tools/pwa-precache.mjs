@@ -99,7 +99,19 @@ const libraryFiles = JSON.parse(await readFile(path.join(ROOT, 'shared/fonts/lib
   .flatMap((f) => [`shared/fonts/library/${f.file}`, `shared/fonts/library/${f.licenceFile}`, ...(f.pdf ? [`shared/fonts/library/${f.pdf}`] : [])]);
 // The sample files of "Try it with a sample" (SlopSamples.asset fetches them at run time), so a sample works offline too.
 const samples = (await readdir(path.join(ROOT, 'assets/samples')).catch(() => [])).map((f) => `assets/samples/${f}`);
-const roots = [...(await pageRoots()), ...EXTRA, ...LIBRARY, ...new Set(libraryFiles), ...samples];
+// The Slop AI panel's kit (shared/ai/panel.js loads it at run time, so no page names it): every script and stylesheet
+// under shared/ai/ and the shared parts it loads, so the panel opens at once on a second visit and offline.
+async function aiKit(dir = 'shared/ai') {
+  const out = [];
+  for (const e of await readdir(path.join(ROOT, dir), { withFileTypes: true })) {
+    const p = `${dir}/${e.name}`;
+    if (e.isDirectory()) out.push(...(await aiKit(p)));
+    else if (/\.(js|css)$/.test(e.name) && !/\.test\./.test(e.name)) out.push(p);
+  }
+  return out;
+}
+const AI_KIT_SHARED = ['shared/commands/args.js', 'shared/ui/sheet.js', 'shared/ui/resize-panel.js', 'shared/ui/menubutton.js', 'shared/firstrun/notice.js'];
+const roots = [...(await pageRoots()), ...EXTRA, ...LIBRARY, ...new Set(libraryFiles), ...samples, ...(await aiKit()), ...AI_KIT_SHARED];
 for (const r of roots) await visit(r);
 const list = [...files].sort();
 for (const m of missing) console.warn('not on disk, left out:', m);

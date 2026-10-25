@@ -33,3 +33,12 @@ for (const a of built) {
     }
   });
 }
+
+// Safari cannot for-await over a stream, which pdf.js's getTextContent does: the offline Slop PDF runs the fill first.
+// Covers: pdf/js/io/build.js, shared/compat/stream.js
+test('pdf: the offline file carries shared/compat/stream.js and runs it before pdf.js', () => {
+  const f = APPS.pdf.files, s = f.indexOf('shared/compat/stream.js');
+  assert.ok(s > -1 && s < f.indexOf('vendor/pdfjs/pdf.min.js'));
+  const boot = readFileSync(path.join(ROOT, 'pdf/js/io/build.js'), 'utf8');
+  assert.ok(boot.indexOf("run(S['shared/compat/stream.js']") > -1 && boot.indexOf("run(S['shared/compat/stream.js']") < boot.indexOf("S['vendor/pdfjs/pdf.min.js']"));
+});

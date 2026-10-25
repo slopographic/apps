@@ -5,7 +5,11 @@
  *   back to idle; arm from review starts a new recording, the old one is dropped by the page)
  *   const m = SlopRec.state.create();
  *   m.arm(3, now) → 'countdown'; m.left(now) → whole seconds still to count; m.go(now); m.pause(now); m.resume(now);
- *   m.stop(now); m.elapsed(now) → ms recorded, pauses left out; m.state; m.can(action); m.on(fn) (fn(state, prev))
+ *   m.stop(now); m.elapsed(now) → ms recorded, pauses left out; m.paused(now) → ms spent paused (the pause going on
+ *   included); m.state; m.can(action); m.on(fn) (fn(state, prev))
+ * go(now) takes the time the recorder was started (record.js passes the moment it called MediaRecorder.start, which can be
+ * well before the browser's start event on a busy machine: the file counts from then, so the timer does too). Times that
+ * go backwards (a pause earlier than the start) are treated as no time. 
  * An action that is not allowed in the current state throws an Error that says so ("Cannot pause while idle"). */
 (function (root, factory) {
   const api = factory();
@@ -57,15 +61,17 @@
       go(now) { num(now); move('go', now); startedAt = now; pausedMs = 0; return state; },
       cancel(now) { return move('cancel', num(now)); },
       pause(now) { num(now); move('pause', now); pausedAt = now; return state; },
-      resume(now) { num(now); move('resume', now); pausedMs += now - pausedAt; pausedAt = 0; return state; },
+      resume(now) { num(now); move('resume', now); pausedMs += Math.max(0, now - pausedAt); pausedAt = 0; return state; },
       stop(now) {
         num(now);
-        if (state === 'paused') { pausedMs += now - pausedAt; pausedAt = 0; }
+        if (state === 'paused') { pausedMs += Math.max(0, now - pausedAt); pausedAt = 0; }
         move('stop', now);
         stoppedAt = now;
         return state;
       },
       discard(now) { return move('discard', num(now)); },
+      /** The time spent paused so far, in ms (all pauses, the one going on included). */
+      paused: (now) => (startedAt == null ? 0 : pausedMs + (state === 'paused' ? Math.max(0, num(now) - pausedAt) : 0)),
       /** The time recorded so far, in ms, without the pauses. */
       elapsed(now) {
         if (startedAt == null) return 0;

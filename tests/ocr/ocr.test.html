@@ -106,6 +106,15 @@
       const second = squash((await (await doc.getPage(2)).getTextContent()).items.map((i) => i.str).join(''));
       expect(second).toContain(squash('Second page'));
     });
+    // Covers: ocr/js/sources.js (pdf.js through shared/compat/pdfjs.js, with the stream fill Safari needs)
+    it('openFile reads a PDF\'s pages with pdf.js loaded through shared/compat/pdfjs.js', async () => {
+      const { openFile } = await import('../../ocr/js/sources.js');
+      const mk = async (t) => { const c = sample([t], 600); return { text: t, lines: [line(t, 30)], w: c.width, h: c.height, image: await jpegBytes(c) }; };
+      const blob = await searchablePdf([await mk('One'), await mk('Two')], {});
+      const pages = await openFile(new File([blob], 'two.pdf', { type: 'application/pdf' }));
+      expect(pages.length).toBe(2);
+      expect(typeof (window.SlopCompat && window.SlopCompat.readStream)).toBe('function');
+    });
   });
 
   // Part 2: the page. The frame loads the real page with the real aitools scripts.

@@ -95,6 +95,13 @@
     if (x > TL.w - 30 || x < 0) { TL.scrollX = Math.max(0, t - (x < 0 ? TL.w * 0.2 : 30) / TL.pps); TL.clampScroll(); }
   };
   TL.setTool = function (tool) { TL.tool = tool; SE.emit('tool', {}); TL.dirty(); };
+  /** Select mode (Select several; a long press on a clip turns it on): taps add and remove clips, a drag from empty
+   *  space draws a selection box, also with a finger (timeline/input.js). */
+  TL.multi = false;
+  TL.setMulti = function (on) {
+    TL.multi = !!on; SE.emit('tool', {}); TL.dirty();
+    if (SE.app && SE.app.status) SE.app.status(on ? 'Select several: tap clips to add or remove them, or drag a box from an empty spot' : '');
+  };
   TL.toggleSnap = function () { TL.snap = !TL.snap; U.store.set('snap', TL.snap); SE.emit('tool', {}); SlopUI.toast('Snapping ' + (TL.snap ? 'on' : 'off')); };
   /** Snap a time (seconds) to edit points within 8 px when snapping is on. */
   TL.snapT = function (t, skip, force) {

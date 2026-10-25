@@ -30,3 +30,12 @@ test('the sample files of "Try it with a sample" are cached for offline use', ()
   assert.ok(list.includes("'/assets/samples/moon-landing.ogg'"), 'the Transcribe sample');
   assert.ok(list.includes("'/shared/samples/samples.js'"), 'the sample maker');
 });
+
+// "AI takes time to load on first load on all pages" (an iPhone): the panel's kit is loaded at run time, so no page names
+// it; the precache list carries all of it, so the panel opens from the cache after the first visit.
+// Covers: tools/pwa-precache.mjs
+test('the Slop AI panel kit (shared/ai/ and the parts it loads) is precached', () => {
+  const list = ['sw-precache.js', 'sw-precache-2.js', 'sw-precache-3.js'].map((f) => { try { return readFileSync(path.join(ROOT, f), 'utf8'); } catch (e) { return ''; } }).join('\n');
+  for (const f of ['shared/ai/panel.js', 'shared/ai/panel.css', 'shared/ai/panel-run.js', 'shared/ai/picker.js', 'shared/ai/model-menu.js', 'shared/ai/permissions-ui.js',
+    'shared/ai/cloud/connect.js', 'shared/ai/imagegen/index.js', 'shared/ui/menubutton.js', 'shared/commands/args.js']) assert.ok(list.includes(`'/${f}'`), f);
+});

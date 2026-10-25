@@ -17,10 +17,7 @@ export const isSupported = (f) => isPdf(f) || /^image\//.test(f.type) || (!f.typ
 
 function pdfjs() {
   if (!pdfjsP) {
-    pdfjsP = import(PDFJS + 'pdf.min.js').then((lib) => {
-      lib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js';
-      return lib;
-    }).catch((e) => { pdfjsP = null; throw e; });
+    pdfjsP = import(new URL('../../shared/compat/pdfjs.js', PDFJS).href).then((m) => m.loadPdfjs(PDFJS)).catch((e) => { pdfjsP = null; throw e; });
   }
   return pdfjsP;
 }

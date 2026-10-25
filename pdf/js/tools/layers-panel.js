@@ -1,6 +1,7 @@
 /* Slop PDF — the Layers dock section: the layers of the page in view (or the first selected page in the grid), top layer
    first. Each row: select, show or hide, lock or unlock, move up or down, delete. Edits are undoable commands
-   (editor/layers-ops.js). Classic script. */
+   (editor/layers-ops.js). Under them, the PDF's own layers (optional content groups: show, hide, delete; tools/ocg-panel.js).
+   Classic script. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, A = SP.app, O = SP.organizer, L = SP.layers, D = SP.dock, h = U.h;
@@ -56,7 +57,7 @@
     body.appendChild(scopeTabs());
     if (scope === 'all') {
       var withLayers = E.state.pages.filter(function (p) { return (p.annots || []).length; });
-      if (!withLayers.length) { body.appendChild(h('p', { class: 'pp-note' }, 'No layers in this document yet. Text, shapes, highlights and images you add become layers, top first.')); return; }
+      if (!withLayers.length) { body.appendChild(h('p', { class: 'pp-note' }, 'No layers in this document yet. Text, shapes, highlights and images you add become layers, top first.')); ocg(body); return; }
       body.appendChild(h('p', { class: 'pp-note' }, withLayers.length + (withLayers.length === 1 ? ' page' : ' pages') + ' with layers'));
       E.state.pages.forEach(function (p) {
         if (!(p.annots || []).length) return;
@@ -71,7 +72,10 @@
       pageRows(body, p);
     }
     body.appendChild(h('p', { class: 'pp-hint lyr-hint' }, 'Hidden layers are not drawn or exported. Locked layers cannot be moved, edited or deleted.'));
+    ocg(body);
   }
+  /** The PDF's own layers (optional content groups, tools/ocg-panel.js, loaded after the first paint). */
+  function ocg(body) { if (SP.ocgPanel && E.state.pages.length) SP.ocgPanel(body); }
   D.add({
     id: 'layers', title: 'Layers', open: true, render: render,
     meta: function () { var pid = pageId(), p = pid && E.pageById(pid); return p && p.annots && p.annots.length ? String(p.annots.length) : ''; },

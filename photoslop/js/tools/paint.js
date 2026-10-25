@@ -35,8 +35,8 @@ defTool({ id: 'clone', name: 'Clone Stamp Tool', key: 'S', icon: ICON('M9 3h6v6l
   coalesce: true,
   brushCursor() { return T.clone.size; },
   down(p, e) {
-    if (e.altKey) { this.src = { x: p.x, y: p.y }; this.off = null; toast('Clone source set'); return; }
-    if (!this.src) { toast('Alt-click (Option-click) to set a clone source first'); return; }
+    if (takeSource(this, p, e, 'Clone')) return;
+    if (!this.src) { toast('Alt-click (Option-click), or tap Set source, to set a clone source first'); return; }
     const L = editableLayer(); if (!L) return;
     const Lc = coverDoc(L), o = T.clone;
     if (!T.clone.aligned || !this.off) this.off = { x: this.src.x - p.x, y: this.src.y - p.y };

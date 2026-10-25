@@ -33,21 +33,31 @@
       const { W, D, R } = await open();
       R.settings.set({ source: 'screen', countdown: 0, mic: false, systemAudio: true });
       expect(footer(D)[0]).toBe('Record');
+      // Every time below is read from the app's own clock just before and after each call, so the checks hold however
+      // much a busy machine stretches the sleeps or delays the recorder's start event (once 1.9 s, all of it in the file).
+      const now = () => W.performance.now(), t0 = now();
       await R.app.record();
-      const t0 = W.performance.now();
+      const t1 = now();
       expect(R.app.state()).toBe('recording');
       expect(D.getElementById('rc-live').hidden).toBe(false);
       expect(footer(D)).toEqual(['Stop', 'Pause']);
       await sleep(1100);
-      R.app.pause();
+      const p0 = now(); R.app.pause(); const p1 = now();
       expect(D.getElementById('rc-badge').dataset.state).toBe('paused');
       await sleep(700);
-      R.app.resume();
+      const r0 = now(); R.app.resume(); const r1 = now();
       await sleep(1000);
-      const wall = W.performance.now() - t0, rec = await R.app.stop();
+      const s0 = now(), stopping = R.app.stop(), s1 = now(), rec = await stopping;
       expect(R.app.state()).toBe('review');
-      expect(rec.ms).toBeGreaterThan(1700);
-      expect(rec.ms).toBeLessThan(wall - 500);   // about 2.1 s recorded: the 0.7 s pause is left out (a busy machine stretches both)
+      // the timer: the pause counted as a pause, and the recording from MediaRecorder.start (inside record()) to Stop without it
+      expect(rec.pausedMs).toBeGreaterThan(r0 - p1 - 1);
+      expect(rec.pausedMs).toBeLessThan(r1 - p0 + 1);
+      expect(rec.elapsed).toBeGreaterThan(s0 - t1 - rec.pausedMs - 1);
+      expect(rec.elapsed).toBeLessThan(s1 - t0 - rec.pausedMs + 1);
+      // the file, measured from its own frames: as long as the timer, so the 0.7 s pause is not in it. A frame's worth either
+      // way: the file starts at the first frame after start and ends one frame (estimated, at most 0.1 s) after its last one;
+      // the 1 s timeslice adds nothing (stop flushes the last chunk). Seen within 40 ms, also with --jobs=3.
+      expect(Math.abs(rec.ms - rec.elapsed)).toBeLessThan(150);
       const bytes = new Uint8Array(await rec.blob.arrayBuffer());
       expect(Math.abs(R.webm.readDuration(bytes) - rec.ms)).toBeLessThan(1);
       const p = await played(W, rec.blob);

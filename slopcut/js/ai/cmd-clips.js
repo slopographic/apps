@@ -126,13 +126,33 @@
       args: [{ name: 'track', type: 'string', required: true, maxLength: 10, description: 'V1… or A1…' }, { name: 'mute', type: 'boolean' }, { name: 'solo', type: 'boolean' }, { name: 'hide', type: 'boolean' }, { name: 'lock', type: 'boolean' }],
       run: (a) => SE.change('Track', (p) => { const t = M.track(p, AI.track(p, a.track)); for (const k of ['mute', 'solo', 'hide', 'lock']) if (a[k] != null) t[k] = a[k]; return `${t.name}: ${['mute', 'solo', 'hide', 'lock'].filter((k) => t[k]).join(', ') || 'all switches off'}.`; }) },
     { id: 'cut.transform', tool: 'set_transform', title: 'Position, scale, crop…', group: 'Clip', prefill: sel,
-      description: 'Place a picture clip: x and y in pixels from the frame centre, scale (1 = fitted to the frame), rotation in degrees, opacity 0–1, crop of each side as a fraction 0–0.9.',
-      args: [CLIP, ...['x', 'y'].map((n) => ({ name: n, type: 'number', min: -20000, max: 20000 })), { name: 'scale', type: 'number', min: 0.01, max: 20 }, { name: 'rotation', type: 'number', min: -3600, max: 3600 },
+      description: 'Place a picture clip: x and y in pixels from the frame centre, scale (1 = fitted to the frame, up to 1000 = 100 000 %), rotation in degrees, opacity 0–1, crop of each side as a fraction 0–0.9. fit_frame fills or fits the frame in one step.',
+      args: [CLIP, ...['x', 'y'].map((n) => ({ name: n, type: 'number', min: -20000, max: 20000 })), { name: 'scale', type: 'number', min: SE.fit.SCALE.min, max: SE.fit.SCALE.max }, { name: 'rotation', type: 'number', min: -3600, max: 3600 },
         { name: 'opacity', type: 'number', min: 0, max: 1 }, ...['crop_left', 'crop_top', 'crop_right', 'crop_bottom'].map((n) => ({ name: n, type: 'number', min: 0, max: 0.9 }))],
       run: (a) => {
         const id = AI.clip(a.clip).id, MAP = { x: 'x', y: 'y', scale: 'scale', rotation: 'rot', opacity: 'opacity', crop_left: 'cropL', crop_top: 'cropT', crop_right: 'cropR', crop_bottom: 'cropB' };
         return SE.change('Transform', (p) => { const c = M.clip(p, id); for (const [k, f] of Object.entries(MAP)) if (a[k] != null) c[f] = a[k]; return said('Placed', p, [id]); });
       } },
+    { id: 'cut.fitFrame', tool: 'fit_frame', title: 'Fill or fit the frame…', group: 'Clip', prefill: () => ({ clips: SE.app.selectedIds().join(',') || 'selected' }),
+      description: 'Scale and centre picture clips so the visible (cropped) picture covers the whole frame with no gaps (fill, aspect kept, edges cut) or fits inside it (fit). Resets rotation.',
+      args: [{ name: 'clips', type: 'string', maxLength: 4000, default: 'selected', description: 'clip ids, "selected" or "all"' }, { name: 'mode', type: 'enum', values: ['fill', 'fit'], default: 'fill' }],
+      run: (a) => {
+        const ids = AI.clips(a.clips).filter((id) => { const c = M.clip(SE.doc, id); return c && c.kind !== 'audio' && c.kind !== 'effect'; });
+        if (!ids.length) throw new Error('None of those clips has a picture.');
+        return SE.change(a.mode === 'fit' ? 'Fit frame' : 'Fill frame', (p) => { for (const id of ids) { const c = M.clip(p, id); SE.fit.clip(p, c, c.media && M.media(p, c.media), a.mode); } return said(a.mode === 'fit' ? 'Fitted' : 'Filled the frame with', p, ids); });
+      } },
+    { id: 'cut.select', tool: 'select_clips', title: 'Select clips…', group: 'Edit',
+      description: 'Select clips on the timeline (later commands with clip "selected" act on them). mode: replace the selection, add to it or remove from it.',
+      args: [{ name: 'clips', type: 'string', maxLength: 4000, required: true, description: 'clip ids from list_clips, or "all"' }, { name: 'mode', type: 'enum', values: ['replace', 'add', 'remove'], default: 'replace' }],
+      run: (a) => {
+        const ids = AI.clips(a.clips), cur = new Set(a.mode === 'replace' ? [] : SE.app.selectedIds());
+        for (const id of ids) { if (a.mode === 'remove') cur.delete(id); else cur.add(id); }
+        SE.app.select([...cur]);
+        return `${cur.size} clip${cur.size === 1 ? '' : 's'} selected${cur.size ? ': ' + [...cur].join(', ') : ''}.`;
+      } },
+    { id: 'cut.selectAll', tool: 'select_all', title: 'Select every clip', group: 'Edit', args: [],
+      description: 'Select every clip on the timeline.',
+      run: () => { SE.app.select(SE.doc.clips.map((c) => c.id)); return `${SE.app.sel.size} clips selected.`; } },
     { id: 'cut.pip', tool: 'picture_in_picture', title: 'Picture in picture…', group: 'Clip', prefill: sel,
       description: 'Shrink a clip into a corner over the clips below it (put it on V2 or higher). corner: tl, tr, bl, br or c.',
       args: [CLIP, { name: 'corner', type: 'enum', values: ['tl', 'tr', 'bl', 'br', 'c'], default: 'br' }, { name: 'scale', type: 'number', min: 0.1, max: 1, default: 0.33, description: 'size as a fraction of the frame' },
