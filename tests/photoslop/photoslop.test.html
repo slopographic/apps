@@ -234,7 +234,7 @@
     it('confirm resolves from the buttons', async () => {
       const p = W.SlopUI.confirm('Sure?', 'Really?', 'Yes');
       await waitFor(() => W.document.querySelector('.sui-dlg'));
-      W.document.querySelector('.sui-primary').click();
+      W.document.querySelector('.sui-dlg .sui-primary').click();   // the dialog's own (Export at the panels' foot is primary too)
       expect(await p).toBe(true);
     });
   });

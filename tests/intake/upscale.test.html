@@ -52,13 +52,14 @@
       W.SlopUI.pickFiles = async () => [f];
       await through('picker', () => D.getElementById('up-open').click(), 'a.png');
     }, { timeout: 40000 });
-    it("the zone's Choose files; a second file is refused with its reason", async () => {
-      const files = [await png('b.png'), await png('c.png')];
+    it("the zone's Choose files takes several: each one joins the list, the last is shown", async () => {
+      const files = [await png('b.png'), await png('c.png')], before = W.SlopUpscale.app.S.items.length;
       seen = []; events = [];
       const i = D.querySelector('#up-drop input[type=file]'); i.files = dtOf(files).files; i.dispatchEvent(new W.Event('change'));
       await waitFor(() => events.some((e) => e[0] === 'after'));
-      expect(seen).toEqual(['picker']);
-      expect(openName()).toBe('b.png');
+      expect(seen).toEqual(['picker', 'picker']);
+      expect(W.SlopUpscale.app.S.items.length).toBe(before + 2);
+      expect(openName()).toBe('c.png');
     });
     it('a drop on the stage', async () => {
       const f = await png('d.png');

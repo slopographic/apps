@@ -9,6 +9,8 @@
   <meta name="description" content="Blur the background of a portrait with the segmentation model Slop Isolate uses. Runs on your device, with a strength slider.">
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../aitools.css">
+  <link rel="stylesheet" href="../../shared/frame/frame.css">
+  <link rel="stylesheet" href="../frame.css">
 </head>
 <body>
   <header class="ai-top">
@@ -19,10 +21,10 @@
     <div id="gate" class="ai-stack" aria-live="polite"></div>
     <section id="ui" class="ai-stack" hidden>
       <div id="drop" class="ai-drop">Drop a portrait here, or <button type="button" id="chooseFile" class="ai-choose">choose a file</button><br><span class="ai-meta">The person stays sharp; the background blurs. The model is the one Slop Isolate uses (bundled, no download).</span></div>
-      <div class="ai-field"><label for="strength">Blur strength: <span id="sv">50</span></label><input id="strength" type="range" min="0" max="100" value="50" disabled></div>
+      <div class="ai-field" data-side="settings"><label for="strength">Blur strength: <span id="sv">50</span></label><input id="strength" type="range" min="0" max="100" value="50" disabled></div>
       <p id="msg" class="ai-meta" role="status"></p>
       <div class="ai-panel"><canvas id="view" class="ai-img" aria-label="Preview"></canvas></div>
-      <div class="ai-act"><button id="dl" type="button" disabled>Download PNG</button></div>
+      <div class="ai-act"><button id="dl" type="button" class="ai-pri" disabled data-side="main">Download PNG</button></div>
     </section>
   </div>
   <script src="../model-registry.js"></script>
@@ -41,6 +43,12 @@
   <script src="../../shared/intake/sources.js"></script>
   <script src="../intake.js"></script>
   <script src="portrait.js"></script>
+  <script src="../../shared/ui/sheet.js"></script>
+  <script src="../../shared/ui/menubutton.js"></script>
+  <script src="../../shared/ui/resize-panel.js"></script>
+  <script src="../../shared/frame/frame.js"></script>
+  <script src="../../shared/frame/panel.js"></script>
+  <script src="../frame.js"></script>
   <script src="../../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

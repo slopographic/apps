@@ -80,6 +80,14 @@
       dock.appendChild(ge);
     });
     buildProperties(); buildAppearance(); buildLayers(); buildSwatches(); buildGradient(); buildAlign(); buildPathfinder();
+    // The suite rule (shared/frame/HANDOFF.md): the main button, Export ▾ (the File ▸ Export commands), sits at the foot of
+    // the dock (the shared footer, shared/frame/panel.js).
+    if (window.SlopFramePanel) {
+      var EXPORTS = ['file.exportSVG', 'file.exportPNG', 'file.exportJPG', 'file.exportPDF', 'file.exportAI', 'file.exportBuffer'];
+      SlopFramePanel.create(dock, { bare: true }).footer([{ id: 'dockExport', label: 'Export', primary: true, title: 'Export the document',
+        menu: function () { return EXPORTS.map(function (id) { var a = SV.actions[id]; return a && { label: a.label, act: function () { a.run(); } }; }).filter(Boolean); } }],
+      { more: 'Panels', onMore: function () { UI.dockSheet.toggle(); } });
+    }
     applyDock();
   }
 

@@ -22,7 +22,7 @@
   K.base = K.base || base;
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'panel.css'; document.head.append(css);
   const add = (src, test) => new Promise((res, rej) => { if (test && test()) return res(); const s = document.createElement('script'); s.src = new URL(src + '.js', base).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
-  const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), add('../ui/sheet', () => window.SlopSheet)])
+  const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), add('../ui/sheet', () => window.SlopSheet), add('../ui/resize-panel', () => window.SlopResizePanel)])
     .then(() => window.SlopAI.loaded).then(() => K.load(['apptools', 'cmdtools', 'filetools', 'optools', 'md', 'catalog', 'picker', 'panel-run', 'imagegen/index'])).then(() => K.imageGenReady && K.imageGenReady.catch(() => null))
     .then(() => restoreCloud());
   /** The provider chosen last, when its key is still here (keys.js keeps no key in localStorage, only which one). */
@@ -119,13 +119,18 @@
     document.body.classList.toggle('sap-open', on);
     window.dispatchEvent(new Event('resize'));   // the app re-fits its canvas to the narrower page
   }
+  let sizer = null;
   function attachSheet() {
+    // its width: dragged on its edge, kept per app (shared/ui/resize-panel.js, the one implementation for every side panel)
+    if (!sizer && window.SlopResizePanel) sizer = SlopResizePanel.attach(root, { app: opts.app, id: 'ai', edge: 'start', width: 380, min: 300, max: 720, phone: '(max-width: 900px)', label: 'Slop AI',
+      apply: (px) => { if (px != null) document.documentElement.style.setProperty('--sap-w', px + 'px'); else document.documentElement.style.removeProperty('--sap-w'); if (root && !root.hidden) window.dispatchEvent(new Event('resize')); } });
     if (sheet || !window.SlopSheet) return;
     sheet = SlopSheet.attach({ root: host, panel: root, side: 'bottom', phone: '(max-width: 640px)', label: 'Slop AI',
       onChange: (open, why) => { if (!open && why !== 'api' && why !== 'wide') { root.hidden = true; layout(); } } });
   }
   function open() {
     build(); attachSheet();
+    if (!sizer) kit.then(attachSheet);   // the resize module arrives with the kit
     root.hidden = false;
     if (sheet && sheet.isPhone()) sheet.open();
     layout(); P.renderStatus();

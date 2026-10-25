@@ -40,6 +40,7 @@
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/layouts/layouts.css" data-src="shared/layouts/layouts.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css" data-src="shared/frame/frame.css">
   <link rel="stylesheet" href="css/app.css" data-src="3d/css/app.css">
   <link rel="stylesheet" href="css/panels.css" data-src="3d/css/panels.css">
   <script src="../shared/guard.js" defer data-offline="strip"></script>
@@ -72,7 +73,7 @@
         <button type="button" class="tb-btn" data-cmd="3d.menu.export" id="btnExport" aria-haspopup="menu">Export</button>
         <a class="tb-btn" id="btnImg3d" href="../img3d/" target="_blank" rel="noopener" title="Make a 3D model from a picture (opens Slop Image to 3D in a new tab)">Image to 3D…</a>
         <button type="button" class="tb-btn" data-cmd="cmd.palette" title="Search commands (Ctrl+K)" aria-label="Search commands">⌘K</button>
-        <button type="button" class="btn primary" data-cmd="3d.file.save" title="Save to Slop Drive (Ctrl+S)">Save</button>
+        <button type="button" class="btn primary" id="btnSave" data-cmd="3d.file.save" title="Save to Slop Drive (Ctrl+S)">Save</button>
       </div>
     </header>
     <main class="workspace">
@@ -166,6 +167,8 @@
   <script src="js/app/configio.js"></script>
   <script src="js/app/commands.js"></script>
   <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js" data-src="shared/ui/menubutton.js"></script>
+  <script src="../shared/frame/panel.js" data-src="shared/frame/panel.js"></script>
   <script src="js/app/layout.js"></script>
   <script src="js/app/main.js"></script>
   <script src="../shared/pwa.js"></script>

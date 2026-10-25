@@ -61,8 +61,8 @@
       sep(), h('span', { class: 'cb-hint' }, d.pages.length + ' page' + (d.pages.length === 1 ? '' : 's') + (d.facing ? ' · facing' : '') + ' · ' + d.columns.count + ' col'), sep());
     var b1 = h('button', { type: 'button', class: 'btn small' }, 'Document Setup…'); b1.addEventListener('click', function () { PR.actions.run('file.docSetup'); });
     var b2 = h('button', { type: 'button', class: 'btn small' }, 'Margins & Columns…'); b2.addEventListener('click', function () { PR.actions.run('layout.marginsColumns'); });
-    var b3 = h('button', { type: 'button', class: 'btn small primary' }, 'Export PDF…'); b3.addEventListener('click', function () { PR.actions.run('file.exportPDF'); });
-    bar.append(b1, b2, b3, sep(), h('span', { class: 'cb-hint' }, hint()));
+    // Export PDF… is the main button at the foot of the dock (ui/dock.js, the suite rule), not repeated here
+    bar.append(b1, b2, sep(), h('span', { class: 'cb-hint' }, hint()));
   }
   function hint() {
     return { select: 'Click to select · drag to move · Alt-drag duplicates · double-click text to edit', text: 'Drag to draw a text frame · click a frame to type', frame: 'Drag an image frame, then File ▸ Place', rect: 'Drag to draw · Shift for a square', ellipse: 'Drag to draw · Shift for a circle', line: 'Drag to draw · Shift for 45°', polygon: 'Drag to draw a polygon', hand: 'Drag to pan', zoom: 'Click to zoom in · Alt-click out · drag a box' }[S.tool] || '';

@@ -30,6 +30,7 @@
   <meta name="color-scheme" content="light dark">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../aitools/aitools.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/ocr.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/models/chooser.css">
@@ -46,13 +47,12 @@
     <div id="intro" class="ocr-intro"></div>
     <div id="gate" class="ocr-gate" aria-live="polite"></div>
 
+    <!-- View · Panel (shared/frame): the files, the page and its text; the language, the exports and Read text on the right -->
     <div id="ui" class="ocr-ui" hidden>
+      <main class="ocr-main" id="ocrView">
       <section class="ocr-intake" aria-label="Files">
         <div id="drop" class="ocr-drop"></div>
         <div class="ocr-row">
-          <button id="read" type="button" class="ocr-primary" disabled>Read text</button>
-          <button id="lang" type="button">Language and model</button>
-          <button id="clear" type="button">Clear</button>
           <progress id="prog" class="ocr-progress" value="0" max="1" hidden></progress>
         </div>
         <p id="msg" class="ocr-msg" role="status" aria-live="polite"></p>
@@ -75,14 +75,6 @@
         <div class="ocr-text">
           <label for="text" class="ocr-label">Text on this page (you can edit it)</label>
           <textarea id="text" class="ocr-out" spellcheck="true" placeholder="Read the text to fill this in. Edit it here before you save or copy."></textarea>
-          <div class="ocr-export" role="group" aria-label="Save or copy">
-            <button id="dlTxt" type="button" disabled>Text (.txt)</button>
-            <button id="dlMd" type="button" disabled>Markdown (.md)</button>
-            <button id="dlDocx" type="button" disabled>Word (.docx)</button>
-            <button id="dlPdf" type="button" disabled>Searchable PDF</button>
-            <button id="copy" type="button" disabled>Copy all text</button>
-          </div>
-          <p class="ocr-meta">All pages are included, in order. The Word file starts each page on a new page.</p>
         </div>
       </section>
 
@@ -93,6 +85,23 @@
         <p><strong>Searchable PDF.</strong> The picture of each page is kept, with an invisible text layer on top, so you can search and select the text. The standard PDF font draws Latin letters only, so the characters it cannot draw are left out of the text layer (the picture still shows them). Text is placed at each line's position; if you add or remove lines, the extra lines sit below the last box.</p>
         <p><strong>Accuracy.</strong> Read the text before you use it. Only horizontal lines are read; rotated text is not turned first.</p>
       </details>
+      </main>
+      <aside class="ocr-side" id="ocrSide" aria-label="Read and save">
+        <div class="ocr-group" id="ocrLangGroup">
+          <button id="lang" type="button">Language and model</button>
+          <p class="sf-note">Choose the language of the text. Each model downloads only when you ask, and runs on this device.</p>
+        </div>
+        <div class="ocr-group" id="ocrSave">
+          <button id="dlTxt" type="button" disabled>Text (.txt)</button>
+          <button id="dlMd" type="button" disabled>Markdown (.md)</button>
+          <button id="dlDocx" type="button" disabled>Word (.docx)</button>
+          <button id="dlPdf" type="button" disabled>Searchable PDF</button>
+          <button id="copy" type="button" disabled>Copy all text</button>
+          <button id="clear" type="button">Clear</button>
+          <p class="sf-note">All pages are included, in order. The Word file starts each page on a new page.</p>
+        </div>
+        <button id="read" type="button" class="ocr-primary" disabled>Read text</button>
+      </aside>
     </div>
   </div>
 
@@ -120,6 +129,12 @@
   <script src="../shared/router/router.js"></script>
   <script src="../shared/viewmode/grid.js"></script><script src="../shared/viewmode/viewmode.js"></script>
   <script src="js/route.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
+  <script src="js/frame.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>

@@ -9,6 +9,8 @@
   <meta name="description" content="Suggest tags for a photo with an on-device classifier. Accept or edit them; they are saved to the photo's Slop Drive record.">
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../aitools.css">
+  <link rel="stylesheet" href="../../shared/frame/frame.css">
+  <link rel="stylesheet" href="../frame.css">
 </head>
 <body>
   <header class="ai-top">
@@ -25,7 +27,7 @@
           <p id="msg" class="ai-meta" role="status"></p>
           <div><strong>Suggested</strong><div id="sugg" class="ai-act"></div></div>
           <div class="ai-field"><label for="tagText">Tags (comma separated, edit freely)</label><input id="tagText" type="text" placeholder="sunset, beach, people"></div>
-          <div class="ai-act"><button id="run" class="ai-pri" type="button" disabled>Suggest tags</button><button id="save" type="button" disabled>Save tags to Slop Drive</button></div>
+          <div class="ai-act"><button id="run" class="ai-pri" type="button" disabled data-side="main">Suggest tags</button><button id="save" type="button" disabled data-side="save">Save tags to Slop Drive</button></div>
         </div>
       </div>
     </section>
@@ -48,6 +50,12 @@
   <script src="../../shared/intake/sources.js"></script>
   <script src="../intake.js"></script>
   <script src="tags.js"></script>
+  <script src="../../shared/ui/sheet.js"></script>
+  <script src="../../shared/ui/menubutton.js"></script>
+  <script src="../../shared/ui/resize-panel.js"></script>
+  <script src="../../shared/frame/frame.js"></script>
+  <script src="../../shared/frame/panel.js"></script>
+  <script src="../frame.js"></script>
   <script src="../../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

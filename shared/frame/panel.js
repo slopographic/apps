@@ -4,8 +4,19 @@
  *   const p = SlopFramePanel.create(panelEl, { title: 'Message' });    // also SlopFrame.panel(panelEl, opts)
  *   p.render([{ title: 'Details', rows: [['From', 'Ann']] }, { title: 'Actions', actions: [{ label: 'Export', menu: [...] }] }]);
  *   p.setTitle(text)
- *   p.setFooter(actions)   the panel's main actions in a footer that stays at the bottom while the panel scrolls (the
- *                          primary one first: "Watermark 3 files", then Download, Save to Slop Drive…); [] removes it
+ *   p.footer([{ label: 'Upscale', primary: true, run }], { note: 'Ctrl+Enter', more: 'Settings' })
+ * Tool apps (resize, upscale, ocr…) put their settings and their main button here, the rule for every tool app
+ * (shared/frame/HANDOFF.md): settings groups as { title, settings: element | [elements] } sections (the app's own form
+ * controls, styled by .sf-field / .sf-lab / .sf-seg in frame.css), and the main button in footer(): a bar stuck to the
+ * panel's bottom edge, so it is in reach however long the settings are. On a phone the closed sheet still shows the
+ * footer at the bottom of the screen (the primary button is never hidden); its "more" button opens the whole sheet.
+ * With { stack: true } the primary button takes the whole first row and the others wrap below it (more than two
+ * actions, as in Slop Watermark: Watermark N files, Download, Save to Slop Drive, Open in…).
+ * footer() redraws only the footer (call it on every state change; the settings are not touched). footer([]) removes it.
+ * Big editors keep their own panel and take only the footer: create(theirPanel, { bare: true }).footer([...], { more,
+ * onMore: () => theirSheet.open() }) (the panel needs SlopSheet on phones for the closed sheet to show the footer).
+ * An action may be { el: existingButton, ...fields }: the page's own button moves in (a menu bar, a tour or a test that
+ * looks the id up in the HTML still finds it); label, disabled, hidden, title and run, when given, update it.
  * Section and action shapes: see frame.js. A menu opens under its button with shared/ui/menubutton.js (SlopMenuButton);
  * items are { label, act, disabled?, keywords? } or { heading }. Classic script; styles in frame.css. */
 (function (g) {
@@ -16,6 +27,18 @@
 
   /** One button for an action. With a menu it is "Label ▾" and opens the menu under it. */
   function button(a, key) {
+    if (a.el) {   // a button that is already in the page's markup (its id and listeners stay); the other fields update it
+      const b = a.el;
+      b.classList.add('sf-btn');
+      b.dataset.sfKey = key;
+      if (a.label != null) b.textContent = a.label;
+      if ('disabled' in a) b.disabled = !!a.disabled;
+      if ('hidden' in a) b.hidden = !!a.hidden;
+      if (a.title) b.title = a.title;
+      if (a.primary) b.classList.add('sui-primary');
+      if (a.run) { b.sfRun = a.run; if (!b.sfWired) { b.sfWired = true; b.addEventListener('click', () => b.sfRun()); } }
+      return b;
+    }
     const b = el('button', 'sui-btn sf-btn' + (a.primary ? ' sui-primary' : '') + (a.menu ? ' sf-menu-btn' : ''));
     b.type = 'button';
     b.dataset.sfKey = key;
@@ -80,10 +103,14 @@
     const head = el('div', 'sf-p-title'), h = el('h2', 'sf-p-h', o.title || '');
     head.append(h);
     const body = el('div', 'sf-p-body');
-    panel.append(head, body);
+    if (!o.bare) panel.append(head, body);   // bare: an editor's own panel that only takes the footer
 
     function render(sections) {
       const focused = doc.activeElement && panel.contains(doc.activeElement) ? doc.activeElement.dataset.sfKey : null;
+      // a settings control in use (the app's own element, moved by the redraw) keeps the focus and the caret
+      const act = !focused && body.contains(doc.activeElement) ? doc.activeElement : null;
+      let caret = null;
+      try { if (act && typeof act.selectionStart === 'number') caret = [act.selectionStart, act.selectionEnd]; } catch (e) { /* number inputs */ }
       body.replaceChildren();
       (sections || []).filter(Boolean).forEach((s, si) => {
         const sec = el('section', 'sf-sec' + (s.cls ? ' ' + s.cls : ''));
@@ -92,6 +119,11 @@
         if (s.note) sec.append(el('p', 'sf-note', s.note));
         if (s.rows) sec.append(rows(s.rows));
         if (s.list) sec.append(s.list.length ? items(s.list, skey) : el('p', 'sf-note', s.empty || 'None.'));
+        if (s.settings) {   // the settings first, then the section's buttons
+          const set = el('div', 'sf-set');
+          set.append(...[].concat(s.settings).filter(Boolean));
+          sec.append(set);
+        }
         if (s.actions) {
           const bar = el('div', 'sf-acts');
           s.actions.filter(Boolean).forEach((a, k) => bar.append(button(a, skey + '/a/' + (a.id || k))));
@@ -100,22 +132,45 @@
         if (s.body) sec.append(s.body);
         body.append(sec);
       });
+      if (act && act.isConnected && doc.activeElement !== act) {
+        act.focus({ preventScroll: true });
+        if (caret) try { act.setSelectionRange(caret[0], caret[1]); } catch (e) { /* not a text field */ }
+      }
       if (focused) {
         const again = body.querySelector('[data-sf-key="' + focused.replace(/["\\]/g, '\\$&') + '"]');
         if (again && !again.disabled) again.focus({ preventScroll: true });
       }
     }
-    let foot = null;
-    function setFooter(actions) {
+
+    // The footer: the main button(s), stuck to the panel's bottom; its height is kept in --sf-foot-h on the frame's root
+    // (frame.css lifts the page above it on phones, where the closed sheet shows only the footer).
+    const foot = el('div', 'sf-p-foot');
+    const host = () => panel.closest('.sf-root') || doc.documentElement;
+    const ro = g.ResizeObserver ? new g.ResizeObserver(() => { const r = host(); if (r) r.style.setProperty('--sf-foot-h', foot.offsetHeight + 'px'); }) : null;
+    function footer(actions, fo) {
+      fo = fo || {};
       const list = (actions || []).filter(Boolean);
-      if (!foot) { foot = el('div', 'sf-p-foot'); panel.append(foot); }
       const focused = doc.activeElement && foot.contains(doc.activeElement) ? doc.activeElement.dataset.sfKey : null;
-      foot.replaceChildren(...list.map((a, k) => button(a, 'foot/' + (a.id || k))));
-      foot.hidden = !list.length;
-      const again = focused && foot.querySelector('[data-sf-key="' + focused.replace(/["\\]/g, '\\$&') + '"]');
-      if (again && !again.disabled) again.focus({ preventScroll: true });
+      foot.replaceChildren();
+      const had = panel.classList.contains('sf-has-foot');
+      panel.classList.toggle('sf-has-foot', list.length > 0);
+      if (had !== list.length > 0) panel.dispatchEvent(new g.CustomEvent('sf-foot'));
+      if (!list.length) { foot.remove(); return; }
+      const bar = el('div', 'sf-foot-acts' + (fo.stack ? ' sf-foot-stack' : ''));
+      list.forEach((a, k) => bar.append(button(a, 'foot/' + (a.id || k))));
+      if (fo.more) {
+        const m = button({ label: fo.more, run: fo.onMore || (() => panel.dispatchEvent(new g.CustomEvent('sf-sheet', { bubbles: true }))) }, 'foot/more');
+        m.classList.add('sf-foot-more');
+        m.setAttribute('aria-haspopup', 'dialog');
+        bar.prepend(m);
+      }
+      foot.append(bar);
+      if (fo.note) foot.append(el('p', 'sf-foot-note', fo.note));
+      if (foot.parentNode !== panel || panel.lastChild !== foot) panel.append(foot);
+      if (ro) ro.observe(foot);
+      if (focused) { const again = foot.querySelector('[data-sf-key="' + focused.replace(/["\\]/g, '\\$&') + '"]'); if (again && !again.disabled) again.focus({ preventScroll: true }); }
     }
-    return { render, setTitle: (t) => { h.textContent = t; }, setFooter, element: body, title: head };
+    return { render, footer, setTitle: (t) => { h.textContent = t; }, element: body, title: head, foot };
   }
 
   g.SlopFramePanel = { create };

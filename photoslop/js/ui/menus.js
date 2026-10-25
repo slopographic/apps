@@ -188,6 +188,7 @@ const MENUS = [
       { label: 'Paint ’98', check: () => theme() === 'paint', act: () => setTheme('paint') },
     ] },
     { label: 'Show / Hide Panels', key: 'Tab', act: () => document.body.classList.toggle('no-panels') },
+    { label: 'Reset panel sizes', cmdId: 'view.resetPanels', act: () => window.SlopResizePanel && SlopResizePanel.resetAll() },   // shared/ui/resize-panel.js
   ]],
   ['Layout', () => (window.SlopLayouts ? SlopLayouts.menu('photoslop') : [])],
   ['Window', () => windowMenuItems()],

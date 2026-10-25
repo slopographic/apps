@@ -11,7 +11,7 @@
 .sap-fab svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
 .sap-fab.on { color: var(--p-ink); background: var(--p-accent); border-color: transparent; box-shadow: 0 0 18px rgba(212, 255, 58, .55); }
 body.sap-open .sap-fab { display: none; }
-.sap { position: fixed; top: 0; right: 0; bottom: 0; z-index: 890; width: min(380px, 100vw); display: flex; flex-direction: column; background: var(--p-bg); border-left: 1px solid var(--p-line); box-shadow: -12px 0 40px rgba(0, 0, 0, .35); }
+.sap { position: fixed; top: 0; right: 0; bottom: 0; z-index: 890; width: min(var(--sap-w, 380px), 100vw); display: flex; flex-direction: column; background: var(--p-bg); border-left: 1px solid var(--p-line); box-shadow: -12px 0 40px rgba(0, 0, 0, .35); }
 .sap[hidden] { display: none; }
 .sap header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--p-line); }
 .sap-logo { display: inline-flex; color: var(--p-accent); } .sap-logo svg { width: 16px; height: 16px; fill: currentColor; }
@@ -68,7 +68,7 @@ body.sap-open .sap-fab { display: none; }
 .sap-badge.dim { background: var(--p-line); color: var(--p-fg); }
 .sap-pbar { height: 4px; border-radius: 2px; background: var(--p-line); overflow: hidden; } .sap-pbar i { display: block; height: 100%; width: 0; background: var(--p-accent); }
 /* beside the app on wide screens: the page narrows, so nothing is covered */
-:root.sap-beside body { margin-inline-end: min(380px, 100vw); }
+:root.sap-beside body { margin-inline-end: min(var(--sap-w, 380px), 100vw); }
 :root.sap-beside .sap { box-shadow: none; }
 /* phones: a bottom sheet (shared/ui/sheet.js gives it its place, the swipe and the ×) */
 .sap-host.ssh-phone .sap { top: auto; width: auto; height: auto; block-size: 76vh; max-block-size: 76vh; border-left: 0; background: var(--p-bg); color: var(--p-fg); z-index: 890; }
@@ -76,7 +76,7 @@ body.sap-open .sap-fab { display: none; }
 .sap-host.ssh-phone .sap > .ssh-x { position: absolute; inset-block-start: 4px; inset-inline-end: 4px; float: none; margin: 0; }
 /* the Sloppo buddy's button (shared/buddy/boot.js) sits bottom right: keep it off the panel's Send button */
 body.sap-open .buddy-toggle { visibility: hidden; }
-:root.sap-beside body.sap-open .buddy-toggle { visibility: visible; right: calc(min(380px, 100vw) + 16px) !important; }
+:root.sap-beside body.sap-open .buddy-toggle { visibility: visible; right: calc(min(var(--sap-w, 380px), 100vw) + 16px) !important; }
 /* "Use your own AI account" (cloud/connect.js) and the tokens line under a reply */
 .sap-cloud { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--p-line); border-radius: var(--p-radius); background: var(--p-bg2); color: var(--p-fg); }
 .sap-cloud > summary { cursor: pointer; display: grid; gap: 2px; }

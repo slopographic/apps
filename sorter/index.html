@@ -29,6 +29,7 @@
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/deck/deck.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/sorter.css">
   <script type="module" blocking="render" src="js/app.js"></script>
 </head>
@@ -41,6 +42,9 @@
       <h1>Sort photos: keep the best</h1>
       <p class="so-lede">Drop a pile of photos or a whole folder, then swipe through them one at a time: like, dislike or tag each one with the arrow keys or the buttons. Download the keepers as a ZIP, or put them in Slop Drive.</p>
     </section>
+    <!-- View · Panel (shared/frame): the photos; Start sorting and the downloads in the panel on the right -->
+    <div class="so-frame" id="soFrame">
+    <div class="so-view" id="soView">
     <div class="so-add">
       <div id="soDrop" class="so-drop"></div>
       <div class="so-or"><button type="button" class="so-btn" id="soFolder">Choose a folder…</button>
@@ -49,18 +53,20 @@
     <p id="soMsg" class="so-msg" role="status" aria-live="polite"></p>
     <section id="soWork" class="so-work" hidden aria-label="Your photos">
       <div class="so-bar">
-        <button type="button" class="so-btn primary" id="soStart">Start sorting</button>
         <div id="soFilters" class="so-filters" role="group" aria-label="Show"></div>
       </div>
       <ul id="soGrid" class="so-grid" aria-label="Photos"></ul>
       <p id="soNone" class="so-none" hidden>No photos in this view.</p>
-      <div class="so-bar so-out">
-        <button type="button" class="so-btn primary" id="soZip">Download liked (ZIP)</button>
-        <button type="button" class="so-btn" id="soDrive">Save liked to Slop Drive</button>
-        <button type="button" class="so-btn" id="soCsv">Download the list (CSV)</button>
-        <button type="button" class="so-btn" id="soClear">Clear</button>
-      </div>
     </section>
+    </div>
+    <aside class="so-side" id="soSide" aria-label="Sort and save">
+      <button type="button" class="so-btn" id="soZip">Download liked (ZIP)</button>
+      <button type="button" class="so-btn" id="soDrive">Save liked to Slop Drive</button>
+      <button type="button" class="so-btn" id="soCsv">Download the list (CSV)</button>
+      <button type="button" class="so-btn" id="soClear">Clear</button>
+      <button type="button" class="so-btn primary" id="soStart">Start sorting</button>
+    </aside>
+    </div>
   </main>
   <script src="../shared/slopui.js"></script>
   <script src="../shared/intake/rules.js"></script>
@@ -78,6 +84,12 @@
   <script src="../shared/deck/deck.js"></script>
   <script src="../shared/samples/samples.js"></script>
   <script src="js/model.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
+  <script src="js/frame.js"></script>
   <link rel="stylesheet" href="../shared/menubar/menubar.css">
   <script src="../shared/menubar/menubar.js"></script>
   <script>SlopMenuBar.mount({ "app": "Photo Sorter", "menus": { "File": ["#soFolder", "-", "#soZip", "#soDrive", "#soCsv", "-", "#soClear"], "Sort": ["#soStart"] } });</script>

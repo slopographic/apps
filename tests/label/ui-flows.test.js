@@ -163,10 +163,14 @@
       expect(tb.top).toBeGreaterThan(st.bottom - 1);
       expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(390);
       expect(doc.getElementById('btnDock').offsetParent).toBeTruthy();
-      expect(win.getComputedStyle(doc.getElementById('dock')).visibility).toBe('hidden');
+      // closed, the sheet shows only its foot (Print…, the shared panel footer); the tabs wait inside
+      expect(doc.getElementById('dockTabs').getBoundingClientRect().height).toBe(0);
+      expect(doc.getElementById('btnPrint').getBoundingClientRect().bottom).toBeLessThanOrEqual(win.innerHeight);
+      expect(doc.getElementById('btnPrint').getBoundingClientRect().height).toBeGreaterThan(20);
       doc.getElementById('btnDock').click();
       await sleep(300);
       expect(win.getComputedStyle(doc.getElementById('dock')).visibility).toBe('visible');
+      expect(doc.getElementById('dockTabs').getBoundingClientRect().height).toBeGreaterThan(0);
       const lab = win.eval('App.doc.label'), z = win.eval('App.zoom');
       expect(lab.w * z).toBeLessThanOrEqual(390);
       doc.getElementById('btnDock').click();

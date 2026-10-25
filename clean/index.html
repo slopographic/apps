@@ -36,6 +36,7 @@
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/clean.css">
   <script src="../shared/guard.js" defer blocking="render"></script>
 </head>
@@ -47,13 +48,12 @@
     </div>
     <div class="cl-tools">
       <button type="button" class="sui-btn" id="cl-open">Open pictures…</button>
-      <button type="button" class="sui-btn" id="cl-remove-all" title="Tick the default categories again (the colour profile and DPI stay)">Remove all</button>
-      <button type="button" class="sui-btn sui-primary" id="cl-all" disabled title="Copy and clean: the originals stay as they are">Copy and clean: download</button>
-      <button type="button" class="sui-btn" id="cl-save-all" disabled title="Copy and clean: the originals stay as they are">Copy and clean: save to Slop Drive…</button>
     </div>
   </header>
   <div class="cl-stat" id="cl-stat" aria-live="polite"></div>
-  <main class="cl-main-wrap">
+  <!-- View · Panel (shared/frame): the pictures and what they hold, and the choices with Copy and clean on the right -->
+  <div class="cl-main-wrap" id="cl-frame">
+    <main class="cl-view" id="cl-view">
     <section class="cl-empty" id="cl-empty" aria-label="Open pictures">
       <div class="cl-drop">
         <h2>Drop pictures here</h2>
@@ -63,8 +63,14 @@
       </div>
     </section>
     <section class="cl-list" id="cl-list" aria-label="Pictures and what they hold"></section>
-    <aside class="cl-side" id="cl-choices" aria-label="Choices"></aside>
-  </main>
+    </main>
+    <aside class="cl-side" id="cl-side" aria-label="Choices">
+      <div class="cl-choices" id="cl-choices"></div>
+      <button type="button" class="sui-btn" id="cl-remove-all" title="Tick the default categories again (the colour profile and DPI stay)">Remove all</button>
+      <button type="button" class="sui-btn" id="cl-save-all" disabled title="Copy and clean: the originals stay as they are">Copy and clean: save to Slop Drive…</button>
+      <button type="button" class="sui-btn sui-primary" id="cl-all" disabled title="Copy and clean: the originals stay as they are">Copy and clean: download</button>
+    </aside>
+  </div>
   <script src="../shared/slopui.js"></script>
   <script src="../shared/apps.js"></script>
   <script src="../shared/hub.js"></script>
@@ -94,6 +100,12 @@
   <script src="js/io/files.js"></script>
   <script src="js/ui/report.js"></script>
   <script src="js/ui/choices.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
+  <script src="js/app/layout.js"></script>
   <script src="js/app/main.js"></script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

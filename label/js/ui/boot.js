@@ -20,6 +20,9 @@ function wireChrome() {
   $('btnRedo').addEventListener('click', redo);
   $('btnPrint').addEventListener('click', openPrintDialog);
   wireDock();   // ui/app.js: the phone sheet
+  // The suite rule (shared/frame/HANDOFF.md): Print…, the main button, sits at the foot of the right-hand dock (the shared
+  // footer, shared/frame/panel.js); on a phone the closed dock sheet still shows it. File ▸ Print and Ctrl+P too.
+  if (window.SlopFramePanel) SlopFramePanel.create($('dock'), { bare: true }).footer([{ el: $('btnPrint') }], { more: 'Panels', onMore: () => App.sheet && App.sheet.toggle() });
   $('cbLabel').addEventListener('click', () => labelSetupDialog());
   $('recPrev').addEventListener('click', () => setRecord(App.rec - 1));
   $('recNext').addEventListener('click', () => setRecord(App.rec + 1));

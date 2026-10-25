@@ -30,20 +30,21 @@
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
   <div class="h2p-app">
     <div class="smb-hold" hidden>
       <button type="button" class="sui-btn" id="h2p-open">Open HTML…</button>
-      <button type="button" class="sui-btn sui-primary" id="h2p-print" disabled>Print or save as PDF…</button>
     </div>
     <span class="local-badge" title="The HTML is read and printed in this browser. Nothing is uploaded.">100% local</span>
 
-    <main class="h2p-main">
-      <aside class="h2p-side" aria-label="Options">
-        <section class="h2p-group" aria-labelledby="h2p-h-source">
-          <h2 id="h2p-h-source">Source</h2>
+    <!-- View · Panel (shared/frame): the preview, and the options with Print at the foot of the panel on the right -->
+    <div class="h2p-main" id="h2p-main">
+      <aside class="h2p-side" id="h2p-side" aria-label="Options">
+        <button type="button" class="sui-btn sui-primary" id="h2p-print" disabled>Print or save as PDF…</button>
+        <section class="h2p-group" data-title="Source">
           <p class="h2p-note">Remote images and fonts do not load. Images inside the file (data: and blob:) do. For pictures next to the file, attach them below by file name.</p>
           <label class="h2p-field">Paste HTML
             <textarea class="h2p-input" id="h2p-paste" rows="5" spellcheck="false" placeholder="<h1>Paste HTML here</h1>"></textarea>
@@ -53,8 +54,7 @@
           <p class="h2p-note" id="h2p-image-list">No local images attached.</p>
         </section>
 
-        <section class="h2p-group" aria-labelledby="h2p-h-paper">
-          <h2 id="h2p-h-paper">Paper</h2>
+        <section class="h2p-group" data-title="Paper">
           <label class="h2p-field">Paper size
             <select class="h2p-input" id="h2p-paper">
               <option value="A4" selected>A4</option>
@@ -85,8 +85,7 @@
           <label class="h2p-check"><input type="checkbox" id="h2p-bg"> Background graphics</label>
         </section>
 
-        <section class="h2p-group" aria-labelledby="h2p-h-header">
-          <h2 id="h2p-h-header">Page header</h2>
+        <section class="h2p-group" data-title="Page header">
           <label class="h2p-check"><input type="checkbox" id="h2p-header" checked> Show on every page</label>
           <label class="h2p-field">QR code shows
             <select class="h2p-input" id="h2p-qr-mode">
@@ -101,7 +100,7 @@
         </section>
       </aside>
 
-      <section class="h2p-stage" id="h2p-stage" aria-label="Preview">
+      <main class="h2p-stage" id="h2p-stage" aria-label="Preview">
         <div class="h2p-empty" id="h2p-empty">
           <h2>Drop an HTML file here</h2>
           <p>Or open one, or paste HTML under Source. The file is read in this browser and never uploaded.</p>
@@ -110,8 +109,8 @@
         <div class="h2p-paper-box" id="h2p-paper-box" hidden>
           <iframe class="h2p-paper" id="h2p-paper-frame" title="Print preview" sandbox="allow-same-origin"></iframe>
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
 
     <p class="h2p-status" id="h2p-status" role="status" aria-live="polite"></p>
   </div>
@@ -130,11 +129,17 @@
   <script src="js/source.js"></script>
   <script src="js/qr.js"></script>
   <script src="js/print-path.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
+  <script src="js/layout.js"></script>
   <script src="js/app.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "HTML to PDF", "tools": ["#h2p-open", "#h2p-print"], "menus": {"File": ["#h2p-open", "#h2p-print"]}});</script>
+<script>SlopMenuBar.mount({"app": "HTML to PDF", "tools": ["#h2p-open"], "menus": {"File": ["#h2p-open", "#h2p-print"]}});</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

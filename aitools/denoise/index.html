@@ -9,6 +9,8 @@
   <meta name="description" content="Remove speckle and grain from a photo with median and bilateral filters. Compare before and after. Nothing uploaded.">
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../aitools.css">
+  <link rel="stylesheet" href="../../shared/frame/frame.css">
+  <link rel="stylesheet" href="../frame.css">
 </head>
 <body>
   <header class="ai-top">
@@ -20,11 +22,11 @@
     <section id="ui" class="ai-stack" hidden>
       <div id="drop" class="ai-drop">Drop a photo here, or <button type="button" id="chooseFile" class="ai-choose">choose a file</button><br><span class="ai-meta">Classic filters, no model. Large photos are reduced to 2048 px for the preview and the download.</span></div>
       <div class="ai-grid2">
-        <div class="ai-field"><label for="mode">Filter</label>
+        <div class="ai-field" data-side="settings"><label for="mode">Filter</label>
           <select id="mode"><option value="both">Median, then bilateral</option><option value="median">Median (speckle and dust)</option><option value="bilateral">Bilateral (grain, keeps edges)</option></select></div>
-        <div class="ai-field"><label for="strength">Strength: <span id="sv">50</span></label><input id="strength" type="range" min="0" max="100" value="50"></div>
+        <div class="ai-field" data-side="settings"><label for="strength">Strength: <span id="sv">50</span></label><input id="strength" type="range" min="0" max="100" value="50"></div>
       </div>
-      <div><button id="run" class="ai-pri" type="button" disabled>Apply</button> <span id="msg" class="ai-meta" role="status"></span></div>
+      <div><button id="run" class="ai-pri" type="button" disabled data-side="main">Apply</button> <span id="msg" class="ai-meta" role="status"></span></div>
       <div id="compare" class="ai-panel" hidden>
         <div class="ai-cmp" id="cmp">
           <canvas id="before" class="ai-img"></canvas>
@@ -32,7 +34,7 @@
         </div>
         <div class="ai-field"><label for="split">Before and after. Drag to compare.</label><input id="split" type="range" min="0" max="100" value="50"></div>
       </div>
-      <div class="ai-act"><button id="dl" type="button" disabled>Download PNG</button></div>
+      <div class="ai-act"><button id="dl" type="button" disabled data-side="save">Download PNG</button></div>
     </section>
   </div>
   <style>.ai-cmp{position:relative}.ai-cmp #after{position:absolute;left:0;top:0;width:100%;height:auto;clip-path:inset(0 50% 0 0)}</style>
@@ -47,6 +49,12 @@
   <script src="../../shared/intake/sources.js"></script>
   <script src="../intake.js"></script>
   <script src="denoise.js"></script>
+  <script src="../../shared/ui/sheet.js"></script>
+  <script src="../../shared/ui/menubutton.js"></script>
+  <script src="../../shared/ui/resize-panel.js"></script>
+  <script src="../../shared/frame/frame.js"></script>
+  <script src="../../shared/frame/panel.js"></script>
+  <script src="../frame.js"></script>
   <script src="../../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

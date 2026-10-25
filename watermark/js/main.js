@@ -22,12 +22,12 @@
     ]);
     bar.setMenu([{ id: 'drive', label: 'Save all to Slop Drive…', disabled: busy || !outs, onClick: saveAll }]);
     const O = window.SlopOuttake, openIn = one && O ? O.items({ get: () => items[0].out.blob, name: items[0].out.name, type: items[0].out.blob.type, from: 'watermark', folder: false }) : null;
-    side.setFooter([
+    side.footer([
       { id: 'wm-apply', label: n ? 'Watermark ' + n + ' ' + nounOf(items, n) : 'Watermark files', primary: true, disabled: busy || !n, run: applyAll },
       { id: 'wm-zip', label: n > 1 ? 'Download all (ZIP)' : 'Download', disabled: busy || !outs, run: n > 1 ? downloadZip : () => window.WMExport.downloadOne(items[0]) },
       { id: 'wm-drive', label: 'Save to Slop Drive…', disabled: busy || !outs, run: saveAll },
       openIn && openIn.length ? { id: 'wm-openin', label: 'Open in…', menu: openIn } : null,
-    ]);
+    ], { stack: true, more: 'Settings' });
     frame.setList(n > 1);
     const panel = window.WMSettings.panel();
     if (panel) panel.setMedia(window.WMItems.kinds());

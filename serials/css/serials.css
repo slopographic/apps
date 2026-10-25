@@ -1,5 +1,14 @@
 /* Slop Serial counter: colours come from the site's aitools tokens (--bg, --fg, --card, --line, --accent, --muted, --bad). */
-.sr-app { max-width: 920px; margin: 0 auto; padding: 24px 16px 64px; }
+/* The page: the title, then (once a model is in) SlopFrame's View · Panel (shared/frame) filling the rest of the window. */
+body { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+main.sr-app { max-width: none; width: 100%; margin: 0; padding: 0; flex: 1 1 auto; min-height: 0; overflow: auto; display: flex; flex-direction: column; box-sizing: border-box; }
+.sr-app > h1, .sr-lede, .sr-gate { padding-inline: 20px; }
+.sr-app > h1 { padding-top: 18px; }
+.sr-ui { flex: 1 1 auto; min-height: 360px; border-top: 1px solid var(--line); }
+.sr-main { padding: 16px 20px 32px; }
+.sr-side .sf-acts button, .sr-side .sf-p-foot button { width: 100%; }
+.sr-side .sf-foot-acts .sf-foot-more { width: auto; }
+.sr-app .sr-side h2.sf-p-h { margin: 0; font-size: 15px; }
 .sr-app h1 { margin: 0 0 4px; font-size: 1.6rem; }
 .sr-app h2 { font-size: 1.05rem; margin: 28px 0 8px; }
 .sr-lede { color: var(--muted); margin: 0 0 16px; }
@@ -8,12 +17,12 @@
 .sr-drop.over { border-color: var(--accent); color: var(--fg); }
 .sr-drop u { color: var(--fg); text-decoration: underline; }
 .sr-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-top: 16px; }
-.sr-pattern { display: grid; gap: 4px; flex: 1 1 320px; font-size: 13px; color: var(--muted); }
+.sr-pattern { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
 .sr-pattern input { font: 14px ui-monospace, Menlo, Consolas, monospace; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--fg); }
 .sr-pattern input.bad { border-color: var(--bad); }
 .sr-app button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
 .sr-app button:disabled { opacity: .45; cursor: default; }
-.sr-app button[type="submit"], #read { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.sr-app button[type="submit"], .sr-app #read { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 #prog { width: 140px; }
 .sr-msg { min-height: 1.4em; color: var(--muted); margin: 10px 0 0; }
 .sr-photos { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
@@ -38,3 +47,4 @@
 .sr-totals dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
 .sr-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 @media (max-width: 520px) { .sr-add { flex-direction: column; } }
+body:has(#ui[hidden]) .sf-toggle { display: none; }   /* no panel to show while the model prompt is up */

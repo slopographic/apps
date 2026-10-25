@@ -2,7 +2,8 @@
  * Apps read with SlopProfile.get(appId, key, appDefault) and never need the Settings page. Classic script, exposes
  * window.SlopProfile (and SlopProfile.create(opts) for tests). Only overrides are stored: a value equal to the
  * declared default is not kept. Every storage access is in try/catch; with blocked storage every read gives the default.
- * Options come from window.SLOP_APP_OPTIONS (shared/profile/app-options.js). See shared/profile/HANDOFF.md. */
+ * Options come from window.SLOP_APP_OPTIONS (shared/profile/app-options.js). See shared/profile/HANDOFF.md.
+ * Also the side panels' sizes: panelSize(appId, panelId) and setPanelSize(appId, panelId, px | null). */
 (function (g) {
   'use strict';
   const KEY = 'slop-profile';
@@ -79,7 +80,21 @@
       if (ov && typeof ov === 'object') for (const k of Object.keys(ov)) if (validFor(optionsOf(appId)[k], ov[k])) out[k] = ov[k];
       return out;
     }
-    return { KEY, get, set, reset, all, overrides, options: optionsOf, appIds: () => Object.keys(declared()) };
+    // Panel sizes (shared/ui/resize-panel.js): { '@panels': { <appId>: { <panelId>: px } } } in the same envelope. Not
+    // declared options, so the Settings page does not list them; "Reset panel sizes" in an app's View menu clears them.
+    const PANELS = '@panels';
+    function panelSize(appId, id) {
+      const p = readAll()[PANELS], v = p && p[appId] && p[appId][id];
+      return typeof v === 'number' && Number.isFinite(v) && v > 0 && v < 10000 ? v : null;
+    }
+    function setPanelSize(appId, id, px) {
+      const all = readAll(), p = Object.assign({}, all[PANELS]), a = Object.assign({}, p[appId]);
+      if (px == null) delete a[id]; else if (typeof px === 'number' && Number.isFinite(px) && px > 0 && px < 10000) a[id] = Math.round(px); else return { ok: false, error: 'Not a width.' };
+      if (Object.keys(a).length) p[appId] = a; else delete p[appId];
+      if (Object.keys(p).length) all[PANELS] = p; else delete all[PANELS];
+      return writeAll(all);
+    }
+    return { KEY, get, set, reset, all, overrides, options: optionsOf, appIds: () => Object.keys(declared()), panelSize, setPanelSize };
   }
 
   g.SlopProfile = Object.assign(create(), { create });

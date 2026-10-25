@@ -1,5 +1,6 @@
-/* Slop Upscale: the controller. One picture or short video at a time: open (Open, a drop, a paste, Slop Drive, ?drive=<id>
- * from Slop Resize's "Send to…" or a PWA launch: all through the one intake, shared/intake, spec 'upscale'), choose 2× or 4× and a model, run, compare, then download or save to Slop Drive.
+/* Slop Upscale: the controller. Pictures and short videos come in through the one intake (shared/intake, spec 'upscale')
+ * and each joins the list; choose 2× or 4× and a model, run (this one, or every one not done yet), compare, then
+ * download, save to Slop Drive or open in another app. The page's layout and panel are app/layout.js.
  * Models: Fast (FSRCNN, bundled) for 2× and 4×; Quality (Real-ESRGAN, opt-in through Get more) for 4× only; Lanczos
  * alone. When the chosen model is not installed the run uses Lanczos and the page says so. Classic script. */
 (function (g) {
@@ -8,10 +9,12 @@
   const E = () => g.SlopUpscaleEngine, PL = () => g.SlopUpscalePipeline, MD = g.SlopUpscaleModels;
   const $ = (id) => document.getElementById(id);
   const QUALITY_ID = 'realesrgan-x4plus', QUALITY_FILE = 'model.onnx';
-  const S = { item: null, busy: false, cancel: { cancelled: false }, scale: 2, model: 'fast', format: 'png', quality: 0.92, fps: 24, installed: false };
+  const S = { items: [], item: null, busy: false, cancel: { cancelled: false }, scale: 2, model: 'fast', format: 'png', quality: 0.92, fps: 24, installed: false };
 
   // The controller's state and helpers, for the output module (app/output.js), which runs later, on a click.
-  U.app = { S, toast: (m) => toast(m), setStatus: (m, f) => setStatus(m, f) };
+  U.app = { S, open: (...a) => open(...a), toast: (m) => toast(m), setStatus: (m, f) => setStatus(m, f),
+    run: () => run(), cancel: () => cancel(), select: (it) => select(it), remove: (it) => remove(it) };
+  let nextId = 1;
   const toast = (msg) => { if (g.SlopUI && g.SlopUI.toast) g.SlopUI.toast(msg); };
   const setStatus = (msg, frac) => {
     $('up-status').textContent = msg;
@@ -64,14 +67,35 @@
   }
 
   /* ---------- Opening ---------- */
-  function revoke() { if (S.item && S.item.url) URL.revokeObjectURL(S.item.url); }
+  /** Every file closes (the list empties). */
   function clear() {
-    revoke();
     if (S.busy) return;
-    S.item = null;
-    $('up-stage').replaceChildren(); $('up-stage').hidden = true;
-    $('up-empty').hidden = false; $('up-info').textContent = '';
-    setStatus('');
+    for (const it of S.items) URL.revokeObjectURL(it.url);
+    S.items = [];
+    select(null);
+  }
+  /** One file leaves the list; the next one (or the empty page) shows. */
+  function remove(it) {
+    if (S.busy || !it) return;
+    const i = S.items.indexOf(it);
+    if (i < 0) return;
+    URL.revokeObjectURL(it.url);
+    S.items.splice(i, 1);
+    select(S.items[Math.min(i, S.items.length - 1)] || null);
+  }
+  /** Show one file: its picture (or the before and after when done), its line, its result. */
+  function select(it) {
+    S.item = it || null;
+    if (!it) {
+      $('up-stage').replaceChildren(); $('up-stage').hidden = true;
+      $('up-empty').hidden = false; $('up-info').textContent = '';
+      setStatus('');
+    } else {
+      $('up-empty').hidden = true; $('up-stage').hidden = false;
+      if (!it.out) showBefore(); else if (it.kind === 'image') showAfterImage(); else showAfterVideo();
+      setStatus(it.status || 'Choose 2× or 4×, then Upscale.');
+      updateInfo();
+    }
     updateButtons();
   }
 
@@ -86,9 +110,7 @@
     const kind = IO.kind(file);
     if (!kind) { toast('That is not a picture or a video'); return false; }
     if (S.busy) { toast('Wait for the run to finish, or cancel it'); return false; }
-    clear();
-    const item = { name: file.name || 'Untitled', file, kind, url: URL.createObjectURL(file), canvas: null, out: null, outBlob: null, outName: '', drive: o.drive || null, w: 0, h: 0, dur: 0 };
-    S.item = item;
+    const item = { id: nextId++, name: file.name || 'Untitled', file, kind, url: URL.createObjectURL(file), canvas: null, out: null, outBlob: null, outName: '', drive: o.drive || null, w: 0, h: 0, dur: 0 };
     try {
       if (kind === 'image') {
         item.canvas = await IO.decode(file);
@@ -101,13 +123,9 @@
         probe.removeAttribute('src'); probe.load();
         if (item.dur > V.MAX_SECONDS) throw new Error(`Videos up to ${V.MAX_SECONDS} seconds (this one is ${Math.round(item.dur)} s). Trim it first.`);
       }
-    } catch (e) { S.item = null; URL.revokeObjectURL(item.url); toast(e.message); setStatus(e.message); return false; }
-    $('up-empty').hidden = true;
-    $('up-stage').hidden = false;
-    showBefore();
-    setStatus('Choose 2× or 4×, then Upscale.');
-    updateInfo();
-    updateButtons();
+    } catch (e) { URL.revokeObjectURL(item.url); toast(e.message); setStatus(e.message); return false; }
+    S.items.push(item);
+    select(item);
     return true;
   }
 
@@ -133,17 +151,29 @@
   }
 
   /* ---------- Running ---------- */
+  /** Upscale: every file not done yet, one after the other, when there are two or more; else the one shown (again). */
   async function run() {
-    const it = S.item;
-    if (!it || S.busy) return;
-    const c = choice();
+    if (!S.item || S.busy) return;
+    const todo = S.items.filter((x) => !x.out);
+    const queue = todo.length > 1 ? todo : [S.item];
     S.busy = true; S.cancel = { cancelled: false };
+    for (const it of queue) {
+      if (S.cancel.cancelled) break;
+      select(it);
+      await runOne(it);
+    }
+    S.busy = false;
+    updateButtons();
+  }
+  async function runOne(it) {
+    const c = choice();
+    it.running = true;
     updateButtons();
     try {
       const bytes = c.id === QUALITY_ID && !E().isLoaded(QUALITY_ID) ? await libBytes() : null;
       if (it.kind === 'image') {
         setStatus(`Starting ${c.label}…`, 0);
-        it.out = { canvas: await PL().run(it.canvas, { scale: S.scale, model: c.id, bytes, signal: S.cancel,
+        it.out = { scale: S.scale, canvas: await PL().run(it.canvas, { scale: S.scale, model: c.id, bytes, signal: S.cancel,
           onProgress: (d, t) => setStatus(`Upscaling with ${c.label}: tile ${d} of ${t}`, d / t) }) };
         showAfterImage();
         setStatus(`Done: ${c.label}, ${it.out.canvas.width} × ${it.out.canvas.height} px. ${c.note}`.trim());
@@ -152,7 +182,7 @@
         const r = await V.run(it.file, { scale: S.scale, model: c.id, bytes, fps: S.fps, signal: S.cancel,
           progress: (d, t) => setStatus(`Frame ${d} of ${t} with ${c.label}`, d / t) });
         it.outBlob = r.blob; it.outName = IO.outName(it.name, S.scale, r.ext);
-        it.out = { w: r.w, h: r.h };
+        it.out = { scale: S.scale, w: r.w, h: r.h };
         showAfterVideo();
         setStatus(`Done: ${r.frames} frames at ${r.w} × ${r.h}, ${c.label}. ${c.note}`.trim());
       }
@@ -160,8 +190,8 @@
       if (S.cancel.cancelled || e.message === 'Cancelled') setStatus('Cancelled.');
       else setStatus('Could not upscale: ' + e.message);
     } finally {
-      S.busy = false;
-      updateButtons();
+      it.running = false;
+      it.status = $('up-status').textContent;
     }
   }
 
@@ -189,15 +219,10 @@
     setStatus('Cancelling…');
   }
 
-  /* ---------- Results ---------- */
-  /* ---------- Controls ---------- */
+  /* ---------- Controls (the buttons themselves are drawn by app/layout.js) ---------- */
   function updateButtons() {
-    const has = !!S.item, done = has && !!S.item.out;
-    $('up-run').disabled = !has || S.busy;
-    $('up-cancel').disabled = !S.busy;
-    $('up-download').disabled = !done || S.busy;
-    $('up-save').disabled = !done || S.busy || !D.available();
-    $('up-clear').disabled = !has || S.busy;
+    const has = !!S.item;
+    if (U.layout) U.layout.paint();
     $('up-scale-2').setAttribute('aria-pressed', String(S.scale === 2));
     $('up-scale-4').setAttribute('aria-pressed', String(S.scale === 4));
     $('up-model').querySelector('option[value="quality"]').disabled = S.scale !== 4;
@@ -218,13 +243,8 @@
   }
 
   function wire() {
-    $('up-open').addEventListener('click', () => g.SlopIntake.pick({ to: 'upscale', multiple: false }));
+    $('up-open').addEventListener('click', () => g.SlopIntake.pick({ to: 'upscale' }));
     $('up-drive').addEventListener('click', () => g.SlopIntake.fromDrive({ to: 'upscale', title: 'Open from Slop Drive' }));
-    $('up-run').addEventListener('click', run);
-    $('up-cancel').addEventListener('click', cancel);
-    $('up-download').addEventListener('click', U.output.download);
-    $('up-save').addEventListener('click', U.output.saveDrive);
-    $('up-clear').addEventListener('click', clear);
     $('up-scale-2').addEventListener('click', () => setScale(2));
     $('up-scale-4').addEventListener('click', () => setScale(4));
     $('up-model').addEventListener('change', (e) => { S.model = e.target.value; updateButtons(); });
@@ -232,13 +252,12 @@
     $('up-quality').addEventListener('input', (e) => { S.quality = Number(e.target.value) / 100; $('up-quality-val').textContent = e.target.value; });
     $('up-fps').addEventListener('change', (e) => { S.fps = Number(e.target.value); updateInfo(); });
     $('up-get-more').addEventListener('click', async () => { await loadLib(); if (g.SlopLibrary) g.SlopLibrary.open({ onInstalled: refreshModels }); });
-    // The zone (shared/drop) is the intake's: one picture at a time, the rest are refused with a reason. It is the empty
-    // state's only drop area; with a picture open, the whole stage still takes drops.
+    // The zone (shared/drop) is the intake's: the empty state's only drop area; the stage and the list take drops too.
     SlopDrop.attach($('up-drop'), {
       intake: 'upscale',
       label: 'Drop a picture or a short video here',
       hint: 'JPEG, PNG, WebP and AVIF pictures, and MP4, WebM or MOV video up to 15 seconds. Everything runs in this browser. Nothing is uploaded.',
-      targets: [$('up-stage-wrap')],
+      targets: [$('up-stage-wrap'), $('up-list')],
       preview: { picture: { src: '../assets/shots/upscale.jpg', alt: 'A photo of a city at night, before and after a 2× upscale' },
         steps: ['Drop a picture or a short video', 'Pick 2× or 4× and press Upscale', 'Download the bigger copy'] },
       // The city at night (the fourth scene), small: its lit windows show the sharper edges best.
@@ -250,16 +269,13 @@
     });
   }
 
-  /** Every way in (Open, the zone, a drop on the stage, a paste, Open from Slop Drive, ?drive=<id>, a PWA launch, the
-   *  sample, controller.open) is a source of this one spec: its first-use notice, then open(). */
+  /** Every way in (Open, the zone, drops, a paste, Slop Drive, ?drive=<id>, a launch, the sample, controller.open) is a
+   *  source of this one spec: its first-use notice, then open(); each file joins the list (up to 50). */
   function registerIntake() {
     g.SlopIntake.register({
-      id: 'upscale', limit: 1, notice: FIRST_USE, driveAccept: ['image/*', 'video/*'],
+      id: 'upscale', limit: 50, notice: FIRST_USE, driveAccept: ['image/*', 'video/*'],
       accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: 'a picture or a short video' },
-      process: async (file, ctx) => {
-        if (!(await open(file, { drive: ctx.drive ? ctx.drive.id : null }))) throw new Error('could not be opened');
-        return file.name;
-      },
+      process: async (file, ctx) => { if (!(await open(file, { drive: ctx.drive ? ctx.drive.id : null }))) throw new Error('could not be opened'); return file.name; },
     });
   }
 
@@ -277,6 +293,7 @@
     await g.SlopIntake.launch({ to: 'upscale' });
   }
 
-  U.controller = { open: (file) => g.SlopIntake.take([file], { to: 'upscale' }), run, clear, state: () => ({ scale: S.scale, model: S.model, busy: S.busy }) };
+  U.controller = { open: (file) => g.SlopIntake.take([file], { to: 'upscale' }), run, clear, remove, select, state: () => ({ scale: S.scale, model: S.model, busy: S.busy, files: S.items.length }) };
+  updateButtons();   // the panel's buttons are in before the first paint
   document.addEventListener('DOMContentLoaded', boot);
 })(typeof window !== 'undefined' ? window : globalThis);

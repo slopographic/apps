@@ -37,9 +37,15 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/appbar/appbar.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/qr.css">
   <script src="../shared/apps.js"></script>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
   <script src="../shared/hub.js"></script>
   <script src="../shared/intake/outtake.js"></script>
   <script src="../shared/intake/rules.js"></script>
@@ -79,8 +85,9 @@
   <div class="qr-app">
     <div class="qr-bar" id="qr-bar"></div>
 
-    <div class="qr-work">
-      <section class="qr-left" aria-label="Edit the code">
+    <!-- View · Panel (shared/frame): the live preview, and the editor with PNG at the panel's foot on the right -->
+    <div class="qr-work" id="qr-work">
+      <aside class="qr-left" id="qr-edit" aria-label="Edit the code">
         <div class="qr-tabs" role="tablist" aria-label="Edit sections" id="qr-tabs">
           <button type="button" role="tab" class="qr-tab" id="qr-tab-templates" data-view="templates" aria-controls="qr-panel-templates" aria-selected="false" tabindex="-1"></button>
           <button type="button" role="tab" class="qr-tab" id="qr-tab-content" data-view="content" aria-controls="qr-panel-content" aria-selected="true" tabindex="0"></button>
@@ -129,24 +136,20 @@
           </div>
           <div class="qr-grid" id="qr-grid"></div>
         </div>
-      </section>
+      </aside>
 
-      <section class="qr-right" aria-label="Live preview and download">
+      <main class="qr-right" id="qr-view" aria-label="Live preview">
         <div class="qr-stage" id="qr-stage">
           <img class="qr-img" id="qr-img" alt="QR code preview" hidden>
           <p class="qr-off" id="qr-off">Fill in the form, or pick a template. The code appears here as you type.</p>
         </div>
         <p class="qr-meta" id="qr-meta" aria-live="polite"></p>
         <p class="qr-err" id="qr-err" role="alert"></p>
-        <div class="qr-exports" role="group" aria-label="Download">
-          <button type="button" class="sui-btn" id="qr-dl-svg" disabled>SVG</button>
-          <button type="button" class="sui-btn sui-primary" id="qr-dl-png" disabled>PNG</button>
-          <button type="button" class="sui-btn" id="qr-dl-pdf" disabled>Print page (PDF)</button>
-        </div>
         <p class="qr-note qr-hint">Drag the picture into another app, or use Copy to buffer in the header. Save to Slop Drive keeps the settings, so Open from Slop Drive can edit the code again.</p>
-      </section>
+      </main>
     </div>
   </div>
+  <script src="js/layout.js"></script>
   <script src="../shared/tour/mount.js" data-app="qr"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
   <script src="../shell/shell.js"></script>

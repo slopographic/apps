@@ -27,6 +27,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://slopographic.com/"},{"@type":"ListItem","position":2,"name":"Checksum","item":"https://slopographic.com/checksum/"}]}</script>
   <!-- seo:end -->
   <link rel="stylesheet" href="../shared/slopui.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/checksum.css">
 </head>
 <body>
@@ -34,7 +35,9 @@
     <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"></a>
     <h1>Checksum</h1>
   </header>
-  <main class="ck">
+  <!-- View · Panel (shared/frame): the file and its hash; the algorithm, the hash to check and Copy hash on the right -->
+  <div class="ck-frame" id="ck-frame">
+  <main class="ck" id="ck-view">
     <p class="ck-lede">Compute the hash of a file, or check it against the hash its publisher gave you. The file is read on this device and never uploaded.</p>
 
     <section class="ck-card" aria-labelledby="ck-pick">
@@ -46,34 +49,41 @@
     </section>
 
     <section class="ck-card" aria-labelledby="ck-out">
-      <h2 id="ck-out">2. Hashes</h2>
-      <label class="ck-row">Algorithm
-        <select id="ck-alg">
+      <h2 id="ck-out">2. The hash</h2>
+      <output id="ck-hash" class="ck-hash" aria-label="Hash of the file"></output>
+      <p id="ck-verdict" class="ck-verdict" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <aside class="ck-side" id="ck-side" aria-label="Hash settings">
+    <div class="ck-group" data-title="Algorithm">
+      <label class="sf-field"><select id="ck-alg" aria-label="Algorithm">
           <option value="SHA-256" selected>SHA-256</option>
           <option value="SHA-1">SHA-1</option>
           <option value="SHA-384">SHA-384</option>
           <option value="SHA-512">SHA-512</option>
-        </select>
-      </label>
-      <output id="ck-hash" class="ck-hash" aria-label="Hash of the file"></output>
-      <button type="button" id="ck-copy" class="ck-btn" disabled>Copy hash</button>
-      <p class="ck-note">SHA-1 is kept only to match older published hashes. Use SHA-256 for new checks.</p>
-    </section>
-
-    <section class="ck-card" aria-labelledby="ck-check">
-      <h2 id="ck-check">3. Check against a published hash</h2>
-      <label class="ck-row">Expected hash
+        </select></label>
+      <p class="sf-note">SHA-1 is kept only to match older published hashes. Use SHA-256 for new checks.</p>
+    </div>
+    <div class="ck-group" data-title="Check against a published hash">
+      <label class="sf-field"><span class="sf-lab">Expected hash</span>
         <input type="text" id="ck-expect" autocomplete="off" spellcheck="false" placeholder="Paste the hash from the download page">
       </label>
-      <p id="ck-verdict" class="ck-verdict" role="status" aria-live="polite"></p>
-    </section>
-  </main>
+    </div>
+    <button type="button" id="ck-copy" class="sui-btn sui-primary" disabled>Copy hash</button>
+  </aside>
+  </div>
   <script src="../shared/apps.js"></script>
   <script src="../shared/intake/rules.js"></script>
   <script src="../shared/intake/normalize.js"></script>
   <script src="../shared/intake/pipeline.js"></script>
   <script src="../shared/intake/intake.js"></script>
   <script src="../shared/intake/sources.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
+  <script src="js/layout.js"></script>
   <script src="js/checksum.js"></script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
