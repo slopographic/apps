@@ -51,8 +51,7 @@ const sig = (t) => JSON.stringify(t.active().map((i) => [i.id, t.targetOf(i), i.
 async function convert(t) { await t.run(); t.outputs.sig = sig(t); }   // after the run: it forgets passwords
 
 const list = [];
-const add = (name, title, args, run, extra) => list.push(Object.assign({ id: 'cv.ai.' + name.replace(/_/g, '-'), tool: name, title, group: 'AI', hidden: true, destructive: false, args,
-  run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+const add = C.aiAdder('cv', list);   // shared/commands/commands.js
 
 add('new_conversion', 'Start a new conversion', [{ name: 'to', type: 'string', maxLength: 120, description: 'optional: the format files added next start on (a kind like png, pdf, csv, or a conversion id)' }], (a) => {
   const t = notBusy(tool()), n = t.items.length;

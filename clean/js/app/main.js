@@ -102,7 +102,7 @@
     $('cl-save-all').addEventListener('click', () => saveAll());
     if (window.SlopCmd && SlopCmd.init) SlopCmd.init({ app: 'clean' });
     // the assistant's commands with arguments (ai-commands.js; shared/commands/sources.js finds Drive files), loaded when first asked
-    if (window.SlopCmd && SlopCmd.provide) SlopCmd.provide({ prepare: () => (window.SlopCmdSources ? Promise.resolve() : script('../shared/commands/sources.js')).then(() => script('js/app/ai-commands.js')) });
+    if (window.SlopCmd && SlopCmd.provide) SlopCmd.provide({ prepare: () => SlopCmd.sources().then(() => script('js/app/ai-commands.js')) });
     if (window.SlopCmd && SlopCmd.register) SlopCmd.register([
       { id: 'cl.open', title: 'Open pictures…', group: 'File', keys: ['Mod+O'], run: openPicker, keywords: ['add', 'import', 'photo'] },
       { id: 'cl.download', title: 'Download cleaned pictures', group: 'File', keys: ['Mod+S'], run: downloadAll, keywords: ['zip', 'save'] },

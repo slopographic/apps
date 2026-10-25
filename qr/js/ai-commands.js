@@ -70,12 +70,7 @@
   }, { description: 'Put a logo in the middle of the code (error correction goes to H so it still scans).' });
   add('remove_logo', 'Remove the logo', [], () => { Object.assign(S().logo, { href: null, name: '', mark: '' }); return result('Removed the logo.'); });
 
-  let srcP = null;
-  function sources() {
-    if (window.SlopCmdSources) return Promise.resolve();
-    return (srcP = srcP || new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
-      { src: new URL('../shared/commands/sources.js', location.href).href, onload: res, onerror: () => { srcP = null; rej(new Error('Could not load sources.js')); } }))));
-  }
+  const sources = () => C.sources();   // shared/commands/sources.js, loaded once (commands.js)
   add('export_qr', 'Export the QR code', [{ name: 'format', type: 'enum', values: ['png', 'svg', 'pdf'], default: 'png' },
     { name: 'to', type: 'enum', values: ['drive', 'download', 'both'], default: 'drive' }],
   async (a) => {

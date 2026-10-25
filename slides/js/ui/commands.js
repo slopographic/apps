@@ -16,7 +16,7 @@
   }
   K.prepare = function () {
     if (SS.aiCmd) return Promise.resolve();
-    return (window.SlopCmdSources ? Promise.resolve() : script('../../../shared/commands/sources.js'))
+    return window.SlopCmd.sources()   // shared/commands/sources.js, loaded once
       .then(function () { return script('ai-files.js'); }).then(function () { return script('ai-commands.js'); });
   };
   function editing() { return A.mode === 'edit' && !SS.textEdit.editing; }

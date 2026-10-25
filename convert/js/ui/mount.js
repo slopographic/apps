@@ -31,7 +31,7 @@ if (window.SlopCmd && window.SlopCmd.provide && document.querySelector('[data-co
   window.SlopCmd.provide({ prepare: async () => {
     if (!window.SLOP_APPS) await one('../../../shared/apps.js');
     if (!window.SlopHub) await one('../../../shared/hub.js');
-    if (!window.SlopCmdSources) await one('../../../shared/commands/sources.js');
+    await window.SlopCmd.sources();   // shared/commands/sources.js
     await import('./ai-commands.js');
   } });
 }

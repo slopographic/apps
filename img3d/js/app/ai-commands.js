@@ -9,11 +9,7 @@
   const $ = (id) => document.getElementById(id);
   const list = [];
   const add = C.aiAdder('img3d', list);   // shared/commands/commands.js
-  let srcP = null;
-  const sources = () => (window.SlopCmdSources ? Promise.resolve() : (srcP = srcP || new Promise((res, rej) => {
-    const el = Object.assign(document.createElement('script'), { src: new URL('../shared/commands/sources.js', location.href).href });
-    el.onload = res; el.onerror = () => { srcP = null; rej(new Error('Could not load sources.js')); }; document.head.append(el);
-  })));
+  const sources = () => C.sources();   // shared/commands/sources.js, loaded once (commands.js)
   const settle = async () => { for (let i = 0; i < 600 && !P.idle(); i++) await new Promise((r) => setTimeout(r, 50)); };
   const OPTS = [['mode', 'select'], ['grid', 'select'], ['scale', 'range'], ['smooth', 'range'], ['size', 'range'], ['invert', 'check'], ['subject', 'check']];
   const values = () => Object.fromEntries(OPTS.map(([id, k]) => [id, k === 'check' ? $(id).checked : $(id).value]));
