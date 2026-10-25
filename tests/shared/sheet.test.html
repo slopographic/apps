@@ -29,6 +29,8 @@ async function app(width, opts = '') {
     <\/script></body></html>`;
   document.body.append(f);
   await waitFor(() => f.contentWindow && f.contentWindow.sheet, { timeout: 5000 });
+  // no slide: a busy machine starts a transition late, and the test reads where the sheet ends up
+  f.contentDocument.head.append(Object.assign(f.contentDocument.createElement('style'), { textContent: '* { transition: none !important; }' }));
   return f;
 }
 const tap = (w, el) => { el.dispatchEvent(new w.PointerEvent('pointerdown', { bubbles: true, pointerId: 1 })); el.click(); };

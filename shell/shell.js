@@ -89,7 +89,6 @@
   addCss('shell/shell.css');
   addCss('brand/brand.css');   // the brand link's app icon and badge
   addCss('shared/ui/hbtn.css');   // the look of every shared header button (Apps, the bell, Drive, Tour, View)
-  if (!window.SlopMenuButton) queue.push(['shared/ui/menubutton.js']);   // the header's More (⋯) menu (shared/ui/hbtn.js)
   if (!window.SlopHbtn) queue.push(['shared/ui/hbtn.js']);
   // Touch and pen for every app (double tap, long press, pinch on surfaces, palm rejection): shared/input/HANDOFF.md
   if (!(window.SlopTouch && window.SlopTouch.ready)) { addCss('shared/input/touch.css'); queue.push(['shared/input/gesture.js'], ['shared/input/events.js'], ['shared/input/touch.js']); }

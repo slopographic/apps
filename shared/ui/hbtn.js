@@ -19,20 +19,20 @@
   /** Something inside host is cut off, pushed past an edge, or wrapped onto a new row (a shared button sits below the
    *  header's own controls), or the app's title (h1) is squeezed: it runs past the box that holds it, which
    *  clips it ("Slop Upsca"). */
-  function over(host) {
+  function over(host, rows) {
     if (host.scrollWidth > host.clientWidth + 1) return true;
     for (const t of host.querySelectorAll('h1')) {
       const p = t.parentElement, tr = t.getBoundingClientRect();
       if (!tr.width || !p || p === host) continue;
       if (tr.right > p.getBoundingClientRect().right + 1 || t.scrollWidth > t.clientWidth + 1) return true;
     }
-    // the header's own last row: a header that is two rows of the app's own controls on a phone (PhotoSlop) may hold them
-    // on its second; only one below every own row is wrapped
+    // rows: the header's own last row counts (a header that is two rows of the app's own controls on a phone, PhotoSlop,
+    // may hold them on its second; only one below every own row is wrapped); else the first item's row
     const box = host.getBoundingClientRect();
     const ours = (c) => c.matches('.slop-hbtn, .sh-hdr') || (!!c.querySelector('.slop-hbtn') && ![...c.querySelectorAll(CONTROLS)].some((n) => !n.closest('.slop-hbtn')));
     const own = [...host.children].filter((c) => !ours(c)).map((c) => c.getBoundingClientRect()).filter((r) => r.width && r.height);
     const first = [...host.children].map((c) => c.getBoundingClientRect()).find((r) => r.width && r.height);
-    const row = own.length ? Math.max(...own.map((r) => r.bottom)) : first ? first.bottom : box.bottom;
+    const row = rows && own.length ? Math.max(...own.map((r) => r.bottom)) : first ? first.bottom : box.bottom;
     for (const n of host.querySelectorAll('.slop-hbtn')) {
       const r = n.getBoundingClientRect();
       if (!r.width) continue;
@@ -80,7 +80,10 @@
   /* The header's other shared buttons fold into a More (⋯) menu, in this order, before a button that stays (data-hbtn-keep:
    * AI) gives up its place; More then lists everything folded or hidden, by its label. */
   const FOLD = ['.sh-theme', '.sn-bell', '[data-sdl]', '.sh-tutorial', '.sh-switch'];
-  const keep = (b) => b.hasAttribute('data-hbtn-keep');
+  // only on a phone: a wide header keeps its old order (AI gives way after Convert…, into the Theme menu; nothing folds)
+  const PHONE = '(max-width: 640px)';
+  const phone = () => !!(win.matchMedia && win.matchMedia(PHONE).matches);
+  const keep = (b) => b.hasAttribute('data-hbtn-keep') && phone();
   /** The buttons that may fold: those shown, or folded by us (never one the app hid itself). */
   function folders(host) {
     const out = [];
@@ -89,9 +92,21 @@
   }
   const labelOf = (b) => b.dataset.hbtnLabel || b.getAttribute('aria-label') || b.title || b.textContent.trim();
   /** The More button of host (made the first time something folds; needs SlopMenuButton, shared/ui/menubutton.js). */
+  const SRC = win.document.currentScript && win.document.currentScript.src;
+  let mbP = null;
+  /** shared/ui/menubutton.js, loaded the first time a header needs its More menu (not before the page's first paint). */
+  function loadMenuButton() {
+    if (mbP || !SRC) return mbP;
+    return (mbP = new Promise((res) => {
+      const s = win.document.createElement('script');
+      s.src = new URL('menubutton.js', SRC).href; s.onload = s.onerror = res;
+      win.document.head.append(s);
+    }));
+  }
   function moreOf(host, make) {
     let m = host.querySelector(':scope .slop-hmore');
-    if (m || !make || !win.SlopMenuButton) return m;
+    if (m || !make) return m;
+    if (!win.SlopMenuButton) { const p = loadMenuButton(); if (p) p.then(() => { if (win.SlopMenuButton) check(host); }); return null; }
     const doc = host.ownerDocument;
     m = doc.createElement('button');
     m.type = 'button'; m.className = 'slop-hbtn slop-hmore'; m.hidden = true;
@@ -121,15 +136,22 @@
     const ys = yielders(host), fs = folders(host), hidden = ys.map(() => 'hidden');
     apply(host, ys, fs, false, hidden, 0);
     const h0 = host.getBoundingClientRect().height;   // the header without them: they may not make it taller
-    const fits = () => host.getBoundingClientRect().height <= h0 + 1 && !over(host);
+    let rows = false;
+    const fits = () => host.getBoundingClientRect().height <= h0 + 1 && !over(host, rows);
     const plan = steps(ys).slice(0, -1).filter((st) => !st.some((x, i) => x === 'hidden' && keep(ys[i]))).map((st) => [false, st, 0]);
     if (!ys.some(keep)) plan.push([false, hidden, 0]);
     const kept = ys.map((b) => (keep(b) ? 'icon' : 'hidden'));
     plan.push([true, ys.map(() => 'icon'), 0]);
-    for (let k = 0; k <= fs.length; k++) plan.push([true, kept, k]);
-    if (ys.some(keep)) for (let k = 0; k <= fs.length; k++) plan.push([true, hidden, k]);
-    for (const [tight, st, k] of plan) { apply(host, ys, fs, tight, st, k); if (fits()) return tight; }
-    apply(host, ys, fs, true, hidden, fs.length);
+    const folds = phone() ? fs.length : 0;
+    for (let k = 1; k < ys.length; k++) plan.push([true, ys.map((b, i) => (i < k ? 'hidden' : 'icon')), 0]);
+    for (let k = 0; k <= folds; k++) plan.push([true, kept, k]);
+    if (ys.some(keep)) for (let k = 0; k <= folds; k++) plan.push([true, hidden, k]);
+    // on the first row if they can be; else on the header's own rows (only where the app's controls take two rows)
+    for (rows of [false, true]) for (const [tight, st, k] of plan) { apply(host, ys, fs, tight, st, k); if (fits()) return tight; }
+    // nothing fits: the app's own controls overflow whatever we do; fold nothing (it would not help) and keep AI as an icon
+    // when that adds no row, else hide it as before (the Theme menu and the command palette still offer it)
+    apply(host, ys, fs, true, kept, 0);
+    if (host.getBoundingClientRect().height > h0 + 1) apply(host, ys, fs, true, hidden, 0);
     return true;
   }
   /** Where a menu of b opens: b, or the More button when b is folded into it. */
