@@ -29,6 +29,8 @@ async function app(width, opts = '') {
     <\/script></body></html>`;
   document.body.append(f);
   await waitFor(() => f.contentWindow && f.contentWindow.sheet, { timeout: 5000 });
+  // no slide: a busy machine starts a transition late, and the test reads where the sheet ends up
+  f.contentDocument.head.append(Object.assign(f.contentDocument.createElement('style'), { textContent: '* { transition: none !important; }' }));
   return f;
 }
 const tap = (w, el) => { el.dispatchEvent(new w.PointerEvent('pointerdown', { bubbles: true, pointerId: 1 })); el.click(); };
@@ -145,15 +147,17 @@ describe('SlopSheet drawers (side: start | end)', () => {
 });
 
 describe('SlopSheet: more than one, redraws, menus', () => {
-  it('two sheets on one root open on their own; Escape closes one at a time', async () => {
+  it('two sheets on one root: opening one closes the other (only one open at a time); Escape closes it', async () => {
     const f = await app(390), w = f.contentWindow, D = f.contentDocument;
     const side = D.createElement('nav'); side.id = 'side'; side.textContent = 'Folders'; D.getElementById('app').append(side);
     const drawer = w.SlopSheet.attach({ root: D.getElementById('app'), panel: side, side: 'start', label: 'Folders' });
     drawer.open();
     expect([drawer.isOpen(), w.sheet.isOpen(), D.getElementById('panel').classList.contains('ssh-on')]).toEqual([true, false, false]);
-    w.sheet.open(); drawer.open();
-    D.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
-    expect(w.sheet.isOpen() !== drawer.isOpen()).toBe(true);
+    w.sheet.open();
+    expect([w.sheet.isOpen(), drawer.isOpen(), side.classList.contains('ssh-on')]).toEqual([true, false, false]);
+    drawer.open();
+    expect([w.sheet.isOpen(), drawer.isOpen(), w.changes.slice(-1)[0]]).toEqual([false, true, 'false:other']);
+    expect(D.getElementById('app').classList.contains('ssh-open')).toBe(true);   // the shared root keeps the open drawer's class
     D.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
     expect([w.sheet.isOpen(), drawer.isOpen()]).toEqual([false, false]);
     f.remove();

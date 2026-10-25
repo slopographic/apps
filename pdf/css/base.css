@@ -65,7 +65,8 @@ body > .sr { position: fixed !important; }
   grid-template-areas: "top top top" "rail work props" "status status status"; }
 .app.no-panel { grid-template-columns: var(--rail-w) minmax(0, 1fr) 0; }
 .app.no-panel .props { display: none; }
-.app[data-mode="empty"] .props { opacity: .75; }
+/* faded until a PDF is open, beside the page only: on a phone the panel is a sheet over the page and must be opaque */
+@media (min-width: 901px) { .app[data-mode="empty"] .props { opacity: .75; } }
 
 /* ---------------------------------------------------------------- top bar */
 .topbar { grid-area: top; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 12px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; }

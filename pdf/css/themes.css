@@ -65,7 +65,7 @@
   .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--top-h) minmax(0, 1fr) 62px; grid-template-areas: "top" "work" "rail"; }
   .app.no-panel { grid-template-columns: minmax(0, 1fr); }
   .statusbar { display: none; }
-  .rail { flex-direction: row; gap: 0; padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); border-right: 0; border-top: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; }
+  .rail { position: relative; z-index: 41; flex-direction: row; gap: 0; padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); border-right: 0; border-top: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; } /* over the sheet's dimmed page */
   .rail-b { flex: none; width: 72px; padding: 6px 2px; font-size: 10px; }
   .rail-b span { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .rail-b.on::before { left: 14px; right: 14px; top: -4px; bottom: auto; width: auto; height: 3px; border-radius: 0 0 3px 3px; }

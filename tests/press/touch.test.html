@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="slop-test-touch">
 <title>Slop Press · touch</title>
 <!-- Slop Press with a finger (tests/run.mjs --touch: an iPad in WebKit, an Android tablet in Chromium; and the desktop run).
-     Covers: press/js/edit/tools.js, press/js/edit/select.js -->
+     Covers: press/js/edit/tools.js, press/js/edit/select.js, press/js/edit/text.js (the caret above the on-screen keyboard) -->
 <style>html, body { margin: 0; height: 100%; overflow: hidden; background: #111; } iframe { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; border: 0; }</style></head>
 <body>
   <iframe id="app" src="../../press/index.html?fresh"></iframe>
@@ -67,6 +67,21 @@
       await waitFor(() => PR.state.text, { timeout: 3000 });
       expect(PR.state.text.frame === frame.id || PR.state.text.frame === frame).toBeTruthy();
       PR.textEdit.exit(); PR.tools.set('select');
+    });
+    it("typing with the on-screen keyboard up: the view pans the caret's line above it (shared/input/keyboard.js)", async () => {
+      await waitFor(() => W.SlopKeyboard, { timeout: 10000 });
+      // a stand-in visual viewport: the keyboard is it shrinking (Playwright cannot raise a real one)
+      const vv = new W.EventTarget(), H = W.document.documentElement.clientHeight;
+      Object.assign(vv, { width: W.innerWidth, height: H, offsetTop: 0, offsetLeft: 0, scale: 1 });
+      W.SlopKeyboard._viewport(vv);
+      PR.textEdit.enter(frame, 0); await sleep(50);
+      const before = PR.textEdit.caretBox().bottom;
+      vv.height = Math.round(H * 0.4); vv.dispatchEvent(new W.Event('resize')); await sleep(80);
+      const c = PR.textEdit.caretBox(), v = W.SlopKeyboard.visible();
+      expect(before > v.bottom).toBe(true);   // it was under the keyboard
+      expect(c.top >= v.top && c.bottom <= v.bottom).toBe(true);
+      vv.height = H; vv.dispatchEvent(new W.Event('resize'));
+      PR.textEdit.exit(); PR.tools.set('select'); PR.view.fitPage(); await sleep(50);
     });
     it('a long press opens the context menu, which stays open when the finger lifts', async () => {
       W.SlopUI.closeMenu();

@@ -117,7 +117,7 @@
   });
 
   describe('phones', () => {
-    it('at 390 px the panel is a bottom sheet (SlopSheet) across the width', async () => {
+    it('at 390 px the panel is a full-height bottom sheet (SlopSheet) across the width', async () => {
       app.frame.style.width = '390px'; app.frame.style.height = '800px';
       await sleep(300);
       win.SlopAIPanel.close(); await sleep(50);
@@ -127,7 +127,7 @@
       await sleep(400);
       const r = panel.getBoundingClientRect();
       expect(Math.round(r.width)).toBe(390); expect(Math.abs(r.bottom - 800)).toBeLessThan(2);
-      expect(r.height).toBeLessThan(800 * 0.8);
+      expect(r.height > 800 * 0.9 && r.top >= 0).toBe(true);   // full height (the chat scrolls; the keyboard: shared/input/keyboard.js)
       expect(win.document.documentElement.classList.contains('sap-beside')).toBe(false);
       expect(win.document.documentElement.scrollWidth).toBeLessThan(392);
     }, { timeout: 20000 });

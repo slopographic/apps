@@ -92,6 +92,7 @@
   if (!window.SlopHbtn) queue.push(['shared/ui/hbtn.js']);
   // Touch and pen for every app (double tap, long press, pinch on surfaces, palm rejection): shared/input/HANDOFF.md
   if (!(window.SlopTouch && window.SlopTouch.ready)) { addCss('shared/input/touch.css'); queue.push(['shared/input/gesture.js'], ['shared/input/events.js'], ['shared/input/touch.js']); }
+  if (!window.SlopKeyboard) queue.push(['shared/input/keyboard.js']);   // typing stays above the on-screen keyboard
   if (!window.SlopPWA) queue.push(['shared/pwa.js']);   // every app works offline after its first visit
   if (!window.SlopTutorialVideo) queue.push(['shared/ui/video.js']);   // tutorial links play in a dialog on the page
   for (const m of ['notify', 'layout', 'tabs', 'switcher', 'drawer', 'header']) queue.push(['shell/' + m + '.js']);

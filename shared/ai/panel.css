@@ -73,7 +73,13 @@ body.sap-open .sap-fab { display: none; }
 :root.sap-beside body { margin-inline-end: min(var(--sap-w, 380px), 100vw); }
 :root.sap-beside .sap { box-shadow: none; }
 /* phones: a bottom sheet (shared/ui/sheet.js gives it its place, the swipe and the ×) */
-.sap-host.ssh-phone .sap { top: auto; width: auto; height: auto; block-size: 76vh; max-block-size: 76vh; border-left: 0; background: var(--p-bg); color: var(--p-fg); z-index: 890; }
+/* full height, the chat scrolling between the header and the composer; with the keyboard up the sheet ends above it and the
+   composer with it (shared/ui/sheet.js and shared/input/keyboard.js); fields at 16 px so iOS does not zoom into them */
+.sap-host.ssh-phone .sap { top: auto; width: auto; height: auto; block-size: calc(100vh - 8px - env(safe-area-inset-top, 0px)); block-size: calc(100dvh - 8px - env(safe-area-inset-top, 0px));
+  max-block-size: none; border-left: 0; background: var(--p-bg); color: var(--p-fg); z-index: 890; padding-block-end: env(safe-area-inset-bottom, 0px); }
+.sap-host.ssh-phone .sap header { padding-inline-end: 52px; }
+.sap-host.ssh-phone .sap-comp textarea, .sap-host.ssh-phone .sap-cloud-f input, .sap-host.ssh-phone .sap-cloud-f select { font-size: 16px; }
+.sap-host.ssh-phone .sap-cloud-f input, .sap-host.ssh-phone .sap-cloud-f select { height: 40px; }
 .sap-host.ssh-phone .sap-x { display: none; }
 .sap-host.ssh-phone .sap > .ssh-x { position: absolute; inset-block-start: 4px; inset-inline-end: 4px; float: none; margin: 0; }
 /* the Sloppo buddy's button (shared/buddy/boot.js) sits bottom right: keep it off the panel's Send button */

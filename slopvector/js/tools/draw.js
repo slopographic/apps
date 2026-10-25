@@ -115,6 +115,8 @@
     S.editing = { id: o.id, isNew: !!opts.isNew, orig: o.text };
     S.sel = [o.id]; S.psel = {};
     var ta = D.textEditor;
+    // a phone's on-screen keyboard (shared/input/keyboard.js): the view pans so the edited text shows above it
+    ta.slopKeyboard = ta.slopKeyboard || { reveal: function (need) { SV.panView(0, -need.dy); SV.positionEditor(); SV.requestRender(true); } };
     ta.value = o.text;
     ta.style.display = 'block';
     SV.positionEditor();

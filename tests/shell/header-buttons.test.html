@@ -28,10 +28,11 @@
 
   describe('Slides top bar', () => {
     for (const [w, h] of [[1886, 900], [1366, 800], [390, 800]]) {
-      it(`${w} px: Drive, Tour, View, Theme, Apps and the bell are on screen, one look, as tall as the app's buttons`, async () => {
+      it(`${w} px: Drive, Tour, View, Theme, Apps and the bell are on screen (or folded into More), one look, as tall as the app's buttons`, async () => {
         const f = await open('slides', w, h), D = f.contentDocument, W = f.contentWindow;
-        const list = shared(D);
-        expect(list.length).toBeGreaterThanOrEqual(6);
+        const list = shared(D), folded = D.querySelectorAll('header [data-hbtn-folded]').length;
+        expect(list.length + folded).toBeGreaterThanOrEqual(6);
+        expect(list.includes(D.querySelector('header .sh-ai'))).toBe(true);   // AI stays: the others fold first (shared/ui/hbtn.js)
         const own = D.getElementById('btnSave').getBoundingClientRect().height;
         for (const n of list) {
           const r = n.getBoundingClientRect();

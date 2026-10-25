@@ -33,6 +33,15 @@
     var s = PT.surfaceOf(at.fr); if (!s) return;
     var p = I.toPage(at.fr, at.x, at.y1), sc = V.toScreen(s.x + p.x, s.y + p.y);
     TE.input.style.left = Math.max(0, Math.min(V.w - 4, sc.x)) + 'px'; TE.input.style.top = Math.max(0, Math.min(V.h - 4, sc.y)) + 'px';
+    if (window.SlopKeyboard && !TE.kbPan) SlopKeyboard.reveal();   // a phone's keyboard: the caret's line stays above it
+  };
+  /** The caret's line on screen (client px), for the on-screen keyboard (shared/input/keyboard.js). */
+  TE.caretBox = function () {
+    var at = S.text && N.locate(S.text.story, S.text.caret), s = at && PT.surfaceOf(at.fr), host = TE.input && TE.input.offsetParent;
+    if (!s || !host) return TE.input.getBoundingClientRect();
+    var p0 = I.toPage(at.fr, at.x, at.y0), p1 = I.toPage(at.fr, at.x, at.y1), r = host.getBoundingClientRect();
+    var a = V.toScreen(s.x + p0.x, s.y + p0.y).y, b = V.toScreen(s.x + p1.x, s.y + p1.y).y;
+    return { top: r.top + Math.min(a, b), bottom: r.top + Math.max(a, b) };
   };
   TE.changed = function () {
     PT.caretOn = true;
@@ -124,6 +133,8 @@
   /* ---------- hidden input (IME-safe) ---------- */
   TE.attach = function (ta) {
     TE.input = ta;
+    // the on-screen keyboard (shared/input/keyboard.js) asks for the caret's line and pans the view to show it
+    ta.slopKeyboard = { rect: TE.caretBox, reveal: function (need) { TE.kbPan = true; V.panBy(0, -need.dy); TE.place(); TE.kbPan = false; V.request(); } };
     ta.addEventListener('compositionstart', function () { TE.composing = true; });
     ta.addEventListener('compositionend', function (e) { TE.composing = false; ta.value = ''; if (e.data) TE.insert(e.data); });
     ta.addEventListener('input', function (e) {
