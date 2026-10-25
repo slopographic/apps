@@ -5,7 +5,7 @@
 .sl-cvt-dlg .sui-body { flex: 1; min-height: 0; padding: 0; overflow: auto; overscroll-behavior: contain; }
 .sl-cvt { display: flex; flex-direction: column; min-height: 100%; }
 .sui-dlg.sl-cvt-dlg .cv-tool.sl-cvt-tool {
-  --bg: var(--s-bg); --panel: var(--s-bg2); --panel-2: var(--s-hover); --ink: var(--s-fg); --muted: var(--s-dim);
+  --bg: var(--s-bg); --panel: var(--s-bg2); --panel-2: color-mix(in srgb, var(--s-fg) 8%, var(--s-bg)); --ink: var(--s-fg); --muted: var(--s-dim);
   --line: var(--s-line); --accent: var(--s-accent); --accent-ink: var(--s-accent-ink); --focus: var(--s-accent);
   color-scheme: inherit; flex: 1; padding: 14px 18px 4px; font: 14px/1.45 var(--s-font); background: var(--s-bg);
 }
@@ -27,7 +27,7 @@
 .sl-cvt-notes { padding: 0 18px; }
 .sl-cvt-note { margin: 8px 18px 0; font: 13px/1.45 var(--s-font); color: var(--s-dim); }
 .sl-cvt-notes .sl-cvt-note { margin: 0 0 6px; }
-.sl-cvt-err { color: #e5484d; }
+.sl-cvt-err { color: var(--s-danger); }
 .sl-cvt-foot { margin: 0; padding: 10px 18px 12px; font: 12px/1.4 var(--s-font); color: var(--s-dim); }
 /* A file dragged over the dialog: one outline round the whole dialog (SlopDrop marks its target .sd-over). */
 .sui-back.sd-over .sl-cvt-dlg { outline: 3px dashed var(--s-accent); outline-offset: -3px; }

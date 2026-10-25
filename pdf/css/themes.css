@@ -1,9 +1,9 @@
 /* Slop PDF — Classic 98 overrides, touch and responsive layouts. */
 /* ---------------------------------------------------------------- Classic 98 */
 :root[data-slop-theme="classic"] .topbar, :root[data-slop-theme="classic"] .ctxbar, :root[data-slop-theme="classic"] .statusbar { box-shadow: inset 0 1px var(--input), inset 0 -1px var(--line); border-color: var(--line); }
-:root[data-slop-theme="classic"] .topbar { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 65%, var(--input))); color: var(--accent-ink); }
+:root[data-slop-theme="classic"] .topbar { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 82%, var(--input))); color: var(--accent-ink); }
 :root[data-slop-theme="classic"] .appname b { font: 700 13px var(--font-ui); color: var(--accent-ink); }
-:root[data-slop-theme="classic"] .home-link { color: color-mix(in srgb, var(--accent-ink) 80%, var(--accent)); }
+:root[data-slop-theme="classic"] .home-link { color: var(--accent-ink); }
 :root[data-slop-theme="classic"] .menu-b, :root[data-slop-theme="classic"] .topbar .tb { color: var(--accent-ink); border-radius: 0; }
 :root[data-slop-theme="classic"] .menu-b:hover, :root[data-slop-theme="classic"] .topbar .tb:hover:not(:disabled) { background: color-mix(in srgb, var(--accent-ink) 20%, transparent); color: var(--accent-ink); }
 :root[data-slop-theme="classic"] .brand { border-radius: 0; box-shadow: var(--bevel); background: var(--bg); }
@@ -18,7 +18,7 @@
 :root[data-slop-theme="classic"] .rail-b.on { background: var(--input); box-shadow: var(--bevel-in); }
 :root[data-slop-theme="classic"] .rail-b.on .ic { color: var(--accent); }
 :root[data-slop-theme="classic"] .rail-b.on::before { display: none; }
-:root[data-slop-theme="classic"] .pp-title { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 65%, var(--input))); color: var(--accent-ink); padding: 6px 10px; }
+:root[data-slop-theme="classic"] .pp-title { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 82%, var(--input))); color: var(--accent-ink); padding: 6px 10px; }
 :root[data-slop-theme="classic"] .pp-title .ic { color: var(--accent-ink); }
 :root[data-slop-theme="classic"] .pp-title h2 { font: 700 12px var(--font-ui); }
 :root[data-slop-theme="classic"] .pp-h { color: var(--fg); font-family: var(--font-ui); text-transform: none; letter-spacing: 0; font-size: 11px; }
@@ -96,3 +96,5 @@
 @media (max-width: 400px) { .topbar { gap: 2px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 
+/* The shared header buttons keep their own light face on the title bar: dark text on it. */
+:root[data-slop-theme="classic"] .topbar .slop-hbtn { color: var(--fg); }

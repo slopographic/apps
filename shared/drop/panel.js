@@ -10,7 +10,7 @@
     // Colours: the app's own --sui-* tokens when it has them, else mixed from the text colour round the zone (right in any
     // theme, light or dark) and the shared theme's accent (--sl-*, set on every page by shared/theme/theme.js).
     '.sd-zone,.sd-preview,.sd-sample,.sd-hint,.sd-toast,.sd-over,.sd-flash{--sd-accent:var(--sui-accent,var(--accent,var(--sl-accent,#3b5bdb)));--sd-on-accent:var(--sui-accent-ink,var(--accent-ink,var(--sl-on-accent,#fff)))}',
-    '.sd-zone,.sd-preview,.sd-sample{--sd-fg:var(--sui-text,currentColor);--sd-muted:var(--sui-muted,color-mix(in srgb,currentColor 68%,transparent));--sd-line:var(--sui-line,color-mix(in srgb,currentColor 22%,transparent));--sd-panel:var(--sui-panel,color-mix(in srgb,currentColor 6%,transparent));--sd-track:var(--sui-track,color-mix(in srgb,currentColor 14%,transparent))}',
+    '.sd-zone,.sd-preview,.sd-sample{--sd-fg:var(--sui-text,currentColor);--sd-muted:var(--sui-muted,color-mix(in srgb,var(--s-fg,var(--sl-text,currentColor)) 72%,transparent));--sd-line:var(--sui-line,color-mix(in srgb,currentColor 22%,transparent));--sd-panel:var(--sui-panel,color-mix(in srgb,currentColor 6%,transparent));--sd-track:var(--sui-track,color-mix(in srgb,currentColor 14%,transparent))}',
     '.sd-zone{display:grid;gap:8px;justify-items:center;text-align:center}',
     '.sd-zone p{color:var(--sd-muted)}',
     '.sd-zone p{margin:0;font-size:13px}',

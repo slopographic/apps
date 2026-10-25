@@ -12,8 +12,8 @@
 :root[data-theme="classic"] .tool { color: #000; }
 :root[data-theme="classic"] .ibtn:hover { box-shadow: var(--bevel-btn); background: transparent; color: #000; }
 :root[data-theme="classic"] .ibtn { color: #000; }
-:root[data-theme="classic"] .dock-tabs { background: linear-gradient(90deg, #000080, #1084d0); border: 0; margin: 3px 3px 0; }
-:root[data-theme="classic"] .dock-tab { color: #c0c0c0; border-right: 0; font-weight: 700; }
+:root[data-theme="classic"] .dock-tabs { background: linear-gradient(90deg, #000080, #0a5ea8); border: 0; margin: 3px 3px 0; }
+:root[data-theme="classic"] .dock-tab { color: #e0e0e0; border-right: 0; font-weight: 700; }
 :root[data-theme="classic"] .dock-tab.on { background: transparent; color: #fff; box-shadow: none; }
 :root[data-theme="classic"] .dock-collapse { color: #fff; }
 :root[data-theme="classic"] .dock-group { border-bottom: 0; }
@@ -37,3 +37,4 @@
 :root[data-theme="classic"] .btn.slop { box-shadow: var(--bevel-btn); border: 0; }
 :root[data-theme="light"] .tool.on { box-shadow: inset 0 0 0 1px #9cc400; background: rgba(212, 255, 58, .55); color: #0a0a0a; }
 :root[data-theme="light"] .dock-tab.on { box-shadow: inset 0 2px 0 #9cc400; }
+:root[data-theme="classic"] .doctab .dt-meta { opacity: .9; }

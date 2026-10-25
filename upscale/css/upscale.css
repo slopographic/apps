@@ -52,7 +52,7 @@ h1, h2, p { margin: 0; }
 .up-h { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--up-mute); font-weight: 700; }
 .up-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .up-seg .sui-btn { height: 36px; font-size: 15px; }
-.up-seg button[aria-pressed="true"] { border-color: var(--up-accent); color: var(--up-accent); background: var(--s-hover); }
+.up-seg button[aria-pressed="true"] { border-color: var(--up-accent); color: var(--s-fg); background: color-mix(in srgb, var(--up-accent) 16%, transparent); font-weight: 600; }
 .up-field { display: grid; gap: 6px; }
 .up-lab { color: var(--up-ink); font-size: 13px; font-weight: 600; }
 .up-field select { width: 100%; height: 36px; padding: 0 10px; background: var(--up-bg); color: var(--up-ink); border: 1px solid var(--up-line); border-radius: var(--s-radius); }

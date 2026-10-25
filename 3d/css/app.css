@@ -58,7 +58,7 @@ a.tb-btn { text-decoration: none; display: inline-block; }
 .vp-views { position: absolute; top: 8px; left: 8px; display: flex; gap: 4px; flex-wrap: wrap; max-width: calc(100% - 16px); }
 .vp-btn { background: rgba(20, 20, 24, .6); color: #f1ede4; font-size: 12px; padding: 4px 8px; }
 :root[data-theme="light"] .vp-btn { background: rgba(255, 255, 255, .7); color: #1a1a1c; }
-.vp-hint { position: absolute; left: 10px; bottom: 30px; margin: 0; font-size: 12px; color: var(--muted); pointer-events: none; background: rgba(0, 0, 0, .25); padding: 2px 6px; border-radius: 4px; max-width: calc(100% - 20px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vp-hint { position: absolute; left: 10px; bottom: 30px; margin: 0; font-size: 12px; color: var(--ink); pointer-events: none; background: color-mix(in srgb, var(--panel) 82%, transparent); padding: 2px 6px; border-radius: 4px; max-width: calc(100% - 20px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .status { position: absolute; left: 0; right: 0; bottom: 0; font-size: 12px; color: var(--muted); padding: 4px 10px; background: rgba(0, 0, 0, .3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 :root[data-theme="light"] .status { background: rgba(255, 255, 255, .6); }
 .nogl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--ink); background: var(--view); }

@@ -7,7 +7,7 @@
   const NS = (g.SlopSignature = g.SlopSignature || {});
   const M = NS.model, esc = M.esc;
   const LIST = [['classic', 'Classic'], ['side', 'Picture beside'], ['compact', 'Compact'], ['banner', 'Banner']];
-  const GREY = '#5f6368', FAINT = '#8a8f98', INK = '#202124';
+  const GREY = '#5f6368', FAINT = '#6b7079', INK = '#202124';
 
   const a = (url, text, colour) => `<a href="${esc(url)}" style="color:${colour};text-decoration:none">${esc(text)}</a>`;
   /** The person: name, then job title and department, then the company. */

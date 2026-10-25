@@ -244,6 +244,7 @@
     if (!missing.length) return Promise.resolve(parts);
     if (uiP) return uiP;
     if (!BASE) return Promise.reject(new Error('SlopCmd UI parts are not loaded'));
+    if (!document.querySelector('link[href*="commands/commands.css"]')) document.head.append(Object.assign(document.createElement('link'), { rel: 'stylesheet', href: BASE + 'commands.css' }));   // the palette's look, where the page did not link it
     uiP = missing.reduce((p, name) => p.then(() => (parts[name] ? null : loadPart(name))), Promise.resolve()).then(() => parts, (err) => { uiP = null; throw err; });
     return uiP;
   }

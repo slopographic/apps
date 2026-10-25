@@ -1,26 +1,32 @@
 /* SlopUI: shared dialogs, toasts and menus. Each app maps its theme with --sui-* variables;
- * defaults fall back to common app tokens (--panel, --fg, --accent…) and then to the dark brand look. */
-.sui-back, .sui-menu, .sui-toast, .sui-btn, .sui-input {
-  /* An app's --sui-* map wins, then its common tokens (--panel, --fg…), then the page theme (--sl-*, shared/theme), and
-   * only then the dark brand look. The buttons and inputs carry the tokens too, so they draw the same outside a dialog. */
+ * defaults fall back to common app tokens (--panel, --fg, --accent…) and then to the page theme (--sl-*, shared/theme). */
+/* The one set of colour tokens for every shared component that sits in <body>, outside an app's own themed boxes: SlopUI's
+ * dialogs, menus, toasts, buttons and inputs, SlopMenuButton's list (shared/ui/menubutton.js), the command palette
+ * (shared/commands/commands.css), the AI panel (shared/ai/panel.css) and the tour (shared/tour/tour.css) read these --s-*.
+ * An app's --sui-* map wins, then its common tokens (--panel, --fg…), then the page theme (--sl-*), and only then the dark
+ * brand look. The muted text keeps 4.5:1 (dim) and 3:1 (faint, for disabled rows and hints) on the surfaces. */
+.sui-back, .sui-menu, .sui-toast, .sui-btn, .sui-input, .smb-menu, .scmd-back, .scmd-fab, .scmd-km-dlg, .sap, .sap-fab,
+.stour-panel, .stour-hole, .stour-tip {
   --s-bg: var(--sui-bg, var(--panel, var(--sl-surface, #232323)));
   --s-bg2: var(--sui-bg2, var(--panel-2, var(--sl-surface, #2c2c2c)));
   --s-input: var(--sui-input, var(--input, var(--sl-background, #161616)));
   --s-line: var(--sui-line, var(--line-2, var(--sl-border, #3d3d3d)));
   --s-fg: var(--sui-fg, var(--fg, var(--sl-text, #e6e6e6)));
-  --s-dim: var(--sui-dim, var(--fg-dim, color-mix(in srgb, var(--sl-text, #e6e6e6) 66%, transparent)));
-  --s-faint: var(--sui-faint, var(--fg-faint, color-mix(in srgb, var(--sl-text, #e6e6e6) 46%, transparent)));
+  --s-dim: var(--sui-dim, var(--fg-dim, color-mix(in srgb, var(--sl-text, #e6e6e6) 72%, transparent)));
+  --s-faint: var(--sui-faint, var(--fg-faint, color-mix(in srgb, var(--sl-text, #e6e6e6) 62%, transparent)));
   --s-hover: var(--sui-hover, var(--hover, color-mix(in srgb, var(--sl-text, #e6e6e6) 12%, var(--sl-surface, #2c2c2c))));
   --s-sel: var(--sui-sel, var(--sel, color-mix(in srgb, var(--sl-accent, #1f4a7a) 28%, var(--sl-surface, #1c1c1c))));
   --s-accent: var(--sui-accent, var(--accent, var(--sl-accent, #d4ff3a)));
   --s-accent-ink: var(--sui-accent-ink, var(--accent-ink, var(--sl-on-accent, #10180a)));
+  /* Focus rings: the theme's accent, made to read on its surfaces (an app's own accent, lime say, can vanish on white). */
+  --s-ring: var(--sui-ring, var(--sl-accent, var(--s-accent)));
+  --s-danger: var(--sui-danger, color-mix(in srgb, #e5484d 60%, var(--s-fg)));
   --s-radius: var(--sui-radius, var(--radius, 6px));
   --s-shadow: var(--sui-shadow, var(--shadow, 0 18px 50px rgba(0, 0, 0, .55)));
   --s-font: var(--sui-font, var(--ui, "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif));
   --s-mono: var(--sui-mono, var(--mono, "JetBrains Mono", ui-monospace, monospace));
-  font: 12px/1.4 var(--s-font);
-  color: var(--s-fg);
 }
+.sui-back, .sui-menu, .sui-toast, .sui-btn, .sui-input { font: 12px/1.4 var(--s-font); color: var(--s-fg); }
 .sui-back { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, .38); animation: sui-in .14s ease-out; }
 .sui-back.sui-modeless { background: transparent; pointer-events: none; }
 .sui-back.sui-modeless .sui-dlg { pointer-events: auto; }
@@ -47,10 +53,11 @@
 .sui-btn.sui-primary { background: var(--s-accent); color: var(--s-accent-ink); border-color: transparent; font-weight: 600; }
 .sui-btn.sui-primary:hover { filter: brightness(1.08); }
 .sui-btn.sui-danger.sui-primary { background: #e5484d; color: #fff; }
-.sui-btn:focus-visible, .sui-x:focus-visible, .sui-row:focus-visible, .sui-input:focus-visible { outline: 2px solid var(--s-accent); outline-offset: 1px; }
+.sui-btn:focus-visible, .sui-x:focus-visible, .sui-row:focus-visible, .sui-input:focus-visible { outline: 2px solid var(--s-ring); outline-offset: 1px; }
 .sui-field { display: grid; grid-template-columns: 96px 1fr auto; align-items: center; gap: 8px; color: var(--s-dim); margin-bottom: 10px; }
 .sui-label { white-space: nowrap; }
-.sui-unit { color: var(--s-faint); }
+.sui-unit { color: var(--s-dim); }
+.sui-input::placeholder { color: var(--s-faint); opacity: 1; }
 .sui-input { min-width: 0; height: 26px; padding: 3px 7px; background: var(--s-input); color: var(--s-fg); border: 1px solid var(--s-line); border-radius: var(--s-radius); font: inherit; }
 textarea.sui-input { height: auto; resize: vertical; }
 .sui-check { display: inline-flex; align-items: center; gap: 7px; color: var(--s-dim); }
@@ -65,12 +72,22 @@ textarea.sui-input { height: auto; resize: vertical; }
 .sui-menu { position: fixed; min-width: 210px; max-height: calc(100vh - 20px); overflow-y: auto; padding: 4px; background: var(--s-bg2); border: 1px solid var(--s-line); border-radius: calc(var(--s-radius) + 1px); box-shadow: var(--s-shadow); }
 .sui-row { width: 100%; display: grid; grid-template-columns: 16px 1fr auto; align-items: center; gap: 6px; padding: 5px 10px 5px 6px; border: 0; background: none; color: var(--s-fg); border-radius: 4px; text-align: left; white-space: nowrap; font: inherit; cursor: pointer; }
 .sui-row:hover:not([disabled]), .sui-row:focus-visible { background: var(--s-sel); outline: none; }
-.sui-row[disabled] { color: var(--s-faint); cursor: default; }
-.sui-key { color: var(--s-faint); font-size: 11px; padding-left: 18px; }
+/* The keyboard's row also gets a ring in the accent: the selection colour alone is too faint to find (under 3:1). */
+.sui-row:focus-visible { outline: 2px solid var(--s-ring); outline-offset: -2px; }
+.sui-row:hover:not([disabled]) .sui-key, .sui-row:focus-visible .sui-key { color: inherit; }
+.sui-row[disabled] { color: var(--s-faint); cursor: default; opacity: 1; }
+.sui-key { color: var(--s-dim); font-size: 11px; padding-left: 18px; }
 .sui-sep { height: 1px; background: var(--s-line); margin: 4px 6px; }
 /* Windows 98 themes (PhotoSlop "paint", SlopVector "classic") */
+/* Their grey face is fixed whatever the page's own colours are (Paint Classic stays grey under the dark theme), so the
+ * tokens are too: black text, the navy accent, a pale blue selection that black text reads on. */
+[data-theme="paint"] :is(.sui-back, .sui-menu, .sui-toast, .sui-btn, .sui-input, .smb-menu, .scmd-back, .scmd-fab, .scmd-km-dlg, .sap, .sap-fab, .stour-panel, .stour-hole, .stour-tip),
+[data-theme="classic"] :is(.sui-back, .sui-menu, .sui-toast, .sui-btn, .sui-input, .smb-menu, .scmd-back, .scmd-fab, .scmd-km-dlg, .sap, .sap-fab, .stour-panel, .stour-hole, .stour-tip) {
+  --s-bg: #c0c0c0; --s-bg2: #c0c0c0; --s-input: #fff; --s-line: #808080; --s-fg: #000; --s-dim: #222; --s-faint: #595959;
+  --s-hover: #d4d0c8; --s-sel: #c7c7e3; --s-accent: #000080; --s-accent-ink: #fff; --s-ring: #000; --s-danger: #a00000;
+}
 [data-theme="paint"] .sui-dlg, [data-theme="classic"] .sui-dlg { background: #c0c0c0; color: #000; border: 0; border-radius: 0; padding: 3px; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf, 2px 2px 0 rgba(0, 0, 0, .4); font: 11px "MS Sans Serif", Tahoma, sans-serif; }
-[data-theme="paint"] .sui-head, [data-theme="classic"] .sui-head { background: linear-gradient(90deg, #000080, #1084d0); color: #fff; padding: 3px 3px 3px 6px; border: 0; }
+[data-theme="paint"] .sui-head, [data-theme="classic"] .sui-head { background: linear-gradient(90deg, #000080, #0a5ea8); color: #fff; padding: 3px 3px 3px 6px; border: 0; }
 [data-theme="paint"] .sui-x, [data-theme="classic"] .sui-x { width: 16px; height: 14px; background: #c0c0c0; color: #000; border-radius: 0; font-size: 12px; font-weight: 700; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; }
 [data-theme="paint"] .sui-foot, [data-theme="classic"] .sui-foot { border: 0; }
 [data-theme="paint"] .sui-btn, [data-theme="classic"] .sui-btn { background: #c0c0c0; color: #000; border: 0; border-radius: 0; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; font-weight: 400; }
@@ -78,7 +95,11 @@ textarea.sui-input { height: auto; resize: vertical; }
 [data-theme="paint"] .sui-input, [data-theme="classic"] .sui-input { background: #fff; color: #000; border: 0; border-radius: 0; box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
 [data-theme="paint"] .sui-menu, [data-theme="classic"] .sui-menu { background: #c0c0c0; border: 0; border-radius: 0; padding: 2px; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf, 2px 2px 0 rgba(0, 0, 0, .4); }
 [data-theme="paint"] .sui-row, [data-theme="classic"] .sui-row { color: #000; border-radius: 0; }
-[data-theme="paint"] .sui-row:hover:not([disabled]), [data-theme="classic"] .sui-row:hover:not([disabled]) { background: #000080; color: #fff; }
+[data-theme="paint"] .sui-row:hover:not([disabled]), [data-theme="classic"] .sui-row:hover:not([disabled]),
+[data-theme="paint"] .sui-row:focus-visible, [data-theme="classic"] .sui-row:focus-visible { background: #000080; color: #fff; outline: 1px dotted #fff; outline-offset: -3px; }
+[data-theme="paint"] .sui-row:hover:not([disabled]) .sui-key, [data-theme="classic"] .sui-row:hover:not([disabled]) .sui-key,
+[data-theme="paint"] .sui-row:focus-visible .sui-key, [data-theme="classic"] .sui-row:focus-visible .sui-key { color: #fff; }
+[data-theme="paint"] .sui-row[disabled], [data-theme="classic"] .sui-row[disabled] { color: #595959; }
 [data-theme="paint"] .sui-p, [data-theme="classic"] .sui-p, [data-theme="paint"] .sui-field, [data-theme="classic"] .sui-field { color: #000; }
 @media (max-width: 900px) { .sui-back.sui-dock-right { place-items: end center; padding: 16px; } }
 @media (prefers-reduced-motion: reduce) { .sui-back, .sui-dlg { animation: none; } }
