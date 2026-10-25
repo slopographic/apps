@@ -275,7 +275,7 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   (JPEG 2000, JBIG2, CCITT, CMYK, 1-bit, other filters) are listed with the reason. Output: one zip through
   `shared/office/zip.js` (loaded on demand; offline it falls back to the app's store-only zip) or one file each, or
   Slop Drive in a folder named after the PDF (`SlopHub.appSubfolderId('pdf', name)`, "PDF assets" without a name).
-  Not listed: inline images in content streams.
+  Since then this is **File ▸ Extract all…** (below); inline images are listed too.
 
 ## Find, Replace, text selection, Edit text, page actions (this pass)
 - **Find (Ctrl+F)** (`js/find/`): `bar.js` (query, Match case, Whole word, "3 of 12", Next/Previous with Enter/Shift+Enter,
@@ -521,3 +521,60 @@ pages, title; a new tab when a PDF is open), `add_pages`, `insert_pdf` (a Slop D
 page as shown; results say where the addition landed and warn when it runs past the page. `state()` lists pages, additions,
 metadata and form fields; the checkpoint closes tabs the assistant opened and undoes back to its depth (`SP.history.goTo`).
 Test: `tests/pdf/ai-commands.test.html`.
+
+## Page objects, PDF layers, Extract all (`core/content-objs.js`, `content-move.js`, `content-svg.js`, `editor/obj-*.js`, `io/ocg.js`)
+- **Objects mode** (Edit ▸ Edit page objects, the toolbar's Objects button, key O; `Ed.toggleObjects`): the page's own objects
+  from its content stream (`SlopPdfObjs.objects` on the operators of content-lex.js): image XObjects and inline images (the
+  CTM they paint with, their quad and box, clipped or not, their /OC layer), Form XObjects (placed logos and artwork: BBox
+  through Matrix and CTM) and vector groups (a BDC/BMC … EMC or a clipped q … W n … Q that paints paths only; the outermost
+  one; one as big as the page is the page). Hover outlines an object, a press selects it; drag moves, eight handles resize
+  (Shift keeps the aspect; a turned object scales evenly), the round handle turns (Shift: 15°), two fingers pinch (the nav
+  engine's zoomAt/panBy go to the object while it is held), the arrows nudge (1 pt, Shift 10 pt, a run of presses is one
+  step), Delete deletes, Escape lets go (commands `edit.objects`, `obj.*` in `ui/commands.js`). A copy of the object's
+  pixels follows the drag; the content is rewritten once on release.
+- **The rewrite** (`SlopPdfMove`, Node-tested in `tests/node/pdf-content-objs.test.mjs`): a placement T in user space
+  becomes X = outer × T × outer⁻¹, folded into the first cm of the object's own wrapper (q [cm gs clip]… Do Q, as pdf-lib and
+  most writers place pictures) or a new q X cm … Q around a bare object; delete drops the span; duplicate adds a moved
+  copy after it; arrange moves the span past the next / before the previous object, or to the end / start, wrapped so it
+  keeps its place; replace paints a new image XObject (`newXObject('SlopImg')`) in the old box, fitted to its aspect. Every
+  other operator stays byte for byte. Matrices are written with ten significant digits.
+- **One path**: each edit is `S.strip.edit(p, { kind: 'obj', op, id, T | dir | image })` (`editor/text-strip.js X.edit`
+  → `X.build` with `X.kinds.obj`, `editor/obj-derive.js`): a derived copy of the file, checked by pdf.js (the page's
+  operator list builds), then one `E.commit` that points the page at it; undo points it back; the edit log keeps the
+  recipe (`rec.derived[].edit`) and makes it again on replay. Object ids are `kind:operator index` on the file the edit is
+  made from; after an edit the same object is found again by kind, name and the box it should have (`O.follow`).
+- **Selection bar**: `SlopSelBar.provide({ id, label, active, box, build, refresh, dismiss })` (`editor/sel-bar.js`) lets
+  another selection show its own row in the one bar; the object row (`editor/obj-bar.js`): Arrange (front, forward,
+  backward, back), Turn 90°, Duplicate, Replace image… (the shared intake, spec `pdf.objimage`), Save image / Save as SVG,
+  Open in… (SlopOuttake), Delete. `editor/obj-files.js`: a stored JPEG is saved as its bytes, an 8-bit Flate image as
+  PNG, an inline JPEG as its bytes, anything else as a PNG cut from the page drawn at the image's resolution; forms and
+  vector groups as SVG (`SlopPdfSvg.toSVG`: paths, colours, line styles, even-odd, clip paths, nested forms; images by
+  callback, no text).
+- **PDF layers** (optional content groups, `io/ocg.js`, `tools/ocg-panel.js` in the Layers section under the annotation
+  layers): listed per opened file from pdf.js (`getOptionalContentConfig`). Show/hide is `E.state.ocHidden` (one undo step,
+  logged): the page view, thumbnails and page images draw with it (`E.renderOptions` in `core/pdfjs.js`, the raster key
+  through `E.formKey`), and a saved PDF has it as its default view. Delete layer removes every `/OC /name BDC … EMC` for
+  the layer from each page (`SlopPdfMove.stripMarked`, also membership dictionaries of that layer only) and the group from
+  OCGs, D/Configs ON, OFF, Order, Locked, RBGroups and AS: a derived copy (`X.kinds.ocg`, page: false) for every file of
+  that opened file, one step.
+- **Saving keeps them** (`io/export-oc.js`): `E.build` copies pages with one `PDFObjectCopier` per source file
+  (`E.copyPagesWith`) and then carries `/OCProperties` (merged, the hidden layers in OFF) and the EmbeddedFiles name tree
+  (and AF) into the output (`E.carryCatalog`). Before this, layers and attachments were dropped on every save.
+- **Extract all** (File ▸ Extract all…, `ui/assets.js`; the command keeps its id `file.extractAssets`): images (stored, once
+  each, and inline), embedded files (EmbeddedFiles tree, AF, FileAttachment annotations: name, MIME, size, description,
+  relationship, the Factur-X / ZUGFeRD mark), fonts (FontFile/2/3 → .pfb/.pfa, .ttf, .otf, .cff), the text of each page
+  (.txt and/or .md, `SlopPdfAssets.pageText`) and each page as PNG (150 or 300 dpi) or SVG (`io/extract-more.js`; pages and
+  text come from the built document, so edits are in). Download ZIP or one file each, Save to Slop Drive (a folder per
+  PDF), Open in… (one file as it is, more as the ZIP). The reading is `core/pdf-parts.js` (`SlopPdfParts`, pdf-lib, no
+  DOM), shared with the headless operation `pdf.extract` (`shared/ops/pdf-extract.js`, registry app `pdf`: File convert,
+  Workflows, the assistant).
+- **Assistant / macros** (`ui/ai-objects.js`, loaded with the other assistant commands): `pdf.objects.list|move|resize|rotate|
+  arrange|duplicate|delete|replace` and `pdf.extract.list|save`, positions in points from the page's top-left as shown.
+- **Limits**: objects inside a Form XObject are part of the form (the form moves as one); a vector group needs marked
+  content or its own clip (loose paths are not objects); arranging moves an object out of a clip it shared with others;
+  shading (`sh`) and text are not objects; a vector group whose operators change state for what follows it (no q … Q of
+  its own) may leak that state when moved; Delete layer does not touch annotations or form XObjects with an /OC entry of
+  their own; SVG export has no text for objects and only the XObject pictures of a page.
+- Tests: `tests/node/pdf-content-objs.test.mjs`, `tests/node/pdf-assets.test.mjs`, `tests/pdf/objects.test.html`
+  (`pdf.spec-objects.js`, `pdf.spec-ocg.js`), `tests/pdf/extract.test.html` (`pdf.spec-extract.js`), fixtures made in the
+  tests (`objects.helpers.js`).

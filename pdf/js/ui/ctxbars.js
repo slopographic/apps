@@ -43,11 +43,14 @@
       var b = S.ib(t[2], t[1] + ' (' + t[3] + ')', function () { Ed.setTool(t[0]); }, { 'data-tool': t[0] });
       tools.appendChild(b);
     });
+    // Objects mode (editor/obj-mode.js): the page's own images and artwork can be moved, resized and turned
+    var objBtn = S.ibl('image', 'Edit page objects: move, resize or turn images and artwork (O)', function () { if (Ed.toggleObjects) Ed.toggleObjects(); }, 'Objects');
+    objBtn.id = 'btnObjects'; objBtn.setAttribute('aria-pressed', 'false');
     p.append(
       S.ibl('organize', 'Back to all pages (Esc)', function () { A.showGrid(); }, 'Pages'), S.sep(),
       S.ib('prev', 'Previous page (PgUp)', function () { A.gotoPage(-1); }), pageNo, S.ib('next', 'Next page (PgDn)', function () { A.gotoPage(1); }), S.sep(),
       S.ib('rotl', 'Rotate page left', function () { A.rotate([Ed.pid], -90); }), S.ib('rotr', 'Rotate page right', function () { A.rotate([Ed.pid], 90); }), S.sep(),
-      tools, h('span', { class: 'tb-flex' }),
+      tools, S.sep(), objBtn, h('span', { class: 'tb-flex' }),
       S.ib('zoomout', 'Zoom out (−)', function () { Ed.zoomBy(1 / 1.25); }), zoomLbl, S.ib('zoomin', 'Zoom in (+)', function () { Ed.zoomBy(1.25); }), S.ib('fit', 'Fit page (0)', function () { Ed.fit('fit'); }));
   }
 })();
