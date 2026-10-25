@@ -50,7 +50,7 @@
       S.ibl('organize', 'Back to all pages (Esc)', function () { A.showGrid(); }, 'Pages'), S.sep(),
       S.ib('prev', 'Previous page (PgUp)', function () { A.gotoPage(-1); }), pageNo, S.ib('next', 'Next page (PgDn)', function () { A.gotoPage(1); }), S.sep(),
       S.ib('rotl', 'Rotate page left', function () { A.rotate([Ed.pid], -90); }), S.ib('rotr', 'Rotate page right', function () { A.rotate([Ed.pid], 90); }), S.sep(),
-      tools, S.sep(), objBtn, h('span', { class: 'tb-flex' }),
+      objBtn, S.sep(), tools, h('span', { class: 'tb-flex' }),
       S.ib('zoomout', 'Zoom out (−)', function () { Ed.zoomBy(1 / 1.25); }), zoomLbl, S.ib('zoomin', 'Zoom in (+)', function () { Ed.zoomBy(1.25); }), S.ib('fit', 'Fit page (0)', function () { Ed.fit('fit'); }));
   }
 })();

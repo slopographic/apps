@@ -109,7 +109,12 @@
     sv.setAttribute('aria-label', sv.textContent); sv.title = sv.textContent;
   }
   /** The selection box on screen (client px), from the selected object's outline. */
-  function box() { var el = document.querySelector('.obj-layer .obj-box'); if (!el) return null; var r = el.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }; }
+  function box() { // the turn handle above the box is part of it, so the bar does not cover it
+    var el = document.querySelector('.obj-layer .obj-box'), rot = document.querySelector('.obj-layer .obj-rot');
+    if (!el) return null;
+    var r = el.getBoundingClientRect(), t = rot ? Math.min(r.top, rot.getBoundingClientRect().top - 4) : r.top;
+    return { left: r.left, top: t, right: r.right, bottom: r.bottom };
+  }
   function provide() {
     if (!window.SlopSelBar || !SlopSelBar.provide) return;
     SlopSelBar.provide({ id: 'obj', label: function () { var o = O.selected(); return 'Selected ' + (o ? O.name(o).toLowerCase() : 'object'); },

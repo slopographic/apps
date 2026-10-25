@@ -35,7 +35,8 @@
     var outSel = h('select', { class: 'ea-fmt', 'aria-label': 'Output' }, h('option', { value: 'zip' }, 'One .zip'), h('option', { value: 'files' }, 'One file each'));
     function count() {
       var n = chosen.size + (textCb.checked ? 1 : 0) + (pageCb.checked ? 1 : 0);
-      sum.textContent = n + ' selected · ' + rows.counts.images + inl.length + ' images, ' + att.length + ' files, ' + rows.counts.fonts + ' fonts';
+      var k = function (v, one, many) { return v + ' ' + (v === 1 ? one : many); };
+      sum.textContent = n + ' selected · ' + k(rows.counts.images + inl.length, 'image', 'images') + ', ' + k(att.length, 'file', 'files') + ', ' + k(rows.counts.fonts, 'font', 'fonts');
     }
     function setAll(on) {
       boxes.forEach(function (b) { if (!b.cb.disabled) { b.cb.checked = on; if (on) chosen.add(b.id); else chosen.delete(b.id); } });
