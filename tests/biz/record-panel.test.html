@@ -67,6 +67,17 @@
         f.remove();
       }, { timeout: 90000 });
     }
+    it('a record with no main button (a paid invoice, a cancelled order): no footer on a wide screen, "Details" alone on a phone', async () => {
+      const app = window.RECORD_PANEL_APPS.find((a) => a.name === 'Slop Orders');
+      for (const w of [1280, 390]) {
+        const f = await open(app, w), W = f.contentWindow;
+        W.SlopOrders.recordPanel.footer([]);
+        const foot = W.document.querySelector('.ws-panel .sf-p-foot');
+        expect(shown(foot)).toBe(w < 900);
+        if (w < 900) { expect(foot.textContent.trim()).toBe('Details'); foot.querySelector('button').click(); await waitFor(() => W.document.querySelector('.ws-panel').classList.contains('ssh-on')); }
+        f.remove();
+      }
+    }, { timeout: 90000 });
   });
   SlopTest.run({ name: 'Business apps: the record panel' });
   </script>
