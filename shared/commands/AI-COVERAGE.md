@@ -9,7 +9,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 the picture look_at_canvas and app_snapshot take (`own` or `page`), **Driven** whether those commands reach an assistant
 in another app (the Slop AI workspace, open_in_app, agents). **Full** is all of it. ✗ marks a gap.
 
-Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
+Covered: 47 of 61 apps. Full suite: 47 of 61 apps.
 
 | App | Create | Add | Edit | Export | Operations | State | Snapshot | Driven | Covered | Full |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -43,7 +43,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Invoices (`invoices`) | ✓ 2 | ✓ 1 | ✓ 5 | ✓ 2 |  | ✓ records | ✓ page | ✓ | yes | yes |
 | Slop Notes (`notes`) | ✓ 2 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Paste (`paste`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Effects (`effects`) | ✓ 1 | ✓ 4 | ✓ 11 | ✗ |  | ✓ own | ✓ page | ✓ | no | no |
+| Slop Effects (`effects`) | ✓ 1 | ✓ 4 | ✓ 11 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Image to 3D (`img3d`) | ✓ 1 | ✗ | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
 | Slop Sheets (`sheetview`) | ✗ | ✗ | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
 | Slop Hex (`hex`) | ✓ 1 | ✗ | ✓ 3 | ✓ 2 |  | ✓ own | ✓ page | ✓ | no | no |
@@ -57,7 +57,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | ✓ own | ✓ page | ✗ | no | no |
+| Slop Workflows (`workflows`) | ✓ 1 | ✓ 1 | ✓ 7 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | ✗ | ✗ | ✗ | no | no |
 | Slopculator (`calculator`) | ✗ | ✓ 1 | ✓ 1 | ✓ 2 |  | ✓ own | ✓ page | ✓ | no | no |
 | Slop Time (`time`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
@@ -73,7 +73,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Photo Sorter (`sorter`) | ✗ | ✓ 2 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
 | Slop Gallery (`gallery`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop 3D (`3d`) | ✓ 2 | ✓ 2 | ✓ 8 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Music (`music`) | ✓ 1 | ✓ 1 | ✓ 18 | ✗ |  | ✓ own | ✓ page | ✓ | no | no |
+| Slop Music (`music`) | ✓ 1 | ✓ 1 | ✓ 18 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 
 ## Commands per app
 
@@ -280,6 +280,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 - create: `new_project`
 - add: `add_effect`, `add_keyframe`, `add_layer`, `add_media_from_drive`
 - edit: `animate`, `delete_layer`, `duplicate_layer`, `edit_layer`, `move_layer`, `random_motion`, `remove_effect`, `render`, `set_composition`, `set_effect`, `set_layer_property`
+- export: `export_frame`, `save_project`
 
 ### Slop Image to 3D
 
@@ -365,6 +366,13 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 - edit: `check_contrast`, `convert_color`, `fix_contrast`, `make_palette`, `remove_color`, `rename_palette`, `set_color`
 - export: `export_palette`
 - operations: `colors.palette`
+
+### Slop Workflows
+
+- create: `new_workflow`
+- add: `add_step`
+- edit: `move_step`, `open_template`, `remove_step`, `rename_workflow`, `run_workflow`, `set_option`, `set_step`
+- export: `export_workflow`, `save_workflow`
 
 ### Slopculator
 
@@ -467,3 +475,4 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 - create: `create_playlist`
 - add: `add_to_playlist`
 - edit: `delete_playlist`, `find_tracks`, `next`, `pause`, `play`, `play_pause`, `play_playlist`, `play_track`, `previous`, `queue_track`, `remove_from_playlist`, `rename_playlist`, `repeat`, `seek`, `shuffle`, `speed`, `tag_track`, `volume`
+- export: `export_playlist`

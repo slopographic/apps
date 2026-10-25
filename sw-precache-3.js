@@ -64,8 +64,8 @@ PRECACHE.push(
   '/watermark/index.html', '/watermark/js/commands.js', '/watermark/js/export.js', '/watermark/js/groups-ui.js', '/watermark/js/groups.js',
   '/watermark/js/items.js', '/watermark/js/list.js', '/watermark/js/main.js', '/watermark/js/probe.js', '/watermark/js/settings.js', '/watermark/js/util.js',
   '/workflows/css/steps.css', '/workflows/css/tool.css', '/workflows/css/workflows.css', '/workflows/index.html', '/workflows/js/core/compat.js',
-  '/workflows/js/core/plan.js', '/workflows/js/core/store.js', '/workflows/js/core/templates.js', '/workflows/js/ui/addmenu.js', '/workflows/js/ui/app.js',
-  '/workflows/js/ui/commands.js', '/workflows/js/ui/library.js', '/workflows/js/ui/markup.js', '/workflows/js/ui/mount.js', '/workflows/js/ui/run.js',
-  '/workflows/js/ui/state.js', '/workflows/js/ui/steps.js',
+  '/workflows/js/core/plan.js', '/workflows/js/core/store.js', '/workflows/js/core/templates.js', '/workflows/js/ui/addmenu.js',
+  '/workflows/js/ui/ai-commands.js', '/workflows/js/ui/app.js', '/workflows/js/ui/commands.js', '/workflows/js/ui/library.js', '/workflows/js/ui/markup.js',
+  '/workflows/js/ui/mount.js', '/workflows/js/ui/run.js', '/workflows/js/ui/state.js', '/workflows/js/ui/steps.js',
 );
 // END PRECACHE
