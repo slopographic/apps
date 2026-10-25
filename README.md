@@ -49,6 +49,7 @@ Everything runs 100% in your browser: no installs, no accounts, no uploads, no w
 | `/drive/` | **Slop Drive**: every file from every app in one drive, with one-file backup |
 | `/convert/` | **File convert**: image, PDF, mail, calendar and data converter |
 | `/eml/`, `/hex/`, `/checksum/`, `/clean/`, `/code/` | **Slop EML** (email files), **Hex**, **Checksum**, **SlopClean** (hidden photo data) and **Slop Code** |
+| `/diff/` | **Slop Compare**: two texts, code, JSON, CSV, PDFs or pictures compared, with a report and a .patch |
 | `/admin/`, `/settings/`, `/how-it-works/` | Company profile and backup, profile and settings, and how the storage works |
 | `/#detector` | **The Authenticator**: get any text certified as slop |
 

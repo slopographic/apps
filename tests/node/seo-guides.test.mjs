@@ -1,8 +1,11 @@
 // Guides (tools/seo/guides.mjs, copy in shared/seo/guides/): the checks, the page in the guide layout, the JSON-LD.
 // Covers: tools/seo/guides.mjs, shared/seo/guides/index.mjs, shared/seo/guides/creative.mjs, shared/seo/guides/documents.mjs,
+// Covers: shared/seo/guides/compare.mjs
 //   shared/seo/guides/creative-2.mjs, shared/seo/guides/creative-3.mjs, shared/seo/guides/creative-4.mjs,
 //   shared/seo/guides/documents-2.mjs, shared/seo/guides/documents-3.mjs, shared/seo/guides/documents-4.mjs,
 //   shared/seo/guides/business.mjs, shared/seo/guides/everyday.mjs
+//   shared/seo/guides/recorder.mjs
+// Covers: shared/seo/guides/colors.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
