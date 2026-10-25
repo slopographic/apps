@@ -61,3 +61,42 @@ export function remapColors(text, pal) {
 export const PALETTE_KEEP = /^tests\/(node\/colors-|.*fixtures\/)/;
 /** Which files the shift applies to: the site's own styles and code and the tests that check them; not third-party code. */
 export const paletteFile = (file) => /\.(css|m?js|html|svg)$/.test(file) && !/^vendor\//.test(file) && !PALETTE_KEEP.test(file);
+
+const hexRgb = (h) => { const f = h.length === 4 ? h.slice(1).split('').map((c) => c + c).join('') : h.slice(1, 7); return [0, 2, 4].map((i) => parseInt(f.slice(i, i + 2), 16)); };
+const mix = (a, b, t) => a.map((v, i) => v * t + b[i] * (1 - t));   // t of a over b
+export const contrast = (a, b) => { const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+
+/** The source's Light and Dark theme tokens, read from shared/theme/theme.js (th('light', 'Light', 'light', bg, surface, text, accent, border)). */
+export function sourceThemes(themeJs) {
+  const out = {};
+  for (const m of themeJs.matchAll(/th\('(light|dark)', '[^']*', '\w+', '(#\w+)', '(#\w+)', '(#\w+)', '(#\w+)', '(#\w+)'\)/g)) out[m[1]] = { background: m[2], surface: m[3], text: m[4], accent: m[5], border: m[6] };
+  return out;
+}
+
+/** The pairs every theme is held to: text and its muted mixes on the surfaces, the accent on the surfaces and on a hover
+ * tint, the border on the surface (3:1). */
+export function themePairs(t) {
+  const [bg, sf, tx, ac, bd] = ['background', 'surface', 'text', 'accent', 'border'].map((k) => hexRgb(t[k]));
+  return [['text on background', tx, bg, 4.5], ['text on surface', tx, sf, 4.5], ['muted text (58%) on surface', mix(tx, sf, 0.58), sf, 4.5],
+    ['accent on surface', ac, sf, 4.5], ['accent on background', ac, bg, 4.5], ['accent on a hover tint', ac, mix(tx, sf, 0.15), 4.5], ['border on surface', bd, sf, 3]];
+}
+
+/** The problems of a profile's themes: a pair under its minimum (or under the source's own figure, when that is lower), and
+ * text that is less bright (dark) or less dark (light) than the source's, which the apps' own greys were tested against. */
+export function themeProblems(themes, source) {
+  const out = [];
+  for (const id of ['light', 'dark']) {
+    const t = Object.assign({}, source[id] || {}, (themes || {})[id] || {});
+    if (!t.text) continue;
+    const src = source[id] ? themePairs(source[id]) : [];
+    themePairs(t).forEach(([name, a, b, min], i) => {
+      const need = src[i] ? Math.min(min, contrast(src[i][1], src[i][2])) : min, got = contrast(a, b);
+      if (got + 1e-9 < need) out.push(`${id}: ${name} is ${got.toFixed(2)}:1, needs ${need.toFixed(2)}:1`);
+    });
+    if (source[id]) {
+      const lt = luminance(hexRgb(t.text)), ls = luminance(hexRgb(source[id].text));
+      if (id === 'dark' ? lt < ls : lt > ls) out.push(`${id}: text ${t.text} is ${id === 'dark' ? 'darker' : 'lighter'} than the source's ${source[id].text}`);
+    }
+  }
+  return out;
+}

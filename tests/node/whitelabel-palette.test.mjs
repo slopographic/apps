@@ -2,7 +2,12 @@
 // The accent family moves to the profile's hue; greys and other hues stay; lengths and alpha are kept.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { remapColors, shift, rgbToHsl, paletteFile, luminance } from '../../tools/whitelabel/palette.mjs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { remapColors, shift, rgbToHsl, paletteFile, luminance, themeProblems, sourceThemes, contrast } from '../../tools/whitelabel/palette.mjs';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 const PAL = { hue: 221, from: [65, 100] };
 test('lime becomes the profile hue with the same luminance (so the same contrast)', () => {
@@ -27,4 +32,17 @@ test('only the site’s own styles and code', () => {
   assert.equal(paletteFile('tests/node/colors-core.test.mjs'), false);
   assert.equal(paletteFile('tests/pdf/look.test.html'), true);
   assert.equal(paletteFile('assets/a.png'), false);
+});
+
+test('every profile\u2019s themes read at least as well as this site\u2019s (4.5:1 text and accent, 3:1 borders), no browser needed', () => {
+  // WHITELABEL_PROFILES=<dir> adds a folder of profiles kept outside the repository (the publish script sets it).
+  const src = sourceThemes(readFileSync(path.join(ROOT, 'shared/theme/theme.js'), 'utf8'));
+  assert.ok(src.light && src.dark);
+  const dirs = [path.join(ROOT, 'brand/profiles')].concat(process.env.WHITELABEL_PROFILES && existsSync(process.env.WHITELABEL_PROFILES) ? [process.env.WHITELABEL_PROFILES] : []);
+  for (const d of dirs) for (const f of readdirSync(d).filter((x) => x.endsWith('.json') && !x.endsWith('.map.json'))) {
+    const p = JSON.parse(readFileSync(path.join(d, f), 'utf8'));
+    assert.deepEqual(themeProblems(p.themes, src), [], f);
+  }
+  assert.ok(themeProblems({ dark: { text: '#777777' } }, src).length > 0, 'a dim text is caught');
+  assert.ok(contrast([0, 0, 0], [255, 255, 255]) > 20);
 });

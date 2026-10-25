@@ -17,6 +17,7 @@ import { urls, phrases, tokens, collisions } from './rename.mjs';
 import { context, profileText, forward, forwardPath } from './transform.mjs';
 import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, mit, notice, trademarks, security, readme } from './emit.mjs';
 import { mirrorWorkflow } from './workflow.mjs';
+import { themeProblems, sourceThemes } from './palette.mjs';
 import { skipPattern, smokeFor } from './mirror-skip.mjs';
 import { isText, scan, report } from './scan.mjs';
 
@@ -65,6 +66,8 @@ export function build(id, out, opts = {}) {
   const dir = opts.profiles || profilesDir(ROOT);
   const p = loadProfile(dir, id);
   const map = loadMap(dir, id);
+  const weak = themeProblems(p.themes, sourceThemes(readFileSync(path.join(ROOT, 'shared/theme/theme.js'), 'utf8')));
+  if (weak.length) throw new Error(`profile ${id}: its theme colours read worse than this site's:\n  ${weak.join('\n  ')}`);
   out = path.resolve(out);
   prepareOut(out);
   const files = sh('git', ['ls-files', '-co', '--exclude-standard', '-z'], ROOT).split('\0').filter((f) => f && existsSync(path.join(ROOT, f)));

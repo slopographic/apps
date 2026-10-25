@@ -122,10 +122,20 @@ own profile values (its brand app names, its copy lengths, its media, its suppor
 only when the profile differs (`tools/whitelabel/mirror-skip.mjs`, each with its reason). CI here runs the same build
 checks on the samples.
 
+### Colours
+
+A build refuses a profile whose Light or Dark theme reads worse than this site's: text and the accent at 4.5:1 on the
+surfaces and on a hover tint, muted text at 4.5:1, borders at 3:1, and text at least as bright (dark) or as dark (light)
+as this site's, which the apps' own greys were tested against (`tools/whitelabel/palette.mjs` `themeProblems`; the unit test
+also reads a private profile folder from `WHITELABEL_PROFILES`). The accent family in the CSS moves to the profile's hue
+with the same luminance, so every contrast the sweep checked here still holds.
+
 ### Releases
 
 A release builds each profile with `export.mjs` and pushes the result as one commit on top of the mirror's last release
-commit (one commit per release, author from `publish`, a neutral message). The publish script refuses to run when the
+commit (one commit per release, author from `publish`, a neutral message) to the mirror's `testing` branch. The mirror's
+own CI runs there; only a green run fast-forwards `main`, which GitHub Pages serves. Tests for a mirror run on GitHub,
+not on the machine that publishes. The publish script refuses to run when the
 mirror has a commit it did not make, and names it, instead of overwriting it. The script and the real profiles are kept
 outside this repository; CI here builds the samples on every push, so a change that would break a white-label build
 fails here first.
