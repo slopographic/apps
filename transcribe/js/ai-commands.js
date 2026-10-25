@@ -1,12 +1,14 @@
 /* Slop Transcribe's commands with arguments (shared/commands/args.js): the Ctrl+K palette, the Slop AI panel (the header's
  * AI button), WebMCP and macros all get their tools from these (shared/ai/cmdtools.js). Each one calls the page's own
  * actions (app.js: add, run, select; the queue; exports.js fileOf; SlopAITools.toDrive), never a second copy of them.
+ * new_batch clears the list and starts again, with Drive files and a language and model for them.
  * From the palette a command gets args = null and does what its button does.
  *   wireCommands({ queue, add, run, select, current, draw, say, models, catalog, tools, languages })
  * Ids start with "tr.". Transcribe reports its progress in the status line and stops (after the current file) when
  * ctx.signal aborts. The rollback the assistant's "Undo all AI changes" uses brings back the corrected texts only: files
  * removed or cleared, and transcripts read again, do not come back. */
 import { fileOf, textOf, FORMATS } from './exports.js';
+import { isMedia } from './queue.js';
 
 export function wireCommands({ queue: q, add, run, select, current, draw, say, models, catalog: C, tools: T, languages }) {
   const S = window.SlopCmd;
@@ -31,6 +33,12 @@ export function wireCommands({ queue: q, add, run, select, current, draw, say, m
     const H = window.SlopHub;
     if (!a) { if (window.SlopIntake && SlopIntake.fromDrive) { await SlopIntake.fromDrive({ to: $('trDrop'), accept: ['audio/*', 'video/*'] }); return 'Opened Slop Drive.'; } throw new Error('Slop Drive is not available here.'); }
     if (!H) throw new Error('Slop Drive is not available here.');
+    const file = await driveFile(H, a), id = add([file]);
+    if (!id) throw new Error(`“${file.name}” is not an audio or video file.`);
+    return `Added “${file.name}” as file ${id}. Transcribe it next.`;
+  }
+  /** A Slop Drive file by { id } or { name } (or part of it), as a File. */
+  async function driveFile(H, a) {
     let rec = null;
     if (a.id) rec = await H.get(a.id);
     else if (a.name) {
@@ -38,10 +46,30 @@ export function wireCommands({ queue: q, add, run, select, current, draw, say, m
       rec = all.find((r) => String(r.name).toLowerCase() === want) || all.find((r) => String(r.name).toLowerCase().includes(want)) || null;
     } else throw new Error('Give the Slop Drive id or the name of the file.');
     if (!rec || !rec.blob) throw new Error(`No file ${a.id ? 'with id ' + a.id : 'named “' + a.name + '”'} in Slop Drive.`);
-    const file = new File([rec.blob], rec.name || 'Recording', { type: rec.type || rec.blob.type || '' });
-    const id = add([file]);
-    if (!id) throw new Error(`“${rec.name}” is not an audio or video file.`);
-    return `Added “${rec.name}” as file ${id}. Transcribe it next.`;
+    return new File([rec.blob], rec.name || 'Recording', { type: rec.type || rec.blob.type || '' });
+  }
+
+  /** A new batch: the list is cleared, the Drive files (all found first) are added, and the language and model are set
+   *  for them as the Language and model dialog does. */
+  async function newBatch(a) {
+    a = a || {};
+    if (q.busy) throw new Error('Stop transcribing first.');
+    const H = window.SlopHub, files = [];
+    if ((a.files || []).length && !H) throw new Error('Slop Drive is not available here.');
+    for (const n of a.files || []) {
+      const f = await driveFile(H, { id: n }).catch(() => driveFile(H, { name: n }));   // an id, else a name
+      if (!isMedia(f)) throw new Error(`“${f.name}” is not an audio or video file.`);
+      files.push(f);
+    }
+    if (a.model && window.SlopAIManager && !/^(installed|update)$/.test(await window.SlopAIManager.status(a.model))) {
+      throw new Error(`The model ${a.model} is not downloaded. Download it from the Language and model dialog first.`);
+    }
+    const was = q.items.length;
+    q.clear(); select(null); say('');
+    if (files.length) add(files);
+    if (a.language || a.model) { models.choice.set({ language: a.language || models.choice.language, model: a.model || null }); models.drawButton(); }
+    const ids = q.items.map((x) => x.id);
+    return `Started a new batch (${was} file(s) cleared) with ${ids.length} file(s)${ids.length ? ` (ids ${ids.join(', ')})` : ''}; next: ${models.choice.label()}.${ids.length ? ' Transcribe it next.' : ''}`;
   }
 
   async function transcribe(a, ctx) {
@@ -103,6 +131,11 @@ export function wireCommands({ queue: q, add, run, select, current, draw, say, m
   }
 
   S.register([
+    { id: 'tr.new-batch', tool: 'new_batch', title: 'Start a new batch', group: 'File', destructive: true, keywords: ['new', 'start', 'session', 'clear'],
+      description: 'Clear the list and start a new batch of files to transcribe: optionally with audio or video files from Slop Drive and the language and model to read them with.',
+      args: [{ name: 'files', type: 'array', maxItems: 50, items: { type: 'string' }, description: 'Slop Drive ids or names (or part of them) of audio or video files' },
+        LANG, MODEL],
+      run: newBatch },
     { id: 'tr.add-from-drive', tool: 'add_from_drive', title: 'Add a file from Slop Drive', group: 'File', keywords: ['drive', 'open', 'audio', 'video'],
       description: 'Add an audio or video file from Slop Drive to the list, by its Drive id or its name.',
       args: [{ name: 'id', type: 'string', maxLength: 100, description: 'Slop Drive file id' }, { name: 'name', type: 'string', maxLength: 300, description: 'file name (or part of it) when the id is not known' }],

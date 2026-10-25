@@ -6,7 +6,7 @@
   <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; display: block; }</style>
 </head>
 <body>
-  <!-- Covers: sheetview/js/ai-commands.js, sheetview/js/export.js, sheetview/js/main.js -->
+  <!-- Covers: sheetview/js/ai-commands.js, sheetview/js/export.js, sheetview/js/main.js, sheetview/js/state.js -->
   <iframe id="app" src="about:blank"></iframe>
   <script src="../harness.js"></script>
   <script src="../../shared/commands/args.js"></script>
@@ -52,6 +52,30 @@
       expect(C.state().shown).toBe(5);
       back();
       expect(C.state().shown).toBe(shown);
+    }, { timeout: 20000 });
+
+    it('new_workbook opens a tab from rows; add_rows and add_sheet fill it; export_rows saves every sheet', async () => {
+      let r = await run('new-workbook', { name: 'Prices', rows: [['Item', 'Price'], ['Tea', '3.50']] });
+      expect(r.value).toMatch(/2 row/);
+      let st = C.state();
+      expect(st.file).toBe('Prices.xlsx');
+      expect(st.headers).toEqual(['Item', 'Price']);
+      r = await run('add-rows', { rows: [['Coffee', '4'], ['Cake', '5.25', 'new']] });
+      st = C.state();
+      expect(st.rows).toBe(4);
+      expect(st.shown).toBe(3);
+      expect(st.firstRows[3]).toEqual(['Cake', 5.25, 'new']);
+      await run('sort-column', { column: 'Price', order: 'desc' });
+      expect(C.state().firstRows[1][0]).toBe('Cake');
+      await run('add-sheet', { name: 'Notes', rows: [['Open daily']] });
+      st = C.state();
+      expect(st.sheets).toEqual(['Sheet1', 'Notes']);
+      expect(st.sheet).toBe('Notes');
+      expect((await C.exec('sheetview.ai.add-sheet', { name: 'notes' })).ok).toBe(false);
+      r = await run('export-rows', { format: 'xlsx', scope: 'all' });
+      const rec = await W.SlopHub.get(/id ([^)\s]+)\)/.exec(r.value)[1]);
+      expect(rec.name).toBe('Prices.xlsx');
+      expect(rec.blob.size > 500).toBe(true);
     }, { timeout: 20000 });
   });
   SlopTest.run({ name: 'Slop Sheets: assistant commands' });

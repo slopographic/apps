@@ -32,7 +32,7 @@
   async function refreshDepthNote() {
     await loadLib();
     const on = await ns.depth.installed(), was = S.depthInstalled;
-    if (was && !on) S.depth = null; // removed: the next build uses the fallback
+    if (was && !on && !(S.depth && S.depth.source === 'map')) S.depth = null; // removed: the next build uses the fallback
     S.depthInstalled = on;
     ns.jit.noteInstalled(on);
     if (on !== was && S.img) build(); // installed or removed while a picture is open
@@ -104,7 +104,7 @@
       const v = await viewer();
       v.show(S.item);
       $('hint').hidden = true;
-      const src = S.prep.source === 'model' ? 'depth model' : 'brightness fallback (not real depth)';
+      const src = S.prep.source === 'model' ? 'depth model' : S.prep.source === 'map' ? 'depth map ' + S.depth.name : 'brightness fallback (not real depth)';
       say(`${S.item.kind === 'mesh' ? 'Mesh' : S.item.kind === 'points' ? 'Point cloud' : 'Splats'} · ${S.prep.gw}×${S.prep.gh} grid · ${src}${subject ? ' · subject only' : ''}.`);
     } catch (e) {
       say(e.message || String(e), true);
@@ -112,6 +112,16 @@
       S.busy = false;
       if (S.again) { S.again = false; build(); }
     }
+  }
+
+  /** Uses a depth map picture (brighter is nearer, any size) as the depth of the open picture, in place of the model or
+   *  the brightness fallback, until another picture opens. */
+  async function useDepthMap(blob, name) {
+    if (!S.img) throw new Error('Open a picture first');
+    const m = await ns.image.decode(blob, name);
+    S.depth = { data: ns.luminance(m.rgba, m.W, m.H), w: m.W, h: m.H, source: 'map', name: m.name };
+    S.depthFailed = false;
+    await build();
   }
 
   /** A mesh for OBJ and Slop 3D, whatever mode is shown. */
@@ -182,7 +192,7 @@
   }
 
   /** For the assistant's commands (ai-commands.js, loaded when the AI panel first asks): the page's own steps. */
-  ns.app = { state: () => S, openBlob, build, opts, meshNow, idle: () => !S.busy && !S.again };
+  ns.app = { state: () => S, openBlob, useDepthMap, build, opts, meshNow, idle: () => !S.busy && !S.again };
   function commands() {
     const C = window.SlopCmd;
     if (!C || !C.init) return;

@@ -1,9 +1,11 @@
 /* Slop Sheets viewer for the assistant: SlopCmd commands with arguments (shared/commands/args.js), imported on demand by
- * SlopCmd.prepare() (main.js). The viewer only reads files, so there is nothing to create or add: open_file (from Slop
- * Drive), select_sheet, sort_column, filter_rows, clear_filters and export_rows (CSV, TSV or XLSX of the visible or all
- * rows, to Slop Drive and/or a download, through export.js). Columns are named by header text, letter or number. */
+ * SlopCmd.prepare() (main.js): new_workbook (a new tab from rows), add_rows and add_sheet (into the open tab), open_file
+ * (from Slop Drive), select_sheet, sort_column, filter_rows, clear_filters and export_rows (CSV, TSV or XLSX of the visible
+ * or all rows, to Slop Drive and/or a download, through export.js). Columns are named by header text, letter or number. */
 import { exportBlob } from './export.js';
 import { emptyFilter } from '../../shared/sheets/query.js';
+import { sheetFromGrid } from '../../shared/sheets/csv.js';
+import { sheetName as cleanName } from '../../shared/sheets/write.js';
 
 export function install(store, openFile) {
   const C = window.SlopCmd;
@@ -23,6 +25,29 @@ export function install(store, openFile) {
     throw new Error(`No column “${q}”${head.length ? ` (the headers are ${head.filter((h) => h != null && h !== '').join(', ')})` : ''}`);
   }
   const shown = () => store.order().length - store.head();
+  const ROWS = { name: 'rows', type: 'array', required: true, maxItems: 5000, items: { type: 'array', maxItems: 200, items: { type: 'string', maxLength: 2000 } },
+    description: 'rows of cell text, e.g. [["Name","Price"],["Tea","3.50"]]; numbers are read as numbers' };
+  const grid = (rows) => rows.map((r) => (Array.isArray(r) ? r : [r]).map((x) => String(x ?? '')));
+  const sheetName = (s, n) => cleanName(s || 'Sheet' + n, new Set());
+
+  add('new_workbook', 'New spreadsheet', [{ name: 'name', type: 'string', maxLength: 120, default: 'Untitled', description: 'file name, without extension' },
+    { name: 'sheet', type: 'string', maxLength: 31, description: 'name of the first sheet (default Sheet1)' }, Object.assign({}, ROWS, { required: false, description: 'optional first rows (the header first): ' + ROWS.description })], (a) => {
+    const name = String(a.name || 'Untitled').replace(/\.(xlsx|csv|tsv|ods)$/i, '').trim() || 'Untitled';
+    store.addDoc({ name, format: 'xlsx', sheets: [sheetFromGrid(sheetName(a.sheet, 1), grid(a.rows || []))] }, { name: name + '.xlsx' });
+    return `New spreadsheet “${name}” open in a new tab with ${store.sheet().height} row(s).`;
+  }, { description: 'Open a new spreadsheet in a new tab, empty or with the given rows. Save it with export_rows.' });
+  add('add_rows', 'Add rows', [ROWS], (a) => {
+    const sh = need(), n = a.rows.length;
+    store.appendRows(grid(a.rows));
+    return `Added ${n} row(s) to “${sh.name}”: ${sh.height} rows now, ${shown()} shown.`;
+  }, { description: 'Append rows at the bottom of the sheet on show. Sort and filters still apply.' });
+  add('add_sheet', 'Add a sheet', [{ name: 'name', type: 'string', maxLength: 31, description: 'sheet name' }, Object.assign({}, ROWS, { required: false })], (a) => {
+    const d = store.doc(); need();
+    const nm = sheetName(a.name, d.sheets.length + 1);
+    if (d.sheets.some((s) => s.name.toLowerCase() === nm.toLowerCase())) throw new Error(`There is already a sheet “${nm}”`);
+    store.addSheet(sheetFromGrid(nm, grid(a.rows || [])));
+    return `Added sheet “${nm}” (${store.sheet().height} rows) and showing it.`;
+  }, { description: 'Add a sheet to the open spreadsheet, empty or with rows, and show it.' });
 
   add('open_file', 'Open a spreadsheet from Slop Drive', [{ name: 'file', type: 'string', required: true, maxLength: 300, description: 'Slop Drive name or id (.xlsx, .csv, .tsv, .ods)' }],
     async (a) => {
