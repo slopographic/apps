@@ -12,8 +12,8 @@
 
   /** Renders one page of a PDF to a canvas at about 200 dpi (scale 2.8 of 72 dpi points). */
   async function pdfPage(f, n) {
-    const lib = await import(new URL('../../vendor/pdfjs/pdf.min.js', document.baseURI).href);
-    lib.GlobalWorkerOptions.workerSrc = new URL('../../vendor/pdfjs/pdf.worker.min.js', document.baseURI).href;
+    const base = new URL('../../vendor/pdfjs/', document.baseURI).href;
+    const lib = await import(new URL('../../shared/compat/pdfjs.js', base).href).then((m) => m.loadPdfjs(base));
     if (!pdfDoc || pdfDoc.fileName !== f.name + f.size) {
       const bytes = new Uint8Array(await f.arrayBuffer());
       pdfDoc = await lib.getDocument({ data: bytes, verbosity: 0, isEvalSupported: false }).promise;

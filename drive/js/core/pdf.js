@@ -6,8 +6,7 @@
   DR.pdfjs = function () {
     if (!pdfjsP) pdfjsP = (async () => {
       const base = new URL('../vendor/pdfjs/', document.baseURI).href;
-      const lib = await import(base + 'pdf.min.js');
-      lib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js';
+      const lib = await import(new URL('../../shared/compat/pdfjs.js', base).href).then((m) => m.loadPdfjs(base));
       return { lib, base };
     })().catch((e) => { pdfjsP = null; throw e; });
     return pdfjsP;

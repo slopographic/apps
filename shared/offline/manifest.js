@@ -26,7 +26,7 @@
     'pdf/css/doc-tabs.css', 'shared/convert/dialog.css', 'shared/slopui.css', 'shared/watermark/panel.css', 'shared/slopui.js', 'shared/intake/rules.js', 'shared/intake/normalize.js', 'shared/intake/pipeline.js', 'shared/intake/intake.js', 'shared/intake/sources.js', 'shared/apps.js',
     'shared/commands/commands.css', 'shared/commands/commands.js', 'shared/commands/search.js',
     'shared/commands/palette.js', 'shared/commands/recorder.js', 'shared/commands/keymap.js', 'favicon.svg',
-    'vendor/pdf-lib/pdf-lib.min.js', 'vendor/pdfjs/pdf.min.js', 'vendor/pdfjs/pdf.worker.min.js',
+    'vendor/pdf-lib/pdf-lib.min.js', 'shared/compat/stream.js', 'vendor/pdfjs/pdf.min.js', 'vendor/pdfjs/pdf.worker.min.js',
     'shared/doctabs/tabs.js', 'shared/doctabs/drive.js', 'shared/doctabs/session.js', 'shared/nav/presets.js',
     'shared/nav/validate.js', 'shared/nav/logic.js', 'shared/nav/engine.js', 'shared/urlstate/urlstate.js',
     'shared/router/router.js', 'shared/viewmode/grid.js', 'shared/viewmode/viewmode.js', 'shared/versions/versions.js', 'pdf/js/core/util.js', 'pdf/js/core/zip.js',

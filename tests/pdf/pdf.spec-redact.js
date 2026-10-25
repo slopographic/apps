@@ -1,5 +1,6 @@
 /* Slop PDF: true redaction. Find (text, regex, presets), marks, apply, and proof that the text inside
-   the boxes is gone from the exported file while untouched pages keep their text. */
+   the boxes is gone from the exported file while untouched pages keep their text.
+   Covers: pdf/js/redact/apply.js */
 (function () {
   'use strict';
   const { describe, it, expect } = SlopTest;

@@ -2,8 +2,7 @@
  * positioned where pdf.js reports it, in reading order (the order the PDF draws it), and its images are embedded as JPEG
  * data URLs placed by their matrix. No network, no external fonts, no script. A close copy: vector drawing, colours and the
  * shapes of the fonts are not carried over. Browser only. pdfToHtml(bytes, { pages, title }) → string. */
-import { PDFJS_URL } from './lib.js';
-import { openPdf } from './pdf-raster.js';
+import { openPdf, pdfjs } from './pdf-raster.js';
 import { parseRange } from './range.js';
 import { pageDrawing, mul } from './pdf-html-ops.js';
 
@@ -66,7 +65,7 @@ body{padding:16px 0}
 
 /** The whole PDF (or the pages asked for) as one HTML document. */
 export async function pdfToHtml(bytes, { pages = '', title = 'Document' } = {}) {
-  const lib = await import(PDFJS_URL);
+  const lib = await pdfjs();
   const doc = await openPdf(bytes);
   try {
     const sections = [];

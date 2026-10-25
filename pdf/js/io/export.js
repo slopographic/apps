@@ -186,9 +186,9 @@
     push(ctx.trailerInfo.Root); push(ctx.trailerInfo.Info);
     while (stack.length) {
       var o = stack.pop();
-      if (o instanceof L.PDFDict) o.entries().forEach(function (e) { push(e[1]); });
+      if (o instanceof L.PDFDict) o.entries().forEach(function (e) { push(e[1]); }); // compat-ok: pdf-lib returns an array here, not an iterator
       else if (o instanceof L.PDFArray) o.asArray().forEach(push);
-      else if (o instanceof L.PDFStream) o.dict.entries().forEach(function (e) { push(e[1]); });
+      else if (o instanceof L.PDFStream) o.dict.entries().forEach(function (e) { push(e[1]); }); // compat-ok: pdf-lib returns an array here, not an iterator
     }
     ctx.enumerateIndirectObjects().forEach(function (e) { if (!keep.has(e[0].toString())) ctx.delete(e[0]); });
   };

@@ -1,6 +1,7 @@
 /* PDF pages to PNG or JPG using the vendored pdf.js build (vendor/pdfjs). Browser only.
  * pdfToImages(bytes, { pages, scale, format, quality }) → [{ pageNo, blob, width, height }] */
-import { PDFJS_URL, PDFJS_WORKER_URL, PDFJS_CMAP_URL } from './lib.js';
+import { PDFJS_BASE, PDFJS_CMAP_URL } from './lib.js';
+import { loadPdfjs } from '../../../shared/compat/pdfjs.js';
 import { parseRange } from './range.js';
 import { makeCanvas, canvasToBlob } from './image.js';
 
@@ -9,10 +10,7 @@ let libPromise = null;
 /** The pdf.js module (vendor/pdfjs), loaded once; OPS and the other exports are on it. */
 export function pdfjs() {
   if (!libPromise) {
-    libPromise = import(PDFJS_URL).then((lib) => {
-      lib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_URL;
-      return lib;
-    }, (e) => { libPromise = null; throw e; });
+    libPromise = loadPdfjs(PDFJS_BASE).catch((e) => { libPromise = null; throw e; });
   }
   return libPromise;
 }

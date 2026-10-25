@@ -42,12 +42,12 @@
     out = out || []; res = ctx.lookup(res);
     if (!(res instanceof PDFLib.PDFDict)) return out;
     var fd = ctx.lookup(res.get(N('Font')));
-    if (fd instanceof PDFLib.PDFDict) fd.entries().forEach(function (e) {
+    if (fd instanceof PDFLib.PDFDict) fd.entries().forEach(function (e) { // compat-ok: pdf-lib returns an array here, not an iterator
       var d = ctx.lookup(e[1]);
       if (d instanceof PDFLib.PDFDict) out.push({ name: nameOf(d.lookup(N('BaseFont'))), dict: d, ref: e[1] instanceof PDFLib.PDFRef ? e[1] : null });
     });
     var xo = ctx.lookup(res.get(N('XObject')));
-    if ((depth || 0) < 3 && xo instanceof PDFLib.PDFDict) xo.entries().forEach(function (e) {
+    if ((depth || 0) < 3 && xo instanceof PDFLib.PDFDict) xo.entries().forEach(function (e) { // compat-ok: pdf-lib returns an array here, not an iterator
       var st = ctx.lookup(e[1]);
       if (st && st.dict && nameOf(st.dict.lookup(N('Subtype'))) === 'Form') P.pageFonts(ctx, st.dict.get(N('Resources')), out, (depth || 0) + 1);
     });
