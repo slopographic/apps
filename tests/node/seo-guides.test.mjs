@@ -6,6 +6,7 @@
 //   shared/seo/guides/business.mjs, shared/seo/guides/everyday.mjs
 //   shared/seo/guides/recorder.mjs
 // Covers: shared/seo/guides/colors.mjs
+// Covers: shared/seo/guides/fontcreator.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';

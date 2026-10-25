@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 44 of 61 apps.
+Covered: 45 of 62 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -54,6 +54,7 @@ Covered: 44 of 61 apps.
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | yes |
+| Slop Font (`fontcreator`) | ✓ 1 | ✓ 6 | ✓ 17 | ✓ 1 |  | yes |
 | Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slopculator (`calculator`) | ✗ | ✓ 1 | ✓ 1 | ✓ 2 |  | no |
@@ -362,6 +363,13 @@ Covered: 44 of 61 apps.
 - edit: `check_contrast`, `convert_color`, `fix_contrast`, `make_palette`, `remove_color`, `rename_palette`, `set_color`
 - export: `export_palette`
 - operations: `colors.palette`
+
+### Slop Font
+
+- create: `new_font`
+- add: `add_characters`, `add_kerning`, `add_shape`, `draw_glyph`, `draw_glyphs`, `draw_strokes`
+- edit: `asc`, `base`, `cap`, `clear_glyph`, `copy_glyph`, `desc`, `open_font`, `path_operation`, `remove_glyph`, `select_glyph`, `set_glyph_metrics`, `set_info`, `set_metrics`, `show_view`, `subset_font`, `transform_glyph`, `x`
+- export: `export_font`
 
 ### Slopculator
 
