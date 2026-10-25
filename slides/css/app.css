@@ -75,6 +75,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* inspector */
 .inspector { min-height: 0; overflow-y: auto; background: var(--panel); border-left: 1px solid var(--line); padding: 4px 0 24px; }
+.inspector.sf-has-foot { display: flex; flex-direction: column; padding-bottom: 0; }   /* Save and Present at its foot (ui/main.js) */
+.inspector.sf-has-foot > * { flex-shrink: 0; }
 .grp { padding: 12px 16px; border-bottom: 1px solid var(--line); }
 .grp h2 { margin: 0 0 8px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); font-weight: 700; }
 .row { display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: center; gap: 8px; margin: 6px 0; font-size: 13px; }
