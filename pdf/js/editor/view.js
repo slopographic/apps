@@ -36,6 +36,9 @@
 
   Ed.init = function (viewerEl) {
     S.viewer = viewerEl;
+    // typing on a phone: the page view scrolls the edited text (S.ta, the paragraph editor) above the keyboard, with room
+    // at its end for the last lines (shared/input/keyboard.js)
+    viewerEl.setAttribute('data-slop-kb-pad', '');
     if (Ed.noteUI) Ed.noteUI.wire(viewerEl);
     S.pad = U.h('div', { class: 'pv-pad' });
     S.overlay = U.h('div', { class: 'pv-overlay' }); // moves to the active page element (placeTools)
