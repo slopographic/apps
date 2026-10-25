@@ -43,5 +43,14 @@
         for (let i = 0; i < 100 && !W.document.querySelector('#view-customer .sf-p-foot'); i++) await new Promise((x) => setTimeout(x, 50));
       },
       done: (W) => !!W.document.querySelector('.sui-dlg') },
+    // Projects: a task opens in the panel right of the board; Add task with no title answers in a toast and stays open
+    { name: 'Slop Projects', path: 'projects/index.html', hash: '', view: '.pj-views', panel: '.pj-task', main: 'Add task', more: 'Task',
+      ready: (W) => W.SlopProjects && W.SlopProjects.taskPanel && W.SlopCmd && W.document.getElementById('boot').hidden,
+      async prep(W) {
+        if (!W.document.querySelector('.pc-title')) await W.SlopCmd.run('projects.sample');
+        for (let i = 0; i < 100 && !W.document.querySelector('.pc-title'); i++) await new Promise((x) => setTimeout(x, 50));
+        W.SlopProjects.editor.open({});
+      },
+      done: (W) => /title/.test((W.document.querySelector('.sui-toast:last-of-type') || {}).textContent || '') && W.SlopProjects.taskPanel.isOpen() },
   ];
 })(window);

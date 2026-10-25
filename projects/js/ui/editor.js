@@ -1,4 +1,4 @@
-// The task editor: a SlopUI dialog for one task (new or existing): title, description, column, assignee (from the
+// The task editor: the task panel on the right (js/ui/task-panel.js) for one task (new or existing): title, description, column, assignee (from the
 // project's people, or a new name), priority, start and end (a one-day task when only one is given), due day, tags, the
 // CRM customer it is for (when there are customers), the checklist and what it waits for. Save checks first and keeps
 // the dialog open on a problem; it is one undo step, and later tasks move on when the dates change. Delete has Undo.
@@ -68,7 +68,7 @@
     const buttons = [{ label: 'Cancel' }];
     if (task) buttons.push({ label: 'Delete', danger: true, act: () => { NS.actions.deleteTask(task.id); } });
     buttons.push({ label: task ? 'Save' : 'Add task', primary: true, act: save });
-    return UI.dialog({ title: task ? 'Edit task' : 'New task', body, buttons, cls: 'pe-dlg', dismissable: true });
+    return NS.taskPanel.show({ title: task ? 'Edit task' : 'New task', body, buttons });
   }
 
   NS.editor = { open, read };
