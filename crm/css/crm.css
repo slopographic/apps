@@ -60,10 +60,10 @@
 .docs .row-sub { flex: 1 1 auto; }
 .amt { font-variant-numeric: tabular-nums; }
 #view-customer > .sf-p-foot { margin-top: 12px; border-radius: var(--r) var(--r) 0 0; }   /* Edit details, Delete customer (js/ui/detail.js) */
-@media (max-width: 959px) {   /* the record is a page of its own: its footer stays at the bottom of the screen */
-  #view-customer > .sf-p-foot { position: fixed; inset-inline: 0; bottom: 0; border-radius: 0; margin: 0; }
-  #view-customer.sf-has-foot { padding-bottom: 76px; }
-}
+/* a phone: the record is a bottom sheet over the list (SlopSheet, js/ui/app.js), its footer stuck to the sheet's foot */
+.ssh-phone > #view-customer.ssh-panel { block-size: 88dvh; max-block-size: 88dvh; padding: 0 14px; box-sizing: border-box; display: flex; flex-direction: column; }
+.ssh-phone > #view-customer > #dBody { flex: 1 0 auto; padding-top: 12px; }
+.ssh-phone > #view-customer > .sf-p-foot { position: sticky; bottom: 0; margin: 12px -14px 0; border-radius: 0; }
 .crm-form { display: grid; gap: 10px; min-width: min(360px, 80vw); }
 .crm-form label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--mute); }
 .crm-form textarea { resize: vertical; }
@@ -78,7 +78,6 @@
 .main.split > .view#view-customers { min-width: 0; }
 .main.split > .view#view-customer { position: sticky; top: 16px; max-height: calc(100vh - 112px);   /* below the menu bar and the tabs: its footer (Edit details) in view */
   overflow-y: auto; min-width: 0; }
-.main.split > .view#view-customer > .toolbar { display: none; }
 .d-head { display: flex; align-items: center; gap: 12px; }
 .d-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
 .d-close { display: none; background: none; border: 1px solid var(--line); border-radius: 8px; width: 32px; height: 32px; font-size: 18px; cursor: pointer; }

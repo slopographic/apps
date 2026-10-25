@@ -1,11 +1,11 @@
 // Stock view: one product at a time. Levels per location, the movement history, and four forms (receive, sell,
-// adjust, transfer). Every form calls the stock rules through NS.stockOps; a refusal is shown in plain words.
+// adjust, transfer) in the view's right panel, one at a time: the chosen form shows and the panel's one main button
+// (#sApply, at its foot) submits it. Every form calls the stock rules through NS.stockOps; a refusal is shown in plain words.
 (function (g) {
   'use strict';
   const S = g.SlopData;
   const NS = (g.SlopInv = g.SlopInv || {});
   const U = NS.util;
-  const UI = g.SlopUI;
   const { h } = U;
   const $ = (id) => document.getElementById(id);
   let productId = null;
@@ -72,6 +72,7 @@
 
   function mount() {
     $('sProduct').addEventListener('change', (e) => { productId = e.target.value; say(''); draw(); });
+    $('sKinds').addEventListener('click', (e) => { const b = e.target.closest('[data-form]'); if (b) { choose(b.dataset.form); say(''); } });
     $('fReceive').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!productId) return say('Choose a product first.', true);
@@ -106,32 +107,31 @@
     });
   }
 
-  /** A small dialog for the command palette: pick a product, a quantity and a location, then act. */
-  function quick(kind) {
-    S.store.list('products').then((r) => {
-      const list = (r.ok ? r.value : []).slice().sort((a, b) => a.name.localeCompare(b.name));
-      if (!list.length) return UI.alert('No products', 'Add a product first.');
-      const pick = h('select', { class: 'sui-input' }, list.map((p) => h('option', { value: p.id, selected: p.id === productId }, `${p.name} (${p.sku})`)));
-      const qty = h('input', { class: 'sui-input', type: 'number', min: 1, step: 1, value: 1 });
-      const from = h('input', { class: 'sui-input', type: 'text', value: 'main', list: 'locations' });
-      const to = h('input', { class: 'sui-input', type: 'text', value: 'back', list: 'locations' });
-      const fields = [U.h('label', { class: 'frow' }, 'Product', pick), U.h('label', { class: 'frow' }, 'Quantity', qty)];
-      if (kind === 'transfer') fields.push(U.h('label', { class: 'frow' }, 'From', from), U.h('label', { class: 'frow' }, 'To', to));
-      else fields.push(U.h('label', { class: 'frow' }, 'Location', from));
-      const titles = { receive: 'Receive stock', sell: 'Sell stock', adjust: 'Adjust stock', transfer: 'Transfer stock' };
-      const run = async () => {
-        const id = pick.value;
-        const n = U.wholeOf(qty.value);
-        if (kind === 'receive') return act(NS.stockOps.receive({ productId: id, location: from.value, qty: n }), async () => `Received ${n}.`);
-        if (kind === 'sell') return act(NS.stockOps.sell({ productId: id, location: from.value, qty: n }), async () => `Sold ${n}.`);
-        if (kind === 'adjust') return act(NS.stockOps.adjust({ productId: id, location: from.value, qty: n }), async () => `Adjusted by ${n}.`);
-        return act(NS.stockOps.transfer({ productId: id, from: from.value, to: to.value, qty: n }), async () => `Moved ${n}.`);
-      };
-      UI.dialog({ title: titles[kind] || 'Stock', body: U.h('div', null, fields), buttons: [{ label: 'Cancel' }, { label: 'Apply', primary: true, act: run }] });
-    });
+  const FORMS = { receive: 'fReceive', sell: 'fSell', adjust: 'fAdjust', transfer: 'fTransfer' };
+  const FIRST = { fReceive: 'rQty', fSell: 'sellQty', fAdjust: 'adjQty', fTransfer: 'trQty' };
+  /** Shows one form (its id) and makes the footer's main button submit it, with the form's name. */
+  function choose(id) {
+    for (const b of $('sKinds').querySelectorAll('[data-form]')) {
+      const on = b.dataset.form === id;
+      b.setAttribute('aria-pressed', String(on));
+      $(b.dataset.form).hidden = !on;
+      if (on) $('sApply').textContent = b.textContent.trim();
+    }
+    $('sApply').setAttribute('form', id);
   }
 
-  NS.stockView = { select: (id) => { productId = id; }, quick };
+  /** The palette's Stock commands: the stock view with that form chosen (on a phone its sheet opens), its quantity focused. */
+  async function open(kind) {
+    const id = FORMS[kind] || FORMS.receive;
+    if (NS.state.view !== 'stock') await NS.app.show('stock');
+    choose(id);
+    say('');
+    const rp = NS.stockPanel;
+    if (rp && rp.frame && rp.frame.isPhone()) rp.frame.openSheet();
+    setTimeout(() => $(FIRST[id]).focus(), 40);
+  }
+
+  NS.stockView = { select: (id) => { productId = id; }, open, choose };
   NS.views = NS.views || {};
   NS.views.stock = { mount, refresh, onShow: (arg) => { if (arg) productId = arg; return refresh(); } };
 })(typeof window !== 'undefined' ? window : globalThis);

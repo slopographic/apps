@@ -27,7 +27,7 @@ and the tags are collections there; orders and invoices are read from their shar
 - **Detail panel**: photo and name, every phone, email and address with its label, company facts, website, tags and
   groups (add or remove, saved at once), stage and follow-up, categories, dated notes, orders and invoices.
 - **Layout**: on a window 960 px or wider, picking a customer opens the detail in a right pane beside the list. With
-  nothing picked the list is full width. Narrower screens show the detail as a full page with Back. The list's own
+  nothing picked the list is full width. Narrower screens show the detail as a bottom sheet (SlopSheet) over the tab it was opened from, Edit details at its foot; its × closes it. The list's own
   layout follows its width (container queries): the sidebar stacks and the date columns drop when the list is narrow.
 - **Pipeline**: one column per stage. Drag a card, use its Move button, right-click it, or press the Menu key.
 - **Follow-ups tab**: customers with a follow-up date, overdue first, then today, then later. Done clears the date.

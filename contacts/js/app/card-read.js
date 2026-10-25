@@ -66,8 +66,7 @@
     const fu = c.followUp || '';
     const plain = SC.activity.split(c.note);
     const act = SC.activity.newestFirst(plain.activity);
-    body.innerHTML = `<div class="card-bar"><button type="button" class="text-btn back" data-act="back">‹ Contacts</button>`
-      + `${SC.card.modeSwitch('view').outerHTML}</div>`
+    body.innerHTML = `<div class="card-bar">${SC.card.modeSwitch('view').outerHTML}</div>`
       + `<div class="card-scroll"><div class="card-head">${SC.photoUi.avatarHtml(c, true)}`
       + `<h2 class="card-name">${esc(c.fn)}</h2>${sub ? `<p class="card-sub">${esc(sub)}</p>` : ''}</div>`
       + `<div class="card-fields">${details(c) || '<p class="muted">No phone, e-mail or address yet. Choose Edit to add one.</p>'}</div>`
@@ -89,7 +88,6 @@
   }
 
   function bind(c, body) {
-    body.querySelector('[data-act="back"]').addEventListener('click', () => { S.open = null; S.mode = 'view'; S.emit('render'); });
     body.querySelector('[data-act="stage"]').addEventListener('change', (e) => patch(c, { stage: e.target.value }));
     body.querySelector('[data-act="followUp"]').addEventListener('change', (e) => {
       const v = e.target.value;

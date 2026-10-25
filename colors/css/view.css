@@ -3,11 +3,11 @@
 .co-hero { display: grid; grid-template-columns: minmax(160px, 260px) minmax(0, 1fr); gap: 14px; align-items: stretch; }
 .co-big { border-radius: var(--co-radius); min-height: 150px; display: grid; place-items: end start; padding: 12px; border: 1px solid var(--co-line);
   font: 700 20px/1 var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace); }
+.co-big-col, .co-vals { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.co-big-col .co-big { min-height: 150px; }
 .co-values { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; align-content: center; }
-.co-value { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 4px 6px 4px 10px;
-  border: 1px solid var(--co-line); border-radius: 8px; background: var(--co-panel); }
+.co-value { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
 .co-vk { font-size: 12px; font-weight: 700; color: var(--co-dim); }
-.co-vv { font: 13px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace); overflow-wrap: anywhere; }
 .co-copy { min-height: 30px; padding: 4px 10px; }
 .co-card { background: var(--co-panel); border: 1px solid var(--co-line); border-radius: var(--co-radius); padding: 14px; display: grid; gap: 12px; }
 .co-card h2 { font-size: 16px; }

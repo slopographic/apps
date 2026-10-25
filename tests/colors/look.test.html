@@ -5,7 +5,7 @@
 <body>
 <script src="../harness.js"></script>
 <script>
-// Covers: colors/index.html, colors/css/colors.css, colors/css/view.css, colors/js/main.js, colors/js/panel.js
+// Covers: colors/index.html, colors/css/colors.css, colors/css/view.css, colors/js/main.js, colors/js/panel.js, colors/js/values.js
 const { describe, it, expect, waitFor, run } = SlopTest;
 async function open(width) {
   document.querySelectorAll('iframe').forEach((f) => f.remove());
@@ -30,6 +30,13 @@ describe('Slop Colors: the look', () => {
     expect(dl.closest('#co-panel')).toBeTruthy();
     expect(dl.classList.contains('sui-primary')).toBe(true);
     expect(dl.disabled).toBe(true);   // an empty palette has nothing to download
+    // the colour's values once, in the main view (each with Copy); the panel holds only the settings
+    const view = D.getElementById('co-view'), side = D.getElementById('co-panel');
+    expect(D.querySelectorAll('input[id^="co-in-"]').length).toBe(5);
+    expect(view.querySelectorAll('input[id^="co-in-"]').length).toBe(5);
+    expect(view.querySelectorAll('.co-value .co-copy').length).toBe(5);
+    expect(side.querySelector('input[id^="co-in-"], #co-native, #co-as-fg')).toBe(null);
+    expect([...side.querySelectorAll('.sf-h')].map((h) => h.textContent)).toEqual(['Made from it', 'Picture', 'Export']);
     expect(D.querySelectorAll('.sd-zone').length).toBe(1);
     expect(D.getElementById('co-canvas').hasAttribute('data-touch-surface')).toBe(true);
     expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(1280);
@@ -43,9 +50,11 @@ describe('Slop Colors: the look', () => {
     expect(dl.top).toBeGreaterThan(400);
     expect(D.getElementById('co-download').disabled).toBe(false);
     const hex = D.getElementById('co-in-hex').getBoundingClientRect();
-    expect(hex.height === 0 || hex.top >= 844).toBe(true);   // the settings wait in the closed sheet
+    expect(hex.height > 0 && hex.top > 0 && hex.right <= 390).toBe(true);   // the values are on the page, not in the sheet
+    const harm = D.getElementById('co-harmony-kind').getBoundingClientRect();
+    expect(harm.height === 0 || harm.top >= 844).toBe(true);   // the settings wait in the closed sheet
     W.CO.main.frame().openSheet();
-    await waitFor(() => { const r = D.getElementById('co-in-hex').getBoundingClientRect(); return r.height > 0 && r.top > 0 && r.bottom < 844; });
+    await waitFor(() => { const r = D.getElementById('co-harmony-kind').getBoundingClientRect(); return r.height > 0 && r.top > 0 && r.bottom < 844; });
   }, { timeout: 40000 });
 });
 run({ name: 'Slop Colors: look' });

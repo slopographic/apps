@@ -36,8 +36,10 @@
   /* Room for the strip: while it is up, <html> gets class slopc-on and --consent-h (the strip's measured height, kept
    * current by a ResizeObserver, and measured again when banner.css arrives, when web fonts load and when the window
    * resizes: the first measure can run before the card is styled, and its padding and bottom gap change no content box).
-   * banner.css adds that height to the page's bottom padding, so the end of the page scrolls clear of the strip. The
-   * page's own bottom padding is kept in --slopc-base-pb. */
+   * On a page that scrolls, banner.css adds that height to the page's bottom padding (class slopc-pad), so the end of the
+   * page scrolls clear of the strip; the page's own bottom padding is kept in --slopc-base-pb. A full-height app (its body
+   * or root does not scroll: SlopFrame tools, editors, the business apps) is never shrunk: the card floats over it, above
+   * a footer at the window's bottom (--slop-foot-h, shared/frame/panel.js). */
   var root = document.documentElement;
   var ro = null, off = null;
   function reserve(el) {
@@ -47,9 +49,13 @@
     }
     // the room the card takes from the bottom of the window: its height and the gap under it
     // (its laid-out size and offset, not its on-screen box, which the slide-in animation moves)
-    var measure = function () { var gap = parseFloat(getComputedStyle(el).bottom) || 0; root.style.setProperty('--consent-h', Math.ceil(el.offsetHeight + gap) + 'px'); };
+    var measure = function () {
+      var gap = parseFloat(getComputedStyle(el).bottom) || 0;
+      root.style.setProperty('--consent-h', Math.ceil(el.offsetHeight + gap) + 'px');
+      root.classList.toggle('slopc-pad', !fullHeight());
+    };
     measure();
-    if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(measure); ro.observe(el, { box: 'border-box' }); }
+    if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(measure); ro.observe(el, { box: 'border-box' }); if (document.body) ro.observe(document.body); }
     var link = document.getElementById('slopc-css'), fonts = document.fonts;
     if (link) link.addEventListener('load', measure);
     window.addEventListener('resize', measure);
@@ -60,10 +66,15 @@
       if (fonts && fonts.removeEventListener) fonts.removeEventListener('loadingdone', measure);
     };
   }
+  /** A full-height app: its body or root clips instead of scrolling (the app scrolls its own parts). */
+  function fullHeight() {
+    var b = document.body ? getComputedStyle(document.body).overflowY : '', r = getComputedStyle(root).overflowY;
+    return /hidden|clip/.test(b) || /hidden|clip/.test(r);
+  }
   function unreserve() {
     if (ro) { ro.disconnect(); ro = null; }
     if (off) { off(); off = null; }
-    root.classList.remove('slopc-on');
+    root.classList.remove('slopc-on', 'slopc-pad');
     root.style.removeProperty('--consent-h');
     root.style.removeProperty('--slopc-base-pb');
   }
