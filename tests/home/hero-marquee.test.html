@@ -45,7 +45,7 @@
       expect(win.SlopGlobe.view().focus).toBe(a.dataset.id);
       const ic = () => win.SlopGlobe.icons().find((i) => i.id === win.SlopGlobe.view().focus);
       expect(ic().el.classList.contains('is-hot')).toBe(true);
-      expect(win.getComputedStyle(ic().el.querySelector('.gx-name')).visibility).toBe('visible');
+      await waitFor(() => win.getComputedStyle(ic().el.querySelector('.gx-name')).visibility === 'visible', { timeout: 3000 });   // after its short fade
       await waitFor(() => ic().z > 0.9, { timeout: 8000 });
       expect(paused()).toBe(true);
       a.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
@@ -61,6 +61,7 @@
 
     it('pointing at a label does the same (the copy\'s labels too); leaving lets the globe go', async () => {
       await ready;
+      if (doc.activeElement && doc.activeElement.blur) doc.activeElement.blur();
       const a = links(1)[3];
       a.dispatchEvent(new win.PointerEvent('pointerover', { bubbles: true }));
       expect(win.SlopGlobe.view().focus).toBe(a.dataset.id);
