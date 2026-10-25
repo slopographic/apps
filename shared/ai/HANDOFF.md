@@ -191,7 +191,10 @@ about 4,600–4,750 on each, a local model about 2,000. `tests/node/ai-tokens.te
   when a page has 16 tools or more, only the core goes in full (app_state, find_tools, run_command, run_operation,
   open_in_app, open_app, look_at_canvas, look_at_file, list_files, read_file, save_to_drive); the prompt names the others
   ("More tools here …"). `find_tools({ query | names })` loads them (strong matches only), and also lists matching
-  operations (`opTools.search`) and other apps' tools (`app-skills.js`). A deferred tool can always be called.
+  operations (`opTools.search`) and other apps' tools (`app-skills.js`). A deferred tool can always be called; called
+  with arguments it does not take (a guess before loading it, seen live with Haiku), it does not run and the error gives
+  its signature. Live, Claude Haiku 5.5, PhotoSlop, "blur the picture a little": app_state + find_tools({ names }), then
+  gaussian_blur({ radius: 3 }), then the answer: 4,757 + 5,178 + 5,246 input tokens, 9,929 of them from the cache.
   Claude 4.5+ (`anthropic.defers`): every tool is sent, deferred ones with `defer_loading: true`; find_tools answers with
   a tool_result of `tool_reference` blocks only (the documented custom tool search; the API refuses text beside them, so
   the rest of the answer follows the results as a text block). The tool list never changes, so the cache and the thinking
