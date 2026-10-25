@@ -62,7 +62,12 @@
     const s = typeof v === 'string' ? v : JSON.stringify(v, null, 1);
     return s.length > MAX_TEXT ? s.slice(0, MAX_TEXT) + `\n… (${s.length - MAX_TEXT} more characters)` : s;
   }
-  const result = (v, isError) => (isError ? { content: [{ type: 'text', text: text(v) }], isError: true } : { content: [{ type: 'text', text: text(v) }] });
+  /** A picture a tool hands back ({ text, media: [{ mime, data }] }: look_at_canvas, a snapshot) goes as MCP image content. */
+  const result = (v, isError) => {
+    if (isError) return { content: [{ type: 'text', text: text(v) }], isError: true };
+    if (v && typeof v === 'object' && Array.isArray(v.media)) return { content: [{ type: 'text', text: text(v.text || 'Done.') }].concat(v.media.filter((m) => m && m.data).map((m) => ({ type: 'image', data: m.data, mimeType: m.mime || 'image/jpeg' }))) };
+    return { content: [{ type: 'text', text: text(v) }] };
+  };
 
   function toWebMCP(d, { confirm } = {}) {
     // readOnlyHint, consequentialHint and untrustedContentHint are WebMCP's (the spec's ToolAnnotations); destructiveHint

@@ -89,8 +89,8 @@
       const DETAIL = { type: 'boolean', description: 'all of it, not a summary' };
       tools.unshift({ name: 'app_state', description: `${where} right now as JSON (document, layers, selection…), summarized; detail: true for all of it. Call it first.`,
         params: { detail: DETAIL }, schema: { type: 'object', properties: { detail: DETAIL } }, maxChars: 6000, label: () => 'Read the app state',
-        run: (a = {}) => {
-          const st = cmd.state();
+        run: async (a = {}) => {
+          const st = await cmd.state();   // the app's own, else the page's summary (shared/commands/view.js)
           if (!st) return `${where} shares no state.`;
           return a.detail || typeof st !== 'object' || !K.toolbox ? st : JSON.stringify(K.toolbox.summarize(st, { items: 8, chars: 160, depth: 4 }));
         } });

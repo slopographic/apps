@@ -140,13 +140,32 @@
       }, { description: 'Save the records as CSV or JSON to Slop Drive and/or a download.' });
     if (cfg.extra) cfg.extra(add, AI);
     C.register(list);
-    C.provide({ state: () => AI.summary || { app: cfg.label }, checkpoint });
-    AI.refresh(cfg);
+    C.provide({ state: () => AI.view(cfg), checkpoint });
   };
-  AI.refresh = async function (cfg) {
-    const counts = {};
-    for (const c of cfg.collections) { const r = await D().store.list(c); counts[c] = r.ok ? r.value.length : null; }
-    AI.summary = { app: cfg.label, records: counts, hint: 'list_records to read them; describe_records before create_record' };
+  /** One record in a few fields: its id, number or name, status, date, customer, total and lines. */
+  const brief = (r) => {
+    const o = {};
+    for (const k of ['id', 'number', 'name', 'title', 'status', 'date', 'due', 'validUntil', 'customerId', 'email', 'qty', 'currency']) if (r[k] != null && r[k] !== '') o[k] = r[k];
+    if (r.total != null) o.total = D().money.formatMinor(r.total, r.currency || 'USD');
+    if (Array.isArray(r.lines)) o.lines = r.lines.slice(0, 20).map((l) => ({ description: l.description, qty: l.qty, unit_price: l.unitPrice != null ? D().money.formatMinor(l.unitPrice, r.currency || 'USD') : undefined }));
+    return o;
+  };
+  /** The app right now (app_state): the record the page shows (its address names it: #q/<id>), the newest records of
+   * each collection and how many there are. */
+  AI.view = async function (cfg) {
+    const out = { app: cfg.label, records: {}, recent: {}, hint: 'list_records to read more; describe_records before create_record' };
+    const at = decodeURIComponent(String((g.location && g.location.hash) || '').replace(/^#/, '').split('/').pop() || '');
+    for (const c of cfg.collections) {
+      const r = await D().store.list(c);
+      if (!r.ok) continue;
+      const rows = r.value.slice().sort((x, y) => (y.updated || y.created || 0) - (x.updated || x.created || 0));
+      out.records[c] = rows.length;
+      out.recent[c] = rows.slice(0, 5).map(brief);
+      const open = at && rows.find((x) => x.id === at);
+      if (open) out.open = Object.assign({ collection: c }, brief(open));
+    }
+    if (out.open && out.open.customerId) { const cu = await D().store.get('customers', out.open.customerId); if (cu.ok && cu.value) out.open.customer = cu.value.name; }
+    return out;
   };
   function checkpoint() {
     const mark = log.length;

@@ -42,8 +42,11 @@ export function patchBinary(file, buf) {
 /** Files of the source brand that a renamed build leaves out (it writes its own where one is needed). */
 export function excluded(file, p) {
   if (/^(brand\/profiles|brand\/copy|tools\/whitelabel|\.claude)\//.test(file) || file === 'brand/README.md') return true;   // .claude: this repo's agent settings
-  // this repository's own rules: the commit identity (its workflow and test), and rules.yml, which the build rewrites
-  if (/^\.github\/workflows\/(commit-authors|rules)\.yml$/.test(file) || file === 'tests/node/attribution.test.mjs') return true;
+  // this repository's own automation: every workflow (deploys, pings, checks that only make sense here; the build writes the
+  // mirror's one rules.yml) and the commit identity test
+  if (/^\.github\/(workflows\/|dependabot\.yml$)/.test(file) || file === 'tests/node/attribution.test.mjs') return true;
+  // and the tests of those workflows (speed, the nightly model check, IndexNow): with the workflows gone they test nothing
+  if (/^tests\/node\/(speed-config|webgpu-check|indexnow)\.test\.mjs$/.test(file)) return true;
   if (/^tests\/node\/whitelabel-/.test(file)) return true;
   if (/^(TRADEMARKS\.md|NOTICE\.md|LICENSE|LICENSE-ART|README\.md|SECURITY\.md|CNAME|favicon\.svg|favicon\.ico|og-share\.png)$/.test(file)) return true;
   if (/^[^/]+\.png$/.test(file)) return true;                                               // stray root screenshots

@@ -59,20 +59,31 @@
     return items.map((c) => ({ id: c.id, s: score(c) })).sort((x, y) => x.s - y.s).slice(0, n).map((x) => x.id);
   }
 
+  /** The once-per-app question before the assistant drives another app: through the one permission module
+   * (SlopAIPermissions, kind 'control': "Allow everything" never asks, "always" is remembered per app), else env.confirm. */
+  async function allowControl(app, env = {}) {
+    const P = window.SlopAIPermissions, title = `Let Slop AI run commands in ${app.name}?`;
+    const detail = `Slop AI wants to run commands in ${app.name} for this session (until you reload this page). Destructive commands still ask each time.`;
+    if (env.permit) return !!(await env.permit({ kind: 'control', app: app.id, appName: app.name, action: title, detail, title }));
+    if (P && P.ask && P.KINDS.control) return !!(await P.ask({ kind: 'control', app: app.id, appName: app.name, action: title, detail, title }));
+    return !!(env.confirm && await env.confirm(title, detail));
+  }
   /** The workspace tools. Each needs an app that is open beside the chat (open_app first). */
   function workspaceTools(ws, appFor) {
     const openFor = (id) => { const app = appFor(id); if (!ws.isOpen(app.id)) throw new Error(`${app.name} is not open. Call open_app with "${app.id}" first.`); return app; };
     const appArg = { type: 'string', description: 'app id, for example "drive"', required: true };
+    const whose = (id) => { try { const x = appFor(id); return { app: x.id, appName: x.name }; } catch (e) { return null; } };   // whose permission a step asks for
     return [
-      { name: 'app_search', description: 'Search the commands of an app that is open beside the chat (its command palette). Returns ids for app_command.',
-        params: { appId: appArg, query: { type: 'string', description: 'words to look for', required: true } },
+      { name: 'app_search', description: 'List or search the commands of an app that is open beside the chat: with no query, every command that can run now, with the arguments each takes (create, add, edit, export); with a query, the best matches. Returns ids for app_command.',
+        params: { appId: appArg, query: { type: 'string', description: 'words to look for; empty lists them all' } }, maxChars: 12000,
         run: async (a) => {
-          const app = openFor(a.appId), hits = await ws.search(app.id, a.query);
+          const app = openFor(a.appId), hits = await ws.search(app.id, a.query || '');
           return hits.length ? hits : `No command matches "${a.query}" in ${app.name}.`;
         } },
       { name: 'app_command', description: 'Run one command of an app that is open beside the chat, by its id (from app_search). The first command in each app asks the person once for this session. Destructive commands ask every time.',
         params: { appId: appArg, commandId: { type: 'string', description: 'command id from app_search', required: true }, args: { type: 'object', description: 'optional arguments the command takes' } },
         destructive: (a) => { const c = ws.findCommand(a.appId, a.commandId); return !!c && WS_DESTRUCTIVE.test(`${a.commandId} ${c.title}`); },
+        kind: () => 'delete', appOf: (a) => whose(a.appId),
         confirmText: (a) => { const c = ws.findCommand(a.appId, a.commandId); return `The assistant wants to run “${c ? c.title : a.commandId}” in ${appFor(a.appId).name}. This may change or remove your work.`; },
         run: async (a, env = {}) => {
           const app = openFor(a.appId);
@@ -81,18 +92,27 @@
           if (!c) throw new Error(`No command "${a.commandId}" in ${app.name}. Closest: ${nearest(a.commandId, list).join(', ') || 'none'}. Use app_search to look for more.`);
           if (!c.enabled) throw new Error(`“${c.title}” is not available right now.`);
           if (!ws.granted(app.id)) {
-            const ok = !!(env.confirm && await env.confirm(`Let Slop AI run commands in ${app.name}?`, `Slop AI wants to run commands in ${app.name} for this session (until you reload this page). Destructive commands still ask each time.`));
-            if (!ok) throw new Error(`The person did not allow commands in ${app.name}.`);
+            if (!(await allowControl(app, env))) throw new Error(`The person did not allow commands in ${app.name}.`);
             ws.grant(app.id);
           }
           const r = await ws.run(app.id, c.id, a.args || {});
           if (!r) throw new Error(`“${c.title}” did not run.`);
-          const notes = r.notes && r.notes.length ? ' Note: ' + r.notes.join('; ') + '.' : '', said = typeof r.value === 'string' ? ' ' + r.value : '';
+          const v = r.value, notes = r.notes && r.notes.length ? ' Note: ' + r.notes.join('; ') + '.' : '';
+          const said = typeof v === 'string' ? ' ' + v : v && typeof v === 'object' ? ' ' + JSON.stringify(v).slice(0, 3000) : '';   // what it made: ids, numbers
           return `Ran “${c.title}” in ${app.name}.${said}${notes}`;
         } },
-      { name: 'app_state', description: 'Read a short summary of an app that is open beside the chat: its title, whether it can be driven, and any state it shares.',
-        params: { appId: appArg },
+      { name: 'app_state', description: 'Read what is open in an app beside the chat, as JSON: its title, whether it can be driven, and its state (the open document or record, lists, selection). Call it after app_command to check the result.',
+        params: { appId: appArg }, maxChars: 8000,
         run: (a) => ws.state(openFor(a.appId).id) },
+      ...(ws.snapshot && K.fileTools ? [{ name: 'app_snapshot', description: 'See an app that is open beside the chat as a picture (at most 1024 px), to check your work there. Its own picture of the work, else its page drawn.',
+        params: { appId: appArg }, destructive: true, kind: () => 'send', appOf: (a) => whose(a.appId),
+        confirmTitle: () => 'Send a picture of your work to the AI provider?',
+        confirmText: (a) => `The assistant wants to see what is in ${appFor(a.appId).name} now, to check its work. A small picture goes to the AI provider. Nothing is changed.`,
+        label: (a) => `Look at ${appFor(a.appId).name}`,
+        run: async (a) => {
+          const app = openFor(a.appId), s = await K.fileTools.shrink(await ws.snapshot(app.id));
+          return { text: `A ${s.width} × ${s.height} picture of ${app.name} (full size ${s.from.width} × ${s.from.height}).`, media: [{ mime: s.mime, data: s.data, name: app.name }] };
+        } }] : []),
     ];
   }
 
@@ -187,5 +207,5 @@
     }).join('\n');
   }
 
-  K.appTools = { catalog, build, isDestructiveCommand, listCommands, findFile, DESTRUCTIVE, WS_DESTRUCTIVE, nearest };
+  K.appTools = { catalog, build, isDestructiveCommand, listCommands, findFile, allowControl, DESTRUCTIVE, WS_DESTRUCTIVE, nearest };
 })();

@@ -110,7 +110,8 @@
       try {
         const res = await K.tools.run(eng, msgs, {
           tools, maxSteps: tools.length ? 4 : 1, temperature: c.temperature, max_tokens: c.maxTokens, signal: this.ctl.signal,
-          env: { confirm: (title, msg) => window.SlopUI.confirm(title, msg, 'Allow') },
+          // the site's AI permissions (shared/ai/permissions.js): "Allow everything" asks nothing, rules are per app
+          env: { confirm: (title, msg) => window.SlopUI.confirm(title, msg, 'Allow'), permit: window.SlopAIPermissions ? (req) => window.SlopAIPermissions.ask(Object.assign({ app: 'ai', appName: 'Slop AI' }, req)) : undefined },
           onDelta: (t, step) => { live(step).add(t); n++; this.stats.textContent = `${n} tokens · ${(n / ((performance.now() - t0) / 1000)).toFixed(1)} tok/s`; this.scrollEnd(); },
           onTool: ({ phase, call, res: r }) => { if (phase === 'end') { lives.forEach((l) => l && l.end()); this.list.append(AI.msgEl({ role: 'tool', name: call.name, content: r.ok ? r.result : r.error, ok: r.ok }, -1)); } },
         });

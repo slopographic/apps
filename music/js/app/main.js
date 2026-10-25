@@ -18,10 +18,7 @@
     const s = M.engine.state(), t = s.trackId ? M.lib.track(s.trackId) : null;
     document.title = t && s.playing ? `▶ ${M.lib.display(t)} — Slop Music` : 'Slop Music — Slopographic';
   }
-  function isTyping(e) {
-    const t = e.target;
-    return !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && !(t.type === 'range' || t.type === 'checkbox'));
-  }
+  const isTyping = (e) => (!!window.SlopTyping && window.SlopTyping.isTyping(e));   // shared/input/typing.js
   function keys(e) {
     if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e) || e.target.closest?.('[role=tab]')) return;   // a tab's arrows move between tabs
     const eng = M.engine, k = e.key;

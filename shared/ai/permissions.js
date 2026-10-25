@@ -7,11 +7,14 @@
  *   change  an app change that Undo can take back but that the word rule marks (crop, flatten, merge, replace, new…)
  *   delete  deleting, clearing, closing or overwriting (delete, remove, clear, erase, reset, close, discard, overwrite…)
  *   send    sending a copy of a file or picture to the AI provider (look_at_file). Never covered by "allow app changes".
+ *   control running the commands of another app open beside the chat (Slop AI's workspace): asked once per app and
+ *          visit; never covered by "allow app changes"
  *   spend-image  making or editing a picture at the person's provider, which costs money (generate_image, edit_image).
  *          Never covered by "allow app changes" either.
  *   kindOf(text) → 'delete' | 'change'   (a command's id and title; send is set by the tool itself)
  * Modes (one per device): 'ask' (default: every action of these kinds asks), 'changes' (app changes run, deleting and
- *   sending ask), 'all' (nothing asks). mode(), setMode(id), MODES.
+ *   sending ask), 'all' (nothing asks). mode(), setMode(id) (then a 'slopaipermissions' event on window), MODES (label,
+ *   short: the panel's mode switch, note, warning).
  * Answers to a question: 'once' · 'request' (this kind in this app until the reply ends) · 'visit' (this kind in this app
  *   until the tab closes, sessionStorage) · 'always' (this kind in this app on this device, a rule) · 'deny'.
  *   rules() → [{ kind, app, appName, added }]   addRule(kind, app, appName)   removeRule(kind, app)
@@ -30,12 +33,13 @@
     change: { id: 'change', name: 'app changes', what: 'a change Undo can take back (crop, flatten, merge, replace…)' },
     delete: { id: 'delete', name: 'deleting or clearing', what: 'deleting, clearing, closing or overwriting something' },
     send: { id: 'send', name: 'sending files', what: 'sending a copy of a file or picture to the AI provider' },
+    control: { id: 'control', name: 'running commands in another app', what: 'letting the assistant run the commands of an app open beside the chat' },
     'spend-image': { id: 'spend-image', name: 'spending on image generation', what: 'making or editing a picture at your provider, which charges your account' },
   };
   const MODES = [
-    { id: 'ask', label: 'Ask each time', note: 'Actions that change, delete or send something ask you first. Reading and ordinary edits run.' },
-    { id: 'changes', label: 'Allow app changes, ask before deleting or sending files', note: 'Changes Undo can take back run without asking. Deleting, clearing and sending a file to the AI provider still ask.' },
-    { id: 'all', label: 'Allow everything', note: 'Nothing asks.',
+    { id: 'ask', label: 'Ask each time', short: 'Ask each time', note: 'Actions that change, delete or send something ask you first. Reading and ordinary edits run.' },
+    { id: 'changes', label: 'Allow app changes, ask before deleting or sending files', short: 'Allow app changes', note: 'Changes Undo can take back run without asking. Deleting, clearing and sending a file to the AI provider still ask.' },
+    { id: 'all', label: 'Allow everything', short: 'Allow everything', note: 'Nothing asks.',
       warning: 'The assistant can then delete or clear your work, send copies of your files to the AI provider and spend on image generation without asking you. “Undo all AI changes” still takes back app changes, but nothing can call back a file that was sent or deleted from Slop Drive.' },
   ];
   const DELETE = /\b(delete|remove|trash|purge|clear|erase|empty|wipe|destroy|discard|overwrite|reset|close|quit)\b/i;
@@ -49,7 +53,9 @@
   const save = (s) => { memory = s; write('local', KEY, s); };
 
   const mode = () => state().mode;
-  function setMode(id) { if (!MODES.some((m) => m.id === id)) throw new Error('Unknown permission mode ' + id); const s = state(); s.mode = id; save(s); return id; }
+  function setMode(id) { if (!MODES.some((m) => m.id === id)) throw new Error('Unknown permission mode ' + id); const s = state(); s.mode = id; save(s); changed(id); return id; }
+  /** Every mode switch, from any control on this page: a 'slopaipermissions' event on window ({ mode }). */
+  function changed(id) { try { if (g.dispatchEvent && g.CustomEvent) g.dispatchEvent(new g.CustomEvent('slopaipermissions', { detail: { mode: id } })); } catch (e) { /* no events here */ } }
   const rules = () => state().always.slice();
   function addRule(kind, app, appName) {
     const s = state();

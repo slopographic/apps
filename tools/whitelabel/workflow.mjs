@@ -94,5 +94,6 @@ export function mirrorWorkflow(yml, skip = '', pages = [], sweep = true) {
   const node = skip ? `node --test '--test-skip-pattern=${skip}' tests/node/` : 'node --test tests/node/';
   return (out.join('\n').replace(/\s*$/, '\n') + (pages.length ? smokeJob(yml, pages) : '') + (sweep ? sweepJob(yml) : '')).replace('node --test tests/node/', node)
     .replace(/^# The file rules[\s\S]*?\n(?=on:)/m, '# Generated with the site: the file rules, the Node tests and the browser tests, on every push.\n')
-    .replace(/name: Set up the repo as a clone is[^\n]*/, 'name: Install the test dependencies');
+    .replace(/name: Set up the repo as a clone is[^\n]*/, 'name: Install the test dependencies')
+    .replace(/^( *)run: (node --test '--test-skip-pattern=.*)$/m, (all, ind, cmd) => `${ind}run: |\n${ind}  ${cmd}`);   // a block scalar: test names hold ": ", which a plain YAML value cannot
 }

@@ -46,7 +46,8 @@
   function defs() {
     hookCmd();
     const K = g.SlopAIKit;
-    let list = K.appTools.build({ cmd: hooked ? g.SlopCmd : null, ops: true, appId: appId() }).map(K.cmdTools.neutral)
+    // look: the agent can see the result too (look_at_canvas, look_at_file: a small picture, asked as a 'send')
+    let list = K.appTools.build({ cmd: hooked ? g.SlopCmd : null, ops: true, appId: appId(), appName: appName(), look: true, who: 'the AI agent' }).map(K.cmdTools.neutral)
       .filter((d) => !d.cmdId || usable(d.cmdId));
     const isCmd = (d) => !!d.cmdId || d.name === 'run_command';
     if (dialogOpen() && !busy) list = list.filter((d) => !isCmd(d) || d.readOnly);
@@ -64,7 +65,7 @@
   }
   /** The kind of approval a tool needs (permissions.js): 'send' for a command that sends the app's content (sends: true),
    * else deleting words in its command id or name, else an app change. */
-  const kindOf = (d) => { const P = g.SlopAIPermissions; return d.sends ? 'send' : d.name === 'run_command' ? 'delete' : P && P.kindOf ? P.kindOf(d.cmdId || d.name) : 'delete'; };
+  const kindOf = (d) => { const P = g.SlopAIPermissions, own = typeof d.kind === 'function' ? d.kind({}) : null; return own || (d.sends ? 'send' : d.name === 'run_command' ? 'delete' : P && P.kindOf ? P.kindOf(d.cmdId || d.name) : 'delete'); };
 
   /** Keeps a running call out of the change checks (its own dialog would otherwise change the tool set under it). */
   function wrap(tool) {

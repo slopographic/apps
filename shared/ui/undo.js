@@ -35,8 +35,7 @@
     const doc = g.document;
     const onKey = (e) => {
       if ((e.key || '').toLowerCase() !== 'z' || !(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey) return;
-      const t = e.target;
-      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (!!g.SlopTyping && g.SlopTyping.isTyping(e, { controls: true })) return;   // shared/input/typing.js
       if (doc.querySelector('.sui-dlg, .sui-menu') || !history.size || !when()) return;
       e.preventDefault();
       run();

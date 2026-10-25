@@ -117,7 +117,6 @@
     return parts.join('+');
   }
   function norm(b) { var p = b.split('+'), k = p.pop(); if (k.length === 1) k = k.toUpperCase(); return p.sort().concat(k).join('+'); }
-  function typing(t) { return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable); }
   A.match = function (e) {
     var ek = eventKey(e); if (!ek) return null;
     var nk = norm(ek);
@@ -134,7 +133,7 @@
     if (document.activeElement && document.activeElement.closest && document.activeElement.closest('.sui-menu')) return;
     var c = A.match(e); if (!c) return;
     var mod = e.ctrlKey || e.metaKey;
-    if (typing(e.target) && !mod) return;
+    if (window.SlopTyping && window.SlopTyping.yields(e)) return;   // a field keeps its keys, Ctrl+A/C/V/Z too (shared/input/typing.js)
     if (!A.enabled(c.id)) { if (mod) e.preventDefault(); return; }
     e.preventDefault(); e.stopPropagation();
     A.run(c.id);
