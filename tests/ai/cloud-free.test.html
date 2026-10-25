@@ -126,10 +126,10 @@
       q('.sap-cloud-use').click();
       await waitFor(() => q('.sap-status').classList.contains('cloud'));
       q('.sap-status').click();
-      const menu = await waitFor(() => q('.smb-menu'));
-      await waitFor(() => /OpenRouter \(many models, one key\) · Free models/.test(menu.textContent));
-      const r = [...P.document.querySelectorAll('.smb-row')].find((x) => x.dataset.value === 'use|openrouter|google/gemma-4-31b-it:free');
-      expect(!!r).toBe(true); expect(r.textContent).toContain('· Free');
+      // the menu reads the connected providers again as it opens, and redraws (a new element), so look it up each time
+      const r = await waitFor(() => qa('.smb-row').find((x) => x.isConnected && x.dataset.value === 'use|openrouter|google/gemma-4-31b-it:free'), { timeout: 15000 });
+      expect(r.textContent).toContain('· Free');
+      expect(qa('.smb-h').some((x) => x.textContent === 'OpenRouter (many models, one key) · Free models')).toBe(true);
       P.document.dispatchEvent(new P.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     }, { timeout: 20000 });
   });
