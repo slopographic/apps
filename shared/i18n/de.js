@@ -49,6 +49,17 @@
     'footer.all_tools': 'Alle Werkzeuge',
     'footer.sitemap': 'Sitemap',
 
+    'hero.lead': 'Der ganze Werkzeugkasten,',
+    'hero.accent': 'offen in deinem Browser.',
+    'hero.sub': 'PDFs, Fotos und Videos bearbeiten, Dokumente schreiben, Rechnungen senden und Dateien umwandeln. Kostenlos, nichts zu installieren, kein Konto nötig, deine Dateien bleiben auf deinem Gerät, und die Apps laufen nach dem ersten Besuch auch offline.',
+    'hero.open': 'Apps öffnen',
+    'hero.how': 'So funktioniert es',
+    'hero.github': 'Open Source auf GitHub',
+    'hero.offline': 'Funktioniert offline',
+    'hero.no_account': 'Kein Konto nötig',
+    'hero.apps': 'Alle Apps',
+    'hero.marquee': 'Was die Apps können',
+
     'settings.appearance': 'Darstellung',
     'settings.appearance_lede': 'Ein Design für alle Slopographic-Apps und für diese Website. Wählen Sie es hier, es wird sofort angewendet. Jede App übernimmt beim Öffnen dieselbe Wahl.',
     'settings.theme': 'Design',

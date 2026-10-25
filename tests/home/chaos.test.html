@@ -13,11 +13,14 @@
   let win, doc, S, M, pristine;
   // The page itself changes as cards scroll into view (lazy screenshots load or fall back, clips attach):
   // compare without those parts.
-  // The app carousel auto-advances on its own, so its current slide, dots (the dot strip) and live text change too: compare without those.
-  const main = () => doc.querySelector('main').innerHTML
-    .replace(/<img[^>]*>|<video[\s\S]*?<\/video>| data-clip="[^"]*"| has-img/g, '')
-    .replace(/<button type="button" class="car-dot[^>]*>/g, '')
-    .replace(/ style="transform: translateX\(-?\d+%\);"| is-current| aria-current="true"| inert=""|<p class="sr" aria-live="\w+">[^<]*<\/p>|<span class="car-count" aria-hidden="true">[^<]*<\/span>/g, '');
+  // The tool vortex in the hero moves on its own (its layer and the hero's state change every frame): compare without it.
+  const main = () => {
+    const m = doc.querySelector('main').cloneNode(true);
+    m.querySelectorAll('.vx-layer').forEach((n) => n.remove());
+    m.querySelector('#hero').removeAttribute('data-vx');
+    m.querySelectorAll('.vx-nav a').forEach((a) => a.removeAttribute('tabindex'));
+    return m.innerHTML.replace(/<img[^>]*>|<video[\s\S]*?<\/video>| data-clip="[^"]*"| has-img/g, '');
+  };
   const leftovers = () => doc.querySelectorAll('.sloppo-layer > :not(.sloppo):not(.sloppo-fx)').length;
   const ready = HomeTest.openHome().then(async (w) => {
     win = w; doc = w.document; S = w.SlopMascot; M = S.M;

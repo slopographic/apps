@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Homepage · hero, tool vortex and capability strip</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; } iframe { display: block; border: 0; }</style>
+</head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="hero-boot.js"></script>
+  <script>
+  // Covers: home/vortex/vortex.js, home/vortex/orbit.js, home/hero.css, index.html
+  /* The hero at 1280 and 390 px, in the Light and Dark themes: the wordmark is whole and on top, no icon sits on it, the
+   * vortex moves and stops when it should (hidden tab, off screen, reduced motion), the strip comes from the registry,
+   * and the page never scrolls sideways. Links, the keyboard list and the buttons: hero-links.test.html. */
+  const { describe, it, expect, waitFor, sleep, run } = SlopTest;
+  const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+  const rgb = (s) => (s.match(/[\d.]+/g) || []).map(Number);
+
+  for (const width of [1280, 390]) for (const theme of ['light', 'dark']) {
+    describe(`hero at ${width} px, ${theme}`, () => {
+      it('the wordmark is whole, inside the page, readable and above the vortex; no icon is shown over it', async () => {
+        const win = await HeroTest.open({ width, theme });
+        const doc = win.document, box = HeroTest.markBox(win);
+        expect(box.left).toBeGreaterThanOrEqual(0);
+        expect(box.right).toBeLessThanOrEqual(win.innerWidth);
+        expect(box.width).toBeGreaterThan(win.innerWidth * 0.8);
+        expect(box.height).toBeGreaterThan(width > 600 ? 70 : 30);
+        const z = (sel) => Number(win.getComputedStyle(doc.querySelector(sel)).zIndex);
+        expect(z('.hx-stage')).toBeGreaterThan(z('.vx-layer'));
+        // its ink against the page: at least 7:1
+        const fg = rgb(win.getComputedStyle(doc.querySelector('.hx-mark')).color), bg = rgb(win.getComputedStyle(doc.body).backgroundColor);
+        const [hi, lo] = [lum(fg), lum(bg)].sort((a, b) => b - a);
+        expect((hi + 0.05) / (lo + 0.05)).toBeGreaterThan(7);
+        // over a second of frames, every icon whose centre is on the wordmark is all but gone
+        for (let k = 0; k < 10; k++) {
+          for (const ic of win.SlopVortex.icons()) {
+            const r = ic.el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+            if (cx > box.left && cx < box.right && cy > box.top && cy < box.bottom) {
+              if (Number(ic.el.style.opacity) > 0.12) throw new Error(`${ic.id} shows at ${ic.el.style.opacity} over the wordmark`);
+            }
+          }
+          await sleep(100);
+        }
+      }, { timeout: 60000 });
+
+      it('the vortex moves between frames, with the app icons, and the page never scrolls sideways', async () => {
+        const win = await HeroTest.open({ width, theme });
+        expect(win.SlopVortex.state()).toBe('running');
+        if (width < 700) expect(win.SlopVortex.tier()).toBe('lite');   // a wide screen is full, or lite on a small machine
+        const a = HeroTest.transforms(win);
+        expect(a.length).toBe(win.SlopVortexMath.TIERS[win.SlopVortex.tier()].icons);
+        // most icons have moved a few frames later (waited for, as a loaded machine draws fewer frames)
+        await waitFor(() => { const b = HeroTest.transforms(win); return a.filter((t, i) => t !== b[i]).length > a.length / 2; }, { timeout: 8000 });
+        const se = win.document.scrollingElement;
+        expect(se.scrollWidth).toBeLessThanOrEqual(win.innerWidth);
+        win.scrollTo(0, 1200);
+        await sleep(100);
+        expect(win.scrollX).toBe(0);
+      }, { timeout: 60000 });
+    });
+  }
+
+  describe('the vortex stops when nobody can see it, and holds still for reduced motion', () => {
+    it('a hidden tab stops it; showing the tab again starts it', async () => {
+      const win = await HeroTest.open({ width: 1280 });
+      const doc = win.document;
+      Object.defineProperty(doc, 'hidden', { configurable: true, get: () => true });
+      doc.dispatchEvent(new win.Event('visibilitychange'));
+      expect(win.SlopVortex.state()).toBe('paused');
+      await sleep(80);
+      const f = win.SlopVortex.frames(), t = HeroTest.transforms(win);
+      await sleep(400);
+      expect(win.SlopVortex.frames()).toBe(f);
+      expect(HeroTest.transforms(win)).toEqual(t);
+      delete doc.hidden;
+      doc.dispatchEvent(new win.Event('visibilitychange'));
+      expect(win.SlopVortex.state()).toBe('running');
+      await waitFor(() => win.SlopVortex.frames() > f + 3, { timeout: 5000 });
+    }, { timeout: 60000 });
+
+    it('scrolled out of view it stops; back in view it runs', async () => {
+      const win = await HeroTest.open({ width: 1280 });
+      win.scrollTo(0, win.document.getElementById('apps').offsetTop);
+      await waitFor(() => win.SlopVortex.state() === 'paused', { timeout: 5000 });
+      win.scrollTo(0, 0);
+      await waitFor(() => win.SlopVortex.state() === 'running', { timeout: 5000 });
+    }, { timeout: 60000 });
+
+    it('reduced motion: a still ring of icons that does not move, and the strip does not scroll', async () => {
+      const win = await HeroTest.open({ width: 1280 });
+      win.SlopVortex.reduce(true);
+      expect(win.SlopVortex.state()).toBe('static');
+      expect(HeroTest.transforms(win).length).toBe(16);
+      const a = HeroTest.transforms(win), f = win.SlopVortex.frames();
+      await sleep(400);
+      expect(HeroTest.transforms(win)).toEqual(a);
+      expect(win.SlopVortex.frames()).toBe(f);
+      expect(win.SlopVortex.icons().filter((i) => i.opacity > 0.3).length).toBeGreaterThan(6);
+      win.SlopVortex.reduce(false);
+      expect(win.SlopVortex.state()).toBe('running');
+      // the strip's own rule: no animation under prefers-reduced-motion (the browser applies it; here the rule is read)
+      const rules = [...win.document.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch (e) { return []; } });
+      const still = rules.some((r) => r.media && /reduce/.test(r.media.mediaText) && [...r.cssRules].some((x) => x.selectorText === '.mq-track' && x.style.animationName === 'none'));
+      expect(still).toBe(true);
+    }, { timeout: 60000 });
+  });
+
+  describe('the capability strip', () => {
+    it('is made from the registry: one label per app, File convert as its conversions, looped by an aria-hidden copy', async () => {
+      const win = await HeroTest.open({ width: 1280 });
+      const doc = win.document;
+      const lists = doc.querySelectorAll('.hx-marquee .mq-list');
+      expect(lists.length).toBe(2);
+      const one = [...lists[0].children].map((li) => li.textContent), two = [...lists[1].children].map((li) => li.textContent);
+      expect(two).toEqual(one);
+      expect(lists[1].getAttribute('aria-hidden')).toBe('true');
+      const apps = win.SLOP_APPS.filter((a) => a.kind === 'app');
+      expect(one.length).toBeLessThanOrEqual(apps.length);
+      expect(one.length).toBeGreaterThan(apps.length - 4);
+      expect(one.some((t) => /^\d+ conversions$/.test(t))).toBe(true);
+      expect(one.includes('photo editor') && one.includes('PDF tools')).toBe(true);
+      // it sits right under the hero, with the finder right under it
+      const hero = doc.getElementById('hero'), strip = doc.querySelector('.hx-marquee'), finder = doc.querySelector('.finder-top');
+      expect(hero.nextElementSibling).toBe(strip);
+      expect(strip.nextElementSibling).toBe(finder);
+      const track = doc.querySelector('.mq-track');
+      expect(track.getAnimations().some((a) => a.playState === 'running')).toBe(true);
+    }, { timeout: 60000 });
+  });
+
+  run({ name: 'Homepage · hero, tool vortex and capability strip' });
+  </script>
+</body>
+</html>

@@ -11,8 +11,9 @@
   <script>
   /* The homepage at 390, 768 and 1280 px wide, in a same-origin iframe of that width and 800 px tall.
    * Three checks, each on the page as it is when the check runs:
-   *  1. Overlaps (at the top of the page, carousel paused, Sloppo hidden): no two visible buttons or links that are not
-   *     nested overlap. Header controls are in this set too, so the title row, the tabs and the Tours and Apps buttons
+   *  1. Overlaps (at the top of the page, the tool vortex held still, Sloppo hidden): no two visible buttons or links that
+   *     are not nested overlap. The vortex icons are left out: they drift behind the copy by design, out of the tab order
+   *     (their keyboard way in is the list in .vx-nav, which is checked like any link). Header controls are in this set too, so the title row, the tabs and the Tours and Apps buttons
    *     must not run into each other.
    *  2. Coverage: each visible control is scrolled into view (the way a jump link or keyboard focus does it, with the
    *     sticky header and the strip as scroll padding) and then document.elementFromPoint at its centre must be the
@@ -32,7 +33,7 @@
   const PROFILE_KEY = 'slop-profile';
   const CONTROLS = 'button, a[href]';
 
-  /** Opens the homepage at a width (and theme, if given) with the carousel paused and the strip showing. */
+  /** Opens the homepage at a width (and theme, if given) with the vortex held still and the strip showing. */
   async function openHome(width, theme) {
     try {
       localStorage.removeItem(CONSENT_KEY);
@@ -49,10 +50,10 @@
     document.body.prepend(f);
     await new Promise((r) => f.addEventListener('load', r, { once: true }));
     const win = f.contentWindow;
-    await waitFor(() => win.SlopMascot && win.document.querySelector('.app-card') && win.document.querySelector('.car-pause') && win.document.getElementById('slopc-banner'), { timeout: 30000 });
+    await waitFor(() => win.SlopMascot && win.document.querySelector('.app-card') && win.SlopVortex && win.SlopVortex.frames() > 0 && win.document.getElementById('slopc-banner'), { timeout: 30000 });
     const doc = win.document;
     doc.documentElement.style.scrollBehavior = 'auto'; // the homepage scrolls smoothly; the checks need the jump to land at once
-    doc.querySelector('.car-pause').click();           // the carousel would keep moving under the checks
+    win.SlopVortex.pause(true);                         // the vortex would keep moving under the checks
     return win;
   }
   const strip = (win) => win.document.getElementById('slopc-banner');
@@ -98,7 +99,7 @@
   }
   /** Controls in the page, outside the strip (the strip is checked by coverage) and the mascot's own layer. */
   function pageControls(win) {
-    return [...win.document.querySelectorAll(CONTROLS)].filter((el) => !el.closest('#slopc-banner, .sloppo-layer, .sloppo-hud'));
+    return [...win.document.querySelectorAll(CONTROLS)].filter((el) => !el.closest('#slopc-banner, .sloppo-layer, .sloppo-hud, .vx-layer'));
   }
 
   /** 1. Overlaps between visible, non-nested controls at the top of the page. */
@@ -120,8 +121,7 @@
   async function coverageFailures(win) {
     const doc = win.document, out = [], s = strip(win);
     for (const el of [...pageControls(win), ...(s ? s.querySelectorAll(CONTROLS) : [])]) {
-      if (!rendered(el, win) || !big(clipped(el, win))) continue; // hidden, or clipped away (a carousel slide off to the side)
-      doc.querySelectorAll('.car-viewport, .carousel').forEach((n) => { n.scrollLeft = 0; });
+      if (!rendered(el, win) || !big(clipped(el, win))) continue; // hidden, or clipped away
       el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       const b = seen(el, win);
       if (!b) continue;

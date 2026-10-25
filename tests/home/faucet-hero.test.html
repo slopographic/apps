@@ -12,15 +12,14 @@
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
 
   describe('homepage: hero, faucet and featured search', () => {
-    it('the hero (the featured carousel) sits above the search, and PDF and EML lead it', async () => {
+    it('the hero (wordmark and tool vortex) comes first, then the capability strip, then the search', async () => {
       const win = await HomeTest.openHome();
       const doc = win.document;
-      const hero = doc.getElementById('app-carousel'), finder = doc.querySelector('.finder-top');
+      const hero = doc.getElementById('hero'), finder = doc.querySelector('.finder-top');
+      expect(doc.querySelector('#view-home > *')).toBe(hero);
       expect(!!(hero.compareDocumentPosition(finder) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBeTruthy();
-      const firstTwo = [...doc.querySelectorAll('.carousel .car-slide .car-name, .carousel .car-slide h2, .carousel .car-slide h3')].slice(0, 2).map((n) => n.textContent.trim());
-      expect(firstTwo.length).toBe(2);
-      expect(/PDF/.test(firstTwo[0])).toBeTruthy();
-      expect(/EML/.test(firstTwo[1])).toBeTruthy();
+      expect(hero.nextElementSibling.classList.contains('hx-marquee')).toBeTruthy();
+      expect(hero.nextElementSibling.nextElementSibling).toBe(finder);
     });
 
     it('on a wide screen the facets are a column on the left and the results sit on the right', async () => {
