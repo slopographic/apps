@@ -56,7 +56,7 @@ so they are not in that list yet. Add them to the list and regenerate it before 
 ## White-label builds
 
 The same code also builds other sites: a copy of the whole site under another name, with plain app names, its own
-colours and logo, no mascot, and no word of this brand anywhere (text, code, file names, storage keys, tests, workflows).
+colours and logo, no mascot (or a mascot of its own), and no word of this brand anywhere (text, code, file names, storage keys, tests, workflows).
 One codebase, one profile per site. A build is generated: it is never edited by hand, and every improvement made here
 reaches it at the next release.
 
