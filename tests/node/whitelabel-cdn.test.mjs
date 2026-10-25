@@ -49,14 +49,15 @@ test('a cdn for the sample: fresh content at the tag, renamed notes, README, sca
     put(repo, 'models/a/x.bin', bin);
     put(repo, 'models/a/SOURCE.md', '- Used by: Slopographic (PhotoSlop), https://github.com/slopographic/cdn\n');
     put(repo, 'models/a/LICENSE.txt', 'MIT\n');
-    put(repo, 'models/a/vocab.json', '{"Ġslop":1,"Ġslope":2}\n');
+    const vocab = '{"Ġslop":1,"Ġslope":2}\n';
+    put(repo, 'models/a/vocab.json', vocab);
     put(repo, 'models/a/notes.txt', 'not a sidecar\n');
     put(repo, 'other/y.bin', 'never asked for\n');
     const git = (...a) => execFileSync('git', ['-C', repo, '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', ...a], { stdio: 'ignore' });
     git('init', '-q'); git('add', '-A'); git('commit', '-qm', 'source history that must not travel'); git('tag', 'v2026.1.2');
     put(repo, 'models/a/x.bin', 'changed after the tag');                               // the tag's bytes are what count
     put(build, 'shared/cdn/assets.js', "const TAG = 'v2026.1.2';\n");
-    put(build, 'tools/cdn-assets.mjs', `export async function allAssets() { return [{ path: 'models/a/x.bin', size: ${bin.length} }, { path: 'models/a/vocab.json', size: 24 }]; }\n`);
+    put(build, 'tools/cdn-assets.mjs', `export async function allAssets() { return [{ path: 'models/a/x.bin', size: ${bin.length} }, { path: 'models/a/vocab.json', size: ${Buffer.byteLength(vocab)} }]; }\n`);
     const r = await makeCdn('sample', build, repo, out, { ref: 'v2026.1.2' });
     assert.equal(r.tag, 'v2026.1.2');
     assert.deepEqual(r.found, []);
