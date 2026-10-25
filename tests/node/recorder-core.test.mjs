@@ -43,6 +43,39 @@ test('state: no countdown starts at once; review can discard or record again; ca
   assert.equal(m.state, 'idle');
 });
 
+test('state: pause accounting: several pauses add up, the timer stands still while paused, a new recording starts at 0', () => {
+  const m = S.create();
+  m.arm(0, 100);   // the time MediaRecorder.start was called
+  assert.equal(m.paused(100), 0);
+  m.pause(1100);
+  assert.equal(m.elapsed(1100), 1000);
+  assert.equal(m.elapsed(1800), 1000, 'the timer stands still while paused');
+  assert.equal(m.paused(1800), 700, 'the pause going on counts');
+  m.resume(1800);
+  assert.equal(m.paused(5000), 700, 'a pause that is over stays as long as it was');
+  m.pause(2300); m.resume(2400);
+  assert.equal(m.paused(2400), 800);
+  assert.equal(m.elapsed(2800), 1900, '2.7 s since the start, 0.8 s of it paused');
+  m.pause(3000); m.stop(3500);
+  assert.equal(m.elapsed(9999), 2100);
+  assert.equal(m.paused(9999), 1300, 'stopped while paused: that pause ends at Stop');
+  assert.equal(m.elapsed(9999) + m.paused(9999), 3500 - 100, 'recorded and paused together are the whole time');
+  m.arm(0, 10000);
+  assert.equal(m.paused(10500), 0); assert.equal(m.elapsed(10500), 500);
+});
+
+test('state: the countdown is not recorded; the time counts from go (the start call), even when go comes later', () => {
+  const m = S.create();
+  m.arm(3, 0);
+  assert.equal(m.elapsed(2000), 0);
+  assert.equal(m.paused(2000), 0);
+  m.go(3000);   // the recorder was started at 3000; its start event came at 4900 (a busy machine), the page moves now
+  assert.equal(m.elapsed(4900), 1900, 'the time before the start event is in the file, so it is in the timer too');
+  m.pause(5000); m.resume(4990);
+  assert.equal(m.paused(6000), 0, 'a clock that went backwards adds no pause');
+  assert.equal(m.elapsed(6000), 3000);
+});
+
 test('state: actions that do not fit the state are refused with the reason', () => {
   const m = S.create();
   assert.throws(() => m.pause(0), /Cannot pause while idle/);

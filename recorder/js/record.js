@@ -5,9 +5,11 @@
  *   await s.start(opts)    asks for the sources (capture.js), counts down, records
  *   s.pause(); s.resume(); s.stop(); s.cancel()   (cancel: the countdown, or a recording thrown away)
  *   s.state, s.elapsed(), s.preview (the stream to show while recording), s.notes
- *   result: { blob, type, ext, ms, audioOnly, notes }
- * The time counts from the recorder's start event, not from the call: an encoder can take a moment to start, and what it
- * did not record is not counted. The page's clock is performance.now(); while counting down and recording a worker clock ticks the timer (capture.ticker)
+ *   result: { blob, type, ext, ms, audioOnly, notes, elapsed, pausedMs }   ms: the length read from the file's own frames
+ *   (written into it as its Duration); elapsed: what the timer counted, pauses left out; pausedMs: the pauses together
+ * The time counts from the call to MediaRecorder.start, not from its start event: the encoder takes frames from the call on,
+ * and on a busy machine the event can come a second or more later (counting from the event left that time out of the timer
+ * while the file had it). Recording starts once the event came, so the controls are not offered before. The page's clock is performance.now(); while counting down and recording a worker clock ticks the timer (capture.ticker)
  * so it keeps up in a background tab. */
 (function (g) {
   'use strict';
@@ -31,12 +33,13 @@
     /** The countdown ran out: the recorder starts, and the time counts from its first frame (an encoder can take a moment). */
     function begin() {
       if (starting) return;
-      starting = startRecorder().then(() => {
-        if (m.state === 'countdown') m.go(now());
+      starting = startRecorder().then((at) => {
+        if (m.state === 'countdown') m.go(at);
         else if (rec && rec.state !== 'inactive') rec.stop();   // cancelled while it was starting
       });
     }
-    /** MediaRecorder on the stream; resolves on its start event (or after 4 s, for a browser that sends none). */
+    /** MediaRecorder on the stream; resolves on its start event (or after 4 s, for a browser that sends none) with the time
+     *  start was called. */
     function startRecorder() {
       const M = g.MediaRecorder;
       mime = R.plan.pickMime((t) => M.isTypeSupported(t), cap.audioOnly);
@@ -46,8 +49,9 @@
       rec.onerror = (e) => fail(e.error || new Error('The recording stopped with an error.'));
       done = new Promise((res) => { rec.onstop = res; });
       const began = new Promise((res) => { rec.onstart = res; setTimeout(res, 4000); });
+      const at = now();
       rec.start(1000);
-      return began;
+      return began.then(() => at);
     }
     function fail(err) {
       release();
@@ -55,7 +59,7 @@
       if (hooks.onError) hooks.onError(err);
     }
     async function finish() {
-      const ms = m.elapsed(now());
+      const ms = m.elapsed(now()), pausedMs = m.paused(now());
       await done;
       release();
       const type = (rec && rec.mimeType) || mime || 'video/webm', raw = new Blob(chunks, { type: type.split(';')[0] });
@@ -68,7 +72,8 @@
           blob = new Blob([R.webm.setDuration(bytes, len)], { type: raw.type });
         } catch (e) { blob = raw; }
       }
-      const result = { blob, type: blob.type, ext, ms: len, audioOnly: cap ? cap.audioOnly : false, notes: cap ? cap.notes : [] };
+      const result = { blob, type: blob.type, ext, ms: len, audioOnly: cap ? cap.audioOnly : false, notes: cap ? cap.notes : [],
+        elapsed: ms, pausedMs };
       if (hooks.onDone) hooks.onDone(result);
       return result;
     }
@@ -83,7 +88,7 @@
         opts = R.plan.clean(o);
         cap = await R.capture.open(opts, { onEnded: () => { if (m.can('stop')) s.stop(); else if (m.state === 'countdown') s.cancel(); } });
         starting = null;
-        if (!opts.countdown) { await startRecorder(); m.arm(0, now()); }   // no countdown: recording once the recorder runs
+        if (!opts.countdown) m.arm(0, await startRecorder());   // no countdown: recording once the recorder runs
         else m.arm(opts.countdown, now());
         stopTick = R.capture.ticker(100, tick);
         return s;
