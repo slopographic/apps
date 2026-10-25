@@ -1,6 +1,6 @@
 /* Slop Resize: layout and tokens. Dark by default, light when the system asks for it or the page is set to light. */
 :root {
-  --rs-bg: #161616; --rs-panel: #1f1f1f; --rs-line: #333; --rs-fg: #ececec; --rs-dim: #a3a3a3; --rs-faint: #777;
+  --rs-bg: #161616; --rs-panel: #1f1f1f; --rs-line: #333; --rs-fg: #ececec; --rs-dim: #a3a3a3; --rs-faint: #9a9a9a;
   --rs-accent: #d4ff3a; --rs-accent-ink: #10180a; --rs-bad: #ff6b82; --rs-ok: #8fd66b; --rs-radius: 8px;
   --rs-mono: ui-monospace, Menlo, Consolas, monospace;
   --s-bg: var(--rs-panel); --s-bg2: #262626; --s-input: #161616; --s-line: var(--rs-line); --s-fg: var(--rs-fg);
@@ -8,13 +8,13 @@
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --rs-bg: #f4f2ec; --rs-panel: #ffffff; --rs-line: #d8d4c8; --rs-fg: #161616; --rs-dim: #555; --rs-faint: #888;
+    --rs-bg: #f4f2ec; --rs-panel: #ffffff; --rs-line: #d8d4c8; --rs-fg: #161616; --rs-dim: #555; --rs-faint: #666;
     --rs-accent: #5b7f00; --rs-accent-ink: #ffffff; --rs-bad: #b3263f; --rs-ok: #2f6b1a;
     --s-bg2: #f0eee7; --s-input: #fff; --s-bg: #fff;
   }
 }
 :root[data-theme="light"] {
-  --rs-bg: #f4f2ec; --rs-panel: #ffffff; --rs-line: #d8d4c8; --rs-fg: #161616; --rs-dim: #555; --rs-faint: #888;
+  --rs-bg: #f4f2ec; --rs-panel: #ffffff; --rs-line: #d8d4c8; --rs-fg: #161616; --rs-dim: #555; --rs-faint: #666;
   --rs-accent: #5b7f00; --rs-accent-ink: #ffffff; --rs-bad: #b3263f; --rs-ok: #2f6b1a;
   --s-bg2: #f0eee7; --s-input: #fff; --s-bg: #fff;
 }

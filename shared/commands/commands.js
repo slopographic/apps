@@ -244,13 +244,12 @@
     if (!missing.length) return Promise.resolve(parts);
     if (uiP) return uiP;
     if (!BASE) return Promise.reject(new Error('SlopCmd UI parts are not loaded'));
+    if (!document.querySelector('link[href*="commands/commands.css"]')) document.head.append(Object.assign(document.createElement('link'), { rel: 'stylesheet', href: BASE + 'commands.css' }));   // the palette's look, where the page did not link it
     uiP = missing.reduce((p, name) => p.then(() => (parts[name] ? null : loadPart(name))), Promise.resolve()).then(() => parts, (err) => { uiP = null; throw err; });
     return uiP;
   }
-  const loadPart = (name) => new Promise((res, rej) => {
-    const s = document.createElement('script');
-    s.src = BASE + name + '.js'; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + name + '.js')); document.head.append(s);
-  });
+  const loadPart = (name) => new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
+    { src: BASE + name + '.js', onload: res, onerror: () => rej(new Error('Could not load ' + name + '.js')) })));
   const withUI = (fn) => ensureUI().then(fn, (err) => { console.warn(err); if (window.SlopUI) SlopUI.toast('Command palette unavailable offline'); });
   let opts = {};
   function init(o = {}) {

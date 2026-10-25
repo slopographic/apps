@@ -55,9 +55,9 @@
 .sflow-pick:hover{transform:translateY(-2px)}
 .sflow[data-state=error] .sflow-track{background:repeating-linear-gradient(90deg,#c62828 0 8px,transparent 8px 14px)}
 .sflow[data-state=done] .sflow-fill{width:100%}
-.sflow-tile[data-family=pdf]{--sflow-c:#d93025}.sflow-tile[data-family=doc]{--sflow-c:#2b5bd7}.sflow-tile[data-family=sheet]{--sflow-c:#1e8e3e}
-.sflow-tile[data-family=slide]{--sflow-c:#e8710a}.sflow-tile[data-family=image]{--sflow-c:#8e44ad}.sflow-tile[data-family=video]{--sflow-c:#c2185b}
-.sflow-tile[data-family=audio]{--sflow-c:#00838f}.sflow-tile[data-family=text]{--sflow-c:#5f6368}.sflow-tile[data-family=code]{--sflow-c:#37474f}
+.sflow-tile[data-family=pdf]{--sflow-c:#d93025}.sflow-tile[data-family=doc]{--sflow-c:#2b5bd7}.sflow-tile[data-family=sheet]{--sflow-c:#187a33}
+.sflow-tile[data-family=slide]{--sflow-c:#b85200}.sflow-tile[data-family=image]{--sflow-c:#8e44ad}.sflow-tile[data-family=video]{--sflow-c:#c2185b}
+.sflow-tile[data-family=audio]{--sflow-c:#00796b}.sflow-tile[data-family=text]{--sflow-c:#5f6368}.sflow-tile[data-family=code]{--sflow-c:#37474f}
 .sflow-tile[data-family=archive]{--sflow-c:#8d6e63}.sflow-tile[data-family=file]{--sflow-c:#757575}
 @media (prefers-reduced-motion:no-preference){
  .sflow.sflow-intro .sflow-from{animation:sflow-in .35s ease-out both}

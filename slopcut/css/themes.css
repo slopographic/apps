@@ -1,8 +1,8 @@
 /* SlopCut — Classic 98 overrides, touch, and the simplified phone layout. */
 /* ---------------------------------------------------------------- Classic 98 */
-:root[data-slop-theme="classic"] .topbar { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 65%, var(--input))); color: var(--accent-ink); box-shadow: inset 0 1px var(--input), inset 0 -1px var(--line); }
+:root[data-slop-theme="classic"] .topbar { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 82%, var(--input))); color: var(--accent-ink); box-shadow: inset 0 1px var(--input), inset 0 -1px var(--line); }
 :root[data-slop-theme="classic"] .appname b { font: 700 13px var(--font-ui); color: var(--accent-ink); }
-:root[data-slop-theme="classic"] .home-link { color: color-mix(in srgb, var(--accent-ink) 80%, var(--accent)); }
+:root[data-slop-theme="classic"] .home-link { color: var(--accent-ink); }
 :root[data-slop-theme="classic"] .menu-b, :root[data-slop-theme="classic"] .topbar .tb { color: var(--accent-ink); border-radius: 0; }
 :root[data-slop-theme="classic"] .menu-b:hover, :root[data-slop-theme="classic"] .topbar .tb:hover:not(:disabled) { background: color-mix(in srgb, var(--accent-ink) 20%, transparent); color: var(--accent-ink); }
 :root[data-slop-theme="classic"] .brand { border-radius: 0; box-shadow: var(--bevel); background: var(--bg); }
@@ -12,7 +12,7 @@
 :root[data-slop-theme="classic"] .btn.primary { outline: 1px solid var(--fg); outline-offset: -1px; font-weight: 700; }
 :root[data-slop-theme="classic"] .inp, :root[data-slop-theme="classic"] .fname input { border: 0; border-radius: 0; box-shadow: var(--bevel-in); background: var(--input); color: var(--fg); }
 :root[data-slop-theme="classic"] .pane, :root[data-slop-theme="classic"] .timeline, :root[data-slop-theme="classic"] .transport { box-shadow: var(--bevel); }
-:root[data-slop-theme="classic"] .pane-head { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 65%, var(--input))); color: var(--accent-ink); }
+:root[data-slop-theme="classic"] .pane-head { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 82%, var(--input))); color: var(--accent-ink); }
 :root[data-slop-theme="classic"] .pane-title, :root[data-slop-theme="classic"] .bin-info { color: var(--accent-ink); }
 :root[data-slop-theme="classic"] .bi-thumb, :root[data-slop-theme="classic"] .bi { border-radius: 0; }
 :root[data-slop-theme="classic"] .bi.on { background: var(--accent); }
@@ -80,3 +80,5 @@
 }
 @media (hover: none) { .th-b { width: 26px; height: 26px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+/* The shared header buttons keep their own light face on the title bar: dark text on it. */
+:root[data-slop-theme="classic"] .topbar .slop-hbtn { color: var(--fg); }

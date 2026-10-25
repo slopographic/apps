@@ -8,14 +8,14 @@
   --pb-on: color-mix(in srgb, var(--pb-accent) 14%, transparent); --pb-ink: var(--sl-on-accent, #10180a);
   --pb-danger: #ff7b7b; --pb-code: color-mix(in srgb, var(--pb-fg) 8%, var(--pb-panel));
   /* syntax colours: the dark set by default, the light set on the light and Classic 98 themes */
-  --pb-k: #ff9ec7; --pb-s: #b8e994; --pb-n: #ffcb6b; --pb-c: #7b7f8a; --pb-f: #82aaff; --pb-p: #9ad8ff; --pb-t: #ff7b7b; --pb-a: #f5c178; --pb-h: #c3a6ff;
+  --pb-k: #ff9ec7; --pb-s: #b8e994; --pb-n: #ffcb6b; --pb-c: color-mix(in srgb, #7b7f8a 70%, var(--pb-fg)); --pb-f: #82aaff; --pb-p: #9ad8ff; --pb-t: #ff7b7b; --pb-a: #f5c178; --pb-h: #c3a6ff;
   --pb-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
   --pb-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color-scheme: dark;
 }
 :root[data-slop-theme="light"], :root[data-slop-theme="classic"] {
-  --pb-danger: #b3261e;
-  --pb-k: #a2215f; --pb-s: #2b6e1c; --pb-n: #9a5b00; --pb-c: #7f8590; --pb-f: #1f5bb5; --pb-p: #0d5f7d; --pb-t: #b3261e; --pb-a: #8a4b00; --pb-h: #6a2fb5;
+  --pb-danger: color-mix(in srgb, #b3261e 75%, var(--pb-fg));   /* darker on Classic 98's grey */
+  --pb-k: #a2215f; --pb-s: #2b6e1c; --pb-n: #9a5b00; --pb-c: color-mix(in srgb, #7f8590 55%, var(--pb-fg)); --pb-f: #1f5bb5; --pb-p: #0d5f7d; --pb-t: #b3261e; --pb-a: #8a4b00; --pb-h: #6a2fb5;
   color-scheme: light;
 }
 /* SlopUI dialogs, menus and toasts follow the Paste tokens (the shared --s-* fallbacks are fixed greys) */

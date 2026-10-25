@@ -11,8 +11,8 @@ body {
    report that scrolls does not narrow the page. */
 html { scrollbar-gutter: stable; }
 .rp-main { width: 100%; max-width: 1100px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
-.rp-home { color: var(--sl-text-muted, #6b675c); text-decoration: none; font-size: 13px; }
-.rp-lead, .rp-sub { color: var(--sl-text-muted, #6b675c); margin: 4px 0 12px; }
+.rp-home { color: var(--sl-text-muted, #5c584e); text-decoration: none; font-size: 13px; }
+.rp-lead, .rp-sub { color: var(--sl-text-muted, #5c584e); margin: 4px 0 12px; }
 .rp-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
 .rp-bar label { font-weight: 600; }
 select, textarea, button { font: inherit; }
@@ -35,7 +35,7 @@ button {
 button:hover { border-color: var(--sl-accent, #6b8f00); }
 button:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--sl-accent, #6b8f00); outline-offset: 2px; }
 .rp-note {
-  background: var(--sl-surface-2, #ece9e0);
+  background: var(--sl-surface-2, color-mix(in srgb, var(--sl-text, #0a0a0a) 6%, var(--sl-surface, #f6f3ec)));
   border-left: 4px solid var(--sl-accent, #6b8f00);
   padding: 10px 12px;
   border-radius: 6px;
@@ -44,11 +44,11 @@ button:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2p
 .rp-editor { margin: 8px 0 12px; display: grid; gap: 6px; }
 #json { width: 100%; box-sizing: border-box; font: 13px/1.4 ui-monospace, Menlo, Consolas, monospace; }
 .rp-err { color: var(--sl-danger, #b3261e); margin: 0; min-height: 1em; }
-.rp-empty { color: var(--sl-text-muted, #6b675c); }
+.rp-empty { color: var(--sl-text-muted, #5c584e); }
 .rp-tablewrap { overflow-x: auto; }
 .rp-table { border-collapse: collapse; width: 100%; background: var(--sl-surface, #fff); }
 .rp-table th, .rp-table td { padding: 6px 10px; border-bottom: 1px solid var(--sl-border, #cfcac0); text-align: left; vertical-align: top; }
-.rp-table th { font-weight: 600; background: var(--sl-surface-2, #ece9e0); }
+.rp-table th { font-weight: 600; background: var(--sl-surface-2, color-mix(in srgb, var(--sl-text, #0a0a0a) 6%, var(--sl-surface, #f6f3ec))); }
 .rp-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .rp-line { padding: 4px 0; }
 .rp-card { display: grid; gap: 2px; min-width: 0; }

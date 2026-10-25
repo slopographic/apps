@@ -59,6 +59,12 @@
     convert: { key: null, native: DARK_CSS },
     slides: { key: null, native: DARK_CSS },
     music: { key: null, native: DARK_CSS },
+    /* Their CSS follows the system with data-theme light or dark: without these the page kept the system's look under the
+     * chosen theme, so the shared header's buttons (theme colours) were light text on a light bar. */
+    resize: { key: null, native: DARK_CSS },
+    clean: { key: null, native: DARK_CSS },
+    remix: { key: null, native: DARK_CSS },
+    hex: { key: null, native: DARK_CSS },
     photoslop: { key: 'slopshop.theme', fmt: 'json', native: { light: 'light', dark: 'pro', classic: 'paint', lime: 'pro' } },
   };
 
@@ -71,6 +77,9 @@
     '--accent:var(--sl-accent)!important;--accent-ink:var(--sl-on-accent)!important;--accent-line:var(--sl-accent)!important;',
     '--dim:color-mix(in srgb,var(--sl-text) 78%,transparent)!important;--mute:color-mix(in srgb,var(--sl-text) 78%,transparent)!important;',
     '--faint:color-mix(in srgb,var(--sl-text) 80%,transparent)!important;--fg-faint:color-mix(in srgb,var(--sl-text) 80%,transparent)!important}',
+    /* Placeholders: the field's own text colour, faded (the browser's fixed grey is under 3:1 on grey and dark fields).
+     * No specificity: an app's own placeholder rule wins. */
+    ':where(input,textarea)::placeholder{color:color-mix(in srgb,currentColor 62%,transparent);opacity:1}',
     'html:root[data-slop-theme][data-slop-app=home],html:root[data-slop-theme][data-slop-app=settings]{',
     '--bg:var(--sl-background);--ink-2:var(--sl-surface);--ink-3:var(--sl-surface);',
     '--bone-dim:color-mix(in srgb,var(--sl-text) 62%,transparent);',
@@ -176,6 +185,11 @@
     root.style.setProperty('--sl-accent', tk.accent);
     root.style.setProperty('--sl-border', tk.border);
     root.style.setProperty('--sl-on-accent', onColor(tk.accent));
+    // secondary text and the error red, both 4.5:1 or more on the theme's surfaces (the red leans to the text colour)
+    var muted = 'color-mix(in srgb, ' + tk.text + ' 72%, transparent)';
+    root.style.setProperty('--sl-muted', muted);
+    root.style.setProperty('--sl-text-muted', muted);
+    root.style.setProperty('--sl-danger', 'color-mix(in srgb, #e5484d 60%, ' + tk.text + ')');
     root.style.colorScheme = t.scheme;
     return id;
   }

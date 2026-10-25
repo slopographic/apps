@@ -106,6 +106,19 @@ describe('SlopMenuButton search', () => {
     t.click(); expect(menu().querySelector('.smb-search')).toBe(null); SlopMenuButton.close();
   });
 });
+describe('SlopMenuButton colours', () => {
+  // The menu sits in <body>, outside an app's own boxes. It used the page's --ink, which is the near-black page colour in some
+  // apps (Slop PDF): dark rows on the dark menu. It reads the theme (--sl-*) or SlopUI's --s-* only.
+  it('takes the theme text and surface, never the page --ink', () => {
+    const r = document.documentElement.style;
+    r.setProperty('--sl-text', 'rgb(241, 237, 228)'); r.setProperty('--sl-surface', 'rgb(21, 21, 24)'); r.setProperty('--ink', 'rgb(10, 10, 10)');
+    SlopMenuButton.close(); mb.open();
+    const m = mb.menu, row = m.querySelector('.smb-row:not([aria-checked="true"])');
+    expect([getComputedStyle(m).backgroundColor, getComputedStyle(row).color]).toEqual(['rgb(21, 21, 24)', 'rgb(241, 237, 228)']);
+    SlopMenuButton.close();
+    ['--sl-text', '--sl-surface', '--ink'].forEach((k) => r.removeProperty(k));
+  });
+});
 SlopTest.run({ name: 'shared/ui menubutton' });
 </script>
 </body>
