@@ -8,7 +8,9 @@
  *                              counts too (a focused slider or checkbox keeps its arrow keys and Space: shared/nav)
  *   SlopTyping.fieldKey(e)     the key is the field's own: any key without Ctrl/⌘, the editing shortcuts (Ctrl/⌘ + A, C, V, X,
  *                              Z, Y, Backspace, Delete, Insert, arrows, Home, End), and AltGr characters (Ctrl+Alt+@ …)
- *   SlopTyping.yields(e)       isTyping(e) && fieldKey(e): a shortcut handler leaves this key alone
+ *   SlopTyping.yields(e)       isTyping(e) && fieldKey(e): a shortcut handler leaves this key alone. Not in a field marked
+ *                              data-slop-keys="app": the hidden textarea an app's own editor types through (Slop Docs,
+ *                              Slop Press), whose Undo, Select all and clipboard are the app's commands
  *
  * Loaded by shared/commands/commands.js and shell/shell.js (whichever is first); also a CommonJS module for the node tests.
  * Tests: tests/node/typing.test.mjs, tests/shared/typing-keys.test.html. */
@@ -47,6 +49,7 @@
     // AltGr arrives as Ctrl+Alt on Windows: a character it types (@, €, {) is the field's
     return !!(e.ctrlKey && e.altKey && !e.metaKey && typeof e.key === 'string' && e.key.length === 1 && !/[a-z]/i.test(e.key));
   }
-  const yields = (e) => isTyping(e) && fieldKey(e);
+  const appKeys = (t) => !!(t && t.closest && t.closest('[data-slop-keys="app"]'));
+  const yields = (e) => isTyping(e) && fieldKey(e) && !appKeys(target(e));
   return { editable, target, isTyping, fieldKey, yields };
 });

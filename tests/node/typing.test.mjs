@@ -42,3 +42,10 @@ test('yields: only in a field, and only for the field’s keys', () => {
   assert.equal(T.yields(key('a', { ctrl: true })), false, 'Ctrl+A on the canvas is the app’s Select all');
   assert.equal(T.yields(key('Delete', { target: el('DIV', { ce: true }) })), true);
 });
+
+test('an app editor’s hidden textarea (data-slop-keys="app": Slop Docs, Slop Press) leaves Ctrl+Z, Ctrl+A… to the app', () => {
+  const ime = Object.assign(el('TEXTAREA'), { closest: (s) => (s === '[data-slop-keys="app"]' ? ime : null) });
+  assert.equal(T.isTyping(ime), true, 'plain letters are still typed, never shortcuts');
+  assert.equal(T.yields(key('z', { ctrl: true, target: ime })), false);
+  assert.equal(T.yields(key('a', { ctrl: true, target: Object.assign(el('TEXTAREA'), { closest: () => null }) })), true);
+});
