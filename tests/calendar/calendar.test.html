@@ -18,7 +18,8 @@
   const cw = () => cal.contentWindow, cd = () => cal.contentDocument;
   const errors = [];
   const set = (el, v) => { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); };
-  const dialog = (title) => [...cd().querySelectorAll('.sui-dlg')].find((d) => d.querySelector('.sui-title').textContent === title);
+  // the event editor is the calendar's right panel (calendar/js/ui/panel.js): its title, the form, Save at its foot
+  const dialog = (title) => { const side = cd().getElementById('cSide'); return side && cd().getElementById('evTitle') && side.querySelector('.sf-p-h').textContent === title ? side : null; };
   const booted = () => cw() && cw().SlopCal && cw().SlopCal.state && cd() && cd().getElementById('cBoot') && cd().getElementById('cBoot').hidden;
 
   describe('a weekly event linked to a customer', () => {
@@ -35,7 +36,7 @@
       set(d.querySelector('#evCustomer'), jane.value.id);
       set(d.querySelector('#evStart'), '14:00');
       set(d.querySelector('#evEnd'), '14:30');
-      d.querySelector('.sui-foot .sui-primary').click();
+      d.querySelector('.sf-p-foot .sui-primary').click();
       const saved = await waitFor(async () => (await cw().SlopData.store.list('events')).value.find((e) => e.title === 'Call Jane Smith on Thursday'), { timeout: 8000 });
       expect(saved.customerId).toBe(jane.value.id);
       expect(saved.freq).toBe('weekly');

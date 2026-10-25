@@ -20,6 +20,7 @@
     driveOpen: () => guard(() => SlopIntake.fromDrive({ to: 'cutout', accept: ['image/*'], title: 'Open from Slop Drive' })),
     exportOne: (it) => guard(() => CO.export.one(it || needItem())),
     exportAll: () => guard(() => CO.export.all()),
+    exportSel: () => guard(() => CO.bulk.act('export')),   // the selected pictures that are done, as a ZIP
     // Slop Workflows: Remove background as a step, with the model and the look of the image on screen, or of the selected
     // pictures where they agree (a setting they differ on comes from the image on screen) (shared/ops/flowdoc.js)
     workflow: () => guard(() => {
@@ -137,7 +138,7 @@
     U.btnIcon($('#emptySample'), 'sparkle', 'Try a sample');
     undo.addEventListener('click', () => act.undo());
     redo.addEventListener('click', () => act.redo());
-    $('#btnDownload').addEventListener('click', () => act.exportOne());
+    $('#btnDownload').addEventListener('click', () => (CO.state.bulk() ? act.exportSel() : act.exportOne()));
     panel.addEventListener('click', () => { if (!CO.sheet.isPhone()) act.panel(); });   // on a phone it is the sheet's toggle
     more.addEventListener('click', () => openAt(moreItems, more));
     $('#emptyOpen').addEventListener('click', () => act.open());

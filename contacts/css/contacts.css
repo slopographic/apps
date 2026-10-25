@@ -48,7 +48,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .drive-status[data-state="error"] { color: var(--danger); }
 
 /* Three columns: groups | list | splitter | card. The list's width is --list-w (set by the splitter, saved in localStorage).
- * Below 960 px the list is the screen; the card is a page; groups a sheet. */
+ * Below 960 px the list is the screen; the card is a bottom sheet over it (SlopSheet, js/app/card.js); groups a sheet. */
 .cols { flex: 1; min-height: 0; display: grid; grid-template-columns: 210px minmax(260px, var(--list-w, 380px)) 6px minmax(0, 1fr); min-width: 0; position: relative; }
 .col { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--panel); }
 .col-groups { background: var(--bg); border-right: 1px solid var(--line); overflow: auto; padding: 14px 0; }
@@ -64,8 +64,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .splitter { display: none; }
   .wide-only { display: none !important; }
   .list-bar .narrow-only { display: inline-flex; }
-  .col-card { position: fixed; inset: 0; z-index: 30; display: none; }
-  body.card-open .col-card { display: flex; }
+  .ssh-phone > .col-card.ssh-panel { block-size: 88dvh; max-block-size: 88dvh; overflow: hidden; }
   .col-groups { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; max-height: 72dvh; border-right: 0; border-top: 1px solid var(--line);
     border-radius: 16px 16px 0 0; box-shadow: var(--shadow); transform: translateY(104%); transition: transform .22s ease; padding: 10px 0 24px; }
   body.groups-open .col-groups { transform: none; }

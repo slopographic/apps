@@ -145,12 +145,20 @@
     Ed.noteUI.compose(part.p, snap.start.slice());
   };
 
-  /** Edit text on the run under the selection's first line (edit-text.js). */
+  /** Edit text on the selection's first line, from any mode: Edit text mode comes on and the line (edit-text.js), or in
+      Paragraphs mode its paragraph, opens for typing at once. */
   A.editText = async function () {
     var snap = T.snap; if (!snap) return;
-    var part = snap.parts[0];
+    var part = snap.parts[0], r = part.rects[0];
     if (Ed.pid !== part.pid) Ed.show(part.pid);
-    await Ed.editSelectionRun(part.p, part.rects[0]);
+    if (window.getSelection) window.getSelection().removeAllRanges(); // the editor takes the place of the selection
+    // in Paragraphs mode the paragraph under the selection opens for typing (para-mode.js), in one step
+    if (Ed.paraMode && S.para) {
+      if (!Ed.editText) Ed.toggleEditText();
+      var hit = S.para.blocksIn(await S.para.blocksOf(part.p), [r.x0, r.y0], [r.x1, r.y1]);
+      if (hit.length) { S.para.selectBlocks(part.p, hit.slice(0, 1)); await S.para.edit(); return; }
+    }
+    await Ed.editSelectionRun(part.p, r);
   };
 
   /** Find: the selected text goes into the find bar, which searches from its first match. */

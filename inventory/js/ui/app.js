@@ -24,12 +24,17 @@
     return place && VIEWS.includes(place.view) ? place.view : null;
   }
 
-  // Receive, Sell, Adjust and Transfer (and their answer) are the panel on the right of the stock view (shared/biz/panel.js);
-  // on a phone a bottom sheet over the stock levels, opened by Stock actions at the foot of the screen
+  // Receive, Sell, Adjust and Transfer (and their answer) are the panel on the right of the stock view (shared/biz/panel.js),
+  // one form at a time with its one main button at the panel's foot (ui/stock.js); on a phone a bottom sheet over the stock
+  // levels whose closed state still shows that button and Stock actions. The product form is the products view's panel
+  // the same way (ui/product-form.js), Create product / Save at its foot.
   const forms = document.querySelector('#view-stock .forms');
   if (g.SlopBiz.panel && forms) {
     forms.append(document.getElementById('sMsg'));
-    g.SlopBiz.panel.form({ app: 'inventory', key: 'stock', view: '#view-stock', form: forms, foot: [], label: 'Stock actions' });
+    NS.stockPanel = g.SlopBiz.panel.form({ app: 'inventory', key: 'stock', view: '#view-stock', form: forms, foot: ['#sApply'], label: 'Stock actions' });
+  }
+  if (g.SlopBiz.panel && document.getElementById('pForm')) {
+    NS.productPanel = g.SlopBiz.panel.form({ app: 'inventory', key: 'product', view: '#view-products', form: '#pForm', foot: ['#pCancel', '#pSave'], label: 'Product' });
   }
   const app = g.SlopBiz.router.start({
     ns: NS, app: 'inventory', parse: (h) => ({ view: VIEWS.includes(h) ? h : 'products' }),

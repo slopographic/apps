@@ -109,9 +109,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .handle.h-pt { border-radius: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; cursor: move; }
 .h-nw, .h-se { cursor: nwse-resize; } .h-ne, .h-sw { cursor: nesw-resize; } .h-n, .h-s { cursor: ns-resize; } .h-e, .h-w { cursor: ew-resize; }
 @media (pointer: coarse) { .handle { width: 20px; height: 20px; margin: -10px 0 0 -10px; } .handle::after { content: ''; position: absolute; left: 50%; top: 50%; width: var(--slop-hit, 44px); height: var(--slop-hit, 44px); transform: translate(-50%, -50%); } }
-.sel-del { position: absolute; width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 1.5px solid var(--line-2); border-radius: 8px; background: var(--panel); color: var(--fg); pointer-events: auto; box-shadow: 0 2px 8px rgba(0, 0, 0, .3); }
-.sel-del:hover { background: var(--danger); color: var(--accent-ink); }
-.sel-del .ic { width: 15px; height: 15px; }
 .pv-text { position: absolute; margin: 0; border: 0; outline: 1.5px dashed #0a0a0a; box-shadow: 0 0 0 3px rgba(212, 255, 58, .6); background: rgba(255, 255, 255, .55); resize: none; overflow: hidden; white-space: pre; z-index: 3; box-sizing: border-box; }
 
 /* ---------------------------------------------------------------- busy & drop */

@@ -6,6 +6,7 @@
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
 <body>
+  <!-- Covers: crm/js/ui/app.js, crm/js/ui/layout.js, crm/css/crm.css -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, run } = SlopTest;
@@ -35,19 +36,30 @@
       expect(doc().documentElement.scrollWidth).toBeLessThanOrEqual(390);
     });
 
-    it('the first customer opens as the full page, and Back returns to the list', async () => {
+    it('a customer opens as a bottom sheet over the list, Edit details at its foot works, and × closes it', async () => {
       for (const [name, stage] of [['Cy Sort', 'lost'], ['Ada Sort', 'customer'], ['Ben Sort', 'lead']]) {
         const r = await win().SlopCrm.customers.save(null, { name, stage });
         expect(r.ok).toBe(true);
       }
       await waitFor(() => doc().querySelectorAll('#cRows .row').length === 3, { timeout: 8000 });
       doc().querySelector('#cRows .row[data-name="Ben Sort"] .row-open').click();
-      await waitFor(() => !$('view-customer').hidden, { timeout: 4000 });
-      expect($('view-customers').hidden).toBe(true);
+      const rec = $('view-customer');
+      await waitFor(() => !rec.hidden && rec.classList.contains('ssh-on') && rec.querySelector('.sf-p-foot'), { timeout: 4000 });
+      await sleep(320);   // it slides up
+      expect($('view-customers').hidden).toBe(false);   // the list stays under the sheet
       expect($('main').classList.contains('split')).toBe(false);
-      $('dBack').click();
-      await waitFor(() => !$('view-customers').hidden, { timeout: 4000 });
-      expect($('view-customer').hidden).toBe(true);
+      const foot = rec.querySelector('.sf-p-foot').getBoundingClientRect();
+      expect(Math.round(foot.bottom)).toBe(820);
+      expect(rec.getBoundingClientRect().top).toBeGreaterThan(40);
+      expect(doc().documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      [...rec.querySelectorAll('.sf-p-foot button')].find((b) => b.textContent === 'Edit details').click();
+      await waitFor(() => doc().querySelector('.sui-dlg'), { timeout: 4000 });
+      [...doc().querySelectorAll('.sui-dlg button')].find((b) => b.textContent.trim() === 'Cancel').click();
+      await waitFor(() => !doc().querySelector('.sui-dlg'), { timeout: 4000 });
+      rec.querySelector('.ssh-x').click();
+      await waitFor(() => rec.hidden && !rec.classList.contains('ssh-on'), { timeout: 4000 });
+      expect($('view-customers').hidden).toBe(false);
+      expect(win().SlopCrm.state.current).toBe(null);
     });
 
     it('a click on a column header sorts by it, and a second click turns it round', async () => {

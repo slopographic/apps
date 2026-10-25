@@ -29,7 +29,7 @@
       frame.style.width = '1280px';
       win.dispatchEvent(new win.Event('resize'));
       await sleep(150);
-      const facets = doc.querySelector('#app-finder .sf-faucet > .sf-facets'), results = doc.querySelector('#app-finder .sf-faucet > .sf-results');
+      const facets = doc.querySelector('#app-finder .fd-faucet > .fd-facets'), results = doc.querySelector('#app-finder .fd-faucet > .fd-results');
       expect(!!facets && !!results).toBeTruthy();
       const fr = facets.getBoundingClientRect(), rr = results.getBoundingClientRect();
       expect(fr.left < rr.left).toBeTruthy();
@@ -39,9 +39,9 @@
     it('searching "pdf" puts the PDF app first; searching "eml" puts the EML app first', async () => {
       const win = await HomeTest.openHome();
       const doc = win.document;
-      const input = doc.querySelector('#app-finder .sf-input');
+      const input = doc.querySelector('#app-finder .fd-input');
       const first = () => {
-        const t = doc.querySelector('#app-finder .sf-results .app-title, #app-finder .sf-results .sf-row .app-title');
+        const t = doc.querySelector('#app-finder .fd-results .app-title, #app-finder .fd-results .fd-row .app-title');
         return t ? t.textContent.trim() : '';
       };
       for (const [q, want] of [['pdf', 'PDF'], ['eml', 'EML']]) {

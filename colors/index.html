@@ -43,13 +43,21 @@
 </head>
 <body>
   <div class="co-bar" id="co-bar"></div>
-  <!-- View · Panel (shared/frame): the colour, the picture, the palette and the contrast check in the middle; the colour's
-       values, what to generate and the export on the right, with Download palette at the panel's foot -->
+  <!-- View · Panel (shared/frame): the colour and its values (with Copy), the picture, the palette and the contrast check in
+       the middle; the settings (what to generate, the picture's colours, the export) on the right, Download palette at its foot -->
   <main class="co-main" id="co-main">
     <section class="co-view" id="co-view" aria-label="Colours">
       <section class="co-hero" id="co-hero" aria-label="Current colour">
-        <div class="co-big" id="co-big" role="img" aria-label="The current colour"><span id="co-big-hex"></span></div>
-        <ul class="co-values" id="co-values" aria-label="The colour in each format"></ul>
+        <div class="co-big-col">
+          <div class="co-big" id="co-big" role="img" aria-label="The current colour"><span id="co-big-hex"></span></div>
+          <input type="color" id="co-native" class="co-native" aria-label="Choose a colour">
+        </div>
+        <div class="co-vals">
+          <ul class="co-values" id="co-values" aria-label="The colour in each format: type in any one, the others follow"></ul>
+          <p class="co-note" id="co-gamut" aria-live="polite"></p>
+          <div class="co-btns"><button type="button" class="sui-btn" id="co-as-fg">Use as text colour</button>
+            <button type="button" class="sui-btn" id="co-as-bg">Use as background</button></div>
+        </div>
       </section>
 
       <section class="co-card" aria-labelledby="co-pic-h">
@@ -133,6 +141,7 @@
   <script src="js/core/ase.js"></script>
   <script src="js/state.js"></script>
   <script src="js/swatches.js"></script>
+  <script src="js/values.js"></script>
   <script src="js/picture.js"></script>
   <script src="js/contrast-ui.js"></script>
   <script src="js/panel.js"></script>

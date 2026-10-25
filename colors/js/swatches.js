@@ -1,4 +1,4 @@
-/* Slop Colors: swatches and the parts of the page drawn from them: the current colour with its values (each with Copy),
+/* Slop Colors: swatches and the parts of the page drawn from them (the current colour and its values: js/values.js):
  * the palette (pick, move, rename, remove) and the rows made from the current colour (harmony, scale, ramp).
  * A swatch's label is in black or white, whichever reads better on it (shared/color/contrast.js). Classic script. */
 (function (g) {
@@ -8,7 +8,6 @@
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   /** Black or white, whichever has the more contrast on the colour. */
   const ink = (hex) => (g.SlopContrastMath.ratioHex(hex, '#000000') >= g.SlopContrastMath.ratioHex(hex, '#ffffff') ? '#000000' : '#ffffff');
-  const LABELS = { hex: 'HEX', rgb: 'RGB', hsl: 'HSL', oklch: 'OKLCH', cmyk: 'CMYK' };
 
   async function copy(text, btn) {
     try { await navigator.clipboard.writeText(text); if (btn) { btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = 'Copy'; }, 1200); } }
@@ -37,20 +36,6 @@
     return li;
   }
   const pick = (hex) => S().set({ current: hex });
-
-  function hero(s) {
-    const big = $('co-big');
-    big.style.background = s.current; big.style.color = ink(s.current);
-    $('co-big-hex').textContent = s.current;
-    const all = X().convert.all(s.current), ul = $('co-values');
-    ul.replaceChildren(...X().convert.KINDS.map((k) => {
-      const li = el('li', 'co-value'), b = el('button', 'sui-btn co-copy', 'Copy');
-      b.type = 'button'; b.setAttribute('aria-label', `Copy ${LABELS[k]} ${all[k]}`);
-      b.addEventListener('click', () => copy(all[k], b));
-      li.append(el('span', 'co-vk', LABELS[k]), el('code', 'co-vv', all[k]), b);
-      return li;
-    }));
-  }
 
   function move(i, d) {
     const p = S().get().palette, cols = p.colors.slice(), j = i + d;
@@ -107,5 +92,5 @@
     $('co-pal-clear').addEventListener('click', () => S().set({ palette: { name: S().get().palette.name, colors: [] } }));
     for (const w of ['harmony', 'scale', 'ramp']) $(`co-${w === 'harmony' ? 'harm' : w}-use`).addEventListener('click', () => usePalette(w));
   }
-  g.CO.swatches = { ink, swatch, copy, hero, palette, generated, usePalette, made, move, remove, wire };
+  g.CO.swatches = { ink, swatch, copy, palette, generated, usePalette, made, move, remove, wire };
 })(window);

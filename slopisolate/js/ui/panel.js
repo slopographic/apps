@@ -106,9 +106,7 @@
     });
     const q = K.slider({ label: 'Quality', min: 0.5, max: 1, step: 0.01, value: S.exportOpts.quality, fmt: pct, onInput: (v) => S.setExport({ quality: v }) });
     const jpg = K.color({ label: 'Background', value: S.exportOpts.jpgBg, onInput: (v) => S.setExport({ jpgBg: v }) });
-    const one = h('button', { type: 'button', class: 'btn primary', id: 'btnExportOne' });
-    U.btnIcon(one, 'download', 'Export image');
-    one.addEventListener('click', () => run(() => (S.bulk() ? CO.bulk.act('export') : CO.export.one(S.current()))));
+    // the one main button, Download (or Export N pictures), is at the panel's foot (ui/main.js); here the batch export
     const all = h('button', { type: 'button', class: 'btn', id: 'btnExportAll' });
     U.btnIcon(all, 'zip', 'Export all (ZIP)');
     all.addEventListener('click', () => run(() => CO.export.all()));
@@ -119,14 +117,11 @@
       q.sync(S.exportOpts.quality);
       jpg.hidden = f !== 'jpg';
       jpg.sync(S.exportOpts.jpgBg);
-      const many = S.bulk(), ready = S.targets().filter((t) => t.status === 'done').length;
-      U.btnIcon(one, 'download', many ? `Export ${ready} picture${ready === 1 ? '' : 's'} (ZIP)` : 'Export image');
-      one.disabled = many ? !ready : !(it && it.status === 'done');
       all.disabled = !S.items.some((i) => i.status === 'done');
     });
     return K.section('Export', fmt, q, jpg,
       h('div', { class: 'no-wm' }, U.icon('lock'), h('span', null, 'No watermarks, ever')),
-      h('div', { class: 'pp-btns' }, one, all));
+      h('div', { class: 'pp-btns' }, all));
   }
 
   /* ---------- refresh ---------- */

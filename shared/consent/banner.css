@@ -66,6 +66,7 @@
 .slopc-btn.x { position: absolute; top: 6px; inset-inline-end: 6px; padding: 4px 8px; border: 0; font-size: 16px; line-height: 1; }
 .slopc-btn:focus-visible { outline: 2px solid var(--slopc-fg); outline-offset: 2px; }
 
-/* While the card is up, the page's bottom padding grows by the card's height and its gap (set in banner.js), so nothing at the end
- * of the page can scroll under it. --slopc-base-pb is the page's own bottom padding, kept. */
-html.slopc-on body { padding-bottom: calc(var(--consent-h, 0px) + var(--slopc-base-pb, 0px)); }
+/* While the card is up on a page that scrolls (slopc-pad, banner.js), the page's bottom padding grows by the card's height and
+ * its gap, so nothing at the end of the page can scroll under it. --slopc-base-pb is the page's own bottom padding, kept. A
+ * full-height app keeps its size: the card floats over it (above its footer on a phone). */
+html.slopc-on.slopc-pad body { padding-bottom: calc(var(--consent-h, 0px) + var(--slopc-base-pb, 0px)); }
