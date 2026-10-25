@@ -101,7 +101,7 @@
       expect($('view-customers').hidden).toBe(false);
       expect($('view-customer').hidden).toBe(false);
       expect($('main').classList.contains('split')).toBe(true);
-      expect($('dBack').offsetParent).toBe(null);
+      expect(win().getComputedStyle($('view-customer').querySelector('.ssh-x')).display).toBe('none');   // the phone sheet's × is not on a wide screen
     });
 
     it('the Pipeline tab still shows the board at full width', async () => {

@@ -179,7 +179,7 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 /* ---------- finder at the top: the search bar comes first, above the carousel ---------- */
 .finder-top { padding: 4px 0 0; }
 .finder-host { min-width: 0; }
-.finder-host .sf-big .sf-input { font-size: 18px; }
+.finder-host .fd-big .fd-input { font-size: 18px; }
 /* Jump links under the hero: one per section that is showing. */
 .jump-links { display: flex; flex-wrap: wrap; gap: 8px; padding: 18px 0 0; min-width: 0; }
 .jump-link { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border: 1px solid var(--sl-border); border-radius: 999px;

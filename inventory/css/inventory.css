@@ -17,7 +17,10 @@ input[type="number"] { width: 110px; }
 .check { flex-direction: row !important; align-items: center; color: var(--ink) !important; }
 .forms { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
 .forms .card { display: flex; flex-direction: column; gap: 6px; }
-.forms .btn { margin-top: 6px; align-self: flex-start; }
+/* the product form (js/ui/product-form.js) is the products view's right panel */
+.pfields { display: grid; gap: 8px; }
+.pform .sui-input { width: 100%; box-sizing: border-box; }
+.pform .h2 { margin: 0; overflow-wrap: anywhere; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 8px; }
 .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; }
 .kpi span { display: block; color: var(--mute); font-size: 12px; }

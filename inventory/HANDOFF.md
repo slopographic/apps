@@ -22,7 +22,7 @@ for backups. No second product or stock model exists here.
   - `scan.js`: one scan: lookup, the chosen action, a log entry; undo.
 - `js/scan/wedge.js`: keyboard-wedge capture on the scan field.
 - `js/scan/camera.js`: BarcodeDetector plus getUserMedia, about 5 frames a second.
-- `js/ui/`: app boot and view switching, products, product dialog, CSV import and backup, stock, scan view, count,
+- `js/ui/`: app boot and view switching, products, the product form (the products view's right panel), CSV import and backup, stock, scan view, count,
   reports, SlopCmd commands.
 
 Shared change: `shared/data/schema-defs.js` gained one optional product field, `reorderLevel` (whole number, zero or
