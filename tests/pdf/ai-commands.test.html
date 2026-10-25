@@ -71,9 +71,12 @@
     }, { timeout: 30000 });
 
     it('insert_pdf merges a Slop Drive PDF; export_pdf saves the result to Slop Drive', async () => {
-      const bytes = await PT.makePdf([{ text: 'Merged one' }, { text: 'Merged two' }]);
-      await PT.win.SlopHub.put(new PT.win.Blob([bytes], { type: 'application/pdf' }), { name: 'merge-me.pdf', from: 'test' });
-      await run('insert-pdf', { file: 'merge-me.pdf', after: 1 });
+      // a name and bytes of this run only: Slop Drive and the saved edits outlive a page, so an earlier run's file (and its
+      // saved edits, which would ask Replay or Discard) is never the one found
+      const tag = 'merge-me-' + Date.now().toString(36) + '.pdf';
+      const bytes = await PT.makePdf([{ text: 'Merged one' }, { text: 'Merged two' }], { title: tag });
+      await PT.win.SlopHub.put(new PT.win.Blob([bytes], { type: 'application/pdf' }), { name: tag, from: 'test' });
+      await run('insert-pdf', { file: tag, after: 1 });
       expect(PT.E.state.pages.length).toBe(4);
       const r = await run('export-pdf', { name: 'assistant-made' });
       const id = /id ([^)\s]+)\)/.exec(r.value)[1], rec = await PT.win.SlopHub.get(id);
