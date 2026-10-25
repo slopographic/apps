@@ -4,6 +4,7 @@
  * Every change to a view bumps its version, and the visible rows are recomputed only when the version moves. */
 import { visibleOrder } from '../../shared/sheets/query.js';
 import { emptyFilter, isActiveFilter, headerRows } from '../../shared/sheets/query.js';
+import { typedField } from '../../shared/sheets/csv.js';
 
 let nextId = 1;
 
@@ -38,6 +39,27 @@ export function createStore(onChange = () => {}) {
     store.docs.splice(i, 1);
     if (store.active >= store.docs.length) store.active = store.docs.length - 1;
     else if (i < store.active) store.active--;
+    changed();
+  };
+
+  /** Adds a sheet (from sheetFromGrid) to the open document and shows it. */
+  store.addSheet = (sheet) => {
+    const d = store.doc();
+    if (!d) return;
+    d.sheets.push(sheet); d.views.push(newView(sheet)); d.sheet = d.sheets.length - 1;
+    changed();
+  };
+  /** Appends rows of cell text to the bottom of the active sheet; numbers and dates are typed as a CSV file's are. */
+  store.appendRows = (grid) => {
+    const sh = store.sheet(), v = store.view();
+    if (!sh) return;
+    const width = Math.max(sh.width, ...grid.map((r) => r.length));
+    const pad = (r) => { const o = r.slice(); while (o.length < width) o.push(''); return o; };
+    if (width > sh.width) sh.text = sh.text.map(pad);
+    for (const r of grid) { const t = pad(r.map((x) => String(x ?? ''))); sh.text.push(t); sh.rows.push(t.map(typedField)); }
+    sh.width = width; sh.height = sh.text.length;
+    if (sh.height >= 2 && !v.head) v.head = headerRows(sh);
+    bump(v);
     changed();
   };
 

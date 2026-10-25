@@ -9,7 +9,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 the picture look_at_canvas and app_snapshot take (`own` or `page`), **Driven** whether those commands reach an assistant
 in another app (the Slop AI workspace, open_in_app, agents). **Full** is all of it. ✗ marks a gap.
 
-Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
+Covered: 49 of 61 apps. Full suite: 49 of 61 apps.
 
 | App | Create | Add | Edit | Export | Operations | State | Snapshot | Driven | Covered | Full |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -28,7 +28,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Tables (`tables`) | ✓ 3 | ✓ 3 | ✓ 8 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Slides (`slides`) | ✓ 2 | ✓ 4 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Press (`press`) | ✓ 2 | ✓ 4 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Reel Remix (`remix`) | ✗ | ✓ 1 | ✓ 12 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
+| Reel Remix (`remix`) | ✓ 1 | ✓ 1 | ✓ 12 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopCut (`slopedit`) | ✓ 2 | ✓ 9 | ✓ 22 | ✓ 1 | 4 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Resize (`resize`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Upscale (`upscale`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
@@ -44,15 +44,15 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Notes (`notes`) | ✓ 2 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Paste (`paste`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Effects (`effects`) | ✓ 1 | ✓ 4 | ✓ 11 | ✗ |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop Image to 3D (`img3d`) | ✓ 1 | ✗ | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop Sheets (`sheetview`) | ✗ | ✗ | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
+| Slop Image to 3D (`img3d`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Sheets (`sheetview`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Hex (`hex`) | ✓ 1 | ✗ | ✓ 3 | ✓ 2 |  | ✓ own | ✓ page | ✓ | no | no |
 | Slop EML (`eml`) | ✓ 1 | ✗ | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
 | Checksum (`checksum`) | ✗ | ✗ | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
 | Slop Compare (`diff`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slopnodes (`nodes`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Serial counter (`serials`) | ✗ | ✓ 3 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop Transcribe (`transcribe`) | ✗ | ✓ 1 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | no | no |
+| Slop Transcribe (`transcribe`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Recorder (`recorder`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
@@ -70,7 +70,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Admin (`admin`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 2 |  | ✓ records | ✓ page | ✓ | yes | yes |
 | Slop Drive (`drive`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Code (`code`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Photo Sorter (`sorter`) | ✗ | ✓ 2 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
+| Slop Photo Sorter (`sorter`) | ✓ 1 | ✓ 2 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Gallery (`gallery`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop 3D (`3d`) | ✓ 2 | ✓ 2 | ✓ 8 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Music (`music`) | ✓ 1 | ✓ 1 | ✓ 18 | ✗ |  | ✓ own | ✓ page | ✓ | no | no |
@@ -169,6 +169,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 
 ### Reel Remix
 
+- create: `new_reel`
 - add: `add_from_drive`
 - edit: `lock_cut`, `move_cut`, `remix`, `remix_from_spec`, `remix_state`, `remove_clip`, `replace_slot`, `reset_options`, `send_to_slopcut`, `set_cut_fill`, `set_options`, `swap_slots`
 - export: `export_reel`
@@ -284,11 +285,14 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 ### Slop Image to 3D
 
 - create: `new_from_picture`
+- add: `import_depth_map`
 - edit: `set_options`
 - export: `export_model`
 
 ### Slop Sheets
 
+- create: `new_workbook`
+- add: `add_rows`, `add_sheet`
 - edit: `clear_filters`, `filter_rows`, `open_file`, `select_sheet`, `sort_column`
 - export: `export_rows`
 
@@ -332,6 +336,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 
 ### Slop Transcribe
 
+- create: `new_batch`
 - add: `add_from_drive`
 - edit: `clear_files`, `correct_text`, `remove_file`, `select_file`, `stop`, `transcribe`
 - export: `save_transcript`
@@ -444,6 +449,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 
 ### Slop Photo Sorter
 
+- create: `new_sort`
 - add: `add_photos`, `add_tags`
 - edit: `remove_photos`, `remove_tag`, `set_decision`
 - export: `export_photos`

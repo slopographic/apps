@@ -36,20 +36,21 @@
   describe('Slop Transcribe commands', () => {
     it('registers the commands with args, ids, descriptions, in the palette (not hidden); clear and remove are destructive', async () => {
       await boot();
-      const ids = ['tr.add-from-drive', 'tr.transcribe', 'tr.stop', 'tr.get-transcript', 'tr.save-to-drive', 'tr.correct', 'tr.select', 'tr.remove', 'tr.clear'];
+      const ids = ['tr.new-batch', 'tr.add-from-drive', 'tr.transcribe', 'tr.stop', 'tr.get-transcript', 'tr.save-to-drive', 'tr.correct', 'tr.select', 'tr.remove', 'tr.clear'];
       for (const id of ids) {
         const c = S.get(id);
         expect(!!c).toBe(true, id);
         expect(!!c.args && !c.hidden && !!c.description).toBe(true, id);
       }
       expect(S.get('tr.clear').destructive).toBe(true);
+      expect(S.get('tr.new-batch').destructive).toBe(true);
       expect(S.get('tr.remove').destructive).toBe(true);
       await loadScript('../shared/ai/cmdtools.js');
       const K = W.SlopAIKit.cmdTools;
       expect(K.isDestructive(S.get('tr.clear'))).toBe(true);
       expect(K.isDestructive(S.get('tr.get-transcript'))).toBe(false);
       const names = K.build(S).map((t) => t.name);
-      for (const n of ['app_state', 'add_from_drive', 'transcribe', 'get_transcript', 'save_transcript', 'correct_text', 'clear_files']) expect(names).toContain(n);
+      for (const n of ['app_state', 'new_batch', 'add_from_drive', 'transcribe', 'get_transcript', 'save_transcript', 'correct_text', 'clear_files']) expect(names).toContain(n);
     });
 
     it('adds a file from Slop Drive by id and by name; an unknown id says so', async () => {
@@ -146,7 +147,28 @@
       await exec('tr.clear', {});
       expect(S.state().files).toEqual([]);
       expect(S.state().selected).toBe(null);
-      await W.SlopHub.remove(driveId);
+    });
+
+    it('new_batch clears the list and starts again with Drive files, a language and a model; a missing file changes nothing', async () => {
+      await exec('tr.add-from-drive', { id: driveId });
+      const second = await W.SlopHub.put(new W.Blob([new W.Uint8Array(20000)], { type: 'audio/wav' }), { name: 'Interview.wav', from: 'test' });
+      const bad = await S.exec('tr.new-batch', { files: ['no such file'] });
+      expect(bad.ok).toBe(false);
+      expect(S.state().files.length).toBe(1);
+      const notHere = await S.exec('tr.new-batch', { files: [driveId], model: 'whisper-small' });
+      expect(notHere.ok).toBe(false);
+      const r = await exec('tr.new-batch', { files: [driveId, 'interview'], language: 'Swedish', model: 'whisper-tiny' });
+      expect(r.value).toContain('(1 file(s) cleared) with 2 file(s)');
+      const st = S.state();
+      expect(st.files.map((f) => [f.name, f.status])).toEqual([['Team meeting.mp3', 'waiting'], ['Interview.wav', 'waiting']]);
+      expect(st.next).toEqual({ language: 'sv', model: 'whisper-tiny' });
+      expect(st.selected).toBe(st.files[0].id);
+      seen.length = 0;
+      await exec('tr.transcribe', {});
+      expect(seen.map((x) => x[0])).toEqual(['sv', 'sv']);
+      await exec('tr.new-batch', {});
+      expect(S.state().files).toEqual([]);
+      await W.SlopHub.remove(driveId); await W.SlopHub.remove(second);
     });
   });
   run();
