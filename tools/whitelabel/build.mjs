@@ -17,6 +17,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadProfile, loadMap, forbiddenTerms, profilesDir } from './profile.mjs';
 import { urls, phrases, tokens, collisions } from './rename.mjs';
+import { pinBuild } from './cdnpin.mjs';
 import { context, profileText, forward, forwardPath } from './transform.mjs';
 import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, mit, notice, trademarks, security, readme } from './emit.mjs';
 import { mirrorWorkflow } from './workflow.mjs';
@@ -140,6 +141,8 @@ function emit(out, p, opts, ctx) {
     if (!/const TAG = '[^']*';/.test(src)) throw new Error('shared/cdn/assets.js: no TAG line');
     writeFileSync(f, src.replace(/const TAG = '[^']*';/, `const TAG = '${opts.cdnRef}';`));
   }
+  { const tag = /const TAG = '([^']*)';/.exec(readFileSync(path.join(out, forwardPath('shared/cdn/assets.js', ctx)), 'utf8'));   // raw links: this build's own file host
+    if (tag) pinBuild(out, p.github, tag[1]); }
   write(out, 'manifest.webmanifest', manifest(readFileSync(path.join(out, 'manifest.webmanifest'), 'utf8'), p));
   const trial = path.join(out, 'shared/agent/trial-tokens.json');
   if (existsSync(trial)) { const t = JSON.parse(readFileSync(trial, 'utf8')); t.tokens = []; writeFileSync(trial, JSON.stringify(t, null, 2) + '\n'); }
