@@ -19,7 +19,7 @@
   describe('Slop Time: assistant commands', () => {
     it('add and remove cities, convert a time, a countdown, export the clock', async () => {
       f.src = '../../time/index.html';
-      await waitFor(() => f.contentWindow && f.contentWindow.SlopTime && f.contentWindow.SlopTime.world && f.contentWindow.SlopCmd && f.contentWindow.SlopHub && f.contentWindow.SlopData, { timeout: 15000 });
+      await waitFor(() => f.contentWindow && f.contentWindow.SlopTime && f.contentWindow.SlopTime.world && f.contentWindow.SlopCmd && f.contentWindow.SlopCmd.get('time.world') && f.contentWindow.SlopHub && f.contentWindow.SlopData, { timeout: 15000 });   // time.world: the page's own commands (and its prepare) are in
       W = f.contentWindow; C = W.SlopCmd;
       await C.prepare();
       await run('add-city', { city: 'Lisbon' });
