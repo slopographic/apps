@@ -1,6 +1,9 @@
 /* Slop PDF — properties panel, status bar and the signature dialog. */
 /* ---------------------------------------------------------------- properties */
 .props { grid-area: props; background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; min-height: 0; }
+/* Download at the panel's foot (the suite's shared footer, shared/frame/panel.js): a column, so the foot stays at the bottom */
+.props.sf-has-foot { display: flex; flex-direction: column; }
+.props.sf-has-foot > :not(.sf-p-foot) { flex: none; }
 .pp-title { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px; position: sticky; top: 0; background: var(--panel); z-index: 2; border-bottom: 1px solid var(--line); }
 .pp-title h2 { margin: 0; font: 800 16px var(--font-display); letter-spacing: -.01em; }
 .pp-title .ic { color: var(--accent-line); width: 20px; height: 20px; }

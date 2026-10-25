@@ -40,6 +40,9 @@
     // the properties panel's width: dragged on its edge and kept (shared/ui/resize-panel.js, every side panel's one implementation)
     if (window.SlopResizePanel) SlopResizePanel.attach(S.els.props, { app: 'pdf', id: 'props', edge: 'start', width: 304, min: 260, max: 560,
       phone: '(max-width: 900px)', cssVar: '--props-w', target: S.els.app, label: 'Properties' });
+    // the suite rule (shared/frame/HANDOFF.md): Download, the main button, sits at the foot of the properties panel (the
+    // shared footer, shared/frame/panel.js); on a phone the closed sheet still shows it above the rail. File ▸ Download too.
+    if (window.SlopFramePanel) SlopFramePanel.create(S.els.props, { bare: true }).footer([{ el: S.els.btnDownload }], { more: 'Properties', onMore: function () { if (S.sheet) S.sheet.toggle(); } });
     S.els.btnPanel.addEventListener('click', function () { if (!S.sheet || !S.sheet.isPhone()) A.togglePanel(); });
     S.els.btnDownload.addEventListener('click', A.whenReady(function () { A.download(); }));
     S.els.btnUndo.addEventListener('click', A.whenReady(function () { A.undo(); }));
