@@ -34,14 +34,16 @@ ${group('Compared', roundups.map((r) => link(`/best/${r.slug}/`, r.crumb || r.h1
 </nav>`;
 }
 
-/** The sidebar (the app's guide, then this page's sections) beside the content; a <details> menu on narrow screens. */
+/** The sidebar (the app's guide, then this page's sections) beside the content; a <details> menu on narrow screens.
+ * It starts folded, so a phone draws it folded from its first paint; the script right after it opens it on a wide screen
+ * (folding it on phones after the page had drawn it open moved everything below it: CLS 0.55 on a slow phone). */
 export function docsLayout(nav, toc, body) {
   const onPage = toc.length > 2 ? `<p class="l-side-h">On this page</p><ul class="l-toc">${toc.map((t) => `<li><a href="#${esc(t.id)}">${esc(t.text)}</a></li>`).join('')}</ul>` : '';
   return `<div class="l-docs">
-<aside class="l-side"><details class="l-side-fold" open><summary>In this guide</summary>
+<aside class="l-side"><details class="l-side-fold"><summary>In this guide</summary>
 ${nav}
 ${onPage}
-</details></aside>
+</details><script>if (!matchMedia('(max-width: 899px)').matches) document.currentScript.previousElementSibling.open = true;</script></aside>
 <div class="l-docs-main">
 ${body}
 </div>

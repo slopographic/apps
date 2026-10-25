@@ -89,7 +89,6 @@ ${body}
 </main>
 ${siteFoot()}
 </div>
-<script>if (matchMedia('(max-width: 899px)').matches) for (const d of document.querySelectorAll('.l-side-fold')) d.open = false;   // the guide menu starts folded on phones</script>
 <script src="/shell/shell.js"></script>
 </body>
 </html>

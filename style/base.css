@@ -10,10 +10,10 @@
   --slop: #d4ff3a;
   --slop-deep: #9fcc00;
   --chrome: linear-gradient(180deg, #ffffff 0%, #d9d9d9 30%, #6f6f6f 48%, #f7f7f7 60%, #b9b9b9 78%, #ffffff 100%);
-  --cond: "Archivo", "Arial Narrow", sans-serif;
-  --serif: "Instrument Serif", Georgia, serif;
-  --sans: "Inter Tight", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --cond: "Archivo", "Archivo Fallback", "Arial Narrow", sans-serif;
+  --serif: "Instrument Serif", "Instrument Serif Fallback", Georgia, serif;
+  --sans: "Inter Tight", "Inter Tight Fallback", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, Menlo, monospace;
   --emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
   color-scheme: dark;
 }
