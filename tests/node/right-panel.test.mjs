@@ -1,7 +1,7 @@
 // The suite's layout rule (shared/frame/HANDOFF.md, "settings and the main button live in the right panel") stays true
 // for every app the audit there marks done: the audit table is the one list, this test reads it. A done app loads
 // SlopFrame (frame.css, frame.js, panel.js, and sheet.js for phones), and a done tool also puts its main button in the
-// panel's footer (panel.js footer()); a done editor keeps its own panel and puts its main button in the shared footer. The browser tests of each app check the look (tests/<app>/…).
+// panel's footer (panel.js footer()); a done editor (or a non-tool app that keeps its own right panel) puts its main button in the shared footer. The browser tests of each app check the look (tests/<app>/…).
 // Covers: shared/frame/HANDOFF.md, shared/frame/frame.js, shared/frame/panel.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -52,8 +52,11 @@ test('every app marked done loads SlopFrame and its phone sheet; a done tool has
     assert.ok(/shared\/frame\/frame\.css/.test(all), r.name + ': frame.css');
     assert.ok(loads('panel.js'), r.name + ': panel.js');
     assert.ok(all.includes('shared/ui/sheet.js'), r.name + ': shared/ui/sheet.js (the phone sheet)');
-    if (r.kind === 'editor') {   // an editor keeps its own panel and takes the shared footer for its main button
-      assert.ok(/SlopFramePanel\.create\(.*bare: true/.test(js) && /\.footer\(/.test(js), r.name + ': the shared footer on its own panel');
+    // An editor keeps its own panel and takes the shared footer for its main button; so may a viewer, records app or other
+    // app that already had its own right panel (Slop Drive's info panel). A tool always mounts SlopFrame.
+    const bare = /SlopFramePanel\.create\(.*bare: true/.test(js) && /\.footer\(/.test(js);
+    if (r.kind === 'editor' || (r.kind !== 'tool' && bare && !/SlopFrame\.mount\(/.test(js))) {
+      assert.ok(bare, r.name + ': the shared footer on its own panel');
       continue;
     }
     assert.ok(loads('frame.js'), r.name + ': frame.js');

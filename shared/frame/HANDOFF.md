@@ -145,7 +145,7 @@ its main button in the panel. Slop Upscale: `tests/upscale/panel.test.html`. Slo
 ## Audit: every app against the rule
 
 Status: **done** (follows the rule; checked by `tests/node/right-panel.test.mjs`: a tool or viewer mounts SlopFrame and,
-for a tool, its main button is in the panel's footer; an editor keeps its own panel and takes the shared footer), **close** (panel already on the right, the
+for a tool, its main button is in the panel's footer; an editor, or a viewer/records app that already had its own right panel, keeps that panel and takes the shared footer), **close** (panel already on the right, the
 main button still elsewhere), **to do**, **n/a** (no settings and no main action: the rule has nothing to move).
 Kind: tool (open → settings → run → save), editor, records (list + form), viewer, other.
 
@@ -168,7 +168,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Checksum | checksum/ | tool | three stacked cards, Copy under the hash | done | |
 | Serial counter | serials/ | tool | one column, bar + actions | done | |
 | Slop Photo Sorter | sorter/ | tool | one column, Start and downloads in bars | done | the view filters stay above the photos |
-| File convert | convert/ | tool | tool built in JS, one column | to do | split the tool into view + right panel |
+| File convert | convert/ | tool | tool built in JS, one column | done | js/ui/frame.js: files left, results right, Convert + Clear in the panel footer; the Convert dialog (compact) keeps one column |
 | Slop AI Tools | aitools/ (+ ocr, speech, denoise, tags, portrait) | tool | each tool one column | done | one module for the five pages (aitools/frame.js, data-side marks); the hub is a list of tools |
 | Reel Remix | remix/ | editor | bin left, settings right, Remix in the panel | close | phone sheet missing |
 | PhotoSlop | photoslop/ | editor | toolbox left, panels right, Export in the header | done | Export at the panels' foot; the top bar fits the app's width (container query, More ▾) beside the Slop AI panel |
@@ -183,10 +183,10 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop Tables | tables/ | editor | sheets and objects list LEFT | n/a | the left column is a list (sheets, charts, pivots), which the rule keeps on the left; no settings panel |
 | Slop Code | code/ | editor | file tree left, preview right | n/a | an IDE: tree left is a list; no settings panel |
 | Slop Music | music/ | other | tags/playlists left | n/a | navigation only |
-| Slop Drive | drive/ | viewer | places left, info right, New in the header | close | file actions into the info panel |
-| Slop Gallery | gallery/ | viewer | albums/filters/import left | to do | import and actions → right panel |
-| Slop Sheets | sheetview/ | viewer | options in the header | to do | header pickers → right panel |
-| Slop Hex | hex/ | viewer | one column | to do | an inspector panel on the right |
+| Slop Drive | drive/ | viewer | places left, info right, New in the header | done | its own info panel takes the shared footer (bare: ui/info-foot.js): Open in…/Download, Restore/Delete forever, with a phone peek; New stays in the header as Drive's Open |
+| Slop Gallery | gallery/ | viewer | albums/filters/import left | done | js/ui/panel.js: selection, add photos and library tools on the right, Import photos at its foot; albums and filters stay left |
+| Slop Sheets | sheetview/ | viewer | options in the header | done | js/panel.js: Look (style, colours) and Open in Slop Table on the right, Export at its foot |
+| Slop Hex | hex/ | viewer | one column | done | js/panel.js: Inspector (file facts) on the right, Save version + Download at its foot; Go to and Find stay above the bytes |
 | Slop Invoices | invoices/ | records | list, document, ws-panel right; Save in the header | close | Save into the ws-panel's foot |
 | Slop Orders | orders/ | records | ws-panel right | close | New/Save into the panel |
 | Slop Quotes | quotes/ | records | ws-panel right | close | phone sheet; Save into the panel |
@@ -205,7 +205,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slopnodes | nodes/ | other | canvas only | n/a | a canvas; Save is in the menu bar |
 | Slopculator | calculator/ | other | tape right | n/a | not a settings app |
 | Slop Time | time/ | other | tabs | n/a | |
-| Slop Calendar | calendar/ | other | one view | to do | an event panel on the right |
+| Slop Calendar | calendar/ | other | one view | done | js/ui/panel.js: the day's events, display choices and calendar file on the right, New event at its foot; the event editor is still a dialog |
 | Slop To-do | todo/ | other | lists left | n/a | navigation left; add form in the list |
 | Slop Reminders | reminders/ | other | one column | n/a | |
 | Slop Admin | admin/ | other | tabs | n/a | settings pages themselves |
