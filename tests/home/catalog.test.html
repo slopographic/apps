@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Homepage · catalog, carousel and navigation</title>
+  <title>Homepage · catalog and navigation</title>
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
 <body>
@@ -119,37 +119,12 @@
     });
   });
 
-  describe('app carousel', () => {
-    // The names the carousel leads with, in order. Any that the registry lacks are skipped.
-    const TOP = ['Slop PDF', 'Slop EML', 'PhotoSlop', 'SlopCut', 'SlopIsolate', 'SlopVector', 'Reel Remix', 'Slop Image to 3D', 'Slop Upscale', 'Slop Resize', 'Slop Docs', 'Slop Orders', 'Slop Invoices', 'Slop CRM', 'Slop Calendar', 'Slop Drive'];
-    const slides = () => [...doc.querySelectorAll('.carousel .car-slide')];
-    const names = () => slides().map((s) => s.querySelector('h3').textContent);
-    const cur = () => slides().findIndex((s) => s.classList.contains('is-current'));
-    const dots = () => [...doc.querySelectorAll('.carousel .car-dot')];
-    const visible = () => dots().filter((d) => !d.hidden);
-    const shown = (n) => { const a = win.SLOP_APPS.find((x) => x.name === n); return a ? win.slopAppLabel(a, false) : n; };
-    const slideNamed = (n) => slides().find((s) => s.querySelector('h3').textContent === shown(n));
-    // A dot is a control: it jumps and stops the auto-advance, so the tests below are not raced by the timer.
-    // The strip shows only nearby dots, so a far slide is reached by its visible dot or by stepping with next/previous.
-    const goto = (k) => {
-      const d = doc.querySelector(`.carousel .car-dot[data-slide="${k}"]:not([hidden])`);
-      if (d) return d.click();
-      while (cur() < k) doc.querySelector('.carousel .car-next').click();
-      while (cur() > k) doc.querySelector('.carousel .car-prev').click();
-    };
-
-    it('slides render in the order the top list gives, then the rest of the registry', async () => {
+  describe('app icons', () => {
+    it('each card and vortex icon is an SVG-namespace svg with the badge rect and glyph group as direct children', async () => {
       await ready;
-      const want = TOP.filter((n) => win.SLOP_APPS.some((a) => a.name === n))
-        .concat(win.SLOP_APPS.filter((a) => !TOP.includes(a.name)).map((a) => a.name)).map(shown);
-      expect(names()).toEqual(want);
-      expect(slides().length).toBe(win.SLOP_APPS.length);
-      expect(dots().length).toBe(win.SLOP_APPS.length);
-    });
-    it('each card and slide icon is an SVG-namespace svg with the badge rect and glyph group as direct children', async () => {
-      await ready;
+      await waitFor(() => doc.querySelector('.vx-layer .vx-svg'), { timeout: 20000 });
       const SVG = 'http://www.w3.org/2000/svg';
-      const icons = [...doc.querySelectorAll('[data-section] .shot-icon'), ...doc.querySelectorAll('.carousel .car-icon')];
+      const icons = [...doc.querySelectorAll('[data-section] .shot-icon'), ...doc.querySelectorAll('.vx-layer .vx-svg')];
       expect(icons.length).toBeGreaterThan(win.SLOP_APPS.length);
       for (const svg of icons) {
         expect(svg.namespaceURI).toBe(SVG);
@@ -162,119 +137,10 @@
         expect(svg.querySelector(':scope > g').namespaceURI).toBe(SVG);
       }
     });
-    it('the carousel icon sits in its own visual column, after the text on wide screens', async () => {
+    it('the old app carousel is gone: no carousel markup, no slide controls', async () => {
       await ready;
-      const s = slides()[0];
-      expect(s.querySelector('.car-text svg')).toBe(null);
-      expect(!!s.querySelector('.car-visual svg.car-icon')).toBe(true);
+      expect(doc.querySelectorAll('#app-carousel, .carousel, .car-slide, .car-pause').length).toBe(0);
     });
-    it('each slide shows the badge icon, the registry tagline, up to three features and a real Open link', async () => {
-      await ready;
-      for (const s of slides()) {
-        const a = win.SLOP_APPS.find((x) => win.slopAppLabel(x, false) === s.querySelector('h3').textContent);
-        expect(s.querySelector('svg.car-icon rect').getAttribute('fill')).toBe('#d4ff3a');
-        expect(s.querySelector('.car-tag').textContent).toBe(a.tagline);
-        const feats = s.querySelectorAll('.car-feats li');
-        expect(feats.length).toBe(Math.min(3, (a.features || []).length));
-        const open = s.querySelector('a.btn.primary');
-        expect(open.tagName).toBe('A');
-        expect(open.getAttribute('href')).toBe(a.path);
-      }
-    });
-    it('the Tour button appears only for apps that have a tour', async () => {
-      await ready;
-      expect(!!slideNamed('PhotoSlop').querySelector('a[href="photoslop/?tour=1"]')).toBe(true);
-      expect(!!slideNamed('SlopCut').querySelector('a[href="slopcut/?tour=1"]')).toBe(true);
-      expect(!!slideNamed('The Authenticator').querySelector('a[href$="?tour=1"]')).toBe(false);
-      expect(!!slideNamed('Slop Music').querySelector('a[href$="?tour=1"]')).toBe(false);
-    });
-    it('next and previous move one slide, and wrap at either end', async () => {
-      await ready;
-      goto(0);
-      expect(cur()).toBe(0);
-      doc.querySelector('.carousel .car-next').click();
-      expect(cur()).toBe(1);
-      expect(slides()[1].hasAttribute('inert')).toBe(false);
-      expect(slides()[0].hasAttribute('inert')).toBe(true);
-      doc.querySelector('.carousel .car-prev').click();
-      expect(cur()).toBe(0);
-      doc.querySelector('.carousel .car-prev').click();
-      expect(cur()).toBe(slides().length - 1);
-      doc.querySelector('.carousel .car-next').click();
-      expect(cur()).toBe(0);
-    });
-    it('the dots reflect the current slide, and a dot jumps to its slide', async () => {
-      await ready;
-      goto(0);
-      doc.querySelector('.carousel .car-next').click();
-      const d = dots();
-      expect(d[1].classList.contains('is-current')).toBe(true);
-      expect(d[1].getAttribute('aria-current')).toBe('true');
-      expect(d.filter((x) => x.classList.contains('is-current')).length).toBe(1);
-      expect(d[0].hasAttribute('aria-current')).toBe(false);
-      goto(5);
-      expect(cur()).toBe(5);
-      expect(dots()[5].getAttribute('aria-current')).toBe('true');
-      expect(dots()[1].hasAttribute('aria-current')).toBe(false);
-      visible().find((x) => x.dataset.slide === '6').click();
-      expect(cur()).toBe(6);
-    });
-    it('the pager shows the counter and at most seven dots, always including the first and last slide', async () => {
-      await ready;
-      const n = slides().length;
-      for (const k of [0, 1, 3, Math.floor(n / 2), n - 2, n - 1]) {
-        goto(k);
-        expect(doc.querySelector('.carousel .car-count').textContent).toBe(`${k + 1} / ${n}`);
-        const shown = visible().map((d) => +d.dataset.slide);
-        expect(shown.length).toBeLessThanOrEqual(7);
-        expect(shown).toContain(0);
-        expect(shown).toContain(n - 1);
-        expect(shown).toContain(k);
-      }
-      expect(doc.querySelectorAll('.carousel .car-pause').length).toBe(1);
-      expect(doc.querySelectorAll('.carousel .car-prev, .carousel .car-next').length).toBe(2);
-    });
-    it('the arrow keys move the carousel when focus is inside it', async () => {
-      await ready;
-      goto(0);
-      const region = doc.querySelector('.carousel');
-      region.querySelector('.car-next').focus();
-      region.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-      expect(cur()).toBe(1);
-      region.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
-      expect(cur()).toBe(0);
-    });
-    it('the live region announces the current slide', async () => {
-      await ready;
-      goto(0);
-      doc.querySelector('.carousel .car-next').click();
-      const live = doc.querySelector('.carousel [aria-live]');
-      expect(live.textContent).toBe(`Slide 2 of ${slides().length}: ${names()[1]}`);
-    });
-    it('auto-advances every 7 seconds, pauses on hover, and stops for good once a control is used', async () => {
-      const w = await HomeTest.openHome();     // a fresh page: nothing has been clicked yet
-      const d = w.document, region = d.querySelector('.carousel');
-      const idx = () => [...d.querySelectorAll('.carousel .car-slide')].findIndex((s) => s.classList.contains('is-current'));
-      // 7-second timers run 20 times faster (each one is counted), so the waits take a third of a second. The advance has
-      // to come well before 7 real seconds: only a 7-second timer can have made it.
-      const FAST = 20, SEVEN = 10000 / FAST, realSet = w.setTimeout;
-      let sevens = 0;
-      w.setTimeout = (fn, ms, ...a) => { if (ms === 7000) { sevens++; ms /= FAST; } return realSet.call(w, fn, ms, ...a); };
-      try {
-        region.dispatchEvent(new w.Event('pointerenter'));
-        await sleep(SEVEN);
-        expect(idx()).toBe(0);
-        region.dispatchEvent(new w.Event('pointerleave'));
-        const t0 = performance.now();
-        await waitFor(() => idx() === 1, { timeout: 9000 });
-        expect(performance.now() - t0).toBeLessThan(3000);
-        expect(sevens).toBeGreaterThan(0);
-        d.querySelector('.carousel .car-next').click();
-        expect(idx()).toBe(2);
-        await sleep(SEVEN);
-        expect(idx()).toBe(2);
-      } finally { w.setTimeout = realSet; }
-    }, { timeout: 40000 });
   });
 
   ready.then(() => sleep(100)).then(() => run());

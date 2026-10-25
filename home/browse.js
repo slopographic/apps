@@ -1,4 +1,4 @@
-/* Homepage browse: the search and finder at the top (shared/finder, SlopFinder), the six section shelves and the
+/* Homepage browse: the search and finder under the hero (shared/finder, SlopFinder), the hero's Open the apps button, the six section shelves and the
  * Experiments shelf (home/sections.js for what goes where), the jump links under the hero, and the Print card.
  * The finder's filter drives the shelves: a section with no matches is hidden. Classic script, loaded after catalog.js. */
 (function () {
@@ -116,5 +116,15 @@
   } else {
     render(APPS, false);
   }
+  /* The hero's "Open the apps" (index.html, [data-to-finder]): scrolls to the finder and puts the cursor in its search. */
+  document.addEventListener('click', (e) => {
+    const go = e.target.closest && e.target.closest('a[data-to-finder]');
+    const input = go && finderHost && finderHost.querySelector('.fd-input');
+    if (!input) return;
+    e.preventDefault();
+    const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    finderHost.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+    input.focus({ preventScroll: true });
+  });
   window.SlopHomeBrowse = { render };
 })();

@@ -1,5 +1,5 @@
 /* English strings for the shared chrome: the top bar and home link, the Apps button and app switcher, the Settings
- * labels, the homepage footer, the consent strip, the support card, the common menu words and the storage text
+ * labels, the homepage hero and footer, the consent strip, the support card, the common menu words and the storage text
  * (storage.*, shared/storage/quota.js and settings/storage-keep.js). Keys are dotted, grouped
  * by where they appear. The text is the same as the HTML or the script it replaces, so a page with no language support
  * shows the same words. Classic script: needs shared/i18n/i18n.js loaded first. Other languages live in their own
@@ -52,6 +52,17 @@
     'footer.how': 'How it works',
     'footer.all_tools': 'All tools',
     'footer.sitemap': 'Sitemap',
+
+    'hero.lead': 'The whole toolbox,',
+    'hero.accent': 'open in your browser.',
+    'hero.sub': 'Edit PDFs, photos and video, write documents, send invoices and convert files. It is free, there is nothing to install and no account to make, your files stay on your device, and the apps keep working offline after the first visit.',
+    'hero.open': 'Open the apps',
+    'hero.how': 'How it works',
+    'hero.github': 'Open source on GitHub',
+    'hero.offline': 'Works offline',
+    'hero.no_account': 'No account needed',
+    'hero.apps': 'Every app',
+    'hero.marquee': 'What the apps do',
 
     'settings.appearance': 'Appearance',
     'settings.appearance_lede': 'One theme for every Slopographic app and for this site. Pick it here and it applies at once. Each app uses the same choice when it opens.',

@@ -27,15 +27,13 @@
         expect(sec.querySelector('header p').textContent.length).toBeGreaterThan(20);
       }
     });
-    it('the hero carousel comes first, then the search and finder, and the jump links sit under the hero', async () => {
+    it('the hero comes first, then the search and finder, and the jump links sit under the finder', async () => {
       await ready;
       const finder = doc.getElementById('app-finder');
-      const carousel = doc.getElementById('app-carousel');
+      const hero = doc.getElementById('hero');
       const jump = doc.getElementById('jump-links');
-      const intro = doc.querySelector('.intro');
-      expect(!!(carousel.compareDocumentPosition(finder) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
-      expect(!!(intro.compareDocumentPosition(jump) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
-      expect(!!(carousel.compareDocumentPosition(intro) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+      expect(!!(hero.compareDocumentPosition(finder) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+      expect(!!(finder.compareDocumentPosition(jump) & win.Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
       expect(finder.querySelector('input[type="search"]') !== null).toBe(true);
     });
     it('each section has its cards, and every card links to its app', async () => {

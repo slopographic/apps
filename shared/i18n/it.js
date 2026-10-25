@@ -49,6 +49,17 @@
     'footer.all_tools': 'Tutti gli strumenti',
     'footer.sitemap': 'Mappa del sito (XML)',
 
+    'hero.lead': 'Tutta la cassetta degli attrezzi,',
+    'hero.accent': 'aperta nel tuo browser.',
+    'hero.sub': 'Modifica PDF, foto e video, scrivi documenti, invia fatture e converti file. È gratis, non c’è niente da installare né un account da creare, i tuoi file restano sul tuo dispositivo e le app funzionano offline dopo la prima visita.',
+    'hero.open': 'Apri le app',
+    'hero.how': 'Come funziona',
+    'hero.github': 'Open source su GitHub',
+    'hero.offline': 'Funziona offline',
+    'hero.no_account': 'Nessun account',
+    'hero.apps': 'Tutte le app',
+    'hero.marquee': 'Cosa fanno le app',
+
     'settings.appearance': 'Aspetto',
     'settings.appearance_lede': 'Un unico tema per tutte le app Slopographic e per questo sito. Scegli qui e si applica subito. Ogni app usa la stessa scelta quando si apre.',
     'settings.theme': 'Tema',

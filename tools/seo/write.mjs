@@ -15,6 +15,7 @@ import { taskPages, taskJsonLd, videoJsonLd, hubPage } from './tasks.mjs';
 import { roundupPages, roundupJsonLd, roundupIndex } from './roundups.mjs';
 import { guidePages, guideJsonLd } from './guides.mjs';
 import { footNav, converterFiles, addFootSlot } from './footnav.mjs';
+import { marquee } from './marquee.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
 const DEFAULT_IMAGE = `${SITE}/og-share.png`;
@@ -111,10 +112,11 @@ export function validateCopy(entries) {
 
 /** Writes the site frame into a hand-made page between its markers: <!-- site:head --> (theme, consent, the content-page
  *  stylesheet), <!-- site:top --> (the header), <!-- site:foot --> (the footer) and <!-- site:footnav --> (the footer's
- *  site links alone, footnav.mjs: the homepage and the converter pages). A page without markers is unchanged. */
+ *  site links alone, footnav.mjs: the homepage and the converter pages) and <!-- site:marquee --> (the homepage's
+ *  capability strip, marquee.mjs). A page without markers is unchanged. */
 export function siteChrome(html) {
   const put = (name, body) => (h) => h.replace(new RegExp(`<!-- site:${name} -->[\\s\\S]*?<!-- /site:${name} -->`), `<!-- site:${name} -->\n${body}\n<!-- /site:${name} -->`);
-  return [put('head', SITE_HEAD.map((t) => '  ' + t).join('\n')), put('top', siteTop()), put('foot', siteFoot()), put('footnav', footNav())].reduce((h, f) => f(h), html);
+  return [put('head', SITE_HEAD.map((t) => '  ' + t).join('\n')), put('top', siteTop()), put('foot', siteFoot()), put('footnav', footNav()), put('marquee', marquee())].reduce((h, f) => f(h), html);
 }
 
 /** Builds every page's new content. Returns [{ file, html }] for pages and sitemap, plus the list of problems. */

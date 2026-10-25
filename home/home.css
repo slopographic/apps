@@ -1,4 +1,4 @@
-/* Slopographic homepage: intro, the "why" strip, the two app groups, and the status board.
+/* Slopographic homepage: the workspaces, the "why" strip, the app sections, the status board and the header.
  * Tokens come from style/base.css (colours, Archivo / Instrument Serif / Inter Tight / JetBrains Mono). */
 
 /* ---------- layers, bottom to top. Every page-level layer reads these; the shell's overlays (switcher, drawer,
@@ -19,55 +19,7 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 
 .home { padding: calc(var(--top, 64px) + 24px) clamp(16px, 4vw, 56px) 40px; max-width: 1280px; margin: 0 auto; }
 
-/* ---------- hero ---------- */
-.intro { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; align-items: end; padding: clamp(28px, 4vw, 48px) 0 48px; border-bottom: 1px solid var(--line); }
-.intro-title { font-family: var(--cond); font-weight: 850; font-stretch: 85%; font-size: clamp(38px, 5.6vw, 72px); line-height: .98; letter-spacing: -.02em; margin: 14px 0 18px; }
-.intro-title em { font-family: var(--serif); font-weight: 400; font-style: italic; color: var(--slop); letter-spacing: 0; }
-.intro-lede { max-width: 54ch; color: var(--bone-dim); font-size: 17px; margin: 0 0 26px; }
-.intro-cta { display: flex; flex-wrap: wrap; gap: 10px; }
-.btn.primary { background: var(--slop); color: var(--ink); border-color: var(--slop); font-weight: 600; }
-.btn.primary:hover { background: #e6ff7a; }
-.intro-facts { list-style: none; padding: 0; margin: 28px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px; font: 13px var(--mono); color: var(--bone-dim); }
-.intro-facts li::before { content: "✓"; color: var(--slop); margin-right: 7px; }
-
-/* The ledge sits under the app carousel; Sloppo can perch on it (shared/buddy/engine.js). */
-.stage-ledge { position: relative; left: 10%; width: 80%; height: 2px; margin: 0 auto; background: linear-gradient(90deg, transparent, var(--line), transparent); }
-
-/* ---------- app carousel: the top of the homepage ---------- */
-.showcase { padding: clamp(16px, 3vw, 32px) 0 0; }
-.carousel { position: relative; background: var(--ink-2); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
-.car-viewport { overflow: hidden; touch-action: pan-y; }
-.car-track { display: flex; transition: transform .5s ease; }
-.car-slide { flex: 0 0 100%; min-width: 0; box-sizing: border-box; padding: clamp(18px, 3vw, 32px); display: grid; align-content: start; gap: 18px; }
-.car-text { display: grid; align-content: start; gap: 14px; min-width: 0; }
-.car-visual { order: -1; display: grid; place-items: center; min-width: 0; }
-.car-icon { display: block; width: min(100%, 160px); height: auto; aspect-ratio: 1 / 1; }
-.car-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; }
-.car-head h3 { margin: 0; font: 800 clamp(26px, 3.4vw, 36px)/1.1 var(--cond); letter-spacing: -.01em; }
-.car-tag { margin: 0; max-width: 58ch; color: var(--bone-dim); font-size: 17px; line-height: 1.45; }
-.car-feats { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; color: var(--bone-dim); font-size: 14px; }
-.car-feats li::before { content: "✓"; color: var(--slop); margin-right: 8px; }
-.car-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.car-bar { display: flex; align-items: center; gap: 10px; padding: 10px clamp(12px, 3vw, 32px); border-top: 1px solid var(--line); }
-.car-bar [hidden] { display: none !important; }
-.car-btn { display: inline-grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0; font-size: 22px; line-height: 1; flex: 0 0 auto; }
-.car-dots { flex: 1; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; min-width: 0; }
-.car-dots [hidden] { display: none !important; }
-.car-dot { width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer; position: relative; }
-.car-dot.gap-after { margin-right: 10px; }
-.car-dot::before { content: ""; position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--bone-faint); transition: background .2s; }
-.car-dot.is-current::before { background: var(--slop); }
-.car-dot:focus-visible, .car-btn:focus-visible, .car-pause:focus-visible { outline: 2px solid var(--slop); outline-offset: 2px; }
-.car-count { font: 600 12px var(--mono); color: var(--bone-faint); white-space: nowrap; min-width: 6ch; text-align: center; }
-.car-pause { min-height: 36px; font-size: 13px; }
-@media (min-width: 761px) {
-  .car-slide { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; column-gap: 48px; }
-  .car-text { grid-column: 1; grid-row: 1; }
-  .car-visual { grid-column: 2; grid-row: 1; order: 0; }
-  .car-icon { width: min(100%, 340px); }
-}
-@media (prefers-reduced-motion: reduce) { .car-track, .car-dot::before { transition: none; } }
-
+/* The hero (wordmark, tool vortex, headline) and the capability strip are in home/hero.css. */
 /* ---------- why it's different ---------- */
 .why { padding: 56px 0 0; }
 .why-title { font: 700 13px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--bone-faint); margin: 0 0 16px; }
@@ -126,17 +78,11 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 .dot.building { background: #ffa23a; box-shadow: 0 0 10px #ffa23a; }
 
 @media (max-width: 760px) {
-  .intro { padding-bottom: 36px; }
-  .car-bar { flex-wrap: wrap; }
-  .car-dots { order: 3; flex-basis: 100%; }
-  .car-count { min-width: 0; }
   .status-row { grid-template-columns: 14px 1fr auto; }
   .status-row .kind, .status-row .tagline { display: none; }
 }
 @media (max-width: 420px) {
   .app-card .shot { flex-basis: 76px; width: 76px; }
-  .car-slide { padding: 18px 16px; }
-  .car-icon { width: min(100%, 128px); }
 }
 
 /* Choose a workspace: a row of layout presets, each opens its app with ?layout= set. */
@@ -176,7 +122,7 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
   .stour-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* ---------- finder at the top: the search bar comes first, above the carousel ---------- */
+/* ---------- the finder, right under the hero and the capability strip ---------- */
 .finder-top { padding: 4px 0 0; }
 .finder-host { min-width: 0; }
 .finder-host .fd-big .fd-input { font-size: 18px; }
@@ -221,20 +167,14 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 /* The switch above the app sections: shows "Slop" in the app names. */
 .names-switch { display: inline-flex; align-items: center; gap: .5em; margin: 0 0 1.2em; font-size: .92rem; cursor: pointer; }
 
-/* The carousel and the finder are filled in by script after the first paint: reserve their height so the sections below do not jump. */
-.showcase { min-height: 505px; }
+/* The finder is filled in by script after the first paint: reserve its height so the sections below do not jump. */
 .finder-host { min-height: 211px; }
-@media (max-width: 720px) { .showcase { min-height: 620px; } }
 
-/* The hero video: a thumbnail kept on this site (assets/video), linking to the video on YouTube. Sized so it never shifts the page. */
+/* The video: a thumbnail kept on this site (assets/video), linking to the video on YouTube. Sized so it never shifts the page. */
 .hero-video { display: flex; gap: 12px; align-items: center; margin-top: 22px; max-width: 440px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; color: inherit; text-decoration: none; }
 .hero-video img { width: 170px; max-width: 40%; height: auto; border-radius: 8px; flex: 0 0 auto; }
 .hero-video b { color: var(--slop); }
 .hero-video span { font-size: 15px; }
-
-/* The hero: the app carousel at the top of the homepage, with the featured apps first. */
-.hero-slides { padding-top: clamp(12px, 2vw, 24px); }
-.hero-slides .carousel { background: radial-gradient(120% 90% at 85% 0%, color-mix(in srgb, var(--sl-accent, #6b5cff) 22%, transparent), transparent 60%), var(--ink-2); }
 
 /* Header: the section tabs and the tools sit at the right, each with its icon (a mask in the text colour, so they follow the theme). */
 .nav .tabs { margin-left: auto; display: flex; align-items: center; gap: 4px; }

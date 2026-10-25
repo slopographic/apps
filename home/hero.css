@@ -1,0 +1,201 @@
+/* The homepage hero: the wordmark with the tool vortex behind it (home/vortex/vortex.js adds .vx-layer), the headline,
+ * the two buttons and the meta line; then the capability strip (written by tools/seo/marquee.mjs) and the numbered
+ * section headings further down. Tokens: --ink (page), --ink-2 (surface), --bone (text), --bone-dim, --line, --slop
+ * (accent), which every theme sets (shared/theme/theme.js). Every size is fixed before any script or font arrives, so
+ * nothing moves when they do. */
+
+.hx {
+  position: relative;
+  isolation: isolate;
+  margin-inline: calc(50% - 50vw);       /* out of the page column: the vortex runs edge to edge */
+  margin-top: calc(-1 * (var(--top, 64px) + 24px));   /* .home's top padding: the hero starts right under the header */
+  padding: 0 16px;
+  overflow: clip;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 46% 42% at 50% 30%, color-mix(in srgb, var(--slop) 7%, transparent), transparent 72%),
+    radial-gradient(ellipse 70% 60% at 50% 34%, color-mix(in srgb, var(--ink-2) 85%, transparent), transparent 75%);
+}
+
+/* The wordmark: Archivo at its widest and heaviest, sized to the stage's width (container units), so it fills the row in
+ * any font and never wraps. The stage keeps its height whatever the text does. */
+.hx-stage {
+  position: relative;
+  z-index: 2;
+  max-width: 1480px;
+  height: clamp(230px, 36vh, 400px);
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  container-type: inline-size;
+  pointer-events: none;
+}
+.hx-mark {
+  margin: 0;
+  font-family: var(--cond);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: calc(100cqi / 10.9);   /* the text is 10.27 em wide at 125 %: 94 % of the row */
+  line-height: .8;
+  letter-spacing: -.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--bone);
+  user-select: none;
+}
+.hx-mark span { display: inline-block; translate: 0 .04em; }
+
+.hx-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 0 clamp(40px, 5vw, 64px);
+  display: grid;
+  justify-items: center;
+}
+.hx-title {
+  margin: 0;
+  font-family: var(--cond);
+  font-weight: 800;
+  font-stretch: 100%;
+  font-size: clamp(31px, 4.2vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -.028em;
+  text-wrap: balance;
+}
+.hx-title em { font-family: var(--serif); font-weight: 400; font-style: italic; font-size: 1.1em; letter-spacing: -.01em; color: var(--slop); }
+.hx-sub {
+  margin: 20px 0 0;
+  max-width: 60ch;
+  color: var(--bone-dim);
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+.hx-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 30px; }
+.hx-btn { border-radius: 0; min-height: 50px; padding: 0 24px; gap: 12px; justify-content: center; font-size: 12.5px; letter-spacing: .12em; }
+.hx-btn:not(.primary) { border-color: var(--bone); background: var(--ink); }
+.hx-btn:not(.primary):hover { background: var(--bone); color: var(--ink); }
+.hx-btn.primary:hover { background: var(--bone); border-color: var(--bone); color: var(--ink); }
+.hx-arrow { font-family: var(--sans); font-size: 15px; letter-spacing: 0; transition: translate .2s; }
+.hx-btn:hover .hx-arrow { translate: 4px 0; }
+.hx-meta {
+  margin: 24px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 4px;
+  font: 12px/1.6 var(--mono);
+  letter-spacing: .04em;
+  color: var(--bone-dim);
+}
+.hx-meta > * + *::before, .hx-terms > * + *::before { content: "·"; content: "·" / ""; margin: 0 .8em; }
+.hx-terms { display: inline-flex; flex-wrap: wrap; justify-content: center; }
+.hx-meta a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 3px; }
+.hx-meta a:hover { color: var(--bone); }
+
+/* Sloppo's ledge: the bottom left of the hero, beside the centred copy, so he never stands on the text. Absolutely
+ * placed, so nothing moves if it goes. */
+.hx .stage-ledge { position: absolute; left: 3%; bottom: 0; z-index: 2; width: 24%; height: 2px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
+
+/* ---------- the vortex (home/vortex/vortex.js) ---------- */
+.vx-layer { position: absolute; inset: 0; z-index: 1; pointer-events: none; contain: strict; }
+.vx-lines { position: absolute; left: 0; top: 0; pointer-events: none; }
+.vx-i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--vx-size, 60px);
+  height: var(--vx-size, 60px);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  -webkit-tap-highlight-color: transparent;
+}
+.vx-i.is-live { pointer-events: auto; cursor: pointer; }
+.vx-svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 8px 14px rgb(0 0 0 / .16)); }
+.vx-name {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  translate: -50% 0;
+  padding: 5px 9px;
+  background: var(--bone);
+  color: var(--ink);
+  font: 600 11px/1.2 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+}
+.vx-i.is-hot, .vx-i.is-lit { z-index: 80 !important; }
+.vx-i.is-hot .vx-name, .vx-i.is-lit .vx-name { opacity: 1; }
+.vx-i.is-lit .vx-svg { outline: 2px solid var(--slop); outline-offset: 4px; border-radius: 14px; }
+
+/* The keyboard way in: every app in a list, visually hidden until a link has focus; the focused one shows as a chip
+ * under the wordmark (one tab stop, the arrow keys move; vortex.js). */
+.vx-list { list-style: none; margin: 0; padding: 0; }
+.vx-list a { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.vx-list a .vx-svg { width: 28px; height: 28px; flex: none; filter: none; }
+.vx-list a:focus {
+  left: 50%;
+  top: -64px;
+  z-index: 5;
+  translate: -50% 0;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px 7px 8px;
+  background: var(--ink-2);
+  border: 1px solid var(--bone);
+  color: var(--bone);
+  font: 600 13px/1.2 var(--mono);
+  text-decoration: none;
+}
+
+/* ---------- the capability strip ---------- */
+.hx-marquee {
+  position: relative;
+  z-index: 2;
+  margin-inline: calc(50% - 50vw);
+  overflow: hidden;
+  border-block: 1px solid var(--line);
+  background: var(--ink);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+.mq-track { display: flex; width: max-content; animation: hx-mq 260s linear infinite; }
+.mq-list { display: flex; flex: none; margin: 0; padding: 0; list-style: none; }
+.mq-list li { padding: 14px 0; font: 500 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; color: var(--bone-dim); }
+.mq-list li::after { content: "•"; content: "•" / ""; margin: 0 1.5em; color: var(--slop); }
+.hx-marquee:hover .mq-track, .hx-marquee:focus-within .mq-track { animation-play-state: paused; }
+@keyframes hx-mq { to { transform: translateX(-50%); } }
+@keyframes hx-mq-rtl { to { transform: translateX(50%); } }
+:root[dir="rtl"] .mq-track { animation-name: hx-mq-rtl; }
+.finder-top { padding-top: clamp(20px, 3vw, 36px); }
+
+/* ---------- numbered section headings below the finder: "01 / Choose a workspace" ---------- */
+.sec-num::before { content: attr(data-num) " / "; content: attr(data-num) " / " / ""; color: var(--slop); }
+.shelf-head h2.sec-num::before { display: block; margin-bottom: 10px; font: 600 12px/1 var(--mono); letter-spacing: .14em; }
+
+@media (max-width: 700px) {
+  .hx-stage { height: clamp(190px, 30vh, 250px); }
+  .hx-mark { font-stretch: 75%; font-size: calc(100cqi / 6.9); }   /* 6.5 em wide at 75 % */
+  .hx-sub { margin-top: 16px; }
+  .hx-cta { margin-top: 24px; width: 100%; }
+  .hx-btn { flex: 1 1 150px; padding: 0 12px; gap: 8px; letter-spacing: .07em; white-space: nowrap; }
+  .hx-meta > .hx-terms { flex-basis: 100%; }
+  .hx-meta > .hx-terms::before { content: none; }
+  .mq-list li { padding: 12px 0; font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mq-track { animation: none; }
+  .hx-arrow, .vx-name { transition: none; }
+}
